@@ -34,7 +34,7 @@
 /*! Partition element */
 struct PartitionElement {
 	float size; /* sorting key */
-	BOX       * box; /* region of the element */
+	BOX * box; /* region of the element */
 	BOXA      * boxa; /* set of intersecting boxes */
 };
 
@@ -172,7 +172,7 @@ static const int32 DefaultMaxPops = 20000;
  * </pre>
  */
 BOXA * boxaGetWhiteblocks(BOXA      * boxas,
-    BOX       * box,
+    BOX * box,
     int32 sortflag,
     int32 maxboxes,
     float maxoverlap,
@@ -378,7 +378,7 @@ static int32 partelSetSize(PARTEL  * partel,
  * \return  boxa             of four or less overlapping subrectangles of
  *                           the box, or NULL on error
  */
-static BOXA * boxaGenerateSubboxes(BOX       * box,
+static BOXA * boxaGenerateSubboxes(BOX * box,
     BOXA      * boxa,
     int32 maxperim,
     float fract)
@@ -454,7 +454,7 @@ static BOXA * boxaGenerateSubboxes(BOX       * box,
  *          that could be inside of it.
  * </pre>
  */
-static BOX * boxaSelectPivotBox(BOX       * box,
+static BOX * boxaSelectPivotBox(BOX * box,
     BOXA      * boxa,
     int32 maxperim,
     float fract)
@@ -462,7 +462,7 @@ static BOX * boxaSelectPivotBox(BOX       * box,
 	int32 i, n, bw, bh, w, h;
 	int32 smallfound, minindex, perim, minsize;
 	float delx, dely, mindist, threshdist, dist, x, y, cx, cy;
-	BOX       * boxt;
+	BOX * boxt;
 
 	PROCNAME(__FUNCTION__);
 
@@ -532,13 +532,13 @@ static BOX * boxaSelectPivotBox(BOX       * box,
  * \return      0 if box has small overlap with every box in boxa;
  *              1 otherwise or on error
  */
-static int32 boxCheckIfOverlapIsBig(BOX       * box,
+static int32 boxCheckIfOverlapIsBig(BOX * box,
     BOXA      * boxa,
     float maxoverlap)
 {
 	int32 i, n, bigoverlap;
 	float fract;
-	BOX       * boxt;
+	BOX * boxt;
 
 	PROCNAME(__FUNCTION__);
 
@@ -590,7 +590,7 @@ BOXA * boxaPruneSortedOnOverlap(BOXA      * boxas,
 {
 	int32 i, j, n, remove;
 	float fract;
-	BOX       * box1, * box2;
+	BOX * box1, * box2;
 	BOXA      * boxad;
 
 	PROCNAME(__FUNCTION__);

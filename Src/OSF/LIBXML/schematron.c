@@ -868,7 +868,7 @@ xmlSchematron * xmlSchematronParse(xmlSchematronParserCtxt * ctxt)
 	/*
 	 * First step is to parse the input document into an DOM/Infoset
 	 */
-	if(ctxt->URL != NULL) {
+	if(ctxt->URL) {
 		doc = xmlReadFile((const char *)ctxt->URL, NULL, SCHEMATRON_PARSE_OPTIONS);
 		if(!doc) {
 			xmlSchematronPErr(ctxt, NULL, XML_SCHEMAP_FAILED_LOAD, "xmlSchematronParse: could not load '%s'.\n", ctxt->URL, 0);
@@ -876,7 +876,7 @@ xmlSchematron * xmlSchematronParse(xmlSchematronParserCtxt * ctxt)
 		}
 		ctxt->preserve = 0;
 	}
-	else if(ctxt->buffer != NULL) {
+	else if(ctxt->buffer) {
 		doc = xmlReadMemory(ctxt->buffer, ctxt->size, NULL, NULL, SCHEMATRON_PARSE_OPTIONS);
 		if(!doc) {
 			xmlSchematronPErr(ctxt, NULL, XML_SCHEMAP_FAILED_PARSE, "xmlSchematronParse: could not parse.\n", NULL, 0);
@@ -1110,7 +1110,7 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxt * ctxt, xmlSchemat
 		path = xmlGetNodePath(cur);
 		SETIFZ(path, (xmlChar *)cur->name);
 #if 0
-		if((test->report != NULL) && (test->report[0] != 0))
+		if(test->report && (test->report[0] != 0))
 			report = test->report;
 #endif
 		if(test->P_Node)
@@ -1127,7 +1127,7 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxt * ctxt, xmlSchemat
 			xmlGenericErrorFunc channel = NULL;
 			void * data = NULL;
 			if(ctxt) {
-				if(ctxt->serror != NULL)
+				if(ctxt->serror)
 					schannel = ctxt->serror;
 				else
 					channel = ctxt->error;
@@ -1407,7 +1407,7 @@ int main()
 	if(instance == NULL) {
 		slfprintf_stderr("failed to parse instance\n");
 	}
-	if((schema != NULL) && (instance != NULL)) {
+	if(schema && instance) {
 		vctxt = xmlSchematronNewValidCtxt(schema);
 		if(vctxt == NULL) {
 			slfprintf_stderr("failed to build schematron validator\n");

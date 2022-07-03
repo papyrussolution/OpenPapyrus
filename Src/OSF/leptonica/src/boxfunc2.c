@@ -123,25 +123,16 @@ BOXA * boxaTransform(BOXA      * boxas,
  *          width and height of valid boxes must be at least 1.
  * </pre>
  */
-BOX * boxTransform(BOX       * box,
-    int32 shiftx,
-    int32 shifty,
-    float scalex,
-    float scaley)
+BOX * boxTransform(BOX * box, int32 shiftx, int32 shifty, float scalex, float scaley)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!box)
 		return (BOX*)ERROR_PTR("box not defined", procName, NULL);
 	if(box->w <= 0 || box->h <= 0)
 		return boxCreate(0, 0, 0, 0);
 	else
-		return boxCreate((int32)(MAX(0, scalex * (box->x + shiftx) + 0.5)),
-			   (int32)(MAX(0, scaley * (box->y + shifty) + 0.5)),
-			   (int32)(MAX(1.0, scalex * box->w + 0.5)),
-			   (int32)(MAX(1.0, scaley * box->h + 0.5)));
+		return boxCreate((int32)(MAX(0, scalex * (box->x + shiftx) + 0.5)), (int32)(MAX(0, scaley * (box->y + shifty) + 0.5)), (int32)(MAX(1.0, scalex * box->w + 0.5)), (int32)(MAX(1.0, scaley * box->h + 0.5)));
 }
-
 /*!
  * \brief   boxaTransformOrdered()
  *
@@ -263,7 +254,7 @@ BOXA * boxaTransformOrdered(BOXA      * boxas,
  *          of the image origin.
  * </pre>
  */
-BOX * boxTransformOrdered(BOX       * boxs,
+BOX * boxTransformOrdered(BOX * boxs,
     int32 shiftx,
     int32 shifty,
     float scalex,
@@ -276,7 +267,7 @@ BOX * boxTransformOrdered(BOX       * boxs,
 	int32 bx, by, bw, bh, tx, ty, tw, th;
 	int32 xcent, ycent; /* transformed center of rotation due to scaling */
 	float sina, cosa, xdif, ydif, rx, ry, rw, rh;
-	BOX       * boxd;
+	BOX * boxd;
 	PROCNAME(__FUNCTION__);
 	if(!boxs)
 		return (BOX*)ERROR_PTR("boxs not defined", procName, NULL);
@@ -1099,10 +1090,8 @@ l_ok boxaExtractAsNuma(BOXA * boxa, NUMA ** pnal, NUMA ** pnat, NUMA ** pnar, NU
 		if(pnaw) numaAddNumber(*pnaw, w);
 		if(pnah) numaAddNumber(*pnah, h);
 	}
-
 	return 0;
 }
-
 /*!
  * \brief   boxaExtractAsPta()
  *
@@ -1279,12 +1268,12 @@ PTA * boxaExtractCorners(BOXA * boxa,
  */
 l_ok boxaGetRankVals(BOXA      * boxa,
     float fract,
-    int32   * px,
-    int32   * py,
-    int32   * pr,
-    int32   * pb,
-    int32   * pw,
-    int32   * ph)
+    int32 * px,
+    int32 * py,
+    int32 * pr,
+    int32 * pb,
+    int32 * pw,
+    int32 * ph)
 {
 	float xval, yval, rval, bval, wval, hval;
 	NUMA * nax, * nay, * nar, * nab, * naw, * nah;

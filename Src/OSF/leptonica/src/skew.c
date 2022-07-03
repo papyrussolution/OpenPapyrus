@@ -207,7 +207,7 @@ PIX * pixDeskew(PIX * pixs,
  *          it returns a deskewed image; otherwise, it returns a clone.
  * </pre>
  */
-PIX * pixFindSkewAndDeskew(PIX        * pixs,
+PIX * pixFindSkewAndDeskew(PIX * pixs,
     int32 redsearch,
     float * pangle,
     float * pconf)
@@ -249,7 +249,7 @@ PIX * pixFindSkewAndDeskew(PIX        * pixs,
  *          it returns a deskewed image; otherwise, it returns a clone.
  * </pre>
  */
-PIX * pixDeskewGeneral(PIX        * pixs,
+PIX * pixDeskewGeneral(PIX * pixs,
     int32 redsweep,
     float sweeprange,
     float sweepdelta,
@@ -330,7 +330,7 @@ PIX * pixDeskewGeneral(PIX        * pixs,
  *          Clockwise rotations are positive angles.
  * </pre>
  */
-l_ok pixFindSkew(PIX        * pixs,
+l_ok pixFindSkew(PIX * pixs,
     float * pangle,
     float * pconf)
 {
@@ -372,7 +372,7 @@ l_ok pixFindSkew(PIX        * pixs,
  *      (2) Caller must check the return value for validity of the result.
  * </pre>
  */
-l_ok pixFindSkewSweep(PIX        * pixs,
+l_ok pixFindSkewSweep(PIX * pixs,
     float * pangle,
     int32 reduction,
     float sweeprange,
@@ -509,7 +509,7 @@ cleanup:
  *      (4) See also notes in pixFindSkewSweepAndSearchScore()
  * </pre>
  */
-l_ok pixFindSkewSweepAndSearch(PIX        * pixs,
+l_ok pixFindSkewSweepAndSearch(PIX * pixs,
     float * pangle,
     float * pconf,
     int32 redsweep,
@@ -561,7 +561,7 @@ l_ok pixFindSkewSweepAndSearch(PIX        * pixs,
  *      (4) By default, the shear is about the UL corner.
  * </pre>
  */
-l_ok pixFindSkewSweepAndSearchScore(PIX        * pixs,
+l_ok pixFindSkewSweepAndSearchScore(PIX * pixs,
     float * pangle,
     float * pconf,
     float * pendscore,
@@ -608,7 +608,7 @@ l_ok pixFindSkewSweepAndSearchScore(PIX        * pixs,
  *          loses too much of the image.
  * </pre>
  */
-l_ok pixFindSkewSweepAndSearchScorePivot(PIX        * pixs,
+l_ok pixFindSkewSweepAndSearchScorePivot(PIX * pixs,
     float * pangle,
     float * pconf,
     float * pendscore,
@@ -974,7 +974,7 @@ cleanup:
  *          %confprior; say 1.5.
  * </pre>
  */
-int32 pixFindSkewOrthogonalRange(PIX        * pixs,
+int32 pixFindSkewOrthogonalRange(PIX * pixs,
     float * pangle,
     float * pconf,
     int32 redsweep,
@@ -1045,7 +1045,7 @@ int32 pixFindSkewOrthogonalRange(PIX        * pixs,
  *           ~ not more than 5% of the image width
  * </pre>
  */
-l_ok pixFindDifferentialSquareSum(PIX        * pixs,
+l_ok pixFindDifferentialSquareSum(PIX * pixs,
     float * psum)
 {
 	int32 i, n;
@@ -1116,7 +1116,7 @@ l_ok pixFindDifferentialSquareSum(PIX        * pixs,
  *      (2) If there are no fg pixels, hratio and vratio are returned as 0.0.
  * </pre>
  */
-l_ok pixFindNormalizedSquareSum(PIX        * pixs,
+l_ok pixFindNormalizedSquareSum(PIX * pixs,
     float * phratio,
     float * pvratio,
     float * pfract)

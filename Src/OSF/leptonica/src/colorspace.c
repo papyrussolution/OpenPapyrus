@@ -16,29 +16,29 @@
  * <pre>
  *
  *      Colorspace conversion between RGB and HSV
- *           PIX        *pixConvertRGBToHSV()
- *           PIX        *pixConvertHSVToRGB()
+ *           PIX *pixConvertRGBToHSV()
+ *           PIX *pixConvertHSVToRGB()
  *           int32     convertRGBToHSV()
  *           int32     convertHSVToRGB()
  *           int32     pixcmapConvertRGBToHSV()
  *           int32     pixcmapConvertHSVToRGB()
- *           PIX        *pixConvertRGBToHue()
- *           PIX        *pixConvertRGBToSaturation()
- *           PIX        *pixConvertRGBToValue()
+ *           PIX *pixConvertRGBToHue()
+ *           PIX *pixConvertRGBToSaturation()
+ *           PIX *pixConvertRGBToValue()
  *
  *      Selection and display of range of colors in HSV space
- *           PIX        *pixMakeRangeMaskHS()
- *           PIX        *pixMakeRangeMaskHV()
- *           PIX        *pixMakeRangeMaskSV()
- *           PIX        *pixMakeHistoHS()
- *           PIX        *pixMakeHistoHV()
- *           PIX        *pixMakeHistoSV()
- *           PIX        *pixFindHistoPeaksHSV()
- *           PIX        *displayHSVColorRange()
+ *           PIX *pixMakeRangeMaskHS()
+ *           PIX *pixMakeRangeMaskHV()
+ *           PIX *pixMakeRangeMaskSV()
+ *           PIX *pixMakeHistoHS()
+ *           PIX *pixMakeHistoHV()
+ *           PIX *pixMakeHistoSV()
+ *           PIX *pixFindHistoPeaksHSV()
+ *           PIX *displayHSVColorRange()
  *
  *      Colorspace conversion between RGB and YUV
- *           PIX        *pixConvertRGBToYUV()
- *           PIX        *pixConvertYUVToRGB()
+ *           PIX *pixConvertRGBToYUV()
+ *           PIX *pixConvertYUVToRGB()
  *           int32     convertRGBToYUV()
  *           int32     convertYUVToRGB()
  *           int32     pixcmapConvertRGBToYUV()
@@ -46,13 +46,13 @@
  *
  *      Colorspace conversion between RGB and XYZ
  *           FPIXA      *pixConvertRGBToXYZ()
- *           PIX        *fpixaConvertXYZToRGB()
+ *           PIX *fpixaConvertXYZToRGB()
  *           int32     convertRGBToXYZ()
  *           int32     convertXYZToRGB()
  *
  *      Colorspace conversion between XYZ and LAB
  *           FPIXA      *fpixaConvertXYZToLAB()
- *           PIX        *fpixaConvertLABToXYZ()
+ *           PIX *fpixaConvertLABToXYZ()
  *           int32     convertXYZToLAB()
  *           int32     convertLABToXYZ()
  *           static float  lab_forward()
@@ -60,12 +60,12 @@
  *
  *      Colorspace conversion between RGB and LAB
  *           FPIXA      *pixConvertRGBToLAB()
- *           PIX        *fpixaConvertLABToRGB()
+ *           PIX *fpixaConvertLABToRGB()
  *           int32     convertRGBToLAB()
  *           int32     convertLABToRGB()
  *
  *      Gamut display of RGB color space
- *           PIX        *pixMakeGamutRGB()
+ *           PIX *pixMakeGamutRGB()
  * </pre>
  */
 #include "allheaders.h"
@@ -656,7 +656,7 @@ PIX * pixMakeRangeMaskHS(PIX * pixs,
     int32 regionflag)
 {
 	int32 i, j, w, h, wplt, wpld, hstart, hend, sstart, send, hval, sval;
-	int32   * hlut, * slut;
+	int32 * hlut, * slut;
 	uint32 pixel;
 	uint32 * datat, * datad, * linet, * lined;
 	PIX * pixt, * pixd;
@@ -754,7 +754,7 @@ PIX * pixMakeRangeMaskHV(PIX * pixs,
     int32 regionflag)
 {
 	int32 i, j, w, h, wplt, wpld, hstart, hend, vstart, vend, hval, vval;
-	int32   * hlut, * vlut;
+	int32 * hlut, * vlut;
 	uint32 pixel;
 	uint32 * datat, * datad, * linet, * lined;
 	PIX * pixt, * pixd;
@@ -851,7 +851,7 @@ PIX * pixMakeRangeMaskSV(PIX * pixs,
     int32 regionflag)
 {
 	int32 i, j, w, h, wplt, wpld, sval, vval, sstart, send, vstart, vend;
-	int32   * slut, * vlut;
+	int32 * slut, * vlut;
 	uint32 pixel;
 	uint32 * datat, * datad, * linet, * lined;
 	PIX * pixt, * pixd;
@@ -1707,7 +1707,7 @@ PIX * fpixaConvertXYZToRGB(FPIXA  * fpixa)
 	float fxval, fyval, fzval;
 	float * linex, * liney, * linez, * datax, * datay, * dataz;
 	uint32   * lined, * datad;
-	PIX        * pixd;
+	PIX * pixd;
 	FPIX       * fpix;
 
 	PROCNAME(__FUNCTION__);
@@ -1793,9 +1793,9 @@ l_ok convertXYZToRGB(float fxval,
     float fyval,
     float fzval,
     int32 blackout,
-    int32   * prval,
-    int32   * pgval,
-    int32   * pbval)
+    int32 * prval,
+    int32 * pgval,
+    int32 * pbval)
 {
 	int32 rval, gval, bval;
 
@@ -2141,7 +2141,7 @@ PIX * fpixaConvertLABToRGB(FPIXA  * fpixa)
 	float flval, faval, fbval;
 	float * linel, * linea, * lineb, * datal, * dataa, * datab;
 	uint32   * lined, * datad;
-	PIX        * pixd;
+	PIX * pixd;
 	FPIX       * fpix;
 
 	PROCNAME(__FUNCTION__);
@@ -2229,9 +2229,9 @@ l_ok convertRGBToLAB(int32 rval,
 l_ok convertLABToRGB(float flval,
     float faval,
     float fbval,
-    int32   * prval,
-    int32   * pgval,
-    int32   * pbval)
+    int32 * prval,
+    int32 * pgval,
+    int32 * pbval)
 {
 	float fxval, fyval, fzval;
 

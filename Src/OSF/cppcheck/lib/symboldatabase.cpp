@@ -4027,14 +4027,11 @@ void SymbolDatabase::printXml(std::ostream &out) const
 	out << std::resetiosflags(std::ios::boolalpha);
 }
 
-//---------------------------------------------------------------------------
-
 static const Type* findVariableTypeIncludingUsedNamespaces(const SymbolDatabase* symbolDatabase, const Scope* scope, const Token* typeTok)
 {
 	const Type* argType = symbolDatabase->findVariableType(scope, typeTok);
 	if(argType)
 		return argType;
-
 	// look for variable type in any using namespace in this scope or above
 	while(scope) {
 		for(const Scope::UsingInfo &ui : scope->usingList) {
@@ -4048,8 +4045,6 @@ static const Type* findVariableTypeIncludingUsedNamespaces(const SymbolDatabase*
 	}
 	return nullptr;
 }
-
-//---------------------------------------------------------------------------
 
 void Function::addArguments(const SymbolDatabase * symbolDatabase, const Scope * scope)
 {
@@ -4323,8 +4318,6 @@ const Variable* Function::getArgumentVar(nonneg int num) const
 	}
 	return nullptr;
 }
-
-//---------------------------------------------------------------------------
 
 Scope::Scope(const SymbolDatabase * check_, const Token * classDef_, const Scope * nestedIn_, ScopeType type_, const Token * start_) :
 	check(check_),
@@ -4955,8 +4948,6 @@ const Enumerator * SymbolDatabase::findEnumerator(const Token * tok, std::set<st
 	return nullptr;
 }
 
-//---------------------------------------------------------------------------
-
 const Type* SymbolDatabase::findVariableTypeInBase(const Scope* scope, const Token* typeTok) const
 {
 	if(scope && scope->definedType && !scope->definedType->derivedFrom.empty()) {
@@ -4979,12 +4970,9 @@ const Type* SymbolDatabase::findVariableTypeInBase(const Scope* scope, const Tok
 	return nullptr;
 }
 
-//---------------------------------------------------------------------------
-
 const Type* SymbolDatabase::findVariableType(const Scope * start, const Token * typeTok) const
 {
 	const Scope * scope = start;
-
 	// check if type does not have a namespace
 	if(typeTok->strAt(-1) != "::" && typeTok->strAt(1) != "::") {
 		// check if type same as scope
@@ -5180,8 +5168,6 @@ std::vector<const Scope*> Scope::findAssociatedScopes() const
 	}
 	return result;
 }
-
-//---------------------------------------------------------------------------
 
 static void checkVariableCallMatch(const Variable* callarg, const Variable* funcarg, size_t& same, size_t& fallback1, size_t& fallback2)
 {
@@ -5487,8 +5473,6 @@ const Function* Scope::findFunction(const Token * tok, bool requireConst) const
 	return nullptr;
 }
 
-//---------------------------------------------------------------------------
-
 const Function* SymbolDatabase::findFunction(const Token * tok) const
 {
 	// find the scope this function is in
@@ -5622,8 +5606,6 @@ const Function* SymbolDatabase::findFunction(const Token * tok) const
 	}
 	return nullptr;
 }
-
-//---------------------------------------------------------------------------
 
 const Scope * SymbolDatabase::findScopeByName(const std::string& name) const
 {
@@ -5944,8 +5926,6 @@ Function * SymbolDatabase::findFunctionInScope(const Token * func, const Scope *
 
 	return const_cast<Function *>(function);
 }
-
-//---------------------------------------------------------------------------
 
 namespace {
 #define C_KEYWORDS \

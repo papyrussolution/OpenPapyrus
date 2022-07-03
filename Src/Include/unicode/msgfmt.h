@@ -368,7 +368,7 @@ public:
 	 * @stable ICU 2.0
 	 */
 	MessageFormat(const UnicodeString & pattern,
-	    UErrorCode &status);
+	    UErrorCode & status);
 
 	/**
 	 * Constructs a new MessageFormat using the given pattern and locale.
@@ -380,7 +380,7 @@ public:
 	 */
 	MessageFormat(const UnicodeString & pattern,
 	    const Locale& newLocale,
-	    UErrorCode& status);
+	    UErrorCode & status);
 	/**
 	 * Constructs a new MessageFormat using the given pattern and locale.
 	 * @param pattern   Pattern used to construct object.
@@ -394,7 +394,7 @@ public:
 	MessageFormat(const UnicodeString & pattern,
 	    const Locale& newLocale,
 	    UParseError& parseError,
-	    UErrorCode& status);
+	    UErrorCode & status);
 	/**
 	 * Constructs a new MessageFormat from an existing one.
 	 * @stable ICU 2.0
@@ -452,7 +452,7 @@ public:
 	 *                  pattern cannot be parsed, set to failure code.
 	 * @stable ICU 2.0
 	 */
-	virtual void applyPattern(const UnicodeString & pattern, UErrorCode& status);
+	virtual void applyPattern(const UnicodeString & pattern, UErrorCode & status);
 	/**
 	 * Applies the given pattern string to this message format.
 	 *
@@ -463,7 +463,7 @@ public:
 	 *                  pattern cannot be parsed, set to failure code.
 	 * @stable ICU 2.0
 	 */
-	virtual void applyPattern(const UnicodeString & pattern, UParseError& parseError, UErrorCode& status);
+	virtual void applyPattern(const UnicodeString & pattern, UParseError& parseError, UErrorCode & status);
 	/**
 	 * Sets the UMessagePatternApostropheMode and the pattern used by this message format.
 	 * Parses the pattern and caches Format objects for simple argument types.
@@ -485,7 +485,7 @@ public:
 	virtual void applyPattern(const UnicodeString & pattern,
 	    UMessagePatternApostropheMode aposMode,
 	    UParseError* parseError,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * @return this instance's UMessagePatternApostropheMode.
@@ -568,7 +568,7 @@ public:
 	 * @param status  output param set to success/failure code.
 	 * @stable ICU 4.0
 	 */
-	virtual StringEnumeration* getFormatNames(UErrorCode& status);
+	virtual StringEnumeration* getFormatNames(UErrorCode & status);
 
 	/**
 	 * Gets subformat pointer for given format name.
@@ -583,7 +583,7 @@ public:
 	 * @param status  output param set to success/failure code.
 	 * @stable ICU 4.0
 	 */
-	virtual Format* getFormat(const UnicodeString & formatName, UErrorCode& status);
+	virtual Format* getFormat(const UnicodeString & formatName, UErrorCode & status);
 
 	/**
 	 * Sets one subformat for given format name.
@@ -598,7 +598,7 @@ public:
 	 * @param status  output param set to success/failure code.
 	 * @stable ICU 4.0
 	 */
-	virtual void setFormat(const UnicodeString & formatName, const Format& format, UErrorCode& status);
+	virtual void setFormat(const UnicodeString & formatName, const Format& format, UErrorCode & status);
 
 	/**
 	 * Sets one subformat for given format name.
@@ -614,7 +614,7 @@ public:
 	 * @param status      output param set to success/failure code.
 	 * @stable ICU 4.0
 	 */
-	virtual void adoptFormat(const UnicodeString & formatName, Format* formatToAdopt, UErrorCode& status);
+	virtual void adoptFormat(const UnicodeString & formatName, Format* formatToAdopt, UErrorCode & status);
 
 	/**
 	 * Gets an array of subformats of this object.  The returned array
@@ -653,7 +653,7 @@ public:
 	    int32_t count,
 	    UnicodeString & appendTo,
 	    FieldPosition& ignore,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Formats the given array of arguments into a user-readable string
@@ -676,7 +676,7 @@ public:
 	    const Formattable* arguments,
 	    int32_t count,
 	    UnicodeString & appendTo,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Formats the given array of arguments into a user-readable
@@ -701,7 +701,7 @@ public:
 	virtual UnicodeString & format(const Formattable& obj,
 	    UnicodeString & appendTo,
 	    FieldPosition& pos,
-	    UErrorCode& status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Formats the given array of arguments into a user-defined argument name
@@ -725,7 +725,7 @@ public:
 	    const Formattable* arguments,
 	    int32_t count,
 	    UnicodeString & appendTo,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 	/**
 	 * Parses the given string into an array of output arguments.
 	 *
@@ -760,7 +760,7 @@ public:
 	 */
 	virtual Formattable* parse(const UnicodeString & source,
 	    int32_t& count,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Parses the given string into an array of output arguments
@@ -798,7 +798,7 @@ public:
 	 * @stable ICU 3.4
 	 */
 	static UnicodeString autoQuoteApostrophe(const UnicodeString & pattern,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Returns true if this MessageFormat uses named arguments,
@@ -911,7 +911,7 @@ private:
 	bool hasArgTypeConflicts;
 
 	// Variable-size array management
-	bool allocateArgTypes(int32_t capacity, UErrorCode& status);
+	bool allocateArgTypes(int32_t capacity, UErrorCode & status);
 
 	/**
 	 * Default Format objects used when no format is specified and a
@@ -955,7 +955,7 @@ private:
 	    int32_t cnt,
 	    UnicodeString & appendTo,
 	    FieldPosition* pos,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Formats the arguments and writes the result into the
@@ -985,15 +985,15 @@ private:
 
 	UnicodeString getArgName(int32_t partIndex);
 
-	void setArgStartFormat(int32_t argStart, Format* formatter, UErrorCode& status);
+	void setArgStartFormat(int32_t argStart, Format* formatter, UErrorCode & status);
 
-	void setCustomArgStartFormat(int32_t argStart, Format* formatter, UErrorCode& status);
+	void setCustomArgStartFormat(int32_t argStart, Format* formatter, UErrorCode & status);
 
 	int32_t nextTopLevelArgStart(int32_t partIndex) const;
 
 	bool argNameMatches(int32_t partIndex, const UnicodeString & argName, int32_t argNumber);
 
-	void cacheExplicitFormats(UErrorCode& status);
+	void cacheExplicitFormats(UErrorCode & status);
 
 	int32_t skipLeadingSpaces(UnicodeString & style);
 
@@ -1047,7 +1047,7 @@ private:
 	/**
 	 * Convenience method that ought to be in NumberFormat
 	 */
-	NumberFormat* createIntegerFormat(const Locale& locale, UErrorCode& status) const;
+	NumberFormat* createIntegerFormat(const Locale& locale, UErrorCode & status) const;
 
 	/**
 	 * Returns array of argument types in the parsed pattern
@@ -1076,15 +1076,15 @@ public:
 		virtual DummyFormat* clone() const override;
 		virtual UnicodeString & format(const Formattable& obj,
 		    UnicodeString & appendTo,
-		    UErrorCode& status) const;
+		    UErrorCode & status) const;
 		virtual UnicodeString & format(const Formattable&,
 		    UnicodeString & appendTo,
 		    FieldPosition&,
-		    UErrorCode& status) const override;
+		    UErrorCode & status) const override;
 		virtual UnicodeString & format(const Formattable& obj,
 		    UnicodeString & appendTo,
 		    FieldPositionIterator* posIter,
-		    UErrorCode& status) const override;
+		    UErrorCode & status) const override;
 		virtual void parseObject(const UnicodeString &,
 		    Formattable&,
 		    ParsePosition&) const override;

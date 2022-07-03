@@ -183,8 +183,8 @@ void pixTilingDestroy(PIXTILING  ** ppt)
  * \return  0 if OK, 1 on error
  */
 l_ok pixTilingGetCount(PIXTILING  * pt,
-    int32    * pnx,
-    int32    * pny)
+    int32 * pnx,
+    int32 * pny)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -204,8 +204,8 @@ l_ok pixTilingGetCount(PIXTILING  * pt,
  * \return  0 if OK, 1 on error
  */
 l_ok pixTilingGetSize(PIXTILING  * pt,
-    int32    * pw,
-    int32    * ph)
+    int32 * pw,
+    int32 * ph)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -356,10 +356,10 @@ l_ok pixTilingNoStripOnPaint(PIXTILING  * pt)
  * \param[in]    pt      pixtiling struct
  * \return  0 if OK, 1 on error
  */
-l_ok pixTilingPaintTile(PIX        * pixd,
+l_ok pixTilingPaintTile(PIX * pixd,
     int32 i,
     int32 j,
-    PIX        * pixs,
+    PIX * pixs,
     PIXTILING  * pt)
 {
 	int32 w, h;

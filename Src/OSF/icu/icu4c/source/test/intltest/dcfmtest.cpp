@@ -24,12 +24,9 @@
 #if defined(__GLIBCXX__)
 namespace std { class type_info; } // WORKAROUND: http://llvm.org/bugs/show_bug.cgi?id=13364
 #endif
-
-//---------------------------------------------------------------------------
 //
 //  Test class boilerplate
 //
-//---------------------------------------------------------------------------
 DecimalFormatTest::DecimalFormatTest()
 {
 }
@@ -55,12 +52,9 @@ void DecimalFormatTest::runIndexedTest(int32_t index, bool exec, const char *& n
 		    break; //needed to end loop
 	}
 }
-
-//---------------------------------------------------------------------------
 //
 //   Error Checking / Reporting macros used in all of the tests.
 //
-//---------------------------------------------------------------------------
 #define DF_CHECK_STATUS UPRV_BLOCK_MACRO_BEGIN { \
 		if(U_FAILURE(status)) { \
 			dataerrln("DecimalFormatTest failure at line %d.  status=%s", \
@@ -149,23 +143,14 @@ UnicodeStringPiece::UnicodeStringPiece(const UnicodeString & s) {
 	}
 	this->set(buf.getAlias(), requiredCapacity - 1);
 }
-
-//---------------------------------------------------------------------------
 //
 //      DataDrivenTests
 //             The test cases are in a separate data file,
 //
-//---------------------------------------------------------------------------
-
 // Translate a Formattable::type enum value to a string, for error message formatting.
-static const char * formattableType(Formattable::Type typ) {
-	static const char * types[] = {"kDate",
-				       "kDouble",
-				       "kLong",
-				       "kString",
-				       "kArray",
-				       "kInt64",
-				       "kObject"};
+static const char * formattableType(Formattable::Type typ) 
+{
+	static const char * types[] = {"kDate", "kDouble", "kLong", "kString", "kArray", "kInt64", "kObject"};
 	if(typ<0 || typ>Formattable::kObject) {
 		return "Unknown";
 	}

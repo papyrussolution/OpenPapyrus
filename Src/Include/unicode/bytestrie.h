@@ -70,29 +70,27 @@ public:
 	 * @stable ICU 4.8
 	 */
 	~BytesTrie();
-
 	/**
 	 * Copy constructor, copies the other trie reader object and its state,
 	 * but not the byte array which will be shared. (Shallow copy.)
 	 * @param other Another BytesTrie object.
 	 * @stable ICU 4.8
 	 */
-	BytesTrie(const BytesTrie &other)
-		: ownedArray_(NULL), bytes_(other.bytes_),
-		pos_(other.pos_), remainingMatchLength_(other.remainingMatchLength_) {
+	BytesTrie(const BytesTrie &other) : ownedArray_(NULL), bytes_(other.bytes_),
+		pos_(other.pos_), remainingMatchLength_(other.remainingMatchLength_) 
+	{
 	}
-
 	/**
 	 * Resets this trie to its initial state.
 	 * @return *this
 	 * @stable ICU 4.8
 	 */
-	BytesTrie &reset() {
+	BytesTrie &reset() 
+	{
 		pos_ = bytes_;
 		remainingMatchLength_ = -1;
 		return *this;
 	}
-
 	/**
 	 * Returns the state of this trie as a 64-bit integer.
 	 * The state value is never 0.
@@ -105,7 +103,6 @@ public:
 		return (static_cast<uint64_t>(remainingMatchLength_ + 2) << kState64RemainingShift) |
 		       (uint64_t)(pos_ - bytes_);
 	}
-
 	/**
 	 * Resets this trie to the saved state.
 	 * Unlike resetToState(State), the 64-bit state value
@@ -120,35 +117,33 @@ public:
 	 * @see reset
 	 * @stable ICU 65
 	 */
-	BytesTrie &resetToState64(uint64_t state) {
+	BytesTrie &resetToState64(uint64_t state) 
+	{
 		remainingMatchLength_ = static_cast<int32_t>(state >> kState64RemainingShift) - 2;
 		pos_ = bytes_ + (state & kState64PosMask);
 		return *this;
 	}
-
 	/**
 	 * BytesTrie state object, for saving a trie's current state
 	 * and resetting the trie back to this state later.
 	 * @stable ICU 4.8
 	 */
 	class State : public UMemory {
-public:
+	public:
 		/**
 		 * Constructs an empty State.
 		 * @stable ICU 4.8
 		 */
-		State() {
+		State() 
+		{
 			bytes = NULL;
 		}
-
 private:
 		friend class BytesTrie;
-
 		const uint8 * bytes;
 		const uint8 * pos;
 		int32_t remainingMatchLength;
 	};
-
 	/**
 	 * Saves the state of this trie.
 	 * @param state The State object to hold the trie's state.
@@ -156,13 +151,13 @@ private:
 	 * @see resetToState
 	 * @stable ICU 4.8
 	 */
-	const BytesTrie &saveState(State &state) const {
+	const BytesTrie &saveState(State &state) const 
+	{
 		state.bytes = bytes_;
 		state.pos = pos_;
 		state.remainingMatchLength = remainingMatchLength_;
 		return *this;
 	}
-
 	/**
 	 * Resets this trie to the saved state.
 	 * If the state object contains no state, or the state of a different trie,
@@ -173,14 +168,14 @@ private:
 	 * @see reset
 	 * @stable ICU 4.8
 	 */
-	BytesTrie &resetToState(const State &state) {
+	BytesTrie &resetToState(const State &state) 
+	{
 		if(bytes_==state.bytes && bytes_ != NULL) {
 			pos_ = state.pos;
 			remainingMatchLength_ = state.remainingMatchLength;
 		}
 		return *this;
 	}
-
 	/**
 	 * Determines whether the byte sequence so far matches, whether it has a value,
 	 * and whether another input byte can continue a matching byte sequence.
@@ -188,7 +183,6 @@ private:
 	 * @stable ICU 4.8
 	 */
 	UStringTrieResult current() const;
-
 	/**
 	 * Traverses the trie from the initial state for this input byte.
 	 * Equivalent to reset().next(inByte).
@@ -197,14 +191,14 @@ private:
 	 * @return The match/value Result.
 	 * @stable ICU 4.8
 	 */
-	inline UStringTrieResult first(int32_t inByte) {
+	inline UStringTrieResult first(int32_t inByte) 
+	{
 		remainingMatchLength_ = -1;
 		if(inByte<0) {
 			inByte += 0x100;
 		}
 		return nextImpl(bytes_, inByte);
 	}
-
 	/**
 	 * Traverses the trie from the current state for this input byte.
 	 * @param inByte Input byte value. Values -0x100..-1 are treated like 0..0xff.
@@ -213,7 +207,6 @@ private:
 	 * @stable ICU 4.8
 	 */
 	UStringTrieResult next(int32_t inByte);
-
 	/**
 	 * Traverses the trie from the current state for this byte sequence.
 	 * Equivalent to
@@ -230,7 +223,6 @@ private:
 	 * @stable ICU 4.8
 	 */
 	UStringTrieResult next(const char * s, int32_t length);
-
 	/**
 	 * Returns a matching byte sequence's value if called immediately after
 	 * current()/first()/next() returned USTRINGTRIE_INTERMEDIATE_VALUE or USTRINGTRIE_FINAL_VALUE.
@@ -240,13 +232,13 @@ private:
 	 * @return The value for the byte sequence so far.
 	 * @stable ICU 4.8
 	 */
-	inline int32_t getValue() const {
+	inline int32_t getValue() const 
+	{
 		const uint8 * pos = pos_;
 		int32_t leadByte = *pos++;
 		// U_ASSERT(leadByte>=kMinValueLead);
 		return readValue(pos, leadByte>>1);
 	}
-
 	/**
 	 * Determines whether all byte sequences reachable from the current state
 	 * map to the same value.
@@ -256,12 +248,12 @@ private:
 	 *         map to the same value.
 	 * @stable ICU 4.8
 	 */
-	inline bool hasUniqueValue(int32_t &uniqueValue) const {
+	inline bool hasUniqueValue(int32_t &uniqueValue) const 
+	{
 		const uint8 * pos = pos_;
 		// Skip the rest of a pending linear-match node.
 		return pos!=NULL && findUniqueValue(pos+remainingMatchLength_+1, false, uniqueValue);
 	}
-
 	/**
 	 * Finds each byte which continues the byte sequence from the current state.
 	 * That is, each byte b for which it would be next(b)!=USTRINGTRIE_NO_MATCH now.
@@ -271,13 +263,12 @@ private:
 	 * @stable ICU 4.8
 	 */
 	int32_t getNextBytes(ByteSink &out) const;
-
 	/**
 	 * Iterator for all of the (byte sequence, value) pairs in a BytesTrie.
 	 * @stable ICU 4.8
 	 */
 	class U_COMMON_API Iterator : public UMemory {
-public:
+	public:
 		/**
 		 * Iterates from the root of a byte-serialized BytesTrie.
 		 * @param trieBytes The trie bytes.
@@ -290,7 +281,6 @@ public:
 		 * @stable ICU 4.8
 		 */
 		Iterator(const void * trieBytes, int32_t maxStringLength, UErrorCode & errorCode);
-
 		/**
 		 * Iterates from the current state of the specified BytesTrie.
 		 * @param trie The trie whose state will be copied for iteration.
@@ -303,13 +293,11 @@ public:
 		 * @stable ICU 4.8
 		 */
 		Iterator(const BytesTrie &trie, int32_t maxStringLength, UErrorCode & errorCode);
-
 		/**
 		 * Destructor.
 		 * @stable ICU 4.8
 		 */
 		~Iterator();
-
 		/**
 		 * Resets this iterator to its initial state.
 		 * @return *this
@@ -366,11 +354,9 @@ private:
 		// but the code looks more confusing that way.)
 		UVector32 * stack_;
 	};
-
 private:
 	friend class BytesTrieBuilder;
 	friend class ::BytesTrieTest;
-
 	/**
 	 * Constructs a BytesTrie reader instance.
 	 * Unlike the public constructor which just aliases an array,
@@ -382,18 +368,17 @@ private:
 		bytes_(static_cast<const uint8 *>(trieBytes)),
 		pos_(bytes_), remainingMatchLength_(-1) {
 	}
-
 	// No assignment operator.
 	BytesTrie & operator = (const BytesTrie &other);
-
-	inline void stop() {
+	inline void stop() 
+	{
 		pos_ = NULL;
 	}
-
 	// Reads a compact 32-bit integer.
 	// pos is already after the leadByte, and the lead byte is already shifted right by 1.
 	static int32_t readValue(const uint8 * pos, int32_t leadByte);
-	static inline const uint8 * skipValue(const uint8 * pos, int32_t leadByte) {
+	static inline const uint8 * skipValue(const uint8 * pos, int32_t leadByte) 
+	{
 		// U_ASSERT(leadByte>=kMinValueLead);
 		if(leadByte>=(kMinTwoByteValueLead<<1)) {
 			if(leadByte<(kMinThreeByteValueLead<<1)) {
@@ -408,16 +393,16 @@ private:
 		}
 		return pos;
 	}
-
-	static inline const uint8 * skipValue(const uint8 * pos) {
+	static inline const uint8 * skipValue(const uint8 * pos) 
+	{
 		int32_t leadByte = *pos++;
 		return skipValue(pos, leadByte);
 	}
-
 	// Reads a jump delta and jumps.
 	static const uint8 * jumpByDelta(const uint8 * pos);
 
-	static inline const uint8 * skipDelta(const uint8 * pos) {
+	static inline const uint8 * skipDelta(const uint8 * pos) 
+	{
 		int32_t delta = *pos++;
 		if(delta>=kMinTwoByteDeltaLead) {
 			if(delta<kMinThreeByteDeltaLead) {
@@ -432,17 +417,14 @@ private:
 		}
 		return pos;
 	}
-
-	static inline UStringTrieResult valueResult(int32_t node) {
+	static inline UStringTrieResult valueResult(int32_t node) 
+	{
 		return (UStringTrieResult)(USTRINGTRIE_INTERMEDIATE_VALUE-(node&kValueIsFinal));
 	}
-
 	// Handles a branch node for both next(byte) and next(string).
 	UStringTrieResult branchNext(const uint8 * pos, int32_t length, int32_t inByte);
-
 	// Requires remainingLength_<0.
 	UStringTrieResult nextImpl(const uint8 * pos, int32_t inByte);
-
 	// Helper functions for hasUniqueValue().
 	// Recursively finds a unique value (or whether there is not a unique one)
 	// from a branch.
@@ -451,12 +433,10 @@ private:
 	// Recursively finds a unique value (or whether there is not a unique one)
 	// starting from a position on a node lead byte.
 	static bool findUniqueValue(const uint8 * pos, bool haveUniqueValue, int32_t &uniqueValue);
-
 	// Helper functions for getNextBytes().
 	// getNextBytes() when pos is on a branch node.
 	static void getNextBranchBytes(const uint8 * pos, int32_t length, ByteSink &out);
 	static void append(ByteSink &out, int c);
-
 	// BytesTrie data structure
 	//
 	// The trie consists of a series of byte-serialized nodes for incremental
@@ -543,5 +523,4 @@ private:
 U_NAMESPACE_END
 
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif  // __BYTESTRIE_H__

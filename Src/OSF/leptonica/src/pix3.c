@@ -26,21 +26,21 @@
  *           int32     pixCombineMaskedGeneral()
  *           int32     pixPaintThroughMask()
  *           int32     pixCopyWithBoxa()  -- this is boxa-directed
- *           PIX        *pixPaintSelfThroughMask()
- *           PIX        *pixMakeMaskFromVal()
- *           PIX        *pixMakeMaskFromLUT()
- *           PIX        *pixMakeArbMaskFromRGB()
- *           PIX        *pixSetUnderTransparency()
- *           PIX        *pixMakeAlphaFromMask()
+ *           PIX *pixPaintSelfThroughMask()
+ *           PIX *pixMakeMaskFromVal()
+ *           PIX *pixMakeMaskFromLUT()
+ *           PIX *pixMakeArbMaskFromRGB()
+ *           PIX *pixSetUnderTransparency()
+ *           PIX *pixMakeAlphaFromMask()
  *           int32     pixGetColorNearMaskBoundary()
- *           PIX        *pixDisplaySelectedPixels()  -- for debugging
+ *           PIX *pixDisplaySelectedPixels()  -- for debugging
  *
  *    One and two-image boolean operations on arbitrary depth images
- *           PIX        *pixInvert()
- *           PIX        *pixOr()
- *           PIX        *pixAnd()
- *           PIX        *pixXor()
- *           PIX        *pixSubtract()
+ *           PIX *pixInvert()
+ *           PIX *pixOr()
+ *           PIX *pixAnd()
+ *           PIX *pixXor()
+ *           PIX *pixSubtract()
  *
  *    Foreground pixel counting in 1 bpp images
  *           int32     pixZero()
@@ -55,8 +55,8 @@
  *           int32     pixCountPixelsInRow()
  *           NUMA *pixGetMomentByColumn()
  *           int32     pixThresholdPixelSum()
- *           int32    *makePixelSumTab8()
- *           int32    *makePixelCentroidTab8()
+ *           int32 *makePixelSumTab8()
+ *           int32 *makePixelCentroidTab8()
  *
  *    Average of pixel values in gray images
  *           NUMA *pixAverageByRow()
@@ -81,7 +81,7 @@
  *           int32     pixCountArbInRect()
  *
  *    Mirrored tiling
- *           PIX        *pixMirroredTiling()
+ *           PIX *pixMirroredTiling()
  *
  *    Representative tile near but outside region
  *           int32     pixFindRepCloseTile()
@@ -1310,7 +1310,7 @@ PIX * pixMakeAlphaFromMask(PIX * pixs,
  */
 l_ok pixGetColorNearMaskBoundary(PIX * pixs,
     PIX * pixm,
-    BOX       * box,
+    BOX * box,
     int32 dist,
     uint32  * pval,
     int32 debug)
@@ -1318,7 +1318,7 @@ l_ok pixGetColorNearMaskBoundary(PIX * pixs,
 	char op[64];
 	int32 empty, bx, by;
 	float rval, gval, bval;
-	BOX       * box1, * box2;
+	BOX * box1, * box2;
 	PIX * pix1, * pix2, * pix3;
 
 	PROCNAME(__FUNCTION__);
@@ -1810,7 +1810,7 @@ l_ok pixZero(PIX * pix,
  * \param[out]   pfract   fraction of ON pixels
  * \return  0 if OK; 1 on error
  */
-l_ok pixForegroundFraction(PIX        * pix,
+l_ok pixForegroundFraction(PIX * pix,
     float * pfract)
 {
 	int32 w, h, count;
@@ -1835,7 +1835,7 @@ l_ok pixForegroundFraction(PIX        * pix,
  * \param[in]    pixa    array of 1 bpp pix
  * \return  na of ON pixels in each pix, or NULL on error
  */
-NUMA * pixaCountPixels(PIXA  * pixa)
+NUMA * pixaCountPixels(PIXA * pixa)
 {
 	int32 d, i, n, count;
 	int32 * tab;
@@ -1885,7 +1885,7 @@ l_ok pixCountPixels(PIX * pixs,
 	uint32 endmask;
 	int32 w, h, wpl, i, j;
 	int32 fullwords, endbits, sum;
-	int32   * tab;
+	int32 * tab;
 	uint32  * data;
 
 	PROCNAME(__FUNCTION__);
@@ -2156,7 +2156,7 @@ l_ok pixCountPixelsInRow(PIX * pix,
 	uint32 word, endmask;
 	int32 j, w, h, wpl;
 	int32 fullwords, endbits, sum;
-	int32   * tab;
+	int32 * tab;
 	uint32  * line;
 
 	PROCNAME(__FUNCTION__);
@@ -2271,7 +2271,7 @@ l_ok pixThresholdPixelSum(PIX * pix,
     int32 * tab8)
 {
 	uint32 word, endmask;
-	int32   * tab;
+	int32 * tab;
 	int32 w, h, wpl, i, j;
 	int32 fullwords, endbits, sum;
 	uint32  * line, * data;
@@ -2578,8 +2578,8 @@ NUMA * pixAverageByColumn(PIX * pix,
  *              pixAverageInRect(pixs, NULL, box, 0, 255, 1, &aveval);
  * </pre>
  */
-l_ok pixAverageInRect(PIX        * pixs,
-    PIX        * pixm,
+l_ok pixAverageInRect(PIX * pixs,
+    PIX * pixm,
     BOX        * box,
     int32 minval,
     int32 maxval,
@@ -2685,7 +2685,7 @@ l_ok pixAverageInRect(PIX        * pixs,
  */
 l_ok pixAverageInRectRGB(PIX * pixs,
     PIX * pixm,
-    BOX       * box,
+    BOX * box,
     int32 subsamp,
     uint32  * pave)
 {
@@ -2887,7 +2887,7 @@ NUMA * pixVarianceByColumn(PIX * pix,
  * \param[out]   prootvar  sqrt variance of pixel values in region
  * \return  0 if OK; 1 on error
  */
-l_ok pixVarianceInRect(PIX        * pix,
+l_ok pixVarianceInRect(PIX * pix,
     BOX        * box,
     float * prootvar)
 {
@@ -3085,7 +3085,7 @@ NUMA * pixAbsDiffByColumn(PIX  * pix,
  *             column:  dir == L_VERTICAL_LINE
  * </pre>
  */
-l_ok pixAbsDiffInRect(PIX        * pix,
+l_ok pixAbsDiffInRect(PIX * pix,
     BOX        * box,
     int32 dir,
     float * pabsdiff)
@@ -3161,7 +3161,7 @@ l_ok pixAbsDiffInRect(PIX        * pix,
  *      (2) If horizontal, require x1 < x2; if vertical, require y1 < y2.
  * </pre>
  */
-l_ok pixAbsDiffOnLine(PIX        * pix,
+l_ok pixAbsDiffOnLine(PIX * pix,
     int32 x1,
     int32 y1,
     int32 x2,

@@ -581,9 +581,7 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 	 */
 	if(linktype != AE_SYMLINK_TYPE_FILE && (
 		    linktype == AE_SYMLINK_TYPE_DIRECTORY ||
-		    *(p - 1) == L'\\' || (*(p - 1) == L'.' && (
-			    len == 1 || *(p - 2) == L'\\' || ( *(p - 2) == L'.' && (
-				    len == 2 || *(p - 3) == L'\\')))))) {
+		    *(p - 1) == L'\\' || (*(p - 1) == L'.' && (len == 1 || *(p - 2) == L'\\' || ( *(p - 2) == L'.' && (len == 2 || *(p - 3) == L'\\')))))) {
 #if defined(SYMBOLIC_LINK_FLAG_DIRECTORY)
 		flags |= SYMBOLIC_LINK_FLAG_DIRECTORY;
 #else

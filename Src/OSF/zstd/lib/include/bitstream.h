@@ -240,10 +240,10 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t * bitD, const void * srcBuffer, 
 		memzero(bitD, sizeof(*bitD)); 
 		return ERROR(srcSize_wrong);
 	}
-	bitD->start = (const char*)srcBuffer;
+	bitD->start = (const char *)srcBuffer;
 	bitD->limitPtr = bitD->start + sizeof(bitD->bitContainer);
 	if(srcSize >=  sizeof(bitD->bitContainer)) {/* normal case */
-		bitD->ptr   = (const char*)srcBuffer + srcSize - sizeof(bitD->bitContainer);
+		bitD->ptr   = (const char *)srcBuffer + srcSize - sizeof(bitD->bitContainer);
 		bitD->bitContainer = MEM_readLEST(bitD->ptr);
 		{ 
 			BYTE const lastByte = ((const BYTE *)srcBuffer)[srcSize-1];
@@ -426,5 +426,4 @@ MEM_STATIC uint BIT_endOfDStream(const BIT_DStream_t* DStream)
 #if defined (__cplusplus)
 }
 #endif
-
 #endif /* BITSTREAM_H_MODULE */

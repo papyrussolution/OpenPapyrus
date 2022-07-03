@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "openssl/opensslconf.h"
+#include <openssl/opensslconf.h>
 #ifdef OPENSSL_NO_RSA
 NON_EMPTY_TRANSLATION_UNIT
 #else

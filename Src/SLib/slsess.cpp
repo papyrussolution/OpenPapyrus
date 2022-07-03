@@ -1112,6 +1112,16 @@ void SlSession::LockPop()
 SString  & SlSession::AcquireRvlStr() { return GetTLA().RvlSStA.Get(); }
 SStringU & SlSession::AcquireRvlStrU() { return GetTLA().RvlSStW.Get(); }
 
+void SlSession::SaturateRvlStrPool(uint minSize) // @debug
+{
+	GetTLA().RvlSStA.Saturate(minSize);
+}
+
+void SlSession::SaturateRvlStrUPool(uint minSize) // @debug
+{
+	GetTLA().RvlSStW.Saturate(minSize);
+}
+
 int SlSession::CallHelp(void * hWnd, uint cmd, uint ctx)
 {
 	return ExtraProcBlk.F_CallHelp ? ExtraProcBlk.F_CallHelp(hWnd, cmd, ctx) : 0;

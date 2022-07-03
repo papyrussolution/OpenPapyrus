@@ -88,7 +88,7 @@ struct FailureSignalHandlerOptions {
   // Since this function runs within a signal handler, it should be
   // async-signal-safe if possible.
   // See http://man7.org/linux/man-pages/man7/signal-safety.7.html
-  void (*writerfn)(const char*) = nullptr;
+  void (*writerfn)(const char *) = nullptr;
 };
 
 // InstallFailureSignalHandler()

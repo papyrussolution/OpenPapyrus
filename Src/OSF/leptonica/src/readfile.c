@@ -1243,7 +1243,7 @@ l_ok ioFormatTest(const char * filename)
 {
 	int32 w, h, d, depth, equal, problems;
 	float diff;
-	BOX       * box;
+	BOX * box;
 	PIX * pixs, * pixc, * pix1, * pix2;
 	PIXCMAP   * cmap;
 

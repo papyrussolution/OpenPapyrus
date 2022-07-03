@@ -30,6 +30,7 @@
 #ifndef OPENJPEG_H
 #define OPENJPEG_H
 
+#define OPJ_STATIC // @sobolev
 /*
    ==========================================================
    Compiler directives
@@ -1007,14 +1008,9 @@ typedef struct opj_tile_index {
  * Index structure of the codestream (FIXME should be expand and enhance)
  */
 typedef struct opj_codestream_index {
-	/** main header start position (SOC position) */
-	OPJ_OFF_T main_head_start;
-	/** main header end position (first SOT position) */
-	OPJ_OFF_T main_head_end;
-
-	/** codestream's size */
-	uint64 codestream_size;
-
+	OPJ_OFF_T main_head_start; /** main header start position (SOC position) */
+	OPJ_OFF_T main_head_end; /** main header end position (first SOT position) */
+	uint64 codestream_size; /** codestream's size */
 	/* UniPG>> */ /* NOT USED FOR THE MOMENT IN THE V2 VERSION */
 	/** number of markers */
 	uint32_t marknum;

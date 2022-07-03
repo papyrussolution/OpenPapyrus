@@ -9,7 +9,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/err.h>
 #include "ec_lcl.h"
 
 #ifndef OPENSSL_NO_EC2M

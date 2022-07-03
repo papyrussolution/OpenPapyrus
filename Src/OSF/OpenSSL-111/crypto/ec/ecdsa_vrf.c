@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/ec.h>
 #include "ec_lcl.h"
 #include <openssl/err.h>
 /*-
@@ -17,15 +16,13 @@
  *      0: incorrect signature
  *     -1: error
  */
-int ECDSA_do_verify(const uchar * dgst, int dgst_len,
-    const ECDSA_SIG * sig, EC_KEY * eckey)
+int ECDSA_do_verify(const uchar * dgst, int dgst_len, const ECDSA_SIG * sig, EC_KEY * eckey)
 {
 	if(eckey->meth->verify_sig != NULL)
 		return eckey->meth->verify_sig(dgst, dgst_len, sig, eckey);
 	ECerr(EC_F_ECDSA_DO_VERIFY, EC_R_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
-
 /*-
  * returns
  *      1: correct signature

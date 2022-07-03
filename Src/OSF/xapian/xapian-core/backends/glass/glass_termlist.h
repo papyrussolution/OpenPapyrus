@@ -11,10 +11,8 @@
 #ifndef XAPIAN_INCLUDED_GLASS_TERMLIST_H
 #define XAPIAN_INCLUDED_GLASS_TERMLIST_H
 
-#include <string>
 #include "xapian/intrusive_ptr.h"
 #include <xapian/positioniterator.h>
-#include <xapian/types.h>
 
 namespace Xapian {
 	namespace Internal {
@@ -22,7 +20,6 @@ namespace Xapian {
 	}
 }
 
-#include "glass_database.h"
 #include "termlist.h"
 #include "glass_table.h"
 

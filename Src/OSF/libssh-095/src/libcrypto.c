@@ -20,32 +20,12 @@
 
 #ifdef HAVE_LIBCRYPTO
 
-#include <openssl/sha.h>
-#include <openssl/md5.h>
-#include <openssl/dsa.h>
-#include <openssl/rsa.h>
-#include <openssl/hmac.h>
-#include <openssl/opensslv.h>
-#include <openssl/rand.h>
+#include <slib-ossl.h>
 #include "libcrypto-compat.h"
 
-#ifdef HAVE_OPENSSL_AES_H
-	#define HAS_AES
-	#include <openssl/aes.h>
-#endif
-#ifdef HAVE_OPENSSL_DES_H
-	#define HAS_DES
-	#include <openssl/des.h>
-#endif
 #if(defined(HAVE_VALGRIND_VALGRIND_H) && defined(HAVE_OPENSSL_IA32CAP_LOC))
 	#include <valgrind/valgrind.h>
 	#define CAN_DISABLE_AESNI
-#endif
-#ifdef HAVE_OPENSSL_EVP_KDF_CTX_NEW_ID
-	#include <openssl/kdf.h>
-#endif
-#ifdef HAVE_OPENSSL_CRYPTO_CTR128_ENCRYPT
-	#include <openssl/modes.h>
 #endif
 
 static int libcrypto_initialized = 0;

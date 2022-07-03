@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/pkcs12.h>
 #include "p12_lcl.h"
 
 /* Add a local keyid to a safebag */

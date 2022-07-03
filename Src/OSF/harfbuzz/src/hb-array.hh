@@ -190,7 +190,7 @@ template <typename Type> struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<
 	}
 	template <typename T, unsigned P = sizeof(Type), hb_enable_if(P == 1)> bool check_range(const T * p, uint size = T::static_size) const
 	{
-		return arrayZ <= ((const char*)p) && ((const char*)p) <= (arrayZ + length) && (uint)(arrayZ + length - (const char*)p) >= size;
+		return arrayZ <= ((const char *)p) && ((const char *)p) <= (arrayZ + length) && (uint)(arrayZ + length - (const char *)p) >= size;
 	}
 	/* Only call if you allocated the underlying array using malloc() or similar. */
 	void free()

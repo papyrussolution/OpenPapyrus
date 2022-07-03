@@ -5250,7 +5250,8 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_STYLOPALM:      val = PPOBJ_STYLOPALM; break;
 				case PPHS_STYLODEVICE:    val = PPOBJ_STYLOPALM; break;
 				case PPHS_GEOTRACKING:    val = PPOBJ_GEOTRACKING; break; // @v10.1.5
-				case PPHS_TAG:            val = PPOBJ_TAG; break; // @v10.9.4   
+				case PPHS_TAG:            val = PPOBJ_TAG; break; // @v10.9.4
+				case PPHS_STYLOQBINDERY:  val = PPOBJ_STYLOQBINDERY; break; // @v11.4.3
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

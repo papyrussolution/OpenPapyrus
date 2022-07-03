@@ -210,7 +210,7 @@ public:
 	 * @return an enumeration object, owned by the caller.
 	 * @stable ICU 70
 	 */
-	static StringEnumeration* U_EXPORT2 createEnumeration(UErrorCode& status);
+	static StringEnumeration* U_EXPORT2 createEnumeration(UErrorCode & status);
 
 #ifndef U_HIDE_DEPRECATED_API
 	/**
@@ -251,7 +251,7 @@ public:
 	 * @return an enumeration object, owned by the caller
 	 * @stable ICU 70
 	 */
-	static StringEnumeration* U_EXPORT2 createEnumerationForRawOffset(int32_t rawOffset, UErrorCode& status);
+	static StringEnumeration* U_EXPORT2 createEnumerationForRawOffset(int32_t rawOffset, UErrorCode & status);
 
 #ifndef U_HIDE_DEPRECATED_API
 	/**
@@ -278,7 +278,7 @@ public:
 	 * @return an enumeration object, owned by the caller
 	 * @stable ICU 70
 	 */
-	static StringEnumeration* U_EXPORT2 createEnumerationForRegion(const char * region, UErrorCode& status);
+	static StringEnumeration* U_EXPORT2 createEnumerationForRegion(const char * region, UErrorCode & status);
 
 	/**
 	 * Returns the number of IDs in the equivalency group that
@@ -400,7 +400,7 @@ public:
 	 * @return the version string, such as "2007f"
 	 * @stable ICU 3.8
 	 */
-	static const char * U_EXPORT2 getTZDataVersion(UErrorCode& status);
+	static const char * U_EXPORT2 getTZDataVersion(UErrorCode & status);
 
 	/**
 	 * Returns the canonical system timezone ID or the normalized
@@ -416,7 +416,7 @@ public:
 	 * @stable ICU 4.0
 	 */
 	static UnicodeString & U_EXPORT2 getCanonicalID(const UnicodeString & id,
-	    UnicodeString & canonicalID, UErrorCode& status);
+	    UnicodeString & canonicalID, UErrorCode & status);
 
 	/**
 	 * Returns the canonical system time zone ID or the normalized
@@ -434,7 +434,7 @@ public:
 	 * @stable ICU 4.0
 	 */
 	static UnicodeString & U_EXPORT2 getCanonicalID(const UnicodeString & id,
-	    UnicodeString & canonicalID, bool& isSystemID, UErrorCode& status);
+	    UnicodeString & canonicalID, bool& isSystemID, UErrorCode & status);
 
 	/**
 	 * Converts a system time zone ID to an equivalent Windows time zone ID. For example,
@@ -460,7 +460,7 @@ public:
 	 * @stable ICU 52
 	 */
 	static UnicodeString & U_EXPORT2 getWindowsID(const UnicodeString & id,
-	    UnicodeString & winid, UErrorCode& status);
+	    UnicodeString & winid, UErrorCode & status);
 
 	/**
 	 * Converts a Windows time zone ID to an equivalent system time zone ID
@@ -490,7 +490,7 @@ public:
 	 * @stable ICU 52
 	 */
 	static UnicodeString & U_EXPORT2 getIDForWindowsID(const UnicodeString & winid, const char * region,
-	    UnicodeString & id, UErrorCode& status);
+	    UnicodeString & id, UErrorCode & status);
 
 	/**
 	 * Returns true if the two TimeZones are equal.  (The TimeZone version only compares
@@ -541,7 +541,7 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual int32_t getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
-	    uint8 dayOfWeek, int32_t millis, UErrorCode& status) const = 0;
+	    uint8 dayOfWeek, int32_t millis, UErrorCode & status) const = 0;
 
 	/**
 	 * Gets the time zone offset, for current date, modified in case of
@@ -565,7 +565,7 @@ public:
 	 */
 	virtual int32_t getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
 	    uint8 dayOfWeek, int32_t milliseconds,
-	    int32_t monthLength, UErrorCode& status) const = 0;
+	    int32_t monthLength, UErrorCode & status) const = 0;
 
 	/**
 	 * Returns the time zone raw and GMT offset for the given moment
@@ -794,7 +794,7 @@ public:
 	 * false, otherwise.
 	 * @deprecated ICU 2.4. Use Calendar::inDaylightTime() instead.
 	 */
-	virtual bool inDaylightTime(UDate date, UErrorCode& status) const = 0;
+	virtual bool inDaylightTime(UDate date, UErrorCode & status) const = 0;
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	/**
@@ -872,7 +872,7 @@ public:
 	 * @stable ICU 4.8
 	 */
 	static int32_t U_EXPORT2 getRegion(const UnicodeString & id,
-	    char * region, int32_t capacity, UErrorCode& status);
+	    char * region, int32_t capacity, UErrorCode & status);
 
 protected:
 
@@ -962,7 +962,7 @@ public:
 	 * @return the region associated with the given zone
 	 * @internal
 	 */
-	static const char16_t* getRegion(const UnicodeString & id, UErrorCode& status);
+	static const char16_t* getRegion(const UnicodeString & id, UErrorCode & status);
 #endif  /* U_HIDE_INTERNAL_API */
 
 private:
@@ -987,7 +987,7 @@ private:
 	 * U_ILLEGAL_ARGUMENT_ERROR is set.
 	 * @return The normalized custom id string.
 	 */
-	static UnicodeString & getCustomID(const UnicodeString & id, UnicodeString & normalized, UErrorCode& status);
+	static UnicodeString & getCustomID(const UnicodeString & id, UnicodeString & normalized, UErrorCode & status);
 
 	/**
 	 * Returns the normalized custom time zone ID for the given offset fields.

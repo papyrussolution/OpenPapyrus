@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "e_os.h"
-//#include <openssl/rand.h>
-//#include "internal/refcount.h"
 #include "eng_int.h"
 
 CRYPTO_RWLOCK * global_engine_lock;

@@ -35,14 +35,6 @@
  *    acknowledgment:
  *    "This product includes software developed by Computing Services
  *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- *
- * CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
- * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
- * FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
- * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
- * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <sasl-internal.h>
 #pragma hdrstop
@@ -56,18 +48,13 @@
 /* DES support */
 #ifdef WITH_DES
 # ifdef WITH_SSL_DES
-#include <openssl/des.h>
-#include <openssl/opensslv.h>
-#if(OPENSSL_VERSION_NUMBER >= 0x0090700f) && \
-	!defined(OPENSSL_ENABLE_OLD_DES_SUPPORT)
+#include <slib-ossl.h>
+#if(OPENSSL_VERSION_NUMBER >= 0x0090700f) && !defined(OPENSSL_ENABLE_OLD_DES_SUPPORT)
 #define des_cblock DES_cblock
 #define des_key_schedule DES_key_schedule
-#define des_key_sched(k, ks) \
-	DES_key_sched((k), &(ks))
-#define des_cbc_encrypt(i, o, l, k, iv, e) \
-	DES_cbc_encrypt((i), (o), (l), &(k), (iv), (e))
-#define des_ede2_cbc_encrypt(i, o, l, k1, k2, iv, e) \
-	DES_ede2_cbc_encrypt((i), (o), (l), &(k1), &(k2), (iv), (e))
+#define des_key_sched(k, ks) DES_key_sched((k), &(ks))
+#define des_cbc_encrypt(i, o, l, k, iv, e) DES_cbc_encrypt((i), (o), (l), &(k), (iv), (e))
+#define des_ede2_cbc_encrypt(i, o, l, k1, k2, iv, e) DES_ede2_cbc_encrypt((i), (o), (l), &(k1), &(k2), (iv), (e))
 #endif /* OpenSSL 0.9.7+ w/o old DES support */
 #else /* system DES library */
 #ifdef HAVE_DES_H
@@ -77,14 +64,12 @@
 #endif /* WITH_DES */
 
 #ifdef WIN32
-#include <winsock2.h>
+	#include <winsock2.h>
 #else /* Unix */
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif /* WIN32 */
-
 #include <sasl.h>
 #include <saslplug.h>
-
 #include "plugin_common.h"
 
 #ifndef WIN32
@@ -321,7 +306,7 @@ void DigestCalcResponse(const sasl_utils_t * utils,
 	uchar ncvalue[10];
 	/* calculate H(A2) */
 	utils->MD5Init(&Md5Ctx);
-	if(pszMethod != NULL) {
+	if(pszMethod) {
 		utils->MD5Update(&Md5Ctx, pszMethod, (unsigned)strlen((char *)pszMethod));
 	}
 	utils->MD5Update(&Md5Ctx, (unsigned char *)COLON, 1);
@@ -420,7 +405,7 @@ static bool DigestCalcSecret(const sasl_utils_t * utils, unsigned char * pszUser
 	}
 	utils->MD5Update(&Md5Ctx, COLON, 1);
 	/* a NULL realm is equivalent to the empty string */
-	if(pszRealm != NULL && pszRealm[0] != '\0') {
+	if(pszRealm && pszRealm[0] != '\0') {
 		if(Ignore_8859 == FALSE) {
 			/* We have to convert UTF-8 to ISO-8859-1 if possible */
 			In_8859_1 = UTF8_In_8859_1(pszRealm, strlen((char *)pszRealm));
@@ -695,7 +680,7 @@ static char * quote(char * str)
 		return NULL;
 	num_to_escape = 0;
 	p = strpbrk(str, NEED_ESCAPING);
-	while(p != NULL) {
+	while(p) {
 		num_to_escape++;
 		p = strpbrk(p + 1, NEED_ESCAPING);
 	}
@@ -900,13 +885,10 @@ static int enc_3des(context_t * text,
 	return SASL_OK;
 }
 
-static int init_3des(context_t * text,
-    unsigned char enckey[16],
-    unsigned char deckey[16])
+static int init_3des(context_t * text, unsigned char enckey[16], unsigned char deckey[16])
 {
 	des_context_t * c;
 	unsigned char keybuf[8];
-
 	/* allocate enc & dec context */
 	c = (des_context_t*)text->utils->FnMalloc(2 * sizeof(des_context_t));
 	if(!c) return SASL_NOMEM;
@@ -928,15 +910,11 @@ static int init_3des(context_t * text,
 	slidebits(keybuf, deckey);
 	if(des_key_sched((des_cblock*)keybuf, c->keysched) < 0)
 		return SASL_FAIL;
-
 	slidebits(keybuf, deckey + 7);
 	if(des_key_sched((des_cblock*)keybuf, c->keysched2) < 0)
 		return SASL_FAIL;
-
 	memcpy(c->ivec, ((char *)deckey) + 8, 8);
-
 	text->cipher_dec_context = (cipher_context_t*)c;
-
 	return SASL_OK;
 }
 
@@ -955,18 +933,9 @@ static int dec_des(context_t * text,
 {
 	des_context_t * c = (des_context_t*)text->cipher_dec_context;
 	int p, padding = 0;
-
-	des_cbc_encrypt((void *)input,
-	    (void *)output,
-	    inputlen,
-	    c->keysched,
-	    &c->ivec,
-	    DES_DECRYPT);
-
-	/* Update the ivec (des_cbc_encrypt implementations tend to be broken in
-	   this way) */
+	des_cbc_encrypt((void *)input, (void *)output, inputlen, c->keysched, &c->ivec, DES_DECRYPT);
+	/* Update the ivec (des_cbc_encrypt implementations tend to be broken in this way) */
 	memcpy(c->ivec, input + (inputlen - 8), 8);
-
 	/* now chop off the padding */
 	padding = output[inputlen - 11];
 	if(padding < 1 || padding > 8) {
@@ -979,47 +948,26 @@ static int dec_des(context_t * text,
 			return SASL_FAIL;
 		}
 	}
-
 	/* chop off the padding */
 	*outputlen = inputlen - padding - 10;
-
 	return SASL_OK;
 }
 
-static int enc_des(context_t * text,
-    const char * input,
-    unsigned inputlen,
-    unsigned char digest[16],
-    char * output,
-    unsigned * outputlen)
+static int enc_des(context_t * text, const char * input, unsigned inputlen, unsigned char digest[16], char * output, unsigned * outputlen)
 {
 	des_context_t * c = (des_context_t*)text->cipher_enc_context;
 	int len;
-	int paddinglen;
-
 	/* determine padding length */
-	paddinglen = 8 - ((inputlen+10) % 8);
-
+	int paddinglen = 8 - ((inputlen+10) % 8);
 	/* now construct the full stuff to be ciphered */
 	memcpy(output, input, inputlen);            /* text */
 	memset(output+inputlen, paddinglen, paddinglen); /* pad  */
 	memcpy(output+inputlen+paddinglen, digest, 10); /* hmac */
-
 	len = inputlen + paddinglen + 10;
-
-	des_cbc_encrypt((void *)output,
-	    (void *)output,
-	    len,
-	    c->keysched,
-	    &c->ivec,
-	    DES_ENCRYPT);
-
-	/* Update the ivec (des_cbc_encrypt implementations tend to be broken in
-	   this way) */
+	des_cbc_encrypt((void *)output, (void *)output, len, c->keysched, &c->ivec, DES_ENCRYPT);
+	/* Update the ivec (des_cbc_encrypt implementations tend to be broken in this way) */
 	memcpy(c->ivec, output + (len - 8), 8);
-
 	*outputlen = len;
-
 	return SASL_OK;
 }
 
@@ -1055,7 +1003,7 @@ static void free_des(context_t * text)
 
 #ifdef WITH_RC4
 #ifdef HAVE_OPENSSL
-#include <openssl/evp.h>
+#include <slib-ossl.h>
 
 static void free_rc4(context_t * text)
 {
@@ -1732,7 +1680,7 @@ static void DigestCalcHA1FromSecret(context_t * text,
 	utils->MD5Update(&Md5Ctx, pszNonce, (unsigned)strlen((char *)pszNonce));
 	utils->MD5Update(&Md5Ctx, COLON, 1);
 	utils->MD5Update(&Md5Ctx, pszCNonce, (unsigned)strlen((char *)pszCNonce));
-	if(authorization_id != NULL) {
+	if(authorization_id) {
 		utils->MD5Update(&Md5Ctx, COLON, 1);
 		utils->MD5Update(&Md5Ctx, authorization_id,
 		    (unsigned)strlen((char *)authorization_id));
@@ -1802,9 +1750,8 @@ static char * create_response(context_t * text,
 	result = (char *)utils->FnMalloc(HASHHEXLEN + 1);
 	memcpy(result, Response, HASHHEXLEN);
 	result[HASHHEXLEN] = 0;
-
 	/* Calculate response value for mutual auth with the client (NO Method) */
-	if(response_value != NULL) {
+	if(response_value) {
 		char * new_response_value;
 		DigestCalcResponse(utils,
 		    SessionKey,         /* HEX(H(A1)) */
@@ -1836,7 +1783,7 @@ static char * create_response(context_t * text,
 static int get_server_realm(sasl_server_params_t * params, char ** realm)
 {
 	/* look at user realm first */
-	if(params->user_realm != NULL) {
+	if(params->user_realm) {
 		if(params->user_realm[0] != '\0') {
 			*realm = (char *)params->user_realm;
 		}
@@ -1847,15 +1794,13 @@ static int get_server_realm(sasl_server_params_t * params, char ** realm)
 			return SASL_BADPARAM;
 		}
 	}
-	else if(params->serverFQDN != NULL) {
+	else if(params->serverFQDN) {
 		*realm = (char *)params->serverFQDN;
 	}
 	else {
-		params->utils->seterror(params->utils->conn, 0,
-		    "no way to obtain DIGEST-MD5 realm");
+		params->utils->seterror(params->utils->conn, 0, "no way to obtain DIGEST-MD5 realm");
 		return SASL_FAIL;
 	}
-
 	return SASL_OK;
 }
 
@@ -2583,21 +2528,15 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		SETERROR(sparams->utils, "unable to canonify user and get auxprops");
 		goto FreeAllMem;
 	}
-
-	if(authorization_id != NULL && *authorization_id != '\0') {
-		result = sparams->canon_user(sparams->utils->conn,
-			authorization_id, 0, SASL_CU_AUTHZID,
-			oparams);
+	if(authorization_id && *authorization_id != '\0') {
+		result = sparams->canon_user(sparams->utils->conn, authorization_id, 0, SASL_CU_AUTHZID, oparams);
 	}
 	if(result != SASL_OK) {
 		SETERROR(sparams->utils, "unable to canonify authorization ID");
 		goto FreeAllMem;
 	}
-
-	result = sparams->utils->prop_getnames(sparams->propctx, password_request,
-		auxprop_values);
-	if(result < 0 ||
-	    ((!auxprop_values[0].name || !auxprop_values[0].values)
+	result = sparams->utils->prop_getnames(sparams->propctx, password_request, auxprop_values);
+	if(result < 0 || ((!auxprop_values[0].name || !auxprop_values[0].values)
 #if defined(OBSOLETE_DIGEST_ATTR)
 	 && (!auxprop_values[1].name || !auxprop_values[1].values)
 #endif
@@ -2701,10 +2640,9 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 	}
 
 	/* check which layer/cipher to use */
-	if((!strcasecmp(qop, "auth-conf")) && (cipher != NULL)) {
+	if((!strcasecmp(qop, "auth-conf")) && cipher) {
 		/* see what cipher was requested */
 		struct digest_cipher * cptr;
-
 		cptr = available_ciphers;
 		while(cptr->name) {
 			/* find the cipher requested & make sure it's one we're happy
@@ -2963,30 +2901,29 @@ FreeAllMem:
 
 	/* free everything */
 	if(in_start) sparams->utils->FnFree(in_start);
-
-	if(full_username != NULL)
+	if(full_username)
 		sparams->utils->FnFree(full_username);
 	if(username)
 		sparams->utils->FnFree(username);
-	if(authorization_id != NULL)
+	if(authorization_id)
 		sparams->utils->FnFree(authorization_id);
-	if(realm != NULL)
+	if(realm)
 		sparams->utils->FnFree(realm);
-	if(nonce != NULL)
+	if(nonce)
 		sparams->utils->FnFree(nonce);
-	if(cnonce != NULL)
+	if(cnonce)
 		sparams->utils->FnFree(cnonce);
-	if(response != NULL)
+	if(response)
 		sparams->utils->FnFree(response);
-	if(cipher != NULL)
+	if(cipher)
 		sparams->utils->FnFree(cipher);
-	if(serverresponse != NULL)
+	if(serverresponse)
 		sparams->utils->FnFree(serverresponse);
-	if(charset != NULL)
+	if(charset)
 		sparams->utils->FnFree(charset);
-	if(digesturi != NULL)
+	if(digesturi)
 		sparams->utils->FnFree(digesturi);
-	if(qop != NULL)
+	if(qop)
 		sparams->utils->FnFree(qop);
 	if(sec)
 		_plug_free_secret(sparams->utils, &sec);
@@ -3209,10 +3146,9 @@ static void DigestCalcHA1(context_t * text,
 		utils->MD5Update(&Md5Ctx, pszNonce, (unsigned)strlen((char *)pszNonce));
 		utils->MD5Update(&Md5Ctx, COLON, 1);
 		utils->MD5Update(&Md5Ctx, pszCNonce, (unsigned)strlen((char *)pszCNonce));
-		if(pszAuthorization_id != NULL) {
+		if(pszAuthorization_id) {
 			utils->MD5Update(&Md5Ctx, COLON, 1);
-			utils->MD5Update(&Md5Ctx, pszAuthorization_id,
-			    (unsigned)strlen((char *)pszAuthorization_id));
+			utils->MD5Update(&Md5Ctx, pszAuthorization_id, (unsigned)strlen((char *)pszAuthorization_id));
 		}
 		utils->MD5Final(HA1, &Md5Ctx);
 	}
@@ -3300,10 +3236,8 @@ static char * calculate_response(context_t * text,
 	result = (char *)utils->FnMalloc(HASHHEXLEN + 1);
 	memcpy(result, Response, HASHHEXLEN);
 	result[HASHHEXLEN] = 0;
-
-	if(response_value != NULL) {
+	if(response_value) {
 		char * new_response_value;
-
 		DigestCalcResponse(utils,
 		    SessionKey,         /* HEX(H(A1)) */
 		    nonce,              /* nonce from server */
@@ -3482,7 +3416,7 @@ static int make_client_response(context_t * text,
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
-	if(ctext->cipher != NULL) {
+	if(ctext->cipher) {
 		if(add_to_challenge(params->utils,
 		    &text->out_buf, &text->out_buf_len, &resplen,
 		    "cipher",
@@ -3694,13 +3628,10 @@ SKIP_SPACES_IN_QOP:
 					value++;
 					goto SKIP_SPACES_IN_QOP;
 				}
-
 				comma = strchr(value, ',');
-
-				if(comma != NULL) {
+				if(comma) {
 					*comma++ = '\0';
 				}
-
 				/* skip LWSP at the end of the value (if any), skip_r_lws returns pointer to
 				   the first LWSP character, NUL (if there were none) or NULL if the value
 				   is entirely from LWSP characters */
@@ -3747,13 +3678,10 @@ SKIP_SPACES_IN_CIPHER:
 					value++;
 					goto SKIP_SPACES_IN_CIPHER;
 				}
-
 				comma = strchr(value, ',');
-
-				if(comma != NULL) {
+				if(comma) {
 					*comma++ = '\0';
 				}
-
 				/* skip LWSP at the end of the value, skip_r_lws returns pointer to
 				   the first LWSP character or NULL */
 				end_val = skip_r_lws(value);

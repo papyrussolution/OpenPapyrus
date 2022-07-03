@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include "modes_lcl.h"
 
 #if !defined(STRICT_ALIGNMENT) && !defined(PEDANTIC)

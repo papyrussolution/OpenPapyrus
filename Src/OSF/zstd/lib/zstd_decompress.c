@@ -452,7 +452,7 @@ size_t ZSTD_getFrameHeader_advanced(ZSTD_frameHeader* zfhPtr, const void * src, 
 			if(srcSize < ZSTD_SKIPPABLEHEADERSIZE)
 				return ZSTD_SKIPPABLEHEADERSIZE; /* magic number + frame length */
 			memzero(zfhPtr, sizeof(*zfhPtr));
-			zfhPtr->frameContentSize = MEM_readLE32((const char*)src + ZSTD_FRAMEIDSIZE);
+			zfhPtr->frameContentSize = MEM_readLE32((const char *)src + ZSTD_FRAMEIDSIZE);
 			zfhPtr->frameType = ZSTD_skippableFrame;
 			return 0;
 		}
@@ -792,7 +792,7 @@ size_t ZSTD_insertBlock(ZSTD_DCtx* dctx, const void * blockStart, size_t blockSi
 {
 	DEBUGLOG(5, "ZSTD_insertBlock: %u bytes", (uint)blockSize);
 	ZSTD_checkContinuity(dctx, blockStart, blockSize);
-	dctx->previousDstEnd = (const char*)blockStart + blockSize;
+	dctx->previousDstEnd = (const char *)blockStart + blockSize;
 	return blockSize;
 }
 
@@ -1263,9 +1263,9 @@ size_t ZSTD_decompressContinue(ZSTD_DCtx* dctx, void * dst, size_t dstCapacity, 
 static size_t ZSTD_refDictContent(ZSTD_DCtx* dctx, const void * dict, size_t dictSize)
 {
 	dctx->dictEnd = dctx->previousDstEnd;
-	dctx->virtualStart = (const char*)dict - ((const char*)(dctx->previousDstEnd) - (const char*)(dctx->prefixStart));
+	dctx->virtualStart = (const char *)dict - ((const char *)(dctx->previousDstEnd) - (const char *)(dctx->prefixStart));
 	dctx->prefixStart = dict;
-	dctx->previousDstEnd = (const char*)dict + dictSize;
+	dctx->previousDstEnd = (const char *)dict + dictSize;
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 	dctx->dictContentBeginForFuzzing = dctx->prefixStart;
 	dctx->dictContentEndForFuzzing = dctx->previousDstEnd;
@@ -1370,12 +1370,12 @@ static size_t ZSTD_decompress_insertDictionary(ZSTD_DCtx* dctx, const void * dic
 		    return ZSTD_refDictContent(dctx, dict, dictSize); /* pure content mode */
 	    }
 	}
-	dctx->dictID = MEM_readLE32((const char*)dict + ZSTD_FRAMEIDSIZE);
+	dctx->dictID = MEM_readLE32((const char *)dict + ZSTD_FRAMEIDSIZE);
 	/* load entropy tables */
 	{   
 		const size_t eSize = ZSTD_loadDEntropy(&dctx->entropy, dict, dictSize);
 	    RETURN_ERROR_IF(ZSTD_isError(eSize), dictionary_corrupted, "");
-	    dict = (const char*)dict + eSize;
+	    dict = (const char *)dict + eSize;
 	    dictSize -= eSize;
 	}
 	dctx->litEntropy = dctx->fseEntropy = 1;
@@ -1428,7 +1428,7 @@ size_t ZSTD_decompressBegin_usingDDict(ZSTD_DCtx* dctx, const ZSTD_DDict* ddict)
 	DEBUGLOG(4, "ZSTD_decompressBegin_usingDDict");
 	assert(dctx != NULL);
 	if(ddict) {
-		const char* const dictStart = (const char*)ZSTD_DDict_dictContent(ddict);
+		const char* const dictStart = (const char *)ZSTD_DDict_dictContent(ddict);
 		const size_t dictSize = ZSTD_DDict_dictSize(ddict);
 		const void * const dictEnd = dictStart + dictSize;
 		dctx->ddictIsCold = (dctx->dictEnd != dictEnd);
@@ -1450,7 +1450,7 @@ uint ZSTD_getDictID_fromDict(const void * dict, size_t dictSize)
 {
 	if(dictSize < 8) return 0;
 	if(MEM_readLE32(dict) != ZSTD_MAGIC_DICTIONARY) return 0;
-	return MEM_readLE32((const char*)dict + ZSTD_FRAMEIDSIZE);
+	return MEM_readLE32((const char *)dict + ZSTD_FRAMEIDSIZE);
 }
 
 /*! ZSTD_getDictID_fromFrame() :
@@ -1852,7 +1852,7 @@ static size_t ZSTD_decompressContinueStream(ZSTD_DStream* zds, char** op, char* 
 
 size_t ZSTD_decompressStream(ZSTD_DStream* zds, ZSTD_outBuffer* output, ZSTD_inBuffer* input)
 {
-	const char* const src = (const char*)input->src;
+	const char* const src = (const char *)input->src;
 	const char* const istart = input->pos != 0 ? src + input->pos : src;
 	const char* const iend = input->size != 0 ? src + input->size : src;
 	const char* ip = istart;
@@ -2083,7 +2083,7 @@ size_t ZSTD_decompressStream(ZSTD_DStream* zds, ZSTD_outBuffer* output, ZSTD_inB
 		}
 	}
 	/* result */
-	input->pos = (size_t)(ip - (const char*)(input->src));
+	input->pos = (size_t)(ip - (const char *)(input->src));
 	output->pos = (size_t)(op - (char *)(output->dst));
 	/* Update the expected output buffer for ZSTD_obm_stable. */
 	zds->expectedOutBuffer = *output;

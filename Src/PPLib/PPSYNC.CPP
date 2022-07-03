@@ -1,5 +1,5 @@
 // PPSYNC.CPP
-// (c) Alexander Simanov, Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021
+// (c) Alexander Simanov, Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2022
 // Database lock file implementation
 //
 #include <pp.h>
@@ -142,7 +142,7 @@ int PPSync::GetItemsList(long recType, PPSyncArray * pList)
 	if(IsValid() && GetInitPosition(&o, &numrecs) > 0) { // @v11.1.12 IsValid()
 		if(pList)
 			for(long i = 0; i < numrecs; AdvanceOffset(&o), i++)
-				if(GetItem(o, &item, 0) > 0 && item.Type == recType && item.ID && IsLocked(o) > 0)
+				if(GetItem(o, &item, 0) > 0 && item.Type == recType && item.ID && IsLocked(o))
 					ok = pList->insert(&item) ? 1 : PPSetErrorSLib();
 	}
 	else
@@ -159,7 +159,7 @@ int PPSync::GetItem(PPID id, PPSyncItem * pItem)
 	if(id) {
 		if(GetInitPosition(&o, &numrecs) > 0) {
 			for(long i = 0; ok != 1 && i < numrecs; AdvanceOffset(&o), i++)
-				if(GetItem(o, &item, 0) > 0 && item.ID == id && IsLocked(o) > 0) {
+				if(GetItem(o, &item, 0) > 0 && item.ID == id && IsLocked(o)) {
 					ASSIGN_PTR(pItem, item);
 					ok = 1;
 				}

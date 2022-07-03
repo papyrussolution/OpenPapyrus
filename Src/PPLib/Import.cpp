@@ -7043,6 +7043,106 @@ int ImportSpecial(const char * pPath_)
 		(out_buf = "nm;eml;pw;phn;dob;id;cntry;cty;adr;src").CR(); // id!
 		f_out.WriteLine(out_buf);
 		{
+			// yvesrochercustomer-USA.csv
+			//phone_number,city,internal_last_update,last_name,cell_phone_number,fid_number,@timestamp,first_name,id_customer,full_name,@version,email,zip_code
+			//5146955508,KIRKLAND,2019-01-07T14:23:29.000Z,SENNINGS,,0310011814,2019-01-21T16:21:49.413Z,PHILILIPA,106751758,PHILILIPA SENNINGS,1,,H9H5E5
+			StringSet ss(",");
+			(filename = _path).SetLastSlash().Cat("yvesrochercustomer-USA.csv");
+			SFile f_in(filename, SFile::mRead);
+			if(f_in.IsValid()) {
+				SString nm;
+				SString phn;
+				SString cell_phn;
+				SString ident;
+				SString city;
+				SString last_name;
+				SString first_name;
+				SString eml;
+				SString zip;
+				for(uint line_no = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); line_no++) {
+					if(line_no > 0 && line_buf.NotEmpty()) {
+						uint fldno = 0;
+						ss.setBuf(line_buf);
+						nm.Z();
+						phn.Z();
+						cell_phn.Z();
+						ident.Z();
+						city.Z();
+						last_name.Z();
+						first_name.Z();
+						eml.Z();
+						zip.Z();
+						for(uint ssp = 0; ss.get(&ssp, temp_buf); fldno++) {
+							temp_buf.StripQuotes().Strip();
+							//phone_number,city,internal_last_update,last_name,cell_phone_number,fid_number,@timestamp,first_name,id_customer,full_name,@version,email,zip_code
+							switch(fldno) {
+								case 0: // phone_number
+									(phn = temp_buf).Utf8ToLower();
+									break;
+								case 1: // city
+									(city = temp_buf).Utf8ToLower();
+									break;
+								case 2: // internal_last_update
+									break;
+								case 3: // last_name
+									(last_name = temp_buf).Utf8ToLower();
+									break;
+								case 4: // cell_phone_number
+									(cell_phn = temp_buf).Utf8ToLower();
+									break;
+								case 5: // fid_number
+									break;
+								case 6: // @timestamp
+									break;
+								case 7: // first_name
+									(first_name = temp_buf).Utf8ToLower();
+									break;
+								case 8: // id_customer
+									(ident = temp_buf).Utf8ToLower();
+									break;
+								case 9: // full_name
+									(nm = temp_buf).Utf8ToLower();
+									break;
+								case 10: // @version
+									break;
+								case 11: // email
+									(eml = temp_buf).Utf8ToLower();
+									break;
+								case 12: // zip_code
+									temp_buf.Utf8ToLower();
+									if(temp_buf.NotEmpty()) {
+										(zip = "zip").Colon().Cat(temp_buf);
+									}
+									break;
+							}
+						}
+						// "nm;eml;pw;phn;dob;id;cntry;cty;adr;src"
+						if(first_name.NotEmpty() && last_name.NotEmpty()) {
+							(nm = "sn").Colon().Cat(last_name).Space().Cat(first_name);
+						}
+						else if(nm.NotEmpty()) {
+							temp_buf = nm;
+							(nm = "cn").Colon().Cat(temp_buf);
+						}
+						temp_buf.Z();
+						if(cell_phn.NotEmpty()) {
+							if(phn.NotEmpty())
+								temp_buf.Cat(cell_phn).Comma().Cat(phn);
+							else
+								temp_buf = cell_phn;
+						}
+						else if(phn.NotEmpty())
+							temp_buf = phn;
+						phn = temp_buf;
+						out_buf.Z().Cat(nm).Semicol().Cat(eml).Semicol().Cat(""/*pwd*/).Semicol().Cat(phn).
+							Semicol()./*Cat(dob, DATF_ISO8601CENT).*/Semicol().Cat(ident).Semicol()./*Cat("ru").*/Semicol().Cat(city).
+							Semicol().Cat(zip).Semicol().Cat("yvesrocher").CR();
+						f_out.WriteLine(out_buf);
+					}
+				}
+			}
+		}
+		{
 			// ÔÈÎ;ÄÐ;phn;addr;inn;work
 			StringSet ss(";");
 			(filename = _path).SetLastSlash().Cat("fbkdntr.txt");

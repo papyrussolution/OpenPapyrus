@@ -206,7 +206,7 @@ public:
 	 * otherwise.
 	 * @stable ICU 2.6
 	 */
-	UCollationResult compareTo(const CollationKey& target, UErrorCode &status) const;
+	UCollationResult compareTo(const CollationKey& target, UErrorCode & status) const;
 
 	/**
 	 * Creates an integer that is unique to the collation key.  NOTE: this

@@ -4442,6 +4442,11 @@ public:
 	SString & FormatFileParsingMessage(const char * pFileName, int lineNo, const char * pAddedText);
 	SString & Helper_MbToMb(uint srcCodepage, uint destCodepage);
 	void   Cat_Unsafe(const uint8 * pChr, size_t numChr); // very-very dangerous function
+	//
+	// Descr: Если размер буфера менее size, то дораспределяет память до этого размера.
+	// Note: Только для внутреннего использования!
+	//
+	bool   Ensure(uint size);
 private:
 	int    FASTCALL Alloc(size_t);
 	SString & ShiftRight(size_t n, int padChar);
@@ -4548,6 +4553,8 @@ public:
 	int    AnalyzeCase() const;
 	long   ToLong() const;
 	int64  ToInt64() const;
+	//
+	bool   Ensure(uint sz); // @internal
 private:
 	int    FASTCALL Alloc(size_t sz);
 	int    Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize);
@@ -5030,6 +5037,8 @@ int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 // @v10.3.0 (unused) int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr = '\"');
 //
 // Функции для классификации и конвертации символов
+inline bool isdirslash(char c) { return oneof2(c, '/', '\\'); }
+inline bool isdirslash(wchar_t c) { return oneof2(c, L'/', L'\\'); }
 //
 // Descr: Возвращает !0 если символ c является шестнадцатиричным знаком [0-9A-Fa-f]
 //
@@ -5056,6 +5065,8 @@ uint   FASTCALL hexw(wchar_t c);
 //
 uint8  FASTCALL hextobyte(const char * pBuf);
 inline bool isasciialpha(char ch) { return LOGIC(((uchar)(ch | 32) - 97) < 26U); }
+inline bool isasciialpha(int ch) { return LOGIC(((uchar)(ch | 32) - 97) < 26U); }
+inline bool isasciialpha(wchar_t ch) { return LOGIC(((uchar)(ch | 32) - 97) < 26U); }
 inline bool isasciialnum(char ch) { return ((ch >= '0' && ch <= '9') || (((uchar)(ch | 32) - 97) < 26U)); }
 // @v10.9.3 (replaced with isasciialpha) int    FASTCALL IsLetterASCII(int ch); // synonym of isasciialpha
 int    FASTCALL IsLetter1251(int ch);
@@ -7914,7 +7925,7 @@ protected:
 		AccsCount++;
 		return P_List[P++];
 	}
-private:
+//private:
 	uint   P;
 	T    * P_List;
 	const uint Count;
@@ -7925,12 +7936,14 @@ class SRevolver_SString : public TSRevolver <SString> {
 public:
 	explicit SRevolver_SString(uint c);
 	SString & Get();
+	void   Saturate(uint minSize); // @debug
 };
 
 class SRevolver_SStringU : public TSRevolver <SStringU> {
 public:
 	explicit SRevolver_SStringU(uint c);
 	SStringU & Get();
+	void   Saturate(uint minSize); // @debug
 };
 
 DECL_CMPFUNC(PcharNoCase);
@@ -15396,8 +15409,8 @@ public:
 	StringSet TempFileList;
 	SRandGenerator Rg;      // Генератор случайных чисел общего пользования. Инициализируется по моменту создания потока.
 	SGlobalSecureConfig Gsc; // Конфигурация SSL, шифрования и др. для секьюритизации глобального обмена данными
-	SRevolver_SString  RvlSStA; // @v9.9.3 Револьверная коллекция shortlived-строк
-	SRevolver_SStringU RvlSStW; // @v9.9.3 Револьверная коллекция shortlived-строк(unicode)
+	SRevolver_SString  RvlSStA; // Револьверная коллекция shortlived-строк
+	SRevolver_SStringU RvlSStW; // Револьверная коллекция shortlived-строк(unicode)
 	SProfile Prf;            // Локальный по отношению к потоку профайлер
 	SLockStack LckStk;       // Отладочный стэк блокировок
 private:
@@ -15565,6 +15578,14 @@ public:
 	void   SetExtraProcBlock(const SlExtraProcBlock * pBlk);
 	void   LockPush(int lockType, const char * pSrcFileName, uint srcLineNo);
 	void   LockPop();
+	//
+	// Descr: Отладочная функция, насыщающая револьверный пул строк ради того, чтобы устранить его влияние на анализ утечки памяти.
+	//
+	void   SaturateRvlStrPool(uint minSize); // @debug
+	//
+	// Descr: То же, что и SaturateRvlStrPool но для пула unicode-строк
+	//
+	void   SaturateRvlStrUPool(uint minSize); // @debug
 	SString  & AcquireRvlStr();
 	SStringU & AcquireRvlStrU();
 	SAlloc::Stat & GetAllocStat() { return AllocStat; }

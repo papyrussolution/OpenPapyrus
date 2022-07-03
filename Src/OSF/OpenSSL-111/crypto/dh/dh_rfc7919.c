@@ -8,8 +8,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "dh_locl.h"
-//#include <openssl/bn.h>
-//#include <openssl/objects.h>
 #include <internal/crypto/bn_dh.h>
 
 static DH * dh_param_init(const BIGNUM * p, int32_t nbits)

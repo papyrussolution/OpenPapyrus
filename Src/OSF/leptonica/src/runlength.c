@@ -227,7 +227,7 @@ PIX * pixRunlengthTransform(PIX * pixs,
     int32 depth)
 {
 	int32 i, j, w, h, wpld, bufsize, maxsize, n;
-	int32   * start, * end, * buffer;
+	int32 * start, * end, * buffer;
 	uint32  * datad, * lined;
 	PIX * pixt, * pixd;
 

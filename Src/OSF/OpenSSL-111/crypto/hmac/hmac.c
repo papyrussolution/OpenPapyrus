@@ -8,12 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/hmac.h>
-//#include <openssl/opensslconf.h>
 #include "hmac_lcl.h"
 
-int HMAC_Init_ex(HMAC_CTX * ctx, const void * key, int len,
-    const EVP_MD * md, ENGINE * impl)
+int HMAC_Init_ex(HMAC_CTX * ctx, const void * key, int len, const EVP_MD * md, ENGINE * impl)
 {
 	int rv = 0;
 	int i, j, reset = 0;

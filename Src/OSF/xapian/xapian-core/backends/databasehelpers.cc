@@ -11,7 +11,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass/glass_defs.h"
 #include "honey/honey_defs.h"
 
 using namespace std;

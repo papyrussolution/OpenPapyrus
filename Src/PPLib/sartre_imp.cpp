@@ -3665,6 +3665,7 @@ int PrcssrSartre::Run()
 		}
 		// @v10.9.5 {
 		if(P.Flags & P.fImport_UED_Llcc) {
+			UED_Import_PackageTypes(); // @v11.4.3
 			UED_Import_Lingua_LinguaLocus_Country_Currency(/*llccBaseListOnly*/0);
 		}
 		// } @v10.9.5 
@@ -3686,7 +3687,7 @@ int PrcssrSartre::TestSearchWords()
 	int    ok = 1;
 	SString line_buf, temp_buf;
 	SString word_buf;
-	TSVector <SrWordInfo> info_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <SrWordInfo> info_list;
 	SrDatabase * p_db = DS.GetTLA().GetSrDatabase();
 	if(p_db) {
 		PPGetPath(PPPATH_TESTROOT, temp_buf);
@@ -5600,6 +5601,120 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 							}
 						}
 					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+class UED_PackageTypes_Block : public SStrGroup {
+public:
+	struct Entry {
+		uint64 ID;
+		char   Code[16];
+		S_GUID VetisGuid;
+		S_GUID VetisUuid;
+		uint   EnTxtP;
+		uint   RuTxtP;
+	};
+	UED_PackageTypes_Block()
+	{
+	}
+	TSVector <Entry> L;
+};
+
+int PrcssrSartre::UED_Import_PackageTypes()
+{
+	int    ok = 1;
+	const  char * p_base_path = "/papyrus/src/rsrc/data";
+	SString file_path;
+	SString temp_buf;
+	SString line_buf;
+	uint   id = 0;
+	const  uint64 meta = 0x000000010000005DULL;
+	StringSet ss(";");
+	UED_PackageTypes_Block blk;
+	(file_path = p_base_path).SetLastSlash().Cat("I-PackageTypes.csv"); // utf-8
+	SFile f_in(file_path, SFile::mRead);
+	THROW_SL(f_in.IsValid());
+	for(uint lineno = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); lineno++) {
+		if(lineno) { // The first line is a title
+			// Code;Vetis-GUID;Vetis-UUID;name-ru;name-en
+			UED_PackageTypes_Block::Entry new_entry;
+			MEMSZERO(new_entry);
+			ss.setBuf(line_buf);
+			for(uint ssp = 0, fldno = 0; ss.get(&ssp, temp_buf); fldno++) {
+				switch(fldno) {
+					case 0: 
+						STRNSCPY(new_entry.Code, temp_buf);
+						break;
+					case 1: 
+						if(temp_buf.NotEmptyS())
+							new_entry.VetisGuid.FromStr(temp_buf);
+						break;
+					case 2: 
+						if(temp_buf.NotEmptyS())
+							new_entry.VetisUuid.FromStr(temp_buf);
+						break;
+					case 3: 
+						temp_buf.Strip(); 
+						blk.AddS(temp_buf, &new_entry.RuTxtP);
+						break;
+					case 4: 
+						temp_buf.Strip(); 
+						blk.AddS(temp_buf, &new_entry.EnTxtP);
+						break;
+				}
+			}
+			if(new_entry.Code[0]) {
+				id++;
+				new_entry.ID = UED::MakeCanonical(id, meta);
+				blk.L.insert(&new_entry);
+			}
+		}
+	}
+	{
+		(file_path = p_base_path).SetLastSlash().Cat("I-PackageTypes.ued.txt"); // utf-8
+		SFile f_out(file_path, SFile::mWrite);
+		{
+			for(uint i = 0; i < blk.L.getCount(); i++) {
+				const UED_PackageTypes_Block::Entry & r_entry = blk.L.at(i);
+				assert(r_entry.Code[0]);
+				assert(r_entry.ID != 0);
+				assert(UED::BelongToMeta(r_entry.ID, meta));
+				line_buf.Z().CatHex(r_entry.ID).Space().CatQStr(r_entry.Code);
+				f_out.WriteLine(line_buf.CR());
+			}
+		}
+		f_out.WriteBlancLine();
+		{
+			// en
+			for(uint i = 0; i < blk.L.getCount(); i++) {
+				const UED_PackageTypes_Block::Entry & r_entry = blk.L.at(i);
+				assert(r_entry.Code[0]);
+				assert(r_entry.ID != 0);
+				assert(UED::BelongToMeta(r_entry.ID, meta));
+				blk.GetS(r_entry.EnTxtP, temp_buf);
+				if(temp_buf.NotEmptyS()) {
+					line_buf.Z().CatHex(r_entry.ID).Space().Cat("en").Space().CatQStr(temp_buf);
+					f_out.WriteLine(line_buf.CR());
+				}
+			}
+		}
+		f_out.WriteBlancLine();
+		{
+			// ru
+			for(uint i = 0; i < blk.L.getCount(); i++) {
+				const UED_PackageTypes_Block::Entry & r_entry = blk.L.at(i);
+				assert(r_entry.Code[0]);
+				assert(r_entry.ID != 0);
+				assert(UED::BelongToMeta(r_entry.ID, meta));
+				blk.GetS(r_entry.RuTxtP, temp_buf);
+				if(temp_buf.NotEmptyS()) {
+					line_buf.Z().CatHex(r_entry.ID).Space().Cat("ru").Space().CatQStr(temp_buf);
+					f_out.WriteLine(line_buf.CR());
 				}
 			}
 		}

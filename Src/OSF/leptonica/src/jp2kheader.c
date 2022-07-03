@@ -55,11 +55,11 @@ static const int32 MAX_JP2K_HEIGHT = 100000;
  * \return  0 if OK, 1 on error
  */
 l_ok readHeaderJp2k(const char * filename,
-    int32    * pw,
-    int32    * ph,
-    int32    * pbps,
-    int32    * pspp,
-    int32    * pcodec)
+    int32 * pw,
+    int32 * ph,
+    int32 * pbps,
+    int32 * pspp,
+    int32 * pcodec)
 {
 	int32 ret;
 	FILE * fp;

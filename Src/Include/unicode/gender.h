@@ -38,7 +38,7 @@ class GenderInfoTest;
 U_NAMESPACE_BEGIN
 
 /** \internal Forward Declaration  */
-void U_CALLCONV GenderInfo_initCache(UErrorCode &status);
+void U_CALLCONV GenderInfo_initCache(UErrorCode & status);
 
 /**
  * GenderInfo computes the gender of a list as a whole given the gender of
@@ -62,7 +62,7 @@ public:
 	 *                pointer, so it must not attempt to free it.
 	 * @stable ICU 50
 	 */
-	static const GenderInfo* U_EXPORT2 getInstance(const Locale& locale, UErrorCode& status);
+	static const GenderInfo* U_EXPORT2 getInstance(const Locale& locale, UErrorCode & status);
 
 	/**
 	 * Determines the gender of a list as a whole given the gender of each
@@ -75,7 +75,7 @@ public:
 	 * @return        the gender of the whole list.
 	 * @stable ICU 50
 	 */
-	UGender getListGender(const UGender* genders, int32_t length, UErrorCode& status) const;
+	UGender getListGender(const UGender* genders, int32_t length, UErrorCode & status) const;
 
 	/**
 	 * Destructor.
@@ -106,10 +106,10 @@ private:
 
 	static const GenderInfo* getMaleTaintsInstance();
 
-	static const GenderInfo* loadInstance(const Locale& locale, UErrorCode& status);
+	static const GenderInfo* loadInstance(const Locale& locale, UErrorCode & status);
 
 	friend class ::GenderInfoTest;
-	friend void U_CALLCONV GenderInfo_initCache(UErrorCode &status);
+	friend void U_CALLCONV GenderInfo_initCache(UErrorCode & status);
 };
 
 U_NAMESPACE_END

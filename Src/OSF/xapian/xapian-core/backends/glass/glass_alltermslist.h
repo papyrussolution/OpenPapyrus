@@ -11,10 +11,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_ALLTERMSLIST_H
 #define XAPIAN_INCLUDED_GLASS_ALLTERMSLIST_H
 
-#include "backends/alltermslist.h"
-#include "glass_database.h"
-#include "glass_postlist.h"
-
 class GlassCursor;
 
 class GlassAllTermsList : public AllTermsList {

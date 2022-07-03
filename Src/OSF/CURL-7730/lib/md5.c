@@ -89,7 +89,7 @@ static void MD5_Final(uchar * digest, MD5_CTX * ctx)
 
 #elif defined(USE_OPENSSL) && !defined(USE_AMISSL)
 /* When OpenSSL is available we use the MD5-function from OpenSSL */
-#include <openssl/md5.h>
+#include <slib-ossl.h>
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"

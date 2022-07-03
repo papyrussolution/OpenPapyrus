@@ -901,7 +901,7 @@ U_CFUNC int32_t ucase_getCaseLocale(const char * locale) {
 static bool isFollowedByCasedLetter(UCaseContextIterator * iter, void * context, int8 dir) {
 	UChar32 c;
 
-	if(iter==NULL) {
+	if(!iter) {
 		return FALSE;
 	}
 
@@ -927,7 +927,7 @@ static bool isPrecededBySoftDotted(UCaseContextIterator * iter, void * context) 
 	int32_t dotType;
 	int8 dir;
 
-	if(iter==NULL) {
+	if(!iter) {
 		return FALSE;
 	}
 
@@ -984,7 +984,7 @@ static bool isPrecededBy_I(UCaseContextIterator * iter, void * context) {
 	int32_t dotType;
 	int8 dir;
 
-	if(iter==NULL) {
+	if(!iter) {
 		return FALSE;
 	}
 
@@ -1002,15 +1002,14 @@ static bool isPrecededBy_I(UCaseContextIterator * iter, void * context) {
 }
 
 /* Is followed by one or more cc==230 ? */
-static bool isFollowedByMoreAbove(UCaseContextIterator * iter, void * context) {
+static bool isFollowedByMoreAbove(UCaseContextIterator * iter, void * context) 
+{
 	UChar32 c;
 	int32_t dotType;
 	int8 dir;
-
-	if(iter==NULL) {
+	if(!iter) {
 		return FALSE;
 	}
-
 	for(dir = 1; (c = iter(context, dir))>=0; dir = 0) {
 		dotType = getDotType(c);
 		if(dotType==UCASE_ABOVE) {
@@ -1020,20 +1019,18 @@ static bool isFollowedByMoreAbove(UCaseContextIterator * iter, void * context) {
 			return FALSE; /* next base character, no more cc==230 following */
 		}
 	}
-
 	return FALSE; /* no more cc==230 following */
 }
 
 /* Is followed by a dot above (without cc==230 in between) ? */
-static bool isFollowedByDotAbove(UCaseContextIterator * iter, void * context) {
+static bool isFollowedByDotAbove(UCaseContextIterator * iter, void * context) 
+{
 	UChar32 c;
 	int32_t dotType;
 	int8 dir;
-
-	if(iter==NULL) {
+	if(!iter) {
 		return FALSE;
 	}
-
 	for(dir = 1; (c = iter(context, dir))>=0; dir = 0) {
 		if(c==0x307) {
 			return TRUE;
@@ -1043,14 +1040,11 @@ static bool isFollowedByDotAbove(UCaseContextIterator * iter, void * context) {
 			return FALSE; /* next base character or cc==230 in between */
 		}
 	}
-
 	return FALSE; /* no dot above following */
 }
 
-U_CAPI int32_t U_EXPORT2 ucase_toFullLower(UChar32 c,
-    UCaseContextIterator * iter, void * context,
-    const UChar ** pString,
-    int32_t loc) {
+U_CAPI int32_t U_EXPORT2 ucase_toFullLower(UChar32 c, UCaseContextIterator * iter, void * context, const UChar ** pString, int32_t loc) 
+{
 	// The sign of the result has meaning, input must be non-negative so that it can be returned as is.
 	U_ASSERT(c >= 0);
 	UChar32 result = c;
@@ -1064,9 +1058,7 @@ U_CAPI int32_t U_EXPORT2 ucase_toFullLower(UChar32 c,
 		const uint16 * pe = GET_EXCEPTIONS(&ucase_props_singleton, props), * pe2;
 		uint16 excWord = *pe++;
 		int32_t full;
-
 		pe2 = pe;
-
 		if(excWord&UCASE_EXC_CONDITIONAL_SPECIAL) {
 			/* use hardcoded conditions and mappings */
 

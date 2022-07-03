@@ -21,7 +21,7 @@
 
 U_CAPI bool U_EXPORT2 ucol_looksLikeCollationBinary(const UDataSwapper * ds,
     const void * inData, int32_t length) {
-	if(ds==NULL || inData==NULL || length<-1) {
+	if(!ds || !inData || length<-1) {
 		return FALSE;
 	}
 
@@ -90,7 +90,7 @@ int32_t swapFormatVersion3(const UDataSwapper * ds,
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<-1 || (length>0 && outData==NULL)) {
+	if(!ds || !inData || length<-1 || (length>0 && outData==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

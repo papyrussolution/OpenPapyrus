@@ -1403,7 +1403,7 @@ PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 	PPObjID ident;
 	ident.Z();
 	long   obj_type_ext = 0;
-	long   int_type_id = atol(pObjType);
+	long   int_type_id = satoi(pObjType); // @v11.4.3 atol-->satoi
 	if(!SETIFZ(ident.Obj, NZOR(int_type_id, GetObjectTypeBySymb(pObjType, &obj_type_ext)))) {
 		PPSaveErrContext();
 		if(p_ref->SearchSymb(PPOBJ_DYNAMICOBJS, &int_type_id, pObjType, offsetof(ReferenceTbl::Rec, Symb)) > 0)
@@ -1413,7 +1413,7 @@ PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 	THROW(ident.Obj);
 	PPSetObjError(PPERR_OBJNFOUND, ident.Obj, ident.Id);
 	THROW(pObjIdent);
-	ident.Id = atol(pObjIdent);
+	ident.Id = satoi(pObjIdent); // @v11.4.3 atol-->satoi
 	if(ident.Id) {
 		ok = SearchObject(ident.Obj, ident.Id);
 	}

@@ -93,7 +93,7 @@ error:
 
 	static uint strlen(const codepoint_t * text)
 	{
-		return ::strlen((const char*)text);
+		return ::strlen((const char *)text);
 	}
 
 	static uint encode_len(hb_codepoint_t unicode)

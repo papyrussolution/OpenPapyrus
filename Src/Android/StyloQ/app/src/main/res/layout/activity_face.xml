@@ -55,6 +55,9 @@
                         <ImageButton style="@style/ToolbarButton" android:id="@+id/STDCTL_OKBUTTON"
                             android:layout_gravity="center_vertical|right"
                             app:srcCompat="@drawable/ic_ok01"/>
+                        <ImageButton style="@style/ToolbarButton" android:id="@+id/STDCTL_DELETEBUTTON"
+                            android:layout_gravity="center_vertical|right"
+                            app:srcCompat="@drawable/ic_deletefile02"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

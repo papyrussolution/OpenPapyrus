@@ -22,21 +22,22 @@ tools:context=".CommandListActivity">
         <!--android:background="?attr/colorPrimary"-->
         <ImageView style="@style/OuterImage_Side"
             android:id="@+id/CTLIMG_PAGEHEADER_SVC"
-            android:layout_width="48dp"
-            android:layout_height="48dp">
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            >
         </ImageView>
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView style="@style/PageHeaderTitleText"
                 android:id="@+id/CTL_PAGEHEADER_SVCTITLE"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:layout_height="wrap_content"/>
             <TextView style="@style/PageHeaderTopicText"
                 android:id="@+id/CTL_PAGEHEADER_TOPIC"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@{cmd_pl}"/>
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>

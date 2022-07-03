@@ -14,10 +14,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_CHECK_H
 #define XAPIAN_INCLUDED_GLASS_CHECK_H
 
-#include "glass_table.h"
-#include <iosfwd>
-#include <string>
-
 class GlassVersion;
 
 class GlassTableCheck : public GlassTable {

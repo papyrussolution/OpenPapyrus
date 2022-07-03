@@ -203,7 +203,7 @@ int32_t CaseMap::toTitle(const char * locale, uint32_t options, BreakIterator * 
     UErrorCode & errorCode) {
 	LocalPointer<BreakIterator> ownedIter;
 	iter = ustrcase_getTitleBreakIterator(nullptr, locale, options, iter, ownedIter, errorCode);
-	if(iter==NULL) {
+	if(!iter) {
 		return 0;
 	}
 	UnicodeString s(srcLength<0, src, srcLength);

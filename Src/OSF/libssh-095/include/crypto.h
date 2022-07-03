@@ -30,11 +30,10 @@
 	#undef cbc_decrypt
 #endif
 #ifdef HAVE_OPENSSL_ECDH_H
-	#include <openssl/ecdh.h>
+	#include <slib-ossl.h>
 #endif
 
 #define DIGEST_MAX_LEN 64
-
 #define AES_GCM_TAGLEN 16
 #define AES_GCM_IVLEN  12
 

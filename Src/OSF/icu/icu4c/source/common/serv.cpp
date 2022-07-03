@@ -114,7 +114,7 @@ UOBJECT_DEFINE_RTTI_IMPLEMENTATION(ICUServiceKey)
 ICUServiceFactory::~ICUServiceFactory() {
 }
 
-SimpleFactory::SimpleFactory(UObject* instanceToAdopt, const UnicodeString & id, bool visible)
+SimpleFactory::SimpleFactory(UObject * instanceToAdopt, const UnicodeString & id, bool visible)
 	: _instance(instanceToAdopt), _id(id), _visible(visible)
 {
 }
@@ -124,7 +124,7 @@ SimpleFactory::~SimpleFactory()
 	delete _instance;
 }
 
-UObject* SimpleFactory::create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const
+UObject * SimpleFactory::create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const
 {
 	if(U_SUCCESS(status)) {
 		UnicodeString temp;
@@ -197,7 +197,7 @@ private:
 
 public:
 	UnicodeString actualDescriptor;
-	UObject* service;
+	UObject * service;
 
 	/**
 	 * Releases a reference to the shared resource.
@@ -206,7 +206,7 @@ public:
 		delete service;
 	}
 
-	CacheEntry(const UnicodeString & _actualDescriptor, UObject* _service)
+	CacheEntry(const UnicodeString & _actualDescriptor, UObject * _service)
 		: refcount(1), actualDescriptor(_actualDescriptor), service(_service) {
 	}
 
@@ -343,14 +343,14 @@ ICUService::~ICUService()
 	}
 }
 
-UObject* ICUService::get(const UnicodeString & descriptor, UErrorCode & status) const
+UObject * ICUService::get(const UnicodeString & descriptor, UErrorCode & status) const
 {
 	return get(descriptor, NULL, status);
 }
 
-UObject* ICUService::get(const UnicodeString & descriptor, UnicodeString * actualReturn, UErrorCode & status) const
+UObject * ICUService::get(const UnicodeString & descriptor, UnicodeString * actualReturn, UErrorCode & status) const
 {
-	UObject* result = NULL;
+	UObject * result = NULL;
 	ICUServiceKey* key = createKey(&descriptor, status);
 	if(key) {
 		result = getKey(*key, actualReturn, status);
@@ -359,7 +359,7 @@ UObject* ICUService::get(const UnicodeString & descriptor, UnicodeString * actua
 	return result;
 }
 
-UObject* ICUService::getKey(ICUServiceKey& key, UErrorCode & status) const
+UObject * ICUService::getKey(ICUServiceKey& key, UErrorCode & status) const
 {
 	return getKey(key, NULL, status);
 }
@@ -367,7 +367,7 @@ UObject* ICUService::getKey(ICUServiceKey& key, UErrorCode & status) const
 // this is a vector that subclasses of ICUService can override to further customize the result object
 // before returning it.  All other public get functions should call this one.
 
-UObject* ICUService::getKey(ICUServiceKey& key, UnicodeString * actualReturn, UErrorCode & status) const
+UObject * ICUService::getKey(ICUServiceKey& key, UnicodeString * actualReturn, UErrorCode & status) const
 {
 	return getKey(key, actualReturn, NULL, status);
 }
@@ -394,7 +394,7 @@ private:
 };
 
 // called only by factories, treat as private
-UObject* ICUService::getKey(ICUServiceKey& key, UnicodeString * actualReturn, const ICUServiceFactory* factory, UErrorCode & status) const
+UObject * ICUService::getKey(ICUServiceKey& key, UnicodeString * actualReturn, const ICUServiceFactory* factory, UErrorCode & status) const
 {
 	if(U_FAILURE(status)) {
 		return NULL;
@@ -551,7 +551,7 @@ outerEnd:
 				}
 			}
 
-			UObject* service = cloneInstance(result->service);
+			UObject * service = cloneInstance(result->service);
 			if(putInCache && !cacheResult) {
 				delete result;
 			}
@@ -562,7 +562,7 @@ outerEnd:
 	return handleDefault(key, actualReturn, status);
 }
 
-UObject* ICUService::handleDefault(const ICUServiceKey& /* key */, UnicodeString * /* actualIDReturn */, UErrorCode & /*
+UObject * ICUService::handleDefault(const ICUServiceKey& /* key */, UnicodeString * /* actualIDReturn */, UErrorCode & /*
                                                                                                                        status
   */       ) const
 {
@@ -760,12 +760,12 @@ UVector&ICUService::getDisplayNames(UVector& result,
 	return result;
 }
 
-URegistryKey ICUService::registerInstance(UObject* objToAdopt, const UnicodeString & id, UErrorCode & status)
+URegistryKey ICUService::registerInstance(UObject * objToAdopt, const UnicodeString & id, UErrorCode & status)
 {
 	return registerInstance(objToAdopt, id, TRUE, status);
 }
 
-URegistryKey ICUService::registerInstance(UObject* objToAdopt, const UnicodeString & id, bool visible, UErrorCode & status)
+URegistryKey ICUService::registerInstance(UObject * objToAdopt, const UnicodeString & id, bool visible, UErrorCode & status)
 {
 	ICUServiceKey* key = createKey(&id, status);
 	if(key) {
@@ -782,7 +782,7 @@ URegistryKey ICUService::registerInstance(UObject* objToAdopt, const UnicodeStri
 	return NULL;
 }
 
-ICUServiceFactory* ICUService::createSimpleFactory(UObject* objToAdopt, const UnicodeString & id, bool visible, UErrorCode & status)
+ICUServiceFactory* ICUService::createSimpleFactory(UObject * objToAdopt, const UnicodeString & id, bool visible, UErrorCode & status)
 {
 	if(U_SUCCESS(status)) {
 		if(objToAdopt && (!id.isBogus())) {

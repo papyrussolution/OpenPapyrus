@@ -33,7 +33,7 @@
 #ifdef USE_WOLFSSL
 	#include <wolfssl/options.h>
 #endif
-	#include <openssl/ssl.h>
+	#include <slib-ossl.h>
 #endif
 /* Define USE_NTRESPONSES in order to make the type-3 message include the NT response message. */
 #define USE_NTRESPONSES

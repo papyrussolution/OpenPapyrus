@@ -44,8 +44,8 @@ struct PostListAndTermFreq {
  */
 struct CmpMaxOrTerms {
 	/** Return true if and only if a has a strictly greater termweight than b. */
-	bool operator()(const PostListAndTermFreq& elt_a,
-	    const PostListAndTermFreq& elt_b) {
+	bool operator()(const PostListAndTermFreq& elt_a, const PostListAndTermFreq& elt_b) 
+	{
 		PostList * a = elt_a.pl;
 		PostList * b = elt_b.pl;
 #if (defined(__i386__) && !defined(__SSE_MATH__)) || defined(__mc68000__) || defined(__mc68010__) || defined(__mc68020__) || defined(__mc68030__)
@@ -145,7 +145,6 @@ public:
 		AssertRel(new_size, <=, pls.size());
 		if(new_size >= pls.size())
 			return;
-
 		for(auto&& i = pls.begin() + new_size; i != pls.end(); ++i) {
 			qopt->destroy_postlist(as_postlist(*i));
 		}
@@ -178,7 +177,6 @@ template <typename T> inline void Context<T>::expand_wildcard(const QueryWildcar
 done_skip_to:
 		if(t->at_end())
 			break;
-
 		const string & term = t->get_termname();
 		if(skip_ucase && term[0] >= 'A') {
 			// If there's a leading wildcard then skip terms that start

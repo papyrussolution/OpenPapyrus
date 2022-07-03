@@ -83,14 +83,9 @@ void Check64BitPortability::pointerassignment()
 			    rhstype->originalTypeName.empty() &&
 			    rhstype->type == ValueType::Type::INT)
 				assignmentIntegerToAddressError(tok);
-
 			// Assign pointer to integer..
-			if(rhstype->pointer >= 1U &&
-			    lhstype->pointer == 0U &&
-			    lhstype->originalTypeName.empty() &&
-			    lhstype->isIntegral() &&
-			    lhstype->type >= ValueType::Type::CHAR &&
-			    lhstype->type <= ValueType::Type::INT)
+			if(rhstype->pointer >= 1U && lhstype->pointer == 0U && lhstype->originalTypeName.empty() && lhstype->isIntegral() &&
+			    lhstype->type >= ValueType::Type::CHAR && lhstype->type <= ValueType::Type::INT)
 				assignmentAddressToIntegerError(tok);
 		}
 	}
@@ -98,8 +93,7 @@ void Check64BitPortability::pointerassignment()
 
 void Check64BitPortability::assignmentAddressToIntegerError(const Token * tok)
 {
-	reportError(tok, Severity::portability,
-	    "AssignmentAddressToInteger",
+	reportError(tok, Severity::portability, "AssignmentAddressToInteger",
 	    "Assigning a pointer to an integer is not portable.\n"
 	    "Assigning a pointer to an integer (int/long/etc) is not portable across different platforms and "
 	    "compilers. For example in 32-bit Windows and linux they are same width, but in 64-bit Windows and linux "
@@ -109,8 +103,7 @@ void Check64BitPortability::assignmentAddressToIntegerError(const Token * tok)
 
 void Check64BitPortability::assignmentIntegerToAddressError(const Token * tok)
 {
-	reportError(tok, Severity::portability,
-	    "AssignmentIntegerToAddress",
+	reportError(tok, Severity::portability, "AssignmentIntegerToAddress",
 	    "Assigning an integer to a pointer is not portable.\n"
 	    "Assigning an integer (int/long/etc) to a pointer is not portable across different platforms and "
 	    "compilers. For example in 32-bit Windows and linux they are same width, but in 64-bit Windows and linux "
@@ -120,8 +113,7 @@ void Check64BitPortability::assignmentIntegerToAddressError(const Token * tok)
 
 void Check64BitPortability::returnPointerError(const Token * tok)
 {
-	reportError(tok, Severity::portability,
-	    "CastAddressToIntegerAtReturn",
+	reportError(tok, Severity::portability, "CastAddressToIntegerAtReturn",
 	    "Returning an address value in a function with integer return type is not portable.\n"
 	    "Returning an address value in a function with integer (int/long/etc) return type is not portable across "
 	    "different platforms and compilers. For example in 32-bit Windows and Linux they are same width, but in "
@@ -131,8 +123,7 @@ void Check64BitPortability::returnPointerError(const Token * tok)
 
 void Check64BitPortability::returnIntegerError(const Token * tok)
 {
-	reportError(tok, Severity::portability,
-	    "CastIntegerToAddressAtReturn",
+	reportError(tok, Severity::portability, "CastIntegerToAddressAtReturn",
 	    "Returning an integer in a function with pointer return type is not portable.\n"
 	    "Returning an integer (int/long/etc) in a function with pointer return type is not portable across different "
 	    "platforms and compilers. For example in 32-bit Windows and Linux they are same width, but in 64-bit Windows "

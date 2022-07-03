@@ -393,12 +393,11 @@ static struct passwd *vms_getpwuid(uid_t uid)
 #ifdef __VAX
 
 #if(OPENSSL_VERSION_NUMBER < 0x00907001L)
-#define des_set_odd_parity DES_SET_ODD_PARITY
-#define des_set_key DES_SET_KEY
-#define des_ecb_encrypt DES_ECB_ENCRYPT
-
+	#define des_set_odd_parity DES_SET_ODD_PARITY
+	#define des_set_key DES_SET_KEY
+	#define des_ecb_encrypt DES_ECB_ENCRYPT
 #endif
-#include <openssl/evp.h>
+	#include <slib-ossl.h>
 #ifndef OpenSSL_add_all_algorithms
 #define OpenSSL_add_all_algorithms OPENSSL_ADD_ALL_ALGORITHMS
         void OPENSSL_ADD_ALL_ALGORITHMS(void);

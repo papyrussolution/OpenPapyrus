@@ -1927,7 +1927,7 @@ NUMA * numaGetUniformBinSizes(int32 ntotal,
  */
 l_ok numaSplitDistribution(NUMA * na,
     float scorefract,
-    int32    * psplitindex,
+    int32 * psplitindex,
     float * pave1,
     float * pave2,
     float * pnum1,
@@ -2554,7 +2554,7 @@ NUMA * numaFindExtrema(NUMA * nas,
  */
 l_ok numaFindLocForThreshold(NUMA * na,
     int32 skip,
-    int32    * pthresh,
+    int32 * pthresh,
     float * pfract)
 {
 	int32 i, n, start, index, minloc;
@@ -2649,11 +2649,11 @@ l_ok numaFindLocForThreshold(NUMA * na,
  */
 l_ok numaCountReversals(NUMA * nas,
     float minreversal,
-    int32    * pnr,
+    int32 * pnr,
     float * prd)
 {
 	int32 i, n, nr, ival, binvals;
-	int32   * ia;
+	int32 * ia;
 	float fval, delx, len;
 	NUMA * nat;
 

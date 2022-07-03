@@ -641,16 +641,7 @@ int ssh_bind_config_parse_file(ssh_bind sshbind, const char * filename);
 //
 //#include <gssapi/gssapi.h>
 #include "legacy.h"
-
-#ifdef HAVE_OPENSSL_X25519
-	#include <openssl/err.h>
-#endif
-#ifdef HAVE_OPENSSL_EC_H
-	#include <openssl/ec.h>
-#endif
-#ifdef HAVE_OPENSSL_ECDSA_H
-	#include <openssl/ecdsa.h>
-#endif
+#include <slib-ossl.h>
 #ifdef HAVE_OPENSSL_ED25519
 	// If using OpenSSL implementation, define the signature lenght which would be defined in libssh/ed25519.h otherwise 
 	#define ED25519_SIG_LEN 64

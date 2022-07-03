@@ -11,14 +11,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_POSITIONLIST_H
 #define XAPIAN_INCLUDED_GLASS_POSITIONLIST_H
 
-#include <xapian/types.h>
-#include "bitstream.h"
-#include "glass_cursor.h"
-#include "glass_lazytable.h"
-#include "pack.h"
-#include "backends/positionlist.h"
-#include <string>
-
 class GlassPositionListTable : public GlassLazyTable {
 public:
 	static std::string make_key(Xapian::docid did, const std::string & term) 

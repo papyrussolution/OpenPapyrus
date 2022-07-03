@@ -1971,7 +1971,7 @@ static gnode_t * parse_include_macro(gravity_parser_t * parser)
 	// only literals are supported in this version
 	gtoken_t type;
 	gtoken_s token;
-	const char        * module_name;
+	const char * module_name;
 	gravity_lexer_t    * newlexer;
 
 loop:

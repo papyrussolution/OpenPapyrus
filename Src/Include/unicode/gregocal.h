@@ -348,9 +348,9 @@ public:
 	 * @param status  Output param set to success/failure code on exit. If any value
 	 *                previously set in the time field is invalid, this will be set to
 	 *                an error status.
-	 * @deprecated ICU 2.6. Use roll(UCalendarDateFields field, int32_t amount, UErrorCode& status) instead.
+	 * @deprecated ICU 2.6. Use roll(UCalendarDateFields field, int32_t amount, UErrorCode & status) instead.
 	 */
-	virtual void roll(EDateFields field, int32_t amount, UErrorCode& status) override;
+	virtual void roll(EDateFields field, int32_t amount, UErrorCode & status) override;
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	/**
@@ -364,7 +364,7 @@ public:
 	 *                an error status.
 	 * @stable ICU 2.6.
 	 */
-	virtual void roll(UCalendarDateFields field, int32_t amount, UErrorCode& status) override;
+	virtual void roll(UCalendarDateFields field, int32_t amount, UErrorCode & status) override;
 
 #ifndef U_HIDE_DEPRECATED_API
 	/**
@@ -385,7 +385,7 @@ public:
 	 * @deprecated ICU 2.6. Use getActualMinimum(UCalendarDateFields field) instead. (Added to ICU 3.0 for signature
 	 *consistency)
 	 */
-	int32_t getActualMinimum(EDateFields field, UErrorCode& status) const;
+	int32_t getActualMinimum(EDateFields field, UErrorCode & status) const;
 #endif  /* U_HIDE_DEPRECATED_API */
 
 	/**
@@ -396,7 +396,7 @@ public:
 	 * @return         the minimum value that this field could have, given the current date.
 	 * @stable ICU 3.0
 	 */
-	int32_t getActualMinimum(UCalendarDateFields field, UErrorCode &status) const override;
+	int32_t getActualMinimum(UCalendarDateFields field, UErrorCode & status) const override;
 
 #ifndef U_HIDE_DEPRECATED_API
 	/**
@@ -421,7 +421,7 @@ public:
 	 * @return         the maximum value that this field could have, given the current date.
 	 * @stable ICU 2.6
 	 */
-	virtual int32_t getActualMaximum(UCalendarDateFields field, UErrorCode& status) const override;
+	virtual int32_t getActualMaximum(UCalendarDateFields field, UErrorCode & status) const override;
 
 	/**
 	 * (Overrides Calendar) Return true if the current date for this Calendar is in
@@ -432,7 +432,7 @@ public:
 	 *           false, otherwise.
 	 * @stable ICU 2.0
 	 */
-	virtual bool inDaylightTime(UErrorCode& status) const override;
+	virtual bool inDaylightTime(UErrorCode & status) const override;
 
 public:
 
@@ -579,7 +579,7 @@ protected:
 	 * @return       the day number with respect to the epoch.
 	 * @internal
 	 */
-	virtual UDate getEpochDay(UErrorCode& status);
+	virtual UDate getEpochDay(UErrorCode & status);
 
 	/**
 	 * Subclass API for defining limits of different types.
@@ -639,7 +639,7 @@ protected:
 	 * a calendar with the specified Julian/Gregorian cutover date.
 	 * @internal
 	 */
-	virtual void handleComputeFields(int32_t julianDay, UErrorCode &status) override;
+	virtual void handleComputeFields(int32_t julianDay, UErrorCode & status) override;
 
 private:
 	/**

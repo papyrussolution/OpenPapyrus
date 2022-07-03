@@ -457,10 +457,10 @@ l_ok jbAddPages(JBCLASSER  * classer,
  * \return  0 if OK; 1 on error
  */
 l_ok jbAddPage(JBCLASSER  * classer,
-    PIX        * pixs)
+    PIX * pixs)
 {
 	BOXA * boxas;
-	PIXA  * pixas;
+	PIXA * pixas;
 
 	PROCNAME(__FUNCTION__);
 
@@ -500,7 +500,7 @@ l_ok jbAddPage(JBCLASSER  * classer,
  * </pre>
  */
 l_ok jbAddPageComponents(JBCLASSER  * classer,
-    PIX        * pixs,
+    PIX * pixs,
     BOXA       * boxas,
     PIXA       * pixas)
 {
@@ -564,7 +564,7 @@ l_ok jbClassifyRankHaus(JBCLASSER  * classer,
 {
 	int32 n, nt, i, wt, ht, iclass, size, found, testval;
 	int32 npages, area1, area3;
-	int32    * tab8;
+	int32 * tab8;
 	float rank, x1, y1, x2, y2;
 	BOX        * box;
 	NUMA * naclass, * napage;
@@ -572,7 +572,7 @@ l_ok jbClassifyRankHaus(JBCLASSER  * classer,
 	NUMA * nafgt; /* fg area of all templates */
 	JBFINDCTX  * findcontext;
 	L_DNAHASH  * dahash;
-	PIX        * pix, * pix1, * pix2, * pix3, * pix4;
+	PIX * pix, * pix1, * pix2, * pix3, * pix4;
 	PIXA       * pixa, * pixa1, * pixa2, * pixat, * pixatd;
 	PIXAA      * pixaa;
 	PTA * pta, * ptac, * ptact;
@@ -921,7 +921,7 @@ int32 pixRankHaustest(PIX * pix1,
     int32 area1,
     int32 area3,
     float rank,
-    int32   * tab8)
+    int32 * tab8)
 {
 	int32 wi, hi, wt, ht, delw, delh, idelx, idely, boolmatch;
 	int32 thresh1, thresh3;
@@ -1001,7 +1001,7 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
 {
 	int32 n, nt, i, iclass, wt, ht, found, area, area1, area2, npages,
 	    overthreshold;
-	int32    * sumtab, * centtab;
+	int32 * sumtab, * centtab;
 	uint32   * row, word;
 	float x1, y1, x2, y2, xsum, ysum;
 	float thresh, weight, threshold;
@@ -1011,12 +1011,12 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
 	NUMA * naarea; /* w * h area of all templates */
 	JBFINDCTX  * findcontext;
 	L_DNAHASH  * dahash;
-	PIX        * pix, * pix1, * pix2;
+	PIX * pix, * pix1, * pix2;
 	PIXA       * pixa, * pixa1, * pixat;
 	PIXAA      * pixaa;
 	PTA * pta, * ptac, * ptact;
-	int32    * pixcts; /* pixel counts of each pixa */
-	int32   ** pixrowcts; /* row-by-row pixel counts of each pixa */
+	int32 * pixcts; /* pixel counts of each pixa */
+	int32 ** pixrowcts; /* row-by-row pixel counts of each pixa */
 	int32 x, y, rowcount, downcount, wpl;
 	uint8 byte;
 
@@ -1619,7 +1619,7 @@ PIXA * jbAccumulateComposites(PIXAA  * pixaa,
 	NUMA * na;
 	PIX * pix, * pixt1, * pixt2, * pixsum;
 	PIXA      * pixa, * pixad;
-	PTA       * ptat, * pta;
+	PTA * ptat, * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1698,7 +1698,7 @@ PIXA * jbAccumulateComposites(PIXAA  * pixaa,
  * \return  pixad 8 bpp templates for each class, or NULL on error
  *
  */
-PIXA * jbTemplatesFromComposites(PIXA  * pixac,
+PIXA * jbTemplatesFromComposites(PIXA * pixac,
     NUMA * na)
 {
 	int32 n, i;
@@ -2161,16 +2161,16 @@ PIXA * jbDataRender(JBDATA  * data,
  * </pre>
  */
 l_ok jbGetULCorners(JBCLASSER  * classer,
-    PIX        * pixs,
+    PIX * pixs,
     BOXA       * boxa)
 {
 	int32 i, baseindex, index, n, iclass, idelx, idely, x, y, dx, dy;
-	int32   * sumtab;
+	int32 * sumtab;
 	float x1, x2, y1, y2, delx, dely;
-	BOX       * box;
+	BOX * box;
 	NUMA * naclass;
 	PIX * pixt;
-	PTA       * ptac, * ptact, * ptaul;
+	PTA * ptac, * ptact, * ptaul;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2256,7 +2256,7 @@ l_ok jbGetLLCorners(JBCLASSER  * classer)
 	NUMA * naclass;
 	PIX * pix;
 	PIXA      * pixat;
-	PTA       * ptaul, * ptall;
+	PTA * ptaul, * ptall;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2332,7 +2332,7 @@ static int two_by_two_walk[50] = {
  * \return  Allocated context to be used with findSimilar*
  */
 static JBFINDCTX * findSimilarSizedTemplatesInit(JBCLASSER  * classer,
-    PIX        * pixs)
+    PIX * pixs)
 {
 	JBFINDCTX  * state;
 

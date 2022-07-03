@@ -133,7 +133,7 @@ PTA * ptaCreateFromNuma(NUMA * nax,
 {
 	int32 i, n;
 	float startx, delx, xval, yval;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -202,7 +202,7 @@ PTA * ptaCopy(PTA * pta)
 {
 	int32 i;
 	float x, y;
-	PTA       * npta;
+	PTA * npta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -307,7 +307,7 @@ l_ok ptaEmpty(PTA * pta)
  * \param[in]    x, y
  * \return  0 if OK, 1 on error
  */
-l_ok ptaAddPt(PTA       * pta,
+l_ok ptaAddPt(PTA * pta,
     float x,
     float y)
 {
@@ -554,7 +554,7 @@ l_ok ptaGetIPt(PTA * pta,
  * \param[in]    x, y
  * \return  0 if OK; 1 on error
  */
-l_ok ptaSetPt(PTA       * pta,
+l_ok ptaSetPt(PTA * pta,
     int32 index,
     float x,
     float y)
@@ -666,7 +666,7 @@ PTA * ptaReadStream(FILE * fp)
 	char typestr[128]; /* hardcoded below in fscanf */
 	int32 i, n, ix, iy, type, version;
 	float x, y;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -858,7 +858,7 @@ l_ok ptaWriteStream(FILE * fp,
  */
 l_ok ptaWriteMem(uint8  ** pdata,
     size_t * psize,
-    PTA       * pta,
+    PTA * pta,
     int32 type)
 {
 	int32 ret;

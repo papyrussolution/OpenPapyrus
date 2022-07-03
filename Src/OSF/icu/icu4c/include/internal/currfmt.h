@@ -37,13 +37,7 @@ public:
 	 * Construct a CurrencyFormat for the given locale.
 	 */
 	CurrencyFormat(const Locale & locale, UErrorCode & ec);
-	/**
-	 * Copy constructor.
-	 */
 	CurrencyFormat(const CurrencyFormat& other);
-	/**
-	 * Destructor.
-	 */
 	virtual ~CurrencyFormat();
 	/**
 	 * Override Format API.
@@ -57,15 +51,11 @@ public:
 	/**
 	 * Override Format API.
 	 */
-	virtual void parseObject(const UnicodeString & source,
-	    Formattable& result,
-	    ParsePosition& pos) const override;
-
+	virtual void parseObject(const UnicodeString & source, Formattable& result, ParsePosition& pos) const override;
 	/**
 	 * Override Format API.
 	 */
 	virtual UClassID getDynamicClassID() const override;
-
 	/**
 	 * Returns the class ID for this class.
 	 */

@@ -348,7 +348,7 @@ MEM_STATIC size_t ZSTD_decompressLegacyStream(void* legacyContext, uint32 versio
 		case 4:
 	    {
 		    ZBUFFv04_DCtx* dctx = (ZBUFFv04_DCtx*)legacyContext;
-		    const void* src = (const char*)input->src + input->pos;
+		    const void* src = (const char *)input->src + input->pos;
 		    size_t readSize = input->size - input->pos;
 		    void* dst = (char *)output->dst + output->pos;
 		    size_t decodedSize = output->size - output->pos;
@@ -362,7 +362,7 @@ MEM_STATIC size_t ZSTD_decompressLegacyStream(void* legacyContext, uint32 versio
 		case 5:
 	    {
 		    ZBUFFv05_DCtx* dctx = (ZBUFFv05_DCtx*)legacyContext;
-		    const void* src = (const char*)input->src + input->pos;
+		    const void* src = (const char *)input->src + input->pos;
 		    size_t readSize = input->size - input->pos;
 		    void* dst = (char *)output->dst + output->pos;
 		    size_t decodedSize = output->size - output->pos;
@@ -376,7 +376,7 @@ MEM_STATIC size_t ZSTD_decompressLegacyStream(void* legacyContext, uint32 versio
 		case 6:
 	    {
 		    ZBUFFv06_DCtx* dctx = (ZBUFFv06_DCtx*)legacyContext;
-		    const void* src = (const char*)input->src + input->pos;
+		    const void* src = (const char *)input->src + input->pos;
 		    size_t readSize = input->size - input->pos;
 		    void* dst = (char *)output->dst + output->pos;
 		    size_t decodedSize = output->size - output->pos;
@@ -390,7 +390,7 @@ MEM_STATIC size_t ZSTD_decompressLegacyStream(void* legacyContext, uint32 versio
 		case 7:
 	    {
 		    ZBUFFv07_DCtx* dctx = (ZBUFFv07_DCtx*)legacyContext;
-		    const void* src = (const char*)input->src + input->pos;
+		    const void* src = (const char *)input->src + input->pos;
 		    size_t readSize = input->size - input->pos;
 		    void* dst = (char *)output->dst + output->pos;
 		    size_t decodedSize = output->size - output->pos;

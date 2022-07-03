@@ -15,8 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_freelist.h"
-#include "glass_table.h"
 
 using namespace std;
 using namespace Glass;

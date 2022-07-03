@@ -11,11 +11,7 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 // We always need GLASS_TABLE_EXTENSION.
-#include "glass/glass_defs.h"
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-#include "glass/glass_changes.h"
-#include "glass/glass_dbcheck.h"
-#include "glass/glass_version.h"
 #endif
 // We always need HONEY_TABLE_EXTENSION.
 #include "honey/honey_defs.h"

@@ -191,8 +191,7 @@ int _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx, _libssh2_cipher_type(algo),
 
 #if LIBSSH2_AES_CTR && !defined(HAVE_EVP_AES_128_CTR)
 
-#include <openssl/aes.h>
-#include <openssl/evp.h>
+#include <slib-ossl.h>
 
 typedef struct {
 	AES_KEY key;

@@ -1155,14 +1155,14 @@ struct MDB_txn {
 	 *	aborts, the ID may be re-used by the next writer.
 	 */
 	txnid_t mt_txnid;
-	MDB_env         * mt_env; /**< the DB environment */
+	MDB_env * mt_env; /**< the DB environment */
 	/** The list of pages that became unused during this transaction.
 	 */
 	MDB_IDL mt_free_pgs;
 	/** The list of loose pages that became unused and may be reused
 	 *	in this transaction, linked through #NEXT_LOOSE_PAGE(page).
 	 */
-	MDB_page        * mt_loose_pgs;
+	MDB_page * mt_loose_pgs;
 	/** Number of loose pages (#mt_loose_pgs) */
 	int mt_loose_count;
 	/** The sorted list of dirty pages we temporarily wrote to disk
@@ -1289,7 +1289,7 @@ struct MDB_cursor {
 	MDB_page * mc_pg[CURSOR_STACK]; /**< stack of pushed pages */
 	indx_t mc_ki[CURSOR_STACK]; /**< stack of page indices */
 #ifdef MDB_VL32
-	MDB_page        * mc_ovpg; /**< a referenced overflow page */
+	MDB_page * mc_ovpg; /**< a referenced overflow page */
 #define MC_OVPG(mc)                      ((mc)->mc_ovpg)
 #define MC_SET_OVPG(mc, pg)      ((mc)->mc_ovpg = (pg))
 #else
@@ -5452,7 +5452,7 @@ static MDB_node * mdb_node_search(MDB_cursor * mc, MDB_val * key, int * exactp)
 	int low, high;
 	int rc = 0;
 	MDB_page * mp = mc->mc_pg[mc->mc_top];
-	MDB_node        * node = NULL;
+	MDB_node * node = NULL;
 	MDB_val nodekey;
 	MDB_cmp_func * cmp;
 	DKBUF;
@@ -8599,13 +8599,11 @@ static int mdb_rebalance(MDB_cursor * mc)
 static int mdb_cursor_del0(MDB_cursor * mc)
 {
 	int rc;
-	MDB_page * mp;
-	indx_t ki;
 	uint nkeys;
 	MDB_cursor * m2, * m3;
 	MDB_dbi dbi = mc->mc_dbi;
-	ki = mc->mc_ki[mc->mc_top];
-	mp = mc->mc_pg[mc->mc_top];
+	indx_t ki = mc->mc_ki[mc->mc_top];
+	MDB_page * mp = mc->mc_pg[mc->mc_top];
 	mdb_node_del(mc, mc->mc_db->md_pad);
 	mc->mc_db->md_entries--;
 	{
@@ -8768,11 +8766,11 @@ static int mdb_page_split(MDB_cursor * mc, MDB_val * newkey, MDB_val * newdata, 
 	indx_t newindx;
 	pgno_t pgno = 0;
 	int i, j, split_indx, nkeys, pmax;
-	MDB_env         * env = mc->mc_txn->mt_env;
-	MDB_node        * node;
+	MDB_env * env = mc->mc_txn->mt_env;
+	MDB_node * node = NULL;
 	MDB_val sepkey, rkey, xdata, * rdata = &xdata;
-	MDB_page        * copy = NULL;
-	MDB_page        * mp, * rp, * pp;
+	MDB_page * copy = NULL;
+	MDB_page * mp, * rp, * pp;
 	int ptop;
 	MDB_cursor mn;
 	DKBUF;
@@ -8953,9 +8951,7 @@ static int mdb_page_split(MDB_cursor * mc, MDB_val * newkey, MDB_val * newdata, 
 			}
 		}
 	}
-
 	DPRINTF(("separator is %d [%s]", split_indx, DKEY(&sepkey)));
-
 	/* Copy separator key to the parent.
 	 */
 	if(SIZELEFT(mn.mc_pg[ptop]) < mdb_branch_size(env, &sepkey)) {

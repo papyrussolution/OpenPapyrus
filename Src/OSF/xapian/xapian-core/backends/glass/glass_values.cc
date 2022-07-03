@@ -15,10 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_values.h"
-#include "glass_cursor.h"
-#include "glass_postlist.h"
-#include "glass_termlist.h"
 
 using namespace Glass;
 using namespace std;

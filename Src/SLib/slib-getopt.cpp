@@ -416,7 +416,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 			return 1;
 		}
 		// We have found another option-ARGV-element. Skip the initial punctuation. 
-		d->__nextchar = (argv[d->optind] + 1 + (longopts != NULL && argv[d->optind][1] == '-'));
+		d->__nextchar = (argv[d->optind] + 1 + (longopts && argv[d->optind][1] == '-'));
 	}
 	// 
 	// Decode the current option-ARGV-element. 

@@ -8,21 +8,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/buffer.h>
-//#include <openssl/objects.h>
-//#include <openssl/evp.h>
-//#include <openssl/x509.h>
-//#include <openssl/pkcs12.h>
-//#include <openssl/pem.h>
 
-static int do_pk8pkey(BIO * bp, EVP_PKEY * x, int isder,
-    int nid, const EVP_CIPHER * enc,
-    char * kstr, int klen, pem_password_cb * cb, void * u);
+static int do_pk8pkey(BIO * bp, EVP_PKEY * x, int isder, int nid, const EVP_CIPHER * enc, char * kstr, int klen, pem_password_cb * cb, void * u);
 
 #ifndef OPENSSL_NO_STDIO
-static int do_pk8pkey_fp(FILE * bp, EVP_PKEY * x, int isder,
-    int nid, const EVP_CIPHER * enc,
-    char * kstr, int klen, pem_password_cb * cb, void * u);
+static int do_pk8pkey_fp(FILE * bp, EVP_PKEY * x, int isder, int nid, const EVP_CIPHER * enc, char * kstr, int klen, pem_password_cb * cb, void * u);
 #endif
 /*
  * These functions write a private key in PKCS#8 format: it is a "drop in"
@@ -30,44 +20,32 @@ static int do_pk8pkey_fp(FILE * bp, EVP_PKEY * x, int isder,
  * is NULL then it uses the unencrypted private key form. The 'nid' versions
  * uses PKCS#5 v1.5 PBE algorithms whereas the others use PKCS#5 v2.0.
  */
-
-int PEM_write_bio_PKCS8PrivateKey_nid(BIO * bp, EVP_PKEY * x, int nid,
-    char * kstr, int klen,
-    pem_password_cb * cb, void * u)
+int PEM_write_bio_PKCS8PrivateKey_nid(BIO * bp, EVP_PKEY * x, int nid, char * kstr, int klen, pem_password_cb * cb, void * u)
 {
 	return do_pk8pkey(bp, x, 0, nid, NULL, kstr, klen, cb, u);
 }
 
-int PEM_write_bio_PKCS8PrivateKey(BIO * bp, EVP_PKEY * x, const EVP_CIPHER * enc,
-    char * kstr, int klen,
-    pem_password_cb * cb, void * u)
+int PEM_write_bio_PKCS8PrivateKey(BIO * bp, EVP_PKEY * x, const EVP_CIPHER * enc, char * kstr, int klen, pem_password_cb * cb, void * u)
 {
 	return do_pk8pkey(bp, x, 0, -1, enc, kstr, klen, cb, u);
 }
 
-int i2d_PKCS8PrivateKey_bio(BIO * bp, EVP_PKEY * x, const EVP_CIPHER * enc,
-    char * kstr, int klen,
-    pem_password_cb * cb, void * u)
+int i2d_PKCS8PrivateKey_bio(BIO * bp, EVP_PKEY * x, const EVP_CIPHER * enc, char * kstr, int klen, pem_password_cb * cb, void * u)
 {
 	return do_pk8pkey(bp, x, 1, -1, enc, kstr, klen, cb, u);
 }
 
-int i2d_PKCS8PrivateKey_nid_bio(BIO * bp, EVP_PKEY * x, int nid,
-    char * kstr, int klen,
-    pem_password_cb * cb, void * u)
+int i2d_PKCS8PrivateKey_nid_bio(BIO * bp, EVP_PKEY * x, int nid, char * kstr, int klen, pem_password_cb * cb, void * u)
 {
 	return do_pk8pkey(bp, x, 1, nid, NULL, kstr, klen, cb, u);
 }
 
-static int do_pk8pkey(BIO * bp, EVP_PKEY * x, int isder, int nid,
-    const EVP_CIPHER * enc, char * kstr, int klen,
-    pem_password_cb * cb, void * u)
+static int do_pk8pkey(BIO * bp, EVP_PKEY * x, int isder, int nid, const EVP_CIPHER * enc, char * kstr, int klen, pem_password_cb * cb, void * u)
 {
 	X509_SIG * p8;
 	PKCS8_PRIV_KEY_INFO * p8inf;
 	char buf[PEM_BUFSIZE];
 	int ret;
-
 	if((p8inf = EVP_PKEY2PKCS8(x)) == NULL) {
 		PEMerr(PEM_F_DO_PK8PKEY, PEM_R_ERROR_CONVERTING_PRIVATE_KEY);
 		return 0;

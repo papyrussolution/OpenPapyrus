@@ -375,11 +375,11 @@ static void t42_parse_encoding(T42_Face face, T42_Loader loader)
 	/* Otherwise, we should have either `StandardEncoding', */
 	/* `ExpertEncoding', or `ISOLatin1Encoding'       */
 	else {
-		if(cur + 17 < limit && ft_strncmp((const char*)cur, "StandardEncoding", 16) == 0)
+		if(cur + 17 < limit && ft_strncmp((const char *)cur, "StandardEncoding", 16) == 0)
 			face->type1.encoding_type = T1_ENCODING_TYPE_STANDARD;
-		else if(cur + 15 < limit && ft_strncmp((const char*)cur, "ExpertEncoding", 14) == 0)
+		else if(cur + 15 < limit && ft_strncmp((const char *)cur, "ExpertEncoding", 14) == 0)
 			face->type1.encoding_type = T1_ENCODING_TYPE_EXPERT;
-		else if(cur + 18 < limit && ft_strncmp((const char*)cur, "ISOLatin1Encoding", 17) == 0)
+		else if(cur + 18 < limit && ft_strncmp((const char *)cur, "ISOLatin1Encoding", 17) == 0)
 			face->type1.encoding_type = T1_ENCODING_TYPE_ISOLATIN1;
 		else
 			parser->root.error = FT_ERR(Ignore);
@@ -729,7 +729,7 @@ static void t42_parse_charstrings(T42_Face face, T42_Loader loader)
 			name_table->elements[n][len] = '\0';
 			/* record index of /.notdef */
 			if(*cur == '.' && ft_strcmp(".notdef",
-			    (const char*)(name_table->elements[n])) == 0) {
+			    (const char *)(name_table->elements[n])) == 0) {
 				notdef_index = n;
 				notdef_found = 1;
 			}
@@ -765,7 +765,7 @@ static void t42_parse_charstrings(T42_Face face, T42_Loader loader)
 		goto Fail;
 	}
 	/* if /.notdef does not occupy index 0, do our magic. */
-	if(ft_strcmp(".notdef", (const char*)name_table->elements[0])) {
+	if(ft_strcmp(".notdef", (const char *)name_table->elements[0])) {
 		/* Swap glyph in index 0 with /.notdef glyph.  First, add index 0  */
 		/* name and code entries to swap_table.  Then place notdef_index   */
 		/* name and code entries into swap_table.  Then swap name and code */
@@ -900,7 +900,7 @@ Exit:
 					FT_Byte   * name = (FT_Byte*)keyword->ident;
 					if(!name)
 						continue;
-					if(cur[0] == name[0] && len == ft_strlen((const char*)name) && ft_memcmp(cur, name, len) == 0) {
+					if(cur[0] == name[0] && len == ft_strlen((const char *)name) && ft_memcmp(cur, name, len) == 0) {
 						/* we found it -- run the parsing callback! */
 						parser->root.error = t42_load_keyword(face, loader, keyword);
 						if(parser->root.error)

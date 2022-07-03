@@ -569,7 +569,7 @@ public:
 	 * @param status The status indicating whether the constructor succeeded.
 	 * @stable ICU 3.2
 	 */
-	RuleBasedNumberFormat(const UnicodeString & rules, UParseError& perror, UErrorCode& status);
+	RuleBasedNumberFormat(const UnicodeString & rules, UParseError& perror, UErrorCode & status);
 
 	/**
 	 * Creates a RuleBasedNumberFormat that behaves according to the description
@@ -595,7 +595,7 @@ public:
 	 * @stable ICU 3.2
 	 */
 	RuleBasedNumberFormat(const UnicodeString & rules, const UnicodeString & localizations,
-	    UParseError& perror, UErrorCode& status);
+	    UParseError& perror, UErrorCode & status);
 
 	/**
 	 * Creates a RuleBasedNumberFormat that behaves according to the rules
@@ -613,7 +613,7 @@ public:
 	 * @stable ICU 2.0
 	 */
 	RuleBasedNumberFormat(const UnicodeString & rules, const Locale& locale,
-	    UParseError& perror, UErrorCode& status);
+	    UParseError& perror, UErrorCode & status);
 
 	/**
 	 * Creates a RuleBasedNumberFormat that behaves according to the description
@@ -642,7 +642,7 @@ public:
 	 * @stable ICU 3.2
 	 */
 	RuleBasedNumberFormat(const UnicodeString & rules, const UnicodeString & localizations,
-	    const Locale& locale, UParseError& perror, UErrorCode& status);
+	    const Locale& locale, UParseError& perror, UErrorCode & status);
 
 	/**
 	 * Creates a RuleBasedNumberFormat from a predefined ruleset.  The selector
@@ -659,7 +659,7 @@ public:
 	 * @param status The status indicating whether the constructor succeeded.
 	 * @stable ICU 2.0
 	 */
-	RuleBasedNumberFormat(URBNFRuleSetTag tag, const Locale& locale, UErrorCode& status);
+	RuleBasedNumberFormat(URBNFRuleSetTag tag, const Locale& locale, UErrorCode & status);
 	//
 	// boilerplate
 	//
@@ -738,7 +738,7 @@ public:
 	 * @see #getNumberOfRuleSetDisplayNameLocales
 	 * @stable ICU 3.2
 	 */
-	virtual Locale getRuleSetDisplayNameLocale(int32_t index, UErrorCode& status) const;
+	virtual Locale getRuleSetDisplayNameLocale(int32_t index, UErrorCode & status) const;
 
 	/**
 	 * Return the rule set display names for the provided locale.  These are in the same order
@@ -819,7 +819,7 @@ public:
 	    const UnicodeString & ruleSetName,
 	    UnicodeString & toAppendTo,
 	    FieldPosition& pos,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 	/**
 	 * Formats the specified 64-bit number using the named ruleset.
 	 * @param number The number to format.
@@ -835,7 +835,7 @@ public:
 	    const UnicodeString & ruleSetName,
 	    UnicodeString & toAppendTo,
 	    FieldPosition& pos,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 	/**
 	 * Formats the specified number using the named ruleset.
 	 * @param number The number to format.
@@ -851,7 +851,7 @@ public:
 	    const UnicodeString & ruleSetName,
 	    UnicodeString & toAppendTo,
 	    FieldPosition& pos,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 protected:
 	/**
@@ -874,7 +874,7 @@ protected:
 	virtual UnicodeString & format(const number::impl::DecimalQuantity &number,
 	    UnicodeString & appendTo,
 	    FieldPosition& pos,
-	    UErrorCode& status) const override;
+	    UErrorCode & status) const override;
 public:
 
 	using NumberFormat::parse;
@@ -953,7 +953,7 @@ public:
 	 * @param status set to failure code when a problem occurs.
 	 * @stable ICU 2.6
 	 */
-	virtual void setDefaultRuleSet(const UnicodeString & ruleSetName, UErrorCode& status);
+	virtual void setDefaultRuleSet(const UnicodeString & ruleSetName, UErrorCode & status);
 
 	/**
 	 * Return the name of the current default rule set.  If the current rule set is
@@ -973,7 +973,7 @@ public:
 	 *               updated with any new status from the function.
 	 * @stable ICU 53
 	 */
-	virtual void setContext(UDisplayContext value, UErrorCode& status) override;
+	virtual void setContext(UDisplayContext value, UErrorCode & status) override;
 
 	/**
 	 * Get the rounding mode.
@@ -1031,14 +1031,14 @@ private:
 	// this will ref the localizations if they are not NULL
 	// caller must deref to get adoption
 	RuleBasedNumberFormat(const UnicodeString & description, LocalizationInfo* localizations,
-	    const Locale& locale, UParseError& perror, UErrorCode& status);
+	    const Locale& locale, UParseError& perror, UErrorCode & status);
 
-	void init(const UnicodeString & rules, LocalizationInfo* localizations, UParseError& perror, UErrorCode& status);
+	void init(const UnicodeString & rules, LocalizationInfo* localizations, UParseError& perror, UErrorCode & status);
 	void initCapitalizationContextInfo(const Locale& thelocale);
 	void dispose();
 	void stripWhitespace(UnicodeString & src);
 	void initDefaultRuleSet();
-	NFRuleSet* findRuleSet(const UnicodeString & name, UErrorCode& status) const;
+	NFRuleSet* findRuleSet(const UnicodeString & name, UErrorCode & status) const;
 
 	/* friend access */
 	friend class NFSubstitution;
@@ -1048,16 +1048,16 @@ private:
 
 	inline NFRuleSet * getDefaultRuleSet() const;
 	const RuleBasedCollator * getCollator() const;
-	DecimalFormatSymbols * initializeDecimalFormatSymbols(UErrorCode &status);
+	DecimalFormatSymbols * initializeDecimalFormatSymbols(UErrorCode & status);
 	const DecimalFormatSymbols * getDecimalFormatSymbols() const;
-	NFRule * initializeDefaultInfinityRule(UErrorCode &status);
+	NFRule * initializeDefaultInfinityRule(UErrorCode & status);
 	const NFRule * getDefaultInfinityRule() const;
-	NFRule * initializeDefaultNaNRule(UErrorCode &status);
+	NFRule * initializeDefaultNaNRule(UErrorCode & status);
 	const NFRule * getDefaultNaNRule() const;
-	PluralFormat * createPluralFormat(UPluralType pluralType, const UnicodeString &pattern, UErrorCode& status) const;
-	UnicodeString & adjustForCapitalizationContext(int32_t startPos, UnicodeString & currentResult, UErrorCode& status) const;
-	UnicodeString & format(int64_t number, NFRuleSet * ruleSet, UnicodeString & toAppendTo, UErrorCode& status) const;
-	void format(double number, NFRuleSet& rs, UnicodeString & toAppendTo, UErrorCode& status) const;
+	PluralFormat * createPluralFormat(UPluralType pluralType, const UnicodeString &pattern, UErrorCode & status) const;
+	UnicodeString & adjustForCapitalizationContext(int32_t startPos, UnicodeString & currentResult, UErrorCode & status) const;
+	UnicodeString & format(int64_t number, NFRuleSet * ruleSet, UnicodeString & toAppendTo, UErrorCode & status) const;
+	void format(double number, NFRuleSet& rs, UnicodeString & toAppendTo, UErrorCode & status) const;
 
 private:
 	NFRuleSet ** fRuleSets;

@@ -414,8 +414,7 @@ struct ThreadKeyAssoc {
 	 *   carefully (but inelegantly) to avoid deadlock.
 	 *
 	 *   An association is created when a thread first calls
-	 *   pthread_setspecific() on a key that has a specified
-	 *   destructor.
+	 *   pthread_setspecific() on a key that has a specified destructor.
 	 *
 	 *   An association is destroyed either immediately after the
 	 *   thread calls the key destructor function on thread exit, or

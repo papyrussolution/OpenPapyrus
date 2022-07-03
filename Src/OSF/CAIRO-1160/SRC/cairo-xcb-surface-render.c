@@ -4020,26 +4020,20 @@ static cairo_xcb_font_glyphset_info_t * _cairo_xcb_scaled_font_get_glyphset_info
 }
 
 static void _cairo_xcb_glyph_fini(cairo_scaled_glyph_private_t * glyph_private,
-    cairo_scaled_glyph_t * glyph,
-    cairo_scaled_font_t * font)
+    cairo_scaled_glyph_t * glyph, cairo_scaled_font_t * font)
 {
 	cairo_xcb_glyph_private_t * priv = (cairo_xcb_glyph_private_t*)glyph_private;
-
 	if(!font->finished) {
 		cairo_xcb_font_glyphset_info_t * info = priv->glyphset;
 		cairo_xcb_font_glyphset_free_glyphs_t * to_free;
 		cairo_xcb_font_t * font_private;
-
 		font_private = _cairo_xcb_font_get(glyph_private->key, font);
 		assert(font_private);
-
 		to_free = info->pending_free_glyphs;
-		if(to_free &&
-		    to_free->glyph_count == ARRAY_LENGTH(to_free->glyph_indices)) {
+		if(to_free && to_free->glyph_count == ARRAY_LENGTH(to_free->glyph_indices)) {
 			_cairo_xcb_render_free_glyphs(font_private->connection, to_free);
 			to_free = info->pending_free_glyphs = NULL;
 		}
-
 		if(to_free == NULL) {
 			to_free = _cairo_malloc(sizeof(cairo_xcb_font_glyphset_free_glyphs_t));
 			if(UNLIKELY(to_free == NULL)) {

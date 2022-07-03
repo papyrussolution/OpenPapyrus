@@ -952,7 +952,7 @@ static PIX * pixOctreeQuantizePixels(PIX * pixs,
 	int32 val1, val2, val3, dif;
 	int32 w, h, wpls, wpld, i, j, success;
 	int32 rc, gc, bc;
-	int32   * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
+	int32 * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
 	uint32 * rtab, * gtab, * btab;
 	uint32 * datas, * datad, * lines, * lined;
 	PIX * pixd;
@@ -1162,10 +1162,10 @@ buffer_cleanup:
  */
 static int32 octreeFindColorCell(int32 octindex,
     CQCELL  *** cqcaa,
-    int32   * pindex,
-    int32   * prval,
-    int32   * pgval,
-    int32   * pbval)
+    int32 * pindex,
+    int32 * prval,
+    int32 * pgval,
+    int32 * pbval)
 {
 	int32 level;
 	int32 baseindex, subindex;
@@ -1944,14 +1944,14 @@ static int32 pixDitherOctindexWithCmap(PIX * pixs,
     uint32 * rtab,
     uint32 * gtab,
     uint32 * btab,
-    int32   * indexmap,
+    int32 * indexmap,
     int32 difcap)
 {
 	uint8   * bufu8r, * bufu8g, * bufu8b;
 	int32 i, j, w, h, wpld, octindex, cmapindex, success;
 	int32 rval, gval, bval, rc, gc, bc;
 	int32 dif, val1, val2, val3;
-	int32   * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
+	int32 * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
 	uint32 * datad, * lined;
 	PIXCMAP   * cmap;
 
@@ -2217,7 +2217,7 @@ PIX * pixOctreeQuantNumColors(PIX * pixs,
 {
 	int32 w, h, minside, bpp, wpls, wpld, i, j, actualcolors;
 	int32 rval, gval, bval, nbase, nextra, maxlevel, ncubes, val;
-	int32   * lut1, * lut2;
+	int32 * lut1, * lut2;
 	uint32 index;
 	uint32 * lines, * lined, * datas, * datad, * pspixel;
 	uint32 * rtab, * gtab, * btab;
@@ -2546,8 +2546,8 @@ PIX * pixOctcubeQuantMixedWithGray(PIX * pixs,
 {
 	int32 w, h, wpls, wpld, i, j, size, octlevels;
 	int32 rval, gval, bval, del, val, midval;
-	int32   * carray, * rarray, * garray, * barray;
-	int32   * tabval;
+	int32 * carray, * rarray, * garray, * barray;
+	int32 * tabval;
 	uint32 octindex;
 	uint32 * rtab, * gtab, * btab;
 	uint32 * lines, * lined, * datas, * datad;
@@ -2771,7 +2771,7 @@ PIX * pixFixedOctcubeQuant256(PIX * pixs,
 	int32 rval, gval, bval;
 	int32 w, h, wpls, wpld, i, j, cindex;
 	uint32 * rtab, * gtab, * btab;
-	int32   * itab;
+	int32 * itab;
 	uint32 * datas, * datad, * lines, * lined;
 	PIX * pixd;
 	PIXCMAP   * cmap;
@@ -2902,7 +2902,7 @@ PIX * pixFewColorsOctcubeQuant1(PIX * pixs,
 {
 	int32 w, h, wpls, wpld, i, j, depth, size, ncolors, index;
 	int32 rval, gval, bval;
-	int32   * carray, * rarray, * garray, * barray;
+	int32 * carray, * rarray, * garray, * barray;
 	uint32 octindex;
 	uint32 * rtab, * gtab, * btab;
 	uint32 * lines, * lined, * datas, * datad, * pspixel;
@@ -3074,7 +3074,7 @@ PIX * pixFewColorsOctcubeQuant2(PIX * pixs,
 	int32 w, h, wpls, wpld, i, j, nerrors;
 	int32 ncubes, depth, cindex, oval;
 	int32 rval, gval, bval;
-	int32   * octarray;
+	int32 * octarray;
 	uint32 octindex;
 	uint32 * rtab, * gtab, * btab;
 	uint32 * lines, * lined, * datas, * datad, * ppixel;
@@ -3263,7 +3263,7 @@ PIX * pixFewColorsOctcubeQuantMixed(PIX * pixs,
 {
 	int32 i, j, w, h, wplc, wplm, wpld, ncolors, index;
 	int32 rval, gval, bval, val, minval, maxval;
-	int32   * lut;
+	int32 * lut;
 	uint32 * datac, * datam, * datad, * linec, * linem, * lined;
 	PIX * pix1, * pixc, * pixm, * pixg, * pixd;
 	PIXCMAP   * cmap, * cmapd;
@@ -3534,7 +3534,7 @@ PIX * pixOctcubeQuantFromCmap(PIX * pixs,
     int32 level,
     int32 metric)
 {
-	int32   * cmaptab;
+	int32 * cmaptab;
 	uint32 * rtab, * gtab, * btab;
 	PIX * pixd;
 
@@ -3595,7 +3595,7 @@ PIX * pixOctcubeQuantFromCmap(PIX * pixs,
 static PIX * pixOctcubeQuantFromCmapLUT(PIX * pixs,
     PIXCMAP   * cmap,
     int32 mindepth,
-    int32   * cmaptab,
+    int32 * cmaptab,
     uint32 * rtab,
     uint32 * gtab,
     uint32 * btab)
@@ -3801,7 +3801,7 @@ int32 * pixcmapToOctcubeLUT(PIXCMAP  * cmap,
 {
 	int32 i, k, size, ncolors, mindist, dist, mincolor, index;
 	int32 rval, gval, bval; /* color at center of the octcube */
-	int32   * rmap, * gmap, * bmap, * tab;
+	int32 * rmap, * gmap, * bmap, * tab;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3885,8 +3885,8 @@ l_ok pixRemoveUnusedColors(PIX  * pixs)
 	int32 i, j, w, h, d, nc, wpls, val, newval, index, zerofound;
 	int32 rval, gval, bval;
 	uint32   * datas, * lines;
-	int32    * histo, * map1, * map2;
-	PIXCMAP    * cmap, * cmapd;
+	int32 * histo, * map1, * map2;
+	PIXCMAP * cmap, * cmapd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -4028,11 +4028,11 @@ l_ok pixNumberOccupiedOctcubes(PIX * pix,
     int32 level,
     int32 mincount,
     float minfract,
-    int32   * pncolors)
+    int32 * pncolors)
 {
 	int32 i, j, w, h, d, wpl, ncolors, size, octindex;
 	int32 rval, gval, bval;
-	int32   * carray;
+	int32 * carray;
 	uint32 * data, * line, * rtab, * gtab, * btab;
 
 	PROCNAME(__FUNCTION__);

@@ -7,10 +7,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/evp.h>
-//#include <openssl/err.h>
 #include <internal/crypto/poly1305.h>
 #include <poly1305_local.h>
 

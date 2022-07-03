@@ -16,7 +16,7 @@
 #pragma hdrstop
 
 #ifdef HAVE_ECDH
-#include <openssl/ecdh.h>
+#include <slib-ossl.h>
 
 #define NISTP256 NID_X9_62_prime256v1
 #define NISTP384 NID_secp384r1

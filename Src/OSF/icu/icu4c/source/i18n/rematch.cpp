@@ -2224,7 +2224,7 @@ int32_t RegexMatcher::getStackLimit() const { return fStackLimit; }
 //
 //     setMatchCallback
 //
-void RegexMatcher::setMatchCallback(URegexMatchCallback     * callback, const void   * context, UErrorCode              &status) 
+void RegexMatcher::setMatchCallback(URegexMatchCallback     * callback, const void   * context, UErrorCode & status) 
 {
 	if(U_FAILURE(status)) {
 		return;
@@ -2235,7 +2235,7 @@ void RegexMatcher::setMatchCallback(URegexMatchCallback     * callback, const vo
 //
 //     getMatchCallback
 //
-void RegexMatcher::getMatchCallback(URegexMatchCallback   *&callback, const void   *&context, UErrorCode              &status) 
+void RegexMatcher::getMatchCallback(URegexMatchCallback   *&callback, const void   *&context, UErrorCode & status) 
 {
 	if(U_FAILURE(status)) {
 		return;
@@ -2560,7 +2560,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 
 	//  Cache frequently referenced items from the compiled pattern
 	//
-	int64_t             * pat   = fPattern->fCompiledPat->getBuffer();
+	int64_t     * pat   = fPattern->fCompiledPat->getBuffer();
 
 	const UChar * litText       = fPattern->fLiteralText.getBuffer();
 	UVector             * fSets = fPattern->fSets;
@@ -4053,7 +4053,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 	//  Cache frequently referenced items from the compiled pattern
 	//
-	int64_t             * pat   = fPattern->fCompiledPat->getBuffer();
+	int64_t     * pat   = fPattern->fCompiledPat->getBuffer();
 
 	const UChar * litText       = fPattern->fLiteralText.getBuffer();
 	UVector             * fSets = fPattern->fSets;

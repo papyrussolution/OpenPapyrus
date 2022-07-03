@@ -345,7 +345,7 @@ NUMA * numaInvert(NUMA * nad,
 int32 numaSimilar(NUMA * na1,
     NUMA * na2,
     float maxdiff,
-    int32   * psimilar)
+    int32 * psimilar)
 {
 	int32 i, n;
 	float val1, val2;
@@ -423,7 +423,7 @@ l_ok numaAddToNumber(NUMA * na,
  */
 l_ok numaGetMin(NUMA * na,
     float * pminval,
-    int32    * piminloc)
+    int32 * piminloc)
 {
 	int32 i, n, iminloc;
 	float val, minval;
@@ -464,7 +464,7 @@ l_ok numaGetMin(NUMA * na,
  */
 l_ok numaGetMax(NUMA * na,
     float * pmaxval,
-    int32    * pimaxloc)
+    int32 * pimaxloc)
 {
 	int32 i, n, imaxloc;
 	float val, maxval;
@@ -1017,8 +1017,8 @@ l_ok numaCountNonzeroRuns(NUMA     * na,
  */
 l_ok numaGetNonzeroRange(NUMA * na,
     float eps,
-    int32   * pfirst,
-    int32   * plast)
+    int32 * pfirst,
+    int32 * plast)
 {
 	int32 n, i, found;
 	float val;
@@ -1922,7 +1922,7 @@ l_ok numaInterpolateArbxInterval(NUMA * nax, NUMA * nay, int32 type, float x0, f
 {
 	PROCNAME(__FUNCTION__);
 	int32 i, im, j, nx, ny, i1, i2, i3, sorted;
-	int32    * index;
+	int32 * index;
 	float del, xval, yval, excess, fract, minx, maxx, d1, d2, d3;
 	float * fax, * fay;
 	NUMA * nasx, * nasy, * nadx, * nady;
@@ -2992,7 +2992,7 @@ l_ok numaAddSorted(NUMA * na,
  */
 l_ok numaFindSortedLoc(NUMA * na,
     float val,
-    int32   * pindex)
+    int32 * pindex)
 {
 	int32 n, increasing, lindex, rindex, midindex;
 	float val0, valn, valmid;
@@ -3377,7 +3377,7 @@ l_ok numaGetMedianDevFromMedian(NUMA * na,
  */
 l_ok numaGetMode(NUMA * na,
     float * pval,
-    int32    * pcount)
+    int32 * pcount)
 {
 	int32 i, n, maxcount, prevcount;
 	float val, maxval, prevval;

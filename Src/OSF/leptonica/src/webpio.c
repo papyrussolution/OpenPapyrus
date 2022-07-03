@@ -127,9 +127,9 @@ PIX * pixReadMemWebP(const uint8  * filedata, size_t filesize)
  * \return  0 if OK, 1 on error
  */
 l_ok readHeaderWebP(const char * filename,
-    int32    * pw,
-    int32    * ph,
-    int32    * pspp)
+    int32 * pw,
+    int32 * ph,
+    int32 * pspp)
 {
 	uint8 data[100]; /* expect size info within the first 50 bytes or so */
 	int32 nbytes, bytesread;

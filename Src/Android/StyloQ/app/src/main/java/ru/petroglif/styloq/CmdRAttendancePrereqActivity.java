@@ -332,6 +332,36 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		}
 		return result;
 	}
+	private void SetupCurrentAttendanceByCurrentDocument()
+	{
+		if(!CPM.IsCurrentDocumentEmpty()) {
+			if(AttdcBlk == null)
+				AttdcBlk = new AttendanceBlock(P);
+			Document _doc = CPM.GetCurrentDocument();
+			if(_doc != null && _doc.BkList != null && _doc.BkList.size() > 0) {
+				String goods_name = "";
+				String prc_name = "";
+				String timechunk_text = "";
+				final Document.BookingItem bk_item = _doc.BkList.get(0);
+				if(bk_item != null) {
+					CommonPrereqModule.WareEntry goods_entry = CPM.FindGoodsItemByGoodsID(bk_item.GoodsID);
+					CommonPrereqModule.ProcessorEntry prc_entry = CPM.FindProcessorItemByID(bk_item.PrcID);
+					int prc_id = 0;
+					if(prc_entry != null && prc_entry.JsItem != null)
+						prc_id = prc_entry.JsItem.optInt("id", 0);
+					if(bk_item.ReqTime != null)
+						AttdcBlk.SetSelectionDate(bk_item.ReqTime.d);
+					AttdcBlk.Ware = goods_entry;
+					AttdcBlk.Prc = prc_entry;
+					AttdcBlk.BusyList = GetBusyListByPrc(AttdcBlk.Prc);
+					AttdcBlk.WorktimeList = GetWorktimeListByPrc(AttdcBlk.Prc);
+					AttdcBlk.SetSelectionDate(AttdcBlk.GetSelectionDate()); // Пересчитывам календарь в соответствии с процессором
+					AttdcBlk.CurrentBookingBusyList = CPM.GetCurrentDocumentBusyList(prc_id);
+					AttdcBlk.Duration = CPM.GetServiceDurationForPrc(0, AttdcBlk.GetGoodsID());
+				}
+			}
+		}
+	}
 	private boolean SetCurrentAttendancePrc(CommonPrereqModule.ProcessorEntry entry)
 	{
 		boolean result = false;
@@ -461,7 +491,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				new TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_attendanceprereq_goodsgroups, "@{group_pl}", (CPM.GoodsGroupListData != null)),
 				new TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_attendanceprereq_goods, "@{ware_pl}", (CPM.GoodsListData != null)),
 				new TabInitEntry(CommonPrereqModule.Tab.tabProcessors, R.layout.layout_attendanceprereq_processors, "@{processor_pl}", (CPM.ProcessorListData != null)),
-				new TabInitEntry(CommonPrereqModule.Tab.tabAttendance, R.layout.layout_attendanceprereq_attendance, "@{booking}", true),
+				new TabInitEntry(CommonPrereqModule.Tab.tabAttendance, R.layout.layout_attendanceprereq_attendance, /*"@{booking}"*/"@{selection_time}", true),
 				new TabInitEntry(CommonPrereqModule.Tab.tabBookingDocument, R.layout.layout_attendanceprereq_booking, "@{orderdocument}", true),
 				new TabInitEntry(CommonPrereqModule.Tab.tabOrders, R.layout.layout_attendanceprereq_orders, "@{booking_pl}", true),
 				new TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "[search]", true),
@@ -764,6 +794,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			if(removeTabIfEmpty)
 				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
 		}
+		SetupCurrentAttendanceByCurrentDocument();
+		UpdateAttendanceView();
 	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
@@ -1641,6 +1673,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														VdlDocs = new ViewDescriptionList();
 														{ // #0
 															ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+															col.Id = 1;
 															col.Flags |= ViewDescriptionList.Item.fImage;
 															col.FixedWidth = 32;
 															col.FixedHeight = 32;
@@ -1649,6 +1682,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														}
 														{ // #1
 															ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+															col.Id = 2;
 															col.Title = app_ctx.GetString("billdate");
 															col.StyleRcId = R.style.OrderListItemText;
 															col.Mrgn = fld_mrgn;
@@ -1656,6 +1690,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														}
 														{ // #2
 															ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+															col.Id = 3;
 															col.Title = app_ctx.GetString("billno");
 															col.TotalFunc = SLib.AGGRFUNC_COUNT;
 															col.StyleRcId = R.style.OrderListItemText;
@@ -1664,6 +1699,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														}
 														{ // #3
 															ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+															col.Id = 4;
 															col.Title = app_ctx.GetString("billamount");
 															col.TotalFunc = SLib.AGGRFUNC_SUM;
 															col.StyleRcId = R.style.OrderListItemText;
@@ -1673,6 +1709,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														}
 														{ // #4
 															ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+															col.Id = 5;
 															col.Title = app_ctx.GetString("time");
 															col.StyleRcId = R.style.OrderListItemText;
 															col.Mrgn = fld_mrgn;
@@ -1680,6 +1717,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														}
 														{ // #5
 															ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+															col.Id = 6;
 															col.Title = app_ctx.GetString("memo");
 															col.StyleRcId = R.style.OrderListItemText;
 															col.Mrgn = fld_mrgn;

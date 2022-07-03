@@ -251,12 +251,12 @@ static void pixDebugFlipDetect(const char * filename, PIX * pixs,
  *          the rotation performed on pixs.
  * </pre>
  */
-PIX * pixOrientCorrect(PIX        * pixs,
+PIX * pixOrientCorrect(PIX * pixs,
     float minupconf,
     float minratio,
     float * pupconf,
     float * pleftconf,
-    int32    * protation,
+    int32 * protation,
     int32 debug)
 {
 	int32 orient;
@@ -380,7 +380,7 @@ PIX * pixOrientCorrect(PIX        * pixs,
  *      (8) Uses rasterop implementation of HMT.
  * </pre>
  */
-l_ok pixOrientDetect(PIX        * pixs,
+l_ok pixOrientDetect(PIX * pixs,
     float * pupconf,
     float * pleftconf,
     int32 mincount,
@@ -441,7 +441,7 @@ l_ok makeOrientDecision(float upconf,
     float leftconf,
     float minupconf,
     float minratio,
-    int32   * porient,
+    int32 * porient,
     int32 debug)
 {
 	float absupconf, absleftconf;
@@ -529,7 +529,7 @@ l_ok makeOrientDecision(float upconf,
  *          is going too far -- components will get merged.
  * </pre>
  */
-l_ok pixUpDownDetect(PIX        * pixs,
+l_ok pixUpDownDetect(PIX * pixs,
     float * pconf,
     int32 mincount,
     int32 npixels,
@@ -687,7 +687,7 @@ l_ok pixUpDownDetect(PIX        * pixs,
  *          of morphology!
  * </pre>
  */
-l_ok pixMirrorDetect(PIX        * pixs,
+l_ok pixMirrorDetect(PIX * pixs,
     float * pconf,
     int32 mincount,
     int32 debug)
@@ -773,8 +773,8 @@ l_ok pixMirrorDetect(PIX        * pixs,
  * \return   void
  */
 static void pixDebugFlipDetect(const char * filename,
-    PIX        * pixs,
-    PIX        * pixhm,
+    PIX * pixs,
+    PIX * pixhm,
     int32 enable)
 {
 	PIX  * pixt, * pixthm;

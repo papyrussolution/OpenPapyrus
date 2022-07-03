@@ -18,8 +18,6 @@
 
 /* This must be the first #include file */
 #include "async_locl.h"
-//#include <openssl/err.h>
-//#include <cryptlib_int.h>
 
 #define ASYNC_JOB_RUNNING   0
 #define ASYNC_JOB_PAUSING   1

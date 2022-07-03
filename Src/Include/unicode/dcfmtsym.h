@@ -174,7 +174,7 @@ public:
 	 *                  failure code upon return.
 	 * @stable ICU 2.0
 	 */
-	DecimalFormatSymbols(const Locale& locale, UErrorCode& status);
+	DecimalFormatSymbols(const Locale& locale, UErrorCode & status);
 
 	/**
 	 * Creates a DecimalFormatSymbols instance for the given locale with digits and symbols
@@ -192,7 +192,7 @@ public:
 	 *                  failure code upon return.
 	 * @stable ICU 60
 	 */
-	DecimalFormatSymbols(const Locale& locale, const NumberingSystem& ns, UErrorCode& status);
+	DecimalFormatSymbols(const Locale& locale, const NumberingSystem& ns, UErrorCode & status);
 
 	/**
 	 * Create a DecimalFormatSymbols object for the default locale.
@@ -204,7 +204,7 @@ public:
 	 *                  failure code upon return.
 	 * @stable ICU 2.0
 	 */
-	DecimalFormatSymbols(UErrorCode& status);
+	DecimalFormatSymbols(UErrorCode & status);
 
 	/**
 	 * Creates a DecimalFormatSymbols object with last-resort data.
@@ -221,7 +221,7 @@ public:
 	 * @return last-resort symbols
 	 * @stable ICU 52
 	 */
-	static DecimalFormatSymbols* createWithLastResortData(UErrorCode& status);
+	static DecimalFormatSymbols* createWithLastResortData(UErrorCode & status);
 
 	/**
 	 * Copy constructor.
@@ -234,7 +234,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	DecimalFormatSymbols& operator =(const DecimalFormatSymbols&);
-
 	/**
 	 * Destructor.
 	 * @stable ICU 2.0
@@ -294,7 +293,7 @@ public:
 	 *
 	 * @internal
 	 */
-	void setCurrency(const UChar* currency, UErrorCode& status);
+	void setCurrency(const UChar* currency, UErrorCode & status);
 #endif  // U_HIDE_INTERNAL_API
 
 	/**
@@ -308,7 +307,7 @@ public:
 	 * valid and actual locale.
 	 * @stable ICU 2.8
 	 */
-	Locale getLocale(ULocDataLocaleType type, UErrorCode& status) const;
+	Locale getLocale(ULocDataLocaleType type, UErrorCode & status) const;
 
 	/**
 	 * Get pattern string for 'CurrencySpacing' that can be applied to
@@ -328,7 +327,7 @@ public:
 	 */
 	const UnicodeString & getPatternForCurrencySpacing(UCurrencySpacing type,
 	    bool beforeCurrency,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 	/**
 	 * Set pattern string for 'CurrencySpacing' that can be applied to
 	 * currency format.

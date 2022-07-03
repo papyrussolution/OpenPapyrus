@@ -595,7 +595,7 @@ public:
 
 		template <typename T> static uint offsetToIndex(uint offset, const void * base, const T * array)
 		{
-			return (offset - ((const char*)array - (const char*)base)) / T::static_size;
+			return (offset - ((const char *)array - (const char *)base)) / T::static_size;
 		}
 		template <typename T> static uint byteOffsetToIndex(uint offset, const void * base, const T * array)
 		{

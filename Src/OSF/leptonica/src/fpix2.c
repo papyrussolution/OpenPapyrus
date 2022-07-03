@@ -115,7 +115,7 @@ FPIX * pixConvertToFPix(PIX * pixs,
 	uint32 uval;
 	uint32   * datat, * linet;
 	float * datad, * lined;
-	PIX        * pixt;
+	PIX * pixt;
 	FPIX       * fpixd;
 
 	PROCNAME(__FUNCTION__);
@@ -211,7 +211,7 @@ DPIX * pixConvertToDPix(PIX * pixs,
 	uint32 uval;
 	uint32   * datat, * linet;
 	double  * datad, * lined;
-	PIX        * pixt;
+	PIX * pixt;
 	DPIX       * dpixd;
 
 	PROCNAME(__FUNCTION__);
@@ -308,7 +308,7 @@ DPIX * pixConvertToDPix(PIX * pixs,
  *          or 32 bits.
  * </pre>
  */
-PIX * fpixConvertToPix(FPIX    * fpixs,
+PIX * fpixConvertToPix(FPIX * fpixs,
     int32 outdepth,
     int32 negvals,
     int32 errorflag)
@@ -318,7 +318,7 @@ PIX * fpixConvertToPix(FPIX    * fpixs,
 	float val;
 	float * datas, * lines;
 	uint32   * datad, * lined;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -417,7 +417,7 @@ PIX * fpixDisplayMaxDynamicRange(FPIX  * fpixs)
 	float factor, sval, maxval;
 	float * lines, * datas;
 	uint32   * lined, * datad;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -531,7 +531,7 @@ PIX * dpixConvertToPix(DPIX    * dpixs,
 	double val;
 	double  * datas, * lines;
 	uint32   * datad, * lined;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -671,8 +671,8 @@ FPIX * dpixConvertToFPix(DPIX  * dpix)
  */
 l_ok fpixGetMin(FPIX       * fpix,
     float * pminval,
-    int32    * pxminloc,
-    int32    * pyminloc)
+    int32 * pxminloc,
+    int32 * pyminloc)
 {
 	int32 i, j, w, h, wpl, xminloc, yminloc;
 	float * data, * line;
@@ -722,8 +722,8 @@ l_ok fpixGetMin(FPIX       * fpix,
  */
 l_ok fpixGetMax(FPIX       * fpix,
     float * pmaxval,
-    int32    * pxmaxloc,
-    int32    * pymaxloc)
+    int32 * pxmaxloc,
+    int32 * pymaxloc)
 {
 	int32 i, j, w, h, wpl, xmaxloc, ymaxloc;
 	float * data, * line;
@@ -773,8 +773,8 @@ l_ok fpixGetMax(FPIX       * fpix,
  */
 l_ok dpixGetMin(DPIX       * dpix,
     double  * pminval,
-    int32    * pxminloc,
-    int32    * pyminloc)
+    int32 * pxminloc,
+    int32 * pyminloc)
 {
 	int32 i, j, w, h, wpl, xminloc, yminloc;
 	double  * data, * line;
@@ -824,8 +824,8 @@ l_ok dpixGetMin(DPIX       * dpix,
  */
 l_ok dpixGetMax(DPIX       * dpix,
     double  * pmaxval,
-    int32    * pxmaxloc,
-    int32    * pymaxloc)
+    int32 * pxmaxloc,
+    int32 * pymaxloc)
 {
 	int32 i, j, w, h, wpl, xmaxloc, ymaxloc;
 	double  * data, * line;
@@ -887,7 +887,7 @@ l_ok dpixGetMax(DPIX       * dpix,
  *          original low resolution fpix.
  * </pre>
  */
-FPIX * fpixScaleByInteger(FPIX    * fpixs,
+FPIX * fpixScaleByInteger(FPIX * fpixs,
     int32 factor)
 {
 	int32 i, j, k, m, ws, hs, wd, hd, wpls, wpld;
@@ -1070,9 +1070,9 @@ DPIX * dpixScaleByInteger(DPIX    * dpixs,
  *          * fpixd == fpixs1:  (src1 + src2) --> src1  (in-place)
  * </pre>
  */
-FPIX * fpixLinearCombination(FPIX      * fpixd,
-    FPIX      * fpixs1,
-    FPIX      * fpixs2,
+FPIX * fpixLinearCombination(FPIX * fpixd,
+    FPIX * fpixs1,
+    FPIX * fpixs2,
     float a,
     float b)
 {
@@ -1124,7 +1124,7 @@ FPIX * fpixLinearCombination(FPIX      * fpixd,
  *          is done first.
  * </pre>
  */
-l_ok fpixAddMultConstant(FPIX      * fpix,
+l_ok fpixAddMultConstant(FPIX * fpix,
     float addc,
     float multc)
 {
@@ -1283,7 +1283,7 @@ l_ok dpixAddMultConstant(DPIX      * dpix,
  * \param[in]    inval    to set at each pixel
  * \return  0 if OK, 1 on error
  */
-l_ok fpixSetAllArbitrary(FPIX      * fpix,
+l_ok fpixSetAllArbitrary(FPIX * fpix,
     float inval)
 {
 	int32 i, j, w, h;
@@ -1349,14 +1349,14 @@ l_ok dpixSetAllArbitrary(DPIX      * dpix,
  *      (1) Adds border of '0' 32-bit pixels
  * </pre>
  */
-FPIX * fpixAddBorder(FPIX    * fpixs,
+FPIX * fpixAddBorder(FPIX * fpixs,
     int32 left,
     int32 right,
     int32 top,
     int32 bot)
 {
 	int32 ws, hs, wd, hd;
-	FPIX    * fpixd;
+	FPIX * fpixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1383,14 +1383,14 @@ FPIX * fpixAddBorder(FPIX    * fpixs,
  * \param[in]    left, right, top, bot     pixels on each side to be removed
  * \return  fpixd, or NULL on error
  */
-FPIX * fpixRemoveBorder(FPIX    * fpixs,
+FPIX * fpixRemoveBorder(FPIX * fpixs,
     int32 left,
     int32 right,
     int32 top,
     int32 bot)
 {
 	int32 ws, hs, wd, hd;
-	FPIX    * fpixd;
+	FPIX * fpixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1424,14 +1424,14 @@ FPIX * fpixRemoveBorder(FPIX    * fpixs,
  *      (1) See pixAddMirroredBorder() for situations of usage.
  * </pre>
  */
-FPIX * fpixAddMirroredBorder(FPIX    * fpixs,
+FPIX * fpixAddMirroredBorder(FPIX * fpixs,
     int32 left,
     int32 right,
     int32 top,
     int32 bot)
 {
 	int32 i, j, w, h;
-	FPIX    * fpixd;
+	FPIX * fpixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1469,14 +1469,14 @@ FPIX * fpixAddMirroredBorder(FPIX    * fpixs,
  *          the value on the closest boundary pixel.
  * </pre>
  */
-FPIX * fpixAddContinuedBorder(FPIX    * fpixs,
+FPIX * fpixAddContinuedBorder(FPIX * fpixs,
     int32 left,
     int32 right,
     int32 top,
     int32 bot)
 {
 	int32 i, j, w, h;
-	FPIX    * fpixd;
+	FPIX * fpixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1512,7 +1512,7 @@ FPIX * fpixAddContinuedBorder(FPIX    * fpixs,
  *          of fpixs.
  * </pre>
  */
-FPIX * fpixAddSlopeBorder(FPIX    * fpixs,
+FPIX * fpixAddSlopeBorder(FPIX * fpixs,
     int32 left,
     int32 right,
     int32 top,
@@ -1520,7 +1520,7 @@ FPIX * fpixAddSlopeBorder(FPIX    * fpixs,
 {
 	int32 i, j, w, h, fullw, fullh;
 	float val1, val2, del;
-	FPIX      * fpixd;
+	FPIX * fpixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1599,12 +1599,12 @@ FPIX * fpixAddSlopeBorder(FPIX    * fpixs,
  *          the result is valid:  use for in-place with caution!
  * </pre>
  */
-l_ok fpixRasterop(FPIX    * fpixd,
+l_ok fpixRasterop(FPIX * fpixd,
     int32 dx,
     int32 dy,
     int32 dw,
     int32 dh,
-    FPIX    * fpixs,
+    FPIX * fpixs,
     int32 sx,
     int32 sy)
 {
@@ -1769,7 +1769,7 @@ FPIX * fpixRotate180(FPIX  * fpixd,
  *      (2) The direction must be either 1 (cw) or -1 (ccw).
  * </pre>
  */
-FPIX * fpixRotate90(FPIX    * fpixs,
+FPIX * fpixRotate90(FPIX * fpixs,
     int32 direction)
 {
 	int32 i, j, wd, hd, wpls, wpld;
@@ -1943,9 +1943,9 @@ FPIX * fpixFlipTB(FPIX  * fpixd,
  *          case, set %border == 0.
  * </pre>
  */
-FPIX * fpixAffinePta(FPIX      * fpixs,
-    PTA       * ptad,
-    PTA       * ptas,
+FPIX * fpixAffinePta(FPIX * fpixs,
+    PTA * ptad,
+    PTA * ptas,
     int32 border,
     float inval)
 {
@@ -2059,9 +2059,9 @@ FPIX * fpixAffine(FPIX       * fpixs,
  *          case, set %border == 0.
  * </pre>
  */
-FPIX * fpixProjectivePta(FPIX      * fpixs,
-    PTA       * ptad,
-    PTA       * ptas,
+FPIX * fpixProjectivePta(FPIX * fpixs,
+    PTA * ptad,
+    PTA * ptas,
     int32 border,
     float inval)
 {
@@ -2233,13 +2233,13 @@ l_ok linearInterpolatePixelFloat(float * datas,
  *          in pixd to 1.
  * </pre>
  */
-PIX * fpixThresholdToPix(FPIX      * fpix,
+PIX * fpixThresholdToPix(FPIX * fpix,
     float thresh)
 {
 	int32 i, j, w, h, wpls, wpld;
 	float * datas, * lines;
 	uint32   * datad, * lined;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 

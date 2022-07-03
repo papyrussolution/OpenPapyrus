@@ -192,7 +192,7 @@ template <> U_I18N_API const SharedCalendar * LocaleCacheKey<SharedCalendar>::cr
 
 static ECalType getCalendarType(const char * s) 
 {
-	for(int i = 0; gCalTypes[i] != NULL; i++) {
+	for(int i = 0; gCalTypes[i]; i++) {
 		if(uprv_stricmp(s, gCalTypes[i]) == 0) {
 			return (ECalType)i;
 		}
@@ -268,13 +268,13 @@ static ECalType getCalendarTypeForLocale(const char * locid)
 	UResourceBundle * rb = ures_openDirect(NULL, "supplementalData", &status);
 	ures_getByKey(rb, "calendarPreferenceData", rb, &status);
 	UResourceBundle * order = ures_getByKey(rb, region, NULL, &status);
-	if(status == U_MISSING_RESOURCE_ERROR && rb != NULL) {
+	if(status == U_MISSING_RESOURCE_ERROR && rb) {
 		status = U_ZERO_ERROR;
 		order = ures_getByKey(rb, "001", NULL, &status);
 	}
 
 	calTypeBuf[0] = 0;
-	if(U_SUCCESS(status) && order != NULL) {
+	if(U_SUCCESS(status) && order) {
 		// the first calendar type is the default for the region
 		int32_t len = 0;
 		const UChar * uCalType = ures_getStringByIndex(order, 0, &len, &status);
@@ -391,7 +391,7 @@ protected:
 	virtual void updateVisibleIDs(Hashtable& result, UErrorCode & status) const override
 	{
 		if(U_SUCCESS(status)) {
-			for(int32_t i = 0; gCalTypes[i] != NULL; i++) {
+			for(int32_t i = 0; gCalTypes[i]; i++) {
 				UnicodeString id((UChar)0x40); /* '@' a variant character */
 				id.append(UNICODE_STRING_SIMPLE("calendar="));
 				id.append(UnicodeString(gCalTypes[i], -1, US_INV));
@@ -400,7 +400,7 @@ protected:
 		}
 	}
 
-	virtual UObject* create(const ICUServiceKey& key, const ICUService* /*service*/, UErrorCode & status) const override {
+	virtual UObject * create(const ICUServiceKey& key, const ICUService* /*service*/, UErrorCode & status) const override {
 #ifdef U_DEBUG_CALSVC
 		if(dynamic_cast<const LocaleKey*>(&key) == NULL) {
 			slfprintf_stderr("::create - not a LocaleKey!\n");
@@ -443,7 +443,7 @@ public:
 
 	virtual ~DefaultCalendarFactory();
 protected:
-	virtual UObject* create(const ICUServiceKey& key, const ICUService* /*service*/, UErrorCode & status) const override {
+	virtual UObject * create(const ICUServiceKey& key, const ICUService* /*service*/, UErrorCode & status) const override {
 		LocaleKey &lkey = (LocaleKey&)key;
 		Locale loc;
 		lkey.currentLocale(loc);
@@ -474,7 +474,7 @@ public:
 
 	virtual ~CalendarService();
 
-	virtual UObject* cloneInstance(UObject* instance) const override {
+	virtual UObject * cloneInstance(UObject * instance) const override {
 		UnicodeString * s = dynamic_cast<UnicodeString *>(instance);
 		if(s) {
 			return s->clone();
@@ -487,7 +487,7 @@ public:
 			return ((Calendar*)instance)->clone();
 		}
 	}
-	virtual UObject* handleDefault(const ICUServiceKey& key, UnicodeString * /*actualID*/, UErrorCode & status) const override 
+	virtual UObject * handleDefault(const ICUServiceKey& key, UnicodeString * /*actualID*/, UErrorCode & status) const override 
 	{
 		LocaleKey& lkey = (LocaleKey&)key;
 		//int32_t kind = lkey.kind();
@@ -760,7 +760,7 @@ Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode &
 		return NULL;
 	}
 	Locale actualLoc;
-	UObject* u = NULL;
+	UObject * u = NULL;
 #if !UCONFIG_NO_SERVICE
 	if(isCalendarServiceUsed()) {
 		u = getCalendarService(success)->get(aLocale, LocaleKey::KIND_ANY, &actualLoc, success);
@@ -3525,7 +3525,7 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 	ures_getByKey(calData.getAlias(), gCalendar, calData.getAlias(), &status);
 
 	LocalUResourceBundlePointer monthNames;
-	if(type != NULL && *type != '\0' && uprv_strcmp(type, gGregorian) != 0) {
+	if(type && *type != '\0' && uprv_strcmp(type, gGregorian) != 0) {
 		monthNames.adoptInstead(ures_getByKeyWithFallback(calData.getAlias(), type, NULL, &status));
 		ures_getByKeyWithFallback(monthNames.getAlias(), gMonthNames,
 		    monthNames.getAlias(), &status);
@@ -3553,7 +3553,7 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 	UResourceBundle * rb = ures_openDirect(NULL, "supplementalData", &status);
 	ures_getByKey(rb, "weekData", rb, &status);
 	UResourceBundle * weekData = ures_getByKey(rb, region, NULL, &status);
-	if(status == U_MISSING_RESOURCE_ERROR && rb != NULL) {
+	if(status == U_MISSING_RESOURCE_ERROR && rb) {
 		status = U_ZERO_ERROR;
 		weekData = ures_getByKey(rb, "001", NULL, &status);
 	}

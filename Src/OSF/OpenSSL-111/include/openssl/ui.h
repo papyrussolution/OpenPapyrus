@@ -35,10 +35,8 @@ extern "C" {
  * everything is fine, they return 0, a positive value or a non-NULL pointer,
  * all depending on their purpose.
  */
-
-/* Creators and destructor.   */
-UI *UI_new(void);
-UI *UI_new_method(const UI_METHOD *method);
+UI * UI_new(void);
+UI * UI_new_method(const UI_METHOD *method);
 void UI_free(UI *ui);
 
 /*-

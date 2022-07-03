@@ -74,7 +74,7 @@ public:
       * @stable ICU 51
       */
      static CompactDecimalFormat* U_EXPORT2 createInstance(
-          const Locale& inLocale, UNumberCompactStyle style, UErrorCode& status);
+          const Locale& inLocale, UNumberCompactStyle style, UErrorCode & status);
 
     /**
      * Copy constructor.
@@ -130,7 +130,7 @@ public:
      * @param status    Always set to U_UNSUPPORTED_ERROR.
      * @stable ICU 51
      */
-    void parse(const UnicodeString & text, Formattable& result, UErrorCode& status) const U_OVERRIDE;
+    void parse(const UnicodeString & text, Formattable& result, UErrorCode & status) const U_OVERRIDE;
 
 #ifndef U_HIDE_INTERNAL_API
     /**
@@ -183,7 +183,7 @@ public:
     UClassID getDynamicClassID() const U_OVERRIDE;
 
   private:
-    CompactDecimalFormat(const Locale& inLocale, UNumberCompactStyle style, UErrorCode& status);
+    CompactDecimalFormat(const Locale& inLocale, UNumberCompactStyle style, UErrorCode & status);
 };
 
 U_NAMESPACE_END

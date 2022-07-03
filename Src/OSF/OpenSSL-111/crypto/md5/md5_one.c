@@ -9,7 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/md5.h>
-//#include <openssl/crypto.h>
 #ifdef CHARSET_EBCDIC
 	#include <openssl/ebcdic.h>
 #endif

@@ -360,7 +360,7 @@ struct hb_set_t {
 				last_g = g;
 				page->add(g);
 
-				array = (const T*)((const char*)array + stride);
+				array = (const T*)((const char *)array + stride);
 				count--;
 			}
 			while(count && (g = *array, g < end));

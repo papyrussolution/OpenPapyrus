@@ -4397,11 +4397,9 @@ int ssl3_renegotiate(SSL * s)
 {
 	if(!s->handshake_func)
 		return 1;
-
 	s->s3->renegotiate = 1;
 	return 1;
 }
-
 /*
  * Check if we are waiting to do a renegotiation and if so whether now is a
  * good time to do it. If |initok| is true then we are being called from inside
@@ -4413,11 +4411,8 @@ int ssl3_renegotiate(SSL * s)
 int ssl3_renegotiate_check(SSL * s, int initok)
 {
 	int ret = 0;
-
 	if(s->s3->renegotiate) {
-		if(!RECORD_LAYER_read_pending(&s->rlayer)
-		 && !RECORD_LAYER_write_pending(&s->rlayer)
-		 && (initok || !SSL_in_init(s))) {
+		if(!RECORD_LAYER_read_pending(&s->rlayer) && !RECORD_LAYER_write_pending(&s->rlayer) && (initok || !SSL_in_init(s))) {
 			/*
 			 * if we are the server, and we have sent a 'RENEGOTIATE'
 			 * message, we need to set the state machine into the renegotiate
@@ -4474,35 +4469,27 @@ int ssl_fill_hello_random(SSL * s, int server, uchar * result, size_t len,
 	if(send_time) {
 		ulong Time = (ulong)time(NULL);
 		uchar * p = result;
-
 		l2n(Time, p);
 		ret = RAND_bytes(p, len - 4);
 	}
 	else {
 		ret = RAND_bytes(result, len);
 	}
-
 	if(ret > 0) {
-		if(!ossl_assert(sizeof(tls11downgrade) < len)
-		   || !ossl_assert(sizeof(tls12downgrade) < len))
+		if(!ossl_assert(sizeof(tls11downgrade) < len) || !ossl_assert(sizeof(tls12downgrade) < len))
 			return 0;
 		if(dgrd == DOWNGRADE_TO_1_2)
-			memcpy(result + len - sizeof(tls12downgrade), tls12downgrade,
-			    sizeof(tls12downgrade));
+			memcpy(result + len - sizeof(tls12downgrade), tls12downgrade, sizeof(tls12downgrade));
 		else if(dgrd == DOWNGRADE_TO_1_1)
-			memcpy(result + len - sizeof(tls11downgrade), tls11downgrade,
-			    sizeof(tls11downgrade));
+			memcpy(result + len - sizeof(tls11downgrade), tls11downgrade, sizeof(tls11downgrade));
 	}
-
 	return ret;
 }
 
-int ssl_generate_master_secret(SSL * s, uchar * pms, size_t pmslen,
-    int free_pms)
+int ssl_generate_master_secret(SSL * s, uchar * pms, size_t pmslen, int free_pms)
 {
 	ulong alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
 	int ret = 0;
-
 	if(alg_k & SSL_PSK) {
 #ifndef OPENSSL_NO_PSK
 		uchar * pskpms, * t;
@@ -4525,12 +4512,9 @@ int ssl_generate_master_secret(SSL * s, uchar * pms, size_t pmslen,
 		t += pmslen;
 		s2n(psklen, t);
 		memcpy(t, s->s3->tmp.psk, psklen);
-
 		OPENSSL_clear_free(s->s3->tmp.psk, psklen);
 		s->s3->tmp.psk = NULL;
-		if(!s->method->ssl3_enc->generate_master_secret(s,
-		    s->session->master_key, pskpms, pskpmslen,
-		    &s->session->master_key_length)) {
+		if(!s->method->ssl3_enc->generate_master_secret(s, s->session->master_key, pskpms, pskpmslen, &s->session->master_key_length)) {
 			OPENSSL_clear_free(pskpms, pskpmslen);
 			/* SSLfatal() already called */
 			goto err;
@@ -4542,14 +4526,11 @@ int ssl_generate_master_secret(SSL * s, uchar * pms, size_t pmslen,
 #endif
 	}
 	else {
-		if(!s->method->ssl3_enc->generate_master_secret(s,
-		    s->session->master_key, pms, pmslen,
-		    &s->session->master_key_length)) {
+		if(!s->method->ssl3_enc->generate_master_secret(s, s->session->master_key, pms, pmslen, &s->session->master_key_length)) {
 			/* SSLfatal() already called */
 			goto err;
 		}
 	}
-
 	ret = 1;
 err:
 	if(pms) {
@@ -4602,33 +4583,26 @@ EVP_PKEY * ssl_generate_pkey_group(SSL * s, uint16_t id)
 	else
 		pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
 	if(pctx == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP,
-		    ERR_R_MALLOC_FAILURE);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 	if(EVP_PKEY_keygen_init(pctx) <= 0) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP,
-		    ERR_R_EVP_LIB);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP, ERR_R_EVP_LIB);
 		goto err;
 	}
-	if(gtype != TLS_CURVE_CUSTOM
-	 && EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, ginf->nid) <= 0) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP,
-		    ERR_R_EVP_LIB);
+	if(gtype != TLS_CURVE_CUSTOM && EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, ginf->nid) <= 0) {
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP, ERR_R_EVP_LIB);
 		goto err;
 	}
 	if(EVP_PKEY_keygen(pctx, &pkey) <= 0) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP,
-		    ERR_R_EVP_LIB);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP, ERR_R_EVP_LIB);
 		EVP_PKEY_free(pkey);
 		pkey = NULL;
 	}
-
 err:
 	EVP_PKEY_CTX_free(pctx);
 	return pkey;
 }
-
 /*
  * Generate parameters from a group ID
  */
@@ -4678,23 +4652,19 @@ int ssl_derive(SSL * s, EVP_PKEY * privkey, EVP_PKEY * pubkey, int gensecret)
 	}
 	pctx = EVP_PKEY_CTX_new(privkey, NULL);
 	if(EVP_PKEY_derive_init(pctx) <= 0 || EVP_PKEY_derive_set_peer(pctx, pubkey) <= 0 || EVP_PKEY_derive(pctx, NULL, &pmslen) <= 0) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_DERIVE,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_DERIVE, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
 	pms = static_cast<uchar *>(OPENSSL_malloc(pmslen));
 	if(pms == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_DERIVE,
-		    ERR_R_MALLOC_FAILURE);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_DERIVE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 
 	if(EVP_PKEY_derive(pctx, pms, &pmslen) <= 0) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_DERIVE,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_DERIVE, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-
 	if(gensecret) {
 		/* SSLfatal() called as appropriate in the below functions */
 		if(SSL_IS_TLS13(s)) {
@@ -4722,7 +4692,6 @@ int ssl_derive(SSL * s, EVP_PKEY * privkey, EVP_PKEY * pubkey, int gensecret)
 		pms = NULL;
 		rv = 1;
 	}
-
 err:
 	OPENSSL_clear_free(pms, pmslen);
 	EVP_PKEY_CTX_free(pctx);

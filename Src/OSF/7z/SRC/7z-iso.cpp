@@ -541,7 +541,7 @@ namespace NArchive {
 						char c = VendorSpec[i];
 						if(c == 0)
 							break;
-						if(c == '\\' || c == '/')
+						if(isdirslash(c))
 							c = '_';
 						s += c;
 					}

@@ -16,7 +16,7 @@
  *    callable from standard pixRead() and pixWrite() file functions.
  *
  *      Reading spix from file
- *           PIX        *pixReadStreamSpix()
+ *           PIX *pixReadStreamSpix()
  *           int32     readHeaderSpix()
  *           int32     freadHeaderSpix()
  *           int32     sreadHeaderSpix()
@@ -25,10 +25,10 @@
  *           int32     pixWriteStreamSpix()
  *
  *      Low-level serialization of pix to/from memory (uncompressed)
- *           PIX        *pixReadMemSpix()
+ *           PIX *pixReadMemSpix()
  *           int32     pixWriteMemSpix()
  *           int32     pixSerializeToMemory()
- *           PIX        *pixDeserializeFromMemory()
+ *           PIX *pixDeserializeFromMemory()
  *
  *    Note: these functions have not been extensively tested for fuzzing
  *    (bad input data that can result in, e.g., memory faults).
@@ -101,11 +101,11 @@ PIX * pixReadStreamSpix(FILE * fp)
  * </pre>
  */
 l_ok readHeaderSpix(const char * filename,
-    int32    * pwidth,
-    int32    * pheight,
-    int32    * pbps,
-    int32    * pspp,
-    int32    * piscmap)
+    int32 * pwidth,
+    int32 * pheight,
+    int32 * pbps,
+    int32 * pspp,
+    int32 * piscmap)
 {
 	int32 ret;
 	FILE * fp;
@@ -313,7 +313,7 @@ l_ok pixWriteMemSpix(uint8  ** pdata,
  *            rdata     (rdatasize)
  * </pre>
  */
-l_ok pixSerializeToMemory(PIX        * pixs,
+l_ok pixSerializeToMemory(PIX * pixs,
     uint32  ** pdata,
     size_t     * pnbytes)
 {

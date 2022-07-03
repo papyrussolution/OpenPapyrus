@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
 
 int ASN1_TYPE_set_octetstring(ASN1_TYPE * a, uchar * data, int len)
 {

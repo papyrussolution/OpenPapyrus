@@ -1040,6 +1040,7 @@ int PosPaymentBlock::EditDialog2()
 				p_il->GetStatistics(&stat);
 				if(event.isCmd(cmOK)/*&& isOK*/) {
 					if(stat.SymbCount && stat.IntervalMean < /*3.0*/20.0 && stat.Flags & stat.fSerialized) {
+						p_il->setText(0);
 						clearEvent(event);
 						//isOK = false; 
 					}

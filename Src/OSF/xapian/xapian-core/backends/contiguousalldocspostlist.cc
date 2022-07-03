@@ -10,7 +10,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "contiguousalldocspostlist.h"
 
 using namespace std;
 

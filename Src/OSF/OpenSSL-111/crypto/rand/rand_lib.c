@@ -8,12 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/opensslconf.h>
 #include <rand_int.h>
-//#include <openssl/engine.h>
 #include "internal/thread_once.h"
 #include "rand_lcl.h"
-//#include "e_os.h"
 
 #ifndef OPENSSL_NO_ENGINE
 /* non-NULL if default_RAND_meth is ENGINE-provided */

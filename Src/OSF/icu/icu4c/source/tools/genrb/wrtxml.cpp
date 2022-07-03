@@ -333,7 +333,7 @@ static char * convertAndEscape(char ** pDest, int32_t destCap, int32_t* destLeng
 			}
 			else {
 				bool isError = FALSE;
-				U8_APPEND((unsigned char*)dest, destLen, destCap, c, isError);
+				U8_APPEND((unsigned char *)dest, destLen, destCap, c, isError);
 				if(isError) {
 					*status = U_ILLEGAL_CHAR_FOUND;
 					slfprintf_stderr("Illegal Character \\U%08X!\n", (int)c);

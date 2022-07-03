@@ -5659,7 +5659,7 @@ int Configtable_insert(struct config * data)
 	h = ph & (x4a->size-1);
 	np = x4a->ht[h];
 	while(np) {
-		if(Configcmp((const char*)np->data, (const char*)data)==0) {
+		if(Configcmp((const char *)np->data, (const char *)data)==0) {
 			/* An existing entry with the same key is found. */
 			/* Fail because overwrite is not allows. */
 			return 0;
@@ -5714,7 +5714,7 @@ struct config * Configtable_find(struct config * key)
 	h = confighash(key) & (x4a->size-1);
 	np = x4a->ht[h];
 	while(np) {
-		if(Configcmp((const char*)np->data, (const char*)key)==0) 
+		if(Configcmp((const char *)np->data, (const char *)key)==0) 
 			break;
 		np = np->next;
 	}

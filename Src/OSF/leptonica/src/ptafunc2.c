@@ -170,7 +170,7 @@ PTA * ptaSortByIndex(PTA   * ptas,
 {
 	int32 i, index, n;
 	float x, y;
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -291,7 +291,7 @@ PTA * ptaSort2d(PTA * pta)
 	int32 index, i, j, n, nx, ny, start, end;
 	float x, y, yp, val;
 	NUMA * na1, * na2, * nas, * nax;
-	PTA       * pta1, * ptad;
+	PTA * pta1, * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -373,7 +373,7 @@ l_ok ptaEqual(PTA * pta1,
 {
 	int32 i, n1, n2;
 	float x1, y1, x2, y2;
-	PTA       * ptas1, * ptas2;
+	PTA * ptas1, * ptas2;
 
 	PROCNAME(__FUNCTION__);
 

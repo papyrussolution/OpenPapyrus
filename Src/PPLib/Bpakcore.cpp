@@ -1937,21 +1937,22 @@ bool PPBankingOrder::TaxMarkers::IsEmpty() const
 //
 //
 //
-PPBillPacket::SetupObjectBlock::SetupObjectBlock()
+PPBillPacket::SetupObjectBlock::SetupObjectBlock() : State(0), PsnID(0)
 {
-    Clear_();
+    //Clear_();
 	Flags = 0;
 }
 
-void PPBillPacket::SetupObjectBlock::Clear_()
+PPBillPacket::SetupObjectBlock & PPBillPacket::SetupObjectBlock::Z()
 {
 	// Flags = 0;
 	State = 0;
 	PsnID = 0;
 	Name.Z();
-	RegInfoList.freeAll();
+	RegInfoList.clear();
 	CliAgt.Z();
 	SupplAgt.Z();
+	return *this;
 }
 
 PPBillPacket::CipBlock::CipBlock() : P_CipList(0), P_TSesObj(0)
@@ -2106,13 +2107,13 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 {
 	int    ok = 1;
 	const  PPID preserve_ar_id = Rec.Object;
-	rRet.Clear_();
+	rRet.Z();
 	ProcessFlags &= ~(pfRestrictByArCodes | pfSubCostOnSubPartStr);
 	LAssocArray rglist;
 	if(arID) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
-		THROW(ar_obj.Search(arID, &ar_rec) > 0); // @v8.6.10 Fetch-->Search (информация должна быть абсолютно актуальной)
+		THROW(ar_obj.Search(arID, &ar_rec) > 0);
 		const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 		PPID   acs_id = 0;
 		rRet.PsnID = ObjectToPerson(arID, &acs_id);
@@ -2158,18 +2159,18 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		}
 		else { // } @v10.1.12
 			if(Rec.Flags & BILLF_GEXPEND || oneof2(OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
-				int    ignore_stop = 0;
 				PPOprKind op_rec;
-				if((rRet.Flags & SetupObjectBlock::fEnableStop) || (GetOpData(Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_IGNORECLISTOP))
-					ignore_stop = 1;
+				const  bool ignore_stop = ((rRet.Flags & SetupObjectBlock::fEnableStop) || (GetOpData(Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_IGNORECLISTOP));
 				if(!ignore_stop) {
 					int    is_stopped = -1;
-					SString stop_err_addedmsg(ar_rec.Name);
+					SString stop_err_addedmsg;
+					PPObjBill::MakeCodeString(&Rec, 0, stop_err_addedmsg); // @v11.4.3
+					stop_err_addedmsg.CatDiv('-', 1).Cat(ar_rec.Name);
 					if(rRet.State & rRet.stHasCliAgreement) {
 						PPID   debt_dim_id = 0;
 						GetDebtDim(&debt_dim_id);
 						is_stopped = rRet.CliAgt.IsStopped(debt_dim_id);
-						if(is_stopped > 0) { // @v9.5.10 !(rRet.Flags & SetupObjectBlock::fEnableStop)
+						if(is_stopped > 0) {
 							SString debt_dim_name;
 							GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name, 0);
 							stop_err_addedmsg.Colon().Cat(debt_dim_name);
@@ -2177,7 +2178,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 					}
 					if(is_stopped < 0)
 						is_stopped = BIN(ar_rec.Flags & ARTRF_STOPBILL);
-					THROW_PP_S(!is_stopped, PPERR_DENYSTOPPEDAR, stop_err_addedmsg); // @v9.5.10 SetupObjectBlock::fEnableStop
+					THROW_PP_S(!is_stopped, PPERR_DENYSTOPPEDAR, stop_err_addedmsg);
 				}
 			}
 			if(rRet.PsnID) {

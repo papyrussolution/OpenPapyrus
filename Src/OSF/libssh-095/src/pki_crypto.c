@@ -21,17 +21,7 @@
 #ifndef _PKI_CRYPTO_H
 #define _PKI_CRYPTO_H
 
-#include <openssl/pem.h>
-#include <openssl/dsa.h>
-#include <openssl/err.h>
-#include <openssl/rsa.h>
-#include "libcrypto-compat.h"
-#ifdef HAVE_OPENSSL_EC_H
-	#include <openssl/ec.h>
-#endif
-#ifdef HAVE_OPENSSL_ECDSA_H
-	#include <openssl/ecdsa.h>
-#endif
+#include <slib-ossl.h>
 
 struct pem_get_password_struct {
 	ssh_auth_callback fn;

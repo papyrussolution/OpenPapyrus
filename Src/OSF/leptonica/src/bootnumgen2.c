@@ -27,7 +27,7 @@
  *   then slightly edited and merged into this file.
  *
  *   Call this way:
- *       PIXA  *pixa = l_bootnum_gen2();   (C)
+ *       PIXA *pixa = l_bootnum_gen2();   (C)
  *       Pixa  *pixa = l_bootnum_gen2();   (C++)
  * </pre>
  */
@@ -245,7 +245,7 @@ static const char * l_bootnum2 =
  *
  * <pre>
  * Call this way:
- *      PIXA  *pixa = l_bootnum_gen2();   (C)
+ *      PIXA *pixa = l_bootnum_gen2();   (C)
  *      Pixa  *pixa = l_bootnum_gen2();   (C++)
  * </pre>
  */

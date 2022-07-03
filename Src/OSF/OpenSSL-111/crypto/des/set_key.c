@@ -17,7 +17,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include "des_locl.h"
 
 /* defaults to false */

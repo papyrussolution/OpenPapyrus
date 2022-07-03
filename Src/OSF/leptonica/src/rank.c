@@ -252,7 +252,7 @@ PIX  * pixRankFilterGray(PIX * pixs,
     float rank)
 {
 	int32 w, h, d, i, j, k, m, n, rankloc, wplt, wpld, val, sum;
-	int32   * histo, * histo16;
+	int32 * histo, * histo16;
 	uint32  * datat, * linet, * datad, * lined;
 	PIX * pixt, * pixd;
 

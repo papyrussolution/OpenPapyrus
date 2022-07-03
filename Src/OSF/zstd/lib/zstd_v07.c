@@ -505,8 +505,8 @@ MEM_STATIC size_t BITv07_initDStream(BITv07_DStream_t* bitD, const void* srcBuff
 		return ERROR(srcSize_wrong);
 	}
 	if(srcSize >=  sizeof(bitD->bitContainer)) {/* normal case */
-		bitD->start = (const char*)srcBuffer;
-		bitD->ptr   = (const char*)srcBuffer + srcSize - sizeof(bitD->bitContainer);
+		bitD->start = (const char *)srcBuffer;
+		bitD->ptr   = (const char *)srcBuffer + srcSize - sizeof(bitD->bitContainer);
 		bitD->bitContainer = MEM_readLEST(bitD->ptr);
 		{ 
 			BYTE const lastByte = ((const BYTE *)srcBuffer)[srcSize-1];
@@ -516,7 +516,7 @@ MEM_STATIC size_t BITv07_initDStream(BITv07_DStream_t* bitD, const void* srcBuff
 		}
 	}
 	else {
-		bitD->start = (const char*)srcBuffer;
+		bitD->start = (const char *)srcBuffer;
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize) {
@@ -2941,7 +2941,7 @@ size_t ZSTDv07_getFrameParams(ZSTDv07_frameParams* fparamsPtr, const void* src, 
 		if((MEM_readLE32(src) & 0xFFFFFFF0U) == ZSTDv07_MAGIC_SKIPPABLE_START) {
 			if(srcSize < ZSTDv07_skippableHeaderSize) 
 				return ZSTDv07_skippableHeaderSize; /* magic number + skippable frame length */
-			fparamsPtr->frameContentSize = MEM_readLE32((const char*)src + 4);
+			fparamsPtr->frameContentSize = MEM_readLE32((const char *)src + 4);
 			fparamsPtr->windowSize = 0; /* windowSize==0 means a frame is skippable */
 			return 0;
 		}
@@ -3523,7 +3523,7 @@ static void ZSTDv07_checkContinuity(ZSTDv07_DCtx* dctx, const void* dst)
 {
 	if(dst != dctx->previousDstEnd) { /* not contiguous */
 		dctx->dictEnd = dctx->previousDstEnd;
-		dctx->vBase = (const char*)dst - ((const char*)(dctx->previousDstEnd) - (const char*)(dctx->base));
+		dctx->vBase = (const char *)dst - ((const char *)(dctx->previousDstEnd) - (const char *)(dctx->base));
 		dctx->base = dst;
 		dctx->previousDstEnd = dst;
 	}
@@ -3561,7 +3561,7 @@ size_t ZSTDv07_decompressBlock(ZSTDv07_DCtx* dctx,
 ZSTDLIBv07_API size_t ZSTDv07_insertBlock(ZSTDv07_DCtx* dctx, const void* blockStart, size_t blockSize)
 {
 	ZSTDv07_checkContinuity(dctx, blockStart);
-	dctx->previousDstEnd = (const char*)blockStart + blockSize;
+	dctx->previousDstEnd = (const char *)blockStart + blockSize;
 	return blockSize;
 }
 
@@ -3849,9 +3849,9 @@ size_t ZSTDv07_decompressContinue(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapac
 static size_t ZSTDv07_refDictContent(ZSTDv07_DCtx* dctx, const void* dict, size_t dictSize)
 {
 	dctx->dictEnd = dctx->previousDstEnd;
-	dctx->vBase = (const char*)dict - ((const char*)(dctx->previousDstEnd) - (const char*)(dctx->base));
+	dctx->vBase = (const char *)dict - ((const char *)(dctx->previousDstEnd) - (const char *)(dctx->base));
 	dctx->base = dict;
-	dctx->previousDstEnd = (const char*)dict + dictSize;
+	dctx->previousDstEnd = (const char *)dict + dictSize;
 	return 0;
 }
 
@@ -3929,15 +3929,15 @@ static size_t ZSTDv07_decompress_insertDictionary(ZSTDv07_DCtx* dctx, const void
 		    return ZSTDv07_refDictContent(dctx, dict, dictSize); /* pure content mode */
 	    }
 	}
-	dctx->dictID = MEM_readLE32((const char*)dict + 4);
+	dctx->dictID = MEM_readLE32((const char *)dict + 4);
 	/* load entropy tables */
-	dict = (const char*)dict + 8;
+	dict = (const char *)dict + 8;
 	dictSize -= 8;
 	{   
 		const size_t eSize = ZSTDv07_loadEntropy(dctx, dict, dictSize);
 	    if(ZSTDv07_isError(eSize)) 
 			return ERROR(dictionary_corrupted);
-	    dict = (const char*)dict + eSize;
+	    dict = (const char *)dict + eSize;
 	    dictSize -= eSize;
 	}
 	/* reference dictionary content */
@@ -4164,7 +4164,7 @@ MEM_STATIC size_t ZBUFFv07_limitCopy(void* dst, size_t dstCapacity, const void* 
 /* *** Decompression *** */
 size_t ZBUFFv07_decompressContinue(ZBUFFv07_DCtx* zbd, void* dst, size_t* dstCapacityPtr, const void* src, size_t* srcSizePtr)
 {
-	const char* const istart = (const char*)src;
+	const char* const istart = (const char *)src;
 	const char* const iend = istart + *srcSizePtr;
 	const char* ip = istart;
 	char* const ostart = (char *)dst;

@@ -1384,7 +1384,7 @@ PIX * pixUnsharpMaskingGray2D(PIX * pixs,
 	uint32   * datas, * datad, * lines, * lined;
 	float val, norm;
 	float * dataf, * linef, * linef0, * linef1, * linef2, * linef3, * linef4;
-	PIX        * pixd;
+	PIX * pixd;
 	FPIX       * fpix;
 
 	PROCNAME(__FUNCTION__);
@@ -1647,7 +1647,7 @@ PIX  * pixModifySaturation(PIX * pixd,
  * \param[out]   psat     average saturation
  * \return  0 if OK, 1 on error
  */
-int32 pixMeasureSaturation(PIX        * pixs,
+int32 pixMeasureSaturation(PIX * pixs,
     int32 factor,
     float * psat)
 {
@@ -1896,7 +1896,7 @@ PIX * pixColorShiftRGB(PIX * pixs,
     float bfract)
 {
 	int32 w, h, i, j, wpls, wpld, rval, gval, bval;
-	int32   * rlut, * glut, * blut;
+	int32 * rlut, * glut, * blut;
 	uint32  * datas, * datad, * lines, * lined;
 	float fi;
 	PIX * pixd;

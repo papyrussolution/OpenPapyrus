@@ -11,13 +11,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_dbcheck.h"
-#include "bitstream.h"
-#include "glass_check.h"
-#include "glass_cursor.h"
-#include "glass_defs.h"
-#include "glass_table.h"
-#include "glass_version.h"
 
 using namespace std;
 

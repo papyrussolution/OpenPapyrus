@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-/* This must be the first #include file */
-//#include <openssl/err.h>
 #include "async_locl.h"
 
 ASYNC_WAIT_CTX * ASYNC_WAIT_CTX_new(void)

@@ -8,12 +8,10 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include <openssl/buffer.h>
 #include <openssl/err.h>
 
-void ERR_print_errors_cb(int (*cb)(const char * str, size_t len, void * u),
-    void * u)
+void ERR_print_errors_cb(int (*cb)(const char * str, size_t len, void * u), void * u)
 {
 	ulong l;
 	char buf[256];

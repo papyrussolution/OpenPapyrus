@@ -38,7 +38,7 @@ SearchIterator::~SearchIterator()
 
 // public get and set methods ----------------------------------------
 
-void SearchIterator::setAttribute(USearchAttribute attribute, USearchAttributeValue value, UErrorCode &status)
+void SearchIterator::setAttribute(USearchAttribute attribute, USearchAttributeValue value, UErrorCode & status)
 {
 	if(U_SUCCESS(status)) {
 		switch(attribute) {

@@ -8,28 +8,21 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
 #include <x509_int.h>
 #include "pcy_int.h"
 
-static int policy_data_cmp(const X509_POLICY_DATA * const * a,
-    const X509_POLICY_DATA * const * b);
+static int policy_data_cmp(const X509_POLICY_DATA * const * a, const X509_POLICY_DATA * const * b);
 static int policy_cache_set_int(long * out, ASN1_INTEGER * value);
-
 /*
  * Set cache entry according to CertificatePolicies extension. Note: this
  * destroys the passed CERTIFICATEPOLICIES structure.
  */
-
-static int policy_cache_create(X509 * x,
-    CERTIFICATEPOLICIES * policies, int crit)
+static int policy_cache_create(X509 * x, CERTIFICATEPOLICIES * policies, int crit)
 {
 	int i, num, ret = 0;
 	X509_POLICY_CACHE * cache = x->policy_cache;
 	X509_POLICY_DATA * data = NULL;
 	POLICYINFO * policy;
-
 	if((num = sk_POLICYINFO_num(policies)) <= 0)
 		goto bad_policy;
 	cache->data = sk_X509_POLICY_DATA_new(policy_data_cmp);

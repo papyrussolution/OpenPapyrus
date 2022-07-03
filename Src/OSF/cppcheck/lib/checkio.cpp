@@ -39,20 +39,14 @@ void CheckIO::checkCoutCerrMisusage()
 
 void CheckIO::coutCerrMisusageError(const Token* tok, const std::string& streamName)
 {
-	reportError(tok,
-	    Severity::error,
-	    "coutCerrMisusage",
-	    "Invalid usage of output stream: '<< std::" + streamName + "'.",
-	    CWE398,
-	    Certainty::normal);
+	reportError(tok, Severity::error, "coutCerrMisusage", "Invalid usage of output stream: '<< std::" + streamName + "'.", CWE398, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // fflush(stdin) <- fflush only applies to output streams in ANSI C
 // fread(); fwrite(); <- consecutive read/write statements require repositioning in between
 // fopen("","r"); fwrite(); <- write to read-only file (or vice versa)
 // fclose(); fread(); <- Use closed file
-//---------------------------------------------------------------------------
+//
 enum class OpenMode { CLOSED, READ_MODE, WRITE_MODE, RW_MODE, UNKNOWN_OM };
 
 static OpenMode getMode(const std::string& str)
@@ -358,65 +352,42 @@ void CheckIO::checkFileUsage()
 
 void CheckIO::fflushOnInputStreamError(const Token * tok, const std::string &varname)
 {
-	reportError(tok,
-	    Severity::portability,
-	    "fflushOnInputStream",
-	    "fflush() called on input stream '" + varname + "' may result in undefined behaviour on non-linux systems.",
-	    CWE398,
-	    Certainty::normal);
+	reportError(tok, Severity::portability, "fflushOnInputStream", "fflush() called on input stream '" + varname + "' may result in undefined behaviour on non-linux systems.", CWE398, Certainty::normal);
 }
 
 void CheckIO::ioWithoutPositioningError(const Token * tok)
 {
-	reportError(tok,
-	    Severity::error,
-	    "IOWithoutPositioning",
-	    "Read and write operations without a call to a positioning function (fseek, fsetpos or rewind) or fflush in between result in undefined behaviour.",
-	    CWE664,
-	    Certainty::normal);
+	reportError(tok, Severity::error, "IOWithoutPositioning", 
+		"Read and write operations without a call to a positioning function (fseek, fsetpos or rewind) or fflush in between result in undefined behaviour.", CWE664, Certainty::normal);
 }
 
 void CheckIO::readWriteOnlyFileError(const Token * tok)
 {
-	reportError(tok, Severity::error,
-	    "readWriteOnlyFile", "Read operation on a file that was opened only for writing.", CWE664, Certainty::normal);
+	reportError(tok, Severity::error, "readWriteOnlyFile", "Read operation on a file that was opened only for writing.", CWE664, Certainty::normal);
 }
 
 void CheckIO::writeReadOnlyFileError(const Token * tok)
 {
-	reportError(tok, Severity::error,
-	    "writeReadOnlyFile", "Write operation on a file that was opened only for reading.", CWE664, Certainty::normal);
+	reportError(tok, Severity::error, "writeReadOnlyFile", "Write operation on a file that was opened only for reading.", CWE664, Certainty::normal);
 }
 
 void CheckIO::useClosedFileError(const Token * tok)
 {
-	reportError(tok, Severity::error,
-	    "useClosedFile", "Used file that is not opened.", CWE910, Certainty::normal);
+	reportError(tok, Severity::error, "useClosedFile", "Used file that is not opened.", CWE910, Certainty::normal);
 }
 
 void CheckIO::seekOnAppendedFileError(const Token * tok)
 {
-	reportError(tok,
-	    Severity::warning,
-	    "seekOnAppendedFile",
-	    "Repositioning operation performed on a file opened in append mode has no effect.",
-	    CWE398,
-	    Certainty::normal);
+	reportError(tok, Severity::warning, "seekOnAppendedFile", "Repositioning operation performed on a file opened in append mode has no effect.", CWE398, Certainty::normal);
 }
 
 void CheckIO::incompatibleFileOpenError(const Token * tok, const std::string &filename)
 {
-	reportError(tok,
-	    Severity::warning,
-	    "incompatibleFileOpen",
-	    "The file '" + filename + "' is opened for read and write access at the same time on different streams",
-	    CWE664,
-	    Certainty::normal);
+	reportError(tok, Severity::warning, "incompatibleFileOpen", "The file '" + filename + "' is opened for read and write access at the same time on different streams", CWE664, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // scanf without field width limits can crash with huge input data
-//---------------------------------------------------------------------------
+//
 void CheckIO::invalidScanf()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
@@ -499,15 +470,12 @@ void CheckIO::invalidScanfError(const Token * tok)
 	    "Source: http://www.opensource.apple.com/source/xnu/xnu-1456.1.26/libkern/stdio/scanf.c",
 	    CWE119, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 //    printf("%u", "xyz"); // Wrong argument type
 //    printf("%u%s", 1); // Too few arguments
 //    printf("", 1); // Too much arguments
-//---------------------------------------------------------------------------
-
-static bool findFormat(nonneg int arg, const Token * firstArg,
-    const Token ** formatStringTok, const Token ** formatArgTok)
+//
+static bool findFormat(nonneg int arg, const Token * firstArg, const Token ** formatStringTok, const Token ** formatArgTok)
 {
 	const Token* argTok = firstArg;
 

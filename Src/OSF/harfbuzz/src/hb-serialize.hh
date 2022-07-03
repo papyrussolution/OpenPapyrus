@@ -315,14 +315,14 @@ struct hb_serialize_context_t {
 			return;
 
 		assert(current);
-		assert(current->head <= (const char*)&ofs);
+		assert(current->head <= (const char *)&ofs);
 
 		auto& link = *current->links.push();
 
 		link.is_wide = sizeof(T) == 4;
 		link.is_signed = hb_is_signed(hb_unwrap_type(T));
 		link.whence = (uint)whence;
-		link.position = (const char*)&ofs - current->head;
+		link.position = (const char *)&ofs - current->head;
 		link.bias = bias;
 		link.objidx = objidx;
 	}
@@ -332,8 +332,8 @@ struct hb_serialize_context_t {
 		if(UNLIKELY(in_error())) return 0;
 		if(!base) return 0;
 		assert(current);
-		assert(current->head <= (const char*)base);
-		return (const char*)base - current->head;
+		assert(current->head <= (const char *)base);
+		return (const char *)base - current->head;
 	}
 
 	void resolve_links()

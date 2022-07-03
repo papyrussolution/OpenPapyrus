@@ -9,13 +9,11 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/ripemd.h>
-//#include <openssl/crypto.h>
 
 uchar * RIPEMD160(const uchar * d, size_t n, uchar * md)
 {
 	RIPEMD160_CTX c;
 	static uchar m[RIPEMD160_DIGEST_LENGTH];
-
 	if(md == NULL)
 		md = m;
 	if(!RIPEMD160_Init(&c))

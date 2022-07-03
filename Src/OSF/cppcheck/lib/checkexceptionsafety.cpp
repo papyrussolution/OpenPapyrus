@@ -284,7 +284,6 @@ void CheckExceptionSafety::nothrowThrows()
 			if(throws)
 				noexceptThrowError(throws);
 		}
-
 		// check __attribute__((nothrow)) or __declspec(nothrow) functions
 		else if(function->isAttributeNothrow()) {
 			const Token * throws = functionThrows(function);
@@ -296,12 +295,7 @@ void CheckExceptionSafety::nothrowThrows()
 
 void CheckExceptionSafety::noexceptThrowError(const Token * const tok)
 {
-	reportError(tok,
-	    Severity::error,
-	    "throwInNoexceptFunction",
-	    "Exception thrown in function declared not to throw exceptions.",
-	    CWE398,
-	    Certainty::normal);
+	reportError(tok, Severity::error, "throwInNoexceptFunction", "Exception thrown in function declared not to throw exceptions.", CWE398, Certainty::normal);
 }
 //
 //    void func() { functionWithExceptionSpecification(); }
@@ -334,19 +328,15 @@ void CheckExceptionSafety::unhandledExceptionSpecification()
 	}
 }
 
-void CheckExceptionSafety::unhandledExceptionSpecificationError(const Token * const tok1,
-    const Token * const tok2, const std::string & funcname)
+void CheckExceptionSafety::unhandledExceptionSpecificationError(const Token * const tok1, const Token * const tok2, const std::string & funcname)
 {
 	const std::string str1(tok1 ? tok1->str() : "foo");
 	const std::list<const Token*> locationList = { tok1, tok2 };
-	reportError(locationList,
-	    Severity::style,
-	    "unhandledExceptionSpecification",
+	reportError(locationList, Severity::style, "unhandledExceptionSpecification",
 	    "Unhandled exception specification when calling function " + str1 + "().\n"
 	    "Unhandled exception specification when calling function " + str1 + "(). "
 	    "Either use a try/catch around the function call, or add a exception specification for " + funcname + "() also.",
-	    CWE703,
-	    Certainty::inconclusive);
+	    CWE703, Certainty::inconclusive);
 }
 //
 // 7.6.18.4 If no exception is presently being handled, evaluating a throw-expression with no operand calls std​::​​terminate().

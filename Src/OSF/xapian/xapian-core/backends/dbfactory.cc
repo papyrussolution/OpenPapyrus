@@ -12,9 +12,7 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	#include "glass/glass_database.h"
 #endif
-#include "glass/glass_defs.h"
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 	#include "honey/honey_database.h"
 #endif

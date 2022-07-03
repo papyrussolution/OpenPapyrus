@@ -96,7 +96,7 @@ public:
 	 *                  found or cannot be loaded
 	 * @stable ICU 2.0
 	 */
-	DateFormatSymbols(UErrorCode& status);
+	DateFormatSymbols(UErrorCode & status);
 
 	/**
 	 * Construct a DateFormatSymbols object by loading format data from
@@ -109,7 +109,7 @@ public:
 	 * @stable ICU 2.0
 	 */
 	DateFormatSymbols(const Locale &locale,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 #ifndef U_HIDE_INTERNAL_API
 	/**
@@ -128,7 +128,7 @@ public:
 	 *                  found or cannot be loaded
 	 * @internal
 	 */
-	DateFormatSymbols(const char * type, UErrorCode& status);
+	DateFormatSymbols(const char * type, UErrorCode & status);
 
 	/**
 	 * Construct a DateFormatSymbols object by loading format data from
@@ -145,7 +145,7 @@ public:
 	 */
 	DateFormatSymbols(const Locale &locale,
 	    const char * type,
-	    UErrorCode& status);
+	    UErrorCode & status);
 #endif  /* U_HIDE_INTERNAL_API */
 
 	/**
@@ -595,7 +595,7 @@ public:
 	 * valid and actual locale.
 	 * @stable ICU 2.8
 	 */
-	Locale getLocale(ULocDataLocaleType type, UErrorCode& status) const;
+	Locale getLocale(ULocDataLocaleType type, UErrorCode & status) const;
 
 	/* The following type and kCapContextUsageTypeCount cannot be #ifndef U_HIDE_INTERNAL_API,
 	   they are needed for .h file declarations. */
@@ -932,7 +932,7 @@ private:
 	 * @param useLastResortData    determine if use last resort data
 	 */
 	void initializeData(const Locale& locale, const char * type,
-	    UErrorCode& status, bool useLastResortData = false);
+	    UErrorCode & status, bool useLastResortData = false);
 
 	/**
 	 * Copy or alias an array in another object, as appropriate.
@@ -1012,7 +1012,7 @@ public:
 	 * @return the new DateFormatSymbols which the caller owns.
 	 * @internal For ICU use only.
 	 */
-	static DateFormatSymbols * U_EXPORT2 createForLocale(const Locale &locale, UErrorCode &status);
+	static DateFormatSymbols * U_EXPORT2 createForLocale(const Locale &locale, UErrorCode & status);
 #endif  /* U_HIDE_INTERNAL_API */
 };
 

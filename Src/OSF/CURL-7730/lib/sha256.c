@@ -30,15 +30,11 @@
 #include "curl_sha256.h"
 
 #if defined(USE_OPENSSL)
-
-#include <openssl/opensslv.h>
-
+#include <slib-ossl.h>
 #if(OPENSSL_VERSION_NUMBER >= 0x0090800fL)
-#define USE_OPENSSL_SHA256
+	#define USE_OPENSSL_SHA256
 #endif
-
 #endif /* USE_OPENSSL */
-
 #ifdef USE_MBEDTLS
 #include <mbedtls/version.h>
 
@@ -59,20 +55,12 @@
  * This ensures that the same SSL branch gets activated throughout this source
  * file even if multiple backends are enabled at the same time.
  */
-
 #if defined(USE_OPENSSL_SHA256)
-
-/* When OpenSSL is available we use the SHA256-function from OpenSSL */
-#include <openssl/sha.h>
-
+	#include <slib-ossl.h> /* When OpenSSL is available we use the SHA256-function from OpenSSL */
 #elif defined(USE_GNUTLS_NETTLE)
-
 #include <nettle/sha.h>
-
 #include "curl_memory.h"
-
-/* The last #include file should be: */
-#include "memdebug.h"
+#include "memdebug.h" /* The last #include file should be: */
 
 typedef struct sha256_ctx SHA256_CTX;
 

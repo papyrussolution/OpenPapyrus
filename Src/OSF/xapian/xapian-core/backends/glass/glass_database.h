@@ -19,25 +19,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_DATABASE_H
 #define XAPIAN_INCLUDED_GLASS_DATABASE_H
 
-#include "backends/backends.h"
-#include "backends/databaseinternal.h"
-#include "glass_changes.h"
-#include "glass_docdata.h"
-#include "glass_inverter.h"
-#include "glass_positionlist.h"
-#include "glass_postlist.h"
-#include "glass_spelling.h"
-#include "glass_synonym.h"
-#include "glass_termlisttable.h"
-#include "glass_values.h"
-#include "glass_version.h"
-#include "../flint_lock.h"
-#include "glass_defs.h"
-#include "backends/valuestats.h"
-#include "xapian/compactor.h"
-#include "xapian/constants.h"
-#include <map>
-
 class GlassTermList;
 class GlassAllDocsPostList;
 class HoneyDatabase;

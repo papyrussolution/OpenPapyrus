@@ -9,9 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifndef OPENSSL_NO_CHACHA
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <evp_int.h>
 #include "evp_locl.h"
 #include <chacha.h>
 

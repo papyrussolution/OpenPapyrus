@@ -40,8 +40,6 @@ static const std::unordered_set<std::string> call_func_white_list = {
 	, "utime", "utimes", "vasprintf", "while", "wordexp", "write", "writev"
 };
 
-//---------------------------------------------------------------------------
-
 CheckMemoryLeak::AllocType CheckMemoryLeak::getAllocationType(const Token * tok2, nonneg int varid,
     std::list<const Function*> * callstack) const
 {
@@ -245,10 +243,6 @@ bool CheckMemoryLeak::isReopenStandardStream(const Token * tok) const
 	return false;
 }
 
-//--------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------
-
 void CheckMemoryLeak::memoryLeak(const Token * tok, const std::string &varname, AllocType alloctype) const
 {
 	if(alloctype == CheckMemoryLeak::File ||
@@ -260,19 +254,11 @@ void CheckMemoryLeak::memoryLeak(const Token * tok, const std::string &varname, 
 		memleakError(tok, varname);
 }
 
-//---------------------------------------------------------------------------
-
-void CheckMemoryLeak::reportErr(const Token * tok,
-    Severity::SeverityType severity,
-    const std::string &id,
-    const std::string &msg,
-    const CWE &cwe) const
+void CheckMemoryLeak::reportErr(const Token * tok, Severity::SeverityType severity, const std::string &id, const std::string &msg, const CWE &cwe) const
 {
 	std::list<const Token *> callstack;
-
 	if(tok)
 		callstack.push_back(tok);
-
 	reportErr(callstack, severity, id, msg, cwe);
 }
 
@@ -440,14 +426,12 @@ bool CheckMemoryLeakInFunction::test_white_list(const std::string &funcname, con
 	return ((call_func_white_list.find(funcname)!=call_func_white_list.end()) || settings->library.isLeakIgnore(funcname) ||
 	       (cpp && funcname == "delete"));
 }
-
-//---------------------------------------------------------------------------
+//
 // Check for memory leaks due to improper realloc() usage.
 //   Below, "a" may be set to null without being freed if realloc() cannot
 //   allocate the requested memory:
 //     a = malloc(10); a = realloc(a, 100);
-//---------------------------------------------------------------------------
-
+//
 static bool isNoArgument(const SymbolDatabase* symbolDatabase, nonneg int varid)
 {
 	const Variable* var = symbolDatabase->getVariableFromVarId(varid);
@@ -520,13 +504,9 @@ void CheckMemoryLeakInFunction::checkReallocUsage()
 		}
 	}
 }
-
-//---------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------
+//
 // Checks for memory leaks in classes..
-//---------------------------------------------------------------------------
-
+//
 void CheckMemoryLeakInClass::check()
 {
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
@@ -997,11 +977,10 @@ void CheckMemoryLeakNoVar::check()
 		checkForUnreleasedInputArgument(scope);
 	}
 }
-
-//---------------------------------------------------------------------------
+//
 // Checks if an input argument to a function is the return value of an allocation function
 // like malloc(), and the function does not release it.
-//---------------------------------------------------------------------------
+//
 void CheckMemoryLeakNoVar::checkForUnreleasedInputArgument(const Scope * scope)
 {
 	// parse the executable scope until tok is reached...
@@ -1042,10 +1021,9 @@ void CheckMemoryLeakNoVar::checkForUnreleasedInputArgument(const Scope * scope)
 		}
 	}
 }
-
-//---------------------------------------------------------------------------
+//
 // Checks if a call to an allocation function like malloc() is made and its return value is not assigned.
-//---------------------------------------------------------------------------
+//
 void CheckMemoryLeakNoVar::checkForUnusedReturnValue(const Scope * scope)
 {
 	for(const Token * tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
@@ -1090,8 +1068,7 @@ void CheckMemoryLeakNoVar::checkForUnusedReturnValue(const Scope * scope)
 		}
 	}
 }
-
-//---------------------------------------------------------------------------
+//
 // Check if an exception could cause a leak in an argument constructed with
 // shared_ptr/unique_ptr. For example, in the following code, it is possible
 // that if g() throws an exception, the memory allocated by "new int(42)"
@@ -1101,14 +1078,13 @@ void CheckMemoryLeakNoVar::checkForUnusedReturnValue(const Scope * scope)
 // void x() {
 //    f(shared_ptr<int>(new int(42)), g());
 // }
-//---------------------------------------------------------------------------
+//
 void CheckMemoryLeakNoVar::checkForUnsafeArgAlloc(const Scope * scope)
 {
 	// This test only applies to C++ source
 	if(!mTokenizer->isCPP() || !mSettings->certainty.isEnabled(Certainty::inconclusive) ||
 	    !mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	for(const Token * tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
 		if(Token::Match(tok, "%name% (")) {
 			const Token * endParamToken = tok->next()->link();
@@ -1163,18 +1139,11 @@ void CheckMemoryLeakNoVar::functionCallLeak(const Token * loc, const std::string
 
 void CheckMemoryLeakNoVar::returnValueNotUsedError(const Token * tok, const std::string &alloc)
 {
-	reportError(tok,
-	    Severity::error,
-	    "leakReturnValNotUsed",
-	    "$symbol:" + alloc + "\nReturn value of allocation function '$symbol' is not stored.",
-	    CWE771,
-	    Certainty::normal);
+	reportError(tok, Severity::error, "leakReturnValNotUsed",
+	    "$symbol:" + alloc + "\nReturn value of allocation function '$symbol' is not stored.", CWE771, Certainty::normal);
 }
 
-void CheckMemoryLeakNoVar::unsafeArgAllocError(const Token * tok,
-    const std::string &funcName,
-    const std::string &ptrType,
-    const std::string& objType)
+void CheckMemoryLeakNoVar::unsafeArgAllocError(const Token * tok, const std::string &funcName, const std::string &ptrType, const std::string& objType)
 {
 	const std::string factoryFunc = ptrType == "shared_ptr" ? "make_shared" : "make_unique";
 	reportError(tok, Severity::warning, "leakUnsafeArgAlloc",

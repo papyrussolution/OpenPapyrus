@@ -462,8 +462,8 @@ static int32 nextOnPixelInRasterLow(uint32 * data,
     int32 wpl,
     int32 xstart,
     int32 ystart,
-    int32   * px,
-    int32   * py)
+    int32 * px,
+    int32 * py)
 {
 	int32 i, x, y, xend, startword;
 	uint32 * line, * pword;
@@ -603,7 +603,7 @@ BOX * pixSeedfill4BB(PIX * pixs,
 	int32 xmax, ymax;
 	int32 minx, maxx, miny, maxy; /* for bounding box of this c.c. */
 	uint32 * data, * line;
-	BOX       * box;
+	BOX * box;
 
 	PROCNAME(__FUNCTION__);
 
@@ -716,7 +716,7 @@ BOX * pixSeedfill8BB(PIX * pixs,
 	int32 xmax, ymax;
 	int32 minx, maxx, miny, maxy; /* for bounding box of this c.c. */
 	uint32 * data, * line;
-	BOX       * box;
+	BOX * box;
 
 	PROCNAME(__FUNCTION__);
 

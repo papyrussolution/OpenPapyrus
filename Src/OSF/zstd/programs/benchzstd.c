@@ -294,7 +294,7 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 	memzero(&benchResult, sizeof(benchResult));
 	if(strlen(displayName)>17) displayName += strlen(displayName) - 17; /* display last 17 characters */
 	if(adv->mode == BMK_decodeOnly) { /* benchmark only decompression : source must be already compressed */
-		const char* srcPtr = (const char*)srcBuffer;
+		const char* srcPtr = (const char *)srcBuffer;
 		uint64 totalDSize64 = 0;
 		uint32 fileNb;
 		for(fileNb = 0; fileNb<nbFiles; fileNb++) {
@@ -322,7 +322,7 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 	}
 	/* Init data blocks  */
 	{   
-		const char* srcPtr = (const char*)srcBuffer;
+		const char* srcPtr = (const char *)srcBuffer;
 	    char* cPtr = (char *)compressedBuffer;
 	    char* resPtr = (char *)(*resultBufferPtr);
 	    uint32 fileNb;

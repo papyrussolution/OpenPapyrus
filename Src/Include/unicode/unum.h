@@ -578,7 +578,7 @@ unum_format(    const    UNumberFormat*    fmt,
 */
 U_CAPI int32_t U_EXPORT2 
 unum_formatInt64(const UNumberFormat *fmt,
-        int64_t         number,
+        int64_t number,
         UChar*          result,
         int32_t         resultLength,
         UFieldPosition *pos,

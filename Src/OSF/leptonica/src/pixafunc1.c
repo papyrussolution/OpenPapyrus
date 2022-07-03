@@ -284,7 +284,7 @@ PIXA * pixaSelectBySize(PIXA * pixas,
     int32 * pchanged)
 {
 	NUMA * na;
-	PIXA  * pixad;
+	PIXA * pixad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -423,7 +423,7 @@ PIX * pixSelectByPerimToAreaRatio(PIX * pixs,
     float thresh,
     int32 connectivity,
     int32 type,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	int32 w, h, empty, changed, count;
 	BOXA * boxa;
@@ -495,10 +495,10 @@ PIX * pixSelectByPerimToAreaRatio(PIX * pixs,
 PIXA * pixaSelectByPerimToAreaRatio(PIXA      * pixas,
     float thresh,
     int32 type,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	NUMA * na, * nai;
-	PIXA  * pixad;
+	PIXA * pixad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -551,7 +551,7 @@ PIX * pixSelectByPerimSizeRatio(PIX * pixs,
     float thresh,
     int32 connectivity,
     int32 type,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	int32 w, h, empty, changed, count;
 	BOXA * boxa;
@@ -623,10 +623,10 @@ PIX * pixSelectByPerimSizeRatio(PIX * pixs,
 PIXA * pixaSelectByPerimSizeRatio(PIXA      * pixas,
     float thresh,
     int32 type,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	NUMA * na, * nai;
-	PIXA  * pixad;
+	PIXA * pixad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -678,7 +678,7 @@ PIX * pixSelectByAreaFraction(PIX * pixs,
     float thresh,
     int32 connectivity,
     int32 type,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	int32 w, h, empty, changed, count;
 	BOXA * boxa;
@@ -754,10 +754,10 @@ PIX * pixSelectByAreaFraction(PIX * pixs,
 PIXA * pixaSelectByAreaFraction(PIXA      * pixas,
     float thresh,
     int32 type,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	NUMA * na, * nai;
-	PIXA  * pixad;
+	PIXA * pixad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -809,7 +809,7 @@ PIX * pixSelectByArea(PIX * pixs,
     float thresh,
     int32 connectivity,
     int32 type,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	int32 w, h, empty, changed, count;
 	BOXA * boxa;
@@ -885,10 +885,10 @@ PIX * pixSelectByArea(PIX * pixs,
 PIXA * pixaSelectByArea(PIXA      * pixas,
     float thresh,
     int32 type,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	NUMA * na, * nai;
-	PIXA  * pixad;
+	PIXA * pixad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -939,7 +939,7 @@ PIX * pixSelectByWidthHeightRatio(PIX * pixs,
     float thresh,
     int32 connectivity,
     int32 type,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	int32 w, h, empty, changed, count;
 	BOXA * boxa;
@@ -1015,10 +1015,10 @@ PIX * pixSelectByWidthHeightRatio(PIX * pixs,
 PIXA * pixaSelectByWidthHeightRatio(PIXA      * pixas,
     float thresh,
     int32 type,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	NUMA * na, * nai;
-	PIXA  * pixad;
+	PIXA * pixad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1064,7 +1064,7 @@ PIXA * pixaSelectByNumConnComp(PIXA      * pixas,
     int32 nmin,
     int32 nmax,
     int32 connectivity,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	int32 n, i, count;
 	NUMA * na;
@@ -1176,7 +1176,7 @@ PIXA * pixaSelectWithIndicator(PIXA * pixas,
  * </pre>
  */
 l_ok pixRemoveWithIndicator(PIX * pixs,
-    PIXA  * pixa,
+    PIXA * pixa,
     NUMA * na)
 {
 	int32 i, n, ival, x, y, w, h;
@@ -1227,7 +1227,7 @@ l_ok pixRemoveWithIndicator(PIX * pixs,
  * </pre>
  */
 l_ok pixAddWithIndicator(PIX * pixs,
-    PIXA  * pixa,
+    PIXA * pixa,
     NUMA * na)
 {
 	int32 i, n, ival, x, y, w, h;
@@ -1283,7 +1283,7 @@ PIXA * pixaSelectWithString(PIXA        * pixas,
 {
 	int32 i, nval, npix, nbox, val, imaxval;
 	float maxval;
-	BOX       * box;
+	BOX * box;
 	NUMA * na;
 	PIX * pix1;
 	PIXA      * pixad;
@@ -2558,7 +2558,7 @@ l_ok pixaSizeRange(PIXA * pixa,
  *          the region.
  * </pre>
  */
-PIXA * pixaClipToPix(PIXA  * pixas,
+PIXA * pixaClipToPix(PIXA * pixas,
     PIX * pixs)
 {
 	int32 i, n;
@@ -2606,7 +2606,7 @@ PIXA * pixaClipToPix(PIXA  * pixas,
  * </pre>
  */
 l_ok pixaClipToForeground(PIXA   * pixas,
-    PIXA  ** ppixad,
+    PIXA ** ppixad,
     BOXA ** pboxa)
 {
 	int32 i, n;
@@ -2822,7 +2822,7 @@ l_ok pixaGetDepthInfo(PIXA * pixa,
  *          a single pix. (Except: 16 bpp gets converted to 8.)
  * </pre>
  */
-PIXA * pixaConvertToSameDepth(PIXA  * pixas)
+PIXA * pixaConvertToSameDepth(PIXA * pixas)
 {
 	int32 i, n, depth, same, hascmap, maxdepth;
 	BOXA * boxa;
@@ -3047,7 +3047,7 @@ l_ok pixaEqual(PIXA * pixa1,
  *          like pixaSort() that sort based on the boxes.
  * </pre>
  */
-l_ok pixaSetFullSizeBoxa(PIXA  * pixa)
+l_ok pixaSetFullSizeBoxa(PIXA * pixa)
 {
 	int32 i, n, w, h;
 	BOX * box;

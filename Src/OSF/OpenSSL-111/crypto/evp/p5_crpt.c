@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/evp.h>
 /*
  * Doesn't do anything now: Builtin PBE algorithms in static table.
  */
@@ -17,8 +15,7 @@ void PKCS5_PBE_add(void)
 {
 }
 
-int PKCS5_PBE_keyivgen(EVP_CIPHER_CTX * cctx, const char * pass, int passlen,
-    ASN1_TYPE * param, const EVP_CIPHER * cipher,
+int PKCS5_PBE_keyivgen(EVP_CIPHER_CTX * cctx, const char * pass, int passlen, ASN1_TYPE * param, const EVP_CIPHER * cipher,
     const EVP_MD * md, int en_de)
 {
 	EVP_MD_CTX * ctx;

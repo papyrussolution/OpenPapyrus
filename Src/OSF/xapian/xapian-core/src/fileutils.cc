@@ -17,7 +17,7 @@ public:
 	}
 	~dircloser() 
 	{
-		if(dir != NULL) {
+		if(dir) {
 			closedir(dir);
 			dir = NULL;
 		}

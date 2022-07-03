@@ -46,7 +46,7 @@ public:
 		hb_language_t get_language(uint i) const
 		{
 			const FTStringRange &range = tagRanges[i];
-			return hb_language_from_string((const char*)(this+range.tag).arrayZ, range.length);
+			return hb_language_from_string((const char *)(this+range.tag).arrayZ, range.length);
 		}
 		bool sanitize(hb_sanitize_context_t * c) const
 		{

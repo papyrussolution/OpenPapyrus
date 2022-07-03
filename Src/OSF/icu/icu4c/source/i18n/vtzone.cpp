@@ -1026,30 +1026,24 @@ VTimeZone::VTimeZone(const VTimeZone& source)
 	}
 }
 
-VTimeZone::~VTimeZone() {
-	if(tz != nullptr) {
-		delete tz;
-	}
-	if(vtzlines != nullptr) {
-		delete vtzlines;
-	}
+VTimeZone::~VTimeZone() 
+{
+	delete tz;
+	delete vtzlines;
 }
 
-VTimeZone&VTimeZone::operator = (const VTimeZone& right) {
+VTimeZone&VTimeZone::operator = (const VTimeZone& right) 
+{
 	if(this == &right) {
 		return *this;
 	}
 	if(*this != right) {
 		BasicTimeZone::operator = (right);
-		if(tz != nullptr) {
-			ZDELETE(tz);
-		}
+		ZDELETE(tz);
 		if(right.tz != nullptr) {
 			tz = right.tz->clone();
 		}
-		if(vtzlines != nullptr) {
-			delete vtzlines;
-		}
+		delete vtzlines;
 		if(right.vtzlines != nullptr) {
 			UErrorCode status = U_ZERO_ERROR;
 			int32_t size = right.vtzlines->size();
@@ -1094,7 +1088,8 @@ bool VTimeZone::operator == (const TimeZone& that) const
 
 bool VTimeZone::operator != (const TimeZone& that) const { return !operator == (that); }
 
-VTimeZone* VTimeZone::createVTimeZoneByID(const UnicodeString & ID) {
+VTimeZone* VTimeZone::createVTimeZoneByID(const UnicodeString & ID) 
+{
 	VTimeZone * vtz = new VTimeZone();
 	if(vtz == nullptr) {
 		return nullptr;
@@ -1269,7 +1264,8 @@ void VTimeZone::getTimeZoneRules(const InitialTimeZoneRule*& initial,
 	tz->getTimeZoneRules(initial, trsrules, trscount, status);
 }
 
-void VTimeZone::load(VTZReader& reader, UErrorCode & status) {
+void VTimeZone::load(VTZReader& reader, UErrorCode & status) 
+{
 	vtzlines = new UVector(uprv_deleteUObject, uhash_compareUnicodeString, DEFAULT_VTIMEZONE_LINES, status);
 	if(vtzlines == nullptr) {
 		status = U_MEMORY_ALLOCATION_ERROR;
@@ -1376,10 +1372,8 @@ void VTimeZone::load(VTZReader& reader, UErrorCode & status) {
 	}
 	parse(status);
 	return;
-
 cleanupVtzlines:
-	delete vtzlines;
-	vtzlines = nullptr;
+	ZDELETE(vtzlines);
 }
 
 // parser state
@@ -1390,7 +1384,8 @@ cleanupVtzlines:
 #define DEF_DSTSAVINGS (60*60*1000)
 #define DEF_TZSTARTTIME (0.0)
 
-void VTimeZone::parse(UErrorCode & status) {
+void VTimeZone::parse(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -1400,10 +1395,8 @@ void VTimeZone::parse(UErrorCode & status) {
 	}
 	InitialTimeZoneRule * initialRule = nullptr;
 	RuleBasedTimeZone * rbtz = nullptr;
-
 	// timezone ID
 	UnicodeString tzid;
-
 	int32_t state = INI;
 	int32_t n = 0;
 	bool dst = FALSE;  // current zone type
@@ -1417,13 +1410,10 @@ void VTimeZone::parse(UErrorCode & status) {
 	UDate firstStart = MAX_MILLIS; // the earliest rule start time
 	UnicodeString name; // RFC2445 prop name
 	UnicodeString value; // RFC2445 prop value
-
 	UVector * dates = nullptr; // list of RDATE or RRULE strings
 	UVector * rules = nullptr; // list of TimeZoneRule instances
-
 	int32_t finalRuleIdx = -1;
 	int32_t finalRuleCount = 0;
-
 	rules = new UVector(status);
 	if(rules == nullptr) {
 		status = U_MEMORY_ALLOCATION_ERROR;
@@ -1703,7 +1693,6 @@ void VTimeZone::parse(UErrorCode & status) {
 			AnnualTimeZoneRule * finalRule = (AnnualTimeZoneRule*)rules->elementAt(finalRuleIdx);
 			int32_t tmpRaw = finalRule->getRawOffset();
 			int32_t tmpDST = finalRule->getDSTSavings();
-
 			// Find the last non-final rule
 			UDate finalStart, start;
 			finalRule->getFirstStart(initialRawOffset, initialDSTSavings, finalStart);
@@ -2245,24 +2234,18 @@ void VTimeZone::writeZone(VTZWriter& w, BasicTimeZone& basictz,
 		}
 	}
 	writeFooter(w, status);
-
 cleanupWriteZone:
-
-	if(finalStdRule != nullptr) {
-		delete finalStdRule;
-	}
-	if(finalDstRule != nullptr) {
-		delete finalDstRule;
-	}
+	delete finalStdRule;
+	delete finalDstRule;
 }
 
-void VTimeZone::writeHeaders(VTZWriter& writer, UErrorCode & status) const {
+void VTimeZone::writeHeaders(VTZWriter& writer, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
 	UnicodeString tzid;
 	tz->getID(tzid);
-
 	writer.write(ICAL_BEGIN);
 	writer.write(COLON);
 	writer.write(ICAL_VTIMEZONE);
@@ -2289,7 +2272,8 @@ void VTimeZone::writeHeaders(VTZWriter& writer, UErrorCode & status) const {
 /*
  * Write the closing section of the VTIMEZONE definition block
  */
-void VTimeZone::writeFooter(VTZWriter& writer, UErrorCode & status) const {
+void VTimeZone::writeFooter(VTZWriter& writer, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -2710,7 +2694,4 @@ void VTimeZone::appendUNTIL(VTZWriter& writer, const UnicodeString & until,  UEr
 }
 
 U_NAMESPACE_END
-
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

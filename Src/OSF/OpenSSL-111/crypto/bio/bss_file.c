@@ -27,9 +27,6 @@
 #endif
 #endif
 
-//#include "bio_lcl.h"
-//#include <openssl/err.h>
-
 #if !defined(OPENSSL_NO_STDIO)
 
 static int file_write(BIO * h, const char * buf, int num);

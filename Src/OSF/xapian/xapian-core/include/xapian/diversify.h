@@ -25,33 +25,28 @@ public:
 	class Internal;
 	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
-
 	/** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
 	 *
 	 *  @param other	The object to copy.
 	 */
 	Diversify(const Diversify& other);
-
 	/** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
 	 *
 	 *  @param other	The object to copy.
 	 */
-	Diversify& operator = (const Diversify& other);
-
+	Diversify & operator = (const Diversify& other);
 	/** Move constructor.
 	 *
 	 *  @param other	The object to move.
 	 */
 	Diversify(Diversify&& other);
-
 	/** Move assignment operator.
 	 *
 	 *  @param other	The object to move.
 	 */
 	Diversify& operator = (Diversify&& other);
-
 	/** Constructor specifying the number of diversified search results
 	 *
 	 *  @param  k_	Number of required diversified documents in the
@@ -66,8 +61,7 @@ public:
 	 *              allowing for full weighting to relevance of the
 	 *              diversified document set.
 	 *  @param  b_	Parameter for MPT, normally in the range [1,10]
-	 *  @param  sigma_sqr_	Parameter for MPT, normally in the range
-	 *	                        [1e-6,1]
+	 *  @param  sigma_sqr_	Parameter for MPT, normally in the range [1e-6,1]
 	 */
 	explicit Diversify(Xapian::doccount k_, Xapian::doccount r_, double lambda_ = 0.5, double b_ = 5.0, double sigma_sqr_ = 1e-3);
 	~Diversify();

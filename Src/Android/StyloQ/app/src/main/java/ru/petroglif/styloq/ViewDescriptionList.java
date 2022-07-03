@@ -21,6 +21,7 @@ public class ViewDescriptionList {
 		static final int fImage      = 0x0002;
 		Item()
 		{
+			Id = 0; // @v11.4.3
 			TotalFunc = 0;
 			RTotalResult = 0.0;
 			ITotalResult = 0;
@@ -37,23 +38,23 @@ public class ViewDescriptionList {
 			SlFormat = 0;
 			SlFormat2 = 0;
 		}
+		int    Id; // @v11.4.3 optional anchor id
 		String Zone;
 		String FieldName;
 		String Title;
-		int   DataTypeBTS; // @v11.4.1 BTS_XXX (отображается в json как "FieldType"
-		int   SlFormat;    // @v11.4.2 Параметры форматирования, передаваемые сервисом
-		int   SlFormat2;   // @v11.4.2 Параметры форматирования, передаваемые сервисом
-		int   StyleRcId;
-		int   ForceAlignment; // >0 - left, <0 - right
-		int   TotalFunc;
+		int    DataTypeBTS; // @v11.4.1 BTS_XXX (отображается в json как "FieldType"
+		int    SlFormat;    // @v11.4.2 Параметры форматирования, передаваемые сервисом
+		int    SlFormat2;   // @v11.4.2 Параметры форматирования, передаваемые сервисом
+		int    StyleRcId;
+		int    ForceAlignment; // >0 - left, <0 - right
+		int    TotalFunc;
 		double RTotalResult; // @v11.3.1
 		int    ITotalResult; // @v11.3.1
 		int    Flags;
-		//boolean AllNumeric;
 		int    FixedWidth;  // dp (<=0 - undefined)
 		int    FixedHeight; // dp (<=0 - undefined)
-		float LayoutWeight;
-		float LayoutWidth; // @v11.2.11
+		float  LayoutWeight;
+		float  LayoutWidth; // @v11.2.11
 		SLib.Margin Mrgn;  // @v11.3.12
 	}
 	public static class DataPreprocessBlock {

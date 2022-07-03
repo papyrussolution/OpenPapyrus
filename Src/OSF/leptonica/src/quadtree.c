@@ -80,10 +80,10 @@ l_ok pixQuadtreeMean(PIX * pixs,
 {
 	int32 i, j, w, h, size, n;
 	float val;
-	BOX       * box;
+	BOX * box;
 	BOXA      * boxa;
 	BOXAA     * baa;
-	FPIX      * fpix;
+	FPIX * fpix;
 	PIX * pix_mac;
 
 	PROCNAME(__FUNCTION__);
@@ -157,10 +157,10 @@ l_ok pixQuadtreeVariance(PIX * pixs,
 {
 	int32 i, j, w, h, size, n;
 	float var, rvar;
-	BOX       * box;
+	BOX * box;
 	BOXA      * boxa;
 	BOXAA     * baa;
-	FPIX      * fpixv, * fpixrv;
+	FPIX * fpixv, * fpixrv;
 	PIX * pix_mac; /* copy of mean accumulator */
 	DPIX      * dpix_msac; /* msa clone */
 
@@ -242,15 +242,15 @@ l_ok pixQuadtreeVariance(PIX * pixs,
  *          rectangle in O(1), independent of the size of the rectangle.
  * </pre>
  */
-l_ok pixMeanInRectangle(PIX        * pixs,
+l_ok pixMeanInRectangle(PIX * pixs,
     BOX        * box,
-    PIX        * pixma,
+    PIX * pixma,
     float * pval)
 {
 	int32 w, h, bx, by, bw, bh;
 	uint32 val00, val01, val10, val11;
 	float norm;
-	BOX       * boxc;
+	BOX * boxc;
 
 	PROCNAME(__FUNCTION__);
 
@@ -319,9 +319,9 @@ l_ok pixMeanInRectangle(PIX        * pixs,
  *          independent of the size of the rectangle.
  * </pre>
  */
-l_ok pixVarianceInRectangle(PIX        * pixs,
+l_ok pixVarianceInRectangle(PIX * pixs,
     BOX        * box,
-    PIX        * pix_ma,
+    PIX * pix_ma,
     DPIX       * dpix_msa,
     float * pvar,
     float * prvar)
@@ -329,7 +329,7 @@ l_ok pixVarianceInRectangle(PIX        * pixs,
 	int32 w, h, bx, by, bw, bh;
 	uint32 val00, val01, val10, val11;
 	double dval00, dval01, dval10, dval11, mval, msval, var, norm;
-	BOX       * boxc;
+	BOX * boxc;
 
 	PROCNAME(__FUNCTION__);
 
@@ -632,7 +632,7 @@ PIX * fpixaDisplayQuadtree(FPIXA   * fpixa,
 	char buf[256];
 	int32 nlevels, i, mag, w;
 	L_BMF     * bmf;
-	FPIX      * fpix;
+	FPIX * fpix;
 	PIX * pixt1, * pixt2, * pixt3, * pixt4, * pixd;
 	PIXA      * pixat;
 

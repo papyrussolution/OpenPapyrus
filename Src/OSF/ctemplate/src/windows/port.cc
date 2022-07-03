@@ -35,7 +35,8 @@ int safe_vsnprintf(char * str, size_t size, const char * format, va_list ap)
 	return _vsnprintf(str, size-1, format, ap);
 }
 
-int snprintf(char * str, size_t size, const char * format, ...) {
+int snprintf(char * str, size_t size, const char * format, ...) 
+{
 	int r;
 	va_list ap;
 	va_start(ap, format);
@@ -56,7 +57,8 @@ using std::vector;
 
 namespace ctemplate {
 // defined (for unix) in template_test_utils.cc
-string TmpFile(const char* basename) {
+string TmpFile(const char* basename) 
+{
 	char tmppath_buffer[1024];
 	int tmppath_len = GetTempPathA(sizeof(tmppath_buffer), tmppath_buffer);
 	if(tmppath_len <= 0 || tmppath_len >= sizeof(tmppath_buffer)) {
@@ -67,7 +69,8 @@ string TmpFile(const char* basename) {
 }
 
 // A replacement for template_unittest.cc:CleanTestDir()
-void CreateOrCleanTestDir(const string& dirname) {
+void CreateOrCleanTestDir(const string& dirname) 
+{
 	string glob(PathJoin(dirname, "*"));
 	WIN32_FIND_DATAA found; // that final A is for Ansi (as opposed to Unicode)
 	HANDLE hFind = FindFirstFileA(glob.c_str(), &found); // A is for Ansi
@@ -85,9 +88,9 @@ void CreateOrCleanTestDir(const string& dirname) {
 }
 }
 
-void GetNamelist(const char* testdata_dir, vector<string>* namelist) {
-	string glob(ctemplate::PathJoin(testdata_dir,
-	    "template_unittest_test*"));
+void GetNamelist(const char* testdata_dir, vector<string>* namelist) 
+{
+	string glob(ctemplate::PathJoin(testdata_dir, "template_unittest_test*"));
 	WIN32_FIND_DATAA found; // that final A is for Ansi (as opposed to Unicode)
 	HANDLE hFind = FindFirstFileA(glob.c_str(), &found);
 	if(hFind == INVALID_HANDLE_VALUE) // no files matching the glob, probably

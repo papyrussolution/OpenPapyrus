@@ -135,7 +135,7 @@ public:
 	 */
 	UnicodeString & format(const Formattable& obj,
 	    UnicodeString & appendTo,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Format an object to produce a string.  This is a pure virtual method which
@@ -156,7 +156,7 @@ public:
 	virtual UnicodeString & format(const Formattable& obj,
 	    UnicodeString & appendTo,
 	    FieldPosition& pos,
-	    UErrorCode& status) const = 0;
+	    UErrorCode & status) const = 0;
 	/**
 	 * Format an object to produce a string.  Subclasses should override this
 	 * method. This method allows polymorphic formatting of Formattable objects.
@@ -176,7 +176,7 @@ public:
 	virtual UnicodeString & format(const Formattable& obj,
 	    UnicodeString & appendTo,
 	    FieldPositionIterator* posIter,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Parse a string to produce an object.  This is a pure virtual
@@ -235,7 +235,7 @@ public:
 	 */
 	void parseObject(const UnicodeString & source,
 	    Formattable& result,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/** Get the locale for this format object. You can choose between valid and actual locale.
 	 *  @param type type of the locale we're looking for (valid or actual)
@@ -243,7 +243,7 @@ public:
 	 *  @return the locale
 	 *  @stable ICU 2.8
 	 */
-	Locale getLocale(ULocDataLocaleType type, UErrorCode& status) const;
+	Locale getLocale(ULocDataLocaleType type, UErrorCode & status) const;
 
 #ifndef U_HIDE_INTERNAL_API
 	/** Get the locale for this format object. You can choose between valid and actual locale.
@@ -252,7 +252,7 @@ public:
 	 *  @return the locale
 	 *  @internal
 	 */
-	const char * getLocaleID(ULocDataLocaleType type, UErrorCode &status) const;
+	const char * getLocaleID(ULocDataLocaleType type, UErrorCode & status) const;
 #endif  /* U_HIDE_INTERNAL_API */
 
 protected:

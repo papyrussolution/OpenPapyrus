@@ -4292,6 +4292,13 @@ public:
 			//
 			// Индексация данных Stylo-Q (собственно, ради нее задача и была сделана)
 			//
+			// @v11.4.3 @debug {
+			/*{
+				SLS.SaturateRvlStrPool(512);
+				SLS.SaturateRvlStrUPool(512);
+			}*/
+			//MemLeakTracer mlt;
+			// } @v11.4.3 @debug
 			SString temp_buf;
 			StyloQCore::SvcDbSymbMap dbmap;
 			if(StyloQCore::GetDbMap(dbmap)) {
@@ -4303,6 +4310,8 @@ public:
 						if(p_ldb && p_ldb->P_Sqc) {
 							ok = p_ldb->P_Sqc->IndexingContent();
 						}
+						ZDELETE(p_ldb); // @v11.4.3 @fix
+						ok = 1;
 					}
 				}
 			}

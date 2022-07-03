@@ -1055,7 +1055,7 @@ public:
 		{
 			unsigned pos;
 			return hb_bsearch_impl(&pos, key, (const void*)bytesZ, get_length(),
-				   header.unitSize, _hb_cmp_method<T, Type>) ? (const Type*)(((const char*)&bytesZ) + (pos * header.unitSize)) : nullptr;
+				   header.unitSize, _hb_cmp_method<T, Type>) ? (const Type*)(((const char *)&bytesZ) + (pos * header.unitSize)) : nullptr;
 		}
 
 private:

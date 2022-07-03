@@ -17,7 +17,6 @@
 #ifdef CHARSET_EBCDIC
 #include <openssl/ebcdic.h>
 #endif
-//#include <openssl/crypto.h>
 #include "des_locl.h"
 
 /*

@@ -48,7 +48,7 @@
  *            L_KERNEL   *kernelCreateFromPix()
  *
  *         Display a kernel in a pix
- *            PIX        *kernelDisplayInPix()
+ *            PIX *kernelDisplayInPix()
  *
  *         Parse string to extract numbers
  *            NUMA *parseStringForNumbers()
@@ -236,10 +236,10 @@ l_ok kernelSetElement(L_KERNEL  * kel,
  * \return  0 if OK, 1 on error
  */
 l_ok kernelGetParameters(L_KERNEL  * kel,
-    int32   * psy,
-    int32   * psx,
-    int32   * pcy,
-    int32   * pcx)
+    int32 * psy,
+    int32 * psx,
+    int32 * pcy,
+    int32 * pcx)
 {
 	PROCNAME(__FUNCTION__);
 

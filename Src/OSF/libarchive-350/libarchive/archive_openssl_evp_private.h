@@ -18,8 +18,7 @@
 	#error This header is only to be used internally to libarchive.
 #endif
 
-#include <openssl/evp.h>
-#include <openssl/opensslv.h>
+#include <slib-ossl.h>
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 static inline EVP_MD_CTX *EVP_MD_CTX_new(void)

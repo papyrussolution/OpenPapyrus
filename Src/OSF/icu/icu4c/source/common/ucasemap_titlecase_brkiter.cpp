@@ -61,7 +61,7 @@ int32_t CaseMap::utf8ToTitle(const char * locale, uint32_t options, BreakIterato
 	utext_openUTF8(&utext, src, srcLength, &errorCode);
 	LocalPointer<BreakIterator> ownedIter;
 	iter = ustrcase_getTitleBreakIterator(nullptr, locale, options, iter, ownedIter, errorCode);
-	if(iter==NULL) {
+	if(!iter) {
 		utext_close(&utext);
 		return 0;
 	}

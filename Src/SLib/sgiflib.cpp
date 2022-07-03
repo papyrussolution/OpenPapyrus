@@ -1509,7 +1509,7 @@ int EGifPutScreenDesc(GifFileType * GifFile, const int Width, const int Height, 
 // This routine should be called before any attempt to dump an image - any
 // call to any of the pixel dump routines.
 // 
-int EGifPutImageDesc(GifFileType * GifFile, const int Left, const int Top, const int Width, const int Height, const bool Interlace, ColorMapObject * ColorMap)
+int EGifPutImageDesc(GifFileType * GifFile, const int Left, const int Top, const int Width, const int Height, const bool Interlace, const ColorMapObject * ColorMap)
 {
 	uint8 Buf[3];
 	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);

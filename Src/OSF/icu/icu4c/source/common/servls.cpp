@@ -38,24 +38,24 @@ ICULocaleService::~ICULocaleService()
 {
 }
 
-UObject* ICULocaleService::get(const Locale & locale, UErrorCode & status) const
+UObject * ICULocaleService::get(const Locale & locale, UErrorCode & status) const
 {
 	return get(locale, LocaleKey::KIND_ANY, NULL, status);
 }
 
-UObject* ICULocaleService::get(const Locale & locale, int32_t kind, UErrorCode & status) const
+UObject * ICULocaleService::get(const Locale & locale, int32_t kind, UErrorCode & status) const
 {
 	return get(locale, kind, NULL, status);
 }
 
-UObject* ICULocaleService::get(const Locale & locale, Locale* actualReturn, UErrorCode & status) const
+UObject * ICULocaleService::get(const Locale & locale, Locale* actualReturn, UErrorCode & status) const
 {
 	return get(locale, LocaleKey::KIND_ANY, actualReturn, status);
 }
 
-UObject* ICULocaleService::get(const Locale & locale, int32_t kind, Locale* actualReturn, UErrorCode & status) const
+UObject * ICULocaleService::get(const Locale & locale, int32_t kind, Locale* actualReturn, UErrorCode & status) const
 {
-	UObject* result = NULL;
+	UObject * result = NULL;
 	if(U_FAILURE(status)) {
 		return result;
 	}
@@ -85,7 +85,7 @@ UObject* ICULocaleService::get(const Locale & locale, int32_t kind, Locale* actu
 	return result;
 }
 
-URegistryKey ICULocaleService::registerInstance(UObject* objToAdopt, const UnicodeString & locale,
+URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt, const UnicodeString & locale,
     bool visible, UErrorCode & status)
 {
 	Locale loc;
@@ -94,17 +94,17 @@ URegistryKey ICULocaleService::registerInstance(UObject* objToAdopt, const Unico
 		   visible ? LocaleKeyFactory::VISIBLE : LocaleKeyFactory::INVISIBLE, status);
 }
 
-URegistryKey ICULocaleService::registerInstance(UObject* objToAdopt, const Locale & locale, UErrorCode & status)
+URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt, const Locale & locale, UErrorCode & status)
 {
 	return registerInstance(objToAdopt, locale, LocaleKey::KIND_ANY, LocaleKeyFactory::VISIBLE, status);
 }
 
-URegistryKey ICULocaleService::registerInstance(UObject* objToAdopt, const Locale & locale, int32_t kind, UErrorCode & status)
+URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt, const Locale & locale, int32_t kind, UErrorCode & status)
 {
 	return registerInstance(objToAdopt, locale, kind, LocaleKeyFactory::VISIBLE, status);
 }
 
-URegistryKey ICULocaleService::registerInstance(UObject* objToAdopt,
+URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt,
     const Locale & locale,
     int32_t kind,
     int32_t coverage,
@@ -119,19 +119,19 @@ URegistryKey ICULocaleService::registerInstance(UObject* objToAdopt,
 }
 
 #if 0
-URegistryKey ICULocaleService::registerInstance(UObject* objToAdopt, const UnicodeString & locale, UErrorCode & status)
+URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt, const UnicodeString & locale, UErrorCode & status)
 {
 	return registerInstance(objToAdopt, locale, LocaleKey::KIND_ANY, LocaleKeyFactory::VISIBLE, status);
 }
 
-URegistryKey ICULocaleService::registerInstance(UObject* objToAdopt, const UnicodeString & locale, bool visible, UErrorCode & status)
+URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt, const UnicodeString & locale, bool visible, UErrorCode & status)
 {
 	return registerInstance(objToAdopt, locale, LocaleKey::KIND_ANY,
 		   visible ? LocaleKeyFactory::VISIBLE : LocaleKeyFactory::INVISIBLE,
 		   status);
 }
 
-URegistryKey ICULocaleService::registerInstance(UObject* objToAdopt,
+URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt,
     const UnicodeString & locale,
     int32_t kind,
     int32_t coverage,

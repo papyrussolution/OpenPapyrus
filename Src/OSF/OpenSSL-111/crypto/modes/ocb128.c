@@ -8,19 +8,15 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
-//#include <openssl/err.h>
 #include "modes_lcl.h"
 
 #ifndef OPENSSL_NO_OCB
-
 /*
  * Calculate the number of binary trailing zero's in any given number
  */
 static u32 ocb_ntz(u64 n)
 {
 	u32 cnt = 0;
-
 	/*
 	 * We do a right-to-left simple sequential search. This is surprisingly
 	 * efficient as the distribution of trailing zeros is not uniform,

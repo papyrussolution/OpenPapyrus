@@ -317,7 +317,7 @@ public:
      *          owned by the caller.
      * @stable ICU 50
      */
-    static TimeZoneFormat* U_EXPORT2 createInstance(const Locale& locale, UErrorCode& status);
+    static TimeZoneFormat* U_EXPORT2 createInstance(const Locale& locale, UErrorCode & status);
 
     /**
      * Returns the time zone display name data used by this instance.
@@ -359,7 +359,7 @@ public:
      * @see #getGMTPattern
      * @stable ICU 50
      */
-    void setGMTPattern(const UnicodeString & pattern, UErrorCode& status);
+    void setGMTPattern(const UnicodeString & pattern, UErrorCode & status);
 
     /**
      * Returns the offset pattern used for localized GMT format.
@@ -379,7 +379,7 @@ public:
      * @see #getGMTOffsetPattern
      * @stable ICU 50
      */
-    void setGMTOffsetPattern(UTimeZoneFormatGMTOffsetPatternType type, const UnicodeString & pattern, UErrorCode& status);
+    void setGMTOffsetPattern(UTimeZoneFormatGMTOffsetPatternType type, const UnicodeString & pattern, UErrorCode & status);
 
     /**
      * Returns the decimal digit characters used for localized GMT format.
@@ -404,7 +404,7 @@ public:
      * @see #getGMTOffsetDigits
      * @stable ICU 50
      */
-    void setGMTOffsetDigits(const UnicodeString & digits, UErrorCode& status);
+    void setGMTOffsetDigits(const UnicodeString & digits, UErrorCode & status);
 
     /**
      * Returns the localized GMT format string for GMT(UTC) itself (GMT offset is 0).
@@ -422,7 +422,7 @@ public:
      * @see #getGMTZeroFormat
      * @stable ICU 50
      */
-    void setGMTZeroFormat(const UnicodeString & gmtZeroFormat, UErrorCode& status);
+    void setGMTZeroFormat(const UnicodeString & gmtZeroFormat, UErrorCode & status);
 
     /**
      * Returns the bitwise flags of UTimeZoneFormatParseOption representing the default parse
@@ -459,7 +459,7 @@ public:
      * @stable ICU 51
      */
     UnicodeString & formatOffsetISO8601Basic(int32_t offset, bool useUtcIndicator, bool isShort, bool ignoreSeconds,
-        UnicodeString & result, UErrorCode& status) const;
+        UnicodeString & result, UErrorCode & status) const;
 
     /**
      * Returns the ISO 8601 extended time zone string for the given offset.
@@ -477,7 +477,7 @@ public:
      * @stable ICU 51
      */
     UnicodeString & formatOffsetISO8601Extended(int32_t offset, bool useUtcIndicator, bool isShort, bool ignoreSeconds,
-        UnicodeString & result, UErrorCode& status) const;
+        UnicodeString & result, UErrorCode & status) const;
 
     /**
      * Returns the localized GMT(UTC) offset format for the given offset.
@@ -498,7 +498,7 @@ public:
      * @see #parseOffsetLocalizedGMT
      * @stable ICU 50
      */
-    UnicodeString & formatOffsetLocalizedGMT(int32_t offset, UnicodeString & result, UErrorCode& status) const;
+    UnicodeString & formatOffsetLocalizedGMT(int32_t offset, UnicodeString & result, UErrorCode & status) const;
 
     /**
      * Returns the short localized GMT(UTC) offset format for the given offset.
@@ -519,7 +519,7 @@ public:
      * @see #parseOffsetShortLocalizedGMT
      * @stable ICU 51
      */
-    UnicodeString & formatOffsetShortLocalizedGMT(int32_t offset, UnicodeString & result, UErrorCode& status) const;
+    UnicodeString & formatOffsetShortLocalizedGMT(int32_t offset, UnicodeString & result, UErrorCode & status) const;
 
     using Format::format;
 
@@ -636,7 +636,7 @@ public:
      * @stable ICU 50
      */
     virtual UnicodeString & format(const Formattable& obj, UnicodeString & appendTo,
-        FieldPosition& pos, UErrorCode& status) const override;
+        FieldPosition& pos, UErrorCode & status) const override;
 
     /**
      * Parse a string to produce an object. This methods handles parsing of
@@ -671,7 +671,7 @@ protected:
      * @param status receives the status.
      * @stable ICU 50
      */
-    TimeZoneFormat(const Locale& locale, UErrorCode& status);
+    TimeZoneFormat(const Locale& locale, UErrorCode & status);
 
 private:
     /* Locale of this object */
@@ -741,14 +741,14 @@ private:
      * @param status receives the status
      * @return the cached TimeZoneGenericNames.
      */
-    const TimeZoneGenericNames* getTimeZoneGenericNames(UErrorCode& status) const;
+    const TimeZoneGenericNames* getTimeZoneGenericNames(UErrorCode & status) const;
 
     /**
      * Lazily create a TZDBTimeZoneNames instance
      * @param status receives the status
      * @return the cached TZDBTimeZoneNames.
      */
-    const TZDBTimeZoneNames* getTZDBTimeZoneNames(UErrorCode& status) const;
+    const TZDBTimeZoneNames* getTZDBTimeZoneNames(UErrorCode & status) const;
 
     /**
      * Private method returning the time zone's exemplar location string.
@@ -775,7 +775,7 @@ private:
      * @param status U_ILLEGAL_ARGUMENT_ERROR is set when the specified pattern does not
      *               contain an argument "{0}".
      */
-    void initGMTPattern(const UnicodeString & gmtPattern, UErrorCode& status);
+    void initGMTPattern(const UnicodeString & gmtPattern, UErrorCode & status);
 
     /**
      * Parse the GMT offset pattern into runtime optimized format.
@@ -785,7 +785,7 @@ private:
      *               pattern letters for the required fields.
      * @return A list of GMTOffsetField objects, or NULL on error.
      */
-    static UVector* parseOffsetPattern(const UnicodeString & pattern, OffsetFields required, UErrorCode& status);
+    static UVector* parseOffsetPattern(const UnicodeString & pattern, OffsetFields required, UErrorCode & status);
 
     /**
      * Appends seconds field to the offset pattern with hour/minute
@@ -795,7 +795,7 @@ private:
      * @param status receives the status
      * @return a reference to result
      */
-    static UnicodeString & expandOffsetPattern(const UnicodeString & offsetHM, UnicodeString & result, UErrorCode& status);
+    static UnicodeString & expandOffsetPattern(const UnicodeString & offsetHM, UnicodeString & result, UErrorCode & status);
 
     /**
      * Truncates minutes field to the offset pattern with hour/minute
@@ -805,7 +805,7 @@ private:
      * @param status receives the status
      * @return a reference to result
      */
-    static UnicodeString & truncateOffsetPattern(const UnicodeString & offsetHM, UnicodeString & result, UErrorCode& status);
+    static UnicodeString & truncateOffsetPattern(const UnicodeString & offsetHM, UnicodeString & result, UErrorCode & status);
 
     /**
      * Break input string into UChar32[]. Each array element represents
@@ -830,7 +830,7 @@ private:
      * @return the ISO 8601 basic format.
      */
     UnicodeString & formatOffsetISO8601(int32_t offset, bool isBasic, bool useUtcIndicator,
-        bool isShort, bool ignoreSeconds, UnicodeString & result, UErrorCode& status) const;
+        bool isShort, bool ignoreSeconds, UnicodeString & result, UErrorCode & status) const;
 
     /**
      * Private method used for localized GMT formatting.
@@ -839,7 +839,7 @@ private:
      * @param result receives the localized GMT format string
      * @param status receives the status
      */
-    UnicodeString & formatOffsetLocalizedGMT(int32_t offset, bool isShort, UnicodeString & result, UErrorCode& status) const;
+    UnicodeString & formatOffsetLocalizedGMT(int32_t offset, bool isShort, UnicodeString & result, UErrorCode & status) const;
 
     /**
      * Returns offset from GMT(UTC) in milliseconds for the given ISO 8601 style
@@ -1030,7 +1030,7 @@ private:
      * This method parses patterns into optimized run-time format.
      * @param status receives the status.
      */
-    void initGMTOffsetPatterns(UErrorCode& status);
+    void initGMTOffsetPatterns(UErrorCode & status);
 
     /**
      * Check if there are any GMT format offset patterns without

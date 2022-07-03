@@ -1862,7 +1862,7 @@ SCalendarPicker::LayoutExtra::LayoutExtra(int ident, uint value) : Ident(ident),
 }
 
 SCalendarPicker::SCalendarPicker(int kind) : TWindowBase(SUcSwitch(SCalendarPicker::GetWindowTitle(kind)), wbcDrawBuffer), 
-	Kind(kind), LoExtraList(SCalendarPicker::GetLayoutExtraVector()), FontId(0), CStyleId(0), CStyleFocusId(0), P_LoFocused(0), StartLoYear(0),
+	Kind(kind), LoExtraList(GetLayoutExtraVector()), FontId(0), CStyleId(0), CStyleFocusId(0), P_LoFocused(0), StartLoYear(0),
 	PeriodTerm(PRD_DAY), PeriodPredef(0)
 {
 	Data.Dtm = getcurdatetime_();
@@ -1900,27 +1900,11 @@ IMPL_DIALOG_GETDTS(SCalendarPicker)
 const SCalendarPicker::LayoutExtra * SCalendarPicker::GetLayoutExtra(int ident, uint val) const
 {
 	for(uint i = 0; i < LoExtraList.getCount(); i++) {
-		const SCalendarPicker::LayoutExtra * p_item = static_cast<const SCalendarPicker::LayoutExtra *>(LoExtraList.at(i));
+		const LayoutExtra * p_item = static_cast<const LayoutExtra *>(LoExtraList.at(i));
 		if(p_item->Ident == ident && p_item->Value == val)
 			return p_item;
 	}
 	return 0;
-}
-
-static void __stdcall CalendarItem_SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR)
-{
-	if(pItem) {
-		TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
-		if(p) {
-			FRect frame = pItem->GetFrameAdjustedToParent();
-			TRect b;
-			b.a.x = static_cast<int16>(R0i(frame.a.x));
-			b.a.y = static_cast<int16>(R0i(frame.a.y));
-			b.b.x = static_cast<int16>(R0i(frame.b.x));
-			b.b.y = static_cast<int16>(R0i(frame.b.y));
-			p->changeBounds(b);
-		}	
-	}
 }
 
 void SCalendarPicker::CreateFont_()
@@ -1958,6 +1942,21 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 	static const float def_margin = 2.0f;
 	class InnerBlock {
 	public:
+		static void __stdcall CalendarItem_SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR)
+		{
+			if(pItem) {
+				TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
+				if(p) {
+					FRect frame = pItem->GetFrameAdjustedToParent();
+					TRect b;
+					b.a.x = static_cast<int16>(R0i(frame.a.x));
+					b.a.y = static_cast<int16>(R0i(frame.a.y));
+					b.b.x = static_cast<int16>(R0i(frame.b.x));
+					b.b.y = static_cast<int16>(R0i(frame.b.y));
+					p->changeBounds(b);
+				}	
+			}
+		}
 		static SUiLayout * MakeMonthLayoutEntry(SCalendarPicker * pMaster, SUiLayout * pLoParent, uint mon)
 		{
 			assert(checkirange(mon, 1, 12));
@@ -2151,14 +2150,14 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 					}
 					SUiLayout * p_lo_inp = p_lo_inp2->FindComplexComponentId(SUiLayout::cmlxcInput);
 					if(p_lo_inp && p_il)
-						p_lo_inp->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p_il);
+						p_lo_inp->SetCallbacks(0, InnerBlock::CalendarItem_SetupLayoutItemFrameProc, p_il);
 					SUiLayout * p_lo_btn = p_lo_inp2->FindComplexComponentId(SUiLayout::cmlxcButton1);
 					if(p_lo_btn)
-						p_lo_btn->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);
+						p_lo_btn->SetCallbacks(0, InnerBlock::CalendarItem_SetupLayoutItemFrameProc, p);
 					SUiLayout * p_lo_lbl = p_lo_inp2->FindComplexComponentId(SUiLayout::cmlxcLabel);
 					TLabel * p_lbl = getCtlLabel(CTL_CALENDAR_FASTPRD);
 					if(p_lo_lbl && p_lbl)
-						p_lo_lbl->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p_lbl);							
+						p_lo_lbl->SetCallbacks(0, InnerBlock::CalendarItem_SetupLayoutItemFrameProc, p_lbl);							
 				}
 			}
 		}
@@ -2191,11 +2190,11 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 					}
 					SUiLayout * p_lo_inp = p_lo_inp2->FindComplexComponentId(SUiLayout::cmlxcInput);
 					if(p_lo_inp)
-						p_lo_inp->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);							
+						p_lo_inp->SetCallbacks(0, InnerBlock::CalendarItem_SetupLayoutItemFrameProc, p);							
 					SUiLayout * p_lo_lbl = p_lo_inp2->FindComplexComponentId(SUiLayout::cmlxcLabel);
 					TLabel * p_lbl = getCtlLabel(CTL_CALENDAR_PERIODEDIT);
 					if(p_lo_lbl && p_lbl)
-						p_lo_lbl->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p_lbl);							
+						p_lo_lbl->SetCallbacks(0, InnerBlock::CalendarItem_SetupLayoutItemFrameProc, p_lbl);							
 				}
 			}
 		}
@@ -2640,16 +2639,6 @@ SUiLayout * SCalendarPicker::FindLayout(int extraIdent, uint extraValue)
 	return Helper_FindLayout(P_Lfc, extraIdent, extraValue);
 }
 
-void SCalendarPicker::EvaluateLayout(/*float width, float height*/const TRect & rR)
-{
-	if(P_Lfc) {
-		SUiLayout::Param evp;
-		evp.ForceWidth = static_cast<float>(rR.width());
-		evp.ForceHeight = static_cast<float>(rR.height());
-		P_Lfc->Evaluate(&evp);
-	}
-}
-
 LDATE SCalendarPicker::AdjustLeftDate(int prdType, LDATE d) const
 {
 	if(checkdate(d)) {
@@ -2807,12 +2796,10 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 			}
 			{
 				const TRect _def_rect(0, 0, 10, 10);
-				if(Kind == kDate) {
+				if(Kind == kDate)
 					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@today", cmNow, 0, 0), CTL_CALENDAR_TODAY, 0);
-				}
-				if(Kind == kTime) {
+				if(Kind == kTime)
 					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@currenttime", cmNow, 0, 0), CTL_CALENDAR_TODAY, 0);
-				}
 				else if(Kind == kPeriod) {
 					{
 						TInputLine * p_il = new TInputLine(_def_rect, S_ZSTRING, MKSFMT(128, 0));

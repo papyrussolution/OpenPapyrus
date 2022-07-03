@@ -123,7 +123,7 @@ static const size_t MaxPixaaPtrArraySize = 1000000;
 static const size_t InitialPtrArraySize = 20; /*!< n'importe quoi */
 
 /* Static functions */
-static int32 pixaExtendArray(PIXA  * pixa);
+static int32 pixaExtendArray(PIXA * pixa);
 static int32 pixaaExtendArray(PIXAA * paa);
 
 /*---------------------------------------------------------------------*
@@ -142,7 +142,7 @@ static int32 pixaaExtendArray(PIXAA * paa);
  */
 PIXA * pixaCreate(int32 n)
 {
-	PIXA  * pixa;
+	PIXA * pixa;
 
 	PROCNAME(__FUNCTION__);
 
@@ -379,7 +379,7 @@ PIXA * pixaSplitPix(PIX * pixs,
  *      (2) Always nulls the input ptr.
  * </pre>
  */
-void pixaDestroy(PIXA  ** ppixa)
+void pixaDestroy(PIXA ** ppixa)
 {
 	int32 i;
 	PIXA    * pixa;
@@ -545,7 +545,7 @@ l_ok pixaAddBox(PIXA    * pixa,
  *      (2) The max number of pix in the array is 5 million.
  * </pre>
  */
-static int32 pixaExtendArray(PIXA  * pixa)
+static int32 pixaExtendArray(PIXA * pixa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -605,7 +605,7 @@ l_ok pixaExtendArrayToSize(PIXA   * pixa,
  * \param[in]    pixa
  * \return  count, or 0 if no pixa
  */
-int32 pixaGetCount(PIXA  * pixa)
+int32 pixaGetCount(PIXA * pixa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -729,7 +729,7 @@ BOXA * pixaGetBoxa(PIXA    * pixa,
  * \param[in]    pixa
  * \return  count, or 0 on error
  */
-int32 pixaGetBoxaCount(PIXA  * pixa)
+int32 pixaGetBoxaCount(PIXA * pixa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -873,7 +873,7 @@ l_ok pixaSetBoxa(PIXA    * pixa,
  *          before accessing any of the pix ptrs in this array!
  * </pre>
  */
-PIX ** pixaGetPixArray(PIXA  * pixa)
+PIX ** pixaGetPixArray(PIXA * pixa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1187,7 +1187,7 @@ void *** pixaGetLinePtrs(PIXA * pixa,
  * </pre>
  */
 l_ok pixaWriteStreamInfo(FILE * fp,
-    PIXA  * pixa)
+    PIXA * pixa)
 {
 	char     * text;
 	int32 i, n, w, h, d, spp, count, hastext;
@@ -1445,7 +1445,7 @@ l_ok pixaRemovePixAndSave(PIXA    * pixa,
  *      (1) This gives error messages for invalid indices
  * </pre>
  */
-l_ok pixaRemoveSelected(PIXA  * pixa,
+l_ok pixaRemoveSelected(PIXA * pixa,
     NUMA * naindex)
 {
 	int32 i, n, index;
@@ -1505,7 +1505,7 @@ l_ok pixaRemoveSelected(PIXA  * pixa,
  *          filled, even if all pix (and boxes) are not later replaced.
  * </pre>
  */
-l_ok pixaInitFull(PIXA  * pixa,
+l_ok pixaInitFull(PIXA * pixa,
     PIX * pix,
     BOX   * box)
 {
@@ -1545,7 +1545,7 @@ l_ok pixaInitFull(PIXA  * pixa,
  *          are all null'd.  The number of allocated pix, n, is set to 0.
  * </pre>
  */
-l_ok pixaClear(PIXA  * pixa)
+l_ok pixaClear(PIXA * pixa)
 {
 	int32 i, n;
 
@@ -1983,7 +1983,7 @@ l_ok pixaaAddPix(PIXAA   * paa,
     BOX * box,
     int32 copyflag)
 {
-	PIXA  * pixa;
+	PIXA * pixa;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2097,7 +2097,7 @@ PIXA * pixaaGetPixa(PIXAA   * paa,
     int32 index,
     int32 accesstype)
 {
-	PIXA  * pixa;
+	PIXA * pixa;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2157,7 +2157,7 @@ PIX * pixaaGetPix(PIXAA   * paa,
     int32 accessflag)
 {
 	PIX * pix;
-	PIXA  * pixa;
+	PIXA * pixa;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2479,7 +2479,7 @@ l_ok pixaaTruncate(PIXAA  * paa)
 PIXA * pixaRead(const char * filename)
 {
 	FILE * fp;
-	PIXA  * pixa;
+	PIXA * pixa;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2578,7 +2578,7 @@ PIXA * pixaReadMem(const uint8  * data,
     size_t size)
 {
 	FILE * fp;
-	PIXA  * pixa;
+	PIXA * pixa;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2676,7 +2676,7 @@ l_ok pixaWrite(const char * filename,
  * </pre>
  */
 l_ok pixaWriteStream(FILE * fp,
-    PIXA  * pixa)
+    PIXA * pixa)
 {
 	int32 n, i;
 	PIX * pix;

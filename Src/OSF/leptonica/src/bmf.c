@@ -94,7 +94,7 @@ L_BMF * bmfCreate(const char * dir,
     int32 fontsize)
 {
 	L_BMF   * bmf;
-	PIXA  * pixa;
+	PIXA * pixa;
 
 	PROCNAME(__FUNCTION__);
 

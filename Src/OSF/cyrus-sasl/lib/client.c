@@ -104,10 +104,9 @@ static int client_done(void)
 	}
 
 	cm = cmechlist->mech_list; /* m point to beginning of the list */
-	while(cm != NULL) {
+	while(cm) {
 		cprevm = cm;
 		cm = cm->next;
-
 		if(cprevm->m.plug->mech_free) {
 			cprevm->m.plug->mech_free(cprevm->m.plug->glob_context,
 			    cmechlist->utils);
@@ -662,10 +661,9 @@ int sasl_client_start(sasl_conn_t * conn, const char * mechlist, sasl_interact_t
 
 	/* do a step */
 	/* FIXME: Hopefully they only give us our own prompt_need back */
-	if(prompt_need && *prompt_need != NULL) {
+	if(prompt_need && *prompt_need) {
 		goto dostep;
 	}
-
 	if(conn->props.min_ssf < conn->external.ssf) {
 		minssf = 0;
 	}
@@ -686,7 +684,7 @@ int sasl_client_start(sasl_conn_t * conn, const char * mechlist, sasl_interact_t
 	if(result != 0)
 		goto done;
 	/* for each mechanism in client's list */
-	for(m = c_conn->mech_list; !bestm && m != NULL; m = m->next) {
+	for(m = c_conn->mech_list; !bestm && m; m = m->next) {
 		for(i = 0, name = ordered_mechs; i < list_len; i++, name += name_len + 1) {
 			unsigned myflags;
 			int plus;
@@ -799,9 +797,8 @@ dostep:
 	}
 	else
 		result = SASL_CONTINUE;
-
 done:
-	if(ordered_mechs != NULL)
+	if(ordered_mechs)
 		c_conn->cparams->utils->FnFree(ordered_mechs);
 	RETURN(conn, result);
 }
@@ -958,9 +955,8 @@ int _sasl_client_listmech(sasl_conn_t * conn,
 	else {
 		*(conn->mechlist_buf) = '\0';
 	}
-
 	flag = 0;
-	for(m = c_conn->mech_list; m != NULL; m = m->next) {
+	for(m = c_conn->mech_list; m; m = m->next) {
 		/* do we have the prompts for it? */
 		if(!have_prompts(conn, m->m.plug)) {
 			continue;
@@ -1069,8 +1065,7 @@ static void _sasl_print_mechanism(client_sasl_mechanism_t * m, sasl_info_callbac
 	printf("[loaded]");
 
 	printf(", \tAPI version: %d\n", m->version);
-
-	if(m->plug != NULL) {
+	if(m->plug) {
 		printf("\tSASL mechanism: %s, best SSF: %d\n",
 		    m->plug->mech_name,
 		    m->plug->max_ssf);
@@ -1156,7 +1151,7 @@ int sasl_client_plugin_info(const char * c_mech_list/* space separated mechanism
 	char * mech_list = NULL;
 	char * p;
 	SETIFZQ(info_cb, _sasl_print_mechanism);
-	if(cmechlist != NULL) {
+	if(cmechlist) {
 		info_cb(NULL, SASL_INFO_LIST_START, info_cb_rock);
 		if(c_mech_list == NULL) {
 			m = cmechlist->mech_list; /* m point to beginning of the list */
@@ -1176,7 +1171,7 @@ int sasl_client_plugin_info(const char * c_mech_list/* space separated mechanism
 					p++;
 				}
 				m = cmechlist->mech_list; /* m point to beginning of the list */
-				while(m != NULL) {
+				while(m) {
 					if(strcasecmp(cur_mech, m->m.plug->mech_name) == 0) {
 						memcpy(&plug_data, &m->m, sizeof(plug_data));
 						info_cb(&plug_data, SASL_INFO_LIST_MECH, info_cb_rock);

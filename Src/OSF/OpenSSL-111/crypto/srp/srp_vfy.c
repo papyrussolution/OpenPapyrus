@@ -13,18 +13,9 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifndef OPENSSL_NO_SRP
-//#include <evp_int.h>
-//#include <openssl/sha.h>
-//#include <openssl/evp.h>
-//#include <openssl/buffer.h>
-//#include <openssl/rand.h>
-//#include <openssl/err.h>
-//#include <openssl/srp.h>
-//#include <openssl/txt_db.h>
 
 #define SRP_RANDOM_SALT_LEN 20
 #define MAX_LEN 2500
-
 /*
  * Note that SRP uses its own variant of base 64 encoding. A different base64
  * alphabet is used and no padding '=' characters are added. Instead we pad to

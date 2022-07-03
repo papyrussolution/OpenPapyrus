@@ -1358,7 +1358,131 @@ public class SLib {
 	// доп параметр - ид лика. Событие используется для правильной идентификации необходимости повторной посылки данных.
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
 	public static final int PPACN_LAST                   = 95; // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
-	
+
+
+	public static boolean ishex(char c) { return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')); }
+	public static boolean ishex(byte c) { return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')); }
+	public static boolean isdec(char c) { return (c >= '0' && c <= '9'); }
+	public static boolean isdec(byte c) { return (c >= '0' && c <= '9'); }
+	public static int hex(byte c) { return (c >= '0' && c <= '9') ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0)); }
+
+	public static int satoi(String text)
+	{
+		int    result = 0;
+		final  int len = GetLen(text);
+		if(len > 0) {
+			int    src_pos = 0;
+			byte [] _p = text.getBytes();
+			while(_p[src_pos] == ' ' || _p[src_pos] == '\t')
+				src_pos++;
+			boolean is_neg = false;
+			boolean is_hex = false;
+			if(_p[src_pos] == '-') {
+				src_pos++;
+				is_neg = true;
+			}
+			else if(_p[src_pos] == '+')
+				src_pos++;
+			if(src_pos < len) {
+				if(_p[src_pos] == '0' && src_pos < (len - 1) && (_p[src_pos + 1] == 'x' || _p[src_pos + 1] == 'X')) {
+					src_pos += 2;
+					is_hex = true;
+				}
+				if(src_pos < len) {
+					if(is_hex) {
+						if(ishex(_p[src_pos])) {
+							int local_len = 0;
+							do {
+								local_len++;
+								if((src_pos + local_len) >= len)
+									break;
+							} while(ishex(_p[src_pos + local_len]));
+							{
+								result = 0;
+								for(int i = 0; i < local_len; i++) {
+									result = (result * 16) + hex(_p[src_pos + i]);
+								}
+							}
+						}
+					}
+					else {
+						if(isdec(_p[src_pos])) {
+							int local_len = 0;
+							do {
+								local_len++;
+								if((src_pos + local_len) >= len)
+									break;
+							} while(isdec(_p[src_pos + local_len]));
+							{
+								for(int i = 0; i < local_len; i++)
+									result = (result * 10) + (_p[src_pos + i] - '0');
+							}
+						}
+					}
+					if(is_neg && result != 0)
+						result = -result;
+				}
+			}
+		}
+		return result;
+	}
+
+	public static class PPObjID {
+		PPObjID()
+		{
+			Type = 0;
+			Id = 0;
+		}
+		PPObjID(int type, int id)
+		{
+			Type = type;
+			Id = id;
+		}
+		//
+		// Descr: Идентифицирует тип и идентификатор объекта по строковым представлениям
+		//   objtype and objid.
+		// Note: Сейчас функция может идентифицировать не все типы объектов Papyrus,
+		//   но лишь те, которые важны в рамках проекта Stylo-Q.
+		//
+		public static PPObjID Identify(String objtype, String objid)
+		{
+			PPObjID result = null;
+			if(GetLen(objtype) > 0) {
+				int type = satoi(objtype);
+				int id = satoi(objid);
+				if(type <= 0) {
+					if(objtype.equalsIgnoreCase("unit"))
+						type = PPOBJ_UNIT;
+					else if(objtype.equalsIgnoreCase("quotkind"))
+						type = PPOBJ_QUOTKIND;
+					else if(objtype.equalsIgnoreCase("location"))
+						type = PPOBJ_LOCATION;
+					else if(objtype.equalsIgnoreCase("goods"))
+						type = PPOBJ_GOODS;
+					else if(objtype.equalsIgnoreCase("processor"))
+						type = PPOBJ_PROCESSOR;
+					else if(objtype.equalsIgnoreCase("bill"))
+						type = PPOBJ_BILL;
+					else if(objtype.equalsIgnoreCase("person"))
+						type = PPOBJ_PERSON;
+					else if(objtype.equalsIgnoreCase("styloqbindery"))
+						type = PPOBJ_STYLOQBINDERY;
+					else if(objtype.equalsIgnoreCase("goodsgroup"))
+						type = PPOBJ_GOODSGROUP;
+					else if(objtype.equalsIgnoreCase("brand"))
+						type = PPOBJ_BRAND;
+					else if(objtype.equalsIgnoreCase("currency"))
+						type = PPOBJ_CURRENCY;
+				}
+				if(type > 0)
+					result = new PPObjID(type, id);
+			}
+			return result;
+		}
+		int    Type;
+		int    Id;
+	}
+
 	public static class ListViewEvent {
 		int    ItemIdx;
 		long   ItemId;   // for RecyclerView 0
@@ -2901,7 +3025,6 @@ public class SLib {
 	private static final int ANY_MONITEM_VALUE  = 0x7d;
 	private static final int ANY_YEARITEM_VALUE = 0x7d0a;
 
-	public static boolean isdec(char c) { return (c >= '0' && c <= '9'); }
 	public static boolean IsLeapYear(int y)
 	{
 		return ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0));
@@ -3216,7 +3339,7 @@ public class SLib {
 										tmp = tmp + buf.charAt(_idx);
 										_idx++;
 									}
-									cur_value_plus = Integer.valueOf(tmp) * sign;
+									cur_value_plus = satoi(tmp) * sign;
 								}
 								cur_value = -1;
 							}
@@ -3232,7 +3355,7 @@ public class SLib {
 									tmp = tmp + buf.charAt(_idx);
 									_idx++;
 								}
-								cur_value = Integer.valueOf(tmp);
+								cur_value = satoi(tmp);
 								if(dtok == timeconstYear && tmp.length() > 0)
 									not_empty_year = true;
 							}
@@ -4205,6 +4328,7 @@ public class SLib {
 		{
 			return ListRcId;
 		}
+		public final LayoutInflater GetLayoutInflater() { return Inflater; }
 		@Override @NonNull public RecyclerListViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
 		{
 			View view = null;

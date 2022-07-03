@@ -185,7 +185,7 @@ static void WriteToStderr(const char* data)
 }
 
 static void WriteSignalMessage(int signo, int cpu,
-    void (*writerfn)(const char*)) {
+    void (*writerfn)(const char *)) {
 	char buf[96];
 	char on_cpu[32] = {0};
 	if(cpu != -1) {
@@ -207,9 +207,9 @@ static void WriteSignalMessage(int signo, int cpu,
 	writerfn(buf);
 }
 
-// `void*` might not be big enough to store `void(*)(const char*)`.
+// `void*` might not be big enough to store `void(*)(const char *)`.
 struct WriterFnStruct {
-	void (* writerfn)(const char*);
+	void (* writerfn)(const char *);
 };
 
 // Many of the absl::debugging_internal::Dump* functions in
@@ -242,7 +242,7 @@ ABSL_ATTRIBUTE_NOINLINE static void WriteStackTrace(void* ucontext, bool symboli
 // called once with writerfn set to WriteToStderr() and then possibly
 // with writerfn set to the user provided function.
 static void WriteFailureInfo(int signo, void* ucontext, int cpu,
-    void (*writerfn)(const char*)) {
+    void (*writerfn)(const char *)) {
 	WriterFnStruct writerfn_struct{writerfn};
 	WriteSignalMessage(signo, cpu, writerfn);
 	WriteStackTrace(ucontext, fsh_options.symbolize_stacktrace, WriterFnWrapper,

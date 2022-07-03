@@ -91,13 +91,13 @@ public:
      * @param status ICU status
      * @stable ICU 4.2
      */
-    static NumberingSystem* U_EXPORT2 createInstance(const Locale & inLocale, UErrorCode& status);
+    static NumberingSystem* U_EXPORT2 createInstance(const Locale & inLocale, UErrorCode & status);
 
     /**
      * Create the default numbering system associated with the default locale.
      * @stable ICU 4.2
      */
-    static NumberingSystem* U_EXPORT2 createInstance(UErrorCode& status);
+    static NumberingSystem* U_EXPORT2 createInstance(UErrorCode & status);
 
     /**
      * Create a numbering system using the specified radix, type, and description. 
@@ -108,7 +108,7 @@ public:
      * @param status ICU status
      * @stable ICU 4.2
      */
-    static NumberingSystem* U_EXPORT2 createInstance(int32_t radix, bool isAlgorithmic, const UnicodeString & description, UErrorCode& status );
+    static NumberingSystem* U_EXPORT2 createInstance(int32_t radix, bool isAlgorithmic, const UnicodeString & description, UErrorCode & status );
 
     /**
      * Return a StringEnumeration over all the names of numbering systems known to ICU.
@@ -119,7 +119,7 @@ public:
      *
      * @stable ICU 4.2
      */
-     static StringEnumeration * U_EXPORT2 getAvailableNames(UErrorCode& status);
+     static StringEnumeration * U_EXPORT2 getAvailableNames(UErrorCode & status);
 
     /**
      * Create a numbering system from one of the predefined numbering systems specified
@@ -135,7 +135,7 @@ public:
      * @return The NumberingSystem instance, or nullptr if not found.
      * @stable ICU 4.2
      */
-    static NumberingSystem* U_EXPORT2 createInstanceByName(const char * name, UErrorCode& status);
+    static NumberingSystem* U_EXPORT2 createInstanceByName(const char * name, UErrorCode & status);
 
 
     /**

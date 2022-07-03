@@ -1670,14 +1670,14 @@ public:
               /Zc:wchar_t[-]
               /Zc:wchar_t is on by default
  */
-#ifdef _WIN32
-	#define IS_PATH_SEPAR(c) ((c) == '\\' || (c) == '/')
-#else
-	#define IS_PATH_SEPAR(c) ((c) == CHAR_PATH_SEPARATOR)
-#endif
+//#ifdef _WIN32
+	//#define IS_PATH_SEPAR(c) ((c) == '\\' || (c) == '/')
+//#else
+	//#define IS_PATH_SEPAR(c) ((c) == CHAR_PATH_SEPARATOR)
+//#endif
 
-inline bool IsPathSepar(char c) { return IS_PATH_SEPAR(c); }
-inline bool IsPathSepar(wchar_t c) { return IS_PATH_SEPAR(c); }
+inline bool IsPathSepar(char c) { return isdirslash(c); }
+inline bool IsPathSepar(wchar_t c) { return isdirslash(c); }
 
 /*inline unsigned MyStringLen_Removed(const char * s)
 {

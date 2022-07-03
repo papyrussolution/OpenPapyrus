@@ -12,7 +12,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "glass_cursor.h"
-#include "glass_table.h"
 
 using namespace Glass;
 

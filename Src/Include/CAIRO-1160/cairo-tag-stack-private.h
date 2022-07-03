@@ -73,8 +73,8 @@ _cairo_tag_stack_get_structure_type (cairo_tag_stack_t *stack);
 
 cairo_private cairo_int_status_t
 _cairo_tag_stack_push (cairo_tag_stack_t *stack,
-		       const char        *name,
-		       const char        *attributes);
+		       const char *name,
+		       const char *attributes);
 
 cairo_private void
 _cairo_tag_stack_set_top_data (cairo_tag_stack_t *stack,

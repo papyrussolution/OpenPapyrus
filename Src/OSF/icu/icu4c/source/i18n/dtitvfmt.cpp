@@ -255,7 +255,7 @@ UnicodeString &DateIntervalFormat::format(const Formattable& obj,
 	}
 
 	if(obj.getType() == Formattable::kObject) {
-		const UObject* formatObj = obj.getObject();
+		const UObject * formatObj = obj.getObject();
 		const DateInterval* interval = dynamic_cast<const DateInterval*>(formatObj);
 		if(interval != nullptr) {
 			return format(interval, appendTo, fieldPosition, status);

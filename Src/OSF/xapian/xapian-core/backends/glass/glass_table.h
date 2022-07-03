@@ -13,13 +13,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_TABLE_H
 #define XAPIAN_INCLUDED_GLASS_TABLE_H
 
-#include "glass_freelist.h"
-#include "glass_cursor.h"
-#include "glass_defs.h"
-#include "io_utils.h"
-#include "wordaccess.h"
-#include "compression_stream.h"
-
 namespace Glass {
 /** Even for items of at maximum size, it must be possible to get this number of items in a block */
 const size_t BLOCK_CAPACITY = 4;

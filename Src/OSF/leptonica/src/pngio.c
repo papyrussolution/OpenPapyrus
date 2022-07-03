@@ -12,7 +12,7 @@
  * <pre>
  *
  *    Reading png through stream
- *          PIX        *pixReadStreamPng()
+ *          PIX *pixReadStreamPng()
  *
  *    Reading png header
  *          int32     readHeaderPng()
@@ -39,7 +39,7 @@
  *          static void memio_free()
  *
  *    Reading png from memory
- *          PIX        *pixReadMemPng()
+ *          PIX *pixReadMemPng()
  *
  *    Writing png to memory
  *          int32     pixWriteMemPng()
@@ -557,11 +557,11 @@ PIX * pixReadStreamPng(FILE * fp)
  * </pre>
  */
 l_ok readHeaderPng(const char * filename,
-    int32    * pw,
-    int32    * ph,
-    int32    * pbps,
-    int32    * pspp,
-    int32    * piscmap)
+    int32 * pw,
+    int32 * ph,
+    int32 * pbps,
+    int32 * pspp,
+    int32 * piscmap)
 {
 	int32 ret;
 	FILE * fp;
@@ -783,7 +783,7 @@ int32 fgetPngResolution(FILE * fp, int32 * pxres, int32 * pyres)
  * \return  0 if OK, 1 on error
  */
 l_ok isPngInterlaced(const char * filename,
-    int32    * pinterlaced)
+    int32 * pinterlaced)
 {
 	uint8 buf[32];
 	FILE * fp;
@@ -824,7 +824,7 @@ l_ok isPngInterlaced(const char * filename,
  *          transparency.
  *      (2) Side-effect: this rewinds the stream.
  */
-l_ok fgetPngColormapInfo(FILE * fp, PIXCMAP  ** pcmap, int32   * ptransparency)
+l_ok fgetPngColormapInfo(FILE * fp, PIXCMAP  ** pcmap, int32 * ptransparency)
 {
 	PROCNAME(__FUNCTION__);
 	int32 i, cindex, rval, gval, bval;

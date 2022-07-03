@@ -59,7 +59,6 @@ public:
 	 * @stable ICU 4.8
 	 */
 	virtual bool appendCodeUnit(char16_t c) = 0;
-
 	/**
 	 * Appends a code point.
 	 * The default implementation calls appendCodeUnit(char16_t) once or twice.
@@ -153,9 +152,9 @@ public:
 	 * @param s The UnicodeString to which this Appendable will write.
 	 * @stable ICU 4.8
 	 */
-	explicit UnicodeStringAppendable(UnicodeString & s) : str(s) {
+	explicit UnicodeStringAppendable(UnicodeString & s) : str(s) 
+	{
 	}
-
 	/**
 	 * Destructor.
 	 * @stable ICU 4.8

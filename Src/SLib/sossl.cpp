@@ -1,9 +1,9 @@
 // SOSSL.CPP
-// Copyright (c) A.Sobolev 2017, 2020
+// Copyright (c) A.Sobolev 2017, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <openssl/ssl.h>
+#include <slib-ossl.h>
 
 typedef int  (*SSL_LIBRARY_INIT_PROC)();
 typedef void (*SSL_LOAD_ERROR_STRINGS_PROC)();

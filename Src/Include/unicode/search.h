@@ -114,7 +114,7 @@ public:
      * @param status for errors if it occurs
      * @stable ICU 2.0
      */
-    virtual void setOffset(int32_t position, UErrorCode &status) = 0;
+    virtual void setOffset(int32_t position, UErrorCode & status) = 0;
 
     /**
      * Return the current index in the text being searched.
@@ -212,7 +212,7 @@ public:
      * @see BreakIterator
      * @stable ICU 2.0
      */
-    void setBreakIterator(BreakIterator *breakiter, UErrorCode &status);
+    void setBreakIterator(BreakIterator *breakiter, UErrorCode & status);
     
     /**
      * Returns the BreakIterator that is used to restrict the points at 
@@ -236,7 +236,7 @@ public:
      *        an U_ILLEGAL_ARGUMENT_ERROR is returned.
      * @stable ICU 2.0
      */
-    virtual void setText(const UnicodeString &text, UErrorCode &status);    
+    virtual void setText(const UnicodeString &text, UErrorCode & status);    
 
     /**
      * Set the string text to be searched. Text iteration will hence begin at 
@@ -253,7 +253,7 @@ public:
      *        U_ILLEGAL_ARGUMENT_ERROR is returned.
      * @stable ICU 2.0
      */
-    virtual void setText(CharacterIterator &text, UErrorCode &status);
+    virtual void setText(CharacterIterator &text, UErrorCode & status);
     
     /**
      * Return the string text to be searched.
@@ -306,7 +306,7 @@ public:
      * @see #getOffset
      * @stable ICU 2.0
      */
-    int32_t first(UErrorCode &status);
+    int32_t first(UErrorCode & status);
 
     /**
      * Returns the first index equal or greater than <tt>position</tt> at which the 
@@ -325,7 +325,7 @@ public:
      * @see #getOffset
      * @stable ICU 2.0
      */
-    int32_t following(int32_t position, UErrorCode &status);
+    int32_t following(int32_t position, UErrorCode & status);
     
     /**
      * Returns the last index in the target text at which it matches the 
@@ -340,7 +340,7 @@ public:
      * @see #getOffset
      * @stable ICU 2.0
      */
-    int32_t last(UErrorCode &status);
+    int32_t last(UErrorCode & status);
 
     /**
      * Returns the first index less than <tt>position</tt> at which the string 
@@ -365,7 +365,7 @@ public:
      * @see #getOffset
      * @stable ICU 2.0
      */
-    int32_t preceding(int32_t position, UErrorCode &status);
+    int32_t preceding(int32_t position, UErrorCode & status);
 
     /**
      * Returns the index of the next point at which the text matches the
@@ -381,7 +381,7 @@ public:
      * @see #getOffset
      * @stable ICU 2.0
      */
-     int32_t next(UErrorCode &status);
+     int32_t next(UErrorCode & status);
 
     /**
      * Returns the index of the previous point at which the string text 
@@ -396,7 +396,7 @@ public:
      * @see #getOffset
      * @stable ICU 2.0
      */
-    int32_t previous(UErrorCode &status);
+    int32_t previous(UErrorCode & status);
 
     /** 
     * Resets the iteration.
@@ -510,7 +510,7 @@ protected:
      * @see #setMatchLength
      * @stable ICU 2.0
      */
-    virtual int32_t handleNext(int32_t position, UErrorCode &status) 
+    virtual int32_t handleNext(int32_t position, UErrorCode & status) 
                                                                          = 0;
 
     /**
@@ -532,7 +532,7 @@ protected:
      * @see #setMatchLength
      * @stable ICU 2.0
      */
-     virtual int32_t handlePrev(int32_t position, UErrorCode &status) 
+     virtual int32_t handlePrev(int32_t position, UErrorCode & status) 
                                                                          = 0;
 
     /**

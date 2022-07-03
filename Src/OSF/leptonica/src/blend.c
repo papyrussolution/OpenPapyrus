@@ -157,7 +157,7 @@ PIX * pixBlend(PIX * pixs1,
     float fract)
 {
 	int32 w1, h1, d1, d2;
-	BOX       * box;
+	BOX * box;
 	PIX * pixc, * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1050,7 +1050,7 @@ PIX * pixBlendGrayAdapt(PIX * pixd,
 	uint32 val32;
 	uint32 * linec, * lined, * datac, * datad;
 	float fmedian, factor;
-	BOX       * box, * boxt;
+	BOX * box, * boxt;
 	PIX * pixc, * pix1, * pix2;
 
 	PROCNAME(__FUNCTION__);
@@ -1831,7 +1831,7 @@ PIX * pixBlendWithGrayMask(PIX * pixs1,
  */
 PIX * pixBlendBackgroundToColor(PIX * pixd,
     PIX * pixs,
-    BOX       * box,
+    BOX * box,
     uint32 color,
     float gamma,
     int32 minval,
@@ -1911,7 +1911,7 @@ PIX * pixBlendBackgroundToColor(PIX * pixd,
  */
 PIX * pixMultiplyByColor(PIX * pixd,
     PIX * pixs,
-    BOX       * box,
+    BOX * box,
     uint32 color)
 {
 	int32 i, j, bx, by, w, h, wpl;

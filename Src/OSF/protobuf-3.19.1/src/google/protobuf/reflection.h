@@ -321,7 +321,7 @@ namespace internal {
 //   field->cpp_type()      T                Actual type of void*
 //   CPPTYPE_INT32        int32_t                 int32_t
 //   CPPTYPE_UINT32       uint32_t                uint32_t
-//   CPPTYPE_INT64        int64_t                 int64_t
+//   CPPTYPE_INT64        int64_t         int64_t
 //   CPPTYPE_UINT64       uint64_t                uint64_t
 //   CPPTYPE_DOUBLE       double                  double
 //   CPPTYPE_FLOAT        float                   float

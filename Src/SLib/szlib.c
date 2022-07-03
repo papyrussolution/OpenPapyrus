@@ -2838,7 +2838,7 @@ char * ZEXPORT gzgets(gzFile file, char * buf, int len)
 		/* look for end-of-line in current output buffer */
 		n = state->x.have > left ? left : state->x.have;
 		eol = (uchar *)memchr(state->x.next, '\n', n);
-		if(eol != NULL)
+		if(eol)
 			n = (uint)(eol - state->x.next) + 1;
 		/* copy through end-of-line, or remainder if not found */
 		memcpy(buf, state->x.next, n);
@@ -3343,7 +3343,7 @@ void ZEXPORT gzclearerr(gzFile file)
 void ZLIB_INTERNAL FASTCALL gz_error(gz_state * state, int err, const char * msg)
 {
 	// free previously allocated message and clear 
-	if(state->msg != NULL) {
+	if(state->msg) {
 		if(state->err != Z_MEM_ERROR)
 			SAlloc::F(state->msg);
 		state->msg = NULL;

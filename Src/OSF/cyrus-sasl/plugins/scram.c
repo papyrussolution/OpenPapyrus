@@ -32,14 +32,6 @@
  *    acknowledgment:
  *    "This product includes software developed by Computing Services
  *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- *
- * CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
- * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
- * FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
- * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
- * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <sasl-internal.h>
 #pragma hdrstop
@@ -53,9 +45,7 @@
 #ifdef macintosh
 	#include <sasl_scram_plugin_decl.h>
 #endif
-#include <openssl/sha.h>
-#include <openssl/evp.h>
-#include <openssl/hmac.h>
+#include <slib-ossl.h>
 
 /*****************************  Common Section  *****************************/
 
@@ -715,7 +705,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 		goto cleanup;
 	}
 
-	if(text->authorization_id != NULL && *text->authorization_id != '\0') {
+	if(text->authorization_id && *text->authorization_id != '\0') {
 		result = sparams->canon_user(sparams->utils->conn,
 			text->authorization_id,
 			0,
@@ -754,7 +744,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 		    (const char **)&s_iteration_count,
 		    NULL);
 
-		if(s_iteration_count != NULL) {
+		if(s_iteration_count) {
 			errno = 0;
 			text->iteration_count = strtoul(s_iteration_count, &end, 10);
 			if(s_iteration_count == end || *end != '\0' || errno != 0) {
@@ -769,7 +759,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 			strlen(auxprop_values[0].values[0]), text->salt, text->salt_len, text->iteration_count,
 			text->StoredKey, text->ServerKey, &error_text);
 		if(result != SASL_OK) {
-			if(error_text != NULL) {
+			if(error_text) {
 				sparams->utils->seterror(sparams->utils->conn, 0, "%s", error_text);
 			}
 			goto cleanup;
@@ -787,7 +777,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 
 		result = SASL_SCRAM_INTERNAL;
 
-		for(i = 0; auxprop_values[1].values[i] != NULL; i++) {
+		for(i = 0; auxprop_values[1].values[i]; i++) {
 			scram_hash = auxprop_values[1].values[i];
 
 			/* Skip the leading spaces */
@@ -1010,10 +1000,10 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 	result = SASL_CONTINUE;
 	text->state = 2;
 cleanup:
-	if(inbuf != NULL) {
+	if(inbuf) {
 		sparams->utils->FnFree(inbuf);
 	}
-	if(base64_salt != NULL) {
+	if(base64_salt) {
 		sparams->utils->FnFree(base64_salt);
 	}
 	return result;
@@ -1371,10 +1361,10 @@ static int scram_server_mech_step2(server_context_t * text,
 	result = SASL_OK;
 
 cleanup:
-	if(inbuf != NULL) {
+	if(inbuf) {
 		sparams->utils->FnFree(inbuf);
 	}
-	if(binary_channel_binding != NULL) {
+	if(binary_channel_binding) {
 		sparams->utils->FnFree(binary_channel_binding);
 	}
 
@@ -1527,7 +1517,7 @@ static int scram_setpass(void * glob_context, sasl_server_params_t * sparams, co
 		    (const char **)&s_iteration_count,
 		    NULL);
 
-		if(s_iteration_count != NULL) {
+		if(s_iteration_count) {
 			errno = 0;
 			iteration_count = strtoul(s_iteration_count, &end, 10);
 			if(s_iteration_count == end || *end != '\0' || errno != 0) {
@@ -1541,7 +1531,7 @@ static int scram_setpass(void * glob_context, sasl_server_params_t * sparams, co
 		sparams->utils->rand(sparams->utils->rpool, salt, SALT_SIZE);
 		r = GenerateScramSecrets(sparams->utils, md, pass, passlen, salt, SALT_SIZE, iteration_count, StoredKey, ServerKey, &error_text);
 		if(r != SASL_OK) {
-			if(error_text != NULL) {
+			if(error_text) {
 				sparams->utils->seterror(sparams->utils->conn, 0, "%s", error_text);
 			}
 			goto cleanup;
@@ -1620,11 +1610,11 @@ static void scram_server_mech_dispose(void * conn_context, const sasl_utils_t * 
 	if(text->auth_message) _plug_free_string(utils, &(text->auth_message));
 	if(text->nonce) _plug_free_string(utils, &(text->nonce));
 	if(text->salt) utils->FnFree(text->salt);
-	if(text->cbindingname != NULL) {
+	if(text->cbindingname) {
 		utils->FnFree(text->cbindingname);
 		text->cbindingname = NULL;
 	}
-	if(text->gs2_header != NULL) {
+	if(text->gs2_header) {
 		utils->FnFree(text->gs2_header);
 		text->gs2_header = NULL;
 	}
@@ -1952,7 +1942,7 @@ static int scram_client_mech_step1(client_context_t * text,
 		goto cleanup;
 	}
 
-	if(userid != NULL && *userid != '\0') {
+	if(userid && *userid != '\0') {
 		result = encode_saslname(oparams->user, (const char **)&encoded_authorization_id, &freeme2);
 		if(result != SASL_OK) {
 			SASL_UTILS_MEMERROR(params->utils);
@@ -1966,8 +1956,8 @@ static int scram_client_mech_step1(client_context_t * text,
 		result = SASL_NOMEM;
 		goto cleanup;
 	}
-	maxsize = strlen("p=,a=,n=,r=") + ((channel_binding_name != NULL) ? strlen(channel_binding_name) : 0) +
-	    ((encoded_authorization_id != NULL) ? strlen(encoded_authorization_id) : 0) + strlen(encoded_authcid) + strlen(text->nonce);
+	maxsize = strlen("p=,a=,n=,r=") + sstrlen(channel_binding_name) +
+	    sstrlen(encoded_authorization_id) + strlen(encoded_authcid) + strlen(text->nonce);
 	result = _plug_buf_alloc(params->utils, &(text->out_buf), &(text->out_buf_len), (unsigned)maxsize + 1);
 	if(result != SASL_OK) {
 		SASL_UTILS_MEMERROR(params->utils);
@@ -1975,8 +1965,8 @@ static int scram_client_mech_step1(client_context_t * text,
 		goto cleanup;
 	}
 	snprintf(text->out_buf, maxsize + 1, "%c%s%s,%s%s,", channel_binding_state,
-	    (channel_binding_name != NULL) ? "=" : "", (channel_binding_name != NULL) ? channel_binding_name : "",
-	    (encoded_authorization_id != NULL) ? "a=" : "", (encoded_authorization_id != NULL) ? encoded_authorization_id : "");
+	    channel_binding_name ? "=" : "", channel_binding_name ? channel_binding_name : "",
+	    encoded_authorization_id ? "a=" : "", encoded_authorization_id ? encoded_authorization_id : "");
 	text->gs2_header_length = strlen(text->out_buf);
 	_plug_strdup(params->utils, text->out_buf, &text->gs2_header, NULL);
 	sprintf(text->out_buf + text->gs2_header_length, "n=%s,r=%s", encoded_authcid, text->nonce);
@@ -1993,8 +1983,8 @@ static int scram_client_mech_step1(client_context_t * text,
 	*clientoutlen = (unsigned)strlen(*clientout);
 	result = SASL_CONTINUE;
 cleanup:
-	if(freeme != NULL) _plug_free_string(params->utils, &freeme);
-	if(freeme2 != NULL) _plug_free_string(params->utils, &freeme2);
+	if(freeme) _plug_free_string(params->utils, &freeme);
+	if(freeme2) _plug_free_string(params->utils, &freeme2);
 	return result;
 }
 
@@ -2202,12 +2192,9 @@ static int scram_client_mech_step2(client_context_t * text,
 		channel_binding_data = (const char *)params->cbinding->data;
 		channel_binding_data_len = params->cbinding->len;
 	}
-
-	cb_bin_length = text->gs2_header_length +
-	    ((channel_binding_data != NULL) ? channel_binding_data_len : 0);
+	cb_bin_length = text->gs2_header_length + ((channel_binding_data) ? channel_binding_data_len : 0);
 	cb_encoded_length = (cb_bin_length / 3 * 4) + ((cb_bin_length % 3) ? 4 : 0);
-
-	if(channel_binding_data != NULL) {
+	if(channel_binding_data) {
 		cb_bin = (char *)params->utils->FnMalloc(cb_bin_length + 1);
 		if(cb_bin == NULL) {
 			SASL_UTILS_MEMERROR(params->utils);
@@ -2226,7 +2213,7 @@ static int scram_client_mech_step2(client_context_t * text,
 	/*
 	 * Returns SASL_OK on success, SASL_BUFOVER if result won't fit
 	 */
-	if(params->utils->encode64((cb_bin != NULL) ? cb_bin : text->gs2_header, (unsigned int)cb_bin_length, cb_encoded,
+	if(params->utils->encode64(cb_bin ? cb_bin : text->gs2_header, (unsigned int)cb_bin_length, cb_encoded,
 	    (unsigned int)cb_encoded_length + 1, NULL) != SASL_OK) {
 		SASL_UTILS_MEMERROR(params->utils);
 		result = SASL_NOMEM;
@@ -2323,26 +2310,20 @@ static int scram_client_mech_step2(client_context_t * text,
 	sprintf(text->out_buf + length_no_proof, ",p=%s", client_proof);
 	*clientout = text->out_buf;
 	*clientoutlen = (unsigned)strlen(text->out_buf);
-
 	result = SASL_CONTINUE;
-
 cleanup:
-	if(inbuf != NULL) {
+	if(inbuf) {
 		params->utils->FnFree(inbuf);
 	}
-
-	if(client_proof != NULL) {
+	if(client_proof) {
 		params->utils->FnFree(client_proof);
 	}
-
-	if(cb_encoded != NULL) {
+	if(cb_encoded) {
 		params->utils->FnFree(cb_encoded);
 	}
-
-	if(cb_bin != NULL) {
+	if(cb_bin) {
 		params->utils->FnFree(cb_bin);
 	}
-
 	return result;
 }
 

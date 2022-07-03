@@ -3,6 +3,8 @@
 //
 package ru.petroglif.styloq;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -202,16 +204,74 @@ public class CmdRGridActivity extends SLib.SlActivity {
 			case SLib.EV_CREATEVIEWHOLDER:
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
-					if(ev_subj != null && ev_subj.ItemView != null) {
+					if(ev_subj != null) {
+						SLib.RecyclerListViewHolder holder = null;
+						SLib.RecyclerListAdapter adapter = (srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
+						if(ev_subj.RvHolder == null) {
+							if(ev_subj.ItemView != null) {
+								LinearLayout _lo = ViewDescriptionList.CreateItemLayout(Vdl, this,0);
+								if(_lo != null) {
+									holder = new SLib.RecyclerListViewHolder(_lo, adapter);
+									//
+									View iv = holder.itemView;
+									if(iv != null) {
+										//JSONObject cur_entry = (JSONObject)ListData.get(ev_subj.ItemIdx);
+										final int _vdlc = Vdl.GetCount();
+										for(int i = 0; i < _vdlc; i++) {
+											View ctl = iv.findViewById(i + 1);
+											if(ctl != null) {
+												ctl.setOnLongClickListener(new View.OnLongClickListener() {
+													@Override public boolean onLongClick(View v)
+													{ return (HandleEvent(SLib.EV_COMMAND, v, ev_subj.ItemIdx) != null); }});
+											}
+										}
+									}
+								}
+							}
+						}
+						else {
+							holder = (SLib.RecyclerListViewHolder)ev_subj.RvHolder;
+						}
+						result = holder;
+						/*
 						LinearLayout _lo = ViewDescriptionList.CreateItemLayout(Vdl, this,0);
 						if(_lo != null) {
 							//((ViewGroup)ev_subj.ItemView).addView(_lo);
 							SLib.RecyclerListAdapter adapter = (srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
+							holder = new SLib.RecyclerListViewHolder(_lo, adapter);
+							View iv = holder.itemView;
+							if(iv != null) {
+								//JSONObject cur_entry = (JSONObject)ListData.get(ev_subj.ItemIdx);
+								final int _vdlc = Vdl.GetCount();
+								for(int i = 0; i < _vdlc; i++) {
+									View ctl = iv.findViewById(i + 1);
+									if(ctl != null)
+										ctl.setOnClickListener(holder);
+								}
+							}
 							result = new SLib.RecyclerListViewHolder(_lo, adapter);
-						}
+						}*/
 					}
 				}
 				break;
+			case SLib.EV_COMMAND:
+				{
+					StyloQApp app_ctx = GetAppCtx();
+					if(app_ctx != null && subj != null && subj instanceof Integer && srcObj != null && srcObj instanceof TextView) {
+						String text = ((TextView)srcObj).getText().toString();
+						if(SLib.GetLen(text) > 0) {
+							ClipboardManager clipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+							if(clipboard != null) {
+								ClipData clip = ClipData.newPlainText("StyloQGridEntryText", text);
+								if(clip != null) {
+									clipboard.setPrimaryClip(clip);
+									app_ctx.DisplayMessage(this, ppstr2.PPSTR_TEXT, ppstr2.PPTXT_TEXTHASBEENCOPIEDTOCLIPBOARD, 2000);
+									result = text;
+								}
+							}
+						}
+					}
+				}
 			case SLib.EV_GETLISTITEMVIEW:
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;

@@ -371,7 +371,7 @@ RegexPattern * U_EXPORT2 RegexPattern::compile(const UnicodeString & regex,
 //
 //   compile with default flags, UText mode
 //
-RegexPattern * U_EXPORT2 RegexPattern::compile(UText               * regex,
+RegexPattern * U_EXPORT2 RegexPattern::compile(UText * regex,
     UParseError         &pe,
     UErrorCode          &err)
 {

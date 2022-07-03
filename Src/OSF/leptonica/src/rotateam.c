@@ -240,7 +240,7 @@ PIX * pixRotateAMGray(PIX * pixs,
 {
 	int32 w, h, wpls, wpld;
 	uint32  * datas, * datad;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 

@@ -9,7 +9,7 @@
         <item name="android:layout_width">@dimen/toolbariconsqside</item>
         <item name="android:layout_height">@dimen/toolbariconsqside</item>
         <item name="android:onClick">OnButtonClk</item>
-        <item name="android:background">@drawable/selector_button</item>
+        <item name="android:background">@drawable/selector_imagebutton</item>
         <item name="android:layout_marginLeft">8dp</item>
         <item name="android:layout_marginTop">2dp</item>
         <item name="android:layout_marginRight">2dp</item>
@@ -38,17 +38,20 @@
         <item name="android:layout_marginRight">4dp</item>
         <item name="android:layout_marginBottom">4dp</item>
     </style>
+    <style name="ImagePushButton" parent="PushButton">
+        <item name="android:background">@drawable/selector_imagebutton</item>
+    </style>
     <!-- parent="@style/Widget.AppCompat.Spinner.Underlined" -->
     <style name="ComboBox">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minWidth">160dp</item>
-        <item name="android:minHeight">24dp</item>
+        <item name="android:minHeight">32dp</item>
         <item name="android:dropDownWidth">match_parent</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
-        <item name="android:paddingTop">4dp</item>
-        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
         <item name="android:textAlignment">textStart</item>
         <item name="android:background">@drawable/shape_combobox</item>
         <item name="android:popupBackground">@drawable/shape_button</item>
@@ -93,15 +96,14 @@
     </style>
     <style name="PageHeaderTitleText">
         <!-- <item name="android:fontFamily">@font/bagnard_sans</item> -->
-        <item name="android:textSize">13sp</item>
-        <item name="android:textFontWeight">500</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/TextPrimary</item>
         <item name="android:layout_margin">4dp</item>
     </style>
     <style name="PageHeaderTopicText">
-        <!-- <item name="android:fontFamily">@font/bagnard_sans</item> -->
-        <item name="android:textSize">13sp</item>
-        <item name="android:textFontWeight">500</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/TextPrimaryLight</item>
         <item name="android:layout_margin">4dp</item>
     </style>

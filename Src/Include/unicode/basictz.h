@@ -97,7 +97,7 @@ public:
 	 * @return The number of <code>TimeZoneRule</code>s representing time transitions.
 	 * @stable ICU 3.8
 	 */
-	virtual int32_t countTransitionRules(UErrorCode& status) const = 0;
+	virtual int32_t countTransitionRules(UErrorCode & status) const = 0;
 
 	/**
 	 * Gets the <code>InitialTimeZoneRule</code> and the set of <code>TimeZoneRule</code>
@@ -116,7 +116,7 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual void getTimeZoneRules(const InitialTimeZoneRule*& initial,
-	    const TimeZoneRule* trsrules[], int32_t& trscount, UErrorCode& status) const = 0;
+	    const TimeZoneRule* trsrules[], int32_t& trscount, UErrorCode & status) const = 0;
 
 	/**
 	 * Gets the set of time zone rules valid at the specified time.  Some known external time zone
@@ -145,7 +145,7 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual void getSimpleRulesNear(UDate date, InitialTimeZoneRule*& initial,
-	    AnnualTimeZoneRule*& std, AnnualTimeZoneRule*& dst, UErrorCode& status) const;
+	    AnnualTimeZoneRule*& std, AnnualTimeZoneRule*& dst, UErrorCode & status) const;
 
 #ifndef U_FORCE_HIDE_DRAFT_API
 	/**
@@ -154,7 +154,7 @@ public:
 	 */
 	virtual void getOffsetFromLocal(UDate date, UTimeZoneLocalOption nonExistingTimeOpt,
 	    UTimeZoneLocalOption duplicatedTimeOpt, int32_t& rawOffset,
-	    int32_t& dstOffset, UErrorCode& status) const;
+	    int32_t& dstOffset, UErrorCode & status) const;
 
 #endif /* U_FORCE_HIDE_DRAFT_API */
 
@@ -175,7 +175,7 @@ public:
 	 * @internal
 	 */
 	void getOffsetFromLocal(UDate date, int32_t nonExistingTimeOpt, int32_t duplicatedTimeOpt,
-	    int32_t& rawOffset, int32_t& dstOffset, UErrorCode& status) const;
+	    int32_t& rawOffset, int32_t& dstOffset, UErrorCode & status) const;
 #endif  /* U_HIDE_INTERNAL_API */
 
 protected:
@@ -228,7 +228,7 @@ protected:
 	 *                  The caller owns the returned vector; the UVector owns the rules.
 	 * @param status    Receives error status code
 	 */
-	void getTimeZoneRulesAfter(UDate start, InitialTimeZoneRule*& initial, UVector*& transitionRules, UErrorCode& status) const;
+	void getTimeZoneRulesAfter(UDate start, InitialTimeZoneRule*& initial, UVector*& transitionRules, UErrorCode & status) const;
 };
 
 U_NAMESPACE_END

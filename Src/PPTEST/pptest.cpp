@@ -1502,8 +1502,8 @@ int DoConstructionTest()
 	//Test_Fts();
 #endif
 	SDecimalFraction::Test();
-	Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	ImportSpecial("\\DEV\\RESOURCE\\DATA\\ETC");
+	Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//TestGtinStruc();
 	//DoTest_PThr4w();

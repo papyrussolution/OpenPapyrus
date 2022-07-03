@@ -226,8 +226,7 @@ bool PragmaMarker::IsValidAttribute(PragmaId pragma_id, const char* name, size_t
 		const char* attr_name = g_pragmas[pragma_id].attribute_names[i];
 		if(attr_name == NULL)
 			break;
-		if((strlen(attr_name) == namelen) &&
-		    (strncasecmp(attr_name, name, namelen) == 0))
+		if((strlen(attr_name) == namelen) && (strncasecmp(attr_name, name, namelen) == 0))
 			// We found the given name in our accepted attribute list.
 			return true;
 	}
@@ -258,7 +257,7 @@ string PragmaMarker::ParseAttributeValue(const char* value_start,
 	do {
 		if(current >= *value_end ||
 		    ((val_end =
-		    (const char*)memchr(current, '"', *value_end - current)) == NULL)) {
+		    (const char *)memchr(current, '"', *value_end - current)) == NULL)) {
 			error_msg->append("Attribute value not terminated.");
 			return "";
 		}
@@ -280,7 +279,7 @@ PragmaMarker::PragmaMarker(const char* token_start, const char* token_end,
 	assert(error_msg);
 	string error;
 	const char* identifier_end =
-	    (const char*)memchr(token_start, ' ', token_end - token_start);
+	    (const char *)memchr(token_start, ' ', token_end - token_start);
 	if(identifier_end == NULL)
 		identifier_end = token_end;
 	pragma_id_ = PragmaMarker::GetPragmaId(token_start,
@@ -298,7 +297,7 @@ PragmaMarker::PragmaMarker(const char* token_start, const char* token_end,
 				error = "Extraneous text.";
 				break;
 			}
-			const char* val = (const char*)memchr(nameval, '=', token_end - nameval);
+			const char* val = (const char *)memchr(nameval, '=', token_end - nameval);
 			if(val == NULL || val == nameval) {
 				error = "Missing attribute name or value";
 				break;
@@ -342,7 +341,7 @@ static const char * memmatch(const char * haystack, size_t haystack_len,
 
 	const char* match;
 	const char* hayend = haystack + haystack_len - needle_len + 1;
-	while((match = (const char*)memchr(haystack, needle[0],
+	while((match = (const char *)memchr(haystack, needle[0],
 	    hayend - haystack))) {
 		if(memcmp(match, needle, needle_len) == 0)
 			return match;
@@ -1870,7 +1869,7 @@ TemplateToken SectionTemplateNode::GetNextToken(Template * my_template) {
 
 		    // Now we have the name, possibly with following modifiers.
 		    // Find the modifier-start.
-		    const char* mod_start = (const char*)memchr(token_start, ':',
+		    const char* mod_start = (const char *)memchr(token_start, ':',
 			    token_end - token_start);
 		    if(mod_start == NULL)
 			    mod_start = token_end;
@@ -1887,11 +1886,11 @@ TemplateToken SectionTemplateNode::GetNextToken(Template * my_template) {
 		    for(const char* mod = mod_start; mod < token_end; mod = mod_end) {
 			    assert(*mod == ':');
 			    ++mod; // skip past the starting colon
-			    mod_end = (const char*)memchr(mod, ':', token_end - mod);
+			    mod_end = (const char *)memchr(mod, ':', token_end - mod);
 			    if(mod_end == NULL)
 				    mod_end = token_end;
 			    // Modifiers can be of the form :modname=value.  Extract out value
-			    const char* value = (const char*)memchr(mod, '=', mod_end - mod);
+			    const char* value = (const char *)memchr(mod, '=', mod_end - mod);
 			    if(value == NULL)
 				    value = mod_end;
 			    string value_string(value, mod_end - value);
@@ -2265,7 +2264,7 @@ bool Template::StringToTemplateCache(const TemplateString& key,
 
 bool Template::ParseDelimiters(const char* text, size_t textlen,
     MarkerDelimiters* delim) {
-	const char* space = (const char*)memchr(text, ' ', textlen);
+	const char* space = (const char *)memchr(text, ' ', textlen);
 	if(textlen < 3 ||
 	    text[0] != '=' || text[textlen - 1] != '=' ||  // no = at ends
 	    memchr(text + 1, '=', textlen - 2) ||          // = in the middle
@@ -2423,8 +2422,7 @@ void Template::StripBuffer(char ** buffer, size_t* len) {
 		// the right delim.
 		const char* end_marker = NULL;
 		for(const char* marker = prev_pos; marker; marker = end_marker) {
-			marker = memmatch(marker, next_pos - marker,
-				delim.start_marker, delim.start_marker_len);
+			marker = memmatch(marker, next_pos - marker, delim.start_marker, delim.start_marker_len);
 			if(!marker) break;
 			end_marker = memmatch(marker + delim.start_marker_len,
 				next_pos - (marker + delim.start_marker_len),
@@ -2442,7 +2440,6 @@ void Template::StripBuffer(char ** buffer, size_t* len) {
 		}
 	}
 	assert(write_pos >= retval);
-
 	// Replace the input retval with our new retval.
 	delete[] *buffer;
 	*buffer = retval;
@@ -2479,12 +2476,9 @@ EXCLUSIVE_LOCKS_REQUIRED(g_template_mutex) {
 		// string-based templates don't reload
 		return false;
 	}
-
 	FileStat statbuf;
 	if(resolved_filename_.empty()) {
-		if(!template_cache_->ResolveTemplateFilename(original_filename_,
-		    &resolved_filename_,
-		    &statbuf)) {
+		if(!template_cache_->ResolveTemplateFilename(original_filename_, &resolved_filename_, &statbuf)) {
 			LOG(WARNING) << "Unable to locate file " << original_filename_ << endl;
 			set_state(TS_ERROR);
 			return false;
@@ -2498,10 +2492,8 @@ EXCLUSIVE_LOCKS_REQUIRED(g_template_mutex) {
 			return false;
 		}
 	}
-
 	if(statbuf.IsDirectory()) {
-		LOG(WARNING) << resolved_filename_
-			     << "is a directory and thus not readable" << endl;
+		LOG(WARNING) << resolved_filename_ << "is a directory and thus not readable" << endl;
 		// We keep the old tree if there is one, otherwise we're in error
 		set_state(TS_ERROR);
 		return false;
@@ -2511,11 +2503,9 @@ EXCLUSIVE_LOCKS_REQUIRED(g_template_mutex) {
 		set_state(TS_READY);
 		return false; // file's timestamp hasn't changed, so no need to reload
 	}
-
 	File* fp = File::Open(resolved_filename_.c_str(), "r");
 	if(fp == NULL) {
-		LOG(ERROR) << "Can't find file " << resolved_filename_
-			   << "; skipping" << endl;
+		LOG(ERROR) << "Can't find file " << resolved_filename_ << "; skipping" << endl;
 		// We keep the old tree if there is one, otherwise we're in error
 		set_state(TS_ERROR);
 		return false;
@@ -2594,8 +2584,7 @@ bool Template::ExpandLocked(ExpandEmitter * expand_emitter, const TemplateDictio
 		string value;
 		StringEmitter tmp_emitter(&value);
 		error_free &= tree_->Expand(&tmp_emitter, dict, per_expand_data, cache);
-		modifier->Modify(value.data(), value.size(), per_expand_data,
-		    expand_emitter, template_file());
+		modifier->Modify(value.data(), value.size(), per_expand_data, expand_emitter, template_file());
 	}
 	else {
 		// No need to modify this template.

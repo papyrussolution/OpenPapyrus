@@ -1,12 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *   Copyright (C) 1996-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ******************************************************************************
- */
-
+// Copyright (C) 1996-2016, International Business Machines Corporation and others.  All Rights Reserved.
+//
 /**
  * \file
  * \brief C++ API: Collation Service.
@@ -355,7 +350,7 @@ public:
 	 */
 	virtual UCollationResult compare(const UnicodeString & source,
 	    const UnicodeString & target,
-	    UErrorCode &status) const = 0;
+	    UErrorCode & status) const = 0;
 
 #ifndef U_FORCE_HIDE_DEPRECATED_API
 	/**
@@ -386,7 +381,7 @@ public:
 	 *         length) is less  than target.
 	 * @stable ICU 2.6
 	 */
-	virtual UCollationResult compare(const UnicodeString & source, const UnicodeString & target, int32_t length, UErrorCode &status) const = 0;
+	virtual UCollationResult compare(const UnicodeString & source, const UnicodeString & target, int32_t length, UErrorCode & status) const = 0;
 #ifndef U_FORCE_HIDE_DEPRECATED_API
 	/**
 	 * The comparison function compares the character data stored in two
@@ -442,10 +437,7 @@ public:
 	 * than target
 	 * @stable ICU 2.6
 	 */
-	virtual UCollationResult compare(const char16_t* source, int32_t sourceLength,
-	    const char16_t* target, int32_t targetLength,
-	    UErrorCode &status) const = 0;
-
+	virtual UCollationResult compare(const char16_t* source, int32_t sourceLength, const char16_t* target, int32_t targetLength, UErrorCode & status) const = 0;
 	/**
 	 * Compares two strings using the Collator.
 	 * Returns whether the first one compares less than/equal to/greater than
@@ -457,10 +449,7 @@ public:
 	 * @return UCOL_LESS, UCOL_EQUAL or UCOL_GREATER
 	 * @stable ICU 4.2
 	 */
-	virtual UCollationResult compare(UCharIterator &sIter,
-	    UCharIterator &tIter,
-	    UErrorCode &status) const;
-
+	virtual UCollationResult compare(UCharIterator &sIter, UCharIterator &tIter, UErrorCode & status) const;
 	/**
 	 * Compares two UTF-8 strings using the Collator.
 	 * Returns whether the first one compares less than/equal to/greater than
@@ -474,10 +463,7 @@ public:
 	 * @return UCOL_LESS, UCOL_EQUAL or UCOL_GREATER
 	 * @stable ICU 4.2
 	 */
-	virtual UCollationResult compareUTF8(const StringPiece &source,
-	    const StringPiece &target,
-	    UErrorCode &status) const;
-
+	virtual UCollationResult compareUTF8(const StringPiece &source, const StringPiece &target, UErrorCode & status) const;
 	/**
 	 * Transforms the string into a series of characters that can be compared
 	 * with CollationKey::compareTo. It is not possible to restore the original
@@ -498,7 +484,7 @@ public:
 	 */
 	virtual CollationKey& getCollationKey(const UnicodeString &  source,
 	    CollationKey& key,
-	    UErrorCode& status) const = 0;
+	    UErrorCode & status) const = 0;
 
 	/**
 	 * Transforms the string into a series of characters that can be compared
@@ -522,7 +508,7 @@ public:
 	virtual CollationKey& getCollationKey(const char16_t* source,
 	    int32_t sourceLength,
 	    CollationKey& key,
-	    UErrorCode& status) const = 0;
+	    UErrorCode & status) const = 0;
 	/**
 	 * Generates the hash code for the collation object
 	 * @stable ICU 2.0
@@ -542,7 +528,7 @@ public:
 	 * @deprecated ICU 2.8 This API is under consideration for revision
 	 * in ICU 3.0.
 	 */
-	virtual Locale getLocale(ULocDataLocaleType type, UErrorCode& status) const = 0;
+	virtual Locale getLocale(ULocDataLocaleType type, UErrorCode & status) const = 0;
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	/**
@@ -629,10 +615,7 @@ public:
 	 * @see UColReorderCode
 	 * @stable ICU 4.8
 	 */
-	virtual int32_t getReorderCodes(int32_t * dest,
-	    int32_t destCapacity,
-	    UErrorCode& status) const;
-
+	virtual int32_t getReorderCodes(int32_t * dest, int32_t destCapacity, UErrorCode & status) const;
 	/**
 	 * Sets the ordering of scripts for this collator.
 	 *
@@ -648,10 +631,7 @@ public:
 	 * @see UColReorderCode
 	 * @stable ICU 4.8
 	 */
-	virtual void setReorderCodes(const int32_t* reorderCodes,
-	    int32_t reorderCodesLength,
-	    UErrorCode& status);
-
+	virtual void setReorderCodes(const int32_t* reorderCodes, int32_t reorderCodesLength, UErrorCode & status);
 	/**
 	 * Retrieves the reorder codes that are grouped with the given reorder code. Some reorder
 	 * codes will be grouped and must reorder together.
@@ -672,11 +652,7 @@ public:
 	 * @see UColReorderCode
 	 * @stable ICU 4.8
 	 */
-	static int32_t U_EXPORT2 getEquivalentReorderCodes(int32_t reorderCode,
-	    int32_t* dest,
-	    int32_t destCapacity,
-	    UErrorCode& status);
-
+	static int32_t U_EXPORT2 getEquivalentReorderCodes(int32_t reorderCode, int32_t* dest, int32_t destCapacity, UErrorCode & status);
 	/**
 	 * Get name of the object for the desired Locale, in the desired language
 	 * @param objectLocale must be from getAvailableLocales
@@ -686,10 +662,7 @@ public:
 	 *         desired language
 	 * @stable ICU 2.0
 	 */
-	static UnicodeString & U_EXPORT2 getDisplayName(const Locale& objectLocale,
-	    const Locale& displayLocale,
-	    UnicodeString & name);
-
+	static UnicodeString & U_EXPORT2 getDisplayName(const Locale& objectLocale, const Locale& displayLocale, UnicodeString & name);
 	/**
 	 * Get name of the object for the desired Locale, in the language of the
 	 * default locale.
@@ -733,7 +706,7 @@ public:
 	 * responsible for closing the result.
 	 * @stable ICU 3.0
 	 */
-	static StringEnumeration* U_EXPORT2 getKeywords(UErrorCode& status);
+	static StringEnumeration* U_EXPORT2 getKeywords(UErrorCode & status);
 
 	/**
 	 * Given a keyword, create a string enumeration of all values
@@ -746,7 +719,7 @@ public:
 	 * upon error. The caller is responsible for deleting the result.
 	 * @stable ICU 3.0
 	 */
-	static StringEnumeration* U_EXPORT2 getKeywordValues(const char * keyword, UErrorCode& status);
+	static StringEnumeration* U_EXPORT2 getKeywordValues(const char * keyword, UErrorCode & status);
 
 	/**
 	 * Given a key and a locale, returns an array of string values in a preferred
@@ -764,9 +737,7 @@ public:
 	 * @return a string enumeration over keyword values for the given key and the locale.
 	 * @stable ICU 4.2
 	 */
-	static StringEnumeration* U_EXPORT2 getKeywordValuesForLocale(const char * keyword, const Locale& locale,
-	    bool commonlyUsed, UErrorCode& status);
-
+	static StringEnumeration* U_EXPORT2 getKeywordValuesForLocale(const char * keyword, const Locale& locale, bool commonlyUsed, UErrorCode & status);
 	/**
 	 * Return the functionally equivalent locale for the given
 	 * requested locale, with respect to given keyword, for the
@@ -794,9 +765,7 @@ public:
 	 * locale upon error.
 	 * @stable ICU 3.0
 	 */
-	static Locale U_EXPORT2 getFunctionalEquivalent(const char * keyword, const Locale& locale,
-	    bool& isAvailable, UErrorCode& status);
-
+	static Locale U_EXPORT2 getFunctionalEquivalent(const char * keyword, const Locale& locale, bool& isAvailable, UErrorCode & status);
 #if !UCONFIG_NO_SERVICE
 	/**
 	 * Register a new Collator.  The collator will be adopted.
@@ -809,7 +778,7 @@ public:
 	 * @return a registry key that can be used to unregister this collator
 	 * @stable ICU 2.6
 	 */
-	static URegistryKey U_EXPORT2 registerInstance(Collator* toAdopt, const Locale& locale, UErrorCode& status);
+	static URegistryKey U_EXPORT2 registerInstance(Collator* toAdopt, const Locale& locale, UErrorCode & status);
 
 	/**
 	 * Register a new CollatorFactory.  The factory will be adopted.
@@ -821,7 +790,7 @@ public:
 	 * @return a registry key that can be used to unregister this collator
 	 * @stable ICU 2.6
 	 */
-	static URegistryKey U_EXPORT2 registerFactory(CollatorFactory* toAdopt, UErrorCode& status);
+	static URegistryKey U_EXPORT2 registerFactory(CollatorFactory* toAdopt, UErrorCode & status);
 
 	/**
 	 * Unregister a previously-registered Collator or CollatorFactory
@@ -836,7 +805,7 @@ public:
 	 * @return true if the collator for the key was successfully unregistered
 	 * @stable ICU 2.6
 	 */
-	static bool U_EXPORT2 unregister(URegistryKey key, UErrorCode& status);
+	static bool U_EXPORT2 unregister(URegistryKey key, UErrorCode & status);
 #endif /* UCONFIG_NO_SERVICE */
 
 	/**
@@ -866,9 +835,7 @@ public:
 	 *        there were errors
 	 * @stable ICU 2.2
 	 */
-	virtual void setAttribute(UColAttribute attr, UColAttributeValue value,
-	    UErrorCode &status) = 0;
-
+	virtual void setAttribute(UColAttribute attr, UColAttributeValue value, UErrorCode & status) = 0;
 	/**
 	 * Universal attribute getter
 	 * @param attr attribute type
@@ -877,9 +844,7 @@ public:
 	 * @return attribute value
 	 * @stable ICU 2.2
 	 */
-	virtual UColAttributeValue getAttribute(UColAttribute attr,
-	    UErrorCode &status) const = 0;
-
+	virtual UColAttributeValue getAttribute(UColAttribute attr, UErrorCode & status) const = 0;
 	/**
 	 * Sets the variable top to the top of the specified reordering group.
 	 * The variable top determines the highest-sorting character
@@ -928,7 +893,7 @@ public:
 	 * @return variable top primary weight
 	 * @deprecated ICU 53 Call setMaxVariable() instead.
 	 */
-	virtual uint32_t setVariableTop(const char16_t * varTop, int32_t len, UErrorCode &status) = 0;
+	virtual uint32_t setVariableTop(const char16_t * varTop, int32_t len, UErrorCode & status) = 0;
 
 	/**
 	 * Sets the variable top to the primary weight of the specified string.
@@ -947,7 +912,7 @@ public:
 	 * @return variable top primary weight
 	 * @deprecated ICU 53 Call setMaxVariable() instead.
 	 */
-	virtual uint32_t setVariableTop(const UnicodeString &varTop, UErrorCode &status) = 0;
+	virtual uint32_t setVariableTop(const UnicodeString &varTop, UErrorCode & status) = 0;
 
 	/**
 	 * Sets the variable top to the specified primary weight.
@@ -960,7 +925,7 @@ public:
 	 * @param status error code
 	 * @deprecated ICU 53 Call setMaxVariable() instead.
 	 */
-	virtual void setVariableTop(uint32_t varTop, UErrorCode &status) = 0;
+	virtual void setVariableTop(uint32_t varTop, UErrorCode & status) = 0;
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	/**
@@ -970,7 +935,7 @@ public:
 	 * @see getMaxVariable
 	 * @stable ICU 2.0
 	 */
-	virtual uint32_t getVariableTop(UErrorCode &status) const = 0;
+	virtual uint32_t getVariableTop(UErrorCode & status) const = 0;
 
 	/**
 	 * Get a UnicodeSet that contains all the characters and sequences
@@ -981,7 +946,7 @@ public:
 	 *         in the root collator. The object must be disposed of by using delete
 	 * @stable ICU 2.4
 	 */
-	virtual UnicodeSet * getTailoredSet(UErrorCode &status) const;
+	virtual UnicodeSet * getTailoredSet(UErrorCode & status) const;
 
 #ifndef U_FORCE_HIDE_DEPRECATED_API
 	/**
@@ -1150,61 +1115,37 @@ public:
 	 *  @see ucol_getShortDefinitionString
 	 *  @internal
 	 */
-	virtual int32_t internalGetShortDefinitionString(const char * locale,
-	    char * buffer,
-	    int32_t capacity,
-	    UErrorCode &status) const;
-
+	virtual int32_t internalGetShortDefinitionString(const char * locale, char * buffer, int32_t capacity, UErrorCode & status) const;
 	/**
 	 * Implements ucol_strcollUTF8().
 	 * @internal
 	 */
-	virtual UCollationResult internalCompareUTF8(const char * left, int32_t leftLength,
-	    const char * right, int32_t rightLength,
-	    UErrorCode & errorCode) const;
-
+	virtual UCollationResult internalCompareUTF8(const char * left, int32_t leftLength, const char * right, int32_t rightLength, UErrorCode & errorCode) const;
 	/**
 	 * Implements ucol_nextSortKeyPart().
 	 * @internal
 	 */
-	virtual int32_t internalNextSortKeyPart(UCharIterator * iter, uint32_t state[2],
-	    uint8 * dest, int32_t count, UErrorCode & errorCode) const;
-
+	virtual int32_t internalNextSortKeyPart(UCharIterator * iter, uint32_t state[2], uint8 * dest, int32_t count, UErrorCode & errorCode) const;
 #ifndef U_HIDE_INTERNAL_API
 	/** @internal */
-	static inline Collator * fromUCollator(UCollator * uc) {
-		return reinterpret_cast<Collator *>(uc);
-	}
-
+	static inline Collator * fromUCollator(UCollator * uc) { return reinterpret_cast<Collator *>(uc); }
 	/** @internal */
-	static inline const Collator * fromUCollator(const UCollator * uc) {
-		return reinterpret_cast<const Collator *>(uc);
-	}
-
+	static inline const Collator * fromUCollator(const UCollator * uc) { return reinterpret_cast<const Collator *>(uc); }
 	/** @internal */
-	inline UCollator * toUCollator() {
-		return reinterpret_cast<UCollator *>(this);
-	}
-
+	inline UCollator * toUCollator() { return reinterpret_cast<UCollator *>(this); }
 	/** @internal */
-	inline const UCollator * toUCollator() const {
-		return reinterpret_cast<const UCollator *>(this);
-	}
-
+	inline const UCollator * toUCollator() const { return reinterpret_cast<const UCollator *>(this); }
 #endif  // U_HIDE_INTERNAL_API
-
 private:
 	/**
 	 * Assignment operator. Private for now.
 	 */
 	Collator& operator =(const Collator& other);
-
 	friend class CFactory;
 	friend class SimpleCFactory;
 	friend class ICUCollatorFactory;
 	friend class ICUCollatorService;
-	static Collator* makeInstance(const Locale& desiredLocale,
-	    UErrorCode& status);
+	static Collator* makeInstance(const Locale& desiredLocale, UErrorCode & status);
 };
 
 #if !UCONFIG_NO_SERVICE
@@ -1226,13 +1167,11 @@ private:
  */
 class U_I18N_API CollatorFactory : public UObject {
 public:
-
 	/**
 	 * Destructor
 	 * @stable ICU 3.0
 	 */
 	virtual ~CollatorFactory();
-
 	/**
 	 * Return true if this factory is visible.  Default is true.
 	 * If not visible, the locales supported by this factory will not
@@ -1241,7 +1180,6 @@ public:
 	 * @stable ICU 2.6
 	 */
 	virtual bool visible(void) const;
-
 	/**
 	 * Return a collator for the provided locale.  If the locale
 	 * is not supported, return NULL.
@@ -1250,7 +1188,6 @@ public:
 	 * @stable ICU 2.6
 	 */
 	virtual Collator* createCollator(const Locale& loc) = 0;
-
 	/**
 	 * Return the name of the collator for the objectLocale, localized for the displayLocale.
 	 * If objectLocale is not supported, or the factory is not visible, set the result string
@@ -1261,10 +1198,7 @@ public:
 	 * @return the display name
 	 * @stable ICU 2.6
 	 */
-	virtual UnicodeString & getDisplayName(const Locale& objectLocale,
-	    const Locale& displayLocale,
-	    UnicodeString & result);
-
+	virtual UnicodeString & getDisplayName(const Locale& objectLocale, const Locale& displayLocale, UnicodeString & result);
 	/**
 	 * Return an array of all the locale names directly supported by this factory.
 	 * The number of names is returned in count.  This array is owned by the factory.
@@ -1274,7 +1208,7 @@ public:
 	 * @return a pointer to an array of count UnicodeStrings.
 	 * @stable ICU 2.6
 	 */
-	virtual const UnicodeString * getSupportedIDs(int32_t &count, UErrorCode& status) = 0;
+	virtual const UnicodeString * getSupportedIDs(int32_t &count, UErrorCode & status) = 0;
 };
 
 #endif /* UCONFIG_NO_SERVICE */
@@ -1284,7 +1218,5 @@ public:
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_COLLATION */
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif

@@ -280,7 +280,7 @@ PIX * pixMedianCutQuantGeneral(PIX * pixs,
 {
 	int32 i, subsample, histosize, smalln, ncolors, niters, popcolors;
 	int32 w, h, minside, factor, index, rval, gval, bval;
-	int32   * histo;
+	int32 * histo;
 	float maxprod, prod, norm, pixfract, colorfract;
 	L_BOX3D   * vbox, * vbox1, * vbox2;
 	L_HEAP    * lh, * lhs;
@@ -559,7 +559,7 @@ PIX * pixMedianCutQuantMixed(PIX * pixs,
 	int32 i, j, w, h, wplc, wplg, wpld, nc, unused, iscolor, factor, minside;
 	int32 rval, gval, bval, minval, maxval, val, grayval;
 	float pixfract, colorfract;
-	int32   * lut;
+	int32 * lut;
 	uint32 * datac, * datag, * datad, * linec, * lineg, * lined;
 	PIX * pixc, * pixg, * pixd;
 	PIXCMAP   * cmap;
@@ -795,7 +795,7 @@ int32 * pixMedianCutHisto(PIX * pixs,
     int32 subsample)
 {
 	int32 i, j, w, h, wpl, rshift, index, histosize;
-	int32   * histo;
+	int32 * histo;
 	uint32 mask, pixel;
 	uint32 * data, * line;
 
@@ -921,7 +921,7 @@ static PIX * pixQuantizeWithColormap(PIX * pixs,
 	int32 i, j, w, h, wpls, wpld, rshift, index, cmapindex, success;
 	int32 rval, gval, bval, rc, gc, bc;
 	int32 dif, val1, val2, val3;
-	int32   * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
+	int32 * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
 	uint32 * datas, * datad, * lines, * lined;
 	uint32 mask, pixel;
 	PIX * pixd;
@@ -1235,7 +1235,7 @@ static L_BOX3D * pixGetColorRegion(PIX * pixs,
  * \param[out]   pvbox1, pvbox2   vbox split in two parts
  * \return  0 if OK, 1 on error
  */
-static int32 medianCutApply(int32   * histo,
+static int32 medianCutApply(int32 * histo,
     int32 sigbits,
     L_BOX3D   * vbox,
     L_BOX3D  ** pvbox1,

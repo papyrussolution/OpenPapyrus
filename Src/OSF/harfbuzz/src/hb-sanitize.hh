@@ -148,7 +148,7 @@ public:
 	{
 		reset_object();
 		if(!obj) return;
-		const char * obj_start = (const char*)obj;
+		const char * obj_start = (const char *)obj;
 		if(UNLIKELY(obj_start < this->start || this->end <= obj_start))
 			this->start = this->end = nullptr;
 		else {
@@ -183,7 +183,7 @@ public:
 	uint get_edit_count() const { return edit_count; }
 	bool check_range(const void * base, uint len) const
 	{
-		const char * p = (const char*)base;
+		const char * p = (const char *)base;
 		bool ok = !len || (this->start <= p && p <= this->end && (uint)(this->end - p) >= len && this->max_ops-- > 0);
 		DEBUG_MSG_LEVEL(SANITIZE, p, this->debug_depth+1, 0, "check_range [%p..%p] (%d bytes) in [%p..%p] -> %s",
 		    p, p + len, len, this->start, this->end, ok ? "OK" : "OUT-OF-RANGE");
@@ -213,7 +213,7 @@ public:
 	{
 		if(this->edit_count >= HB_SANITIZE_MAX_EDITS)
 			return false;
-		const char * p = (const char*)base;
+		const char * p = (const char *)base;
 		this->edit_count++;
 		DEBUG_MSG_LEVEL(SANITIZE, p, this->debug_depth+1, 0,
 		    "may_edit(%u) [%p..%p] (%d bytes) in [%p..%p] -> %s",

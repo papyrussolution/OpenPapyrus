@@ -18,37 +18,29 @@
 
 using namespace icu;
 
-void RBBIMonkeyTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * params) {
+void RBBIMonkeyTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * params) 
+{
 	fParams = params;        // Work around TESTCASE_AUTO not being able to pass params to test function.
-
 	TESTCASE_AUTO_BEGIN;
 	TESTCASE_AUTO(testMonkey);
 	TESTCASE_AUTO_END;
 }
-
-//---------------------------------------------------------------------------------------
 //
 //   class BreakRule implementation.
 //
-//---------------------------------------------------------------------------------------
-
 BreakRule::BreakRule()      // :  all field default initialized.
 {
 }
 
 BreakRule::~BreakRule() {
 }
-
-//---------------------------------------------------------------------------------------
 //
 //   class BreakRules implementation.
 //
-//---------------------------------------------------------------------------------------
 BreakRules::BreakRules(RBBIMonkeyImpl * monkeyImpl, UErrorCode & status)  :
 	fMonkeyImpl(monkeyImpl), fBreakRules(status), fType(UBRK_COUNT) {
-	fCharClasses.adoptInstead(uhash_open(uhash_hashUnicodeString,
-	    uhash_compareUnicodeString,
-	    NULL,                                   // value comparator.
+	fCharClasses.adoptInstead(uhash_open(uhash_hashUnicodeString, uhash_compareUnicodeString,
+	    NULL, // value comparator.
 	    &status));
 	if(U_FAILURE(status)) {
 		return;
@@ -56,9 +48,7 @@ BreakRules::BreakRules(RBBIMonkeyImpl * monkeyImpl, UErrorCode & status)  :
 	uhash_setKeyDeleter(fCharClasses.getAlias(), uprv_deleteUObject);
 	uhash_setValueDeleter(fCharClasses.getAlias(), uprv_deleteUObject);
 	fBreakRules.setDeleter(uprv_deleteUObject);
-
 	fCharClassList.adoptInstead(new UVector(status));
-
 	fSetRefsMatcher.adoptInstead(new RegexMatcher(UnicodeString(
 		    "(?!(?:\\{|=|\\[:)[ \\t]{0,4})"       // Negative look behind for '{' or '=' or '[:'
 		                                          //   (the identifier is a unicode property name or value)
@@ -376,16 +366,12 @@ const CharClass * BreakRules::getClassForChar(UChar32 c, int32_t * iter) const {
 	}
 	return NULL;
 }
-
-//---------------------------------------------------------------------------------------
 //
 //   class MonkeyTestData implementation.
 //
-//---------------------------------------------------------------------------------------
-
-void MonkeyTestData::set(BreakRules * rules, IntlTest::icu_rand &rand, UErrorCode & status) {
+void MonkeyTestData::set(BreakRules * rules, IntlTest::icu_rand &rand, UErrorCode & status) 
+{
 	const int32_t dataLength = 1000;
-
 	// Fill the test string with random characters.
 	// First randomly pick a char class, then randomly pick a character from that class.
 	// Exclude any characters from the dictionary set.
@@ -598,13 +584,9 @@ void MonkeyTestData::dump(int32_t around) const {
 		    );
 	}
 }
-
-//---------------------------------------------------------------------------------------
 //
 //   class RBBIMonkeyImpl
 //
-//---------------------------------------------------------------------------------------
-
 RBBIMonkeyImpl::RBBIMonkeyImpl(UErrorCode & status) : fDumpExpansions(FALSE), fThread(this) {
 	(void)status; // suppress unused parameter compiler warning.
 }
@@ -855,14 +837,8 @@ void RBBIMonkeyImpl::checkResults(const char * msg, CheckDirection direction, UE
 	else {
 		for(int i = fTestData->fString.length(); i>=0; i--) {
 			if(fTestData->fExpectedBreaks.charAt(i) != fTestData->fActualBreaks.charAt(i)) {
-				IntlTest::gTest->errln(
-					"%s:%d %s failure at index %d. Parameters to reproduce: @rules=%s,seed=%u,loop=1,verbose ",
-					__FILE__,
-					__LINE__,
-					msg,
-					i,
-					fRuleFileName,
-					fTestData->fRandomSeed);
+				IntlTest::gTest->errln("%s:%d %s failure at index %d. Parameters to reproduce: @rules=%s,seed=%u,loop=1,verbose ",
+					__FILE__, __LINE__, msg, i, fRuleFileName, fTestData->fRandomSeed);
 				if(fVerbose) {
 					fTestData->dump(i);
 				}
@@ -872,18 +848,17 @@ void RBBIMonkeyImpl::checkResults(const char * msg, CheckDirection direction, UE
 		}
 	}
 }
-
-//---------------------------------------------------------------------------------------
 //
 //   class RBBIMonkeyTest implementation.
 //
-//---------------------------------------------------------------------------------------
-RBBIMonkeyTest::RBBIMonkeyTest() {
+RBBIMonkeyTest::RBBIMonkeyTest() 
+{
 }
 
-RBBIMonkeyTest::~RBBIMonkeyTest() {
+RBBIMonkeyTest::~RBBIMonkeyTest() 
+{
 }
-
+//
 //     params, taken from this->fParams.
 //       rules=file_name   Name of file containing the reference rules.
 //       seed=nnnnn        Random number starting seed.

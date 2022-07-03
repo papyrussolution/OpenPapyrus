@@ -36,7 +36,7 @@
  *        int32     l_fileDisplay()
  *        int32     pixDisplay()
  *        int32     pixDisplayWithTitle()
- *        PIX        *pixMakeColorSquare()
+ *        PIX *pixMakeColorSquare()
  *        void        l_chooseDisplayProg()
  *
  *     Change format for missing library
@@ -626,7 +626,7 @@ const char * getFormatExtension(int32 format)
 	PROCNAME(__FUNCTION__);
 
 	if(format < 0 || format >= NumImageFileFormatExtensions)
-		return (const char*)ERROR_PTR("invalid format", procName, NULL);
+		return (const char *)ERROR_PTR("invalid format", procName, NULL);
 
 	return ImageFileFormatExtensions[format];
 }

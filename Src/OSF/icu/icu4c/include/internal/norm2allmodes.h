@@ -137,7 +137,7 @@ public:
 			return false;
 		}
 		const UChar * sArray = s.getBuffer();
-		if(sArray==NULL) {
+		if(!sArray) {
 			errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 			return false;
 		}
@@ -149,12 +149,13 @@ public:
 		return Normalizer2WithImpl::isNormalized(s, errorCode) ? UNORM_YES : UNORM_NO;
 	}
 
-	virtual int32_t spanQuickCheckYes(const UnicodeString & s, UErrorCode & errorCode) const U_OVERRIDE {
+	virtual int32_t spanQuickCheckYes(const UnicodeString & s, UErrorCode & errorCode) const U_OVERRIDE 
+	{
 		if(U_FAILURE(errorCode)) {
 			return 0;
 		}
 		const UChar * sArray = s.getBuffer();
-		if(sArray==NULL) {
+		if(!sArray) {
 			errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 			return 0;
 		}
@@ -269,7 +270,7 @@ private:
 			return false;
 		}
 		const UChar * sArray = s.getBuffer();
-		if(sArray==NULL) {
+		if(!sArray) {
 			errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 			return false;
 		}
@@ -294,7 +295,7 @@ private:
 			return UNORM_MAYBE;
 		}
 		const UChar * sArray = s.getBuffer();
-		if(sArray==NULL) {
+		if(!sArray) {
 			errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 			return UNORM_MAYBE;
 		}

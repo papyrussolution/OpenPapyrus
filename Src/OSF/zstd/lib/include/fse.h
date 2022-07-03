@@ -276,22 +276,17 @@ FSE_PUBLIC_API size_t FSE_decompress_usingDTable(void* dst, size_t dstCapacity, 
 #if defined(FSE_STATIC_LINKING_ONLY) && !defined(FSE_H_FSE_STATIC_LINKING_ONLY)
 #define FSE_H_FSE_STATIC_LINKING_ONLY
 
-/* *** Dependency *** */
 #include "bitstream.h"
-
-/* *****************************************
-*  Static allocation
-*******************************************/
-/* FSE buffer bounds */
+// 
+// Static allocation
+// 
+// FSE buffer bounds
 #define FSE_NCOUNTBOUND 512
 #define FSE_BLOCKBOUND(size) ((size) + ((size)>>7) + 4 /* fse states */ + sizeof(size_t) /* bitContainer */)
-#define FSE_COMPRESSBOUND(size) (FSE_NCOUNTBOUND + FSE_BLOCKBOUND(size))   /* Macro version, useful for static
-	                                                                      allocation */
-
+#define FSE_COMPRESSBOUND(size) (FSE_NCOUNTBOUND + FSE_BLOCKBOUND(size))   /* Macro version, useful for static allocation */
 /* It is possible to statically allocate FSE CTable/DTable as a table of FSE_CTable/FSE_DTable using below macros */
 #define FSE_CTABLE_SIZE_U32(maxTableLog, maxSymbolValue)   (1 + (1<<((maxTableLog)-1)) + (((maxSymbolValue)+1)*2))
 #define FSE_DTABLE_SIZE_U32(maxTableLog)                   (1 + (1<<(maxTableLog)))
-
 /* or use the size to malloc() space directly. Pay attention to alignment restrictions though */
 #define FSE_CTABLE_SIZE(maxTableLog, maxSymbolValue)   (FSE_CTABLE_SIZE_U32(maxTableLog, maxSymbolValue) * sizeof(FSE_CTable))
 #define FSE_DTABLE_SIZE(maxTableLog)                   (FSE_DTABLE_SIZE_U32(maxTableLog) * sizeof(FSE_DTable))

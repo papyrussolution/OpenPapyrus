@@ -27,7 +27,7 @@ namespace absl {
 
 	static HANDLE process = NULL;
 
-	void InitializeSymbolizer(const char*) {
+	void InitializeSymbolizer(const char *) {
 		if(process != nullptr) {
 			return;
 		}

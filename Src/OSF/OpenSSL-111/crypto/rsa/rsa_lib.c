@@ -8,12 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
-//#include "internal/refcount.h"
 #include <bn_int.h>
 #include <openssl/engine.h>
 #include <openssl/evp.h>
-//#include <evp_int.h>
 #include "rsa_locl.h"
 
 RSA * RSA_new(void)

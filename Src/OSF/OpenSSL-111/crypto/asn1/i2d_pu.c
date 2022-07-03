@@ -13,7 +13,6 @@
 #include <openssl/objects.h>
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
-//#include <openssl/ec.h>
 
 int i2d_PublicKey(EVP_PKEY * a, uchar ** pp)
 {

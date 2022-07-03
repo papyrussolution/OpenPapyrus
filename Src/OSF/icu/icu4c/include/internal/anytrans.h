@@ -45,26 +45,16 @@ class AnyTransliterator : public Transliterator {
 	 */
 	UScriptCode targetScript;
 public:
-	/**
-	 * Destructor.
-	 */
 	virtual ~AnyTransliterator();
-	/**
-	 * Copy constructor.
-	 */
 	AnyTransliterator(const AnyTransliterator&);
-
 	/**
 	 * Transliterator API.
 	 */
 	virtual AnyTransliterator* clone() const override;
-
 	/**
 	 * Implements {@link Transliterator#handleTransliterate}.
 	 */
-	virtual void handleTransliterate(Replaceable& text, UTransPosition& index,
-	    bool incremental) const override;
-
+	virtual void handleTransliterate(Replaceable& text, UTransPosition& index, bool incremental) const override;
 	/**
 	 * ICU "poor man's RTTI", returns a UClassID for the actual class.
 	 */

@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include "modes_lcl.h"
 /*
  * NOTE: the IV/counter CTR mode is big-endian.  The code itself is

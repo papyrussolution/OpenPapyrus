@@ -1394,7 +1394,7 @@ done:
 		xmlSchemaFreeValue(dt);
 	return 0;
 error:
-	if(dt != NULL)
+	if(dt)
 		xmlSchemaFreeValue(dt);
 	return 1;
 }
@@ -1495,16 +1495,13 @@ static int xmlSchemaValidateDuration(xmlSchemaType * type ATTRIBUTE_UNUSED, cons
 		dur->value.dur.day = -dur->value.dur.day;
 		dur->value.dur.sec = -dur->value.dur.sec;
 	}
-
 	if(val)
 		*val = dur;
 	else
 		xmlSchemaFreeValue(dur);
-
 	return 0;
-
 error:
-	if(dur != NULL)
+	if(dur)
 		xmlSchemaFreeValue(dur);
 	return 1;
 }
@@ -1767,13 +1764,10 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 	 */
 	if(!value)
 		value = reinterpret_cast<const xmlChar *>("");
-
 	if(val)
 		*val = NULL;
-	if((flags == 0) && (value != NULL)) {
-		if((type->builtInType != XML_SCHEMAS_STRING) &&
-		    (type->builtInType != XML_SCHEMAS_ANYTYPE) &&
-		    (type->builtInType != XML_SCHEMAS_ANYSIMPLETYPE)) {
+	if((flags == 0) && value) {
+		if((type->builtInType != XML_SCHEMAS_STRING) && (type->builtInType != XML_SCHEMAS_ANYTYPE) && (type->builtInType != XML_SCHEMAS_ANYSIMPLETYPE)) {
 			if(type->builtInType == XML_SCHEMAS_NORMSTRING)
 				norm = xmlSchemaWhiteSpaceReplace(value);
 			else
@@ -1782,7 +1776,6 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 				value = norm;
 		}
 	}
-
 	switch(type->builtInType) {
 		case XML_SCHEMAS_UNKNOWN:
 		    goto error;
@@ -2336,7 +2329,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 				    SAlloc::F(local);
 				    goto error;
 			    }
-			    if(local != NULL)
+			    if(local)
 				    v->value.qname.name = local;
 			    else
 				    v->value.qname.name = sstrdup(value);

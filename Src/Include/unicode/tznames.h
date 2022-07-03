@@ -102,7 +102,7 @@ struct MatchInfo;
  * The methods in this class assume that time zone IDs are already canonicalized. For example, you may not get proper
  * result returned by a method with time zone ID "America/Indiana/Indianapolis", because it's not a canonical time zone
  * ID (the canonical time zone ID for the time zone is "America/Indianapolis". See
- * {@link TimeZone#getCanonicalID(const UnicodeString & id, UnicodeString & canonicalID, UErrorCode& status)} about ICU
+ * {@link TimeZone#getCanonicalID(const UnicodeString & id, UnicodeString & canonicalID, UErrorCode & status)} about ICU
  * canonical time zone IDs.
  *
  * <p>
@@ -172,7 +172,7 @@ public:
 	 * @return An instance of <code>TimeZoneNames</code>
 	 * @stable ICU 50
 	 */
-	static TimeZoneNames* U_EXPORT2 createInstance(const Locale& locale, UErrorCode& status);
+	static TimeZoneNames* U_EXPORT2 createInstance(const Locale& locale, UErrorCode & status);
 
 	/**
 	 * Returns an instance of <code>TimeZoneNames</code> containing only short specific
@@ -184,7 +184,7 @@ public:
 	 * all other regions). The zone names returned by this instance are not localized.
 	 * @stable ICU 54
 	 */
-	static TimeZoneNames* U_EXPORT2 createTZDBInstance(const Locale& locale, UErrorCode& status);
+	static TimeZoneNames* U_EXPORT2 createTZDBInstance(const Locale& locale, UErrorCode & status);
 
 	/**
 	 * Returns an enumeration of all available meta zone IDs.
@@ -192,7 +192,7 @@ public:
 	 * @return an enumeration object, owned by the caller.
 	 * @stable ICU 50
 	 */
-	virtual StringEnumeration* getAvailableMetaZoneIDs(UErrorCode& status) const = 0;
+	virtual StringEnumeration* getAvailableMetaZoneIDs(UErrorCode & status) const = 0;
 
 	/**
 	 * Returns an enumeration of all available meta zone IDs used by the given time zone.
@@ -201,7 +201,7 @@ public:
 	 * @return an enumeration object, owned by the caller.
 	 * @stable ICU 50
 	 */
-	virtual StringEnumeration* getAvailableMetaZoneIDs(const UnicodeString & tzID, UErrorCode& status) const = 0;
+	virtual StringEnumeration* getAvailableMetaZoneIDs(const UnicodeString & tzID, UErrorCode & status) const = 0;
 
 	/**
 	 * Returns the meta zone ID for the given canonical time zone ID at the given date.
@@ -308,7 +308,7 @@ public:
 	/**
 	 * @internal ICU internal only, for specific users only until proposed publicly.
 	 */
-	virtual void loadAllDisplayNames(UErrorCode& status);
+	virtual void loadAllDisplayNames(UErrorCode & status);
 
 	/**
 	 * @internal ICU internal only, for specific users only until proposed publicly.
@@ -318,7 +318,7 @@ public:
 	    int32_t numTypes,
 	    UDate date,
 	    UnicodeString dest[],
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * <code>MatchInfoCollection</code> represents a collection of time zone name matches used by
@@ -348,7 +348,7 @@ public:
 		 * @internal
 		 */
 		void addZone(UTimeZoneNameType nameType, int32_t matchLength,
-		    const UnicodeString & tzID, UErrorCode& status);
+		    const UnicodeString & tzID, UErrorCode & status);
 
 		/**
 		 * Adds a meata zone match.
@@ -359,7 +359,7 @@ public:
 		 * @internal
 		 */
 		void addMetaZone(UTimeZoneNameType nameType, int32_t matchLength,
-		    const UnicodeString & mzID, UErrorCode& status);
+		    const UnicodeString & mzID, UErrorCode & status);
 
 		/**
 		 * Returns the number of entries available in this object.
@@ -409,7 +409,7 @@ public:
 private:
 		UVector* fMatches; // vector of MatchEntry
 
-		UVector* matches(UErrorCode& status);
+		UVector* matches(UErrorCode & status);
 	};
 
 	/**
@@ -425,7 +425,7 @@ private:
 	 * @see MatchInfoCollection
 	 * @internal
 	 */
-	virtual MatchInfoCollection* find(const UnicodeString & text, int32_t start, uint32_t types, UErrorCode& status) const = 0;
+	virtual MatchInfoCollection* find(const UnicodeString & text, int32_t start, uint32_t types, UErrorCode & status) const = 0;
 };
 
 U_NAMESPACE_END

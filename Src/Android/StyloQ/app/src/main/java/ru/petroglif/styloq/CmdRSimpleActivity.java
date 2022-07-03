@@ -21,7 +21,7 @@ public class CmdRSimpleActivity extends SLib.SlActivity {
 					try {
 						JSONObject jsobj = new JSONObject(ResultText);
 						if(jsobj != null) {
-							String reply_result = jsobj.optString("result");
+							int repl_result = StyloQInterchange.GetReplyResult(jsobj);
 							String reply_msg = jsobj.optString("msg");
 							String reply_errmsg = jsobj.optString("errmsg");
 							if(SLib.GetLen(reply_msg) > 0) {

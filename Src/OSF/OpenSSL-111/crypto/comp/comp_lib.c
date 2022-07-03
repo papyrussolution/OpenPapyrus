@@ -8,9 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/objects.h>
 #include <openssl/comp.h>
-//#include <openssl/err.h>
 #include "comp_lcl.h"
 
 COMP_CTX * COMP_CTX_new(COMP_METHOD * meth)

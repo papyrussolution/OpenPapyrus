@@ -87,16 +87,16 @@ public:
 	FormattedDateInterval& operator =(FormattedDateInterval&& src) U_NOEXCEPT;
 
 	/** @copydoc FormattedValue::toString() */
-	UnicodeString toString(UErrorCode& status) const U_OVERRIDE;
+	UnicodeString toString(UErrorCode & status) const U_OVERRIDE;
 
 	/** @copydoc FormattedValue::toTempString() */
-	UnicodeString toTempString(UErrorCode& status) const U_OVERRIDE;
+	UnicodeString toTempString(UErrorCode & status) const U_OVERRIDE;
 
 	/** @copydoc FormattedValue::appendTo() */
-	Appendable &appendTo(Appendable& appendable, UErrorCode& status) const U_OVERRIDE;
+	Appendable &appendTo(Appendable& appendable, UErrorCode & status) const U_OVERRIDE;
 
 	/** @copydoc FormattedValue::nextPosition() */
-	bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode& status) const U_OVERRIDE;
+	bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode & status) const U_OVERRIDE;
 
 private:
 	FormattedDateIntervalData * fData;
@@ -315,7 +315,7 @@ public:
 	 * @stable ICU 4.0
 	 */
 	static DateIntervalFormat* U_EXPORT2 createInstance(const UnicodeString & skeleton,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Construct a DateIntervalFormat from skeleton and a given locale.
@@ -353,7 +353,7 @@ public:
 
 	static DateIntervalFormat* U_EXPORT2 createInstance(const UnicodeString & skeleton,
 	    const Locale& locale,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Construct a DateIntervalFormat from skeleton
@@ -372,7 +372,7 @@ public:
 	 */
 	static DateIntervalFormat* U_EXPORT2 createInstance(const UnicodeString & skeleton,
 	    const DateIntervalInfo& dtitvinf,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Construct a DateIntervalFormat from skeleton
@@ -417,7 +417,7 @@ public:
 	static DateIntervalFormat* U_EXPORT2 createInstance(const UnicodeString & skeleton,
 	    const Locale& locale,
 	    const DateIntervalInfo& dtitvinf,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Destructor.
@@ -475,7 +475,7 @@ public:
 	virtual UnicodeString & format(const Formattable& obj,
 	    UnicodeString & appendTo,
 	    FieldPosition& fieldPosition,
-	    UErrorCode& status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Format a DateInterval to produce a string.
@@ -495,7 +495,7 @@ public:
 	UnicodeString & format(const DateInterval* dtInterval,
 	    UnicodeString & appendTo,
 	    FieldPosition& fieldPosition,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Format a DateInterval to produce a FormattedDateInterval.
@@ -508,7 +508,7 @@ public:
 	 * @stable ICU 64
 	 */
 	FormattedDateInterval formatToValue(const DateInterval& dtInterval,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Format 2 Calendars to produce a string.
@@ -537,7 +537,7 @@ public:
 	    Calendar& toCalendar,
 	    UnicodeString & appendTo,
 	    FieldPosition& fieldPosition,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Format 2 Calendars to produce a FormattedDateInterval.
@@ -557,7 +557,7 @@ public:
 	 */
 	FormattedDateInterval formatToValue(Calendar& fromCalendar,
 	    Calendar& toCalendar,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Date interval parsing is not supported. Please do not use.
@@ -604,7 +604,7 @@ public:
 	 * @stable ICU 4.0
 	 */
 	void setDateIntervalInfo(const DateIntervalInfo& newIntervalPatterns,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Gets the date formatter. The DateIntervalFormat instance continues to own
@@ -653,7 +653,7 @@ public:
 	 *               updated with any new status from the function.
 	 * @stable ICU 68
 	 */
-	virtual void setContext(UDisplayContext value, UErrorCode& status);
+	virtual void setContext(UDisplayContext value, UErrorCode & status);
 
 	/**
 	 * Get the formatter's UDisplayContext value for the specified UDisplayContextType,
@@ -665,7 +665,7 @@ public:
 	 * @return The UDisplayContextValue for the specified type.
 	 * @stable ICU 68
 	 */
-	virtual UDisplayContext getContext(UDisplayContextType type, UErrorCode& status) const;
+	virtual UDisplayContext getContext(UDisplayContextType type, UErrorCode & status) const;
 
 	/**
 	 * Return the class ID for this class. This is useful only for comparing to
@@ -766,7 +766,7 @@ private:
 	 * @param status    output param set to success/failure code on exit
 	 */
 	DateIntervalFormat(const Locale& locale, DateIntervalInfo* dtItvInfo,
-	    const UnicodeString * skeleton, UErrorCode& status);
+	    const UnicodeString * skeleton, UErrorCode & status);
 
 	/**
 	 * Construct a DateIntervalFormat from DateFormat
@@ -783,7 +783,7 @@ private:
 	static DateIntervalFormat* U_EXPORT2 create(const Locale& locale,
 	    DateIntervalInfo* dtitvinf,
 	    const UnicodeString * skeleton,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 *  Below are for generating interval patterns local to the formatter
@@ -795,7 +795,7 @@ private:
 	    UnicodeString & appendTo,
 	    int8& firstIndex,
 	    FieldPositionHandler& fphandler,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Format 2 Calendars using fall-back interval pattern
@@ -825,7 +825,7 @@ private:
 	    UnicodeString & appendTo,
 	    int8& firstIndex,
 	    FieldPositionHandler& fphandler,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Initialize interval patterns locale to this formatter
@@ -861,7 +861,7 @@ private:
 	 *
 	 * @param status    output param set to success/failure code on exit
 	 */
-	void initializePattern(UErrorCode& status);
+	void initializePattern(UErrorCode & status);
 
 	/**
 	 * Set fall back interval pattern given a calendar field,
@@ -872,7 +872,7 @@ private:
 	 */
 	void setFallbackPattern(UCalendarDateFields field,
 	    const UnicodeString & skeleton,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Converts special hour metacharacters (such as 'j') in the skeleton into locale-appropriate
@@ -1033,7 +1033,7 @@ private:
 	void concatSingleDate2TimeInterval(UnicodeString & format,
 	    const UnicodeString & datePattern,
 	    UCalendarDateFields field,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * check whether a calendar field present in a skeleton.
@@ -1113,14 +1113,14 @@ private:
 	    UnicodeString & appendTo,
 	    int8& firstIndex,
 	    FieldPositionHandler& fphandler,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/** Version of formatImpl for DateInterval. */
 	UnicodeString & formatIntervalImpl(const DateInterval& dtInterval,
 	    UnicodeString & appendTo,
 	    int8& firstIndex,
 	    FieldPositionHandler& fphandler,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	// from calendar field to pattern letter
 	static const char16_t fgCalendarFieldToPatternLetter[];

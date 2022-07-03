@@ -60,7 +60,13 @@ public class StyloQFace {
 	public static final int statusPrvFemale = SLib.GENDER_FEMALE; // 2
 	public static final int statusPrvGenderQuestioning = SLib.GENDER_QUESTIONING; // 3
 	public static final int statusEnterprise = 1000; // Обобщенный статус юридического лица
-
+	//
+	// Descr: Флаги редактирования лика
+	//
+	public static final int editfDisableAnonym     = 0x0001; // Запрещено использование анонимного типа (потому что такой уже один есть)
+	public static final int editfDisableVerifiable = 0x0002; // Запрещено использование верифицируемого типа (потому что такой уже один есть)
+	public static final int editfDisableDeletion   = 0x0004; // Запрещено удаление объекта (потому что на него ссылаются другие записи базы данных)
+	//
 	StyloQFace()
 	{
 		ID = 0;

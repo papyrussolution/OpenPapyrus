@@ -1458,7 +1458,7 @@ static size_t ZSTDMT_flushProduced(ZSTDMT_CCtx* mtctx, ZSTD_outBuffer* output, u
 		    assert(cSize >= mtctx->jobs[wJobID].dstFlushed);
 		    assert(mtctx->jobs[wJobID].dstBuff.start != NULL);
 		    if(toFlush > 0) {
-			    memcpy((char *)output->dst + output->pos, (const char*)mtctx->jobs[wJobID].dstBuff.start + mtctx->jobs[wJobID].dstFlushed,
+			    memcpy((char *)output->dst + output->pos, (const char *)mtctx->jobs[wJobID].dstBuff.start + mtctx->jobs[wJobID].dstFlushed,
 				toFlush);
 		    }
 		    output->pos += toFlush;
@@ -1763,7 +1763,7 @@ size_t ZSTDMT_compressStream_generic(ZSTDMT_CCtx* mtctx, ZSTD_outBuffer* output,
 			assert(mtctx->inBuff.buffer.capacity >= mtctx->targetSectionSize);
 			DEBUGLOG(5, "ZSTDMT_compressStream_generic: adding %u bytes on top of %u to buffer of size %u",
 			    (uint32)syncPoint.toLoad, (uint32)mtctx->inBuff.filled, (uint32)mtctx->targetSectionSize);
-			memcpy((char *)mtctx->inBuff.buffer.start + mtctx->inBuff.filled, (const char*)input->src + input->pos, syncPoint.toLoad);
+			memcpy((char *)mtctx->inBuff.buffer.start + mtctx->inBuff.filled, (const char *)input->src + input->pos, syncPoint.toLoad);
 			input->pos += syncPoint.toLoad;
 			mtctx->inBuff.filled += syncPoint.toLoad;
 			forwardInputProgress = syncPoint.toLoad>0;

@@ -739,7 +739,7 @@ UnicodeString &TimeZoneFormat::format(const Formattable& obj, UnicodeString & ap
 	}
 	UDate date = Calendar::getNow();
 	if(obj.getType() == Formattable::kObject) {
-		const UObject* formatObj = obj.getObject();
+		const UObject * formatObj = obj.getObject();
 		const TimeZone* tz = dynamic_cast<const TimeZone*>(formatObj);
 		if(tz == NULL) {
 			const Calendar* cal = dynamic_cast<const Calendar*>(formatObj);

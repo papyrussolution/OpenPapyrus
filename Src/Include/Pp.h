@@ -8657,7 +8657,7 @@ public:
 	// Note: Функция пока очень не совершенна: умеет идентифицировать только
 	//   некоторые типы объектов.
 	//
-	static int Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent);
+	static int  Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent);
 	static void FASTCALL SetLastErrObj(PPID objType, PPID objID);
 	static int  IndexPhones();
 	//
@@ -11582,7 +11582,10 @@ public:
 	//
 	struct SetupObjectBlock {
 		SetupObjectBlock();
-		void   Clear_();
+		//
+		// Note: Функция не обнуляет поле Flags так как оно задается как параметр для PPBillPacket::SetupObjectBlock.
+		//
+		SetupObjectBlock & Z();
 
 		enum {
 			fEnableStop = 0x0001 // Допускается устанавливать контрагента с признаком STOP
@@ -46843,7 +46846,7 @@ public:
 	enum { // @persistent
 		sqbcEmpty                =  0,
 		sqbcRegister             =  1,
-		sqbcLogin                =  2,
+		sqbcDtLogin              =  2, // Команда авторизации в desktop-сеансе Papyrus с мобильного телефона
 		sqbcPersonEvent          =  3,
 		sqbcReport               =  4,
 		sqbcSearch               =  5, // Поисковый запрос
@@ -47274,8 +47277,29 @@ private:
 		uint   PrcCount; // @v11.3.8
 		PPObjIDArray BlobOidList; // @v11.3.8
 	};
+	struct InnerGoodsEntry { // @flat
+		explicit InnerGoodsEntry(PPID goodsID);
+		PPID   GoodsID;
+		double Rest;
+		double Cost;
+		double Price;
+		double UnitPerPack;
+		double OrderQtyMult;
+		double OrderMinQty;
+	};	
 	int    AddImgBlobToReqBlobInfoList(const SBinaryChunk & rOwnIdent, PPObjID oid, Stq_ReqBlobInfoList & rList);
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
+	//
+	// Descr: Флаги семейства функция MakeObjJson_XXX
+	//
+	enum {
+		mojfForIndexing = 0x0001 // Формировать объект исходя из того, что результат предназначен для индексации
+	};
+	SJson * MakeObjJson_OwnFace(const StyloQCore::StoragePacket & rOwnPack, uint flags);
+	SJson * MakeObjJson_Goods(const SBinaryChunk & rOwnIdent, const PPGoodsPacket & rPack, const InnerGoodsEntry * pInnerEntry, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
+	SJson * MakeObjJson_GoodsGroup(const SBinaryChunk & rOwnIdent, const Goods2Tbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
+	SJson * MakeObjJson_Brand(const SBinaryChunk & rOwnIdent, const PPBrandPacket & rPack, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
+	SJson * MakeObjJson_Prc(const SBinaryChunk & rOwnIdent, const ProcessorTbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    ProcessCommand_PersonEvent(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos);
 	int    ProcessCommand_Report(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
@@ -52229,6 +52253,7 @@ private:
 		llccBaseListOnly = 0x0001
 	};
 	int    UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags);
+	int    UED_Import_PackageTypes();
 
 	PrcssrSartreFilt P;
 };
@@ -56845,7 +56870,6 @@ private:
 	void   CreateFont_();
 	void   CreateLayout(LDATE selectedDate);
 	void   DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo);
-	void   EvaluateLayout(/*float width, float height*/const TRect & rR);
 	SUiLayout * Helper_FindLayout(SUiLayout * pItem, int extraIdent, uint extraValue);
 	SUiLayout * FindLayout(int extraIdent, uint extraValue);
 	LDATE  AdjustLeftDate(int prdType, LDATE d) const;

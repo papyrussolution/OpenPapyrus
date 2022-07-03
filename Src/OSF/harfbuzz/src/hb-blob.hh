@@ -73,7 +73,7 @@ struct hb_blob_ptr_t {
 	const T * operator->() const { return get(); }
 	const T & operator * () const { return *get(); }
 	template <typename C> operator const C * () const { return get(); }
-	operator const char * () const { return (const char*)get(); }
+	operator const char * () const { return (const char *)get(); }
 	const T * get() const { return b->as<T> (); }
 	hb_blob_t * get_blob() const { return b.get_raw(); }
 	uint get_length() const { return b.get()->length; }

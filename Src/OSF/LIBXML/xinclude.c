@@ -301,7 +301,7 @@ void FASTCALL xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt)
 		SAlloc::F(ctxt->urlTab);
 		for(i = 0; i < ctxt->incNr; i++)
 			xmlXIncludeFreeRef(ctxt->incTab[i]);
-		if(ctxt->txturlTab != NULL) {
+		if(ctxt->txturlTab) {
 			for(i = 0; i < ctxt->txtNr; i++) {
 				SAlloc::F(ctxt->txturlTab[i]);
 			}
@@ -360,7 +360,7 @@ static xmlDoc * xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char * URL)
 	}
 	else {
 		ret = NULL;
-		if(pctxt->myDoc != NULL)
+		if(pctxt->myDoc)
 			xmlFreeDoc(pctxt->myDoc);
 		pctxt->myDoc = NULL;
 	}
@@ -448,7 +448,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
 		SAlloc::F(URI);
 		return -1;
 	}
-	if(uri->fragment != NULL) {
+	if(uri->fragment) {
 		if(ctxt->legacy != 0) {
 			if(fragment == NULL) {
 				fragment = (xmlChar *)uri->fragment;
@@ -532,7 +532,7 @@ static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, const x
 	 * Handle recursion here.
 	 */
 	newctxt = xmlXIncludeNewContext(doc);
-	if(newctxt != NULL) {
+	if(newctxt) {
 		/*
 		 * Copy the private user data
 		 */
@@ -1109,7 +1109,7 @@ static void xmlXIncludeMergeEntity(xmlEntity * ent, xmlXIncludeMergeData * data,
 	}
 	ret = xmlAddDocEntity(doc, ent->name, ent->etype, ent->ExternalID, ent->SystemID, ent->content);
 	if(ret) {
-		if(ent->URI != NULL)
+		if(ent->URI)
 			ret->URI = sstrdup(ent->URI);
 	}
 	else {
@@ -1246,7 +1246,7 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	 * Handling of references to the local document are done
 	 * directly through ctxt->doc.
 	 */
-	if((URL[0] == 0) || (URL[0] == '#') || ((ctxt->doc != NULL) && (sstreq(URL, ctxt->doc->URL)))) {
+	if((URL[0] == 0) || (URL[0] == '#') || (ctxt->doc && (sstreq(URL, ctxt->doc->URL)))) {
 		doc = NULL;
 		goto loaded;
 	}
@@ -1276,7 +1276,7 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	 * referenced document
 	 */
 	saveFlags = ctxt->parseFlags;
-	if(fragment != NULL) {  /* if this is an XPointer eval */
+	if(fragment) {  /* if this is an XPointer eval */
 		ctxt->parseFlags |= XML_PARSE_NOENT;
 	}
 #endif
@@ -1511,7 +1511,7 @@ loaded:
 			SAlloc::F(base);
 		}
 	}
-	if((nr < ctxt->incNr) && (ctxt->incTab[nr]->doc != NULL) && (ctxt->incTab[nr]->count <= 1)) {
+	if((nr < ctxt->incNr) && ctxt->incTab[nr]->doc && (ctxt->incTab[nr]->count <= 1)) {
 #ifdef DEBUG_XINCLUDE
 		printf("freeing %s\n", ctxt->incTab[nr]->doc->URL);
 #endif
@@ -1684,7 +1684,7 @@ static int xmlXIncludeLoadFallback(xmlXIncludeCtxtPtr ctxt, xmlNode * fallback, 
 	int ret = 0;
 	if(!fallback || (fallback->type == XML_NAMESPACE_DECL) || !ctxt)
 		return -1;
-	if(fallback->children != NULL) {
+	if(fallback->children) {
 		// 
 		// It's possible that the fallback also has 'includes' (Bug 129969), so we re-process the fallback just in case
 		// 
@@ -1760,7 +1760,7 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 			return -1;
 	}
 	parse = xmlXIncludeGetProp(ctxt, cur, XINCLUDE_PARSE);
-	if(parse != NULL) {
+	if(parse) {
 		if(sstreq(parse, XINCLUDE_PARSE_XML))
 			xml = 1;
 		else if(sstreq(parse, XINCLUDE_PARSE_TEXT))
@@ -1872,7 +1872,7 @@ static int xmlXIncludeIncludeNode(xmlXIncludeCtxtPtr ctxt, int nr)
 	/*
 	 * If we stored an XPointer a late computation may be needed
 	 */
-	if((ctxt->incTab[nr]->inc == NULL) && (ctxt->incTab[nr]->xptr != NULL)) {
+	if((ctxt->incTab[nr]->inc == NULL) && ctxt->incTab[nr]->xptr) {
 		ctxt->incTab[nr]->inc = xmlXIncludeCopyXPointer(ctxt, ctxt->doc, ctxt->doc, ctxt->incTab[nr]->xptr);
 		xmlXPathFreeObject(ctxt->incTab[nr]->xptr);
 		ctxt->incTab[nr]->xptr = NULL;
@@ -2008,7 +2008,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlNode *
 		return -1;
 	if(!ctxt)
 		return -1;
-	if(doc->URL != NULL) {
+	if(doc->URL) {
 		ret = xmlXIncludeURLPush(ctxt, doc->URL);
 		if(ret < 0)
 			return -1;
@@ -2067,10 +2067,10 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlNode *
 	 *
 	 */
 	for(i = ctxt->incBase; i < ctxt->incNr; i++) {
-		if((ctxt->incTab[i]->inc != NULL) || (ctxt->incTab[i]->xptr != NULL) || (ctxt->incTab[i]->emptyFb != 0))    /* (empty fallback) */
+		if(ctxt->incTab[i]->inc || ctxt->incTab[i]->xptr || (ctxt->incTab[i]->emptyFb != 0))    /* (empty fallback) */
 			xmlXIncludeIncludeNode(ctxt, i);
 	}
-	if(doc->URL != NULL)
+	if(doc->URL)
 		xmlXIncludeURLPop(ctxt);
 	return ret;
 }

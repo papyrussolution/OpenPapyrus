@@ -21,8 +21,7 @@
 	#include <arpa/inet.h>
 #endif
 #ifdef OPENSSL_CRYPTO
-	#include <openssl/evp.h>
-	#include <openssl/hmac.h>
+	#include <slib-ossl.h>
 #endif
 
 /** @internal

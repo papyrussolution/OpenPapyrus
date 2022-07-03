@@ -1080,8 +1080,8 @@ namespace OT {
 		{
 			const HBUINT16 &markFilteringSet = StructAfter<const HBUINT16> (subTable);
 			if(lookupFlag & LookupFlag::UseMarkFilteringSet)
-				return (const char*)&StructAfter<const char> (markFilteringSet) - (const char*)this;
-			return (const char*)&markFilteringSet - (const char*)this;
+				return (const char *)&StructAfter<const char> (markFilteringSet) - (const char *)this;
+			return (const char *)&markFilteringSet - (const char *)this;
 		}
 
 		uint get_type() const {

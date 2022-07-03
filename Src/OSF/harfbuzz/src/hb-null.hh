@@ -164,7 +164,7 @@ struct hb_nonnull_ptr_t {
 	T ** operator & () const { return &v; }
 	/* Only auto-cast to const types. */
 	template <typename C> operator const C * () const { return get(); }
-	operator const char * () const { return (const char*)get(); }
+	operator const char * () const { return (const char *)get(); }
 	T * get() const {
 		return v ? v : const_cast<T *> (&Null(T));
 	}

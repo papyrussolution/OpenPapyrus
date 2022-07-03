@@ -1156,7 +1156,7 @@ uint FASTCALL GetNumSlashes(const FChar * s)
 		FChar c = *s++;
 		if(c == 0)
 			return numSlashes;
-		if(IS_PATH_SEPAR(c))
+		if(isdirslash(c))
 			numSlashes++;
 	}
 }

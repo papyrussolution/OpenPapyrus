@@ -74,13 +74,13 @@
  *          int32     pixRenderRandomCmapPtaa()
  *
  *      Rendering and filling of polygons
- *          PIX        *pixRenderPolygon()
- *          PIX        *pixFillPolygon()
+ *          PIX *pixRenderPolygon()
+ *          PIX *pixFillPolygon()
  *
  *      Contour rendering on grayscale images
- *          PIX        *pixRenderContours()
- *          PIX        *fpixAutoRenderContours()
- *          PIX        *fpixRenderContours()
+ *          PIX *pixRenderContours()
+ *          PIX *fpixAutoRenderContours()
+ *          PIX *fpixRenderContours()
  *
  *      Boundary pt generation on 1 bpp images
  *          PTA *pixGeneratePtaBoundary()
@@ -125,7 +125,7 @@ PTA * generatePtaLine(int32 x1,
 {
 	int32 npts, diff, getyofx, sign, i, x, y;
 	float slope;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -592,19 +592,13 @@ PTAA  * generatePtaaBoxa(BOXA * boxa)
  *
  * </pre>
  */
-PTAA * generatePtaaHashBoxa(BOXA * boxa,
-    int32 spacing,
-    int32 width,
-    int32 orient,
-    int32 outline)
+PTAA * generatePtaaHashBoxa(BOXA * boxa, int32 spacing, int32 width, int32 orient, int32 outline)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, n;
 	BOX * box;
 	PTA * pta;
 	PTAA    * ptaa;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!boxa)
 		return (PTAA*)ERROR_PTR("boxa not defined", procName, NULL);
 	if(spacing <= 1)
@@ -613,10 +607,8 @@ PTAA * generatePtaaHashBoxa(BOXA * boxa,
 		L_WARNING("width < 1; setting to 1\n", procName);
 		width = 1;
 	}
-	if(orient != L_HORIZONTAL_LINE && orient != L_POS_SLOPE_LINE &&
-	    orient != L_VERTICAL_LINE && orient != L_NEG_SLOPE_LINE)
+	if(orient != L_HORIZONTAL_LINE && orient != L_POS_SLOPE_LINE && orient != L_VERTICAL_LINE && orient != L_NEG_SLOPE_LINE)
 		return (PTAA*)ERROR_PTR("invalid line orientation", procName, NULL);
-
 	n = boxaGetCount(boxa);
 	ptaa = ptaaCreate(n);
 	for(i = 0; i < n; i++) {
@@ -638,28 +630,21 @@ PTAA * generatePtaaHashBoxa(BOXA * boxa,
  * \param[in]    removedups   1 to remove, 0 to leave
  * \return  ptad, or NULL on error
  */
-PTA * generatePtaPolyline(PTA * ptas,
-    int32 width,
-    int32 closeflag,
-    int32 removedups)
+PTA * generatePtaPolyline(PTA * ptas, int32 width, int32 closeflag, int32 removedups)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, n, x1, y1, x2, y2;
 	PTA * ptad, * ptat, * pta;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!ptas)
 		return (PTA*)ERROR_PTR("ptas not defined", procName, NULL);
 	if(width < 1) {
 		L_WARNING("width < 1; setting to 1\n", procName);
 		width = 1;
 	}
-
 	n = ptaGetCount(ptas);
 	ptat = ptaCreate(0);
 	if(n < 2) /* nothing to do */
 		return ptat;
-
 	ptaGetIPt(ptas, 0, &x1, &y1);
 	for(i = 1; i < n; i++) {
 		ptaGetIPt(ptas, i, &x2, &y2);
@@ -669,23 +654,19 @@ PTA * generatePtaPolyline(PTA * ptas,
 		x1 = x2;
 		y1 = y2;
 	}
-
 	if(closeflag) {
 		ptaGetIPt(ptas, 0, &x2, &y2);
 		pta = generatePtaWideLine(x1, y1, x2, y2, width);
 		ptaJoin(ptat, pta, 0, -1);
 		ptaDestroy(&pta);
 	}
-
 	if(removedups)
 		ptaRemoveDupsByAset(ptat, &ptad);
 	else
 		ptad = ptaClone(ptat);
-
 	ptaDestroy(&ptat);
 	return ptad;
 }
-
 /*!
  * \brief   generatePtaGrid()
  *
@@ -694,19 +675,13 @@ PTA * generatePtaPolyline(PTA * ptas,
  * \param[in]    width      of rendered lines
  * \return  ptad, or NULL on error
  */
-PTA * generatePtaGrid(int32 w,
-    int32 h,
-    int32 nx,
-    int32 ny,
-    int32 width)
+PTA * generatePtaGrid(int32 w, int32 h, int32 nx, int32 ny, int32 width)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, j, bx, by, x1, x2, y1, y2;
 	BOX * box;
 	BOXA * boxa;
 	PTA * pta;
-
-	PROCNAME(__FUNCTION__);
-
 	if(nx < 1 || ny < 1)
 		return (PTA*)ERROR_PTR("nx and ny must be > 0", procName, NULL);
 	if(w < 2 * nx || h < 2 * ny)
@@ -715,7 +690,6 @@ PTA * generatePtaGrid(int32 w,
 		L_WARNING("width < 1; setting to 1\n", procName);
 		width = 1;
 	}
-
 	boxa = boxaCreate(nx * ny);
 	bx = (w + nx - 1) / nx;
 	by = (h + ny - 1) / ny;
@@ -729,7 +703,6 @@ PTA * generatePtaGrid(int32 w,
 			boxaAddBox(boxa, box, L_INSERT);
 		}
 	}
-
 	pta = generatePtaBoxa(boxa, width, 1);
 	boxaDestroy(&boxa);
 	return pta;
@@ -752,14 +725,11 @@ PTA * generatePtaGrid(int32 w,
  */
 PTA * convertPtaLineTo4cc(PTA * ptas)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, n, x, y, xp, yp;
 	PTA * ptad;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!ptas)
 		return (PTA*)ERROR_PTR("ptas not defined", procName, NULL);
-
 	n = ptaGetCount(ptas);
 	ptad = ptaCreate(n);
 	ptaGetIPt(ptas, 0, &xp, &yp);
@@ -772,10 +742,8 @@ PTA * convertPtaLineTo4cc(PTA * ptas)
 		xp = x;
 		yp = y;
 	}
-
 	return ptad;
 }
-
 /*!
  * \brief   generatePtaFilledCircle()
  *
@@ -793,29 +761,23 @@ PTA * convertPtaLineTo4cc(PTA * ptas)
  */
 PTA * generatePtaFilledCircle(int32 radius)
 {
+	PROCNAME(__FUNCTION__);
 	int32 x, y;
 	float radthresh, sqdist;
-	PTA       * pta;
-
-	PROCNAME(__FUNCTION__);
-
+	PTA * pta;
 	if(radius < 1)
 		return (PTA*)ERROR_PTR("radius must be >= 1", procName, NULL);
-
 	pta = ptaCreate(0);
-	radthresh = (radius + 0.5) * (radius + 0.5);
+	radthresh = (radius + 0.5f) * (radius + 0.5f);
 	for(y = 0; y <= 2 * radius; y++) {
 		for(x = 0; x <= 2 * radius; x++) {
-			sqdist = (float)((y - radius) * (y - radius) +
-			    (x - radius) * (x - radius));
+			sqdist = (float)((y - radius) * (y - radius) + (x - radius) * (x - radius));
 			if(sqdist <= radthresh)
 				ptaAddPt(pta, x, y);
 		}
 	}
-
 	return pta;
 }
-
 /*!
  * \brief   generatePtaFilledSquare()
  *
@@ -1110,7 +1072,7 @@ PTA * makePlotPtaFromNumaGen(NUMA * na,
 {
 	int32 i, n, maxw, maxh;
 	float minval, maxval, absval, val, scale, start, del;
-	PTA       * pta1, * pta2, * ptad;
+	PTA * pta1, * pta2, * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1628,7 +1590,7 @@ l_ok pixRenderBoxArb(PIX * pix,
  * \return  0 if OK, 1 on error
  */
 l_ok pixRenderBoxBlend(PIX * pix,
-    BOX       * box,
+    BOX * box,
     int32 width,
     uint8 rval,
     uint8 gval,
@@ -1879,7 +1841,7 @@ l_ok pixRenderHashBoxArb(PIX * pix,
  * \return  0 if OK, 1 on error
  */
 l_ok pixRenderHashBoxBlend(PIX * pix,
-    BOX       * box,
+    BOX * box,
     int32 spacing,
     int32 width,
     int32 orient,
@@ -2243,7 +2205,7 @@ l_ok pixRenderPolylineArb(PIX * pix,
  * \return  0 if OK, 1 on error
  */
 l_ok pixRenderPolylineBlend(PIX * pix,
-    PTA       * ptas,
+    PTA * ptas,
     int32 width,
     uint8 rval,
     uint8 gval,
@@ -2412,7 +2374,7 @@ PIX * pixRenderPolygon(PTA * ptas,
 {
 	float fxmin, fxmax, fymin, fymax;
 	PIX * pixd;
-	PTA       * pta1, * pta2;
+	PTA * pta1, * pta2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2668,18 +2630,14 @@ PIX * pixRenderContours(PIX * pixs,
  *      (3) Negative values are rendered in red; positive values as black.
  * </pre>
  */
-PIX * fpixAutoRenderContours(FPIX    * fpix,
-    int32 ncontours)
+PIX * fpixAutoRenderContours(FPIX * fpix, int32 ncontours)
 {
-	float minval, maxval, incr;
-
 	PROCNAME(__FUNCTION__);
-
+	float minval, maxval, incr;
 	if(!fpix)
 		return (PIX *)ERROR_PTR("fpix not defined", procName, NULL);
 	if(ncontours < 2 || ncontours > 500)
 		return (PIX *)ERROR_PTR("ncontours < 2 or > 500", procName, NULL);
-
 	fpixGetMin(fpix, &minval, NULL, NULL);
 	fpixGetMax(fpix, &maxval, NULL, NULL);
 	if(minval == maxval)
@@ -2704,26 +2662,21 @@ PIX * fpixAutoRenderContours(FPIX    * fpix,
  *      (2) Negative values are rendered in red; positive values as black.
  * </pre>
  */
-PIX * fpixRenderContours(FPIX      * fpixs,
-    float incr,
-    float proxim)
+PIX * fpixRenderContours(FPIX * fpixs, float incr, float proxim)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, j, w, h, wpls, wpld;
 	float val, invincr, finter, above, below, diff;
 	uint32   * datad, * lined;
 	float * datas, * lines;
-	PIX        * pixd;
-	PIXCMAP    * cmap;
-
-	PROCNAME(__FUNCTION__);
-
+	PIX * pixd;
+	PIXCMAP * cmap;
 	if(!fpixs)
 		return (PIX *)ERROR_PTR("fpixs not defined", procName, NULL);
 	if(incr <= 0.0)
 		return (PIX *)ERROR_PTR("incr <= 0.0", procName, NULL);
 	if(proxim <= 0.0)
-		proxim = 0.15; /* default */
-
+		proxim = 0.15f; /* default */
 	fpixGetDimensions(fpixs, &w, &h);
 	if((pixd = pixCreate(w, h, 8)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
@@ -2737,7 +2690,7 @@ PIX * fpixRenderContours(FPIX      * fpixs,
 	wpls = fpixGetWpl(fpixs);
 	datad = pixGetData(pixd);
 	wpld = pixGetWpl(pixd);
-	invincr = 1.0 / incr;
+	invincr = 1.0f / incr;
 	for(i = 0; i < h; i++) {
 		lines = datas + i * wpls;
 		lined = datad + i * wpld;

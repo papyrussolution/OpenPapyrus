@@ -589,8 +589,8 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, si
 	}
 	if(srcSize >=  sizeof(size_t)) {/* normal case */
 		uint32 contain32;
-		bitD->start = (const char*)srcBuffer;
-		bitD->ptr   = (const char*)srcBuffer + srcSize - sizeof(size_t);
+		bitD->start = (const char *)srcBuffer;
+		bitD->ptr   = (const char *)srcBuffer + srcSize - sizeof(size_t);
 		bitD->bitContainer = MEM_readLEST(bitD->ptr);
 		contain32 = ((const BYTE *)srcBuffer)[srcSize-1];
 		if(contain32 == 0) return ERROR(GENERIC); /* endMark not present */
@@ -598,7 +598,7 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, si
 	}
 	else {
 		uint32 contain32;
-		bitD->start = (const char*)srcBuffer;
+		bitD->start = (const char *)srcBuffer;
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize) {
@@ -2736,7 +2736,7 @@ static void ZSTD_checkContinuity(ZSTD_DCtx* dctx, const void* dst)
 {
 	if(dst != dctx->previousDstEnd) { /* not contiguous */
 		dctx->dictEnd = dctx->previousDstEnd;
-		dctx->vBase = (const char*)dst - ((const char*)(dctx->previousDstEnd) - (const char*)(dctx->base));
+		dctx->vBase = (const char *)dst - ((const char *)(dctx->previousDstEnd) - (const char *)(dctx->base));
 		dctx->base = dst;
 		dctx->previousDstEnd = dst;
 	}
@@ -2779,7 +2779,7 @@ static size_t ZSTD_decompress_usingDict(ZSTD_DCtx* ctx,
 	if(dict) {
 		ZSTD_decompress_insertDictionary(ctx, dict, dictSize);
 		ctx->dictEnd = ctx->previousDstEnd;
-		ctx->vBase = (const char*)dst - ((const char*)(ctx->previousDstEnd) - (const char*)(ctx->base));
+		ctx->vBase = (const char *)dst - ((const char *)(ctx->previousDstEnd) - (const char *)(ctx->base));
 		ctx->base = dst;
 	}
 	else {
@@ -2973,9 +2973,9 @@ static size_t ZSTD_decompressContinue(ZSTD_DCtx* ctx, void* dst, size_t maxDstSi
 static void ZSTD_decompress_insertDictionary(ZSTD_DCtx* ctx, const void* dict, size_t dictSize)
 {
 	ctx->dictEnd = ctx->previousDstEnd;
-	ctx->vBase = (const char*)dict - ((const char*)(ctx->previousDstEnd) - (const char*)(ctx->base));
+	ctx->vBase = (const char *)dict - ((const char *)(ctx->previousDstEnd) - (const char *)(ctx->base));
 	ctx->base = dict;
-	ctx->previousDstEnd = (const char*)dict + dictSize;
+	ctx->previousDstEnd = (const char *)dict + dictSize;
 }
 /*
     Buffered version of Zstd compression library
@@ -3090,7 +3090,7 @@ static size_t ZBUFF_decompressInit(ZBUFF_DCtx* zbc)
 
 static size_t ZBUFF_decompressWithDictionary(ZBUFF_DCtx* zbc, const void* src, size_t srcSize)
 {
-	zbc->dict = (const char*)src;
+	zbc->dict = (const char *)src;
 	zbc->dictSize = srcSize;
 	return 0;
 }
@@ -3108,7 +3108,7 @@ static size_t ZBUFF_limitCopy(void* dst, size_t maxDstSize, const void* src, siz
 
 static size_t ZBUFF_decompressContinue(ZBUFF_DCtx* zbc, void* dst, size_t* maxDstSizePtr, const void* src, size_t* srcSizePtr)
 {
-	const char* const istart = (const char*)src;
+	const char* const istart = (const char *)src;
 	const char* ip = istart;
 	const char* const iend = istart + *srcSizePtr;
 	char* const ostart = (char *)dst;

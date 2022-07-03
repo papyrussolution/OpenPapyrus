@@ -27,7 +27,7 @@ U_NAMESPACE_BEGIN
  ******************************************************************
  */
 
-SimpleLocaleKeyFactory::SimpleLocaleKeyFactory(UObject* objToAdopt,
+SimpleLocaleKeyFactory::SimpleLocaleKeyFactory(UObject * objToAdopt,
     const UnicodeString & locale,
     int32_t kind,
     int32_t coverage)
@@ -38,7 +38,7 @@ SimpleLocaleKeyFactory::SimpleLocaleKeyFactory(UObject* objToAdopt,
 {
 }
 
-SimpleLocaleKeyFactory::SimpleLocaleKeyFactory(UObject* objToAdopt,
+SimpleLocaleKeyFactory::SimpleLocaleKeyFactory(UObject * objToAdopt,
     const Locale & locale,
     int32_t kind,
     int32_t coverage)
@@ -56,7 +56,7 @@ SimpleLocaleKeyFactory::~SimpleLocaleKeyFactory()
 	_obj = NULL;
 }
 
-UObject* SimpleLocaleKeyFactory::create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const
+UObject * SimpleLocaleKeyFactory::create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const
 {
 	if(U_SUCCESS(status)) {
 		const LocaleKey& lkey = (const LocaleKey&)key;

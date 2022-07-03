@@ -964,7 +964,7 @@ static int32 pixWriteToTiffStream(TIFF    * tif,
 	uint8   * linebuf, * data;
 	uint16 redmap[256], greenmap[256], bluemap[256];
 	int32 w, h, d, spp, i, j, k, wpl, bpl, tiffbpl, ncolors, cmapsize;
-	int32   * rmap, * gmap, * bmap;
+	int32 * rmap, * gmap, * bmap;
 	int32 xres, yres;
 	uint32  * line, * ppixel;
 	PIX * pixt;
@@ -1739,13 +1739,13 @@ static int32 getTiffStreamResolution(TIFF     * tif,
  */
 l_ok readHeaderTiff(const char * filename,
     int32 n,
-    int32    * pw,
-    int32    * ph,
-    int32    * pbps,
-    int32    * pspp,
-    int32    * pres,
-    int32    * pcmap,
-    int32    * pformat)
+    int32 * pw,
+    int32 * ph,
+    int32 * pbps,
+    int32 * pspp,
+    int32 * pres,
+    int32 * pcmap,
+    int32 * pformat)
 {
 	int32 ret;
 	FILE * fp;

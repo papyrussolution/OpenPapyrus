@@ -390,7 +390,7 @@ public:
 	 * @stable ICU 4.2
 	 */
 	static StringEnumeration* U_EXPORT2 getKeywordValuesForLocale(const char * key,
-	    const Locale& locale, bool commonlyUsed, UErrorCode& status);
+	    const Locale& locale, bool commonlyUsed, UErrorCode & status);
 
 	/**
 	 * Returns the current UTC (GMT) time measured in milliseconds since 0:00:00 on 1/1/70
@@ -414,7 +414,7 @@ public:
 	 *                failed.
 	 * @stable ICU 2.0
 	 */
-	inline UDate getTime(UErrorCode& status) const {
+	inline UDate getTime(UErrorCode & status) const {
 		return getTimeInMillis(status);
 	}
 
@@ -428,7 +428,7 @@ public:
 	 *                leniency, this will be set to an error status.
 	 * @stable ICU 2.0
 	 */
-	inline void setTime(UDate date, UErrorCode& status) 
+	inline void setTime(UDate date, UErrorCode & status) 
 	{
 		setTimeInMillis(date, status);
 	}
@@ -482,7 +482,7 @@ public:
 	 *                Calendar when; false otherwise.
 	 * @stable ICU 2.0
 	 */
-	bool equals(const Calendar& when, UErrorCode& status) const;
+	bool equals(const Calendar& when, UErrorCode & status) const;
 
 	/**
 	 * Returns true if this Calendar's current time is before "when"'s current time.
@@ -497,7 +497,7 @@ public:
 	 *                Calendar when; false otherwise.
 	 * @stable ICU 2.0
 	 */
-	bool before(const Calendar& when, UErrorCode& status) const;
+	bool before(const Calendar& when, UErrorCode & status) const;
 
 	/**
 	 * Returns true if this Calendar's current time is after "when"'s current time.
@@ -512,7 +512,7 @@ public:
 	 *                Calendar when; false otherwise.
 	 * @stable ICU 2.0
 	 */
-	bool after(const Calendar& when, UErrorCode& status) const;
+	bool after(const Calendar& when, UErrorCode & status) const;
 
 #ifndef U_FORCE_HIDE_DEPRECATED_API
 	/**
@@ -533,9 +533,9 @@ public:
 	 * @param status  Output param set to success/failure code on exit. If any value
 	 *                previously set in the time field is invalid or restricted by
 	 *                leniency, this will be set to an error status.
-	 * @deprecated ICU 2.6. use add(UCalendarDateFields field, int32_t amount, UErrorCode& status) instead.
+	 * @deprecated ICU 2.6. use add(UCalendarDateFields field, int32_t amount, UErrorCode & status) instead.
 	 */
-	virtual void add(EDateFields field, int32_t amount, UErrorCode& status);
+	virtual void add(EDateFields field, int32_t amount, UErrorCode & status);
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	/**
@@ -558,7 +558,7 @@ public:
 	 *                leniency, this will be set to an error status.
 	 * @stable ICU 2.6.
 	 */
-	virtual void add(UCalendarDateFields field, int32_t amount, UErrorCode& status);
+	virtual void add(UCalendarDateFields field, int32_t amount, UErrorCode & status);
 
 #ifndef U_HIDE_DEPRECATED_API
 	/**
@@ -591,9 +591,9 @@ public:
 	 * @param status  Output param set to success/failure code on exit. If any value
 	 *                previously set in the time field is invalid or restricted by
 	 *                leniency, this will be set to an error status.
-	 * @deprecated ICU 2.6. Use roll(UCalendarDateFields field, bool up, UErrorCode& status) instead.
+	 * @deprecated ICU 2.6. Use roll(UCalendarDateFields field, bool up, UErrorCode & status) instead.
 	 */
-	inline void roll(EDateFields field, bool up, UErrorCode& status);
+	inline void roll(EDateFields field, bool up, UErrorCode & status);
 #endif  /* U_HIDE_DEPRECATED_API */
 
 	/**
@@ -628,7 +628,7 @@ public:
 	 *                leniency, this will be set to an error status.
 	 * @stable ICU 2.6.
 	 */
-	inline void roll(UCalendarDateFields field, bool up, UErrorCode& status);
+	inline void roll(UCalendarDateFields field, bool up, UErrorCode & status);
 
 #ifndef U_FORCE_HIDE_DEPRECATED_API
 	/**
@@ -660,9 +660,9 @@ public:
 	 * @param status  Output param set to success/failure code on exit. If any value
 	 *                previously set in the time field is invalid, this will be set to
 	 *                an error status.
-	 * @deprecated ICU 2.6. Use roll(UCalendarDateFields field, int32_t amount, UErrorCode& status) instead.
+	 * @deprecated ICU 2.6. Use roll(UCalendarDateFields field, int32_t amount, UErrorCode & status) instead.
 	 */
-	virtual void roll(EDateFields field, int32_t amount, UErrorCode& status);
+	virtual void roll(EDateFields field, int32_t amount, UErrorCode & status);
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	/**
@@ -696,7 +696,7 @@ public:
 	 *                an error status.
 	 * @stable ICU 2.6.
 	 */
-	virtual void roll(UCalendarDateFields field, int32_t amount, UErrorCode& status);
+	virtual void roll(UCalendarDateFields field, int32_t amount, UErrorCode & status);
 
 #ifndef U_FORCE_HIDE_DEPRECATED_API
 	/**
@@ -752,9 +752,9 @@ public:
 	 * @return the difference, either positive or negative, between
 	 * this calendar's time and <code>when</code>, in terms of
 	 * <code>field</code>.
-	 * @deprecated ICU 2.6. Use fieldDifference(UDate when, UCalendarDateFields field, UErrorCode& status).
+	 * @deprecated ICU 2.6. Use fieldDifference(UDate when, UCalendarDateFields field, UErrorCode & status).
 	 */
-	virtual int32_t fieldDifference(UDate when, EDateFields field, UErrorCode& status);
+	virtual int32_t fieldDifference(UDate when, EDateFields field, UErrorCode & status);
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	/**
@@ -812,7 +812,7 @@ public:
 	 * <code>field</code>.
 	 * @stable ICU 2.6.
 	 */
-	virtual int32_t fieldDifference(UDate when, UCalendarDateFields field, UErrorCode& status);
+	virtual int32_t fieldDifference(UDate when, UCalendarDateFields field, UErrorCode & status);
 
 	/**
 	 * Sets the calendar's time zone to be the one passed in. The Calendar takes ownership
@@ -861,7 +861,7 @@ public:
 	 *           false, otherwise.
 	 * @stable ICU 2.0
 	 */
-	virtual bool inDaylightTime(UErrorCode& status) const = 0;
+	virtual bool inDaylightTime(UErrorCode & status) const = 0;
 
 	/**
 	 * Specifies whether or not date/time interpretation is to be lenient. With lenient
@@ -988,7 +988,7 @@ public:
 	 * @return   The first day of the week.
 	 * @stable ICU 2.6
 	 */
-	UCalendarDaysOfWeek getFirstDayOfWeek(UErrorCode &status) const;
+	UCalendarDaysOfWeek getFirstDayOfWeek(UErrorCode & status) const;
 
 	/**
 	 * Sets what the minimal days required in the first week of the year are; For
@@ -1113,9 +1113,9 @@ public:
 	 * @param field    the field to determine the minimum of
 	 * @param status   Fill-in parameter which receives the status of this operation.
 	 * @return         the minimum of the given field for the current date of this Calendar
-	 * @deprecated ICU 2.6. Use getActualMinimum(UCalendarDateFields field, UErrorCode& status) instead.
+	 * @deprecated ICU 2.6. Use getActualMinimum(UCalendarDateFields field, UErrorCode & status) instead.
 	 */
-	int32_t getActualMinimum(EDateFields field, UErrorCode& status) const;
+	int32_t getActualMinimum(EDateFields field, UErrorCode & status) const;
 #endif  /* U_HIDE_DEPRECATED_API */
 
 	/**
@@ -1132,7 +1132,7 @@ public:
 	 * @return         the minimum of the given field for the current date of this Calendar
 	 * @stable ICU 2.6.
 	 */
-	virtual int32_t getActualMinimum(UCalendarDateFields field, UErrorCode& status) const;
+	virtual int32_t getActualMinimum(UCalendarDateFields field, UErrorCode & status) const;
 
 #ifndef U_HIDE_DEPRECATED_API
 	/**
@@ -1149,9 +1149,9 @@ public:
 	 * @param field    the field to determine the maximum of
 	 * @param status   Fill-in parameter which receives the status of this operation.
 	 * @return         the maximum of the given field for the current date of this Calendar
-	 * @deprecated ICU 2.6. Use getActualMaximum(UCalendarDateFields field, UErrorCode& status) instead.
+	 * @deprecated ICU 2.6. Use getActualMaximum(UCalendarDateFields field, UErrorCode & status) instead.
 	 */
-	int32_t getActualMaximum(EDateFields field, UErrorCode& status) const;
+	int32_t getActualMaximum(EDateFields field, UErrorCode & status) const;
 #endif  /* U_HIDE_DEPRECATED_API */
 
 	/**
@@ -1170,7 +1170,7 @@ public:
 	 * @return         the maximum of the given field for the current date of this Calendar
 	 * @stable ICU 2.6.
 	 */
-	virtual int32_t getActualMaximum(UCalendarDateFields field, UErrorCode& status) const;
+	virtual int32_t getActualMaximum(UCalendarDateFields field, UErrorCode & status) const;
 
 #ifndef U_HIDE_DEPRECATED_API
 	/**
@@ -1184,9 +1184,9 @@ public:
 	 * @param status Fill-in parameter which receives the status of the operation.
 	 * @return       The value for the given time field, or zero if the field is unset,
 	 *               and set() has been called for any other field.
-	 * @deprecated ICU 2.6. Use get(UCalendarDateFields field, UErrorCode& status) instead.
+	 * @deprecated ICU 2.6. Use get(UCalendarDateFields field, UErrorCode & status) instead.
 	 */
-	int32_t get(EDateFields field, UErrorCode& status) const;
+	int32_t get(EDateFields field, UErrorCode & status) const;
 #endif  /* U_HIDE_DEPRECATED_API */
 
 	/**
@@ -1202,7 +1202,7 @@ public:
 	 *               and set() has been called for any other field.
 	 * @stable ICU 2.6.
 	 */
-	int32_t get(UCalendarDateFields field, UErrorCode& status) const;
+	int32_t get(UCalendarDateFields field, UErrorCode & status) const;
 
 #ifndef U_HIDE_DEPRECATED_API
 	/**
@@ -1385,7 +1385,7 @@ public:
 	 * @return The UCalendarWeekdayType for the day of the week.
 	 * @stable ICU 4.4
 	 */
-	virtual UCalendarWeekdayType getDayOfWeekType(UCalendarDaysOfWeek dayOfWeek, UErrorCode &status) const;
+	virtual UCalendarWeekdayType getDayOfWeekType(UCalendarDaysOfWeek dayOfWeek, UErrorCode & status) const;
 
 	/**
 	 * Returns the time during the day at which the weekend begins or ends in
@@ -1401,7 +1401,7 @@ public:
 	 * @return The milliseconds after midnight at which the weekend begins or ends.
 	 * @stable ICU 4.4
 	 */
-	virtual int32_t getWeekendTransition(UCalendarDaysOfWeek dayOfWeek, UErrorCode &status) const;
+	virtual int32_t getWeekendTransition(UCalendarDaysOfWeek dayOfWeek, UErrorCode & status) const;
 
 	/**
 	 * Returns true if the given UDate is in the weekend in
@@ -1412,7 +1412,7 @@ public:
 	 * this calendar system, false otherwise.
 	 * @stable ICU 4.4
 	 */
-	virtual bool isWeekend(UDate date, UErrorCode &status) const;
+	virtual bool isWeekend(UDate date, UErrorCode & status) const;
 
 	/**
 	 * Returns true if this Calendar's current date-time is in the weekend in
@@ -1482,7 +1482,7 @@ protected:
 	 *                leniency, this will be set to an error status.
 	 * @stable ICU 2.0
 	 */
-	virtual void computeTime(UErrorCode& status);
+	virtual void computeTime(UErrorCode & status);
 
 	/**
 	 * Converts GMT as milliseconds to time field values. This allows you to sync up the
@@ -1495,7 +1495,7 @@ protected:
 	 *                leniency, this will be set to an error status.
 	 * @stable ICU 2.0
 	 */
-	virtual void computeFields(UErrorCode& status);
+	virtual void computeFields(UErrorCode & status);
 
 	/**
 	 * Gets this Calendar's current time as a long.
@@ -1506,7 +1506,7 @@ protected:
 	 * @return the current time as UTC milliseconds from the epoch.
 	 * @stable ICU 2.0
 	 */
-	double getTimeInMillis(UErrorCode& status) const;
+	double getTimeInMillis(UErrorCode & status) const;
 
 	/**
 	 * Sets this Calendar's current time from the given long value.
@@ -1516,7 +1516,7 @@ protected:
 	 *                leniency, this will be set to an error status.
 	 * @stable ICU 2.0
 	 */
-	void setTimeInMillis(double millis, UErrorCode& status);
+	void setTimeInMillis(double millis, UErrorCode & status);
 
 	/**
 	 * Recomputes the current time from currently set fields, and then fills in any
@@ -1527,7 +1527,7 @@ protected:
 	 *                leniency, this will be set to an error status.
 	 * @stable ICU 2.0
 	 */
-	void complete(UErrorCode& status);
+	void complete(UErrorCode & status);
 
 #ifndef U_HIDE_DEPRECATED_API
 	/**
@@ -1603,7 +1603,7 @@ protected:
 	 * temporary calendar.
 	 * @internal
 	 */
-	virtual void prepareGetActual(UCalendarDateFields field, bool isMinimum, UErrorCode &status);
+	virtual void prepareGetActual(UCalendarDateFields field, bool isMinimum, UErrorCode & status);
 
 	/**
 	 * Limit enums. Not in sync with UCalendarLimitType (refers to internal fields).
@@ -1721,7 +1721,7 @@ protected:
 	 * Generic fields can be handled by `Calendar::validateField()`.
 	 * @internal
 	 */
-	virtual void validateField(UCalendarDateFields field, UErrorCode &status);
+	virtual void validateField(UCalendarDateFields field, UErrorCode & status);
 
 #ifndef U_HIDE_INTERNAL_API
 	/**
@@ -1850,7 +1850,7 @@ private:
 	 * @param status return type
 	 * @internal (private)
 	 */
-	int32_t getActualHelper(UCalendarDateFields field, int32_t startValue, int32_t endValue, UErrorCode &status) const;
+	int32_t getActualHelper(UCalendarDateFields field, int32_t startValue, int32_t endValue, UErrorCode & status) const;
 
 protected:
 	/**
@@ -1963,7 +1963,7 @@ protected:
 	 * a pure proleptic Gregorian calendar.
 	 * @internal
 	 */
-	virtual void handleComputeFields(int32_t julianDay, UErrorCode &status);
+	virtual void handleComputeFields(int32_t julianDay, UErrorCode & status);
 
 #ifndef U_HIDE_INTERNAL_API
 	/**
@@ -2053,7 +2053,7 @@ protected:
 	 * @see #getActualMaximum
 	 * @stable ICU 2.0
 	 */
-	virtual void pinField(UCalendarDateFields field, UErrorCode& status);
+	virtual void pinField(UCalendarDateFields field, UErrorCode & status);
 
 	/**
 	 * Return the week number of a day, within a period. This may be the week number in
@@ -2217,7 +2217,7 @@ private:
 	 *                previously set in the time field is invalid or restricted by
 	 *                leniency, this will be set to an error status.
 	 */
-	void updateTime(UErrorCode& status);
+	void updateTime(UErrorCode & status);
 
 	/**
 	 * The Gregorian year, as computed by computeGregorianFields() and
@@ -2299,7 +2299,7 @@ private:
 	 * @see #isLenient
 	 * @see #validateField(int, int&)
 	 */
-	void validateFields(UErrorCode &status);
+	void validateFields(UErrorCode & status);
 
 	/**
 	 * Validate a single field of this calendar given its minimum and
@@ -2308,7 +2308,7 @@ private:
 	 * use this method in their implementation of {@link
 	 * #validateField(int, int&)}.
 	 */
-	void validateField(UCalendarDateFields field, int32_t min, int32_t max, UErrorCode& status);
+	void validateField(UCalendarDateFields field, int32_t min, int32_t max, UErrorCode & status);
 
 protected:
 #ifndef U_HIDE_INTERNAL_API
@@ -2356,7 +2356,7 @@ public:
 	 * @return a registry key that can be used to unregister this factory
 	 * @internal
 	 */
-	static URegistryKey registerFactory(ICUServiceFactory* toAdopt, UErrorCode& status);
+	static URegistryKey registerFactory(ICUServiceFactory* toAdopt, UErrorCode & status);
 
 	/**
 	 * Unregister a previously-registered CalendarFactory using the key returned from the
@@ -2373,7 +2373,7 @@ public:
 	 * @return true if the factory for the key was successfully unregistered
 	 * @internal
 	 */
-	static bool unregister(URegistryKey key, UErrorCode& status);
+	static bool unregister(URegistryKey key, UErrorCode & status);
 #endif  /* U_HIDE_INTERNAL_API */
 
 	/**
@@ -2418,14 +2418,14 @@ public:
 	 *  @return the locale
 	 *  @stable ICU 2.8
 	 */
-	Locale getLocale(ULocDataLocaleType type, UErrorCode &status) const;
+	Locale getLocale(ULocDataLocaleType type, UErrorCode & status) const;
 
 	/**
 	 * @return      The related Gregorian year; will be obtained by modifying the value
 	 *              obtained by get from UCAL_EXTENDED_YEAR field
 	 * @internal
 	 */
-	virtual int32_t getRelatedYear(UErrorCode &status) const;
+	virtual int32_t getRelatedYear(UErrorCode & status) const;
 
 	/**
 	 * @param year  The related Gregorian year to set; will be modified as necessary then
@@ -2441,7 +2441,7 @@ public:
 	 *  @return the locale
 	 *  @internal
 	 */
-	const char * getLocaleID(ULocDataLocaleType type, UErrorCode &status) const;
+	const char * getLocaleID(ULocDataLocaleType type, UErrorCode & status) const;
 #endif  /* U_HIDE_INTERNAL_API */
 
 private:
@@ -2458,7 +2458,7 @@ private:
 	 * @param status The error status
 	 * @return true if a transition is found.
 	 */
-	bool getImmediatePreviousZoneTransition(UDate base, UDate * transitionTime, UErrorCode& status) const;
+	bool getImmediatePreviousZoneTransition(UDate base, UDate * transitionTime, UErrorCode & status) const;
 
 public:
 #ifndef U_HIDE_INTERNAL_API
@@ -2470,7 +2470,7 @@ public:
 	 * @return the new Calendar object with no time or timezone set.
 	 * @internal For ICU use only.
 	 */
-	static Calendar * U_EXPORT2 makeInstance(const Locale &locale, UErrorCode &status);
+	static Calendar * U_EXPORT2 makeInstance(const Locale &locale, UErrorCode & status);
 
 	/**
 	 * Get the calendar type for given locale.
@@ -2485,7 +2485,7 @@ public:
 	static void U_EXPORT2 getCalendarTypeFromLocale(const Locale &locale,
 	    char * typeBuffer,
 	    int32_t typeBufferSize,
-	    UErrorCode &status);
+	    UErrorCode & status);
 #endif  /* U_HIDE_INTERNAL_API */
 };
 
@@ -2495,13 +2495,13 @@ inline Calendar* Calendar::createInstance(TimeZone* zone, UErrorCode& errorCode)
 	return createInstance(zone, Locale::getDefault(), errorCode);
 }
 
-inline void Calendar::roll(UCalendarDateFields field, bool up, UErrorCode& status)
+inline void Calendar::roll(UCalendarDateFields field, bool up, UErrorCode & status)
 {
 	roll(field, (int32_t)(up ? +1 : -1), status);
 }
 
 #ifndef U_HIDE_DEPRECATED_API
-	inline void Calendar::roll(EDateFields field, bool up, UErrorCode& status)
+	inline void Calendar::roll(EDateFields field, bool up, UErrorCode & status)
 	{
 		roll((UCalendarDateFields)field, up, status);
 	}

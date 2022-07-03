@@ -80,7 +80,7 @@ l_ok jbCorrelation(const char * dirin,
 	int32 nfiles, i, numpages;
 	JBDATA     * data;
 	JBCLASSER  * classer;
-	PIX        * pix;
+	PIX * pix;
 	PIXA       * pixa;
 	SARRAY * safiles;
 
@@ -160,7 +160,7 @@ l_ok jbRankHaus(const char * dirin,
 	int32 nfiles, i, numpages;
 	JBDATA     * data;
 	JBCLASSER  * classer;
-	PIX        * pix;
+	PIX * pix;
 	PIXA       * pixa;
 	SARRAY * safiles;
 
@@ -247,7 +247,7 @@ JBCLASSER * jbWordsInTextlines(const char * dirin,
 	BOXA       * boxa;
 	JBCLASSER  * classer;
 	NUMA * nai, * natl;
-	PIX        * pix1, * pix2;
+	PIX * pix1, * pix2;
 	PIXA       * pixa;
 	SARRAY * safiles;
 
@@ -493,7 +493,7 @@ l_ok pixFindWordAndCharacterBoxes(PIX         * pixs,
 	char      * debugfile, * subdir;
 	int32 i, xs, ys, xb, yb, nb, loc;
 	float scalefact;
-	BOX       * box1, * box2;
+	BOX * box1, * box2;
 	BOXA      * boxa1, * boxa1a, * boxa2, * boxa3, * boxa4, * boxa5, * boxaw;
 	BOXAA     * boxaac;
 	PIX * pix1, * pix2, * pix3, * pix3a, * pix4, * pix5;

@@ -9,11 +9,9 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "bn_lcl.h"
-//#include "internal/nelem.h"
 
 #ifndef OPENSSL_NO_SRP
 
-//#include <openssl/srp.h>
 #include <bn_srp.h>
 
 #if(BN_BYTES == 8)

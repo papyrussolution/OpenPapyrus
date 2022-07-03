@@ -7,17 +7,12 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/evp.h>
-//#include "internal/asn1_int.h"
 #include <internal/crypto/poly1305.h>
 #include "poly1305_local.h"
-//#include "internal/evp_int.h"
-
 /*
  * POLY1305 "ASN1" method. This is just here to indicate the maximum
  * POLY1305 output length and to free up a POLY1305 key.
  */
-
 static int poly1305_size(const EVP_PKEY * pkey)
 {
 	return POLY1305_DIGEST_SIZE;

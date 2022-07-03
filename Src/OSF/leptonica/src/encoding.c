@@ -657,7 +657,7 @@ char * reformatPacked64(const char * inarray,
     int32 leadspace,
     int32 linechars,
     int32 addquotes,
-    int32    * poutsize)
+    int32 * poutsize)
 {
 	char * flata, * outa;
 	int32 i, j, flatindex, flatsize, outindex, nlines, linewithpad, linecount;

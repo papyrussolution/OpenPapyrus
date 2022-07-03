@@ -39,7 +39,7 @@ LocaleKeyFactory::LocaleKeyFactory(int32_t coverage, const UnicodeString & name)
 LocaleKeyFactory::~LocaleKeyFactory() {
 }
 
-UObject* LocaleKeyFactory::create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const {
+UObject * LocaleKeyFactory::create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const {
 	if(handlesKey(key, status)) {
 		const LocaleKey& lkey = (const LocaleKey&)key;
 		int32_t kind = lkey.kind();
@@ -97,7 +97,7 @@ UnicodeString &LocaleKeyFactory::getDisplayName(const UnicodeString & id, const 
 	return result;
 }
 
-UObject* LocaleKeyFactory::handleCreate(const Locale & /* loc */,
+UObject * LocaleKeyFactory::handleCreate(const Locale & /* loc */,
     int32_t /* kind */,
     const ICUService* /* service */,
     UErrorCode & /* status */) const {

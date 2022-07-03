@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include <openssl/x509.h>
 
 const char * X509_get_default_private_dir(void)

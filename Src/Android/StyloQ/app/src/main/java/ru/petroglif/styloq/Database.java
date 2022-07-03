@@ -195,7 +195,7 @@ public class Database {
 					else {
 						String fld_type = fld.getType().getSimpleName();
 						if(fld_type.equalsIgnoreCase("int")) {
-							fld.setInt(this, Integer.valueOf(val));
+							fld.setInt(this, SLib.satoi(val));
 						}
 						else if(fld_type.equalsIgnoreCase("long")) {
 							fld.setLong(this, Long.valueOf(val));

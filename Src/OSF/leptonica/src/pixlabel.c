@@ -328,7 +328,7 @@ l_ok pixConnCompIncrInit(PIX * pixs,
  */
 int32 pixConnCompIncrAdd(PIX * pixs,
     PTAA      * ptaa,
-    int32   * pncc,
+    int32 * pncc,
     float x,
     float y,
     int32 debug)
@@ -461,7 +461,7 @@ l_ok pixGetSortedNeighborValues(PIX * pixs,
     int32 y,
     int32 conn,
     int32 ** pneigh,
-    int32   * pnvals)
+    int32 * pnvals)
 {
 	int32 i, npt, index;
 	int32 neigh[4];
@@ -559,8 +559,8 @@ PIX * pixLocToColorTransform(PIX  * pixs)
 	pixGetDimensions(pixs, &w, &h, NULL);
 	w2 = w / 2;
 	h2 = h / 2;
-	invw2 = 255.0 / (float)w2;
-	invh2 = 255.0 / (float)h2;
+	invw2 = 255.0f / (float)w2;
+	invh2 = 255.0f / (float)h2;
 	pix1 = pixConnCompAreaTransform(pixs, 8);
 	pixcc = pixConvert32To8(pix1, L_LS_TWO_BYTES, L_CLIP_TO_FF);
 	pixDestroy(&pix1);

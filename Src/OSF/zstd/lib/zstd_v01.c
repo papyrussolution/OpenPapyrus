@@ -560,8 +560,8 @@ static size_t FSE_initDStream(FSE_DStream_t* bitD, const void* srcBuffer, size_t
 
 	if(srcSize >=  sizeof(size_t)) {
 		uint32 contain32;
-		bitD->start = (const char*)srcBuffer;
-		bitD->ptr   = (const char*)srcBuffer + srcSize - sizeof(size_t);
+		bitD->start = (const char *)srcBuffer;
+		bitD->ptr   = (const char *)srcBuffer + srcSize - sizeof(size_t);
 		bitD->bitContainer = FSE_readLEST(bitD->ptr);
 		contain32 = ((const BYTE *)srcBuffer)[srcSize-1];
 		if(contain32 == 0) return (size_t)-FSE_ERROR_GENERIC; /* stop bit not present */
@@ -569,7 +569,7 @@ static size_t FSE_initDStream(FSE_DStream_t* bitD, const void* srcBuffer, size_t
 	}
 	else {
 		uint32 contain32;
-		bitD->start = (const char*)srcBuffer;
+		bitD->start = (const char *)srcBuffer;
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize)
@@ -975,7 +975,7 @@ static size_t HUF_decompress_usingDTable(   /* -3% slower when non static */
 		const size_t length2 = FSE_readLE16(jumpTable+1);
 		const size_t length3 = FSE_readLE16(jumpTable+2);
 		const size_t length4 = cSrcSize - 6 - length1 - length2 - length3; /* check coherency !! */
-		const char* const start1 = (const char*)(cSrc) + 6;
+		const char* const start1 = (const char *)(cSrc) + 6;
 		const char* const start2 = start1 + length1;
 		const char* const start3 = start2 + length2;
 		const char* const start4 = start3 + length3;

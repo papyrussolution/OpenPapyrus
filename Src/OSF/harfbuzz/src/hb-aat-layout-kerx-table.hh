@@ -438,7 +438,7 @@ public:
 			    hb_aat_apply_context_t *c_) :
 				c(c_),
 				action_type((table->flags & ActionType) >> 30),
-				ankrData((HBUINT16*)((const char*)&table->machine + (table->flags & Offset))),
+				ankrData((HBUINT16*)((const char *)&table->machine + (table->flags & Offset))),
 				mark_set(false),
 				mark(0) {
 			}

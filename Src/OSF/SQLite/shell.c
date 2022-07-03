@@ -939,7 +939,7 @@ static char * shellFakeSchema(sqlite3 * db,            /* The database connectio
 	cQuote = quoteChar(zName);
 	appendText(&s, zName, cQuote);
 	while(sqlite3_step(pStmt)==SQLITE_ROW) {
-		const char * zCol = (const char*)sqlite3_column_text(pStmt, 1);
+		const char * zCol = (const char *)sqlite3_column_text(pStmt, 1);
 		nRow++;
 		appendText(&s, zDiv, 0);
 		zDiv = ",";
@@ -965,7 +965,7 @@ static void shellModuleSchema(sqlite3_context * pCtx,
     int nVal,
     sqlite3_value ** apVal
     ){
-	const char * zName = (const char*)sqlite3_value_text(apVal[0]);
+	const char * zName = (const char *)sqlite3_value_text(apVal[0]);
 	char * zFake = shellFakeSchema(sqlite3_context_db_handle(pCtx), 0, zName);
 	UNUSED_PARAMETER(nVal);
 	if(zFake) {
@@ -1007,9 +1007,9 @@ static void shellAddSchemaName(sqlite3_context * pCtx,
 		"VIRTUAL TABLE"
 	};
 	int i = 0;
-	const char * zIn = (const char*)sqlite3_value_text(apVal[0]);
-	const char * zSchema = (const char*)sqlite3_value_text(apVal[1]);
-	const char * zName = (const char*)sqlite3_value_text(apVal[2]);
+	const char * zIn = (const char *)sqlite3_value_text(apVal[0]);
+	const char * zSchema = (const char *)sqlite3_value_text(apVal[1]);
+	const char * zName = (const char *)sqlite3_value_text(apVal[2]);
 	sqlite3 * db = sqlite3_context_db_handle(pCtx);
 	UNUSED_PARAMETER(nVal);
 	if(zIn!=0 && strncmp(zIn, "CREATE ", 7)==0) {
@@ -1834,7 +1834,7 @@ static void SHA3Init(SHA3Context * p, int iSize){
 #else
 	{
 		static unsigned int one = 1;
-		if(1==*(unsigned char*)&one) {
+		if(1==*(unsigned char *)&one) {
 			/* Little endian.  No byte swapping. */
 			p->ixMask = 0;
 		}
@@ -1963,7 +1963,7 @@ static void hash_step_vformat(SHA3Context * p,                 /* Add content to
 	sqlite3_vsnprintf(sizeof(zBuf), zBuf, zFormat, ap);
 	va_end(ap);
 	n = (int)strlen(zBuf);
-	SHA3Update(p, (unsigned char*)zBuf, n);
+	SHA3Update(p, (unsigned char *)zBuf, n);
 }
 
 /*
@@ -2003,7 +2003,7 @@ static void sha3QueryFunc(sqlite3_context * context,
     sqlite3_value ** argv
     ){
 	sqlite3 * db = sqlite3_context_db_handle(context);
-	const char * zSql = (const char*)sqlite3_value_text(argv[0]);
+	const char * zSql = (const char *)sqlite3_value_text(argv[0]);
 	sqlite3_stmt * pStmt = 0;
 	int nCol;             /* Number of columns in the result set */
 	int i;                /* Loop counter */
@@ -2048,7 +2048,7 @@ static void sha3QueryFunc(sqlite3_context * context,
 		if(z) {
 			n = (int)strlen(z);
 			hash_step_vformat(&cx, "S%d:", n);
-			SHA3Update(&cx, (unsigned char*)z, n);
+			SHA3Update(&cx, (unsigned char *)z, n);
 		}
 
 		/* Compute a hash over the result of the query */
@@ -2322,7 +2322,7 @@ static void readfileFunc(sqlite3_context * context,
     ){
 	const char * zName;
 	(void)(argc); /* Unused parameter */
-	zName = (const char*)sqlite3_value_text(argv[0]);
+	zName = (const char *)sqlite3_value_text(argv[0]);
 	if(zName==0) return;
 	readFileContents(context, zName);
 }
@@ -2378,7 +2378,7 @@ static void statTimesToUtc(const char * zPath,
 	HANDLE hFindFile;
 	WIN32_FIND_DATAW fd;
 	LPWSTR zUnicodeName;
-	extern LPWSTR sqlite3_win32_utf8_to_unicode(const char*);
+	extern LPWSTR sqlite3_win32_utf8_to_unicode(const char *);
 	zUnicodeName = sqlite3_win32_utf8_to_unicode(zPath);
 	if(zUnicodeName) {
 		memset(&fd, 0, sizeof(WIN32_FIND_DATAW));
@@ -2489,7 +2489,7 @@ static int writeFile(sqlite3_context * pCtx,          /* Context to return bytes
     ){
 #if !defined(_WIN32) && !defined(WIN32)
 	if(S_ISLNK(mode)) {
-		const char * zTo = (const char*)sqlite3_value_text(pData);
+		const char * zTo = (const char *)sqlite3_value_text(pData);
 		if(symlink(zTo, zFile)<0) return 1;
 	}
 	else
@@ -2517,7 +2517,7 @@ static int writeFile(sqlite3_context * pCtx,          /* Context to return bytes
 			int rc = 0;
 			FILE * out = fopen(zFile, "wb");
 			if(out==0) return 1;
-			z = (const char*)sqlite3_value_blob(pData);
+			z = (const char *)sqlite3_value_blob(pData);
 			if(z) {
 				sqlite3_int64 n = fwrite(z, 1, sqlite3_value_bytes(pData), out);
 				nWrite = sqlite3_value_bytes(pData);
@@ -2544,7 +2544,7 @@ static int writeFile(sqlite3_context * pCtx,          /* Context to return bytes
 		LONGLONG intervals;
 		HANDLE hFile;
 		LPWSTR zUnicodeName;
-		extern LPWSTR sqlite3_win32_utf8_to_unicode(const char*);
+		extern LPWSTR sqlite3_win32_utf8_to_unicode(const char *);
 
 		GetSystemTime(&currentTime);
 		SystemTimeToFileTime(&currentTime, &lastAccess);
@@ -2613,7 +2613,7 @@ static void writefileFunc(sqlite3_context * context,
 		return;
 	}
 
-	zFile = (const char*)sqlite3_value_text(argv[0]);
+	zFile = (const char *)sqlite3_value_text(argv[0]);
 	if(zFile==0) return;
 	if(argc>=3) {
 		mode = (mode_t)sqlite3_value_int(argv[2]);
@@ -2973,13 +2973,13 @@ static int fsdirFilter(sqlite3_vtab_cursor * cur,
 	}
 
 	assert(argc==idxNum && (argc==1 || argc==2) );
-	zDir = (const char*)sqlite3_value_text(argv[0]);
+	zDir = (const char *)sqlite3_value_text(argv[0]);
 	if(zDir==0) {
 		fsdirSetErrmsg(pCur, "table function fsdir requires a non-NULL argument");
 		return SQLITE_ERROR;
 	}
 	if(argc==2) {
-		pCur->zBase = (const char*)sqlite3_value_text(argv[1]);
+		pCur->zBase = (const char *)sqlite3_value_text(argv[1]);
 	}
 	if(pCur->zBase) {
 		pCur->nBase = (int)strlen(pCur->zBase)+1;
@@ -3374,7 +3374,7 @@ static int completionNext(sqlite3_vtab_cursor * cur){
 				    const char * zSep = "";
 				    sqlite3_prepare_v2(pCur->db, "PRAGMA database_list", -1, &pS2, 0);
 				    while(sqlite3_step(pS2)==SQLITE_ROW) {
-					    const char * zDb = (const char*)sqlite3_column_text(pS2, 1);
+					    const char * zDb = (const char *)sqlite3_column_text(pS2, 1);
 					    zSql = sqlite3_mprintf(
 						    "%z%s"
 						    "SELECT name FROM \"%w\".sqlite_schema",
@@ -3398,7 +3398,7 @@ static int completionNext(sqlite3_vtab_cursor * cur){
 				    const char * zSep = "";
 				    sqlite3_prepare_v2(pCur->db, "PRAGMA database_list", -1, &pS2, 0);
 				    while(sqlite3_step(pS2)==SQLITE_ROW) {
-					    const char * zDb = (const char*)sqlite3_column_text(pS2, 1);
+					    const char * zDb = (const char *)sqlite3_column_text(pS2, 1);
 					    zSql = sqlite3_mprintf(
 						    "%z%s"
 						    "SELECT pti.name FROM \"%w\".sqlite_schema AS sm"
@@ -3425,7 +3425,7 @@ static int completionNext(sqlite3_vtab_cursor * cur){
 		else {
 			if(sqlite3_step(pCur->pStmt)==SQLITE_ROW) {
 				/* Extract the next row of content */
-				pCur->zCurrentRow = (const char*)sqlite3_column_text(pCur->pStmt, iCol);
+				pCur->zCurrentRow = (const char *)sqlite3_column_text(pCur->pStmt, iCol);
 				pCur->szRow = sqlite3_column_bytes(pCur->pStmt, iCol);
 			}
 			else {
@@ -6147,7 +6147,7 @@ static int re_match(ReCompiled * pRe, const unsigned char * zIn, int nIn){
 		unsigned char x = pRe->zInit[0];
 		while(in.i+pRe->nInit<=in.mx
 		 && (zIn[in.i]!=x ||
-		    strncmp((const char*)zIn+in.i, (const char*)pRe->zInit, pRe->nInit)!=0)
+		    strncmp((const char *)zIn+in.i, (const char *)pRe->zInit, pRe->nInit)!=0)
 		    ) {
 			in.i++;
 		}
@@ -6604,7 +6604,7 @@ static const char * re_compile(ReCompiled ** ppRe, const char * zIn, int noCase)
 	else {
 		re_append(pRe, RE_OP_ANYSTAR, 0);
 	}
-	pRe->sIn.z = (unsigned char*)zIn;
+	pRe->sIn.z = (unsigned char *)zIn;
 	pRe->sIn.i = 0;
 	pRe->sIn.mx = (int)strlen(zIn);
 	zErr = re_subcompile_re(pRe);
@@ -6681,7 +6681,7 @@ static void re_sql_func(sqlite3_context * context,
 	(void)argc; /* Unused */
 	pRe = sqlite3_get_auxdata(context, 0);
 	if(pRe==0) {
-		zPattern = (const char*)sqlite3_value_text(argv[0]);
+		zPattern = (const char *)sqlite3_value_text(argv[0]);
 		if(zPattern==0) return;
 		zErr = re_compile(&pRe, zPattern, sqlite3_user_data(context)!=0);
 		if(zErr) {
@@ -8016,7 +8016,7 @@ static int zipfileFilter(sqlite3_vtab_cursor * cur,
 		bInMemory = 1;
 	}
 	else {
-		zFile = (const char*)sqlite3_value_text(argv[0]);
+		zFile = (const char *)sqlite3_value_text(argv[0]);
 	}
 
 	if(0==pTab->pWriteFd && 0==bInMemory) {
@@ -8150,7 +8150,7 @@ static int zipfileGetMode(sqlite3_value * pVal,
     u32 * pMode,                  /* OUT: Mode value */
     char ** pzErr                 /* OUT: Error message */
     ){
-	const char * z = (const char*)sqlite3_value_text(pVal);
+	const char * z = (const char *)sqlite3_value_text(pVal);
 	u32 mode = 0;
 	if(z==0) {
 		mode = (bIsDir ? (S_IFDIR + 0755) : (S_IFREG + 0644));
@@ -8188,7 +8188,7 @@ parse_error:
 }
 
 /*
-** Both (const char*) arguments point to nul-terminated strings. Argument
+** Both (const char *) arguments point to nul-terminated strings. Argument
 ** nB is the value of strlen(zB). This function returns 0 if the strings are
 ** identical, ignoring any trailing '/' character in either path.  */
 static int zipfileComparePath(const char * zA, const char * zB, int nB){
@@ -8316,10 +8316,10 @@ static int zipfileUpdate(sqlite3_vtab * pVtab,
 
 	/* If this is a DELETE or UPDATE, find the archive entry to delete. */
 	if(sqlite3_value_type(apVal[0])!=SQLITE_NULL) {
-		const char * zDelete = (const char*)sqlite3_value_text(apVal[0]);
+		const char * zDelete = (const char *)sqlite3_value_text(apVal[0]);
 		int nDelete = (int)strlen(zDelete);
 		if(nVal>1) {
-			const char * zUpdate = (const char*)sqlite3_value_text(apVal[1]);
+			const char * zUpdate = (const char *)sqlite3_value_text(apVal[1]);
 			if(zUpdate && zipfileComparePath(zUpdate, zDelete, nDelete)!=0) {
 				bUpdate = 1;
 			}
@@ -8385,7 +8385,7 @@ static int zipfileUpdate(sqlite3_vtab * pVtab,
 		}
 
 		if(rc==SQLITE_OK) {
-			zPath = (const char*)sqlite3_value_text(apVal[2]);
+			zPath = (const char *)sqlite3_value_text(apVal[2]);
 			if(zPath==0) zPath = "";
 			nPath = (int)strlen(zPath);
 			mTime = zipfileGetTime(apVal[4]);
@@ -8398,7 +8398,7 @@ static int zipfileUpdate(sqlite3_vtab * pVtab,
 			** otherwise.  */
 			if(nPath<=0 || zPath[nPath-1]!='/') {
 				zFree = sqlite3_mprintf("%s/", zPath);
-				zPath = (const char*)zFree;
+				zPath = (const char *)zFree;
 				if(zFree==0) {
 					rc = SQLITE_NOMEM;
 					nPath = 0;
@@ -9951,7 +9951,7 @@ static int idxGetTableInfo(sqlite3 * db,                    /* Database connecti
 
 	rc = idxPrintfPrepareStmt(db, &p1, pzErrmsg, "PRAGMA table_xinfo=%Q", zTab);
 	while(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(p1)) {
-		const char * zCol = (const char*)sqlite3_column_text(p1, 1);
+		const char * zCol = (const char *)sqlite3_column_text(p1, 1);
 		nByte += 1 + STRLEN(zCol);
 		rc = sqlite3_table_column_metadata(
 			db, "main", zTab, zCol, 0, &zCol, 0, 0, 0
@@ -9975,7 +9975,7 @@ static int idxGetTableInfo(sqlite3 * db,                    /* Database connecti
 
 	nCol = 0;
 	while(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(p1)) {
-		const char * zCol = (const char*)sqlite3_column_text(p1, 1);
+		const char * zCol = (const char *)sqlite3_column_text(p1, 1);
 		int nCopy = STRLEN(zCol) + 1;
 		pNew->aCol[nCol].zName = pCsr;
 		pNew->aCol[nCol].iPk = (sqlite3_column_int(p1, 5)==1 && nPk==1);
@@ -10128,7 +10128,7 @@ static int idxFindCompatible(int * pRc,                       /* OUT: Error code
 		int bMatch = 1;
 		IdxConstraint * pT = pTail;
 		sqlite3_stmt * pInfo = 0;
-		const char * zIdx = (const char*)sqlite3_column_text(pIdxList, 1);
+		const char * zIdx = (const char *)sqlite3_column_text(pIdxList, 1);
 
 		/* Zero the IdxConstraint.bFlag values in the pEq list */
 		for(pIter = pEq; pIter; pIter = pIter->pLink) pIter->bFlag = 0;
@@ -10137,7 +10137,7 @@ static int idxFindCompatible(int * pRc,                       /* OUT: Error code
 		while(rc==SQLITE_OK && sqlite3_step(pInfo)==SQLITE_ROW) {
 			int iIdx = sqlite3_column_int(pInfo, 0);
 			int iCol = sqlite3_column_int(pInfo, 1);
-			const char * zColl = (const char*)sqlite3_column_text(pInfo, 4);
+			const char * zColl = (const char *)sqlite3_column_text(pInfo, 4);
 
 			if(iIdx<nEq) {
 				for(pIter = pEq; pIter; pIter = pIter->pLink) {
@@ -10392,7 +10392,7 @@ int idxFindIndexes(sqlite3expert * p,
 			/* int iId = sqlite3_column_int(pExplain, 0); */
 			/* int iParent = sqlite3_column_int(pExplain, 1); */
 			/* int iNotUsed = sqlite3_column_int(pExplain, 2); */
-			const char * zDetail = (const char*)sqlite3_column_text(pExplain, 3);
+			const char * zDetail = (const char *)sqlite3_column_text(pExplain, 3);
 			int nDetail;
 			int i;
 
@@ -10497,7 +10497,7 @@ static int idxProcessOneTrigger(sqlite3expert * p,
 	/* Create the table and its triggers in the temp schema */
 	rc = idxPrintfPrepareStmt(p->db, &pSelect, pzErr, zSql, zTab, zTab);
 	while(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pSelect)) {
-		const char * zCreate = (const char*)sqlite3_column_text(pSelect, 0);
+		const char * zCreate = (const char *)sqlite3_column_text(pSelect, 0);
 		rc = sqlite3_exec(p->dbv, zCreate, 0, 0, pzErr);
 	}
 	idxFinalize(&rc, pSelect);
@@ -10596,9 +10596,9 @@ static int idxCreateVtabSchema(sqlite3expert * p, char ** pzErrmsg){
 		"ORDER BY 4, 1"
 		);
 	while(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pSchema)) {
-		const char * zType = (const char*)sqlite3_column_text(pSchema, 0);
-		const char * zName = (const char*)sqlite3_column_text(pSchema, 1);
-		const char * zSql = (const char*)sqlite3_column_text(pSchema, 2);
+		const char * zType = (const char *)sqlite3_column_text(pSchema, 0);
+		const char * zName = (const char *)sqlite3_column_text(pSchema, 1);
+		const char * zSql = (const char *)sqlite3_column_text(pSchema, 2);
 
 		if(zType[0]=='v' || zType[1]=='r') {
 			rc = sqlite3_exec(p->dbv, zSql, 0, 0, pzErrmsg);
@@ -10789,8 +10789,8 @@ static int idxPopulateOneStat1(sqlite3expert * p,
 	sqlite3_bind_text(pIndexXInfo, 1, zIdx, -1, SQLITE_STATIC);
 	while(SQLITE_OK==rc && SQLITE_ROW==sqlite3_step(pIndexXInfo)) {
 		const char * zComma = zCols==0 ? "" : ", ";
-		const char * zName = (const char*)sqlite3_column_text(pIndexXInfo, 0);
-		const char * zColl = (const char*)sqlite3_column_text(pIndexXInfo, 1);
+		const char * zName = (const char *)sqlite3_column_text(pIndexXInfo, 0);
+		const char * zColl = (const char *)sqlite3_column_text(pIndexXInfo, 1);
 		zCols = idxAppendText(&rc, zCols,
 			"%sx.%Q IS rem(%d, x.%Q) COLLATE %s", zComma, zName, nCol, zName, zColl
 			);
@@ -10950,8 +10950,8 @@ static int idxPopulateStat1(sqlite3expert * p, char ** pzErr){
 
 	while(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pAllIndex)) {
 		i64 iRowid = sqlite3_column_int64(pAllIndex, 0);
-		const char * zTab = (const char*)sqlite3_column_text(pAllIndex, 1);
-		const char * zIdx = (const char*)sqlite3_column_text(pAllIndex, 2);
+		const char * zTab = (const char *)sqlite3_column_text(pAllIndex, 1);
+		const char * zIdx = (const char *)sqlite3_column_text(pAllIndex, 2);
 		if(p->iSample<100 && iPrev!=iRowid) {
 			samplectx.target = (double)p->iSample / 100.0;
 			samplectx.iTarget = p->iSample;
@@ -11023,7 +11023,7 @@ sqlite3expert * sqlite3_expert_new(sqlite3 * db, char ** pzErrmsg){
 			" AND sql NOT LIKE 'CREATE VIRTUAL %%'"
 			);
 		while(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pSql)) {
-			const char * zSql = (const char*)sqlite3_column_text(pSql, 0);
+			const char * zSql = (const char *)sqlite3_column_text(pSql, 0);
 			rc = sqlite3_exec(pNew->dbm, zSql, 0, 0, pzErrmsg);
 		}
 		idxFinalize(&rc, pSql);
@@ -11673,7 +11673,7 @@ static void dbdataValue(sqlite3_context * pCtx,
 			default: {
 			    int n = ((eType-12) / 2);
 			    if(eType % 2) {
-				    sqlite3_result_text(pCtx, (const char*)pData, n, SQLITE_TRANSIENT);
+				    sqlite3_result_text(pCtx, (const char *)pData, n, SQLITE_TRANSIENT);
 			    }
 			    else {
 				    sqlite3_result_blob(pCtx, pData, n, SQLITE_TRANSIENT);
@@ -11934,7 +11934,7 @@ static int dbdataFilter(sqlite3_vtab_cursor * pCursor,
 	dbdataResetCursor(pCsr);
 	assert(pCsr->iPgno==1);
 	if(idxNum & 0x01) {
-		zSchema = (const char*)sqlite3_value_text(argv[0]);
+		zSchema = (const char *)sqlite3_value_text(argv[0]);
 	}
 	if(idxNum & 0x02) {
 		pCsr->iPgno = sqlite3_value_int(argv[(idxNum & 0x01)]);
@@ -12360,7 +12360,7 @@ static void editFunc(sqlite3_context * context,
 	unsigned char * p = 0;
 
 	if(argc==2) {
-		zEditor = (const char*)sqlite3_value_text(argv[1]);
+		zEditor = (const char *)sqlite3_value_text(argv[1]);
 	}
 	else {
 		zEditor = getenv("VISUAL");
@@ -12398,7 +12398,7 @@ static void editFunc(sqlite3_context * context,
 		x = fwrite(sqlite3_value_blob(argv[0]), 1, (size_t)sz, f);
 	}
 	else {
-		const char * z = (const char*)sqlite3_value_text(argv[0]);
+		const char * z = (const char *)sqlite3_value_text(argv[0]);
 		/* Remember whether or not the value originally contained \r\n */
 		if(z && strstr(z, "\r\n")!=0) hasCRNL = 1;
 		x = fwrite(sqlite3_value_text(argv[0]), 1, (size_t)sz, f);
@@ -12460,7 +12460,7 @@ static void editFunc(sqlite3_context * context,
 			sz = j;
 			p[sz] = 0;
 		}
-		sqlite3_result_text64(context, (const char*)p, sz,
+		sqlite3_result_text64(context, (const char *)p, sz,
 		    sqlite3_free, SQLITE_UTF8);
 	}
 	p = 0;
@@ -12789,7 +12789,7 @@ static void output_csv(ShellState * p, const char * z, int bSep){
 		int i;
 		int nSep = strlen30(p->colSeparator);
 		for(i = 0; z[i]; i++) {
-			if(needCsvQuote[((unsigned char*)z)[i]]
+			if(needCsvQuote[((unsigned char *)z)[i]]
 			   || (z[i]==p->colSeparator[0] &&
 			    (nSep==1 || memcmp(z, p->colSeparator, nSep)==0))) {
 				i = 0;
@@ -13599,7 +13599,7 @@ static int run_table_dump_query(ShellState * p,           /* Query context */
 	rc = sqlite3_step(pSelect);
 	nResult = sqlite3_column_count(pSelect);
 	while(rc==SQLITE_ROW) {
-		z = (const char*)sqlite3_column_text(pSelect, 0);
+		z = (const char *)sqlite3_column_text(pSelect, 0);
 		utf8_printf(p->out, "%s", z);
 		for(i = 1; i<nResult; i++) {
 			utf8_printf(p->out, ",%s", sqlite3_column_text(pSelect, i));
@@ -13945,7 +13945,7 @@ static void explain_data_prepare(ShellState * p, sqlite3_stmt * pSql){
 	for(iOp = 0; SQLITE_ROW==sqlite3_step(pSql); iOp++) {
 		int i;
 		int iAddr = sqlite3_column_int(pSql, 0);
-		const char * zOp = (const char*)sqlite3_column_text(pSql, 1);
+		const char * zOp = (const char *)sqlite3_column_text(pSql, 1);
 
 		/* Set p2 to the P2 field of the current opcode. Then, assuming that
 		** p2 is an instruction address, set variable p2op to the index of that
@@ -14195,7 +14195,7 @@ static void exec_prepared_stmt_columnar(ShellState * p,                        /
 		}
 		nRow++;
 		for(i = 0; i<nColumn; i++) {
-			z = (const char*)sqlite3_column_text(pStmt, i);
+			z = (const char *)sqlite3_column_text(pStmt, i);
 			azData[nRow*nColumn + i] = z ? strdup(z) : 0;
 		}
 	} while((rc = sqlite3_step(pStmt))==SQLITE_ROW);
@@ -14341,7 +14341,7 @@ static void exec_prepared_stmt(ShellState * pArg,                               
 	if(SQLITE_ROW == rc) {
 		/* allocate space for col name ptr, value ptr, and type */
 		int nCol = sqlite3_column_count(pStmt);
-		void * pData = sqlite3_malloc64(3*nCol*sizeof(const char*) + 1);
+		void * pData = sqlite3_malloc64(3*nCol*sizeof(const char *) + 1);
 		if(!pData) {
 			rc = SQLITE_NOMEM;
 		}
@@ -14595,7 +14595,7 @@ static int shell_exec(ShellState * pArg,                         /* Pointer to S
 				rc = sqlite3_prepare_v2(db, zEQP, -1, &pExplain, 0);
 				if(rc==SQLITE_OK) {
 					while(sqlite3_step(pExplain)==SQLITE_ROW) {
-						const char * zEQPLine = (const char*)sqlite3_column_text(pExplain, 3);
+						const char * zEQPLine = (const char *)sqlite3_column_text(pExplain, 3);
 						int iEqpId = sqlite3_column_int(pExplain, 0);
 						int iParentId = sqlite3_column_int(pExplain, 1);
 						if(zEQPLine==0) zEQPLine = "";
@@ -14735,7 +14735,7 @@ static char ** tableColumnList(ShellState * p, const char * zTab){
 		if(sqlite3_column_int(pStmt, 5)) {
 			nPK++;
 			if(nPK==1
-			 && sqlite3_stricmp((const char*)sqlite3_column_text(pStmt, 2),
+			 && sqlite3_stricmp((const char *)sqlite3_column_text(pStmt, 2),
 			    "INTEGER")==0
 			    ) {
 				isIPK = 1;
@@ -15571,7 +15571,7 @@ static void shellIdQuote(sqlite3_context * context,
     int argc,
     sqlite3_value ** argv
     ){
-	const char * zName = (const char*)sqlite3_value_text(argv[0]);
+	const char * zName = (const char *)sqlite3_value_text(argv[0]);
 	UNUSED_PARAMETER(argc);
 	if(zName) {
 		char * z = sqlite3_mprintf("\"%w\"", zName);
@@ -15609,7 +15609,7 @@ static void shellEscapeCrnl(sqlite3_context * context,
     int argc,
     sqlite3_value ** argv
     ){
-	const char * zText = (const char*)sqlite3_value_text(argv[0]);
+	const char * zText = (const char *)sqlite3_value_text(argv[0]);
 	UNUSED_PARAMETER(argc);
 	if(zText[0]=='\'') {
 		int nText = sqlite3_value_bytes(argv[0]);
@@ -15800,7 +15800,7 @@ static void open_db(ShellState * p, int openFlags){
 			int nData = 0;
 			unsigned char * aData;
 			if(p->openMode==SHELL_OPEN_DESERIALIZE) {
-				aData = (unsigned char*)readFile(p->zDbFilename, &nData);
+				aData = (unsigned char *)readFile(p->zDbFilename, &nData);
 			}
 			else {
 				aData = readHexDb(p, &nData);
@@ -15849,7 +15849,7 @@ static char * readline_completion_generator(const char * text, int state){
 		sqlite3_free(zSql);
 	}
 	if(sqlite3_step(pStmt)==SQLITE_ROW) {
-		zRet = strdup((const char*)sqlite3_column_text(pStmt, 0));
+		zRet = strdup((const char *)sqlite3_column_text(pStmt, 0));
 	}
 	else {
 		sqlite3_finalize(pStmt);
@@ -15889,7 +15889,7 @@ static void linenoise_completion(const char * zLine, linenoiseCompletions * lc){
 	sqlite3_free(zSql);
 	sqlite3_exec(globalDb, "PRAGMA page_count", 0, 0, 0); /* Load the schema */
 	while(sqlite3_step(pStmt)==SQLITE_ROW) {
-		const char * zCompletion = (const char*)sqlite3_column_text(pStmt, 0);
+		const char * zCompletion = (const char *)sqlite3_column_text(pStmt, 0);
 		int nCompletion = sqlite3_column_bytes(pStmt, 0);
 		if(iStart+nCompletion < sizeof(zBuf)-1) {
 			memcpy(zBuf+iStart, zCompletion, nCompletion+1);
@@ -16059,8 +16059,8 @@ static int sql_trace_callback(unsigned mType,         /* The trace type */
 		utf8_printf(p->traceOut, "-- closing database connection\n");
 		return 0;
 	}
-	if(mType!=SQLITE_TRACE_ROW && ((const char*)pX)[0]=='-') {
-		zSql = (const char*)pX;
+	if(mType!=SQLITE_TRACE_ROW && ((const char *)pX)[0]=='-') {
+		zSql = (const char *)pX;
 	}
 	else {
 		pStmt = (sqlite3_stmt*)pP;
@@ -16344,7 +16344,7 @@ static void tryToCloneData(ShellState * p,
 				    }
 					case SQLITE_TEXT: {
 					    sqlite3_bind_text(pInsert, i+1,
-						(const char*)sqlite3_column_text(pQuery, i),
+						(const char *)sqlite3_column_text(pQuery, i),
 						-1, SQLITE_STATIC);
 					    break;
 				    }
@@ -16418,14 +16418,14 @@ static void tryToCloneSchema(ShellState * p,
 		zName = sqlite3_column_text(pQuery, 0);
 		zSql = sqlite3_column_text(pQuery, 1);
 		printf("%s... ", zName); fflush(stdout);
-		sqlite3_exec(newDb, (const char*)zSql, 0, 0, &zErrMsg);
+		sqlite3_exec(newDb, (const char *)zSql, 0, 0, &zErrMsg);
 		if(zErrMsg) {
 			utf8_printf(stderr, "Error: %s\nSQL: [%s]\n", zErrMsg, zSql);
 			sqlite3_free(zErrMsg);
 			zErrMsg = 0;
 		}
 		if(xForEach) {
-			xForEach(p, newDb, (const char*)zName);
+			xForEach(p, newDb, (const char *)zName);
 		}
 		printf("done\n");
 	}
@@ -16445,14 +16445,14 @@ static void tryToCloneSchema(ShellState * p,
 			zName = sqlite3_column_text(pQuery, 0);
 			zSql = sqlite3_column_text(pQuery, 1);
 			printf("%s... ", zName); fflush(stdout);
-			sqlite3_exec(newDb, (const char*)zSql, 0, 0, &zErrMsg);
+			sqlite3_exec(newDb, (const char *)zSql, 0, 0, &zErrMsg);
 			if(zErrMsg) {
 				utf8_printf(stderr, "Error: %s\nSQL: [%s]\n", zErrMsg, zSql);
 				sqlite3_free(zErrMsg);
 				zErrMsg = 0;
 			}
 			if(xForEach) {
-				xForEach(p, newDb, (const char*)zName);
+				xForEach(p, newDb, (const char *)zName);
 			}
 			printf("done\n");
 		}
@@ -16872,10 +16872,10 @@ static void shellFkeyCollateClause(sqlite3_context * pCtx,
 	int rc;
 
 	assert(nVal==4);
-	zParent = (const char*)sqlite3_value_text(apVal[0]);
-	zParentCol = (const char*)sqlite3_value_text(apVal[1]);
-	zChild = (const char*)sqlite3_value_text(apVal[2]);
-	zChildCol = (const char*)sqlite3_value_text(apVal[3]);
+	zParent = (const char *)sqlite3_value_text(apVal[0]);
+	zParentCol = (const char *)sqlite3_value_text(apVal[1]);
+	zChild = (const char *)sqlite3_value_text(apVal[2]);
+	zChildCol = (const char *)sqlite3_value_text(apVal[3]);
 
 	sqlite3_result_text(pCtx, "", -1, SQLITE_STATIC);
 	rc = sqlite3_table_column_metadata(
@@ -17009,17 +17009,17 @@ static int lintFkeyIndexes(ShellState * pState,             /* Current shell too
 		while(SQLITE_ROW==sqlite3_step(pSql)) {
 			int res = -1;
 			sqlite3_stmt * pExplain = 0;
-			const char * zEQP = (const char*)sqlite3_column_text(pSql, 0);
-			const char * zGlob = (const char*)sqlite3_column_text(pSql, 1);
-			const char * zFrom = (const char*)sqlite3_column_text(pSql, 2);
-			const char * zTarget = (const char*)sqlite3_column_text(pSql, 3);
-			const char * zCI = (const char*)sqlite3_column_text(pSql, 4);
-			const char * zParent = (const char*)sqlite3_column_text(pSql, 5);
+			const char * zEQP = (const char *)sqlite3_column_text(pSql, 0);
+			const char * zGlob = (const char *)sqlite3_column_text(pSql, 1);
+			const char * zFrom = (const char *)sqlite3_column_text(pSql, 2);
+			const char * zTarget = (const char *)sqlite3_column_text(pSql, 3);
+			const char * zCI = (const char *)sqlite3_column_text(pSql, 4);
+			const char * zParent = (const char *)sqlite3_column_text(pSql, 5);
 
 			rc = sqlite3_prepare_v2(db, zEQP, -1, &pExplain, 0);
 			if(rc!=SQLITE_OK) break;
 			if(SQLITE_ROW==sqlite3_step(pExplain)) {
-				const char * zPlan = (const char*)sqlite3_column_text(pExplain, 3);
+				const char * zPlan = (const char *)sqlite3_column_text(pExplain, 3);
 				res = (
 					0==sqlite3_strglob(zGlob, zPlan)
 					|| 0==sqlite3_strglob(zGlobIPK, zPlan)
@@ -18085,7 +18085,7 @@ static RecoverTable * recoverNewTable(int * pRc,                       /* IN/OUT
 				    );
 				if(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pPkFinder)) {
 					pTab->iPk = sqlite3_column_int(pPkFinder, 0);
-					zPk = (const char*)sqlite3_column_text(pPkFinder, 1);
+					zPk = (const char *)sqlite3_column_text(pPkFinder, 1);
 				}
 			}
 
@@ -18109,7 +18109,7 @@ static RecoverTable * recoverNewTable(int * pRc,                       /* IN/OUT
 			    zName
 			    );
 			while(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pStmt)) {
-				const char * zText = (const char*)sqlite3_column_text(pStmt, 0);
+				const char * zText = (const char *)sqlite3_column_text(pStmt, 0);
 				pTab->azlCol[i] = shellMPrintf(&rc, "%s%s", pTab->azlCol[0], zText);
 				i++;
 			}
@@ -18162,14 +18162,14 @@ static RecoverTable * recoverFindTable(ShellState * pState,             /* Shell
 	    "SELECT type, name, sql FROM recovery.schema WHERE rootpage=%d", iRoot
 	    );
 	while(*pRc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pStmt)) {
-		const char * zType = (const char*)sqlite3_column_text(pStmt, 0);
+		const char * zType = (const char *)sqlite3_column_text(pStmt, 0);
 		if(bIntkey==0 && sqlite3_stricmp(zType, "index")==0) {
 			bNoop = 1;
 			break;
 		}
 		if(sqlite3_stricmp(zType, "table")==0) {
-			zName = (const char*)sqlite3_column_text(pStmt, 1);
-			zSql = (const char*)sqlite3_column_text(pStmt, 2);
+			zName = (const char *)sqlite3_column_text(pStmt, 1);
+			zSql = (const char *)sqlite3_column_text(pStmt, 2);
 			pRet = recoverNewTable(pRc, zName, zSql, bIntkey, nCol);
 			break;
 		}
@@ -18424,7 +18424,7 @@ static int recoverDatabaseCmd(ShellState * pState, int nArg, char ** azArg){
 		    "WHERE type='table' AND sql LIKE 'create table%'", &pStmt
 		    );
 		while(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pStmt)) {
-			const char * zCreateTable = (const char*)sqlite3_column_text(pStmt, 0);
+			const char * zCreateTable = (const char *)sqlite3_column_text(pStmt, 0);
 			raw_printf(pState->out, "CREATE TABLE IF NOT EXISTS %s;\n",
 			    &zCreateTable[12]
 			    );
@@ -18500,7 +18500,7 @@ static int recoverDatabaseCmd(ShellState * pState, int nArg, char ** azArg){
 			while(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pCells)) {
 				int nField = sqlite3_column_int(pCells, 0);
 				int iMin = sqlite3_column_int(pCells, 2);
-				const char * zVal = (const char*)sqlite3_column_text(pCells, 1);
+				const char * zVal = (const char *)sqlite3_column_text(pCells, 1);
 
 				RecoverTable * pTab2 = pTab;
 				if(pTab!=pOrphan && (iMin<0)!=bIntkey) {
@@ -18543,9 +18543,9 @@ static int recoverDatabaseCmd(ShellState * pState, int nArg, char ** azArg){
 		    "WHERE sql NOT LIKE 'create table%'", &pStmt
 		    );
 		while(rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pStmt)) {
-			const char * zSql = (const char*)sqlite3_column_text(pStmt, 0);
+			const char * zSql = (const char *)sqlite3_column_text(pStmt, 0);
 			if(sqlite3_strnicmp(zSql, "create virt", 11)==0) {
-				const char * zName = (const char*)sqlite3_column_text(pStmt, 1);
+				const char * zName = (const char *)sqlite3_column_text(pStmt, 1);
 				char * zPrint = shellMPrintf(&rc,
 					"INSERT INTO sqlite_schema VALUES('table', %Q, %Q, 0, %Q)",
 					zName, zName, zSql
@@ -18832,8 +18832,8 @@ static int do_meta_command(char * zLine, ShellState * p){
 		}
 		else {
 			while(sqlite3_step(pStmt)==SQLITE_ROW) {
-				const char * zSchema = (const char*)sqlite3_column_text(pStmt, 1);
-				const char * zFile = (const char*)sqlite3_column_text(pStmt, 2);
+				const char * zSchema = (const char *)sqlite3_column_text(pStmt, 1);
+				const char * zFile = (const char *)sqlite3_column_text(pStmt, 2);
 				azName = (char **)sqlite3_realloc(azName, (nName+1)*2*sizeof(char *));
 				if(azName==0) {
 					shell_out_of_memory(); /* Does not return */
@@ -19665,7 +19665,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 		i = 0;
 		while(sqlite3_step(pStmt)==SQLITE_ROW) {
 			char zLabel[20];
-			const char * zCol = (const char*)sqlite3_column_text(pStmt, 2);
+			const char * zCol = (const char *)sqlite3_column_text(pStmt, 2);
 			i++;
 			if(zCol==0) {
 				if(sqlite3_column_int(pStmt, 1)==-1) {
@@ -20514,7 +20514,7 @@ parameter_syntax_error:
 			appendText(&sSelect, "SELECT sql FROM", 0);
 			iSchema = 0;
 			while(sqlite3_step(pStmt)==SQLITE_ROW) {
-				const char * zDb = (const char*)sqlite3_column_text(pStmt, 0);
+				const char * zDb = (const char *)sqlite3_column_text(pStmt, 0);
 				char zScNum[30];
 				sqlite3_snprintf(sizeof(zScNum), zScNum, "%d", ++iSchema);
 				appendText(&sSelect, zDiv, 0);
@@ -20882,9 +20882,9 @@ session_syntax_error:
 			}
 			for(i = 1; sqlite3_step(pStmt)==SQLITE_ROW; i++) {
 				int tno = sqlite3_column_int(pStmt, 0);
-				const char * zOp = (const char*)sqlite3_column_text(pStmt, 1);
-				const char * zSql = (const char*)sqlite3_column_text(pStmt, 2);
-				const char * zAns = (const char*)sqlite3_column_text(pStmt, 3);
+				const char * zOp = (const char *)sqlite3_column_text(pStmt, 1);
+				const char * zSql = (const char *)sqlite3_column_text(pStmt, 2);
+				const char * zAns = (const char *)sqlite3_column_text(pStmt, 3);
 
 				k = 0;
 				if(bVerbose>0) {
@@ -21009,7 +21009,7 @@ session_syntax_error:
 		appendText(&sSql, "WITH [sha3sum$query](a,b) AS(", 0);
 		zSep = "VALUES(";
 		while(SQLITE_ROW==sqlite3_step(pStmt)) {
-			const char * zTab = (const char*)sqlite3_column_text(pStmt, 0);
+			const char * zTab = (const char *)sqlite3_column_text(pStmt, 0);
 			if(zLike && sqlite3_strlike(zLike, zTab, 0)!=0) continue;
 			if(strncmp(zTab, "sqlite_", 7)!=0) {
 				appendText(&sQuery, "SELECT * FROM ", 0);
@@ -21179,7 +21179,7 @@ session_syntax_error:
 			goto meta_command_exit;
 		}
 		for(ii = 0; sqlite3_step(pStmt)==SQLITE_ROW; ii++) {
-			const char * zDbName = (const char*)sqlite3_column_text(pStmt, 1);
+			const char * zDbName = (const char *)sqlite3_column_text(pStmt, 1);
 			if(zDbName==0) continue;
 			if(s.z && s.z[0]) appendText(&s, " UNION ALL ", 0);
 			if(sqlite3_stricmp(zDbName, "main")==0) {

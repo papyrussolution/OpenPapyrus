@@ -322,7 +322,7 @@ PTA * pixSearchBinaryMaze(PIX     * pixs,
 	PIX * pixm; /* for bookkeeping, to indicate pixels already visited */
 	PIX * pixp; /* for bookkeeping, to indicate direction to parent */
 	L_QUEUE   * lq;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 

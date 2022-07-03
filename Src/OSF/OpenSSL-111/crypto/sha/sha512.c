@@ -43,7 +43,6 @@
  * inappropriate for platforms which don't support it, most notably
  * 16-bit platforms.
  */
-//#include <openssl/crypto.h>
 #include <openssl/sha.h>
 #include <openssl/opensslv.h>
 #include "internal/cryptlib.h"

@@ -260,7 +260,7 @@ U_CAPI int32_t U_EXPORT2 ubrk_swap(const UDataSwapper * ds, const void * inData,
 	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<-1 || (length>0 && outData==NULL)) {
+	if(!ds || !inData || length<-1 || (length>0 && outData==NULL)) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

@@ -9,10 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/x509.h>
-//#include <openssl/ec.h>
 #include <openssl/rand.h>
-//#include <asn1_int.h>
-//#include <evp_int.h>
 #include "ec_lcl.h"
 #include <curve448_lcl.h>
 

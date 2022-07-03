@@ -12,7 +12,6 @@
 #include <openssl/err.h>
 #include <openssl/bn.h>
 #include <openssl/objects.h>
-//#include <openssl/ec.h>
 #include "ec_lcl.h"
 
 int ossl_ecdh_compute_key(uchar ** psec, size_t * pseclen, const EC_POINT * pub_key, const EC_KEY * ecdh)

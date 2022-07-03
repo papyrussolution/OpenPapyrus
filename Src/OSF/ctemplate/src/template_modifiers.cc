@@ -735,8 +735,8 @@ void PrefixLine::Modify(const char* in, size_t inlen,
     const PerExpandData*,
     ExpandEmitter* out, const string& arg) const {
 	while(inlen > 0) {
-		const char* nl = (const char*)memchr(in, '\n', inlen);
-		const char* cr = (const char*)memchr(in, '\r', nl ? nl - in : inlen);
+		const char* nl = (const char *)memchr(in, '\n', inlen);
+		const char* cr = (const char *)memchr(in, '\r', nl ? nl - in : inlen);
 		size_t linelen;
 		if(nl == NULL && cr == NULL) {
 			// We're at the last line

@@ -111,12 +111,9 @@ DataHeader dh = {
 
 // Forward declaration for function for reading source files.
 static const char * readFile(const char * fileName, int32_t * len);
-
-//----------------------------------------------------------------------------
 //
 //  main      for gencfu
 //
-//----------------------------------------------------------------------------
 int  main(int argc, char ** argv) 
 {
 	UErrorCode status = U_ZERO_ERROR;

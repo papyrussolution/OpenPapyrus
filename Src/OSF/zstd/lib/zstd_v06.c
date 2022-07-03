@@ -773,8 +773,8 @@ MEM_STATIC size_t BITv06_initDStream(BITv06_DStream_t* bitD, const void* srcBuff
 		memzero(bitD, sizeof(*bitD)); return ERROR(srcSize_wrong);
 	}
 	if(srcSize >=  sizeof(bitD->bitContainer)) {/* normal case */
-		bitD->start = (const char*)srcBuffer;
-		bitD->ptr   = (const char*)srcBuffer + srcSize - sizeof(bitD->bitContainer);
+		bitD->start = (const char *)srcBuffer;
+		bitD->ptr   = (const char *)srcBuffer + srcSize - sizeof(bitD->bitContainer);
 		bitD->bitContainer = MEM_readLEST(bitD->ptr);
 		{ 
 			BYTE const lastByte = ((const BYTE *)srcBuffer)[srcSize-1];
@@ -784,7 +784,7 @@ MEM_STATIC size_t BITv06_initDStream(BITv06_DStream_t* bitD, const void* srcBuff
 		}
 	}
 	else {
-		bitD->start = (const char*)srcBuffer;
+		bitD->start = (const char *)srcBuffer;
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize) {
@@ -3216,7 +3216,7 @@ static void ZSTDv06_checkContinuity(ZSTDv06_DCtx* dctx, const void* dst)
 {
 	if(dst != dctx->previousDstEnd) { /* not contiguous */
 		dctx->dictEnd = dctx->previousDstEnd;
-		dctx->vBase = (const char*)dst - ((const char*)(dctx->previousDstEnd) - (const char*)(dctx->base));
+		dctx->vBase = (const char *)dst - ((const char *)(dctx->previousDstEnd) - (const char *)(dctx->base));
 		dctx->base = dst;
 		dctx->previousDstEnd = dst;
 	}
@@ -3486,9 +3486,9 @@ size_t ZSTDv06_decompressContinue(ZSTDv06_DCtx* dctx, void* dst, size_t dstCapac
 static void ZSTDv06_refDictContent(ZSTDv06_DCtx* dctx, const void* dict, size_t dictSize)
 {
 	dctx->dictEnd = dctx->previousDstEnd;
-	dctx->vBase = (const char*)dict - ((const char*)(dctx->previousDstEnd) - (const char*)(dctx->base));
+	dctx->vBase = (const char *)dict - ((const char *)(dctx->previousDstEnd) - (const char *)(dctx->base));
 	dctx->base = dict;
-	dctx->previousDstEnd = (const char*)dict + dictSize;
+	dctx->previousDstEnd = (const char *)dict + dictSize;
 }
 
 static size_t ZSTDv06_loadEntropy(ZSTDv06_DCtx* dctx, const void* dict, size_t dictSize)
@@ -3497,7 +3497,7 @@ static size_t ZSTDv06_loadEntropy(ZSTDv06_DCtx* dctx, const void* dict, size_t d
 	size_t hSize = HUFv06_readDTableX4(dctx->hufTableX4, dict, dictSize);
 	if(HUFv06_isError(hSize)) 
 		return ERROR(dictionary_corrupted);
-	dict = (const char*)dict + hSize;
+	dict = (const char *)dict + hSize;
 	dictSize -= hSize;
 	{   
 		short offcodeNCount[MaxOff+1];
@@ -3512,7 +3512,7 @@ static size_t ZSTDv06_loadEntropy(ZSTDv06_DCtx* dctx, const void* dict, size_t d
 			if(FSEv06_isError(errorCode)) 
 				return ERROR(dictionary_corrupted); 
 		}
-	    dict = (const char*)dict + offcodeHeaderSize;
+	    dict = (const char *)dict + offcodeHeaderSize;
 	    dictSize -= offcodeHeaderSize;
 	}
 	{   
@@ -3528,7 +3528,7 @@ static size_t ZSTDv06_loadEntropy(ZSTDv06_DCtx* dctx, const void* dict, size_t d
 			if(FSEv06_isError(errorCode)) 
 				return ERROR(dictionary_corrupted); 
 		}
-	    dict = (const char*)dict + matchlengthHeaderSize;
+	    dict = (const char *)dict + matchlengthHeaderSize;
 	    dictSize -= matchlengthHeaderSize;
 	}
 	{   
@@ -3559,13 +3559,13 @@ static size_t ZSTDv06_decompress_insertDictionary(ZSTDv06_DCtx* dctx, const void
 		return 0;
 	}
 	/* load entropy tables */
-	dict = (const char*)dict + 4;
+	dict = (const char *)dict + 4;
 	dictSize -= 4;
 	eSize = ZSTDv06_loadEntropy(dctx, dict, dictSize);
 	if(ZSTDv06_isError(eSize)) return ERROR(dictionary_corrupted);
 
 	/* reference dictionary content */
-	dict = (const char*)dict + eSize;
+	dict = (const char *)dict + eSize;
 	dictSize -= eSize;
 	ZSTDv06_refDictContent(dctx, dict, dictSize);
 
@@ -3706,7 +3706,7 @@ MEM_STATIC size_t ZBUFFv06_limitCopy(void* dst, size_t dstCapacity, const void* 
 
 size_t ZBUFFv06_decompressContinue(ZBUFFv06_DCtx* zbd, void* dst, size_t* dstCapacityPtr, const void* src, size_t* srcSizePtr)
 {
-	const char* const istart = (const char*)src;
+	const char* const istart = (const char *)src;
 	const char* const iend = istart + *srcSizePtr;
 	const char* ip = istart;
 	char* const ostart = (char *)dst;

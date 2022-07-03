@@ -27,10 +27,7 @@
 #else
     #include <sys/time.h>
 #endif
-#include <openssl/bn.h>
-#include <openssl/sha.h>
-#include <openssl/crypto.h>
-#include <openssl/rand.h>
+#include <slib-ossl.h>
 
 // @debug #define SRP_NETWORK_DEBUG 
 

@@ -28,7 +28,7 @@ EM_JS(bool, HaveOffsetConverter, (),
 namespace absl {
 	ABSL_NAMESPACE_BEGIN
 
-	void InitializeSymbolizer(const char*) {
+	void InitializeSymbolizer(const char *) {
 		if(!HaveOffsetConverter()) {
 			ABSL_RAW_LOG(INFO,
 			    "Symbolization unavailable. Rebuild with -sWASM=1 "

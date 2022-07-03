@@ -3372,7 +3372,7 @@ int xmlTextReaderRelaxNGSetSchema(xmlTextReader * reader, xmlRelaxNGPtr schema)
 	if(schema == NULL) {
 		xmlRelaxNGFree(reader->rngSchemas);
 		reader->rngSchemas = NULL;
-		if(reader->rngValidCtxt != NULL) {
+		if(reader->rngValidCtxt) {
 			if(!reader->rngPreserveCtxt)
 				xmlRelaxNGFreeValidCtxt(reader->rngValidCtxt);
 			reader->rngValidCtxt = NULL;
@@ -3384,7 +3384,7 @@ int xmlTextReaderRelaxNGSetSchema(xmlTextReader * reader, xmlRelaxNGPtr schema)
 		return -1;
 	xmlRelaxNGFree(reader->rngSchemas);
 	reader->rngSchemas = NULL;
-	if(reader->rngValidCtxt != NULL) {
+	if(reader->rngValidCtxt) {
 		if(!reader->rngPreserveCtxt)
 			xmlRelaxNGFreeValidCtxt(reader->rngValidCtxt);
 		reader->rngValidCtxt = NULL;
@@ -3393,10 +3393,10 @@ int xmlTextReaderRelaxNGSetSchema(xmlTextReader * reader, xmlRelaxNGPtr schema)
 	reader->rngValidCtxt = xmlRelaxNGNewValidCtxt(schema);
 	if(reader->rngValidCtxt == NULL)
 		return -1;
-	if(reader->errorFunc != NULL) {
+	if(reader->errorFunc) {
 		xmlRelaxNGSetValidErrors(reader->rngValidCtxt, xmlTextReaderValidityErrorRelay, xmlTextReaderValidityWarningRelay, reader);
 	}
-	if(reader->sErrorFunc != NULL) {
+	if(reader->sErrorFunc) {
 		xmlRelaxNGSetValidStructuredErrors(reader->rngValidCtxt, xmlTextReaderValidityStructuredRelay, reader);
 	}
 	reader->rngValidErrors = 0;
@@ -3431,7 +3431,7 @@ static int xmlTextReaderLocator(void * ctx, const char ** file, unsigned long * 
 	if(reader->P_Node) {
 		long res;
 		int ret = 0;
-		if(line != NULL) {
+		if(line) {
 			res = xmlGetLineNo(reader->P_Node);
 			if(res > 0)
 				*line = (ulong)res;
@@ -3470,13 +3470,13 @@ int xmlTextReaderSetSchema(xmlTextReader * reader, xmlSchemaPtr schema)
 	else if(schema == NULL) {
 		xmlSchemaSAXUnplug(reader->xsdPlug);
 		reader->xsdPlug = NULL;
-		if(reader->xsdValidCtxt != NULL) {
+		if(reader->xsdValidCtxt) {
 			if(!reader->xsdPreserveCtxt)
 				xmlSchemaFreeValidCtxt(reader->xsdValidCtxt);
 			reader->xsdValidCtxt = NULL;
 		}
 		reader->xsdPreserveCtxt = 0;
-		if(reader->xsdSchemas != NULL) {
+		if(reader->xsdSchemas) {
 			xmlSchemaFree(reader->xsdSchemas);
 			reader->xsdSchemas = NULL;
 		}
@@ -3546,7 +3546,7 @@ static int xmlTextReaderRelaxNGValidateInternal(xmlTextReader * reader, const ch
 	if((rng || ctxt) && ((reader->mode != XML_TEXTREADER_MODE_INITIAL) || (reader->ctxt == NULL)))
 		return -1;
 	/* Cleanup previous validation stuff. */
-	if(reader->rngValidCtxt != NULL) {
+	if(reader->rngValidCtxt) {
 		if(!reader->rngPreserveCtxt)
 			xmlRelaxNGFreeValidCtxt(reader->rngValidCtxt);
 		reader->rngValidCtxt = NULL;
@@ -3588,10 +3588,10 @@ static int xmlTextReaderRelaxNGValidateInternal(xmlTextReader * reader, const ch
 	 * @todo In case the user provides the validation context we
 	 *	could make this redirection optional.
 	 */
-	if(reader->errorFunc != NULL) {
+	if(reader->errorFunc) {
 		xmlRelaxNGSetValidErrors(reader->rngValidCtxt, xmlTextReaderValidityErrorRelay, xmlTextReaderValidityWarningRelay, reader);
 	}
-	if(reader->sErrorFunc != NULL) {
+	if(reader->sErrorFunc) {
 		xmlRelaxNGSetValidStructuredErrors(reader->rngValidCtxt, xmlTextReaderValidityStructuredRelay, reader);
 	}
 	reader->rngValidErrors = 0;
@@ -3620,29 +3620,29 @@ static int xmlTextReaderSchemaValidateInternal(xmlTextReader * reader, const cha
 		return -1;
 	if(xsd && ctxt)
 		return -1;
-	if(((xsd != NULL) || (ctxt)) && ((reader->mode != XML_TEXTREADER_MODE_INITIAL) || (reader->ctxt == NULL)))
+	if((xsd || ctxt) && ((reader->mode != XML_TEXTREADER_MODE_INITIAL) || (reader->ctxt == NULL)))
 		return -1;
 	// Cleanup previous validation stuff
 	xmlSchemaSAXUnplug(reader->xsdPlug);
 	reader->xsdPlug = NULL;
-	if(reader->xsdValidCtxt != NULL) {
+	if(reader->xsdValidCtxt) {
 		if(!reader->xsdPreserveCtxt)
 			xmlSchemaFreeValidCtxt(reader->xsdValidCtxt);
 		reader->xsdValidCtxt = NULL;
 	}
 	reader->xsdPreserveCtxt = 0;
-	if(reader->xsdSchemas != NULL) {
+	if(reader->xsdSchemas) {
 		xmlSchemaFree(reader->xsdSchemas);
 		reader->xsdSchemas = NULL;
 	}
 	if((xsd == NULL) && (ctxt == NULL)) {
 		return 0; // We just want to deactivate the validation, so get out
 	}
-	if(xsd != NULL) {
+	if(xsd) {
 		xmlSchemaParserCtxtPtr pctxt;
 		/* Parse the schema and create validation environment. */
 		pctxt = xmlSchemaNewParserCtxt(xsd);
-		if(reader->errorFunc != NULL) {
+		if(reader->errorFunc) {
 			xmlSchemaSetParserErrors(pctxt, xmlTextReaderValidityErrorRelay, xmlTextReaderValidityWarningRelay, reader);
 		}
 		reader->xsdSchemas = xmlSchemaParse(pctxt);
@@ -4192,7 +4192,7 @@ else {
 	reader->mode = XML_TEXTREADER_MODE_INITIAL;
 	reader->P_Node = NULL;
 	reader->curnode = NULL;
-	if(input != NULL) {
+	if(input) {
 		if(xmlBufUse(reader->input->buffer) < 4) {
 			xmlParserInputBufferRead(input, 4);
 		}
@@ -4274,7 +4274,7 @@ else {
 	}
 	while(reader->patternNr > 0) {
 		reader->patternNr--;
-		if(reader->patternTab[reader->patternNr] != NULL) {
+		if(reader->patternTab[reader->patternNr]) {
 			xmlFreePattern(reader->patternTab[reader->patternNr]);
 			reader->patternTab[reader->patternNr] = NULL;
 		}

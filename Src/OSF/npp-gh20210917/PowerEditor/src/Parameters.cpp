@@ -2554,14 +2554,14 @@ bool NppParameters::isCloudPathChanged() const
 		return false;
 	else if(_initialCloudChoice.size() - _nppGUI._cloudPath.size() == 1) {
 		TCHAR c = _initialCloudChoice.at(_initialCloudChoice.size()-1);
-		if(c == '\\' || c == '/') {
+		if(isdirslash(c)) {
 			if(_initialCloudChoice.find(_nppGUI._cloudPath) == 0)
 				return false;
 		}
 	}
 	else if(_nppGUI._cloudPath.size() - _initialCloudChoice.size() == 1) {
 		TCHAR c = _nppGUI._cloudPath.at(_nppGUI._cloudPath.size() - 1);
-		if(c == '\\' || c == '/') {
+		if(isdirslash(c)) {
 			if(_nppGUI._cloudPath.find(_initialCloudChoice) == 0)
 				return false;
 		}

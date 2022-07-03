@@ -10,9 +10,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_inverter.h"
-#include "glass_postlist.h"
-#include "glass_positionlist.h"
 
 using namespace std;
 

@@ -1925,7 +1925,7 @@ static int initYCbCrConversion(TIFFRGBAImage* img)
 static tileContigRoutine initCIELabConversion(TIFFRGBAImage* img)
 {
 	static const char module[] = __FUNCTION__;
-	float   * whitePoint;
+	float * whitePoint;
 	float refWhite[3];
 	TIFFGetFieldDefaulted(img->tif, TIFFTAG_WHITEPOINT, &whitePoint);
 	if(whitePoint[1] == 0.0f) {

@@ -1798,7 +1798,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		DISPLAYLEVEL(3, "test%3i : compress with flat dictionary : ", testNb++);
 		cSize = 0;
 		CHECKPLUS(r,
-		    ZSTD_compressEnd(ctxOrig, compressedBuffer, compressedBufferSize, (const char*)CNBuffer + dictSize,
+		    ZSTD_compressEnd(ctxOrig, compressedBuffer, compressedBufferSize, (const char *)CNBuffer + dictSize,
 		    CNBuffSize - dictSize), cSize += r);
 		DISPLAYLEVEL(3, "OK (%u bytes : %.2f%%)\n", (uint)cSize, (double)cSize/CNBuffSize*100);
 		DISPLAYLEVEL(3, "test%3i : frame built with flat dictionary should be decompressible : ", testNb++);
@@ -1809,7 +1809,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		{
 			size_t const cSizeOrig = cSize;
 			cSize = 0;
-			CHECKPLUS(r, ZSTD_compressEnd(ctxDuplicated, compressedBuffer, compressedBufferSize, (const char*)CNBuffer + dictSize, CNBuffSize - dictSize), cSize += r);
+			CHECKPLUS(r, ZSTD_compressEnd(ctxDuplicated, compressedBuffer, compressedBufferSize, (const char *)CNBuffer + dictSize, CNBuffSize - dictSize), cSize += r);
 			if(cSize != cSizeOrig)
 				goto _output_error;   /* should be identical ==> same size */
 		}
@@ -1848,7 +1848,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 			size_t const testSize = CNBuffSize / 3;
 		    CHECK(ZSTD_compressBegin(ctxOrig, ZSTD_defaultCLevel()) );
 		    CHECK(ZSTD_copyCCtx(ctxDuplicated, ctxOrig, testSize) );
-		    CHECK_VAR(cSize, ZSTD_compressEnd(ctxDuplicated, compressedBuffer, ZSTD_compressBound(testSize), (const char*)CNBuffer + dictSize, testSize));
+		    CHECK_VAR(cSize, ZSTD_compressEnd(ctxDuplicated, compressedBuffer, ZSTD_compressBound(testSize), (const char *)CNBuffer + dictSize, testSize));
 		    {   
 				ZSTD_frameHeader zfh;
 				if(ZSTD_getFrameHeader(&zfh, compressedBuffer, cSize)) 
@@ -1864,8 +1864,8 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		if((int)(compressibility * 100 + 0.1) == FUZ_compressibility_default) { /* test only valid with known input */
 			size_t const flatdictSize = SKILOBYTE(22);
 			size_t const contentSize = SKILOBYTE(9);
-			const void * const dict = (const char*)CNBuffer;
-			const void * const contentStart = (const char*)dict + flatdictSize;
+			const void * const dict = (const char *)CNBuffer;
+			const void * const contentStart = (const char *)dict + flatdictSize;
 			/* These upper bounds are generally within a few bytes of the compressed size */
 			size_t target_nodict_cSize[22+1] = { 3840, 3770, 3870, 3830, 3770, 3770, 3770, 3770, 3750, 3750, 3742, 3675, 3674, 3665, 3664, 3663, 3662, 3661, 3660, 3660, 3660, 3660, 3660 };
 			size_t const target_wdict_cSize[22+1] =  { 2830, 2896, 2893, 2820, 2940, 2950, 2950, 2925, 2900, 2891, 2910, 2910, 2910, 2780, 2775, 2765, 2760, 2755, 2754, 2753, 2753, 2753, 2753 };
@@ -2249,7 +2249,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    DISPLAYLEVEL(3, "test%3i : Building cdict w/ ZSTD_dct_fullDict on a rawContent (must fail) : ", testNb++);
 	    {
 		    ZSTD_compressionParameters const cParams = ZSTD_getCParams(1, CNBuffSize, dictSize);
-		    ZSTD_CDict* const cdict = ZSTD_createCDict_advanced((const char*)dictBuffer+1,
+		    ZSTD_CDict* const cdict = ZSTD_createCDict_advanced((const char *)dictBuffer+1,
 			    dictSize-1,
 			    ZSTD_dlm_byRef,
 			    ZSTD_dct_fullDict,
@@ -2270,7 +2270,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 			    size_t ret;
 			    /* Either operation is allowed to fail, but one must fail. */
 			    ret = ZSTD_CCtx_loadDictionary_advanced(cctx,
-				    (const char*)rawDictBuffer,
+				    (const char *)rawDictBuffer,
 				    dictSize,
 				    ZSTD_dlm_byRef,
 				    ZSTD_dct_auto);
@@ -2286,7 +2286,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		    {
 			    size_t ret;
 			    ret = ZSTD_CCtx_loadDictionary_advanced(
-				    cctx, (const char*)rawDictBuffer, dictSize, ZSTD_dlm_byRef, ZSTD_dct_rawContent);
+				    cctx, (const char *)rawDictBuffer, dictSize, ZSTD_dlm_byRef, ZSTD_dct_rawContent);
 			    if(ZSTD_isError(ret)) goto _output_error;
 			    ret = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100));
 			    if(ZSTD_isError(ret)) goto _output_error;
@@ -2339,8 +2339,8 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 
 	    DISPLAYLEVEL(3, "test%3i : Loading a dictionary clears the prefix : ", testNb++);
 	    {
-		    CHECK_Z(ZSTD_CCtx_refPrefix(cctx, (const char*)dictBuffer, dictSize) );
-		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, (const char*)dictBuffer, dictSize) );
+		    CHECK_Z(ZSTD_CCtx_refPrefix(cctx, (const char *)dictBuffer, dictSize) );
+		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, (const char *)dictBuffer, dictSize) );
 		    CHECK_Z(ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100)) );
 	    }
 	    DISPLAYLEVEL(3, "OK \n");
@@ -2349,7 +2349,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    {
 		    ZSTD_CDict* const cdict = ZSTD_createCDict(dictBuffer, dictSize, 1);
 		    CHECK_Z(ZSTD_CCtx_refCDict(cctx, cdict) );
-		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, (const char*)dictBuffer, dictSize) );
+		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, (const char *)dictBuffer, dictSize) );
 		    CHECK_Z(ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100)) );
 		    ZSTD_freeCDict(cdict);
 	    }
@@ -2358,7 +2358,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    DISPLAYLEVEL(3, "test%3i : Loading a cdict clears the prefix : ", testNb++);
 	    {
 		    ZSTD_CDict* const cdict = ZSTD_createCDict(dictBuffer, dictSize, 1);
-		    CHECK_Z(ZSTD_CCtx_refPrefix(cctx, (const char*)dictBuffer, dictSize) );
+		    CHECK_Z(ZSTD_CCtx_refPrefix(cctx, (const char *)dictBuffer, dictSize) );
 		    CHECK_Z(ZSTD_CCtx_refCDict(cctx, cdict) );
 		    CHECK_Z(ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100)) );
 		    ZSTD_freeCDict(cdict);
@@ -2368,7 +2368,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    DISPLAYLEVEL(3, "test%3i : Loading a cdict clears the dictionary : ", testNb++);
 	    {
 		    ZSTD_CDict* const cdict = ZSTD_createCDict(dictBuffer, dictSize, 1);
-		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, (const char*)dictBuffer, dictSize) );
+		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, (const char *)dictBuffer, dictSize) );
 		    CHECK_Z(ZSTD_CCtx_refCDict(cctx, cdict) );
 		    CHECK_Z(ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100)) );
 		    ZSTD_freeCDict(cdict);
@@ -2377,8 +2377,8 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 
 	    DISPLAYLEVEL(3, "test%3i : Loading a prefix clears the dictionary : ", testNb++);
 	    {
-		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, (const char*)dictBuffer, dictSize) );
-		    CHECK_Z(ZSTD_CCtx_refPrefix(cctx, (const char*)dictBuffer, dictSize) );
+		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, (const char *)dictBuffer, dictSize) );
+		    CHECK_Z(ZSTD_CCtx_refPrefix(cctx, (const char *)dictBuffer, dictSize) );
 		    CHECK_Z(ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100)) );
 	    }
 	    DISPLAYLEVEL(3, "OK \n");
@@ -2387,7 +2387,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    {
 		    ZSTD_CDict* const cdict = ZSTD_createCDict(dictBuffer, dictSize, 1);
 		    CHECK_Z(ZSTD_CCtx_refCDict(cctx, cdict) );
-		    CHECK_Z(ZSTD_CCtx_refPrefix(cctx, (const char*)dictBuffer, dictSize) );
+		    CHECK_Z(ZSTD_CCtx_refPrefix(cctx, (const char *)dictBuffer, dictSize) );
 		    CHECK_Z(ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100)) );
 		    ZSTD_freeCDict(cdict);
 	    }

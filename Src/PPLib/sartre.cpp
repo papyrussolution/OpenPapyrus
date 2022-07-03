@@ -1603,11 +1603,14 @@ int SrUedContainer::ReadSource(const char * pFileName)
 /*static*/void SrUedContainer::MakeUedCanonicalName(SString & rResult, long ver)
 {
 	rResult.Z();
-	rResult.Cat("ued-id").CatChar('-');
+	rResult.Cat("ued-id");
 	if(ver > 0)
-		rResult.CatLongZ(ver, 4);
+		rResult.CatChar('-').CatLongZ(ver, 4);
 	else if(ver == 0)
-		rResult.Cat("????");
+		rResult.CatChar('-').Cat("????");
+	else { // ver < 0 - file-name for programming interface source
+		//
+	}
 }
 
 /*static*/long SrUedContainer::SearchLastCanonicalFile(const char * pPath, SString & rFileName)
@@ -1712,34 +1715,86 @@ int SrUedContainer::WriteSource(const char * pFileName)
 	return ok;
 }
 
-bool SrUedContainer::GenerateSorceDecl_C()
+bool SrUedContainer::GenerateSourceDecl_C(const char * pFileName)
 {
 	bool   ok = true;
 	SString temp_buf;
-	SString file_path;
 	SString def_symb;
 	SString def_value;
-	Generator_CPP gen(file_path);
+	SString meta_symb;
+	SString h_sentinel_def;
+	Generator_CPP gen(pFileName);
+	const  SPathStruc ps(pFileName);
+	uint   max_symb_len = 0;
 	{
 		for(uint i = 0; i < BL.getCount(); i++) {
 			const BaseEntry & r_be = BL.at(i);
 			if(UED::IsMetaId(r_be.Id)) {
-				GetS(r_be.SymbHashId, temp_buf);
-				assert(temp_buf.NotEmpty());
-				temp_buf.ToUpper();
-				(def_symb = "UED_META_").Cat(temp_buf);
-				def_value.Z().Cat("0x").CatHex(r_be.Id);
-				gen.Wr_Define(def_symb, def_value);
+				Ht.GetByAssoc(r_be.SymbHashId, meta_symb);
+				assert(meta_symb.NotEmpty());
+				meta_symb.ToUpper();
+				(def_symb = "UED").CatChar('_').Cat("META").CatChar('_').Cat(meta_symb);
+				SETMAX(max_symb_len, def_symb.Len());
+				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
+					for(uint j = 0; j < BL.getCount(); j++) {
+						const BaseEntry & r_be_inner = BL.at(j);
+						if(UED::BelongToMeta(r_be_inner.Id, r_be.Id)) {
+							Ht.GetByAssoc(r_be_inner.SymbHashId, temp_buf);
+							assert(temp_buf.NotEmpty());
+							temp_buf.ToUpper();
+							(def_symb = "UED").CatChar('_').Cat(meta_symb).CatChar('_').Cat(temp_buf);
+							SETMAX(max_symb_len, def_symb.Len());
+						}
+					}
+					gen.IndentDec();
+				}
 			}
 		}
 	}
+	h_sentinel_def.Z().Cat("__").Cat(ps.Nam).CatChar('_').Cat("h").ToUpper();
+	h_sentinel_def.ReplaceChar('-', '_');
+	gen.Wr_IfDef(h_sentinel_def, 1);
+	gen.Wr_Define(h_sentinel_def, 0);
+	gen.WriteBlancLine();
 	{
-		
+		for(uint i = 0; i < BL.getCount(); i++) {
+			const BaseEntry & r_be = BL.at(i);
+			if(UED::IsMetaId(r_be.Id)) {
+				Ht.GetByAssoc(r_be.SymbHashId, meta_symb);
+				assert(meta_symb.NotEmpty());
+				meta_symb.ToUpper();
+				(def_symb = "UED").CatChar('_').Cat("META").CatChar('_').Cat(meta_symb);
+				assert(max_symb_len >= def_symb.Len());
+				def_symb.CatCharN(' ', (max_symb_len+1)-def_symb.Len());
+				def_value.Z().Cat("0x").CatHex(r_be.Id).Cat("ULL");
+				gen.Wr_Define(def_symb, def_value);
+				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
+					gen.IndentInc();
+					for(uint j = 0; j < BL.getCount(); j++) {
+						const BaseEntry & r_be_inner = BL.at(j);
+						if(UED::BelongToMeta(r_be_inner.Id, r_be.Id)) {
+							Ht.GetByAssoc(r_be_inner.SymbHashId, temp_buf);
+							assert(temp_buf.NotEmpty());
+							temp_buf.ToUpper();
+							(def_symb = "UED").CatChar('_').Cat(meta_symb).CatChar('_').Cat(temp_buf);
+							assert(max_symb_len >= def_symb.Len());
+							def_symb.CatCharN(' ', (max_symb_len+1)-def_symb.Len());
+							def_value.Z().Cat("0x").CatHex(r_be_inner.Id).Cat("ULL");
+							gen.Wr_Indent();
+							gen.Wr_Define(def_symb, def_value);						
+						}
+					}
+					gen.IndentDec();
+				}
+			}
+		}
 	}
+	gen.WriteBlancLine();
+	gen.Wr_EndIf(h_sentinel_def);
 	return ok;
 }
 
-bool SrUedContainer::GenerateSorceDecl_Java()
+bool SrUedContainer::GenerateSourceDecl_Java(const char * pFileName)
 {
 	bool   ok = true;
 	return ok;
@@ -1831,6 +1886,12 @@ int Test_ReadUed(const char * pFileName)
 		//
 		ps.Merge(SPathStruc::fDir|SPathStruc::fDrv, temp_buf);
 		THROW(uedc.Verify(temp_buf, new_version));
+	}
+	{
+		SrUedContainer::MakeUedCanonicalName(ps.Nam, -1);
+		ps.Ext = "h";
+		ps.Merge(temp_buf);
+		THROW(uedc.GenerateSourceDecl_C(temp_buf));
 	}
 	CATCHZOK
 	return ok;

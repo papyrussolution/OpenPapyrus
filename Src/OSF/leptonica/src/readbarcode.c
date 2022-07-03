@@ -166,7 +166,7 @@ PIXA * pixExtractBarcodes(PIX * pixs,
 {
 	int32 i, n;
 	float angle, conf;
-	BOX       * box;
+	BOX * box;
 	BOXA      * boxa;
 	PIX * pix1, * pix2, * pix3;
 	PIXA      * pixa;
@@ -472,8 +472,8 @@ static PIX * pixGenerateBarcodeMask(PIX * pixs,
  *         necessary to rotate the image so that it is deskewed.
  * </pre>
  */
-PIX * pixDeskewBarcode(PIX        * pixs,
-    PIX        * pixb,
+PIX * pixDeskewBarcode(PIX * pixs,
+    PIX * pixb,
     BOX        * box,
     int32 margin,
     int32 threshold,
@@ -482,7 +482,7 @@ PIX * pixDeskewBarcode(PIX        * pixs,
 {
 	int32 x, y, w, h, n;
 	float angle, angle1, angle2, conf, conf1, conf2, score1, score2, deg2rad;
-	BOX       * box1, * box2;
+	BOX * box1, * box2;
 	BOXA      * boxa1, * boxa2;
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5, * pix6, * pixd;
 	PROCNAME(__FUNCTION__);
@@ -505,8 +505,8 @@ PIX * pixDeskewBarcode(PIX        * pixs,
 	/* Deskew, looking at all possible orientations over 180 degrees */
 	pix3 = pixRotateOrth(pix1, 1); /* look for vertical bar lines */
 	pix4 = pixClone(pix1); /* look for horizontal bar lines */
-	pixFindSkewSweepAndSearchScore(pix3, &angle1, &conf1, &score1, 1, 1, 0.0, 45.0, 2.5, 0.01);
-	pixFindSkewSweepAndSearchScore(pix4, &angle2, &conf2, &score2, 1, 1, 0.0, 45.0, 2.5, 0.01);
+	pixFindSkewSweepAndSearchScore(pix3, &angle1, &conf1, &score1, 1, 1, 0.0f, 45.0f, 2.5f, 0.01f);
+	pixFindSkewSweepAndSearchScore(pix4, &angle2, &conf2, &score2, 1, 1, 0.0f, 45.0f, 2.5f, 0.01f);
 	pixDestroy(&pix1);
 	pixDestroy(&pix3);
 	pixDestroy(&pix4);
@@ -532,12 +532,11 @@ PIX * pixDeskewBarcode(PIX        * pixs,
 		conf = conf2;
 		pix6 = pixRotateOrth(pix2, 1);
 		if(conf2 > 6.0 && L_ABS(angle2) > 0.1) {
-			angle = 90.0 + angle2;
-			pix5 = pixRotate(pix6, deg2rad * angle2, L_ROTATE_AREA_MAP,
-				L_BRING_IN_WHITE, 0, 0);
+			angle = 90.0f + angle2;
+			pix5 = pixRotate(pix6, deg2rad * angle2, L_ROTATE_AREA_MAP, L_BRING_IN_WHITE, 0, 0);
 		}
 		else {
-			angle = 90.0;
+			angle = 90.0f;
 			pix5 = pixClone(pix6);
 		}
 		pixDestroy(&pix6);
@@ -652,7 +651,7 @@ NUMA * pixExtractBarcodeWidths1(PIX * pixs,
  *          as ending two runs: the previous one and another one that has length 1.
  * </pre>
  */
-NUMA * pixExtractBarcodeWidths2(PIX        * pixs,
+NUMA * pixExtractBarcodeWidths2(PIX * pixs,
     float thresh,
     float * pwidth,
     NUMA ** pnac,
@@ -861,27 +860,19 @@ NUMA * numaQuantizeCrossingsByWidth(NUMA * nas,
 	 * number to be large enough to clearly separate the
 	 * widths, but small enough so that the histogram peaks
 	 * have very few if any holes (zeroes) within them.  */
-	naehist = numaMakeHistogramClipped(naedist, binfract * minsize,
-		(1.25 / binfract) * maxsize);
-	naohist = numaMakeHistogramClipped(naodist, binfract * minsize,
-		(1.25 / binfract) * maxsize);
-
+	naehist = numaMakeHistogramClipped(naedist, binfract * minsize, (1.25f / binfract) * maxsize);
+	naohist = numaMakeHistogramClipped(naodist, binfract * minsize, (1.25f / binfract) * maxsize);
 	if(debugflag) {
 		lept_mkdir("lept/barcode");
-		gplot = gplotCreate("/tmp/lept/barcode/histw", GPLOT_PNG,
-			"Raw width histogram", "Width", "Number");
+		gplot = gplotCreate("/tmp/lept/barcode/histw", GPLOT_PNG, "Raw width histogram", "Width", "Number");
 		gplotAddPlot(gplot, NULL, naehist, GPLOT_LINES, "plot black");
 		gplotAddPlot(gplot, NULL, naohist, GPLOT_LINES, "plot white");
 		gplotMakeOutput(gplot);
 		gplotDestroy(&gplot);
 	}
-
 	/* Compute the peak ranges, still in units of binfract * minsize.  */
-	naerange = numaLocatePeakRanges(naehist, 1.0 / binfract,
-		1.0 / binfract, 0.0);
-	naorange = numaLocatePeakRanges(naohist, 1.0 / binfract,
-		1.0 / binfract, 0.0);
-
+	naerange = numaLocatePeakRanges(naehist, 1.0f / binfract, 1.0f / binfract, 0.0f);
+	naorange = numaLocatePeakRanges(naohist, 1.0f / binfract, 1.0f / binfract, 0.0f);
 	/* Find the centroid values of each peak */
 	naecent = numaGetPeakCentroids(naehist, naerange);
 	naocent = numaGetPeakCentroids(naohist, naorange);
@@ -901,7 +892,7 @@ NUMA * numaQuantizeCrossingsByWidth(NUMA * nas,
 	nod = numaGetCount(naodist);
 	if(nod != ned - 1)
 		L_WARNING("ned != nod + 1\n", procName);
-	factor = 1.0 / (binfract * minsize); /* for converting units */
+	factor = 1.0f / (binfract * minsize); /* for converting units */
 	for(i = 0; i < ned - 1; i++) {
 		numaGetFValue(naedist, i, &val);
 		width = (int32)(factor * val);
@@ -1015,12 +1006,11 @@ static int32 numaGetCrossingDistances(NUMA * nas,
 	numaJoin(na1, naodist, 0, -1); /* use both bars and spaces */
 	nspan = numaGetCount(na1);
 	na2 = numaMakeHistogram(na1, 100, NULL, NULL);
-	numaHistogramGetValFromRank(na2, 0.1, &mindist);
-	numaHistogramGetValFromRank(na2, 0.9, &maxdist);
+	numaHistogramGetValFromRank(na2, 0.1f, &mindist);
+	numaHistogramGetValFromRank(na2, 0.9f, &maxdist);
 	numaDestroy(&na1);
 	numaDestroy(&na2);
 	L_INFO("mindist = %7.3f, maxdist = %7.3f\n", procName, mindist, maxdist);
-
 	if(pnaedist)
 		*pnaedist = naedist;
 	else
@@ -1062,24 +1052,18 @@ static int32 numaGetCrossingDistances(NUMA * nas,
  *          of the histogram peaks unambiguous.
  * </pre>
  */
-static NUMA * numaLocatePeakRanges(NUMA * nas,
-    float minfirst,
-    float minsep,
-    float maxmin)
+static NUMA * numaLocatePeakRanges(NUMA * nas, float minfirst, float minsep, float maxmin)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, n, inpeak, left;
 	float center, prevcenter, val;
 	NUMA * nad;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
 	n = numaGetCount(nas);
 	nad = numaCreate(0);
-
 	inpeak = FALSE;
-	prevcenter = minfirst - minsep - 1.0;
+	prevcenter = minfirst - minsep - 1.0f;
 	for(i = 0; i < n; i++) {
 		numaGetFValue(nas, i, &val);
 		if(inpeak == FALSE && val > maxmin) {
@@ -1087,7 +1071,7 @@ static NUMA * numaLocatePeakRanges(NUMA * nas,
 			left = i;
 		}
 		else if(inpeak == TRUE && val <= maxmin) { /* end peak */
-			center = (left + i - 1.0) / 2.0;
+			center = (left + i - 1.0f) / 2.0f;
 			if(center - prevcenter >= minsep) { /* save new peak */
 				inpeak = FALSE;
 				numaAddNumber(nad, left);
@@ -1103,10 +1087,8 @@ static NUMA * numaLocatePeakRanges(NUMA * nas,
 		numaAddNumber(nad, left);
 		numaAddNumber(nad, n - 1);
 	}
-
 	return nad;
 }
-
 /*!
  * \brief   numaGetPeakCentroids()
  *
@@ -1279,7 +1261,7 @@ NUMA * numaQuantizeCrossingsByWindow(NUMA * nas,
 	 * and go up to ratio * minsize  */
 	numaEvalBestWidthAndShift(nas, 100, 10, minsize, ratio * minsize, &minwidth, &minshift, NULL);
 	/* Refine width and shift calculation */
-	numaEvalBestWidthAndShift(nas, 100, 10, 0.98 * minwidth, 1.02 * minwidth, &minwidth, &minshift, NULL);
+	numaEvalBestWidthAndShift(nas, 100, 10, 0.98f * minwidth, 1.02f * minwidth, &minwidth, &minshift, NULL);
 	L_INFO("best width = %7.3f, best shift = %7.3f\n", procName, minwidth, minshift);
 	/* Get the crossing array (0,1,2) for the best window width and shift */
 	numaEvalSyncError(nas, 0, 0, minwidth, minshift, NULL, &nac);
@@ -1318,14 +1300,12 @@ NUMA * numaQuantizeCrossingsByWindow(NUMA * nas,
 			count = 1;
 		}
 	}
-
 	if(pnac)
 		*pnac = nac;
 	else
 		numaDestroy(&nac);
 	return nad;
 }
-
 /*!
  * \brief   numaEvalBestWidthAndShift()
  *
@@ -1370,12 +1350,12 @@ static int32 numaEvalBestWidthAndShift(NUMA * nas,
 	bestwidth = 0.0f;
 	bestshift = 0.0f;
 	bestscore = 1.0;
-	delwidth = (maxwidth - minwidth) / (nwidth - 1.0);
+	delwidth = (maxwidth - minwidth) / (nwidth - 1.0f);
 	for(i = 0; i < nwidth; i++) {
 		width = minwidth + delwidth * i;
 		delshift = width / (float)(nshift);
 		for(j = 0; j < nshift; j++) {
-			shift = -0.5 * (width - delshift) + j * delshift;
+			shift = -0.5f * (width - delshift) + j * delshift;
 			numaEvalSyncError(nas, 0, 0, width, shift, &score, NULL);
 			if(score < bestscore) {
 				bestscore = score;
@@ -1452,18 +1432,18 @@ static int32 numaEvalSyncError(NUMA * nas,
 	nw = (int32)((xlast - xfirst + 2.0 * width) / width);
 	nad = numaCreate(nw);
 	numaSetCount(nad, nw); /* init to all 0.0 */
-	xleft = xfirst - width / 2.0 + shift; /* left edge of first window */
+	xleft = xfirst - width / 2.0f + shift; /* left edge of first window */
 	for(i = ifirst; i <= ilast; i++) {
 		numaGetFValue(nas, i, &xc);
 		iw = (int32)((xc - xleft) / width);
-		xwc = xleft + (iw + 0.5) * width; /* center of cell iw */
+		xwc = xleft + (iw + 0.5f) * width; /* center of cell iw */
 		score += (xwc - xc) * (xwc - xc);
 		numaGetIValue(nad, iw, &ival);
-		numaSetValue(nad, iw, ival + 1);
+		numaSetValue(nad, iw, ival + 1.0f);
 	}
 
 	if(pscore)
-		*pscore = 4.0 * score / (width * width * (float)nc);
+		*pscore = 4.0f * score / (width * width * (float)nc);
 	if(pnad)
 		*pnad = nad;
 	else

@@ -1235,7 +1235,7 @@ namespace NWindows {
 						return false;
 
 				#if defined(_WIN32) && !defined(UNDER_CE)
-					if(pos == 1 && IS_PATH_SEPAR(path[0]))
+					if(pos == 1 && isdirslash(path[0]))
 						return false;
 					if(prefixSize >= (uint)pos + 1)
 						return false;
@@ -1506,7 +1506,7 @@ namespace NWindows {
 			}
 		}
 		namespace NName {
-			#define IS_SEPAR(c) IS_PATH_SEPAR(c)
+			//#define IS_SEPAR(c) IS_PATH_SEPAR(c)
 
 			int FASTCALL FindSepar(const wchar_t * s) throw()
 			{
@@ -1514,7 +1514,7 @@ namespace NWindows {
 					const wchar_t c = *p;
 					if(c == 0)
 						return -1;
-					if(IS_SEPAR(c))
+					if(isdirslash(c))
 						return (int)(p - s);
 				}
 			}
@@ -1533,7 +1533,7 @@ namespace NWindows {
 						const FChar c = *p;
 						if(c == 0)
 							return -1;
-						if(IS_SEPAR(c))
+						if(isdirslash(c))
 							return (int)(p - s);
 					}
 				}
@@ -1545,11 +1545,11 @@ namespace NWindows {
 					}
 				}
 			#endif
-			#define IS_LETTER_CHAR(c) ((c) >= 'a' && (c) <= 'z' || (c) >= 'A' && (c) <= 'Z')
+			//#define IS_LETTER_CHAR(c) ((c) >= 'a' && (c) <= 'z' || (c) >= 'A' && (c) <= 'Z')
 
 			bool IsDrivePath(const wchar_t * s) throw() 
 			{
-				return IS_LETTER_CHAR(s[0]) && s[1] == ':' && IS_SEPAR(s[2]);
+				return isasciialpha(s[0]) && s[1] == ':' && isdirslash(s[2]);
 			}
 			bool IsAltPathPrefix(CFSTR s) throw()
 			{
@@ -1577,15 +1577,14 @@ namespace NWindows {
 			const char * const kSuperPathPrefix = "\\\\?\\";
 			static const char * const kSuperUncPrefix = "\\\\?\\UNC\\";
 
-			#define IS_DEVICE_PATH(s)          (IS_SEPAR((s)[0]) && IS_SEPAR((s)[1]) && (s)[2] == '.' && IS_SEPAR((s)[3]))
-			#define IS_SUPER_PREFIX(s)         (IS_SEPAR((s)[0]) && IS_SEPAR((s)[1]) && (s)[2] == '?' && IS_SEPAR((s)[3]))
-			#define IS_SUPER_OR_DEVICE_PATH(s) (IS_SEPAR((s)[0]) && IS_SEPAR((s)[1]) && ((s)[2] == '?' || (s)[2] == '.') && IS_SEPAR((s)[3]))
-			#define IS_UNC_WITH_SLASH(s) (((s)[0] == 'U' || (s)[0] == 'u') && ((s)[1] == 'N' || (s)[1] == 'n') && ((s)[2] == 'C' || (s)[2] == 'c') && IS_SEPAR((s)[3]))
+			#define IS_DEVICE_PATH(s)          (isdirslash((s)[0]) && isdirslash((s)[1]) && (s)[2] == '.' && isdirslash((s)[3]))
+			#define IS_SUPER_PREFIX(s)         (isdirslash((s)[0]) && isdirslash((s)[1]) && (s)[2] == '?' && isdirslash((s)[3]))
+			#define IS_SUPER_OR_DEVICE_PATH(s) (isdirslash((s)[0]) && isdirslash((s)[1]) && ((s)[2] == '?' || (s)[2] == '.') && isdirslash((s)[3]))
+			#define IS_UNC_WITH_SLASH(s) (((s)[0] == 'U' || (s)[0] == 'u') && ((s)[1] == 'N' || (s)[1] == 'n') && ((s)[2] == 'C' || (s)[2] == 'c') && isdirslash((s)[3]))
 
 			bool IsDevicePath(CFSTR s) throw()
 			{
 			  #ifdef UNDER_CE
-
 				s = s;
 				return false;
 				/*
@@ -1597,9 +1596,7 @@ namespace NWindows {
 				   return false;
 				   // for reading use SG_REQ sg; if(DeviceIoControl(dsk, IOCTL_DISK_READ));
 				 */
-
 			  #else
-
 				if(!IS_DEVICE_PATH(s))
 					return false;
 				uint   len = sstrlen(s);
@@ -1619,7 +1616,7 @@ namespace NWindows {
 
 			bool IsNetworkPath(CFSTR s) throw()
 			{
-				if(!IS_SEPAR(s[0]) || !IS_SEPAR(s[1]))
+				if(!isdirslash(s[0]) || !isdirslash(s[1]))
 					return false;
 				if(IsSuperUncPath(s))
 					return true;
@@ -1628,7 +1625,7 @@ namespace NWindows {
 			}
 			unsigned GetNetworkServerPrefixSize(CFSTR s) throw()
 			{
-				if(!IS_SEPAR(s[0]) || !IS_SEPAR(s[1]))
+				if(!isdirslash(s[0]) || !isdirslash(s[1]))
 					return 0;
 				uint   prefixSize = 2;
 				if(IsSuperUncPath(s))
@@ -1657,8 +1654,8 @@ namespace NWindows {
 
 			static const uint kDrivePrefixSize = 3; /* c:\ */
 
-			bool IsDrivePath2(const wchar_t * s) throw() { return IS_LETTER_CHAR(s[0]) && s[1] == ':'; }
-			// bool IsDriveName2(const wchar_t *s) throw() { return IS_LETTER_CHAR(s[0]) && s[1] == ':' && s[2] == 0; }
+			bool IsDrivePath2(const wchar_t * s) throw() { return isasciialpha(s[0]) && s[1] == ':'; }
+			// bool IsDriveName2(const wchar_t *s) throw() { return isasciialpha(s[0]) && s[1] == ':' && s[2] == 0; }
 			bool IsSuperPath(const wchar_t * s) throw() { return IS_SUPER_PREFIX(s); }
 			bool IsSuperOrDevicePath(const wchar_t * s) throw() { return IS_SUPER_OR_DEVICE_PATH(s); }
 
@@ -1666,9 +1663,9 @@ namespace NWindows {
 			// kSuperPathPrefixSize)); }
 
 			#ifndef USE_UNICODE_FSTRING
-				bool IsDrivePath2(CFSTR s) throw() { return IS_LETTER_CHAR(s[0]) && s[1] == ':'; }
-				// bool IsDriveName2(CFSTR s) throw() { return IS_LETTER_CHAR(s[0]) && s[1] == ':' && s[2] == 0; }
-				bool IsDrivePath(CFSTR s) throw() { return IS_LETTER_CHAR(s[0]) && s[1] == ':' && IS_SEPAR(s[2]); }
+				bool IsDrivePath2(CFSTR s) throw() { return isasciialpha(s[0]) && s[1] == ':'; }
+				// bool IsDriveName2(CFSTR s) throw() { return isasciialpha(s[0]) && s[1] == ':' && s[2] == 0; }
+				bool IsDrivePath(CFSTR s) throw() { return isasciialpha(s[0]) && s[1] == ':' && isdirslash(s[2]); }
 				bool IsSuperPath(CFSTR s) throw() { return IS_SUPER_PREFIX(s); }
 				bool IsSuperOrDevicePath(CFSTR s) throw() { return IS_SUPER_OR_DEVICE_PATH(s); }
 			#endif // USE_UNICODE_FSTRING
@@ -1687,7 +1684,7 @@ namespace NWindows {
 			}
 			bool IsAbsolutePath(const wchar_t * s) throw()
 			{
-				return IS_SEPAR(s[0]) || IsDrivePath2(s);
+				return isdirslash(s[0]) || IsDrivePath2(s);
 			}
 			int FindAltStreamColon(CFSTR path) throw()
 			{
@@ -1704,7 +1701,7 @@ namespace NWindows {
 							colonPos = i;
 						continue;
 					}
-					if(IS_SEPAR(c))
+					if(isdirslash(c))
 						colonPos = -1;
 				}
 			}
@@ -1724,9 +1721,9 @@ namespace NWindows {
 				{
 					if(IsDrivePath(s))
 						return kDrivePrefixSize;
-					if(!IS_SEPAR(s[0]))
+					if(!isdirslash(s[0]))
 						return 0;
-					if(s[1] == 0 || !IS_SEPAR(s[1]))
+					if(s[1] == 0 || !isdirslash(s[1]))
 						return 1;
 					uint size = GetRootPrefixSize_Of_NetworkPath(s + 2);
 					return (size == 0) ? 0 : 2 + size;
@@ -1769,9 +1766,9 @@ namespace NWindows {
 			{
 				if(IsDrivePath(s))
 					return kDrivePrefixSize;
-				if(!IS_SEPAR(s[0]))
+				if(!isdirslash(s[0]))
 					return 0;
-				if(s[1] == 0 || !IS_SEPAR(s[1]))
+				if(s[1] == 0 || !isdirslash(s[1]))
 					return 1;
 				uint   size = GetRootPrefixSize_Of_NetworkPath(s + 2);
 				return (size == 0) ? 0 : 2 + size;
@@ -1798,11 +1795,11 @@ namespace NWindows {
 					return GetRootPrefixSize_Of_SimplePath(s);
 			}
 			#else // _WIN32
-				bool IsAbsolutePath(const wchar_t * s) { return IS_SEPAR(s[0]); }
+				bool IsAbsolutePath(const wchar_t * s) { return isdirslash(s[0]); }
 				#ifndef USE_UNICODE_FSTRING
-					unsigned GetRootPrefixSize(CFSTR s) { return IS_SEPAR(s[0]) ? 1 : 0; }
+					unsigned GetRootPrefixSize(CFSTR s) { return isdirslash(s[0]) ? 1 : 0; }
 				#endif
-				unsigned GetRootPrefixSize(const wchar_t * s) { return IS_SEPAR(s[0]) ? 1 : 0; }
+				unsigned GetRootPrefixSize(const wchar_t * s) { return isdirslash(s[0]) ? 1 : 0; }
 			#endif // _WIN32
 
 			#ifndef UNDER_CE
@@ -1839,11 +1836,11 @@ namespace NWindows {
 					const wchar_t c = s[i];
 					if(c == 0)
 						return true;
-					if(c == '.' && (i == 0 || IS_SEPAR(s[i - 1]))) {
+					if(c == '.' && (i == 0 || isdirslash(s[i - 1]))) {
 						const wchar_t c1 = s[i+1];
 						if(c1 == '.') {
 							const wchar_t c2 = s[i+2];
-							if(IS_SEPAR(c2) || c2 == 0) {
+							if(isdirslash(c2) || c2 == 0) {
 								if(i == 0)
 									return false;
 								int k = i - 2;
@@ -1852,16 +1849,13 @@ namespace NWindows {
 								for(;; k--) {
 									if(k < 0)
 										return false;
-									if(!IS_SEPAR(s[(uint)k]))
+									if(!isdirslash(s[(uint)k]))
 										break;
 								}
-
-								do
+								do {
 									k--;
-								while(k >= 0 && !IS_SEPAR(s[(uint)k]));
-
+								} while(k >= 0 && !isdirslash(s[(uint)k]));
 								unsigned num;
-
 								if(k >= 0) {
 									num = i - k;
 									i = k;
@@ -1874,7 +1868,7 @@ namespace NWindows {
 								continue;
 							}
 						}
-						else if(IS_SEPAR(c1) || c1 == 0) {
+						else if(isdirslash(c1) || c1 == 0) {
 							unsigned num = 2;
 							if(i != 0)
 								i--;
@@ -1905,9 +1899,9 @@ namespace NWindows {
 					FChar c = s[i];
 					if(c == 0)
 						return false;
-					if(c == '.' && (i == 0 || IS_SEPAR(s[i - 1]))) {
+					if(c == '.' && (i == 0 || isdirslash(s[i - 1]))) {
 						FChar c1 = s[i+1];
-						if(c1 == 0 || IS_SEPAR(c1) || (c1 == '.' && (s[i+2] == 0 || IS_SEPAR(s[i+2]))))
+						if(c1 == 0 || isdirslash(c1) || (c1 == '.' && (s[i+2] == 0 || isdirslash(s[i+2]))))
 							return true;
 					}
 				}
@@ -1952,13 +1946,13 @@ namespace NWindows {
 						return kSuperPathType_UseMainAndSuper;
 					if(c == '.' || c == ' ') {
 						FChar c2 = s[i+1];
-						if(c2 == 0 || IS_SEPAR(c2)) {
+						if(c2 == 0 || isdirslash(c2)) {
 							// if it's "." or "..", it's not bad name.
 							if(c == '.') {
-								if(i == 0 || IS_SEPAR(s[i - 1]))
+								if(i == 0 || isdirslash(s[i - 1]))
 									continue;
 								if(s[i - 1] == '.') {
-									if(i - 1 == 0 || IS_SEPAR(s[i - 2]))
+									if(i - 1 == 0 || isdirslash(s[i - 2]))
 										continue;
 								}
 							}
@@ -2005,8 +1999,8 @@ namespace NWindows {
 				#endif
 					return true;
 				}
-				if(IS_SEPAR(c)) {
-					if(IS_SEPAR(s[1])) {
+				if(isdirslash(c)) {
+					if(isdirslash(s[1])) {
 						UString temp = fs2us(s + 2);
 						unsigned fixedSize = GetRootPrefixSize_Of_NetworkPath(temp);
 						// we ignore that error to allow short network paths server\share?
@@ -2071,7 +2065,7 @@ namespace NWindows {
 				}
 
 				UString temp;
-				if(IS_SEPAR(c)) {
+				if(isdirslash(c)) {
 					temp = fs2us(s + 1);
 				}
 				else {
@@ -2140,7 +2134,7 @@ namespace NWindows {
 			{
 				res = s;
 			  #ifdef UNDER_CE
-				if(!IS_SEPAR(s[0])) {
+				if(!isdirslash(s[0])) {
 					if(!dirPrefix)
 						return false;
 					res = dirPrefix;
@@ -2164,7 +2158,7 @@ namespace NWindows {
 				   return true;
 				   if(c == '.' && (s[1] == 0 || (s[1] == '.' && s[2] == 0)))
 				   return true;
-				   if(IS_SEPAR(c) && IS_SEPAR(s[1]))
+				   if(isdirslash(c) && isdirslash(s[1]))
 				   return true;
 				   if(IsDrivePath(s))
 				   return true;
@@ -2198,7 +2192,7 @@ namespace NWindows {
 				}
 			  #endif // _WIN32
 				UString temp;
-				if(IS_SEPAR(s[0])) {
+				if(isdirslash(s[0])) {
 					temp = fs2us(s + 1);
 				}
 				else {
@@ -2919,7 +2913,7 @@ namespace NWindows {
 							return true;
 						}
 					}
-					else if(IS_PATH_SEPAR(path[0]))
+					else if(isdirslash(path[0]))
 						if(path[1] == 0) {
 							DWORD attrib = GetFileAttrib(path);
 							if(attrib != INVALID_FILE_ATTRIBUTES && (attrib & FILE_ATTRIBUTE_DIRECTORY) != 0) {

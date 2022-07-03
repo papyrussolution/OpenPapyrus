@@ -15,32 +15,32 @@
  *           int32     pixMultConstantGray()
  *
  *      Two-image grayscale arithmetic operations (8, 16, 32 bpp)
- *           PIX        *pixAddGray()
- *           PIX        *pixSubtractGray()
- *           PIX        *pixMultiplyGray()
+ *           PIX *pixAddGray()
+ *           PIX *pixSubtractGray()
+ *           PIX *pixMultiplyGray()
  *
  *      Grayscale threshold operation (8, 16, 32 bpp)
- *           PIX        *pixThresholdToValue()
+ *           PIX *pixThresholdToValue()
  *
  *      Image accumulator arithmetic operations
- *           PIX        *pixInitAccumulate()
- *           PIX        *pixFinalAccumulate()
- *           PIX        *pixFinalAccumulateThreshold()
+ *           PIX *pixInitAccumulate()
+ *           PIX *pixFinalAccumulate()
+ *           PIX *pixFinalAccumulateThreshold()
  *           int32     pixAccumulate()
  *           int32     pixMultConstAccumulate()
  *
  *      Absolute value of difference
- *           PIX        *pixAbsDifference()
+ *           PIX *pixAbsDifference()
  *
  *      Sum of color images
- *           PIX        *pixAddRGB()
+ *           PIX *pixAddRGB()
  *
  *      Two-image min and max operations (8 and 16 bpp)
- *           PIX        *pixMinOrMax()
+ *           PIX *pixMinOrMax()
  *
  *      Scale pix for maximum dynamic range
- *           PIX        *pixMaxDynamicRange()
- *           PIX        *pixMaxDynamicRangeRGB()
+ *           PIX *pixMaxDynamicRange()
+ *           PIX *pixMaxDynamicRangeRGB()
  *
  *      RGB pixel value scaling
  *           uint32    linearScaleRGBVal()
@@ -423,8 +423,8 @@ PIX * pixSubtractGray(PIX  * pixd,
  *      (4) Alignment is to UL corner.
  * </pre>
  */
-PIX * pixMultiplyGray(PIX        * pixs,
-    PIX        * pixg,
+PIX * pixMultiplyGray(PIX * pixs,
+    PIX * pixg,
     float norm)
 {
 	int32 i, j, w, h, d, ws, hs, ds, wpls, wplg, wpld;
@@ -1236,7 +1236,7 @@ PIX * pixMaxDynamicRange(PIX * pixs,
 	uint32   * lines, * lined;
 	float factor;
 	float * tab;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1431,7 +1431,7 @@ PIX * pixMaxDynamicRangeRGB(PIX * pixs,
 	uint32   * lines, * lined;
 	float factor;
 	float * tab;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 

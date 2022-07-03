@@ -3314,7 +3314,7 @@ int SImageBuffer::LoadTiff(SFile & rF, int fileFmt)
 		TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 		npixels = w * h;
 		raster = (uint32 *)SAlloc::M(npixels * sizeof (uint32));
-		if(raster != NULL) {
+		if(raster) {
 			if(TIFFReadRGBAImage(tif, w, h, raster, 0)) {
 				...process raster data...
 			}
@@ -3469,14 +3469,14 @@ DWORD HowManyColors(IN UPBITMAPINFOHEADER upbih, IN BOOL fOldFormat, OUT OPTIONA
 {
 #define upbch ((UPBITMAPCOREHEADER)upbih)
 	if(fOldFormat) {
-		if(ppColorTable != NULL) {
+		if(ppColorTable) {
 			*ppColorTable = (LPBYTE)(upbch + 1);
 	}
 	if(upbch->bcBitCount <= 8)
 		return (1 << upbch->bcBitCount);
 	} 
 	else {
-		if(ppColorTable != NULL) {
+		if(ppColorTable) {
 			*ppColorTable = (LPBYTE)(upbih + 1);
 		}
 		if(upbih->biClrUsed)
@@ -3742,7 +3742,7 @@ HBITMAP ConvertDIBBitmap(IN /*UPBITMAPINFOHEADER*/LPBITMAPINFOHEADER upbih, IN  
 	// 
 	// HACK area
 	// 
-	if(lplpbih != NULL) {
+	if(lplpbih) {
 		// 
 		// pass back the translated/copied header
 		// 
@@ -3810,7 +3810,7 @@ HANDLE ObjectFromDIBResource(HINSTANCE hmod, LPCWSTR lpName, LPWSTR type, DWORD 
 	} 
 	else {
 		HANDLE hdib = LoadDIB(hmod, lpName, type, cxDesired, cyDesired, LR_flags);
-		if(hdib != NULL) {
+		if(hdib) {
 			LPBITMAPINFOHEADER lpbih;
 			// 
 			// We cast the resource-bits to a BITMAPINFOHEADER.  If the
@@ -3952,7 +3952,7 @@ HICON LoadIcoCur(HINSTANCE hmod, LPCWSTR pszResName, LPWSTR type, DWORD cxDesire
 			#endif
 		}
 		hico = FindExistingCursorIcon(pszModName, pszResName, &cfSearch);
-		if(hico != NULL)
+		if(hico)
 			goto IcoCurFound;
 	}
 #ifdef LATER // SanfordS
@@ -3966,7 +3966,7 @@ HICON LoadIcoCur(HINSTANCE hmod, LPCWSTR pszResName, LPWSTR type, DWORD cxDesire
 	*/
 	if(hmod == hmodUser) {
 		hico = FindExistingCursorIcon(NULL, szUSER, type, pszResName, 0, 0, 0);
-		if(hico != NULL) {
+		if(hico) {
 			/*
 			* Find out where the original came from and load it.
 			* This may require some redesign to remember the

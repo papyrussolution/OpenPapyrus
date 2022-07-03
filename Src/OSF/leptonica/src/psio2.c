@@ -218,7 +218,7 @@ l_ok pixWritePSEmbed(const char * filein,
  */
 l_ok pixWriteStreamPS(FILE * fp,
     PIX * pix,
-    BOX       * box,
+    BOX * box,
     int32 res,
     float scale)
 {
@@ -315,7 +315,7 @@ l_ok pixWriteStreamPS(FILE * fp,
  * </pre>
  */
 char * pixWriteStringPS(PIX * pixs,
-    BOX       * box,
+    BOX * box,
     int32 res,
     float scale)
 {
@@ -1911,7 +1911,7 @@ static char * generateFlatePS(const char * filein,
 l_ok pixWriteMemPS(uint8  ** pdata,
     size_t * psize,
     PIX * pix,
-    BOX       * box,
+    BOX * box,
     int32 res,
     float scale)
 {

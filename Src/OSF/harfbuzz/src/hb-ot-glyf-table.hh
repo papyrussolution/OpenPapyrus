@@ -1008,7 +1008,7 @@ public:
 				}
 				if(UNLIKELY(start_offset > end_offset || end_offset > glyf_table.get_length()))
 					return Glyph();
-				Glyph glyph(hb_bytes_t ((const char*)this->glyf_table + start_offset, end_offset - start_offset), gid);
+				Glyph glyph(hb_bytes_t ((const char *)this->glyf_table + start_offset, end_offset - start_offset), gid);
 				return needs_padding_removal ? glyph.trim_padding() : glyph;
 			}
 			void add_gid_and_children(hb_codepoint_t gid, hb_set_t * gids_to_retain, uint depth = 0) const

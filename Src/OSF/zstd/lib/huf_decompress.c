@@ -233,9 +233,9 @@ static size_t HUF_initRemainingDStream(BIT_DStream_t* bit, HUF_DecompressAsmArgs
 	assert(sizeof(size_t) == 8);
 	bit->bitContainer = MEM_readLE64(args->ip[stream]);
 	bit->bitsConsumed = ZSTD_countTrailingZeros64(args->bits[stream]);
-	bit->start = (const char*)args->iend[0];
+	bit->start = (const char *)args->iend[0];
 	bit->limitPtr = bit->start + sizeof(size_t);
-	bit->ptr = (const char*)args->ip[stream];
+	bit->ptr = (const char *)args->ip[stream];
 	return 0;
 }
 

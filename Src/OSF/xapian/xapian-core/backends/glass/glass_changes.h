@@ -11,9 +11,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_CHANGES_H
 #define XAPIAN_INCLUDED_GLASS_CHANGES_H
 
-#include "glass_defs.h"
-#include <string>
-
 class GlassChanges {
 	int changes_fd; /// File descriptor to write changeset to (or -1 for none).
 	std::string changes_stem;

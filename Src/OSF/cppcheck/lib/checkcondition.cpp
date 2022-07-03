@@ -205,27 +205,17 @@ void CheckCondition::assignIfError(const Token * tok1, const Token * tok2, const
 	if(tok2 && diag(tok2->tokAt(2)))
 		return;
 	std::list<const Token *> locations = { tok1, tok2 };
-	reportError(locations,
-	    Severity::style,
-	    "assignIfError",
-	    "Mismatching assignment and comparison, comparison '" + condition + "' is always " + std::string(
-		    result ? "true" : "false") + ".",
-	    CWE398,
-	    Certainty::normal);
+	reportError(locations, Severity::style, "assignIfError",
+	    "Mismatching assignment and comparison, comparison '" + condition + "' is always " + std::string(result ? "true" : "false") + ".",
+	    CWE398, Certainty::normal);
 }
 
 void CheckCondition::mismatchingBitAndError(const Token * tok1, const MathLib::bigint num1, const Token * tok2, const MathLib::bigint num2)
 {
 	std::list<const Token *> locations = { tok1, tok2 };
-
 	std::ostringstream msg;
-	msg << "Mismatching bitmasks. Result is always 0 ("
-	    << "X = Y & 0x" << std::hex << num1 << "; Z = X & 0x" << std::hex << num2 << "; => Z=0).";
-
-	reportError(locations,
-	    Severity::style,
-	    "mismatchingBitAnd",
-	    msg.str(), CWE398, Certainty::normal);
+	msg << "Mismatching bitmasks. Result is always 0 (" << "X = Y & 0x" << std::hex << num1 << "; Z = X & 0x" << std::hex << num2 << "; => Z=0).";
+	reportError(locations, Severity::style, "mismatchingBitAnd", msg.str(), CWE398, Certainty::normal);
 }
 
 static void getnumchildren(const Token * tok, std::list<MathLib::bigint> &numchildren)
@@ -294,30 +284,18 @@ void CheckCondition::checkBadBitmaskCheck()
 void CheckCondition::badBitmaskCheckError(const Token * tok, bool isNoOp)
 {
 	if(isNoOp)
-		reportError(tok,
-		    Severity::warning,
-		    "badBitmaskCheck",
-		    "Operator '|' with one operand equal to zero is redundant.",
-		    CWE571,
-		    Certainty::normal);
+		reportError(tok, Severity::warning, "badBitmaskCheck", "Operator '|' with one operand equal to zero is redundant.", CWE571, Certainty::normal);
 	else
-		reportError(tok,
-		    Severity::warning,
-		    "badBitmaskCheck",
-		    "Result of operator '|' is always true if one operand is non-zero. Did you intend to use '&'?",
-		    CWE571,
-		    Certainty::normal);
+		reportError(tok, Severity::warning, "badBitmaskCheck", "Result of operator '|' is always true if one operand is non-zero. Did you intend to use '&'?", CWE571, Certainty::normal);
 }
 
 void CheckCondition::comparison()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	for(const Token * tok = mTokenizer->tokens(); tok; tok = tok->next()) {
 		if(!tok->isComparisonOp())
 			continue;
-
 		const Token * expr1 = tok->astOperand1();
 		const Token * expr2 = tok->astOperand2();
 		if(!expr1 || !expr2)
@@ -875,24 +853,14 @@ void CheckCondition::identicalConditionAfterEarlyExitError(const Token * cond1, 
 {
 	if(diag(cond1) & diag(cond2))
 		return;
-
 	const bool isReturnValue = cond2 && Token::simpleMatch(cond2->astParent(), "return");
-
 	const std::string cond(cond1 ? cond1->expressionString() : "x");
 	const std::string value = (cond2 && cond2->valueType() && cond2->valueType()->type == ValueType::Type::BOOL) ? "false" : "0";
-
 	errorPath.emplace_back(ErrorPathItem(cond1, "If condition '" + cond + "' is true, the function will return/exit"));
-	errorPath.emplace_back(ErrorPathItem(cond2,
-	    (isReturnValue ? "Returning identical expression '" : "Testing identical condition '") + cond + "'"));
-
-	reportError(errorPath,
-	    Severity::warning,
-	    "identicalConditionAfterEarlyExit",
-	    isReturnValue
-	    ? ("Identical condition and return expression '" + cond + "', return value is always " + value)
-	    : ("Identical condition '" + cond + "', second condition is always false"),
-	    CWE398,
-	    Certainty::normal);
+	errorPath.emplace_back(ErrorPathItem(cond2, (isReturnValue ? "Returning identical expression '" : "Testing identical condition '") + cond + "'"));
+	reportError(errorPath, Severity::warning, "identicalConditionAfterEarlyExit",
+	    isReturnValue ? ("Identical condition and return expression '" + cond + "', return value is always " + value) : ("Identical condition '" + cond + "', second condition is always false"),
+	    CWE398, Certainty::normal);
 }
 //
 //    if ((x != 1) || (x != 3))            // expression always true
@@ -1296,45 +1264,30 @@ void CheckCondition::checkIncorrectLogicOperator()
 	}
 }
 
-void CheckCondition::incorrectLogicOperatorError(const Token * tok,
-    const std::string &condition,
-    bool always,
-    bool inconclusive,
-    ErrorPath errors)
+void CheckCondition::incorrectLogicOperatorError(const Token * tok, const std::string &condition, bool always, bool inconclusive, ErrorPath errors)
 {
 	if(diag(tok))
 		return;
 	errors.emplace_back(tok, "");
 	if(always)
-		reportError(errors,
-		    Severity::warning,
-		    "incorrectLogicOperator",
+		reportError(errors, Severity::warning, "incorrectLogicOperator",
 		    "Logical disjunction always evaluates to true: " + condition + ".\n"
 		    "Logical disjunction always evaluates to true: " + condition + ". "
 		    "Are these conditions necessary? Did you intend to use && instead? Are the numbers correct? Are you comparing the correct variables?",
-		    CWE571,
-		    inconclusive ? Certainty::inconclusive : Certainty::normal);
+		    CWE571, inconclusive ? Certainty::inconclusive : Certainty::normal);
 	else
-		reportError(errors,
-		    Severity::warning,
-		    "incorrectLogicOperator",
+		reportError(errors, Severity::warning, "incorrectLogicOperator",
 		    "Logical conjunction always evaluates to false: " + condition + ".\n"
 		    "Logical conjunction always evaluates to false: " + condition + ". "
 		    "Are these conditions necessary? Did you intend to use || instead? Are the numbers correct? Are you comparing the correct variables?",
-		    CWE570,
-		    inconclusive ? Certainty::inconclusive : Certainty::normal);
+		    CWE570, inconclusive ? Certainty::inconclusive : Certainty::normal);
 }
 
 void CheckCondition::redundantConditionError(const Token * tok, const std::string &text, bool inconclusive)
 {
 	if(diag(tok))
 		return;
-	reportError(tok,
-	    Severity::style,
-	    "redundantCondition",
-	    "Redundant condition: " + text,
-	    CWE398,
-	    inconclusive ? Certainty::inconclusive : Certainty::normal);
+	reportError(tok, Severity::style, "redundantCondition", "Redundant condition: " + text, CWE398, inconclusive ? Certainty::inconclusive : Certainty::normal);
 }
 //
 // Detect "(var % val1) > val2" where val2 is >= val1.
@@ -1343,7 +1296,6 @@ void CheckCondition::checkModuloAlwaysTrueFalse()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
@@ -1361,9 +1313,7 @@ void CheckCondition::checkModuloAlwaysTrueFalse()
 			else {
 				continue;
 			}
-
-			if(Token::Match(modulo->astOperand2(), "%num%") &&
-			    MathLib::isLessEqual(modulo->astOperand2()->str(), num->str()))
+			if(Token::Match(modulo->astOperand2(), "%num%") && MathLib::isLessEqual(modulo->astOperand2()->str(), num->str()))
 				moduloAlwaysTrueFalseError(tok, modulo->astOperand2()->str());
 		}
 	}
@@ -1439,10 +1389,8 @@ void CheckCondition::clarifyCondition()
 void CheckCondition::clarifyConditionError(const Token * tok, bool assign, bool boolop)
 {
 	std::string errmsg;
-
 	if(assign)
 		errmsg = "Suspicious condition (assignment + comparison); Clarify expression with parentheses.";
-
 	else if(boolop)
 		errmsg = "Boolean result is used in bitwise operation. Clarify expression with parentheses.\n"
 		    "Suspicious expression. Boolean result is used in bitwise operation. The operator '!' "
@@ -1452,23 +1400,17 @@ void CheckCondition::clarifyConditionError(const Token * tok, bool assign, bool 
 		errmsg = "Suspicious condition (bitwise operator + comparison); Clarify expression with parentheses.\n"
 		    "Suspicious condition. Comparison operators have higher precedence than bitwise operators. "
 		    "Please clarify the condition with parentheses.";
-
-	reportError(tok,
-	    Severity::style,
-	    "clarifyCondition",
-	    errmsg, CWE398, Certainty::normal);
+	reportError(tok, Severity::style, "clarifyCondition", errmsg, CWE398, Certainty::normal);
 }
 
 void CheckCondition::alwaysTrueFalse()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
-			if(Token::simpleMatch(tok, "<") && tok->link()) // don't write false positives when templates
-				                                        // are used
+			if(Token::simpleMatch(tok, "<") && tok->link()) // don't write false positives when templates are used
 				continue;
 			if(!tok->hasKnownIntValue())
 				continue;
@@ -1507,13 +1449,10 @@ void CheckCondition::alwaysTrueFalse()
 				continue;
 			if(Token::Match(tok, "%oror%|&&|:"))
 				continue;
-			if(tok->isComparisonOp() &&
-			    isSameExpression(mTokenizer->isCPP(), true, tok->astOperand1(), tok->astOperand2(), mSettings->library, true,
-			    true))
+			if(tok->isComparisonOp() && isSameExpression(mTokenizer->isCPP(), true, tok->astOperand1(), tok->astOperand2(), mSettings->library, true, true))
 				continue;
 			if(isConstVarExpression(tok, "[|(|&|+|-|*|/|%|^|>>|<<"))
 				continue;
-
 			// there are specific warnings about nonzero expressions (pointer/unsigned)
 			// do not write alwaysTrueFalse for these comparisons.
 			{
@@ -1523,31 +1462,19 @@ void CheckCondition::alwaysTrueFalse()
 				    &nonZeroExpr) || CheckOther::testIfNonZeroExpressionIsPositive(tok, &zeroValue, &nonZeroExpr))
 					continue;
 			}
-
-			const bool constIfWhileExpression =
-			    tok->astParent() &&
-			    Token::Match(tok->astTop()->astOperand1(), "if|while") && !tok->astTop()->astOperand1()->isConstexpr() &&
+			const bool constIfWhileExpression = tok->astParent() && Token::Match(tok->astTop()->astOperand1(), "if|while") && !tok->astTop()->astOperand1()->isConstexpr() &&
 			    (Token::Match(tok->astParent(), "%oror%|&&") || Token::Match(tok->astParent()->astOperand1(), "if|while"));
-			const bool constValExpr = tok->isNumber() && Token::Match(tok->astParent(), "%oror%|&&|?"); // just
-			                                                                                            // one
-			                                                                                            // number
-			                                                                                            // in
-			                                                                                            // boolean
-			                                                                                            // expression
+			const bool constValExpr = tok->isNumber() && Token::Match(tok->astParent(), "%oror%|&&|?"); // just one number in boolean expression
 			const bool compExpr = Token::Match(tok, "%comp%|!"); // a compare expression
 			const bool ternaryExpression = Token::simpleMatch(tok->astParent(), "?");
-			const bool returnExpression =
-			    Token::simpleMatch(tok->astTop(), "return") && (tok->isComparisonOp() || Token::Match(tok, "&&|%oror%"));
-
+			const bool returnExpression = Token::simpleMatch(tok->astTop(), "return") && (tok->isComparisonOp() || Token::Match(tok, "&&|%oror%"));
 			if(!(constIfWhileExpression || constValExpr || compExpr || ternaryExpression || returnExpression))
 				continue;
-
 			const Token* expr1 = tok->astOperand1(), * expr2 = tok->astOperand2();
 			const bool isUnknown = (expr1 && expr1->valueType() && expr1->valueType()->type == ValueType::UNKNOWN_TYPE) ||
 			    (expr2 && expr2->valueType() && expr2->valueType()->type == ValueType::UNKNOWN_TYPE);
 			if(isUnknown)
 				continue;
-
 			// Don't warn when there are expanded macros..
 			bool isExpandedMacro = false;
 			visitAstNodes(tok, [&](const Token * tok2) {
@@ -1569,7 +1496,6 @@ void CheckCondition::alwaysTrueFalse()
 			}
 			if(isExpandedMacro)
 				continue;
-
 			// don't warn when condition checks sizeof result
 			bool hasSizeof = false;
 			visitAstNodes(tok, [&](const Token * tok2) {
@@ -1588,10 +1514,8 @@ void CheckCondition::alwaysTrueFalse()
 			});
 			if(hasSizeof)
 				continue;
-
 			if(isIfConstexpr(tok))
 				continue;
-
 			alwaysTrueFalseError(tok, &tok->values().front());
 		}
 	}
@@ -1603,11 +1527,7 @@ void CheckCondition::alwaysTrueFalseError(const Token * tok, const ValueFlow::Va
 	const std::string expr = tok ? tok->expressionString() : std::string("x");
 	const std::string errmsg = "Condition '" + expr + "' is always " + (alwaysTrue ? "true" : "false");
 	const ErrorPath errorPath = getErrorPath(tok, value, errmsg);
-	reportError(errorPath,
-	    Severity::style,
-	    "knownConditionTrueFalse",
-	    errmsg,
-	    (alwaysTrue ? CWE571 : CWE570), Certainty::normal);
+	reportError(errorPath, Severity::style, "knownConditionTrueFalse", errmsg, (alwaysTrue ? CWE571 : CWE570), Certainty::normal);
 }
 
 void CheckCondition::checkInvalidTestForOverflow()
@@ -1748,7 +1668,6 @@ void CheckCondition::checkPointerAdditionResultNotNull()
 				continue;
 			if(!exprToken->hasKnownIntValue() || !exprToken->getValue(0))
 				continue;
-
 			pointerAdditionResultNotNullError(tok, calcToken);
 		}
 	}
@@ -1757,9 +1676,7 @@ void CheckCondition::checkPointerAdditionResultNotNull()
 void CheckCondition::pointerAdditionResultNotNullError(const Token * tok, const Token * calc)
 {
 	const std::string s = calc ? calc->expressionString() : "ptr+1";
-	reportError(tok,
-	    Severity::warning,
-	    "pointerAdditionResultNotNull",
+	reportError(tok, Severity::warning, "pointerAdditionResultNotNull",
 	    "Comparison is wrong. Result of '" + s +
 	    "' can't be 0 unless there is pointer overflow, and pointer overflow is undefined behaviour.");
 }
@@ -1768,7 +1685,6 @@ void CheckCondition::checkDuplicateConditionalAssign()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token * tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
@@ -1820,16 +1736,13 @@ void CheckCondition::duplicateConditionalAssignError(const Token * condTok, cons
 			errors.emplace_back(condTok, "Condition '" + condTok->expressionString() + "' is redundant");
 		}
 	}
-
-	reportError(
-		errors, Severity::style, "duplicateConditionalAssign", msg, CWE398, Certainty::normal);
+	reportError(errors, Severity::style, "duplicateConditionalAssign", msg, CWE398, Certainty::normal);
 }
 
 void CheckCondition::checkAssignmentInCondition()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
@@ -1860,31 +1773,20 @@ void CheckCondition::checkAssignmentInCondition()
 void CheckCondition::assignmentInCondition(const Token * eq)
 {
 	std::string expr = eq ? eq->expressionString() : "x=y";
-
-	reportError(
-		eq,
-		Severity::style,
-		"assignmentInCondition",
-		"Suspicious assignment in condition. Condition '" + expr + "' is always true.",
-		CWE571,
-		Certainty::normal);
+	reportError(eq, Severity::style, "assignmentInCondition", "Suspicious assignment in condition. Condition '" + expr + "' is always true.", CWE571, Certainty::normal);
 }
 
 void CheckCondition::checkCompareValueOutOfTypeRange()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
-	if(mSettings->platformType == cppcheck::Platform::PlatformType::Native ||
-	    mSettings->platformType == cppcheck::Platform::PlatformType::Unspecified)
+	if(mSettings->platformType == cppcheck::Platform::PlatformType::Native || mSettings->platformType == cppcheck::Platform::PlatformType::Unspecified)
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
 			if(!tok->isComparisonOp() || !tok->isBinaryOp())
 				continue;
-
 			for(int i = 0; i < 2; ++i) {
 				const Token * const valueTok = (i == 0) ? tok->astOperand1() : tok->astOperand2();
 				const Token * const typeTok = valueTok->astSibling();
@@ -1993,12 +1895,7 @@ void CheckCondition::checkCompareValueOutOfTypeRange()
 
 void CheckCondition::compareValueOutOfTypeRangeError(const Token * comparison, const std::string &type, long long value, bool result)
 {
-	reportError(
-		comparison,
-		Severity::style,
-		"compareValueOutOfTypeRangeError",
+	reportError(comparison, Severity::style, "compareValueOutOfTypeRangeError",
 		"Comparing expression of type '" + type + "' against value " + std::to_string(value) + ". Condition is always " +
-		(result ? "true" : "false") + ".",
-		CWE398,
-		Certainty::normal);
+		(result ? "true" : "false") + ".", CWE398, Certainty::normal);
 }

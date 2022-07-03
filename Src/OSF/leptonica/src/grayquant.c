@@ -96,7 +96,7 @@ static void thresholdToBinaryLow(uint32 * datad, int32 w, int32 h,
 static void ditherTo2bppLow(uint32 * datad, int32 w, int32 h, int32 wpld,
     uint32 * datas, int32 wpls, uint32 * bufs1,
     uint32 * bufs2, int32 * tabval, int32 * tab38,
-    int32   * tab14);
+    int32 * tab14);
 static void ditherTo2bppLineLow(uint32 * lined, int32 w, uint32 * bufs1,
     uint32 * bufs2, int32 * tabval,
     int32 * tab38, int32 * tab14,
@@ -1019,7 +1019,7 @@ PIX * pixDitherTo2bppSpec(PIX * pixs,
     int32 cmapflag)
 {
 	int32 w, h, d, wplt, wpld;
-	int32   * tabval, * tab38, * tab14;
+	int32 * tabval, * tab38, * tab14;
 	uint32  * datat, * datad;
 	uint32  * bufs1, * bufs2;
 	PIX * pixt, * pixd;
@@ -1102,9 +1102,9 @@ static void ditherTo2bppLow(uint32  * datad,
     int32 wpls,
     uint32  * bufs1,
     uint32  * bufs2,
-    int32   * tabval,
-    int32   * tab38,
-    int32   * tab14)
+    int32 * tabval,
+    int32 * tab38,
+    int32 * tab14)
 {
 	int32 i;
 	uint32    * lined;
@@ -1154,9 +1154,9 @@ static void ditherTo2bppLineLow(uint32  * lined,
     int32 w,
     uint32  * bufs1,
     uint32  * bufs2,
-    int32   * tabval,
-    int32   * tab38,
-    int32   * tab14,
+    int32 * tabval,
+    int32 * tab38,
+    int32 * tab14,
     int32 lastlineflag)
 {
 	int32 j;
@@ -1342,7 +1342,7 @@ PIX * pixThresholdTo2bpp(PIX * pixs,
     int32 nlevels,
     int32 cmapflag)
 {
-	int32   * qtab;
+	int32 * qtab;
 	int32 w, h, d, wplt, wpld;
 	uint32  * datat, * datad;
 	PIX * pixt, * pixd;
@@ -1405,7 +1405,7 @@ static void thresholdTo2bppLow(uint32  * datad,
     int32 wpld,
     uint32  * datas,
     int32 wpls,
-    int32   * tab)
+    int32 * tab)
 {
 	uint8 sval1, sval2, sval3, sval4, dval;
 	int32 i, j, k;
@@ -1480,7 +1480,7 @@ PIX * pixThresholdTo4bpp(PIX * pixs,
     int32 nlevels,
     int32 cmapflag)
 {
-	int32   * qtab;
+	int32 * qtab;
 	int32 w, h, d, wplt, wpld;
 	uint32  * datat, * datad;
 	PIX * pixt, * pixd;
@@ -1543,7 +1543,7 @@ static void thresholdTo4bppLow(uint32  * datad,
     int32 wpld,
     uint32  * datas,
     int32 wpls,
-    int32   * tab)
+    int32 * tab)
 {
 	uint8 sval1, sval2, sval3, sval4;
 	uint16 dval;
@@ -1593,7 +1593,7 @@ PIX * pixThresholdOn8bpp(PIX * pixs,
     int32 nlevels,
     int32 cmapflag)
 {
-	int32   * qtab; /* quantization table */
+	int32 * qtab; /* quantization table */
 	int32 i, j, w, h, wpld, val, newval;
 	uint32  * datad, * lined;
 	PIX * pixd;
@@ -1695,7 +1695,7 @@ PIX * pixThresholdGrayArb(PIX         * pixs,
     int32 setblack,
     int32 setwhite)
 {
-	int32   * qtab;
+	int32 * qtab;
 	int32 w, h, d, i, j, n, wplt, wpld, val, newval;
 	uint32  * datat, * datad, * linet, * lined;
 	NUMA * na;
@@ -1968,12 +1968,12 @@ l_ok makeGrayQuantTableArb(NUMA * na,
  * </pre>
  */
 static int32 makeGrayQuantColormapArb(PIX * pixs,
-    int32   * tab,
+    int32 * tab,
     int32 outdepth,
     PIXCMAP  ** pcmap)
 {
 	int32 i, j, index, w, h, d, nbins, wpl, factor, val;
-	int32   * bincount, * binave, * binstart;
+	int32 * bincount, * binave, * binstart;
 	uint32  * line, * data;
 
 	PROCNAME(__FUNCTION__);
@@ -2290,7 +2290,7 @@ PIX * pixGrayQuantFromHisto(PIX * pixd,
 {
 	int32 w, h, wd, hd, wm, hm, wpls, wplm, wpld;
 	int32 nc, nestim, i, j, vals, vald;
-	int32   * lut;
+	int32 * lut;
 	uint32  * datas, * datam, * datad, * lines, * linem, * lined;
 	NUMA * na;
 	PIX * pixmr; /* resized mask */
@@ -2421,7 +2421,7 @@ static int32 numaFillCmapFromHisto(NUMA * na,
     int32 ** plut)
 {
 	int32 mincount, index, sum, wtsum, span, istart, i, val, ret;
-	int32   * iahisto, * lut;
+	int32 * iahisto, * lut;
 	float total;
 
 	PROCNAME(__FUNCTION__);
@@ -2509,7 +2509,7 @@ PIX * pixGrayQuantFromCmap(PIX * pixs,
 {
 	int32 i, j, index, w, h, d, depth, wpls, wpld;
 	int32 hascolor, vals, vald;
-	int32   * tab;
+	int32 * tab;
 	uint32  * datas, * datad, * lines, * lined;
 	PIXCMAP   * cmapd;
 	PIX * pixd;
@@ -2600,7 +2600,7 @@ PIX * pixDitherToBinaryLUT(PIX * pixs,
     int32 upperclip)
 {
 	int32 w, h, d, wplt, wpld;
-	int32   * tabval, * tab38, * tab14;
+	int32 * tabval, * tab38, * tab14;
 	uint32  * datat, * datad;
 	uint32  * bufs1, * bufs2;
 	PIX * pixt, * pixd;
@@ -2676,9 +2676,9 @@ void ditherToBinaryLUTLow(uint32  * datad,
     int32 wpls,
     uint32  * bufs1,
     uint32  * bufs2,
-    int32   * tabval,
-    int32   * tab38,
-    int32   * tab14)
+    int32 * tabval,
+    int32 * tab38,
+    int32 * tab14)
 {
 	int32 i;
 	uint32    * lined;
@@ -2717,9 +2717,9 @@ void ditherToBinaryLineLUTLow(uint32  * lined,
     int32 w,
     uint32  * bufs1,
     uint32  * bufs2,
-    int32   * tabval,
-    int32   * tab38,
-    int32   * tab14,
+    int32 * tabval,
+    int32 * tab38,
+    int32 * tab14,
     int32 lastlineflag)
 {
 	int32 j;

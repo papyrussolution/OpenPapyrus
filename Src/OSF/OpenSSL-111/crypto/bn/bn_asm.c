@@ -8,20 +8,16 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include "bn_lcl.h"
 
 #if defined(BN_LLONG) || defined(BN_UMULT_HIGH)
 
-BN_ULONG bn_mul_add_words(BN_ULONG * rp, const BN_ULONG * ap, int num,
-    BN_ULONG w)
+BN_ULONG bn_mul_add_words(BN_ULONG * rp, const BN_ULONG * ap, int num, BN_ULONG w)
 {
 	BN_ULONG c1 = 0;
-
 	assert(num >= 0);
 	if(num <= 0)
 		return c1;
-
 #ifndef OPENSSL_SMALL_FOOTPRINT
 	while(num & ~3) {
 		mul_add(rp[0], ap[0], w, c1);

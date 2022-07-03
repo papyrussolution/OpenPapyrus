@@ -12,9 +12,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_DATABASEREPLICATOR_H
 #define XAPIAN_INCLUDED_GLASS_DATABASEREPLICATOR_H
 
-#include "backends/databasereplicator.h"
-#include "glass_defs.h"
-
 class GlassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	/** Path of database.
 	 */

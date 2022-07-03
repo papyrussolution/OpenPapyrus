@@ -438,7 +438,7 @@ NUMA * boxaMakeAreaIndicator(BOXA     * boxa,
 BOXA * boxaSelectByWHRatio(BOXA      * boxas,
     float ratio,
     int32 relation,
-    int32   * pchanged)
+    int32 * pchanged)
 {
 	BOXA * boxad;
 	NUMA * na;

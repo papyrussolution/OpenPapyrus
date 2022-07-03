@@ -804,7 +804,7 @@ PIX * pixFillBgFromBorder(PIX * pixs,
 PIX * pixFillHolesToBoundingRect(PIX * pixs, int32 minsize, float maxhfract, float minfgfract)
 {
 	int32 i, x, y, w, h, n, nfg, nh, ntot, area;
-	int32   * tab;
+	int32 * tab;
 	float hfract; /* measured hole fraction */
 	float fgfract; /* measured fg fraction */
 	BOXA      * boxa;
@@ -3242,7 +3242,7 @@ l_ok pixSelectMinInConnComp(PIX    * pixs,
 	NUMA * nav;
 	PIX * pixt, * pixs2, * pixm2;
 	PIXA      * pixa;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 

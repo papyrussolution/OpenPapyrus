@@ -14,8 +14,7 @@
  */
 #include <libssh-internal.h>
 #pragma hdrstop
-#include "openssl/crypto.h"
-#include "openssl/dh.h"
+#include <slib-ossl.h>
 #include "libcrypto-compat.h"
 
 extern bignum ssh_dh_generator;

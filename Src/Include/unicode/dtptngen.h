@@ -63,7 +63,7 @@ public:
      *               which must not indicate a failure before the function call.
      * @stable ICU 3.8
      */
-    static DateTimePatternGenerator* U_EXPORT2 createInstance(UErrorCode& status);
+    static DateTimePatternGenerator* U_EXPORT2 createInstance(UErrorCode & status);
 
     /**
      * Construct a flexible generator according to data for a given locale.
@@ -72,7 +72,7 @@ public:
      *               which must not indicate a failure before the function call.
      * @stable ICU 3.8
      */
-    static DateTimePatternGenerator* U_EXPORT2 createInstance(const Locale& uLocale, UErrorCode& status);
+    static DateTimePatternGenerator* U_EXPORT2 createInstance(const Locale& uLocale, UErrorCode & status);
 
 #ifndef U_HIDE_INTERNAL_API
 
@@ -81,14 +81,14 @@ public:
      *
      * @internal
      */
-    static DateTimePatternGenerator* U_EXPORT2 createInstanceNoStdPat(const Locale& uLocale, UErrorCode& status);
+    static DateTimePatternGenerator* U_EXPORT2 createInstanceNoStdPat(const Locale& uLocale, UErrorCode & status);
 
     /**
      * For ICU use only
      *
      * @internal
      */
-    static DateTimePatternGenerator* U_EXPORT2 internalMakeInstance(const Locale& uLocale, UErrorCode& status);
+    static DateTimePatternGenerator* U_EXPORT2 internalMakeInstance(const Locale& uLocale, UErrorCode & status);
 
 #endif /* U_HIDE_INTERNAL_API */
 
@@ -98,7 +98,7 @@ public:
      *               which must not indicate a failure before the function call.
      * @stable ICU 3.8
      */
-     static DateTimePatternGenerator* U_EXPORT2 createEmptyInstance(UErrorCode& status);
+     static DateTimePatternGenerator* U_EXPORT2 createEmptyInstance(UErrorCode & status);
 
     /**
      * Destructor.
@@ -141,7 +141,7 @@ public:
      * @return skeleton such as "MMMdd"
      * @stable ICU 56
      */
-    static UnicodeString staticGetSkeleton(const UnicodeString & pattern, UErrorCode& status);
+    static UnicodeString staticGetSkeleton(const UnicodeString & pattern, UErrorCode & status);
 
     /**
      * Utility to return a unique skeleton from a given pattern. For example,
@@ -155,7 +155,7 @@ public:
      * @return skeleton such as "MMMdd"
      * @stable ICU 3.8
      */
-    UnicodeString getSkeleton(const UnicodeString & pattern, UErrorCode& status); /* {
+    UnicodeString getSkeleton(const UnicodeString & pattern, UErrorCode & status); /* {
         The function is commented out because it is a stable API calling a draft API.
         After staticGetSkeleton becomes stable, staticGetSkeleton can be used and
         these comments and the definition of getSkeleton in dtptngen.cpp should be removed.
@@ -175,7 +175,7 @@ public:
      * @return base skeleton, such as "MMMd"
      * @stable ICU 56
      */
-    static UnicodeString staticGetBaseSkeleton(const UnicodeString & pattern, UErrorCode& status);
+    static UnicodeString staticGetBaseSkeleton(const UnicodeString & pattern, UErrorCode & status);
 
     /**
      * Utility to return a unique base skeleton from a given pattern. This is
@@ -192,7 +192,7 @@ public:
      * @return base skeleton, such as "MMMd"
      * @stable ICU 3.8
      */
-    UnicodeString getBaseSkeleton(const UnicodeString & pattern, UErrorCode& status); /* {
+    UnicodeString getBaseSkeleton(const UnicodeString & pattern, UErrorCode & status); /* {
         The function is commented out because it is a stable API calling a draft API.
         After staticGetBaseSkeleton becomes stable, staticGetBaseSkeleton can be used and
         these comments and the definition of getBaseSkeleton in dtptngen.cpp should be removed.
@@ -227,7 +227,7 @@ public:
     UDateTimePatternConflict addPattern(const UnicodeString & pattern,
                                         bool override,
                                         UnicodeString & conflictingPattern,
-                                        UErrorCode& status);
+                                        UErrorCode & status);
 
     /**
      * An AppendItem format is a pattern used to append a field if there is no
@@ -343,7 +343,7 @@ public:
      * \snippet samples/dtptngsample/dtptngsample.cpp getBestPatternExample
      * <p>
      */
-     UnicodeString getBestPattern(const UnicodeString & skeleton, UErrorCode& status);
+     UnicodeString getBestPattern(const UnicodeString & skeleton, UErrorCode & status);
 
 
     /**
@@ -367,7 +367,7 @@ public:
      */
      UnicodeString getBestPattern(const UnicodeString & skeleton,
                                   UDateTimePatternMatchOptions options,
-                                  UErrorCode& status);
+                                  UErrorCode & status);
 
 
     /**
@@ -393,7 +393,7 @@ public:
      */
      UnicodeString replaceFieldTypes(const UnicodeString & pattern,
                                      const UnicodeString & skeleton,
-                                     UErrorCode& status);
+                                     UErrorCode & status);
 
     /**
      * Adjusts the field types (width and subtype) of a pattern to match what is
@@ -420,7 +420,7 @@ public:
      UnicodeString replaceFieldTypes(const UnicodeString & pattern,
                                      const UnicodeString & skeleton,
                                      UDateTimePatternMatchOptions options,
-                                     UErrorCode& status);
+                                     UErrorCode & status);
 
     /**
      * Return a list of all the skeletons (in canonical form) from this class.
@@ -433,7 +433,7 @@ public:
      *         The caller must delete the object.
      * @stable ICU 3.8
      */
-     StringEnumeration* getSkeletons(UErrorCode& status) const;
+     StringEnumeration* getSkeletons(UErrorCode & status) const;
 
      /**
       * Get the pattern corresponding to a given skeleton.
@@ -452,7 +452,7 @@ public:
      *         The caller must delete the object.
      * @stable ICU 3.8
      */
-     StringEnumeration* getBaseSkeletons(UErrorCode& status) const;
+     StringEnumeration* getBaseSkeletons(UErrorCode & status) const;
 
 #ifndef U_HIDE_INTERNAL_API
      /**
@@ -467,7 +467,7 @@ public:
       *         The caller must delete the object.
       * @internal ICU 3.8
       */
-     StringEnumeration* getRedundants(UErrorCode& status);
+     StringEnumeration* getRedundants(UErrorCode & status);
 #endif  /* U_HIDE_INTERNAL_API */
 
     /**
@@ -504,7 +504,7 @@ public:
      * @return the default hour cycle.
      * @stable ICU 67
      */
-    UDateFormatHourCycle getDefaultHourCycle(UErrorCode& status) const;
+    UDateFormatHourCycle getDefaultHourCycle(UErrorCode & status) const;
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
     
@@ -578,34 +578,34 @@ private:
         // with #13183, no longer need flags for b, B
     };
 
-    void initData(const Locale &locale, UErrorCode &status, bool skipStdPatterns = false);
-    void addCanonicalItems(UErrorCode &status);
-    void addICUPatterns(const Locale& locale, UErrorCode& status);
-    void hackTimes(const UnicodeString & hackPattern, UErrorCode& status);
+    void initData(const Locale &locale, UErrorCode & status, bool skipStdPatterns = false);
+    void addCanonicalItems(UErrorCode & status);
+    void addICUPatterns(const Locale& locale, UErrorCode & status);
+    void hackTimes(const UnicodeString & hackPattern, UErrorCode & status);
     void getCalendarTypeToUse(const Locale& locale, CharString& destination, UErrorCode& err);
-    void consumeShortTimePattern(const UnicodeString & shortTimePattern, UErrorCode& status);
-    void addCLDRData(const Locale& locale, UErrorCode& status);
-    UDateTimePatternConflict addPatternWithSkeleton(const UnicodeString & pattern, const UnicodeString * skeletonToUse, bool override, UnicodeString & conflictingPattern, UErrorCode& status);
-    void initHashtable(UErrorCode& status);
-    void setDateTimeFromCalendar(const Locale& locale, UErrorCode& status);
-    void setDecimalSymbols(const Locale& locale, UErrorCode& status);
+    void consumeShortTimePattern(const UnicodeString & shortTimePattern, UErrorCode & status);
+    void addCLDRData(const Locale& locale, UErrorCode & status);
+    UDateTimePatternConflict addPatternWithSkeleton(const UnicodeString & pattern, const UnicodeString * skeletonToUse, bool override, UnicodeString & conflictingPattern, UErrorCode & status);
+    void initHashtable(UErrorCode & status);
+    void setDateTimeFromCalendar(const Locale& locale, UErrorCode & status);
+    void setDecimalSymbols(const Locale& locale, UErrorCode & status);
     UDateTimePatternField getAppendFormatNumber(const char * field) const;
     // Note for the next 3: UDateTimePGDisplayWidth is now stable ICU 61
     UDateTimePatternField getFieldAndWidthIndices(const char * key, UDateTimePGDisplayWidth* widthP) const;
     void setFieldDisplayName(UDateTimePatternField field, UDateTimePGDisplayWidth width, const UnicodeString & value);
     UnicodeString & getMutableFieldDisplayName(UDateTimePatternField field, UDateTimePGDisplayWidth width);
     void getAppendName(UDateTimePatternField field, UnicodeString & value);
-    UnicodeString mapSkeletonMetacharacters(const UnicodeString & patternForm, int32_t* flags, UErrorCode& status);
-    const UnicodeString * getBestRaw(DateTimeMatcher& source, int32_t includeMask, DistanceInfo* missingFields, UErrorCode& status, const PtnSkeleton** specifiedSkeletonPtr = 0);
+    UnicodeString mapSkeletonMetacharacters(const UnicodeString & patternForm, int32_t* flags, UErrorCode & status);
+    const UnicodeString * getBestRaw(DateTimeMatcher& source, int32_t includeMask, DistanceInfo* missingFields, UErrorCode & status, const PtnSkeleton** specifiedSkeletonPtr = 0);
     UnicodeString adjustFieldTypes(const UnicodeString & pattern, const PtnSkeleton* specifiedSkeleton, int32_t flags, UDateTimePatternMatchOptions options = UDATPG_MATCH_NO_OPTIONS);
-    UnicodeString getBestAppending(int32_t missingFields, int32_t flags, UErrorCode& status, UDateTimePatternMatchOptions options = UDATPG_MATCH_NO_OPTIONS);
+    UnicodeString getBestAppending(int32_t missingFields, int32_t flags, UErrorCode & status, UDateTimePatternMatchOptions options = UDATPG_MATCH_NO_OPTIONS);
     int32_t getTopBitNumber(int32_t foundMask) const;
-    void setAvailableFormat(const UnicodeString &key, UErrorCode& status);
+    void setAvailableFormat(const UnicodeString &key, UErrorCode & status);
     bool isAvailableFormatSet(const UnicodeString &key) const;
-    void copyHashtable(Hashtable *other, UErrorCode &status);
+    void copyHashtable(Hashtable *other, UErrorCode & status);
     bool isCanonicalItem(const UnicodeString & item) const;
-    static void U_CALLCONV loadAllowedHourFormatsData(UErrorCode &status);
-    void getAllowedHourFormats(const Locale &locale, UErrorCode &status);
+    static void U_CALLCONV loadAllowedHourFormatsData(UErrorCode & status);
+    void getAllowedHourFormats(const Locale &locale, UErrorCode & status);
 
     struct AppendItemFormatsSink;
     struct AppendItemNamesSink;

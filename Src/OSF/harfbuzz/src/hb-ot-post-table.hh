@@ -190,7 +190,7 @@ protected:
 				uint name_length = *data;
 				data++;
 
-				return hb_bytes_t((const char*)data, name_length);
+				return hb_bytes_t((const char *)data, name_length);
 			}
 
 private:

@@ -1,16 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1999-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-/************************************************************************
-*   Date        Name        Description
-*   12/15/99    Madhu        Creation.
-*   01/12/2000  Madhu        Updated for changed API and added new tests
-************************************************************************/
-
+// Copyright (c) 1999-2016, International Business Machines Corporation and others. All Rights Reserved.
+// Date        Name        Description
+// 12/15/99    Madhu        Creation.
+// 01/12/2000  Madhu        Updated for changed API and added new tests
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #if !UCONFIG_NO_BREAK_ITERATION
@@ -36,11 +30,9 @@
 		IntlTest::gTest->errln("\n%s:%d %s at index %d. Parameters to reproduce: @\"type=%s seed=%u loop=1\"", \
 		    __FILE__, __LINE__, msg, index, fRuleFileName, seed); \
 }
-
-//---------------------------------------------
+//
 // runIndexedTest
-//---------------------------------------------
-
+//
 //  Note:  Before adding new tests to this file, check whether the desired test data can
 //         simply be added to the file testdata/rbbitest.txt.  In most cases it can,
 //         it's much less work than writing a new test, diagnostic output in the event of failures
@@ -118,13 +110,9 @@ void RBBITest::runIndexedTest(int32_t index, bool exec, const char *& name, char
 
 	TESTCASE_AUTO_END;
 }
-
-//--------------------------------------------------------------------------------------
 //
 //    RBBITest    constructor and destructor
 //
-//--------------------------------------------------------------------------------------
-
 RBBITest::RBBITest() {
 	fTestParams = NULL;
 }
@@ -181,40 +169,31 @@ static void printStringBreaks(const UnicodeString & ustr, int expected[], int ex
 	utext_close(tstr);
 }
 
-void RBBITest::TestBug3818() {
+void RBBITest::TestBug3818() 
+{
 	UErrorCode status = U_ZERO_ERROR;
-
 	// Four Thai words...
-	static const UChar thaiWordData[] = {  0x0E43, 0x0E2B, 0x0E0D, 0x0E48, 0x0E43, 0x0E2B, 0x0E0D, 0x0E48,
-					       0x0E43, 0x0E2B, 0x0E0D, 0x0E48, 0x0E43, 0x0E2B, 0x0E0D, 0x0E48, 0 };
+	static const UChar thaiWordData[] = {  0x0E43, 0x0E2B, 0x0E0D, 0x0E48, 0x0E43, 0x0E2B, 0x0E0D, 0x0E48, 0x0E43, 0x0E2B, 0x0E0D, 0x0E48, 0x0E43, 0x0E2B, 0x0E0D, 0x0E48, 0 };
 	UnicodeString thaiStr(thaiWordData);
-
 	BreakIterator* bi = BreakIterator::createWordInstance(Locale("th"), status);
 	if(U_FAILURE(status) || bi == NULL) {
 		errcheckln(status, "Fail at file %s, line %d, status = %s", __FILE__, __LINE__, u_errorName(status));
 		return;
 	}
 	bi->setText(thaiStr);
-
 	int32_t startOfSecondWord = bi->following(1);
 	if(startOfSecondWord != 4) {
-		errln("Fail at file %s, line %d expected start of word at 4, got %d",
-		    __FILE__, __LINE__, startOfSecondWord);
+		errln("Fail at file %s, line %d expected start of word at 4, got %d", __FILE__, __LINE__, startOfSecondWord);
 	}
 	startOfSecondWord = bi->following(0);
 	if(startOfSecondWord != 4) {
-		errln("Fail at file %s, line %d expected start of word at 4, got %d",
-		    __FILE__, __LINE__, startOfSecondWord);
+		errln("Fail at file %s, line %d expected start of word at 4, got %d", __FILE__, __LINE__, startOfSecondWord);
 	}
 	delete bi;
 }
-
-//---------------------------------------------
 //
 //     other tests
 //
-//---------------------------------------------
-
 void RBBITest::TestGetAvailableLocales()
 {
 	int32_t locCount = 0;
@@ -233,7 +212,6 @@ void RBBITest::TestGetAvailableLocales()
 void RBBITest::TestGetDisplayName()
 {
 	UnicodeString result;
-
 	BreakIterator::getDisplayName(Locale::getUS(), result);
 	if(Locale::getDefault() == Locale::getUS() && result != "English (United States)")
 		dataerrln("BreakIterator::getDisplayName() failed: expected \"English (United States)\", got \""
@@ -334,13 +312,9 @@ void RBBITest::TestBug5775() {
 	TEST_ASSERT(pos == 6);
 	delete bi;
 }
-
-//------------------------------------------------------------------------------
 //
 //   RBBITest::Extended    Run  RBBI Tests from an external test data file
 //
-//------------------------------------------------------------------------------
-
 struct TestParams {
 	BreakIterator   * bi;              // Break iterator is set while parsing test source.
 	                                   //   Changed out whenever test data changes break type.
@@ -1083,16 +1057,14 @@ end_test:
 	delete [] testFile;
 #endif
 }
-
-//-------------------------------------------------------------------------------
 //
 //  TestDictRules   create a break iterator from source rules that includes a
 //                  dictionary range.   Regression for bug #7130.  Source rules
 //                  do not declare a break iterator type (word, line, sentence, etc.
 //                  but the dictionary code, without a type, would loop.
 //
-//-------------------------------------------------------------------------------
-void RBBITest::TestDictRules() {
+void RBBITest::TestDictRules() 
+{
 	const char * rules =  "$dictionary = [a-z]; \n"
 	    "!!forward; \n"
 	    "$dictionary $dictionary; \n"
@@ -1120,16 +1092,13 @@ void RBBITest::TestDictRules() {
 		dataerrln("Error creating RuleBasedBreakIterator: %s", u_errorName(status));
 	}
 }
-
-//--------------------------------------------------------------------------------------------
 //
 //   Run tests from each of the boundary test data files distributed by the Unicode Consortium
 //
-//-------------------------------------------------------------------------------------------
-void RBBITest::TestUnicodeFiles() {
+void RBBITest::TestUnicodeFiles() 
+{
 	RuleBasedBreakIterator  * bi;
 	UErrorCode status = U_ZERO_ERROR;
-
 	bi =  (RuleBasedBreakIterator*)BreakIterator::createCharacterInstance(Locale::getEnglish(), status);
 	TEST_ASSERT_SUCCESS(status);
 	if(U_SUCCESS(status)) {
@@ -1218,16 +1187,13 @@ bool RBBITest::testCaseIsKnownIssue(const UnicodeString & testCase, const char *
 	}
 	return FALSE;
 }
-
-//--------------------------------------------------------------------------------------------
 //
 //   Run tests from one of the boundary test data files distributed by the Unicode Consortium
 //
-//-------------------------------------------------------------------------------------------
-void RBBITest::runUnicodeTestData(const char * fileName, RuleBasedBreakIterator * bi) {
+void RBBITest::runUnicodeTestData(const char * fileName, RuleBasedBreakIterator * bi) 
+{
 #if !UCONFIG_NO_REGULAR_EXPRESSIONS
 	UErrorCode status = U_ZERO_ERROR;
-
 	//
 	//  Open and read the test data file, put it into a UnicodeString.
 	//
@@ -1352,19 +1318,17 @@ void RBBITest::runUnicodeTestData(const char * fileName, RuleBasedBreakIterator 
 	delete [] testFile;
  #endif   // !UCONFIG_NO_REGULAR_EXPRESSIONS
 }
-
-//--------------------------------------------------------------------------------------------
 //
 //   checkUnicodeTestCase()   Run one test case from one of the Unicode Consortium
 //                            test data files.  Do only a simple, forward-only check -
 //                            this test is mostly to check that ICU and the Unicode
 //                            data agree with each other.
 //
-//--------------------------------------------------------------------------------------------
 void RBBITest::checkUnicodeTestCase(const char * testFileName, int lineNumber,
     const UnicodeString & testString,                        // Text data to be broken
     UVector32 * breakPositions,                             // Positions where breaks should be found.
-    RuleBasedBreakIterator * bi) {
+    RuleBasedBreakIterator * bi) 
+{
 	int32_t pos;             // Break Position in the test string
 	int32_t expectedI = 0;   // Index of expected break position in the vector of expected results.
 	int32_t expectedPos;     // Expected break position (index into test string)
@@ -1401,7 +1365,6 @@ void RBBITest::checkUnicodeTestCase(const char * testFileName, int lineNumber,
 }
 
 #if !UCONFIG_NO_REGULAR_EXPRESSIONS
-//---------------------------------------------------------------------------------------
 //
 //   class RBBIMonkeyKind
 //
@@ -1412,7 +1375,6 @@ void RBBITest::checkUnicodeTestCase(const char * testFileName, int lineNumber,
 //      The Monkey Test itself uses doesn't know which type of break iterator it is
 //      testing, but works purely in terms of the interface defined here.
 //
-//---------------------------------------------------------------------------------------
 class RBBIMonkeyKind {
 public:
 	// Return a UVector of UnicodeSets, representing the character classes used
@@ -1498,15 +1460,12 @@ unsigned int RBBIMonkeyKind::maxClassNameSize() {
 	}
 	return maxSize;
 }
-
-//----------------------------------------------------------------------------------------
 //
 //   Random Numbers.  Similar to standard lib rand() and srand()
 //                    Not using library to
 //                      1.  Get same results on all platforms.
 //                      2.  Get access to current seed, to more easily reproduce failures.
 //
-//---------------------------------------------------------------------------------------
 static uint32_t m_seed = 1;
 
 static uint32_t m_rand()
@@ -1514,13 +1473,10 @@ static uint32_t m_rand()
 	m_seed = m_seed * 1103515245 + 12345;
 	return (uint32_t)(m_seed/65536) % 32768;
 }
-
-//------------------------------------------------------------------------------------------
 //
 //   class RBBICharMonkey      Character (Grapheme Cluster) specific implementation
 //                             of RBBIMonkeyKind.
 //
-//------------------------------------------------------------------------------------------
 class RBBICharMonkey : public RBBIMonkeyKind {
 public:
 	RBBICharMonkey();
@@ -1792,13 +1748,10 @@ RBBICharMonkey::~RBBICharMonkey() {
 	delete fLinkingConsonantSet;
 	delete fExtCccZwjSet;
 }
-
-//------------------------------------------------------------------------------------------
 //
 //   class RBBIWordMonkey      Word Break specific implementation
 //                             of RBBIMonkeyKind.
 //
-//------------------------------------------------------------------------------------------
 class RBBIWordMonkey : public RBBIMonkeyKind {
 public:
 	RBBIWordMonkey();
@@ -2162,13 +2115,10 @@ RBBIWordMonkey::~RBBIWordMonkey() {
 	delete fZWJSet;
 	delete fExtendedPictSet;
 }
-
-//------------------------------------------------------------------------------------------
 //
 //   class RBBISentMonkey      Sentence Break specific implementation
 //                             of RBBIMonkeyKind.
 //
-//------------------------------------------------------------------------------------------
 class RBBISentMonkey : public RBBIMonkeyKind {
 public:
 	RBBISentMonkey();
@@ -2488,13 +2438,9 @@ RBBISentMonkey::~RBBISentMonkey() {
 	delete fOtherSet;
 	delete fExtendSet;
 }
-
-//-------------------------------------------------------------------------------------------
 //
 //  RBBILineMonkey
 //
-//-------------------------------------------------------------------------------------------
-
 class RBBILineMonkey : public RBBIMonkeyKind {
 public:
 	RBBILineMonkey();
@@ -3254,12 +3200,9 @@ RBBILineMonkey::~RBBILineMonkey() {
 	delete fOP30;
 	delete fCP30;
 	delete fExtPictUnassigned;
-
 	delete fCharBI;
 	delete fNumberMatcher;
 }
-
-//-------------------------------------------------------------------------------------------
 //
 //   TestMonkey
 //
@@ -3275,9 +3218,8 @@ RBBILineMonkey::~RBBILineMonkey() {
 //  Example:
 //     intltest  rbbi/RBBITest/TestMonkey@"type=line loop=-1"
 //
-//-------------------------------------------------------------------------------------------
-
-static int32_t getIntParam(UnicodeString name, UnicodeString & params, int32_t defaultVal) {
+static int32_t getIntParam(UnicodeString name, UnicodeString & params, int32_t defaultVal) 
+{
 	int32_t val = defaultVal;
 	name.append(" *= *(-?\\d+)");
 	UErrorCode status = U_ZERO_ERROR;
@@ -5265,9 +5207,7 @@ void RBBITest::runLSTMTestFromFile(const char * filename, UScriptCode script) {
 				// output.
 				std::string expected = "{" + ss.str() + "}";
 				std::string utf8;
-
-				assertEquals((input + " Test Case#" + caseNum).toUTF8String<std::string>(utf8).c_str(),
-				    expected.c_str(), actual_sep_str.c_str());
+				assertEquals((input + " Test Case#" + caseNum).toUTF8String<std::string>(utf8).c_str(), expected.c_str(), actual_sep_str.c_str());
 				actual_sep_str.clear();
 			}
 		}
@@ -5277,12 +5217,7 @@ void RBBITest::runLSTMTestFromFile(const char * filename, UScriptCode script) {
 	delete [] testFile;
 }
 
-void RBBITest::TestLSTMThai() {
-	runLSTMTestFromFile("Thai_graphclust_model4_heavy_Test.txt", USCRIPT_THAI);
-}
-
-void RBBITest::TestLSTMBurmese() {
-	runLSTMTestFromFile("Burmese_graphclust_model5_heavy_Test.txt", USCRIPT_MYANMAR);
-}
+void RBBITest::TestLSTMThai() { runLSTMTestFromFile("Thai_graphclust_model4_heavy_Test.txt", USCRIPT_THAI); }
+void RBBITest::TestLSTMBurmese() { runLSTMTestFromFile("Burmese_graphclust_model5_heavy_Test.txt", USCRIPT_MYANMAR); }
 
 #endif // #if !UCONFIG_NO_BREAK_ITERATION

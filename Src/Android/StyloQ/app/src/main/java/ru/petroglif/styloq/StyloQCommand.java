@@ -19,7 +19,7 @@ public class StyloQCommand {
 	//
 	public static final int sqbcEmpty       =  0;
 	public static final int sqbcRegister    =  1;
-	public static final int sqbcLogin       =  2;
+	public static final int sqbcDtLogin     =  2; // Команда авторизации в desktop-сеансе Papyrus с мобильного телефона
 	public static final int sqbcPersonEvent =  3;
 	public static final int sqbcReport      =  4;
 	public static final int sqbcSearch      =  5; // Поисковый запрос

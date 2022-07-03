@@ -205,7 +205,7 @@ class LocaleDisplayNamesImpl : public LocaleDisplayNames {
 #if !UCONFIG_NO_BREAK_ITERATION
 	BreakIterator* capitalizationBrkIter;
 #else
-	UObject* capitalizationBrkIter;
+	UObject * capitalizationBrkIter;
 #endif
 	UnicodeString formatOpenParen;
 	UnicodeString formatReplaceOpenParen;

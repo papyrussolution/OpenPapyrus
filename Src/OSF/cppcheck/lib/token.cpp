@@ -563,10 +563,8 @@ int Token::multiCompare(const Token * tok, const char * haystack, nonneg int var
 			++haystack;
 		}
 	}
-
 	if(*needlePointer == '\0')
 		return 1;
-
 	return -1;
 }
 
@@ -579,13 +577,10 @@ bool Token::simpleMatch(const Token * tok, const char pattern[], size_t pattern_
 	const char * next = static_cast<const char*>(std::memchr(pattern, ' ', pattern_len));
 	if(!next)
 		next = end;
-
 	while(*current) {
 		const std::size_t length = next - current;
-
 		if(!tok || length != tok->mStr.length() || std::strncmp(current, tok->mStr.c_str(), length))
 			return false;
-
 		current = next;
 		if(*next) {
 			next = std::strchr(++current, ' ');
@@ -594,7 +589,6 @@ bool Token::simpleMatch(const Token * tok, const char pattern[], size_t pattern_
 		}
 		tok = tok->next();
 	}
-
 	return true;
 }
 
@@ -606,11 +600,9 @@ bool Token::firstWordEquals(const char * str, const char * word)
 		}
 		else if(*str == 0)
 			break;
-
 		++str;
 		++word;
 	}
-
 	return true;
 }
 
@@ -619,10 +611,8 @@ const char * Token::chrInFirstWord(const char * str, char c)
 	for(;;) {
 		if(*str == ' ' || *str == 0)
 			return nullptr;
-
 		if(*str == c)
 			return str;
-
 		++str;
 	}
 }
@@ -631,13 +621,11 @@ bool Token::Match(const Token * tok, const char pattern[], nonneg int varid)
 {
 	if(!(*pattern))
 		return true;
-
 	const char * p = pattern;
 	while(true) {
 		// Skip spaces in pattern..
 		while(*p == ' ')
 			++p;
-
 		// No token => Success!
 		if(*p == '\0')
 			break;
@@ -725,23 +713,18 @@ nonneg int Token::getStrLength(const Token * tok)
 	const std::string str(getStringLiteral(tok->str()));
 	std::string::const_iterator it = str.begin();
 	const std::string::const_iterator end = str.end();
-
 	while(it != end) {
 		if(*it == '\\') {
 			++it;
-
 			// string ends at '\0'
 			if(*it == '0')
 				return len;
 		}
-
 		if(*it == '\0')
 			return len;
-
 		++it;
 		++len;
 	}
-
 	return len;
 }
 

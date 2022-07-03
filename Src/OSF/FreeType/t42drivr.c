@@ -64,7 +64,7 @@ static FT_UInt t42_get_name_index(T42_Face face, const FT_String*  glyph_name)
 	for(i = 0; i < face->type1.num_glyphs; i++) {
 		FT_String*  gname = face->type1.glyph_names[i];
 		if(glyph_name[0] == gname[0] && !ft_strcmp(glyph_name, gname))
-			return (FT_UInt)ft_strtol((const char*)face->type1.charstrings[i], NULL, 10);
+			return (FT_UInt)ft_strtol((const char *)face->type1.charstrings[i], NULL, 10);
 	}
 	return 0;
 }
@@ -81,7 +81,7 @@ static const FT_Service_GlyphDictRec t42_service_glyph_dict =
  */
 static const char* t42_get_ps_font_name(T42_Face face)
 {
-	return (const char*)face->type1.font_name;
+	return (const char *)face->type1.font_name;
 }
 
 static const FT_Service_PsFontNameRec t42_service_ps_font_name =

@@ -94,19 +94,19 @@ public:
      * Use setLocale and/or setFormat to modify.
      * @deprecated ICU 53
      */
-    TimeUnitFormat(UErrorCode& status);
+    TimeUnitFormat(UErrorCode & status);
 
     /**
      * Create TimeUnitFormat given locale, and full name style.
      * @deprecated ICU 53
      */
-    TimeUnitFormat(const Locale& locale, UErrorCode& status);
+    TimeUnitFormat(const Locale& locale, UErrorCode & status);
 
     /**
      * Create TimeUnitFormat given locale and style.
      * @deprecated ICU 53
      */
-    TimeUnitFormat(const Locale& locale, UTimeUnitFormatStyle style, UErrorCode& status);
+    TimeUnitFormat(const Locale& locale, UTimeUnitFormatStyle style, UErrorCode & status);
 
     /**
      * Copy constructor.
@@ -140,7 +140,7 @@ public:
      * @param status  output param set to success/failure code on exit
      * @deprecated ICU 53
      */
-    void setLocale(const Locale& locale, UErrorCode& status);
+    void setLocale(const Locale& locale, UErrorCode & status);
 
 
     /**
@@ -149,7 +149,7 @@ public:
      * @param status  output param set to success/failure code on exit
      * @deprecated ICU 53
      */
-    void setNumberFormat(const NumberFormat& format, UErrorCode& status);
+    void setNumberFormat(const NumberFormat& format, UErrorCode & status);
 
     /**
      * Parse a TimeUnitAmount.
@@ -190,22 +190,22 @@ private:
     Hashtable*    fTimeUnitToCountToPatterns[TimeUnit::UTIMEUNIT_FIELD_COUNT];
     UTimeUnitFormatStyle fStyle;
 
-    void create(UTimeUnitFormatStyle style, UErrorCode& status);
+    void create(UTimeUnitFormatStyle style, UErrorCode & status);
 
     // it might actually be simpler to make them Decimal Formats later.
     // initialize all private data members
-    void setup(UErrorCode& status);
+    void setup(UErrorCode & status);
 
     // initialize data member without fill in data for fTimeUnitToCountToPattern
-    void initDataMembers(UErrorCode& status);
+    void initDataMembers(UErrorCode & status);
 
     // initialize fTimeUnitToCountToPatterns from current locale's resource.
     void readFromCurrentLocale(UTimeUnitFormatStyle style, const char * key, const UVector& pluralCounts,
-                               UErrorCode& status);
+                               UErrorCode & status);
 
     // check completeness of fTimeUnitToCountToPatterns against all time units,
     // and all plural rules, fill in fallback as necessary.
-    void checkConsistency(UTimeUnitFormatStyle style, const char * key, UErrorCode& status);
+    void checkConsistency(UTimeUnitFormatStyle style, const char * key, UErrorCode & status);
 
     // fill in fTimeUnitToCountToPatterns from locale fall-back chain
     void searchInLocaleChain(UTimeUnitFormatStyle style, const char * key, const char * localeName,
@@ -213,16 +213,16 @@ private:
                              const char *, Hashtable*, UErrorCode&);
 
     // initialize hash table
-    Hashtable* initHash(UErrorCode& status);
+    Hashtable* initHash(UErrorCode & status);
 
     // delete hash table
     void deleteHash(Hashtable* htable);
 
     // copy hash table
-    void copyHash(const Hashtable* source, Hashtable* target, UErrorCode& status);
+    void copyHash(const Hashtable* source, Hashtable* target, UErrorCode & status);
     // get time unit name, such as "year", from time unit field enum, such as
     // UTIMEUNIT_YEAR.
-    static const char * getTimeUnitName(TimeUnit::UTimeUnitFields field, UErrorCode& status);
+    static const char * getTimeUnitName(TimeUnit::UTimeUnitFields field, UErrorCode & status);
 
     friend struct TimeUnitFormatReadSink;
 };

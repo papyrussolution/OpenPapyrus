@@ -16,11 +16,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_databasereplicator.h"
-#include "glass_defs.h"
-#include "glass_replicate_internal.h"
-#include "glass_version.h"
-#include "compression_stream.h"
 
 [[noreturn]] static void throw_connection_closed_unexpectedly()
 {

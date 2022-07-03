@@ -60,7 +60,7 @@ RuleBasedBreakIterator::RuleBasedBreakIterator(RBBIDataHeader* data, UErrorCode 
 //  Construct from precompiled binary rules (tables).  This constructor is public API,
 //  taking the rules as a (const uint8 *) to match the type produced by getBinaryRules().
 //
-RuleBasedBreakIterator::RuleBasedBreakIterator(const uint8 * compiledRules, uint32_t ruleLength, UErrorCode &status) : fSCharIter(UnicodeString())
+RuleBasedBreakIterator::RuleBasedBreakIterator(const uint8 * compiledRules, uint32_t ruleLength, UErrorCode & status) : fSCharIter(UnicodeString())
 {
 	init(status);
 	if(U_FAILURE(status)) {

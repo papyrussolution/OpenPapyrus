@@ -12,21 +12,6 @@
 // 
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_database.h"
-#include "backends/contiguousalldocspostlist.h"
-#include "glass_alldocspostlist.h"
-#include "glass_alltermslist.h"
-#include "glass_defs.h"
-#include "glass_docdata.h"
-#include "glass_document.h"
-#include "glass_metadata.h"
-#include "glass_positionlist.h"
-#include "glass_postlist.h"
-#include "glass_replicate_internal.h"
-#include "glass_spellingwordslist.h"
-#include "glass_termlist.h"
-#include "glass_valuelist.h"
-#include "glass_values.h"
 
 using namespace std;
 using namespace Xapian;

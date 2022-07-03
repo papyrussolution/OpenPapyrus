@@ -12,9 +12,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_METADATA_H
 #define XAPIAN_INCLUDED_GLASS_METADATA_H
 
-#include "backends/alltermslist.h"
-#include "glass_table.h"
-
 class GlassCursor;
 
 class GlassMetadataTermList : public AllTermsList {

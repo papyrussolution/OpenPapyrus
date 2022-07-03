@@ -18,29 +18,43 @@
 	}
 */
 const int ec_curve_name_id = NID_X9_62_prime256v1;
-const long __DefMqbConsumeTimeout = 5000;
+const long __DefMqbConsumeTimeout = 10000; // @v11.4.3 5000-->10000
 /*
 	RESERVED COMMANDS:
-	
-	test
-	//
-	register
-	quit
-	advert
-	getconfig
-	getface
-	setface - передается от клиента сервису для обноления собственного лика
-	getcommandlist
-	pushindexingcontent
-	getforeignconfig
-	echo
-	search
-	requestblobinfolist
-	storeblob
-	getblob
-	dtlogin
-	postdocument
-	requestdocumentstatuslist // Запрос статусов документов
+		test
+		//
+		register
+		quit
+		advert
+		getconfig
+		getface
+		setface - передается от клиента сервису для обноления собственного лика
+		getcommandlist
+		pushindexingcontent
+		getforeignconfig
+		echo
+		search
+		requestblobinfolist
+		storeblob
+		getblob
+		dtlogin
+		postdocument
+		requestdocumentstatuslist // Запрос статусов документов
+		onsrchr // Отправляется сервису при выборе пользователем результата глобального поиска
+
+	DISPLAY METHODS (displaymethod)
+		attendanceprereq
+		orderprereq
+		grid
+		search
+		//
+		detailsvc         // детальная информация о сервисе
+		detailware        // детальная информация о товаре
+		detailprc         // детальная информация о процессоре
+		detailgoodsgroup  // детальная информация о товарной группе
+		detailbrand       // детальная информация о бренде
+		detailcustomer    // детальная информация о клиенте
+		detaildlvrloc     // детальная информация об адресе доставки
 */
 /*
 	Обмен данными осуществляется посредством брокера сообщений Rabbit-MQ или прямым соединением с сервером,
@@ -1042,10 +1056,14 @@ const StyloQCommandList::Item * StyloQCommandList::GetByUuid(const S_GUID & rUui
 			if(p_item && p_item->Uuid == rUuid)
 				p_result = p_item;
 		}
+		if(!p_result) {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			r_temp_buf.Cat(rUuid);
+			PPSetError(PPERR_SQ_UNKNCMD, r_temp_buf);
+		}
 	}
-	if(!p_result) {
-		PPSetError(PPERR_SQ_UNKNCMD);
-	}
+	else
+		PPSetError(PPERR_SQ_ZEROCMDUUID);
 	return p_result;
 }
 
@@ -5927,6 +5945,172 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 	return ok;
 }
 
+SJson * PPStyloQInterchange::MakeObjJson_OwnFace(const StyloQCore::StoragePacket & rOwnPack, uint flags)
+{
+	SJson * p_result = SJson::CreateObj();
+	SString temp_buf;
+	SBinaryChunk own_svc_ident;
+	THROW_SL(p_result);
+	THROW(rOwnPack.Rec.Kind == StyloQCore::kNativeService); // @err
+	THROW(rOwnPack.Pool.Get(SSecretTagPool::tagSvcIdent, &own_svc_ident));
+	{
+		SString my_face_json_buf;
+		SBinaryChunk temp_bch;
+		p_result->InsertString("ident", own_svc_ident.Mime64(temp_buf).Escape());
+		if(rOwnPack.Pool.Get(SSecretTagPool::tagSelfyFace, &temp_bch)) {
+			StyloQFace my_face;
+			if(my_face.FromJson(temp_bch.ToRawStr(my_face_json_buf))) {
+				if(my_face.Get(StyloQFace::tagCommonName, 0, temp_buf))
+					p_result->InsertString("nm", temp_buf.Escape());
+				if(my_face.Get(StyloQFace::tagDescr, 0, temp_buf))
+					p_result->InsertString("descr", temp_buf.Escape());
+				if(my_face.Get(StyloQFace::tagGLN, 0, temp_buf))
+					p_result->InsertString("gln", temp_buf.Escape());
+				if(my_face.Get(StyloQFace::tagRuINN, 0, temp_buf))
+					p_result->InsertString("ruinn", temp_buf.Escape());
+				if(my_face.Get(StyloQFace::tagRuKPP, 0, temp_buf))
+					p_result->InsertString("rukpp", temp_buf.Escape());
+				if(my_face.Get(StyloQFace::tagPhone, 0, temp_buf))
+					p_result->InsertString("phone", temp_buf.Escape());
+				if(my_face.Get(StyloQFace::tagCityName, 0, temp_buf))
+					p_result->InsertString("city", temp_buf.Escape());
+				if(my_face.Get(StyloQFace::tagEMail, 0, temp_buf))
+					p_result->InsertString("email", temp_buf.Escape());
+			}
+		}
+		if(!(flags & mojfForIndexing)) {
+			BlobInfo blob_info;
+			PPObjID oid(PPOBJ_STYLOQBINDERY, rOwnPack.Rec.ID);
+			if(GetBlobInfo(own_svc_ident, oid, 0, blob_info, 0)) {
+				assert(blob_info.Signature.Len() && blob_info.Signature.IsAscii());
+				p_result->InsertString("imgblobs", blob_info.Signature);
+			}
+		}
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
+SJson * PPStyloQInterchange::MakeObjJson_Goods(const SBinaryChunk & rOwnIdent, const PPGoodsPacket & rPack, 
+	const InnerGoodsEntry * pInnerEntry, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat)
+{
+	SJson * p_result = SJson::CreateObj();
+	const PPObjID oid(PPOBJ_GOODS, rPack.Rec.ID);
+	SString temp_buf;
+	THROW_SL(p_result);
+	p_result->InsertInt("id", rPack.Rec.ID);
+	p_result->InsertString("nm", (temp_buf = rPack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+	if(!(flags & mojfForIndexing)) {
+		BlobInfo blob_info;
+		p_result->InsertInt("parid", rPack.Rec.ParentID);
+		if(GetBlobInfo(rOwnIdent, oid, 0, blob_info, 0)) {
+			assert(blob_info.Signature.Len() && blob_info.Signature.IsAscii());
+			p_result->InsertString("imgblobs", blob_info.Signature);
+			if(pStat)
+				pStat->BlobOidList.Add(oid.Obj, oid.Id);
+		}
+		if(rPack.Rec.UnitID) {
+			p_result->InsertInt("uomid", rPack.Rec.UnitID);
+		}
+		if(/*pPack->Rec.Flags & PLMF_EXPBRAND &&*/rPack.Rec.BrandID) {
+			p_result->InsertInt("brandid", rPack.Rec.BrandID);
+		}
+		if(pInnerEntry) {
+			if(pInnerEntry->UnitPerPack > 1.0)
+				p_result->InsertDouble("upp", pInnerEntry->UnitPerPack, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+			//
+			// Минимальный заказ
+			//
+			if(pInnerEntry->OrderQtyMult > 0.0)
+				p_result->InsertDouble("ordqtymult", pInnerEntry->OrderQtyMult, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+			if(pInnerEntry->OrderMinQty > 0.0)
+				p_result->InsertDouble("ordminqty", pInnerEntry->OrderMinQty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+			//
+			p_result->InsertDouble("price", pInnerEntry->Price, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+			if(pInnerEntry->Rest > 0.0)
+				p_result->InsertDouble("stock", pInnerEntry->Rest, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+		}
+	}
+	if(rPack.Codes.getCount()) {
+		SJson * p_js_codelist = SJson::CreateArr();
+		for(uint bcidx = 0; bcidx < rPack.Codes.getCount(); bcidx++) {
+			const BarcodeTbl::Rec & r_bc = rPack.Codes.at(bcidx);
+			SJson * p_js_item = SJson::CreateObj();
+			p_js_item->InsertString("cod", (temp_buf = r_bc.Code).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+			if(!(flags & mojfForIndexing) && r_bc.Qtty > 0.0) {
+				p_js_item->InsertDouble("qty", r_bc.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+			}
+			p_js_codelist->InsertChild(p_js_item);
+		}
+		p_result->Insert("code_list", p_js_codelist);
+	}
+	if(pStat)
+		pStat->GoodsCount++;
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
+SJson * PPStyloQInterchange::MakeObjJson_GoodsGroup(const SBinaryChunk & rOwnIdent, const Goods2Tbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat)
+{
+	SJson * p_result = SJson::CreateObj();
+	SString temp_buf;
+	THROW_SL(p_result);
+	p_result->InsertInt("id", rRec.ID);
+	if(!(flags & mojfForIndexing))
+		p_result->InsertInt("parid", rRec.ParentID);
+	p_result->InsertString("nm", (temp_buf = rRec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+	if(pStat)
+		pStat->GoodsGroupCount++;
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
+SJson * PPStyloQInterchange::MakeObjJson_Brand(const SBinaryChunk & rOwnIdent, const PPBrandPacket & rPack, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat)
+{
+	SJson * p_result = SJson::CreateObj();
+	SString temp_buf;
+	THROW_SL(p_result);
+	p_result->InsertInt("id", rPack.Rec.ID);
+	p_result->InsertString("nm", (temp_buf = rPack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+	if(!(flags & mojfForIndexing)) {
+		const PPObjID oid(PPOBJ_BRAND, rPack.Rec.ID);
+		BlobInfo blob_info;
+		if(GetBlobInfo(rOwnIdent, oid, 0, blob_info, 0)) {
+			assert(blob_info.Signature.Len() && blob_info.Signature.IsAscii());
+			p_result->InsertString("imgblobs", blob_info.Signature);
+			if(pStat)
+				pStat->BlobOidList.Add(oid.Obj, oid.Id);
+		}
+	}
+	if(pStat)
+		pStat->BrandCount++;
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
+SJson * PPStyloQInterchange::MakeObjJson_Prc(const SBinaryChunk & rOwnIdent, const ProcessorTbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat)
+{
+	SJson * p_result = SJson::CreateObj();
+	SString temp_buf;
+	THROW_SL(p_result);
+	p_result->InsertInt("id", rRec.ID);
+	p_result->InsertString("nm", (temp_buf = rRec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+	if(pStat)
+		pStat->PrcCount++;
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
 int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, const StyloQCommandList::Item * pCmd, long expirationSec, 
 	PPObjIDArray & rOidList, SString & rResult)
 {
@@ -5980,31 +6164,8 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 		js.Insert("expir_time_sec", json_new_number(temp_buf.Z().Cat(expirationSec)));
 	}
 	{
-		SString my_face_json_buf;
-		SBinaryChunk temp_bch;
-		SJson * p_js_svc = SJson::CreateObj();
-		p_js_svc->InsertString("ident", own_svc_ident.Mime64(temp_buf).Escape());
-		if(pOwnPack->Pool.Get(SSecretTagPool::tagSelfyFace, &temp_bch)) {
-			StyloQFace my_face;
-			if(my_face.FromJson(temp_bch.ToRawStr(my_face_json_buf))) {
-				if(my_face.Get(StyloQFace::tagCommonName, 0, temp_buf))
-					p_js_svc->InsertString("nm", temp_buf.Escape());
-				if(my_face.Get(StyloQFace::tagDescr, 0, temp_buf))
-					p_js_svc->InsertString("descr", temp_buf.Escape());
-				if(my_face.Get(StyloQFace::tagGLN, 0, temp_buf))
-					p_js_svc->InsertString("gln", temp_buf.Escape());
-				if(my_face.Get(StyloQFace::tagRuINN, 0, temp_buf))
-					p_js_svc->InsertString("ruinn", temp_buf.Escape());
-				if(my_face.Get(StyloQFace::tagRuKPP, 0, temp_buf))
-					p_js_svc->InsertString("rukpp", temp_buf.Escape());
-				if(my_face.Get(StyloQFace::tagPhone, 0, temp_buf))
-					p_js_svc->InsertString("phone", temp_buf.Escape());
-				if(my_face.Get(StyloQFace::tagCityName, 0, temp_buf))
-					p_js_svc->InsertString("city", temp_buf.Escape());
-				if(my_face.Get(StyloQFace::tagEMail, 0, temp_buf))
-					p_js_svc->InsertString("email", temp_buf.Escape());
-			}
-		}
+		SJson * p_js_svc = MakeObjJson_OwnFace(*pOwnPack, mojfForIndexing);
+		THROW(p_js_svc);
 		js.Insert("service", p_js_svc);
 		rOidList.Add(PPOBJ_STYLOQBINDERY, pOwnPack->Rec.ID);
 	}
@@ -6016,31 +6177,23 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 		if(!p_param_ || p_param_->Flags & StyloQIndexingParam::fGoods) {
 			SJson * p_js_goodslist = 0;
 			GoodsFilt gf;
-			BarcodeArray bc_list;
+			//BarcodeArray bc_list;
+			PPGoodsPacket goods_pack;
 			gf.Flags |= (GoodsFilt::fHideGeneric|GoodsFilt::fHidePassive);
 			if(p_param_ && p_param_->GoodsGroupID)
 				gf.GrpIDList.Add(p_param_->GoodsGroupID);
 			//StrAssocArray goods_list;
 			//GoodsIterator::GetListByFilt(&gf, &goods_list)
 			for(GoodsIterator gi(&gf, 0); gi.Next(&goods_rec) > 0;) {
-				goodsgrp_id_list.addnz(goods_rec.ParentID);
-				brand_id_list.addnz(goods_rec.BrandID);
-				SETIFZ(p_js_goodslist, SJson::CreateArr());
-				SJson * p_js_ware = SJson::CreateObj();
-				p_js_ware->InsertInt("id", goods_rec.ID);
-				p_js_ware->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-				if(goods_obj.P_Tbl->ReadBarcodes(goods_rec.ID, bc_list) > 0 && bc_list.getCount()) {
-					SJson * p_js_codelist = SJson::CreateArr();
-					for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
-						const BarcodeTbl::Rec & r_bc = bc_list.at(bcidx);
-						SJson * p_js_item = SJson::CreateObj();
-						p_js_item->InsertString("cod", (temp_buf = r_bc.Code).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-						p_js_codelist->InsertChild(p_js_item);
-					}
-					p_js_ware->Insert("code_list", p_js_codelist);
+				if(goods_obj.GetPacket(goods_rec.ID, &goods_pack, 0) > 0) {
+					goodsgrp_id_list.addnz(goods_rec.ParentID);
+					brand_id_list.addnz(goods_rec.BrandID);
+					SJson * p_js_ware = MakeObjJson_Goods(own_svc_ident, goods_pack, 0, mojfForIndexing, 0);
+					THROW(p_js_ware);
+					SETIFZ(p_js_goodslist, SJson::CreateArr());
+					p_js_goodslist->InsertChild(p_js_ware);
+					rOidList.Add(PPOBJ_GOODS, goods_rec.ID);
 				}
-				p_js_goodslist->InsertChild(p_js_ware);
-				rOidList.Add(PPOBJ_GOODS, goods_rec.ID);
 			}
 			if(p_js_goodslist) {
 				js.Insert("goods_list", p_js_goodslist);
@@ -6053,9 +6206,8 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 				for(uint i = 0; i < goodsgrp_id_list.getCount(); i++) {
 					const PPID item_id = goodsgrp_id_list.get(i);
 					if(goods_obj.Fetch(item_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GROUP) {
-						SJson * p_js_item = SJson::CreateObj();
-						p_js_item->InsertInt("id", goods_rec.ID);
-						p_js_item->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						SJson * p_js_item = MakeObjJson_GoodsGroup(own_svc_ident, goods_rec, mojfForIndexing, 0);
+						THROW(p_js_item);
 						p_js_grplist->InsertChild(p_js_item);
 						rOidList.Add(PPOBJ_GOODSGROUP, goods_rec.ID);
 					}
@@ -6073,9 +6225,8 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 					const PPID item_id = brand_id_list.get(i);
 					brand_pack.Init();
 					if(brand_obj.Get(item_id, &brand_pack) > 0) {
-						SJson * p_js_item = SJson::CreateObj();
-						p_js_item->InsertInt("id", brand_pack.Rec.ID);
-						p_js_item->InsertString("nm", (temp_buf = brand_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						SJson * p_js_item = MakeObjJson_Brand(own_svc_ident, brand_pack, mojfForIndexing, 0);
+						THROW(p_js_item);
 						p_js_brandlist->InsertChild(p_js_item);
 						rOidList.Add(PPOBJ_BRAND, brand_pack.Rec.ID);
 					}
@@ -6094,9 +6245,8 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 				}
 				if(!skip) {
 					SETIFZ(p_js_prclist, SJson::CreateArr());
-					SJson * p_js_item = SJson::CreateObj();
-					p_js_item->InsertInt("id", prc_rec.ID);
-					p_js_item->InsertString("nm", (temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					SJson * p_js_item = MakeObjJson_Prc(own_svc_ident, prc_rec, mojfForIndexing, 0);
+					THROW(p_js_item);
 					p_js_prclist->InsertChild(p_js_item);
 					rOidList.Add(PPOBJ_PROCESSOR, prc_rec.ID);
 				}
@@ -6303,6 +6453,10 @@ PPStyloQInterchange::Stq_CmdStat_MakeRsrv_Response::Stq_CmdStat_MakeRsrv_Respons
 {
 }
 
+PPStyloQInterchange::InnerGoodsEntry::InnerGoodsEntry(PPID goodsID) : GoodsID(goodsID), Rest(0.0), Cost(0.0), Price(0.0), UnitPerPack(0.0), OrderQtyMult(0.0), OrderMinQty(0)
+{
+}
+
 int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryChunk & rOwnIdent, const PPStyloPalmPacket * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat)
 {
 	int    ok = 1;
@@ -6483,23 +6637,12 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 		brand_list [ { id; nm } ]
 		goods_list [ { id; nm; parid; uomid; code_list [ { cod; qty } ]; brandid; upp; price; stock; (ordqtymult|ordminqty); quot_list [ { id; val } ] ]
 	*/
-	struct InnerGoodsEntry { // @flat
-		InnerGoodsEntry(PPID goodsID) : GoodsID(goodsID), Rest(0.0), Cost(0.0), Price(0.0), UnitPerPack(0.0)
-		{
-		}
-		PPID   GoodsID;
-		double Rest;
-		double Cost;
-		double Price;
-		double UnitPerPack;
-	};	
 	int    ok = 1;
 	SString temp_buf;
 	PPIDArray  grp_id_list;
 	PPIDArray  brand_id_list;
 	PPIDArray  unit_id_list;
 	PPObjQuotKind qk_obj;
-	Goods2Tbl::Rec goods_rec;
 	SVector goods_list(sizeof(InnerGoodsEntry));
 	PPIDArray temp_loc_list;
 	BlobInfo blob_info;
@@ -6542,6 +6685,8 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 			gr_filt.WaitMsgID  = PPTXT_WAIT_GOODSREST;
 			THROW(gr_view.Init_(&gr_filt));
 			GoodsRestViewItem gr_item;
+			Goods2Tbl::Rec goods_rec;
+			GoodsStockExt gse;
 			for(gr_view.InitIteration(); gr_view.NextIteration(&gr_item) > 0;) {
 				if(goods_obj.Fetch(gr_item.GoodsID, &goods_rec) > 0) {
 					if(gr_item.Rest > 0.0 || gt_quasi_unlim_list.lsearch(goods_rec.GoodsTypeID)) {
@@ -6549,11 +6694,17 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 						grp_id_list.addnz(goods_rec.ParentID);
 						brand_id_list.addnz(goods_rec.BrandID);
 						unit_id_list.addnz(goods_rec.UnitID);
-
 						goods_entry.Rest = gr_item.Rest;
 						goods_entry.Cost = gr_item.Cost;
 						goods_entry.Price = gr_item.Price;
 						goods_entry.UnitPerPack = gr_item.UnitPerPack;
+						gse.Z();
+						if(goods_obj.GetStockExt(goods_rec.ID, &gse, 1) > 0 && gse.MinShippmQtty > 0.0) {
+							if(gse.GseFlags & GoodsStockExt::fMultMinShipm)
+								goods_entry.OrderQtyMult = gse.MinShippmQtty;
+							else
+								goods_entry.OrderMinQty = gse.MinShippmQtty;
+						}
 						goods_list.insert(&goods_entry);
 					}
 				}
@@ -6594,13 +6745,9 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 			for(uint i = 0; i < grp_id_list.getCount(); i++) {
 				if(gg_obj.Fetch(grp_id_list.get(i), &gg_rec) > 0) {
 					SETIFZ(p_js_list, SJson::CreateArr());
-					SJson * p_jsobj = SJson::CreateObj();
-					p_jsobj->InsertInt("id", gg_rec.ID);
-					p_jsobj->InsertInt("parid", gg_rec.ParentID);
-					p_jsobj->InsertString("nm", (temp_buf = gg_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					SJson * p_jsobj = MakeObjJson_GoodsGroup(rOwnIdent, gg_rec, 0, pStat);
+					THROW(p_jsobj);
 					p_js_list->InsertChild(p_jsobj);
-					if(pStat)
-						pStat->GoodsGroupCount++;
 				}
 			}
 			if(p_js_list)
@@ -6638,23 +6785,15 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 			//
 			SJson * p_js_list = 0;
 			PPObjBrand br_obj;
+			PPBrandPacket brand_pack;
 			for(uint i = 0; i < brand_id_list.getCount(); i++) {
-				PPBrand brand_rec;
 				const PPObjID oid(PPOBJ_BRAND, brand_id_list.get(i));
-				if(br_obj.Fetch(oid.Id, &brand_rec) > 0) {
+				brand_pack.Init();
+				if(br_obj.Get(oid.Id, &brand_pack) > 0) {
 					SETIFZ(p_js_list, SJson::CreateArr());
-					SJson * p_jsobj = SJson::CreateObj();
-					p_jsobj->InsertInt("id", brand_rec.ID);
-					p_jsobj->InsertString("nm", (temp_buf = brand_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-					if(GetBlobInfo(rOwnIdent, oid, 0, blob_info, 0)) {
-						assert(blob_info.Signature.Len() && blob_info.Signature.IsAscii());
-						p_jsobj->InsertString("imgblobs", blob_info.Signature);
-						if(pStat)
-							pStat->BlobOidList.Add(oid.Obj, oid.Id);
-					}
+					SJson * p_jsobj = MakeObjJson_Brand(rOwnIdent, brand_pack, 0, pStat);
+					THROW(p_jsobj);
 					p_js_list->InsertChild(p_jsobj);
-					if(pStat)
-						pStat->BrandCount++;
 				}
 			}
 			if(p_js_list)
@@ -6662,69 +6801,13 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 		}
 		{
 			SJson * p_goods_list = 0;
-			BarcodeArray bc_list;
+			PPGoodsPacket goods_pack;
 			for(uint glidx = 0; glidx < goods_list.getCount(); glidx++) {
 				const InnerGoodsEntry & r_goods_entry = *static_cast<const InnerGoodsEntry *>(goods_list.at(glidx));
 				const PPObjID oid(PPOBJ_GOODS, r_goods_entry.GoodsID);
-				if(goods_obj.Fetch(r_goods_entry.GoodsID, &goods_rec) > 0) {
-					SJson * p_jsobj = SJson::CreateObj();
-					p_jsobj->InsertInt("id", r_goods_entry.GoodsID);
-					p_jsobj->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-					p_jsobj->InsertInt("parid", goods_rec.ParentID);
-					if(GetBlobInfo(rOwnIdent, oid, 0, blob_info, 0)) {
-						assert(blob_info.Signature.Len() && blob_info.Signature.IsAscii());
-						p_jsobj->InsertString("imgblobs", blob_info.Signature);
-						if(pStat)
-							pStat->BlobOidList.Add(oid.Obj, oid.Id);
-					}
-					if(goods_rec.UnitID) {
-						p_jsobj->InsertInt("uomid", goods_rec.UnitID);
-					}
-					{
-						if(goods_obj.ReadBarcodes(goods_rec.ID, bc_list) > 0) {
-							SJson * p_js_bcarray = 0;
-							for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
-								const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
-								int   diag = 0;
-								int   std = 0;
-								if(PPObjGoods::DiagBarcode(r_bc_rec.Code, &diag, &std, &temp_buf) > 0) {
-									SJson * p_bc_item = SJson::CreateObj();
-									p_bc_item->InsertString("cod", temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
-									if(r_bc_rec.Qtty > 0.0) {
-										p_bc_item->InsertDouble("qty", r_bc_rec.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
-									}
-									SETIFZ(p_js_bcarray, SJson::CreateArr());
-									p_js_bcarray->InsertChild(p_bc_item);
-								}
-							}
-							if(p_js_bcarray)
-								p_jsobj->Insert("code_list", p_js_bcarray);
-						}
-					}
-					if(pPack->Rec.Flags & PLMF_EXPBRAND && goods_rec.BrandID) {
-						p_jsobj->InsertInt("brandid", goods_rec.BrandID);
-					}
-					if(r_goods_entry.UnitPerPack > 1.0) {
-						p_jsobj->InsertDouble("upp", r_goods_entry.UnitPerPack, MKSFMTD(0, 3, NMBF_NOTRAILZ));
-					}
-					p_jsobj->InsertDouble("price", r_goods_entry.Price, MKSFMTD(0, 2, NMBF_NOTRAILZ));
-					if(r_goods_entry.Rest > 0.0) {
-						p_jsobj->InsertDouble("stock", r_goods_entry.Rest, MKSFMTD(0, 3, NMBF_NOTRAILZ));
-					}
-					{
-						//
-						// Минимальный заказ
-						//
-						GoodsStockExt stock;
-						if(goods_obj.GetStockExt(goods_rec.ID, &stock, 1) > 0) {
-							if(stock.MinShippmQtty > 0.0) {
-								if(stock.GseFlags & GoodsStockExt::fMultMinShipm)
-									p_jsobj->InsertDouble("ordqtymult", stock.MinShippmQtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
-								else
-									p_jsobj->InsertDouble("ordminqty", stock.MinShippmQtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
-							}
-						}
-					}
+				if(goods_obj.GetPacket(r_goods_entry.GoodsID, &goods_pack, PPObjGoods::gpoSkipQuot) > 0) {
+					SJson * p_jsobj = MakeObjJson_Goods(rOwnIdent, goods_pack, &r_goods_entry, 0, pStat);
+					THROW(p_jsobj);
 					{
 						//
 						// Котировки
@@ -6775,8 +6858,6 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 					}
 					SETIFZ(p_goods_list, SJson::CreateArr());
 					p_goods_list->InsertChild(p_jsobj);
-					if(pStat)
-						pStat->GoodsCount++;
 				}
 			}
 			if(p_goods_list)
@@ -6967,7 +7048,7 @@ int StyloQAttendancePrereqParam::InitInstance()
 			Data.MaxScheduleDays = inrangeordefault(getCtrlLong(CTL_STQATTCPARAM_MAXSCHD), 1L, 365L, 7L); // @v11.3.10
 			Data.LocID = getCtrlLong(CTLSEL_STQATTCPARAM_LOC); // @v11.3.12
 			Data.QuotKindID = getCtrlLong(CTLSEL_STQATTCPARAM_QK); // @v11.3.12
-			Data.TimeSheetDiscreteness = GetClusterData(CTL_STQATTCPARAM_TSD); // @v11.4.3
+			Data.TimeSheetDiscreteness = static_cast<uint16>(GetClusterData(CTL_STQATTCPARAM_TSD)); // @v11.4.3
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -6997,9 +7078,7 @@ SJson * PPStyloQInterchange::MakeRsrvAttendancePrereqResponse_Prc(const SBinaryC
 			PPObjPerson psn_obj;
 			PPObjStaffCal scal_obj;
 			goods_id_list.sortAndUndup();
-			p_result = SJson::CreateObj();
-			p_result->InsertInt("id", prc_pack.Rec.ID);
-			p_result->InsertString("nm", (temp_buf = prc_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+			p_result = MakeObjJson_Prc(rOwnIdent, prc_pack.Rec, 0, pStat);
 			// @todo Внести подробную информацию о связанном объекте
 			if(prc_pack.Rec.LinkObjType == PPOBJ_PERSON) {
 				PersonTbl::Rec psn_rec;
@@ -7232,9 +7311,8 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 				for(uint ggidx = 0; ggidx < goodsgrp_id_list.getCount(); ggidx++) {
 					int r = tses_obj.GObj.Fetch(goodsgrp_id_list.get(ggidx), &goodsgroup_rec);
 					assert(r > 0);
-					SJson * p_js_goodsgrp = SJson::CreateObj();
-					p_js_goodsgrp->InsertInt("id", goodsgroup_rec.ID);
-					p_js_goodsgrp->InsertString("nm", (temp_buf = goodsgroup_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					SJson * p_js_goodsgrp = MakeObjJson_GoodsGroup(bc_own_ident, goodsgroup_rec, 0, &stat);
+					THROW(p_js_goodsgrp);
 					p_js_goodsgrplist->InsertChild(p_js_goodsgrp);
 				}
 				js.Insert("goodsgroup_list", p_js_goodsgrplist);
@@ -7269,40 +7347,8 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 				for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
 					const PPID goods_id = goods_id_list.get(gidx);
 					if(tses_obj.GObj.GetPacket(goods_id, &goods_pack, 0) > 0) {
-						SJson * p_js_ware = SJson::CreateObj();
-						p_js_ware->InsertInt("id", goods_pack.Rec.ID);
-						p_js_ware->InsertString("nm", (temp_buf = goods_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-						if(goodsgrp_id_list.bsearch(goods_pack.Rec.ParentID))
-							p_js_ware->InsertInt("parid", goods_pack.Rec.ParentID);
-						if(goods_pack.Rec.UnitID && uom_id_list.bsearch(goods_pack.Rec.UnitID))
-							p_js_ware->InsertInt("uomid", goods_pack.Rec.UnitID);
-						{
-							const PPObjID oid(PPOBJ_GOODS, goods_id);
-							if(GetBlobInfo(bc_own_ident, oid, 0, blob_info, 0)) {
-								assert(blob_info.Signature.Len() && blob_info.Signature.IsAscii());
-								p_js_ware->InsertString("imgblobs", blob_info.Signature);
-								stat.BlobOidList.Add(oid.Obj, oid.Id);
-							}
-						}
-						if(goods_pack.Codes.getCount()) {
-							SJson * p_js_bcarray = 0;
-							for(uint bcidx = 0; bcidx < goods_pack.Codes.getCount(); bcidx++) {
-								const BarcodeTbl::Rec & r_bc_rec = goods_pack.Codes.at(bcidx);
-								int   diag = 0;
-								int   std = 0;
-								if(PPObjGoods::DiagBarcode(r_bc_rec.Code, &diag, &std, &temp_buf) > 0) {
-									SJson * p_bc_item = SJson::CreateObj();
-									p_bc_item->InsertString("cod", temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
-									if(r_bc_rec.Qtty > 0.0) {
-										p_bc_item->InsertDouble("qty", r_bc_rec.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
-									}
-									SETIFZ(p_js_bcarray, SJson::CreateArr());
-									p_js_bcarray->InsertChild(p_bc_item);
-								}
-							}
-							if(p_js_bcarray)
-								p_js_ware->Insert("code_list", p_js_bcarray);
-						}
+						SJson * p_js_ware = MakeObjJson_Goods(bc_own_ident, goods_pack, 0, 0, &stat);
+						THROW(p_js_ware);
 						{
 							// "price"
 							double price = 0.0;
@@ -8593,36 +8639,46 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			PPObjGoods gobj;
 			PPObjTSession tses_obj;
 			PPObjArticle ar_obj;
+			PPObjAccSheet acs_obj;
+			PPAccSheet acs_rec;
 			PPIDArray tec_candidate_list;
-			for(uint i = 0; i < doc.BkList.getCount(); i++) {
-				const Document::BookingItem * p_item = doc.BkList.at(i);
-				Goods2Tbl::Rec goods_rec;
-				ProcessorTbl::Rec prc_rec;
-				TechTbl::Rec tec_rec;
-				TSessionPacket tses_pack;
-				PPID   person_id = 0;
-				THROW(p_item);
-				THROW(gobj.Search(p_item->GoodsID, &goods_rec) > 0);
-				THROW(checkdate(p_item->ReqTime.d) && checktime(p_item->ReqTime.t));
-				if(p_item->PrcID) {
-					THROW(tses_obj.GetPrc(p_item->PrcID, &prc_rec, 1, 0) > 0);
-					THROW(tses_obj.GetTechByGoods(p_item->GoodsID, p_item->PrcID, &tec_rec) > 0); // @todo @err
-				}
-				else {
-					// Найти подходящую технологию и любой свободный процессор
-					LAssocArray prc_tec_list;
-					tec_candidate_list.Z();
-					tses_obj.TecObj.GetListByGoods(p_item->GoodsID, &tec_candidate_list);
-					THROW(tec_candidate_list.getCount()); // @err no tech for such a ware
-					tec_candidate_list.sortAndUndup();
-					for(uint j = 0; j < tec_candidate_list.getCount(); j++) {
-						const PPID tec_id = tec_candidate_list.get(j);
-						if(tses_obj.GetTech(tec_id, &tec_rec) > 0) {
+			Goods2Tbl::Rec goods_rec;
+			ProcessorTbl::Rec prc_rec;
+			TechTbl::Rec tec_rec;
+			TSessionTbl::Rec ex_rec;
+			TSessionPacket tses_pack;
+			THROW(doc.BkList.getCount() == 1);
+			const Document::BookingItem * p_item = doc.BkList.at(0);
+			const bool is_ex_tsess = (tses_obj.SearchByGuid(doc.Uuid, &ex_rec) > 0);
+			THROW(p_item);
+			THROW(gobj.Search(p_item->GoodsID, &goods_rec) > 0);
+			THROW(checkdate(p_item->ReqTime.d) && checktime(p_item->ReqTime.t));
+			if(p_item->PrcID) {
+				THROW(tses_obj.GetPrc(p_item->PrcID, &prc_rec, 1, 0) > 0);
+				THROW(tses_obj.GetTechByGoods(p_item->GoodsID, p_item->PrcID, &tec_rec) > 0); // @todo @err
+			}
+			else {
+				// Найти подходящую технологию и любой свободный процессор
+				LAssocArray prc_tec_list;
+				tec_candidate_list.Z();
+				tses_obj.TecObj.GetListByGoods(p_item->GoodsID, &tec_candidate_list);
+				THROW(tec_candidate_list.getCount()); // @err no tech for such a ware
+				tec_candidate_list.sortAndUndup();
+				for(uint j = 0; j < tec_candidate_list.getCount(); j++) {
+					const PPID tec_id = tec_candidate_list.get(j);
+					if(tses_obj.GetTech(tec_id, &tec_rec) > 0) {
 							
-						}
 					}
 				}
+			}
+			if(is_ex_tsess) {
+				THROW(tses_obj.GetPacket(ex_rec.ID, &tses_pack, 0) > 0);
+				result_obj_id = ex_rec.ID;
+			}
+			else {
 				tses_obj.InitPacket(&tses_pack, TSESK_SESSION, p_item->PrcID, 0, -1);
+			}
+			{
 				tses_pack.Rec.TechID = tec_rec.ID;
 				tses_pack.Rec.StDt = p_item->ReqTime.d;
 				tses_pack.Rec.StTm = p_item->ReqTime.t;
@@ -8653,9 +8709,8 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					if(prc_rec.WrOffOpID) {
 						PPOprKind op_rec;
 						if(GetOpData(prc_rec.WrOffOpID, &op_rec) > 0) {
-							PPObjAccSheet acs_obj;
-							PPAccSheet acs_rec;
 							if(op_rec.AccSheetID && acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0) {
+								PPID   person_id = 0;
 								if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
 									PPID ar_id = 0;
 									if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0)
@@ -9359,6 +9414,108 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 						if(p_js_reply) {
 							cmd_reply_ok = true;
 						}
+					}
+				}
+			}
+			else if(command.IsEqiAscii("onsrchr")) { // Пользователь нажал на результат глобального поиска
+				if(GetOwnPeerEntry(&own_pack) > 0) {
+					PPObjID oid;
+					SString txt_objtype;
+					SString txt_objid;
+					SBinaryChunk own_ident;
+					own_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &own_ident);
+					for(const SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
+						if(p_cur->Type == SJson::tOBJECT) {								
+							for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+								if(p_obj->Text.IsEqiAscii("objtype"))
+									txt_objtype = SJson::Unescape(p_obj->P_Child->Text);
+								else if(p_obj->Text.IsEqiAscii("objid"))
+									txt_objid = SJson::Unescape(p_obj->P_Child->Text);
+							}
+						}
+					}
+					if(PPObject::Identify(txt_objtype, txt_objid, &oid)) {
+						/*
+						{
+							objtype
+							objid
+							ware || prc || svc
+							id
+							nm
+							imgblobs
+							commondescription
+							spcdescription [
+								{
+									title
+									descr
+								}
+							]
+							ware {
+								
+							}
+						}
+
+					if(GetBlobInfo(rOwnIdent, oid, 0, blob_info, 0)) {
+						assert(blob_info.Signature.Len() && blob_info.Signature.IsAscii());
+						p_jsobj->InsertString("imgblobs", blob_info.Signature);
+						if(pStat)
+							pStat->BlobOidList.Add(oid.Obj, oid.Id);
+					}
+						*/
+						if(oid.Obj == PPOBJ_GOODS) {
+							if(oid.Id) {
+								PPObjGoods goods_obj;
+								PPGoodsPacket goods_pack;
+								if(goods_obj.GetPacket(oid.Id, &goods_pack, 0) > 0) {
+									SJson * p_js = MakeObjJson_Goods(own_ident, goods_pack, 0, 0, 0);
+									THROW(p_js);
+									p_js_reply = SJson::CreateObj();
+									p_js_reply->InsertString("result", "ok");
+									p_js_reply->InsertInt("objtype", oid.Obj);
+									p_js_reply->InsertInt("objid", oid.Id);
+									p_js_reply->Insert("detail", p_js);
+									cmd_reply_ok = true;
+								}
+							}
+						}
+						else if(oid.Obj == PPOBJ_PROCESSOR) {
+							if(oid.Id) {
+								PPObjProcessor prc_obj;
+								PPProcessorPacket prc_pack;
+								if(prc_obj.GetPacket(oid.Id, &prc_pack) > 0) {
+									SJson * p_js = MakeObjJson_Prc(own_ident, prc_pack.Rec, 0, 0);
+									THROW(p_js);
+									p_js_reply = SJson::CreateObj();
+									p_js_reply->InsertString("result", "ok");
+									p_js_reply->InsertInt("objtype", oid.Obj);
+									p_js_reply->InsertInt("objid", oid.Id);
+									p_js_reply->Insert("detail", p_js);
+									cmd_reply_ok = true;
+								}
+							}
+						}
+						else if(oid.Obj == PPOBJ_PERSON) {
+							if(oid.Id) {
+								PPObjPerson psn_obj;
+								PPPersonPacket psn_pack;
+								if(psn_obj.GetPacket(oid.Id, &psn_pack, 0) > 0) {
+								}
+							}
+						}
+						else if(oid.Obj == PPOBJ_STYLOQBINDERY) {
+							if(oid.Id) {
+								SJson * p_js = MakeObjJson_OwnFace(own_pack, 0);
+								p_js_reply = SJson::CreateObj();
+								p_js_reply->InsertString("result", "ok");
+								p_js_reply->InsertInt("objtype", oid.Obj);
+								p_js_reply->InsertInt("objid", oid.Id);
+								p_js_reply->Insert("detail", p_js);
+								cmd_reply_ok = true;
+							}
+						}
+					}
+					else {
+						; // @err
 					}
 				}
 			}
@@ -10527,6 +10684,7 @@ void RunStyloQMqbServer()
 						}
 					}
 				}
+				ZDELETE(p_ldb); // @v11.4.3 @fix
 			}
 		}
 		if(ll.getCount()) {
@@ -10931,13 +11089,13 @@ int PPStyloQInterchange::ExecuteInvitationDialog(InterchangeParam & rData)
 	StyloQCore::StoragePacket sp;
 	SString inv_code;
 	PPID   own_peer_id = 0;
-	int    spir = SetupPeerInstance(&own_peer_id, 1);
-	if(spir) {
-		THROW(MakeInvitation(rData, inv_code));
-		StQInvDialog * dlg = new StQInvDialog(inv_code);
-		if(CheckDialogPtr(&dlg))
-			ExecViewAndDestroy(dlg);
-	}
+		int    spir = SetupPeerInstance(&own_peer_id, 1);
+		if(spir) {
+			THROW(MakeInvitation(rData, inv_code));
+			StQInvDialog * dlg = new StQInvDialog(inv_code);
+			if(CheckDialogPtr(&dlg))
+				ExecViewAndDestroy(dlg);
+		}
 	CATCHZOKPPERR
 	return ok;
 }

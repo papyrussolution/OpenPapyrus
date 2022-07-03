@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include "modes_lcl.h"
 /*
  * The input and output encrypted as though 128bit cfb mode is being used.

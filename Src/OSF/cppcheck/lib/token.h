@@ -245,10 +245,7 @@ public:
 	 * @return true if given token matches with given pattern
 	 *         false if given token does not match with given pattern
 	 */
-	template <size_t count>
-	static bool simpleMatch(const Token * tok, const char (&pattern)[count]) {
-		return simpleMatch(tok, pattern, count-1);
-	}
+	template <size_t count> static bool simpleMatch(const Token * tok, const char (&pattern)[count]) { return simpleMatch(tok, pattern, count-1); }
 
 	static bool simpleMatch(const Token * tok, const char pattern[], size_t pattern_len);
 

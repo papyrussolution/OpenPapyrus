@@ -54,16 +54,14 @@ void CheckString::stringLiteralWriteError(const Token * tok, const Token * strVa
 
 	reportError(callstack, Severity::error, "stringLiteralWrite", errmsg, CWE758, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // Check for string comparison involving two static strings.
 // if(strcmp("00FF00","00FF00")==0) // <- statement is always true
-//---------------------------------------------------------------------------
+//
 void CheckString::checkAlwaysTrueOrFalseStringCompare()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	for(const Token* tok = mTokenizer->tokens(); tok; tok = tok->next()) {
 		if(tok->isName() && tok->strAt(1) == "(" &&
 		    Token::Match(tok,
@@ -127,16 +125,14 @@ void CheckString::alwaysTrueStringVariableCompareError(const Token * tok, const 
 	    "The compared strings, '" + str1 + "' and '" + str2 + "', are identical. "
 	    "This could be a logic bug.", CWE571, Certainty::normal);
 }
-
-//-----------------------------------------------------------------------------
+//
 // Detect "str == '\0'" where "*str == '\0'" is correct.
 // Comparing char* with each other instead of using strcmp()
-//-----------------------------------------------------------------------------
+//
 void CheckString::checkSuspiciousStringCompare()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	const SymbolDatabase* symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
@@ -190,11 +186,9 @@ void CheckString::suspiciousStringCompareError_char(const Token* tok, const std:
 	    CWE595,
 	    Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // Adding C-string and char with operator+
-//---------------------------------------------------------------------------
-
+//
 static bool isChar(const Variable* var)
 {
 	return (var && !var->isPointer() && !var->isArray() &&
@@ -238,11 +232,10 @@ void CheckString::strPlusCharError(const Token * tok)
 	    CWE665,
 	    Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // Implicit casts of string literals to bool
 // Comparing string literal with strlen() with wrong length
-//---------------------------------------------------------------------------
+//
 void CheckString::checkIncorrectStringCompare()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
@@ -317,16 +310,14 @@ void CheckString::incorrectStringBooleanError(const Token * tok, const std::stri
 	    CWE571,
 	    Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // always true: strcmp(str,"a")==0 || strcmp(str,"b")
 // TODO: Library configuration for string comparison functions
-//---------------------------------------------------------------------------
+//
 void CheckString::overlappingStrcmp()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
@@ -390,19 +381,16 @@ void CheckString::overlappingStrcmpError(const Token * eq0, const Token * ne0)
 		eq0Expr = "!" + eq0Expr;
 	else
 		eq0Expr += " == 0";
-
 	const std::string ne0Expr = (ne0 ? ne0->expressionString() : std::string("strcmp(x,\"def\")")) + " != 0";
-
 	reportError(ne0,
 	    Severity::warning,
 	    "overlappingStrcmp",
 	    "The expression '" + ne0Expr + "' is suspicious. It overlaps '" + eq0Expr + "'.");
 }
-
-//---------------------------------------------------------------------------
+//
 // Overlapping source and destination passed to sprintf().
 // TODO: Library configuration for overlapping arguments
-//---------------------------------------------------------------------------
+//
 void CheckString::sprintfOverlappingData()
 {
 	const SymbolDatabase* symbolDatabase = mTokenizer->getSymbolDatabase();

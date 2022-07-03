@@ -22,9 +22,8 @@
  *
  * See md5.c for more information.
  */
-
 #ifdef HAVE_OPENSSL
-#include <openssl/md5.h>
+	#include <slib-ossl.h>
 #elif !defined(_MD5_H)
 #define _MD5_H
 

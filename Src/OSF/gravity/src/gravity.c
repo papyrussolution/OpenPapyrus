@@ -326,7 +326,7 @@ static void gravity_repl(void)
 
 	   gravity_compiler_t    *compiler = gravity_compiler_create(&delegate);
 	   gravity_vm    *vm = gravity_vm_new(&delegate);
-	   char        *line = NULL;
+	   char *line = NULL;
 	   int            length = 0;
 
 	   printf("Welcome to Gravity v%s\n", GRAVITY_VERSION);

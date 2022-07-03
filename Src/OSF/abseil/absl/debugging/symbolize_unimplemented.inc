@@ -26,7 +26,7 @@ bool GetFileMappingHint(const void **, const void **, uint64_t *, const char **)
 
 }  // namespace debugging_internal
 
-void InitializeSymbolizer(const char*) {}
+void InitializeSymbolizer(const char *) {}
 bool Symbolize(const void *, char *, int) { return false; }
 
 ABSL_NAMESPACE_END

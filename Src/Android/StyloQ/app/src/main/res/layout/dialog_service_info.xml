@@ -38,7 +38,7 @@
         android:orientation="horizontal"
         android:gravity="right">
         <!--
-        <ImageButton style="@style/PushButton" android:id="@+id/STDCTL_DELETEBUTTON"
+        <ImageButton style="@style/ImagePushButton" android:id="@+id/STDCTL_DELETEBUTTON"
             android:gravity="left"
             app:srcCompat="@drawable/ic_deletefile02"
             android:text="@{but_delete}" />

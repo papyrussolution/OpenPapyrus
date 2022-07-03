@@ -138,24 +138,17 @@ static uint32_t * _findRow(UPropsVectors * pv, UChar32 rangeStart) {
 	return pv->v+start*columns;
 }
 
-U_CAPI void U_EXPORT2 upvec_setValue(UPropsVectors * pv,
-    UChar32 start, UChar32 end,
-    int32_t column,
-    uint32_t value, uint32_t mask,
-    UErrorCode * pErrorCode) {
+U_CAPI void U_EXPORT2 upvec_setValue(UPropsVectors * pv, UChar32 start, UChar32 end, int32_t column, uint32_t value, uint32_t mask, UErrorCode * pErrorCode) 
+{
 	uint32_t * firstRow, * lastRow;
 	int32_t columns;
 	UChar32 limit;
 	bool splitFirstRow, splitLastRow;
-
 	/* argument checking */
 	if(U_FAILURE(*pErrorCode)) {
 		return;
 	}
-	if(pv==NULL ||
-	    start<0 || start>end || end>UPVEC_MAX_CP ||
-	    column<0 || column>=(pv->columns-2)
-	    ) {
+	if(pv==NULL || start<0 || start>end || end>UPVEC_MAX_CP || column<0 || column>=(pv->columns-2)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
@@ -164,7 +157,6 @@ U_CAPI void U_EXPORT2 upvec_setValue(UPropsVectors * pv,
 		return;
 	}
 	limit = end+1;
-
 	/* initialize */
 	columns = pv->columns;
 	column += 2; /* skip range start and limit columns */
@@ -183,16 +175,13 @@ U_CAPI void U_EXPORT2 upvec_setValue(UPropsVectors * pv,
 	 */
 	splitFirstRow = (bool)(start!=(UChar32)firstRow[0] && value!=(firstRow[column]&mask));
 	splitLastRow = (bool)(limit!=(UChar32)lastRow[1] && value!=(lastRow[column]&mask));
-
 	/* split first/last rows if necessary */
 	if(splitFirstRow || splitLastRow) {
-		int32_t count, rows;
-
-		rows = pv->rows;
+		int32_t count;
+		int32_t rows = pv->rows;
 		if((rows+splitFirstRow+splitLastRow)>pv->maxRows) {
 			uint32_t * newVectors;
 			int32_t newMaxRows;
-
 			if(pv->maxRows<UPVEC_MEDIUM_ROWS) {
 				newMaxRows = UPVEC_MEDIUM_ROWS;
 			}
@@ -453,7 +442,8 @@ U_CAPI uint32_t * U_EXPORT2 upvec_cloneArray(const UPropsVectors * pv,
 	return clonedArray;
 }
 
-U_CAPI UTrie2 * U_EXPORT2 upvec_compactToUTrie2WithRowIndexes(UPropsVectors * pv, UErrorCode * pErrorCode) {
+U_CAPI UTrie2 * U_EXPORT2 upvec_compactToUTrie2WithRowIndexes(UPropsVectors * pv, UErrorCode * pErrorCode) 
+{
 	UPVecToUTrie2Context toUTrie2 = { NULL, 0, 0, 0 };
 	upvec_compact(pv, upvec_compactToUTrie2Handler, &toUTrie2, pErrorCode);
 	utrie2_freeze(toUTrie2.trie, UTRIE2_16_VALUE_BITS, pErrorCode);

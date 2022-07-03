@@ -95,7 +95,7 @@ l_ok pixGetRegionsBinary(PIX * pixs,
     PIX ** ppixhm,
     PIX ** ppixtm,
     PIX ** ppixtb,
-    PIXA  * pixadb)
+    PIXA * pixadb)
 {
 	int32 w, h, htfound, tlfound;
 	PIX * pixr, * pix1, * pix2;
@@ -454,7 +454,7 @@ PIX * pixGenTextlineMask(PIX * pixs,
  */
 PIX * pixGenTextblockMask(PIX * pixs,
     PIX * pixvws,
-    PIXA  * pixadb)
+    PIXA * pixadb)
 {
 	int32 w, h, empty;
 	PIX * pix1, * pix2, * pix3, * pixd;
@@ -1192,12 +1192,12 @@ l_ok pixCountTextColumns(PIX * pixs,
     float deltafract,
     float peakfract,
     float clipfract,
-    int32   * pncols,
+    int32 * pncols,
     PIXA      * pixadb)
 {
 	int32 w, h, res, i, n, npeak;
 	float scalefact, redfact, minval, maxval, val4, val5, fract;
-	BOX       * box;
+	BOX * box;
 	NUMA * na1, * na2, * na3, * na4, * na5;
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5;
 
@@ -1740,13 +1740,13 @@ l_ok pixDecideIfTable(PIX * pixs,
  * </pre>
  */
 PIX * pixPrepare1bpp(PIX * pixs,
-    BOX       * box,
+    BOX * box,
     float cropfract,
     int32 outres)
 {
 	int32 w, h, res;
 	float factor;
-	BOX       * box1;
+	BOX * box1;
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5;
 
 	PROCNAME(__FUNCTION__);
@@ -1828,11 +1828,11 @@ PIX * pixPrepare1bpp(PIX * pixs,
 l_ok pixEstimateBackground(PIX * pixs,
     int32 darkthresh,
     float edgecrop,
-    int32   * pbg)
+    int32 * pbg)
 {
 	int32 w, h, sampling;
 	float fbg;
-	BOX       * box;
+	BOX * box;
 	PIX * pix1, * pix2, * pixm;
 
 	PROCNAME(__FUNCTION__);
@@ -2012,16 +2012,16 @@ l_ok pixFindLargeRectangles(PIX          * pixs,
 l_ok pixFindLargestRectangle(PIX         * pixs,
     int32 polarity,
     BOX        ** pbox,
-    PIX        ** ppixdb)
+    PIX ** ppixdb)
 {
 	int32 i, j, w, h, d, wpls, val;
 	int32 wp, hp, w1, w2, h1, h2, wmin, hmin, area1, area2;
 	int32 xmax, ymax; /* LR corner of the largest rectangle */
 	int32 maxarea, wmax, hmax, vertdist, horizdist, prevfg;
-	int32   * lowestfg;
+	int32 * lowestfg;
 	uint32  * datas, * lines;
 	uint32 ** linew, ** lineh;
-	BOX       * box;
+	BOX * box;
 	PIX * pixw, * pixh; /* keeps the width and height for the largest */
 	                    /* rectangles whose LR corner is located there. */
 
@@ -2165,7 +2165,7 @@ l_ok pixFindLargestRectangle(PIX         * pixs,
  *          can fit in the c.c.  To get that, use pixFindLargestRectangle().
  */
 BOX * pixFindRectangleInCC(PIX * pixs,
-    BOX       * boxs,
+    BOX * boxs,
     float fract,
     int32 dir,
     int32 select,
@@ -2360,7 +2360,7 @@ PIX * pixAutoPhotoinvert(PIX * pixs,
 {
 	int32 i, n, empty, x, y, w, h;
 	float fgfract;
-	BOX       * box1;
+	BOX * box1;
 	BOXA      * boxa1;
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5;
 

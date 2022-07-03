@@ -38,9 +38,7 @@ static bool IsDoxygen(int ch)
 {
 	if(IsASCII(ch) && islower(ch))
 		return true;
-	if(ch == '$' || ch == '@' || ch == '\\' ||
-	    ch == '&' || ch == '#' || ch == '<' || ch == '>' ||
-	    ch == '{' || ch == '}' || ch == '[' || ch == ']')
+	if(ch == '$' || ch == '@' || ch == '\\' || ch == '&' || ch == '#' || ch == '<' || ch == '>' || ch == '{' || ch == '}' || ch == '[' || ch == ']')
 		return true;
 	return false;
 }

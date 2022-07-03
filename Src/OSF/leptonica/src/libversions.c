@@ -45,7 +45,7 @@
 	#ifdef LIBJP2K_HEADER
 		#include LIBJP2K_HEADER
 	#else
-		#include <openjpeg.h>
+		#include <..\OSF\openjpeg\src\lib\openjp2\openjpeg.h>
 	#endif
 #endif
 

@@ -9,7 +9,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/err.h>
 #include "ec_lcl.h"
 
 const EC_METHOD * EC_GFp_mont_method(void)

@@ -12,7 +12,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "compression_stream.h"
 
 using namespace std;
 

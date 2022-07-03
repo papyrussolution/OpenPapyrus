@@ -656,7 +656,7 @@ void PNGAPI png_set_tRNS(png_structrp png_ptr, png_inforp info_ptr, png_const_by
 	png_debug1(1, "in %s storage function", "tRNS");
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
-	if(trans_alpha != NULL) {
+	if(trans_alpha) {
 		/* It may not actually be necessary to set png_ptr->trans_alpha here;
 		 * we do it for backward compatibility with the way the png_handle_tRNS
 		 * function used to do the allocation.
@@ -673,7 +673,7 @@ void PNGAPI png_set_tRNS(png_structrp png_ptr, png_inforp info_ptr, png_const_by
 		}
 		png_ptr->trans_alpha = info_ptr->trans_alpha;
 	}
-	if(trans_color != NULL) {
+	if(trans_color) {
 #ifdef PNG_WARNINGS_SUPPORTED
 		if(info_ptr->bit_depth < 16) {
 			int sample_max = (1 << info_ptr->bit_depth) - 1;
@@ -1025,7 +1025,7 @@ void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep, png_cons
 	 * end.  (In libpng 1.6.0 order no longer matters because this code enforces
 	 * the earlier convention that the last setting is the one that is used.)
 	 */
-	if(new_list != NULL) {
+	if(new_list) {
 		png_const_bytep inlist;
 		png_bytep outlist;
 		uint i;
@@ -1056,7 +1056,7 @@ void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep, png_cons
 		num_chunks = 0;
 	png_ptr->num_chunk_list = num_chunks;
 	if(png_ptr->chunk_list != new_list) {
-		if(png_ptr->chunk_list != NULL)
+		if(png_ptr->chunk_list)
 			png_free(png_ptr, png_ptr->chunk_list);
 		png_ptr->chunk_list = new_list;
 	}
@@ -1082,10 +1082,10 @@ void PNGAPI png_set_rows(png_const_structrp png_ptr, png_inforp info_ptr, png_by
 	png_debug1(1, "in %s storage function", "rows");
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
-	if(info_ptr->row_pointers != NULL && (info_ptr->row_pointers != row_pointers))
+	if(info_ptr->row_pointers && (info_ptr->row_pointers != row_pointers))
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ROWS, 0);
 	info_ptr->row_pointers = row_pointers;
-	if(row_pointers != NULL)
+	if(row_pointers)
 		info_ptr->valid |= PNG_INFO_IDAT;
 }
 #endif

@@ -192,7 +192,7 @@ struct sqlite3_api_routines {
 	void (* result_error_toobig)(sqlite3_context*);
 	int (* sleep)(int);
 	void (* soft_heap_limit)(int);
-	sqlite3_vfs *(* vfs_find)(const char*);
+	sqlite3_vfs *(* vfs_find)(const char *);
 	int (* vfs_register)(sqlite3_vfs*, int);
 	int (* vfs_unregister)(sqlite3_vfs*);
 	int (* xthreadsafe)(void);
@@ -212,7 +212,7 @@ struct sqlite3_api_routines {
 	int (* backup_remaining)(sqlite3_backup*);
 	int (* backup_step)(sqlite3_backup*, int);
 	const char *(* compileoption_get)(int);
-	int (* compileoption_used)(const char*);
+	int (* compileoption_used)(const char *);
 	int (* create_function_v2)(sqlite3*, const char*, int, int, void*,
 	    void (* xFunc)(sqlite3_context*, int, sqlite3_value**),
 	    void (* xStep)(sqlite3_context*, int, sqlite3_value**),
@@ -327,14 +327,14 @@ struct sqlite3_api_routines {
 	/* Version 3.31.0 and later */
 	sqlite3_int64 (* hard_heap_limit64)(sqlite3_int64);
 	const char *(* uri_key)(const char*, int);
-	const char *(* filename_database)(const char*);
-	const char *(* filename_journal)(const char*);
-	const char *(* filename_wal)(const char*);
+	const char *(* filename_database)(const char *);
+	const char *(* filename_journal)(const char *);
+	const char *(* filename_wal)(const char *);
 	/* Version 3.32.0 and later */
 	char *(* create_filename)(const char*, const char*, const char*,
 	    int, const char**);
 	void (* free_filename)(char *);
-	sqlite3_file *(* database_file_object)(const char*);
+	sqlite3_file *(* database_file_object)(const char *);
 	/* Version 3.34.0 and later */
 	int (* txn_state)(sqlite3*, const char*);
 };

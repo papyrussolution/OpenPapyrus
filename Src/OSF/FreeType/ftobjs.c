@@ -903,38 +903,30 @@ FT_Load_Char(FT_Face face,
     FT_Int32 load_flags)
 {
 	FT_UInt glyph_index;
-
 	if(!face)
 		return FT_THROW(Invalid_Face_Handle);
-
 	glyph_index = (FT_UInt)char_code;
 	if(face->charmap)
 		glyph_index = FT_Get_Char_Index(face, char_code);
-
 	return FT_Load_Glyph(face, glyph_index, load_flags);
 }
 
 /* destructor for sizes list */
-static void destroy_size(FT_Memory memory,
-    FT_Size size,
-    FT_Driver driver)
+static void destroy_size(FT_Memory memory, FT_Size size, FT_Driver driver)
 {
 	/* finalize client-specific data */
 	if(size->generic.finalizer)
 		size->generic.finalizer(size);
-
 	/* finalize format-specific stuff */
 	if(driver->clazz->done_size)
 		driver->clazz->done_size(size);
-
 	FT_FREE(size->internal);
 	FT_FREE(size);
 }
 
 static void ft_cmap_done_internal(FT_CMap cmap);
 
-static void destroy_charmaps(FT_Face face,
-    FT_Memory memory)
+static void destroy_charmaps(FT_Face face, FT_Memory memory)
 {
 	FT_Int n;
 

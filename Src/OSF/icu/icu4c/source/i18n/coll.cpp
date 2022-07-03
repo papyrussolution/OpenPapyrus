@@ -98,13 +98,13 @@ public:
 	}
 	virtual ~ICUCollatorFactory();
 protected:
-	virtual UObject* create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const override;
+	virtual UObject * create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const override;
 };
 
 ICUCollatorFactory::~ICUCollatorFactory() {
 }
 
-UObject* ICUCollatorFactory::create(const ICUServiceKey& key, const ICUService* /* service */, UErrorCode & status) const {
+UObject * ICUCollatorFactory::create(const ICUServiceKey& key, const ICUService* /* service */, UErrorCode & status) const {
 	if(handlesKey(key, status)) {
 		const LocaleKey& lkey = (const LocaleKey&)key;
 		Locale loc;
@@ -126,11 +126,11 @@ public:
 		registerFactory(new ICUCollatorFactory(), status);
 	}
 	virtual ~ICUCollatorService();
-	virtual UObject* cloneInstance(UObject* instance) const override 
+	virtual UObject * cloneInstance(UObject * instance) const override 
 	{
 		return ((Collator*)instance)->clone();
 	}
-	virtual UObject* handleDefault(const ICUServiceKey& key, UnicodeString * actualID, UErrorCode & status) const override 
+	virtual UObject * handleDefault(const ICUServiceKey& key, UnicodeString * actualID, UErrorCode & status) const override 
 	{
 		LocaleKey& lkey = (LocaleKey&)key;
 		if(actualID) {
@@ -144,7 +144,7 @@ public:
 		return Collator::makeInstance(loc, status);
 	}
 
-	virtual UObject* getKey(ICUServiceKey& key, UnicodeString * actualReturn, UErrorCode & status) const override {
+	virtual UObject * getKey(ICUServiceKey& key, UnicodeString * actualReturn, UErrorCode & status) const override {
 		UnicodeString ar;
 		if(actualReturn == NULL) {
 			actualReturn = &ar;
@@ -673,7 +673,7 @@ public:
 
 	virtual ~CFactory();
 
-	virtual UObject* create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const override;
+	virtual UObject * create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const override;
 
 protected:
 	virtual const Hashtable* getSupportedIDs(UErrorCode & status) const override
@@ -693,7 +693,7 @@ CFactory::~CFactory()
 	delete _ids;
 }
 
-UObject* CFactory::create(const ICUServiceKey& key, const ICUService* /* service */, UErrorCode & status) const
+UObject * CFactory::create(const ICUServiceKey& key, const ICUService* /* service */, UErrorCode & status) const
 {
 	if(handlesKey(key, status)) {
 		const LocaleKey& lkey = (const LocaleKey&)key;

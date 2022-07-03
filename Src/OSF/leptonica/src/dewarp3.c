@@ -20,8 +20,8 @@
  *      Apply disparity array to pix
  *          int32            dewarpaApplyDisparity()
  *          static int32     dewarpaApplyInit()
- *          static PIX        *pixApplyVertDisparity()
- *          static PIX        *pixApplyHorizDisparity()
+ *          static PIX *pixApplyVertDisparity()
+ *          static PIX *pixApplyHorizDisparity()
  *
  *      Apply disparity array to boxa
  *          int32            dewarpaApplyDisparityBoxa()
@@ -100,7 +100,7 @@ l_ok dewarpaApplyDisparity(L_DEWARPA   * dewa,
     int32 grayin,
     int32 x,
     int32 y,
-    PIX        ** ppixd,
+    PIX ** ppixd,
     const char * debugfile)
 {
 	L_DEWARP * dew1, * dew;
@@ -296,7 +296,7 @@ static PIX * pixApplyVertDisparity(L_DEWARP * dew,
 	float * dataf, * linef;
 	void      ** lineptrs;
 	FPIX       * fpix;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -405,7 +405,7 @@ static PIX * pixApplyHorizDisparity(L_DEWARP * dew,
 	uint32   * datas, * lines, * datad, * lined;
 	float * dataf, * linef;
 	FPIX       * fpix;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -873,12 +873,12 @@ l_ok dewarpPopulateFullRes(L_DEWARP * dew,
  *          vertically.
  * </pre>
  */
-static FPIX * fpixSampledDisparity(FPIX    * fpixs,
+static FPIX * fpixSampledDisparity(FPIX * fpixs,
     int32 sampling)
 {
 	int32 w, h, wd, hd, i, j, is, js;
 	float val;
-	FPIX      * fpixd;
+	FPIX * fpixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -932,9 +932,9 @@ static const float DefaultSlopeFactor = 0.1; /* just a guess; fix it */
  *                                  fpix, 1.0, 1.0);
  * </pre>
  */
-static FPIX * fpixExtraHorizDisparity(FPIX      * fpixv,
+static FPIX * fpixExtraHorizDisparity(FPIX * fpixv,
     float factor,
-    int32   * pxwid)
+    int32 * pxwid)
 {
 	int32 w, h, i, j, fw, wpl, maxloc;
 	float val1, val2, vdisp, vdisp0, maxval;

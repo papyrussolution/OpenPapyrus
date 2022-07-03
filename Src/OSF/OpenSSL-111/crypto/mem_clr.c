@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 /*
  * Pointer to memset is volatile so that compiler must de-reference
  * the pointer and can't assume that it points to any function in

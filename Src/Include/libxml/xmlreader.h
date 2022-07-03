@@ -6,7 +6,6 @@
  *
  * Author: Daniel Veillard
  */
-
 #ifndef __XML_XMLREADER_H__
 #define __XML_XMLREADER_H__
 
@@ -90,9 +89,6 @@ struct xmlTextReader;
  * Pointer to an xmlReader context.
  */
 //typedef xmlTextReader * xmlTextReaderPtr;
-/*
- * Constructors & Destructor
- */
 XMLPUBFUN xmlTextReader * XMLCALL xmlNewTextReader(xmlParserInputBuffer * input, const char * URI);
 XMLPUBFUN xmlTextReader * XMLCALL xmlNewTextReaderFilename(const char * URI);
 XMLPUBFUN void XMLCALL  xmlFreeTextReader(xmlTextReader * reader);

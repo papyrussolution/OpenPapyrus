@@ -412,7 +412,7 @@ BOXA * boxaClipToBox(BOXA * boxas, BOX   * box)
  *          thousands of rectangles.
  * </pre>
  */
-BOXA * boxaCombineOverlaps(BOXA * boxas, PIXA  * pixadb)
+BOXA * boxaCombineOverlaps(BOXA * boxas, PIXA * pixadb)
 {
 	int32 i, j, w, h, n1, n2, overlap, niters;
 	BOX * box1, * box2, * box3;
@@ -842,7 +842,7 @@ BOXA * boxaHandleOverlaps(BOXA * boxas,
 	int32 i, j, n, w, h, area1, area2, val;
 	int32 overlap_area;
 	float overlap_ratio, area_ratio;
-	BOX       * box1, * box2, * box3;
+	BOX * box1, * box2, * box3;
 	BOXA      * boxat, * boxad;
 	NUMA * namap;
 
@@ -1133,15 +1133,10 @@ l_ok boxCompareSize(BOX      * box1,
  * \param[out]   pcontains   1 if box contains point; 0 otherwise
  * \return  0 if OK, 1 on error.
  */
-l_ok boxContainsPt(BOX       * box,
-    float x,
-    float y,
-    int32   * pcontains)
+l_ok boxContainsPt(BOX * box, float x, float y, int32 * pcontains)
 {
-	int32 bx, by, bw, bh;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 bx, by, bw, bh;
 	if(!pcontains)
 		return ERROR_INT("&contains not defined", procName, 1);
 	*pcontains = 0;
@@ -1152,7 +1147,6 @@ l_ok boxContainsPt(BOX       * box,
 		*pcontains = 1;
 	return 0;
 }
-
 /*!
  * \brief   boxaGetNearestToPt()
  *
@@ -1172,7 +1166,7 @@ BOX * boxaGetNearestToPt(BOXA * boxa,
 {
 	int32 i, n, minindex;
 	float delx, dely, dist, mindist, cx, cy;
-	BOX       * box;
+	BOX * box;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1223,7 +1217,7 @@ BOX * boxaGetNearestToLine(BOXA * boxa,
 {
 	int32 i, n, minindex;
 	float dist, mindist, cx, cy;
-	BOX       * box;
+	BOX * box;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1526,19 +1520,19 @@ l_ok boxGetCenter(BOX        * box,
  *      (2) Represent a vertical line by one with a large but finite slope.
  * </pre>
  */
-l_ok boxIntersectByLine(BOX       * box,
+l_ok boxIntersectByLine(BOX * box,
     int32 x,
     int32 y,
     float slope,
-    int32   * px1,
-    int32   * py1,
-    int32   * px2,
-    int32   * py2,
-    int32   * pn)
+    int32 * px1,
+    int32 * py1,
+    int32 * px2,
+    int32 * py2,
+    int32 * pn)
 {
 	int32 bx, by, bw, bh, xp, yp, xt, yt, i, n;
 	float invslope;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 

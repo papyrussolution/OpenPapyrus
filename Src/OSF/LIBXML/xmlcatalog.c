@@ -417,7 +417,7 @@ int main(int argc, char ** argv)
 					}
 				}
 				else {
-					if(catal != NULL)
+					if(catal)
 						ret = xmlACatalogRemove(catal, BAD_CAST argv[i+2]);
 					else
 						ret = -1;
@@ -425,9 +425,9 @@ int main(int argc, char ** argv)
 						slfprintf_stderr("Failed to remove entry from %s\n", argv[i+1]);
 						exit_value = 1;
 					}
-					if((!no_super_update) && (noout) && (catal != NULL) && (xmlCatalogIsEmpty(catal))) {
+					if(!no_super_update && noout && catal && (xmlCatalogIsEmpty(catal))) {
 						super = xmlLoadSGMLSuperCatalog(XML_SGML_DEFAULT_CATALOG);
-						if(super != NULL) {
+						if(super) {
 							ret = xmlACatalogRemove(super, BAD_CAST argv[i+1]);
 							if(ret < 0) {
 								slfprintf_stderr("Failed to remove entry from %s\n", XML_SGML_DEFAULT_CATALOG);
@@ -453,7 +453,7 @@ int main(int argc, char ** argv)
 							fclose(out);
 						}
 					}
-					if(!no_super_update && super != NULL) {
+					if(!no_super_update && super) {
 						if(xmlCatalogIsEmpty(super)) {
 							remove(XML_SGML_DEFAULT_CATALOG);
 						}

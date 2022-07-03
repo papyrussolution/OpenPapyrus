@@ -248,7 +248,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual ~NumberFormat();
-
 	/**
 	 * Clones this object polymorphically.
 	 * The caller owns the result and should delete it when done.
@@ -256,7 +255,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual NumberFormat* clone() const override = 0;
-
 	/**
 	 * Return true if the given Format objects are semantically equal.
 	 * Objects of different subclasses are considered unequal.
@@ -285,7 +283,7 @@ public:
 	virtual UnicodeString & format(const Formattable& obj,
 	    UnicodeString & appendTo,
 	    FieldPosition& pos,
-	    UErrorCode& status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Format an object to produce a string.  This method handles
@@ -306,7 +304,7 @@ public:
 	virtual UnicodeString & format(const Formattable& obj,
 	    UnicodeString & appendTo,
 	    FieldPositionIterator* posIter,
-	    UErrorCode& status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Parse a string to produce an object.  This methods handles
@@ -411,7 +409,7 @@ public:
 	virtual UnicodeString & format(double number,
 	    UnicodeString & appendTo,
 	    FieldPosition& pos,
-	    UErrorCode &status) const;
+	    UErrorCode & status) const;
 	/**
 	 * Format a double number. Subclasses must implement
 	 * this method.
@@ -429,7 +427,7 @@ public:
 	virtual UnicodeString & format(double number,
 	    UnicodeString & appendTo,
 	    FieldPositionIterator* posIter,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 	/**
 	 * Format a long number. Concrete subclasses must implement
 	 * these pure virtual methods.
@@ -462,7 +460,7 @@ public:
 	virtual UnicodeString & format(int32_t number,
 	    UnicodeString & appendTo,
 	    FieldPosition& pos,
-	    UErrorCode &status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Format an int32 number. Subclasses must implement
@@ -481,7 +479,7 @@ public:
 	virtual UnicodeString & format(int32_t number,
 	    UnicodeString & appendTo,
 	    FieldPositionIterator* posIter,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 	/**
 	 * Format an int64 number. (Not abstract to retain compatibility
 	 * with earlier releases, however subclasses should override this
@@ -516,7 +514,7 @@ public:
 	virtual UnicodeString & format(int64_t number,
 	    UnicodeString & appendTo,
 	    FieldPosition& pos,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 	/**
 	 * Format an int64 number. Subclasses must implement
 	 * this method.
@@ -534,7 +532,7 @@ public:
 	virtual UnicodeString & format(int64_t number,
 	    UnicodeString & appendTo,
 	    FieldPositionIterator* posIter,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Format a decimal number. Subclasses must implement
@@ -555,7 +553,7 @@ public:
 	virtual UnicodeString & format(StringPiece number,
 	    UnicodeString & appendTo,
 	    FieldPositionIterator* posIter,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 // Can't use #ifndef U_HIDE_INTERNAL_API because these are virtual methods
 
@@ -579,7 +577,7 @@ public:
 	virtual UnicodeString & format(const number::impl::DecimalQuantity &number,
 	    UnicodeString & appendTo,
 	    FieldPositionIterator* posIter,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Format a decimal number.
@@ -601,7 +599,7 @@ public:
 	virtual UnicodeString & format(const number::impl::DecimalQuantity &number,
 	    UnicodeString & appendTo,
 	    FieldPosition& pos,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Return a long if possible (e.g. within range LONG_MAX,
@@ -643,7 +641,7 @@ public:
 	 */
 	virtual void parse(const UnicodeString & text,
 	    Formattable& result,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Parses text from the given string as a currency amount.  Unlike
@@ -764,7 +762,7 @@ public:
 	 * @internal
 	 */
 	static const SharedNumberFormat* U_EXPORT2 createSharedInstance(const Locale& inLocale, UNumberFormatStyle style,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 #endif  /* U_HIDE_INTERNAL_API */
 
@@ -846,7 +844,7 @@ public:
 	 * @return a registry key that can be used to unregister this factory
 	 * @stable ICU 2.6
 	 */
-	static URegistryKey U_EXPORT2 registerFactory(NumberFormatFactory* toAdopt, UErrorCode& status);
+	static URegistryKey U_EXPORT2 registerFactory(NumberFormatFactory* toAdopt, UErrorCode & status);
 
 	/**
 	 * Unregister a previously-registered NumberFormatFactory using the key returned from the
@@ -860,7 +858,7 @@ public:
 	 * @return true if the factory for the key was successfully unregistered
 	 * @stable ICU 2.6
 	 */
-	static bool U_EXPORT2 unregister(URegistryKey key, UErrorCode& status);
+	static bool U_EXPORT2 unregister(URegistryKey key, UErrorCode & status);
 
 	/**
 	 * Return a StringEnumeration over the locales available at the time of the call,
@@ -1012,7 +1010,7 @@ public:
 	 *               updated with any new status from the function.
 	 * @stable ICU 53
 	 */
-	virtual void setContext(UDisplayContext value, UErrorCode& status);
+	virtual void setContext(UDisplayContext value, UErrorCode & status);
 
 	/**
 	 * Get the formatter's UDisplayContext value for the specified UDisplayContextType,
@@ -1024,7 +1022,7 @@ public:
 	 * @return The UDisplayContextValue for the specified type.
 	 * @stable ICU 53
 	 */
-	virtual UDisplayContext getContext(UDisplayContextType type, UErrorCode& status) const;
+	virtual UDisplayContext getContext(UDisplayContextType type, UErrorCode & status) const;
 
 	/**
 	 * Get the rounding mode. This will always return NumberFormat::ERoundingMode::kRoundUnnecessary
@@ -1167,7 +1165,6 @@ public:
 	 * @stable ICU 3.0
 	 */
 	virtual ~NumberFormatFactory();
-
 	/**
 	 * Return true if this factory will be visible.  Default is true.
 	 * If not visible, the locales supported by this factory will not
@@ -1175,13 +1172,12 @@ public:
 	 * @stable ICU 2.6
 	 */
 	virtual bool visible(void) const = 0;
-
 	/**
 	 * Return the locale names directly supported by this factory.  The number of names
 	 * is returned in count;
 	 * @stable ICU 2.6
 	 */
-	virtual const UnicodeString * getSupportedIDs(int32_t &count, UErrorCode& status) const = 0;
+	virtual const UnicodeString * getSupportedIDs(int32_t &count, UErrorCode & status) const = 0;
 
 	/**
 	 * Return a number format of the appropriate type.  If the locale
@@ -1230,7 +1226,7 @@ public:
 	/**
 	 * @stable ICU 2.6
 	 */
-	virtual const UnicodeString * getSupportedIDs(int32_t &count, UErrorCode& status) const override;
+	virtual const UnicodeString * getSupportedIDs(int32_t &count, UErrorCode & status) const override;
 };
 
 #endif /* #if !UCONFIG_NO_SERVICE */

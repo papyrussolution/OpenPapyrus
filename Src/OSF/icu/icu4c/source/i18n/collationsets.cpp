@@ -28,7 +28,8 @@ static bool U_CALLCONV enumTailoredRange(const void * context, UChar32 start, UC
 
 U_CDECL_END
 
-void TailoredSet::forData(const CollationData * d, UErrorCode & ec) {
+void TailoredSet::forData(const CollationData * d, UErrorCode & ec) 
+{
 	if(U_FAILURE(ec)) {
 		return;
 	}
@@ -40,7 +41,8 @@ void TailoredSet::forData(const CollationData * d, UErrorCode & ec) {
 	ec = errorCode;
 }
 
-bool TailoredSet::handleCE32(UChar32 start, UChar32 end, uint32_t ce32) {
+bool TailoredSet::handleCE32(UChar32 start, UChar32 end, uint32_t ce32) 
+{
 	U_ASSERT(ce32 != Collation::FALLBACK_CE32);
 	if(Collation::isSpecialCE32(ce32)) {
 		ce32 = data->getIndirectCE32(ce32);
@@ -348,7 +350,7 @@ void TailoredSet::add(UChar32 c) {
 	else {
 		UnicodeString s(unreversedPrefix);
 		s.append(c);
-		if(suffix != NULL) {
+		if(suffix) {
 			s.append(*suffix);
 		}
 		tailored->add(s);
@@ -401,7 +403,7 @@ void ContractionsAndExpansions::forData(const CollationData * d, UErrorCode & ec
 	}
 	errorCode = ec; // Preserve info & warning codes.
 	// Add all from the data, can be tailoring or base.
-	if(d->base != NULL) {
+	if(d->base) {
 		checkTailored = -1;
 	}
 	data = d;
@@ -437,7 +439,7 @@ void ContractionsAndExpansions::handleCE32(UChar32 start, UChar32 end, uint32_t 
 	for(;;) {
 		if((ce32 & 0xff) < Collation::SPECIAL_CE32_LOW_BYTE) {
 			// !isSpecialCE32()
-			if(sink != NULL) {
+			if(sink) {
 				sink->handleCE(Collation::ceFromSimpleCE32(ce32));
 			}
 			return;
@@ -453,17 +455,17 @@ void ContractionsAndExpansions::handleCE32(UChar32 start, UChar32 end, uint32_t 
 			    }
 			    return;
 			case Collation::LONG_PRIMARY_TAG:
-			    if(sink != NULL) {
+			    if(sink) {
 				    sink->handleCE(Collation::ceFromLongPrimaryCE32(ce32));
 			    }
 			    return;
 			case Collation::LONG_SECONDARY_TAG:
-			    if(sink != NULL) {
+			    if(sink) {
 				    sink->handleCE(Collation::ceFromLongSecondaryCE32(ce32));
 			    }
 			    return;
 			case Collation::LATIN_EXPANSION_TAG:
-			    if(sink != NULL) {
+			    if(sink) {
 				    ces[0] = Collation::latinCE0FromCE32(ce32);
 				    ces[1] = Collation::latinCE1FromCE32(ce32);
 				    sink->handleExpansion(ces, 2);
@@ -475,7 +477,7 @@ void ContractionsAndExpansions::handleCE32(UChar32 start, UChar32 end, uint32_t 
 			    }
 			    return;
 			case Collation::EXPANSION32_TAG:
-			    if(sink != NULL) {
+			    if(sink) {
 				    const uint32_t * ce32s = data->ce32s + Collation::indexFromCE32(ce32);
 				    int32_t length = Collation::lengthFromCE32(ce32);
 				    for(int32_t i = 0; i < length; ++i) {
@@ -490,7 +492,7 @@ void ContractionsAndExpansions::handleCE32(UChar32 start, UChar32 end, uint32_t 
 			    }
 			    return;
 			case Collation::EXPANSION_TAG:
-			    if(sink != NULL) {
+			    if(sink) {
 				    int32_t length = Collation::lengthFromCE32(ce32);
 				    sink->handleExpansion(data->ces + Collation::indexFromCE32(ce32), length);
 			    }
@@ -516,7 +518,7 @@ void ContractionsAndExpansions::handleCE32(UChar32 start, UChar32 end, uint32_t 
 			    ce32 = data->ce32s[0];
 			    break;
 			case Collation::HANGUL_TAG:
-			    if(sink != NULL) {
+			    if(sink) {
 				    // TODO: This should be optimized,
 				    // especially if [start..end] is the complete Hangul range. (assert that)
 				    UTF16CollationIterator iter(data, FALSE, NULL, NULL, NULL);
@@ -593,9 +595,10 @@ void ContractionsAndExpansions::handleContractions(UChar32 start, UChar32 end, u
 	suffix = NULL;
 }
 
-void ContractionsAndExpansions::addExpansions(UChar32 start, UChar32 end) {
+void ContractionsAndExpansions::addExpansions(UChar32 start, UChar32 end) 
+{
 	if(unreversedPrefix.isEmpty() && suffix == NULL) {
-		if(expansions != NULL) {
+		if(expansions) {
 			expansions->add(start, end);
 		}
 	}
@@ -611,7 +614,7 @@ void ContractionsAndExpansions::addStrings(UChar32 start, UChar32 end, UnicodeSe
 	UnicodeString s(unreversedPrefix);
 	do {
 		s.append(start);
-		if(suffix != NULL) {
+		if(suffix) {
 			s.append(*suffix);
 		}
 		set->add(s);

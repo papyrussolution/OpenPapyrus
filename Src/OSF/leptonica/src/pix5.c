@@ -37,29 +37,29 @@
  *
  *    Extract rectangular region
  *           PIXA       *pixClipRectangles()
- *           PIX        *pixClipRectangle()
- *           PIX        *pixClipRectangleWithBorder()
- *           PIX        *pixClipMasked()
+ *           PIX *pixClipRectangle()
+ *           PIX *pixClipRectangleWithBorder()
+ *           PIX *pixClipMasked()
  *           int32     pixCropToMatch()
- *           PIX        *pixCropToSize()
- *           PIX        *pixResizeToMatch()
+ *           PIX *pixCropToSize()
+ *           PIX *pixResizeToMatch()
  *
  *    Select a connected component by size
- *           PIX        *pixSelectComponentBySize()
- *           PIX        *pixFilterComponentBySize()
+ *           PIX *pixSelectComponentBySize()
+ *           PIX *pixFilterComponentBySize()
  *
  *    Make special masks
- *           PIX        *pixMakeSymmetricMask()
- *           PIX        *pixMakeFrameMask()
+ *           PIX *pixMakeSymmetricMask()
+ *           PIX *pixMakeFrameMask()
  *
  *    Generate a covering of rectangles over connected components
- *           PIX        * pixMakeCoveringOfRectangles()
+ *           PIX * pixMakeCoveringOfRectangles()
  *
  *    Fraction of Fg pixels under a mask
  *           int32     pixFractionFgInMask()
  *
  *    Clip to foreground
- *           PIX        *pixClipToForeground()
+ *           PIX *pixClipToForeground()
  *           int32     pixTestClipToForeground()
  *           int32     pixClipBoxToForeground()
  *           int32     pixScanForForeground()
@@ -79,8 +79,8 @@
  *           int32     pixMinMaxNearLine()
  *
  *    Rank row and column transforms
- *           PIX        *pixRankRowTransform()
- *           PIX        *pixRankColumnTransform()
+ *           PIX *pixRankRowTransform()
+ *           PIX *pixRankColumnTransform()
  * </pre>
  */
 #include "allheaders.h"
@@ -159,27 +159,21 @@ l_ok pixaFindDimensions(PIXA   * pixa,
  *      (2) This function is retained because clients are using it.
  * </pre>
  */
-l_ok pixFindAreaPerimRatio(PIX        * pixs,
-    int32    * tab,
-    float * pfract)
+l_ok pixFindAreaPerimRatio(PIX * pixs, int32 * tab, float * pfract)
 {
+	PROCNAME(__FUNCTION__);
 	int32 * tab8;
 	int32 nfg, nbound;
 	PIX * pixt;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pfract)
 		return ERROR_INT("&fract not defined", procName, 1);
 	*pfract = 0.0;
 	if(!pixs || pixGetDepth(pixs) != 1)
 		return ERROR_INT("pixs not defined or not 1 bpp", procName, 1);
-
 	if(!tab)
 		tab8 = makePixelSumTab8();
 	else
 		tab8 = tab;
-
 	pixt = pixErodeBrick(NULL, pixs, 3, 3);
 	pixCountPixels(pixt, &nfg, tab8);
 	if(nfg == 0) {
@@ -191,7 +185,6 @@ l_ok pixFindAreaPerimRatio(PIX        * pixs,
 	pixCountPixels(pixt, &nbound, tab8);
 	*pfract = (float)nfg / (float)nbound;
 	pixDestroy(&pixt);
-
 	if(!tab) SAlloc::F(tab8);
 	return 0;
 }
@@ -208,16 +201,14 @@ l_ok pixFindAreaPerimRatio(PIX        * pixs,
  *          1 bpp connected components.
  * </pre>
  */
-NUMA * pixaFindPerimToAreaRatio(PIXA  * pixa)
+NUMA * pixaFindPerimToAreaRatio(PIXA * pixa)
 {
 	int32 i, n;
-	int32   * tab;
+	int32 * tab;
 	float fract;
 	NUMA * na;
 	PIX * pixt;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixa)
 		return (NUMA*)ERROR_PTR("pixa not defined", procName, NULL);
 
@@ -256,8 +247,8 @@ NUMA * pixaFindPerimToAreaRatio(PIXA  * pixa)
  *          a value ~1/d.
  * </pre>
  */
-l_ok pixFindPerimToAreaRatio(PIX        * pixs,
-    int32    * tab,
+l_ok pixFindPerimToAreaRatio(PIX * pixs,
+    int32 * tab,
     float * pfract)
 {
 	int32 * tab8;
@@ -308,10 +299,10 @@ l_ok pixFindPerimToAreaRatio(PIX        * pixs,
  *          than 1.0 for a component with a highly irregular boundary.
  * </pre>
  */
-NUMA * pixaFindPerimSizeRatio(PIXA  * pixa)
+NUMA * pixaFindPerimSizeRatio(PIXA * pixa)
 {
 	int32 i, n;
-	int32   * tab;
+	int32 * tab;
 	float ratio;
 	NUMA * na;
 	PIX * pixt;
@@ -356,8 +347,8 @@ NUMA * pixaFindPerimSizeRatio(PIXA  * pixa)
  *          relatively smooth boundaries.
  * </pre>
  */
-l_ok pixFindPerimSizeRatio(PIX        * pixs,
-    int32    * tab,
+l_ok pixFindPerimSizeRatio(PIX * pixs,
+    int32 * tab,
     float * pratio)
 {
 	int32 * tab8;
@@ -400,10 +391,10 @@ l_ok pixFindPerimSizeRatio(PIX        * pixs,
  *          1 bpp connected components.
  * </pre>
  */
-NUMA * pixaFindAreaFraction(PIXA  * pixa)
+NUMA * pixaFindAreaFraction(PIXA * pixa)
 {
 	int32 i, n;
-	int32   * tab;
+	int32 * tab;
 	float fract;
 	NUMA * na;
 	PIX * pixt;
@@ -441,8 +432,8 @@ NUMA * pixaFindAreaFraction(PIXA  * pixa)
  *          single connected component.
  * </pre>
  */
-l_ok pixFindAreaFraction(PIX        * pixs,
-    int32    * tab,
+l_ok pixFindAreaFraction(PIX * pixs,
+    int32 * tab,
     float * pfract)
 {
 	int32 w, h, sum;
@@ -492,9 +483,9 @@ NUMA * pixaFindAreaFractionMasked(PIXA    * pixa,
     int32 debug)
 {
 	int32 i, n, full;
-	int32   * tab;
+	int32 * tab;
 	float fract;
-	BOX       * box;
+	BOX * box;
 	NUMA * na;
 	PIX * pix;
 
@@ -564,10 +555,10 @@ NUMA * pixaFindAreaFractionMasked(PIXA    * pixa,
  *          If box == NULL, the UL corners of pixs and pixm are aligned.
  * </pre>
  */
-l_ok pixFindAreaFractionMasked(PIX        * pixs,
+l_ok pixFindAreaFractionMasked(PIX * pixs,
     BOX        * box,
-    PIX        * pixm,
-    int32    * tab,
+    PIX * pixm,
+    int32 * tab,
     float * pfract)
 {
 	int32 x, y, w, h, sum, masksum;
@@ -621,7 +612,7 @@ l_ok pixFindAreaFractionMasked(PIX        * pixs,
  *          1 bpp connected components.
  * </pre>
  */
-NUMA * pixaFindWidthHeightRatio(PIXA  * pixa)
+NUMA * pixaFindWidthHeightRatio(PIXA * pixa)
 {
 	int32 i, n, w, h;
 	NUMA * na;
@@ -655,7 +646,7 @@ NUMA * pixaFindWidthHeightRatio(PIXA  * pixa)
  *          1 bpp connected components.
  * </pre>
  */
-NUMA * pixaFindWidthHeightProduct(PIXA  * pixa)
+NUMA * pixaFindWidthHeightProduct(PIXA * pixa)
 {
 	int32 i, n, w, h;
 	NUMA * na;
@@ -693,13 +684,13 @@ NUMA * pixaFindWidthHeightProduct(PIXA  * pixa)
  *      (2) This measure is similar to the correlation.
  * </pre>
  */
-l_ok pixFindOverlapFraction(PIX        * pixs1,
-    PIX        * pixs2,
+l_ok pixFindOverlapFraction(PIX * pixs1,
+    PIX * pixs2,
     int32 x2,
     int32 y2,
-    int32    * tab,
+    int32 * tab,
     float * pratio,
-    int32    * pnoverlap)
+    int32 * pnoverlap)
 {
 	int32 * tab8;
 	int32 w, h, nintersect, nunion;
@@ -1646,8 +1637,8 @@ PIX * pixMakeCoveringOfRectangles(PIX * pixs,
  *          image, made from pixMakeFrameMask().
  * </pre>
  */
-l_ok pixFractionFgInMask(PIX        * pix1,
-    PIX        * pix2,
+l_ok pixFractionFgInMask(PIX * pix1,
+    PIX * pix2,
     float * pfract)
 {
 	int32 w1, h1, w2, h2, empty, count1, count3;
@@ -1708,7 +1699,7 @@ l_ok pixClipToForeground(PIX * pixs,
 	int32 minx, miny, maxx, maxy;
 	uint32 result, mask;
 	uint32  * data, * line;
-	BOX       * box;
+	BOX * box;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1939,7 +1930,7 @@ l_ok pixScanForForeground(PIX * pixs,
 {
 	int32 bx, by, bw, bh, x, xstart, xend, y, ystart, yend, wpl;
 	uint32  * data, * line;
-	BOX       * boxt;
+	BOX * boxt;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2192,7 +2183,7 @@ l_ok pixScanForEdge(PIX * pixs,
 	int32 bx, by, bw, bh, foundmin, loc, sum, wpl;
 	int32 x, xstart, xend, y, ystart, yend;
 	uint32  * data, * line;
-	BOX       * boxt;
+	BOX * boxt;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2380,7 +2371,7 @@ NUMA * pixExtractOnLine(PIX * pixs,
 	float x, y;
 	double slope;
 	NUMA * na;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2911,7 +2902,7 @@ l_ok pixWindowedVarianceOnLine(PIX * pixs, int32 dir, int32 loc, int32 c1, int32
  *      (4) All accessed pixels are clipped to the pix.
  * </pre>
  */
-l_ok pixMinMaxNearLine(PIX        * pixs,
+l_ok pixMinMaxNearLine(PIX * pixs,
     int32 x1,
     int32 y1,
     int32 x2,
@@ -2927,7 +2918,7 @@ l_ok pixMinMaxNearLine(PIX        * pixs,
 	uint32 val;
 	float sum;
 	NUMA * namin, * namax;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 

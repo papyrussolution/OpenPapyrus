@@ -68,8 +68,7 @@ void CheckAssert::assertWithSideEffects()
 
 void CheckAssert::sideEffectInAssertError(const Token * tok, const std::string& functionName)
 {
-	reportError(tok, Severity::warning,
-	    "assertWithSideEffect",
+	reportError(tok, Severity::warning, "assertWithSideEffect",
 	    "$symbol:" + functionName + "\n"
 	    "Assert statement calls a function which may have desired side effects: '$symbol'.\n"
 	    "Non-pure function: '$symbol' is called inside assert statement. "
@@ -80,8 +79,7 @@ void CheckAssert::sideEffectInAssertError(const Token * tok, const std::string& 
 
 void CheckAssert::assignmentInAssertError(const Token * tok, const std::string& varname)
 {
-	reportError(tok, Severity::warning,
-	    "assignmentInAssert",
+	reportError(tok, Severity::warning, "assignmentInAssert",
 	    "$symbol:" + varname + "\n"
 	    "Assert statement modifies '$symbol'.\n"
 	    "Variable '$symbol' is modified inside assert statement. "

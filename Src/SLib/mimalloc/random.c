@@ -165,7 +165,7 @@ uintptr_t _mi_random_next(mi_random_ctx_t* ctx)
 
 #if !defined(MI_USE_RTLGENRANDOM)
 // We prefer BCryptGenRandom over RtlGenRandom
-#pragma comment (lib,"bcrypt.lib")
+#pragma comment(lib,"bcrypt.lib")
 #include <bcrypt.h>
 static bool os_random_buf(void * buf, size_t buf_len) 
 {
@@ -174,7 +174,7 @@ static bool os_random_buf(void * buf, size_t buf_len)
 
 #else
 // Use (unofficial) RtlGenRandom
-#pragma comment (lib,"advapi32.lib")
+#pragma comment(lib,"advapi32.lib")
 #define RtlGenRandom  SystemFunction036
 #ifdef __cplusplus
 extern "C" {

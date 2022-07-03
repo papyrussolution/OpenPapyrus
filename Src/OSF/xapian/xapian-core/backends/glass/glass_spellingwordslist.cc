@@ -11,8 +11,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_spellingwordslist.h"
-#include "glass_database.h"
 
 GlassSpellingWordsList::~GlassSpellingWordsList()
 {

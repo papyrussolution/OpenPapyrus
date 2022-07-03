@@ -744,7 +744,7 @@ void xmlMemoryDump()
 	else 
 		xmlMemoryDumpFile = dump;
 	xmlMemDisplay(xmlMemoryDumpFile);
-	if(dump != NULL) 
+	if(dump) 
 		fclose(dump);
 #endif /* MEM_LIST */
 }
@@ -856,10 +856,10 @@ void xmlCleanupMemory()
  */
 /*int xmlMemGet(xmlFreeFunc * freeFunc, xmlMallocFunc * mallocFunc, xmlReallocFunc * reallocFunc, xmlStrdupFunc * strdupFunc)
 {
-	if(freeFunc != NULL) *freeFunc = free;
-	if(mallocFunc != NULL) *mallocFunc = xmlMalloc_;
-	if(reallocFunc != NULL) *reallocFunc = xmlRealloc_;
-	if(strdupFunc != NULL) *strdupFunc = xmlMemStrdup_;
+	if(freeFunc) *freeFunc = free;
+	if(mallocFunc) *mallocFunc = xmlMalloc_;
+	if(reallocFunc) *reallocFunc = xmlRealloc_;
+	if(strdupFunc) *strdupFunc = xmlMemStrdup_;
 	return 0;
 }*/
 
@@ -923,11 +923,11 @@ void xmlCleanupMemory()
  */
 /*int xmlGcMemGet(xmlFreeFunc * freeFunc, xmlMallocFunc * mallocFunc, xmlMallocFunc * mallocAtomicFunc, xmlReallocFunc * reallocFunc, xmlStrdupFunc * strdupFunc)
 {
-	if(freeFunc != NULL) *freeFunc = free;
-	if(mallocFunc != NULL) *mallocFunc = xmlMalloc;
-	if(mallocAtomicFunc != NULL) *mallocAtomicFunc = xmlMallocAtomic;
-	if(reallocFunc != NULL) *reallocFunc = xmlRealloc;
-	if(strdupFunc != NULL) *strdupFunc = xmlMemStrdup_Removed;
+	if(freeFunc) *freeFunc = free;
+	if(mallocFunc) *mallocFunc = xmlMalloc;
+	if(mallocAtomicFunc) *mallocAtomicFunc = xmlMallocAtomic;
+	if(reallocFunc) *reallocFunc = xmlRealloc;
+	if(strdupFunc) *strdupFunc = xmlMemStrdup_Removed;
 	return 0;
 }*/
 

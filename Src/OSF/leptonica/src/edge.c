@@ -292,9 +292,9 @@ l_ok pixMeasureEdgeSmoothness(PIX         * pixs,
     int32 side,
     int32 minjump,
     int32 minreversal,
-    float   * pjpl,
-    float   * pjspl,
-    float   * prpl,
+    float * pjpl,
+    float * pjspl,
+    float * prpl,
     const char * debugfile)
 {
 	int32 i, n, val, nval, diff, njumps, jumpsum, nreversal;

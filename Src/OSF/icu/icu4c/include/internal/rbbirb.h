@@ -88,7 +88,7 @@ public:
 	//  This function is the main entry point into the rule builder.  The
 	//   public ICU API for creating RBBIs uses this function to do the actual work.
 	//
-	static BreakIterator * createRuleBasedBreakIterator(const UnicodeString &rules, UParseError * parseError, UErrorCode &status);
+	static BreakIterator * createRuleBasedBreakIterator(const UnicodeString &rules, UParseError * parseError, UErrorCode & status);
 public:
 	// The "public" functions and data members that appear below are accessed
 	//  (and shared) by the various parts that make up the rule builder.  They

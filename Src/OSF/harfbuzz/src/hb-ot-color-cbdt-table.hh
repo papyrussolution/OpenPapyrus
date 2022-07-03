@@ -864,7 +864,7 @@ public:
 		}
 		_copy_data_to_cbdt(&cbdt_prime, cbdt, CBDT::min_size);
 		for(const BitmapSizeTable& table : +sizeTables.iter())
-			subset_size_table(c, table, (const char*)cbdt, cbdt_length, cblc_prime, &cbdt_prime);
+			subset_size_table(c, table, (const char *)cbdt, cbdt_length, cblc_prime, &cbdt_prime);
 		hb_blob_destroy(cbdt_blob);
 		return_trace(CBLC::sink_cbdt(c, &cbdt_prime));
 	}

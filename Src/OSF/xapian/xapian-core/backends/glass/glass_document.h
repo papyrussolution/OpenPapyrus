@@ -11,11 +11,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_DOCUMENT_H
 #define XAPIAN_INCLUDED_GLASS_DOCUMENT_H
 
-#include "glass_docdata.h"
-#include "glass_values.h"
-#include "backends/databaseinternal.h"
-#include "backends/documentinternal.h"
-
 /// A document read from a GlassDatabase.
 class GlassDocument : public Xapian::Document::Internal {
 	void operator =(const GlassDocument &); /// Don't allow assignment.

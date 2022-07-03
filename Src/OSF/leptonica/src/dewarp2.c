@@ -286,7 +286,7 @@ l_ok dewarpFindVertDisparity(L_DEWARP * dew,
 	float * famidys;
 	NUMA * nax, * nafit, * nacurve0, * nacurve1, * nacurves;
 	NUMA * namidy, * namidys, * namidysi;
-	PIX        * pix1, * pix2, * pixcirc, * pixdb;
+	PIX * pix1, * pix2, * pixcirc, * pixdb;
 	PTA * pta, * ptad, * ptacirc;
 	PTAA       * ptaa0, * ptaa1, * ptaa2, * ptaa3, * ptaa4, * ptaa5, * ptaat;
 	FPIX       * fpix;
@@ -376,15 +376,12 @@ l_ok dewarpFindVertDisparity(L_DEWARP * dew,
 	}
 	nlines = ptaaGetCount(ptaa1);
 	numaDestroy(&nacurve0);
-
 	/* Save the min and max curvature (in micro-units) */
 	numaGetMin(nacurve1, &minval, NULL);
 	numaGetMax(nacurve1, &maxval, NULL);
-	dew->mincurv = lept_roundftoi(1000000. * minval);
-	dew->maxcurv = lept_roundftoi(1000000. * maxval);
-	L_INFO("Pass 2: Min/max curvature = (%d, %d)\n", procName,
-	    dew->mincurv, dew->maxcurv);
-
+	dew->mincurv = lept_roundftoi(1000000.0f * minval);
+	dew->maxcurv = lept_roundftoi(1000000.0f * maxval);
+	L_INFO("Pass 2: Min/max curvature = (%d, %d)\n", procName, dew->mincurv, dew->maxcurv);
 	/* Find and save the y values at the mid-points in each curve.
 	* If the slope is zero anywhere, it will typically be here. */
 	namidy = numaCreate(nlines);
@@ -548,12 +545,12 @@ l_ok dewarpFindHorizDisparity(L_DEWARP * dew,
 	float val, mederr;
 	NUMA * nald, * nard;
 	PIX * pix1;
-	PTA       * ptal1, * ptar1; /* left/right end points of lines; initial */
-	PTA       * ptal2, * ptar2; /* left/right end points; after filtering */
-	PTA       * ptal3, * ptar3; /* left and right block, fitted, uniform spacing */
-	PTA       * pta, * ptat, * pta1, * pta2;
+	PTA * ptal1, * ptar1; /* left/right end points of lines; initial */
+	PTA * ptal2, * ptar2; /* left/right end points; after filtering */
+	PTA * ptal3, * ptar3; /* left and right block, fitted, uniform spacing */
+	PTA * pta, * ptat, * pta1, * pta2;
 	PTAA      * ptaah;
-	FPIX      * fpix;
+	FPIX * fpix;
 
 	PROCNAME(__FUNCTION__);
 
@@ -609,11 +606,10 @@ l_ok dewarpFindHorizDisparity(L_DEWARP * dew,
 	nx = dew->nx;
 	ny = dew->ny;
 	linear_edgefit = (dew->dewa->max_edgecurv == 0) ? TRUE : FALSE;
-
 	if(linear_edgefit) {
 		/* Fit the left side, using linear LSF on the set of long lines. */
 		dewarpLinearLSF(ptal2, &cl1, &cl0, &mederr);
-		dew->leftslope = lept_roundftoi(1000. * cl1); /* milli-units */
+		dew->leftslope = lept_roundftoi(1000.0f * cl1); /* milli-units */
 		dew->leftcurv = 0; /* micro-units */
 		L_INFO("Left linear LSF median error = %5.2f\n", procName,  mederr);
 		L_INFO("Left edge slope = %d\n", procName, dew->leftslope);
@@ -623,10 +619,9 @@ l_ok dewarpFindHorizDisparity(L_DEWARP * dew,
 			applyLinearFit(cl1, cl0, y, &x);
 			ptaAddPt(ptal3, x, y);
 		}
-
 		/* Do a linear LSF on the right side. */
 		dewarpLinearLSF(ptar2, &cr1, &cr0, &mederr);
-		dew->rightslope = lept_roundftoi(1000.0 * cr1); /* milli-units */
+		dew->rightslope = lept_roundftoi(1000.0f * cr1); /* milli-units */
 		dew->rightcurv = 0; /* micro-units */
 		L_INFO("Right linear LSF median error = %5.2f\n", procName,  mederr);
 		L_INFO("Right edge slope = %d\n", procName, dew->rightslope);
@@ -640,8 +635,8 @@ l_ok dewarpFindHorizDisparity(L_DEWARP * dew,
 	else { /* quadratic edge fit */
 		/* Fit the left side, using quadratic LSF on the long lines. */
 		dewarpQuadraticLSF(ptal2, &cl2, &cl1, &cl0, &mederr);
-		dew->leftslope = lept_roundftoi(1000. * cl1); /* milli-units */
-		dew->leftcurv = lept_roundftoi(1000000. * cl2); /* micro-units */
+		dew->leftslope = lept_roundftoi(1000.0f * cl1); /* milli-units */
+		dew->leftcurv = lept_roundftoi(1000000.0f * cl2); /* micro-units */
 		L_INFO("Left quad LSF median error = %5.2f\n", procName,  mederr);
 		L_INFO("Left edge slope = %d\n", procName, dew->leftslope);
 		L_INFO("Left edge curvature = %d\n", procName, dew->leftcurv);
@@ -651,11 +646,10 @@ l_ok dewarpFindHorizDisparity(L_DEWARP * dew,
 			applyQuadraticFit(cl2, cl1, cl0, y, &x);
 			ptaAddPt(ptal3, x, y);
 		}
-
 		/* Do a quadratic LSF on the right side. */
 		dewarpQuadraticLSF(ptar2, &cr2, &cr1, &cr0, &mederr);
-		dew->rightslope = lept_roundftoi(1000.0 * cr1); /* milli-units */
-		dew->rightcurv = lept_roundftoi(1000000. * cr2); /* micro-units */
+		dew->rightslope = lept_roundftoi(1000.0f * cr1); /* milli-units */
+		dew->rightcurv = lept_roundftoi(1000000.0f * cr2); /* micro-units */
 		L_INFO("Right quad LSF median error = %5.2f\n", procName,  mederr);
 		L_INFO("Right edge slope = %d\n", procName, dew->rightslope);
 		L_INFO("Right edge curvature = %d\n", procName, dew->rightcurv);
@@ -666,7 +660,6 @@ l_ok dewarpFindHorizDisparity(L_DEWARP * dew,
 			ptaAddPt(ptar3, x, y);
 		}
 	}
-
 	if(dew->debug) {
 		PTA * ptalft, * ptarft;
 		h = pixGetHeight(dew->pixs);
@@ -702,9 +695,7 @@ l_ok dewarpFindHorizDisparity(L_DEWARP * dew,
 		pixRenderHorizEndPoints(pix1, ptalft, ptarft, 0x0000ff00);
 		pixDisplay(pix1, 800, 800);
 		pixWriteDebug("/tmp/lept/dewmod/0052.png", pix1, IFF_PNG);
-		convertFilesToPdf("/tmp/lept/dewmod", "005", 135, 1.0, 0, 0,
-		    "Dewarp Horiz Disparity",
-		    "/tmp/lept/dewarp/horiz_disparity.pdf");
+		convertFilesToPdf("/tmp/lept/dewmod", "005", 135, 1.0, 0, 0, "Dewarp Horiz Disparity", "/tmp/lept/dewarp/horiz_disparity.pdf");
 		lept_stderr("pdf file: /tmp/lept/dewarp/horiz_disparity.pdf\n");
 		pixDestroy(&pix1);
 		ptaDestroy(&pta1);
@@ -898,7 +889,7 @@ static PTA * dewarpGetMeanVerticals(PIX * pixs,
 {
 	int32 w, h, i, j, wpl, sum, count;
 	uint32 * line, * data;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -945,7 +936,7 @@ PTAA * dewarpRemoveShortLines(PIX * pixs,
 	float minx, maxx;
 	NUMA * na, * naindex;
 	PIX * pix1, * pix2;
-	PTA       * pta;
+	PTA * pta;
 	PTAA      * ptaad;
 
 	PROCNAME(__FUNCTION__);
@@ -1024,7 +1015,7 @@ static int32 dewarpGetLineEndPoints(int32 h,
 {
 	int32 i, n, npt, x, y;
 	float miny, maxy, ratio;
-	PTA       * pta, * ptal1, * ptar1;
+	PTA * pta, * ptal1, * ptar1;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1095,14 +1086,14 @@ static int32 dewarpGetLineEndPoints(int32 h,
  * </pre>
  */
 static int32 dewarpFilterLineEndPoints(L_DEWARP * dew,
-    PTA       * ptal,
-    PTA       * ptar,
+    PTA * ptal,
+    PTA * ptar,
     PTA ** pptalf,
     PTA ** pptarf)
 {
 	int32 w, i, n;
 	float ymin, ymax, xvall, xvalr, yvall, yvalr;
-	PTA       * ptal1, * ptar1, * ptal2, * ptar2;
+	PTA * ptal1, * ptar1, * ptal2, * ptar2;
 
 	PROCNAME(__FUNCTION__);
 	if(!ptal || !ptar)
@@ -1183,7 +1174,7 @@ static PTA * dewarpRemoveBadEndPoints(int32 w,
 {
 	int32 i, n, nu, nd;
 	float rval, xval, yval, delta;
-	PTA       * ptau1, * ptau2, * ptad1, * ptad2;
+	PTA * ptau1, * ptau2, * ptad1, * ptad2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1468,13 +1459,13 @@ l_ok dewarpFindHorizSlopeDisparity(L_DEWARP * dew,
 	int32 istart, iend, first, last, x0, x1, nx, ny;
 	float fract, delta, sum, aveval, fval, del, denom;
 	float ca, cb, cc, cd, ce, y;
-	BOX       * box;
+	BOX * box;
 	BOXA      * boxa1, * boxa2;
 	GPLOT     * gplot;
 	NUMA * na1, * na2, * na3, * na4, * nasum;
 	PIX * pix1;
-	PTA       * pta1;
-	FPIX      * fpix;
+	PTA * pta1;
+	FPIX * fpix;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1613,7 +1604,7 @@ l_ok dewarpFindHorizSlopeDisparity(L_DEWARP * dew,
 		sum = 0.0;
 		for(x = x0; x < x1; x++) {
 			applyQuarticFit(ca, cb, cc, cd, ce, (float)x, &y);
-			sum += (y - 1.0);
+			sum += (y - 1.0f);
 			numaReplaceNumber(nasum, x, sum);
 		}
 		for(x = x1; x < w; x++)
@@ -1630,7 +1621,7 @@ l_ok dewarpFindHorizSlopeDisparity(L_DEWARP * dew,
 		sum = 0.0;
 		for(x = x1; x >= x0; x--) {
 			applyQuarticFit(ca, cb, cc, cd, ce, (float)x, &y);
-			sum += (y - 1.0);
+			sum += (y - 1.0f);
 			numaReplaceNumber(nasum, x, sum);
 		}
 		for(x = x0; x >= 0; x--)
@@ -1870,8 +1861,8 @@ l_ok dewarpBuildLineModel(L_DEWARP * dew, int32 opensize, const char * debugfile
  */
 l_ok dewarpaModelStatus(L_DEWARPA * dewa,
     int32 pageno,
-    int32    * pvsuccess,
-    int32    * phsuccess)
+    int32 * pvsuccess,
+    int32 * phsuccess)
 {
 	L_DEWARP * dew;
 

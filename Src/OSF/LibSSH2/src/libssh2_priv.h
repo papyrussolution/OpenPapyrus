@@ -203,25 +203,7 @@ void *_libssh2_calloc(LIBSSH2_SESSION* session, size_t size);
 //#include "crypto.h"
 //
 #ifdef LIBSSH2_OPENSSL
-	//
-	//#include "openssl.h"
-	//
-	#include <openssl/opensslconf.h>
-	#include <openssl/sha.h>
-	#include <openssl/rsa.h>
-	#include <openssl/engine.h>
-	#ifndef OPENSSL_NO_DSA
-		#include <openssl/dsa.h>
-	#endif
-	#ifndef OPENSSL_NO_MD5
-		#include <openssl/md5.h>
-	#endif
-	#include <openssl/evp.h>
-	#include <openssl/hmac.h>
-	#include <openssl/bn.h>
-	#include <openssl/pem.h>
-	#include <openssl/rand.h>
-
+	#include <slib-ossl.h>
 	#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
 		#define HAVE_OPAQUE_STRUCTS 1
 	#endif

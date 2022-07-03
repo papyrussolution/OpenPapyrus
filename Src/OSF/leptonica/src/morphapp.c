@@ -59,7 +59,7 @@
  *            PIX *pixMorphGradient()
  *
  *      Centroid of component
- *            PTA       *pixaCentroids()
+ *            PTA *pixaCentroids()
  *            int32    pixCentroid()
  * </pre>
  */
@@ -1416,14 +1416,14 @@ PIX * pixMorphGradient(PIX * pixs,
  *          is saved as (0, 0).
  * </pre>
  */
-PTA * pixaCentroids(PIXA  * pixa)
+PTA * pixaCentroids(PIXA * pixa)
 {
 	int32 i, n;
-	int32   * centtab = NULL;
-	int32   * sumtab = NULL;
+	int32 * centtab = NULL;
+	int32 * sumtab = NULL;
 	float x, y;
 	PIX * pix;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1469,9 +1469,9 @@ PTA * pixaCentroids(PIXA  * pixa)
  *          after use.
  * </pre>
  */
-l_ok pixCentroid(PIX        * pix,
-    int32    * centtab,
-    int32    * sumtab,
+l_ok pixCentroid(PIX * pix,
+    int32 * centtab,
+    int32 * sumtab,
     float * pxave,
     float * pyave)
 {
@@ -1480,7 +1480,7 @@ l_ok pixCentroid(PIX        * pix,
 	uint32  * data, * line;
 	uint32 word;
 	uint8 byte;
-	int32   * ctab, * stab;
+	int32 * ctab, * stab;
 
 	PROCNAME(__FUNCTION__);
 

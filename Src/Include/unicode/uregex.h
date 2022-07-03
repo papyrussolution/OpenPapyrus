@@ -675,7 +675,7 @@ U_CAPI int32_t U_EXPORT2 uregex_group(URegularExpression * regexp,
 U_CAPI UText * U_EXPORT2 uregex_groupUText(URegularExpression * regexp,
     int32_t groupNum,
     UText              * dest,
-    int64_t            * groupLength,
+    int64_t    * groupLength,
     UErrorCode         * status);
 
 /**

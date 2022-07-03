@@ -11,9 +11,6 @@
 #ifdef OPENSSL_NO_CT
 	#error "CT is disabled"
 #endif
-//#include <openssl/ct.h>
-//#include <openssl/err.h>
-//#include <time.h>
 #include "ct_locl.h"
 /*
  * Number of seconds in the future that an SCT timestamp can be, by default,

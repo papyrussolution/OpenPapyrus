@@ -147,7 +147,7 @@ RBBIRuleScanner::RBBIRuleScanner(RBBIRuleBuilder * rb)
 RBBIRuleScanner::~RBBIRuleScanner() 
 {
 	delete fSymbolTable;
-	if(fSetTable != NULL) {
+	if(fSetTable) {
 		uhash_close(fSetTable);
 		fSetTable = NULL;
 	}
@@ -340,8 +340,7 @@ bool RBBIRuleScanner::doParseActions(int32_t action)
 		    //  OR this rule into the appropriate group of them.
 		    //
 		    RBBINode ** destRules = (fReverseRule ? &fRB->fSafeRevTree : fRB->fDefaultTree);
-
-		    if(*destRules != NULL) {
+		    if(*destRules) {
 			    // This is not the first rule encountered.
 			    // OR previous stuff  (from *destRules)
 			    // with the current rule expression (on the Node Stack)
@@ -691,7 +690,7 @@ void RBBIRuleScanner::findSetFor(const UnicodeString & s, RBBINode * node, Unico
 	// If so, just use the cached set in the new node.
 	//   delete any set provided by the caller, since we own it.
 	el = (RBBISetTableEl*)uhash_get(fSetTable, &s);
-	if(el != NULL) {
+	if(el) {
 		delete setToAdopt;
 		node->fLeftChild = el->val;
 		U_ASSERT(node->fLeftChild->fType == RBBINode::uset);
@@ -804,11 +803,7 @@ UChar32 RBBIRuleScanner::nextCharLL()
 		return U_SENTINEL;
 	}
 	fNextIndex = fRB->fRules.moveIndex32(fNextIndex, 1);
-
-	if(ch == chCR ||
-	    ch == chNEL ||
-	    ch == chLS   ||
-	    (ch == chLF && fLastChar != chCR)) {
+	if(ch == chCR || ch == chNEL || ch == chLS || (ch == chLF && fLastChar != chCR)) {
 		// Character is starting a new line.  Bump up the line number, and
 		//  reset the column to 0.
 		fLineNum++;
@@ -1158,7 +1153,6 @@ void RBBIRuleScanner::scanSet()
 		delete uset;
 		return;
 	}
-
 	// Verify that the set contains at least one code point.
 	//
 	U_ASSERT(uset != NULL);
@@ -1200,10 +1194,7 @@ void RBBIRuleScanner::scanSet()
 	}
 }
 
-int32_t RBBIRuleScanner::numRules() {
-	return fRuleNum;
-}
+int32_t RBBIRuleScanner::numRules() { return fRuleNum; }
 
 U_NAMESPACE_END
-
 #endif /* #if !UCONFIG_NO_BREAK_ITERATION */

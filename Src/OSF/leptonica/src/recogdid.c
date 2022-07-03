@@ -447,12 +447,12 @@ static int32 recogRunViterbi(L_RECOG  * recog, PIX ** ppixdb)
 	int32 i, w1, w2, h1, xnz, x, narray, minsetw;
 	int32 first, templ, xloc, dely, counts, area1;
 	int32 besttempl, spacetempl;
-	int32    * setw, * didtempl;
-	int32    * area2; /* must be freed */
+	int32 * setw, * didtempl;
+	int32 * area2; /* must be freed */
 	float prevscore, matchscore, maxscore, correl;
 	float * didscore;
 	BOX        * box;
-	PIX        * pix1;
+	PIX * pix1;
 	L_RDID     * did;
 	if(ppixdb) *ppixdb = NULL;
 	if(!recog)
@@ -580,7 +580,7 @@ static int32 recogRescoreDidResult(L_RECOG  * recog, PIX ** ppixdb)
 	int32 i, n, sample, x, dely, index;
 	char      * text;
 	float score;
-	BOX       * box1;
+	BOX * box1;
 	PIX * pixs, * pix1;
 	L_RDID    * did;
 	if(ppixdb) *ppixdb = NULL;

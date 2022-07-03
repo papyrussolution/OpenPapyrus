@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/ct.h>
-//#include <openssl/err.h>
-//#include <openssl/evp.h>
 #include "ct_locl.h"
 /*
  * Decodes the base64 string |in| into |out|.

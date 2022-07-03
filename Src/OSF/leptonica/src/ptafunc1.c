@@ -106,7 +106,7 @@ PTA * ptaSubsample(PTA * ptas,
 {
 	int32 n, i;
 	float x, y;
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -233,7 +233,7 @@ PTA * ptaReverse(PTA * ptas,
 {
 	int32 n, i, ix, iy;
 	float x, y;
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -267,7 +267,7 @@ PTA * ptaTranspose(PTA * ptas)
 {
 	int32 n, i;
 	float x, y;
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -361,7 +361,7 @@ PTA * ptaSelectRange(PTA * ptas,
 {
 	int32 n, npt, i;
 	float x, y;
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -501,7 +501,7 @@ l_ok ptaGetRange(PTA * pta,
 PTA * ptaGetInsideBox(PTA * ptas,
     BOX  * box)
 {
-	PTA       * ptad;
+	PTA * ptad;
 	int32 n, i, contains;
 	float x, y;
 
@@ -540,7 +540,7 @@ PTA * pixFindCornerPixels(PIX  * pixs)
 {
 	int32 i, j, x, y, w, h, wpl, mindim, found;
 	uint32  * data, * line;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -692,7 +692,7 @@ int32 ptaTestIntersection(PTA * pta1,
  *      (1) Shift first, then scale.
  * </pre>
  */
-PTA * ptaTransform(PTA       * ptas,
+PTA * ptaTransform(PTA * ptas,
     int32 shiftx,
     int32 shifty,
     float scalex,
@@ -730,10 +730,10 @@ PTA * ptaTransform(PTA       * ptas,
  *  is 0 if the point is outside the polygon and 2*pi if inside.
  *  The sign will be positive if traversed cw and negative if ccw.
  */
-int32 ptaPtInsidePolygon(PTA       * pta,
+int32 ptaPtInsidePolygon(PTA * pta,
     float x,
     float y,
-    int32   * pinside)
+    int32 * pinside)
 {
 	int32 i, n;
 	float sum, x1, y1, x2, y2, xp1, yp1, xp2, yp2;
@@ -879,8 +879,8 @@ l_ok ptaGetMinMax(PTA * pta,
 		return 0;
 	}
 
-	xmin = ymin = 1.0e20;
-	xmax = ymax = -1.0e20;
+	xmin = ymin = 1.0e20f;
+	xmax = ymax = -1.0e20f;
 	for(i = 0; i < n; i++) {
 		ptaGetPt(pta, i, &x, &y);
 		if(x < xmin) xmin = x;
@@ -906,7 +906,7 @@ l_ok ptaGetMinMax(PTA * pta,
  *                           L_SELECT_IF_LTE, L_SELECT_IF_GTE
  * \return  ptad filtered set, or NULL on error
  */
-PTA * ptaSelectByValue(PTA       * ptas,
+PTA * ptaSelectByValue(PTA * ptas,
     float xth,
     float yth,
     int32 type,
@@ -914,7 +914,7 @@ PTA * ptaSelectByValue(PTA       * ptas,
 {
 	int32 i, n;
 	float x, y;
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1516,7 +1516,7 @@ l_ok ptaGetQuarticLSF(PTA * pta,
  */
 l_ok ptaNoisyLinearLSF(PTA * pta,
     float factor,
-    PTA       ** pptad,
+    PTA ** pptad,
     float * pa,
     float * pb,
     float * pmederr,
@@ -1525,7 +1525,7 @@ l_ok ptaNoisyLinearLSF(PTA * pta,
 	int32 n, i, ret;
 	float x, y, yf, val, mederr;
 	NUMA * nafit, * naerror;
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1601,7 +1601,7 @@ l_ok ptaNoisyLinearLSF(PTA * pta,
  */
 l_ok ptaNoisyQuadraticLSF(PTA * pta,
     float factor,
-    PTA       ** pptad,
+    PTA ** pptad,
     float * pa,
     float * pb,
     float * pc,
@@ -1611,7 +1611,7 @@ l_ok ptaNoisyQuadraticLSF(PTA * pta,
 	int32 n, i, ret;
 	float x, y, yf, val, mederr;
 	NUMA * nafit, * naerror;
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1890,7 +1890,7 @@ PTA * ptaGetPixelsFromPix(PIX  * pixs,
 {
 	int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh;
 	uint32  * data, * line;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2110,7 +2110,7 @@ PTAA * ptaaIndexLabeledPixels(PIX * pixs,
 	int32 wpl, index, i, j, w, h;
 	uint32 maxval;
 	uint32  * data, * line;
-	PTA       * pta;
+	PTA * pta;
 	PTAA      * ptaa;
 
 	PROCNAME(__FUNCTION__);
@@ -2217,7 +2217,7 @@ PTA * numaConvertToPta1(NUMA * na)
 {
 	int32 i, n;
 	float startx, delx, val;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2246,7 +2246,7 @@ PTA * numaConvertToPta2(NUMA * nax,
 {
 	int32 i, n, nx, ny;
 	float valx, valy;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2569,7 +2569,7 @@ PIX * pixDisplayPtaa(PIX * pixs,
 	uint32  * pixela;
 	NUMA * na1, * na2, * na3;
 	PIX * pixd;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 

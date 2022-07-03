@@ -180,7 +180,7 @@ public:
     *         error has occurred or if the end of string has been reached
     * @stable ICU 2.0
     */
-    int32_t next(UErrorCode& status);
+    int32_t next(UErrorCode & status);
 
     /**
     * Get the ordering priority of the previous collation element in the string.
@@ -189,7 +189,7 @@ public:
     *         error has occurred or if the start of string has been reached
     * @stable ICU 2.0
     */
-    int32_t previous(UErrorCode& status);
+    int32_t previous(UErrorCode & status);
 
     /**
     * Gets the primary order of a collation order.
@@ -240,7 +240,7 @@ public:
     * @param status the error code status.
     * @stable ICU 2.0
     */
-    void setText(const UnicodeString & str, UErrorCode& status);
+    void setText(const UnicodeString & str, UErrorCode & status);
 
     /**
     * Sets the source string.
@@ -248,7 +248,7 @@ public:
     * @param status the error code status.
     * @stable ICU 2.0
     */
-    void setText(CharacterIterator& str, UErrorCode& status);
+    void setText(CharacterIterator& str, UErrorCode & status);
 
     /**
     * Checks if a comparison order is ignorable.
@@ -272,7 +272,7 @@ public:
     * @return the offset of the character.
     * @stable ICU 2.0
     */
-    void setOffset(int32_t newOffset, UErrorCode& status);
+    void setOffset(int32_t newOffset, UErrorCode & status);
 
     /**
     * ICU "poor man's RTTI", returns a UClassID for the actual class.
@@ -321,7 +321,7 @@ private:
     * @param status        the error code status.
     */
     CollationElementIterator(const UnicodeString & sourceText,
-        const RuleBasedCollator* order, UErrorCode& status);
+        const RuleBasedCollator* order, UErrorCode & status);
     // Note: The constructors should take settings & tailoring, not a collator,
     // to avoid circular dependencies.
     // However, for operator==() we would need to be able to compare tailoring data for equality
@@ -341,7 +341,7 @@ private:
     * @param status        the error code status.
     */
     CollationElementIterator(const CharacterIterator& sourceText,
-        const RuleBasedCollator* order, UErrorCode& status);
+        const RuleBasedCollator* order, UErrorCode & status);
 
     /**
     * Assignment operator

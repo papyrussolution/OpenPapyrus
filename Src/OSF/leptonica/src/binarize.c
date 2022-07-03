@@ -140,7 +140,7 @@ l_ok pixOtsuAdaptiveThreshold(PIX * pixs,
 {
 	int32 w, h, nx, ny, i, j, thresh;
 	uint32 val;
-	PIX        * pixt, * pixb, * pixthresh, * pixth, * pixd;
+	PIX * pixt, * pixb, * pixthresh, * pixth, * pixd;
 	PIXTILING  * pt;
 
 	PROCNAME(__FUNCTION__);
@@ -253,7 +253,7 @@ PIX * pixOtsuThreshOnBackgroundNorm(PIX * pixs,
     int32 smoothx,
     int32 smoothy,
     float scorefract,
-    int32   * pthresh)
+    int32 * pthresh)
 {
 	int32 w, h;
 	uint32 val;
@@ -347,7 +347,7 @@ PIX * pixMaskedThreshOnBackgroundNorm(PIX * pixs,
     int32 smoothx,
     int32 smoothy,
     float scorefract,
-    int32   * pthresh)
+    int32 * pthresh)
 {
 	int32 w, h, highthresh;
 	uint32 val;
@@ -458,7 +458,7 @@ l_ok pixSauvolaBinarizeTiled(PIX * pixs,
     PIX ** ppixd)
 {
 	int32 i, j, w, h, xrat, yrat;
-	PIX        * pixth, * pixd, * tileth, * tiled, * pixt;
+	PIX * pixth, * pixd, * tileth, * tiled, * pixt;
 	PIX ** ptileth, ** ptiled;
 	PIXTILING  * pt;
 
@@ -694,7 +694,7 @@ static PIX * pixSauvolaGetThreshold(PIX * pixm,
 	uint32   * linem, * linems, * linesd, * lined;
 	float sd;
 	float * tab; /* of 2^16 square roots */
-	PIX        * pixsd, * pixd;
+	PIX * pixsd, * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -974,7 +974,7 @@ l_ok pixThresholdByConnComp(PIX * pixs,
     int32 incr,
     float thresh48,
     float threshdiff,
-    int32   * pglobthresh,
+    int32 * pglobthresh,
     PIX ** ppixd,
     int32 debugflag)
 {
@@ -1127,7 +1127,7 @@ l_ok pixThresholdByHisto(PIX * pixs,
     int32 factor,
     int32 halfw,
     float delta,
-    int32   * pthresh,
+    int32 * pthresh,
     PIX ** ppixd,
     PIX ** ppixhisto)
 {

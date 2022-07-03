@@ -66,7 +66,7 @@ public:
      * @stable ICU 4.2
      */
     static TimeUnit* U_EXPORT2 createInstance(UTimeUnitFields timeUnitField,
-                                              UErrorCode& status);
+                                              UErrorCode & status);
 
 
     /**

@@ -2760,12 +2760,9 @@ void NumberFormatRegressionTest::TestJ691() {
 		errln("FAIL: " + udt + " => " + outString);
 	}
 }
-
-//---------------------------------------------------------------------------
 //
 //   Error Checking / Reporting macros
 //
-//---------------------------------------------------------------------------
 #define TEST_CHECK_STATUS(status) UPRV_BLOCK_MACRO_BEGIN { \
 		if(U_FAILURE(status)) { \
 			if(status == U_MISSING_RESOURCE_ERROR) { \

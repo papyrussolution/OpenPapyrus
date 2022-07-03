@@ -138,7 +138,7 @@ static arm_cpu_features_t detect_cpu_features(void)
 					features |= ARM_NEON;
 			}
 			else if(aux.a_type == AT_PLATFORM) {
-				const char * plat = (const char*)aux.a_un.a_val;
+				const char * plat = (const char *)aux.a_un.a_val;
 
 				if(strncmp(plat, "v7l", 3) == 0)
 					features |= (ARM_V7 | ARM_V6);

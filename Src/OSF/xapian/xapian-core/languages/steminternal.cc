@@ -125,11 +125,12 @@ string SnowballStemImplementation::operator()(const string & word)
 }
 
 /* Code for character groupings: utf8 cases */
-
-int SnowballStemImplementation::get_utf8(int * slot) {
+int SnowballStemImplementation::get_utf8(int * slot) 
+{
 	int b0, b1, b2;
 	int tmp = c;
-	if(tmp >= l) return 0;
+	if(tmp >= l) 
+		return 0;
 	b0 = p[tmp++];
 	if(b0 < 0xC0 || tmp == l) { /* 1100 0000 */
 		*slot = b0;
@@ -149,10 +150,12 @@ int SnowballStemImplementation::get_utf8(int * slot) {
 	return 4;
 }
 
-int SnowballStemImplementation::get_b_utf8(int * slot) {
+int SnowballStemImplementation::get_b_utf8(int * slot) 
+{
 	int a, b;
 	int tmp = c;
-	if(tmp <= lb) return 0;
+	if(tmp <= lb) 
+		return 0;
 	b = p[--tmp];
 	if(b < 0x80 || tmp == lb) { /* 1000 0000 */
 		*slot = b;
@@ -174,13 +177,13 @@ int SnowballStemImplementation::get_b_utf8(int * slot) {
 	return 4;
 }
 
-int SnowballStemImplementation::in_grouping_U(const uchar * s, int min,
-    int max, int repeat)
+int SnowballStemImplementation::in_grouping_U(const uchar * s, int min, int max, int repeat)
 {
 	do {
 		int ch;
 		int w = get_utf8(&ch);
-		if(!w) return -1;
+		if(!w) 
+			return -1;
 		if(ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0)
 			return w;
 		c += w;
@@ -202,8 +205,7 @@ int SnowballStemImplementation::in_grouping_b_U(const uchar * s, int min,
 	return 0;
 }
 
-int SnowballStemImplementation::out_grouping_U(const uchar * s, int min,
-    int max, int repeat)
+int SnowballStemImplementation::out_grouping_U(const uchar * s, int min, int max, int repeat)
 {
 	do {
 		int ch;
@@ -216,8 +218,7 @@ int SnowballStemImplementation::out_grouping_U(const uchar * s, int min,
 	return 0;
 }
 
-int SnowballStemImplementation::out_grouping_b_U(const uchar * s, int min,
-    int max, int repeat)
+int SnowballStemImplementation::out_grouping_b_U(const uchar * s, int min, int max, int repeat)
 {
 	do {
 		int ch;
@@ -230,7 +231,8 @@ int SnowballStemImplementation::out_grouping_b_U(const uchar * s, int min,
 	return 0;
 }
 
-int SnowballStemImplementation::eq_s(int s_size, const symbol * s) {
+int SnowballStemImplementation::eq_s(int s_size, const symbol * s) 
+{
 	if(l - c < s_size || memcmp(p + c, s, s_size * sizeof(symbol)) != 0)
 		return 0;
 	c += s_size;
@@ -249,15 +251,11 @@ int SnowballStemImplementation::find_among(const symbol * pool, const Among * v,
 {
 	int i = 0;
 	int j = v_size;
-
 	const symbol * q = p + c;
 	int c_orig = c;
-
 	int common_i = 0;
 	int common_j = 0;
-
 	int first_key_inspected = 0;
-
 	while(1) {
 		int k = i + ((j - i) >> 1);
 		int diff = 0;

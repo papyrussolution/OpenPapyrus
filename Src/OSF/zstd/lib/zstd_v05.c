@@ -697,8 +697,8 @@ MEM_STATIC size_t BITv05_initDStream(BITv05_DStream_t* bitD, const void* srcBuff
 	}
 	if(srcSize >=  sizeof(size_t)) {/* normal case */
 		uint32 contain32;
-		bitD->start = (const char*)srcBuffer;
-		bitD->ptr   = (const char*)srcBuffer + srcSize - sizeof(size_t);
+		bitD->start = (const char *)srcBuffer;
+		bitD->ptr   = (const char *)srcBuffer + srcSize - sizeof(size_t);
 		bitD->bitContainer = MEM_readLEST(bitD->ptr);
 		contain32 = ((const BYTE *)srcBuffer)[srcSize-1];
 		if(contain32 == 0) return ERROR(GENERIC); /* endMark not present */
@@ -706,7 +706,7 @@ MEM_STATIC size_t BITv05_initDStream(BITv05_DStream_t* bitD, const void* srcBuff
 	}
 	else {
 		uint32 contain32;
-		bitD->start = (const char*)srcBuffer;
+		bitD->start = (const char *)srcBuffer;
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize) {
@@ -3122,7 +3122,7 @@ static void ZSTDv05_checkContinuity(ZSTDv05_DCtx* dctx, const void* dst)
 {
 	if(dst != dctx->previousDstEnd) { /* not contiguous */
 		dctx->dictEnd = dctx->previousDstEnd;
-		dctx->vBase = (const char*)dst - ((const char*)(dctx->previousDstEnd) - (const char*)(dctx->base));
+		dctx->vBase = (const char *)dst - ((const char *)(dctx->previousDstEnd) - (const char *)(dctx->base));
 		dctx->base = dst;
 		dctx->previousDstEnd = dst;
 	}
@@ -3394,9 +3394,9 @@ size_t ZSTDv05_decompressContinue(ZSTDv05_DCtx* dctx, void* dst, size_t maxDstSi
 static void ZSTDv05_refDictContent(ZSTDv05_DCtx* dctx, const void* dict, size_t dictSize)
 {
 	dctx->dictEnd = dctx->previousDstEnd;
-	dctx->vBase = (const char*)dict - ((const char*)(dctx->previousDstEnd) - (const char*)(dctx->base));
+	dctx->vBase = (const char *)dict - ((const char *)(dctx->previousDstEnd) - (const char *)(dctx->base));
 	dctx->base = dict;
-	dctx->previousDstEnd = (const char*)dict + dictSize;
+	dctx->previousDstEnd = (const char *)dict + dictSize;
 }
 
 static size_t ZSTDv05_loadEntropy(ZSTDv05_DCtx* dctx, const void* dict, size_t dictSize)
@@ -3411,14 +3411,14 @@ static size_t ZSTDv05_loadEntropy(ZSTDv05_DCtx* dctx, const void* dict, size_t d
 	hSize = HUFv05_readDTableX4(dctx->hufTableX4, dict, dictSize);
 	if(HUFv05_isError(hSize)) 
 		return ERROR(dictionary_corrupted);
-	dict = (const char*)dict + hSize;
+	dict = (const char *)dict + hSize;
 	dictSize -= hSize;
 	offcodeHeaderSize = FSEv05_readNCount(offcodeNCount, &offcodeMaxValue, &offcodeLog, dict, dictSize);
 	if(FSEv05_isError(offcodeHeaderSize)) return ERROR(dictionary_corrupted);
 	if(offcodeLog > OffFSEv05Log) return ERROR(dictionary_corrupted);
 	errorCode = FSEv05_buildDTable(dctx->OffTable, offcodeNCount, offcodeMaxValue, offcodeLog);
 	if(FSEv05_isError(errorCode)) return ERROR(dictionary_corrupted);
-	dict = (const char*)dict + offcodeHeaderSize;
+	dict = (const char *)dict + offcodeHeaderSize;
 	dictSize -= offcodeHeaderSize;
 
 	matchlengthHeaderSize = FSEv05_readNCount(matchlengthNCount, &matchlengthMaxValue, &matchlengthLog, dict, dictSize);
@@ -3426,7 +3426,7 @@ static size_t ZSTDv05_loadEntropy(ZSTDv05_DCtx* dctx, const void* dict, size_t d
 	if(matchlengthLog > MLFSEv05Log) return ERROR(dictionary_corrupted);
 	errorCode = FSEv05_buildDTable(dctx->MLTable, matchlengthNCount, matchlengthMaxValue, matchlengthLog);
 	if(FSEv05_isError(errorCode)) return ERROR(dictionary_corrupted);
-	dict = (const char*)dict + matchlengthHeaderSize;
+	dict = (const char *)dict + matchlengthHeaderSize;
 	dictSize -= matchlengthHeaderSize;
 
 	litlengthHeaderSize = FSEv05_readNCount(litlengthNCount, &litlengthMaxValue, &litlengthLog, dict, dictSize);
@@ -3449,13 +3449,13 @@ static size_t ZSTDv05_decompress_insertDictionary(ZSTDv05_DCtx* dctx, const void
 		return 0;
 	}
 	/* load entropy tables */
-	dict = (const char*)dict + 4;
+	dict = (const char *)dict + 4;
 	dictSize -= 4;
 	eSize = ZSTDv05_loadEntropy(dctx, dict, dictSize);
 	if(ZSTDv05_isError(eSize)) return ERROR(dictionary_corrupted);
 
 	/* reference dictionary content */
-	dict = (const char*)dict + eSize;
+	dict = (const char *)dict + eSize;
 	dictSize -= eSize;
 	ZSTDv05_refDictContent(dctx, dict, dictSize);
 
@@ -3605,7 +3605,7 @@ size_t ZBUFFv05_decompressInit(ZBUFFv05_DCtx* zbc)
 
 size_t ZBUFFv05_decompressContinue(ZBUFFv05_DCtx* zbc, void* dst, size_t* maxDstSizePtr, const void* src, size_t* srcSizePtr)
 {
-	const char* const istart = (const char*)src;
+	const char* const istart = (const char *)src;
 	const char* ip = istart;
 	const char* const iend = istart + *srcSizePtr;
 	char* const ostart = (char *)dst;

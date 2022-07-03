@@ -31,45 +31,29 @@ class UVector32;
  */
 class BreakTransliterator : public Transliterator {
 public:
-
 	/**
 	 * Constructs a transliterator.
 	 * @param adoptedFilter    the filter for this transliterator.
 	 */
 	BreakTransliterator(UnicodeFilter* adoptedFilter = 0);
-
-	/**
-	 * Destructor.
-	 */
 	virtual ~BreakTransliterator();
-
-	/**
-	 * Copy constructor.
-	 */
 	BreakTransliterator(const BreakTransliterator&);
-
 	/**
 	 * Transliterator API.
 	 * @return    A copy of the object.
 	 */
 	virtual BreakTransliterator* clone() const override;
-
 	virtual const UnicodeString & getInsertion() const;
-
 	virtual void setInsertion(const UnicodeString & insertion);
-
 	/**
 	 * ICU "poor man's RTTI", returns a UClassID for the actual class.
 	 */
 	virtual UClassID getDynamicClassID() const override;
-
 	/**
 	 * ICU "poor man's RTTI", returns a UClassID for this class.
 	 */
 	U_I18N_API static UClassID U_EXPORT2 getStaticClassID();
-
 protected:
-
 	/**
 	 * Implements {@link Transliterator#handleTransliterate}.
 	 * @param text          the buffer holding transliterated and

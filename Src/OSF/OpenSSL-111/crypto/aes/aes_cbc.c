@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/aes.h>
 #include <openssl/modes.h>
 
 void AES_cbc_encrypt(const uchar * in, uchar * out, size_t len, const AES_KEY * key, uchar * ivec, const int enc)

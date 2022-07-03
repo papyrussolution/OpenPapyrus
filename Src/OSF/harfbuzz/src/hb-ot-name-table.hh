@@ -247,7 +247,7 @@ public:
 			{
 				this->table = hb_sanitize_context_t().reference_table<name> (face);
 				assert(this->table.get_length() >= this->table->stringOffset);
-				this->pool = (const char*)(const void*)(this->table+this->table->stringOffset);
+				this->pool = (const char *)(const void*)(this->table+this->table->stringOffset);
 				this->pool_len = this->table.get_length() - this->table->stringOffset;
 				const hb_array_t<const NameRecord> all_names(this->table->nameRecordZ.arrayZ,
 				    this->table->count);

@@ -5457,14 +5457,14 @@ int SapEfes::ReceiveOrders()
 						if(contractor_ar_id && contractor_ar_id != contractor_by_loc_ar_id) {
 							// message
 						}
-						sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop; // @v9.5.10
+						sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop;
 						if(!pack.SetupObject(contractor_by_loc_ar_id, sob)) {
 							R_Logger.LogLastError();
 							skip = 1;
 						}
 					}
 					else if(contractor_ar_id) {
-						sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop; // @v9.5.10
+						sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop;
 						if(!pack.SetupObject(contractor_ar_id, sob)) {
 							R_Logger.LogLastError();
 							skip = 1;

@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/ocsp.h>
-//#include <openssl/err.h>
 #include "ocsp_lcl.h"
 
 static int ocsp_find_signer(X509 ** psigner, OCSP_BASICRESP * bs, STACK_OF(X509) * certs, ulong flags);

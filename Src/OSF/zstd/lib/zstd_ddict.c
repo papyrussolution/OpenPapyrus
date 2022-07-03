@@ -99,7 +99,7 @@ static size_t ZSTD_loadEntropy_intoDDict(ZSTD_DDict* ddict,
 		    return 0; /* pure content mode */
 	    }
 	}
-	ddict->dictID = MEM_readLE32((const char*)ddict->dictContent + ZSTD_FRAMEIDSIZE);
+	ddict->dictID = MEM_readLE32((const char *)ddict->dictContent + ZSTD_FRAMEIDSIZE);
 
 	/* load entropy tables */
 	RETURN_ERROR_IF(ZSTD_isError(ZSTD_loadDEntropy(
@@ -199,7 +199,7 @@ const ZSTD_DDict* ZSTD_initStaticDDict(void * sBuffer, size_t sBufferSize,
 
 size_t ZSTD_freeDDict(ZSTD_DDict* ddict)
 {
-	if(ddict==NULL) 
+	if(!ddict) 
 		return 0; /* support free on NULL */
 	{   
 		ZSTD_customMem const cMem = ddict->cMem;
@@ -219,7 +219,7 @@ size_t ZSTD_estimateDDictSize(size_t dictSize, ZSTD_dictLoadMethod_e dictLoadMet
 
 size_t ZSTD_sizeof_DDict(const ZSTD_DDict* ddict)
 {
-	if(ddict==NULL) 
+	if(!ddict)
 		return 0; /* support sizeof on NULL */
 	return sizeof(*ddict) + (ddict->dictBuffer ? ddict->dictSize : 0);
 }
@@ -230,7 +230,7 @@ size_t ZSTD_sizeof_DDict(const ZSTD_DDict* ddict)
  *  Non-conformant dictionaries can still be loaded, but as content-only dictionaries. */
 unsigned ZSTD_getDictID_fromDDict(const ZSTD_DDict* ddict)
 {
-	if(ddict==NULL) 
+	if(!ddict) 
 		return 0;
 	return ZSTD_getDictID_fromDict(ddict->dictContent, ddict->dictSize);
 }

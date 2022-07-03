@@ -739,7 +739,7 @@ public:
 	 * @param status    Output param set to success/failure code.
 	 * @stable ICU 2.0
 	 */
-	SimpleDateFormat(UErrorCode& status);
+	SimpleDateFormat(UErrorCode & status);
 
 	/**
 	 * Construct a SimpleDateFormat using the given pattern and the default locale.
@@ -753,7 +753,7 @@ public:
 	 * @stable ICU 2.0
 	 */
 	SimpleDateFormat(const UnicodeString & pattern,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Construct a SimpleDateFormat using the given pattern, numbering system override, and the default locale.
@@ -778,7 +778,7 @@ public:
 	 */
 	SimpleDateFormat(const UnicodeString & pattern,
 	    const UnicodeString & override,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Construct a SimpleDateFormat using the given pattern and locale.
@@ -794,7 +794,7 @@ public:
 	 */
 	SimpleDateFormat(const UnicodeString & pattern,
 	    const Locale& locale,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Construct a SimpleDateFormat using the given pattern, numbering system override, and locale.
@@ -820,7 +820,7 @@ public:
 	SimpleDateFormat(const UnicodeString & pattern,
 	    const UnicodeString & override,
 	    const Locale& locale,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Construct a SimpleDateFormat using the given pattern and locale-specific
@@ -833,7 +833,7 @@ public:
 	 */
 	SimpleDateFormat(const UnicodeString & pattern,
 	    DateFormatSymbols* formatDataToAdopt,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Construct a SimpleDateFormat using the given pattern and locale-specific
@@ -846,7 +846,7 @@ public:
 	 */
 	SimpleDateFormat(const UnicodeString & pattern,
 	    const DateFormatSymbols& formatData,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Copy constructor.
@@ -923,7 +923,7 @@ public:
 	virtual UnicodeString & format(Calendar& cal,
 	    UnicodeString & appendTo,
 	    FieldPositionIterator* posIter,
-	    UErrorCode& status) const override;
+	    UErrorCode & status) const override;
 
 	using DateFormat::parse;
 
@@ -973,7 +973,7 @@ public:
 	 *               an error value if there was a parse error.
 	 * @stable ICU 2.0
 	 */
-	virtual void set2DigitYearStart(UDate d, UErrorCode& status);
+	virtual void set2DigitYearStart(UDate d, UErrorCode & status);
 
 	/**
 	 * Get the start UDate used to interpret two-digit year strings.
@@ -990,7 +990,7 @@ public:
 	 *               an error value if there was a parse error.
 	 * @stable ICU 2.0
 	 */
-	UDate get2DigitYearStart(UErrorCode& status) const;
+	UDate get2DigitYearStart(UErrorCode & status) const;
 
 	/**
 	 * Return a pattern string describing this date format.
@@ -1023,7 +1023,7 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual UnicodeString & toLocalizedPattern(UnicodeString & result,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 	/**
 	 * Apply the given unlocalized pattern string to this date format.
@@ -1046,7 +1046,7 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual void applyLocalizedPattern(const UnicodeString & pattern,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * Gets the date/time formatting symbols (this is an object carrying
@@ -1144,7 +1144,7 @@ public:
 	 *               updated with any new status from the function.
 	 * @stable ICU 53
 	 */
-	virtual void setContext(UDisplayContext value, UErrorCode& status) override;
+	virtual void setContext(UDisplayContext value, UErrorCode & status) override;
 
 	/**
 	 * Overrides base class method and
@@ -1172,7 +1172,7 @@ public:
 	 *                if the operation succeeds.
 	 * @stable ICU 54
 	 */
-	void adoptNumberFormat(const UnicodeString & fields, NumberFormat * formatToAdopt, UErrorCode &status);
+	void adoptNumberFormat(const UnicodeString & fields, NumberFormat * formatToAdopt, UErrorCode & status);
 
 	/**
 	 * Get the numbering system to be used for a particular field.
@@ -1237,7 +1237,7 @@ private:
 	 * @param status    Output param set to success/failure code on
 	 *                  exit.
 	 */
-	SimpleDateFormat(EStyle timeStyle, EStyle dateStyle, const Locale& locale, UErrorCode& status);
+	SimpleDateFormat(EStyle timeStyle, EStyle dateStyle, const Locale& locale, UErrorCode & status);
 
 	/**
 	 * Construct a SimpleDateFormat for the given locale.  If no resource data
@@ -1247,12 +1247,12 @@ private:
 	 * @param status    Output param set to success/failure code on
 	 *                  exit.
 	 */
-	SimpleDateFormat(const Locale& locale, UErrorCode& status); // Use default pattern
+	SimpleDateFormat(const Locale& locale, UErrorCode & status); // Use default pattern
 
 	/**
 	 * Hook called by format(... FieldPosition& ...) and format(...FieldPositionIterator&...)
 	 */
-	UnicodeString & _format(Calendar& cal, UnicodeString & appendTo, FieldPositionHandler& handler, UErrorCode& status) const;
+	UnicodeString & _format(Calendar& cal, UnicodeString & appendTo, FieldPositionHandler& handler, UErrorCode & status) const;
 
 	/**
 	 * Called by format() to format a single field.
@@ -1278,7 +1278,7 @@ private:
 	    char16_t fieldToOutput,
 	    FieldPositionHandler& handler,
 	    Calendar& cal,
-	    UErrorCode& status) const;        // in case of illegal argument
+	    UErrorCode & status) const;        // in case of illegal argument
 
 	/**
 	 * Used by subFormat() to format a numeric value.
@@ -1322,7 +1322,7 @@ private:
 	 * @param status Error code
 	 * @return the newly constructed fCalendar
 	 */
-	Calendar * initializeCalendar(TimeZone* adoptZone, const Locale& locale, UErrorCode& status);
+	Calendar * initializeCalendar(TimeZone* adoptZone, const Locale& locale, UErrorCode & status);
 
 	/**
 	 * Called by several of the constructors to load pattern data and formatting symbols
@@ -1333,7 +1333,7 @@ private:
 	 * @param status        Filled in with an error code if loading the data from the
 	 *                      resources fails.
 	 */
-	void construct(EStyle timeStyle, EStyle dateStyle, const Locale& locale, UErrorCode& status);
+	void construct(EStyle timeStyle, EStyle dateStyle, const Locale& locale, UErrorCode & status);
 
 	/**
 	 * Called by construct() and the various constructors to set up the SimpleDateFormat's
@@ -1341,7 +1341,7 @@ private:
 	 * @param locale    The locale for which we want a Calendar and a NumberFormat.
 	 * @param status    Filled in with an error code if creating either subobject fails.
 	 */
-	void initialize(const Locale& locale, UErrorCode& status);
+	void initialize(const Locale& locale, UErrorCode & status);
 
 	/**
 	 * Private code-size reduction function used by subParse.
@@ -1465,7 +1465,7 @@ private:
 	 *                          if the operation succeeds.
 	 */
 	static void translatePattern(const UnicodeString & originalPattern, UnicodeString & translatedPattern, const UnicodeString & from,
-	    const UnicodeString & to, UErrorCode& status);
+	    const UnicodeString & to, UErrorCode & status);
 	/**
 	 * Sets the starting date of the 100-year window that dates with 2-digit years
 	 * are considered to fall within.
@@ -1473,7 +1473,7 @@ private:
 	 * @param status    Receives a status code, which will be U_ZERO_ERROR
 	 *                  if the operation succeeds.
 	 */
-	void         parseAmbiguousDatesAsAfter(UDate startDate, UErrorCode& status);
+	void         parseAmbiguousDatesAsAfter(UDate startDate, UErrorCode & status);
 
 	/**
 	 * Return the length matched by the given affix, or -1 if none.
@@ -1503,7 +1503,7 @@ private:
 	/**
 	 * Initialize LocalizedNumberFormatter instances used for speedup.
 	 */
-	void initFastNumberFormatters(UErrorCode& status);
+	void initFastNumberFormatters(UErrorCode & status);
 
 	/**
 	 * Delete the LocalizedNumberFormatter instances used for speedup.
@@ -1513,12 +1513,12 @@ private:
 	/**
 	 * Initialize NumberFormat instances used for numbering system overrides.
 	 */
-	void initNumberFormatters(const Locale &locale, UErrorCode &status);
+	void initNumberFormatters(const Locale &locale, UErrorCode & status);
 
 	/**
 	 * Parse the given override string and set up structures for number formats
 	 */
-	void processOverrideString(const Locale &locale, const UnicodeString &str, int8 type, UErrorCode &status);
+	void processOverrideString(const Locale &locale, const UnicodeString &str, int8 type, UErrorCode & status);
 
 	/**
 	 * Used to map pattern characters to Calendar field identifiers.
@@ -1531,7 +1531,7 @@ private:
 	/**
 	 * Lazy TimeZoneFormat instantiation, semantically const
 	 */
-	TimeZoneFormat * tzFormat(UErrorCode &status) const;
+	TimeZoneFormat * tzFormat(UErrorCode & status) const;
 	const NumberFormat* getNumberFormatByIndex(UDateFormatField index) const;
 	/**
 	 * Used to map Calendar field to field level.

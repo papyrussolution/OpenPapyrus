@@ -178,7 +178,7 @@ static int xmlModulePlatformClose(void * handle)
 static int xmlModulePlatformSymbol(void * handle, const char * name, void ** symbol)
 {
 	*symbol = dlsym(handle, name);
-	if(dlerror() != NULL) {
+	if(dlerror()) {
 		return -1;
 	}
 	return 0;

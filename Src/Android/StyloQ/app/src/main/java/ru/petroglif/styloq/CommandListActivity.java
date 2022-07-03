@@ -306,7 +306,9 @@ public class CommandListActivity extends SLib.SlActivity {
 											switch(prestatus.S) {
 												case StyloQCommand.prestatusQueryNeeded: rcid = R.drawable.ic_generic_server; break;
 												case StyloQCommand.prestatusActualResultStored: rcid = R.drawable.ic_generic_document; break;
-												case StyloQCommand.prestatusPending: rcid = R.drawable.ic_stopwatch; break;
+												case StyloQCommand.prestatusPending:
+														rcid = R.drawable.ic_stopwatch;
+														break;
 												default: rcid = R.drawable.ic_generic_command; break;
 											}
 											ctl.setImageResource(rcid);
@@ -344,11 +346,11 @@ public class CommandListActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_SVCQUERYRESULT:
 				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
+					StyloQApp app_ctx = GetAppCtx();
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
-					if(ir.OriginalCmdItem != null) {
+					if(app_ctx != null && ir.OriginalCmdItem != null) {
 						String reply_msg = null;
 						String reply_errmsg = null;
-						StyloQApp app_ctx = GetAppCtx();
 						if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
 							byte [] reply_raw_data = ((SecretTagPool)ir.InfoReply).Get(SecretTagPool.tagRawData);
 							if(SLib.GetLen(reply_raw_data) > 0) {
@@ -367,18 +369,14 @@ public class CommandListActivity extends SLib.SlActivity {
 							}
 						}
 						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-							if(app_ctx != null) {
-								if(SLib.GetLen(reply_msg) <= 0)
-									reply_msg = "OK";
-								app_ctx.DisplayMessage(this, reply_msg, 0);
-							}
+							if(SLib.GetLen(reply_msg) <= 0)
+								reply_msg = "OK";
+							app_ctx.DisplayMessage(this, reply_msg, 0);
 						}
 						else {
-							if(app_ctx != null) {
-								if(SLib.GetLen(reply_errmsg) <= 0)
-									reply_msg = "ERROR";
-								app_ctx.DisplayError(this, reply_msg, 0);
-							}
+							if(SLib.GetLen(reply_errmsg) <= 0)
+								reply_errmsg = "ERROR";
+							app_ctx.DisplayError(this, reply_errmsg, 0);
 						}
 					}
 				}

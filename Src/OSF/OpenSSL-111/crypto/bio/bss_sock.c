@@ -8,11 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "bio_lcl.h"
 
 #ifndef OPENSSL_NO_SOCK
-
-//#include <openssl/bio.h>
 
 #ifdef WATT32
 	/* Watt-32 uses same names */

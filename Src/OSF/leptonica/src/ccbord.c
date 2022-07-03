@@ -850,7 +850,7 @@ l_ok pixGetOuterBorder(CCBORD   * ccb,
 	int32 px, py, npx, npy;
 	int32 w, h, wpl;
 	uint32 * data;
-	PTA       * pta;
+	PTA * pta;
 	PIX * pixb; /* with 1 pixel border */
 
 	PROCNAME(__FUNCTION__);
@@ -938,7 +938,7 @@ static l_ok pixGetHoleBorder(CCBORD   * ccb,
 	int32 px, py, npx, npy;
 	int32 w, h, wpl;
 	uint32 * data;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1014,9 +1014,9 @@ static int32 findNextBorderPixel(int32 w,
     int32 wpl,
     int32 px,
     int32 py,
-    int32   * pqpos,
-    int32   * pnpx,
-    int32   * pnpy)
+    int32 * pqpos,
+    int32 * pnpx,
+    int32 * pnpy)
 {
 	int32 qpos, i, pos, npx, npy, val;
 	uint32 * line;

@@ -396,7 +396,7 @@ public:
 			{
 				FontDict * dict = c->start_embed<FontDict> ();
 				dict->serialize(c, _.first, opszr, _.second);
-				return c->head - (const char*)dict;
+				return c->head - (const char *)dict;
 			})
 			| hb_sink(sizes)
 			;

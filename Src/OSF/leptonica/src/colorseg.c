@@ -113,7 +113,7 @@ PIX * pixColorSegment(PIX * pixs,
     int32 finalcolors,
     int32 debugflag)
 {
-	int32   * countarray;
+	int32 * countarray;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -389,7 +389,7 @@ l_ok pixAssignToNearestColor(PIX * pixd,
 {
 	int32 w, h, wpls, wpld, wplm, i, j, success;
 	int32 rval, gval, bval, index;
-	int32   * cmaptab;
+	int32 * cmaptab;
 	uint32 octindex;
 	uint32 * rtab, * gtab, * btab;
 	uint32 * ppixel;
@@ -553,7 +553,7 @@ l_ok pixColorSegmentRemoveColors(PIX * pixd, PIX * pixs, int32 finalcolors)
 {
 	PROCNAME(__FUNCTION__);
 	int32 i, ncolors, index, tempindex;
-	int32   * tab;
+	int32 * tab;
 	uint32 tempcolor;
 	NUMA * na, * nasi;
 	PIX * pixm;

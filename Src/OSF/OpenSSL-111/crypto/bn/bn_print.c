@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <ctype.h>
-//#include <openssl/buffer.h>
 #include "bn_lcl.h"
 
 static const char Hex[] = "0123456789ABCDEF";

@@ -3656,9 +3656,9 @@ SQLITE_API const char * sqlite3_uri_key(const char * zFilename, int N);
 ** return value from [sqlite3_db_filename()], then the result is
 ** undefined and is likely a memory access violation.
 */
-SQLITE_API const char * sqlite3_filename_database(const char*);
-SQLITE_API const char * sqlite3_filename_journal(const char*);
-SQLITE_API const char * sqlite3_filename_wal(const char*);
+SQLITE_API const char * sqlite3_filename_database(const char *);
+SQLITE_API const char * sqlite3_filename_journal(const char *);
+SQLITE_API const char * sqlite3_filename_wal(const char *);
 
 /*
 ** CAPI3REF:  Database File Corresponding To A Journal
@@ -3677,7 +3677,7 @@ SQLITE_API const char * sqlite3_filename_wal(const char*);
 ** of this routine results in undefined and probably undesirable
 ** behavior.
 */
-SQLITE_API sqlite3_file * sqlite3_database_file_object(const char*);
+SQLITE_API sqlite3_file * sqlite3_database_file_object(const char *);
 
 /*
 ** CAPI3REF: Create and Destroy VFS Filenames
@@ -6805,7 +6805,7 @@ struct sqlite3_module {
 	int (* xRollbackTo)(sqlite3_vtab * pVTab, int);
 	/* The methods above are in versions 1 and 2 of the sqlite_module object.
 	** Those below are for version 3 and greater. */
-	int (* xShadowName)(const char*);
+	int (* xShadowName)(const char *);
 };
 
 /*

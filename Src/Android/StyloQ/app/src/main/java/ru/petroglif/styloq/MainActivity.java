@@ -16,6 +16,9 @@ import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -666,6 +669,60 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					}
 				}
 				break;
+			case SLib.EV_SVCQUERYRESULT:
+				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
+					StyloQApp app_ctx = (StyloQApp)getApplication();
+					if(app_ctx != null) {
+						StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult) subj;
+						String reply_msg = null;
+						String reply_errmsg = null;
+						if(ir.OriginalCmdItem != null) {
+							if(ir.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcDtLogin) {
+								boolean login_result = false;
+								if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+									SecretTagPool rpool = (SecretTagPool) ir.InfoReply;
+									byte[] raw_reply_bytes = rpool.Get(SecretTagPool.tagRawData);
+									if(SLib.GetLen(raw_reply_bytes) > 0) {
+										String reply_js_text = new String(raw_reply_bytes);
+										if(SLib.GetLen(reply_js_text) > 0) {
+											try {
+												JSONObject js_reply = new JSONObject(reply_js_text);
+												if(js_reply != null) {
+													int repl_result = StyloQInterchange.GetReplyResult(js_reply);
+													if(repl_result > 0)
+														login_result = true;
+													reply_msg = js_reply.optString("msg", null);
+													reply_errmsg = js_reply.optString("errmsg", null);
+												}
+											} catch(JSONException exn) {
+												;
+											}
+										}
+									}
+								}
+								if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS && login_result) {
+									if(SLib.GetLen(reply_msg) <= 0) {
+										if(SLib.GetLen(reply_errmsg) > 0)
+											reply_msg = reply_errmsg;
+										else
+											reply_msg = "OK";
+									}
+									app_ctx.DisplayMessage(this, reply_msg, 0);
+								}
+								else {
+									if(SLib.GetLen(reply_errmsg) <= 0) {
+										if(SLib.GetLen(reply_msg) > 0)
+											reply_errmsg = reply_msg;
+										else
+											reply_errmsg = "ERROR";
+									}
+									app_ctx.DisplayError(this, reply_errmsg, 0);
+								}
+							}
+						}
+					}
+				}
+				break;
 		}
 		return result;
 	}
@@ -908,29 +965,30 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		//String barcode_text;
-		if(requestCode != CUSTOMIZED_REQUEST_CODE && requestCode != IntentIntegrator.REQUEST_CODE) {
-			// This is important, otherwise the result will not be passed to the fragment
-			super.onActivityResult(requestCode, resultCode, data);
-		}
-		else {
-			switch(requestCode) {
-				case CUSTOMIZED_REQUEST_CODE: {
-					//toast.makeText(this, "REQUEST_CODE = " + requestCode, Toast.LENGTH_LONG).show();
-					break;
-				}
-				default:
-					break;
+		StyloQApp app_ctx = (StyloQApp)getApplication();
+		if(app_ctx != null) {
+			if(requestCode != CUSTOMIZED_REQUEST_CODE && requestCode != IntentIntegrator.REQUEST_CODE) {
+				// This is important, otherwise the result will not be passed to the fragment
+				super.onActivityResult(requestCode, resultCode, data);
 			}
-			IntentResult result = IntentIntegrator.parseActivityResult(resultCode, data);
-			if(result != null) {
-				String contents = result.getContents();
+			else {
+				switch(requestCode) {
+					case CUSTOMIZED_REQUEST_CODE: {
+						//toast.makeText(this, "REQUEST_CODE = " + requestCode, Toast.LENGTH_LONG).show();
+						break;
+					}
+					default:
+						break;
+				}
+				IntentResult result = IntentIntegrator.parseActivityResult(resultCode, data);
+				String contents = (result != null) ? result.getContents() : null;
 				if(contents == null) {
-					Intent originalIntent = result.getOriginalIntent();
-					if(originalIntent == null) {
+					Intent original_intent = result.getOriginalIntent();
+					if(original_intent == null) {
 						//Log.d("MainActivity", "Cancelled scan");
 						//Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
 					}
-					else if(originalIntent.hasExtra(Intents.Scan.MISSING_CAMERA_PERMISSION)) {
+					else if(original_intent.hasExtra(Intents.Scan.MISSING_CAMERA_PERMISSION)) {
 						//Log.d("MainActivity", "Cancelled scan due to missing camera permission");
 						//Toast.makeText(this, "Cancelled due to missing camera permission", Toast.LENGTH_LONG).show();
 					}
@@ -956,14 +1014,21 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 								param.AccsPoint = inv.AccessPoint;
 								param.CommandJson = inv.CommandJson;
 								param.SvcCapabilities = inv.Capabilities;
-								StyloQInterchange.RunClientInterchange((StyloQApp)getApplication(), param);
+								{
+									StyloQCommand.Item fake_org_cmd = new StyloQCommand.Item();
+									fake_org_cmd.Name = "dtlogin";
+									fake_org_cmd.BaseCmdId = StyloQCommand.sqbcDtLogin;
+									param.OriginalCmdItem = fake_org_cmd;
+								}
+								param.RetrActivity_ = this;
+								StyloQInterchange.RunClientInterchange(app_ctx, param);
 							}
 						}
 						else {
 							// Error parsing of invatation
 						}
 					} catch(StyloQException exn) {
-						((StyloQApp)getApplication()).DisplayError(this, exn, 5000);
+						app_ctx.DisplayError(this, exn, 5000);
 						//String msg = exn.GetMessage(this);
 						//v_info.setText((msg != null) ? msg : "unkn exception");
 					}

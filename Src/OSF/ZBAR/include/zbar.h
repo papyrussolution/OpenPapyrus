@@ -1275,10 +1275,7 @@ static inline zbar_error_t zbar_processor_get_error_code(const zbar_processor_t 
 /** opaque video object. */
 //typedef struct zbar_video_s zbar_video_t;
 
-/** constructor. */
 extern zbar_video_t * zbar_video_create(void);
-
-/** destructor. */
 extern void zbar_video_destroy(zbar_video_t * video);
 
 /** open and probe a video device.
@@ -1388,10 +1385,7 @@ struct zbar_window_s;
 /** opaque window object. */
 typedef struct zbar_window_s zbar_window_t;
 
-/** constructor. */
 extern zbar_window_t * zbar_window_create(void);
-
-/** destructor. */
 extern void zbar_window_destroy(zbar_window_t * window);
 
 /** associate reader with an existing platform window.
@@ -1400,9 +1394,7 @@ extern void zbar_window_destroy(zbar_window_t * window);
  * pass NULL to detach from the resource, further input will be
  * ignored
  */
-extern int zbar_window_attach(zbar_window_t * window,
-    void * x11_display_w32_hwnd,
-    ulong x11_drawable);
+extern int zbar_window_attach(zbar_window_t * window, void * x11_display_w32_hwnd, ulong x11_drawable);
 
 /** control content level of the reader overlay.
  * the overlay displays graphical data for informational or debug
@@ -1478,10 +1470,7 @@ struct zbar_image_scanner_s;
 /** opaque image scanner object. */
 typedef struct zbar_image_scanner_s zbar_image_scanner_t;
 
-/** constructor. */
 extern zbar_image_scanner_t * zbar_image_scanner_create(void);
-
-/** destructor. */
 extern void zbar_image_scanner_destroy(zbar_image_scanner_t * scanner);
 
 /** setup result handler callback.
@@ -1490,9 +1479,7 @@ extern void zbar_image_scanner_destroy(zbar_image_scanner_t * scanner);
  * pass a NULL value to disable callbacks.
  * @returns the previously registered handler
  */
-extern zbar_image_data_handler_t* zbar_image_scanner_set_data_handler(zbar_image_scanner_t * scanner,
-    zbar_image_data_handler_t * handler,
-    const void * userdata);
+extern zbar_image_data_handler_t* zbar_image_scanner_set_data_handler(zbar_image_scanner_t * scanner, zbar_image_data_handler_t * handler, const void * userdata);
 
 /** set config for indicated symbology (0 for all) to specified value.
  * @returns 0 for success, non-0 for failure (config does not apply to
@@ -1904,10 +1891,7 @@ zbar_symbol_type_t _zbar_decode_codabar(zbar_decoder_t *dcode);
 /** opaque decoder object. */
 //typedef struct zbar_decoder_s zbar_decoder_t;
 
-/** constructor. */
 extern zbar_decoder_t * zbar_decoder_create(void);
-
-/** destructor. */
 extern void zbar_decoder_destroy(zbar_decoder_t * decoder);
 
 /** set config for indicated symbology (0 for all) to specified value.
@@ -2032,8 +2016,6 @@ typedef struct zbar_scanner_s zbar_scanner_t;
  * (so an initial BAR->SPACE transition may be discarded)
  */
 extern zbar_scanner_t * zbar_scanner_create(zbar_decoder_t * decoder);
-
-/** destructor. */
 extern void zbar_scanner_destroy(zbar_scanner_t * scanner);
 
 /** clear all scanner state.

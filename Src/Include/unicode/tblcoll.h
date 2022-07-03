@@ -126,7 +126,7 @@ public:
 	 * @param status reporting a success or an error.
 	 * @stable ICU 2.0
 	 */
-	RuleBasedCollator(const UnicodeString &rules, UErrorCode& status);
+	RuleBasedCollator(const UnicodeString &rules, UErrorCode & status);
 
 	/**
 	 * RuleBasedCollator constructor. This takes the table rules and builds a
@@ -137,7 +137,7 @@ public:
 	 * @param status reporting a success or an error.
 	 * @stable ICU 2.0
 	 */
-	RuleBasedCollator(const UnicodeString &rules, ECollationStrength collationStrength, UErrorCode& status);
+	RuleBasedCollator(const UnicodeString &rules, ECollationStrength collationStrength, UErrorCode & status);
 
 	/**
 	 * RuleBasedCollator constructor. This takes the table rules and builds a
@@ -150,7 +150,7 @@ public:
 	 */
 	RuleBasedCollator(const UnicodeString &rules,
 	    UColAttributeValue decompositionMode,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 	/**
 	 * RuleBasedCollator constructor. This takes the table rules and builds a
@@ -165,7 +165,7 @@ public:
 	RuleBasedCollator(const UnicodeString &rules,
 	    ECollationStrength collationStrength,
 	    UColAttributeValue decompositionMode,
-	    UErrorCode& status);
+	    UErrorCode & status);
 
 #ifndef U_HIDE_INTERNAL_API
 	/**
@@ -203,7 +203,7 @@ public:
 	 */
 	RuleBasedCollator(const uint8 *bin, int32_t length,
 	    const RuleBasedCollator *base,
-	    UErrorCode &status);
+	    UErrorCode & status);
 
 	/**
 	 * Destructor.
@@ -273,7 +273,7 @@ public:
 	 **/
 	virtual UCollationResult compare(const UnicodeString & source,
 	    const UnicodeString & target,
-	    UErrorCode &status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Does the same thing as compare but limits the comparison to a specified
@@ -291,7 +291,7 @@ public:
 	virtual UCollationResult compare(const UnicodeString & source,
 	    const UnicodeString & target,
 	    int32_t length,
-	    UErrorCode &status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * The comparison function compares the character data stored in two
@@ -311,7 +311,7 @@ public:
 	 */
 	virtual UCollationResult compare(const char16_t* source, int32_t sourceLength,
 	    const char16_t* target, int32_t targetLength,
-	    UErrorCode &status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Compares two strings using the Collator.
@@ -326,7 +326,7 @@ public:
 	 */
 	virtual UCollationResult compare(UCharIterator &sIter,
 	    UCharIterator &tIter,
-	    UErrorCode &status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Compares two UTF-8 strings using the Collator.
@@ -343,7 +343,7 @@ public:
 	 */
 	virtual UCollationResult compareUTF8(const StringPiece &source,
 	    const StringPiece &target,
-	    UErrorCode &status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Transforms the string into a series of characters
@@ -361,7 +361,7 @@ public:
 	 */
 	virtual CollationKey& getCollationKey(const UnicodeString & source,
 	    CollationKey& key,
-	    UErrorCode& status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Transforms a specified region of the string into a series of characters
@@ -381,7 +381,7 @@ public:
 	virtual CollationKey& getCollationKey(const char16_t * source,
 	    int32_t sourceLength,
 	    CollationKey& key,
-	    UErrorCode& status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Generates the hash code for the rule-based collation object.
@@ -401,7 +401,7 @@ public:
 	 *         was instantiated from rules, locale is empty.
 	 * @deprecated ICU 2.8 likely to change in ICU 3.0, based on feedback
 	 */
-	virtual Locale getLocale(ULocDataLocaleType type, UErrorCode& status) const override;
+	virtual Locale getLocale(ULocDataLocaleType type, UErrorCode & status) const override;
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	/**
@@ -474,7 +474,7 @@ public:
 	 * @return memory, owned by the caller, of size 'length' bytes.
 	 * @deprecated ICU 52. Use cloneBinary() instead.
 	 */
-	uint8 * cloneRuleData(int32_t &length, UErrorCode &status) const;
+	uint8 * cloneRuleData(int32_t &length, UErrorCode & status) const;
 #endif  /* U_HIDE_DEPRECATED_API */
 
 	/** Creates a binary image of a collator. This binary image can be stored and
@@ -487,7 +487,7 @@ public:
 	 *  @see ucol_openBinary
 	 *  @stable ICU 3.4
 	 */
-	int32_t cloneBinary(uint8 * buffer, int32_t capacity, UErrorCode &status) const;
+	int32_t cloneBinary(uint8 * buffer, int32_t capacity, UErrorCode & status) const;
 
 	/**
 	 * Returns current rules. Delta defines whether full rules are returned or
@@ -510,7 +510,7 @@ public:
 	 * @stable ICU 2.2
 	 */
 	virtual void setAttribute(UColAttribute attr, UColAttributeValue value,
-	    UErrorCode &status) override;
+	    UErrorCode & status) override;
 
 	/**
 	 * Universal attribute getter.
@@ -520,7 +520,7 @@ public:
 	 * @stable ICU 2.2
 	 */
 	virtual UColAttributeValue getAttribute(UColAttribute attr,
-	    UErrorCode &status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Sets the variable top to the top of the specified reordering group.
@@ -566,7 +566,7 @@ public:
 	 * @return variable top primary weight
 	 * @deprecated ICU 53 Call setMaxVariable() instead.
 	 */
-	virtual uint32_t setVariableTop(const char16_t * varTop, int32_t len, UErrorCode &status) override;
+	virtual uint32_t setVariableTop(const char16_t * varTop, int32_t len, UErrorCode & status) override;
 
 	/**
 	 * Sets the variable top to the primary weight of the specified string.
@@ -585,7 +585,7 @@ public:
 	 * @return variable top primary weight
 	 * @deprecated ICU 53 Call setMaxVariable() instead.
 	 */
-	virtual uint32_t setVariableTop(const UnicodeString &varTop, UErrorCode &status) override;
+	virtual uint32_t setVariableTop(const UnicodeString &varTop, UErrorCode & status) override;
 
 	/**
 	 * Sets the variable top to the specified primary weight.
@@ -598,7 +598,7 @@ public:
 	 * @param status error code
 	 * @deprecated ICU 53 Call setMaxVariable() instead.
 	 */
-	virtual void setVariableTop(uint32_t varTop, UErrorCode &status) override;
+	virtual void setVariableTop(uint32_t varTop, UErrorCode & status) override;
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	/**
@@ -608,7 +608,7 @@ public:
 	 * @see getMaxVariable
 	 * @stable ICU 2.0
 	 */
-	virtual uint32_t getVariableTop(UErrorCode &status) const override;
+	virtual uint32_t getVariableTop(UErrorCode & status) const override;
 
 	/**
 	 * Get a UnicodeSet that contains all the characters and sequences tailored in
@@ -619,7 +619,7 @@ public:
 	 *         in the root collator. The object must be disposed of by using delete
 	 * @stable ICU 2.4
 	 */
-	virtual UnicodeSet * getTailoredSet(UErrorCode &status) const override;
+	virtual UnicodeSet * getTailoredSet(UErrorCode & status) const override;
 
 	/**
 	 * Get the sort key as an array of bytes from a UnicodeString.
@@ -672,7 +672,7 @@ public:
 	 */
 	virtual int32_t getReorderCodes(int32_t * dest,
 	    int32_t destCapacity,
-	    UErrorCode& status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Sets the ordering of scripts for this collator.
@@ -687,7 +687,7 @@ public:
 	 */
 	virtual void setReorderCodes(const int32_t* reorderCodes,
 	    int32_t reorderCodesLength,
-	    UErrorCode& status) override;
+	    UErrorCode & status) override;
 
 	/**
 	 * Implements ucol_strcollUTF8().
@@ -723,7 +723,7 @@ public:
 	virtual int32_t internalGetShortDefinitionString(const char * locale,
 	    char * buffer,
 	    int32_t capacity,
-	    UErrorCode &status) const override;
+	    UErrorCode & status) const override;
 
 	/**
 	 * Implements ucol_nextSortKeyPart().

@@ -885,7 +885,7 @@ U_CAPI UCalendarDateFields U_EXPORT2 udat_toCalendarDateField(UDateFormatField f
  */
 U_CAPI UDateFormat* U_EXPORT2 udat_open(UDateFormatStyle timeStyle,
     UDateFormatStyle dateStyle,
-    const char        * locale,
+    const char * locale,
     const UChar * tzID,
     int32_t tzIDLength,
     const UChar * pattern,
@@ -1673,7 +1673,7 @@ U_CAPI void U_EXPORT2 udat_applyPatternRelative(UDateFormat * format,
  */
 typedef UDateFormat* (U_EXPORT2 *UDateFormatOpener)(UDateFormatStyle timeStyle,
     UDateFormatStyle dateStyle,
-    const char        * locale,
+    const char * locale,
     const UChar * tzID,
     int32_t tzIDLength,
     const UChar * pattern,

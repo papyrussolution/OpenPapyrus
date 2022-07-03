@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/ec.h>
 #include "ec_lcl.h"
 #include <openssl/err.h>
 

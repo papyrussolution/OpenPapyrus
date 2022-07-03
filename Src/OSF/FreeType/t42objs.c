@@ -495,7 +495,7 @@ static void t42_glyphslot_clear(FT_GlyphSlot slot)
 	FT_Driver_Class ttclazz = ((T42_Driver)glyph->face->driver)->ttclazz;
 	FT_TRACE1(( "T42_GlyphSlot_Load: glyph index %d\n", glyph_index ));
 	// map T42 glyph index to embedded TTF's glyph index 
-	glyph_index = (FT_UInt)ft_strtol((const char*)t42face->type1.charstrings[glyph_index], NULL, 10);
+	glyph_index = (FT_UInt)ft_strtol((const char *)t42face->type1.charstrings[glyph_index], NULL, 10);
 	t42_glyphslot_clear(t42slot->ttslot);
 	error = ttclazz->load_glyph(t42slot->ttslot, t42size->ttsize, glyph_index, load_flags | FT_LOAD_NO_BITMAP);
 	if(!error) {

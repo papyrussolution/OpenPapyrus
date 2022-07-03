@@ -489,7 +489,7 @@ template <typename V, typename K, typename ... Ts> static inline bool hb_bsearch
 		int mid = ((uint)min + (uint)max) / 2;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-		V* p = (V*)(((const char*)base) + (mid * stride));
+		V* p = (V*)(((const char *)base) + (mid * stride));
 #pragma GCC diagnostic pop
 		int c = compar((const void*)hb_addressof(key), (const void*)p, ds ...);
 		if(c < 0)
@@ -511,7 +511,7 @@ template <typename V, typename K> static inline V* hb_bsearch(const K& key, V* b
 	unsigned pos;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-	return hb_bsearch_impl(&pos, key, base, nmemb, stride, compar) ? (V*)(((const char*)base) + (pos * stride)) : nullptr;
+	return hb_bsearch_impl(&pos, key, base, nmemb, stride, compar) ? (V*)(((const char *)base) + (pos * stride)) : nullptr;
 #pragma GCC diagnostic pop
 }
 
@@ -521,7 +521,7 @@ template <typename V, typename K, typename ... Ts> static inline V* hb_bsearch(c
 	unsigned pos;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-	return hb_bsearch_impl(&pos, key, base, nmemb, stride, compar, ds ...) ? (V*)(((const char*)base) + (pos * stride)) : nullptr;
+	return hb_bsearch_impl(&pos, key, base, nmemb, stride, compar, ds ...) ? (V*)(((const char *)base) + (pos * stride)) : nullptr;
 #pragma GCC diagnostic pop
 }
 

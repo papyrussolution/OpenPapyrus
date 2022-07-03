@@ -110,7 +110,7 @@ struct U_I18N_API RangeMacroProps : public UMemory {
 	 * Check all members for errors.
 	 * @internal
 	 */
-	bool copyErrorTo(UErrorCode &status) const {
+	bool copyErrorTo(UErrorCode & status) const {
 		return formatter1.copyErrorTo(status) || formatter2.copyErrorTo(status);
 	}
 };
@@ -480,7 +480,7 @@ public:
 	 * @return A FormattedNumberRange object; call .toString() to get the string.
 	 * @stable ICU 63
 	 */
-	FormattedNumberRange formatFormattableRange(const Formattable& first, const Formattable& second, UErrorCode& status) const;
+	FormattedNumberRange formatFormattableRange(const Formattable& first, const Formattable& second, UErrorCode & status) const;
 
 	/**
 	 * Default constructor: puts the formatter into a valid but undefined state.
@@ -528,7 +528,7 @@ public:
 	 * @internal
 	 */
 	void formatImpl(impl::UFormattedNumberRangeData& results, bool equalBeforeRounding,
-	    UErrorCode& status) const;
+	    UErrorCode & status) const;
 
 #endif  /* U_HIDE_INTERNAL_API */
 
@@ -579,11 +579,11 @@ public:
 	 *
 	 * @stable ICU 63
 	 */
-	UnicodeString toString(UErrorCode& status) const U_OVERRIDE;
+	UnicodeString toString(UErrorCode & status) const U_OVERRIDE;
 
 	// Copydoc: this method is new in ICU 64
 	/** @copydoc FormattedValue::toTempString() */
-	UnicodeString toTempString(UErrorCode& status) const U_OVERRIDE;
+	UnicodeString toTempString(UErrorCode & status) const U_OVERRIDE;
 
 	// Copybrief: this method is older than the parent method
 	/**
@@ -593,11 +593,11 @@ public:
 	 *
 	 * @stable ICU 63
 	 */
-	Appendable &appendTo(Appendable &appendable, UErrorCode& status) const U_OVERRIDE;
+	Appendable &appendTo(Appendable &appendable, UErrorCode & status) const U_OVERRIDE;
 
 	// Copydoc: this method is new in ICU 64
 	/** @copydoc FormattedValue::nextPosition() */
-	bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode& status) const U_OVERRIDE;
+	bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode & status) const U_OVERRIDE;
 
 	/**
 	 * Extracts the formatted range as a pair of decimal numbers. This endpoint
@@ -619,7 +619,7 @@ public:
 	 * @stable ICU 68
 	 */
 	template <typename StringClass>
-	inline std::pair<StringClass, StringClass> getDecimalNumbers(UErrorCode& status) const;
+	inline std::pair<StringClass, StringClass> getDecimalNumbers(UErrorCode & status) const;
 
 	/**
 	 * Returns whether the pair of numbers was successfully formatted as a range or whether an identity fallback was
@@ -630,7 +630,7 @@ public:
 	 * @stable ICU 63
 	 * @see UNumberRangeIdentityFallback
 	 */
-	UNumberRangeIdentityResult getIdentityResult(UErrorCode& status) const;
+	UNumberRangeIdentityResult getIdentityResult(UErrorCode & status) const;
 
 #ifndef U_HIDE_DRAFT_API
 	/**
@@ -691,11 +691,11 @@ private:
 		: fData(nullptr), fErrorCode(errorCode) {
 	}
 
-	void getAllFieldPositionsImpl(FieldPositionIteratorHandler& fpih, UErrorCode& status) const;
+	void getAllFieldPositionsImpl(FieldPositionIteratorHandler& fpih, UErrorCode & status) const;
 
-	void getDecimalNumbers(ByteSink& sink1, ByteSink& sink2, UErrorCode& status) const;
+	void getDecimalNumbers(ByteSink& sink1, ByteSink& sink2, UErrorCode & status) const;
 
-	const impl::UFormattedNumberRangeData* getData(UErrorCode& status) const;
+	const impl::UFormattedNumberRangeData* getData(UErrorCode & status) const;
 
 	// To allow PluralRules to access the underlying data
 	friend class ::icu::PluralRules;
@@ -709,7 +709,7 @@ private:
 
 // inline impl of @stable ICU 68 method
 template <typename StringClass>
-std::pair<StringClass, StringClass> FormattedNumberRange::getDecimalNumbers(UErrorCode& status) const {
+std::pair<StringClass, StringClass> FormattedNumberRange::getDecimalNumbers(UErrorCode & status) const {
 	StringClass str1;
 	StringClass str2;
 	StringByteSink<StringClass> sink1(&str1);

@@ -394,7 +394,6 @@ struct lzma_filter_encoder {
 static const lzma_filter_encoder * encoder_find(lzma_vli id)
 {
 	static TSCollection <lzma_filter_encoder> _encoders_list;
-
 	if(!_encoders_list.getCount()) {
 	#ifdef HAVE_ENCODER_LZMA1
 		_encoders_list.insert(new lzma_filter_encoder(LZMA_FILTER_LZMA1, &lzma_lzma_encoder_init, &lzma_lzma_encoder_memusage, 0, 0, 5, &lzma_lzma_props_encode));

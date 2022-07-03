@@ -1,43 +1,32 @@
+// udataswp.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2003-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  udataswp.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2003jun05
- *   created by: Markus W. Scherer
- *
- *   Definitions for ICU data transformations for different platforms,
- *   changing between big- and little-endian data and/or between
- *   charset families (ASCII<->EBCDIC).
- */
+// Copyright (C) 2003-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2003jun05
+// created by: Markus W. Scherer
+// 
+// Definitions for ICU data transformations for different platforms,
+// changing between big- and little-endian data and/or between
+// charset families (ASCII<->EBCDIC).
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ucmndata.h" /* DataHeader */
 #include "udataswp.h"
-
-/* swapping primitives ------------------------------------------------------ */
-
-static int32_t U_CALLCONV uprv_swapArray16(const UDataSwapper * ds,
-    const void * inData, int32_t length, void * outData,
-    UErrorCode * pErrorCode) {
+// 
+// swapping primitives
+// 
+static int32_t U_CALLCONV uprv_swapArray16(const UDataSwapper * ds, const void * inData, int32_t length, void * outData, UErrorCode * pErrorCode) 
+{
 	const uint16 * p;
 	uint16 * q;
 	int32_t count;
 	uint16 x;
-
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length&1)!=0 || outData==NULL) {
+	if(!ds || !inData || length<0 || (length&1)!=0 || outData==NULL) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -61,7 +50,7 @@ static int32_t U_CALLCONV uprv_copyArray16(const UDataSwapper * ds,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length&1)!=0 || outData==NULL) {
+	if(!ds || !inData || length<0 || (length&1)!=0 || outData==NULL) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -83,7 +72,7 @@ static int32_t U_CALLCONV uprv_swapArray32(const UDataSwapper * ds,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length&3)!=0 || outData==NULL) {
+	if(!ds || !inData || length<0 || (length&3)!=0 || outData==NULL) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -107,7 +96,7 @@ static int32_t U_CALLCONV uprv_copyArray32(const UDataSwapper * ds,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length&3)!=0 || outData==NULL) {
+	if(!ds || !inData || length<0 || (length&3)!=0 || outData==NULL) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -128,7 +117,7 @@ static int32_t U_CALLCONV uprv_swapArray64(const UDataSwapper * ds,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length&7)!=0 || outData==NULL) {
+	if(!ds || !inData || length<0 || (length&7)!=0 || outData==NULL) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -154,72 +143,39 @@ static int32_t U_CALLCONV uprv_copyArray64(const UDataSwapper * ds,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length&7)!=0 || outData==NULL) {
+	if(!ds || !inData || length<0 || (length&7)!=0 || outData==NULL) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	if(length>0 && inData!=outData) {
 		uprv_memcpy(outData, inData, length);
 	}
 	return length;
 }
 
-static uint16 U_CALLCONV uprv_readSwapUInt16(uint16 x) {
-	return (uint16)((x<<8)|(x>>8));
-}
-
-static uint16 U_CALLCONV uprv_readDirectUInt16(uint16 x) {
-	return x;
-}
-
-static uint32_t U_CALLCONV uprv_readSwapUInt32(uint32_t x) {
-	return (uint32_t)((x<<24)|((x<<8)&0xff0000)|((x>>8)&0xff00)|(x>>24));
-}
-
-static uint32_t U_CALLCONV uprv_readDirectUInt32(uint32_t x) {
-	return x;
-}
-
-static void U_CALLCONV uprv_writeSwapUInt16(uint16 * p, uint16 x) {
-	*p = (uint16)((x<<8)|(x>>8));
-}
-
-static void U_CALLCONV uprv_writeDirectUInt16(uint16 * p, uint16 x) {
-	*p = x;
-}
-
-static void U_CALLCONV uprv_writeSwapUInt32(uint32_t * p, uint32_t x) {
-	*p = (uint32_t)((x<<24)|((x<<8)&0xff0000)|((x>>8)&0xff00)|(x>>24));
-}
-
-static void U_CALLCONV uprv_writeDirectUInt32(uint32_t * p, uint32_t x) {
-	*p = x;
-}
-
-U_CAPI int16 U_EXPORT2 udata_readInt16(const UDataSwapper * ds, int16 x) {
-	return (int16)ds->readUInt16((uint16)x);
-}
-
-U_CAPI int32_t U_EXPORT2 udata_readInt32(const UDataSwapper * ds, int32_t x) {
-	return (int32_t)ds->readUInt32((uint32_t)x);
-}
-
+static uint16 U_CALLCONV uprv_readSwapUInt16(uint16 x) { return (uint16)((x<<8)|(x>>8)); }
+static uint16 U_CALLCONV uprv_readDirectUInt16(uint16 x) { return x; }
+static uint32_t U_CALLCONV uprv_readSwapUInt32(uint32_t x) { return (uint32_t)((x<<24)|((x<<8)&0xff0000)|((x>>8)&0xff00)|(x>>24)); }
+static uint32_t U_CALLCONV uprv_readDirectUInt32(uint32_t x) { return x; }
+static void U_CALLCONV uprv_writeSwapUInt16(uint16 * p, uint16 x) { *p = (uint16)((x<<8)|(x>>8)); }
+static void U_CALLCONV uprv_writeDirectUInt16(uint16 * p, uint16 x) { *p = x; }
+static void U_CALLCONV uprv_writeSwapUInt32(uint32_t * p, uint32_t x) { *p = (uint32_t)((x<<24)|((x<<8)&0xff0000)|((x>>8)&0xff00)|(x>>24)); }
+static void U_CALLCONV uprv_writeDirectUInt32(uint32_t * p, uint32_t x) { *p = x; }
+U_CAPI int16 U_EXPORT2 udata_readInt16(const UDataSwapper * ds, int16 x) { return (int16)ds->readUInt16((uint16)x); }
+U_CAPI int32_t U_EXPORT2 udata_readInt32(const UDataSwapper * ds, int32_t x) { return (int32_t)ds->readUInt32((uint32_t)x); }
 /**
  * Swap a block of invariant, NUL-terminated strings, but not padding
  * bytes after the last string.
  * @internal
  */
-U_CAPI int32_t U_EXPORT2 udata_swapInvStringBlock(const UDataSwapper * ds,
-    const void * inData, int32_t length, void * outData,
-    UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 udata_swapInvStringBlock(const UDataSwapper * ds, const void * inData, int32_t length, void * outData, UErrorCode * pErrorCode) 
+{
 	const char * inChars;
 	int32_t stringsLength;
-
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length>0 && outData==NULL)) {
+	if(!ds || !inData || length<0 || (length>0 && outData==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -268,7 +224,7 @@ U_CAPI int32_t U_EXPORT2 udata_swapDataHeader(const UDataSwapper * ds, const voi
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<-1 || (length>0 && outData==NULL)) {
+	if(!ds || !inData || length<-1 || (length>0 && outData==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -410,18 +366,12 @@ U_CAPI UDataSwapper * U_EXPORT2 udata_openSwapperForInputData(const void * data,
 	}
 
 	pHeader = (const DataHeader*)data;
-	if((length>=0 && length<(int32_t)sizeof(DataHeader)) ||
-	    pHeader->dataHeader.magic1!=0xda ||
-	    pHeader->dataHeader.magic2!=0x27 ||
-	    pHeader->info.sizeofUChar!=2
-	    ) {
+	if((length>=0 && length<(int32_t)sizeof(DataHeader)) || pHeader->dataHeader.magic1!=0xda || pHeader->dataHeader.magic2!=0x27 || pHeader->info.sizeofUChar!=2) {
 		*pErrorCode = U_UNSUPPORTED_ERROR;
 		return 0;
 	}
-
 	inIsBigEndian = (bool)pHeader->info.isBigEndian;
 	inCharset = pHeader->info.charsetFamily;
-
 	if(inIsBigEndian==U_IS_BIG_ENDIAN) {
 		headerSize = pHeader->dataHeader.headerSize;
 		infoSize = pHeader->info.size;
@@ -443,6 +393,4 @@ U_CAPI UDataSwapper * U_EXPORT2 udata_openSwapperForInputData(const void * data,
 	return udata_openSwapper(inIsBigEndian, inCharset, outIsBigEndian, outCharset, pErrorCode);
 }
 
-U_CAPI void U_EXPORT2 udata_closeSwapper(UDataSwapper * ds) {
-	uprv_free(ds);
-}
+U_CAPI void U_EXPORT2 udata_closeSwapper(UDataSwapper * ds) { uprv_free(ds); }

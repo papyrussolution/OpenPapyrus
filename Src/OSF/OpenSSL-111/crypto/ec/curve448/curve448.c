@@ -10,7 +10,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include <word.h>
 #include <field.h>
 #include <point_448.h>

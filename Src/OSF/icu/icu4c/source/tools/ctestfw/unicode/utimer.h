@@ -14,7 +14,7 @@
 #   include <windows.h>
 #else
 #if U_PLATFORM == U_PF_OS390 && !defined(__UU)
-#     define __UU  /* Universal Unix - for struct timeval */
+#define __UU  /* Universal Unix - for struct timeval */
 #endif
 #   include <time.h>
 #   include <sys/time.h>

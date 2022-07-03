@@ -13,11 +13,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/bio.h"
-//#include <openssl/asn1.h>
 
-/* Must be large enough for biggest tag+length */
-#define DEFAULT_ASN1_BUF_SIZE 20
+#define DEFAULT_ASN1_BUF_SIZE 20 /* Must be large enough for biggest tag+length */
 
 typedef enum {
 	ASN1_STATE_START,

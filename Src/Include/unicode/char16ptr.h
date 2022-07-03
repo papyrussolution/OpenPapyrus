@@ -74,7 +74,6 @@ public:
 	 * @stable ICU 59
 	 */
 	inline ~Char16Ptr();
-
 	/**
 	 * Pointer access.
 	 * @return the wrapped pointer
@@ -87,16 +86,14 @@ public:
 	 * @stable ICU 59
 	 */
 	inline operator char16_t *() const { return get(); }
-
 private:
 	Char16Ptr() = delete;
-
 #ifdef U_ALIASING_BARRIER
-	template <typename T> static char16_t * cast(T * t) {
+	template <typename T> static char16_t * cast(T * t) 
+	{
 		U_ALIASING_BARRIER(t);
 		return reinterpret_cast<char16_t *>(t);
 	}
-
 	char16_t * p_;
 #else
 	union {
@@ -111,58 +108,66 @@ private:
 /// \cond
 #ifdef U_ALIASING_BARRIER
 
-Char16Ptr::Char16Ptr(char16_t * p) : p_(p) {
+Char16Ptr::Char16Ptr(char16_t * p) : p_(p) 
+{
 }
 
 #if !U_CHAR16_IS_TYPEDEF
-Char16Ptr::Char16Ptr(uint16 * p) : p_(cast(p)) {
+Char16Ptr::Char16Ptr(uint16 * p) : p_(cast(p)) 
+{
 }
 
 #endif
 #if U_SIZEOF_WCHAR_T==2
-Char16Ptr::Char16Ptr(wchar_t * p) : p_(cast(p)) {
+Char16Ptr::Char16Ptr(wchar_t * p) : p_(cast(p)) 
+{
 }
-
 #endif
-Char16Ptr::Char16Ptr(std::nullptr_t p) : p_(p) {
+Char16Ptr::Char16Ptr(std::nullptr_t p) : p_(p) 
+{
 }
 
-Char16Ptr::~Char16Ptr() {
+Char16Ptr::~Char16Ptr() 
+{
 	U_ALIASING_BARRIER(p_);
 }
 
-char16_t * Char16Ptr::get() const {
+char16_t * Char16Ptr::get() const 
+{
 	return p_;
 }
 
 #else
 
-Char16Ptr::Char16Ptr(char16_t * p) {
+Char16Ptr::Char16Ptr(char16_t * p) 
+{
 	u_.cp = p;
 }
 
 #if !U_CHAR16_IS_TYPEDEF
-Char16Ptr::Char16Ptr(uint16 * p) {
+Char16Ptr::Char16Ptr(uint16 * p) 
+{
 	u_.up = p;
 }
 
 #endif
 #if U_SIZEOF_WCHAR_T==2
-Char16Ptr::Char16Ptr(wchar_t * p) {
+Char16Ptr::Char16Ptr(wchar_t * p) 
+{
 	u_.wp = p;
 }
 
 #endif
-Char16Ptr::Char16Ptr(std::nullptr_t p) {
+Char16Ptr::Char16Ptr(std::nullptr_t p) 
+{
 	u_.cp = p;
 }
 
-Char16Ptr::~Char16Ptr() {
+Char16Ptr::~Char16Ptr() 
+{
 }
 
-char16_t * Char16Ptr::get() const {
-	return u_.cp;
-}
+char16_t * Char16Ptr::get() const { return u_.cp; }
 
 #endif
 /// \endcond

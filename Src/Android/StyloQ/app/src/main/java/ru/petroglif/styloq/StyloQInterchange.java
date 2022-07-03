@@ -11,9 +11,6 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.BuiltinExchangeType;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.GetResponse;
@@ -38,7 +35,6 @@ import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.KeyManagementException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -64,7 +60,26 @@ import javax.crypto.KeyAgreement;
 public class StyloQInterchange {
 	private ConnectionFactory ConnFactory = new ConnectionFactory();
 	StyloQApp Ctx;
+	//
+	// Descr: Возвращает вербальный результат, содержащийся в json-ответе сервиса на запрос
+	// Returns:
+	//   >0 - объект jsObj содержит явную декларация result=ok
+	//    0 - объект jsObj содержит явную декларация result=error
+	//   <0 - объект jsObj == null либо не содержит явной декларации result=error|ok.
 
+	//
+	public static int GetReplyResult(JSONObject jsObj)
+	{
+		int    result = -1;
+		String rep_result = (jsObj != null) ? jsObj.optString("result", null) : null;
+		if(SLib.GetLen(rep_result) > 0) {
+			if(rep_result.equalsIgnoreCase("ok"))
+				result = 1;
+			else if(rep_result.equalsIgnoreCase("error"))
+				result = 0;
+		}
+		return result;
+	}
 	public static long EvaluateExpiryTime(int expiryPeriodSec)
 	{
 		long result = 0;
@@ -1924,8 +1939,8 @@ public class StyloQInterchange {
 										if(SLib.GetLen(text_doc_data) > 0) {
 											JSONObject js_doc_data = new JSONObject(text_doc_data);
 											if(js_doc_data != null) {
-												String rep_result = js_doc_data.optString("result", "");
-												if(rep_result.equalsIgnoreCase("error")) {
+												int repl_result = GetReplyResult(js_doc_data);
+												if(repl_result == 0) {
 													local_rep_result = StyloQApp.SvcQueryResult.ERROR;
 												}
 												else {
@@ -2277,7 +2292,7 @@ public class StyloQInterchange {
 		}
 		return ok;
 	}
-	public void TestAmq() throws StyloQException
+	/*public void TestAmq() throws StyloQException
 	{
 		try {
 			//ConnectionFactory factory = new ConnectionFactory();
@@ -2338,5 +2353,5 @@ public class StyloQInterchange {
 		//
 		//channel.close();
 		//conn.close();
-	}
+	}*/
 }

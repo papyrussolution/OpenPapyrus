@@ -386,7 +386,7 @@ private:
 	Notation() : fType(NTN_SIMPLE), fUnion() {
 	}
 
-	bool copyErrorTo(UErrorCode &status) const {
+	bool copyErrorTo(UErrorCode & status) const {
 		if(fType == NTN_ERROR) {
 			status = fUnion.errorCode;
 			return true;
@@ -767,7 +767,7 @@ private:
 		return fType == RND_BOGUS;
 	}
 
-	bool copyErrorTo(UErrorCode &status) const {
+	bool copyErrorTo(UErrorCode & status) const {
 		if(fType == RND_ERROR) {
 			status = fUnion.errorCode;
 			return true;
@@ -776,7 +776,7 @@ private:
 	}
 
 	// On the parent type so that this method can be called internally on Precision instances.
-	Precision withCurrency(const CurrencyUnit &currency, UErrorCode &status) const;
+	Precision withCurrency(const CurrencyUnit &currency, UErrorCode & status) const;
 
 	static FractionPrecision constructFraction(int32_t minFrac, int32_t maxFrac);
 
@@ -1039,7 +1039,7 @@ private:
 		return !fHasError && fUnion.minMaxInt.fMinInt == -1;
 	}
 
-	bool copyErrorTo(UErrorCode &status) const {
+	bool copyErrorTo(UErrorCode & status) const {
 		if(fHasError) {
 			status = fUnion.errorCode;
 			return true;
@@ -1047,7 +1047,7 @@ private:
 		return false;
 	}
 
-	void apply(impl::DecimalQuantity &quantity, UErrorCode &status) const;
+	void apply(impl::DecimalQuantity &quantity, UErrorCode & status) const;
 
 	bool operator==(const IntegerWidth& other) const;
 
@@ -1169,7 +1169,7 @@ private:
 		return fMagnitude != 0 || fArbitrary != nullptr;
 	}
 
-	bool copyErrorTo(UErrorCode &status) const {
+	bool copyErrorTo(UErrorCode & status) const {
 		if(U_FAILURE(fError)) {
 			status = fError;
 			return true;
@@ -1250,7 +1250,7 @@ private:
 	}
 
 	/** @internal (private) */
-	bool copyErrorTo(UErrorCode &status) const {
+	bool copyErrorTo(UErrorCode & status) const {
 		if(U_FAILURE(fError)) {
 			status = fError;
 			return true;
@@ -1333,7 +1333,7 @@ public:
 #endif  // U_HIDE_INTERNAL_API
 
 	/** @internal */
-	bool copyErrorTo(UErrorCode &status) const {
+	bool copyErrorTo(UErrorCode & status) const {
 		if(fType == SYMPTR_DFS && fPtr.dfs == nullptr) {
 			status = U_MEMORY_ALLOCATION_ERROR;
 			return true;
@@ -1488,7 +1488,7 @@ private:
 		return fWidth == -2;
 	}
 
-	bool copyErrorTo(UErrorCode &status) const {
+	bool copyErrorTo(UErrorCode & status) const {
 		if(fWidth == -3) {
 			status = fUnion.errorCode;
 			return true;
@@ -1502,7 +1502,7 @@ private:
 
 	int32_t padAndApply(const impl::Modifier &mod1, const impl::Modifier &mod2,
 	    FormattedStringBuilder &string, int32_t leftIndex, int32_t rightIndex,
-	    UErrorCode &status) const;
+	    UErrorCode & status) const;
 
 	// To allow MacroProps/MicroProps to initialize empty instances:
 	friend struct MacroProps;
@@ -1565,7 +1565,7 @@ struct U_I18N_API MacroProps : public UMemory {
 	 * Check all members for errors.
 	 * @internal
 	 */
-	bool copyErrorTo(UErrorCode &status) const {
+	bool copyErrorTo(UErrorCode & status) const {
 		return notation.copyErrorTo(status) || precision.copyErrorTo(status) ||
 		       padder.copyErrorTo(status) || integerWidth.copyErrorTo(status) ||
 		       symbols.copyErrorTo(status) || scale.copyErrorTo(status) || usage.copyErrorTo(status) ||
@@ -2316,7 +2316,7 @@ public:
 	 * @return A number skeleton string with behavior corresponding to this number formatter.
 	 * @stable ICU 62
 	 */
-	UnicodeString toSkeleton(UErrorCode& status) const;
+	UnicodeString toSkeleton(UErrorCode & status) const;
 
 	/**
 	 * Returns the current (Un)LocalizedNumberFormatter as a LocalPointer
@@ -2470,7 +2470,7 @@ public:
 	 * @return A FormattedNumber object; call .toString() to get the string.
 	 * @stable ICU 60
 	 */
-	FormattedNumber formatInt(int64_t value, UErrorCode &status) const;
+	FormattedNumber formatInt(int64_t value, UErrorCode & status) const;
 
 	/**
 	 * Format the given float or double to a string using the settings specified in the NumberFormatter fluent
@@ -2484,7 +2484,7 @@ public:
 	 * @return A FormattedNumber object; call .toString() to get the string.
 	 * @stable ICU 60
 	 */
-	FormattedNumber formatDouble(double value, UErrorCode &status) const;
+	FormattedNumber formatDouble(double value, UErrorCode & status) const;
 
 	/**
 	 * Format the given decimal number to a string using the settings
@@ -2500,7 +2500,7 @@ public:
 	 * @return A FormattedNumber object; call .toString() to get the string.
 	 * @stable ICU 60
 	 */
-	FormattedNumber formatDecimal(StringPiece value, UErrorCode& status) const;
+	FormattedNumber formatDecimal(StringPiece value, UErrorCode & status) const;
 
 #ifndef U_HIDE_INTERNAL_API
 
@@ -2512,12 +2512,12 @@ public:
 	/** Internal method.
 	 * @internal
 	 */
-	FormattedNumber formatDecimalQuantity(const impl::DecimalQuantity& dq, UErrorCode& status) const;
+	FormattedNumber formatDecimalQuantity(const impl::DecimalQuantity& dq, UErrorCode & status) const;
 
 	/** Internal method for DecimalFormat compatibility.
 	 * @internal
 	 */
-	void getAffixImpl(bool isPrefix, bool isNegative, UnicodeString & result, UErrorCode& status) const;
+	void getAffixImpl(bool isPrefix, bool isNegative, UnicodeString & result, UErrorCode & status) const;
 
 	/**
 	 * Internal method for testing.
@@ -2546,7 +2546,7 @@ public:
 	 * @return A Format wrapping this LocalizedNumberFormatter.
 	 * @stable ICU 62
 	 */
-	Format* toFormat(UErrorCode& status) const;
+	Format* toFormat(UErrorCode & status) const;
 
 	/**
 	 * Default constructor: puts the formatter into a valid but undefined state.
@@ -2596,7 +2596,7 @@ public:
 	 * @param status
 	 * @internal
 	 */
-	void formatImpl(impl::UFormattedNumberData * results, UErrorCode &status) const;
+	void formatImpl(impl::UFormattedNumberData * results, UErrorCode & status) const;
 
 #endif  /* U_HIDE_INTERNAL_API */
 
@@ -2628,12 +2628,12 @@ private:
 
 	void lnfMoveHelper(LocalizedNumberFormatter&& src);
 
-	void lnfCopyHelper(const LocalizedNumberFormatter& src, UErrorCode& status);
+	void lnfCopyHelper(const LocalizedNumberFormatter& src, UErrorCode & status);
 
 	/**
 	 * @return true if the compiled formatter is available.
 	 */
-	bool computeCompiled(UErrorCode& status) const;
+	bool computeCompiled(UErrorCode & status) const;
 	// To give the fluent setters access to this class's constructor:
 	friend class NumberFormatterSettings<UnlocalizedNumberFormatter>;
 	friend class NumberFormatterSettings<LocalizedNumberFormatter>;
@@ -2690,11 +2690,11 @@ public:
 	 *
 	 * @stable ICU 62
 	 */
-	UnicodeString toString(UErrorCode& status) const U_OVERRIDE;
+	UnicodeString toString(UErrorCode & status) const U_OVERRIDE;
 
 	// Copydoc: this method is new in ICU 64
 	/** @copydoc FormattedValue::toTempString() */
-	UnicodeString toTempString(UErrorCode& status) const U_OVERRIDE;
+	UnicodeString toTempString(UErrorCode & status) const U_OVERRIDE;
 
 	// Copybrief: this method is older than the parent method
 	/**
@@ -2704,11 +2704,11 @@ public:
 	 *
 	 * @stable ICU 62
 	 */
-	Appendable &appendTo(Appendable& appendable, UErrorCode& status) const U_OVERRIDE;
+	Appendable &appendTo(Appendable& appendable, UErrorCode & status) const U_OVERRIDE;
 
 	// Copydoc: this method is new in ICU 64
 	/** @copydoc FormattedValue::nextPosition() */
-	bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode& status) const U_OVERRIDE;
+	bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode & status) const U_OVERRIDE;
 
 	/**
 	 * Export the formatted number as a "numeric string" conforming to the
@@ -2729,7 +2729,7 @@ public:
 	 * @stable ICU 65
 	 */
 	template <typename StringClass>
-	inline StringClass toDecimalNumber(UErrorCode& status) const;
+	inline StringClass toDecimalNumber(UErrorCode & status) const;
 	/**
 	 * Gets the resolved output unit.
 	 *
@@ -2741,7 +2741,7 @@ public:
 	 * @return `MeasureUnit`.
 	 * @stable ICU 68
 	 */
-	MeasureUnit getOutputUnit(UErrorCode& status) const;
+	MeasureUnit getOutputUnit(UErrorCode & status) const;
 #ifndef U_HIDE_INTERNAL_API
 	/**
 	 * Gets the gender of the formatted output. Returns "" when the gender is
@@ -2749,17 +2749,17 @@ public:
 	 *
 	 * @internal ICU 69 technology preview.
 	 */
-	const char * getGender(UErrorCode& status) const;
+	const char * getGender(UErrorCode & status) const;
 	/**
 	 *  Gets the raw DecimalQuantity for plural rule selection.
 	 *  @internal
 	 */
-	void getDecimalQuantity(impl::DecimalQuantity& output, UErrorCode& status) const;
+	void getDecimalQuantity(impl::DecimalQuantity& output, UErrorCode & status) const;
 	/**
 	 * Populates the mutable builder type FieldPositionIteratorHandler.
 	 * @internal
 	 */
-	void getAllFieldPositionsImpl(FieldPositionIteratorHandler& fpih, UErrorCode& status) const;
+	void getAllFieldPositionsImpl(FieldPositionIteratorHandler& fpih, UErrorCode & status) const;
 #endif  /* U_HIDE_INTERNAL_API */
 private:
 	// Can't use LocalPointer because UFormattedNumberData is forward-declared
@@ -2776,14 +2776,14 @@ private:
 	explicit FormattedNumber(UErrorCode errorCode) : fData(nullptr), fErrorCode(errorCode) 
 	{
 	}
-	void toDecimalNumber(ByteSink& sink, UErrorCode& status) const;
+	void toDecimalNumber(ByteSink& sink, UErrorCode & status) const;
 	// To give LocalizedNumberFormatter format methods access to this class's constructor:
 	friend class LocalizedNumberFormatter;
 	// To give C API access to internals
 	friend struct impl::UFormattedNumberImpl;
 };
 
-template <typename StringClass> StringClass FormattedNumber::toDecimalNumber(UErrorCode& status) const 
+template <typename StringClass> StringClass FormattedNumber::toDecimalNumber(UErrorCode & status) const 
 {
 	StringClass result;
 	StringByteSink<StringClass> sink(&result);
@@ -2835,7 +2835,7 @@ public:
 	 * @return An UnlocalizedNumberFormatter, to be used for chaining.
 	 * @stable ICU 62
 	 */
-	static UnlocalizedNumberFormatter forSkeleton(const UnicodeString & skeleton, UErrorCode& status);
+	static UnlocalizedNumberFormatter forSkeleton(const UnicodeString & skeleton, UErrorCode & status);
 
 	/**
 	 * Call this method at the beginning of a NumberFormatter fluent chain to create an instance based
@@ -2857,7 +2857,7 @@ public:
 	 * @return An UnlocalizedNumberFormatter, to be used for chaining.
 	 * @stable ICU 64
 	 */
-	static UnlocalizedNumberFormatter forSkeleton(const UnicodeString & skeleton, UParseError& perror, UErrorCode& status);
+	static UnlocalizedNumberFormatter forSkeleton(const UnicodeString & skeleton, UParseError& perror, UErrorCode & status);
 	/**
 	 * Use factory methods instead of the constructor to create a NumberFormatter.
 	 */

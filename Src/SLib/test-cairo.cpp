@@ -177,7 +177,7 @@ void cairo_test_fini(cairo_test_context_t * ctx)
 	SAlloc::F(ctx->ref_name);
 	cairo_surface_destroy(ctx->ref_image);
 	cairo_surface_destroy(ctx->ref_image_flattened);
-	if(ctx->test_name != NULL)
+	if(ctx->test_name)
 		SAlloc::F((char *)ctx->test_name);
 	if(ctx->own_targets)
 		cairo_boilerplate_free_targets(ctx->targets_to_test);
@@ -215,14 +215,14 @@ char * cairo_test_reference_filename(const cairo_test_context_t * ctx, const cha
 {
 	char * ref_name = NULL;
 	/* First look for a previous build for comparison. */
-	if(ctx->refdir != NULL && strcmp(suffix, CAIRO_TEST_REF_SUFFIX) == 0) {
+	if(ctx->refdir && strcmp(suffix, CAIRO_TEST_REF_SUFFIX) == 0) {
 		xasprintf(&ref_name, "%s/%s" CAIRO_TEST_OUT_SUFFIX "%s", ctx->refdir, base_name, extension);
 		if(access(ref_name, F_OK) != 0)
 			SAlloc::F(ref_name);
 		else
 			goto done;
 	}
-	if(target_name != NULL) {
+	if(target_name) {
 		/* Next look for a target/format-specific reference image. */
 		xasprintf(&ref_name, "%s/reference/%s.%s.%s%s%s",
 		    ctx->srcdir,
@@ -242,7 +242,7 @@ char * cairo_test_reference_filename(const cairo_test_context_t * ctx, const cha
 		else
 			goto done;
 	}
-	if(base_target_name != NULL) {
+	if(base_target_name) {
 		/* Next look for a base/format-specific reference image. */
 		xasprintf(&ref_name, "%s/reference/%s.%s.%s%s%s", ctx->srcdir, test_name, base_target_name, format, suffix, extension);
 		if(access(ref_name, F_OK) != 0)
@@ -339,7 +339,7 @@ static cairo_surface_t * _cairo_test_flatten_reference_image(cairo_test_context_
 	cairo_t * cr;
 	if(!flatten)
 		return ctx->ref_image;
-	if(ctx->ref_image_flattened != NULL)
+	if(ctx->ref_image_flattened)
 		return ctx->ref_image_flattened;
 	surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, cairo_image_surface_get_width(ctx->ref_image), cairo_image_surface_get_height(ctx->ref_image));
 	cr = cairo_create(surface);
@@ -358,7 +358,7 @@ static cairo_surface_t * _cairo_test_flatten_reference_image(cairo_test_context_
 cairo_surface_t * cairo_test_get_reference_image(cairo_test_context_t * ctx, const char * filename, boolint flatten)
 {
 	cairo_surface_t * surface;
-	if(ctx->ref_name != NULL) {
+	if(ctx->ref_name) {
 		if(strcmp(ctx->ref_name, filename) == 0)
 			return _cairo_test_flatten_reference_image(ctx, flatten);
 		cairo_surface_destroy(ctx->ref_image);
@@ -552,7 +552,7 @@ static cairo_test_status_t cairo_test_for_target(cairo_test_context_t * ctx, con
 	    CAIRO_TEST_XFAIL_SUFFIX,
 	    CAIRO_TEST_PNG_EXTENSION);
 
-	if(target->file_extension != NULL) {
+	if(target->file_extension) {
 		ref_path = cairo_test_reference_filename(ctx,
 		    base_name,
 		    ctx->test_name,
@@ -585,15 +585,10 @@ static cairo_test_status_t cairo_test_for_target(cairo_test_context_t * ctx, con
 	    base_name);
 	xasprintf(&out_png_path, "%s" CAIRO_TEST_OUT_PNG, base_path);
 	xasprintf(&diff_png_path, "%s" CAIRO_TEST_DIFF_PNG, base_path);
-
-	if(ctx->test->requirements != NULL) {
-		const char * required;
-
-		required = target->is_vector ? "target=raster" : "target=vector";
+	if(ctx->test->requirements) {
+		const char * required = target->is_vector ? "target=raster" : "target=vector";
 		if(strstr(ctx->test->requirements, required) != NULL) {
-			cairo_test_log(ctx, "Error: Skipping for %s target %s\n",
-			    target->is_vector ? "vector" : "raster",
-			    target->name);
+			cairo_test_log(ctx, "Error: Skipping for %s target %s\n", target->is_vector ? "vector" : "raster", target->name);
 			ret = CAIRO_TEST_UNTESTED;
 			goto UNWIND_STRINGS;
 		}

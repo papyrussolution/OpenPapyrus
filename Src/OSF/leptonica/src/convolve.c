@@ -713,8 +713,8 @@ PIX * pixBlockconvTiled(PIX * pix,
     int32 ny)
 {
 	int32 i, j, w, h, d, xrat, yrat;
-	PIX        * pixs, * pixd, * pixc, * pixt;
-	PIX        * pixr, * pixrc, * pixg, * pixgc, * pixb, * pixbc;
+	PIX * pixs, * pixd, * pixc, * pixt;
+	PIX * pixr, * pixrc, * pixg, * pixgc, * pixb, * pixbc;
 	PIXTILING  * pt;
 
 	PROCNAME(__FUNCTION__);
@@ -1171,7 +1171,7 @@ PIX * pixWindowedMeanSquare(PIX * pixs,
 	double val;
 	double  * data, * line1, * line2;
 	DPIX       * dpix;
-	PIX        * pixb, * pixd;
+	PIX * pixb, * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2153,7 +2153,7 @@ PIX * pixConvolveRGBSep(PIX * pixs,
  *          the boundaries.
  * </pre>
  */
-FPIX * fpixConvolve(FPIX      * fpixs,
+FPIX * fpixConvolve(FPIX * fpixs,
     L_KERNEL  * kel,
     int32 normflag)
 {
@@ -2245,14 +2245,14 @@ cleanup:
  *          the boundaries.
  * </pre>
  */
-FPIX * fpixConvolveSep(FPIX      * fpixs,
+FPIX * fpixConvolveSep(FPIX * fpixs,
     L_KERNEL  * kelx,
     L_KERNEL  * kely,
     int32 normflag)
 {
 	int32 xfact, yfact;
 	L_KERNEL  * kelxn, * kelyn;
-	FPIX      * fpixt, * fpixd;
+	FPIX * fpixt, * fpixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2326,11 +2326,11 @@ PIX * pixConvolveWithBias(PIX * pixs,
     L_KERNEL  * kel1,
     L_KERNEL  * kel2,
     int32 force8,
-    int32   * pbias)
+    int32 * pbias)
 {
 	int32 outdepth;
 	float min1, min2, min, minval, maxval, range;
-	FPIX      * fpix1, * fpix2;
+	FPIX * fpix1, * fpix2;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);

@@ -370,7 +370,7 @@ l_ok recogCorrelationBestRow(L_RECOG  * recog,
 	char      * charstr;
 	int32 index, remove, w, h, bx, bw, bxc, bwc, w1, w2, w3;
 	float score;
-	BOX       * box, * boxc, * boxtrans, * boxl, * boxr, * boxlt, * boxrt;
+	BOX * box, * boxc, * boxtrans, * boxl, * boxr, * boxlt, * boxrt;
 	BOXA      * boxat;
 	NUMA * nascoret, * naindext, * nasort;
 	PIX * pixb, * pixc, * pixl, * pixr, * pixdb, * pixd;
@@ -542,17 +542,17 @@ l_ok recogCorrelationBestRow(L_RECOG  * recog,
  * </pre>
  */
 l_ok recogCorrelationBestChar(L_RECOG    * recog,
-    PIX        * pixs,
-    BOX       ** pbox,
+    PIX * pixs,
+    BOX ** pbox,
     float * pscore,
-    int32    * pindex,
+    int32 * pindex,
     char      ** pcharstr,
     PIX ** ppixdb)
 {
 	int32 i, n, w1, h1, w2, area2, ycent2, delx, dely;
 	int32 bestdelx, bestdely, bestindex;
 	float score, bestscore;
-	BOX       * box;
+	BOX * box;
 	BOXA      * boxa;
 	NUMA * nasum, * namoment;
 	PIX * pix1, * pix2;
@@ -682,26 +682,26 @@ l_ok recogCorrelationBestChar(L_RECOG    * recog,
  *          This can be made more efficient.
  * </pre>
  */
-static int32 pixCorrelationBestShift(PIX        * pix1,
-    PIX        * pix2,
+static int32 pixCorrelationBestShift(PIX * pix1,
+    PIX * pix2,
     NUMA * nasum1,
     NUMA * namoment1,
     int32 area2,
     int32 ycent2,
     int32 maxyshift,
-    int32    * tab8,
-    int32    * pdelx,
-    int32    * pdely,
+    int32 * tab8,
+    int32 * pdelx,
+    int32 * pdely,
     float * pscore,
     int32 debugflag)
 {
 	int32 w1, w2, h1, h2, i, j, nx, shifty, delx, dely;
 	int32 sum, moment, count;
-	int32    * tab, * area1, * arraysum, * arraymoment;
+	int32 * tab, * area1, * arraysum, * arraymoment;
 	float maxscore, score;
 	float * ycent1;
 	FPIX       * fpix;
-	PIX        * pixt, * pixt1, * pixt2;
+	PIX * pixt, * pixt1, * pixt2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -782,12 +782,10 @@ static int32 pixCorrelationBestShift(PIX        * pix1,
 				delx = i;
 				dely = shifty + j;
 			}
-
 			if(debugflag > 0)
-				fpixSetPixel(fpix, i, maxyshift + j, 1000.0 * score);
+				fpixSetPixel(fpix, i, maxyshift + j, 1000.0f * score);
 		}
 	}
-
 	if(debugflag > 0) {
 		char buf[128];
 		lept_mkdir("lept/recog");
@@ -799,7 +797,6 @@ static int32 pixCorrelationBestShift(PIX        * pix1,
 		pixDestroy(&pixt2);
 		fpixDestroy(&fpix);
 	}
-
 	if(pdelx) *pdelx = delx;
 	if(pdely) *pdely = dely;
 	if(pscore) *pscore = maxscore;
@@ -935,7 +932,7 @@ l_ok recogIdentifyPix(L_RECOG  * recog,
 	NUMA * numa;
 	PIX * pix0, * pix1, * pix2;
 	PIXA      * pixa;
-	PTA       * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1267,13 +1264,13 @@ l_ok rchaExtract(L_RCHA   * rcha,
  * \return  0 if OK, 1 on error
  */
 l_ok rchExtract(L_RCH      * rch,
-    int32    * pindex,
+    int32 * pindex,
     float * pscore,
     char      ** ptext,
-    int32    * psample,
-    int32    * pxloc,
-    int32    * pyloc,
-    int32    * pwidth)
+    int32 * psample,
+    int32 * pxloc,
+    int32 * pyloc,
+    int32 * pwidth)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1470,7 +1467,7 @@ static int32 recogSplittingFilter(L_RECOG   * recog,
     PIX * pixs,
     int32 minh,
     float minaf,
-    int32   * premove,
+    int32 * premove,
     int32 debug)
 {
 	int32 w, h;
@@ -1566,7 +1563,7 @@ SARRAY * recogExtractNumbers(L_RECOG   * recog,
 	char      * str, * text;
 	int32 i, n, x1, x2, h_ovl, v_ovl, h_sep, v_sep;
 	float score;
-	BOX       * box, * prebox;
+	BOX * box, * prebox;
 	BOXA      * ba;
 	BOXAA     * baa;
 	NUMA * nascore, * na;
@@ -1704,7 +1701,7 @@ PIXA * showExtractNumbers(PIX * pixs,
 	int32 i, j, n, nchar, len;
 	float score;
 	L_BMF     * bmf;
-	BOX       * box1, * box2;
+	BOX * box1, * box2;
 	BOXA      * ba;
 	NUMA * na;
 	PIX * pix1, * pix2, * pix3, * pix4;

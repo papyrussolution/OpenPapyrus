@@ -136,7 +136,7 @@ static void U_CALLCONV stringIteratorSetState(UCharIterator * iter, uint32_t sta
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		/* do nothing */
 	}
-	else if(iter==NULL) {
+	else if(!iter) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 	}
 	else if((int32_t)state<iter->start || iter->limit<(int32_t)state) {
@@ -916,7 +916,7 @@ static void U_CALLCONV utf8IteratorSetState(UCharIterator * iter, uint32_t state
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		/* do nothing */
 	}
-	else if(iter==NULL) {
+	else if(!iter) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 	}
 	else if(state==utf8IteratorGetState(iter)) {
@@ -1067,7 +1067,7 @@ U_CAPI void U_EXPORT2 uiter_setState(UCharIterator * iter, uint32_t state, UErro
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		/* do nothing */
 	}
-	else if(iter==NULL) {
+	else if(!iter) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 	}
 	else if(iter->setState==NULL) {

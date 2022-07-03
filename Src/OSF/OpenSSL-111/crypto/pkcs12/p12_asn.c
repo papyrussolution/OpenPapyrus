@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/pkcs12.h>
 #include "p12_lcl.h"
 
 /* PKCS#12 ASN1 module */

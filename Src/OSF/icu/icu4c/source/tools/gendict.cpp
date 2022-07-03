@@ -229,11 +229,9 @@ static bool readLine(UCHARBUF * f, UnicodeString & fileLine, IcuToolErrorCode &e
 	fileLine.setTo(FALSE, line, lineLength);
 	return TRUE;
 }
-//----------------------------------------------------------------------------
 //
 //  main      for gendict
 //
-//----------------------------------------------------------------------------
 int main(int argc, char ** argv) 
 {
 	//

@@ -11,8 +11,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_DEFS_H
 #define XAPIAN_INCLUDED_GLASS_DEFS_H
 
-#include "internaltypes.h"
-
 #define GLASS_TABLE_EXTENSION "glass" /// Glass table extension.
 #define GLASS_DEFAULT_BLOCKSIZE 8192 /// Default B-tree block size.
 #define GLASS_MIN_BLOCKSIZE 2048 /// Minimum B-tree block size.

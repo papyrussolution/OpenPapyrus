@@ -8,14 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include "modes_lcl.h"
-//#include <string.h>
 
-int CRYPTO_xts128_encrypt(const XTS128_CONTEXT * ctx,
-    const uchar iv[16],
-    const uchar * inp, uchar * out,
-    size_t len, int enc)
+int CRYPTO_xts128_encrypt(const XTS128_CONTEXT * ctx, const uchar iv[16], const uchar * inp, uchar * out, size_t len, int enc)
 {
 	const union {
 		long one;

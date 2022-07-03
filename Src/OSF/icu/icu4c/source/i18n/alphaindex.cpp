@@ -119,7 +119,7 @@ public:
 			}
 		}
 		const AlphabeticIndex::Bucket * bucket = getBucket(*bucketList_, start);
-		if(bucket->displayBucket_ != NULL) {
+		if(bucket->displayBucket_) {
 			bucket = bucket->displayBucket_;
 		}
 		return bucket->displayIndex_;
@@ -524,10 +524,10 @@ BucketList * AlphabeticIndex::createBucketList(UErrorCode & errorCode) const {
 		// Redirect Pinyin buckets.
 		Bucket * asciiBucket = NULL;
 		for(int32_t i = 0; i < 26; ++i) {
-			if(asciiBuckets[i] != NULL) {
+			if(asciiBuckets[i]) {
 				asciiBucket = asciiBuckets[i];
 			}
-			if(pinyinBuckets[i] != NULL && asciiBucket != NULL) {
+			if(pinyinBuckets[i] && asciiBucket) {
 				pinyinBuckets[i]->displayBucket_ = asciiBucket;
 				hasInvisibleBuckets = TRUE;
 			}
@@ -551,7 +551,7 @@ BucketList * AlphabeticIndex::createBucketList(UErrorCode & errorCode) const {
 	Bucket * nextBucket = getBucket(*bucketList, i);
 	while(--i > 0) {
 		bucket = getBucket(*bucketList, i);
-		if(bucket->displayBucket_ != NULL) {
+		if(bucket->displayBucket_) {
 			continue; // skip invisible buckets
 		}
 		if(bucket->labelType_ == U_ALPHAINDEX_INFLOW) {
@@ -592,7 +592,7 @@ BucketList * AlphabeticIndex::createBucketList(UErrorCode & errorCode) const {
  */
 void AlphabeticIndex::initBuckets(UErrorCode & errorCode) 
 {
-	if(U_FAILURE(errorCode) || buckets_ != NULL) {
+	if(U_FAILURE(errorCode) || buckets_) {
 		return;
 	}
 	buckets_ = createBucketList(errorCode);
@@ -623,8 +623,7 @@ void AlphabeticIndex::initBuckets(UErrorCode & errorCode)
 		Record * r = getRecord(*inputList_, i);
 		// if the current bucket isn't the right one, find the one that is
 		// We have a special flag for the last bucket so that we don't look any further
-		while(upperBoundary != NULL &&
-		    collatorPrimaryOnly_->compare(r->name_, *upperBoundary, errorCode) >= 0) {
+		while(upperBoundary && collatorPrimaryOnly_->compare(r->name_, *upperBoundary, errorCode) >= 0) {
 			currentBucket = nextBucket;
 			// now reset the boundary that we compare against
 			if(bucketIndex < buckets_->bucketList_->size()) {
@@ -637,7 +636,7 @@ void AlphabeticIndex::initBuckets(UErrorCode & errorCode)
 		}
 		// now put the record into the bucket.
 		Bucket * bucket = currentBucket;
-		if(bucket->displayBucket_ != NULL) {
+		if(bucket->displayBucket_) {
 			bucket = bucket->displayBucket_;
 		}
 		if(bucket->records_ == NULL) {
@@ -890,7 +889,7 @@ void AlphabeticIndex::init(const Locale * locale, UErrorCode & status) {
 
 	// Chinese index characters, which are specific to each of the several Chinese tailorings,
 	// take precedence over the single locale data exemplar set per language.
-	if(!addChineseIndexCharacters(status) && locale != NULL) {
+	if(!addChineseIndexCharacters(status) && locale) {
 		addIndexExemplars(*locale, status);
 	}
 }
@@ -1040,8 +1039,9 @@ AlphabeticIndex & AlphabeticIndex::addRecord(const UnicodeString & name, const v
 	return *this;
 }
 
-AlphabeticIndex &AlphabeticIndex::clearRecords(UErrorCode & status) {
-	if(U_SUCCESS(status) && inputList_ != NULL && !inputList_->isEmpty()) {
+AlphabeticIndex &AlphabeticIndex::clearRecords(UErrorCode & status) 
+{
+	if(U_SUCCESS(status) && inputList_ && !inputList_->isEmpty()) {
 		inputList_->removeAllElements();
 		clearBuckets();
 	}
@@ -1059,11 +1059,12 @@ int32_t AlphabeticIndex::getBucketIndex(const UnicodeString & name, UErrorCode &
 
 int32_t AlphabeticIndex::getBucketIndex() const { return labelsIterIndex_; }
 
-bool AlphabeticIndex::nextBucket(UErrorCode & status) {
+bool AlphabeticIndex::nextBucket(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return FALSE;
 	}
-	if(buckets_ == NULL && currentBucket_ != NULL) {
+	if(buckets_ == NULL && currentBucket_) {
 		status = U_ENUM_OUT_OF_SYNC_ERROR;
 		return FALSE;
 	}
@@ -1134,7 +1135,7 @@ bool AlphabeticIndex::nextRecord(UErrorCode & status)
 const UnicodeString & AlphabeticIndex::getRecordName() const 
 {
 	const UnicodeString * retStr = &emptyString_;
-	if(currentBucket_ != NULL && currentBucket_->records_ != NULL && itemsIterIndex_ >= 0 && itemsIterIndex_ < currentBucket_->records_->size()) {
+	if(currentBucket_ && currentBucket_->records_ && itemsIterIndex_ >= 0 && itemsIterIndex_ < currentBucket_->records_->size()) {
 		Record * item = static_cast<Record *>(currentBucket_->records_->elementAt(itemsIterIndex_));
 		retStr = &item->name_;
 	}
@@ -1144,7 +1145,7 @@ const UnicodeString & AlphabeticIndex::getRecordName() const
 const void * AlphabeticIndex::getRecordData() const 
 {
 	const void * retPtr = NULL;
-	if(currentBucket_ != NULL && currentBucket_->records_ != NULL && itemsIterIndex_ >= 0 && itemsIterIndex_ < currentBucket_->records_->size()) {
+	if(currentBucket_ && currentBucket_->records_ && itemsIterIndex_ >= 0 && itemsIterIndex_ < currentBucket_->records_->size()) {
 		Record * item = static_cast<Record *>(currentBucket_->records_->elementAt(itemsIterIndex_));
 		retPtr = item->data_;
 	}

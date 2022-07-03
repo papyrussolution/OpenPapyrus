@@ -497,12 +497,12 @@ PIX * pixReadStreamPnm(FILE * fp)
  * \return  0 if OK, 1 on error
  */
 l_ok readHeaderPnm(const char * filename,
-    int32    * pw,
-    int32    * ph,
-    int32    * pd,
-    int32    * ptype,
-    int32    * pbps,
-    int32    * pspp)
+    int32 * pw,
+    int32 * ph,
+    int32 * pd,
+    int32 * ptype,
+    int32 * pbps,
+    int32 * pspp)
 {
 	int32 ret;
 	FILE * fp;

@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/pkcs12.h>
 
 /* Define this to dump decrypted output to files called DERnnn */
 /*
@@ -19,46 +18,35 @@
  * Encrypt/Decrypt a buffer based on password and algor, result in a
  * OPENSSL_malloc'ed buffer
  */
-uchar * PKCS12_pbe_crypt(const X509_ALGOR * algor,
-    const char * pass, int passlen,
-    const uchar * in, int inlen,
-    uchar ** data, int * datalen, int en_de)
+uchar * PKCS12_pbe_crypt(const X509_ALGOR * algor, const char * pass, int passlen, const uchar * in, int inlen, uchar ** data, int * datalen, int en_de)
 {
 	uchar * out = NULL;
 	int outlen, i;
 	EVP_CIPHER_CTX * ctx = EVP_CIPHER_CTX_new();
-
 	if(!ctx) {
 		PKCS12err(PKCS12_F_PKCS12_PBE_CRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	/* Decrypt data */
-	if(!EVP_PBE_CipherInit(algor->algorithm, pass, passlen,
-	    algor->parameter, ctx, en_de)) {
-		PKCS12err(PKCS12_F_PKCS12_PBE_CRYPT,
-		    PKCS12_R_PKCS12_ALGOR_CIPHERINIT_ERROR);
+	if(!EVP_PBE_CipherInit(algor->algorithm, pass, passlen, algor->parameter, ctx, en_de)) {
+		PKCS12err(PKCS12_F_PKCS12_PBE_CRYPT, PKCS12_R_PKCS12_ALGOR_CIPHERINIT_ERROR);
 		goto err;
 	}
-
 	if((out = static_cast<uchar *>(OPENSSL_malloc(inlen + EVP_CIPHER_CTX_block_size(ctx)))) == NULL) {
 		PKCS12err(PKCS12_F_PKCS12_PBE_CRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	if(!EVP_CipherUpdate(ctx, out, &i, in, inlen)) {
 		OPENSSL_free(out);
 		out = NULL;
 		PKCS12err(PKCS12_F_PKCS12_PBE_CRYPT, ERR_R_EVP_LIB);
 		goto err;
 	}
-
 	outlen = i;
 	if(!EVP_CipherFinal_ex(ctx, out + i, &i)) {
 		OPENSSL_free(out);
 		out = NULL;
-		PKCS12err(PKCS12_F_PKCS12_PBE_CRYPT,
-		    PKCS12_R_PKCS12_CIPHERFINAL_ERROR);
+		PKCS12err(PKCS12_F_PKCS12_PBE_CRYPT, PKCS12_R_PKCS12_CIPHERFINAL_ERROR);
 		goto err;
 	}
 	outlen += i;
@@ -70,23 +58,17 @@ err:
 	EVP_CIPHER_CTX_free(ctx);
 	return out;
 }
-
 /*
  * Decrypt an OCTET STRING and decode ASN1 structure if zbuf set zero buffer
  * after use.
  */
-
-void * PKCS12_item_decrypt_d2i(const X509_ALGOR * algor, const ASN1_ITEM * it,
-    const char * pass, int passlen,
-    const ASN1_OCTET_STRING * oct, int zbuf)
+void * PKCS12_item_decrypt_d2i(const X509_ALGOR * algor, const ASN1_ITEM * it, const char * pass, int passlen, const ASN1_OCTET_STRING * oct, int zbuf)
 {
 	uchar * out;
 	const uchar * p;
 	void * ret;
 	int outlen;
-
-	if(!PKCS12_pbe_crypt(algor, pass, passlen, oct->data, oct->length,
-	    &out, &outlen, 0)) {
+	if(!PKCS12_pbe_crypt(algor, pass, passlen, oct->data, oct->length, &out, &outlen, 0)) {
 		PKCS12err(PKCS12_F_PKCS12_ITEM_DECRYPT_D2I,
 		    PKCS12_R_PKCS12_PBE_CRYPT_ERROR);
 		return NULL;

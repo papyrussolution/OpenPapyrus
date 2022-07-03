@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include <poly1305.h>
 #include "poly1305_local.h"
 
@@ -20,10 +19,7 @@ size_t Poly1305_ctx_size(void)
 /* pick 32-bit unsigned integer in little endian order */
 static uint U8TOU32(const uchar * p)
 {
-	return (((uint)(p[0] & 0xff)) |
-	       ((uint)(p[1] & 0xff) << 8) |
-	       ((uint)(p[2] & 0xff) << 16) |
-	       ((uint)(p[3] & 0xff) << 24));
+	return (((uint)(p[0] & 0xff)) | ((uint)(p[1] & 0xff) << 8) | ((uint)(p[2] & 0xff) << 16) | ((uint)(p[3] & 0xff) << 24));
 }
 
 /*

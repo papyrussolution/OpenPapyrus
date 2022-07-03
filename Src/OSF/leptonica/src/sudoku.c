@@ -522,7 +522,7 @@ l_ok sudokuTestUniqueness(int32 * array,
     int32 * punique)
 {
 	int32 same1, same2, same3;
-	int32   * array1, * array2, * array3;
+	int32 * array1, * array2, * array3;
 	L_SUDOKU  * sud, * sud1, * sud2, * sud3;
 
 	PROCNAME(__FUNCTION__);
@@ -580,7 +580,7 @@ l_ok sudokuTestUniqueness(int32 * array,
 static int32 sudokuCompareState(L_SUDOKU  * sud1,
     L_SUDOKU  * sud2,
     int32 quads,
-    int32   * psame)
+    int32 * psame)
 {
 	int32 i, same;
 	int32 * array;

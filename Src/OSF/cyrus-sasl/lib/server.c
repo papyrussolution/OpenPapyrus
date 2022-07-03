@@ -531,9 +531,9 @@ static int server_done()
 		/* Don't de-init yet! Our refcount is nonzero. */
 		return SASL_CONTINUE;
 	}
-	if(mechlist != NULL) {
+	if(mechlist) {
 		m = mechlist->mech_list; /* m point to beginning of the list */
-		while(m != NULL) {
+		while(m) {
 			prevm = m;
 			m = m->next;
 			if(prevm->m.plug->mech_free) {
@@ -568,7 +568,7 @@ static int server_idle(sasl_conn_t * conn)
 	if(!conn)
 		return 1;
 	s_conn = (sasl_server_conn_t*)conn;
-	for(m = s_conn->mech_list; m != NULL; m = m->next) {
+	for(m = s_conn->mech_list; m; m = m->next) {
 		if(m->m.plug->idle &&  m->m.plug->idle(m->m.plug->glob_context, conn, s_conn->sparams)) {
 			return 1;
 		}
@@ -602,16 +602,13 @@ static int load_config(const sasl_callback_t * verifyfile_cb)
 		(char **)&path_to_config);
 	if(result != SASL_OK) goto done;
 	if(path_to_config == NULL) path_to_config = "";
-
 	next = path_to_config;
-
-	while(next != NULL) {
+	while(next) {
 		next = strchr(path_to_config, PATHS_DELIMITER);
 
 		/* length = length of path + '/' + length of appname + ".conf" + 1
 		    for '\0' */
-
-		if(next != NULL) {
+		if(next) {
 			path_len = next - path_to_config;
 			next++; /* Skip to the next path */
 		}
@@ -817,11 +814,9 @@ int sasl_server_init(const sasl_callback_t * callbacks,
 
 	/* lock allocation type */
 	_sasl_allocation_locked++;
-
 	/* we require the appname (if present) to be short enough to be a path */
-	if(appname != NULL && strlen(appname) >= PATH_MAX)
+	if(appname && strlen(appname) >= PATH_MAX)
 		return SASL_BADPARAM;
-
 	if(_sasl_server_active) {
 		/* We're already active, just increase our refcount */
 		/* xxx do something with the callback structure? */
@@ -842,13 +837,11 @@ int sasl_server_init(const sasl_callback_t * callbacks,
 
 	/* A shared library calling sasl_server_init will pass NULL as appname.
 	   This should retain the original appname. */
-	if(appname != NULL) {
+	if(appname) {
 		global_callbacks.appname = appname;
 	}
-
 	/* If we fail now, we have to call server_done */
 	_sasl_server_active = 1;
-
 	/* allocate mechlist and set it to empty */
 	mechlist = (mech_list_t *)sasl_ALLOC(sizeof(mech_list_t));
 	if(mechlist == NULL) {
@@ -884,20 +877,14 @@ int sasl_server_init(const sasl_callback_t * callbacks,
 		ret = getopt(&global_callbacks, NULL, "plugin_list", &pluginfile, NULL);
 	}
 #endif
-
-	if(pluginfile != NULL) {
+	if(pluginfile) {
 		/* this file should contain a list of plugins available.
 		   we'll load on demand. */
-
 		/* Ask the application if it's safe to use this file */
-		ret = ((sasl_verifyfile_t*)(vf->proc))(vf->context,
-			pluginfile,
-			SASL_VRFY_CONF);
+		ret = ((sasl_verifyfile_t*)(vf->proc))(vf->context, pluginfile, SASL_VRFY_CONF);
 		if(ret != SASL_OK) {
-			_sasl_log(NULL, SASL_LOG_ERR,
-			    "unable to load plugin list %s: %z", pluginfile, ret);
+			_sasl_log(NULL, SASL_LOG_ERR, "unable to load plugin list %s: %z", pluginfile, ret);
 		}
-
 		if(ret == SASL_OK) {
 			ret = parse_mechlist_file(pluginfile);
 		}
@@ -1235,7 +1222,7 @@ static int mech_permitted(sasl_conn_t * conn,
 		return SASL_NOMECH;
 	}
 	else if(context) {
-		if(mech_context_list_entry != NULL) {
+		if(mech_context_list_entry) {
 			/* Update the context. It shouldn't have changed, but who knows */
 			mech_context_list_entry->context = context;
 		}
@@ -1378,15 +1365,12 @@ int sasl_server_start(sasl_conn_t * conn,
 	   if not return appropriate error */
 	m = s_conn->mech_list;
 	mech_len = strlen(mech);
-
-	while(m != NULL) {
+	while(m) {
 		if(_sasl_is_equal_mech(mech, m->m.plug->mech_name, mech_len, &plus)) {
 			break;
 		}
-
 		m = m->next;
 	}
-
 	if(m == NULL) {
 		sasl_seterror(conn, 0, "Couldn't find mech %s", mech);
 		result = SASL_NOMECH;
@@ -2148,16 +2132,14 @@ static void _sasl_print_mechanism(server_sasl_mechanism_t * m,
 		    break;
 	}
 	printf(", \tAPI version: %d\n", m->version);
-	if(m->plug != NULL) {
-		printf("\tSASL mechanism: %s, best SSF: %d, supports setpass: %s\n", m->plug->mech_name,
-		    m->plug->max_ssf, (m->plug->setpass != NULL) ? "yes" : "no");
+	if(m->plug) {
+		printf("\tSASL mechanism: %s, best SSF: %d, supports setpass: %s\n", m->plug->mech_name, m->plug->max_ssf, m->plug->setpass ? "yes" : "no");
 		printf("\tsecurity flags:");
 		delimiter = ' ';
 		if(m->plug->security_flags & SASL_SEC_NOANONYMOUS) {
 			printf("%cNO_ANONYMOUS", delimiter);
 			delimiter = '|';
 		}
-
 		if(m->plug->security_flags & SASL_SEC_NOPLAINTEXT) {
 			printf("%cNO_PLAINTEXT", delimiter);
 			delimiter = '|';
@@ -2265,11 +2247,11 @@ int sasl_server_plugin_info(const char * c_mech_list,              /* space sepa
 	if(info_cb == NULL) {
 		info_cb = _sasl_print_mechanism;
 	}
-	if(mechlist != NULL) {
+	if(mechlist) {
 		info_cb(NULL, SASL_INFO_LIST_START, info_cb_rock);
 		if(c_mech_list == NULL) {
 			m = mechlist->mech_list; /* m point to beginning of the list */
-			while(m != NULL) {
+			while(m) {
 				memcpy(&plug_data, &m->m, sizeof(plug_data));
 				info_cb(&plug_data, SASL_INFO_LIST_MECH, info_cb_rock);
 				m = m->next;
@@ -2278,14 +2260,14 @@ int sasl_server_plugin_info(const char * c_mech_list,              /* space sepa
 		else {
 			mech_list = sstrdup(c_mech_list);
 			cur_mech = mech_list;
-			while(cur_mech != NULL) {
+			while(cur_mech) {
 				p = strchr(cur_mech, ' ');
 				if(p) {
 					*p = '\0';
 					p++;
 				}
 				m = mechlist->mech_list; /* m point to beginning of the list */
-				while(m != NULL) {
+				while(m) {
 					if(strcasecmp(cur_mech, m->m.plug->mech_name) == 0) {
 						memcpy(&plug_data, &m->m, sizeof(plug_data));
 						info_cb(&plug_data, SASL_INFO_LIST_MECH, info_cb_rock);

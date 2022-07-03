@@ -404,9 +404,8 @@ void /*PRIVATE*/ png_do_write_transformations(png_structrp png_ptr, png_row_info
 		return;
 #ifdef PNG_WRITE_USER_TRANSFORM_SUPPORTED
 	if((png_ptr->transformations & PNG_USER_TRANSFORM) != 0)
-		if(png_ptr->write_user_transform_fn != NULL)
-			(*(png_ptr->write_user_transform_fn)) /* User write transform
-			                                         function */
+		if(png_ptr->write_user_transform_fn)
+			(*(png_ptr->write_user_transform_fn)) /* User write transform function */
 				(png_ptr, /* png_ptr */
 			    row_info, /* row_info: */
 			    /* uint32 width;       width of row */

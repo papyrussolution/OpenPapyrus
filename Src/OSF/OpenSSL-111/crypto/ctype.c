@@ -7,7 +7,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "openssl/ebcdic.h"
+#include <openssl/ebcdic.h>
 /*
  * Define the character classes for each character in the seven bit ASCII
  * character set.  This is independent of the host's character set, characters

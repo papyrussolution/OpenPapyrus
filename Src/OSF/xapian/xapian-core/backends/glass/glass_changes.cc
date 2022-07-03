@@ -10,9 +10,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_changes.h"
-#include "glass_defs.h"
-#include "glass_replicate_internal.h"
 
 using namespace std;
 

@@ -12,11 +12,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_VERSION_H
 #define XAPIAN_INCLUDED_GLASS_VERSION_H
 
-#include "glass_changes.h"
-#include "glass_defs.h"
-#include "internaltypes.h"
-#include "min_non_zero.h"
-
 namespace Glass {
 class RootInfo {
 	glass_block_t root;

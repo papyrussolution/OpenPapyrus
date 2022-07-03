@@ -8,8 +8,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_termlist.h"
-#include "glass_positionlist.h"
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;

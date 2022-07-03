@@ -580,7 +580,7 @@ public:
 					if(UNLIKELY(!iterator.var_data_bytes.check_range(p, length)))
 						return false;
 
-					hb_bytes_t bytes((const char*)p, length);
+					hb_bytes_t bytes((const char *)p, length);
 					hb_vector_t<uint> private_indices;
 					if(iterator.current_tuple->has_private_points() &&
 					    !GlyphVariationData::unpack_points(p, private_indices, bytes))

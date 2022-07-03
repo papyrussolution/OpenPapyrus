@@ -10,8 +10,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_alltermslist.h"
-#include "glass_postlist.h"
 
 void GlassAllTermsList::read_termfreq() const
 {

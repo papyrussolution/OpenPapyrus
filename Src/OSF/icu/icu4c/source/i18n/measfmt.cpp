@@ -446,7 +446,7 @@ UnicodeString & MeasureFormat::format(const Formattable &obj, UnicodeString & ap
 {
 	if(U_FAILURE(status)) return appendTo;
 	if(obj.getType() == Formattable::kObject) {
-		const UObject* formatObj = obj.getObject();
+		const UObject * formatObj = obj.getObject();
 		const Measure* amount = dynamic_cast<const Measure*>(formatObj);
 		if(amount) {
 			return formatMeasure(*amount, **numberFormat, appendTo, pos, status);

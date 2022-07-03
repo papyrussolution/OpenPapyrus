@@ -11,7 +11,7 @@
 #if 0 // @sobolev (это, по-видимому, дубликаты openssl-функций для совместимости) {
 #include "libcrypto-compat.h"
 #ifndef OPENSSL_NO_ENGINE
-	#include <openssl/engine.h>
+	#include <slib-ossl.h>
 #endif
 
 static void * OPENSSL_zalloc(size_t num)

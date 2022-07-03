@@ -1120,6 +1120,46 @@ public class StyloQDatabase extends Database {
 		}
 		return result;
 	}
+	public boolean IsThereFaceRefs(final byte [] faceIdent)
+	{
+		boolean result = false;
+		if(SLib.GetLen(faceIdent) > 0) {
+			try {
+				SecStoragePacket pack = GetOwnPeerEntry();
+				if(pack != null) {
+					byte[] cfg_bytes = pack.Pool.Get(SecretTagPool.tagPrivateConfig);
+					if(SLib.GetLen(cfg_bytes) > 0) {
+						String cfg_json = new String(cfg_bytes);
+						StyloQConfig cfg = new StyloQConfig();
+						cfg.FromJson(cfg_json);
+						String face_hex = cfg.Get(StyloQConfig.tagDefFace);
+						byte[] def_face_ref = (SLib.GetLen(face_hex) > 0) ? Base64.getDecoder().decode(face_hex) : null;
+						if(SLib.AreByteArraysEqual(def_face_ref, faceIdent)) {
+							result = true;
+						}
+					}
+				}
+				if(!result) {
+					ArrayList <Long> svc_id_list = GetForeignSvcIdList(false);
+					if(svc_id_list != null && svc_id_list.size() > 0) {
+						for(int i = 0; !result && i < svc_id_list.size(); i++) {
+							long svc_id = svc_id_list.get(i);
+							StyloQDatabase.SecStoragePacket cur_entry = GetPeerEntry(svc_id);
+							if(cur_entry != null) {
+								byte[] face_ref = cur_entry.Pool.Get(SecretTagPool.tagAssignedFaceRef);
+								if(SLib.AreByteArraysEqual(face_ref, faceIdent)) {
+									result = true;
+								}
+							}
+						}
+					}
+				}
+			} catch(StyloQException exn) {
+
+			}
+		}
+		return result;
+	}
 	public SecStoragePacket SearchGlobalIdentEntry(int kind, final byte [] ident) throws StyloQException
 	{
 		SecStoragePacket result = null;

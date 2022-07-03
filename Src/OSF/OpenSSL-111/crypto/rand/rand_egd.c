@@ -12,7 +12,6 @@
 NON_EMPTY_TRANSLATION_UNIT
 #else
 
-//#include <openssl/crypto.h>
 #include <openssl/e_os2.h>
 #include <openssl/rand.h>
 /*

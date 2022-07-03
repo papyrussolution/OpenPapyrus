@@ -2259,7 +2259,7 @@ PIX * pixacompDisplayTiledAndScaled(PIXAC   * pixac,
     int32 border)
 {
 	PIX * pixd;
-	PIXA  * pixa;
+	PIXA * pixa;
 
 	PROCNAME(__FUNCTION__);
 

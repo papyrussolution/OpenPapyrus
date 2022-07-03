@@ -47,7 +47,7 @@ const Hashtable* ICUResourceBundleFactory::getSupportedIDs(UErrorCode & status) 
 	return NULL;
 }
 
-UObject* ICUResourceBundleFactory::handleCreate(const Locale & loc, int32_t /* kind */, const ICUService* /* service */,
+UObject * ICUResourceBundleFactory::handleCreate(const Locale & loc, int32_t /* kind */, const ICUService* /* service */,
     UErrorCode & status) const
 {
 	if(U_SUCCESS(status)) {

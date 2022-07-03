@@ -592,7 +592,7 @@ TEST(StringPiece, Contains) {
 TEST(StringPiece, NullInput) {
 	// we used to crash here, but now we don't.
 	StringPiece s(nullptr);
-	EXPECT_EQ(s.data(), (const char*)nullptr);
+	EXPECT_EQ(s.data(), (const char *)nullptr);
 	EXPECT_EQ(s.size(), 0);
 
 	// .ToString() on a StringPiece with nullptr should produce the empty string.

@@ -650,7 +650,7 @@ L_DEWARPA * dewarpaCreateFromPixacomp(PIXAC   * pixac,
 	int32 i, nptrs, pageno;
 	L_DEWARP   * dew;
 	L_DEWARPA * dewa;
-	PIX        * pixt;
+	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1084,7 +1084,7 @@ L_DEWARP * dewarpReadStream(FILE * fp)
 	int32 w, h, nx, ny, vdispar, hdispar, nlines;
 	int32 mincurv, maxcurv, leftslope, rightslope, leftcurv, rightcurv;
 	L_DEWARP * dew;
-	FPIX      * fpixv, * fpixh;
+	FPIX * fpixv, * fpixh;
 	PROCNAME(__FUNCTION__);
 	if(!fp)
 		return (L_DEWARP *)ERROR_PTR("stream not defined", procName, NULL);

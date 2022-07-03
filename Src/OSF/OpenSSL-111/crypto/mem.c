@@ -8,13 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "e_os.h"
-//#include <cryptlib_int.h>
-//#include <openssl/crypto.h>
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
 	#include <execinfo.h>
 #endif
-
 /*
  * the following pointers may be changed as long as 'allow_customize' is set
  */

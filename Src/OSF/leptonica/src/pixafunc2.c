@@ -1015,7 +1015,7 @@ PIX * pixaDisplayTiledAndScaled(PIXA    * pixa,
 {
 	int32 x, y, w, h, wd, hd, d, res;
 	int32 i, n, nrows, maxht, ninrow, irow, bordval;
-	int32   * rowht;
+	int32 * rowht;
 	float scalefact;
 	PIX * pix, * pixn, * pix1, * pixb, * pixd;
 	PIXA      * pixan;
@@ -1266,7 +1266,7 @@ PIX * pixaDisplayTiledByIndex(PIXA * pixa,
 	int32 i, n, x, y, w, h, yval, index;
 	float maxindex;
 	L_BMF     * bmf;
-	BOX       * box;
+	BOX * box;
 	NUMA * nay; /* top of the next pix to add in that column */
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5, * pixd;
 	PIXA      * pixad;
@@ -1863,7 +1863,7 @@ PIXA * pixaConvertTo8Colormap(PIXA    * pixas,
  *          with color.
  * </pre>
  */
-PIXA * pixaConvertTo32(PIXA  * pixas)
+PIXA * pixaConvertTo32(PIXA * pixas)
 {
 	int32 i, n;
 	BOXA * boxa;

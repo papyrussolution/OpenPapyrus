@@ -11,12 +11,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_DBCHECK_H
 #define XAPIAN_INCLUDED_GLASS_DBCHECK_H
 
-#include "xapian/types.h"
-#include <sys/types.h> // For size_t and off_t.
-#include <iosfwd>
-#include <string>
-#include <vector>
-
 class GlassVersion;
 
 size_t check_glass_table(const char * tablename, const std::string &db_dir, int fd, off_t offset_,

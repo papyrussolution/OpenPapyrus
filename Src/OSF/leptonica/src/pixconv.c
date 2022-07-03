@@ -19,122 +19,122 @@
  *      without scaling.
  *
  *      Conversion from 8 bpp grayscale to 1, 2, 4 and 8 bpp
- *           PIX        *pixThreshold8()
+ *           PIX *pixThreshold8()
  *
  *      Conversion from colormap to full color or grayscale
- *           PIX        *pixRemoveColormapGeneral()
- *           PIX        *pixRemoveColormap()
+ *           PIX *pixRemoveColormapGeneral()
+ *           PIX *pixRemoveColormap()
  *
  *      Add colormap losslessly (8 to 8)
  *           int32     pixAddGrayColormap8()
- *           PIX        *pixAddMinimalGrayColormap8()
+ *           PIX *pixAddMinimalGrayColormap8()
  *
  *      Conversion from RGB color to 8 bit gray
- *           PIX        *pixConvertRGBToLuminance()
- *           PIX        *pixConvertRGBToGrayGeneral()
- *           PIX        *pixConvertRGBToGray()
- *           PIX        *pixConvertRGBToGrayFast()
- *           PIX        *pixConvertRGBToGrayMinMax()
- *           PIX        *pixConvertRGBToGraySatBoost()
- *           PIX        *pixConvertRGBToGrayArb()
- *           PIX        *pixConvertRGBToBinaryArb()
+ *           PIX *pixConvertRGBToLuminance()
+ *           PIX *pixConvertRGBToGrayGeneral()
+ *           PIX *pixConvertRGBToGray()
+ *           PIX *pixConvertRGBToGrayFast()
+ *           PIX *pixConvertRGBToGrayMinMax()
+ *           PIX *pixConvertRGBToGraySatBoost()
+ *           PIX *pixConvertRGBToGrayArb()
+ *           PIX *pixConvertRGBToBinaryArb()
  *
  *      Conversion from grayscale to colormap
- *           PIX        *pixConvertGrayToColormap()  -- 2, 4, 8 bpp
- *           PIX        *pixConvertGrayToColormap8()  -- 8 bpp only
+ *           PIX *pixConvertGrayToColormap()  -- 2, 4, 8 bpp
+ *           PIX *pixConvertGrayToColormap8()  -- 8 bpp only
  *
  *      Colorizing conversion from grayscale to color
- *           PIX        *pixColorizeGray()  -- 8 bpp or cmapped
+ *           PIX *pixColorizeGray()  -- 8 bpp or cmapped
  *
  *      Conversion from RGB color to colormap
- *           PIX        *pixConvertRGBToColormap()
+ *           PIX *pixConvertRGBToColormap()
  *
  *      Conversion from colormap to 1 bpp
- *           PIX        *pixConvertCmapTo1()
+ *           PIX *pixConvertCmapTo1()
  *
  *      Quantization for relatively small number of colors in source
  *           int32     pixQuantizeIfFewColors()
  *
  *      Conversion from 16 bpp to 8 bpp
- *           PIX        *pixConvert16To8()
+ *           PIX *pixConvert16To8()
  *
  *      Conversion from grayscale to false color
- *           PIX        *pixConvertGrayToFalseColor()
+ *           PIX *pixConvertGrayToFalseColor()
  *
  *      Unpacking conversion from 1 bpp to 2, 4, 8, 16 and 32 bpp
- *           PIX        *pixUnpackBinary()
- *           PIX        *pixConvert1To16()
- *           PIX        *pixConvert1To32()
+ *           PIX *pixUnpackBinary()
+ *           PIX *pixConvert1To16()
+ *           PIX *pixConvert1To32()
  *
  *      Unpacking conversion from 1 bpp to 2 bpp
- *           PIX        *pixConvert1To2Cmap()
- *           PIX        *pixConvert1To2()
+ *           PIX *pixConvert1To2Cmap()
+ *           PIX *pixConvert1To2()
  *
  *      Unpacking conversion from 1 bpp to 4 bpp
- *           PIX        *pixConvert1To4Cmap()
- *           PIX        *pixConvert1To4()
+ *           PIX *pixConvert1To4Cmap()
+ *           PIX *pixConvert1To4()
  *
  *      Unpacking conversion from 1, 2 and 4 bpp to 8 bpp
- *           PIX        *pixConvert1To8()
- *           PIX        *pixConvert2To8()
- *           PIX        *pixConvert4To8()
+ *           PIX *pixConvert1To8()
+ *           PIX *pixConvert2To8()
+ *           PIX *pixConvert4To8()
  *
  *      Unpacking conversion from 8 bpp to 16 bpp
- *           PIX        *pixConvert8To16()
+ *           PIX *pixConvert8To16()
  *
  *      Top-level conversion to 1 bpp
- *           PIX        *pixConvertTo1Adaptive()
- *           PIX        *pixConvertTo1()
- *           PIX        *pixConvertTo1BySampling()
+ *           PIX *pixConvertTo1Adaptive()
+ *           PIX *pixConvertTo1()
+ *           PIX *pixConvertTo1BySampling()
  *
  *      Top-level conversion to 2 bpp
- *           PIX        *pixConvertTo2()
- *           PIX        *pixConvert8To2()
+ *           PIX *pixConvertTo2()
+ *           PIX *pixConvert8To2()
  *
  *      Top-level conversion to 4 bpp
- *           PIX        *pixConvertTo4()
- *           PIX        *pixConvert8To4()
+ *           PIX *pixConvertTo4()
+ *           PIX *pixConvert8To4()
  *
  *      Top-level conversion to 8 bpp
- *           PIX        *pixConvertTo8()
- *           PIX        *pixConvertTo8BySampling()
- *           PIX        *pixConvertTo8Colormap()
+ *           PIX *pixConvertTo8()
+ *           PIX *pixConvertTo8BySampling()
+ *           PIX *pixConvertTo8Colormap()
  *
  *      Top-level conversion to 16 bpp
- *           PIX        *pixConvertTo16()
+ *           PIX *pixConvertTo16()
  *
  *      Top-level conversion to 32 bpp (RGB)
- *           PIX        *pixConvertTo32()   ***
- *           PIX        *pixConvertTo32BySampling()   ***
- *           PIX        *pixConvert8To32()  ***
+ *           PIX *pixConvertTo32()   ***
+ *           PIX *pixConvertTo32BySampling()   ***
+ *           PIX *pixConvert8To32()  ***
  *
  *      Top-level conversion to 8 or 32 bpp, without colormap
- *           PIX        *pixConvertTo8Or32
+ *           PIX *pixConvertTo8Or32
  *
  *      Conversion between 24 bpp and 32 bpp rgb
- *           PIX        *pixConvert24To32()
- *           PIX        *pixConvert32To24()
+ *           PIX *pixConvert24To32()
+ *           PIX *pixConvert32To24()
  *
  *      Conversion between 32 bpp (1 spp) and 16 or 8 bpp
- *           PIX        *pixConvert32To16()
- *           PIX        *pixConvert32To8()
+ *           PIX *pixConvert32To16()
+ *           PIX *pixConvert32To8()
  *
  *      Removal of alpha component by blending with white background
- *           PIX        *pixRemoveAlpha()
+ *           PIX *pixRemoveAlpha()
  *
  *      Addition of alpha component to 1 bpp
- *           PIX        *pixAddAlphaTo1bpp()
+ *           PIX *pixAddAlphaTo1bpp()
  *
  *      Lossless depth conversion (unpacking)
- *           PIX        *pixConvertLossless()
+ *           PIX *pixConvertLossless()
  *
  *      Conversion for printing in PostScript
- *           PIX        *pixConvertForPSWrap()
+ *           PIX *pixConvertForPSWrap()
  *
  *      Scaling conversion to subpixel RGB
- *           PIX        *pixConvertToSubpixelRGB()
- *           PIX        *pixConvertGrayToSubpixelRGB()
- *           PIX        *pixConvertColorToSubpixelRGB()
+ *           PIX *pixConvertToSubpixelRGB()
+ *           PIX *pixConvertGrayToSubpixelRGB()
+ *           PIX *pixConvertColorToSubpixelRGB()
  *
  *      Setting neutral point for min/max boost conversion to gray
  *          void         l_setNeutralBoostVal()
@@ -305,7 +305,7 @@ PIX * pixRemoveColormap(PIX * pixs,
 	int32 sval, rval, gval, bval, val0, val1;
 	int32 i, j, k, w, h, d, wpls, wpld, ncolors, nalloc, count;
 	int32 opaque, colorfound, blackwhite;
-	int32   * rmap, * gmap, * bmap, * amap;
+	int32 * rmap, * gmap, * bmap, * amap;
 	uint32  * datas, * lines, * datad, * lined, * lut, * graymap;
 	uint32 sword, dword;
 	PIXCMAP   * cmap;
@@ -628,7 +628,7 @@ l_ok pixAddGrayColormap8(PIX  * pixs)
 PIX * pixAddMinimalGrayColormap8(PIX  * pixs)
 {
 	int32 ncolors, w, h, i, j, wpl1, wpld, index, val;
-	int32   * inta, * revmap;
+	int32 * inta, * revmap;
 	uint32  * data1, * datad, * line1, * lined;
 	PIX * pix1, * pixd;
 	PIXCMAP   * cmap;
@@ -1029,7 +1029,7 @@ PIX  * pixConvertRGBToGraySatBoost(PIX * pixs,
 	int32 fullsat, newval;
 	float * invmax, * ratio;
 	uint32   * linet, * lined, * datat, * datad;
-	PIX        * pixt, * pixd;
+	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1052,7 +1052,7 @@ PIX  * pixConvertRGBToGraySatBoost(PIX * pixs,
 	invmax = (float *)SAlloc::C(256, sizeof(float));
 	ratio = (float *)SAlloc::C(256, sizeof(float));
 	for(i = 1; i < 256; i++) { /* i == 0  --> delta = sval = newval = 0 */
-		invmax[i] = 1.0 / (float)i;
+		invmax[i] = 1.0f / (float)i;
 		ratio[i] = (float)i / (float)refval;
 	}
 	for(i = 0; i < h; i++) {
@@ -1512,7 +1512,7 @@ PIX * pixConvertCmapTo1(PIX  * pixs)
 	int32 i, j, nc, w, h, imin, imax, factor, wpl1, wpld;
 	int32 index, rmin, gmin, bmin, rmax, gmax, bmax, dmin, dmax;
 	float minfract, ifract;
-	int32   * lut;
+	int32 * lut;
 	uint32  * line1, * lined, * data1, * datad;
 	NUMA * na1, * na2; /* histograms */
 	PIX * pix1, * pixd;
@@ -3032,7 +3032,7 @@ PIX * pixConvertTo1BySampling(PIX * pixs,
 	if(factor < 1)
 		return (PIX *)ERROR_PTR("factor must be >= 1", procName, NULL);
 
-	scalefactor = 1. / (float)factor;
+	scalefactor = 1.0f / (float)factor;
 	pixt = pixScaleBySampling(pixs, scalefactor, scalefactor);
 	pixd = pixConvertTo1(pixt, threshold);
 	pixDestroy(&pixt);
@@ -3158,7 +3158,7 @@ PIX * pixConvertTo8BySampling(PIX * pixs,
 	if(factor < 1)
 		return (PIX *)ERROR_PTR("factor must be >= 1", procName, NULL);
 
-	scalefactor = 1. / (float)factor;
+	scalefactor = 1.0f / (float)factor;
 	pixt = pixScaleBySampling(pixs, scalefactor, scalefactor);
 	pixd = pixConvertTo8(pixt, cmapflag);
 
@@ -3338,7 +3338,7 @@ PIX * pixConvertTo32BySampling(PIX * pixs,
 	if(factor < 1)
 		return (PIX *)ERROR_PTR("factor must be >= 1", procName, NULL);
 
-	scalefactor = 1. / (float)factor;
+	scalefactor = 1.0f / (float)factor;
 	pix1 = pixScaleBySampling(pixs, scalefactor, scalefactor);
 	pixd = pixConvertTo32(pix1);
 

@@ -149,9 +149,24 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							//dialog.show();
 							String __data = item.ToJson();
 							if(__data != null) {
+								int editflags = 0;
+								if(ListData != null) {
+									for(int i = 0; i < ListData.size(); i++) {
+										final StyloQFace iter_item = ListData.get(i);
+										if(iter_item != null && iter_item.ID != item.ID) {
+											if(item.GetVerifiability() != StyloQFace.vAnonymous && iter_item.GetVerifiability() == StyloQFace.vAnonymous)
+												editflags |= StyloQFace.editfDisableAnonym;
+											else if(item.GetVerifiability() != StyloQFace.vVerifiable && iter_item.GetVerifiability() == StyloQFace.vVerifiable)
+												editflags |= StyloQFace.editfDisableVerifiable;
+										}
+									}
+								}
+								if(Db.IsThereFaceRefs(item.BI))
+									editflags |= StyloQFace.editfDisableDeletion;
 								Intent intent = new Intent(this, FaceActivity.class);
 								intent.putExtra("StyloQFaceJson", __data);
 								intent.putExtra("ManagedLongId", item.ID);
+								intent.putExtra("EditFlags", editflags);
 								//startActivity(intent);
 								LaunchOtherActivity(intent);
 							}
@@ -165,7 +180,20 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					//FaceDialog dialog = new FaceDialog(this, new StyloQFace());
 					//dialog.show();
 					//Bundle __data_bundle = new Bundle();
+					int editflags = 0;
+					if(ListData != null) {
+						for(int i = 0; i < ListData.size(); i++) {
+							final StyloQFace iter_item = ListData.get(i);
+							if(iter_item != null) {
+								if(iter_item.GetVerifiability() == StyloQFace.vAnonymous)
+									editflags |= StyloQFace.editfDisableAnonym;
+								else if(iter_item.GetVerifiability() == StyloQFace.vVerifiable)
+									editflags |= StyloQFace.editfDisableVerifiable;
+							}
+						}
+					}
 					Intent intent = new Intent(this, FaceActivity.class);
+					intent.putExtra("EditFlags", editflags);
 					LaunchOtherActivity(intent);
 				}
 				/*else if(view_id == R.id.tbButtonDelete) {
@@ -200,8 +228,19 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					Intent data = ((ActivityResult)subj).getData();
 					String jstext = data.getStringExtra("StyloQFaceJson");
 					long   managed_id = data.getLongExtra("ManagedLongId", 0);
-					if(SLib.GetLen(jstext) > 0) {
-						try {
+					try {
+						if(jstext == null && managed_id > 0) { // Deletion
+							if(Db.PutPeerEntry(managed_id, null, true) != 0) {
+								int i = ListData.size();
+								if(i > 0) do {
+									StyloQFace iter_item = ListData.get(--i);
+									if(iter_item.ID == managed_id)
+										ListData.remove(i);
+								} while(i > 0);
+								NotifyListView_DataSetChanged(R.id.faceListView);
+							}
+						}
+						else if(SLib.GetLen(jstext) > 0) {
 							StyloQFace pack = new StyloQFace();
 							if(pack.FromJson(jstext)) {
 								pack.ID = managed_id;
@@ -227,9 +266,9 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									}
 								}
 							}
-						} catch(StyloQException exn) {
-							exn.printStackTrace();
 						}
+					} catch(StyloQException exn) {
+						exn.printStackTrace();
 					}
 				}
 				break;

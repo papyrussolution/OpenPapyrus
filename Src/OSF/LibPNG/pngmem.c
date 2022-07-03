@@ -75,7 +75,7 @@ PNG_ALLOCATED void * /*PRIVATE*/ png_malloc_base(png_const_structrp png_ptr, png
 #endif
 	    ) {
 #ifdef PNG_USER_MEM_SUPPORTED
-		if(png_ptr && png_ptr->malloc_fn != NULL)
+		if(png_ptr && png_ptr->malloc_fn)
 			return png_ptr->malloc_fn(png_constcast(png_structrp, png_ptr), size);
 		else
 #endif
@@ -113,7 +113,7 @@ PNG_ALLOCATED void * /*PRIVATE*/ png_realloc_array(png_const_structrp png_ptr, c
 	// Check for overflow on the elements count (so the caller does not have to check.)
 	if(add_elements <= INT_MAX - old_elements) {
 		void * new_array = png_malloc_array_checked(png_ptr, old_elements+add_elements, element_size);
-		if(new_array != NULL) {
+		if(new_array) {
 			// Because png_malloc_array worked the size calculations below cannot overflow.
 			if(old_elements > 0)
 				memcpy(new_array, old_array, element_size*(uint)old_elements);
@@ -177,7 +177,7 @@ void PNGAPI png_free(png_const_structrp png_ptr, void * ptr)
 	if(png_ptr == NULL || ptr == NULL)
 		return;
 #ifdef PNG_USER_MEM_SUPPORTED
-	if(png_ptr->free_fn != NULL)
+	if(png_ptr->free_fn)
 		png_ptr->free_fn(png_constcast(png_structrp, png_ptr), ptr);
 	else
 		png_free_default(png_ptr, ptr);

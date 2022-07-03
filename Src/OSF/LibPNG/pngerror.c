@@ -67,7 +67,7 @@ PNG_NORETURN void PNGAPI png_error(png_const_structrp png_ptr, const char * erro
 		}
 	}
 #endif
-	if(png_ptr && png_ptr->error_fn != NULL)
+	if(png_ptr && png_ptr->error_fn)
 		(*(png_ptr->error_fn))(png_constcast(png_structrp, png_ptr),
 		    error_message);
 
@@ -83,7 +83,7 @@ PNG_NORETURN void PNGAPI png_err(png_const_structrp png_ptr)
 	 * apparently an error, introduced in libpng-1.2.20, and png_default_error
 	 * will crash in this case.
 	 */
-	if(png_ptr && png_ptr->error_fn != NULL)
+	if(png_ptr && png_ptr->error_fn)
 		(*(png_ptr->error_fn))(png_constcast(png_structrp, png_ptr), "");
 
 	/* If the custom handler doesn't exist, or if it returns,
@@ -194,7 +194,7 @@ void PNGAPI png_warning(png_const_structrp png_ptr, const char * warning_message
 			}
 		}
 	}
-	if(png_ptr && png_ptr->warning_fn != NULL)
+	if(png_ptr && png_ptr->warning_fn)
 		(*(png_ptr->warning_fn))(png_constcast(png_structrp, png_ptr), warning_message + offset);
 	else
 		png_default_warning(png_ptr, warning_message + offset);
@@ -565,7 +565,7 @@ void /*PRIVATE*/ png_free_jmpbuf(png_structrp png_ptr)
 		/* A size of 0 is used to indicate a local, stack, allocation of the
 		 * pointer; used here and in png.c
 		 */
-		if(jb != NULL && png_ptr->jmp_buf_size > 0) {
+		if(jb && png_ptr->jmp_buf_size > 0) {
 			/* This stuff is so that a failure to free the error control structure
 			 * does not leave libpng in a state with no valid error handling: the
 			 * free always succeeds, if there is an error it gets ignored.
@@ -600,7 +600,7 @@ static PNG_NORETURN void /*PRIVATE*/ png_default_error(png_const_structrp png_pt
 #ifdef PNG_CONSOLE_IO_SUPPORTED
 #ifdef PNG_ERROR_NUMBERS_SUPPORTED
 	/* Check on NULL only added in 1.5.4 */
-	if(error_message != NULL && *error_message == PNG_LITERAL_SHARP) {
+	if(error_message && *error_message == PNG_LITERAL_SHARP) {
 		/* Strip "#nnnn " from beginning of error message. */
 		int offset;
 		char error_number[16];
@@ -634,7 +634,7 @@ static PNG_NORETURN void /*PRIVATE*/ png_default_error(png_const_structrp png_pt
 PNG_NORETURN void PNGAPI png_longjmp(png_const_structrp png_ptr, int val)
 {
 #ifdef PNG_SETJMP_SUPPORTED
-	if(png_ptr && png_ptr->longjmp_fn != NULL && png_ptr->jmp_buf_ptr != NULL)
+	if(png_ptr && png_ptr->longjmp_fn && png_ptr->jmp_buf_ptr)
 		png_ptr->longjmp_fn(*png_ptr->jmp_buf_ptr, val);
 #else
 	CXX_UNUSED(png_ptr);

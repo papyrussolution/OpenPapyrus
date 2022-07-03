@@ -11,11 +11,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_DOCDATA_H
 #define XAPIAN_INCLUDED_GLASS_DOCDATA_H
 
-#include <xapian/types.h>
-#include "glass_lazytable.h"
-#include "pack.h"
-#include <string>
-
 class GlassDocDataTable : public GlassLazyTable {
 public:
 	static std::string make_key(Xapian::docid did) 

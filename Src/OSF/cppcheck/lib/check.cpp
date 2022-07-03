@@ -26,12 +26,7 @@ void Check::reportError(const ErrorMessage &errmsg)
 	std::cout << errmsg.toXML() << std::endl;
 }
 
-void Check::reportError(const std::list<const Token *> &callstack,
-    Severity::SeverityType severity,
-    const std::string &id,
-    const std::string &msg,
-    const CWE &cwe,
-    Certainty::CertaintyLevel certainty)
+void Check::reportError(const std::list<const Token *> &callstack, Severity::SeverityType severity, const std::string &id, const std::string &msg, const CWE &cwe, Certainty::CertaintyLevel certainty)
 {
 	const ErrorMessage errmsg(callstack, mTokenizer ? &mTokenizer->list : nullptr, severity, id, msg, cwe, certainty);
 	if(mErrorLogger)
@@ -40,12 +35,7 @@ void Check::reportError(const std::list<const Token *> &callstack,
 		reportError(errmsg);
 }
 
-void Check::reportError(const ErrorPath &errorPath,
-    Severity::SeverityType severity,
-    const char id[],
-    const std::string &msg,
-    const CWE &cwe,
-    Certainty::CertaintyLevel certainty)
+void Check::reportError(const ErrorPath &errorPath, Severity::SeverityType severity, const char id[], const std::string &msg, const CWE &cwe, Certainty::CertaintyLevel certainty)
 {
 	const ErrorMessage errmsg(errorPath, mTokenizer ? &mTokenizer->list : nullptr, severity, id, msg, cwe, certainty);
 	if(mErrorLogger)

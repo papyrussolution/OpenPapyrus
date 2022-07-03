@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
 
 /* ASN1 packing and unpacking functions */
 

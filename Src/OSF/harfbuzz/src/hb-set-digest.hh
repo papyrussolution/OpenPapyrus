@@ -71,7 +71,7 @@ struct hb_set_digest_lowest_bits_t {
 	{
 		for(uint i = 0; i < count; i++) {
 			add(*array);
-			array = (const T*)(stride + (const char*)array);
+			array = (const T*)(stride + (const char *)array);
 		}
 	}
 
@@ -80,7 +80,7 @@ struct hb_set_digest_lowest_bits_t {
 	{
 		for(uint i = 0; i < count; i++) {
 			add(*array);
-			array = (const T*)(stride + (const char*)array);
+			array = (const T*)(stride + (const char *)array);
 		}
 		return true;
 	}

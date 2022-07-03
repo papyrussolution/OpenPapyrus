@@ -692,7 +692,7 @@ PIXA * pixaDisplayBoxaa(PIXA    * pixas,
 	uint32 color;
 	uint32 colors[255];
 	BOXA      * boxa;
-	BOX       * box;
+	BOX * box;
 	PIX * pix;
 	PIXA      * pixad;
 
@@ -1354,7 +1354,7 @@ BOXA * makeMosaicStrips(int32 w,
 l_ok boxaCompareRegions(BOXA       * boxa1,
     BOXA       * boxa2,
     int32 areathresh,
-    int32    * pnsame,
+    int32 * pnsame,
     float * pdiffarea,
     float * pdiffxor,
     PIX ** ppixdb)
@@ -1538,7 +1538,7 @@ BOX * boxaSelectLargeULBox(BOXA      * boxas,
 {
 	int32 w, h, i, n, x1, y1, x2, y2, select;
 	float area, max_area;
-	BOX       * box;
+	BOX * box;
 	BOXA      * boxa1, * boxa2, * boxa3;
 
 	PROCNAME(__FUNCTION__);

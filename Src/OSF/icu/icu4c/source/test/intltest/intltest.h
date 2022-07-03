@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-
+// Copyright (c) 1997-2016, International Business Machines Corporation andothers. All Rights Reserved.
+//
 /**
  * IntlTest is a base class for tests.  */
 
@@ -16,7 +12,6 @@
 #include "unicode/fmtable.h"
 #include "unicode/testlog.h"
 #include "unicode/uniset.h"
-
 #include <vector>
 #include <string>
 
@@ -27,8 +22,7 @@ U_NAMESPACE_USE
 // this must be after including utypes.h so that U_PLATFORM is actually defined
 #pragma map(IntlTest::log( const UnicodeString & message ),"logos390")
 #endif
-
-//-----------------------------------------------------------------------------
+//
 //convenience classes to ease porting code that uses the Java
 //string-concatenation operator (moved from findword test by rtg)
 UnicodeString UCharToUnicodeString(UChar c);
@@ -51,9 +45,7 @@ UnicodeString toString(const Formattable& f); // liu
 UnicodeString toString(int32_t n);
 #endif
 UnicodeString toString(bool b);
-
-//-----------------------------------------------------------------------------
-
+//
 // Use the TESTCASE macro in subclasses of IntlTest.  Define the
 // runIndexedTest method in this fashion:
 //
@@ -151,19 +143,13 @@ public:
 	virtual bool setWarnOnMissingData(bool warn_on_missing_data = TRUE);
 	virtual bool setWriteGoldenData(bool write_golden_data = TRUE);
 	virtual int32_t setThreadCount(int32_t count = 1);
-
 	virtual int32_t getErrors();
 	virtual int32_t getDataErrors();
-
 	virtual void setCaller(IntlTest* callingTest); // for internal use only
 	virtual void setPath(char * path); // for internal use only
-
 	virtual void log(const UnicodeString & message);
-
 	virtual void logln(const UnicodeString & message) override;
-
 	virtual void logln();
-
 	/**
 	 * Logs that an issue is known. Can be called multiple times.
 	 * Usually used this way:
@@ -195,25 +181,15 @@ public:
 	bool skipDictionaryTest();
 	bool skipLSTMTest();
 #endif /* #if !UCONFIG_NO_BREAK_ITERATION */
-
 	virtual void info(const UnicodeString & message);
-
 	virtual void infoln(const UnicodeString & message);
-
 	virtual void infoln();
-
 	virtual void err();
-
 	virtual void err(const UnicodeString & message);
-
 	virtual void errln(const UnicodeString & message) override;
-
 	virtual void dataerr(const UnicodeString & message);
-
 	virtual void dataerrln(const UnicodeString & message) override;
-
 	void errcheckln(UErrorCode status, const UnicodeString & message);
-
 	// convenience functions: sprintf() + errln() etc.
 	void log(const char * fmt, ...);
 	void logln(const char * fmt, ...);
@@ -223,7 +199,6 @@ public:
 	void errln(const char * fmt, ...);
 	void dataerr(const char * fmt, ...);
 	void dataerrln(const char * fmt, ...);
-
 	/**
 	 * logs an error (even if status==U_ZERO_ERROR), but
 	 * calls dataerrln() or errln() depending on the type of error.
@@ -231,15 +206,11 @@ public:
 	 * @param status parameter for selecting whether errln or dataerrln is called.
 	 */
 	void errcheckln(UErrorCode status, const char * fmt, ...);
-
 	// Print ALL named errors encountered so far
 	void printErrors();
-
 	// print known issues. return TRUE if there were any.
 	bool printKnownIssues();
-
 	virtual void usage();
-
 	/**
 	 * Returns a uniform random value x, with 0.0 <= x < 1.0.  Use
 	 * with care: Does not return all possible values; returns one of
@@ -250,12 +221,10 @@ public:
 	 * to restart the sequence.
 	 */
 	static float random(int32_t* seedp);
-
 	/**
 	 * Convenience method using a global seed.
 	 */
 	static float random();
-
 	/**
 	 *   Integer random numbers, similar to C++ std::minstd_rand, with the same algorithm
 	 *   and constants.  Allow additional access to internal state, for use by monkey tests,
@@ -354,18 +323,12 @@ private:
 	bool assertEqualsNear(const UnicodeString & message, double expected, double actual, double delta);
 	bool assertEquals(const UnicodeString & message, UErrorCode expected, UErrorCode actual);
 	bool assertEquals(const UnicodeString & message, const UnicodeSet & expected, const UnicodeSet & actual);
-	bool assertEquals(const UnicodeString & message,
-	    const std::vector<std::string>& expected, const std::vector<std::string>& actual);
+	bool assertEquals(const UnicodeString & message, const std::vector<std::string>& expected, const std::vector<std::string>& actual);
 	bool assertNotEquals(const UnicodeString & message, int32_t expectedNot, int32_t actual);
-
 	virtual void runIndexedTest(int32_t index, bool exec, const char *& name, char * par = NULL); // override !
-
 	virtual bool runTestLoop(char * testname, char * par, char * baseName);
-
 	virtual int32_t IncErrorCount();
-
 	virtual int32_t IncDataErrorCount();
-
 	virtual bool callTest(IntlTest& testToBeCalled, char * par);
 
 	bool verbose;
@@ -376,40 +339,28 @@ private:
 	bool write_golden_data;
 	bool no_time;
 	int32_t threadCount;
-
 private:
 	bool LL_linestart;
 	int32_t LL_indentlevel;
-
 	int32_t errorCount;
 	int32_t dataErrorCount;
 	IntlTest*   caller;
 	char * testPath;       // specifies subtests
-
 	char basePath[1024];
 	char currName[1024]; // current test name
-
 	//FILE *testoutfp;
 	void * testoutfp;
-
 	const char * proplines[kMaxProps];
 	int32_t numProps;
-
 protected:
-
 	virtual void LL_message(UnicodeString message, bool newline);
-
 	// used for collation result reporting, defined here for convenience
-
 	static UnicodeString & prettify(const UnicodeString & source, UnicodeString & target);
 	static UnicodeString prettify(const UnicodeString & source, bool parseBackslash = FALSE);
 	// digits=-1 determines the number of digits automatically
 	static UnicodeString & appendHex(uint32_t number, int32_t digits, UnicodeString & target);
 	static UnicodeString toHex(uint32_t number, int32_t digits = -1);
-	static inline UnicodeString toHex(int32_t number, int32_t digits = -1) {
-		return toHex((uint32_t)number, digits);
-	}
-
+	static inline UnicodeString toHex(int32_t number, int32_t digits = -1) { return toHex((uint32_t)number, digits); }
 public:
 	static void setICU_DATA();   // Set up ICU_DATA if necessary.
 	static const char * pathToDataDirectory();
@@ -445,7 +396,6 @@ void it_dataerrln(UnicodeString message);
  * unescaping \u sequences.
  */
 extern UnicodeString CharsToUnicodeString(const char * chars);
-
 /* alias for CharsToUnicodeString */
 extern UnicodeString ctou(const char * chars);
 

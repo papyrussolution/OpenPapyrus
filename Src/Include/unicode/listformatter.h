@@ -117,16 +117,16 @@ public:
 	FormattedList& operator =(FormattedList&& src) U_NOEXCEPT;
 
 	/** @copydoc FormattedValue::toString() */
-	UnicodeString toString(UErrorCode& status) const U_OVERRIDE;
+	UnicodeString toString(UErrorCode & status) const U_OVERRIDE;
 
 	/** @copydoc FormattedValue::toTempString() */
-	UnicodeString toTempString(UErrorCode& status) const U_OVERRIDE;
+	UnicodeString toTempString(UErrorCode & status) const U_OVERRIDE;
 
 	/** @copydoc FormattedValue::appendTo() */
-	Appendable &appendTo(Appendable& appendable, UErrorCode& status) const U_OVERRIDE;
+	Appendable &appendTo(Appendable& appendable, UErrorCode & status) const U_OVERRIDE;
 
 	/** @copydoc FormattedValue::nextPosition() */
-	bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode& status) const U_OVERRIDE;
+	bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode & status) const U_OVERRIDE;
 
 private:
 	FormattedListData * fData;

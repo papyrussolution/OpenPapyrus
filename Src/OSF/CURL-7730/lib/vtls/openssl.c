@@ -58,30 +58,9 @@
 #include "multiif.h"
 #include "strerror.h"
 #include "curl_printf.h"
-#include <openssl/ssl.h>
-#include <openssl/rand.h>
-#include <openssl/x509v3.h>
-#ifndef OPENSSL_NO_DSA
-	#include <openssl/dsa.h>
-#endif
-#include <openssl/dh.h>
-#include <openssl/err.h>
-#include <openssl/md5.h>
-#include <openssl/conf.h>
-#include <openssl/bn.h>
-#include <openssl/rsa.h>
-#include <openssl/bio.h>
-#include <openssl/buffer.h>
-#include <openssl/pkcs12.h>
+#include <slib-ossl.h>
 #ifdef USE_AMISSL
 	#include "amigaos.h"
-#endif
-#if(OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_OCSP)
-	#include <openssl/ocsp.h>
-#endif
-#if(OPENSSL_VERSION_NUMBER >= 0x0090700fL) && /* 0.9.7 or later */ !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_UI_CONSOLE)
-	#define USE_OPENSSL_ENGINE
-	#include <openssl/engine.h>
 #endif
 #include "warnless.h"
 #include "non-ascii.h" /* for Curl_convert_from_utf8 prototype */
@@ -95,15 +74,12 @@
 
  #define ALLOW_RENEG 1
  */
-
 #ifndef OPENSSL_VERSION_NUMBER
 #error "OPENSSL_VERSION_NUMBER not defined"
 #endif
-
 #ifdef USE_OPENSSL_ENGINE
-#include <openssl/ui.h>
+	#include <slib-ossl.h>
 #endif
-
 #if OPENSSL_VERSION_NUMBER >= 0x00909000L
 #define SSL_METHOD_QUAL const
 #else

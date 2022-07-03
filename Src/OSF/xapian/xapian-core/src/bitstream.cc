@@ -10,13 +10,11 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "bitstream.h"
 
 using namespace std;
 
 // Highly optimised fls() implementation.
-template <typename T>
-static inline int highest_order_bit(T mask)
+template <typename T> static inline int highest_order_bit(T mask)
 {
 #ifdef HAVE_DO_CLZ
 	return mask ? sizeof(T) * 8 - do_clz(mask) : 0;
@@ -97,8 +95,7 @@ void BitWriter::encode(Xapian::termpos value, Xapian::termpos outof)
 		 */
 		const Xapian::termpos mid_start = (outof - spare) / 2;
 		if(value >= mid_start + spare) {
-			value = (value - (mid_start + spare)) |
-			    (Xapian::termpos(1) << (bits - 1));
+			value = (value - (mid_start + spare)) | (Xapian::termpos(1) << (bits - 1));
 		}
 		else if(value >= mid_start) {
 			--bits;
@@ -124,8 +121,7 @@ void BitWriter::encode(Xapian::termpos value, Xapian::termpos outof)
 	}
 }
 
-void BitWriter::encode_interpolative(const Xapian::VecCOW<Xapian::termpos>& pos,
-    int j, int k)
+void BitWriter::encode_interpolative(const Xapian::VecCOW<Xapian::termpos>& pos, int j, int k)
 {
 	// "Interpolative code" - for an algorithm description, see "Managing
 	// Gigabytes" - pages 126-127 in the second edition.  You can probably
@@ -211,8 +207,7 @@ Xapian::termpos BitReader::decode_interpolative_next()
 		}
 		di_stack.push_back(di_current);
 		int mid = (di_current.j + di_current.k) / 2;
-		Xapian::termpos pos_mid = decode(di_current.outof(), true) +
-		    (di_current.pos_j + mid - di_current.j);
+		Xapian::termpos pos_mid = decode(di_current.outof(), true) + (di_current.pos_j + mid - di_current.j);
 		di_current.set_k(mid, pos_mid);
 	}
 #ifdef XAPIAN_ASSERTIONS

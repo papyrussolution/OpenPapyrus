@@ -18,8 +18,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_check.h"
-#include "glass_version.h"
 
 using namespace Glass;
 using namespace std;

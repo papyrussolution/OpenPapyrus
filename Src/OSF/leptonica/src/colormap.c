@@ -11,10 +11,10 @@
  * <pre>
  *
  *      Colormap creation, copy, destruction, addition
- *           PIXCMAP    *pixcmapCreate()
- *           PIXCMAP    *pixcmapCreateRandom()
- *           PIXCMAP    *pixcmapCreateLinear()
- *           PIXCMAP    *pixcmapCopy()
+ *           PIXCMAP *pixcmapCreate()
+ *           PIXCMAP *pixcmapCreateRandom()
+ *           PIXCMAP *pixcmapCreateLinear()
+ *           PIXCMAP *pixcmapCopy()
  *           void        pixcmapDestroy()
  *           int32     pixcmapIsValid()
  *           int32     pixcmapAddColor()
@@ -50,11 +50,11 @@
  *           int32     pixcmapGetRangeValues()
  *
  *      Colormap conversion
- *           PIXCMAP    *pixcmapGrayToFalseColor()
- *           PIXCMAP    *pixcmapGrayToColor()
- *           PIXCMAP    *pixcmapColorToGray()
- *           PIXCMAP    *pixcmapConvertTo4()
- *           PIXCMAP    *pixcmapConvertTo8()
+ *           PIXCMAP *pixcmapGrayToFalseColor()
+ *           PIXCMAP *pixcmapGrayToColor()
+ *           PIXCMAP *pixcmapColorToGray()
+ *           PIXCMAP *pixcmapConvertTo4()
+ *           PIXCMAP *pixcmapConvertTo8()
  *
  *      Colormap I/O
  *           int32     pixcmapRead()
@@ -68,7 +68,7 @@
  *           int32     pixcmapToArrays()
  *           int32     pixcmapToRGBTable()
  *           int32     pixcmapSerializeToMemory()
- *           PIXCMAP    *pixcmapDeserializeFromMemory()
+ *           PIXCMAP *pixcmapDeserializeFromMemory()
  *           char *pixcmapConvertToHex()
  *
  *      Colormap transforms
@@ -100,7 +100,7 @@
 PIXCMAP * pixcmapCreate(int32 depth)
 {
 	RGBA_QUAD  * cta;
-	PIXCMAP    * cmap;
+	PIXCMAP * cmap;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1217,9 +1217,9 @@ l_ok pixcmapCountGrayColors(PIXCMAP  * cmap,
  *                         to the rank intensity color
  * \return  0 if OK, 1 on error
  */
-l_ok pixcmapGetRankIntensity(PIXCMAP    * cmap,
+l_ok pixcmapGetRankIntensity(PIXCMAP * cmap,
     float rankval,
-    int32    * pindex)
+    int32 * pindex)
 {
 	int32 n, i, rval, gval, bval, rankindex;
 	NUMA * na, * nasort;
@@ -1526,7 +1526,7 @@ l_ok pixcmapGetRangeValues(PIXCMAP  * cmap,
 PIXCMAP * pixcmapGrayToFalseColor(float gamma)
 {
 	int32 i, rval, gval, bval;
-	int32   * curve;
+	int32 * curve;
 	float invgamma, x;
 	PIXCMAP   * cmap;
 	if(gamma <= 0.0) gamma = 1.0;
@@ -1962,7 +1962,7 @@ l_ok pixcmapToArrays(const PIXCMAP  * cmap,
     int32 ** pbmap,
     int32 ** pamap)
 {
-	int32    * rmap, * gmap, * bmap, * amap;
+	int32 * rmap, * gmap, * bmap, * amap;
 	int32 i, ncolors;
 	RGBA_QUAD  * cta;
 
@@ -2007,9 +2007,9 @@ l_ok pixcmapToArrays(const PIXCMAP  * cmap,
  * \param[out]   pncolors   [optional] size of table
  * \return  0 if OK; 1 on error
  */
-l_ok pixcmapToRGBTable(PIXCMAP    * cmap,
+l_ok pixcmapToRGBTable(PIXCMAP * cmap,
     uint32  ** ptab,
-    int32    * pncolors)
+    int32 * pncolors)
 {
 	int32 i, ncolors, rval, gval, bval, aval;
 	uint32 * tab;
@@ -2050,7 +2050,7 @@ l_ok pixcmapToRGBTable(PIXCMAP    * cmap,
  */
 l_ok pixcmapSerializeToMemory(PIXCMAP   * cmap,
     int32 cpc,
-    int32   * pncolors,
+    int32 * pncolors,
     uint8  ** pdata)
 {
 	int32 i, ncolors, rval, gval, bval, aval;

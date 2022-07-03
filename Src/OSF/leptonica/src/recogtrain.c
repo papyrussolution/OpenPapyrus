@@ -452,10 +452,10 @@ int32 recogAverageSamples(L_RECOG  ** precog,
 {
 	int32 i, nsamp, size, area, bx, by, badclass;
 	float x, y, hratio;
-	BOX       * box;
+	BOX * box;
 	PIXA      * pixa1;
 	PIX * pix1, * pix2, * pix3;
-	PTA       * pta1;
+	PTA * pta1;
 	L_RECOG   * recog;
 
 	PROCNAME(__FUNCTION__);
@@ -633,10 +633,10 @@ int32 pixaAccumulateSamples(PIXA       * pixa,
     float * py)
 {
 	int32 i, n, maxw, maxh, xdiff, ydiff;
-	int32   * centtab, * sumtab;
+	int32 * centtab, * sumtab;
 	float xc, yc, xave, yave;
 	PIX * pix1, * pix2, * pixsum;
-	PTA       * ptac;
+	PTA * ptac;
 
 	PROCNAME(__FUNCTION__);
 
@@ -754,7 +754,7 @@ l_ok recogTrainingFinished(L_RECOG  ** precog,
 	PIX * pix, * pixd;
 	PIXA      * pixa;
 	PIXAA     * paa;
-	PTA       * pta;
+	PTA * pta;
 	PTAA      * ptaa;
 	L_RECOG   * recog;
 
@@ -871,7 +871,7 @@ l_ok recogTrainingFinished(L_RECOG  ** precog,
 static int32 recogTemplatesAreOK(L_RECOG   * recog,
     int32 minsize,
     float minfract,
-    int32   * pok)
+    int32 * pok)
 {
 	int32 i, n, validsets, nt;
 	float ratio;
@@ -1124,7 +1124,7 @@ PIXA * pixaRemoveOutliers1(PIXA      * pixas,
 	NUMA * nasum, * narem, * nasave, * nascore;
 	PIX * pix1, * pix2;
 	PIXA      * pixa, * pixarem, * pixad;
-	PTA       * pta;
+	PTA * pta;
 	L_RECOG   * recog;
 
 	PROCNAME(__FUNCTION__);
@@ -1189,7 +1189,7 @@ PIXA * pixaRemoveOutliers1(PIXA      * pixas,
 		 * no template is saved with an actual score less than
 		 * that at least one template is kept. */
 		minfract = (float)mintarget / (float)n;
-		numaGetRankValue(nascore, 1.0 - minfract, NULL, 0, &rankscore);
+		numaGetRankValue(nascore, 1.0f - minfract, NULL, 0, &rankscore);
 		threshscore = MAX(LowerScoreThreshold,
 			MIN(minscore, rankscore));
 		if(debug) {
@@ -1438,7 +1438,7 @@ PIXA * pixaRemoveOutliers2(PIXA      * pixas,
  *          from those in %pixas.
  * </pre>
  */
-PIXA  * recogTrainFromBoot(L_RECOG   * recogboot,
+PIXA * recogTrainFromBoot(L_RECOG   * recogboot,
     PIXA      * pixas,
     float minscore,
     int32 threshold,
@@ -1710,7 +1710,7 @@ static SARRAY * recogAddMissingClassStrings(L_RECOG  * recog)
  *          are needed.
  * </pre>
  */
-PIXA  * recogAddDigitPadTemplates(L_RECOG  * recog, SARRAY * sa)
+PIXA * recogAddDigitPadTemplates(L_RECOG  * recog, SARRAY * sa)
 {
 	PROCNAME(__FUNCTION__);
 	char * str, * text;
@@ -1846,12 +1846,12 @@ L_RECOG  * recogMakeBootDigitRecog(int32 nsamp,
  *     (1) See recogMakeBootDigitRecog().
  * </pre>
  */
-PIXA  * recogMakeBootDigitTemplates(int32 nsamp,
+PIXA * recogMakeBootDigitTemplates(int32 nsamp,
     int32 debug)
 {
 	NUMA * na1;
 	PIX * pix1, * pix2, * pix3;
-	PIXA  * pixa1, * pixa2, * pixa3;
+	PIXA * pixa1, * pixa2, * pixa3;
 
 	if(nsamp > 0) {
 		pixa1 = l_bootnum_gen4(nsamp);
@@ -2140,7 +2140,7 @@ int32 recogShowAverageTemplates(L_RECOG  * recog)
  *          and takes the saved templates and their scores as input.
  * </pre>
  */
-static PIX  * pixDisplayOutliers(PIXA  * pixas,
+static PIX  * pixDisplayOutliers(PIXA * pixas,
     NUMA * nas)
 {
 	char      * text;
@@ -2202,7 +2202,7 @@ static PIX  * recogDisplayOutlier(L_RECOG   * recog,
 {
 	char buf[64];
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5;
-	PIXA  * pixa;
+	PIXA * pixa;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2343,7 +2343,7 @@ l_ok recogShowMatchesInRange(L_RECOG   * recog,
 PIX * recogShowMatch(L_RECOG   * recog,
     PIX * pix1,
     PIX * pix2,
-    BOX       * box,
+    BOX * box,
     int32 index,
     float score)
 {

@@ -599,6 +599,7 @@ currant%<курант
 breakfast%<brkfst%|brkfast%|breakfst
 bunny%<bnny
 camera%<cmra
+sauvignon%<совиньен%|совиньон
 cabernet sauvignon%<cab sauv%|cab sauvgn%|cab sauvig%|cab sauvignon
 chardonnay%<chrdonnay%|chrdonny%|chrdny
 cleanser%<clnsr
@@ -689,6 +690,7 @@ jigsaw%<jig saw
 jigsaw blade%<jigsaw bld
 drink%<drnk
 ointment%<oint
+oreo%<орео
 kitchen%<ktchn%|ktchen%|kitch
 kitchen towel%<kitchen twl
 tomato%<tmto
@@ -899,7 +901,7 @@ lavender%<lavndr%|lvndr
 leggs sheer%<leggs shr
 narcisse%<narcise
 shredded%<shreddded%|shrdd%|shrded%|shrddd
-special%<spesial
+special%<spesial%|спешиал
 switch%<swtch
 syrup%<syrp
 trimmer%<trimmr%|trimr
@@ -1710,6 +1712,8 @@ johnnie walker%<джонни уокер
 виски talisker%<виски талискер
 водка особая%<водка особ%.
 captain morgan%<капитан морган
+captain black%<капитан блэк
+lucky strike%<лаки страйк
 glenfiddich%<гленфиддик
 glenmorangie%<гленморанджи
 вода минеральная%<мин%.%zвода%|мин/вода%|минеральная вода%|вода мин%.
@@ -2440,10 +2444,15 @@ lambert&butler%<lambert&but
 pall mall%<pall mal%|пэлл мэлл
 chesterfield%<честерфилд
 al fakher%<аль факер
+сигареты alliance%<сигареты альянс
+сигареты aroma rich%<сигареты арома рич
+сигареты dallas%<сигареты даллас
+сигареты davidoff%<сигареты давыдов
 сигареты bond%<сигареты бонд
 сигареты camel%<сигареты кэмел%|сигареты кэмэл%|сигареты кемел
 сигареты gitanes%<сигареты житан
 сигареты viceroy%<сигареты вайсрой
+сигареты jti glamour%<сигареты гламур
 сигареты kiss%<сигареты кисс
 сигареты l&d%<сигареты лд
 сигареты l&m%<сигареты лм
@@ -2451,15 +2460,21 @@ al fakher%<аль факер
 сигареты magna%<сигареты магна
 сигареты marlboro%<сигареты мальборо
 сигареты more%<сигареты море%|сигареты морэ 
+сигареты muratti%<сигареты муратти
 сигареты next%<сигареты некст
 сигареты pall mall%<сигареты палл малл
 сигареты parliament%<сигареты парламент
 сигареты rothmans%<сигареты ротманс
+сигареты rothmans royals%<сигареты роялс
 сигареты sobranie%<сигареты собрание
 сигареты sovereign%<сигареты соверен
+сигареты west%<сигареты вест
 сигареты wings%<сигареты вингс
 сигареты winston%<сигареты винстон
+сигареты play%<сигареты плэй
+сигареты петр i%<сигареты петр-1
 сигариллы al capone%<сигариллы аль капоне
+marlboro gold%<marlboro голд
 hav-a-tampa%<hav a tampa%|hava-tampa%|hava tampa%|havatampa
 lindt lindor%<%^lindor%|lndt lndr%|%^lint lnd
 dr.oetker%<d/oetker
@@ -2525,6 +2540,10 @@ staropramen%<старопрамен
 пиво bavaria%<пиво бавария
 пиво derbes%<пиво дербес
 вино игристое%<вино игрист%.%|вино игр%.
+
+вино с защищенным географическим указанием%>вино pgi
+вино с защищенным наименованием места происхождения%>вино pdo
+
 френч-пресс%<френч пресс%|френчпресс
 
 %^%(вино %*%)стол%.%>%1 столов

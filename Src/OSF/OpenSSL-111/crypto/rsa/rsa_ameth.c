@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/x509.h>
-//#include <openssl/bn.h>
-//#include <openssl/cms.h>
-//#include <asn1_int.h>
-//#include <evp_int.h>
 #include "rsa_locl.h"
 
 #ifndef OPENSSL_NO_CMS
@@ -26,11 +20,9 @@
 static RSA_PSS_PARAMS * rsa_pss_decode(const X509_ALGOR * alg);
 
 /* Set any parameters associated with pkey */
-static int rsa_param_encode(const EVP_PKEY * pkey,
-    ASN1_STRING ** pstr, int * pstrtype)
+static int rsa_param_encode(const EVP_PKEY * pkey, ASN1_STRING ** pstr, int * pstrtype)
 {
 	const RSA * rsa = pkey->pkey.rsa;
-
 	*pstr = NULL;
 	/* If RSA it's just NULL type */
 	if(pkey->ameth->pkey_id != EVP_PKEY_RSA_PSS) {

@@ -11008,7 +11008,7 @@ static int xmlSchemaUnionWildcards(xmlSchemaParserCtxtPtr ctxt, xmlSchemaWildcar
 				while(cur) {
 					found = 0;
 					curB = curWild->nsSet;
-					while(curB != NULL) {
+					while(curB) {
 						if(cur->value == curB->value) {
 							found = 1;
 							break;

@@ -94,7 +94,7 @@ private:
 	 * Returns U_ILLEGAL_ARGUMENT_ERROR in status if the data is not valid
 	 * (length is not a multiple of 3, or start >= limit for any run).
 	 */
-	void setData(UVector32 * adopt, UErrorCode& status);
+	void setData(UVector32 * adopt, UErrorCode & status);
 	friend class FieldPositionIteratorHandler;
 	UVector32 * data;
 	int32_t pos;

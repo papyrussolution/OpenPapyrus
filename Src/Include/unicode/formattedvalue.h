@@ -232,7 +232,7 @@ public:
 	 *
 	 * @stable ICU 64
 	 */
-	virtual UnicodeString toString(UErrorCode& status) const = 0;
+	virtual UnicodeString toString(UErrorCode & status) const = 0;
 
 	/**
 	 * Returns the formatted string as a read-only alias to memory owned by the FormattedValue.
@@ -248,7 +248,7 @@ public:
 	 *
 	 * @stable ICU 64
 	 */
-	virtual UnicodeString toTempString(UErrorCode& status) const = 0;
+	virtual UnicodeString toTempString(UErrorCode & status) const = 0;
 
 	/**
 	 * Appends the formatted string to an Appendable.
@@ -261,7 +261,7 @@ public:
 	 * @stable ICU 64
 	 * @see Appendable
 	 */
-	virtual Appendable& appendTo(Appendable& appendable, UErrorCode& status) const = 0;
+	virtual Appendable& appendTo(Appendable& appendable, UErrorCode & status) const = 0;
 
 	/**
 	 * Iterates over field positions in the FormattedValue. This lets you determine the position
@@ -285,7 +285,7 @@ public:
 	 *
 	 * @stable ICU 64
 	 */
-	virtual bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode& status) const = 0;
+	virtual bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode & status) const = 0;
 };
 
 U_NAMESPACE_END

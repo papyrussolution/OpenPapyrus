@@ -11,9 +11,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_FREELIST_H
 #define XAPIAN_INCLUDED_GLASS_FREELIST_H
 
-#include "glass_defs.h"
-#include "pack.h"
-
 class GlassTable;
 
 class GlassFLCursor {

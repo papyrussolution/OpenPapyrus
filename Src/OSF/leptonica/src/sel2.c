@@ -412,7 +412,7 @@ SELA * selaAddCrossJunctions(SELA      * sela, float hlsize, float mdist, int32 
 	double angle;
 	PIX * pixc, * pixm, * pixt;
 	PIXA      * pixa;
-	PTA       * pta1, * pta2, * pta3, * pta4;
+	PTA * pta1, * pta2, * pta3, * pta4;
 	SEL       * sel;
 	PROCNAME(__FUNCTION__);
 	if(hlsize <= 0)
@@ -527,7 +527,7 @@ SELA * selaAddTJunctions(SELA      * sela, float hlsize, float mdist, int32 nori
 	double angle[3], dist[3];
 	PIX * pixc, * pixm, * pixt;
 	PIXA      * pixa;
-	PTA       * pta1, * pta2, * pta3;
+	PTA * pta1, * pta2, * pta3;
 	SEL       * sel;
 	PROCNAME(__FUNCTION__);
 	if(hlsize <= 2)

@@ -3016,6 +3016,141 @@ int  AdvComboBoxSelDialog(const StrAssocArray & rAry, SString & rTitle, SString 
 	return ok;
 }
 
+// @construction {
+
+static const float FixedCtrlHeight = 20.0f;
+
+class ListSelectionDialog : public TWindowBase {
+public:
+	ListSelectionDialog(const char * pOuterTitle) : TWindowBase(SUcSwitch(ListSelectionDialog::GetWindowTitle(pOuterTitle)), wbcDrawBuffer),
+		LoExtraList(GetLayoutExtraVector())
+	{
+	}
+private:
+	enum {
+		loiFrame_Main,
+		loiFrame_List,
+		loiFrame_Buttons, // 0 - frame, 2 - ok, 3 - cancel
+	};
+	struct LayoutExtra {
+		LayoutExtra(int ident, uint value);
+		int   Ident; // loiXXX
+		uint  Value;
+	};
+	static const char * GetWindowTitle(const char * pOuterTitle)
+	{
+		return isempty(pOuterTitle) ? "" : pOuterTitle;
+	}
+	static const SVector & GetLayoutExtraVector()
+	{
+		static SVector vec(sizeof(LayoutExtra));
+		ENTER_CRITICAL_SECTION
+		if(!vec.getCount()) {
+			vec.insert(&LayoutExtra(loiFrame_Main, 0));
+			vec.insert(&LayoutExtra(loiFrame_List, 0));
+			vec.insert(&LayoutExtra(loiFrame_Buttons, 0)); // buttons frame
+			vec.insert(&LayoutExtra(loiFrame_Buttons, 2)); // ok button
+			vec.insert(&LayoutExtra(loiFrame_Buttons, 3)); // cancel button
+		}
+		LEAVE_CRITICAL_SECTION
+		return vec;
+	}
+	DECL_HANDLE_EVENT
+	{
+		TWindowBase::handleEvent(event);
+		if(event.isKeyDown(kbEsc)) {
+			if(IsInState(sfModal)) {
+				EndModalCmd = cmCancel;
+				clearEvent(event);
+			}
+		}
+		else if(TVINFOPTR) {
+			if(event.isCmd(cmInit)) {
+				CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
+				//
+				CreateLayout();
+				EvaluateLayout(p_blk->Coord);
+			}
+		}
+	}
+	const  LayoutExtra * GetLayoutExtra(int ident, uint val) const;
+	void   CreateLayout(); // @construction
+	const  SVector LoExtraList;
+};
+
+ListSelectionDialog::LayoutExtra::LayoutExtra(int ident, uint value) : Ident(ident), Value(value)
+{
+}
+
+const ListSelectionDialog::LayoutExtra * ListSelectionDialog::GetLayoutExtra(int ident, uint val) const
+{
+	for(uint i = 0; i < LoExtraList.getCount(); i++) {
+		const LayoutExtra * p_item = static_cast<const LayoutExtra *>(LoExtraList.at(i));
+		if(p_item->Ident == ident && p_item->Value == val)
+			return p_item;
+	}
+	return 0;
+}
+
+void ListSelectionDialog::CreateLayout()
+{
+	static const float def_margin = 2.0f;
+
+	class InnerBlock {
+	public:
+		static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR)
+		{
+			if(pItem) {
+				TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
+				if(p) {
+					FRect frame = pItem->GetFrameAdjustedToParent();
+					TRect b;
+					b.a.x = static_cast<int16>(R0i(frame.a.x));
+					b.a.y = static_cast<int16>(R0i(frame.a.y));
+					b.b.x = static_cast<int16>(R0i(frame.b.x));
+					b.b.y = static_cast<int16>(R0i(frame.b.y));
+					p->changeBounds(b);
+				}	
+			}
+		}
+		static void InsertButtonLayout(ListSelectionDialog * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
+		{
+			TView * p = pMaster->getCtrlView(ctlId);
+			if(p) {
+				rP.GrowFactor = growFactor;
+				SUiLayout * p_lo_item = pLoParent->InsertItem(p, &rP);
+				p_lo_item->SetCallbacks(0, InnerBlock::SetupLayoutItemFrameProc, p);
+			}
+		}		
+	};
+
+	SUiLayout * p_lo_result = new SUiLayout();
+	{
+		SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+		p_lo_result->SetLayoutBlock(alb);
+	}
+	{
+		SUiLayout * p_lo_list = p_lo_result->InsertItem(0, 0);
+	}
+	{
+		SUiLayoutParam alb_buttons(DIREC_HORZ, 0, SUiLayoutParam::alignEnd);
+		alb_buttons.GrowFactor = 1.0f;
+		alb_buttons.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+		SUiLayout * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), &alb_buttons);
+		{
+			SUiLayoutParam alb;
+			alb.GrowFactor = 1.0f;
+			alb.SetFixedSizeY(FixedCtrlHeight);
+			alb.Margin.Set(def_margin);
+			InnerBlock::InsertButtonLayout(this, p_lo_buttons, CTL_CALENDAR_TODAY, alb, 1.0f);
+			InnerBlock::InsertButtonLayout(this, p_lo_buttons, STDCTL_OKBUTTON, alb, 1.0f);
+			InnerBlock::InsertButtonLayout(this, p_lo_buttons, STDCTL_CANCELBUTTON, alb, 1.0f);
+		}
+	}
+}
+
+// } @construction
+
 /*static*/int STDCALL ListBoxSelDialog::Run(StrAssocArray * pAry, const char * pTitle, PPID * pID/*, uint flags*/)
 {
 	int    ok = -1;

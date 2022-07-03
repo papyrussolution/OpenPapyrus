@@ -20,6 +20,7 @@ import java.util.ArrayList;
 public class FaceActivity extends SLib.SlActivity {
 	private StyloQFace Data;
 	private int CurrentLangId;
+	private int EditFlags;
 	private class TabEntry {
 		TabEntry(int id, String text, /*View*/androidx.fragment.app.Fragment view)
 		{
@@ -115,6 +116,7 @@ public class FaceActivity extends SLib.SlActivity {
 					Intent intent = getIntent();
 					long   managed_id = intent.getLongExtra("ManagedLongId", 0);
 					String face_json = intent.getStringExtra("StyloQFaceJson");
+					EditFlags = intent.getIntExtra("EditFlags", 0);
 					Data = new StyloQFace();
 					if(SLib.GetLen(face_json) > 0) {
 						Data.FromJson(face_json);
@@ -146,6 +148,11 @@ public class FaceActivity extends SLib.SlActivity {
 						if(vg != null && vg instanceof ViewGroup)
 							SLib.SubstituteStringSignatures((StyloQApp)app_ctx, (ViewGroup)vg);
 					}
+				}
+				if(Data.ID == 0 || (EditFlags & StyloQFace.editfDisableDeletion) != 0) {
+					View v = findViewById(R.id.STDCTL_DELETEBUTTON);
+					if(v != null)
+						v.setVisibility(View.GONE);
 				}
 				//SetDTS(Data);
 				break;
@@ -228,8 +235,10 @@ public class FaceActivity extends SLib.SlActivity {
 							SLib.StrAssocArray vrf_list = new SLib.StrAssocArray();
 							{
 								vrf_list.Set(StyloQFace.vArbitrary, app_ctx.GetString("styloqface_varbitrary"));
-								vrf_list.Set(StyloQFace.vAnonymous, app_ctx.GetString("styloqface_vanonymous"));
-								vrf_list.Set(StyloQFace.vVerifiable, app_ctx.GetString("styloqface_vverifiable"));
+								if((EditFlags & StyloQFace.editfDisableAnonym) == 0)
+									vrf_list.Set(StyloQFace.vAnonymous, app_ctx.GetString("styloqface_vanonymous"));
+								if((EditFlags & StyloQFace.editfDisableVerifiable) == 0)
+									vrf_list.Set(StyloQFace.vVerifiable, app_ctx.GetString("styloqface_vverifiable"));
 							}
 							SLib.StrAssocArray status_list = new SLib.StrAssocArray();
 							{
@@ -299,6 +308,26 @@ public class FaceActivity extends SLib.SlActivity {
 					else if(view_id == R.id.STDCTL_CANCELBUTTON) {
 						setResult(RESULT_CANCELED, null);
 						finish();
+					}
+					else if(view_id == R.id.STDCTL_DELETEBUTTON) {
+						StyloQApp app_ctx = GetAppCtx();
+						if(app_ctx != null && Data.ID > 0 && (EditFlags & StyloQFace.editfDisableDeletion) == 0) {
+							String msg_text = app_ctx.GetString(ppstr2.PPSTR_CONFIRMATION, ppstr2.PPCFM_STQ_RMVFACE);
+							class OnResultListener implements SLib.ConfirmationListener {
+								@Override public void OnResult(SLib.ConfirmationResult r)
+								{
+									if(r == SLib.ConfirmationResult.YES) {
+										Intent intent = new Intent();
+										String result_json = null; // null индицирует требование удалить лик из базы данных
+										intent.putExtra("StyloQFaceJson", result_json);
+										intent.putExtra("ManagedLongId", Data.ID);
+										setResult(RESULT_OK, intent);
+										finish();
+									}
+								}
+							}
+							SLib.Confirm_YesNo(this, msg_text , new OnResultListener());
+						}
 					}
 				}
 				break;

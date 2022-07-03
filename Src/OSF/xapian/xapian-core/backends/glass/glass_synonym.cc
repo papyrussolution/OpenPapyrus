@@ -12,7 +12,6 @@
 #pragma hdrstop
 #include "glass_synonym.h"
 #include "glass_cursor.h"
-#include "glass_database.h"
 
 using namespace std;
 

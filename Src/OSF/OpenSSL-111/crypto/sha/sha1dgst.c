@@ -7,8 +7,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include <openssl/opensslconf.h>
 #include <openssl/opensslv.h>
-/* The implementation is in ../md32_common.h */
-#include "sha_locl.h"
+#include "sha_locl.h" /* The implementation is in ../md32_common.h */

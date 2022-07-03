@@ -7,7 +7,7 @@
 //#define TEST_ZLIB_IMPLEMENTATION
 //#define _LOCAL_USE_SSL
 #ifdef _LOCAL_USE_SSL
-	#include <openssl/evp.h>
+	#include <slib-ossl.h>
 #endif
 
 static const SIntToSymbTabEntry P_HashFuncDeclList[] = {

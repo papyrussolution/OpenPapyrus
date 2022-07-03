@@ -12,12 +12,8 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
-//#include <openssl/rand.h>
-//#include <openssl/err.h>
 
 #ifndef OPENSSL_NO_SRP
-//#include <openssl/srp.h>
 
 int SSL_CTX_SRP_CTX_free(struct ssl_ctx_st * ctx)
 {

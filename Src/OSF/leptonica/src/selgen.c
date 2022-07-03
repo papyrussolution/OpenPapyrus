@@ -136,7 +136,7 @@ SEL * pixGenerateSelWithRuns(PIX * pixs,
 	float delh, delw;
 	NUMA * nah, * nam;
 	PIX * pixt1, * pixt2, * pixfg, * pixbg;
-	PTA       * ptah, * ptam;
+	PTA * ptah, * ptam;
 	SEL       * seld, * sel;
 
 	PROCNAME(__FUNCTION__);

@@ -544,13 +544,16 @@ BOOL FunctionListPanel::setTreeViewImageList(int root_id, int node_id, int leaf_
 	_hTreeViewImaLst = ImageList_Create(CX_BITMAP, CY_BITMAP, ILC_COLOR32 | ILC_MASK, nbBitmaps, 0);
 	THROW(_hTreeViewImaLst)
 	// Add the bmp in the list
-	THROW(hbmp = LoadBitmap(_hInst, MAKEINTRESOURCE(root_id)));
+	hbmp = LoadBitmap(_hInst, MAKEINTRESOURCE(root_id));
+	THROW(hbmp);
 	ImageList_AddMasked(_hTreeViewImaLst, hbmp, mask_colour);
 	DeleteObject(hbmp);
-	THROW(hbmp = LoadBitmap(_hInst, MAKEINTRESOURCE(node_id)));
+	hbmp = LoadBitmap(_hInst, MAKEINTRESOURCE(node_id));
+	THROW(hbmp);
 	ImageList_AddMasked(_hTreeViewImaLst, hbmp, mask_colour);
 	DeleteObject(hbmp);
-	THROW(hbmp = LoadBitmap(_hInst, MAKEINTRESOURCE(leaf_id)));
+	hbmp = LoadBitmap(_hInst, MAKEINTRESOURCE(leaf_id));
+	THROW(hbmp);
 	ImageList_AddMasked(_hTreeViewImaLst, hbmp, mask_colour);
 	DeleteObject(hbmp);
 	THROW(ImageList_GetImageCount(_hTreeViewImaLst) >= nbBitmaps);

@@ -31,8 +31,28 @@ const wchar_t * FASTCALL SUcSwitchW(const SString & rStr) // @v10.9.12
 SRevolver_SString::SRevolver_SString(uint c) : TSRevolver <SString> (c) {}
 SString & SRevolver_SString::Get() { return Implement_Get().Z(); }
 
+void SRevolver_SString::Saturate(uint minSize) // @debug
+{
+	if(P_List) {
+		for(uint i = 0; i < Count; i++) {
+			SString & r_item = P_List[i];
+			r_item.Ensure(minSize);
+		}
+	}
+}
+
 SRevolver_SStringU::SRevolver_SStringU(uint c) : TSRevolver <SStringU> (c) {}
 SStringU & SRevolver_SStringU::Get() { return Implement_Get().Z(); }
+
+void SRevolver_SStringU::Saturate(uint minSize) // @debug
+{
+	if(P_List) {
+		for(uint i = 0; i < Count; i++) {
+			SStringU & r_item = P_List[i];
+			r_item.Ensure(minSize);
+		}
+	}
+}
 //
 //
 //
@@ -1229,6 +1249,11 @@ int FASTCALL SString::Alloc(size_t sz)
 			ok = 0;
 	}
 	return ok;
+}
+
+bool SString::Ensure(uint sz)
+{
+	return (sz > Size) ? Alloc(sz) : true;
 }
 
 SString & FASTCALL SString::CopyFrom(const SString & s)
@@ -3048,7 +3073,7 @@ bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS)
 int FASTCALL satoi(const char * pT)
 {
 	int    result = 0;
-	if(pT && pT[0]) {
+	if(!isempty(pT)) {
 		const  char * _p = pT;
 		size_t src_pos = 0;
 		while(oneof2(_p[src_pos], ' ', '\t'))
@@ -3411,16 +3436,16 @@ SString & SString::SetLastDSlash()
 
 SString & SString::SetLastSlash()
 {
-	int    last = Last();
-	if(last && last != '\\' && last != '/')
+	char   last = static_cast<char>(Last());
+	if(last && !isdirslash(last))
 		CatChar('\\');
 	return *this;
 }
 
 SString & SString::RmvLastSlash()
 {
-	int    last = Last();
-	if(last == '\\' || last == '/')
+	char   last = static_cast<char>(Last());
+	if(isdirslash(last))
 		TrimRight();
 	return *this;
 }
@@ -3905,6 +3930,11 @@ int FASTCALL SStringU::Alloc(size_t sz)
 			ok = 0;
 	}
 	return ok;
+}
+
+bool SStringU::Ensure(uint sz)
+{
+	return (sz > Size) ? Alloc(sz) : true;
 }
 
 bool FASTCALL SStringU::IsEq(const SStringU & rS) const

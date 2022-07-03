@@ -12,17 +12,8 @@
 #include <internal/crypto/sm2.h>
 #include <internal/crypto/sm2err.h>
 #include <internal/crypto/ec_int.h> /* ec_group_do_inverse_ord() */
-//#include <internal/numbers.h>
-//#include <openssl/err.h>
-//#include <openssl/evp.h>
-//#include <openssl/err.h>
-//#include <openssl/bn.h>
 
-int sm2_compute_z_digest(uint8_t * out,
-    const EVP_MD * digest,
-    const uint8_t * id,
-    const size_t id_len,
-    const EC_KEY * key)
+int sm2_compute_z_digest(uint8_t * out, const EVP_MD * digest, const uint8_t * id, const size_t id_len, const EC_KEY * key)
 {
 	int rc = 0;
 	const EC_GROUP * group = EC_KEY_get0_group(key);

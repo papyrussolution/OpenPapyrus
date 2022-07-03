@@ -12,21 +12,21 @@
  *
  *      Affine (3 pt) image transformation using a sampled
  *      (to nearest integer) transform on each dest point
- *           PIX        *pixAffineSampledPta()
- *           PIX        *pixAffineSampled()
+ *           PIX *pixAffineSampledPta()
+ *           PIX *pixAffineSampled()
  *
  *      Affine (3 pt) image transformation using interpolation
  *      (or area mapping) for anti-aliasing images that are
  *      2, 4, or 8 bpp gray, or colormapped, or 32 bpp RGB
- *           PIX        *pixAffinePta()
- *           PIX        *pixAffine()
- *           PIX        *pixAffinePtaColor()
- *           PIX        *pixAffineColor()
- *           PIX        *pixAffinePtaGray()
- *           PIX        *pixAffineGray()
+ *           PIX *pixAffinePta()
+ *           PIX *pixAffine()
+ *           PIX *pixAffinePtaColor()
+ *           PIX *pixAffineColor()
+ *           PIX *pixAffinePtaGray()
+ *           PIX *pixAffineGray()
  *
  *      Affine transform including alpha (blend) component
- *           PIX        *pixAffinePtaWithAlpha()
+ *           PIX *pixAffinePtaWithAlpha()
  *
  *      Affine coordinate transformation
  *           int32     getAffineXformCoeffs()
@@ -43,7 +43,7 @@
  *
  *      Affine image transformation using a sequence of
  *      shear/scale/translation operations
- *           PIX        *pixAffineSequential()
+ *           PIX *pixAffineSequential()
  *
  *      One can define a coordinate space by the location of the origin,
  *      the orientation of x and y axes, and the unit scaling along
@@ -259,7 +259,7 @@ PIX * pixAffineSampledPta(PIX * pixs,
     int32 incolor)
 {
 	float * vc;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -301,15 +301,15 @@ PIX * pixAffineSampledPta(PIX * pixs,
  *          for relative timings between sampled and interpolated.
  * </pre>
  */
-PIX * pixAffineSampled(PIX        * pixs,
+PIX * pixAffineSampled(PIX * pixs,
     float * vc,
     int32 incolor)
 {
 	int32 i, j, w, h, d, x, y, wpls, wpld, color, cmapindex;
 	uint32 val;
 	uint32   * datas, * datad, * lines, * lined;
-	PIX        * pixd;
-	PIXCMAP    * cmap;
+	PIX * pixd;
+	PIXCMAP * cmap;
 
 	PROCNAME(__FUNCTION__);
 
@@ -466,7 +466,7 @@ PIX * pixAffinePta(PIX * pixs,
  *      (2) Removes any existing colormap, if necessary, before transforming
  * </pre>
  */
-PIX * pixAffine(PIX        * pixs,
+PIX * pixAffine(PIX * pixs,
     float * vc,
     int32 incolor)
 {
@@ -526,7 +526,7 @@ PIX * pixAffinePtaColor(PIX * pixs,
     uint32 colorval)
 {
 	float * vc;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -559,7 +559,7 @@ PIX * pixAffinePtaColor(PIX * pixs,
  * \param[in]    colorval   e.g.: 0 to bring in BLACK, 0xffffff00 for WHITE
  * \return  pixd, or NULL on error
  */
-PIX * pixAffineColor(PIX        * pixs,
+PIX * pixAffineColor(PIX * pixs,
     float * vc,
     uint32 colorval)
 {
@@ -625,7 +625,7 @@ PIX * pixAffinePtaGray(PIX * pixs,
     uint8 grayval)
 {
 	float * vc;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -658,7 +658,7 @@ PIX * pixAffinePtaGray(PIX * pixs,
  * \param[in]    grayval   e.g.: 0 to bring in BLACK, 255 for WHITE
  * \return  pixd, or NULL on error
  */
-PIX * pixAffineGray(PIX        * pixs,
+PIX * pixAffineGray(PIX * pixs,
     float * vc,
     uint8 grayval)
 {
@@ -745,8 +745,8 @@ PIX * pixAffineGray(PIX        * pixs,
  * </pre>
  */
 PIX * pixAffinePtaWithAlpha(PIX * pixs,
-    PTA       * ptad,
-    PTA       * ptas,
+    PTA * ptad,
+    PTA * ptas,
     PIX * pixg,
     float fract,
     int32 border)
@@ -979,7 +979,7 @@ l_ok getAffineXformCoeffs(PTA         * ptas,
  *
  * </pre>
  */
-l_ok affineInvertXform(float   * vc, float ** pvci)
+l_ok affineInvertXform(float * vc, float ** pvci)
 {
 	int32 i;
 	float * vci;
@@ -1056,8 +1056,8 @@ l_ok affineInvertXform(float   * vc, float ** pvci)
 l_ok affineXformSampledPt(float * vc,
     int32 x,
     int32 y,
-    int32    * pxp,
-    int32    * pyp)
+    int32 * pxp,
+    int32 * pyp)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1213,7 +1213,7 @@ l_ok linearInterpolatePixelGray(uint32 * datas,
     float x,
     float y,
     int32 grayval,
-    int32   * pval)
+    int32 * pval)
 {
 	int32 valid, xpm, ypm, xp, xp2, yp, xf, yf, v00, v10, v01, v11;
 	uint32 * lines;
@@ -1282,21 +1282,16 @@ l_ok linearInterpolatePixelGray(uint32 * datas,
  *          pp. 36-41 (gauss-jordan elimination)
  * </pre>
  */
-int32 gaussjordan(float ** a,
-    float   * b,
-    int32 n)
+int32 gaussjordan(float ** a, float * b, int32 n)
 {
-	int32 i, icol, irow, j, k, col, row, success;
-	int32   * indexc, * indexr, * ipiv;
-	float maxval, val, pivinv, temp;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i, icol, irow, j, k, col, row, success;
+	int32 * indexc, * indexr, * ipiv;
+	float maxval, val, pivinv, temp;
 	if(!a)
 		return ERROR_INT("a not defined", procName, 1);
 	if(!b)
 		return ERROR_INT("b not defined", procName, 1);
-
 	success = TRUE;
 	indexc = (int32*)SAlloc::C(n, sizeof(int32));
 	indexr = (int32*)SAlloc::C(n, sizeof(int32));

@@ -57,8 +57,6 @@ static bool isVarTokComparison(const Token * tok, const Token ** vartok,
 	return false;
 }
 
-//---------------------------------------------------------------------------
-
 void VarInfo::print()
 {
 	std::cout << "size=" << alloctype.size() << std::endl;

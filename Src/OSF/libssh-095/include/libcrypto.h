@@ -17,13 +17,7 @@
 
 #ifdef HAVE_LIBCRYPTO
 
-#include <openssl/dsa.h>
-#include <openssl/rsa.h>
-#include <openssl/sha.h>
-#include <openssl/md5.h>
-#include <openssl/hmac.h>
-#include <openssl/evp.h>
-#include <openssl/crypto.h>
+#include <slib-ossl.h>
 
 typedef EVP_MD_CTX* SHACTX;
 typedef EVP_MD_CTX* SHA256CTX;
@@ -49,8 +43,6 @@ typedef void *EVPCTX;
 	#define EVP_DIGEST_LEN EVP_MAX_MD_SIZE
 #endif
 
-#include <openssl/bn.h>
-#include <openssl/opensslv.h>
 #define OPENSSL_0_9_7b 0x0090702fL
 #if(OPENSSL_VERSION_NUMBER <= OPENSSL_0_9_7b)
 	#define BROKEN_AES_CTR

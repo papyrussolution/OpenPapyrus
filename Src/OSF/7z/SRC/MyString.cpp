@@ -736,7 +736,7 @@ int AString::ReverseFind_PathSepar() const throw()
 	const char * p = _chars + _len - 1;
 	for(;; ) {
 		char c = *p;
-		if(IS_PATH_SEPAR(c))
+		if(isdirslash(c))
 			return (int)(p - _chars);
 		if(p == _chars)
 			return -1;
@@ -1336,7 +1336,7 @@ int UString::ReverseFind_PathSepar() const throw()
 	const wchar_t * p = _chars + _len - 1;
 	for(;; ) {
 		wchar_t c = *p;
-		if(IS_PATH_SEPAR(c))
+		if(isdirslash(c))
 			return (int)(p - _chars);
 		if(p == _chars)
 			return -1;

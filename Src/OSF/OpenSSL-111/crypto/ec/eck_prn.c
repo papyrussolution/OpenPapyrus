@@ -10,7 +10,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/evp.h>
-//#include <openssl/ec.h>
 #include <openssl/bn.h>
 
 #ifndef OPENSSL_NO_STDIO
@@ -18,7 +17,6 @@ int ECPKParameters_print_fp(FILE * fp, const EC_GROUP * x, int off)
 {
 	BIO * b;
 	int ret;
-
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		ECerr(EC_F_ECPKPARAMETERS_PRINT_FP, ERR_R_BUF_LIB);
 		return 0;

@@ -106,15 +106,15 @@
  *  contributed by William Rucklidge.
  * </pre>
  */
-l_ok pixCorrelationScore(PIX        * pix1,
-    PIX        * pix2,
+l_ok pixCorrelationScore(PIX * pix1,
+    PIX * pix2,
     int32 area1,
     int32 area2,
     float delx,                     /* x(1) - x(3) */
     float dely,                     /* y(1) - y(3) */
     int32 maxdiffw,
     int32 maxdiffh,
-    int32    * tab,
+    int32 * tab,
     float * pscore)
 {
 	int32 wi, hi, wt, ht, delw, delh, idelx, idely, count;
@@ -416,8 +416,8 @@ int32 pixCorrelationScoreThresholded(PIX * pix1,
     float dely,                               /* y(1) - y(3) */
     int32 maxdiffw,
     int32 maxdiffh,
-    int32   * tab,
-    int32   * downcount,
+    int32 * tab,
+    int32 * downcount,
     float score_threshold)
 {
 	int32 wi, hi, wt, ht, delw, delh, idelx, idely, count;
@@ -722,15 +722,15 @@ int32 pixCorrelationScoreThresholded(PIX * pix1,
  *          exceed %maxdiffw or %maxdiffh.
  * </pre>
  */
-l_ok pixCorrelationScoreSimple(PIX        * pix1,
-    PIX        * pix2,
+l_ok pixCorrelationScoreSimple(PIX * pix1,
+    PIX * pix2,
     int32 area1,
     int32 area2,
     float delx,                           /* x(1) - x(3) */
     float dely,                           /* y(1) - y(3) */
     int32 maxdiffw,
     int32 maxdiffh,
-    int32    * tab,
+    int32 * tab,
     float * pscore)
 {
 	int32 wi, hi, wt, ht, delw, delh, idelx, idely, count;
@@ -823,13 +823,13 @@ l_ok pixCorrelationScoreSimple(PIX        * pix1,
  *          be comparable.
  * </pre>
  */
-l_ok pixCorrelationScoreShifted(PIX        * pix1,
-    PIX        * pix2,
+l_ok pixCorrelationScoreShifted(PIX * pix1,
+    PIX * pix2,
     int32 area1,
     int32 area2,
     int32 delx,
     int32 dely,
-    int32    * tab,
+    int32 * tab,
     float * pscore)
 {
 	int32 w1, h1, w2, h2, count;

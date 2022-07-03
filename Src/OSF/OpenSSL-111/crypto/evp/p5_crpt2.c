@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/evp.h>
-//#include <openssl/hmac.h>
 #include "evp_locl.h"
 
 /* set this to print out info about the keygen algorithm */
@@ -25,10 +22,7 @@ static void h__dump(const uchar * p, int len);
  * derivation function PBKDF2. SHA1 version verified against test vectors
  * posted by Peter Gutmann to the PKCS-TNG mailing list.
  */
-
-int PKCS5_PBKDF2_HMAC(const char * pass, int passlen,
-    const uchar * salt, int saltlen, int iter,
-    const EVP_MD * digest, int keylen, uchar * out)
+int PKCS5_PBKDF2_HMAC(const char * pass, int passlen, const uchar * salt, int saltlen, int iter, const EVP_MD * digest, int keylen, uchar * out)
 {
 	const char * empty = "";
 	uchar digtmp[EVP_MAX_MD_SIZE], * p, itmp[4];

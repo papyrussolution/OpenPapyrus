@@ -16,7 +16,6 @@
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #if !UCONFIG_NO_FORMATTING
 
 #include "unicode/measunit.h"
@@ -25,9 +24,7 @@
  * \file
  * \brief C++ API: Currency Unit Information.
  */
-
 U_NAMESPACE_BEGIN
-
 /**
  * A unit of currency, such as USD (U.S. dollars) or JPY (Japanese
  * yen).  This class is a thin wrapper over a char16_t string that
@@ -64,13 +61,11 @@ public:
 	 * @stable ICU 64
 	 */
 	CurrencyUnit(StringPiece isoCode, UErrorCode & ec);
-
 	/**
 	 * Copy constructor
 	 * @stable ICU 3.0
 	 */
 	CurrencyUnit(const CurrencyUnit& other);
-
 	/**
 	 * Copy constructor from MeasureUnit. This constructor allows you to
 	 * restore a CurrencyUnit that was sliced to MeasureUnit.
@@ -86,20 +81,17 @@ public:
 	 * @stable ICU 3.0
 	 */
 	CurrencyUnit& operator =(const CurrencyUnit& other);
-
 	/**
 	 * Return a polymorphic clone of this object.  The result will
 	 * have the same class as returned by getDynamicClassID().
 	 * @stable ICU 3.0
 	 */
 	virtual CurrencyUnit* clone() const override;
-
 	/**
 	 * Destructor
 	 * @stable ICU 3.0
 	 */
 	virtual ~CurrencyUnit();
-
 	/**
 	 * Returns a unique class ID for this object POLYMORPHICALLY.
 	 * This method implements a simple form of RTTI used by ICU.
@@ -109,7 +101,6 @@ public:
 	 * @stable ICU 3.0
 	 */
 	virtual UClassID getDynamicClassID() const override;
-
 	/**
 	 * Returns the class ID for this class. This is used to compare to
 	 * the return value of getDynamicClassID().
@@ -117,13 +108,11 @@ public:
 	 * @stable ICU 3.0
 	 */
 	static UClassID U_EXPORT2 getStaticClassID();
-
 	/**
 	 * Return the ISO currency code of this object.
 	 * @stable ICU 3.0
 	 */
-	inline const char16_t* getISOCurrency() const;
-
+	inline const char16_t * getISOCurrency() const;
 private:
 	/**
 	 * The ISO 4217 code of this object.
@@ -131,14 +120,10 @@ private:
 	char16_t isoCode[4];
 };
 
-inline const char16_t* CurrencyUnit::getISOCurrency() const {
-	return isoCode;
-}
+inline const char16_t* CurrencyUnit::getISOCurrency() const { return isoCode; }
 
 U_NAMESPACE_END
 
 #endif // !UCONFIG_NO_FORMATTING
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif // __CURRENCYUNIT_H__

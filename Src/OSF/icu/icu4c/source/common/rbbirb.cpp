@@ -186,7 +186,7 @@ RBBIDataHeader * RBBIRuleBuilder::flattenData()
 //  createRuleBasedBreakIterator    construct from source rules that are passed in
 //                                  in a UnicodeString
 //
-BreakIterator * RBBIRuleBuilder::createRuleBasedBreakIterator(const UnicodeString &rules, UParseError * parseError, UErrorCode &status)
+BreakIterator * RBBIRuleBuilder::createRuleBasedBreakIterator(const UnicodeString &rules, UParseError * parseError, UErrorCode & status)
 {
 	//
 	// Read the input rules, generate a parse tree, symbol table,

@@ -42,17 +42,14 @@ class ZBarSymbolIterator;
 
 class SymbolSet {
 public:
-	/// constructor.
 	SymbolSet (const zbar_symbol_set_t * syms = NULL) : _syms(syms)
 	{
 		ref();
 	}
-	/// copy constructor.
 	SymbolSet (const SymbolSet& syms) : _syms(syms._syms)
 	{
 		ref();
 	}
-	/// destructor.
 	~SymbolSet ()
 	{
 		ref(-1);
@@ -128,23 +125,19 @@ public:
 
 	/// iteration over Point objects in a symbol location polygon.
 	class PointIterator : public std::iterator<std::input_iterator_tag, Point> {
-public:
-		/// constructor.
+	public:
 		PointIterator (const Symbol * sym = NULL, int index = 0) : _sym(sym), _index(index)
 		{
 			if(sym)
 				sym->ref(1);
-			if(!sym ||
-			    (uint)_index >= zbar_symbol_get_loc_size(*_sym))
+			if(!sym || (uint)_index >= zbar_symbol_get_loc_size(*_sym))
 				_index = -1;
 		}
-		/// copy constructor.
 		PointIterator (const PointIterator& iter) : _sym(iter._sym), _index(iter._index)
 		{
 			if(_sym)
 				_sym->ref();
 		}
-		/// destructor.
 		~PointIterator ()
 		{
 			if(_sym)
@@ -190,41 +183,31 @@ public:
 		/// Symbol.
 		bool operator == (const PointIterator& iter) const
 		{
-			return (_index == iter._index &&
-			    ((_index < 0) || _sym == iter._sym));
+			return (_index == iter._index && ((_index < 0) || _sym == iter._sym));
 		}
-
-		/// test if two iterators refer to the same Point in the same
-		/// Symbol.
+		/// test if two iterators refer to the same Point in the same Symbol.
 		bool operator != (const PointIterator& iter) const
 		{
 			return (!(*this == iter));
 		}
-
-private:
+	private:
 		const Symbol * _sym;
 		int _index;
 	};
-
-	/// constructor.
 	Symbol (const zbar_symbol_t * sym = NULL) : _xmlbuf(NULL), _xmllen(0)
 	{
 		init(sym);
 		ref();
 	}
-
-	/// copy constructor.
 	Symbol (const Symbol& sym) : _sym(sym._sym), _type(sym._type), data(sym._data), _xmlbuf(NULL), _xmllen(0)
 	{
 		ref();
 	}
-	/// destructor.
 	~Symbol()
 	{
 		SAlloc::F(_xmlbuf);
 		ref(-1);
 	}
-	/// assignment.
 	Symbol& operator = (const Symbol& sym)
 	{
 		sym.ref(1);

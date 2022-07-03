@@ -36,19 +36,19 @@ using number::impl::DecimalQuantity;
 // of the Measure class, which is true as of 3.0.  [alan]
 
 // Return TRUE if *a == *b.
-static inline bool objectEquals(const UObject* a, const UObject* b) {
+static inline bool objectEquals(const UObject * a, const UObject * b) {
 	// LATER: return *a == *b;
 	return *((const Measure*)a) == *((const Measure*)b);
 }
 
 // Return a clone of *a.
-static inline UObject* objectClone(const UObject* a) {
+static inline UObject * objectClone(const UObject * a) {
 	// LATER: return a->clone();
 	return ((const Measure*)a)->clone();
 }
 
 // Return TRUE if *a is an instance of Measure.
-static inline bool instanceOfMeasure(const UObject* a) {
+static inline bool instanceOfMeasure(const UObject * a) {
 	return dynamic_cast<const Measure*>(a) != NULL;
 }
 
@@ -160,7 +160,7 @@ Formattable::Formattable(UnicodeString * stringToAdopt)
 	fValue.fString = stringToAdopt;
 }
 
-Formattable::Formattable(UObject* objectToAdopt)
+Formattable::Formattable(UObject * objectToAdopt)
 {
 	init();
 	fType = kObject;
@@ -461,7 +461,7 @@ double Formattable::getDouble(UErrorCode & status) const
 	}
 }
 
-const UObject* Formattable::getObject() const {
+const UObject * Formattable::getObject() const {
 	return (fType == kObject) ? fValue.fObject : NULL;
 }
 //
@@ -539,7 +539,7 @@ void Formattable::adoptArray(Formattable* array, int32_t count)
 	fValue.fArrayAndCount.fCount = count;
 }
 
-void Formattable::adoptObject(UObject* objectToAdopt) 
+void Formattable::adoptObject(UObject * objectToAdopt) 
 {
 	dispose();
 	fType = kObject;
@@ -854,27 +854,25 @@ U_CAPI double U_EXPORT2 ufmt_getDouble(UFormattable * fmt, UErrorCode * status) 
 	return obj->getDouble(*status);
 }
 
-U_CAPI int32_t U_EXPORT2 ufmt_getLong(UFormattable * fmt, UErrorCode * status) {
+U_CAPI int32_t U_EXPORT2 ufmt_getLong(UFormattable * fmt, UErrorCode * status) 
+{
 	Formattable * obj = Formattable::fromUFormattable(fmt);
-
 	return obj->getLong(*status);
 }
 
-U_CAPI const void * U_EXPORT2 ufmt_getObject(const UFormattable * fmt, UErrorCode * status) {
+U_CAPI const void * U_EXPORT2 ufmt_getObject(const UFormattable * fmt, UErrorCode * status) 
+{
 	const Formattable * obj = Formattable::fromUFormattable(fmt);
-
 	const void * ret = obj->getObject();
-	if(ret==NULL &&
-	    (obj->getType() != Formattable::kObject) &&
-	    U_SUCCESS(*status)) {
+	if(ret==NULL && (obj->getType() != Formattable::kObject) && U_SUCCESS(*status)) {
 		*status = U_INVALID_FORMAT_ERROR;
 	}
 	return ret;
 }
 
-U_CAPI const UChar * U_EXPORT2 ufmt_getUChars(UFormattable * fmt, int32_t * len, UErrorCode * status) {
+U_CAPI const UChar * U_EXPORT2 ufmt_getUChars(UFormattable * fmt, int32_t * len, UErrorCode * status) 
+{
 	Formattable * obj = Formattable::fromUFormattable(fmt);
-
 	// avoid bogosity by checking the type first.
 	if(obj->getType() != Formattable::kString) {
 		if(U_SUCCESS(*status)) {

@@ -204,7 +204,7 @@ public:
      *
      * @stable ICU 4.0
      */
-    PluralRules(UErrorCode& status);
+    PluralRules(UErrorCode & status);
 
     /**
      * Copy constructor.
@@ -241,7 +241,7 @@ public:
      * @stable ICU 4.0
      */
     static PluralRules* U_EXPORT2 createRules(const UnicodeString & description,
-                                              UErrorCode& status);
+                                              UErrorCode & status);
 
     /**
      * The default rules that accept any number.
@@ -251,7 +251,7 @@ public:
      * @return        new PluralRules pointer. NULL if there is an error.
      * @stable ICU 4.0
      */
-    static PluralRules* U_EXPORT2 createDefaultRules(UErrorCode& status);
+    static PluralRules* U_EXPORT2 createDefaultRules(UErrorCode & status);
 
     /**
      * Provides access to the predefined cardinal-number <code>PluralRules</code> for a given
@@ -269,7 +269,7 @@ public:
      *                returns the default 'other' rules.
      * @stable ICU 4.0
      */
-    static PluralRules* U_EXPORT2 forLocale(const Locale& locale, UErrorCode& status);
+    static PluralRules* U_EXPORT2 forLocale(const Locale& locale, UErrorCode & status);
 
     /**
      * Provides access to the predefined <code>PluralRules</code> for a given
@@ -287,7 +287,7 @@ public:
      *                returns the default 'other' rules.
      * @stable ICU 50
      */
-    static PluralRules* U_EXPORT2 forLocale(const Locale& locale, UPluralType type, UErrorCode& status);
+    static PluralRules* U_EXPORT2 forLocale(const Locale& locale, UPluralType type, UErrorCode & status);
 
 #ifndef U_HIDE_INTERNAL_API
     /**
@@ -295,7 +295,7 @@ public:
      * @return a StringEnumeration over the locales available.
      * @internal
      */
-    static StringEnumeration* U_EXPORT2 getAvailableLocales(UErrorCode &status);
+    static StringEnumeration* U_EXPORT2 getAvailableLocales(UErrorCode & status);
 
     /**
      * Returns whether or not there are overrides.
@@ -310,7 +310,7 @@ public:
      * creates a  SharedPluralRules object
      * @internal
      */
-    static PluralRules* U_EXPORT2 internalForLocale(const Locale& locale, UPluralType type, UErrorCode& status);
+    static PluralRules* U_EXPORT2 internalForLocale(const Locale& locale, UPluralType type, UErrorCode & status);
 
     /**
      * For ICU use only.
@@ -320,7 +320,7 @@ public:
      * @internal
      */
     static const SharedPluralRules* U_EXPORT2 createSharedInstance(
-            const Locale& locale, UPluralType type, UErrorCode& status);
+            const Locale& locale, UPluralType type, UErrorCode & status);
 
 
 #endif  /* U_HIDE_INTERNAL_API */
@@ -362,7 +362,7 @@ public:
      * @return        The keyword of the selected rule.
      * @stable ICU 64
      */
-    UnicodeString select(const number::FormattedNumber& number, UErrorCode& status) const;
+    UnicodeString select(const number::FormattedNumber& number, UErrorCode & status) const;
 
     /**
      * Given a formatted number range, returns the overall plural form of the
@@ -380,7 +380,7 @@ public:
      * @return       The keyword of the selected rule.
      * @stable ICU 68
      */
-    UnicodeString select(const number::FormattedNumberRange& range, UErrorCode& status) const;
+    UnicodeString select(const number::FormattedNumberRange& range, UErrorCode & status) const;
 
 #ifndef U_HIDE_INTERNAL_API
     /**
@@ -390,7 +390,7 @@ public:
     /**
      * @internal
      */
-    UnicodeString select(const number::impl::UFormattedNumberRangeData* urange, UErrorCode& status) const;
+    UnicodeString select(const number::impl::UFormattedNumberRangeData* urange, UErrorCode & status) const;
 #endif  /* U_HIDE_INTERNAL_API */
 
     /**
@@ -403,7 +403,7 @@ public:
      *               The caller must delete the object.
      * @stable ICU 4.0
      */
-    StringEnumeration* getKeywords(UErrorCode& status) const;
+    StringEnumeration* getKeywords(UErrorCode & status) const;
 
 #ifndef U_HIDE_DEPRECATED_API
     /**
@@ -440,7 +440,7 @@ public:
      */
     int32_t getAllKeywordValues(const UnicodeString &keyword,
                                 double *dest, int32_t destCapacity,
-                                UErrorCode& status);
+                                UErrorCode & status);
 #endif  /* U_HIDE_DEPRECATED_API */
 
     /**
@@ -463,7 +463,7 @@ public:
      */
     int32_t getSamples(const UnicodeString &keyword,
                        double *dest, int32_t destCapacity,
-                       UErrorCode& status);
+                       UErrorCode & status);
 
 #ifndef U_HIDE_INTERNAL_API
     /**
@@ -488,7 +488,7 @@ public:
      */
     int32_t getSamples(const UnicodeString &keyword,
                        FixedDecimal *dest, int32_t destCapacity,
-                       UErrorCode& status);
+                       UErrorCode & status);
 #endif  /* U_HIDE_INTERNAL_API */
 
     /**
@@ -561,11 +561,11 @@ private:
     StandardPluralRanges *mStandardPluralRanges;
 
     PluralRules();   // default constructor not implemented
-    void            parseDescription(const UnicodeString & ruleData, UErrorCode &status);
+    void            parseDescription(const UnicodeString & ruleData, UErrorCode & status);
     int32_t         getNumberValue(const UnicodeString & token) const;
-    UnicodeString   getRuleFromResource(const Locale& locale, UPluralType type, UErrorCode& status);
+    UnicodeString   getRuleFromResource(const Locale& locale, UPluralType type, UErrorCode & status);
     RuleChain      *rulesForKeyword(const UnicodeString &keyword) const;
-    PluralRules    *clone(UErrorCode& status) const;
+    PluralRules    *clone(UErrorCode & status) const;
 
     /**
     * An internal status variable used to indicate that the object is in an 'invalid' state.

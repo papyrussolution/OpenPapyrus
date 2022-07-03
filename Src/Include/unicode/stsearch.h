@@ -296,7 +296,7 @@ public:
 	 * @param status for errors if it occurs
 	 * @stable ICU 2.0
 	 */
-	virtual void setOffset(int32_t position, UErrorCode &status) override;
+	virtual void setOffset(int32_t position, UErrorCode & status) override;
 
 	/**
 	 * Return the current index in the text being searched.
@@ -319,7 +319,7 @@ public:
 	 *        U_ILLEGAL_ARGUMENT_ERROR is returned.
 	 * @stable ICU 2.0
 	 */
-	virtual void setText(const UnicodeString &text, UErrorCode &status) override;
+	virtual void setText(const UnicodeString &text, UErrorCode & status) override;
 
 	/**
 	 * Set the target text to be searched.
@@ -335,7 +335,7 @@ public:
 	 *        U_ILLEGAL_ARGUMENT_ERROR is returned.
 	 * @stable ICU 2.0
 	 */
-	virtual void setText(CharacterIterator &text, UErrorCode &status) override;
+	virtual void setText(CharacterIterator &text, UErrorCode & status) override;
 
 	/**
 	 * Gets the collator used for the language rules.
@@ -356,7 +356,7 @@ public:
 	 * @param status  for errors if any
 	 * @stable ICU 2.0
 	 */
-	void setCollator(RuleBasedCollator * coll, UErrorCode &status);
+	void setCollator(RuleBasedCollator * coll, UErrorCode & status);
 
 	/**
 	 * Sets the pattern used for matching.
@@ -366,7 +366,7 @@ public:
 	 *               U_ILLEGAL_ARGUMENT_ERROR is returned.
 	 * @stable ICU 2.0
 	 */
-	void setPattern(const UnicodeString &pattern, UErrorCode &status);
+	void setPattern(const UnicodeString &pattern, UErrorCode & status);
 
 	/**
 	 * Gets the search pattern.
@@ -437,7 +437,7 @@ protected:
 	 *         USEARCH_DONE if no match was found.
 	 * @stable ICU 2.0
 	 */
-	virtual int32_t handleNext(int32_t position, UErrorCode &status) override;
+	virtual int32_t handleNext(int32_t position, UErrorCode & status) override;
 
 	/**
 	 * Search backward for matching text, starting at a given location.
@@ -461,7 +461,7 @@ protected:
 	 *         USEARCH_DONE if no match was found.
 	 * @stable ICU 2.0
 	 */
-	virtual int32_t handlePrev(int32_t position, UErrorCode &status) override;
+	virtual int32_t handlePrev(int32_t position, UErrorCode & status) override;
 
 private:
 	StringSearch(); // default constructor not implemented

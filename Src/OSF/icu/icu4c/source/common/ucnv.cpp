@@ -141,7 +141,7 @@ U_CAPI UConverter * U_EXPORT2 ucnv_safeClone(const UConverter * cnv, void * stac
 		return NULL;
 	}
 	UTRACE_DATA3(UTRACE_OPEN_CLOSE, "clone converter %s at %p into stackBuffer %p", ucnv_getName(cnv, status), cnv, stackBuffer);
-	if(cnv->sharedData->impl->safeClone != NULL) {
+	if(cnv->sharedData->impl->safeClone) {
 		/* call the custom safeClone function for sizing */
 		bufferSizeNeeded = 0;
 		cnv->sharedData->impl->safeClone(cnv, NULL, &bufferSizeNeeded, status);
@@ -222,15 +222,13 @@ U_CAPI UConverter * U_EXPORT2 ucnv_safeClone(const UConverter * cnv, void * stac
 		}
 		uprv_memcpy(localConverter->subChars, cnv->subChars, UCNV_ERROR_BUFFER_LENGTH * U_SIZEOF_UCHAR);
 	}
-
 	/* now either call the safeclone fcn or not */
-	if(cnv->sharedData->impl->safeClone != NULL) {
+	if(cnv->sharedData->impl->safeClone) {
 		/* call the custom safeClone function */
 		localConverter = cnv->sharedData->impl->safeClone(cnv, localConverter, pBufferSize, status);
 	}
-
 	if(localConverter==NULL || U_FAILURE(*status)) {
-		if(allocatedConverter != NULL && allocatedConverter->subChars != (uint8 *)allocatedConverter->subUChars) {
+		if(allocatedConverter && allocatedConverter->subChars != (uint8 *)allocatedConverter->subUChars) {
 			uprv_free(allocatedConverter->subChars);
 		}
 		uprv_free(allocatedConverter);
@@ -288,7 +286,7 @@ U_CAPI void U_EXPORT2 ucnv_close(UConverter * converter)
 		errorCode = U_ZERO_ERROR;
 		converter->fromUCharErrorBehaviour(converter->fromUContext, &fromUArgs, NULL, 0, 0, UCNV_CLOSE, &errorCode);
 	}
-	if(converter->sharedData->impl->close != NULL) {
+	if(converter->sharedData->impl->close) {
 		converter->sharedData->impl->close(converter);
 	}
 	if(converter->subChars != (uint8 *)converter->subUChars) {
@@ -483,8 +481,7 @@ static void _reset(UConverter * converter, UConverterResetChoice choice,
 		converter->preFromUFirstCP = U_SENTINEL;
 		converter->preFromULength = 0;
 	}
-
-	if(converter->sharedData->impl->reset != NULL) {
+	if(converter->sharedData->impl->reset) {
 		/* call the custom reset function */
 		converter->sharedData->impl->reset(converter, choice);
 	}
@@ -528,13 +525,11 @@ U_CAPI const char * U_EXPORT2 ucnv_getName(const UConverter * converter, UErrorC
 	return converter->sharedData->staticData->name;
 }
 
-U_CAPI int32_t U_EXPORT2 ucnv_getCCSID(const UConverter * converter,
-    UErrorCode * err)
+U_CAPI int32_t U_EXPORT2 ucnv_getCCSID(const UConverter * converter, UErrorCode * err)
 {
 	int32_t ccsid;
 	if(U_FAILURE(*err))
 		return -1;
-
 	ccsid = converter->sharedData->staticData->codepage;
 	if(ccsid == 0) {
 		/* Rare case. This is for cases like gb18030,
@@ -542,45 +537,34 @@ U_CAPI int32_t U_EXPORT2 ucnv_getCCSID(const UConverter * converter,
 		const char * standardName = ucnv_getStandardName(ucnv_getName(converter, err), "IBM", err);
 		if(U_SUCCESS(*err) && standardName) {
 			const char * ccsidStr = uprv_strchr(standardName, '-');
-			if(ccsidStr) {
+			if(ccsidStr)
 				ccsid = (int32_t)atol(ccsidStr+1); /* +1 to skip '-' */
-			}
 		}
 	}
 	return ccsid;
 }
 
-U_CAPI UConverterPlatform U_EXPORT2 ucnv_getPlatform(const UConverter * converter,
-    UErrorCode * err)
+U_CAPI UConverterPlatform U_EXPORT2 ucnv_getPlatform(const UConverter * converter, UErrorCode * err)
 {
 	if(U_FAILURE(*err))
 		return UCNV_UNKNOWN;
-
 	return (UConverterPlatform)converter->sharedData->staticData->platform;
 }
 
-U_CAPI void U_EXPORT2 ucnv_getToUCallBack(const UConverter * converter,
-    UConverterToUCallback * action,
-    const void ** context)
+U_CAPI void U_EXPORT2 ucnv_getToUCallBack(const UConverter * converter, UConverterToUCallback * action, const void ** context)
 {
 	*action = converter->fromCharErrorBehaviour;
 	*context = converter->toUContext;
 }
 
-U_CAPI void U_EXPORT2 ucnv_getFromUCallBack(const UConverter * converter,
-    UConverterFromUCallback * action,
-    const void ** context)
+U_CAPI void U_EXPORT2 ucnv_getFromUCallBack(const UConverter * converter, UConverterFromUCallback * action, const void ** context)
 {
 	*action = converter->fromUCharErrorBehaviour;
 	*context = converter->fromUContext;
 }
 
-U_CAPI void U_EXPORT2 ucnv_setToUCallBack(UConverter * converter,
-    UConverterToUCallback newAction,
-    const void * newContext,
-    UConverterToUCallback * oldAction,
-    const void ** oldContext,
-    UErrorCode * err)
+U_CAPI void U_EXPORT2 ucnv_setToUCallBack(UConverter * converter, UConverterToUCallback newAction, const void * newContext,
+    UConverterToUCallback * oldAction, const void ** oldContext, UErrorCode * err)
 {
 	if(U_FAILURE(*err))
 		return;
@@ -590,12 +574,8 @@ U_CAPI void U_EXPORT2 ucnv_setToUCallBack(UConverter * converter,
 	converter->toUContext = newContext;
 }
 
-U_CAPI void U_EXPORT2 ucnv_setFromUCallBack(UConverter * converter,
-    UConverterFromUCallback newAction,
-    const void * newContext,
-    UConverterFromUCallback * oldAction,
-    const void ** oldContext,
-    UErrorCode * err)
+U_CAPI void U_EXPORT2 ucnv_setFromUCallBack(UConverter * converter, UConverterFromUCallback newAction,
+    const void * newContext, UConverterFromUCallback * oldAction, const void ** oldContext, UErrorCode * err)
 {
 	if(U_FAILURE(*err))
 		return;
@@ -605,11 +585,10 @@ U_CAPI void U_EXPORT2 ucnv_setFromUCallBack(UConverter * converter,
 	converter->fromUContext = newContext;
 }
 
-static void _updateOffsets(int32_t * offsets, int32_t length,
-    int32_t sourceIndex, int32_t errorInputLength) {
+static void _updateOffsets(int32_t * offsets, int32_t length, int32_t sourceIndex, int32_t errorInputLength) 
+{
 	int32_t * limit;
 	int32_t delta, offset;
-
 	if(sourceIndex>=0) {
 		/*
 		 * adjust each offset by adding the previous sourceIndex
@@ -625,7 +604,6 @@ static void _updateOffsets(int32_t * offsets, int32_t length,
 		 */
 		delta = -1;
 	}
-
 	limit = offsets+length;
 	if(delta==0) {
 		/* most common case, nothing to do */
@@ -675,14 +653,9 @@ static void _updateOffsets(int32_t * offsets, int32_t length,
  * Such violations will cause assertion failures in a debug build,
  * and wrong output, but they will not cause a crash.
  */
-
 static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCode * err) 
 {
 	UConverterFromUnicode fromUnicode;
-	const UChar * s;
-	char * t;
-	int32_t * offsets;
-	int32_t sourceIndex;
 	int32_t errorInputLength;
 	bool converterSawEndOfInput, calledCallback;
 	/* variables for m:n conversion */
@@ -691,12 +664,11 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 	int32_t realSourceIndex;
 	bool realFlush;
 	UConverter * cnv = pArgs->converter;
-	s = pArgs->source;
-	t = pArgs->target;
-	offsets = pArgs->offsets;
-
-	/* get the converter implementation function */
-	sourceIndex = 0;
+	const UChar * s = pArgs->source;
+	char * t = pArgs->target;
+	int32_t * offsets = pArgs->offsets;
+	// get the converter implementation function 
+	int32_t sourceIndex = 0;
 	if(!offsets) {
 		fromUnicode = cnv->sharedData->impl->fromUnicode;
 	}
@@ -709,11 +681,9 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 			sourceIndex = -1;
 		}
 	}
-
 	if(cnv->preFromULength>=0) {
 		/* normal mode */
 		realSource = NULL;
-
 		/* avoid compiler warnings - not otherwise necessary, and the values do not matter */
 		realSourceLimit = NULL;
 		realFlush = FALSE;
@@ -942,7 +912,7 @@ static bool ucnv_outputOverflowFromUnicode(UConverter * cnv, char ** target, con
 	char * overflow;
 	int32_t i, length;
 	char * t = *target;
-	if(pOffsets != NULL) {
+	if(pOffsets) {
 		offsets = *pOffsets;
 	}
 	else {
@@ -1354,22 +1324,18 @@ static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode *
  * Call this function if(cnv->UCharErrorBufferLength>0).
  * @return TRUE if overflow
  */
-static bool ucnv_outputOverflowToUnicode(UConverter * cnv,
-    UChar ** target, const UChar * targetLimit,
-    int32_t ** pOffsets,
-    UErrorCode * err) {
+static bool ucnv_outputOverflowToUnicode(UConverter * cnv, UChar ** target, const UChar * targetLimit, int32_t ** pOffsets, UErrorCode * err) 
+{
 	int32_t * offsets;
 	UChar * overflow, * t;
 	int32_t i, length;
-
 	t = *target;
-	if(pOffsets != NULL) {
+	if(pOffsets) {
 		offsets = *pOffsets;
 	}
 	else {
 		offsets = NULL;
 	}
-
 	overflow = cnv->UCharErrorBuffer;
 	length = cnv->UCharErrorBufferLength;
 	i = 0;
@@ -1680,7 +1646,7 @@ U_CAPI UChar32 U_EXPORT2 ucnv_getNextUChar(UConverter * cnv, const char ** sourc
 		 * U_TRUNCATED_CHAR_FOUND for truncated input,
 		 * in addition to setting toULength/toUBytes[]
 		 */
-		if(cnv->toULength==0 && cnv->sharedData->impl->getNextUChar != NULL) {
+		if(cnv->toULength==0 && cnv->sharedData->impl->getNextUChar) {
 			c = cnv->sharedData->impl->getNextUChar(&args, err);
 			*source = s = args.source;
 			if(*err==U_INDEX_OUTOFBOUNDS_ERROR) {
@@ -2311,15 +2277,12 @@ U_CAPI UConverterType U_EXPORT2 ucnv_getType(const UConverter * converter)
 	return (UConverterType)type;
 }
 
-U_CAPI void U_EXPORT2 ucnv_getStarters(const UConverter * converter,
-    bool starters[256],
-    UErrorCode * err)
+U_CAPI void U_EXPORT2 ucnv_getStarters(const UConverter * converter, bool starters[256], UErrorCode * err)
 {
 	if(!err || U_FAILURE(*err)) {
 		return;
 	}
-
-	if(converter->sharedData->impl->getStarters != NULL) {
+	if(converter->sharedData->impl->getStarters) {
 		converter->sharedData->impl->getStarters(converter, starters, err);
 	}
 	else {
@@ -2332,7 +2295,6 @@ static const UAmbiguousConverter * ucnv_getAmbiguous(const UConverter * cnv)
 	UErrorCode errorCode;
 	const char * name;
 	int32_t i;
-
 	if(cnv==NULL) {
 		return NULL;
 	}
@@ -2352,17 +2314,14 @@ static const UAmbiguousConverter * ucnv_getAmbiguous(const UConverter * cnv)
 	return NULL;
 }
 
-U_CAPI void U_EXPORT2 ucnv_fixFileSeparator(const UConverter * cnv,
-    UChar * source,
-    int32_t sourceLength) {
+U_CAPI void U_EXPORT2 ucnv_fixFileSeparator(const UConverter * cnv, UChar * source, int32_t sourceLength) 
+{
 	const UAmbiguousConverter * a;
 	int32_t i;
 	UChar variant5c;
-
 	if(cnv==NULL || source==NULL || sourceLength<=0 || (a = ucnv_getAmbiguous(cnv))==NULL) {
 		return;
 	}
-
 	variant5c = a->variant5c;
 	for(i = 0; i<sourceLength; ++i) {
 		if(source[i]==variant5c) {
@@ -2371,19 +2330,9 @@ U_CAPI void U_EXPORT2 ucnv_fixFileSeparator(const UConverter * cnv,
 	}
 }
 
-U_CAPI bool U_EXPORT2 ucnv_isAmbiguous(const UConverter * cnv) {
-	return (bool)(ucnv_getAmbiguous(cnv) != NULL);
-}
-
-U_CAPI void U_EXPORT2 ucnv_setFallback(UConverter * cnv, bool usesFallback)
-{
-	cnv->useFallback = usesFallback;
-}
-
-U_CAPI bool U_EXPORT2 ucnv_usesFallback(const UConverter * cnv)
-{
-	return cnv->useFallback;
-}
+U_CAPI bool U_EXPORT2 ucnv_isAmbiguous(const UConverter * cnv) { return (bool)(ucnv_getAmbiguous(cnv) != NULL); }
+U_CAPI void U_EXPORT2 ucnv_setFallback(UConverter * cnv, bool usesFallback) { cnv->useFallback = usesFallback; }
+U_CAPI bool U_EXPORT2 ucnv_usesFallback(const UConverter * cnv) { return cnv->useFallback; }
 
 U_CAPI void U_EXPORT2 ucnv_getInvalidChars(const UConverter * converter, char * errBytes, int8 * len, UErrorCode * err)
 {

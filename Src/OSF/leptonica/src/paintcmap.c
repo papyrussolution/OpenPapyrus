@@ -209,9 +209,9 @@ l_ok pixColorGrayRegionsCmap(PIX * pixs,
 {
 	int32 i, j, k, w, h, n, nc, x1, y1, x2, y2, bw, bh, wpl;
 	int32 val, nval;
-	int32   * map;
+	int32 * map;
 	uint32  * line, * data;
-	BOX       * box;
+	BOX * box;
 	NUMA * na;
 	PIXCMAP   * cmap;
 
@@ -382,7 +382,7 @@ l_ok pixColorGrayMaskedCmap(PIX * pixs,
 {
 	int32 i, j, w, h, wm, hm, wmin, hmin, wpl, wplm;
 	int32 val, nval;
-	int32   * map;
+	int32 * map;
 	uint32  * line, * data, * linem, * datam;
 	NUMA * na;
 	PIXCMAP   * cmap;

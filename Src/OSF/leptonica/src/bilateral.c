@@ -454,7 +454,7 @@ static PIX * bilateralApply(L_BILATERAL  * bil)
 	int32 vals, vald, lowval, hival;
 	int32     * kindex;
 	float fract;
-	float   * kfract;
+	float * kfract;
 	uint32    * lines, * lined, * datas, * datad;
 	uint32  *** lineset = NULL; /* for set of PBC */
 	PIX         * pixs, * pixd;

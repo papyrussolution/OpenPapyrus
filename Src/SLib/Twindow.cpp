@@ -1592,6 +1592,16 @@ IMPL_HANDLE_EVENT(TWindowBase)
 	}
 }
 
+void TWindowBase::EvaluateLayout(const TRect & rR)
+{
+	if(P_Lfc) {
+		SUiLayout::Param evp;
+		evp.ForceWidth = static_cast<float>(rR.width());
+		evp.ForceHeight = static_cast<float>(rR.height());
+		P_Lfc->Evaluate(&evp);
+	}
+}
+
 void TWindowBase::SetDefaultCursor()
 {
 	::SetCursor(::LoadCursor(0, IDC_ARROW));

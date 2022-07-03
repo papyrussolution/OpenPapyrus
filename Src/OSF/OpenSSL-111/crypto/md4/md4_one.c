@@ -9,7 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/md4.h>
-//#include <openssl/crypto.h>
 #ifdef CHARSET_EBCDIC
 	#include <openssl/ebcdic.h>
 #endif
@@ -18,7 +17,6 @@ uchar * MD4(const uchar * d, size_t n, uchar * md)
 {
 	MD4_CTX c;
 	static uchar m[MD4_DIGEST_LENGTH];
-
 	if(md == NULL)
 		md = m;
 	if(!MD4_Init(&c))

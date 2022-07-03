@@ -303,11 +303,13 @@ UnicodeText::const_iterator UnicodeText::find(const UnicodeText& look,
 	return UnsafeFind(look, start_pos);
 }
 
-UnicodeText::const_iterator UnicodeText::find(const UnicodeText& look) const {
+UnicodeText::const_iterator UnicodeText::find(const UnicodeText& look) const 
+{
 	return UnsafeFind(look, begin());
 }
 
-UnicodeText::const_iterator UnicodeText::UnsafeFind(const UnicodeText& look, const_iterator start_pos) const {
+UnicodeText::const_iterator UnicodeText::UnsafeFind(const UnicodeText& look, const_iterator start_pos) const 
+{
 	// Due to the magic of the UTF8 encoding, searching for a sequence of
 	// letters is equivalent to substring search.
 	StringPiece searching(utf8_data(), utf8_length());
@@ -318,7 +320,8 @@ UnicodeText::const_iterator UnicodeText::UnsafeFind(const UnicodeText& look, con
 	return const_iterator(utf8_data() + found);
 }
 
-bool UnicodeText::HasReplacementChar() const {
+bool UnicodeText::HasReplacementChar() const 
+{
 	// Equivalent to:
 	//   UnicodeText replacement_char;
 	//   replacement_char.push_back(0xFFFD);
@@ -328,18 +331,17 @@ bool UnicodeText::HasReplacementChar() const {
 	return searching.find(looking_for) != StringPiece::npos;
 }
 
-// ----- other methods -----
-
-// Clear operator
-void UnicodeText::clear() {
+void UnicodeText::clear() 
+{
 	repr_.clear();
 }
 
-// Destructor
-UnicodeText::~UnicodeText() {
+UnicodeText::~UnicodeText() 
+{
 }
 
-void UnicodeText::push_back(char32 c) {
+void UnicodeText::push_back(char32 c) 
+{
 	if(UniLib::IsValidCodepoint(c)) {
 		char buf[UTFmax];
 		Rune rune = c;
@@ -358,30 +360,24 @@ void UnicodeText::push_back(char32 c) {
 	}
 }
 
-int UnicodeText::size() const {
-	return CodepointCount(repr_.data_, repr_.size_);
-}
+int UnicodeText::size() const { return CodepointCount(repr_.data_, repr_.size_); }
 
-bool operator == (const UnicodeText& lhs, const UnicodeText& rhs) {
+bool operator == (const UnicodeText& lhs, const UnicodeText& rhs) 
+{
 	if(&lhs == &rhs) return true;
 	if(lhs.repr_.size_ != rhs.repr_.size_) return false;
 	return memcmp(lhs.repr_.data_, rhs.repr_.data_, lhs.repr_.size_) == 0;
 }
 
-string UnicodeText::DebugString() const {
+string UnicodeText::DebugString() const 
+{
 	stringstream ss;
-
-	ss << "{UnicodeText " << hex << this << dec << " chars="
-	   << size() << " repr=" << repr_.DebugString() << "}";
+	ss << "{UnicodeText " << hex << this << dec << " chars=" << size() << " repr=" << repr_.DebugString() << "}";
 #if 0
-	return StringPrintf("{UnicodeText %p chars=%d repr=%s}",
-		   this,
-		   size(),
-		   repr_.DebugString().c_str());
+	return StringPrintf("{UnicodeText %p chars=%d repr=%s}", this, size(), repr_.DebugString().c_str());
 #endif
 	string result;
 	ss >> result;
-
 	return result;
 }
 
@@ -391,85 +387,69 @@ string UnicodeText::DebugString() const {
 // inherited from boost::iterator_facade
 // (http://boost.org/libs/iterator/doc/iterator_facade.html).
 
-UnicodeText::const_iterator::const_iterator() : it_(0) {
+UnicodeText::const_iterator::const_iterator() : it_(0) 
+{
 }
 
-UnicodeText::const_iterator::const_iterator(const const_iterator& other)
-	: it_(other.it_) {
+UnicodeText::const_iterator::const_iterator(const const_iterator& other) : it_(other.it_) 
+{
 }
 
-UnicodeText::const_iterator&UnicodeText::const_iterator::operator = (const const_iterator& other) {
+UnicodeText::const_iterator&UnicodeText::const_iterator::operator = (const const_iterator& other) 
+{
 	if(&other != this)
 		it_ = other.it_;
 	return *this;
 }
 
-UnicodeText::const_iterator UnicodeText::begin() const {
-	return const_iterator(repr_.data_);
-}
+UnicodeText::const_iterator UnicodeText::begin() const { return const_iterator(repr_.data_); }
+UnicodeText::const_iterator UnicodeText::end() const { return const_iterator(repr_.data_ + repr_.size_); }
+bool operator < (const UnicodeText::const_iterator& lhs, const UnicodeText::const_iterator& rhs) { return lhs.it_ < rhs.it_; }
 
-UnicodeText::const_iterator UnicodeText::end() const {
-	return const_iterator(repr_.data_ + repr_.size_);
-}
-
-bool operator < (const UnicodeText::const_iterator& lhs,
-    const UnicodeText::const_iterator& rhs) {
-	return lhs.it_ < rhs.it_;
-}
-
-char32 UnicodeText::const_iterator::operator*() const {
+char32 UnicodeText::const_iterator::operator*() const 
+{
 	// (We could call chartorune here, but that does some
 	// error-checking, and we're guaranteed that our data is valid
 	// UTF-8. Also, we expect this routine to be called very often. So
 	// for speed, we do the calculation ourselves.)
-
 	// Convert from UTF-8
 	uint8 byte1 = static_cast<uint8>(it_[0]);
 	if(byte1 < 0x80)
 		return byte1;
-
 	uint8 byte2 = static_cast<uint8>(it_[1]);
 	if(byte1 < 0xE0)
-		return ((byte1 & 0x1F) << 6)
-		       | (byte2 & 0x3F);
-
+		return ((byte1 & 0x1F) << 6) | (byte2 & 0x3F);
 	uint8 byte3 = static_cast<uint8>(it_[2]);
 	if(byte1 < 0xF0)
-		return ((byte1 & 0x0F) << 12)
-		       | ((byte2 & 0x3F) << 6)
-		       |  (byte3 & 0x3F);
-
+		return ((byte1 & 0x0F) << 12) | ((byte2 & 0x3F) << 6) |  (byte3 & 0x3F);
 	uint8 byte4 = static_cast<uint8>(it_[3]);
-	return ((byte1 & 0x07) << 18)
-	       | ((byte2 & 0x3F) << 12)
-	       | ((byte3 & 0x3F) << 6)
-	       |  (byte4 & 0x3F);
+	return ((byte1 & 0x07) << 18) | ((byte2 & 0x3F) << 12) | ((byte3 & 0x3F) << 6) |  (byte4 & 0x3F);
 }
 
-UnicodeText::const_iterator& UnicodeText::const_iterator::operator++() {
+UnicodeText::const_iterator& UnicodeText::const_iterator::operator++() 
+{
 	it_ += UniLib::OneCharLen(it_);
 	return *this;
 }
 
-UnicodeText::const_iterator& UnicodeText::const_iterator::operator--() {
+UnicodeText::const_iterator& UnicodeText::const_iterator::operator--() 
+{
 	while(UniLib::IsTrailByte(*--it_)) {
 	}
 	return *this;
 }
 
-int UnicodeText::const_iterator::get_utf8(char* utf8_output) const {
+int UnicodeText::const_iterator::get_utf8(char * utf8_output) const 
+{
 	utf8_output[0] = it_[0];
 	if(static_cast<unsigned char>(it_[0]) < 0x80)
 		return 1;
-
 	utf8_output[1] = it_[1];
 	if(static_cast<unsigned char>(it_[0]) < 0xE0)
 		return 2;
-
 	utf8_output[2] = it_[2];
 	if(static_cast<unsigned char>(it_[0]) < 0xF0)
 		return 3;
-
 	utf8_output[3] = it_[3];
 	return 4;
 }

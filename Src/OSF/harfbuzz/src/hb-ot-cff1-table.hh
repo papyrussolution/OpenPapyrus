@@ -1235,7 +1235,7 @@ public:
 						gname.name = cff1_std_strings(sid);
 					else {
 						byte_str_t ustr = (*stringIndex)[sid - cff1_std_strings_length];
-						gname.name = hb_bytes_t((const char*)ustr.arrayZ, ustr.length);
+						gname.name = hb_bytes_t((const char *)ustr.arrayZ, ustr.length);
 					}
 					if(UNLIKELY(!gname.name.arrayZ)) {
 						fini(); return;
@@ -1265,14 +1265,14 @@ public:
 				}
 				else {
 					byte_str_t ubyte_str = (*stringIndex)[sid - cff1_std_strings_length];
-					str = (const char*)ubyte_str.arrayZ;
+					str = (const char *)ubyte_str.arrayZ;
 					str_len = ubyte_str.length;
 				}
 				if(!str_len) 
 					return false;
 				else {
 					// @sobolev uint len = hb_min(buf_len-1, str_len);
-					// @sobolev strncpy(buf, (const char*)str, len);
+					// @sobolev strncpy(buf, (const char *)str, len);
 					// @sobolev buf[len] = '\0';
 					strnzcpy(buf, str, buf_len); // @sobolev 
 					return true;

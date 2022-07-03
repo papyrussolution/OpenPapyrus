@@ -40,7 +40,7 @@
  *          int32      numaSetValue()
  *          int32      numaShiftValue()
  *          int32     *numaGetIArray()
- *          float   *numaGetFArray()
+ *          float *numaGetFArray()
  *          int32      numaGetRefcount()
  *          int32      numaChangeRefcount()
  *          int32      numaGetParameters()
@@ -1696,7 +1696,7 @@ l_ok numaaGetValue(NUMAA      * naa,
     int32 i,
     int32 j,
     float * pfval,
-    int32    * pival)
+    int32 * pival)
 {
 	int32 n;
 	NUMA * na;

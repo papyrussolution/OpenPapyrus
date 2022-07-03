@@ -127,7 +127,7 @@ PIX * pixProjectiveSampledPta(PIX * pixs,
     int32 incolor)
 {
 	float * vc;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -169,15 +169,15 @@ PIX * pixProjectiveSampledPta(PIX * pixs,
  *          for relative timings between sampled and interpolated.
  * </pre>
  */
-PIX * pixProjectiveSampled(PIX        * pixs,
+PIX * pixProjectiveSampled(PIX * pixs,
     float * vc,
     int32 incolor)
 {
 	int32 i, j, w, h, d, x, y, wpls, wpld, color, cmapindex;
 	uint32 val;
 	uint32   * datas, * datad, * lines, * lined;
-	PIX        * pixd;
-	PIXCMAP    * cmap;
+	PIX * pixd;
+	PIXCMAP * cmap;
 
 	PROCNAME(__FUNCTION__);
 
@@ -334,7 +334,7 @@ PIX * pixProjectivePta(PIX * pixs,
  *      (2) Removes any existing colormap, if necessary, before transforming
  * </pre>
  */
-PIX * pixProjective(PIX        * pixs,
+PIX * pixProjective(PIX * pixs,
     float * vc,
     int32 incolor)
 {
@@ -394,7 +394,7 @@ PIX * pixProjectivePtaColor(PIX * pixs,
     uint32 colorval)
 {
 	float * vc;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -427,7 +427,7 @@ PIX * pixProjectivePtaColor(PIX * pixs,
  * \param[in]    colorval   e.g., 0 to bring in BLACK, 0xffffff00 for WHITE
  * \return  pixd, or NULL on error
  */
-PIX * pixProjectiveColor(PIX        * pixs,
+PIX * pixProjectiveColor(PIX * pixs,
     float * vc,
     uint32 colorval)
 {
@@ -493,7 +493,7 @@ PIX * pixProjectivePtaGray(PIX * pixs,
     uint8 grayval)
 {
 	float * vc;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -526,7 +526,7 @@ PIX * pixProjectivePtaGray(PIX * pixs,
  * \param[in]    grayval   0 to bring in BLACK, 255 for WHITE
  * \return  pixd, or NULL on error
  */
-PIX * pixProjectiveGray(PIX        * pixs,
+PIX * pixProjectiveGray(PIX * pixs,
     float * vc,
     uint8 grayval)
 {
@@ -614,8 +614,8 @@ PIX * pixProjectiveGray(PIX        * pixs,
  * </pre>
  */
 PIX * pixProjectivePtaWithAlpha(PIX * pixs,
-    PTA       * ptad,
-    PTA       * ptas,
+    PTA * ptad,
+    PTA * ptas,
     PIX * pixg,
     float fract,
     int32 border)
@@ -836,23 +836,16 @@ l_ok getProjectiveXformCoeffs(PTA         * ptas,
  *      (2) It does not check ptrs for returned data!
  * </pre>
  */
-l_ok projectiveXformSampledPt(float * vc,
-    int32 x,
-    int32 y,
-    int32    * pxp,
-    int32    * pyp)
+l_ok projectiveXformSampledPt(float * vc, int32 x, int32 y, int32 * pxp, int32 * pyp)
 {
+	PROCNAME(__FUNCTION__);
 	float factor;
 	double denom;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!vc)
 		return ERROR_INT("vc not defined", procName, 1);
-
 	if((denom = vc[6] * x + vc[7] * y + 1.0) == 0.0)
 		return ERROR_INT("denom = 0.0", procName, 1);
-	factor = 1.0 / denom;
+	factor = 1.0f / denom;
 	*pxp = (int32)(factor * (vc[0] * x + vc[1] * y + vc[2]) + 0.5);
 	*pyp = (int32)(factor * (vc[3] * x + vc[4] * y + vc[5]) + 0.5);
 	return 0;
@@ -872,23 +865,16 @@ l_ok projectiveXformSampledPt(float * vc,
  *      (2) It does not check ptrs for returned data!
  * </pre>
  */
-l_ok projectiveXformPt(float * vc,
-    int32 x,
-    int32 y,
-    float * pxp,
-    float * pyp)
+l_ok projectiveXformPt(float * vc, int32 x, int32 y, float * pxp, float * pyp)
 {
+	PROCNAME(__FUNCTION__);
 	float factor;
 	double denom;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!vc)
 		return ERROR_INT("vc not defined", procName, 1);
-
 	if((denom = vc[6] * x + vc[7] * y + 1.0) == 0.0)
 		return ERROR_INT("denom = 0.0", procName, 1);
-	factor = 1.0 / denom;
+	factor = 1.0f / denom;
 	*pxp = factor * (vc[0] * x + vc[1] * y + vc[2]);
 	*pyp = factor * (vc[3] * x + vc[4] * y + vc[5]);
 	return 0;

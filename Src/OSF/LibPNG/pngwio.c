@@ -33,7 +33,7 @@
 void /*PRIVATE*/ png_write_data(png_structrp png_ptr, png_const_bytep data, size_t length)
 {
 	/* NOTE: write_data_fn must not change the buffer! */
-	if(png_ptr->write_data_fn != NULL)
+	if(png_ptr->write_data_fn)
 		(*(png_ptr->write_data_fn))(png_ptr, png_constcast(png_bytep, data),
 		    length);
 	else
@@ -68,7 +68,7 @@ void PNGCBAPI png_default_write_data(png_structp png_ptr, png_bytep data, size_t
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
 void /*PRIVATE*/ png_flush(png_structrp png_ptr)
 {
-	if(png_ptr->output_flush_fn != NULL)
+	if(png_ptr->output_flush_fn)
 		(*(png_ptr->output_flush_fn))(png_ptr);
 }
 
@@ -114,33 +114,25 @@ void PNGCBAPI png_default_flush(png_structp png_ptr)
  *      a good idea if io_ptr does not point to a standard
  *      *FILE structure.
  */
-void PNGAPI png_set_write_fn(png_structrp png_ptr, void * io_ptr,
-    png_rw_ptr write_data_fn, png_flush_ptr output_flush_fn)
+void PNGAPI png_set_write_fn(png_structrp png_ptr, void * io_ptr, png_rw_ptr write_data_fn, png_flush_ptr output_flush_fn)
 {
 	if(!png_ptr)
 		return;
-
 	png_ptr->io_ptr = io_ptr;
-
 #ifdef PNG_STDIO_SUPPORTED
-	if(write_data_fn != NULL)
+	if(write_data_fn)
 		png_ptr->write_data_fn = write_data_fn;
-
 	else
 		png_ptr->write_data_fn = png_default_write_data;
 #else
 	png_ptr->write_data_fn = write_data_fn;
 #endif
-
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
 #ifdef PNG_STDIO_SUPPORTED
-
-	if(output_flush_fn != NULL)
+	if(output_flush_fn)
 		png_ptr->output_flush_fn = output_flush_fn;
-
 	else
 		png_ptr->output_flush_fn = png_default_flush;
-
 #else
 	png_ptr->output_flush_fn = output_flush_fn;
 #endif
@@ -149,7 +141,7 @@ void PNGAPI png_set_write_fn(png_structrp png_ptr, void * io_ptr,
 #endif /* WRITE_FLUSH */
 #ifdef PNG_READ_SUPPORTED
 	/* It is an error to read while writing a png file */
-	if(png_ptr->read_data_fn != NULL) {
+	if(png_ptr->read_data_fn) {
 		png_ptr->read_data_fn = NULL;
 		png_warning(png_ptr, "Can't set both read_data_fn and write_data_fn in the same structure");
 	}

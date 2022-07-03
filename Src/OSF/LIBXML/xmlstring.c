@@ -708,7 +708,7 @@ int FASTCALL xmlGetUTF8Char(const uchar * utf, int * len)
 	}
 	return (c);
 error:
-	if(len != NULL)
+	if(len)
 		*len = 0;
 	return -1;
 }

@@ -45,6 +45,30 @@ public class StyloQApp extends SLib.App {
 	private Timer SvcPollTmr;
 	private void StartupTest()
 	{
+		{
+			assert(SLib.satoi(null) == 0);
+			assert(SLib.satoi("") == 0);
+			assert(SLib.satoi("0") == 0);
+			assert(SLib.satoi("-") == 0);
+			assert(SLib.satoi("+") == 0);
+			assert(SLib.satoi("0x") == 0);
+			assert(SLib.satoi("0x0") == 0);
+			assert(SLib.satoi("-0x0") == 0);
+			assert(SLib.satoi("1") == 1);
+			assert(SLib.satoi("0x1") == 1);
+			assert(SLib.satoi("-1") == -1);
+			assert(SLib.satoi("+1") == 1);
+			assert(SLib.satoi("0x0ff") == 255);
+			assert(SLib.satoi(" -0x0ff") == -255);
+			assert(SLib.satoi("0xb") == 11);
+			assert(SLib.satoi("  1000") == 1000);
+			assert(SLib.satoi("  1000  ") == 1000);
+			assert(SLib.satoi("  1000nothing  ") == 1000);
+			assert(SLib.satoi(" \t 90001011  ") == 90001011);
+			assert(SLib.satoi(" abracadabra100  ") == 0);
+			assert(SLib.satoi("\t 0xabcdef0") == 0xabcdef0);
+			assert(SLib.satoi("\t\t \t 1234567890") == 1234567890);
+		}
 		SLib.LDATE d = SLib.GetCurDate();
 		assert(SLib.CheckDate(d.day(), d.month(), d.year()));
 		String ds = SLib.datefmt(d.day(), d.month(), d.year(), SLib.DATF_DMY|SLib.DATF_CENTURY);
@@ -905,8 +929,6 @@ public class StyloQApp extends SLib.App {
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("attendanceprereq"))
 											intent_cls = CmdRAttendancePrereqActivity.class;
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("search")) {
-											//intent_cls = CmdRAttendancePrereqActivity.class;
-											//public MainActivity FindMainActivity()
 											if(current_activity_list != null) {
 												for(int i = 0; gs_activity == null && i < current_activity_list.size(); i++) {
 													Activity a = current_activity_list.get(i);
@@ -984,6 +1006,17 @@ public class StyloQApp extends SLib.App {
 							intent.putExtra("SvcReplyText", svc_reply_text);
 						}
 						main_activity.startActivity(intent);
+					}
+					else {
+						/*
+						String text_to_display = null;
+						if(rawdata != null) {
+							text_to_display = new String(rawdata);
+						}
+						if(SLib.GetLen(text_to_display) == 0)
+							text_to_display = "no text";
+						DisplayMessage(main_activity, "", 0);
+						 */
 					}
 				}
 				else if(subj.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {

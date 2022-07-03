@@ -220,7 +220,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual ~InitialTimeZoneRule();
-
 	/**
 	 * Clone this InitialTimeZoneRule object polymorphically. The caller owns the result and
 	 * should delete it when done.
@@ -228,14 +227,12 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual InitialTimeZoneRule* clone() const override;
-
 	/**
 	 * Assignment operator.
 	 * @param right The object to be copied.
 	 * @stable ICU 3.8
 	 */
 	InitialTimeZoneRule& operator =(const InitialTimeZoneRule& right);
-
 	/**
 	 * Return true if the given <code>TimeZoneRule</code> objects are semantically equal. Objects
 	 * of different subclasses are considered unequal.
@@ -244,7 +241,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual bool operator==(const TimeZoneRule& that) const override;
-
 	/**
 	 * Return true if the given <code>TimeZoneRule</code> objects are semantically unequal. Objects
 	 * of different subclasses are considered unequal.
@@ -253,7 +249,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual bool operator !=(const TimeZoneRule& that) const override;
-
 	/**
 	 * Gets the time when this rule takes effect in the given year.
 	 * @param year              The Gregorian year, with 0 == 1 BCE, -1 == 2 BCE, etc.
@@ -267,7 +262,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	bool getStartInYear(int32_t year, int32_t prevRawOffset, int32_t prevDSTSavings, UDate& result) const;
-
 	/**
 	 * Returns if this rule represents the same rule and offsets as another.
 	 * When two <code>TimeZoneRule</code> objects differ only its names, this method
@@ -277,7 +271,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual bool isEquivalentTo(const TimeZoneRule& that) const override;
-
 	/**
 	 * Gets the very first time when this rule takes effect.
 	 * @param prevRawOffset     The standard time offset from UTC before this rule
@@ -290,7 +283,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual bool getFirstStart(int32_t prevRawOffset, int32_t prevDSTSavings, UDate& result) const override;
-
 	/**
 	 * Gets the final time when this rule takes effect.
 	 * @param prevRawOffset     The standard time offset from UTC before this rule
@@ -303,7 +295,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual bool getFinalStart(int32_t prevRawOffset, int32_t prevDSTSavings, UDate& result) const override;
-
 	/**
 	 * Gets the first time when this rule takes effect after the specified time.
 	 * @param base              The first start time after this base time will be returned.
@@ -318,9 +309,7 @@ public:
 	 *          "result" is unchanged.
 	 * @stable ICU 3.8
 	 */
-	virtual bool getNextStart(UDate base, int32_t prevRawOffset, int32_t prevDSTSavings,
-	    bool inclusive, UDate& result) const override;
-
+	virtual bool getNextStart(UDate base, int32_t prevRawOffset, int32_t prevDSTSavings, bool inclusive, UDate& result) const override;
 	/**
 	 * Gets the most recent time when this rule takes effect before the specified time.
 	 * @param base              The most recent time before this base time will be returned.
@@ -335,9 +324,7 @@ public:
 	 *          "result" is unchanged.
 	 * @stable ICU 3.8
 	 */
-	virtual bool getPreviousStart(UDate base, int32_t prevRawOffset, int32_t prevDSTSavings,
-	    bool inclusive, UDate& result) const override;
-
+	virtual bool getPreviousStart(UDate base, int32_t prevRawOffset, int32_t prevDSTSavings, bool inclusive, UDate& result) const override;
 public:
 	/**
 	 * Return the class ID for this class. This is useful only for comparing to

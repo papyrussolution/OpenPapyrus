@@ -3587,7 +3587,7 @@ static void xmlTextWriterStartDocumentCallback(void * ctx)
 			return;
 		}
 	}
-	if(ctxt->myDoc && (ctxt->myDoc->URL == NULL) && ctxt->input && (ctxt->input->filename != NULL)) {
+	if(ctxt->myDoc && (ctxt->myDoc->URL == NULL) && ctxt->input && ctxt->input->filename) {
 		ctxt->myDoc->URL = xmlCanonicPath((const xmlChar *)ctxt->input->filename);
 		SETIFZ(ctxt->myDoc->URL, sstrdup((const xmlChar *)ctxt->input->filename));
 	}

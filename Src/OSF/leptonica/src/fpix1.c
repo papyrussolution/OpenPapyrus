@@ -185,7 +185,7 @@ FPIX * fpixCreate(int32 width,
 FPIX * fpixCreateTemplate(FPIX  * fpixs)
 {
 	int32 w, h;
-	FPIX    * fpixd;
+	FPIX * fpixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -356,7 +356,7 @@ int32 fpixGetWpl(FPIX  * fpix)
  * \param[in]    wpl
  * \return  0 if OK, 1 on error
  */
-l_ok fpixSetWpl(FPIX    * fpix,
+l_ok fpixSetWpl(FPIX * fpix,
     int32 wpl)
 {
 	PROCNAME(__FUNCTION__);
@@ -390,7 +390,7 @@ int32 fpixGetRefcount(FPIX  * fpix)
  * \param[in]    delta
  * \return  0 if OK, 1 on error
  */
-l_ok fpixChangeRefcount(FPIX    * fpix,
+l_ok fpixChangeRefcount(FPIX * fpix,
     int32 delta)
 {
 	PROCNAME(__FUNCTION__);
@@ -429,7 +429,7 @@ l_ok fpixGetResolution(FPIX     * fpix,
  * \param[in]    xres, yres     x and y resolution
  * \return  0 if OK, 1 on error
  */
-l_ok fpixSetResolution(FPIX    * fpix,
+l_ok fpixSetResolution(FPIX * fpix,
     int32 xres,
     int32 yres)
 {
@@ -544,7 +544,7 @@ l_ok fpixGetPixel(FPIX       * fpix,
  *      (1) If the point is outside the image, this returns an error (2),
  *          with 0.0 in %pval.  To avoid spamming output, it fails silently.
  */
-l_ok fpixSetPixel(FPIX      * fpix,
+l_ok fpixSetPixel(FPIX * fpix,
     int32 x,
     int32 y,
     float val)
@@ -609,7 +609,7 @@ FPIXA * fpixaCopy(FPIXA   * fpixa,
     int32 copyflag)
 {
 	int32 i;
-	FPIX    * fpixc;
+	FPIX * fpixc;
 	FPIXA   * fpixac;
 
 	PROCNAME(__FUNCTION__);
@@ -688,11 +688,11 @@ void fpixaDestroy(FPIXA  ** pfpixa)
  * \return  0 if OK; 1 on error
  */
 l_ok fpixaAddFPix(FPIXA   * fpixa,
-    FPIX    * fpix,
+    FPIX * fpix,
     int32 copyflag)
 {
 	int32 n;
-	FPIX    * fpixc;
+	FPIX * fpixc;
 
 	PROCNAME(__FUNCTION__);
 
@@ -929,7 +929,7 @@ l_ok fpixaGetPixel(FPIXA      * fpixa,
     float * pval)
 {
 	int32 n, ret;
-	FPIX    * fpix;
+	FPIX * fpix;
 
 	PROCNAME(__FUNCTION__);
 
@@ -964,7 +964,7 @@ l_ok fpixaSetPixel(FPIXA     * fpixa,
     float val)
 {
 	int32 n, ret;
-	FPIX    * fpix;
+	FPIX * fpix;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1611,7 +1611,7 @@ l_ok fpixWriteStream(FILE * fp,
  */
 l_ok fpixWriteMem(uint8  ** pdata,
     size_t * psize,
-    FPIX      * fpix)
+    FPIX * fpix)
 {
 	int32 ret;
 	FILE * fp;
@@ -2017,7 +2017,7 @@ DPIX * dpixEndianByteSwap(DPIX  * dpixd,
  * </pre>
  */
 l_ok fpixPrintStream(FILE * fp,
-    FPIX    * fpix,
+    FPIX * fpix,
     int32 factor)
 {
 	int32 i, j, w, h, count;

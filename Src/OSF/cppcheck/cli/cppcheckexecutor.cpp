@@ -24,11 +24,11 @@
 #include <unistd.h>
 #if defined(__APPLE__)
 #   define _XOPEN_SOURCE // ucontext.h APIs can only be used on Mac OSX >= 10.7 if _XOPEN_SOURCE is defined
-#   include <ucontext.h>
+#include <ucontext.h>
 
 #   undef _XOPEN_SOURCE
 #elif !defined(__OpenBSD__) && !defined(__HAIKU__)
-#   include <ucontext.h>
+#include <ucontext.h>
 #endif
 #ifdef __linux__
 #include <syscall.h>
@@ -681,7 +681,7 @@ void printCallstack(FILE* outputFile, PEXCEPTION_POINTERS ex)
 		fprintf(outputFile,
 		    "%lu. 0x%08I64X in ",
 		    frame, (ULONG64)stack.AddrPC.Offset);
-		fputs((const char*)undname, outputFile);
+		fputs((const char *)undname, outputFile);
 		fputc('\n', outputFile);
 		if(0==stack.AddrReturn.Offset || beyond_main>2) // StackWalk64() sometimes doesn't reach any end...
 			break;

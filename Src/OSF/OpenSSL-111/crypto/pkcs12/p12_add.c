@@ -8,13 +8,10 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/pkcs12.h>
 #include "p12_lcl.h"
 
 /* Pack an object into an OCTET STRING and turn into a safebag */
-
-PKCS12_SAFEBAG * PKCS12_item_pack_safebag(void * obj, const ASN1_ITEM * it,
-    int nid1, int nid2)
+PKCS12_SAFEBAG * PKCS12_item_pack_safebag(void * obj, const ASN1_ITEM * it, int nid1, int nid2)
 {
 	PKCS12_BAGS * bag;
 	PKCS12_SAFEBAG * safebag;

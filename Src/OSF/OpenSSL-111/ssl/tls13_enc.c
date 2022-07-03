@@ -7,9 +7,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <internal/cryptlib.h>
-//#include <openssl/evp.h>
-//#include <openssl/kdf.h>
 
 #define TLS13_MAX_LABEL_LEN     249
 

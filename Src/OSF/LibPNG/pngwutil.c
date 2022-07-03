@@ -108,16 +108,13 @@ void PNGAPI png_write_chunk_start(png_structrp png_ptr, png_const_bytep chunk_st
  * sum of the lengths from these calls *must* add up to the total_length
  * given to png_write_chunk_header().
  */
-void PNGAPI png_write_chunk_data(png_structrp png_ptr, png_const_bytep data,
-    size_t length)
+void PNGAPI png_write_chunk_data(png_structrp png_ptr, png_const_bytep data, size_t length)
 {
 	/* Write the data, and run the CRC over it */
 	if(!png_ptr)
 		return;
-
-	if(data != NULL && length > 0) {
+	if(data && length > 0) {
 		png_write_data(png_ptr, data, length);
-
 		/* Update the CRC after writing the data,
 		 * in case the user I/O routine alters it.
 		 */
@@ -129,9 +126,7 @@ void PNGAPI png_write_chunk_data(png_structrp png_ptr, png_const_bytep data,
 void PNGAPI png_write_chunk_end(png_structrp png_ptr)
 {
 	uint8 buf[4];
-
 	if(!png_ptr) return;
-
 #ifdef PNG_IO_STATE_SUPPORTED
 	/* Inform the I/O callback that the chunk CRC is being written.
 	 * PNG_IO_CHUNK_CRC requires a single I/O function call.

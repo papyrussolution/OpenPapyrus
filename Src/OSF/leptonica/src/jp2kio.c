@@ -91,7 +91,7 @@
 #ifdef LIBJP2K_HEADER
 #include LIBJP2K_HEADER
 #else
-#include <openjpeg.h>
+#include <..\OSF\openjpeg\src\lib\openjp2\openjpeg.h>
 #endif
 
 /* 2.0 didn't define OPJ_VERSION_MINOR. */
@@ -210,12 +210,9 @@ PIX * pixReadJp2k(const char * filename,
  *      (1) See pixReadJp2k() for usage.
  * </pre>
  */
-PIX * pixReadStreamJp2k(FILE * fp,
-    uint32 reduction,
-    BOX      * box,
-    int32 hint,
-    int32 debug)
+PIX * pixReadStreamJp2k(FILE * fp, uint32 reduction, BOX      * box, int32 hint, int32 debug)
 {
+	PROCNAME(__FUNCTION__);
 	const char * opjVersion;
 	int32 i, j, index, bx, by, bw, bh, val, rval, gval, bval, aval;
 	int32 w, h, wpl, bps, spp, xres, yres, reduce, prec, colorspace;
@@ -227,12 +224,8 @@ PIX * pixReadStreamJp2k(FILE * fp,
 	opj_codec_t       * l_codec = NULL; /* handle to decompressor */
 	opj_stream_t      * l_stream = NULL; /* opj stream */
 	PIX               * pix = NULL;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!fp)
 		return (PIX *)ERROR_PTR("fp not defined", procName, NULL);
-
 	opjVersion = opj_version();
 	if(opjVersion[0] != '2') {
 		L_ERROR("version is %s; must be 2.0 or higher\n", procName, opjVersion);

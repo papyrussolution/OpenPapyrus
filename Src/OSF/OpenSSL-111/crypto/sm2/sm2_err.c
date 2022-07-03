@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/err.h>
 #include <internal/crypto/sm2err.h>
 
 #ifndef OPENSSL_NO_ERR
@@ -17,16 +16,12 @@ static const ERR_STRING_DATA SM2_str_functs[] = {
 	{ERR_PACK(ERR_LIB_SM2, SM2_F_PKEY_SM2_COPY, 0), "pkey_sm2_copy"},
 	{ERR_PACK(ERR_LIB_SM2, SM2_F_PKEY_SM2_CTRL, 0), "pkey_sm2_ctrl"},
 	{ERR_PACK(ERR_LIB_SM2, SM2_F_PKEY_SM2_CTRL_STR, 0), "pkey_sm2_ctrl_str"},
-	{ERR_PACK(ERR_LIB_SM2, SM2_F_PKEY_SM2_DIGEST_CUSTOM, 0),
-	 "pkey_sm2_digest_custom"},
+	{ERR_PACK(ERR_LIB_SM2, SM2_F_PKEY_SM2_DIGEST_CUSTOM, 0), "pkey_sm2_digest_custom"},
 	{ERR_PACK(ERR_LIB_SM2, SM2_F_PKEY_SM2_INIT, 0), "pkey_sm2_init"},
 	{ERR_PACK(ERR_LIB_SM2, SM2_F_PKEY_SM2_SIGN, 0), "pkey_sm2_sign"},
-	{ERR_PACK(ERR_LIB_SM2, SM2_F_SM2_COMPUTE_MSG_HASH, 0),
-	 "sm2_compute_msg_hash"},
-	{ERR_PACK(ERR_LIB_SM2, SM2_F_SM2_COMPUTE_USERID_DIGEST, 0),
-	 "sm2_compute_userid_digest"},
-	{ERR_PACK(ERR_LIB_SM2, SM2_F_SM2_COMPUTE_Z_DIGEST, 0),
-	 "sm2_compute_z_digest"},
+	{ERR_PACK(ERR_LIB_SM2, SM2_F_SM2_COMPUTE_MSG_HASH, 0), "sm2_compute_msg_hash"},
+	{ERR_PACK(ERR_LIB_SM2, SM2_F_SM2_COMPUTE_USERID_DIGEST, 0), "sm2_compute_userid_digest"},
+	{ERR_PACK(ERR_LIB_SM2, SM2_F_SM2_COMPUTE_Z_DIGEST, 0), "sm2_compute_z_digest"},
 	{ERR_PACK(ERR_LIB_SM2, SM2_F_SM2_DECRYPT, 0), "sm2_decrypt"},
 	{ERR_PACK(ERR_LIB_SM2, SM2_F_SM2_ENCRYPT, 0), "sm2_encrypt"},
 	{ERR_PACK(ERR_LIB_SM2, SM2_F_SM2_PLAINTEXT_SIZE, 0), "sm2_plaintext_size"},

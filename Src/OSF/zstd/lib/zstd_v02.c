@@ -342,8 +342,8 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, si
 	}
 	if(srcSize >=  sizeof(size_t)) {/* normal case */
 		uint32 contain32;
-		bitD->start = (const char*)srcBuffer;
-		bitD->ptr   = (const char*)srcBuffer + srcSize - sizeof(size_t);
+		bitD->start = (const char *)srcBuffer;
+		bitD->ptr   = (const char *)srcBuffer + srcSize - sizeof(size_t);
 		bitD->bitContainer = MEM_readLEST(bitD->ptr);
 		contain32 = ((const BYTE *)srcBuffer)[srcSize-1];
 		if(contain32 == 0) return ERROR(GENERIC); /* endMark not present */
@@ -351,7 +351,7 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, si
 	}
 	else {
 		uint32 contain32;
-		bitD->start = (const char*)srcBuffer;
+		bitD->start = (const char *)srcBuffer;
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize)

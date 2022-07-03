@@ -2347,6 +2347,7 @@ class ppstr2 {
 	public static final int PPCFM_CREATESPCOPRKIND = 10174;
 	public static final int PPCFM_STQ_CHANGEORDCLI = 10175;
 	public static final int PPCFM_STQ_RMVORD_DRAFT = 10176;
+	public static final int PPCFM_STQ_RMVFACE = 10177;
 	//
 	// .N.
 	//
@@ -4471,6 +4472,7 @@ class ppstr2 {
 	public static final int PPTXT_FORMATLIST_TIME = 12047;
 	public static final int PPTXT_STQ_MAPCLI2PSN_DIRECT = 12048;
 	public static final int PPTXT_STQ_MAPCLI2PSN_USER = 12049;
+	public static final int PPTXT_TEXTHASBEENCOPIEDTOCLIPBOARD = 12052;
 	//
 	// .N.
 	//

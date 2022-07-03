@@ -551,7 +551,7 @@ PIX * pixSnapColorCmap(PIX * pixd,
 {
 	int32 i, ncolors, index, found;
 	int32 rval, gval, bval, rsval, gsval, bsval, rdval, gdval, bdval;
-	int32   * tab;
+	int32 * tab;
 	PIX * pixm;
 	PIXCMAP   * cmap;
 
@@ -666,7 +666,7 @@ PIX * pixLinearMapToTargetColor(PIX * pixd,
 {
 	int32 i, j, w, h, wpl;
 	int32 rval, gval, bval, rsval, gsval, bsval, rdval, gdval, bdval;
-	int32   * rtab, * gtab, * btab;
+	int32 * rtab, * gtab, * btab;
 	uint32 pixel;
 	uint32 * line, * data;
 
@@ -831,7 +831,7 @@ PIX * pixShiftByComponent(PIX * pixd, PIX * pixs, uint32 srcval, uint32 dstval)
 {
 	int32 i, j, w, h, wpl;
 	int32 rval, gval, bval, rsval, gsval, bsval, rdval, gdval, bdval;
-	int32   * rtab, * gtab, * btab;
+	int32 * rtab, * gtab, * btab;
 	uint32 pixel;
 	uint32 * line, * data;
 	PIXCMAP   * cmap;

@@ -2946,9 +2946,9 @@ private:
 
 		// #9770
 		check("class C {\n"
-		    "  std::string f(const char*);\n"
+		    "  std::string f(const char *);\n"
 		    "};\n"
-		    "std::string C::f(const char*) {\n"
+		    "std::string C::f(const char *) {\n"
 		    "  const char data[] = \"x\";\n"
 		    "  return data;\n"
 		    "}\n");
@@ -3575,7 +3575,7 @@ private:
 		check("struct var {\n"
 		    "    void fun();\n"
 		    "}x;\n"
-		    "var* T(const char*) {\n"
+		    "var* T(const char *) {\n"
 		    "    return &x;\n"
 		    "}\n"
 		    "std::string GetTemp();\n"

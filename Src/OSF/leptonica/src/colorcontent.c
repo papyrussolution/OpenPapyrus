@@ -467,7 +467,7 @@ PIX * pixColorMagnitude(PIX * pixs,
  *          that can be occupied.
  * </pre>
  */
-l_ok pixColorFraction(PIX        * pixs,
+l_ok pixColorFraction(PIX * pixs,
     int32 darkthresh,
     int32 lightthresh,
     int32 diffthresh,
@@ -560,7 +560,7 @@ PIX * pixColorShiftWhitePoint(PIX * pixs,
     int32 bref)
 {
 	int32 w, h, i, j, wpl1, wpl2, rval, gval, bval;
-	int32   * rtab, * gtab, * btab;
+	int32 * rtab, * gtab, * btab;
 	uint32 pixel;
 	uint32 * data1, * data2, * line1, * line2;
 	NUMA * nar, * nag, * nab;
@@ -910,8 +910,8 @@ PIX * pixMaskOverColorRange(PIX * pixs,
  *          This is done here in debug mode.
  * </pre>
  */
-l_ok pixFindColorRegions(PIX        * pixs,
-    PIX        * pixm,
+l_ok pixFindColorRegions(PIX * pixs,
+    PIX * pixm,
     int32 factor,
     int32 lightthresh,
     int32 darkthresh,
@@ -1129,7 +1129,7 @@ l_ok pixNumSignificantGrayColors(PIX * pixs,
     int32 lightthresh,
     float minfract,
     int32 factor,
-    int32   * pncolors)
+    int32 * pncolors)
 {
 	int32 i, w, h, count, mincount, ncolors;
 	NUMA * na;
@@ -1393,7 +1393,7 @@ l_ok pixNumColors(PIX * pixs,
 {
 	int32 w, h, d, i, j, wpl, hashsize, sum, count, manycolors;
 	int32 rval, gval, bval, val;
-	int32   * inta;
+	int32 * inta;
 	uint32 pixel;
 	uint32 * data, * line;
 	PIXCMAP   * cmap;
@@ -1492,7 +1492,7 @@ PIX * pixConvertRGBToCmapLossless(PIX  * pixs)
 {
 	int32 w, h, d, i, j, wpls, wpld, hashsize, hashval, ncolors, index;
 	int32 rval, gval, bval, val;
-	int32   * hasha1, * hasha2;
+	int32 * hasha1, * hasha2;
 	uint32 pixel;
 	uint32 * datas, * lines, * datad, * lined;
 	PIX * pixd;
@@ -1583,7 +1583,7 @@ PIX * pixConvertRGBToCmapLossless(PIX  * pixs)
  *               pixDisplayColorArray(array, ncolors, ...);
  * </pre>
  */
-l_ok pixGetMostPopulatedColors(PIX        * pixs,
+l_ok pixGetMostPopulatedColors(PIX * pixs,
     int32 sigbits,
     int32 factor,
     int32 ncolors,
@@ -1658,7 +1658,7 @@ l_ok pixGetMostPopulatedColors(PIX        * pixs,
  *          an RGB image with not more than 256 colors.
  * </pre>
  */
-PIX * pixSimpleColorQuantize(PIX        * pixs,
+PIX * pixSimpleColorQuantize(PIX * pixs,
     int32 sigbits,
     int32 factor,
     int32 ncolors)
@@ -1937,17 +1937,17 @@ l_ok getRGBFromIndex(uint32 index,
  *          sensitivity to red, and fewer false positives.
  * </pre>
  */
-l_ok pixHasHighlightRed(PIX        * pixs,
+l_ok pixHasHighlightRed(PIX * pixs,
     int32 factor,
     float minfract,
     float fthresh,
-    int32    * phasred,
+    int32 * phasred,
     float * pratio,
     PIX ** ppixdb)
 {
 	float fract, ratio;
 	PIX * pix1, * pix2, * pix3, * pix4;
-	FPIX      * fpix;
+	FPIX * fpix;
 
 	PROCNAME(__FUNCTION__);
 

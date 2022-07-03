@@ -166,7 +166,7 @@ public:
      * @param status   output param set to success/failure code on exit
      * @internal ICU 4.0
      */
-    DateIntervalInfo(UErrorCode& status);
+    DateIntervalInfo(UErrorCode & status);
 
 
     /**
@@ -176,7 +176,7 @@ public:
      * @param status  output param set to success/failure code on exit
      * @stable ICU 4.0
      */
-    DateIntervalInfo(const Locale& locale, UErrorCode& status);
+    DateIntervalInfo(const Locale& locale, UErrorCode & status);
 
 
     /**
@@ -262,7 +262,7 @@ public:
     void setIntervalPattern(const UnicodeString & skeleton,
                             UCalendarDateFields lrgDiffCalUnit,
                             const UnicodeString & intervalPattern,
-                            UErrorCode& status);
+                            UErrorCode & status);
 
     /**
      * Get the interval pattern given skeleton and
@@ -277,7 +277,7 @@ public:
     UnicodeString & getIntervalPattern(const UnicodeString & skeleton,
                                       UCalendarDateFields field,
                                       UnicodeString & result,
-                                      UErrorCode& status) const;
+                                      UErrorCode & status) const;
 
     /**
      * Get the fallback interval pattern.
@@ -302,7 +302,7 @@ public:
      * @stable ICU 4.0
      */
     void setFallbackIntervalPattern(const UnicodeString & fallbackPattern,
-                                    UErrorCode& status);
+                                    UErrorCode & status);
 
 
     /** Get default order -- whether the first date in pattern is later date
@@ -381,7 +381,7 @@ private:
      * @param locale   the given locale.
      * @param status   output param set to success/failure code on exit
      */
-    void initializeData(const Locale& locale, UErrorCode& status);
+    void initializeData(const Locale& locale, UErrorCode & status);
 
 
     /* Set Interval pattern.
@@ -397,7 +397,7 @@ private:
     void setIntervalPatternInternally(const UnicodeString & skeleton,
                                       UCalendarDateFields lrgDiffCalUnit,
                                       const UnicodeString & intervalPattern,
-                                      UErrorCode& status);
+                                      UErrorCode & status);
 
 
     /**given an input skeleton, get the best match skeleton
@@ -464,7 +464,7 @@ private:
      */
     static IntervalPatternIndex U_EXPORT2 calendarFieldToIntervalIndex(
                                                       UCalendarDateFields field,
-                                                      UErrorCode& status);
+                                                      UErrorCode & status);
 
 
     /**
@@ -481,7 +481,7 @@ private:
      * @param status   output param set to success/failure code on exit
      * @return         hash table initialized
      */
-    Hashtable* initHash(UErrorCode& status);
+    Hashtable* initHash(UErrorCode & status);
 
 
 
@@ -492,7 +492,7 @@ private:
      * @param target   the target to copy to
      * @param status   output param set to success/failure code on exit
      */
-    void copyHash(const Hashtable* source, Hashtable* target, UErrorCode& status);
+    void copyHash(const Hashtable* source, Hashtable* target, UErrorCode & status);
 
 
     // data members

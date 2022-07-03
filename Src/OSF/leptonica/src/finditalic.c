@@ -158,7 +158,7 @@ l_ok pixItalicWords(PIX * pixs,
 		BOXA * boxat;
 		GPLOT * gplot;
 		NUMA * na;
-		PIXA  * pixa1;
+		PIXA * pixa1;
 		PIX * pix1, * pix2, * pix3;
 		pixa1 = pixaCreate(0);
 		boxat = pixConnComp(pixm, NULL, 8);

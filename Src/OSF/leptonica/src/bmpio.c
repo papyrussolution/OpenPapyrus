@@ -425,8 +425,8 @@ l_ok pixWriteMemBmp(uint8  ** pfdata, size_t * pfsize, PIX * pixs)
 #else
 	BMP_IH     * bmpih;
 #endif
-	PIX        * pix;
-	PIXCMAP    * cmap;
+	PIX * pix;
+	PIXCMAP * cmap;
 	RGBA_QUAD  * pquad;
 
 	PROCNAME(__FUNCTION__);

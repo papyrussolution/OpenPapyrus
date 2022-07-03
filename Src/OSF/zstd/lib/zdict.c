@@ -86,7 +86,7 @@ uint ZDICT_getDictID(const void * dictBuffer, size_t dictSize)
 		return 0;
 	if(MEM_readLE32(dictBuffer) != ZSTD_MAGIC_DICTIONARY) 
 		return 0;
-	return MEM_readLE32((const char*)dictBuffer + 4);
+	return MEM_readLE32((const char *)dictBuffer + 4);
 }
 
 size_t ZDICT_getDictHeaderSize(const void * dictBuffer, size_t dictSize)
@@ -119,16 +119,16 @@ size_t ZDICT_getDictHeaderSize(const void * dictBuffer, size_t dictSize)
  */
 static size_t ZDICT_count(const void * pIn, const void * pMatch)
 {
-	const char* const pStart = (const char*)pIn;
+	const char* const pStart = (const char *)pIn;
 	for(;;) {
 		const size_t diff = MEM_readST(pMatch) ^ MEM_readST(pIn);
 		if(!diff) {
-			pIn = (const char*)pIn+sizeof(size_t);
-			pMatch = (const char*)pMatch+sizeof(size_t);
+			pIn = (const char *)pIn+sizeof(size_t);
+			pMatch = (const char *)pMatch+sizeof(size_t);
 			continue;
 		}
-		pIn = (const char*)pIn+ZSTD_NbCommonBytes(diff);
-		return (size_t)((const char*)pIn - pStart);
+		pIn = (const char *)pIn+ZSTD_NbCommonBytes(diff);
+		return (size_t)((const char *)pIn - pStart);
 	}
 }
 
@@ -312,8 +312,8 @@ static dictItem ZDICT_analyzePos(BYTE * doneMarks, const int* suffix, uint32 sta
 
 static int isIncluded(const void * in, const void * container, size_t length)
 {
-	const char* const ip = (const char*)in;
-	const char* const into = (const char*)container;
+	const char* const ip = (const char *)in;
+	const char* const into = (const char *)container;
 	size_t u;
 
 	for(u = 0; u<length; u++) { /* works because end of buffer is a noisy guard band */
@@ -331,7 +331,7 @@ static uint32 ZDICT_tryMerge(dictItem* table, dictItem elt, uint32 eltNbToSkip, 
 {
 	const uint32 tableSize = table->pos;
 	const uint32 eltEnd = elt.pos + elt.length;
-	const char* const buf = (const char*)buffer;
+	const char* const buf = (const char *)buffer;
 
 	/* tail overlap */
 	uint32 u; for(u = 1; u<tableSize; u++) {
@@ -683,7 +683,7 @@ static size_t ZDICT_analyzeEntropy(void *  dstBuffer, size_t maxDstSize, int com
 	/* collect stats on all samples */
 	for(u = 0; u<nbFiles; u++) {
 		ZDICT_countEStats(esr, &params, countLit, offcodeCount, matchLengthCount, litLengthCount, repOffset,
-		    (const char*)srcBuffer + pos, fileSizes[u], notificationLevel);
+		    (const char *)srcBuffer + pos, fileSizes[u], notificationLevel);
 		pos += fileSizes[u];
 	}
 	if(notificationLevel >= 4) {
@@ -966,7 +966,7 @@ static size_t ZDICT_trainFromBuffer_unsafe_legacy(void * dictBuffer, size_t maxD
 				return ERROR(GENERIC); /* should never happen */
 			}
 			DISPLAYLEVEL(3, "%3u:%3u bytes at pos %8u, savings %7u bytes |", u, length, pos, (uint)dictList[u].savings);
-			ZDICT_printHex((const char*)samplesBuffer+pos, printedLength);
+			ZDICT_printHex((const char *)samplesBuffer+pos, printedLength);
 			DISPLAYLEVEL(3, "| \n");
 		}
 	}
@@ -1022,7 +1022,7 @@ static size_t ZDICT_trainFromBuffer_unsafe_legacy(void * dictBuffer, size_t maxD
 					SAlloc::F(dictList); 
 					return ERROR(GENERIC);
 				} /* should not happen */
-				memcpy(ptr, (const char*)samplesBuffer+dictList[u].pos, l);
+				memcpy(ptr, (const char *)samplesBuffer+dictList[u].pos, l);
 			}
 	    }
 	    dictSize = ZDICT_addEntropyTablesFromBuffer_advanced(dictBuffer, dictContentSize, maxDictSize, samplesBuffer, samplesSizes, nbSamples, params.zParams);

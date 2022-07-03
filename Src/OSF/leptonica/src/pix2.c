@@ -55,29 +55,29 @@
  *           int32     pixSetBorderVal()
  *           int32     pixSetBorderRingVal()
  *           int32     pixSetMirroredBorder()
- *           PIX        *pixCopyBorder()
+ *           PIX *pixCopyBorder()
  *
  *      Add and remove border
- *           PIX        *pixAddBorder()
- *           PIX        *pixAddBlackOrWhiteBorder()
- *           PIX        *pixAddBorderGeneral()
- *           PIX        *pixRemoveBorder()
- *           PIX        *pixRemoveBorderGeneral()
- *           PIX        *pixRemoveBorderToSize()
- *           PIX        *pixAddMirroredBorder()
- *           PIX        *pixAddRepeatedBorder()
- *           PIX        *pixAddMixedBorder()
- *           PIX        *pixAddContinuedBorder()
+ *           PIX *pixAddBorder()
+ *           PIX *pixAddBlackOrWhiteBorder()
+ *           PIX *pixAddBorderGeneral()
+ *           PIX *pixRemoveBorder()
+ *           PIX *pixRemoveBorderGeneral()
+ *           PIX *pixRemoveBorderToSize()
+ *           PIX *pixAddMirroredBorder()
+ *           PIX *pixAddRepeatedBorder()
+ *           PIX *pixAddMixedBorder()
+ *           PIX *pixAddContinuedBorder()
  *
  *      Helper functions using alpha
  *           int32     pixShiftAndTransferAlpha()
- *           PIX        *pixDisplayLayersRGBA()
+ *           PIX *pixDisplayLayersRGBA()
  *
  *      Color sample setting and extraction
- *           PIX        *pixCreateRGBImage()
- *           PIX        *pixGetRGBComponent()
+ *           PIX *pixCreateRGBImage()
+ *           PIX *pixGetRGBComponent()
  *           int32     pixSetRGBComponent()
- *           PIX        *pixGetRGBComponentCmap()
+ *           PIX *pixGetRGBComponentCmap()
  *           int32     pixCopyRGBComponent()
  *           int32     composeRGBPixel()
  *           int32     composeRGBAPixel()
@@ -90,10 +90,10 @@
  *           int32     setLineDataVal()
  *
  *      Conversion between big and little endians
- *           PIX        *pixEndianByteSwapNew()
+ *           PIX *pixEndianByteSwapNew()
  *           int32     pixEndianByteSwap()
  *           int32     lineEndianByteSwap()
- *           PIX        *pixEndianTwoByteSwapNew()
+ *           PIX *pixEndianTwoByteSwapNew()
  *           int32     pixEndianTwoByteSwap()
  *
  *      Extract raster data as binary string
@@ -452,8 +452,8 @@ l_ok pixSetCmapPixel(PIX * pix,
  */
 l_ok pixGetRandomPixel(PIX * pix,
     uint32  * pval,
-    int32   * px,
-    int32   * py)
+    int32 * px,
+    int32 * py)
 {
 	int32 w, h, x, y, rval, gval, bval;
 	uint32 val;
@@ -1142,7 +1142,7 @@ l_ok pixSetInRectArbitrary(PIX * pix,
 {
 	int32 n, x, y, xstart, xend, ystart, yend, bw, bh, w, h, d, wpl, maxval;
 	uint32  * data, * line;
-	BOX       * boxc;
+	BOX * boxc;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -1236,7 +1236,7 @@ l_ok pixSetInRectArbitrary(PIX * pix,
  * </pre>
  */
 l_ok pixBlendInRect(PIX * pixs,
-    BOX       * box,
+    BOX * box,
     uint32 val,
     float fract)
 {
@@ -2504,8 +2504,8 @@ PIX * pixGetRGBComponentCmap(PIX * pixs,
 	int32 wplc, wpld;
 	uint32   * linec, * lined;
 	uint32   * datac, * datad;
-	PIX        * pixc, * pixd;
-	PIXCMAP    * cmap;
+	PIX * pixc, * pixd;
+	PIXCMAP * cmap;
 	RGBA_QUAD  * cta;
 
 	PROCNAME(__FUNCTION__);
@@ -3246,7 +3246,7 @@ l_ok pixGetRasterData(PIX * pixs,
  */
 l_ok pixInferResolution(PIX * pix,
     float longside,
-    int32   * pres)
+    int32 * pres)
 {
 	int32 w, h, maxdim, res;
 

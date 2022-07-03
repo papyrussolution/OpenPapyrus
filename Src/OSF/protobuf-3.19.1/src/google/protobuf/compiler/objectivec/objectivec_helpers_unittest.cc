@@ -150,7 +150,7 @@ TEST(ObjCHelper, TextFormatDecodeData_RawStrings) {
 		0x2, 0x0, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'I', 0x0,
 		0x4, 0x0, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'I', 'J', 'z', 0x0,
 	};
-	std::string expected((const char*)expected_data, sizeof(expected_data));
+	std::string expected((const char *)expected_data, sizeof(expected_data));
 
 	EXPECT_EQ(expected, decode_data.Data());
 }
@@ -186,7 +186,7 @@ TEST(ObjCHelper, TextFormatDecodeData_ByteCodes) {
 		//   underscore, as is + 3 (00 op)
 		0xE8, 0x07, 0x04, 0xA5, 0xA4, 0xA2, 0xBF, 0x1F, 0x0E, 0x84, 0x0,
 	};
-	std::string expected((const char*)expected_data, sizeof(expected_data));
+	std::string expected((const char *)expected_data, sizeof(expected_data));
 
 	EXPECT_EQ(expected, decode_data.Data());
 }

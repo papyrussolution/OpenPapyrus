@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include "modes_lcl.h"
 /*
  * Trouble with Ciphertext Stealing, CTS, mode is that there is no
@@ -22,90 +21,59 @@
  * two interfaces: one compliant with above mentioned RFCs and one
  * compliant with the NIST proposal, both extending CBC mode.
  */
-
-size_t CRYPTO_cts128_encrypt_block(const uchar * in,
-    uchar * out, size_t len,
-    const void * key, uchar ivec[16],
-    block128_f block)
+size_t CRYPTO_cts128_encrypt_block(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], block128_f block)
 {
 	size_t residue, n;
-
 	if(len <= 16)
 		return 0;
-
 	if((residue = len % 16) == 0)
 		residue = 16;
-
 	len -= residue;
-
 	CRYPTO_cbc128_encrypt(in, out, len, key, ivec, block);
-
 	in += len;
 	out += len;
-
 	for(n = 0; n < residue; ++n)
 		ivec[n] ^= in[n];
 	(*block)(ivec, ivec, key);
 	memcpy(out, out - 16, residue);
 	memcpy(out - 16, ivec, 16);
-
 	return len + residue;
 }
 
-size_t CRYPTO_nistcts128_encrypt_block(const uchar * in,
-    uchar * out, size_t len,
-    const void * key,
-    uchar ivec[16],
-    block128_f block)
+size_t CRYPTO_nistcts128_encrypt_block(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], block128_f block)
 {
 	size_t residue, n;
-
 	if(len < 16)
 		return 0;
-
 	residue = len % 16;
-
 	len -= residue;
-
 	CRYPTO_cbc128_encrypt(in, out, len, key, ivec, block);
-
 	if(residue == 0)
 		return len;
-
 	in += len;
 	out += len;
-
 	for(n = 0; n < residue; ++n)
 		ivec[n] ^= in[n];
 	(*block)(ivec, ivec, key);
 	memcpy(out - 16 + residue, ivec, 16);
-
 	return len + residue;
 }
 
-size_t CRYPTO_cts128_encrypt(const uchar * in, uchar * out,
-    size_t len, const void * key,
-    uchar ivec[16], cbc128_f cbc)
+size_t CRYPTO_cts128_encrypt(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], cbc128_f cbc)
 {
 	size_t residue;
 	union {
 		size_t align;
 		uchar c[16];
 	} tmp;
-
 	if(len <= 16)
 		return 0;
-
 	if((residue = len % 16) == 0)
 		residue = 16;
-
 	len -= residue;
-
 	(*cbc)(in, out, len, key, ivec, 1);
-
 	in += len;
 	out += len;
-
 #if defined(CBC_HANDLES_TRUNCATED_IO)
 	memcpy(tmp.c, out - 16, 16);
 	(*cbc)(in, out - 16, residue, key, ivec, 1);

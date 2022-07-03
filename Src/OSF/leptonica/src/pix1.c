@@ -648,7 +648,7 @@ static void pixFree(PIX  * pix)
  *          pixd, will side-effect any existing clones of pixd.
  * </pre>
  */
-PIX * pixCopy(PIX        * pixd,   /* can be null */
+PIX * pixCopy(PIX * pixd,   /* can be null */
     const PIX  * pixs)
 {
 	int32 bytes;
@@ -709,7 +709,7 @@ PIX * pixCopy(PIX        * pixd,   /* can be null */
  *      (2) On failure to allocate, pixd is unchanged.
  * </pre>
  */
-l_ok pixResizeImageData(PIX        * pixd,
+l_ok pixResizeImageData(PIX * pixd,
     const PIX  * pixs)
 {
 	int32 w, h, d, wpl, bytes;
@@ -755,7 +755,7 @@ l_ok pixResizeImageData(PIX        * pixd,
  *      (1) This destroys the colormap in pixd, unless the operation is a no-op
  * </pre>
  */
-l_ok pixCopyColormap(PIX        * pixd,
+l_ok pixCopyColormap(PIX * pixd,
     const PIX  * pixs)
 {
 	int32 valid;
@@ -1034,9 +1034,9 @@ int32 pixSetDepth(PIX * pix,
  * \return  0 if OK, 1 on error
  */
 l_ok pixGetDimensions(const PIX  * pix,
-    int32    * pw,
-    int32    * ph,
-    int32    * pd)
+    int32 * pw,
+    int32 * ph,
+    int32 * pd)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1080,7 +1080,7 @@ l_ok pixSetDimensions(PIX * pix,
  * \param[in]   pixs
  * \return  0 if OK, 1 on error
  */
-l_ok pixCopyDimensions(PIX        * pixd,
+l_ok pixCopyDimensions(PIX * pixd,
     const PIX  * pixs)
 {
 	PROCNAME(__FUNCTION__);
@@ -1146,7 +1146,7 @@ int32 pixSetSpp(PIX * pix,
  * \param[in]   pixs
  * \return  0 if OK, 1 on error
  */
-l_ok pixCopySpp(PIX        * pixd,
+l_ok pixCopySpp(PIX * pixd,
     const PIX  * pixs)
 {
 	PROCNAME(__FUNCTION__);
@@ -1254,8 +1254,8 @@ int32 pixSetYRes(PIX * pix,
  * \return  0 if OK, 1 on error
  */
 l_ok pixGetResolution(const PIX  * pix,
-    int32    * pxres,
-    int32    * pyres)
+    int32 * pxres,
+    int32 * pyres)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1290,7 +1290,7 @@ l_ok pixSetResolution(PIX * pix,
 	return 0;
 }
 
-int32 pixCopyResolution(PIX        * pixd,
+int32 pixCopyResolution(PIX * pixd,
     const PIX  * pixs)
 {
 	PROCNAME(__FUNCTION__);
@@ -1348,7 +1348,7 @@ int32 pixSetInputFormat(PIX * pix,
 	return 0;
 }
 
-int32 pixCopyInputFormat(PIX        * pixd,
+int32 pixCopyInputFormat(PIX * pixd,
     const PIX  * pixs)
 {
 	PROCNAME(__FUNCTION__);
@@ -1452,7 +1452,7 @@ l_ok pixAddText(PIX         * pix,
 	return 0;
 }
 
-int32 pixCopyText(PIX        * pixd,
+int32 pixCopyText(PIX * pixd,
     const PIX  * pixs)
 {
 	PROCNAME(__FUNCTION__);
@@ -1855,7 +1855,7 @@ int32 pixSizesEqual(const PIX  * pix1,
  * \param[out]   pratio    max aspect ratio, >= 1.0; -1.0 on error
  * \return  0 if OK, 1 on error
  */
-l_ok pixMaxAspectRatio(PIX        * pixs,
+l_ok pixMaxAspectRatio(PIX * pixs,
     float * pratio)
 {
 	int32 w, h;

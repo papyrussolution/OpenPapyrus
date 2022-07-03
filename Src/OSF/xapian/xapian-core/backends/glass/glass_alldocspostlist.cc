@@ -11,8 +11,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_alldocspostlist.h"
-#include "glass_database.h"
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;

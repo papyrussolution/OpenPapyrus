@@ -155,8 +155,8 @@ struct UPattern {
           int32_t *ces;
           int32_t cesBuffer[INITIAL_ARRAY_SIZE_];
           int32_t pcesLength;
-          int64_t            *pces;
-          int64_t             pcesBuffer[INITIAL_ARRAY_SIZE_];
+          int64_t    *pces;
+          int64_t     pcesBuffer[INITIAL_ARRAY_SIZE_];
           bool               hasPrefixAccents;
           bool               hasSuffixAccents;
 };

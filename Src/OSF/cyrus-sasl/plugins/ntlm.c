@@ -37,14 +37,6 @@
  *    acknowledgment:
  *    "This product includes software developed by Computing Services
  *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- *
- * CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
- * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
- * FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
- * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
- * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <sasl-internal.h>
 #pragma hdrstop
@@ -71,11 +63,7 @@ typedef int SOCKET;
 #define sasl_getpid getpid
 #endif
 
-#include <openssl/md4.h>
-#include <openssl/md5.h>
-#include <openssl/hmac.h>
-#include <openssl/des.h>
-#include <openssl/opensslv.h>
+#include <slib-ossl.h>
 #if(OPENSSL_VERSION_NUMBER >= 0x0090700f) && !defined(OPENSSL_ENABLE_OLD_DES_SUPPORT)
 	#define des_cblock DES_cblock
 	#define des_key_schedule DES_key_schedule

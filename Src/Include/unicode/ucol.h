@@ -800,8 +800,8 @@ ucol_getEquivalentReorderCodes(int32_t reorderCode,
  * @stable ICU 2.0
  */
 U_CAPI int32_t U_EXPORT2 
-ucol_getDisplayName(    const    char        *objLoc,
-            const    char        *dispLoc,
+ucol_getDisplayName(    const    char *objLoc,
+            const    char *dispLoc,
             UChar             *result,
             int32_t         resultLength,
             UErrorCode        *status);

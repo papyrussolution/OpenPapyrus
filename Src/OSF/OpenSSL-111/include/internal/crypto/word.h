@@ -12,7 +12,6 @@
 #ifndef HEADER_WORD_H
 #define HEADER_WORD_H
 
-//#include <openssl/e_os2.h>
 #include <arch_intrinsics.h>
 #include <curve448utils.h>
 

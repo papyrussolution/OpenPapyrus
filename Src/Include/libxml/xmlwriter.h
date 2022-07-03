@@ -24,9 +24,7 @@ struct xmlBuffer;
 struct xmlTextWriter;
 struct xmlDoc;
 typedef xmlTextWriter * xmlTextWriterPtr;
-/*
- * Constructors & Destructor
- */
+
 XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriter(xmlOutputBuffer * out);
 XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterFilename(const char * uri, int compression);
 XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterMemory(xmlBuffer * buf, int compression);

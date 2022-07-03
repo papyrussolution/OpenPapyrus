@@ -4,15 +4,8 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/rsa.h>
-#include <openssl/bn.h>
-#include <openssl/sha.h>
-#include <openssl/crypto.h>
-#include <openssl/rand.h>
-#include <openssl/pem.h>
-
+#include <slib-ossl.h>
+ 
 static int getkey(int key[], ulong * addendum)
 {
 	key[0] = 5;

@@ -83,12 +83,12 @@ l_ok dewarpSinglePage(PIX         * pixs,
     int32 adaptive,
     int32 useboth,
     int32 check_columns,
-    PIX        ** ppixd,
+    PIX ** ppixd,
     L_DEWARPA  ** pdewa,
     int32 debug)
 {
 	L_DEWARPA * dewa;
-	PIX        * pixb;
+	PIX * pixb;
 
 	PROCNAME(__FUNCTION__);
 
@@ -149,7 +149,7 @@ l_ok dewarpSinglePageInit(PIX         * pixs,
     int32 adaptive,
     int32 useboth,
     int32 check_columns,
-    PIX        ** ppixb,
+    PIX ** ppixb,
     L_DEWARPA  ** pdewa)
 {
 	PIX  * pix1, * pix2;
@@ -205,8 +205,8 @@ l_ok dewarpSinglePageInit(PIX         * pixs,
  *      (4) If a model cannot be built, this returns a copy of pixs in &pixd.
  * </pre>
  */
-l_ok dewarpSinglePageRun(PIX        * pixs,
-    PIX        * pixb,
+l_ok dewarpSinglePageRun(PIX * pixs,
+    PIX * pixb,
     L_DEWARPA * dewa,
     PIX ** ppixd,
     int32 debug)
@@ -729,12 +729,12 @@ l_ok dewarpaInfo(FILE * fp,
  * </pre>
  */
 l_ok dewarpaModelStats(L_DEWARPA * dewa,
-    int32    * pnnone,
-    int32    * pnvsuccess,
-    int32    * pnvvalid,
-    int32    * pnhsuccess,
-    int32    * pnhvalid,
-    int32    * pnref)
+    int32 * pnnone,
+    int32 * pnvsuccess,
+    int32 * pnvvalid,
+    int32 * pnhsuccess,
+    int32 * pnhvalid,
+    int32 * pnref)
 {
 	int32 i, n, pageno, nnone, nvsuccess, nvvalid, nhsuccess, nhvalid, nref;
 	L_DEWARP * dew;
@@ -1071,7 +1071,7 @@ l_ok dewarpShowResults(L_DEWARPA   * dewa,
 	char bufstr[256];
 	int32 i, modelpage;
 	L_BMF     * bmf;
-	BOX       * box;
+	BOX * box;
 	L_DEWARP * dew;
 	PIX * pixs, * pixc, * pixd, * pixt1, * pixt2;
 	PIXA      * pixa;

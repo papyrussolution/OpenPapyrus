@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/pkcs12.h>
 
 /* Cheap and nasty Unicode stuff */
 

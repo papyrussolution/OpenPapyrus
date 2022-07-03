@@ -315,6 +315,19 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		}
 		return result;
 	}
+	static class TabInitEntry {
+		TabInitEntry(final CommonPrereqModule.Tab tab, final int rc, final String title, boolean condition)
+		{
+			Tab = tab;
+			Rc = rc;
+			Title = title;
+			Condition = condition;
+		}
+		final CommonPrereqModule.Tab Tab;
+		final int Rc;
+		final String Title;
+		final boolean Condition;
+	}
 	private void CreateTabList(boolean force)
 	{
 		final int tab_layout_rcid = R.id.TABLAYOUT_ORDERPREREQ;
@@ -322,7 +335,24 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		if(app_ctx != null && (CPM.TabList == null || force)) {
 			CPM.TabList = new ArrayList<CommonPrereqModule.TabEntry>();
 			LayoutInflater inflater = LayoutInflater.from(this);
-			if(CPM.GoodsGroupListData != null) {
+			TabInitEntry[] tab_init_list = {
+				new TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_orderprereq_goodsgroups, "@{group_pl}", (CPM.GoodsGroupListData != null)),
+				new TabInitEntry(CommonPrereqModule.Tab.tabBrands, R.layout.layout_orderprereq_brands, "@{brand_pl}", (BrandListData != null)),
+				new TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_orderprereq_goods, "@{ware_pl}", (CPM.GoodsListData != null)),
+				new TabInitEntry(CommonPrereqModule.Tab.tabClients, R.layout.layout_orderprereq_clients, "@{client_pl}", (CPM.CliListData != null)),
+				new TabInitEntry(CommonPrereqModule.Tab.tabCurrentOrder, R.layout.layout_orderprereq_ordr, "@{orderdocument}", true),
+				new TabInitEntry(CommonPrereqModule.Tab.tabOrders, R.layout.layout_orderprereq_orders, "@{booking_pl}", true),
+				new TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "[search]", true),
+			};
+			for(int i = 0; i < tab_init_list.length; i++) {
+				final TabInitEntry _t = tab_init_list[i];
+				if(_t != null && _t.Condition) {
+					SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_t.Tab.ordinal(), _t.Rc, tab_layout_rcid);
+					String title = SLib.ExpandString(app_ctx, _t.Title);
+					CPM.TabList.add(new CommonPrereqModule.TabEntry(_t.Tab, title, f));
+				}
+			}
+			/*if(CPM.GoodsGroupListData != null) {
 				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabGoodsGroups;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_orderprereq_goodsgroups, tab_layout_rcid);
 				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{group_pl}"), f));
@@ -356,7 +386,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabSearch;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_searchpane, tab_layout_rcid);
 				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "[search]"), f));
-			}
+			}*/
 		}
 	}
 	private CommonPrereqModule.TabEntry SearchTabEntry(CommonPrereqModule.Tab tab)
@@ -389,6 +419,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								//f.requireView();
 								View fv = f.getView();
 								if(fv != null && fv instanceof ViewGroup) {
+									fv.refreshDrawableState(); // @v11.4.3
 									View lv = fv.findViewById(recyclerViewToUpdate);
 									if(lv != null && lv instanceof RecyclerView) {
 										RecyclerView.Adapter gva = ((RecyclerView)lv).getAdapter();
@@ -418,18 +449,15 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					SLib.SlFragmentStatic f = CPM.TabList.get(tidx).TabView;
 					if(f != null) {
 						View fv = f.getView();
-						if(fv != null) {
-							View lv = (innerViewId != 0) ? fv.findViewById(innerViewId) : null;
-							if(lv != null) {
-								if(lv instanceof RecyclerView) {
-									RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
-									if(gva != null)
-										gva.notifyDataSetChanged();
-								}
-								else {
-									lv.refreshDrawableState();
-								}
+						View lv = (fv != null && innerViewId != 0) ? fv.findViewById(innerViewId) : null;
+						if(lv != null) {
+							if(lv instanceof RecyclerView) {
+								RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
+								if(gva != null)
+									gva.notifyDataSetChanged();
 							}
+							else
+								lv.refreshDrawableState();
 						}
 					}
 					break;
@@ -442,6 +470,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	{
 		NotifyTabContentChanged(CommonPrereqModule.Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView);
 		//NotifyTabContentChanged(CommonPrereqModule.Tab.tabCurrentOrder, R.id.CTL_DOCUMENT_AMOUNT);
+		NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
 		CommonPrereqModule.TabEntry tab_entry = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
 		if(tab_entry != null && tab_entry.TabView != null)
 			HandleEvent(SLib.EV_SETVIEWDATA, tab_entry.TabView.getView(), null);
@@ -822,6 +851,25 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							status_image_rc_id = Document.GetImageResourceByDocStatus(_doc.GetDocStatus());
 						}
 						{
+							//
+							View back_cli_img_view = findViewById(R.id.CTL_DOCUMENT_BACK_CLI);
+							// Агентские заказы - требуется указание клиента
+							if(CPM.GetAgentID() > 0 && CPM.GetCurrentDocument() != null && Document.DoesStatusAllowModifications(CPM.GetCurrentDocument().GetDocStatus())) {
+								if(back_cli_img_view != null) {
+									back_cli_img_view.setVisibility(ViewGroup.VISIBLE);
+									back_cli_img_view.setOnClickListener(new View.OnClickListener() {
+										@Override public void onClick(View v)
+										{
+											HandleEvent(SLib.EV_COMMAND, v, null);
+										}
+									});
+								}
+							}
+							else if(back_cli_img_view != null) {
+								back_cli_img_view.setVisibility(ViewGroup.GONE);
+							}
+						}
+						{
 							View v = findViewById(R.id.CTL_DOCUMENT_STATUSICON);
 							if(v != null && v instanceof ImageView)
 								((ImageView)v).setImageResource(status_image_rc_id);
@@ -957,7 +1005,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													ViewDescriptionList.Item di = VdlDocs.Get(i);
 													if(di != null) {
 														String text = null;
-														if(i == 0) { // indicator image
+														if(di.Id == 1) { // indicator image
 															if(ctl_view instanceof ImageView) {
 																final int ds = StyloQDatabase.SecTable.Rec.GetDocStatus(cur_entry.H.Flags);
 																int ir = Document.GetImageResourceByDocStatus(ds);
@@ -966,23 +1014,26 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 															}
 														}
 														else if(ctl_view instanceof TextView){
-															if(i == 1) { // date
+															if(di.Id == 2) { // date
 																SLib.LDATE d = cur_entry.GetNominalDate();
 																if(d != null)
 																	text = d.Format(SLib.DATF_DMY);
 															}
-															else if(i == 2) { // code
+															else if(di.Id == 3) { // code
 																text = cur_entry.H.Code;
 															}
-															else if(i == 3) { // amount
+															else if(di.Id == 4) { // amount
 																text = CPM.FormatCurrency(cur_entry.H.Amount);
 															}
-															else if(i == 4) { // client
+															else if(di.Id == 5) { // client
 																if(cur_entry.H.ClientID > 0) {
 																	JSONObject cli_entry = CPM.FindClientEntry(cur_entry.H.ClientID);
 																	if(cli_entry != null)
 																		text = cli_entry.optString("nm", "");
 																}
+															}
+															else if(di.Id == 6) { // memo
+																text = cur_entry.H.Memo;
 															}
 															((TextView)ctl_view).setText(text);
 														}
@@ -1072,6 +1123,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									VdlDocs = new ViewDescriptionList();
 									{ // #0
 										ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+										col.Id = 1;
 										col.Flags |= ViewDescriptionList.Item.fImage;
 										col.FixedWidth = 32;
 										col.FixedHeight = 32;
@@ -1080,6 +1132,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 									{ // #1
 										ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+										col.Id = 2;
 										col.Title = app_ctx.GetString("billdate");
 										col.StyleRcId = R.style.OrderListItemText;
 										col.Mrgn = fld_mrgn;
@@ -1087,6 +1140,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 									{ // #2
 										ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+										col.Id = 3;
 										col.Title = app_ctx.GetString("billno");
 										col.TotalFunc = SLib.AGGRFUNC_COUNT;
 										col.StyleRcId = R.style.OrderListItemText;
@@ -1095,6 +1149,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 									{ // #3
 										ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+										col.Id = 4;
 										col.Title = app_ctx.GetString("billamount");
 										col.TotalFunc = SLib.AGGRFUNC_SUM;
 										col.StyleRcId = R.style.OrderListItemText;
@@ -1105,19 +1160,21 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									if(CPM.GetAgentID() > 0) { // Агентские заказы - требуется указание клиента
 										{ // #4
 											ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+											col.Id = 5;
 											col.Title = app_ctx.GetString("client");
 											col.StyleRcId = R.style.OrderListItemText;
 											col.Mrgn = fld_mrgn;
 											VdlDocs.AddItem(col);
 										}
 									}
-									/*{ // #4 || #5
+									{ // #5|#4
 										ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+										col.Id = 6;
 										col.Title = app_ctx.GetString("memo");
 										col.StyleRcId = R.style.OrderListItemText;
 										col.Mrgn = fld_mrgn;
 										VdlDocs.AddItem(col);
-									}*/
+									}
 									if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
 										final int _vdlc = VdlDocs.GetCount();
 										assert (_vdlc > 0);
@@ -1128,28 +1185,31 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													Document.DisplayEntry cur_entry = CPM.OrderHList.get(j);
 													if(cur_entry != null && cur_entry.H != null) {
 														String text = null;
-														if(i == 0) { // status image
+														if(dpb.ColumnDescription.Id == 1) { // status image
 															; // По-моему, здесь ничего замерять не надо - мы и так зафиксировали размер элемента
 														}
-														else if(i == 1) { // date
+														else if(dpb.ColumnDescription.Id == 2) { // date
 															SLib.LDATE d = cur_entry.GetNominalDate();
 															if(d != null)
 																VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
 														}
-														else if(i == 2) { // code
+														else if(dpb.ColumnDescription.Id == 3) { // code
 															VdlDocs.DataPreprocessingIter(dpb, cur_entry.H.Code);
 														}
-														else if(i == 3) { // amount
+														else if(dpb.ColumnDescription.Id == 4) { // amount
 															text = CPM.FormatCurrency(cur_entry.H.Amount);
 															VdlDocs.DataPreprocessingIter(dpb, new Double(cur_entry.H.Amount), text);
 														}
-														else if(i == 4) { // client
+														else if(dpb.ColumnDescription.Id == 5) { // client
 															if(cur_entry.H.ClientID > 0) {
 																JSONObject cli_entry = CPM.FindClientEntry(cur_entry.H.ClientID);
 																if(cli_entry != null)
 																	text = cli_entry.optString("nm", "");
 															}
 															VdlDocs.DataPreprocessingIter(dpb, text);
+														}
+														else if(dpb.ColumnDescription.Id == 6) { // memo
+															VdlDocs.DataPreprocessingIter(dpb, null, cur_entry.H.Memo);
 														}
 													}
 												}
@@ -1207,23 +1267,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										if(lv != null) {
 											((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
 											SetupRecyclerListView(fv, R.id.orderPrereqOrdrListView, R.layout.li_orderprereq_ordrti);
-											//
-											View back_cli_img_view = fv.findViewById(R.id.CTL_DOCUMENT_BACK_CLI);
-											// Агентские заказы - требуется указание клиента
-											if(CPM.GetAgentID() > 0 && CPM.GetCurrentDocument() != null && Document.DoesStatusAllowModifications(CPM.GetCurrentDocument().GetDocStatus())) {
-												if(back_cli_img_view != null) {
-													back_cli_img_view.setVisibility(ViewGroup.VISIBLE);
-													back_cli_img_view.setOnClickListener(new View.OnClickListener() {
-														@Override public void onClick(View v)
-														{
-															HandleEvent(SLib.EV_COMMAND, v, null);
-														}
-													});
-												}
-											}
-											else if(back_cli_img_view != null) {
-												back_cli_img_view.setVisibility(ViewGroup.GONE);
-											}
 										}
 										else {
 											lv = fv.findViewById(R.id.orderPrereqOrderListView);

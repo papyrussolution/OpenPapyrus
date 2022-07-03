@@ -33,9 +33,7 @@ void CheckFunctions::checkProhibitedFunctions()
 			    "alloca (") && (!tok->function() || tok->function()->nestedIn->type == Scope::eGlobal)) {
 				if(mTokenizer->isC()) {
 					if(mSettings->standards.c > Standards::C89)
-						reportError(tok,
-						    Severity::warning,
-						    "allocaCalled",
+						reportError(tok, Severity::warning, "allocaCalled",
 						    "$symbol:alloca\n"
 						    "Obsolete function 'alloca' called. In C99 and later it is recommended to use a variable length array instead.\n"
 						    "The obsolete function 'alloca' is called. In C99 and later it is recommended to use a variable length array or "
@@ -43,9 +41,7 @@ void CheckFunctions::checkProhibitedFunctions()
 						    "(http://stackoverflow.com/questions/1018853/why-is-alloca-not-considered-good-practice and http://linux.die.net/man/3/alloca).");
 				}
 				else
-					reportError(tok,
-					    Severity::warning,
-					    "allocaCalled",
+					reportError(tok, Severity::warning, "allocaCalled",
 					    "$symbol:alloca\n"
 					    "Obsolete function 'alloca' called.\n"
 					    "The obsolete function 'alloca' is called. In C++11 and later it is recommended to use std::array<> or "
@@ -55,28 +51,21 @@ void CheckFunctions::checkProhibitedFunctions()
 			else {
 				if(tok->function() && tok->function()->hasBody())
 					continue;
-
 				const Library::WarnInfo* wi = mSettings->library.getWarnInfo(tok);
 				if(wi) {
 					if(mSettings->severity.isEnabled(wi->severity) && mSettings->standards.c >= wi->standards.c &&
 					    mSettings->standards.cpp >= wi->standards.cpp) {
 						const std::string daca = mSettings->daca ? "prohibited" : "";
-						reportError(tok,
-						    wi->severity,
-						    daca + tok->str() + "Called",
-						    wi->message,
-						    CWE477,
-						    Certainty::normal);
+						reportError(tok, wi->severity, daca + tok->str() + "Called", wi->message, CWE477, Certainty::normal);
 					}
 				}
 			}
 		}
 	}
 }
-
-//---------------------------------------------------------------------------
+//
 // Check <valid>, <strz> and <not-bool>
-//---------------------------------------------------------------------------
+//
 void CheckFunctions::invalidFunctionUsage()
 {
 	const SymbolDatabase* symbolDatabase = mTokenizer->getSymbolDatabase();
@@ -205,12 +194,7 @@ void CheckFunctions::invalidFunctionArgError(const Token * tok,
 		    CWE628,
 		    invalidValue->isInconclusive() ? Certainty::inconclusive : Certainty::normal);
 	else
-		reportError(tok,
-		    Severity::error,
-		    "invalidFunctionArg",
-		    errmsg.str(),
-		    CWE628,
-		    Certainty::normal);
+		reportError(tok, Severity::error, "invalidFunctionArg", errmsg.str(), CWE628, Certainty::normal);
 }
 
 void CheckFunctions::invalidFunctionArgBoolError(const Token * tok, const std::string &functionName, int argnr)
@@ -228,15 +212,13 @@ void CheckFunctions::invalidFunctionArgStrError(const Token * tok, const std::st
 	errmsg << "Invalid $symbol() argument nr " << argnr << ". A nul-terminated string is required.";
 	reportError(tok, Severity::error, "invalidFunctionArgStr", errmsg.str(), CWE628, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // Check for ignored return values.
-//---------------------------------------------------------------------------
+//
 void CheckFunctions::checkIgnoredReturnValue()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning) && !mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
@@ -289,10 +271,9 @@ void CheckFunctions::ignoredReturnErrorCode(const Token* tok, const std::string&
 	reportError(tok, Severity::style, "ignoredReturnErrorCode",
 	    "$symbol:" + function + "\nError code from the return value of function $symbol() is not used.", CWE252, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // Check for ignored return values.
-//---------------------------------------------------------------------------
+//
 static const Token * checkMissingReturnScope(const Token * tok, const Library &library);
 
 void CheckFunctions::checkMissingReturn()
@@ -417,10 +398,9 @@ void CheckFunctions::missingReturnError(const Token* tok)
 	reportError(tok, Severity::error, "missingReturn",
 	    "Found a exit path from function with non-void return type that has missing return statement", CWE758, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // Detect passing wrong values to <cmath> functions like atan(0, x);
-//---------------------------------------------------------------------------
+//
 void CheckFunctions::checkMathFunctions()
 {
 	const bool styleC99 = mSettings->severity.isEnabled(Severity::style) && mSettings->standards.c != Standards::C89 &&
@@ -493,44 +473,24 @@ void CheckFunctions::mathfunctionCallWarning(const Token * tok, const nonneg int
 {
 	if(tok) {
 		if(numParam == 1)
-			reportError(tok,
-			    Severity::warning,
-			    "wrongmathcall",
-			    "$symbol:" + tok->str() + "\nPassing value " + tok->strAt(
-				    2) + " to $symbol() leads to implementation-defined result.",
-			    CWE758,
-			    Certainty::normal);
+			reportError(tok, Severity::warning, "wrongmathcall",
+			    "$symbol:" + tok->str() + "\nPassing value " + tok->strAt(2) + " to $symbol() leads to implementation-defined result.", CWE758, Certainty::normal);
 		else if(numParam == 2)
-			reportError(tok,
-			    Severity::warning,
-			    "wrongmathcall",
-			    "$symbol:" + tok->str() + "\nPassing values " + tok->strAt(2) + " and " + tok->strAt(
-				    4) + " to $symbol() leads to implementation-defined result.",
-			    CWE758,
-			    Certainty::normal);
+			reportError(tok, Severity::warning, "wrongmathcall",
+			    "$symbol:" + tok->str() + "\nPassing values " + tok->strAt(2) + " and " + tok->strAt(4) + " to $symbol() leads to implementation-defined result.", CWE758, Certainty::normal);
 	}
 	else
-		reportError(tok,
-		    Severity::warning,
-		    "wrongmathcall",
-		    "Passing value '#' to #() leads to implementation-defined result.",
-		    CWE758,
-		    Certainty::normal);
+		reportError(tok, Severity::warning, "wrongmathcall",
+		    "Passing value '#' to #() leads to implementation-defined result.", CWE758, Certainty::normal);
 }
 
 void CheckFunctions::mathfunctionCallWarning(const Token * tok, const std::string& oldexp, const std::string& newexp)
 {
-	reportError(tok,
-	    Severity::style,
-	    "unpreciseMathCall",
-	    "Expression '" + oldexp + "' can be replaced by '" + newexp + "' to avoid loss of precision.",
-	    CWE758,
-	    Certainty::normal);
+	reportError(tok, Severity::style, "unpreciseMathCall", "Expression '" + oldexp + "' can be replaced by '" + newexp + "' to avoid loss of precision.", CWE758, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // memset(p, y, 0 /* bytes to fill */) <- 2nd and 3rd arguments inverted
-//---------------------------------------------------------------------------
+//
 void CheckFunctions::memsetZeroBytes()
 {
 // FIXME:
@@ -542,7 +502,6 @@ void CheckFunctions::memsetZeroBytes()
 
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
@@ -626,56 +585,41 @@ void CheckFunctions::memsetFloatError(const Token * tok, const std::string &var_
 void CheckFunctions::memsetValueOutOfRangeError(const Token * tok, const std::string &value)
 {
 	const std::string message("The 2nd memset() argument '" + value + "' doesn't fit into an 'unsigned char'.");
-	const std::string verbose(
-		message +
+	const std::string verbose(message +
 		" The 2nd parameter is passed as an 'int', but the function fills the block of memory using the 'unsigned char' conversion of this value.");
 	reportError(tok, Severity::warning, "memsetValueOutOfRange", message + "\n" + verbose, CWE686, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // --check-library => warn for unconfigured functions
-//---------------------------------------------------------------------------
-
+//
 void CheckFunctions::checkLibraryMatchFunctions()
 {
 	if(!mSettings->checkLibrary || !mSettings->severity.isEnabled(Severity::information))
 		return;
-
 	bool insideNew = false;
 	for(const Token * tok = mTokenizer->tokens(); tok; tok = tok->next()) {
 		if(!tok->scope() || !tok->scope()->isExecutable())
 			continue;
-
 		if(tok->str() == "new")
 			insideNew = true;
 		else if(tok->str() == ";")
 			insideNew = false;
 		else if(insideNew)
 			continue;
-
 		if(!Token::Match(tok, "%name% (") || Token::Match(tok, "asm|sizeof|catch"))
 			continue;
-
 		if(tok->varId() != 0 || tok->type() || tok->isStandardType() || tok->isControlFlowKeyword())
 			continue;
-
 		if(tok->linkAt(1)->strAt(1) == "(")
 			continue;
-
 		if(tok->function())
 			continue;
-
 		if(!mSettings->library.isNotLibraryFunction(tok))
 			continue;
-
 		const std::string &functionName = mSettings->library.getFunctionName(tok);
 		if(functionName.empty() || mSettings->library.functions.find(functionName) != mSettings->library.functions.end())
 			continue;
-
-		reportError(tok,
-		    Severity::information,
-		    "checkLibraryFunction",
-		    "--check-library: There is no matching configuration for function " + functionName + "()");
+		reportError(tok, Severity::information, "checkLibraryFunction", "--check-library: There is no matching configuration for function " + functionName + "()");
 	}
 }
 
@@ -689,7 +633,6 @@ void CheckFunctions::returnLocalStdMove()
 
 	if(!mSettings->severity.isEnabled(Severity::performance))
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		// Expect return by-value
@@ -712,9 +655,7 @@ void CheckFunctions::returnLocalStdMove()
 
 void CheckFunctions::copyElisionError(const Token * tok)
 {
-	reportError(tok,
-	    Severity::performance,
-	    "returnStdMoveLocal",
+	reportError(tok, Severity::performance, "returnStdMoveLocal",
 	    "Using std::move for returning object by-value from function will affect copy elision optimization."
 	    " More: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-return-move-local");
 }

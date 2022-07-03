@@ -19,7 +19,7 @@
 namespace absl {
 	ABSL_NAMESPACE_BEGIN
 
-	void InitializeSymbolizer(const char*) {
+	void InitializeSymbolizer(const char *) {
 	}
 
 	namespace debugging_internal {

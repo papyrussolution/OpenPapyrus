@@ -39,8 +39,6 @@ void CheckSizeof::sizeofForNumericParameterError(const Token * tok)
 	    " and 'sizeof(char)' can return different results.", CWE682, Certainty::normal);
 }
 
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
 void CheckSizeof::checkSizeofForArrayParameter()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
@@ -256,13 +254,10 @@ void CheckSizeof::divideBySizeofError(const Token * tok, const std::string &memf
 	    Certainty::normal);
 }
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 void CheckSizeof::sizeofsizeof()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	for(const Token * tok = mTokenizer->tokens(); tok; tok = tok->next()) {
 		if(Token::Match(tok, "sizeof (| sizeof")) {
 			sizeofsizeofError(tok);
@@ -273,22 +268,17 @@ void CheckSizeof::sizeofsizeof()
 
 void CheckSizeof::sizeofsizeofError(const Token * tok)
 {
-	reportError(tok, Severity::warning,
-	    "sizeofsizeof", "Calling 'sizeof' on 'sizeof'.\n"
+	reportError(tok, Severity::warning, "sizeofsizeof", "Calling 'sizeof' on 'sizeof'.\n"
 	    "Calling sizeof for 'sizeof looks like a suspicious code and "
 	    "most likely there should be just one 'sizeof'. The current "
 	    "code is equivalent to 'sizeof(size_t)'", CWE682, Certainty::normal);
 }
 
-//-----------------------------------------------------------------------------
-
 void CheckSizeof::sizeofCalculation()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	const bool printInconclusive = mSettings->certainty.isEnabled(Certainty::inconclusive);
-
 	for(const Token * tok = mTokenizer->tokens(); tok; tok = tok->next()) {
 		if(!Token::simpleMatch(tok, "sizeof ("))
 			continue;
@@ -320,17 +310,13 @@ void CheckSizeof::sizeofCalculation()
 
 void CheckSizeof::sizeofCalculationError(const Token * tok, bool inconclusive)
 {
-	reportError(tok, Severity::warning,
-	    "sizeofCalculation", "Found calculation inside sizeof().", CWE682, inconclusive ? Certainty::inconclusive : Certainty::normal);
+	reportError(tok, Severity::warning, "sizeofCalculation", "Found calculation inside sizeof().", CWE682, inconclusive ? Certainty::inconclusive : Certainty::normal);
 }
-
-//-----------------------------------------------------------------------------
 
 void CheckSizeof::sizeofFunction()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	for(const Token * tok = mTokenizer->tokens(); tok; tok = tok->next()) {
 		if(Token::simpleMatch(tok, "sizeof (")) {
 			// ignore if the `sizeof` result is cast to void inside a macro, i.e. the calculation is
@@ -359,18 +345,15 @@ void CheckSizeof::sizeofFunction()
 
 void CheckSizeof::sizeofFunctionError(const Token * tok)
 {
-	reportError(tok, Severity::warning,
-	    "sizeofFunctionCall", "Found function call inside sizeof().", CWE682, Certainty::normal);
+	reportError(tok, Severity::warning, "sizeofFunctionCall", "Found function call inside sizeof().", CWE682, Certainty::normal);
 }
-
-//-----------------------------------------------------------------------------
+//
 // Check for code like sizeof()*sizeof() or sizeof(ptr)/value
-//-----------------------------------------------------------------------------
+//
 void CheckSizeof::suspiciousSizeofCalculation()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning) || !mSettings->certainty.isEnabled(Certainty::inconclusive))
 		return;
-
 	for(const Token * tok = mTokenizer->tokens(); tok; tok = tok->next()) {
 		if(Token::simpleMatch(tok, "sizeof (")) {
 			const Token* lPar = tok->astParent();
@@ -451,30 +434,20 @@ void CheckSizeof::sizeofVoid()
 void CheckSizeof::sizeofVoidError(const Token * tok)
 {
 	const std::string message = "Behaviour of 'sizeof(void)' is not covered by the ISO C standard.";
-	const std::string verbose = message +
-	    " A value for 'sizeof(void)' is defined only as part of a GNU C extension, which defines 'sizeof(void)' to be 1.";
+	const std::string verbose = message + " A value for 'sizeof(void)' is defined only as part of a GNU C extension, which defines 'sizeof(void)' to be 1.";
 	reportError(tok, Severity::portability, "sizeofVoid", message + "\n" + verbose, CWE682, Certainty::normal);
 }
 
 void CheckSizeof::sizeofDereferencedVoidPointerError(const Token * tok, const std::string &varname)
 {
-	const std::string message = "'*" + varname +
-	    "' is of type 'void', the behaviour of 'sizeof(void)' is not covered by the ISO C standard.";
-	const std::string verbose = message +
-	    " A value for 'sizeof(void)' is defined only as part of a GNU C extension, which defines 'sizeof(void)' to be 1.";
+	const std::string message = "'*" + varname + "' is of type 'void', the behaviour of 'sizeof(void)' is not covered by the ISO C standard.";
+	const std::string verbose = message + " A value for 'sizeof(void)' is defined only as part of a GNU C extension, which defines 'sizeof(void)' to be 1.";
 	reportError(tok, Severity::portability, "sizeofDereferencedVoidPointer", message + "\n" + verbose, CWE682, Certainty::normal);
 }
 
 void CheckSizeof::arithOperationsOnVoidPointerError(const Token* tok, const std::string &varname, const std::string &vartype)
 {
-	const std::string message = "'$symbol' is of type '" + vartype +
-	    "'. When using void pointers in calculations, the behaviour is undefined.";
-	const std::string verbose = message +
-	    " Arithmetic operations on 'void *' is a GNU C extension, which defines the 'sizeof(void)' to be 1.";
-	reportError(tok,
-	    Severity::portability,
-	    "arithOperationsOnVoidPointer",
-	    "$symbol:" + varname + '\n' + message + '\n' + verbose,
-	    CWE467,
-	    Certainty::normal);
+	const std::string message = "'$symbol' is of type '" + vartype + "'. When using void pointers in calculations, the behaviour is undefined.";
+	const std::string verbose = message + " Arithmetic operations on 'void *' is a GNU C extension, which defines the 'sizeof(void)' to be 1.";
+	reportError(tok, Severity::portability, "arithOperationsOnVoidPointer", "$symbol:" + varname + '\n' + message + '\n' + verbose, CWE467, Certainty::normal);
 }

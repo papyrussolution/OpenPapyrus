@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include <openssl/rand.h>
 #include <openssl/rand_drbg.h>
 #include <openssl/buffer.h>

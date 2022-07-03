@@ -13,7 +13,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include "blake2_locl.h"
 #include "blake2_impl.h"
 

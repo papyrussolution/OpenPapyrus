@@ -128,17 +128,14 @@ void CheckType::tooBigSignedBitwiseShiftError(const Token * tok, int lhsbits, co
 		return;
 	reportError(errorPath, severity, id, errmsg.str(), CWE758, rhsbits.isInconclusive() ? Certainty::inconclusive : Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // Checking for integer overflow
-//---------------------------------------------------------------------------
-
+//
 void CheckType::checkIntegerOverflow()
 {
 	// unknown sizeof(int) => can't run this checker
 	if(mSettings->platformType == Settings::Unspecified || mSettings->int_bit >= MathLib::bigint_bits)
 		return;
-
 	for(const Token * tok = mTokenizer->tokens(); tok; tok = tok->next()) {
 		if(!tok->isArithmeticalOp())
 			continue;
@@ -200,11 +197,9 @@ void CheckType::integerOverflowError(const Token * tok, const ValueFlow::Value &
 	    CWE190,
 	    value.isInconclusive() ? Certainty::inconclusive : Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // Checking for sign conversion when operand can be negative
-//---------------------------------------------------------------------------
-
+//
 void CheckType::checkSignConversion()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
@@ -261,11 +256,9 @@ void CheckType::signConversionError(const Token * tok, const ValueFlow::Value * 
 		    negativeValue->isInconclusive() ? Certainty::inconclusive : Certainty::normal);
 	}
 }
-
-//---------------------------------------------------------------------------
+//
 // Checking for long cast of int result   const long x = var1 * var2;
-//---------------------------------------------------------------------------
-
+//
 void CheckType::checkLongCast()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
@@ -359,11 +352,9 @@ void CheckType::longCastReturnError(const Token * tok)
 	    CWE197,
 	    Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // Checking for float to integer overflow
-//---------------------------------------------------------------------------
-
+//
 void CheckType::checkFloatToIntegerOverflow()
 {
 	for(const Token * tok = mTokenizer->tokens(); tok; tok = tok->next()) {

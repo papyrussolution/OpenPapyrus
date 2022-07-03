@@ -13,9 +13,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifndef OPENSSL_NO_SRP
-//#include <openssl/sha.h>
-//#include <openssl/srp.h>
-//#include <openssl/evp.h>
 #include <bn_srp.h>
 
 /* calculate = SHA1(PAD(x) || PAD(y)) */

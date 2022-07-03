@@ -59,7 +59,7 @@ cairo_public const char * cairo_ps_level_to_string(cairo_ps_level_t level);
 cairo_public void cairo_ps_surface_set_eps(cairo_surface_t       * surface, boolint eps);
 cairo_public boolint cairo_ps_surface_get_eps(cairo_surface_t       * surface);
 cairo_public void cairo_ps_surface_set_size(cairo_surface_t      * surface, double width_in_points, double height_in_points);
-cairo_public void cairo_ps_surface_dsc_comment(cairo_surface_t   * surface, const char        * comment);
+cairo_public void cairo_ps_surface_dsc_comment(cairo_surface_t   * surface, const char * comment);
 cairo_public void cairo_ps_surface_dsc_begin_setup(cairo_surface_t * surface);
 cairo_public void cairo_ps_surface_dsc_begin_page_setup(cairo_surface_t * surface);
 

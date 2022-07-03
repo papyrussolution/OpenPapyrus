@@ -19,11 +19,8 @@
 // 
 #include <slib-internal.h>
 #pragma hdrstop
-//#include <stdint.h>
 #include <amqp.h>
-#include <openssl/ssl.h>
-#include <openssl/engine.h>
-#include <openssl/x509v3.h>
+#include <slib-ossl.h>
 #include "pthread.h" // @sobolev
 //
 //#include "amqp_private.h"

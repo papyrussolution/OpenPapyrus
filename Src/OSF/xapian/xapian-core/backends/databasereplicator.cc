@@ -12,7 +12,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #if defined XAPIAN_HAS_GLASS_BACKEND && defined XAPIAN_HAS_REMOTE_BACKEND
-	#include "glass/glass_databasereplicator.h"
 #endif
 
 using namespace std;

@@ -2639,6 +2639,7 @@ protected:
 	TWindowBase(LPCTSTR pWndClsName, int capability);
 	DECL_HANDLE_EVENT;
 	void   SetDefaultCursor();
+	void   EvaluateLayout(const TRect & rR);
 
 	SUiLayout * P_Lfc; // @v10.9.3 @construction
 	SPaintToolBox Tb;
@@ -3563,7 +3564,7 @@ protected:
 	enum {
 		stValidStr      = 0x0001,
 		stDisableDelSel = 0x0002,
-		stPaste = 0x0004, // Текущий текст в поле включает в себя данные, введенные копированием из буфера
+		stPaste         = 0x0004, // Текущий текст в поле включает в себя данные, введенные копированием из буфера
 		stSerialized    = 0x0008  // Текущий текст был введен "символ-за-символом"
 	};
 	long   InlSt;

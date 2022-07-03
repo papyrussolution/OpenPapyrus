@@ -39,8 +39,7 @@ PositionIterator::PositionIterator(Internal * internal_) : internal(internal_)
 	}
 }
 
-PositionIterator::PositionIterator(const PositionIterator & o)
-	: internal(o.internal)
+PositionIterator::PositionIterator(const PositionIterator & o) : internal(o.internal)
 {
 	LOGCALL_CTOR(API, "PositionIterator", o);
 	if(internal)

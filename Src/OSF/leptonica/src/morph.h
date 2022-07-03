@@ -77,7 +77,7 @@ struct L_Kernel {
 	int32 sx;   /*!< kernel width                             */
 	int32 cy;   /*!< y location of kernel origin              */
 	int32 cx;   /*!< x location of kernel origin              */
-	float   ** data; /*!< data[i][j] in [row][col] order           */
+	float ** data; /*!< data[i][j] in [row][col] order           */
 };
 
 typedef struct L_Kernel L_KERNEL;

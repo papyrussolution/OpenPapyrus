@@ -4876,7 +4876,7 @@ static size_t ZSTD_compressStream_generic(ZSTD_CStream* zcs,
     ZSTD_inBuffer* input,
     ZSTD_EndDirective const flushMode)
 {
-	const char* const istart = (assert(input != NULL), (const char*)input->src);
+	const char* const istart = (assert(input != NULL), (const char *)input->src);
 	const char* const iend = (istart != NULL) ? istart + input->size : istart;
 	const char* ip = (istart != NULL) ? istart + input->pos : istart;
 	char* const ostart = (assert(output != NULL), (char *)output->dst);

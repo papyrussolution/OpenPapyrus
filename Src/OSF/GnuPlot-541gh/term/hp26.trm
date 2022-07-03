@@ -120,13 +120,14 @@ static HP26_Buffer_Node * BN_create(int index, int size, int linetype)
 	return (the_node);
 }
 
-/* destructor method */
 static void BN_delete(HP26_Buffer_Node * the_node)
 {
-	SAlloc::F(the_node->x);
-	SAlloc::F(the_node->y);
-	SAlloc::F(the_node->isa_move);
-	SAlloc::F(the_node);
+	if(the_node) {
+		SAlloc::F(the_node->x);
+		SAlloc::F(the_node->y);
+		SAlloc::F(the_node->isa_move);
+		SAlloc::F(the_node);
+	}
 }
 
 /* 2 for border and axes + 9 for plots + 1 for dots */

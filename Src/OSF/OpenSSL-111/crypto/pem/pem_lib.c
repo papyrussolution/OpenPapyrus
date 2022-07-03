@@ -8,17 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <ctype.h>
-//#include <openssl/buffer.h>
-//#include <openssl/objects.h>
-//#include <openssl/evp.h>
-//#include <openssl/rand.h>
-//#include <openssl/x509.h>
-//#include <openssl/pem.h>
-//#include <openssl/pkcs12.h>
-//#include <asn1_int.h>
-//#include <openssl/des.h>
-//#include <openssl/engine.h>
 
 #define MIN_LENGTH      4
 
@@ -30,7 +19,6 @@ int PEM_def_callback(char * buf, int num, int rwflag, void * userdata)
 {
 	int i, min_len;
 	const char * prompt;
-
 	/* We assume that the user passes a default password as userdata */
 	if(userdata) {
 		i = strlen(static_cast<const char *>(userdata));

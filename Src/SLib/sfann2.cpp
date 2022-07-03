@@ -549,7 +549,7 @@ FANN_EXTERNAL Fann2 * FANN_API fann_create_sparse_array(float connection_rate, u
 				// find empty space in the connection array and connect 
 				for(i = neuron_it->first_con; i < neuron_it->last_con; i++) {
 					// continue if allready connected 
-					if(ann->connections[i] != NULL)
+					if(ann->connections[i])
 						continue;
 					do {
 						found_connection = 0;
@@ -943,7 +943,7 @@ FANN_EXTERNAL void FANN_API fann_randomize_weights(Fann2 * ann, float min_weight
 		*weights = (float)(fann_rand(min_weight, max_weight));
 	}
 #ifndef FIXEDFANN
-	if(ann->prev_train_slopes != NULL) {
+	if(ann->prev_train_slopes) {
 		fann_clear_train_arrays(ann);
 	}
 #endif
@@ -1093,7 +1093,7 @@ FANN_EXTERNAL Fann2 * FANN_API fann_copy(Fann2* orig)
 	copy->num_output = orig->num_output;
 	/* copy scale parameters, when used */
 #ifndef FIXEDFANN
-	if(orig->scale_mean_in != NULL) {
+	if(orig->scale_mean_in) {
 		fann_allocate_scale(copy);
 		for(i = 0; i < orig->num_input; i++) {
 			copy->scale_mean_in[i] = orig->scale_mean_in[i];
@@ -1278,9 +1278,8 @@ FANN_EXTERNAL void FANN_API fann_init_weights(Fann2 * ann, struct fann_train_dat
 			}
 		}
 	}
-
 #ifndef FIXEDFANN
-	if(ann->prev_train_slopes != NULL) {
+	if(ann->prev_train_slopes) {
 		fann_clear_train_arrays(ann);
 	}
 #endif
@@ -1651,7 +1650,7 @@ FANN_EXTERNAL void FANN_API fann_set_error_log(struct fann_error *errdat, FILE *
 // 
 FANN_EXTERNAL void FANN_API fann_print_error(struct fann_error *errdat)
 {
-	if(errdat->errno_f != FANN_E_NO_ERROR && errdat->errstr != NULL) {
+	if(errdat->errno_f != FANN_E_NO_ERROR && errdat->errstr) {
 		slfprintf_stderr("FANN Error %d: %s", errdat->errno_f, errdat->errstr);
 	}
 }
@@ -1665,7 +1664,7 @@ void fann_error_2(struct fann_error *errdat, const enum fann_errno_enum errno_f,
 	size_t errstr_max = FANN_ERRSTR_MAX + PATH_MAX - 1;
 	char errstr[FANN_ERRSTR_MAX + PATH_MAX];
 	FILE * error_log = fann_default_error_log;
-	if(errdat != NULL)
+	if(errdat)
 		errdat->errno_f = errno_f;
 	va_start(ap, errno_f);
 	switch(errno_f) {
@@ -1712,7 +1711,7 @@ void fann_error_2(struct fann_error *errdat, const enum fann_errno_enum errno_f,
 	if(error_log == (FILE *)-1) { /* This is the default behavior and will give stderr */
 		slfprintf_stderr("FANN Error %d: %s", errno_f, errstr);
 	}
-	else if(error_log != NULL) {
+	else if(error_log) {
 		fprintf(error_log, "FANN Error %d: %s", errno_f, errstr);
 	}
 }
@@ -2691,7 +2690,7 @@ static int fann_save_internal_fd_2(Fann2 * ann, FILE * conf, const char * config
 		fprintf(conf, "%f ", ann->what ## _ ## where[ i ]); \
 	fprintf(conf, "\n");
 	if(!save_as_fixed) {
-		if(ann->scale_mean_in != NULL) {
+		if(ann->scale_mean_in) {
 			fprintf(conf, "scale_included=1\n");
 			SCALE_SAVE(scale_mean,                 in)
 			SCALE_SAVE(scale_deviation,    in)

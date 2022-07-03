@@ -185,9 +185,7 @@ public:
 	 *                  pattern cannot be parsed, set to failure code.
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
-	ChoiceFormat(const UnicodeString & pattern,
-	    UErrorCode& status);
-
+	ChoiceFormat(const UnicodeString & pattern, UErrorCode & status);
 	/**
 	 * Constructs a new ChoiceFormat with the given limits and message strings.
 	 * All closure flags default to <code>false</code>,
@@ -230,7 +228,6 @@ public:
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
 	ChoiceFormat(const ChoiceFormat& that);
-
 	/**
 	 * Assignment operator.
 	 *
@@ -238,13 +235,11 @@ public:
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
 	const ChoiceFormat& operator = (const ChoiceFormat& that);
-
 	/**
 	 * Destructor.
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
 	virtual ~ChoiceFormat();
-
 	/**
 	 * Clones this Format object. The caller owns the
 	 * result and must delete it when done.
@@ -270,7 +265,7 @@ public:
 	 *                  set to a failure result.
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
-	virtual void applyPattern(const UnicodeString & pattern, UErrorCode& status);
+	virtual void applyPattern(const UnicodeString & pattern, UErrorCode & status);
 	/**
 	 * Sets the pattern.
 	 * @param pattern    The pattern to be applied.
@@ -281,7 +276,7 @@ public:
 	 *                   set to a failure result.
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
-	virtual void applyPattern(const UnicodeString & pattern, UParseError& parseError, UErrorCode& status);
+	virtual void applyPattern(const UnicodeString & pattern, UParseError& parseError, UErrorCode & status);
 	/**
 	 * Gets the pattern.
 	 *
@@ -484,18 +479,9 @@ private:
 	 * @param status       Output param to receive success code.  If the
 	 *                     pattern cannot be parsed, set to failure code.
 	 */
-	ChoiceFormat(const UnicodeString & newPattern,
-	    UParseError& parseError,
-	    UErrorCode& status);
-
+	ChoiceFormat(const UnicodeString & newPattern, UParseError& parseError, UErrorCode & status);
 	friend class MessageFormat;
-
-	virtual void setChoices(const double* limits,
-	    const bool* closures,
-	    const UnicodeString * formats,
-	    int32_t count,
-	    UErrorCode & errorCode);
-
+	virtual void setChoices(const double* limits, const bool* closures, const UnicodeString * formats, int32_t count, UErrorCode & errorCode);
 	/**
 	 * Finds the ChoiceFormat sub-message for the given number.
 	 * @param pattern A MessagePattern.
@@ -504,10 +490,7 @@ private:
 	 * @return the sub-message start part index.
 	 */
 	static int32_t findSubMessage(const MessagePattern &pattern, int32_t partIndex, double number);
-
-	static double parseArgument(const MessagePattern &pattern, int32_t partIndex,
-	    const UnicodeString &source, ParsePosition &pos);
-
+	static double parseArgument(const MessagePattern &pattern, int32_t partIndex, const UnicodeString &source, ParsePosition &pos);
 	/**
 	 * Matches the pattern string from the end of the partIndex to
 	 * the beginning of the limitPartIndex,
@@ -518,7 +501,6 @@ private:
 	 */
 	static int32_t matchStringUntilLimitPart(const MessagePattern &pattern, int32_t partIndex, int32_t limitPartIndex,
 	    const UnicodeString &source, int32_t sourceOffset);
-
 	/**
 	 * Some of the ChoiceFormat constructors do not have a UErrorCode parameter.
 	 * We need _some_ way to provide one for the MessagePattern constructor.
@@ -526,7 +508,6 @@ private:
 	 * not nice either.
 	 */
 	UErrorCode constructorErrorCode;
-
 	/**
 	 * The MessagePattern which contains the parsed structure of the pattern string.
 	 *
@@ -535,7 +516,6 @@ private:
 	 * For details see the MessagePattern class API docs.
 	 */
 	MessagePattern msgPattern;
-
 	/**
 	 * Docs & fields from before ICU 4.8, before MessagePattern was used.
 	 * Commented out, and left only for explanation of semantics.

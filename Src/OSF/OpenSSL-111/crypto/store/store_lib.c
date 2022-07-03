@@ -7,9 +7,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
-//#include <openssl/err.h>
-//#include <openssl/store.h>
 #include "internal/thread_once.h"
 #include <internal/crypto/store_int.h>
 #include "store_locl.h"

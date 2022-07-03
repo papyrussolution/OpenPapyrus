@@ -9,10 +9,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/err.h>
 #include <bn_int.h>
 #include "ec_lcl.h"
-//#include "internal/refcount.h"
 /*
  * This file implements the wNAF-based interleaving multi-exponentiation method
  * Formerly at:
@@ -23,7 +21,6 @@
  * For multiplication with precomputation, we use wNAF splitting, formerly at:
  *   http://www.informatik.tu-darmstadt.de/TI/Mitarbeiter/moeller.html#fastexp
  */
-
 /* structure for precomputed multiples of the generator */
 struct ec_pre_comp_st {
 	const EC_GROUP * group; /* parent EC_GROUP object */

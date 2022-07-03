@@ -957,20 +957,17 @@ void CppCheck::internalError(const std::string &filename, const std::string &msg
 		mErrorLogger.reportOut(fullmsg);
 	}
 }
-
-//---------------------------------------------------------------------------
+//
 // CppCheck - A function that checks a raw token list
-//---------------------------------------------------------------------------
+//
 void CppCheck::checkRawTokens(const Tokenizer &tokenizer)
 {
 	// Execute rules for "raw" code
 	executeRules("raw", tokenizer);
 }
-
-//---------------------------------------------------------------------------
+//
 // CppCheck - A function that checks a normal token list
-//---------------------------------------------------------------------------
-
+//
 void CppCheck::checkNormalTokens(const Tokenizer &tokenizer)
 {
 	// call all "runChecks" in all registered Check classes
@@ -1000,8 +997,6 @@ void CppCheck::checkNormalTokens(const Tokenizer &tokenizer)
 	}
 	executeRules("normal", tokenizer);
 }
-
-//---------------------------------------------------------------------------
 
 bool CppCheck::hasRule(const std::string &tokenlist) const
 {
@@ -1462,25 +1457,18 @@ void CppCheck::purgedConfigurationMessage(const std::string &file, const std::st
 	reportErr(errmsg);
 }
 
-//---------------------------------------------------------------------------
-
 void CppCheck::reportErr(const ErrorMessage &msg)
 {
 	if(!mSettings.library.reportErrors(msg.file0))
 		return;
-
 	const std::string errmsg = msg.toString(mSettings.verbose);
 	if(errmsg.empty())
 		return;
-
 	// Alert only about unique errors
 	if(std::find(mErrorList.begin(), mErrorList.end(), errmsg) != mErrorList.end())
 		return;
-
 	mAnalyzerInformation.reportErr(msg, mSettings.verbose);
-
 	const Suppressions::ErrorMessage errorMessage = msg.toSuppressionsErrorMessage();
-
 	if(mUseGlobalSuppressions) {
 		if(mSettings.nomsg.isSuppressed(errorMessage)) {
 			return;

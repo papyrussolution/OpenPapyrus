@@ -300,7 +300,6 @@ public:
 	 * @internal
 	 */
 	CalendarAstronomer(double longitude, double latitude);
-
 	/**
 	 * Destructor
 	 * @internal

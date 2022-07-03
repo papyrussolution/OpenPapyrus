@@ -87,19 +87,19 @@ static const float MinAllowedConfidence = 3.0f;
  *          by the inverse of the width of the text line found there.
  * </pre>
  */
-NUMA * pixFindBaselines(PIX * pixs, PTA ** ppta, PIXA  * pixadb)
+NUMA * pixFindBaselines(PIX * pixs, PTA ** ppta, PIXA * pixadb)
 {
 	PROCNAME(__FUNCTION__);
 	int32 h, i, j, nbox, val1, val2, ndiff, bx, by, bw, bh;
 	int32 imaxloc, peakthresh, zerothresh, inpeak;
 	int32 mintosearch, max, maxloc, nloc, locval;
-	int32   * array;
+	int32 * array;
 	float maxval;
 	BOXA      * boxa1, * boxa2, * boxa3;
 	GPLOT     * gplot;
 	NUMA * nasum, * nadiff, * naloc, * naval;
 	PIX * pix1, * pix2;
-	PTA       * pta;
+	PTA * pta;
 	if(ppta) *ppta = NULL;
 	if(!pixs || pixGetDepth(pixs) != 1)
 		return (NUMA*)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
@@ -301,7 +301,7 @@ PIX * pixDeskewLocal(PIX * pixs,
 	PROCNAME(__FUNCTION__);
 	int32 ret;
 	PIX * pixd;
-	PTA       * ptas, * ptad;
+	PTA * ptas, * ptad;
 	if(!pixs || pixGetDepth(pixs) != 1)
 		return (PIX *)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
 
@@ -361,7 +361,7 @@ l_ok pixGetLocalSkewTransform(PIX * pixs, int32 nslices, int32 redsweep, int32 r
 	int32 w, h, i;
 	float deg2rad, angr, angd, dely;
 	NUMA * naskew;
-	PTA       * ptas, * ptad;
+	PTA * ptas, * ptad;
 	if(!pptas || !pptad)
 		return ERROR_INT("&ptas and &ptad not defined", procName, 1);
 	*pptas = *pptad = NULL;
@@ -457,7 +457,7 @@ l_ok pixGetLocalSkewTransform(PIX * pixs, int32 nslices, int32 redsweep, int32 r
  *          array, evaluated at the raster line of intersection.
  * </pre>
  */
-NUMA * pixGetLocalSkewAngles(PIX        * pixs,
+NUMA * pixGetLocalSkewAngles(PIX * pixs,
     int32 nslices,
     int32 redsweep,
     int32 redsearch,
@@ -471,11 +471,11 @@ NUMA * pixGetLocalSkewAngles(PIX        * pixs,
 	PROCNAME(__FUNCTION__);
 	int32 w, h, hs, i, ystart, yend, ovlap, npts;
 	float angle, conf, ycenter, a, b;
-	BOX       * box;
+	BOX * box;
 	GPLOT     * gplot;
 	NUMA * naskew, * nax, * nay;
 	PIX * pix;
-	PTA       * pta;
+	PTA * pta;
 	if(!pixs || pixGetDepth(pixs) != 1)
 		return (NUMA*)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
 	if(nslices < 2 || nslices > 20)

@@ -462,34 +462,19 @@ void CheckBufferOverrun::pointerArithmetic()
 void CheckBufferOverrun::pointerArithmeticError(const Token * tok, const Token * indexToken, const ValueFlow::Value * indexValue)
 {
 	if(!tok) {
-		reportError(tok,
-		    Severity::portability,
-		    "pointerOutOfBounds",
-		    "Pointer arithmetic overflow.",
-		    CWE_POINTER_ARITHMETIC_OVERFLOW,
-		    Certainty::normal);
-		reportError(tok,
-		    Severity::portability,
-		    "pointerOutOfBoundsCond",
-		    "Pointer arithmetic overflow.",
-		    CWE_POINTER_ARITHMETIC_OVERFLOW,
-		    Certainty::normal);
+		reportError(tok, Severity::portability, "pointerOutOfBounds", "Pointer arithmetic overflow.", CWE_POINTER_ARITHMETIC_OVERFLOW, Certainty::normal);
+		reportError(tok, Severity::portability, "pointerOutOfBoundsCond", "Pointer arithmetic overflow.", CWE_POINTER_ARITHMETIC_OVERFLOW, Certainty::normal);
 		return;
 	}
-
 	std::string errmsg;
 	if(indexValue->condition)
 		errmsg = "Undefined behaviour, when '" + indexToken->expressionString() + "' is " +
 		    MathLib::toString(indexValue->intvalue) + " the pointer arithmetic '" + tok->expressionString() + "' is out of bounds.";
 	else
 		errmsg = "Undefined behaviour, pointer arithmetic '" + tok->expressionString() + "' is out of bounds.";
-
-	reportError(getErrorPath(tok, indexValue, "Pointer arithmetic overflow"),
-	    Severity::portability,
-	    indexValue->condition ? "pointerOutOfBoundsCond" : "pointerOutOfBounds",
-	    errmsg,
-	    CWE_POINTER_ARITHMETIC_OVERFLOW,
-	    indexValue->isInconclusive() ? Certainty::inconclusive : Certainty::normal);
+	reportError(getErrorPath(tok, indexValue, "Pointer arithmetic overflow"), Severity::portability,
+	    indexValue->condition ? "pointerOutOfBoundsCond" : "pointerOutOfBounds", errmsg,
+	    CWE_POINTER_ARITHMETIC_OVERFLOW, indexValue->isInconclusive() ? Certainty::inconclusive : Certainty::normal);
 }
 
 ValueFlow::Value CheckBufferOverrun::getBufferSize(const Token * bufTok) const
@@ -497,25 +482,19 @@ ValueFlow::Value CheckBufferOverrun::getBufferSize(const Token * bufTok) const
 	if(!bufTok->valueType())
 		return ValueFlow::Value(-1);
 	const Variable * var = bufTok->variable();
-
 	if(!var || var->dimensions().empty()) {
 		const ValueFlow::Value * value = getBufferSizeValue(bufTok);
 		if(value)
 			return *value;
 	}
-
 	if(!var)
 		return ValueFlow::Value(-1);
-
-	MathLib::bigint dim =
-	    std::accumulate(var->dimensions().begin(), var->dimensions().end(), 1LL, [](MathLib::bigint i1, const Dimension &dim) {
+	MathLib::bigint dim = std::accumulate(var->dimensions().begin(), var->dimensions().end(), 1LL, [](MathLib::bigint i1, const Dimension &dim) {
 		return i1 * dim.num;
 	});
-
 	ValueFlow::Value v;
 	v.setKnown();
 	v.valueType = ValueFlow::Value::ValueType::BUFFER_SIZE;
-
 	if(var->isPointerArray())
 		v.intvalue = dim * mSettings->sizeof_pointer;
 	else if(var->isPointer())
@@ -524,19 +503,14 @@ ValueFlow::Value CheckBufferOverrun::getBufferSize(const Token * bufTok) const
 		const MathLib::bigint typeSize = bufTok->valueType()->typeSize(*mSettings);
 		v.intvalue = dim * typeSize;
 	}
-
 	return v;
 }
 
-static bool checkBufferSize(const Token * ftok,
-    const Library::ArgumentChecks::MinSize &minsize,
-    const std::vector<const Token *> &args,
-    const MathLib::bigint bufferSize,
-    const Settings * settings)
+static bool checkBufferSize(const Token * ftok, const Library::ArgumentChecks::MinSize &minsize, const std::vector<const Token *> &args,
+    const MathLib::bigint bufferSize, const Settings * settings)
 {
 	const Token * const arg = (minsize.arg > 0 && minsize.arg - 1 < args.size()) ? args[minsize.arg - 1] : nullptr;
 	const Token * const arg2 = (minsize.arg2 > 0 && minsize.arg2 - 1 < args.size()) ? args[minsize.arg2 - 1] : nullptr;
-
 	switch(minsize.type) {
 		case Library::ArgumentChecks::MinSize::Type::STRLEN:
 		    if(settings->library.isargformatstr(ftok, minsize.arg)) {

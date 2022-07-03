@@ -71,9 +71,9 @@ static unsigned AIO_fwriteSparse(FILE* file, const void* buffer, size_t bufferSi
 	{   static size_t const maskT = sizeof(size_t)-1;
 	    if(bufferSize & maskT) {
 		    /* size not multiple of sizeof(size_t) : implies end of block */
-		    const char* const restStart = (const char*)bufferTEnd;
+		    const char* const restStart = (const char *)bufferTEnd;
 		    const char* restPtr = restStart;
-		    const char* const restEnd = (const char*)buffer + bufferSize;
+		    const char* const restEnd = (const char *)buffer + bufferSize;
 		    assert(restEnd > restStart && restEnd < restStart + sizeof(size_t));
 		    for(; (restPtr < restEnd) && (*restPtr == 0); restPtr++);
 		    storedSkips += (unsigned)(restPtr - restStart);

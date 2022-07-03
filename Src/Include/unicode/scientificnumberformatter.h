@@ -59,7 +59,7 @@ public:
 	 *
 	 * @stable ICU 55
 	 */
-	static ScientificNumberFormatter * createSuperscriptInstance(DecimalFormat * fmtToAdopt, UErrorCode &status);
+	static ScientificNumberFormatter * createSuperscriptInstance(DecimalFormat * fmtToAdopt, UErrorCode & status);
 	/**
 	 * Creates a ScientificNumberFormatter instance that uses
 	 * superscript characters for exponents for this locale.
@@ -69,7 +69,7 @@ public:
 	 *
 	 * @stable ICU 55
 	 */
-	static ScientificNumberFormatter * createSuperscriptInstance(const Locale &locale, UErrorCode &status);
+	static ScientificNumberFormatter * createSuperscriptInstance(const Locale &locale, UErrorCode & status);
 	/**
 	 * Creates a ScientificNumberFormatter instance that uses
 	 * markup for exponents.
@@ -82,7 +82,7 @@ public:
 	 *
 	 * @stable ICU 55
 	 */
-	static ScientificNumberFormatter * createMarkupInstance(DecimalFormat * fmtToAdopt, const UnicodeString &beginMarkup, const UnicodeString &endMarkup, UErrorCode &status);
+	static ScientificNumberFormatter * createMarkupInstance(DecimalFormat * fmtToAdopt, const UnicodeString &beginMarkup, const UnicodeString &endMarkup, UErrorCode & status);
 	/**
 	 * Creates a ScientificNumberFormatter instance that uses
 	 * markup for exponents for this locale.
@@ -94,7 +94,7 @@ public:
 	 *
 	 * @stable ICU 55
 	 */
-	static ScientificNumberFormatter * createMarkupInstance(const Locale &locale, const UnicodeString &beginMarkup, const UnicodeString &endMarkup, UErrorCode &status);
+	static ScientificNumberFormatter * createMarkupInstance(const Locale &locale, const UnicodeString &beginMarkup, const UnicodeString &endMarkup, UErrorCode & status);
 	/**
 	 * Returns a copy of this object. Caller must free returned copy.
 	 * @stable ICU 55
@@ -115,14 +115,14 @@ public:
 	 *
 	 * @stable ICU 55
 	 */
-	UnicodeString &format(const Formattable &number, UnicodeString &appendTo, UErrorCode &status) const;
+	UnicodeString &format(const Formattable &number, UnicodeString &appendTo, UErrorCode & status) const;
 private:
 	class U_I18N_API Style : public UObject {
 public:
 		virtual Style * clone() const = 0;
 protected:
 		virtual UnicodeString &format(const UnicodeString &original, FieldPositionIterator &fpi, const UnicodeString &preExponent,
-		    UnicodeString &appendTo, UErrorCode &status) const = 0;
+		    UnicodeString &appendTo, UErrorCode & status) const = 0;
 private:
 		friend class ScientificNumberFormatter;
 	};
@@ -131,7 +131,7 @@ public:
 		virtual SuperscriptStyle * clone() const override;
 protected:
 		virtual UnicodeString &format(const UnicodeString &original, FieldPositionIterator &fpi, 
-			const UnicodeString &preExponent, UnicodeString &appendTo, UErrorCode &status) const override;
+			const UnicodeString &preExponent, UnicodeString &appendTo, UErrorCode & status) const override;
 	};
 	class U_I18N_API MarkupStyle : public Style {
 public:
@@ -141,17 +141,17 @@ public:
 		virtual MarkupStyle * clone() const override;
 protected:
 		virtual UnicodeString &format(const UnicodeString &original, FieldPositionIterator &fpi,
-		    const UnicodeString &preExponent, UnicodeString &appendTo, UErrorCode &status) const override;
+		    const UnicodeString &preExponent, UnicodeString &appendTo, UErrorCode & status) const override;
 private:
 		UnicodeString fBeginMarkup;
 		UnicodeString fEndMarkup;
 	};
 
-	ScientificNumberFormatter(DecimalFormat * fmtToAdopt, Style * styleToAdopt, UErrorCode &status);
+	ScientificNumberFormatter(DecimalFormat * fmtToAdopt, Style * styleToAdopt, UErrorCode & status);
 	ScientificNumberFormatter(const ScientificNumberFormatter &other);
 	ScientificNumberFormatter & operator = (const ScientificNumberFormatter &);
 	static void getPreExponent(const DecimalFormatSymbols &dfs, UnicodeString &preExponent);
-	static ScientificNumberFormatter * createInstance(DecimalFormat * fmtToAdopt, Style * styleToAdopt, UErrorCode &status);
+	static ScientificNumberFormatter * createInstance(DecimalFormat * fmtToAdopt, Style * styleToAdopt, UErrorCode & status);
 	UnicodeString fPreExponent;
 	DecimalFormat * fDecimalFormat;
 	Style * fStyle;

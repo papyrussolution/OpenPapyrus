@@ -10,8 +10,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "glass_positionlist.h"
-#include "bitstream.h"
 
 using namespace std;
 

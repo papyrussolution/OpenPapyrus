@@ -31,7 +31,7 @@ U_CAPI int32_t U_EXPORT2 utrie_swap(const UDataSwapper * ds,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || (length>=0 && outData==NULL)) {
+	if(!ds || !inData || (length>=0 && outData==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -102,7 +102,7 @@ U_CAPI int32_t U_EXPORT2 utrie2_swap(const UDataSwapper * ds,
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || (length>=0 && outData==NULL)) {
+	if(!ds || !inData || (length>=0 && outData==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

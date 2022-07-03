@@ -17,8 +17,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-////#include "e_os.h"
-//#include <openssl/crypto.h>
 
 /* e_os.h defines OPENSSL_SECURE_MEMORY if secure memory can be implemented */
 #ifdef OPENSSL_SECURE_MEMORY

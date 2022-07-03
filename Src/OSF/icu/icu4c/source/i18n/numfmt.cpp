@@ -496,9 +496,9 @@ inline const UChar * ArgExtractor::iso() const {
 
 ArgExtractor::ArgExtractor(const NumberFormat& /*nf*/, const Formattable& obj, UErrorCode & /*status*/)
 	: num(&obj), fWasCurrency(FALSE) {
-	const UObject* o = obj.getObject(); // most commonly o==NULL
+	const UObject * o = obj.getObject(); // most commonly o==NULL
 	const CurrencyAmount* amt;
-	if(o != NULL && (amt = dynamic_cast<const CurrencyAmount*>(o)) != NULL) {
+	if(o && (amt = dynamic_cast<const CurrencyAmount*>(o)) != NULL) {
 		// getISOCurrency() returns a pointer to internal storage, so we
 		// copy it to retain it across the call to setCurrency().
 		//const UChar * curr = amt->getISOCurrency();
@@ -564,7 +564,7 @@ UnicodeString &NumberFormat::format(const Formattable& obj,
 		return cloneFmt->format(*n, appendTo, pos, status);
 	}
 
-	if(n->isNumeric() && n->getDecimalQuantity() != NULL) {
+	if(n->isNumeric() && n->getDecimalQuantity()) {
 		// Decimal Number.  We will have a DigitList available if the value was
 		//   set to a decimal number, or if the value originated with a parse.
 		//
@@ -618,7 +618,7 @@ UnicodeString &NumberFormat::format(const Formattable& obj,
 		return cloneFmt->format(*n, appendTo, posIter, status);
 	}
 
-	if(n->isNumeric() && n->getDecimalQuantity() != NULL) {
+	if(n->isNumeric() && n->getDecimalQuantity()) {
 		// Decimal Number
 		format(*n->getDecimalQuantity(), appendTo, posIter, status);
 	}
@@ -801,7 +801,7 @@ class ICUNumberFormatFactory : public ICUResourceBundleFactory {
 public:
 	virtual ~ICUNumberFormatFactory();
 protected:
-	virtual UObject* handleCreate(const Locale & loc, int32_t kind, const ICUService* /* service */, UErrorCode & status) const override {
+	virtual UObject * handleCreate(const Locale & loc, int32_t kind, const ICUService* /* service */, UErrorCode & status) const override {
 		return NumberFormat::makeInstance(loc, (UNumberFormatStyle)kind, status);
 	}
 };
@@ -824,7 +824,7 @@ public:
 
 	virtual ~NFFactory();
 
-	virtual UObject* create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const override
+	virtual UObject * create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const override
 	{
 		if(handlesKey(key, status)) {
 			const LocaleKey& lkey = (const LocaleKey&)key;
@@ -832,7 +832,7 @@ public:
 			lkey.canonicalLocale(loc);
 			int32_t kind = lkey.kind();
 
-			UObject* result = _delegate->createFormat(loc, (UNumberFormatStyle)kind);
+			UObject * result = _delegate->createFormat(loc, (UNumberFormatStyle)kind);
 			if(!result) {
 				result = service->getKey((ICUServiceKey&)key /* cast away const */, NULL, this, status);
 			}
@@ -883,11 +883,11 @@ public:
 
 	virtual ~ICUNumberFormatService();
 
-	virtual UObject* cloneInstance(UObject* instance) const override {
+	virtual UObject * cloneInstance(UObject * instance) const override {
 		return ((NumberFormat*)instance)->clone();
 	}
 
-	virtual UObject* handleDefault(const ICUServiceKey& key, UnicodeString * /* actualID */, UErrorCode & status) const override {
+	virtual UObject * handleDefault(const ICUServiceKey& key, UnicodeString * /* actualID */, UErrorCode & status) const override {
 		LocaleKey& lkey = (LocaleKey&)key;
 		int32_t kind = lkey.kind();
 		Locale loc;
@@ -928,7 +928,7 @@ URegistryKey U_EXPORT2 NumberFormat::registerFactory(NumberFormatFactory* toAdop
 	ICULocaleService * service = getNumberFormatService();
 	if(service) {
 		NFFactory * tempnnf = new NFFactory(toAdopt);
-		if(tempnnf != NULL) {
+		if(tempnnf) {
 			return service->registerFactory(tempnnf, status);
 		}
 	}
@@ -1261,7 +1261,7 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 	// Get cached numbering system
 	LocalPointer<NumberingSystem> ownedNs;
 	NumberingSystem * ns = NULL;
-	if(NumberingSystem_cache != NULL) {
+	if(NumberingSystem_cache) {
 		// TODO: Bad hash key usage, see ticket #8504.
 		int32_t hashKey = desiredLocale.hashCode();
 
@@ -1302,20 +1302,15 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 		}
 
 		// Load the pattern from data using the common library function
-		const char16_t* patternPtr = number::impl::utils::getPatternForStyle(
-			desiredLocale,
-			ns->getName(),
-			gFormatCldrStyles[style],
-			status);
+		const char16_t* patternPtr = number::impl::utils::getPatternForStyle(desiredLocale, ns->getName(), gFormatCldrStyles[style], status);
 		pattern = UnicodeString(TRUE, patternPtr, -1);
 	}
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
-	if(style==UNUM_CURRENCY || style == UNUM_CURRENCY_ISO || style == UNUM_CURRENCY_ACCOUNTING
-	 || style == UNUM_CASH_CURRENCY || style == UNUM_CURRENCY_STANDARD) {
+	if(style==UNUM_CURRENCY || style == UNUM_CURRENCY_ISO || style == UNUM_CURRENCY_ACCOUNTING || style == UNUM_CASH_CURRENCY || style == UNUM_CURRENCY_STANDARD) {
 		const UChar * currPattern = symbolsToAdopt->getCurrencyPattern();
-		if(currPattern != NULL) {
+		if(currPattern) {
 			pattern.setTo(currPattern, u_strlen(currPattern));
 		}
 	}

@@ -1192,8 +1192,8 @@ public:
 	int    Verify(const char * pPath, long ver);
 	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
-	bool   GenerateSorceDecl_C();
-	bool   GenerateSorceDecl_Java();
+	bool   GenerateSourceDecl_C(const char * pFileName);
+	bool   GenerateSourceDecl_Java(const char * pFileName);
 
 	struct BaseEntry {
 		uint64 Id;

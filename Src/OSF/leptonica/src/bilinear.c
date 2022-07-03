@@ -123,7 +123,7 @@ PIX * pixBilinearSampledPta(PIX * pixs,
     int32 incolor)
 {
 	float * vc;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -165,15 +165,15 @@ PIX * pixBilinearSampledPta(PIX * pixs,
  *          for relative timings between sampled and interpolated.
  * </pre>
  */
-PIX * pixBilinearSampled(PIX        * pixs,
+PIX * pixBilinearSampled(PIX * pixs,
     float * vc,
     int32 incolor)
 {
 	int32 i, j, w, h, d, x, y, wpls, wpld, color, cmapindex;
 	uint32 val;
 	uint32   * datas, * datad, * lines, * lined;
-	PIX        * pixd;
-	PIXCMAP    * cmap;
+	PIX * pixd;
+	PIXCMAP * cmap;
 
 	PROCNAME(__FUNCTION__);
 
@@ -320,7 +320,7 @@ PIX * pixBilinearPta(PIX * pixs, PTA * ptad, PTA * ptas, int32 incolor)
  *      (2) Removes any existing colormap, if necessary, before transforming
  * </pre>
  */
-PIX * pixBilinear(PIX        * pixs, float * vc, int32 incolor)
+PIX * pixBilinear(PIX * pixs, float * vc, int32 incolor)
 {
 	PROCNAME(__FUNCTION__);
 	int32 d;
@@ -369,7 +369,7 @@ PIX * pixBilinearPtaColor(PIX * pixs, PTA * ptad, PTA * ptas, uint32 colorval)
 {
 	PROCNAME(__FUNCTION__);
 	float * vc;
-	PIX        * pixd;
+	PIX * pixd;
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(!ptas)
@@ -396,7 +396,7 @@ PIX * pixBilinearPtaColor(PIX * pixs, PTA * ptad, PTA * ptas, uint32 colorval)
  * \param[in]    colorval   e.g., 0 to bring in BLACK, 0xffffff00 for WHITE
  * \return  pixd, or NULL on error
  */
-PIX * pixBilinearColor(PIX        * pixs, float * vc, uint32 colorval)
+PIX * pixBilinearColor(PIX * pixs, float * vc, uint32 colorval)
 {
 	PROCNAME(__FUNCTION__);
 	int32 i, j, w, h, d, wpls, wpld;
@@ -456,7 +456,7 @@ PIX * pixBilinearPtaGray(PIX * pixs,
     uint8 grayval)
 {
 	float * vc;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -489,7 +489,7 @@ PIX * pixBilinearPtaGray(PIX * pixs,
  * \param[in]    grayval   e.g., 0 to bring in BLACK, 255 for WHITE
  * \return  pixd, or NULL on error
  */
-PIX * pixBilinearGray(PIX        * pixs,
+PIX * pixBilinearGray(PIX * pixs,
     float * vc,
     uint8 grayval)
 {
@@ -576,8 +576,8 @@ PIX * pixBilinearGray(PIX        * pixs,
  * </pre>
  */
 PIX * pixBilinearPtaWithAlpha(PIX * pixs,
-    PTA       * ptad,
-    PTA       * ptas,
+    PTA * ptad,
+    PTA * ptas,
     PIX * pixg,
     float fract,
     int32 border)
@@ -793,8 +793,8 @@ l_ok getBilinearXformCoeffs(PTA         * ptas,
 l_ok bilinearXformSampledPt(float * vc,
     int32 x,
     int32 y,
-    int32    * pxp,
-    int32    * pyp)
+    int32 * pxp,
+    int32 * pyp)
 {
 	PROCNAME(__FUNCTION__);
 

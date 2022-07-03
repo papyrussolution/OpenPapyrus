@@ -11,9 +11,7 @@
 #ifndef _GNU_SOURCE
 	#define _GNU_SOURCE
 #endif
-//#include "e_os.h"
 #include <openssl/rand.h>
-//#include <openssl/crypto.h>
 #include "rand_lcl.h"
 #include <rand_int.h>
 #include "internal/dso.h"

@@ -9,11 +9,10 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/e_os2.h>
-//#include <openssl/crypto.h>
 
-struct tm * OPENSSL_gmtime(const time_t * timer, struct tm * result){
+struct tm * OPENSSL_gmtime(const time_t * timer, struct tm * result)
+{
 	struct tm * ts = NULL;
-
 #if defined(OPENSSL_THREADS) && defined(OPENSSL_SYS_VMS)
 	{
 		/*

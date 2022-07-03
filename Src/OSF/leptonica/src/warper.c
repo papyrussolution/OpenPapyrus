@@ -171,7 +171,7 @@ PIX * pixRandomHarmonicWarp(PIX * pixs,
 	uint32   * datas, * datad, * lined;
 	float x, y;
 	double  * randa;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -314,7 +314,7 @@ PIX * pixRandomHarmonicWarpLUT(PIX * pixs,
 	float * lut;
 	double  * randa;
 	NUMA * na;
-	PIX        * pixd;
+	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -551,7 +551,7 @@ PIX * pixWarpStereoscopic(PIX * pixs,
 {
 	int32 w, h, zshift;
 	float angle;
-	BOX       * boxleft, * boxright;
+	BOX * boxleft, * boxright;
 	PIX * pix1, * pix2, * pix3, * pix4, * pixr, * pixg, * pixb;
 	PIX * pixv1, * pixv2, * pixv3, * pixv4;
 	PIX * pixrs, * pixrss;

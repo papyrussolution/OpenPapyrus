@@ -287,7 +287,7 @@ U_CAPI int32_t U_EXPORT2 uprv_ebcdicFromAscii(const UDataSwapper * ds,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length>0 && outData==NULL)) {
+	if(!ds || !inData || length<0 || (length>0 && outData==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -323,7 +323,7 @@ U_CFUNC int32_t uprv_copyAscii(const UDataSwapper * ds,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length>0 && outData==NULL)) {
+	if(!ds || !inData || length<0 || (length>0 && outData==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -362,7 +362,7 @@ U_CFUNC int32_t uprv_asciiFromEbcdic(const UDataSwapper * ds,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length>0 && outData==NULL)) {
+	if(!ds || !inData || length<0 || (length>0 && outData==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -398,7 +398,7 @@ U_CFUNC int32_t uprv_copyEbcdic(const UDataSwapper * ds,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(ds==NULL || inData==NULL || length<0 || (length>0 && outData==NULL)) {
+	if(!ds || !inData || length<0 || (length>0 && outData==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

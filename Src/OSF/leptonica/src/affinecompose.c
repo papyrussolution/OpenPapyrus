@@ -11,9 +11,9 @@
  * <pre>
  *
  *      Composable coordinate transforms
- *           float   *createMatrix2dTranslate()
- *           float   *createMatrix2dScale()
- *           float   *createMatrix2dRotate()
+ *           float *createMatrix2dTranslate()
+ *           float *createMatrix2dScale()
+ *           float *createMatrix2dRotate()
  *
  *      Special coordinate transforms on pta
  *           PTA         *ptaTranslate()
@@ -176,13 +176,13 @@ float * createMatrix2dRotate(float xc, float yc, float angle)
  *      (1) See createMatrix2dTranslate() for details of transform.
  * </pre>
  */
-PTA * ptaTranslate(PTA       * ptas,
+PTA * ptaTranslate(PTA * ptas,
     float transx,
     float transy)
 {
 	int32 i, npts;
 	float x, y;
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -213,13 +213,13 @@ PTA * ptaTranslate(PTA       * ptas,
  *      (1) See createMatrix2dScale() for details of transform.
  * </pre>
  */
-PTA * ptaScale(PTA       * ptas,
+PTA * ptaScale(PTA * ptas,
     float scalex,
     float scaley)
 {
 	int32 i, npts;
 	float x, y;
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -262,11 +262,11 @@ PTA * ptaScale(PTA       * ptas,
  *          center after it is rotated about the origin.
  * </pre>
  */
-PTA * ptaRotate(PTA       * ptas, float xc, float yc, float angle)
+PTA * ptaRotate(PTA * ptas, float xc, float yc, float angle)
 {
 	int32 i, npts;
 	float x, y, xp, yp, sina, cosa;
-	PTA       * ptad;
+	PTA * ptad;
 	PROCNAME(__FUNCTION__);
 	if(!ptas)
 		return (PTA*)ERROR_PTR("ptas not defined", procName, NULL);
@@ -396,7 +396,7 @@ PTA * ptaAffineTransform(PTA * ptas,
 {
 	int32 i, npts;
 	float vecs[3], vecd[3];
-	PTA       * ptad;
+	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
 

@@ -230,7 +230,7 @@ extern const char * name_of_token(int code)
 {
 	for(int i = 1; i < vocab->code; i++)
 		if((vocab + i)->code == code) 
-			return (const char*)(vocab + i)->s;
+			return (const char *)(vocab + i)->s;
 	switch(code) {
 		case c_mathassign:   return "=";
 		case c_name:         return "name";

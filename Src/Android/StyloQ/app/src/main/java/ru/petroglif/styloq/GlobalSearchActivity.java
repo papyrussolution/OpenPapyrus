@@ -119,8 +119,9 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 						SetupRecyclerListView(null, R.id.CTL_GLOBALSEARCH_RESULTLIST, R.layout.li_global_search);
 						//
 						View inpv = findViewById(R.id.CTL_GLOBALSEARCH_INPUT);
-						if(inpv != null && inpv instanceof SearchView)
-							((SearchView) inpv).setOnQueryTextListener(this);
+						if(inpv != null && inpv instanceof SearchView) {
+							((SearchView)inpv).setOnQueryTextListener(this);
+						}
 						//
 						String svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
 						if(svc_reply_doc_json != null) {
@@ -128,6 +129,8 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 						}
 					}
 				}
+				break;
+			case SLib.EV_COMMAND:
 				break;
 			case SLib.EV_ACTIVITYSTART:
 				{
@@ -205,18 +208,70 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 									long obj_id = js_entry.optLong("objid", 0);
 									if(SLib.GetLen(scope) > 0 && scope.equalsIgnoreCase("styloqsvc") && SLib.GetLen(scope_ident) > 0) {
 										byte [] svc_ident = Base64.getDecoder().decode(scope_ident);
-										if(SLib.GetLen(svc_ident) > 0) {
+										if(SLib.GetLen(svc_ident) > 0 && SLib.GetLen(obj_type) > 0 && obj_id > 0) {
 											StyloQInterchange.DoInterchangeParam inner_param = new StyloQInterchange.DoInterchangeParam(svc_ident);
 											JSONObject js_query = new JSONObject();
-											js_query.put("cmd", "register");
+											/* @construction
+											js_query.put("cmd", "onsrchr"); // on search result
+											if(SLib.GetLen(obj_type) > 0)
+												js_query.put("objtype", obj_type);
+											if(obj_id > 0)
+												js_query.put("objid", obj_id);
+											 */
+											{
+												StyloQCommand.Item fake_org_cmd = new StyloQCommand.Item();
+												fake_org_cmd.Name = "onsrchr";
+												fake_org_cmd.BaseCmdId = StyloQCommand.sqbcDtLogin;
+												inner_param.OriginalCmdItem = fake_org_cmd;
+											}
+											js_query.put("cmd", /*"register"*/"onsrchr");
 											js_query.put("time", System.currentTimeMillis());
+											//if(SLib.GetLen(obj_type) > 0)
+												js_query.put("objtype", obj_type);
+											//if(obj_id > 0)
+												js_query.put("objid", obj_id);
 											inner_param.CommandJson = js_query.toString();
+											inner_param.RetrActivity_ = this;
 											StyloQInterchange.RunClientInterchange(app_ctx, inner_param);
 										}
 									}
 								}
 							} catch(JSONException e) {
 								;
+							}
+						}
+					}
+				}
+				break;
+			case SLib.EV_SVCQUERYRESULT:
+				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
+					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult) subj;
+					if(ir.OriginalCmdItem != null) {
+						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("onsrchr")) {
+							if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+								byte [] reply_raw_data = ((SecretTagPool)ir.InfoReply).Get(SecretTagPool.tagRawData);
+								if(SLib.GetLen(reply_raw_data) > 0) {
+									String json_text = new String(reply_raw_data);
+									if(SLib.GetLen(json_text) > 0) {
+										try {
+											JSONObject js_reply = new JSONObject(json_text);
+											if(js_reply != null) {
+												int repl_result = StyloQInterchange.GetReplyResult(js_reply);
+												if(repl_result > 0) {
+													Intent intent = new Intent(this, DetailActivity.class);
+													intent.putExtra("SvcIdent", ir.SvcIdent);
+													intent.putExtra("SvcReplyText", json_text);
+													LaunchOtherActivity(intent);
+												}
+												else if(repl_result == 0) {
+
+												}
+											}
+										} catch(JSONException exn) {
+											;
+										}
+									}
+								}
 							}
 						}
 					}

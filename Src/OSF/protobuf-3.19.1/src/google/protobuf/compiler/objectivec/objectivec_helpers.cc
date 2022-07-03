@@ -982,7 +982,7 @@ std::string DefaultValue(const FieldDescriptor* field) {
 			    // Must convert to a standard byte order for packing length into
 			    // a cstring.
 			    uint32_t length = ghtonl(default_string.length());
-			    std::string bytes((const char*)&length, sizeof(length));
+			    std::string bytes((const char *)&length, sizeof(length));
 			    bytes.append(default_string);
 			    return "(NSData*)\"" + EscapeTrigraphs(CEscape(bytes)) + "\"";
 		    }

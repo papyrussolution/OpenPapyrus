@@ -717,7 +717,7 @@ public:
      */
     virtual void transliterate(Replaceable& text, UTransPosition& index,
                                const UnicodeString & insertion,
-                               UErrorCode& status) const;
+                               UErrorCode & status) const;
 
     /**
      * Transliterates the portion of the text buffer that can be
@@ -736,7 +736,7 @@ public:
      */
     virtual void transliterate(Replaceable& text, UTransPosition& index,
                                UChar32 insertion,
-                               UErrorCode& status) const;
+                               UErrorCode & status) const;
 
     /**
      * Transliterates the portion of the text buffer that can be
@@ -751,7 +751,7 @@ public:
      * @stable ICU 2.0
      */
     virtual void transliterate(Replaceable& text, UTransPosition& index,
-                               UErrorCode& status) const;
+                               UErrorCode & status) const;
 
     /**
      * Finishes any pending transliterations that were waiting for
@@ -786,7 +786,7 @@ private:
     void _transliterate(Replaceable& text,
                         UTransPosition& index,
                         const UnicodeString * insertion,
-                        UErrorCode &status) const;
+                        UErrorCode & status) const;
 
 protected:
 
@@ -1052,7 +1052,7 @@ public:
      * @see #registerInstance
      * @stable ICU 2.0
      */
-    Transliterator* createInverse(UErrorCode& status) const;
+    Transliterator* createInverse(UErrorCode & status) const;
 
     /**
      * Returns a <code>Transliterator</code> object given its ID.
@@ -1073,7 +1073,7 @@ public:
     static Transliterator* U_EXPORT2 createInstance(const UnicodeString & ID,
                                           UTransDirection dir,
                                           UParseError& parseError,
-                                          UErrorCode& status);
+                                          UErrorCode & status);
 
     /**
      * Returns a <code>Transliterator</code> object given its ID.
@@ -1087,7 +1087,7 @@ public:
      */
     static Transliterator* U_EXPORT2 createInstance(const UnicodeString & ID,
                                           UTransDirection dir,
-                                          UErrorCode& status);
+                                          UErrorCode & status);
 
     /**
      * Returns a <code>Transliterator</code> object constructed from
@@ -1110,7 +1110,7 @@ public:
                                            const UnicodeString & rules,
                                            UTransDirection dir,
                                            UParseError& parseError,
-                                           UErrorCode& status);
+                                           UErrorCode & status);
 
     /**
      * Create a rule string that can be passed to createFromRules()
@@ -1530,7 +1530,7 @@ public:
     virtual UClassID getDynamicClassID(void) const override = 0;
 
 private:
-    static bool initializeRegistry(UErrorCode &status);
+    static bool initializeRegistry(UErrorCode & status);
 
 public:
 #ifndef U_HIDE_OBSOLETE_API

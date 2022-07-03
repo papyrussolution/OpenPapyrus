@@ -1977,7 +1977,7 @@ PIX * pixGlobalNormRGB(PIX * pixd, PIX * pixs, int32 rval, int32 gval, int32 bva
 {
 	PROCNAME(__FUNCTION__);
 	int32 w, h, d, i, j, ncolors, rv, gv, bv, wpl;
-	int32   * rarray, * garray, * barray;
+	int32 * rarray, * garray, * barray;
 	uint32 * data, * line;
 	NUMA * nar, * nag, * nab;
 	PIXCMAP   * cmap;
@@ -2549,7 +2549,7 @@ static PIX * pixLinearTRCTiled(PIX * pixd, PIX * pixs, int32 sx, int32 sy, PIX *
 	PROCNAME(__FUNCTION__);
 	int32 i, j, k, m, w, h, wt, ht, wpl, wplt, xoff, yoff;
 	int32 minval, maxval, val, sval;
-	int32   * ia;
+	int32 * ia;
 	int32 ** iaa;
 	uint32 * data, * datamin, * datamax, * line, * tline, * linemin, * linemax;
 	if(!pixs || pixGetDepth(pixs) != 8)
@@ -2625,7 +2625,7 @@ static int32 * iaaGetLinearTRC(int32 ** iaa, int32 diff)
 {
 	PROCNAME(__FUNCTION__);
 	int32 i;
-	int32   * ia;
+	int32 * ia;
 	float factor;
 	if(!iaa)
 		return (int32*)ERROR_PTR("iaa not defined", procName, NULL);

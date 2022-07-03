@@ -272,7 +272,7 @@ void PNGAPI png_write_end(png_structrp png_ptr, png_inforp info_ptr)
 		png_benign_error(png_ptr, "Wrote palette index exceeding num_palette");
 #endif
 	/* See if user wants us to write information chunks */
-	if(info_ptr != NULL) {
+	if(info_ptr) {
 #ifdef PNG_WRITE_TEXT_SUPPORTED
 		int i; /* local index variable */
 #endif
@@ -680,7 +680,7 @@ void PNGAPI png_write_row(png_structrp png_ptr, png_const_bytep row)
 #endif
 	/* Find a filter if necessary, filter the row and write it out. */
 	png_write_find_filter(png_ptr, &row_info);
-	if(png_ptr->write_row_fn != NULL)
+	if(png_ptr->write_row_fn)
 		(*(png_ptr->write_row_fn))(png_ptr, png_ptr->row_number, png_ptr->pass);
 }
 
@@ -750,7 +750,7 @@ static void png_write_destroy(png_structrp png_ptr)
 void PNGAPI png_destroy_write_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr)
 {
 	png_debug(1, "in " __FUNCTION__);
-	if(png_ptr_ptr != NULL) {
+	if(png_ptr_ptr) {
 		png_structrp png_ptr = *png_ptr_ptr;
 		if(png_ptr) { /* added in libpng 1.6.0 */
 			png_destroy_info_struct(png_ptr, info_ptr_ptr);
@@ -804,7 +804,7 @@ void PNGAPI png_set_filter(png_structrp png_ptr, int method, int filters)
 		 * prev_row buffer must be maintained even if there are currently no
 		 * 'prev_row' requiring filters active.
 		 */
-		if(png_ptr->row_buf != NULL) {
+		if(png_ptr->row_buf) {
 			int num_filters;
 			png_alloc_size_t buf_size;
 			/* Repeat the checks in png_write_start_row; 1 pixel high or wide
@@ -1117,9 +1117,9 @@ static int png_image_write_init(png_imagep image)
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, image, png_safe_error, png_safe_warning);
 	if(png_ptr) {
 		png_infop info_ptr = png_create_info_struct(png_ptr);
-		if(info_ptr != NULL) {
+		if(info_ptr) {
 			png_controlp control = png_voidcast(png_controlp, png_malloc_warn(png_ptr, (sizeof *control)));
-			if(control != NULL) {
+			if(control) {
 				memzero(control, (sizeof *control));
 				control->png_ptr = png_ptr;
 				control->info_ptr = info_ptr;
@@ -1507,7 +1507,7 @@ static int png_image_write_main(void * argument)
 
 	/* Set the required transforms then write the rows in the correct order. */
 	if((format & PNG_FORMAT_FLAG_COLORMAP) != 0) {
-		if(display->colormap != NULL && image->colormap_entries > 0) {
+		if(display->colormap && image->colormap_entries > 0) {
 			uint32 entries = image->colormap_entries;
 			png_set_IHDR(png_ptr, info_ptr, image->width, image->height,
 			    entries > 16 ? 8 : (entries > 4 ? 4 : (entries > 2 ? 2 : 1)),
@@ -1729,8 +1729,8 @@ int PNGAPI png_image_write_to_memory(png_imagep image, void * memory, png_alloc_
 int PNGAPI png_image_write_to_stdio(png_imagep image, FILE * file, int convert_to_8bit, const void * buffer, png_int_32 row_stride, const void * colormap)
 {
 	/* Write the image to the given (FILE *). */
-	if(image != NULL && image->version == PNG_IMAGE_VERSION) {
-		if(file != NULL && buffer != NULL) {
+	if(image && image->version == PNG_IMAGE_VERSION) {
+		if(file && buffer) {
 			if(png_image_write_init(image) != 0) {
 				png_image_write_control display;
 				int result;
