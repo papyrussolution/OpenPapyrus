@@ -177,17 +177,6 @@ public class CommandListActivity extends SLib.SlActivity {
 		switch(ev) {
 			case SLib.EV_CREATE:
 				setContentView(R.layout.activity_command_list);
-				/*{
-					// toolbar
-					Toolbar toolbar = (Toolbar)findViewById(R.id.toolbarCommandList);
-					setSupportActionBar(toolbar);
-					// add back arrow to toolbar
-					ActionBar aca = getSupportActionBar();
-					if(aca != null){
-						aca.setDisplayHomeAsUpEnabled(true);
-						aca.setDisplayShowHomeEnabled(true);
-					}
-				}*/
 				Intent intent = getIntent();
 				SvcIdent = intent.getByteArrayExtra("SvcIdent");
 				{
@@ -246,9 +235,8 @@ public class CommandListActivity extends SLib.SlActivity {
 					SLib.RecyclerListAdapter adapter = (srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
 					if(adapter != null) {
-						if(adapter.GetRcId() == R.layout.li_command && ListData != null && ListData.Items != null) {
+						if(adapter.GetRcId() == R.layout.li_command && ListData != null && ListData.Items != null)
 							_count = ListData.Items.size();
-						}
 					}
 					result = new Integer(_count);
 				}
@@ -273,6 +261,7 @@ public class CommandListActivity extends SLib.SlActivity {
 								}
 								else
 									app_ctx.RunSvcCommand(SvcIdent, cmd_item, null, force_query, null);
+								RefreshStatus();
 							}
 						}
 					}
@@ -297,18 +286,16 @@ public class CommandListActivity extends SLib.SlActivity {
 											final int h = totalsec / 3600;
 											timewatch_text = ((h > 0) ? Integer.toString(h) + ":" : "") + String.format("%02d:%02d", (totalsec % 3600) / 60, (totalsec % 60));
 										}
-										SLib.SetCtrlString(iv, R.id.LVITEM_IND_EXECUTETIME, timewatch_text);
+										SLib.SetCtrlString(iv, R.id.CTL_IND_EXECUTETIME, timewatch_text);
 									}
 									{
-										ImageView ctl = (ImageView)iv.findViewById(R.id.LVITEM_STATUSINDICATOR);
+										ImageView ctl = (ImageView)iv.findViewById(R.id.CTL_IND_STATUS);
 										if(ctl != null) {
 											int rcid = 0;
 											switch(prestatus.S) {
 												case StyloQCommand.prestatusQueryNeeded: rcid = R.drawable.ic_generic_server; break;
 												case StyloQCommand.prestatusActualResultStored: rcid = R.drawable.ic_generic_document; break;
-												case StyloQCommand.prestatusPending:
-														rcid = R.drawable.ic_stopwatch;
-														break;
+												case StyloQCommand.prestatusPending: rcid = R.drawable.ic_stopwatch; break;
 												default: rcid = R.drawable.ic_generic_command; break;
 											}
 											ctl.setImageResource(rcid);

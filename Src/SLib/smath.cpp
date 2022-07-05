@@ -1548,6 +1548,14 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 /*static*/int SDecimalFraction::Test()
 {
 	int    ok = 1;
+	SString temp_buf;
+
+	double a = 1.0;
+	double b = 2.0;
+	double c = 4.0;
+	double d = 1024.0;
+
+	slprintf(temp_buf, "%f", 1.0);
 	{
 		struct TestEntry {
 			int64  N;
@@ -1568,8 +1576,8 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 			const TestEntry & r_te = entries[i];
 			const double tv = SDecimalFraction(r_te.N, r_te.Dp).GetReal();
 			assert(tv == r_te.Rv);
-			//SDecimalFraction r(r_te.Rv);
-			//assert(r.GetReal() == tv);
+			SDecimalFraction r(r_te.Rv);
+			assert(r.GetReal() == tv);
 		}
 		{
 			SDecimalFraction r;

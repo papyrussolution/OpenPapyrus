@@ -3470,35 +3470,35 @@ PPSession::LimitedDatabaseBlock::~LimitedDatabaseBlock()
 PPSession::LimitedDatabaseBlock * PPSession::LimitedOpenDatabase(const char * pDbSymb, long flags)
 {
 	LimitedDatabaseBlock * p_result = 0;
-	if(flags & (lodfReference|lodfSysJournal|lodfStyloQCore)) {
-		SString db_symb;
-		SString dict_path;
-		SString data_path;
-		PPDbEntrySet2 dbes;
-		DbLoginBlock blk;
-		PPIniFile ini_file(0, 0, 0, 1);
-		THROW(ini_file.IsValid());
-		THROW(dbes.ReadFromProfile(&ini_file, 0));
-		db_symb = pDbSymb;
-		THROW_SL(dbes.GetBySymb(db_symb, &blk));
-		blk.GetAttr(DbLoginBlock::attrDbPath, data_path);
-		blk.GetAttr(DbLoginBlock::attrDictPath, dict_path);
-		THROW(OpenDictionary2(&blk, 0));
-		{
-			const long db_path_id = DBS.GetDbPathID();
-			DbProvider * p_dict = CurDict;
-			assert(p_dict);
-			p_result = new LimitedDatabaseBlock();
-			p_result->State |= 0x0001;
-			if(flags & lodfReference) {
-				THROW_MEM(p_result->P_Ref = new Reference);
-			}
-			if(flags & lodfSysJournal) {
-				THROW_MEM(p_result->P_Sj = new SysJournal);
-			}
-			if(flags & lodfStyloQCore) {
-				THROW_MEM(p_result->P_Sqc = new StyloQCore);
-			}
+	SString db_symb;
+	SString dict_path;
+	SString data_path;
+	PPDbEntrySet2 dbes;
+	DbLoginBlock blk;
+	PPIniFile ini_file(0, 0, 0, 1);
+	assert(flags & (lodfReference|lodfSysJournal|lodfStyloQCore));
+	THROW_PP(flags & (lodfReference|lodfSysJournal|lodfStyloQCore), PPERR_LTDDBOPEN_INVFLAGS);
+	THROW(ini_file.IsValid());
+	THROW(dbes.ReadFromProfile(&ini_file, 0));
+	db_symb = pDbSymb;
+	THROW_SL(dbes.GetBySymb(db_symb, &blk));
+	blk.GetAttr(DbLoginBlock::attrDbPath, data_path);
+	blk.GetAttr(DbLoginBlock::attrDictPath, dict_path);
+	THROW(OpenDictionary2(&blk, 0));
+	{
+		const long db_path_id = DBS.GetDbPathID();
+		DbProvider * p_dict = CurDict;
+		assert(p_dict);
+		p_result = new LimitedDatabaseBlock();
+		p_result->State |= 0x0001;
+		if(flags & lodfReference) {
+			THROW_MEM(p_result->P_Ref = new Reference);
+		}
+		if(flags & lodfSysJournal) {
+			THROW_MEM(p_result->P_Sj = new SysJournal);
+		}
+		if(flags & lodfStyloQCore) {
+			THROW_MEM(p_result->P_Sqc = new StyloQCore);
 		}
 	}
 	CATCH

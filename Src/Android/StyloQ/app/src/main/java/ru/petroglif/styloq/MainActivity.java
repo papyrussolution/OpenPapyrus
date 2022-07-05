@@ -288,14 +288,84 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			return result;
 		}
 	}
+	private static class ListEntry {
+		public static int statusTouched = 0x0001; // На элемент нажали пальцем. Для временного изменения окраски.
+		public static int statusPending = 0x0002; // Элемент ожидает завершения операции, запущенной по нажатию пользователем
+		public ListEntry(StyloQDatabase db, long svcID)
+		{
+			SvcID = svcID;
+			Status = 0;
+			PendingTimeMs = -1;
+			Setup(db);
+		}
+		public void Setup(StyloQDatabase db)
+		{
+			Pack = null;
+			Face = null;
+			CmdListExpiration = -1; // undefined
+			if(db != null && SvcID > 0) {
+				try {
+					Pack = db.GetPeerEntry(SvcID);
+					if(Pack != null)
+						Face = Pack.GetFace();
+					{
+						byte [] svc_ident = Pack.Pool.Get(SecretTagPool.tagSvcIdent);
+						if(SLib.GetLen(svc_ident) > 0) {
+							if(Pack.Rec.Kind == StyloQDatabase.SecStoragePacket.kForeignService) {
+								StyloQDatabase.SecStoragePacket cmdlist_pack = db.GetForeignSvcCommandList(svc_ident);
+								if(cmdlist_pack != null)
+									CmdListExpiration = cmdlist_pack.Rec.Expiration;
+							}
+						}
+					}
+				} catch(StyloQException exn) {
+					;
+				}
+			}
+		}
+		long   SvcID;
+		StyloQDatabase.SecStoragePacket Pack;
+		StyloQFace Face; // Предварительно извлечен из Pack
+		long   CmdListExpiration;
+		int    Status;
+		int    PendingTimeMs; // Текущее время ожидания результата вызова функции
+	}
 	public final int CUSTOMIZED_REQUEST_CODE = 0x0000ffff;
-	private ArrayList <Long> SvcListData;
-	private int TouchedListItemIdx; // Элемент, на который нажали пальцем. Для временного изменения окраски.
+	private ArrayList <ListEntry> ListData;
+	//private int TouchedListItemIdx; // Элемент, на который нажали пальцем. Для временного изменения окраски.
 	public MainActivity()
 	{
 		super();
-		SvcListData = null;
-		TouchedListItemIdx = -1;
+		ListData = null;
+		//TouchedListItemIdx = -1;
+	}
+	private void MakeListData(StyloQDatabase db)
+	{
+		ListData = null;
+		try {
+			ArrayList<Long> id_list = db.GetForeignSvcIdList(true);
+			if(id_list != null && id_list.size() > 0) {
+				ListData = new ArrayList<ListEntry>();
+				for(int i = 0; i < id_list.size(); i++) {
+					ListEntry new_entry = new ListEntry(db, id_list.get(i));
+					ListData.add(new_entry);
+				}
+			}
+		} catch(StyloQException exn) {
+			;
+		}
+	}
+	private void RefreshStatus()
+	{
+		if(ListData != null) {
+			View v = findViewById(R.id.serviceListView);
+			if(v != null && v instanceof RecyclerView) {
+				RecyclerView rv = (RecyclerView)v;
+				RecyclerView.Adapter a = rv.getAdapter();
+				if(a != null)
+					a.notifyDataSetChanged();
+			}
+		}
 	}
 	private class ResetTouchedListItemIdx_TimerTask extends TimerTask {
 		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { SetTouchedItemIndex(-1); }}); }
@@ -316,18 +386,86 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	}
 	private void SetTouchedItemIndex(int idx)
 	{
-		if(idx >= 0) {
-			TouchedListItemIdx = idx;
-			if(NotifyListItemChanged(idx)) {
-				Timer tmr = new Timer();
-				tmr.schedule(new ResetTouchedListItemIdx_TimerTask(), 2000);
+		if(ListData != null) {
+			for(int i = 0; i < ListData.size(); i++) {
+				ListEntry entry = ListData.get(i);
+				final int preserve_status = entry.Status;
+				int new_status = preserve_status;
+				boolean set = false;
+				if(idx == i) {
+					new_status |= ListEntry.statusTouched;
+					set = true;
+				}
+				else {
+					new_status &= ~ListEntry.statusTouched;
+				}
+				if(new_status != preserve_status) {
+					entry.Status = new_status;
+					if(set) {
+						if(NotifyListItemChanged(i)) {
+							Timer tmr = new Timer();
+							tmr.schedule(new ResetTouchedListItemIdx_TimerTask(), 2000);
+						}
+					}
+					else
+						NotifyListItemChanged(i);
+				}
 			}
 		}
-		else {
-			final int _idx = TouchedListItemIdx;
-			TouchedListItemIdx = -1;
-			NotifyListItemChanged(_idx);
+	}
+	private boolean GetSvcCommandList(StyloQDatabase.SecStoragePacket svcPack, boolean forceQuery)
+	{
+		boolean ok = false;
+		StyloQApp app_ctx = (StyloQApp)getApplication();
+		try {
+			if(app_ctx != null) {
+				StyloQDatabase db = app_ctx.GetDB();
+				if(db != null && svcPack != null) {
+					boolean do_request = true;
+					byte[] svc_ident = svcPack.Pool.Get(SecretTagPool.tagSvcIdent);
+					if(SLib.GetLen(svc_ident) > 0) {
+						if(!forceQuery && svcPack.Rec.Kind == StyloQDatabase.SecStoragePacket.kForeignService) {
+							StyloQDatabase.SecStoragePacket pack = db.GetForeignSvcCommandList(svc_ident);
+							if(pack != null && !StyloQInterchange.IsExpired(pack.Rec.Expiration)) {
+								CommandListActivity cmdl_activity = app_ctx.FindCommandListActivityBySvcIdent(svc_ident);
+								if(cmdl_activity == null) {
+									//cmdl_activity.
+									Intent intent = new Intent(this, CommandListActivity.class);
+									intent.putExtra("SvcIdent", svc_ident);
+									this.startActivity(intent);
+								}
+								else {
+									Intent intent = new Intent(this, CommandListActivity.class);
+									intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+									this.startActivity(intent);
+								}
+								do_request = false;
+							}
+						}
+						if(do_request) {
+							// Если из базы данных не удалось получить список команд, то обращаемся к сервису
+							try {
+								JSONObject js_query = new JSONObject();
+								js_query.put("cmd", "GetCommandList");
+								StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svcPack, js_query, null);
+								if(StyloQInterchange.DoSvcRequest(app_ctx, blk))
+									ok = true;
+							} catch(JSONException exn) {
+								ok = false;
+								new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
+							}
+						}
+					}
+					else
+						ok = false;
+				}
+				else
+					ok = false;
+			}
+		} catch(StyloQException exn) {
+			ok = false;
 		}
+		return ok;
 	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
@@ -344,7 +482,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 								StyloQDatabase db = app_ctx.GetDB();
 								if(db != null) {
 									db.SetupPeerInstance();
-									SvcListData = db.GetForeignSvcIdList(true);
+									MakeListData(db);
 								}
 							} catch(StyloQException e) {
 								;
@@ -360,7 +498,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						try {
 							StyloQDatabase db = app_ctx.GetDB();
 							if(db != null) {
-								SvcListData = db.GetForeignSvcIdList(true);
+								MakeListData(db);
 								View v = findViewById(R.id.serviceListView);
 								RecyclerView view = (v != null && v instanceof RecyclerView) ? (RecyclerView)findViewById(R.id.serviceListView) : null;
 								RecyclerView.Adapter adapter = (view != null) ? view.getAdapter() : null;
@@ -386,8 +524,8 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				{
 					SLib.RecyclerListAdapter adapter = (srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
-					if(adapter != null && adapter.GetRcId() == R.layout.li_service && SvcListData != null) {
-						_count = SvcListData.size();
+					if(adapter != null && adapter.GetRcId() == R.layout.li_service && ListData != null) {
+						_count = ListData.size();
 					}
 					result = new Integer(_count);
 				}
@@ -396,34 +534,21 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					StyloQApp app_ctx = (StyloQApp)getApplication();
-					if(ev_subj != null && app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < SvcListData.size()) {
-						long svc_id = SvcListData.get(ev_subj.ItemIdx);
-						if(ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.buttonInfo) {
-							// Здесь показать информацию о сервисе
-							StyloQDatabase.SecStoragePacket svc_pack = null;
-							try {
-								StyloQDatabase db = app_ctx.GetDB();
-								if(db != null)
-									svc_pack = db.GetPeerEntry(svc_id);
-							} catch(StyloQException exn) {
-								;
-							}
-							if(svc_pack != null) {
-								SvcInfoDialog dialog = new SvcInfoDialog(this, svc_pack);
-								dialog.show();
-							}
-						}
-						else {
-							SetTouchedItemIndex(ev_subj.ItemIdx);
-							try {
-								StyloQDatabase db = app_ctx.GetDB();
-								if(db != null) {
-									StyloQDatabase.SecStoragePacket cur_entry = db.GetPeerEntry(svc_id);
-									if(cur_entry != null)
-										app_ctx.GetSvcCommandList(cur_entry, false);
+					if(ev_subj != null && app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.size()) {
+						ListEntry cur_entry = ListData.get(ev_subj.ItemIdx);
+						if(cur_entry != null) {
+							if(ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.buttonInfo) {
+								// Здесь показать информацию о сервисе
+								if(cur_entry.Pack != null) {
+									SvcInfoDialog dialog = new SvcInfoDialog(this, cur_entry.Pack);
+									dialog.show();
 								}
-							} catch(StyloQException exn) {
-								;
+							}
+							else {
+								SetTouchedItemIndex(ev_subj.ItemIdx);
+								if(cur_entry.Pack != null) {
+									GetSvcCommandList(cur_entry.Pack, false);
+								}
 							}
 						}
 					}
@@ -433,18 +558,12 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					StyloQApp app_ctx = (StyloQApp)getApplication();
-					if(ev_subj != null && app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < SvcListData.size()) {
+					if(ev_subj != null && app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.size()) {
 						SetTouchedItemIndex(ev_subj.ItemIdx);
-						long svc_id = SvcListData.get(ev_subj.ItemIdx);
-						try {
-							StyloQDatabase db = app_ctx.GetDB();
-							if(db != null) {
-								StyloQDatabase.SecStoragePacket cur_entry = db.GetPeerEntry(svc_id);
-								if(cur_entry != null)
-									app_ctx.GetSvcCommandList(cur_entry, true);
-							}
-						} catch(StyloQException exn) {
-							;
+						ListEntry cur_entry = ListData.get(ev_subj.ItemIdx);
+						if(cur_entry != null) {
+							if(cur_entry.Pack != null)
+								GetSvcCommandList(cur_entry.Pack, true);
 						}
 					}
 				}
@@ -455,35 +574,23 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					if(ev_subj != null) {
 						if(ev_subj.RvHolder != null) {
 							// RecyclerView
-							if(SvcListData != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < SvcListData.size()) {
-								long cur_id = SvcListData.get(ev_subj.ItemIdx);
-								StyloQApp app_ctx = (StyloQApp) getApplication();
-								if(app_ctx != null) {
-									try {
-										StyloQDatabase db = app_ctx.GetDB();
-										if(db != null) {
-											StyloQDatabase.SecStoragePacket cur_entry = db.GetPeerEntry(cur_id);
-											if(cur_entry != null) {
-												View iv = ev_subj.RvHolder.itemView;
-												if(TouchedListItemIdx == ev_subj.ItemIdx)
-													iv.setBackgroundResource(R.drawable.shape_listitem_focused);
-												else
-													iv.setBackgroundResource(R.drawable.shape_listitem);
-												TextView ctl = (TextView)iv.findViewById(R.id.LVITEM_SVCNAME);
-												StyloQFace face = cur_entry.GetFace();
-												if(face != null) { // @v11.4.0 @fix
-													if(ctl != null)
-														ctl.setText(cur_entry.GetSvcName(face));
-													View img_view = iv.findViewById(R.id.LVITEM_IMG);
-													if(img_view != null && img_view instanceof ImageView) {
-														String blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
-														SLib.SetupImage(this, img_view, blob_signature);
-													}
-												}
-											}
+							if(ListData != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.size()) {
+								final ListEntry cur_entry = ListData.get(ev_subj.ItemIdx);
+								if(cur_entry != null) {
+									View iv = ev_subj.RvHolder.itemView;
+									if((cur_entry.Status & ListEntry.statusTouched) != 0)
+										iv.setBackgroundResource(R.drawable.shape_listitem_focused);
+									else
+										iv.setBackgroundResource(R.drawable.shape_listitem);
+									TextView ctl = (TextView)iv.findViewById(R.id.LVITEM_SVCNAME);
+									if(cur_entry.Pack != null) { // @v11.4.0 @fix
+										if(ctl != null)
+											ctl.setText(cur_entry.Pack.GetSvcName(cur_entry.Face));
+										View img_view = iv.findViewById(R.id.LVITEM_IMG);
+										if(cur_entry.Face != null && img_view != null && img_view instanceof ImageView) {
+											String blob_signature = cur_entry.Face.Get(StyloQFace.tagImageBlobSignature, 0);
+											SLib.SetupImage(this, img_view, blob_signature);
 										}
-									} catch(StyloQException exn) {
-										;
 									}
 								}
 							}
@@ -728,9 +835,9 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	}
 	private int FindServiceEntryInListData(long svcId)
 	{
-		if(SvcListData != null) {
-			for(int i = 0; i < SvcListData.size(); i++)
-				if(SvcListData.get(i) == svcId) {
+		if(ListData != null) {
+			for(int i = 0; i < ListData.size(); i++)
+				if(ListData.get(i).SvcID == svcId) {
 					return i;
 				}
 		}
@@ -745,16 +852,27 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			if(adapter != null) {
 				boolean found = false;
 				int found_idx = -1;
-				if(SvcListData != null) {
+				if(ListData != null) {
 					found_idx = FindServiceEntryInListData(svcId);
 					if(found_idx >= 0)
 						found = true;
 				}
 				else
-					SvcListData = new ArrayList<Long>();
+					ListData = new ArrayList<ListEntry>();
 				if(!found) {
-					SvcListData.add(new Long(svcId));
-					adapter.notifyItemInserted(SvcListData.size()-1);
+					StyloQApp app_ctx = GetAppCtx();
+					if(app_ctx != null) {
+						try {
+							StyloQDatabase db = app_ctx.GetDB();
+							if(db != null) {
+								ListEntry new_entry = new ListEntry(db, svcId);
+								ListData.add(new_entry);
+								adapter.notifyItemInserted(ListData.size() - 1);
+							}
+						} catch(StyloQException exn) {
+							;
+						}
+					}
 				}
 				else
 					adapter.notifyItemChanged(found_idx);
@@ -767,7 +885,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			View v = findViewById(R.id.serviceListView);
 			RecyclerView view = (v != null && v instanceof RecyclerView) ? (RecyclerView)findViewById(R.id.serviceListView) : null;
 			RecyclerView.Adapter adapter = (view != null) ? view.getAdapter() : null;
-			if(adapter != null && SvcListData != null) {
+			if(adapter != null && ListData != null) {
 				int found_idx = FindServiceEntryInListData(svcId);
 				if(found_idx >= 0)
 					adapter.notifyItemRemoved(found_idx);

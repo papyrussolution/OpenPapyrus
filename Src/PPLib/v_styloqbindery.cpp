@@ -360,13 +360,13 @@ int PPViewStyloQBindery::Invitation()
 					else if(P_DsList->getCount() == 0) {
 						StyloQCore::StoragePacket own_pack;
 						PPID   own_id = 0;
-						if(Obj.P_Tbl->SetupPeerInstance(&own_id, 1)) {
-							if(Obj.P_Tbl->GetOwnPeerEntry(&own_pack) > 0) {
-								assert(own_pack.Rec.ID == own_id);
-								Obj.EditFace(own_id);
-								ok = 1; // Так как мы (скорее всего) создали собственную запись, то безусловно обновляем список
-							}
+						if(Obj.P_Tbl->SetupPeerInstance(&own_id, 1) && Obj.P_Tbl->GetOwnPeerEntry(&own_pack) > 0) {
+							assert(own_pack.Rec.ID == own_id);
+							Obj.EditFace(own_id);
+							ok = 1; // Так как мы (скорее всего) создали собственную запись, то безусловно обновляем список
 						}
+						else
+							PPError();
 					}
 				}
 				break;
@@ -387,13 +387,13 @@ int PPViewStyloQBindery::Invitation()
 					else if(P_DsList->getCount() == 0) {
 						StyloQCore::StoragePacket own_pack;
 						PPID   own_id = 0;
-						if(Obj.P_Tbl->SetupPeerInstance(&own_id, 1)) {
-							if(Obj.P_Tbl->GetOwnPeerEntry(&own_pack) > 0) {
-								assert(own_pack.Rec.ID == own_id);
-								Obj.EditConfig(own_id);
-								ok = 1; // Так как мы (скорее всего) создали собственную запись, то безусловно обновляем список
-							}
+						if(Obj.P_Tbl->SetupPeerInstance(&own_id, 1) && Obj.P_Tbl->GetOwnPeerEntry(&own_pack) > 0) {
+							assert(own_pack.Rec.ID == own_id);
+							Obj.EditConfig(own_id);
+							ok = 1; // Так как мы (скорее всего) создали собственную запись, то безусловно обновляем список
 						}
+						else
+							PPError();
 					}
 				}
 				break;
@@ -462,6 +462,19 @@ PPViewStyloQCommand::PPViewStyloQCommand() : PPView(0, &Filt, PPVIEW_STYLOQCOMMA
 
 PPViewStyloQCommand::~PPViewStyloQCommand()
 {
+	// @v11.4.3 {
+	if((BaseState & bsUserChangedData) && CONFIRM(PPCFM_DATACHANGED)) {
+		SString file_name;
+		if(StyloQCommandList::GetCanonicalFileName(file_name)) {
+			if(List.Store(file_name)) {
+				BaseState &= ~bsUserChangedData;
+			}
+			else {
+				; // @err(log)
+			}
+		}
+	}
+	// } @v11.4.3 
 }
 
 int PPViewStyloQCommand::MakeList(PPViewBrowser * pBrw)
@@ -490,6 +503,7 @@ int PPViewStyloQCommand::MakeList(PPViewBrowser * pBrw)
 	CALLPTRMEMB(P_DsList, freeAll());
 	if(StyloQCommandList::GetCanonicalFileName(file_name)) {
 		List.Load(db_symb, file_name);
+		BaseState &= ~bsUserChangedData; // @v11.4.3
 	}
 	THROW(MakeList(0));
 	CATCHZOK
@@ -947,6 +961,7 @@ int PPViewStyloQCommand::AddItem(uint * pIdx)
 	StyloQCommandList::Item * p_new_item = List.CreateNewItem(&new_item_idx);
 	if(p_new_item) {
 		if(EditStyloQCommand(p_new_item, List) > 0) {
+			BaseState |= bsUserChangedData; // @v11.4.3
 			ok = 1;
 		}
 		else
@@ -960,7 +975,15 @@ int PPViewStyloQCommand::EditItem(uint idx)
 	int    ok = -1;
 	StyloQCommandList::Item * p_item = idx ? List.Get(idx-1) : 0;
 	if(p_item) {
+		// @v11.4.3 {
+		const StyloQCommandList::Item org_item(*p_item);
+		assert(org_item.IsEq(*p_item));
+		// } @v11.4.3 
 		if(EditStyloQCommand(p_item, List) > 0) {
+			// @v11.4.3 {
+			if(!p_item->IsEq(org_item))
+				BaseState |= bsUserChangedData; 
+			// } @v11.4.3 
 			ok = 1;
 		}
 	}
@@ -972,8 +995,10 @@ int PPViewStyloQCommand::DeleteItem(uint idx)
 	int    ok = -1;
 	StyloQCommandList::Item * p_item = idx ? List.Get(idx-1) : 0;
 	if(p_item && CONFIRM(PPCFM_DELETE)) {
-		if(List.Set(idx-1, 0))
+		if(List.Set(idx-1, 0)) {
+			BaseState |= bsUserChangedData; // @v11.4.3
 			ok = 1;
+		}
 	}
 	return ok;
 }
@@ -1004,7 +1029,7 @@ int PPViewStyloQCommand::DeleteItem(uint idx)
 					SString file_name;
 					if(StyloQCommandList::GetCanonicalFileName(file_name)) {
 						if(List.Store(file_name)) {
-							;
+							BaseState &= ~bsUserChangedData; // @v11.4.3
 						}
 					}
 				}

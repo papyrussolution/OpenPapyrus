@@ -1,5 +1,5 @@
 // DBENTSET.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -321,42 +321,41 @@ int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 
 	SString def_dict;
 	SString def_data;
 	SString server_type_symb;
+	StringSet entries;
 	PPIniFile * p_ini_file = NZOR(pIniFile, new PPIniFile);
 	THROW_MEM(p_ini_file);
-	if(p_ini_file->IsValid()) {
-		// @construction (see comments below) SPathStruc ps;
-		StringSet entries;
-		p_ini_file->Get(PPINISECT_PATH, PPINIPARAM_SYS, def_dict);
-		p_ini_file->Get(PPINISECT_PATH, PPINIPARAM_DAT, def_data);
-		p_ini_file->GetEntries(P_DbNameSect, &entries);
-		for(uint pos = 0; entries.get(&pos, entry_symb);) {
-			DbLoginBlock blk;
-			PROFILE(p_ini_file->GetParam(P_DbNameSect, entry_symb, entry_buf));
-			blk.SetAttr(DbLoginBlock::attrDbSymb, entry_symb);
-			int    r;
-			PROFILE(r = ParseProfileLine(entry_buf, &blk));
-			if(r) {
-				blk.GetAttr(DbLoginBlock::attrDictPath, temp_buf);
-				blk.GetAttr(DbLoginBlock::attrDbPath, temp_buf);
-				blk.GetAttr(DbLoginBlock::attrServerType, server_type_symb);
-				const SqlServerType server_type = GetSqlServerTypeBySymb(server_type_symb);
-				if(temp_buf.IsEmpty()) {
-					if(!dontLoadDefDict)
-						blk.SetAttr(DbLoginBlock::attrDbPath, def_dict);
-				}
-				if(existsPathOnly && server_type != sqlstMySQL) { // @v10.9.3 @debug (server_type != sqlstMySQL)
-					//
-					// @construction ps.Split(temp_buf);
-					// @todo Здесь необходимо идентифицировать доступность
-					// компьютера, на который ссылается каталог и, если он не доступен,
-					// запомнить дабы для следующих каталогов не проверять доступность (ибо очень долго).
-					//
-					if(IsDirectory(temp_buf))
-						THROW_SL(Add(0, &blk, 1));
-				}
-				else {
+	THROW_SL(p_ini_file->IsValid());
+	// @construction (see comments below) SPathStruc ps;
+	p_ini_file->Get(PPINISECT_PATH, PPINIPARAM_SYS, def_dict);
+	p_ini_file->Get(PPINISECT_PATH, PPINIPARAM_DAT, def_data);
+	p_ini_file->GetEntries(P_DbNameSect, &entries);
+	for(uint pos = 0; entries.get(&pos, entry_symb);) {
+		DbLoginBlock blk;
+		PROFILE(p_ini_file->GetParam(P_DbNameSect, entry_symb, entry_buf));
+		blk.SetAttr(DbLoginBlock::attrDbSymb, entry_symb);
+		int    r;
+		PROFILE(r = ParseProfileLine(entry_buf, &blk));
+		if(r) {
+			blk.GetAttr(DbLoginBlock::attrDictPath, temp_buf);
+			blk.GetAttr(DbLoginBlock::attrDbPath, temp_buf);
+			blk.GetAttr(DbLoginBlock::attrServerType, server_type_symb);
+			const SqlServerType server_type = GetSqlServerTypeBySymb(server_type_symb);
+			if(temp_buf.IsEmpty()) {
+				if(!dontLoadDefDict)
+					blk.SetAttr(DbLoginBlock::attrDbPath, def_dict);
+			}
+			if(existsPathOnly && server_type != sqlstMySQL) { // @v10.9.3 @debug (server_type != sqlstMySQL)
+				//
+				// @construction ps.Split(temp_buf);
+				// @todo Здесь необходимо идентифицировать доступность
+				// компьютера, на который ссылается каталог и, если он не доступен,
+				// запомнить дабы для следующих каталогов не проверять доступность (ибо очень долго).
+				//
+				if(IsDirectory(temp_buf))
 					THROW_SL(Add(0, &blk, 1));
-				}
+			}
+			else {
+				THROW_SL(Add(0, &blk, 1));
 			}
 		}
 	}

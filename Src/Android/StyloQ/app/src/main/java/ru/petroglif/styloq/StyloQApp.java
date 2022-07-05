@@ -19,6 +19,11 @@ import android.widget.Toast;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.InstallState;
+import com.google.android.play.core.install.InstallStateUpdatedListener;
+import com.google.android.play.core.install.model.InstallStatus;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -43,6 +48,9 @@ public class StyloQApp extends SLib.App {
 	protected StyloQDatabase Db;
 	private ArrayList <IgnitionServerEntry> ISL;
 	private Timer SvcPollTmr;
+	private AppUpdateManager AppUpdMgr;
+	private InstallStateUpdatedListener InstallStateUpdatedListener;
+
 	private void StartupTest()
 	{
 		{
@@ -225,6 +233,28 @@ public class StyloQApp extends SLib.App {
 							}
 							// } @construction
 						}
+						{
+							AppUpdMgr = AppUpdateManagerFactory.create(this);
+							InstallStateUpdatedListener = new InstallStateUpdatedListener() {
+								@Override public void onStateUpdate(InstallState state)
+								{
+									if(state.installStatus() == InstallStatus.DOWNLOADED) {
+										;
+										//CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
+										//popupSnackbarForCompleteUpdate();
+									}
+									else if(state.installStatus() == InstallStatus.INSTALLED) {
+										if(AppUpdMgr != null) {
+											//app_upd_mgr.unregisterListener(install_state_updated_listener);
+										}
+									}
+									else {
+										//Log.i(TAG, "InstallStateUpdatedListener: state: " + state.installStatus());
+									}
+								}
+							};
+							AppUpdMgr.registerListener(InstallStateUpdatedListener);
+						}
 					}
 					catch(StyloQException e) {
 						throw new SQLiteException(GetLastErrMessage(null));
@@ -234,6 +264,8 @@ public class StyloQApp extends SLib.App {
 			case SLib.EV_TERMINTATE:
 				if(Db != null)
 					Db.Close();
+				if(InstallStateUpdatedListener != null && AppUpdMgr != null)
+					AppUpdMgr.registerListener(InstallStateUpdatedListener);
 				break;
 			case SLib.EV_IADATAEDITCOMMIT:
 				//
@@ -771,50 +803,6 @@ public class StyloQApp extends SLib.App {
 		}
 		return ok;
 	}*/
-	public boolean GetSvcCommandList(StyloQDatabase.SecStoragePacket svcPack, boolean forceQuery) throws StyloQException
-	{
-		//ArrayList <StyloQCommand.Item> result = null;
-		boolean ok = false;
-		MainActivity main_activity = FindMainActivity();
-		if(Db != null && svcPack != null && main_activity != null) {
-			boolean do_request = true;
-			byte [] svc_ident = svcPack.Pool.Get(SecretTagPool.tagSvcIdent);
-			if(SLib.GetLen(svc_ident) > 0) {
-				//StyloQDatabase.SecStoragePacket svc_pack = Db.SearchGlobalIdentEntry(svcIdent);
-				if(!forceQuery && svcPack.Rec.Kind == StyloQDatabase.SecStoragePacket.kForeignService) {
-					StyloQDatabase.SecStoragePacket pack = Db.GetForeignSvcCommandList(svc_ident);
-					if(pack != null && !StyloQInterchange.IsExpired(pack.Rec.Expiration)) {
-						CommandListActivity cmdl_activity = FindCommandListActivityBySvcIdent(svc_ident);
-						if(cmdl_activity == null) {
-							//cmdl_activity.
-							Intent intent = new Intent(main_activity, CommandListActivity.class);
-							intent.putExtra("SvcIdent", svc_ident);
-							main_activity.startActivity(intent);
-						}
-						do_request = false;
-					}
-				}
-				if(do_request) {
-					// Если из базы данных не удалось получить список команд, то обращаемся к сервису
-					try {
-						JSONObject js_query = new JSONObject();
-						js_query.put("cmd", "GetCommandList");
-						StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svcPack, js_query, null);
-						if(StyloQInterchange.DoSvcRequest(this, blk))
-							ok = true;
-					} catch(JSONException exn){
-						ok = false;
-						new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
-					}
-				}
-			}
-			else
-				ok = false;
-		}
-		else
-			ok = false;
-		return ok;
-	}
 	enum SvcQueryResult {
 		UNDEF,
 		SUCCESS,

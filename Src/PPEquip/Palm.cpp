@@ -507,7 +507,7 @@ public:
 		setCtrlData(CTL_PALM_ID,   &Data.Rec.ID);
 		disableCtrl(CTL_PALM_ID, (!PPMaster || Data.Rec.ID));
 		{
-			long   dvc_type = (Data.Rec.Flags & PLMF_ANDROID) ? 2 : 1;
+			const long dvc_type = (Data.Rec.Flags & PLMF_ANDROID) ? 2 : 1;
 			AddClusterAssoc(CTL_PALM_DVCTYPE, 0,  1);
 			AddClusterAssocDef(CTL_PALM_DVCTYPE, 1,  2);
 			SetClusterData(CTL_PALM_DVCTYPE, dvc_type);
@@ -550,9 +550,14 @@ public:
 		AddClusterAssoc(CTL_PALM_FLAGS, 5, PLMF_EXPLOC);
 		AddClusterAssoc(CTL_PALM_FLAGS, 6, PLMF_EXPSTOPFLAG);
 		AddClusterAssoc(CTL_PALM_FLAGS, 7, PLMF_DISABLCEDISCOUNT);
-		AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_TREATDUEDATEASDATE); // @v10.8.11
 		if(!(Data.Rec.Flags & PLMF_GENERIC)) {
 			AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_BLOCKED);
+			AddClusterAssoc(CTL_PALM_FLAGS, 9, PLMF_TREATDUEDATEASDATE); // @v11.4.3 @fix
+			AddClusterAssoc(CTL_PALM_FLAGS, 10, PLMF_EXPZSTOCK); // @v11.4.3
+		}
+		else {
+			AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_TREATDUEDATEASDATE); // @v10.8.11 // @v11.4.3 @fix
+			AddClusterAssoc(CTL_PALM_FLAGS, 9, PLMF_EXPZSTOCK); // @v11.4.3
 		}
 		SetClusterData(CTL_PALM_FLAGS, Data.Rec.Flags);
 		{
@@ -686,6 +691,14 @@ void StyloPalmDialog::SetupInheritance()
 	DisableClusterItem(CTL_PALM_FLAGS, 5, dsbl_flags);
 	DisableClusterItem(CTL_PALM_FLAGS, 6, dsbl_flags);
 	DisableClusterItem(CTL_PALM_FLAGS, 7, dsbl_flags);
+	if(!(Data.Rec.Flags & PLMF_GENERIC)) {
+		DisableClusterItem(CTL_PALM_FLAGS, 9, dsbl_flags); // @v11.4.3
+		DisableClusterItem(CTL_PALM_FLAGS, 10, dsbl_flags); // @v11.4.3
+	}
+	else {
+		DisableClusterItem(CTL_PALM_FLAGS, 8, dsbl_flags); // @v11.4.3
+		DisableClusterItem(CTL_PALM_FLAGS, 9, dsbl_flags); // @v11.4.3
+	}
 }
 
 int PPObjStyloPalm::Edit(PPID * pID, void * extraPtr)

@@ -882,6 +882,7 @@
 #define SLERR_JSON_BAD_TREE_STRUCTURE          555 // the document tree structure is malformed
 #define SLERR_JSON_MAXIMUM_LENGTH              556 // the parsed string reached the maximum allowed size
 #define SLERR_JSON_UNKNOWN_PROBLEM             557 // some random, unaccounted problem occurred
+#define SLERR_JSON_EMPTYDOCUMENT               558 // @v11.4.3 the parsed document is empty
 
 #define SLERR_URI_SYNTAX                       570 // Parsed text violates expected format
 #define SLERR_URI_NULL                         571 // One of the params passed was NULL although it mustn't be
@@ -12081,7 +12082,7 @@ int FASTCALL json_parse_fragment(JsonParsingBlock & rBlk, const char * pBuffer);
 // @param text a c-string containing a complete JSON text document
 // @return a pointer to the new document tree or NULL if some error occurred
 //
-enum json_error json_parse_document(SJson ** root, const char * text);
+enum json_error json_parse_document(SJson ** ppRoot, const char * text);
 //
 // Function to perform a SAX-like parsing of any JSON document or document fragment that is passed to it
 // @param jsps a structure holding the status information of the current parser

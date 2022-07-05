@@ -15981,11 +15981,13 @@ protected:
 	enum {
 		bsOuterChangesStatus = 0x0001, // Реализация класса PPView может установить этот флаг, если считает,
 			// что сделала изменения в данных, существенные для вызывающего метод Browse() модуля.
-		bsServerInst = 0x0002, // Экземпляр является серверным (созданным в ответ на запрос клиента).
+		bsServerInst         = 0x0002, // Экземпляр является серверным (созданным в ответ на запрос клиента).
 			// Если это состояние установлено, то ServerInstId является идентификатором, с котороым
 			// связан указатель в PPThreadLocalArea (PPThreadLocalArea::GetPtr)
-		bsServerInstDestr    = 0x0004  // Устанавливается деструктором PPView::~PPView если
+		bsServerInstDestr    = 0x0004, // Устанавливается деструктором PPView::~PPView если
 			// серверный экземпляр (если существовал) был нормально разрушен.
+		bsUserChangedData    = 0x0008  // @v11.4.3 Реализация класса PPView самостоятельно поддерживает и использует
+			// этот флаг. Он означает, что пользователь внес изменения в данные и их, вероятно, надо обновить в хранилище.
 	};
 	long   BaseState;
 	long   DefReportId;         // Базовая функция Print() вызывает Helper_Print(DefReportId, 0)
@@ -16540,6 +16542,7 @@ public:
 		struct Entry { // @transient
 			Entry();
 			Entry & Z();
+			bool   FASTCALL IsEq(const Entry & rS) const;
 
 			SString Zone;
 			SString FieldName;
@@ -16551,6 +16554,7 @@ public:
 				// Сейчас, это формат времени для TIMESTAMP (формат даты при этом идет в Format)
 		};
 		ViewDefinition();
+		bool   FASTCALL IsEq(const ViewDefinition & rS) const;
 		uint   GetCount() const;
 		const  SString & GetStrucSymb() const;
 		void   SetStrucSymb(const char * pSymb);
@@ -22332,7 +22336,8 @@ private:
 #define PLMF_REGISTERED         0x1000 // Признак состоявшейся централизованной регистрации устройса. Если установлен, то последующая регистрация не возможна
 #define PLMF_BLOCKED            0x2000 // Признак блокированного (украденного) устройства
 #define PLMF_TREATDUEDATEASDATE 0x4000 // @v10.8.11 При импорте заказов трактовать дату исполнения заказа как основную дату документа
-#define PLMF_INHMASK          (PLMF_IMPASCHECKS|PLMF_EXPCLIDEBT|PLMF_EXPSELL|PLMF_EXPBRAND|PLMF_EXPLOC|PLMF_EXPSTOPFLAG|PLMF_DISABLCEDISCOUNT|PLMF_TREATDUEDATEASDATE)
+#define PLMF_EXPZSTOCK          0x8000 // @v11.4.3 Экспортировать товары с нулевым остатком 
+#define PLMF_INHMASK          (PLMF_IMPASCHECKS|PLMF_EXPCLIDEBT|PLMF_EXPSELL|PLMF_EXPBRAND|PLMF_EXPLOC|PLMF_EXPSTOPFLAG|PLMF_DISABLCEDISCOUNT|PLMF_TREATDUEDATEASDATE|PLMF_EXPZSTOCK)
 #define PLMF_TRANSMITMASK     (PLMF_DISABLCEDISCOUNT) // Флаги, которые передаются на устройство полем StyloFlags
 //
 // Descr: Флаги режима отслеживания гео-позиции устройства
@@ -46878,6 +46883,7 @@ public:
 	};
 	struct Item {
 		Item();
+		bool   FASTCALL IsEq(const Item & rS) const;
 		int    GetAttendanceParam(StyloQAttendancePrereqParam & rP) const;
 		enum {
 			fResultPersistent = 0x0001
@@ -47243,7 +47249,9 @@ public:
 	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, PPObjID oid, uint itemNumber, SString & rBuf);
 	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, const char * pResourceName, SString & rBuf);
 	//
-	void   Debug_Command(const StyloQCommandList::Item * pCmd); // @debug
+	// Descr: Имитирует исполнение команды с выводом данных в каталог OUT
+	// 
+	int    Debug_Command(const StyloQCommandList::Item * pCmd); // @debug
 	
 	static const uint InnerBlobN_Face;
 private:

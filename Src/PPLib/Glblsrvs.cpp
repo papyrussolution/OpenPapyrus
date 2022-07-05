@@ -1,5 +1,5 @@
  // GLBSRVS.CPP
- // Copyright (c) E.Sobolev 2020, 2021
+ // Copyright (c) E.Sobolev 2020, 2021, 2022
  //
 #include <pp.h>
 #pragma hdrstop
@@ -239,7 +239,7 @@ int VkInterface::WallPost(const SString & rMessage, const SString & rLinkFilePat
 	THROW(Photos_GetWallUploadServer(upload_url));
 	{
 		THROW(PhotoToReq(upload_url, rLinkFilePath, temp_buf, "photo"));
-		THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
+		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
 		THROW(ReadError(p_json_doc, LastErrResp) < 0);
 		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Type == SJson::tOBJECT) {
@@ -263,7 +263,7 @@ int VkInterface::WallPost(const SString & rMessage, const SString & rLinkFilePat
 	}
 	{
 		THROW(Photos_SaveWallPhoto(photo, server, hash, temp_buf.Z()));
-		THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
+		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
 		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Type==SJson::tOBJECT) {
 				for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -309,7 +309,7 @@ int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & 
 	{
 		THROW(Photos_GetMarketUploadServer(/*rVkStruct,*/1, upload_url));
 		THROW(PhotoToReq(upload_url, rItem.ImgPath, temp_buf, "file"));
-		THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
+		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
 		THROW(ReadError(p_json_doc, LastErrResp) < 0);
 		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Type == SJson::tOBJECT) {
@@ -333,7 +333,7 @@ int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & 
 	}
 	{
 		THROW(Photos_SaveMarketPhoto(photo, server, hash, crop_data, crop_hash, temp_buf));
-		THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
+		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
 		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Type == SJson::tOBJECT) {
 				for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -373,7 +373,7 @@ int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & 
 			.CatEq("main_photo_id", photo_id).Cat("&")
 			.CatEq("description", descr);
 		THROW(GetRequest(url, temp_buf, ScURL::mfDontVerifySslPeer));
-		THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
+		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
 		THROW(ReadError(p_json_doc, LastErrResp) < 0);
 		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Type == SJson::tOBJECT) {
@@ -401,9 +401,9 @@ int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & 
 int VkInterface::ParseUploadServer(const SString & rJson, SString & rUploadOut)
 {
 	int    ok = 0;
-	SJson * p_json_doc = 0;
 	rUploadOut.Z();
-	THROW_SL(json_parse_document(&p_json_doc, rJson.cptr()) == JSON_OK);
+	SJson * p_json_doc = SJson::Parse(rJson.cptr());
+	THROW_SL(p_json_doc);
 	for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 		if(p_cur->Type == SJson::tOBJECT) {
 			for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -682,7 +682,7 @@ int VkInterface::Market_Get(long offs, long maxItems, TSCollection <MarketWareIt
 	THROW(GetRequest(url, temp_buf.Z(), ScURL::mfDontVerifySslPeer));
 	{
 		long item_id = 0; 
-		THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
+		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
 		if(ReadError(p_json_doc, LastErrResp) > 0) {
 			ok = 0;
 		}
@@ -768,7 +768,7 @@ int VkInterface::ParceGoodsItemList(const SString & rJsonStr, LongArray & rList)
 	int    ok = 1;
 	SJson * p_json_doc = 0;
 	long item_id = 0; 
-	THROW_SL(json_parse_document(&p_json_doc, rJsonStr.cptr()) == JSON_OK);
+	THROW_SL(p_json_doc = SJson::Parse(rJsonStr));
 	for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 		if(p_cur->Type == SJson::tOBJECT) {
 			for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {

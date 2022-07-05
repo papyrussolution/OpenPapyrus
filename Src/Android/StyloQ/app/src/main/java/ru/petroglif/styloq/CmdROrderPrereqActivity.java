@@ -719,9 +719,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 									SLib.SetupTabLayoutStyle(lo_tab);
 									SLib.SetupTabLayoutListener(lo_tab, view_pager);
-									if(CPM.IsCurrentDocumentEmpty()) {
+									if(CPM.IsCurrentDocumentEmpty())
 										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
-									}
+									if(CPM.OrderHList == null || CPM.OrderHList.size() <= 0)
+										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.GONE);
 									//SetTabVisibility(Tab.tabSearch, View.GONE);
 								}
 							}
@@ -1633,6 +1634,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			case SLib.EV_SVCQUERYRESULT:
 				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
+					StyloQApp app_ctx = GetAppCtx();
 					if(ir.OriginalCmdItem != null) {
 						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
 							CPM.Locker_CommitCurrentDocument = false;
@@ -1640,11 +1642,14 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();
 								NotifyCurrentOrderChanged();
-								GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
+								if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.VISIBLE);
+									NotifyTabContentChanged(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView);
+									GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
+								}
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 							}
 							else {
-								StyloQApp app_ctx = GetAppCtx();
 								String err_msg = app_ctx.GetString(ppstr2.PPSTR_ERROR, ppstr2.PPERR_STQ_POSTDOCUMENTFAULT);
 								String reply_err_msg = null;
 								if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
@@ -1674,7 +1679,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();
 								NotifyCurrentOrderChanged();
-								GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
+								if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.VISIBLE);
+									NotifyTabContentChanged(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView);
+									GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
+								}
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 							}
 							else {

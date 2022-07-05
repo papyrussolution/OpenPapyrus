@@ -827,6 +827,20 @@ PPNamedFilt::ViewDefinition::Entry::Entry() : TotalFunc(0), DataType(0), Format(
 {
 }
 
+bool   FASTCALL PPNamedFilt::ViewDefinition::Entry::IsEq(const Entry & rS) const
+{
+	#define F(f) if(f != rS.f) return false;
+	F(Zone);
+	F(FieldName);
+	F(Text);
+	F(TotalFunc);
+	F(DataType);
+	F(Format);
+	F(Format2);
+	#undef F
+	return true;
+}
+
 PPNamedFilt::ViewDefinition::Entry & PPNamedFilt::ViewDefinition::Entry::Z()
 {
 	Zone.Z();
@@ -841,6 +855,26 @@ PPNamedFilt::ViewDefinition::Entry & PPNamedFilt::ViewDefinition::Entry::Z()
 
 PPNamedFilt::ViewDefinition::ViewDefinition()
 {
+}
+
+bool FASTCALL PPNamedFilt::ViewDefinition::IsEq(const ViewDefinition & rS) const
+{
+	bool   yes = true;
+	if(StrucSymb != rS.StrucSymb)
+		yes = false;
+	else if(L.getCount() != rS.L.getCount())
+		yes = false;
+	else {
+		Entry my_entry;
+		Entry other_entry;
+		for(uint i = 0; yes && i < L.getCount(); i++) {
+			GetEntry(i, my_entry);
+			rS.GetEntry(i, other_entry);
+			if(!my_entry.IsEq(other_entry))
+				yes = false;
+		}
+	}
+	return yes;
 }
 
 //@erik v10.5.0

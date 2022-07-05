@@ -860,9 +860,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								}
 								SLib.SetupTabLayoutStyle(lo_tab);
 								SLib.SetupTabLayoutListener(lo_tab, view_pager);
-								if(CPM.IsCurrentDocumentEmpty()) {
+								if(CPM.IsCurrentDocumentEmpty())
 									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
-								}
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, (CPM.OrderHList == null || CPM.OrderHList.size() <= 0) ? View.GONE : View.VISIBLE);
 							}
 						}
 						SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
@@ -2184,7 +2184,11 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();
 								//NotifyCurrentOrderChanged();
-								GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.attendancePrereqOrderListView, -1, -1);
+								if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.VISIBLE);
+									NotifyTabContentChanged(CommonPrereqModule.Tab.tabOrders, R.id.attendancePrereqOrderListView);
+									GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.attendancePrereqOrderListView, -1, -1);
+								}
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
 							}
 							else {
@@ -2197,7 +2201,11 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();
 								//NotifyCurrentOrderChanged();
-								GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.attendancePrereqOrderListView, -1, -1);
+								if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.VISIBLE);
+									NotifyTabContentChanged(CommonPrereqModule.Tab.tabOrders, R.id.attendancePrereqOrderListView);
+									GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.attendancePrereqOrderListView, -1, -1);
+								}
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
 							}
 							else {

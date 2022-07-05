@@ -1905,8 +1905,10 @@ enum json_error json_parse_document(SJson ** ppRoot, const char * pText)
 			error = JSON_OK;
 		}
 	}
-	else
+	else {
 		error = JSON_EMPTY_DOCUMENT;
+		SLS.SetError(SLERR_JSON_EMPTYDOCUMENT);
+	}
 	return error;
 }
 

@@ -11,20 +11,7 @@
         android:layout_width="wrap_content"
         />
     <View style="@style/FakeView"/>
-    <TextView
-        android:id="@+id/LVITEM_IND_EXECUTETIME"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_marginRight="8dp"
-        android:layout_gravity="center_vertical"
-        android:fontFamily="@font/liquidcrystal_normal"
-        android:textColor="@color/Black"
-        />
-    <ImageView
-        android:id="@+id/LVITEM_STATUSINDICATOR"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_gravity="center_vertical|right"
-        android:src="@drawable/ic_generic_command">
-    </ImageView>
+    <TextView style="@style/ExecuteTimeText" android:id="@+id/CTL_IND_EXECUTETIME"/>
+    <ImageView style="@style/StatusIndicator" android:id="@+id/CTL_IND_STATUS"/>
+    <!-- android:src="@drawable/ic_generic_command"-->
 </LinearLayout>
