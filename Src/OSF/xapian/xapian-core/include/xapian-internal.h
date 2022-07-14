@@ -128,6 +128,7 @@
 #include <xapian/compactor.h>
 #include <xapian/constants.h>
 #include "pack.h"
+#include "keyword.h"
 #include "backends\glass\glass_defs.h"
 #include "backends\glass\glass_freelist.h"
 #include "backends\glass\glass_cursor.h"

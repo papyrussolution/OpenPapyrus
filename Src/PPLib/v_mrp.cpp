@@ -327,7 +327,7 @@ PPViewMrpLine::~PPViewMrpLine()
 	delete P_TempOrd;
 }
 
-PPBaseFilt * PPViewMrpLine::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewMrpLine::CreateFilt(const void * extraPtr) const
 {
 	MrpLineFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_MRPLINE, reinterpret_cast<PPBaseFilt **>(&p_filt)))

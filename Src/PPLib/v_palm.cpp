@@ -104,10 +104,13 @@ TempPalmTbl::Rec & PPViewPalm::MakeTempEntry(const PPStyloPalmPacket & rPack, Te
 	return rTempRec;
 }
 
-#define GRP_LOC 1
+// @v11.4.4 #define GRP_LOC 1
 
 int PPViewPalm::EditBaseFilt(PPBaseFilt * pFilt)
 {
+	enum {
+		ctlgroupLoc = 1,
+	};
 	int    ok = -1;
 	PalmFilt filt;
 	TDialog * p_dlg = new TDialog(DLG_PALMFLT);
@@ -121,8 +124,8 @@ int PPViewPalm::EditBaseFilt(PPBaseFilt * pFilt)
 	{
 		PPIDArray op_type_list;
 		LocationCtrlGroup::Rec loc_rec(&filt.LocList);
-		p_dlg->addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_PALMFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
-		p_dlg->setGroupData(GRP_LOC, &loc_rec);
+		p_dlg->addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_PALMFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
+		p_dlg->setGroupData(ctlgroupLoc, &loc_rec);
 		op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
 		SetupOprKindCombo(p_dlg, CTLSEL_PALMFLT_ORDOP, filt.OrderOpID, 0, &op_type_list, 0);
 	}
@@ -133,7 +136,7 @@ int PPViewPalm::EditBaseFilt(PPBaseFilt * pFilt)
 	if(ExecView(p_dlg) == cmOK) {
 		long type = 0;
 		LocationCtrlGroup::Rec loc_rec;
-		p_dlg->getGroupData(GRP_LOC, &loc_rec);
+		p_dlg->getGroupData(ctlgroupLoc, &loc_rec);
 		filt.LocList = loc_rec.LocList;
 		p_dlg->getCtrlData(CTLSEL_PALMFLT_GROUP,    &filt.GroupID);
 		p_dlg->getCtrlData(CTLSEL_PALMFLT_AGENT,    &filt.AgentID);

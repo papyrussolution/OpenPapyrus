@@ -1387,10 +1387,11 @@ static void setTimeZoneFilesDir(const char * path, UErrorCode & status)
 #endif
 }
 
-#define TO_STRING(x) TO_STRING_2(x)
-#define TO_STRING_2(x) #x
+// @v11.4.4 #define TO_STRING(x) TO_STRING_2(x)
+// @v11.4.4 #define TO_STRING_2(x) #x // @todo replacewith(STRINGIZE)
 
-static void U_CALLCONV TimeZoneDataDirInitFn(UErrorCode & status) {
+static void U_CALLCONV TimeZoneDataDirInitFn(UErrorCode & status) 
+{
 	U_ASSERT(gTimeZoneFilesDirectory == NULL);
 	ucln_common_registerCleanup(UCLN_COMMON_PUTIL, putil_cleanup);
 	gTimeZoneFilesDirectory = new CharString();
@@ -1398,9 +1399,7 @@ static void U_CALLCONV TimeZoneDataDirInitFn(UErrorCode & status) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-
 	const char * dir = "";
-
 #if defined(ICU_TIMEZONE_FILES_DIR_PREFIX_ENV_VAR)
 	char timezonefilesdir_path_buffer[PATH_MAX];
 	const char * prefix = getenv(ICU_TIMEZONE_FILES_DIR_PREFIX_ENV_VAR);
@@ -1422,13 +1421,13 @@ static void U_CALLCONV TimeZoneDataDirInitFn(UErrorCode & status) {
 #endif // U_PLATFORM_HAS_WINUWP_API
 
 #if defined(U_TIMEZONE_FILES_DIR)
-	if(dir == NULL) {
+	if(!dir) {
 		// Build time configuration setting.
 		dir = TO_STRING(U_TIMEZONE_FILES_DIR);
 	}
 #endif
 
-	if(dir == NULL) {
+	if(!dir) {
 		dir = "";
 	}
 

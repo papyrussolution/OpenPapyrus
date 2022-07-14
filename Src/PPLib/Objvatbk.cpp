@@ -1175,7 +1175,7 @@ PPViewVatBook::~PPViewVatBook()
 	ZDELETE(P_GObj);
 }
 
-PPBaseFilt * PPViewVatBook::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewVatBook::CreateFilt(const void * extraPtr) const
 {
 	return new VatBookFilt;
 }

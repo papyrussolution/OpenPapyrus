@@ -421,7 +421,7 @@ int ssh_write_knownhost(ssh_session session)
 	if(!file) {
 		if(errno == ENOENT) {
 			dir = ssh_dirname(session->opts.knownhosts);
-			if(dir == NULL) {
+			if(!dir) {
 				ssh_set_error(session, SSH_FATAL, "%s", strerror(errno));
 				return SSH_ERROR;
 			}

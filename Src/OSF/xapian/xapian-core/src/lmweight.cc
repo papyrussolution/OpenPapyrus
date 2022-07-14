@@ -95,15 +95,8 @@ void LMWeight::init(double factor_)
 	}
 }
 
-string LMWeight::name() const
-{
-	return "Xapian::LMWeight";
-}
-
-string LMWeight::short_name() const
-{
-	return "lm";
-}
+string LMWeight::name() const { return "Xapian::LMWeight"; }
+string LMWeight::short_name() const { return "lm"; }
 
 string LMWeight::serialise() const
 {

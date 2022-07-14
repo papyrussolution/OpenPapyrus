@@ -10,6 +10,10 @@
 //
 class TrfrItemDialog : public TDialog {
 private:
+	enum {
+		ctlgroupQCert = 1,
+		ctlgroupLoc   = 2
+	};
 	friend int EditTransferItem(PPBillPacket &, int itemNo, TIDlgInitData *, const PPTransferItem * pOrder, int sign);
 
 	TrfrItemDialog(uint dlgID, PPID opID);
@@ -420,8 +424,8 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 	return r;
 }
 
-#define GRP_QCERT  1
-#define GRP_LOC    2
+// @v11.4.4 #define GRP_QCERT  1
+// @v11.4.4 #define GRP_LOC    2
 
 TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opID), OpTypeID(GetOpType(opID)),
 	InitGoodsGrpID(0), GoodsGrpID(0), P_BObj(BillObj), Rest(0.0), OrdRest(0.0), OrdReserved(0.0), MinQtty(0.0), MaxQtty(0.0),
@@ -438,7 +442,7 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 	MEMSZERO(Sd);
 	PPLoadText(PPTXT_TIDLG_STRINGS, Strings);
 	// @v11.3.2 @obsolete setCtrlOption(CTL_LOT_STREST, ofFramed, 1);
-	addGroup(GRP_QCERT, new QCertCtrlGroup(CTL_LOT_QCERT));
+	addGroup(ctlgroupQCert, new QCertCtrlGroup(CTL_LOT_QCERT));
 	SetupCalDate(CTLCAL_LOT_EXPIRY, CTL_LOT_EXPIRY);
 	PPSetupCtrlMenu(this, CTL_LOT_GOODSGRP, CTLMNU_LOT_GOODSGRP, CTRLMENU_TI_GOODS);
 	PPSetupCtrlMenu(this, CTL_LOT_GOODS,    CTLMNU_LOT_GOODS,    CTRLMENU_TI_GOODS);
@@ -1921,7 +1925,7 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 	SetupPPObjCombo(this, CTLSEL_LOT_QCERT, PPOBJ_QCERT, Item.QCert, OLW_LOADDEFONOPEN|OLW_CANINSERT, 0L);
 	{
 		QCertCtrlGroup::Rec qc_rec(Item.QCert);
-		setGroupData(GRP_QCERT, &qc_rec);
+		setGroupData(ctlgroupQCert, &qc_rec);
 	}
 	if(St & stAllowSupplSel)
 		SetupArCombo(this, CTLSEL_LOT_SUPPL, Item.Suppl, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetSupplAccSheet(), sacfNonGeneric);
@@ -2326,7 +2330,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	getCtrlData(CTLSEL_LOT_QCERT, &Item.QCert);
 	if(getCtrlView(CTL_LOT_QCERT)) {
 		QCertCtrlGroup::Rec qc_rec;
-		getGroupData(GRP_QCERT, &qc_rec);
+		getGroupData(ctlgroupQCert, &qc_rec);
 		Item.QCert = qc_rec.QCertID;
 	}
 	getCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
@@ -2573,7 +2577,7 @@ int TrfrItemDialog::setupLot()
 	setCtrlLong(CTLSEL_LOT_QCERT, Item.QCert);
 	{
 		QCertCtrlGroup::Rec qc_rec(Item.QCert);
-		setGroupData(GRP_QCERT, &qc_rec);
+		setGroupData(ctlgroupQCert, &qc_rec);
 	}
 	// @v10.1.8 {
 	if(Item.Flags & PPTFR_RECEIPT) {

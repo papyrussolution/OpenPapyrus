@@ -64,7 +64,9 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_SRCHINGOODSFL,     	 0, 2, 0, 0 },  // @v10.1.4
 	{ PPUPRF_TIMSERWRITE,       	 0, 1, PPUserProfileFuncEntry::fAccumulate, 100 }, // @v10.3.3
 	{ PPUPRF_TSEVALSTAKES,      	 0, 1, PPUserProfileFuncEntry::fAccumulate, 600 }, // @v10.3.3
-	{ PPUPRF_STYLOQ_CMD_ORDERPREREQ, 0, 2, 0, 0 } // @v11.2.12
+	{ PPUPRF_STYLOQ_CMD_ORDERPREREQ, 0, 2, 0, 0 }, // @v11.2.12
+	{ PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ, 0, 2, 0, 0 }, // @v11.4.4
+	{ PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ, 2, 2, 0, 0 } // @v11.4.4
 };
 
 static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int funcId)

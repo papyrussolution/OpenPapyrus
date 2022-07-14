@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><receiveApplicationResultResponse xmlns="http://api.vetrf.ru/schema/cdm/application/ws-definitions">
+<application xmlns="http://api.vetrf.ru/schema/cdm/application">
+<applicationId>b5a338d0-1faf-4614-a937-b214a2a145ca</applicationId>
+<status>COMPLETED</status>
+<serviceId>mercury-g2b.service</serviceId>
+<issuerId>d1e1c693-fbd2-4910-b8ba-c408ada2ee6c</issuerId>
+<issueDate>2022-07-08T14:05:27+03:00</issueDate>
+<rcvDate>2022-07-08T14:05:13+03:00</rcvDate>
+<prdcRsltDate>2022-07-08T14:05:23+03:00</prdcRsltDate>
+<result>
+<ns1:getVetDocumentByUuidResponse xmlns:ns1="http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2" xmlns:bs="http://api.vetrf.ru/schema/cdm/base" xmlns:vd="http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2" xmlns:dt="http://api.vetrf.ru/schema/cdm/dictionary/v2">
+<vd:vetDocument>
+<bs:uuid>15e6cf21-6195-4afd-b8be-9cda11a28fb9</bs:uuid>
+<vd:issueDate>2022-06-09</vd:issueDate>
+<vd:vetDForm>LIC2</vd:vetDForm>
+<vd:vetDType>TRANSPORT</vd:vetDType>
+<vd:vetDStatus>UTILIZED</vd:vetDStatus>
+<vd:lastUpdateDate>2022-06-10T14:56:19+03:00</vd:lastUpdateDate>
+<vd:certifiedConsignment>
+<vd:consignor>
+<dt:businessEntity>
+<bs:uuid>d0ae34b7-21e0-42a8-b23c-bfa6038119f1</bs:uuid>
+<bs:guid>fd94ba47-218a-11e2-a69b-b499babae7ea</bs:guid>
+</dt:businessEntity>
+<dt:enterprise>
+<bs:uuid>db93e817-2e36-4337-926d-6046fd114c57</bs:uuid>
+<bs:guid>5dceba7d-2999-4b11-8eb0-c1a343b6f13a</bs:guid>
+</dt:enterprise>
+</vd:consignor>
+<vd:consignee>
+<dt:businessEntity>
+<bs:uuid>75c9ea57-3a46-4935-8e72-8d96aaf64dce</bs:uuid>
+<bs:guid>d1e1c693-fbd2-4910-b8ba-c408ada2ee6c</bs:guid>
+</dt:businessEntity>
+<dt:enterprise>
+<bs:uuid>f7ad012a-6e4a-4961-a31d-f19ef3840a1a</bs:uuid>
+<bs:guid>a3ab9145-25ba-4ac7-802e-0d86da630a32</bs:guid>
+</dt:enterprise>
+</vd:consignee>
+<vd:transportInfo>
+<vd:transportType>1</vd:transportType>
+<vd:transportNumber>
+<vd:vehicleNumber>В 786 КХ 98</vd:vehicleNumber>
+</vd:transportNumber>
+</vd:transportInfo>
+<vd:transportStorageType>CHILLED</vd:transportStorageType>
+<vd:batch>
+<vd:productType>5</vd:productType>
+<vd:product>
+<bs:uuid>31c94ff1-a217-f38d-6005-1aa5ca67e146</bs:uuid>
+<bs:guid>d34504bb-7a93-e1c8-4859-339eafd97c6c</bs:guid>
+</vd:product>
+<vd:subProduct>
+<bs:uuid>ed6bf177-c31c-ac70-fc55-705ddc7919e7</bs:uuid>
+<bs:guid>6d86f6b9-9338-9105-f7a8-0558d64944f8</bs:guid>
+</vd:subProduct>
+<vd:productItem>
+<bs:uuid>304f9150-1f23-41da-a2d2-73ae735c25a2</bs:uuid>
+<bs:guid>76574fe0-62b2-467e-82b2-5e7cd76db117</bs:guid>
+<dt:globalID>4603406001235</dt:globalID>
+<dt:name>Молоко сгущенное стерилизованное цельное с массовой долей жира 7.8% МС ГОСТ 34254-2017 300гр бнк7 г/я45бнк</dt:name>
+</vd:productItem>
+<vd:volume>40.5</vd:volume>
+<vd:unit>
+<bs:uuid>069792f0-053d-11e1-99b4-d8d385fbc9e8</bs:uuid>
+<bs:guid>21ed96c9-337b-4a27-8761-c6e6ad3c9f5b</bs:guid>
+</vd:unit>
+<vd:dateOfProduction>
+<vd:firstDate>
+<dt:year>2022</dt:year>
+<dt:month>3</dt:month>
+<dt:day>24</dt:day>
+</vd:firstDate>
+</vd:dateOfProduction>
+<vd:expiryDate>
+<vd:firstDate>
+<dt:year>2023</dt:year>
+<dt:month>9</dt:month>
+<dt:day>24</dt:day>
+</vd:firstDate>
+</vd:expiryDate>
+<vd:batchID>4</vd:batchID>
+<vd:perishable>false</vd:perishable>
+<vd:origin>
+<vd:productItem>
+<bs:uuid>304f9150-1f23-41da-a2d2-73ae735c25a2</bs:uuid>
+<bs:guid>76574fe0-62b2-467e-82b2-5e7cd76db117</bs:guid>
+<dt:globalID>4603406001235</dt:globalID>
+<dt:name>Молоко сгущенное стерилизованное цельное с массовой долей жира 7.8% МС ГОСТ 34254-2017 300гр бнк7 г/я45бнк</dt:name>
+</vd:productItem>
+<vd:country>
+<bs:uuid>72a84b51-5c5e-11e1-b9b7-001966f192f1</bs:uuid>
+<bs:guid>74a3cbb1-56fa-94f3-ab3f-e8db4940d96b</bs:guid>
+<dt:name>Российская Федерация</dt:name>
+</vd:country>
+<vd:producer>
+<dt:enterprise>
+<bs:uuid>6afcb4d4-b154-4dcc-9e4b-3cf318439b27</bs:uuid>
+<bs:guid>eef6bcec-1da3-78ec-e888-789e319e1daa</bs:guid>
+</dt:enterprise>
+<dt:role>PRODUCER</dt:role>
+</vd:producer>
+</vd:origin>
+<vd:lowGradeCargo>false</vd:lowGradeCargo>
+<vd:packageList>
+<dt:package>
+<dt:level>4</dt:level>
+<dt:packingType>
+<bs:uuid>483400f6-eef8-4d94-bebe-9a6bbc5585e8</bs:uuid>
+<bs:guid>fedf4328-053c-11e1-99b4-d8d385fbc9e8</bs:guid>
+<dt:globalID>CT</dt:globalID>
+<dt:name>Коробка, картонная</dt:name>
+</dt:packingType>
+<dt:quantity>3</dt:quantity>
+<dt:productMarks class="SSCC">14603406001232</dt:productMarks>
+</dt:package>
+<dt:package>
+<dt:level>2</dt:level>
+<dt:packingType>
+<bs:uuid>d6d59931-aac1-45fe-a144-933b91d48fa3</bs:uuid>
+<bs:guid>fedf422e-053c-11e1-99b4-d8d385fbc9e8</bs:guid>
+<dt:globalID>TN</dt:globalID>
+<dt:name>Банка, жестяная (консервная)</dt:name>
+</dt:packingType>
+<dt:quantity>135</dt:quantity>
+<dt:productMarks class="EAN13">4603406001235</dt:productMarks>
+</dt:package>
+</vd:packageList>
+</vd:batch>
+</vd:certifiedConsignment>
+<vd:authentication>
+<vd:purpose>
+<bs:uuid>f5ac7b5a-6bd4-4e25-a18b-d5641dc4245e</bs:uuid>
+<bs:guid>0778b8cb-f49d-4ed9-88b9-5f70af00a211</bs:guid>
+</vd:purpose>
+<vd:cargoInspected>false</vd:cargoInspected>
+<vd:cargoExpertized>VSERAW</vd:cargoExpertized>
+<vd:locationProsperity>Местность благополучна по заразным болезням животных</vd:locationProsperity>
+</vd:authentication>
+<vd:referencedDocument>
+<vd:issueNumber>6782-78</vd:issueNumber>
+<vd:issueDate>2022-06-09</vd:issueDate>
+<vd:type>1</vd:type>
+<vd:relationshipType>1</vd:relationshipType>
+</vd:referencedDocument>
+<vd:referencedDocument>
+<vd:issueNumber>2677566</vd:issueNumber>
+<vd:issueDate>2022-04-11</vd:issueDate>
+<vd:type>9</vd:type>
+<vd:relationshipType>6</vd:relationshipType>
+</vd:referencedDocument>
+<vd:statusChange>
+<vd:status>CONFIRMED</vd:status>
+<vd:specifiedPerson>
+<vd:fio>Линева Оксана Геннадьевна</vd:fio>
+<vd:workPhone>9835509475</vd:workPhone>
+<vd:organization>
+<dt:name>Управление ветеринарии Санкт-Петербурга</dt:name>
+<dt:address>
+<dt:country>
+<bs:uuid>72a84b51-5c5e-11e1-b9b7-001966f192f1</bs:uuid>
+<bs:guid>74a3cbb1-56fa-94f3-ab3f-e8db4940d96b</bs:guid>
+<dt:name>Российская Федерация</dt:name>
+</dt:country>
+<dt:region>
+<bs:uuid>aad1469e-54ff-4605-af4f-f016c75b84d2</bs:uuid>
+<bs:guid>c2deb16a-0330-4f05-821f-1d09c93331e6</bs:guid>
+<dt:name>г. Санкт-Петербург</dt:name>
+</dt:region>
+<dt:addressView>Российская Федерация, г. Санкт-Петербург</dt:addressView>
+</dt:address>
+</vd:organization>
+</vd:specifiedPerson>
+<vd:actualDateTime>2022-06-09T10:23:19+03:00</vd:actualDateTime>
+</vd:statusChange>
+<vd:statusChange>
+<vd:status>UTILIZED</vd:status>
+<vd:specifiedPerson>
+<vd:fio>Санникова Вера Ивановна</vd:fio>
+<vd:organization>
+<dt:name>Управление ветеринарии Республики Карелия</dt:name>
+<dt:address>
+<dt:country>
+<bs:uuid>72a84b51-5c5e-11e1-b9b7-001966f192f1</bs:uuid>
+<bs:guid>74a3cbb1-56fa-94f3-ab3f-e8db4940d96b</bs:guid>
+<dt:name>Российская Федерация</dt:name>
+</dt:country>
+<dt:region>
+<bs:uuid>0af05e8b-21ff-4217-9a07-14d47ee04830</bs:uuid>
+<bs:guid>248d8071-06e1-425e-a1cf-d1ff4c4a14a8</bs:guid>
+<dt:name>Республика Карелия</dt:name>
+</dt:region>
+<dt:addressView>Российская Федерация, Республика Карелия</dt:addressView>
+</dt:address>
+</vd:organization>
+<vd:post>Индивидуальный предприниматель</vd:post>
+</vd:specifiedPerson>
+<vd:actualDateTime>2022-06-10T14:56:19+03:00</vd:actualDateTime>
+</vd:statusChange>
+</vd:vetDocument>
+</ns1:getVetDocumentByUuidResponse>
+</result>
+</application>
+</receiveApplicationResultResponse></soap:Body></soap:Envelope>

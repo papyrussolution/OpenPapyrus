@@ -546,9 +546,17 @@ uint64 FASTCALL ui64pow10(uint n)
 		case  4: return 10000ULL;
 		case  5: return 100000ULL;
 		case  6: return 1000000ULL;
+		case  7: return 10000000ULL;
+		case  8: return 100000000ULL;
 		case  9: return 1000000000ULL;
+		case 10: return 10000000000ULL;
+		case 11: return 100000000000ULL;
 		case 12: return 1000000000000ULL;
+		case 13: return 10000000000000ULL;
+		case 14: return 100000000000000ULL;
 		case 15: return 1000000000000000ULL;
+		case 16: return 10000000000000000ULL;
+		case 17: return 100000000000000000ULL;
 		case 18: return 1000000000000000000ULL;
 		default: return ui64pow(10, n);
 	}
@@ -1417,22 +1425,29 @@ SDecimalFraction::SDecimalFraction(double v) : Num(0), DenomDecPwr(0), Flags(0)
 	// @construction 
 	uint64 mantissa = 0;
 	int32  exp = 0;
-	uint   f = SIEEE754::UnpackDouble(&v, &mantissa, &exp);
-	// Знак exp, возвращаемый UnpackDouble противоположен знаку DenomDecPwr!
-	assert((f & ~(SIEEE754::fINF|SIEEE754::fNAN|SIEEE754::fSIGN)) == 0);
-	Flags = (static_cast<uint16>(f & ~SIEEE754::fSIGN)); // Флаг знака внутри класса не храним - знак числа определяется величиной Num
-	if(!(Flags & (SIEEE754::fINF|SIEEE754::fNAN))) {
-		if(exp > 0) {
-			Num = mantissa * fpow10i(exp);
-			DenomDecPwr = 0;
+	uint   f = SIEEE754::DoubleToDecimal(v, &mantissa, &exp);
+	if(f & SIEEE754::fInternalError) {
+		Flags = SIEEE754::fNAN;
+	}
+	else {
+		// Знак exp, возвращаемый UnpackDouble противоположен знаку DenomDecPwr!
+		assert((f & ~(SIEEE754::fINF|SIEEE754::fNAN|SIEEE754::fSIGN)) == 0);
+		Flags = (static_cast<uint16>(f & ~SIEEE754::fSIGN)); // Флаг знака внутри класса не храним - знак числа определяется величиной Num
+		if(!(Flags & (SIEEE754::fINF|SIEEE754::fNAN))) {
+			if(mantissa != 0) { // В противном случае все число - 0 (мантисса, экспонента, знак)
+				if(exp > 0) {
+					Num = mantissa * fpow10i(exp);
+					DenomDecPwr = 0;
+				}
+				else {
+					Num = mantissa;
+					if(exp < 0)
+						DenomDecPwr = static_cast<uint16>(-exp);
+				}
+				if(f & SIEEE754::fSIGN)
+					Num = -Num;
+			}
 		}
-		else {
-			Num = mantissa;
-			if(exp < 0)
-				DenomDecPwr = static_cast<uint16>(-exp);
-		}
-		if(f & SIEEE754::fSIGN)
-			Num = -Num;
 	}
 }
 	
@@ -1563,12 +1578,13 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 			double Rv;
 		};
 		const TestEntry entries[] = {
-			{ 0LL, 0, 0.0 },
+			{ 17171717171717LL, 7, 1717171.7171717 },
 			{ 1LL, 0, 1.0 },
 			{ 3LL, 0, 3.0 },
 			{ 1LL, 1, 0.1 },
 			{ 1LL, 2, 0.01 },
 			{ 5LL, 1, 0.5 },
+			{ 0LL, 0, 0.0 },
 		};
 		assert(SDecimalFraction().IsZero());
 		assert(!SDecimalFraction(1, 1).IsZero());

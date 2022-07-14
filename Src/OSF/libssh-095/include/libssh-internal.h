@@ -135,7 +135,7 @@ int gettimeofday(struct timeval * __p, void * __t);
 	#define ERROR_BUFFERLEN 1024
 #endif
 #ifndef CLIENT_BANNER_SSH2
-	#define CLIENT_BANNER_SSH2 "SSH-2.0-libssh_" SSH_STRINGIFY(LIBSSH_VERSION)
+	#define CLIENT_BANNER_SSH2 "SSH-2.0-libssh_" STRINGIZE(LIBSSH_VERSION)
 #endif /* CLIENT_BANNER_SSH2 */
 #ifndef KBDINT_MAX_PROMPT
 	#define KBDINT_MAX_PROMPT 256 /* more than openssh's :) */

@@ -146,7 +146,7 @@ private:
 	GoodsStrucFilt Data;
 };
 
-PPBaseFilt * PPViewGoodsStruc::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGoodsStruc::CreateFilt(const void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_GOODSSTRUC, &p_base_filt))

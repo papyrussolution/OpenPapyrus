@@ -102,7 +102,7 @@ PPViewAccturn::~PPViewAccturn()
 	DBRemoveTempFiles();
 }
 
-PPBaseFilt * PPViewAccturn::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewAccturn::CreateFilt(const void * extraPtr) const
 {
 	AccturnFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_ACCTURN, reinterpret_cast<PPBaseFilt **>(&p_filt)))

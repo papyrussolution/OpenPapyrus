@@ -81,42 +81,27 @@ void CheckFunctions::invalidFunctionUsage()
 				// check <valid>...</valid>
 				const ValueFlow::Value * invalidValue = argtok->getInvalidValue(functionToken, argnr, mSettings);
 				if(invalidValue) {
-					invalidFunctionArgError(argtok,
-					    functionToken->next()->astOperand1()->expressionString(),
-					    argnr,
-					    invalidValue,
-					    mSettings->library.validarg(functionToken, argnr));
+					invalidFunctionArgError(argtok, functionToken->next()->astOperand1()->expressionString(),
+					    argnr, invalidValue, mSettings->library.validarg(functionToken, argnr));
 				}
 
 				if(astIsBool(argtok)) {
 					// check <not-bool>
 					if(mSettings->library.isboolargbad(functionToken, argnr))
 						invalidFunctionArgBoolError(argtok, functionToken->str(), argnr);
-
 					// Are the values 0 and 1 valid?
 					else if(!mSettings->library.isIntArgValid(functionToken, argnr, 0))
-						invalidFunctionArgError(argtok,
-						    functionToken->str(),
-						    argnr,
-						    nullptr,
-						    mSettings->library.validarg(functionToken, argnr));
+						invalidFunctionArgError(argtok, functionToken->str(), argnr, nullptr, mSettings->library.validarg(functionToken, argnr));
 					else if(!mSettings->library.isIntArgValid(functionToken, argnr, 1))
-						invalidFunctionArgError(argtok,
-						    functionToken->str(),
-						    argnr,
-						    nullptr,
-						    mSettings->library.validarg(functionToken, argnr));
+						invalidFunctionArgError(argtok, functionToken->str(), argnr, nullptr, mSettings->library.validarg(functionToken, argnr));
 				}
 				// check <strz>
 				if(mSettings->library.isargstrz(functionToken, argnr)) {
 					if(Token::Match(argtok, "& %var% !![") && argtok->next() && argtok->next()->valueType()) {
 						const ValueType * valueType = argtok->next()->valueType();
 						const Variable * variable = argtok->next()->variable();
-						if((valueType->type == ValueType::Type::CHAR ||
-						    (valueType->type == ValueType::Type::RECORD &&
-						    Token::Match(argtok, "& %var% . %var% ,|)"))) &&
-						    !variable->isArray() &&
-						    (variable->isConst() || !variable->isGlobal()) &&
+						if((valueType->type == ValueType::Type::CHAR || (valueType->type == ValueType::Type::RECORD &&
+						    Token::Match(argtok, "& %var% . %var% ,|)"))) && !variable->isArray() && (variable->isConst() || !variable->isGlobal()) &&
 						    (!argtok->next()->hasKnownValue() || argtok->next()->getValue(0) == nullptr)) {
 							invalidFunctionArgStrError(argtok, functionToken->str(), argnr);
 						}
@@ -125,8 +110,7 @@ void CheckFunctions::invalidFunctionUsage()
 					const Variable* const variable = argtok->variable();
 					// Is non-null terminated local variable of type char (e.g. char buf[] = {'x'};)
 					// ?
-					if(variable && variable->isLocal()
-					    && valueType && valueType->type == ValueType::Type::CHAR) {
+					if(variable && variable->isLocal() && valueType && valueType->type == ValueType::Type::CHAR) {
 						const Token* varTok = variable->declEndToken();
 						auto count = -1; // Find out explicitly set count, e.g.: char buf[3] =
 						                 // {...}. Variable 'count' is set to 3 then.
@@ -147,12 +131,8 @@ void CheckFunctions::invalidFunctionUsage()
 										continue;
 									}
 									++charsUntilFirstZero;
-									if(varTok && varTok->hasKnownIntValue() &&
-									    varTok->getKnownIntValue() == 0)
-										search = false; // stop counting for
-									                        // cases like char
-									                        // buf[3] = {'x', '\0',
-									                        // 'y'};
+									if(varTok && varTok->hasKnownIntValue() && varTok->getKnownIntValue() == 0)
+										search = false; // stop counting for cases like char buf[3] = {'x', '\0', 'y'};
 								}
 							}
 							if(varTok && varTok->hasKnownIntValue() && varTok->getKnownIntValue() != 0
@@ -167,32 +147,23 @@ void CheckFunctions::invalidFunctionUsage()
 	}
 }
 
-void CheckFunctions::invalidFunctionArgError(const Token * tok,
-    const std::string &functionName,
-    int argnr,
-    const ValueFlow::Value * invalidValue,
-    const std::string &validstr)
+void CheckFunctions::invalidFunctionArgError(const Token * tok, const std::string &functionName, int argnr, const ValueFlow::Value * invalidValue, const std::string &validstr)
 {
 	std::ostringstream errmsg;
 	errmsg << "$symbol:" << functionName << '\n';
 	if(invalidValue && invalidValue->condition)
-		errmsg << ValueFlow::eitherTheConditionIsRedundant(invalidValue->condition)
-		       << " or $symbol() argument nr " << argnr << " can have invalid value.";
+		errmsg << ValueFlow::eitherTheConditionIsRedundant(invalidValue->condition) << " or $symbol() argument nr " << argnr << " can have invalid value.";
 	else
 		errmsg << "Invalid $symbol() argument nr " << argnr << '.';
 	if(invalidValue)
 		errmsg << " The value is " << std::setprecision(10) <<
-		(invalidValue->isIntValue() ? invalidValue->intvalue : invalidValue->floatValue) << " but the valid values are '" <<
-		    validstr << "'.";
+		(invalidValue->isIntValue() ? invalidValue->intvalue : invalidValue->floatValue) << " but the valid values are '" << validstr << "'.";
 	else
 		errmsg << " The value is 0 or 1 (boolean) but the valid values are '" << validstr << "'.";
 	if(invalidValue)
 		reportError(getErrorPath(tok, invalidValue, "Invalid argument"),
 		    invalidValue->errorSeverity() && invalidValue->isKnown() ? Severity::error : Severity::warning,
-		    "invalidFunctionArg",
-		    errmsg.str(),
-		    CWE628,
-		    invalidValue->isInconclusive() ? Certainty::inconclusive : Certainty::normal);
+		    "invalidFunctionArg", errmsg.str(), CWE628, invalidValue->isInconclusive() ? Certainty::inconclusive : Certainty::normal);
 	else
 		reportError(tok, Severity::error, "invalidFunctionArg", errmsg.str(), CWE628, Certainty::normal);
 }
@@ -450,17 +421,13 @@ void CheckFunctions::checkMathFunctions()
 				    "%num% - erf (") && Tokenizer::isOneNumber(tok->str()) && tok->next()->astOperand2() == tok->tokAt(3)) {
 					mathfunctionCallWarning(tok, "1 - erf(x)", "erfc(x)");
 				}
-				else if(Token::simpleMatch(tok,
-				    "exp (") &&
-				    Token::Match(tok->linkAt(1),
-				    ") - %num%") && Tokenizer::isOneNumber(tok->linkAt(1)->strAt(2)) &&
+				else if(Token::simpleMatch(tok, "exp (") && Token::Match(tok->linkAt(1), ") - %num%") && Tokenizer::isOneNumber(tok->linkAt(1)->strAt(2)) &&
 				    tok->linkAt(1)->next()->astOperand1() == tok->next()) {
 					mathfunctionCallWarning(tok, "exp(x) - 1", "expm1(x)");
 				}
 				else if(Token::simpleMatch(tok, "log (") && tok->next()->astOperand2()) {
 					const Token* plus = tok->next()->astOperand2();
-					if(plus->str() == "+" &&
-					    ((plus->astOperand1() && Tokenizer::isOneNumber(plus->astOperand1()->str())) ||
+					if(plus->str() == "+" && ((plus->astOperand1() && Tokenizer::isOneNumber(plus->astOperand1()->str())) ||
 					    (plus->astOperand2() && Tokenizer::isOneNumber(plus->astOperand2()->str()))))
 						mathfunctionCallWarning(tok, "log(1 + x)", "log1p(x)");
 				}

@@ -27,7 +27,7 @@ public:
 void removedir(const string &dirname)
 {
 	DIR * dir = opendir(dirname.c_str());
-	if(dir == NULL) {
+	if(!dir) {
 		if(errno == ENOENT) 
 			return;
 		throw Xapian::DatabaseError("Cannot open directory '" + dirname + "'", errno);
@@ -37,7 +37,7 @@ void removedir(const string &dirname)
 		while(true) {
 			errno = 0;
 			struct dirent * entry = readdir(dir);
-			if(entry == NULL) {
+			if(!entry) {
 				if(errno == 0)
 					break;
 				throw Xapian::DatabaseError("Cannot read entry from directory at '" + dirname + "'", errno);
@@ -107,8 +107,7 @@ void resolve_relative_path(string & path, const string & base)
 				// "\\?\X:\"
 				sl = 6;
 			}
-			else if(base.size() >= 8 &&
-			    memcmp(base.data() + 4, "UNC\\", 4) == 0) {
+			else if(base.size() >= 8 && memcmp(base.data() + 4, "UNC\\", 4) == 0) {
 				// "\\?\UNC\server\volume\"
 				sl = base.find('\\', 8);
 				if(sl != string::npos)

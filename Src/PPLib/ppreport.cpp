@@ -1025,7 +1025,7 @@ public:
 			list.Z();
 			long   sel_prn_id = 0;
 			if(PrnCfg.Flags & PrnCfg.fStoreLastSelPrn) {
-				WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+				WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
 				reg_key.GetString(_PPConst.WrParam_LastSelectedPrinter, last_selected_printer);
 			}
 			//
@@ -1088,7 +1088,7 @@ public:
 		// @v10.7.10 {
 		Data.Printer.Strip();
 		if(PrnCfg.Flags & PrnCfg.fStoreLastSelPrn) {
-			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
 			reg_key.PutString(_PPConst.WrParam_LastSelectedPrinter, Data.Printer);
 		}
 		// } @v10.7.10 
@@ -1664,7 +1664,7 @@ static int SetPrinterParam(short hJob, const char * pPrinter, long options, cons
 int GetWindowsPrinter(PPID * pPrnID, SString * pPort)
 {
 	int    ok = -1;
-	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
+	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
 	uint32 loc_prn_id = 0;
 	PPLocPrinter loc_prn;
  	PPObjLocPrinter obj_locprn;
@@ -2296,7 +2296,7 @@ int EditDefaultPrinterCfg()
 		dlg->getCtrlData(CTL_PRNCFG_PORT, cfg.Port);
 		{
 			uint32 dw_loc_prn_id = 0;
-			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
 			dlg->getCtrlData(CTLSEL_PRNCFG_WINPRINTER, &loc_prn_id);
 			dw_loc_prn_id = static_cast<uint32>(loc_prn_id);
 			reg_key.PutDWord(_PPConst.WrParam_DefaultWindowsPrinter, dw_loc_prn_id);

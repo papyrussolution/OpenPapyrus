@@ -3429,7 +3429,7 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 		}
 		{
 			size_t buf_size = 0;
-			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
+			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
 			if(reg_key.GetRecSize(_PPConst.WrParam_BillAddFilesFolder, &buf_size) > 0 && buf_size > 0) {
 				SString param_buf;
 				reg_key.GetString(_PPConst.WrParam_BillAddFilesFolder, param_buf);
@@ -3502,7 +3502,7 @@ int PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr, int 
 		{
 			char reg_buf[32];
 			memzero(reg_buf, sizeof(reg_buf));
-			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
 			reg_key.PutString(_PPConst.WrParam_BillAddFilesFolder, (pCfg->AddFilesFolder.Len() == 0) ? reg_buf : pCfg->AddFilesFolder);
 		}
 		THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_BILLCFG, p_temp, sz, 0));

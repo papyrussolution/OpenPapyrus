@@ -3097,7 +3097,7 @@ static void expose_parent_dirs(struct zip * zip, const char * name, size_t name_
 		 * tree to zip->tree RB tree to expose. */
 		dir = (struct zip_entry *)
 		    __archive_rb_tree_find_node(&zip->tree_rsrc, str.s);
-		if(dir == NULL)
+		if(!dir)
 			break;
 		__archive_rb_tree_remove_node(&zip->tree_rsrc, &dir->node);
 		archive_string_free(&dir->rsrcname);

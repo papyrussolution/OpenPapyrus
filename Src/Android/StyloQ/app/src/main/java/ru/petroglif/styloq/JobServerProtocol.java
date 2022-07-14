@@ -279,7 +279,8 @@ public class JobServerProtocol {
 				if(appCtx != null) {
 					byte[] err_code_raw = P.Get(SecretTagPool.tagErrorCode);
 					byte[] err_code_text_raw = P.Get(SecretTagPool.tagReplyStatusText);
-					String err_text = (SLib.GetLen(err_code_text_raw) > 0) ? new String(err_code_text_raw) : null;
+					String err_text = (SLib.GetLen(err_code_text_raw) > 0) ? new String(err_code_text_raw) : "";
+					SLib.LOG_e("CheckRepError: " + err_text);
 					if(SLib.GetLen(err_code_raw) == 4) {
 						int reply_err_code = SLib.BytesToInt(err_code_raw, 0);
 						appCtx.SetLastError(reply_err_code, err_text);

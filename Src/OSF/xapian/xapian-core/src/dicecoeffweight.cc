@@ -10,10 +10,7 @@
 using namespace std;
 
 namespace Xapian {
-DiceCoeffWeight * DiceCoeffWeight::clone() const
-{
-	return new DiceCoeffWeight();
-}
+DiceCoeffWeight * DiceCoeffWeight::clone() const { return new DiceCoeffWeight(); }
 
 void DiceCoeffWeight::init(double factor_)
 {
@@ -22,9 +19,7 @@ void DiceCoeffWeight::init(double factor_)
 		// always zero for this scheme.
 		return;
 	}
-
 	factor = get_wqf() * factor_;
-
 	// Upper bound computation:
 	// dice_coeff(q, d) = 2.0 * (q ∩ d) / (|q| + |d|)
 	// To maximize the result minimize the denominator, hence
@@ -36,20 +31,9 @@ void DiceCoeffWeight::init(double factor_)
 	upper_bound = factor * (2.0 / (get_query_length() + uniqtermlen_lb));
 }
 
-string DiceCoeffWeight::name() const
-{
-	return "Xapian::DiceCoeffWeight";
-}
-
-string DiceCoeffWeight::short_name() const
-{
-	return "dicecoeff";
-}
-
-string DiceCoeffWeight::serialise() const
-{
-	return string();
-}
+string DiceCoeffWeight::name() const { return "Xapian::DiceCoeffWeight"; }
+string DiceCoeffWeight::short_name() const { return "dicecoeff"; }
+string DiceCoeffWeight::serialise() const { return string(); }
 
 DiceCoeffWeight * DiceCoeffWeight::unserialise(const string & s) const
 {

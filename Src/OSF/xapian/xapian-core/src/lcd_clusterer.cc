@@ -36,10 +36,7 @@ LCDClusterer::LCDClusterer(uint k_) : k(k_)
 		throw InvalidArgumentError("Number of required clusters should be greater than zero");
 }
 
-string LCDClusterer::get_description() const
-{
-	return "LCDClusterer()";
-}
+string LCDClusterer::get_description() const { return "LCDClusterer()"; }
 
 ClusterSet LCDClusterer::cluster(const MSet& mset)
 {

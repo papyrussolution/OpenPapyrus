@@ -196,7 +196,7 @@ int FASTCALL PPViewBalance::NextIteration(BalanceViewItem * pItem)
 	return -1;
 }
 
-PPBaseFilt * PPViewBalance::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewBalance::CreateFilt(const void * extraPtr) const
 {
 	BalanceFilt * p_filt = new BalanceFilt;
 	if(p_filt) {

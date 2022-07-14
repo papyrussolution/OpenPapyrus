@@ -1,5 +1,5 @@
 // V_SSTAT.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -75,11 +75,16 @@ PPViewSStat::~PPViewSStat()
 	DBRemoveTempFiles();
 }
 
-#define GRP_CYCLE     1
-#define GRP_GOODSFILT 2
-#define GRP_LOC       3
+// @v11.4.4 #define GRP_CYCLE     1
+// @v11.4.4 #define GRP_GOODSFILT 2
+// @v11.4.4 #define GRP_LOC       3
 
 class SStatOrderFiltDialog : public TDialog {
+	enum {
+		ctlgroupCycle     = 1,
+		ctlgroupGoodsFilt = 2,
+		ctlgroupLoc       = 3,
+	};
 public:
 	SStatOrderFiltDialog() : TDialog(DLG_SSTATORDFLT)
 	{
@@ -103,21 +108,21 @@ public:
 		PPID   prev_grp_level = 0;
 		PPObjGoods goods_obj;
 		goods_obj.GetParentID(Data.GoodsGrpID, &prev_grp_level);
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_SSTATFLT_GGROUP, cmGoodsFilt));
+		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(0, CTLSEL_SSTATFLT_GGROUP, cmGoodsFilt));
 		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, reinterpret_cast<void *>(prev_grp_level));
-		setGroupData(GRP_GOODSFILT, &gf_rec);
+		setGroupData(ctlgroupGoodsFilt, &gf_rec);
 		SetupArCombo(this, CTLSEL_SSTATFLT_SUPPL, Data.SupplID, 0, GetSupplAccSheet(), sacfDisableIfZeroSheet);
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_SSTATFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_SSTATFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-		setGroupData(GRP_LOC, &loc_rec);
+		setGroupData(ctlgroupLoc, &loc_rec);
 		setCtrlData(CTL_SSTATFLT_DATE, &init_date);
 		setCtrlData(CTL_SSTATFLT_RESTDATE, &Data.RestDate);
 
 		CycleCtrlGroup::Rec cycle_rec;
 		CycleCtrlGroup * p_grp = new CycleCtrlGroup(CTLSEL_SSTATFLT_CYCLE, CTL_SSTATFLT_PDC, CTL_SSTATFLT_NUMCYCLES, 0);
-		addGroup(GRP_CYCLE, p_grp);
+		addGroup(ctlgroupCycle, p_grp);
 		cycle_rec.C = Data.Cycl;
-		setGroupData(GRP_CYCLE, &cycle_rec);
+		setGroupData(ctlgroupCycle, &cycle_rec);
 		setCtrlData(CTL_SSTATFLT_ORDP, &Data.OrdTerm);
 		setCtrlData(CTL_SSTATFLT_DLVRP, &Data.DlvrTerm);
 		setCtrlData(CTL_SSTATFLT_UPRESTR, &Data.UpRestriction);
@@ -151,13 +156,13 @@ public:
 		CycleCtrlGroup::Rec cycle_rec;
 		LocationCtrlGroup::Rec loc_rec;
 		GoodsFiltCtrlGroup::Rec gf_rec;
-		THROW(getGroupData(GRP_CYCLE, &cycle_rec));
+		THROW(getGroupData(ctlgroupCycle, &cycle_rec));
 		Data.Cycl = cycle_rec.C;
 		getCtrlData(CTL_SSTATFLT_DATE,      &init_date);
 		getCtrlData(CTL_SSTATFLT_RESTDATE,  &Data.RestDate);
-		getGroupData(GRP_GOODSFILT, &gf_rec);
+		getGroupData(ctlgroupGoodsFilt, &gf_rec);
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
-		getGroupData(GRP_LOC, &loc_rec);
+		getGroupData(ctlgroupLoc, &loc_rec);
 		Data.LocList = loc_rec.LocList;
 		if(Data.LocList.IsExists() && Data.LocList.IsEmpty())
 			Data.LocList.Set(0);
@@ -281,7 +286,7 @@ int PPViewSStat::EditDlvrOrderFilt(SStatFilt * pBaseFilt)
 	DIALOG_PROC_BODY(SStatOrderFiltDialog, pBaseFilt);
 }
 
-PPBaseFilt * PPViewSStat::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewSStat::CreateFilt(const void * extraPtr) const
 {
 	SStatFilt * p_filt = new SStatFilt;
 	p_filt->LocList.Add(LConfig.Location);
@@ -299,7 +304,13 @@ PPBaseFilt * PPViewSStat::CreateFilt(void * extraPtr) const
 
 int PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	int    ok = -1, valid_data = 0;
+	enum {
+		ctlgroupCycle     = 1,
+		ctlgroupGoodsFilt = 2,
+		ctlgroupLoc       = 3,
+	};
+	int    ok = -1;
+	int    valid_data = 0;
 	PPID   prev_grp_level = 0;
 	TDialog * dlg = 0;
 	SStatFilt * p_filt = 0;
@@ -317,21 +328,21 @@ int PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			if(GObj.Fetch(p_filt->GoodsGrpID, &grp_rec) > 0)
 				prev_grp_level = grp_rec.ParentID;
 		}
-		dlg->addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_SSTATFLT_GGROUP, cmGoodsFilt));
+		dlg->addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(0, CTLSEL_SSTATFLT_GGROUP, cmGoodsFilt));
 		GoodsFiltCtrlGroup::Rec gf_rec(p_filt->GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, reinterpret_cast<void *>(prev_grp_level));
-		dlg->setGroupData(GRP_GOODSFILT, &gf_rec);
-		dlg->addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_SSTATFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
+		dlg->setGroupData(ctlgroupGoodsFilt, &gf_rec);
+		dlg->addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_SSTATFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		LocationCtrlGroup::Rec loc_rec(&p_filt->LocList);
-		dlg->setGroupData(GRP_LOC, &loc_rec);
+		dlg->setGroupData(ctlgroupLoc, &loc_rec);
 		SetupSubstGoodsCombo(dlg, CTLSEL_SSTATFLT_SUBST, p_filt->Sgg);
 		dlg->SetupCalPeriod(CTLCAL_SSTATFLT_PERIOD, CTL_SSTATFLT_PERIOD);
 		SetPeriodInput(dlg, CTL_SSTATFLT_PERIOD, &p_filt->Period);
 
 		CycleCtrlGroup::Rec cycle_rec;
 		CycleCtrlGroup * p_grp = new CycleCtrlGroup(CTLSEL_SSTATFLT_CYCLE, CTL_SSTATFLT_PDC, CTL_SSTATFLT_NUMCYCLES, CTL_SSTATFLT_PERIOD);
-		dlg->addGroup(GRP_CYCLE, p_grp);
+		dlg->addGroup(ctlgroupCycle, p_grp);
 		cycle_rec.C = Filt.Cycl;
-		dlg->setGroupData(GRP_CYCLE, &cycle_rec);
+		dlg->setGroupData(ctlgroupCycle, &cycle_rec);
 
 		dlg->AddClusterAssoc(CTL_SSTATFLT_FLAGS, 0, SStatFilt::fSkipZeroNhCount);
 		dlg->SetClusterData(CTL_SSTATFLT_FLAGS, p_filt->Flags);
@@ -351,11 +362,11 @@ int PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			if(!GetPeriodInput(dlg, CTL_SSTATFLT_PERIOD, &p_filt->Period))
 				PPErrorByDialog(dlg, CTL_SSTATFLT_PERIOD);
 			else {
-				dlg->getGroupData(GRP_CYCLE, &cycle_rec);
+				dlg->getGroupData(ctlgroupCycle, &cycle_rec);
 				p_filt->Cycl = cycle_rec.C;
-				dlg->getGroupData(GRP_GOODSFILT, &gf_rec);
+				dlg->getGroupData(ctlgroupGoodsFilt, &gf_rec);
 				p_filt->GoodsGrpID = gf_rec.GoodsGrpID;
-				dlg->getGroupData(GRP_LOC, &loc_rec);
+				dlg->getGroupData(ctlgroupLoc, &loc_rec);
 				p_filt->LocList = loc_rec.LocList;
 				if(p_filt->LocList.IsExists() && p_filt->LocList.IsEmpty())
 					p_filt->LocList.Set(0);
@@ -456,10 +467,10 @@ int PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 	Filt.RestDate = Filt.RestDate.getactual(ZERODATE);
 	CreatedBillList.clear();
 	if(P_TempTbl && prev_filt.IsEqualExceptOrder(&Filt)) {
-		int create_ot = ((prev_filt.CountRange.low != Filt.CountRange.low || prev_filt.CountRange.upp != Filt.CountRange.upp) ||
+		const bool create_ot = ((prev_filt.CountRange.low != Filt.CountRange.low || prev_filt.CountRange.upp != Filt.CountRange.upp) ||
 			(prev_filt.QttyAvgRange.low != Filt.QttyAvgRange.low || prev_filt.QttyAvgRange.upp != Filt.QttyAvgRange.upp) ||
 			(prev_filt.AmtAvgRange.low != Filt.AmtAvgRange.low || prev_filt.AmtAvgRange.upp != Filt.AmtAvgRange.upp) ||
-			(prev_filt.QttyVarRange.low != Filt.QttyVarRange.low || prev_filt.QttyVarRange.upp != Filt.QttyVarRange.upp)) ? 1 : 0;
+			(prev_filt.QttyVarRange.low != Filt.QttyVarRange.low || prev_filt.QttyVarRange.upp != Filt.QttyVarRange.upp));
 		if(prev_filt.Order != Filt.Order || create_ot)
 			THROW(CreateOrderTable(Filt.Order, &P_TempOrd, use_ta));
 	}

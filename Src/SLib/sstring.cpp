@@ -687,12 +687,17 @@ int FASTCALL SStrScan::SearchChar(int c)
 int FASTCALL SStrScan::Search(const char * pPattern)
 {
 	if(P_Buf) {
-		size_t len = sstrlen(pPattern);
-		const  char * p_buf = P_Buf+Offs;
-		const  char * p = strstr(p_buf, pPattern);
-		if(p) {
-			Len = (p-p_buf);
-			return 1;
+		size_t plen = sstrlen(pPattern);
+		if(plen) {
+			const  char * p_buf = P_Buf+Offs;
+			size_t tlen = strlen(p_buf);
+			if(tlen && tlen >= plen) {
+				const  char * p = strstr(p_buf, pPattern);
+				if(p) {
+					Len = (p-p_buf);
+					return 1;
+				}
+			}
 		}
 	}
 	return 0;
@@ -3295,6 +3300,14 @@ double SString::ToReal() const
 	if(L > 1)
 		strtodoub(P_Buf, &v);
 	return v;
+}
+
+double SString::ToReal_Plain() const
+{
+	double v = 0.0;
+	if(L > 1)
+		satof(P_Buf, &v);
+	return v;	
 }
 
 float SString::ToFloat() const

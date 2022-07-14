@@ -984,7 +984,7 @@ sftp_dir sftp_opendir(sftp_session sftp, const char * path)
 		    sftp_message_free(msg);
 		    if(file) {
 			    dir = (sftp_dir)SAlloc::C(1, sizeof(struct sftp_dir_struct));
-			    if(dir == NULL) {
+			    if(!dir) {
 				    ssh_set_error_oom(sftp->session);
 				    SAlloc::F(file);
 				    return NULL;

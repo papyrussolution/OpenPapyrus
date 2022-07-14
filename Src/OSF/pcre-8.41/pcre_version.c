@@ -14,17 +14,15 @@
 //
 #include "pcre_internal.h"
 #pragma hdrstop
-
-/*************************************************
-*          Return version string                 *
-*************************************************/
-
+// 
+// Return version string
+// 
 /* These macros are the standard way of turning unquoted text into C strings.
    They allow macros like PCRE_MAJOR to be defined without quotes, which is
    convenient for user programs that want to test its value. */
 
-#define STRING(a)  # a
-#define XSTRING(s) STRING(s)
+// @v11.4.4 #define STRING(a)  # a // @todo replacewith(STRINGIZE)
+// @v11.4.4 #define XSTRING(s) STRING(s)
 
 /* A problem turned up with PCRE_PRERELEASE, which is defined empty for
    production releases. Originally, it was used naively in this code:
@@ -53,7 +51,7 @@ PCRE_EXP_DEFN const char * PCRE_CALL_CONVENTION pcre16_version(void)
 PCRE_EXP_DEFN const char * PCRE_CALL_CONVENTION pcre32_version(void)
 #endif
 {
-	return (XSTRING(Z PCRE_PRERELEASE)[1] == 0) ? XSTRING(PCRE_MAJOR.PCRE_MINOR PCRE_DATE) : XSTRING(PCRE_MAJOR.PCRE_MINOR) XSTRING(PCRE_PRERELEASE PCRE_DATE);
+	return (STRINGIZE(Z PCRE_PRERELEASE)[1] == 0) ? STRINGIZE(PCRE_MAJOR.PCRE_MINOR PCRE_DATE) : STRINGIZE(PCRE_MAJOR.PCRE_MINOR) STRINGIZE(PCRE_PRERELEASE PCRE_DATE);
 }
 
 /* End of pcre_version.c */

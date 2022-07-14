@@ -135,7 +135,4 @@ TermFreqs ExactPhrasePostList::get_termfreq_est_using_stats(const Xapian::Weight
 	RETURN(result);
 }
 
-string ExactPhrasePostList::get_description() const
-{
-	return "(ExactPhrase " + pl->get_description() + ")";
-}
+string ExactPhrasePostList::get_description() const { return "(ExactPhrase " + pl->get_description() + ")"; }

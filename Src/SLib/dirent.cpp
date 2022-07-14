@@ -592,7 +592,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 	// Basic directory retrieval 
 	{
 		DIR * dir = opendir((dir_buf = pBaseDir).SetLastDSlash().Cat("1")); // Open directory 
-		if(dir == NULL) {
+		if(!dir) {
 			temp_buf.Z().Cat("Directory").Space().Cat(dir_buf).Space().Cat("not found");
 			rCase.SetInfo(temp_buf, 0);
 		}
@@ -805,7 +805,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 		struct dirent * ent;
 		int found = 0;
 		DIR * dir = opendir((dir_buf = pBaseDir).SetLastDSlash().Cat("2")); /* Open directory */
-		if(dir == NULL) {
+		if(!dir) {
 			temp_buf.Z().Cat("Directory").Space().Cat(dir_buf).Space().Cat("not found");
 			rCase.SetInfo(temp_buf, 0);
 		}
@@ -868,7 +868,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 		size_t n = 0;
 		int found = 0;
 		DIR * dir = opendir((dir_buf = pBaseDir).SetLastDSlash().Cat("1")); /* Open directory */
-		if(dir == NULL) {
+		if(!dir) {
 			temp_buf.Z().Cat("Directory").Space().Cat(dir_buf).Space().Cat("not found");
 			rCase.SetInfo(temp_buf, 0);
 		}
@@ -965,7 +965,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 		SStringU dir_buf_u;
 		dir_buf_u.CopyFromMb(cpANSI, dir_buf, dir_buf.Len());
 		_WDIR * dir = _wopendir(dir_buf_u/*L"tests/1"*/); /* Open directory */
-		if(dir == NULL) {
+		if(!dir) {
 			temp_buf.Z().Cat("Directory").Space().Cat(dir_buf).Space().Cat("not found");
 			rCase.SetInfo(temp_buf, 0);
 		}
@@ -1568,7 +1568,7 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 	k = j;
 	path[k] = '\0';
 	dir = opendir(path);
-	if(dir == NULL) {
+	if(!dir) {
 		slfprintf_stderr("Cannot open directory %s\n", path);
 		abort();
 	}
@@ -1654,7 +1654,7 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 	/* Open directory again */
 	path[k] = '\0';
 	dir = opendir(path);
-	if(dir == NULL) {
+	if(!dir) {
 		slfprintf_stderr("Cannot open directory %s\n", path);
 		abort();
 	}

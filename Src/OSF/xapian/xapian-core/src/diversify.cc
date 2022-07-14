@@ -95,10 +95,7 @@ Diversify::~Diversify()
 	LOGCALL_DTOR(API, "Diversify");
 }
 
-string Diversify::get_description() const
-{
-	return "Diversify()";
-}
+string Diversify::get_description() const { return "Diversify()"; }
 
 DocumentSet Diversify::get_dmset(const MSet& mset)
 {

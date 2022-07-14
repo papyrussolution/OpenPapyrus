@@ -204,7 +204,7 @@ int archive_match_excluded(Archive * _a, ArchiveEntry * entry)
 	int r;
 	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a = (struct archive_match *)_a;
-	if(entry == NULL) {
+	if(!entry) {
 		archive_set_error(&(a->archive), EINVAL, "entry is NULL");
 		return ARCHIVE_FAILED;
 	}
@@ -335,7 +335,7 @@ int archive_match_path_excluded(Archive * _a, ArchiveEntry * entry)
 	struct archive_match * a;
 	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC,ARCHIVE_STATE_NEW, __FUNCTION__);
 	a = (struct archive_match *)_a;
-	if(entry == NULL) {
+	if(!entry) {
 		archive_set_error(&(a->archive), EINVAL, "entry is NULL");
 		return ARCHIVE_FAILED;
 	}
@@ -770,7 +770,7 @@ int archive_match_exclude_entry(Archive * _a, int flag, ArchiveEntry * entry)
 	int r;
 	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a = (struct archive_match *)_a;
-	if(entry == NULL) {
+	if(!entry) {
 		archive_set_error(&(a->archive), EINVAL, "entry is NULL");
 		return ARCHIVE_FAILED;
 	}
@@ -791,7 +791,7 @@ int archive_match_time_excluded(Archive * _a, ArchiveEntry * entry)
 	struct archive_match * a;
 	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a = (struct archive_match *)_a;
-	if(entry == NULL) {
+	if(!entry) {
 		archive_set_error(&(a->archive), EINVAL, "entry is NULL");
 		return ARCHIVE_FAILED;
 	}
@@ -1387,7 +1387,7 @@ int archive_match_owner_excluded(Archive * _a, ArchiveEntry * entry)
 	struct archive_match * a;
 	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a = (struct archive_match *)_a;
-	if(entry == NULL) {
+	if(!entry) {
 		archive_set_error(&(a->archive), EINVAL, "entry is NULL");
 		return ARCHIVE_FAILED;
 	}

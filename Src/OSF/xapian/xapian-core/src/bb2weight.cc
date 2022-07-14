@@ -81,32 +81,16 @@ void BB2Weight::init(double factor)
 	// in mind.
 	double y_min = F - wdfn_upper;
 	double y_max = N + F - wdfn_lower - 2.0;
-
-	double stirling_max = stirling_value(wdfn_upper + 1.0, y_max,
-		stirling_constant_1) -
-	    stirling_value(wdfn_lower, y_min,
-		stirling_constant_2);
-
+	double stirling_max = stirling_value(wdfn_upper + 1.0, y_max, stirling_constant_1) - stirling_value(wdfn_lower, y_min, stirling_constant_2);
 	double B_max = B_constant / (wdfn_lower + 1.0);
 	upper_bound = B_max * (wt + stirling_max);
 	if(UNLIKELY(upper_bound < 0.0))
 		upper_bound = 0.0;
 }
 
-string BB2Weight::name() const
-{
-	return "Xapian::BB2Weight";
-}
-
-string BB2Weight::short_name() const
-{
-	return "bb2";
-}
-
-string BB2Weight::serialise() const
-{
-	return serialise_double(param_c);
-}
+string BB2Weight::name() const { return "Xapian::BB2Weight"; }
+string BB2Weight::short_name() const { return "bb2"; }
+string BB2Weight::serialise() const { return serialise_double(param_c); }
 
 BB2Weight * BB2Weight::unserialise(const string & s) const
 {

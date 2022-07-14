@@ -48,11 +48,7 @@ void PostingSource::init(const Database&)
 	throw Xapian::InvalidOperationError(msg);
 }
 
-string PostingSource::get_description() const
-{
-	return "Xapian::PostingSource subclass";
-}
-
+string PostingSource::get_description() const { return "Xapian::PostingSource subclass"; }
 Xapian::doccount ValuePostingSource::get_termfreq_min() const { return termfreq_min; }
 Xapian::doccount ValuePostingSource::get_termfreq_est() const { return termfreq_est; }
 Xapian::doccount ValuePostingSource::get_termfreq_max() const { return termfreq_max; }

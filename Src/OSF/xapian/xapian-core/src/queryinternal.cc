@@ -1082,10 +1082,7 @@ void QueryValueLE::serialise(string & result) const
 	pack_string(result, limit);
 }
 
-Query::op QueryValueLE::get_type() const noexcept
-{
-	return Query::OP_VALUE_LE;
-}
+Query::op QueryValueLE::get_type() const noexcept { return Query::OP_VALUE_LE; }
 
 string QueryValueLE::get_description() const
 {
@@ -1139,10 +1136,7 @@ void QueryValueGE::serialise(string & result) const
 	pack_string(result, limit);
 }
 
-Query::op QueryValueGE::get_type() const noexcept
-{
-	return Query::OP_VALUE_GE;
-}
+Query::op QueryValueGE::get_type() const noexcept { return Query::OP_VALUE_GE; }
 
 string QueryValueGE::get_description() const
 {
@@ -1370,10 +1364,7 @@ void QueryWildcard::serialise(string & result) const
 	pack_string(result, pattern);
 }
 
-Query::op QueryWildcard::get_type() const noexcept
-{
-	return Query::OP_WILDCARD;
-}
+Query::op QueryWildcard::get_type() const noexcept { return Query::OP_WILDCARD; }
 
 string QueryWildcard::get_description() const
 {
@@ -1465,10 +1456,7 @@ void QueryEditDistance::serialise(string & result) const
 	pack_string(result, pattern);
 }
 
-Query::op QueryEditDistance::get_type() const noexcept
-{
-	return Query::OP_EDIT_DISTANCE;
-}
+Query::op QueryEditDistance::get_type() const noexcept { return Query::OP_EDIT_DISTANCE; }
 
 string QueryEditDistance::get_description() const
 {

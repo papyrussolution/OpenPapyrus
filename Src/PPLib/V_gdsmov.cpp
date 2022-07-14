@@ -64,13 +64,13 @@ PPViewGoodsMov::~PPViewGoodsMov()
 //
 //
 //
-#define GRP_GOODSFILT  1
-#define GRP_LOC        2
+// @v11.4.4 #define GRP_GOODSFILT  1
+// @v11.4.4 #define GRP_LOC        2
 
 GoodsMovFiltDialog::GoodsMovFiltDialog() : WLDialog(DLG_GDSMOV, CTL_GTO_LABEL)
 {
-	addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
-	addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
+	addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
+	addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
 	SetupCalPeriod(CTLCAL_GTO_PERIOD, CTL_GTO_PERIOD);
 }
 
@@ -99,10 +99,10 @@ int GoodsMovFiltDialog::setDTS(const GoodsMovFilt * pData)
 	PPIDArray types;
 	SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
 	LocationCtrlGroup::Rec l_rec(&Data.LocList);
-	setGroupData(GRP_LOC, &l_rec);
+	setGroupData(ctlgroupLoc, &l_rec);
 	SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
-	setGroupData(GRP_GOODSFILT, &gf_rec);
+	setGroupData(ctlgroupGoodsFilt, &gf_rec);
 	setWL((Data.Flags & GoodsMovFilt::fLabelOnly) ? 1 : 0);
 	AddClusterAssoc(CTL_GTO_FLAGS, 0, GoodsMovFilt::fCostWoVat);
 	AddClusterAssoc(CTL_GTO_FLAGS, 1, GoodsMovFilt::fPriceWoVat); // @v10.6.6
@@ -130,12 +130,12 @@ int GoodsMovFiltDialog::getDTS(GoodsMovFilt * pData)
 	int    ok = 1;
 	GoodsFiltCtrlGroup::Rec gf_rec;
 	LocationCtrlGroup::Rec l_rec;
-	getGroupData(GRP_LOC, &l_rec);
+	getGroupData(ctlgroupLoc, &l_rec);
 	Data.LocList = l_rec.LocList;
 	THROW(GetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period));
 	THROW(AdjustPeriodToRights(Data.Period, 0));
 	getCtrlData(CTLSEL_GTO_SUPPL, &Data.SupplID);
-	THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 	Data.GoodsGrpID = gf_rec.GoodsGrpID;
 	//Data.GoodsID    = rec.GoodsID;
 	SETFLAG(Data.Flags, GoodsMovFilt::fLabelOnly, getWL());
@@ -751,7 +751,7 @@ int PPALDD_GoodsMov::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	return p_v->InitIteration(static_cast<PPViewGoodsMov::IterOrder>(SortIdx)) ? 1 : 0;
+	return BIN(p_v->InitIteration(static_cast<PPViewGoodsMov::IterOrder>(SortIdx)));
 }
 
 int PPALDD_GoodsMov::NextIteration(PPIterID iterId)
@@ -823,4 +823,3 @@ void PPALDD_GoodsMov::Destroy()
 	delete static_cast<PPViewGoodsMov *>(Extra[0].Ptr);
 	Extra[0].Ptr = Extra[1].Ptr = 0;
 }
-

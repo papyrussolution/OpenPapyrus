@@ -2240,14 +2240,14 @@ private:
 			getCtrlData(CTLSEL_OBJTEXTFILT_OBJ, &Data.ObjType);
 			if(Data.ObjType == PPOBJ_GOODS) {
 				PPViewGoods view_goods;
-				SETIFZ(Data.P_GoodsF, static_cast<GoodsFilt *>(view_goods.CreateFilt(0)));
+				SETIFZ(Data.P_GoodsF, static_cast<GoodsFilt *>(view_goods.CreateFilt(PPView::GetDescriptionExtra(view_goods.GetViewId()))));
 				if(view_goods.EditBaseFilt(Data.P_GoodsF) > 0) {
 					;
 				}
 			}
 			else if(Data.ObjType == PPOBJ_PERSON) {
 				PPViewPerson view_psn;
-				SETIFZ(Data.P_PsnF, static_cast<PersonFilt *>(view_psn.CreateFilt(0)));
+				SETIFZ(Data.P_PsnF, static_cast<PersonFilt *>(view_psn.CreateFilt(PPView::GetDescriptionExtra(view_psn.GetViewId()))));
 				if(view_psn.EditBaseFilt(Data.P_PsnF) > 0) {
 					;
 				}

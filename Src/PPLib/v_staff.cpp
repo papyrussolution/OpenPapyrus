@@ -414,7 +414,7 @@ void * PPViewStaffPost::GetEditExtraParam()
 	return 0;
 }
 
-PPBaseFilt * PPViewStaffPost::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewStaffPost::CreateFilt(const void * extraPtr) const
 {
 	StaffPostFilt * p_filt = new StaffPostFilt;
 	p_filt->Flags |= StaffPostFilt::fOpenedOnly;

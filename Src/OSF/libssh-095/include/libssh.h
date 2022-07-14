@@ -74,8 +74,8 @@ typedef int mode_t;
 	#include <netdb.h>
 #endif /* _WIN32 */
 
-#define SSH_STRINGIFY(s) SSH_TOSTRING(s)
-#define SSH_TOSTRING(s) #s
+// @v11.4.4 #define SSH_STRINGIFY(s) SSH_TOSTRING(s)
+// @v11.4.4 #define SSH_TOSTRING(s)  #s // @todo replacewith(STRINGIZE)
 /* GCC have printf type attribute check.  */
 #ifdef __GNUC__
 	#define PRINTF_ATTRIBUTE(a, b) __attribute__ ((__format__(__printf__, a, b)))

@@ -203,18 +203,12 @@ static void parse_field(twin_face_properties_t * props, const char * str, int le
 {
 	if(field_matches("Normal", str, len))
 		return;
-
-#define FIELD(NAME) \
-	if(find_field(STRINGIFY(NAME), NAME ## _map, ARRAY_LENGTH(NAME ## _map), str, len, \
-	    (int *)(void *)&props->NAME)) \
-		return; \
-
+#define FIELD(NAME) if(find_field(STRINGIZE(NAME), NAME ## _map, ARRAY_LENGTH(NAME ## _map), str, len, (int *)(void *)&props->NAME)) return;
 	FIELD(weight);
 	FIELD(slant);
 	FIELD(stretch);
 	FIELD(smallcaps);
 	FIELD(monospace);
-
 #undef FIELD
 }
 
@@ -224,7 +218,6 @@ static void face_props_parse(twin_face_properties_t * props, const char * s)
 	for(start = end = s; *end; end++) {
 		if(*end != ' ' && *end != ':')
 			continue;
-
 		if(start < end)
 			parse_field(props, start, end - start);
 		start = end + 1;

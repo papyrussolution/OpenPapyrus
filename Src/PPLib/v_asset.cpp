@@ -30,7 +30,7 @@ PPViewAsset::~PPViewAsset()
 	delete P_GGIter;
 }
 
-PPBaseFilt * PPViewAsset::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewAsset::CreateFilt(const void * extraPtr) const
 {
 	AssetFilt * p_filt = new AssetFilt;
 	if(p_filt) {

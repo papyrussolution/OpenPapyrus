@@ -2848,7 +2848,7 @@ SSL_CTX * SSL_CTX_new(const SSL_METHOD * meth)
 #endif
 #ifndef OPENSSL_NO_ENGINE
 #ifdef OPENSSL_SSL_CLIENT_ENGINE_AUTO
-#define eng_strx(x)     #x
+#define eng_strx(x)     #x // @todo replacewith(STRINGIZE)
 #define eng_str(x)      eng_strx(x)
 	/* Use specific client engine automatically... ignore errors */
 	{

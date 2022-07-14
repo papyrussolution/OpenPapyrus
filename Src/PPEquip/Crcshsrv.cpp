@@ -157,7 +157,7 @@ private:
 	bool   GetFilesLocal();
 	PPBillImpExpParam * CreateImpExpParam(uint sdRecID);
 	void   Backup(const char * pPrefix, const char * pPath);
-	int    Helper_ExportGoods_V10(int mode, const SString & rPathGoods, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
+	int    Helper_ExportGoods_V10(int mode, bool goodsIdAsArticle, const SString & rPathGoods, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
 		AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo, SString & rResultFileName);
 
 	class DeferredRemovingFileList : public SStrGroup {
@@ -560,7 +560,7 @@ struct _MinPriceEntry { // @flat
 	int16  Reserve; // @alignment
 };
 
-int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGoods_, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
+int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, const SString & rPathGoods_, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
 	AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo, SString & rResultFileName)
 {
 	assert(oneof3(mode, 0, 1, 2));
@@ -680,7 +680,13 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 			}
 			else {
 			// } @v10.6.8
-				p_writer->StartElement("good", "marking-of-the-good", prev_gds_info.PrefBarCode);
+				// @v11.4.4 {
+				if(goodsIdAsArticle) {
+					p_writer->StartElement("good", "marking-of-the-good", temp_buf.Z().Cat(prev_gds_info.ID)); 
+				}
+				else /* } @v11.4.4 */ {
+					p_writer->StartElement("good", "marking-of-the-good", prev_gds_info.PrefBarCode);
+				}
 				if(oneof2(mode, 0, 2)) { // @v10.6.8 only 0 works
 					if(rStoreIndex.NotEmpty())
 						p_writer->PutElement("shop-indices", rStoreIndex);
@@ -688,6 +694,28 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 				if(oneof2(mode, 0, 1)) { // @v10.6.7
 					p_writer->PutElement("name", prev_gds_info.Name);
 					{
+						// @v11.4.4 {
+						if(goodsIdAsArticle) {
+							// @v10.9.11 {
+							if(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
+								const char * p_mark_type = 0;
+								switch(prev_gds_info.ChZnProdType) {
+									case GTCHZNPT_SHOE: p_mark_type = "FOOTWEAR"; break;
+									case GTCHZNPT_TEXTILE: p_mark_type = "LIGHT_INDUSTRY"; break;
+									case GTCHZNPT_CARTIRE: p_mark_type = "TYRES"; break;
+									case GTCHZNPT_PERFUMERY: p_mark_type = "PERFUMES"; break;
+									case GTCHZNPT_MILK: p_mark_type = "MILK"; break;
+								}
+								if(p_mark_type)
+									p_writer->PutElement("mark-type", p_mark_type);
+							}
+							// } @v10.9.11 
+							p_writer->StartElement("bar-code", "code", temp_buf.Z().Cat(prev_gds_info.ID));
+							p_writer->PutElement("count", temp_buf.Z().Cat("1"));
+							p_writer->PutElement("default-code", true);
+							p_writer->EndElement(); // </bar-code>
+						}
+						// } @v11.4.4 
 						for(uint i = 0; i < barcodes.getCount(); i++) {
 							BarcodeTbl::Rec bc = barcodes.at(i);
 							if(sstrlen(bc.Code)) {
@@ -719,7 +747,8 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 								// p_writer->PutElement("end-date", end_dtm);
 								// p_writer->EndElement();
 								p_writer->PutElement("count", bc.Qtty);
-								p_writer->PutElement("default-code", LOGIC(sstreq(bc.Code, prev_gds_info.PrefBarCode)));
+								if(!goodsIdAsArticle) // @v11.4.4 
+									p_writer->PutElement("default-code", LOGIC(sstreq(bc.Code, prev_gds_info.PrefBarCode)));
 								p_writer->EndElement(); // </bar-code>
 							}
 						}
@@ -1028,6 +1057,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	int    add_time_to_fname = 0;
 	int    use_new_dscnt_code_alg = 0;
 	int    diff_goods_export = 0;
+	int    goodsid_as_article = 0; // @v11.4.4
 	uint   i = 0;
 	SString temp_buf;
 	SString path;
@@ -1075,9 +1105,8 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	THROW(DistributeFile_(0, 0/*pEndFileName*/, dfactCheckDestPaths, SUBDIR_CARDS, 0));
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES, &add_time_to_fname);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG, &use_new_dscnt_code_alg);
-	// @v10.6.3 {
-	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_DIFFGOODSEXPORT, &diff_goods_export);
-	// } @v10.6.3
+	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_DIFFGOODSEXPORT, &diff_goods_export); // @v10.6.3
+	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_GOODSIDASARTICLE, &goodsid_as_article); // @v11.4.4
 	THROW(PPGetFilePath(PPPATH_OUT, GOODS_XML,            path_goods));
 	THROW(PPGetFilePath(PPPATH_OUT, CASHIERS_XML,         path_cashiers));
 	THROW(PPGetFilePath(PPPATH_OUT, CARDS_XML,            path_cards));
@@ -1135,18 +1164,18 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		if(diff_goods_export) {
 			{
 				AsyncCashGoodsIterator giter(NodeID, acgif, SinceDlsID, P_Dls);
-				THROW(Helper_ExportGoods_V10(1/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info, temp_buf));
+				THROW(Helper_ExportGoods_V10(1/*mode*/, LOGIC(goodsid_as_article), path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info, temp_buf));
 				ss_path_goods.add(temp_buf);
 			}
 			{
 				AsyncCashGoodsIterator giter(NodeID, acgif, SinceDlsID, P_Dls);
-				THROW(Helper_ExportGoods_V10(2/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info, temp_buf));
+				THROW(Helper_ExportGoods_V10(2/*mode*/, LOGIC(goodsid_as_article), path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info, temp_buf));
 				ss_path_goods.add(temp_buf);
 			}
 		}
 		else {
 			AsyncCashGoodsIterator giter(NodeID, acgif, SinceDlsID, P_Dls);
-			THROW(Helper_ExportGoods_V10(0/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info, temp_buf));
+			THROW(Helper_ExportGoods_V10(0/*mode*/, LOGIC(goodsid_as_article), path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info, temp_buf));
 			ss_path_goods.add(temp_buf);
 		}
 	}

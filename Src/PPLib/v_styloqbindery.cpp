@@ -292,7 +292,7 @@ int PPViewStyloQBindery::Invitation()
 	int    spir = ic.SetupPeerInstance(&own_id, 1);
 	THROW(spir);
 	THROW(ic.GetOwnPeerEntry(&sp) > 0);
-	{ 
+	{
 		//
 		// Инициализация сервера для обработки AMQ-запросов
 		//
@@ -370,8 +370,8 @@ int PPViewStyloQBindery::Invitation()
 					}
 				}
 				break;
-			case PPVCMD_USERSORT: 
-				ok = 1; 
+			case PPVCMD_USERSORT:
+				ok = 1;
 				break; // The rest will be done below
 			case PPVCMD_DELETEALL:
 				// @todo ok = DeleteAll();
@@ -406,7 +406,7 @@ int PPViewStyloQBindery::Invitation()
 					PPStyloQInterchange ic;
 					if(ic.TestClientInteractive(id) > 0)
 						ok = 1;
-				}				
+				}
 				break;
 			case PPVCMD_SYSJ: // @v11.2.12
 				if(id) {
@@ -474,7 +474,7 @@ PPViewStyloQCommand::~PPViewStyloQCommand()
 			}
 		}
 	}
-	// } @v11.4.3 
+	// } @v11.4.3
 }
 
 int PPViewStyloQCommand::MakeList(PPViewBrowser * pBrw)
@@ -633,7 +633,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 	public:
 		StyloQCommandDialog(PPNamedFiltMngr * pNfMgr, const StyloQCommandList & rWholeList) : TDialog(DLG_STQCMD), P_NfMgr(pNfMgr), R_WholeList(rWholeList)
 		{
-			CALLPTRMEMB(P_NfMgr, GetResourceLists(&CmdSymbList, &CmdTextList));
+			PPView::GetDescriptionList(true, &CmdSymbList, &CmdTextList);
 			//SetupStrAssocCombo(this, CTLSEL_STQCMD_VCMD, CmdTextList, 0, 0);
 		}
 		DECL_DIALOG_SETDTS()
@@ -652,6 +652,8 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvOrderPrereq);
 				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvAttendancePrereq);
 				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvPushIndexContent);
+				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvIndoorSvcPrereq); // @v11.4.4
+				base_cmd_id_list.add(StyloQCommandList::sqbcGoodsInfo); // @v11.4.4
 				StrAssocArray basecmd_list;
 				for(uint i = 0; i < base_cmd_id_list.getCount(); i++) {
 					const long base_cmd_id = base_cmd_id_list.get(i);
@@ -693,6 +695,10 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				PPID stylopalm_id = getCtrlLong(CTLSEL_STQCMD_VCMD);
 				Data.Param.Z().Write(&stylopalm_id, sizeof(stylopalm_id));
 			}
+			else if(Data.BaseCmdId == StyloQCommandList::sqbcRsrvIndoorSvcPrereq) { // @v11.4.4
+				PPID posnode_id = getCtrlLong(CTLSEL_STQCMD_VCMD);
+				Data.Param.Z().Write(&posnode_id, sizeof(posnode_id));
+			}
 			ASSIGN_PTR(pData, Data);
 			if(!R_WholeList.Validate(pData)) {
 				ASSIGN_PTR(pData, preserve_data);
@@ -711,9 +717,15 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					case StyloQCommandList::sqbcRsrvOrderPrereq: break; // @v11.2.6
 					case StyloQCommandList::sqbcRsrvAttendancePrereq: // @v11.3.2
 						EditAttendanceFilter();
-						break; 
+						break;
 					case StyloQCommandList::sqbcRsrvPushIndexContent: // @v11.3.4
 						EditIndexingFilter();
+						break;
+					case StyloQCommandList::sqbcRsrvIndoorSvcPrereq: // @v11.4.4
+						// @todo
+						break;
+					case StyloQCommandList::sqbcGoodsInfo: // @v11.4.4
+						// @todo
 						break;
 					default: return;
 				}
@@ -740,16 +752,6 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					PPID stylopalm_id = getCtrlLong(CTLSEL_STQCMD_VCMD);
 					Data.Param.Z().Write(&stylopalm_id, sizeof(stylopalm_id));
 				}
-				/*
-				uint    pos = 0;
-				temp_buf.Z();
-				if(CmdSymbList.SearchByText(nfilt.ViewSymb, 1, &pos)) {
-					StrAssocArray::Item symb_item = CmdSymbList.at_WithoutParent(pos);
-					uint  tpos = 0;
-					if(CmdTextList.Search(symb_item.Id, &tpos))
-						temp_buf = CmdTextList.at_WithoutParent(tpos).Txt;
-				}
-				*/
 			}
 			else
 				return;
@@ -871,7 +873,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 							}
 						}
 					}
-					SETIFZ(p_filt, p_view->CreateFilt(0));
+					SETIFZ(p_filt, p_view->CreateFilt(PPView::GetDescriptionExtra(p_view->GetViewId())));
 					if(p_view->EditBaseFilt(p_filt) > 0) {
 						Data.Param.Z();
 						THROW(p_view->WriteFiltPtr(Data.Param, p_filt));
@@ -891,9 +893,10 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 			SString temp_buf;
 			bool enable_cmd_param = false;
 			bool enable_viewcmd = false;
+			bool enable_viewcombo = false;
 			switch(baseCmd) {
-				case StyloQCommandList::sqbcPersonEvent: 
-					enable_cmd_param = true; 
+				case StyloQCommandList::sqbcPersonEvent:
+					enable_cmd_param = true;
 					setLabelText(CTL_STQCMD_VCMD, "");
 					break;
 				case StyloQCommandList::sqbcReport:
@@ -908,8 +911,10 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 						{
 							setLabelText(CTL_STQCMD_VCMD, PPLoadStringS("styloqcommand_viewsymb", temp_buf));
 							SetupStrAssocCombo(this, CTLSEL_STQCMD_VCMD, CmdTextList, view_id, 0);
+							SetupWordSelector(CTLSEL_STQCMD_VCMD, 0, view_id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v11.4.4
 						}
 						enable_viewcmd = true;
+						enable_viewcombo = true;
 					}
 					break;
 				case StyloQCommandList::sqbcRsrvOrderPrereq: // @v11.2.6
@@ -919,14 +924,15 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 							Data.Param.ReadStatic(&stylopalm_id, sizeof(stylopalm_id));
 						}
 						{
-							CALLPTRMEMB(P_NfMgr, GetResourceLists(&CmdSymbList, &CmdTextList));
+							PPView::GetDescriptionList(true, &CmdSymbList, &CmdTextList);
 							setLabelText(CTL_STQCMD_VCMD, PPLoadStringS("styloqcommand_remoteorderparam", temp_buf));
 							SetupPPObjCombo(this, CTLSEL_STQCMD_VCMD, PPOBJ_STYLOPALM, stylopalm_id, OLW_CANINSERT|OLW_INSCONTEXTEDITEMS); // @v11.2.12 OLW_INSCONTEXTEDITEMS
+							SetupWordSelector(CTLSEL_STQCMD_VCMD, 0, stylopalm_id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v11.4.4
 						}
-						enable_viewcmd = true;
-						//enable_cmd_param = true; 
+						enable_viewcmd = false;
+						enable_viewcombo = true;
 					}
-					break; 
+					break;
 				case StyloQCommandList::sqbcRsrvAttendancePrereq: // @v11.3.3
 					{
 						enable_cmd_param = true;
@@ -935,10 +941,33 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				case StyloQCommandList::sqbcRsrvPushIndexContent: // @v11.3.4
 					enable_cmd_param = true;
 					break;
+				case StyloQCommandList::sqbcRsrvIndoorSvcPrereq: // @v11.4.4
+					{
+						PPID   posnode_id = 0;
+						if(Data.Param.GetAvailableSize() == sizeof(int32)) {
+							Data.Param.ReadStatic(&posnode_id, sizeof(posnode_id));
+						}
+						{
+							PPObjCashNode::SelFilt f;
+							f.Flags |= PPObjCashNode::SelFilt::fSkipPassive;
+							f.OnlyGroups = -1;
+							f.SyncGroup = 1;
+							PPView::GetDescriptionList(true, &CmdSymbList, &CmdTextList);
+							setLabelText(CTL_STQCMD_VCMD, PPLoadStringS("styloqcommand_indoorsvcparam", temp_buf));
+							SetupPPObjCombo(this, CTLSEL_STQCMD_VCMD, PPOBJ_CASHNODE, posnode_id, OLW_CANINSERT|OLW_INSCONTEXTEDITEMS, &f);
+							SetupWordSelector(CTLSEL_STQCMD_VCMD, 0, posnode_id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v11.4.4
+						}
+						enable_viewcmd = false;
+						enable_viewcombo = true;
+					}
+					break;
+				case StyloQCommandList::sqbcGoodsInfo: // @v11.4.4
+					// @todo
+					break;
 			}
 			enableCommand(cmCmdParam, enable_cmd_param);
 			enableCommand(cmOutFields, enable_viewcmd); // @v11.2.6
-			disableCtrl(CTLSEL_STQCMD_VCMD, !enable_viewcmd);
+			disableCtrl(CTLSEL_STQCMD_VCMD, !enable_viewcombo);
 		}
 		void   SetupObjGroupCombo(PPID objType)
 		{
@@ -978,12 +1007,12 @@ int PPViewStyloQCommand::EditItem(uint idx)
 		// @v11.4.3 {
 		const StyloQCommandList::Item org_item(*p_item);
 		assert(org_item.IsEq(*p_item));
-		// } @v11.4.3 
+		// } @v11.4.3
 		if(EditStyloQCommand(p_item, List) > 0) {
 			// @v11.4.3 {
 			if(!p_item->IsEq(org_item))
-				BaseState |= bsUserChangedData; 
-			// } @v11.4.3 
+				BaseState |= bsUserChangedData;
+			// } @v11.4.3
 			ok = 1;
 		}
 	}

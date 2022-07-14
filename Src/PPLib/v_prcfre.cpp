@@ -25,7 +25,7 @@ PPViewPrcBusy::~PPViewPrcBusy()
 	delete P_OCtx; // @v10.5.9
 }
 
-PPBaseFilt * PPViewPrcBusy::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewPrcBusy::CreateFilt(const void * extraPtr) const
 {
 	PrcBusyFilt * p_filt = new PrcBusyFilt;
 	if(p_filt) {

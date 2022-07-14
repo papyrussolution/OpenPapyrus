@@ -446,7 +446,7 @@ PPViewObjSyncCmp::~PPViewObjSyncCmp()
 	delete P_Ot;
 }
 
-PPBaseFilt * PPViewObjSyncCmp::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewObjSyncCmp::CreateFilt(const void * extraPtr) const
 {
 	ObjSyncCmpFilt * p_filt = new ObjSyncCmpFilt;
 	if((reinterpret_cast<long>(extraPtr)) == 1)

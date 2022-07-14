@@ -1794,7 +1794,7 @@ static int mtree_entry_create_virtual_dir(struct archive_write * a, const char *
 	struct mtree_entry * file;
 	int r;
 	ArchiveEntry * entry = archive_entry_new();
-	if(entry == NULL) {
+	if(!entry) {
 		*m_entry = NULL;
 		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;

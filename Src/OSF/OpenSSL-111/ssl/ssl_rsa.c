@@ -1030,9 +1030,7 @@ int SSL_CTX_use_serverinfo_file(SSL_CTX * ctx, const char * file)
 		OPENSSL_free(extension);
 		extension = NULL;
 	}
-
-	ret = SSL_CTX_use_serverinfo_ex(ctx, SSL_SERVERINFOV2, serverinfo,
-		serverinfo_length);
+	ret = SSL_CTX_use_serverinfo_ex(ctx, SSL_SERVERINFOV2, serverinfo, serverinfo_length);
 end:
 	/* SSL_CTX_use_serverinfo makes a local copy of the serverinfo. */
 	OPENSSL_free(name);
@@ -1043,19 +1041,16 @@ end:
 	return ret;
 }
 
-static int ssl_set_cert_and_key(SSL * ssl, SSL_CTX * ctx, X509 * x509, EVP_PKEY * privatekey,
-    STACK_OF(X509) * chain, int override)
+static int ssl_set_cert_and_key(SSL * ssl, SSL_CTX * ctx, X509 * x509, EVP_PKEY * privatekey, STACK_OF(X509) * chain, int override)
 {
 	int ret = 0;
 	size_t i;
 	int j;
-	int rv;
 	CERT * c = ssl != NULL ? ssl->cert : ctx->cert;
 	STACK_OF(X509) *dup_chain = NULL;
 	EVP_PKEY * pubkey = NULL;
-
 	/* Do all security checks before anything else */
-	rv = ssl_security_cert(ssl, ctx, x509, 0, 1);
+	int rv = ssl_security_cert(ssl, ctx, x509, 0, 1);
 	if(rv != 1) {
 		SSLerr(SSL_F_SSL_SET_CERT_AND_KEY, rv);
 		goto out;
@@ -1067,7 +1062,6 @@ static int ssl_set_cert_and_key(SSL * ssl, SSL_CTX * ctx, X509 * x509, EVP_PKEY 
 			goto out;
 		}
 	}
-
 	pubkey = X509_get_pubkey(x509); /* bumps reference */
 	if(pubkey == NULL)
 		goto out;
@@ -1091,7 +1085,6 @@ static int ssl_set_cert_and_key(SSL * ssl, SSL_CTX * ctx, X509 * x509, EVP_PKEY 
 			/* copy to pubkey from privatekey */
 			EVP_PKEY_copy_parameters(pubkey, privatekey);
 		} /* else both have parameters */
-
 		/* Copied from ssl_set_cert/pkey */
 #ifndef OPENSSL_NO_RSA
 		if((EVP_PKEY_id(privatekey) == EVP_PKEY_RSA) && ((RSA_flags(EVP_PKEY_get0_RSA(privatekey)) & RSA_METHOD_FLAG_NO_CHECK)))

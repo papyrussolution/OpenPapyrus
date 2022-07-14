@@ -1081,7 +1081,7 @@ PPViewBudget::~PPViewBudget()
 	return reinterpret_cast<void *>(Filt.Kind);
 }
 
-/*virtual*/PPBaseFilt * PPViewBudget::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * PPViewBudget::CreateFilt(const void * extraPtr) const
 {
 	BudgetFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_BUDGET, reinterpret_cast<PPBaseFilt **>(&p_filt)))

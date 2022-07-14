@@ -10,6 +10,7 @@
 #include <cppcheck-config.h>
 #include "check.h"
 #include "library.h"
+#include "suppressions.h"
 #include "token.h"
 #include "tokenize.h"
 #include "tokenlist.h"
@@ -20,6 +21,7 @@
 #include "checkclass.h"
 #include "astutils.h"
 #include "standards.h"
+#include "color.h"
 #include "errorlogger.h"
 #include "errortypes.h"
 /**

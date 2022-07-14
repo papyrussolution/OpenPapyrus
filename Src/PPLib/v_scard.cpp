@@ -305,7 +305,7 @@ PPViewSCard::~PPViewSCard()
 	delete P_TempOrd;
 }
 
-PPBaseFilt * PPViewSCard::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewSCard::CreateFilt(const void * extraPtr) const
 {
 	PPObjSCardSeries scs_obj;
 	SCardFilt * p_filt = new SCardFilt;
@@ -2479,7 +2479,7 @@ int PPViewSCardOp::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-PPBaseFilt * PPViewSCardOp::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewSCardOp::CreateFilt(const void * extraPtr) const
 {
 	SCardOpFilt * p_filt = new SCardOpFilt;
 	p_filt->SCardID = reinterpret_cast<long>(extraPtr);

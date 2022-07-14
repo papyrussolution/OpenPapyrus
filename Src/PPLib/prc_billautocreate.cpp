@@ -456,7 +456,7 @@ int PrcssrBillAutoCreate::EditParam(PPBillAutoCreateParam * pParam)
 				case PPBillAutoCreateParam::aDraftByTrfrAnlz:
 					{
 						PPViewTrfrAnlz view;
-						TrfrAnlzFilt * p_filt = (TrfrAnlzFilt *)view.CreateFilt(0);
+						TrfrAnlzFilt * p_filt = (TrfrAnlzFilt *)view.CreateFilt(PPView::GetDescriptionExtra(view.GetViewId()));
 						THROW(p_filt);
 						RVALUEPTR(*p_filt, Data.P_TaF);
 						if(view.EditBaseFilt(p_filt) > 0) {

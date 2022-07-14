@@ -2387,19 +2387,19 @@ int GoodsCore::IsCompatibleByUnit(PPID id1, PPID id2, double * pRatio)
 	return (_ratio == 0.0) ? 0 : ((!(rec1.Flags & GF_INTVAL) || ffrac(_ratio) == 0.0) ? 1 : -1);
 }
 
-int GoodsCore::IsChildOf(PPID id, PPID parent)
+bool GoodsCore::IsChildOf(PPID id, PPID parent)
 {
 	Goods2Tbl::Rec rec;
 	if(Fetch(id, &rec) > 0) {
 		PPID p = rec.ParentID;
 		if(p == parent)
-			return 1;
+			return true;
 		else if(p == 0)
-			return 0;
+			return false;
 		else
 			return IsChildOf(p, parent); // @recursion
 	}
-	return 0;
+	return false;
 }
 
 int GoodsCore::GetGroupFilt(PPID grpID, GoodsFilt * pFilt)
@@ -2452,7 +2452,7 @@ int GoodsCore::Helper_BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID, PPIDArr
 				}
 			}
 		}
-		else if(IsChildOf(id, grp) > 0)
+		else if(IsChildOf(id, grp))
 			r = 1;
 	}
 	ASSIGN_PTR(pSubGrpID, sub_grp_id);

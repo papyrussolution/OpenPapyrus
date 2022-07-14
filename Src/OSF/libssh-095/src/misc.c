@@ -412,9 +412,8 @@ void ssh_log_hexdump(const char * descr, const uchar * what, size_t len)
 	 * length. If a too long description is used, the function will fail.
 	 * */
 	char buffer[80];
-
 	/* Print description */
-	if(descr != NULL) {
+	if(descr) {
 		printed = snprintf(buffer, sizeof(buffer), "%s ", descr);
 		if(printed < 0) {
 			goto error;
@@ -557,7 +556,7 @@ error:
 const char * ssh_version(int req_version) 
 {
 	if(req_version <= LIBSSH_VERSION_INT) {
-		return SSH_STRINGIFY(LIBSSH_VERSION) GCRYPT_STRING CRYPTO_STRING MBED_STRING ZLIB_STRING;
+		return STRINGIZE(LIBSSH_VERSION) GCRYPT_STRING CRYPTO_STRING MBED_STRING ZLIB_STRING;
 	}
 	return NULL;
 }
@@ -565,9 +564,8 @@ const char * ssh_version(int req_version)
 struct ssh_list * ssh_list_new() 
 {
 	struct ssh_list * ret = (struct ssh_list *)SAlloc::M(sizeof(struct ssh_list));
-	if(!ret)
-		return NULL;
-	ret->root = ret->end = NULL;
+	if(ret)
+		ret->root = ret->end = NULL;
 	return ret;
 }
 
@@ -591,7 +589,7 @@ struct ssh_iterator * FASTCALL ssh_list_get_iterator(const struct ssh_list * lis
 
 struct ssh_iterator * ssh_list_find(const struct ssh_list * list, void * value)
 {
-	for(struct ssh_iterator * it = ssh_list_get_iterator(list); it != NULL; it = it->next)
+	for(struct ssh_iterator * it = ssh_list_get_iterator(list); it; it = it->next)
 		if(it->data==value)
 			return it;
 	return NULL;
@@ -606,7 +604,7 @@ struct ssh_iterator * ssh_list_find(const struct ssh_list * list, void * value)
 size_t ssh_list_count(const struct ssh_list * list)
 {
 	int count = 0;
-	for(struct ssh_iterator * it = ssh_list_get_iterator(list); it != NULL; it = it->next) {
+	for(struct ssh_iterator * it = ssh_list_get_iterator(list); it; it = it->next) {
 		count++;
 	}
 	return count;
@@ -983,28 +981,25 @@ char * ssh_path_expand_tilde(const char * d)
  *        %p remote port
  * @returns Expanded string.
  */
-char * ssh_path_expand_escape(ssh_session session, const char * s) {
+char * ssh_path_expand_escape(ssh_session session, const char * s) 
+{
 	char host[NI_MAXHOST];
 	char buf[MAX_BUF_SIZE];
-	char * r, * x = NULL;
+	char * x = NULL;
 	const char * p;
 	size_t i, l;
-
-	r = ssh_path_expand_tilde(s);
+	char * r = ssh_path_expand_tilde(s);
 	if(!r) {
 		ssh_set_error_oom(session);
 		return NULL;
 	}
-
 	if(strlen(r) > MAX_BUF_SIZE) {
 		ssh_set_error(session, SSH_FATAL, "string to expand too long");
 		SAlloc::F(r);
 		return NULL;
 	}
-
 	p = r;
 	buf[0] = '\0';
-
 	for(i = 0; *p != '\0'; p++) {
 		if(*p != '%') {
 escape:
@@ -1017,7 +1012,6 @@ escape:
 			buf[i] = '\0';
 			continue;
 		}
-
 		p++;
 		if(*p == '\0') {
 			break;
@@ -1075,7 +1069,6 @@ escape:
 	return sstrdup(buf);
 #undef MAX_BUF_SIZE
 }
-
 /**
  * @internal
  *
@@ -1092,19 +1085,16 @@ int ssh_analyze_banner(ssh_session session, int server)
 {
 	const char * banner;
 	const char * openssh;
-
 	if(server) {
 		banner = session->clientbanner;
 	}
 	else {
 		banner = session->serverbanner;
 	}
-
 	if(banner == NULL) {
 		ssh_set_error(session, SSH_FATAL, "Invalid banner");
 		return -1;
 	}
-
 	/*
 	 * Typical banners e.g. are:
 	 *
@@ -1114,14 +1104,11 @@ int ssh_analyze_banner(ssh_session session, int server)
 	 * SSH-2.0-something
 	 * 012345678901234567890
 	 */
-	if(strlen(banner) < 6 ||
-	    strncmp(banner, "SSH-", 4) != 0) {
+	if(strlen(banner) < 6 || strncmp(banner, "SSH-", 4) != 0) {
 		ssh_set_error(session, SSH_FATAL, "Protocol mismatch: %s", banner);
 		return -1;
 	}
-
 	SSH_LOG(SSH_LOG_PROTOCOL, "Analyzing banner: %s", banner);
-
 	switch(banner[4]) {
 		case '2':
 		    break;
@@ -1138,7 +1125,7 @@ int ssh_analyze_banner(ssh_session session, int server)
 	}
 	/* Make a best-effort to extract OpenSSH version numbers. */
 	openssh = strstr(banner, "OpenSSH");
-	if(openssh != NULL) {
+	if(openssh) {
 		char * tmp = NULL;
 		ulong major = 0UL;
 		ulong minor = 0UL;
@@ -1227,7 +1214,8 @@ static int ssh_timestamp_difference(struct ssh_timestamp * old, struct ssh_times
  * @param[in] usec number of microseconds
  * @returns milliseconds, or 10000 if user supplied values are equal to zero
  */
-int ssh_make_milliseconds(long sec, long usec) {
+int ssh_make_milliseconds(long sec, long usec) 
+{
 	int res = usec ? (usec / 1000) : 0;
 	res += (sec * 1000);
 	if(res == 0) {
@@ -1236,7 +1224,6 @@ int ssh_make_milliseconds(long sec, long usec) {
 	}
 	return res;
 }
-
 /**
  * @internal
  * @brief Checks if a timeout is elapsed, in function of a previous
@@ -1247,17 +1234,15 @@ int ssh_make_milliseconds(long sec, long usec) {
  * @returns 1 if timeout is elapsed
  *    0 otherwise
  */
-int ssh_timeout_elapsed(struct ssh_timestamp * ts, int timeout) {
+int ssh_timeout_elapsed(struct ssh_timestamp * ts, int timeout) 
+{
 	struct ssh_timestamp now;
-
 	switch(timeout) {
 		case -2: /*
 		          * -2 means user-defined timeout as available in
 		          * session->timeout, session->timeout_usec.
 		          */
-		    SSH_LOG(SSH_LOG_WARN, "ssh_timeout_elapsed called with -2. this needs to "
-			"be fixed. please set a breakpoint on misc.c:%d and "
-			"fix the caller\n", __LINE__);
+		    SSH_LOG(SSH_LOG_WARN, "ssh_timeout_elapsed called with -2. this needs to be fixed. please set a breakpoint on misc.c:%d and fix the caller\n", __LINE__);
 		    return 0;
 		case -1: /* -1 means infinite timeout */
 		    return 0;

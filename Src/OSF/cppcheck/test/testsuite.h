@@ -10,14 +10,6 @@
 #ifndef testsuiteH
 #define testsuiteH
 
-#include "color.h"
-#include "cppcheck-config.h"
-#include "errorlogger.h"
-#include <cstddef>
-#include <set>
-#include <sstream>
-#include <string>
-
 class options;
 
 class TestFixture : public ErrorLogger {

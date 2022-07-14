@@ -1433,7 +1433,7 @@ PPViewPhnSvcMonitor::~PPViewPhnSvcMonitor()
 	delete P_PsnObj;
 }
 
-PPBaseFilt * PPViewPhnSvcMonitor::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewPhnSvcMonitor::CreateFilt(const void * extraPtr) const
 {
 	PhnSvcMonitorFilt * p_filt = new PhnSvcMonitorFilt;
 	{

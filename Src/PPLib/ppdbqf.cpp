@@ -457,7 +457,7 @@ static IMPL_DBE_PROC(dbqf_world_ismemb_ii)
 	long   r = 0;
 	if(params[0].lval && params[1].lval) {
 		PPObjWorld w_obj;
-		r = w_obj.IsChildOf(params[0].lval, params[1].lval) ? 1 : 0;
+		r = static_cast<long>(w_obj.IsChildOf(params[0].lval, params[1].lval));
 	}
 	result->init(r);
 }

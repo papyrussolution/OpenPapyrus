@@ -145,7 +145,7 @@ PPViewCSess::~PPViewCSess()
 		DBRemoveTempFiles();
 }
 
-PPBaseFilt * PPViewCSess::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewCSess::CreateFilt(const void * extraPtr) const
 {
 	CSessFilt * p_filt = new CSessFilt;
 	if(extraPtr)
@@ -2266,7 +2266,7 @@ PPViewCSessExc::~PPViewCSessExc()
 	delete P_TempTbl;
 }
 
-PPBaseFilt * PPViewCSessExc::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewCSessExc::CreateFilt(const void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_CSESSEXC, &p_base_filt)) {

@@ -724,11 +724,9 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 				pSCN->ClearCDYTimeout = p_ed->ClearCDYTimeout;
 				if(pSCN->ClearCDYTimeout < 0 || pSCN->ClearCDYTimeout > 60)
 					pSCN->ClearCDYTimeout = 0;
-				// @v9.0.9 {
 				pSCN->EgaisMode    = p_ed->EgaisMode;
 				if(!oneof4(pSCN->EgaisMode, 0, 1, 2, 3))
 					pSCN->EgaisMode = 0;
-				// } @v9.0.9
 				pSCN->BnkTermType  = p_ed->BnkTermType;
 				pSCN->BnkTermLogNum = p_ed->BnkTermLogNum;
 				STRNSCPY(pSCN->BnkTermPort, p_ed->BnkTermPort);
@@ -744,9 +742,8 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		else {
 			pSCN->TouchScreenID   = 0;
 			pSCN->ExtCashNodeID   = 0;
-			// @v9.7.10 pSCN->PapyrusNodeID_unused = 0;
-			pSCN->AlternateRegID  = 0; // @v9.7.10
-			pSCN->ScaleID = 0;
+			pSCN->AlternateRegID  = 0;
+			pSCN->ScaleID         = 0;
 			pSCN->CustDispType    = 0;
 			pSCN->CustDispPort[0] = 0;
 			pSCN->CustDispFlags	  = 0;
@@ -787,7 +784,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		P_Ref->GetPropArray(Obj, id, CNPRP_CTBLLIST, &pSCN->CTblList);
 		pSCN->LocalTouchScrID = 0;
 		{
-			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPRegKeys::PrefSettings, 1/*readonly*/);
+			WinRegKey reg_key(HKEY_LOCAL_MACHINE, _PPConst.WrKey_PrefSettings, 1/*readonly*/);
 			if(reg_key.GetString(SString("LocalTouchScreen").Colon().Cat(id), temp_buf)) {
 				pSCN->LocalTouchScrID = temp_buf.ToLong();
 				if(pSCN->LocalTouchScrID) {
@@ -1084,7 +1081,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 				}
 				THROW(P_Ref->PutPropArray(Obj, *pID, CNPRP_CTBLLIST, &p_scn->CTblList, 0));
 				{
-					WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPRegKeys::PrefSettings, 0);
+					WinRegKey reg_key(HKEY_LOCAL_MACHINE, _PPConst.WrKey_PrefSettings, 0);
 					SString param_buf;
 					(param_buf = "LocalTouchScreen").Colon().Cat(*pID);
 					if(reg_key.GetString(param_buf, temp_buf) && p_scn->LocalTouchScrID == 0) {
@@ -2753,7 +2750,7 @@ int ReadEquipConfig(PPEquipConfig * pCfg)
 {
 	int    use_scale_input = 0;
 	{
-		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
+		WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
 		uint32 val = 0;
 		if(reg_key.GetDWord(RpCheckScaleInput, &val))
 			use_scale_input = BIN(val);
@@ -2966,7 +2963,7 @@ int EditEquipConfig()
 		THROW(CheckCfgRights(PPCFGOBJ_EQUIP, PPR_MOD, 0));
 		if(dlg->getDTS(&eq_cfg)) {
 			{
-				WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+				WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
 				uint32 val = BIN(eq_cfg.Flags & PPEquipConfig::fCheckScaleInput);
 				reg_key.PutDWord(RpCheckScaleInput, val);
 			}

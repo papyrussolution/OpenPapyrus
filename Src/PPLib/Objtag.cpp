@@ -1839,8 +1839,6 @@ struct SelTagDialogData {
 	SString Txt;
 };
 
-//#define GRP_COLOR 1
-
 class SelTagDialog : public TDialog {
 	DECL_DIALOG_DATA(SelTagDialogData);
 	enum {
@@ -1878,7 +1876,6 @@ public:
 		AddClusterAssoc(CTL_SELTAG_OPTION, 1, 1);
 		AddClusterAssoc(CTL_SELTAG_OPTION, 2, 2);
 		SetClusterData(CTL_SELTAG_OPTION, option);
-		// @v9.4.9 EnumID = (option == 0 && oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK)) ? Data.Txt.ToLong() : 0;
 		SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
 		SetupTag(Data.Id);
 		{

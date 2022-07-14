@@ -36,7 +36,7 @@ void * PPViewArticle::GetEditExtraParam()
 	return const_cast<ArticleFilt *>(ArObj.GetCurrFilt()); // @badcast
 }
 
-PPBaseFilt * PPViewArticle::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewArticle::CreateFilt(const void * extraPtr) const
 {
 	ArticleFilt * p_filt = new ArticleFilt;
 	p_filt->AccSheetID = reinterpret_cast<long>(extraPtr);

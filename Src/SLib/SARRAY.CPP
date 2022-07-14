@@ -3223,8 +3223,8 @@ SHandle StrAssocTree::SearchByText(const char * pTxt, int ignoreCase) const
 			result = entry_list.at(0);
 		}
 		else {
-			size_t _len = Pool.getLen(pos);
-			uint   _dlen = Pool.getDelimLen();
+			const size_t _len = Pool.getLen(pos);
+			const uint   _dlen = Pool.getDelimLen();
 			pos += (_len + _dlen);
 		}
 	}
@@ -3244,9 +3244,8 @@ bool StrAssocTree::SearchByText(const char * pTxt, CompFunc fcmp, TSVector <SHan
 		if(L.Implement_SearchStrP(pos, entry_list) > 0) {
 			assert(entry_list.getCount());
 			//result = entry_list.at(0);
-			for(uint i = 0; i < entry_list.getCount(); i++) {
-				rList.insert(&SHandle(entry_list.at(i)));
-			}
+			//for(uint i = 0; i < entry_list.getCount(); i++) {
+			SForEachVectorItem(entry_list, i) { rList.insert(&SHandle(entry_list.at(i))); }
 			result = true;
 		}
 		pos = next_pos;
@@ -3654,6 +3653,12 @@ RealArray::RealArray() : TSVector <double> ()
 
 RealArray::RealArray(const RealArray & s) : TSVector <double> (s)
 {
+}
+
+RealArray & RealArray::Z()
+{
+	clear();
+	return *this;
 }
 
 RealArray & FASTCALL RealArray::operator = (const RealArray & s)

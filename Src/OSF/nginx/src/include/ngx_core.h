@@ -264,8 +264,8 @@ ngx_str_node_t * ngx_str_rbtree_lookup(ngx_rbtree_t * rbtree, ngx_str_t * name, 
 void ngx_sort(void * base, size_t n, size_t size, ngx_int_t (* cmp)(const void *, const void *));
 
 #define ngx_qsort             qsort
-#define ngx_value_helper(n)   # n
-#define ngx_value(n)          ngx_value_helper(n)
+// @v11.4.4 #define ngx_value_helper(n)   # n // @todo replacewith(STRINGIZE)
+// @v11.4.4 #define ngx_value(n)          ngx_value_helper(n)
 //
 #include <ngx_errno.h>
 #include <ngx_atomic.h>
@@ -1930,8 +1930,7 @@ const char * ngx_conf_set_bitmask_slot(ngx_conf_t * cf, const ngx_command_t * cm
 //#include <ngx_module.h>
 //
 #define NGX_MODULE_UNSET_INDEX  (ngx_uint_t)-1
-#define NGX_MODULE_SIGNATURE_0 ngx_value(NGX_PTR_SIZE) "," ngx_value(NGX_SIG_ATOMIC_T_SIZE) "," ngx_value(NGX_TIME_T_SIZE) ","
-
+#define NGX_MODULE_SIGNATURE_0 STRINGIZE(NGX_PTR_SIZE) "," STRINGIZE(NGX_SIG_ATOMIC_T_SIZE) "," STRINGIZE(NGX_TIME_T_SIZE) ","
 #if (NGX_HAVE_KQUEUE)
 	#define NGX_MODULE_SIGNATURE_1   "1"
 #else

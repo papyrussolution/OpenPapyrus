@@ -14,19 +14,14 @@ int ViewQuotValueInfo(const PPQuot & rQuot)
 	GetObjectName(PPOBJ_QUOTKIND, rQuot.Kind, temp_buf);
 	dlg->setCtrlString(CTL_QUOT_KIND, temp_buf);
 	dlg->setCtrlString(CTL_QUOT_GOODS, GetGoodsName(rQuot.GoodsID, temp_buf));
-
 	GetLocationName(rQuot.LocID, temp_buf);
 	dlg->setCtrlString(CTL_QUOT_LOC, temp_buf);
-
 	GetArticleName(rQuot.ArID, temp_buf);
 	dlg->setCtrlString(CTL_QUOT_AR, temp_buf);
-
 	PPFormatPeriod(&rQuot.Period, temp_buf);
 	dlg->setCtrlString(CTL_QUOT_PERIOD, temp_buf);
-
 	dlg->setCtrlString(CTL_QUOT_DATETIME, temp_buf.Z().Cat(rQuot.Dtm, DATF_DMY, TIMF_HMS));
 	dlg->setCtrlString(CTL_QUOT_VALUE, temp_buf.Z().Cat(rQuot.Quot, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
-
 	temp_buf.Z();
 	if(rQuot.Flags & PPQuot::fPctOnCost)
 		temp_buf.CatChar('C');
@@ -48,18 +43,24 @@ int ViewQuotValueInfo(const PPQuot & rQuot)
 	return ok;
 }
 
-#define GRP_LOC       1
-#define GRP_ARTICLE   2
-#define GRP_GOODS     3
-#define GRP_GOODSFILT 4
+// @v11.4.4 #define GRP_LOC       1
+// @v11.4.4 #define GRP_ARTICLE   2
+// @v11.4.4 #define GRP_GOODS     3
+// @v11.4.4 #define GRP_GOODSFILT 4
 
 class QuotUpdDialog : public TDialog {
 	DECL_DIALOG_DATA(QuotUpdFilt);
+	enum {
+		ctlgroupLoc       = 1,
+		ctlgroupAr        = 2,
+		ctlgroupGoods     = 3,
+		ctlgroupGoodsFilt = 4,
+	};
 public:
 	QuotUpdDialog() : TDialog(DLG_QUOTUPD), QuotCls(PPQuot::clsGeneral), QkSpc(QkSpc.ctrInitializeWithCache)
 	{
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_QUOTUPD_GGRP, cmGoodsFilt));
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_QUOTUPD_GGRP, CTLSEL_QUOTUPD_GOODS));
+		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(0, CTLSEL_QUOTUPD_GGRP, cmGoodsFilt));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_QUOTUPD_GGRP, CTLSEL_QUOTUPD_GOODS));
 		{
 			PPIDArray ext_loc_list, * p_ext_loc_list = 0;
 			if(CConfig.Flags2 & CCFLG2_QUOT2) {
@@ -67,9 +68,9 @@ public:
 				if(qc2.GetAddressLocList(ext_loc_list) > 0)
 					p_ext_loc_list = &ext_loc_list;
 			}
-			addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_QUOTUPD_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, p_ext_loc_list));
+			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_QUOTUPD_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, p_ext_loc_list));
 		}
-		addGroup(GRP_ARTICLE, new ArticleCtrlGroup(0, 0, CTLSEL_QUOTUPD_AR, cmArList, GetSellAccSheet()));
+		addGroup(ctlgroupAr, new ArticleCtrlGroup(0, 0, CTLSEL_QUOTUPD_AR, cmArList, GetSellAccSheet()));
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -90,19 +91,19 @@ public:
 		SetupPPObjCombo(this, CTLSEL_QUOTUPD_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(qk_sel_extra));
 		{
 			LocationCtrlGroup::Rec grp_rec(&Data.LocList);
-			setGroupData(GRP_LOC, &grp_rec);
+			setGroupData(ctlgroupLoc, &grp_rec);
 		}
 		{
 			GoodsCtrlGroup::Rec ggrp_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-			setGroupData(GRP_GOODS, &ggrp_rec);
+			setGroupData(ctlgroupGoods, &ggrp_rec);
 			GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-			setGroupData(GRP_GOODSFILT, &gf_rec);
+			setGroupData(ctlgroupGoodsFilt, &gf_rec);
 		}
 		{
 			ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
-			ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
+			ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(ctlgroupAr));
 			p_ar_grp->SetAccSheet(acc_sheet_id);
-			setGroupData(GRP_ARTICLE, &ar_grp_rec);
+			setGroupData(ctlgroupAr, &ar_grp_rec);
 		}
 		AddClusterAssocDef(CTL_QUOTUPD_HOW, 0, QuotUpdFilt::byLots);
 		AddClusterAssoc(CTL_QUOTUPD_HOW, 1, QuotUpdFilt::byLastReval);
@@ -160,24 +161,24 @@ public:
 		getCtrlData(CTLSEL_QUOTUPD_KIND, &Data.QuotKindID);
 		{
 			LocationCtrlGroup::Rec grp_rec;
-			getGroupData(GRP_LOC, &grp_rec);
+			getGroupData(ctlgroupLoc, &grp_rec);
 			Data.LocList = grp_rec.LocList;
 			// getCtrlData(CTLSEL_QUOTUPD_LOC,  &Data.LocID);
 		}
 		{
 			GoodsFiltCtrlGroup::Rec gf_rec;
-			THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+			THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 			Data.GoodsGrpID = gf_rec.GoodsGrpID;
 			{
 				GoodsCtrlGroup::Rec ggrp_rec;
-				getGroupData(GRP_GOODS, &ggrp_rec);
+				getGroupData(ctlgroupGoods, &ggrp_rec);
 				SETIFZ(Data.GoodsGrpID, ggrp_rec.GrpID); // Если была выбрана динамическая группа выше, то не переопределяем ее.
 				Data.GoodsID    = ggrp_rec.GoodsID;
 			}
 		}
 		{
 			ArticleCtrlGroup::Rec ar_grp_rec;
-			getGroupData(GRP_ARTICLE, &ar_grp_rec);
+			getGroupData(ctlgroupAr, &ar_grp_rec);
 			Data.ArList = ar_grp_rec.ArList;
 			Data.ArticleID = Data.ArList.GetSingle();
 		}
@@ -328,9 +329,9 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 			SetupPPObjCombo(this, CTLSEL_QUOTUPD_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0, reinterpret_cast<void *>(qk_sel_extra));
 			{
 				ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
-				ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
+				ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(ctlgroupAr));
 				p_ar_grp->SetAccSheet(acs_id);
-				setGroupData(GRP_ARTICLE, &ar_grp_rec);
+				setGroupData(ctlgroupAr, &ar_grp_rec);
 			}
 		}
 	}
@@ -350,9 +351,9 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 			QkSpc.GetDefaults(QuotCls, qk_id, &acs_id, &new_qk_id, &qk_sel_extra);
 			if(new_qk_id == qk_id) {
 				ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
-				ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
+				ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(ctlgroupAr));
 				p_ar_grp->SetAccSheet(acs_id);
-				setGroupData(GRP_ARTICLE, &ar_grp_rec);
+				setGroupData(ctlgroupAr, &ar_grp_rec);
 			}
 		}
 	}

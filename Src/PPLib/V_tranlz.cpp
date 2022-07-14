@@ -796,7 +796,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 					double d_price = 0.0;
 					long   oprno = 0;
 					do {
-						int    skip = 0;
+						bool   skip = false;
 						THROW(PPCheckUserBreak());
 						prf_measure += 1.0;
 						if(Filt.PsnCatID || Filt.CityID) {
@@ -805,12 +805,12 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 							const PPID psn_id = ObjectToPerson(bill_rec.Object);
 							if(psn_id && PsnObj.Fetch(psn_id, &p_rec) > 0) {
 								if(Filt.PsnCatID)
-									skip = (p_rec.CatID == Filt.PsnCatID) ? 0 : 1;
+									skip = (p_rec.CatID != Filt.PsnCatID);
 								if(!skip && Filt.CityID) {
 									int    opt = PSNGETADDRO_DEFAULT;
 									PPID   addr_id = 0, dlvr_addr_id = 0;
 									PPID   city_id = 0;
-									skip = 1;
+									skip = true;
 									GetDlvrLocID(&bill_rec, &dlvr_addr_id);
 									if(Filt.Flags & TrfrAnlzFilt::fSubstDlvrAddr)
 										opt = PSNGETADDRO_DLVRADDR;
@@ -819,20 +819,20 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 									if(PsnObj.GetAddrID(p_rec.ID, dlvr_addr_id, opt, &addr_id) > 0) {
 										if(PsnObj.GetCityByAddr(addr_id, &city_id, 0, 1) > 0) {
 											// @v10.1.6 skip = (city_id == Filt.CityID) ? 0 : 1;
-											skip = w_obj.IsChildOf(city_id, Filt.CityID) ? 0 : 1; // @v10.1.6
+											skip = !w_obj.IsChildOf(city_id, Filt.CityID); // @v10.1.6
 										}
 									}
 								}
 							}
 							else
-								skip = 1;
+								skip = true;
 						}
 						if(!skip && !Filt.RcptBillList.IsEmpty()) {
-							skip = 1;
+							skip = true;
 							if(rec.LotID) {
 								ReceiptTbl::Rec org_lot_rec;
 								THROW(P_BObj->trfr->Rcpt.SearchOrigin(rec.LotID, 0, 0, &org_lot_rec));
-								skip = (Filt.RcptBillList.Search(org_lot_rec.BillID, 0) > 0) ? 0 : 1;
+								skip = (Filt.RcptBillList.Search(org_lot_rec.BillID, 0) <= 0);
 							}
 						}
 						if(!skip) {

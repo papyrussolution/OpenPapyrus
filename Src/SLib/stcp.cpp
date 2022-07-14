@@ -967,7 +967,7 @@ int DecodeMimeStringToBuffer(const SString & rLine, int contentTransfEnc, SBuffe
 	if(src_len) {
 		const char * p_src_buf = rLine.cptr();
 		if(contentTransfEnc == SFileFormat::cteQuotedPrintable) {
-			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.9
+			SString & r_temp_buf = SLS.AcquireRvlStr();
 			rLine.Decode_QuotedPrintable(r_temp_buf);
 			THROW(rBuf.Write(r_temp_buf.cptr(), r_temp_buf.Len()));
 		}

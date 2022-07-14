@@ -2093,6 +2093,10 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 		(temp_buf = brow_.BrandName).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(brow_.BrandName, temp_buf);
 		// } @v10.5.3
+		// @v11.4.4 {
+		(temp_buf = brow_.ArCode).Transf(CTRANSF_OUTER_TO_INNER);
+		STRNSCPY(brow_.ArCode, temp_buf);
+		// } @v11.4.4
 		if(mode == 1/*linkByLastInsBill*/)
 			STRNSCPY(brow_.BillID, Bills.at(Bills.getCount() - 1).ID);
 		else if(mode == 2) {

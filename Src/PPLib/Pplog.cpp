@@ -1452,7 +1452,7 @@ int STDCALL PPLogMessageList(uint fileId, const SStrCollection & rList, long opt
 
 int STDCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options)
 {
-	SString & r_msg_buf = SLS.AcquireRvlStr(); // @v9.9.10
+	SString & r_msg_buf = SLS.AcquireRvlStr();
 	PPLoadString(strGroup, strId, r_msg_buf);
 	return PPLogMessage(fileId, r_msg_buf, options);
 }

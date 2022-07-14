@@ -8,7 +8,6 @@ import static ru.petroglif.styloq.SLib.PPOBJ_STYLOQBINDERY;
 import static ru.petroglif.styloq.SLib.THROW;
 
 import android.net.Uri;
-import android.util.Log;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.ConnectionFactory;
@@ -54,19 +53,100 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.crypto.KeyAgreement;
 
 public class StyloQInterchange {
 	private ConnectionFactory ConnFactory = new ConnectionFactory();
 	StyloQApp Ctx;
+
+	public static class SvcAccsLock {
+		SvcAccsLock(final byte [] svcIdent)
+		{
+			SvcIdent = svcIdent;
+			L = new ReentrantLock(true);
+		}
+		void Lock()
+		{
+			L.lock();
+		}
+		void Unlock()
+		{
+			L.unlock();
+		}
+		private ReentrantLock L;
+		private final byte [] SvcIdent;
+	}
+	private static SvcAccsLockList SvcAccsLocker;
+	private static class SvcAccsLockList extends ArrayList <SvcAccsLock> {
+		SvcAccsLockList()
+		{
+			super();
+		}
+		public boolean Lock(final byte [] svcIdent)
+		{
+			boolean ok = false;
+			final int thrid = android.os.Process.myTid();
+			if(SLib.GetLen(svcIdent) > 0) {
+				String svc_ident_text = (svcIdent != null) ? Base64.getEncoder().encodeToString(svcIdent) : "null";
+				for(int i = 0; !ok && i < size(); i++) {
+					SvcAccsLock entry = get(i);
+					if(entry != null && SLib.AreByteArraysEqual(entry.SvcIdent, svcIdent)) {
+						SLib.LOG_i("StyloQInterchange.SvcAccsLockList.Lock(" + svc_ident_text + ") " + "tid=" + thrid + " START (on found entry)");
+						entry.Lock();
+						ok = true;
+					}
+				}
+				if(!ok) {
+					SvcAccsLock new_entry = new SvcAccsLock(svcIdent);
+					add(new_entry);
+					SLib.LOG_i("StyloQInterchange.SvcAccsLockList.Lock(" + svc_ident_text + ") " + "tid=" + thrid + " START (on new entry)");
+					new_entry.Lock();
+					ok = true;
+				}
+				{
+					if(ok) {
+						SLib.LOG_i("StyloQInterchange.SvcAccsLockList.Lock(" + svc_ident_text + ") " + "tid=" + thrid + " ok");
+					}
+					else {
+						SLib.LOG_e("StyloQInterchange.SvcAccsLockList.Lock(" + svc_ident_text + ") " + "tid=" + thrid + " fault");
+					}
+				}
+			}
+			return ok;
+		}
+		public boolean Unlock(final byte [] svcIdent)
+		{
+			boolean ok = false;
+			final int thrid = android.os.Process.myTid();
+			if(SLib.GetLen(svcIdent) > 0) {
+				for(int i = 0; !ok && i < size(); i++) {
+					SvcAccsLock entry = get(i);
+					if(entry != null && SLib.AreByteArraysEqual(entry.SvcIdent, svcIdent)) {
+						entry.Unlock();
+						ok = true;
+					}
+				}
+			}
+			{
+				String svc_ident_text = (svcIdent != null) ? Base64.getEncoder().encodeToString(svcIdent) : "null";
+				if(ok) {
+					SLib.LOG_i("StyloQInterchange.SvcAccsLockList.Unlock(" + svc_ident_text + ") " + "tid="+ thrid + " ok");
+				}
+				else {
+					SLib.LOG_e("StyloQInterchange.SvcAccsLockList.Unlock(" + svc_ident_text + ") " + "tid="+ thrid + " entry not found");
+				}
+			}
+			return ok;
+		}
+	}
 	//
 	// Descr: Возвращает вербальный результат, содержащийся в json-ответе сервиса на запрос
 	// Returns:
 	//   >0 - объект jsObj содержит явную декларация result=ok
 	//    0 - объект jsObj содержит явную декларация result=error
 	//   <0 - объект jsObj == null либо не содержит явной декларации result=error|ok.
-
 	//
 	public static int GetReplyResult(JSONObject jsObj)
 	{
@@ -107,6 +187,8 @@ public class StyloQInterchange {
 	public StyloQInterchange(StyloQApp appCtx)
 	{
 		Ctx = appCtx;
+		if(SvcAccsLocker == null)
+			SvcAccsLocker = new SvcAccsLockList();
 	}
 
 	public static class ThreadEngine_DocStatusPoll implements Runnable {
@@ -547,7 +629,7 @@ public class StyloQInterchange {
 						StyloQDatabase.SecStoragePacket corr_pack = db.GetPeerEntry(svc_pack.Rec.CorrespondID);
 						THROW(corr_pack.Rec.Kind == StyloQDatabase.SecStoragePacket.kSession, ppstr2.PPERR_SQ_WRONGDBITEMKIND);
 						//byte [] sess_secret = rtb.Sess.Get(SecretTagPool.tagSecret);
-						if(/*SLib.GetLen(sess_secret) > 0 &&*/!StyloQInterchange.IsExpired(corr_pack.Rec.Expiration)) {
+						if(!StyloQInterchange.IsExpired(corr_pack.Rec.Expiration)) {
 							byte[] temp_bch = svc_pack.Pool.Get(SecretTagPool.tagClientIdent);
 							rtb.Sess.Put(SecretTagPool.tagClientIdent, temp_bch);
 							int cid_list[] = {SecretTagPool.tagSessionPrivateKey, SecretTagPool.tagSessionPublicKey,
@@ -568,7 +650,7 @@ public class StyloQInterchange {
 				}
 				{
 					rtb.Uuid = UUID.randomUUID();
-					Log.d("rtb.Uuid = UUID.randomUUID()", rtb.Uuid.toString());
+					SLib.LOG_d("rtb.Uuid = UUID.randomUUID() " + rtb.Uuid.toString());
 					// Включение этого идентификатора в общий пул сомнительно. Дело в том, что
 					// этот идентификатор обрабатывается на ранней фазе получения сообщения стороной диалога
 					// когда общий пакет сообщения еще не распакован (не расшифрован и т.д.)
@@ -579,6 +661,7 @@ public class StyloQInterchange {
 				}
 			}
 		} catch(URISyntaxException exn) {
+			SLib.LOG_e("InitRoundTripBlock exception " + exn.getMessage());
 			new StyloQException(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
 		}
 	}
@@ -614,6 +697,7 @@ public class StyloQInterchange {
 					//ok = 1;
 					if(!tp.CheckRepError(Ctx)) {
 						;  // @todo error
+						SLib.LOG_e("Session_ClientRequest tcp " + "!tp.CheckRepError(Ctx)");
 					}
 					else {
 						if(tp.H.Type == PPSCMD_SQ_SESSION && (tp.H.Flags & JobServerProtocol.hfAck) != 0) {
@@ -621,6 +705,10 @@ public class StyloQInterchange {
 							//THROW(rpe_regular.SetupStyloQRpc(sess_pub_key, other_sess_public, 0));
 							// Устанавливаем факторы RoundTrimBlock, которые нам понадобяться при последующих обменах
 							ok = true; // SUCCESS!
+						}
+						else {
+							;  // @todo error
+							SLib.LOG_e("Session_ClientRequest tcp " + "tp.H.Type == PPSCMD_SQ_SESSION && (tp.H.Flags & JobServerProtocol.hfAck) != 0");
 						}
 					}
 				}
@@ -646,6 +734,7 @@ public class StyloQInterchange {
 					tp.Read(resp.getBody(), null);
 					if(!tp.CheckRepError(Ctx)) {
 						;  // @todo error
+						SLib.LOG_e("Session_ClientRequest mqb " + !tp.CheckRepError(Ctx));
 					}
 					else if(tp.H.Type == PPSCMD_SQ_SESSION && (tp.H.Flags & JobServerProtocol.hfAck) != 0) {
 						// Ключ шифрования сессии есть и у нас и у сервиса!
@@ -656,9 +745,14 @@ public class StyloQInterchange {
 						SetRoundTripBlockReplyValues(rtb, mqbc, rpe_regular, reply_rpe);
 						ok = true; // SUCCESS!
 					}
+					else {
+						;  // @todo error
+						SLib.LOG_e("Session_ClientRequest mqb " + "tp.H.Type == PPSCMD_SQ_SESSION && (tp.H.Flags & JobServerProtocol.hfAck) != 0");
+					}
 				}
 			}
 		} catch(URISyntaxException exn) {
+			SLib.LOG_e("Session_ClientRequest exception " + exn.getMessage());
 			new StyloQException(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
 		}
 		finally {
@@ -1648,7 +1742,7 @@ public class StyloQInterchange {
 		String CommandJson;
 		ArrayList <DocumentRequestEntry> DocReqList; // Массив структур для синхронизации состояний документов с сервисом
 	}
-	private static int QueryConfigAndSetFaceIfNeeded(StyloQApp appCtx, StyloQInterchange ic, StyloQInterchange.RoundTripBlock rtb) throws StyloQException
+	private static int QueryConfigAndSetFaceIfNeeded(StyloQApp appCtx, StyloQInterchange ic, StyloQInterchange.RoundTripBlock rtb, boolean debugForce) throws StyloQException
 	{
 		int    result = -1;
 		if(rtb != null && rtb.InnerSvcID > 0) {
@@ -1695,7 +1789,7 @@ public class StyloQInterchange {
 								do_query_cfg = false;
 						}
 					}
-					if(do_query_face || do_query_cfg) {
+					if(debugForce || do_query_face || do_query_cfg) {
 						JSONObject js_query = new JSONObject();
 						if(jsobj_my_face_to_transmit != null) {
 							String jstxt_my_face_to_transmit = jsobj_my_face_to_transmit.toString();
@@ -1815,8 +1909,14 @@ public class StyloQInterchange {
 	//
 	private static StyloQApp.InterchangeResult Helper_DoInterchange2(StyloQApp appCtx, DoInterchangeParam param)
 	{
+
+		SLib.LOG_i("Helper_DoInterchange2: thread=" + android.os.Process.myTid());
 		StyloQApp.InterchangeResult result = null; //new InterchangeResult();
 		boolean debug_mark = false;
+		boolean svc_accs_locked = false;
+		byte [] __svc_id = null;
+		String __svc_id_text = "null";//(svcIdent != null) ? Base64.getEncoder().encodeToString(svcIdent) : "null";
+		StyloQInterchange ic = null;
 		StyloQInterchange.RoundTripBlock rtb = null;
 		try {
 			StyloQDatabase dbs = appCtx.GetDB();
@@ -1824,12 +1924,15 @@ public class StyloQInterchange {
 			THROW(SLib.GetLen(param.SvcIdent) > 0, 0);
 			THROW(SLib.GetLen(param.AccsPoint) > 0, 0);
 			THROW(dbs != null, 0); // @internal error
+			__svc_id = param.SvcIdent;
+			__svc_id_text = (__svc_id != null) ? Base64.getEncoder().encodeToString(__svc_id) : "null";
 			//long own_peer_id = dbs.SetupPeerInstance();
 			//if(own_peer_id > 0) {
 			boolean do_req_cmd = false;
+			boolean do_query_config_if_needed = false;
 			//final int test_count = 100; // @debug
 			//int   test_count_ok = 0; // @debug
-			StyloQInterchange ic = new StyloQInterchange(appCtx);
+			ic = new StyloQInterchange(appCtx);
 			//const char * p_svc_ident_mime = "Lkekoviu1J2nw1O7/R66LYvpAtA="; // pft
 			//ConnFactory.setUri("amqp://Admin:CX8U3kM9wTQb@213.166.70.221/styloq");
 			//byte[] svc_ident = Base64.getDecoder().decode("Lkekoviu1J2nw1O7/R66LYvpAtA=");
@@ -1853,9 +1956,18 @@ public class StyloQInterchange {
 				}
 			}*/
 			boolean is_current_sess_valid = false;
+			// @v11.4.4 {
+			int uriprot = SLib.GetUriSchemeId(rtb.Url.getScheme());
+			if(uriprot == SLib.uripprotAMQP || uriprot == SLib.uripprotAMQPS) {
+				if(StyloQInterchange.SvcAccsLocker.Lock(__svc_id)) {
+					svc_accs_locked = true;
+				}
+			}
+			// } @v11.4.4
 			if(rtb.InnerSessID > 0) {
 				if(ic.Session_ClientRequest(rtb)) {
-					QueryConfigAndSetFaceIfNeeded(appCtx, ic, rtb);
+					// @v11.4.4 (moved down) QueryConfigAndSetFaceIfNeeded(appCtx, ic, rtb);
+					do_query_config_if_needed = true; // @v11.4.4
 					do_req_cmd = true;
 					is_current_sess_valid = true;
 				}
@@ -1867,7 +1979,8 @@ public class StyloQInterchange {
 				// Либо нет сохраненной сессии, либо при попытке соединится с ней что-то пошло не так
 				if(rtb.InnerSvcID > 0) {
 					if(ic.Verification_ClientRequest(dbs, rtb)) {
-						QueryConfigAndSetFaceIfNeeded(appCtx, ic, rtb);
+						// @v11.4.4 (moved down) QueryConfigAndSetFaceIfNeeded(appCtx, ic, rtb);
+						do_query_config_if_needed = true; // @v11.4.4
 						do_req_cmd = true;
 						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "Verification", null);
 					}
@@ -1898,6 +2011,11 @@ public class StyloQInterchange {
 						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent,"KexClientRequest", null);
 				}
 			}
+			// @v11.4.4 {
+			if(do_query_config_if_needed) {
+				QueryConfigAndSetFaceIfNeeded(appCtx, ic, rtb, /*true*/false);
+			}
+			// } @v11.4.4
 			if(do_req_cmd && SLib.GetLen(param.CommandJson) > 0) {
 				SecretTagPool rpool = ic.Command_ClientRequest(rtb, param.CommandJson, null);
 				if(rpool != null) {
@@ -1942,7 +2060,7 @@ public class StyloQInterchange {
 												local_rep_result = StyloQApp.SvcQueryResult.ERROR;
 											}
 											else {
-												long rep_id = js_doc_data.optLong("document-id", 0);
+												final long rep_id = js_doc_data.optLong("document-id", 0);
 												if(rep_id > 0) {
 													UUID remote_doc_uuid = SLib.strtouuid(js_doc_data.optString("document-uuid", null));
 													if(remote_doc_uuid != null) {
@@ -1954,9 +2072,21 @@ public class StyloQInterchange {
 														dbs.AcceptDocumentRequestList(param.DocReqList);
 													}
 												}
+												else {
+													SLib.LOG_d("Helper_DoInterchange2: rep_id <= 0");
+												}
 											}
 										}
+										else {
+											SLib.LOG_d("Helper_DoInterchange2: js_doc_data == null");
+										}
 									}
+									else {
+										SLib.LOG_d("Helper_DoInterchange2: SLib.GetLen(text_doc_data) <= 0");
+									}
+								}
+								else {
+									SLib.LOG_d("Helper_DoInterchange2: param.DocReqList == null || param.DocReqList.size() <= 0");
 								}
 							}
 							else if(SLib.GetLen(raw_doc_decl) > 0) {
@@ -1968,11 +2098,20 @@ public class StyloQInterchange {
 									byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
 									if(doc_ident != null)
 										new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypReport, 0, doc_ident, svc_id, rpool);
+									else
+										SLib.LOG_d("Helper_DoInterchange2: doc_ident == null");
+								}
+								else {
+									SLib.LOG_d("Helper_DoInterchange2: unprocessed branch (param.OriginalCmdItem.BaseCmdId)");
 								}
 							}
 							else {
+								SLib.LOG_d("Helper_DoInterchange2: SLib.GetLen(raw_doc_decl) <= 0");
 								; // ?
 							}
+						}
+						else {
+							SLib.LOG_d("Helper_DoInterchange2: SLib.GetLen(raw_doc_data) <= 0");
 						}
 						if(new_doc_id > 0) {
 							doc_ref = new StyloQCommand.DocReference();
@@ -1984,12 +2123,16 @@ public class StyloQInterchange {
 						else
 							result = new StyloQApp.InterchangeResult(local_rep_result, param, rpool);
 					}
-					else if(param.RetrActivity_ != null)
-						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param, /*doc_ref*/rpool);
-					else
-						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "Command", /*doc_ref*/rpool);
+					else {
+						SLib.LOG_d("Helper_DoInterchange2: default processing on rpool != null");
+						if(param.RetrActivity_ != null)
+							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param, /*doc_ref*/rpool);
+						else
+							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "Command", /*doc_ref*/rpool);
+					}
 				}
 				else {
+					SLib.LOG_e("Helper_DoInterchange2: rpool == null");
 					if(param.OriginalCmdItem != null || param.RetrActivity_ != null)
 						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param, /*reply_pool*/null);
 					else
@@ -1998,15 +2141,24 @@ public class StyloQInterchange {
 			}
 			//}
 		} catch(StyloQException exn) {
+			SLib.LOG_e("Helper_DoInterchange2: StyloQException " + exn.GetMessage(appCtx));
 			if(param.RetrActivity_ != null)
 				result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn.GetMessage(appCtx));
 			else
 				result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn.GetMessage(appCtx));
 		} catch(JSONException exn) {
+			SLib.LOG_e("Helper_DoInterchange2: JSONException " + exn.getMessage());
 			StyloQException stq_exn = new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
 			String exn_msg = stq_exn.GetMessage(appCtx);
 			result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn_msg);
 		} finally {
+			// @v11.4.4 {
+			if(svc_accs_locked) {
+				assert(ic != null);
+				SLib.LOG_i("Helper_DoInterchange2: Try to unlock " + __svc_id_text);
+				StyloQInterchange.SvcAccsLocker.Unlock(__svc_id);
+			}
+			// } @v11.4.4
 			if(rtb != null) {
 				rtb.Close();
 				rtb = null;

@@ -29,7 +29,7 @@ PPViewGoodsBillCmp::~PPViewGoodsBillCmp()
 	delete P_TempTbl;
 }
 
-PPBaseFilt * PPViewGoodsBillCmp::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGoodsBillCmp::CreateFilt(const void * extraPtr) const
 {
 	GoodsBillCmpFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_GOODSBILLCMP, reinterpret_cast<PPBaseFilt **>(&p_filt))) {

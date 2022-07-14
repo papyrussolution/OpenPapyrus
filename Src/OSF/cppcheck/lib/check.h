@@ -44,37 +44,27 @@ class CPPCHECKLIB Check {
 public:
 	/** This constructor is used when registering the CheckClass */
 	explicit Check(const std::string &aname);
-
 	/** This constructor is used when running checks. */
 	Check(const std::string &aname, const Tokenizer * tokenizer, const Settings * settings, ErrorLogger * errorLogger)
 		: mTokenizer(tokenizer), mSettings(settings), mErrorLogger(errorLogger), mName(aname) {
 	}
-
-	virtual ~Check() {
+	virtual ~Check() 
+	{
 		if(!mTokenizer)
 			instances().remove(this);
 	}
-
 	Check(const Check &) = delete;
 	Check& operator=(const Check &) = delete;
-
 	/** List of registered check classes. This is used by Cppcheck to run checks and generate documentation */
 	static std::list<Check *> &instances();
-
 	/** run checks, the token list is not simplified */
 	virtual void runChecks(const Tokenizer *, const Settings *, ErrorLogger *) = 0;
-
 	/** get error messages */
 	virtual void getErrorMessages(ErrorLogger * errorLogger, const Settings * settings) const = 0;
-
 	/** class name, used to generate documentation */
-	const std::string& name() const {
-		return mName;
-	}
-
+	const std::string& name() const { return mName; }
 	/** get information about this class, used to generate documentation */
 	virtual std::string classInfo() const = 0;
-
 	/**
 	 * Write given error to errorlogger or to out stream in xml format.
 	 * This is for for printout out the error list with --errorlist

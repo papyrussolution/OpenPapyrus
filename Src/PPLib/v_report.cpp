@@ -35,7 +35,7 @@ PPViewReport::~PPViewReport()
 	SaveChanges(1);
 }
 
-PPBaseFilt * PPViewReport::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewReport::CreateFilt(const void * extraPtr) const
 {
 	ReportFilt * p_filt = new ReportFilt;
 	return p_filt;

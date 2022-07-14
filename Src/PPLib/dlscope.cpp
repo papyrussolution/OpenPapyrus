@@ -263,16 +263,16 @@ int DlScope::GetChildList(int kind, int recursive, LongArray * pList) const
 	return 1;
 }
 
-int FASTCALL DlScope::IsChildOf(const DlScope * pOwner) const
+bool FASTCALL DlScope::IsChildOf(const DlScope * pOwner) const
 {
 	if(pOwner) {
 		uint   i = pOwner->ChildList.getCount();
 		if(i) do {
 			if(this == pOwner->ChildList.at(--i))
-				return 1;
+				return true;
 		} while(i);
 	}
-	return 0;
+	return false;
 }
 
 int DlScope::EnumChilds(uint * pIdx, DlScope ** ppScope) const

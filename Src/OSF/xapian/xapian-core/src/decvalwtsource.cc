@@ -47,11 +47,11 @@ Xapian::DecreasingValueWeightPostingSource * DecreasingValueWeightPostingSource:
 	    !unpack_uint_last(&pos, end, &new_range_end)) {
 		unpack_throw_serialisation_error(pos);
 	}
-	return new DecreasingValueWeightPostingSource(new_slot, new_range_start,
-		   new_range_end);
+	return new DecreasingValueWeightPostingSource(new_slot, new_range_start, new_range_end);
 }
 
-void DecreasingValueWeightPostingSource::init(const Xapian::Database & db_) {
+void DecreasingValueWeightPostingSource::init(const Xapian::Database & db_) 
+{
 	Xapian::ValueWeightPostingSource::init(db_);
 	if(range_end == 0 || get_database().get_doccount() <= range_end)
 		items_at_end = false;
@@ -86,7 +86,8 @@ void DecreasingValueWeightPostingSource::skip_if_in_range(double min_wt)
 	}
 }
 
-void DecreasingValueWeightPostingSource::next(double min_wt) {
+void DecreasingValueWeightPostingSource::next(double min_wt) 
+{
 	if(get_maxweight() < min_wt) {
 		done();
 		return;
@@ -95,8 +96,8 @@ void DecreasingValueWeightPostingSource::next(double min_wt) {
 	skip_if_in_range(min_wt);
 }
 
-void DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
-    double min_wt) {
+void DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid, double min_wt) 
+{
 	if(get_maxweight() < min_wt) {
 		done();
 		return;
@@ -105,8 +106,8 @@ void DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 	skip_if_in_range(min_wt);
 }
 
-bool DecreasingValueWeightPostingSource::check(Xapian::docid min_docid,
-    double min_wt) {
+bool DecreasingValueWeightPostingSource::check(Xapian::docid min_docid, double min_wt) 
+{
 	if(get_maxweight() < min_wt) {
 		done();
 		return true;
@@ -118,6 +119,4 @@ bool DecreasingValueWeightPostingSource::check(Xapian::docid min_docid,
 	return valid;
 }
 
-std::string DecreasingValueWeightPostingSource::get_description() const {
-	return "DecreasingValueWeightPostingSource()";
-}
+std::string DecreasingValueWeightPostingSource::get_description() const { return "DecreasingValueWeightPostingSource()"; }

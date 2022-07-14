@@ -1161,17 +1161,12 @@ void TemplateSimplifier::useDefaultArgumentValues(TokenAndName &declaration)
 				if(!it->end) {
 					if(mSettings->debugwarnings) {
 						const std::list<const Token*> locationList(1, it->eq);
-						const ErrorMessage errmsg(locationList, &mTokenizer->list,
-						    Severity::debug,
-						    "noparamend",
-						    "TemplateSimplifier couldn't find end of template parameter.",
-						    Certainty::normal);
+						const ErrorMessage errmsg(locationList, &mTokenizer->list, Severity::debug, "noparamend", "TemplateSimplifier couldn't find end of template parameter.", Certainty::normal);
 						if(mErrorLogger && mSettings->severity.isEnabled(Severity::debug))
 							mErrorLogger->reportErr(errmsg);
 					}
 					break;
 				}
-
 				if((usedpar + count) && usedpar <= (instantiationArgs.size() + count)) {
 					tok->insertToken(",");
 					tok = tok->next();
@@ -3161,10 +3156,7 @@ bool TemplateSimplifier::simplifyTemplateInstantiations(const TokenAndName &temp
 					typeStringsUsedInTemplateInstantiation) + ">";
 
 				const std::list<const Token *> callstack(1, instantiation.token());
-				const ErrorMessage errmsg(callstack,
-				    &mTokenizer->list,
-				    Severity::information,
-				    "templateRecursion",
+				const ErrorMessage errmsg(callstack, &mTokenizer->list, Severity::information, "templateRecursion",
 				    "TemplateSimplifier: max template recursion ("
 				    + MathLib::toString(mSettings->maxTemplateRecursion)
 				    + ") reached for template '"+typeForNewName+"'. You might want to limit Cppcheck recursion.",
@@ -4014,20 +4006,13 @@ void TemplateSimplifier::simplifyTemplates(const std::time_t maxtime,
 			}
 		}
 	}
-
 	if(passCount == passCountMax) {
 		if(mSettings->debugwarnings) {
 			const std::list<const Token*> locationList(1, mTokenList.front());
-			const ErrorMessage errmsg(locationList, &mTokenizer->list,
-			    Severity::debug,
-			    "debug",
-			    "TemplateSimplifier: pass count limit hit before simplifications were finished.",
-			    Certainty::normal);
-			if(mErrorLogger)
-				mErrorLogger->reportErr(errmsg);
+			const ErrorMessage errmsg(locationList, &mTokenizer->list, Severity::debug, "debug", "TemplateSimplifier: pass count limit hit before simplifications were finished.", Certainty::normal);
+			CALLPTRMEMB(mErrorLogger, reportErr(errmsg));
 		}
 	}
-
 	// Tweak uninstantiated C++17 fold expressions (... && args)
 	if(mSettings->standards.cpp >= Standards::CPP17) {
 		bool simplify = false;

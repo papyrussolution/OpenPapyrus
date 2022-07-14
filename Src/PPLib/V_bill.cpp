@@ -283,15 +283,18 @@ void FASTCALL BillFilt::SetupBrowseBillsType(BrowseBillsType bbt)
 	Bbt = bbt; // @v10.9.4
 }
 
-#define GRP_LOC 1
+// @v11.4.4 #define GRP_LOC 1
 
 class BillFiltDialog : public WLDialog {
+	enum {
+		ctlgroupLoc = 1
+	};
 public:
 	BillFiltDialog(uint dlgID, const char * pAddText) : WLDialog(dlgID, CTL_BILLFLT_LABEL)
 	{
 		Data.Sel = -1;
 		setSubTitle(pAddText);
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_BILLFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_BILLFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
 		SetupCalPeriod(CTLCAL_BILLFLT_PERIOD, CTL_BILLFLT_PERIOD);
 		SetupCalPeriod(CTLCAL_BILLFLT_DUEPERIOD, CTL_BILLFLT_DUEPERIOD);
 	}
@@ -561,7 +564,7 @@ void BillFiltDialog::SetupLocationCombo()
 {
 	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 	PPID   op_type_id = GetOpType(Data.OpID, 0);
-	LocationCtrlGroup * p_cgrp = static_cast<LocationCtrlGroup *>(getGroup(GRP_LOC));
+	LocationCtrlGroup * p_cgrp = static_cast<LocationCtrlGroup *>(getGroup(ctlgroupLoc));
 	if(p_cgrp) {
 		if(op_type_id == PPOPT_DRAFTTRANSIT) {
 			PPIDArray loc_list;
@@ -570,7 +573,7 @@ void BillFiltDialog::SetupLocationCombo()
 		}
 		else
 			p_cgrp->SetExtLocList(0);
-		setGroupData(GRP_LOC, &loc_rec);
+		setGroupData(ctlgroupLoc, &loc_rec);
 	}
 }
 
@@ -680,7 +683,7 @@ int BillFiltDialog::getDTS(BillFilt * pFilt)
 	ushort v;
 	DateRange temp_period = Data.Period;
 	LocationCtrlGroup::Rec loc_rec;
-	getGroupData(GRP_LOC, &loc_rec);
+	getGroupData(ctlgroupLoc, &loc_rec);
 	Data.LocList = loc_rec.LocList;
 	THROW(GetPeriodInput(this, CTL_BILLFLT_PERIOD, &temp_period));
 	THROW(GetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod));
@@ -960,22 +963,24 @@ int PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 	return ok;
 }
 
-/*virtual*/PPBaseFilt * PPViewBill::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * PPViewBill::CreateFilt(const void * extraPtr) const
 {
 	BillFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_BILL, reinterpret_cast<PPBaseFilt **>(&p_filt))) {
 		const PPConfig & r_cfg = LConfig;
-		BillFilt::FiltExtraParam * p = extraPtr ? static_cast<BillFilt::FiltExtraParam *>(extraPtr) : 0;
-		if(p && p->SetupValues) {
-			p_filt->Period.SetDate(r_cfg.OperDate);
-			p_filt->LocList.Add(r_cfg.Location);
-			p_filt->Bbt   = p->Bbt;
-			if(p_filt->Bbt == bbtGoodsBills) {
-				if(DS.CheckExtFlag(ECF_GOODSBILLFILTSHOWDEBT))
-					p_filt->Flags |= BillFilt::fShowDebt;
+		const BillFilt::FiltExtraParam * p = extraPtr ? static_cast<const BillFilt::FiltExtraParam *>(extraPtr) : 0;
+		if(p) {
+			p_filt->Bbt = p->Bbt;
+			if(p->SetupValues) {
+				p_filt->Period.SetDate(r_cfg.OperDate);
+				p_filt->LocList.Add(r_cfg.Location);
+				if(p_filt->Bbt == bbtGoodsBills) {
+					if(DS.CheckExtFlag(ECF_GOODSBILLFILTSHOWDEBT))
+						p_filt->Flags |= BillFilt::fShowDebt;
+				}
+				else if(p_filt->Bbt == bbtDraftBills)
+					p_filt->Ft_ClosedOrder = -1;
 			}
-			else if(p_filt->Bbt == bbtDraftBills)
-				p_filt->Ft_ClosedOrder = -1;
 		}
 		PPAccessRestriction accsr;
 		const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
@@ -2957,7 +2962,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 		}
 		void   storeFlags()
 		{
-			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 0);
+			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 0);
 			SString param, val;
 			long   flags = 0;
 			GetClusterData(CTL_SELBBSMPL_SAMECODE, &flags);
@@ -2967,7 +2972,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 		}
 		void   restoreFlags()
 		{
-			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1);
+			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 1);
 			SString param;
 			SString temp_buf;
 			PPID   op_id = getCtrlLong(CTLSEL_SELBBSMPL_OP);
@@ -6098,14 +6103,16 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 //
 int STDCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 {
-	int    ok = -1, r = 0, view_in_use = 0;
+	int    ok = -1;
+	int    r = 0;
+	int    view_in_use = 0;
 	int    modeless = GetModelessStatus(asModeless);
 	PPView * p_v = 0;
 	PPBaseFilt * p_flt = 0;
     PPViewBrowser * p_prev_win = 0;
 	THROW(PPCheckDatabaseChain());
 	THROW(PPView::CreateInstance(PPVIEW_BILL, &p_v));
-	THROW(p_flt = p_v->CreateFilt(0));
+	THROW(p_flt = p_v->CreateFilt(PPView::GetDescriptionExtra(p_v->GetViewId())));
 	if(modeless)
 		p_prev_win = static_cast<PPViewBrowser *>(PPFindLastBrowser());
 	if(pFilt) {
@@ -6146,7 +6153,7 @@ int STDCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 	PPView * p_v = 0;
 	if(poolType && poolOwnerID) {
 		THROW(PPView::CreateInstance(PPVIEW_BILL, &p_v));
-		THROW(p_flt = p_v->CreateFilt(0));
+		THROW(p_flt = p_v->CreateFilt(PPView::GetDescriptionExtra(p_v->GetViewId())));
 		{
 			BillFilt * p_bfilt = static_cast<BillFilt *>(p_flt);
 			p_bfilt->AssocID = poolType;

@@ -315,6 +315,7 @@ void WordSel_ExtraBlock::Init(uint inputCtl, HWND hInputDlg, TDialog * pOutDlg, 
 int    WordSel_ExtraBlock::Search(long id, SString & rBuf) { return -1; }
 int    WordSel_ExtraBlock::SearchText(const char * pText, long * pID, SString & rBuf) { return -1; }
 void   WordSel_ExtraBlock::SetTextMode(bool v) { CtrlTextMode = v; }
+/*virtual*/StrAssocArray * WordSel_ExtraBlock::GetRecentList() { return 0; }
 
 void WordSel_ExtraBlock::SetData(long id, const char * pText)
  {
@@ -355,11 +356,6 @@ int WordSel_ExtraBlock::GetData(long * pId, SString & rBuf)
 	return 1;
 }
 
-/*virtual*/StrAssocArray * WordSel_ExtraBlock::GetRecentList()
-{
-	return 0;
-}
-
 /*virtual*/StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 {
 	StrAssocArray * p_list = 0;
@@ -386,10 +382,7 @@ int WordSel_ExtraBlock::GetData(long * pId, SString & rBuf)
 {
 }
 
-int WordSelector::CheckActive() const { return IsActive; }
-int WordSelector::CheckVisible() const { return IsVisible; }
-
-WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : IsActive(0), IsVisible(0), P_Blk(pBlk)
+WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : WsState(0), P_Blk(pBlk)
 {
 	P_Def = new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtOwnerDraw);
 	P_Lb = new WordSelectorSmartListBox(TRect(0, 0, 11, 11), P_Def);
@@ -402,11 +395,16 @@ WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : IsActive(0), IsVisible(0
 	Ptb.SetColor(clrBkgnd,  GetColorRef((P_Blk && P_Blk->Flags & WordSel_ExtraBlock::fFreeText) ? SClrAntiquewhite : SClrYellow));
 }
 
+bool WordSelector::CheckActive() const { return LOGIC(WsState & wssActive); }
+bool WordSelector::CheckVisible() const { return LOGIC(WsState & wssVisible); }
+int  WordSelector::ViewRecent() { return Helper_PullDown(0, 1); }
+int  WordSelector::Refresh(const char * pText) { return Helper_PullDown(pText, 0); }
+
 int WordSelector::Activate()
 {
 	int    ok = -1;
-	if(IsVisible) {
-		IsActive = 1;
+	if(WsState & wssVisible) {
+		WsState |= wssActive;
 		::SetFocus(H());
 		ok = 1;
 	}
@@ -415,7 +413,7 @@ int WordSelector::Activate()
 
 void WordSelector::ActivateInput()
 {
-	IsActive = 0;
+	WsState &= ~wssActive;
 	SetFocus(GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl));
 }
 
@@ -458,8 +456,7 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 				MoveWindow(hw_resize_base, 0);
 			}
 			if(!CheckVisible()) {
-				IsVisible = 1;
-				IsActive  = 1;
+				WsState |= (wssVisible|wssActive);
 				if(APPL->P_DeskTop->execView(this) == cmOK) {
 					long   id = 0L;
 					getResult(&id);
@@ -468,8 +465,7 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 					}
 					else
 						getString(temp_buf);
-					IsActive  = 0;
-					IsVisible = 0;
+					WsState &= ~(wssVisible|wssActive);
 					P_Blk->SetData(id, temp_buf);
 					if(P_Blk->P_OutDlg && P_Blk->P_OutDlg->IsConsistent() && P_Blk->OutCtlId) { // @v9.4.11 P_Blk->P_OutDlg->IsConsistent()
 						TView * p_v = P_Blk->P_OutDlg->getCtrlView(P_Blk->OutCtlId);
@@ -485,7 +481,7 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 					}
 				}
 				else
-					IsVisible = 0;
+					WsState &= ~wssVisible;
 			}
 			else
 				Draw_();
@@ -495,20 +491,10 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 			ZDELETE(p_data); // @v10.7.7
 			::SetFocus(H());
 			TView::messageCommand(this, cmCancel);
-			IsVisible = 0;
+			WsState &= ~wssVisible;
 		}
 	}
 	return 1;
-}
-
-int WordSelector::ViewRecent()
-{
-	return Helper_PullDown(0, 1);
-}
-
-int WordSelector::Refresh(const char * pText)
-{
-	return Helper_PullDown(pText, 0);
 }
 
 IMPL_HANDLE_EVENT(WordSelector)

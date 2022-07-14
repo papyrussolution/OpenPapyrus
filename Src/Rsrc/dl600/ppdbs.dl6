@@ -530,11 +530,11 @@ table Person {           //
 	long   Position;    // Должность            ->?
 	// @v11.1.12 note   Memo[512];   // Примечание @v6.2.2 [128]-->[252] @v7.0.0 [252]-->[512]
 index:
-	ID (unique);
-	Name acs (dup mod);
-	CatID, Name (anysegnull dup mod);  // @v6.2.2
-	MainLoc (anysegnull dup mod);      // @v6.2.2
-	RLoc (anysegnull dup mod);         // @v6.2.2
+	ID (unique);                       // #0
+	Name acs (dup mod);                // #1
+	CatID, Name (anysegnull dup mod);  // #2 @v6.2.2
+	MainLoc (anysegnull dup mod);      // #3 @v6.2.2
+	RLoc (anysegnull dup mod);         // #4 @v6.2.2
 file:
 	"person.btr";
 	// @v11.1.12 vlr;

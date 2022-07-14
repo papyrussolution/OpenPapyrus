@@ -36,7 +36,7 @@ int ShipmAnalyzeFilt::TranslateToBillFilt(BillFilt * pBillFilt)
 }
 //
 //
-/*virtual*/PPBaseFilt * PPViewShipmAnalyze::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * PPViewShipmAnalyze::CreateFilt(const void * extraPtr) const
 {
 	ShipmAnalyzeFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_SHIPMANALYZE, reinterpret_cast<PPBaseFilt **>(&p_filt)))

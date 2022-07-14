@@ -625,7 +625,7 @@ int PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 //
 static void AlignWaitDlg(HWND hw); // Prototype
 
-PPThreadLocalArea::WaitBlock::WaitBlock() : State(stValid), PrevView(0), WaitDlg(0), OrgCur(0), hwndPB(0), hwndST(0), PrevPercent(-1),
+PPThreadLocalArea::WaitBlock::WaitBlock() : State(stValid), PrevView(0), WaitDlg(0), OrgCur(0), hwndPB(0), hwndST(0), PrevPercent(-1), PrevPromille(-1),
 	WaitCur(::LoadCursor(TProgram::GetInst(), MAKEINTRESOURCE(IDC_PPYWAIT))), IdleTimer(500)
 {
 }
@@ -670,6 +670,7 @@ int PPThreadLocalArea::WaitBlock::Start()
 		PrevView = 0;
 		WaitDlg = APPL->CreateDlg(DLG_WAIT, APPL->H_MainWnd, WaitDialogWndProc, reinterpret_cast<LPARAM>(this));
 		PrevPercent = -1;
+		PrevPromille = -1;
 		IdleTimer.Restart(1000);
 		if(WaitDlg) {
 			TView * p_cur = APPL->P_DeskTop->GetCurrentView();
@@ -780,9 +781,11 @@ void FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 
 void FASTCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const char * msg)
 {
-	const  ulong  percent = static_cast<ulong>(t ? (100.0 * fdivui(p, t)) : 100.0);
+	const  ulong  promille = static_cast<ulong>(t ? (1000.0 * fdivui(p, t)) : 1000.0);
+	const  ulong  percent = promille / 10;//static_cast<ulong>(t ? (100.0 * fdivui(p, t)) : 100.0);
 	if(percent != PrevPercent || (msg && msg[0] && PrevMsg.Cmp(msg, 0) != 0)) {
 		PrevPercent = percent;
+		PrevPromille = promille;
 		PrevMsg = msg;
 		if(hwndPB) {
 			ShowWindow(hwndPB, SW_SHOWNA);
@@ -801,8 +804,10 @@ void FASTCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const c
 		*s = 0;
 		SetMessage(b);
 	}
-	else
+	else if(promille != PrevPromille) {
+		PrevPromille = promille;
 		SetMessage(Text);
+	}
 }
 
 #define __WD DS.GetTLA().WD

@@ -114,15 +114,8 @@ bool InMemoryPostList::at_end() const
 	return (pos == end);
 }
 
-string InMemoryPostList::get_description() const
-{
-	return term + ":" + str(termfreq);
-}
-
-Xapian::termcount InMemoryPostList::get_wdfdocmax() const
-{
-	return db->get_wdfdocmax(get_docid());
-}
+string InMemoryPostList::get_description() const { return term + ":" + str(termfreq); }
+Xapian::termcount InMemoryPostList::get_wdfdocmax() const { return db->get_wdfdocmax(get_docid()); }
 
 PositionList * InMemoryPostList::read_position_list()
 {
@@ -318,15 +311,8 @@ bool InMemoryAllDocsPostList::at_end() const
 	return (did > db->termlists.size());
 }
 
-Xapian::termcount InMemoryAllDocsPostList::get_wdf_upper_bound() const
-{
-	return 1;
-}
-
-string InMemoryAllDocsPostList::get_description() const
-{
-	return "InMemoryAllDocsPostList " + str(did);
-}
+Xapian::termcount InMemoryAllDocsPostList::get_wdf_upper_bound() const { return 1; }
+string InMemoryAllDocsPostList::get_description() const { return "InMemoryAllDocsPostList " + str(did); }
 //
 // Actual database class //
 //
@@ -905,10 +891,7 @@ void InMemoryDatabase::throw_database_closed()
 	throw Xapian::DatabaseClosedError("Database has been closed");
 }
 
-string InMemoryDatabase::get_description() const
-{
-	return "InMemory";
-}
+string InMemoryDatabase::get_description() const { return "InMemory"; }
 
 #ifdef DISABLE_GPL_LIBXAPIAN
 #error GPL source we cannot relicense included in libxapian

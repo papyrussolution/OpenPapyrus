@@ -390,7 +390,8 @@ void ValueCountMatchSpy::merge_results(const string & s) {
 	}
 }
 
-string ValueCountMatchSpy::get_description() const {
+string ValueCountMatchSpy::get_description() const 
+{
 	string d = "ValueCountMatchSpy(";
 	if(internal.get()) {
 		d += str(internal->total);

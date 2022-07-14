@@ -464,6 +464,10 @@ public:
 		P_TagValRestrict_Empty("#EMPTY"), // @v11.3.6
 		P_TagValRestrict_Exist("#EXIST"), // @v11.3.6
 		P_TagValRestrict_List("#LIST"), // @v11.3.6
+		WrKey_PrefSettings("Software\\Papyrus\\Pref"), // @v11.4.4 (replaced PPRegKeys)
+		WrKey_PrefBasketSelSettings("Software\\Papyrus\\Pref\\BasketSel"), // @v11.4.4 (replaced PPRegKeys)
+		WrKey_SysSettings("Software\\Papyrus\\System"), // @v11.4.4 (replaced PPRegKeys)
+		WrKey_Sessions("Software\\Papyrus\\Sessions"), // @v11.4.4 (replaced PPRegKeys)
 		WrParam_ViewQuotsAsListBox("ViewQuotsAsListBox"),
 		WrParam_BillAddFilesFolder("BillAddFilesFolder"),
 		WrParam_CalcPriceParam("CalcPriceParam"),
@@ -513,6 +517,10 @@ public:
 	const char * P_TagValRestrict_Empty;     // @v11.3.6 "#EMPTY"
 	const char * P_TagValRestrict_Exist;     // @v11.3.6 "#EXIST"
 	const char * P_TagValRestrict_List;      // @v11.3.6 "#LIST"
+	const char * WrKey_PrefSettings;          // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Pref"
+	const char * WrKey_PrefBasketSelSettings; // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Pref\\BasketSel"
+	const char * WrKey_SysSettings;           // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\System"
+	const char * WrKey_Sessions;              // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Sessions"
 	const char * WrParam_ViewQuotsAsListBox; // "ViewQuotsAsListBox" [1|0]
 	const char * WrParam_BillAddFilesFolder; // "BillAddFilesFolder" string
 	const char * WrParam_CalcPriceParam;     // "CalcPriceParam" string
@@ -2268,14 +2276,14 @@ public:
 private:
 	static void STDCALL ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam);
 };
-
+/* @v11.4.4 (replaced with PPConst::WrKey_XXX)
 class PPRegKeys {
 public:
 	static const char * PrefSettings;          // @defined(ppappo.cpp) "Software\\Papyrus\\Pref"
 	static const char * PrefBasketSelSettings; // @defined(ppappo.cpp) "Software\\Papyrus\\Pref\\BasketSel"
 	static const char * SysSettings;           // @defined(ppappo.cpp) "Software\\Papyrus\\System"
 	static const char * Sessions;              // @defined(ppappo.cpp) "Software\\Papyrus\\Sessions"
-};
+};*/
 //
 //
 //
@@ -5115,7 +5123,7 @@ public:
 	int    CheckGoodsForExclusiveAltGrp(PPID goodsID, PPID altGrpID);
 	int    GetExclusiveAltParent(PPID goodsID, PPID parentID, PPID * pAltGrpID);
 	int    IsCompatibleByUnit(PPID id1, PPID id2, double * ratio);
-	int    IsChildOf(PPID, PPID parent);
+	bool   IsChildOf(PPID id, PPID parentID);
 	int    IsAltGroup(PPID);
 	int    IsTempAltGroup(PPID);
 	int    IsDynamicAltGroup(PPID);
@@ -6693,6 +6701,7 @@ public:
 		HCURSOR OrgCur;
 		TView * PrevView;
 		ulong  PrevPercent;
+		ulong  PrevPromille; // @v11.4.4
 		SString Text;
 		SString PrevMsg;
 		SCycleTimer IdleTimer;
@@ -15764,7 +15773,6 @@ template <class T> int SerializeDbTableByFileName(int dir, T ** ppT, SBuffer & r
 //
 // @ModuleDecl(PPView)
 //
-//
 // Descr: Базовый класс для контроллеров анализа данных
 //
 class PPView {
@@ -15814,9 +15822,12 @@ public:
 	static int ExecuteNF(const PPNamedFilt * pNf, const char * pDl600Name, int format, SBuffer & rResult);
 
 	struct Rc {
+		Rc();
+		Rc & Z();
 		long   Id;
 		SString Symb;
 		SString Descr;
+		const  void * P_ExtraParam; // @v11.4.4
 	};
 	//
 	// Descr: Загружает из ресурсов описание объекта PPView или PPBaseFilt
@@ -15824,7 +15835,15 @@ public:
 	// ARG(id    IN): Идентификатор ресурса
 	// ARG(rRc  OUT): Структура дескриптора ресурса
 	//
-	static int LoadResource(int kind, int id, PPView::Rc & rRc);
+	// @v11.4.4 static int LoadResource(int kind, int id, PPView::Rc & rRc);
+	// @v11.4.4 static int GetResourceLists(bool includeSpecialItems, StrAssocArray * pSymbList, StrAssocArray * pTextList);
+	static int InitializeDescriptionList();
+	static int GetFilterById(long id, PPView::Rc & rEntry);
+	static int GetDescriptionById(long id, PPView::Rc & rEntry);
+	static int GetDescriptionBySymb(const char * pSymb, PPView::Rc & rEntry);
+	static int GetDescriptionList(bool includeSpecialItems, TSCollection <Rc> & rResult);
+	static int GetDescriptionList(bool includeSpecialItems, StrAssocArray * pSymbList, StrAssocArray * pTextList);
+	static const void * GetDescriptionExtra(long id);
 
 	virtual ~PPView();
 	int    IsConsistent() const;
@@ -15848,7 +15867,7 @@ public:
 	//   Полученный указатель после использования должен быть разрушен вызывающей функцией
 	//   обращением к "delete p_flt;"
 	//
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int   EditBaseFilt(PPBaseFilt *);
 	//
 	// Descr: Инициализирует экземпляр класса в соответствии с фильром pFilt.
@@ -15907,6 +15926,7 @@ public:
 	//
 	void   SetOuterTitle(const char * pOuterTitle);
 	int    GetOuterTitle(SString * pBuf) const;
+	long   GetViewId() const { return ViewId; }
 	long   GetDefReportId() const { return DefReportId; }
 private:
 	uint32 Sign; // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
@@ -15996,6 +16016,33 @@ protected:
 		// поле DefReportId и не реализовывать Print().
 		// В более сложных случаях придется самостоятельно определять этот метод.
 private:
+	// @v11.4.4 {
+	class DescriptionList : private SStrGroup {
+		friend class PPView;
+	public:
+		enum {
+			kView = 1,
+			kFilt = 2
+		};
+		bool   IsValid() const { return !Fail; }
+		int    GetById(long id, PPView::Rc & rEntry) const;
+		int    GetBySymb(const char * pSymb, PPView::Rc & rEntry) const;
+		int    GetList(bool includeSpecialItems, TSCollection <Rc> & rResult) const;
+	private:
+		explicit DescriptionList(int kind);
+		struct InnerEntry {
+			long   Id;
+			uint   SymbP;
+			uint   DescrP;
+			const  void * P_ExtraParam;
+		};
+		TSVector <InnerEntry> L;
+		const  int Kind; // kXXX
+		int    Fail;
+	};
+	static const DescriptionList * P_DL;
+	static const DescriptionList * P_FL;
+	// } @v11.4.4
 	uint   ExtToolbarId; // Идентификатор тулбара, который следует загрузить в броузер
 		// при выполнении функции Browse
 	int32  ViewId;       // Идентификатор объекта (PPVIEW_XXX)
@@ -16705,7 +16752,7 @@ public:
 	//	>0 - успешно
 	//  0  - ошибка
 	//
-	int    LoadResource(PPID viewId, SString & symb, SString & text, long * pFlags) const;
+	// @v11.4.4 int    LoadResource(PPID viewId, SString & symb, SString & text, /*long * pFlags,*/const void ** ppExtraInitPtr) const;
 	//
 	// Descr: Загрузить список ассоциаций обьектов PPView в два списка
 	// ARG(pSymbList OUT): Список ассоциаций объектов PPView {id, строка символа}
@@ -16714,7 +16761,7 @@ public:
 	//  >0 - успешно
 	//	0  - ошибка
 	//
-	int    GetResourceLists(StrAssocArray * pSymbList, StrAssocArray * pTextList) const;
+	// @v11.4.4 int    GetResourceLists(bool includeSpecialItems, StrAssocArray * pSymbList, StrAssocArray * pTextList) const;
 	//
 	// Descr: Прочитать пул фильтров из файла
 	// ARG(pDbSymb	IN): символ базы данных, который будет присвоен прочитанному пулу
@@ -16738,7 +16785,7 @@ public:
 	int    ConvertBinToXml(); //@erik v10.7.5
 	int    GetXmlPoolDir(SString &rXmlPoolPath); //@erik v10.7.4
 private:
-	TVRez  * P_Rez;
+	// @v11.4.4 TVRez  * P_Rez;
 	// Путь к файлу, в котором хранится пул фильтров. Мы сохраняем этот
 	// путь в переменной потому, что при обработке фильтров все нужно делать
 	// очень быстро.
@@ -19904,7 +19951,7 @@ public:
 	static int SendXml(PPID ftpAcctID, const char * pFilePath); // Отправка xml файла на FTP-сервер
 	PPViewBizScoreVal();
 	~PPViewBizScoreVal();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int   EditBaseFilt(PPBaseFilt *);
 	virtual int   Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -20811,7 +20858,7 @@ public:
 	SString ImpFiles;
 	SString LogNumList;
 	SString AddedMsgSign;    // Описание формы загрузки доп полей товара в кассовый модуль
-	TSCollection <PosIdentEntry> ApnCorrList; // @v9.6.5
+	TSCollection <PosIdentEntry> ApnCorrList;
 };
 
 class PPSyncCashNode : public PPGenCashNode {
@@ -22991,7 +23038,7 @@ public:
 	PPViewPhnSvcMonitor();
 	~PPViewPhnSvcMonitor();
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	//int    InitIteration();
 	//int    FASTCALL NextIteration(PhnSvcMonitorViewItem *);
@@ -25231,7 +25278,7 @@ public:
 	//   >0 - объект id является потомком объекта parentID
 	//    0 - объект id не является потомком объекта parentID.
 	//
-	int    IsChildOf(PPID id, PPID parentID); // @recursion
+	bool   IsChildOf(PPID id, PPID parentID); // @recursion
 	int    GetCountryByChild(PPID id, WorldTbl::Rec * pCountryRec);
 	int    GetPacket(PPID id, PPWorldPacket * pPack);
 	//
@@ -25274,7 +25321,7 @@ private:
 	int    AddItemToSelectorList(const WorldTbl::Rec & rRec, AislBlock & rBlk); // @recursion
 	int    AddItemToSelectorList(PPID id, StrAssocArray * pList, int useHierarchy, PPIDArray * pStack); // @recursion
 	int    GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * pStack); // @recursion
-	int    Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecurTrace); // @recursion
+	bool   Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecurTrace); // @recursion
 	int    CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta);
 	int    Recover(PPLogger * pLogger); // @todo Срочно!!!
 public:
@@ -26375,13 +26422,26 @@ public:
 	//
 	int    ViewVersion(PPID histID);
 	//
+	// Descr: Извлекает из базы данных список идентификаторов персоналий, относящихся к 
+	//   категории catID. Кроме того, если параметр kindID != 0 то функция проверяет чтобы 
+	//   в список попали идентификаторы только тех персоналий, которые принадлежат виду kindID.
+	//   Если аргумент catID <= 0 то функция немедленно возвращает -1
+	//   Массив по ссылке rList предварительно очищается функцией.
+	// Returns:
+	//   >0 - найдена по крайней мере одна персоналия, удовлетворяющая заданным критериям
+	//   <0 - не найдено ни одной персоналии, удовлетворяющих заданным критериям
+	//    0 - ошибка
+	//
+	int    GetPersonListByCategory(PPID catID, PPID kindID, PPIDArray & rList);
+	//
 	// Descr: Извлекает из базы данных список персоналий, ссылающихся на адрес доставки dlvrLocID.
+	//   Массив по ссылке rList предварительно очищается функцией.
 	// Returns:
 	//   >0 - есть, по крайней мере, одна персоналия, ссылающаяся на адрес dlvrLocID как на адрес доставки
 	//   <0 - нет ни одной персоналии, ссылающейся на адрес доставки dlvrLocID
 	//   0  - ошибка
 	//
-	int    GetPersonListByDlvrLoc(PPID dlvrLocID, PPIDArray * pList);
+	int    GetPersonListByDlvrLoc(PPID dlvrLocID, PPIDArray & rList);
 	int    GetDlvrLocList(PPID personID, PPIDArray * pList);
 	int    EditDlvrLocList(PPID personID);
 	int    SetupDlvrLocCombo(TDialog *, uint ctlID, PPID personID, PPID locID);
@@ -27017,7 +27077,7 @@ public:
 	};
 	PPViewStaffPost();
 	~PPViewStaffPost();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int   EditBaseFilt(PPBaseFilt *);
 	virtual int   Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration(int order);
@@ -28418,7 +28478,7 @@ public:
 	};
 	PPViewSysJournal();
 	~PPViewSysJournal();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -28493,7 +28553,7 @@ public:
 	};
 	PPViewGtaJournal();
 	~PPViewGtaJournal();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	//virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -28609,7 +28669,7 @@ class PPViewGeoTracking : public PPView {
 public:
 	PPViewGeoTracking();
 	~PPViewGeoTracking();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -28692,41 +28752,41 @@ public:
 	*/
 	enum {
 		// @v9.9.3 fUseGrpList        = 0x00000001L,
-		fHideGeneric   = 0x00000001L, // @v10.7.7 @construction Не отображать обобщенные товары
-		fWithStrucOnly = 0x00000002L, // @v9.9.3 Только товары, с которыми связаны структуры
+		fHideGeneric       = 0x00000001L, // @v10.7.7 @construction Не отображать обобщенные товары
+		fWithStrucOnly     = 0x00000002L, // @v9.9.3 Только товары, с которыми связаны структуры
 		// @v9.9.3 fUseUnitMask       = 0x00000004L,
-		fWoBrand       = 0x00000004L, // @v10.6.8 Только те товары, у которых не определен бренд. Флаг имеет приоритет перед полями BrandList, BrandOwnerList
-		fIntUnitOnly   = 0x00000008L, //
-		fFloatUnitOnly = 0x00000010L, //
-		fNegation      = 0x00000020L, // Отрицание фильтра
-		fGenGoods      = 0x00000040L, // Если установлен, то поле GrpID используется как обобщенный товар.
-		fGroupGenGoods = 0x00000080L, // Группировать обобщенные товары
-		fUndefType     = 0x00000100L, // Только с неопределенным типом товара
-		fNewLots       = 0x00000200L, // Только те товары, которых не было на дату (LotPeriod.low-1)
-		fExcludeAsset  = 0x00000400L, // Исключить основные средства
-		fIncludeIntr   = 0x00000800L, // Рассматривать порожденные лоты. Действует при (!LotPeriod.IsZero() || SupplID)
-		fShowBarcode   = 0x00001000L, // Показывать штрихкоды в броузере
-		fShowCargo     = 0x00002000L, // Показывать товары с грузовыми параметрами
-		fHidePassive   = 0x00004000L, // Не показывать пассивные товары (отменяет fPassiveOnly)
-		fPassiveOnly   = 0x00008000L, // Показывать только пассивные товары (отменяет fHidePassive)
-		fGenGoodsOnly  = 0x00010000L, // Показывать только обобщенные товары
-		fWOTaxGdsOnly  = 0x00020000L, // Показывать только товары с ценой без налогов. @#{fPassiveOnly^fGenGoodsOnly^fWOTaxGdsOnly}
+		fWoBrand           = 0x00000004L, // @v10.6.8 Только те товары, у которых не определен бренд. Флаг имеет приоритет перед полями BrandList, BrandOwnerList
+		fIntUnitOnly       = 0x00000008L, //
+		fFloatUnitOnly     = 0x00000010L, //
+		fNegation          = 0x00000020L, // Отрицание фильтра
+		fGenGoods          = 0x00000040L, // Если установлен, то поле GrpID используется как обобщенный товар.
+		fGroupGenGoods     = 0x00000080L, // Группировать обобщенные товары
+		fUndefType         = 0x00000100L, // Только с неопределенным типом товара
+		fNewLots           = 0x00000200L, // Только те товары, которых не было на дату (LotPeriod.low-1)
+		fExcludeAsset      = 0x00000400L, // Исключить основные средства
+		fIncludeIntr       = 0x00000800L, // Рассматривать порожденные лоты. Действует при (!LotPeriod.IsZero() || SupplID)
+		fShowBarcode       = 0x00001000L, // Показывать штрихкоды в броузере
+		fShowCargo         = 0x00002000L, // Показывать товары с грузовыми параметрами
+		fHidePassive       = 0x00004000L, // Не показывать пассивные товары (отменяет fPassiveOnly)
+		fPassiveOnly       = 0x00008000L, // Показывать только пассивные товары (отменяет fHidePassive)
+		fGenGoodsOnly      = 0x00010000L, // Показывать только обобщенные товары
+		fWOTaxGdsOnly      = 0x00020000L, // Показывать только товары с ценой без налогов. @#{fPassiveOnly^fGenGoodsOnly^fWOTaxGdsOnly}
 		fNoZeroRestOnLotPeriod = 0x00040000L, // Если товар не удовлетворяет ограничению LotPeriod, но есть на остатке, то попадает в выборку
-		fNoDisOnly     = 0x00080000L, // Показывать только товары с признаком без скидки
-		fShowStrucType = 0x00100000L, // Показывать признак наличия структуры
-		fNotUseViewOptions     = 0x00200000L, // Не показывать в товарном фильтре кнопку опции просмотра
-		fShowGoodsWOStruc      = 0x00400000L, // Показывать товары без структуры
-		fWoTaxGrp      = 0x00800000L, // Показывать только товары без налоговой группы
-		fRestrictByMatrix      = 0x01000000L, // Ограничивать выборку товарной матрицей. Если LocID == 0, то ограничивается матрицей для всех складов
-		fShowArCode    = 0x02000000L, // Показывать артикулы товаров
-		fShowOwnArCode = 0x04000000L, // Показывать собственные артикулы (ArID = 0)
-		fShowWoArCode  = 0x08000000L, // Показывать товары без артикулов
-		fOutOfMatrix   = 0x10000000L, // Показывать только те товары, которые НЕ принадлежат матрице.
+		fNoDisOnly         = 0x00080000L, // Показывать только товары с признаком без скидки
+		fShowStrucType     = 0x00100000L, // Показывать признак наличия структуры
+		fNotUseViewOptions = 0x00200000L, // Не показывать в товарном фильтре кнопку опции просмотра
+		fShowGoodsWOStruc  = 0x00400000L, // Показывать товары без структуры
+		fWoTaxGrp          = 0x00800000L, // Показывать только товары без налоговой группы
+		fRestrictByMatrix  = 0x01000000L, // Ограничивать выборку товарной матрицей. Если LocID == 0, то ограничивается матрицей для всех складов
+		fShowArCode        = 0x02000000L, // Показывать артикулы товаров
+		fShowOwnArCode     = 0x04000000L, // Показывать собственные артикулы (ArID = 0)
+		fShowWoArCode      = 0x08000000L, // Показывать товары без артикулов
+		fOutOfMatrix       = 0x10000000L, // Показывать только те товары, которые НЕ принадлежат матрице.
 			// Этот флаг имеет более низкий приоритет, чем fRestrictByMatrix. То есть, если установлены оба
 			// флага (что программа не должна допускать), то применяется fRestrictByMatrix
-		fActualOnly    = 0x20000000L, // Показывать только те товары, по которым есть не нулевые остатки по одному из складов LocList
-		fHasImages     = 0x40000000L, // Только с картинками
-		fUseIndepWtOnly        = 0x80000000L  // Только с флагом GF_USEINDEPWT
+		fActualOnly        = 0x20000000L, // Показывать только те товары, по которым есть не нулевые остатки по одному из складов LocList
+		fHasImages         = 0x40000000L, // Только с картинками
+		fUseIndepWtOnly    = 0x80000000L  // Только с флагом GF_USEINDEPWT
 	};
 	enum { // @persistent
 		bcrLength = 1,
@@ -31291,7 +31351,7 @@ public:
 	PPViewGoods();
 	~PPViewGoods();
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual const IterCounter & GetCounter() const;
 	int    InitIteration(int aOrder = OrdByName);
@@ -31448,7 +31508,7 @@ public:
 
 	PPViewGoodsStruc();
 	~PPViewGoodsStruc();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual void ViewTotal();
@@ -31510,7 +31570,7 @@ public:
 	PPViewGoodsToObjAssoc();
 	~PPViewGoodsToObjAssoc();
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt * pFilt);
 	int    InitIteration();
 	int    FASTCALL NextIteration(GoodsToObjAssocViewItem *);
@@ -34992,7 +35052,7 @@ public:
 	};
 	PPViewLocTransf();
 	~PPViewLocTransf();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int   EditBaseFilt(PPBaseFilt *);
 	virtual int   Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -36719,7 +36779,7 @@ typedef ProcessorTbl::Rec ProcessorViewItem;
 class PPViewProcessor : public PPView {
 public:
 	PPViewProcessor();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -37732,7 +37792,7 @@ public:
 	// ARG(extraParam IN): Если этим параметром передается значение TSESK_PLAN,
 	//   то в созданном фильтре устанавливается флаг fManufPlan.
 	//
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration(int order);
@@ -38014,7 +38074,7 @@ public:
 	};
 	PPViewPrcBusy();
 	~PPViewPrcBusy();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -38890,7 +38950,7 @@ private:
 // @ModuleDecl(PPViewBill)
 //
 enum BrowseBillsType {
-	bbtUndef    = BBT_UNDEF,            //
+	bbtUndef            = BBT_UNDEF,            //
 	bbtGoodsBills       = BBT_GOODSBILLS,       //
 	bbtOrderBills       = BBT_ORDERBILLS,       //
 	bbtAccturnBills     = BBT_ACCTURNBILLS,     //
@@ -38900,7 +38960,7 @@ enum BrowseBillsType {
 	bbtClientRPayment   = BBT_CLIENTRPAYMENT,   //
 	bbtDraftBills       = BBT_DRAFTBILLS,       //
 	bbtRealTypes        = BBT_REALTYPES,        // Товарные, бухгалтерские документы и оплаты
-	bbtWmsBills = BBT_WMSBILLS,         // Документы складских операций
+	bbtWmsBills         = BBT_WMSBILLS,         // Документы складских операций
 	bbtSpcChargeOnMarks = BBT_SPC_CHARGEONMARKS // @v10.9.0
 };
 //
@@ -39121,7 +39181,7 @@ public:
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual void ViewTotal();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	int    EditFilt(BillFilt *, long) const;
 	int    Browse(int modeless);
 	int    AddItem(PPID * pID, PPID opID = 0);
@@ -39283,7 +39343,7 @@ class PPViewLinkedBill : public PPView {
 public:
 	PPViewLinkedBill();
 	~PPViewLinkedBill();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int   EditBaseFilt(PPBaseFilt *);
 	virtual int   Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -39352,7 +39412,7 @@ class PPViewGoodsBillCmp : public PPView {
 public:
 	PPViewGoodsBillCmp();
 	~PPViewGoodsBillCmp();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	//
 	// Перед вызовом этой функции в фильтре должны быть инициализированы поля //
 	// LhBillID и RhBillID.
@@ -39609,7 +39669,7 @@ public:
 	~PPViewAccturn();
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	int    InitIteration();
 	int    FASTCALL NextIteration(AccturnViewItem *);
 	int    PrintItem(PPID billID);
@@ -39717,21 +39777,21 @@ public:
 	enum {
 		// @v10.6.8 @unused fEmptyPeriod        = 0x00000004,
 		fWithoutQCert       = 0x00000008, // Показывать только лоты, у которых нет сертификата
-		fOrders     = 0x00000010, // Лоты заказов
+		fOrders             = 0x00000010, // Лоты заказов
 		fCostAbovePrice     = 0x00000020, // Только лоты, у которых цена поступления больше цены реализации
-		fWithoutClb = 0x00000040, // Лоты без ГТД
-		fDeadLots   = 0x00000080, // Только те лоты, по которым не было движения //
+		fWithoutClb         = 0x00000040, // Лоты без ГТД
+		fDeadLots           = 0x00000080, // Только те лоты, по которым не было движения //
 		fWithoutExpiry      = 0x00000100, // Лоты, для которых не указан срок годности
 		fOnlySpoilage       = 0x00000200, // Только лоты с бракованными сериями
 		fShowSerialN        = 0x00000400, // Показывать серийные номера лотов
-		fSkipNoOp   = 0x00000800, // Не показывать лоты, по которым не было операций за операционный период. Имеет смысл только если !Operation.IsZero()
+		fSkipNoOp           = 0x00000800, // Не показывать лоты, по которым не было операций за операционный период. Имеет смысл только если !Operation.IsZero()
 		fCheckOriginLotDate = 0x00001000, // Учитывать дату оригинального лота в соответствии с заданным периодом
 		fSkipClosedBeforeOp = 0x00002000, // Пропускать лоты, закрытые до операционного периода
 		fNoTempTable        = 0x00004000, // Только для внутреннего использования.
 		fShowBillStatus     = 0x00008000, // Показывать статус документа соответствующего лоту заказа
 		fShowPriceDev       = 0x00010000, // Показывать признак отклонения цены от предыдущего лота этого товара по этому же складу
-		fRestByPaym = 0x00020000, // Спец опция: остаток рассчитывается как количество товара, не оплаченного поставщику.
-		fInitOrgLot = 0x00040000, // @v8.3.7 @construction Если установлен, то итератор инициализируте поле LotViewItem::OrgLotID
+		fRestByPaym         = 0x00020000, // Спец опция: остаток рассчитывается как количество товара, не оплаченного поставщику.
+		fInitOrgLot         = 0x00040000, // @v8.3.7 @construction Если установлен, то итератор инициализируте поле LotViewItem::OrgLotID
 		fLotfPrWoTaxes      = 0x00080000  // Показывать только лоты, у которых установлен флаг LOTF_PRICEWOTAXES
 	};
 	//
@@ -39759,7 +39819,8 @@ public:
 		exvaEgaisTags,
 		exvaVetisTags
 	};
-	uint8  ReserveStart[20]; // @#0 @anchor !Использовать начиная со старших адресов
+	uint8  ReserveStart[16]; // @#0 @anchor !Использовать начиная со старших адресов // @v11.4.4 [20]-->[16]
+	PPID   SupplPsnCategoryID; // @v11.4.4 Категория персоналии, соответствующей поставщику лота (клиенту в случае с лотами заказов)
 	long   ExtViewAttr;      // @v10.1.4 Параметр, определяющий набор дополнительных столбцов для отображения в таблице
 	int16  CostDevRestr;     // LotFilt::drXXX
 	int16  PriceDevRestr;    // LotFilt::drXXX
@@ -39845,7 +39906,7 @@ public:
 	// Descr: Создает и инициализирует фильтр.
 	//   Если extraParam == 1, то в фильтре устанавливается флаг LotFilt::fOrders.
 	//
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -39907,7 +39968,7 @@ private:
 	PPObjBill::PplBlock * P_PplBlkBeg; // Блок расчета неоплаченных поставщикам остатков по лотам на начало оп периода
 	PPObjBill::PplBlock * P_PplBlkEnd; // Блок расчета неоплаченных поставщикам остатков по лотам на конец оп периода
 	LotTotal Total;                    //
-	ObjIdListFilt SupplList;           // Список поставщиков, выбранных по группирующему отношению к Person(Filt.ArID)
+	ObjIdListFilt SupplList;           // Список поставщиков, выбранных по группирующему отношению к Person(Filt.ArID) // @v11.4.4 или по критерию Filt.SupplPsnCategoryID
 	enum {
 		stAccsCost   = 0x00001, // Текущему пользователю разрешен доступ к ценам поступления //
 		stNoTempTbl  = 0x00002, // Экземпляр не будет создавать временную таблицу, даже если условия фильтрации этого требуют.
@@ -39939,7 +40000,7 @@ public:
 	PPViewLotExtCode();
 	~PPViewLotExtCode();
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt * pFilt);
 	int    InitIteration();
 	int    FASTCALL NextIteration(LotExtCodeViewItem *);
@@ -40017,7 +40078,7 @@ public:
 
 	PPViewAsset();
 	~PPViewAsset();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration(IterOrder = OrdByDefault);
@@ -40826,7 +40887,7 @@ public:
 
 	PPViewGoodsRest();
 	~PPViewGoodsRest();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int   EditBaseFilt(PPBaseFilt *);
 	//
 	// Descr: Инициализирует выборку остатков товаров в соответствии с фильтром.
@@ -41217,7 +41278,7 @@ class PPViewStockOpt : public PPView {
 public:
 	PPViewStockOpt();
 	~PPViewStockOpt();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration(int order);
@@ -41473,7 +41534,7 @@ public:
 
 	PPViewPriceList();
 	~PPViewPriceList();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration(IterOrder);
@@ -41698,7 +41759,7 @@ public:
 
 	PPViewDebtTrnovr();
 	~PPViewDebtTrnovr();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -42044,7 +42105,7 @@ class PPViewDebtorStat : public PPView {
 public:
 	PPViewDebtorStat();
 	~PPViewDebtorStat();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int   EditBaseFilt(PPBaseFilt *);
 	virtual int   Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration(long ord);
@@ -42164,7 +42225,7 @@ public:
 	~PPViewShipmAnalyze();
 	const ShipmAnalyzeFilt * GetFilt() const { return &Filt; }
 	virtual int EditBaseFilt(PPBaseFilt *);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
 	int    FASTCALL NextIteration(ShipmAnalyzeViewItem *);
@@ -42224,7 +42285,7 @@ public:
 	~PPViewAccount();
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	int    InitIteration();
 	int    FASTCALL NextIteration(AccountViewItem *);
 	int    FASTCALL CheckForFilt(const PPAccount & rItem) const;
@@ -42279,7 +42340,7 @@ public:
 	//
 	// ARG(extraParam IN): Ид валюты
 	//
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -42341,7 +42402,7 @@ class PPViewBalance : public PPView {
 public:
 	PPViewBalance();
 	~PPViewBalance();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -42543,7 +42604,7 @@ public:
 	PPViewAccAnlz();
 	~PPViewAccAnlz();
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Browse(int modeless);
 	int    InitIteration();
@@ -42662,7 +42723,7 @@ public:
 
 	PPViewVatBook();
 	~PPViewVatBook();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  Print(const void *);
@@ -43012,7 +43073,7 @@ public:
 	~PPViewGoodsMov2();
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	int    InitIteration(IterOrder);
 	int    FASTCALL NextIteration(GoodsMov2ViewItem *);
 	int    GetIterationCount(long * pNumIterations, long * pLastCount);
@@ -43134,7 +43195,7 @@ public:
 
 	PPViewCSess();
 	~PPViewCSess();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  Print(const void *);
@@ -43215,7 +43276,7 @@ class PPViewCSessExc : public PPView {
 public:
 	PPViewCSessExc();
 	~PPViewCSessExc();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -43469,7 +43530,7 @@ public:
 	PPViewCCheck();
 	PPViewCCheck(CCheckCore & rOuterCc);
 	~PPViewCCheck();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration(int order);
@@ -43634,7 +43695,7 @@ class PPViewObjSyncCmp : public PPView {
 public:
 	PPViewObjSyncCmp();
 	~PPViewObjSyncCmp();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt * pFilt);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -44325,7 +44386,7 @@ public:
 	~PPViewGoodsOpAnalyze();
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	int    InitIteration(IterOrder);
 	int    FASTCALL NextIteration(GoodsOpAnalyzeViewItem *);
 	int    ChangeOrder(BrowserWindow *);
@@ -44496,7 +44557,7 @@ public:
 
 	PPViewSCard();
 	~PPViewSCard();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	int    InitIteration();
@@ -44605,7 +44666,7 @@ public:
 		LTIME  Tm;
 	};
 	PPViewSCardOp();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	int    InitIteration();
@@ -44690,7 +44751,7 @@ public:
 	};
 	PPViewArticle();
 	~PPViewArticle();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	int    InitIteration();
@@ -45143,7 +45204,7 @@ public:
 	//     3. если extraParam & 0x0001 (форма расчета заказа поставщику), то устанавливаются флаги
 	//        (SStatFilt::fSupplOrderForm | SStatFilt::fRoundOrderToPack)
 	//
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -45623,7 +45684,7 @@ public:
 	};
 	PPViewMrpLine();
 	~PPViewMrpLine();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -46303,7 +46364,7 @@ class PPViewPriceAnlz : public PPView {
 public:
 	PPViewPriceAnlz();
 	~PPViewPriceAnlz();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -46866,7 +46927,10 @@ public:
 			// заказ. Дополнительные параметры определяют особенности модуля: заказ от конечного клиента, 
 			// агентский заказ, заказ на месте и т.д.
 		sqbcRsrvAttendancePrereq = 102, // Модуль данных, передаваемых сервисом клиенту для формирования записи на обслуживаение.
-		sqbcRsrvPushIndexContent = 103  // @v11.3.4 Параметры передачи сервисам-медиаторам данных для поисковой индексации
+		sqbcRsrvPushIndexContent = 103, // @v11.3.4 Параметры передачи сервисам-медиаторам данных для поисковой индексации
+		sqbcRsrvIndoorSvcPrereq  = 104, // @v11.4.4 Параметры обслуживания внутри помещения сервиса (horeca, shop, etc)
+			// Данные строятся на основании параметров, определяемых кассовым узлом.
+		sqbcGoodsInfo            = 105, // @v11.4.4 Параметры, определяющие вывод информации об одном товаре 
 	};
 	//
 	// Descr: Идентификаторы типов документов обмена
@@ -47315,6 +47379,8 @@ private:
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	int    ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
 		SString & rResult, SString & rDocDeclaration, bool debugOutput);
+	int    ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
+		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
 	// Returns:
@@ -47350,6 +47416,7 @@ private:
 	int    GetOidListWithBlob(PPObjIDArray & rList);
 	int    MakeRsrvPriceListResponse_ExportClients(const SBinaryChunk & rOwnIdent, const PPStyloPalmPacket * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    MakeRsrvPriceListResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPStyloPalmPacket * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
+	int    MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPSyncCashNode * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    GetAndStoreClientsFace(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent);
 	//
 	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
@@ -47564,7 +47631,7 @@ public:
 	PPViewReport();
 	~PPViewReport();
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	int    InitIteration();
 	int    FASTCALL NextIteration(ReportViewItem *);
@@ -47812,7 +47879,7 @@ public:
 	};
 	PPViewBudget();
 	~PPViewBudget();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual void ViewTotal();
@@ -47963,7 +48030,7 @@ public:
 	};
 	PPViewCheckOpJrnl();
 	~PPViewCheckOpJrnl();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -48156,7 +48223,7 @@ public:
 	};
 	PPViewTransport();
 	~PPViewTransport();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration(int aOrder = 0);
@@ -50114,7 +50181,7 @@ public:
 
 	PPViewVetisDocument();
 	~PPViewVetisDocument();
-	virtual PPBaseFilt * CreateFilt(void * extraPtr) const;
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
@@ -53340,6 +53407,10 @@ struct GdsClsParamMask {
 //
 //
 class GoodsMovFiltDialog : public WLDialog {
+	enum {
+		ctlgroupGoodsFilt = 1,
+		ctlgroupLoc       = 2,
+	};
 public:
 	GoodsMovFiltDialog();
 	int    setDTS(const GoodsMovFilt *);
@@ -54674,8 +54745,8 @@ public:
 	//   параметров, может вернуть ноль, даже если с картой котировки ассоциированы.
 	// Note: nonconst из-за вызова GObj.Fetch
 	//
-	const  RetailPriceExtractor::ExtQuotBlock * GetCStEqb(PPID goodsID, int * pNoDiscount);
-	const  RetailPriceExtractor::ExtQuotBlock * GetCStEqbND(int nodiscount) const;
+	const  RetailPriceExtractor::ExtQuotBlock * GetCStEqb(PPID goodsID, bool * pNoDiscount);
+	const  RetailPriceExtractor::ExtQuotBlock * GetCStEqbND(bool nodiscount) const;
 	int    GetRgi(PPID goodsID, double qtty, long extRgiFlags, RetailGoodsInfo & rRgi);
 	//
 	// Descr: Режимы распознавания кода функцией RecognizeCode

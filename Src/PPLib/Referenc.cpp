@@ -1925,7 +1925,7 @@ int PPGetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 	int    use_duplex_printing = 0;
 	int    store_last_selected_printer = 0;
 	{
-		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1); // @v9.2.0 readonly 0-->1
+		WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
 		uint32 val = 0;
 		use_duplex_printing = BIN(reg_key.GetDWord(_PPConst.WrParam_UseDuplexPrinting, &val) && val);
 		store_last_selected_printer = BIN(reg_key.GetDWord(_PPConst.WrParam_StoreLastSelectedPrinter, &val) && val);
@@ -1951,7 +1951,7 @@ int PPGetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 int PPSetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 {
 	{
-		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+		WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
 		reg_key.PutDWord(_PPConst.WrParam_UseDuplexPrinting, BIN(pCfg->Flags & PPPrinterCfg::fUseDuplexPrinting));
 		reg_key.PutDWord(_PPConst.WrParam_StoreLastSelectedPrinter, BIN(pCfg->Flags & PPPrinterCfg::fStoreLastSelPrn)); // @v10.7.10 
 	}

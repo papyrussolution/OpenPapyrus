@@ -338,7 +338,7 @@ int PPNamedFiltPool::PutNamedFilt(PPID * pNamedFiltID, const PPNamedFilt * pNFil
 PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
 {
 	SString name;
-	P_Rez = new TVRez(makeExecPathFileName("pp", "res", name), 1);
+	// @v11.4.4 P_Rez = new TVRez(makeExecPathFileName("pp", "res", name), 1);
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_NFPOOL, FilePath);
 	//@erik v10.7.5
 	GetXmlPoolDir(XmlFilePath);
@@ -348,37 +348,47 @@ PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
 
 PPNamedFiltMngr::~PPNamedFiltMngr()
 {
-	delete P_Rez;
+	// @v11.4.4 delete P_Rez;
 }
 
-int PPNamedFiltMngr::LoadResource(PPID viewID, SString & rSymb, SString & rText, long * pFlags) const
+#if 0 // @v11.4.4 {
+int PPNamedFiltMngr::LoadResource(PPID viewID_, SString & rSymb, SString & rText, /*long * pFlags,*/const void ** ppExtraInitPtr) const
 {
 	int    ok = 1;
-	long   flags;
-	if(P_Rez) {
-		THROW_PP(P_Rez->findResource(static_cast<uint>(viewID), PP_RCDECLVIEW), PPERR_RESFAULT);
+	// @v11.4.4 long   flags;
+	// @v11.4.4 {
+	PPView::Rc rc;
+	THROW(PPView::LoadResource(1, viewID_, rc));
+	rSymb = rc.Symb;
+	rText = rc.Descr;
+	// } @v11.4.4 
+	/*if(P_Rez) {
+		const long norm_view_id = (viewID_ & 0xffff0000) ? (viewID_ & 0x0000ffff) : viewID_;
+		THROW_PP(P_Rez->findResource(static_cast<uint>(norm_view_id), PP_RCDECLVIEW), PPERR_RESFAULT);
 		P_Rez->getString(rSymb, 2); // 0 - 866, 1 - w_char, 2 - 1251
 		P_Rez->getString(rText, 2);
 		flags = static_cast<long>(P_Rez->getUINT());
-		pFlags = &flags;
-	}
+		//pFlags = &flags;
+	}*/
 	CATCHZOK
 	return ok;
 }
-
-int PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocArray * pTextList) const
+#endif // } @v11.4.4
+#if 0 // @v11.4.4 {
+int PPNamedFiltMngr::GetResourceLists(bool includeSpecialItems, StrAssocArray * pSymbList, StrAssocArray * pTextList) const
 {
 	int    ok = 1;
 	SString text;
 	SString symb;
-	long flags;
+	//long flags;
 	CALLPTRMEMB(pSymbList, Z());
 	CALLPTRMEMB(pTextList, Z());
 	if(P_Rez) {
 		ulong pos = 0;
 		for(uint rsc_id = 0; P_Rez->enumResources(PP_RCDECLVIEW, &rsc_id, &pos) > 0;) {
 			if(!oneof4(rsc_id, PPVIEW_GOODSGROUP, PPVIEW_REGISTER, PPVIEW_TAG, PPVIEW_BBOARD)) { // Исключаем фиктивные PPView
-				THROW(LoadResource(rsc_id, symb, text, &flags));
+				const void * p_extra_init_ptr = 0;
+				THROW(LoadResource(rsc_id, symb, text, /*&flags,*/&p_extra_init_ptr));
 				if(pSymbList) {
 					THROW_SL(pSymbList->Add(rsc_id, symb));
 				}
@@ -388,11 +398,16 @@ int PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocArray *
 				}
 			}
 		}
+		// @v11.4.4 {
+		if(includeSpecialItems) {
+		}
+		// } @v11.4.4 
 		CALLPTRMEMB(pTextList, SortByText());
 	}
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v11.4.4
 
 #define NFSTRGSIGN 'SFPP'
 
@@ -542,7 +557,7 @@ class FiltPoolDialog : public PPListDialog {
 public:
 	FiltPoolDialog(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pData) : PPListDialog(DLG_FILTPOOL, CTL_FILTPOOL_LIST), P_Mngr(pMngr), P_Data(pData)
 	{
-		CALLPTRMEMB(P_Mngr, GetResourceLists(&CmdSymbList, &CmdTextList));
+		PPView::GetDescriptionList(false, &CmdSymbList, &CmdTextList);
 		updateList(-1);
 	}
 private:
@@ -633,7 +648,6 @@ int ViewFiltPool()
 	delete dlg;
 	return ok;
 }
-
 //
 // Descr: Класс, отвечающий за диалог "Создать фильтр"
 //
@@ -642,7 +656,7 @@ class FiltItemDialog : public TDialog {
 public:
 	FiltItemDialog(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pPool) : TDialog(DLG_FILTITEM), P_Mngr(pMngr), P_Pool(pPool)
 	{
-		CALLPTRMEMB(P_Mngr, GetResourceLists(&CmdSymbList, &CmdTextList));
+		PPView::GetDescriptionList(false, &CmdSymbList, &CmdTextList);
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -760,7 +774,7 @@ int FiltItemDialog::ChangeBaseFilter()
 			if(Data.Param.GetAvailableSize()) {
 				THROW(PPView::ReadFiltPtr(Data.Param, &p_filt));
 			}
-			SETIFZ(p_filt, p_view->CreateFilt(0));
+			SETIFZ(p_filt, p_view->CreateFilt(PPView::GetDescriptionExtra(p_view->GetViewId())));
 			if((ok = p_view->EditBaseFilt(p_filt)) > 0) {
 				Data.Param.Z();
 				THROW(p_view->WriteFiltPtr(Data.Param, p_filt));

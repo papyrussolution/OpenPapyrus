@@ -35,10 +35,7 @@ KMeans::KMeans(uint k_, uint max_iters_) : k(k_)
 		throw InvalidArgumentError("Number of required clusters should be greater than zero");
 }
 
-string KMeans::get_description() const
-{
-	return "KMeans()";
-}
+string KMeans::get_description() const { return "KMeans()"; }
 
 void KMeans::set_stopper(const Stopper* stopper_)
 {

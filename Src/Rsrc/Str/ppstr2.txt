@@ -2249,7 +2249,10 @@ PPERR_STQ_MAPCLI2PSN_FAIL_UNMATCHED "Не удалось идентифицир�
 PPERR_STQ_BUYERNEEDED               "В агентском заказе необходимо выбрать покупателя и адрес доставки"
 PPERR_STQ_BEFOREPRCGOODSNEEDED      "Перед выбором процессора необходимо выбрать услугу"
 PPERR_STQ_GOODSNOTBELONGTOPRC       "Выбранная ранее услуга не может быть выполнена выбранным процессором"
+PPERR_STQ_PRCNOTBELONGTOGOODS       "Выбранный ранее процессор не может выполнить выбранную услугу"
 PPERR_LTDDBOPEN_INVFLAGS            "@{err_internal}: неверные флаги вызова функции PPSession::LimitedOpenDatabase"
+PPERR_STQ_UNDEFPOSFORINDOORSVC      "Не удалось идентифицировать кассовый узел для команды типа INDOORSVCPREREQ"
+PPERR_STQ_POSFORINDOORSVCMUSTBESYNC "Кассовый узел для команды типа INDOORSVCPREREQ должен быть синхронным"
 // LastError
 
 [102] // confirmation
@@ -2869,6 +2872,7 @@ PPINIPARAM_SUPPLEXP_BILLFILEMAXSIZE    "SupplExpBillFileMaxSize"
 PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES  "SetR_AddTimeToFileNames"
 PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG  "SetR_UseNewDscntCodeAlg"
 PPINIPARAM_CRYSTAL_DIFFGOODSEXPORT     "SetR_DiffGoodsExport" // @v10.6.3
+PPINIPARAM_CRYSTAL_GOODSIDASARTICLE    "SetR_GoodsIdAsArticle" // @v11.4.4
 PPINIPARAM_PSALES_GOODSQUANT           "PSales_GoodsQuant"
 PPINIPARAM_DEBUGTRFRERROR              "debug_trfr_error"
 PPINIPARAM_SPECENCODESYMBS             "SpecEncodeSymbs"
@@ -14120,6 +14124,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lotfilt_exvanone                         "@{standard}"
 @lotfilt_exvaegaistags                    "Теги @{brand_egais}"
 @lotfilt_exvavetistags                    "Теги @{brand_vetis}"
+@lotfilt_supplpsncategory                 "Категория поставщика"
+@lotfilt_clipsncategory                   "Категория заказчика" // то же, что и @lotfilt_supplpsncategory но для лотов заказов
 
 @egaislotchargeon                         "Постановка лотов на баланс @{brand_egais}"
 @egaislotchargeon_actchargeon             "Постановка на баланс по справкам А"
@@ -17302,6 +17308,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqbasecmd_rsrvorderprereq                "Данные для формирования заказов"
 @styloqbasecmd_rsrvattendanceprereq           "Данные для запросов на обслуживание"
 @styloqbasecmd_rsrvpushindexcontent           "Параметры подготовки данных для поисковой индексации"
+@styloqbasecmd_rsrvindoorsvcprereq            "Параметры indoor-обслуживания"
+@styloqbasecmd_goodsinfo                      "Параметры информации о товаре"
 
 @styloqcommand                                "Команда сервиса Stylo-Q"
 @styloqcommand_name                           "@{appellation}"
@@ -17313,6 +17321,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqcommand_viewsymb                       "Тип отображения"
 @styloqcommand_remoteorderparam               "Параметры дистанционного сбора заказов"
 @styloqcommand_description                    "@{description}"
+@styloqcommand_indoorsvcparam                 "Параметры indoor-обслуживания"
 
 @styloqsvcconfig                              "Конфигурация сервиса Stylo-Q"
 @styloqsvcconfig_url                          "@{serverurl}"
@@ -17444,6 +17453,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 75  "Сохранение временной серии"
 76  "Обработка StakeEnvironment"
 77  "StyloQ: подготовка данных для заказов" //PPUPRF_STYLOQ_CMD_ORDERPREREQ
+78  "StyloQ: подготовка данных для indoor-обслуживания" //PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ
+79  "StyloQ: подготовка данных для резервирования услуг" //PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ
 
 [122]
 1   "@{err_curl}: не поддерживаемый протокол"

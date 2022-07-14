@@ -445,15 +445,19 @@ int ABCAnlzFilt::GetGroupName(short abcGroup, char * pBuf, size_t bufLen)
 // } AHTOXA
 //
 //
-#define GRP_GOODSFILT 1
-#define GRP_LOC       2
+// @v11.4.4 #define GRP_GOODSFILT 1
+// @v11.4.4 #define GRP_LOC       2
 
 class GoodsOpAnlzFiltDialog : public WLDialog {
+	enum {
+		ctlgroupGoodsFilt = 1,
+		ctlgroupLoc       = 2,
+	};
 public:
 	GoodsOpAnlzFiltDialog() : WLDialog(DLG_GOODSOPR, CTL_BILLFLT_LABEL)
 	{
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_BILLFLT_GGRP, cmGoodsFilt));
-		addGroup(GRP_LOC,       new LocationCtrlGroup(CTLSEL_BILLFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(0, CTLSEL_BILLFLT_GGRP, cmGoodsFilt));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_BILLFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		SetupCalPeriod(CTLCAL_BILLFLT_PERIOD, CTL_BILLFLT_PERIOD);
 	}
 	int    setDTS(const GoodsOpAnalyzeFilt *);
@@ -555,8 +559,7 @@ void GoodsOpAnlzFiltDialog::setupOpCombo()
 
 int GoodsOpAnlzFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pFilt)
 {
-	Data = *pFilt;
-
+	RVALUEPTR(Data, pFilt);
 	int    ok = 1;
 	ushort v;
 	PPID   acc_sheet_id = 0;
@@ -569,9 +572,9 @@ int GoodsOpAnlzFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pFilt)
 	setupAccSheet(Data.AccSheetID ? Data.AccSheetID : acc_sheet_id);
 	goods_obj.GetParentID(Data.GoodsGrpID, &parent_grp_id);
 	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, reinterpret_cast<void *>(parent_grp_id));
-	setGroupData(GRP_GOODSFILT, &gf_rec);
+	setGroupData(ctlgroupGoodsFilt, &gf_rec);
 	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-	setGroupData(GRP_LOC, &loc_rec);
+	setGroupData(ctlgroupLoc, &loc_rec);
 	setWL(BIN(Data.Flags & GoodsOpAnalyzeFilt::fLabelOnly));
 	//
 	// В диалоге флаги расчета сумм НДС в цп и цр устанавливаются (снимаются) одновременно
@@ -645,9 +648,9 @@ int GoodsOpAnlzFiltDialog::getDTS(GoodsOpAnalyzeFilt * pFilt)
 	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fPriceDeviation, v & 0x01);
 	GetClusterData(CTL_BILLFLT_FLAGS, &Data.Flags);
 	GetClusterData(CTL_BILLFLT_EACHLOC,   &Data.Flags);
-	THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 	Data.GoodsGrpID = gf_rec.GoodsGrpID;
-	THROW(getGroupData(GRP_LOC, &loc_rec));
+	THROW(getGroupData(ctlgroupLoc, &loc_rec));
 	Data.LocList = loc_rec.LocList;
 	if(!(Data.Flags & GoodsOpAnalyzeFilt::fCrosstab) && Data.CmpPeriod.IsZero())
 		Data.CompareItems.freeAll();
@@ -1162,7 +1165,7 @@ PPViewGoodsOpAnalyze::IterOrder PPViewGoodsOpAnalyze::GetIterOrder() const
 //
 //
 //
-PPBaseFilt * PPViewGoodsOpAnalyze::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGoodsOpAnalyze::CreateFilt(const void * extraPtr) const
 {
 	GoodsOpAnalyzeFilt * p_filt = new GoodsOpAnalyzeFilt;
 	PPAccessRestriction accsr;

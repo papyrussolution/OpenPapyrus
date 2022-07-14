@@ -15,7 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "keyword.h"
 
 int keyword(const uchar * p, const char * s, size_t len)
 {

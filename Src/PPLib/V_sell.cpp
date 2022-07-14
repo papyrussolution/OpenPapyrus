@@ -368,11 +368,15 @@ void PPViewPredictSales::ViewTotal()
 	}
 }
 
-#define GRP_GOODS 1
-#define GRP_LOC   2
+// @v11.4.4 #define GRP_GOODS 1
+// @v11.4.4 #define GRP_LOC   2
 
 int PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSalesFilt * pFilt*/)
 {
+	enum {
+		ctlgroupGoods = 1,
+		ctlgroupLoc   = 2,
+	};
 	int    ok = -1;
 	TDialog * dlg = 0;
 	PredictSalesFilt * p_filt = 0;
@@ -383,7 +387,7 @@ int PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSalesFilt *
 		dlg->SetupCalPeriod(CTLCAL_PSALESFLT_PERIOD, CTL_PSALESFLT_PERIOD);
 		dlg->SetupCalDate(CTLCAL_PSALESFLT_WATERSHED, CTL_PSALESFLT_WATERSHED);
 		SetPeriodInput(dlg, CTL_PSALESFLT_PERIOD, &p_filt->Period);
-		dlg->addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_PSALESFLT_GGROUP, CTLSEL_PSALESFLT_GOODS));
+		dlg->addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_PSALESFLT_GGROUP, CTLSEL_PSALESFLT_GOODS));
 		GoodsCtrlGroup::Rec rec(p_filt->GoodsGrpID, p_filt->GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 		dlg->setGroupData(1, &rec); // 1 == GRP_GOODS
 		if(p_filt->GoodsIdList.GetCount() > 1) {
@@ -393,9 +397,9 @@ int PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSalesFilt *
 			else
 				SetComboBoxListText(dlg, CTLSEL_PSALESFLT_GOODS);
 		}
-		dlg->addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_PSALESFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
+		dlg->addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_PSALESFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		LocationCtrlGroup::Rec loc_rec(&p_filt->LocList);
-		dlg->setGroupData(GRP_LOC, &loc_rec);
+		dlg->setGroupData(ctlgroupLoc, &loc_rec);
 		dlg->setCtrlData(CTL_PSALESFLT_CYCLE, &p_filt->Cycle);
 		dlg->setCtrlData(CTL_PSALESFLT_WATERSHED, &p_filt->Watershed);
 		dlg->AddClusterAssoc(CTL_PSALESFLT_FLAGS, 0, PredictSalesFilt::fShowNoData);
@@ -405,7 +409,7 @@ int PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSalesFilt *
 			filt =*p_filt;
 			if(!GetPeriodInput(dlg, CTL_PSALESFLT_PERIOD, &filt.Period))
 				PPErrorByDialog(dlg, CTL_PSALESFLT_PERIOD);
-			else if(dlg->getGroupData(GRP_GOODS, &rec) > 0) {
+			else if(dlg->getGroupData(ctlgroupGoods, &rec) > 0) {
 				if(!p_filt->GoodsIdList.IsExists()) {
 					filt.GoodsGrpID = rec.GrpID;
 					filt.GoodsID    = rec.GoodsID;
@@ -419,7 +423,7 @@ int PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSalesFilt *
 				if(filt.GoodsID == 0 && !p_filt->GoodsIdList.IsExists())
 					PPErrorByDialog(dlg, CTLSEL_PSALESFLT_GOODS, PPERR_GOODSNEEDED);
 				else {
-					dlg->getGroupData(GRP_LOC, &loc_rec);
+					dlg->getGroupData(ctlgroupLoc, &loc_rec);
 					filt.LocList = loc_rec.LocList;
 					dlg->getCtrlData(CTL_PSALESFLT_CYCLE, &filt.Cycle);
 					dlg->getCtrlData(CTL_PSALESFLT_WATERSHED, &filt.Watershed);

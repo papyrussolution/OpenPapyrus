@@ -3459,7 +3459,7 @@ protected:
 	void * P_PrevData;
 private:
 	void   Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
-	void    RemoveUnusedControls();
+	void   RemoveUnusedControls();
 	uint   GrpCount;
 	CtrlGroup ** PP_Groups;
 	HWND   ToolTipsWnd;
@@ -4161,7 +4161,7 @@ protected:
 	int    GetImageIdxByID(long id, long * pIdx);
 	void   SelectTreeItem();
 	void   onInitDialog(int useScrollbar);
-	int    FASTCALL onVKeyToItem(WPARAM wParam);
+	// @v11.4.4 (inlined) int    FASTCALL onVKeyToItem(WPARAM wParam);
 	int    GetMaxListHeight();
 	void   Implement_Draw();
 private:
@@ -4244,8 +4244,8 @@ public:
 	int    ViewRecent(); // @v10.7.7
 	int    Activate();
 	void   ActivateInput();
-	int    CheckVisible() const;
-	int    CheckActive() const;
+	bool   CheckVisible() const;
+	bool   CheckActive() const;
 private:
 	DECL_HANDLE_EVENT;
 	void   DrawListItem2(TDrawItemData * pDrawItem);
@@ -4257,9 +4257,13 @@ private:
 		clrOdd,
 		clrBkgnd,
 	};
-
-	int    IsVisible;
-	int    IsActive;
+	//int    IsVisible_;
+	//int    IsActive_;
+	enum {
+		wssVisible = 0x0001,
+		wssActive  = 0x0002
+	};
+	uint   WsState;
 	SPaintToolBox Ptb;
 	WordSel_ExtraBlock * P_Blk; // not owner
 };
@@ -5523,7 +5527,7 @@ protected:
 		};
 		long   RowId;        // Ид строки, в которой находится в текущий момент перемещаемый отрезок
 		long   Shift;        // Текущее смещение от начальной позиции
-		SPoint2S Org;          // Точка отсчета для изменения размеров (масштаба)
+		SPoint2S Org;        // Точка отсчета для изменения размеров (масштаба)
 		TRect  Prev;         //
 	};
 	struct State {

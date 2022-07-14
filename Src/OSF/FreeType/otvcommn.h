@@ -124,9 +124,8 @@ typedef struct  OTV_ValidatorRec_ {
 	}                                                       \
 	FT_END_STMNT
 
-#define  OTV_NAME_(x)  #x
+#define  OTV_NAME_(x)  #x // @todo replacewith(STRINGIZE)
 #define  OTV_NAME(x)   OTV_NAME_(x)
-
 #define  OTV_FUNC_(x)  x ## Func
 #define  OTV_FUNC(x)   OTV_FUNC_(x)
 

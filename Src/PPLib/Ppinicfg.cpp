@@ -94,7 +94,7 @@ int PPIniFile::GetDataSize(uint sectId, uint paramId, int64 * pVal)
 
 int PPIniFile::GetEntryList(uint sectId, StringSet * pEntries, int storeAllString)
 {
-	SString sect_name; // don't use SLS.AcquireRvlStr() (GetEnties uses loop)
+	SString sect_name; // don't use SLS.AcquireRvlStr() (GetEntries uses loop)
 	ParamIdToStrings(sectId, 0, &sect_name, 0);
 	return SIniFile::GetEntries(sect_name, pEntries, storeAllString);
 }

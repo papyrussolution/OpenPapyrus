@@ -19,7 +19,7 @@ PPViewCurRate::PPViewCurRate() : PPView(0, &Filt, 0, 0, 0)
 {
 }
 
-PPBaseFilt * PPViewCurRate::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewCurRate::CreateFilt(const void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_CURRATE, &p_base_filt)) {

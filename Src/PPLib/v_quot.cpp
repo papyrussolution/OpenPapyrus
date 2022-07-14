@@ -206,16 +206,20 @@ const StrAssocArray & PPViewQuot::GetQuotKindList() const { return QuotKindList;
 //
 //
 //
-#define GRP_GOODSFILT 1
-#define GRP_LOC       2
+// @v11.4.4 #define GRP_GOODSFILT 1
+// @v11.4.4 #define GRP_LOC       2
 
 class QuotFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(QuotFilt);
+	enum {
+		ctlgroupGoodsFilt = 1,
+		ctlgroupLoc       = 2,
+	};
 public:
 	QuotFiltDialog() : TDialog(DLG_QUOTFLT), Cls(PPQuot::clsGeneral), LastAccSheetID(0), Spc(PPObjQuotKind::Special::ctrInitializeWithCache)
 	{
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_QUOTFLT_GOODS, CTLSEL_QUOTFLT_GGRP, cmGoodsFilt));
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_QUOTFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
+		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_QUOTFLT_GOODS, CTLSEL_QUOTFLT_GGRP, cmGoodsFilt));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_QUOTFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
 		SetupCalDate(CTLCAL_QUOTFLT_EFFDATE, CTL_QUOTFLT_EFFDATE);
 		SetupCalPeriod(CTLCAL_QUOTFLT_SETPRD, CTL_QUOTFLT_SETPRD);
 	}
@@ -250,9 +254,9 @@ public:
 		SetClusterData(CTL_QUOTFLT_ORDER, Data.InitOrder);
 		SetRealRangeInput(this, CTL_QUOTFLT_VALRANGE, &Data.Val);
 		GoodsFiltCtrlGroup::Rec rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-		setGroupData(GRP_GOODSFILT, &rec);
+		setGroupData(ctlgroupGoodsFilt, &rec);
 		LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-		setGroupData(GRP_LOC, &loc_rec);
+		setGroupData(ctlgroupLoc, &loc_rec);
 		setCtrlDate(CTL_QUOTFLT_EFFDATE, Data.EffDate);
 		SetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period);
 		SetupSubstGoodsCombo(this, CTLSEL_QUOTFLT_SGG, Data.Sgg); // @v10.1.2
@@ -278,12 +282,12 @@ public:
 		}
 		GetClusterData(CTL_QUOTFLT_ORDER,     &Data.InitOrder);
 		GetRealRangeInput(this, CTL_QUOTFLT_VALRANGE, &Data.Val);
-		getGroupData(GRP_GOODSFILT, &rec);
+		getGroupData(ctlgroupGoodsFilt, &rec);
 		Data.GoodsGrpID = rec.GoodsGrpID;
 		Data.GoodsID = rec.GoodsID;
 		Data.EffDate = getCtrlDate(CTL_QUOTFLT_EFFDATE);
 		GetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period);
-		getGroupData(GRP_LOC, &loc_rec);
+		getGroupData(ctlgroupLoc, &loc_rec);
 		Data.LocList = loc_rec.LocList;
 		if(!Data.QuotKindID)
 			Data.Flags &= ~QuotFilt::fCrosstab;

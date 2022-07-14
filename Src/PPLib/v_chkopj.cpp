@@ -76,7 +76,7 @@ bool CheckOpJrnlFilt::IsEmpty() const
 //
 //
 //
-PPBaseFilt * PPViewCheckOpJrnl::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewCheckOpJrnl::CreateFilt(const void * extraPtr) const
 {
 	CheckOpJrnlFilt * p_filt = new CheckOpJrnlFilt;
 	p_filt->Period.SetDate(getcurdate_());

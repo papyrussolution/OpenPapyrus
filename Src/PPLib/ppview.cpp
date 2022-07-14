@@ -5,17 +5,227 @@
 #include <pp.h>
 #pragma hdrstop
 
+PPView::Rc::Rc() : Id(0), P_ExtraParam(0)
+{
+}
+
+PPView::Rc & PPView::Rc::Z()
+{
+	Id = 0;
+	Symb.Z();
+	Descr.Z();
+	P_ExtraParam = 0;
+	return *this;
+}
+
+/*static*/const PPView::DescriptionList * PPView::P_DL;
+/*static*/const PPView::DescriptionList * PPView::P_FL;
+
+/*static*/int PPView::InitializeDescriptionList()
+{
+	P_DL = new PPView::DescriptionList(PPView::DescriptionList::kView);
+	P_FL = new PPView::DescriptionList(PPView::DescriptionList::kFilt);
+	if(P_DL && P_DL->IsValid() && P_FL && P_FL->IsValid()) {
+		return 1;
+	}
+	else {
+		ZDELETE(P_DL);
+		assert(0);
+		return 0;
+	}
+}
+
 /*static*/DBQuery * PPView::CrosstabDbQueryStub = reinterpret_cast<DBQuery *>(0x0001);
 //
 //
 //
+PPView::DescriptionList::DescriptionList(int kind) : Kind(kind), Fail(0)
+{
+	assert(oneof2(Kind, kView, kFilt));
+	TVRez * p_rez = P_SlRez;
+	THROW(oneof2(Kind, kView, kFilt));
+	THROW_PP(p_rez, PPERR_RESFAULT);
+	{
+		ulong pos = 0;
+		Rc rc;
+		if(Kind == kFilt) {
+			for(uint rsc_id = 0; p_rez->enumResources(PP_RCDECLFILT, &rsc_id, &pos) > 0;) {
+				rc.Z();
+				if(p_rez->findResource(rsc_id, PP_RCDECLFILT)) {
+					rc.Id = rsc_id;
+					p_rez->getString(rc.Symb, 0);
+					p_rez->getString(rc.Descr, 0);
+					InnerEntry ie;
+					ie.Id = rc.Id;
+					AddS(rc.Symb, &ie.SymbP);
+					AddS(rc.Descr, &ie.DescrP);
+					ie.P_ExtraParam = 0;
+					THROW_SL(L.insert(&ie));
+				}				
+			}
+		}
+		else if(Kind == kView) {
+			for(uint rsc_id = 0; p_rez->enumResources(PP_RCDECLVIEW, &rsc_id, &pos) > 0;) {
+				if(!oneof4(rsc_id, PPVIEW_GOODSGROUP, PPVIEW_REGISTER, PPVIEW_TAG, PPVIEW_BBOARD)) { // Исключаем фиктивные PPView
+					rc.Z();
+					if(p_rez->findResource(rsc_id, PP_RCDECLVIEW)) {
+						rc.Id = rsc_id;
+						p_rez->getString(rc.Symb, 0);
+						p_rez->getString(rc.Descr, 0);
+						InnerEntry ie;
+						ie.Id = rc.Id;
+						AddS(rc.Symb, &ie.SymbP);
+						AddS(rc.Descr, &ie.DescrP);
+						ie.P_ExtraParam = 0;
+						THROW_SL(L.insert(&ie));
+					}
+				}
+			}
+			{
+				//
+				// Специальные элементы для различных категорий документов
+				//
+				struct RSVD {
+					const BillFilt::FiltExtraParam Ep;
+					const char * P_Symb;
+					const char * P_Name;
+				};
+				static const RSVD ep[] = {
+					//{ BillFilt::FiltExtraParam(0, bbtGoodsBills), "Bill_Goods", "@{commoditydocument_pl}" },
+					{ BillFilt::FiltExtraParam(0, bbtOrderBills), "Bill_Ord", "@{cmd_goodsorder}" },
+					{ BillFilt::FiltExtraParam(0, bbtAccturnBills), "Bill_Acc", "@{accountdocument_pl}" },
+					{ BillFilt::FiltExtraParam(0, bbtInventoryBills), "Bill_Inv", "@{inventorydocument_pl}" },
+					{ BillFilt::FiltExtraParam(0, bbtPoolBills), "Bill_Pool", "@{documentpool_pl}" },
+					//{ BillFilt::FiltExtraParam(0, bbtClientDebt), "Bill_CliDebt", "bbtClientDebt" },
+					//{ BillFilt::FiltExtraParam(0, bbtClientRPayment), "Bill_CliRPaym", "bbtClientRPayment" },
+					{ BillFilt::FiltExtraParam(0, bbtDraftBills), "Bill_Draft", "@{draftdocument_pl}" },
+					//{ BillFilt::FiltExtraParam(0, bbtRealTypes), "Bill_Real", "bbtRealTypes" },
+					{ BillFilt::FiltExtraParam(0, bbtWmsBills), "Bill_Wms", "@{cmd_wmsbilllist}" },
+				};
+				for(uint i = 0; i < SIZEOFARRAY(ep); i++) {
+					InnerEntry ie;
+					ie.Id = (PPVIEW_BILL | (ep[i].Ep.Bbt << 16));
+					AddS(ep[i].P_Symb, &ie.SymbP);
+					AddS(ep[i].P_Name, &ie.DescrP);
+					ie.P_ExtraParam = &ep[i].Ep;
+					THROW_SL(L.insert(&ie));
+				}
+			}
+		}
+		L.sort2(CMPF_LONG, 0);
+	}
+	CATCH
+		Fail = 1;
+	ENDCATCH
+}
+
+int PPView::DescriptionList::GetById(long id, PPView::Rc & rEntry) const
+{
+	int    ok = 0;
+	rEntry.Z();
+	if(!Fail) {
+		uint   idx = 0;
+		if(L.bsearch(&id, &idx, CMPF_LONG)) {
+			const InnerEntry & r_ie = L.at(idx);
+			assert(r_ie.Id == id);
+			rEntry.Id = r_ie.Id;
+			GetS(r_ie.SymbP, rEntry.Symb);
+			GetS(r_ie.DescrP, rEntry.Descr);
+			rEntry.P_ExtraParam = r_ie.P_ExtraParam;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int PPView::DescriptionList::GetBySymb(const char * pSymb, PPView::Rc & rEntry) const
+{
+	int    ok = 0;
+	rEntry.Z();
+	if(!Fail && !isempty(pSymb)) {
+		SString symb;
+		for(uint i = 0; !ok && i < L.getCount(); i++) {
+			const InnerEntry & r_ie = L.at(i);
+			if(GetS(r_ie.SymbP, symb) && symb.IsEqiAscii(pSymb)) {
+				rEntry.Id = r_ie.Id;
+				rEntry.Symb = symb;
+				GetS(r_ie.DescrP, rEntry.Descr);
+				rEntry.P_ExtraParam = r_ie.P_ExtraParam;
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int PPView::DescriptionList::GetList(bool includeSpecialItems, TSCollection <Rc> & rResult) const
+{
+	int    ok = 1;
+	rResult.freeAll();
+	THROW(!Fail);
+	for(uint i = 0; i < L.getCount(); i++) {
+		const InnerEntry & r_ie = L.at(i);
+		if(includeSpecialItems || !(r_ie.Id & 0xffff0000)) {
+			Rc * p_new_entry = rResult.CreateNewItem();
+			THROW_SL(p_new_entry);
+			p_new_entry->Id = r_ie.Id;
+			p_new_entry->P_ExtraParam = r_ie.P_ExtraParam;
+			GetS(r_ie.SymbP, p_new_entry->Symb);
+			GetS(r_ie.DescrP, p_new_entry->Descr);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int PPView::GetFilterById(long id, PPView::Rc & rEntry) { return P_FL ? P_FL->GetById(id, rEntry) : 0; }
+/*static*/int PPView::GetDescriptionById(long id, PPView::Rc & rEntry) { return P_DL ? P_DL->GetById(id, rEntry) : 0; }
+/*static*/const void * PPView::GetDescriptionExtra(long id) 
+{ 
+	const void * p_result = 0;
+	if(P_DL) {
+		PPView::Rc entry;
+		if(P_DL->GetById(id, entry))
+			p_result = entry.P_ExtraParam;
+	}
+	return p_result;
+}
+/*static*/int PPView::GetDescriptionBySymb(const char * pSymb, PPView::Rc & rEntry) { return P_DL ? P_DL->GetBySymb(pSymb, rEntry) : 0; }
+/*static*/int PPView::GetDescriptionList(bool includeSpecialItems, TSCollection <Rc> & rResult) { return P_DL ? P_DL->GetList(includeSpecialItems, rResult) : 0; }
+
+/*static*/int PPView::GetDescriptionList(bool includeSpecialItems, StrAssocArray * pSymbList, StrAssocArray * pTextList)
+{
+	int    ok = 1;
+	SString temp_buf;
+	CALLPTRMEMB(pSymbList, Z());
+	CALLPTRMEMB(pTextList, Z());
+	TSCollection <Rc> rclist;
+	THROW(GetDescriptionList(includeSpecialItems, rclist));
+	for(uint i = 0; i < rclist.getCount(); i++) {
+		const Rc * p_rc = rclist.at(i);
+		if(p_rc) {
+			if(pSymbList) {
+				THROW_SL(pSymbList->Add(p_rc->Id, p_rc->Symb));
+			}
+			if(pTextList) {
+				temp_buf = p_rc->Descr;
+				PPExpandString(temp_buf, CTRANSF_UTF8_TO_INNER); // @v10.1.6
+				THROW_SL(pTextList->Add(p_rc->Id, temp_buf));
+			}			
+		}
+	}
+	CALLPTRMEMB(pTextList, SortByText());
+	CATCHZOK
+	return ok;
+}
+
+#if 0 // @v11.4.4 {
 /*static*/int PPView::LoadResource(int kind, int id, PPView::Rc & rRc)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
+	rRc.Z();
 	rRc.Id = id;
-	rRc.Symb.Z();
-	rRc.Descr.Z();
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	if(kind == 0) {
 		THROW(p_rez->findResource(id, PP_RCDECLVIEW));
@@ -34,11 +244,46 @@
 	return ok;
 }
 
+/*static*/int PPView::GetResourceLists(bool includeSpecialItems, StrAssocArray * pSymbList, StrAssocArray * pTextList)
+{
+	int    ok = 1;
+	CALLPTRMEMB(pSymbList, Z());
+	CALLPTRMEMB(pTextList, Z());
+	TVRez * p_rez = P_SlRez;
+	THROW_PP(p_rez, PPERR_RESFAULT);
+	{
+		ulong pos = 0;
+		Rc rc;
+		for(uint rsc_id = 0; p_rez->enumResources(PP_RCDECLVIEW, &rsc_id, &pos) > 0;) {
+			if(!oneof4(rsc_id, PPVIEW_GOODSGROUP, PPVIEW_REGISTER, PPVIEW_TAG, PPVIEW_BBOARD)) { // Исключаем фиктивные PPView
+				const void * p_extra_init_ptr = 0;
+				THROW(LoadResource(0, rsc_id, rc));
+				if(pSymbList) {
+					THROW_SL(pSymbList->Add(rsc_id, rc.Symb));
+				}
+				if(pTextList) {
+					PPExpandString(rc.Descr, CTRANSF_UTF8_TO_INNER); // @v10.1.6
+					THROW_SL(pTextList->Add(rsc_id, rc.Descr));
+				}
+			}
+		}
+		// @v11.4.4 {
+		if(includeSpecialItems) {
+		}
+		// } @v11.4.4 
+		CALLPTRMEMB(pTextList, SortByText());
+	}
+	CATCHZOK
+	return ok;
+}
+#endif // } 0 @v11.4.4
+
 /*static*/int FASTCALL PPView::CreateFiltInstance(int filtID, PPBaseFilt ** ppF)
 {
 	ASSIGN_PTR(ppF, 0);
 	Rc     rc;
-	return LoadResource(1, filtID, rc) ? CreateFiltInstanceBySymb(rc.Symb, ppF) : 0;
+	// @v11.4.4 return LoadResource(1, filtID, rc) ? CreateFiltInstanceBySymb(rc.Symb, ppF) : 0;
+	return GetFilterById(filtID, rc) ? CreateFiltInstanceBySymb(rc.Symb, ppF) : 0; // @v11.4.4
 }
 
 /*static*/int FASTCALL PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** ppF)
@@ -128,21 +373,22 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 
 /*static*/int FASTCALL PPView::CreateInstance(int viewID, PPView ** ppV) { return CreateInstance(viewID, 0, ppV); }
 
-/*static*/int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV)
+/*static*/int FASTCALL PPView::CreateInstance(int viewID_, int32 * pSrvInstId, PPView ** ppV)
 {
 	int    ok = 1;
+	const  int base_view_id = (viewID_ & 0x0000ffff); // @v11.4.4
 	PPView * p_v = 0;
 	int32  srv_inst_id = DEREFPTRORZ(pSrvInstId);
 	PPThreadLocalArea & tla = DS.GetTLA();
 	if(srv_inst_id) {
 		p_v = tla.GetPPViewPtr(srv_inst_id);
-		if(!p_v || !p_v->IsConsistent() || p_v->ViewId != viewID) {
+		if(!p_v || !p_v->IsConsistent() || p_v->ViewId != viewID_) {
 			p_v = 0;
 			srv_inst_id = 0;
 		}
 	}
 	if(!p_v) {
-		switch(viewID) {
+		switch(base_view_id) {
 			case PPVIEW_TRFRANLZ:        p_v = new PPViewTrfrAnlz;       break;
 			case PPVIEW_CCHECK:          p_v = new PPViewCCheck;         break;
 			case PPVIEW_STAFFLIST:       p_v = new PPViewStaffList;      break;
@@ -247,10 +493,14 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_STYLOQCOMMAND:   p_v = new PPViewStyloQCommand(); break; // @v11.1.9
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
-		if(p_v && p_v->Symb.IsEmpty()) {
-			Rc rc;
-			if(LoadResource(0, viewID, rc))
-				p_v->Symb = rc.Symb;
+		if(p_v) {
+			p_v->ViewId = viewID_; // @v11.4.4
+			if(p_v->Symb.IsEmpty()) {
+				Rc rc;
+				// @v11.4.4 if(LoadResource(0, viewID, rc))
+				if(GetDescriptionById(viewID_, rc)) // @v11.4.4
+					p_v->Symb = rc.Symb;
+			}
 		}
 	}
 	if(p_v && pSrvInstId) {
@@ -576,7 +826,7 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 
 /*static*/void STDCALL PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pMembName, SString & rBuf)
 {
-	if(pParam && pParam->IsZero() == 0) {
+	if(pParam && !pParam->IsZero()) {
 		SString & r_buf = SLS.AcquireRvlStr();
 		PutMembToBuf(r_buf.Cat(*pParam), pMembName, rBuf);
 	}
@@ -785,7 +1035,8 @@ static const char * P_FiltTag = "PPFILT";
 	if(pFilt) {
 		long   filt_id = pFilt->GetSignature();
 		Rc     rc;
-		if(LoadResource(1, filt_id, rc))
+		// @v11.4.4 if(LoadResource(1, filt_id, rc))
+		if(GetFilterById(filt_id, rc)) // @v11.4.4
 			rBuf.Write(rc.Symb);
 		else
 			rBuf.Write(temp_buf.Z().Cat(filt_id));
@@ -984,7 +1235,8 @@ int PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 		Capability = preserve_capability;
 		if(PPErrCode == PPERR_INVFILTVERSION) {
 			PPView::Rc rc;
-			if(PPView::LoadResource(1, Signature, rc) > 0)
+			// @v11.4.4 if(PPView::LoadResource(1, Signature, rc) > 0)
+			if(PPView::GetFilterById(Signature, rc)) // @v11.4.4
 				PPSetAddedMsgString(rc.Symb);
 			else
 				PPSetAddedMsgString(temp_buf.Z().Cat(Signature));
@@ -1147,7 +1399,8 @@ PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId, long implFla
 {
 	if(ViewId) {
 		Rc rc;
-		if(PPView::LoadResource(0, ViewId, rc)) {
+		// @v11.4.4 if(PPView::LoadResource(0, ViewId, rc)) {
+		if(GetDescriptionById(ViewId, rc)) {
 			Symb = rc.Symb;
 			Descr = rc.Descr;
 		}
@@ -1204,7 +1457,7 @@ int FASTCALL PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-PPBaseFilt * PPView::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPView::CreateFilt(const void * extraPtr) const
 {
 	if(P_F) {
 		PPBaseFilt * p_filt = 0;
@@ -1373,7 +1626,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 			THROW(PPView::ReadFiltPtr(filt_buf, &p_filt));
 		}
 		else {
-			THROW(p_filt = p_view->CreateFilt(0));
+			THROW(p_filt = p_view->CreateFilt(PPView::GetDescriptionExtra(p_view->GetViewId())));
 		}
 		THROW(p_view->Init_(p_filt));
 		if(!dl600_name.NotEmptyS()) {
@@ -1442,7 +1695,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 			THROW(PPView::ReadFiltPtr(filt_buf, &p_filt));
 		}
 		else {
-			THROW(p_filt = p_view->CreateFilt(0));
+			THROW(p_filt = p_view->CreateFilt(PPView::GetDescriptionExtra(p_view->GetViewId())));
 		}
 		THROW(p_view->Init_(p_filt));
 		if(!dl600_name.NotEmptyS()) {
@@ -1620,7 +1873,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 	THROW(PPView::CreateInstance(view_id, &inst_id, &p_view));
 	p_view->ServerInstId = inst_id;
 	p_view->BaseState |= bsServerInst;
-	THROW(p_filt = p_view->CreateFilt(0));
+	THROW(p_filt = p_view->CreateFilt(PPView::GetDescriptionExtra(p_view->GetViewId())));
 	{
 		SBuffer temp_sbuf;
 		SSerializeContext ctx;
@@ -1660,7 +1913,7 @@ int PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 			// Так как Serialize - non-const функция, придется создать копию фильтра
 			// и уже ее передавать серверу.
 			//
-			THROW(p_filt = CreateFilt(0));
+			THROW(p_filt = CreateFilt(PPView::GetDescriptionExtra(GetViewId())));
 			THROW(p_filt->Copy(pFilt, 1));
 			THROW(cmd.StartWriting(PPSCMD_CREATEVIEW));
 			THROW_SL(cmd.Write(ViewId));
@@ -1841,7 +2094,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 {
 	int    ok = -1;
 	const  uint prev_rez_id = pW ? pW->GetResID() : 0;
-	PPBaseFilt * p_filt = CreateFilt(0);
+	PPBaseFilt * p_filt = CreateFilt(PPView::GetDescriptionExtra(GetViewId()));
 	const PPBaseFilt * p_src_filt = GetBaseFilt();
 	DBQuery * p_q = 0;
 	SArray * p_array = 0;

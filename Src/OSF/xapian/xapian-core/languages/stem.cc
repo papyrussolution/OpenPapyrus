@@ -17,7 +17,6 @@
 #pragma hdrstop
 #include "steminternal.h"
 #include "allsnowballheaders.h"
-#include "keyword.h"
 #include "sbl-dispatch.h"
 
 using namespace std;
@@ -28,95 +27,36 @@ Stem::Stem(const std::string & language, bool fallback)
 	int l = keyword2(tab, language.data(), language.size());
 	if(l >= 0) {
 		switch(static_cast<sbl_code>(l)) {
-			case ARABIC:
-			    internal = new InternalStemArabic;
-			    return;
-			case ARMENIAN:
-			    internal = new InternalStemArmenian;
-			    return;
-			case BASQUE:
-			    internal = new InternalStemBasque;
-			    return;
-			case CATALAN:
-			    internal = new InternalStemCatalan;
-			    return;
-			case DANISH:
-			    internal = new InternalStemDanish;
-			    return;
-			case DUTCH:
-			    internal = new InternalStemDutch;
-			    return;
-			case EARLYENGLISH:
-			    internal = new InternalStemEarlyenglish;
-			    return;
-			case ENGLISH:
-			    internal = new InternalStemEnglish;
-			    return;
-			case FINNISH:
-			    internal = new InternalStemFinnish;
-			    return;
-			case FRENCH:
-			    internal = new InternalStemFrench;
-			    return;
-			case GERMAN:
-			    internal = new InternalStemGerman;
-			    return;
-			case GERMAN2:
-			    internal = new InternalStemGerman2;
-			    return;
-			case HUNGARIAN:
-			    internal = new InternalStemHungarian;
-			    return;
-			case INDONESIAN:
-			    internal = new InternalStemIndonesian;
-			    return;
-			case IRISH:
-			    internal = new InternalStemIrish;
-			    return;
-			case ITALIAN:
-			    internal = new InternalStemItalian;
-			    return;
-			case KRAAIJ_POHLMANN:
-			    internal = new InternalStemKraaij_pohlmann;
-			    return;
-			case LITHUANIAN:
-			    internal = new InternalStemLithuanian;
-			    return;
-			case LOVINS:
-			    internal = new InternalStemLovins;
-			    return;
-			case NEPALI:
-			    internal = new InternalStemNepali;
-			    return;
-			case NORWEGIAN:
-			    internal = new InternalStemNorwegian;
-			    return;
-			case NONE:
-			    return;
-			case PORTUGUESE:
-			    internal = new InternalStemPortuguese;
-			    return;
-			case PORTER:
-			    internal = new InternalStemPorter;
-			    return;
-			case RUSSIAN:
-			    internal = new InternalStemRussian;
-			    return;
-			case ROMANIAN:
-			    internal = new InternalStemRomanian;
-			    return;
-			case SPANISH:
-			    internal = new InternalStemSpanish;
-			    return;
-			case SWEDISH:
-			    internal = new InternalStemSwedish;
-			    return;
-			case TAMIL:
-			    internal = new InternalStemTamil;
-			    return;
-			case TURKISH:
-			    internal = new InternalStemTurkish;
-			    return;
+			case ARABIC: internal = new InternalStemArabic; return;
+			case ARMENIAN: internal = new InternalStemArmenian; return;
+			case BASQUE: internal = new InternalStemBasque; return;
+			case CATALAN: internal = new InternalStemCatalan; return;
+			case DANISH: internal = new InternalStemDanish; return;
+			case DUTCH: internal = new InternalStemDutch; return;
+			case EARLYENGLISH: internal = new InternalStemEarlyenglish; return;
+			case ENGLISH: internal = new InternalStemEnglish; return;
+			case FINNISH: internal = new InternalStemFinnish; return;
+			case FRENCH: internal = new InternalStemFrench; return;
+			case GERMAN: internal = new InternalStemGerman; return;
+			case GERMAN2: internal = new InternalStemGerman2; return;
+			case HUNGARIAN: internal = new InternalStemHungarian; return;
+			case INDONESIAN: internal = new InternalStemIndonesian; return;
+			case IRISH: internal = new InternalStemIrish; return;
+			case ITALIAN: internal = new InternalStemItalian; return;
+			case KRAAIJ_POHLMANN: internal = new InternalStemKraaij_pohlmann; return;
+			case LITHUANIAN: internal = new InternalStemLithuanian; return;
+			case LOVINS: internal = new InternalStemLovins; return;
+			case NEPALI: internal = new InternalStemNepali; return;
+			case NORWEGIAN: internal = new InternalStemNorwegian; return;
+			case NONE: return;
+			case PORTUGUESE: internal = new InternalStemPortuguese; return;
+			case PORTER: internal = new InternalStemPorter; return;
+			case RUSSIAN: internal = new InternalStemRussian; return;
+			case ROMANIAN: internal = new InternalStemRomanian; return;
+			case SPANISH: internal = new InternalStemSpanish; return;
+			case SWEDISH: internal = new InternalStemSwedish; return;
+			case TAMIL: internal = new InternalStemTamil; return;
+			case TURKISH: internal = new InternalStemTurkish; return;
 		}
 	}
 	if(fallback || language.empty())

@@ -11,7 +11,6 @@
 #pragma hdrstop
 #include "cmdlineparser.h"
 #include "redirect.h"
-#include "suppressions.h"
 #include "timer.h"
 
 class TestCmdlineParser : public TestFixture {

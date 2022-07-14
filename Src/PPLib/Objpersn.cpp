@@ -463,7 +463,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 			{
 				char   reg_buf[16];
 				memzero(reg_buf, sizeof(reg_buf));
-				WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+				WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
 				reg_key.PutString(_PPConst.WrParam_PersonAddImageFolder, (pCfg->AddImageFolder.Len() == 0) ? reg_buf : pCfg->AddImageFolder);
 			}
 		}
@@ -523,7 +523,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 			pCfg->TopFolder = 0;
 		{
 			size_t buf_size = 0;
-			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
+			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
 			if(reg_key.GetRecSize(_PPConst.WrParam_PersonAddImageFolder, &buf_size) > 0 && buf_size > 0) {
 				SString temp_buf;
 				reg_key.GetString(_PPConst.WrParam_PersonAddImageFolder, temp_buf);
@@ -2939,8 +2939,38 @@ int PPObjPerson::PutStaffAmtList(PPID id, const StaffAmtList * pList)
 	return PPRef->PutPropArray(Obj, id, SLPPRP_AMTLIST, pList, 0);
 }
 
-int PPObjPerson::GetPersonListByDlvrLoc(PPID dlvrLocID, PPIDArray * pList)
+int PPObjPerson::GetPersonListByCategory(PPID catID, PPID kindID, PPIDArray & rList)
 {
+	rList.Z();
+	int    ok = -1;
+	if(catID > 0) {
+		PersonCore * p_t = P_Tbl;
+		PersonTbl::Key2 k2;
+		BExtQuery pq(p_t, 2);
+		pq.select(p_t->ID, p_t->Name, p_t->Status, p_t->MainLoc, p_t->Flags, p_t->RLoc, 0L);
+		pq.where(p_t->CatID == catID);
+		MEMSZERO(k2);
+		k2.CatID = catID;
+		for(pq.initIteration(false, &k2, spGe); pq.nextIteration() > 0;) {
+			rList.add(p_t->data.ID);
+		}
+		rList.sortAndUndup();
+		if(kindID) {
+			uint c = rList.getCount();
+			if(c) do {
+				PPID   id = rList.get(--c);
+				if(!p_t->IsBelongToKind(id, kindID)) {
+					rList.atFree(c);
+				}
+			} while(c);
+		}
+	}
+	return ok ? (rList.getCount() ? 1 : -1) : 0;
+}
+
+int PPObjPerson::GetPersonListByDlvrLoc(PPID dlvrLocID, PPIDArray & rList)
+{
+	rList.Z();
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	LongArray temp_list;
@@ -2950,18 +2980,15 @@ int PPObjPerson::GetPersonListByDlvrLoc(PPID dlvrLocID, PPIDArray * pList)
 	k1.Prop = PSNPRP_DLVRLOCLIST;
 	while(p_ref->Prop.search(1, &k1, spGt) && k1.ObjType == PPOBJ_PERSON && k1.Prop == PSNPRP_DLVRLOCLIST) {
 		const PPID person_id = p_ref->Prop.data.ObjID;
-		temp_list.clear();
+		temp_list.Z();
 		THROW(p_ref->GetPropArrayFromRecBuf(&temp_list));
 		if(temp_list.lsearch(dlvrLocID)) {
+			THROW_SL(rList.add(person_id));
 			ok = 1;
-			if(pList) {
-				THROW_SL(pList->addUnique(person_id));
-			}
-			else
-				break;
 		}
 	}
 	CATCHZOK
+	rList.sortAndUndup();
 	return ok;
 }
 
@@ -3316,7 +3343,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 										else {
 											int    is_there_another_link = 0;
 											PPIDArray link_psn_list;
-											if(GetPersonListByDlvrLoc(loc_id, &link_psn_list) > 0) {
+											if(GetPersonListByDlvrLoc(loc_id, link_psn_list) > 0) {
 												for(uint n = 0; n < link_psn_list.getCount(); n++) {
 													if(link_psn_list.get(n) != id && Search(link_psn_list.get(n), 0) > 0) {
 														is_there_another_link = 1;

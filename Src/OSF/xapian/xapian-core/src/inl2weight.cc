@@ -45,7 +45,7 @@ void InL2Weight::init(double factor)
 		return;
 	}
 	double wdfn_upper = get_wdf_upper_bound();
-	if(wdfn_upper == 0) {
+	if(wdfn_upper == 0.0) {
 		upper_bound = 0.0;
 		return;
 	}
@@ -77,8 +77,7 @@ InL2Weight * InL2Weight::unserialise(const string & s) const
 	return new InL2Weight(c);
 }
 
-double InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-    Xapian::termcount, Xapian::termcount) const
+double InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len, Xapian::termcount, Xapian::termcount) const
 {
 	if(wdf == 0) return 0.0;
 	double wdfn = wdf;

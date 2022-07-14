@@ -200,7 +200,7 @@ PPViewDebtTrnovr::~PPViewDebtTrnovr()
 		DBRemoveTempFiles();
 }
 
-PPBaseFilt * PPViewDebtTrnovr::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewDebtTrnovr::CreateFilt(const void * extraPtr) const
 {
 	DebtTrnovrFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_DEBTTRNOVR, reinterpret_cast<PPBaseFilt **>(&p_filt))) {
@@ -223,7 +223,7 @@ int FASTCALL PPViewDebtTrnovr::CheckAddress(PPID locID)
 	if(Filt.CityID) {
 		PPID   city_id = 0;
 		if(locID && PsnObj.GetCityByAddr(locID, &city_id, 0, 1) > 0)
-			if(WObj.IsChildOf(city_id, Filt.CityID) > 0)
+			if(WObj.IsChildOf(city_id, Filt.CityID))
 				ok = 1;
 	}
 	else
@@ -4101,7 +4101,7 @@ PPViewDebtorStat::~PPViewDebtorStat()
 	delete P_TempTbl;
 }
 
-PPBaseFilt * PPViewDebtorStat::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewDebtorStat::CreateFilt(const void * extraPtr) const
 {
 	DebtorStatFilt * p_filt = new DebtorStatFilt;
 	p_filt->AccSheetID = GetSellAccSheet();

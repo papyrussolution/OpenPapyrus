@@ -9,7 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "suppressions.h"
 
 static bool isAcceptedErrorIdChar(char c)
 {

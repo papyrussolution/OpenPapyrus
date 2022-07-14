@@ -16,7 +16,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "keyword.h"
 #include "idf-norm-dispatch.h"
 #include "wdf-norm-dispatch.h"
 

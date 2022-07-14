@@ -239,7 +239,6 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 		else if(CostDevRestr == drAny)
 			buf = STRINGIZE(drAny);
 		PutMembToBuf(buf, STRINGIZE(CostDevRestr), rBuf);
-
 		if(PriceDevRestr == drNone)
 			buf = STRINGIZE(drNone);
 		else if(PriceDevRestr == drBelow)
@@ -260,6 +259,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 
 	// @v10.6.8 PutObjMembToBuf(PPOBJ_LOCATION,   LocID,       STRINGIZE(LocID),       rBuf);
 	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,   STRINGIZE(LocList),   rBuf); // @v10.6.8
+	PutObjMembToBuf(PPOBJ_PRSNCATEGORY,  SupplPsnCategoryID, STRINGIZE(SupplPsnCategoryID), rBuf); // @v11.4.4
 	PutObjMembToBuf(PPOBJ_ARTICLE,    SupplID,     STRINGIZE(SupplID),     rBuf);
 	PutObjMembToBuf(PPOBJ_GOODSGROUP, GoodsGrpID,  STRINGIZE(GoodsGrpID),  rBuf);
 	PutObjMembToBuf(PPOBJ_GOODS,      GoodsID,     STRINGIZE(GoodsID),     rBuf);
@@ -269,21 +269,26 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 	{
 		long id = 1;
 		StrAssocArray flag_list;
-		// @v10.6.8 @unused if(Flags & fEmptyPeriod)        flag_list.Add(id++, STRINGIZE(fEmptyPeriod));
-		if(Flags & fWithoutQCert)       flag_list.Add(id++, STRINGIZE(fWithoutQCert));
-		if(Flags & fOrders)             flag_list.Add(id++, STRINGIZE(fOrders));
-		if(Flags & fCostAbovePrice)     flag_list.Add(id++, STRINGIZE(fCostAbovePrice));
-		if(Flags & fWithoutClb)         flag_list.Add(id++, STRINGIZE(fWithoutClb));
-		if(Flags & fDeadLots)           flag_list.Add(id++, STRINGIZE(fDeadLots));
-		if(Flags & fWithoutExpiry)      flag_list.Add(id++, STRINGIZE(fWithoutExpiry));
-		if(Flags & fOnlySpoilage)       flag_list.Add(id++, STRINGIZE(fOnlySpoilage));
-		if(Flags & fShowSerialN)        flag_list.Add(id++, STRINGIZE(fShowSerialN));
-		if(Flags & fSkipNoOp)           flag_list.Add(id++, STRINGIZE(fSkipNoOp));
-		if(Flags & fCheckOriginLotDate) flag_list.Add(id++, STRINGIZE(fCheckOriginLotDate));
-		if(Flags & fSkipClosedBeforeOp) flag_list.Add(id++, STRINGIZE(fSkipClosedBeforeOp));
-		if(Flags & fNoTempTable)        flag_list.Add(id++, STRINGIZE(fNoTempTable));
-		if(Flags & fShowBillStatus)     flag_list.Add(id++, STRINGIZE(fShowBillStatus));
-		if(Flags & fShowPriceDev)       flag_list.Add(id++, STRINGIZE(fShowPriceDev));
+		#define __ADD_FLAG(f) if(Flags & f) flag_list.Add(id++, STRINGIZE(f));
+		// @v10.6.8 @unused __ADD_FLAG(fEmptyPeriod);
+		__ADD_FLAG(fWithoutQCert);
+		__ADD_FLAG(fOrders);
+		__ADD_FLAG(fCostAbovePrice);
+		__ADD_FLAG(fWithoutClb);
+		__ADD_FLAG(fDeadLots);
+		__ADD_FLAG(fWithoutExpiry);
+		__ADD_FLAG(fOnlySpoilage);
+		__ADD_FLAG(fShowSerialN);
+		__ADD_FLAG(fSkipNoOp);
+		__ADD_FLAG(fCheckOriginLotDate);
+		__ADD_FLAG(fSkipClosedBeforeOp);
+		__ADD_FLAG(fNoTempTable);
+		__ADD_FLAG(fShowBillStatus);
+		__ADD_FLAG(fShowPriceDev);
+		__ADD_FLAG(fRestByPaym); // @v11.4.4
+		__ADD_FLAG(fInitOrgLot); // @v11.4.4
+		__ADD_FLAG(fLotfPrWoTaxes); // @v11.4.4
+		#undef __ADD_FLAG
 		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
 	return 1;
@@ -334,7 +339,7 @@ PPViewLot::~PPViewLot()
 	delete P_PplBlkEnd;
 }
 
-PPBaseFilt * PPViewLot::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewLot::CreateFilt(const void * extraPtr) const
 {
 	LotFilt * p_filt = new LotFilt;
 	if(p_filt) {
@@ -375,7 +380,8 @@ public:
 			LocationCtrlGroup::Rec loc_rec(&Data.LocList); // @v10.6.8 
 			setGroupData(ctrgroupLoc, &loc_rec); // @v10.6.8 
 		}
-		if(BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
+		SetupPPObjCombo(this, CTLSEL_FLTLOT_SPPLPSNCAT, PPOBJ_PRSNCATEGORY, pData->SupplPsnCategoryID, 0); // @v11.4.4
+		if((Data.Flags & LotFilt::fOrders) || BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1)) // @v11.4.4 @fix (Data.Flags & LotFilt::fOrders ||)
 			SetupArCombo(this, CTLSEL_FLTLOT_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, suppl_acs_id, sacfDisableIfZeroSheet);
 		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 		setGroupData(ctlgroupGoodsFilt, &gf_rec);
@@ -419,6 +425,7 @@ public:
 			Data.LocList = loc_rec.LocList;
 			// } @v10.6.8 
 		}
+		getCtrlData(CTLSEL_FLTLOT_SPPLPSNCAT, &Data.SupplPsnCategoryID); // @v11.4.4
 		getCtrlData(CTLSEL_FLTLOT_SUPPL, &Data.SupplID);
 		THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
@@ -2118,6 +2125,18 @@ int PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pIt
 		return -1;
 	else if(LocList.getCount() > 1 && !LocList.lsearch(rLotRec.LocID)) // @v11.2.12
 		return -1;
+	// @v11.4.4 {
+	else if(Filt.SupplPsnCategoryID) {
+		if(rLotRec.SupplID) {
+			const PPID psn_id = ObjectToPerson(rLotRec.SupplID, 0);
+			PersonTbl::Rec psn_rec;
+			if(!(psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0 && psn_rec.CatID == Filt.SupplPsnCategoryID))
+				return -1;
+		}
+		else
+			return -1;
+	}
+	// } @v11.4.4
 	else if(!Filt.QcExpiryPrd.IsZero()) {
 		if(rLotRec.QCertID && QcObj.Search(rLotRec.QCertID) > 0 && !Filt.QcExpiryPrd.CheckDate(QcObj.P_Tbl->data.Expiry))
 			return -1;
@@ -2372,9 +2391,9 @@ void PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 			SString word;
 			pBrw->LoadToolbarResource(TOOLBAR_ORDLOTS);
 			PPLoadString("ordered", word);
-			pBrw->SetColumnTitle(3, word);
+			pBrw->SetColumnTitle(6, word); // @v11.4.4 @fix 3-->6
 			PPLoadString("orderer", word);
-			pBrw->SetColumnTitle(4, word);
+			pBrw->SetColumnTitle(5, word); // @v11.4.4 @fix 4-->5
 			if(Filt.Flags & LotFilt::fShowBillStatus)
 				pBrw->InsColumn(-1, "@status", 16, 0, MKSFMT(10, 0), BCO_CAPLEFT); // @v11.1.6 #15-->#16
 		}
@@ -2421,6 +2440,7 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_egais_prodcode;
 	DBE    dbe_vetis_vdocuuid;
 	DBE    dbe_bill_code; // @v11.1.6
+	DBE    dbe_chkpsncat; // @v11.4.4
 	DBQ  * dbq = 0;
 	DBQuery * q = 0;
 	if(!P_TempTbl && IsTempTblNeeded())
@@ -2564,6 +2584,17 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbq = &(*dbq && rcp->GoodsID > 0L);
 		}
 		dbq = ppcheckfiltid(dbq, rcp->InTaxGrpID, Filt.InTaxGrpID);
+		// @v11.4.4 {
+		if(Filt.SupplPsnCategoryID) {
+			dbe_chkpsncat.init();
+			dbe_chkpsncat.push(rcp->SupplID);
+			DBConst dbc_long;
+			dbc_long.init(Filt.SupplPsnCategoryID);
+			dbe_chkpsncat.push(dbc_long);
+			dbe_chkpsncat.push(static_cast<DBFunc>(PPDbqFuncPool::IdArIsCatPerson));
+			dbq = & (*dbq && dbe_chkpsncat == 1L);
+		}
+		// } @v11.4.4 
 		q = &selectbycell(c, fld_list);
 		q->from(rcp, 0L).where(*dbq);
 		if(/*Filt.LocID*/LocList.getSingle() && Filt.GoodsID && Filt.ClosedTag)
@@ -3451,7 +3482,7 @@ int FASTCALL PPViewLotExtCode::NextIteration(LotExtCodeViewItem * pItem)
 	return ok;
 }
 
-PPBaseFilt * PPViewLotExtCode::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewLotExtCode::CreateFilt(const void * extraPtr) const
 {
 	LotExtCodeFilt * p_filt = new LotExtCodeFilt;
 	if(p_filt)

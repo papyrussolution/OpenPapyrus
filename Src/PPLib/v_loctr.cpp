@@ -331,7 +331,7 @@ PPViewLocTransf::~PPViewLocTransf()
 	delete P_TempTbl;
 }
 
-PPBaseFilt * PPViewLocTransf::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewLocTransf::CreateFilt(const void * extraPtr) const
 {
 	LocTransfFilt * p_filt = new LocTransfFilt;
 	return p_filt;

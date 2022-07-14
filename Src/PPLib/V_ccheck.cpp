@@ -256,7 +256,7 @@ int PPViewCCheck::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pC
 	return ok;
 }
 
-PPBaseFilt * PPViewCCheck::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewCCheck::CreateFilt(const void * extraPtr) const
 {
 	CCheckFilt * p_filt = new CCheckFilt;
 	if(p_filt) {

@@ -24,14 +24,9 @@ namespace Xapian {
 	}
 
 	[[noreturn]] static void throw_unimplemented(const char * message) { throw Xapian::UnimplementedError(message); }
-
-	string KeyMaker::name() const
-		{ throw_unimplemented("KeyMaker subclass not suitable for use with remote searches - name() method not implemented"); }
-	string KeyMaker::serialise() const
-		{ throw_unimplemented("KeyMaker subclass not suitable for use with remote searches - serialise() method not implemented"); }
-	KeyMaker* KeyMaker::unserialise(const string &, const Registry&) const
-		{ throw_unimplemented("KeyMaker subclass not suitable for use with remote searches - unserialise() method not implemented"); }
-
+	string KeyMaker::name() const { throw_unimplemented("KeyMaker subclass not suitable for use with remote searches - name() method not implemented"); }
+	string KeyMaker::serialise() const { throw_unimplemented("KeyMaker subclass not suitable for use with remote searches - serialise() method not implemented"); }
+	KeyMaker* KeyMaker::unserialise(const string &, const Registry&) const { throw_unimplemented("KeyMaker subclass not suitable for use with remote searches - unserialise() method not implemented"); }
 	string MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 	{
 		string result;
@@ -96,10 +91,7 @@ namespace Xapian {
 		return result;
 	}
 
-	string MultiValueKeyMaker::name() const
-	{
-		return "Xapian::MultiValueKeyMaker";
-	}
+	string MultiValueKeyMaker::name() const { return "Xapian::MultiValueKeyMaker"; }
 
 	static constexpr uchar KEYSPEC_REVERSE = 1;
 	static constexpr uchar KEYSPEC_DEFVALUE = 2;
@@ -113,8 +105,7 @@ namespace Xapian {
 				result += char((keyspec.reverse ? KEYSPEC_REVERSE : 0));
 			}
 			else {
-				result += char((keyspec.reverse ? KEYSPEC_REVERSE : 0) |
-					KEYSPEC_DEFVALUE);
+				result += char((keyspec.reverse ? KEYSPEC_REVERSE : 0) | KEYSPEC_DEFVALUE);
 				pack_string(result, keyspec.defvalue);
 			}
 		}
@@ -136,14 +127,12 @@ namespace Xapian {
 			reverse = (bits & KEYSPEC_REVERSE);
 			if(bits & KEYSPEC_DEFVALUE) {
 				string defvalue;
-				if(!unpack_string(&p, end, defvalue)) {
+				if(!unpack_string(&p, end, defvalue))
 					unpack_throw_serialisation_error(p);
-				}
 				result->add_value(slot, reverse, defvalue);
 			}
-			else {
+			else
 				result->add_value(slot, reverse);
-			}
 		}
 		return result.release();
 	}

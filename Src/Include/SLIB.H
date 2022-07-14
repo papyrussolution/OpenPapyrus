@@ -4106,7 +4106,28 @@ public:
 	long   ToLong() const;
 	ulong  ToULong() const;
 	int64  ToInt64() const;
+	//
+	// Descr: Преобразует строку this в числовое значение типа double.
+	//   Функция предварительно делает небольшую обработку строки, заменяя запятую на точку и удаляя разделители
+	//   в виде пробелов и апострофов (2'000'100.86-->2000100.86). 
+	//   Если такой препроцессинг не нужен или недопустим, то следует использовать функцию ToReal_Plain().
+	// Note: Внутри применяет функцию strtodoub()
+	// Returns:
+	//   Результат преобразования. В случае ошибки функция вернет 0.0, что может быть иногда неприемлемо: 
+	//   в таком случае следует использовать более низкоуровневые функции.
+	//
 	double ToReal() const;
+	//
+	// Descr: Преобразует строку this в числовое значение типа double.
+	//   Функция полагает, что разделителем десятичных знаков является точка. Разделители разрядов
+	//   будут трактоваться как недопустимые символы и приведут к остановке сканирования (2'000'100.86-->2).
+	// Note: Внутри применяет функцию satof()
+	//   В отличии от ToReal работает быстрее, но менее адаптивна.
+	// Returns:
+	//   Результат преобразования. В случае ошибки функция вернет 0.0, что может быть иногда неприемлемо: 
+	//   в таком случае следует использовать более низкоуровневые функции.
+	//
+	double ToReal_Plain() const;
 	float  ToFloat() const;
 	//
 	// Descr: Флаги функции ToIntRange
@@ -5320,9 +5341,11 @@ public:
 	// или формальным стандартам и применимы только в рамках данной библиотеки.
 	//
 	enum {
-		fSIGN = 0x0001,
-		fNAN  = 0x0002,
-		fINF  = 0x0004,
+		fSIGN          = 0x0001,
+		fNAN           = 0x0002,
+		fINF           = 0x0004,
+		fInternalError = 0x8000  // Специальный флаг, индицирующий внутреннюю ошибку 
+			// исполнения функций, которые возвращают значение в виде комбинации флагов
 	};
 	enum {
 		fHaveWidth   = 0x0001, // DCONVSTR_FLAG_HAVE_WIDTH
@@ -5337,7 +5360,7 @@ public:
 	// 
 	// Descr: Unpack floating-point double precision binary value according to IEEE 754
 	// 
-	static uint STDCALL UnpackDouble(const double * pInput, uint64 * pOutBinaryMantissa, int32 * pOutBinaryExponent);
+	static uint STDCALL UnpackDouble(double input, uint64 * pOutBinaryMantissa, int32 * pOutBinaryExponent);
 	//
 	// Descr: Print IEEE 754 floating-point double precision value to string
 	// @param  outbuf            Address of variable with a pointer to output buffer filled by the function.
@@ -5356,7 +5379,8 @@ public:
 	// @returns  1  if value was successfully converted to string.
 	//   0  if there is not enough room in buffer or internal error happened during conversion.
 	//
-	static int STDCALL Print(char ** outbuf, int * outbuf_size, double value, int format_char, uint  format_flags, int format_width, int format_precision);
+	static int STDCALL Print(char ** outbuf, int * outbuf_size, double value, int format_char, uint format_flags, int format_width, int format_precision);
+	static uint STDCALL DoubleToDecimal(double input, uint64 * pMantissa, int32 * pExp);
 	//
 	// Descr: Convert string to IEEE 754 floating-point double precision value
 	//   In general, interface of this function is similar to strtod(3), except for returning overflow
@@ -7980,6 +8004,7 @@ public:
 	RealArray(const RealArray & s);
 	RealArray & FASTCALL operator = (const RealArray & s);
 	double & FASTCALL operator [] (size_t i) const;
+	RealArray & Z();
 	int    add(double v);
 	//
 	// Descr: Распределяет память ровно на numItems элементов.
@@ -13089,6 +13114,7 @@ double FASTCALL fpowi(double x, int n);
 float  FASTCALL fpowfi(float x, int n);
 double FASTCALL fpow10i(int n);
 float  FASTCALL fpow10fi(int n);
+uint64 FASTCALL ui64pow10(uint n);
 inline double fpow2(double x) { return x * x; }
 inline double fpow3(double x) { return x * x * x; }
 //

@@ -11,20 +11,9 @@ TGSArray::TGSArray() : SVector(sizeof(Item)), GStrucID(0)
 {
 }
 
-uint TGSArray::GetItemsCount() const
-{
-	return SVector::getCount();
-}
-
-void TGSArray::SetStrucID(PPID strucID)
-{
-	GStrucID = strucID;
-}
-
-PPID TGSArray::GetStrucID() const
-{
-	return GStrucID;
-}
+uint TGSArray::GetItemsCount() const { return SVector::getCount(); }
+void TGSArray::SetStrucID(PPID strucID) { GStrucID = strucID; }
+PPID TGSArray::GetStrucID() const { return GStrucID; }
 
 int TGSArray::GetGoodsList(PPIDArray * pList) const
 {
@@ -641,7 +630,7 @@ static const char * WrParam_CalcCapacity = "CalcCapacity";
 
 int CalcCapacity::Save() const
 {
-	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 0);
+	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 0);
 	SString buf;
 	reg_key.PutString(WrParam_CalcCapacity, ToText(buf));
 	return 1;
@@ -650,7 +639,7 @@ int CalcCapacity::Save() const
 int CalcCapacity::Restore()
 {
 	int    ok = -1;
-	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
+	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 1);
 	SString temp_buf;
 	if(reg_key.GetString(WrParam_CalcCapacity, temp_buf))
 		ok = FromText(temp_buf);
@@ -2344,7 +2333,7 @@ int ToolingSelector::Run(TSVector <TechTbl::Rec> * pList)
 	return ok;
 }
 
-int PPObjTech::SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVect
+int PPObjTech::SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVector <TechTbl::Rec> * pList)
 {
 	ToolingSelector ts(prcID, goodsID, prevGoodsID);
 	return ts.Run(pList);

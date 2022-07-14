@@ -36,10 +36,12 @@ int TSessionMaintenance(); // @v11.0.4
 // } @prototype
 //
 //
+#if 0 // @v11.4.4 (replaced with PPConst::WrKey_XXX) {
 /*static*/ const char * PPRegKeys::PrefSettings  = "Software\\Papyrus\\Pref";   // @declared(pp.h)
 /*static*/ const char * PPRegKeys::PrefBasketSelSettings = "Software\\Papyrus\\Pref\\BasketSel"; // @declared(pp.h)
 /*static*/ const char * PPRegKeys::SysSettings   = "Software\\Papyrus\\System";   // @declared(pp.h)
 /*static*/ const char * PPRegKeys::Sessions      = "Software\\Papyrus\\Sessions"; // @declared(pp.h)
+#endif // } 0
 //
 //
 //
@@ -1291,7 +1293,7 @@ static int StoreLastBinPath()
 	SString temp_buf;
 	PPGetPath(PPPATH_BIN, path);
 	path.RmvLastSlash();
-	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
 	WinRegValue reg_val;
 	long   last_path_idx = 0;
 	for(uint i = 0; reg_key.EnumValues(&i, &param, &reg_val) > 0;) {

@@ -57,7 +57,7 @@ PPViewTransport::~PPViewTransport()
 	DBRemoveTempFiles();
 }
 
-PPBaseFilt * PPViewTransport::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewTransport::CreateFilt(const void * extraPtr) const
 {
 	TransportFilt * p_filt = new TransportFilt;
 	p_filt->TrType = PPTRTYP_CAR;

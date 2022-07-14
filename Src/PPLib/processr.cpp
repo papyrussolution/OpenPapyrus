@@ -1923,7 +1923,7 @@ PPViewProcessor::PPViewProcessor() : PPView(&PrcObj, &Filt, PPVIEW_PROCESSOR, im
 {
 }
 
-PPBaseFilt * PPViewProcessor::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewProcessor::CreateFilt(const void * extraPtr) const
 {
 	ProcessorFilt * p_filt = new ProcessorFilt;
 	if(extraPtr) {

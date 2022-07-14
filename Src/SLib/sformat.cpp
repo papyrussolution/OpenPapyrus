@@ -1,5 +1,6 @@
 // SFORMAT.CPP
-// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020, 2021
+// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020, 2021, 2022
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -131,7 +132,7 @@ char * STDCALL _datefmt(int day, int mon, int year, int style, char * pBuf)
 	else if(style == DATF_INTERNET) {
 		//#define DATF_INTERNET      13  // Wed, 27 Feb 2008
 		LDATE _dt = encodedate(day, mon, year);
-		int   dow = dayofweek(&_dt, 1); // @v9.7.10 0-->1 в связи с вводом глобальной функции STextConst::Get
+		int   dow = dayofweek(&_dt, 1); // @v9.7.10 0-->1 РІ СЃРІСЏР·Рё СЃ РІРІРѕРґРѕРј РіР»РѕР±Р°Р»СЊРЅРѕР№ С„СѓРЅРєС†РёРё STextConst::Get
 		//const char * p_dow_txt[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 		//const char * p_mon_txt[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Seb", "Oct", "Nov", "Dec"};
 		//strcat(pBuf, p_dow_txt[dow]);
@@ -562,14 +563,14 @@ int STDCALL strtotime(const char * pBuf, long fmt, LTIME * v)
 //
 //
 //
-static int FASTCALL is_zero(const char * c)
+static bool FASTCALL is_zero(const char * c)
 {
 	while(*c)
 		if(*c != '0' && *c != ' ')
-			return 0;
+			return false;
 		else
 			c++;
-	return 1;
+	return true;
 }
 
 static char * FASTCALL fmtnumber(const char * ptr, int dec, int sign, long fmt, char * buf)
@@ -669,10 +670,10 @@ char * STDCALL realfmt(double val, long fmt, char * pBuf)
 		SETSFMTPRC(fmt, prc);
 		if(val != 0.0 && SFMTFLAG(fmt) & NMBF_OMITEPS) {
 			const uint _len = sstrlen(str);
-			uint   c_0 = 0; // количество '0'
-			uint   c_9 = 0; // количество '9'
-			uint   last_n09_pos = 0; // Позиция последней цифры, не являющейся '0' или '9'
-			int    do_carry = 0; // Для варианта "999999999999" нужно будет добавить лидирующую '1'
+			uint   c_0 = 0; // РєРѕР»РёС‡РµСЃС‚РІРѕ '0'
+			uint   c_9 = 0; // РєРѕР»РёС‡РµСЃС‚РІРѕ '9'
+			uint   last_n09_pos = 0; // РџРѕР·РёС†РёСЏ РїРѕСЃР»РµРґРЅРµР№ С†РёС„СЂС‹, РЅРµ СЏРІР»СЏСЋС‰РµР№СЃСЏ '0' РёР»Рё '9'
+			int    do_carry = 0; // Р”Р»СЏ РІР°СЂРёР°РЅС‚Р° "999999999999" РЅСѓР¶РЅРѕ Р±СѓРґРµС‚ РґРѕР±Р°РІРёС‚СЊ Р»РёРґРёСЂСѓСЋС‰СѓСЋ '1'
 			for(uint i = 0; i < _len; i++) {
 				const char _d = str[i];
 				if(_d == '0') {
@@ -779,9 +780,11 @@ int FASTCALL strtodoub(const char * pBuf, double * pVal)
 {
 	char   temp[128];
 	char * p = sstrchr(clearDelimiters(STRNSCPY(temp, pBuf)), '.');
-	if(!p)
-		if((p = sstrchr(temp, ',')) != 0)
+	if(!p) {
+		p = sstrchr(temp, ',');
+		if(p)
 			*p = '.';
+	}
 	ASSIGN_PTR(pVal, satof(temp)); // @v10.7.9 atof-->satof
 	return 1;
 }

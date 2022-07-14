@@ -180,8 +180,8 @@ int SCDBObjClient::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 				b.p_out_buf700->Debt      = dbltopalmintmoney(temp_dbl);
 				{
 					b.p_out_buf700->AddrCount = SyncHostToHHWord(addr_list.getCount());
-					for(i = 0; i < addr_list.getCount(); i++)
-						reinterpret_cast<ClientAddr *>(b.p_out_buf700+1)[i] = addr_list.at(i);
+					//for(i = 0; i < addr_list.getCount(); i++)
+					SForEachVectorItem(addr_list, i) { reinterpret_cast<ClientAddr *>(b.p_out_buf700+1)[i] = addr_list.at(i); }
 				}
 				//
 				// Заносим запись клиента в базу на Palm'е
@@ -201,8 +201,8 @@ int SCDBObjClient::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 				b.p_out_buf->Debt      = dbltopalmintmoney(temp_dbl);
 				{
 					b.p_out_buf->AddrCount = SyncHostToHHWord(addr_list.getCount());
-					for(i = 0; i < addr_list.getCount(); i++)
-						reinterpret_cast<ClientAddr *>(b.p_out_buf+1)[i] = addr_list.at(i);
+					//for(i = 0; i < addr_list.getCount(); i++)
+					SForEachVectorItem(addr_list, i) { reinterpret_cast<ClientAddr *>(b.p_out_buf+1)[i] = addr_list.at(i); }
 				}
 				//
 				// Заносим запись клиента в базу на Palm'е

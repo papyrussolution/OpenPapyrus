@@ -196,14 +196,14 @@ int BillMultiPrintParam::LocalSave()
 	int    ok = 1;
 	if(IsEmpty()) {
 		WinRegKey key;
-		THROW_SL(key.DeleteValue(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, _PPConst.WrParam_BillMultiplePrintCfg2));
+		THROW_SL(key.DeleteValue(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, _PPConst.WrParam_BillMultiplePrintCfg2));
 	}
 	else {
 		SSerializeContext sctx;
 		SBuffer sbuf;
 		THROW(Serialize(+1, sbuf, &sctx));
 		{
-			WinRegKey key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 0);
+			WinRegKey key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 0);
 			THROW_SL(key.PutBinary(_PPConst.WrParam_BillMultiplePrintCfg2, sbuf.constptr(), sbuf.GetAvailableSize()));
 		}
 	}
@@ -215,7 +215,7 @@ int BillMultiPrintParam::LocalRestore()
 {
 	Z();
 	int    ok = -1;
-	WinRegKey key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1);
+	WinRegKey key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 1);
 	size_t rec_size = 0;
 	int r = key.GetRecSize(_PPConst.WrParam_BillMultiplePrintCfg2, &rec_size);
 	if(r > 0) {
@@ -233,7 +233,7 @@ int BillMultiPrintParam::LocalRestore()
 		//
 		// Пытаемся считать данные в формате, предшествующем v11.2.0
 		//
-		WinRegKey old_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
+		WinRegKey old_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
 		{
 			static const char * BillMultiplePrintCfg              = "BillMultiplePrintCfg";
 			static const char * BillMultiplePrintDivByCopies      = "BillMultiplePrintDivByCopies";

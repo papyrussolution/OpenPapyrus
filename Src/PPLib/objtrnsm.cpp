@@ -2913,7 +2913,7 @@ int ObjTranDialogExt::setDTS(const ObjTransmitParam * pParam, const PPBaseFilt *
 	ZDELETE(P_Filt);
 	ObjTranDialog::setDTS(pParam);
 	if(P_View && pFilt) {
-		P_Filt = P_View->CreateFilt(0);
+		P_Filt = P_View->CreateFilt(PPView::GetDescriptionExtra(P_View->GetViewId()));
 		if(P_Filt)
 			(*P_Filt) = (*pFilt);
 	}

@@ -11,11 +11,9 @@
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
 #include "threadexecutor.h"
-#include "color.h"
 #include "cppcheck.h"
 #include "cppcheckexecutor.h"
 #include "importproject.h"
-#include "suppressions.h"
 #ifdef __SVR4  // Solaris
 	#include <sys/loadavg.h>
 #endif

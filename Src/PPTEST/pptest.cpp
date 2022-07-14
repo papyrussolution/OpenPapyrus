@@ -522,6 +522,7 @@ int Test_Alg_SS_Z(const char * pInputFileName);
 int TestTextDbFile(const char * pInDbfFile);
 int Test_InterfaceCall();
 int DummyProc_dirent(); // @prototype @forcelink
+int DummyProc_TulipIndicators(); // @prototype @forcelink
 // @v11.2.0 {
 // Для сборки _MSC_VER менее чем 2015 мы не будем поддерживать LMDB. Здесь включена пустышка для пропуска соответствующего теста
 #if _MSC_VER >= 1900
@@ -540,6 +541,7 @@ int TestNoLogin()
 	STestSuite s;
 	SRng::CreateInstance((SRng::Algorithm)0, 0); // @forcelink RandomNumberGeneragtor
 	DummyProc_dirent(); // @v10.9.12 @forcelink
+	DummyProc_TulipIndicators(); // @v11.4.4 @forcelink
 #if _MSC_VER >= 1900
 	DummyProc_LMDB(); // @v11.2.0 @forcelink
 	DummyProc_SFileStorage(); // @v11.3.3 @forcelink
@@ -1408,6 +1410,7 @@ int  Test_StyloQInvitation();
 int  Test_StrAssocTree();
 int  Test_Fts();
 int  Test_ReadUed(const char * pFileName);
+int  Test_ListSelectionDialog();
 int  ImportYYE(const char * pSrcPath);
 int  ImportSpecial(const char * pPath);
 
@@ -1501,9 +1504,10 @@ int DoConstructionTest()
 #if(_MSC_VER >= 1900)
 	//Test_Fts();
 #endif
-	SDecimalFraction::Test();
-	ImportSpecial("\\DEV\\RESOURCE\\DATA\\ETC");
-	Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
+	//Test_ListSelectionDialog();
+	//SDecimalFraction::Test();
+	//ImportSpecial("\\DEV\\RESOURCE\\DATA\\ETC");
+	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//TestGtinStruc();
 	//DoTest_PThr4w();

@@ -46,12 +46,11 @@ namespace Xapian {
 			return;
 		}
 		double wdfn_upper = get_wdf_upper_bound();
-		if(wdfn_upper == 0) {
+		if(wdfn_upper == 0.0) {
 			upper_bound = 0.0;
 			return;
 		}
 		wdfn_upper *= log2(1 + (param_c * get_average_length()) / get_doclength_lower_bound());
-
 		double N = get_collection_size();
 		double F = get_collection_freq();
 		double termfreq = get_termfreq();

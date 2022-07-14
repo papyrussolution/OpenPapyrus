@@ -13,6 +13,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -1366,6 +1367,18 @@ public class SLib {
 	public static boolean isdec(byte c) { return (c >= '0' && c <= '9'); }
 	public static int hex(byte c) { return (c >= '0' && c <= '9') ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0)); }
 
+	public static void LOG_d(String msg)
+	{
+		Log.d("StyloQ", msg);
+	}
+	public static void LOG_i(String msg)
+	{
+		Log.i("StyloQ", msg);
+	}
+	public static void LOG_e(String msg)
+	{
+		Log.e("StyloQ", msg);
+	}
 	public static int satoi(String text)
 	{
 		int    result = 0;
@@ -2625,6 +2638,10 @@ public class SLib {
 		{
 			v = 0;
 		}
+		LDATE(final LDATE s)
+		{
+			v = (s != null) ? s.v : 0;
+		}
 		public static int Difference(LDATE d1, LDATE d2)
 		{
 			int nd1 = DateToDaysSinceChristmas(d1.year(), d1.month(), d1.day());
@@ -3488,6 +3505,10 @@ public class SLib {
 		{
 			v = 0;
 		}
+		LTIME(final LTIME s)
+		{
+			v = (s != null) ? s.v : 0;
+		}
 		LTIME(int h, int m, int s, int ms)
 		{
 			v = MakeInt(((s << 8) & 0xff00) | ((ms / 10) & 0x00ff), ((h << 8)&0xff00) | (m&0x00ff));
@@ -3639,10 +3660,21 @@ public class SLib {
 			d = new LDATE();
 			t = new LTIME();
 		}
+		LDATETIME(final LDATETIME s)
+		{
+			if(s != null) {
+				d = new LDATE(s.d);
+				t = new LTIME(s.t);
+			}
+			else {
+				d = new LDATE();
+				t = new LTIME();
+			}
+		}
 		LDATETIME(LDATE _d, LTIME _t)
 		{
-			d = _d;
-			t = _t;
+			d = new LDATE(_d);
+			t = new LTIME(_t);
 		}
 		LDATETIME(long epochMilliseconds)
 		{
@@ -3650,10 +3682,6 @@ public class SLib {
 			c.setTimeInMillis(epochMilliseconds);
 			d = new LDATE(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH)+1, c.get(Calendar.YEAR));
 			t = new LTIME(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND), c.get(Calendar.MILLISECOND));
-		}
-		void addsec(long sec) // @todo
-		{
-
 		}
 		LDATE d;
 		LTIME t;

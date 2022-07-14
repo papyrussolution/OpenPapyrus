@@ -468,7 +468,7 @@ public:
 	};
 	const  DlScope * GetFirstChildByKind(int kind, int recursive) const;
 	int    GetChildList(int kind, int recursive, LongArray * pList) const;
-	int    FASTCALL IsChildOf(const DlScope * pOwner) const;
+	bool   FASTCALL IsChildOf(const DlScope * pOwner) const;
 	int    EnumChilds(uint * pIdx, DlScope ** ppScope) const;
 	int    EnumInheritance(uint * pIdx, const DlScope ** ppScope) const;
 	void   SetupTitle(uint kind, const char * pName);

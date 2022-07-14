@@ -260,7 +260,7 @@ CalcPriceParam::CalcPriceParam()
 int CalcPriceParam::Save() const
 {
 	// VaPercent, RoundPrec, RoundDir, fRoundVat, fVatAboveAddition
-	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 0);
+	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 0);
 	StringSet ss(';', 0);
 	char   temp_buf[64];
 	ss.add(realfmt(VaPercent, MKSFMTD(0, 4, 0), temp_buf));
@@ -275,7 +275,7 @@ int CalcPriceParam::Save() const
 int CalcPriceParam::Restore()
 {
 	// VaPercent, RoundPrec, RoundDir, fRoundVat, fVatAboveAddition
-	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
+	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 1);
 	//char   buf[128];
 	SString temp_buf;
 	if(reg_key.GetString(_PPConst.WrParam_CalcPriceParam, temp_buf)) {

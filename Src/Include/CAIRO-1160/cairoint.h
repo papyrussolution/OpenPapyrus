@@ -100,8 +100,8 @@ CAIRO_BEGIN_DECLS
 
 #undef STRINGIFY
 #undef STRINGIFY_ARG
-#define STRINGIFY(macro_or_string)    STRINGIFY_ARG(macro_or_string)
-#define STRINGIFY_ARG(contents)       #contents
+// @v11.4.4 #define STRINGIFY(macro_or_string)    STRINGIFY_ARG(macro_or_string)
+// @v11.4.4 #define STRINGIFY_ARG(contents)       #contents // @todo replacewith(STRINGIZE)
 
 #if defined (__GNUC__)
 #define cairo_container_of(ptr, type, member) ({ \

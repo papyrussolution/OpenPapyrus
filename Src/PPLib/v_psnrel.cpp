@@ -91,7 +91,7 @@ IMPL_HANDLE_EVENT(PersonRelFiltDialog)
 			v_psn.EditBaseFilt(Data.P_PsnFilt);
 		}
 		else {
-			PersonFilt * p_filt = static_cast<PersonFilt *>(v_psn.CreateFilt(0));
+			PersonFilt * p_filt = static_cast<PersonFilt *>(v_psn.CreateFilt(PPView::GetDescriptionExtra(v_psn.GetViewId())));
 			if(v_psn.EditBaseFilt(p_filt) > 0)
 				Data.P_PsnFilt = p_filt;
 			else

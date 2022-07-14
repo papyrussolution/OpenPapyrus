@@ -137,17 +137,21 @@
         <item name="android:layout_margin">2dp</item>
     </style>
     <style name="FormLabelText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textFontWeight">500</item>
-        <item name="android:textColor">@color/TextPrimaryLight</item>
         <item name="android:layout_margin">2dp</item>
+        <item name="android:padding">2dp</item>
         <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <!--<item name="android:textFontWeight">500</item>-->
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/TextPrimaryLight</item>
     </style>
     <style name="FormText">
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/TextPrimary</item>
-        <item name="android:layout_margin">2dp</item>
-        <item name="android:layout_gravity">center_vertical</item>
     </style>
     <style name="TSessDurationText">
         <item name="android:textSize">10sp</item>

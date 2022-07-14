@@ -112,19 +112,19 @@ char * FASTCALL GetDynamicParamString(const char * pSrc, TSCollection <InParamSt
 
 char * FASTCALL GetDynamicParamString(long ival, TSCollection <InParamString> & rPool)
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	return GetDynamicParamString(r_temp_buf.Cat(ival), rPool);
 }
 
 char * FASTCALL GetDynamicParamString(int ival, TSCollection <InParamString> & rPool)
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	return GetDynamicParamString(r_temp_buf.Cat((long)ival), rPool);
 }
 
 char * FASTCALL GetDynamicParamString_(double rval, long fmt, TSCollection <InParamString> & rPool)
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	r_temp_buf.Cat(rval, fmt);
 	//temp_buf.ReplaceChar('.', ',');
 	return GetDynamicParamString(r_temp_buf, rPool);
@@ -132,7 +132,7 @@ char * FASTCALL GetDynamicParamString_(double rval, long fmt, TSCollection <InPa
 
 char * FASTCALL GetDynamicParamString(LDATE dval, long fmt, TSCollection <InParamString> & rPool)
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	if(checkdate(dval))
 		r_temp_buf.Cat(dval, fmt);
 	return GetDynamicParamString(r_temp_buf, rPool);
@@ -140,7 +140,7 @@ char * FASTCALL GetDynamicParamString(LDATE dval, long fmt, TSCollection <InPara
 
 char * FASTCALL GetDynamicParamString(LDATETIME dtval, long dfmt, long tfmt, TSCollection <InParamString> & rPool)
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	if(checkdate(dtval.d))
 		r_temp_buf.Cat(dtval, dfmt, tfmt);
 	return GetDynamicParamString(r_temp_buf, rPool);

@@ -34,7 +34,7 @@ PPViewAccount::~PPViewAccount()
 	return reinterpret_cast<void *>(Filt.Type);
 }
 
-/*virtual*/PPBaseFilt * PPViewAccount::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * PPViewAccount::CreateFilt(const void * extraPtr) const
 {
 	AccountFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_ACCOUNT, reinterpret_cast<PPBaseFilt **>(&p_filt)))

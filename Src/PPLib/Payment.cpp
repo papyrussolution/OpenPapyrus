@@ -199,7 +199,7 @@ PPViewLinkedBill::~PPViewLinkedBill()
 {
 }
 
-PPBaseFilt * PPViewLinkedBill::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewLinkedBill::CreateFilt(const void * extraPtr) const
 {
 	LinkedBillFilt * p_filt = new LinkedBillFilt;
 	if(p_filt)

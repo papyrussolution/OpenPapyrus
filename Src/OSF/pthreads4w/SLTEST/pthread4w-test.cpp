@@ -3501,7 +3501,6 @@ static int PThr4wTest_RwLock8(/*int argc, char * argv[]*/)
 	static const int THREADS    = 5;
 	static const int DATASIZE   = 7;
 	static const int ITERATIONS = 100000;
-
 	static rwlock_thread_t threads[THREADS];
 	static rwlock_data_t data[DATASIZE];
 

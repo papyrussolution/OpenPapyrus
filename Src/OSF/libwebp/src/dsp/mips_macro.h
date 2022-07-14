@@ -13,33 +13,29 @@
 #define WEBP_DSP_MIPS_MACRO_H_
 
 #if defined(__GNUC__) && defined(__ANDROID__) && LOCAL_GCC_VERSION == 0x409
-#define WORK_AROUND_GCC
+	#define WORK_AROUND_GCC
 #endif
-
-#define STR(s) #s
+#define STR(s) #s // @todo replacewith(STRINGIZE)
 #define XSTR(s) STR(s)
 
 // O0[31..16 | 15..0] = I0[31..16 | 15..0] + I1[31..16 | 15..0]
 // O1[31..16 | 15..0] = I0[31..16 | 15..0] - I1[31..16 | 15..0]
 // O - output
 // I - input (macro doesn't change it)
-#define ADD_SUB_HALVES(O0, O1,                                                 \
-                       I0, I1)                                                 \
+#define ADD_SUB_HALVES(O0, O1, I0, I1) \
   "addq.ph          %[" #O0 "],   %[" #I0 "],  %[" #I1 "]           \n\t"      \
   "subq.ph          %[" #O1 "],   %[" #I0 "],  %[" #I1 "]           \n\t"
 
 // O - output
 // I - input (macro doesn't change it)
 // I[0/1] - offset in bytes
-#define LOAD_IN_X2(O0, O1,                                                     \
-                   I0, I1)                                                     \
+#define LOAD_IN_X2(O0, O1, I0, I1) \
   "lh               %[" #O0 "],   " #I0 "(%[in])                  \n\t"        \
   "lh               %[" #O1 "],   " #I1 "(%[in])                  \n\t"
 
 // I0 - location
 // I1..I9 - offsets in bytes
-#define LOAD_WITH_OFFSET_X4(O0, O1, O2, O3,                                    \
-                            I0, I1, I2, I3, I4, I5, I6, I7, I8, I9)            \
+#define LOAD_WITH_OFFSET_X4(O0, O1, O2, O3, I0, I1, I2, I3, I4, I5, I6, I7, I8, I9) \
   "ulw    %[" #O0 "],    " #I1 "+" XSTR(I9) "*" #I5 "(%[" #I0 "])       \n\t"  \
   "ulw    %[" #O1 "],    " #I2 "+" XSTR(I9) "*" #I6 "(%[" #I0 "])       \n\t"  \
   "ulw    %[" #O2 "],    " #I3 "+" XSTR(I9) "*" #I7 "(%[" #I0 "])       \n\t"  \
@@ -48,9 +44,7 @@
 // O - output
 // IO - input/output
 // I - input (macro doesn't change it)
-#define MUL_SHIFT_SUM(O0, O1, O2, O3, O4, O5, O6, O7,                          \
-                      IO0, IO1, IO2, IO3,                                      \
-                      I0, I1, I2, I3, I4, I5, I6, I7)                          \
+#define MUL_SHIFT_SUM(O0, O1, O2, O3, O4, O5, O6, O7, IO0, IO1, IO2, IO3, I0, I1, I2, I3, I4, I5, I6, I7) \
   "mul              %[" #O0 "],   %[" #I0 "],   %[kC2]        \n\t"            \
   "mul              %[" #O1 "],   %[" #I0 "],   %[kC1]        \n\t"            \
   "mul              %[" #O2 "],   %[" #I1 "],   %[kC2]        \n\t"            \
@@ -74,15 +68,13 @@
 
 // O - output
 // I - input (macro doesn't change it)
-#define INSERT_HALF_X2(O0, O1,                                                 \
-                       I0, I1)                                                 \
+#define INSERT_HALF_X2(O0, O1, I0, I1) \
   "ins              %[" #O0 "],   %[" #I0 "], 16,    16           \n\t"        \
   "ins              %[" #O1 "],   %[" #I1 "], 16,    16           \n\t"
 
 // O - output
 // I - input (macro doesn't change it)
-#define SRA_16(O0, O1, O2, O3,                                                 \
-               I0, I1, I2, I3)                                                 \
+#define SRA_16(O0, O1, O2, O3, I0, I1, I2, I3) \
   "sra              %[" #O0 "],  %[" #I0 "],  16                  \n\t"        \
   "sra              %[" #O1 "],  %[" #I1 "],  16                  \n\t"        \
   "sra              %[" #O2 "],  %[" #I2 "],  16                  \n\t"        \
@@ -94,8 +86,7 @@
 // temp1[31..16 | 15..0] = temp1[31..16 >> 3 | 15..0 >> 3]
 // O - output
 // I - input (macro doesn't change it)
-#define SHIFT_R_SUM_X2(O0, O1, O2, O3, O4, O5, O6, O7,                         \
-                       I0, I1, I2, I3, I4, I5, I6, I7)                         \
+#define SHIFT_R_SUM_X2(O0, O1, O2, O3, O4, O5, O6, O7, I0, I1, I2, I3, I4, I5, I6, I7) \
   "addq.ph          %[" #O0 "],   %[" #I0 "],   %[" #I4 "]    \n\t"            \
   "subq.ph          %[" #O1 "],   %[" #I0 "],   %[" #I4 "]    \n\t"            \
   "addq.ph          %[" #O2 "],   %[" #I1 "],   %[" #I5 "]    \n\t"            \

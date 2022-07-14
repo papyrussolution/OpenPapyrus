@@ -1975,8 +1975,7 @@ typedef struct {
 	uint64 data[1];
 } bilinear_info_t;
 
-static void fetch_horizontal(bits_image_t * image, line_t * line,
-    int y, pixman_fixed_t x, pixman_fixed_t ux, int n)
+static void fetch_horizontal(bits_image_t * image, line_t * line, int y, pixman_fixed_t x, pixman_fixed_t ux, int n)
 {
 	uint32 * bits = image->bits + y * image->rowstride;
 	int i;
@@ -1985,26 +1984,20 @@ static void fetch_horizontal(bits_image_t * image, line_t * line,
 		int x0 = pixman_fixed_to_int(x);
 		int x1 = x0 + 1;
 		int32 dist_x;
-
 		uint32 left = *(bits + x0);
 		uint32 right = *(bits + x1);
-
 		dist_x = pixman_fixed_to_bilinear_weight(x);
 		dist_x <<= (8 - BILINEAR_INTERPOLATION_BITS);
-
 #if SIZEOF_LONG <= 4
 		{
 			uint32 lag, rag, ag;
 			uint32 lrb, rrb, rb;
-
 			lag = (left & 0xff00ff00) >> 8;
 			rag = (right & 0xff00ff00) >> 8;
 			ag = (lag << 8) + dist_x * (rag - lag);
-
 			lrb = (left & 0x00ff00ff);
 			rrb = (right & 0x00ff00ff);
 			rb = (lrb << 8) + dist_x * (rrb - lrb);
-
 			*((uint32 *)(line->buffer + i)) = ag;
 			*((uint32 *)(line->buffer + i) + 1) = rb;
 		}
@@ -2013,7 +2006,6 @@ static void fetch_horizontal(bits_image_t * image, line_t * line,
 			uint64 lagrb, ragrb;
 			uint32 lag, rag;
 			uint32 lrb, rrb;
-
 			lag = (left & 0xff00ff00);
 			lrb = (left & 0x00ff00ff);
 			rag = (right & 0xff00ff00);

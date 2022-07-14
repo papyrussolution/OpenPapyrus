@@ -115,7 +115,6 @@ static int callback_receive_banner(const void * data, size_t len, void * user)
 			return 0;
 		}
 	}
-
 	return ret;
 }
 
@@ -628,7 +627,7 @@ error:
 
 const char * ssh_copyright() 
 {
-	return SSH_STRINGIFY(LIBSSH_VERSION) " (c) 2003-2019 "
+	return STRINGIZE(LIBSSH_VERSION) " (c) 2003-2019 "
 	       "Aris Adamantiadis, Andreas Schneider "
 	       "and libssh contributors. "
 	       "Distributed under the LGPL, please refer to COPYING "

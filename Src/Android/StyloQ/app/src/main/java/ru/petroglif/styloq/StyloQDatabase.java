@@ -10,10 +10,13 @@ import static ru.petroglif.styloq.SLib.THROW_SL;
 import android.content.Context;
 import android.database.SQLException;
 import android.os.Build;
+
 import androidx.annotation.RequiresApi;
+
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -1041,6 +1044,9 @@ public class StyloQDatabase extends Database {
 					if(UpdateRec(tbl, rec.ID, rec) > 0) {
 						result = rec.Counter;
 					}
+					else {
+						SLib.LOG_e("GetNewCounter: UpdateRec(tbl, rec.ID, rec)");
+					}
 				}
 				else {
 					SecTable.Rec rec = new SecTable.Rec();
@@ -1064,7 +1070,11 @@ public class StyloQDatabase extends Database {
 				else
 					tra.Abort();
 			}
+			else {
+				SLib.LOG_e("GetNewCounter: tbl != null");
+			}
 		} catch(StyloQException exn) {
+			SLib.LOG_e("GetNewCounter: StyloQException " + exn.getMessage());
 			result = 0;
 		}
 		return result;

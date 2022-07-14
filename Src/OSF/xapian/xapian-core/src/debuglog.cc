@@ -108,7 +108,6 @@ void DebugLogger::log_line(debuglog_categories category, const string & msg)
 	line.append(indent_level + 1, ' ');
 	line += msg;
 	line += '\n';
-
 	const char * p = line.data();
 	size_t to_do = line.size();
 	while(to_do) {
@@ -116,7 +115,6 @@ void DebugLogger::log_line(debuglog_categories category, const string & msg)
 		if(n < 0) {
 			// Retry if interrupted by a signal.
 			if(errno == EINTR) continue;
-
 			// Upon other errors, close the log file, moan to stderr, and stop
 			// logging.
 			(void)close(fd);
@@ -129,7 +127,6 @@ void DebugLogger::log_line(debuglog_categories category, const string & msg)
 		p += n;
 		to_do -= n;
 	}
-
 	errno = saved_errno;
 }
 

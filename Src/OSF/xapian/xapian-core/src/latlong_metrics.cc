@@ -28,8 +28,7 @@ LatLongMetric::~LatLongMetric()
 {
 }
 
-double LatLongMetric::operator()(const LatLongCoords& a,
-    const LatLongCoords& b) const
+double LatLongMetric::operator()(const LatLongCoords& a, const LatLongCoords& b) const
 {
 	if(a.empty() || b.empty()) {
 		throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
@@ -107,20 +106,9 @@ double GreatCircleMetric::pointwise_distance(const LatLongCoord& a, const LatLon
 	return 2 * radius * asin(sqrt(h));
 }
 
-LatLongMetric * GreatCircleMetric::clone() const
-{
-	return new GreatCircleMetric(radius);
-}
-
-string GreatCircleMetric::name() const
-{
-	return "Xapian::GreatCircleMetric";
-}
-
-string GreatCircleMetric::serialise() const
-{
-	return serialise_double(radius);
-}
+LatLongMetric * GreatCircleMetric::clone() const { return new GreatCircleMetric(radius); }
+string GreatCircleMetric::name() const { return "Xapian::GreatCircleMetric"; }
+string GreatCircleMetric::serialise() const { return serialise_double(radius); }
 
 LatLongMetric * GreatCircleMetric::unserialise(const string & s) const
 {

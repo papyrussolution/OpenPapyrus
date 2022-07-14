@@ -234,7 +234,7 @@ PPViewPriceList::~PPViewPriceList()
 	delete P_TempTbl;
 }
 
-PPBaseFilt * PPViewPriceList::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewPriceList::CreateFilt(const void * extraPtr) const
 {
 	PriceListFilt * p_filt = new PriceListFilt;
 	if(p_filt) {

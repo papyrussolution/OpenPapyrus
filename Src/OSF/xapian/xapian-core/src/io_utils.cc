@@ -105,7 +105,8 @@ size_t io_read(int fd, char * p, size_t n, size_t min)
 		ssize_t c = _read(fd, p, n);
 		if(c <= 0) {
 			if(c == 0) {
-				if(total >= min) break;
+				if(total >= min) 
+					break;
 				throw Xapian::DatabaseCorruptError("Couldn't read enough (EOF)");
 			}
 			if(errno == EINTR) continue;

@@ -842,7 +842,7 @@ int ssh_session_update_known_hosts(ssh_session session)
 	if(!fp) {
 		if(errno == ENOENT) {
 			dir = ssh_dirname(session->opts.knownhosts);
-			if(dir == NULL) {
+			if(!dir) {
 				ssh_set_error(session, SSH_FATAL, "%s", strerror(errno));
 				return SSH_ERROR;
 			}

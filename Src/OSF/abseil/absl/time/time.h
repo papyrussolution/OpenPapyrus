@@ -922,21 +922,15 @@ std::string UnparseFlag(Time t);
 // - https://en.wikipedia.org/wiki/Zoneinfo
 class TimeZone {
 public:
-	explicit TimeZone(time_internal::cctz::time_zone tz) : cz_(tz) {
+	explicit TimeZone(time_internal::cctz::time_zone tz) : cz_(tz) 
+	{
 	}
-
 	TimeZone() = default; // UTC, but prefer UTCTimeZone() to be explicit.
-
 	// Copyable.
 	TimeZone(const TimeZone&) = default;
 	TimeZone& operator = (const TimeZone&) = default;
-
 	explicit operator time_internal::cctz::time_zone() const { return cz_; }
-
-	std::string name() const {
-		return cz_.name();
-	}
-
+	std::string name() const { return cz_.name(); }
 	// TimeZone::CivilInfo
 	//
 	// Information about the civil time corresponding to an absolute time.

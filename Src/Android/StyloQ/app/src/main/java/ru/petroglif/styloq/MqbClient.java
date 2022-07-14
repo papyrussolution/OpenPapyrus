@@ -367,6 +367,7 @@ public class MqbClient {
 					String ci = (props != null) ? props.getCorrelationId() : null;
 					if(ci == null || !correlationId.equalsIgnoreCase(ci)) {
 						//Chnnl.basicAck(resp.getEnvelope().getDeliveryTag(), false);
+						SLib.LOG_d("MqbClient.ConsumeMessage got another's message " + ci);
 						Chnnl.basicReject(resp.getEnvelope().getDeliveryTag(), true);
 						resp = null;
 						do_sleep_ms = 100;

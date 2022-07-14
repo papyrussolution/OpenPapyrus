@@ -29,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	public  CommonPrereqModule CPM;
@@ -54,6 +55,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		SLib.LDATETIME AttendanceTime; // Выбранное время. null - не выбрано //
 		CommonPrereqModule.WareEntry Ware;
 		CommonPrereqModule.ProcessorEntry Prc;
+		CommonPrereqModule.ProcessorEntry ArbitraryPrc; // Процессор, выбираемый произвольным образом если клиент выбрал только товар(услугу)
 		SLib.STimeChunkArray BusyList; // Зависит от Prc
 		SLib.STimeChunkArray WorktimeList; // Зависит от Prc
 		SLib.STimeChunkArray CurrentBookingBusyList;
@@ -63,6 +65,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		{
 			Ware = null;
 			Prc = null;
+			ArbitraryPrc = null;
 			BusyList = null;
 			WorktimeList = null;
 			CurrentBookingBusyList = null;
@@ -204,9 +207,29 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		{
 			return (Ware != null && Ware.JsItem != null) ? Ware.JsItem.optInt("id", 0) : 0;
 		}
-		public int GetPrcID()
+		private CommonPrereqModule.ProcessorEntry GetPrcEntry()
 		{
-			return (Prc != null && Prc.JsItem != null) ? Prc.JsItem.optInt("id", 0) : 0;
+			if(Prc != null)
+				return Prc;
+			else if(ArbitraryPrc != null)
+				return ArbitraryPrc;
+			else
+				return null;
+		}
+		//
+		// Descr: Возвращает текущий установленный процессор.
+		//   Если fixedOnly и Prc == null то возвращает 0 даже если
+		//   определен произвольно выбранный процессор (ArbitraryPrc)
+		//
+		public int GetPrcID(boolean fixedOnly)
+		{
+			if(Prc != null && Prc.JsItem != null)
+				return Prc.JsItem.optInt("id", 0);
+			else if(!fixedOnly && ArbitraryPrc != null && ArbitraryPrc.JsItem != null)
+				return ArbitraryPrc.JsItem.optInt("id", 0);
+			else
+				return 0;
+			//return (Prc != null && Prc.JsItem != null) ? Prc.JsItem.optInt("id", 0) : 0;
 		}
 		int GetWorkhoursCount()
 		{
@@ -257,6 +280,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		if(te != null && te.TabView != null) {
 			View v = te.TabView.getView();
 			if(v != null && v instanceof ViewGroup) {
+				HandleEvent(SLib.EV_SETVIEWDATA, v, null); // @v11.4.4
+				//
 				View lv = ((ViewGroup)v).findViewById(R.id.attendancePrereqAttendanceView);
 				if(lv != null && lv instanceof RecyclerView) {
 					RecyclerView.Adapter gva = ((RecyclerView)lv).getAdapter();
@@ -371,7 +396,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				if(AttdcBlk == null)
 					AttdcBlk = new AttendanceBlock(P);
 				AttdcBlk.Prc = entry;
-				int prc_id = AttdcBlk.GetPrcID();
+				int prc_id = AttdcBlk.GetPrcID(false);
 				int ware_id = AttdcBlk.GetGoodsID();
 				if(ware_id > 0) {
 					if(prc_id > 0) {
@@ -423,48 +448,129 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		}
 		return result;
 	}
-	private boolean SetCurrentAttendanceWare(CommonPrereqModule.WareEntry entry)
+	private boolean SetCurrentAttendanceArbitraryPrc(SLib.LDATETIME startDtm)
 	{
-		boolean result = true;
-		if(entry != null) {
-			if(AttdcBlk == null)
-				AttdcBlk = new AttendanceBlock(P);
-			AttdcBlk.Ware = entry;
-		}
-		else if(AttdcBlk != null) {
-			AttdcBlk.Ware = null;
-		}
-		if(AttdcBlk != null) {
-			final int prc_id = AttdcBlk.GetPrcID();
-			final int goods_id = AttdcBlk.GetGoodsID();
-			if(prc_id == 0 && goods_id > 0) {
-				SLib.STimeChunkArray united_worktime_list = null;
-				SLib.STimeChunkArray intersected_busy_list = null;
-				ArrayList <CommonPrereqModule.ProcessorEntry> prc_list = CPM.GetProcessorListByGoods(goods_id);
-				if(prc_list != null) {
-					for(int prcidx = 0; prcidx < prc_list.size(); prcidx++) {
-						final CommonPrereqModule.ProcessorEntry prc_entry = prc_list.get(prcidx);
-						SLib.STimeChunkArray wtlist = GetWorktimeListByPrc(prc_entry);
-						SLib.STimeChunkArray busy_list = GetBusyListByPrc(prc_entry);
-						if(wtlist != null) {
-							united_worktime_list = wtlist.Union(united_worktime_list);
+		boolean result = false;
+		StyloQApp app_ctx = GetAppCtx();
+		if(app_ctx != null) {
+			if(AttdcBlk != null) {
+				final int _current_prc_id = AttdcBlk.GetPrcID(true);
+				final int goods_id = AttdcBlk.GetGoodsID();
+				if(goods_id > 0 && _current_prc_id == 0) {
+					ArrayList<CommonPrereqModule.ProcessorEntry> prc_list = CPM.GetProcessorListByGoods(goods_id);
+					if(prc_list != null && prc_list.size() > 0) {
+						if(prc_list.size() == 1) {
+							AttdcBlk.ArbitraryPrc = prc_list.get(0);
+							result = true;
 						}
-						if(busy_list != null) {
-							if(intersected_busy_list == null)
-								intersected_busy_list = busy_list;
-							else
-								intersected_busy_list = busy_list.Intersect(intersected_busy_list);
+						else {
+							Collections.shuffle(prc_list);
+							if(startDtm != null) {
+								for(int i = 0; !result && i < prc_list.size(); i++) {
+									CommonPrereqModule.ProcessorEntry prc_entry = prc_list.get(i);
+									final int iter_prc_id = (prc_entry != null && prc_entry.JsItem != null) ? prc_entry.JsItem.optInt("id", 0) : 0;
+									if(iter_prc_id > 0) {
+										SLib.STimeChunkArray busy_list = GetBusyListByPrc(prc_entry);
+										if(busy_list != null) {
+											AttdcBlk.ArbitraryPrc = prc_entry;
+											result = true;
+										}
+										else {
+											int estimated_duration_sec = CPM.GetServiceDurationForPrc(iter_prc_id, goods_id);
+											if(estimated_duration_sec <= 0)
+												estimated_duration_sec = 3600; // default value
+											SLib.LDATETIME end_dt = SLib.plusdatetimesec(startDtm, estimated_duration_sec);
+											SLib.STimeChunk tc = new SLib.STimeChunk(startDtm, end_dt);
+											if(busy_list == null || busy_list.Intersect(tc) == null) {
+												AttdcBlk.ArbitraryPrc = prc_entry;
+												result = true;
+											}
+										}
+									}
+								}
+							}
+							else {
+								AttdcBlk.ArbitraryPrc = prc_list.get(0);
+								result = true;
+							}
 						}
 					}
 				}
-				AttdcBlk.BusyList = intersected_busy_list;
-				AttdcBlk.WorktimeList = united_worktime_list;
-				AttdcBlk.SetSelectionDate(AttdcBlk.GetSelectionDate()); // Пересчитывам календарь в соответствии с товаром
 			}
-			AttdcBlk.Duration = CPM.GetServiceDurationForPrc(prc_id, goods_id);
 		}
-		UpdateAttendanceView();
-		NotifyTabContentChanged(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView);
+		return result;
+	}
+	private boolean SetCurrentAttendanceWare(CommonPrereqModule.WareEntry entry)
+	{
+		boolean result = true;
+		StyloQApp app_ctx = GetAppCtx();
+		if(app_ctx != null) {
+			if(entry != null) {
+				if(AttdcBlk == null) {
+					AttdcBlk = new AttendanceBlock(P);
+					AttdcBlk.Ware = entry;
+				}
+				else {
+					final int entry_goods_id = entry.JsItem.optInt("id", 0);
+					final int prc_id = AttdcBlk.GetPrcID(true);
+					if(prc_id > 0) {
+						ArrayList<CommonPrereqModule.ProcessorEntry> entry_prc_list = CPM.GetProcessorListByGoods(entry_goods_id);
+						boolean found = false;
+						for(int i = 0; !found && i < entry_prc_list.size(); i++) {
+							final CommonPrereqModule.ProcessorEntry iter_prc_entry = entry_prc_list.get(i);
+							if(iter_prc_entry != null && iter_prc_entry.JsItem != null) {
+								int iter_prc_id = iter_prc_entry.JsItem.optInt("id", 0);
+								if(iter_prc_id == prc_id)
+									found = true;
+							}
+						}
+						if(found)
+							AttdcBlk.Ware = entry;
+						else {
+							app_ctx.DisplayError(this, ppstr2.PPERR_STQ_PRCNOTBELONGTOGOODS, 0);
+							result = false;
+						}
+					}
+					else {
+						AttdcBlk.Ware = entry;
+					}
+				}
+			}
+			else if(AttdcBlk != null) {
+				AttdcBlk.Ware = null;
+			}
+			if(AttdcBlk != null) {
+				final int prc_id = AttdcBlk.GetPrcID(false);
+				final int goods_id = AttdcBlk.GetGoodsID();
+				if(prc_id == 0 && goods_id > 0) {
+					SLib.STimeChunkArray united_worktime_list = null;
+					SLib.STimeChunkArray intersected_busy_list = null;
+					ArrayList<CommonPrereqModule.ProcessorEntry> prc_list = CPM.GetProcessorListByGoods(goods_id);
+					if(prc_list != null) {
+						for(int prcidx = 0; prcidx < prc_list.size(); prcidx++) {
+							final CommonPrereqModule.ProcessorEntry prc_entry = prc_list.get(prcidx);
+							SLib.STimeChunkArray wtlist = GetWorktimeListByPrc(prc_entry);
+							SLib.STimeChunkArray busy_list = GetBusyListByPrc(prc_entry);
+							if(wtlist != null) {
+								united_worktime_list = wtlist.Union(united_worktime_list);
+							}
+							if(busy_list != null)
+								intersected_busy_list = (intersected_busy_list == null) ? busy_list : busy_list.Intersect(intersected_busy_list);
+						}
+					}
+					AttdcBlk.BusyList = intersected_busy_list;
+					AttdcBlk.WorktimeList = united_worktime_list;
+					AttdcBlk.SetSelectionDate(AttdcBlk.GetSelectionDate()); // Пересчитывам календарь в соответствии с товаром
+				}
+				AttdcBlk.Duration = CPM.GetServiceDurationForPrc(prc_id, goods_id);
+			}
+			if(result) {
+				UpdateAttendanceView();
+				NotifyTabContentChanged(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView);
+			}
+		}
+		else
+			result = false;
 		return result;
 	}
 	static class TabInitEntry {
@@ -633,7 +739,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				}
 				if(!is_catched && AttdcBlk != null) {
 					if(objType == SLib.PPOBJ_PROCESSOR) {
-						if(AttdcBlk.GetPrcID() == objID)
+						if(AttdcBlk.GetPrcID(false) == objID)
 							is_catched = true;
 					}
 					else if(objType == SLib.PPOBJ_GOODS) {
@@ -927,9 +1033,20 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								String nm = AttdcBlk.Ware.JsItem.optString("nm", "");
 								SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_WARE, nm);
 							}
-							if(AttdcBlk.Prc != null && AttdcBlk.Prc.JsItem != null) {
-								String nm = AttdcBlk.Prc.JsItem.optString("nm", "");
-								SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_PRC, nm);
+							{
+								View view_prctxt = vg.findViewById(R.id.CTL_ATTENDANCE_PRC);
+								if(view_prctxt != null) {
+									if(AttdcBlk.Prc != null && AttdcBlk.Prc.JsItem != null) {
+										String nm = AttdcBlk.Prc.JsItem.optString("nm", "");
+										SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_PRC, nm);
+										view_prctxt.setBackgroundResource(0);
+									}
+									else if(AttdcBlk.ArbitraryPrc != null && AttdcBlk.ArbitraryPrc.JsItem != null) {
+										String nm = AttdcBlk.ArbitraryPrc.JsItem.optString("nm", "");
+										SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_PRC, nm);
+										view_prctxt.setBackgroundResource(R.drawable.shape_arbitraryprcframe);
+									}
+								}
 							}
 							{
 								int duration = AttdcBlk.Duration;
@@ -1870,7 +1987,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												if(goods_id > 0 && ev_subj.ItemObj instanceof CommonPrereqModule.ProcessorEntry) {
 													CommonPrereqModule.WareEntry ware_entry = CPM.FindGoodsItemByGoodsID(goods_id);
 													if(ware_entry != null) {
-														if(SetCurrentAttendanceWare(ware_entry) && SetCurrentAttendancePrc((CommonPrereqModule.ProcessorEntry) ev_subj.ItemObj))
+														boolean swr = SetCurrentAttendanceWare(ware_entry);
+														boolean spr = SetCurrentAttendancePrc((CommonPrereqModule.ProcessorEntry) ev_subj.ItemObj);
+														if(swr && spr)
 															GotoTab(CommonPrereqModule.Tab.tabAttendance, 0, -1, -1);
 													}
 												}
@@ -2047,36 +2166,57 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				}
 				if(minuts >= 0 && subj != null && subj instanceof Integer) {
 					final int goods_id = AttdcBlk.GetGoodsID();
-					final int prc_id = AttdcBlk.GetPrcID();
+					int prc_id = AttdcBlk.GetPrcID(true);
 					final int hour = (Integer)subj; // Кнопки расписания "заряжены" на час, а не на индекс часа
-					if(prc_id <= 0) {
-						; // @err
-					}
-					else if(goods_id <= 0) {
-						; // @err
-					}
-					else if(hour >= 0 && hour < 24) {
-						SLib.LDATE dt = AttdcBlk.GetSelectionDate();
-						//int hour = AttdcBlk.WorkHours[hour_idx];
-						SLib.LTIME start_tm = new SLib.LTIME(hour, minuts, 0, 0);
-						//
-						Document.BookingItem bk_item = new Document.BookingItem();
-						bk_item.GoodsID = goods_id;
-						bk_item.PrcID = prc_id;
-						bk_item.RowIdx = 1;
-						bk_item.ReqTime = new SLib.LDATETIME(dt, start_tm);
-						bk_item.EstimatedDurationSec = CPM.GetServiceDurationForPrc(prc_id, goods_id);
-						if(bk_item.EstimatedDurationSec <= 0)
-							bk_item.EstimatedDurationSec = 3600; // default value
-						bk_item.Set.Qtty = 1;
-						bk_item.Set.Price = CPM.GetPriceForPrc(bk_item.PrcID, bk_item.GoodsID);
-						SLib.STimeChunkArray new_busy_list = CPM.PutBookingItemToCurrentDocument(bk_item);
-						if(new_busy_list != null) {
-							AttdcBlk.CurrentBookingBusyList = new_busy_list;
-							UpdateAttendanceView();
-							UpdateBookingView();
-							NotifyTabContentChanged(CommonPrereqModule.Tab.tabProcessors, R.id.attendancePrereqProcessorListView);
-							NotifyTabContentChanged(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView);
+					if(goods_id > 0) {
+						if(hour >= 0 && hour < 24) {
+							SLib.LDATETIME start_dtm = new SLib.LDATETIME(AttdcBlk.GetSelectionDate(), new SLib.LTIME(hour, minuts, 0, 0));
+							//SLib.LDATE dt = AttdcBlk.GetSelectionDate();
+							//int hour = AttdcBlk.WorkHours[hour_idx];
+							//SLib.LTIME start_tm = new SLib.LTIME(hour, minuts, 0, 0);
+							if(prc_id <= 0) {
+								if(SetCurrentAttendanceArbitraryPrc(start_dtm)) {
+									prc_id = AttdcBlk.GetPrcID(false);
+								}
+							}
+							if(prc_id > 0) {
+								CommonPrereqModule.ProcessorEntry prc_entry = AttdcBlk.GetPrcEntry();
+								if(prc_entry != null) {
+									int estimated_duration_sec = CPM.GetServiceDurationForPrc(prc_id, goods_id);
+									if(estimated_duration_sec <= 0)
+										estimated_duration_sec = 3600; // default value
+									boolean is_intersection = true;
+									{
+										SLib.STimeChunkArray busy_list = GetBusyListByPrc(prc_entry);
+										if(busy_list == null)
+											is_intersection = false;
+										else {
+											SLib.LDATETIME end_dt = SLib.plusdatetimesec(start_dtm, estimated_duration_sec);
+											SLib.STimeChunk tc = new SLib.STimeChunk(start_dtm, end_dt);
+											if(busy_list.Intersect(tc) == null)
+												is_intersection = false;
+										}
+									}
+									if(!is_intersection) {
+										Document.BookingItem bk_item = new Document.BookingItem();
+										bk_item.GoodsID = goods_id;
+										bk_item.PrcID = prc_id;
+										bk_item.RowIdx = 1;
+										bk_item.ReqTime = start_dtm;
+										bk_item.EstimatedDurationSec = estimated_duration_sec;
+										bk_item.Set.Qtty = 1;
+										bk_item.Set.Price = CPM.GetPriceForPrc(bk_item.PrcID, bk_item.GoodsID);
+										SLib.STimeChunkArray new_busy_list = CPM.PutBookingItemToCurrentDocument(bk_item);
+										if(new_busy_list != null) {
+											AttdcBlk.CurrentBookingBusyList = new_busy_list;
+											UpdateAttendanceView();
+											UpdateBookingView();
+											NotifyTabContentChanged(CommonPrereqModule.Tab.tabProcessors, R.id.attendancePrereqProcessorListView);
+											NotifyTabContentChanged(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView);
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -2149,34 +2289,32 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									String svc_reply_js_text = new String(svc_reply_bytes);
 									try {
 										JSONObject sv_reply_js = new JSONObject(svc_reply_js_text);
-										if(sv_reply_js != null) {
-											JSONObject js_prc = sv_reply_js.optJSONObject("prc");
-											if(js_prc != null) {
-												int prc_id = js_prc.optInt("id", 0);
-												if(prc_id > 0) {
-													if(CPM.ProcessorListData != null) {
-														boolean found = false;
-														for(int i = 0; !found && i < CPM.ProcessorListData.size(); i++) {
-															CommonPrereqModule.ProcessorEntry prc_entry = CPM.ProcessorListData.get(i);
-															if(prc_entry != null && prc_entry.JsItem != null) {
-																int local_prc_id = prc_entry.JsItem.optInt("id", 0);
-																if(local_prc_id == prc_id) {
-																	prc_entry.JsItem = js_prc;
-																	found = true;
-																}
+										JSONObject js_prc = (sv_reply_js != null) ? sv_reply_js.optJSONObject("prc") : null;
+										if(js_prc != null) {
+											int prc_id = js_prc.optInt("id", 0);
+											if(prc_id > 0) {
+												if(CPM.ProcessorListData != null) {
+													boolean found = false;
+													for(int i = 0; !found && i < CPM.ProcessorListData.size(); i++) {
+														CommonPrereqModule.ProcessorEntry prc_entry = CPM.ProcessorListData.get(i);
+														if(prc_entry != null && prc_entry.JsItem != null) {
+															int local_prc_id = prc_entry.JsItem.optInt("id", 0);
+															if(local_prc_id == prc_id) {
+																prc_entry.JsItem = js_prc;
+																found = true;
 															}
 														}
-														if(!found) {
-															CommonPrereqModule.ProcessorEntry new_prc_entry = new CommonPrereqModule.ProcessorEntry(js_prc);
-															CPM.ProcessorListData.add(new_prc_entry);
-														}
-														NotifyTabContentChanged(CommonPrereqModule.Tab.tabAttendance, 0);
 													}
+													if(!found) {
+														CommonPrereqModule.ProcessorEntry new_prc_entry = new CommonPrereqModule.ProcessorEntry(js_prc);
+														CPM.ProcessorListData.add(new_prc_entry);
+													}
+													NotifyTabContentChanged(CommonPrereqModule.Tab.tabAttendance, 0);
 												}
 											}
 										}
 									} catch(JSONException exn) {
-										;
+										SLib.LOG_e("CmdRAttendancePrereqActivity " + "EV_SVCQUERYRESULT JSONException");
 									}
 								}
 							}
@@ -2192,7 +2330,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
 							}
 							else {
-
+								; // @todo
+								SLib.LOG_e("CmdRAttendancePrereqActivity " + "EV_SVCQUERYRESULT ir.ResultTag != StyloQApp.SvcQueryResult.SUCCESS");
 							}
 						}
 						else if(ir.OriginalCmdItem.Name.equalsIgnoreCase("CancelDocument")) {
@@ -2210,6 +2349,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							}
 							else {
 								; // @todo
+								SLib.LOG_e("CmdRAttendancePrereqActivity " + "EV_SVCQUERYRESULT ir.ResultTag != StyloQApp.SvcQueryResult.SUCCESS");
 							}
 						}
 					}

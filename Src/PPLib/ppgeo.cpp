@@ -1400,7 +1400,7 @@ PPViewGeoTracking::~PPViewGeoTracking()
 {
 }
 
-/*virtual*/PPBaseFilt * PPViewGeoTracking::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * PPViewGeoTracking::CreateFilt(const void * extraPtr) const
 {
 	GeoTrackingFilt * p_filt = new GeoTrackingFilt;
 	return p_filt;

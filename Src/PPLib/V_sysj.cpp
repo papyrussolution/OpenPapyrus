@@ -128,7 +128,7 @@ int SysJFiltDialog::getDTS(SysJournalFilt * pFilt)
 //
 //
 //
-PPBaseFilt * PPViewSysJournal::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewSysJournal::CreateFilt(const void * extraPtr) const
 {
 	SysJournalFilt * p_filt = new SysJournalFilt;
 	p_filt->Period.SetDate(getcurdate_());
@@ -1234,7 +1234,7 @@ PPViewGtaJournal::~PPViewGtaJournal()
 	delete P_TmpTbl;
 }
 
-PPBaseFilt * PPViewGtaJournal::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGtaJournal::CreateFilt(const void * extraPtr) const
 {
 	GtaJournalFilt * p_filt = new GtaJournalFilt;
 	p_filt->Period.SetDate(getcurdate_());

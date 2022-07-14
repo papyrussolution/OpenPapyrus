@@ -111,7 +111,7 @@ PPViewTSession::~PPViewTSession()
 	delete P_LastAnlzFilt;
 }
 
-PPBaseFilt * PPViewTSession::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewTSession::CreateFilt(const void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_TSESSION, &p_base_filt)) {

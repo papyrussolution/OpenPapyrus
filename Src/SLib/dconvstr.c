@@ -1723,11 +1723,11 @@ static bool FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint6
 // 
 // Descr: Unpack floating-point double precision binary value according to IEEE 754
 // 
-/*static*/uint STDCALL SIEEE754::UnpackDouble(const double * pInput, uint64 * pOutBinaryMantissa, int32 * pOutBinaryExponent)
+/*static*/uint STDCALL SIEEE754::UnpackDouble(double input, uint64 * pOutBinaryMantissa, int32 * pOutBinaryExponent)
 {
 	uint   flags = 0;
 	// 1. Unpack bits
-	const  uint64 input_bits     = *(const uint64 *)pInput;
+	const  uint64 input_bits     = *reinterpret_cast<const uint64 *>(&input);
 	const  uint64 input_sign     = (input_bits >> 63);
 	const  uint64 input_exponent = (input_bits >> 52) & 0x7FFULL;
 	const  uint64 input_mantissa = (input_bits & ((1ULL << 52) - 1ULL));
@@ -2020,6 +2020,61 @@ static void FASTCALL format_exponent(char * pBuffer, int32 exponent, int isUpper
 		*pBuffer++ = tmp_buffer[--i];
 	*pBuffer = 0;
 }
+
+/*static*/uint STDCALL SIEEE754::DoubleToDecimal(double input, uint64 * pMantissa, int32 * pExp)
+{
+	// 1. Unpack double precision value
+	uint64 mantissa    = 0;
+	int32  exponent    = 0;
+	uint   ieee754flags = UnpackDouble(input, &mantissa, &exponent);
+	uint8  sentintel_pattern[20];
+	uint8  sentinel1[20];
+	uint8  decimal_mantissa[20];
+	uint8  sentinel2[20];
+	memset(sentintel_pattern, 0xff, sizeof(sentintel_pattern));
+	memcpy(sentinel1, sentintel_pattern, sizeof(sentinel1));
+	memcpy(sentinel2, sentintel_pattern, sizeof(sentinel2));
+	// 2. Handle special cases
+	if(!(ieee754flags & (fNAN|fINF))) {
+		// 3. Get exact decimal representation.
+		//    Decimal point is located on the right side of decimal mantissa
+		if(mantissa == 0) {
+			memzero(decimal_mantissa, sizeof(decimal_mantissa));
+			exponent = -18;
+		}
+		else {
+			if(!convert_binary_to_extended_decimal(mantissa, exponent, &mantissa, &exponent)) { // !
+				ieee754flags = fInternalError; // internal error during conversion
+			}
+			else {
+				bcd_decompress(mantissa, decimal_mantissa);
+				if(decimal_mantissa[0] != 0 || decimal_mantissa[1] == 0)
+					ieee754flags = fInternalError; // invariant does not hold : mantissa >= 10^19 || mantissa < 10^18
+				else {
+					//uint tail = SIZEOFARRAY(decimal_mantissa)-1;
+					while(exponent <= -1 && decimal_mantissa[SIZEOFARRAY(decimal_mantissa)-1] == 0) {
+						exponent++;
+						memmove(decimal_mantissa+1, decimal_mantissa, SIZEOFARRAY(decimal_mantissa)-1);
+						decimal_mantissa[0] = 0;
+					}
+					mantissa = 0;
+					uint i = 0;
+					while(i < SIZEOFARRAY(decimal_mantissa) && decimal_mantissa[i] == 0)
+						i++;
+					assert(i == SIZEOFARRAY(decimal_mantissa) || decimal_mantissa[i] != 0);
+					for(; i < SIZEOFARRAY(decimal_mantissa); i++) {
+						mantissa += decimal_mantissa[i] * ui64pow10(SIZEOFARRAY(decimal_mantissa)-i-1);
+					}
+				}
+			}
+		}
+	}
+	assert(memcmp(sentinel1, sentintel_pattern, sizeof(sentinel1)) == 0);
+	assert(memcmp(sentinel2, sentintel_pattern, sizeof(sentinel2)) == 0);
+	ASSIGN_PTR(pMantissa, mantissa);
+	ASSIGN_PTR(pExp, exponent);
+	return ieee754flags;
+}
 // 
 // Descr: Print IEEE 754 floating-point double precision value to string
 // @param  outbuf            Address of variable with a pointer to output buffer filled by the function.
@@ -2044,7 +2099,7 @@ int STDCALL SIEEE754::Print(char ** ppOutBuf, int * pOutBufSize, double value, i
 	//int    is_infinity = 0;
 	uint64 mantissa    = 0;
 	int32  exponent    = 0;
-	const  uint   ieee754flags = UnpackDouble(&value, /*&is_nan, &is_negative,*/&mantissa, &exponent/*, &is_infinity*/);
+	const  uint   ieee754flags = UnpackDouble(value, &mantissa, &exponent);
 	// 2. Handle special cases
 	//if(is_nan || is_infinity) {
 	if(ieee754flags & (fNAN|fINF)) {
@@ -2108,7 +2163,7 @@ int STDCALL SIEEE754::Print(char ** ppOutBuf, int * pOutBufSize, double value, i
 		int    point   = 1;
 		int    z1      = 0;
 		int    z2      = 0;
-		int    ndigits = 19;    // initially we have 19 digits (most significant zero digit is ignored)
+		int    ndigits = 19; // initially we have 19 digits (most significant zero digit is ignored)
 		char   suffix[16];
 		int    suffix_width = 0;
 		int    original_format_char = formatChar;

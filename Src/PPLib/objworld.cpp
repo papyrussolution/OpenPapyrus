@@ -922,11 +922,11 @@ int PPObjWorld::GetCountryByChild(PPID id, WorldTbl::Rec * pCountryRec)
 	return -1;
 }
 
-int PPObjWorld::Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecurTrace)
+bool PPObjWorld::Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecurTrace)
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(id == parentID)
-		ok = 1;
+		ok = true;
 	else {
 		WorldTbl::Rec rec;
 		if(pRecurTrace && pRecurTrace->lsearch(id)) {
@@ -937,24 +937,24 @@ int PPObjWorld::Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecurTrace
 				ideqvalstr(id, added_buf);
 			PPSetError(PPERR_CYCLEWORLDOBJ, added_buf);
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
-			ok = 0;
+			ok = false;
 		}
 		else {
 			pRecurTrace->add(id);
 			if(Fetch(id, &rec) > 0) {
 				if(oneof2(parentID, rec.CountryID, rec.ParentID))
-					ok = 1;
+					ok = true;
 				else if(rec.CountryID && !pRecurTrace->lsearch(rec.CountryID) && Helper_IsChildOf(rec.CountryID, parentID, pRecurTrace)) // @recursion
-					ok = 1;
+					ok = true;
 				else if(rec.ParentID && !pRecurTrace->lsearch(rec.ParentID) && Helper_IsChildOf(rec.ParentID, parentID, pRecurTrace)) // @recursion
-					ok = 1;
+					ok = true;
 			}
 		}
 	}
 	return ok;
 }
 
-int PPObjWorld::IsChildOf(PPID id, PPID parentID)
+bool PPObjWorld::IsChildOf(PPID id, PPID parentID)
 {
 	PPIDArray recur_trace;
 	return Helper_IsChildOf(id, parentID, &recur_trace);

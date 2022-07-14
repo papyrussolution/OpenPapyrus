@@ -20,21 +20,9 @@ void BoolWeight::init(double)
 	// Nothing to do here.
 }
 
-string BoolWeight::name() const
-{
-	return "Xapian::BoolWeight";
-}
-
-string BoolWeight::short_name() const
-{
-	return "bool";
-}
-
-string BoolWeight::serialise() const
-{
-	// No parameters to serialise.
-	return string();
-}
+string BoolWeight::name() const { return "Xapian::BoolWeight"; }
+string BoolWeight::short_name() const { return "bool"; }
+string BoolWeight::serialise() const { return string(); } // No parameters to serialise.
 
 BoolWeight * BoolWeight::unserialise(const string & s) const
 {

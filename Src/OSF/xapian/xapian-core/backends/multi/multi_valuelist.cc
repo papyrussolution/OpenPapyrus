@@ -135,7 +135,4 @@ bool MultiValueList::check(Xapian::docid did)
 	return true;
 }
 
-string MultiValueList::get_description() const
-{
-	return "MultiValueList()"; // FIXME: improve description...
-}
+string MultiValueList::get_description() const { return "MultiValueList()"; } // FIXME: improve description...

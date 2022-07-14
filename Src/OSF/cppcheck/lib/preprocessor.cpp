@@ -839,12 +839,7 @@ void Preprocessor::error(const std::string &filename, unsigned int linenr, const
 		const ErrorMessage::FileLocation loc(file, linenr, 0);
 		locationList.push_back(loc);
 	}
-	mErrorLogger->reportErr(ErrorMessage(locationList,
-	    mFile0,
-	    Severity::error,
-	    msg,
-	    "preprocessorErrorDirective",
-	    Certainty::normal));
+	mErrorLogger->reportErr(ErrorMessage(locationList, mFile0, Severity::error, msg, "preprocessorErrorDirective", Certainty::normal));
 }
 
 // Report that include is missing

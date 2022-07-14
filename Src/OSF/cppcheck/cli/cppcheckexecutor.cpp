@@ -13,10 +13,8 @@
 #include "cppcheckexecutor.h"
 #include "analyzerinfo.h"
 #include "cmdlineparser.h"
-#include "color.h"
 #include "cppcheck.h"
 #include "importproject.h"
-#include "suppressions.h"
 #include "threadexecutor.h"
 
 #if !defined(NO_UNIX_SIGNAL_HANDLING) && defined(__GNUC__) && !defined(__MINGW32__) && !defined(__OS2__)

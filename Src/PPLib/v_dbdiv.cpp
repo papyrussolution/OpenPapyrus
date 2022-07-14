@@ -1,5 +1,5 @@
 // V_DBDIV.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2016, 2019
+// Copyright (c) A.Starodub 2013, 2014, 2016, 2019, 2022
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -49,10 +49,13 @@ TempDBDivTbl::Rec & PPViewDBDiv::MakeTempEntry(const DBDivPack & rPack, TempDBDi
 	return rTempRec;
 }
 
-#define GRP_LOC 1
+// @v11.4.4. #define GRP_LOC 1
 
 int PPViewDBDiv::EditBaseFilt(PPBaseFilt * pFilt)
 {
+	enum {
+		ctlgroupLoc = 1,
+	};
 	int    ok = -1;
 	DBDivFilt filt;
 	TDialog * p_dlg = new TDialog(DLG_DBDIVFLT);
@@ -60,12 +63,12 @@ int PPViewDBDiv::EditBaseFilt(PPBaseFilt * pFilt)
 
 	filt.Copy(pFilt, 0);
 	THROW(CheckDialogPtr(&p_dlg));
-	p_dlg->addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_DBDIVFLT_LOCLIST, 0, 0, cmLocList, 0, 0, 0));
+	p_dlg->addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_DBDIVFLT_LOCLIST, 0, 0, cmLocList, 0, 0, 0));
 
 	loc_rec.LocList = filt.LocList;
-	p_dlg->setGroupData(GRP_LOC, &loc_rec);
+	p_dlg->setGroupData(ctlgroupLoc, &loc_rec);
 	if(ExecView(p_dlg) == cmOK) {
-		p_dlg->getGroupData(GRP_LOC, &loc_rec);
+		p_dlg->getGroupData(ctlgroupLoc, &loc_rec);
 		filt.LocList = loc_rec.LocList;
 		CALLPTRMEMB(pFilt, Copy(&filt, 0));
 		ok = 1;

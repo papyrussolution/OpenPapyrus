@@ -2168,6 +2168,11 @@ class ppstr2 {
 	public static final int PPERR_STQ_BUYERNEEDED = 12149;
 	public static final int PPERR_STQ_BEFOREPRCGOODSNEEDED = 12150;
 	public static final int PPERR_STQ_GOODSNOTBELONGTOPRC = 12151;
+	public static final int PPERR_SQ_ZEROCMDUUID = 12152;
+	public static final int PPERR_LTDDBOPEN_INVFLAGS = 12153;
+	public static final int PPERR_SQ_UNDEFOWNCFGGLOBACSPNT = 12154;
+	public static final int PPERR_SQ_UNDEFOWNCFGLOCACSPNT = 12155;
+	public static final int PPERR_STQ_PRCNOTBELONGTOGOODS = 12156;
 	//
 	// .N.
 	//
@@ -4473,6 +4478,10 @@ class ppstr2 {
 	public static final int PPTXT_STQ_MAPCLI2PSN_DIRECT = 12048;
 	public static final int PPTXT_STQ_MAPCLI2PSN_USER = 12049;
 	public static final int PPTXT_TEXTHASBEENCOPIEDTOCLIPBOARD = 12052;
+	public static final int PPTXT_LOG_STQMQBSERVERSTARTING = 12053;
+	public static final int PPTXT_LOG_STQMQBSERVERSTARTED = 12054;
+	public static final int PPTXT_LOG_BUILDSVCDBSYMBMAPSTARTING = 12055;
+	public static final int PPTXT_LOG_BUILDSVCDBSYMBMAPFINISHED = 12056;
 	//
 	// .N.
 	//

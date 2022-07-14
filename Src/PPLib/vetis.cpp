@@ -10969,7 +10969,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 	return ok;
 }
 
-PPBaseFilt * PPViewVetisDocument::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewVetisDocument::CreateFilt(const void * extraPtr) const
 {
 	VetisDocumentFilt * p_filt = new VetisDocumentFilt;
 	if(p_filt) {

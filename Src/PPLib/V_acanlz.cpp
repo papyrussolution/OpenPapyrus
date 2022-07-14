@@ -84,7 +84,7 @@ PPViewAccAnlz::~PPViewAccAnlz()
 	DBRemoveTempFiles();
 }
 
-/*virtual*/PPBaseFilt * PPViewAccAnlz::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * PPViewAccAnlz::CreateFilt(const void * extraPtr) const
 {
 	const LDATE oper_date = LConfig.OperDate;
 	const Acct & r_cash_acct = CConfig.CashAcct;
@@ -115,19 +115,24 @@ PPViewAccAnlz::~PPViewAccAnlz()
 //
 //
 //
-#define GRP_ACC   1
-#define GRP_CYCLE 2
-#define GRP_LOC   3
+// @v11.4.4 #define GRP_ACC   1
+// @v11.4.4 #define GRP_CYCLE 2
+// @v11.4.4 #define GRP_LOC   3
 
 class AccAnlzFiltDialog : public WLDialog {
+	enum {
+		ctlgroupAcc   = 1,
+		ctlgroupCycle = 2,
+		ctlgroupLoc   = 3,
+	};
 	DECL_DIALOG_DATA(AccAnlzFilt);
 public:
 	AccAnlzFiltDialog(uint dlgID, PPObjAccTurn * _ppobj) : WLDialog(dlgID, CTL_ACCANLZ_LABEL), ATObj(_ppobj), RelComboInited(0)
 	{
 		AcctCtrlGroup * p_acc_grp = new AcctCtrlGroup(CTL_ACCANLZ_ACC, CTL_ACCANLZ_ART, CTLSEL_ACCANLZ_ACCNAME, CTLSEL_ACCANLZ_ARTNAME);
-		addGroup(GRP_ACC, p_acc_grp);
+		addGroup(ctlgroupAcc, p_acc_grp);
 		CycleCtrlGroup * p_cycle_grp = new CycleCtrlGroup(CTLSEL_ACCANLZ_CYCLE, CTL_ACCANLZ_NUMCYCLES, CTL_ACCANLZ_PERIOD);
-		addGroup(GRP_CYCLE, p_cycle_grp);
+		addGroup(ctlgroupCycle, p_cycle_grp);
 		SetupCalPeriod(CTLCAL_ACCANLZ_PERIOD, CTL_ACCANLZ_PERIOD);
 	}
 	DECL_DIALOG_SETDTS()
@@ -161,10 +166,10 @@ public:
 			acc_rec.AcctId.ar = Data.SingleArID;
 		acc_rec.AccSheetID  = Data.AccSheetID;
 		acc_rec.AccSelParam = -100;
-		setGroupData(GRP_ACC, &acc_rec);
+		setGroupData(ctlgroupAcc, &acc_rec);
 		SetupSubstRelCombo();
 		cycle_rec.C = Data.Cycl;
-		setGroupData(GRP_CYCLE, &cycle_rec);
+		setGroupData(ctlgroupCycle, &cycle_rec);
 
 		AddClusterAssoc(CTL_ACCANLZ_TRNOVR, 0, AccAnlzFilt::fTrnovrBySheet);
 		AddClusterAssoc(CTL_ACCANLZ_TRNOVR, 1, AccAnlzFilt::fSpprZTrnovr);
@@ -196,7 +201,7 @@ public:
 		v = getCtrlUInt16(CTL_ACCANLZ_ACCGRP);
 		Data.Aco = (v == 1) ? ACO_1 : ((v == 2) ? ACO_2 : ACO_3);
 		Data.CorAco = getCtrlLong(CTLSEL_ACCANLZ_SUBST);
-		THROW(getGroupData(GRP_ACC, &acc_rec));
+		THROW(getGroupData(ctlgroupAcc, &acc_rec));
 		THROW_PP(acc_rec.AcctId.ac, PPERR_ACCNOTVALID);
 		if(acc_rec.AccType == ACY_AGGR) {
 			if(acc_rec.AcctId.ar) {
@@ -204,7 +209,6 @@ public:
 				Data.SingleArID = acc_rec.AcctId.ar;
 			}
 		}
-		// @v9.5.9 {
 		if(acc_rec.AcctId.ar) {
 			if(ATObj->P_Tbl->Art.Search(acc_rec.AcctId.ar, &ar_rec) > 0) {
 				if(ar_rec.Flags & ARTRF_GROUP)
@@ -213,7 +217,6 @@ public:
 			else
 				ar_rec.ID = 0;
 		}
-		// } @v9.5.9
 		Data.SubstRelTypeID = 0;
 		if(acc_rec.AccSheetID) {
 			GetClusterData(CTL_ACCANLZ_TRNOVR, &Data.Flags);
@@ -233,7 +236,7 @@ public:
 			Data.Aco = ACO_2;
 			Data.CorAco = 0;
 		}
-		if(Data.Aco == ACO_3 && acc_rec.AccType != ACY_AGGR && !is_ar_grouping) { // @v9.5.9 (&& !is_ar_grouping)
+		if(Data.Aco == ACO_3 && acc_rec.AccType != ACY_AGGR && !is_ar_grouping) {
 			THROW(r = ATObj->P_Tbl->AcctIDToRel(&acc_rec.AcctId, &rel));
 			if(r < 0) {
 				rel = 0;
@@ -258,7 +261,7 @@ public:
 		Data.AccID      = rel;
 		Data.AcctId     = acc_rec.AcctId;
 		Data.AccSheetID = acc_rec.AccSheetID;
-		getGroupData(GRP_CYCLE, &cycle_rec);
+		getGroupData(ctlgroupCycle, &cycle_rec);
 		Data.Cycl = cycle_rec.C;
 		getCtrlData(CTLSEL_ACCANLZ_CUR, &Data.CurID);
 		GetClusterData(CTL_ACCANLZ_ALLCUR, &Data.Flags);
@@ -327,7 +330,7 @@ private:
 		AcctCtrlGroup::Rec acg_rec;
 		PPID   cur_id = getCtrlLong(CTLSEL_ACCANLZ_CUR);
 		SETIFZ(cur_id, Data.CurID);
-		getGroupData(GRP_ACC, &acg_rec);
+		getGroupData(ctlgroupAcc, &acg_rec);
 		if(acg_rec.AccSheetID)
 			disableCtrls(0, CTL_ACCANLZ_ACCGRP, CTL_ACCANLZ_TRNOVR, 0);
 		else {
@@ -369,7 +372,7 @@ private:
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
 		AcctCtrlGroup::Rec acg_rec;
-		getGroupData(GRP_ACC, &acg_rec);
+		getGroupData(ctlgroupAcc, &acg_rec);
 		if(acg_rec.AccSheetID && acs_obj.Fetch(acg_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
 			GetClusterData(CTL_ACCANLZ_TRNOVR, &Data.Flags);
 			if(Data.Flags & AccAnlzFilt::fTrnovrBySheet || acg_rec.AcctId.ar) {

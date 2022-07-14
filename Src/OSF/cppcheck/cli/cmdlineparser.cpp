@@ -13,7 +13,6 @@
 #include "cmdlineparser.h"
 #include "cppcheckexecutor.h"
 #include "importproject.h"
-#include "suppressions.h"
 #include "timer.h"
 #ifdef __linux__
 	#include <unistd.h>

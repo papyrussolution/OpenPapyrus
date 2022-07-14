@@ -20,7 +20,6 @@
 #include <string.h>
 
 int keyword(const uchar * tab, const char * s, size_t len);
-
 /// 2 byte offset variant.
 int keyword2(const uchar * tab, const char * s, size_t len);
 

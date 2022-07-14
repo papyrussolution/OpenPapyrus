@@ -1,5 +1,5 @@
 // V_GREST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -52,32 +52,32 @@ IMPLEMENT_PPFILT_FACTORY(GoodsRest); GoodsRestFilt::GoodsRestFilt() : PPBaseFilt
 	{
 		long id = 0;
 		StrAssocArray flag_list;
-#define __FLG(f) if(Flags & f) flag_list.Add(id++, #f)
-		__FLG(fBarCode);
-		__FLG(fNullRest);
-		__FLG(fCalcOrder);
-		__FLG(fPriceByQuot);
-		__FLG(fUnderMinStock);
-		__FLG(fDisplayWoPacks);
-		__FLG(fNullRestsOnly);
-		__FLG(fLabelOnly);
-		__FLG(fNoZeroOrderOnly);
-		__FLG(fCalcTotalOnly);
-		__FLG(fEachLocation);
-		__FLG(fComplPackQtty);
-		__FLG(fCWoVat);
-		__FLG(fCalcDeficit);
-		__FLG(fWoSupplier);
-		__FLG(fShowMinStock);
-		__FLG(fShowDraftReceipt);
-		__FLG(fCalcSStatSales);
-		__FLG(fOuterGsl);
-		__FLG(fUseGoodsMatrix);
-		__FLG(fExtByArCode);
-		__FLG(fRestrictByArCode);
-		__FLG(fCrosstab);
-		__FLG(fShowGoodsMatrixBelongs);
-#undef __FLG
+#define __ADD_FLAG(f) if(Flags & f) flag_list.Add(id++, #f)
+		__ADD_FLAG(fBarCode);
+		__ADD_FLAG(fNullRest);
+		__ADD_FLAG(fCalcOrder);
+		__ADD_FLAG(fPriceByQuot);
+		__ADD_FLAG(fUnderMinStock);
+		__ADD_FLAG(fDisplayWoPacks);
+		__ADD_FLAG(fNullRestsOnly);
+		__ADD_FLAG(fLabelOnly);
+		__ADD_FLAG(fNoZeroOrderOnly);
+		__ADD_FLAG(fCalcTotalOnly);
+		__ADD_FLAG(fEachLocation);
+		__ADD_FLAG(fComplPackQtty);
+		__ADD_FLAG(fCWoVat);
+		__ADD_FLAG(fCalcDeficit);
+		__ADD_FLAG(fWoSupplier);
+		__ADD_FLAG(fShowMinStock);
+		__ADD_FLAG(fShowDraftReceipt);
+		__ADD_FLAG(fCalcSStatSales);
+		__ADD_FLAG(fOuterGsl);
+		__ADD_FLAG(fUseGoodsMatrix);
+		__ADD_FLAG(fExtByArCode);
+		__ADD_FLAG(fRestrictByArCode);
+		__ADD_FLAG(fCrosstab);
+		__ADD_FLAG(fShowGoodsMatrixBelongs);
+#undef __ADD_FLAG
 		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
 	return 1;
@@ -245,7 +245,7 @@ PPViewGoodsRest::~PPViewGoodsRest()
 	ZDELETE(P_OpGrpngFilt);
 }
 
-PPBaseFilt * PPViewGoodsRest::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGoodsRest::CreateFilt(const void * extraPtr) const
 {
 	const PPConfig & r_cfg = LConfig;
 	GoodsRestFilt * p_filt = new GoodsRestFilt;
@@ -421,16 +421,20 @@ int PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLots)
 	return ok;
 }
 
-#define GRP_LOC        1
-#define GRP_GOODSFILT  2
+// @v11.4.4 #define GRP_LOC        1
+// @v11.4.4 #define GRP_GOODSFILT  2
 
 class GoodsRestFiltDlg : public WLDialog {
 	DECL_DIALOG_DATA(GoodsRestFilt);
+	enum {
+		ctlgroupLoc       = 1,
+		ctlgroupGoodsFilt = 2,
+	};
 public:
 	GoodsRestFiltDlg() : WLDialog(DLG_GOODSREST, CTL_GOODSREST_WL)
 	{
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_GOODSREST_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_GOODSREST_GGRP, cmGoodsFilt));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GOODSREST_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
+		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(0, CTLSEL_GOODSREST_GGRP, cmGoodsFilt));
 		SetupCalDate(CTLCAL_GOODSREST_DATE, CTL_GOODSREST_DATE);
 		SetupCalPeriod(CTLCAL_GOODSREST_DRAFTPRD, CTL_GOODSREST_DRAFTPRD);
 	}
@@ -462,10 +466,10 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	int    ok = 1;
 	setCtrlData(CTL_GOODSREST_DATE, &Data.Date);
 	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-	setGroupData(GRP_LOC, &loc_rec);
+	setGroupData(ctlgroupLoc, &loc_rec);
 	SetupArCombo(this, CTLSEL_GOODSREST_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
-	setGroupData(GRP_GOODSFILT, &gf_rec);
+	setGroupData(ctlgroupGoodsFilt, &gf_rec);
 	SetupPPObjCombo(this, CTLSEL_GOODSREST_BRAND, PPOBJ_BRAND, Data.BrandID, OLW_LOADDEFONOPEN);
 	SetupPPObjCombo(this, CTLSEL_GOODSREST_QUOTK, PPOBJ_QUOTKIND, ((Data.QuotKindID > 0) ? Data.QuotKindID : 0L), 0, reinterpret_cast<void *>(1));
 	disableCtrl(CTLSEL_GOODSREST_QUOTK, Data.GetQuotUsage() ? 0 : 1);
@@ -544,7 +548,7 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 	int    ok = 1;
 	uint   sel = 0;
 	LocationCtrlGroup::Rec loc_rec;
-	getGroupData(GRP_LOC, &loc_rec);
+	getGroupData(ctlgroupLoc, &loc_rec);
 	Data.LocList = loc_rec.LocList;
 	getCtrlData(sel = CTL_GOODSREST_DATE, &Data.Date);
 	if(Data.Date) {
@@ -557,7 +561,7 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 	getCtrlData(CTLSEL_GOODSREST_SUPPL, &Data.SupplID);
 	{
 		GoodsFiltCtrlGroup::Rec gf_rec;
-		THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+		THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
 	}
 	getCtrlData(CTLSEL_GOODSREST_BRAND, &Data.BrandID);
@@ -716,11 +720,15 @@ int GoodsRestFiltDlg::editAdvOptions()
 //
 //
 class GoodsRestWPrgnFltDlg : public TDialog {
+	enum {
+		ctlgroupLoc       = 1,
+		ctlgroupGoodsFilt = 2,
+	};
 public:
 	GoodsRestWPrgnFltDlg() : TDialog(DLG_GRWPRGNFLT)
 	{
-		addGroup(GRP_GOODSFILT,  new GoodsFiltCtrlGroup(0, CTLSEL_GRWPRGNFLT_GRPID, cmGoodsFilt));
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_GRWPRGNFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
+		addGroup(ctlgroupGoodsFilt,  new GoodsFiltCtrlGroup(0, CTLSEL_GRWPRGNFLT_GRPID, cmGoodsFilt));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GRWPRGNFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
 		SetupCalDate(CTLCAL_GRWPRGNFLT_DATE, CTL_GRWPRGNFLT_DATE);
 		SetupCalPeriod(CTLCAL_GRWPRGNFLT_PRGNPRD, CTL_GRWPRGNFLT_PRGNPRD);
 	}
@@ -761,9 +769,9 @@ int GoodsRestWPrgnFltDlg::setDTS(const GoodsRestFilt * pFilt)
 	SetPeriodInput(this, CTL_GRWPRGNFLT_PRGNPRD, &Filt.PrgnPeriod);
 	setCtrlData(CTL_GRWPRGNFLT_DATE, &Filt.Date);
 	GoodsFiltCtrlGroup::Rec gf_rec(Filt.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
-	setGroupData(GRP_GOODSFILT, &gf_rec);
+	setGroupData(ctlgroupGoodsFilt, &gf_rec);
 	LocationCtrlGroup::Rec loc_rec(&Filt.LocList);
-	setGroupData(GRP_LOC, &loc_rec);
+	setGroupData(ctlgroupLoc, &loc_rec);
 	SetupArCombo(this, CTLSEL_GRWPRGNFLT_SUPPL, Filt.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 	AddClusterAssoc(CTL_GRWPRGNFLT_FLAGS, 0, GoodsRestFilt::fNullRest);
 	AddClusterAssoc(CTL_GRWPRGNFLT_FLAGS, 1, GoodsRestFilt::fNoZeroOrderOnly);
@@ -789,9 +797,9 @@ int GoodsRestWPrgnFltDlg::getDTS(GoodsRestFilt * pFilt)
 		THROW(AdjustPeriodToRights(temp, 1));
 		Filt.Date = temp.low;
 	}
-	THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 	Filt.GoodsGrpID = gf_rec.GoodsGrpID;
-	getGroupData(GRP_LOC, &loc_rec);
+	getGroupData(ctlgroupLoc, &loc_rec);
 	Filt.LocList = loc_rec.LocList;
 	if(Filt.LocList.IsExists() && Filt.LocList.IsEmpty())
 		Filt.LocList.Set(0);

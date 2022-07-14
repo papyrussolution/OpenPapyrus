@@ -5,7 +5,6 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // Misc. common utility functions
 //
@@ -42,10 +41,9 @@ WEBP_EXTERN void * FASTCALL WebPSafeCalloc(uint64_t nmemb, size_t size);
 
 // Companion deallocation function to the above allocations.
 WEBP_EXTERN void FASTCALL WebPSafeFree(void* const ptr);
-
-//------------------------------------------------------------------------------
+//
 // Alignment
-
+//
 #define WEBP_ALIGN_CST 31
 #define WEBP_ALIGN(PTR) (((uintptr_t)(PTR) + WEBP_ALIGN_CST) & ~WEBP_ALIGN_CST)
 
@@ -62,10 +60,9 @@ WEBP_EXTERN void FASTCALL WebPSafeFree(void* const ptr);
 {
 	memcpy(ptr, &val, sizeof(val));
 }
-
-//------------------------------------------------------------------------------
+//
 // Reading/writing data.
-
+//
 // Read 16, 24 or 32 bits stored in little-endian order.
 /*static*/FORCEINLINE int GetLE16(const uint8* const data) { return (int)(data[0] << 0) | (data[1] << 8); }
 /*static*/FORCEINLINE int GetLE24(const uint8* const data) { return GetLE16(data) | (data[2] << 16); }

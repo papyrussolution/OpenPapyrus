@@ -63,8 +63,6 @@
  *
  * In reverse value flow analysis we know the value of a variable at line X. And try to "execute backwards" to determine
  * possible values before line X. The valueFlowReverse is used in this analysis.
- *
- *
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
@@ -80,17 +78,8 @@ static void bailoutInternal(const std::string& type, TokenList * tokenlist, Erro
 	errorLogger->reportErr(errmsg);
 }
 
-#define bailout2(type, tokenlist, errorLogger, tok, what) bailoutInternal(type, \
-	    tokenlist, \
-	    errorLogger, \
-	    tok, \
-	    what, \
-	    __FILE__, \
-	    __LINE__, \
-	    __func__)
-
+#define bailout2(type, tokenlist, errorLogger, tok, what) bailoutInternal(type, tokenlist, errorLogger, tok, what, __FILE__, __LINE__, __func__)
 #define bailout(tokenlist, errorLogger, tok, what) bailout2("valueFlowBailout", tokenlist, errorLogger, tok, what)
-
 #define bailoutIncompleteVar(tokenlist, errorLogger, tok, what) bailout2("valueFlowBailoutIncompleteVar", tokenlist, errorLogger, tok, what)
 
 static std::string debugString(const ValueFlow::Value& v)

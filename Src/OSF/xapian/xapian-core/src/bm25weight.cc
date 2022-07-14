@@ -94,15 +94,8 @@ void BM25Weight::init(double factor)
 	LOGVALUE(WTCALC, len_factor);
 }
 
-string BM25Weight::name() const
-{
-	return "Xapian::BM25Weight";
-}
-
-string BM25Weight::short_name() const
-{
-	return "bm25";
-}
+string BM25Weight::name() const { return "Xapian::BM25Weight"; }
+string BM25Weight::short_name() const { return "bm25"; }
 
 string BM25Weight::serialise() const
 {

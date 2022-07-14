@@ -647,7 +647,7 @@ PPViewStockOpt::~PPViewStockOpt()
 {
 }
 
-PPBaseFilt * PPViewStockOpt::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewStockOpt::CreateFilt(const void * extraPtr) const
 {
 	StockOptFilt * p_filt = new StockOptFilt;
 	if(p_filt) {

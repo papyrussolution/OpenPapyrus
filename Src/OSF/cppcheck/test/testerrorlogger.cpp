@@ -10,8 +10,6 @@
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
 #include "cppcheck.h"
-#include "errorlogger.h"
-#include "suppressions.h"
 
 class TestErrorLogger : public TestFixture {
 public:

@@ -31,12 +31,9 @@ struct DegreesMinutesSeconds {
 	 *  longitude.
 	 */
 	int degrees;
-	/** Number of minutes: 0 to 59 */
-	int minutes;
-	/** Number of seconds: 0 to 59 */
-	int seconds;
-	/** Number of 16ths of a second: 0 to 15 */
-	int sec16ths;
+	int minutes; /** Number of minutes: 0 to 59 */
+	int seconds; /** Number of seconds: 0 to 59 */
+	int sec16ths; /** Number of 16ths of a second: 0 to 15 */
 	/** Initialise with a (positive) angle, as an integer representing the
 	 *  number of 16ths of a second, rounding to nearest.
 	 *

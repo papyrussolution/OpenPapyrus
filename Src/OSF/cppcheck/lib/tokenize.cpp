@@ -12283,20 +12283,20 @@ void Tokenizer::reportError(const std::list<const Token*>& callstack, Severity::
 
 void Tokenizer::setPodTypes()
 {
-	if(!mSettings)
-		return;
-	for(Token * tok = list.front(); tok; tok = tok->next()) {
-		if(!tok->isName())
-			continue;
-		// pod type
-		const struct Library::PodType * podType = mSettings->library.podtype(tok->str());
-		if(podType) {
-			const Token * prev = tok->previous();
-			while(prev && prev->isName())
-				prev = prev->previous();
-			if(prev && !Token::Match(prev, ";|{|}|,|("))
+	if(mSettings) {
+		for(Token * tok = list.front(); tok; tok = tok->next()) {
+			if(!tok->isName())
 				continue;
-			tok->isStandardType(true);
+			// pod type
+			const struct Library::PodType * podType = mSettings->library.podtype(tok->str());
+			if(podType) {
+				const Token * prev = tok->previous();
+				while(prev && prev->isName())
+					prev = prev->previous();
+				if(prev && !Token::Match(prev, ";|{|}|,|("))
+					continue;
+				tok->isStandardType(true);
+			}
 		}
 	}
 }

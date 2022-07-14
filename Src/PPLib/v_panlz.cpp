@@ -44,7 +44,7 @@ PPViewPriceAnlz::~PPViewPriceAnlz()
 	ZDELETE(P_TempTbl);
 }
 
-PPBaseFilt * PPViewPriceAnlz::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewPriceAnlz::CreateFilt(const void * extraPtr) const
 {
 	PriceAnlzFilt * p_filt = new PriceAnlzFilt;
 	p_filt->BaseCost = PriceAnlzFilt::bcByContract;

@@ -174,7 +174,7 @@ void File::DeleteRecursively(const std::string& name, void* dummy1,
 		if(dir != NULL) {
 			while(true) {
 				struct dirent* entry = readdir(dir);
-				if(entry == NULL) break;
+				if(!entry) break;
 				std::string entry_name = entry->d_name;
 				if(entry_name != "." && entry_name != "..") {
 					DeleteRecursively(name + "/" + entry_name, NULL, NULL);

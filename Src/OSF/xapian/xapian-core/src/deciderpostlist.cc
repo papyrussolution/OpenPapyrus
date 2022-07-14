@@ -7,13 +7,13 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 
-using namespace std;
+//using namespace std;
 
 bool DeciderPostList::test_doc()
 {
 	// We know that doc holds a ValueStreamDocument.
 	Xapian::Document::Internal* doc_int = doc.internal.get();
-	ValueStreamDocument* vsdoc = static_cast<ValueStreamDocument*>(doc_int);
+	ValueStreamDocument * vsdoc = static_cast<ValueStreamDocument *>(doc_int);
 	vsdoc->set_shard_document(pl->get_docid());
 	bool decision = (*decider)(doc);
 	if(decision) {
@@ -25,9 +25,9 @@ bool DeciderPostList::test_doc()
 	return decision;
 }
 
-string DeciderPostList::get_description() const
+std::string DeciderPostList::get_description() const
 {
-	string desc = "DeciderPostList(";
+	std::string desc = "DeciderPostList(";
 	desc += pl->get_description();
 	desc += ')';
 	return desc;

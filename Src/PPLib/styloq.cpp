@@ -1015,6 +1015,8 @@ int StyloQFace::GetRepresentation(int lang, SString & rBuf) const
 		case sqbcRsrvOrderPrereq: p_sign = "styloqbasecmd_rsrvorderprereq"; break; // @v11.2.6
 		case sqbcRsrvAttendancePrereq: p_sign = "styloqbasecmd_rsrvattendanceprereq"; break; // @v11.3.2
 		case sqbcRsrvPushIndexContent: p_sign = "styloqbasecmd_rsrvpushindexcontent"; break; // @v11.3.4
+		case sqbcRsrvIndoorSvcPrereq: p_sign = "styloqbasecmd_rsrvindoorsvcprereq"; break; // @v11.4.4
+		case sqbcGoodsInfo: p_sign = "styloqbasecmd_goodsinfo"; break; // @v11.4.4
 	}
 	if(p_sign)
 		PPLoadString(p_sign, rBuf);
@@ -5447,7 +5449,7 @@ int PPStyloQInterchange::KexServiceReply(SSecretTagPool & rSessCtx, const SSecre
 		S_GUID lmid;
 		SString temp_buf;
 		{
-			WinRegKey reg_key_r(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
+			WinRegKey reg_key_r(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
 			reg_key_r.GetString(_PPConst.WrParam_StyloQLoclMachineUuid, temp_buf);
 			if(temp_buf.NotEmpty() && lmid.FromStr(temp_buf))
 				result = lmid;
@@ -5455,13 +5457,13 @@ int PPStyloQInterchange::KexServiceReply(SSecretTagPool & rSessCtx, const SSecre
 		if(!result) {
 			{
 				lmid.Generate();
-				WinRegKey reg_key_w(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+				WinRegKey reg_key_w(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
 				temp_buf.Z().Cat(lmid, S_GUID::fmtLower|S_GUID::fmtPlain);
 				reg_key_w.PutString(_PPConst.WrParam_StyloQLoclMachineUuid, temp_buf);
 			}
 			{ // Так как нам очень важно, что ключ постоянно один для всех сеансов на этой машине, 
 				// то мы не просто воспользуемся сгенерированным ключем, а для страховки извлечем его и реестра.
-				WinRegKey reg_key_r(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
+				WinRegKey reg_key_r(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
 				reg_key_r.GetString(_PPConst.WrParam_StyloQLoclMachineUuid, temp_buf);
 				if(temp_buf.NotEmpty() && lmid.FromStr(temp_buf))
 					result = lmid;
@@ -5482,7 +5484,7 @@ int PPStyloQInterchange::KexServiceReply(SSecretTagPool & rSessCtx, const SSecre
 	StyloQConfig cfg_pack;
 	SBinaryChunk bc_cfg;
 	bool own_cfg_used = false;
-	THROW(rOwnPack.Pool.Get(SSecretTagPool::tagSvcIdent, &rP.SvcIdent), PPERR_SQ_UNDEFSVCID);
+	THROW_PP(rOwnPack.Pool.Get(SSecretTagPool::tagSvcIdent, &rP.SvcIdent), PPERR_SQ_UNDEFSVCID);
 	THROW_PP(rOwnPack.Pool.Get(SSecretTagPool::tagConfig, &bc_cfg), PPERR_SQ_UNDEFOWNCFG);
 	assert(bc_cfg.Len());
 	THROW(cfg_pack.FromJson(bc_cfg.ToRawStr(temp_buf)));
@@ -6894,6 +6896,225 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 	CATCHZOK
 	return ok;
 }
+
+int PPStyloQInterchange::MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPSyncCashNode * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat)
+{
+	/*
+		quotkind_list [ { id; nm } ]
+		goodsgroup_list [ { id; parid; nm } ]
+		warehouse_list [ { id; nm } ]
+		uom_list [ { id; nm; (fragmentation|rounding|int) } ]
+		brand_list [ { id; nm } ]
+		goods_list [ { id; nm; parid; uomid; code_list [ { cod; qty } ]; brandid; upp; price; stock; (ordqtymult|ordminqty); quot_list [ { id; val } ] ]
+	*/
+	int    ok = 1;
+	SString temp_buf;
+	PPIDArray  grp_id_list;
+	PPIDArray  brand_id_list;
+	PPIDArray  unit_id_list;
+	PPObjQuotKind qk_obj;
+	SVector goods_list(sizeof(InnerGoodsEntry));
+	PPIDArray temp_loc_list;
+	BlobInfo blob_info;
+	if(!(pPack->Flags & CASHFX_PASSIVE)) {
+		PPObjGoods goods_obj;
+		const PPID single_loc_id = pPack->LocID;
+		/*{
+			SJson * p_js_list = 0;
+			for(uint i = 0; i < pPack->QkList__.GetCount(); i++) {
+				const PPID qk_id = pPack->QkList__.Get(i);
+				PPQuotKind qk_rec;
+				if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
+					SETIFZ(p_js_list, SJson::CreateArr());
+					SJson * p_jsobj = SJson::CreateObj();
+					p_jsobj->InsertInt("id", qk_rec.ID);
+					p_jsobj->InsertString("nm", (temp_buf = qk_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					p_js_list->InsertChild(p_jsobj);
+				}
+			}
+			if(p_js_list)
+				pJs->Insert("quotkind_list", p_js_list);
+		}*/
+		/*{
+			PPIDArray gt_quasi_unlim_list;
+			{
+				PPObjGoodsType gt_obj;
+				PPGoodsType gt_rec;
+				for(SEnum en = gt_obj.Enum(0); en.Next(&gt_rec) > 0;) {
+					if(gt_rec.Flags & (GTF_QUASIUNLIM|GTF_UNLIMITED)) 
+						gt_quasi_unlim_list.add(gt_rec.ID);
+				}
+			}
+			GoodsRestFilt gr_filt;
+			PPViewGoodsRest gr_view;
+			gr_filt.LocList = pPack->LocList;
+			gr_filt.GoodsGrpID = pPack->GoodsGrpID;
+			gr_filt.CalcMethod = GoodsRestParam::pcmLastLot;
+			if(gt_quasi_unlim_list.getCount() || (pPack->Rec.Flags & PLMF_EXPZSTOCK))
+				gr_filt.Flags |= GoodsRestFilt::fNullRest;
+			gr_filt.WaitMsgID  = PPTXT_WAIT_GOODSREST;
+			THROW(gr_view.Init_(&gr_filt));
+			GoodsRestViewItem gr_item;
+			Goods2Tbl::Rec goods_rec;
+			GoodsStockExt gse;
+			for(gr_view.InitIteration(); gr_view.NextIteration(&gr_item) > 0;) {
+				if(goods_obj.Fetch(gr_item.GoodsID, &goods_rec) > 0) {
+					if((pPack->Rec.Flags & PLMF_EXPZSTOCK) || gr_item.Rest > 0.0 ||gt_quasi_unlim_list.lsearch(goods_rec.GoodsTypeID)) {
+						InnerGoodsEntry goods_entry(gr_item.GoodsID);
+						grp_id_list.addnz(goods_rec.ParentID);
+						brand_id_list.addnz(goods_rec.BrandID);
+						unit_id_list.addnz(goods_rec.UnitID);
+						goods_entry.Rest = gr_item.Rest;
+						goods_entry.Cost = gr_item.Cost;
+						goods_entry.Price = gr_item.Price;
+						goods_entry.UnitPerPack = gr_item.UnitPerPack;
+						gse.Z();
+						if(goods_obj.GetStockExt(goods_rec.ID, &gse, 1) > 0 && gse.MinShippmQtty > 0.0) {
+							if(gse.GseFlags & GoodsStockExt::fMultMinShipm)
+								goods_entry.OrderQtyMult = gse.MinShippmQtty;
+							else
+								goods_entry.OrderMinQty = gse.MinShippmQtty;
+						}
+						goods_list.insert(&goods_entry);
+					}
+				}
+			}
+		}*/
+		grp_id_list.sortAndUndup();
+		brand_id_list.sortAndUndup();
+		unit_id_list.sortAndUndup();
+		{
+			//
+			// Товарные группы
+			//
+			SJson * p_js_list = 0;
+			PPObjGoodsGroup gg_obj;
+			Goods2Tbl::Rec gg_rec;
+			for(uint i = 0; i < grp_id_list.getCount(); i++) {
+				if(gg_obj.Fetch(grp_id_list.get(i), &gg_rec) > 0) {
+					SETIFZ(p_js_list, SJson::CreateArr());
+					SJson * p_jsobj = MakeObjJson_GoodsGroup(rOwnIdent, gg_rec, 0, pStat);
+					THROW(p_jsobj);
+					p_js_list->InsertChild(p_jsobj);
+				}
+			}
+			if(p_js_list)
+				pJs->Insert("goodsgroup_list", p_js_list);
+		}
+		{
+			// Units
+			SJson * p_js_list = 0;
+			PPObjUnit u_obj;
+			PPUnit2 u_rec;
+			for(uint i = 0; i < unit_id_list.getCount(); i++) {
+				if(u_obj.Fetch(unit_id_list.get(i), &u_rec) > 0) {
+					SETIFZ(p_js_list, SJson::CreateArr());
+					SJson * p_jsobj = SJson::CreateObj();
+					p_jsobj->InsertInt("id", u_rec.ID);
+					if(u_rec.Fragmentation > 0) {
+						p_jsobj->InsertInt("fragmentation", u_rec.Fragmentation);
+					}
+					else if(u_rec.Rounding_ > 0.0) {
+						p_jsobj->InsertDouble("rounding", u_rec.Rounding_, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+					}
+					else if(u_rec.Flags & PPUnit2::IntVal) {
+						p_jsobj->InsertBool("int", true);
+					}
+					p_jsobj->InsertString("nm", (temp_buf = u_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					p_js_list->InsertChild(p_jsobj);
+				}
+			}
+			if(p_js_list)
+				pJs->Insert("uom_list", p_js_list);
+		}
+		/*if(pPack->Rec.Flags & PLMF_EXPBRAND)*/{
+			//
+			// Brands
+			//
+			SJson * p_js_list = 0;
+			PPObjBrand br_obj;
+			PPBrandPacket brand_pack;
+			for(uint i = 0; i < brand_id_list.getCount(); i++) {
+				const PPObjID oid(PPOBJ_BRAND, brand_id_list.get(i));
+				brand_pack.Init();
+				if(br_obj.Get(oid.Id, &brand_pack) > 0) {
+					SETIFZ(p_js_list, SJson::CreateArr());
+					SJson * p_jsobj = MakeObjJson_Brand(rOwnIdent, brand_pack, 0, pStat);
+					THROW(p_jsobj);
+					p_js_list->InsertChild(p_jsobj);
+				}
+			}
+			if(p_js_list)
+				pJs->Insert("brand_list", p_js_list);
+		}
+		{
+			SJson * p_goods_list = 0;
+			PPGoodsPacket goods_pack;
+			for(uint glidx = 0; glidx < goods_list.getCount(); glidx++) {
+				const InnerGoodsEntry & r_goods_entry = *static_cast<const InnerGoodsEntry *>(goods_list.at(glidx));
+				const PPObjID oid(PPOBJ_GOODS, r_goods_entry.GoodsID);
+				if(goods_obj.GetPacket(r_goods_entry.GoodsID, &goods_pack, PPObjGoods::gpoSkipQuot) > 0) {
+					SJson * p_jsobj = MakeObjJson_Goods(rOwnIdent, goods_pack, &r_goods_entry, 0, pStat);
+					THROW(p_jsobj);
+					/*{
+						//
+						// Котировки
+						//
+						SJson * p_js_quot_list = 0;
+						const LDATE now_date = getcurdate_();
+						Transfer * p_trfr = BillObj->trfr;
+						for(uint i = 0; i < pPack->QkList__.GetCount(); i++) {
+							const PPID qk_id = pPack->QkList__.Get(i);
+							double quot = 0.0;
+							QuotIdent qi(QIDATE(now_date), single_loc_id, qk_id);
+							if(goods_obj.GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
+								SJson * p_js_quot = SJson::CreateObj();
+								p_js_quot->InsertInt("id", qk_id);
+								p_js_quot->InsertDouble("val", quot, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+								SETIFZ(p_js_quot_list, SJson::CreateArr());
+								p_js_quot_list->InsertChild(p_js_quot);
+							}
+							else if(!single_loc_id && pPack->LocList.GetCount()) {
+								GoodsRestParam grparam;
+								grparam.LocList = pPack->LocList.Get();
+								grparam.GoodsID = r_goods_entry.GoodsID;
+								grparam.DiffParam = GoodsRestParam::_diffLoc;
+								p_trfr->GetCurRest(grparam);
+								temp_loc_list.clear();
+								if(grparam.Total.Rest > 0.0) {
+									for(uint grvidx = 0; grvidx < grparam.getCount(); grvidx++) {
+										GoodsRestVal & r_grv = grparam.at(grvidx);
+										if(r_grv.Rest > 0.0)
+											temp_loc_list.add(r_grv.LocID);
+									}
+								}
+								{
+									const PPID target_loc_id = temp_loc_list.getCount() ? temp_loc_list.get(0) : pPack->LocList.Get(0);
+									QuotIdent qi(QIDATE(now_date), target_loc_id, qk_id);
+									if(goods_obj.GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
+										SJson * p_js_quot = SJson::CreateObj();
+										p_js_quot->InsertInt("id", qk_id);
+										p_js_quot->InsertDouble("val", quot, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+										SETIFZ(p_js_quot_list, SJson::CreateArr());
+										p_js_quot_list->InsertChild(p_js_quot);
+									}
+								}
+							}
+						}
+						if(p_js_quot_list)
+							p_jsobj->Insert("quot_list", p_js_quot_list);
+					}*/
+					SETIFZ(p_goods_list, SJson::CreateArr());
+					p_goods_list->InsertChild(p_jsobj);
+				}
+			}
+			if(p_goods_list)
+				pJs->Insert("goods_list", p_goods_list);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 //
 //
 //
@@ -7272,6 +7493,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	LAssocArray goods_to_prc_list;
 	long   max_schedule_days = 7;
 	long   time_sheet_discreteness = 15;
+	PPUserFuncProfiler ufp(PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ);
 	THROW(GetOwnPeerEntry(&own_pack) > 0);
 	THROW_PP(own_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &bc_own_ident), PPERR_SQ_UNDEFOWNSVCID);
 	StqInsertIntoJs_BaseCurrency(&js); // @v11.3.12
@@ -7421,6 +7643,84 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 		THROW_SL(js_decl.ToStr(rDocDeclaration));
 	}
 	StoreOidListWithBlob(stat.BlobOidList.SortAndUndup());
+	ufp.SetFactor(0, static_cast<double>(stat.GoodsCount));
+	ufp.SetFactor(1, static_cast<double>(stat.PrcCount));
+	ufp.Commit();
+	CATCHZOK
+	return ok;
+}
+
+int PPStyloQInterchange::ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
+	const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput)
+{
+	int    ok = 1;
+	PPObjIDArray bloboid_list;
+	Stq_CmdStat_MakeRsrv_Response stat;
+	PPUserFuncProfiler ufp(PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ);
+	PPID   posnode_id = 0;
+	SString temp_buf;
+	PPObjCashNode cn_obj;
+	PPCashNode cn_rec;
+	PPSyncCashNode cn_sync_pack;
+	//PPObjStyloPalm stp_obj;
+	//PPStyloPalmPacket stp_pack;
+	StyloQCore::StoragePacket own_pack;
+	SBinaryChunk bc_own_ident;
+	PPID   agent_psn_id = 0;
+	THROW(GetOwnPeerEntry(&own_pack) > 0);
+	THROW_PP(own_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &bc_own_ident), PPERR_SQ_UNDEFOWNSVCID);
+	THROW(rCmdItem.Param.ReadStatic(&posnode_id, sizeof(posnode_id))); // @todo err
+	if(posnode_id == ROBJID_CONTEXT) {
+		PPID   local_person_id = 0;
+		THROW(FetchPersonFromClientPacket(rCliPack, &local_person_id, true/*logResult*/) > 0);
+		if(local_person_id) {
+			PPIDArray stp_id_list;
+			/*
+			if(stp_obj.GetListByPerson(local_person_id, stp_id_list) > 0) {
+				posnode_id = stp_id_list.get(0);
+				agent_psn_id = local_person_id;
+			}
+			*/
+		}
+	}
+	THROW_PP(posnode_id, PPERR_STQ_UNDEFPOSFORINDOORSVC);
+	THROW(cn_obj.Fetch(posnode_id, &cn_rec) > 0);
+	THROW_PP(cn_rec.Flags & CASHF_SYNC, PPERR_STQ_POSFORINDOORSVCMUSTBESYNC);
+	THROW(cn_obj.GetSync(posnode_id, &cn_sync_pack) > 0);
+	//THROW(stp_obj.GetPacket(posnode_id, &stp_pack) > 0);
+	{
+		const bool is_agent_orders = (rCmdItem.ObjTypeRestriction == PPOBJ_PERSON && rCmdItem.ObjGroupRestriction == PPPRK_AGENT);
+		SJson js(SJson::tOBJECT);
+		StqInsertIntoJs_BaseCurrency(&js);
+		js.InsertInt("posnodeid", posnode_id);
+		//THROW(MakeRsrvPriceListResponse_ExportGoods(bc_own_ident, &stp_pack, &js, &stat));
+		/*if(is_agent_orders) {
+			THROW(MakeRsrvPriceListResponse_ExportClients(bc_own_ident, &stp_pack, &js, &stat));
+		}*/
+		THROW(js.ToStr(rResult));
+		// @debug {
+		if(debugOutput) {
+			SString out_file_name;
+			PPGetFilePath(PPPATH_OUT, "stq-rsrvindoorsvcprereq.json", out_file_name);
+			SFile f_out(out_file_name, SFile::mWrite);
+			f_out.WriteLine(rResult);
+		}
+		// } @debug
+		{
+			SJson js_decl(SJson::tOBJECT);
+			js_decl.InsertString("type", "indoorsvcprereq");
+			js_decl.InsertString("format", "json");
+			js_decl.InsertString("time", temp_buf.Z().CatCurDateTime(DATF_ISO8601CENT, 0));
+			if(rCmdItem.ResultExpiryTimeSec > 0)
+				js_decl.InsertInt("resultexpirytimesec", rCmdItem.ResultExpiryTimeSec);
+			js_decl.InsertString("displaymethod", "indoorsvcprereq");
+			THROW_SL(js_decl.ToStr(rDocDeclaration));
+		}
+	}
+	StoreOidListWithBlob(stat.BlobOidList.SortAndUndup());
+	ufp.SetFactor(0, static_cast<double>(stat.GoodsCount));
+	ufp.SetFactor(1, static_cast<double>(stat.ClientCount));
+	ufp.Commit();
 	CATCHZOK
 	return ok;
 }
@@ -7522,7 +7822,7 @@ int PPStyloQInterchange::ProcessCommand_Report(const StyloQCommandList::Item & r
 				THROW(PPView::ReadFiltPtr(temp_non_const_buf, &p_filt));
 			}
 			else {
-				THROW(p_filt = p_view->CreateFilt(0));
+				THROW(p_filt = p_view->CreateFilt(PPView::GetDescriptionExtra(p_view->GetViewId())));
 			}
 			THROW(p_view->Init_(p_filt));
 			if(!dl600_name.NotEmptyS()) {
@@ -7593,36 +7893,42 @@ int PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) // 
 {
 	int    ok = 1;
 	if(pCmd) {
-		if(pCmd->BaseCmdId == StyloQCommandList::sqbcRsrvOrderPrereq) {
-			SString result;
-			SString decl;
-			StyloQCore::StoragePacket fake_cli_pack;
-			SGeoPosLL fake_geo_pos;
-			THROW(ProcessCommand_RsrvOrderPrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true));
-		}
-		else if(pCmd->BaseCmdId == StyloQCommandList::sqbcRsrvAttendancePrereq) {
-			SString result;
-			SString decl;
-			StyloQCore::StoragePacket fake_cli_pack;
-			SGeoPosLL fake_geo_pos;
-			THROW(ProcessCommand_RsrvAttendancePrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true));
-		}
-		else if(pCmd->BaseCmdId == StyloQCommandList::sqbcRsrvPushIndexContent) {
-			StyloQCore::StoragePacket own_pack;
-			SString result;
-			PPObjIDArray oid_list;
-			THROW(GetOwnPeerEntry(&own_pack) > 0);
-			THROW(MakeIndexingRequestCommand(&own_pack, pCmd, 3600*24, oid_list, result));
-		}
-		else if(pCmd->BaseCmdId == StyloQCommandList::sqbcReport) {
-			SString result;
-			SString decl;
-			StyloQCore::StoragePacket fake_cli_pack;
-			SGeoPosLL fake_geo_pos;
-			THROW(ProcessCommand_Report(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true));
+		SString result;
+		SString decl;
+		StyloQCore::StoragePacket fake_cli_pack;
+		SGeoPosLL fake_geo_pos;
+		switch(pCmd->BaseCmdId) {
+			case StyloQCommandList::sqbcRsrvOrderPrereq:
+				PPWait(1);
+				THROW(ProcessCommand_RsrvOrderPrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true));
+				break;
+			case StyloQCommandList::sqbcRsrvAttendancePrereq:
+				PPWait(1);
+				THROW(ProcessCommand_RsrvAttendancePrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true));
+				break;
+			case StyloQCommandList::sqbcRsrvPushIndexContent:
+				{
+					StyloQCore::StoragePacket own_pack;
+					PPObjIDArray oid_list;
+					PPWait(1);
+					THROW(GetOwnPeerEntry(&own_pack) > 0);
+					THROW(MakeIndexingRequestCommand(&own_pack, pCmd, 3600*24, oid_list, result));
+				}
+				break;
+			case StyloQCommandList::sqbcReport:
+				PPWait(1);
+				THROW(ProcessCommand_Report(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true));
+				break;
+			case StyloQCommandList::sqbcRsrvIndoorSvcPrereq: // @v11.4.4
+				// @todo
+				break;
+			case StyloQCommandList::sqbcGoodsInfo: // @v11.4.4
+				// @todo
+				break;
 		}
 	}
 	CATCHZOKPPERR
+	PPWait(0);
 	return ok;
 }
 
@@ -8957,8 +9263,7 @@ int PPStyloQInterchange::LoadViewSymbList()
 {
 	int    ok = -1;
 	if(!(State & stViewSymbListLoaded)) {
-		PPNamedFiltMngr nf_mgr;
-		if(nf_mgr.GetResourceLists(&ViewSymbList, &ViewDescrList) > 0) {
+		if(PPView::GetDescriptionList(true, &ViewSymbList, &ViewDescrList) > 0) {
 			State |= stViewSymbListLoaded;
 			ok = 1;
 		}
@@ -9660,6 +9965,12 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 								}
 							}
 							break;
+						case StyloQCommandList::sqbcRsrvIndoorSvcPrereq: // @v11.4.4
+							// @todo
+							break;
+						case StyloQCommandList::sqbcGoodsInfo: // @v11.4.4
+							// @todo
+							break;
 						default:
 							PPSetError(PPERR_SQ_UNSUPPORTEDCMD);
 							break;
@@ -10054,7 +10365,7 @@ public:
 					do_process_loop = true; // OK
 				}
 				else {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO|LOGMSGF_THREADID);
 				}
 				break;
 			case PPSCMD_SQ_SESSION: // Команда инициации соединения по значению сессии, которая была установлена на предыдущем сеансе обмена
@@ -10063,7 +10374,7 @@ public:
 					do_process_loop = true; // OK
 				}
 				else {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO|LOGMSGF_THREADID);
 				}
 				break;
 			case PPSCMD_SQ_SRPAUTH: // Команда инициации соединения методом SRP-авторизации по параметрам, установленным ранее 
@@ -10072,7 +10383,7 @@ public:
 					do_process_loop = true; // OK
 				}
 				else {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO|LOGMSGF_THREADID);
 				}
 				break;
 			default:
@@ -10090,7 +10401,7 @@ public:
 				SBinaryChunk sess_secret;
 				PPMqbClient::Envelope env;
 				if(B.Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret)) {
-					const long live_silence_period = 2 * 60 * 1000;
+					const long live_silence_period = (10 * 1000); // (2 * 60 * 1000)-->(15 * 1000)
 					clock_t clk_start = clock();
 					SString reply_status_text;
 					while(do_process_loop) {
@@ -10099,15 +10410,15 @@ public:
 						if(B.P_Mqbc->ConsumeMessage(env, 1000) > 0) { // @v11.3.2 timeout 200-->1000
 							if(!B.Uuid || S_GUID(env.Msg.Props.CorrelationId) == B.Uuid) {
 								{ // @debug
-									log_buf.Z().Cat("mqb-sess-got-own-msg").Space().Cat(GetThreadID()).Space().Cat(env.Msg.Props.CorrelationId);
-									PPLogMessage(PPFILNAM_DEBUG_LOG, log_buf, LOGMSGF_TIME);
+									log_buf.Z().Cat("mqb-sess-got-own-msg").Space().Cat(env.Msg.Props.CorrelationId);
+									PPLogMessage(PPFILNAM_DEBUG_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_THREADID);
 								}
 								is_there_my_message = true;
 							}
 							else {
 								{ // @debug
-									log_buf.Z().Cat("mqb-sess-got-another's-msg").Space().Cat(GetThreadID()).Space().Cat(env.Msg.Props.CorrelationId);
-									PPLogMessage(PPFILNAM_DEBUG_LOG, log_buf, LOGMSGF_TIME);
+									log_buf.Z().Cat("mqb-sess-got-another's-msg").Space().Cat(env.Msg.Props.CorrelationId);
+									PPLogMessage(PPFILNAM_DEBUG_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_THREADID);
 								}
 								B.P_Mqbc->Reject(env.DeliveryTag, PPMqbClient::mqofRequeue);
 								is_there_my_message = false;
@@ -10204,12 +10515,26 @@ public:
 									}
 								}
 							}
+							else {
+								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_THREADID);
+							}
+							// @v11.4.4 {
+							/*{
+								(temp_buf = "Service Stylo-Q roundtrip is finished after getting of the command"); 
+								PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_THREADID);
+								if(B.P_Mqbc) {
+									B.P_Mqbc->Disconnect();
+									ZDELETE(B.P_Mqbc);
+								}
+								break;
+							}*/
+							// } @v11.4.4 
 						}
 						else {
 							const clock_t silence_period = (clock() - clk_start);
 							if(silence_period >= live_silence_period) {
 								(temp_buf = "Service Stylo-Q roundtrip is finished after").Space().Cat(silence_period).Cat("ms of silence");
-								PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+								PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_THREADID);
 								// @v11.3.1 {
 								if(B.P_Mqbc) {
 									B.P_Mqbc->Disconnect();

@@ -21,10 +21,7 @@ using namespace Xapian;
 using namespace std;
 
 // Default implementation in case the user hasn't implemented it.
-string Stopper::get_description() const
-{
-	return "Xapian::Stopper subclass";
-}
+string Stopper::get_description() const { return "Xapian::Stopper subclass"; }
 
 string SimpleStopper::get_description() const
 {
@@ -195,13 +192,5 @@ void QueryParser::add_rangeprocessor(Xapian::RangeProcessor * range_proc, const 
 	internal->rangeprocs.push_back(RangeProc(range_proc, grouping));
 }
 
-string QueryParser::get_corrected_query_string() const
-{
-	return internal->corrected_query;
-}
-
-string QueryParser::get_description() const
-{
-	// FIXME : describe better!
-	return "Xapian::QueryParser()";
-}
+string QueryParser::get_corrected_query_string() const { return internal->corrected_query; }
+string QueryParser::get_description() const {  return "Xapian::QueryParser()"; } // FIXME : describe better!

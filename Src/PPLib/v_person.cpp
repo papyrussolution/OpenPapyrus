@@ -1012,7 +1012,7 @@ int PPViewPerson::CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec)
 					ok = 0;
 				else if(PsnObj.LocObj.GetCity(pRec->MainLoc, &city_id, 0, 1) <= 0)
 					ok = 0;
-				else if(WObj.IsChildOf(city_id, Filt.CityID) <= 0)
+				else if(!WObj.IsChildOf(city_id, Filt.CityID))
 					ok = 0;
 			}
 		}

@@ -300,7 +300,7 @@ int ssh_scp_push_directory(ssh_scp scp, const char * dirname, int mode)
 	}
 
 	dir = ssh_basename(dirname);
-	if(dir == NULL) {
+	if(!dir) {
 		ssh_set_error_oom(scp->session);
 		return SSH_ERROR;
 	}

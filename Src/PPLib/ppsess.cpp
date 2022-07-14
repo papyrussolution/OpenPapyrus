@@ -2470,7 +2470,11 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 		}
 	}
 #endif
-	// } @v11.4.1 
+	// } @v11.4.1
+	// @v11.4.4 {
+	// Регистрация специальных типов View. Я не уверен, что нашел удачную точку для такой регистрации, но надо по-быстрому :(
+	PPView::InitializeDescriptionList();
+	// }
 	InitTest();
 	CATCHZOK
 	return ok;
@@ -4266,7 +4270,7 @@ int PPSession::Register()
 	data.Ver = DS.GetVersion();
 	SString uuid_buf;
 	data.Uuid.ToStr(S_GUID::fmtIDL, uuid_buf);
-	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::Sessions, 0);
+	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_Sessions, 0);
 	return reg_key.PutBinary(uuid_buf, &data, sizeof(data)-offsetof(RegSessData, ReserveStart));
 }
 
@@ -4277,7 +4281,7 @@ int PPSession::GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessData * 
 	// @v10.7.9 @ctr MEMSZERO(data);
 	SString uuid_buf;
 	rUuid.ToStr(S_GUID::fmtIDL, uuid_buf);
-	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::Sessions, 1);
+	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_Sessions, 1);
 	if(reg_key.GetBinary(uuid_buf, &data, sizeof(data)-offsetof(RegSessData, ReserveStart)) > 0) {
 		data.Uuid = rUuid;
 		ASSIGN_PTR(pData, data);
@@ -4291,7 +4295,7 @@ int PPSession::Unregister()
 	WinRegKey reg_key;
 	SString uuid_buf;
 	SLS.GetSessUuid().ToStr(S_GUID::fmtIDL, uuid_buf);
-	return reg_key.DeleteValue(HKEY_CURRENT_USER, PPRegKeys::Sessions, uuid_buf);
+	return reg_key.DeleteValue(HKEY_CURRENT_USER, _PPConst.WrKey_Sessions, uuid_buf);
 }
 
 const SrSyntaxRuleSet * PPSession::GetSrSyntaxRuleSet()
@@ -4650,7 +4654,6 @@ int PPSession::SetMainOrgID(PPID id, int enforce)
 			if(psn_obj.Search(id, &psn_rec) > 0) {
 				r_tla.MainOrgName.Id = id;
 				r_tla.MainOrgName.CopyFrom(psn_rec.Name);
-				// @v9.7.8 {
 				{
 					LocationTbl::Rec loc_rec;
 					int    is_loc_identified = 0;
@@ -4665,7 +4668,6 @@ int PPSession::SetMainOrgID(PPID id, int enforce)
 							r_tla.MainOrgCountryCode = cb.Code;
 					}
 				}
-				// } @v9.7.8
 			}
 			else {
 				r_tla.MainOrgName.Id = 0;
@@ -4793,7 +4795,7 @@ int PPSession::GetPath(PPID pathID, SString & rBuf)
 			break;
 		case PPPATH_SYSROOT:
 			{
-				SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.10
+				SString & r_temp_buf = SLS.AcquireRvlStr();
 				GetPath(PPPATH_BIN, r_temp_buf); // @recursion
 				rBuf = r_temp_buf.RmvLastSlash();
 				int    last = rBuf.Last();

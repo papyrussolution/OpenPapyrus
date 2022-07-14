@@ -15,7 +15,7 @@ PPViewGoodsMov2::~PPViewGoodsMov2()
 	delete P_TempTbl;
 }
 
-PPBaseFilt * PPViewGoodsMov2::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGoodsMov2::CreateFilt(const void * extraPtr) const
 {
 	BillFilt * p_filt = 0;
 	PPView::CreateFiltInstance(PPFILT_GOODSMOV, reinterpret_cast<PPBaseFilt **>(&p_filt));

@@ -350,8 +350,8 @@ static const pcre_uchar * posix_substitutes[] = {
 #define POSIX_SUBSIZE (sizeof(posix_substitutes) / sizeof(pcre_uchar *))
 #endif
 
-#define STRING(a)  # a
-#define XSTRING(s) STRING(s)
+// @v11.4.4 #define STRING(a)  # a // @todo replacewith(STRINGIZE)
+// @v11.4.4 #define XSTRING(s) STRING(s)
 
 /* The texts of compile-time error messages. These are "char *" because they
    are passed to the outside world. Do not ever re-use any error number, because
@@ -425,8 +425,8 @@ static const char error_texts[] =
     "support for \\P, \\p, and \\X has not been compiled\0"
     "malformed \\P or \\p sequence\0"
     "unknown property name after \\P or \\p\0"
-    "subpattern name is too long (maximum " XSTRING(MAX_NAME_SIZE) " characters)\0"
-    "too many named subpatterns (maximum " XSTRING(MAX_NAME_COUNT) ")\0"
+    "subpattern name is too long (maximum " STRINGIZE(MAX_NAME_SIZE) " characters)\0"
+    "too many named subpatterns (maximum " STRINGIZE(MAX_NAME_COUNT) ")\0"
     /* 50 */
     "repeated subpattern is too long\0"  /** DEAD **/
     "octal value is greater than \\377 in 8-bit non-UTF-8 mode\0"

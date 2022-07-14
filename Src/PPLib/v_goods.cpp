@@ -357,7 +357,8 @@ struct ExtParams_Before24 {
 	PutObjMembToBuf(PPOBJ_GOODSTYPE,  GoodsTypeID,    STRINGIZE(GoodsTypeID),    rBuf);
 	PutObjMembToBuf(PPOBJ_GOODSTAX,   TaxGrpID,       STRINGIZE(TaxGrpID),       rBuf);
 	PutMembToBuf(&LotPeriod, STRINGIZE(LotPeriod),    rBuf);
-	PutMembToBuf(VatRate,    STRINGIZE(VatRate),   rBuf);
+	if(VatRate > 0.0) // @v11.4.4
+		PutMembToBuf(VatRate,    STRINGIZE(VatRate),   rBuf);
 	PutMembToBuf(VatDate,    STRINGIZE(VatDate),   rBuf);
 	PutMembToBuf(SrchStr_, STRINGIZE(SrchStr_), rBuf);
 	PutMembToBuf(BarcodeLen, STRINGIZE(BarcodeLen), rBuf);
@@ -368,35 +369,39 @@ struct ExtParams_Before24 {
 	{
 		long id = 1;
 		StrAssocArray flag_list;
-		// @v9.9.3 if(Flags & fUseGrpList)            flag_list.Add(id++, STRINGIZE(fUseGrpList));
-		// @v9.9.3 if(Flags & fUseUnitMask)           flag_list.Add(id++, STRINGIZE(fIntUnitOnly));
-		if(Flags & fWoBrand)               flag_list.Add(id++, STRINGIZE(fWoBrand)); // @v10.6.8
-		if(Flags & fIntUnitOnly)           flag_list.Add(id++, STRINGIZE(fIntUnitOnly));
-		if(Flags & fFloatUnitOnly)         flag_list.Add(id++, STRINGIZE(fFloatUnitOnly));
-		if(Flags & fNegation)              flag_list.Add(id++, STRINGIZE(fNegation));
-		if(Flags & fGenGoods)              flag_list.Add(id++, STRINGIZE(fGenGoods));
-		if(Flags & fGroupGenGoods)         flag_list.Add(id++, STRINGIZE(fGroupGenGoods));
-		if(Flags & fUndefType)             flag_list.Add(id++, STRINGIZE(fUndefType));
-		if(Flags & fNewLots)               flag_list.Add(id++, STRINGIZE(fNewLots));
-		if(Flags & fExcludeAsset)          flag_list.Add(id++, STRINGIZE(fExcludeAsset));
-		if(Flags & fIncludeIntr)           flag_list.Add(id++, STRINGIZE(fIncludeIntr));
-		if(Flags & fShowBarcode)           flag_list.Add(id++, STRINGIZE(fShowBarcode));
-		if(Flags & fShowCargo)             flag_list.Add(id++, STRINGIZE(fShowCargo));
-		if(Flags & fHidePassive)           flag_list.Add(id++, STRINGIZE(fHidePassive));
-		if(Flags & fPassiveOnly)           flag_list.Add(id++, STRINGIZE(fPassiveOnly));
-		if(Flags & fHideGeneric)           flag_list.Add(id++, STRINGIZE(fHideGeneric)); // @v10.7.7
-		if(Flags & fGenGoodsOnly)          flag_list.Add(id++, STRINGIZE(fGenGoodsOnly));
-		if(Flags & fWOTaxGdsOnly)          flag_list.Add(id++, STRINGIZE(fWOTaxGdsOnly));
-		if(Flags & fNoZeroRestOnLotPeriod) flag_list.Add(id++, STRINGIZE(fNoZeroRestOnLotPeriod));
-		if(Flags & fNoDisOnly)             flag_list.Add(id++, STRINGIZE(fNoDisOnly));
-		if(Flags & fShowStrucType)         flag_list.Add(id++, STRINGIZE(fShowStrucType));
-		if(Flags & fNotUseViewOptions)     flag_list.Add(id++, STRINGIZE(fNotUseViewOptions));
-		if(Flags & fShowGoodsWOStruc)      flag_list.Add(id++, STRINGIZE(fShowGoodsWOStruc));
-		if(Flags & fWoTaxGrp)              flag_list.Add(id++, STRINGIZE(fWoTaxGrp));
-		if(Flags & fRestrictByMatrix)      flag_list.Add(id++, STRINGIZE(fRestrictByMatrix));
-		if(Flags & fShowArCode)            flag_list.Add(id++, STRINGIZE(fShowArCode));
-		if(Flags & fShowOwnArCode)         flag_list.Add(id++, STRINGIZE(fShowOwnArCode));
-		if(Flags & fShowWoArCode)          flag_list.Add(id++, STRINGIZE(fShowWoArCode));
+		#define __ADD_FLAG(f) if(Flags & f) flag_list.Add(id++, STRINGIZE(f));
+		__ADD_FLAG(fWoBrand); // @v10.6.8
+		__ADD_FLAG(fIntUnitOnly);
+		__ADD_FLAG(fFloatUnitOnly);
+		__ADD_FLAG(fNegation);
+		__ADD_FLAG(fGenGoods);
+		__ADD_FLAG(fGroupGenGoods);
+		__ADD_FLAG(fUndefType);
+		__ADD_FLAG(fNewLots);
+		__ADD_FLAG(fExcludeAsset);
+		__ADD_FLAG(fIncludeIntr);
+		__ADD_FLAG(fShowBarcode);
+		__ADD_FLAG(fShowCargo);
+		__ADD_FLAG(fHidePassive);
+		__ADD_FLAG(fPassiveOnly);
+		__ADD_FLAG(fHideGeneric); // @v10.7.7
+		__ADD_FLAG(fGenGoodsOnly);
+		__ADD_FLAG(fWOTaxGdsOnly);
+		__ADD_FLAG(fNoZeroRestOnLotPeriod);
+		__ADD_FLAG(fNoDisOnly);
+		__ADD_FLAG(fShowStrucType);
+		__ADD_FLAG(fNotUseViewOptions);
+		__ADD_FLAG(fShowGoodsWOStruc);
+		__ADD_FLAG(fWoTaxGrp);
+		__ADD_FLAG(fRestrictByMatrix);
+		__ADD_FLAG(fShowArCode);
+		__ADD_FLAG(fShowOwnArCode);
+		__ADD_FLAG(fShowWoArCode);
+		__ADD_FLAG(fOutOfMatrix); // @v11.4.4
+		__ADD_FLAG(fActualOnly);  // @v11.4.4
+		__ADD_FLAG(fHasImages);   // @v11.4.4
+		__ADD_FLAG(fUseIndepWtOnly); // @v11.4.4
+		#undef __ADD_FLAG
 		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
 	CALLPTRMEMB(P_SjF, Describe(flags, rBuf));
@@ -1191,7 +1196,7 @@ void PPViewGoods::RemoveTempAltGroup()
 int PPViewGoods::IsAltFltGroup() { return (Filt.GrpID > 0 && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0); }
 int PPViewGoods::IsGenGoodsFlt() { return (Filt.GrpID > 0 && Filt.Flags & GoodsFilt::fGenGoods); }
 
-PPBaseFilt * PPViewGoods::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGoods::CreateFilt(const void * extraPtr) const
 {
 	GoodsFilt * p_filt = new GoodsFilt;
 	p_filt->Flags |= GoodsFilt::fHidePassive;

@@ -167,43 +167,42 @@ typedef struct {
 } State;
 
 namespace {
-// Prevent deep recursion / stack exhaustion.
-// Also prevent unbounded handling of complex inputs.
-class ComplexityGuard {
-public:
-	explicit ComplexityGuard(State * state) : state_(state) {
-		++state->recursion_depth;
-		++state->steps;
-	}
-
-	~ComplexityGuard() {
-		--state_->recursion_depth;
-	}
-
-	// 256 levels of recursion seems like a reasonable upper limit on depth.
-	// 128 is not enough to demagle synthetic tests from demangle_unittest.txt:
-	// "_ZaaZZZZ..." and "_ZaaZcvZcvZ..."
-	static constexpr int kRecursionDepthLimit = 256;
-
-	// We're trying to pick a charitable upper-limit on how many parse steps are
-	// necessary to handle something that a human could actually make use of.
-	// This is mostly in place as a bound on how much work we'll do if we are
-	// asked to demangle an mangled name from an untrusted source, so it should be
-	// much larger than the largest expected symbol, but much smaller than the
-	// amount of work we can do in, e.g., a second.
-	//
-	// Some real-world symbols from an arbitrary binary started failing between
-	// 2^12 and 2^13, so we multiply the latter by an extra factor of 16 to set
-	// the limit.
-	//
-	// Spending one second on 2^17 parse steps would require each step to take
-	// 7.6us, or ~30000 clock cycles, so it's safe to say this can be done in
-	// under a second.
-	static constexpr int kParseStepsLimit = 1 << 17;
-	bool IsTooComplex() const { return state_->recursion_depth > kRecursionDepthLimit || state_->steps > kParseStepsLimit; }
-private:
-	State * state_;
-};
+	// Prevent deep recursion / stack exhaustion.
+	// Also prevent unbounded handling of complex inputs.
+	class ComplexityGuard {
+	public:
+		explicit ComplexityGuard(State * state) : state_(state) 
+		{
+			++state->recursion_depth;
+			++state->steps;
+		}
+		~ComplexityGuard() 
+		{
+			--state_->recursion_depth;
+		}
+		// 256 levels of recursion seems like a reasonable upper limit on depth.
+		// 128 is not enough to demagle synthetic tests from demangle_unittest.txt:
+		// "_ZaaZZZZ..." and "_ZaaZcvZcvZ..."
+		static constexpr int kRecursionDepthLimit = 256;
+		// We're trying to pick a charitable upper-limit on how many parse steps are
+		// necessary to handle something that a human could actually make use of.
+		// This is mostly in place as a bound on how much work we'll do if we are
+		// asked to demangle an mangled name from an untrusted source, so it should be
+		// much larger than the largest expected symbol, but much smaller than the
+		// amount of work we can do in, e.g., a second.
+		//
+		// Some real-world symbols from an arbitrary binary started failing between
+		// 2^12 and 2^13, so we multiply the latter by an extra factor of 16 to set
+		// the limit.
+		//
+		// Spending one second on 2^17 parse steps would require each step to take
+		// 7.6us, or ~30000 clock cycles, so it's safe to say this can be done in
+		// under a second.
+		static constexpr int kParseStepsLimit = 1 << 17;
+		bool IsTooComplex() const { return state_->recursion_depth > kRecursionDepthLimit || state_->steps > kParseStepsLimit; }
+	private:
+		State * state_;
+	};
 }  // namespace
 
 // We don't use strlen() in libc since it's not guaranteed to be async signal safe.
@@ -238,7 +237,7 @@ static bool StrPrefix(const char * str, const char * prefix)
 	return prefix[i] == '\0'; // Consumed everything in "prefix".
 }
 
-static void InitState(State * state, const char * mangled, char * out, int out_size) 
+static void STDCALL InitState(State * state, const char * mangled, char * out, int out_size) 
 {
 	state->mangled_begin = mangled;
 	state->out = out;
@@ -258,7 +257,7 @@ static inline const char * RemainingInput(State * state) { return &state->mangle
 // Returns true and advances "mangled_idx" if we find "one_char_token"
 // at "mangled_idx" position.  It is assumed that "one_char_token" does
 // not contain '\0'.
-static bool ParseOneCharToken(State * state, const char one_char_token) 
+static bool FASTCALL ParseOneCharToken(State * state, const char one_char_token) 
 {
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
@@ -272,11 +271,12 @@ static bool ParseOneCharToken(State * state, const char one_char_token)
 // Returns true and advances "mangled_cur" if we find "two_char_token"
 // at "mangled_cur" position.  It is assumed that "two_char_token" does
 // not contain '\0'.
-static bool ParseTwoCharToken(State * state, const char * two_char_token) {
+static bool FASTCALL ParseTwoCharToken(State * state, const char * two_char_token) 
+{
 	ComplexityGuard guard(state);
-	if(guard.IsTooComplex()) return false;
-	if(RemainingInput(state)[0] == two_char_token[0] &&
-	    RemainingInput(state)[1] == two_char_token[1]) {
+	if(guard.IsTooComplex()) 
+		return false;
+	if(RemainingInput(state)[0] == two_char_token[0] && RemainingInput(state)[1] == two_char_token[1]) {
 		state->parse_state.mangled_idx += 2;
 		return true;
 	}
@@ -285,9 +285,11 @@ static bool ParseTwoCharToken(State * state, const char * two_char_token) {
 
 // Returns true and advances "mangled_cur" if we find any character in
 // "char_class" at "mangled_cur" position.
-static bool ParseCharClass(State * state, const char * char_class) {
+static bool FASTCALL ParseCharClass(State * state, const char * char_class) 
+{
 	ComplexityGuard guard(state);
-	if(guard.IsTooComplex()) return false;
+	if(guard.IsTooComplex()) 
+		return false;
 	if(RemainingInput(state)[0] == '\0') {
 		return false;
 	}
@@ -313,12 +315,11 @@ static bool ParseDigit(State * state, int * digit)
 	return false;
 }
 
-// This function is used for handling an optional non-terminal.
-static bool Optional(bool /*status*/) { return true; }
+static bool FASTCALL Optional(bool /*status*/) { return true; } // This function is used for handling an optional non-terminal.
+typedef bool (FASTCALL * ParseFunc)(State *); // This function is used for handling <non-terminal>+ syntax.
 
-// This function is used for handling <non-terminal>+ syntax.
-typedef bool (* ParseFunc)(State *);
-static bool OneOrMore(ParseFunc parse_func, State * state) {
+static bool FASTCALL OneOrMore(ParseFunc parse_func, State * state) 
+{
 	if(parse_func(state)) {
 		while(parse_func(state)) {
 		}
@@ -331,7 +332,8 @@ static bool OneOrMore(ParseFunc parse_func, State * state) {
 // always returns true and must be followed by a termination token or a
 // terminating sequence not handled by parse_func (e.g.
 // ParseOneCharToken(state, 'E')).
-static bool ZeroOrMore(ParseFunc parse_func, State * state) {
+static bool FASTCALL ZeroOrMore(ParseFunc parse_func, State * state) 
+{
 	while(parse_func(state)) {
 	}
 	return true;
@@ -340,7 +342,8 @@ static bool ZeroOrMore(ParseFunc parse_func, State * state) {
 // Append "str" at "out_cur_idx".  If there is an overflow, out_cur_idx is
 // set to out_end_idx+1.  The output string is ensured to
 // always terminate with '\0' as long as there is no overflow.
-static void Append(State * state, const char * const str, const int length) {
+static void STDCALL Append(State * state, const char * const str, const int length) 
+{
 	for(int i = 0; i < length; ++i) {
 		if(state->parse_state.out_cur_idx + 1 <
 		    state->out_end_idx) { // +1 for '\0'
@@ -359,16 +362,16 @@ static void Append(State * state, const char * const str, const int length) {
 }
 
 // We don't use equivalents in libc to avoid locale issues.
-static bool IsLower(char c) { return c >= 'a' && c <= 'z'; }
-static bool IsAlpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
-static bool IsDigit(char c) { return c >= '0' && c <= '9'; }
+static bool FASTCALL IsLower(char c) { return c >= 'a' && c <= 'z'; }
+static bool FASTCALL IsAlpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+static bool FASTCALL IsDigit(char c) { return c >= '0' && c <= '9'; }
 
 // Returns true if "str" is a function clone suffix.  These suffixes are used
 // by GCC 4.5.x and later versions (and our locally-modified version of GCC
 // 4.4.x) to indicate functions which have been cloned during optimization.
 // We treat any sequence (.<alpha>+.<digit>+)+ as a function clone suffix.
 // Additionally, '_' is allowed along with the alphanumeric sequence.
-static bool IsFunctionCloneSuffix(const char * str) 
+static bool FASTCALL IsFunctionCloneSuffix(const char * str) 
 {
 	size_t i = 0;
 	while(str[i] != '\0') {
@@ -394,14 +397,14 @@ static bool IsFunctionCloneSuffix(const char * str)
 	return true; // Consumed everything in "str".
 }
 
-static bool EndsWith(State * state, const char chr) 
+static bool FASTCALL EndsWith(State * state, const char chr) 
 {
 	return state->parse_state.out_cur_idx > 0 && state->parse_state.out_cur_idx < state->out_end_idx &&
 	       chr == state->out[state->parse_state.out_cur_idx - 1];
 }
 
 // Append "str" with some tweaks, iff "append" state is true.
-static void MaybeAppendWithLength(State * state, const char * const str, const int length) 
+static void STDCALL MaybeAppendWithLength(State * state, const char * const str, const int length) 
 {
 	if(state->parse_state.append && length > 0) {
 		// Append a space if the output buffer ends with '<' and "str"
@@ -421,7 +424,8 @@ static void MaybeAppendWithLength(State * state, const char * const str, const i
 }
 
 // Appends a positive decimal number to the output if appending is enabled.
-static bool MaybeAppendDecimal(State * state, unsigned int val) {
+static bool FASTCALL MaybeAppendDecimal(State * state, unsigned int val) 
+{
 	// Max {32-64}-bit unsigned int is 20 digits.
 	constexpr size_t kMaxLength = 20;
 	char buf[kMaxLength];
@@ -444,7 +448,7 @@ static bool MaybeAppendDecimal(State * state, unsigned int val) {
 
 // A convenient wrapper around MaybeAppendWithLength().
 // Returns true so that it can be placed in "if" conditions.
-static bool MaybeAppend(State * state, const char * const str) 
+static bool STDCALL MaybeAppend(State * state, const char * const str) 
 {
 	if(state->parse_state.append) {
 		int length = StrLen(str);
@@ -454,35 +458,35 @@ static bool MaybeAppend(State * state, const char * const str)
 }
 
 // This function is used for handling nested names.
-static bool EnterNestedName(State * state) 
+static bool FASTCALL EnterNestedName(State * state) 
 {
 	state->parse_state.nest_level = 0;
 	return true;
 }
 
 // This function is used for handling nested names.
-static bool LeaveNestedName(State * state, int16_t prev_value) 
+static bool FASTCALL LeaveNestedName(State * state, int16_t prev_value) 
 {
 	state->parse_state.nest_level = prev_value;
 	return true;
 }
 
 // Disable the append mode not to print function parameters, etc.
-static bool DisableAppend(State * state) 
+static bool FASTCALL DisableAppend(State * state) 
 {
 	state->parse_state.append = false;
 	return true;
 }
 
 // Restore the append mode to the previous state.
-static bool RestoreAppend(State * state, bool prev_value) 
+static bool FASTCALL RestoreAppend(State * state, bool prev_value) 
 {
 	state->parse_state.append = prev_value;
 	return true;
 }
 
 // Increase the nest level for nested names.
-static void MaybeIncreaseNestLevel(State * state) 
+static void FASTCALL MaybeIncreaseNestLevel(State * state) 
 {
 	if(state->parse_state.nest_level > -1) {
 		++state->parse_state.nest_level;
@@ -490,7 +494,7 @@ static void MaybeIncreaseNestLevel(State * state)
 }
 
 // Appends :: for nested names if necessary.
-static void MaybeAppendSeparator(State * state) 
+static void FASTCALL MaybeAppendSeparator(State * state) 
 {
 	if(state->parse_state.nest_level >= 1) {
 		MaybeAppend(state, "::");
@@ -498,7 +502,7 @@ static void MaybeAppendSeparator(State * state)
 }
 
 // Cancel the last separator if necessary.
-static void MaybeCancelLastSeparator(State * state) 
+static void FASTCALL MaybeCancelLastSeparator(State * state) 
 {
 	if(state->parse_state.nest_level >= 1 && state->parse_state.append && state->parse_state.out_cur_idx >= 2) {
 		state->parse_state.out_cur_idx -= 2;
@@ -508,7 +512,7 @@ static void MaybeCancelLastSeparator(State * state)
 
 // Returns true if the identifier of the given length pointed to by
 // "mangled_cur" is anonymous namespace.
-static bool IdentifierIsAnonymousNamespace(State * state, int length) 
+static bool FASTCALL IdentifierIsAnonymousNamespace(State * state, int length) 
 {
 	// Returns true if "anon_prefix" is a proper prefix of "mangled_cur".
 	static const char anon_prefix[] = "_GLOBAL__N_";
@@ -516,48 +520,48 @@ static bool IdentifierIsAnonymousNamespace(State * state, int length)
 }
 
 // Forward declarations of our parsing functions.
-static bool ParseMangledName(State * state);
-static bool ParseEncoding(State * state);
-static bool ParseName(State * state);
-static bool ParseUnscopedName(State * state);
-static bool ParseNestedName(State * state);
-static bool ParsePrefix(State * state);
-static bool ParseUnqualifiedName(State * state);
-static bool ParseSourceName(State * state);
-static bool ParseLocalSourceName(State * state);
-static bool ParseUnnamedTypeName(State * state);
-static bool ParseNumber(State * state, int * number_out);
-static bool ParseFloatNumber(State * state);
-static bool ParseSeqId(State * state);
-static bool ParseIdentifier(State * state, int length);
-static bool ParseOperatorName(State * state, int * arity);
-static bool ParseSpecialName(State * state);
-static bool ParseCallOffset(State * state);
-static bool ParseNVOffset(State * state);
-static bool ParseVOffset(State * state);
-static bool ParseCtorDtorName(State * state);
-static bool ParseDecltype(State * state);
-static bool ParseType(State * state);
-static bool ParseCVQualifiers(State * state);
-static bool ParseBuiltinType(State * state);
-static bool ParseFunctionType(State * state);
-static bool ParseBareFunctionType(State * state);
-static bool ParseClassEnumType(State * state);
-static bool ParseArrayType(State * state);
-static bool ParsePointerToMemberType(State * state);
-static bool ParseTemplateParam(State * state);
-static bool ParseTemplateTemplateParam(State * state);
-static bool ParseTemplateArgs(State * state);
-static bool ParseTemplateArg(State * state);
-static bool ParseBaseUnresolvedName(State * state);
-static bool ParseUnresolvedName(State * state);
-static bool ParseExpression(State * state);
-static bool ParseExprPrimary(State * state);
-static bool ParseExprCastValue(State * state);
-static bool ParseLocalName(State * state);
-static bool ParseLocalNameSuffix(State * state);
-static bool ParseDiscriminator(State * state);
-static bool ParseSubstitution(State * state, bool accept_std);
+static bool FASTCALL ParseMangledName(State * state);
+static bool FASTCALL ParseEncoding(State * state);
+static bool FASTCALL ParseName(State * state);
+static bool FASTCALL ParseUnscopedName(State * state);
+static bool FASTCALL ParseNestedName(State * state);
+static bool FASTCALL ParsePrefix(State * state);
+static bool FASTCALL ParseUnqualifiedName(State * state);
+static bool FASTCALL ParseSourceName(State * state);
+static bool FASTCALL ParseLocalSourceName(State * state);
+static bool FASTCALL ParseUnnamedTypeName(State * state);
+static bool FASTCALL ParseNumber(State * state, int * number_out);
+static bool FASTCALL ParseFloatNumber(State * state);
+static bool FASTCALL ParseSeqId(State * state);
+static bool FASTCALL ParseIdentifier(State * state, int length);
+static bool FASTCALL ParseOperatorName(State * state, int * arity);
+static bool FASTCALL ParseSpecialName(State * state);
+static bool FASTCALL ParseCallOffset(State * state);
+static bool FASTCALL ParseNVOffset(State * state);
+static bool FASTCALL ParseVOffset(State * state);
+static bool FASTCALL ParseCtorDtorName(State * state);
+static bool FASTCALL ParseDecltype(State * state);
+static bool FASTCALL ParseType(State * state);
+static bool FASTCALL ParseCVQualifiers(State * state);
+static bool FASTCALL ParseBuiltinType(State * state);
+static bool FASTCALL ParseFunctionType(State * state);
+static bool FASTCALL ParseBareFunctionType(State * state);
+static bool FASTCALL ParseClassEnumType(State * state);
+static bool FASTCALL ParseArrayType(State * state);
+static bool FASTCALL ParsePointerToMemberType(State * state);
+static bool FASTCALL ParseTemplateParam(State * state);
+static bool FASTCALL ParseTemplateTemplateParam(State * state);
+static bool FASTCALL ParseTemplateArgs(State * state);
+static bool FASTCALL ParseTemplateArg(State * state);
+static bool FASTCALL ParseBaseUnresolvedName(State * state);
+static bool FASTCALL ParseUnresolvedName(State * state);
+static bool FASTCALL ParseExpression(State * state);
+static bool FASTCALL ParseExprPrimary(State * state);
+static bool FASTCALL ParseExprCastValue(State * state);
+static bool FASTCALL ParseLocalName(State * state);
+static bool FASTCALL ParseLocalNameSuffix(State * state);
+static bool FASTCALL ParseDiscriminator(State * state);
+static bool FASTCALL ParseSubstitution(State * state, bool accept_std);
 
 // Implementation note: the following code is a straightforward
 // translation of the Itanium C++ ABI defined in BNF with a couple of
@@ -591,7 +595,8 @@ static bool ParseSubstitution(State * state, bool accept_std);
 //   <https://mentorembedded.github.io/cxx-abi/abi.html#mangling>
 
 // <mangled-name> ::= _Z <encoding>
-static bool ParseMangledName(State * state) {
+static bool FASTCALL ParseMangledName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	return ParseTwoCharToken(state, "_Z") && ParseEncoding(state);
@@ -600,7 +605,7 @@ static bool ParseMangledName(State * state) {
 // <encoding> ::= <(function) name> <bare-function-type>
 //            ::= <(data) name>
 //            ::= <special-name>
-static bool ParseEncoding(State * state) 
+static bool FASTCALL ParseEncoding(State * state) 
 {
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
@@ -612,7 +617,6 @@ static bool ParseEncoding(State * state)
 	if(ParseName(state) && Optional(ParseBareFunctionType(state))) {
 		return true;
 	}
-
 	if(ParseSpecialName(state)) {
 		return true;
 	}
@@ -623,7 +627,8 @@ static bool ParseEncoding(State * state)
 //        ::= <unscoped-template-name> <template-args>
 //        ::= <unscoped-name>
 //        ::= <local-name>
-static bool ParseName(State * state) {
+static bool FASTCALL ParseName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	if(ParseNestedName(state) || ParseLocalName(state)) {
@@ -640,8 +645,7 @@ static bool ParseName(State * state) {
 
 	ParseState copy = state->parse_state;
 	// "std<...>" isn't a valid name.
-	if(ParseSubstitution(state, /*accept_std=*/ false) &&
-	    ParseTemplateArgs(state)) {
+	if(ParseSubstitution(state, /*accept_std=*/ false) && ParseTemplateArgs(state)) {
 		return true;
 	}
 	state->parse_state = copy;
@@ -653,16 +657,15 @@ static bool ParseName(State * state) {
 
 // <unscoped-name> ::= <unqualified-name>
 //                 ::= St <unqualified-name>
-static bool ParseUnscopedName(State * state) {
+static bool FASTCALL ParseUnscopedName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	if(ParseUnqualifiedName(state)) {
 		return true;
 	}
-
 	ParseState copy = state->parse_state;
-	if(ParseTwoCharToken(state, "St") && MaybeAppend(state, "std::") &&
-	    ParseUnqualifiedName(state)) {
+	if(ParseTwoCharToken(state, "St") && MaybeAppend(state, "std::") && ParseUnqualifiedName(state)) {
 		return true;
 	}
 	state->parse_state = copy;
@@ -671,15 +674,14 @@ static bool ParseUnscopedName(State * state) {
 
 // <ref-qualifer> ::= R // lvalue method reference qualifier
 //                ::= O // rvalue method reference qualifier
-static inline bool ParseRefQualifier(State * state) {
-	return ParseCharClass(state, "OR");
-}
+static inline bool ParseRefQualifier(State * state) { return ParseCharClass(state, "OR"); }
 
 // <nested-name> ::= N [<CV-qualifiers>] [<ref-qualifier>] <prefix>
 //                   <unqualified-name> E
 //               ::= N [<CV-qualifiers>] [<ref-qualifier>] <template-prefix>
 //                   <template-args> E
-static bool ParseNestedName(State * state) {
+static bool FASTCALL ParseNestedName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
@@ -705,7 +707,8 @@ static bool ParseNestedName(State * state) {
 // <template-prefix> ::= <prefix> <(template) unqualified-name>
 //                   ::= <template-param>
 //                   ::= <substitution>
-static bool ParsePrefix(State * state) {
+static bool FASTCALL ParsePrefix(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	bool has_something = false;
@@ -735,7 +738,8 @@ static bool ParsePrefix(State * state) {
 //                    ::= <source-name>
 //                    ::= <local-source-name> // GCC extension; see below.
 //                    ::= <unnamed-type-name>
-static bool ParseUnqualifiedName(State * state) {
+static bool FASTCALL ParseUnqualifiedName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	return (ParseOperatorName(state, nullptr) || ParseCtorDtorName(state) ||
@@ -744,7 +748,8 @@ static bool ParseUnqualifiedName(State * state) {
 }
 
 // <source-name> ::= <positive length number> <identifier>
-static bool ParseSourceName(State * state) {
+static bool FASTCALL ParseSourceName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
@@ -761,7 +766,8 @@ static bool ParseSourceName(State * state) {
 // References:
 //   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=31775
 //   https://gcc.gnu.org/viewcvs?view=rev&revision=124467
-static bool ParseLocalSourceName(State * state) {
+static bool FASTCALL ParseLocalSourceName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
@@ -777,7 +783,8 @@ static bool ParseLocalSourceName(State * state) {
 //                     ::= <closure-type-name>
 // <closure-type-name> ::= Ul <lambda-sig> E [<(nonnegative) number>] _
 // <lambda-sig>        ::= <(parameter) type>+
-static bool ParseUnnamedTypeName(State * state) {
+static bool FASTCALL ParseUnnamedTypeName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
@@ -816,7 +823,8 @@ static bool ParseUnnamedTypeName(State * state) {
 // <number> ::= [n] <non-negative decimal integer>
 // If "number_out" is non-null, then *number_out is set to the value of the
 // parsed number on success.
-static bool ParseNumber(State * state, int * number_out) {
+static bool FASTCALL ParseNumber(State * state, int * number_out) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	bool negative = false;
@@ -852,7 +860,8 @@ static bool ParseNumber(State * state, int * number_out) {
 
 // Floating-point literals are encoded using a fixed-length lowercase
 // hexadecimal string.
-static bool ParseFloatNumber(State * state) {
+static bool FASTCALL ParseFloatNumber(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	const char * p = RemainingInput(state);
@@ -870,9 +879,11 @@ static bool ParseFloatNumber(State * state) {
 
 // The <seq-id> is a sequence number in base 36,
 // using digits and upper case letters
-static bool ParseSeqId(State * state) {
+static bool FASTCALL ParseSeqId(State * state) 
+{
 	ComplexityGuard guard(state);
-	if(guard.IsTooComplex()) return false;
+	if(guard.IsTooComplex()) 
+		return false;
 	const char * p = RemainingInput(state);
 	for(; *p != '\0'; ++p) {
 		if(!IsDigit(*p) && !(*p >= 'A' && *p <= 'Z')) {
@@ -887,7 +898,8 @@ static bool ParseSeqId(State * state) {
 }
 
 // <identifier> ::= <unqualified source code identifier> (of given length)
-static bool ParseIdentifier(State * state, int length) {
+static bool FASTCALL ParseIdentifier(State * state, int length) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	if(length < 0 || !AtLeastNumCharsRemaining(RemainingInput(state), length)) {
@@ -906,7 +918,8 @@ static bool ParseIdentifier(State * state, int length) {
 // <operator-name> ::= nw, and other two letters cases
 //                 ::= cv <type>  # (cast)
 //                 ::= v  <digit> <source-name> # vendor extended operator
-static bool ParseOperatorName(State * state, int * arity) {
+static bool FASTCALL ParseOperatorName(State * state, int * arity) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	if(!AtLeastNumCharsRemaining(RemainingInput(state), 2)) {
@@ -976,7 +989,8 @@ static bool ParseOperatorName(State * state, int * arity) {
 //
 // Note: we don't care much about them since they don't appear in
 // stack traces.  The are special data.
-static bool ParseSpecialName(State * state) {
+static bool FASTCALL ParseSpecialName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
@@ -1002,7 +1016,6 @@ static bool ParseSpecialName(State * state) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	// G++ extensions
 	if(ParseTwoCharToken(state, "TC") && ParseType(state) &&
 	    ParseNumber(state, nullptr) && ParseOneCharToken(state, '_') &&
@@ -1011,7 +1024,6 @@ static bool ParseSpecialName(State * state) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	if(ParseOneCharToken(state, 'T') && ParseCharClass(state, "FJ") &&
 	    ParseType(state)) {
 		return true;
@@ -1038,34 +1050,33 @@ static bool ParseSpecialName(State * state) {
 
 // <call-offset> ::= h <nv-offset> _
 //               ::= v <v-offset> _
-static bool ParseCallOffset(State * state) {
+static bool FASTCALL ParseCallOffset(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
-	if(ParseOneCharToken(state, 'h') && ParseNVOffset(state) &&
-	    ParseOneCharToken(state, '_')) {
+	if(ParseOneCharToken(state, 'h') && ParseNVOffset(state) && ParseOneCharToken(state, '_')) {
 		return true;
 	}
 	state->parse_state = copy;
-
-	if(ParseOneCharToken(state, 'v') && ParseVOffset(state) &&
-	    ParseOneCharToken(state, '_')) {
+	if(ParseOneCharToken(state, 'v') && ParseVOffset(state) && ParseOneCharToken(state, '_')) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	return false;
 }
 
 // <nv-offset> ::= <(offset) number>
-static bool ParseNVOffset(State * state) {
+static bool FASTCALL ParseNVOffset(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	return ParseNumber(state, nullptr);
 }
 
 // <v-offset>  ::= <(offset) number> _ <(virtual offset) number>
-static bool ParseVOffset(State * state) {
+static bool FASTCALL ParseVOffset(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
@@ -1084,25 +1095,22 @@ static bool ParseVOffset(State * state) {
 // #
 // https://github.com/gcc-mirror/gcc/blob/7ad17b583c3643bd4557f29b8391ca7ef08391f5/gcc/cp/mangle.c#L1847
 //                  ::= C4 | D4
-static bool ParseCtorDtorName(State * state) {
+static bool FASTCALL ParseCtorDtorName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
 	if(ParseOneCharToken(state, 'C')) {
 		if(ParseCharClass(state, "1234")) {
-			const char * const prev_name =
-			    state->out + state->parse_state.prev_name_idx;
-			MaybeAppendWithLength(state, prev_name,
-			    state->parse_state.prev_name_length);
+			const char * const prev_name = state->out + state->parse_state.prev_name_idx;
+			MaybeAppendWithLength(state, prev_name, state->parse_state.prev_name_length);
 			return true;
 		}
-		else if(ParseOneCharToken(state, 'I') && ParseCharClass(state, "12") &&
-		    ParseClassEnumType(state)) {
+		else if(ParseOneCharToken(state, 'I') && ParseCharClass(state, "12") && ParseClassEnumType(state)) {
 			return true;
 		}
 	}
 	state->parse_state = copy;
-
 	if(ParseOneCharToken(state, 'D') && ParseCharClass(state, "0124")) {
 		const char * const prev_name = state->out + state->parse_state.prev_name_idx;
 		MaybeAppend(state, "~");
@@ -1117,17 +1125,15 @@ static bool ParseCtorDtorName(State * state) {
 // <decltype> ::= Dt <expression> E  # decltype of an id-expression or class
 //                                   # member access (C++0x)
 //            ::= DT <expression> E  # decltype of an expression (C++0x)
-static bool ParseDecltype(State * state) {
+static bool FASTCALL ParseDecltype(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
-
 	ParseState copy = state->parse_state;
-	if(ParseOneCharToken(state, 'D') && ParseCharClass(state, "tT") &&
-	    ParseExpression(state) && ParseOneCharToken(state, 'E')) {
+	if(ParseOneCharToken(state, 'D') && ParseCharClass(state, "tT") && ParseExpression(state) && ParseOneCharToken(state, 'E')) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	return false;
 }
 
@@ -1150,11 +1156,11 @@ static bool ParseDecltype(State * state) {
 //        ::= Dp <type>          # pack expansion of (C++0x)
 //        ::= Dv <num-elems> _   # GNU vector extension
 //
-static bool ParseType(State * state) {
+static bool FASTCALL ParseType(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
-
 	// We should check CV-qualifers, and PRGC things first.
 	//
 	// CV-qualifiers overlap with some operator names, but an operator name is not
@@ -1209,25 +1215,23 @@ static bool ParseType(State * state) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	// Less greedy than <template-template-param> <template-args>.
 	if(ParseTemplateParam(state)) {
 		return true;
 	}
-
 	if(ParseTwoCharToken(state, "Dv") && ParseNumber(state, nullptr) &&
 	    ParseOneCharToken(state, '_')) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	return false;
 }
 
 // <CV-qualifiers> ::= [r] [V] [K]
 // We don't allow empty <CV-qualifiers> to avoid infinite loop in
 // ParseType().
-static bool ParseCVQualifiers(State * state) {
+static bool FASTCALL ParseCVQualifiers(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	int num_cv_qualifiers = 0;
@@ -1244,9 +1248,11 @@ static bool ParseCVQualifiers(State * state) {
 // Not supported:
 //                ::= DF <number> _ # _FloatN (N bits)
 //
-static bool ParseBuiltinType(State * state) {
+static bool FASTCALL ParseBuiltinType(State * state) 
+{
 	ComplexityGuard guard(state);
-	if(guard.IsTooComplex()) return false;
+	if(guard.IsTooComplex()) 
+		return false;
 	const AbbrevPair * p;
 	for(p = kBuiltinTypeList; p->abbrev != nullptr; ++p) {
 		// Guaranteed only 1- or 2-character strings in kBuiltinTypeList.
@@ -1261,7 +1267,6 @@ static bool ParseBuiltinType(State * state) {
 			return true;
 		}
 	}
-
 	ParseState copy = state->parse_state;
 	if(ParseOneCharToken(state, 'u') && ParseSourceName(state)) {
 		return true;
@@ -1277,15 +1282,15 @@ static bool ParseBuiltinType(State * state) {
 //                                           noexcept
 //                   ::= Dw <type>+ E      # dynamic exception specification
 //                                           with instantiation-dependent types
-static bool ParseExceptionSpec(State * state) {
+static bool FASTCALL ParseExceptionSpec(State * state) 
+{
 	ComplexityGuard guard(state);
-	if(guard.IsTooComplex()) return false;
-
-	if(ParseTwoCharToken(state, "Do")) return true;
-
+	if(guard.IsTooComplex()) 
+		return false;
+	if(ParseTwoCharToken(state, "Do")) 
+		return true;
 	ParseState copy = state->parse_state;
-	if(ParseTwoCharToken(state, "DO") && ParseExpression(state) &&
-	    ParseOneCharToken(state, 'E')) {
+	if(ParseTwoCharToken(state, "DO") && ParseExpression(state) && ParseOneCharToken(state, 'E')) {
 		return true;
 	}
 	state->parse_state = copy;
@@ -1294,19 +1299,18 @@ static bool ParseExceptionSpec(State * state) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	return false;
 }
 
 // <function-type> ::= [exception-spec] F [Y] <bare-function-type> [O] E
-static bool ParseFunctionType(State * state) {
+static bool FASTCALL ParseFunctionType(State * state) 
+{
 	ComplexityGuard guard(state);
-	if(guard.IsTooComplex()) return false;
+	if(guard.IsTooComplex()) 
+		return false;
 	ParseState copy = state->parse_state;
-	if(Optional(ParseExceptionSpec(state)) && ParseOneCharToken(state, 'F') &&
-	    Optional(ParseOneCharToken(state, 'Y')) && ParseBareFunctionType(state) &&
-	    Optional(ParseOneCharToken(state, 'O')) &&
-	    ParseOneCharToken(state, 'E')) {
+	if(Optional(ParseExceptionSpec(state)) && ParseOneCharToken(state, 'F') && Optional(ParseOneCharToken(state, 'Y')) && ParseBareFunctionType(state) &&
+	    Optional(ParseOneCharToken(state, 'O')) && ParseOneCharToken(state, 'E')) {
 		return true;
 	}
 	state->parse_state = copy;
@@ -1314,7 +1318,8 @@ static bool ParseFunctionType(State * state) {
 }
 
 // <bare-function-type> ::= <(signature) type>+
-static bool ParseBareFunctionType(State * state) {
+static bool FASTCALL ParseBareFunctionType(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
@@ -1329,7 +1334,8 @@ static bool ParseBareFunctionType(State * state) {
 }
 
 // <class-enum-type> ::= <name>
-static bool ParseClassEnumType(State * state) {
+static bool FASTCALL ParseClassEnumType(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	return ParseName(state);
@@ -1337,18 +1343,16 @@ static bool ParseClassEnumType(State * state) {
 
 // <array-type> ::= A <(positive dimension) number> _ <(element) type>
 //              ::= A [<(dimension) expression>] _ <(element) type>
-static bool ParseArrayType(State * state) {
+static bool FASTCALL ParseArrayType(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
-	if(ParseOneCharToken(state, 'A') && ParseNumber(state, nullptr) &&
-	    ParseOneCharToken(state, '_') && ParseType(state)) {
+	if(ParseOneCharToken(state, 'A') && ParseNumber(state, nullptr) && ParseOneCharToken(state, '_') && ParseType(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
-	if(ParseOneCharToken(state, 'A') && Optional(ParseExpression(state)) &&
-	    ParseOneCharToken(state, '_') && ParseType(state)) {
+	if(ParseOneCharToken(state, 'A') && Optional(ParseExpression(state)) && ParseOneCharToken(state, '_') && ParseType(state)) {
 		return true;
 	}
 	state->parse_state = copy;
@@ -1356,7 +1360,8 @@ static bool ParseArrayType(State * state) {
 }
 
 // <pointer-to-member-type> ::= M <(class) type> <(member) type>
-static bool ParsePointerToMemberType(State * state) {
+static bool FASTCALL ParsePointerToMemberType(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
@@ -1369,17 +1374,17 @@ static bool ParsePointerToMemberType(State * state) {
 
 // <template-param> ::= T_
 //                  ::= T <parameter-2 non-negative number> _
-static bool ParseTemplateParam(State * state) {
+static bool FASTCALL ParseTemplateParam(State * state) 
+{
 	ComplexityGuard guard(state);
-	if(guard.IsTooComplex()) return false;
+	if(guard.IsTooComplex()) 
+		return false;
 	if(ParseTwoCharToken(state, "T_")) {
 		MaybeAppend(state, "?"); // We don't support template substitutions.
 		return true;
 	}
-
 	ParseState copy = state->parse_state;
-	if(ParseOneCharToken(state, 'T') && ParseNumber(state, nullptr) &&
-	    ParseOneCharToken(state, '_')) {
+	if(ParseOneCharToken(state, 'T') && ParseNumber(state, nullptr) && ParseOneCharToken(state, '_')) {
 		MaybeAppend(state, "?"); // We don't support template substitutions.
 		return true;
 	}
@@ -1389,7 +1394,8 @@ static bool ParseTemplateParam(State * state) {
 
 // <template-template-param> ::= <template-param>
 //                           ::= <substitution>
-static bool ParseTemplateTemplateParam(State * state) {
+static bool FASTCALL ParseTemplateTemplateParam(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	return (ParseTemplateParam(state) ||
@@ -1398,13 +1404,13 @@ static bool ParseTemplateTemplateParam(State * state) {
 }
 
 // <template-args> ::= I <template-arg>+ E
-static bool ParseTemplateArgs(State * state) {
+static bool FASTCALL ParseTemplateArgs(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
 	DisableAppend(state);
-	if(ParseOneCharToken(state, 'I') && OneOrMore(ParseTemplateArg, state) &&
-	    ParseOneCharToken(state, 'E')) {
+	if(ParseOneCharToken(state, 'I') && OneOrMore(ParseTemplateArg, state) && ParseOneCharToken(state, 'E')) {
 		RestoreAppend(state, copy.append);
 		MaybeAppend(state, "<>");
 		return true;
@@ -1417,7 +1423,8 @@ static bool ParseTemplateArgs(State * state) {
 //                 ::= <expr-primary>
 //                 ::= J <template-arg>* E        # argument pack
 //                 ::= X <expression> E
-static bool ParseTemplateArg(State * state) {
+static bool FASTCALL ParseTemplateArg(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
@@ -1510,9 +1517,7 @@ static bool ParseTemplateArg(State * state) {
 		return true;
 	}
 	state->parse_state = copy;
-
-	if(ParseOneCharToken(state, 'X') && ParseExpression(state) &&
-	    ParseOneCharToken(state, 'E')) {
+	if(ParseOneCharToken(state, 'X') && ParseExpression(state) && ParseOneCharToken(state, 'E')) {
 		return true;
 	}
 	state->parse_state = copy;
@@ -1522,14 +1527,16 @@ static bool ParseTemplateArg(State * state) {
 // <unresolved-type> ::= <template-param> [<template-args>]
 //                   ::= <decltype>
 //                   ::= <substitution>
-static inline bool ParseUnresolvedType(State * state) {
+static inline bool ParseUnresolvedType(State * state) 
+{
 	// No ComplexityGuard because we don't copy the state in this stack frame.
 	return (ParseTemplateParam(state) && Optional(ParseTemplateArgs(state))) ||
 	       ParseDecltype(state) || ParseSubstitution(state, /*accept_std=*/ false);
 }
 
 // <simple-id> ::= <source-name> [<template-args>]
-static inline bool ParseSimpleId(State * state) {
+static inline bool FASTCALL ParseSimpleId(State * state) 
+{
 	// No ComplexityGuard because we don't copy the state in this stack frame.
 
 	// Note: <simple-id> cannot be followed by a parameter pack; see comment in
@@ -1540,27 +1547,23 @@ static inline bool ParseSimpleId(State * state) {
 // <base-unresolved-name> ::= <source-name> [<template-args>]
 //                        ::= on <operator-name> [<template-args>]
 //                        ::= dn <destructor-name>
-static bool ParseBaseUnresolvedName(State * state) {
+static bool FASTCALL ParseBaseUnresolvedName(State * state) 
+{
 	ComplexityGuard guard(state);
-	if(guard.IsTooComplex()) return false;
-
+	if(guard.IsTooComplex()) 
+		return false;
 	if(ParseSimpleId(state)) {
 		return true;
 	}
-
 	ParseState copy = state->parse_state;
-	if(ParseTwoCharToken(state, "on") && ParseOperatorName(state, nullptr) &&
-	    Optional(ParseTemplateArgs(state))) {
+	if(ParseTwoCharToken(state, "on") && ParseOperatorName(state, nullptr) && Optional(ParseTemplateArgs(state))) {
 		return true;
 	}
 	state->parse_state = copy;
-
-	if(ParseTwoCharToken(state, "dn") &&
-	    (ParseUnresolvedType(state) || ParseSimpleId(state))) {
+	if(ParseTwoCharToken(state, "dn") && (ParseUnresolvedType(state) || ParseSimpleId(state))) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	return false;
 }
 
@@ -1570,39 +1573,31 @@ static bool ParseBaseUnresolvedName(State * state) {
 //                         <base-unresolved-name>
 //                   ::= [gs] sr <unresolved-qualifier-level>+ E
 //                         <base-unresolved-name>
-static bool ParseUnresolvedName(State * state) {
+static bool FASTCALL ParseUnresolvedName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
-
 	ParseState copy = state->parse_state;
-	if(Optional(ParseTwoCharToken(state, "gs")) &&
-	    ParseBaseUnresolvedName(state)) {
+	if(Optional(ParseTwoCharToken(state, "gs")) && ParseBaseUnresolvedName(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
-	if(ParseTwoCharToken(state, "sr") && ParseUnresolvedType(state) &&
-	    ParseBaseUnresolvedName(state)) {
+	if(ParseTwoCharToken(state, "sr") && ParseUnresolvedType(state) && ParseBaseUnresolvedName(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
-	if(ParseTwoCharToken(state, "sr") && ParseOneCharToken(state, 'N') &&
-	    ParseUnresolvedType(state) &&
+	if(ParseTwoCharToken(state, "sr") && ParseOneCharToken(state, 'N') && ParseUnresolvedType(state) &&
 	    OneOrMore(/* <unresolved-qualifier-level> ::= */ ParseSimpleId, state) &&
 	    ParseOneCharToken(state, 'E') && ParseBaseUnresolvedName(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
-	if(Optional(ParseTwoCharToken(state, "gs")) &&
-	    ParseTwoCharToken(state, "sr") &&
+	if(Optional(ParseTwoCharToken(state, "gs")) && ParseTwoCharToken(state, "sr") &&
 	    OneOrMore(/* <unresolved-qualifier-level> ::= */ ParseSimpleId, state) &&
 	    ParseOneCharToken(state, 'E') && ParseBaseUnresolvedName(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	return false;
 }
 
@@ -1626,22 +1621,20 @@ static bool ParseUnresolvedName(State * state) {
 //                  ::= fp <(top-level) CV-qualifiers> <number> _
 //                  ::= fL <number> p <(top-level) CV-qualifiers> _
 //                  ::= fL <number> p <(top-level) CV-qualifiers> <number> _
-static bool ParseExpression(State * state) {
+static bool FASTCALL ParseExpression(State * state) 
+{
 	ComplexityGuard guard(state);
-	if(guard.IsTooComplex()) return false;
+	if(guard.IsTooComplex()) 
+		return false;
 	if(ParseTemplateParam(state) || ParseExprPrimary(state)) {
 		return true;
 	}
-
 	ParseState copy = state->parse_state;
-
 	// Object/function call expression.
-	if(ParseTwoCharToken(state, "cl") && OneOrMore(ParseExpression, state) &&
-	    ParseOneCharToken(state, 'E')) {
+	if(ParseTwoCharToken(state, "cl") && OneOrMore(ParseExpression, state) && ParseOneCharToken(state, 'E')) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	// Clang-specific "cp <simple-id> <expression>* E"
 	//   https://clang.llvm.org/doxygen/ItaniumMangle_8cpp_source.html#l04338
 	if(ParseTwoCharToken(state, "cp") && ParseSimpleId(state) &&
@@ -1649,17 +1642,14 @@ static bool ParseExpression(State * state) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	// Function-param expression (level 0).
-	if(ParseTwoCharToken(state, "fp") && Optional(ParseCVQualifiers(state)) &&
-	    Optional(ParseNumber(state, nullptr)) && ParseOneCharToken(state, '_')) {
+	if(ParseTwoCharToken(state, "fp") && Optional(ParseCVQualifiers(state)) && Optional(ParseNumber(state, nullptr)) && ParseOneCharToken(state, '_')) {
 		return true;
 	}
 	state->parse_state = copy;
 
 	// Function-param expression (level 1+).
-	if(ParseTwoCharToken(state, "fL") && Optional(ParseNumber(state, nullptr)) &&
-	    ParseOneCharToken(state, 'p') && Optional(ParseCVQualifiers(state)) &&
+	if(ParseTwoCharToken(state, "fL") && Optional(ParseNumber(state, nullptr)) && ParseOneCharToken(state, 'p') && Optional(ParseCVQualifiers(state)) &&
 	    Optional(ParseNumber(state, nullptr)) && ParseOneCharToken(state, '_')) {
 		return true;
 	}
@@ -1693,44 +1683,34 @@ static bool ParseExpression(State * state) {
 		//                    [<one-to-two-expressions>]
 		//   <one-to-two-expressions> ::= <expression> [<expression>]
 		int arity = -1;
-		if(ParseOperatorName(state, &arity) &&
-		    arity > 0 && // 0 arity => disabled.
-		    (arity < 3 || ParseExpression(state)) &&
-		    (arity < 2 || ParseExpression(state)) &&
-		    (arity < 1 || ParseExpression(state))) {
+		if(ParseOperatorName(state, &arity) && arity > 0 && // 0 arity => disabled.
+		    (arity < 3 || ParseExpression(state)) && (arity < 2 || ParseExpression(state)) && (arity < 1 || ParseExpression(state))) {
 			return true;
 		}
 	}
 	state->parse_state = copy;
-
 	// sizeof type
 	if(ParseTwoCharToken(state, "st") && ParseType(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	// Object and pointer member access expressions.
-	if((ParseTwoCharToken(state, "dt") || ParseTwoCharToken(state, "pt")) &&
-	    ParseExpression(state) && ParseType(state)) {
+	if((ParseTwoCharToken(state, "dt") || ParseTwoCharToken(state, "pt")) && ParseExpression(state) && ParseType(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	// Pointer-to-member access expressions.  This parses the same as a binary
 	// operator, but it's implemented separately because "ds" shouldn't be
 	// accepted in other contexts that parse an operator name.
-	if(ParseTwoCharToken(state, "ds") && ParseExpression(state) &&
-	    ParseExpression(state)) {
+	if(ParseTwoCharToken(state, "ds") && ParseExpression(state) && ParseExpression(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	// Parameter pack expansion
 	if(ParseTwoCharToken(state, "sp") && ParseExpression(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	return ParseUnresolvedName(state);
 }
 
@@ -1760,40 +1740,35 @@ static bool ParseExpression(State * state) {
 //
 // To resolve this, we just do what GCC's demangler does, and refuse to parse
 // casts to <local-name> types.
-static bool ParseExprPrimary(State * state) {
+static bool FASTCALL ParseExprPrimary(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
-
 	// The "LZ" special case: if we see LZ, we commit to accept "LZ <encoding> E"
 	// or fail, no backtracking.
 	if(ParseTwoCharToken(state, "LZ")) {
 		if(ParseEncoding(state) && ParseOneCharToken(state, 'E')) {
 			return true;
 		}
-
 		state->parse_state = copy;
 		return false;
 	}
-
 	// The merged cast production.
-	if(ParseOneCharToken(state, 'L') && ParseType(state) &&
-	    ParseExprCastValue(state)) {
+	if(ParseOneCharToken(state, 'L') && ParseType(state) && ParseExprCastValue(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
-	if(ParseOneCharToken(state, 'L') && ParseMangledName(state) &&
-	    ParseOneCharToken(state, 'E')) {
+	if(ParseOneCharToken(state, 'L') && ParseMangledName(state) && ParseOneCharToken(state, 'E')) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	return false;
 }
 
 // <number> or <float>, followed by 'E', as described above ParseExprPrimary.
-static bool ParseExprCastValue(State * state) {
+static bool FASTCALL ParseExprCastValue(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	// We have to be able to backtrack after accepting a number because we could
@@ -1809,7 +1784,6 @@ static bool ParseExprCastValue(State * state) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	return false;
 }
 
@@ -1821,32 +1795,28 @@ static bool ParseExprCastValue(State * state) {
 //   <local-name> := Z <encoding> E <local-name-suffix>
 //   <local-name-suffix> ::= s [<discriminator>]
 //                       ::= <name> [<discriminator>]
-
-static bool ParseLocalNameSuffix(State * state) {
+static bool FASTCALL ParseLocalNameSuffix(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
-
-	if(MaybeAppend(state, "::") && ParseName(state) &&
-	    Optional(ParseDiscriminator(state))) {
+	if(MaybeAppend(state, "::") && ParseName(state) && Optional(ParseDiscriminator(state))) {
 		return true;
 	}
-
 	// Since we're not going to overwrite the above "::" by re-parsing the
 	// <encoding> (whose trailing '\0' byte was in the byte now holding the
 	// first ':'), we have to rollback the "::" if the <name> parse failed.
 	if(state->parse_state.append) {
 		state->out[state->parse_state.out_cur_idx - 2] = '\0';
 	}
-
 	return ParseOneCharToken(state, 's') && Optional(ParseDiscriminator(state));
 }
 
-static bool ParseLocalName(State * state) {
+static bool FASTCALL ParseLocalName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
-	if(ParseOneCharToken(state, 'Z') && ParseEncoding(state) &&
-	    ParseOneCharToken(state, 'E') && ParseLocalNameSuffix(state)) {
+	if(ParseOneCharToken(state, 'Z') && ParseEncoding(state) && ParseOneCharToken(state, 'E') && ParseLocalNameSuffix(state)) {
 		return true;
 	}
 	state->parse_state = copy;
@@ -1854,7 +1824,8 @@ static bool ParseLocalName(State * state) {
 }
 
 // <discriminator> := _ <(non-negative) number>
-static bool ParseDiscriminator(State * state) {
+static bool FASTCALL ParseDiscriminator(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	ParseState copy = state->parse_state;
@@ -1876,7 +1847,7 @@ static bool ParseDiscriminator(State * state) {
 // an unqualified name and re-parse the same template-args.  To block this
 // exponential backtracking, we disable it with 'accept_std=false' in
 // problematic contexts.
-static bool ParseSubstitution(State * state, bool accept_std) 
+static bool FASTCALL ParseSubstitution(State * state, bool accept_std) 
 {
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
@@ -1895,8 +1866,7 @@ static bool ParseSubstitution(State * state, bool accept_std)
 	if(ParseOneCharToken(state, 'S')) {
 		const AbbrevPair * p;
 		for(p = kSubstitutionList; p->abbrev != nullptr; ++p) {
-			if(RemainingInput(state)[0] == p->abbrev[1] &&
-			    (accept_std || p->abbrev[1] != 't')) {
+			if(RemainingInput(state)[0] == p->abbrev[1] && (accept_std || p->abbrev[1] != 't')) {
 				MaybeAppend(state, "std");
 				if(p->real_name[0] != '\0') {
 					MaybeAppend(state, "::");
@@ -1913,7 +1883,8 @@ static bool ParseSubstitution(State * state, bool accept_std)
 
 // Parse <mangled-name>, optionally followed by either a function-clone suffix
 // or version suffix.  Returns true only if all of "mangled_cur" was consumed.
-static bool ParseTopLevelMangledName(State * state) {
+static bool FASTCALL ParseTopLevelMangledName(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	if(ParseMangledName(state)) {
@@ -1935,7 +1906,7 @@ static bool ParseTopLevelMangledName(State * state) {
 	return false;
 }
 
-static bool Overflowed(const State * state) { return state->parse_state.out_cur_idx >= state->out_end_idx; }
+static bool FASTCALL Overflowed(const State * state) { return state->parse_state.out_cur_idx >= state->out_end_idx; }
 
 // The demangler entry point.
 bool Demangle(const char * mangled, char * out, int out_size) 

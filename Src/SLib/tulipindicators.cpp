@@ -1,5 +1,4 @@
 // tulipindicators.c
-//
 // 
 // Tulip Indicators https://tulipindicators.org/
 // Copyright (c) 2010-2016 Tulip Charts LLC
@@ -10,13 +9,6 @@
 // Tulip Indicators is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-// 
-// Tulip Indicators is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tulip Indicators.  If not, see <http://www.gnu.org/licenses/>.
 // 
 #include <slib-internal.h>
 #pragma hdrstop
@@ -47,8 +39,8 @@
 #define SIMPLE2(START, FUN, OP) int START(double const *options) { return 0; } \
 	int FUN(int size, double const *const *inputs, double const *options, double *const *outputs) \
 	{ \
-		const double *in1 = inputs[0]; \
-		const double *in2 = inputs[1]; \
+		const double * in1 = inputs[0]; \
+		const double * in2 = inputs[1]; \
 		double * output = outputs[0]; \
 		for(int i = 0; i < size; ++i) { output[i] = (OP); } \
 		return TI_OKAY; \
@@ -59,7 +51,7 @@ struct ti_buffer {
 	int    pushes;
 	int    index;
 	double sum;
-	double * P_Vals;
+	double Vals[1];
 };
 
 //ti_buffer * ti_buffer_new(int size);
@@ -69,10 +61,10 @@ struct ti_buffer {
 #define ti_buffer_push(BUFFER, VAL) \
 	do { \
 		if((BUFFER)->pushes >= (BUFFER)->size) { \
-			(BUFFER)->sum -= (BUFFER)->P_Vals[(BUFFER)->index]; \
+			(BUFFER)->sum -= (BUFFER)->Vals[(BUFFER)->index]; \
 		} \
 		(BUFFER)->sum += (VAL);	\
-		(BUFFER)->P_Vals[(BUFFER)->index] = (VAL); \
+		(BUFFER)->Vals[(BUFFER)->index] = (VAL); \
 		(BUFFER)->pushes += 1; \
 		(BUFFER)->index = ((BUFFER)->index + 1); \
 		if((BUFFER)->index >= (BUFFER)->size) (BUFFER)->index = 0; \
@@ -81,13 +73,13 @@ struct ti_buffer {
 // Pushes a new value, skips updating sum. 
 #define ti_buffer_qpush(BUFFER, VAL) \
 	do { \
-		(BUFFER)->P_Vals[(BUFFER)->index] = (VAL); \
+		(BUFFER)->Vals[(BUFFER)->index] = (VAL); \
 		(BUFFER)->index = ((BUFFER)->index + 1); \
 		if((BUFFER)->index >= (BUFFER)->size) (BUFFER)->index = 0; \
 	} while(0)
 
 // With get, 0 = last value pushed, -1 = value before last, etc. 
-#define ti_buffer_get(BUFFER, VAL) ((BUFFER)->P_Vals[((BUFFER)->index + (BUFFER)->size - 1 + (VAL)) % (BUFFER)->size])
+#define ti_buffer_get(BUFFER, VAL) ((BUFFER)->Vals[((BUFFER)->index + (BUFFER)->size - 1 + (VAL)) % (BUFFER)->size])
 //
 static ti_buffer * ti_buffer_new(int size) 
 {
@@ -195,9 +187,12 @@ int ti_adosc(int size, double const * const * inputs, double const * options, do
 	const int short_period = (int)options[0];
 	const int long_period = (int)options[1];
 	const int start = long_period - 1;
-	if(short_period < 1) return TI_INVALID_OPTION;
-	if(long_period < short_period) return TI_INVALID_OPTION;
-	if(size <= ti_adosc_start(options)) return TI_OKAY;
+	if(short_period < 1) 
+		return TI_INVALID_OPTION;
+	if(long_period < short_period) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_adosc_start(options)) 
+		return TI_OKAY;
 	const double short_per = 2 / ((double)short_period + 1);
 	const double long_per = 2 / ((double)long_period + 1);
 	double * output = outputs[0];
@@ -235,8 +230,10 @@ int ti_adx(int size, double const * const * inputs, double const * options, doub
 	const double * close = inputs[2];
 	const int period = (int)options[0];
 	double * output = outputs[0];
-	if(period < 2) return TI_INVALID_OPTION;
-	if(size <= ti_adx_start(options)) return TI_OKAY;
+	if(period < 2) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_adx_start(options)) 
+		return TI_OKAY;
 	const double per = ((double)period-1) / ((double)period);
 	const double invper = 1.0 / ((double)period);
 	double atr = 0;
@@ -372,7 +369,8 @@ int ti_ao(int size, double const * const * inputs, double const * options, doubl
 	const double * low = inputs[1];
 	const int period = 34;
 	double * output = outputs[0];
-	if(size <= ti_ao_start(options)) return TI_OKAY;
+	if(size <= ti_ao_start(options)) 
+		return TI_OKAY;
 	double sum34 = 0;
 	double sum5 = 0;
 	const double per34 = 1.0 / 34.0;
@@ -405,10 +403,14 @@ int ti_apo(int size, double const * const * inputs, double const * options, doub
 	double * apo = outputs[0];
 	const int short_period = (int)options[0];
 	const int long_period = (int)options[1];
-	if(short_period < 1) return TI_INVALID_OPTION;
-	if(long_period < 2) return TI_INVALID_OPTION;
-	if(long_period < short_period) return TI_INVALID_OPTION;
-	if(size <= ti_apo_start(options)) return TI_OKAY;
+	if(short_period < 1) 
+		return TI_INVALID_OPTION;
+	if(long_period < 2) 
+		return TI_INVALID_OPTION;
+	if(long_period < short_period) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_apo_start(options)) 
+		return TI_OKAY;
 	double short_per = 2 / ((double)short_period + 1);
 	double long_per = 2 / ((double)long_period + 1);
 	double short_ema = input[0];
@@ -434,8 +436,10 @@ int ti_aroon(int size, double const * const * inputs, double const * options, do
 	double * adown = outputs[0];
 	double * aup = outputs[1];
 	const int period = (int)options[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_aroon_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_aroon_start(options)) 
+		return TI_OKAY;
 	const double scale = 100.0 / period;
 	int trail = 0, maxi = -1, mini = -1;
 	double max = high[0];
@@ -497,10 +501,14 @@ int ti_aroonosc(int size, double const * const * inputs, double const * options,
 	const double * low = inputs[1];
 	double * output = outputs[0];
 	const int period = (int)options[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_aroon_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_aroon_start(options)) 
+		return TI_OKAY;
 	const double scale = 100.0 / period;
-	int trail = 0, maxi = -1, mini = -1;
+	int trail = 0;
+	int maxi = -1;
+	int mini = -1;
 	double max = high[0];
 	double min = low[0];
 	int i, j;
@@ -523,7 +531,6 @@ int ti_aroonosc(int size, double const * const * inputs, double const * options,
 			maxi = i;
 			max = bar;
 		}
-
 		/* Maintain lowest. */
 		bar = low[i];
 		if(mini < trail) {
@@ -542,7 +549,6 @@ int ti_aroonosc(int size, double const * const * inputs, double const * options,
 			mini = i;
 			min = bar;
 		}
-
 		/* Calculate the indicator. */
 		/*
 		    const double adown = ((double)period - (i-mini)) * scale;
@@ -551,7 +557,6 @@ int ti_aroonosc(int size, double const * const * inputs, double const * options,
 		   That simplifies to:
 		    (maxi-mini) * scale
 		 */
-
 		*output++ = (maxi-mini) * scale;
 	}
 	assert(output - outputs[0] == size - ti_aroonosc_start(options));
@@ -619,8 +624,10 @@ int ti_cci(int size, double const * const * inputs, double const * options, doub
 	const double * close = inputs[2];
 	const int period = (int)options[0];
 	const double div = 1.0 / period;
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_cci_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_cci_start(options)) 
+		return TI_OKAY;
 	double * output = outputs[0];
 	ti_buffer * sum = ti_buffer_new(period);
 	int i, j;
@@ -631,10 +638,10 @@ int ti_cci(int size, double const * const * inputs, double const * options, doub
 		if(i >= period * 2 - 2) {
 			double acc = 0;
 			for(j = 0; j < period; ++j) {
-				acc += fabs(avg - sum->P_Vals[j]);
+				acc += fabs(avg - sum->Vals[j]);
 			}
 			double cci = acc * div;
-			cci *= .015;
+			cci *= 0.015;
 			cci = (today-avg)/cci;
 			*output++ = cci;
 		}
@@ -655,8 +662,10 @@ int ti_cmo(int size, double const * const * inputs, double const * options, doub
 	const double * input = inputs[0];
 	double * output = outputs[0];
 	const int period = (int)options[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_cmo_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_cmo_start(options)) 
+		return TI_OKAY;
 	double up_sum = 0, down_sum = 0;
 	int i;
 	for(i = 1; i <= period; ++i) {
@@ -716,8 +725,10 @@ int ti_cvi(int size, double const * const * inputs, double const * options, doub
 	const double * low = inputs[1];
 	const int period = (int)options[0];
 	double * output = outputs[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_cvi_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_cvi_start(options)) 
+		return TI_OKAY;
 	const double per = 2 / ((double)period + 1);
 	ti_buffer * lag = ti_buffer_new(period);
 	double val = high[0]-low[0];
@@ -728,7 +739,7 @@ int ti_cvi(int size, double const * const * inputs, double const * options, doub
 	}
 	for(i = period*2-1; i < size; ++i) {
 		val = ((high[i]-low[i])-val) * per + val;
-		const double old = lag->P_Vals[lag->index];
+		const double old = lag->Vals[lag->index];
 		*output++ = 100.0 * (val - old) / old;
 		ti_buffer_qpush(lag, val);
 	}
@@ -765,8 +776,10 @@ int ti_atr(int size, double const * const * inputs, double const * options, doub
 	const double * close = inputs[2];
 	const int period = (int)options[0];
 	double * output = outputs[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_atr_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_atr_start(options)) 
+		return TI_OKAY;
 	const double per = 1.0 / ((double)period);
 	double sum = 0;
 	double truerange;
@@ -872,8 +885,10 @@ int ti_dema(int size, double const * const * inputs, double const * options, dou
 	const double * input = inputs[0];
 	const int period = (int)options[0];
 	double * output = outputs[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_dema_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_dema_start(options)) 
+		return TI_OKAY;
 	const double per = 2 / ((double)period + 1);
 	const double per1 = 1.0 - per;
 	/*Calculate EMA(input)*/
@@ -909,8 +924,10 @@ int ti_di(int size, double const * const * inputs, double const * options, doubl
 	const int period = (int)options[0];
 	double * plus_di = outputs[0];
 	double * minus_di = outputs[1];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_di_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_di_start(options)) 
+		return TI_OKAY;
 	const double per = ((double)period-1) / ((double)period);
 	double atr = 0;
 	double dmup = 0;
@@ -1081,9 +1098,11 @@ int ti_dpo(int size, double const * const * inputs, double const * options, doub
 	const int back = period / 2 + 1;
 	double * output = outputs[0];
 	const double div = 1.0 / period;
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_dpo_start(options)) return TI_OKAY;
-	double sum = 0;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_dpo_start(options)) 
+		return TI_OKAY;
+	double sum = 0.0;
 	int i;
 	for(i = 0; i < period; ++i) {
 		sum += input[i];
@@ -1106,8 +1125,10 @@ int ti_ema(int size, double const * const * inputs, double const * options, doub
 	const double * input = inputs[0];
 	const int period = (int)options[0];
 	double * output = outputs[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_ema_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_ema_start(options)) 
+		return TI_OKAY;
 	const double per = 2 / ((double)period + 1);
 	double val = input[0];
 	*output++ = val;
@@ -1128,7 +1149,8 @@ int ti_emv(int size, double const * const * inputs, double const * options, doub
 	const double * low = inputs[1];
 	const double * volume = inputs[2];
 	double * output = outputs[0];
-	if(size <= ti_emv_start(options)) return TI_OKAY;
+	if(size <= ti_emv_start(options)) 
+		return TI_OKAY;
 	double last = (high[0] + low[0]) * 0.5;
 	for(int i = 1; i < size; ++i) {
 		double hl = (high[i] + low[i]) * 0.5;
@@ -1152,8 +1174,10 @@ int ti_fisher(int size, double const * const * inputs, double const * options, d
 	double * fisher = outputs[0];
 	double * signal = outputs[1];
 	const int period = (int)options[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_fisher_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_fisher_start(options)) 
+		return TI_OKAY;
 	int trail = 0, maxi = -1, mini = -1;
 	double max = HL(0);
 	double min = HL(0);
@@ -1405,9 +1429,11 @@ int ti_sma(int size, double const * const * inputs, double const * options, doub
 	const int period = (int)options[0];
 	double * output = outputs[0];
 	const double div = 1.0 / period;
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_sma_start(options)) return TI_OKAY;
-	double sum = 0;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_sma_start(options)) 
+		return TI_OKAY;
+	double sum = 0.0;
 	int i;
 	for(i = 0; i < period; ++i) {
 		sum += input[i];
@@ -1434,8 +1460,10 @@ int ti_tema(int size, double const * const * inputs, double const * options, dou
 	const double * input = inputs[0];
 	const int period = (int)options[0];
 	double * output = outputs[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_tema_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_tema_start(options)) 
+		return TI_OKAY;
 	const double per = 2 / ((double)period + 1);
 	const double per1 = 1.0 - per;
 	/*Calculate EMA(input)*/
@@ -1475,9 +1503,12 @@ int ti_trima(int size, double const * const * inputs, double const * options, do
 	const double * input = inputs[0];
 	const int period = (int)options[0];
 	double * output = outputs[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_trima_start(options)) return TI_OKAY;
-	if(period <= 2) return ti_sma(size, inputs, options, outputs);
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_trima_start(options)) 
+		return TI_OKAY;
+	if(period <= 2) 
+		return ti_sma(size, inputs, options, outputs);
 	/* Weights for 6 period TRIMA:
 	 * 1 2 3 3 2 1 = 12
 	 *
@@ -1543,11 +1574,16 @@ int ti_macd(int size, double const * const * inputs, double const * options, dou
 	const int short_period = (int)options[0];
 	const int long_period = (int)options[1];
 	const int signal_period = (int)options[2];
-	if(short_period < 1) return TI_INVALID_OPTION;
-	if(long_period < 2) return TI_INVALID_OPTION;
-	if(long_period < short_period) return TI_INVALID_OPTION;
-	if(signal_period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_macd_start(options)) return TI_OKAY;
+	if(short_period < 1) 
+		return TI_INVALID_OPTION;
+	if(long_period < 2) 
+		return TI_INVALID_OPTION;
+	if(long_period < short_period) 
+		return TI_INVALID_OPTION;
+	if(signal_period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_macd_start(options)) 
+		return TI_OKAY;
 	double short_per = 2 / ((double)short_period + 1);
 	double long_per = 2 / ((double)long_period + 1);
 	double signal_per = 2 / ((double)signal_period + 1);
@@ -1611,8 +1647,10 @@ int ti_mass(int size, double const * const * inputs, double const * options, dou
 	const double * low = inputs[1];
 	const int period = (int)options[0];
 	double * output = outputs[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_mass_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_mass_start(options)) 
+		return TI_OKAY;
 	/*mass uses a hard-coded 9 period for the ema*/
 	const double per = 2 / (9.0 + 1);
 	const double per1 = 1.0 - per;
@@ -1701,8 +1739,10 @@ int ti_mfi(int size, double const * const * inputs, double const * options, doub
 	const double * close = inputs[2];
 	const double * volume = inputs[3];
 	const int period = (int)options[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_mfi_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_mfi_start(options)) 
+		return TI_OKAY;
 	double * output = outputs[0];
 	double ytyp = TYPPRICE(0);
 	ti_buffer * up = ti_buffer_new(period);
@@ -1780,8 +1820,10 @@ int ti_min(int size, double const * const * inputs, double const * options, doub
 	const double * input = inputs[0];
 	const int period = (int)options[0];
 	double * output = outputs[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_min_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_min_start(options)) 
+		return TI_OKAY;
 	int trail = 0, mini = -1;
 	double min = input[0];
 	int i, j;
@@ -1837,8 +1879,10 @@ int ti_msw(int size, double const * const * inputs, double const * options, doub
 	double * sine = outputs[0];
 	double * lead = outputs[1];
 	const int period = (int)options[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_msw_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_msw_start(options)) 
+		return TI_OKAY;
 	const double pi = SMathConst::Pi; //3.1415926;
 	const double tpi = 2 * pi;
 	double weight = 0, phase;
@@ -1928,10 +1972,14 @@ int ti_ppo(int size, double const * const * inputs, double const * options, doub
 	double * ppo = outputs[0];
 	const int short_period = (int)options[0];
 	const int long_period = (int)options[1];
-	if(short_period < 1) return TI_INVALID_OPTION;
-	if(long_period < 2) return TI_INVALID_OPTION;
-	if(long_period < short_period) return TI_INVALID_OPTION;
-	if(size <= ti_ppo_start(options)) return TI_OKAY;
+	if(short_period < 1) 
+		return TI_INVALID_OPTION;
+	if(long_period < 2) 
+		return TI_INVALID_OPTION;
+	if(long_period < short_period) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_ppo_start(options)) 
+		return TI_OKAY;
 	double short_per = 2 / ((double)short_period + 1);
 	double long_per = 2 / ((double)long_period + 1);
 	double short_ema = input[0];
@@ -1962,10 +2010,9 @@ int ti_psar(int size, double const * const * inputs, double const * options, dou
 		return TI_INVALID_OPTION;
 	if(size < 2) 
 		return TI_OKAY;
-	/* Try to choose if we start as short or long.
-	 * There is really no right answer here. */
+	// Try to choose if we start as short or long. There is really no right answer here.
 	int lng;
-	if(high[0] + low[0] <= high[1] + low[1])
+	if((high[0] + low[0]) <= (high[1] + low[1]))
 		lng = 1;
 	else
 		lng = 0;
@@ -1989,7 +2036,7 @@ int ti_psar(int size, double const * const * inputs, double const * options, dou
 				sar = low[i-1];
 			if(accel < accel_max && high[i] > extreme) {
 				accel += accel_step;
-				if(accel > accel_max) accel = accel_max;
+				SETMIN(accel, accel_max);
 			}
 			if(high[i] > extreme) 
 				extreme = high[i];
@@ -2001,8 +2048,7 @@ int ti_psar(int size, double const * const * inputs, double const * options, dou
 				sar = high[i-1];
 			if(accel < accel_max && low[i] < extreme) {
 				accel += accel_step;
-				if(accel > accel_max) 
-					accel = accel_max;
+				SETMIN(accel, accel_max);
 			}
 			if(low[i] < extreme) 
 				extreme = low[i];
@@ -2124,13 +2170,16 @@ int ti_rsi(int size, double const * const * inputs, double const * options, doub
 	const int period = (int)options[0];
 	double * output = outputs[0];
 	const double per = 1.0 / ((double)period);
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_rsi_start(options)) return TI_OKAY;
-	double smooth_up = 0, smooth_down = 0;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_rsi_start(options)) 
+		return TI_OKAY;
+	double smooth_up = 0.0;
+	double smooth_down = 0.0;
 	int i;
 	for(i = 1; i <= period; ++i) {
-		const double upward = input[i] > input[i-1] ? input[i] - input[i-1] : 0;
-		const double downward = input[i] < input[i-1] ? input[i-1] - input[i] : 0;
+		const double upward = input[i] > input[i-1] ? input[i] - input[i-1] : 0.0;
+		const double downward = input[i] < input[i-1] ? input[i-1] - input[i] : 0.0;
 		smooth_up += upward;
 		smooth_down += downward;
 	}
@@ -2138,8 +2187,8 @@ int ti_rsi(int size, double const * const * inputs, double const * options, doub
 	smooth_down /= period;
 	*output++ = 100.0 * (smooth_up / (smooth_up + smooth_down));
 	for(i = period+1; i < size; ++i) {
-		const double upward = input[i] > input[i-1] ? input[i] - input[i-1] : 0;
-		const double downward = input[i] < input[i-1] ? input[i-1] - input[i] : 0;
+		const double upward = input[i] > input[i-1] ? input[i] - input[i-1] : 0.0;
+		const double downward = input[i] < input[i-1] ? input[i-1] - input[i] : 0.0;
 		smooth_up = (upward-smooth_up) * per + smooth_up;
 		smooth_down = (downward-smooth_down) * per + smooth_down;
 		*output++ = 100.0 * (smooth_up / (smooth_up + smooth_down));
@@ -2161,8 +2210,8 @@ int ti_stddev(int size, double const * const * inputs, double const * options, d
 		return TI_INVALID_OPTION;
 	if(size <= ti_stddev_start(options)) 
 		return TI_OKAY;
-	double sum = 0;
-	double sum2 = 0;
+	double sum = 0.0;
+	double sum2 = 0.0;
 	int i;
 	for(i = 0; i < period; ++i) {
 		sum += input[i];
@@ -2180,7 +2229,8 @@ int ti_stddev(int size, double const * const * inputs, double const * options, d
 		sum -= input[i-period];
 		sum2 -= input[i-period] * input[i-period];
 		double s2s2 = (sum2 * div - (sum * div) * (sum * div));
-		if(s2s2 > 0.0) s2s2 = sqrt(s2s2);
+		if(s2s2 > 0.0) 
+			s2s2 = sqrt(s2s2);
 		*output++ = s2s2;
 	}
 	assert(output - outputs[0] == size - ti_stddev_start(options));
@@ -2210,7 +2260,8 @@ int ti_stderr(int size, double const * const * inputs, double const * options, d
 	}
 	{
 		double s2s2 = (sum2 * div - (sum * div) * (sum * div));
-		if(s2s2 > 0.0) s2s2 = sqrt(s2s2);
+		if(s2s2 > 0.0) 
+			s2s2 = sqrt(s2s2);
 		*output++ = mul * s2s2;
 	}
 	for(i = period; i < size; ++i) {
@@ -2453,14 +2504,14 @@ int ti_ultosc(int size, double const * const * inputs, double const * options, d
 			int short_index = bp_buf->index - short_period - 1;
 			if(short_index < 0) 
 				short_index += long_period;
-			bp_short_sum -= bp_buf->P_Vals[short_index];
-			r_short_sum -= r_buf->P_Vals[short_index];
+			bp_short_sum -= bp_buf->Vals[short_index];
+			r_short_sum -= r_buf->Vals[short_index];
 			if(i > medium_period) {
 				int medium_index = bp_buf->index - medium_period - 1;
 				if(medium_index < 0) 
 					medium_index += long_period;
-				bp_medium_sum -= bp_buf->P_Vals[medium_index];
-				r_medium_sum -= r_buf->P_Vals[medium_index];
+				bp_medium_sum -= bp_buf->Vals[medium_index];
+				r_medium_sum -= r_buf->Vals[medium_index];
 			}
 		}
 		if(i >= long_period) {
@@ -2595,11 +2646,16 @@ int ti_vidya(int size, double const * const * inputs, double const * options, do
 	double * output = outputs[0];
 	const double short_div = 1.0 / short_period;
 	const double long_div = 1.0 / long_period;
-	if(short_period < 1) return TI_INVALID_OPTION;
-	if(long_period < short_period) return TI_INVALID_OPTION;
-	if(long_period < 2) return TI_INVALID_OPTION;
-	if(alpha < 0.0 || alpha > 1.0) return TI_INVALID_OPTION;
-	if(size <= ti_vidya_start(options)) return TI_OKAY;
+	if(short_period < 1) 
+		return TI_INVALID_OPTION;
+	if(long_period < short_period) 
+		return TI_INVALID_OPTION;
+	if(long_period < 2) 
+		return TI_INVALID_OPTION;
+	if(alpha < 0.0 || alpha > 1.0) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_vidya_start(options)) 
+		return TI_OKAY;
 	double short_sum = 0;
 	double short_sum2 = 0;
 	double long_sum = 0;
@@ -2945,8 +3001,10 @@ int ti_zlema(int size, double const * const * inputs, double const * options, do
 	const int period = (int)options[0];
 	const int lag = (period - 1) / 2;
 	double * output = outputs[0];
-	if(period < 1) return TI_INVALID_OPTION;
-	if(size <= ti_zlema_start(options)) return TI_OKAY;
+	if(period < 1) 
+		return TI_INVALID_OPTION;
+	if(size <= ti_zlema_start(options)) 
+		return TI_OKAY;
 	const double per = 2 / ((double)period + 1);
 	double val = input[lag-1];
 	*output++ = val;
@@ -3194,15 +3252,224 @@ const ti_indicator_info * ti_find_indicator(const char * name)
 	while(imax >= imin) {
 		const int i = (imin + ((imax-imin)/2));
 		const int c = strcmp(name, ti_indicators[i].name);
-		if(!c) {
-			return ti_indicators + i;
-		}
-		else if(c > 0) {
+		if(!c)
+			return &ti_indicators[i];
+		else if(c > 0)
 			imin = i + 1;
-		}
-		else {
+		else
 			imax = i - 1;
-		}
 	}
 	return 0;
 }
+
+#if SLTEST_RUNNING // {
+
+int DummyProc_TulipIndicators() { return 1; } // @forcelink
+
+SLTEST_R(TulipIndicators)
+{
+	class InnerBlock {
+		static int ReadTestFunction(const SString & rLineBuf, SString & rFuncIdent, RealArray & rArgList)
+		{
+			// vidya 2 5 .2
+			rFuncIdent.Z();
+			rArgList.Z();
+			int    ok = 1;
+			SString temp_buf;
+			SStrScan scan(rLineBuf);
+			scan.Skip();
+			THROW(scan.GetIdent(rFuncIdent));
+			scan.Skip();
+			while(scan.IsDotPrefixedNumber()) {
+				THROW(scan.GetDotPrefixedNumber(temp_buf));
+				double v = temp_buf.ToReal_Plain();
+				rArgList.add(v);
+				scan.IncrLen();
+				scan.Skip();
+			}
+			CATCHZOK
+			return ok;
+		}
+		static int ReadTestVector(const SString & rLineBuf, RealArray & rVec)
+		{
+			/*
+				adxr 5
+				{82.15,81.89,83.03,83.30,83.85,83.90,83.33,84.30,84.84,85.00,85.90,86.58,86.98,88.00,87.87}
+				{81.29,80.64,81.31,82.65,83.07,83.11,82.49,82.30,84.15,84.11,84.03,85.39,85.76,87.17,87.01}
+				{81.59,81.06,82.87,83.00,83.61,83.15,82.84,83.99,84.55,84.36,85.53,86.54,86.89,87.77,87.29}
+				{50.685,54.790,58.389}
+			*/
+			rVec.Z();
+			int    ok = 1;
+			SString temp_buf;
+			SStrScan scan(rLineBuf);
+			THROW(scan[0] == '{');
+			scan.Incr();
+			while(scan.IsDotPrefixedNumber()) {
+				THROW(scan.GetDotPrefixedNumber(temp_buf));
+				double v = temp_buf.ToReal_Plain();
+				rVec.add(v);
+				scan.Skip();
+				if(scan[0] == ',') {
+					scan.Incr();
+					scan.Skip();
+				}
+				else if(scan[0] == '}') {
+					scan.Incr();
+					break;
+				}
+			}
+			CATCHZOK
+			return ok;
+		}
+	public:
+		static int ReadTestSet(SFile & rF, SString & rFuncIdent, RealArray & rArgList, TSCollection <RealArray> & rDataSet)
+		{
+			rFuncIdent.Z();
+			rArgList.Z();
+			rDataSet.freeAll();
+			int    ok = -1;
+			int    rlr = 0;
+			uint   _line_count = 0; //  оличество считанных строк без учета комментариев и пустых строк
+			uint   _real_line_count = 0; // ‘изическое количество считанных строк (хоть комментарий, хоть что)
+			SString line_buf;
+			bool   prev_blanc = true;
+			for(; (rlr = rF.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) != 0; _real_line_count++) {
+				if(!line_buf.HasPrefix("#")) { //  омментарии просто игнорируютс€ (они не значимы как пустые строки, которые выступают в роли разделителей)
+					if(line_buf.NotEmpty()) {
+						_line_count++;
+						if(_line_count == 1) {
+							THROW(ReadTestFunction(line_buf, rFuncIdent, rArgList));
+						}
+						else {
+							RealArray * p_new_array = rDataSet.CreateNewItem();
+							THROW(p_new_array);
+							THROW(ReadTestVector(line_buf, *p_new_array));
+						}
+						prev_blanc = false;
+					}
+					else if(!prev_blanc) {
+						break;
+					}
+				}
+			}
+			if(rlr == 0)
+				ok = 0;
+			else if(_line_count == 0)
+				ok = -1;
+			else if(_line_count < 2)
+				ok = 0;
+			else
+				ok = 1;
+			CATCHZOK
+			return ok;
+		}
+	};
+	int    ok = 1;
+	SString path_buf;
+	SString file_name;
+	SString temp_buf;
+	SLS.QueryPath("testroot", path_buf);
+	if(path_buf.NotEmptyS()) {
+		const char * p_filenames[] = {"extra.txt", "untest.txt", "atoz.txt"};
+		path_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("tulipindicators").SetLastSlash();
+		//
+		SString func_ident;
+		RealArray arg_list;
+		TSCollection <RealArray> data_vec_list;
+		for(uint fni = 0; fni < SIZEOFARRAY(p_filenames); fni++) {
+			(file_name = path_buf).Cat(p_filenames[fni]);
+			SetInfo(temp_buf.Z().CatEq("testfile", file_name).CR());
+			if(SLTEST_CHECK_NZ(fileExists(file_name))) {
+				//Implement_Test(temp_buf);
+				//static int Implement_Test(const char * pFileName)
+				SFile f_in(file_name, SFile::mRead);
+				const double * pp_inputs[32];
+				double * pp_outputs[32];
+				int   rtsr = 0;
+				if(SLTEST_CHECK_NZ(f_in.IsValid())) {
+					while((rtsr = InnerBlock::ReadTestSet(f_in, func_ident, arg_list, data_vec_list)) != 0) {
+						if(rtsr > 0) {
+							temp_buf.Z().CatEq("indicator", func_ident);
+							if(arg_list.getCount()) {
+								for(uint argi = 0; argi < arg_list.getCount(); argi++) {
+									temp_buf.Space().Cat(arg_list.at(argi), MKSFMTD(0, 5, NMBF_NOTRAILZ));
+								}
+							}
+							SetInfo(temp_buf.CR());
+							const ti_indicator_info * p_ii = ti_find_indicator(func_ident);
+							if(SLTEST_CHECK_NZ(p_ii)) {
+								assert(p_ii->inputs <= SIZEOFARRAY(pp_inputs));
+								assert(p_ii->outputs <= SIZEOFARRAY(pp_outputs));
+								if(SLTEST_CHECK_EQ((p_ii->inputs + p_ii->outputs), data_vec_list.getCount())) {
+									if(SLTEST_CHECK_EQ(p_ii->options, arg_list.getCount())) {
+										uint  vec_size = 0;
+										bool  not_eq_vec_sizes = false;
+										for(uint i = 0; !not_eq_vec_sizes && i < /*data_vec_list.getCount()*/p_ii->inputs; i++) {
+											if(i == 0)
+												vec_size = data_vec_list.at(i)->getCount();
+											else if(vec_size != data_vec_list.at(i)->getCount())
+												not_eq_vec_sizes = true;
+										}
+										if(SLTEST_CHECK_Z(not_eq_vec_sizes)) {
+											const int sr = p_ii->start(static_cast<const double *>(arg_list.dataPtr()));
+											// sr - разница между длиной вход€щего и исход€щего векторов.
+											// typedef int (*ti_indicator_function)(int size, double const * const * inputs, double const * options, double * const * outputs);
+											//RealArray * p_real_outputs = (p_ii->outputs > 0) ? new RealArray[p_ii->outputs] : 0;
+											if(sr < 0 || sr >= vec_size) {
+												SetInfo(temp_buf.Z().Cat("Invalid output vector").CatDiv(':', 2).Cat("skipped").CR());
+											}
+											else {
+												const uint out_vec_size = vec_size - sr;
+												TSCollection <RealArray> real_outputs;
+												for(uint k = 0; k < p_ii->outputs; k++) {
+													RealArray * p_outp_item = real_outputs.CreateNewItem();
+													p_outp_item->dim(out_vec_size);
+												}
+												{
+													uint vecidx = 0;
+													for(uint inpidx = 0; inpidx < p_ii->inputs; inpidx++) {
+														assert(vecidx < data_vec_list.getCount());
+														pp_inputs[inpidx] = static_cast<const double *>(data_vec_list.at(vecidx++)->dataPtr());
+													}
+													for(uint outpidx = 0; outpidx < p_ii->outputs; outpidx++) {
+														assert(vecidx < data_vec_list.getCount());
+														//p_real_outputs[outpidx].dim(vec_size);
+														pp_outputs[outpidx] = static_cast<double *>(real_outputs.at(outpidx)->dataPtr());
+														vecidx++;
+													}
+													assert(vecidx == data_vec_list.getCount());
+												}
+												int ir = p_ii->indicator(vec_size, pp_inputs, static_cast<const double *>(arg_list.dataPtr()), pp_outputs);
+												if(ir == TI_OKAY) {
+													bool local_ok = true;
+													for(uint outpidx = 0; outpidx < p_ii->outputs; outpidx++) {
+														const RealArray * p_outp = data_vec_list.at(p_ii->inputs+outpidx);
+														const RealArray * p_real_outp = real_outputs.at(outpidx);
+														if(!p_outp || !p_real_outp)
+															local_ok = false;
+														else {
+															for(uint j = 0; j < /*p_outp->getCount()*/out_vec_size; j++) {
+																const double outp_pattern = p_outp->at(j);
+																const double outp_real = p_real_outp->at(j);
+																SLTEST_CHECK_EQ_TOL(outp_pattern, outp_real, 0.001);
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok ? CurrentStatus : 0;
+}
+
+#endif // } SLTEST_RUNNING

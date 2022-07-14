@@ -998,7 +998,7 @@ int SelBasketParam::StoreInReg(const char * pName) const
 	int    ok = -1;
 	if(!isempty(pName)) {
 		SString temp_buf;
-		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefBasketSelSettings, 0);
+		WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefBasketSelSettings, 0);
 		StringSet ss(';', 0);
 		ss.add(temp_buf.Z().Cat(SelPrice));
 		ss.add(temp_buf.Z().Cat(SelReplace));
@@ -1012,7 +1012,7 @@ int SelBasketParam::RestoreFromReg(const char * pName)
 	int    ok = -1;
 	if(!isempty(pName)) {
 		SString temp_buf;
-		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefBasketSelSettings, 1);
+		WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefBasketSelSettings, 1);
 		if(reg_key.GetString(pName, temp_buf)) {
 			StringSet ss(';', temp_buf);
 			uint i = 0;

@@ -494,14 +494,12 @@ extern "C" {
 #elif defined(__GNUC__)
 #define ERR_STATIC static __attribute__((unused))
 #else
-#define ERR_STATIC static  /* this version may generate warnings for unused static functions; disable the relevant
-	                        warning */
+#define ERR_STATIC static  // this version may generate warnings for unused static functions; disable the relevant warning 
 #endif
 //
 // Error Management
 //
 #define PREFIX(name) ZSTD_error_ ## name
-
 #define ERROR(name) (size_t)-PREFIX(name)
 
 #define ERROR_LIST(ITEM) \

@@ -444,16 +444,14 @@ int SGeoGridTab::Save(const char * pFileName)
 	THROW(f_out.WriteLine(line_buf.Z().CR()));
 	{
 		THROW(f_out.WriteLine(line_buf.Z().CatBrackStr("pgcg-lat").CR()));
-		for(uint i = 0; i < LatIdx.getCount(); i++) {
-			THROW(f_out.WriteLine(line_buf.Z().Cat(LatIdx.get(i)).CR()));
-		}
+		//for(uint i = 0; i < LatIdx.getCount(); i++)
+		SForEachVectorItem(LatIdx, i) { THROW(f_out.WriteLine(line_buf.Z().Cat(LatIdx.get(i)).CR())); }
 		THROW(f_out.WriteLine(line_buf.Z().CR()));
 	}
 	{
 		THROW(f_out.WriteLine(line_buf.Z().CatBrackStr("pgcg-lon").CR()));
-		for(uint i = 0; i < LonIdx.getCount(); i++) {
-			THROW(f_out.WriteLine(line_buf.Z().Cat(LonIdx.get(i)).CR()));
-		}
+		//for(uint i = 0; i < LonIdx.getCount(); i++) {
+		SForEachVectorItem(LonIdx, i) { THROW(f_out.WriteLine(line_buf.Z().Cat(LonIdx.get(i)).CR())); }
 		THROW(f_out.WriteLine(line_buf.Z().CR()));
 	}
     CATCHZOK

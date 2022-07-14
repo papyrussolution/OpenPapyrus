@@ -16,7 +16,6 @@
 #include "library.h"
 #include "platform.h"
 #include "standards.h"
-#include "suppressions.h"
 #include "timer.h"
 
 namespace ValueFlow {

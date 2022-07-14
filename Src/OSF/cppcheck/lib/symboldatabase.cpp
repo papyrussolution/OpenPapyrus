@@ -105,10 +105,7 @@ void SymbolDatabase::createSymbolDatabaseFindAllScopes()
 	// find all scopes
 	for(const Token * tok = mTokenizer->tokens(); tok; tok = tok ? tok->next() : nullptr) {
 		// #5593 suggested to add here:
-		if(mErrorLogger)
-			mErrorLogger->reportProgress(mTokenizer->list.getSourceFilePath(),
-			    "SymbolDatabase",
-			    tok->progressValue());
+		CALLPTRMEMB(mErrorLogger, reportProgress(mTokenizer->list.getSourceFilePath(), "SymbolDatabase", tok->progressValue()));
 		// Locate next class
 		if((mTokenizer->isCPP() && tok->isKeyword() &&
 		    ((Token::Match(tok, "class|struct|union|namespace ::| %name% final| {|:|::|<") &&
@@ -1952,10 +1949,7 @@ void SymbolDatabase::validateExecutableScopes() const
 		if(scope->isExecutable() && !function) {
 			const std::list<const Token*> callstack(1, scope->classDef);
 			const std::string msg = std::string("Executable scope '") + scope->classDef->str() + "' with unknown function.";
-			const ErrorMessage errmsg(callstack, &mTokenizer->list, Severity::debug,
-			    "symbolDatabaseWarning",
-			    msg,
-			    Certainty::normal);
+			const ErrorMessage errmsg(callstack, &mTokenizer->list, Severity::debug, "symbolDatabaseWarning", msg, Certainty::normal);
 			mErrorLogger->reportErr(errmsg);
 		}
 	}
@@ -3289,22 +3283,17 @@ const Token * Type::initBaseInfo(const Token * tok, const Token * tok1)
 		// skip unsupported templates
 		if(tok2->str() == "<")
 			tok2 = tok2->link();
-
 		// check for base classes
 		else if(Token::Match(tok2, ":|,")) {
 			tok2 = tok2->next();
-
 			// check for invalid code
 			if(!tok2 || !tok2->next())
 				return nullptr;
-
 			Type::BaseInfo base;
-
 			if(tok2->str() == "virtual") {
 				base.isVirtual = true;
 				tok2 = tok2->next();
 			}
-
 			if(tok2->str() == "public") {
 				base.access = AccessControl::Public;
 				tok2 = tok2->next();
@@ -3331,13 +3320,11 @@ const Token * Type::initBaseInfo(const Token * tok, const Token * tok1)
 			}
 			if(!tok2)
 				return nullptr;
-
 			base.nameTok = tok2;
 			// handle global namespace
 			if(tok2->str() == "::") {
 				tok2 = tok2->next();
 			}
-
 			// handle derived base classes
 			while(Token::Match(tok2, "%name% ::")) {
 				tok2 = tok2->tokAt(2);
@@ -3385,13 +3372,8 @@ void SymbolDatabase::debugMessage(const Token * tok, const std::string &type, co
 {
 	if(tok && mSettings->debugwarnings) {
 		const std::list<const Token*> locationList(1, tok);
-		const ErrorMessage errmsg(locationList, &mTokenizer->list,
-		    Severity::debug,
-		    type,
-		    msg,
-		    Certainty::normal);
-		if(mErrorLogger)
-			mErrorLogger->reportErr(errmsg);
+		const ErrorMessage errmsg(locationList, &mTokenizer->list, Severity::debug, type, msg, Certainty::normal);
+		CALLPTRMEMB(mErrorLogger, reportErr(errmsg));
 	}
 }
 
@@ -3399,11 +3381,9 @@ const Function* Type::getFunction(const std::string& funcName) const
 {
 	if(classScope) {
 		const std::multimap<std::string, const Function *>::const_iterator it = classScope->functionMap.find(funcName);
-
 		if(it != classScope->functionMap.end())
 			return it->second;
 	}
-
 	for(const Type::BaseInfo & i : derivedFrom) {
 		if(i.type) {
 			const Function* const func = i.type->getFunction(funcName);
@@ -3417,9 +3397,7 @@ const Function* Type::getFunction(const std::string& funcName) const
 bool Type::hasCircularDependencies(std::set<BaseInfo>* ancestors) const
 {
 	std::set<BaseInfo> knownAncestors;
-	if(!ancestors) {
-		ancestors = &knownAncestors;
-	}
+	SETIFZQ(ancestors, &knownAncestors);
 	for(std::vector<BaseInfo>::const_iterator parent = derivedFrom.begin(); parent!=derivedFrom.end(); ++parent) {
 		if(!parent->type)
 			continue;

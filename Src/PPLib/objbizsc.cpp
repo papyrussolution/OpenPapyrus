@@ -1318,7 +1318,7 @@ PPViewBizScoreVal::~PPViewBizScoreVal()
 {
 }
 
-PPBaseFilt * PPViewBizScoreVal::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewBizScoreVal::CreateFilt(const void * extraPtr) const
 {
 	BizScoreValFilt * p_filt = new BizScoreValFilt;
 	p_filt->UserID = reinterpret_cast<long>(extraPtr);

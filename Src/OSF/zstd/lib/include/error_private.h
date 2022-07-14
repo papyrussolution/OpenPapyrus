@@ -87,8 +87,7 @@ void _force_has_format_string(const char * format, ...) { (void)format; }
  * we don't want to force runtime evaluation of its arguments.
  */
 #define _FORCE_HAS_FORMAT_STRING(...) if(0) { _force_has_format_string(__VA_ARGS__); }
-#define ERR_QUOTE(str) #str
-
+// @v11.4.4 #define ERR_QUOTE(str) #str // @todo replacewith(STRINGIZE)
 /**
  * Return the specified error if the condition evaluates to true.
  *

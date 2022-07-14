@@ -943,63 +943,65 @@
 	#define USERPROFILEPPRP_FILEINFO   1L
 	#define USERPROFILEPPRP_FILEINFO2  2L
 
-	#define PPUPRF_LOGIN                   1
-	#define PPUPRF_SESSION           	   2
-	#define PPUPRF_BILLTURN_RCPT     	   3
-	#define PPUPRF_BILLTURN_EXP      	   4
-	#define PPUPRF_BILLTURN_IEXP     	   5
-	#define PPUPRF_BILLTURN_MOD      	   6
-	#define PPUPRF_BILLTURN_RVL      	   7
-	#define PPUPRF_BILLTURN_ORD      	   8
-	#define PPUPRF_BILLTURN_DRFT     	   9
-	#define PPUPRF_BILLTURN_RET      	  10
-	#define PPUPRF_BILLTURN_ETC      	  11
-	#define PPUPRF_BILLUPD_RCPT      	  12
-	#define PPUPRF_BILLUPD_EXP       	  13
-	#define PPUPRF_BILLUPD_IEXP      	  14
-	#define PPUPRF_BILLUPD_MOD       	  15
-	#define PPUPRF_BILLUPD_RVL       	  16
-	#define PPUPRF_BILLUPD_ORD       	  17
-	#define PPUPRF_BILLUPD_DRFT      	  18
-	#define PPUPRF_BILLUPD_RET       	  19
-	#define PPUPRF_BILLUPD_ETC       	  20
-	#define PPUPRF_BILLRMV_RCPT      	  21
-	#define PPUPRF_BILLRMV_EXP       	  22
-	#define PPUPRF_BILLRMV_IEXP      	  23
-	#define PPUPRF_BILLRMV_MOD       	  24
-	#define PPUPRF_BILLRMV_RVL       	  25
-	#define PPUPRF_BILLRMV_ORD       	  26
-	#define PPUPRF_BILLRMV_DRFT      	  27
-	#define PPUPRF_BILLRMV_RET       	  28
-	#define PPUPRF_BILLRMV_ETC       	  29
-	#define PPUPRF_VIEW_GREST        	  51
-	#define PPUPRF_VIEW_GREST_DT     	  52
-	#define PPUPRF_VATFREEPERSONLIST 	  53
-	#define PPUPRF_PSALBLDGOODS      	  54
-	#define PPUPRF_PSALBLDGOODSTEST  	  55
-	#define PPUPRF_GOODSPUT          	  56
-	#define PPUPRF_CCHECKPUT         	  57
-	#define PPUPRF_GETMTXLISTBYLOC   	  58
-	#define PPUPRF_CSESSTXMRESTORE   	  59
-	#define PPUPRF_PACKCACHETEXT     	  60
-	#define PPUPRF_MTXCACHEACTUALIZE 	  61
-	#define PPUPRF_SCARDUPDBYRULE    	  62
-	#define PPUPRF_GETINVSTOCKREST   	  63
-	#define PPUPRF_VIEW_GOODSOPANLZ  	  64
-	#define PPUPRF_VIEW_TRFRANLZ     	  65
-	#define PPUPRF_INVENTAUTOBUILD   	  66
-	#define PPUPRF_CALCARTDEBT       	  67
-	#define PPUPRF_VIEW_DEBT         	  68
-	#define PPUPRF_GETOPENEDLOTS     	  69
-	#define PPUPRF_BHTPREPBILL       	  70 // @v9.4.11
-	#define PPUPRF_BHTPREPGOODS      	  71 // @v9.4.11
-	#define PPUPRF_OSMXMLPARSETAG    	  72 // @v9.5.8
-	#define PPUPRF_BUILDGOODSFL      	  73 // @v10.1.4
-	#define PPUPRF_SRCHINGOODSFL     	  74 // @v10.1.4
-	#define PPUPRF_TIMSERWRITE       	  75 // @v10.3.3
-	#define PPUPRF_TSEVALSTAKES      	  76 // @v10.3.3
-	#define PPUPRF_STYLOQ_CMD_ORDERPREREQ 77 // @v11.2.12
-	#define PPUPRF_LAST                   78 // @v10.3.3 @anchor 75-->77 Идентификатор для отмера количества существующих значений // @v11.2.12 77-->78
+	#define PPUPRF_LOGIN                        1
+	#define PPUPRF_SESSION           	  	    2
+	#define PPUPRF_BILLTURN_RCPT     	  	    3
+	#define PPUPRF_BILLTURN_EXP      	  	    4
+	#define PPUPRF_BILLTURN_IEXP     	  	    5
+	#define PPUPRF_BILLTURN_MOD      	  	    6
+	#define PPUPRF_BILLTURN_RVL      	  	    7
+	#define PPUPRF_BILLTURN_ORD      	  	    8
+	#define PPUPRF_BILLTURN_DRFT     	  	    9
+	#define PPUPRF_BILLTURN_RET      	  	   10
+	#define PPUPRF_BILLTURN_ETC      	  	   11
+	#define PPUPRF_BILLUPD_RCPT      	  	   12
+	#define PPUPRF_BILLUPD_EXP       	  	   13
+	#define PPUPRF_BILLUPD_IEXP      	  	   14
+	#define PPUPRF_BILLUPD_MOD       	  	   15
+	#define PPUPRF_BILLUPD_RVL       	  	   16
+	#define PPUPRF_BILLUPD_ORD       	  	   17
+	#define PPUPRF_BILLUPD_DRFT      	  	   18
+	#define PPUPRF_BILLUPD_RET       	  	   19
+	#define PPUPRF_BILLUPD_ETC       	  	   20
+	#define PPUPRF_BILLRMV_RCPT      	  	   21
+	#define PPUPRF_BILLRMV_EXP       	  	   22
+	#define PPUPRF_BILLRMV_IEXP      	  	   23
+	#define PPUPRF_BILLRMV_MOD       	  	   24
+	#define PPUPRF_BILLRMV_RVL       	  	   25
+	#define PPUPRF_BILLRMV_ORD       	  	   26
+	#define PPUPRF_BILLRMV_DRFT      	  	   27
+	#define PPUPRF_BILLRMV_RET       	  	   28
+	#define PPUPRF_BILLRMV_ETC       	  	   29
+	#define PPUPRF_VIEW_GREST        	  	   51
+	#define PPUPRF_VIEW_GREST_DT     	  	   52
+	#define PPUPRF_VATFREEPERSONLIST 	  	   53
+	#define PPUPRF_PSALBLDGOODS      	  	   54
+	#define PPUPRF_PSALBLDGOODSTEST  	  	   55
+	#define PPUPRF_GOODSPUT          	  	   56
+	#define PPUPRF_CCHECKPUT         	  	   57
+	#define PPUPRF_GETMTXLISTBYLOC   	  	   58
+	#define PPUPRF_CSESSTXMRESTORE   	  	   59
+	#define PPUPRF_PACKCACHETEXT     	  	   60
+	#define PPUPRF_MTXCACHEACTUALIZE 	  	   61
+	#define PPUPRF_SCARDUPDBYRULE    	  	   62
+	#define PPUPRF_GETINVSTOCKREST   	  	   63
+	#define PPUPRF_VIEW_GOODSOPANLZ  	  	   64
+	#define PPUPRF_VIEW_TRFRANLZ     	  	   65
+	#define PPUPRF_INVENTAUTOBUILD   	  	   66
+	#define PPUPRF_CALCARTDEBT       	  	   67
+	#define PPUPRF_VIEW_DEBT         	  	   68
+	#define PPUPRF_GETOPENEDLOTS     	  	   69
+	#define PPUPRF_BHTPREPBILL       	  	   70 // @v9.4.11
+	#define PPUPRF_BHTPREPGOODS      	  	   71 // @v9.4.11
+	#define PPUPRF_OSMXMLPARSETAG    	  	   72 // @v9.5.8
+	#define PPUPRF_BUILDGOODSFL      	  	   73 // @v10.1.4
+	#define PPUPRF_SRCHINGOODSFL     	  	   74 // @v10.1.4
+	#define PPUPRF_TIMSERWRITE       	  	   75 // @v10.3.3
+	#define PPUPRF_TSEVALSTAKES      	  	   76 // @v10.3.3
+	#define PPUPRF_STYLOQ_CMD_ORDERPREREQ 	   77 // @v11.2.12
+	#define PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ  78 // @v11.4.4
+	#define PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ 79 // @v11.4.4
+	#define PPUPRF_LAST                        80 // @v10.3.3 @anchor 75-->77 Идентификатор для отмера количества существующих значений // @v11.2.12 77-->78
 #define PPOBJ_EDIPROVIDER	     74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING       1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS      75L // Исключения для пользовательских прав доступа при некоторых действиях
@@ -2831,6 +2833,8 @@
 	#define CTL_FLTLOT_CDEVRESTR        (26 + WINDOWS_ID_BIAS)
 	#define CTL_FLTLOT_PDEVRESTR        (27 + WINDOWS_ID_BIAS)
 	#define CTL_FLTLOT_EXTVIEWATTR      (28 + WINDOWS_ID_BIAS)
+	#define CTL_FLTLOT_SPPLPSNCAT       (29 + WINDOWS_ID_BIAS) // @v11.4.4
+	#define CTLSEL_FLTLOT_SPPLPSNCAT    (30 + WINDOWS_ID_BIAS) // @v11.4.4
 #define DLG_BILLFLT               131 // Фильтр реестра товарных документов
 #define DLG_BILLFLTEXT            275 // (@obsolete v3.6.4) Расширение фильтра документов
 #define DLG_BILLPREAMB            514 // Преамбула для ввода документа по коду операции и контрагента

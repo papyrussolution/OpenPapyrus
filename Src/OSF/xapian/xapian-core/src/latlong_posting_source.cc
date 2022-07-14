@@ -151,15 +151,10 @@ double LatLongDistancePostingSource::get_weight() const
 
 LatLongDistancePostingSource * LatLongDistancePostingSource::clone() const
 {
-	return new LatLongDistancePostingSource(get_slot(), centre,
-		   metric->clone(),
-		   max_range, k1, k2);
+	return new LatLongDistancePostingSource(get_slot(), centre, metric->clone(), max_range, k1, k2);
 }
 
-string LatLongDistancePostingSource::name() const
-{
-	return "Xapian::LatLongDistancePostingSource";
-}
+string LatLongDistancePostingSource::name() const { return "Xapian::LatLongDistancePostingSource"; }
 
 string LatLongDistancePostingSource::serialise() const
 {

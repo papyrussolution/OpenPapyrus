@@ -211,7 +211,7 @@ void CPosProcessor::Packet::Clear()
 	OrgAgentID = 0;
 	OrderCheckID = 0;
 	OrgUserID = 0;
-	clear(); // @v10.6.8 freeAll()-->clear()
+	clear();
 	ClearCur();
 	IterIdx = 0;
 	Eccd.Z();
@@ -222,7 +222,7 @@ void CPosProcessor::Packet::ClearCur()
 {
 	CurPos = -1;
 	MEMSZERO(Cur);
-	CurModifList.clear(); // @v10.6.8 freeAll()-->clear()
+	CurModifList.clear();
 	Rest = 0.0;
 }
 
@@ -543,15 +543,15 @@ double CPosProcessor::CardState::GetDiscount(double ccAmount) const
 	return ret;
 }
 
-const RetailPriceExtractor::ExtQuotBlock * CPosProcessor::GetCStEqb(PPID goodsID, int * pNoDiscount)
+const RetailPriceExtractor::ExtQuotBlock * CPosProcessor::GetCStEqb(PPID goodsID, bool * pNoDiscount)
 {
-  	const  int cfg_dsbl_no_dis = BIN(CsObj.GetEqCfg().Flags & PPEquipConfig::fIgnoreNoDisGoodsTag);
-	const  int nodis = BIN(!cfg_dsbl_no_dis && GObj.CheckFlag(goodsID, GF_NODISCOUNT));
+  	const  int  cfg_dsbl_no_dis = BIN(CsObj.GetEqCfg().Flags & PPEquipConfig::fIgnoreNoDisGoodsTag);
+	const  bool nodis = (!cfg_dsbl_no_dis && GObj.CheckFlag(goodsID, GF_NODISCOUNT));
 	ASSIGN_PTR(pNoDiscount, nodis);
 	return nodis ? 0 : CSt.P_Eqb;
 }
 
-const RetailPriceExtractor::ExtQuotBlock * CPosProcessor::GetCStEqbND(int nodiscount) const
+const RetailPriceExtractor::ExtQuotBlock * CPosProcessor::GetCStEqbND(bool nodiscount) const
 {
 	return nodiscount ? 0 : CSt.P_Eqb;
 }
@@ -1956,8 +1956,8 @@ int CPosProcessor::GetRgi(PPID goodsID, double qtty, long extRgiFlags, RetailGoo
 	long   rgi_flags = PPObjGoods::rgifUseQuotWTimePeriod;
 	if(CnFlags & CASHF_USEQUOT)
 		rgi_flags |= PPObjGoods::rgifUseBaseQuotAsPrice;
-	int    nodis = 0;
-	LDATETIME actual_dtm = P.Eccd.InitDtm;
+	bool   nodis = false;
+	const  LDATETIME actual_dtm = P.Eccd.InitDtm;
 	int    r = GObj.GetRetailGoodsInfo(goodsID, GetCnLocID(goodsID), GetCStEqb(goodsID, &nodis),
 		P.GetAgentID(), actual_dtm, fabs(qtty), &rRgi, rgi_flags|extRgiFlags);
 	SETFLAG(rRgi.Flags, RetailGoodsInfo::fNoDiscount, nodis);

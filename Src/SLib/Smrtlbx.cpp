@@ -335,6 +335,8 @@ uint SmartListBox::GetSelectionList(LongArray * pList)
 		else {
 			HWND hw = getHandle();
 			if(hw) {
+				long   cur_id__ = 0;
+				const  int gcir = getCurID(&cur_id__);
 				const long s = GetWindowStyle(hw);
 				if(s & LBS_EXTENDEDSEL) {
 					LRESULT c = ::SendMessage(hw, LB_GETSELCOUNT, 0, 0);
@@ -351,12 +353,14 @@ uint SmartListBox::GetSelectionList(LongArray * pList)
 								p_buffer = stbuf;
 							}
 							LRESULT c2 = ::SendMessage(hw, LB_GETSELITEMS, c, reinterpret_cast<LPARAM>(p_buffer));
-							for(uint i = 0; i < c2; i++) {
-								int32 idx = p_buffer[i];
-								if(idx >= 0 && idx < def->getRecsCount()) {
-									const void * p_row = def->getRow_(idx);
-									if(p_row)
-										pList->add(*static_cast<const long *>(p_row));
+							if(c2 > 0) {
+								for(uint i = 0; i < static_cast<uint>(c2); i++) {
+									int32 idx = p_buffer[i];
+									if(idx >= 0 && idx < def->getRecsCount()) {
+										const void * p_row = def->getRow_(idx);
+										if(p_row)
+											pList->add(*static_cast<const long *>(p_row));
+									}
 								}
 							}
 							if(is_buf_allocated) {
@@ -368,9 +372,8 @@ uint SmartListBox::GetSelectionList(LongArray * pList)
 					result = static_cast<uint>(c);
 				}
 				else {
-					long   cur_id = 0;
-					if(getCurID(&cur_id)) {
-						CALLPTRMEMB(pList, add(cur_id));
+					if(gcir) {
+						CALLPTRMEMB(pList, add(cur_id__));
 						result = 1;
 					}
 				}
@@ -509,8 +512,8 @@ void SmartListBox::onInitDialog(int useScrollBar)
 		RECT   rc_cli_parent;
 		RECT   rc_list;
 		RECT   rc_parent;
-		const int is_multi_col = BIN(Columns.getCount());
-		const int is_tabbed = BIN(TView::GetWindowStyle(Parent) & WS_CHILD);
+		const bool is_multi_col = LOGIC(Columns.getCount());
+		const bool is_tabbed = LOGIC(TView::GetWindowStyle(Parent) & WS_CHILD);
 		::GetClientRect(Parent, &rc_cli_parent);
 		if(!is_multi_col && !GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1))) {
 			::GetWindowRect(Parent, &rc_parent);
@@ -547,7 +550,8 @@ void SmartListBox::onInitDialog(int useScrollBar)
 			Height = (def && def->Options & lbtHSizeAlreadyDef) ? def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
 			*/
 			if(def) {
-				long   scroll_delta, scroll_pos;
+				long   scroll_delta = 0;
+				long   scroll_pos = 0;
 				Top = def->_topItem();
 				def->getScrollData(&scroll_delta, &scroll_pos);
 				if(def->_curItem() == 0)
@@ -764,7 +768,7 @@ int  SmartListBox::GetImageIdxByID(long id, long * pIdx)
 	//return def ? static_cast<StdListBoxDef *>(def)->GetImageIdxByID(id, pIdx) : 0; 
 }
 
-int  FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
+/* @v11.4.4 (inlined) int  FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
 {
 	int    nScrollCode;
 	int    sf = 0;
@@ -806,7 +810,7 @@ int  FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
 		Scroll(nScrollCode, 0);
 	}
 	return -1;
-}
+}*/
 
 int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -853,7 +857,7 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		case WM_RBUTTONDOWN:
 			{
-				const int is_multi_col = BIN(Columns.getCount());
+				const bool is_multi_col = LOGIC(Columns.getCount());
 				if(!is_multi_col) {
 					const long hw_clarea_lw_index = SendDlgItemMessage(Parent, Id, LB_ITEMFROMPOINT, 0, lParam);
 					if(HIWORD(hw_clarea_lw_index) == 0 && LOWORD(hw_clarea_lw_index) >= 0) {
@@ -871,9 +875,47 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_VKEYTOITEM:
 			{
-				int    r = onVKeyToItem(wParam);
-				if(r >= 0)
-					return r;
+				int    n_scroll_code = 0;
+				int    sf = 0;
+				switch(LOWORD(wParam)) {
+					case VK_UP:    n_scroll_code = SB_LINEUP;   break;
+					case VK_DOWN:  n_scroll_code = SB_LINEDOWN; break;
+					case VK_NEXT:  n_scroll_code = SB_PAGEDOWN; break;
+					case VK_PRIOR: n_scroll_code = SB_PAGEUP;   break;
+					case VK_HOME:  n_scroll_code = SB_TOP;      break;
+					case VK_END:   n_scroll_code = SB_BOTTOM;   break;
+					case VK_INSERT:
+						if(IsInState(sfSelected) || State & stTreeList) {
+							MessageCommandToOwner(cmaInsert);
+							sf = 1;
+						}
+						break;
+					case VK_DELETE:
+						if(IsInState(sfSelected) || State & stTreeList) {
+							MessageCommandToOwner(cmaDelete);
+							sf = 1;
+						}
+						break;
+					case VK_ADD:
+						MessageCommandToOwner(cmaLevelDown);
+						sf = 1;
+						break;
+					case VK_SUBTRACT:
+						MessageCommandToOwner(cmaLevelUp);
+						sf = 1;
+						break;
+					default:
+						return 0;
+						break;
+				}
+				if(!(State & stTreeList)) {
+					if(sf) {
+						SetFocus(getHandle());
+						return 1;
+					}
+					else
+						Scroll(n_scroll_code, 0);
+				}
 			}
 			break;
 		case WM_CHAR:
@@ -882,30 +924,24 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			else if(wParam == kbCtrlG)
 				search(0, srchNext);
 			else {
-				char ac = SSystem::TranslateWmCharToAnsi(wParam);
+				const char ac = SSystem::TranslateWmCharToAnsi(wParam);
 				char b[2];
-				b[0] = ac;//static_cast<char>(wParam);
+				b[0] = ac;
 				b[1] = 0;
 				SCharToOem(b);
-				uchar ub = b[0];
+				const uchar ub = b[0];
 				if(!(State & stOmitSearchByFirstChar)) {
 					if(isalnum(ub) || IsLetter866(ub) || ub == '*')
 						search(b, srchFirst);
 					else
 						return 0;
 				}
-				// @v10.0.12 {
 				else {
 					if(isalnum(ub) || IsLetter866(ub))
 						return 0;
 					else
 						return 1;
 				}
-				// } @v10.0.12
-				/* @v10.0.12
-				else
-					return 1; // @v9.8.12 0-->1
-				*/
 			}
 			break;
 		case WM_MOUSEWHEEL:
@@ -1079,8 +1115,11 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 void SmartListBox::Scroll(short Code, int value)
 {
 	if(def) {
-		long   scroll_delta, scroll_pos, prev_top_item = Top;
-		int    to_draw = 0, need_sel = 1;
+		long   scroll_delta;
+		long   scroll_pos;
+		const  long prev_top_item = Top;
+		int    to_draw = 0;
+		int    need_sel = 1;
 		int    fsize  = def->GetFrameSize() - 1;
 		int    fstate = def->GetFrameState();
 		switch(Code) {
@@ -1248,7 +1287,8 @@ bool SmartListBox::Search_(const void * pPattern, CompFunc fcmp, int srchMode)
 	bool result = false;
 	if(def && def->search(pPattern, fcmp, srchMode)) {
 		if(!(State & stTreeList)) {
-			long   scroll_delta, scroll_pos;
+			long   scroll_delta;
+			long   scroll_pos;
 			def->getScrollData(&scroll_delta, &scroll_pos);
 			SetScrollBarPos(scroll_pos, 1);
 			Draw_();
@@ -1361,8 +1401,7 @@ UiSearchTextBlock::~UiSearchTextBlock()
 						if(hw_input) {
 							::GetClientRect(hwndDlg, &rc_parent);
 							::GetWindowRect(hw_input, &rc_chld);
-							::MoveWindow(hw_input, rc_parent.left, rc_parent.top, 
-								rc_parent.right-rc_parent.left, rc_chld.bottom-rc_chld.top, 0);
+							::MoveWindow(hw_input, rc_parent.left, rc_parent.top, rc_parent.right-rc_parent.left, rc_chld.bottom-rc_chld.top, 0);
 						}
 					}
 					// } @v10.7.7 
@@ -1400,7 +1439,7 @@ UiSearchTextBlock::~UiSearchTextBlock()
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				if(p_slb) {
 					TView::SGetWindowText(GetDlgItem(hwndDlg, p_slb->InputCtlId), p_slb->Text);
-					p_slb->Text.Transf(CTRANSF_OUTER_TO_INNER); // @v9.1.5
+					p_slb->Text.Transf(CTRANSF_OUTER_TO_INNER);
 					p_slb->IsBnClicked = 1;
 					TView::messageCommand(p_slb->P_WordSel, cmCancel);
 				}
@@ -1603,7 +1642,8 @@ void SmartListBox::Implement_Draw()
 		 		ListView_SetImageList(h_lb, HIML, LVSIL_SMALL);
 		}
 		if(Height) {
-			long   first_item = 0, last_item = 0;
+			long   first_item = 0;
+			long   last_item = 0;
 			StringSet ss(SLBColumnDelim);
 			if(def) {
 				if(cc) {

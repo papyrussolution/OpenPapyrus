@@ -11,8 +11,6 @@
 #pragma hdrstop
 #include "cppcheck.h"
 #include "clangimport.h"
-#include "color.h"
-#include "suppressions.h"
 #include "timer.h"
 #include "version.h"
 #define PICOJSON_USE_INT64
