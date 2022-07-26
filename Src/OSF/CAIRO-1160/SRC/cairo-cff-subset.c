@@ -1025,8 +1025,7 @@ static cairo_int_status_t cairo_cff_font_read_top_dict(cairo_cff_font_t * font)
 	status = cff_dict_read(font->top_dict, element->data, element->length);
 	if(UNLIKELY(status))
 		goto fail;
-
-	if(cff_dict_get_operands(font->top_dict, ROS_OP, &size) != NULL)
+	if(cff_dict_get_operands(font->top_dict, ROS_OP, &size))
 		font->is_cid = TRUE;
 	else
 		font->is_cid = FALSE;
@@ -2750,14 +2749,11 @@ boolint _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font)
 	status = cff_dict_read(top_dict, element->data, element->length);
 	if(UNLIKELY(status))
 		goto fail3;
-
 	/* check for ROS operator indicating a CID font */
-	if(cff_dict_get_operands(top_dict, ROS_OP, &size) != NULL)
+	if(cff_dict_get_operands(top_dict, ROS_OP, &size))
 		is_cid = TRUE;
-
 fail3:
 	cff_dict_fini(top_dict);
-
 fail2:
 	cff_index_fini(&index);
 fail1:

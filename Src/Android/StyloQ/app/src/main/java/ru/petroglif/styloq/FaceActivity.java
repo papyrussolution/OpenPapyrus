@@ -3,7 +3,6 @@
 //
 package ru.petroglif.styloq;
 
-import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,7 +57,7 @@ public class FaceActivity extends SLib.SlActivity {
 		if(entry != null) {
 			ViewGroup vg = null;
 			if(entry instanceof SLib.SlFragmentStatic) {
-				View v = ((SLib.SlFragmentStatic) entry).getView();
+				View v = ((SLib.SlFragmentStatic)entry).getView();
 				if(v instanceof ViewGroup)
 					vg = (ViewGroup)v;
 			}
@@ -113,48 +112,47 @@ public class FaceActivity extends SLib.SlActivity {
 		switch(ev) {
 			case SLib.EV_CREATE:
 				{
-					Intent intent = getIntent();
-					long   managed_id = intent.getLongExtra("ManagedLongId", 0);
-					String face_json = intent.getStringExtra("StyloQFaceJson");
-					EditFlags = intent.getIntExtra("EditFlags", 0);
-					Data = new StyloQFace();
-					if(SLib.GetLen(face_json) > 0) {
-						Data.FromJson(face_json);
-						Data.ID = managed_id;
-					}
-				}
-				requestWindowFeature(Window.FEATURE_NO_TITLE);
-				setContentView(R.layout.activity_face);
-				ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_STQFACE);
-				SetupViewPagerWithFragmentAdapter(R.id.VIEWPAGER_STQFACE);
-				{
-					TabLayout lo_tab = findViewById(R.id.TABLAYOUT_STQFACE);
-					if(lo_tab != null) {
-						CreateTabList();
-						for(int i = 0; i < TabList.size(); i++) {
-							TabLayout.Tab tab = lo_tab.newTab();
-							tab.setText(TabList.get(i).TabText);
-							lo_tab.addTab(tab);
-							//TabLayout.TabView;
-						}
-						SLib.SetupTabLayoutStyle(lo_tab);
-						SLib.SetupTabLayoutListener(lo_tab, view_pager);
-					}
-				}
-				{
-					Context app_ctx = GetAppCtx();
+					StyloQApp app_ctx = GetAppCtx();
 					if(app_ctx != null) {
-						View vg = findViewById(R.id.LAYOUT_ACTIVITYROOT);
-						if(vg != null && vg instanceof ViewGroup)
-							SLib.SubstituteStringSignatures((StyloQApp)app_ctx, (ViewGroup)vg);
+						{
+							Intent intent = getIntent();
+							long managed_id = intent.getLongExtra("ManagedLongId", 0);
+							String face_json = intent.getStringExtra("StyloQFaceJson");
+							EditFlags = intent.getIntExtra("EditFlags", 0);
+							Data = new StyloQFace();
+							if(SLib.GetLen(face_json) > 0) {
+								Data.FromJson(face_json);
+								Data.ID = managed_id;
+							}
+						}
+						requestWindowFeature(Window.FEATURE_NO_TITLE);
+						setContentView(R.layout.activity_face);
+						ViewPager2 view_pager = (ViewPager2) findViewById(R.id.VIEWPAGER_STQFACE);
+						SetupViewPagerWithFragmentAdapter(R.id.VIEWPAGER_STQFACE);
+						{
+							TabLayout lo_tab = findViewById(R.id.TABLAYOUT_STQFACE);
+							if(lo_tab != null) {
+								CreateTabList();
+								for(int i = 0; i < TabList.size(); i++) {
+									TabLayout.Tab tab = lo_tab.newTab();
+									tab.setText(TabList.get(i).TabText);
+									lo_tab.addTab(tab);
+									//TabLayout.TabView;
+								}
+								SLib.SetupTabLayoutStyle(lo_tab);
+								SLib.SetupTabLayoutListener(lo_tab, view_pager);
+							}
+						}
+						{
+							View vg = findViewById(R.id.LAYOUT_ACTIVITYROOT);
+							if(vg != null && vg instanceof ViewGroup)
+								SLib.SubstituteStringSignatures(app_ctx, (ViewGroup) vg);
+						}
+						if(Data.ID == 0 || (EditFlags & StyloQFace.editfDisableDeletion) != 0)
+							SLib.SetCtrlVisibility(this, R.id.STDCTL_DELETEBUTTON, View.GONE);
+						//SetDTS(Data);
 					}
 				}
-				if(Data.ID == 0 || (EditFlags & StyloQFace.editfDisableDeletion) != 0) {
-					View v = findViewById(R.id.STDCTL_DELETEBUTTON);
-					if(v != null)
-						v.setVisibility(View.GONE);
-				}
-				//SetDTS(Data);
 				break;
 			case SLib.EV_LISTVIEWCOUNT:
 				CreateTabList();

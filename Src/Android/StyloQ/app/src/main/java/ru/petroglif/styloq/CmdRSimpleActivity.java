@@ -21,15 +21,11 @@ public class CmdRSimpleActivity extends SLib.SlActivity {
 					try {
 						JSONObject jsobj = new JSONObject(ResultText);
 						if(jsobj != null) {
-							int repl_result = StyloQInterchange.GetReplyResult(jsobj);
-							String reply_msg = jsobj.optString("msg");
-							String reply_errmsg = jsobj.optString("errmsg");
-							if(SLib.GetLen(reply_msg) > 0) {
-								SLib.SetCtrlString(this, R.id.cmdResultText, reply_msg);
-							}
-							else if(SLib.GetLen(reply_errmsg) > 0) {
-								SLib.SetCtrlString(this, R.id.cmdResultText, reply_errmsg);
-							}
+							StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(jsobj);
+							if(SLib.GetLen(crr.Msg) > 0)
+								SLib.SetCtrlString(this, R.id.cmdResultText, crr.Msg);
+							else if(SLib.GetLen(crr.ErrMsg) > 0)
+								SLib.SetCtrlString(this, R.id.cmdResultText, crr.ErrMsg);
 						}
 					} catch(JSONException e) {
 						//e.printStackTrace();

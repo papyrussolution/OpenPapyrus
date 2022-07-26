@@ -8589,7 +8589,7 @@ int PPALDD_AdvanceRep::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
-	if(H.nn < (int16)p_pack->AdvList.GetCount()) {
+	if(H.nn < static_cast<int16>(p_pack->AdvList.GetCount())) {
 		const PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(H.nn);
 		STRNSCPY(I.AdvCode, r_item.AdvCode);
 		I.AdvDt = r_item.AdvDt;
@@ -8601,7 +8601,6 @@ int PPALDD_AdvanceRep::NextIteration(PPIterID iterId)
 		I.Flags     = r_item.Flags;
 		I.Amt       = r_item.Amount;
 		I.ExtAmt    = r_item.ExtAmt;
-		//STRNSCPY(I.Memo, r_item.Memo); // @v7.8.2
 		H.nn++;
 	}
 	else
@@ -8996,17 +8995,17 @@ int PPALDD_BillInfoList::NextIteration(PPIterID iterId)
 	if(ok > 0) {
 		const long f = p_bilpd->P_Pack->Rec.Flags;
 		I.BillID = p_bilpd->P_Pack->Rec.ID;
-		I.fTotalDiscount     = BIN(f & BILLF_TOTALDISCOUNT);
+		I.fTotalDiscount = BIN(f & BILLF_TOTALDISCOUNT);
 		I.fGReceipt  = BIN(f & BILLF_GRECEIPT);
 		I.fGExpend   = BIN(f & BILLF_GEXPEND);
 		I.fGReval    = BIN(f & BILLF_GREVAL);
 		I.fGModif    = BIN(f & BILLF_GMODIF);
-		I.fClosedOrder       = BIN(f & BILLF_CLOSEDORDER);
+		I.fClosedOrder = BIN(f & BILLF_CLOSEDORDER);
 		I.fCash      = BIN(f & BILLF_CASH);
 		I.fCCheck    = BIN(f & BILLF_CHECK);
 		I.fNoAturn   = BIN(f & BILLF_NOATURN);
 		I.fRmvExcise = BIN(f & BILLF_RMVEXCISE);
-		I.fFixedAmounts      = BIN(f & BILLF_FIXEDAMOUNTS);
+		I.fFixedAmounts = BIN(f & BILLF_FIXEDAMOUNTS);
 		I.fFreight   = BIN(f & BILLF_FREIGHT);
 		I.fRent      = BIN(f & BILLF_RENT);
 		I.fRecon     = BIN(f & BILLF_RECKON);

@@ -88,7 +88,7 @@ BarcodeTbl * CS_1::CreateTmpBarToID(int num, int fn, int fldGoodsID, int fldBarC
 			DbfRecord dbfr(dbft);
 			THROW(dbft->getRec(&dbfr));
 			p_tbl->clearDataBuf();
-			dbfr.get(fldBarCode, code);
+			dbfr.get(fldBarCode, code, sizeof(code));
 			c = strip(code);
 			if(*c && *c != '0') {
 				if((c = sstrchr(code, '.')) != 0)

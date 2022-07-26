@@ -424,6 +424,7 @@ struct PPCommSyncID;
 class  PPFtsDatabase;
 class  PPTextAnalyzer;
 struct ResolveGoodsItem;
+struct StyloQBlobInfo;
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -7837,6 +7838,8 @@ public:
 	//   в начале сеанса по заданному списку имен хостов.
 	//
 	int    GetHostAvailability(const char * pHost); // @v11.1.2
+	int    Stq_GetBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi);
+	int    Stq_PutBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi);
 private:
 	int    Helper_SetPath(int pathId, SString & rPath);
 	int    MakeMachineID(MACAddr * pMachineID);
@@ -7940,6 +7943,29 @@ private:
 		ReadWriteLock RwL;
 	};
 	ThreadCollection ThreadList; // Список потоков. Конструктор снимает флаг aryEachItem с этого экземпляра поскольку он не владеет указателями на потоки.
+
+	class StyloQ_Cache {
+	public:
+		StyloQ_Cache();
+		~StyloQ_Cache();
+		int    GetBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi);
+		int    PutBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, const StyloQBlobInfo & rBi);
+	private:
+		struct SvcEntry : public SStrGroup {
+			struct BlobInnerEntry {
+				PPObjID Oid;        // @firstmember
+				uint   BlobN;       // [0..] Номер BLOB'а в "обойме" объекта Oid
+				SFileFormat Ff;     // Идентификатор формата данных
+				uint   SignatureP;  // Сигнатура, используемая для идентификации BLOB'а сервисами и клиентами Stylo-Q
+			};
+			SBinaryChunk OwnIdent;
+			TSVector <BlobInnerEntry> BlobList; // Отсортирован по Oid
+		};
+		TSCollection <SvcEntry> L;
+		ReadWriteLock RwL; // Блокировка списка L
+	};
+
+	StyloQ_Cache StQCache; // @v11.4.5
 };
 
 extern PPSession DS;
@@ -18167,9 +18193,11 @@ public:
 		double GetOptDeltaRangeCQA() const;
 		int    CalcResult2(/*const DateTimeArray & rTmList, const RealArray & rValList*/const PPObjTimeSeries::CommonTsParamBlock & rCtspb, uint valueIdx, PPObjTimeSeries::StrategyResultValueEx & rV) const;
 		enum {
-			bfShort      = 0x0001, // Стратегия для short-торговли
+			bfShort        = 0x0001, // Стратегия для short-торговли
 			// @v10.4.5 bfOptRanges4 = 0x0002  // Оптимальные диапазоны OptDeltaRange и OptDelta2Range сформированы для StakeMode=4
-			bfBrokenRow  = 0x0002  // @v10.8.9 Флаг означающий, что при расчете последний результат стратегии оказался неопределенным из-за обрыва ряда
+			bfBrokenRow    = 0x0002, // @v10.8.9 Флаг означающий, что при расчете последний результат стратегии оказался неопределенным из-за обрыва ряда
+			bfDynMainTrend = 0x0004  // @v11.4.5 (construction-approach) Стратегия строится только по малому тренду с одновременным вычислением величины основного (большого) тренда.
+				// После расчета наборы стратегий группируются по близости величины основного тренда.
 		};
 		enum {
 			clsmodFullMaxDuck = 0, //
@@ -28906,7 +28934,7 @@ struct RetailGoodsInfo {   // @transient
 	char   Name[128];      // =Goods(ID).Name
 	char   BarCode[24];    //
 	char   UnitName[48];   //
-	char   Manuf[48];      //
+	char   Manuf[128];     // @v11.4.5 [48]-->[128]
 	char   ManufCountry[48];
 	PPID   LocID;          // Склад, для которого рассчитана цена
 	PPID   QuotKindUsedForPrice; // Вид котировки, использованной для получения цены Price.
@@ -29652,7 +29680,7 @@ public:
 			// количество, заданное в структуре pInfo.
 		rgifUseInBarcode       = 0x0010, // Использовать штрихкод, заданный в структуре pInfo.
 		rgifUseOuterPrice      = 0x0020, // Предписывает использовать OuterPrice в качестве цены.
-		rgifPriceOnly  = 0x0040  // Функция рассчитывает только цену (для ускорения)
+		rgifPriceOnly          = 0x0040  // Функция рассчитывает только цену (для ускорения)
  	};
 	//
 	// Descr: Возвращает информацию о товаре, необходимую для продажи
@@ -32078,10 +32106,10 @@ private:
 	//
 	// Списки идентификаторов объектов, на которые ссылаются товары, попадающие в выборку
 	//
-	PPIDArray GroupList;          // @v9.8.6 Родительские группы
-	PPIDArray UnitList;           // @v9.8.6 Единицы измерения (и торговые и физические)
-	PPIDArray GdsClsList;         // @v9.8.6 Классы товаров
-	PPIDArray GdsTypeList;        // @v9.8.6 Типы товаров
+	PPIDArray GroupList;          // Родительские группы
+	PPIDArray UnitList;           // Единицы измерения (и торговые и физические)
+	PPIDArray GdsClsList;         // Классы товаров
+	PPIDArray GdsTypeList;        // Типы товаров
 	PPIDArray UpdGoods;           //
 	PPIDArray RmvGoods;           // @v10.6.8 Товары, для которых следует отправить уведомление об удалении
 	PPIDArray IterGoodsList;      //
@@ -45321,6 +45349,7 @@ private:
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void * GetEditExtraParam();
 	int    MakeEntry(const PPOprKind & rOpRec, OprKindBrwItem & rEntry);
 	int    MakeList(PPViewBrowser * pBrw);
 
@@ -46776,7 +46805,8 @@ public:
 		doctypOrderPrereq     = 2, // Предопределенный формат данных, подготовленных для формирования заказа на клиентской стороне
 		doctypReport          = 3, // @v11.2.10 Отчеты в формате DL600 export
 		doctypGeneric         = 4, // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
-		doctypIndexingContent = 5  // @v11.3.4 Документ, содержащий данные для индексации медиатором
+		doctypIndexingContent = 5, // @v11.3.4 Документ, содержащий данные для индексации медиатором
+		doctypIndoorSvcPrereq = 6, // @v11.4.5 Предопределенный формат данных, подготовленных для формирования данных для обслуживания внутри помещения сервиса (INDOOR)
 	};
 	//
 	// Descr: Флаги записей реестра Stylo-Q
@@ -46799,7 +46829,7 @@ public:
 		SString Url;
 	};
 
-	static PPIDArray & MakeLinkObjTypeList(PPIDArray & rList);
+	static PPIDArray & MakeLinkObjTypeList(bool addUnaddignedObj, PPIDArray & rList);
 	static int  BuildSvcDbSymbMap();
 	static int  ReadIgnitionServerList(TSCollection <IgnitionServerEntry> & rList);
 	static bool GetDbMapBySvcIdent(const SBinaryChunk & rIdent, SString * pDbSymb, uint * pFlags);
@@ -46814,6 +46844,7 @@ public:
 	//
 	static bool IsDocStatusFinished(int status);
 	static bool ValidateStatusTransition(int status, int newStatus);
+	static void MakeDocExtDescriptionText(long docType, long flags, SString & rBuf);
 
 	StyloQCore();
 	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
@@ -46900,6 +46931,28 @@ private:
 	int    InitInstance();
 };
 
+class StyloQGoodsInfoParam : public PPBaseFilt {
+public:
+	StyloQGoodsInfoParam();
+	StyloQGoodsInfoParam(const StyloQGoodsInfoParam & rS);
+	StyloQGoodsInfoParam & FASTCALL operator = (const StyloQGoodsInfoParam & rS);
+
+	enum {
+		fShowRest         = 0x0001,
+		fShowCost         = 0x0002,
+		fShowPrice        = 0x0004,
+		fShowDescriptions = 0x0008,
+		fShowCodes        = 0x0010 
+	};
+	uint8  ReserveStart[64]; // @reserve
+	PPID   LocID;
+	PPID   PosNodeID;
+	long   Flags;
+	uint32 Reserve;          // @anchor  
+private:
+	int    InitInstance();
+};
+
 class StyloQCommandList { // @construction
 public:
 	//
@@ -46931,6 +46984,8 @@ public:
 		sqbcRsrvIndoorSvcPrereq  = 104, // @v11.4.4 Параметры обслуживания внутри помещения сервиса (horeca, shop, etc)
 			// Данные строятся на основании параметров, определяемых кассовым узлом.
 		sqbcGoodsInfo            = 105, // @v11.4.4 Параметры, определяющие вывод информации об одном товаре 
+		sqbcLocalBarcodeSearch   = 106, // @v11.4.5 Поиск в пределах сервиса (преимущественно) по штрихкоду. 
+			// Если сервис предоставяет такую функцию, то она отображается в виде иконки на экране мобильного устройства, а не в общем списке.
 	};
 	//
 	// Descr: Идентификаторы типов документов обмена
@@ -46996,7 +47051,7 @@ public:
 	int    Validate(const Item * pSelectedItem) const;
 	int    Store(const char * pFileName) const;
 	int    Load(const char * pDbSymb, const char * pFileName);
-	StyloQCommandList * CreateSubListByContext(PPObjID oid) const;
+	StyloQCommandList * CreateSubListByContext(PPObjID oid, int baseCmdId, bool skipInternalCommands) const;
 	StyloQCommandList * CreateSubListByDbSymb(const char * pDbSymb, int baseCmdId) const;
 	//
 	// Descr: Формирует json-объект по списку команд для передачи клиенту.
@@ -47035,6 +47090,21 @@ public:
 	static int Test();
 
 	SSecretTagPool P;
+};
+
+//
+// Descr: Информация о BLOB'е используемая в проекте Stylo-Q
+//
+struct StyloQBlobInfo {
+	StyloQBlobInfo();
+	StyloQBlobInfo & Z();
+	PPObjID Oid;        // Идентификатор объекта данных, которому соответствует BLOB
+	uint   BlobN;       // [1..] Номер BLOB'а в "обойме" объекта Oid
+	SFileFormat Ff;     // Идентификатор формата данных  
+	int    HashAlg;     // Хэш-алгоритм, используемый для расчета хэша BLOB'а
+	SBinaryChunk Hash;  // Хэш BLOB'а
+	SString SrcPath;    // Путь файла, в котором находится оригинальная версия BLOB'а
+	SString Signature;  // Сигнатура, используемая для идентификации BLOB'а сервисами и клиентами Stylo-Q
 };
 
 class PPStyloQInterchange {
@@ -47138,20 +47208,6 @@ public:
 		TSCollection <TransferItem> TiList;
 		TSCollection <BookingItem> BkList; // @v11.3.6
 		TSVector <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
-	};
-	//
-	// Descr: Информация о BLOB'е
-	//
-	struct BlobInfo {
-		BlobInfo();
-		BlobInfo & Z();
-		PPObjID Oid;        // Идентификатор объекта данных, которому соответствует BLOB
-		uint   BlobN;       // [1..] Номер BLOB'а в "обойме" объекта Oid
-		SFileFormat Ff;     // Идентификатор формата данных  
-		int    HashAlg;     // Хэш-алгоритм, используемый для расчета хэша BLOB'а
-		SBinaryChunk Hash;  // Хэш BLOB'а
-		SString SrcPath;    // Путь файла, в котором находится оригинальная версия BLOB'а
-		SString Signature;  // Сигнатура, используемая для идентификации BLOB'а сервисами и клиентами Stylo-Q
 	};
 
 	PPStyloQInterchange();
@@ -47303,11 +47359,19 @@ public:
 	SlSRP::Verifier * InitSrpVerifier(const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, const SBinaryChunk & rSrpV, const SBinaryChunk & rA, SBinaryChunk & rResultB) const;
 	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,
 		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
-	int    MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, const StyloQCommandList::Item * pCmd, long expirationSec, PPObjIDArray & rOidList, SString & rResult);
-	bool   GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, BlobInfo & rInfo, SBinaryChunk * pBlobBuf) const;
+	int    MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, const StyloQCommandList::Item * pCmd, long expirationSec, PPObjIDArray & rOidList, S_GUID & rDocUuid, SString & rResult);
+	//
+	// Descr: Флаги функции GetBlobInfo
+	//
+	enum {
+		gbifSignatureOnly = 0x0001 // Вызывающей функции нужна только сигнатура blob'а (не надо считать хэш и всякие иные сложные вещи)
+	};
+	bool   GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, uint flags, StyloQBlobInfo & rInfo, SBinaryChunk * pBlobBuf) const;
+	bool   FetchBlobSignature(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, SString & rSignature);
 	static void  SetupMqbReplyProps(const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps);
 	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
 	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
+	static int   Edit_GoodsInfoParam(StyloQGoodsInfoParam & rParam);
 	static int   ExecuteIndexingRequest();
 	static int   GetBlobStoragePath(SString & rBuf);
 	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, PPObjID oid, uint itemNumber, SString & rBuf);
@@ -47319,7 +47383,7 @@ public:
 	
 	static const uint InnerBlobN_Face;
 private:
-	struct Stq_ReqBlobInfoEntry : public BlobInfo {
+	struct Stq_ReqBlobInfoEntry : public StyloQBlobInfo {
 		Stq_ReqBlobInfoEntry();
 		Stq_ReqBlobInfoEntry & Z();
 		//PPObjID Oid;         // При подготовке списка blob'ов к отправке это поле содержит ИД объекта, которому принадлежит blob
@@ -47351,13 +47415,28 @@ private:
 	};
 	struct InnerGoodsEntry { // @flat
 		explicit InnerGoodsEntry(PPID goodsID);
+
+		enum { // Copy of RetailGoodsInfo
+			fDisabledQuot    = 0x0001, // Котировка QuotKindUsedForPrice является блокирующей - продажа товара запрещена.
+			fDisabledExtQuot = 0x0002, // Котировка
+			//
+			fNoDiscount      = 0x0004  // OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
+		};
 		PPID   GoodsID;
+		long   Flags;
+		LDATE  Expiry;               // Copy of RetailGoodsInfo
+		LDATETIME ManufDtm;
+		PPID   QuotKindUsedForPrice; // Вид котировки, использованной для получения цены Price.
+			// Данное поле гарантированно имеет смысл только после вызова PPObjGoods::GetRetailGoodsInfo
+		PPID   QuotKindUsedForExtPrice; // Вид котировки из блока RetailPriceExtractor::ExtQuotBlock, примененный для формиования ExtPrice.
 		double Rest;
 		double Cost;
-		double Price;
+		double Price;         // Цена реализации
+		double ExtPrice;      // Цена по дополнительной котировке
 		double UnitPerPack;
 		double OrderQtyMult;
 		double OrderMinQty;
+		double Brutto;        // @v11.4.5
 	};	
 	int    AddImgBlobToReqBlobInfoList(const SBinaryChunk & rOwnIdent, PPObjID oid, Stq_ReqBlobInfoList & rList);
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
@@ -47368,10 +47447,12 @@ private:
 		mojfForIndexing = 0x0001 // Формировать объект исходя из того, что результат предназначен для индексации
 	};
 	SJson * MakeObjJson_OwnFace(const StyloQCore::StoragePacket & rOwnPack, uint flags);
-	SJson * MakeObjJson_Goods(const SBinaryChunk & rOwnIdent, const PPGoodsPacket & rPack, const InnerGoodsEntry * pInnerEntry, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
+	SJson * MakeObjJson_Goods(const SBinaryChunk & rOwnIdent, const PPGoodsPacket & rPack, const InnerGoodsEntry * pInnerEntry, uint flags, 
+		const StyloQGoodsInfoParam * pGi, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjJson_GoodsGroup(const SBinaryChunk & rOwnIdent, const Goods2Tbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjJson_Brand(const SBinaryChunk & rOwnIdent, const PPBrandPacket & rPack, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjJson_Prc(const SBinaryChunk & rOwnIdent, const ProcessorTbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
+	int    MakeDocDeclareJs(const StyloQCommandList::Item & rCmdItem, const char * pDl600Symb, SString & rDocDeclaration);
 	int    ProcessCommand_PersonEvent(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos);
 	int    ProcessCommand_Report(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
@@ -47404,6 +47485,7 @@ private:
 	SJson * ProcessCommand_GetBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SBinaryChunk & rBlob);
 	SJson * ProcessCommand_ReqBlobInfoList(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument);
 	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult, SString & rDocDeclaration);
+	SJson * ProcessCommand_GetGoodsInfo(const SBinaryChunk & rOwnIdent, const StyloQCore::StoragePacket & rCliPack, const StyloQCommandList::Item * pGiCmd, PPID goodsID, const char * pGoodsCode);
 	bool   AmIMediator(const char * pCommand);
 	SJson * MakeQuery_StoreBlob(const void * pBlobBuf, size_t blobSize, const SString & rSignature);
 	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID, bool logResult);
@@ -47418,6 +47500,9 @@ private:
 	int    MakeRsrvPriceListResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPStyloPalmPacket * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPSyncCashNode * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    GetAndStoreClientsFace(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent);
+	int    IntermediateReply(int waitPeriodMs, int pollIntervalMs, const SBinaryChunk * pSessSecret, ProcessCmdCallbackProc intermediateReplyProc, void * pIntermediateReplyExtra);
+	SJson * ReplyGoodsInfo(const SBinaryChunk & rOwnIdent, const SBinaryChunk & rCliIdent, PPID goodsID, const char * pBarcode);
+	bool   GetOwnIdent(SBinaryChunk & rOwnIdent, StyloQCore::StoragePacket * pOwnPack);
 	//
 	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
 	// ARG(flag IN): Уточняет о какой локальности идет речь. Если flag == smqbpfLocalMachine то дополнение
@@ -47495,6 +47580,8 @@ struct StyloQBinderyViewItem { // @flat
 	long   ID;
 	long   Kind;
 	long   CorrespondID;
+	long   DocType; // @v11.4.5
+	long   Flags;   // @v11.4.5
 	uchar  BI[20];
 	LDATETIME Expiration;
 	PPObjID LinkOid;
@@ -54572,41 +54659,41 @@ public:
 	// Descr: Состояния панели
 	//
 	enum {
-		sUNDEF = 0,              // Неопределенное (такое состояние недопустимо)
+		sUNDEF              = 0, // Неопределенное (такое состояние недопустимо)
 		sEMPTYLIST_EMPTYBUF = 1, // Пустой список строк, пустой буфер ввода
 		sEMPTYLIST_BUF      = 2, // Пустой список строк, в буфере ввода есть товар
 		sLIST_EMPTYBUF      = 3, // Непустой список строк, пустой буфер ввода
-		sLIST_BUF   = 4, // Непустой список строк, в буфере ввода есть товар
+		sLIST_BUF           = 4, // Непустой список строк, в буфере ввода есть товар
 		sLISTSEL_EMPTYBUF   = 5, // Режим выбора строк из чека продажи, пустой буфер ввода
 		sLISTSEL_BUF        = 6, // Режим выбора строк из чека продажи, в буфере ввода есть товар
-		sSCARD      = 7, // Режим ввода номера дисконтной карты
-		sWAITER     = 8, // Режим ввода кода официанта
-		sTABLE      = 9  // Режим ввода кода стола
+		sSCARD              = 7, // Режим ввода номера дисконтной карты
+		sWAITER             = 8, // Режим ввода кода официанта
+		sTABLE              = 9  // Режим ввода кода стола
 	};
 	//
 	// Descr: Операционные права кассира
 	//
 	enum OperRights {
-		orfReturns         = 0x00000001, // Чек возврата
-		orfEscCheck        = 0x00000002, // Удаление чека
-		orfEscChkLine      = 0x00000004, // Удаление строки из чека
-		orfBanking         = 0x00000008, // Безналичный расчет
-		orfZReport         = 0x00000010, // Закрытие сессии (Z-отчет)
-		orfPreCheck        = 0x00000020, // Печать пре-чека
-		orfSuspCheck       = 0x00000040, // Отложить чек
-		orfCopyCheck       = 0x00000080, // Печать копии чека
-		orfCopyZReport     = 0x00000100, // Печать копии Z-отчета
-		orfPrintCheck      = 0x00000200, // Печать чека
-		orfRowDiscount     = 0x00000400, // Скидка на строку чека
-		orfXReport         = 0x00000800, // Снятие X-отчета
-		orfCTblOrd         = 0x00001000, // Снятие X-отчета
-		orfSplitCheck      = 0x00002000, // Разделение чека
-		orfChgPrintedCheck = 0x00004000, // Изменение чека, по которому отпечатан счет
+		orfReturns                 = 0x00000001, // Чек возврата
+		orfEscCheck        		   = 0x00000002, // Удаление чека
+		orfEscChkLine      		   = 0x00000004, // Удаление строки из чека
+		orfBanking         		   = 0x00000008, // Безналичный расчет
+		orfZReport         		   = 0x00000010, // Закрытие сессии (Z-отчет)
+		orfPreCheck        		   = 0x00000020, // Печать пре-чека
+		orfSuspCheck       		   = 0x00000040, // Отложить чек
+		orfCopyCheck       		   = 0x00000080, // Печать копии чека
+		orfCopyZReport     		   = 0x00000100, // Печать копии Z-отчета
+		orfPrintCheck      		   = 0x00000200, // Печать чека
+		orfRowDiscount     		   = 0x00000400, // Скидка на строку чека
+		orfXReport         		   = 0x00000800, // Снятие X-отчета
+		orfCTblOrd         		   = 0x00001000, // Снятие X-отчета
+		orfSplitCheck      		   = 0x00002000, // Разделение чека
+		orfChgPrintedCheck 		   = 0x00004000, // Изменение чека, по которому отпечатан счет
 		orfRestoreSuspWithoutAgent = 0x00008000, // CSESSOPRT_RESTORESUSPWOA
-		orfChgAgentInCheck = 0x00010000, // CSESSOPRT_CHGCCAGENT
-		orfMergeChecks     = 0x00020000, // CSESSOPRT_MERGECHK
+		orfChgAgentInCheck         = 0x00010000, // CSESSOPRT_CHGCCAGENT
+		orfMergeChecks             = 0x00020000, // CSESSOPRT_MERGECHK
 		orfEscChkLineBeforeOrder   = 0x00040000, // CSESSOPRT_ESCCLINEBORD
-		orfReprnUnfCc      = 0x00080000, // @v10.6.11 CSESSOPRT_REPRNUNFCC
+		orfReprnUnfCc              = 0x00080000, // @v10.6.11 CSESSOPRT_REPRNUNFCC
 		orfArbitraryDiscount       = 0x00100000  // @v11.0.9 CSESSOPRT_ARBITRARYDISC
 	};
 	struct ExtCcData {
@@ -54630,7 +54717,14 @@ public:
 		LocationTbl::Rec Addr_;
 		SString Memo;
 	};
-	CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, int isTouchScreen);
+	//
+	// Descr: Флаги конструктора CPosProcessor
+	//
+	enum { // @v11.4.5
+		ctrfTouchScreen        = 0x0001, // Использовать сенсорный монитор. Применяется в комбинации со ссылкой на запись такого монитора в кассовом узле.
+		ctrfForceInitGroupList = 0x0002  // Форсировать инициализацию списка товарных групп, ассоциированных с сенсорным монитором (независимо от ctrfTouchScreen)
+	};
+	CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint flags/*isTouchScreen*/, void * pDummy);
 	virtual ~CPosProcessor(); // @v10.3.2 @fix non-virtual-->virtual
 	enum {
 		eomMsgWindow = 1,
@@ -54770,6 +54864,7 @@ public:
 	//
 	int    Backend_Release();
 	int    Backend_GetCCheckList(long ctblId, TSVector <CCheckViewItem> & rList);
+	int    Backend_GetGoodsList(PPIDArray & rList); // @v11.4.5
 	int    ExportCurrentState(SString & rBuf) const;
 	int    ExportCTblList(SString & rBuf);
 	int    ExportCCheckList(long ctblId, SString & rBuf);
@@ -54817,6 +54912,8 @@ protected:
 	virtual void   SetPrintedFlag(int set);
 	int    InitCashMachine();
 	int    InitCcView();
+	int    InitGroupList(const PPTouchScreenPacket & rTsPack);
+	int    MakeGroupEntryList(StrAssocArray * pTreeList, PPID parentID, uint level); // @recursion
 	int    FASTCALL F(long f) const;
 	void   SetupExt(const CCheckPacket * pPack);
 	int    FASTCALL BelongToExtCashNode(PPID goodsID) const;
@@ -54881,6 +54978,28 @@ protected:
 	void   MsgToDisp_Clear(); // @v10.2.3
 	int    MsgToDisp_Add(const char * pMsg); // @v10.2.3
 	virtual int MsgToDisp_Show(); // @v10.2.3
+	
+	struct GrpListItem { // @flat
+		GrpListItem();
+		enum {
+			fFolder = 0x0001,
+			fOpened = 0x0002,
+			fFirst  = 0x0004,
+			fLast   = 0x0008
+		};
+		PPID   ID;
+		PPID   ParentID;
+		uint16 Flags;
+		uint16 Level; // Номер уровня группы (0..)
+	};
+	class GroupArray : public TSVector <GrpListItem> {
+	public:
+		GroupArray();
+		GrpListItem * Get(PPID id, uint * pPos) const;
+
+		PPID   TopID;  // Товарная группа, являющаяся родительской для тех групп, которые в текущий момент отображаются в списке выбора группы.
+	};
+	GroupArray GroupList;
 
 	struct CardState {
 		enum {
@@ -55116,7 +55235,7 @@ public:
 	friend int CCheckPane(PPID, PPID, const char *, long);
 	static int SetLbxItemHight(TDialog *, void * extraPtr); // DialogPreProcFunc
 
-	CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * = 0, int isTouchScreen = 0);
+	CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterCcPack, uint ctrFlags/*int isTouchScreen = 0*/);
 	~CheckPaneDialog();
 	virtual int    AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode);
 	virtual void   ClearCheck();
@@ -55194,8 +55313,6 @@ private:
 	int    Sleep();
 	void   DrawListItem(TDrawItemData *);
 	int    TestCheck(CheckPaymMethod paymMethod);
-	int    InitGroupList(const PPTouchScreenPacket & rTsPack);
-	int    MakeGroupEntryList(StrAssocArray * pTreeList, PPID parentID, uint level); // @recursion
 	int    SelectGroup(PPID * pGrpID);
 	int    GetLastCheckPacket(PPID nodeID, PPID sessID, CCheckPacket * pPack);
 	int    GenerateChecks();
@@ -55227,28 +55344,6 @@ private:
 	PPBillImporter * P_UhttImporter;
 	SCycleTimer PhnSvcTimer;
 	SCycleTimer UhttImportTimer;
-
-	struct GrpListItem { // @flat
-		GrpListItem();
-		enum {
-			fFolder = 0x0001,
-			fOpened = 0x0002,
-			fFirst  = 0x0004,
-			fLast   = 0x0008
-		};
-		PPID   ID;
-		PPID   ParentID;
-		uint16 Flags;
-		uint16 Level; // Номер уровня группы (0..)
-	};
-	class GroupArray : public TSVector <GrpListItem> {
-	public:
-		GroupArray();
-		GrpListItem * Get(PPID id, uint * pPos) const;
-
-		PPID   TopID;  // Товарная группа, являющаяся родительской для тех групп, которые в текущий момент отображаются в списке выбора группы.
-	};
-	GroupArray GroupList;
 	PPID   ActiveListID;   //
 	//
 	// Параметры перерисовки списка товаров
@@ -57485,7 +57580,7 @@ struct ResolveGoodsItem {
 	PPID   ArID;              // Статья, с которой связан код ArCode
 	double VatRate;           // @v10.5.0 Ставка НДС (в процентах)
 	char   GoodsName[128];
-	char   Barcode[24];
+	char   Barcode[252];      // @v11.4.5 (24)-->(252) Увеличили поле для акцепта списка кодов
 	char   ArCode[24];        // Код, ассоциированный со статьей ArID
 	char   ManufName[128];    // @v10.4.12 Наименование производителя
 	char   GroupName[128];    // @v10.5.0 Наименование товарной группы

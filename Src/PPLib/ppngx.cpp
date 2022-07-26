@@ -456,7 +456,7 @@ private:
 	{
 		#define INTERNAL_ERR_INVALID_WAITING_MODE 0
 		//
-		const int outer_signature_timeout_sec = 120; // секунды // для отладки побольше, в нормальной ситуации должно быть секунд 15
+		const int outer_signature_timeout_sec = 20; // секунды // для отладки побольше, в нормальной ситуации должно быть секунд 15 // @v11.4.5 120-->20
 		SString s;
 		SString fmt_buf;
 		SString log_buf;

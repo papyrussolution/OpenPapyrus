@@ -158,7 +158,7 @@ public class SRP {
 			baos.write(SLib.BigNumberToBytesWithoutLZ(n2));
 			result = new BigInteger(+1, SRP.Hash(alg, baos.toByteArray()));
 		} catch(IOException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 		}
 		return result;
 		/*
@@ -209,7 +209,7 @@ public class SRP {
 			baos.write(K);
 			result = SRP.Hash(alg, baos.toByteArray());
 		} catch(IOException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 		}
 		return result;
 		/*
@@ -245,7 +245,7 @@ public class SRP {
 			baos.write(K);
 			result = SRP.Hash(alg, baos.toByteArray());
 		} catch(IOException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 		}
 		return result;
 		/*
@@ -473,7 +473,7 @@ public class SRP {
 			digest.update(d);
 			result = digest.digest();
 		} catch(NoSuchAlgorithmException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
 		}
 		return result;
 	}
@@ -489,7 +489,7 @@ public class SRP {
 			//BigInteger result = new BigInteger(bin);
 			result = new BigInteger(+1, _hash);
 		} catch(IOException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 		}
 		return result;
 		/*
@@ -537,7 +537,7 @@ public class SRP {
 			byte[] ucp_hash = digest.digest();
 			result = H_ns(alg, salt, ucp_hash);
 		} catch(NoSuchAlgorithmException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
 		}
 		return result;
 	}

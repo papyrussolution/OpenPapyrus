@@ -130,7 +130,7 @@ char * get_str_from_dbfrec(DbfRecord * pRec, int fldN, int shrink, char * pDestB
 {
 	char temp_buf[256];
 	temp_buf[0] = 0;
-	pRec->get(fldN, temp_buf);
+	pRec->get(fldN, temp_buf, sizeof(temp_buf));
 	return convert_str(temp_buf, shrink, pDestBuf, destBufLen);
 }
 

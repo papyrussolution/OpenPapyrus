@@ -399,7 +399,7 @@ public class StyloQApp extends SLib.App {
 		byte [] SvcIdent;
 		String Url;
 	}
-	public final ArrayList <IgnitionServerEntry> GetIgnitionServerList()
+	public final ArrayList <IgnitionServerEntry> GetIgnitionServerList() throws StyloQException
 	{
 		if(ISL == null) {
 			ISL = new ArrayList<IgnitionServerEntry>();
@@ -421,7 +421,7 @@ public class StyloQApp extends SLib.App {
 					}
 				}
 			} catch(IOException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 			}
 		}
 		return ISL;
@@ -430,8 +430,8 @@ public class StyloQApp extends SLib.App {
 	{
 		ArrayList <IgnitionServerEntry> result = null;
 		ArrayList <Long> mediator_id_list = null;
-		result = GetIgnitionServerList();
 		try {
+			result = GetIgnitionServerList();
 			StyloQDatabase db = GetDB();
 			if(db != null) {
 				mediator_id_list = db.GetMediatorIdList();
@@ -638,6 +638,9 @@ public class StyloQApp extends SLib.App {
 			if(cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvOrderPrereq) {
 				doc_type = StyloQDatabase.SecStoragePacket.doctypOrderPrereq;
 			}
+			else if(cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvIndoorSvcPrereq) { // @v11.4.5
+				doc_type = StyloQDatabase.SecStoragePacket.doctypIndoorSvcPrereq;
+			}
 			else if(cmdItem.BaseCmdId == StyloQCommand.sqbcReport) {
 				doc_type = StyloQDatabase.SecStoragePacket.doctypReport;
 			}
@@ -682,7 +685,7 @@ public class StyloQApp extends SLib.App {
 	//   true - функция завершилась успешно
 	//   false - ошибка
 	//
-	public boolean RunSvcCommand(byte [] svcIdent, StyloQCommand.Item cmdItem, JSONObject jsReq, boolean forceSvcQuery, SLib.SlActivity retrActivity)
+	public boolean RunSvcCommand(byte [] svcIdent, StyloQCommand.Item cmdItem, JSONObject jsReq, boolean forceSvcQuery, SLib.SlActivity retrActivity) throws StyloQException
 	{
 		boolean ok = false;
 		if(Db != null && cmdItem != null && cmdItem.Uuid != null && SLib.GetLen(svcIdent) > 0) {
@@ -734,7 +737,7 @@ public class StyloQApp extends SLib.App {
 				}
 			} catch(JSONException exn) {
 				ok = false;
-				new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
 			} catch(StyloQException e) {
 				ok = false;
 			}
@@ -797,7 +800,7 @@ public class StyloQApp extends SLib.App {
 					}
 				} catch(URISyntaxException exn) {
 					ok = false;
-					new StyloQException(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
+					throw new StyloQException(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
 				}
 			}
 		}
@@ -807,7 +810,8 @@ public class StyloQApp extends SLib.App {
 		UNDEF,
 		SUCCESS,
 		ERROR,
-		EXCEPTION
+		EXCEPTION,
+		LOCALREJECTION // Обращения к сервису не было из-за каких-то внутренних причин
 	}
 	public MainActivity FindMainActivity()
 	{
@@ -914,6 +918,8 @@ public class StyloQApp extends SLib.App {
 											intent_cls = CmdRGridActivity.class;
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("orderprereq"))
 											intent_cls = CmdROrderPrereqActivity.class;
+										else if(doc_decl.DisplayMethod.equalsIgnoreCase("indoorsvcprereq")) // @v11.4.5
+											intent_cls = CmdROrderPrereqActivity.class;
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("attendanceprereq"))
 											intent_cls = CmdRAttendancePrereqActivity.class;
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("search")) {
@@ -941,6 +947,8 @@ public class StyloQApp extends SLib.App {
 							if(doc_decl.DisplayMethod.equalsIgnoreCase("grid"))
 								intent_cls = CmdRGridActivity.class;
 							else if(doc_decl.DisplayMethod.equalsIgnoreCase("orderprereq"))
+								intent_cls = CmdROrderPrereqActivity.class;
+							else if(doc_decl.DisplayMethod.equalsIgnoreCase("indoorsvcprereq")) // @v11.4.5
 								intent_cls = CmdROrderPrereqActivity.class;
 							else if(doc_decl.DisplayMethod.equalsIgnoreCase("attendanceprereq"))
 								intent_cls = CmdRAttendancePrereqActivity.class;

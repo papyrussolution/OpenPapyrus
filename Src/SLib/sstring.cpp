@@ -2459,7 +2459,7 @@ SString & FASTCALL SString::CatCharN(int chr, size_t n)
 {
 	if(n) {
 		const size_t new_len = (L ? L : 1) + n;
-		if(new_len <= Size || Alloc(new_len)) { // @v8.1.11 (new_len <= Size ||)
+		if(new_len <= Size || Alloc(new_len)) {
 			memset(P_Buf+Len(), chr, n);
 			P_Buf[new_len-1] = 0;
 			L = new_len;

@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.TimerTask;
 
 public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	public  CommonPrereqModule CPM;
@@ -41,7 +42,22 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	private ArrayList <JSONObject> BrandListData;
 	private ViewDescriptionList VdlDocs; // Описание таблицы просмотра существующих заказов
 	private ArrayList <Document.EditAction> DocEditActionList;
-
+	private void RefreshCurrentDocStatus()
+	{
+		if(CPM.TabList != null) {
+			ViewPager2 view_pager = (ViewPager2) findViewById(R.id.VIEWPAGER_ORDERPREREQ);
+			if(view_pager != null) {
+				int tidx = view_pager.getCurrentItem();
+				CommonPrereqModule.TabEntry tab_entry = CPM.TabList.get(tidx);
+				if(tab_entry != null && tab_entry.TabId == CommonPrereqModule.Tab.tabCurrentOrder) {
+					HandleEvent(SLib.EV_SETVIEWDATA, tab_entry.TabView.getView(), null);
+				}
+			}
+		}
+	}
+	private class RefreshTimerTask extends TimerTask {
+		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { RefreshCurrentDocStatus(); }}); }
+	}
 	public CmdROrderPrereqActivity()
 	{
 		CPM = new CommonPrereqModule(this);
@@ -59,8 +75,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					int id = js_item.optInt("id", 0);
 					if(id > 0) {
 						String nm = js_item.optString("nm");
-						if(SLib.GetLen(nm) > 0)
-							CPM.AddSimpleIndexEntry(SLib.PPOBJ_BRAND, id, SLib.PPOBJATTR_NAME, nm, null);
+						CPM.AddSimpleIndexEntry(SLib.PPOBJ_BRAND, id, SLib.PPOBJATTR_NAME, nm, null);
 					}
 				}
 			}
@@ -72,17 +87,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					int id = ce.JsItem.optInt("id", 0);
 					if(id > 0) {
 						String nm = ce.JsItem.optString("nm", null);
-						if(SLib.GetLen(nm) > 0) {
-							CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_NAME, nm, nm);
-						}
+						CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_NAME, nm, nm);
 						String ruinn = ce.JsItem.optString("ruinn");
-						if(SLib.GetLen(ruinn) > 0) {
-							CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RUINN, ruinn, nm);
-						}
+						CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RUINN, ruinn, nm);
 						String rukpp = ce.JsItem.optString("rukpp");
-						if(SLib.GetLen(rukpp) > 0) {
-							CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RUKPP, rukpp, nm);
-						}
+						CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RUKPP, rukpp, nm);
 						JSONArray dlvr_loc_list = ce.JsItem.optJSONArray("dlvrloc_list");
 						if(dlvr_loc_list != null) {
 							for(int j = 0; j < dlvr_loc_list.length(); j++) {
@@ -91,8 +100,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									final int loc_id = js_item.optInt("id", 0);
 									if(loc_id > 0) {
 										String addr = js_item.optString("addr");
-										if(SLib.GetLen(addr) > 0)
-											CPM.AddSimpleIndexEntry(SLib.PPOBJ_LOCATION, loc_id, SLib.PPOBJATTR_RAWADDR, addr, nm);
+										CPM.AddSimpleIndexEntry(SLib.PPOBJ_LOCATION, loc_id, SLib.PPOBJATTR_RAWADDR, addr, nm);
 									}
 								}
 							}
@@ -590,9 +598,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				vg = (ViewGroup)entry;
 			if(vg != null) {
 				int vg_id = vg.getId();
-				if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR) {
+				if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR)
 					CPM.UpdateMemoInCurrentDocument(SLib.GetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO));
-				}
 			}
 		}
 	}
@@ -706,7 +713,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							requestWindowFeature(Window.FEATURE_NO_TITLE);
 							setContentView(R.layout.activity_cmdrorderprereq);
 							CPM.SetupActivity(db, R.id.VIEWPAGER_ORDERPREREQ, R.id.TABLAYOUT_ORDERPREREQ);
-							ViewPager2 view_pager = (ViewPager2) findViewById(R.id.VIEWPAGER_ORDERPREREQ);
+							ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ORDERPREREQ);
 							SetupViewPagerWithFragmentAdapter(R.id.VIEWPAGER_ORDERPREREQ);
 							{
 								TabLayout lo_tab = findViewById(R.id.TABLAYOUT_ORDERPREREQ);
@@ -866,15 +873,15 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									});
 								}
 							}
-							else if(back_cli_img_view != null) {
-								back_cli_img_view.setVisibility(ViewGroup.GONE);
-							}
+							else
+								SLib.SetCtrlVisibility(back_cli_img_view, View.GONE);
 						}
 						{
 							View v = findViewById(R.id.CTL_DOCUMENT_STATUSICON);
 							if(v != null && v instanceof ImageView)
 								((ImageView)v).setImageResource(status_image_rc_id);
 						}
+						CPM.DrawCurrentDocumentRemoteOpIndicators();
 					}
 				}
 				break;
@@ -904,14 +911,12 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												ArrayList <JSONObject> dlvr_loc_list = cur_entry.GetDlvrLocListAsArray();
 												if(cur_entry.AddrExpandStatus == 0 || dlvr_loc_list == null) {
 													ctl.setVisibility(View.INVISIBLE);
-													if(dlvrloc_lv != null)
-														dlvrloc_lv.setVisibility(View.GONE);
+													SLib.SetCtrlVisibility(dlvrloc_lv, View.GONE);
 												}
 												else if(cur_entry.AddrExpandStatus == 1) {
 													ctl.setVisibility(View.VISIBLE);
 													ctl.setImageResource(R.drawable.ic_triangleleft03);
-													if(dlvrloc_lv != null)
-														dlvrloc_lv.setVisibility(View.GONE);
+													SLib.SetCtrlVisibility(dlvrloc_lv, View.GONE);
 												}
 												else if(cur_entry.AddrExpandStatus == 2) {
 													ctl.setVisibility(View.VISIBLE);
@@ -959,18 +964,13 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										final int cur_id = cur_entry.JsItem.optInt("id", 0);
 										View iv = ev_subj.RvHolder.itemView;
 										SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
-										{
-											double val = cur_entry.JsItem.optDouble("price", 0.0);
-											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
-										}
-										{
-											double val = cur_entry.JsItem.optDouble("stock", 0.0);
-											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? SLib.formatdouble(val, 0) : "");
-										}
-										{
-											double val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
-											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, (val > 0.0) ? String.format("%.0f", val) : null);
-										}
+										double val = 0.0;
+										val = cur_entry.JsItem.optDouble("price", 0.0);
+										SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
+										val = cur_entry.JsItem.optDouble("stock", 0.0);
+										SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? SLib.formatdouble(val, 0) : "");
+										val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
+										SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, (val > 0.0) ? String.format("%.0f", val) : null);
 										String blob_signature = cur_entry.JsItem.optString("imgblobs", null);
 										SLib.SetupImage(this, iv.findViewById(R.id.ORDERPREREQ_GOODS_IMG), blob_signature);
 										SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODS, cur_id);
@@ -1510,7 +1510,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			case SLib.EV_COMMAND:
 				{
 					Document.EditAction acn = null;
-					int view_id = View.class.isInstance(srcObj) ? ((View) srcObj).getId() : 0;
+					final int view_id = View.class.isInstance(srcObj) ? ((View) srcObj).getId() : 0;
 					if(view_id == R.id.tbButtonSearch) {
 						GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
 					}
@@ -1570,6 +1570,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
 									if(te != null)
 										GetFragmentData(te.TabView);
+									ScheduleRTmr(new RefreshTimerTask(), 1000, 750);
 									CPM.CommitCurrentDocument();
 								}
 								break;
@@ -1587,6 +1588,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
 									if(te != null)
 										GetFragmentData(te.TabView);
+									ScheduleRTmr(new RefreshTimerTask(), 1000, 750);
 									CPM.CancelCurrentDocument();
 								}
 								break;
@@ -1637,7 +1639,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					StyloQApp app_ctx = GetAppCtx();
 					if(ir.OriginalCmdItem != null) {
 						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
-							CPM.Locker_CommitCurrentDocument = false;
+							CPM.CurrentDocument_RemoteOp_Finish();
+							ScheduleRTmr(null, 0, 0);
 							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();
@@ -1653,19 +1656,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								String err_msg = app_ctx.GetString(ppstr2.PPSTR_ERROR, ppstr2.PPERR_STQ_POSTDOCUMENTFAULT);
 								String reply_err_msg = null;
 								if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
-									SecretTagPool rpool = (SecretTagPool)ir.InfoReply;
-									byte [] raw_reply_bytes = rpool.Get(SecretTagPool.tagRawData);
-									if(SLib.GetLen(raw_reply_bytes) > 0) {
-										String reply_js_text = new String(raw_reply_bytes);
-										if(SLib.GetLen(reply_js_text) > 0) {
-											try {
-												JSONObject sv_reply_js = new JSONObject(reply_js_text);
-												if(sv_reply_js != null)
-													reply_err_msg = sv_reply_js.optString("errmsg", null);
-											} catch(JSONException exn) {
-												;
-											}
-										}
+									JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+									if(js_reply != null) {
+										StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(js_reply);
+										reply_err_msg = crr.ErrMsg;
 									}
 								}
 								if(SLib.GetLen(reply_err_msg) > 0)
@@ -1674,7 +1668,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							}
 						}
 						else if(ir.OriginalCmdItem.Name.equalsIgnoreCase("CancelDocument")) {
-							CPM.Locker_CommitCurrentDocument = false;
+							CPM.CurrentDocument_RemoteOp_Finish();
+							ScheduleRTmr(null, 0, 0);
 							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();

@@ -2631,19 +2631,23 @@ int PPObjOprKind::Edit(PPID * pID, void * extraPtr /*opTypeID*/)
 // non-virtual
 int PPObjOprKind::Edit(PPID * pID, long opTypeID, PPID linkOpID)
 {
-	int    ok = 1, done = 0, is_new = 0;
+	int    ok = 1;
+	int    done = 0;
+	int    is_new = 0;
 	int    r = cmCancel;
 	PPOprKindPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {
 		THROW(GetPacket(*pID, &pack) > 0);
 	}
-	else if(opTypeID > 0 || PPSelectObject(PPOBJ_OPRTYPE, &(opTypeID = 0), PPTXT_SELECTOPRTYPE, 0) > 0) {
-		pack.Rec.OpTypeID = opTypeID;
-		pack.Rec.LinkOpID = linkOpID;
+	else {
+		if(opTypeID > 0 || PPSelectObject(PPOBJ_OPRTYPE, &(opTypeID = 0), PPTXT_SELECTOPRTYPE, 0) > 0) {
+			pack.Rec.OpTypeID = opTypeID;
+			pack.Rec.LinkOpID = linkOpID;
+		}
+		else
+			done = 1;
 	}
-	else
-		done = 1;
 	if(!done) {
 		for(int valid_data = 0; !valid_data && EditPacket(&pack) > 0;) {
 			THROW(PutPacket(pID, &pack, 1));

@@ -287,7 +287,7 @@ void FASTCALL xmlBufFree(xmlBuf * pBuf)
 #endif
 		return;
 	}
-	if(pBuf->alloc == XML_BUFFER_ALLOC_IO && pBuf->contentIO != NULL) {
+	if(pBuf->alloc == XML_BUFFER_ALLOC_IO && pBuf->contentIO) {
 		SAlloc::F(pBuf->contentIO);
 	}
 	else if(pBuf->content && (pBuf->alloc != XML_BUFFER_ALLOC_IMMUTABLE)) {
@@ -1114,7 +1114,7 @@ int FASTCALL xmlBufMergeBuffer(xmlBuf * buf, xmlBuffer * buffer)
 		return -1;
 	}
 	CHECK_COMPAT(buf)
-	if((buffer != NULL) && (buffer->content != NULL) && (buffer->use > 0)) {
+	if(buffer && buffer->content && (buffer->use > 0)) {
 		ret = xmlBufAdd(buf, buffer->content, buffer->use);
 	}
 	xmlBufferFree(buffer);

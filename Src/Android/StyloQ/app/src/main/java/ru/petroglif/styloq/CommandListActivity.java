@@ -13,11 +13,15 @@ import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.zxing.client.android.Intents;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Timer;
+import java.util.Base64;
 import java.util.TimerTask;
 
 public class CommandListActivity extends SLib.SlActivity {
@@ -28,9 +32,6 @@ public class CommandListActivity extends SLib.SlActivity {
 	private class RefreshTimerTask extends TimerTask {
 		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { RefreshStatus(); }}); }
 	}
-	private Timer RTmr;
-	//private RefreshTimerTask RTmrTask;
-
 	static class PersonEvent {
 		PersonEvent()
 		{
@@ -155,7 +156,8 @@ public class CommandListActivity extends SLib.SlActivity {
 						}
 					}
 					if(result.S == StyloQCommand.prestatusUnkn) {
-						if(cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvOrderPrereq || cmdItem.BaseCmdId == StyloQCommand.sqbcReport)
+						if(cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvOrderPrereq ||
+							cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvIndoorSvcPrereq || cmdItem.BaseCmdId == StyloQCommand.sqbcReport)
 							result.S = StyloQCommand.prestatusQueryNeeded;
 						else
 							result.S = StyloQCommand.prestatusInstant;
@@ -176,58 +178,55 @@ public class CommandListActivity extends SLib.SlActivity {
 		Object result = null;
 		switch(ev) {
 			case SLib.EV_CREATE:
-				setContentView(R.layout.activity_command_list);
-				Intent intent = getIntent();
-				SvcIdent = intent.getByteArrayExtra("SvcIdent");
 				{
-					StyloQApp app_ctx = GetAppCtx();
-					if(app_ctx != null) {
-						SetupRecyclerListView(null, R.id.commandListView, R.layout.li_command);
-						{
-							View vg = findViewById(R.id.CTL_PAGEHEADER_ROOT);
-							if(vg != null && vg instanceof ViewGroup)
-								SLib.SubstituteStringSignatures(app_ctx, (ViewGroup) vg);
-						}
-						try {
-							Db = app_ctx.GetDB();
-							if(Db != null) {
-								ListData = null/*Db.GetFaceList()*/;
-								if(SLib.GetLen(SvcIdent) > 0) {
-									if(SvcPack == null) {
-										SvcPack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
-									}
-									String blob_signature = null;
-									if(SvcPack != null) {
-										StyloQFace face = SvcPack.GetFace();
-										if(face != null)
-											blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
-										SLib.SetCtrlString(this, R.id.CTL_PAGEHEADER_SVCTITLE, SvcPack.GetSvcName(face));
-										StyloQDatabase.SecStoragePacket cmdl_pack = Db.GetForeignSvcCommandList(SvcIdent);
-										ListData = cmdl_pack.GetCommandList();
-										if(ListData == null)
-											ListData = new StyloQCommand.List();
-									}
-									SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
-								}
-							}
-							if(ListData == null)
-								ListData = new StyloQCommand.List();
+					setContentView(R.layout.activity_command_list);
+					Intent intent = getIntent();
+					SvcIdent = intent.getByteArrayExtra("SvcIdent");
+					{
+						StyloQApp app_ctx = GetAppCtx();
+						if(app_ctx != null) {
+							SetupRecyclerListView(null, R.id.commandListView, R.layout.li_command);
 							{
-								RTmr = new Timer();
-								RTmr.schedule(new RefreshTimerTask(), 1000, 750);
+								View vg = findViewById(R.id.CTL_PAGEHEADER_ROOT);
+								if(vg != null && vg instanceof ViewGroup)
+									SLib.SubstituteStringSignatures(app_ctx, (ViewGroup) vg);
 							}
-						} catch(StyloQException exn) {
-							Db = null;
-							ListData = new StyloQCommand.List();
-							app_ctx.DisplayError(this, exn, 5000);
+							try {
+								Db = app_ctx.GetDB();
+								if(Db != null) {
+									ListData = null/*Db.GetFaceList()*/;
+									if(SLib.GetLen(SvcIdent) > 0) {
+										if(SvcPack == null) {
+											SvcPack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
+										}
+										String blob_signature = null;
+										if(SvcPack != null) {
+											StyloQFace face = SvcPack.GetFace();
+											if(face != null)
+												blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
+											SLib.SetCtrlString(this, R.id.CTL_PAGEHEADER_SVCTITLE, SvcPack.GetSvcName(face));
+											StyloQDatabase.SecStoragePacket cmdl_pack = Db.GetForeignSvcCommandList(SvcIdent);
+											ListData = cmdl_pack.GetCommandList();
+											if(ListData == null)
+												ListData = new StyloQCommand.List();
+										}
+										SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
+										{
+											StyloQCommand.Item scan_barcode_cmd_item = ListData.GetItemWithParticularBaseId(StyloQCommand.sqbcLocalBarcodeSearch);
+											SLib.SetCtrlVisibility(this, R.id.tbButtonScan, (scan_barcode_cmd_item != null) ? View.VISIBLE : View.GONE);
+										}
+									}
+								}
+								if(ListData == null)
+									ListData = new StyloQCommand.List();
+								ScheduleRTmr(new RefreshTimerTask(), 1000, 750);
+							} catch(StyloQException exn) {
+								Db = null;
+								ListData = new StyloQCommand.List();
+								app_ctx.DisplayError(this, exn, 5000);
+							}
 						}
 					}
-				}
-				break;
-			case SLib.EV_DESTROY:
-				if(RTmr != null) {
-					RTmr.cancel();
-					RTmr = null;
 				}
 				break;
 			case SLib.EV_LISTVIEWCOUNT:
@@ -235,8 +234,8 @@ public class CommandListActivity extends SLib.SlActivity {
 					SLib.RecyclerListAdapter adapter = (srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
 					if(adapter != null) {
-						if(adapter.GetRcId() == R.layout.li_command && ListData != null && ListData.Items != null)
-							_count = ListData.Items.size();
+						if(adapter.GetRcId() == R.layout.li_command && ListData != null)
+							_count = ListData.GetViewCount();
 					}
 					result = new Integer(_count);
 				}
@@ -247,20 +246,24 @@ public class CommandListActivity extends SLib.SlActivity {
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null) {
 						StyloQApp app_ctx = GetAppCtx();
-						if(app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.Items.size()) {
+						if(app_ctx != null) {
 							boolean force_query = (ev == SLib.EV_LISTVIEWITEMLONGCLK) ? true : false;
-							StyloQCommand.Item cmd_item = ListData.Items.get(ev_subj.ItemIdx);
+							StyloQCommand.Item cmd_item = ListData.GetViewItem(ev_subj.ItemIdx);
 							if(cmd_item != null) {
-								if(cmd_item.BaseCmdId == StyloQCommand.sqbcPersonEvent) {
-									// @construction
-									PersonEvent pe = new PersonEvent();
-									pe.SrcCmdItem = cmd_item;
-									PersonEventDialog dialog = new PersonEventDialog(this, pe);
-									dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-									dialog.show();
+								try {
+									if(cmd_item.BaseCmdId == StyloQCommand.sqbcPersonEvent) {
+										// @construction
+										PersonEvent pe = new PersonEvent();
+										pe.SrcCmdItem = cmd_item;
+										PersonEventDialog dialog = new PersonEventDialog(this, pe);
+										dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+										dialog.show();
+									}
+									else
+										app_ctx.RunSvcCommand(SvcIdent, cmd_item, null, force_query, null);
+								} catch(StyloQException exn) {
+
 								}
-								else
-									app_ctx.RunSvcCommand(SvcIdent, cmd_item, null, force_query, null);
 								RefreshStatus();
 							}
 						}
@@ -275,7 +278,7 @@ public class CommandListActivity extends SLib.SlActivity {
 							// RecyclerView
 							if(ListData != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.Items.size()) {
 								View iv = ev_subj.RvHolder.itemView;
-								StyloQCommand.Item cur_entry = ListData.Items.get(ev_subj.ItemIdx);
+								StyloQCommand.Item cur_entry = ListData.GetViewItem(ev_subj.ItemIdx);
 								SLib.SetCtrlString(iv, R.id.LVITEM_CMDNAME, cur_entry.Name);
 								{
 									StyloQCommand.CommandPrestatus prestatus = GetCommandStatus(cur_entry);
@@ -326,6 +329,8 @@ public class CommandListActivity extends SLib.SlActivity {
 								app_ctx.RunSvcCommand(SvcIdent, _data.SrcCmdItem, js_query,true, this);
 							} catch(JSONException exn) {
 								; // @todo
+							} catch(StyloQException exn) {
+								; // @todo
 							}
 						}
 					}
@@ -336,39 +341,152 @@ public class CommandListActivity extends SLib.SlActivity {
 					StyloQApp app_ctx = GetAppCtx();
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
 					if(app_ctx != null && ir.OriginalCmdItem != null) {
+						boolean done = false;
 						String reply_msg = null;
 						String reply_errmsg = null;
+						int reply_errcode = 0;
 						if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
-							byte [] reply_raw_data = ((SecretTagPool)ir.InfoReply).Get(SecretTagPool.tagRawData);
-							if(SLib.GetLen(reply_raw_data) > 0) {
-								String json_text = new String(reply_raw_data);
-								if(SLib.GetLen(json_text) > 0) {
-									try {
-										JSONObject js_reply = new JSONObject(json_text);
-										if(js_reply != null) {
-											reply_msg = js_reply.optString("msg", null);
-											reply_errmsg = js_reply.optString("errmsg", null);
-										}
-									} catch(JSONException exn) {
-										;
-									}
+							JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+							StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(js_reply);
+							if(crr.Status == 0) {
+								reply_errcode = crr.ErrCode;
+								reply_errmsg = crr.ErrMsg;
+								if(SLib.GetLen(reply_errmsg) > 0)
+									app_ctx.DisplayError(this, reply_errmsg, 0);
+								else if(reply_errcode > 0)
+									app_ctx.DisplayError(this, "Error" + ": " + reply_errcode, 0);
+								else
+									app_ctx.DisplayError(this, "Error" + ": " + "unknown", 0);
+								done = true;
+							}
+							else if(crr.Status > 0){
+								String disp_meth = js_reply.optString("displaymethod", "");
+								if(disp_meth.equalsIgnoreCase("goodsinfo")) {
+									Intent intent = new Intent(this, CmdRGoodsInfoActivity.class);
+									intent.putExtra("SvcIdent", ir.SvcIdent);
+									intent.putExtra("SvcReplyDocJson", js_reply.toString());
+									LaunchOtherActivity(intent);
+									done = true;
+								}
+								else {
+									// @todo Это - заглушка. Здесь надо работать!
+									reply_msg = crr.Msg;
+									reply_errmsg = crr.ErrMsg;
 								}
 							}
 						}
-						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-							if(SLib.GetLen(reply_msg) <= 0)
-								reply_msg = "OK";
-							app_ctx.DisplayMessage(this, reply_msg, 0);
+						if(!done) {
+							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+								if(SLib.GetLen(reply_msg) <= 0)
+									reply_msg = "OK";
+								app_ctx.DisplayMessage(this, reply_msg, 0);
+							}
+							else {
+								if(SLib.GetLen(reply_errmsg) <= 0)
+									reply_errmsg = "ERROR";
+								app_ctx.DisplayError(this, reply_errmsg, 0);
+							}
 						}
-						else {
-							if(SLib.GetLen(reply_errmsg) <= 0)
-								reply_errmsg = "ERROR";
-							app_ctx.DisplayError(this, reply_errmsg, 0);
-						}
+					}
+				}
+				break;
+			case SLib.EV_COMMAND:
+				int view_id = View.class.isInstance(srcObj) ? ((View)srcObj).getId() : 0;
+				if(view_id == R.id.tbButtonScan) {
+					StyloQCommand.Item scan_barcode_cmd_item = ListData.GetItemWithParticularBaseId(StyloQCommand.sqbcLocalBarcodeSearch);
+					if(SLib.GetLen(SvcIdent) > 0 && scan_barcode_cmd_item != null && SLib.GetLen(scan_barcode_cmd_item.Name) > 0) {
+						IntentIntegrator integrator = new IntentIntegrator(this); // `this` is the current Activity
+						//integrator.setPrompt("Scan a barcode");
+						integrator.setCameraId(0);  // Use a specific camera of the device
+						integrator.setOrientationLocked(true);
+						integrator.setBeepEnabled(true);
+						integrator.setCaptureActivity(StyloQZxCaptureActivity.class);
+						integrator.addExtra("cmd", scan_barcode_cmd_item.Name);
+						integrator.addExtra("basecmdid", new Integer(scan_barcode_cmd_item.BaseCmdId));
+						String svc_ident_hex = Base64.getEncoder().encodeToString(SvcIdent);
+						if(SLib.GetLen(svc_ident_hex) > 0)
+							integrator.addExtra("svcident", svc_ident_hex);
+						integrator.initiateScan();
 					}
 				}
 				break;
 		}
 		return result;
+	}
+	@Override protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		//String barcode_text;
+		StyloQApp app_ctx = (StyloQApp)getApplication();
+		if(app_ctx != null) {
+			if(requestCode != MainActivity.CUSTOMIZED_REQUEST_CODE && requestCode != IntentIntegrator.REQUEST_CODE) {
+				// This is important, otherwise the result will not be passed to the fragment
+				super.onActivityResult(requestCode, resultCode, data);
+			}
+			else {
+				switch(requestCode) {
+					case MainActivity.CUSTOMIZED_REQUEST_CODE: {
+						//toast.makeText(this, "REQUEST_CODE = " + requestCode, Toast.LENGTH_LONG).show();
+						break;
+					}
+					default:
+						break;
+				}
+				IntentResult result = IntentIntegrator.parseActivityResult(resultCode, data);
+				if(result != null) {
+					String barcode = result.getContents();
+					String barcode_std = result.getFormatName();
+					Intent original_intent = result.getOriginalIntent();
+					if(SLib.GetLen(barcode) > 0) {
+						//Log.d("MainActivity", "Scanned");
+						//Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+						//TextView v_info = (TextView) findViewById(R.id.info_text);
+						StyloQCommand.Item scan_barcode_cmd_item = ListData.GetItemWithParticularBaseId(StyloQCommand.sqbcLocalBarcodeSearch);
+						//String target_cmd_symb = data.getStringExtra("cmd");
+						//int    target_basecmdid = data.getIntExtra("basecmdid", 0);
+						//String target_svc_ident_hex = data.getStringExtra("svcident");
+						//byte [] local_svc_ident = (SLib.GetLen(target_svc_ident_hex) > 0) ? Base64.getDecoder().decode(target_svc_ident_hex) : null;
+						if(scan_barcode_cmd_item != null) {
+							try {
+								//StyloQInterchange.Invitation inv = StyloQInterchange.AcceptInvitation(contents);
+								StyloQInterchange.DoInterchangeParam param = new StyloQInterchange.DoInterchangeParam(SvcIdent);
+								JSONObject js_query = new JSONObject();
+								String cmd_text = scan_barcode_cmd_item.Uuid.toString();
+								if(SLib.GetLen(cmd_text) > 0) {
+									js_query.put("cmd", cmd_text);
+									js_query.put("time", System.currentTimeMillis());
+									js_query.put("barcode", barcode);
+									if(SLib.GetLen(barcode_std) > 0)
+										js_query.put("barcodestd", barcode_std);
+									param.LoclAddendum = null;
+									param.AccsPoint = null;
+									param.CommandJson = js_query.toString();
+									param.SvcCapabilities = 0;
+									param.OriginalCmdItem = scan_barcode_cmd_item;
+									param.RetrActivity_ = this;
+									StyloQInterchange.RunClientInterchange(app_ctx, param);
+								}
+							/*} catch(StyloQException exn) {
+								app_ctx.DisplayError(this, exn, 5000);
+								//String msg = exn.GetMessage(this);
+								//v_info.setText((msg != null) ? msg : "unkn exception");
+							*/} catch(JSONException exn) {
+								StyloQException stq_exn = new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
+								app_ctx.DisplayError(this, stq_exn, 5000);
+							}
+						}
+					}
+					else {
+						if(original_intent == null) {
+							//Log.d("MainActivity", "Cancelled scan");
+							//Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+						}
+						else if(original_intent.hasExtra(Intents.Scan.MISSING_CAMERA_PERMISSION)) {
+							//Log.d("MainActivity", "Cancelled scan due to missing camera permission");
+							//Toast.makeText(this, "Cancelled due to missing camera permission", Toast.LENGTH_LONG).show();
+						}
+					}
+				}
+			}
+		}
 	}
 }

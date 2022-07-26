@@ -117,7 +117,7 @@ int ACS_ECR930::ConvertWareList(int num)
 				dbfr.get( 4, div);
 				dbfr.get( 5, dt);
 				dbfr.get( 6, tm);
-				dbfr.get( 9, gcode);
+				dbfr.get( 9, gcode, sizeof(gcode));
 				dbfr.get(10, qtty);
 				dbfr.get(11, price);
 				dbfr.get(12, dscnt);

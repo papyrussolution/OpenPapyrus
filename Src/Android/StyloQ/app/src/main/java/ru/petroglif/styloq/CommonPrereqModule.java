@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -24,11 +25,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Currency;
 import java.util.UUID;
 
 public class CommonPrereqModule {
@@ -44,15 +43,37 @@ public class CommonPrereqModule {
 	private String BaseCurrencySymb;
 	private int AgentID; // Если исходный документ для формирования заказов ассоциирован
 		// с агентом, то в этом поле устанавливается id этого агента (field agentid)
+	private int PosNodeID; // Если исходный документ сформирован для indoor-обслуживания,
+		// то в этом поле устанавливается id кассового узла, переданный от сервиса
 	public ArrayList <WareEntry> GoodsListData;
 	public ArrayList <CommonPrereqModule.TabEntry> TabList;
 	public ArrayList /*<Document.Head>*/<Document.DisplayEntry> OrderHList;
 	public ArrayList<ProcessorEntry> ProcessorListData;
 	private Document CurrentOrder;
-	protected boolean Locker_CommitCurrentDocument;
+	protected boolean CommitCurrentDocument_Locker;
+	protected long CommitCurrentDocument_StartTm;
 	private SLib.SlActivity ActivityInstance;
 	private int ViewPagerResourceId;
 	private int TabLayoutResourceId;
+	protected boolean CurrentDocument_RemoteOp_Start()
+	{
+		boolean result = false;
+		if(!CommitCurrentDocument_Locker) {
+			CommitCurrentDocument_Locker = true;
+			CommitCurrentDocument_StartTm = System.currentTimeMillis();
+			result = true;
+		}
+		return result;
+	}
+	protected void CurrentDocument_RemoteOp_Finish()
+	{
+		CommitCurrentDocument_Locker = false;
+		CommitCurrentDocument_StartTm = 0;
+	}
+	protected long GetCurrentDocument_RemoteOp_Duration()
+	{
+		return CommitCurrentDocument_Locker ? (System.currentTimeMillis() - CommitCurrentDocument_StartTm) : 0;
+	}
 	public static class CliEntry {
 		CliEntry(JSONObject jsItem)
 		{
@@ -155,25 +176,20 @@ public class CommonPrereqModule {
 				if(db != null) {
 					StyloQDatabase.SecStoragePacket pack = db.GetPeerEntry(id);
 					if(pack != null && pack.Rec.Kind == StyloQDatabase.SecStoragePacket.kDocIncoming || pack.Rec.Kind == StyloQDatabase.SecStoragePacket.kDocOutcoming) {
-						if(pack.Pool != null) {
-							byte [] rawdata = pack.Pool.Get(SecretTagPool.tagRawData);
-							if(SLib.GetLen(rawdata) > 0) {
-								String txt_rawdata = new String(rawdata);
-								if(SLib.GetLen(txt_rawdata) > 0) {
-									Document rd = new Document();
-									if(rd.FromJson(txt_rawdata)) {
-										rd.H.Flags = pack.Rec.Flags;
-										// На этапе разработки было множество проблем, по этому,
-										// вероятно расхождение между идентификаторами в json и в заголовке записи.
-										if(rd.H.ID != pack.Rec.ID)
-											rd.H.ID = pack.Rec.ID;
-										if(CurrentOrder != null) {
-											StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT, StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
-										}
-										CurrentOrder = rd;
-										ok = true;
-									}
+						JSONObject js_doc = (pack.Pool != null) ? pack.Pool.GetJsonObject(SecretTagPool.tagRawData) : null;
+						if(js_doc != null) {
+							Document rd = new Document();
+							if(rd.FromJsonObj(js_doc)) {
+								rd.H.Flags = pack.Rec.Flags;
+								// На этапе разработки было множество проблем, по этому,
+								// вероятно расхождение между идентификаторами в json и в заголовке записи.
+								if(rd.H.ID != pack.Rec.ID)
+									rd.H.ID = pack.Rec.ID;
+								if(CurrentOrder != null) {
+									StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT, StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
 								}
+								CurrentOrder = rd;
+								ok = true;
 							}
 						}
 					}
@@ -193,25 +209,17 @@ public class CommonPrereqModule {
 				try {
 					StyloQDatabase db = app_ctx.GetDB();
 					if(db != null) {
-						StyloQDatabase.SecStoragePacket rdd = db.FindRecentDraftDoc(StyloQDatabase.SecStoragePacket.doctypGeneric,
-							0, null, CmdUuid);
-						if(rdd != null) {
-							if(rdd.Pool != null) {
-								byte [] rawdata = rdd.Pool.Get(SecretTagPool.tagRawData);
-								if(SLib.GetLen(rawdata) > 0) {
-									String txt_rawdata = new String(rawdata);
-									if(SLib.GetLen(txt_rawdata) > 0) {
-										Document rd = new Document();
-										if(rd.FromJson(txt_rawdata)) {
-											// На этапе разработки было множество проблем, по этому,
-											// вероятно расхождение между идентификаторами в json и в заголовке записи.
-											if(rd.H.ID != rdd.Rec.ID)
-												rd.H.ID = rdd.Rec.ID;
-											rd.H.Flags = rdd.Rec.Flags;
-											CurrentOrder = rd;
-										}
-									}
-								}
+						StyloQDatabase.SecStoragePacket rdd = db.FindRecentDraftDoc(StyloQDatabase.SecStoragePacket.doctypGeneric,0, null, CmdUuid);
+						JSONObject js_doc = (rdd != null && rdd.Pool != null) ? rdd.Pool.GetJsonObject(SecretTagPool.tagRawData) : null;
+						if(js_doc != null) {
+							Document rd = new Document();
+							if(rd.FromJsonObj(js_doc)) {
+								// На этапе разработки было множество проблем, по этому,
+								// вероятно расхождение между идентификаторами в json и в заголовке записи.
+								if(rd.H.ID != rdd.Rec.ID)
+									rd.H.ID = rdd.Rec.ID;
+								rd.H.Flags = rdd.Rec.Flags;
+								CurrentOrder = rd;
 							}
 						}
 					}
@@ -505,8 +513,7 @@ public class CommonPrereqModule {
 		boolean ok = false;
 		StyloQApp app_ctx = GetAppCtx();
 		if(app_ctx != null) {
-			if(!Locker_CommitCurrentDocument) {
-				Locker_CommitCurrentDocument = true;
+			if(CurrentDocument_RemoteOp_Start()) {
 				if(CurrentOrder != null && CurrentOrder.Finalize()) {
 					boolean is_err = false;
 					if(GetAgentID() > 0) {
@@ -528,7 +535,7 @@ public class CommonPrereqModule {
 					}
 				}
 				if(!ok)
-					Locker_CommitCurrentDocument = false;
+					CurrentDocument_RemoteOp_Finish();
 			}
 		}
 		return ok;
@@ -536,11 +543,10 @@ public class CommonPrereqModule {
 	protected boolean CancelCurrentDocument()
 	{
 		boolean ok = false;
-		if(!Locker_CommitCurrentDocument) {
-			Locker_CommitCurrentDocument = true;
+		if(CurrentDocument_RemoteOp_Start()) {
 			ok = Helper_CancelCurrentDocument(false);
 			if(!ok)
-				Locker_CommitCurrentDocument = false;
+				CurrentDocument_RemoteOp_Finish();
 		}
 		return ok;
 	}
@@ -587,12 +593,53 @@ public class CommonPrereqModule {
 						}
 					}
 				}
+				else if(st == StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC) {
+					StyloQApp.InterchangeResult subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, SvcIdent, "Function isn't supported", null);
+					subj.OriginalCmdItem = new StyloQCommand.Item();
+					subj.OriginalCmdItem.Name = "CancelDocument";
+					ActivityInstance.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
+				}
 				else if(st == StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED) {
 					// Надо отправить уведомление об отмене сервису
+					StyloQApp.InterchangeResult subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, SvcIdent, "Function isn't supported", null);
+					subj.OriginalCmdItem = new StyloQCommand.Item();
+					subj.OriginalCmdItem.Name = "CancelDocument";
+					ActivityInstance.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
 				}
 			}
 		}
 		return ok;
+	}
+	protected void DrawCurrentDocumentRemoteOpIndicators()
+	{
+		if(ActivityInstance != null) {
+			long ellapsed_ms = GetCurrentDocument_RemoteOp_Duration();
+			View tv_ind_et = ActivityInstance.findViewById(R.id.CTL_DOCUMENT_IND_EXECUTETIME);
+			View tv_ind_img = ActivityInstance.findViewById(R.id.CTL_DOCUMENT_IND_STATUS);
+			if(ellapsed_ms > 0) {
+				if(tv_ind_et != null && tv_ind_et instanceof TextView) {
+					final int sec = (int) (ellapsed_ms / 1000);
+					final int h = (int) (sec / 3600);
+					String timewatch_text = ((h > 0) ? Integer.toString(h) + ":" : "") + String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60));
+					if(tv_ind_et.getVisibility() != View.VISIBLE)
+						tv_ind_et.setVisibility(View.VISIBLE);
+					((TextView) tv_ind_et).setText(timewatch_text);
+				}
+				{
+					if(tv_ind_img != null && tv_ind_img instanceof ImageView) {
+						if(tv_ind_img.getVisibility() != View.VISIBLE)
+							tv_ind_img.setVisibility(View.VISIBLE);
+						((ImageView) tv_ind_img).setImageResource(R.drawable.ic_stopwatch);
+					}
+				}
+			}
+			else {
+				if(tv_ind_et != null && tv_ind_et.getVisibility() == View.VISIBLE)
+					tv_ind_et.setVisibility(View.GONE);
+				if(tv_ind_img != null && tv_ind_img.getVisibility() == View.VISIBLE)
+					tv_ind_img.setVisibility(View.GONE);
+			}
+		}
 	}
 	public boolean HasPrcInCurrentOrder(int prcID)
 	{
@@ -807,7 +854,8 @@ public class CommonPrereqModule {
 	public void AddSimpleIndexEntry(int objType, int objID, int attr, final String text, final String displayText)
 	{
 		//SimpleSearchIndexEntry(int objType, int objID, int attr, final String text, final String displayText)
-		SimpleSearchIndex.add(new SimpleSearchIndexEntry(objType, objID, attr, text.toLowerCase(), displayText));
+		if(SLib.GetLen(text) > 0)
+			SimpleSearchIndex.add(new SimpleSearchIndexEntry(objType, objID, attr, text.toLowerCase(), displayText));
 	}
 	public void AddGoodsToSimpleIndex()
 	{
@@ -818,9 +866,7 @@ public class CommonPrereqModule {
 					int id = ware_item.JsItem.optInt("id", 0);
 					if(id > 0) {
 						String nm = ware_item.JsItem.optString("nm");
-						if(SLib.GetLen(nm) > 0) {
-							AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_NAME, nm, null);
-						}
+						AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_NAME, nm, null);
 						{
 							JSONArray js_code_list = ware_item.JsItem.optJSONArray("code_list");
 							if(js_code_list != null && js_code_list.length() > 0) {
@@ -828,8 +874,7 @@ public class CommonPrereqModule {
 									JSONObject js_code = js_code_list.optJSONObject(j);
 									if(js_code != null) {
 										String code = js_code.optString("cod");
-										if(SLib.GetLen(code) > 0)
-											AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_CODE, code, nm);
+										AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_CODE, code, nm);
 									}
 								}
 							}
@@ -848,8 +893,7 @@ public class CommonPrereqModule {
 					final int id = js_item.optInt("id", 0);
 					if(id > 0) {
 						String nm = js_item.optString("nm");
-						if(SLib.GetLen(nm) > 0)
-							AddSimpleIndexEntry(SLib.PPOBJ_GOODSGROUP, id, SLib.PPOBJATTR_NAME, nm, null);
+						AddSimpleIndexEntry(SLib.PPOBJ_GOODSGROUP, id, SLib.PPOBJATTR_NAME, nm, null);
 					}
 				}
 			}
@@ -931,17 +975,19 @@ public class CommonPrereqModule {
 		GoodsListData = null;
 		BaseCurrencySymb = null;
 		AgentID = 0;
+		PosNodeID = 0;
 		Gf = null;
 		CurrentOrder = null;
 		OrderHList = null;
 		ProcessorListData = null;
-		Locker_CommitCurrentDocument = false;
+		CommitCurrentDocument_Locker = false;
 		ActivityInstance = activityInstance;
 		ViewPagerResourceId = 0;
 		TabLayoutResourceId = 0;
 	}
 	String GetBaseCurrencySymb() { return BaseCurrencySymb; }
 	int   GetAgentID() { return AgentID; }
+	int   GetPosNodeID() { return PosNodeID; }
 	public void GetAttributesFromIntent(Intent intent)
 	{
 		if(intent != null) {
@@ -1015,25 +1061,21 @@ public class CommonPrereqModule {
 							for(int i = 0; i < doc_id_list.size(); i++) {
 								long local_doc_id = doc_id_list.get(i);
 								StyloQDatabase.SecStoragePacket local_doc_pack = db.GetPeerEntry(local_doc_id);
-								if(local_doc_pack != null) {
-									byte [] raw_doc = local_doc_pack.Pool.Get(SecretTagPool.tagRawData);
-									if(SLib.GetLen(raw_doc) > 0) {
-										String json_doc = new String(raw_doc);
-										Document local_doc = new Document();
-										if(local_doc.FromJson(json_doc)) {
-											if(local_doc.H != null)
-												local_doc.H.Flags = local_doc_pack.Rec.Flags;
-											if(OrderHList == null)
-												OrderHList = new ArrayList<Document.DisplayEntry>();
-											// Эти операторы нужны на начальном этапе разработки поскольку
-											// финализация пакета документа появилась не сразу {
-											if(local_doc.GetNominalAmount() == 0.0)
-												local_doc.H.Amount = local_doc.CalcNominalAmount();
-											// }
-											OrderHList.add(new Document.DisplayEntry(local_doc));
-											local_doc.H = null;
-										}
-
+								JSONObject js_doc = (local_doc_pack != null) ? local_doc_pack.Pool.GetJsonObject(SecretTagPool.tagRawData) : null;
+								if(js_doc != null) {
+									Document local_doc = new Document();
+									if(local_doc.FromJsonObj(js_doc)) {
+										if(local_doc.H != null)
+											local_doc.H.Flags = local_doc_pack.Rec.Flags;
+										if(OrderHList == null)
+											OrderHList = new ArrayList<Document.DisplayEntry>();
+										// Эти операторы нужны на начальном этапе разработки поскольку
+										// финализация пакета документа появилась не сразу {
+										if(local_doc.GetNominalAmount() == 0.0)
+											local_doc.H.Amount = local_doc.CalcNominalAmount();
+										// }
+										OrderHList.add(new Document.DisplayEntry(local_doc));
+										local_doc.H = null;
 									}
 								}
 							}
@@ -1305,16 +1347,13 @@ public class CommonPrereqModule {
 	}
 	public String FormatCurrency(double val)
 	{
-		NumberFormat format = NumberFormat.getCurrencyInstance();
-		format.setMaximumFractionDigits(2);
-		if(SLib.GetLen(BaseCurrencySymb) > 0)
-			format.setCurrency(Currency.getInstance(BaseCurrencySymb));
-		return format.format(val);
+		return SLib.FormatCurrency(val, BaseCurrencySymb);
 	}
 	public void GetCommonJsonFactors(JSONObject jsHead) throws JSONException
 	{
 		BaseCurrencySymb = jsHead.optString("basecurrency", null);
 		AgentID = jsHead.optInt("agentid", 0);
+		PosNodeID = jsHead.optInt("posnodeid", 0);
 	}
 	public void MakeGoodsListFromCommonJson(JSONObject jsHead) throws JSONException
 	{

@@ -766,7 +766,7 @@ static inline event_t * event_next(sweep_line_t * sweep_line)
 {
 	event_t * event = sweep_line->queue.pq.elements[PQ_FIRST_ENTRY];
 	event_t * cmp = *sweep_line->queue.start_events;
-	if(event == NULL || (cmp != NULL && event_compare(cmp, event) < 0)) {
+	if(event == NULL || (cmp && event_compare(cmp, event) < 0)) {
 		event = cmp;
 		sweep_line->queue.start_events++;
 	}
@@ -1378,14 +1378,14 @@ static void coverage_render_runs(sweep_line_t * sweep, edge_t * edge, cairo_fixe
 			}
 		}
 		run = run->next;
-	} while(run->next != NULL);
+	} while(run->next);
 }
 
 static void coverage_render_vertical_runs(sweep_line_t * sweep, edge_t * edge, cairo_fixed_t y2)
 {
 	struct cell * cell;
 	int height = 0;
-	for(struct run * run = edge->runs; run != NULL; run = run->next) {
+	for(struct run * run = edge->runs; run; run = run->next) {
 		if(run->sign)
 			height += run->sign * (y2 - run->y);
 		y2 = run->y;
@@ -1747,7 +1747,7 @@ static void _cairo_botor_scan_converter_destroy(void * converter)
 {
 	cairo_botor_scan_converter_t * self = (cairo_botor_scan_converter_t *)converter;
 	struct _cairo_botor_scan_converter::_cairo_botor_scan_converter_chunk * chunk, * next;
-	for(chunk = self->chunks.next; chunk != NULL; chunk = next) {
+	for(chunk = self->chunks.next; chunk; chunk = next) {
 		next = chunk->next;
 		SAlloc::F(chunk);
 	}

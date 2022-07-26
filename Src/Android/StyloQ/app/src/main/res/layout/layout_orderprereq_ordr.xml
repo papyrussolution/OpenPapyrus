@@ -156,6 +156,13 @@
                 <Button style="@style/PushButton" android:id="@+id/CTL_DOCUMENT_ACTIONBUTTON4"
                     android:text="@{but_cancel}" />
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView style="@style/StatusIndicator" android:id="@+id/CTL_DOCUMENT_IND_STATUS"/>
+                <TextView style="@style/ExecuteTimeText" android:id="@+id/CTL_DOCUMENT_IND_EXECUTETIME"/>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

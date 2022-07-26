@@ -252,7 +252,7 @@ void FASTCALL _cairo_boxes_extents(const cairo_boxes_t * boxes, cairo_box_t * bo
 void FASTCALL _cairo_boxes_clear(cairo_boxes_t * boxes)
 {
 	cairo_boxes_t::_cairo_boxes_chunk * next;
-	for(cairo_boxes_t::_cairo_boxes_chunk * chunk = boxes->chunks.next; chunk != NULL; chunk = next) {
+	for(cairo_boxes_t::_cairo_boxes_chunk * chunk = boxes->chunks.next; chunk; chunk = next) {
 		next = chunk->next;
 		SAlloc::F(chunk);
 	}
@@ -297,7 +297,7 @@ cairo_box_t * _cairo_boxes_to_array(const cairo_boxes_t * boxes, int * num_boxes
 void _cairo_boxes_fini(cairo_boxes_t * boxes)
 {
 	cairo_boxes_t::_cairo_boxes_chunk * next;
-	for(cairo_boxes_t::_cairo_boxes_chunk * chunk = boxes->chunks.next; chunk != NULL; chunk = next) {
+	for(cairo_boxes_t::_cairo_boxes_chunk * chunk = boxes->chunks.next; chunk; chunk = next) {
 		next = chunk->next;
 		SAlloc::F(chunk);
 	}

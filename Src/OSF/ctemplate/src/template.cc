@@ -17,7 +17,7 @@
 #include <ctemplate-internal.h>
 #pragma hdrstop
 
-#define arraysize(x)  ( sizeof(x) / sizeof(*(x)) )
+// @sobolev #define arraysize(x)  ( sizeof(x) / sizeof(*(x)) )
 #define AS_STR1(x)  #x
 #define AS_STR(x)   AS_STR1(x)
 
@@ -75,9 +75,7 @@ static Mutex g_header_mutex(base::LINKER_INITIALIZED);
 // are already present in the text. If such characters were XSS-harmful
 // in a given context, they would have already been escaped or replaced
 // by earlier escaping such as H=attribute.
-static const ModifierInfo g_prefix_line_info("", '\0', XSS_WEB_STANDARD,
-    &prefix_line);
-
+static const ModifierInfo g_prefix_line_info("", '\0', XSS_WEB_STANDARD, &prefix_line);
 const char * const kDefaultTemplateDirectory = kCWD;   // "./"
 // Note this name is syntactically impossible for a user to accidentally use.
 const char * const kMainSectionName = "__{{MAIN}}__";
@@ -90,14 +88,13 @@ const char * const kMainSectionName = "__{{MAIN}}__";
 // string - it is for lookups *only*.
 class HashedTemplateString : public TemplateString {
 public:
-	HashedTemplateString(const char* s, size_t slen) : TemplateString(s, slen) {
+	HashedTemplateString(const char* s, size_t slen) : TemplateString(s, slen) 
+	{
 		CacheGlobalId();
 	}
 };
 
-#define LOG_TEMPLATE_NAME(severity, template)                           \
-	LOG(severity) << "Template " << template->template_file() << ": "
-
+#define LOG_TEMPLATE_NAME(severity, template) LOG(severity) << "Template " << template->template_file() << ": "
 #define LOG_AUTO_ESCAPE_ERROR(error_msg, my_template) do {      \
 		LOG_TEMPLATE_NAME(ERROR, my_template);                      \
 		LOG(ERROR) << "Auto-Escape: " << error_msg << endl;         \
@@ -105,12 +102,9 @@ public:
 
 // We are in auto-escape mode.
 #define AUTO_ESCAPE_MODE(context) ((context) != TC_MANUAL)
-
 // Auto-Escape contexts which utilize the HTML Parser.
-#define AUTO_ESCAPE_PARSING_CONTEXT(context)                            \
-	((context) == TC_HTML || (context) == TC_JS || (context) == TC_CSS)
-
-// ----------------------------------------------------------------------
+#define AUTO_ESCAPE_PARSING_CONTEXT(context) ((context) == TC_HTML || (context) == TC_JS || (context) == TC_CSS)
+//
 // PragmaId
 // PragmaDefinition
 // PragmaMarker
@@ -145,8 +139,7 @@ public:
 //        of attribute_names in the PragmaDefinition struct.
 //     4. Add handling of that pragma in SectionTemplateNode::GetNextToken()
 //        and possibly SectionTemplateNode::AddPragmaNode()
-// ----------------------------------------------------------------------
-
+//
 // PragmaId
 //   Identify all the pragma identifiers we support. Currently only
 //   one (for AutoEscape). PI_ERROR is only for internal error reporting,
@@ -193,15 +186,10 @@ private:
 	// value. If an error occurred, error_msg is set with information.
 	// It is cleared on success.
 	// Unescapes backslash-escaped double quotes ('\"' -> '"') if present.
-	static string ParseAttributeValue(const char* value_start,
-	    const char** value_end,
-	    string* error_msg);
-
+	static string ParseAttributeValue(const char* value_start, const char** value_end, string* error_msg);
 	// Returns true if the attribute name is an accepted one for that
 	// given PragmaId. Otherwise returns false.
-	static bool IsValidAttribute(PragmaId pragma_id, const char* name,
-	    size_t namelen);
-
+	static bool IsValidAttribute(PragmaId pragma_id, const char* name, size_t namelen);
 	PragmaId pragma_id_;
 	// A vector of attribute (name, value) pairs.
 	vector<pair<string, string> > names_and_values_;
@@ -212,8 +200,7 @@ PragmaId PragmaMarker::GetPragmaId(const char* id, size_t id_len)
 	for(int i = 0; i < NUM_PRAGMA_IDS; ++i) {
 		if(g_pragmas[i].identifier == NULL) // PI_UNUSED, PI_ERROR
 			continue;
-		if((strlen(g_pragmas[i].identifier) == id_len) &&
-		    (strncasecmp(id, g_pragmas[i].identifier, id_len) == 0))
+		if((strlen(g_pragmas[i].identifier) == id_len) && (strncasecmp(id, g_pragmas[i].identifier, id_len) == 0))
 			return g_pragmas[i].pragma_id;
 	}
 	return PI_ERROR;
@@ -233,7 +220,8 @@ bool PragmaMarker::IsValidAttribute(PragmaId pragma_id, const char* name, size_t
 	return false; // We did not find the name.
 }
 
-const string* PragmaMarker::GetAttributeValue(const char* attribute_name) const {
+const string* PragmaMarker::GetAttributeValue(const char* attribute_name) const 
+{
 	// Developer error if assert triggers.
 	assert(IsValidAttribute(pragma_id_, attribute_name, strlen(attribute_name)));
 	for(vector<pair<string, string> >::const_iterator it =
@@ -610,11 +598,8 @@ enum TemplateTokenType { TOKENTYPE_UNUSED,        TOKENTYPE_TEXT,
 //
 // Note: Keep this array sorted as you add new elements!
 //
-const char * const Template::kSafeWhitelistedVariables[] = {
-	"" // a placekeeper element: replace with your real values!
-};
-const size_t Template::kNumSafeWhitelistedVariables =
-    arraysize(Template::kSafeWhitelistedVariables);
+const char * const Template::kSafeWhitelistedVariables[] = { "" }; // a placekeeper element: replace with your real values!
+const size_t Template::kNumSafeWhitelistedVariables = SIZEOFARRAY(Template::kSafeWhitelistedVariables);
 
 // A TemplateToken is a typed string. The semantics of the string depends on the
 // token type, as follows:
@@ -1467,23 +1452,18 @@ bool SectionTemplateNode::AddVariableNode(TemplateToken* token,
 		if(variable_name == "BI_SPACE" || variable_name == "BI_NEWLINE") {
 			if(AUTO_ESCAPE_PARSING_CONTEXT(initial_context)) {
 				assert(htmlparser);
-				if(htmlparser->state() == HtmlParser::STATE_ERROR ||
-				    htmlparser->Parse(variable_name == "BI_SPACE" ? " " : "\n") ==
-				    HtmlParser::STATE_ERROR)
+				if(htmlparser->state() == HtmlParser::STATE_ERROR || htmlparser->Parse(variable_name == "BI_SPACE" ? " " : "\n") == HtmlParser::STATE_ERROR)
 					success = false;
 			}
 		}
-		else if(binary_search(Template::kSafeWhitelistedVariables,
-		    Template::kSafeWhitelistedVariables +
-		    arraysize(Template::kSafeWhitelistedVariables),
+		else if(binary_search(Template::kSafeWhitelistedVariables, Template::kSafeWhitelistedVariables + SIZEOFARRAY(Template::kSafeWhitelistedVariables),
 		    variable_name.c_str(),
 		    // Luckily, StringHash(a, b) is defined as "a < b"
 		    StringHash())) {
 			// Do not escape the variable, it is whitelisted.
 		}
 		else {
-			vector<const ModifierAndValue*> modvals =
-			    GetModifierForContext(initial_context, htmlparser, my_template);
+			vector<const ModifierAndValue*> modvals = GetModifierForContext(initial_context, htmlparser, my_template);
 			// There should always be at least one modifier in any Auto-Escape mode.
 			if(modvals.empty())
 				success = false;

@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.TimeoutException;
 
 public class MqbClient {
-	public static int __DefMqbConsumeTimeout = 10000; // @v11.4.3 5000-->10000
+	public static int __DefMqbConsumeTimeout = 5000; // @v11.4.3 5000-->10000 // @v11.4.5 10000-->5000
 	//
 	// Descr: Типы зарезервированных параметров маршрутизации
 	//

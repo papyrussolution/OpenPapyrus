@@ -475,8 +475,8 @@ int PPObjGoodsGroup::Import(int use_ta)
 						DbfRecord rec(&in_tbl);
 						THROW(in_tbl.getRec(&rec));
 						for(uint i = 0; i < num_par; i++) {
-							rec.get(fldn_par_code[i], code);
-							rec.get(fldn_par_name[i], name);
+							rec.get(fldn_par_code[i], code, sizeof(code));
+							rec.get(fldn_par_name[i], name, sizeof(name));
 							strip(code);
 							strip(name);
 							STRNSCPY(org_name, name);
@@ -488,8 +488,8 @@ int PPObjGoodsGroup::Import(int use_ta)
 							THROW(AddSimple(&id, gpkndFolderGroup, parent_id, name, code, 0, 0));
 							parent_id = id;
 						}
-						rec.get(fldn_code, code);
-						rec.get(fldn_name, name);
+						rec.get(fldn_code, code, sizeof(code));
+						rec.get(fldn_name, name, sizeof(name));
 						strip(code);
 						strip(name);
 						STRNSCPY(org_name, name);
@@ -565,7 +565,7 @@ int PPObjGoods::ImportQuotOld(int use_ta)
 					BarcodeTbl::Rec barcode_rec;
 					DbfRecord rec(&in_tbl);
 					THROW(in_tbl.getRec(&rec));
-					rec.get(fldn_goodscode, code);
+					rec.get(fldn_goodscode, code, sizeof(code));
 					rec.get(fldn_goodsname, temp_buf2.Trim(63));
 					rec.get(fldn_price, price);
 
@@ -726,10 +726,10 @@ int PPObjGoods::Helper_ImportHier(PPIniFile * pIniFile, DbfTable * pTbl, PPID de
 				char   obj_code[128];
 				DbfRecord rec(pTbl);
 				THROW(pTbl->getRec(&rec));
-				rec.get(fldn_hier_objcode, obj_code);
+				rec.get(fldn_hier_objcode, obj_code, sizeof(obj_code));
 				strip(obj_code);
 				if(pHierList->IsThereChildOf(obj_code)) {
-					rec.get(fldn_name, name);
+					rec.get(fldn_name, name, sizeof(name));
 					THROW(gg_obj.AddSimple(&id, gpkndOrdinaryGroup, 0, name, obj_code, defUnitID, 0));
 					THROW(id_list.addUnique(id));
 				}

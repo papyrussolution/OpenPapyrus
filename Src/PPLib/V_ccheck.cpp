@@ -3894,7 +3894,7 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmPrint)) {
 			if(FiscalPrintintgEnabled()) {
-				CheckPaneDialog * cc_dlg = new CheckPaneDialog(Data.Rec.CashID, Data.Rec.ID, &Data);
+				CheckPaneDialog * cc_dlg = new CheckPaneDialog(Data.Rec.CashID, Data.Rec.ID, &Data, 0/*ctrFlags*/);
                 if(cc_dlg) {
 					int r = cc_dlg->AcceptCheck(0, 0, 0.0, CPosProcessor::accmAveragePrinting);
 					ZDELETE(cc_dlg);

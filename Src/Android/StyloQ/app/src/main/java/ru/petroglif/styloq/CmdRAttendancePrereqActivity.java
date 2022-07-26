@@ -24,12 +24,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
+
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.TimerTask;
 
 public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	public  CommonPrereqModule CPM;
@@ -37,7 +40,22 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	private Param P;
 	private ViewDescriptionList VdlDocs; // Описание таблицы просмотра существующих заказов
 	private ArrayList <Document.EditAction> DocEditActionList;
-
+	private void RefreshCurrentDocStatus()
+	{
+		if(CPM.TabList != null) {
+			ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ATTENDANCEPREREQ);
+			if(view_pager != null) {
+				int tidx = view_pager.getCurrentItem();
+				CommonPrereqModule.TabEntry tab_entry = CPM.TabList.get(tidx);
+				if(tab_entry != null && tab_entry.TabId == CommonPrereqModule.Tab.tabBookingDocument) {
+					HandleEvent(SLib.EV_SETVIEWDATA, tab_entry.TabView.getView(), null);
+				}
+			}
+		}
+	}
+	private class RefreshTimerTask extends TimerTask {
+		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { RefreshCurrentDocStatus(); }}); }
+	}
 	private static class Param {
 		Param()
 		{
@@ -661,8 +679,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					int id = entry.JsItem.optInt("id", 0);
 					if(id > 0) {
 						String nm = entry.JsItem.optString("nm");
-						if(SLib.GetLen(nm) > 0)
-							CPM.AddSimpleIndexEntry(SLib.PPOBJ_PROCESSOR, id, SLib.PPOBJATTR_NAME, nm, null);
+						CPM.AddSimpleIndexEntry(SLib.PPOBJ_PROCESSOR, id, SLib.PPOBJATTR_NAME, nm, null);
 					}
 				}
 			}
@@ -793,6 +810,18 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			return convertView; // Return the completed view to render on screen
 		}
 	}
+	@NotNull private static String MakeDurationText(StyloQApp appCtx, int duration)
+	{
+		String text = "";
+		if(duration > 0 && appCtx != null) {
+			text = appCtx.GetString("duration");
+			if(SLib.GetLen(text) == 0)
+				text = SLib.durationfmt(duration);
+			else
+				text += ": " + SLib.durationfmt(duration);
+		}
+		return text;
+	}
 	private static class GoodsByPrcListAdapter extends SLib.InternalArrayAdapter {
 		private int PrcID;
 		GoodsByPrcListAdapter(Context ctx, int rcId, int prcID, ArrayList data)
@@ -825,14 +854,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									CommonPrereqModule _cpm = ((CmdRAttendancePrereqActivity)_ctx).CPM;
 									int duration = _cpm.GetServiceDurationForPrc(PrcID, goods_id);
 									double price = (ware_entry.PrcPrice > 0.0) ? ware_entry.PrcPrice : _cpm.GetPriceForPrc(PrcID, goods_id);
-									if(duration > 0) {
-										String text = app_ctx.GetString("duration");
-										if(SLib.GetLen(text) == 0)
-											text = SLib.durationfmt(duration);
-										else
-											text += ": " + SLib.durationfmt(duration);
-										SLib.SetCtrlString(convertView, R.id.CTL_GOODSBYPRC_DURATION, text);
-									}
+									if(duration > 0)
+										SLib.SetCtrlString(convertView, R.id.CTL_GOODSBYPRC_DURATION, MakeDurationText(app_ctx, duration));
 									if(price > 0.0) {
 										String text = _cpm.FormatCurrency(price);
 										SLib.SetCtrlString(convertView, R.id.CTL_GOODSBYPRC_PRICE, text);
@@ -1048,18 +1071,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									}
 								}
 							}
-							{
-								int duration = AttdcBlk.Duration;
-								String text = "";
-								if(duration > 0) {
-									text = app_ctx.GetString("duration");
-									if(SLib.GetLen(text) == 0)
-										text = SLib.durationfmt(duration);
-									else
-										text += ": " + SLib.durationfmt(duration);
-								}
-								SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_DURATION, text);
-							}
+							SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_DURATION, MakeDurationText(app_ctx, AttdcBlk.Duration));
 						}
 					}
 					else if(vg_id == R.id.LAYOUT_ATTENDANCEPREREQ_BOOKING) {
@@ -1145,6 +1157,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							if(v != null && v instanceof ImageView)
 								((ImageView)v).setImageResource(status_image_rc_id);
 						}
+						CPM.DrawCurrentDocumentRemoteOpIndicators();
 					}
 				}
 				break;
@@ -1166,17 +1179,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
 										{
 											StyloQApp app_ctx = GetAppCtx();
-											if(app_ctx != null) {
-												int duration = CPM.GetServiceDurationForPrc(0, cur_id);
-												if(duration > 0) {
-													String text = app_ctx.GetString("duration");
-													if(SLib.GetLen(text) == 0)
-														text = SLib.durationfmt(duration);
-													else
-														text += ": " + SLib.durationfmt(duration);
-													SLib.SetCtrlString(iv, R.id.ATTENDANCEPREREQ_GOODS_DURATION, text);
-												}
-											}
+											int duration = CPM.GetServiceDurationForPrc(0, cur_id);
+											if(duration > 0)
+												SLib.SetCtrlString(iv, R.id.ATTENDANCEPREREQ_GOODS_DURATION, MakeDurationText(app_ctx, duration));
 										}
 										{
 											double val = cur_entry.JsItem.optDouble("price", 0.0);
@@ -1203,14 +1208,12 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												ArrayList <CommonPrereqModule.ProcessorEntry> prc_list = CPM.GetProcessorListByGoods(cur_id);
 												if(cur_entry.PrcExpandStatus == 0 || prc_list == null) {
 													ctl.setVisibility(View.GONE);
-													if(prc_lv != null)
-														prc_lv.setVisibility(View.GONE);
+													SLib.SetCtrlVisibility(prc_lv, View.GONE);
 												}
 												else if(cur_entry.PrcExpandStatus == 1) {
 													ctl.setVisibility(View.VISIBLE);
 													ctl.setImageResource(R.drawable.ic_triangleleft03);
-													if(prc_lv != null)
-														prc_lv.setVisibility(View.GONE);
+													SLib.SetCtrlVisibility(prc_lv, View.GONE);
 												}
 												else if(cur_entry.PrcExpandStatus == 2) {
 													ctl.setVisibility(View.VISIBLE);
@@ -1524,14 +1527,12 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 													ArrayList <CommonPrereqModule.WareEntry> goods_list = CPM.GetGoodsListByPrc(cur_id);
 													if(cur_entry.GoodsExpandStatus == 0 || goods_list == null) {
 														ctl.setVisibility(View.GONE);
-														if(goods_lv != null)
-															goods_lv.setVisibility(View.GONE);
+														SLib.SetCtrlVisibility(goods_lv, View.GONE);
 													}
 													else if(cur_entry.GoodsExpandStatus == 1) {
 														ctl.setVisibility(View.VISIBLE);
 														ctl.setImageResource(R.drawable.ic_triangleleft03);
-														if(goods_lv != null)
-															goods_lv.setVisibility(View.GONE);
+														SLib.SetCtrlVisibility(goods_lv, View.GONE);
 													}
 													else if(cur_entry.GoodsExpandStatus == 2) {
 														ctl.setVisibility(View.VISIBLE);
@@ -2251,6 +2252,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabBookingDocument);
 								if(te != null)
 									GetFragmentData(te.TabView);
+								ScheduleRTmr(new RefreshTimerTask(), 1000, 750);
 								CPM.CommitCurrentDocument();
 							}
 							break;
@@ -2268,6 +2270,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabBookingDocument);
 								if(te != null)
 									GetFragmentData(te.TabView);
+								ScheduleRTmr(new RefreshTimerTask(), 1000, 750);
 								CPM.CancelCurrentDocument();
 							}
 							break;
@@ -2281,40 +2284,33 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
 					if(ir.OriginalCmdItem != null) {
 						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
-							CPM.Locker_CommitCurrentDocument = false;
+							CPM.CurrentDocument_RemoteOp_Finish();
+							ScheduleRTmr(null, 0, 0);
 							if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
-								SecretTagPool svc_reply_pool = (SecretTagPool) ir.InfoReply;
-								byte[] svc_reply_bytes = svc_reply_pool.Get(SecretTagPool.tagRawData);
-								if(SLib.GetLen(svc_reply_bytes) > 0) {
-									String svc_reply_js_text = new String(svc_reply_bytes);
-									try {
-										JSONObject sv_reply_js = new JSONObject(svc_reply_js_text);
-										JSONObject js_prc = (sv_reply_js != null) ? sv_reply_js.optJSONObject("prc") : null;
-										if(js_prc != null) {
-											int prc_id = js_prc.optInt("id", 0);
-											if(prc_id > 0) {
-												if(CPM.ProcessorListData != null) {
-													boolean found = false;
-													for(int i = 0; !found && i < CPM.ProcessorListData.size(); i++) {
-														CommonPrereqModule.ProcessorEntry prc_entry = CPM.ProcessorListData.get(i);
-														if(prc_entry != null && prc_entry.JsItem != null) {
-															int local_prc_id = prc_entry.JsItem.optInt("id", 0);
-															if(local_prc_id == prc_id) {
-																prc_entry.JsItem = js_prc;
-																found = true;
-															}
-														}
+								SecretTagPool svc_reply_pool = (SecretTagPool)ir.InfoReply;
+								JSONObject sv_reply_js = svc_reply_pool.GetJsonObject(SecretTagPool.tagRawData);
+								JSONObject js_prc = (sv_reply_js != null) ? sv_reply_js.optJSONObject("prc") : null;
+								if(js_prc != null) {
+									int prc_id = js_prc.optInt("id", 0);
+									if(prc_id > 0) {
+										if(CPM.ProcessorListData != null) {
+											boolean found = false;
+											for(int i = 0; !found && i < CPM.ProcessorListData.size(); i++) {
+												CommonPrereqModule.ProcessorEntry prc_entry = CPM.ProcessorListData.get(i);
+												if(prc_entry != null && prc_entry.JsItem != null) {
+													int local_prc_id = prc_entry.JsItem.optInt("id", 0);
+													if(local_prc_id == prc_id) {
+														prc_entry.JsItem = js_prc;
+														found = true;
 													}
-													if(!found) {
-														CommonPrereqModule.ProcessorEntry new_prc_entry = new CommonPrereqModule.ProcessorEntry(js_prc);
-														CPM.ProcessorListData.add(new_prc_entry);
-													}
-													NotifyTabContentChanged(CommonPrereqModule.Tab.tabAttendance, 0);
 												}
 											}
+											if(!found) {
+												CommonPrereqModule.ProcessorEntry new_prc_entry = new CommonPrereqModule.ProcessorEntry(js_prc);
+												CPM.ProcessorListData.add(new_prc_entry);
+											}
+											NotifyTabContentChanged(CommonPrereqModule.Tab.tabAttendance, 0);
 										}
-									} catch(JSONException exn) {
-										SLib.LOG_e("CmdRAttendancePrereqActivity " + "EV_SVCQUERYRESULT JSONException");
 									}
 								}
 							}
@@ -2335,7 +2331,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							}
 						}
 						else if(ir.OriginalCmdItem.Name.equalsIgnoreCase("CancelDocument")) {
-							CPM.Locker_CommitCurrentDocument = false;
+							CPM.CurrentDocument_RemoteOp_Finish();
+							ScheduleRTmr(null, 0, 0);
 							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();

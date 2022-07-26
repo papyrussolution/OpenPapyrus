@@ -138,10 +138,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 	ngx_str_t   * v;
 	ngx_variable_value_t  * vv;
 	while(*fmt && buf < last) {
-		/*
-		 * "buf < last" means that we could copy at least one character:
-		 * the plain character, "%%", "%c", and minus without the checking
-		 */
+		// "buf < last" means that we could copy at least one character: the plain character, "%%", "%c", and minus without the checking
 		if(*fmt == '%') {
 			i64 = 0;
 			ui64 = 0;
@@ -392,10 +389,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_char zero, ngx_uint_t hexadecimal, ngx_uint_t width)
 {
 	u_char * p, temp[NGX_INT64_LEN + 1];
-	/*
-	 * we need temp[NGX_INT64_LEN] only,
-	 * but icc issues the warning
-	 */
+	// we need temp[NGX_INT64_LEN] only, but icc issues the warning
 	size_t len;
 	uint32_t ui32;
 	static u_char hex[] = "0123456789abcdef";

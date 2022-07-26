@@ -1062,7 +1062,7 @@ static cairo_int_status_t _emit_image_surface(cairo_script_surface_t * surface, 
 		cairo_surface_destroy(&clone->base);
 	}
 	cairo_surface_get_mime_data(&image->base, CAIRO_MIME_TYPE_JPEG, &mime_data, &mime_data_length);
-	if(mime_data != NULL) {
+	if(mime_data) {
 		_cairo_output_stream_printf(ctx->stream, "\n  (%s) <~", CAIRO_MIME_TYPE_JPEG);
 		base85_stream = _cairo_base85_stream_create(ctx->stream);
 		_cairo_output_stream_write(base85_stream, mime_data, mime_data_length);
@@ -1072,10 +1072,8 @@ static cairo_int_status_t _emit_image_surface(cairo_script_surface_t * surface, 
 		_cairo_output_stream_puts(ctx->stream, "~> set-mime-data\n");
 	}
 	cairo_surface_get_mime_data(&image->base, CAIRO_MIME_TYPE_JP2, &mime_data, &mime_data_length);
-	if(mime_data != NULL) {
-		_cairo_output_stream_printf(ctx->stream,
-		    "\n  (%s) <~",
-		    CAIRO_MIME_TYPE_JP2);
+	if(mime_data) {
+		_cairo_output_stream_printf(ctx->stream, "\n  (%s) <~", CAIRO_MIME_TYPE_JP2);
 		base85_stream = _cairo_base85_stream_create(ctx->stream);
 		_cairo_output_stream_write(base85_stream, mime_data, mime_data_length);
 		status = _cairo_output_stream_destroy(base85_stream);
@@ -2474,7 +2472,7 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 		goto BAIL;
 	/* (utf8) [cx cy [glyphs]] [clusters] backward show_text_glyphs */
 	/* [cx cy [glyphs]] show_glyphs */
-	if(utf8 != NULL && clusters != NULL) {
+	if(utf8 && clusters) {
 		_emit_string_literal(surface, utf8, utf8_len);
 		_cairo_output_stream_puts(ctx->stream, " ");
 	}
@@ -2526,7 +2524,7 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 		}
 		if(fabs(glyphs[n].P.x - x) > 1e-5 || fabs(glyphs[n].P.y - y) > 1e-5) {
 			if(fabs(glyphs[n].P.y - y) < 1e-5) {
-				if(base85_stream != NULL) {
+				if(base85_stream) {
 					status = _cairo_output_stream_destroy(base85_stream);
 					if(UNLIKELY(status)) {
 						base85_stream = NULL;
@@ -2546,7 +2544,7 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 				cairo_matrix_transform_point(&matrix, &ix, &iy);
 				ix -= scaled_font->font_matrix.x0;
 				iy -= scaled_font->font_matrix.y0;
-				if(base85_stream != NULL) {
+				if(base85_stream) {
 					status = _cairo_output_stream_destroy(base85_stream);
 					if(UNLIKELY(status)) {
 						base85_stream = NULL;
@@ -2582,14 +2580,10 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 		y += dy;
 	}
 	_cairo_scaled_font_thaw_cache(scaled_font);
-
-	if(base85_stream != NULL) {
-		cairo_status_t status2;
-
-		status2 = _cairo_output_stream_destroy(base85_stream);
+	if(base85_stream) {
+		cairo_status_t status2 = _cairo_output_stream_destroy(base85_stream);
 		if(status == CAIRO_STATUS_SUCCESS)
 			status = status2;
-
 		_cairo_output_stream_printf(ctx->stream, "~>");
 	}
 	else {
@@ -2597,8 +2591,7 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 	}
 	if(UNLIKELY(status))
 		return status;
-
-	if(utf8 != NULL && clusters != NULL) {
+	if(utf8 && clusters) {
 		for(n = 0; n < num_clusters; n++) {
 			if(clusters[n].num_bytes > UCHAR_MAX ||
 			    clusters[n].num_glyphs > UCHAR_MAX) {

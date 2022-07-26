@@ -6,15 +6,25 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <TextView style="@style/SearchResultTopicText"
-        android:id="@+id/LVITEM_SEARCH_SCOPE"
-        android:layout_height="wrap_content"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <ImageView style="@style/StatusIndicator" android:id="@+id/LVITEM_SEARCH_IND_STATUS"/>
+        <TextView style="@style/ExecuteTimeText" android:id="@+id/LVITEM_SEARCH_IND_EXECUTETIME"/>
+        <View style="@style/FakeView"/>
+        <TextView style="@style/SearchResultTopicText"
+            android:id="@+id/LVITEM_SEARCH_SCOPE"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:maxLines="1"
+            />
+    </LinearLayout>
     <!-- android:background="@drawable/shape_global_search_scope"-->
     <TextView
         android:id="@+id/LVITEM_SEARCH_TEXT"
@@ -22,6 +32,7 @@
         android:layout_width="match_parent"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
+        android:maxLines="1"
         android:textColor="@color/TextPrimary"
         />
 </LinearLayout>

@@ -1423,7 +1423,7 @@ public:
 		AddClusterAssoc(CTL_VATBFLT_WHAT, 2,  PPVTB_SIMPLELEDGER);
 		SetClusterData(CTL_VATBFLT_WHAT, Data.Kind);
 		SetPeriodInput(this, CTL_VATBFLT_PERIOD, &Data.Period);
-		setupObj();
+		SetupObj();
 		SETFLAG(v, 1, Data.Flags & VatBookFilt::fShowLink);
 		SETFLAG(v, 2, Data.Flags & VatBookFilt::fShowFree);
 		if(v == 3)
@@ -1457,7 +1457,7 @@ public:
 	}
 private:
 	DECL_HANDLE_EVENT;
-	void   setupObj();
+	void   SetupObj();
 	void   SetupCtrls();
 	PPObjVATBook * P_VBObj;
 };
@@ -1466,7 +1466,7 @@ IMPL_HANDLE_EVENT(VATBFiltDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isClusterClk(CTL_VATBFLT_WHAT)) {
-		setupObj();
+		SetupObj();
 		SetupCtrls();
 	}
 	else if(event.isClusterClk(CTL_VATBFLT_FLAGS))
@@ -1480,11 +1480,13 @@ IMPL_HANDLE_EVENT(VATBFiltDialog)
 	clearEvent(event);
 }
 
-void VATBFiltDialog::setupObj()
+void VATBFiltDialog::SetupObj()
 {
 	ushort v = getCtrlUInt16(CTL_VATBFLT_WHAT);
 	// @v10.7.9 Data.ArticleID = 0;
-	const PPID acs_id = (v == 0) ? P_VBObj->GetConfig(PPVTB_SELL).AccSheetID : P_VBObj->GetConfig(PPVTB_BUY).AccSheetID;
+	// @v11.4.5 const PPID acs_id = (v == 0) ? P_VBObj->GetConfig(PPVTB_SELL).AccSheetID : P_VBObj->GetConfig(PPVTB_BUY).AccSheetID;
+	const PPID ledger_kind = (v == 0) ? PPVTB_SELL : ((v == 2) ? PPVTB_SIMPLELEDGER : PPVTB_BUY); // @v11.4.5
+	const PPID acs_id = P_VBObj->GetConfig(ledger_kind).AccSheetID; // @v11.4.5
 	// @v10.7.9 {
 	if(Data.ArticleID) {
 		PPID   prev_ar_acs_id = 0;
@@ -2599,12 +2601,6 @@ int PPViewVatBook::AutoBuild()
 		OpEntryVector reckon_op_list_; // Список зачетных операций
 		OpEntryVector factbyshipm_exp_op_list_;
 		OpEntryVector as_paym_op_list_; // Список операций, имеющих признак VATBCfg::fAsPayment. Для таких операций по связанному документу формируется сторнирующая запись
-		//PPIDArray inc_op_list;  // Список основных операций для включения в книгу
-		//PPIDArray paym_op_list; // Список операций оплат
-		//PPIDArray neg_op_list;  // Список основных операций для включения в книгу, которые должны сторнироваться
-		//PPIDArray reckon_op_list; // Список зачетных операций
-		//PPIDArray factbyshipm_exp_op_list;
-		//PPIDArray as_paym_op_list; // Список операций, имеющих признак VATBCfg::fAsPayment. Для таких операций по связанному документу формируется сторнирующая запись
 		PPWaitStart();
 		IsMainOrgVatFree = 0;
 		if(GetMainOrgID(&main_org_id) > 0) {
@@ -2650,20 +2646,15 @@ int PPViewVatBook::AutoBuild()
 							if(r_item.Flags & VATBCfg::fNegative) {
 								inc_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
 								neg_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
-								//inc_op_list.addUnique(op_id);
-								//neg_op_list.addUnique(op_id);
 							}
 						}
 						else {
 							inc_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
-							//inc_op_list.addUnique(op_id);
 							if(r_item.Flags & VATBCfg::fNegative) {
 								neg_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
-								//neg_op_list.addUnique(op_id);
 							}
 							if(r_item.Flags & VATBCfg::fAsPayment) {
 								as_paym_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
-								//as_paym_op_list.addUnique(op_id);
 							}
 						}
 					}
@@ -2795,16 +2786,13 @@ int PPViewVatBook::AutoBuild()
 				THROW(ProcessOp2(inc_op_list_, i, &neg_op_list_, &flt, by_paym_param, p_ebf_blk));
 			}
 			paym_op_list_.RemoveExcludedByConfig(r_cfg);
-			//ConvertOpList(r_cfg, paym_op_list);
 			for(i = 0; i < paym_op_list_.getCount(); i++)
 				THROW(ProcessOp2(paym_op_list_, i, &neg_op_list_, &flt, 1, p_ebf_blk));
 			reckon_op_list_.RemoveExcludedByConfig(r_cfg);
-			//ConvertOpList(r_cfg, reckon_op_list);
 			for(i = 0; i < reckon_op_list_.getCount(); i++)
 				THROW(ProcessOp2(reckon_op_list_, i, &neg_op_list_, &flt, 2, p_ebf_blk));
 			if(p_ebf_blk && p_ebf_blk->Flags & p_ebf_blk->fByShipment) {
 				factbyshipm_exp_op_list_.RemoveExcludedByConfig(r_cfg);
-				//ConvertOpList(r_cfg, factbyshipm_exp_op_list);
 				for(i = 0; i < factbyshipm_exp_op_list_.getCount(); i++)
 					THROW(ProcessOp2(factbyshipm_exp_op_list_, i, 0, &flt, 3, p_ebf_blk));
 			}
@@ -3138,6 +3126,37 @@ int PPViewVatBook::Export()
 							sum_svat += _svat;
 							sum_amount += _amount;
 						}
+						/* @todo @v11.4.5 Список символов, которые необходимо перенести в ppstr2
+							"СумНДСВсКПк"
+							"СтПродБезНДС18"
+							"СумНДСВсКПр18"
+							"СтПродБезНДС20"
+							"СумНДСВсКПр20"
+							"СтПродБезНДС10"
+							"СумНДСВсКПр10"
+							"СтПродБезНДС0"
+							"СтПродОсвВсКПр"
+							"НомерПор"
+							"НомСчФПрод"
+							"ДатаСчФПрод"
+							"НомКСчФПрод"
+							"ДатаКСчФПрод"
+							"НомТД" // Номер таможенной декларации
+							"СтоимПокупВ"
+							"СумНДСВыч"
+							"СтоимПродСФВ"
+							"СтоимПродСФ"
+							"СтоимПродСФ18"
+							"СумНДССФ18"
+							"СтоимПродСФ20"
+							"СумНДССФ20"
+							"СтоимПродСФ10"
+							"СумНДССФ10"
+							"СтоимПродСФ0"
+							"СтоимПродОсв"
+							"КодВидОпер"
+							"ДатаУчТов"
+						*/
 						if(Filt.Kind == PPVTB_BUY) {
 							n_book.PutAttrib("СумНДСВсКПк", temp_buf.Z().Cat(sum_svat, SFMT_MONEY));
 						}

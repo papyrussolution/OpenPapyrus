@@ -158,7 +158,7 @@ public class SecretTagPool {
 		int CompressMethod; // Reserved.
 	};
 
-	int Put(int id, final byte [] chunk, DeflateStrategy ds)
+	int Put(int id, final byte [] chunk, DeflateStrategy ds) throws StyloQException
 	{
 		int result = 0;
 		try {
@@ -182,8 +182,8 @@ public class SecretTagPool {
 			else
 				result = Put(id, chunk);
 		} catch(IOException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 			result = 0;
+			throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 		}
 		return result;
 	}
@@ -299,7 +299,7 @@ public class SecretTagPool {
 			}
 			result = baos.toByteArray();
 		} catch(IOException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 		}
 		return result;
 	}

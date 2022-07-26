@@ -56,7 +56,7 @@ void _cairo_default_context_fini(cairo_default_context_t * cr)
 	}
 	_cairo_gstate_fini(cr->gstate);
 	cr->gstate_freelist = cr->gstate_freelist->next; /* skip over tail[1] */
-	while(cr->gstate_freelist != NULL) {
+	while(cr->gstate_freelist) {
 		cairo_gstate_t * gstate = cr->gstate_freelist;
 		cr->gstate_freelist = gstate->next;
 		SAlloc::F(gstate);

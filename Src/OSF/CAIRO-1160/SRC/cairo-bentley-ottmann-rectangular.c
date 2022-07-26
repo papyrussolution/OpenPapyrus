@@ -240,7 +240,7 @@ static inline void edge_start_or_continue_box(sweep_line_t * sweep_line, edge_t 
 {
 	if(left->right == right)
 		return;
-	if(left->right != NULL) {
+	if(left->right) {
 		if(left->right->x == right->x) {
 			/* continuation on right, so just swap edges */
 			left->right = right;
@@ -291,7 +291,7 @@ static edge_t * merge_sorted_edges(edge_t * head_a, edge_t * head_b)
 
 	do {
 		x = head_b->x;
-		while(head_a != NULL && head_a->x <= x) {
+		while(head_a && head_a->x <= x) {
 			prev = head_a;
 			head_a = head_a->next;
 		}
@@ -303,7 +303,7 @@ static edge_t * merge_sorted_edges(edge_t * head_a, edge_t * head_b)
 
 start_with_b:
 		x = head_a->x;
-		while(head_b != NULL && head_b->x <= x) {
+		while(head_b && head_b->x <= x) {
 			prev = head_b;
 			head_b = head_b->next;
 		}
@@ -423,7 +423,7 @@ static inline void active_edges_to_traps(sweep_line_t * sweep)
 
 			/* Check if there is a co-linear edge with an existing trap */
 			while(right->x == left->x) {
-				if(right->right != NULL) {
+				if(right->right) {
 					assert(left->right == NULL);
 					/* continuation on left */
 					left->top = right->top;
@@ -435,7 +435,7 @@ static inline void active_edges_to_traps(sweep_line_t * sweep)
 			}
 
 			if(winding == 0) {
-				if(left->right != NULL)
+				if(left->right)
 					edge_end_box(sweep, left, top);
 				pos = right;
 				continue;
@@ -443,7 +443,7 @@ static inline void active_edges_to_traps(sweep_line_t * sweep)
 
 			do {
 				/* End all subsumed traps */
-				if(UNLIKELY(right->right != NULL))
+				if(UNLIKELY(right->right))
 					edge_end_box(sweep, right, top);
 
 				/* Greedily search for the closing edge, so that we generate
@@ -469,7 +469,7 @@ static inline void active_edges_to_traps(sweep_line_t * sweep)
 
 			do {
 				/* End all subsumed traps */
-				if(UNLIKELY(right->right != NULL))
+				if(UNLIKELY(right->right))
 					edge_end_box(sweep, right, top);
 
 				/* skip co-linear edges */
@@ -490,7 +490,7 @@ static inline void active_edges_to_traps(sweep_line_t * sweep)
 
 static inline void sweep_line_delete_edge(sweep_line_t * sweep, edge_t * edge)
 {
-	if(edge->right != NULL) {
+	if(edge->right) {
 		edge_t * next = edge->next;
 		if(next->x == edge->x) {
 			next->top = edge->top;
@@ -556,7 +556,7 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular(rectangle_t 
 	do {
 		if(rectangle->top != sweep_line.current_y) {
 			rectangle_t * stop = rectangle_peek_stop(&sweep_line);
-			while(stop != NULL && stop->bottom < rectangle->top) {
+			while(stop && stop->bottom < rectangle->top) {
 				if(stop->bottom != sweep_line.current_y) {
 					if(update) {
 						active_edges_to_traps(&sweep_line);

@@ -1114,7 +1114,7 @@ public:
 		if(Data.GetStrucSymb().NotEmpty()) {
 			P_Dl600Scope = Dl600Ctx.GetScopeByName_Const(DlScope::kExpData, Data.GetStrucSymb());
 		}
-		for(uint i = 0; ok && i<Data.GetCount(); i++) {
+		for(uint i = 0; ok && i < Data.GetCount(); i++) {
 			const PPID id = static_cast<PPID>(i+1);
 			Data.GetEntry(i, mobTypeClmn);
 			ss.clear();
@@ -1380,17 +1380,33 @@ private:
 	{
 		bool   ok = false;
 		if(pZone && (!isempty(pFieldName) || pFullList)) {
-			SdbField iter_fld;
-			for(uint i = 0; (!ok || pFullList) && i < pZone->GetCount(); i++) {
-				if(pZone->GetFieldByPos(i, &iter_fld)) {
-					if(iter_fld.Name.IsEqiAscii(pFieldName)) {
-						rFld = iter_fld;
-						ok = true;
+			{
+				// @v11.4.5 {
+				const DlScope * p_scope = 0;
+				SdbField iter_fld;
+				for(uint j = 0; (!ok || pFullList) && pZone->EnumInheritance(&j, &p_scope);) {
+					for(uint k = 0; (!ok || pFullList) && p_scope->EnumFields(&k, &iter_fld);) {
+						if(iter_fld.Name.IsEqiAscii(pFieldName)) {
+							rFld = iter_fld;
+							ok = true;
+						}
+						CALLPTRMEMB(pFullList, Add(iter_fld.ID, iter_fld.Name));
 					}
-					if(pFullList)
-						pFullList->Add(iter_fld.ID, iter_fld.Name);
 				}
+				// } @v11.4.5 
 			}
+			/* @v11.4.5 {
+				SdbField iter_fld;
+				for(uint i = 0; (!ok || pFullList) && i < pZone->GetCount(); i++) {
+					if(pZone->GetFieldByPos(i, &iter_fld)) {
+						if(iter_fld.Name.IsEqiAscii(pFieldName)) {
+							rFld = iter_fld;
+							ok = true;
+						}
+						CALLPTRMEMB(pFullList, Add(iter_fld.ID, iter_fld.Name));
+					}
+				}
+			}*/
 		}
 		return ok;
 	}
@@ -1483,29 +1499,36 @@ private:
 			if(FindField(p_zone_scope, fld_symb, fld, 0)) {
 				if(fld.T.IsPure()) {
 					const int st = GETSTYPE(fld.T.Typ);
-					if(st == S_ZSTRING) {
-						fld_type_symb = "string";
-						Data.DataType = BTS_STRING;
-					}
-					else if(oneof3(st, S_INT, S_UINT, S_AUTOINC)) {
-						fld_type_symb = "int";
-						Data.DataType = BTS_INT;
-					}
-					else if(oneof4(st, S_FLOAT, S_DEC, S_MONEY, S_NUMERIC)) {
-						fld_type_symb = "real";
-						Data.DataType = BTS_REAL;
-					}
-					else if(st == S_DATE) {
-						fld_type_symb = "date";
-						Data.DataType = BTS_DATE;
-					}
-					else if(st == S_TIME) {
-						fld_type_symb = "time";
-						Data.DataType = BTS_TIME;
-					}
-					else if(st == S_DATETIME) {
-						fld_type_symb = "timestamp";
-						Data.DataType = BTS_DATETIME;
+					switch(st) {
+						case S_ZSTRING:
+							fld_type_symb = "string";
+							Data.DataType = BTS_STRING;
+							break;
+						case S_INT:
+						case S_UINT:
+						case S_AUTOINC:
+							fld_type_symb = "int";
+							Data.DataType = BTS_INT;
+							break;
+						case S_FLOAT:
+						case S_DEC:
+						case S_MONEY:
+						case S_NUMERIC:
+							fld_type_symb = "real";
+							Data.DataType = BTS_REAL;
+							break;
+						case S_DATE:
+							fld_type_symb = "date";
+							Data.DataType = BTS_DATE;
+							break;
+						case S_TIME:
+							fld_type_symb = "time";
+							Data.DataType = BTS_TIME;
+							break;
+						case S_DATETIME:
+							fld_type_symb = "timestamp";
+							Data.DataType = BTS_DATETIME;
+							break;
 					}
 				}
 			}

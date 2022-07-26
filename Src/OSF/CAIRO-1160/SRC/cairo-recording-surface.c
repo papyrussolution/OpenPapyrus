@@ -348,7 +348,7 @@ cairo_surface_t * cairo_recording_surface_create(cairo_content_t content, const 
 	_cairo_surface_init(&surface->base, &cairo_recording_surface_backend, NULL/* device */, content, TRUE/* is_vector */);
 	surface->unbounded = TRUE;
 	/* unbounded -> 'infinite' extents */
-	if(extents != NULL) {
+	if(extents) {
 		surface->extents_pixels = *extents;
 		/* XXX check for overflow */
 		surface->extents.x = static_cast<int>(floor(extents->x));
@@ -512,7 +512,7 @@ static cairo_status_t _cairo_recording_surface_acquire_source_image(void * abstr
 	cairo_surface_t * image;
 	cairo_status_t status;
 	cairo_surface_t * proxy = _cairo_surface_has_snapshot(static_cast<cairo_surface_t *>(abstract_surface), &proxy_backend);
-	if(proxy != NULL) {
+	if(proxy) {
 		*image_out = reinterpret_cast<cairo_image_surface_t *>(cairo_surface_reference(get_proxy(proxy)));
 		*image_extra = NULL;
 		return CAIRO_STATUS_SUCCESS;
@@ -1626,25 +1626,16 @@ static cairo_status_t _cairo_recording_surface_replay_internal(cairo_recording_s
 			case CAIRO_COMMAND_FILL:
 			    status = CAIRO_INT_STATUS_UNSUPPORTED;
 			    if(_cairo_surface_wrapper_has_fill_stroke(&wrapper)) {
-				    cairo_command_t * stroke_command;
-
-				    stroke_command = NULL;
+				    cairo_command_t * stroke_command = 0;
 				    if(type != CAIRO_RECORDING_CREATE_REGIONS && i < num_elements - 1)
 					    stroke_command = elements[i+1];
-
-				    if(stroke_command != NULL &&
-					type == CAIRO_RECORDING_REPLAY &&
-					region != CAIRO_RECORDING_REGION_ALL) {
+				    if(stroke_command && type == CAIRO_RECORDING_REPLAY && region != CAIRO_RECORDING_REGION_ALL) {
 					    if(stroke_command->header.region != region)
 						    stroke_command = NULL;
 				    }
 
-				    if(stroke_command != NULL &&
-					stroke_command->header.type == CAIRO_COMMAND_STROKE &&
-					_cairo_path_fixed_equal(&command->fill.path,
-					&stroke_command->stroke.path) &&
-					_cairo_clip_equal(command->header.clip,
-					stroke_command->header.clip)) {
+				    if(stroke_command && stroke_command->header.type == CAIRO_COMMAND_STROKE && _cairo_path_fixed_equal(&command->fill.path, &stroke_command->stroke.path) &&
+					_cairo_clip_equal(command->header.clip, stroke_command->header.clip)) {
 					    status = _cairo_surface_wrapper_fill_stroke(&wrapper,
 						    command->header.op,
 						    &command->fill.source.base,
@@ -1920,15 +1911,13 @@ static cairo_status_t _recording_surface_get_ink_bbox(cairo_recording_surface_t 
 	status = analysis_surface->status;
 	if(UNLIKELY(status))
 		return status;
-	if(transform != NULL)
+	if(transform)
 		_cairo_analysis_surface_set_ctm(analysis_surface, transform);
 	status = _cairo_recording_surface_replay(&surface->base, analysis_surface);
 	_cairo_analysis_surface_get_bounding_box(analysis_surface, bbox);
 	cairo_surface_destroy(analysis_surface);
-
 	return status;
 }
-
 /**
  * cairo_recording_surface_ink_extents:
  * @surface: a #cairo_recording_surface_t
@@ -1956,28 +1945,20 @@ void cairo_recording_surface_ink_extents(cairo_surface_t * surface, double * x0,
 	if(UNLIKELY(status))
 		status = _cairo_surface_set_error(surface, status);
 DONE:
-	if(x0)
-		*x0 = _cairo_fixed_to_double(bbox.p1.x);
-	if(y0)
-		*y0 = _cairo_fixed_to_double(bbox.p1.y);
-	if(width)
-		*width = _cairo_fixed_to_double(bbox.p2.x - bbox.p1.x);
-	if(height)
-		*height = _cairo_fixed_to_double(bbox.p2.y - bbox.p1.y);
+	ASSIGN_PTR(x0, _cairo_fixed_to_double(bbox.p1.x));
+	ASSIGN_PTR(y0, _cairo_fixed_to_double(bbox.p1.y));
+	ASSIGN_PTR(width, _cairo_fixed_to_double(bbox.p2.x - bbox.p1.x));
+	ASSIGN_PTR(height, _cairo_fixed_to_double(bbox.p2.y - bbox.p1.y));
 }
 
-cairo_status_t _cairo_recording_surface_get_bbox(cairo_recording_surface_t * surface,
-    cairo_box_t * bbox,
-    const cairo_matrix_t * transform)
+cairo_status_t _cairo_recording_surface_get_bbox(cairo_recording_surface_t * surface, cairo_box_t * bbox, const cairo_matrix_t * transform)
 {
 	if(!surface->unbounded) {
 		_cairo_box_from_rectangle(bbox, &surface->extents);
-		if(transform != NULL)
+		if(transform)
 			_cairo_matrix_transform_bounding_box_fixed(transform, bbox, NULL);
-
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	return _recording_surface_get_ink_bbox(surface, bbox, transform);
 }
 

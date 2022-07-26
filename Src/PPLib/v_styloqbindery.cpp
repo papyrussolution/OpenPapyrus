@@ -78,6 +78,8 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 				new_entry.CorrespondID = pack.Rec.CorrespondID;
 				new_entry.Expiration = pack.Rec.Expiration;
 				new_entry.LinkOid.Set(pack.Rec.LinkObjType, pack.Rec.LinkObjID);
+				new_entry.DocType = pack.Rec.DocType; // @v11.4.5
+				new_entry.Flags = pack.Rec.Flags; // @v11.4.5
 				if(new_entry.LinkOid.Obj && new_entry.LinkOid.Id) {
 					char   name_buf[256];
 					PPObject * ppobj = ObjColl.GetObjectPtr(new_entry.LinkOid.Obj);
@@ -161,8 +163,8 @@ int PPViewStyloQBindery::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			case 3: // expiry time
 				pBlk->Set(p_item->Expiration);
 				break;
-			case 4: // common name
-				pBlk->TempBuf.Z();
+			case 4: // ext description
+				StyloQCore::MakeDocExtDescriptionText(p_item->DocType, p_item->Flags, pBlk->TempBuf);
 				pBlk->Set(pBlk->TempBuf);
 				break;
 			case 5: // correspond item
@@ -654,6 +656,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvPushIndexContent);
 				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvIndoorSvcPrereq); // @v11.4.4
 				base_cmd_id_list.add(StyloQCommandList::sqbcGoodsInfo); // @v11.4.4
+				base_cmd_id_list.add(StyloQCommandList::sqbcLocalBarcodeSearch); // @v11.4.5
 				StrAssocArray basecmd_list;
 				for(uint i = 0; i < base_cmd_id_list.getCount(); i++) {
 					const long base_cmd_id = base_cmd_id_list.get(i);
@@ -663,7 +666,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 			}
 			{
 				PPIDArray obj_type_list;
-				SetupObjListCombo(this, CTLSEL_STQCMD_OTR, Data.ObjTypeRestriction, &StyloQCore::MakeLinkObjTypeList(obj_type_list));
+				SetupObjListCombo(this, CTLSEL_STQCMD_OTR, Data.ObjTypeRestriction, &StyloQCore::MakeLinkObjTypeList(true, obj_type_list));
 				SetupObjGroupCombo(Data.ObjTypeRestriction);
 			}
 			SetupBaseCommand(Data.BaseCmdId);
@@ -715,18 +718,13 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					case StyloQCommandList::sqbcPersonEvent: ChangePersonEventTemplate(); break;
 					case StyloQCommandList::sqbcReport: ChangeBaseFilter(); break;
 					case StyloQCommandList::sqbcRsrvOrderPrereq: break; // @v11.2.6
-					case StyloQCommandList::sqbcRsrvAttendancePrereq: // @v11.3.2
-						EditAttendanceFilter();
-						break;
-					case StyloQCommandList::sqbcRsrvPushIndexContent: // @v11.3.4
-						EditIndexingFilter();
-						break;
+					case StyloQCommandList::sqbcRsrvAttendancePrereq: EditAttendanceFilter(); break; // @v11.3.2
+					case StyloQCommandList::sqbcRsrvPushIndexContent: EditIndexingFilter(); break; // @v11.3.4
 					case StyloQCommandList::sqbcRsrvIndoorSvcPrereq: // @v11.4.4
 						// @todo
 						break;
-					case StyloQCommandList::sqbcGoodsInfo: // @v11.4.4
-						// @todo
-						break;
+					case StyloQCommandList::sqbcGoodsInfo: EditGoodsInfoFilter(); break; // @v11.4.4
+					case StyloQCommandList::sqbcLocalBarcodeSearch: break; // @todo // @v11.4.5 
 					default: return;
 				}
 			}
@@ -783,7 +781,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 			StyloQIndexingParam * p_filt = 0;
 			uint   pos = 0;
 			{
-				const StyloQIndexingParam pattern_filt;
+				const StyloQIndexingParam pattern_filt; // Нам только сигнатура нужна дабы убедиться в том, что в хранилище она правильная //
 				sav_offs = Data.Param.GetRdOffs();
 				{
 					if(Data.Param.GetAvailableSize()) {
@@ -839,6 +837,43 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					}
 					SETIFZ(p_filt, new StyloQAttendancePrereqParam);
 					if(PPStyloQInterchange::Edit_RsrvAttendancePrereqParam(*p_filt) > 0) {
+						Data.Param.Z();
+						THROW(PPView::WriteFiltPtr(Data.Param, p_filt));
+					}
+					else
+						Data.Param.SetRdOffs(sav_offs);
+				}
+			}
+			CATCH
+				Data.Param.SetRdOffs(sav_offs);
+			ENDCATCH
+			ZDELETE(p_filt);
+		}
+		void EditGoodsInfoFilter()
+		{
+			size_t sav_offs = 0;
+			StyloQGoodsInfoParam * p_filt = 0;
+			uint   pos = 0;
+			{
+				const StyloQGoodsInfoParam pattern_filt;
+				sav_offs = Data.Param.GetRdOffs();
+				{
+					if(Data.Param.GetAvailableSize()) {
+						PPBaseFilt * p_base_filt = 0;
+						THROW(PPView::ReadFiltPtr(Data.Param, &p_base_filt));
+						if(p_base_filt) {
+							if(p_base_filt->GetSignature() == pattern_filt.GetSignature()) {
+								p_filt = static_cast<StyloQGoodsInfoParam *>(p_base_filt);
+							}
+							else {
+								assert(p_filt == 0);
+								// Путаница в фильтрах - убиваем считанный фильтр чтобы создать новый.
+								ZDELETE(p_base_filt);
+							}
+						}
+					}
+					SETIFZ(p_filt, new StyloQGoodsInfoParam);
+					if(PPStyloQInterchange::Edit_GoodsInfoParam(*p_filt) > 0) {
 						Data.Param.Z();
 						THROW(PPView::WriteFiltPtr(Data.Param, p_filt));
 					}
@@ -962,7 +997,13 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					}
 					break;
 				case StyloQCommandList::sqbcGoodsInfo: // @v11.4.4
-					// @todo
+					{
+						enable_cmd_param = true;
+						enable_viewcmd = false;
+						enable_viewcombo = false;
+					}
+					break;
+				case StyloQCommandList::sqbcLocalBarcodeSearch: // @v11.4.5
 					break;
 			}
 			enableCommand(cmCmdParam, enable_cmd_param);

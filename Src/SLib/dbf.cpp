@@ -270,25 +270,27 @@ int DbfRecord::put(int fld, LDATE dt)
 	return put(fld, &dbf_dt);
 }
 
-char * FASTCALL DbfRecord::getFldBuf(int fldN, char * buf) const
+char * STDCALL DbfRecord::getFldBuf(int fldN, char * pBuf, size_t bufSize, DBFF * pF) const
 {
 	DBFF   f;
 	if(P_Tbl->getField(fldN, &f)) {
-		memcpy(buf, P_Buffer + f.offset, f.fsize);
-		buf[f.fsize] = '\0';
-		return buf;
+		const size_t cpy_size = MIN(f.fsize, bufSize);
+		memcpy(pBuf, P_Buffer + f.offset, cpy_size);
+		pBuf[cpy_size] = '\0';
+		ASSIGN_PTR(pF, f);
+		return pBuf;
 	}
 	else {
-		buf[0] = 0;
+		pBuf[0] = 0;
 		return 0;
 	}
 }
 
-int DbfRecord::get(int fldN, char * data, int skipEmpty) const
+int DbfRecord::get(int fldN, char * pData, size_t bufSize, int skipEmpty) const
 {
-	int    ok = BIN(getFldBuf(fldN, data));
+	int    ok = BIN(getFldBuf(fldN, pData, bufSize, 0));
 	if(ok && skipEmpty) {
-		if(*strip(data) == 0)
+		if(*strip(pData) == 0)
 			ok = 0;
 	}
 	return ok;
@@ -297,7 +299,7 @@ int DbfRecord::get(int fldN, char * data, int skipEmpty) const
 int DbfRecord::get(int fldN, SString & rBuf, int skipEmpty) const
 {
 	char   temp_buf[1024];
-	int    ok = BIN(getFldBuf(fldN, temp_buf));
+	int    ok = BIN(getFldBuf(fldN, temp_buf, sizeof(temp_buf), 0));
 	rBuf = temp_buf;
 	if(ok && skipEmpty) {
 		if(!rBuf.NotEmptyS())
@@ -309,7 +311,7 @@ int DbfRecord::get(int fldN, SString & rBuf, int skipEmpty) const
 int DbfRecord::get(int fldN, double & data) const
 {
 	char   tmp[256];
-	if(getFldBuf(fldN, tmp) == 0) {
+	if(!getFldBuf(fldN, tmp, sizeof(tmp), 0)) {
 		data = 0.0;
 		return 0;
 	}
@@ -322,7 +324,7 @@ int DbfRecord::get(int fldN, double & data) const
 int DbfRecord::get(int fldN, float & data) const
 {
 	char   tmp[256];
-	if(getFldBuf(fldN, tmp) == 0) {
+	if(!getFldBuf(fldN, tmp, sizeof(tmp), 0)) {
 		data = 0.0f;
 		return 0;
 	}
@@ -336,7 +338,7 @@ int DbfRecord::get(int fldN, long & data) const
 {
 	int    ok = 1;
 	char   tmp[256];
-	if(getFldBuf(fldN, tmp) == 0) {
+	if(!getFldBuf(fldN, tmp, sizeof(tmp), 0)) {
 		data = 0;
 		ok = 0;
 	}
@@ -348,7 +350,7 @@ int DbfRecord::get(int fldN, long & data) const
 int DbfRecord::get(int fldN, int64 & data) const
 {
 	char   tmp[256];
-	if(getFldBuf(fldN, tmp) == 0) {
+	if(!getFldBuf(fldN, tmp, sizeof(tmp), 0)) {
 		data = 0;
 		return 0;
 	}
@@ -359,7 +361,7 @@ int DbfRecord::get(int fldN, int64 & data) const
 int DbfRecord::get(int fldN, int & data) const
 {
 	char   tmp[256];
-	if(getFldBuf(fldN, tmp) == 0) {
+	if(!getFldBuf(fldN, tmp, sizeof(tmp), 0)) {
 		data = 0;
 		return 0;
 	}
@@ -372,15 +374,35 @@ int DbfRecord::get(int fldN, int & data) const
 int DbfRecord::get(int fldN, DBFDate * data) const
 {
 	char   tmp[256];
-	if(getFldBuf(fldN, tmp) == 0) {
+	DBFF   f;
+	if(!getFldBuf(fldN, tmp, sizeof(tmp), &f)) {
 		memzero(data, sizeof(*data));
 		return 0;
 	}
 	else {
-		tmp[8] = 0;
-		data->day   = satoi(tmp+6); tmp[6] = 0;
-		data->month = satoi(tmp+4); tmp[4] = 0;
-		data->year  = satoi(tmp);
+		//
+		// @v11.4.5 “ак как некоторые долбоклюи внос€т дату в dbf-таблицу в строчном формате, то приходитс€ делать
+		// защиту от таких придурков. ¬ажно: сейчас предполагаетс€, что дата представлена в текстовом формате GERMAN, но в общем случае
+		// никто такого не гарантирует!
+		//
+		if(f.ftype == 'D') {
+			tmp[8] = 0;
+			data->day   = satoi(tmp+6); tmp[6] = 0;
+			data->month = satoi(tmp+4); tmp[4] = 0;
+			data->year  = satoi(tmp);
+		}
+		else if(f.ftype == 'C') { 
+			LDATE _d = strtodate_(tmp, DATF_GERMAN);
+			if(checkdate(_d)) {
+				data->day = _d.day();
+				data->month = _d.month();
+				data->year = _d.year();
+			}
+			else
+				memzero(data, sizeof(*data));
+		}
+		else
+			memzero(data, sizeof(*data));
 		return 1;
 	}
 }
@@ -398,19 +420,18 @@ int DbfRecord::get(int fldN, LDATE & data) const
 int DbfRecord::get(int fldN, LTIME & data) const
 {
 	char   str[256];
-	if(get(fldN, str)) {
+	if(get(fldN, str, sizeof(str))) {
 		strtotime(str, 0, &data);
 		return 1;
 	}
 	return 0;
 }
 
-#ifndef _WIN32_WCE // @v5.1.7 AHTOXA
 int DbfRecord::get(int fldN, TYPEID typ, void * pBuf) const
 {
 	int    ok = 1;
 	union {
-		char   Str[4096]; // @v8.1.2 [512]-->[4096]
+		char   Str[4096];
 		long   Lv;
 		double Rv;
 		LDATE  Dv;
@@ -418,7 +439,7 @@ int DbfRecord::get(int fldN, TYPEID typ, void * pBuf) const
 	} temp_buf;
 	switch(stbase(typ)) {
 		case BTS_STRING:
-			ok = get(fldN, temp_buf.Str);
+			ok = get(fldN, temp_buf.Str, sizeof(temp_buf.Str));
 			strip(temp_buf.Str);
 			break;
 		case BTS_INT:
@@ -433,11 +454,9 @@ int DbfRecord::get(int fldN, TYPEID typ, void * pBuf) const
 		case BTS_TIME:
 			ok = get(fldN, temp_buf.Tv);
 			break;
-		// @v8.1.2 {
 		case BTS_BOOL:
-			ok = get(fldN, temp_buf.Str);
+			ok = get(fldN, temp_buf.Str, sizeof(temp_buf.Str));
 			break;
-		// } @v8.1.2
 		default:
 			ok = 0;
 			break;
@@ -446,7 +465,6 @@ int DbfRecord::get(int fldN, TYPEID typ, void * pBuf) const
 		stbaseto(typ, pBuf, &temp_buf);
 	return ok;
 }
-#endif
 //
 // DbfTable
 //
@@ -483,9 +501,7 @@ int DbfTable::open()
 	if(Opened)
 		ok = 1;
 	else {
-#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
 		THROW(fileExists(P_Name));
-#endif
 		THROW_S_S(Stream = fopen(P_Name, "r+b"), SLERR_OPENFAULT, P_Name);
 		Mod = 0;
 		THROW(initBuffer());

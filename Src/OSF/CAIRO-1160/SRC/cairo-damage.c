@@ -60,7 +60,7 @@ void _cairo_damage_destroy(cairo_damage_t * damage)
 	struct _cairo_damage::_cairo_damage_chunk * chunk, * next;
 	if(damage == (cairo_damage_t*)&__cairo_damage__nil)
 		return;
-	for(chunk = damage->chunks.next; chunk != NULL; chunk = next) {
+	for(chunk = damage->chunks.next; chunk; chunk = next) {
 		next = chunk->next;
 		SAlloc::F(chunk);
 	}

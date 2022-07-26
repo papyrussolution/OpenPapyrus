@@ -159,10 +159,10 @@ xmlList * xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare compa
 	l->sentinel->prev = l->sentinel;
 	l->sentinel->data = NULL;
 	/* If there is a link deallocator, use it */
-	if(deallocator != NULL)
+	if(deallocator)
 		l->linkDeallocator = deallocator;
 	/* If there is a link comparator, use it */
-	if(compare != NULL)
+	if(compare)
 		l->linkCompare = compare;
 	else /* Use our own */
 		l->linkCompare = xmlLinkCompare;

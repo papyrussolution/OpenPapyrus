@@ -23,6 +23,9 @@
         android:theme="@style/Theme.StyloQ"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".CmdRGoodsInfoActivity"
+            android:exported="true" />
+        <activity
             android:name=".DetailActivity"
             android:exported="true" />
         <activity

@@ -82,7 +82,7 @@ void FASTCALL _cairo_freepool_fini(cairo_freepool_t * freepool)
 		pool = next;
 	}
 	pool = freepool->freepools;
-	while(pool != NULL) {
+	while(pool) {
 		cairo_freelist_pool_t * next = pool->next;
 		SAlloc::F(pool);
 		pool = next;
@@ -119,7 +119,7 @@ cairo_status_t _cairo_freepool_alloc_array(cairo_freepool_t * freepool, int coun
 	int i;
 	for(i = 0; i < count; i++) {
 		cairo_freelist_node_t * node = freepool->first_free_node;
-		if(LIKELY(node != NULL)) {
+		if(LIKELY(node)) {
 			VG(VALGRIND_MAKE_MEM_DEFINED(node, sizeof(node->next)));
 			freepool->first_free_node = node->next;
 			VG(VALGRIND_MAKE_MEM_UNDEFINED(node, freepool->nodesize));

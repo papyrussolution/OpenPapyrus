@@ -357,17 +357,17 @@ public class JobServerProtocol {
 				baos.write(finish_useful_data);
 				D = baos.toByteArray();
 			} catch(IOException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 			} catch(NoSuchAlgorithmException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
 			} catch(InvalidKeyException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_INVCRYPTOKEY, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_INVCRYPTOKEY, exn.getMessage());
 			} catch(NoSuchPaddingException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_NOSUCHPADDING, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_NOSUCHPADDING, exn.getMessage());
 			} catch(BadPaddingException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_BADPADDING, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_BADPADDING, exn.getMessage());
 			} catch(IllegalBlockSizeException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_ILLEGALBLOCKSIZE, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_ILLEGALBLOCKSIZE, exn.getMessage());
 			}
 			/*
 				int    ok = 1;
@@ -464,15 +464,15 @@ public class JobServerProtocol {
 					}
 				}
 			} catch(NoSuchAlgorithmException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
 			} catch(InvalidKeyException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_INVCRYPTOKEY, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_INVCRYPTOKEY, exn.getMessage());
 			} catch(NoSuchPaddingException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_NOSUCHPADDING, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_NOSUCHPADDING, exn.getMessage());
 			} catch(BadPaddingException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_BADPADDING, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_BADPADDING, exn.getMessage());
 			} catch(IllegalBlockSizeException exn) {
-				new StyloQException(ppstr2.PPERR_JEXN_ILLEGALBLOCKSIZE, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_ILLEGALBLOCKSIZE, exn.getMessage());
 			}
 		}
 		SecretTagPool P;

@@ -141,7 +141,7 @@ int ACS_EL92AQ::ConvertWareList(int num)
 			double _qtty, _rate, _price, _extra;
 			DbfRecord dbfr(p_in_tbl);
 			THROW(p_in_tbl->getRec(&dbfr));
-			dbfr.get(fld_idx_list[0], _gcode);
+			dbfr.get(fld_idx_list[0], _gcode, sizeof(_gcode));
 			dbfr.get(fld_idx_list[1], _price);
 			dbfr.get(fld_idx_list[2], _divnum);
 			dbfr.get(fld_idx_list[3], _bank);

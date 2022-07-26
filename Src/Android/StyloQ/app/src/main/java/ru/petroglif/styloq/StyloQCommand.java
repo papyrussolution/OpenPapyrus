@@ -34,6 +34,12 @@ public class StyloQCommand {
 		// заказ. Дополнительные параметры определяют особенности модуля: заказ от конечного клиента,
 		// агентский заказ, заказ на месте и т.д.
 	public static final int sqbcRsrvAttendancePrereq = 102; // @v11.3.2 Модуль данных, передаваемых сервисом клиенту для формирования записи на обслуживаение.
+	public static final int sqbcRsrvPushIndexContent = 103; // @v11.4.5 Параметры передачи сервисам-медиаторам данных для поисковой индексации
+	public static final int sqbcRsrvIndoorSvcPrereq  = 104; // @v11.4.5 Параметры обслуживания внутри помещения сервиса (horeca, shop, etc)
+		// Данные строятся на основании параметров, определяемых кассовым узлом.
+	public static final int sqbcGoodsInfo            = 105; // @v11.4.5 Параметры, определяющие вывод информации об одном товаре
+	public static final int sqbcLocalBarcodeSearch   = 106; // @v11.4.5 Поиск в пределах сервиса (преимущественно) по штрихкоду.
+		// Если сервис предоставяет такую функцию, то она отображается в виде иконки на экране мобильного устройства, а не в общем списке.
 
 	public static class ViewDefinitionEntry {
 		String Zone;
@@ -68,11 +74,56 @@ public class StyloQCommand {
 		ArrayList<ViewDefinitionEntry> Vd;
 	}
 	public static class List {
-		List()
+		public List()
 		{
 			TimeStamp = 0;
 			ExpirTimeSec = 0;
 			Items = null;
+		}
+		//
+		// Descr: Возвращает количество элементов, которые должны быть отображены
+		//   в списке команд. В это число не включаются команды со специальным
+		//   типом отображения (поиск по штрихкоду, например)
+		//
+		public int GetViewCount()
+		{
+			int    result = 0;
+			if(Items != null) {
+				for(int i = 0; i < Items.size(); i++) {
+					final Item item = Items.get(i);
+					if(item != null && item.BaseCmdId != sqbcLocalBarcodeSearch)
+						result++;
+				}
+			}
+			return result;
+		}
+		public Item GetViewItem(int idx)
+		{
+			Item result = null;
+			if(Items != null && idx >= 0 && idx < Items.size()) {
+				int counter = 0;
+				for(int i = 0; result == null && i < Items.size(); i++) {
+					final Item item = Items.get(i);
+					if(item != null && item.BaseCmdId != sqbcLocalBarcodeSearch) {
+						if(counter == idx)
+							result = item;
+						counter++;
+					}
+				}
+			}
+			return result;
+		}
+		public Item GetItemWithParticularBaseId(int baseCmdId)
+		{
+			Item result = null;
+			if(Items != null) {
+				for(int i = 0; result == null && i < Items.size(); i++) {
+					final Item item = Items.get(i);
+					if(item != null && item.BaseCmdId == sqbcLocalBarcodeSearch)
+						result = item;
+				}
+			}
+			return result;
 		}
 		long TimeStamp;
 		long ExpirTimeSec;

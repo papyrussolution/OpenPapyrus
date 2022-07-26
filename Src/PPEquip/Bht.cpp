@@ -4253,10 +4253,10 @@ int PPObjBHT::AcceptTechSessPalm(const char * pLName, PPLogger * pLog)
 				DbfRecord tsl_rec(&line_tbl);
 				line_tbl.getRec(&tsl_rec);
 				MEMSZERO(tses_rec);
-				tsl_rec.get(fldn_bill,   tses_rec.BillCode);
-				tsl_rec.get(fldn_prc,    tses_rec.PrcCode);
-				tsl_rec.get(fldn_ar,     tses_rec.ArCode);
-				tsl_rec.get(fldn_serial, tses_rec.Barcode);
+				tsl_rec.get(fldn_bill,   tses_rec.BillCode, sizeof(tses_rec.BillCode));
+				tsl_rec.get(fldn_prc,    tses_rec.PrcCode, sizeof(tses_rec.PrcCode));
+				tsl_rec.get(fldn_ar,     tses_rec.ArCode, sizeof(tses_rec.ArCode));
+				tsl_rec.get(fldn_serial, tses_rec.Barcode, sizeof(tses_rec.Barcode));
 				tsl_rec.get(fldn_qtty,   tses_rec.Qtty);
 				tsl_rec.get(fldn_dt,     tses_rec.Dtm.d);
 				tsl_rec.get(fldn_tm,     tim_buf);
@@ -4951,7 +4951,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 						ebl_rec.get(fldn_gid,   gid);
 						ebl_rec.get(fldn_qtty,  qtty);
 						ebl_rec.get(fldn_price, price);
-						ebl_rec.get(fldn_code,  code);
+						ebl_rec.get(fldn_code,  code, sizeof(code));
 						strip(code);
 						if(ebid == lebid && code[0] != '\0' && qtty > 0)
 							THROW(AddEBLineToPacket(&b_pack, code, qtty, price, pLog));

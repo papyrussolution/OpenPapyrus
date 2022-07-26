@@ -1595,9 +1595,11 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind
 			const uint c = getCount();
 			for(uint i = 0; i < c; i++) {
 				PPThread * p_thread = at(i);
-				if(p_thread && p_thread->IsConsistent() && (!kind || p_thread->GetKind() == kind) && p_thread->CheckOuterSignature(0) && p_thread->IsIdle()) {
-					p_ret = p_thread;
-					break;
+				if(p_thread && p_thread->IsConsistent() && (!kind || p_thread->GetKind() == kind) && p_thread->CheckOuterSignature(0)) {
+					if(p_thread->IsIdle()) {
+						p_ret = p_thread;
+						break;
+					}
 				}
 			}				
 		}
@@ -3456,6 +3458,16 @@ void PPSession::CheckRemoteHosts(const StringSet & rHostList) // @v11.1.2
 int PPSession::GetHostAvailability(const char * pHost)
 {
 	return Helper_Process_HostAvailability_Query(pHost, -1);
+}
+
+int PPSession::Stq_GetBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi)
+{
+	return StQCache.GetBlob(rOwnIdent, oid, blobN, rBi);
+}
+
+int PPSession::Stq_PutBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi)
+{
+	return StQCache.PutBlob(rOwnIdent, oid, blobN, rBi);
 }
 
 PPSession::LimitedDatabaseBlock::LimitedDatabaseBlock() : P_Ref(0), P_Sj(0), P_Sqc(0), State(0)

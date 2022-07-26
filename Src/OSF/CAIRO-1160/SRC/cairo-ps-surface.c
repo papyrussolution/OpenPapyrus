@@ -1176,16 +1176,11 @@ void cairo_ps_surface_restrict_to_level(cairo_surface_t * surface,
  *
  * Since: 1.6
  **/
-void cairo_ps_get_levels(cairo_ps_level_t const ** levels,
-    int * num_levels)
+void cairo_ps_get_levels(cairo_ps_level_t const ** levels, int * num_levels)
 {
-	if(levels != NULL)
-		*levels = _cairo_ps_levels;
-
-	if(num_levels != NULL)
-		*num_levels = CAIRO_PS_LEVEL_LAST;
+	ASSIGN_PTR(levels, _cairo_ps_levels);
+	ASSIGN_PTR(num_levels, CAIRO_PS_LEVEL_LAST);
 }
-
 /**
  * cairo_ps_level_to_string:
  * @level: a level id
@@ -1542,7 +1537,7 @@ static cairo_int_status_t _cairo_ps_surface_show_page(void * abstract_surface)
 {
 	cairo_ps_surface_t * surface = static_cast<cairo_ps_surface_t *>(abstract_surface);
 	cairo_int_status_t status;
-	if(surface->clipper.clip != NULL)
+	if(surface->clipper.clip)
 		_cairo_surface_clipper_reset(&surface->clipper);
 	status = _cairo_pdf_operators_flush(&surface->pdf_operators);
 	if(UNLIKELY(status))
@@ -4498,7 +4493,7 @@ static cairo_int_status_t _cairo_ps_surface_set_paginated_mode(void * abstract_s
 		surface->surface_extents.y = 0;
 		surface->surface_extents.width  = fceili(surface->width);
 		surface->surface_extents.height = fceili(surface->height);
-		if(surface->clipper.clip != NULL) {
+		if(surface->clipper.clip) {
 			status = _cairo_pdf_operators_flush(&surface->pdf_operators);
 			_cairo_output_stream_printf(surface->stream, "Q q\n");
 			_cairo_surface_clipper_reset(&surface->clipper);

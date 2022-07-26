@@ -2173,6 +2173,11 @@ class ppstr2 {
 	public static final int PPERR_SQ_UNDEFOWNCFGGLOBACSPNT = 12154;
 	public static final int PPERR_SQ_UNDEFOWNCFGLOCACSPNT = 12155;
 	public static final int PPERR_STQ_PRCNOTBELONGTOGOODS = 12156;
+	public static final int PPERR_STQ_UNDEFPOSFORINDOORSVC = 12157;
+	public static final int PPERR_STQ_POSFORINDOORSVCMUSTBESYNC = 12158;
+	public static final int PPERR_SQPROT_SESSNFOUND = 12159;
+	public static final int PPERR_SQ_UNDEFSVCCFG = 12160;
+	public static final int PPERR_SQ_UNDEFINNERSTQIDBTBL = 12161;
 	//
 	// .N.
 	//
@@ -4482,6 +4487,9 @@ class ppstr2 {
 	public static final int PPTXT_LOG_STQMQBSERVERSTARTED = 12054;
 	public static final int PPTXT_LOG_BUILDSVCDBSYMBMAPSTARTING = 12055;
 	public static final int PPTXT_LOG_BUILDSVCDBSYMBMAPFINISHED = 12056;
+	public static final int PPINIPARAM_CRYSTAL_GOODSIDASARTICLE = 12057;
+	public static final int PPTXT_STQ_BLOBTRANSMTOMEDIATORSUCC = 12058;
+	public static final int PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL = 12059;
 	//
 	// .N.
 	//

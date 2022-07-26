@@ -232,7 +232,7 @@ void FASTCALL cairo_device_flush(cairo_device_t * device)
 		return;
 	if(device->finished)
 		return;
-	if(device->backend->flush != NULL) {
+	if(device->backend->flush) {
 		status = device->backend->flush(device);
 		if(UNLIKELY(status))
 			status = _cairo_device_set_error(device, status);
@@ -268,7 +268,7 @@ void FASTCALL cairo_device_finish(cairo_device_t * device)
 	if(device->finished)
 		return;
 	cairo_device_flush(device);
-	if(device->backend->finish != NULL)
+	if(device->backend->finish)
 		device->backend->finish(device);
 	/* We only finish the device after the backend's callback returns because
 	 * the device might still be needed during the callback
@@ -363,19 +363,15 @@ cairo_status_t cairo_device_acquire(cairo_device_t * device)
 {
 	if(device == NULL)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(UNLIKELY(device->status))
 		return device->status;
-
 	if(UNLIKELY(device->finished))
 		return _cairo_device_set_error(device, CAIRO_STATUS_DEVICE_FINISHED);
-
 	CAIRO_MUTEX_LOCK(device->mutex);
 	if(device->mutex_depth++ == 0) {
-		if(device->backend->lock != NULL)
+		if(device->backend->lock)
 			device->backend->lock(device);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -394,27 +390,21 @@ void cairo_device_release(cairo_device_t * device)
 {
 	if(device == NULL)
 		return;
-
 	assert(device->mutex_depth > 0);
-
 	if(--device->mutex_depth == 0) {
-		if(device->backend->unlock != NULL)
+		if(device->backend->unlock)
 			device->backend->unlock(device);
 	}
-
 	CAIRO_MUTEX_UNLOCK(device->mutex);
 }
 
 slim_hidden_def(cairo_device_release);
 
-cairo_status_t _cairo_device_set_error(cairo_device_t * device,
-    cairo_status_t status)
+cairo_status_t _cairo_device_set_error(cairo_device_t * device, cairo_status_t status)
 {
 	if(status == CAIRO_STATUS_SUCCESS)
 		return CAIRO_STATUS_SUCCESS;
-
 	_cairo_status_set_error(&device->status, status);
-
 	return _cairo_error(status);
 }
 

@@ -116,19 +116,16 @@ public:
 
 class TemplateCache::TemplateCacheHash {
 public:
-	size_t operator()(const TemplateCacheKey& p) const {
+	size_t operator()(const TemplateCacheKey& p) const 
+	{
 		// Using + here is silly, but should work ok in practice.
 		return p.first + p.second;
 	}
-
 	// Less operator for MSVC's hash containers.
-	bool operator()(const TemplateCacheKey& a,
-	    const TemplateCacheKey& b) const {
-		return (a.first == b.first
-		       ? a.second < b.second
-		       : a.first < b.first);
+	bool operator()(const TemplateCacheKey& a, const TemplateCacheKey& b) const 
+	{
+		return (a.first == b.first ? a.second < b.second : a.first < b.first);
 	}
-
 	// These two public members are required by msvc.  4 and 8 are defaults.
 	static const size_t bucket_size = 4;
 	static const size_t min_buckets = 8;

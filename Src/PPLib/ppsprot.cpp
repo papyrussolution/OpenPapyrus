@@ -175,7 +175,7 @@ SString & FASTCALL PPJobSrvProtocol::ToStr(SString & rBuf) const
 		H.ToStr(rBuf);
 	}
 	else {
-		size_t avl_sz = MIN(GetWrOffs(), 255);
+		const size_t avl_sz = MIN(GetWrOffs(), 255);
 		rBuf.Z().CatN(GetBufC(), avl_sz);
 		rBuf.Chomp();
 	}
@@ -442,7 +442,7 @@ int PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvRep
 	}
 #endif
 	THROW_SL(So.SendBuf(rCmd, 0));
-	So.SetTimeout(1000 * 3600 * 24); // @v9.1.8 Временно устанавливаем очень большой таймаут так как процесс может выполнятся сервером очень долго
+	So.SetTimeout(1000 * 3600 * 24); // Временно устанавливаем очень большой таймаут так как процесс может выполнятся сервером очень долго
 	do {
 		size_t actual_size = 0;
 		do_log_error = 1;
@@ -479,9 +479,9 @@ int PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvRep
 #endif
 		ok = 0;
 	ENDCATCH
-	So.SetTimeout(preserve_so_timeout); // @v9.1.8
+	So.SetTimeout(preserve_so_timeout);
 	State &= ~stLockExec;
-	ExecLock.Unlock(); // @v8.3.4 LEAVE_CRITICAL_SECTION-->ExecLock.Unlock()
+	ExecLock.Unlock();
 	return ok;
 }
 

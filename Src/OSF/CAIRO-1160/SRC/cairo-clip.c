@@ -64,7 +64,7 @@ void FASTCALL _cairo_clip_path_destroy(cairo_clip_path_t * clip_path)
 	if(!_cairo_reference_count_dec_and_test(&clip_path->ref_count))
 		return;
 	_cairo_path_fixed_fini(&clip_path->path);
-	if(clip_path->prev != NULL)
+	if(clip_path->prev)
 		_cairo_clip_path_destroy(clip_path->prev);
 	_freed_pool_put(&clip_path_pool, clip_path);
 }
@@ -90,7 +90,7 @@ void FASTCALL _cairo_clip_destroy(cairo_clip_t * clip)
 {
 	if(clip == NULL || _cairo_clip_is_all_clipped(clip))
 		return;
-	if(clip->path != NULL)
+	if(clip->path)
 		_cairo_clip_path_destroy(clip->path);
 	if(clip->boxes != &clip->embedded_box)
 		SAlloc::F(clip->boxes);
@@ -291,7 +291,7 @@ static cairo_clip_t * _cairo_clip_path_copy_with_translation(cairo_clip_t * clip
 {
 	cairo_status_t status;
 	cairo_clip_path_t * clip_path;
-	if(other_path->prev != NULL)
+	if(other_path->prev)
 		clip = _cairo_clip_path_copy_with_translation(clip, other_path->prev, fx, fy);
 	if(_cairo_clip_is_all_clipped(clip))
 		return clip;

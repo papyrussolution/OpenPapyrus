@@ -242,7 +242,7 @@ cairo_surface_t * cairo_gl_surface_create_for_egl(cairo_device_t * device, EGLSu
 
 static boolint is_egl_device(cairo_device_t * device)
 {
-	return (device->backend != NULL && device->backend->type == CAIRO_DEVICE_TYPE_GL);
+	return (device->backend && device->backend->type == CAIRO_DEVICE_TYPE_GL);
 }
 
 static cairo_egl_context_t * to_egl_context(cairo_device_t * device)

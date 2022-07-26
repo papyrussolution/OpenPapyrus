@@ -79,21 +79,17 @@ int BN_mod_exp2_mont(BIGNUM * rr, const BIGNUM * a1, const BIGNUM * p1,
 		ret = 1;
 		goto err;
 	}
-
 	if(!BN_to_montgomery(val1[0], a_mod_m, mont, ctx))
 		goto err;
 	if(window1 > 1) {
 		if(!BN_mod_mul_montgomery(d, val1[0], val1[0], mont, ctx))
 			goto err;
-
 		j = 1 << (window1 - 1);
 		for(i = 1; i < j; i++) {
-			if(((val1[i] = BN_CTX_get(ctx)) == NULL) ||
-			    !BN_mod_mul_montgomery(val1[i], val1[i - 1], d, mont, ctx))
+			if(((val1[i] = BN_CTX_get(ctx)) == NULL) || !BN_mod_mul_montgomery(val1[i], val1[i - 1], d, mont, ctx))
 				goto err;
 		}
 	}
-
 	/*
 	 * Build table for a2:   val2[i] := a2^(2*i + 1) mod m  for i = 0 .. 2^(window2-1)
 	 */
@@ -117,21 +113,16 @@ int BN_mod_exp2_mont(BIGNUM * rr, const BIGNUM * a1, const BIGNUM * p1,
 
 		j = 1 << (window2 - 1);
 		for(i = 1; i < j; i++) {
-			if(((val2[i] = BN_CTX_get(ctx)) == NULL) ||
-			    !BN_mod_mul_montgomery(val2[i], val2[i - 1], d, mont, ctx))
+			if(((val2[i] = BN_CTX_get(ctx)) == NULL) || !BN_mod_mul_montgomery(val2[i], val2[i - 1], d, mont, ctx))
 				goto err;
 		}
 	}
-
 	/* Now compute the power product, using independent windows. */
 	r_is_one = 1;
 	wvalue1 = 0; /* The 'value' of the first window */
 	wvalue2 = 0; /* The 'value' of the second window */
-	wpos1 = 0; /* If wvalue1 > 0, the bottom bit of the
-	                         * first window */
-	wpos2 = 0; /* If wvalue2 > 0, the bottom bit of the
-	                         * second window */
-
+	wpos1 = 0; /* If wvalue1 > 0, the bottom bit of the first window */
+	wpos2 = 0; /* If wvalue2 > 0, the bottom bit of the second window */
 	if(!BN_to_montgomery(r, BN_value_one(), mont, ctx))
 		goto err;
 	for(b = bits - 1; b >= 0; b--) {
@@ -139,7 +130,6 @@ int BN_mod_exp2_mont(BIGNUM * rr, const BIGNUM * a1, const BIGNUM * p1,
 			if(!BN_mod_mul_montgomery(r, r, r, mont, ctx))
 				goto err;
 		}
-
 		if(!wvalue1)
 			if(BN_is_bit_set(p1, b)) {
 				/*

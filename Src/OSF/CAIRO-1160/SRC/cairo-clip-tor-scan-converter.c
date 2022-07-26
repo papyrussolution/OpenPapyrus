@@ -905,7 +905,7 @@ static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head
 	}
 	do {
 		x = head_b->x.quo;
-		while(head_a != NULL && head_a->x.quo <= x) {
+		while(head_a && head_a->x.quo <= x) {
 			next = &head_a->next;
 			head_a = head_a->next;
 		}
@@ -914,7 +914,7 @@ static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head
 			return head;
 start_with_b:
 		x = head_a->x.quo;
-		while(head_b != NULL && head_b->x.quo <= x) {
+		while(head_b && head_b->x.quo <= x) {
 			next = &head_b->next;
 			head_b = head_b->next;
 		}
@@ -1318,7 +1318,7 @@ static void glitter_scan_converter_add_edge(glitter_scan_converter_t * converter
 
 static boolint active_list_is_vertical(struct active_list * active)
 {
-	for(struct edge * e = active->head; e != NULL; e = e->next) {
+	for(struct edge * e = active->head; e; e = e->next) {
 		if(!e->vertical)
 			return FALSE;
 	}
@@ -1328,7 +1328,7 @@ static boolint active_list_is_vertical(struct active_list * active)
 static void step_edges(struct active_list * active, int count)
 {
 	struct edge ** cursor = &active->head;
-	for(struct edge * p_edge = *cursor; p_edge != NULL; p_edge = *cursor) {
+	for(struct edge * p_edge = *cursor; p_edge; p_edge = *cursor) {
 		p_edge->height_left -= GRID_Y * count;
 		if(p_edge->height_left)
 			cursor = &p_edge->next;

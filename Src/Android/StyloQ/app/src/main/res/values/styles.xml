@@ -23,8 +23,9 @@
         <item name="android:textAllCaps">false</item>
         <item name="android:background">@drawable/selector_button</item>
         <item name="android:strokeColor">@color/Divider</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/TextPrimary</item>
-        <item name="android:textSize">12sp</item>
         <item name="android:paddingLeft">6dp</item>
         <item name="android:paddingRight">6dp</item>
         <item name="android:paddingTop">6dp</item>
@@ -32,6 +33,7 @@
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
+        <item name="android:minHeight">32dp</item>
         <item name="android:minWidth">80dp</item>
         <item name="android:layout_marginLeft">4dp</item>
         <item name="android:layout_marginTop">4dp</item>

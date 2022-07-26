@@ -4319,7 +4319,7 @@ int PPObjBill::Helper_PutBillToMrpTab(PPID billID, MrpTabPacket * pMrpPack, cons
 			const PPID op_type_id = GetOpType(bill_rec.OpID);
 			switch(op_type_id) {
 				case PPOPT_DRAFTEXPEND:
-					if(oneof3(wroff_op_type_id, 0, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT)) { // @v8.6.2 PPOPT_DRAFTRECEIPT
+					if(oneof3(wroff_op_type_id, 0, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT)) {
 						if(IsIntrExpndOp(pWrOffParam->WrOffOpID)) {
 							const PPID dest_loc_id = PPObjLocation::ObjToWarehouse(bill_rec.Object);
 							if(dest_loc_id)

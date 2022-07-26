@@ -128,7 +128,7 @@ public class ViewDescriptionList {
 	{
 		return (L != null && idx >= 0 && idx < L.size()) ? L.get(idx) : null;
 	}
-	boolean FromJsonObj(JSONObject jsObj)
+	boolean FromJsonObj(JSONObject jsObj) throws StyloQException
 	{
 		boolean result = false;
 		if(jsObj != null) {
@@ -173,7 +173,7 @@ public class ViewDescriptionList {
 				}
 			} catch(JSONException exn) {
 				result = false;
-				new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
 			}
 		}
 		return result;

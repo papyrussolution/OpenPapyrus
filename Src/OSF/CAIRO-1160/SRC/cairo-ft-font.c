@@ -278,7 +278,7 @@ static void _cairo_ft_unscaled_font_map_destroy(void)
 	font_map = cairo_ft_unscaled_font_map;
 	cairo_ft_unscaled_font_map = NULL;
 	CAIRO_MUTEX_UNLOCK(_cairo_ft_unscaled_font_map_mutex);
-	if(font_map != NULL) {
+	if(font_map) {
 		_cairo_hash_table_foreach(font_map->hash_table, _cairo_ft_unscaled_font_map_pluck_entry, font_map);
 		assert(font_map->num_open_faces == 0);
 		FT_Done_FreeType(font_map->ft_library);
@@ -427,7 +427,7 @@ static cairo_status_t _cairo_ft_unscaled_font_create_internal(boolint from_face,
 	_cairo_ft_unscaled_font_init_key(&key, from_face, filename, id, font_face);
 	/* Return existing unscaled font if it exists in the hash table. */
 	unscaled = (cairo_ft_unscaled_font_t *)_cairo_hash_table_lookup(font_map->hash_table, &key.base.hash_entry);
-	if(unscaled != NULL) {
+	if(unscaled) {
 		_cairo_unscaled_font_reference(&unscaled->base);
 		goto DONE;
 	}
@@ -2389,7 +2389,7 @@ static cairo_int_status_t _cairo_ft_load_type1_data(void * abstract_font, long o
 		if(*length > available_length) {
 			status = CAIRO_INT_STATUS_UNSUPPORTED;
 		}
-		else if(face->stream->read != NULL) {
+		else if(face->stream->read) {
 			/* Note that read() may be implemented as a macro, thanks POSIX!, so we
 			 * need to wrap the following usage in parentheses in order to
 			 * disambiguate it for the pre-processor - using the verbose function
@@ -2576,7 +2576,7 @@ static cairo_font_face_t * _cairo_ft_font_face_get_implementation(void * abstrac
 		cairo_font_face_t * resolved;
 		/* Cache the resolved font whilst the FcConfig remains consistent. */
 		resolved = font_face->resolved_font_face;
-		if(resolved != NULL) {
+		if(resolved) {
 			if(!FcInitBringUptoDate()) {
 				_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 				return (cairo_font_face_t*)&_cairo_font_face_nil;

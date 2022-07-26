@@ -1350,13 +1350,13 @@ ZIP_EXTERN int zip_file_rename(zip_t * za, uint64 idx, const char * name, zip_fl
 {
 	const char * old_name;
 	int old_is_dir, new_is_dir;
-	if(idx >= za->nentry || (name != NULL && strlen(name) > ZIP_UINT16_MAX))
+	if(idx >= za->nentry || sstrlen(name) > ZIP_UINT16_MAX)
 		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(ZIP_IS_RDONLY(za))
 		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	if((old_name = zip_get_name(za, idx, 0)) == NULL)
 		return -1;
-	new_is_dir = (name != NULL && name[strlen(name)-1] == '/');
+	new_is_dir = (name && name[strlen(name)-1] == '/');
 	old_is_dir = (old_name[strlen(old_name)-1] == '/');
 	if(new_is_dir != old_is_dir)
 		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
@@ -2557,7 +2557,7 @@ int _zip_unchange(zip_t * za, uint64 idx, int allow_duplicates)
 	if(idx >= za->nentry)
 		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(!allow_duplicates && za->entry[idx].changes && (za->entry[idx].changes->changed & ZIP_DIRENT_FILENAME)) {
-		if(za->entry[idx].orig != NULL) {
+		if(za->entry[idx].orig) {
 			if((orig_name = _zip_get_name(za, idx, ZIP_FL_UNCHANGED, &za->error)) == NULL) {
 				return -1;
 			}
@@ -3018,7 +3018,7 @@ static zip_string_t * _zip_dirent_process_ef_utf_8(const zip_dirent_t * de, uint
 	if(_zip_string_crc32(str) == ef_crc) {
 		uint16 len = (uint16)_zip_buffer_left(buffer);
 		zip_string_t * ef_str = _zip_string_new(_zip_buffer_get(buffer, len), len, ZIP_FL_ENC_UTF_8, 0);
-		if(ef_str != NULL) {
+		if(ef_str) {
 			_zip_string_free(str);
 			str = ef_str;
 		}
@@ -4132,7 +4132,7 @@ void _zip_hash_free(zip_hash_t * hash)
 {
 	if(hash) {
 		for(uint16 i = 0; i<hash->table_size; i++) {
-			if(hash->table[i] != NULL) {
+			if(hash->table[i]) {
 				_free_list(hash->table[i]);
 			}
 		}
@@ -4165,7 +4165,7 @@ bool _zip_hash_add(zip_hash_t * hash, const uint8 * name, uint64 index, zip_flag
 		return false;
 	}
 	hash_value = _hash_string(name, hash->table_size);
-	for(entry = hash->table[hash_value]; entry != NULL; entry = entry->next) {
+	for(entry = hash->table[hash_value]; entry; entry = entry->next) {
 		if(strcmp((const char *)name, (const char *)entry->name) == 0) {
 			if(((flags & ZIP_FL_UNCHANGED) && entry->orig_index != -1) || entry->current_index != -1) {
 				zip_error_set(error, SLERR_ZIP_EXISTS, 0);
@@ -4237,7 +4237,7 @@ int64 _zip_hash_lookup(zip_hash_t * hash, const uint8 * name, zip_flags_t flags,
 	}
 	else {
 		uint16 hash_value = _hash_string(name, hash->table_size);
-		for(zip_hash_entry_t * entry = hash->table[hash_value]; entry != NULL; entry = entry->next) {
+		for(zip_hash_entry_t * entry = hash->table[hash_value]; entry; entry = entry->next) {
 			if(strcmp((const char *)name, (const char *)entry->name) == 0) {
 				if(flags & ZIP_FL_UNCHANGED) {
 					if(entry->orig_index != -1)

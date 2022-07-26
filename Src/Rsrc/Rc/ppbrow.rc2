@@ -6616,7 +6616,7 @@ browser STYLOQBINDERY north(100), 1, 0, "@{view_styloqbindery}", OWNER|GRID, 0
 	"Kind",                  1,  zstring(48),  0, 10, BCO_USERPROC
 	"Stylo-Q ident",         2,  zstring(48),  0, 10, BCO_USERPROC
 	"Expiry Time",           3,  datetime,     0, 10, BCO_USERPROC
-	"Common Name",           4,  zstring(128), 0, 10, BCO_USERPROC
+	"Ext Description",       4,  zstring(128), 0, 10, BCO_USERPROC
 	"Corresond Item",        5,  long,         0, 10, BCO_USERPROC
 	"Face",                  8,  zstring(128), 0, 20, BCO_USERPROC
 	"LinkObjType",           6,  zstring(48),  0, 10, BCO_USERPROC
@@ -7199,6 +7199,7 @@ view   StyloQBindery           { "@{view_styloqbindery}" } // @v11.1.6
 view   StyloQCommand           { "@{view_styloqcommands}" } // @v11.1.9
 filter StyloQAttendancePrereqParam { "@{filter_styloqattendanceprereqparam}" } // @v11.3.3
 filter StyloQIndexingParam     { "@{filter_styloqindexingparam}" } // @v11.3.4
+filter StyloQGoodsInfoParam    { "@{filter_styloqgoodsinfoparam}" } // @v11.4.5
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
@@ -7361,7 +7362,7 @@ record BRow {
 	UnitName      zstring(48)  "@{munit}";
 	PhUnitName    zstring(48)  "@{munit_ph}";
 	UnitCode      zstring(20)  "@{munitcode}";
-	Barcode       zstring(24)  "@{barcode}";
+	Barcode       zstring(252) "@{barcode}"; // @v11.4.5 (24)-->(252) Увеличили поле для акцепта списка кодов
 	ArCode        zstring(24)  "@{goodsarcode}";
 	ArCodeOwn     zstring(24)  "Собственный артикул товара";     // @v9.1.11
 	AlcoCatCode   zstring(24)  "@{goodsalcocode}";
@@ -9160,6 +9161,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_STYLOQDOCSTATUS_APPROVED
 	PPDV_STYLOQDOCSTATUS_CANCELLED
 	PPDV_STYLOQDOCSTATUS_REJECTED
+	PPDV_BARCODE01
 }
 //
 // Следующие изображения используются без замещения цвета

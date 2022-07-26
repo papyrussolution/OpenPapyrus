@@ -49,11 +49,14 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
+import java.util.Timer;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -1727,7 +1730,7 @@ public class SLib {
 				}
 			} catch(IOException exn) {
 				result = null;
-				new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 			}
 		}
 		return result;
@@ -1753,7 +1756,7 @@ public class SLib {
 				}
 			} catch(IOException exn) {
 				result = null;
-				new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 			}
 		}
 		return result;
@@ -1795,7 +1798,7 @@ public class SLib {
 				}
 			} catch(IOException exn) {
 				result = null;
-				new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+				throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 			}
 		}
 		return result;
@@ -1913,7 +1916,7 @@ public class SLib {
 				} catch(IOException exn) {
 					Z();
 					result = false;
-					new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+					throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 				}
 			}
 			return result;
@@ -2098,7 +2101,7 @@ public class SLib {
 					}
 				} catch(IOException exn) {
 					ok = false;
-					new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+					throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 				}
 			}
 			return ok;
@@ -2374,6 +2377,26 @@ public class SLib {
 				return true;
 			else
 				return a1.equals(a2);
+		}
+	}
+	public static boolean AreStringsEqualNoCase(final String a1, final String a2)
+	{
+		if(a1 == null)
+			if(a2 == null)
+				return true;
+			else
+				return false;
+		else if(a2 == null)
+			return false;
+		else {
+			final int len1 = a1.length();
+			final int len2 = a2.length();
+			if(len1 != len2)
+				return false;
+			else if(len1 == 0)
+				return true;
+			else
+				return a1.equalsIgnoreCase(a2);
 		}
 	}
 	public static boolean AreByteArraysEqual(final byte [] a1, final byte [] a2)
@@ -3173,6 +3196,14 @@ public class SLib {
 		String fmt = "%." + Integer.toString(decimals) + "f";
 		return String.format(Locale.US, fmt, v);
 	}
+	public static String FormatCurrency(double val, String currencySymb)
+	{
+		NumberFormat format = NumberFormat.getCurrencyInstance();
+		format.setMaximumFractionDigits(2);
+		if(SLib.GetLen(currencySymb) > 0)
+			format.setCurrency(Currency.getInstance(currencySymb));
+		return format.format(val);
+	}
 	public static LDATE strtodate(String buf, int style)
 	{
 		// DATF_DMY
@@ -3954,7 +3985,7 @@ public class SLib {
 		try {
 			Double.parseDouble(text);
 			return true;
-		} catch(NumberFormatException e){
+		} catch(NumberFormatException e) {
 			return false;
 		}
 	}
@@ -4180,6 +4211,13 @@ public class SLib {
 			LastError = err;
 			AddInfo = addInfo;
 		}
+		public void SetLastError(StyloQException exn)
+		{
+			if(exn != null) {
+				LastError = exn.GetErrCode();
+				AddInfo = exn.GetAddedInfo();
+			}
+		}
 		public int GetLastError() { return LastError; }
 		public void SetLastErrorMsg(String errMsg)
 		{
@@ -4229,8 +4267,10 @@ public class SLib {
 		public String GetLastErrMessage(Context ctx)
 		{
 			String msg = "";
-			if(LastError != 0 && ctx != null)
-				msg = StyloQApp.LoadString(ctx, LastError, AddInfo);
+			if(LastError != 0 && ctx != null) {
+				// @v11.4.5 msg = StyloQApp.LoadString(ctx, LastError, AddInfo);
+				msg = GetErrorText(LastError, AddInfo); // @v11.4.5
+			}
 			else if(LastErrMsg != null && LastErrMsg.length() > 0) {
 				msg = (AddInfo != null) ? String.format(LastErrMsg, AddInfo) : LastErrMsg;
 			}
@@ -4685,6 +4725,11 @@ public class SLib {
 		if(v != null)
 			v.setVisibility(visiMode);
 	}
+	public static void SetCtrlVisibility(View view, int visiMode)
+	{
+		if(view != null)
+			view.setVisibility(visiMode);
+	}
 	public static boolean SetCtrlString(Object viewContainer, int ctlId, String text)
 	{
 		boolean ok = false;
@@ -4762,6 +4807,7 @@ public class SLib {
 	}
 	public static abstract class SlActivity extends AppCompatActivity implements EventHandler {
 		private ActivityResultLauncher <Intent> StartForResult;
+		private Timer RTmr;
 		public static StyloQApp GetAppCtx(Context ctx)
 		{
 			return (ctx != null && ctx instanceof SlActivity) ? ((SlActivity)ctx).GetAppCtx() : null;
@@ -4808,6 +4854,21 @@ public class SLib {
 		{
 			super.onDestroy();
 			HandleEvent(EV_DESTROY, this, null);
+			if(RTmr != null) {
+				RTmr.cancel();
+				RTmr = null;
+			}
+		}
+		protected void ScheduleRTmr(java.util.TimerTask task, long delay, long period)
+		{
+			if(task != null) {
+				RTmr = new Timer();
+				RTmr.schedule(task, delay/*1000*/, period/*750*/);
+			}
+			else if(RTmr != null) {
+				RTmr.cancel();
+				RTmr = null;
+			}
 		}
 		public void OnButtonClk(View view)
 		{

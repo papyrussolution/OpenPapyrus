@@ -330,7 +330,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		int    Status;
 		int    PendingTimeMs; // Текущее время ожидания результата вызова функции
 	}
-	public final int CUSTOMIZED_REQUEST_CODE = 0x0000ffff;
+	public static final int CUSTOMIZED_REQUEST_CODE = 0x0000ffff;
 	private ArrayList <ListEntry> ListData;
 	//private int TouchedListItemIdx; // Элемент, на который нажали пальцем. Для временного изменения окраски.
 	public MainActivity()
@@ -794,13 +794,11 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 										if(SLib.GetLen(reply_js_text) > 0) {
 											try {
 												JSONObject js_reply = new JSONObject(reply_js_text);
-												if(js_reply != null) {
-													int repl_result = StyloQInterchange.GetReplyResult(js_reply);
-													if(repl_result > 0)
-														login_result = true;
-													reply_msg = js_reply.optString("msg", null);
-													reply_errmsg = js_reply.optString("errmsg", null);
-												}
+												StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(js_reply);
+												if(crr.Status > 0)
+													login_result = true;
+												reply_msg = crr.Msg;
+												reply_errmsg = crr.ErrMsg;
 											} catch(JSONException exn) {
 												;
 											}
@@ -1079,8 +1077,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			app_ctx.DisplayError(null, new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage()), 5000);
 		}*/
 	}
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	@Override protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		//String barcode_text;
 		StyloQApp app_ctx = (StyloQApp)getApplication();

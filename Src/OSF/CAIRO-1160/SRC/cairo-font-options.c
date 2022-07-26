@@ -249,7 +249,7 @@ boolint cairo_font_options_equal(const cairo_font_options_t * options, const cai
 	       options->hint_metrics == other->hint_metrics &&
 	       options->round_glyph_positions == other->round_glyph_positions &&
 	       ((options->variations == NULL && other->variations == NULL) ||
-	       (options->variations != NULL && other->variations != NULL &&
+	       (options->variations && other->variations &&
 	       strcmp(options->variations, other->variations) == 0)));
 }
 

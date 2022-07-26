@@ -23,31 +23,30 @@ ABSL_NAMESPACE_BEGIN
 namespace base_internal {
 #if defined(__i386__)
 
-int64_t UnscaledCycleClock::Now() {
+int64_t UnscaledCycleClock::Now() 
+{
 	int64_t ret;
 	__asm__ volatile ("rdtsc" : "=A" (ret));
 	return ret;
 }
 
-double UnscaledCycleClock::Frequency() {
-	return base_internal::NominalCPUFrequency();
-}
+double UnscaledCycleClock::Frequency() { return base_internal::NominalCPUFrequency(); }
 
 #elif defined(__x86_64__)
 
-int64_t UnscaledCycleClock::Now() {
+int64_t UnscaledCycleClock::Now() 
+{
 	uint64_t low, high;
 	__asm__ volatile ("rdtsc" : "=a" (low), "=d" (high));
 	return (high << 32) | low;
 }
 
-double UnscaledCycleClock::Frequency() {
-	return base_internal::NominalCPUFrequency();
-}
+double UnscaledCycleClock::Frequency() { return base_internal::NominalCPUFrequency(); }
 
 #elif defined(__powerpc__) || defined(__ppc__)
 
-int64_t UnscaledCycleClock::Now() {
+int64_t UnscaledCycleClock::Now() 
+{
 #ifdef __GLIBC__
 	return __ppc_get_timebase();
 #else
@@ -70,7 +69,8 @@ int64_t UnscaledCycleClock::Now() {
 #endif
 }
 
-double UnscaledCycleClock::Frequency() {
+double UnscaledCycleClock::Frequency() 
+{
 #ifdef __GLIBC__
 	return __ppc_get_timebase_freq();
 #elif defined(_AIX)
@@ -97,13 +97,15 @@ double UnscaledCycleClock::Frequency() {
 // The frequency is fixed, typically in the range 1-50MHz.  It can be
 // read at CNTFRQ special register.  We assume the OS has set up
 // the virtual timer properly.
-int64_t UnscaledCycleClock::Now() {
+int64_t UnscaledCycleClock::Now() 
+{
 	int64_t virtual_timer_value;
 	asm volatile ("mrs %0, cntvct_el0" : "=r" (virtual_timer_value));
 	return virtual_timer_value;
 }
 
-double UnscaledCycleClock::Frequency() {
+double UnscaledCycleClock::Frequency() 
+{
 	uint64_t aarch64_timer_frequency;
 	asm volatile ("mrs %0, cntfrq_el0" : "=r" (aarch64_timer_frequency));
 	return aarch64_timer_frequency;
@@ -111,27 +113,20 @@ double UnscaledCycleClock::Frequency() {
 
 #elif defined(__riscv)
 
-int64_t UnscaledCycleClock::Now() {
+int64_t UnscaledCycleClock::Now() 
+{
 	int64_t virtual_timer_value;
 	asm volatile ("rdcycle %0" : "=r" (virtual_timer_value));
 	return virtual_timer_value;
 }
 
-double UnscaledCycleClock::Frequency() {
-	return base_internal::NominalCPUFrequency();
-}
+double UnscaledCycleClock::Frequency() { return base_internal::NominalCPUFrequency(); }
 
 #elif defined(_M_IX86) || defined(_M_X64)
 
 #pragma intrinsic(__rdtsc)
-
-int64_t UnscaledCycleClock::Now() {
-	return __rdtsc();
-}
-
-double UnscaledCycleClock::Frequency() {
-	return base_internal::NominalCPUFrequency();
-}
+int64_t UnscaledCycleClock::Now() { return __rdtsc(); }
+double UnscaledCycleClock::Frequency() { return base_internal::NominalCPUFrequency(); }
 
 #endif
 }  // namespace base_internal

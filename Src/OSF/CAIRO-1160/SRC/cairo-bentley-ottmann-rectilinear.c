@@ -123,7 +123,7 @@ static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cair
 		else if(cmp > 0) {
 			next = sweep_line->current_edge;
 			prev = next->prev;
-			while(prev != NULL && _cairo_bo_edge_compare(prev, edge) > 0)
+			while(prev && _cairo_bo_edge_compare(prev, edge) > 0)
 				next = prev, prev = next->prev;
 			next->prev = edge;
 			edge->next = next;
@@ -137,7 +137,7 @@ static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cair
 			prev = sweep_line->current_edge;
 			edge->prev = prev;
 			edge->next = prev->next;
-			if(prev->next != NULL)
+			if(prev->next)
 				prev->next->prev = edge;
 			prev->next = edge;
 		}
@@ -150,11 +150,11 @@ static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cair
 
 static void _cairo_bo_sweep_line_delete(cairo_bo_sweep_line_t * sweep_line, cairo_bo_edge_t * edge)
 {
-	if(edge->prev != NULL)
+	if(edge->prev)
 		edge->prev->next = edge->next;
 	else
 		sweep_line->head = edge->next;
-	if(edge->next != NULL)
+	if(edge->next)
 		edge->next->prev = edge->prev;
 	if(sweep_line->current_edge == edge)
 		sweep_line->current_edge = edge->prev ? edge->prev : edge->next;
@@ -198,8 +198,8 @@ static inline cairo_status_t _cairo_bo_edge_start_or_continue_trap(cairo_bo_edge
 	cairo_status_t status;
 	if(left->deferred_trap.right == right)
 		return CAIRO_STATUS_SUCCESS;
-	if(left->deferred_trap.right != NULL) {
-		if(right != NULL && edges_collinear(left->deferred_trap.right, right)) {
+	if(left->deferred_trap.right) {
+		if(right && edges_collinear(left->deferred_trap.right, right)) {
 			/* continuation on right, so just swap edges */
 			left->deferred_trap.right = right;
 			return CAIRO_STATUS_SUCCESS;
@@ -208,7 +208,7 @@ static inline cairo_status_t _cairo_bo_edge_start_or_continue_trap(cairo_bo_edge
 		if(UNLIKELY(status))
 			return status;
 	}
-	if(right != NULL && !edges_collinear(left, right)) {
+	if(right && !edges_collinear(left, right)) {
 		left->deferred_trap.top = top;
 		left->deferred_trap.right = right;
 	}
@@ -229,9 +229,9 @@ static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t * left, int3
 			/* Check if there is a co-linear edge with an existing trap */
 			right = left->next;
 			if(left->deferred_trap.right == NULL) {
-				while(right != NULL && right->deferred_trap.right == NULL)
+				while(right && right->deferred_trap.right == NULL)
 					right = right->next;
-				if(right != NULL && edges_collinear(left, right)) {
+				if(right && edges_collinear(left, right)) {
 					/* continuation on left */
 					left->deferred_trap = right->deferred_trap;
 					right->deferred_trap.right = NULL;
@@ -240,7 +240,7 @@ static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t * left, int3
 			/* End all subsumed traps */
 			right = left->next;
 			while(right) {
-				if(right->deferred_trap.right != NULL) {
+				if(right->deferred_trap.right) {
 					status = _cairo_bo_edge_end_trap(right, top, do_traps, container);
 					if(UNLIKELY(status))
 						return status;
@@ -267,7 +267,7 @@ static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t * left, int3
 			int in_out = 0;
 			right = left->next;
 			while(right) {
-				if(right->deferred_trap.right != NULL) {
+				if(right->deferred_trap.right) {
 					status = _cairo_bo_edge_end_trap(right, top, do_traps, container);
 					if(UNLIKELY(status))
 						return status;
@@ -306,7 +306,6 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear(cairo_bo_eve
 			status = _active_edges_to_traps(sweep_line.head, sweep_line.current_y, fill_rule, do_traps, container);
 			if(UNLIKELY(status))
 				return status;
-
 			sweep_line.current_y = event->point.y;
 		}
 		switch(event->type) {
@@ -315,7 +314,7 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear(cairo_bo_eve
 			    break;
 			case CAIRO_BO_EVENT_TYPE_STOP:
 			    _cairo_bo_sweep_line_delete(&sweep_line, event->edge);
-			    if(event->edge->deferred_trap.right != NULL) {
+			    if(event->edge->deferred_trap.right) {
 				    status = _cairo_bo_edge_end_trap(event->edge, sweep_line.current_y, do_traps, container);
 				    if(UNLIKELY(status))
 					    return status;

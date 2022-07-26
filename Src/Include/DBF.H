@@ -105,10 +105,8 @@ public:
 	//
 	// Для параметра fldN во всех следующих функциях диапазон [1..]
 	//
-#ifndef _WIN32_WCE // @v5.1.7 AHTOXA
 	int    put(int fldN, TYPEID, const void *);
 	int    put(const SdRecord & rRec);
-#endif
 	int    put(int fldN, const char *);
 	int    put(int fldN, double);
 	int    put(int fldN, float);
@@ -116,11 +114,9 @@ public:
 	int    put(int fldN, int);
 	int    put(int fldN, const DBFDate *);
 	int    put(int fldN, LDATE);
-#ifndef _WIN32_WCE // @v5.1.7 AHTOXA
 	int    get(int fldN, TYPEID typ, void * pBuf) const;
 	int    get(SdRecord & rRec) const;
-#endif
-	int    get(int fldN, char *, int skipEmpty = 0) const;
+	int    get(int fldN, char * pBuf, size_t bufSize, int skipEmpty = 0) const;
 	int    get(int fldN, SString &, int skipEmpty = 0) const;
 	int    get(int fldN, double &) const;
 	int    get(int fldN, float &) const;
@@ -134,7 +130,7 @@ public:
 	int    FASTCALL getFieldNumber(const char * pFldName, int * pFldN /* 1.. */) const;
 	int    FASTCALL getFieldType(uint fldN /* 1.. */, int * pType);
 protected:
-	char * FASTCALL getFldBuf(int, char *) const;
+	char * STDCALL getFldBuf(int, char * pBuf, size_t bufSize, DBFF * pF) const;
 	friend class DbfTable;
 	char * P_Buffer;
 	size_t BufSize;

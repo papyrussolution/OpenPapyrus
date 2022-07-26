@@ -200,29 +200,22 @@ int BN_mod_exp_recp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p,
 		ret = 1;
 		goto err;
 	}
-
 	window = BN_window_bits_for_exponent_size(bits);
 	if(window > 1) {
 		if(!BN_mod_mul_reciprocal(aa, val[0], val[0], &recp, ctx))
 			goto err; /* 2 */
 		j = 1 << (window - 1);
 		for(i = 1; i < j; i++) {
-			if(((val[i] = BN_CTX_get(ctx)) == NULL) ||
-			    !BN_mod_mul_reciprocal(val[i], val[i - 1], aa, &recp, ctx))
+			if(((val[i] = BN_CTX_get(ctx)) == NULL) || !BN_mod_mul_reciprocal(val[i], val[i - 1], aa, &recp, ctx))
 				goto err;
 		}
 	}
-
-	start = 1; /* This is used to avoid multiplication etc
-	                         * when there is only the value '1' in the
-	                         * buffer. */
+	start = 1; /* This is used to avoid multiplication etc when there is only the value '1' in the buffer. */
 	wvalue = 0; /* The 'value' of the window */
 	wstart = bits - 1; /* The top bit of the window */
 	wend = 0; /* The bottom bit of the window */
-
 	if(!BN_one(r))
 		goto err;
-
 	for(;;) {
 		if(BN_is_bit_set(p, wstart) == 0) {
 			if(!start)
@@ -340,26 +333,20 @@ int BN_mod_exp_mont(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, const BIGNU
 		aa = a;
 	if(!bn_to_mont_fixed_top(val[0], aa, mont, ctx))
 		goto err; /* 1 */
-
 	window = BN_window_bits_for_exponent_size(bits);
 	if(window > 1) {
 		if(!bn_mul_mont_fixed_top(d, val[0], val[0], mont, ctx))
 			goto err; /* 2 */
 		j = 1 << (window - 1);
 		for(i = 1; i < j; i++) {
-			if(((val[i] = BN_CTX_get(ctx)) == NULL) ||
-			    !bn_mul_mont_fixed_top(val[i], val[i - 1], d, mont, ctx))
+			if(((val[i] = BN_CTX_get(ctx)) == NULL) || !bn_mul_mont_fixed_top(val[i], val[i - 1], d, mont, ctx))
 				goto err;
 		}
 	}
-
-	start = 1; /* This is used to avoid multiplication etc
-	                         * when there is only the value '1' in the
-	                         * buffer. */
+	start = 1; /* This is used to avoid multiplication etc when there is only the value '1' in the buffer. */
 	wvalue = 0; /* The 'value' of the window */
 	wstart = bits - 1; /* The top bit of the window */
 	wend = 0; /* The bottom bit of the window */
-
 #if 1                           /* by Shay Gueron's suggestion */
 	j = m->top; /* borrow j */
 	if(m->d[j - 1] & (((BN_ULONG)1) << (BN_BITS2 - 1))) {
@@ -1261,13 +1248,11 @@ int BN_mod_exp_simple(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGN
 		}
 		return ret;
 	}
-
 	BN_CTX_start(ctx);
 	d = BN_CTX_get(ctx);
 	val[0] = BN_CTX_get(ctx);
 	if(val[0] == NULL)
 		goto err;
-
 	if(!BN_nnmod(val[0], a, m, ctx))
 		goto err; /* 1 */
 	if(BN_is_zero(val[0])) {
@@ -1275,29 +1260,22 @@ int BN_mod_exp_simple(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGN
 		ret = 1;
 		goto err;
 	}
-
 	window = BN_window_bits_for_exponent_size(bits);
 	if(window > 1) {
 		if(!BN_mod_mul(d, val[0], val[0], m, ctx))
 			goto err; /* 2 */
 		j = 1 << (window - 1);
 		for(i = 1; i < j; i++) {
-			if(((val[i] = BN_CTX_get(ctx)) == NULL) ||
-			    !BN_mod_mul(val[i], val[i - 1], d, m, ctx))
+			if(((val[i] = BN_CTX_get(ctx)) == NULL) || !BN_mod_mul(val[i], val[i - 1], d, m, ctx))
 				goto err;
 		}
 	}
-
-	start = 1; /* This is used to avoid multiplication etc
-	                         * when there is only the value '1' in the
-	                         * buffer. */
+	start = 1; /* This is used to avoid multiplication etc when there is only the value '1' in the buffer. */
 	wvalue = 0; /* The 'value' of the window */
 	wstart = bits - 1; /* The top bit of the window */
 	wend = 0; /* The bottom bit of the window */
-
 	if(!BN_one(r))
 		goto err;
-
 	for(;;) {
 		if(BN_is_bit_set(p, wstart) == 0) {
 			if(!start)

@@ -46,12 +46,8 @@ public class DetailActivity extends SLib.SlActivity {
 						if(SLib.GetLen(ResultText) > 0) {
 							JSONObject jsobj = new JSONObject(ResultText);
 							if(jsobj != null) {
-								int repl_result = StyloQInterchange.GetReplyResult(jsobj);
-								String reply_msg = jsobj.optString("msg");
-								String reply_errmsg = jsobj.optString("errmsg");
-
+								StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(jsobj);
 								//SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
-
 								Oid = SLib.PPObjID.Identify(jsobj.optString("objtype", null), jsobj.optString("objid", null));
 								if(Oid != null) {
 									if(Oid.Type == SLib.PPOBJ_GOODS) {

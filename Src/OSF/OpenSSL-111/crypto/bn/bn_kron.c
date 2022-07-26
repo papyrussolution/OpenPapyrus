@@ -28,43 +28,34 @@ int BN_kronecker(const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx)
 	 * Note that the sign of n does not matter.
 	 */
 	static const int tab[8] = { 0, 1, 0, -1, 0, -1, 0, 1 };
-
 	bn_check_top(a);
 	bn_check_top(b);
-
 	BN_CTX_start(ctx);
 	A = BN_CTX_get(ctx);
 	B = BN_CTX_get(ctx);
 	if(B == NULL)
 		goto end;
-
 	err = !BN_copy(A, a);
 	if(err)
 		goto end;
 	err = !BN_copy(B, b);
 	if(err)
 		goto end;
-
 	/*
 	 * Kronecker symbol, implemented according to Henri Cohen,
 	 * "A Course in Computational Algebraic Number Theory"
 	 * (algorithm 1.4.10).
 	 */
-
 	/* Cohen's step 1: */
-
 	if(BN_is_zero(B)) {
 		ret = BN_abs_is_word(A, 1);
 		goto end;
 	}
-
 	/* Cohen's step 2: */
-
 	if(!BN_is_odd(A) && !BN_is_odd(B)) {
 		ret = 0;
 		goto end;
 	}
-
 	/* now  B  is non-zero */
 	i = 0;
 	while(!BN_is_bit_set(B, i))
@@ -83,13 +74,11 @@ int BN_kronecker(const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx)
 		/* i is even */
 		ret = 1;
 	}
-
 	if(B->neg) {
 		B->neg = 0;
 		if(A->neg)
 			ret = -ret;
 	}
-
 	/*
 	 * now B is positive and odd, so what remains to be done is to compute
 	 * the Jacobi symbol (A/B) and multiply it by 'ret'

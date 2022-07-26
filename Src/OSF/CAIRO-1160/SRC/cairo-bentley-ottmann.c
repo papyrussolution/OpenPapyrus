@@ -638,7 +638,7 @@ static cairo_bo_event_t * _cairo_bo_event_dequeue(cairo_bo_event_queue_t * event
 {
 	cairo_bo_event_t * event = event_queue->pqueue.elements[PQ_FIRST_ENTRY];
 	cairo_bo_event_t * cmp = *event_queue->start_events;
-	if(event == NULL || (cmp != NULL && cairo_bo_event_compare(cmp, event) < 0)) {
+	if(event == NULL || (cmp && cairo_bo_event_compare(cmp, event) < 0)) {
 		event = cmp;
 		event_queue->start_events++;
 	}
@@ -721,7 +721,7 @@ static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cair
 		else if(cmp > 0) {
 			next = sweep_line->current_edge;
 			prev = next->prev;
-			while(prev != NULL && _cairo_bo_sweep_line_compare_edges(sweep_line, prev, edge) > 0) {
+			while(prev && _cairo_bo_sweep_line_compare_edges(sweep_line, prev, edge) > 0) {
 				next = prev, prev = next->prev;
 			}
 			next->prev = edge;
@@ -736,7 +736,7 @@ static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cair
 			prev = sweep_line->current_edge;
 			edge->prev = prev;
 			edge->next = prev->next;
-			if(prev->next != NULL)
+			if(prev->next)
 				prev->next->prev = edge;
 			prev->next = edge;
 		}
@@ -750,11 +750,11 @@ static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cair
 
 static void _cairo_bo_sweep_line_delete(cairo_bo_sweep_line_t * sweep_line, cairo_bo_edge_t * edge)
 {
-	if(edge->prev != NULL)
+	if(edge->prev)
 		edge->prev->next = edge->next;
 	else
 		sweep_line->head = edge->next;
-	if(edge->next != NULL)
+	if(edge->next)
 		edge->next->prev = edge->prev;
 	if(sweep_line->current_edge == edge)
 		sweep_line->current_edge = edge->prev ? edge->prev : edge->next;
@@ -762,11 +762,11 @@ static void _cairo_bo_sweep_line_delete(cairo_bo_sweep_line_t * sweep_line, cair
 
 static void _cairo_bo_sweep_line_swap(cairo_bo_sweep_line_t * sweep_line, cairo_bo_edge_t * left, cairo_bo_edge_t * right)
 {
-	if(left->prev != NULL)
+	if(left->prev)
 		left->prev->next = right;
 	else
 		sweep_line->head = right;
-	if(right->next != NULL)
+	if(right->next)
 		right->next->prev = left;
 	left->next = right->next;
 	right->next = left;
@@ -924,7 +924,7 @@ static inline void _cairo_bo_edge_start_or_continue_trap(cairo_bo_edge_t * left,
 	if(left->deferred_trap.right == right)
 		return;
 	assert(right);
-	if(left->deferred_trap.right != NULL) {
+	if(left->deferred_trap.right) {
 		if(edges_colinear(left->deferred_trap.right, right)) {
 			/* continuation on right, so just swap edges */
 			left->deferred_trap.right = right;
@@ -950,7 +950,7 @@ static inline void _active_edges_to_traps(cairo_bo_edge_t * pos, int32 top, unsi
 #endif
 	in_out = 0;
 	left = pos;
-	while(pos != NULL) {
+	while(pos) {
 		if(pos != left && pos->deferred_trap.right) {
 			/* XXX It shouldn't be possible to here with 2 deferred traps
 			 * on colinear edges... See bug-bo-rictoz.
@@ -1009,7 +1009,7 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 	while((event = _cairo_bo_event_dequeue(&event_queue))) {
 		if(event->point.y != sweep_line.current_y) {
 			for(e1 = sweep_line.stopped; e1; e1 = e1->next) {
-				if(e1->deferred_trap.right != NULL) {
+				if(e1->deferred_trap.right) {
 					_cairo_bo_edge_end_trap(e1, e1->edge.bottom, traps);
 				}
 			}
@@ -1032,11 +1032,11 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 			    for(left = sweep_line.stopped; left; left = left->next) {
 				    if(e1->edge.top <= left->edge.bottom && edges_colinear(e1, left)) {
 					    e1->deferred_trap = left->deferred_trap;
-					    if(left->prev != NULL)
+					    if(left->prev)
 						    left->prev = left->next;
 					    else
 						    sweep_line.stopped = left->next;
-					    if(left->next != NULL)
+					    if(left->next)
 						    left->next->prev = left->prev;
 					    break;
 				    }
@@ -1061,14 +1061,14 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 			    right = e1->next;
 			    _cairo_bo_sweep_line_delete(&sweep_line, e1);
 			    /* first, check to see if we have a continuation via a fresh edge */
-			    if(e1->deferred_trap.right != NULL) {
+			    if(e1->deferred_trap.right) {
 				    e1->next = sweep_line.stopped;
-				    if(sweep_line.stopped != NULL)
+				    if(sweep_line.stopped)
 					    sweep_line.stopped->prev = e1;
 				    sweep_line.stopped = e1;
 				    e1->prev = NULL;
 			    }
-			    if(left != NULL && right != NULL) {
+			    if(left && right) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, left, right);
 				    if(UNLIKELY(status))
 					    goto unwind;
@@ -1105,7 +1105,7 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 	}
 	*num_intersections = intersection_count;
 	for(e1 = sweep_line.stopped; e1; e1 = e1->next) {
-		if(e1->deferred_trap.right != NULL) {
+		if(e1->deferred_trap.right) {
 			_cairo_bo_edge_end_trap(e1, e1->edge.bottom, traps);
 		}
 	}

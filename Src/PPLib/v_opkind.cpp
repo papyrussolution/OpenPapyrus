@@ -263,19 +263,19 @@ int PPViewOprKind::CreateFlagsMnemonics(const PPOprKind * pOpData, char * pBuf, 
 		}
 		buf.CatChar(symb);
 		// Set Sub type
-		buf.CatChar('-');
-		if(pOpData->SubType == OPSUBT_COMMON)
-			buf.CatChar('S');
-		else if(pOpData->SubType == OPSUBT_ADVANCEREP)
-			buf.CatChar('A');
-		else if(pOpData->SubType == OPSUBT_REGISTER)
-			buf.CatChar('R');
-		else if(pOpData->SubType == OPSUBT_ASSETRCV)
-			buf.CatChar('G');
-		else if(pOpData->SubType == OPSUBT_ASSETEXPL)
-			buf.CatChar('E');
-		else if(pOpData->SubType == OPSUBT_WARRANT)
-			buf.CatChar('W');
+		{
+			char c = 0;
+			switch(pOpData->SubType) {
+				case OPSUBT_COMMON: c = 'S'; break;
+				case OPSUBT_ADVANCEREP: c = 'A'; break;
+				case OPSUBT_REGISTER: c = 'R'; break;
+				case OPSUBT_ASSETRCV: c = 'G'; break;
+				case OPSUBT_ASSETEXPL: c = 'E'; break;
+				case OPSUBT_WARRANT: c = 'W'; break;
+			}
+			if(c)
+				buf.CatChar('-').CatChar(c);
+		}
 	}
 	buf.CopyTo(pBuf, bufSize);
 	return 1;
@@ -285,6 +285,11 @@ int PPViewOprKind::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	pBrw->SetupToolbarCombo(PPOBJ_OPRTYPE, Filt.OpTypeID, 0, 0);
 	return -1;
+}
+
+/*virtual*/void * PPViewOprKind::GetEditExtraParam()
+{
+	return Filt.OpTypeID ? reinterpret_cast<void *>(Filt.OpTypeID) : 0;
 }
 
 int PPViewOprKind::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)

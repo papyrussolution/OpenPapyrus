@@ -32,7 +32,8 @@ namespace {
 DWORD Win32CountSetBits(ULONG_PTR bitMask) 
 {
 	for(DWORD bitSetCount = 0;; ++bitSetCount) {
-		if(bitMask == 0) return bitSetCount;
+		if(bitMask == 0) 
+			return bitSetCount;
 		bitMask &= bitMask - 1;
 	}
 }
@@ -65,13 +66,11 @@ int Win32NumCPUs()
 				case RelationProcessorCore:
 				    logicalProcessorCount += Win32CountSetBits(ptr->ProcessorMask);
 				    break;
-
 				case RelationNumaNode:
 				case RelationCache:
 				case RelationProcessorPackage:
 				    // Ignore other entries
 				    break;
-
 				default:
 				    // Ignore unknown entries
 				    break;
@@ -221,7 +220,8 @@ static int GetNumCPUs() {
 
 		// Measures and returns the TSC frequency by taking a pair of
 		// measurements approximately `sleep_nanoseconds` apart.
-		static double MeasureTscFrequencyWithSleep(int sleep_nanoseconds) {
+		static double MeasureTscFrequencyWithSleep(int sleep_nanoseconds) 
+		{
 			auto t0 = GetTimeTscPair();
 			struct timespec ts;
 			ts.tv_sec = 0;
@@ -351,7 +351,7 @@ double NominalCPUFrequency()
 		uint32_t tid;
 		rtems_task_ident(RTEMS_SELF, 0, &tid);
 		return tid;
-}
+	}
 #else
 	// Fallback implementation of GetTID using pthread_getspecific.
 	ABSL_CONST_INIT static once_flag tid_once;
@@ -374,7 +374,6 @@ double NominalCPUFrequency()
 		assert(0 <= word && static_cast<size_t>(word) < tid_array->size());
 		(*tid_array)[word] &= mask;
 	}
-
 	static void InitGetTID() 
 	{
 		if(pthread_key_create(&tid_key, FreeTID) != 0) {

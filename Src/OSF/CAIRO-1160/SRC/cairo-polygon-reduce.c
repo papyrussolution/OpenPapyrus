@@ -784,7 +784,7 @@ static cairo_bo_event_t * _cairo_bo_event_dequeue(cairo_bo_event_queue_t * event
 {
 	cairo_bo_event_t * event = event_queue->pqueue.elements[PQ_FIRST_ENTRY];
 	cairo_bo_event_t * cmp = *event_queue->start_events;
-	if(event == NULL || (cmp != NULL && cairo_bo_event_compare(cmp, event) < 0)) {
+	if(event == NULL || (cmp && cairo_bo_event_compare(cmp, event) < 0)) {
 		event = cmp;
 		event_queue->start_events++;
 	}
@@ -864,7 +864,7 @@ static cairo_status_t _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_
 		else if(cmp > 0) {
 			next = sweep_line->current_edge;
 			prev = next->prev;
-			while(prev != NULL && _cairo_bo_sweep_line_compare_edges(sweep_line, prev, edge) > 0) {
+			while(prev && _cairo_bo_sweep_line_compare_edges(sweep_line, prev, edge) > 0) {
 				next = prev, prev = next->prev;
 			}
 			next->prev = edge;
@@ -879,7 +879,7 @@ static cairo_status_t _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_
 			prev = sweep_line->current_edge;
 			edge->prev = prev;
 			edge->next = prev->next;
-			if(prev->next != NULL)
+			if(prev->next)
 				prev->next->prev = edge;
 			prev->next = edge;
 		}
@@ -893,11 +893,11 @@ static cairo_status_t _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_
 
 static void _cairo_bo_sweep_line_delete(cairo_bo_sweep_line_t * sweep_line, cairo_bo_edge_t * edge)
 {
-	if(edge->prev != NULL)
+	if(edge->prev)
 		edge->prev->next = edge->next;
 	else
 		sweep_line->head = edge->next;
-	if(edge->next != NULL)
+	if(edge->next)
 		edge->next->prev = edge->prev;
 	if(sweep_line->current_edge == edge)
 		sweep_line->current_edge = edge->prev ? edge->prev : edge->next;
@@ -905,11 +905,11 @@ static void _cairo_bo_sweep_line_delete(cairo_bo_sweep_line_t * sweep_line, cair
 
 static void _cairo_bo_sweep_line_swap(cairo_bo_sweep_line_t * sweep_line, cairo_bo_edge_t * left, cairo_bo_edge_t * right)
 {
-	if(left->prev != NULL)
+	if(left->prev)
 		left->prev->next = right;
 	else
 		sweep_line->head = right;
-	if(right->next != NULL)
+	if(right->next)
 		right->next->prev = left;
 	left->next = right->next;
 	right->next = left;
@@ -954,15 +954,15 @@ static inline void _cairo_bo_edge_start_or_continue(cairo_bo_edge_t * left, cair
 {
 	if(left->deferred.right == right)
 		return;
-	if(left->deferred.right != NULL) {
-		if(right != NULL && edges_colinear(left->deferred.right, right)) {
+	if(left->deferred.right) {
+		if(right && edges_colinear(left->deferred.right, right)) {
 			/* continuation on right, so just swap edges */
 			left->deferred.right = right;
 			return;
 		}
 		_cairo_bo_edge_end(left, top, polygon);
 	}
-	if(right != NULL && !edges_colinear(left, right)) {
+	if(right && !edges_colinear(left, right)) {
 		left->deferred.top = top;
 		left->deferred.right = right;
 	}
@@ -980,9 +980,9 @@ static inline void _active_edges_to_polygon(cairo_bo_edge_t * left, int32 top, c
 		int in_out = left->edge.dir;
 		right = left->next;
 		if(left->deferred.right == NULL) {
-			while(right != NULL && right->deferred.right == NULL)
+			while(right && right->deferred.right == NULL)
 				right = right->next;
-			if(right != NULL && edges_colinear(left, right)) {
+			if(right && edges_colinear(left, right)) {
 				/* continuation on left */
 				left->deferred = right->deferred;
 				right->deferred.right = NULL;
@@ -990,7 +990,7 @@ static inline void _active_edges_to_polygon(cairo_bo_edge_t * left, int32 top, c
 		}
 		right = left->next;
 		while(right) {
-			if(right->deferred.right != NULL)
+			if(right->deferred.right)
 				_cairo_bo_edge_end(right, top, polygon);
 			in_out += right->edge.dir;
 			if((in_out & mask) == 0) {
@@ -1048,18 +1048,16 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
-
 			    break;
-
 			case CAIRO_BO_EVENT_TYPE_STOP:
 			    e1 = ((cairo_bo_queue_event_t *)event)->e1;
 			    _cairo_bo_event_queue_delete(&event_queue, event);
 			    left = e1->prev;
 			    right = e1->next;
 			    _cairo_bo_sweep_line_delete(&sweep_line, e1);
-			    if(e1->deferred.right != NULL)
+			    if(e1->deferred.right)
 				    _cairo_bo_edge_end(e1, e1->edge.bottom, polygon);
-			    if(left != NULL && right != NULL) {
+			    if(left && right) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, left, right);
 				    if(UNLIKELY(status))
 					    goto unwind;

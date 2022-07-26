@@ -973,7 +973,7 @@ void cairo_surface_get_mime_data(cairo_surface_t * surface, const char * mime_ty
 	num_slots = surface->mime_data.num_elements;
 	slots = (cairo_user_data_slot_t *)_cairo_array_index(&surface->mime_data, 0);
 	for(i = 0; i < num_slots; i++) {
-		if(slots[i].key != NULL && strcmp((char *)slots[i].key, mime_type) == 0) {
+		if(slots[i].key && strcmp((char *)slots[i].key, mime_type) == 0) {
 			cairo_mime_data_t * mime_data = (cairo_mime_data_t *)slots[i].user_data;
 			*data = mime_data->data;
 			*length = mime_data->length;
@@ -1015,7 +1015,7 @@ boolint _cairo_surface_has_mime_image(const cairo_surface_t * surface)
 	const int num_slots = surface->mime_data.num_elements;
 	const cairo_user_data_slot_t * slots = (const cairo_user_data_slot_t *)_cairo_array_index_const(&surface->mime_data, 0);
 	for(int i = 0; i < num_slots; i++) {
-		if(slots[i].key != NULL) {
+		if(slots[i].key) {
 			for(int j = 0; j < ARRAY_LENGTH(_cairo_surface_image_mime_types); j++) {
 				if(strcmp(reinterpret_cast<const char *>(slots[i].key), _cairo_surface_image_mime_types[j]) == 0)
 					return TRUE;
@@ -1370,7 +1370,7 @@ cairo_status_t FASTCALL _cairo_surface_flush(cairo_surface_t * surface, unsigned
 {
 	// update the current snapshots *before* the user updates the surface 
 	_cairo_surface_detach_snapshots(surface);
-	if(surface->snapshot_of != NULL)
+	if(surface->snapshot_of)
 		_cairo_surface_detach_snapshot(surface);
 	_cairo_surface_detach_mime_data(surface);
 	return __cairo_surface_flush(surface, flags);
@@ -1467,7 +1467,7 @@ void cairo_surface_mark_dirty_rectangle(cairo_surface_t * surface, int x, int y,
 		box.p2.y = y + height;
 		surface->damage = _cairo_damage_add_box(surface->damage, &box);
 	}
-	if(surface->backend->mark_dirty_rectangle != NULL) {
+	if(surface->backend->mark_dirty_rectangle) {
 		/* XXX: FRAGILE: We're ignoring the scaling component of
 		 * device_transform here. I don't know what the right thing to
 		 * do would actually be if there were some scaling here, but
@@ -2084,7 +2084,7 @@ boolint FASTCALL _cairo_surface_get_extents(cairo_surface_t * surface, cairo_rec
 		goto zero_extents;
 	}
 	bounded = FALSE;
-	if(surface->backend->get_extents != NULL)
+	if(surface->backend->get_extents)
 		bounded = surface->backend->get_extents(surface, extents);
 	if(!bounded)
 		_cairo_unbounded_rectangle_init(extents);

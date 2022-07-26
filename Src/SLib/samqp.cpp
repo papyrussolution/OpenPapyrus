@@ -4985,8 +4985,7 @@ int amqp_open_socket_inner(char const * hostname, int portnumber, amqp_time_t de
 
 static int send_header_inner(amqp_connection_state_t state, amqp_time_t deadline) 
 {
-	static const uint8 header[8] = {'A', 'M', 'Q', 'P', 0, AMQP_PROTOCOL_VERSION_MAJOR,
-		AMQP_PROTOCOL_VERSION_MINOR, AMQP_PROTOCOL_VERSION_REVISION};
+	static const uint8 header[8] = {'A', 'M', 'Q', 'P', 0, AMQP_PROTOCOL_VERSION_MAJOR, AMQP_PROTOCOL_VERSION_MINOR, AMQP_PROTOCOL_VERSION_REVISION};
 	ssize_t res = amqp_try_send(state, header, sizeof(header), deadline, AMQP_SF_NONE);
 	return (sizeof(header) == res) ? AMQP_STATUS_OK : (int)res;
 }

@@ -11,13 +11,11 @@ typedef struct {
 	uint16 signExp;
 } IEEE80;
 
-static const long e0toF [8] =
-{
+static const long e0toF[8] = {
 	1, 10, 100, 1000, 10000, 100000L, 1000000L, 10000000L
 };
 
-static const IEEE80 expo[10] =
-{
+static const IEEE80 expo[10] = {
 	{{0,      0,      0x2000, 0xBEBC}, 0x4019},    /* 1e8    */
 	{{0,      0x0400, 0xC9BF, 0x8E1B}, 0x4034},    /* 1e16   */
 	{{0xB59E, 0x2B70, 0xADA8, 0x9DC5}, 0x4069},    /* 1e32   */

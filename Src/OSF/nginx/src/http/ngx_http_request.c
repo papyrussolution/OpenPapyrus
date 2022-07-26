@@ -2026,8 +2026,7 @@ static void ngx_http_keepalive_handler(ngx_event_t * rev)
 		b->end = b->pos + size;
 	}
 	// 
-	// MSIE closes a keepalive connection with RST flag
-	// so we ignore ECONNRESET here.
+	// MSIE closes a keepalive connection with RST flag so we ignore ECONNRESET here.
 	// 
 	c->log_error = NGX_ERROR_IGNORE_ECONNRESET;
 	ngx_set_socket_errno(0);

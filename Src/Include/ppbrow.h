@@ -1907,6 +1907,7 @@
 	#define PPVIEWITEM_STYLOQCOMMAND                         1272
 #define PPFILT_STYLOQATTENDANCEPREREQPARAM           1281
 #define PPFILT_STYLOQINDEXINGPARAM                   1291
+#define PPFILT_STYLOQGOODSINFOPARAM                  1301
 //
 // RECORD definitions
 //
@@ -2310,7 +2311,7 @@ struct Sdr_BRow {
 	char   UnitName[48];
 	char   PhUnitName[48];
 	char   UnitCode[20];
-	char   Barcode[24];
+	char   Barcode[252];
 	char   ArCode[24];
 	char   ArCodeOwn[24];
 	char   AlcoCatCode[24];
@@ -5005,9 +5006,10 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_STYLOQDOCSTATUS_APPROVED        32985
 #define PPDV_STYLOQDOCSTATUS_CANCELLED       32986
 #define PPDV_STYLOQDOCSTATUS_REJECTED        32987
-#define PPDV_LOGOPAPYRUS                     32988
-#define PPDV_LOGOUDS                         32989
-#define PPDV_LOGOVK                          32990
-#define PPDV_LOGOVETIS                       32991
-#define PPDV_LOGOCHZN                        32992
+#define PPDV_BARCODE01                       32988
+#define PPDV_LOGOPAPYRUS                     32989
+#define PPDV_LOGOUDS                         32990
+#define PPDV_LOGOVK                          32991
+#define PPDV_LOGOVETIS                       32992
+#define PPDV_LOGOCHZN                        32993
 

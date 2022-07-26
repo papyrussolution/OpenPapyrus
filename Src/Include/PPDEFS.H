@@ -11351,6 +11351,12 @@
 	#define CTL_FMTTS_TF                     (3  + WINDOWS_ID_BIAS)
 	#define CTLSEL_FMTTS_TF                  (4  + WINDOWS_ID_BIAS)
 	#define CTLSEL_FMTTS_FLAGS               (5  + WINDOWS_ID_BIAS)
+#define DLG_STQGINFPARAM          1418 // @v11.4.5
+	#define CTL_STQGINFPARAM_LOC             (1  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQGINFPARAM_LOC          (2  + WINDOWS_ID_BIAS)
+	#define CTL_STQGINFPARAM_FLAGS           (3  + WINDOWS_ID_BIAS)
+	#define CTL_STQGINFPARAM_POSN            (4  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQGINFPARAM_POSN         (5  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

@@ -191,6 +191,29 @@ int SaComplex::RecalcFinalPrice()
 //
 //
 //
+CPosProcessor::GrpListItem::GrpListItem() : ID(0), ParentID(0), Flags(0), Level(0)
+{
+}
+
+CPosProcessor::GroupArray::GroupArray() : TSVector <CheckPaneDialog::GrpListItem> (), TopID(0)
+{
+}
+
+CPosProcessor::GrpListItem * CPosProcessor::GroupArray::Get(PPID id, uint * pPos) const
+{
+	uint   pos = 0;
+	if(lsearch(&id, &pos, CMPF_LONG)) {
+		ASSIGN_PTR(pPos, pos);
+		return &at(pos);
+	}
+	else {
+		ASSIGN_PTR(pPos, 0);
+		return 0;
+	}
+}
+//
+//
+//
 CPosProcessor::Packet::Packet()
 {
 	Clear();
@@ -639,6 +662,21 @@ int CPosProcessor::LoadModifiers(PPID goodsID, SaModif & rModif)
 	return ok;
 }
 
+int CPosProcessor::Backend_GetGoodsList(PPIDArray & rList) // @v11.4.5
+{
+	rList.Z();
+	int    ok = 1;
+	GoodsFilt gf;
+	if(!(CnFlags & CASHF_SELALLGOODS)) {
+		gf.Flags |= GoodsFilt::fActualOnly;
+		gf.LocList.Add(CnLocID);
+	}
+	if(CnExtFlags & CASHFX_USEGOODSMATRIX)
+		gf.Flags |= GoodsFilt::fRestrictByMatrix;
+	GoodsIterator::GetListByFilt(&gf, &rList, 0);
+	return ok;
+}
+
 int CPosProcessor::Backend_GetCCheckList(long ctblId, TSVector <CCheckViewItem> & rList)
 {
 	rList.clear();
@@ -974,7 +1012,7 @@ void CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & 
 //
 //
 //
-CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, int isTouchScreen) : CashNodeID(cashNodeID),
+CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint ctrFlags/*isTouchScreen*/, void * pDummy) : CashNodeID(cashNodeID),
 	P_CcView(0), P_TSesObj(0), P_EgPrc(0), P_CM(0), P_CM_EXT(0), P_CM_ALT(0), P_GTOA(0), P_ChkPack(pOuterPack), P_DivGrpList(0),
 	Flags(0), EgaisMode(0), BonusMaxPart(1.0), OperRightsFlags(0), OrgOperRights(0), SuspCheckID(0), CheckID(checkID), AuthAgentID(0),
 	AbstractGoodsID(0), ExtCnLocID(0), ExtCashNodeID(0), AltRegisterID(0), TouchScreenID(0), ScaleID(0), CnPhnSvcID(0), UiFlags(0),
@@ -1001,13 +1039,20 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 					P_EgPrc = new PPEgaisProcessor(egcf, 0, 0);
 				}
 			}
+			// @v11.4.5 {
+			if(ctrFlags & ctrfForceInitGroupList && cn_pack.TouchScreenID) {
+				PPTouchScreenPacket ts_pack;
+				PPObjTouchScreen    ts_obj;
+				if(ts_obj.GetPacket(TouchScreenID, &ts_pack) > 0)
+					InitGroupList(ts_pack);
+			}
+			// } @v11.4.5 
 		}
 	}
 	CnName = cn_rec.Name;
 	CnSymb = cn_rec.Symb;
-	CnFlags = cn_rec.Flags & (CASHF_SELALLGOODS | CASHF_USEQUOT | CASHF_NOASKPAYMTYPE |
-		CASHF_SHOWREST | CASHF_KEYBOARDWKEY | CASHF_WORKWHENLOCK | CASHF_DISABLEZEROAGENT |
-		CASHF_UNIFYGDSATCHECK | CASHF_UNIFYGDSTOPRINT | CASHF_CHECKFORPRESENT | CASHF_ABOVEZEROSALE | CASHF_SYNC | CASHF_SKIPUNPRINTEDCHECKS); // @v10.2.4 CASHF_SKIPUNPRINTEDCHECKS
+	CnFlags = cn_rec.Flags & (CASHF_SELALLGOODS|CASHF_USEQUOT|CASHF_NOASKPAYMTYPE|CASHF_SHOWREST|CASHF_KEYBOARDWKEY|CASHF_WORKWHENLOCK|CASHF_DISABLEZEROAGENT|
+		CASHF_UNIFYGDSATCHECK|CASHF_UNIFYGDSTOPRINT|CASHF_CHECKFORPRESENT|CASHF_ABOVEZEROSALE|CASHF_SYNC|CASHF_SKIPUNPRINTEDCHECKS); // @v10.2.4 CASHF_SKIPUNPRINTEDCHECKS
 	CnExtFlags = cn_rec.ExtFlags;
 	CnSpeciality = static_cast<long>(cn_rec.Speciality);
 	CnLocID = cn_rec.LocID;
@@ -1017,7 +1062,8 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			P_DivGrpList = new SArray(temp_list);
 	}
 	SETFLAG(Flags, fAsSelector, (P_ChkPack && !CashNodeID && !CheckID));
-	SETFLAG(Flags, fTouchScreen, isTouchScreen);
+	// @v11.4.5 SETFLAG(Flags, fTouchScreen, isTouchScreen);
+	SETFLAG(Flags, fTouchScreen, (ctrFlags & ctrfTouchScreen)); // @v11.4.5
 	SETFLAG(Flags, fCashNodeIsLocked, CnObj.IsLocked(CashNodeID) > 0);
 	if(CnExtFlags & CASHFX_ABSTRGOODSALLOWED) {
 		const PPID def_goods_id = GObj.GetConfig().DefGoodsID;
@@ -1058,12 +1104,10 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 		}
 		OrgOperRights = OperRightsFlags;
 	}
-	// @v10.9.0 {
-	{
+	{ // @v10.9.0
 		PPObjSCardSeries scs_obj;
 		scs_obj.GetSeriesWithSpecialTreatment(SpcTrtScsList);
 	}
-	// } @v10.9.0 
 }
 
 CPosProcessor::~CPosProcessor()
@@ -1111,6 +1155,70 @@ int CPosProcessor::InitCcView() { return BIN(SETIFZ(P_CcView, new PPViewCCheck(G
 /*virtual*/void CPosProcessor::SetPrintedFlag(int set) { SETFLAG(Flags, fPrinted, set); }
 /*virtual*/void CPosProcessor::SetupInfo(const char * pErrMsg) {}
 /*virtual*/void CPosProcessor::OnUpdateList(int goBottom) {}
+
+int CPosProcessor::MakeGroupEntryList(StrAssocArray * pTreeList, PPID parentID, uint level)
+{
+	int    ok = -1;
+	for(uint i = 0; i < pTreeList->getCount(); i++) {
+		StrAssocArray::Item item = pTreeList->Get(i);
+		if(item.ParentId == parentID) {
+			uint   pos = 0;
+			int    is_opened = -1;
+			GrpListItem gli;
+			if(GroupList.Get(item.Id, &pos)) {
+				is_opened = BIN(GroupList.at(pos).Flags & GrpListItem::fOpened);
+				GroupList.atFree(pos);
+			}
+			gli.ID = item.Id;
+			gli.ParentID = item.ParentId;
+			gli.Level = static_cast<uint16>(level);
+			pos = GroupList.getCount();
+			GroupList.insert(&gli);
+			if(MakeGroupEntryList(pTreeList, item.Id, level + 1) > 0) { // @recursion
+				GroupList.at(pos).Flags |= GrpListItem::fFolder;
+				if(is_opened > 0)
+					GroupList.at(pos).Flags |= GrpListItem::fOpened;
+			}
+			ok = 1;
+		}
+	}
+	return ok;
+}
+//
+// Инициализация списка групп, которые можно выбирать
+//
+int CPosProcessor::InitGroupList(const PPTouchScreenPacket & rTsPack)
+{
+	int    ok = 1;
+	SString   temp_buf;
+	Goods2Tbl::Rec goods_rec;
+	PPIDArray grp_id_list(rTsPack.GrpIDList);
+	PPID   grp_id = 0;
+	GroupList.clear();
+	if(grp_id_list.getCount() == 0) {
+		for(GoodsGroupIterator gg_iter(0); gg_iter.Next(&grp_id, temp_buf) > 0;) {
+			while(grp_id && GObj.Fetch(grp_id, &goods_rec) > 0) {
+				grp_id_list.add(grp_id);
+				grp_id = goods_rec.ParentID;
+			}
+		}
+	}
+	grp_id_list.sortAndUndup();
+	{
+		StrAssocArray temp_list;
+		for(uint p = 0; p < grp_id_list.getCount(); p++) {
+			if(GObj.Fetch(grp_id_list.get(p), &goods_rec) > 0) {
+				const PPID par_id = goods_rec.ParentID;
+				temp_list.AddFast(goods_rec.ID, (par_id && grp_id_list.bsearch(par_id)) ? par_id : 0, goods_rec.Name);
+			}
+		}
+		temp_list.SortByText();
+		THROW(MakeGroupEntryList(&temp_list, 0, 0));
+	}
+	LastGrpListUpdTime = getcurdatetime_(); // @v11.4.5
+	CATCHZOK
+	return ok;
+}
 
 int CPosProcessor::GetNewCheckCode(PPID cashNodeID, long * pCode)
 {
@@ -1386,7 +1494,6 @@ int CPosProcessor::SetupItem(PPID goodsID, double qtty, double price)
 	return 1;
 }
 */
-
 int CPosProcessor::OpenSession(LDATE * pDt, int ifClosed)
 {
 	int    ok = 0;
@@ -3017,96 +3124,11 @@ int CheckPaneDialog::SelectGroup(PPID * pGrpID)
 	return ok;
 }
 
-int CheckPaneDialog::MakeGroupEntryList(StrAssocArray * pTreeList, PPID parentID, uint level)
-{
-	int    ok = -1;
-	for(uint i = 0; i < pTreeList->getCount(); i++) {
-		StrAssocArray::Item item = pTreeList->Get(i);
-		if(item.ParentId == parentID) {
-			uint   pos = 0;
-			int    is_opened = -1;
-			GrpListItem gli;
-			if(GroupList.Get(item.Id, &pos)) {
-				is_opened = BIN(GroupList.at(pos).Flags & GrpListItem::fOpened);
-				GroupList.atFree(pos);
-			}
-			// @v10.8.11 @ctr MEMSZERO(gli);
-			gli.ID = item.Id;
-			gli.ParentID = item.ParentId;
-			gli.Level = static_cast<uint16>(level);
-			pos = GroupList.getCount();
-			GroupList.insert(&gli);
-			if(MakeGroupEntryList(pTreeList, item.Id, level + 1) > 0) { // @recursion
-				GroupList.at(pos).Flags |= GrpListItem::fFolder;
-				if(is_opened > 0)
-					GroupList.at(pos).Flags |= GrpListItem::fOpened;
-			}
-			ok = 1;
-		}
-	}
-	return ok;
-}
-//
-// Инициализация списка групп, которые можно выбирать
-//
-int CheckPaneDialog::InitGroupList(const PPTouchScreenPacket & rTsPack)
-{
-	int    ok = 1;
-	SString   temp_buf;
-	Goods2Tbl::Rec goods_rec;
-	PPIDArray grp_id_list(rTsPack.GrpIDList);
-	PPID   grp_id = 0;
-	GroupList.clear(); // @v10.6.8 freeAll()-->clear()
-	if(grp_id_list.getCount() == 0) {
-		for(GoodsGroupIterator gg_iter(0); gg_iter.Next(&grp_id, temp_buf) > 0;) {
-			while(grp_id && GObj.Fetch(grp_id, &goods_rec) > 0) {
-				grp_id_list.add(grp_id);
-				grp_id = goods_rec.ParentID;
-			}
-		}
-	}
-	grp_id_list.sortAndUndup();
-	{
-		StrAssocArray temp_list;
-		for(uint p = 0; p < grp_id_list.getCount(); p++) {
-			if(GObj.Fetch(grp_id_list.get(p), &goods_rec) > 0) {
-				const PPID par_id = goods_rec.ParentID;
-				temp_list.AddFast(goods_rec.ID, (par_id && grp_id_list.bsearch(par_id)) ? par_id : 0, goods_rec.Name); // v8.0.10 Add-->AddFast; lsearch-->bsearch
-			}
-		}
-		temp_list.SortByText();
-		THROW(MakeGroupEntryList(&temp_list, 0, 0));
-	}
-	CATCHZOK
-	return ok;
-}
-
 IMPLEMENT_PPFILT_FACTORY(CashNodePane); CashNodePaneFilt::CashNodePaneFilt() : PPBaseFilt(PPFILT_CASHNODEPANE, 0, 1)
 {
 	SetFlatChunk(offsetof(CashNodePaneFilt, ReserveStart),
 		offsetof(CashNodePaneFilt, ReserveEnd) - offsetof(CashNodePaneFilt, ReserveStart));
 	Init(1, 0);
-}
-
-CheckPaneDialog::GrpListItem::GrpListItem() : ID(0), ParentID(0), Flags(0), Level(0)
-{
-}
-
-CheckPaneDialog::GroupArray::GroupArray() : TSVector <CheckPaneDialog::GrpListItem> (), TopID(0)
-{
-}
-
-CheckPaneDialog::GrpListItem * CheckPaneDialog::GroupArray::Get(PPID id, uint * pPos) const
-{
-	uint   pos = 0;
-	if(lsearch(&id, &pos, CMPF_LONG)) {
-		ASSIGN_PTR(pPos, pos);
-		return &at(pos);
-	}
-	else {
-		ASSIGN_PTR(pPos, 0);
-		return 0;
-	}
 }
 
 int CheckPaneDialog::PhnSvcConnect()
@@ -3157,10 +3179,11 @@ int CheckPaneDialog::PhnSvcConnect()
 	return ok;
 }
 
-CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, int isTouchScreen) :
-	TDialog(pOuterPack ? (isTouchScreen ? DLG_CHKPANV_L : DLG_CHKPANV) : (isTouchScreen ? DLG_CHKPAN_TS : DLG_CHKPAN),
-		isTouchScreen ? CheckPaneDialog::SetLbxItemHight : 0, reinterpret_cast<void *>(cashNodeID)),
-	CPosProcessor(cashNodeID, checkID, pOuterPack, isTouchScreen),
+CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint ctrFlags/*int isTouchScreen*/) :
+	TDialog(pOuterPack ? (/*isTouchScreen*/(ctrFlags & ctrfTouchScreen) ? DLG_CHKPANV_L : DLG_CHKPANV) : (/*isTouchScreen*/(ctrFlags & ctrfTouchScreen) ? DLG_CHKPAN_TS : DLG_CHKPAN),
+		/*isTouchScreen*/(ctrFlags & ctrfTouchScreen) ? CheckPaneDialog::SetLbxItemHight : 0, 
+		reinterpret_cast<void *>(cashNodeID)),
+	CPosProcessor(cashNodeID, checkID, pOuterPack, /*isTouchScreen*/ctrFlags, 0/*pDummy*/),
 	PhnSvcTimer(1000), UhttImportTimer(180000), BarrierViolationCounter(0)/*@debug*/, ActiveListID(0), SelGoodsGrpID(0), AltGoodsGrpID(0),
 	GoodsListFontHeight(0), GoodsListEntryGap(0), P_PalmWaiter(0), P_UhttImporter(0), P_CDY(0), P_BNKTERM(0), P_PhnSvcClient(0)
 {
@@ -3169,7 +3192,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	// @v10.9.0 @ctr(CPosProcessor) ScaleID = 0;
 	// @v10.9.0 @ctr(CPosProcessor) CnPhnSvcID = 0;
 	SetupState(sEMPTYLIST_EMPTYBUF);
-	SETFLAG(DlgFlags, fLarge, isTouchScreen);
+	SETFLAG(DlgFlags, fLarge, /*isTouchScreen*/(ctrFlags & ctrfTouchScreen));
 	Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));
 	Ptb.SetColor(clrEven,   RGB(0xD3, 0xEF, 0xF4));
 	Ptb.SetColor(clrOdd,    RGB(0xDC, 0xED, 0xD5));
@@ -3188,7 +3211,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	Ptb.SetBrush(brDiscountGift, SPaintObj::psSolid, GetColorRef(SClrSeagreen), 0);
 	Ptb.SetBrush(brOrderBkg,     SPaintObj::psSolid, GetColorRef(SClrLightsteelblue), 0);
 	//
-	LastGrpListUpdTime = getcurdatetime_();
+	// @v11.4.5 LastGrpListUpdTime = getcurdatetime_();
 	CnSleepTimeout = 0;
 	AutoInputTolerance = 5;
 	IdleClock = clock();
@@ -3212,7 +3235,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				ClearCDYTimeout = scn.ClearCDYTimeout * CLOCKS_PER_SEC;
 				CnSleepTimeout  = scn.SleepTimeout * CLOCKS_PER_SEC;
 				if(!GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath, &P_BNKTERM))
-					Flags |= fLockBankPaym; // @v10.0.10
+					Flags |= fLockBankPaym;
 				TouchScreenID   = NZOR(scn.LocalTouchScrID, scn.TouchScreenID);
 				AltRegisterID   = scn.AlternateRegID;
 				CnPhnSvcID      = scn.PhnSvcID;
@@ -3222,9 +3245,8 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 					else
 						ExtCashNodeID = scn.ExtCashNodeID;
 				}
-				else {
+				else
 					ExtCashNodeID = 0;
-				}
 				if(AltRegisterID) {
 					ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ALTERNATEREGPASS, temp_buf.Z());
 					if(!temp_buf.IsEqiAscii("yes"))
@@ -7199,7 +7221,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			PPIDArray act_list, obj_list;
 			act_list.addzlist(PPACN_OBJADD, PPACN_OBJUPD, PPACN_OBJRMV, PPACN_OBJUNIFY, 0);
-			if(p_sj->GetObjListByEventSince(PPOBJ_GOODSGROUP, &act_list, LastGrpListUpdTime, obj_list) > 0)
+			if(!LastGrpListUpdTime || p_sj->GetObjListByEventSince(PPOBJ_GOODSGROUP, &act_list, LastGrpListUpdTime, obj_list) > 0) // @v11.4.5 (!LastGrpListUpdTime ||)
 				if(TouchScreenID) {
 					PPTouchScreenPacket ts_pack;
 					PPObjTouchScreen    ts_obj;
@@ -7251,7 +7273,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				p_grp_list->Draw_();
 				p_def->getCurID(&SelGoodsGrpID);
 			}
-			LastGrpListUpdTime = getcurdatetime_();
+			// @v11.4.5 (moved to InitGroupList) LastGrpListUpdTime = getcurdatetime_();
 		}
 		showCtrl(CTL_CHKPAN_GRPLIST,    !updGoodsList);
 		disableCtrl(CTL_CHKPAN_GRPLIST,  updGoodsList);

@@ -72,7 +72,7 @@ private:
 
 template <typename T> inline void TemplateDictionary::LazilyCreateDict(T** dict) 
 {
-	if(*dict != NULL)
+	if(*dict)
 		return;
 	// Placement new: construct the map in the memory used by *dict.
 	void * buffer = arena_->AllocAligned(sizeof(**dict), BaseArena::kDefaultAlignment);
@@ -458,8 +458,8 @@ void TemplateDictionary::SetEscapedFormattedValue(TemplateString variable,
 //    variable lookups, these persist across sub-includes.
 // ----------------------------------------------------------------------
 
-void TemplateDictionary::SetTemplateGlobalValue(const TemplateString variable,
-    const TemplateString value) {
+void TemplateDictionary::SetTemplateGlobalValue(const TemplateString variable, const TemplateString value) 
+{
 	assert(template_global_dict_owner_ != NULL);
 	LazyCreateTemplateGlobalDict();
 	template_global_dict_owner_->template_global_dict_->SetValue(variable, value);

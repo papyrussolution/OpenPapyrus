@@ -26,19 +26,8 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 		const  char * P_Symb;
 		ushort Cmd;
 	};
-	static const StdButton button_list[] = {
-		{ "but_yes",    cmYes },
-		{ "but_no",     cmNo  },
-		{ "but_ok",     cmOK  },
-		{ "but_cancel", cmCancel },
-		{ "but_all",    cmaAll }
-	};
-	static const int8 button_n[4][4] = {
-		{6,0,0,0},
-		{2,3,0,0},
-		{5,6,7,0},
-		{1,2,3,4}
-	};
+	static const StdButton button_list[] = { { "but_yes", cmYes }, { "but_no", cmNo  }, { "but_ok", cmOK  }, { "but_cancel", cmCancel }, { "but_all", cmaAll } };
+	static const int8 button_n[4][4] = { {6,0,0,0}, {2,3,0,0}, {5,6,7,0}, {1,2,3,4} };
 	int    ret = FALSE;
 	int    i, j;
 	SString temp_buf;

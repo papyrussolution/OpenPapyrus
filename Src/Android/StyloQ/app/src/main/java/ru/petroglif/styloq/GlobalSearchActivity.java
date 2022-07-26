@@ -6,6 +6,7 @@ package ru.petroglif.styloq;
 import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.SearchView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,17 +18,37 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.TimerTask;
 
 public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.OnQueryTextListener {
 	private String SearchPattern;
 	private JSONObject JsSearchResult;
 	private JSONArray JsScopeList;
 	private JSONArray JsResultList;
+	private int  CalledIndex; // Индекс элемента JsResultList, по которому ожидается выполнение запроса детализации
+	private long CallingStartTm; // Время ожидания
 	public GlobalSearchActivity()
 	{
 		super();
 		SearchPattern = null;
 		JsSearchResult = null;
+		CalledIndex = -1;
+		CallingStartTm = 0;
+	}
+	private void RefreshStatus()
+	{
+		if(JsResultList != null) {
+			View v = findViewById(R.id.CTL_GLOBALSEARCH_RESULTLIST);
+			if(v != null && v instanceof RecyclerView) {
+				RecyclerView rv = (RecyclerView)v;
+				RecyclerView.Adapter a = rv.getAdapter();
+				if(a != null)
+					a.notifyDataSetChanged();
+			}
+		}
+	}
+	private class RefreshTimerTask extends TimerTask {
+		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { RefreshStatus(); }}); }
 	}
 	@Override public boolean onQueryTextSubmit(String query)
 	{
@@ -35,23 +56,25 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 		SearchPattern = query;
 		if(SLib.GetLen(SearchPattern) > 0) {
 			StyloQApp app_ctx = GetAppCtx();
-			ArrayList <StyloQApp.IgnitionServerEntry> isl = app_ctx.GetIgnitionServerList();
-			if(isl != null && isl.size() > 0) {
-				Collections.shuffle(isl);
-				StyloQApp.IgnitionServerEntry ise = isl.get(0);
-				StyloQInterchange.DoInterchangeParam inner_param = new StyloQInterchange.DoInterchangeParam(ise.SvcIdent);
-				inner_param.AccsPoint = ise.Url;
-				JSONObject js_query = new JSONObject();
-				try {
+			try {
+				ArrayList<StyloQApp.IgnitionServerEntry> isl = app_ctx.GetIgnitionServerList();
+				if(isl != null && isl.size() > 0) {
+					Collections.shuffle(isl);
+					StyloQApp.IgnitionServerEntry ise = isl.get(0);
+					StyloQInterchange.DoInterchangeParam inner_param = new StyloQInterchange.DoInterchangeParam(ise.SvcIdent);
+					inner_param.AccsPoint = ise.Url;
+					JSONObject js_query = new JSONObject();
 					js_query.put("cmd", "search");
 					js_query.put("plainquery", SearchPattern);
 					js_query.put("maxresultcount", 128);
 					inner_param.CommandJson = js_query.toString();
 					StyloQInterchange.RunClientInterchange(app_ctx, inner_param);
 					result = true;
-				} catch(JSONException exn) {
-					;
 				}
+			} catch(JSONException exn) {
+				;
+			} catch(StyloQException exn) {
+				;
 			}
 		}
 		return false;
@@ -140,6 +163,8 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 						InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 						imm.showSoftInput(inpv, InputMethodManager.SHOW_IMPLICIT);
 					}*/
+					CalledIndex = -1;
+					CallingStartTm = 0;
 				}
 				break;
 			case SLib.EV_LISTVIEWCOUNT:
@@ -182,6 +207,34 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 										}
 									}
 									SLib.SetCtrlString(iv, R.id.LVITEM_SEARCH_SCOPE, scope_name);
+									View tv_inc_et = iv.findViewById(R.id.LVITEM_SEARCH_IND_EXECUTETIME);
+									if(CalledIndex == ev_subj.ItemIdx) {
+										if(CallingStartTm > 0 && tv_inc_et != null) {
+											final long now_ms = System.currentTimeMillis();
+											long ellapsed_ms = now_ms - CallingStartTm;
+											final int sec = (int)(ellapsed_ms / 1000);
+											final int h = (int)(sec / 3600);
+											String timewatch_text = ((h > 0) ? Integer.toString(h) + ":" : "") + String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60));
+											if(tv_inc_et.getVisibility() != View.VISIBLE)
+												tv_inc_et.setVisibility(View.VISIBLE);
+											SLib.SetCtrlString(iv, R.id.LVITEM_SEARCH_IND_EXECUTETIME, timewatch_text);
+										}
+										{
+											ImageView ctl = (ImageView)iv.findViewById(R.id.LVITEM_SEARCH_IND_STATUS);
+											if(ctl != null) {
+												if(ctl.getVisibility() != View.VISIBLE)
+													ctl.setVisibility(View.VISIBLE);
+												ctl.setImageResource(R.drawable.ic_stopwatch);
+											}
+										}
+									}
+									else {
+										if(tv_inc_et != null && tv_inc_et.getVisibility() == View.VISIBLE)
+											tv_inc_et.setVisibility(View.GONE);
+										ImageView ctl = (ImageView)iv.findViewById(R.id.LVITEM_SEARCH_IND_STATUS);
+										if(ctl != null && ctl.getVisibility() == View.VISIBLE)
+											ctl.setVisibility(View.GONE);
+									}
 								}
 							} catch(JSONException exn) {
 								;
@@ -198,7 +251,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null) {
 						StyloQApp app_ctx = GetAppCtx();
-						if(app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < JsResultList.length()) {
+						if(CalledIndex < 0 && app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < JsResultList.length()) {
 							try {
 								JSONObject js_entry = JsResultList.getJSONObject(ev_subj.ItemIdx);
 								if(js_entry != null) {
@@ -233,6 +286,10 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 											inner_param.CommandJson = js_query.toString();
 											inner_param.RetrActivity_ = this;
 											StyloQInterchange.RunClientInterchange(app_ctx, inner_param);
+											CalledIndex = ev_subj.ItemIdx;
+											CallingStartTm = System.currentTimeMillis();
+											RefreshStatus();
+											ScheduleRTmr(new RefreshTimerTask(), 1000, 750);
 										}
 									}
 								}
@@ -245,31 +302,45 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 				break;
 			case SLib.EV_SVCQUERYRESULT:
 				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
+					StyloQApp app_ctx = GetAppCtx();
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult) subj;
-					if(ir.OriginalCmdItem != null) {
+					if(app_ctx != null && ir.OriginalCmdItem != null) {
 						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("onsrchr")) {
-							if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
-								byte [] reply_raw_data = ((SecretTagPool)ir.InfoReply).Get(SecretTagPool.tagRawData);
-								if(SLib.GetLen(reply_raw_data) > 0) {
-									String json_text = new String(reply_raw_data);
-									if(SLib.GetLen(json_text) > 0) {
-										try {
-											JSONObject js_reply = new JSONObject(json_text);
-											if(js_reply != null) {
-												int repl_result = StyloQInterchange.GetReplyResult(js_reply);
-												if(repl_result > 0) {
-													Intent intent = new Intent(this, DetailActivity.class);
-													intent.putExtra("SvcIdent", ir.SvcIdent);
-													intent.putExtra("SvcReplyText", json_text);
-													LaunchOtherActivity(intent);
-												}
-												else if(repl_result == 0) {
-
-												}
-											}
-										} catch(JSONException exn) {
-											;
+							CalledIndex = -1;
+							CallingStartTm = 0;
+							ScheduleRTmr(null, 0, 0);
+							RefreshStatus();
+							if(ir.InfoReply != null) {
+								if(ir.InfoReply instanceof SecretTagPool) {
+									JSONObject js_reply = ((SecretTagPool) ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+									if(js_reply != null) {
+										StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(js_reply);
+										if(crr.Status > 0) {
+											String disp_meth = js_reply.optString("displaymethod", "");
+											Class intent_cls = null;
+											if(disp_meth.equalsIgnoreCase("goodsinfo"))
+												intent_cls = CmdRGoodsInfoActivity.class;
+											else
+												intent_cls = DetailActivity.class;
+											Intent intent = new Intent(this, intent_cls);
+											intent.putExtra("SvcIdent", ir.SvcIdent);
+											intent.putExtra("SvcReplyDocJson", js_reply.toString());
+											LaunchOtherActivity(intent);
 										}
+										else if(crr.Status == 0) {
+
+										}
+									}
+								}
+								else if(ir.InfoReply instanceof String) {
+									if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+										app_ctx.DisplayMessage(this, (String)ir.InfoReply, 0);
+									}
+									else if(ir.ResultTag == StyloQApp.SvcQueryResult.ERROR) {
+										app_ctx.DisplayError(this, (String)ir.InfoReply, 0);
+									}
+									else if(ir.ResultTag == StyloQApp.SvcQueryResult.EXCEPTION) {
+										app_ctx.DisplayError(this, (String)ir.InfoReply, 0);
 									}
 								}
 							}

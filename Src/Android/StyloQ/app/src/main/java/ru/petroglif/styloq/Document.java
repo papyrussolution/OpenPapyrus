@@ -814,39 +814,38 @@ public class Document {
 		JSONObject jsobj = ToJsonObj();
 		return (jsobj != null) ? jsobj.toString() : null;
 	}
-	boolean FromJson(String jsText)
+	boolean FromJsonObj(JSONObject jsObj)
 	{
 		boolean result = false;
 		Z();
-		if(SLib.GetLen(jsText) > 0) {
+		if(jsObj != null) {
 			try {
-				JSONObject jsobj = new JSONObject(jsText);
 				H = new Head();
-				H.ID = jsobj.optLong("id", 0);
+				H.ID = jsObj.optLong("id", 0);
 				// @v11.4.0 {
-				H.Uuid = SLib.strtouuid(jsobj.optString("uuid", null));
-				H.OrgCmdUuid = SLib.strtouuid(jsobj.optString("orgcmduuid", null));
+				H.Uuid = SLib.strtouuid(jsObj.optString("uuid", null));
+				H.OrgCmdUuid = SLib.strtouuid(jsObj.optString("orgcmduuid", null));
 				// } @v11.4.0
 				//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss", Locale.getDefault());
-				H.CreationTime = SLib.strtodatetime(jsobj.optString("crtm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
-				H.Time = SLib.strtodatetime(jsobj.optString("tm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
-				H.DueTime = SLib.strtodatetime(jsobj.optString("duetm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
-				H.OpID = jsobj.optInt("opid", 0);
-				H.ClientID = jsobj.optInt("cliid", 0);
-				H.DlvrLocID = jsobj.optInt("dlvrlocid", 0);
+				H.CreationTime = SLib.strtodatetime(jsObj.optString("crtm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
+				H.Time = SLib.strtodatetime(jsObj.optString("tm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
+				H.DueTime = SLib.strtodatetime(jsObj.optString("duetm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
+				H.OpID = jsObj.optInt("opid", 0);
+				H.ClientID = jsObj.optInt("cliid", 0);
+				H.DlvrLocID = jsObj.optInt("dlvrlocid", 0);
 				{
-					String svc_ident_hex = jsobj.optString("svcident", null);
+					String svc_ident_hex = jsObj.optString("svcident", null);
 					if(SLib.GetLen(svc_ident_hex) > 0)
 						H.SvcIdent = Base64.getDecoder().decode(svc_ident_hex);
 				}
 				{
-					String base_currency_symb = jsobj.optString("basecurrency", null);
+					String base_currency_symb = jsObj.optString("basecurrency", null);
 					if(SLib.GetLen(base_currency_symb) > 0)
 						H.BaseCurrencySymb = base_currency_symb;
 				}
-				H.Code = jsobj.optString("code", null);
-				H.Memo = jsobj.optString("memo", null);
-				JSONArray js_ti_list = jsobj.optJSONArray("ti_list");
+				H.Code = jsObj.optString("code", null);
+				H.Memo = jsObj.optString("memo", null);
+				JSONArray js_ti_list = jsObj.optJSONArray("ti_list");
 				if(js_ti_list != null && js_ti_list.length() > 0) {
 					for(int i = 0; i < js_ti_list.length(); i++) {
 						JSONObject js_item = js_ti_list.getJSONObject(i);
@@ -870,7 +869,7 @@ public class Document {
 						}
 					}
 				}
-				JSONArray js_bk_list = jsobj.optJSONArray("bk_list");
+				JSONArray js_bk_list = jsObj.optJSONArray("bk_list");
 				if(js_bk_list != null && js_bk_list.length() > 0) {
 					for(int i = 0; i < js_bk_list.length(); i++) {
 						JSONObject js_item = js_bk_list.optJSONObject(i);
@@ -907,6 +906,20 @@ public class Document {
 			} catch(JSONException exn) {
 				result = false;
 				//exn.printStackTrace();
+			}
+		}
+		return result;
+	}
+	boolean FromJson(String jsText)
+	{
+		boolean result = false;
+		Z();
+		if(SLib.GetLen(jsText) > 0) {
+			try {
+				JSONObject jsobj = new JSONObject(jsText);
+				result = FromJsonObj(jsobj);
+			} catch(JSONException exn) {
+				result = false;
 			}
 		}
 		return result;

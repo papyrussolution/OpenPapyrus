@@ -2034,6 +2034,45 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 	return ok;
 }
 
+static uint SplitBarcodeList(const char * pSrcBuf, SString & rPlainResult, StringSet & rSs)
+{
+	uint    result = 0; // count of codes
+	rSs.Z();
+	rPlainResult.Z();
+	if(!isempty(pSrcBuf)) {
+		(rPlainResult = pSrcBuf).Chomp().TrimRightChr(';').TrimRightChr(',').Strip();
+		if(rPlainResult.NotEmpty()) {
+			SString temp_buf;
+			rPlainResult.Transf(CTRANSF_OUTER_TO_INNER);
+			if(rPlainResult.HasChr(';')) {
+				StringSet ss(';', rPlainResult);
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					temp_buf.Chomp();
+					if(temp_buf.NotEmptyS() && temp_buf.IsDigit()) {
+						rSs.add(temp_buf);
+						result++;
+					}
+				}
+			}
+			else if(rPlainResult.HasChr(',')) {
+				StringSet ss(',', rPlainResult);
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					temp_buf.Chomp();
+					if(temp_buf.NotEmptyS() && temp_buf.IsDigit()) {
+						rSs.add(temp_buf);
+						result++;
+					}
+				}
+			}
+			else {
+				rSs.add(rPlainResult);
+				result++;
+			}
+		}
+	}
+	return result;
+}
+
 int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const /*StrAssocArray*/PPImpExpParam::PtTokenList * pFnFldList)
 {
 	int    ok = 1;
@@ -2044,6 +2083,8 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 	SString temp_buf;
 	SString inn;
 	SString bill_ident;
+	SString barcode_buf; // @v11.4.5
+	StringSet barcode_list; // @v11.4.5
 	StrAssocArray articles;
 	//PPObjTag tag_obj;
 	SdRecord dyn_rec;
@@ -2081,8 +2122,8 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 		(temp_buf = brow_.BillID).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(brow_.BillID, temp_buf);
 		// } @v10.9.4
-		(temp_buf = brow_.Barcode).Transf(CTRANSF_OUTER_TO_INNER);
-		STRNSCPY(brow_.Barcode, temp_buf);
+		const uint barcode_count = SplitBarcodeList(brow_.Barcode, barcode_buf, barcode_list); // @v11.4.5
+		STRNSCPY(brow_.Barcode, barcode_buf);
 		(temp_buf = brow_.GoodsName).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(brow_.GoodsName, temp_buf);
 		// @v10.5.0 {
@@ -2162,10 +2203,24 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 					}
 				}
 				if(!goods_id) {
+					// @v11.4.5 {
+					if(barcode_count) {
+						for(uint bcidx = 0, ssp = 0; !goods_id && bcidx < barcode_count; bcidx++) {
+							const int blgr = barcode_list.get(&ssp, temp_buf);
+							assert(blgr);
+							if(temp_buf.NotEmptyS() && GObj.SearchByBarcode(temp_buf, &bcrec, 0, 1/*adoptSearching*/) > 0)
+								goods_id = bcrec.GoodsID;
+						}
+					}
+					if(!goods_id && !(BillParam.Flags & BillParam.fDontIdentGoodsByName) && GObj.SearchByName(brow_.GoodsName, &id) > 0) // @v10.5.0 fDontIdentGoodsByName
+						goods_id = id;
+					// } @v11.4.5 
+					#if 0 // @v11.4.5 {
 					if(brow_.Barcode[0] && GObj.SearchByBarcode(brow_.Barcode, &bcrec, 0, 1/*adoptSearching*/) > 0)
 						goods_id = bcrec.GoodsID;
 					else if(!(BillParam.Flags & BillParam.fDontIdentGoodsByName) && GObj.SearchByName(brow_.GoodsName, &id) > 0) // @v10.5.0 fDontIdentGoodsByName
 						goods_id = id;
+					#endif // } 0 @v11.4.5
 				}
 				if(!goods_id && ar_id_by_code2 && brow_.ArCode[0]) {
 					if(GObj.P_Tbl->SearchByArCode(ar_id_by_code2, brow_.ArCode, &code_rec) > 0)
@@ -2776,11 +2831,23 @@ int PPBillImporter::CreateAbsenceGoods(ResolveGoodsItem & rRgi, int use_ta)
 					}
 				}
 				SETIFZ(parent_id, r_gcfg.DefGroupID);
-				if(GObj.InitPacket(&gpack, gpkndGoods, parent_id, 0, rRgi.Barcode)) {
+				if(GObj.InitPacket(&gpack, gpkndGoods, parent_id, 0, /*rRgi.Barcode*/0)) {
 					const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
 					PPID   by_name_id = 0;
 					SString suffix;
 					long   uc = 1;
+					// @v11.4.5 {
+					SString barcode_buf;
+					StringSet barcode_list;
+					const  uint barcode_count = SplitBarcodeList(rRgi.Barcode, barcode_buf, barcode_list); // @v11.4.5
+					for(uint bcidx = 0, ssp = 0; bcidx < barcode_count; bcidx++) {
+						//temp_buf
+						const int blgr = barcode_list.get(&ssp, temp_buf);
+						assert(blgr);
+						if(temp_buf.NotEmptyS())
+							gpack.AddCode(temp_buf, 0, 1.0);
+					}
+					// } @v11.4.5
 					(goods_name_buf = rRgi.GoodsName).Strip();
 					while(GObj.SearchByName(goods_name_buf, &by_name_id, 0) > 0) {
 						suffix.Z().Space().CatChar('#').Cat(++uc);

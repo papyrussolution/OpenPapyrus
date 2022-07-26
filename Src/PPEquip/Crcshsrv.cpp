@@ -3021,7 +3021,7 @@ int ACS_CRCSHSRV::CreateSCardPaymTbl()
 				dbfrd.get(fldn_d_dscnt_type, type);
 				if(type == CRCSHSRV_DISCCARD_DEFTYPE) {
 					dbfrd.get(fldn_d_chkln_id, chkln_id);
-					dbfrd.get(fldn_d_cardno,   card_no);
+					dbfrd.get(fldn_d_cardno,   card_no, sizeof(card_no));
 					strip(card_no);
 					MEMSZERO(k0);
 					k0.ID = chkln_id;
@@ -3881,11 +3881,11 @@ int ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitM
 				DbfRecord dbfrh(p_dbfth);
 				if(p_dbfth->getRec(&dbfrh) <= 0)
 					break;
-				dbfrh.get(fldn_h_op,    op);
+				dbfrh.get(fldn_h_op,    op, sizeof(op));
 				dbfrh.get(fldn_h_check, chk);
 				dbfrh.get(fldn_h_cash,  csh);
 				dbfrh.get(fldn_h_sess,  nsmena);
-				dbfrh.get(fldn_h_date,  buf);
+				dbfrh.get(fldn_h_date,  buf, sizeof(buf));
 				GetCrCshSrvDateTime(buf, chk, &dttm);
 				dbfrh.get(fldn_h_cashier, tab_num);
 				cshr_id = CshrList.GetCshrID(tab_num, dttm.d);
@@ -3945,7 +3945,7 @@ int ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitM
 				// в нашей базе данных. Для такого случая сверяемся по штрихкоду.
 				//
 				barcode[0] = 0;                     // @average
-				dbfrr.get(fldn_l_barcode, barcode); // @average
+				dbfrr.get(fldn_l_barcode, barcode, sizeof(barcode)); // @average
 				dbfrr.get(fldn_l_banking, banking);
 				if(fldn_l_barcode && barcode[0]) {
 					Goods2Tbl::Rec goods_rec;
@@ -4511,9 +4511,9 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 							break;
 						dbfrz.get(fldn_z_cash,  zrep.CashCode);
 						dbfrz.get(fldn_z_sess,  zrep.ZRepCode);
-						dbfrz.get(fldn_z_start, buf);
+						dbfrz.get(fldn_z_start, buf, sizeof(buf));
 						GetCrCshSrvDateTime(buf, 0, &zrep.Start);
-						dbfrz.get(fldn_z_stop, buf);
+						dbfrz.get(fldn_z_stop, buf, sizeof(buf));
 						GetCrCshSrvDateTime(buf, 0, &zrep.Stop);
 						dbfrz.get(fldn_z_chkfirst, zrep.ChkFirst);
 						dbfrz.get(fldn_z_chklast,  zrep.ChkLast);

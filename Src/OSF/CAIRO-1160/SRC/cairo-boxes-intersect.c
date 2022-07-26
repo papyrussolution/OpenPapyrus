@@ -247,15 +247,15 @@ static inline void start_or_continue_box(sweep_line_t * sweep_line, edge_t * lef
 {
 	if(left->right == right)
 		return;
-	if(left->right != NULL) {
-		if(right != NULL && left->right->x == right->x) {
+	if(left->right) {
+		if(right && left->right->x == right->x) {
 			// continuation on right, so just swap edges 
 			left->right = right;
 			return;
 		}
 		end_box(sweep_line, left, top, out);
 	}
-	if(right != NULL && left->x != right->x) {
+	if(right && left->x != right->x) {
 		left->top = top;
 		left->right = right;
 	}
@@ -285,13 +285,13 @@ static inline void active_edges(sweep_line_t * sweep, cairo_boxes_t * out)
 				break;
 			if(left->next == &sweep->tail)
 				goto out;
-			if(UNLIKELY(left->right != NULL))
+			if(UNLIKELY(left->right))
 				end_box(sweep, left, top, out);
 			left = left->next;
 		} while(1);
 		right = left->next;
 		do {
-			if(UNLIKELY(right->right != NULL))
+			if(UNLIKELY(right->right))
 				end_box(sweep, right, top, out);
 			winding[right->a_or_b] += right->dir;
 			if(is_zero(winding)) {
@@ -311,7 +311,7 @@ out:
 
 static inline void sweep_line_delete_edge(sweep_line_t * sweep_line, edge_t * edge, cairo_boxes_t * out)
 {
-	if(edge->right != NULL) {
+	if(edge->right) {
 		edge_t * next = edge->next;
 		if(next->x == edge->x) {
 			next->top = edge->top;
@@ -392,7 +392,7 @@ static cairo_status_t intersect(rectangle_t ** rectangles, int num_rectangles, c
 	do {
 		if(rectangle->top != sweep_line.current_y) {
 			rectangle_t * stop = rectangle_peek_stop(&sweep_line);
-			while(stop != NULL && stop->bottom < rectangle->top) {
+			while(stop && stop->bottom < rectangle->top) {
 				if(stop->bottom != sweep_line.current_y) {
 					active_edges(&sweep_line, out);
 					sweep_line.current_y = stop->bottom;

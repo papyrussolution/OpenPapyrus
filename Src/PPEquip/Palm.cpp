@@ -882,8 +882,8 @@ static int SearchClientInPdaTbl(const char * pInTblPath, PPID id, PdaClientRec *
 			rec.get(1, client_id);
 			if(client_id == id) {
 				pRec->ID = client_id;
-				rec.get(2, pRec->Name);
-				rec.get(3, pRec->Code);
+				rec.get(2, pRec->Name, sizeof(pRec->Name));
+				rec.get(3, pRec->Code, sizeof(pRec->Code));
 				ok = 1;
 			}
 		} while(ok < 0 && p_cli_tbl->next());
@@ -1005,8 +1005,8 @@ int PPObjStyloPalm::ReadInputToDo(PPStyloPalm * pRec, const char * pPath, PalmIn
 					rec.get(fldn_prior, item.Priority);
 					rec.get(fldn_duedate, item.DueDate);
 					rec.get(fldn_compldate, item.ComplDate);
-					rec.get(fldn_descr, item.Descript);
-					rec.get(fldn_memo, item.Memo);
+					rec.get(fldn_descr, item.Descript, sizeof(item.Descript));
+					rec.get(fldn_memo, item.Memo, sizeof(item.Memo));
 					item.AgentID = pRec->AgentID;
 					THROW_SL(pParam->P_ToDoQueue->push(&item));
 				} while(p_todo_tbl->next());
@@ -1042,7 +1042,7 @@ int PPObjStyloPalm::ReadInputDebtMemo(PPStyloPalm * pRec, const char * pPath, Pa
 				DbfRecord rec(p_tbl);
 				THROW(p_tbl->getRec(&rec));
 				rec.get(fldn_id,   item.BillID);
-				rec.get(fldn_memo, item.Memo);
+				rec.get(fldn_memo, item.Memo, sizeof(item.Memo));
 				THROW_SL(pParam->P_DebtMemoQueue->push(&item));
 			} while(p_tbl->next());
 		}
@@ -1391,10 +1391,10 @@ int PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, PalmIn
 
 					rec.get(fldn_date,  p_pack->Hdr.Dt);
 					rec.get(fldn_dscnt, p_pack->Hdr.PctDis);
-					rec.get(fldn_code,  buf);
+					rec.get(fldn_code,  buf, sizeof(buf));
 					STRNSCPY(p_pack->Hdr.Code, strip(buf));
 					rec.get(fldn_sum,  p_pack->Hdr.Amount);
-					rec.get(fldn_memo, buf);
+					rec.get(fldn_memo, buf, sizeof(buf));
 					strip(buf);
 					SCharToOem(buf);
 					STRNSCPY(p_pack->Hdr.Memo, buf);
@@ -1505,9 +1505,9 @@ int PPObjStyloPalm::ReadInputInv(PPStyloPalm * pRec, const char * pPath, PalmInp
 					rec.get(fldn_dlvraddrid, dlvr_addr_id);
 
 					rec.get(fldn_date,  p_pack->Hdr.Dt);
-					rec.get(fldn_code,  buf);
+					rec.get(fldn_code,  buf, sizeof(buf));
 					STRNSCPY(p_pack->Hdr.Code, strip(buf));
-					rec.get(fldn_memo, buf);
+					rec.get(fldn_memo, buf, sizeof(buf));
 					strip(buf);
 					SCharToOem(buf);
 					STRNSCPY(p_pack->Hdr.Memo, buf);

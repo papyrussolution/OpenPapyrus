@@ -1864,7 +1864,7 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 					THROW_PP_S(agent_id && ArObj.Search(agent_id, &ar_rec) > 0, PPERR_POSAGENTNFOUND, agent_id);
 					ZDELETE(P_Prcssr);
 					THROW_PP(CConfig.Flags & CCFLG_USECCHECKEXT, PPERR_CPOS_MUSTUSECCHECKEXT);
-					THROW_MEM(P_Prcssr = new CPosProcessor(CmdBlk.U.CN.ID, 0, 0, 0));
+					THROW_MEM(P_Prcssr = new CPosProcessor(CmdBlk.U.CN.ID, 0, 0, 0, 0/*pDummy*/));
 					THROW(OpenSession(CmdBlk.U.CN.ID, &CmdBlk.U.CN.Uuid));
 					THROW(P_Prcssr->SetupAgent(agent_id, 1));
 					P_Prcssr->SetupSessUuid(CmdBlk.U.CN.Uuid);

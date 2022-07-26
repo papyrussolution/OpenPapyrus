@@ -14,6 +14,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.GetResponse;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -141,6 +142,24 @@ public class StyloQInterchange {
 			return ok;
 		}
 	}
+	public static class CommonReplyResult {
+		public CommonReplyResult()
+		{
+			Status = -1;
+			ErrCode = 0;
+			StatusSymb = null;
+			ErrMsg = null;
+			Msg = null;
+		}
+		//   >0 - объект jsObj содержит явную декларация result=ok
+		//    0 - объект jsObj содержит явную декларация result=error
+		//   <0 - объект jsObj == null либо не содержит явной декларации result=error|ok.
+		int   Status;
+		int   ErrCode;
+		String StatusSymb;
+		String ErrMsg;
+		String Msg;
+	}
 	//
 	// Descr: Возвращает вербальный результат, содержащийся в json-ответе сервиса на запрос
 	// Returns:
@@ -148,15 +167,20 @@ public class StyloQInterchange {
 	//    0 - объект jsObj содержит явную декларация result=error
 	//   <0 - объект jsObj == null либо не содержит явной декларации result=error|ok.
 	//
-	public static int GetReplyResult(JSONObject jsObj)
+	@NotNull public static CommonReplyResult GetReplyResult(JSONObject jsObj)
 	{
-		int    result = -1;
-		String rep_result = (jsObj != null) ? jsObj.optString("result", null) : null;
-		if(SLib.GetLen(rep_result) > 0) {
-			if(rep_result.equalsIgnoreCase("ok"))
-				result = 1;
-			else if(rep_result.equalsIgnoreCase("error"))
-				result = 0;
+		CommonReplyResult result = new CommonReplyResult();
+		if(jsObj != null) {
+			result.StatusSymb = jsObj.optString("result", null);
+			if(SLib.GetLen(result.StatusSymb) > 0) {
+				if(result.StatusSymb.equalsIgnoreCase("ok"))
+					result.Status = 1;
+				else if(result.StatusSymb.equalsIgnoreCase("error"))
+					result.Status = 0;
+			}
+			result.ErrCode = jsObj.optInt("errcode", 0);
+			result.ErrMsg = jsObj.optString("errmsg", null);
+			result.Msg = jsObj.optString("msg", null);
 		}
 		return result;
 	}
@@ -234,11 +258,10 @@ public class StyloQInterchange {
 											StyloQDatabase.SecStoragePacket doc_pack = db.GetPeerEntry(doc_id);
 											if(doc_pack != null) {
 												final  int doc_status = doc_pack.Rec.GetDocStatus();
-												byte[] raw_doc = doc_pack.Pool.Get(SecretTagPool.tagRawData);
-												if(SLib.GetLen(raw_doc) > 0) {
-													String json_doc = new String(raw_doc);
+												JSONObject js_doc = doc_pack.Pool.GetJsonObject(SecretTagPool.tagRawData);
+												if(js_doc != null) {
 													Document local_doc = new Document();
-													if(local_doc.FromJson(json_doc) && local_doc.H != null) {
+													if(local_doc.FromJsonObj(js_doc) && local_doc.H != null) {
 														// Теоретически, в json-теле документа должен быть svcident и его надо сравнить с svc_ident
 														// сервиса, с которым мы на этой итерации работаем, но, кажется, не всегда в теле есть svcident :(
 														//byte [] doc_svc_ident = local_doc.H.SvcIdent;
@@ -395,10 +418,10 @@ public class StyloQInterchange {
 			}
 		} catch(JSONException exn) {
 			result = null;
-			new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
 		} catch(URISyntaxException exn) {
 			result = null;
-			new StyloQException(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
 		}
 		return result;
 	}
@@ -1032,7 +1055,7 @@ public class StyloQInterchange {
 				ok = 1;
 			}
 		} catch(IOException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 		}
 		finally {
 			conn.disconnect();
@@ -1251,7 +1274,7 @@ public class StyloQInterchange {
 		}
 		return new_id;
 	}
-	public boolean KexClientRequest(StyloQDatabase db, StyloQInterchange.RoundTripBlock rtb) throws StyloQException
+	public boolean KexClientRequest(StyloQApp appCtx, StyloQDatabase db, StyloQInterchange.RoundTripBlock rtb)
 	{
 		//
 		// Инициирующий запрос: устанавливает ключи шифрования для дальнейшего диалога с сервисом.
@@ -1325,7 +1348,10 @@ public class StyloQInterchange {
 				}
 			}
 		} catch(URISyntaxException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
+			//new StyloQException(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
+			appCtx.SetLastError(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
+		} catch(StyloQException exn) {
+			appCtx.SetLastError(exn);
 		}
 		return ok;
 	}
@@ -1909,7 +1935,6 @@ public class StyloQInterchange {
 	//
 	private static StyloQApp.InterchangeResult Helper_DoInterchange2(StyloQApp appCtx, DoInterchangeParam param)
 	{
-
 		SLib.LOG_i("Helper_DoInterchange2: thread=" + android.os.Process.myTid());
 		StyloQApp.InterchangeResult result = null; //new InterchangeResult();
 		boolean debug_mark = false;
@@ -1998,17 +2023,21 @@ public class StyloQInterchange {
 				else
 					do_registration = true;
 				if(do_registration) {
-					if(ic.KexClientRequest(dbs, rtb)) {
+					if(ic.KexClientRequest(appCtx, dbs, rtb)) {
 						long svc_id = ic.Registration_ClientRequest(dbs, rtb);
 						if(svc_id > 0) {
 							do_req_cmd = true;
 							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent,"RegistrationClientRequest", new Long(svc_id));
 						}
-						else
-							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent,"RegistrationClientRequest", null);
+						else {
+							String err_msg = appCtx.GetLastErrMessage(appCtx);
+							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param, err_msg);
+						}
 					}
-					else
-						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent,"KexClientRequest", null);
+					else {
+						String err_msg = appCtx.GetLastErrMessage(appCtx);
+						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param, err_msg);
+					}
 				}
 			}
 			// @v11.4.4 {
@@ -2044,45 +2073,31 @@ public class StyloQInterchange {
 						result.SvcReply = rpool;
 					}
 					else if(param.OriginalCmdItem != null) {
-						byte[] raw_doc_data = rpool.Get(SecretTagPool.tagRawData);
 						byte[] raw_doc_decl = rpool.Get(SecretTagPool.tagDocDeclaration);
 						long new_doc_id = 0;
 						StyloQApp.SvcQueryResult local_rep_result = StyloQApp.SvcQueryResult.SUCCESS;
-						if(SLib.GetLen(raw_doc_data) > 0) {
+						JSONObject js_doc_data = rpool.GetJsonObject(SecretTagPool.tagRawData);
+						if(js_doc_data != null) {
 							if(org_cmd_text.equalsIgnoreCase("PostDocument")) {
 								if(param.DocReqList != null && param.DocReqList.size() > 0) {
-									String text_doc_data = new String(raw_doc_data);
-									if(SLib.GetLen(text_doc_data) > 0) {
-										JSONObject js_doc_data = new JSONObject(text_doc_data);
-										if(js_doc_data != null) {
-											int repl_result = GetReplyResult(js_doc_data);
-											if(repl_result == 0) {
-												local_rep_result = StyloQApp.SvcQueryResult.ERROR;
+									StyloQInterchange.CommonReplyResult crr = GetReplyResult(js_doc_data);
+									final long rep_id = js_doc_data.optLong("document-id", 0);
+									if(crr.Status == 0) {
+										local_rep_result = StyloQApp.SvcQueryResult.ERROR;
+									}
+									else if(rep_id > 0) {
+										UUID remote_doc_uuid = SLib.strtouuid(js_doc_data.optString("document-uuid", null));
+										if(remote_doc_uuid != null) {
+											for(int drlidx = 0; drlidx < param.DocReqList.size(); drlidx++) {
+												DocumentRequestEntry dre = param.DocReqList.get(drlidx);
+												if(dre != null && dre.DocUUID.compareTo(remote_doc_uuid) == 0)
+													dre.RemoteDocID = rep_id;
 											}
-											else {
-												final long rep_id = js_doc_data.optLong("document-id", 0);
-												if(rep_id > 0) {
-													UUID remote_doc_uuid = SLib.strtouuid(js_doc_data.optString("document-uuid", null));
-													if(remote_doc_uuid != null) {
-														for(int drlidx = 0; drlidx < param.DocReqList.size(); drlidx++) {
-															DocumentRequestEntry dre = param.DocReqList.get(drlidx);
-															if(dre != null && dre.DocUUID.compareTo(remote_doc_uuid) == 0)
-																dre.RemoteDocID = rep_id;
-														}
-														dbs.AcceptDocumentRequestList(param.DocReqList);
-													}
-												}
-												else {
-													SLib.LOG_d("Helper_DoInterchange2: rep_id <= 0");
-												}
-											}
-										}
-										else {
-											SLib.LOG_d("Helper_DoInterchange2: js_doc_data == null");
+											dbs.AcceptDocumentRequestList(param.DocReqList);
 										}
 									}
 									else {
-										SLib.LOG_d("Helper_DoInterchange2: SLib.GetLen(text_doc_data) <= 0");
+										SLib.LOG_d("Helper_DoInterchange2: rep_id <= 0");
 									}
 								}
 								else {
@@ -2093,6 +2108,10 @@ public class StyloQInterchange {
 								if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcRsrvOrderPrereq) {
 									byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
 									new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypOrderPrereq, 0, doc_ident, svc_id, rpool);
+								}
+								else if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcRsrvIndoorSvcPrereq) { // @v11.4.5
+									byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
+									new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypIndoorSvcPrereq, 0, doc_ident, svc_id, rpool);
 								}
 								else if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcReport) {
 									byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
@@ -2111,7 +2130,7 @@ public class StyloQInterchange {
 							}
 						}
 						else {
-							SLib.LOG_d("Helper_DoInterchange2: SLib.GetLen(raw_doc_data) <= 0");
+							SLib.LOG_d("Helper_DoInterchange2: js_doc_data == null");
 						}
 						if(new_doc_id > 0) {
 							doc_ref = new StyloQCommand.DocReference();
@@ -2142,10 +2161,7 @@ public class StyloQInterchange {
 			//}
 		} catch(StyloQException exn) {
 			SLib.LOG_e("Helper_DoInterchange2: StyloQException " + exn.GetMessage(appCtx));
-			if(param.RetrActivity_ != null)
-				result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn.GetMessage(appCtx));
-			else
-				result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn.GetMessage(appCtx));
+			result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn.GetMessage(appCtx));
 		} catch(JSONException exn) {
 			SLib.LOG_e("Helper_DoInterchange2: JSONException " + exn.getMessage());
 			StyloQException stq_exn = new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
@@ -2248,6 +2264,8 @@ public class StyloQInterchange {
 			}
 		} catch(JSONException exn) {
 			result = null;
+		} catch(StyloQException exn) {
+			result = null;
 		}
 		return result;
 	}
@@ -2320,12 +2338,9 @@ public class StyloQInterchange {
 							if(param.OriginalCmdItem.Uuid == null && param.OriginalCmdItem.Name.equalsIgnoreCase("requestdocumentstatuslist")) {
 								if(inner_result.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 									if(inner_result.InfoReply != null && inner_result.InfoReply instanceof SecretTagPool) {
-										SecretTagPool rp = (SecretTagPool)inner_result.InfoReply;
-										byte [] rawdata = rp.Get(SecretTagPool.tagRawData);
-										String text_reply = (SLib.GetLen(rawdata) > 0) ? new String(rawdata) : null;
-										if(SLib.GetLen(text_reply) > 0) {
-											AcceptDocStatusPollResult(appCtx, new JSONObject(text_reply));
-										}
+										JSONObject js_reply = ((SecretTagPool)inner_result.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+										if(js_reply != null)
+											AcceptDocStatusPollResult(appCtx, js_reply);
 									}
 								}
 							}
@@ -2354,8 +2369,6 @@ public class StyloQInterchange {
 				//	param.OriginalCmdItem, param.RetrActivity_, exn.GetMessage(appCtx));
 				appCtx.SendSvcReplyToMainThread(/*StyloQApp.SvcQueryResult.EXCEPTION,*/inner_result, null);
 			}
-		} catch(JSONException exn) {
-			;
 		}
 		finally {
 			if(rtb != null) {
@@ -2387,12 +2400,11 @@ public class StyloQInterchange {
 			String acspt_mqbauth = null;
 			String acspt_mqbsecr = null;
 			StyloQConfig cfg = null;
-			byte[] svc_ident = blk.SvcPack.Pool.Get(SecretTagPool.tagSvcIdent);
-			byte[] svc_cfg_bytes = blk.SvcPack.Pool.Get(SecretTagPool.tagConfig);
-			if(SLib.GetLen(svc_cfg_bytes) > 0) {
+			final byte[] svc_ident = blk.SvcPack.Pool.Get(SecretTagPool.tagSvcIdent);
+			JSONObject js_svc_cfg = blk.SvcPack.Pool.GetJsonObject(SecretTagPool.tagConfig);
+			if(js_svc_cfg != null) {
 				cfg = new StyloQConfig();
-				String js_cfg = new String(svc_cfg_bytes);
-				if(cfg.FromJson(js_cfg)) {
+				if(cfg.FromJsonObj(js_svc_cfg)) {
 					acspt_url = cfg.Get(StyloQConfig.tagUrl);
 					acspt_mqbauth = cfg.Get(StyloQConfig.tagMqbAuth);
 					acspt_mqbsecr = cfg.Get(StyloQConfig.tagMqbSecret);

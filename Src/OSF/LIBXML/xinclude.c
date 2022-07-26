@@ -1316,12 +1316,12 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	xmlXIncludeMergeEntities(ctxt, ctxt->doc, doc);
 	/*
 	 * We don't need the DTD anymore, free up space
-	   if(doc->intSubset != NULL) {
+	   if(doc->intSubset) {
 	    xmlUnlinkNode((xmlNode *) doc->intSubset);
 	    xmlFreeNode((xmlNode *) doc->intSubset);
 	    doc->intSubset = NULL;
 	   }
-	   if(doc->extSubset != NULL) {
+	   if(doc->extSubset) {
 	    xmlUnlinkNode((xmlNode *) doc->extSubset);
 	    xmlFreeNode((xmlNode *) doc->extSubset);
 	    doc->extSubset = NULL;

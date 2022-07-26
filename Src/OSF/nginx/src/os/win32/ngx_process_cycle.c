@@ -174,7 +174,7 @@ int ngx_master_process_cycle(ngx_cycle_t * pCycle, const NgxStartUpOptions & rO)
 
 static void ngx_console_init(ngx_cycle_t * cycle)
 {
-	ngx_core_conf_t  * ccf = (ngx_core_conf_t*)ngx_get_conf(cycle->conf_ctx, ngx_core_module);
+	ngx_core_conf_t * ccf = (ngx_core_conf_t*)ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 	if(ccf->daemon) {
 		if(FreeConsole() == 0) {
 			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "FreeConsole() failed");

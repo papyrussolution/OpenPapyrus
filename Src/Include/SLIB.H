@@ -10597,7 +10597,7 @@ typedef int (*FileFormatSignatureFunc)(FILE * pF, long extraParam);
 //
 // Descr: Определители форматов файлов.
 //
-class SFileFormat { // @persistent (новые зарезервированные форматы добавлять в конце списка перед FirstUser)
+class SFileFormat { // @persistent @flat (новые зарезервированные форматы добавлять в конце списка перед FirstUser)
 public:
 	//
 	// Descr: Типы кодировки контента (Content-Transfer-Encoding)

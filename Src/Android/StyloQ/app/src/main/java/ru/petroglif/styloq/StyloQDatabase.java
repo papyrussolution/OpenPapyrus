@@ -92,7 +92,8 @@ public class StyloQDatabase extends Database {
 		public static final int doctypOrderPrereq = 2; // Предопределенный формат данных, подготовленных для формирования заказа на клиентской стороне
 		public static final int doctypReport      = 3; // @v11.2.10 Отчеты в формате DL600 export
 		public static final int doctypGeneric     = 4; // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
-		public static final int doctypIndexingContent = 5;  // @v11.3.4 Документ, содержащий данные для индексации медиатором
+		public static final int doctypIndexingContent = 5; // @v11.3.4 Документ, содержащий данные для индексации медиатором
+		public static final int doctypIndoorSvcPrereq = 6; // @v11.4.5 Предопределенный формат данных, подготовленных для формирования данных для обслуживания внутри помещения сервиса (INDOOR)
 		//
 		SecTable.Rec Rec;
 		SecretTagPool Pool;
@@ -508,7 +509,7 @@ public class StyloQDatabase extends Database {
 				} catch(SQLException exn) {
 					ok = false;
 					tra.Abort();
-					new StyloQException(ppstr2.PPERR_JEXN_SQL, exn.getMessage());
+					throw new StyloQException(ppstr2.PPERR_JEXN_SQL, exn.getMessage());
 				}
 			}
 		}
@@ -631,7 +632,7 @@ public class StyloQDatabase extends Database {
 		}
 		return result;
 	}
-	public String MakeTextHashForForeignService(SecStoragePacket svcPack, int len)
+	public String MakeTextHashForForeignService(SecStoragePacket svcPack, int len) throws StyloQException
 	{
 		String result = null;
 		try {
@@ -653,7 +654,7 @@ public class StyloQDatabase extends Database {
 			}
 		} catch(NoSuchAlgorithmException exn) {
 			result = null;
-			new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
 		}
 		return result;
 	}
@@ -774,137 +775,143 @@ public class StyloQDatabase extends Database {
 	public long PutDocument(int direction, int docType, int docFlags, byte [] ident, long correspondId, SecretTagPool pool) throws StyloQException
 	{
 		long   result_id = 0;
-		try {
-			if(SLib.GetLen(ident) > 0) {
-				SecStoragePacket pack = null;
-				//SecStoragePacket cli_pack = SearchGlobalIdentEntry(SecStoragePacket.kClient, ident);
-				//SecStoragePacket svc_pack = (cli_pack != null) ? null : SearchGlobalIdentEntry(SecStoragePacket.kForeignService, ident);
-				//if(cli_pack != null || svc_pack != null) {
-				//
-				// Генеральный способ передачи метаинформации о документе - блок DocDeclaration.
-				// Однако, в некоторых случаях метаданные документа могут находится непосредственно
-				// в нем. Соответственно, сначала мы пытаемся найти и разобрать декларацию (tagDocDeclaration) и, если
-				// ее нет, то пытаемся получить метаданные прямо из документа (tagRawData)
-				//
-				String raw_doc_type = null;
-				long   doc_time = 0;
-				int    doc_expiry = 0;
-				JSONObject js_document = null; // generic document inserted into raw_doc
-				StyloQCommand.DocDeclaration doc_decl = null;
-				byte [] raw_doc = pool.Get(SecretTagPool.tagRawData);
-				byte [] raw_doc_decl = pool.Get(SecretTagPool.tagDocDeclaration);
-				if(correspondId > 0) {
-					SecStoragePacket corr_pack = GetPeerEntry(correspondId);
-					THROW(corr_pack != null, ppstr2.PPERR_SQ_CORRESPONDOBJNFOUND, Long.toString(correspondId));
-					THROW(corr_pack.Rec.Kind == SecStoragePacket.kClient || corr_pack.Rec.Kind == SecStoragePacket.kForeignService, ppstr2.PPERR_SQ_WRONGDBITEMKIND);
+		if(SLib.GetLen(ident) > 0) {
+			SecStoragePacket pack = null;
+			//SecStoragePacket cli_pack = SearchGlobalIdentEntry(SecStoragePacket.kClient, ident);
+			//SecStoragePacket svc_pack = (cli_pack != null) ? null : SearchGlobalIdentEntry(SecStoragePacket.kForeignService, ident);
+			//if(cli_pack != null || svc_pack != null) {
+			//
+			// Генеральный способ передачи метаинформации о документе - блок DocDeclaration.
+			// Однако, в некоторых случаях метаданные документа могут находится непосредственно
+			// в нем. Соответственно, сначала мы пытаемся найти и разобрать декларацию (tagDocDeclaration) и, если
+			// ее нет, то пытаемся получить метаданные прямо из документа (tagRawData)
+			//
+			String raw_doc_type = null;
+			long   doc_time = 0;
+			int    doc_expiry = 0;
+			JSONObject js_document = null; // generic document inserted into raw_doc
+			StyloQCommand.DocDeclaration doc_decl = null;
+			JSONObject js_raw_doc = pool.GetJsonObject(SecretTagPool.tagRawData);
+			byte [] raw_doc_decl = pool.Get(SecretTagPool.tagDocDeclaration);
+			if(correspondId > 0) {
+				SecStoragePacket corr_pack = GetPeerEntry(correspondId);
+				THROW(corr_pack != null, ppstr2.PPERR_SQ_CORRESPONDOBJNFOUND, Long.toString(correspondId));
+				THROW(corr_pack.Rec.Kind == SecStoragePacket.kClient || corr_pack.Rec.Kind == SecStoragePacket.kForeignService, ppstr2.PPERR_SQ_WRONGDBITEMKIND);
+			}
+			if(SLib.GetLen(raw_doc_decl) > 0) {
+				doc_decl = new StyloQCommand.DocDeclaration();
+				if(doc_decl.FromJson(new String(raw_doc_decl))) {
+					raw_doc_type = doc_decl.Type;
+					doc_time = doc_decl.Time;
+					doc_expiry = doc_decl.ResultExpiryTimeSec;
 				}
-				if(SLib.GetLen(raw_doc_decl) > 0) {
-					doc_decl = new StyloQCommand.DocDeclaration();
-					if(doc_decl.FromJson(new String(raw_doc_decl))) {
-						raw_doc_type = doc_decl.Type;
-						doc_time = doc_decl.Time;
-						doc_expiry = doc_decl.ResultExpiryTimeSec;
-					}
+			}
+			if(js_raw_doc != null) {
+				if(doc_decl == null) {
+					raw_doc_type = js_raw_doc.optString("doctype", "");
+					doc_time = js_raw_doc.optLong("time", 0);
+					doc_expiry = js_raw_doc.optInt("expir_time_sec", 0);
 				}
-				if(SLib.GetLen(raw_doc) > 0) {
-					{
-						JSONObject jsobj = new JSONObject(new String(raw_doc));
-						if(jsobj != null) {
-							if(doc_decl == null) {
-								raw_doc_type = jsobj.optString("doctype", "");
-								doc_time = jsobj.optLong("time", 0);
-								doc_expiry = jsobj.optInt("expir_time_sec", 0);
+				js_document = js_raw_doc.optJSONObject("document");
+				if(js_document == null)
+					js_document = js_raw_doc;
+				int pack_kind = 0;
+				if(direction > 0)
+					pack_kind = SecStoragePacket.kDocOutcoming;
+				else if(direction < 0)
+					pack_kind = SecStoragePacket.kDocIncoming;
+				if(raw_doc_type != null) {
+					if(docType == SecStoragePacket.doctypGeneric) {
+						if(js_document != null) {
+							long _ex_doc_id_from_json = (direction > 0) ? js_document.optLong("ID", 0) : 0;
+							long _ex_doc_id_from_db = 0;
+							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+							pack.Rec.Flags |= (docFlags & (SecStoragePacket.styloqfDocStatusFlags|SecStoragePacket.styloqfDocTransmission));
+							{
+								Transaction tra = new Transaction(this, true);
+								// Документ такого типа может быть только один в комбинации {direction; rIdent}
+								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, correspondId, ident);
+								if(ex_id_list != null) {
+									for(int i = 0; i < ex_id_list.size(); i++) {
+										long local_id = ex_id_list.get(i);
+										// Последний (из гипотетически нескольких) встретившийся документ считаем нашим, остальные - удаляем
+										if(i == ex_id_list.size()-1)
+											_ex_doc_id_from_db = local_id;
+										else
+											PutPeerEntry(local_id, null, false); // @throw
+									}
+								}
+								result_id = PutPeerEntry(_ex_doc_id_from_db, pack, false);
+								tra.Commit();
 							}
-							js_document = jsobj.optJSONObject("document");
 						}
-						if(js_document == null)
-							js_document = jsobj;
 					}
-					int pack_kind = 0;
-					if(direction > 0)
-						pack_kind = SecStoragePacket.kDocOutcoming;
-					else if(direction < 0)
-						pack_kind = SecStoragePacket.kDocIncoming;
-					if(raw_doc_type != null) {
-						if(docType == SecStoragePacket.doctypGeneric) {
-							if(js_document != null) {
-								long _ex_doc_id_from_json = (direction > 0) ? js_document.optLong("ID", 0) : 0;
-								long _ex_doc_id_from_db = 0;
-								pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
-								pack.Rec.Flags |= (docFlags & (SecStoragePacket.styloqfDocStatusFlags|SecStoragePacket.styloqfDocTransmission));
-								{
-									Transaction tra = new Transaction(this, true);
-									// Документ такого типа может быть только один в комбинации {direction; rIdent}
-									ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, correspondId, ident);
-									if(ex_id_list != null) {
-										for(int i = 0; i < ex_id_list.size(); i++) {
-											long local_id = ex_id_list.get(i);
-											// Последний (из гипотетически нескольких) встретившийся документ считаем нашим, остальные - удаляем
-											if(i == ex_id_list.size()-1)
-												_ex_doc_id_from_db = local_id;
-											else
-												PutPeerEntry(local_id, null, false); // @throw
-										}
-									}
-									result_id = PutPeerEntry(_ex_doc_id_from_db, pack, false);
-									tra.Commit();
+					else if(docType == SecStoragePacket.doctypCommandList && raw_doc_type.equalsIgnoreCase("commandlist")) {
+						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+						{
+							Transaction tra = new Transaction(this, true);
+							// Документ такого типа может быть только один в комбинации {direction; rIdent}
+							ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
+							if(ex_id_list != null) {
+								for(int i = 0; i < ex_id_list.size(); i++) {
+									long _id_to_remove = ex_id_list.get(i);
+									PutPeerEntry(_id_to_remove, null, false); // @throw
 								}
 							}
+							result_id = PutPeerEntry(0, pack, false);
+							tra.Commit();
 						}
-						else if(docType == SecStoragePacket.doctypCommandList && raw_doc_type.equalsIgnoreCase("commandlist")) {
-							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
-							{
-								Transaction tra = new Transaction(this, true);
-								// Документ такого типа может быть только один в комбинации {direction; rIdent}
-								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
-								if(ex_id_list != null) {
-									for(int i = 0; i < ex_id_list.size(); i++) {
-										long _id_to_remove = ex_id_list.get(i);
-										PutPeerEntry(_id_to_remove, null, false); // @throw
-									}
+					}
+					else if(docType == SecStoragePacket.doctypReport && raw_doc_type.equalsIgnoreCase("view")) {
+						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+						{
+							Transaction tra = new Transaction(this, true);
+							// Документ такого типа может быть только один в комбинации {direction; rIdent}
+							ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
+							if(ex_id_list != null) {
+								for(int i = 0; i < ex_id_list.size(); i++) {
+									long _id_to_remove = ex_id_list.get(i);
+									PutPeerEntry(_id_to_remove, null, false); // @throw
 								}
-								result_id = PutPeerEntry(0, pack, false);
-								tra.Commit();
 							}
+							result_id = PutPeerEntry(0, pack, false);
+							tra.Commit();
 						}
-						else if(docType == SecStoragePacket.doctypReport && raw_doc_type.equalsIgnoreCase("view")) {
-							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
-							{
-								Transaction tra = new Transaction(this, true);
-								// Документ такого типа может быть только один в комбинации {direction; rIdent}
-								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
-								if(ex_id_list != null) {
-									for(int i = 0; i < ex_id_list.size(); i++) {
-										long _id_to_remove = ex_id_list.get(i);
-										PutPeerEntry(_id_to_remove, null, false); // @throw
-									}
+					}
+					else if(docType == SecStoragePacket.doctypOrderPrereq && raw_doc_type.equalsIgnoreCase("orderprereq")) {
+						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+						{
+							Transaction tra = new Transaction(this, true);
+							// Документ такого типа может быть только один в комбинации {direction; rIdent}
+							ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
+							if(ex_id_list != null) {
+								for(int i = 0; i < ex_id_list.size(); i++) {
+									long _id_to_remove = ex_id_list.get(i);
+									PutPeerEntry(_id_to_remove, null, false); // @throw
 								}
-								result_id = PutPeerEntry(0, pack, false);
-								tra.Commit();
 							}
+							result_id = PutPeerEntry(0, pack, false);
+							tra.Commit();
 						}
-						else if(docType == SecStoragePacket.doctypOrderPrereq && raw_doc_type.equalsIgnoreCase("orderprereq")) {
-							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
-							{
-								Transaction tra = new Transaction(this, true);
-								// Документ такого типа может быть только один в комбинации {direction; rIdent}
-								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
-								if(ex_id_list != null) {
-									for(int i = 0; i < ex_id_list.size(); i++) {
-										long _id_to_remove = ex_id_list.get(i);
-										PutPeerEntry(_id_to_remove, null, false); // @throw
-									}
+					}
+					else if(docType == SecStoragePacket.doctypIndoorSvcPrereq && raw_doc_type.equalsIgnoreCase("indoorsvcprereq")) { // @v11.4.5
+						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+						{
+							Transaction tra = new Transaction(this, true);
+							// Документ такого типа может быть только один в комбинации {direction; rIdent}
+							ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
+							if(ex_id_list != null) {
+								for(int i = 0; i < ex_id_list.size(); i++) {
+									long _id_to_remove = ex_id_list.get(i);
+									PutPeerEntry(_id_to_remove, null, false); // @throw
 								}
-								result_id = PutPeerEntry(0, pack, false);
-								tra.Commit();
 							}
+							result_id = PutPeerEntry(0, pack, false);
+							tra.Commit();
 						}
 					}
 				}
 			}
-			//}
-		} catch(JSONException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
 		}
 		return result_id;
 	}
@@ -1318,7 +1325,7 @@ public class StyloQDatabase extends Database {
 			}
 			tra.Commit();
 		} catch(NoSuchAlgorithmException exn) {
-			new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
 		}
 		return result_id;
 	}
@@ -1460,7 +1467,7 @@ public class StyloQDatabase extends Database {
 			super(ctx, TBL_NAME);
 		}
 	}
-	int Upgrade(int curVer, int prevVer)
+	int Upgrade(int curVer, int prevVer) throws StyloQException
 	{
 		int  ok = -1;
 		try {
@@ -1515,7 +1522,7 @@ public class StyloQDatabase extends Database {
 			}
 		} catch(SQLException exn) {
 			ok = 0;
-			new StyloQException(ppstr2.PPERR_JEXN_SQL, exn.getMessage());
+			throw new StyloQException(ppstr2.PPERR_JEXN_SQL, exn.getMessage());
 		}
 		return ok;
 	}

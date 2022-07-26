@@ -1774,7 +1774,7 @@ IMPL_HANDLE_EVENT(ImpExpParamDialog)
 int ImpExpParamDialog::setDTS(const PPImpExpParam * pData)
 {
 	SString name;
-	Data = *pData;
+	RVALUEPTR(Data, pData);
 	AddClusterAssocDef(CTL_IMPEXP_FORMAT,  0, PPImpExpParam::dfText);
 	AddClusterAssoc(CTL_IMPEXP_FORMAT,  1, PPImpExpParam::dfDbf);
 	AddClusterAssoc(CTL_IMPEXP_FORMAT,  2, PPImpExpParam::dfXml);
