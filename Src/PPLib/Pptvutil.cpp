@@ -960,8 +960,8 @@ IMPL_HANDLE_EVENT(Lst2LstDialogUI)
 					SmartListBox * list = static_cast<SmartListBox *>(getCtrlView(GetCurrId()));
 					if(list && list->isTreeList()) {
 						PPID cur_id = 0;
-						list->def->getCurID(&cur_id);
-						if(static_cast<const StdTreeListBoxDef *>(list->def)->HasChildren(cur_id))
+						list->P_Def->getCurID(&cur_id);
+						if(static_cast<const StdTreeListBoxDef *>(list->P_Def)->HasChildren(cur_id))
 							action = 0;
 					}
 					if(action && isCurrCtlID(Data.LeftCtlId))
@@ -1050,11 +1050,11 @@ int    Lst2LstAryDialog::setupLeftList() { return SetupList(P_Left, GetLeftList(
 
 int Lst2LstAryDialog::SetupList(SArray *pA, SmartListBox * pL)
 {
-	if(pL) {
-		const long pos = pL->def ? pL->def->_curItem() : 0L;
+	if(SmartListBox::IsValidS(pL)) {
+		const long pos = pL->P_Def->_curItem();
 		StdListBoxDef * def = new StdListBoxDef(pA, lbtFocNotify | lbtDblClkNotify, MKSTYPE(S_ZSTRING, 64));
 		pL->setDef(def);
-		pL->def->go(pos);
+		pL->P_Def->go(pos);
 		pL->Draw_();
 	}
 	return 1;
@@ -1186,7 +1186,7 @@ int Lst2LstObjDialog::setupRightTList()
 	uint   i;
 	SString name_buf;
 	StdTreeListBoxDef * p_def = 0;
-	StdTreeListBoxDef * p_l_def = static_cast<StdTreeListBoxDef *>(GetLeftList()->def);
+	StdTreeListBoxDef * p_l_def = static_cast<StdTreeListBoxDef *>(GetLeftList()->P_Def);
 	SmartListBox * p_r_lbx = GetRightList();
 	StrAssocArray * p_list = new StrAssocArray;
 	THROW_MEM(p_list);
@@ -1202,7 +1202,7 @@ int Lst2LstObjDialog::setupRightTList()
 	p_def = new StdTreeListBoxDef(p_list, lbtDisposeData | lbtDblClkNotify, 0);
 	THROW_MEM(p_def);
 	p_r_lbx->setDef(p_def);
-	p_r_lbx->def->go(0);
+	p_r_lbx->P_Def->go(0);
 	p_r_lbx->Draw_();
 	CATCH
 		if(p_def)
@@ -1227,7 +1227,7 @@ int Lst2LstObjDialog::setupRightList()
 		SmartListBox * p_lb = GetRightList();
 		if(p_lb) {
 			SString name_buf;
-			const long pos = p_lb->def ? p_lb->def->_curItem() : 0L;
+			const long pos = p_lb->P_Def ? p_lb->P_Def->_curItem() : 0L;
 			THROW_MEM(p_ary = new StrAssocArray);
 			for(uint i = 0; i < Data.P_List->getCount(); i++) {
 				const PPID id = Data.P_List->get(i);
@@ -1238,7 +1238,7 @@ int Lst2LstObjDialog::setupRightList()
 			// @v10.7.9 THROW_MEM(p_def = new StdListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify, TaggedString::BufType()));
 			THROW_MEM(p_def = new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify)); // @v10.7.9 
 			p_lb->setDef(p_def);
-			p_lb->def->go(pos);
+			p_lb->P_Def->go(pos);
 			p_lb->Draw_();
 		}
 	}
@@ -1386,7 +1386,7 @@ int Lst2LstObjDialog::addNewItem()
 		PPID   obj_id = 0;
 		if(p_view && P_Object->Edit(&obj_id, Data.ExtraPtr) > 0) {
 			// @v11.1.10 P_Object->UpdateSelector(p_view->def, 0, Data.ExtraPtr);
-			P_Object->Selector(p_view->def, 0, Data.ExtraPtr); // @v11.1.10
+			P_Object->Selector(p_view->P_Def, 0, Data.ExtraPtr); // @v11.1.10
 			p_view->Search_(&obj_id, 0, srchFirst|lbSrchByID);
 			p_view->Draw_();
 			ok = 1;
@@ -1424,7 +1424,7 @@ int Lst2LstObjDialog::addItem()
 			PPID id = sel_list.get(i);
 			if(id > 0) {
 				if(Data.Flags & ListToListData::fIsTreeList) {
-					THROW(Helper_AddItemRecursive(id, (StdTreeListBoxDef *)p_view->def));
+					THROW(Helper_AddItemRecursive(id, (StdTreeListBoxDef *)p_view->P_Def));
 				}
 				else {
 					THROW(Data.P_List->add(id));
@@ -1481,9 +1481,9 @@ int Lst2LstObjDialog::addAll()
 {
 	int    ok = -1;
 	SmartListBox * p_l = GetLeftList();
-	if(p_l && p_l->def) {
+	if(SmartListBox::IsValidS(p_l)) {
 		LongArray id_list;
-		if(p_l->def->getIdList(id_list) > 0) {
+		if(p_l->P_Def->getIdList(id_list) > 0) {
 			Data.P_List->freeAll();
 			Data.P_List->addUnique(&id_list);
 			THROW(setupRightList());
@@ -8034,7 +8034,7 @@ int PPEditTextFile(const EditTextFileParam * pParam)
 				if(p_view) {
 					if(p_view->GetId() == CTL_OPENEDFILE_RESERV) {
 						SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
-						if(p_box->def) {
+						if(p_box->P_Def) {
 							long   id = 0;
 							p_box->getCurID(&id);
 							PPRFile fi;
@@ -8049,7 +8049,7 @@ int PPEditTextFile(const EditTextFileParam * pParam)
 					}
 					else if(p_view->GetId() == CTL_OPENEDFILE_RECENT) {
 						SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
-						if(p_box->def) {
+						if(p_box->P_Def) {
 							long   id = 0;
 							SString full_path;
 							p_box->getCurID(&id);
@@ -8067,7 +8067,7 @@ int PPEditTextFile(const EditTextFileParam * pParam)
 				SString info_buf;
 				if(p_view && p_view->GetId() == CTL_OPENEDFILE_RESERV) {
 					SmartListBox * p_reserv_box = static_cast<SmartListBox *>(p_view);
-					if(p_reserv_box->def) {
+					if(p_reserv_box->P_Def) {
 						long   id = 0;
 						p_reserv_box->getCurID(&id);
 						PPRFile fi;

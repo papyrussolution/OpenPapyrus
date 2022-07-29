@@ -14,6 +14,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -178,16 +179,93 @@ public class CmdRGoodsInfoActivity extends SLib.SlActivity {
 								//View vchild = inflater.inflate(R.layout.layout_detail_ware, (ViewGroup) vroot, false);
 								JSONObject js_detail = Data.optJSONObject("detail");
 								if(js_detail != null) {
-									SLib.SetCtrlString(this, R.id.CTL_GOODSDETAIL_NAME, js_detail.optString("nm", null));
 									View vimg = findViewById(R.id.CTL_GOODSDETAIL_IMG);
 									if(vimg != null)
 										SLib.SetupImage(this, vimg, js_detail.optString("imgblobs", null));
-									SLib.SetCtrlString(this, R.id.CTL_GOODSDETAIL_BRAND, js_detail.optString("brandnm", null));
-									SLib.SetCtrlString(this, R.id.CTL_GOODSDETAIL_GROUP, js_detail.optString("parnm", null));
 									{
-										double price = js_detail.optDouble("price", 0.0);
-										if(price > 0.0)
-											SLib.SetCtrlString(this, R.id.CTL_GOODSDETAIL_PRICE, SLib.FormatCurrency(price, BaseCurrencySymb));
+										final String text = js_detail.optString("nm", null);
+										final int ctl_id = R.id.CTL_GOODSDETAIL_NAME;
+										final int ctlgrp_id = R.id.CTLGRP_GOODSDETAIL_NAME;
+										if(SLib.GetLen(text) > 0)
+											SLib.SetCtrlString(this, ctl_id, text);
+										else
+											SLib.SetCtrlVisibility(this, ctlgrp_id, View.GONE);
+									}
+									{
+										final String text = js_detail.optString("brandnm", null);
+										final int ctl_id = R.id.CTL_GOODSDETAIL_BRAND;
+										final int ctlgrp_id = R.id.CTLGRP_GOODSDETAIL_BRAND;
+										if(SLib.GetLen(text) > 0)
+											SLib.SetCtrlString(this, ctl_id, text);
+										else
+											SLib.SetCtrlVisibility(this, ctlgrp_id, View.GONE);
+									}
+									{
+										final String text = js_detail.optString("parnm", null);
+										final int ctl_id = R.id.CTL_GOODSDETAIL_GROUP;
+										final int ctlgrp_id = R.id.CTLGRP_GOODSDETAIL_GROUP;
+										if(SLib.GetLen(text) > 0)
+											SLib.SetCtrlString(this, ctl_id, text);
+										else
+											SLib.SetCtrlVisibility(this, ctlgrp_id, View.GONE);
+									}
+									{
+										final String text = js_detail.optString("manufnm", null);
+										final int ctl_id = R.id.CTL_GOODSDETAIL_MANUF;
+										final int ctlgrp_id = R.id.CTLGRP_GOODSDETAIL_MANUF;
+										if(SLib.GetLen(text) > 0)
+											SLib.SetCtrlString(this, ctl_id, text);
+										else
+											SLib.SetCtrlVisibility(this, ctlgrp_id, View.GONE);
+									}
+									{
+										final double value = js_detail.optDouble("price", 0.0);
+										final String text = (value > 0.0) ? SLib.FormatCurrency(value, BaseCurrencySymb) : null;
+										final int ctl_id = R.id.CTL_GOODSDETAIL_PRICE;
+										final int ctlgrp_id = R.id.CTLGRP_GOODSDETAIL_PRICE;
+										if(SLib.GetLen(text) > 0)
+											SLib.SetCtrlString(this, ctl_id, text);
+										else
+											SLib.SetCtrlVisibility(this, ctlgrp_id, View.GONE);
+									}
+									{
+										final double value = js_detail.optDouble("stock", 0.0);
+										final String text = (value > 0.0) ? SLib.formatdouble(value, 3) : null;
+										final int ctl_id = R.id.CTL_GOODSDETAIL_REST;
+										final int ctlgrp_id = R.id.CTLGRP_GOODSDETAIL_REST;
+										if(SLib.GetLen(text) > 0)
+											SLib.SetCtrlString(this, ctl_id, text);
+										else
+											SLib.SetCtrlVisibility(this, ctlgrp_id, View.GONE);
+									}
+									{
+										JSONArray exttext_js_array = js_detail.optJSONArray("exttext_list");
+										final int[] exttext_ctl_ids = {R.id.CTL_GOODSDETAIL_EXTTEXT1, R.id.CTL_GOODSDETAIL_EXTTEXT2,
+												R.id.CTL_GOODSDETAIL_EXTTEXT3, R.id.CTL_GOODSDETAIL_EXTTEXT4, R.id.CTL_GOODSDETAIL_EXTTEXT5};
+										final int[] exttext_ctllbl_ids = {R.id.CTLLBL_GOODSDETAIL_EXTTEXT1, R.id.CTLLBL_GOODSDETAIL_EXTTEXT2,
+												R.id.CTLLBL_GOODSDETAIL_EXTTEXT3, R.id.CTLLBL_GOODSDETAIL_EXTTEXT4, R.id.CTLLBL_GOODSDETAIL_EXTTEXT5};
+										final int[] exttext_ctlgrp_ids = {R.id.CTLGRP_GOODSDETAIL_EXTTEXT1, R.id.CTLGRP_GOODSDETAIL_EXTTEXT2,
+												R.id.CTLGRP_GOODSDETAIL_EXTTEXT3, R.id.CTLGRP_GOODSDETAIL_EXTTEXT4, R.id.CTLGRP_GOODSDETAIL_EXTTEXT5};
+										for(int i = 0; i < exttext_ctl_ids.length; i++) {
+											final int ctlgrp_id = exttext_ctlgrp_ids[i];
+											if(exttext_js_array != null && i < exttext_js_array.length()) {
+												JSONObject exttext_js_entry = exttext_js_array.optJSONObject(i);
+												if(exttext_js_entry != null) {
+													final String text = exttext_js_entry.optString("text", null);
+													final int ctl_id = exttext_ctl_ids[i];
+													final int ctllbl_id = exttext_ctllbl_ids[i];
+													if(SLib.GetLen(text) > 0) {
+														final String descr = exttext_js_entry.optString("title", null);
+														SLib.SetCtrlString(this, ctllbl_id, descr);
+														SLib.SetCtrlString(this, ctl_id, text);
+													}
+													else
+														SLib.SetCtrlVisibility(this, ctlgrp_id, View.GONE);
+												}
+											}
+											else
+												SLib.SetCtrlVisibility(this, ctlgrp_id, View.GONE);
+										}
 									}
 								}
 							}

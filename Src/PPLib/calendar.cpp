@@ -65,7 +65,7 @@ public:
 
 class TDateCalendar : public TCalendar {
 public:
-	static INT_PTR CALLBACK CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam); // @callback(DLGPROC)
 
 	TDateCalendar(TDialog * pDlg, uint pDateCtlID) : TCalendar(), RetCmd(0)
 	{
@@ -305,7 +305,7 @@ int TDateCalendar::OnTodaySelection()
 	return setDTS(getcurdate_());
 }
 
-/*static*/INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	TDateCalendar * dc = 0;
 	RECT r;

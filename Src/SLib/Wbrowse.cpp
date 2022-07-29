@@ -758,7 +758,7 @@ void BrowserWindow::__Init(/*BrowserDef * pDef*/)
 		P_Def->setViewHight((CliSz.y - CapOffs) / YCell - 1);
 		P_Def->top();
 		CalcRight();
-		setRange((uint16)P_Def->getRecsCount());
+		setRange((uint16)P_Def->GetRecsCount());
 	}*/
 	if(H())
 		invalidateAll(true);
@@ -1154,7 +1154,7 @@ void BrowserWindow::SetupScroll()
 			ViewHeight = 0;
 	}
 	CALLPTRMEMB(P_Def, setViewHight(ViewHeight));
-	VScrollMax = P_Def ? MAX(0, static_cast<int>(P_Def->getRecsCount())-1) : 0;
+	VScrollMax = P_Def ? smax(0L, P_Def->GetRecsCount()-1) : 0;
 	VScrollPos = MIN(VScrollPos, VScrollMax);
 	HScrollMax = SVectorBase::GetCount(P_Def) ? (P_Def->getCount()-1) : 0;
 	HScrollPos = MIN(HScrollPos, HScrollMax);
@@ -1885,9 +1885,9 @@ void BrowserWindow::Paint()
 			r.left = 0;
 			const uint _right = (Right < p_def_->getCount()) ? Right : (p_def_->getCount()-1);
 			const BroColumn & c = p_def_->at(_right);
-			const int  bottom = MIN(ViewHeight, static_cast<uint>(p_def_->getRecsCount()));
+			const int  bottom = smin(ViewHeight, static_cast<uint>(p_def_->GetRecsCount()));
 			uint   view_height = r_h_count ? r_h_count : ViewHeight;
-			r.right = MIN(CliSz.x, CellRight(c));
+			r.right = smin(static_cast<int>(CliSz.x), CellRight(c));
 			HPEN   old_pen = static_cast<HPEN>(SelectObject(ps.hdc, Pens.GridHorzPen));
 			view_height = (!r_h_count && sel_col_count) ? (view_height - 1) : view_height;
 			for(uint row = 0; row < view_height; row++) {
@@ -2454,7 +2454,7 @@ int BrowserWindow::CalcRowsHeight(long topItem, long bottomItem)
 			uint   row;
 			int    stop = 0;
 			uint   view_height = 0;
-			long   recs_count = P_Def->getRecsCount();
+			const  long recs_count = P_Def->GetRecsCount();
 			RowHeightInfo heights_info;
 			heights_info.Top = 0;
 			for(row = 0; !stop && row < ViewHeight && view_height < ViewHeight; row++) {

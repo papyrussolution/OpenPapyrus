@@ -127,51 +127,37 @@ int ssh_scp_init(ssh_scp scp)
 	quoted_location_len = ((size_t)3 * scp_location_len) + 1;
 	/* Paranoia check */
 	if(quoted_location_len < scp_location_len) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "Buffer overflow detected");
+		ssh_set_error(scp->session, SSH_FATAL, "Buffer overflow detected");
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
-
 	quoted_location = (char *)SAlloc::C(1, quoted_location_len);
 	if(quoted_location == NULL) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "Failed to allocate memory for quoted location");
+		ssh_set_error(scp->session, SSH_FATAL, "Failed to allocate memory for quoted location");
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
-
-	rc = ssh_quote_file_name(scp->location, quoted_location,
-		quoted_location_len);
+	rc = ssh_quote_file_name(scp->location, quoted_location, quoted_location_len);
 	if(rc <= 0) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "Failed to single quote command location");
+		ssh_set_error(scp->session, SSH_FATAL, "Failed to single quote command location");
 		ZFREE(quoted_location);
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
-
 	if(scp->mode == SSH_SCP_WRITE) {
-		snprintf(execbuffer, sizeof(execbuffer), "scp -t %s %s",
-		    scp->recursive ? "-r" : "", quoted_location);
+		snprintf(execbuffer, sizeof(execbuffer), "scp -t %s %s", scp->recursive ? "-r" : "", quoted_location);
 	}
 	else {
-		snprintf(execbuffer, sizeof(execbuffer), "scp -f %s %s",
-		    scp->recursive ? "-r" : "", quoted_location);
+		snprintf(execbuffer, sizeof(execbuffer), "scp -f %s %s", scp->recursive ? "-r" : "", quoted_location);
 	}
-
 	ZFREE(quoted_location);
-
 	SSH_LOG(SSH_LOG_DEBUG, "Executing command: %s", execbuffer);
-
 	rc = ssh_channel_request_exec(scp->channel, execbuffer);
 	if(rc == SSH_ERROR) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "Failed executing command: %s", execbuffer);
+		ssh_set_error(scp->session, SSH_FATAL, "Failed executing command: %s", execbuffer);
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
-
 	if(scp->mode == SSH_SCP_WRITE) {
 		rc = ssh_scp_response(scp, NULL);
 		if(rc) {
@@ -181,17 +167,14 @@ int ssh_scp_init(ssh_scp scp)
 	else {
 		ssh_channel_write(scp->channel, "", 1);
 	}
-
 	if(scp->mode == SSH_SCP_WRITE) {
 		scp->state = SSH_SCP_WRITE_INITED;
 	}
 	else {
 		scp->state = SSH_SCP_READ_INITED;
 	}
-
 	return SSH_OK;
 }
-
 /**
  * @brief Close the scp channel.
  *
@@ -288,79 +271,57 @@ int ssh_scp_push_directory(ssh_scp scp, const char * dirname, int mode)
 	char * perms = NULL;
 	char * vis_encoded = NULL;
 	size_t vis_encoded_len;
-
 	if(scp == NULL) {
 		return SSH_ERROR;
 	}
-
 	if(scp->state != SSH_SCP_WRITE_INITED) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "ssh_scp_push_directory called under invalid state");
+		ssh_set_error(scp->session, SSH_FATAL, "ssh_scp_push_directory called under invalid state");
 		return SSH_ERROR;
 	}
-
 	dir = ssh_basename(dirname);
 	if(!dir) {
 		ssh_set_error_oom(scp->session);
 		return SSH_ERROR;
 	}
-
 	vis_encoded_len = (2 * strlen(dir)) + 1;
 	vis_encoded = (char *)SAlloc::C(1, vis_encoded_len);
 	if(vis_encoded == NULL) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "Failed to allocate buffer to vis encode directory name");
+		ssh_set_error(scp->session, SSH_FATAL, "Failed to allocate buffer to vis encode directory name");
 		goto error;
 	}
-
 	rc = ssh_newline_vis(dir, vis_encoded, vis_encoded_len);
 	if(rc <= 0) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "Failed to vis encode directory name");
+		ssh_set_error(scp->session, SSH_FATAL, "Failed to vis encode directory name");
 		goto error;
 	}
-
 	perms = ssh_scp_string_mode(mode);
 	if(perms == NULL) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "Failed to get directory permission string");
+		ssh_set_error(scp->session, SSH_FATAL, "Failed to get directory permission string");
 		goto error;
 	}
-
-	SSH_LOG(SSH_LOG_PROTOCOL,
-	    "SCP pushing directory %s with permissions '%s'",
-	    vis_encoded, perms);
+	SSH_LOG(SSH_LOG_PROTOCOL, "SCP pushing directory %s with permissions '%s'", vis_encoded, perms);
 
 	/* Use vis encoded directory name */
-	snprintf(buffer, sizeof(buffer),
-	    "D%s 0 %s\n",
-	    perms, vis_encoded);
-
+	snprintf(buffer, sizeof(buffer), "D%s 0 %s\n", perms, vis_encoded);
 	ZFREE(dir);
 	ZFREE(perms);
 	ZFREE(vis_encoded);
-
 	rc = ssh_channel_write(scp->channel, buffer, strlen(buffer));
 	if(rc == SSH_ERROR) {
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
-
 	rc = ssh_scp_response(scp, NULL);
 	if(rc) {
 		return SSH_ERROR;
 	}
-
 	return SSH_OK;
-
 error:
 	ZFREE(dir);
 	ZFREE(perms);
 	ZFREE(vis_encoded);
-
 	return SSH_ERROR;
 }
-
 /**
  * @brief Leave a directory.
  *
@@ -373,31 +334,24 @@ int ssh_scp_leave_directory(ssh_scp scp)
 {
 	char buffer[] = "E\n";
 	int rc;
-
 	if(scp == NULL) {
 		return SSH_ERROR;
 	}
-
 	if(scp->state != SSH_SCP_WRITE_INITED) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "ssh_scp_leave_directory called under invalid state");
+		ssh_set_error(scp->session, SSH_FATAL, "ssh_scp_leave_directory called under invalid state");
 		return SSH_ERROR;
 	}
-
 	rc = ssh_channel_write(scp->channel, buffer, strlen(buffer));
 	if(rc == SSH_ERROR) {
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
-
 	rc = ssh_scp_response(scp, NULL);
 	if(rc) {
 		return SSH_ERROR;
 	}
-
 	return SSH_OK;
 }
-
 /**
  * @brief Initialize the sending of a file to a scp in sink mode, using a 64-bit
  * size.
@@ -416,8 +370,7 @@ int ssh_scp_leave_directory(ssh_scp scp)
  *
  * @see ssh_scp_push_file()
  */
-int ssh_scp_push_file64(ssh_scp scp, const char * filename, uint64_t size,
-    int mode)
+int ssh_scp_push_file64(ssh_scp scp, const char * filename, uint64_t size, int mode)
 {
 	char buffer[1024] = {0};
 	int rc;
@@ -425,83 +378,59 @@ int ssh_scp_push_file64(ssh_scp scp, const char * filename, uint64_t size,
 	char * perms = NULL;
 	char * vis_encoded = NULL;
 	size_t vis_encoded_len;
-
 	if(scp == NULL) {
 		return SSH_ERROR;
 	}
-
 	if(scp->state != SSH_SCP_WRITE_INITED) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "ssh_scp_push_file called under invalid state");
+		ssh_set_error(scp->session, SSH_FATAL, "ssh_scp_push_file called under invalid state");
 		return SSH_ERROR;
 	}
-
 	file = ssh_basename(filename);
 	if(!file) {
 		ssh_set_error_oom(scp->session);
 		return SSH_ERROR;
 	}
-
 	vis_encoded_len = (2 * strlen(file)) + 1;
 	vis_encoded = (char *)SAlloc::C(1, vis_encoded_len);
 	if(vis_encoded == NULL) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "Failed to allocate buffer to vis encode file name");
+		ssh_set_error(scp->session, SSH_FATAL, "Failed to allocate buffer to vis encode file name");
 		goto error;
 	}
-
 	rc = ssh_newline_vis(file, vis_encoded, vis_encoded_len);
 	if(rc <= 0) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "Failed to vis encode file name");
+		ssh_set_error(scp->session, SSH_FATAL, "Failed to vis encode file name");
 		goto error;
 	}
-
 	perms = ssh_scp_string_mode(mode);
 	if(perms == NULL) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "Failed to get file permission string");
+		ssh_set_error(scp->session, SSH_FATAL, "Failed to get file permission string");
 		goto error;
 	}
-
-	SSH_LOG(SSH_LOG_PROTOCOL,
-	    "SCP pushing file %s, size %" PRIu64 " with permissions '%s'",
-	    vis_encoded, size, perms);
-
+	SSH_LOG(SSH_LOG_PROTOCOL, "SCP pushing file %s, size %" PRIu64 " with permissions '%s'", vis_encoded, size, perms);
 	/* Use vis encoded file name */
-	snprintf(buffer, sizeof(buffer),
-	    "C%s %" PRIu64 " %s\n",
-	    perms, size, vis_encoded);
-
+	snprintf(buffer, sizeof(buffer), "C%s %" PRIu64 " %s\n", perms, size, vis_encoded);
 	ZFREE(file);
 	ZFREE(perms);
 	ZFREE(vis_encoded);
-
 	rc = ssh_channel_write(scp->channel, buffer, strlen(buffer));
 	if(rc == SSH_ERROR) {
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
-
 	rc = ssh_scp_response(scp, NULL);
 	if(rc) {
 		return SSH_ERROR;
 	}
-
 	scp->filelen = size;
 	scp->processed = 0;
 	scp->state = SSH_SCP_WRITE_WRITING;
-
 	return SSH_OK;
-
 error:
 	ZFREE(file);
 	ZFREE(perms);
 	ZFREE(vis_encoded);
-
 	return SSH_ERROR;
 }
-
 /**
  * @brief Initialize the sending of a file to a scp in sink mode.
  *
@@ -596,28 +525,22 @@ int ssh_scp_write(ssh_scp scp, const void * buffer, size_t len)
 	int w;
 	int rc;
 	uint8 code;
-
 	if(scp == NULL) {
 		return SSH_ERROR;
 	}
-
 	if(scp->state != SSH_SCP_WRITE_WRITING) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "ssh_scp_write called under invalid state");
+		ssh_set_error(scp->session, SSH_FATAL, "ssh_scp_write called under invalid state");
 		return SSH_ERROR;
 	}
-
 	if(scp->processed + len > scp->filelen) {
 		len = (size_t)(scp->filelen - scp->processed);
 	}
-
 	/* hack to avoid waiting for window change */
 	rc = ssh_channel_poll(scp->channel, 0);
 	if(rc == SSH_ERROR) {
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
-
 	w = ssh_channel_write(scp->channel, buffer, len);
 	if(w != SSH_ERROR) {
 		scp->processed += w;
@@ -627,9 +550,7 @@ int ssh_scp_write(ssh_scp scp, const void * buffer, size_t len)
 		//return = channel_get_exit_status(scp->channel);
 		return SSH_ERROR;
 	}
-
-	/* Far end sometimes send a status message, which we need to read
-	 * and handle */
+	// Far end sometimes send a status message, which we need to read and handle 
 	rc = ssh_channel_poll(scp->channel, 0);
 	if(rc > 0) {
 		rc = ssh_scp_response(scp, NULL);
@@ -637,7 +558,6 @@ int ssh_scp_write(ssh_scp scp, const void * buffer, size_t len)
 			return SSH_ERROR;
 		}
 	}
-
 	/* Check if we arrived at end of file */
 	if(scp->processed == scp->filelen) {
 		code = 0;
@@ -646,14 +566,11 @@ int ssh_scp_write(ssh_scp scp, const void * buffer, size_t len)
 			scp->state = SSH_SCP_ERROR;
 			return SSH_ERROR;
 		}
-
 		scp->processed = scp->filelen = 0;
 		scp->state = SSH_SCP_WRITE_INITED;
 	}
-
 	return SSH_OK;
 }
-
 /**
  * @brief Read a string on a channel, terminated by '\n'
  *
@@ -672,34 +589,27 @@ int ssh_scp_read_string(ssh_scp scp, char * buffer, size_t len)
 {
 	size_t read = 0;
 	int err = SSH_OK;
-
 	if(scp == NULL) {
 		return SSH_ERROR;
 	}
-
 	while(read < len - 1) {
 		err = ssh_channel_read(scp->channel, &buffer[read], 1, 0);
 		if(err == SSH_ERROR) {
 			break;
 		}
-
 		if(err == 0) {
-			ssh_set_error(scp->session, SSH_FATAL,
-			    "End of file while reading string");
+			ssh_set_error(scp->session, SSH_FATAL, "End of file while reading string");
 			err = SSH_ERROR;
 			break;
 		}
-
 		read++;
 		if(buffer[read - 1] == '\n') {
 			break;
 		}
 	}
-
 	buffer[read] = 0;
 	return err;
 }
-
 /**
  * @brief Wait for a scp request (file, directory).
  *
@@ -728,17 +638,13 @@ int ssh_scp_pull_request(ssh_scp scp)
 	uint64_t size;
 	char * name = NULL;
 	int rc;
-
 	if(scp == NULL) {
 		return SSH_ERROR;
 	}
-
 	if(scp->state != SSH_SCP_READ_INITED) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "ssh_scp_pull_request called under invalid state");
+		ssh_set_error(scp->session, SSH_FATAL, "ssh_scp_pull_request called under invalid state");
 		return SSH_ERROR;
 	}
-
 	rc = ssh_scp_read_string(scp, buffer, sizeof(buffer));
 	if(rc == SSH_ERROR) {
 		if(ssh_channel_is_eof(scp->channel)) {
@@ -747,12 +653,10 @@ int ssh_scp_pull_request(ssh_scp scp)
 		}
 		return rc;
 	}
-
 	p = strchr(buffer, '\n');
 	if(p) {
 		*p = '\0';
 	}
-
 	SSH_LOG(SSH_LOG_PROTOCOL, "Received SCP request: '%s'", buffer);
 	switch(buffer[0]) {
 		case 'C':
@@ -833,29 +737,23 @@ int ssh_scp_deny_request(ssh_scp scp, const char * reason)
 {
 	char buffer[MAX_BUF_SIZE] = {0};
 	int rc;
-
 	if(scp == NULL) {
 		return SSH_ERROR;
 	}
-
 	if(scp->state != SSH_SCP_READ_REQUESTED) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "ssh_scp_deny_request called under invalid state");
+		ssh_set_error(scp->session, SSH_FATAL, "ssh_scp_deny_request called under invalid state");
 		return SSH_ERROR;
 	}
-
 	snprintf(buffer, sizeof(buffer), "%c%s\n", 2, reason);
 	rc = ssh_channel_write(scp->channel, buffer, strlen(buffer));
 	if(rc == SSH_ERROR) {
 		return SSH_ERROR;
 	}
-
 	else {
 		scp->state = SSH_SCP_READ_INITED;
 		return SSH_OK;
 	}
 }
-
 /**
  * @brief Accepts transfer of a file or creation of a directory coming from the
  * remote party.
@@ -872,25 +770,20 @@ int ssh_scp_accept_request(ssh_scp scp)
 	if(scp == NULL) {
 		return SSH_ERROR;
 	}
-
 	if(scp->state != SSH_SCP_READ_REQUESTED) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "ssh_scp_deny_request called under invalid state");
+		ssh_set_error(scp->session, SSH_FATAL, "ssh_scp_deny_request called under invalid state");
 		return SSH_ERROR;
 	}
-
 	rc = ssh_channel_write(scp->channel, buffer, 1);
 	if(rc == SSH_ERROR) {
 		return SSH_ERROR;
 	}
-
 	if(scp->request_type == SSH_SCP_REQUEST_NEWFILE) {
 		scp->state = SSH_SCP_READ_READING;
 	}
 	else {
 		scp->state = SSH_SCP_READ_INITED;
 	}
-
 	return SSH_OK;
 }
 
@@ -908,33 +801,25 @@ int ssh_scp_read(ssh_scp scp, void * buffer, size_t size)
 {
 	int rc;
 	int code;
-
 	if(scp == NULL) {
 		return SSH_ERROR;
 	}
-
-	if(scp->state == SSH_SCP_READ_REQUESTED &&
-	    scp->request_type == SSH_SCP_REQUEST_NEWFILE) {
+	if(scp->state == SSH_SCP_READ_REQUESTED && scp->request_type == SSH_SCP_REQUEST_NEWFILE) {
 		rc = ssh_scp_accept_request(scp);
 		if(rc == SSH_ERROR) {
 			return rc;
 		}
 	}
-
 	if(scp->state != SSH_SCP_READ_READING) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "ssh_scp_read called under invalid state");
+		ssh_set_error(scp->session, SSH_FATAL, "ssh_scp_read called under invalid state");
 		return SSH_ERROR;
 	}
-
 	if(scp->processed + size > scp->filelen) {
 		size = (size_t)(scp->filelen - scp->processed);
 	}
-
 	if(size > 65536) {
 		size = 65536; /* avoid too large reads */
 	}
-
 	rc = ssh_channel_read(scp->channel, buffer, size, 0);
 	if(rc != SSH_ERROR) {
 		scp->processed += rc;
@@ -943,7 +828,6 @@ int ssh_scp_read(ssh_scp scp, void * buffer, size_t size)
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
-
 	/* Check if we arrived at end of file */
 	if(scp->processed == scp->filelen) {
 		scp->processed = scp->filelen = 0;

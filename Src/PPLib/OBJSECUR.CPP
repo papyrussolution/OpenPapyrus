@@ -108,7 +108,7 @@ PPObjSecur::PPObjSecur(PPID aObj, void * extraPtr) : PPObjReference(aObj, extraP
 
 int PPObjSecur::AssignImages(ListBoxDef * pDef)
 {
-	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
+	if(pDef && pDef->IsValid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
 		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
@@ -678,9 +678,9 @@ int PPObjSecur::Browse(void * extraPtr)
 				PPObjListWindow::handleEvent(event);
 			if(update) {
 				// @v11.1.10 P_Obj->UpdateSelector(P_Lb->def, 0, &Param);
-				P_Obj->Selector(P_Lb->def, 0, &Param); // @v11.1.10
+				P_Obj->Selector(P_Lb->P_Def, 0, &Param); // @v11.1.10
 				P_Lb->Draw_();
-				P_Lb->setRange(P_Lb->def->getRecsCount());
+				P_Lb->setRange(P_Lb->P_Def->GetRecsCount());
 				if(update == 2) {
 					if(preserve_focus_id)
 						P_Lb->Search_(&preserve_focus_id, 0, srchFirst | lbSrchByID);

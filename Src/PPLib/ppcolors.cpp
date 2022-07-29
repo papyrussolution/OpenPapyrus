@@ -874,7 +874,7 @@ int ColorCtrlGroup::getData(TDialog * pDlg, void * pData)
 						FillRect(h_dc, &rc, H_BrBkList);
 						p_di->ItemAction = 0;
 					}
-					else if(p_di->ItemID != 0xffffffff && p_lbx && p_lbx->def && (long)p_di->ItemID < p_lbx->def->getRecsCount()) {
+					else if(p_di->ItemID != 0xffffffff && SmartListBox::IsValidS(p_lbx) && (long)p_di->ItemID < p_lbx->P_Def->GetRecsCount()) {
 						long   item_color = 0;
 						//char   temp_buf[256];
 						//p_lbx->getText((long)p_di->ItemID, temp_buf, sizeof(temp_buf));

@@ -820,8 +820,8 @@ int BudgetItemsDialog::setDTS(const BudgetItemsList * pData)
 	PrevAcctID = rec.Acc;
 	PrevKind   = rec.Kind;
 	updateList(-1);
-	if(P_Box && P_Box->def) {
-		P_Box->def->go(pos);
+	if(SmartListBox::IsValidS(P_Box)) {
+		P_Box->P_Def->go(pos);
 		P_Box->Draw_();
 	}
 	return 1;

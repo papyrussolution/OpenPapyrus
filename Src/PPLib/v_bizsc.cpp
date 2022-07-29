@@ -699,9 +699,9 @@ int BizScTemplDialog::GetCurItem(uint ctlList, long * pPos, long * pID)
 {
 	long pos = -1, id = -1;
 	SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(ctlList));
-	if(p_box) {
+	if(SmartListBox::IsValidS(p_box)) {
 		p_box->getCurID(&id);
-		pos = p_box->def->_curItem();
+		pos = p_box->P_Def->_curItem();
 	}
 	ASSIGN_PTR(pPos, pos);
 	ASSIGN_PTR(pID, id);

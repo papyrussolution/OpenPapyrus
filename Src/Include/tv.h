@@ -3763,12 +3763,12 @@ public:
 	virtual int    getCurString(SString & rBuf);
 	virtual int    getCurData(void *);
 	virtual int    search(const void *, CompFunc, int srchMode);
-	virtual int    valid();
+	virtual bool   IsValid() const;
 	virtual int    go(long);
 	virtual int    step(long);
 	virtual int    top();
 	virtual int    bottom();
-	virtual long   getRecsCount();
+	virtual long   GetRecsCount() const;
 	virtual int    getIdList(LongArray &);
 	virtual void * FASTCALL getRow_(long idx);
 	//
@@ -3784,7 +3784,7 @@ public:
 	virtual int    addItem(long id, const char *, long * pPos = 0);
 	virtual int    removeItem(long pos);
 	virtual void   freeAll();
-	virtual int    GetFrameSize();
+	virtual int    GetFrameSize() const;
 	virtual int    GetFrameState();
 	const  char * getText(long item, SString & rBuf);
 	long   _topItem() const;
@@ -3850,11 +3850,11 @@ public:
 	StdListBoxDef(SArray * pArray, uint aOptions, TYPEID);
 	~StdListBoxDef();
 	virtual int    search(const void *, CompFunc, int srchMode);
-	virtual int    valid();
-	virtual long   getRecsCount();
+	virtual bool   IsValid() const;
+	virtual long   GetRecsCount() const;
 	virtual int    getIdList(LongArray & rList);
 	virtual void * FASTCALL getRow_(long r);
-	virtual int    GetFrameSize();
+	virtual int    GetFrameSize() const;
 	virtual int    GetFrameState();
 	int    setArray(SArray *);
 //protected:
@@ -3866,11 +3866,11 @@ public:
 	StrAssocListBoxDef(StrAssocArray *, uint options);
 	~StrAssocListBoxDef();
 	virtual int    search(const void *, CompFunc, int srchMode);
-	virtual int    valid();
-	virtual long   getRecsCount();
+	virtual bool   IsValid() const;
+	virtual long   GetRecsCount() const;
 	virtual int    getIdList(LongArray & rList);
 	virtual void * FASTCALL getRow_(long r);
-	virtual int    GetFrameSize();
+	virtual int    GetFrameSize() const;
 	virtual int    GetFrameState();
 	virtual int    addItem(long id, const char *, long * pPos = 0);
 	virtual int    removeItem(long pos);
@@ -3891,19 +3891,19 @@ public:
 	~StdTreeListBoxDef();
 	virtual void   setViewHight(int);
 	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int    valid();
+	virtual bool   IsValid() const;
 	virtual int    go(long);
 	virtual int    step(long);
 	virtual int    top();
 	virtual int    bottom();
-	virtual long   getRecsCount();
+	virtual long   GetRecsCount() const;
 	virtual int    getIdList(LongArray & rList);
 	virtual void * FASTCALL getRow_(long);
 	virtual int    getCurString(SString & rBuf);
 	virtual int    getCurID(long *);
 	virtual int    getCurData(void *);
 	virtual int    search(const void * pPattern, CompFunc fcmp, int srchMode);
-	virtual int    GetFrameSize();
+	virtual int    GetFrameSize() const;
 	virtual int    GetFrameState();
 	int    setArray(StrAssocArray *);
 	int    GetStringByID(long id, SString & rBuf);
@@ -3941,19 +3941,19 @@ public:
 	~StdTreeListBoxDef2_();
 	virtual void   setViewHight(int);
 	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int    valid();
+	virtual bool   IsValid() const;
 	virtual int    go(long);
 	virtual int    step(long);
 	virtual int    top();
 	virtual int    bottom();
-	virtual long   getRecsCount();
+	virtual long   GetRecsCount() const;
 	virtual int    getIdList(LongArray & rList);
 	virtual void * FASTCALL getRow_(long);
 	virtual int    getCurString(SString & rBuf);
 	virtual int    getCurID(long *);
 	virtual int    getCurData(void *);
 	virtual int    search(const void * pPattern, CompFunc fcmp, int srchMode);
-	virtual int    GetFrameSize();
+	virtual int    GetFrameSize() const;
 	virtual int    GetFrameState();
 	int    AddTopLevelRestrictionId(long id); // @v11.4.0
 	//
@@ -4014,18 +4014,18 @@ public:
 	~DBQListBoxDef();
 	virtual void   setViewHight(int);
 	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int    valid();
+	virtual bool   IsValid() const;
 	virtual int    go(long);
 	virtual int    step(long);
 	virtual int    top();
 	virtual int    bottom();
-	virtual long   getRecsCount();
+	virtual long   GetRecsCount() const;
 	virtual int    getIdList(LongArray & rList);
 	virtual void * FASTCALL getRow_(long);
 	virtual int    TransmitData(int dir, void * pData);
 	virtual int    refresh();
 	virtual int    search(const void * pPattern, CompFunc fcmp, int srchMode);
-	virtual int    GetFrameSize();
+	virtual int    GetFrameSize() const;
 	virtual int    GetFrameState();
 	int    setQuery(DBQuery & rQuery, uint aBufSize = 32);
 	int    setRestrict(DBQ & rQ);
@@ -4075,7 +4075,7 @@ public:
 		stLBIsLinkedUISrchTextBlock  = 0x0020,  // Окно поиска будет прилинковано непосредственно к списку. При уничтожении фокус будет попадать на список.
 		stOmitSearchByFirstChar      = 0x0040,  // Не обрабатывать ввод символа как сигнал к поиску
 	};
-
+	static bool IsValidS(const SmartListBox * pThis) { return (pThis && pThis->P_Def); }
 	SmartListBox(const TRect & rRect, ListBoxDef * pDef, int isTree = 0);
 	~SmartListBox();
 	void   FASTCALL setDef(ListBoxDef * pDef);
@@ -4155,7 +4155,7 @@ public:
 	//
 	void   MoveScrollBar(int autoHeight);
 
-	ListBoxDef * def;
+	ListBoxDef * P_Def; // @todo must be private
 protected:
 	int    GetStringByID(long id, SString & rBuf);
 	int    GetImageIdxByID(long id, long * pIdx);
@@ -4994,12 +4994,12 @@ public:
 	virtual int    insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
 	virtual void   setViewHight(int);
 	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int    valid();
+	virtual bool   IsValid() const;
 	virtual int    FASTCALL go(long);
 	virtual int    FASTCALL step(long);
 	virtual int    top();
 	virtual int    bottom();
-	virtual long   getRecsCount();
+	virtual long   GetRecsCount() const;
 	virtual const  void * FASTCALL getRow(long) const;
 	// @v10.9.0 virtual int   FASTCALL getData(void *);
 	// @v10.9.0 virtual int   FASTCALL setData(void *);
@@ -5071,9 +5071,9 @@ public:
 	~AryBrowserDef();
 	int     setArray(SArray * pData, const BNFieldList * pFl, int setupPosition /*= 1*/);
 	const   SArray * getArray() const;
-	virtual int    valid();
+	virtual bool   IsValid() const;
 	virtual int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
-	virtual long   getRecsCount();
+	virtual long   GetRecsCount() const;
 	virtual const  void * FASTCALL getRow(long) const;
 	// @v10.9.0 virtual int   FASTCALL getData(void *);
 	// @v10.9.0 virtual int   FASTCALL setData(void *);
@@ -5097,12 +5097,12 @@ public:
 	virtual int    insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
 	virtual void   setViewHight(int);
 	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int    valid();
+	virtual bool   IsValid() const;
 	virtual int    FASTCALL go(long);
 	virtual int    FASTCALL step(long);
 	virtual int    top();
 	virtual int    bottom();
-	virtual long   getRecsCount();
+	virtual long   GetRecsCount() const;
 	virtual const  void * FASTCALL getRow(long) const;
 	virtual int    refresh();
 	// @v10.9.0 virtual int   FASTCALL getData(void *);

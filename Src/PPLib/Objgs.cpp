@@ -1026,8 +1026,8 @@ public:
 	{
 		// @v10.7.5 @ctr MEMSZERO(GscParam);
 		SetupCalPeriod(CTLCAL_GSTRUC_PERIOD, CTL_GSTRUC_PERIOD);
-		if(P_Box)
-			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
+		if(SmartListBox::IsValidS(P_Box))
+			P_Box->P_Def->SetOption(lbtFocNotify, 1);
 		updateList(-1);
 	}
 	int    setDTS(const PPGoodsStruc *);
@@ -1210,9 +1210,9 @@ int GSDialog::getDTS(PPGoodsStruc * pData)
 int GSDialog::enableEditRecurStruc()
 {
 	int    ok = 1, enable = 0;
-	if(P_Box && P_Box->def) {
+	if(SmartListBox::IsValidS(P_Box)) {
 		long   pos = 0;
-		P_Box->def->getCurID(&pos);
+		P_Box->P_Def->getCurID(&pos);
 		if(pos > 0 && pos-1 < (long)Data.Items.getCount()) {
 			int r = 0;
 			RecurData.Init();

@@ -81,7 +81,7 @@ void sha1(const uchar * digest, int len, uchar * hash)
 {
 	const mbedtls_md_info_t * md_info =
 	    mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
-	if(md_info != NULL) {
+	if(md_info) {
 		mbedtls_md(md_info, digest, len, hash);
 	}
 }
@@ -89,24 +89,18 @@ void sha1(const uchar * digest, int len, uchar * hash)
 static mbedtls_md_type_t nid_to_md_algo(int nid)
 {
 	switch(nid) {
-		case NID_mbedtls_nistp256:
-		    return MBEDTLS_MD_SHA256;
-		case NID_mbedtls_nistp384:
-		    return MBEDTLS_MD_SHA384;
-		case NID_mbedtls_nistp521:
-		    return MBEDTLS_MD_SHA512;
+		case NID_mbedtls_nistp256: return MBEDTLS_MD_SHA256;
+		case NID_mbedtls_nistp384: return MBEDTLS_MD_SHA384;
+		case NID_mbedtls_nistp521: return MBEDTLS_MD_SHA512;
 	}
 	return MBEDTLS_MD_NONE;
 }
 
-void evp(int nid, uchar * digest, int len,
-    uchar * hash, uint * hlen)
+void evp(int nid, uchar * digest, int len, uchar * hash, uint * hlen)
 {
 	mbedtls_md_type_t algo = nid_to_md_algo(nid);
-	const mbedtls_md_info_t * md_info =
-	    mbedtls_md_info_from_type(algo);
-
-	if(md_info != NULL) {
+	const mbedtls_md_info_t * md_info = mbedtls_md_info_from_type(algo);
+	if(md_info) {
 		*hlen = mbedtls_md_get_size(md_info);
 		mbedtls_md(md_info, digest, len, hash);
 	}
@@ -201,9 +195,8 @@ void sha256_final(uchar * md, SHA256CTX c)
 
 void sha256(const uchar * digest, int len, uchar * hash)
 {
-	const mbedtls_md_info_t * md_info =
-	    mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
-	if(md_info != NULL) {
+	const mbedtls_md_info_t * md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
+	if(md_info) {
 		mbedtls_md(md_info, digest, len, hash);
 	}
 }
@@ -250,9 +243,8 @@ void sha384_final(uchar * md, SHA384CTX c)
 
 void sha384(const uchar * digest, int len, uchar * hash)
 {
-	const mbedtls_md_info_t * md_info =
-	    mbedtls_md_info_from_type(MBEDTLS_MD_SHA384);
-	if(md_info != NULL) {
+	const mbedtls_md_info_t * md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA384);
+	if(md_info) {
 		mbedtls_md(md_info, digest, len, hash);
 	}
 }
@@ -303,9 +295,8 @@ void sha512_final(uchar * md, SHA512CTX c)
 
 void sha512(const uchar * digest, int len, uchar * hash)
 {
-	const mbedtls_md_info_t * md_info =
-	    mbedtls_md_info_from_type(MBEDTLS_MD_SHA512);
-	if(md_info != NULL) {
+	const mbedtls_md_info_t * md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA512);
+	if(md_info) {
 		mbedtls_md(md_info, digest, len, hash);
 	}
 }
@@ -314,25 +305,20 @@ MD5CTX md5_init()
 {
 	MD5CTX ctx = NULL;
 	int rc;
-	const mbedtls_md_info_t * md_info =
-	    mbedtls_md_info_from_type(MBEDTLS_MD_MD5);
+	const mbedtls_md_info_t * md_info = mbedtls_md_info_from_type(MBEDTLS_MD_MD5);
 	if(md_info == NULL) {
 		return NULL;
 	}
-
 	ctx = SAlloc::M(sizeof(mbedtls_md_context_t));
 	if(!ctx) {
 		return NULL;
 	}
-
 	mbedtls_md_init(ctx);
-
 	rc = mbedtls_md_setup(ctx, md_info, 0);
 	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
-
 	rc = mbedtls_md_starts(ctx);
 	if(rc) {
 		ZFREE(ctx);
@@ -905,18 +891,14 @@ int ssh_crypto_init()
 	if(rc) {
 		mbedtls_ctr_drbg_free(&ssh_mbedtls_ctr_drbg);
 	}
-	for(i = 0; ssh_ciphertab[i].name != NULL; i++) {
+	for(i = 0; ssh_ciphertab[i].name; i++) {
 		int cmp = strcmp(ssh_ciphertab[i].name, "chacha20-poly1305@openssh.com");
 		if(cmp == 0) {
-			memcpy(&ssh_ciphertab[i],
-			    ssh_get_chacha20poly1305_cipher(),
-			    sizeof(struct ssh_cipher_struct));
+			memcpy(&ssh_ciphertab[i], ssh_get_chacha20poly1305_cipher(), sizeof(struct ssh_cipher_struct));
 			break;
 		}
 	}
-
 	libmbedcrypto_initialized = 1;
-
 	return SSH_OK;
 }
 

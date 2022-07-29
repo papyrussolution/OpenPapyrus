@@ -251,20 +251,14 @@ static char * ssh_session_get_host_port(ssh_session session)
 	char * host_port;
 	char * host;
 	if(session->opts.host == NULL) {
-		ssh_set_error(session,
-		    SSH_FATAL,
-		    "Can't verify server in known hosts if the host we "
-		    "should connect to has not been set");
-
+		ssh_set_error(session, SSH_FATAL, "Can't verify server in known hosts if the host we should connect to has not been set");
 		return NULL;
 	}
-
 	host = ssh_lowercase(session->opts.host);
 	if(host == NULL) {
 		ssh_set_error_oom(session);
 		return NULL;
 	}
-
 	if(session->opts.port == 0 || session->opts.port == 22) {
 		host_port = host;
 	}
@@ -276,10 +270,8 @@ static char * ssh_session_get_host_port(ssh_session session)
 			return NULL;
 		}
 	}
-
 	return host_port;
 }
-
 /**
  * @internal
  * @brief Check which host keys should be preferred for the session.
@@ -421,47 +413,33 @@ char * ssh_known_hosts_get_algorithms_names(ssh_session session)
 	size_t count;
 	bool needcomma = false;
 	char * names;
-
 	int rc;
-
 	if(session->opts.knownhosts == NULL ||
 	    session->opts.global_knownhosts == NULL) {
 		if(ssh_options_apply(session) < 0) {
-			ssh_set_error(session,
-			    SSH_REQUEST_DENIED,
-			    "Can't find a known_hosts file");
-
+			ssh_set_error(session, SSH_REQUEST_DENIED, "Can't find a known_hosts file");
 			return NULL;
 		}
 	}
-
 	host_port = ssh_session_get_host_port(session);
 	if(host_port == NULL) {
 		return NULL;
 	}
-
-	rc = ssh_known_hosts_read_entries(host_port,
-		session->opts.knownhosts,
-		&entry_list);
+	rc = ssh_known_hosts_read_entries(host_port, session->opts.knownhosts, &entry_list);
 	if(rc) {
 		ZFREE(host_port);
 		ssh_list_free(entry_list);
 		return NULL;
 	}
-
-	rc = ssh_known_hosts_read_entries(host_port,
-		session->opts.global_knownhosts,
-		&entry_list);
+	rc = ssh_known_hosts_read_entries(host_port, session->opts.global_knownhosts, &entry_list);
 	ZFREE(host_port);
 	if(rc) {
 		ssh_list_free(entry_list);
 		return NULL;
 	}
-
 	if(entry_list == NULL) {
 		return NULL;
 	}
-
 	count = ssh_list_count(entry_list);
 	if(!count) {
 		ssh_list_free(entry_list);
@@ -475,16 +453,10 @@ char * ssh_known_hosts_get_algorithms_names(ssh_session session)
 		if(algo == NULL) {
 			continue;
 		}
-
 		if(needcomma) {
-			strncat(methods_buffer,
-			    ",",
-			    sizeof(methods_buffer) - strlen(methods_buffer) - 1);
+			strncat(methods_buffer, ",", sizeof(methods_buffer) - strlen(methods_buffer) - 1);
 		}
-
-		strncat(methods_buffer,
-		    algo,
-		    sizeof(methods_buffer) - strlen(methods_buffer) - 1);
+		strncat(methods_buffer, algo, sizeof(methods_buffer) - strlen(methods_buffer) - 1);
 		needcomma = true;
 
 		ssh_knownhosts_entry_free(entry);
@@ -661,45 +633,28 @@ enum ssh_known_hosts_e ssh_session_has_known_hosts_entry(ssh_session session){
 
 	if(session->opts.knownhosts == NULL) {
 		if(ssh_options_apply(session) < 0) {
-			ssh_set_error(session,
-			    SSH_REQUEST_DENIED,
-			    "Cannot find a known_hosts file");
-
+			ssh_set_error(session, SSH_REQUEST_DENIED, "Cannot find a known_hosts file");
 			return SSH_KNOWN_HOSTS_NOT_FOUND;
 		}
 	}
-
-	if(session->opts.knownhosts == NULL &&
-	    session->opts.global_knownhosts == NULL) {
-		ssh_set_error(session,
-		    SSH_REQUEST_DENIED,
-		    "No path set for a known_hosts file");
-
+	if(session->opts.knownhosts == NULL && session->opts.global_knownhosts == NULL) {
+		ssh_set_error(session, SSH_REQUEST_DENIED, "No path set for a known_hosts file");
 		return SSH_KNOWN_HOSTS_NOT_FOUND;
 	}
-
 	if(session->opts.knownhosts != NULL) {
 		known_hosts_found = ssh_file_readaccess_ok(session->opts.knownhosts);
 		if(!known_hosts_found) {
-			SSH_LOG(SSH_LOG_WARN, "Cannot access file %s",
-			    session->opts.knownhosts);
+			SSH_LOG(SSH_LOG_WARN, "Cannot access file %s", session->opts.knownhosts);
 		}
 	}
-
 	if(session->opts.global_knownhosts != NULL) {
-		global_known_hosts_found =
-		    ssh_file_readaccess_ok(session->opts.global_knownhosts);
+		global_known_hosts_found = ssh_file_readaccess_ok(session->opts.global_knownhosts);
 		if(!global_known_hosts_found) {
-			SSH_LOG(SSH_LOG_WARN, "Cannot access file %s",
-			    session->opts.global_knownhosts);
+			SSH_LOG(SSH_LOG_WARN, "Cannot access file %s", session->opts.global_knownhosts);
 		}
 	}
-
 	if((!known_hosts_found) && (!global_known_hosts_found)) {
-		ssh_set_error(session,
-		    SSH_REQUEST_DENIED,
-		    "Cannot find a known_hosts file");
-
+		ssh_set_error(session, SSH_REQUEST_DENIED, "Cannot find a known_hosts file");
 		return SSH_KNOWN_HOSTS_NOT_FOUND;
 	}
 
@@ -707,22 +662,16 @@ enum ssh_known_hosts_e ssh_session_has_known_hosts_entry(ssh_session session){
 	if(host_port == NULL) {
 		return SSH_KNOWN_HOSTS_ERROR;
 	}
-
 	if(known_hosts_found) {
-		rc = ssh_known_hosts_read_entries(host_port,
-			session->opts.knownhosts,
-			&entry_list);
+		rc = ssh_known_hosts_read_entries(host_port, session->opts.knownhosts, &entry_list);
 		if(rc) {
 			ZFREE(host_port);
 			ssh_list_free(entry_list);
 			return SSH_KNOWN_HOSTS_ERROR;
 		}
 	}
-
 	if(global_known_hosts_found) {
-		rc = ssh_known_hosts_read_entries(host_port,
-			session->opts.global_knownhosts,
-			&entry_list);
+		rc = ssh_known_hosts_read_entries(host_port, session->opts.global_knownhosts, &entry_list);
 		if(rc) {
 			ZFREE(host_port);
 			ssh_list_free(entry_list);
@@ -761,31 +710,25 @@ enum ssh_known_hosts_e ssh_session_has_known_hosts_entry(ssh_session session){
  *
  * @return SSH_OK on succcess, SSH_ERROR otherwise.
  */
-int ssh_session_export_known_hosts_entry(ssh_session session,
-    char ** pentry_string)
+int ssh_session_export_known_hosts_entry(ssh_session session, char ** pentry_string)
 {
 	ssh_key server_pubkey = NULL;
 	char * host = NULL;
 	char entry_buf[4096] = {0};
 	char * b64_key = NULL;
 	int rc;
-
 	if(pentry_string == NULL) {
 		ssh_set_error_invalid(session);
 		return SSH_ERROR;
 	}
-
 	if(session->opts.host == NULL) {
-		ssh_set_error(session, SSH_FATAL,
-		    "Can't create known_hosts entry - hostname unknown");
+		ssh_set_error(session, SSH_FATAL, "Can't create known_hosts entry - hostname unknown");
 		return SSH_ERROR;
 	}
-
 	host = ssh_session_get_host_port(session);
 	if(host == NULL) {
 		return SSH_ERROR;
 	}
-
 	if(session->current_crypto == NULL) {
 		ssh_set_error(session, SSH_FATAL, "No current crypto context, please connect first");
 		ZFREE(host);
@@ -949,33 +892,22 @@ static enum ssh_known_hosts_e ssh_known_hosts_check_server_key(const char * host
  *
  * @see ssh_knownhosts_entry_free()
  */
-enum ssh_known_hosts_e ssh_session_get_known_hosts_entry(ssh_session session,
-    struct ssh_knownhosts_entry ** pentry){
+enum ssh_known_hosts_e ssh_session_get_known_hosts_entry(ssh_session session, struct ssh_knownhosts_entry ** pentry)
+{
 	enum ssh_known_hosts_e old_rv, rv = SSH_KNOWN_HOSTS_UNKNOWN;
-
 	if(session->opts.knownhosts == NULL) {
 		if(ssh_options_apply(session) < 0) {
-			ssh_set_error(session,
-			    SSH_REQUEST_DENIED,
-			    "Can't find a known_hosts file");
-
+			ssh_set_error(session, SSH_REQUEST_DENIED, "Can't find a known_hosts file");
 			return SSH_KNOWN_HOSTS_NOT_FOUND;
 		}
 	}
-
-	rv = ssh_session_get_known_hosts_entry_file(session,
-		session->opts.knownhosts,
-		pentry);
+	rv = ssh_session_get_known_hosts_entry_file(session, session->opts.knownhosts, pentry);
 	if(rv == SSH_KNOWN_HOSTS_OK) {
 		/* We already found a match in the first file: return */
 		return rv;
 	}
-
 	old_rv = rv;
-	rv = ssh_session_get_known_hosts_entry_file(session,
-		session->opts.global_knownhosts,
-		pentry);
-
+	rv = ssh_session_get_known_hosts_entry_file(session, session->opts.global_knownhosts, pentry);
 	/* If we did not find any match at all:  we report the previous result */
 	if(rv == SSH_KNOWN_HOSTS_UNKNOWN) {
 		if(session->opts.StrictHostKeyChecking == 0) {
@@ -1015,34 +947,22 @@ enum ssh_known_hosts_e ssh_session_get_known_hosts_entry(ssh_session session,
  *
  * @see ssh_knownhosts_entry_free()
  */
-enum ssh_known_hosts_e ssh_session_get_known_hosts_entry_file(ssh_session session,
-    const char * filename,
-    struct ssh_knownhosts_entry ** pentry){
+enum ssh_known_hosts_e ssh_session_get_known_hosts_entry_file(ssh_session session, const char * filename, struct ssh_knownhosts_entry ** pentry)
+{
 	ssh_key server_pubkey = NULL;
 	char * host_port = NULL;
 	enum ssh_known_hosts_e found = SSH_KNOWN_HOSTS_UNKNOWN;
-
 	server_pubkey = ssh_dh_get_current_server_publickey(session);
 	if(server_pubkey == NULL) {
-		ssh_set_error(session,
-		    SSH_FATAL,
-		    "ssh_session_is_known_host called without a "
-		    "server_key!");
-
+		ssh_set_error(session, SSH_FATAL, "ssh_session_is_known_host called without a server_key!");
 		return SSH_KNOWN_HOSTS_ERROR;
 	}
-
 	host_port = ssh_session_get_host_port(session);
 	if(host_port == NULL) {
 		return SSH_KNOWN_HOSTS_ERROR;
 	}
-
-	found = ssh_known_hosts_check_server_key(host_port,
-		filename,
-		server_pubkey,
-		pentry);
+	found = ssh_known_hosts_check_server_key(host_port, filename, server_pubkey, pentry);
 	ZFREE(host_port);
-
 	return found;
 }
 

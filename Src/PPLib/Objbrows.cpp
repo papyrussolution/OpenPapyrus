@@ -123,7 +123,7 @@ int FASTCALL PPObjListWindow::valid(ushort command)
 		if(!getResult(&id))
 			id = 0;
 		if(p_lb->isTreeList()) {
-			r = static_cast<const StdTreeListBoxDef *>(p_lb->def)->HasChildren(id);
+			r = static_cast<const StdTreeListBoxDef *>(p_lb->P_Def)->HasChildren(id);
 			r = BIN(r && (Flags & OLW_CANSELUPLEVEL) || !r);
 			if(r)
 				r = p_obj->ValidateSelection(id, Flags, ExtraPtr);
@@ -133,8 +133,8 @@ int FASTCALL PPObjListWindow::valid(ushort command)
 		if(r <= 0 && p_obj) {
 			if(r < 0) {
 				// @v11.1.10 p_obj->UpdateSelector(p_lb->def, 0, ExtraPtr);
-				p_obj->Selector(p_lb->def, 0, ExtraPtr); // @v11.1.10
-				p_lb->setRange(p_lb->def->getRecsCount());
+				p_obj->Selector(p_lb->P_Def, 0, ExtraPtr); // @v11.1.10
+				p_lb->setRange(p_lb->P_Def->GetRecsCount());
 				p_lb->Draw_();
 			}
 			return 0;
@@ -268,9 +268,9 @@ void PPObjListWindow::PostProcessHandleEvent(int update, PPID focusID)
 	if(update) {
 		ListWindowSmartListBox * p_lb = P_Lb;
 		// @v11.1.10 P_Obj->UpdateSelector(p_lb->def, 0, ExtraPtr);
-		P_Obj->Selector(p_lb->def, 0, ExtraPtr); // @v11.1.10
+		P_Obj->Selector(p_lb->P_Def, 0, ExtraPtr); // @v11.1.10
 		p_lb->Draw_();
-		p_lb->setRange(p_lb->def->getRecsCount());
+		p_lb->setRange(p_lb->P_Def->GetRecsCount());
 		if(update == 2)
 			p_lb->Search_(&focusID, 0, srchFirst|lbSrchByID);
 		::SetFocus(H());
@@ -378,14 +378,14 @@ IMPL_HANDLE_EVENT(PPListDialog)
 				}
 				break;
 			case cmLBDblClk:
-				if(p_box && p_box->def) {
+				if(SmartListBox::IsValidS(p_box)) {
 					int    edit = 1;
 					int    is_tree_list = 0;
 					PPID   cur_id = 0;
-					p_box->def->getCurID(&cur_id);
+					p_box->P_Def->getCurID(&cur_id);
 					if(p_box->isTreeList()) {
 						is_tree_list = 1;
-						if(static_cast<const StdTreeListBoxDef *>(p_box->def)->HasChildren(cur_id))
+						if(static_cast<const StdTreeListBoxDef *>(p_box->P_Def)->HasChildren(cur_id))
 							edit = 0;
 					}
 					if(event.isCtlEvent(CtlList)) {
@@ -418,7 +418,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 							menu.AddSubstr(temp_buf, 0, cmaInsert);     // Добавить
 							menu.AddSubstr(temp_buf, 1, cmaEdit);       // Редактировать
 							menu.AddSubstr(temp_buf, 2, cmaDelete);     // Удалить
-							if(p_box && p_box->def && (p_box->def->Options & lbtExtMenu))
+							if(SmartListBox::IsValidS(p_box) && (p_box->P_Def->Options & lbtExtMenu))
 								menu.AddSubstr(temp_buf, 3, cmaSendByMail); // Послать по эл. почте
 							uint   cmd = 0;
 							if(menu.Execute(H(), TMenuPopup::efRet, &cmd, 0) && cmd)
@@ -471,8 +471,8 @@ int PPListDialog::addStringToList(long itemId, const char * pText)
 void PPListDialog::updateList(long pos, int byPos /*= 1*/)
 {
 	SmartListBox * p_box = P_Box;
-	if(p_box) {
-		const long sav_pos = p_box->def ? p_box->def->_curItem() : 0;
+	if(SmartListBox::IsValidS(p_box)) {
+		const long sav_pos = p_box->P_Def->_curItem();
 		p_box->freeAll();
 		if(setupList()) {
 			p_box->Draw_();
@@ -489,10 +489,10 @@ void PPListDialog::updateList(long pos, int byPos /*= 1*/)
 int PPListDialog::getCurItem(long * pPos, long * pID) const
 {
 	SmartListBox * p_box = P_Box;
-	if(p_box && p_box->def) {
+	if(SmartListBox::IsValidS(p_box)) {
 		long   i = 0;
 		p_box->getCurID(&i);
-		ASSIGN_PTR(pPos, p_box->def->_curItem());
+		ASSIGN_PTR(pPos, p_box->P_Def->_curItem());
 		ASSIGN_PTR(pID, i);
 		return 1;
 	}
@@ -503,7 +503,7 @@ int PPListDialog::getCurItem(long * pPos, long * pID) const
 int PPListDialog::getCurString(SString & rBuf) const
 {
 	SmartListBox * p_box = P_Box;
-	if(p_box && p_box->def) {
+	if(SmartListBox::IsValidS(p_box)) {
 		p_box->getCurString(rBuf);
 		return 1;
 	}
@@ -514,7 +514,7 @@ int PPListDialog::getCurString(SString & rBuf) const
 int PPListDialog::getText(long itemN /* 0.. */, SString & rBuf)
 {
 	SmartListBox * p_box = P_Box;
-	return (p_box && p_box->def) ? p_box->getText(itemN, rBuf) : 0;
+	return SmartListBox::IsValidS(p_box) ? p_box->getText(itemN, rBuf) : 0;
 }
 
 int PPListDialog::setupList() { return -1; }

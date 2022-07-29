@@ -397,7 +397,7 @@ int PPDesktopAssocCmdPool::ReadFromProp(const S_GUID & rDesktopUuid)
 //
 //
 //
-static LRESULT CALLBACK EditDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK EditDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	WNDPROC prev_window_proc = static_cast<WNDPROC>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {

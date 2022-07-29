@@ -165,7 +165,7 @@ void TreeView::removeItem(HTREEITEM hTreeItem)
 
 void TreeView::removeAllItems()
 {
-	for(HTREEITEM tvProj = getRoot(); tvProj != NULL; tvProj = getNextSibling(tvProj)) {
+	for(HTREEITEM tvProj = getRoot(); tvProj; tvProj = getNextSibling(tvProj)) {
 		cleanSubEntries(tvProj);
 	}
 	TreeView_DeleteAllItems(_hSelf);
@@ -237,7 +237,7 @@ void TreeView::foldExpandRecursively(HTREEITEM hParentItem, bool isFold) const
 
 void TreeView::foldExpandAll(bool isFold) const
 {
-	for(HTREEITEM tvProj = getRoot(); tvProj != NULL; tvProj = getNextSibling(tvProj)) {
+	for(HTREEITEM tvProj = getRoot(); tvProj; tvProj = getNextSibling(tvProj)) {
 		foldExpandRecursively(tvProj, isFold);
 		if(isFold) {
 			fold(tvProj);

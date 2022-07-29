@@ -486,8 +486,8 @@ char * BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint hei
 int FASTCALL BrowserDef::go(long row)
 {
 	int    reply = 1;
-	if(valid()) {
-		long   rc = getRecsCount();
+	if(IsValid()) {
+		const long rc = GetRecsCount();
 		if(rc) {
 			if(row < 0) {
 				row = 0;
@@ -532,11 +532,11 @@ int BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_
 	return found;
 }
 
-int    BrowserDef::valid() { return 1; }
+bool   BrowserDef::IsValid() const { return true; }
 int    FASTCALL BrowserDef::step(long delta) { return go(curItem + delta); }
 int    BrowserDef::top() { return go(0); }
-int    BrowserDef::bottom() { return go(getRecsCount() - 1); }
-long   BrowserDef::getRecsCount() { return 0; }
+int    BrowserDef::bottom() { return go(GetRecsCount() - 1); }
+long   BrowserDef::GetRecsCount() const { return 0; }
 const  void * FASTCALL BrowserDef::getRow(long) const { return 0; }
 int    BrowserDef::refresh() { return 1; }
 // @v10.9.0 int    FASTCALL BrowserDef::setData(void *) { return 1; }
@@ -592,15 +592,8 @@ int AryBrowserDef::setArray(SArray * pAry, const BNFieldList * pFl, int setupPos
 	return ok;
 }
 
-const SArray * AryBrowserDef::getArray() const
-{
-	return P_Array;
-}
-
-int AryBrowserDef::valid()
-{
-	return (P_Array != 0);
-}
+const SArray * AryBrowserDef::getArray() const { return P_Array; }
+bool  AryBrowserDef::IsValid() const { return (P_Array != 0); }
 
 /*virtual*/int AryBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
 {
@@ -626,11 +619,7 @@ int AryBrowserDef::valid()
 		return 0;
 }
 
-long AryBrowserDef::getRecsCount()
-{
-	//return (long)(P_Array ? P_Array->getCount() : 0);
-	return static_cast<long>(SVectorBase::GetCount(P_Array));
-}
+long AryBrowserDef::GetRecsCount() const { return static_cast<long>(SVectorBase::GetCount(P_Array)); }
 
 const void * FASTCALL AryBrowserDef::getRow(long row) const
 {

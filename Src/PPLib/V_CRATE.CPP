@@ -350,7 +350,7 @@ void SelCRateDialog::updateList()
 
 int SelCRateDialog::getIdent(CurRateIdent * pIdent)
 {
-	if(P_List && P_List->def) {
+	if(SmartListBox::IsValidS(P_List)) {
 		long i = 0;
 		P_List->getCurID(&i);
 		CurRateIdent ident;

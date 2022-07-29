@@ -3102,9 +3102,9 @@ int CheckPaneDialog::SelectGroup(PPID * pGrpID)
 {
 	int    ok = -1;
 	SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GRPLIST));
-	if(p_box && p_box->def) {
+	if(SmartListBox::IsValidS(p_box)) {
 		PPID   grp_id = 0;
-		p_box->def->getCurID(&grp_id);
+		p_box->P_Def->getCurID(&grp_id);
 		GrpListItem * p_item = GroupList.Get(grp_id, 0);
 		if(p_item) {
 			if(p_item->Flags & GrpListItem::fFolder) {
@@ -4925,10 +4925,10 @@ private:
 					p_list->def->SetItemColor(i, SClrBlack, SClrGreen);
 				*/
 				if(r_chk_rec.Flags & CCHKF_JUNK) {
-					p_list->def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrOrange);
+					p_list->P_Def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrOrange);
 				}
 				else if(!(r_chk_rec.Flags & CCHKF_SUSPENDED)) {
-					p_list->def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrYellow);
+					p_list->P_Def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrYellow);
 				}
 				{
 					temp_buf.Z();
@@ -5180,8 +5180,8 @@ private:
 /*virtual*/int SplitSuspCheckDialog::SetupList(SArray * pList, SmartListBox * pListBox)
 {
 	int    ok = 1;
-	if(pList && pListBox && pListBox->def) {
-		const long preserve_pos = pListBox->def->_curItem();
+	if(pList && SmartListBox::IsValidS(pListBox)) {
+		const long preserve_pos = pListBox->P_Def->_curItem();
 		SString temp_buf;
 		StringSet ss(SLBColumnDelim);
 		ListItem * p_item = 0;
@@ -5195,7 +5195,7 @@ private:
 			if(!pListBox->addItem(p_item->LineNo, ss.getBuf()))
 				ok = (PPSetErrorSLib(), 0);
 		}
-		pListBox->def->go(preserve_pos);
+		pListBox->P_Def->go(preserve_pos);
 		pListBox->Draw_();
 	}
 	return ok;
@@ -6351,8 +6351,8 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 					SString egais_mark;
 					SString serial;
-					if(p_list) {
-						const long cur = p_list->def ? p_list->def->_curItem() : -1;
+					if(SmartListBox::IsValidS(p_list)) {
+						const long cur = p_list->P_Def->_curItem();
 						if(cur >= 0 && cur < static_cast<long>(P_ChkPack->GetCount())) {
 							chk_line = P_ChkPack->GetLine(static_cast<uint>(cur));
 							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextSerial, serial);
@@ -6532,7 +6532,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					else if(ev_ctl_id == CTL_CHKPAN_LIST) {
 						if(!(Flags & fNoEdit)) {
 							SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
-							const long cur = (p_list && p_list->def) ? p_list->def->_curItem() : -1;
+							const long cur = SmartListBox::IsValidS(p_list) ? p_list->P_Def->_curItem() : -1;
 							if(cur >= 0 && cur < P.getCountI()) {
 								enum {
 									rowopNone = 0,
@@ -6642,7 +6642,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				}
 				if(event.isCtlEvent(CTL_CHKPAN_LIST)) {
 					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
-					const long pos = (p_list && p_list->def) ? p_list->def->_curItem() : -1;
+					const long pos = SmartListBox::IsValidS(p_list) ? p_list->P_Def->_curItem() : -1;
 					if(pos < P.getCountI()) {
 						ViewStoragePlaces(P.at(pos).GoodsID);
 						if(Flags & fNoEdit)
@@ -6966,9 +6966,9 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 				else if(pDrawItem->ItemID != 0xffffffff) {
 					GrpListItem gli;
 					// @v10.8.11 @ctr MEMSZERO(gli);
-					if(p_lbx && p_lbx->def) {
+					if(SmartListBox::IsValidS(p_lbx)) {
 						uint   pos = 0;
-						const  void * p_row_data = p_lbx->def->getRow_(static_cast<long>(pDrawItem->ItemData));
+						const  void * p_row_data = p_lbx->P_Def->getRow_(static_cast<long>(pDrawItem->ItemData));
 						PPID   grp_id = p_row_data ? *static_cast<const long *>(p_row_data) : 0;
 						if(GroupList.Get(grp_id, &pos))
 							gli = GroupList.at(pos);
@@ -7211,7 +7211,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				}
 			}
 			p_list->setDef(p_def);
-			CALLPTRMEMB(p_list->def, SetOption(lbtSelNotify, 1));
+			CALLPTRMEMB(p_list->P_Def, SetOption(lbtSelNotify, 1));
 			ActiveListID = CTL_CHKPAN_GDSLIST;
 			p_list->Draw_();
 		}
@@ -7230,8 +7230,8 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				}
 			//
 			SmartListBox * p_grp_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GRPLIST));
-			ListBoxDef * p_def = p_grp_list ? static_cast<ListBoxDef *>(p_grp_list->def) : 0;
-			if(p_grp_list && p_def) {
+			ListBoxDef * p_def = SmartListBox::IsValidS(p_grp_list) ? static_cast<ListBoxDef *>(p_grp_list->P_Def) : 0;
+			if(p_def) {
 				int    sav_pos = p_def->_curItem();
 				int    focus_item_found = 0;
 				p_grp_list->freeAll();
@@ -7925,7 +7925,7 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 	setStaticText(CTL_CHKPAN_CAFE_STATUS, buf);
 	if(Flags & fNoEdit) {
 		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
-		const long cur = (p_list && p_list->def) ? p_list->def->_curItem() : -1;
+		const long cur = SmartListBox::IsValidS(p_list) ? p_list->P_Def->_curItem() : -1;
 		if(cur >= 0 && cur < P.getCountI()) {
 			const CCheckItem & r_item = P.at(cur);
 			if(r_item.EgaisMark[0])
@@ -8156,8 +8156,8 @@ int CheckPaneDialog::RemoveRow()
 	int    ok = -1;
 	if(!(Flags & fNoEdit)) {
 		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
-		if(p_list) {
-			long   cur = p_list->def ? p_list->def->_curItem() : -1;
+		if(SmartListBox::IsValidS(p_list)) {
+			const long cur = p_list->P_Def->_curItem();
 			if(PreprocessRowBeforeRemoving(cur, 0) > 0) {
 				const  CCheckItem item = P.at((uint)cur);
 				//
@@ -8197,11 +8197,11 @@ int CheckPaneDialog::RemoveRow()
 //@lbt_chkpanv   "3,R,#;3,C,;40,L,Товар;16,L,Штрихкод;9,R,Цена;8,R,Скидка;8,R,Кол-во;9,R,Сумма;12,L,Серия"         // DLG_CHKPANV, DLG_CHKPANV_L
 
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
-	if(p_list) {
+	if(SmartListBox::IsValidS(p_list)) {
 		const long column_egais_ident = 100;
 		CCheckItem * p_item;
-		ListBoxDef * p_def_ = p_list->def;
-		long   cur = p_def_ ? p_def_->_curItem() : 0;
+		ListBoxDef * p_def_ = p_list->P_Def;
+		long   cur = p_def_->_curItem();
 		uint   i;
 		int    do_show_egaismark = 0;
 		p_list->freeAll();
@@ -8749,9 +8749,9 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 		MessageError(PPERR_NORIGHTS, 0, eomBeep | eomStatusLine);
 	else if(mode == sgmInnerGoodsList) {
 		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GDSLIST));
-		if(p_list && p_list->def) {
+		if(SmartListBox::IsValidS(p_list)) {
 			PPID   goods_id = 0;
-			p_list->def->getCurID(&goods_id);
+			p_list->P_Def->getCurID(&goods_id);
 			PgsBlock pgsb(1.0);
 			r = PreprocessGoodsSelection(goods_id, 0, pgsb);
 			if(r > 0)
@@ -12265,7 +12265,7 @@ public:
 				PPObjGoodsGroup gg_obj;
 				p_tree_list->setDef(gg_obj.Selector(0, 0, 0));
 				p_tree_list->Draw_();
-				p_tree_list->def->SetOption(lbtSelNotify, 1);
+				p_tree_list->P_Def->SetOption(lbtSelNotify, 1);
 			}
 			UpdateGList(-1);
 			if(set_tool_tips)
@@ -12487,11 +12487,13 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 		if(updGdsList > 0) {
 			PPID  cur_id = 0;
 			SmartListBox * p_tree_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GRPLIST));
-			p_tree_list->def->getCurID(&cur_id);
-			if(static_cast<StdTreeListBoxDef *>(p_tree_list->def)->HasChildren(cur_id))
-				updGdsList = 0;
-			else
-				SelGoodsGrpID = cur_id;
+			if(SmartListBox::IsValidS(p_tree_list)) {
+				p_tree_list->P_Def->getCurID(&cur_id);
+				if(static_cast<StdTreeListBoxDef *>(p_tree_list->P_Def)->HasChildren(cur_id))
+					updGdsList = 0;
+				else
+					SelGoodsGrpID = cur_id;
+			}
 		}
 		if(updGdsList) {
 			ListBoxDef   * p_def = 0;
@@ -12533,7 +12535,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 				p_def = GObj.Selector(0, 0, reinterpret_cast<void *>(SelGoodsGrpID));
 			}
 			p_list->setDef(p_def);
-			CALLPTRMEMB(p_list->def, SetOption(lbtSelNotify, 1));
+			CALLPTRMEMB(p_list->P_Def, SetOption(lbtSelNotify, 1));
 			p_list->Draw_();
 			PPWaitStop();
 		}
@@ -12557,8 +12559,8 @@ int InfoKioskDialog::ProcessGoodsSelection()
 	PPID   goods_id = 0;
 	SString  buf;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GDSLIST));
-	if(p_list && p_list->def)
-		p_list->def->getCurID(&goods_id);
+	if(SmartListBox::IsValidS(p_list))
+		p_list->P_Def->getCurID(&goods_id);
 	ClearInput();
 	setCtrlReal(CTL_INFKIOSK_DSCNTPRICE, 0.0);
 	setStaticText(CTL_INFKIOSK_INFO, buf);

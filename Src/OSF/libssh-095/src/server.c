@@ -241,28 +241,21 @@ int ssh_get_key_params(ssh_session session,
 	*digest = session->srv.hostkey_digest;
 	rc = ssh_pki_export_privkey_to_pubkey(*privkey, &pubkey);
 	if(rc < 0) {
-		ssh_set_error(session, SSH_FATAL,
-		    "Could not get the public key from the private key");
-
+		ssh_set_error(session, SSH_FATAL, "Could not get the public key from the private key");
 		return -1;
 	}
-
 	rc = ssh_pki_export_pubkey_blob(pubkey, &pubkey_blob);
 	ssh_key_free(pubkey);
 	if(rc < 0) {
 		ssh_set_error_oom(session);
 		return -1;
 	}
-
 	rc = ssh_dh_import_next_pubkey_blob(session, pubkey_blob);
 	SSH_STRING_FREE(pubkey_blob);
 	if(rc) {
-		ssh_set_error(session,
-		    SSH_FATAL,
-		    "Could not import server public key");
+		ssh_set_error(session, SSH_FATAL, "Could not import server public key");
 		return -1;
 	}
-
 	return SSH_OK;
 }
 
@@ -285,15 +278,11 @@ static void ssh_server_connection_callback(ssh_session session){
 			    goto error;
 		    }
 		    set_status(session, 0.4f);
-		    SSH_LOG(SSH_LOG_PROTOCOL,
-			"SSH client banner: %s", session->clientbanner);
-
+		    SSH_LOG(SSH_LOG_PROTOCOL, "SSH client banner: %s", session->clientbanner);
 		    /* Here we analyze the different protocols the server allows. */
 		    rc = ssh_analyze_banner(session, 1);
 		    if(rc < 0) {
-			    ssh_set_error(session, SSH_FATAL,
-				"No version of SSH protocol usable (banner: %s)",
-				session->clientbanner);
+			    ssh_set_error(session, SSH_FATAL, "No version of SSH protocol usable (banner: %s)", session->clientbanner);
 			    goto error;
 		    }
 
@@ -374,14 +363,12 @@ static void ssh_server_connection_callback(ssh_session session){
 		default:
 		    ssh_set_error(session, SSH_FATAL, "Invalid state %d", session->session_state);
 	}
-
 	return;
 error:
 	ssh_socket_close(session->socket);
 	session->alive = 0;
 	session->session_state = SSH_SESSION_STATE_ERROR;
 }
-
 /**
  * @internal
  *

@@ -724,26 +724,18 @@ int ssh_crypto_init()
 		gcry_control(GCRYCTL_INIT_SECMEM, 4096);
 		gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
 	}
-
 	/* Re-enable warning */
 	gcry_control(GCRYCTL_RESUME_SECMEM_WARN);
-
-	for(i = 0; ssh_ciphertab[i].name != NULL; i++) {
-		int cmp;
-		cmp = strcmp(ssh_ciphertab[i].name, "chacha20-poly1305@openssh.com");
+	for(i = 0; ssh_ciphertab[i].name; i++) {
+		int cmp = strcmp(ssh_ciphertab[i].name, "chacha20-poly1305@openssh.com");
 		if(cmp == 0) {
-			memcpy(&ssh_ciphertab[i],
-			    ssh_get_chacha20poly1305_cipher(),
-			    sizeof(struct ssh_cipher_struct));
+			memcpy(&ssh_ciphertab[i], ssh_get_chacha20poly1305_cipher(), sizeof(struct ssh_cipher_struct));
 			break;
 		}
 	}
-
 	libgcrypt_initialized = 1;
-
 	return SSH_OK;
 }
-
 /**
  * @internal
  *

@@ -304,50 +304,34 @@ static int ssh_pcap_context_connect(ssh_pcap_context ctx)
 	if(!session) {
 		return SSH_ERROR;
 	}
-
 	if(session->socket == NULL) {
 		return SSH_ERROR;
 	}
-
 	fd = ssh_socket_get_fd(session->socket);
-
 	/* TODO: adapt for windows */
 	if(fd < 0) {
 		return SSH_ERROR;
 	}
-
 	len = sizeof(local);
 	rc = getsockname(fd, (struct sockaddr *)&local, &len);
 	if(rc < 0) {
-		ssh_set_error(session,
-		    SSH_REQUEST_DENIED,
-		    "Getting local IP address: %s",
-		    strerror(errno));
+		ssh_set_error(session, SSH_REQUEST_DENIED, "Getting local IP address: %s", strerror(errno));
 		return SSH_ERROR;
 	}
-
 	len = sizeof(remote);
 	rc = getpeername(fd, (struct sockaddr *)&remote, &len);
 	if(rc < 0) {
-		ssh_set_error(session,
-		    SSH_REQUEST_DENIED,
-		    "Getting remote IP address: %s",
-		    strerror(errno));
+		ssh_set_error(session, SSH_REQUEST_DENIED, "Getting remote IP address: %s", strerror(errno));
 		return SSH_ERROR;
 	}
-
 	if(local.sin_family != AF_INET) {
-		ssh_set_error(session,
-		    SSH_REQUEST_DENIED,
-		    "Only IPv4 supported for pcap logging");
+		ssh_set_error(session, SSH_REQUEST_DENIED, "Only IPv4 supported for pcap logging");
 		return SSH_ERROR;
 	}
-
 	memcpy(&ctx->ipsource, &local.sin_addr, sizeof(ctx->ipsource));
 	memcpy(&ctx->ipdest, &remote.sin_addr, sizeof(ctx->ipdest));
 	memcpy(&ctx->portsource, &local.sin_port, sizeof(ctx->portsource));
 	memcpy(&ctx->portdest, &remote.sin_port, sizeof(ctx->portdest));
-
 	ctx->connected = 1;
 	return SSH_OK;
 }
@@ -541,7 +525,6 @@ int ssh_set_pcap_file(ssh_session session, ssh_pcap_file pcapfile)
 	ssh_set_error(session, SSH_REQUEST_DENIED, "Pcap support not compiled in");
 	return SSH_ERROR;
 }
-
 #endif
 
 /** @} */

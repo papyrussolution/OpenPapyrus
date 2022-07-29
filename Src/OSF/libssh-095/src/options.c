@@ -1662,7 +1662,6 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 			    ssh_key key;
 			    ssh_key * bind_key_loc = NULL;
 			    char ** bind_key_path_loc;
-
 			    rc = ssh_pki_import_privkey_file(static_cast<const char *>(value), NULL, NULL, NULL, &key);
 			    if(rc != SSH_OK) {
 				    return -1;
@@ -1674,10 +1673,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 					bind_key_loc = &sshbind->dsa;
 					bind_key_path_loc = &sshbind->dsakey;
 #else
-					ssh_set_error(sshbind,
-					    SSH_FATAL,
-					    "DSS key used and libssh compiled "
-					    "without DSA support");
+					ssh_set_error(sshbind, SSH_FATAL, "DSS key used and libssh compiled without DSA support");
 #endif
 					break;
 				    case SSH_KEYTYPE_ECDSA_P256:
@@ -1687,10 +1683,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 					bind_key_loc = &sshbind->ecdsa;
 					bind_key_path_loc = &sshbind->ecdsakey;
 #else
-					ssh_set_error(sshbind,
-					    SSH_FATAL,
-					    "ECDSA key used and libssh compiled "
-					    "without ECDSA support");
+					ssh_set_error(sshbind, SSH_FATAL, "ECDSA key used and libssh compiled without ECDSA support");
 #endif
 					break;
 				    case SSH_KEYTYPE_RSA:
@@ -1702,18 +1695,13 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 					bind_key_path_loc = &sshbind->ed25519key;
 					break;
 				    default:
-					ssh_set_error(sshbind,
-					    SSH_FATAL,
-					    "Unsupported key type %d", key_type);
+					ssh_set_error(sshbind, SSH_FATAL, "Unsupported key type %d", key_type);
 			    }
-
 			    if(bind_key_loc == NULL) {
 				    ssh_key_free(key);
 				    return -1;
 			    }
-
-			    /* Set the location of the key on disk even though we don't
-			       need it in case some other function wants it */
+			    /* Set the location of the key on disk even though we don't need it in case some other function wants it */
 			    rc = ssh_bind_set_key(sshbind, bind_key_path_loc, value);
 			    if(rc < 0) {
 				    ssh_key_free(key);
@@ -1729,20 +1717,15 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 			    return -1;
 		    }
 		    else {
-			    int key_type;
 			    ssh_key * bind_key_loc = NULL;
 			    ssh_key key = (ssh_key)value;
-
-			    key_type = ssh_key_type(key);
+			    int key_type = ssh_key_type(key);
 			    switch(key_type) {
 				    case SSH_KEYTYPE_DSS:
 #ifdef HAVE_DSA
 					bind_key_loc = &sshbind->dsa;
 #else
-					ssh_set_error(sshbind,
-					    SSH_FATAL,
-					    "DSA key used and libssh compiled "
-					    "without DSA support");
+					ssh_set_error(sshbind, SSH_FATAL, "DSA key used and libssh compiled without DSA support");
 #endif
 					break;
 				    case SSH_KEYTYPE_ECDSA_P256:
@@ -1751,10 +1734,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 #ifdef HAVE_ECC
 					bind_key_loc = &sshbind->ecdsa;
 #else
-					ssh_set_error(sshbind,
-					    SSH_FATAL,
-					    "ECDSA key used and libssh compiled "
-					    "without ECDSA support");
+					ssh_set_error(sshbind, SSH_FATAL, "ECDSA key used and libssh compiled without ECDSA support");
 #endif
 					break;
 				    case SSH_KEYTYPE_RSA:

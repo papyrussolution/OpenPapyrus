@@ -534,7 +534,7 @@ int RecoverGoodsGroupsNIA()
 
 int PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 {
-	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
+	if(pDef && pDef->IsValid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
 		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
@@ -745,7 +745,7 @@ int GoodsGroupView::addItem(long * pPos, long * pID)
 		Goods2Tbl::Rec rec;
 		id = getCurrID();
 		if(GGObj.Search(id, &rec) <= 0 || !(rec.Flags & GF_FOLDER)) {
-			if(static_cast<StdTreeListBoxDef *>(P_Box->def)->GetParent(id, &parent_id) && GGObj.Search(parent_id, 0) > 0)
+			if(static_cast<StdTreeListBoxDef *>(P_Box->P_Def)->GetParent(id, &parent_id) && GGObj.Search(parent_id, 0) > 0)
 				id = parent_id;
 			else
 				id = 0;
@@ -778,9 +778,9 @@ void GoodsGroupView::updateList(PPID id)
 		ushort v = getCtrlUInt16(CTL_GGVIEW_GGRPTYPE);
 		long   groups_type = (v == 1) ? GGRTYP_SEL_NORMAL : ((v == 2) ? GGRTYP_SEL_ALT : 0);
 		if(id < 0)
-			cur = P_Box->def ? P_Box->def->_curItem() : 0;
+			cur = P_Box->P_Def ? P_Box->P_Def->_curItem() : 0;
 		// @v11.1.10 GGObj.UpdateSelector(P_Box->def, 0, reinterpret_cast<void *>(groups_type));
-		GGObj.Selector(P_Box->def, 0, reinterpret_cast<void *>(groups_type));
+		GGObj.Selector(P_Box->P_Def, 0, reinterpret_cast<void *>(groups_type));
 		if(id >= 0) {
 			if(id > 0)
 				P_Box->TransmitData(+1, &id);
@@ -814,7 +814,7 @@ IMPL_HANDLE_EVENT(GoodsGroupView)
 		PPID   id = getCurrID();
 		if(event.isClusterClk(CTL_GGVIEW_GGRPTYPE)) {
 			updateList(id);
-			P_Box->def->top();
+			P_Box->P_Def->top();
 			setupButtons();
 		}
 		else if(TVCMD == cmLBItemFocused)

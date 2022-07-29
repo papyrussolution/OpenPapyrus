@@ -1087,7 +1087,7 @@ public:
 	{
 		if(getDateSettings()) {
 			Data.SelectedBillID = 0;
-			if(P_List && P_List->def && Data.P_BillList) {
+			if(SmartListBox::IsValidS(P_List) && Data.P_BillList) {
 				long i = 0;
 				P_List->getCurID(&i);
 				Data.SelectedBillID = (i > 0 && i <= Data.P_BillList->getCountI()) ? Data.P_BillList->at(i-1) : 0;

@@ -504,17 +504,12 @@ static SSH_PACKET_CALLBACK(ssh_packet_server_dhgex_request)
 	uint32_t pmin, pn, pmax;
 	size_t size = 0;
 	int rc;
-
 	(void)type;
 	(void)user;
-
 	if(session->dh_handshake_state != DH_STATE_INIT) {
-		ssh_set_error(session,
-		    SSH_FATAL,
-		    "Received DH_GEX_REQUEST in invalid state");
+		ssh_set_error(session, SSH_FATAL, "Received DH_GEX_REQUEST in invalid state");
 		goto error;
 	}
-
 	/* Minimum group size, preferred group size, maximum group size */
 	rc = ssh_buffer_unpack(packet, "ddd", &pmin, &pn, &pmax);
 	if(rc != SSH_OK) {
@@ -522,20 +517,13 @@ static SSH_PACKET_CALLBACK(ssh_packet_server_dhgex_request)
 		goto error;
 	}
 	SSH_LOG(SSH_LOG_INFO, "dh-gex: DHGEX_REQUEST[%u:%u:%u]", pmin, pn, pmax);
-
 	if(pmin > pn || pn > pmax || pn > DH_PMAX || pmax < DH_PMIN) {
-		ssh_set_error(session,
-		    SSH_FATAL,
-		    "Invalid dh-gex arguments [%u:%u:%u]",
-		    pmin,
-		    pn,
-		    pmax);
+		ssh_set_error(session, SSH_FATAL, "Invalid dh-gex arguments [%u:%u:%u]", pmin, pn, pmax);
 		goto error;
 	}
 	session->next_crypto->dh_pmin = pmin;
 	session->next_crypto->dh_pn = pn;
 	session->next_crypto->dh_pmax = pmax;
-
 	/* ensure safe parameters */
 	if(pmin < DH_PMIN) {
 		pmin = DH_PMIN;

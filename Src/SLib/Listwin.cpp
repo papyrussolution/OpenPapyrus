@@ -228,7 +228,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 int ListWindow::getSingle(long * pVal)
 {
 	if(P_Def) {
-		const long c = P_Def->getRecsCount();
+		const long c = P_Def->GetRecsCount();
 		if(c == 1) {
 			P_Def->go(0);
 			return P_Def->getCurID(pVal);
@@ -370,7 +370,7 @@ int WordSel_ExtraBlock::GetData(long * pId, SString & rBuf)
 				if(p_view && (p_view->IsSubSign(TV_SUBSIGN_LISTBOX) || p_view->IsSubSign(TV_SUBSIGN_COMBOBOX))) {
 					//SmartListBox * p_lbx = (P_OutDlg) ? (SmartListBox *)P_OutDlg->getCtrlView(OutCtlId) : 0;
 					SmartListBox * p_lbx = static_cast<SmartListBox *>(p_view);
-					p_list = p_lbx->def ? p_lbx->def->GetListByPattern(pText) : 0;
+					p_list = p_lbx->P_Def ? p_lbx->P_Def->GetListByPattern(pText) : 0;
 				}
 			}
 		}
@@ -665,7 +665,7 @@ void FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 	P_Def = pDef;
 	if(P_Def && P_Lb) {
 		int    create_scroll = 0;
-		uint   elem_count = P_Def->getRecsCount();
+		uint   elem_count = P_Def->GetRecsCount();
 		if(elem_count > 20) {
 			create_scroll = 1;
 			elem_count = 20;

@@ -656,7 +656,7 @@ int BarcodeListDialog::delItem(long pos, long)
 int BarcodeListDialog::setupList()
 {
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_BARCODELIST_LIST));
-	if(p_list) {
+	if(SmartListBox::IsValidS(p_list)) {
 		BarcodeTbl::Rec * p_rec;
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; Data.enumItems(&i, (void **)&p_rec);) {
@@ -667,11 +667,10 @@ int BarcodeListDialog::setupList()
 			ss.add(sub);
 			if(!addStringToList(i, ss.getBuf()))
 				return 0;
-			if(p_list->def)
-				if(IsInnerBarcodeType(p_rec->BarcodeType, BARCODE_TYPE_PREFERRED))
-					p_list->def->SetItemColor(i, SClrWhite, SClrGreen);
-				else
-					p_list->def->ResetItemColor(i);
+			if(IsInnerBarcodeType(p_rec->BarcodeType, BARCODE_TYPE_PREFERRED))
+				p_list->P_Def->SetItemColor(i, SClrWhite, SClrGreen);
+			else
+				p_list->P_Def->ResetItemColor(i);
 		}
 	}
 	return 1;
@@ -2930,9 +2929,9 @@ IMPL_HANDLE_EVENT(GoodsAsscDialog)
 {
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmEditPLU)) {
-		if(P_Box && P_Box->def) {
+		if(SmartListBox::IsValidS(P_Box)) {
 			Reference * p_ref = PPRef;
-			uint   pos = P_Box->def->_curItem();
+			const uint pos = P_Box->P_Def->_curItem();
 			if(pos < AsscList.getCount()) {
 				LAssoc item = AsscList.at(pos);
 				if(item.Val && item.Key == PPASS_ALTGOODSGRP) {

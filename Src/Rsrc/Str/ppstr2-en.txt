@@ -796,6 +796,10 @@ PPERR_AR_HANGLINK_ACC "Linked account not found"
 PPERR_AR_HANGLINK_GUA "Linked global account not found"
 	//#org Не совпадает наименование статьи с наименованием связанной глобальной учетной записи
 PPERR_AR_UNEQNAME_GUA "the name of the article does not match the name of the associated global account"
+	//#org Не найден связанный процессор
+PPERR_AR_HANGLINK_PRC "Associated processor not found"
+	//#org Не совпадает наименование статьи с наименованием связаннго процессора
+PPERR_AR_UNEQNAME_PRC "The name of the article does not match the name of the associated processor"
 	//#org Статья связана с объектом, но соответствующая таблица не определяет связь с каким-либо объектом
 PPERR_AR_INVLINKOBJ "the article is associated with an object but the corresponding table does not define a relationship with any object"
 	//#org Таблица статей определяет связь с недопустимым типом объектов
@@ -1135,6 +1139,8 @@ PPERR_SBII_PROT_INVARGSIZE "StyloBhtII exchange error - argument size is not cor
 PPERR_SBII_TEST_INVCRC "BHT Exchange Test Error: Accepted Data CRC Value Incorrect"
 	//#org Не инициализирована информация об устройстве StyloBhtII
 PPERR_SBII_UNDEFDEVICE "StyloBhtII device information not initialized"
+	//#org Не найден документ образца [%s], по которому формировалась операция на BHT-терминале
+PPERR_BHTSAMPLEBILLNFOUND "Document of sample [%s], which was used to generate an operation on the BHT terminal, was not found"
 	//#org Операция не определена для операции BHT терминала [%s]. Ид документа образца [%ld]. Документ: @{date}=[%s], @{number}=[%s].
 PPERR_INVBHTTOHOSTOP "The operation is not defined for terminal BHT operation [%s]. Document ID [%ld]. Document: @{date}=[%s], @{number}=[%s]."
 	//#org Количество товара должно быть больше 0. %s
@@ -1565,6 +1571,8 @@ PPERR_SCALE_INVLOGNUM "The logical weight number must be in the range of 1..254"
 PPERR_INTRSTRNOVRRNG "Intersection of rev ranges"
 	//#org Верхняя граница диапазона, должна быть больше нижней
 PPERR_TRNOVRRNG "The upper limit of the range should be larger than the lower"
+	//#org Дублирование признака '@{trnovrrngdis_zerotrnovr}' в списке правил персональных карт
+PPERR_SCSERRULE_DUPZEROTRNOVR "Duplication of the '@{trnovrrngdis_zerotrnovr}' feature in the list of rules of personal cards"
 	//#org Штрихкод или серийный номер '%s' не найден
 PPERR_BARCODEORSERNFOUND "Barcode or serial number '%s' not found"
 	//#org Недопустимый статус задачи
@@ -2944,6 +2952,10 @@ PPERR_GTAOVERDRAFT "Maximum credit for paid account transactions exceeded"
 PPERR_LOCSYMBUNDEF "Warehouse symbol '%s' not defined"
 	//#org Не определен зарезервированный тег документов UUID. Выполните функцию '@{cmd_createreservedobjs}'
 PPERR_BILLTAGUUIDABS "The reserved document tag UUID is not defined. Execute the '@{cmd_createreservedobjs}' function"
+	//#org Не определен зарезервированный тег технологических сессий UUID. Выполните функцию '@{cmd_createreservedobjs}'
+PPERR_TSESSTAGUUIDABS "The reserved technology session UIID tag is not defined. Execute the '@{cmd_createreservedobjs}' function"
+	//#org Не определен тег UUID для объекта данных
+PPERR_OBJTAGUUIDABS "No UUID tag is defined for the data object"
 	//#org Недопустимый тип тега объекта. Ожидается '%s'
 PPERR_INVOBJTAGTYPE "The object tag type is not valid. Expected '%s'"
 	//#org Не определена первичная персоналия
@@ -3218,34 +3230,34 @@ PPERR_EDS_GETCERT "Error retrieving certificate context"
 PPERR_EDS_GETPROVIDER "Error retrieving crypto provider context"
 	//#org Ошибка получения цепочки сертификатов
 PPERR_EDS_CHAINCREAT "Error retrieving certificate chain"
-	//#org Проверка цепочки сертификатов: Истек срок действия одного из сертификатов цепочки
-PPERR_EDS_CERTTRUSTTIMENOTVALID "Certificate chain validation: One of the certificate chain certificates has expired"
-	//#org Проверка цепочки сертификатов: Один из сертификатов был отозван
-PPERR_EDS_CERTTRUSTISREVOKED "Certificate Chain Verification: One of the certificates has been revoked"
-	//#org Проверка цепочки сертификатов: Один из сертификатов имеет неверную ЭЦП
-PPERR_EDS_CERTTRUSTSIGNNOTVALID "Certificate chain verification: One of the certificates has an incorrect EDS"
-	//#org Проверка цепочки сертификатов: Сертификат не может быть использован по данному назначению
-PPERR_EDS_CERTTRUSTUSAGENOTVALID "Certificate Chain Verification: The certificate cannot be used for this purpose"
-	//#org Проверка цепочки сертификатов: Цепочка сертификатов выстроена до корневого центра сертификации (ЦС), но сертификат корневого ЦС отсутствует на компьютере в хранилище доверенных корневых ЦС
-PPERR_EDS_CERTTRUSUNTRUSTEDROOT "Certificate chain validation: The certificate chain is built to the root certification authority (CA), but the root CA certificate does not exist on the computer in the Trusted Root CA store"
-	//#org Проверка цепочки сертификатов: Статус отзыва одного из сертификатов не известен
-PPERR_EDS_CERTTRUSTREVOKTNUNKNOWN "Certificate Chain Checking: The revocation status of one of the certificates is not known"
-	//#org Проверка цепочки сертификатов: Цепочка сертификатов является циклической (один из сертификатов цепочки выдан центром сертификации, который сертифицирован исходным сертификатом)
-PPERR_EDS_CERTTRUSTCYCLIC "Certificate chain validation: The certificate chain is circular (one of the certificates in the chain is issued by a certification authority that is certified by the original certificate)"
-	//#org Проверка цепочки сертификатов: Один из сертификатов имеет недопустимое расширение
-PPERR_EDS_CERTTRUSTINVEXT "Certificate chain validation: One of the certificates has an invalid extension"
-	//#org Проверка цепочки сертификатов: Один из сертификатов имеет неверную политику ограничений
-PPERR_EDS_CERTTRUSTPOLICYINV "Certificate Chain Validation: One of the certificates has an incorrect restriction policy"
-	//#org Проверка цепочки сертификатов: Либо один из сертификатов не имеет достаточных прав для выдачи сертификатов, либо длина цепочки была привышена
-PPERR_EDS_CERTTRUSTBASICCONSTRINV "Certificate chain verification: Either one of the certificates does not have sufficient rights to issue certificates, or the chain length has been increased"
-	//#org Проверка цепочки сертификатов: Цепочка сертификата неполная
-PPERR_EDS_CERTTRUSTCHAINISPARTNL "Certificate Chain Validation: Incomplete Certificate Chain"
-	//#org Проверка цепочки сертификатов: Истек срок действия списка отозванных сертификатов
-PPERR_EDS_CERTTRUSTCTLTIMENOTVALID "Certificate Chain Validation: The list of revoked certificates has expired"
-	//#org Проверка цепочки сертификатов: Список отозванных сертификатов, который был использован для построения цепочки, не имеет действительной ЭЦП
-PPERR_EDS_CERTTRUSTCTLSIGNNOTVALID "Certificate Chain Verification: The list of revoked certificates that was used to build the chain does not have a valid EDS"
-	//#org Проверка цепочки сертификатов: Неверное применение списка отозванных сертификатов
-PPERR_EDS_CERTTRUSTCTLUSAGENOTVALID "Certificate Chain Validation: Incorrect Use of The Certificate Revocation List"
+	//#org @{err_certchainver}: Истек срок действия одного из сертификатов цепочки
+PPERR_EDS_CERTTRUSTTIMENOTVALID "@{err_certchainver}: Истек expiration date of one of the certificates in the chain"
+	//#org @{err_certchainver}: Один из сертификатов был отозван
+PPERR_EDS_CERTTRUSTISREVOKED "@{err_certchainver}: Один of the certificates has been revoked"
+	//#org @{err_certchainver}: Один из сертификатов имеет неверную ЭЦП
+PPERR_EDS_CERTTRUSTSIGNNOTVALID "@{err_certchainver}: Один of the certificates has an incorrect EDS"
+	//#org @{err_certchainver}: Сертификат не может быть использован по данному назначению
+PPERR_EDS_CERTTRUSTUSAGENOTVALID "@{err_certchainver}: Сертификат cannot be used for this purpose"
+	//#org @{err_certchainver}: Цепочка сертификатов выстроена до корневого центра сертификации (ЦС), но сертификат корневого ЦС отсутствует на компьютере в хранилище доверенных корневых ЦС
+PPERR_EDS_CERTTRUSUNTRUSTEDROOT "@{err_certchainver}: Цепочка certificates is built to the root certification authority (CA) but the root CA certificate does not exist on the computer in the trusted root ca store"
+	//#org @{err_certchainver}: Статус отзыва одного из сертификатов не известен
+PPERR_EDS_CERTTRUSTREVOKTNUNKNOWN "@{err_certchainver}: Статус of revocation of one of the certificates is not known"
+	//#org @{err_certchainver}: Цепочка сертификатов является циклической (один из сертификатов цепочки выдан центром сертификации, который сертифицирован исходным сертификатом)
+PPERR_EDS_CERTTRUSTCYCLIC "@{err_certchainver}: Цепочка certificates is circular (one of the certificates in the chain is issued by a certification authority that is certified by the original certificate)"
+	//#org @{err_certchainver}: Один из сертификатов имеет недопустимое расширение
+PPERR_EDS_CERTTRUSTINVEXT "@{err_certchainver}: Один of the certificates has an invalid extension"
+	//#org @{err_certchainver}: Один из сертификатов имеет неверную политику ограничений
+PPERR_EDS_CERTTRUSTPOLICYINV "@{err_certchainver}: Один of the certificates has an incorrect restriction policy"
+	//#org @{err_certchainver}: Либо один из сертификатов не имеет достаточных прав для выдачи сертификатов, либо длина цепочки была привышена
+PPERR_EDS_CERTTRUSTBASICCONSTRINV "@{err_certchainver}: Либо one of the certificates does not have sufficient rights to issue certificates, or the length of the chain has been increased"
+	//#org @{err_certchainver}: Цепочка сертификата неполная
+PPERR_EDS_CERTTRUSTCHAINISPARTNL "certificate @{err_certchainver}: Цепочка incomplete"
+	//#org @{err_certchainver}: Истек срок действия списка отозванных сертификатов
+PPERR_EDS_CERTTRUSTCTLTIMENOTVALID "@{err_certchainver}: Истек expiration date of the revoked certificate list"
+	//#org @{err_certchainver}: Список отозванных сертификатов, который был использован для построения цепочки, не имеет действительной ЭЦП
+PPERR_EDS_CERTTRUSTCTLSIGNNOTVALID "@{err_certchainver}: Список revoked certificates, which was used to build the chain, does not have a valid EDS"
+	//#org @{err_certchainver}: Неверное применение списка отозванных сертификатов
+PPERR_EDS_CERTTRUSTCTLUSAGENOTVALID "@{err_certchainver}: Неверное applying a list of revoked certificates"
 	//#org Ошибка получения пользовательского ключа
 PPERR_EDS_GETKEYFAILED "Error retrieving custom key"
 	//#org Ошибка получения длины ключа
@@ -3498,26 +3510,26 @@ PPERR_CPOS_INVMODIFGOODS "Invalid POS Modifier Product ID Value (%s)"
 PPERR_CPOS_INVMODIFFORMAT "POS Modifier Definition Format Error (%s)"
 	//#org Текущее состояние кассового процессора не допускает установку модификаторов
 PPERR_CPOS_UNABLESEMODIFLIST "the current state of the cash register processor does not allow the installation of modifiers"
-	//#org Ошибка в дескрипторе мест процессора: ожидается %% (%s)
-PPERR_PRCPLCCODE_EXPPCT "Error in processor location handle: %% (%s) pending"
-	//#org Ошибка в дескрипторе мест процессора: недопустимая длина (%s)
-PPERR_PRCPLCCODE_INVLEN "Processor Location Handle Error: Invalid Length (%s)"
-	//#org Ошибка в дескрипторе мест процессора: ожидается .. (%s)
-PPERR_PRCPLCCODE_EXPDDOT "Error in processor location handle: Expected .. (%s)"
-	//#org Ошибка в дескрипторе мест процессора: ожидается [ (%s)
-PPERR_PRCPLCCODE_EXPLBRK "Error in processor location handle: expected [ (%s)"
-	//#org Ошибка в дескрипторе мест процессора: ожидается ] (%s)
-PPERR_PRCPLCCODE_EXPRBRK "Error in processor location handle: expected ] (%s)"
-	//#org Ошибка в дескрипторе мест процессора: ожидается целое число (%s)
-PPERR_PRCPLCCODE_EXPINT "Error in processor location handle: Integer (%s) expected"
-	//#org Ошибка в дескрипторе мест процессора: недопустимый диапазон (%s)
-PPERR_PRCPLCCODE_RNG "Processor Location Handle Error: Invalid Range (%s)"
-	//#org Ошибка в дескрипторе мест процессора: недопустимая длина определителей диапазона (%s)
-PPERR_PRCPLCCODE_ALRNGLEN "Error in Processor Location Handle: Invalid Range Identifier Length (%s)"
-	//#org Ошибка в дескрипторе мест процессора: недопустимый символ в определителе диапазона (%s)
-PPERR_PRCPLCCODE_ALRNGSYM "Processor Location Handle Error: Invalid character in range determiner (%s)"
-	//#org Ошибка в дескрипторе мест процессора: количество сегментов не может быть нулевым или более 20 (%s)
-PPERR_PRCPLCCODE_TOOMANYSEG "Error in processor location handle: Number of segments cannot be zero or greater than 20 (%s)"
+	//#org @{err_prcplccode}: ожидается %% (%s)
+PPERR_PRCPLCCODE_EXPPCT "@{err_prcplccode}: ожидается %% (%s)"
+	//#org @{err_prcplccode}: недопустимая длина (%s)
+PPERR_PRCPLCCODE_INVLEN "@{err_prcplccode}: недопустимая length (%s)"
+	//#org @{err_prcplccode}: ожидается .. (%s)
+PPERR_PRCPLCCODE_EXPDDOT "@{err_prcplccode}: ожидается .. (%s)"
+	//#org @{err_prcplccode}: ожидается [ (%s)
+PPERR_PRCPLCCODE_EXPLBRK "@{err_prcplccode}: ожидается [ (%s)"
+	//#org @{err_prcplccode}: ожидается ] (%s)
+PPERR_PRCPLCCODE_EXPRBRK "@{err_prcplccode}: ожидается ] (%s)"
+	//#org @{err_prcplccode}: ожидается целое число (%s)
+PPERR_PRCPLCCODE_EXPINT "@{err_prcplccode}: ожидается integer (%s)"
+	//#org @{err_prcplccode}: недопустимый диапазон (%s)
+PPERR_PRCPLCCODE_RNG "@{err_prcplccode}: недопустимый range (%s)"
+	//#org @{err_prcplccode}: недопустимая длина определителей диапазона (%s)
+PPERR_PRCPLCCODE_ALRNGLEN "@{err_prcplccode}: недопустимая range identifier length (%s)"
+	//#org @{err_prcplccode}: недопустимый символ в определителе диапазона (%s)
+PPERR_PRCPLCCODE_ALRNGSYM "@{err_prcplccode}: недопустимый character in range identifier (%s)"
+	//#org @{err_prcplccode}: количество сегментов не может быть нулевым или более 20 (%s)
+PPERR_PRCPLCCODE_TOOMANYSEG "@{err_prcplccode}: количество segments cannot be zero or greater than 20 (%s)"
 	//#org Устройство Stylo '%s' уже зарегистрировано
 PPERR_STYLOPALMREGISTERED "Stylo device '%s' is already registered"
 	//#org Недопустимый родительский элемент (%s) в записи устройства Stylo
@@ -4039,6 +4051,14 @@ PPERR_SQ_UNDEFPRIVKEY "Own private key not defined"
 PPERR_SQ_UNDEFCLIID "Client ID not defined"
 	//#org Не определена команда сервиса
 PPERR_SQ_UNDEFSVCCOMMAND "Service command not defined"
+	//#org В конфигурации собственного сервиса не определена глобальная точка доступа
+PPERR_SQ_UNDEFOWNCFGGLOBACSPNT "No global access point is defined in the native service configuration"
+	//#org В конфигурации собственного сервиса не определена локальная точка доступа
+PPERR_SQ_UNDEFOWNCFGLOCACSPNT "No local access point is defined in the native service configuration"
+	//#org StyloQ: не определена конфигурация сервиса (%s)
+PPERR_SQ_UNDEFSVCCFG "StyloQ: Service Configuration (%s) Not Defined"
+	//#org @{err_internal}: не инициализирован внутренний реестр Stylo-Q объекта PPStyloQInterchange
+PPERR_SQ_UNDEFINNERSTQIDBTBL "@{err_internal}: не the internal registry of the Stylo-Q object ppstyloQinterchange is initialized"
 	//#org @{err_internal}: не определено значение Primary-RN
 PPERR_SQ_UNDEFINNERPRNTAG "@{err_internal}: не primary-rn value defined"
 	//#org @{err_internal}: не определено значение AG
@@ -4077,8 +4097,10 @@ PPERR_SQ_OWNENTRYNFOUND "Native StyloQ registry entry not found"
 PPERR_SQ_UNDEFCMDBODY "the command packet that you receive from the client does not define the body of the command"
 	//#org StyloQ: ошибка загрузки списка команд
 PPERR_SQ_CMDSETLOADINGFAULT "StyloQ: Error loading command list"
-	//#org StyloQ: неизвестная команда
-PPERR_SQ_UNKNCMD "StyloQ: Unknown Command"
+	//#org StyloQ: неизвестная команда (%s)
+PPERR_SQ_UNKNCMD "StyloQ: Unknown Command (%s)"
+	//#org StyloQ: в командном запросе не определен UUID команды
+PPERR_SQ_ZEROCMDUUID "StyloQ: The command UUID is not defined in the command query"
 	//#org StyloQ: у вас нет доступа к выбранной команде
 PPERR_SQ_UNTARGETEDCMD "StyloQ: You do not have access to the selected command"
 	//#org StyloQ: команда в настоящее время не поддерживается (или не реализована)
@@ -4151,6 +4173,8 @@ PPERR_SQPROT_UNDEFHTTPBODY "StyloQ Protocol Error: Http Request Body Not Defined
 PPERR_SQPROT_WRUNSTRUCTURED "StyloQ Protocol Internal Error: Package Is Not Structured"
 	//#org Внутренняя ошибка протокола StyloQ: ошибка во внутреннем состоянии шифрования пакета
 PPERR_SQPROT_WRINNERSTATE "StyloQ Internal Protocol Error: Error in Internal Packet Encryption State"
+	//#org Ошибка протокола StyloQ: Транспортная сессия по публичному ключу не найдена
+PPERR_SQPROT_SESSNFOUND "StyloQ Protocol Error: Transport Session by Public Key Not Found"
 	//#org @{err_internal}: соединение с брокером сообщений не инициализировано
 PPERR_MQBC_NOTINITED "message broker @{err_internal}: соединение not initialized"
 	//#org @{err_internal}: не определено имя очереди сообщений
@@ -4165,6 +4189,8 @@ PPERR_MQBC_SERVER "MQ Server Error: %s"
 PPERR_MQBC_NORESPONSE "MQ Client Error: No Response from Server"
 	//#org Ошибка MQ-клиента: библиотечное исключение
 PPERR_MQBC_LIBRARYEXCEPTION "MQ Client Error: Library Exception"
+	//#org Ошибка MQ-клиента: соединение с брокером сообщений закрыто
+PPERR_MQBC_CHANNELNOTOPENED "MQ Client Error: Connection to Message Broker Closed"
 	//#org Для выполнения операции необходимо выбрать единственную серию карт подходящего типа
 PPERR_SC_SINGLEPKSERIESNEEDED "To perform the operation, you must select a single series of cards of the appropriate type"
 	//#org Хост '%s' недоступен
@@ -4229,7 +4255,30 @@ PPERR_BILLIMPOPCANTBIACC "For configuration '%s', the type of import operation c
 PPERR_BILLIMPSRCCOD2NEEDED "Configuration '%s' requires vendor VAT number"
 	//#org Технология не может быть родительской сама для себя
 PPERR_TECHCANTBESELFPARENTED "Technology can't be parental to itself"
-
+	//#org Локация должна быть адресом
+PPERR_LOCMUSTBEADDR "Location must be an address"
+	//#org Локация должна быть адресом либо складом
+PPERR_LOCMUSTBEADDRORWAREHOUSE "Location must be an address or warehouse"
+	//#org Ошибка передачи документа сервису
+PPERR_STQ_POSTDOCUMENTFAULT "Error passing document to service"
+	//#org Не удалось идентифицировать персоналию, ассоциированную с клиентом Stylo-Q сопоставленным с пользователем: %s
+PPERR_STQ_MAPCLI2PSN_FAIL_USER "Could not identify the person associated with the Stylo-Q client associated with the user: %s"
+	//#org Не удалось идентифицировать персоналию, ассоциированную с клиентом Stylo-Q, поскольку он не сопоставлен с объектами, допускающими такую идентификацию: %s
+PPERR_STQ_MAPCLI2PSN_FAIL_UNMATCHED "The person associated with the Stylo-Q client could not be identified because it is not mapped to objects that allow the following identification: %s"
+	//#org В агентском заказе необходимо выбрать покупателя и адрес доставки
+PPERR_STQ_BUYERNEEDED "In the agency order it is necessary to select the buyer and the delivery address"
+	//#org Перед выбором процессора необходимо выбрать услугу
+PPERR_STQ_BEFOREPRCGOODSNEEDED "Before choosing a processor, you must select a service"
+	//#org Выбранная ранее услуга не может быть выполнена выбранным процессором
+PPERR_STQ_GOODSNOTBELONGTOPRC "The previously selected service cannot be performed by the selected processor"
+	//#org Выбранный ранее процессор не может выполнить выбранную услугу
+PPERR_STQ_PRCNOTBELONGTOGOODS "The previously selected processor cannot perform the selected service"
+	//#org @{err_internal}: неверные флаги вызова функции PPSession::LimitedOpenDatabase
+PPERR_LTDDBOPEN_INVFLAGS "@{err_internal}: неверные PPSession::LimitedOpenDatabase function call flags"
+	//#org Не удалось идентифицировать кассовый узел для команды типа INDOORSVCPREREQ
+PPERR_STQ_UNDEFPOSFORINDOORSVC "The cash register node for a command of type INDOORSVCPREREQ could not be identified"
+	//#org Кассовый узел для команды типа INDOORSVCPREREQ должен быть синхронным
+PPERR_STQ_POSFORINDOORSVCMUSTBESYNC "the cash register node for a command of type INDOORSVCPREREQ must be synchronous"
 // LastError
 
 [102] // confirmation
@@ -4284,6 +4333,12 @@ PPCFM_CANCELCTBLORD "Are you sure you want to cancel this order?"
 PPCFM_DELCCPAYMENTRY "Are you sure you want to delete your credit card payment?"
 	//#org Вы уверены, что хотите остановить сессию!? ЭТО МОЖНО ДЕЛАТЬ ТОЛЬКО В КОНЦЕ СМЕНЫ ИЛИ ПРИ ПЕРЕХОДЕ НА ДРУГУЮ ПРОДУКЦИЮ!
 PPCFM_STOPTSESS "Are you sure you want to stop the session!? THIS CAN ONLY BE DONE AT THE END OF THE SHIFT OR WHEN SWITCHING TO OTHER PRODUCTS!"
+	//#org Вы уверены, что хотите изменить клиента в текущем заказе (%s)
+PPCFM_STQ_CHANGEORDCLI "You are sure that you want to change the customer in the current order (%s)"
+	//#org Вы уверены, что хотите очистить этот драфт-заказ?
+PPCFM_STQ_RMVORD_DRAFT "Are you sure you want to clear this draft order?"
+	//#org Вы уверены, что хотите удалить этот лик?
+PPCFM_STQ_RMVFACE "Are you sure you want to remove this face?"
 	//#org Подтвердите удаление!
 PPCFM_DELETE "Confirm the deletion!"
 	//#org Подтвердите удаление документа '%s'!
@@ -5224,7 +5279,7 @@ PPTXT_TAXPAYMREASON "1,TP-Payments of the current year;2,ZD-Voluntary debt repay
 	//#org 3,ПЕ-уплата пени;4,ПЦ-уплата процентов;9,0-Остальные случаи;1,НС-уплата налога или сбора;2,АВ-уплата аванса или предоплата;5,СА-налоговые санкции;6,АШ-административные штрафы;7,ИШ-иные штрафы;8,ВЗ-взнос
 PPTXT_TAXPAYMTYPE "3,PE-payment of penalties;4,PC-payment of interest;9,0-Other cases;1,Vat payment of tax or fee;2,AV-payment of advance payment or prepayment;5,CA-tax sanctions;6,ASh-administrative fines;7,ISH-other fines;8,VZ-contribution"
 	//#org <1>Условия хранения и срок годности<2>Стандарт<4>Состав<5>Энергетическая ценность<6>Способ использования (приготовления)
-PPTXT_GOODSEXTITLES "<1>Storage conditions and shelf <2><4>lifeStandardManagementEnergetic <5><6>valueThe method of use (preparation)</6></5></4></2></1>"
+PPTXT_GOODSEXTITLES "<1>Storage conditions and shelf life<2>Standard<4>Composition<5>Energy value<6>Method of use (preparation)</6></5></4></2></1>"
 	//#org По умолчанию остаток нулевой;По умолчанию остаток равен учетному
 PPTXT_INVENTEXTINFO "By default, the balance is zero;by default the balance is equal to the accounting balance"
 	//#org Инициализация группирующих наименований
@@ -5961,6 +6016,8 @@ PPTXT_LOG_WBS_WBVSENTTOUHTT "Workbook '@zstr' uploaded to the server"
 PPTXT_LOG_WBS_WBCVSENTTOUHTT "Workbook '@zstr' Content Uploaded to Server"
 	//#org Ошибка акцепта рабочей книги '@zstr'
 PPTXT_LOG_WBS_WBVACCEPTERROR "Workbook Acceptance Error '@zstr'"
+	//#org Ошибка передачи рабочей книги '@zstr'
+PPTXT_LOG_WBS_WBTRANSMITERROR "Workbook Transfer Error '@zstr'"
 	//#org Изменилась привязка документа '%s' к документам заказа (%s)
 PPTXT_LOG_BILLCHGLINKTOORD "The binding of document '%s' to order documents (%s) has changed"
 	//#org Документ '%s' при изменении, имея связанные заказы, имеет пустой пакет теневых записей
@@ -7324,8 +7381,8 @@ PPTXT_CCFMT_CASHLESSPAYM "NON-CASH PAYMENT"
 PPTXT_BNKTRM_TESTCONN "@{op}: ТЕСТ LINKS"
 	//#org @{op}: ЗАКРЫТИЕ ДНЯ @{processing}...
 PPTXT_BNKTRM_CLOSESESS "@{op}: ЗАКРЫТИЕ DAY @{processing}..."
-	//#org 1,Nalog.ru @{invoice} (ON_SFAKT);2,Nalog.ru @{document_srvcact} (@{executor});3,@{document_upd_s} ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Экспорт документов с марками;5,Nalog.ru (только импорт);6,Nalog.ru R_ON_NSCHFDOPPRMARK (счет-фактура с марками);8,Nalog.ru R_ON_NSCHFDOPPR (счет-фактура)";9,Coca-Cola ORDER (только импорт)
-PPTXT_PREDEFIMPEXPBILLFMT "1,Nalog.ru @{invoice} (ON_SFAKT);2,Nalog.ru @{document_srvcact} (@{executor});3,@{document_upd_s} ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Export documents with stamps;5,Nalog.ru (import only);6,Nalog.ru R_ON_NSCHFDOPPRMARK (invoice with stamps);8,Nalog.ru R_ON_NSCHFDOPPR (invoice)";9,Coca-Cola ORDER (import only)"
+	//#org 1,Nalog.ru @{invoice} (ON_SFAKT);2,Nalog.ru @{document_srvcact} (@{executor});3,@{document_upd_s} ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Экспорт документов с марками;5,Nalog.ru (только импорт);6,Nalog.ru R_ON_NSCHFDOPPRMARK (счет-фактура с марками);8,Nalog.ru R_ON_NSCHFDOPPR (счет-фактура);9,Coca-Cola ORDER (только импорт)
+PPTXT_PREDEFIMPEXPBILLFMT "1,Nalog.ru @{invoice} (ON_SFAKT);2,Nalog.ru @{document_srvcact} (@{executor});3,@{document_upd_s} ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Export documents with stamps;5,Nalog.ru (import only);6,Nalog.ru R_ON_NSCHFDOPPRMARK (invoice with stamps);8,Nalog.ru R_ON_NSCHFDOPPR (invoice);9,Coca-Cola ORDER (import only)"
 	//#org Результаты работ переданы (услуги оказаны)
 PPTXT_NALOGRU_WORKSWERETRANSFERED "The results of the work were transferred (services provided)"
 	//#org Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)
@@ -7507,7 +7564,16 @@ PPTXT_SMPLSRCHRESULT_TOOSHRTPATTERN "The string is too short to search. Enter at
 PPTXT_SMPLSRCHRESULT_TOOMANYRESULTS "Too many search results (> %s). Refine your search query"
 	//#org Найдено %s результатов
 PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
-
+	//#org Идентифицирована персоналия, непосредственно ассоциированная с клиентом Stylo-Q: %s
+PPTXT_STQ_MAPCLI2PSN_DIRECT "Identified personality directly associated with customer Stylo-Q: %s"
+	//#org Идентифицирована персоналия, ассоциированная с клиентом Stylo-Q как пользователь: %s
+PPTXT_STQ_MAPCLI2PSN_USER "Identified personality associated with Stylo-Q customer as user: %s"
+	//#org Текст был скопирован в буфер
+PPTXT_TEXTHASBEENCOPIEDTOCLIPBOARD "the text was copied to a buffer"
+	//#org Stylo-Q: blob объекта передан медиатору (%s)
+PPTXT_STQ_BLOBTRANSMTOMEDIATORSUCC "Stylo-Q: Object blob transmitted to mediator (%s)"
+	//#org Stylo-Q: ошибка передачи медиатору blob'а объекта (%s): %s
+PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to the blob mediator"
 //
 // LastText
 
@@ -8072,14 +8138,16 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 460 "The string encoding is different from UTF-8"
 	//#org Ошибка базы данных LMDB: %s
 461 "LMDB Database Error: %s"
-	//#org Внутренняя ошибка: недопустимый манипулятор чтения/записи объекта SFileStorage
-462 "Internal Error: Invalid SFileStorage Object Read/Write Manipulator"
+	//#org @{err_internal}: недопустимый манипулятор чтения/записи объекта SFileStorage
+462 "@{err_internal}: недопустимый the SFileStorage object read/write manipulator"
 	//#org Имя сохраняемого файла объекта SFileStorage должно быть не длиннее 255 символов из набора [0..9a..z_+-,.=@]
 463 "the file name of the sfilestorage object that you want to save must be no longer than 255 characters in set [0..9a..z_+-,.=@]"
 	//#org Файл с именем '%s' в хранилище SFileStorage отсутствует
 464 "File named '%s' is missing from SFileStorage"
 	//#org Недопустимая либо неподдерживаемая хэш-функция
 465 "Invalid or unsupported hash function"
+	//#org @{err_internal}: недопустимый тип экземпляра SFile
+466 "@{err_internal}: недопустимый SFile instance type"
 	//#org Unable to open configuration file for reading
 500 "Unable to open configuration file for reading"
 	//#org Unable to open configuration file for writing
@@ -10259,6 +10327,10 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @ware "Product"
 	//#org Товары
 @ware_pl "Goods"
+	//#org Услуга
+@ware_service "Service"
+	//#org Услуги
+@ware_service_pl "Services"
 	//#org Продукт
 @product "Product"
 	//#org Наименование продукта
@@ -12566,6 +12638,12 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @doshow "Show"
 	//#org Показать корзину
 @doshowbasket "Show cart"
+	//#org Разблокировать корзину
+@unlockbasket "Unlock Cart"
+	//#org Показывать все корзины
+@showallbaskets "Show all carts"
+	//#org Показывать только свои корзины
+@showownbasketsonly "Show only your shopping carts"
 	//#org Показывать
 @toshow "Show"
 	//#org Показывать объекты
@@ -12829,6 +12907,10 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @but_outfields "Output fields"
 	//#org Выбрать курс...
 @but_selcurrate "Choose a course..."
+	//#org Отправить документ
+@but_stq_commitdocument "Send document"
+	//#org Отменить документ
+@but_stq_canceldocument "Cancel document"
 
 	//#org Закрыть
 @close "Close"
@@ -13762,8 +13844,24 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @filter_styloqattendanceprereqparam "Parameters for preparing Stylo-Q service backup data"
 	//#org Заговок для процессоров
 @filter_styloqattendanceprereqparam_prctitle "Processor Locks"
+	//#org Максимальный период планирования, дней
+@filter_styloqattendanceprereqparam_maxscheduledays "Maximum planning period, days"
+	//#org Дискретность временной диаграммы
+@filter_styloqattendanceprereqparam_timesheetdiscreteness "Time diagram discreteness"
 	//#org Параметры индексации данных для Stylo-Q
 @filter_styloqindexingparam "Data indexing options for Stylo-Q"
+	//#org Параметры представления единичного товара для Stylo-Q
+@filter_styloqgoodsinfoparam "Single product presentation parameters for Stylo-Q"
+	//#org Показывать остаток
+@filter_styloqgoodsinfoparam_fshowrest "Show balance"
+	//#org Показывать цену поступления
+@filter_styloqgoodsinfoparam_fshowcost "Show receipt price"
+	//#org Показывать цену реализации
+@filter_styloqgoodsinfoparam_fshowprice "Show selling price"
+	//#org Показывать дополнительные поля описания
+@filter_styloqgoodsinfoparam_fshowdescriptions "Show additional description fields"
+	//#org Показывать коды
+@filter_styloqgoodsinfoparam_fshowcodes "Show codes"
 //
 // Команды и popup-меню
 //
@@ -14465,6 +14563,10 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @err_crpe "Crystal Report Error"
 	//#org Ошибка cURL
 @err_curl "cURL Error"
+	//#org Ошибка в дескрипторе мест процессора
+@err_prcplccode "Error in processor location handle"
+	//#org Проверка цепочки сертификатов
+@err_certchainver "Certificate Chain Validation"
 	//#org Недостаточно памяти
 @err_nomem "Not enough memory"
 	//#org Сбой по лоту '%s'
@@ -18544,6 +18646,8 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @processor_prcf_autocreate "Automatically create a processor when you create an object"
 	//#org Допускает ввод параметров повтора в сессиях
 @processor_prcf_allowrepeating "Allows you to enter retry parameters in sessions"
+	//#org Производительность технологий как время на единицу товара
+@processor_prcf_techcapacityrev "Technology performance as time per unit of goods"
 	//#org Стандартная продолжительность суперсессий
 @processor_supersesstiming "Standard duration of supersessions"
 	//#org Единицы времени
@@ -18906,6 +19010,8 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @trnovrrngdis "Rule for card speed range"
 	//#org Правило начисления бонуса
 @trnovrrngdisbonus "Bonus accrual rule"
+	//#org Нулевые обороты
+@trnovrrngdis_zerotrnovr "Zero RPM"
 	//#org Серия, в которую должна перейти карта
 @trnovrrngdis_series "The series in which the card should go"
 	//#org Абсолютное значение скидки
@@ -19028,6 +19134,8 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @stylopalm_plmf_impaschecks "Allows import into the cash register"
 	//#org Трактовать дату исполнения как основную дату заказа
 @stylopalm_plmf_treatduedateasdate "Treat the due date as the main date of the order"
+	//#org Экспортировать товары с нулевым остатком
+@stylopalm_plmf_expzstock "Export goods with zero balance"
 	//#org Вид операции заказа товара
 @stylopalm_orderop "Type of product order operation"
 	//#org Путь для обмена данными
@@ -19062,6 +19170,8 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 	//#org Абсолютное время
 @techcapacity_fabsolute "Absolute time"
 
+	//#org @{productivity}, @{munit_second_s} на единицу
+@tech_capacity_secperpc "@{productivity}, @{munit_second_s} per unit"
 	//#org Максимум зарегистрированных персоналий
 @tech_cipmax "Maximum registered personalities"
 	//#org Время перенастройки, @{munit_second_s}
@@ -20365,6 +20475,10 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @lotfilt_exvaegaistags "Tags @{brand_egais}"
 	//#org Теги @{brand_vetis}
 @lotfilt_exvavetistags "Tags @{brand_vetis}"
+	//#org Категория поставщика
+@lotfilt_supplpsncategory "Vendor Category"
+	//#org Категория заказчика
+@lotfilt_clipsncategory "Customer category"
 
 	//#org Постановка лотов на баланс @{brand_egais}
 @egaislotchargeon "Placing lots on the balance @{brand_egais}"
@@ -24039,6 +24153,12 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @styloqbasecmd_rsrvattendanceprereq "Data for service requests"
 	//#org Параметры подготовки данных для поисковой индексации
 @styloqbasecmd_rsrvpushindexcontent "Options for preparing data for search indexing"
+	//#org Параметры indoor-обслуживания
+@styloqbasecmd_rsrvindoorsvcprereq "Indoor-service parameters"
+	//#org Параметры информации о товаре
+@styloqbasecmd_goodsinfo "Product information parameters"
+	//#org Локальный поиск по штрихкоду
+@styloqbasecmd_localbarcodesearch "Local barcode search"
 
 	//#org Команда сервиса Stylo-Q
 @styloqcommand "Stylo-Q Service Team"
@@ -24052,6 +24172,8 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 @styloqcommand_viewsymb "Display Type"
 	//#org Параметры дистанционного сбора заказов
 @styloqcommand_remoteorderparam "Parameters of remote order collection"
+	//#org Параметры indoor-обслуживания
+@styloqcommand_indoorsvcparam "Indoor-service parameters"
 
 	//#org Конфигурация сервиса Stylo-Q
 @styloqsvcconfig "Stylo-Q Service Configuration"
@@ -24262,6 +24384,10 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 76 "Processing StakeEnvironment"
 	//#org StyloQ: подготовка данных для заказов
 77 "StyloQ: Preparing Data for Orders"
+	//#org StyloQ: подготовка данных для indoor-обслуживания
+78 "StyloQ: Preparing Data for Indoor Maintenance"
+	//#org StyloQ: подготовка данных для резервирования услуг
+79 "StyloQ: preparing data for service backup"
 
 [122]
 	//#org @{err_curl}: не поддерживаемый протокол
@@ -24291,5 +24417,8 @@ PPTXT_SMPLSRCHRESULT_SUCCESS "%s results found"
 //
 // Далее следуют 16 типов документов, используемых системой VETIS. Текст точно соответствует xsd спецификации dictionary_v2.0.xsd.
 // Номер после PPHSC_VETIS_DOCTYP_ точно соответствует значению enum в спецификации (хотя, это, скорее всего, и не важно).
+//
+//
+// Еще несколько формальных токенов VETIS:
 //
 //

@@ -399,26 +399,20 @@ int ssh_userauth_try_publickey(ssh_session session,
 	ssh_string pubkey_s = NULL;
 	const char * sig_type_c = NULL;
 	int rc;
-
 	if(!session) {
 		return SSH_AUTH_ERROR;
 	}
-
 	if(pubkey == NULL || !ssh_key_is_public(pubkey)) {
 		ssh_set_error(session, SSH_FATAL, "Invalid pubkey");
 		return SSH_AUTH_ERROR;
 	}
-
 	switch(session->pending_call_state) {
 		case SSH_PENDING_CALL_NONE:
 		    break;
 		case SSH_PENDING_CALL_AUTH_OFFER_PUBKEY:
 		    goto pending;
 		default:
-		    ssh_set_error(session,
-			SSH_FATAL,
-			"Wrong state (%d) during pending SSH call",
-			session->pending_call_state);
+		    ssh_set_error(session, SSH_FATAL, "Wrong state (%d) during pending SSH call", session->pending_call_state);
 		    return SSH_ERROR;
 	}
 	/* Check if the given public key algorithm is allowed */
@@ -589,27 +583,21 @@ fail:
 }
 
 #ifndef _WIN32
-static int ssh_userauth_agent_publickey(ssh_session session,
-    const char * username,
-    ssh_key pubkey)
+static int ssh_userauth_agent_publickey(ssh_session session, const char * username, ssh_key pubkey)
 {
 	ssh_string pubkey_s = NULL;
 	ssh_string sig_blob = NULL;
 	const char * sig_type_c = NULL;
 	int rc;
-
 	switch(session->pending_call_state) {
 		case SSH_PENDING_CALL_NONE:
 		    break;
 		case SSH_PENDING_CALL_AUTH_AGENT:
 		    goto pending;
 		default:
-		    ssh_set_error(session,
-			SSH_FATAL,
-			"Bad call during pending SSH call in ssh_userauth_try_publickey");
+		    ssh_set_error(session, SSH_FATAL, "Bad call during pending SSH call in ssh_userauth_try_publickey");
 		    return SSH_ERROR;
 	}
-
 	rc = ssh_userauth_request_service(session);
 	if(rc == SSH_AGAIN) {
 		return SSH_AUTH_AGAIN;
@@ -617,13 +605,11 @@ static int ssh_userauth_agent_publickey(ssh_session session,
 	else if(rc == SSH_ERROR) {
 		return SSH_AUTH_ERROR;
 	}
-
 	/* public key */
 	rc = ssh_pki_export_pubkey_blob(pubkey, &pubkey_s);
 	if(rc < 0) {
 		goto fail;
 	}
-
 	/* Check if the given public key algorithm is allowed */
 	sig_type_c = ssh_key_get_signature_algorithm(session, pubkey->type);
 	if(sig_type_c == NULL) {

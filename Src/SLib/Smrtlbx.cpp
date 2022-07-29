@@ -43,7 +43,7 @@ IMPL_CMPFUNC(FilePathUtf8, i1, i2)
 //
 //
 //
-INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // DLGPROC
+INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	SmartListBox * p_view = static_cast<SmartListBox *>(TView::GetWindowUserData(hWnd));
 	if(p_view) {
@@ -97,7 +97,7 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 		return TRUE;
 }
 
-INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // DLGPROC
+INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	SmartListBox * p_view = static_cast<SmartListBox *>(TView::GetWindowUserData(hWnd));
 	const WNDPROC prev_wnd_proc = p_view ? p_view->PrevWindowProc : 0;
@@ -139,7 +139,7 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	return prev_wnd_proc ? CallWindowProc(prev_wnd_proc, hWnd, uMsg, wParam, lParam) : 1;
 }
 
-INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // DLGPROC
+INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	SmartListBox * p_view = static_cast<SmartListBox *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
@@ -170,7 +170,7 @@ INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 //
 //
 SmartListBox::SmartListBox(const TRect & bounds, ListBoxDef * aDef, int isTreeList) : TView(bounds), Columns(sizeof(ColumnDescr)),
-	State(0), SrchPatternPos(0), ColumnsSpcPos(0), def(0), Range(0), Height(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase))
+	State(0), SrchPatternPos(0), ColumnsSpcPos(0), P_Def(0), Range(0), Height(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase))
 {
 	SubSign = TV_SUBSIGN_LISTBOX;
 	StrPool.add("$"); // zero index - is empty string
@@ -182,7 +182,7 @@ SmartListBox::SmartListBox(const TRect & bounds, ListBoxDef * aDef, int isTreeLi
 SmartListBox::~SmartListBox()
 {
 	RestoreOnDestruction();
-	delete def;
+	delete P_Def;
 	if(HIML)
 		ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
 }
@@ -314,17 +314,17 @@ void SmartListBox::RemoveColumns()
 		RemoveColumn(i);
 }
 
-int    FASTCALL SmartListBox::getCurID(long * pId) { return def ? def->getCurID(pId) : 0; }
-int    FASTCALL SmartListBox::getCurData(void * pData) { return def ? def->getCurData(pData) : 0; }
-int    FASTCALL SmartListBox::getCurString(SString & rBuf) { return def ? def->getCurString(rBuf) : (rBuf.Z(), 0); }
-bool   SmartListBox::isTreeList() const { return (def && def->_isTreeList()); }
+int    FASTCALL SmartListBox::getCurID(long * pId) { return P_Def ? P_Def->getCurID(pId) : 0; }
+int    FASTCALL SmartListBox::getCurData(void * pData) { return P_Def ? P_Def->getCurData(pData) : 0; }
+int    FASTCALL SmartListBox::getCurString(SString & rBuf) { return P_Def ? P_Def->getCurString(rBuf) : (rBuf.Z(), 0); }
+bool   SmartListBox::isTreeList() const { return (P_Def && P_Def->_isTreeList()); }
 void   SmartListBox::setHorzRange(int) {}
 
 uint SmartListBox::GetSelectionList(LongArray * pList)
 {
 	uint   result = 0;
 	CALLPTRMEMB(pList, Z());
-	if(def) {
+	if(P_Def) {
 		if(isTreeList()) {
 			long   cur_id = 0;
 			if(getCurID(&cur_id)) {
@@ -356,8 +356,8 @@ uint SmartListBox::GetSelectionList(LongArray * pList)
 							if(c2 > 0) {
 								for(uint i = 0; i < static_cast<uint>(c2); i++) {
 									int32 idx = p_buffer[i];
-									if(idx >= 0 && idx < def->getRecsCount()) {
-										const void * p_row = def->getRow_(idx);
+									if(idx >= 0 && idx < P_Def->GetRecsCount()) {
+										const void * p_row = P_Def->getRow_(idx);
 										if(p_row)
 											pList->add(*static_cast<const long *>(p_row));
 									}
@@ -387,8 +387,8 @@ int  SmartListBox::getText(long itemN  /* 0.. */, SString & rBuf)
 {
 	int    ok = 0;
 	rBuf.Z();
-	if(def) {
-		def->getText(itemN, rBuf);
+	if(P_Def) {
+		P_Def->getText(itemN, rBuf);
 		ok = 1;
 	}
 	return ok;
@@ -397,10 +397,10 @@ int  SmartListBox::getText(long itemN  /* 0.. */, SString & rBuf)
 int  SmartListBox::getID(long itemN, long * pID)
 {
 	int    ok = 0;
-	if(def) {
-		const char * p = static_cast<const char *>(def->getRow_(itemN));
+	if(P_Def) {
+		const char * p = static_cast<const char *>(P_Def->getRow_(itemN));
 		if(p) {
-			uint   h = (def->Options & lbtAutoID) ? 0 : ((def->Options & lbtWordID) ? 2 : 4);
+			uint   h = (P_Def->Options & lbtAutoID) ? 0 : ((P_Def->Options & lbtWordID) ? 2 : 4);
 			if(h == 2) {
 				int16  id = *reinterpret_cast<const int16 *>(p);
 				ASSIGN_PTR(pID, static_cast<long>(id));
@@ -441,15 +441,15 @@ void SmartListBox::MoveScrollBar(int autoHeight)
 {
 	long   scroll_delta = 0, scroll_pos = 0;
 	CreateScrollBar(1);
-	if(def) {
+	if(P_Def) {
 		if(autoHeight) {
-			def->SetOption(lbtHSizeAlreadyDef, 0);
-			def->setViewHight(GetMaxListHeight());
+			P_Def->SetOption(lbtHSizeAlreadyDef, 0);
+			P_Def->setViewHight(GetMaxListHeight());
 		}
-		def->getScrollData(&scroll_delta, &scroll_pos);
-		if(def->_curItem() == 0)
+		P_Def->getScrollData(&scroll_delta, &scroll_pos);
+		if(P_Def->_curItem() == 0)
 			scroll_pos = 0;
-		setRange(def->getRecsCount());
+		setRange(P_Def->GetRecsCount());
 	}
 	SetScrollBarPos(scroll_pos, 1);
 	Draw_();
@@ -490,7 +490,7 @@ int  SmartListBox::GetMaxListHeight()
 	::GetClientRect(Parent, &list_rect);
 	const int list_height = list_rect.bottom - list_rect.top;
 	const int item_height = ::SendMessage(h_lb, LB_GETITEMHEIGHT, 0, 0);
-	return (def && def->Options & lbtHSizeAlreadyDef) ? def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
+	return (P_Def && P_Def->Options & lbtHSizeAlreadyDef) ? P_Def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
 }
 
 void SmartListBox::onInitDialog(int useScrollBar)
@@ -528,8 +528,8 @@ void SmartListBox::onInitDialog(int useScrollBar)
 			::GetWindowRect(h_lb, &rc_list);
 			CreateScrollBar(useScrollBar);
 		}
-		if(def)
-			setRange(def->getRecsCount());
+		if(P_Def)
+			setRange(P_Def->GetRecsCount());
 		//
 		::GetWindowRect(h_lb, &rc_list);
 		int    item_height;
@@ -549,17 +549,17 @@ void SmartListBox::onInitDialog(int useScrollBar)
 			item_height = SendMessage(h_lb, LB_GETITEMHEIGHT, 0, 0);
 			Height = (def && def->Options & lbtHSizeAlreadyDef) ? def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
 			*/
-			if(def) {
+			if(P_Def) {
 				long   scroll_delta = 0;
 				long   scroll_pos = 0;
-				Top = def->_topItem();
-				def->getScrollData(&scroll_delta, &scroll_pos);
-				if(def->_curItem() == 0)
+				Top = P_Def->_topItem();
+				P_Def->getScrollData(&scroll_delta, &scroll_pos);
+				if(P_Def->_curItem() == 0)
 					scroll_pos = 0;
 				SetScrollBarPos(scroll_pos, 1);
 			}
 		}
-		CALLPTRMEMB(def, setViewHight(Height));
+		CALLPTRMEMB(P_Def, setViewHight(Height));
 		dlg_proc = is_multi_col ? ListViewDialogProc : ListBoxDialogProc;
 	}
 	State |= stInited;
@@ -579,16 +579,16 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 {
 	int    ok = -1;
 	HWND   h_lb = getHandle();
-	if(def && h_lb) {
+	if(P_Def && h_lb) {
 		HTREEITEM h_parent = 0;
 		long   save_pos = 0;
 		SString err_msg;
 		StdTreeListBoxDef * p_def = 0;
 		StdTreeListBoxDef2_ * p_def2 = 0;
-		if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE)
-			p_def = static_cast<StdTreeListBoxDef *>(def);
-		else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2)
-			p_def2 = static_cast<StdTreeListBoxDef2_ *>(def);
+		if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE)
+			p_def = static_cast<StdTreeListBoxDef *>(P_Def);
+		else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2)
+			p_def2 = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 		if(p_def2) {
 			StrAssocTree * p_tree = p_def2->P_SaList;
 			if(p_tree) {
@@ -722,9 +722,8 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 					}
 				}
 			}
-			if(pParent == 0) {
-				def->go(save_pos);
-			}
+			if(pParent == 0)
+				P_Def->go(save_pos);
 		}
 	}
 	return ok;
@@ -734,13 +733,13 @@ int  SmartListBox::GetStringByID(long id, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 0;
-	if(def) {
-		if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
-			StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(def);
+	if(P_Def) {
+		if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+			StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(P_Def);
 			ok = p_def->GetStringByID(id, rBuf);
 		}
-		else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
-			StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(def);
+		else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+			StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 			ok = p_def->GetStringByID(id, rBuf);
 		}
 	}
@@ -750,22 +749,21 @@ int  SmartListBox::GetStringByID(long id, SString & rBuf)
 int  SmartListBox::GetImageIdxByID(long id, long * pIdx) 
 {
 	int    ok = 0;
-	if(def) {
-		if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
-			StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(def);
+	if(P_Def) {
+		if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+			StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(P_Def);
 			ok = p_def->GetImageIdxByID(id, pIdx);
 		}
-		else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
-			StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(def);
+		else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+			StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 			ok = p_def->GetImageIdxByID(id, pIdx);
 		}
-		else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STD) {
-			StdListBoxDef * p_def = static_cast<StdListBoxDef *>(def);
+		else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STD) {
+			StdListBoxDef * p_def = static_cast<StdListBoxDef *>(P_Def);
 			ok = p_def->GetImageIdxByID(id, pIdx);
 		}
 	}
 	return ok;
-	//return def ? static_cast<StdListBoxDef *>(def)->GetImageIdxByID(id, pIdx) : 0; 
 }
 
 /* @v11.4.4 (inlined) int  FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
@@ -838,16 +836,16 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						const int index = Columns.getCount() ?
 							SendDlgItemMessage(Parent, Id, LVM_GETNEXTITEM, -1, MAKELPARAM(LVNI_SELECTED, 0)) :
-							(SendDlgItemMessage(Parent, Id, LB_GETCURSEL, 0, 0) + def->_topItem());
+							(SendDlgItemMessage(Parent, Id, LB_GETCURSEL, 0, 0) + P_Def->_topItem());
 						if(index >= 0) {
 							long   prev_top_item = Top;
-							def->go(index);
+							P_Def->go(index);
 							if(!Columns.getCount() && Top != prev_top_item)
 								Draw_();
-							if(def->Options & lbtFocNotify)
+							if(P_Def->Options & lbtFocNotify)
 								MessageCommandToOwner(cmLBItemFocused);
 							Scroll(-1, 0);
-							if(def->Options & lbtSelNotify)
+							if(P_Def->Options & lbtSelNotify)
 								MessageCommandToOwner(cmLBItemSelected);
 						}
 					}
@@ -862,10 +860,10 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					const long hw_clarea_lw_index = SendDlgItemMessage(Parent, Id, LB_ITEMFROMPOINT, 0, lParam);
 					if(HIWORD(hw_clarea_lw_index) == 0 && LOWORD(hw_clarea_lw_index) >= 0) {
 						long   prev_top_item = Top;
-						def->go(LOWORD(hw_clarea_lw_index) + def->_topItem());
+						P_Def->go(LOWORD(hw_clarea_lw_index) + P_Def->_topItem());
 						if(!Columns.getCount() && Top != prev_top_item)
 							Draw_();
-						if(def->Options & lbtFocNotify)
+						if(P_Def->Options & lbtFocNotify)
 							MessageCommandToOwner(cmLBItemFocused);
 						Scroll(-1, 0);
 					}
@@ -993,19 +991,19 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					case TVN_SELCHANGED:
 						{
 							LPNMTREEVIEW pnmtv = reinterpret_cast<LPNMTREEVIEW>(lParam);
-							if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
-								StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(def);
+							if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+								StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(P_Def);
 								p_def->GoByID(pnmtv->itemNew.lParam);
 							}
-							else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
-								StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(def);
+							else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+								StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 								p_def->GoByID(pnmtv->itemNew.lParam);
 							}
 							//static_cast<StdTreeListBoxDef *>(def)->GoByID(pnmtv->itemNew.lParam);
-							if(def->Options & lbtFocNotify)
+							if(P_Def->Options & lbtFocNotify)
 								MessageCommandToOwner(cmLBItemFocused);
 							if(State & stLButtonDown) {
-								if(def->Options & lbtSelNotify)
+								if(P_Def->Options & lbtSelNotify)
 									MessageCommandToOwner(cmLBItemSelected);
 								State &= ~stLButtonDown;
 							}
@@ -1025,15 +1023,14 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							t_item.mask = TVIF_PARAM;
 							t_item.hItem = TreeView_HitTest(h_tlist, &ht);
 							TreeView_GetItem(h_tlist, &t_item);
-							if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
-								StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(def);
+							if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+								StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(P_Def);
 								p_def->GoByID(t_item.lParam);
 							}
-							else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
-								StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(def);
+							else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+								StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 								p_def->GoByID(t_item.lParam);
 							}
-							//static_cast<StdTreeListBoxDef *>(def)->GoByID(t_item.lParam);
 							SelectTreeItem();
 							MessageCommandToOwner((p_nm->code == NM_RCLICK) ? cmRightClick : cmLBDblClk);
 						}
@@ -1074,7 +1071,7 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					else {
 						switch(p_cd->nmcd.dwDrawStage) {
 	    					case CDDS_PREPAINT:
-								if(def && def->HasItemColorSpec())
+								if(P_Def && P_Def->HasItemColorSpec())
 									result = CDRF_NOTIFYITEMDRAW;
 								else
 									result = -1;
@@ -1087,7 +1084,7 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 									if((p_cd->nmcd.uItemState&CDIS_FOCUS) != CDIS_FOCUS) {
 										if(getID(item_pos, &item_id)) {
 											SColor bc, fc;
-											if(def->GetItemColor(item_id, &fc, &bc) > 0) {
+											if(P_Def->GetItemColor(item_id, &fc, &bc) > 0) {
 												p_cd->clrText = static_cast<COLORREF>(fc);
 												p_cd->clrTextBk = static_cast<COLORREF>(bc);
 											}
@@ -1114,104 +1111,104 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void SmartListBox::Scroll(short Code, int value)
 {
-	if(def) {
+	if(P_Def) {
 		long   scroll_delta;
 		long   scroll_pos;
 		const  long prev_top_item = Top;
 		int    to_draw = 0;
 		int    need_sel = 1;
-		int    fsize  = def->GetFrameSize() - 1;
-		int    fstate = def->GetFrameState();
+		int    fsize  = P_Def->GetFrameSize() - 1;
+		int    fstate = P_Def->GetFrameState();
 		switch(Code) {
 			case SB_BOTTOM:
 				if(fstate == -1)
 					fstate = 2;
-				if(fstate == 2 && def->_curItem() >= fsize)
+				if(fstate == 2 && P_Def->_curItem() >= fsize)
 					need_sel = 0;
 				else {
-					def->bottom();
+					P_Def->bottom();
 					to_draw = 1;
-					Top = def->_curItem() - def->ViewHight + 1;
+					Top = P_Def->_curItem() - P_Def->ViewHight + 1;
 				}
 				break;
 			case SB_LINEDOWN:
 				if(fstate == -1)
 					fstate = 2;
-				if(fstate == 2 && def->_curItem() >= fsize)
+				if(fstate == 2 && P_Def->_curItem() >= fsize)
 					need_sel = 0;
 				else {
-					def->step(1);
-					if((def->_curItem() - Top) >= def->ViewHight)
+					P_Def->step(1);
+					if((P_Def->_curItem() - Top) >= P_Def->ViewHight)
 						Top++;
-					to_draw = (def->_curItem() < def->ViewHight) ? 0 : 1;
+					to_draw = (P_Def->_curItem() < P_Def->ViewHight) ? 0 : 1;
 				}
 				break;
 			case SB_LINEUP:
 				if(fstate == -1)
 					fstate = 1;
-				if(fstate == 1 && def->_curItem() == 0)
+				if(fstate == 1 && P_Def->_curItem() == 0)
 					need_sel = 0;
 				else {
-					def->step(-1);
+					P_Def->step(-1);
 					to_draw = Top ? 0 : 1;
-					if(Top > def->_curItem())
+					if(Top > P_Def->_curItem())
 						Top--;
 					// @vmiller {
-					else if((def->_curItem() - def->ViewHight) >= Top)
-						Top = def->_curItem();
+					else if((P_Def->_curItem() - P_Def->ViewHight) >= Top)
+						Top = P_Def->_curItem();
 					// } @vmiller
 				}
 				break;
 			case SB_PAGEDOWN:
 				if(fstate == -1)
 					fstate = 2;
-				if(fstate == 2 && def->_curItem() >= fsize)
+				if(fstate == 2 && P_Def->_curItem() >= fsize)
 					need_sel = 0;
 				else {
-					def->step(def->ViewHight);
+					P_Def->step(P_Def->ViewHight);
 					to_draw = 1;
-					Top = def->_curItem() - def->ViewHight + 1;
+					Top = P_Def->_curItem() - P_Def->ViewHight + 1;
 				}
 				break;
 			case SB_PAGEUP:
 				if(fstate == -1)
 					fstate = 1;
-				if(fstate == 1 && def->_curItem() == 0)
+				if(fstate == 1 && P_Def->_curItem() == 0)
 					need_sel = 0;
 				else {
-					def->step(-def->ViewHight);
+					P_Def->step(-P_Def->ViewHight);
 					to_draw = 1;
-					Top = def->_curItem();
+					Top = P_Def->_curItem();
 				}
 				break;
 			case SB_TOP:
 				if(fstate == -1)
 					fstate = 1;
-				if(fstate == 1 && def->_curItem() == 0)
+				if(fstate == 1 && P_Def->_curItem() == 0)
 					need_sel = 0;
 				else {
-					def->top();
+					P_Def->top();
 					to_draw = 1;
 					Top = 0;
 				}
 				break;
 			case SB_THUMBPOSITION:
 			case SB_THUMBTRACK:
-				if(def->HasCapability(ListBoxDef::cCountable)) {
+				if(P_Def->HasCapability(ListBoxDef::cCountable)) {
 					if(value < 0)
-						def->top();
-					else if(value >= def->getRecsCount())
-						def->bottom();
+						P_Def->top();
+					else if(value >= P_Def->GetRecsCount())
+						P_Def->bottom();
 					else
-						def->go(value);
+						P_Def->go(value);
 					to_draw = 1;
 				}
 				break;
 			default:
 				break;
 		}
-		def->getScrollData(&scroll_delta, &scroll_pos);
-		if(def->_curItem() == 0)
+		P_Def->getScrollData(&scroll_delta, &scroll_pos);
+		if(P_Def->_curItem() == 0)
 			scroll_pos = 0;
 		if(!Columns.getCount()) {
 			SetScrollBarPos(scroll_pos, 1);
@@ -1224,15 +1221,15 @@ void SmartListBox::Scroll(short Code, int value)
 					lvi.mask  = LVIF_STATE;
 					lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
 					lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-					::SendMessage(h_lb, LVM_SETITEMSTATE, def ? def->_curItem() : 0, (LPARAM)&lvi);
+					::SendMessage(h_lb, LVM_SETITEMSTATE, P_Def ? P_Def->_curItem() : 0, (LPARAM)&lvi);
 				}
 				else {
-					long   cur_sel_idx = def ? (def->_curItem()-def->_topItem()) : 0;
+					long   cur_sel_idx = P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0;
 					::SendMessage(h_lb, LB_SETCURSEL, cur_sel_idx, 0);
 				}
 			}
 		}
-		if(def->Options & lbtFocNotify)
+		if(P_Def->Options & lbtFocNotify)
 			MessageCommandToOwner(cmLBItemFocused);
 	}
 }
@@ -1250,9 +1247,9 @@ int    SmartListBox::HasState(long s) const { return BIN(State & s); }
 
 void SmartListBox::SelectTreeItem()
 {
-	if(def) {
+	if(P_Def) {
 		long   scroll_delta = 0, scroll_pos = 0;
-		def->getScrollData(&scroll_delta, &scroll_pos);
+		P_Def->getScrollData(&scroll_delta, &scroll_pos);
 		if(scroll_pos != 0)
 			TreeView_SelectItem(getHandle(), (HTREEITEM)scroll_pos);
 	}
@@ -1260,12 +1257,12 @@ void SmartListBox::SelectTreeItem()
 
 void FASTCALL SmartListBox::focusItem(long item)
 {
-	if(def && def->go(item)) {
-		if(def->_isTreeList())
+	if(P_Def && P_Def->go(item)) {
+		if(P_Def->_isTreeList())
 			SelectTreeItem();
 		else {
 			const  HWND h_lb = getHandle();
-			const long cur__item = def->_curItem();
+			const long cur__item = P_Def->_curItem();
 			if(Columns.getCount()) {
 				LVITEM lvi;
 				lvi.mask  = LVIF_STATE;
@@ -1275,9 +1272,9 @@ void FASTCALL SmartListBox::focusItem(long item)
 				ListView_EnsureVisible(h_lb, cur__item, 0); // AHTOXA
 			}
 			else
-				::SendMessage(h_lb, LB_SETCURSEL, cur__item-def->_topItem(), 0);
+				::SendMessage(h_lb, LB_SETCURSEL, cur__item - P_Def->_topItem(), 0);
 		}
-		if(def->Options & lbtFocNotify)
+		if(P_Def->Options & lbtFocNotify)
 			MessageCommandToOwner(cmLBItemFocused);
 	}
 }
@@ -1285,11 +1282,11 @@ void FASTCALL SmartListBox::focusItem(long item)
 bool SmartListBox::Search_(const void * pPattern, CompFunc fcmp, int srchMode)
 {
 	bool result = false;
-	if(def && def->search(pPattern, fcmp, srchMode)) {
+	if(P_Def && P_Def->search(pPattern, fcmp, srchMode)) {
 		if(!(State & stTreeList)) {
 			long   scroll_delta;
 			long   scroll_pos;
-			def->getScrollData(&scroll_delta, &scroll_pos);
+			P_Def->getScrollData(&scroll_delta, &scroll_pos);
 			SetScrollBarPos(scroll_pos, 1);
 			Draw_();
 		}
@@ -1352,7 +1349,7 @@ UiSearchTextBlock::~UiSearchTextBlock()
 	return r;
 }
 
-/*static*/LRESULT CALLBACK UiSearchTextBlock::InputCtlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK UiSearchTextBlock::InputCtlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback
 {
 	UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
@@ -1363,7 +1360,7 @@ UiSearchTextBlock::~UiSearchTextBlock()
 	return p_slb ? CallWindowProc(p_slb->PrevInputCtlProc, hWnd, uMsg, wParam, lParam) : DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-/*static*/INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	SString temp_buf;
 	switch(uMsg) {
@@ -1561,15 +1558,15 @@ void FASTCALL SmartListBox::setDef(ListBoxDef * aDef)
 	if(State & stTreeList) {
 		Helper_ClearTreeWnd();
 	}
-	ZDELETE(def);
+	ZDELETE(P_Def);
 	if(aDef) {
-		def = aDef;
-		setRange(def->getRecsCount());
-		if(def->Options & lbtHSizeAlreadyDef)
-			Height = def->ViewHight;
+		P_Def = aDef;
+		setRange(P_Def->GetRecsCount());
+		if(P_Def->Options & lbtHSizeAlreadyDef)
+			Height = P_Def->ViewHight;
 		else
-			def->setViewHight(Height);
-		def->top();
+			P_Def->setViewHight(Height);
+		P_Def->top();
 	}
 }
 
@@ -1577,14 +1574,14 @@ int SmartListBox::TransmitData(int dir, void * pData)
 {
 	int    s = 0;
 	if(dir > 0) {
-		if(def) {
-			SETFLAG(State, stDataFounded, (pData ? def->TransmitData(dir, pData) : 0));
+		if(P_Def) {
+			SETFLAG(State, stDataFounded, (pData ? P_Def->TransmitData(dir, pData) : 0));
 			if(!Columns.getCount())
 				if(!pData)
-					def->top();
+					P_Def->top();
 				else if(!(State & stTreeList)) {
 					long scroll_delta, scroll_pos;
-					def->getScrollData(&scroll_delta, &scroll_pos);
+					P_Def->getScrollData(&scroll_delta, &scroll_pos);
 					SetScrollBarPos(scroll_pos, 1);
 				}
 			s = 1;
@@ -1592,8 +1589,8 @@ int SmartListBox::TransmitData(int dir, void * pData)
 		else
 			State &= ~stDataFounded;
 	}
-	else if(def)
-		s = def->TransmitData(dir, pData);
+	else if(P_Def)
+		s = P_Def->TransmitData(dir, pData);
 	return s;
 }
 
@@ -1619,7 +1616,14 @@ void SmartListBox::Implement_Draw()
 		auotocalccolszLogContent = 3, // Пропорционально логарифму содержимого колонок
 	};
 	int    auto_calc_column_sizes = auotocalccolszNominal;
-	if(!(State & stTreeList)) {
+	if(State & stTreeList) {
+		if(P_Def) {
+			//SetupTreeWnd(0, 0);
+			SetupTreeWnd2(0);
+			SelectTreeItem();
+		}
+	}
+	else {
 		long   i;
 		long   item;
 		SString buf, cell_buf;
@@ -1636,8 +1640,8 @@ void SmartListBox::Implement_Draw()
 				ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
 				HIML = 0;
 			}
-			if(def)
-				HIML = def->CreateImageList(TProgram::GetInst());
+			if(P_Def)
+				HIML = P_Def->CreateImageList(TProgram::GetInst());
 			if(HIML)
 		 		ListView_SetImageList(h_lb, HIML, LVSIL_SMALL);
 		}
@@ -1645,9 +1649,9 @@ void SmartListBox::Implement_Draw()
 			long   first_item = 0;
 			long   last_item = 0;
 			StringSet ss(SLBColumnDelim);
-			if(def) {
+			if(P_Def) {
 				if(cc) {
-					last_item  = def->getRecsCount();
+					last_item  = P_Def->GetRecsCount();
 					// @v10.9.12 {
 					if(auto_calc_column_sizes/*&& first_item < last_item*/) {
 						LongArray column_text_size_list;
@@ -1666,7 +1670,7 @@ void SmartListBox::Implement_Draw()
 								int sw = ListView_GetStringWidth(h_lb, SUcSwitch(cell_buf.cptr()));
 								SETMAX(max_sw, sw);
 								for(i = 0, item = first_item; i < last_item; i++, item++) {
-									def->getText(item, buf);
+									P_Def->getText(item, buf);
 									{
 										ss.setBuf(buf);
 										cell_buf.Z();
@@ -1718,13 +1722,13 @@ void SmartListBox::Implement_Draw()
 					// } @v10.9.12 
 				}
 				else {
-					first_item = def->_topItem();
-					last_item  = def->ViewHight;
+					first_item = P_Def->_topItem();
+					last_item  = P_Def->ViewHight;
 				}
 			}
 			for(i = 0, item = first_item; i < last_item; i++, item++) {
-				if(def) {
-					def->getText(item, buf);
+				if(P_Def) {
+					P_Def->getText(item, buf);
 					buf.Transf(CTRANSF_INNER_TO_OUTER);
 				}
 				else
@@ -1734,14 +1738,14 @@ void SmartListBox::Implement_Draw()
 					ss.setBuf(buf);
 					lvi.mask  = LVIF_TEXT;
 					lvi.iItem = i;
-					if(def) {
+					if(P_Def) {
 						long id = 0;
 						long img_idx = 0;
-						if(def->Options & lbtAutoID)
+						if(P_Def->Options & lbtAutoID)
 							id = item;
 						else
 							getID(item, &id);
-						if(def->GetImageIdxByID(id, &img_idx) > 0) {
+						if(P_Def->GetImageIdxByID(id, &img_idx) > 0) {
 							lvi.iImage = img_idx;
 							lvi.mask |= LVIF_IMAGE;
 						}
@@ -1770,16 +1774,11 @@ void SmartListBox::Implement_Draw()
 			lvi.mask  = LVIF_STATE;
 			lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
 			lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-			::SendMessage(h_lb, LVM_SETITEMSTATE, def ? def->_curItem() : 0, reinterpret_cast<LPARAM>(&lvi));
-			ListView_EnsureVisible(h_lb, def ? def->_curItem() : 0, 0); // AHTOXA
+			::SendMessage(h_lb, LVM_SETITEMSTATE, P_Def ? P_Def->_curItem() : 0, reinterpret_cast<LPARAM>(&lvi));
+			ListView_EnsureVisible(h_lb, P_Def ? P_Def->_curItem() : 0, 0); // AHTOXA
 		}
 		else
-			::SendMessage(h_lb, LB_SETCURSEL, def ? (def->_curItem()-def->_topItem()) : 0, 0);
-	}
-	else if(def) {
-		//SetupTreeWnd(0, 0);
-		SetupTreeWnd2(0);
-		SelectTreeItem();
+			::SendMessage(h_lb, LB_SETCURSEL, P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0, 0);
 	}
 }
 
@@ -1807,25 +1806,25 @@ void SmartListBox::setState(uint aState, bool enable)
 
 int SmartListBox::addItem(long id, const char * s, long * pPos)
 {
-	const int r = def ? def->addItem(id, s, pPos) : -1;
+	const int r = P_Def ? P_Def->addItem(id, s, pPos) : -1;
 	if(r > 0)
-		setRange(def->getRecsCount());
+		setRange(P_Def->GetRecsCount());
 	return r;
 }
 
 int SmartListBox::removeItem(long pos)
 {
-	const int r = def ? def->removeItem(pos) : -1;
+	const int r = P_Def ? P_Def->removeItem(pos) : -1;
 	if(r > 0)
-		setRange(def->getRecsCount());
+		setRange(P_Def->GetRecsCount());
 	return r;
 }
 
 void SmartListBox::freeAll()
 {
-	if(def) {
-		def->freeAll();
-		setRange(def->getRecsCount());
+	if(P_Def) {
+		P_Def->freeAll();
+		setRange(P_Def->GetRecsCount());
 	}
 }
 //
@@ -1862,7 +1861,7 @@ int WordSelectorSmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPA
 				}
 				else
 					code  = LOWORD(wParam); // @v10.3.2 (short code)-->code
-				if(def->_curItem() == 0 && oneof3(code, SB_LINEUP, SB_PAGEUP, SB_TOP)) {
+				if(P_Def->_curItem() == 0 && oneof3(code, SB_LINEUP, SB_PAGEUP, SB_TOP)) {
 					HWND parent = GetParent(getHandle());
 					WordSelector * p_selector = static_cast<WordSelector *>(TView::GetWindowUserData(parent));
 					TView::messageCommand(p_selector, cmUp);

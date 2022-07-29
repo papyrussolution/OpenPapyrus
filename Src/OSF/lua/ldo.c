@@ -137,9 +137,9 @@ static void correctstack(lua_State * L, TValue * oldstack)
 	CallInfo * ci;
 	UpVal * up;
 	L->top = (L->top - oldstack) + L->stack;
-	for(up = L->openupval; up != NULL; up = up->u.open.next)
+	for(up = L->openupval; up; up = up->u.open.next)
 		up->v = (up->v - oldstack) + L->stack;
-	for(ci = L->ci; ci != NULL; ci = ci->previous) {
+	for(ci = L->ci; ci; ci = ci->previous) {
 		ci->top = (ci->top - oldstack) + L->stack;
 		ci->func = (ci->func - oldstack) + L->stack;
 		if(isLua(ci))
@@ -181,10 +181,11 @@ void luaD_growstack(lua_State * L, int n) {
 	}
 }
 
-static int stackinuse(lua_State * L) {
+static int stackinuse(lua_State * L) 
+{
 	CallInfo * ci;
 	StkId lim = L->top;
-	for(ci = L->ci; ci != NULL; ci = ci->previous) {
+	for(ci = L->ci; ci; ci = ci->previous) {
 		if(lim < ci->top) lim = ci->top;
 	}
 	lua_assert(lim <= L->stack_last);
@@ -474,7 +475,8 @@ void luaD_callnoyield(lua_State * L, StkId func, int nResults) {
 ** Completes the execution of an interrupted C function, calling its
 ** continuation function.
 */
-static void finishCcall(lua_State * L, int status) {
+static void finishCcall(lua_State * L, int status) 
+{
 	CallInfo * ci = L->ci;
 	int n;
 	/* must have a continuation and must be able to call it */
@@ -503,8 +505,9 @@ static void finishCcall(lua_State * L, int status) {
 ** be passed to the first continuation function (otherwise the default
 ** status is LUA_YIELD).
 */
-static void unroll(lua_State * L, void * ud) {
-	if(ud != NULL) /* error status? */
+static void unroll(lua_State * L, void * ud) 
+{
+	if(ud) /* error status? */
 		finishCcall(L, *(int *)ud); /* finish 'lua_pcallk' callee */
 	while(L->ci != &L->base_ci) { /* something in the stack */
 		if(!isLua(L->ci)) /* C function? */
@@ -520,9 +523,10 @@ static void unroll(lua_State * L, void * ud) {
 ** Try to find a suspended protected call (a "recover point") for the
 ** given thread.
 */
-static CallInfo * findpcall(lua_State * L) {
+static CallInfo * findpcall(lua_State * L) 
+{
 	CallInfo * ci;
-	for(ci = L->ci; ci != NULL; ci = ci->previous) { /* search for a pcall */
+	for(ci = L->ci; ci; ci = ci->previous) { /* search for a pcall */
 		if(ci->callstatus & CIST_YPCALL)
 			return ci;
 	}
@@ -585,7 +589,7 @@ static void resume(lua_State * L, void * ud) {
 		if(isLua(ci)) /* yielded inside a hook? */
 			luaV_execute(L); /* just continue running Lua code */
 		else { /* 'common' yield */
-			if(ci->u.c.k != NULL) { /* does it have a continuation function? */
+			if(ci->u.c.k) { /* does it have a continuation function? */
 				lua_unlock(L);
 				n = (*ci->u.c.k)(L, LUA_YIELD, ci->u.c.ctx); /* call continuation */
 				lua_lock(L);

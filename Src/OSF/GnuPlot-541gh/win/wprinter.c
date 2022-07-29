@@ -224,7 +224,7 @@ void GpWinMainBlock::PrintingCleanup()
 	}
 }
 
-INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam)
+INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam) // @callback(DLGPROC)
 {
 	TCHAR buf[8];
 	HWND hPropSheetDlg = GetParent(hdlg);
@@ -419,7 +419,7 @@ void PrintUnregister(GP_PRINT * lpr)
 	}
 }
 
-INT_PTR CALLBACK PrintDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK PrintDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	GP_PRINT * lpr = (GP_PRINT *)GetWindowLongPtr(hDlg, GWLP_USERDATA);
 	switch(message) {

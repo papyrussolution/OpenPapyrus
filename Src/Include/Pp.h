@@ -34273,7 +34273,7 @@ public:
 	int    ConvertILTI(ILTI *, PPBillPacket *, LongArray * pRows, uint, const char * pSerial, const GoodsReplacementArray * pGri = 0);
 	int    InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, int interactive);
 	int    AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double * pAdjPrice);
-	int    CmpSnrWithLotSnr(PPID lotID, const char * pSerial);
+	int    CmpSnrWithLotSnr(PPID lotID, const char * pSerial, bool serialIsRefB);
 	int    ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPack);
 	//
 	// Descr: конвертирует докумет srcID общей (не расширенной)

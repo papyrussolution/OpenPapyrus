@@ -27,14 +27,12 @@ public:
 	 *  @param dbdir	    The directory the glass database is stored in.
 	 *  @param readonly     true if we're opening read-only, else false.
 	 */
-	GlassDocDataTable(const std::string & dbdir, bool readonly)
-		: GlassLazyTable("docdata", dbdir + "/docdata.", readonly) {
+	GlassDocDataTable(const std::string & dbdir, bool readonly) : GlassLazyTable("docdata", dbdir + "/docdata.", readonly) 
+	{
 	}
-
-	GlassDocDataTable(int fd, off_t offset_, bool readonly)
-		: GlassLazyTable("docdata", fd, offset_, readonly) {
+	GlassDocDataTable(int fd, off_t offset_, bool readonly) : GlassLazyTable("docdata", fd, offset_, readonly) 
+	{
 	}
-
 	/** Get the document data for document @a did.
 	 *
 	 *  If the document doesn't exist, the empty string is returned.
@@ -62,7 +60,6 @@ public:
 		if(!data.empty())
 			add(make_key(did), data);
 	}
-
 	/** Replace the document data for document @a did.
 	 *
 	 *  Any existing data is replaced.
@@ -72,12 +69,10 @@ public:
 	 */
 	void replace_document_data(Xapian::docid did, const std::string & data) 
 	{
-		if(data.empty()) {
-			// We don't store the document data if it is empty.
-			delete_document_data(did);
-			return;
-		}
-		add(make_key(did), data);
+		if(data.empty())
+			delete_document_data(did); // We don't store the document data if it is empty.
+		else
+			add(make_key(did), data);
 	}
 	/** Delete the document data for document @a did.
 	 *

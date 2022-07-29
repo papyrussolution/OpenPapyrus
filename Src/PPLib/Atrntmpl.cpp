@@ -1248,7 +1248,7 @@ int SelAmtSymbDialog::getSelectedSymb(PPID * pID, int * pKind, SString & rSymbBu
 IMPL_HANDLE_EVENT(SelAmtSymbDialog)
 {
 	if(event.isCmd(cmOK) && IsInState(sfModal)) {
-		if(P_List && P_List->def) {
+		if(SmartListBox::IsValidS(P_List)) {
 			SString temp_buf;
 			long   i = 0;
 			P_List->getCurID(&i);
@@ -1273,7 +1273,7 @@ IMPL_HANDLE_EVENT(SelAmtSymbDialog)
 				updateList();
 		}
 		else*/ if(event.isCmd(cmaEdit) || event.isCmd(cmLBDblClk)) {
-			if(P_List && P_List->def) {
+			if(SmartListBox::IsValidS(P_List)) {
 				int    upd = 0;
 				long   i = 0;
 				P_List->getCurID(&i);
@@ -1353,7 +1353,7 @@ void SelAmtSymbDialog::updateList()
 	if(P_List) {
 		StrAssocArray * p_list = new StrAssocArray;
 		if(MakeList(p_list)) {
-			static_cast<StrAssocListBoxDef *>(P_List->def)->setArray(p_list);
+			static_cast<StrAssocListBoxDef *>(P_List->P_Def)->setArray(p_list);
 			Draw_();
 		}
 		else

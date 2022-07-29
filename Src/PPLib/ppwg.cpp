@@ -405,7 +405,7 @@ IMPL_HANDLE_EVENT(DutySchedDialog)
 	}
 	else if(event.isCmd(cmDutySchedRmvCp)) {
 		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DUTYSCHED_CPLIST));
-		if(p_list && p_list->def) {
+		if(SmartListBox::IsValidS(p_list)) {
 			long i = 0;
 			p_list->getCurID(&i);
 			Data.RemoveCountPoint((uint)i-1);
@@ -472,16 +472,16 @@ void DutySchedDialog::fillStaffCal()
 void DutySchedDialog::updateCountPointList(long pos)
 {
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DUTYSCHED_CPLIST));
-	if(p_list) {
+	if(SmartListBox::IsValidS(p_list)) {
 		PPDutyCountPoint * p_point;
 		SString sub;
-		int    sav_pos = (int)p_list->def->_curItem();
+		const  long preserve_pos = p_list->P_Def->_curItem();
 		p_list->freeAll();
 		for(uint i = 0; Data.CpList.enumItems(&i, (void **)&p_point);) {
 			sub.Z().Cat(p_point->Dtm.d, DATF_DMY);
 			p_list->addItem(i, sub);
 		}
-	   	p_list->focusItem((pos < 0) ? sav_pos : pos);
+	   	p_list->focusItem((pos < 0) ? preserve_pos : pos);
 		p_list->Draw_();
 	}
 }

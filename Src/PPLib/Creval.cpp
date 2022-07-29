@@ -135,7 +135,7 @@ void CRevalDialog::editCRate()
 {
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CREVAL_CRATELIST));
 	if(p_list) {
-		const long pos = p_list->def->_curItem();
+		const long pos = p_list->P_Def->_curItem();
 		if(pos >= 0 && pos < Data.CRateList.getCountI()) {
 			AmtEntry * p_entry = &Data.CRateList.at(static_cast<uint>(pos));
 			const LDATE dt = getCtrlDate(CTL_CREVAL_DT);
@@ -154,7 +154,7 @@ void CRevalDialog::updateCRateList()
 	AmtEntry * p_entry = 0;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CREVAL_CRATELIST));
 	if(p_list) {
-		const int sav_pos = (int)p_list->def->_curItem();
+		const long preserve_pos = p_list->P_Def->_curItem();
 		StringSet ss(SLBColumnDelim);
 		p_list->freeAll();
 		for(uint i = 0; Data.CRateList.enumItems(&i, (void **)&p_entry);) {
@@ -171,7 +171,7 @@ void CRevalDialog::updateCRateList()
 				break;
 			}
 		}
-		p_list->focusItem(sav_pos);
+		p_list->focusItem(preserve_pos);
 		p_list->Draw_();
 	}
 }

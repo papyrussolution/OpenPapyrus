@@ -849,18 +849,12 @@ int ssh_get_pubkey_hash(ssh_session session, uchar ** hash)
 	MD5CTX ctx;
 	uchar * h;
 	int rc;
-
 	if(session == NULL || hash == NULL) {
 		return SSH_ERROR;
 	}
-
 	/* In FIPS mode, we cannot use MD5 */
 	if(ssh_fips_mode()) {
-		ssh_set_error(session,
-		    SSH_FATAL,
-		    "In FIPS mode MD5 is not allowed."
-		    "Try ssh_get_publickey_hash() with"
-		    "SSH_PUBLICKEY_HASH_SHA256");
+		ssh_set_error(session, SSH_FATAL, "In FIPS mode MD5 is not allowed. Try ssh_get_publickey_hash() with SSH_PUBLICKEY_HASH_SHA256");
 		return SSH_ERROR;
 	}
 	*hash = NULL;
@@ -872,13 +866,11 @@ int ssh_get_pubkey_hash(ssh_session session, uchar ** hash)
 	if(!h) {
 		return SSH_ERROR;
 	}
-
 	ctx = md5_init();
 	if(!ctx) {
 		ZFREE(h);
 		return SSH_ERROR;
 	}
-
 	rc = ssh_get_server_publickey(session, &pubkey);
 	if(rc != SSH_OK) {
 		md5_final(h, ctx);

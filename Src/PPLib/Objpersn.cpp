@@ -308,30 +308,11 @@ int SlVCard::PutProp(Property prop, const void * pData, PropAttribute attrib)
 	return ok;
 }
 
-int SlVCard::GetName(SString &)
-{
-	return -1;
-}
-
-int SlVCard::GetBirthDate(LDATE *)
-{
-	return -1;
-}
-
-int SlVCard::GetPhones(SString &)
-{
-	return -1;
-}
-
-int SlVCard::GetEmails(SString &)
-{
-	return -1;
-}
-
-int SlVCard::GetAddrs(SString &)
-{
-	return -1;
-}
+int SlVCard::GetName(SString &) { return -1; }
+int SlVCard::GetBirthDate(LDATE *) { return -1; }
+int SlVCard::GetPhones(SString &) { return -1; }
+int SlVCard::GetEmails(SString &) { return -1; }
+int SlVCard::GetAddrs(SString &) { return -1; }
 //
 //
 //
@@ -573,9 +554,8 @@ class ExtFieldsDialog : public PPListDialog {
 public:
 	ExtFieldsDialog() : PPListDialog(DLG_DLVREXTFLDS, CTL_LBXSEL_LIST)
 	{
-		if(P_Box) {
-			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
-		}
+		if(SmartListBox::IsValidS(P_Box))
+			P_Box->P_Def->SetOption(lbtFocNotify, 1);
 		selectCtrl(CTL_LBXSEL_LIST);
 	}
 	DECL_DIALOG_SETDTS()
@@ -717,9 +697,8 @@ class NewPersMarksDialog : public PPListDialog {
 public:
 	NewPersMarksDialog() : PPListDialog(DLG_NEWCLNT, CTL_LBXSEL_LIST)
 	{
-		if(P_Box) {
-			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
-		}
+		if(SmartListBox::IsValidS(P_Box))
+			P_Box->P_Def->SetOption(lbtFocNotify, 1);
 		selectCtrl(CTL_LBXSEL_LIST);
 	}
 	DECL_DIALOG_SETDTS()

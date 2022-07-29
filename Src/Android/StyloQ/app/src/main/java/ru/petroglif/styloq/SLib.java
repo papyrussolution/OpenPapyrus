@@ -46,6 +46,8 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -3196,13 +3198,16 @@ public class SLib {
 		String fmt = "%." + Integer.toString(decimals) + "f";
 		return String.format(Locale.US, fmt, v);
 	}
-	public static String FormatCurrency(double val, String currencySymb)
+	public static @NotNull String FormatCurrency(double val, String currencySymb)
 	{
 		NumberFormat format = NumberFormat.getCurrencyInstance();
 		format.setMaximumFractionDigits(2);
 		if(SLib.GetLen(currencySymb) > 0)
 			format.setCurrency(Currency.getInstance(currencySymb));
-		return format.format(val);
+		String result = format.format(val);
+		if(result == null)
+			result = "";
+		return result;
 	}
 	public static LDATE strtodate(String buf, int style)
 	{

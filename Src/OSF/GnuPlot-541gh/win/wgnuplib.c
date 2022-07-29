@@ -9,23 +9,24 @@
 #include "wresourc.h"
 #include "wcommon.h"
 
-HINSTANCE hdllInstance;
-LPCWSTR szParentClass = L"wgnuplot_parent";
-LPCWSTR szTextClass = L"wgnuplot_text";
-LPCWSTR szToolbarClass = L"wgnuplot_toolbar";
-LPCWSTR szSeparatorClass = L"wgnuplot_separator";
-LPCWSTR szPauseClass = L"wgnuplot_pause";
-
-/* Window ID */
+HINSTANCE hdllInstance; // @global
+const LPCWSTR szParentClass = L"wgnuplot_parent"; // @global
+const LPCWSTR szTextClass = L"wgnuplot_text"; // @global
+const LPCWSTR szToolbarClass = L"wgnuplot_toolbar"; // @global
+const LPCWSTR szSeparatorClass = L"wgnuplot_separator"; // @global
+const LPCWSTR szPauseClass = L"wgnuplot_pause"; // @global
+//
+// Window ID 
+//
 struct WID {
 	BOOL used;
 	HWND hwnd;
 	void * ptr;
 };
 
-struct WID * widptr = NULL;
-uint nwid = 0;
-HLOCAL hwid = 0;
+struct WID * widptr = NULL; // @global
+uint   nwid = 0; // @global
+HLOCAL hwid = 0; // @global
 
 void * LocalAllocPtr(UINT flags, UINT size)
 {
@@ -43,10 +44,11 @@ void * LocalReAllocPtr(void * ptr, UINT flags, UINT size)
 
 void LocalFreePtr(void * ptr)
 {
-	HLOCAL hlocal = LocalHandle(ptr);
-	LocalUnlock(hlocal);
-	LocalFree(hlocal);
-	return;
+	if(ptr) {
+		HLOCAL hlocal = LocalHandle(ptr);
+		LocalUnlock(hlocal);
+		LocalFree(hlocal);
+	}
 }
 
 /* ascii to int */

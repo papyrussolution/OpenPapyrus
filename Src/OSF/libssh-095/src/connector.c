@@ -310,9 +310,7 @@ static void ssh_connector_fd_out_cb(ssh_connector connector){
 			ssh_connector_fd_in_cb(connector);
 		}
 		else {
-			ssh_set_error(connector->session,
-			    SSH_FATAL,
-			    "Output socket or channel closed");
+			ssh_set_error(connector->session, SSH_FATAL, "Output socket or channel closed");
 			return;
 		}
 		connector->in_available = 0;
@@ -493,10 +491,7 @@ static int ssh_connector_channel_write_wontblock_cb(ssh_session session, ssh_cha
 			ssh_connector_reset_pollevents(connector);
 		}
 		else {
-			ssh_set_error(session,
-			    SSH_FATAL,
-			    "Output socket or channel closed");
-
+			ssh_set_error(session, SSH_FATAL, "Output socket or channel closed");
 			return 0;
 		}
 		connector->in_available = 0;
@@ -505,37 +500,27 @@ static int ssh_connector_channel_write_wontblock_cb(ssh_session session, ssh_cha
 	else {
 		connector->out_wontblock = 1;
 	}
-
 	return 0;
 }
 
 int ssh_connector_set_event(ssh_connector connector, ssh_event event)
 {
 	int rc = SSH_OK;
-
-	if((connector->in_fd == SSH_INVALID_SOCKET &&
-	    connector->in_channel == NULL)
-	   || (connector->out_fd == SSH_INVALID_SOCKET &&
-	    connector->out_channel == NULL)) {
+	if((connector->in_fd == SSH_INVALID_SOCKET && connector->in_channel == NULL) || (connector->out_fd == SSH_INVALID_SOCKET && connector->out_channel == NULL)) {
 		rc = SSH_ERROR;
 		ssh_set_error(connector->session, SSH_FATAL, "Connector not complete");
 		goto error;
 	}
-
 	connector->event = event;
 	if(connector->in_fd != SSH_INVALID_SOCKET) {
 		if(connector->in_poll == NULL) {
-			connector->in_poll = ssh_poll_new(connector->in_fd,
-				POLLIN|POLLERR,
-				ssh_connector_fd_cb,
-				connector);
+			connector->in_poll = ssh_poll_new(connector->in_fd, POLLIN|POLLERR, ssh_connector_fd_cb, connector);
 		}
 		rc = ssh_event_add_poll(event, connector->in_poll);
 		if(rc != SSH_OK) {
 			goto error;
 		}
 	}
-
 	if(connector->out_fd != SSH_INVALID_SOCKET) {
 		if(connector->out_poll == NULL) {
 			connector->out_poll = ssh_poll_new(connector->out_fd,

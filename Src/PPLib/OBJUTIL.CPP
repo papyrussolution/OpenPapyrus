@@ -1511,7 +1511,7 @@ int FASTCALL SetupPPObjCombo(ComboBox * pCombo, PPID obj, PPID id, uint flags, v
 		ListWindow * p_lw = GetPPObjList(obj, flags, extraPtr);
 		if(p_lw) {
 			pCombo->setListWindow(p_lw);
-			if(!p_lw->listBox()->def && flags & OLW_LOADDEFONOPEN) {
+			if(!p_lw->listBox()->P_Def && flags & OLW_LOADDEFONOPEN) {
 				SString name;
 				GetObjectName(obj, id, name);
 				pCombo->setInputLineText(name);

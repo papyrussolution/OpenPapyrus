@@ -1,6 +1,6 @@
 // Toolbar.cpp
 // There's a mine born by Osolotkin, 2000, 2001
-// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021
+// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -838,7 +838,7 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	TuneToolsDialog * p_param = 0;
 	switch(message) {

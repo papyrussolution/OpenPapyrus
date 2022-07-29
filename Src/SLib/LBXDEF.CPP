@@ -115,18 +115,18 @@ long   ListBoxDef::_topItem() const { return TopItem; }
 long   ListBoxDef::_curItem() const { return CurItem; }
 bool   ListBoxDef::_isTreeList() const { return LOGIC(CFlags & cTree); }
 void   ListBoxDef::setViewHight(int vh) { ViewHight = vh; }
-int    ListBoxDef::GetFrameSize() { return -1; }
+int    ListBoxDef::GetFrameSize() const { return -1; }
 int    ListBoxDef::GetFrameState() { return 0; }
 int    ListBoxDef::getIdList(LongArray &) { return -1; }
 int    ListBoxDef::search(const void * pPattern, CompFunc, int srchMode) { return 0; }
-int    ListBoxDef::valid() { return 1; }
+bool   ListBoxDef::IsValid() const { return true; }
 int    ListBoxDef::addItem(long id, const char *, long * pPos) { return -1; }
 int    ListBoxDef::removeItem(long pos) { return -1; }
 void   ListBoxDef::freeAll() {}
 int    ListBoxDef::step(long delta) { return go(CurItem + delta); }
 int    ListBoxDef::top() { return go(0); }
-int    ListBoxDef::bottom() { return go(getRecsCount()-1); }
-long   ListBoxDef::getRecsCount() { return 0; }
+int    ListBoxDef::bottom() { return go(GetRecsCount()-1); }
+long   ListBoxDef::GetRecsCount() const { return 0; }
 void * FASTCALL ListBoxDef::getRow_(long idx) { return 0; }
 int    ListBoxDef::refresh() { return 1; }
 int    ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.Search(id, pIDx, 0); }
@@ -138,8 +138,8 @@ int    ListBoxDef::HasItemColorSpec() const { return BIN(ColorAssoc.getCount());
 
 int ListBoxDef::go(long row)
 {
-	if(valid()) {
-		const long  c = getRecsCount();
+	if(IsValid()) {
+		const long  c = GetRecsCount();
 		row = c ? RANGE(row, 0, c-1) : 0;
 		ScrollDelta = row - CurItem;
 		CurItem = row;
@@ -326,10 +326,10 @@ StdListBoxDef::~StdListBoxDef()
 		delete P_Data;
 }
 
-int    StdListBoxDef::GetFrameSize() { return (int)getRecsCount(); }
+int    StdListBoxDef::GetFrameSize() const { return GetRecsCount(); }
 int    StdListBoxDef::GetFrameState() { return -1; }
-int    StdListBoxDef::valid() { return (P_Data != 0); }
-long   StdListBoxDef::getRecsCount() { return SVectorBase::GetCount(P_Data); }
+bool   StdListBoxDef::IsValid() const { return (P_Data != 0); }
+long   StdListBoxDef::GetRecsCount() const { return SVectorBase::GetCount(P_Data); }
 
 int StdListBoxDef::setArray(SArray * pArray)
 {
@@ -435,9 +435,9 @@ int StrAssocListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMod
 	return r;
 }
 
-int    StrAssocListBoxDef::valid() { return (P_Data != 0); }
-long   StrAssocListBoxDef::getRecsCount() { return P_Data ? P_Data->getCount() : 0; }
-int    StrAssocListBoxDef::GetFrameSize() { return P_Data ? P_Data->getCount() : 0; }
+bool   StrAssocListBoxDef::IsValid() const { return (P_Data != 0); }
+long   StrAssocListBoxDef::GetRecsCount() const { return P_Data ? P_Data->getCount() : 0; }
+int    StrAssocListBoxDef::GetFrameSize() const { return P_Data ? P_Data->getCount() : 0; }
 int    StrAssocListBoxDef::GetFrameState() { return -1; }
 int    StrAssocListBoxDef::removeItem(long pos) { return (P_Data && pos >= 0) ? P_Data->AtFree(static_cast<uint>(pos)) : 0; }
 void   StrAssocListBoxDef::freeAll() { CALLPTRMEMB(P_Data, Z()); }
@@ -459,10 +459,9 @@ void * FASTCALL StrAssocListBoxDef::getRow_(long r)
 	void * p_row = 0;
 	if(P_Data && r < static_cast<long>(P_Data->getCount())) {
 		StrAssocArray::Item item = P_Data->at_WithoutParent(r); // at-->at_WithoutParent
-		size_t sz = sizeof(item.Id) + sstrlen(item.Txt) + 1;
-		sz = MAX(sz, 512);
+		const size_t sz = smax(sizeof(item.Id) + sstrlen(item.Txt) + 1, static_cast<size_t>(512));
 		if(OneItem.Alloc(sz)) {
-			*(long *)OneItem.P_Buf = item.Id;
+			*reinterpret_cast<long *>(OneItem.P_Buf) = item.Id;
 			strnzcpy(OneItem.P_Buf+sizeof(long), item.Txt, 0);
 			p_row = OneItem.P_Buf;
 		}
@@ -599,8 +598,8 @@ int StdTreeListBoxDef::getCurData(void * b)
 	return 0;
 }
 
-int  StdTreeListBoxDef::valid() { return BIN(P_SaList); }
-long StdTreeListBoxDef::getRecsCount() { return P_SaList ? P_SaList->getCount() : 0; }
+bool   StdTreeListBoxDef::IsValid() const { return LOGIC(P_SaList); }
+long   StdTreeListBoxDef::GetRecsCount() const { return P_SaList ? P_SaList->getCount() : 0; }
 
 int StdTreeListBoxDef::getIdList(LongArray & rList)
 {
@@ -629,7 +628,7 @@ void * FASTCALL StdTreeListBoxDef::getRow_(long r)
 
 int StdTreeListBoxDef::go(long pos)
 {
-	if(valid() && pos >= 0 && pos < getRecsCount()) {
+	if(IsValid() && pos >= 0 && pos < GetRecsCount()) {
 		CurItem = pos;
 		return 1;
 	}
@@ -647,7 +646,7 @@ int StdTreeListBoxDef::top()
 
 int StdTreeListBoxDef::bottom()
 {
-	CurItem = getRecsCount();
+	CurItem = GetRecsCount();
 	return 1;
 }
 
@@ -656,9 +655,9 @@ void StdTreeListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 	ASSIGN_PTR(pScrollPos, 0);
 	if(P_SaList) {
 		uint32 pos = 0;
-		long * p_id = (long *)getRow_(_curItem());
+		const long * p_id = static_cast<const long *>(getRow_(_curItem()));
 		if(p_id && *p_id && T.Search(p_id, &pos, CMPF_LONG)) {
-			TreeItem * p_item = static_cast<TreeItem *>(T.GetData(pos));
+			const TreeItem * p_item = static_cast<const TreeItem *>(T.GetData(pos));
 			if(p_item)
 				ASSIGN_PTR(pScrollPos, (long)p_item->H);
 		}
@@ -667,13 +666,13 @@ void StdTreeListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 }
 
 int  StdTreeListBoxDef::GetFrameState() { return -1; }
-int  StdTreeListBoxDef::GetFrameSize() { return -1; }
+int  StdTreeListBoxDef::GetFrameSize() const { return -1; }
 void StdTreeListBoxDef::setViewHight(int h) { ListBoxDef::setViewHight(h); }
 
 int  StdTreeListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
 {
 	int    r   = 0;
-	if(valid()) {
+	if(IsValid()) {
 		int    dir = (srchMode & ~srchFlags);
 		uint   ofs = sizeof(long);
 		uint   pos;
@@ -699,7 +698,7 @@ int StdTreeListBoxDef::GetStringByID(long id, SString & rBuf)
 	int    ok = -1;
 	uint   pos = 0;
 	rBuf.Z();
-	if(valid()) {
+	if(IsValid()) {
 		if(P_SaList) {
 			ok = BIN(P_SaList->GetText(id, rBuf));
 		}
@@ -710,7 +709,7 @@ int StdTreeListBoxDef::GetStringByID(long id, SString & rBuf)
 int StdTreeListBoxDef::GoByID(long id)
 {
 	uint   pos = 0;
-	if(valid() && P_SaList && P_SaList->Search(id, &pos))
+	if(IsValid() && P_SaList && P_SaList->Search(id, &pos))
 		go(pos);
 	return 1;
 }
@@ -723,9 +722,7 @@ int StdTreeListBoxDef::GetParent(long child, long * pParent) const
 	{ return P_SaList ? (P_SaList->GetParent(child, pParent) > 0) : 0; }
 //
 //
-#if 1 // {
-// @construction {
-
+//
 StdTreeListBoxDef2_::SearchBlock::SearchBlock() : P_LastResult(0)
 {
 }
@@ -822,12 +819,8 @@ int StdTreeListBoxDef2_::getCurData(void * b)
 	return 0;
 }
 
-int  StdTreeListBoxDef2_::valid() { return BIN(P_SaList); }
-long StdTreeListBoxDef2_::getRecsCount() 
-{ 
-	//return P_SaList ? P_SaList->GetCount() : 0; 
-	return P_SaList ? LL.getCount() : 0; 
-}
+bool   StdTreeListBoxDef2_::IsValid() const { return LOGIC(P_SaList); }
+long   StdTreeListBoxDef2_::GetRecsCount() const { return P_SaList ? LL.getCount() : 0; }
 
 int StdTreeListBoxDef2_::getIdList(LongArray & rList)
 {
@@ -866,7 +859,7 @@ void * FASTCALL StdTreeListBoxDef2_::getRow_(long r)
 
 int StdTreeListBoxDef2_::go(long pos)
 {
-	if(valid() && pos >= 0 && pos < getRecsCount()) {
+	if(IsValid() && pos >= 0 && pos < GetRecsCount()) {
 		CurItem = pos;
 		return 1;
 	}
@@ -884,7 +877,7 @@ int StdTreeListBoxDef2_::top()
 
 int StdTreeListBoxDef2_::bottom()
 {
-	CurItem = getRecsCount();
+	CurItem = GetRecsCount();
 	return 1;
 }
 
@@ -911,7 +904,7 @@ void StdTreeListBoxDef2_::getScrollData(long * pScrollDelta, long * pScrollPos)
 }
 
 int  StdTreeListBoxDef2_::GetFrameState() { return -1; }
-int  StdTreeListBoxDef2_::GetFrameSize() { return -1; }
+int  StdTreeListBoxDef2_::GetFrameSize() const { return -1; }
 void StdTreeListBoxDef2_::setViewHight(int h) { ListBoxDef::setViewHight(h); }
 
 static IMPL_CMPFUNC(INTVECBYINTVER, i1, i2)
@@ -934,7 +927,7 @@ static IMPL_CMPFUNC(INTVECBYINTVER, i1, i2)
 int  StdTreeListBoxDef2_::search(const void * pPattern, CompFunc fcmp, int srchMode)
 {
 	int    r = 0;
-	if(valid()) {
+	if(IsValid()) {
 		int    dir = (srchMode & ~srchFlags);
 		uint   ofs = sizeof(long);
 		uint   pos = 0;
@@ -1006,7 +999,7 @@ int StdTreeListBoxDef2_::GetStringByID(long id, SString & rBuf)
 	int    ok = -1;
 	uint   pos = 0;
 	rBuf.Z();
-	if(valid()) {
+	if(IsValid()) {
 		if(P_SaList) {
 			long strp = 0;
 			if(StrIndex.BSearch(id, &strp, 0)) {
@@ -1027,16 +1020,12 @@ int StdTreeListBoxDef2_::GetStringByID(long id, SString & rBuf)
 int StdTreeListBoxDef2_::GoByID(long id)
 {
 	uint   pos = 0;
-	if(valid() && P_SaList && LL.lsearch(id, &pos)) {
+	if(IsValid() && P_SaList && LL.lsearch(id, &pos)) {
 		go(pos);
 		return 1;
 	}
 	else
 		return 0;
-	/*
-	if(valid() && P_SaList && P_SaList->Search(id, &pos))
-		go(pos);
-	*/
 }
 
 bool FASTCALL StdTreeListBoxDef2_::HasChildren(long id) const
@@ -1044,12 +1033,7 @@ bool FASTCALL StdTreeListBoxDef2_::HasChildren(long id) const
 int StdTreeListBoxDef2_::GetListByParent(long parentId, LongArray & rList) const
 	{ return P_SaList ? P_SaList->GetListByParent(parentId, 0, rList) : -1; }
 int StdTreeListBoxDef2_::GetParent(long childId, long * pParentId) const
-{ 
-	return P_SaList ? P_SaList->Search(childId, pParentId, 0) : 0;
-	//return P_SaList ? (P_SaList->GetParent(childId, pParentId) > 0) : 0; 
-}
-#endif // } 0 @construction 
-
+	{ return P_SaList ? P_SaList->Search(childId, pParentId, 0) : 0; }
 #if 0 // @v11.2.5 {
 //
 // StringListBoxDef
@@ -1098,10 +1082,7 @@ DBQListBoxDef::~DBQListBoxDef()
 		delete query;
 }
 
-int DBQListBoxDef::GetFrameSize()
-{
-	return query->P_Frame->count;
-}
+int DBQListBoxDef::GetFrameSize() const { return query->P_Frame->count; }
 
 int DBQListBoxDef::GetFrameState()
 {
@@ -1136,10 +1117,9 @@ int DBQListBoxDef::setQuery(DBQuery & rQuery, uint aBufSize)
 	return 0;
 }
 
-int DBQListBoxDef::setRestrict(DBQ & rQ)
-{
-	return query ? (query->where(rQ), query->top(), 1) : 0;
-}
+int    DBQListBoxDef::setRestrict(DBQ & rQ) { return query ? (query->where(rQ), query->top(), 1) : 0; }
+bool   DBQListBoxDef::IsValid() const { return (query && !query->error); }
+int    DBQListBoxDef::go(long p) { return step(p-CurItem); }
 
 void DBQListBoxDef::setViewHight(int h)
 {
@@ -1153,20 +1133,10 @@ void DBQListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 	*pScrollPos = query ? (long)query->P_Frame->spos : 0;
 }
 
-int DBQListBoxDef::valid()
-{
-	return (query && !query->error);
-}
-
 void DBQListBoxDef::setupView()
 {
 	TopItem = query ? query->P_Frame->top : 0;
 	CurItem = query ? query->P_Frame->cur : 0;
-}
-
-int DBQListBoxDef::go(long p)
-{
-	return step(p-CurItem);
 }
 
 int DBQListBoxDef::step(long d)
@@ -1209,10 +1179,7 @@ int DBQListBoxDef::refresh()
 	return 0;
 }
 
-long  DBQListBoxDef::getRecsCount()
-{
-	return query ? (query->P_Frame->srange+1) : 0;
-}
+long  DBQListBoxDef::GetRecsCount() const { return query ? (query->P_Frame->srange+1) : 0; }
 
 int DBQListBoxDef::getIdList(LongArray & rList)
 {
@@ -1229,7 +1196,7 @@ int DBQListBoxDef::TransmitData(int dir, void * pData)
 {
 	int    s = ListBoxDef::TransmitData(dir, pData);
 	if(dir > 0 && s)
-		query->P_Frame->spos = (uint)getRecsCount() / 2;
+		query->P_Frame->spos = (uint)GetRecsCount() / 2;
 	return s;
 }
 
@@ -1254,7 +1221,7 @@ int DBQListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
 	}
 	if(ok) {
 		if((ok = query->search(pPattern, fcmp, f, srchMode, p_srch_extra)) != 0)
-			query->P_Frame->spos = (uint)getRecsCount() / 2;
+			query->P_Frame->spos = (uint)GetRecsCount() / 2;
 		setupView();
 	}
 	return ok;

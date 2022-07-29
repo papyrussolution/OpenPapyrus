@@ -21,11 +21,26 @@ import java.util.Collections;
 import java.util.TimerTask;
 
 public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.OnQueryTextListener {
+	/*private static class ScopeEntry {
+		String Scope;
+		String Ident;
+	}
+	private static class ResultEntry {
+		int    DisplayStatus;
+		String ScopeIdent;
+		SLib.PPObjID Oid;
+		long   Rank;
+		double Weight;
+		String Text;
+	}*/
 	private String SearchPattern;
 	private JSONObject JsSearchResult;
 	private JSONArray JsScopeList;
 	private JSONArray JsResultList;
+	//private ArrayList <ScopeEntry> ScopeList;
+	//private ArrayList <ResultEntry> ResultList;
 	private int  CalledIndex; // Индекс элемента JsResultList, по которому ожидается выполнение запроса детализации
+	private int  CalledIndexFinished; // Индекс элемента JsResultList, по которому завершено выполнение запроса детализации
 	private long CallingStartTm; // Время ожидания
 	public GlobalSearchActivity()
 	{
@@ -33,6 +48,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 		SearchPattern = null;
 		JsSearchResult = null;
 		CalledIndex = -1;
+		CalledIndexFinished = -1;
 		CallingStartTm = 0;
 	}
 	private void RefreshStatus()
@@ -42,8 +58,13 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 			if(v != null && v instanceof RecyclerView) {
 				RecyclerView rv = (RecyclerView)v;
 				RecyclerView.Adapter a = rv.getAdapter();
-				if(a != null)
-					a.notifyDataSetChanged();
+				if(a != null) {
+					if(CalledIndex >= 0)
+						a.notifyItemChanged(CalledIndex);
+					if(CalledIndexFinished >= 0)
+						a.notifyItemChanged(CalledIndexFinished);
+					//a.notifyDataSetChanged();
+				}
 			}
 		}
 	}
@@ -62,8 +83,15 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 					Collections.shuffle(isl);
 					StyloQApp.IgnitionServerEntry ise = isl.get(0);
 					StyloQInterchange.DoInterchangeParam inner_param = new StyloQInterchange.DoInterchangeParam(ise.SvcIdent);
+					inner_param.RetrActivity_ = this;
 					inner_param.AccsPoint = ise.Url;
 					JSONObject js_query = new JSONObject();
+					{
+						StyloQCommand.Item fake_org_cmd = new StyloQCommand.Item();
+						fake_org_cmd.Name = "search";
+						fake_org_cmd.BaseCmdId = 0;
+						inner_param.OriginalCmdItem = fake_org_cmd;
+					}
 					js_query.put("cmd", "search");
 					js_query.put("plainquery", SearchPattern);
 					js_query.put("maxresultcount", 128);
@@ -77,7 +105,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 				;
 			}
 		}
-		return false;
+		return result;
 	}
 	@Override public boolean onQueryTextChange(String newText)
 	{
@@ -104,27 +132,6 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 			}
 		}
 		return result;
-	}
-	public void SetQueryResult(String svcDocJson)
-	{
-		if(SLib.GetLen(svcDocJson) > 0) {
-			try {
-				JsSearchResult = new JSONObject(svcDocJson);
-				JsScopeList = JsSearchResult.optJSONArray("scope_list");
-				JsResultList = JsSearchResult.optJSONArray("result_list");
-			} catch(JSONException exn) {
-				JsSearchResult = null;
-				JsScopeList = null;
-				JsResultList = null;
-			}
-			View v = findViewById(R.id.CTL_GLOBALSEARCH_RESULTLIST);
-			if(v != null && v instanceof RecyclerView) {
-				RecyclerView rv = (RecyclerView)v;
-				RecyclerView.Adapter a = rv.getAdapter();
-				if(a != null)
-					a.notifyDataSetChanged();
-			}
-		}
 	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
@@ -164,7 +171,16 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 						imm.showSoftInput(inpv, InputMethodManager.SHOW_IMPLICIT);
 					}*/
 					CalledIndex = -1;
+					CalledIndexFinished = -1;
 					CallingStartTm = 0;
+				}
+				break;
+			case SLib.EV_ACTIVITYRESUME:
+				{
+					CalledIndex = -1;
+					CallingStartTm = 0;
+					RefreshStatus();
+					//CalledIndexFinished = -1;
 				}
 				break;
 			case SLib.EV_LISTVIEWCOUNT:
@@ -207,33 +223,31 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 										}
 									}
 									SLib.SetCtrlString(iv, R.id.LVITEM_SEARCH_SCOPE, scope_name);
-									View tv_inc_et = iv.findViewById(R.id.LVITEM_SEARCH_IND_EXECUTETIME);
+									View tv_ind_et = iv.findViewById(R.id.LVITEM_SEARCH_IND_EXECUTETIME);
+									ImageView iv_ind = (ImageView)iv.findViewById(R.id.LVITEM_SEARCH_IND_STATUS);
 									if(CalledIndex == ev_subj.ItemIdx) {
-										if(CallingStartTm > 0 && tv_inc_et != null) {
+										if(CallingStartTm > 0 && tv_ind_et != null) {
 											final long now_ms = System.currentTimeMillis();
 											long ellapsed_ms = now_ms - CallingStartTm;
 											final int sec = (int)(ellapsed_ms / 1000);
 											final int h = (int)(sec / 3600);
 											String timewatch_text = ((h > 0) ? Integer.toString(h) + ":" : "") + String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60));
-											if(tv_inc_et.getVisibility() != View.VISIBLE)
-												tv_inc_et.setVisibility(View.VISIBLE);
+											if(tv_ind_et.getVisibility() != View.VISIBLE)
+												tv_ind_et.setVisibility(View.VISIBLE);
 											SLib.SetCtrlString(iv, R.id.LVITEM_SEARCH_IND_EXECUTETIME, timewatch_text);
 										}
-										{
-											ImageView ctl = (ImageView)iv.findViewById(R.id.LVITEM_SEARCH_IND_STATUS);
-											if(ctl != null) {
-												if(ctl.getVisibility() != View.VISIBLE)
-													ctl.setVisibility(View.VISIBLE);
-												ctl.setImageResource(R.drawable.ic_stopwatch);
-											}
+										if(iv_ind != null) {
+											if(iv_ind.getVisibility() != View.VISIBLE)
+												iv_ind.setVisibility(View.VISIBLE);
+											iv_ind.setImageResource(R.drawable.ic_stopwatch);
 										}
 									}
-									else {
-										if(tv_inc_et != null && tv_inc_et.getVisibility() == View.VISIBLE)
-											tv_inc_et.setVisibility(View.GONE);
-										ImageView ctl = (ImageView)iv.findViewById(R.id.LVITEM_SEARCH_IND_STATUS);
-										if(ctl != null && ctl.getVisibility() == View.VISIBLE)
-											ctl.setVisibility(View.GONE);
+									else /*if(CalledIndexFinished == ev_subj.ItemIdx)*/ {
+										if(tv_ind_et != null && tv_ind_et.getVisibility() == View.VISIBLE)
+											tv_ind_et.setVisibility(View.GONE);
+										if(iv_ind != null && iv_ind.getVisibility() == View.VISIBLE)
+											iv_ind.setVisibility(View.GONE);
+										//CalledIndexFinished = -1; // Один раз перерисовали в изначальном виде - больше не надо
 									}
 								}
 							} catch(JSONException exn) {
@@ -274,7 +288,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 											{
 												StyloQCommand.Item fake_org_cmd = new StyloQCommand.Item();
 												fake_org_cmd.Name = "onsrchr";
-												fake_org_cmd.BaseCmdId = StyloQCommand.sqbcDtLogin;
+												fake_org_cmd.BaseCmdId = 0;
 												inner_param.OriginalCmdItem = fake_org_cmd;
 											}
 											js_query.put("cmd", /*"register"*/"onsrchr");
@@ -305,14 +319,41 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 					StyloQApp app_ctx = GetAppCtx();
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult) subj;
 					if(app_ctx != null && ir.OriginalCmdItem != null) {
-						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("onsrchr")) {
+						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("search")) {
+							CalledIndexFinished = -1;
+							CalledIndex = -1;
+							CallingStartTm = 0;
+							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+								if(ir.InfoReply != null) {
+									if(ir.InfoReply instanceof SecretTagPool) {
+										JsSearchResult = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+										if(JsSearchResult != null) {
+											JsScopeList = JsSearchResult.optJSONArray("scope_list");
+											JsResultList = JsSearchResult.optJSONArray("result_list");
+											View v = findViewById(R.id.CTL_GLOBALSEARCH_RESULTLIST);
+											if(v != null && v instanceof RecyclerView) {
+												RecyclerView rv = (RecyclerView)v;
+												RecyclerView.Adapter a = rv.getAdapter();
+												if(a != null)
+													a.notifyDataSetChanged();
+											}
+										}
+									}
+								}
+							}
+							else {
+								;
+							}
+						}
+						else if(ir.OriginalCmdItem.Name.equalsIgnoreCase("onsrchr")) {
+							CalledIndexFinished = CalledIndex;
 							CalledIndex = -1;
 							CallingStartTm = 0;
 							ScheduleRTmr(null, 0, 0);
 							RefreshStatus();
 							if(ir.InfoReply != null) {
 								if(ir.InfoReply instanceof SecretTagPool) {
-									JSONObject js_reply = ((SecretTagPool) ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+									JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
 									if(js_reply != null) {
 										StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(js_reply);
 										if(crr.Status > 0) {
@@ -350,5 +391,26 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 				break;
 		}
 		return result;
+	}
+	public void SetQueryResult(String svcDocJson) // @toremove
+	{
+		if(SLib.GetLen(svcDocJson) > 0) {
+			try {
+				JsSearchResult = new JSONObject(svcDocJson);
+				JsScopeList = JsSearchResult.optJSONArray("scope_list");
+				JsResultList = JsSearchResult.optJSONArray("result_list");
+			} catch(JSONException exn) {
+				JsSearchResult = null;
+				JsScopeList = null;
+				JsResultList = null;
+			}
+			View v = findViewById(R.id.CTL_GLOBALSEARCH_RESULTLIST);
+			if(v != null && v instanceof RecyclerView) {
+				RecyclerView rv = (RecyclerView)v;
+				RecyclerView.Adapter a = rv.getAdapter();
+				if(a != null)
+					a.notifyDataSetChanged();
+			}
+		}
 	}
 }

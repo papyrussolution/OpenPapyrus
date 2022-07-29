@@ -529,10 +529,7 @@ static sftp_message sftp_get_message(sftp_packet packet)
 		case SSH_FXP_EXTENDED_REPLY:
 		    break;
 		default:
-		    ssh_set_error(packet->sftp->session,
-			SSH_FATAL,
-			"Unknown packet type %d",
-			packet->type);
+		    ssh_set_error(packet->sftp->session, SSH_FATAL, "Unknown packet type %d", packet->type);
 		    sftp_set_error(packet->sftp, SSH_FX_FAILURE);
 		    return NULL;
 	}
@@ -975,8 +972,7 @@ sftp_dir sftp_opendir(sftp_session sftp, const char * path)
 			    return NULL;
 		    }
 		    sftp_set_error(sftp, status->status);
-		    ssh_set_error(sftp->session, SSH_REQUEST_DENIED,
-			"SFTP server: %s", status->errormsg);
+		    ssh_set_error(sftp->session, SSH_REQUEST_DENIED, "SFTP server: %s", status->errormsg);
 		    status_msg_free(status);
 		    return NULL;
 		case SSH_FXP_HANDLE:
@@ -1028,7 +1024,6 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 		sftp_set_error(sftp, SSH_FX_FAILURE);
 		return NULL;
 	}
-
 	/* This isn't really a loop, but it is like a try..catch.. */
 	do {
 		if(ssh_buffer_get_u32(buf, &flags) != 4) {
@@ -1052,7 +1047,6 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 			if(attr->owner == NULL) {
 				break;
 			}
-
 			group = ssh_buffer_get_ssh_string(buf);
 			if(group == NULL) {
 				break;
@@ -1063,13 +1057,11 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 				break;
 			}
 		}
-
 		if(flags & SSH_FILEXFER_ATTR_PERMISSIONS) {
 			if(ssh_buffer_get_u32(buf, &attr->permissions) != 4) {
 				break;
 			}
 			attr->permissions = ntohl(attr->permissions);
-
 			/* FIXME on windows! */
 			switch(attr->permissions & SSH_S_IFMT) {
 				case SSH_S_IFSOCK:
@@ -1092,13 +1084,11 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 				    break;
 			}
 		}
-
 		if(flags & SSH_FILEXFER_ATTR_ACCESSTIME) {
 			if(ssh_buffer_get_u64(buf, &attr->atime64) != 8) {
 				break;
 			}
 			attr->atime64 = ntohll(attr->atime64);
-
 			if(flags & SSH_FILEXFER_ATTR_SUBSECOND_TIMES) {
 				if(ssh_buffer_get_u32(buf, &attr->atime_nseconds) != 4) {
 					break;
@@ -1106,13 +1096,11 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 				attr->atime_nseconds = ntohl(attr->atime_nseconds);
 			}
 		}
-
 		if(flags & SSH_FILEXFER_ATTR_CREATETIME) {
 			if(ssh_buffer_get_u64(buf, &attr->createtime) != 8) {
 				break;
 			}
 			attr->createtime = ntohll(attr->createtime);
-
 			if(flags & SSH_FILEXFER_ATTR_SUBSECOND_TIMES) {
 				if(ssh_buffer_get_u32(buf, &attr->createtime_nseconds) != 4) {
 					break;
@@ -1120,13 +1108,11 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 				attr->createtime_nseconds = ntohl(attr->createtime_nseconds);
 			}
 		}
-
 		if(flags & SSH_FILEXFER_ATTR_MODIFYTIME) {
 			if(ssh_buffer_get_u64(buf, &attr->mtime64) != 8) {
 				break;
 			}
 			attr->mtime64 = ntohll(attr->mtime64);
-
 			if(flags & SSH_FILEXFER_ATTR_SUBSECOND_TIMES) {
 				if(ssh_buffer_get_u32(buf, &attr->mtime_nseconds) != 4) {
 					break;

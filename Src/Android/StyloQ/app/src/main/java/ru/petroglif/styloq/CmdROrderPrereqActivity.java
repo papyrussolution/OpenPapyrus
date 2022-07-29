@@ -12,23 +12,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,7 +33,6 @@ import java.util.TimerTask;
 
 public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	public  CommonPrereqModule CPM;
-	private JSONArray UomListData;
 	private JSONArray WharehouseListData;
 	private JSONArray QuotKindListData;
 	private ArrayList <JSONObject> BrandListData;
@@ -129,7 +125,9 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				double _upp = 0.0;
 				double _mult = 0.0;
 				double _min = 0.0;
+				int    uom_id = 0;
 				if(goods_item != null && goods_item.JsItem != null) {
+					uom_id = goods_item.JsItem.optInt("uomid", 0);
 					_upp = goods_item.JsItem.optDouble("upp", 0.0);
 					_mult = goods_item.JsItem.optDouble("ordqtymult", 0.0);
 					_min = goods_item.JsItem.optDouble("ordminqty", 0.0);
@@ -162,7 +160,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					}
 				}
 				if(do_update) {
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, SLib.formatdouble(_data.Set.Qtty, 3));
+					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, ActivityCtx.CPM.FormatQtty(_data.Set.Qtty, uom_id, true));
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, ActivityCtx.CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price));
 				}
 			}
@@ -175,6 +173,37 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					requestWindowFeature(Window.FEATURE_NO_TITLE);
 					setContentView(R.layout.dialog_ordrti);
 					SetDTS(Data);
+					{
+						EditText vqty = SLib.FindEditTextById(this, R.id.CTL_ORDRTI_QTTY);
+						if(vqty != null && vqty instanceof TextInputEditText) {
+							((TextInputEditText)vqty).addTextChangedListener(new TextWatcher() {
+								public void afterTextChanged(Editable s)
+								{
+								}
+								public void beforeTextChanged(CharSequence s, int start, int count, int after)
+								{
+								}
+								public void onTextChanged(CharSequence s, int start, int before, int count)
+								{
+									String text = s.toString();
+									if(Data != null && SLib.GetLen(text) > 0) {
+										Document.TransferItem _data = (Document.TransferItem)Data;
+										double qtty = Double.parseDouble(text);
+										if(qtty < 0.0)
+											qtty = 0.0;
+										if(_data.Set == null)
+											_data.Set = new Document.ValuSet();
+										_data.Set.Qtty = qtty;
+										View vamt = findViewById(R.id.CTL_ORDRTI_AMOUNT);
+										if(vamt != null && vamt instanceof TextView) {
+											String amt_text = ActivityCtx.CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price);
+											((TextView)vamt).setText(amt_text);
+										}
+									}
+								}
+							});
+						}
+					}
 					break;
 				case SLib.EV_COMMAND:
 					if(srcObj != null && srcObj instanceof View) {
@@ -240,9 +269,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					double _min = 0.0;	// Минимальный заказ
 					String text = "";
 					String blob_signature = null;
+					int    uom_id = 0;
 					if(_data != null && _data.GoodsID > 0 && ActivityCtx != null) {
 						goods_item = ActivityCtx.CPM.FindGoodsItemByGoodsID(_data.GoodsID);
 						if(goods_item != null && goods_item.JsItem != null) {
+							uom_id = goods_item.JsItem.optInt("uomid", 0);
 							text = goods_item.JsItem.optString("nm", "");
 							blob_signature =  goods_item.JsItem.optString("imgblobs", null);
 							//
@@ -271,7 +302,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					}
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_GOODSNAME, text);
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_PRICE, ActivityCtx.CPM.FormatCurrency(_data.Set.Price));
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, SLib.formatdouble(_data.Set.Qtty, 3));
+					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, ActivityCtx.CPM.FormatQtty(_data.Set.Qtty,  uom_id, true));
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, ActivityCtx.CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price));
 					//
 					SLib.SetupImage(ActivityCtx, this.findViewById(R.id.CTL_ORDRTI_IMG), blob_signature);
@@ -662,7 +693,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							if(SLib.GetLen(svc_reply_doc_json) > 0) {
 								JSONObject js_head = new JSONObject(svc_reply_doc_json);
 								CPM.GetCommonJsonFactors(js_head);
-								UomListData = js_head.optJSONArray("uom_list");
+								CPM.MakeUomListFromCommonJson(js_head);
 								CPM.MakeGoodsGroupListFromCommonJson(js_head);
 								CPM.MakeGoodsListFromCommonJson(js_head);
 								{
@@ -1068,9 +1099,12 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										final Document.TransferItem ti = _doc.TiList.get(ev_subj.ItemIdx);
 										if(ti != null) {
 											CommonPrereqModule.WareEntry goods_item = CPM.FindGoodsItemByGoodsID(ti.GoodsID);
+											int    uom_id = 0;
+											if(goods_item != null && goods_item.JsItem != null)
+												uom_id = goods_item.JsItem.optInt("uomid", 0);
 											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, (goods_item != null) ? goods_item.JsItem.optString("nm", "") : "");
 											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_TI_PRICE, (ti.Set != null) ? CPM.FormatCurrency(ti.Set.Price) : "");
-											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_TI_QTTY, (ti.Set != null) ? SLib.formatdouble(ti.Set.Qtty, 3) : "");
+											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_TI_QTTY, (ti.Set != null) ? CPM.FormatQtty(ti.Set.Qtty, uom_id, false) : "");
 											double item_amont = (ti.Set != null) ? (ti.Set.Qtty * ti.Set.Price) : 0.0;
 											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_TI_AMOUNT, " = " + CPM.FormatCurrency(item_amont));
 										}

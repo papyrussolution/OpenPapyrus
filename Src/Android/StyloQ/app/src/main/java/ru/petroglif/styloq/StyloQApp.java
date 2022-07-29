@@ -887,7 +887,7 @@ public class StyloQApp extends SLib.App {
 				if(original_cmd_item != null || retr_activity != null || subj_text.equalsIgnoreCase("Command")) {
 					Class intent_cls = null;
 					String svc_doc_json = null;
-					GlobalSearchActivity gs_activity = null; // Если мы получили ответ на поисковый запрос, то результат надо будет передать в
+					// @v11.4.5 GlobalSearchActivity gs_activity = null; // Если мы получили ответ на поисковый запрос, то результат надо будет передать в
 					// существующию GlobalSearchActivity. Если таковая отсутствует,
 					StyloQCommand.DocReference doc_ref = null;
 					Intent intent = null;
@@ -922,6 +922,7 @@ public class StyloQApp extends SLib.App {
 											intent_cls = CmdROrderPrereqActivity.class;
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("attendanceprereq"))
 											intent_cls = CmdRAttendancePrereqActivity.class;
+										/* @v11.4.5
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("search")) {
 											if(current_activity_list != null) {
 												for(int i = 0; gs_activity == null && i < current_activity_list.size(); i++) {
@@ -932,12 +933,12 @@ public class StyloQApp extends SLib.App {
 											}
 											if(gs_activity == null)
 												intent_cls = GlobalSearchActivity.class;
-										}
+										}*/
 										if(doc_decl.Format.equalsIgnoreCase("json"))
 											svc_doc_json = new String(stp_reply.Get(SecretTagPool.tagRawData));
 									}
 								}
-								if(intent_cls == null && gs_activity == null)
+								if(intent_cls == null/*&& gs_activity == null*/)
 									intent_cls = CmdRSimpleActivity.class;
 							}
 						}
@@ -958,7 +959,7 @@ public class StyloQApp extends SLib.App {
 					}
 					if(retr_activity != null)
 						retr_activity.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
-					else if(gs_activity != null) {
+					/* @v11.4.5 else if(gs_activity != null) {
 						class SendSearchResultToActivity implements Runnable {
 							private GlobalSearchActivity A;
 							private String Result;
@@ -978,7 +979,7 @@ public class StyloQApp extends SLib.App {
 							new Handler(lpr).post(new SendSearchResultToActivity(gs_activity, svc_doc_json));
 						}
 						//gs_activity.SetQueryResult(svc_doc_json);
-					}
+					}*/
 					else if(intent_cls != null) {
 						intent = new Intent(main_activity, intent_cls);
 						if(SLib.GetLen(subj.SvcIdent) > 0)

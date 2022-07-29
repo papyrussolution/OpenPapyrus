@@ -2573,7 +2573,7 @@ LSTATUS GetSnipExRegValue(_In_ const wchar_t * ValueName, _In_ DWORD* ValueData)
 	return Result;
 }
 
-BOOL CALLBACK TextEditCallback(_In_ HWND Dialog, _In_ UINT Message, _In_ WPARAM WParam, _In_ LPARAM LParam)
+BOOL CALLBACK TextEditCallback(_In_ HWND Dialog, _In_ UINT Message, _In_ WPARAM WParam, _In_ LPARAM LParam) // @callback(DLGPROC)
 {
 	UNREFERENCED_PARAMETER(LParam);
 	switch(Message) {

@@ -70,7 +70,6 @@ typedef struct tagGFILE {
 } GFILE;
 
 static GFILE * Gfopen(LPCTSTR FileName, LPCTSTR Mode);
-static void Gfclose(GFILE * gfile);
 static int Gfgets(LPSTR lp, int size, GFILE * gfile);
 static int GetLine(char * buffer, int len, GFILE * gfile);
 static void LeftJustify(char * d, char * s);
@@ -339,8 +338,11 @@ static GFILE * Gfopen(LPCTSTR FileName, LPCTSTR Mode)
 
 static void Gfclose(GFILE * gfile)
 {
-	fclose(gfile->hfile);
-	SAlloc::F(gfile);
+	if(gfile) {
+		if(gfile->hfile)
+			fclose(gfile->hfile);
+		SAlloc::F(gfile);
+	}
 }
 
 /* returns number of characters read */
@@ -524,7 +526,6 @@ void LoadMacros(TW * lptw)
 		}
 		else if(sstreqi_ascii(buf, "[Button]")) {
 			// button macro 
-			char * icon;
 			if(lpmw->nButton >= BUTTONMAX) {
 				swprintf_s(wbuf, MAXSTR, L"Too many buttons at line %d of " TCHARFMT "\n", nLine, lpmw->szMenuName);
 				lptw->PopupError(wbuf);
@@ -547,26 +548,29 @@ void LoadMacros(TW * lptw)
 			}
 			ButtonText[lpmw->nButton] = (char *)macroptr;
 			ButtonIcon[lpmw->nButton] = I_IMAGENONE; /* comctl 5.81, Win 2000 */
-			if((icon = strchr((char *)macroptr, ';'))) {
-				int inumber;
-				*icon = '\0';
-				errno = 0;
-				inumber = strtoul(++icon, NULL, 10);
-				if(errno == 0 && inumber != 0) {
-					ButtonIcon[lpmw->nButton] = inumber;
-					ButtonIconFile[lpmw->nButton] = NULL;
-					bLoadStandardButtons = TRUE;
-				}
-				else {
-					/* strip trailing white space */
-					char * end = icon + strlen(icon) - 1;
-					while(isspace((uchar)*end)) {
-						*end = '\0';
-						end--;
+			{
+				char * icon = strchr((char *)macroptr, ';');
+				if(icon) {
+					int inumber;
+					*icon = '\0';
+					errno = 0;
+					inumber = strtoul(++icon, NULL, 10);
+					if(errno == 0 && inumber != 0) {
+						ButtonIcon[lpmw->nButton] = inumber;
+						ButtonIconFile[lpmw->nButton] = NULL;
+						bLoadStandardButtons = TRUE;
 					}
-					ButtonIcon[lpmw->nButton] = ButtonIndex;
-					ButtonIconFile[lpmw->nButton] = sstrdup(icon);
-					ButtonIndex++;
+					else {
+						/* strip trailing white space */
+						char * end = icon + strlen(icon) - 1;
+						while(isspace((uchar)*end)) {
+							*end = '\0';
+							end--;
+						}
+						ButtonIcon[lpmw->nButton] = ButtonIndex;
+						ButtonIconFile[lpmw->nButton] = sstrdup(icon);
+						ButtonIndex++;
+					}
 				}
 			}
 			macroptr += strlen((char *)macroptr)  + 1;
@@ -661,13 +665,13 @@ void LoadMacros(TW * lptw)
 	// only load standard bitmaps if required. 
 	if(bLoadStandardButtons) {
 		bitmap.nID = (dpi > 96)  ? IDB_STD_LARGE_COLOR : IDB_STD_SMALL_COLOR;
-		SendMessage(lpmw->hToolbar, TB_ADDBITMAP, 0, (LPARAM)&bitmap);
+		SendMessage(lpmw->hToolbar, TB_ADDBITMAP, 0, reinterpret_cast<LPARAM>(&bitmap));
 		bitmap.nID = (dpi > 96)  ? IDB_HIST_LARGE_COLOR : IDB_HIST_SMALL_COLOR;
-		SendMessage(lpmw->hToolbar, TB_ADDBITMAP, 0, (LPARAM)&bitmap);
+		SendMessage(lpmw->hToolbar, TB_ADDBITMAP, 0, reinterpret_cast<LPARAM>(&bitmap));
 		bitmap.nID = (dpi > 96)  ? IDB_VIEW_LARGE_COLOR : IDB_VIEW_SMALL_COLOR;
-		SendMessage(lpmw->hToolbar, TB_ADDBITMAP, 0, (LPARAM)&bitmap);
+		SendMessage(lpmw->hToolbar, TB_ADDBITMAP, 0, reinterpret_cast<LPARAM>(&bitmap));
 	}
-	/* create buttons */
+	// create buttons 
 	for(i = 0; i < lpmw->nButton; i++) {
 		TBBUTTON button;
 		memzero(&button, sizeof(button));
@@ -735,15 +739,11 @@ errorcleanup:
 		GlobalUnlock(hmacrobuf);
 		GlobalFree(hmacrobuf);
 	}
-	if(lpmw->szPrompt)
-		LocalFreePtr(lpmw->szPrompt);
-	if(lpmw->szAnswer)
-		LocalFreePtr(lpmw->szAnswer);
+	LocalFreePtr(lpmw->szPrompt);
+	LocalFreePtr(lpmw->szAnswer);
 cleanup:
-	if(buf)
-		LocalFreePtr(buf);
-	if(menufile)
-		Gfclose(menufile);
+	LocalFreePtr(buf);
+	Gfclose(menufile);
 }
 
 void CloseMacros(TW * lptw)
@@ -759,17 +759,13 @@ void CloseMacros(TW * lptw)
 		GlobalUnlock(hglobal);
 		GlobalFree(hglobal);
 	}
-	if(lpmw->szPrompt)
-		LocalFreePtr(lpmw->szPrompt);
-	if(lpmw->szAnswer)
-		LocalFreePtr(lpmw->szAnswer);
+	LocalFreePtr(lpmw->szPrompt);
+	LocalFreePtr(lpmw->szAnswer);
 }
-
-/***********************************************************************/
-/* InputBoxDlgProc() -  Message handling routine for Input dialog box  */
-/***********************************************************************/
-
-INT_PTR CALLBACK InputBoxDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+//
+// InputBoxDlgProc() -  Message handling routine for Input dialog box  */
+//
+INT_PTR CALLBACK InputBoxDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	TW * lptw = (TW *)GetWindowLongPtr(GetParent(hDlg), 0);
 	MW * lpmw = lptw->P_LpMw;

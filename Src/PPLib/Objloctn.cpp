@@ -955,7 +955,7 @@ StrAssocArray * PPObjLocation::MakeStrAssocList(void * extraPtr)
 
 int PPObjLocation::AssignImages(ListBoxDef * pDef)
 {
-	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
+	if(pDef && pDef->IsValid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
 		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
@@ -1466,8 +1466,8 @@ class LocationExtFieldsDialog : public PPListDialog {
 public:
 	LocationExtFieldsDialog() : PPListDialog(DLG_DLVREXTFLDS, CTL_LBXSEL_LIST)
 	{
-		if(P_Box)
-			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
+		if(SmartListBox::IsValidS(P_Box))
+			P_Box->P_Def->SetOption(lbtFocNotify, 1);
 		PPPersonConfig psn_cfg;
 		PPObjPerson::ReadConfig(&psn_cfg);
 		// @v10.7.11 FieldNames.copy(psn_cfg.DlvrAddrExtFldList);
@@ -1704,7 +1704,7 @@ void LocationDialog::UpdateWarehouseList(long pos, int byPos /*= 1*/)
 	SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_LOCATION_WHLIST));
 	if(p_box) {
 		SString temp_buf;
-		const long sav_pos = p_box->def ? p_box->def->_curItem() : 0;
+		const long sav_pos = p_box->P_Def ? p_box->P_Def->_curItem() : 0;
 		p_box->freeAll();
 		for(uint i = 0; i < Data.WarehouseList.GetCount(); i++) {
 			const PPID loc_id = Data.WarehouseList.Get(i);
@@ -1762,7 +1762,7 @@ IMPL_HANDLE_EVENT(LocationDialog)
 	}
 	else if(event.isCmd(cmaDelete)) {
 		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_LOCATION_WHLIST));
-		if(p_box && p_box->def) {
+		if(SmartListBox::IsValidS(p_box)) {
 			long   i = 0;
 			p_box->getCurID(&i);
 			if(i) {

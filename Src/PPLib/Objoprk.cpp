@@ -2203,8 +2203,8 @@ public:
 	OpListDialog(uint dlgID, uint listCtlID, PPIDArray * pOpList, PPIDArray * pOpTypesList) : PPListDialog(dlgID, listCtlID)
 	{
 		RVALUEPTR(OpTypesList, pOpTypesList);
-		if(P_Box)
-			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
+		if(SmartListBox::IsValidS(P_Box))
+			P_Box->P_Def->SetOption(lbtFocNotify, 1);
 		setOpList(pOpList);
 	}
 protected:
@@ -2386,7 +2386,7 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			Data.freeAll();
 		setupList();
-		if(P_Box && P_Box->def) {
+		if(SmartListBox::IsValidS(P_Box)) {
 			long   val = 0;
 			Data.Search(LocID = LConfig.Location, &val, 0);
 			P_Box->Search_(&LocID, CMPF_LONG, lbSrchByID);
@@ -2424,8 +2424,8 @@ IMPL_HANDLE_EVENT(DiffByLocCntrDlg)
 	else if(event.isClusterClk(CTL_DIFFCNTR_LOCLIST)) {
 		const PPID loc_id = getCurrID();
 		updateList(loc_id);
-		if(P_Box)
-			CALLPTRMEMB(P_Box->def, top());
+		if(SmartListBox::IsValidS(P_Box))
+			P_Box->P_Def->top();
 	}
 	else
 		return;

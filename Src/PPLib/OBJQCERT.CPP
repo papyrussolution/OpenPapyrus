@@ -387,7 +387,7 @@ int SelQCertDialog::updateView(PPID id)
 	if(P_List) {
 		long   extra_param = IsSelByGoods ? GoodsID : 0;
 		// @v11.1.10 QcObj.UpdateSelector(P_List->def, 0, reinterpret_cast<void *>(extra_param));
-		QcObj.Selector(P_List->def, 0, reinterpret_cast<void *>(extra_param)); // @v11.1.10
+		QcObj.Selector(P_List->P_Def, 0, reinterpret_cast<void *>(extra_param)); // @v11.1.10
 		if(id >= 0)
 			P_List->Search_(&id, 0, srchFirst|lbSrchByID);
 		P_List->Draw_();

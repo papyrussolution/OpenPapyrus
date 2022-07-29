@@ -201,7 +201,7 @@ private:
 int SdFieldCorrListDialog::moveItem(long pos, long id, int up)
 {
 	int    ok = -1;
-	if(P_Box && P_Box->def) {
+	if(SmartListBox::IsValidS(P_Box)) {
 		uint   u_pos = static_cast<uint>(pos);
 		if(Data.MoveField(u_pos, up, &u_pos) > 0) {
 			updateList(u_pos);
@@ -3056,11 +3056,11 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 	P_ParamList[pp++] = &QuotParam;
 	{
 		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_IMPEXPCFGS_CFGS));
-		if(p_box) {
+		if(SmartListBox::IsValidS(p_box)) {
 			SetupStrListBox(p_box);
 			for(uint i = 0; i < CfgsList.getCount(); i++)
 				p_box->addItem(CfgsList.Get(i).Id, CfgsList.Get(i).Txt);
-			CALLPTRMEMB(p_box->def, top());
+			p_box->P_Def->top();
 			p_box->Draw_();
 		}
 	}
@@ -3082,8 +3082,8 @@ IMPL_HANDLE_EVENT(ImpExpCfgsListDialog)
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmLBItemFocused) && event.isCtlEvent(CTL_IMPEXPCFGS_CFGS)) {
 		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_IMPEXPCFGS_CFGS));
-		if(p_box && p_box->def) {
-			CfgPos = p_box->def->_curItem();
+		if(SmartListBox::IsValidS(p_box)) {
+			CfgPos = p_box->P_Def->_curItem();
 			updateList(-1);
 			clearEvent(event);
 		}

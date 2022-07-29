@@ -350,7 +350,7 @@ void TInputLine::InputStat::CheckIn()
 	}
 }
 
-/*static*/LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	TInputLine * p_view = static_cast<TInputLine *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
@@ -1446,7 +1446,7 @@ int ComboBox::setListWindow(ListWindow * pListWin, long dataVal)
 	return r;
 }
 
-/*static*/LRESULT CALLBACK ComboBox::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK ComboBox::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	ComboBox * p_view = static_cast<ComboBox *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
@@ -1485,7 +1485,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				HWND   hcb  = getHandle();
 				if(P_Def) {
 					P_Def->TransmitData(-1, &prev_item_selected);
-					setRange(P_Def->getRecsCount());
+					setRange(P_Def->GetRecsCount());
 				}
 				TView::SetWindowProp(hcb, GWLP_USERDATA, this);
 				PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(hcb, GWLP_WNDPROC, ComboBox::DlgProc)); 
@@ -1589,7 +1589,7 @@ void FASTCALL ComboBox::setDef(ListBoxDef * pDef)
 {
 	if(pDef) {
 		P_Def = pDef;
-		setRange(P_Def->getRecsCount());
+		setRange(P_Def->GetRecsCount());
 		State |= stUndef;
 		Draw_();
 	}
@@ -1666,7 +1666,7 @@ int ComboBox::TransmitData(int dir, void * pData)
 		}
 	}
 	else if(dir < 0) {
-		if(P_ListWin && !(State & stUndef) && P_ListWin->listBox()->def)
+		if(P_ListWin && !(State & stUndef) && P_ListWin->listBox()->P_Def)
 			P_ListWin->listBox()->TransmitData(dir, pData);
 		else if(P_Def == 0 && NoDefID)
 			*static_cast<long *>(pData) = NoDefID;
@@ -1724,7 +1724,7 @@ int ComboBox::addItem(long id, const char * pS, long * pPos)
 {
 	int    r = -1;
 	if(P_Def && (r = P_Def->addItem(id, pS, pPos)) > 0)
-		setRange(P_Def->getRecsCount());
+		setRange(P_Def->GetRecsCount());
 	return r;
 }
 
@@ -1732,7 +1732,7 @@ int ComboBox::removeItem(long pos)
 {
 	int    r = -1;
 	if(P_Def && (r = P_Def->removeItem(pos)) > 0)
-		setRange(P_Def->getRecsCount());
+		setRange(P_Def->GetRecsCount());
 	return r;
 }
 
@@ -1740,13 +1740,13 @@ void ComboBox::freeAll()
 {
 	if(P_Def) {
 		P_Def->freeAll();
-		setRange(P_Def->getRecsCount());
+		setRange(P_Def->GetRecsCount());
 	}
 }
 //
 //
 //
-/*static*/LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	TImageView * p_view = static_cast<TImageView *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {

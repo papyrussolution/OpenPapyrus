@@ -32,8 +32,8 @@ ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * aObj, void * extraPtr) : TD
 
 void ObjViewDialog::updateList(PPID id)
 {
-	if(P_List && P_List->def) {
-		const long cur = (id < 0) ? P_List->def->_curItem() : -1;
+	if(SmartListBox::IsValidS(P_List)) {
+		const long cur = (id < 0) ? P_List->P_Def->_curItem() : -1;
 		P_List->setDef(P_Obj->Selector(0, 0, ExtraPtr));
 		if(id < 0)
 			P_List->focusItem(cur);
@@ -68,10 +68,10 @@ void ObjViewDialog::removeItem()
 {
 	PPID   id = getCurrID();
 	if((Rt & PPR_DEL) && id) {
-		P_List->def->step(+1);
+		P_List->P_Def->step(+1);
 		PPID   next_id = getCurrID();
 		if(next_id == 0 || next_id == id) {
-			P_List->def->step(-2);
+			P_List->P_Def->step(-2);
 			next_id = getCurrID();
 		}
 		if(P_Obj->RemoveObjV(id, 0, PPObject::rmv_default, ExtraPtr) > 0) {
@@ -143,10 +143,10 @@ IMPL_HANDLE_EVENT(ObjViewDialog)
 			case cmLBDblClk:
 				if(TVINFOVIEW && TVINFOVIEW == P_List) {
 					int edit = 1;
-					if(P_List->def && P_List->isTreeList()) {
+					if(P_List->P_Def && P_List->isTreeList()) {
 						PPID cur_id = 0;
-						P_List->def->getCurID(&cur_id);
-						if(static_cast<const StdTreeListBoxDef *>(P_List->def)->HasChildren(cur_id))
+						P_List->P_Def->getCurID(&cur_id);
+						if(static_cast<const StdTreeListBoxDef *>(P_List->P_Def)->HasChildren(cur_id))
 							edit = 0;
 					}
 					if(edit)

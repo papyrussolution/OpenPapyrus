@@ -1172,7 +1172,7 @@ void LZ4_attach_dictionary(LZ4_stream_t * working_stream, const LZ4_stream_t * d
 	 * marked as having dirty context, e.g. requiring full reset.
 	 */
 	LZ4_resetStream_fast(working_stream);
-	if(dictionary_stream != NULL) {
+	if(dictionary_stream) {
 		/* If the current offset is zero, we will never look in the
 		 * external dictionary context, since there is no value a table
 		 * entry can take that indicate a miss. In that case, we need

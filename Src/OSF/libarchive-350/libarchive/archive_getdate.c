@@ -1019,12 +1019,12 @@ time_t __archive_get_date(time_t now, const char * p)
 #else
 	memzero(&gmt, sizeof(gmt));
 	gmt_ptr = gmtime(&now);
-	if(gmt_ptr != NULL) {
+	if(gmt_ptr) {
 		/* Copy, in case localtime and gmtime use the same buffer. */
 		gmt = *gmt_ptr;
 	}
 #endif
-	if(gmt_ptr != NULL)
+	if(gmt_ptr)
 		tzone = difftm(&gmt, &local);
 	else
 		/* This system doesn't understand timezones; fake it. */
@@ -1055,7 +1055,7 @@ time_t __archive_get_date(time_t now, const char * p)
 
 	/* If a timezone was specified, use that for generating the default
 	 * time components instead of the local timezone. */
-	if(gds->HaveZone && gmt_ptr != NULL) {
+	if(gds->HaveZone && gmt_ptr) {
 		now -= gds->Timezone;
 #if defined(HAVE_GMTIME_R)
 		gmt_ptr = gmtime_r(&now, &gmt);
@@ -1069,7 +1069,7 @@ time_t __archive_get_date(time_t now, const char * p)
 #else
 		gmt_ptr = gmtime(&now);
 #endif
-		if(gmt_ptr != NULL)
+		if(gmt_ptr)
 			local = *gmt_ptr;
 		now += gds->Timezone;
 	}
@@ -1123,24 +1123,21 @@ time_t __archive_get_date(time_t now, const char * p)
 	return Start == -1 ? 0 : Start;
 }
 
-#if     defined(TEST)
-
-/* ARGSUSED */
-int main(int argc, char ** argv)
-{
-	time_t d;
-	time_t now = time(NULL);
-
-	while(*++argv != NULL) {
-		(void)printf("Input: %s\n", *argv);
-		d = get_date(now, *argv);
-		if(d == -1)
-			(void)printf("Bad format - couldn't convert.\n");
-		else
-			(void)printf("Output: %s\n", ctime(&d));
+#if defined(TEST)
+	/* ARGSUSED */
+	int main(int argc, char ** argv)
+	{
+		time_t d;
+		time_t now = time(NULL);
+		while(*++argv) {
+			(void)printf("Input: %s\n", *argv);
+			d = get_date(now, *argv);
+			if(d == -1)
+				(void)printf("Bad format - couldn't convert.\n");
+			else
+				(void)printf("Output: %s\n", ctime(&d));
+		}
+		exit(0);
+		/* NOTREACHED */
 	}
-	exit(0);
-	/* NOTREACHED */
-}
-
 #endif  /* defined(TEST) */

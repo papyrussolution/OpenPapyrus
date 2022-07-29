@@ -47,7 +47,7 @@ PPObjInternetAccount::PPObjInternetAccount(void * extraPtr) : PPObjReference(PPO
 
 int PPObjInternetAccount::AssignImages(ListBoxDef * pDef)
 {
-	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
+	if(pDef && pDef->IsValid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
 		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
@@ -612,8 +612,7 @@ IMPL_HANDLE_EVENT(AddrBookDialog)
 		if(TVCOMMAND) {
 			if(TVCMD == cmLBDblClk) {
 				if(event.isCtlEvent(CTL_ADDRBOOK_LIST)) {
-					if(P_Box && P_Box->def) {
-						long i = 0;
+					if(SmartListBox::IsValidS(P_Box)) {
 						P_Box->getCurID(&Selection);
 					}
 					if(IsInState(sfModal))
@@ -622,8 +621,7 @@ IMPL_HANDLE_EVENT(AddrBookDialog)
 				}
 			}
 			else if(TVCMD == cmOK) {
-				if(P_Box && P_Box->def) {
-					long i = 0;
+				if(SmartListBox::IsValidS(P_Box)) {
 					P_Box->getCurID(&Selection);
 				}
 			}

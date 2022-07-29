@@ -1147,25 +1147,14 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 				     * already have been decrypted.
 				     */
 				    if(packet_remaining > 0) {
-					    rc = ssh_packet_decrypt(session,
-						    cleartext_packet,
-						    (uint8 *)data,
-						    lenfield_blocksize + etm_packet_offset,
-						    processed - (lenfield_blocksize + etm_packet_offset));
+					    rc = ssh_packet_decrypt(session, cleartext_packet, (uint8 *)data, lenfield_blocksize + etm_packet_offset, processed - (lenfield_blocksize + etm_packet_offset));
 					    if(rc < 0) {
-						    ssh_set_error(session,
-							SSH_FATAL,
-							"Decryption error");
+						    ssh_set_error(session, SSH_FATAL, "Decryption error");
 						    goto error;
 					    }
 				    }
-
 				    if(!etm) {
-					    rc = ssh_packet_hmac_verify(session,
-						    ssh_buffer_get(session->in_buffer),
-						    ssh_buffer_get_len(session->in_buffer),
-						    mac,
-						    crypto->in_hmac);
+					    rc = ssh_packet_hmac_verify(session, ssh_buffer_get(session->in_buffer), ssh_buffer_get_len(session->in_buffer), mac, crypto->in_hmac);
 					    if(rc < 0) {
 						    ssh_set_error(session, SSH_FATAL, "HMAC error");
 						    goto error;
@@ -1269,12 +1258,7 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 		    SSH_LOG(SSH_LOG_PACKET, "Nested packet processing. Delaying.");
 		    return 0;
 	}
-
-	ssh_set_error(session,
-	    SSH_FATAL,
-	    "Invalid state into packet_read2(): %d",
-	    session->packet_state);
-
+	ssh_set_error(session, SSH_FATAL, "Invalid state into packet_read2(): %d", session->packet_state);
 error:
 	session->session_state = SSH_SESSION_STATE_ERROR;
 	SSH_LOG(SSH_LOG_PACKET, "Packet: processed %" PRIdS " bytes", processed);

@@ -376,26 +376,18 @@ int ssh_socket_unix(ssh_socket s, const char * path)
 	socket_t fd;
 	sunaddr.sun_family = AF_UNIX;
 	snprintf(sunaddr.sun_path, sizeof(sunaddr.sun_path), "%s", path);
-
 	fd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if(fd == SSH_INVALID_SOCKET) {
-		ssh_set_error(s->session, SSH_FATAL,
-		    "Error from socket(AF_UNIX, SOCK_STREAM, 0): %s",
-		    strerror(errno));
+		ssh_set_error(s->session, SSH_FATAL, "Error from socket(AF_UNIX, SOCK_STREAM, 0): %s", strerror(errno));
 		return -1;
 	}
-
 	if(fcntl(fd, F_SETFD, 1) == -1) {
-		ssh_set_error(s->session, SSH_FATAL,
-		    "Error from fcntl(fd, F_SETFD, 1): %s",
-		    strerror(errno));
+		ssh_set_error(s->session, SSH_FATAL, "Error from fcntl(fd, F_SETFD, 1): %s", strerror(errno));
 		close(fd);
 		return -1;
 	}
-
 	if(connect(fd, (struct sockaddr *)&sunaddr, sizeof(sunaddr)) < 0) {
-		ssh_set_error(s->session, SSH_FATAL, "Error from connect(): %s",
-		    strerror(errno));
+		ssh_set_error(s->session, SSH_FATAL, "Error from connect(): %s", strerror(errno));
 		close(fd);
 		return -1;
 	}
@@ -578,12 +570,8 @@ void ssh_socket_fd_set(ssh_socket s, fd_set * set, socket_t * max_fd)
 	if(s->fd == SSH_INVALID_SOCKET) {
 		return;
 	}
-
 	FD_SET(s->fd, set);
-
-	if(s->fd >= 0 &&
-	    s->fd >= *max_fd &&
-	    s->fd != SSH_INVALID_SOCKET) {
+	if(s->fd >= 0 && s->fd >= *max_fd && s->fd != SSH_INVALID_SOCKET) {
 		*max_fd = s->fd + 1;
 	}
 }
@@ -614,59 +602,37 @@ int ssh_socket_nonblocking_flush(ssh_socket s)
 {
 	ssh_session session = s->session;
 	uint32_t len;
-
 	if(!ssh_socket_is_open(s)) {
 		session->alive = 0;
 		if(s->callbacks && s->callbacks->exception) {
-			s->callbacks->exception(SSH_SOCKET_EXCEPTION_ERROR,
-			    s->last_errno,
-			    s->callbacks->userdata);
+			s->callbacks->exception(SSH_SOCKET_EXCEPTION_ERROR, s->last_errno, s->callbacks->userdata);
 		}
 		else {
-			ssh_set_error(session,
-			    SSH_FATAL,
-			    "Writing packet: error on socket (or connection "
-			    "closed): %s",
-			    strerror(s->last_errno));
+			ssh_set_error(session, SSH_FATAL, "Writing packet: error on socket (or connection closed): %s", strerror(s->last_errno));
 		}
-
 		return SSH_ERROR;
 	}
-
 	len = ssh_buffer_get_len(s->out_buffer);
 	if(!s->write_wontblock && s->poll_handle && len > 0) {
 		/* force the poll system to catch pollout events */
 		ssh_poll_add_events(s->poll_handle, POLLOUT);
-
 		return SSH_AGAIN;
 	}
-
 	if(s->write_wontblock && len > 0) {
 		ssize_t bwritten;
-
-		bwritten = ssh_socket_unbuffered_write(s,
-			ssh_buffer_get(s->out_buffer),
+		bwritten = ssh_socket_unbuffered_write(s, ssh_buffer_get(s->out_buffer),
 			len);
 		if(bwritten < 0) {
 			session->alive = 0;
 			ssh_socket_close(s);
-
 			if(s->callbacks && s->callbacks->exception) {
-				s->callbacks->exception(SSH_SOCKET_EXCEPTION_ERROR,
-				    s->last_errno,
-				    s->callbacks->userdata);
+				s->callbacks->exception(SSH_SOCKET_EXCEPTION_ERROR, s->last_errno, s->callbacks->userdata);
 			}
 			else {
-				ssh_set_error(session,
-				    SSH_FATAL,
-				    "Writing packet: error on socket (or connection "
-				    "closed): %s",
-				    strerror(s->last_errno));
+				ssh_set_error(session, SSH_FATAL, "Writing packet: error on socket (or connection closed): %s", strerror(s->last_errno));
 			}
-
 			return SSH_ERROR;
 		}
-
 		ssh_buffer_pass_bytes(s->out_buffer, bwritten);
 		if(s->session->socket_counter) {
 			s->session->socket_counter->out_bytes += bwritten;
@@ -677,10 +643,8 @@ int ssh_socket_nonblocking_flush(ssh_socket s)
 	if(s->poll_handle && len > 0) {
 		/* force the poll system to catch pollout events */
 		ssh_poll_add_events(s->poll_handle, POLLOUT);
-
 		return SSH_AGAIN;
 	}
-
 	/* all data written */
 	return SSH_OK;
 }
@@ -785,16 +749,11 @@ int ssh_socket_set_blocking(socket_t fd) { return fcntl(fd, F_SETFL, 0); }
  * @bug It only tries connecting to one of the available AI's
  * which is problematic for hosts having DNS fail-over.
  */
-int ssh_socket_connect(ssh_socket s,
-    const char * host,
-    uint16_t port,
-    const char * bind_addr)
+int ssh_socket_connect(ssh_socket s, const char * host, uint16_t port, const char * bind_addr)
 {
 	socket_t fd;
-
 	if(s->state != SSH_SOCKET_NONE) {
-		ssh_set_error(s->session, SSH_FATAL,
-		    "ssh_socket_connect called on socket not unconnected");
+		ssh_set_error(s->session, SSH_FATAL, "ssh_socket_connect called on socket not unconnected");
 		return SSH_ERROR;
 	}
 	fd = ssh_connect_host_nonblocking(s->session, host, bind_addr, port);
@@ -803,7 +762,6 @@ int ssh_socket_connect(ssh_socket s,
 		return SSH_ERROR;
 	}
 	ssh_socket_set_fd(s, fd);
-
 	return SSH_OK;
 }
 

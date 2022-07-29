@@ -1439,9 +1439,9 @@ static const struct flag {
 	{ "nocow",      L"nocow",               0,      FS_NOCOW_FL},
 #endif
 #ifdef FS_PROJINHERIT_FL        /* 'P' */
-	{ "noprojinherit", L"noprojinherit",     FS_PROJINHERIT_FL,      0},
+	{ "noprojinherit", L"noprojinherit", FS_PROJINHERIT_FL,      0},
 #endif
-	{ NULL,         NULL,                   0,              0}
+	{ NULL, NULL, 0, 0}
 };
 
 /*
@@ -1457,7 +1457,7 @@ static char * ae_fflagstostr(ulong bitset, ulong bitclear)
 	size_t length;
 	ulong bits = bitset | bitclear;
 	length = 0;
-	for(flag = fileflags; flag->name != NULL; flag++)
+	for(flag = fileflags; flag->name; flag++)
 		if(bits & (flag->set | flag->clear)) {
 			length += strlen(flag->name) + 1;
 			bits &= ~(flag->set | flag->clear);
@@ -1468,7 +1468,7 @@ static char * ae_fflagstostr(ulong bitset, ulong bitclear)
 	if(string == NULL)
 		return NULL;
 	dp = string;
-	for(flag = fileflags; flag->name != NULL; flag++) {
+	for(flag = fileflags; flag->name; flag++) {
 		if(bitset & flag->set || bitclear & flag->clear) {
 			sp = flag->name + 2;
 		}
@@ -1517,7 +1517,7 @@ static const char * ae_strtofflags(const char * s, ulong * setp, ulong * clrp)
 		while(*end != '\0' && *end != '\t' && *end != ' ' && *end != ',')
 			end++;
 		length = end - start;
-		for(flag = fileflags; flag->name != NULL; flag++) {
+		for(flag = fileflags; flag->name; flag++) {
 			size_t flag_length = strlen(flag->name);
 			if(length == flag_length && memcmp(start, flag->name, length) == 0) {
 				/* Matched "noXXXX", so reverse the sense. */
@@ -1576,7 +1576,7 @@ static const wchar_t * ae_wcstofflags(const wchar_t * s, ulong * setp, ulong * c
 		while(*end != L'\0' && *end != L'\t' && *end != L' ' && *end != L',')
 			end++;
 		length = end - start;
-		for(flag = fileflags; flag->wname != NULL; flag++) {
+		for(flag = fileflags; flag->wname; flag++) {
 			size_t flag_length = wcslen(flag->wname);
 			if(length == flag_length && wmemcmp(start, flag->wname, length) == 0) {
 				/* Matched "noXXXX", so reverse the sense. */

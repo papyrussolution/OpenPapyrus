@@ -468,7 +468,7 @@ void ExtGoodsSelDialog::updateList(int pos)
 	if(P_List) {
 		ListBoxDef * p_def = 0;
 		PPID   op_type_id = GetOpType(OpID);
-		int    sav_pos = P_List->def ? static_cast<int>(P_List->def->_curItem()) : 0;
+		const  long preserve_pos = P_List->P_Def ? P_List->P_Def->_curItem() : 0;
 		PPID   grp   = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
 		PPID   brand = getCtrlLong(CTLSEL_EXTGSEL_BRAND);
 		int    exists_only = 0;
@@ -520,7 +520,7 @@ void ExtGoodsSelDialog::updateList(int pos)
 				ResetWordSelector(CTL_EXTGSEL_LIST);
 			P_List->setDef(p_def);
 			if(pos < 0)
-				P_List->focusItem(sav_pos);
+				P_List->focusItem(preserve_pos);
 			P_List->Draw_();
 			P_List->select();
 		}
@@ -702,7 +702,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 		}
 	}
 	else if(event.wasFocusChanged(CTL_EXTGSEL_GGRP) || event.wasFocusChanged(CTL_EXTGSEL_BRAND)) {
-		if(P_List && !P_List->def) {
+		if(P_List && !P_List->P_Def) {
 			grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
 			brand  = getCtrlLong(CTLSEL_EXTGSEL_BRAND);
 			if(grp_id || brand)

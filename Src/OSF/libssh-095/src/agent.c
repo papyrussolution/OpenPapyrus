@@ -218,14 +218,11 @@ static int agent_decode_reply(struct ssh_session_struct * session, int type) {
 		case SSH_AGENT_SUCCESS:
 		    return 1;
 		default:
-		    ssh_set_error(session, SSH_FATAL,
-			"Bad response from authentication agent: %d", type);
+		    ssh_set_error(session, SSH_FATAL, "Bad response from authentication agent: %d", type);
 		    break;
 	}
-
 	return -1;
 }
-
 #endif
 
 static int agent_talk(struct ssh_session_struct * session, struct ssh_buffer_struct * request, struct ssh_buffer_struct * reply) 
@@ -254,8 +251,7 @@ static int agent_talk(struct ssh_session_struct * session, struct ssh_buffer_str
 
 	len = PULL_BE_U32(payload, 0);
 	if(len > 256 * 1024) {
-		ssh_set_error(session, SSH_FATAL,
-		    "Authentication response too long: %u", len);
+		ssh_set_error(session, SSH_FATAL, "Authentication response too long: %u", len);
 		return -1;
 	}
 	SSH_LOG(SSH_LOG_TRACE, "Response length: %u", len);

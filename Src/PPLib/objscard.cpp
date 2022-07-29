@@ -838,7 +838,7 @@ int PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PPSCardS
 
 int PPObjSCardSeries::AssignImages(ListBoxDef * pDef)
 {
-	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
+	if(pDef && pDef->IsValid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
 		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
@@ -1764,8 +1764,8 @@ int SCardSeriesView::InitIteration()
 int FASTCALL SCardSeriesView::NextIteration(PPSCardSeries * pRec)
 {
 	int    ok = -1;
-	if(pRec && P_List && P_List->def) {
-		const SArray * p_scs_ary = static_cast<const StdListBoxDef *>(P_List->def)->P_Data;
+	if(pRec && SmartListBox::IsValidS(P_List)) {
+		const SArray * p_scs_ary = static_cast<const StdListBoxDef *>(P_List->P_Def)->P_Data;
 		if(p_scs_ary && p_scs_ary->getCount() > CurPrnPos) {
 			PPID   id = *static_cast<const PPID *>(p_scs_ary->at(CurPrnPos++));
 			if(P_Obj && P_Obj->Search(id, pRec) > 0)

@@ -24,7 +24,8 @@ inline void CheckCapacity(size_t n, size_t extra) {
 // Creates a flat from the provided string data, allocating up to `extra`
 // capacity in the returned flat depending on kMaxFlatLength limitations.
 // Requires `len` to be less or equal to `kMaxFlatLength`
-CordRepFlat* CreateFlat(const char* s, size_t n, size_t extra = 0) {  // NOLINT
+CordRepFlat* CreateFlat(const char* s, size_t n, size_t extra = 0) // NOLINT
+{
 	assert(n <= kMaxFlatLength);
 	auto* rep = CordRepFlat::New(n + extra);
 	rep->length = n;
@@ -34,7 +35,8 @@ CordRepFlat* CreateFlat(const char* s, size_t n, size_t extra = 0) {  // NOLINT
 
 // Unrefs the entries in `[head, tail)`.
 // Requires all entries to be a FLAT or EXTERNAL node.
-void UnrefEntries(const CordRepRing* rep, index_type head, index_type tail) {
+void UnrefEntries(const CordRepRing* rep, index_type head, index_type tail) 
+{
 	rep->ForEach(head, tail, [rep](index_type ix) {
 					CordRep* child = rep->entry_child(ix);
 					if(!child->refcount.Decrement()) {
@@ -72,28 +74,18 @@ std::ostream & operator<<(std::ostream & s, const CordRepRing& rep) {
 	return s << "}\n";
 }
 
-void CordRepRing::AddDataOffset(index_type index, size_t n) {
-	entry_data_offset()[index] += static_cast<offset_type>(n);
-}
-
-void CordRepRing::SubLength(index_type index, size_t n) {
-	entry_end_pos()[index] -= n;
-}
+void CordRepRing::AddDataOffset(index_type index, size_t n) { entry_data_offset()[index] += static_cast<offset_type>(n); }
+void CordRepRing::SubLength(index_type index, size_t n) { entry_end_pos()[index] -= n; }
 
 class CordRepRing::Filler {
 public:
-	Filler(CordRepRing* rep, index_type pos) : rep_(rep), head_(pos), pos_(pos) {
+	Filler(CordRepRing* rep, index_type pos) : rep_(rep), head_(pos), pos_(pos) 
+	{
 	}
-
-	index_type head() const {
-		return head_;
-	}
-
-	index_type pos() const {
-		return pos_;
-	}
-
-	void Add(CordRep* child, size_t offset, pos_type end_pos) {
+	index_type head() const { return head_; }
+	index_type pos() const { return pos_; }
+	void Add(CordRep* child, size_t offset, pos_type end_pos) 
+	{
 		rep_->entry_end_pos()[pos_] = end_pos;
 		rep_->entry_child()[pos_] = child;
 		rep_->entry_data_offset()[pos_] = static_cast<offset_type>(offset);
@@ -108,18 +100,17 @@ private:
 
 constexpr size_t CordRepRing::kMaxCapacity; // NOLINT: needed for c++11
 
-bool CordRepRing::IsValid(std::ostream & output) const {
+bool CordRepRing::IsValid(std::ostream & output) const 
+{
 	if(capacity_ == 0) {
 		output << "capacity == 0";
 		return false;
 	}
-
 	if(head_ >= capacity_ || tail_ >= capacity_) {
 		output << "head " << head_ << " and/or tail " << tail_ << "exceed capacity "
 		       << capacity_;
 		return false;
 	}
-
 	const index_type back = retreat(tail_);
 	size_t pos_length = Distance(begin_pos_, entry_end_pos(back));
 	if(pos_length != length) {
@@ -128,29 +119,24 @@ bool CordRepRing::IsValid(std::ostream & output) const {
 		       << back << "].end_pos " << entry_end_pos(back);
 		return false;
 	}
-
 	index_type head = head_;
 	pos_type begin_pos = begin_pos_;
 	do {
 		pos_type end_pos = entry_end_pos(head);
 		size_t entry_length = Distance(begin_pos, end_pos);
 		if(entry_length == 0) {
-			output << "entry[" << head << "] has an invalid length " << entry_length
-			       << " from begin_pos " << begin_pos << " and end_pos " << end_pos;
+			output << "entry[" << head << "] has an invalid length " << entry_length << " from begin_pos " << begin_pos << " and end_pos " << end_pos;
 			return false;
 		}
-
 		CordRep* child = entry_child(head);
 		if(child == nullptr) {
 			output << "entry[" << head << "].child == nullptr";
 			return false;
 		}
 		if(child->tag < FLAT && child->tag != EXTERNAL) {
-			output << "entry[" << head << "].child has an invalid tag "
-			       << static_cast<int>(child->tag);
+			output << "entry[" << head << "].child has an invalid tag " << static_cast<int>(child->tag);
 			return false;
 		}
-
 		size_t offset = entry_data_offset(head);
 		if(offset >= child->length || entry_length > child->length - offset) {
 			output << "entry[" << head << "] has offset " << offset
@@ -158,17 +144,15 @@ bool CordRepRing::IsValid(std::ostream & output) const {
 			       << " which are outside of the child's length of " << child->length;
 			return false;
 		}
-
 		begin_pos = end_pos;
 		head = advance(head);
 	} while(head != tail_);
-
 	return true;
 }
 
 #ifdef EXTRA_CORD_RING_VALIDATION
-CordRepRing* CordRepRing::Validate(CordRepRing* rep, const char* file,
-    int line) {
+CordRepRing* CordRepRing::Validate(CordRepRing* rep, const char* file, int line) 
+{
 	if(!rep->IsValid(std::cerr)) {
 		std::cerr << "\nERROR: CordRepRing corrupted";
 		if(line) std::cerr << " at line " << line;
@@ -181,9 +165,9 @@ CordRepRing* CordRepRing::Validate(CordRepRing* rep, const char* file,
 
 #endif  // EXTRA_CORD_RING_VALIDATION
 
-CordRepRing* CordRepRing::New(size_t capacity, size_t extra) {
+CordRepRing* CordRepRing::New(size_t capacity, size_t extra) 
+{
 	CheckCapacity(capacity, extra);
-
 	size_t size = AllocSize(capacity += extra);
 	void* mem = ::operator new(size);
 	auto* rep = new (mem) CordRepRing(static_cast<index_type>(capacity));
@@ -489,8 +473,8 @@ CordRepRing* CordRepRing::Prepend(CordRepRing* rep, CordRep* child) {
 	return PrependSlow(rep, child);
 }
 
-CordRepRing* CordRepRing::Append(CordRepRing* rep, absl::string_view data,
-    size_t extra) {
+CordRepRing* CordRepRing::Append(CordRepRing* rep, absl::string_view data, size_t extra) 
+{
 	if(rep->refcount.IsOne()) {
 		Span<char> avail = rep->GetAppendBuffer(data.length());
 		if(!avail.empty()) {
@@ -498,33 +482,28 @@ CordRepRing* CordRepRing::Append(CordRepRing* rep, absl::string_view data,
 			data.remove_prefix(avail.length());
 		}
 	}
-	if(data.empty()) return Validate(rep);
-
+	if(data.empty()) 
+		return Validate(rep);
 	const size_t flats = (data.length() - 1) / kMaxFlatLength + 1;
 	rep = Mutable(rep, flats);
-
 	Filler filler(rep, rep->tail_);
 	pos_type pos = rep->begin_pos_ + rep->length;
-
 	while(data.length() >= kMaxFlatLength) {
 		auto* flat = CreateFlat(data.data(), kMaxFlatLength);
 		filler.Add(flat, 0, pos += kMaxFlatLength);
 		data.remove_prefix(kMaxFlatLength);
 	}
-
 	if(data.length()) {
 		auto* flat = CreateFlat(data.data(), data.length(), extra);
 		filler.Add(flat, 0, pos += data.length());
 	}
-
 	rep->length = pos - rep->begin_pos_;
 	rep->tail_ = filler.pos();
-
 	return Validate(rep);
 }
 
-CordRepRing* CordRepRing::Prepend(CordRepRing* rep, absl::string_view data,
-    size_t extra) {
+CordRepRing* CordRepRing::Prepend(CordRepRing* rep, absl::string_view data, size_t extra) 
+{
 	if(rep->refcount.IsOne()) {
 		Span<char> avail = rep->GetPrependBuffer(data.length());
 		if(!avail.empty()) {
@@ -533,13 +512,12 @@ CordRepRing* CordRepRing::Prepend(CordRepRing* rep, absl::string_view data,
 			data.remove_suffix(avail.length());
 		}
 	}
-	if(data.empty()) return rep;
-
+	if(data.empty()) 
+		return rep;
 	const size_t flats = (data.length() - 1) / kMaxFlatLength + 1;
 	rep = Mutable(rep, flats);
 	pos_type pos = rep->begin_pos_;
 	Filler filler(rep, rep->retreat(rep->head_, static_cast<index_type>(flats)));
-
 	size_t first_size = data.size() - (flats - 1) * kMaxFlatLength;
 	CordRepFlat* flat = CordRepFlat::New(first_size + extra);
 	flat->length = first_size + extra;
@@ -547,7 +525,6 @@ CordRepRing* CordRepRing::Prepend(CordRepRing* rep, absl::string_view data,
 	data.remove_prefix(first_size);
 	filler.Add(flat, extra, pos);
 	pos -= first_size;
-
 	while(!data.empty()) {
 		assert(data.size() >= kMaxFlatLength);
 		flat = CreateFlat(data.data(), kMaxFlatLength);
@@ -555,11 +532,9 @@ CordRepRing* CordRepRing::Prepend(CordRepRing* rep, absl::string_view data,
 		pos -= kMaxFlatLength;
 		data.remove_prefix(kMaxFlatLength);
 	}
-
 	rep->head_ = filler.head();
 	rep->length += rep->begin_pos_ - pos;
 	rep->begin_pos_ = pos;
-
 	return Validate(rep);
 }
 
@@ -567,10 +542,8 @@ CordRepRing* CordRepRing::Prepend(CordRepRing* rep, absl::string_view data,
 static constexpr index_type kBinarySearchThreshold = 32;
 static constexpr index_type kBinarySearchEndCount = 8;
 
-template <bool wrap>
-CordRepRing::index_type CordRepRing::FindBinary(index_type head,
-    index_type tail,
-    size_t offset) const {
+template <bool wrap> CordRepRing::index_type CordRepRing::FindBinary(index_type head, index_type tail, size_t offset) const 
+{
 	index_type count = tail + (wrap ? capacity_ : 0) - head;
 	do {
 		count = (count - 1) / 2;
@@ -585,10 +558,9 @@ CordRepRing::index_type CordRepRing::FindBinary(index_type head,
 	return head;
 }
 
-CordRepRing::Position CordRepRing::FindSlow(index_type head,
-    size_t offset) const {
+CordRepRing::Position CordRepRing::FindSlow(index_type head, size_t offset) const 
+{
 	index_type tail = tail_;
-
 	// Binary search until we are good for linear search
 	// Optimize for branchless / non wrapping ops
 	if(tail > head) {
@@ -603,7 +575,6 @@ CordRepRing::Position CordRepRing::FindSlow(index_type head,
 			head = FindBinary<true>(head, tail, offset);
 		}
 	}
-
 	pos_type pos = entry_begin_pos(head);
 	pos_type end_pos = entry_end_pos(head);
 	while(offset >= Distance(begin_pos_, end_pos)) {
@@ -611,15 +582,13 @@ CordRepRing::Position CordRepRing::FindSlow(index_type head,
 		pos = end_pos;
 		end_pos = entry_end_pos(head);
 	}
-
 	return {head, offset - Distance(begin_pos_, pos)};
 }
 
-CordRepRing::Position CordRepRing::FindTailSlow(index_type head,
-    size_t offset) const {
+CordRepRing::Position CordRepRing::FindTailSlow(index_type head, size_t offset) const 
+{
 	index_type tail = tail_;
 	const size_t tail_offset = offset - 1;
-
 	// Binary search until we are good for linear search
 	// Optimize for branchless / non wrapping ops
 	if(tail > head) {
@@ -634,13 +603,11 @@ CordRepRing::Position CordRepRing::FindTailSlow(index_type head,
 			head = FindBinary<true>(head, tail, tail_offset);
 		}
 	}
-
 	size_t end_offset = entry_end_offset(head);
 	while(tail_offset >= end_offset) {
 		head = advance(head);
 		end_offset = entry_end_offset(head);
 	}
-
 	return {advance(head), end_offset - offset};
 }
 

@@ -1472,7 +1472,7 @@ IMPL_HANDLE_EVENT(LinkFilesDialog)
 	const int link_cmd = BIN(TVCOMMAND && TVCMD == cmLink);
 	PPListDialog::handleEvent(event);
 	if(event.isKeyDown(kbF2)) {
-		if(LinksAry.getCount() && P_Box && P_Box->def && LinksAry.EditDescr(P_Box->def->_curItem()))
+		if(LinksAry.getCount() && SmartListBox::IsValidS(P_Box) && LinksAry.EditDescr(P_Box->P_Def->_curItem()))
 			updateList(-1);
 		clearEvent(event);
 	}
@@ -2129,7 +2129,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 							setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12
 							break;
 						case CTL_BILL_LNKFILELIST:
-							if(P_Pack && P_Pack->LnkFiles.getCount() && P_Box && P_Box->def && P_Pack->LnkFiles.EditDescr(P_Box->def->_curItem()))
+							if(P_Pack && P_Pack->LnkFiles.getCount() && SmartListBox::IsValidS(P_Box) && P_Pack->LnkFiles.EditDescr(P_Box->P_Def->_curItem()))
 								updateList(-1);
 							break;
 					}

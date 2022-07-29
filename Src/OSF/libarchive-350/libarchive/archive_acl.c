@@ -361,7 +361,7 @@ int archive_acl_next(Archive * a, archive_acl * acl, int want_type, int * type, 
 			    break;
 		}
 	}
-	while(acl->acl_p != NULL && (acl->acl_p->type & want_type) == 0)
+	while(acl->acl_p && (acl->acl_p->type & want_type) == 0)
 		acl->acl_p = acl->acl_p->next;
 	if(acl->acl_p == NULL) {
 		acl->acl_state = 0;
@@ -464,7 +464,7 @@ static ssize_t archive_acl_text_len(archive_acl * acl, int want_type, int flags,
 			if(wide) {
 				r = archive_mstring_get_wcs(a, &ap->name,
 					&wname);
-				if(r == 0 && wname != NULL)
+				if(r == 0 && wname)
 					length += wcslen(wname);
 				else if(r < 0 && errno == ENOMEM)
 					return 0;
@@ -476,7 +476,7 @@ static ssize_t archive_acl_text_len(archive_acl * acl, int want_type, int flags,
 					&len, sc);
 				if(r)
 					return 0;
-				if(len > 0 && name != NULL)
+				if(len > 0 && name)
 					length += len;
 				else
 					length += sizeof(uid_t) * 3 + 1;
@@ -666,7 +666,7 @@ static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type, int 
 	*wp += wcslen(*wp);
 	*(*wp)++ = L':';
 	if((type & ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) || oneof2(tag, ARCHIVE_ENTRY_ACL_USER, ARCHIVE_ENTRY_ACL_GROUP)) {
-		if(wname != NULL) {
+		if(wname) {
 			wcscpy(*wp, wname);
 			*wp += wcslen(*wp);
 		}
@@ -957,7 +957,7 @@ int archive_acl_from_text_w(archive_acl * acl, const wchar_t * text, int want_ty
 		/* Set remaining fields to blank. */
 		for(n = fields; n < numfields; ++n)
 			field[n].start = field[n].end = NULL;
-		if(field[0].start != NULL && *(field[0].start) == L'#') {
+		if(field[0].start && *(field[0].start) == L'#') {
 			/* Comment, skip entry */
 			continue;
 		}
@@ -1339,7 +1339,7 @@ int archive_acl_from_text_l(archive_acl * acl, const char * text, int want_type,
 		/* Set remaining fields to blank. */
 		for(n = fields; n < numfields; ++n)
 			field[n].start = field[n].end = NULL;
-		if(field[0].start != NULL && *(field[0].start) == '#') {
+		if(field[0].start && *(field[0].start) == '#') {
 			continue; /* Comment, skip entry */
 		}
 		n = 0;

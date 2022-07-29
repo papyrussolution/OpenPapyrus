@@ -71,45 +71,28 @@ uint32_t ssh_packet_decrypt_len(ssh_session session,
  * @param[start] index in the packet that was not decrypted yet.
  * @param[encrypted_size] size of the encrypted data to be decrypted after start.
  */
-int ssh_packet_decrypt(ssh_session session,
-    uint8 * destination,
-    uint8 * source,
-    size_t start,
-    size_t encrypted_size)
+int ssh_packet_decrypt(ssh_session session, uint8 * destination, uint8 * source, size_t start, size_t encrypted_size)
 {
 	struct ssh_crypto_struct * crypto = NULL;
 	struct ssh_cipher_struct * cipher = NULL;
-
 	if(encrypted_size <= 0) {
 		return SSH_ERROR;
 	}
-
 	crypto = ssh_packet_get_current_crypto(session, SSH_DIRECTION_IN);
 	if(crypto == NULL) {
 		return SSH_ERROR;
 	}
 	cipher = crypto->in_cipher;
-
 	if(encrypted_size % cipher->blocksize != 0) {
-		ssh_set_error(session,
-		    SSH_FATAL,
-		    "Cryptographic functions must be used on multiple of "
-		    "blocksize (received %" PRIdS ")",
-		    encrypted_size);
+		ssh_set_error(session, SSH_FATAL, "Cryptographic functions must be used on multiple of blocksize (received %" PRIdS ")", encrypted_size);
 		return SSH_ERROR;
 	}
-
 	if(cipher->aead_decrypt != NULL) {
-		return cipher->aead_decrypt(cipher,
-			   source,
-			   destination,
-			   encrypted_size,
-			   session->recv_seq);
+		return cipher->aead_decrypt(cipher, source, destination, encrypted_size, session->recv_seq);
 	}
 	else {
 		cipher->decrypt(cipher, source + start, destination, encrypted_size);
 	}
-
 	return 0;
 }
 

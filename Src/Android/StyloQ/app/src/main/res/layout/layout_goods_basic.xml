@@ -4,39 +4,114 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <ImageView
-        android:id="@+id/CTL_GOODSDETAIL_IMG"
+    <ImageView android:id="@+id/CTL_GOODSDETAIL_IMG"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         />
-    <TextView
-        android:id="@+id/CTL_GOODSDETAIL_NAME"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:textColor="@color/TextPrimary"
-        />
-    <TextView
-        android:id="@+id/CTL_GOODSDETAIL_BRAND"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:textColor="@color/TextPrimary"
-        />
-    <TextView
-        android:id="@+id/CTL_GOODSDETAIL_GROUP"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:textColor="@color/TextPrimary"
-        />
-    <TextView
-        android:id="@+id/CTL_GOODSDETAIL_PRICE"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:textColor="@color/TextPrimary"
-        />
-    <TextView
-        android:id="@+id/CTL_GOODSDETAIL_REST"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:textColor="@color/TextPrimary"
-        />
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_NAME">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_NAME"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@{appellation}"
+            />
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_NAME"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            />
+    </LinearLayout>
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_GROUP">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_GROUP"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@{goodsgroup}"
+            />
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_GROUP"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            />
+    </LinearLayout>
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_BRAND">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_BRAND"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@{brand}"
+            />
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_BRAND"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            />
+    </LinearLayout>
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_MANUF">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_MANUF"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@{manufacturer}"
+            />
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_MANUF"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            />
+    </LinearLayout>
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_PRICE">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_PRICE"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@{price}"
+            />
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_PRICE"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            />
+    </LinearLayout>
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_REST">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_REST"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@{rest}"
+            />
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_REST"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            />
+    </LinearLayout>
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_EXTTEXT1">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_EXTTEXT1"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_EXTTEXT1"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+    </LinearLayout>
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_EXTTEXT2">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_EXTTEXT2"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_EXTTEXT2"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+    </LinearLayout>
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_EXTTEXT3">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_EXTTEXT3"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_EXTTEXT3"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+    </LinearLayout>
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_EXTTEXT4">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_EXTTEXT4"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_EXTTEXT4"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+    </LinearLayout>
+    <LinearLayout style="@style/InfoFieldGroup" android:id="@+id/CTLGRP_GOODSDETAIL_EXTTEXT5">
+        <TextView style="@style/InfoFieldLabel" android:id="@+id/CTLLBL_GOODSDETAIL_EXTTEXT5"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+        <TextView style="@style/InfoFieldText" android:id="@+id/CTL_GOODSDETAIL_EXTTEXT5"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+    </LinearLayout>
 </LinearLayout>

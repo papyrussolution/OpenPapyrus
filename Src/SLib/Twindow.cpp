@@ -438,7 +438,7 @@ int TWindow::setSmartListBoxOption(uint ctlID, uint option)
 	int    ok = 1;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(ctlID));
 	if(p_list && p_list->IsSubSign(TV_SUBSIGN_LISTBOX)) {
-		CALLPTRMEMB(p_list->def, SetOption(option, 1));
+		CALLPTRMEMB(p_list->P_Def, SetOption(option, 1));
 	}
 	else
 		ok = 0;

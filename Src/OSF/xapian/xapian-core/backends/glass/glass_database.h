@@ -36,7 +36,6 @@ class GlassDatabase : public Xapian::Database::Internal {
 	friend class GlassSpellingWordsList;
 	friend class GlassSynonymTermList;
 	friend class HoneyDatabase; // For compacting to convert.
-
 private:
 	/** Directory to store databases in.
 	 */
@@ -59,46 +58,16 @@ private:
 	 *  recent anywhere in the database.
 	 */
 	mutable GlassPostListTable postlist_table;
-
-	/** Table storing position lists.
-	 */
-	mutable GlassPositionListTable position_table;
-
-	/** Table storing term lists.
-	 */
-	GlassTermListTable termlist_table;
-
-	/** Value manager. */
-	mutable GlassValueManager value_manager;
-
-	/** Table storing synonym data.
-	 */
-	mutable GlassSynonymTable synonym_table;
-
-	/** Table storing spelling correction data.
-	 */
-	mutable GlassSpellingTable spelling_table;
-
-	/** Table storing document data.
-	 */
-	GlassDocDataTable docdata_table;
-
-	/// Lock object.
-	FlintLock lock;
-
-	/// Replication changesets.
-	GlassChanges changes;
-
-	/** Return true if a database exists at the path specified for this
-	 *  database.
-	 */
-	bool database_exists();
-
-	/** Create new tables, and open them.
-	 *  Any existing tables will be removed first.
-	 */
-	void create_and_open_tables(int flags, uint blocksize);
-
+	mutable GlassPositionListTable position_table; /// Table storing position lists.
+	GlassTermListTable termlist_table; /// Table storing term lists.
+	mutable GlassValueManager value_manager; /// Value manager
+	mutable GlassSynonymTable synonym_table; /// Table storing synonym data.
+	mutable GlassSpellingTable spelling_table; /// Table storing spelling correction data.
+	GlassDocDataTable docdata_table; /// Table storing document data.
+	FlintLock lock; /// Lock object.
+	GlassChanges changes; /// Replication changesets.
+	bool database_exists(); /// Return true if a database exists at the path specified for this database.
+	void create_and_open_tables(int flags, uint blocksize); /// Create new tables, and open them. Any existing tables will be removed first.
 	/** Open all tables at most recent revision.
 	 *
 	 *  @exception Xapian::DatabaseCorruptError is thrown if a problem is
@@ -108,7 +77,6 @@ private:
 	 *  revision.
 	 */
 	bool open_tables(int flags);
-
 	/** Get a write lock on the database, or throw an
 	 *  Xapian::DatabaseLockError if failure.
 	 *
@@ -119,14 +87,12 @@ private:
 	 *  can't be acquired and the database doesn't exist.
 	 */
 	void get_database_write_lock(int flags, bool creating);
-
 	/** Get an object holding the next revision number which should be
 	 *  used in the tables.
 	 *
 	 *  @return the next revision number.
 	 */
 	glass_revision_number_t get_next_revision_number() const;
-
 	/** Set the revision number in the tables.
 	 *
 	 *  This updates the disk tables so that the currently open revision
@@ -138,24 +104,16 @@ private:
 	 *          needs to be greater than any previously used revision.
 	 */
 	void set_revision_number(int flags, glass_revision_number_t new_revision);
-
-	/** Re-open tables to recover from an overwritten condition,
-	 *  or just get most up-to-date version.
-	 */
+	/// Re-open tables to recover from an overwritten condition, or just get most up-to-date version.
 	bool reopen();
-
-	/** Close all the tables permanently.
-	 */
+	/// Close all the tables permanently.
 	void close();
-
 	/** Called if a modifications fail.
 	 *
 	 *  @param msg is a string description of the exception that was
 	 *  raised when the modifications failed.
 	 */
-	void modifications_failed(glass_revision_number_t new_revision,
-	    const std::string & msg);
-
+	void modifications_failed(glass_revision_number_t new_revision, const std::string & msg);
 	/** Apply any outstanding changes to the tables.
 	 *
 	 *  If an error occurs during this operation, this will be signalled
@@ -165,21 +123,12 @@ private:
 	 *  be lost.
 	 */
 	void apply();
-
-	/** Cancel any outstanding changes to the tables.
-	 */
+	/// Cancel any outstanding changes to the tables.
 	void cancel();
-
-	/** Send a set of messages which transfer the whole database.
-	 */
+	/// Send a set of messages which transfer the whole database.
 	void send_whole_database(RemoteConnection & conn, double end_time);
-
-	/** Get the revision stored in a changeset.
-	 */
-	void get_changeset_revisions(const string & path,
-	    glass_revision_number_t * startrev,
-	    glass_revision_number_t * endrev) const;
-
+	/// Get the revision stored in a changeset.
+	void get_changeset_revisions(const string & path, glass_revision_number_t * startrev, glass_revision_number_t * endrev) const;
 public:
 	/** Create and open a glass database.
 	 *
@@ -200,19 +149,11 @@ public:
 	 *                    correct value, when the database is being
 	 *                    created.
 	 */
-	explicit GlassDatabase(const string & db_dir_,
-	    int flags = Xapian::DB_READONLY_,
-	    uint block_size = 0u);
-
+	explicit GlassDatabase(const string & db_dir_, int flags = Xapian::DB_READONLY_, uint block_size = 0u);
 	explicit GlassDatabase(int fd);
-
 	~GlassDatabase();
-
 	/// Get a postlist table cursor (used by GlassValueList).
-	GlassCursor * get_postlist_cursor() const {
-		return postlist_table.cursor_get();
-	}
-
+	GlassCursor * get_postlist_cursor() const { return postlist_table.cursor_get(); }
 	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::doccount get_doccount() const;
@@ -221,9 +162,7 @@ public:
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::termcount get_unique_terms(Xapian::docid did) const;
 	Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
-	void get_freqs(const string & term,
-	    Xapian::doccount * termfreq_ptr,
-	    Xapian::termcount * collfreq_ptr) const;
+	void get_freqs(const string & term, Xapian::doccount * termfreq_ptr, Xapian::termcount * collfreq_ptr) const;
 	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 	std::string get_value_lower_bound(Xapian::valueno slot) const;
 	std::string get_value_upper_bound(Xapian::valueno slot) const;
@@ -233,45 +172,30 @@ public:
 	Xapian::termcount get_unique_terms_lower_bound() const;
 	bool term_exists(const string & tname) const;
 	bool has_positions() const;
-
 	PostList * open_post_list(const string & tname) const;
-	LeafPostList* open_leaf_post_list(const string & term,
-	    bool need_read_pos) const;
+	LeafPostList* open_leaf_post_list(const string & term, bool need_read_pos) const;
 	ValueList * open_value_list(Xapian::valueno slot) const;
-	Xapian::Document::Internal* open_document(Xapian::docid did,
-	    bool lazy) const;
-
-	virtual void read_position_list(GlassRePositionList* pos_list,
-	    Xapian::docid did,
-	    const string & term) const;
-	virtual Xapian::termcount positionlist_count(Xapian::docid did,
-	    const string & term) const;
-	PositionList* open_position_list(Xapian::docid did,
-	    const string & term) const;
+	Xapian::Document::Internal* open_document(Xapian::docid did, bool lazy) const;
+	virtual void read_position_list(GlassRePositionList* pos_list, Xapian::docid did, const string & term) const;
+	virtual Xapian::termcount positionlist_count(Xapian::docid did, const string & term) const;
+	PositionList* open_position_list(Xapian::docid did, const string & term) const;
 	TermList * open_term_list(Xapian::docid did) const;
 	TermList * open_term_list_direct(Xapian::docid did) const;
 	TermList * open_allterms(const string & prefix) const;
-
 	TermList * open_spelling_termlist(const string & word) const;
 	TermList * open_spelling_wordlist() const;
 	Xapian::doccount get_spelling_frequency(const string & word) const;
-
 	TermList * open_synonym_termlist(const string & term) const;
 	TermList * open_synonym_keylist(const string & prefix) const;
-
 	string get_metadata(const string & key) const;
 	TermList * open_metadata_keylist(const std::string &prefix) const;
-	void write_changesets_to_fd(int fd,
-	    const string & start_revision,
-	    bool need_whole_db,
-	    Xapian::ReplicationInfo * info);
+	void write_changesets_to_fd(int fd, const string & start_revision, bool need_whole_db, Xapian::ReplicationInfo * info);
 	/** Get the revision number which the tables are opened at.
 	 *
 	 *  @return the current revision number.
 	 */
 	Xapian::rev get_revision() const;
 	string get_uuid() const;
-
 	void request_document(Xapian::docid /*did*/) const;
 	void readahead_for_query(const Xapian::Query &query) const;
 	//@}
@@ -320,22 +244,17 @@ class GlassWritableDatabase : public GlassDatabase {
 
 	/// Flush any unflushed postlist changes, but don't commit them.
 	void flush_postlist_changes();
-
 	/// Close all the tables permanently.
 	void close();
-
 	/// Apply changes.
 	void apply();
-
 	//@{
 	/** Implementation of virtual methods: see Database::Internal for
 	 *  details.
 	 */
 	void commit();
-
-	/** Cancel pending modifications to the database. */
+	/// Cancel pending modifications to the database
 	void cancel();
-
 	Xapian::docid add_document(const Xapian::Document& document);
 	Xapian::docid add_document_(Xapian::docid did,
 	    const Xapian::Document& document);
@@ -348,12 +267,8 @@ class GlassWritableDatabase : public GlassDatabase {
 	using Xapian::Database::Internal::replace_document;
 	void delete_document(Xapian::docid did);
 	void replace_document(Xapian::docid did, const Xapian::Document & document);
-
-	Xapian::Document::Internal * open_document(Xapian::docid did,
-	    bool lazy) const;
-
+	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
 	//@}
-
 public:
 	/** Create and open a writable glass database.
 	 *
@@ -393,14 +308,11 @@ public:
 	void add_synonym(const string & word, const string & synonym) const;
 	void remove_synonym(const string & word, const string & synonym) const;
 	void clear_synonyms(const string & word) const;
-
 	void set_metadata(const string & key, const string & value);
 	void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 	//@}
-
 	/** Return true if there are uncommitted changes. */
 	bool has_uncommitted_changes() const;
-
 	Xapian::Database::Internal* update_lock(int flags);
 };
 

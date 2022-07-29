@@ -1,8 +1,6 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1999, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
@@ -478,7 +476,7 @@ int __qam_extent_names(ENV * env, char * name, char *** namelistp)
 	if(filelist == NULL)
 		goto done;
 	cnt = 0;
-	for(fp = filelist; fp->mpf != NULL; fp++)
+	for(fp = filelist; fp->mpf; fp++)
 		cnt++;
 	// QUEUE_EXTENT contains extra chars, but add 6 anyway for the int
 	len = (size_t)cnt*(sizeof(**namelistp)+sstrlen(QUEUE_EXTENT)+sstrlen(qp->dir)+sstrlen(qp->name)+6);
@@ -486,7 +484,7 @@ int __qam_extent_names(ENV * env, char * name, char *** namelistp)
 		goto done;
 	cp = *namelistp;
 	freep = (char *)(cp+cnt+1);
-	for(fp = filelist; fp->mpf != NULL; fp++) {
+	for(fp = filelist; fp->mpf; fp++) {
 		QAM_EXNAME(qp, fp->id, buf, sizeof(buf));
 		len = sstrlen(buf);
 		*cp++ = freep;
@@ -611,7 +609,7 @@ int __qam_nameop(DB*dbp, DB_TXN * txn, const char * newname, qam_name_op op)
 		goto err;
 	ndir = 0;
 	p_new_ = 0;
-	if(newname != NULL) {
+	if(newname) {
 		if((ret = __os_strdup(env, newname, &namep)) != 0)
 			goto err;
 		ndir = namep;
@@ -683,7 +681,7 @@ int __qam_lsn_reset(DB*dbp, DB_THREAD_INFO * ip)
 		return ret;
 	if(filelist == NULL)
 		return ret;
-	for(fp = filelist; fp->mpf != NULL; fp++)
+	for(fp = filelist; fp->mpf; fp++)
 		if((ret = __db_lsn_reset(fp->mpf, ip)) != 0)
 			break;
 	__os_free(dbp->env, filelist);

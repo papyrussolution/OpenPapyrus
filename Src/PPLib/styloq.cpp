@@ -6134,9 +6134,20 @@ SJson * PPStyloQInterchange::MakeObjJson_Goods(const SBinaryChunk & rOwnIdent, c
 				p_result->InsertDouble("ordminqty", pInnerEntry->OrderMinQty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
 			//
 			p_result->InsertDouble("price", pInnerEntry->Price, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+			if(checkdate(pInnerEntry->Expiry)) {
+				p_result->InsertString("expirydate", temp_buf.Z().Cat(pInnerEntry->Expiry, DATF_ISO8601CENT).Escape());
+			}
 			if(pInnerEntry->Rest > 0.0)
 				p_result->InsertDouble("stock", pInnerEntry->Rest, MKSFMTD(0, 3, NMBF_NOTRAILZ));
 			if(pGi) {
+				if(rPack.Rec.ManufID) {
+					PPObjPerson psn_obj;
+					PersonTbl::Rec psn_rec;
+					if(psn_obj.Fetch(rPack.Rec.ManufID, &psn_rec) > 0) {
+						p_result->InsertInt("manufid", psn_rec.ID);
+						p_result->InsertString("manufnm", (temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					}
+				}
 				if(checkdate(pInnerEntry->ManufDtm.d)) {
 					temp_buf.Z().Cat(pInnerEntry->ManufDtm, DATF_ISO8601CENT, 0).Escape();
 					p_result->InsertString("manuftm", temp_buf);
@@ -6164,6 +6175,8 @@ SJson * PPStyloQInterchange::MakeObjJson_Goods(const SBinaryChunk & rOwnIdent, c
 					p_js_ext_text_array->InsertChild(p_js_ext_text);
 				}
 			}
+			if(p_js_ext_text_array)
+				p_result->Insert("exttext_list", p_js_ext_text_array);
 		}
 	}
 	if(rPack.Codes.getCount()) {
@@ -7203,7 +7216,7 @@ protected:
 	void SetupList()
 	{
 		if(P_Box && P_Data) { 
-			const long sav_pos = P_Box->def ? P_Box->def->_curItem() : 0;
+			const long sav_pos = P_Box->P_Def ? P_Box->P_Def->_curItem() : 0;
 			SString temp_buf;
 			ProcessorTbl::Rec prc_rec;
 			P_Box->freeAll();
@@ -8281,6 +8294,7 @@ SJson * PPStyloQInterchange::ProcessCommand_GetGoodsInfo(const SBinaryChunk & rO
 	SJson * p_js_result = 0;//SJson::CreateObj();
 	PPBaseFilt * p_base_filt = 0;
 	if(goodsID || !isempty(pGoodsCode)) {
+		PPObjBill * p_bobj = BillObj;
 		bool   goods_pack_inited = false;
 		PPGoodsPacket goods_pack;
 		PPObjGoods goods_obj;
@@ -8332,11 +8346,22 @@ SJson * PPStyloQInterchange::ProcessCommand_GetGoodsInfo(const SBinaryChunk & rO
 							if(!(rgi.Flags & RetailGoodsInfo::fDisabledQuot) && (rgi.Price > 0.0)) {
 								goods_entry.Price = rgi.Price;
 							}
+							if(checkdate(rgi.Expiry))
+								goods_entry.Expiry = rgi.Expiry;
 						}
 					}
 				}
 				if(!loc_id)
 					loc_id = p_gi_param->LocID;
+				if(p_gi_param->Flags & StyloQGoodsInfoParam::fShowRest) {
+					GoodsRestParam rp;
+					rp.CalcMethod = GoodsRestParam::pcmMostRecent;
+					rp.GoodsID = goods_pack.Rec.ID;
+					rp.Date = ZERODATE;
+					rp.LocID = loc_id;
+					p_bobj->trfr->GetRest(rp);
+					goods_entry.Rest = rp.Total.Rest;
+				}
 			}
 			p_js_result = MakeObjJson_Goods(rOwnIdent, goods_pack, &goods_entry, 0, p_gi_param, 0/*pStat*/);
 		}

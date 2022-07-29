@@ -613,7 +613,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			LayoutInflater inflater = LayoutInflater.from(this);
 			TabInitEntry [] tab_init_list = {
 				new TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_attendanceprereq_goodsgroups, "@{group_pl}", (CPM.GoodsGroupListData != null)),
-				new TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_attendanceprereq_goods, "@{ware_pl}", (CPM.GoodsListData != null)),
+				new TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_attendanceprereq_goods, "@{ware_service_pl}", (CPM.GoodsListData != null)),
 				new TabInitEntry(CommonPrereqModule.Tab.tabProcessors, R.layout.layout_attendanceprereq_processors, "@{processor_pl}", (CPM.ProcessorListData != null)),
 				new TabInitEntry(CommonPrereqModule.Tab.tabAttendance, R.layout.layout_attendanceprereq_attendance, /*"@{booking}"*/"@{selection_time}", true),
 				new TabInitEntry(CommonPrereqModule.Tab.tabBookingDocument, R.layout.layout_attendanceprereq_booking, "@{orderdocument}", true),

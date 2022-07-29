@@ -20,6 +20,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,7 +49,8 @@ public class CommonPrereqModule {
 	public ArrayList <WareEntry> GoodsListData;
 	public ArrayList <CommonPrereqModule.TabEntry> TabList;
 	public ArrayList /*<Document.Head>*/<Document.DisplayEntry> OrderHList;
-	public ArrayList<ProcessorEntry> ProcessorListData;
+	public ArrayList <ProcessorEntry> ProcessorListData;
+	public ArrayList <BusinessEntity.Uom> UomListData;
 	private Document CurrentOrder;
 	protected boolean CommitCurrentDocument_Locker;
 	protected long CommitCurrentDocument_StartTm;
@@ -980,6 +982,7 @@ public class CommonPrereqModule {
 		CurrentOrder = null;
 		OrderHList = null;
 		ProcessorListData = null;
+		UomListData = null;
 		CommitCurrentDocument_Locker = false;
 		ActivityInstance = activityInstance;
 		ViewPagerResourceId = 0;
@@ -1345,9 +1348,31 @@ public class CommonPrereqModule {
 			ok = false;
 		return ok;
 	}
-	public String FormatCurrency(double val)
+	public @NotNull String FormatCurrency(double val)
 	{
 		return SLib.FormatCurrency(val, BaseCurrencySymb);
+	}
+	public String FormatQtty(double val, int uomID, boolean emptyOnZero)
+	{
+		String result = null;
+		BusinessEntity.Uom uom = null;
+		if(emptyOnZero && val == 0.0)
+			result = "";
+		else {
+			if(uomID > 0 && UomListData != null) {
+				for(int i = 0; uom == null && i < UomListData.size(); i++) {
+					BusinessEntity.Uom local_uom = UomListData.get(i);
+					if(local_uom != null && local_uom.ID == uomID) {
+						uom = local_uom;
+					}
+				}
+			}
+			if(uom != null && (uom.Flags & BusinessEntity.Uom.fIntVal) != 0)
+				result = SLib.formatdouble(val, 0);
+			else
+				result = SLib.formatdouble(val, 3);
+		}
+		return result;
 	}
 	public void GetCommonJsonFactors(JSONObject jsHead) throws JSONException
 	{
@@ -1410,6 +1435,25 @@ public class CommonPrereqModule {
 				}
 			});
 		}
+	}
+	public void MakeUomListFromCommonJson(JSONObject jsHead) throws JSONException
+	{
+		JSONArray js_uom_list = jsHead.optJSONArray("uom_list");
+		if(js_uom_list != null && js_uom_list.length() > 0) {
+			UomListData = new ArrayList<BusinessEntity.Uom>();
+			for(int i = 0; i < js_uom_list.length(); i++) {
+				final JSONObject js_uom = js_uom_list.optJSONObject(i);
+				if(js_uom != null) {
+					BusinessEntity.Uom uom = new BusinessEntity.Uom();
+					if(uom.FromJsonObj(js_uom))
+						UomListData.add(uom);
+					else
+						uom = null;
+				}
+			}
+		}
+		else
+			UomListData = null;
 	}
 	public void MakeGoodsGroupListFromCommonJson(JSONObject jsHead) throws JSONException
 	{

@@ -92,7 +92,7 @@ SelPckgDialog::SelPckgDialog(PPObjBill * pBObj) : TDialog(DLG_SELPCKG), P_BObj(p
 
 void SelPckgDialog::viewDetail()
 {
-	if(P_List && P_List->def) {
+	if(SmartListBox::IsValidS(P_List)) {
 		PPID pckg_id = 0;
 		P_List->getCurID(&pckg_id);
 		if(pckg_id)
@@ -125,7 +125,7 @@ void SelPckgDialog::updateList()
 
 int SelPckgDialog::getSelectedPckgID(PPID * pID)
 {
-	if(P_List && P_List->def)
+	if(SmartListBox::IsValidS(P_List))
 		P_List->getCurID(&SelPckgID);
 	else
 	   	SelPckgID = 0;
@@ -153,7 +153,7 @@ IMPL_HANDLE_EVENT(SelPckgDialog)
 	else if(TVKEYDOWN)
 		if(TVKEY == KB_CTRLENTER)
 			if(IsInState(sfModal)) {
-				if(P_List && P_List->def)
+				if(SmartListBox::IsValidS(P_List))
 					P_List->getCurID(&SelPckgID);
 				else
    					SelPckgID = 0;

@@ -1305,8 +1305,8 @@ PPID FastEditRightsDlg::getCurrID()
 {
 	PPID   cur_id = 0;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_EDITRHTS_GRPUSRLIST));
-	if(p_list && p_list->def)
-		p_list->def->getCurID(&cur_id);
+	if(SmartListBox::IsValidS(p_list))
+		p_list->P_Def->getCurID(&cur_id);
 	return cur_id;
 }
 
@@ -1522,7 +1522,7 @@ int FastEditRightsDlg::setupGrpUsrList()
 	p_grp_usr_def = new StdTreeListBoxDef(p_list, lbtDisposeData | lbtDblClkNotify | lbtFocNotify | lbtSelNotify, 0);
 	THROW_MEM(p_grp_usr_def);
 	p_lbx->setDef(p_grp_usr_def);
-	p_lbx->def->go(0);
+	p_lbx->P_Def->go(0);
 	p_lbx->Draw_();
 	ok = 1;
 	CATCH

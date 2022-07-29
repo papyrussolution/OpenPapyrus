@@ -7,6 +7,8 @@
 #include <scintilla.h>
 #include <scilexer.h>
 
+#ifndef USE_LOGLISTWINDOWSCI
+
 class LogListBoxDef : public StdListBoxDef {
 public:
 	LogListBoxDef(SArray * pArray, uint aOptions, TYPEID t, TVMsgLog * pMl) : StdListBoxDef(pArray, aOptions, t), P_MsgLog(pMl)
@@ -16,13 +18,11 @@ public:
 	{
 		ZDELETE(P_MsgLog);
 	}
-	virtual long getRecsCount() { return P_MsgLog ? P_MsgLog->GetVisCount() : 0; }
+	virtual long GetRecsCount() const { return P_MsgLog ? P_MsgLog->GetVisCount() : 0; }
 	virtual void * FASTCALL getRow_(long r) { return P_MsgLog ? P_MsgLog->GetRow(r) : 0; }
 
 	TVMsgLog * P_MsgLog; // private. Don't use !
 };
-
-#ifndef USE_LOGLISTWINDOWSCI
 
 class LogListWindow : public TWindow {
 public:
@@ -169,7 +169,7 @@ void LogListWindowSCI::Refresh(long item)
 void LogListWindowSCI::Append()
 {
 	if(P_MsgLog) {
-		long   vc = P_MsgLog->GetVisCount();
+		const long   vc = P_MsgLog->GetVisCount();
 		if(vc > 0) {
 			const char * p_buf = static_cast<const char *>(P_MsgLog->GetRow(vc-1));
 			if(p_buf) {
@@ -1086,7 +1086,7 @@ LogListWindow::LogListWindow(TRect & rct, LogListBoxDef * aDef, const char * pTi
 
 SString & LogListWindow::GetString(int pos, SString & rBuf, int oem) const
 {
-	if(pos < def->getRecsCount()) {
+	if(pos < def->GetRecsCount()) {
 		rBuf = (const char *)def->getRow_(pos)+sizeof(long);
 		if(!oem)
 			rBuf.Transf(CTRANSF_INNER_TO_OUTER);
@@ -1099,7 +1099,7 @@ SString & LogListWindow::GetString(int pos, SString & rBuf, int oem) const
 void LogListWindow::Refresh(long item)
 {
 	SString buf;
-	for(int i = 0; i < def->getRecsCount(); i++)
+	for(int i = 0; i < def->GetRecsCount(); i++)
 		::SendMessage(H(), LB_ADDSTRING, 0, (LPARAM)GetString(i, buf).cptr());
 	::SendMessage(H(), LB_SETCARETINDEX, item-1, 0);
 	::UpdateWindow(H());
@@ -1108,7 +1108,7 @@ void LogListWindow::Refresh(long item)
 void LogListWindow::Append()
 {
 	SString buf;
-	int    i = def->getRecsCount();
+	int    i = def->GetRecsCount();
 	if(i)
 		::SendMessage(H(), LB_ADDSTRING, 0, (LPARAM)GetString(i-1, buf).cptr());
 	::SendMessage(H(), LB_SETCARETINDEX, i-1, 0);

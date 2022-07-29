@@ -1831,7 +1831,7 @@ int QuotationDialog::SetupLocList()
 	StrAssocArray * p_list = LocObj.MakeList_(&loc_filt, MAXLONG);
 	SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_LOCLIST));
 	if(p_box) {
-		const long cur_foc_pos = p_box->def ? p_box->def->_curItem() : -1;
+		const long cur_foc_pos = p_box->P_Def ? p_box->P_Def->_curItem() : -1;
 		if(oneof2(Cls, PPQuot::clsMtx, PPQuot::clsMtxRestr)) {
 			SetupStrListBox(p_box);
 			SetupMatrixLocList(p_list, p_box, MAXLONG, 0);
@@ -1998,7 +1998,7 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 			if(event.isCmd(cmaEdit) || event.isCtlEvent(CTL_GQUOT_PRDLIST)) {
 				long   i = 0;
 				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_PRDLIST));
-				if(p_box && p_box->def && p_box->getCurID(&i) && i > 0 && i <= Data.getCountI()) {
+				if(SmartListBox::IsValidS(p_box) && p_box->getCurID(&i) && i > 0 && i <= Data.getCountI()) {
 					PPQuot quot = Data.at(i-1); // @copy
 					if(quot.Kind == Spc.PredictCoeffID && EditQuotVal(&quot, Cls) > 0) {
 						const QuotIdent qident(quot.LocID, Spc.PredictCoeffID, 0, quot.ArID);
@@ -2033,7 +2033,7 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 		if(Cls == PPQuot::clsPredictCoeff) {
 			long   i = 0;
 			SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_PRDLIST));
-			if(p_box && p_box->def && p_box->getCurID(&i) && i > 0 && i <= Data.getCountI()) {
+			if(SmartListBox::IsValidS(p_box) && p_box->getCurID(&i) && i > 0 && i <= Data.getCountI()) {
 				const PPQuot & r_q = Data.at(i-1);
 				if(r_q.Kind == Spc.PredictCoeffID) {
 					Data.atFree(i-1);

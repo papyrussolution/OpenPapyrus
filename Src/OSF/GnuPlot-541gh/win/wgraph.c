@@ -150,9 +150,9 @@ static struct {
 
 /* prototypes for module-local functions */
 
-LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-LRESULT CALLBACK WndGraphParentProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-INT_PTR CALLBACK LineStyleDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam);
+LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam); // @callback
+LRESULT CALLBACK WndGraphParentProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam); // @callback
+INT_PTR CALLBACK LineStyleDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam); // @callback(DLGPROC)
 
 static void     DestroyBlocks(GW * lpgw);
 static BOOL     AddBlock(GW * lpgw);
@@ -2646,7 +2646,6 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 			curptr = (struct GWOP *)blkptr->gwop;
 		}
 	} /* while (ngwop < lpgw->nGWOP) */
-
 	/* cleanup */
 	if(ps_caching && cb_memdc) {
 		SelectObject(cb_memdc, cb_old_bmp);
@@ -3349,8 +3348,8 @@ static void UpdateColorSample(HWND hdlg)
 	UpdateWindow(hdlg);
 }
 
-/* Window handler function for the "Line Styles" dialog */
-INT_PTR CALLBACK LineStyleDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam)
+// Window handler function for the "Line Styles" dialog 
+INT_PTR CALLBACK LineStyleDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam) // @callback(DLGPROC)
 {
 	TCHAR buf[16];
 	LPLS lpls;
@@ -3595,7 +3594,7 @@ static void GraphUpdateMenu(GW * lpgw)
 	CheckMenuItem(lpgw->hPopMenu, M_GRAPH_TO_TOP, MF_BYCOMMAND | (lpgw->graphtotop ? MF_CHECKED : MF_UNCHECKED));
 }
 
-LRESULT CALLBACK WndGraphParentProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndGraphParentProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) // @callback
 {
 	if(message == WM_CREATE) {
 		GW * lpgw = (GW *)((CREATESTRUCT*)lParam)->lpCreateParams;
@@ -3778,7 +3777,7 @@ LRESULT CALLBACK WndGraphParentProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 //
 // The toplevel function of this module: Window handler function of the graph window 
 //
-LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) // @callback
 {
 	HDC hdc;
 	PAINTSTRUCT ps;

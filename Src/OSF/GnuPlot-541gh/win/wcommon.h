@@ -59,19 +59,20 @@ extern FILE *open_printer();
 extern BOOL cp_changed;
 extern UINT cp_input;
 extern UINT cp_output;
-
-/* wgnuplib.c */
+//
+// wgnuplib.c 
+//
 extern HINSTANCE hdllInstance;
-extern LPCWSTR szParentClass;
-extern LPCWSTR szTextClass;
-extern LPCWSTR szToolbarClass;
-extern LPCWSTR szSeparatorClass;
-extern LPCWSTR szPauseClass;
+extern const LPCWSTR szParentClass;
+extern const LPCWSTR szTextClass;
+extern const LPCWSTR szToolbarClass;
+extern const LPCWSTR szSeparatorClass;
+extern const LPCWSTR szPauseClass;
 extern LPTSTR szAboutClass;
 
 void * LocalAllocPtr(UINT flags, UINT size);
 void * LocalReAllocPtr(void * ptr, UINT flags, UINT size);
-void LocalFreePtr(void *ptr);
+void   LocalFreePtr(void * ptr);
 LPTSTR GetInt(LPTSTR str, LPINT pval);
 
 /* wtext.c */
@@ -102,8 +103,8 @@ void PrintingCallbackFree(void * callback);
 void PrintRegister(GP_PRINT * lpr);
 void PrintUnregister(GP_PRINT * lpr);
 BOOL CALLBACK PrintAbortProc(HDC hdcPrn, int code);
-INT_PTR CALLBACK PrintDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam);
+INT_PTR CALLBACK PrintDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam); // @callback(DLGPROC)
+INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam); // @callback(DLGPROC)
 
 /* wgraph.c */
 uint luma_from_color(uint red, uint green, uint blue);

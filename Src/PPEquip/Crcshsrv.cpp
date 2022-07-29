@@ -695,7 +695,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					p_writer->PutElement("name", prev_gds_info.Name);
 					{
 						// @v11.4.4 {
-						if(goodsIdAsArticle) {
+						/* @v11.4.5 if(goodsIdAsArticle) {
 							// @v10.9.11 {
 							if(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
 								const char * p_mark_type = 0;
@@ -714,7 +714,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 							p_writer->PutElement("count", temp_buf.Z().Cat("1"));
 							p_writer->PutElement("default-code", true);
 							p_writer->EndElement(); // </bar-code>
-						}
+						}*/
 						// } @v11.4.4 
 						for(uint i = 0; i < barcodes.getCount(); i++) {
 							BarcodeTbl::Rec bc = barcodes.at(i);
@@ -747,7 +747,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 								// p_writer->PutElement("end-date", end_dtm);
 								// p_writer->EndElement();
 								p_writer->PutElement("count", bc.Qtty);
-								if(!goodsIdAsArticle) // @v11.4.4 
+								// @v11.4.5 if(!goodsIdAsArticle) // @v11.4.4 
 									p_writer->PutElement("default-code", LOGIC(sstreq(bc.Code, prev_gds_info.PrefBarCode)));
 								p_writer->EndElement(); // </bar-code>
 							}

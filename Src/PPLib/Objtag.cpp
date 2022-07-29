@@ -2576,8 +2576,8 @@ public:
 	};
 	explicit TagValListDialog(uint dlgId) : PPListDialog(dlgId/*DLG_TAGVALVIEW*/, CTL_TAGVALVIEW_LIST), P_AllowedTags(0), UpdateMode(0)
 	{
-		if(P_Box)
-			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
+		if(SmartListBox::IsValidS(P_Box))
+			P_Box->P_Def->SetOption(lbtFocNotify, 1);
 	}
 	int    setDTS(const DataBlock * pData)
 	{

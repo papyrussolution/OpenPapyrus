@@ -6584,6 +6584,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @skucount            /!/             "SKU" // Stock Keeping Unit
 @ware                                "Товар"
 @ware_pl                             "Товары"
+@ware_service                        "Услуга"
+@ware_service_pl                     "Услуги"
 @product                             "Продукт"
 @productname                         "Наименование продукта"
 @productcomposition                  "Состав изделия"

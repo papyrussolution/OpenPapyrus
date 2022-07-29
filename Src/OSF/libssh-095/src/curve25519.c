@@ -190,32 +190,25 @@ static SSH_PACKET_CALLBACK(ssh_packet_client_curve25519_reply)
 	int rc;
 	(void)type;
 	(void)user;
-
 	ssh_packet_remove_callbacks(session, &ssh_curve25519_client_callbacks);
-
 	pubkey_blob = ssh_buffer_get_ssh_string(packet);
 	if(pubkey_blob == NULL) {
 		ssh_set_error(session, SSH_FATAL, "No public key in packet");
 		goto error;
 	}
-
 	rc = ssh_dh_import_next_pubkey_blob(session, pubkey_blob);
 	SSH_STRING_FREE(pubkey_blob);
 	if(rc) {
-		ssh_set_error(session,
-		    SSH_FATAL,
-		    "Failed to import next public key");
+		ssh_set_error(session, SSH_FATAL, "Failed to import next public key");
 		goto error;
 	}
-
 	q_s_string = ssh_buffer_get_ssh_string(packet);
 	if(q_s_string == NULL) {
 		ssh_set_error(session, SSH_FATAL, "No Q_S ECC point in packet");
 		goto error;
 	}
 	if(ssh_string_len(q_s_string) != CURVE25519_PUBKEY_SIZE) {
-		ssh_set_error(session, SSH_FATAL, "Incorrect size for server Curve25519 public key: %d",
-		    (int)ssh_string_len(q_s_string));
+		ssh_set_error(session, SSH_FATAL, "Incorrect size for server Curve25519 public key: %d", (int)ssh_string_len(q_s_string));
 		SSH_STRING_FREE(q_s_string);
 		goto error;
 	}
@@ -287,9 +280,7 @@ static SSH_PACKET_CALLBACK(ssh_packet_server_curve25519_init)
 	int rc;
 	(void)type;
 	(void)user;
-
 	ssh_packet_remove_callbacks(session, &ssh_curve25519_server_callbacks);
-
 	/* Extract the client pubkey from the init packet */
 	q_c_string = ssh_buffer_get_ssh_string(packet);
 	if(q_c_string == NULL) {

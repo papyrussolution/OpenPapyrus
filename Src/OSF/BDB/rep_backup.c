@@ -169,11 +169,10 @@ int __rep_update_req(ENV*env, __rep_control_args * rp)
 	lsn = ((LOG *)dblp->reginfo.primary)->lsn;
 	LOG_SYSTEM_UNLOCK(env);
 	__rep_send_message(env, DB_EID_BROADCAST, REP_UPDATE, &lsn, &updbt, 0, 0);
-
 err:
 	__os_free(env, context.buf);
 err_noalloc:
-	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
+	if(logc && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
 	REP_SYSTEM_LOCK(env);
 	F_CLR(rep, REP_F_INUPDREQ);
@@ -199,8 +198,8 @@ static int __rep_find_dbs(ENV*env, FILE_LIST_CTX * context)
 	 * If we have a data directory, walk it get a list of the
 	 * replicated user databases.
 	 */
-	if(dbenv->db_data_dir != NULL) {
-		for(ddir = dbenv->db_data_dir; *ddir != NULL; ++ddir) {
+	if(dbenv->db_data_dir) {
+		for(ddir = dbenv->db_data_dir; *ddir; ++ddir) {
 			if((ret = __db_appname(env, DB_APP_NONE, *ddir, NULL, &real_dir)) != 0)
 				break;
 			if((ret = __rep_walk_dir(env, real_dir, context)) != 0)
@@ -284,7 +283,7 @@ static int __rep_walk_dir(ENV*env, const char * dir, FILE_LIST_CTX * context)
 		 * result in the same files appearing in the list more than
 		 * once.
 		 */
-		if(first_file && dir != NULL && (ret = __rep_walk_filelist(env, context->version, FIRST_FILE_PTR(context->buf), context->size, context->count, __rep_check_uid, uid)) != 0) {
+		if(first_file && dir && (ret = __rep_walk_filelist(env, context->version, FIRST_FILE_PTR(context->buf), context->size, context->count, __rep_check_uid, uid)) != 0) {
 			if(ret == DB_KEYEXIST)
 				ret = 0;
 			goto err;
@@ -534,7 +533,6 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 	repth.type = REP_PAGE;
 	repth.data_dbt = &msgdbt;
 	REP_SYSTEM_UNLOCK(env);
-
 	for(p = msgfp->pgno; p <= msgfp->max_pgno; p++) {
 		if(msgfp->type == (uint32)DB_QUEUE && p != 0) {
 			/*
@@ -634,11 +632,9 @@ err:
 	 * We're done, force out whatever remains in the bulk buffer and
 	 * free it.
 	 */
-	if(use_bulk && bulk.addr != NULL &&
-	   (t_ret = __rep_bulk_free(env, &bulk, 0)) != 0 && ret == 0 &&
-	   t_ret != DB_REP_UNAVAIL)
+	if(use_bulk && bulk.addr && (t_ret = __rep_bulk_free(env, &bulk, 0)) != 0 && ret == 0 && t_ret != DB_REP_UNAVAIL)
 		ret = t_ret;
-	if(qdbc != NULL && (t_ret = __dbc_close(qdbc)) != 0 && ret == 0)
+	if(qdbc && (t_ret = __dbc_close(qdbc)) != 0 && ret == 0)
 		ret = t_ret;
 	if(opened && (t_ret = __db_close(qdbp, NULL, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
@@ -1190,7 +1186,7 @@ static int __rep_remove_file(ENV * env, __rep_fileinfo_args * rfp, void * unused
 #ifdef HAVE_QUEUE
 out:
 #endif
-	if(dbp != NULL && (t_ret = __db_close(dbp, NULL, DB_NOSYNC)) != 0 && ret == 0)
+	if(dbp && (t_ret = __db_close(dbp, NULL, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -1651,7 +1647,7 @@ static int __rep_page_gap(ENV*env, REP * rep, __rep_fileinfo_args * msgfp, uint3
 		rep->max_wait_pg = PGNO_INVALID;
 	}
 err:
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -1679,16 +1675,16 @@ int __rep_init_cleanup(ENV*env, REP * rep, int force)
 	 * 4.  Free current file info.
 	 * 5.  If we have all files or need to force, free original file info.
 	 */
-	if(db_rep->file_mpf != NULL) {
+	if(db_rep->file_mpf) {
 		ret = __memp_fclose(db_rep->file_mpf, 0);
 		db_rep->file_mpf = NULL;
 	}
-	if(db_rep->file_dbp != NULL) {
+	if(db_rep->file_dbp) {
 		t_ret = __db_close(db_rep->file_dbp, NULL, DB_NOSYNC);
 		db_rep->file_dbp = NULL;
 		SETIFZ(ret, t_ret);
 	}
-	if(force && db_rep->queue_dbc != NULL) {
+	if(force && db_rep->queue_dbc) {
 		queue_dbp = db_rep->queue_dbc->dbp;
 		if((t_ret = __dbc_close(db_rep->queue_dbc)) != 0 && ret == 0)
 			ret = t_ret;
@@ -2240,7 +2236,7 @@ static int __rep_log_setup(ENV * env, REP * rep, uint32 file, uint32 version, DB
 	 * need to get from the master.
 	 */
 	LOG_SYSTEM_LOCK(env);
-	if((ret = __log_newfile(dblp, &lsn, file, version)) == 0 && lsnp != NULL)
+	if((ret = __log_newfile(dblp, &lsn, file, version)) == 0 && lsnp)
 		*lsnp = lsn;
 	LOG_SYSTEM_UNLOCK(env);
 
@@ -2368,10 +2364,10 @@ req:
 	 * Close the dbp and return.
 	 */
 out:
-	if(db_rep->queue_dbc != NULL && (t_ret = __dbc_close(db_rep->queue_dbc)) != 0 && ret == 0)
+	if(db_rep->queue_dbc && (t_ret = __dbc_close(db_rep->queue_dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	db_rep->queue_dbc = NULL;
-	if(queue_dbp != NULL && (t_ret = __db_close(queue_dbp, NULL, DB_NOSYNC)) != 0 && ret == 0)
+	if(queue_dbp && (t_ret = __db_close(queue_dbp, NULL, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
 	if(!ret)
 		ret = DB_REP_PAGEDONE;
@@ -2643,7 +2639,7 @@ static int __rep_unlink_by_list(ENV * env, uint32 version, uint8 * files, uint32
 	if(dbenv->db_data_dir == NULL)
 		ret = __rep_remove_by_prefix(env, env->db_home, QUEUE_EXTENT_PREFIX, sizeof(QUEUE_EXTENT_PREFIX)-1, DB_APP_DATA);
 	else {
-		for(ddir = dbenv->db_data_dir; *ddir != NULL; ++ddir) {
+		for(ddir = dbenv->db_data_dir; *ddir; ++ddir) {
 			if((ret = __db_appname(env, DB_APP_NONE, *ddir, NULL, &dir)) != 0)
 				break;
 			ret = __rep_remove_by_prefix(env, dir, QUEUE_EXTENT_PREFIX, sizeof(QUEUE_EXTENT_PREFIX)-1, DB_APP_DATA);

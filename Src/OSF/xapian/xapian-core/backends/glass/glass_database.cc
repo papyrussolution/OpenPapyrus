@@ -347,27 +347,20 @@ void GlassDatabase::send_whole_database(RemoteConnection & conn, double end_time
 #endif
 }
 
-void GlassDatabase::write_changesets_to_fd(int fd,
-    const string & revision,
-    bool need_whole_db,
-    ReplicationInfo * info)
+void GlassDatabase::write_changesets_to_fd(int fd, const string & revision, bool need_whole_db, ReplicationInfo * info)
 {
 	LOGCALL_VOID(DB, "GlassDatabase::write_changesets_to_fd", fd | revision | need_whole_db | info);
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
 	glass_revision_number_t start_rev_num = 0;
 	string start_uuid = get_uuid();
-
 	glass_revision_number_t needed_rev_num = 0;
-
 	const char * rev_ptr = revision.data();
 	const char * rev_end = rev_ptr + revision.size();
 	if(!unpack_uint(&rev_ptr, rev_end, &start_rev_num)) {
 		need_whole_db = true;
 	}
-
 	RemoteConnection conn(-1, fd, string());
-
 	// While the starting revision number is less than the latest revision
 	// number, look for a changeset, and write it.
 	//
@@ -380,13 +373,10 @@ void GlassDatabase::write_changesets_to_fd(int fd,
 			// if we've already copied the database enough.  This ensures that
 			// synchronisation attempts always terminate eventually.
 			if(whole_db_copies_left == 0) {
-				conn.send_message(REPL_REPLY_FAIL,
-				    "Database changing too fast",
-				    0.0);
+				conn.send_message(REPL_REPLY_FAIL, "Database changing too fast", 0.0);
 				return;
 			}
 			whole_db_copies_left--;
-
 			// Send the whole database across.
 			start_rev_num = get_revision();
 			start_uuid = get_uuid();
