@@ -7,9 +7,11 @@
 
 #include <slib-internal.h>
 #pragma hdrstop
+#ifndef _DEFAULT_SOURCE
+	#define _DEFAULT_SOURCE   // for syscall() on Linux
+#endif
 #include "mimalloc.h"
 #include "mimalloc-internal.h"
-//#include <string.h> // memset
 
 /* ----------------------------------------------------------------------------
    We use our own PRNG to keep predictable performance of random number generation
@@ -34,14 +36,15 @@
    (gcc x64 has no register spills, and clang 6+ uses SSE instructions)
    -----------------------------------------------------------------------------*/
 
-// @v11.4.0 (replaced with slrotl32) static inline uint32_t rotl(uint32_t x, uint32_t shift) { return (x << shift) | (x >> (32 - shift)); }
+static inline uint32_t rotl(uint32_t x, uint32_t shift) {
+	return (x << shift) | (x >> (32 - shift));
+}
 
-static inline void qround(uint32_t x[16], size_t a, size_t b, size_t c, size_t d) 
-{
-	x[a] += x[b]; x[d] = slrotl32(x[d] ^ x[a], 16);
-	x[c] += x[d]; x[b] = slrotl32(x[b] ^ x[c], 12);
-	x[a] += x[b]; x[d] = slrotl32(x[d] ^ x[a], 8);
-	x[c] += x[d]; x[b] = slrotl32(x[b] ^ x[c], 7);
+static inline void qround(uint32_t x[16], size_t a, size_t b, size_t c, size_t d) {
+	x[a] += x[b]; x[d] = rotl(x[d] ^ x[a], 16);
+	x[c] += x[d]; x[b] = rotl(x[b] ^ x[c], 12);
+	x[a] += x[b]; x[d] = rotl(x[d] ^ x[a], 8);
+	x[c] += x[d]; x[b] = rotl(x[b] ^ x[c], 7);
 }
 
 static void chacha_block(mi_random_ctx_t* ctx)
@@ -61,11 +64,13 @@ static void chacha_block(mi_random_ctx_t* ctx)
 		qround(x, 2, 7,  8, 13);
 		qround(x, 3, 4,  9, 14);
 	}
+
 	// add scrambled data to the initial state
 	for(size_t i = 0; i < 16; i++) {
 		ctx->output[i] = x[i] + ctx->input[i];
 	}
 	ctx->output_available = 16;
+
 	// increment the counter for the next round
 	ctx->input[12] += 1;
 	if(ctx->input[12] == 0) {
@@ -128,53 +133,45 @@ static void chacha_split(mi_random_ctx_t* ctx, uint64_t nonce, mi_random_ctx_t* 
    -----------------------------------------------------------------------------*/
 
 #if MI_DEBUG>1
-	static bool mi_random_is_initialized(mi_random_ctx_t* ctx) 
-	{
-		return (ctx != NULL && ctx->input[0] != 0);
-	}
+static bool mi_random_is_initialized(mi_random_ctx_t* ctx) {
+	return (ctx != NULL && ctx->input[0] != 0);
+}
+
 #endif
 
-void _mi_random_split(mi_random_ctx_t* ctx, mi_random_ctx_t* ctx_new) 
-{
+void _mi_random_split(mi_random_ctx_t* ctx, mi_random_ctx_t* ctx_new) {
 	mi_assert_internal(mi_random_is_initialized(ctx));
 	mi_assert_internal(ctx != ctx_new);
 	chacha_split(ctx, (uintptr_t)ctx_new /*nonce*/, ctx_new);
 }
 
-uintptr_t _mi_random_next(mi_random_ctx_t* ctx) 
-{
+uintptr_t _mi_random_next(mi_random_ctx_t* ctx) {
 	mi_assert_internal(mi_random_is_initialized(ctx));
   #if MI_INTPTR_SIZE <= 4
 	return chacha_next32(ctx);
   #elif MI_INTPTR_SIZE == 8
 	return (((uintptr_t)chacha_next32(ctx) << 32) | chacha_next32(ctx));
   #else
-  #error "define mi_random_next for this platform"
+  # error "define mi_random_next for this platform"
   #endif
 }
 
 /* ----------------------------------------------------------------------------
    To initialize a fresh random context we rely on the OS:
    - Windows     : BCryptGenRandom (or RtlGenRandom)
-   - osX,bsd,wasi: arc4random_buf
+   - macOS       : CCRandomGenerateBytes, arc4random_buf
+   - bsd,wasi    : arc4random_buf
    - Linux       : getrandom,/dev/urandom
    If we cannot get good randomness, we fall back to weak randomness based on a timer and ASLR.
    -----------------------------------------------------------------------------*/
 
 #if defined(_WIN32)
 
-#if !defined(MI_USE_RTLGENRANDOM)
-// We prefer BCryptGenRandom over RtlGenRandom
-#pragma comment(lib,"bcrypt.lib")
-#include <bcrypt.h>
-static bool os_random_buf(void * buf, size_t buf_len) 
-{
-	return (BCryptGenRandom(NULL, (PUCHAR)buf, (ULONG)buf_len, BCRYPT_USE_SYSTEM_PREFERRED_RNG) >= 0);
-}
-
-#else
-// Use (unofficial) RtlGenRandom
-#pragma comment(lib,"advapi32.lib")
+#if defined(MI_USE_RTLGENRANDOM) || defined(__cplusplus)
+// We prefer to use BCryptGenRandom instead of (the unofficial) RtlGenRandom but when using
+// dynamic overriding, we observed it can raise an exception when compiled with C++, and
+// sometimes deadlocks when also running under the VS debugger.
+#pragma comment (lib,"advapi32.lib")
 #define RtlGenRandom  SystemFunction036
 #ifdef __cplusplus
 extern "C" {
@@ -183,29 +180,57 @@ BOOLEAN NTAPI RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
 #ifdef __cplusplus
 }
 #endif
-static bool os_random_buf(void * buf, size_t buf_len) {
+static bool os_random_buf(void* buf, size_t buf_len) {
 	return (RtlGenRandom(buf, (ULONG)buf_len) != 0);
+}
+
+#else
+#pragma comment (lib,"bcrypt.lib")
+#include <bcrypt.h>
+static bool os_random_buf(void* buf, size_t buf_len) {
+	return (BCryptGenRandom(NULL, (PUCHAR)buf, (ULONG)buf_len, BCRYPT_USE_SYSTEM_PREFERRED_RNG) >= 0);
 }
 
 #endif
 
-#elif defined(ANDROID) || defined(XP_DARWIN) || defined(__APPLE__) || defined(__DragonFly__) || \
+#elif defined(__APPLE__)
+#include <AvailabilityMacros.h>
+#if defined(MAC_OS_X_VERSION_10_10) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_10
+#include <CommonCrypto/CommonCryptoError.h>
+#include <CommonCrypto/CommonRandom.h>
+#endif
+static bool os_random_buf(void* buf, size_t buf_len) {
+  #if defined(MAC_OS_X_VERSION_10_15) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_15
+	// We prefere CCRandomGenerateBytes as it returns an error code while arc4random_buf
+	// may fail silently on macOS. See PR #390, and
+	// <https://opensource.apple.com/source/Libc/Libc-1439.40.11/gen/FreeBSD/arc4random.c.auto.html>
+	return (CCRandomGenerateBytes(buf, buf_len) == kCCSuccess);
+  #else
+	// fall back on older macOS
+	arc4random_buf(buf, buf_len);
+	return true;
+  #endif
+}
+
+#elif defined(__ANDROID__) || defined(__DragonFly__) || \
 	defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || \
-	defined(__sun) || defined(__wasi__)
-//#include <stdlib.h>
-static bool os_random_buf(void * buf, size_t buf_len) {
+	defined(__sun) // todo: what to use with __wasi__?
+#include <stdlib.h>
+static bool os_random_buf(void* buf, size_t buf_len) {
 	arc4random_buf(buf, buf_len);
 	return true;
 }
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__HAIKU__)
+#if defined(__linux__)
 #include <sys/syscall.h>
+#endif
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-static bool os_random_buf(void * buf, size_t buf_len) {
+static bool os_random_buf(void* buf, size_t buf_len) {
 	// Modern Linux provides `getrandom` but different distributions either use `sys/random.h` or `linux/random.h`
 	// and for the latter the actual `getrandom` call is not always defined.
 	// (see <https://stackoverflow.com/questions/45237324/why-doesnt-getrandom-compile>)
@@ -218,7 +243,7 @@ static bool os_random_buf(void * buf, size_t buf_len) {
 	if(mi_atomic_load_acquire(&no_getrandom)==0) {
 		ssize_t ret = syscall(SYS_getrandom, buf, buf_len, GRND_NONBLOCK);
 		if(ret >= 0) return (buf_len == (size_t)ret);
-		if(ret != ENOSYS) return false;
+		if(errno != ENOSYS) return false;
 		mi_atomic_store_release(&no_getrandom, 1UL); // don't call again, and fall back to /dev/urandom
 	}
 #endif
@@ -230,7 +255,7 @@ static bool os_random_buf(void * buf, size_t buf_len) {
 	if(fd < 0) return false;
 	size_t count = 0;
 	while(count < buf_len) {
-		ssize_t ret = read(fd, (char *)buf + count, buf_len - count);
+		ssize_t ret = read(fd, (char*)buf + count, buf_len - count);
 		if(ret<=0) {
 			if(errno!=EAGAIN && errno!=EINTR) break;
 		}
@@ -243,23 +268,23 @@ static bool os_random_buf(void * buf, size_t buf_len) {
 }
 
 #else
-static bool os_random_buf(void * buf, size_t buf_len) {
+static bool os_random_buf(void* buf, size_t buf_len) {
 	return false;
 }
 
 #endif
 
 #if defined(_WIN32)
-//#include <windows.h>
+#include <windows.h>
 #elif defined(__APPLE__)
 #include <mach/mach_time.h>
 #else
-//#include <time.h>
+#include <time.h>
 #endif
 
-uintptr_t _os_random_weak(uintptr_t extra_seed) 
-{
-	uintptr_t x = (uintptr_t)&_os_random_weak ^ extra_seed; // ASLR makes the address random
+uintptr_t _mi_os_random_weak(uintptr_t extra_seed) {
+	uintptr_t x = (uintptr_t)&_mi_os_random_weak ^ extra_seed; // ASLR makes the address random
+
   #if defined(_WIN32)
 	LARGE_INTEGER pcount;
 	QueryPerformanceCounter(&pcount);
@@ -287,8 +312,10 @@ void _mi_random_init(mi_random_ctx_t* ctx)
 	if(!os_random_buf(key, sizeof(key))) {
 		// if we fail to get random data from the OS, we fall back to a
 		// weak random source based on the current time
+    #if !defined(__wasi__)
 		_mi_warning_message("unable to use secure randomness\n");
-		uintptr_t x = _os_random_weak(0);
+    #endif
+		uintptr_t x = _mi_os_random_weak(0);
 		for(size_t i = 0; i < 8; i++) { // key is eight 32-bit words.
 			x = _mi_random_shuffle(x);
 			((uint32_t*)key)[i] = (uint32_t)x;
@@ -303,7 +330,7 @@ void _mi_random_init(mi_random_ctx_t* ctx)
 /*
    static bool array_equals(uint32_t* x, uint32_t* y, size_t n) {
    for (size_t i = 0; i < n; i++) {
-    if(x[i] != y[i]) return false;
+    if (x[i] != y[i]) return false;
    }
    return true;
    }

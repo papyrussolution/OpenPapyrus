@@ -113,7 +113,6 @@ int ListBoxDef::getCurData(void * b)
 void   ListBoxDef::SetOption(uint option, int set) { SETFLAG(Options, option, set); }
 long   ListBoxDef::_topItem() const { return TopItem; }
 long   ListBoxDef::_curItem() const { return CurItem; }
-bool   ListBoxDef::_isTreeList() const { return LOGIC(CFlags & cTree); }
 void   ListBoxDef::setViewHight(int vh) { ViewHight = vh; }
 int    ListBoxDef::GetFrameSize() const { return -1; }
 int    ListBoxDef::GetFrameState() { return 0; }

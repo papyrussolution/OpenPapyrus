@@ -1,5 +1,5 @@
 // SMEM.CPP
-// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -163,17 +163,8 @@ int memdword(void * p, size_t size, uint32 key, size_t * pOffs)
 	return 0;
 }
 
-#ifndef _WIN32_WCE // {
-uint16 FASTCALL swapw(uint16 w)
-{
-	return ((w>>8) | (w<<8));
-}
-
-uint32 FASTCALL swapdw(uint32 dw)
-{
-	return (((dw & 0xffff0000U) >> 16) | ((dw & 0x0000ffffU) << 16));
-}
-#endif // } _WIN32_WCE
+uint16 FASTCALL swapw(uint16 w) { return ((w>>8) | (w<<8)); }
+uint32 FASTCALL swapdw(uint32 dw) { return (((dw & 0xffff0000U) >> 16) | ((dw & 0x0000ffffU) << 16)); }
 
 uint32 FASTCALL msb32(uint32 x)
 {

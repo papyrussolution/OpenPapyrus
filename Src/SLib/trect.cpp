@@ -10,7 +10,7 @@ const SColor ZEROCOLOR(0, 0, 0, 0);
 //
 //
 //
-int FASTCALL SIntersectRect(RECT & rDst, const RECT & rSrc1, const RECT & rSrc2)
+int STDCALL SIntersectRect(RECT & rDst, const RECT & rSrc1, const RECT & rSrc2)
 {
 	rDst.left  = MAX(rSrc1.left, rSrc2.left);
 	rDst.right = MIN(rSrc1.right, rSrc2.right);
@@ -59,7 +59,7 @@ int FASTCALL SIntersectRect(const RECT & rSrc1, const RECT & rSrc2)
 	return 0;
 }
 
-void FASTCALL SInflateRect(RECT & rRect, int cx, int cy)
+void STDCALL SInflateRect(RECT & rRect, int cx, int cy)
 {
     rRect.left   -= cx;
     rRect.right  += cx;

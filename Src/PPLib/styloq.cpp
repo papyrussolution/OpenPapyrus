@@ -5713,7 +5713,7 @@ int PPStyloQInterchange::QueryConfigIfNeeded(RoundTripBlock & rB)
 	return ok;
 }
 
-int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const char * pJsText)
+int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const char * pJsText)
 {
 	class InnerBlock {
 	public:
@@ -5844,8 +5844,8 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 					}
 				}
 				if(pFtsTra && ss.getCount()) {
-					PPFtsIterface::Entity entity;
-					entity.Scope = PPFtsIterface::scopeStyloQSvc;
+					PPFtsInterface::Entity entity;
+					entity.Scope = PPFtsInterface::scopeStyloQSvc;
 					entity.ScopeIdent = svc_ident;
 					entity.ObjType = PPOBJ_STYLOQBINDERY;
 					entity.ObjId = svc_id;
@@ -5884,8 +5884,8 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 							}
 						}
 						if(pFtsTra && _id && ss.getCount()) {
-							PPFtsIterface::Entity entity;
-							entity.Scope = PPFtsIterface::scopeStyloQSvc;
+							PPFtsInterface::Entity entity;
+							entity.Scope = PPFtsInterface::scopeStyloQSvc;
 							entity.ScopeIdent = svc_ident;
 							entity.ObjType = PPOBJ_GOODS;
 							entity.ObjId = _id;
@@ -5917,8 +5917,8 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 							}
 						}
 						if(pFtsTra && _id && ss.getCount()) {
-							PPFtsIterface::Entity entity;
-							entity.Scope = PPFtsIterface::scopeStyloQSvc;
+							PPFtsInterface::Entity entity;
+							entity.Scope = PPFtsInterface::scopeStyloQSvc;
 							entity.ScopeIdent = svc_ident;
 							entity.ObjType = PPOBJ_GOODSGROUP;
 							entity.ObjId = _id;
@@ -5950,8 +5950,8 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 							}
 						}
 						if(pFtsTra && _id && ss.getCount()) {
-							PPFtsIterface::Entity entity;
-							entity.Scope = PPFtsIterface::scopeStyloQSvc;
+							PPFtsInterface::Entity entity;
+							entity.Scope = PPFtsInterface::scopeStyloQSvc;
 							entity.ScopeIdent = svc_ident;
 							entity.ObjType = PPOBJ_BRAND;
 							entity.ObjId = _id;
@@ -5983,8 +5983,8 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 							}
 						}
 						if(pFtsTra && _id && ss.getCount()) {
-							PPFtsIterface::Entity entity;
-							entity.Scope = PPFtsIterface::scopeStyloQSvc;
+							PPFtsInterface::Entity entity;
+							entity.Scope = PPFtsInterface::scopeStyloQSvc;
 							entity.ScopeIdent = svc_ident;
 							entity.ObjType = PPOBJ_PROCESSOR;
 							entity.ObjId = _id;
@@ -8902,8 +8902,8 @@ int PPStyloQInterchange::ProcessCommand_Search(const StyloQCore::StoragePacket &
 		}
 	}
 	if(plain_query.NotEmptyS()) {
-		PPFtsIterface fts_db(false/*forUpdate*/, 30000);
-		TSCollection <PPFtsIterface::SearchResultEntry> result_list;
+		PPFtsInterface fts_db(false/*forUpdate*/, 30000);
+		TSCollection <PPFtsInterface::SearchResultEntry> result_list;
 		THROW(fts_db);
 		THROW(fts_db.Search(plain_query, max_result_count, result_list));
 		/*if(result_list.getCount())*/ {
@@ -8932,23 +8932,23 @@ int PPStyloQInterchange::ProcessCommand_Search(const StyloQCore::StoragePacket &
 			{
 				SJson * p_js_list = SJson::CreateArr();
 				SBinaryChunk bc_temp;
-				PPFtsIterface::SurrogateScopeList sslist;
+				PPFtsInterface::SurrogateScopeList sslist;
 				for(uint i = 0; i < result_list.getCount(); i++) {
-					const PPFtsIterface::SearchResultEntry * p_ri = result_list.at(i);
+					const PPFtsInterface::SearchResultEntry * p_ri = result_list.at(i);
 					if(p_ri) {
 						p_ri->MakeSurrogateScopeIdent(bc_temp);
 						if(!sslist.Search(bc_temp, 0)) {
 							SJson * p_js_si = SJson::CreateObj();
 							temp_buf.Z();
 							switch(p_ri->Scope) {
-								case PPFtsIterface::scopePPDb: temp_buf = "ppdb"; break;
-								case PPFtsIterface::scopeStyloQSvc: temp_buf = "styloqsvc"; break;
-								//case PPFtsIterface::scopeUndef: 
+								case PPFtsInterface::scopePPDb: temp_buf = "ppdb"; break;
+								case PPFtsInterface::scopeStyloQSvc: temp_buf = "styloqsvc"; break;
+								//case PPFtsInterface::scopeUndef: 
 								default: temp_buf = "undef"; break;
 							}
 							p_js_si->InsertString("scope", temp_buf);
 							p_js_si->InsertString("scopeident", (temp_buf = p_ri->ScopeIdent).Unescape());
-							if(p_ri->Scope == PPFtsIterface::scopeStyloQSvc) {
+							if(p_ri->Scope == PPFtsInterface::scopeStyloQSvc) {
 								if(bc_temp.FromMime64(temp_buf)) {
 									StyloQCore::StoragePacket sp;
 									StyloQFace face_pack;
@@ -8979,14 +8979,14 @@ int PPStyloQInterchange::ProcessCommand_Search(const StyloQCore::StoragePacket &
 			{
 				SJson * p_js_list = SJson::CreateArr();
 				for(uint i = 0; i < result_list.getCount(); i++) {
-					const PPFtsIterface::SearchResultEntry * p_ri = result_list.at(i);
+					const PPFtsInterface::SearchResultEntry * p_ri = result_list.at(i);
 					if(p_ri) {
 						SJson * p_js_ri = SJson::CreateObj();
 						temp_buf.Z();
 						switch(p_ri->Scope) {
-							case PPFtsIterface::scopePPDb: temp_buf = "ppdb"; break;
-							case PPFtsIterface::scopeStyloQSvc: temp_buf = "styloqsvc"; break;
-							//case PPFtsIterface::scopeUndef: 
+							case PPFtsInterface::scopePPDb: temp_buf = "ppdb"; break;
+							case PPFtsInterface::scopeStyloQSvc: temp_buf = "styloqsvc"; break;
+							//case PPFtsInterface::scopeUndef: 
 							default: temp_buf = "undef"; break;
 						}
 						p_js_ri->InsertString("scope", temp_buf);
@@ -10953,7 +10953,7 @@ int StyloQCore::IndexingContent()
 			txa_param.Flags |= (STokenizer::fDivAlNum|STokenizer::fEachDelim);
 			txa.SetParam(&txa_param);
 
-			PPFtsIterface fts_db(true/*forUpdate*/, 120000);
+			PPFtsInterface fts_db(true/*forUpdate*/, 120000);
 			THROW(fts_db);
 			for(uint didx = 0; didx < doc_id_list.getCount(); didx++) {
 				const PPID doc_id = doc_id_list.get(didx);
@@ -10962,7 +10962,7 @@ int StyloQCore::IndexingContent()
 				if(doc_pack.Rec.Flags & StyloQCore::fUnprocessedDoc) {
 					if(doc_pack.Pool.Get(SSecretTagPool::tagRawData, &bin_chunk)) {
 						bin_chunk.ToRawStr(temp_buf);
-						PPFtsIterface::TransactionHandle tra(fts_db);
+						PPFtsInterface::TransactionHandle tra(fts_db);
 						bool   is_local_fault = true;
 						if(!!tra) {
 							if(IndexingContent_Json(&tra, &txa, temp_buf)) {

@@ -624,9 +624,7 @@ static void RemoveTestProfiles()
 	remove("lcms2link2.icc");
 	remove("brightness.icc");
 }
-
-// -------------------------------------------------------------------------------------------------
-
+//
 // Check the size of basic types. If this test fails, nothing is going to work anyway
 static int32 CheckBaseTypes()
 {
@@ -650,9 +648,7 @@ static int32 CheckBaseTypes()
 	if(sizeof(cmsU16Fixed16Number) != 4) return 0;
 	return 1;
 }
-
-// -------------------------------------------------------------------------------------------------
-
+//
 // Are we little or big endian?  From Harbison&Steele.
 static int32 CheckEndianness()
 {
@@ -747,9 +743,9 @@ boolint STDCALL IsGoodWordPrec(const char * title, uint16 in, uint16 out, uint16
 	}
 	return TRUE;
 }
-
-// Fixed point ----------------------------------------------------------------------------------------------
-
+//
+// Fixed point
+//
 static int32 TestSingleFixed15_16(double d)
 {
 	cmsS15Fixed16Number f = _cmsDoubleTo15Fixed16(d);
@@ -862,31 +858,34 @@ static void BuildTable(int32 n, uint16 Tab[], boolint Descending)
 
 static int32 Check1D(int32 nNodesToCheck, boolint Down, int32 max_err)
 {
+	int32 ok = 1;
 	uint16 in, out;
 	cmsInterpParams* p;
-	uint16* Tab = (uint16*)SAlloc::M(sizeof(uint16)* nNodesToCheck);
-	if(Tab == NULL) 
-		return 0;
-	p = _cmsComputeInterpParams(DbgThread(), nNodesToCheck, 1, 1, Tab, CMS_LERP_FLAGS_16BITS);
-	if(!p) 
-		return 0;
-	BuildTable(nNodesToCheck, Tab, Down);
-	for(uint32 i = 0; i <= 0xffff; i++) {
-		in = (uint16)i;
-		out = 0;
-		p->Interpolation.Lerp16(&in, &out, p);
-		if(Down) 
-			out = 0xffff - out;
-		if(abs(out - in) > max_err) {
-			Fail("(%dp): Must be %x, But is %x : ", nNodesToCheck, in, out);
-			_cmsFreeInterpParams(p);
-			SAlloc::F(Tab);
+	uint16 * Tab = (uint16*)SAlloc::M(sizeof(uint16)* nNodesToCheck);
+	if(Tab) {
+		p = _cmsComputeInterpParams(DbgThread(), nNodesToCheck, 1, 1, Tab, CMS_LERP_FLAGS_16BITS);
+		if(!p) 
 			return 0;
+		BuildTable(nNodesToCheck, Tab, Down);
+		for(uint32 i = 0; i <= 0xffff; i++) {
+			in = (uint16)i;
+			out = 0;
+			p->Interpolation.Lerp16(&in, &out, p);
+			if(Down) 
+				out = 0xffff - out;
+			if(abs(out - in) > max_err) {
+				Fail("(%dp): Must be %x, But is %x : ", nNodesToCheck, in, out);
+				_cmsFreeInterpParams(p);
+				SAlloc::F(Tab);
+				return 0;
+			}
 		}
+		_cmsFreeInterpParams(p);
+		SAlloc::F(Tab);
 	}
-	_cmsFreeInterpParams(p);
-	SAlloc::F(Tab);
-	return 1;
+	else
+		ok = 0;
+	return ok;
 }
 
 static int32 Check1DLERP2() { return Check1D(2, FALSE, 0); }
@@ -4585,9 +4584,9 @@ static int32 CompareFloatXFORM(cmsHTRANSFORM xform1, cmsHTRANSFORM xform2, int32
 	}
 	return 1;
 }
-
-// Curves only transforms ----------------------------------------------------------------------------------------
-
+//
+// Curves only transforms
+//
 static int32 CheckCurvesOnlyTransforms(FILE * fOut)
 {
 	cmsHTRANSFORM xform1, xform2;
@@ -4656,10 +4655,9 @@ Error:
 	cmsFreeToneCurve(c3);
 	return rc;
 }
-
+//
 // Lab to Lab trivial transforms
-// ----------------------------------------------------------------------------------------
-
+//
 static double MaxDE;
 
 static int32 CheckOneLab(cmsHTRANSFORM xform, double L, double a, double b)
@@ -6337,21 +6335,28 @@ static void SpeedTest32bits(FILE * fOut, const char * Title, cmsHPROFILE hlcmsPr
 	NumPixels = 256 / Interval * 256 / Interval * 256 / Interval;
 	Mb = NumPixels * sizeof(Scanline_rgba32);
 	In = (Scanline_rgba32*)SAlloc::M(Mb);
-	j = 0;
-	for(r = 0; r < 256; r += Interval)
-		for(g = 0; g < 256; g += Interval)
-			for(b = 0; b < 256; b += Interval) {
-				In[j].r = r / 256.0f;
-				In[j].g = g / 256.0f;
-				In[j].b = b / 256.0f;
-				In[j].a = (In[j].r + In[j].g + In[j].b) / 3;
-				j++;
+	if(In) {
+		j = 0;
+		for(r = 0; r < 256; r += Interval) {
+			for(g = 0; g < 256; g += Interval) {
+				for(b = 0; b < 256; b += Interval) {
+					In[j].r = r / 256.0f;
+					In[j].g = g / 256.0f;
+					In[j].b = b / 256.0f;
+					In[j].a = (In[j].r + In[j].g + In[j].b) / 3;
+					j++;
+				}
 			}
-	TitlePerformance(fOut, Title);
-	atime = clock();
-	cmsDoTransform(hlcmsxform, In, In, NumPixels);
-	diff = clock() - atime;
-	SAlloc::F(In);
+		}
+		TitlePerformance(fOut, Title);
+		atime = clock();
+		cmsDoTransform(hlcmsxform, In, In, NumPixels);
+		diff = clock() - atime;
+		SAlloc::F(In);
+	}
+	else {
+		Die(fOut, "Not enough memory (%u)", Mb);
+	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgba32), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -6371,22 +6376,27 @@ static void SpeedTest16bits(FILE * fOut, const char * Title, cmsHPROFILE hlcmsPr
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256 * sizeof(Scanline_rgb16);
 	In = (Scanline_rgb16*)SAlloc::M(Mb);
-	j = 0;
-	for(r = 0; r < 256; r++)
-		for(g = 0; g < 256; g++)
-			for(b = 0; b < 256; b++) {
-				In[j].r = (uint16)((r << 8) | r);
-				In[j].g = (uint16)((g << 8) | g);
-				In[j].b = (uint16)((b << 8) | b);
-
-				j++;
+	if(In) { // @v11.4.5
+		j = 0;
+		for(r = 0; r < 256; r++) {
+			for(g = 0; g < 256; g++) {
+				for(b = 0; b < 256; b++) {
+					In[j].r = (uint16)((r << 8) | r);
+					In[j].g = (uint16)((g << 8) | g);
+					In[j].b = (uint16)((b << 8) | b);
+					j++;
+				}
 			}
-
-	TitlePerformance(fOut, Title);
-	atime = clock();
-	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
-	diff = clock() - atime;
-	SAlloc::F(In);
+		}
+		TitlePerformance(fOut, Title);
+		atime = clock();
+		cmsDoTransform(hlcmsxform, In, In, 256*256*256);
+		diff = clock() - atime;
+		SAlloc::F(In);
+	}
+	else {
+		Die(fOut, "Not enough memory (%u)", Mb);
+	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgb16), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -6409,23 +6419,28 @@ static void SpeedTest32bitsCMYK(FILE * fOut, const char * Title, cmsHPROFILE hlc
 	NumPixels = 256 / Interval * 256 / Interval * 256 / Interval;
 	Mb = NumPixels * sizeof(Scanline_rgba32);
 	In = (Scanline_rgba32*)SAlloc::M(Mb);
-	j = 0;
-	for(r = 0; r < 256; r += Interval) {
-		for(g = 0; g < 256; g += Interval) {
-			for(b = 0; b < 256; b += Interval) {
-				In[j].r = r / 256.0f;
-				In[j].g = g / 256.0f;
-				In[j].b = b / 256.0f;
-				In[j].a = (In[j].r + In[j].g + In[j].b) / 3;
-				j++;
+	if(In) {
+		j = 0;
+		for(r = 0; r < 256; r += Interval) {
+			for(g = 0; g < 256; g += Interval) {
+				for(b = 0; b < 256; b += Interval) {
+					In[j].r = r / 256.0f;
+					In[j].g = g / 256.0f;
+					In[j].b = b / 256.0f;
+					In[j].a = (In[j].r + In[j].g + In[j].b) / 3;
+					j++;
+				}
 			}
 		}
+		TitlePerformance(fOut, Title);
+		atime = clock();
+		cmsDoTransform(hlcmsxform, In, In, NumPixels);
+		diff = clock() - atime;
+		SAlloc::F(In);
 	}
-	TitlePerformance(fOut, Title);
-	atime = clock();
-	cmsDoTransform(hlcmsxform, In, In, NumPixels);
-	diff = clock() - atime;
-	SAlloc::F(In);
+	else {
+		Die(fOut, "Not enough memory (%u)", Mb);
+	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgba32), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -6445,23 +6460,28 @@ static void SpeedTest16bitsCMYK(FILE * fOut, const char * Title, cmsHPROFILE hlc
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256*sizeof(Scanline_rgba16);
 	In = (Scanline_rgba16*)SAlloc::M(Mb);
-	j = 0;
-	for(r = 0; r < 256; r++) {
-		for(g = 0; g < 256; g++) {
-			for(b = 0; b < 256; b++) {
-				In[j].r = (uint16)((r << 8) | r);
-				In[j].g = (uint16)((g << 8) | g);
-				In[j].b = (uint16)((b << 8) | b);
-				In[j].a = 0;
-				j++;
+	if(In) {
+		j = 0;
+		for(r = 0; r < 256; r++) {
+			for(g = 0; g < 256; g++) {
+				for(b = 0; b < 256; b++) {
+					In[j].r = (uint16)((r << 8) | r);
+					In[j].g = (uint16)((g << 8) | g);
+					In[j].b = (uint16)((b << 8) | b);
+					In[j].a = 0;
+					j++;
+				}
 			}
 		}
+		TitlePerformance(fOut, Title);
+		atime = clock();
+		cmsDoTransform(hlcmsxform, In, In, 256*256*256);
+		diff = clock() - atime;
+		SAlloc::F(In);
 	}
-	TitlePerformance(fOut, Title);
-	atime = clock();
-	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
-	diff = clock() - atime;
-	SAlloc::F(In);
+	else {
+		Die(fOut, "Not enough memory (%u)", Mb);
+	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgba16), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -6481,20 +6501,25 @@ static void SpeedTest8bits(FILE * fOut, const char * Title, cmsHPROFILE hlcmsPro
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256*sizeof(Scanline_rgb8);
 	In = (Scanline_rgb8*)SAlloc::M(Mb);
-	j = 0;
-	for(r = 0; r < 256; r++)
-		for(g = 0; g < 256; g++)
-			for(b = 0; b < 256; b++) {
-				In[j].r = (uint8)r;
-				In[j].g = (uint8)g;
-				In[j].b = (uint8)b;
-				j++;
-			}
-	TitlePerformance(fOut, Title);
-	atime = clock();
-	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
-	diff = clock() - atime;
-	SAlloc::F(In);
+	if(In) {
+		j = 0;
+		for(r = 0; r < 256; r++)
+			for(g = 0; g < 256; g++)
+				for(b = 0; b < 256; b++) {
+					In[j].r = (uint8)r;
+					In[j].g = (uint8)g;
+					In[j].b = (uint8)b;
+					j++;
+				}
+		TitlePerformance(fOut, Title);
+		atime = clock();
+		cmsDoTransform(hlcmsxform, In, In, 256*256*256);
+		diff = clock() - atime;
+		SAlloc::F(In);
+	}
+	else {
+		Die(fOut, "Not enough memory (%u)", Mb);
+	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgb8), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -6514,21 +6539,26 @@ static void SpeedTest8bitsCMYK(FILE * fOut, const char * Title, cmsHPROFILE hlcm
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256*sizeof(Scanline_rgba8);
 	In = (Scanline_rgba8*)SAlloc::M(Mb);
-	j = 0;
-	for(r = 0; r < 256; r++)
-		for(g = 0; g < 256; g++)
-			for(b = 0; b < 256; b++) {
-				In[j].r = (uint8)r;
-				In[j].g = (uint8)g;
-				In[j].b = (uint8)b;
-				In[j].a = (uint8)0;
-				j++;
-			}
-	TitlePerformance(fOut, Title);
-	atime = clock();
-	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
-	diff = clock() - atime;
-	SAlloc::F(In);
+	if(In) {
+		j = 0;
+		for(r = 0; r < 256; r++)
+			for(g = 0; g < 256; g++)
+				for(b = 0; b < 256; b++) {
+					In[j].r = (uint8)r;
+					In[j].g = (uint8)g;
+					In[j].b = (uint8)b;
+					In[j].a = (uint8)0;
+					j++;
+				}
+		TitlePerformance(fOut, Title);
+		atime = clock();
+		cmsDoTransform(hlcmsxform, In, In, 256*256*256);
+		diff = clock() - atime;
+		SAlloc::F(In);
+	}
+	else {
+		Die(fOut, "Not enough memory (%u)", Mb);
+	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgba8), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -6551,19 +6581,24 @@ static void SpeedTest32bitsGray(FILE * fOut, const char * Title, cmsHPROFILE hlc
 	NumPixels = 256 / Interval * 256 / Interval * 256 / Interval;
 	Mb = NumPixels * sizeof(float);
 	In = (float *)SAlloc::M(Mb);
-	j = 0;
-	for(r = 0; r < 256; r += Interval)
-		for(g = 0; g < 256; g += Interval)
-			for(b = 0; b < 256; b += Interval) {
-				In[j] = ((r + g + b) / 768.0f);
-				j++;
-			}
+	if(In) {
+		j = 0;
+		for(r = 0; r < 256; r += Interval)
+			for(g = 0; g < 256; g += Interval)
+				for(b = 0; b < 256; b += Interval) {
+					In[j] = ((r + g + b) / 768.0f);
+					j++;
+				}
 
-	TitlePerformance(fOut, Title);
-	atime = clock();
-	cmsDoTransform(hlcmsxform, In, In, NumPixels);
-	diff = clock() - atime;
-	SAlloc::F(In);
+		TitlePerformance(fOut, Title);
+		atime = clock();
+		cmsDoTransform(hlcmsxform, In, In, NumPixels);
+		diff = clock() - atime;
+		SAlloc::F(In);
+	}
+	else {
+		Die(fOut, "Not enough memory (%u)", Mb);
+	}
 	PrintPerformance(fOut, Mb, sizeof(float), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -6583,20 +6618,25 @@ static void SpeedTest16bitsGray(FILE * fOut, const char * Title, cmsHPROFILE hlc
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256 * sizeof(uint16);
 	In = (uint16*)SAlloc::M(Mb);
-	j = 0;
-	for(r = 0; r < 256; r++) {
-		for(g = 0; g < 256; g++) {
-			for(b = 0; b < 256; b++) {
-				In[j] = (uint16)((r + g + b) / 3);
-				j++;
+	if(In) {
+		j = 0;
+		for(r = 0; r < 256; r++) {
+			for(g = 0; g < 256; g++) {
+				for(b = 0; b < 256; b++) {
+					In[j] = (uint16)((r + g + b) / 3);
+					j++;
+				}
 			}
 		}
+		TitlePerformance(fOut, Title);
+		atime = clock();
+		cmsDoTransform(hlcmsxform, In, In, 256*256*256);
+		diff = clock() - atime;
+		SAlloc::F(In);
 	}
-	TitlePerformance(fOut, Title);
-	atime = clock();
-	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
-	diff = clock() - atime;
-	SAlloc::F(In);
+	else {
+		Die(fOut, "Not enough memory (%u)", Mb);
+	}
 	PrintPerformance(fOut, Mb, sizeof(uint16), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -6616,20 +6656,25 @@ static void SpeedTest8bitsGray(FILE * fOut, const char * Title, cmsHPROFILE hlcm
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256;
 	In = (uint8 *)SAlloc::M(Mb);
-	j = 0;
-	for(r = 0; r < 256; r++) {
-		for(g = 0; g < 256; g++) {
-			for(b = 0; b < 256; b++) {
-				In[j] = (uint8)r;
-				j++;
+	if(In) {
+		j = 0;
+		for(r = 0; r < 256; r++) {
+			for(g = 0; g < 256; g++) {
+				for(b = 0; b < 256; b++) {
+					In[j] = (uint8)r;
+					j++;
+				}
 			}
 		}
+		TitlePerformance(fOut, Title);
+		atime = clock();
+		cmsDoTransform(hlcmsxform, In, In, 256*256*256);
+		diff = clock() - atime;
+		SAlloc::F(In);
 	}
-	TitlePerformance(fOut, Title);
-	atime = clock();
-	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
-	diff = clock() - atime;
-	SAlloc::F(In);
+	else {
+		Die(fOut, "Not enough memory (%u)", Mb);
+	}
 	PrintPerformance(fOut, Mb, sizeof(uint8), diff);
 	cmsDeleteTransform(hlcmsxform);
 }

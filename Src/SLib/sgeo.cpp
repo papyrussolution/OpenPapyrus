@@ -4,7 +4,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-/*static*/uint32 FASTCALL SZIndex2::Combine(uint16 x, uint16 y)
+/*static*/uint32 STDCALL SZIndex2::Combine(uint16 x, uint16 y)
 {
 	const uint32 xdw = static_cast<uint32>(x);
 	const uint32 ydw = static_cast<uint32>(y);
@@ -31,7 +31,7 @@
 	return result;
 }
 
-/*static*/uint64 FASTCALL SZIndex2::Combine(uint32 x, uint32 y)
+/*static*/uint64 STDCALL SZIndex2::Combine(uint32 x, uint32 y)
 {
 	const uint64 dw_lo =
 	((x & 0x0001))       | ((y & 0x0001) <<  1) |

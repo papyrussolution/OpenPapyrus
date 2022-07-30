@@ -688,7 +688,7 @@ void GoodsGroupView::editQuotations(long id, int quotCls)
 void GoodsGroupView::ViewGoodsByGroup(long id)
 {
 	Goods2Tbl::Rec rec;
-	if(id && GGObj.Search(id, &rec) > 0 && (!(rec.Flags & GF_FOLDER) || P_Box->isTreeList())) {
+	if(id && GGObj.Search(id, &rec) > 0 && (!(rec.Flags & GF_FOLDER) || P_Box->IsTreeList())) {
 		GoodsFilt flt;
 		flt.GrpIDList.Add(id);
 		PPView::Execute(PPVIEW_GOODS, &flt, 1, 0);
@@ -697,7 +697,7 @@ void GoodsGroupView::ViewGoodsByGroup(long id)
 
 void GoodsGroupView::setupButtons()
 {
-	if(!P_Box->isTreeList()) {
+	if(!P_Box->IsTreeList()) {
 		int    down, up;
 		Goods2Tbl::Rec rec;
 		PPID id = getCurrID();
@@ -740,7 +740,7 @@ int GoodsGroupView::addItem(long * pPos, long * pID)
 {
 	PPID   obj_id = 0;
 	PPID   id = 0;
-	if(P_Box->isTreeList()) {
+	if(P_Box->IsTreeList()) {
 		PPID   parent_id = 0;
 		Goods2Tbl::Rec rec;
 		id = getCurrID();

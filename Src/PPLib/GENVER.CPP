@@ -1,5 +1,5 @@
 // GENVER.CPP
-// Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017, 2018, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017, 2018, 2020, 2021, 2022
 //
 // For private use only. Redistribution prohibited !
 //

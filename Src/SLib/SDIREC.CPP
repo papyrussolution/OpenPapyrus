@@ -227,7 +227,7 @@ SFileEntryPool & SFileEntryPool::Z()
 	return *this;
 }
 
-int FASTCALL SFileEntryPool::SearchName(const char * pFileName, Entry * pEntry) const
+int STDCALL SFileEntryPool::SearchName(const char * pFileName, Entry * pEntry) const
 {
 	int    ok = 0;
 	if(!isempty(pFileName)) {

@@ -22,7 +22,6 @@ ListWindow::ListWindow() : TDialog(_DefLwRect, 0), P_Def(0), PrepareSearchLetter
 void   ListWindow::setCompFunc(CompFunc f) { CALLPTRMEMB(P_Lb, setCompFunc(f)); }
 ListWindowSmartListBox * ListWindow::listBox() const { return P_Lb; }
 void   ListWindow::prepareForSearching(int firstLetter) { PrepareSearchLetter = firstLetter; }
-bool   ListWindow::isTreeList() const { return (P_Def && P_Def->_isTreeList()); }
 int    FASTCALL ListWindow::getResult(long * pVal) { return P_Def ? P_Def->getCurID(pVal) : 0; }
 int    ListWindow::getString(SString & rBuf) { return P_Def ? P_Def->getCurString(rBuf) : (rBuf.Z(), 0); }
 int    ListWindow::getListData(void * pData) { return P_Def ? P_Def->getCurData(pData) : 0; }
@@ -32,7 +31,7 @@ void ListWindow::executeNM(HWND parent)
 {
 	HWND   hwnd_parent = parent ? parent : APPL->H_MainWnd;
 	MessageCommandToOwner(cmLBLoadDef);
-	Id = (isTreeList()) ? DLGW_TREELBX : DLGW_LBX;
+	Id = IsTreeList() ? DLGW_TREELBX : DLGW_LBX;
 	HW = APPL->CreateDlg(Id, hwnd_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 	TView::SetWindowProp(H(), GWL_STYLE, WS_CHILD);
 	TView::SetWindowProp(H(), GWL_EXSTYLE, 0L);
@@ -78,8 +77,8 @@ void FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 				found = 1;
 			}
 		} while(!found && p && (p = p->P_Next) != 0);
-		P_Lb->SetId(isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST);
-		P_Lb->SetTreeListState(isTreeList());
+		P_Lb->SetId(IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST);
+		P_Lb->SetTreeListState(IsTreeList());
 		if(found)
 			insertBefore(P_Lb, p_next);
 		else
@@ -94,7 +93,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 		ComboBox * p_combo = P_Lb ? P_Lb->combo : 0;
 		HWND   hwnd_parent = p_combo ? p_combo->link()->Parent : APPL->H_MainWnd;
 		MessageCommandToOwner(cmLBLoadDef);
-		Id = isTreeList() ? DLGW_TREELBX : ((P_Def && P_Def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
+		Id = IsTreeList() ? DLGW_TREELBX : ((P_Def && P_Def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
 		HW = APPL->CreateDlg(Id, hwnd_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 		if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {
 			UserInterfaceSettings ui_cfg;
@@ -107,7 +106,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 		}
 		APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
 		if(p_combo) {
-			if(!isTreeList())
+			if(!IsTreeList())
 				p_combo->setupListWindow(1);
 			else
 				p_combo->setupTreeListWindow(1);
@@ -123,7 +122,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 			resourceID = -1;
 			EndModalCmd = 0;
 			MSG    msg;
-			const  uint ctl_id = isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
+			const  uint ctl_id = IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 			HWND   h_ctl_wnd = ::GetDlgItem(H(), ctl_id);
 			if(PrepareSearchLetter) {
 				::SendMessage(h_ctl_wnd, WM_CHAR, PrepareSearchLetter, 0);
@@ -165,7 +164,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 	}
 	else {
 		if(TVCOMMAND) {
-			if(TVCMD == cmOK && isTreeList()) {
+			if(TVCMD == cmOK && IsTreeList()) {
 				const HWND h_tlist = GetDlgItem(H(), CTL_TREELBX_TREELIST);
 				TreeView_Expand(h_tlist, TreeView_GetSelection(h_tlist), TVE_TOGGLE);
 			}
@@ -239,7 +238,7 @@ int ListWindow::getSingle(long * pVal)
 
 void ListWindow::MoveWindow(HWND linkHwnd, long right)
 {
-	uint   list_ctl = isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
+	uint   list_ctl = IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 	HWND   h_list = GetDlgItem(H(), list_ctl);
 	RECT   link_rect, list_rect;
 	::GetWindowRect(H(), &list_rect);
@@ -251,37 +250,37 @@ void ListWindow::MoveWindow(HWND linkHwnd, long right)
 		link_rect = list_rect;
 		link_rect.bottom = link_rect.top;
 	}
-	long   item_height = isTreeList() ? TreeView_GetItemHeight(h_list) : ::SendMessage(h_list, LB_GETITEMHEIGHT, 0, 0);
+	long   item_height = IsTreeList() ? TreeView_GetItemHeight(h_list) : ::SendMessage(h_list, LB_GETITEMHEIGHT, 0, 0);
 	int    h = 	P_Def ? ((P_Def->ViewHight + 1) * item_height) : (list_rect.bottom - list_rect.top);
 	int    tt = link_rect.top;
 	int    x  = link_rect.left;
 	int    w  = (link_rect.right - link_rect.left);
-	HWND   h_scroll = (!isTreeList()) ? GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1)) : 0;
+	HWND   h_scroll = IsTreeList() ? 0 : GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1));
 
 	if(GetSystemMetrics(SM_CYFULLSCREEN) > link_rect.bottom+h)
 		::MoveWindow(H(), x, link_rect.bottom, w, h, 1);
 	else
 		::MoveWindow(H(), x, tt-h, w, h, 1);
 	::GetClientRect(H(), &list_rect);
-	if(!isTreeList())
+	if(!IsTreeList())
 		list_rect.right -= (h_scroll ? GetSystemMetrics(SM_CXVSCROLL) : 0);
 	::MoveWindow(h_list, 0, 0, list_rect.right, list_rect.bottom, 1);
-	if(!isTreeList() && h_scroll)
+	if(!IsTreeList() && h_scroll)
 		::MoveWindow(h_scroll, list_rect.right, 0, GetSystemMetrics(SM_CXVSCROLL), list_rect.bottom, 1);
 }
 
 void ListWindow::MoveWindow(const RECT & rRect)
 {
-	uint   list_ctl = (isTreeList()) ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
+	uint   list_ctl = IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 	HWND   h_list = GetDlgItem(H(), list_ctl);
-	HWND   h_scroll = (!isTreeList()) ? GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1)) : 0;
+	HWND   h_scroll = IsTreeList() ? 0 : GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1));
 	RECT   list_rect;
 	::MoveWindow(H(), rRect.left, rRect.top, rRect.right, rRect.bottom, 1);
 	::GetClientRect(H(), &list_rect);
-	if(!isTreeList())
+	if(!IsTreeList())
 		list_rect.right -= GetSystemMetrics(SM_CXVSCROLL);
 	::MoveWindow(h_list, list_rect.left, list_rect.top, list_rect.right, list_rect.bottom, 1);
-	if(P_Lb && !isTreeList())
+	if(P_Lb && !IsTreeList())
 		P_Lb->MoveScrollBar(1);
 }
 //
@@ -522,7 +521,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 				resourceID = -1;
 				EndModalCmd = 0;
 				MSG    msg;
-				const  uint ctl_id = isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
+				const  uint ctl_id = IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 				HWND   h_ctl_wnd = ::GetDlgItem(H(), ctl_id);
 				ActivateInput();
 				do {
@@ -682,8 +681,8 @@ void FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 				found = 1;
 			}
 		} while(!found && p && (p = p->P_Next));
-		P_Lb->SetId(isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST);
-		P_Lb->SetTreeListState(isTreeList());
+		P_Lb->SetId(IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST);
+		P_Lb->SetTreeListState(IsTreeList());
 		if(found)
 			insertBefore(P_Lb, p_next);
 		else

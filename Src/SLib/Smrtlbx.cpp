@@ -43,6 +43,48 @@ IMPL_CMPFUNC(FilePathUtf8, i1, i2)
 //
 //
 //
+INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
+{
+	SmartListBox * p_view = static_cast<SmartListBox *>(TView::GetWindowUserData(hWnd));
+	const WNDPROC prev_wnd_proc = p_view ? p_view->PrevWindowProc : 0;
+	switch(uMsg) {
+		case WM_DESTROY: CALLPTRMEMB(p_view, OnDestroy(hWnd)); return 0; // Не вызывается. Непонятно правда почему.
+		case WM_KEYDOWN:
+		case WM_SYSKEYDOWN: ::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); break; // Process by default
+		case WM_SETFOCUS:
+		case WM_KILLFOCUS: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
+		case WM_CHAR: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
+		case WM_NOTIFY: ::SendMessage(GetParent(hWnd), uMsg, wParam, lParam); return 0;
+		case WM_ERASEBKGND:
+			if(p_view && p_view->HasState(SmartListBox::stOwnerDraw)) {
+				TDrawItemData di;
+				MEMSZERO(di);
+				di.CtlType = ODT_LISTBOX;
+				di.CtlID = p_view->GetId();
+				di.ItemAction = TDrawItemData::iaBackground;
+				di.H_Item = hWnd;
+				di.H_DC = reinterpret_cast<HDC>(wParam);
+				GetClientRect(hWnd, &di.ItemRect);
+				di.P_View = p_view;
+				TView::messageCommand(p_view->P_Owner, cmDrawItem, &di);
+				if(di.ItemAction == 0)
+					return 1;
+			}
+			break;
+		// @v7.7.7 case WM_LBUTTONDBLCLK:
+			// @v7.7.7 return p_view ? CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 1;
+		/*
+		case WM_INPUTLANGCHANGE: // @v6.4.4 AHTOXA
+			PostMessage(GetParent(hWnd), uMsg, wParam, lParam);
+			break;
+		*/
+		default:
+			break;
+	}
+	//return p_view ? CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 1;
+	return prev_wnd_proc ? CallWindowProc(prev_wnd_proc, hWnd, uMsg, wParam, lParam) : 1;
+}
+
 INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
 {
 	SmartListBox * p_view = static_cast<SmartListBox *>(TView::GetWindowUserData(hWnd));
@@ -95,48 +137,6 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 	}
 	else
 		return TRUE;
-}
-
-INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
-{
-	SmartListBox * p_view = static_cast<SmartListBox *>(TView::GetWindowUserData(hWnd));
-	const WNDPROC prev_wnd_proc = p_view ? p_view->PrevWindowProc : 0;
-	switch(uMsg) {
-		case WM_DESTROY: CALLPTRMEMB(p_view, OnDestroy(hWnd)); return 0; // Не вызывается. Непонятно правда почему.
-		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN: ::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); break; // Process by default
-		case WM_SETFOCUS:
-		case WM_KILLFOCUS: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
-		case WM_CHAR: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
-		case WM_NOTIFY: ::SendMessage(GetParent(hWnd), uMsg, wParam, lParam); return 0;
-		case WM_ERASEBKGND:
-			if(p_view && p_view->HasState(SmartListBox::stOwnerDraw)) {
-				TDrawItemData di;
-				MEMSZERO(di);
-				di.CtlType = ODT_LISTBOX;
-				di.CtlID = p_view->GetId();
-				di.ItemAction = TDrawItemData::iaBackground;
-				di.H_Item = hWnd;
-				di.H_DC = reinterpret_cast<HDC>(wParam);
-				GetClientRect(hWnd, &di.ItemRect);
-				di.P_View = p_view;
-				TView::messageCommand(p_view->P_Owner, cmDrawItem, &di);
-				if(di.ItemAction == 0)
-					return 1;
-			}
-			break;
-		// @v7.7.7 case WM_LBUTTONDBLCLK:
-			// @v7.7.7 return p_view ? CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 1;
-		/*
-		case WM_INPUTLANGCHANGE: // @v6.4.4 AHTOXA
-			PostMessage(GetParent(hWnd), uMsg, wParam, lParam);
-			break;
-		*/
-		default:
-			break;
-	}
-	//return p_view ? CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 1;
-	return prev_wnd_proc ? CallWindowProc(prev_wnd_proc, hWnd, uMsg, wParam, lParam) : 1;
 }
 
 INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
@@ -317,7 +317,6 @@ void SmartListBox::RemoveColumns()
 int    FASTCALL SmartListBox::getCurID(long * pId) { return P_Def ? P_Def->getCurID(pId) : 0; }
 int    FASTCALL SmartListBox::getCurData(void * pData) { return P_Def ? P_Def->getCurData(pData) : 0; }
 int    FASTCALL SmartListBox::getCurString(SString & rBuf) { return P_Def ? P_Def->getCurString(rBuf) : (rBuf.Z(), 0); }
-bool   SmartListBox::isTreeList() const { return (P_Def && P_Def->_isTreeList()); }
 void   SmartListBox::setHorzRange(int) {}
 
 uint SmartListBox::GetSelectionList(LongArray * pList)
@@ -325,7 +324,7 @@ uint SmartListBox::GetSelectionList(LongArray * pList)
 	uint   result = 0;
 	CALLPTRMEMB(pList, Z());
 	if(P_Def) {
-		if(isTreeList()) {
+		if(IsTreeList()) {
 			long   cur_id = 0;
 			if(getCurID(&cur_id)) {
 				CALLPTRMEMB(pList, add(cur_id));
@@ -512,10 +511,10 @@ void SmartListBox::onInitDialog(int useScrollBar)
 		RECT   rc_cli_parent;
 		RECT   rc_list;
 		RECT   rc_parent;
-		const bool is_multi_col = LOGIC(Columns.getCount());
+		//const bool is_multi_col = LOGIC(Columns.getCount());
 		const bool is_tabbed = LOGIC(TView::GetWindowStyle(Parent) & WS_CHILD);
 		::GetClientRect(Parent, &rc_cli_parent);
-		if(!is_multi_col && !GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1))) {
+		if(!IsMultiColumn() && !GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1))) {
 			::GetWindowRect(Parent, &rc_parent);
 			::GetWindowRect(h_lb, &rc_list);
 			POINT  list_lu;
@@ -534,7 +533,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 		::GetWindowRect(h_lb, &rc_list);
 		int    item_height;
 		int    list_height = (rc_list.bottom - rc_list.top);
-		if(is_multi_col) {
+		if(IsMultiColumn()) {
 			RECT   rc;
 			HWND   hwh = ListView_GetHeader(h_lb);
 			::GetWindowRect(hwh, &rc);
@@ -560,7 +559,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 			}
 		}
 		CALLPTRMEMB(P_Def, setViewHight(Height));
-		dlg_proc = is_multi_col ? ListViewDialogProc : ListBoxDialogProc;
+		dlg_proc = IsMultiColumn() ? ListViewDialogProc : ListBoxDialogProc;
 	}
 	State |= stInited;
 	Draw_();
@@ -833,14 +832,14 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					MessageCommandToOwner(cmLBDblClk);
 					break;
 				case LBN_SELCHANGE:
-					{
-						const int index = Columns.getCount() ?
+					if(P_Def) {
+						const int index = IsMultiColumn() ?
 							SendDlgItemMessage(Parent, Id, LVM_GETNEXTITEM, -1, MAKELPARAM(LVNI_SELECTED, 0)) :
-							(SendDlgItemMessage(Parent, Id, LB_GETCURSEL, 0, 0) + P_Def->_topItem());
+							SendDlgItemMessage(Parent, Id, LB_GETCURSEL, 0, 0) + P_Def->_topItem();
 						if(index >= 0) {
 							long   prev_top_item = Top;
 							P_Def->go(index);
-							if(!Columns.getCount() && Top != prev_top_item)
+							if(!IsMultiColumn() && Top != prev_top_item)
 								Draw_();
 							if(P_Def->Options & lbtFocNotify)
 								MessageCommandToOwner(cmLBItemFocused);
@@ -855,13 +854,12 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		case WM_RBUTTONDOWN:
 			{
-				const bool is_multi_col = LOGIC(Columns.getCount());
-				if(!is_multi_col) {
+				if(!IsMultiColumn()) {
 					const long hw_clarea_lw_index = SendDlgItemMessage(Parent, Id, LB_ITEMFROMPOINT, 0, lParam);
 					if(HIWORD(hw_clarea_lw_index) == 0 && LOWORD(hw_clarea_lw_index) >= 0) {
-						long   prev_top_item = Top;
+						const long prev_top_item = Top;
 						P_Def->go(LOWORD(hw_clarea_lw_index) + P_Def->_topItem());
-						if(!Columns.getCount() && Top != prev_top_item)
+						if(Top != prev_top_item)
 							Draw_();
 						if(P_Def->Options & lbtFocNotify)
 							MessageCommandToOwner(cmLBItemFocused);
@@ -1210,20 +1208,20 @@ void SmartListBox::Scroll(short Code, int value)
 		P_Def->getScrollData(&scroll_delta, &scroll_pos);
 		if(P_Def->_curItem() == 0)
 			scroll_pos = 0;
-		if(!Columns.getCount()) {
+		if(!IsMultiColumn()) {
 			SetScrollBarPos(scroll_pos, 1);
 			if(Top != prev_top_item || to_draw)
 				Draw_();
 			else if(need_sel) {
 				const HWND h_lb = getHandle();
-				if(Columns.getCount()) {
+				/* @v11.4.5 (противоречие в условием !IsMultiColumn() above) if(Columns.getCount()) {
 					LVITEM lvi;
 					lvi.mask  = LVIF_STATE;
 					lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
 					lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
 					::SendMessage(h_lb, LVM_SETITEMSTATE, P_Def ? P_Def->_curItem() : 0, (LPARAM)&lvi);
 				}
-				else {
+				else*/{
 					long   cur_sel_idx = P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0;
 					::SendMessage(h_lb, LB_SETCURSEL, cur_sel_idx, 0);
 				}
@@ -1263,13 +1261,13 @@ void FASTCALL SmartListBox::focusItem(long item)
 		else {
 			const  HWND h_lb = getHandle();
 			const long cur__item = P_Def->_curItem();
-			if(Columns.getCount()) {
+			if(IsMultiColumn()) {
 				LVITEM lvi;
 				lvi.mask  = LVIF_STATE;
 				lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
 				lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
 				::SendMessage(h_lb, LVM_SETITEMSTATE, cur__item, (LPARAM)&lvi);
-				ListView_EnsureVisible(h_lb, cur__item, 0); // AHTOXA
+				ListView_EnsureVisible(h_lb, cur__item, 0); // @AHTOXA
 			}
 			else
 				::SendMessage(h_lb, LB_SETCURSEL, cur__item - P_Def->_topItem(), 0);
@@ -1576,7 +1574,7 @@ int SmartListBox::TransmitData(int dir, void * pData)
 	if(dir > 0) {
 		if(P_Def) {
 			SETFLAG(State, stDataFounded, (pData ? P_Def->TransmitData(dir, pData) : 0));
-			if(!Columns.getCount())
+			if(!IsMultiColumn()) {
 				if(!pData)
 					P_Def->top();
 				else if(!(State & stTreeList)) {
@@ -1584,6 +1582,7 @@ int SmartListBox::TransmitData(int dir, void * pData)
 					P_Def->getScrollData(&scroll_delta, &scroll_pos);
 					SetScrollBarPos(scroll_pos, 1);
 				}
+			}
 			s = 1;
 		}
 		else
@@ -1615,41 +1614,38 @@ void SmartListBox::Implement_Draw()
 		auotocalccolszContent    = 2, // Пропорционально содержимому колонок
 		auotocalccolszLogContent = 3, // Пропорционально логарифму содержимого колонок
 	};
-	int    auto_calc_column_sizes = auotocalccolszNominal;
-	if(State & stTreeList) {
-		if(P_Def) {
+	if(P_Def) {
+		int    auto_calc_column_sizes = auotocalccolszNominal;
+		if(State & stTreeList) {
 			//SetupTreeWnd(0, 0);
 			SetupTreeWnd2(0);
 			SelectTreeItem();
 		}
-	}
-	else {
-		long   i;
-		long   item;
-		SString buf, cell_buf;
-		buf.Space().Z();
-		cell_buf.Space().Z();
-		const  HWND h_lb = getHandle();
-		const  uint cc = Columns.getCount();
-		if(cc)
-			ListView_DeleteAllItems(h_lb);
-		else
-			::SendMessage(h_lb, LB_RESETCONTENT, 0, 0);
-		{
-			if(HIML) {
-				ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
-				HIML = 0;
-			}
-			if(P_Def)
+		else {
+			long   i;
+			long   item;
+			SString buf, cell_buf;
+			buf.Space().Z();
+			cell_buf.Space().Z();
+			const  HWND h_lb = getHandle();
+			const  uint cc = Columns.getCount();
+			if(cc)
+				ListView_DeleteAllItems(h_lb);
+			else
+				::SendMessage(h_lb, LB_RESETCONTENT, 0, 0);
+			{
+				if(HIML) {
+					ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
+					HIML = 0;
+				}
 				HIML = P_Def->CreateImageList(TProgram::GetInst());
-			if(HIML)
-		 		ListView_SetImageList(h_lb, HIML, LVSIL_SMALL);
-		}
-		if(Height) {
-			long   first_item = 0;
-			long   last_item = 0;
-			StringSet ss(SLBColumnDelim);
-			if(P_Def) {
+				if(HIML)
+		 			ListView_SetImageList(h_lb, HIML, LVSIL_SMALL);
+			}
+			if(Height) {
+				long   first_item = 0;
+				long   last_item = 0;
+				StringSet ss(SLBColumnDelim);
 				if(cc) {
 					last_item  = P_Def->GetRecsCount();
 					// @v10.9.12 {
@@ -1718,29 +1714,28 @@ void SmartListBox::Implement_Draw()
 								}
 							}
 						}
+						// } @v10.9.12 
 					}
-					// } @v10.9.12 
 				}
+				/*else if(P_Def->_isSolid()) { // @v11.4.5
+					//first_item = P_Def->_topItem();
+					//last_item  = P_Def->ViewHight;
+					last_item  = P_Def->GetRecsCount();
+				}*/
 				else {
 					first_item = P_Def->_topItem();
 					last_item  = P_Def->ViewHight;
 				}
-			}
-			for(i = 0, item = first_item; i < last_item; i++, item++) {
-				if(P_Def) {
+				for(i = 0, item = first_item; i < last_item; i++, item++) {
 					P_Def->getText(item, buf);
 					buf.Transf(CTRANSF_INNER_TO_OUTER);
-				}
-				else
-					buf.Z();
-				if(cc) {
-					LVITEM    lvi;
-					ss.setBuf(buf);
-					lvi.mask  = LVIF_TEXT;
-					lvi.iItem = i;
-					if(P_Def) {
+					if(cc) {
 						long id = 0;
 						long img_idx = 0;
+						LVITEM    lvi;
+						ss.setBuf(buf);
+						lvi.mask  = LVIF_TEXT;
+						lvi.iItem = i;
 						if(P_Def->Options & lbtAutoID)
 							id = item;
 						else
@@ -1749,36 +1744,36 @@ void SmartListBox::Implement_Draw()
 							lvi.iImage = img_idx;
 							lvi.mask |= LVIF_IMAGE;
 						}
-					}
-					for(uint k = 0, pos = 0; k < cc; k++) {
-						ss.get(&pos, cell_buf);
-						lvi.pszText  = const_cast<TCHAR *>(SUcSwitch(cell_buf.Strip().cptr())); // @badcast // @unicodeproblem
-						lvi.iSubItem = k;
-						if(k) {
-							// lvi.mask &= ~LVIF_IMAGE;
-							// lvi.iImage = -1;
-							ListView_SetItem(h_lb, &lvi);
+						for(uint k = 0, pos = 0; k < cc; k++) {
+							ss.get(&pos, cell_buf);
+							lvi.pszText  = const_cast<TCHAR *>(SUcSwitch(cell_buf.Strip().cptr())); // @badcast // @unicodeproblem
+							lvi.iSubItem = k;
+							if(k)
+								ListView_SetItem(h_lb, &lvi);
+							else
+								ListView_InsertItem(h_lb, &lvi);
 						}
-						else
-							ListView_InsertItem(h_lb, &lvi);
 					}
+					/*else if(P_Def->_isSolid()) { // @v11.4.5
+						::SendMessage(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item) : reinterpret_cast<LPARAM>(SUcSwitch(buf.cptr())));
+					}*/
+					else
+						::SendMessage(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item) : reinterpret_cast<LPARAM>(SUcSwitch(buf.cptr())));
 				}
-				else
-					::SendMessage(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item) : reinterpret_cast<LPARAM>(SUcSwitch(buf.cptr())));
 			}
+			::ShowWindow(h_lb, SW_NORMAL);
+			::UpdateWindow(h_lb);
+			if(cc) { // multi-column
+				LVITEM lvi;
+				lvi.mask  = LVIF_STATE;
+				lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
+				lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
+				::SendMessage(h_lb, LVM_SETITEMSTATE, P_Def->_curItem(), reinterpret_cast<LPARAM>(&lvi));
+				ListView_EnsureVisible(h_lb, P_Def->_curItem(), 0); // AHTOXA
+			}
+			else
+				::SendMessage(h_lb, LB_SETCURSEL, P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0, 0);
 		}
-		::ShowWindow(h_lb, SW_NORMAL);
-		::UpdateWindow(h_lb);
-		if(cc) { // multi-column
-			LVITEM lvi;
-			lvi.mask  = LVIF_STATE;
-			lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
-			lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-			::SendMessage(h_lb, LVM_SETITEMSTATE, P_Def ? P_Def->_curItem() : 0, reinterpret_cast<LPARAM>(&lvi));
-			ListView_EnsureVisible(h_lb, P_Def ? P_Def->_curItem() : 0, 0); // AHTOXA
-		}
-		else
-			::SendMessage(h_lb, LB_SETCURSEL, P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0, 0);
 	}
 }
 
@@ -1790,7 +1785,7 @@ void SmartListBox::selectItem(long)
 void SmartListBox::setRange(long aRange)
 {
 	Range = aRange;
-	if(!Columns.getCount())
+	if(!IsMultiColumn())
 		SendDlgItemMessage(Parent, MAKE_BUTTON_ID(Id,1), SBM_SETRANGE, 0, Range-1);
 }
 
@@ -1798,8 +1793,8 @@ void SmartListBox::setState(uint aState, bool enable)
 {
 	// @v11.2.5 const long preserve_state = State; // @v11.2.4
 	TView::setState(aState, enable);
-	// @v11.2.5 if((aState & (sfSelected|sfActive)) != (preserve_state & (sfSelected|sfActive)) && !Columns.getCount())
-	if(aState & (sfSelected|sfActive) && !Columns.getCount()) // @v11.2.5
+	// @v11.2.5 if((aState & (sfSelected|sfActive)) != (preserve_state & (sfSelected|sfActive)) && !IsMultiColumn())
+	if(aState & (sfSelected|sfActive) && !IsMultiColumn()) // @v11.2.5
 		if(!(State & stTreeList))
 			Draw_();
 }

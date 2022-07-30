@@ -2022,7 +2022,7 @@ bool FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2)
 	return true;
 }
 
-bool FASTCALL sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen)
+bool STDCALL sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen)
 {
 	if(static_cast<const void *>(pS1) != static_cast<const void *>(pS2)) {
 		const size_t len1 = smin(implement_sstrlen(pS1), maxlen);
@@ -2255,14 +2255,14 @@ char * FASTCALL chomp(char * s)
 // Предполагается, что под строку выделено
 // достаточно места, чтобы вместить набивку
 //
-char * FASTCALL padleft(char * pStr, char pad, size_t n)
+char * STDCALL padleft(char * pStr, char pad, size_t n)
 {
 	memmove(pStr+n, pStr, implement_sstrlen(pStr)+1);
 	memset(pStr, pad, n);
 	return pStr;
 }
 
-char * FASTCALL padright(char * pStr, char pad, size_t n)
+char * STDCALL padright(char * pStr, char pad, size_t n)
 {
 	size_t len = implement_sstrlen(pStr);
 	memset(pStr + len, pad, n);

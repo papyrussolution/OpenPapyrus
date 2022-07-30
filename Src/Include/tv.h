@@ -3789,7 +3789,8 @@ public:
 	const  char * getText(long item, SString & rBuf);
 	long   _topItem() const;
 	long   _curItem() const;
-	bool   _isTreeList() const;
+	bool   _isTreeList() const { return LOGIC(CFlags & cTree); }
+	bool   _isSolid() const { return LOGIC(CFlags & cFullInMem); }
 	void   SetOption(uint option, int set = 1);
 	int    SetUserData(const void * pData, size_t size);
 	int    GetUserData(void * pData, size_t * pSize) const;
@@ -4086,7 +4087,8 @@ public:
 	uint   GetSelectionList(LongArray * pList);
 	int    getText(long itemN  /* 0.. */, SString & rBuf);
 	int    getID(long itemN, long * pID);
-	bool   isTreeList() const;
+	bool   IsTreeList() const { return (P_Def && P_Def->_isTreeList()); }
+	bool   IsMultiColumn() const { return (Columns.getCount() > 0); }
 	DECL_HANDLE_EVENT;
 	virtual void   selectItem(long item);
 	virtual int    TransmitData(int dir, void * pData);
@@ -4213,7 +4215,7 @@ public:
 	int    FASTCALL getResult(long *);
 	int    getString(SString & rBuf);
 	int    getListData(void *);
-	bool   isTreeList() const;
+	bool   IsTreeList() const { return (P_Def && P_Def->_isTreeList()); }
 	void   FASTCALL setDef(ListBoxDef * pDef);
 	void   setCompFunc(CompFunc f);
 	ListWindowSmartListBox * listBox() const;

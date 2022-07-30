@@ -44,6 +44,9 @@ tools:context=".CommandListActivity">
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
                 <View style="@style/FakeView"/>
+                <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonInvite"
+                    android:layout_gravity="center_vertical|right"
+                    app:srcCompat="@drawable/ic_invitationqr01"/>
                 <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonScan"
                     android:layout_gravity="center_vertical|right"
                     app:srcCompat="@drawable/ic_barcode01"/>

@@ -77,7 +77,7 @@ FARPROC FASTCALL SDynLibrary::GetProcAddr(const char * pProcName)
 	return proc;
 }
 
-FARPROC FASTCALL SDynLibrary::GetProcAddr(const char * pProcName, int unicodeSuffix)
+FARPROC STDCALL SDynLibrary::GetProcAddr(const char * pProcName, int unicodeSuffix)
 {
 	FARPROC proc = 0;
 	if(H) {

@@ -143,7 +143,7 @@ IMPL_HANDLE_EVENT(ObjViewDialog)
 			case cmLBDblClk:
 				if(TVINFOVIEW && TVINFOVIEW == P_List) {
 					int edit = 1;
-					if(P_List->P_Def && P_List->isTreeList()) {
+					if(P_List->IsTreeList()) {
 						PPID cur_id = 0;
 						P_List->P_Def->getCurID(&cur_id);
 						if(static_cast<const StdTreeListBoxDef *>(P_List->P_Def)->HasChildren(cur_id))

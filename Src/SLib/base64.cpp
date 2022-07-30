@@ -28,7 +28,7 @@
 	pBuf[p] = 0;
 }*/
 
-int FASTCALL encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen)
+int STDCALL encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen)
 {
 	int    ok = 1;
 	uchar * out = reinterpret_cast<uchar *>(pOut);
@@ -92,7 +92,7 @@ static const char index_64[] = {
 
 #define CHAR64(c) (index_64[(uint8)(c)])
 
-int FASTCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen)
+int STDCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen)
 {
 	assert(sizeof(index_64) == 256);
 	int    ok = 1;//, c1 = 0, c2 = 0, c3 = 0, c4 = 0;

@@ -324,7 +324,7 @@ int PPViewStyloQBindery::Invitation()
 			PPStyloQInterchange::InterchangeParam inv(rsparam);
 			{
 				SJson js(SJson::tOBJECT);
-				js.InsertString("cmd", "REGISTER");
+				js.InsertString("cmd", "register");
 				js.ToStr(inv.CommandJson);
 			}
 			ic.ExecuteInvitationDialog(inv);

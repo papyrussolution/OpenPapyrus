@@ -5,6 +5,7 @@ package ru.petroglif.styloq;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -13,7 +14,11 @@ import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Intents;
+import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -31,6 +36,86 @@ public class CommandListActivity extends SLib.SlActivity {
 	private StyloQCommand.List ListData;
 	private class RefreshTimerTask extends TimerTask {
 		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { RefreshStatus(); }}); }
+	}
+	static class InvitationDialog extends SLib.SlDialog {
+		SLib.SlActivity ActivityCtx;
+		String InvitationData;
+		InvitationDialog(Context ctx, Object data)
+		{
+			super(ctx, R.id.DLG_SVCINVITATION, data);
+			if(ctx != null && ctx instanceof SLib.SlActivity)
+				ActivityCtx = (SLib.SlActivity)ctx;
+			InvitationData = (data != null && data instanceof String) ? (String)data : null;
+		}
+		private Bitmap MakeQrCodeImage(String dataSeq)
+		{
+			Bitmap result = null;
+			if(ActivityCtx != null) {
+				StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(ActivityCtx);
+				if(app_ctx != null) {
+					try {
+						int _org_w = (int)app_ctx.getResources().getDimension(R.dimen.invitationqrcodeside);
+						int _org_h = (int)app_ctx.getResources().getDimension(R.dimen.invitationqrcodeside);
+						BitMatrix matrix = new MultiFormatWriter().encode(dataSeq, BarcodeFormat.QR_CODE, _org_w, _org_h);
+						int bitmatrix_width = matrix.getWidth();
+						int bitmatrix_height = matrix.getHeight();
+						int[] pixels = new int[bitmatrix_width * bitmatrix_height];
+						int color_fg = ActivityCtx.getResources().getColor(R.color.BarcodeFg, ActivityCtx.getTheme());
+						int color_bg = ActivityCtx.getResources().getColor(R.color.BarcodeBg, ActivityCtx.getTheme());
+						for(int y = 0; y < bitmatrix_height; y++) {
+							int offset = y * bitmatrix_width;
+							for(int x = 0; x < bitmatrix_width; x++) {
+								pixels[offset + x] = matrix.get(x, y) ? color_fg : color_bg;
+							}
+						}
+						Bitmap bitmap = Bitmap.createBitmap(bitmatrix_width, bitmatrix_height, Bitmap.Config.ARGB_4444);
+						bitmap.setPixels(pixels, 0, bitmatrix_width, 0, 0, bitmatrix_width, bitmatrix_height);
+						result = bitmap;
+					} catch(WriterException exn) {
+						//exn.printStackTrace();
+						result = null;
+					}
+				}
+			}
+			return result;
+		}
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
+		{
+			Object result = null;
+			switch(ev) {
+				case SLib.EV_CREATE:
+					{
+						requestWindowFeature(Window.FEATURE_NO_TITLE);
+						setContentView(R.layout.dialog_svcinvitation);
+						StyloQApp app_ctx = ActivityCtx != null ? SLib.SlActivity.GetAppCtx(ActivityCtx) : null;
+						if(app_ctx != null) {
+							//setTitle(SLib.ExpandString(app_ctx, "@{personevent}"));
+							{
+								View vg = findViewById(R.id.DLG_SVCINVITATION);
+								if(vg != null && vg instanceof ViewGroup)
+									SLib.SubstituteStringSignatures(app_ctx, (ViewGroup)vg);
+							}
+							View v = findViewById(R.id.CTLIMG_SVCINVITATION_QRCODE);
+							if(v != null && v instanceof ImageView) {
+								Bitmap bmp = MakeQrCodeImage(InvitationData);
+								if(bmp != null)
+									((ImageView)v).setImageBitmap(bmp);
+							}
+						}
+						//SetDTS(Data);
+					}
+					break;
+				case SLib.EV_COMMAND:
+					if(srcObj != null && srcObj instanceof View) {
+						final int view_id = ((View)srcObj).getId();
+						if(view_id == R.id.STDCTL_CLOSEBUTTON) {
+							this.dismiss();
+						}
+					}
+					break;
+			}
+			return result;
+		}
 	}
 	static class PersonEvent {
 		PersonEvent()
@@ -85,7 +170,7 @@ public class CommandListActivity extends SLib.SlActivity {
 					}
 					break;
 			}
-			return null;
+			return result;
 		}
 		boolean SetDTS(Object objData)
 		{
@@ -407,6 +492,24 @@ public class CommandListActivity extends SLib.SlActivity {
 						if(SLib.GetLen(svc_ident_hex) > 0)
 							integrator.addExtra("svcident", svc_ident_hex);
 						integrator.initiateScan();
+					}
+				}
+				else if(view_id == R.id.tbButtonInvite) {
+					try {
+						StyloQInterchange.Invitation inv = new StyloQInterchange.Invitation();
+						inv.SvcIdent = SvcIdent;
+						{
+							JSONObject js_query = new JSONObject();
+							js_query.put("cmd", "register");
+							inv.CommandJson = js_query.toString();
+						}
+						String inv_text = StyloQInterchange.MakeInvitation(inv);
+						StyloQInterchange.Invitation test_inv = StyloQInterchange.AcceptInvitation(inv_text);
+						assert(test_inv != null && SLib.AreByteArraysEqual(test_inv.SvcIdent, SvcIdent));
+						InvitationDialog dialog = new InvitationDialog(this, inv_text);
+						dialog.show();
+					} catch(StyloQException | JSONException exn) {
+						; // @todo
 					}
 				}
 				break;

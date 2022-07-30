@@ -52,7 +52,6 @@ import java.security.spec.InvalidParameterSpecException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -359,18 +358,53 @@ public class StyloQInterchange {
 	{
 		return 3600;
 	}
+
+	public static String MakeInvitation(Invitation inv) throws StyloQException
+	{
+		String result = null;
+		if(inv != null) {
+			Base64.Encoder encoder = Base64.getEncoder();
+			//SString temp_buf;
+			// prefix SVCPID LOCLADDENDUM SVCCAP URL [SVCCMD [SVCCMDPARAM]] // @v11.2.3 LOCLADDENDUM
+			THROW(SLib.GetLen(inv.SvcIdent) > 0, ppstr2.PPERR_SQ_UNDEFSVCID);
+			//THROW(SLib.GetLen(inv.AccessPoint) > 0, ppstr2.PPERR_SQ_UNDEFSVCACCSPOINT);
+			assert (SLib.GetLen(inv.CommandJson) > 0);
+			THROW(SLib.GetLen(inv.CommandJson) > 0, ppstr2.PPERR_SQ_UNDEFSVCCOMMAND);
+			result = "A"; // prefix
+			result += encoder.encodeToString(inv.SvcIdent);
+			// @v11.2.3 LoclAddendum {
+			//temp_buf.Z();
+			result += "&";
+			if(SLib.GetLen(inv.LoclAddendum) > 0) {
+				result += encoder.encodeToString(inv.LoclAddendum);
+			}
+			// } @v11.2.3 LoclAddendum
+			{
+				byte[] cpb = new byte[4];
+				cpb[0] = (byte) inv.Capabilities;
+				cpb[1] = (byte) (inv.Capabilities >> 8);
+				cpb[2] = (byte) (inv.Capabilities >> 16);
+				cpb[3] = (byte) (inv.Capabilities >> 24);
+				result += "&" + encoder.encodeToString(cpb);
+			}
+			result += "&";
+			if(SLib.GetLen(inv.AccessPoint) > 0)
+				result += encoder.encodeToString(inv.AccessPoint.getBytes());
+			result += "&" + encoder.encodeToString(inv.CommandJson.getBytes());
+			//CATCHZOK
+		}
+		return result;
+	}
 	public static Invitation AcceptInvitation(String invData) throws StyloQException
 	{
 		Invitation result = null;
 		try {
 			THROW(SLib.GetLen(invData) > 0, ppstr2.PPERR_SQ_INVITATPARSEFAULT_EMPTY);
-			StringTokenizer toknzr = new StringTokenizer(invData, "&");
-			int tokn = 0;
-			while(toknzr.hasMoreTokens()) {
-				String tok = toknzr.nextToken();
-				if(tok == null)
-					break;
-				else {
+			//StringTokenizer toknzr = new StringTokenizer(invData, "&");
+			String [] token_list = invData.split("&"); // @debug
+			if(token_list != null) {
+				for(int tokn = 0; tokn < token_list.length;) {
+					String tok = token_list[tokn];
 					tokn++;
 					if(tokn == 1) {
 						THROW(tok.charAt(0) == 'A', ppstr2.PPERR_SQ_INVITATPARSEFAULT, invData);
@@ -383,15 +417,15 @@ public class StyloQInterchange {
 						result.LoclAddendum = (SLib.GetLen(tok) > 0) ? Base64.getDecoder().decode(tok) : null;
 					}
 					else if(tokn == 3) { // Capabilities // @v11.2.3 2-->3
-						byte[] cap_buf = Base64.getDecoder().decode(tok);
+						final byte[] cap_buf = Base64.getDecoder().decode(tok);
 						THROW(cap_buf != null && cap_buf.length == 4, ppstr2.PPERR_SQ_INVITATPARSEFAULT, invData);
 						if(result == null)
 							result = new Invitation();
 						result.Capabilities = SLib.BytesToInt(cap_buf, 0);
 					}
 					else if(tokn == 4) { // access point // @v11.2.3 3-->4
-						byte[] acsp_buf = Base64.getDecoder().decode(tok);
-						if(acsp_buf != null) {
+						final byte[] acsp_buf = Base64.getDecoder().decode(tok);
+						if(SLib.GetLen(acsp_buf) > 0) {
 							String acsp_text = new String(acsp_buf);
 							URI uri = new URI(acsp_text);
 							THROW(SLib.GetLen(uri.getScheme()) > 0 && SLib.GetLen(uri.getHost()) > 0, ppstr2.PPERR_SQ_INVITATPARSEFAULT, invData);

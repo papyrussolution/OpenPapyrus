@@ -7,24 +7,31 @@
 #pragma once
 #ifndef MIMALLOC_ATOMIC_H
 #define MIMALLOC_ATOMIC_H
-//
+
+// --------------------------------------------------------------------------------------------
 // Atomics
 // We need to be portable between C, C++, and MSVC.
 // We base the primitives on the C/C++ atomics and create a mimimal wrapper for MSVC in C compilation mode.
 // This is why we try to use only `uintptr_t` and `<type>*` as atomic types.
 // To gain better insight in the range of used atomics, we use explicitly named memory order operations
 // instead of passing the memory order as a parameter.
-//
+// -----------------------------------------------------------------------------------------------
+
 #if defined(__cplusplus)
 // Use C++ atomics
 #include <atomic>
 #define  _Atomic(tp)            std::atomic<tp>
 #define  mi_atomic(name)        std::atomic_ ## name
 #define  mi_memory_order(name)  std::memory_order_ ## name
+#if !defined(ATOMIC_VAR_INIT) || (__cplusplus >= 202002L) // c++20, see issue #571
+ #define MI_ATOMIC_VAR_INIT(x)  x
+#else
+ #define MI_ATOMIC_VAR_INIT(x)  ATOMIC_VAR_INIT(x)
+#endif
 #elif defined(_MSC_VER)
 // Use MSVC C wrapper for C11 atomics
 #define  _Atomic(tp)            tp
-#define  ATOMIC_VAR_INIT(x)     x
+#define  MI_ATOMIC_VAR_INIT(x)  x
 #define  mi_atomic(name)        mi_atomic_ ## name
 #define  mi_memory_order(name)  mi_memory_order_ ## name
 #else
@@ -32,6 +39,7 @@
 #include <stdatomic.h>
 #define  mi_atomic(name)        atomic_ ## name
 #define  mi_memory_order(name)  memory_order_ ## name
+#define  MI_ATOMIC_VAR_INIT(x)  ATOMIC_VAR_INIT(x)
 #endif
 
 // Various defines for all used memory orders in mimalloc
@@ -64,7 +72,7 @@
 #define mi_atomic_increment_acq_rel(p)           mi_atomic_add_acq_rel(p, (uintptr_t)1)
 #define mi_atomic_decrement_acq_rel(p)           mi_atomic_sub_acq_rel(p, (uintptr_t)1)
 
-static inline void mi_atomic_yield(void);
+static inline void mi_atomic_yield();
 static inline intptr_t mi_atomic_addi(_Atomic(intptr_t)*p, intptr_t add);
 static inline intptr_t mi_atomic_subi(_Atomic(intptr_t)*p, intptr_t sub);
 
@@ -96,17 +104,14 @@ static inline intptr_t mi_atomic_subi(_Atomic(intptr_t)*p, intptr_t sub);
 #endif
 
 // These are used by the statistics
-static inline int64_t mi_atomic_addi64_relaxed(volatile int64_t* p, int64_t add) 
-{
+static inline int64_t mi_atomic_addi64_relaxed(volatile int64_t* p, int64_t add) {
 	return mi_atomic(fetch_add_explicit)((_Atomic(int64_t)*)p, add, mi_memory_order(relaxed));
 }
 
-static inline void mi_atomic_maxi64_relaxed(volatile int64_t* p, int64_t x) 
-{
+static inline void mi_atomic_maxi64_relaxed(volatile int64_t* p, int64_t x) {
 	int64_t current = mi_atomic_load_relaxed((_Atomic(int64_t)*)p);
-	while(current < x && !mi_atomic_cas_weak_release((_Atomic(int64_t)*)p, &current, x)) { // nothing 
-		;
-	}
+	while(current < x && !mi_atomic_cas_weak_release((_Atomic(int64_t)*)p, &current, x)) { /* nothing */
+	};
 }
 
 // Used by timers
@@ -162,7 +167,8 @@ static inline uintptr_t mi_atomic_fetch_or_explicit(_Atomic(uintptr_t)* p, uintp
 	return (uintptr_t)MI_64(_InterlockedOr)((volatile msc_intptr_t*)p, (msc_intptr_t)x);
 }
 
-static inline bool mi_atomic_compare_exchange_strong_explicit(_Atomic(uintptr_t)* p, uintptr_t* expected, uintptr_t desired, mi_memory_order mo1, mi_memory_order mo2) 
+static inline bool mi_atomic_compare_exchange_strong_explicit(_Atomic(uintptr_t)* p, uintptr_t* expected, uintptr_t desired,
+    mi_memory_order mo1, mi_memory_order mo2) 
 {
 	(void)(mo1); (void)(mo2);
 	uintptr_t read = (uintptr_t)MI_64(_InterlockedCompareExchange)((volatile msc_intptr_t*)p, (msc_intptr_t)desired, (msc_intptr_t)(*expected));
@@ -183,18 +189,21 @@ static inline bool mi_atomic_compare_exchange_weak_explicit(_Atomic(uintptr_t)* 
 	return mi_atomic_compare_exchange_strong_explicit(p, expected, desired, mo1, mo2);
 }
 
-static inline uintptr_t mi_atomic_exchange_explicit(_Atomic(uintptr_t)* p, uintptr_t exchange, mi_memory_order mo) {
+static inline uintptr_t mi_atomic_exchange_explicit(_Atomic(uintptr_t)* p, uintptr_t exchange, mi_memory_order mo) 
+{
 	(void)(mo);
 	return (uintptr_t)MI_64(_InterlockedExchange)((volatile msc_intptr_t*)p, (msc_intptr_t)exchange);
 }
 
-static inline void mi_atomic_thread_fence(mi_memory_order mo) {
+static inline void mi_atomic_thread_fence(mi_memory_order mo) 
+{
 	(void)(mo);
 	_Atomic(uintptr_t) x = 0;
 	mi_atomic_exchange_explicit(&x, 1, mo);
 }
 
-static inline uintptr_t mi_atomic_load_explicit(_Atomic(uintptr_t) const* p, mi_memory_order mo) {
+static inline uintptr_t mi_atomic_load_explicit(_Atomic(uintptr_t) const* p, mi_memory_order mo) 
+{
 	(void)(mo);
 #if defined(_M_IX86) || defined(_M_X64)
 	return *p;
@@ -209,7 +218,8 @@ static inline uintptr_t mi_atomic_load_explicit(_Atomic(uintptr_t) const* p, mi_
 #endif
 }
 
-static inline void mi_atomic_store_explicit(_Atomic(uintptr_t)* p, uintptr_t x, mi_memory_order mo) {
+static inline void mi_atomic_store_explicit(_Atomic(uintptr_t)* p, uintptr_t x, mi_memory_order mo) 
+{
 	(void)(mo);
 #if defined(_M_IX86) || defined(_M_X64)
 	*p = x;
@@ -218,7 +228,8 @@ static inline void mi_atomic_store_explicit(_Atomic(uintptr_t)* p, uintptr_t x, 
 #endif
 }
 
-static inline int64_t mi_atomic_loadi64_explicit(_Atomic(int64_t)* p, mi_memory_order mo) {
+static inline int64_t mi_atomic_loadi64_explicit(_Atomic(int64_t)* p, mi_memory_order mo) 
+{
 	(void)(mo);
 #if defined(_M_X64)
 	return *p;
@@ -232,7 +243,8 @@ static inline int64_t mi_atomic_loadi64_explicit(_Atomic(int64_t)* p, mi_memory_
 #endif
 }
 
-static inline void mi_atomic_storei64_explicit(_Atomic(int64_t)* p, int64_t x, mi_memory_order mo) {
+static inline void mi_atomic_storei64_explicit(_Atomic(int64_t)* p, int64_t x, mi_memory_order mo) 
+{
 	(void)(mo);
 #if defined(x_M_IX86) || defined(_M_X64)
 	*p = x;
@@ -299,71 +311,39 @@ static inline intptr_t mi_atomic_subi(_Atomic(intptr_t)* p, intptr_t sub) {
 // Yield
 #if defined(__cplusplus)
 #include <thread>
-static inline void mi_atomic_yield(void) {
-	std::this_thread::yield();
-}
+static inline void mi_atomic_yield() { std::this_thread::yield(); }
 
 #elif defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-static inline void mi_atomic_yield(void) {
-	YieldProcessor();
-}
-
+static inline void mi_atomic_yield() { YieldProcessor(); }
 #elif defined(__SSE2__)
 #include <emmintrin.h>
-static inline void mi_atomic_yield(void) {
-	_mm_pause();
-}
+static inline void mi_atomic_yield() { _mm_pause(); }
 
 #elif (defined(__GNUC__) || defined(__clang__)) && \
 	(defined(__x86_64__) || defined(__i386__) || defined(__arm__) || defined(__armel__) || defined(__ARMEL__) || \
 	defined(__aarch64__) || defined(__powerpc__) || defined(__ppc__) || defined(__PPC__))
 #if defined(__x86_64__) || defined(__i386__)
-static inline void mi_atomic_yield(void) {
-	__asm__ volatile ("pause" ::: "memory");
-}
-
+static inline void mi_atomic_yield() { __asm__ volatile ("pause" ::: "memory"); }
 #elif defined(__aarch64__)
-static inline void mi_atomic_yield(void) {
-	__asm__ volatile ("wfe");
-}
-
+static inline void mi_atomic_yield() { __asm__ volatile ("wfe"); }
 #elif (defined(__arm__) && __ARM_ARCH__ >= 7)
-static inline void mi_atomic_yield(void) {
-	__asm__ volatile ("yield" ::: "memory");
-}
-
+static inline void mi_atomic_yield() { __asm__ volatile ("yield" ::: "memory"); }
 #elif defined(__powerpc__) || defined(__ppc__) || defined(__PPC__)
-static inline void mi_atomic_yield(void) {
-	__asm__ __volatile__ ("or 27,27,27" ::: "memory");
-}
-
+static inline void mi_atomic_yield() { __asm__ __volatile__ ("or 27,27,27" ::: "memory"); }
 #elif defined(__armel__) || defined(__ARMEL__)
-static inline void mi_atomic_yield(void) {
-	__asm__ volatile ("nop" ::: "memory");
-}
-
+static inline void mi_atomic_yield() { __asm__ volatile ("nop" ::: "memory"); }
 #endif
 #elif defined(__sun)
 // Fallback for other archs
 #include <synch.h>
-static inline void mi_atomic_yield(void) {
-	smt_pause();
-}
-
+static inline void mi_atomic_yield() { smt_pause(); }
 #elif defined(__wasi__)
 #include <sched.h>
-static inline void mi_atomic_yield(void) {
-	sched_yield();
-}
-
+static inline void mi_atomic_yield() { sched_yield(); }
 #else
 #include <unistd.h>
-static inline void mi_atomic_yield(void) {
-	sleep(0);
-}
-
+static inline void mi_atomic_yield() { sleep(0); }
 #endif
-
 #endif // __MIMALLOC_ATOMIC_H

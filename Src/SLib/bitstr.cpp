@@ -1,5 +1,5 @@
 // BITSTR.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -45,14 +45,14 @@ void FASTCALL resetbitstring(void * pBuf, size_t len)
 
 #pragma warn -par
 
-void FASTCALL setbit32(void * pBuf, size_t len, size_t pos)
+void STDCALL setbit32(void * pBuf, size_t len, size_t pos)
 {
 	size_t idx = BLKIDX(pos);
 	if(idx < (len>>2))
 		PTR32(pBuf)[idx] |= (1U << BLKBIT(pos));
 }
 
-void FASTCALL resetbit32(void * pBuf, size_t len, size_t pos)
+void STDCALL resetbit32(void * pBuf, size_t len, size_t pos)
 {
 	size_t idx = BLKIDX(pos);
 	if(idx < (len>>2))
@@ -65,12 +65,12 @@ static FORCEINLINE int implement_getbit32(const void * pBuf, size_t len, size_t 
 	return (idx < (len>>2)) ? BIN(PTR32C(pBuf)[idx] & (1U << BLKBIT(pos))) : 0;
 }
 
-int FASTCALL getbit32(const void * pBuf, size_t len, size_t pos)
+int STDCALL getbit32(const void * pBuf, size_t len, size_t pos)
 {
 	return implement_getbit32(pBuf, len, pos);
 }
 
-int FASTCALL getbit8(const void * pBuf, size_t len, size_t pos)
+int STDCALL getbit8(const void * pBuf, size_t len, size_t pos)
 {
 	size_t idx = (pos >> 3);
 	pos = pos & 0x7;

@@ -872,3 +872,92 @@ int ParseWinRcForNativeText()
 	ENDCATCH
 	return ok;
 }
+
+// @v11.4.5 @construction
+int ProcessStyloQGradle(const char * pPath, int buildSerial, const char * pVersion)
+{
+	//
+	// Нам нужно сделать следующие автоматические изменения в build.gradle:
+	// 1. Установить номер сборки (android/defaultConfig/versionCode)
+	// 2. Установить строку версии (android/defaultConfig/versionName)
+	// 3. Модифицировать параметры подписи приложения (android/signingConfigs)
+	//
+	/*
+		plugins {
+			id 'com.android.application'
+		}
+
+		android {
+			signingConfigs {
+				debug {
+					storeFile file('d:\\papyrus\\DISTRIB\\StyloQ\\styloq.keystore')
+					storePassword 'proton'
+					keyAlias 'styloq'
+					keyPassword 'proton'
+				}
+				release {
+					storeFile file('d:\\papyrus\\DISTRIB\\StyloQ\\styloq.keystore')
+					storePassword 'proton'
+					keyAlias 'styloq'
+					keyPassword 'proton'
+				}
+			}
+			compileSdkVersion 30
+
+			defaultConfig {
+				applicationId "ru.petroglif.styloq"
+				minSdkVersion 28
+				targetSdkVersion 30
+				versionCode 16
+				versionName '0.1.03'
+				testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+				signingConfig signingConfigs.release
+			}
+
+			buildTypes {
+				release {
+					minifyEnabled false
+					proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+				}
+			}
+			compileOptions {
+				sourceCompatibility JavaVersion.VERSION_1_8
+				targetCompatibility JavaVersion.VERSION_1_8
+			}
+			buildFeatures {
+				viewBinding true
+			}
+			ndkVersion '21.4.7075529'
+		}
+
+		dependencies {
+			implementation "androidx.fragment:fragment:1.3.6"
+			implementation 'androidx.appcompat:appcompat:1.3.0'
+			implementation 'com.google.android.material:material:1.4.0'
+			implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+			implementation 'androidx.navigation:navigation-fragment:2.3.5'
+			implementation 'androidx.navigation:navigation-ui:2.3.5'
+			implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+			implementation 'com.rabbitmq:amqp-client:5.15.0'
+			implementation 'com.blankj:utilcodex:1.31.0'
+			implementation "com.android.support:support-core-utils:28.0.0"
+			implementation 'androidx.room:room-compiler:2.2.6'
+			implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+			implementation 'com.github.bumptech.glide:glide:4.13.2'
+			implementation 'com.google.android.play:core:1.10.3'
+
+			implementation 'com.github.bumptech.glide:annotations:4.13.1'
+			annotationProcessor 'com.github.bumptech.glide:compiler:4.13.1'
+
+			testImplementation 'junit:junit:4.+'
+			androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+			androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+		}
+
+		repositories {
+			mavenCentral()
+		}
+	*/
+	int    ok = -1;
+	return ok;
+}

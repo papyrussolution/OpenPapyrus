@@ -1230,8 +1230,6 @@ int StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 	return ok;
 }
 
-#ifndef _WIN32_WCE // {
-
 int StringStore2::Read(SFile & rF)
 {
 	int    ok = 1;
@@ -1268,8 +1266,6 @@ int StringStore2::Read(SFile & rF)
 	CATCHZOK
 	return ok;
 }
-
-#endif // } _WIN32_WCE
 
 int StringStore2::InitParsing()
 {

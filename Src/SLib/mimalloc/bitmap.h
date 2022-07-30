@@ -7,7 +7,7 @@
 
 /* ----------------------------------------------------------------------------
    Concurrent bitmap that can set/reset sequences of bits atomically,
-   represeted as an array of fields where each field is a machine word (`uintptr_t`)
+   represeted as an array of fields where each field is a machine word (`size_t`)
 
    There are two api's; the standard one cannot have sequences that cross
    between the bitmap fields (and a sequence must be <= MI_BITMAP_FIELD_BITS).
@@ -24,11 +24,11 @@
    Bitmap definition
    ----------------------------------------------------------- */
 
-#define MI_BITMAP_FIELD_BITS   (8*MI_INTPTR_SIZE)
-#define MI_BITMAP_FIELD_FULL   (~((uintptr_t)0))   // all bits set
+#define MI_BITMAP_FIELD_BITS   (8*MI_SIZE_SIZE)
+#define MI_BITMAP_FIELD_FULL   (~((size_t)0))   // all bits set
 
-// An atomic bitmap of `uintptr_t` fields
-typedef _Atomic (uintptr_t)  mi_bitmap_field_t;
+// An atomic bitmap of `size_t` fields
+typedef _Atomic (size_t)  mi_bitmap_field_t;
 typedef mi_bitmap_field_t*  mi_bitmap_t;
 
 // A bitmap index is the index of the bit in a bitmap.
@@ -38,6 +38,11 @@ typedef size_t mi_bitmap_index_t;
 static inline mi_bitmap_index_t mi_bitmap_index_create(size_t idx, size_t bitidx) {
 	mi_assert_internal(bitidx < MI_BITMAP_FIELD_BITS);
 	return (idx*MI_BITMAP_FIELD_BITS) + bitidx;
+}
+
+// Create a bit index.
+static inline mi_bitmap_index_t mi_bitmap_index_create_from_bit(size_t full_bitidx) {
+	return mi_bitmap_index_create(full_bitidx / MI_BITMAP_FIELD_BITS, full_bitidx % MI_BITMAP_FIELD_BITS);
 }
 
 // Get the field index from a bit index.
@@ -73,7 +78,7 @@ bool _mi_bitmap_try_find_from_claim(mi_bitmap_t bitmap,
 
 // Set `count` bits at `bitmap_idx` to 0 atomically
 // Returns `true` if all `count` bits were 1 previously.
-bool mi_bitmap_unclaim(mi_bitmap_t bitmap, size_t bitmap_fields, size_t count, mi_bitmap_index_t bitmap_idx);
+bool _mi_bitmap_unclaim(mi_bitmap_t bitmap, size_t bitmap_fields, size_t count, mi_bitmap_index_t bitmap_idx);
 
 // Set `count` bits at `bitmap_idx` to 1 atomically
 // Returns `true` if all `count` bits were 0 previously. `any_zero` is `true` if there was at least one zero bit.
@@ -81,10 +86,12 @@ bool _mi_bitmap_claim(mi_bitmap_t bitmap, size_t bitmap_fields, size_t count, mi
 
 bool _mi_bitmap_is_claimed(mi_bitmap_t bitmap, size_t bitmap_fields, size_t count, mi_bitmap_index_t bitmap_idx);
 bool _mi_bitmap_is_any_claimed(mi_bitmap_t bitmap, size_t bitmap_fields, size_t count, mi_bitmap_index_t bitmap_idx);
-//
+
+//--------------------------------------------------------------------------
 // the `_across` functions work on bitmaps where sequences can cross over
 // between the fields. This is used in arena allocation
-//
+//--------------------------------------------------------------------------
+
 // Find `count` bits of zeros and set them to 1 atomically; returns `true` on success.
 // Starts at idx, and wraps around to search in all `bitmap_fields` fields.
 bool _mi_bitmap_try_find_from_claim_across(mi_bitmap_t bitmap,

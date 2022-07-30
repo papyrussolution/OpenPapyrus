@@ -902,15 +902,9 @@ int    SString::Single() const { return (L == 2) ? P_Buf[0] : 0; }
 SString & FASTCALL SString::operator = (const SString & s) { return CopyFrom(s); }
 SString & FASTCALL SString::operator = (const char * pS) { return CopyFrom(pS); }
 SString & FASTCALL SString::Set(const uchar * pS) { return CopyFrom(reinterpret_cast<const char *>(pS)); }
-bool   FASTCALL SString::operator == (const char * pS) const { return IsEq(pS); }
-bool   FASTCALL SString::operator != (const char * pS) const { return !IsEq(pS); }
-bool   FASTCALL SString::operator == (const SString & rS) const { return IsEq(rS); }
-bool   FASTCALL SString::operator != (const SString & rS) const { return !IsEq(rS); }
 bool   FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) == 0); }
 bool   FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
 int    SString::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
-bool   SString::IsEmpty() const { return (Len() == 0); }
-//bool   SString::NotEmpty() const { return (Len() != 0); }
 bool   SString::NotEmptyS() { return Strip().NotEmpty(); }
 SString & FASTCALL SString::Tab(uint c) { return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c); }
 SString & SString::Tab()     { return CatChar('\t'); }
@@ -926,9 +920,9 @@ SString & FASTCALL SString::CatQStr(const char * pStr) { return CatChar('\"').Ca
 SString & FASTCALL SString::CatParStr(const char * pStr) { return CatChar('(').Cat(pStr).CatChar(')'); }
 SString & FASTCALL SString::CatParStr(long val) { return CatChar('(').Cat(val).CatChar(')'); }
 SString & FASTCALL SString::CatBrackStr(const char * pStr) { return CatChar('[').Cat(pStr).CatChar(']'); }
-SString & FASTCALL SString::CatLongZ(int    val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
-SString & FASTCALL SString::CatLongZ(uint   val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
-SString & FASTCALL SString::CatLongZ(uint32 val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
+SString & STDCALL  SString::CatLongZ(int    val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
+SString & STDCALL  SString::CatLongZ(uint   val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
+SString & STDCALL  SString::CatLongZ(uint32 val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
 SString & FASTCALL SString::SetInt(int val) { return Z().Cat(val); }
 SString & SString::ToUtf8() { return Helper_MbToMb(CP_ACP, CP_UTF8); }
 SString & SString::Utf8ToChar() { return Helper_MbToMb(CP_UTF8, CP_ACP); }
@@ -2121,7 +2115,7 @@ bool FASTCALL SString::IsEq(const char * pS) const
 		return false;
 }
 
-int FASTCALL SString::Cmp(const char * pS, int ignoreCase) const
+int STDCALL SString::Cmp(const char * pS, int ignoreCase) const
 {
 	if(P_Buf == 0 || pS == 0)
 		return -1;
@@ -2228,7 +2222,7 @@ int FASTCALL SString::CmpNC(const char * pS) const
 		return stricmp866(P_Buf, pS);
 }
 
-int FASTCALL SString::CmpPrefix(const char * pS, int ignoreCase) const
+int STDCALL SString::CmpPrefix(const char * pS, int ignoreCase) const
 {
 	const size_t len = sstrlen(pS);
 	if(len && Len() >= len)
@@ -2285,7 +2279,7 @@ int FASTCALL SString::GetLongestCommonPrefix(const char * pS) const
 	return result;
 }
 
-int FASTCALL SString::CmpL(const char * pS, int ignoreCase) const
+int STDCALL SString::CmpL(const char * pS, int ignoreCase) const
 {
 	const size_t len = Len();
 	if(len == 0 || pS == 0)
@@ -2294,7 +2288,7 @@ int FASTCALL SString::CmpL(const char * pS, int ignoreCase) const
 		return ignoreCase ? strnicmp866(P_Buf, pS, len) : strncmp(P_Buf, pS, len);
 }
 
-int FASTCALL SString::CmpSuffix(const char * pS, int ignoreCase) const
+int STDCALL SString::CmpSuffix(const char * pS, int ignoreCase) const
 {
 	if(P_Buf == 0 || pS == 0)
 		return -1;
@@ -2455,7 +2449,7 @@ SString & FASTCALL SString::CatChar(int chr)
 	return *this;
 }
 
-SString & FASTCALL SString::CatCharN(int chr, size_t n)
+SString & STDCALL SString::CatCharN(int chr, size_t n)
 {
 	if(n) {
 		const size_t new_len = (L ? L : 1) + n;
@@ -2619,7 +2613,7 @@ SString & FASTCALL SString::Cat(SBuffer & rS)
 	return *this;
 }
 
-SString & FASTCALL SString::CatDiv(int c, int addSpaces)
+SString & STDCALL SString::CatDiv(int c, int addSpaces)
 {
 	if(c != 0) {
 		if(addSpaces > 0 && addSpaces != 2)
@@ -2631,7 +2625,7 @@ SString & FASTCALL SString::CatDiv(int c, int addSpaces)
 	return *this;
 }
 
-SString & FASTCALL SString::CatDivConditionally(int c, int addSpaces, bool condition)
+SString & STDCALL SString::CatDivConditionally(int c, int addSpaces, bool condition)
 {
 	if(condition) {
 		if(c != 0) {
@@ -2645,7 +2639,7 @@ SString & FASTCALL SString::CatDivConditionally(int c, int addSpaces, bool condi
 	return *this;
 }
 
-SString & FASTCALL SString::CatDivIfNotEmpty(int c, int addSpaces)
+SString & STDCALL SString::CatDivIfNotEmpty(int c, int addSpaces)
 {
 	return CatDivConditionally(c, addSpaces, LOGIC(Strip().NotEmpty()));
 }
@@ -2696,7 +2690,7 @@ char * STDCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
 	return strnzcpy(pBuf, temp_buf, bufLen);
 }
 
-SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
+SString & STDCALL SString::CatLongZ(long val, uint numDigits)
 {
 	if(checkirange(numDigits, 1, 512)) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -2710,7 +2704,7 @@ SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
 	return *this;
 }
 
-SString & FASTCALL SString::CatLongZ(int64 val, uint numDigits)
+SString & STDCALL SString::CatLongZ(int64 val, uint numDigits)
 {
 	if(checkirange(numDigits, 1, 512)) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -2770,7 +2764,7 @@ SString & FASTCALL SString::CatHexUpper(uint8 val)
 	return *this;
 }
 
-SString & FASTCALL SString::CatHex(const void * pBinary, size_t size)
+SString & STDCALL SString::CatHex(const void * pBinary, size_t size)
 {
 	for(size_t i = 0; i < size; i++) {
 		CatHex(PTR8C(pBinary)[i]);
@@ -2817,7 +2811,7 @@ SString & SString::CatReal(double v)
 	return Cat(_gcvt(v, 40, temp_buf));
 }
 
-SString & FASTCALL SString::Cat(LDATE dt, long fmt)
+SString & STDCALL SString::Cat(LDATE dt, long fmt)
 {
 	char   temp_buf[128];
 	return Cat(datefmt(&dt, fmt, temp_buf));
@@ -2829,7 +2823,7 @@ SString & FASTCALL SString::Cat(LDATE dt)
 	return Cat(datefmt(&dt, DATF_DMY, temp_buf));
 }
 
-SString & FASTCALL SString::Cat(LTIME tm, long fmt)
+SString & STDCALL SString::Cat(LTIME tm, long fmt)
 {
 	char   temp_buf[128];
 	return Cat(timefmt(tm, fmt, temp_buf));
@@ -4524,16 +4518,16 @@ int SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int str
 	return ok;
 }
 
-int FASTCALL SStringU::CopyToUtf8(SString & rBuf, int strictConversion) const
+int STDCALL SStringU::CopyToUtf8(SString & rBuf, int strictConversion) const
 {
 	return rBuf.CopyUtf8FromUnicode(P_Buf, Len(), strictConversion);
 }
 
 int FASTCALL SStringU::CopyFromUtf8(const SString & rS) { return Helper_CopyFromUtf8(rS.cptr(), rS.Len(), 0, 0); }
 int FASTCALL SStringU::CopyFromUtf8R(const SString & rS, size_t * pActualSrcSize) { return Helper_CopyFromUtf8(rS.cptr(), rS.Len(), 0, pActualSrcSize); }
-int FASTCALL SStringU::CopyFromUtf8(const char * pSrc, size_t srcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 0, 0); }
-int FASTCALL SStringU::CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 0, pActualSrcSize); }
-int FASTCALL SStringU::CopyFromUtf8Strict(const char * pSrc, size_t srcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 1, 0); }
+int STDCALL SStringU::CopyFromUtf8(const char * pSrc, size_t srcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 0, 0); }
+int STDCALL SStringU::CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 0, pActualSrcSize); }
+int STDCALL SStringU::CopyFromUtf8Strict(const char * pSrc, size_t srcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 1, 0); }
 
 int SStringU::Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize)
 {

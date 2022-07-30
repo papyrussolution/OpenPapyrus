@@ -46412,7 +46412,7 @@ private:
 //
 // Descr: Фасадный класс для управления полнотекстовым поиском
 //
-class PPFtsIterface {
+class PPFtsInterface {
 public:
 	enum { // @persistent
 		scopeUndef     = 0, // Не определен
@@ -46452,7 +46452,7 @@ public:
 	};
 	class TransactionHandle {
 	public:
-		explicit TransactionHandle(PPFtsIterface & rS);
+		explicit TransactionHandle(PPFtsInterface & rS);
 		~TransactionHandle();
 		bool   operator !() const;
 		int    Commit();
@@ -46463,17 +46463,17 @@ public:
 		//   >0 - идентификатор документа в базе данных
 		//    0 - ошибка
 		//
-		uint64 PutEntity(PPFtsIterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData);
+		uint64 PutEntity(PPFtsInterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData);
 	private:
 		SHandle H;
-		PPFtsIterface & R_Ifc;
+		PPFtsInterface & R_Ifc;
 	};
 
-	explicit PPFtsIterface(bool writer, long lockTimeout);
-	~PPFtsIterface();
+	explicit PPFtsInterface(bool writer, long lockTimeout);
+	~PPFtsInterface();
 	bool   operator !() const;
 	bool   IsWriter() const;
-	int    Search(const char * pQueryUtf8, uint maxItems, TSCollection <PPFtsIterface::SearchResultEntry> & rResult);
+	int    Search(const char * pQueryUtf8, uint maxItems, TSCollection <PPFtsInterface::SearchResultEntry> & rResult);
 private:
 	class Ptr {
 	public:
@@ -46491,7 +46491,7 @@ private:
 			// если я - "писатель", то жду завершения работы всех "читателей" и "писателей")
 			// default: 500ms
 	};
-	PPFtsIterface::Ptr H;
+	PPFtsInterface::Ptr H;
 };
 //
 //
@@ -46883,7 +46883,7 @@ public:
 	int    MakeTextHashForCounterparty(const StoragePacket & rOtherPack, uint len, SString & rBuf);
 	int    MakeDocumentStorageIdent(const SBinaryChunk & rOtherIdent, const S_GUID & rCmdUuid, SBinaryChunk & rDocIdent) const;
 	int    IndexingContent();
-	int    IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const char * pJsText);
+	int    IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const char * pJsText);
 	int    GetMediatorList(TSCollection <StyloQCore::IgnitionServerEntry> & rList);
 private:
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap

@@ -925,11 +925,8 @@ uint Lst2LstDialogUI::GetRightSelectionList(LongArray * pList)
 
 int Lst2LstDialogUI::setup()
 {
-	if(Data.TitleStrID) {
-		SString temp;
-		PPLoadText(Data.TitleStrID, temp);
-		setTitle(temp);
-	}
+	if(Data.TitleStrID)
+		setTitle(PPLoadTextS(Data.TitleStrID, SLS.AcquireRvlStr()));
 	else
 		setTitle(Data.P_Title);
 	SETIFZ(Data.LeftCtlId, CTL_LST2LST_LST1);
@@ -958,7 +955,7 @@ IMPL_HANDLE_EVENT(Lst2LstDialogUI)
 				if(P_Current) {
   					int    action = 1;
 					SmartListBox * list = static_cast<SmartListBox *>(getCtrlView(GetCurrId()));
-					if(list && list->isTreeList()) {
+					if(list && list->IsTreeList()) {
 						PPID cur_id = 0;
 						list->P_Def->getCurID(&cur_id);
 						if(static_cast<const StdTreeListBoxDef *>(list->P_Def)->HasChildren(cur_id))

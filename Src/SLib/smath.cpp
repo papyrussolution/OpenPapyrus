@@ -1025,7 +1025,7 @@ double FASTCALL round(double n, int prec)
 	*/
 }
 
-double FASTCALL round(double v, double prec, int dir)
+double STDCALL round(double v, double prec, int dir)
 {
 	SETIFZ(prec, 0.01);
 	double r = (v / prec);

@@ -240,7 +240,7 @@ int FASTCALL SVectorBase::insert(const void * pItem)
 	return ok;
 }
 
-int FASTCALL SVectorBase::atInsert(uint idx, const void * pItem)
+int STDCALL SVectorBase::atInsert(uint idx, const void * pItem)
 {
 	int    ok = 1;
 	const  uint _c = count;
@@ -315,7 +315,7 @@ void * SVectorBase::next()
 		return 0;
 }
 
-int FASTCALL SVectorBase::enumItems(uint * pIdx, void ** ppItem) const
+int STDCALL SVectorBase::enumItems(uint * pIdx, void ** ppItem) const
 {
 	uint   i = *pIdx;
 	if(i < count) {
@@ -1268,7 +1268,7 @@ SCollection::SCollection(uint o) : SArray(sizeof(void *), o)
 {
 }
 
-int FASTCALL SCollection::Helper_CreateNewItem(void * pNewItem, uint * pPos)
+int STDCALL SCollection::Helper_CreateNewItem(void * pNewItem, uint * pPos)
 {
 	if(pNewItem && insert(pNewItem)) {
 		ASSIGN_PTR(pPos, count-1);
@@ -3803,7 +3803,7 @@ int    FASTCALL LongArray::addnz(long id) { return id ? insert(&id) : -1; }
 int    FASTCALL LongArray::addUnique(long id) { return lsearch(id) ? -1 : add(id); }
 int    FASTCALL LongArray::addUnique(const LongArray * pS) { return addUniqueExclusive(pS, 0); }
 int    LongArray::ordInsert(long i, uint * p) { return SVector::ordInsert(&i, p, CMPF_LONG); }
-int    FASTCALL LongArray::bsearch(long i, uint * p) const { return SVector::bsearch(&i, p, CMPF_LONG); }
+int    STDCALL  LongArray::bsearch(long i, uint * p) const { return SVector::bsearch(&i, p, CMPF_LONG); }
 int    FASTCALL LongArray::bsearch(long i) const { return SVector::bsearch(&i, 0, CMPF_LONG); }
 bool   LongArray::isList() const { return (count > 1); }
 long   FASTCALL LongArray::get(uint pos) const { return at(pos); }
@@ -3813,12 +3813,12 @@ void   LongArray::sort() { SVector::sort(CMPF_LONG); }
 //
 // @todo Ускорить функцию, закладываясь на особенности массива LongArray
 //
-int FASTCALL LongArray::lsearch(long k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, CMPF_LONG); }
+int STDCALL  LongArray::lsearch(long k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, CMPF_LONG); }
 int FASTCALL LongArray::lsearch(long k) const { return SVector::lsearch(&k, 0, CMPF_LONG); }
 
 int FASTCALL LongArray::setSingleNZ(long id)
 {
-	clear(); // @v9.6.8 freeAll-->clear
+	clear();
 	return id ? add(id) : -1;
 }
 

@@ -1,38 +1,38 @@
-//
-//
-#include <slib-internal.h>
-#pragma hdrstop
-#include "..\mimalloc.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include <string.h>
+#include <stdint.h>
+#include <mimalloc.h>
 #include <new>
 #include <vector>
 #include <future>
 #include <iostream>
 #include <thread>
+#include <mimalloc.h>
+#include <assert.h>
 #ifdef _WIN32
-	#include "..\mimalloc-new-delete.h"
+	#include <mimalloc-new-delete.h>
 #endif
 #ifdef _WIN32
-	//#include <Windows.h>
-	static void msleep(unsigned long msecs) 
-	{
-		Sleep(msecs);
-	}
+	#include <Windows.h>
+	static void msleep(unsigned long msecs) { Sleep(msecs); }
 #else
 	#include <unistd.h>
-	static void msleep(unsigned long msecs) 
-	{
-		usleep(msecs * 1000UL);
-	}
+	static void msleep(unsigned long msecs) { usleep(msecs * 1000UL); }
 #endif
 
-void heap_thread_free_large(); // issue #221
-void heap_no_delete();         // issue #202
-void heap_late_free();         // issue #204
-void padding_shrink();         // issue #209
-void various_tests();
-void test_mt_shutdown();
-void fail_aslr();              // issue #372
-void tsan_numa_test();         // issue #414
+static void heap_thread_free_large(); // issue #221
+static void heap_no_delete();         // issue #202
+static void heap_late_free();         // issue #204
+static void padding_shrink();         // issue #209
+static void various_tests();
+static void test_mt_shutdown();
+static void large_alloc();        // issue #363
+static void fail_aslr();              // issue #372
+static void tsan_numa_test();         // issue #414
+static void strdup_test();            // issue #445
+static void bench_alloc_large();  // issue #xxx
 
 int main() 
 {
@@ -42,48 +42,44 @@ int main()
 	heap_late_free();
 	padding_shrink();
 	various_tests();
+	large_alloc();
 	tsan_numa_test();
-	//test_mt_shutdown();
+	strdup_test();
+	test_mt_shutdown();
 	//fail_aslr();
+	bench_alloc_large();
 	mi_stats_print(NULL);
 	return 0;
 }
 
-static void * p = malloc(8);
+static void* p = malloc(8);
 
 void free_p() 
 {
 	free(p);
+	return;
 }
 
 class Test {
 private:
 	int i;
 public:
-	Test(int x) 
+	Test(int x) : i(x)
 	{
-		i = x;
 	}
 	~Test() 
 	{
 	}
 };
 
-void various_tests() 
+static void various_tests() 
 {
 	atexit(free_p);
-	void * p1 = malloc(78);
-	void * p2 = mi_malloc_aligned(16, 24);
+	void* p1 = malloc(78);
+	void* p2 = mi_malloc_aligned(24, 16);
 	free(p1);
 	p1 = malloc(8);
-	char * s = mi_strdup("hello\n");
-
-	//char * s = _strdup("hello\n");
-	//char * buf = NULL;
-	//size_t len;
-	//_dupenv_s(&buf,&len,"MIMALLOC_VERBOSE");
-	//mi_free(buf);
-
+	char* s = mi_strdup("hello\n");
 	mi_free(p2);
 	p2 = malloc(16);
 	p1 = realloc(p1, 32);
@@ -98,7 +94,7 @@ void various_tests()
 
 class Static {
 private:
-	void * p;
+	void* p;
 public:
 	Static() 
 	{
@@ -114,9 +110,9 @@ public:
 
 static Static s = Static();
 
-bool test_stl_allocator1() 
+static bool test_stl_allocator1() 
 {
-	std::vector <int, mi_stl_allocator<int> > vec;
+	std::vector<int, mi_stl_allocator<int> > vec;
 	vec.push_back(1);
 	vec.pop_back();
 	return vec.size() == 0;
@@ -124,55 +120,67 @@ bool test_stl_allocator1()
 
 struct some_struct { int i; int j; double z; };
 
-bool test_stl_allocator2() 
+static bool test_stl_allocator2() 
 {
-	std::vector <some_struct, mi_stl_allocator<some_struct> > vec;
+	std::vector<some_struct, mi_stl_allocator<some_struct> > vec;
 	vec.push_back(some_struct());
 	vec.pop_back();
 	return vec.size() == 0;
 }
 
+// issue 445
+static void strdup_test() {
+#ifdef _MSC_VER
+	char* s = _strdup("hello\n");
+	char* buf = NULL;
+	size_t len;
+	_dupenv_s(&buf, &len, "MIMALLOC_VERBOSE");
+	mi_free(buf);
+	mi_free(s);
+#endif
+}
+
 // Issue #202
-void heap_no_delete_worker() 
+static void heap_no_delete_worker() 
 {
 	mi_heap_t* heap = mi_heap_new();
-	void * q = mi_heap_malloc(heap, 1024);
+	void* q = mi_heap_malloc(heap, 1024);
 	// mi_heap_delete(heap); // uncomment to prevent assertion
 }
 
-void heap_no_delete() 
+static void heap_no_delete() 
 {
 	auto t1 = std::thread(heap_no_delete_worker);
 	t1.join();
 }
 
 // Issue #204
-volatile void * global_p;
+static volatile void* global_p;
 
-void t1main() 
+static void t1main() 
 {
 	mi_heap_t* heap = mi_heap_new();
 	global_p = mi_heap_malloc(heap, 1024);
 	mi_heap_delete(heap);
 }
 
-void heap_late_free() 
+static void heap_late_free() 
 {
 	auto t1 = std::thread(t1main);
 	msleep(2000);
 	assert(global_p);
-	mi_free((void *)global_p);
+	mi_free((void*)global_p);
 	t1.join();
 }
 
 // issue  #209
-static void * shared_p;
-static void alloc0(/* void * arg */)
+static void* shared_p;
+static void alloc0(/* void* arg */)
 {
 	shared_p = mi_malloc(8);
 }
 
-void padding_shrink(void)
+static void padding_shrink()
 {
 	auto t1 = std::thread(alloc0);
 	t1.join();
@@ -180,27 +188,27 @@ void padding_shrink(void)
 }
 
 // Issue #221
-void heap_thread_free_large_worker() 
+static void heap_thread_free_large_worker() 
 {
 	mi_free(shared_p);
 }
 
-void heap_thread_free_large() 
+static void heap_thread_free_large() 
 {
 	for(int i = 0; i < 100; i++) {
-		shared_p = mi_malloc_aligned(2*1024*1024 + 1, 8);
+		shared_p = mi_malloc_aligned(2 * 1024 * 1024 + 1, 8);
 		auto t1 = std::thread(heap_thread_free_large_worker);
 		t1.join();
 	}
 }
 
-void test_mt_shutdown()
+static void test_mt_shutdown()
 {
 	const int threads = 5;
-	std::vector <std::future <std::vector <char *>>> ts;
+	std::vector< std::future< std::vector< char* > > > ts;
 	auto fn = [&]()
 	    {
-		    std::vector <char *> ps;
+		    std::vector< char* > ps;
 		    ps.reserve(1000);
 		    for(int i = 0; i < 1000; i++)
 			    ps.emplace_back(new char[1]);
@@ -211,28 +219,72 @@ void test_mt_shutdown()
 	for(auto& f : ts)
 		for(auto& p : f.get())
 			delete[] p;
+
 	std::cout << "done" << std::endl;
 }
 
+// issue #363
+using namespace std;
+
+void large_alloc()
+{
+	char* a = new char[1ull << 25];
+	thread th([&] {
+	    delete[] a;
+		});
+	th.join();
+}
+
 // issue #372
-void fail_aslr() 
+static void fail_aslr() 
 {
 	size_t sz = (4ULL << 40); // 4TiB
-	void * p = malloc(sz);
+	void* p = malloc(sz);
 	printf("pointer p: %p: area up to %p\n", p, (uint8_t*)p + sz);
 	*(int*)0x5FFFFFFF000 = 0; // should segfault
 }
 
 // issues #414
-void dummy_worker() 
+static void dummy_worker() 
 {
-	void * p = mi_malloc(0);
+	void* p = mi_malloc(0);
 	mi_free(p);
 }
 
-void tsan_numa_test() 
+static void tsan_numa_test() 
 {
 	auto t1 = std::thread(dummy_worker);
 	dummy_worker();
 	t1.join();
+}
+
+// issue #?
+#include <chrono>
+#include <random>
+#include <iostream>
+
+static void bench_alloc_large() 
+{
+	static constexpr int kNumBuffers = 20;
+	static constexpr size_t kMinBufferSize = 5 * 1024 * 1024;
+	static constexpr size_t kMaxBufferSize = 25 * 1024 * 1024;
+	std::unique_ptr<char[]> buffers[kNumBuffers];
+
+	std::random_device rd;
+	std::mt19937 gen(42); //rd());
+	std::uniform_int_distribution<> size_distribution(kMinBufferSize, kMaxBufferSize);
+	std::uniform_int_distribution<> buf_number_distribution(0, kNumBuffers - 1);
+
+	static constexpr int kNumIterations = 2000;
+	const auto start = std::chrono::steady_clock::now();
+	for(int i = 0; i < kNumIterations; ++i) {
+		int buffer_idx = buf_number_distribution(gen);
+		size_t new_size = size_distribution(gen);
+		buffers[buffer_idx] = std::make_unique<char[]>(new_size);
+	}
+	const auto end = std::chrono::steady_clock::now();
+	const auto num_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+	const auto us_per_allocation = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / kNumIterations;
+	std::cout << kNumIterations << " allocations Done in " << num_ms << "ms." << std::endl;
+	std::cout << "Avg " << us_per_allocation << " us per allocation" << std::endl;
 }

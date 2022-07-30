@@ -3933,10 +3933,10 @@ public:
 	// Descr: Возвращает SString::Cmp(pS, 0) == 0
 	//   То есть, если строка this равна строке pS с учетом регистра символов.
 	//
-	bool   FASTCALL operator == (const char * pS) const;
-	bool   FASTCALL operator != (const char * pS) const;
-	bool   FASTCALL operator == (const SString & rS) const;
-	bool   FASTCALL operator != (const SString & rS) const;
+	bool   FASTCALL operator == (const char * pS) const { return IsEq(pS); }
+	bool   FASTCALL operator != (const char * pS) const { return !IsEq(pS); }
+	bool   FASTCALL operator == (const SString & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const SString & rS) const { return !IsEq(rS); }
 	//
 	// Descr: Возвращает символ, находящийся в позиции n (n = 0..)
 	//   Если n больше длины строки, то возвращает 0.
@@ -3947,7 +3947,7 @@ public:
 	//   в противном случае возвращает 0.
 	//
 	int    Single() const;
-	bool   IsEmpty() const;
+	bool   IsEmpty() const { return (Len() == 0); }
 	//int    operator !() const { return Empty(); }
 	bool   NotEmpty() const { return (Len() != 0); }
 	//
@@ -3994,7 +3994,7 @@ public:
 	//  >0 - this > pS
 	//  0  - this == pS
 	//
-	int    FASTCALL Cmp(const char * pS, int ignoreCase) const;
+	int    STDCALL  Cmp(const char * pS, int ignoreCase) const;
 	int    FASTCALL CmpNC(const char * pS) const;
 	//
 	// Descr: Сравнивает префикс строки this со строкой pS.
@@ -4003,7 +4003,7 @@ public:
 	//   !0 - строка pS не совпадает с префиксом this
 	//   Если pS == 0 или this->Len() < strlen(pS), то функция возвращает -1
 	//
-	int    FASTCALL CmpPrefix(const char * pS, int ignoreCase) const;
+	int    STDCALL  CmpPrefix(const char * pS, int ignoreCase) const;
 	bool   FASTCALL HasPrefix(const char * pS) const;
 	bool   FASTCALL HasPrefixNC(const char * pS) const;
 	bool   FASTCALL HasPrefixIAscii(const char * pS) const;
@@ -4019,8 +4019,8 @@ public:
 	// Descr: Сравнивает строку this c префиксом строки pS длиной this->Len().
 	//   Если this->Len() == 0, то результат в любом случае -1.
 	//
-	int    FASTCALL CmpL(const char * pS, int ignoreCase) const;
-	int    FASTCALL CmpSuffix(const char * pS, int ignoreCase) const;
+	int    STDCALL CmpL(const char * pS, int ignoreCase) const;
+	int    STDCALL CmpSuffix(const char * pS, int ignoreCase) const;
 	//
 	// Descr: Ищет совпадения между строкой this и одной из подстрок
 	//   строки pPattern. Подстроки разделяются символом div.
@@ -4310,10 +4310,10 @@ public:
 	SString & Eq();      // @>>CatChar('=')
 	SString & CR();      // @>>CatChar('\n')
 	SString & CRB();     // "\xD\xA"
-	SString & FASTCALL CatCharN(int chr, size_t n);
-	SString & FASTCALL CatDiv(int c, int addSpaces/* = 0*//*, int ifNotEmpty = 0*/);
-	SString & FASTCALL CatDivConditionally(int c, int addSpaces, bool condition);
-	SString & FASTCALL CatDivIfNotEmpty(int c, int addSpaces/* = 0*/);
+	SString & STDCALL  CatCharN(int chr, size_t n);
+	SString & STDCALL  CatDiv(int c, int addSpaces/* = 0*//*, int ifNotEmpty = 0*/);
+	SString & STDCALL  CatDivConditionally(int c, int addSpaces, bool condition);
+	SString & STDCALL  CatDivIfNotEmpty(int c, int addSpaces/* = 0*/);
 	SString & FASTCALL Cat(long);
 	SString & FASTCALL Cat(ulong);
 #ifndef _WIN32_WCE // {
@@ -4330,18 +4330,18 @@ public:
 	// Returns:
 	//   *this
 	//
-	SString & FASTCALL CatLongZ(long val, uint numDigits);
-	SString & FASTCALL CatLongZ(int val, uint numDigits);
-	SString & FASTCALL CatLongZ(uint val, uint numDigits);
-	SString & FASTCALL CatLongZ(uint32 val, uint numDigits);
-	SString & FASTCALL CatLongZ(int64 val, uint numDigits);
+	SString & STDCALL  CatLongZ(long val, uint numDigits);
+	SString & STDCALL  CatLongZ(int val, uint numDigits);
+	SString & STDCALL  CatLongZ(uint val, uint numDigits);
+	SString & STDCALL  CatLongZ(uint32 val, uint numDigits);
+	SString & STDCALL  CatLongZ(int64 val, uint numDigits);
 	SString & FASTCALL CatHex(long val);
 	SString & FASTCALL CatHex(ulong val);
 	SString & FASTCALL CatHex(int64 val);
 	SString & FASTCALL CatHex(uint64 val);
 	SString & FASTCALL CatHex(uint8 val);
 	SString & FASTCALL CatHexUpper(uint8 val);
-	SString & FASTCALL CatHex(const void * pBinary, size_t size);
+	SString & STDCALL  CatHex(const void * pBinary, size_t size);
 	//
 	// Descr: Конкатенация конструкции {"%d.%d.%d", ver, mjr, mnr}
 	//
@@ -4355,8 +4355,8 @@ public:
 	SString & Cat(double v); // MKSFMTD(0, 6, NMBF_NOTRAILZ)
 	SString & CatReal(double v);
 	SString & Cat(const RealRange & rR, long fmt);
-	SString & FASTCALL Cat(LDATE, long fmt);
-	SString & FASTCALL Cat(LTIME, long fmt);
+	SString & STDCALL  Cat(LDATE, long fmt);
+	SString & STDCALL  Cat(LTIME, long fmt);
 	//
 	// Descr: == Cat(LDATE, DATF_DMY)
 	//
@@ -4552,12 +4552,12 @@ public:
 	SStringU & CopyFromMb_INNER(const char * pS, size_t srcLen);
 	wchar_t *  CopyTo(wchar_t * pS, size_t maxLen);
 	SStringU & Sub(size_t startPos, size_t len, SStringU & rBuf) const;
-	int    FASTCALL CopyFromUtf8(const char * pSrc, size_t srcSize);
-	int    FASTCALL CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize);
+	int    STDCALL  CopyFromUtf8(const char * pSrc, size_t srcSize);
+	int    STDCALL  CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize);
 	int    FASTCALL CopyFromUtf8(const SString & rS);
 	int    FASTCALL CopyFromUtf8R(const SString & rS, size_t * pActualSrcSize);
-	int    FASTCALL CopyFromUtf8Strict(const char * pSrc, size_t srcSize);
-	int    FASTCALL CopyToUtf8(SString & rBuf, int strictConversion) const;
+	int    STDCALL  CopyFromUtf8Strict(const char * pSrc, size_t srcSize);
+	int    STDCALL  CopyToUtf8(SString & rBuf, int strictConversion) const;
 	int    CopyToMb(int cp, SString & rBuf) const;
 	SStringU & FASTCALL Trim(size_t n);
 	SStringU & ToUpper();
@@ -4983,7 +4983,7 @@ bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2);
 //   !0 - строки pS1[0..maxlen-1] и pS2[0..maxlen-1] эквивалентны
 //   0  - строки не эквивалентны
 //
-bool   FASTCALL sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen);
+bool   STDCALL  sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen);
 //
 // Descr: Определяет все ли len символов строки pS находятся в диапазоне [0..0x7f].
 // Note: Функция может быть использована для быстрой идентификации необходимости
@@ -5003,8 +5003,8 @@ char * FASTCALL chomp(char * pStr);
 // Returns:
 //   pStr
 //
-char * FASTCALL padleft(char  * pStr, char pad, size_t n);
-char * FASTCALL padright(char * pStr, char pad, size_t n);
+char * STDCALL  padleft(char  * pStr, char pad, size_t n);
+char * STDCALL  padright(char * pStr, char pad, size_t n);
 char * alignstr(char * pStr, size_t width, int adj);
 int    searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen);
 int    replacestr(char * pStr, const char * pReplacer, size_t * pPos, size_t * pLen, uint maxlen);
@@ -7089,7 +7089,7 @@ double FASTCALL round(double n, int prec);
 //   >0 до большей величины
 //   0  до ближайшей величины по финансовому правилу (0.5 -> 1.0).
 //
-double FASTCALL round(double n, double prec, int dir);
+double STDCALL  round(double n, double prec, int dir);
 double FASTCALL R0(double);
 //
 // Descr: Округляет входящий параметр до ближайшего целого числа
@@ -7124,10 +7124,10 @@ long   FASTCALL dbltoint2(double r);
 // Bit string's operations
 //
 void   FASTCALL resetbitstring(void * pBuf, size_t len);
-void   FASTCALL setbit32(void * pBuf, size_t len, size_t pos);
-void   FASTCALL resetbit32(void * pBuf, size_t len, size_t pos);
-int    FASTCALL getbit8(const void * pBuf, size_t len, size_t pos);
-int    FASTCALL getbit32(const void * pBuf, size_t len, size_t pos);
+void   STDCALL  setbit32(void * pBuf, size_t len, size_t pos);
+void   STDCALL  resetbit32(void * pBuf, size_t len, size_t pos);
+int    STDCALL  getbit8(const void * pBuf, size_t len, size_t pos);
+int    STDCALL  getbit32(const void * pBuf, size_t len, size_t pos);
 //
 // Descr: Подсчитывает число установленных бит в двойном слове v
 // See: http://graphics.stanford.edu/~seander/bithacks.html
@@ -7158,8 +7158,8 @@ ulong  _checksum__(const char *, size_t);
 //
 // MIME64 encoder/decoder
 //
-int    FASTCALL encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen);
-int    FASTCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen);
+int    STDCALL  encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen);
+int    STDCALL  decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen);
 
 class MIME64 {
 public:
@@ -7456,9 +7456,9 @@ public:
 	// }
 	//
 	void * next();
-	int    FASTCALL enumItems(uint * pIdx, void ** ppItem) const;
+	int    STDCALL  enumItems(uint * pIdx, void ** ppItem) const;
 	void * atPut(uint, const void *);
-	int    FASTCALL atInsert(uint, const void *);
+	int    STDCALL  atInsert(uint, const void *);
 	int    FASTCALL insert(const void * pItem);
 	//
 	// Descr: Функция массовой вставки элементов в массив.
@@ -7759,7 +7759,7 @@ public:
 	explicit SCollection(uint o /*= O_COLLECTION*/);
 	SCollection(const SCollection & src) : SArray(src) {}
 protected:
-	int    FASTCALL Helper_CreateNewItem(void * pNewItem, uint * pPos);
+	int    STDCALL  Helper_CreateNewItem(void * pNewItem, uint * pPos);
 	int    FASTCALL Helper_CreateNewItem(void * pNewItem);
 };
 //
@@ -8053,8 +8053,8 @@ public:
 	bool   FASTCALL operator == (const LongArray & rS) const;
 	bool   FASTCALL operator != (const LongArray & rS) const;
 	int    ordInsert(long, uint * pPos);
-	int    FASTCALL bsearch(long, uint * pPos) const;
-	int    FASTCALL lsearch(long, uint * pPos) const;
+	int    STDCALL  bsearch(long, uint * pPos) const;
+	int    STDCALL  lsearch(long, uint * pPos) const;
 	int    FASTCALL bsearch(long) const;
 	int    FASTCALL lsearch(long) const;
 	//
@@ -8874,7 +8874,7 @@ public:
 	//   >0 - искомое имя найдено
 	//    0 - имя не найдено (по указателю pEntry ничего не присваивается)
 	//
-	int    FASTCALL SearchName(const char * pFileName, Entry * pEntry) const;
+	int    STDCALL  SearchName(const char * pFileName, Entry * pEntry) const;
 	void   FASTCALL SetInitPath(const char * pPath);
 	int    FASTCALL GetInitPath(SString & rPath) const;
 	//
@@ -13198,7 +13198,7 @@ inline int fsignz(double x) { return (x > 0) ? +1 : ((x < 0) ? -1 : 0); }
 //   1 - пересечение rSrc1 и rSrc2 не пустое
 //   0 - пересечение rSrc1 и rSrc2 пустое (в rDst все координаты обнуляются).
 //
-int  FASTCALL SIntersectRect(RECT & rDst, const RECT & rSrc1, const RECT & rSrc2);
+int  STDCALL  SIntersectRect(RECT & rDst, const RECT & rSrc1, const RECT & rSrc2);
 //
 // Descr: Идентифицирует факт пересечения прямоугольников rSrc1 и rSrc2.
 // Returns:
@@ -13206,7 +13206,7 @@ int  FASTCALL SIntersectRect(RECT & rDst, const RECT & rSrc1, const RECT & rSrc2
 //   0 - пересечение rSrc1 и rSrc2 пустое
 //
 int  FASTCALL SIntersectRect(const RECT & rSrc1, const RECT & rSrc2);
-void FASTCALL SInflateRect(RECT & rRect, int cx, int cy);
+void STDCALL  SInflateRect(RECT & rRect, int cx, int cy);
 //
 //
 //
@@ -14469,7 +14469,7 @@ public:
 	bool   IsValid() const;
 	int    FASTCALL Load(const char * pFileName);
 	FARPROC FASTCALL GetProcAddr(const char * pProcName);
-	FARPROC FASTCALL GetProcAddr(const char * pProcName, int unicodeSuffix);
+	FARPROC STDCALL  GetProcAddr(const char * pProcName, int unicodeSuffix);
 private:
 	HMODULE H;
 };
@@ -16573,9 +16573,9 @@ public:
 		P16    LU;
 		P16    RL;
 	};
-	static uint32 FASTCALL Combine(uint16 x, uint16 y);
+	static uint32 STDCALL  Combine(uint16 x, uint16 y);
 	static uint32 FASTCALL Combine(const P16 & rP) { return Combine(rP.X, rP.Y); }
-	static uint64 FASTCALL Combine(uint32 x, uint32 y);
+	static uint64 STDCALL  Combine(uint32 x, uint32 y);
 };
 //
 //

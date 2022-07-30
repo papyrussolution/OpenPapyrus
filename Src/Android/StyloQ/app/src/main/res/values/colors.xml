@@ -21,4 +21,6 @@
     <color name="ListItemFocused">@color/PrimaryLight</color>
     <color name="ListItemCatched">#FF8D29</color>
     <color name="PageHeader">#FCFFE7</color>
+    <color name="BarcodeFg">#000000</color>
+    <color name="BarcodeBg">#FFFFFF</color>
 </resources>

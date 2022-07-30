@@ -122,7 +122,7 @@ int FASTCALL PPObjListWindow::valid(ushort command)
 		ListWindowSmartListBox * p_lb = P_Lb;
 		if(!getResult(&id))
 			id = 0;
-		if(p_lb->isTreeList()) {
+		if(p_lb->IsTreeList()) {
 			r = static_cast<const StdTreeListBoxDef *>(p_lb->P_Def)->HasChildren(id);
 			r = BIN(r && (Flags & OLW_CANSELUPLEVEL) || !r);
 			if(r)
@@ -360,7 +360,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 				break;
 			case cmaEdit:
 				if(getCurItem(&p, &i) && editItem(p, i) > 0) {
-					const int  is_tree_list = BIN(p_box && p_box->isTreeList());
+					const int  is_tree_list = BIN(p_box && p_box->IsTreeList());
 					const long id = is_tree_list ? i : p;
 					updateList(id, !BIN(is_tree_list));
 				}
@@ -383,7 +383,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 					int    is_tree_list = 0;
 					PPID   cur_id = 0;
 					p_box->P_Def->getCurID(&cur_id);
-					if(p_box->isTreeList()) {
+					if(p_box->IsTreeList()) {
 						is_tree_list = 1;
 						if(static_cast<const StdTreeListBoxDef *>(p_box->P_Def)->HasChildren(cur_id))
 							edit = 0;
