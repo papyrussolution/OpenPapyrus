@@ -1451,6 +1451,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\segment-cache.c" />
     <ClCompile Include="..\SLib\sdrecord.cpp" />
     <ClCompile Include="..\SLib\sfilestorage.cpp" />
     <ClCompile Include="..\SLib\soapdbt.cpp" />
@@ -1634,7 +1635,22 @@
     </ClCompile>
     <ClCompile Include="..\SLib\mimalloc\page.c" />
     <ClCompile Include="..\SLib\mimalloc\random.c" />
-    <ClCompile Include="..\SLib\mimalloc\region.c" />
+    <ClCompile Include="..\SLib\mimalloc\region.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\SLib\mimalloc\segment.c" />
     <ClCompile Include="..\SLib\mimalloc\static.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

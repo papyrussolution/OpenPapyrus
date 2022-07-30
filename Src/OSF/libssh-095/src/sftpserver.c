@@ -205,13 +205,8 @@ sftp_client_message sftp_get_client_message(sftp_session sftp)
 			    sftp_client_message_free(msg);
 			    return NULL;
 		    }
-
-		    if(strcmp(msg->submessage, "hardlink@openssh.com") == 0 ||
-			strcmp(msg->submessage, "posix-rename@openssh.com") == 0) {
-			    rc = ssh_buffer_unpack(payload,
-				    "sS",
-				    &msg->filename,
-				    &msg->data);
+		    if(strcmp(msg->submessage, "hardlink@openssh.com") == 0 || strcmp(msg->submessage, "posix-rename@openssh.com") == 0) {
+			    rc = ssh_buffer_unpack(payload, "sS", &msg->filename, &msg->data);
 			    if(rc != SSH_OK) {
 				    ssh_set_error_oom(session);
 				    sftp_client_message_free(msg);
@@ -220,9 +215,8 @@ sftp_client_message sftp_get_client_message(sftp_session sftp)
 		    }
 		    break;
 		default:
-		    ssh_set_error(sftp->session, SSH_FATAL,
-			"Received unhandled sftp message %d", msg->type);
-		    sftp_client_message_free(msg);
+		    ssh_set_error(sftp->session, SSH_FATAL, "Received unhandled sftp message %d", msg->type);
+			sftp_client_message_free(msg);
 		    return NULL;
 	}
 

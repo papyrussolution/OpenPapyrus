@@ -267,8 +267,7 @@ int ssh_service_request(ssh_session session, const char * service)
 	}
 	session->auth.service_state = SSH_AUTH_SERVICE_SENT;
 	if(ssh_packet_send(session) == SSH_ERROR) {
-		ssh_set_error(session, SSH_FATAL,
-		    "Sending SSH2_MSG_SERVICE_REQUEST failed.");
+		ssh_set_error(session, SSH_FATAL, "Sending SSH2_MSG_SERVICE_REQUEST failed.");
 		return SSH_ERROR;
 	}
 	SSH_LOG(SSH_LOG_PACKET, "Sent SSH_MSG_SERVICE_REQUEST (service %s)", service);

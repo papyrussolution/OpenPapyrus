@@ -439,19 +439,12 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 						}
 						break;
 					}
-
-					ssh_set_error(session, SSH_FATAL,
-					    "line %d: ERROR - Match all cannot be combined with "
-					    "other Match attributes", count);
+					ssh_set_error(session, SSH_FATAL, "line %d: ERROR - Match all cannot be combined with other Match attributes", count);
 					ZFREE(x);
 					return -1;
-
 				    case MATCH_FINAL:
 				    case MATCH_CANONICAL:
-					SSH_LOG(SSH_LOG_WARN,
-					    "line %d: Unsupported Match keyword '%s', skipping",
-					    count,
-					    p);
+					SSH_LOG(SSH_LOG_WARN, "line %d: Unsupported Match keyword '%s', skipping", count, p);
 					/* Not set any result here -- the result is dependent on the
 					 * following matches after this keyword */
 					break;
@@ -460,19 +453,14 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 					/* Skip to the end of line as unsupported */
 					p = ssh_config_get_cmd(&s);
 					if(isempty(p)) {
-						SSH_LOG(SSH_LOG_WARN, "line %d: Match keyword "
-						    "'%s' requires argument", count, p2);
+						SSH_LOG(SSH_LOG_WARN, "line %d: Match keyword '%s' requires argument", count, p2);
 						ZFREE(x);
 						return -1;
 					}
 					args++;
-					SSH_LOG(SSH_LOG_WARN,
-					    "line %d: Unsupported Match keyword '%s', ignoring",
-					    count,
-					    p2);
+					SSH_LOG(SSH_LOG_WARN, "line %d: Unsupported Match keyword '%s', ignoring", count, p2);
 					result = 0;
 					break;
-
 				    case MATCH_LOCALUSER:
 					/* Here we match only one argument */
 					p = ssh_config_get_str_tok(&s, NULL);
@@ -514,9 +502,7 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 					/* Here we match only one argument */
 					p = ssh_config_get_str_tok(&s, NULL);
 					if(isempty(p)) {
-						ssh_set_error(session, SSH_FATAL,
-						    "line %d: ERROR - Match host keyword "
-						    "requires argument", count);
+						ssh_set_error(session, SSH_FATAL, "line %d: ERROR - Match host keyword requires argument", count);
 						ZFREE(x);
 						return -1;
 					}
@@ -528,9 +514,7 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 					/* Here we match only one argument */
 					p = ssh_config_get_str_tok(&s, NULL);
 					if(isempty(p)) {
-						ssh_set_error(session, SSH_FATAL,
-						    "line %d: ERROR - Match user keyword "
-						    "requires argument", count);
+						ssh_set_error(session, SSH_FATAL, "line %d: ERROR - Match user keyword requires argument", count);
 						ZFREE(x);
 						return -1;
 					}
@@ -540,8 +524,7 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 
 				    case MATCH_UNKNOWN:
 				    default:
-					ssh_set_error(session, SSH_FATAL,
-					    "ERROR - Unknown argument '%s' for Match keyword", p);
+					ssh_set_error(session, SSH_FATAL, "ERROR - Unknown argument '%s' for Match keyword", p);
 					ZFREE(x);
 					return -1;
 			    }

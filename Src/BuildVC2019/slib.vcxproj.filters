@@ -241,6 +241,9 @@
     <ClCompile Include="..\SLib\dbsql-sqlite.cpp" />
     <ClCompile Include="..\SLib\dbkv-lmdb.cpp" />
     <ClCompile Include="..\SLib\sfilestorage.cpp" />
+    <ClCompile Include="..\SLib\mimalloc\segment-cache.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

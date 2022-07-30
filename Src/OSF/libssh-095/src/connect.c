@@ -182,20 +182,16 @@ socket_t ssh_connect_host_nonblocking(ssh_session session, const char * host, co
 			/* For winsock, socket options are only effective before connect */
 			rc = set_tcp_nodelay(s);
 			if(rc < 0) {
-				ssh_set_error(session, SSH_FATAL,
-				    "Failed to set TCP_NODELAY on socket: %s",
-				    strerror(errno));
+				ssh_set_error(session, SSH_FATAL, "Failed to set TCP_NODELAY on socket: %s", strerror(errno));
 				ssh_connect_socket_close(s);
 				s = -1;
 				continue;
 			}
 		}
-
 		errno = 0;
 		rc = connect(s, itr->ai_addr, itr->ai_addrlen);
 		if(rc == -1 && (errno != 0) && (errno != EINPROGRESS)) {
-			ssh_set_error(session, SSH_FATAL,
-			    "Failed to connect: %s", strerror(errno));
+			ssh_set_error(session, SSH_FATAL, "Failed to connect: %s", strerror(errno));
 			ssh_connect_socket_close(s);
 			s = -1;
 			continue;
