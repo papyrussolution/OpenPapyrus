@@ -118,7 +118,7 @@ void       _mi_abandoned_reclaim_all(mi_heap_t* heap, mi_segments_tld_t* tld);
 void       _mi_abandoned_await_readers();
 void       _mi_abandoned_collect(mi_heap_t* heap, bool force, mi_segments_tld_t* tld);
 // "page.c"
-void*      _mi_malloc_generic(mi_heap_t* heap, size_t size)  mi_attr_noexcept mi_attr_malloc;
+void*      _mi_malloc_generic(mi_heap_t* heap, size_t size) mi_attr_noexcept mi_attr_malloc;
 void       _mi_page_retire(mi_page_t* page) mi_attr_noexcept;                  // free the page if there are no other pages with many free blocks
 void       _mi_page_unfull(mi_page_t* page);
 void       _mi_page_free(mi_page_t* page, mi_page_queue_t* pq, bool force);   // free the page

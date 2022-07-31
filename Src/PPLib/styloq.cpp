@@ -6338,7 +6338,7 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 			//StrAssocArray goods_list;
 			//GoodsIterator::GetListByFilt(&gf, &goods_list)
 			for(GoodsIterator gi(&gf, 0); gi.Next(&goods_rec) > 0;) {
-				if(goods_obj.GetPacket(goods_rec.ID, &goods_pack, 0) > 0) {
+				if(goods_obj.GetPacket(goods_rec.ID, &goods_pack, PPObjGoods::gpoSkipQuot) > 0) {
 					goodsgrp_id_list.addnz(goods_rec.ParentID);
 					brand_id_list.addnz(goods_rec.BrandID);
 					SJson * p_js_ware = MakeObjJson_Goods(own_svc_ident, goods_pack, 0, mojfForIndexing, 0, 0);
@@ -8658,7 +8658,7 @@ bool PPStyloQInterchange::GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oi
 				if(oneof2(fir, 2, 3) && SImageBuffer::IsSupportedFormat(rInfo.Ff)) { // Принимаем только идентификацию по сигнатуре
 					SFile f_in(rInfo.SrcPath, SFile::mRead|SFile::mBinary);
 					rInfo.HashAlg = SHASHF_SHA256;
-					if(f_in.IsValid() && (!(flags & gbifSignatureOnly) || f_in.CalcHash(0, rInfo.HashAlg, rInfo.Hash))) {
+					if(f_in.IsValid() && ((flags & gbifSignatureOnly) || f_in.CalcHash(0, rInfo.HashAlg, rInfo.Hash))) {
 						rInfo.Oid = oid;
 						rInfo.BlobN = (ObjLinkFiles::SplitInnerFileName(rInfo.SrcPath, &fns) && fns.Cntr > 0) ? static_cast<uint32>(fns.Cntr) : 0;
 						PPStyloQInterchange::MakeBlobSignature(rOwnIdent, oid, rInfo.BlobN, rInfo.Signature);
@@ -12427,101 +12427,136 @@ int PPStyloQInterchange::Helper_ExecuteIndexingRequest(const StyloQCore::Storage
 	return ok;
 }
 
-/*static*/int PPStyloQInterchange::ExecuteIndexingRequest()
+/*static*/int PPStyloQInterchange::ExecuteIndexingRequest(bool useCurrentSession)
 {
 	int    ok = 1;
-	StyloQCore::SvcDbSymbMap dbmap;
 	SBinaryChunk bc;
 	SBinaryChunk cfg_bytes;
 	SString url_buf;
 	SString msg_buf;
-	PPDbEntrySet2 dbes;
 	StyloQCommandList * p_cmd_list = 0;
 	PPSession::LimitedDatabaseBlock * p_ldb = 0;
+	TSCollection <StyloQCore::IgnitionServerEntry> mediator_list;
+	StyloQCommandList full_cmd_list;
 	char   secret[64];
 	bool   is_logged_in = false;
-	// Так как среди точек входа в базу данных могут быть дубликаты (разные точки, но база одна), то
-	// элиминируем эти дубликаты по значению service-ident. Следующий список как раз для этого и предназначен.
-	TSCollection <SBinaryChunk> reckoned_svc_id_list;
-	StyloQCommandList full_cmd_list;
-	{
-		PPIniFile ini_file;
-		THROW(ini_file.IsValid());
-		THROW(dbes.ReadFromProfile(&ini_file, 0));
-	}
-	{
-		PPVersionInfo vi = DS.GetVersionInfo();
-		THROW(vi.GetSecret(secret, sizeof(secret)));
-	}
-	THROW(StyloQCore::GetDbMap(dbmap));
 	THROW(full_cmd_list.Load(0, 0));
-	for(uint i = 0; i < dbmap.getCount(); i++) {
-		const StyloQCore::SvcDbSymbMapEntry * p_map_entry = dbmap.at(i);
-		if(p_map_entry && p_map_entry->DbSymb.NotEmpty() && p_map_entry->SvcIdent.Len()) {
-			StyloQCore::StoragePacket sp;
-			ZDELETE(p_ldb);
-			p_ldb = DS.LimitedOpenDatabase(p_map_entry->DbSymb, PPSession::lodfReference|PPSession::lodfStyloQCore|PPSession::lodfSysJournal);
-			if(!p_ldb) {
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
-			}
-			else if(p_ldb->P_Sqc->GetOwnPeerEntry(&sp) <= 0) {
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
-			}
-			else if(!sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc)) {
-				PPSetError(PPERR_SQ_UNDEFOWNSVCID);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
-			}
-			else {
-				TSCollection <StyloQCore::IgnitionServerEntry> mediator_list;
-				SysJournal * p_sj = p_ldb->P_Sj;
-				if(p_ldb->P_Sqc->GetMediatorList(mediator_list) > 0) {
-					assert(mediator_list.getCount());
-					bool svc_id_reckoned = false;
-					for(uint rslidx = 0; !svc_id_reckoned && rslidx < reckoned_svc_id_list.getCount(); rslidx++) {
-						if(*reckoned_svc_id_list.at(rslidx) == bc)
-							svc_id_reckoned = true;
+	if(useCurrentSession) {
+		THROW(DS.GetConstTLA().IsAuth());
+		{
+			PPStyloQInterchange ic;
+			SString db_symb;
+			DbProvider * p_dict = CurDict;
+			assert(p_dict && p_dict->GetDbSymb(db_symb)); // Проверка DS.GetConstTLA().IsAuth() выше гарантирует исполнение условия!
+			if(ic.P_T->GetMediatorList(mediator_list) > 0) {
+				SysJournal * p_sj = DS.GetTLA().P_SysJ;
+				StyloQCore::StoragePacket sp;
+				mediator_list.shuffle();
+				p_cmd_list = full_cmd_list.CreateSubListByDbSymb(db_symb, StyloQCommandList::sqbcRsrvPushIndexContent);
+				THROW(ic.P_T->GetOwnPeerEntry(&sp) > 0);
+				for(uint clidx = 0; clidx < p_cmd_list->GetCount(); clidx++) {
+					const StyloQCommandList::Item * p_cmd_item = p_cmd_list->GetC(clidx);
+					assert(p_cmd_item);
+					assert(p_cmd_item->BaseCmdId == StyloQCommandList::sqbcRsrvPushIndexContent);
+					bool is_expired = true;
+					if(p_sj) {
+						const long expiry_period = (p_cmd_item->ResultExpiryTimeSec > 0) ? p_cmd_item->ResultExpiryTimeSec : (24 * 3600);
+						LDATETIME last_ev_dtm;
+						SysJournalTbl::Rec last_ev_rec;
+						is_expired = (p_sj->GetLastEvent(PPACN_STYLOQSVCIDXQUERY, 0, &last_ev_dtm, 7, &last_ev_rec) > 0) ? 
+							(diffdatetimesec(getcurdatetime_(), last_ev_dtm) > expiry_period) : true;
 					}
-					if(!svc_id_reckoned) {
-						ZDELETE(p_cmd_list);
-						p_cmd_list = full_cmd_list.CreateSubListByDbSymb(p_map_entry->DbSymb, StyloQCommandList::sqbcRsrvPushIndexContent);
-						if(p_cmd_list) {
-							assert(p_cmd_list->GetCount()); // Если full_cmd_list.CreateSubListByDbSymb вернул ненулевой результат, то не должно быть так, что список пустой
-							for(uint clidx = 0; clidx < p_cmd_list->GetCount(); clidx++) {
-								const StyloQCommandList::Item * p_cmd_item = p_cmd_list->GetC(clidx);
-								assert(p_cmd_item);
-								assert(p_cmd_item->BaseCmdId == StyloQCommandList::sqbcRsrvPushIndexContent);
-								bool is_expired = true;
-								if(p_sj) {
-									const long expiry_period = (p_cmd_item->ResultExpiryTimeSec > 0) ? p_cmd_item->ResultExpiryTimeSec : (24 * 3600);
-									LDATETIME last_ev_dtm;
-									SysJournalTbl::Rec last_ev_rec;
-									is_expired = (p_sj->GetLastEvent(PPACN_STYLOQSVCIDXQUERY, 0, &last_ev_dtm, 7, &last_ev_rec) > 0) ? 
-										(diffdatetimesec(getcurdatetime_(), last_ev_dtm) > expiry_period) : true;
-								}
-								if(is_expired) {
-									//
-									ZDELETE(p_ldb);
-									p_sj = 0;
-									//
-									if(DS.Login(p_map_entry->DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking)) {
-										is_logged_in = true;
-										{ // Здесь scope {} важна - ic должен разрушиться до вызова DS.Logout()
-											PPStyloQInterchange ic;
-											mediator_list.shuffle();
-											if(!ic.Helper_ExecuteIndexingRequest(sp, mediator_list, p_cmd_item))
-												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
-										}
-										DS.Logout();
-										is_logged_in = false;
-									}
-								}
-							}
-						}
-						ZDELETE(p_cmd_list);
+					if(is_expired) {
+						if(!ic.Helper_ExecuteIndexingRequest(sp, mediator_list, p_cmd_item))
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
 					}
 				}
 			}
-			ZDELETE(p_ldb);
+		}
+	}
+	else {
+		// Так как среди точек входа в базу данных могут быть дубликаты (разные точки, но база одна), то
+		// элиминируем эти дубликаты по значению service-ident. Следующий список как раз для этого и предназначен.
+		TSCollection <SBinaryChunk> reckoned_svc_id_list;
+		StyloQCore::SvcDbSymbMap dbmap;
+		PPDbEntrySet2 dbes;
+		{
+			PPIniFile ini_file;
+			THROW(ini_file.IsValid());
+			THROW(dbes.ReadFromProfile(&ini_file, 0));
+		}
+		{
+			PPVersionInfo vi = DS.GetVersionInfo();
+			THROW(vi.GetSecret(secret, sizeof(secret)));
+		}
+		THROW(StyloQCore::GetDbMap(dbmap));
+		for(uint i = 0; i < dbmap.getCount(); i++) {
+			const StyloQCore::SvcDbSymbMapEntry * p_map_entry = dbmap.at(i);
+			if(p_map_entry && p_map_entry->DbSymb.NotEmpty() && p_map_entry->SvcIdent.Len()) {
+				StyloQCore::StoragePacket sp;
+				ZDELETE(p_ldb);
+				p_ldb = DS.LimitedOpenDatabase(p_map_entry->DbSymb, PPSession::lodfReference|PPSession::lodfStyloQCore|PPSession::lodfSysJournal);
+				if(!p_ldb) {
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
+				}
+				else if(p_ldb->P_Sqc->GetOwnPeerEntry(&sp) <= 0) {
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
+				}
+				else if(!sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc)) {
+					PPSetError(PPERR_SQ_UNDEFOWNSVCID);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
+				}
+				else {
+					SysJournal * p_sj = p_ldb->P_Sj;
+					if(p_ldb->P_Sqc->GetMediatorList(mediator_list) > 0) {
+						assert(mediator_list.getCount());
+						bool svc_id_reckoned = false;
+						for(uint rslidx = 0; !svc_id_reckoned && rslidx < reckoned_svc_id_list.getCount(); rslidx++) {
+							if(*reckoned_svc_id_list.at(rslidx) == bc)
+								svc_id_reckoned = true;
+						}
+						if(!svc_id_reckoned) {
+							ZDELETE(p_cmd_list);
+							p_cmd_list = full_cmd_list.CreateSubListByDbSymb(p_map_entry->DbSymb, StyloQCommandList::sqbcRsrvPushIndexContent);
+							if(p_cmd_list) {
+								assert(p_cmd_list->GetCount()); // Если full_cmd_list.CreateSubListByDbSymb вернул ненулевой результат, то не должно быть так, что список пустой
+								for(uint clidx = 0; clidx < p_cmd_list->GetCount(); clidx++) {
+									const StyloQCommandList::Item * p_cmd_item = p_cmd_list->GetC(clidx);
+									assert(p_cmd_item);
+									assert(p_cmd_item->BaseCmdId == StyloQCommandList::sqbcRsrvPushIndexContent);
+									bool is_expired = true;
+									if(p_sj) {
+										const long expiry_period = (p_cmd_item->ResultExpiryTimeSec > 0) ? p_cmd_item->ResultExpiryTimeSec : (24 * 3600);
+										LDATETIME last_ev_dtm;
+										SysJournalTbl::Rec last_ev_rec;
+										is_expired = (p_sj->GetLastEvent(PPACN_STYLOQSVCIDXQUERY, 0, &last_ev_dtm, 7, &last_ev_rec) > 0) ? 
+											(diffdatetimesec(getcurdatetime_(), last_ev_dtm) > expiry_period) : true;
+									}
+									if(is_expired) {
+										//
+										ZDELETE(p_ldb);
+										p_sj = 0;
+										//
+										if(DS.Login(p_map_entry->DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking)) {
+											is_logged_in = true;
+											{ // Здесь scope {} важна - ic должен разрушиться до вызова DS.Logout()
+												PPStyloQInterchange ic;
+												mediator_list.shuffle();
+												if(!ic.Helper_ExecuteIndexingRequest(sp, mediator_list, p_cmd_item))
+													PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
+											}
+											DS.Logout();
+											is_logged_in = false;
+										}
+									}
+								}
+							}
+							ZDELETE(p_cmd_list);
+						}
+					}
+				}
+				ZDELETE(p_ldb);
+			}
 		}
 	}
 	CATCHZOK

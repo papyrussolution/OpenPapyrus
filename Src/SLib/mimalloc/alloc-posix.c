@@ -139,7 +139,7 @@ mi_decl_nodiscard mi_decl_restrict unsigned short* mi_wcsdup(const unsigned shor
 	return p;
 }
 
-mi_decl_nodiscard mi_decl_restrict unsigned char* mi_mbsdup(const unsigned char* s)  mi_attr_noexcept {
+mi_decl_nodiscard mi_decl_restrict unsigned char* mi_mbsdup(const unsigned char* s) mi_attr_noexcept {
 	return (unsigned char*)mi_strdup((const char*)s);
 }
 

@@ -188,25 +188,22 @@ static const char * parse_bool(const char * p, boolint * b)
 		*b = FALSE;
 		return p + 1;
 	}
-	else if(strcmp(p, "true") == 0) {
+	else if(sstreq(p, "true")) {
 		*b = TRUE;
 		return p + 4;
 	}
-	else if(strcmp(p, "false") == 0) {
+	else if(sstreq(p, "false")) {
 		*b = FALSE;
 		return p + 5;
 	}
-
 	return NULL;
 }
 
 static const char * parse_int(const char * p, int * i)
 {
 	int n;
-
 	if(sscanf(p, "%d%n", i, &n) > 0)
 		return p + n;
-
 	return NULL;
 }
 
@@ -344,7 +341,7 @@ static cairo_int_status_t parse_attributes(const char * attributes, attribute_sp
 			return status;
 		def = attrib_def;
 		while(def->name) {
-			if(strcmp(name, def->name) == 0)
+			if(sstreq(name, def->name))
 				break;
 			def++;
 		}
@@ -404,8 +401,7 @@ fail1:
 static void free_attributes_list(cairo_list_t * list)
 {
 	attribute_t * attr, * next;
-	cairo_list_foreach_entry_safe(attr, next, attribute_t, list, link)
-	{
+	cairo_list_foreach_entry_safe(attr, next, attribute_t, list, link) {
 		cairo_list_del(&attr->link);
 		SAlloc::F(attr->name);
 		_cairo_array_fini(&attr->array);
@@ -418,13 +414,10 @@ static void free_attributes_list(cairo_list_t * list)
 static attribute_t * find_attribute(cairo_list_t * list, const char * name)
 {
 	attribute_t * attr;
-
-	cairo_list_foreach_entry(attr, attribute_t, list, link)
-	{
-		if(strcmp(attr->name, name) == 0)
+	cairo_list_foreach_entry(attr, attribute_t, list, link) {
+		if(sstreq(attr->name, name))
 			return attr;
 	}
-
 	return NULL;
 }
 
@@ -458,53 +451,46 @@ cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cai
 	}
 	cairo_list_foreach_entry(attr, attribute_t, &list, link)
 	{
-		if(strcmp(attr->name, "uri") == 0) {
+		if(sstreq(attr->name, "uri")) {
 			if(link_attrs->link_type != TAG_LINK_URI) {
 				status = _cairo_error(CAIRO_STATUS_TAG_ERROR);
 				goto cleanup;
 			}
 			link_attrs->uri = sstrdup(attr->scalar.s);
 		}
-		else if(strcmp(attr->name, "file") == 0) {
+		else if(sstreq(attr->name, "file")) {
 			if(link_attrs->link_type != TAG_LINK_FILE) {
 				status = _cairo_error(CAIRO_STATUS_TAG_ERROR);
 				goto cleanup;
 			}
-
 			link_attrs->file = sstrdup(attr->scalar.s);
 		}
-		else if(strcmp(attr->name, "dest") == 0) {
-			if(!(link_attrs->link_type == TAG_LINK_DEST ||
-			    link_attrs->link_type != TAG_LINK_FILE)) {
+		else if(sstreq(attr->name, "dest")) {
+			if(!(link_attrs->link_type == TAG_LINK_DEST || link_attrs->link_type != TAG_LINK_FILE)) {
 				status = _cairo_error(CAIRO_STATUS_TAG_ERROR);
 				goto cleanup;
 			}
-
 			link_attrs->dest = sstrdup(attr->scalar.s);
 		}
-		else if(strcmp(attr->name, "page") == 0) {
-			if(!(link_attrs->link_type == TAG_LINK_DEST ||
-			    link_attrs->link_type != TAG_LINK_FILE)) {
+		else if(sstreq(attr->name, "page")) {
+			if(!(link_attrs->link_type == TAG_LINK_DEST || link_attrs->link_type != TAG_LINK_FILE)) {
 				status = _cairo_error(CAIRO_STATUS_TAG_ERROR);
 				goto cleanup;
 			}
-
 			link_attrs->page = attr->scalar.i;
 		}
-		else if(strcmp(attr->name, "pos") == 0) {
-			if(!(link_attrs->link_type == TAG_LINK_DEST ||
-			    link_attrs->link_type != TAG_LINK_FILE)) {
+		else if(sstreq(attr->name, "pos")) {
+			if(!(link_attrs->link_type == TAG_LINK_DEST || link_attrs->link_type != TAG_LINK_FILE)) {
 				status = _cairo_error(CAIRO_STATUS_TAG_ERROR);
 				goto cleanup;
 			}
-
 			_cairo_array_copy_element(&attr->array, 0, &val);
 			link_attrs->pos.x = val.f;
 			_cairo_array_copy_element(&attr->array, 1, &val);
 			link_attrs->pos.y = val.f;
 			link_attrs->has_pos = TRUE;
 		}
-		else if(strcmp(attr->name, "rect") == 0) {
+		else if(sstreq(attr->name, "rect")) {
 			cairo_rectangle_t rect;
 			int i;
 			int num_elem = _cairo_array_num_elements(&attr->array);
@@ -512,7 +498,6 @@ cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cai
 				status = _cairo_error(CAIRO_STATUS_TAG_ERROR);
 				goto cleanup;
 			}
-
 			for(i = 0; i < num_elem; i += 4) {
 				_cairo_array_copy_element(&attr->array, i, &val);
 				rect.x = val.f;
@@ -528,7 +513,6 @@ cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cai
 			}
 		}
 	}
-
 cleanup:
 	free_attributes_list(&list);
 	if(UNLIKELY(status)) {
@@ -552,18 +536,18 @@ cairo_int_status_t _cairo_tag_parse_dest_attributes(const char * attributes, cai
 		goto cleanup;
 	cairo_list_foreach_entry(attr, attribute_t, &list, link)
 	{
-		if(strcmp(attr->name, "name") == 0) {
+		if(sstreq(attr->name, "name")) {
 			dest_attrs->name = sstrdup(attr->scalar.s);
 		}
-		else if(strcmp(attr->name, "x") == 0) {
+		else if(sstreq(attr->name, "x")) {
 			dest_attrs->x = attr->scalar.f;
 			dest_attrs->x_valid = TRUE;
 		}
-		else if(strcmp(attr->name, "y") == 0) {
+		else if(sstreq(attr->name, "y")) {
 			dest_attrs->y = attr->scalar.f;
 			dest_attrs->y_valid = TRUE;
 		}
-		else if(strcmp(attr->name, "internal") == 0) {
+		else if(sstreq(attr->name, "internal")) {
 			dest_attrs->internal = attr->scalar.b;
 		}
 	}
@@ -615,7 +599,6 @@ cairo_int_status_t _cairo_tag_parse_ccitt_params(const char * attributes, cairo_
 
 cleanup:
 	free_attributes_list(&list);
-
 	return status;
 }
 
@@ -631,7 +614,7 @@ cairo_int_status_t _cairo_tag_parse_eps_params(const char * attributes, cairo_ep
 		goto cleanup;
 	cairo_list_foreach_entry(attr, attribute_t, &list, link)
 	{
-		if(strcmp(attr->name, "bbox") == 0) {
+		if(sstreq(attr->name, "bbox")) {
 			_cairo_array_copy_element(&attr->array, 0, &val);
 			eps_params->bbox.p1.x = val.f;
 			_cairo_array_copy_element(&attr->array, 1, &val);
@@ -642,7 +625,6 @@ cairo_int_status_t _cairo_tag_parse_eps_params(const char * attributes, cairo_ep
 			eps_params->bbox.p2.y = val.f;
 		}
 	}
-
 cleanup:
 	free_attributes_list(&list);
 	return status;

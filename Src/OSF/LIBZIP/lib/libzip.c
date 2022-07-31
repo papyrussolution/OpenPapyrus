@@ -4166,7 +4166,7 @@ bool _zip_hash_add(zip_hash_t * hash, const uint8 * name, uint64 index, zip_flag
 	}
 	hash_value = _hash_string(name, hash->table_size);
 	for(entry = hash->table[hash_value]; entry; entry = entry->next) {
-		if(strcmp((const char *)name, (const char *)entry->name) == 0) {
+		if(sstreq((const char *)name, (const char *)entry->name)) {
 			if(((flags & ZIP_FL_UNCHANGED) && entry->orig_index != -1) || entry->current_index != -1) {
 				zip_error_set(error, SLERR_ZIP_EXISTS, 0);
 				return false;
@@ -4205,7 +4205,7 @@ bool _zip_hash_delete(zip_hash_t * hash, const uint8 * name, zip_error_t * error
 		zip_hash_entry_t * previous = NULL;
 		zip_hash_entry_t * entry = hash->table[hash_value];
 		while(entry) {
-			if(strcmp((const char *)name, (const char *)entry->name) == 0) {
+			if(sstreq((const char *)name, (const char *)entry->name)) {
 				if(entry->orig_index == -1) {
 					if(previous) {
 						previous->next = entry->next;
@@ -4238,7 +4238,7 @@ int64 _zip_hash_lookup(zip_hash_t * hash, const uint8 * name, zip_flags_t flags,
 	else {
 		uint16 hash_value = _hash_string(name, hash->table_size);
 		for(zip_hash_entry_t * entry = hash->table[hash_value]; entry; entry = entry->next) {
-			if(strcmp((const char *)name, (const char *)entry->name) == 0) {
+			if(sstreq((const char *)name, (const char *)entry->name)) {
 				if(flags & ZIP_FL_UNCHANGED) {
 					if(entry->orig_index != -1)
 						return entry->orig_index;

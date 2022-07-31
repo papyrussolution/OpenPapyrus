@@ -4336,7 +4336,7 @@ public:
 	}
 	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
-		return PPStyloQInterchange::ExecuteIndexingRequest();
+		return PPStyloQInterchange::ExecuteIndexingRequest(false);
 	}
 };
 

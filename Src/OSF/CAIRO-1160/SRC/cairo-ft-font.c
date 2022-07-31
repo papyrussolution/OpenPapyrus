@@ -389,8 +389,7 @@ static cairo_status_t _cairo_ft_unscaled_font_init(cairo_ft_unscaled_font_t * un
 static void _cairo_ft_unscaled_font_fini(cairo_ft_unscaled_font_t * unscaled)
 {
 	assert(unscaled->face == NULL);
-	SAlloc::F(unscaled->filename);
-	unscaled->filename = NULL;
+	ZFREE(unscaled->filename);
 	SAlloc::F(unscaled->variations);
 	CAIRO_MUTEX_FINI(unscaled->mutex);
 }
@@ -399,23 +398,18 @@ static int _cairo_ft_unscaled_font_keys_equal(const void * key_a, const void * k
 {
 	const cairo_ft_unscaled_font_t * unscaled_a = (const cairo_ft_unscaled_font_t *)key_a;
 	const cairo_ft_unscaled_font_t * unscaled_b = (const cairo_ft_unscaled_font_t *)key_b;
-	if(unscaled_a->id == unscaled_b->id &&
-	    unscaled_a->from_face == unscaled_b->from_face) {
+	if(unscaled_a->id == unscaled_b->id && unscaled_a->from_face == unscaled_b->from_face) {
 		if(unscaled_a->from_face)
 			return unscaled_a->face == unscaled_b->face;
-		if(unscaled_a->filename == NULL && unscaled_b->filename == NULL)
-			return TRUE;
-		else if(unscaled_a->filename == NULL || unscaled_b->filename == NULL)
-			return FALSE;
 		else
-			return (strcmp(unscaled_a->filename, unscaled_b->filename) == 0);
+			return sstreq(unscaled_a->filename, unscaled_b->filename);
 	}
 	return FALSE;
 }
-
-/* Finds or creates a #cairo_ft_unscaled_font_t for the filename/id from
- * pattern.  Returns a new reference to the unscaled font.
- */
+//
+// Finds or creates a #cairo_ft_unscaled_font_t for the filename/id from
+// pattern.  Returns a new reference to the unscaled font.
+//
 static cairo_status_t _cairo_ft_unscaled_font_create_internal(boolint from_face, char * filename, int id,
     FT_Face font_face, cairo_ft_unscaled_font_t ** out)
 {
@@ -2333,12 +2327,12 @@ static cairo_int_status_t _cairo_index_to_glyph_name(void * abstract_font, char 
 	 * glyph_names[glyph_index] is the name we are looking for. If not
 	 * we fall back to searching the entire array.
 	 */
-	if((long)glyph_index < num_glyph_names && strcmp(glyph_names[glyph_index], buffer) == 0) {
+	if((long)glyph_index < num_glyph_names && sstreq(glyph_names[glyph_index], buffer)) {
 		*glyph_array_index = glyph_index;
 		return CAIRO_STATUS_SUCCESS;
 	}
 	for(i = 0; i < num_glyph_names; i++) {
-		if(strcmp(glyph_names[i], buffer) == 0) {
+		if(sstreq(glyph_names[i], buffer)) {
 			*glyph_array_index = i;
 			return CAIRO_STATUS_SUCCESS;
 		}

@@ -47372,7 +47372,13 @@ public:
 	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
 	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
 	static int   Edit_GoodsInfoParam(StyloQGoodsInfoParam & rParam);
-	static int   ExecuteIndexingRequest();
+	//
+	// Descr: Отправляет одному из медиаторов Stylo-Q запрос на индексацию данных из всех
+	//   баз данных, которые содержат сервисы Stylo-Q.
+	// ARG(useCurrentSession IN): отладочный параметр. Если true, то запрос отправляется только
+	//   от той базы данных, в которой авторизован текущий сеанс.
+	//
+	static int   ExecuteIndexingRequest(bool useCurrentSession);
 	static int   GetBlobStoragePath(SString & rBuf);
 	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, PPObjID oid, uint itemNumber, SString & rBuf);
 	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, const char * pResourceName, SString & rBuf);

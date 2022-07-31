@@ -226,24 +226,20 @@ static cairo_int_status_t cairo_pdf_interchange_write_node_object(cairo_pdf_surf
 			}
 		}
 	}
-	_cairo_output_stream_printf(surface->output,
-	    ">>\n"
-	    "endobj\n");
+	_cairo_output_stream_printf(surface->output, ">>\nendobj\n");
 	return _cairo_output_stream_get_status(surface->output);
 }
 
 static void init_named_dest_key(cairo_pdf_named_dest_t * dest)
 {
-	dest->base.hash = _cairo_hash_bytes(_CAIRO_HASH_INIT_VALUE,
-		dest->attrs.name,
-		strlen(dest->attrs.name));
+	dest->base.hash = _cairo_hash_bytes(_CAIRO_HASH_INIT_VALUE, dest->attrs.name, strlen(dest->attrs.name));
 }
 
 static boolint _named_dest_equal(const void * key_a, const void * key_b)
 {
 	const cairo_pdf_named_dest_t * a = (const cairo_pdf_named_dest_t *)key_a;
 	const cairo_pdf_named_dest_t * b = (const cairo_pdf_named_dest_t *)key_b;
-	return strcmp(a->attrs.name, b->attrs.name) == 0;
+	return sstreq(a->attrs.name, b->attrs.name);
 }
 
 static void _named_dest_pluck(void * entry, void * closure)
@@ -274,13 +270,11 @@ static cairo_int_status_t cairo_pdf_interchange_write_explicit_dest(cairo_pdf_su
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t cairo_pdf_interchange_write_dest(cairo_pdf_surface_t * surface,
-    cairo_link_attrs_t  * link_attrs)
+static cairo_int_status_t cairo_pdf_interchange_write_dest(cairo_pdf_surface_t * surface, cairo_link_attrs_t  * link_attrs)
 {
 	cairo_int_status_t status;
 	cairo_pdf_interchange_t * ic = &surface->interchange;
 	char * dest = NULL;
-
 	if(link_attrs->dest) {
 		cairo_pdf_named_dest_t key;
 		cairo_pdf_named_dest_t * named_dest;
@@ -386,21 +380,15 @@ static cairo_int_status_t cairo_pdf_interchange_write_annot(cairo_pdf_surface_t 
 	double height;
 
 	num_rects = _cairo_array_num_elements(&annot->link_attrs.rects);
-	if(strcmp(node->name, CAIRO_TAG_LINK) == 0 &&
-	    annot->link_attrs.link_type != TAG_LINK_EMPTY &&
-	    (node->extents.valid || num_rects > 0)) {
+	if(sstreq(node->name, CAIRO_TAG_LINK) && annot->link_attrs.link_type != TAG_LINK_EMPTY && (node->extents.valid || num_rects > 0)) {
 		status = _cairo_array_append(&ic->parent_tree, &node->res);
 		if(UNLIKELY(status))
 			return status;
-
 		sp = _cairo_array_num_elements(&ic->parent_tree) - 1;
-
 		node->annot_res = _cairo_pdf_surface_new_object(surface);
-
 		status = _cairo_array_append(&surface->page_annots, &node->annot_res);
 		if(UNLIKELY(status))
 			return status;
-
 		_cairo_pdf_surface_update_object(surface, node->annot_res);
 		_cairo_output_stream_printf(surface->output,
 		    "%d 0 obj\n"
@@ -780,23 +768,18 @@ static cairo_int_status_t cairo_pdf_interchange_write_page_labels(cairo_pdf_surf
 			prefix = NULL;
 			num = i + 1;
 		}
-
 		if(!strcmp_null(prefix, prev_prefix) || num != prev_num + 1) {
 			_cairo_output_stream_printf(surface->output,  "   %d << ", i);
-
 			if(num)
 				_cairo_output_stream_printf(surface->output,  "/S /D /St %d ", num);
-
 			if(prefix) {
 				char * s;
 				status = _cairo_utf8_to_pdf_string(prefix, &s);
 				if(UNLIKELY(status))
 					return status;
-
 				_cairo_output_stream_printf(surface->output,  "/P %s ", s);
 				SAlloc::F(s);
 			}
-
 			_cairo_output_stream_printf(surface->output,  ">>\n");
 		}
 		SAlloc::F(prev_prefix);

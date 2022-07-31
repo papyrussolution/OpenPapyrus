@@ -973,7 +973,7 @@ void cairo_surface_get_mime_data(cairo_surface_t * surface, const char * mime_ty
 	num_slots = surface->mime_data.num_elements;
 	slots = (cairo_user_data_slot_t *)_cairo_array_index(&surface->mime_data, 0);
 	for(i = 0; i < num_slots; i++) {
-		if(slots[i].key && strcmp((char *)slots[i].key, mime_type) == 0) {
+		if(slots[i].key && sstreq((char *)slots[i].key, mime_type)) {
 			cairo_mime_data_t * mime_data = (cairo_mime_data_t *)slots[i].user_data;
 			*data = mime_data->data;
 			*length = mime_data->length;
@@ -1017,7 +1017,7 @@ boolint _cairo_surface_has_mime_image(const cairo_surface_t * surface)
 	for(int i = 0; i < num_slots; i++) {
 		if(slots[i].key) {
 			for(int j = 0; j < ARRAY_LENGTH(_cairo_surface_image_mime_types); j++) {
-				if(strcmp(reinterpret_cast<const char *>(slots[i].key), _cairo_surface_image_mime_types[j]) == 0)
+				if(sstreq(reinterpret_cast<const char *>(slots[i].key), _cairo_surface_image_mime_types[j]))
 					return TRUE;
 			}
 		}
@@ -1243,29 +1243,25 @@ slim_hidden_def(cairo_surface_set_mime_data);
  *
  * Since: 1.12
  **/
-boolint cairo_surface_supports_mime_type(cairo_surface_t * surface,
-    const char * mime_type)
+boolint cairo_surface_supports_mime_type(cairo_surface_t * surface, const char * mime_type)
 {
 	const char ** types;
-
 	if(UNLIKELY(surface->status))
 		return FALSE;
 	if(UNLIKELY(surface->finished)) {
 		_cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return FALSE;
 	}
-
 	if(surface->backend->get_supported_mime_types) {
 		types = surface->backend->get_supported_mime_types(surface);
 		if(types) {
 			while(*types) {
-				if(strcmp(*types, mime_type) == 0)
+				if(sstreq(*types, mime_type))
 					return TRUE;
 				types++;
 			}
 		}
 	}
-
 	return FALSE;
 }
 

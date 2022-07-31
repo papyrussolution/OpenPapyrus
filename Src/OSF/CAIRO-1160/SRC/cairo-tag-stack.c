@@ -136,7 +136,7 @@ static boolint name_in_list(const char * name, const char ** list)
 	if(!name)
 		return FALSE;
 	while(*list) {
-		if(strcmp(name, *list) == 0)
+		if(sstreq(name, *list))
 			return TRUE;
 		list++;
 	}
@@ -150,17 +150,16 @@ cairo_int_status_t _cairo_tag_stack_push(cairo_tag_stack_t * stack, const char *
 		stack->type = (cairo_tag_stack_structure_type_t)TAG_TYPE_INVALID;
 		return _cairo_error(CAIRO_STATUS_TAG_ERROR);
 	}
-
 	if(stack->type == TAG_TREE_TYPE_NO_TAGS) {
 		if(name_in_list(name, _cairo_tag_stack_tagged_pdf_top_level_element_list))
 			stack->type = TAG_TREE_TYPE_TAGGED;
-		else if(strcmp(name, "Link") == 0)
+		else if(sstreq(name, "Link"))
 			stack->type = TAG_TREE_TYPE_LINK_ONLY;
 		else if(name_in_list(name, _cairo_tag_stack_struct_pdf_list))
 			stack->type = TAG_TREE_TYPE_STRUCTURE;
 	}
 	else {
-		if(stack->type == TAG_TREE_TYPE_LINK_ONLY && (strcmp(name, "Link") != 0) && name_in_list(name, _cairo_tag_stack_struct_pdf_list)) {
+		if(stack->type == TAG_TREE_TYPE_LINK_ONLY && !sstreq(name, "Link") && name_in_list(name, _cairo_tag_stack_struct_pdf_list)) {
 			stack->type = TAG_TREE_TYPE_STRUCTURE;
 		}
 	}
@@ -184,12 +183,9 @@ cairo_int_status_t _cairo_tag_stack_push(cairo_tag_stack_t * stack, const char *
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_private void _cairo_tag_stack_set_top_data(cairo_tag_stack_t * stack,
-    void        * data)
+cairo_private void _cairo_tag_stack_set_top_data(cairo_tag_stack_t * stack, void * data)
 {
-	cairo_tag_stack_elem_t * top;
-
-	top = _cairo_tag_stack_top_elem(stack);
+	cairo_tag_stack_elem_t * top = _cairo_tag_stack_top_elem(stack);
 	if(top)
 		top->data = data;
 }
@@ -235,9 +231,10 @@ cairo_tag_type_t _cairo_tag_get_type(const char * name)
 {
 	if(!name_in_list(name, _cairo_tag_stack_struct_pdf_list) && !name_in_list(name, _cairo_tag_stack_cairo_tag_list))
 		return TAG_TYPE_INVALID;
-	if(strcmp(name, "Link") == 0)
+	else if(sstreq(name, "Link"))
 		return (cairo_tag_type_t)(TAG_TYPE_LINK | TAG_TYPE_STRUCTURE);
-	if(strcmp(name, "cairo.dest") == 0)
+	else if(sstreq(name, "cairo.dest"))
 		return TAG_TYPE_DEST;
-	return TAG_TYPE_STRUCTURE;
+	else
+		return TAG_TYPE_STRUCTURE;
 }

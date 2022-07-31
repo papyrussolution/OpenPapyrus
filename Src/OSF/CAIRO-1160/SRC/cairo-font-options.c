@@ -203,7 +203,6 @@ void cairo_font_options_merge(cairo_font_options_t * options, const cairo_font_o
 		options->hint_metrics = other->hint_metrics;
 	if(other->round_glyph_positions != CAIRO_ROUND_GLYPH_POS_DEFAULT)
 		options->round_glyph_positions = other->round_glyph_positions;
-
 	if(other->variations) {
 		if(options->variations) {
 			/* 'merge' variations by concatenating - later entries win */
@@ -222,7 +221,6 @@ void cairo_font_options_merge(cairo_font_options_t * options, const cairo_font_o
 }
 
 slim_hidden_def(cairo_font_options_merge);
-
 /**
  * cairo_font_options_equal:
  * @options: a #cairo_font_options_t
@@ -247,10 +245,7 @@ boolint cairo_font_options_equal(const cairo_font_options_t * options, const cai
 	return (options->antialias == other->antialias && options->subpixel_order == other->subpixel_order &&
 	       options->lcd_filter == other->lcd_filter && options->hint_style == other->hint_style &&
 	       options->hint_metrics == other->hint_metrics &&
-	       options->round_glyph_positions == other->round_glyph_positions &&
-	       ((options->variations == NULL && other->variations == NULL) ||
-	       (options->variations && other->variations &&
-	       strcmp(options->variations, other->variations) == 0)));
+	       options->round_glyph_positions == other->round_glyph_positions && sstreq(options->variations, other->variations));
 }
 
 slim_hidden_def(cairo_font_options_equal);

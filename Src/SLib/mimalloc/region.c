@@ -47,7 +47,6 @@ bool    _mi_os_commit(void* p, size_t size, bool* is_zero, mi_stats_t* stats);
 bool    _mi_os_decommit(void* p, size_t size, mi_stats_t* stats);
 bool    _mi_os_reset(void* p, size_t size, mi_stats_t* stats);
 bool    _mi_os_unreset(void* p, size_t size, bool* is_zero, mi_stats_t* stats);
-
 // arena.c
 void    _mi_arena_free(void* p, size_t size, size_t memid, bool all_committed, mi_stats_t* stats);
 void*   _mi_arena_alloc(size_t size, bool* commit, bool* large, bool* is_pinned, bool* is_zero, size_t* memid, mi_os_tld_t* tld);
@@ -94,20 +93,13 @@ typedef struct mem_region_s {
 	_Atomic(size_t)           padding;// round to 8 fields (needs to be atomic for msvc, see issue #508)
 } mem_region_t;
 
-// The region map
-static mem_region_t regions[MI_REGION_MAX];
-
-// Allocated regions
-static _Atomic(size_t) regions_count; // = 0;
-
-/* ----------------------------------------------------------------------------
-   Utility functions
-   -----------------------------------------------------------------------------*/
-
+static mem_region_t regions[MI_REGION_MAX]; // The region map
+static _Atomic(size_t) regions_count; // = 0; // Allocated regions
+//
+// Utility functions
+//
 // Blocks (of 4MiB) needed for the given size.
-static size_t mi_region_block_count(size_t size) {
-	return _mi_divide_up(size, MI_SEGMENT_SIZE);
-}
+static size_t mi_region_block_count(size_t size) { return _mi_divide_up(size, MI_SEGMENT_SIZE); }
 
 /*
    // Return a rounded commit/reset size such that we don't fragment large OS pages into small ones.
@@ -118,7 +110,8 @@ static size_t mi_region_block_count(size_t size) {
  */
 
 // Return if a pointer points into a region reserved by us.
-mi_decl_nodiscard bool mi_is_in_heap_region(const void* p) mi_attr_noexcept {
+mi_decl_nodiscard bool mi_is_in_heap_region(const void* p) mi_attr_noexcept 
+{
 	if(p==NULL) return false;
 	size_t count = mi_atomic_load_relaxed(&regions_count);
 	for(size_t i = 0; i < count; i++) {
@@ -128,24 +121,25 @@ mi_decl_nodiscard bool mi_is_in_heap_region(const void* p) mi_attr_noexcept {
 	return false;
 }
 
-static void* mi_region_blocks_start(const mem_region_t* region, mi_bitmap_index_t bit_idx) {
+static void* mi_region_blocks_start(const mem_region_t* region, mi_bitmap_index_t bit_idx) 
+{
 	uint8_t* start = (uint8_t*)mi_atomic_load_ptr_acquire(uint8_t, &((mem_region_t*)region)->start);
 	mi_assert_internal(start != NULL);
 	return (start + (bit_idx * MI_SEGMENT_SIZE));
 }
 
-static size_t mi_memid_create(mem_region_t* region, mi_bitmap_index_t bit_idx) {
+static size_t mi_memid_create(mem_region_t* region, mi_bitmap_index_t bit_idx) 
+{
 	mi_assert_internal(bit_idx < MI_BITMAP_FIELD_BITS);
 	size_t idx = region - regions;
 	mi_assert_internal(&regions[idx] == region);
 	return (idx*MI_BITMAP_FIELD_BITS + bit_idx)<<1;
 }
 
-static size_t mi_memid_create_from_arena(size_t arena_memid) {
-	return (arena_memid << 1) | 1;
-}
+static size_t mi_memid_create_from_arena(size_t arena_memid) { return (arena_memid << 1) | 1; }
 
-static bool mi_memid_is_arena(size_t id, mem_region_t** region, mi_bitmap_index_t* bit_idx, size_t* arena_memid) {
+static bool mi_memid_is_arena(size_t id, mem_region_t** region, mi_bitmap_index_t* bit_idx, size_t* arena_memid) 
+{
 	if((id&1)==1) {
 		if(arena_memid != NULL) *arena_memid = (id>>1);
 		return true;
@@ -157,11 +151,9 @@ static bool mi_memid_is_arena(size_t id, mem_region_t** region, mi_bitmap_index_
 		return false;
 	}
 }
-
-/* ----------------------------------------------------------------------------
-   Allocate a region is allocated from the OS (or an arena)
-   -----------------------------------------------------------------------------*/
-
+//
+// Allocate a region is allocated from the OS (or an arena)
+//
 static bool mi_region_try_alloc_os(size_t blocks, bool commit, bool allow_large, mem_region_t** region, mi_bitmap_index_t* bit_idx, mi_os_tld_t* tld)
 {
 	// not out of regions yet?

@@ -186,10 +186,8 @@ static unsigned int xmlTextAsUInt(const tinyxml2::XMLElement* node, bool& error)
 bool cppcheck::Platform::loadFromXmlDocument(const tinyxml2::XMLDocument * doc)
 {
 	const tinyxml2::XMLElement * const rootnode = doc->FirstChildElement();
-
 	if(!rootnode || std::strcmp(rootnode->Name(), "platform") != 0)
 		return false;
-
 	bool error = false;
 	for(const tinyxml2::XMLElement * node = rootnode->FirstChildElement(); node; node = node->NextSiblingElement()) {
 		if(std::strcmp(node->Name(), "default-sign") == 0) {
@@ -228,12 +226,10 @@ bool cppcheck::Platform::loadFromXmlDocument(const tinyxml2::XMLDocument * doc)
 			}
 		}
 	}
-
 	short_bit = char_bit * sizeof_short;
 	int_bit = char_bit * sizeof_int;
 	long_bit = char_bit * sizeof_long;
 	long_long_bit = char_bit * sizeof_long_long;
-
 	platformType = PlatformFile;
 	return !error;
 }

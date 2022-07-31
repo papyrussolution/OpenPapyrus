@@ -5,6 +5,7 @@ package ru.petroglif.styloq;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -473,6 +474,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		switch(ev) {
 			case SLib.EV_CREATE:
 				{
+					Resources.Theme th_ = null; // @debug
 					setContentView(R.layout.activity_main);
 					SetupRecyclerListView(null, R.id.serviceListView, R.layout.li_service);
 					{
@@ -484,6 +486,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									db.SetupPeerInstance();
 									MakeListData(db);
 								}
+								th_ = getTheme(); // @debug
 							} catch(StyloQException e) {
 								;
 							}

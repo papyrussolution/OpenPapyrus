@@ -830,10 +830,7 @@ static boolint _cairo_string_equal(const void * key_a, const void * key_b)
 {
 	const cairo_string_entry_t * a = (const cairo_string_entry_t *)key_a;
 	const cairo_string_entry_t * b = (const cairo_string_entry_t *)key_b;
-	if(strcmp(a->string, b->string) == 0)
-		return TRUE;
-	else
-		return FALSE;
+	return sstreq(a->string, b->string);
 }
 
 #if DEBUG_SUBSETS
