@@ -1110,7 +1110,7 @@ void IntlTest::LL_message(UnicodeString message, bool newline)
 		32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32
 	};
-	U_ASSERT(1 + LL_indentlevel <= UPRV_LENGTHOF(indentUChars));
+	U_ASSERT(1 + LL_indentlevel <= SIZEOFARRAYi(indentUChars));
 	UnicodeString indent(FALSE, indentUChars, 1 + LL_indentlevel);
 
 	char buffer[30000];
@@ -1905,7 +1905,7 @@ bool IntlTest::assertEquals(const char * message,
     const char * actual) {
 	U_ASSERT(expected != nullptr);
 	U_ASSERT(actual != nullptr);
-	if(uprv_strcmp(expected, actual) != 0) {
+	if(strcmp(expected, actual) != 0) {
 		errln((UnicodeString)"FAIL: " + message + "; got \"" +
 		    actual +
 		    "\"; expected \"" + expected + "\"");
@@ -2221,8 +2221,8 @@ const char * IntlTest::getProperty(const char * prop)
 {
 	const char * val = NULL;
 	for(int32_t i = 0; i < numProps; i++) {
-		int32_t plen = static_cast<int32_t>(uprv_strlen(prop));
-		if((int32_t)uprv_strlen(proplines[i]) > plen + 1
+		int32_t plen = static_cast<int32_t>(strlen(prop));
+		if((int32_t)strlen(proplines[i]) > plen + 1
 		 && proplines[i][plen] == '='
 		 && uprv_strncmp(proplines[i], prop, plen) == 0) {
 			val = &(proplines[i][plen+1]);

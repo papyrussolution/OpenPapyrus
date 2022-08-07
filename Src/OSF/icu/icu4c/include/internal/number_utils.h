@@ -46,7 +46,7 @@ inline int32_t insertDigitFromSymbols(FormattedStringBuilder& output, int32_t in
 }
 
 inline bool unitIsCurrency(const MeasureUnit& unit) {
-    return uprv_strcmp("currency", unit.getType()) == 0;
+    return strcmp("currency", unit.getType()) == 0;
 }
 
 inline bool unitIsBaseUnit(const MeasureUnit& unit) {
@@ -54,11 +54,11 @@ inline bool unitIsBaseUnit(const MeasureUnit& unit) {
 }
 
 inline bool unitIsPercent(const MeasureUnit& unit) {
-    return uprv_strcmp("percent", unit.getSubtype()) == 0;
+    return strcmp("percent", unit.getSubtype()) == 0;
 }
 
 inline bool unitIsPermille(const MeasureUnit& unit) {
-    return uprv_strcmp("permille", unit.getSubtype()) == 0;
+    return strcmp("permille", unit.getSubtype()) == 0;
 }
 
 // NOTE: In Java, this method is in NumberFormat.java

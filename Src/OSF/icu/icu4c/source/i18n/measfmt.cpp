@@ -150,7 +150,7 @@ MeasureFormatCacheData::MeasureFormatCacheData() : integerFormat(nullptr), numer
 
 MeasureFormatCacheData::~MeasureFormatCacheData() 
 {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(currencyFormats); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(currencyFormats); ++i) {
 		delete currencyFormats[i];
 	}
 	// Note: the contents of 'dnams' are pointers into the resource bundle
@@ -159,7 +159,7 @@ MeasureFormatCacheData::~MeasureFormatCacheData()
 }
 
 static bool isCurrency(const MeasureUnit &unit) {
-	return (uprv_strcmp(unit.getType(), "currency") == 0);
+	return (strcmp(unit.getType(), "currency") == 0);
 }
 
 static bool getString(const UResourceBundle * resource,
@@ -268,8 +268,8 @@ template <> U_I18N_API const MeasureFormatCacheData * LocaleCacheKey<MeasureForm
 }
 
 static bool isTimeUnit(const MeasureUnit &mu, const char * tu) {
-	return uprv_strcmp(mu.getType(), "duration") == 0 &&
-	       uprv_strcmp(mu.getSubtype(), tu) == 0;
+	return strcmp(mu.getType(), "duration") == 0 &&
+	       strcmp(mu.getSubtype(), tu) == 0;
 }
 
 // Converts a composite measure into hours-minutes-seconds and stores at hms
@@ -432,7 +432,7 @@ bool MeasureFormat::operator == (const Format &other) const
 			// On failure, assume not equal
 			return false;
 		}
-		if(uprv_strcmp(localeId, rhsLocaleId) != 0) {
+		if(strcmp(localeId, rhsLocaleId) != 0) {
 			return false;
 		}
 	}

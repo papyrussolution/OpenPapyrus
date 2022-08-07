@@ -19,7 +19,7 @@ CollationDummyTest::CollationDummyTest()
 	: myCollation(0)
 {
 	/*UErrorCode status = U_ZERO_ERROR;
-	   UnicodeString rules(TRUE, DEFAULTRULEARRAY, UPRV_LENGTHOF(DEFAULTRULEARRAY));
+	   UnicodeString rules(TRUE, DEFAULTRULEARRAY, SIZEOFARRAYi(DEFAULTRULEARRAY));
 	   UnicodeString newRules("& C < ch, cH, Ch, CH & Five, 5 & Four, 4 & one, 1 & Ampersand; '&' & Two, 2 ");
 	   rules += newRules;
 	   myCollation = new RuleBasedCollator(rules, status);

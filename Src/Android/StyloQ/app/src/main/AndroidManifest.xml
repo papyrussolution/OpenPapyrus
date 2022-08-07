@@ -9,7 +9,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-feature android:name="android.hardware.camera.any" />
 
     <application
@@ -20,7 +19,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.StyloQ"
+        android:theme="@style/Theme.StyloQ.Light"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".CmdRGoodsInfoActivity"

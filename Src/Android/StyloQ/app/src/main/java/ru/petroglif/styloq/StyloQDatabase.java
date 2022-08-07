@@ -63,6 +63,7 @@ public class StyloQDatabase extends Database {
 		public static final int styloqfDocStatusFlags    = (0x02|0x04|0x08|0x10|0x20|0x40); // 6 bits используются для кодирования статуса документа
 		public static final int styloqfDocTransmission   = 0x0080; // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как
 			// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
+		public static final int styloqfPassive           = 0x0100; // @v11.4.6 Флаг для kForeignService. Означает, что сервис пассивен (относительно клиента) и не должен отображаться в регулярном списке у клиента.
 		//
 		//
 		// Статусы документов заказа клиент-->сервис
@@ -539,7 +540,7 @@ public class StyloQDatabase extends Database {
 		}
 		return result;
 	}
-	public ArrayList<Long> GetForeignSvcIdList(boolean skipDups) throws StyloQException
+	public ArrayList<Long> GetForeignSvcIdList(boolean skipDups, boolean skipMediators) throws StyloQException
 	{
 		ArrayList<Long> result = null;
 		Database.Table tbl = CreateTable("SecTable");
@@ -573,48 +574,80 @@ public class StyloQDatabase extends Database {
 							inner_list.add(new InnerEntry(rec.ID, rec.BI, rec.TimeStamp));
 					}
 				} while(cur.moveToNext());
-				if(skipDups && inner_list != null) {
-					Vector <Long> id_list_to_remove = null;
-					int i = inner_list.size();
-					if(i > 0) do {
-						i--;
-						InnerEntry inner_entry1 = inner_list.get(i);
-						if(id_list_to_remove == null || !id_list_to_remove.contains(inner_entry1.ID)) {
-							int j = i;
-							if(j > 0) do {
-								j--;
-								InnerEntry inner_entry2 = inner_list.get(j);
-								if(id_list_to_remove == null || !id_list_to_remove.contains(inner_entry2.ID)) {
-									if(SLib.AreByteArraysEqual(inner_entry2.BI, inner_entry1.BI)) {
-										int idx_to_remove = -1;
-										SecStoragePacket en1 = GetPeerEntry(inner_entry1.ID);
-										SecStoragePacket en2 = GetPeerEntry(inner_entry2.ID);
-										byte[] face1 = en1.Pool.Get(SecretTagPool.tagFace);
-										byte[] face2 = en2.Pool.Get(SecretTagPool.tagFace);
-										byte[] cfg1 = en1.Pool.Get(SecretTagPool.tagConfig);
-										byte[] cfg2 = en2.Pool.Get(SecretTagPool.tagConfig);
-										if(face1 != null) {
-											if(face2 == null)
-												idx_to_remove = j;
-											else {
-												if(inner_entry1.TimeStamp > inner_entry2.TimeStamp)
-													idx_to_remove = j;
-												else if(inner_entry1.TimeStamp < inner_entry2.TimeStamp)
-													idx_to_remove = i;
+				if(inner_list != null) {
+					Vector<Long> id_list_to_remove = null;
+					// @v11.4.6 {
+					if(skipMediators) {
+						String sf = null;
+						String sr = null;
+						int i = inner_list.size();
+						if(i > 0) do {
+							i--;
+							InnerEntry inner_entry = inner_list.get(i);
+							SecStoragePacket en = GetPeerEntry(inner_entry.ID);
+							if(en != null) {
+								byte[] cfg_bytes = en.Pool.Get(SecretTagPool.tagConfig);
+								if(SLib.GetLen(cfg_bytes) > 0) {
+									StyloQConfig svc_cfg = new StyloQConfig();
+									if(svc_cfg.FromJson(new String(cfg_bytes))) {
+										sf = svc_cfg.Get(StyloQConfig.tagFeatures);
+										sr = svc_cfg.Get(StyloQConfig.tagRole);
+										if(SLib.GetLen(sf) > 0) {
+											int _sf = Integer.valueOf(sf);
+											if((_sf & StyloQConfig.featrfMediator) != 0) {
+												if(id_list_to_remove == null)
+													id_list_to_remove = new Vector<Long>();
+												id_list_to_remove.add(inner_list.get(i).ID);
 											}
-										}
-										else if(face2 != null)
-											idx_to_remove = i;
-										if(idx_to_remove >= 0) {
-											if(id_list_to_remove == null)
-												id_list_to_remove = new Vector<Long>();
-											id_list_to_remove.add(inner_list.get(idx_to_remove).ID);
 										}
 									}
 								}
-							} while(j > 0);
-						}
-					} while(i > 0);
+							}
+						} while(i > 0);
+					}
+					// } @v11.4.6
+					if(skipDups) {
+						int i = inner_list.size();
+						if(i > 0) do {
+							i--;
+							InnerEntry inner_entry1 = inner_list.get(i);
+							if(id_list_to_remove == null || !id_list_to_remove.contains(inner_entry1.ID)) {
+								int j = i;
+								if(j > 0) do {
+									j--;
+									InnerEntry inner_entry2 = inner_list.get(j);
+									if(id_list_to_remove == null || !id_list_to_remove.contains(inner_entry2.ID)) {
+										if(SLib.AreByteArraysEqual(inner_entry2.BI, inner_entry1.BI)) {
+											int idx_to_remove = -1;
+											SecStoragePacket en1 = GetPeerEntry(inner_entry1.ID);
+											SecStoragePacket en2 = GetPeerEntry(inner_entry2.ID);
+											byte[] face1 = en1.Pool.Get(SecretTagPool.tagFace);
+											byte[] face2 = en2.Pool.Get(SecretTagPool.tagFace);
+											byte[] cfg1 = en1.Pool.Get(SecretTagPool.tagConfig);
+											byte[] cfg2 = en2.Pool.Get(SecretTagPool.tagConfig);
+											if(face1 != null) {
+												if(face2 == null)
+													idx_to_remove = j;
+												else {
+													if(inner_entry1.TimeStamp > inner_entry2.TimeStamp)
+														idx_to_remove = j;
+													else if(inner_entry1.TimeStamp < inner_entry2.TimeStamp)
+														idx_to_remove = i;
+												}
+											}
+											else if(face2 != null)
+												idx_to_remove = i;
+											if(idx_to_remove >= 0) {
+												if(id_list_to_remove == null)
+													id_list_to_remove = new Vector<Long>();
+												id_list_to_remove.add(inner_list.get(idx_to_remove).ID);
+											}
+										}
+									}
+								} while(j > 0);
+							}
+						} while(i > 0);
+					}
 					if(id_list_to_remove != null) {
 						id_list_to_remove.sort(new Comparator<Long>() {
 							@Override public int compare(Long lh, Long rh)
@@ -1157,7 +1190,7 @@ public class StyloQDatabase extends Database {
 					}
 				}
 				if(!result) {
-					ArrayList <Long> svc_id_list = GetForeignSvcIdList(false);
+					ArrayList <Long> svc_id_list = GetForeignSvcIdList(false, false);
 					if(svc_id_list != null && svc_id_list.size() > 0) {
 						for(int i = 0; !result && i < svc_id_list.size(); i++) {
 							long svc_id = svc_id_list.get(i);

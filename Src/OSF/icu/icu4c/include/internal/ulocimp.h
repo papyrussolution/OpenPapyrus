@@ -134,7 +134,7 @@ ulocimp_toLanguageTag(const char * localeID,
  * the first paragraph, so some information might be lost.
  *
  * @param langtag   the input BCP47 language tag.
- * @param tagLen    the length of langtag, or -1 to call uprv_strlen().
+ * @param tagLen    the length of langtag, or -1 to call strlen().
  * @param sink      the output sink receiving a locale ID for the
  *                  specified BCP47 language tag.
  * @param parsedLength  if not NULL, successfully parsed length

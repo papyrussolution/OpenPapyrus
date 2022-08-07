@@ -88,7 +88,7 @@ static struct {
 	{ "ne",           U_USING_DEFAULT_WARNING,  e_Root,    { TRUE, FALSE, FALSE }, { TRUE, FALSE, FALSE } }
 };
 
-static int32_t bundles_count = UPRV_LENGTHOF(param);
+static int32_t bundles_count = SIZEOFARRAYi(param);
 
 /***************************************************************************************/
 
@@ -461,7 +461,7 @@ static void TestOpenDirect() {
 		return;
 	}
 
-	if(0!=uprv_strcmp("idna_rules", ures_getLocale(idna_rules, &errorCode))) {
+	if(0!=strcmp("idna_rules", ures_getLocale(idna_rules, &errorCode))) {
 		log_err("ures_openDirect(\"idna_rules\").getLocale()!=idna_rules\n");
 	}
 	errorCode = U_ZERO_ERROR;
@@ -494,7 +494,7 @@ static void TestOpenDirect() {
 		/* falling back to default or root is ok */
 		errorCode = U_ZERO_ERROR;
 	}
-	else if(0!=uprv_strcmp("idna_rules", ures_getLocale(idna_rules, &errorCode))) {
+	else if(0!=strcmp("idna_rules", ures_getLocale(idna_rules, &errorCode))) {
 		/* Opening this file will work in "files mode" on Windows and the Mac,
 		   which have case insensitive file systems */
 		log_err("ures_open(\"idna_rules\") succeeded, should fail! Got: %s\n", u_errorName(errorCode));
@@ -569,8 +569,8 @@ static void TestOpenDirect() {
 		log_data_err("ures_open(\"ne\") failed (expected to get root): %s\n", u_errorName(errorCode));
 	}
 	if(errorCode!=U_USING_DEFAULT_WARNING ||
-	    (0!=uprv_strcmp("root", ures_getLocale(ne, &errorCode)) &&
-	    0!=uprv_strcmp(uloc_getDefault(), ures_getLocale(ne, &errorCode)))) {
+	    (0!=strcmp("root", ures_getLocale(ne, &errorCode)) &&
+	    0!=strcmp(uloc_getDefault(), ures_getLocale(ne, &errorCode)))) {
 		log_err("ures_open(\"ne\") found something other than \"root\" "
 		    "or default locale \"%s\" - %s\n", uloc_getDefault(), u_errorName(errorCode));
 	}
@@ -706,7 +706,7 @@ static void TestTable32() {
 	}
 
 	/* search for some items by key */
-	for(i = 0; i<UPRV_LENGTHOF(testcases); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(testcases); ++i) {
 		item = ures_getByKey(res, testcases[i].key, item, &errorCode);
 		if(U_FAILURE(errorCode)) {
 			log_err("unable to find the key \"%s\" in testdata/testtable32.res - %s\n",
@@ -748,7 +748,7 @@ static void TestTable32() {
 		}
 
 		key = ures_getKey(item);
-		if(0!=uprv_strcmp(key, testcases[i].key)) {
+		if(0!=strcmp(key, testcases[i].key)) {
 			log_err("\"%s\" in testdata/testtable32.res claims to have the key \"%s\"\n",
 			    testcases[i].key, key);
 		}
@@ -763,7 +763,7 @@ static void TestFileStream() {
 	int32_t c1 = 0;
 	UErrorCode status = U_ZERO_ERROR;
 	const char * testdatapath = loadTestData(&status);
-	char * fileName = (char *)SAlloc::M(uprv_strlen(testdatapath) +10);
+	char * fileName = (char *)SAlloc::M(strlen(testdatapath) +10);
 	FileStream* stream = NULL;
 	/* these should not be closed */
 	FileStream* pStdin  = T_FileStream_stdin();
@@ -785,7 +785,7 @@ static void TestFileStream() {
 		log_err("failed to get T_FileStream_stderr()");
 	}
 
-	uprv_strcpy(fileName, testdatapath);
+	strcpy(fileName, testdatapath);
 	uprv_strcat(fileName, ".dat");
 	stream = T_FileStream_open(fileName, "r");
 	if(stream==NULL) {
@@ -840,7 +840,7 @@ static void TestFileStream() {
 	}
 	/* test writing function */
 	stream = NULL;
-	uprv_strcpy(fileName, testdatapath);
+	strcpy(fileName, testdatapath);
 	uprv_strcat(fileName, ".tmp");
 	stream = T_FileStream_open(fileName, "w+");
 
@@ -859,7 +859,7 @@ static void TestFileStream() {
 		T_FileStream_writeLine(stream, testline);
 		T_FileStream_rewind(stream);
 		T_FileStream_readLine(stream, buf, bufLen);
-		if(uprv_strncmp(testline, buf, uprv_strlen(buf))!=0) {
+		if(uprv_strncmp(testline, buf, strlen(buf))!=0) {
 			log_data_err("T_FileStream_writeLine failed %s\n", fileName);
 		}
 
@@ -919,7 +919,7 @@ static void TestGetSize() {
 		return;
 	}
 
-	for(i = 0; i < UPRV_LENGTHOF(test); i++) {
+	for(i = 0; i < SIZEOFARRAYi(test); i++) {
 		res = ures_getByKey(rb, test[i].key, res, &status);
 		if(U_FAILURE(status)) {
 			log_err("Couldn't find the key %s. Error: %s\n", test[i].key, u_errorName(status));
@@ -969,7 +969,7 @@ static void TestGetLocaleByType() {
 		return;
 	}
 
-	for(i = 0; i < UPRV_LENGTHOF(test); i++) {
+	for(i = 0; i < SIZEOFARRAYi(test); i++) {
 		rb = ures_open(testdatapath, test[i].requestedLocale, &status);
 		if(U_FAILURE(status)) {
 			log_err("Could not open resource bundle %s (error %s)\n", test[i].requestedLocale, u_errorName(status));

@@ -192,7 +192,7 @@ void TableResource::add(SResource * res, int linenumber, UErrorCode &errorCode) 
 		 * formatVersion 2 and up: compare key strings in ASCII order
 		 */
 		if(gFormatVersion == 1 || U_CHARSET_FAMILY == U_ASCII_FAMILY) {
-			diff = uprv_strcmp(currentKeyString, resKeyString);
+			diff = strcmp(currentKeyString, resKeyString);
 		}
 		else {
 			diff = uprv_compareInvCharsAsAscii(currentKeyString, resKeyString);
@@ -367,12 +367,12 @@ BinaryResource::BinaryResource(SRBRoot * bundle, const char * tag,
 		return;
 	}
 	if(fileName != NULL && *fileName != 0) {
-		fFileName = new char[uprv_strlen(fileName)+1];
+		fFileName = new char[strlen(fileName)+1];
 		if(fFileName == NULL) {
 			errorCode = U_MEMORY_ALLOCATION_ERROR;
 			return;
 		}
-		uprv_strcpy(fFileName, fileName);
+		strcpy(fFileName, fileName);
 	}
 	if(length > 0) {
 		fData = new uint8_t[length];
@@ -936,13 +936,13 @@ void SRBRoot::write(const char * outputDir, const char * outputPkg,
 			if(--writtenFilenameLen) {
 				++off;
 				if(outputPkg != NULL) {
-					uprv_strcpy(writtenFilename+off, outputPkg);
-					off += (int32_t)uprv_strlen(outputPkg);
+					strcpy(writtenFilename+off, outputPkg);
+					off += (int32_t)strlen(outputPkg);
 					writtenFilename[off] = '_';
 					++off;
 				}
 
-				len = (int32_t)uprv_strlen(fLocale);
+				len = (int32_t)strlen(fLocale);
 				if(len > writtenFilenameLen) {
 					len = writtenFilenameLen;
 				}
@@ -956,12 +956,12 @@ void SRBRoot::write(const char * outputDir, const char * outputPkg,
 	}
 
 	if(outputPkg) {
-		uprv_strcpy(dataName, outputPkg);
+		strcpy(dataName, outputPkg);
 		uprv_strcat(dataName, "_");
 		uprv_strcat(dataName, fLocale);
 	}
 	else {
-		uprv_strcpy(dataName, fLocale);
+		strcpy(dataName, fLocale);
 	}
 
 	uprv_memcpy(dataInfo.formatVersion, gFormatVersions + formatVersion, sizeof(UVersionInfo));
@@ -1260,7 +1260,7 @@ int32_t SRBRoot::addTag(const char * tag, UErrorCode &errorCode) {
 		return -1;
 	}
 
-	keypos = addKeyBytes(tag, (int32_t)(uprv_strlen(tag) + 1), errorCode);
+	keypos = addKeyBytes(tag, (int32_t)(strlen(tag) + 1), errorCode);
 	if(U_SUCCESS(errorCode)) {
 		++fKeysCount;
 	}

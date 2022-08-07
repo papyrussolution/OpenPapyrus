@@ -7124,7 +7124,7 @@ IMPLEMENT_PPFILT_FACTORY(SupplInterchange); SupplInterchangeFilt::SupplInterchan
 	Init(1, 0);
 }
 
-int SupplInterchangeFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int SupplInterchangeFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
     int    ok = -1;
     if(ver == RpvInvSignValue) {

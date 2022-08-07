@@ -33,7 +33,7 @@ void addRelativeDateFormatTest(TestNode** root)
 }
 
 static const double offsets[] = { -5.0, -2.2, -2.0, -1.0, -0.7, -0.0, 0.0, 0.7, 1.0, 2.0, 5.0 };
-enum { kNumOffsets = UPRV_LENGTHOF(offsets) };
+enum { kNumOffsets = SIZEOFARRAYi(offsets) };
 
 typedef struct {
 	int32_t field;
@@ -765,7 +765,7 @@ static void TestFields()
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 0, 2},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 3, 11}
 		};
-		checkMixedFormattedValue("FormattedRelativeDateTime as FormattedValue (numeric)", fv, u"50 Sat. ago", expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue("FormattedRelativeDateTime as FormattedValue (numeric)", fv, u"50 Sat. ago", expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	ureldatefmt_formatToResult(fmt, -1, UDAT_REL_UNIT_WEEK, frdt, &ec);
@@ -777,7 +777,7 @@ static void TestFields()
 			// category, field, begin index, end index
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 0, 8}
 		};
-		checkMixedFormattedValue("FormattedRelativeDateTime as FormattedValue (relative)", fv, u"last wk.", expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue("FormattedRelativeDateTime as FormattedValue (relative)", fv, u"last wk.", expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	ureldatefmt_closeResult(frdt);
 	ureldatefmt_close(fmt);

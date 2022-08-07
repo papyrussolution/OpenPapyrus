@@ -428,14 +428,14 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	int32_t options = inIndexes[IX_OPTIONS] & 0xffff;
 	uint16 fastLatinPrimaries[CollationFastLatin::LATIN_LIMIT];
 	int32_t fastLatinOptions = CollationFastLatin::getOptions(
-		tailoring.data, ts, fastLatinPrimaries, UPRV_LENGTHOF(fastLatinPrimaries));
+		tailoring.data, ts, fastLatinPrimaries, SIZEOFARRAYi(fastLatinPrimaries));
 	if(options == ts.options && ts.variableTop != 0 &&
 	    reorderCodesLength == ts.reorderCodesLength &&
 	    (reorderCodesLength == 0 ||
-	    uprv_memcmp(reorderCodes, ts.reorderCodes, reorderCodesLength * 4) == 0) &&
+	    memcmp(reorderCodes, ts.reorderCodes, reorderCodesLength * 4) == 0) &&
 	    fastLatinOptions == ts.fastLatinOptions &&
 	    (fastLatinOptions < 0 ||
-	    uprv_memcmp(fastLatinPrimaries, ts.fastLatinPrimaries,
+	    memcmp(fastLatinPrimaries, ts.fastLatinPrimaries,
 	    sizeof(fastLatinPrimaries)) == 0)) {
 		return;
 	}
@@ -462,7 +462,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 
 	settings->fastLatinOptions = CollationFastLatin::getOptions(
 		tailoring.data, *settings,
-		settings->fastLatinPrimaries, UPRV_LENGTHOF(settings->fastLatinPrimaries));
+		settings->fastLatinPrimaries, SIZEOFARRAYi(settings->fastLatinPrimaries));
 }
 
 bool U_CALLCONV CollationDataReader::isAcceptable(void * context,

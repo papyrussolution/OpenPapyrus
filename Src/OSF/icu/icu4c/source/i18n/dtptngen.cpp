@@ -72,7 +72,7 @@ static void ures_a_open(UResourceBundleAIterator * aiter, UResourceBundle * bund
 	for(int i = 0; i<aiter->num; i++) {
 		aiter->entries[i].item = ures_getByIndex(aiter->bund, i, nullptr, status);
 		const char * akey = ures_getKey(aiter->entries[i].item);
-		int32_t len = uprv_strlen(akey)+1;
+		int32_t len = strlen(akey)+1;
 		aiter->entries[i].key = (UChar *)uprv_malloc(len*sizeof(UChar));
 		u_charsToUChars(akey, aiter->entries[i].key, len);
 	}
@@ -506,7 +506,7 @@ struct AllowedHourFormatsSink : public ResourceSink {
 			int32_t length = 0;
 			int32_t preferredFormat = ALLOWED_HOUR_FORMAT_UNKNOWN;
 			for(int32_t j = 0; formatList.getKeyAndValue(j, key, value); ++j) {
-				if(uprv_strcmp(key, "allowed") == 0) {
+				if(strcmp(key, "allowed") == 0) {
 					if(value.getType() == URES_STRING) {
 						length = 2; // 1 preferred to add later, 1 allowed to add now
 						if(list.allocateInsteadAndReset(length + 1) == nullptr) {
@@ -528,7 +528,7 @@ struct AllowedHourFormatsSink : public ResourceSink {
 						}
 					}
 				}
-				else if(uprv_strcmp(key, "preferred") == 0) {
+				else if(strcmp(key, "preferred") == 0) {
 					preferredFormat = getHourFormatFromUnicodeString(value.getUnicodeString(errorCode));
 				}
 			}
@@ -675,16 +675,16 @@ void DateTimePatternGenerator::getAllowedHourFormats(const Locale &locale, UErro
 
 	fDefaultHourFormatChar = 0;
 	if(U_SUCCESS(status) && count > 0) {
-		if(uprv_strcmp(buffer, "h24") == 0) {
+		if(strcmp(buffer, "h24") == 0) {
 			fDefaultHourFormatChar = LOW_K;
 		}
-		else if(uprv_strcmp(buffer, "h23") == 0) {
+		else if(strcmp(buffer, "h23") == 0) {
 			fDefaultHourFormatChar = CAP_H;
 		}
-		else if(uprv_strcmp(buffer, "h12") == 0) {
+		else if(strcmp(buffer, "h12") == 0) {
 			fDefaultHourFormatChar = LOW_H;
 		}
-		else if(uprv_strcmp(buffer, "h11") == 0) {
+		else if(strcmp(buffer, "h11") == 0) {
 			fDefaultHourFormatChar = CAP_K;
 		}
 	}
@@ -712,7 +712,7 @@ void DateTimePatternGenerator::getAllowedHourFormats(const Locale &locale, UErro
 			}
 		}
 
-		for(int32_t i = 0; i < UPRV_LENGTHOF(fAllowedHourFormats); ++i) {
+		for(int32_t i = 0; i < SIZEOFARRAYi(fAllowedHourFormats); ++i) {
 			fAllowedHourFormats[i] = allowedFormats[i + 1];
 			if(fAllowedHourFormats[i] == ALLOWED_HOUR_FORMAT_UNKNOWN) {
 				break;
@@ -946,7 +946,7 @@ struct DateTimePatternGenerator::AppendItemFormatsSink : public ResourceSink {
 		}
 	}
 	void fillInMissing() {
-		UnicodeString defaultItemFormat(TRUE, UDATPG_ItemFormat, UPRV_LENGTHOF(UDATPG_ItemFormat)-1); // Read-only alias.
+		UnicodeString defaultItemFormat(TRUE, UDATPG_ItemFormat, SIZEOFARRAYi(UDATPG_ItemFormat)-1); // Read-only alias.
 		for(int32_t i = 0; i < UDATPG_FIELD_COUNT; i++) {
 			UDateTimePatternField field = (UDateTimePatternField)i;
 			if(dtpg.getAppendItemFormat(field).isEmpty()) {
@@ -1400,7 +1400,7 @@ void DateTimePatternGenerator::setDateTimeFromCalendar(const Locale & locale, UE
 
 	LocalUResourceBundlePointer dateTimePatterns;
 	if(fCalendar->getType() != nullptr && *fCalendar->getType() != '\0'
-	 && uprv_strcmp(fCalendar->getType(), DT_DateTimeGregorianTag) != 0) {
+	 && strcmp(fCalendar->getType(), DT_DateTimeGregorianTag) != 0) {
 		dateTimePatterns.adoptInstead(ures_getByKeyWithFallback(calData.getAlias(), fCalendar->getType(),
 		    nullptr, &status));
 		ures_getByKeyWithFallback(dateTimePatterns.getAlias(), DT_DateTimePatternsTag,
@@ -1524,7 +1524,7 @@ UDateTimePatternConflict DateTimePatternGenerator::addPatternWithSkeleton(const 
 
 UDateTimePatternField DateTimePatternGenerator::getAppendFormatNumber(const char * field) const {
 	for(int32_t i = 0; i<UDATPG_FIELD_COUNT; ++i) {
-		if(uprv_strcmp(CLDR_FIELD_APPEND[i], field)==0) {
+		if(strcmp(CLDR_FIELD_APPEND[i], field)==0) {
 			return (UDateTimePatternField)i;
 		}
 	}
@@ -1539,7 +1539,7 @@ UDateTimePatternField DateTimePatternGenerator::getFieldAndWidthIndices(const ch
 	char * hyphenPtr = uprv_strchr(cldrFieldKey, '-');
 	if(hyphenPtr) {
 		for(int32_t i = UDATPG_WIDTH_COUNT-1; i > 0; --i) {
-			if(uprv_strcmp(CLDR_FIELD_WIDTH[i], hyphenPtr)==0) {
+			if(strcmp(CLDR_FIELD_WIDTH[i], hyphenPtr)==0) {
 				*widthP = (UDateTimePGDisplayWidth)i;
 				break;
 			}
@@ -1547,7 +1547,7 @@ UDateTimePatternField DateTimePatternGenerator::getFieldAndWidthIndices(const ch
 		*hyphenPtr = 0; // now delete width portion of key
 	}
 	for(int32_t i = 0; i<UDATPG_FIELD_COUNT; ++i) {
-		if(uprv_strcmp(CLDR_FIELD_NAME[i], cldrFieldKey)==0) {
+		if(strcmp(CLDR_FIELD_NAME[i], cldrFieldKey)==0) {
 			return (UDateTimePatternField)i;
 		}
 	}
@@ -2747,7 +2747,7 @@ void PtnSkeleton::clear()
 bool PtnSkeleton::equals(const PtnSkeleton& other) const {
 	return (original == other.original)
 	 && (baseOriginal == other.baseOriginal)
-	 && (uprv_memcmp(type, other.type, sizeof(type)) == 0);
+	 && (memcmp(type, other.type, sizeof(type)) == 0);
 }
 
 UnicodeString PtnSkeleton::getSkeleton() const {

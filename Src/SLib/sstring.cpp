@@ -1941,56 +1941,60 @@ SString & SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 	const size_t middle_buf_len = 2048;
 	WCHAR wtext[middle_buf_len];
 	char  text[middle_buf_len];
-	if(srcCodepage == CP_UTF8) {
-		//
-		// Для UTF8 сделан специальный блок кода по причине того, что
-		// отрезками преобразовывать UTF8 нельзя из-за потенциальной опасности
-		// исказить конвертируемую строку на конце отдельного отрезка:
-		// размер символа UTF8 - не фиксированный.
-		//
-		SStringU & r_temp_ustr = SLS.AcquireRvlStrU();
-		r_temp_ustr.CopyFromUtf8(P_Buf, Len());
-		const size_t len = r_temp_ustr.Len();
-		Trim(0);
-		for(size_t offs = 0; offs < len;) {
-			size_t s = MIN((len-offs), middle_buf_len/2);
-			int ret = WideCharToMultiByte(destCodepage, 0, static_cast<const wchar_t *>(r_temp_ustr)+offs, static_cast<int>(s), text, static_cast<int>(sizeof(text)), 0, 0);
-			if(ret > 0) {
-				offs += s;
-				CatN(text, static_cast<size_t>(ret));
-			}
-			else
-				break;
-		}
-		return *this;
-	}
-	else {
-		SString & r_temp_buf = SLS.AcquireRvlStr();
-		const size_t len = Len();
-		for(size_t offs = 0; offs < len;) {
-			size_t s = MIN((len-offs), middle_buf_len/2);
-			int    ret = MultiByteToWideChar(srcCodepage, 0, P_Buf+offs, static_cast<int>(s), wtext, SIZEOFARRAY(wtext));
-			if(ret > 0) {
-				offs += s;
-				ret = WideCharToMultiByte(destCodepage, 0, wtext, ret, text, sizeof(text), 0, 0);
+	const size_t src_len = Len();
+	if(src_len) {
+		if(srcCodepage == CP_UTF8) {
+			//
+			// Для UTF8 сделан специальный блок кода по причине того, что
+			// отрезками преобразовывать UTF8 нельзя из-за потенциальной опасности
+			// исказить конвертируемую строку на конце отдельного отрезка:
+			// размер символа UTF8 - не фиксированный.
+			//
+			SStringU temp_buf_u_big;
+			SStringU & r_temp_buf_u = (src_len > 256) ? temp_buf_u_big : SLS.AcquireRvlStrU();
+			r_temp_buf_u.CopyFromUtf8(P_Buf, src_len);
+			const size_t len = r_temp_buf_u.Len();
+			Trim(0);
+			for(size_t offs = 0; offs < len;) {
+				size_t s = smin((len-offs), middle_buf_len/2); // @11.4.6 MIN-->smin
+				int ret = WideCharToMultiByte(destCodepage, 0, static_cast<const wchar_t *>(r_temp_buf_u)+offs, static_cast<int>(s), text, static_cast<int>(sizeof(text)), 0, 0);
 				if(ret > 0) {
-					assert(offs <= len);
-					if(offs == len) {
-						//
-						// Отдельная проверка на окончание цикла для того, чтобы
-						// избежать лишнего копирования во временный буфер.
-						//
-						return CopyFrom(r_temp_buf).CatN(text, static_cast<size_t>(ret));
-					}
-					else
-						r_temp_buf.CatN(text, static_cast<size_t>(ret));
+					offs += s;
+					CatN(text, static_cast<size_t>(ret));
 				}
+				else
+					break;
 			}
-			else
-				break;
 		}
-		return CopyFrom(r_temp_buf);
+		else {
+			SString temp_buf_big;
+			SString & r_temp_buf = (src_len > 256) ? temp_buf_big : SLS.AcquireRvlStr();
+			for(size_t offs = 0; offs < src_len;) {
+				size_t s = smin((src_len-offs), middle_buf_len/2); // @11.4.6 MIN-->smin
+				int    ret = MultiByteToWideChar(srcCodepage, 0, P_Buf+offs, static_cast<int>(s), wtext, SIZEOFARRAY(wtext));
+				if(ret > 0) {
+					offs += s;
+					ret = WideCharToMultiByte(destCodepage, 0, wtext, ret, text, sizeof(text), 0, 0);
+					if(ret > 0) {
+						assert(offs <= src_len);
+						if(offs == src_len) {
+							//
+							// Отдельная проверка на окончание цикла для того, чтобы
+							// избежать лишнего копирования во временный буфер.
+							//
+							return CopyFrom(r_temp_buf).CatN(text, static_cast<size_t>(ret));
+						}
+						else
+							r_temp_buf.CatN(text, static_cast<size_t>(ret));
+					}
+				}
+				else
+					break;
+			}
+			CopyFrom(r_temp_buf);
+		}
 	}
+	return *this;
 }
 
 SString & SString::Utf8ToLower()

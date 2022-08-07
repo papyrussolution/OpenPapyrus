@@ -441,7 +441,7 @@ U_CFUNC int32_t uprv_compareInvAscii(const UDataSwapper * ds, const char * outSt
 		return 0;
 	}
 	if(outLength<0) {
-		outLength = (int32_t)uprv_strlen(outString);
+		outLength = (int32_t)strlen(outString);
 	}
 	if(localLength<0) {
 		localLength = u_strlen(localString);
@@ -479,7 +479,7 @@ U_CFUNC int32_t uprv_compareInvEbcdic(const UDataSwapper * ds, const char * outS
 	}
 
 	if(outLength<0) {
-		outLength = (int32_t)uprv_strlen(outString);
+		outLength = (int32_t)strlen(outString);
 	}
 	if(localLength<0) {
 		localLength = u_strlen(localString);
@@ -549,7 +549,7 @@ U_CAPI uint8 * U_EXPORT2 uprv_aestrncpy(uint8 * dst, const uint8 * src, int32_t 
 	uint8 * orig_dst = dst;
 
 	if(n==-1) {
-		n = static_cast<int32_t>(uprv_strlen((const char *)src)+1); /* copy NUL */
+		n = static_cast<int32_t>(strlen((const char *)src)+1); /* copy NUL */
 	}
 	/* copy non-null */
 	while(*src && n>0) {
@@ -569,7 +569,7 @@ U_CAPI uint8 * U_EXPORT2 uprv_eastrncpy(uint8 * dst, const uint8 * src, int32_t 
 	uint8 * orig_dst = dst;
 
 	if(n==-1) {
-		n = static_cast<int32_t>(uprv_strlen((const char *)src)+1); /* copy NUL */
+		n = static_cast<int32_t>(strlen((const char *)src)+1); /* copy NUL */
 	}
 	/* copy non-null */
 	while(*src && n>0) {

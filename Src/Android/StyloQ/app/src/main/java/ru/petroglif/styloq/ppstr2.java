@@ -4490,6 +4490,8 @@ class ppstr2 {
 	public static final int PPINIPARAM_CRYSTAL_GOODSIDASARTICLE = 12057;
 	public static final int PPTXT_STQ_BLOBTRANSMTOMEDIATORSUCC = 12058;
 	public static final int PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL = 12059;
+	public static final int PPTXT_GOODSRESTORDER = 12060;
+	public static final int PPTXT_STQ_HINT_FRIENDINVITATION = 12061;
 	//
 	// .N.
 	//

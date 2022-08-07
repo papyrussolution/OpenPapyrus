@@ -75,7 +75,7 @@ bool SimpleFwdCharIterator::operator==(const ForwardCharacterIterator& that) con
         return true;
     }
 
-    if(this->fLen == that->fLen && uprv_memcmp(this->fStart, that->fStart, this->fLen) {
+    if(this->fLen == that->fLen && memcmp(this->fStart, that->fStart, this->fLen) {
         return true;
     }
 */

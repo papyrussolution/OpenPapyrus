@@ -85,7 +85,6 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH * lh, BIO * out)
 	ulong num;
 	uint i;
 	ulong total = 0, n_used = 0;
-
 	for(i = 0; i < lh->num_nodes; i++) {
 		for(n = lh->b[i], num = 0; n != NULL; n = n->next)
 			num++;
@@ -98,8 +97,6 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH * lh, BIO * out)
 	BIO_printf(out, "%lu items\n", total);
 	if(n_used == 0)
 		return;
-	BIO_printf(out, "load %d.%02d  actual load %d.%02d\n",
-	    (int)(total / lh->num_nodes),
-	    (int)((total % lh->num_nodes) * 100 / lh->num_nodes),
+	BIO_printf(out, "load %d.%02d  actual load %d.%02d\n", (int)(total / lh->num_nodes), (int)((total % lh->num_nodes) * 100 / lh->num_nodes),
 	    (int)(total / n_used), (int)((total % n_used) * 100 / n_used));
 }

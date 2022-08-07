@@ -77,9 +77,9 @@ static UCalendarDateFields gDateFieldMapping[] = {
 };
 
 U_CAPI UCalendarDateFields U_EXPORT2 udat_toCalendarDateField(UDateFormatField field) {
-	static_assert(UDAT_FIELD_COUNT == UPRV_LENGTHOF(gDateFieldMapping),
+	static_assert(UDAT_FIELD_COUNT == SIZEOFARRAYi(gDateFieldMapping),
 	    "UDateFormatField and gDateFieldMapping should have the same number of entries and be kept in sync.");
-	return (field >= UDAT_ERA_FIELD && field < UPRV_LENGTHOF(gDateFieldMapping)) ? gDateFieldMapping[field] : UCAL_FIELD_COUNT;
+	return (field >= UDAT_ERA_FIELD && field < SIZEOFARRAYi(gDateFieldMapping)) ? gDateFieldMapping[field] : UCAL_FIELD_COUNT;
 }
 
 /* For now- one opener. */

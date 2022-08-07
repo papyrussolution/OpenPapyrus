@@ -470,7 +470,7 @@ static void TestUSpoofCAPI() {
 	const UChar * tests[] = { goodLatin, scMixed, scLatin,
 				  goodCyrl, goodGreek, lll_Latin_a, lll_Latin_b, han_Hiragana };
 
-	for(int32_t i = 0; i<UPRV_LENGTHOF(tests); i++) {
+	for(int32_t i = 0; i<SIZEOFARRAYi(tests); i++) {
 		const UChar * str = tests[i];
 
 		// Basic test
@@ -563,13 +563,13 @@ static void TestUSpoofCAPI() {
 	UChar dest[100];
 	int32_t skelLength;
 
-	skelLength = uspoof_getSkeleton(sc, USPOOF_ANY_CASE, lll_Latin_a, -1, dest, UPRV_LENGTHOF(dest), &status);
+	skelLength = uspoof_getSkeleton(sc, USPOOF_ANY_CASE, lll_Latin_a, -1, dest, SIZEOFARRAYi(dest), &status);
 	TEST_ASSERT_SUCCESS(status);
 	TEST_ASSERT_EQ(0, u_strcmp(lll_Skel, dest));
 	TEST_ASSERT_EQ(u_strlen(lll_Skel), skelLength);
 
 	skelLength = uspoof_getSkeletonUTF8(sc, USPOOF_ANY_CASE, goodLatinUTF8, -1, (char *)dest,
-		UPRV_LENGTHOF(dest), &status);
+		SIZEOFARRAYi(dest), &status);
 	TEST_ASSERT_SUCCESS(status);
 
 	skelLength = uspoof_getSkeleton(sc, USPOOF_ANY_CASE, lll_Latin_a, -1, NULL, 0, &status);

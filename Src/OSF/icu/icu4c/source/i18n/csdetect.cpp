@@ -103,7 +103,7 @@ static void U_CALLCONV initRecognizers(UErrorCode & status)
 		new CSRecognizerInfo(new CharsetRecog_IBM420_ar_ltr(), FALSE)
 #endif
 	};
-	int32_t rCount = UPRV_LENGTHOF(tempArray);
+	int32_t rCount = SIZEOFARRAYi(tempArray);
 	fCSRecognizers = NEW_ARRAY(CSRecognizerInfo *, rCount);
 	if(fCSRecognizers == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
@@ -244,7 +244,7 @@ void CharsetDetector::setDetectableCharset(const char * encoding, bool enabled, 
 	bool isDefaultVal = FALSE;
 	for(int32_t i = 0; i < fCSRecognizers_size; i++) {
 		CSRecognizerInfo * csrinfo = fCSRecognizers[i];
-		if(uprv_strcmp(csrinfo->recognizer->getName(), encoding) == 0) {
+		if(strcmp(csrinfo->recognizer->getName(), encoding) == 0) {
 			modIdx = i;
 			isDefaultVal = (csrinfo->isDefaultEnabled == enabled);
 			break;

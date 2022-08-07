@@ -53,7 +53,7 @@ BOOL CALLBACK EnumLocalesProc(LPSTR lpLocaleString)
 
     sscanf(lpLocaleString, "%8x", &lcidRecords[lcidCount].lcid);
 
-    localeIDLen = uprv_convertToPosix(lcidRecords[lcidCount].lcid, localeID, UPRV_LENGTHOF(localeID), &status);
+    localeIDLen = uprv_convertToPosix(lcidRecords[lcidCount].lcid, localeID, SIZEOFARRAYi(localeID), &status);
     if(U_SUCCESS(status)) {
         lcidRecords[lcidCount].localeID = new char[localeIDLen + 1];
         memcpy(lcidRecords[lcidCount].localeID, localeID, localeIDLen);

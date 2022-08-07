@@ -128,7 +128,7 @@ extern int main(int argc, char * argv[])
 	options[UNICODE_VERSION].value = "0"; /* don't assume the unicode version */
 	options[BUNDLE_NAME].value = DATA_NAME;
 	options[NORMALIZE].value = "";
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 	/* error handling, printing usage message */
 	if(argc<0) {
 		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
@@ -168,25 +168,25 @@ extern int main(int argc, char * argv[])
 #else
 
 	setUnicodeVersion(options[UNICODE_VERSION].value);
-	filename = (char *)uprv_malloc(uprv_strlen(srcDir) + uprv_strlen(inputFileName) + (icuUniDataDir == NULL ? 0 : uprv_strlen(
+	filename = (char *)uprv_malloc(strlen(srcDir) + strlen(inputFileName) + (icuUniDataDir == NULL ? 0 : strlen(
 		icuUniDataDir)) + 40); /* hopefully this should be enough */
 	/* prepare the filename beginning with the source dir */
 	if(uprv_strchr(srcDir, U_FILE_SEP_CHAR) == NULL && uprv_strchr(srcDir, U_FILE_ALT_SEP_CHAR) == NULL) {
 		filename[0] = '.';
 		filename[1] = U_FILE_SEP_CHAR;
-		uprv_strcpy(filename+2, srcDir);
+		strcpy(filename+2, srcDir);
 	}
 	else {
-		uprv_strcpy(filename, srcDir);
+		strcpy(filename, srcDir);
 	}
-	basename = filename+uprv_strlen(filename);
+	basename = filename+strlen(filename);
 	if(basename>filename && *(basename-1)!=U_FILE_SEP_CHAR) {
 		*basename++ = U_FILE_SEP_CHAR;
 	}
 	/* initialize */
 	init();
 	/* process the file */
-	uprv_strcpy(basename, inputFileName);
+	strcpy(basename, inputFileName);
 	parseMappings(filename, FALSE, &errorCode);
 	if(U_FAILURE(errorCode)) {
 		slfprintf_stderr("Could not open file %s for reading. Error: %s \n", filename, u_errorName(errorCode));
@@ -194,13 +194,13 @@ extern int main(int argc, char * argv[])
 	}
 	if(options[NORMALIZE].doesOccur) { /* this option might be set by @normalize;; in the source file */
 		/* set up directory for NormalizationCorrections.txt */
-		uprv_strcpy(filename, icuUniDataDir);
-		basename = filename+uprv_strlen(filename);
+		strcpy(filename, icuUniDataDir);
+		basename = filename+strlen(filename);
 		if(basename>filename && *(basename-1)!=U_FILE_SEP_CHAR) {
 			*basename++ = U_FILE_SEP_CHAR;
 		}
 		*basename++ = U_FILE_SEP_CHAR;
-		uprv_strcpy(basename, NORM_CORRECTIONS_FILE_NAME);
+		strcpy(basename, NORM_CORRECTIONS_FILE_NAME);
 
 		parseNormalizationCorrections(filename, &errorCode);
 		if(U_FAILURE(errorCode)) {

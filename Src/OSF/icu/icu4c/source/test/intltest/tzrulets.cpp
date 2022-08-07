@@ -63,7 +63,7 @@ TestZIDEnumeration::TestZIDEnumeration(bool all) : idx(0)
 	}
 	else {
 		tzenum = NULL;
-		len = UPRV_LENGTHOF(TESTZIDS);
+		len = SIZEOFARRAYi(TESTZIDS);
 	}
 }
 
@@ -1084,7 +1084,7 @@ void TimeZoneRuleTest::TestGetSimpleRules() {
 		getUTCMillis(2005, UCAL_JULY, 1),
 		getUTCMillis(2010, UCAL_NOVEMBER, 1),
 	};
-	int32_t numTimes = UPRV_LENGTHOF(testTimes);
+	int32_t numTimes = SIZEOFARRAYi(testTimes);
 	UErrorCode status = U_ZERO_ERROR;
 	TestZIDEnumeration tzenum(!quick);
 	InitialTimeZoneRule * initial;
@@ -2103,7 +2103,7 @@ void TimeZoneRuleTest::TestT6216() {
 	int32_t i, j;
 
 	// Get test times
-	UDate times[UPRV_LENGTHOF(TestDates)];
+	UDate times[SIZEOFARRAYi(TestDates)];
 	int32_t numTimes;
 
 	UErrorCode status = U_ZERO_ERROR;

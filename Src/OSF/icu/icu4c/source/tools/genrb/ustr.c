@@ -36,7 +36,7 @@ U_CFUNC void ustr_initChars(struct UString * s, const char * source, int32_t len
 	s->fChars = 0;
 	s->fLength = s->fCapacity = 0;
 	if(length == -1) {
-		length = (int32_t)uprv_strlen(source);
+		length = (int32_t)strlen(source);
 	}
 	if(s->fCapacity < length) {
 		ustr_resize(s, ALLOCATION(length), status);

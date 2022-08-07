@@ -259,7 +259,7 @@ U_CAPI int32_t U_EXPORT2 unum_formatDecimal(const UNumberFormat * fmt,
 	}
 
 	if(length < 0) {
-		length = static_cast<int32_t>(uprv_strlen(number));
+		length = static_cast<int32_t>(strlen(number));
 	}
 	StringPiece numSP(number, length);
 	Formattable numFmtbl(numSP, *status);
@@ -386,7 +386,7 @@ U_CAPI int32_t U_EXPORT2 unum_parseDecimal(const UNumberFormat * fmt,
 	}
 	else {
 		U_ASSERT(outBufLength > 0);
-		uprv_strcpy(outBuf, sp.data());
+		strcpy(outBuf, sp.data());
 	}
 	return sp.size();
 }

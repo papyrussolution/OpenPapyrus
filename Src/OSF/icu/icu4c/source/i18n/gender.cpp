@@ -130,7 +130,7 @@ const GenderInfo* GenderInfo::loadInstance(const Locale & locale, UErrorCode & s
 	if(!s) {
 		key_status = U_ZERO_ERROR;
 		char parentLocaleName[ULOC_FULLNAME_CAPACITY];
-		uprv_strcpy(parentLocaleName, curLocaleName);
+		strcpy(parentLocaleName, curLocaleName);
 		while(s == NULL && uloc_getParent(parentLocaleName, parentLocaleName, ULOC_FULLNAME_CAPACITY, &key_status) > 0) {
 			key_status = U_ZERO_ERROR;
 			resLen = 0;
@@ -143,13 +143,13 @@ const GenderInfo* GenderInfo::loadInstance(const Locale & locale, UErrorCode & s
 	}
 	char type_str[256] = "";
 	u_UCharsToChars(s, type_str, resLen + 1);
-	if(uprv_strcmp(type_str, gNeutralStr) == 0) {
+	if(strcmp(type_str, gNeutralStr) == 0) {
 		return &gObjs[NEUTRAL];
 	}
-	if(uprv_strcmp(type_str, gMixedNeutralStr) == 0) {
+	if(strcmp(type_str, gMixedNeutralStr) == 0) {
 		return &gObjs[MIXED_NEUTRAL];
 	}
-	if(uprv_strcmp(type_str, gMailTaintsStr) == 0) {
+	if(strcmp(type_str, gMailTaintsStr) == 0) {
 		return &gObjs[MALE_TAINTS];
 	}
 	return &gObjs[NEUTRAL];

@@ -145,7 +145,7 @@ static bool _isKeywordValue(const char * key, const char * value, int32_t value_
 		return (UPRV_ISALPHANUM(uprv_tolower(key[0])) &&
 		       _isExtensionSubtags(key[0], value, value_len));
 	}
-	else if(uprv_strcmp(key, kAttributeKey) == 0) {
+	else if(strcmp(key, kAttributeKey) == 0) {
 		// unicode attributes
 		return ultag_isUnicodeLocaleAttributes(value, value_len);
 	}
@@ -182,7 +182,7 @@ static void _copyExtensions(const Locale & from, icu::StringEnumeration * keywor
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
-		if(uprv_strcmp(key, kAttributeKey) == 0) {
+		if(strcmp(key, kAttributeKey) == 0) {
 			transform(value.data(), value.length());
 		}
 		if(validate &&
@@ -326,7 +326,7 @@ LocaleBuilder& LocaleBuilder::addUnicodeLocaleAttribute(StringPiece value)
 	bool inserted = false;
 	while(start < limit) {
 		if(!inserted) {
-			int cmp = uprv_strcmp(start, value_str.data());
+			int cmp = strcmp(start, value_str.data());
 			if(cmp == 0) {
 				return *this;
 			}                    // Found it in attributes: Just return
@@ -340,7 +340,7 @@ LocaleBuilder& LocaleBuilder::addUnicodeLocaleAttribute(StringPiece value)
 			new_attributes.append('_', status_);
 		}
 		new_attributes.append(start, status_);
-		start += uprv_strlen(start) + 1;
+		start += strlen(start) + 1;
 	}
 	if(!inserted) {
 		if(!new_attributes.isEmpty()) {
@@ -382,7 +382,7 @@ LocaleBuilder& LocaleBuilder::removeUnicodeLocaleAttribute(StringPiece value)
 
 	char * p = attributes.data();
 	// Replace null terminiator in place for _ and - so later
-	// we can use uprv_strcmp to compare.
+	// we can use strcmp to compare.
 	for(int32_t i = 0; i < attributes.length(); i++, p++) {
 		*p = (*p == '_' || *p == '-') ? '\0' : uprv_tolower(*p);
 	}
@@ -392,7 +392,7 @@ LocaleBuilder& LocaleBuilder::removeUnicodeLocaleAttribute(StringPiece value)
 	CharString new_attributes;
 	bool found = false;
 	while(start < limit) {
-		if(uprv_strcmp(start, value_str.data()) == 0) {
+		if(strcmp(start, value_str.data()) == 0) {
 			found = true;
 		}
 		else {
@@ -401,7 +401,7 @@ LocaleBuilder& LocaleBuilder::removeUnicodeLocaleAttribute(StringPiece value)
 			}
 			new_attributes.append(start, status_);
 		}
-		start += uprv_strlen(start) + 1;
+		start += strlen(start) + 1;
 	}
 	// Found the value in attributes, set the attribute.
 	if(found) {
@@ -465,10 +465,10 @@ Locale LocaleBuilder::build(UErrorCode & errorCode)
 		return makeBogusLocale();
 	}
 	CharString locale_str(language_, errorCode);
-	if(uprv_strlen(script_) > 0) {
+	if(strlen(script_) > 0) {
 		locale_str.append('-', errorCode).append(StringPiece(script_), errorCode);
 	}
-	if(uprv_strlen(region_) > 0) {
+	if(strlen(region_) > 0) {
 		locale_str.append('-', errorCode).append(StringPiece(region_), errorCode);
 	}
 	if(variant_ != nullptr) {

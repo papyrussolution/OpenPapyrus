@@ -30,12 +30,12 @@ UCAConformanceTest::UCAConformanceTest() : rbUCA(NULL), testFile(NULL), status(U
 		dataerrln("Could not open test data %s", u_errorName(status));
 		return;
 	}
-	uprv_strcpy(testDataPath, srcDir);
+	strcpy(testDataPath, srcDir);
 	uprv_strcat(testDataPath, "CollationTest_");
 	UVersionInfo uniVersion;
 	static const UVersionInfo v62 = { 6, 2, 0, 0 };
 	u_getUnicodeVersion(uniVersion);
-	isAtLeastUCA62 = uprv_memcmp(uniVersion, v62, 4) >= 0;
+	isAtLeastUCA62 = memcmp(uniVersion, v62, 4) >= 0;
 }
 
 UCAConformanceTest::~UCAConformanceTest()
@@ -104,9 +104,9 @@ void UCAConformanceTest::openTestFile(const char * type)
 		fclose(testFile);
 	}
 	char buffer[1024];
-	uprv_strcpy(buffer, testDataPath);
+	strcpy(buffer, testDataPath);
 	uprv_strcat(buffer, type);
-	int32_t bufLen = (int32_t)uprv_strlen(buffer);
+	int32_t bufLen = (int32_t)strlen(buffer);
 
 	// we try to open 3 files:
 	// path/CollationTest_type.txt
@@ -114,17 +114,17 @@ void UCAConformanceTest::openTestFile(const char * type)
 	// path/CollationTest_type_STUB.txt
 	// we are going to test with the first one that we manage to open.
 
-	uprv_strcpy(buffer+bufLen, ext);
+	strcpy(buffer+bufLen, ext);
 
 	testFile = fopen(buffer, "rb");
 
 	if(testFile == 0) {
-		uprv_strcpy(buffer+bufLen, "_SHORT");
+		strcpy(buffer+bufLen, "_SHORT");
 		uprv_strcat(buffer, ext);
 		testFile = fopen(buffer, "rb");
 
 		if(testFile == 0) {
-			uprv_strcpy(buffer+bufLen, "_STUB");
+			strcpy(buffer+bufLen, "_STUB");
 			uprv_strcat(buffer, ext);
 			testFile = fopen(buffer, "rb");
 

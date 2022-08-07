@@ -44,7 +44,7 @@ public:
 			return;
 		}
 		for(int i = 0; miscTable.getKeyAndValue(i, key, value); i++) {
-			if(uprv_strcmp(key, "range") == 0) {
+			if(strcmp(key, "range") == 0) {
 				if(hasRangeData()) {
 					continue; // have already seen this pattern
 				}
@@ -52,7 +52,7 @@ public:
 			}
 			/*
 			   // Note: approximatelyPattern is unused since ICU 69.
-			   else if(uprv_strcmp(key, "approximately") == 0) {
+			   else if(strcmp(key, "approximately") == 0) {
 			    if(hasApproxData()) {
 			        continue; // have already seen this pattern
 			    }
@@ -134,7 +134,7 @@ NumberRangeFormatterImpl::NumberRangeFormatterImpl(const RangeMacroProps& macros
 	fIdentityFallback(macros.identityFallback),
 	fApproximatelyFormatter(status) {
 	const char * nsName = formatterImpl1.getRawMicroProps().nsName;
-	if(uprv_strcmp(nsName, formatterImpl2.getRawMicroProps().nsName) != 0) {
+	if(strcmp(nsName, formatterImpl2.getRawMicroProps().nsName) != 0) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}

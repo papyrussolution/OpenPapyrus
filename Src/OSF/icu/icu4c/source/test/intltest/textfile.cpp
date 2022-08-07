@@ -31,14 +31,14 @@ TextFile::TextFile(const char * _name, const char * _encoding, UErrorCode & ec) 
 	}
 
 #ifdef CCP
-	name = uprv_malloc(uprv_strlen(_name) + 1);
-	encoding = uprv_malloc(uprv_strlen(_encoding) + 1);
+	name = uprv_malloc(strlen(_name) + 1);
+	encoding = uprv_malloc(strlen(_encoding) + 1);
 	if(name == 0 || encoding == 0) {
 		ec = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-	uprv_strcpy(name, _name);
-	uprv_strcpy(encoding, _encoding);
+	strcpy(name, _name);
+	strcpy(encoding, _encoding);
 #else
 	name = (char *)_name;
 	encoding = (char *)_encoding;
@@ -48,11 +48,11 @@ TextFile::TextFile(const char * _name, const char * _encoding, UErrorCode & ec) 
 	if(U_FAILURE(ec)) {
 		return;
 	}
-	if(!ensureCapacity((int32_t)(uprv_strlen(testDir) + uprv_strlen(name) + 1))) {
+	if(!ensureCapacity((int32_t)(strlen(testDir) + strlen(name) + 1))) {
 		ec = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-	uprv_strcpy(buffer, testDir);
+	strcpy(buffer, testDir);
 	uprv_strcat(buffer, name);
 
 	file = T_FileStream_open(buffer, "rb");

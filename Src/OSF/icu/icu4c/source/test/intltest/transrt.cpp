@@ -1669,7 +1669,7 @@ void TransliteratorRoundTripTest::TestDebug(const char * name, const char fromSe
 
 void TransliteratorRoundTripTest::TestInterIndic() {
 	//TestDebug("Latin-Gurmukhi", latinForIndic, "[:Gurmukhi:]","[\\u0965\\u0a02\\u0a72\\u0a73\\u0a74]",TRUE);
-	int32_t num = UPRV_LENGTHOF(interIndicArray)/INTER_INDIC_ARRAY_WIDTH;
+	int32_t num = SIZEOFARRAYi(interIndicArray)/INTER_INDIC_ARRAY_WIDTH;
 	if(quick) {
 		logln("Testing only 5 of %i. Skipping rest (use -e for exhaustive)", num);
 		num = 5;

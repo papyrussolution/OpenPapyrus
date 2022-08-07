@@ -34,7 +34,7 @@ enum CutoffType {
 
 struct DayPeriodRulesDataSink : public ResourceSink {
 	DayPeriodRulesDataSink() {
-		for(int32_t i = 0; i < UPRV_LENGTHOF(cutoffs); ++i) {
+		for(int32_t i = 0; i < SIZEOFARRAYi(cutoffs); ++i) {
 			cutoffs[i] = 0;
 		}
 	}
@@ -48,7 +48,7 @@ struct DayPeriodRulesDataSink : public ResourceSink {
 		}
 
 		for(int32_t i = 0; dayPeriodData.getKeyAndValue(i, key, value); ++i) {
-			if(uprv_strcmp(key, "locales") == 0) {
+			if(strcmp(key, "locales") == 0) {
 				ResourceTable locales = value.getTable(errorCode);
 				if(U_FAILURE(errorCode)) {
 					return;
@@ -60,7 +60,7 @@ struct DayPeriodRulesDataSink : public ResourceSink {
 					uhash_puti(data->localeToRuleSetNumMap, const_cast<char *>(key), setNum, &errorCode);
 				}
 			}
-			else if(uprv_strcmp(key, "rules") == 0) {
+			else if(strcmp(key, "rules") == 0) {
 				// Allocate one more than needed to skip [0]. See comment in parseSetNum().
 				data->rules = new DayPeriodRules[data->maxRuleSetNum + 1];
 				if(data->rules == NULL) {
@@ -128,7 +128,7 @@ struct DayPeriodRulesDataSink : public ResourceSink {
 					}
 				}
 				setDayPeriodForHoursFromCutoffs(errorCode);
-				for(int32_t k = 0; k < UPRV_LENGTHOF(cutoffs); ++k) {
+				for(int32_t k = 0; k < SIZEOFARRAYi(cutoffs); ++k) {
 					cutoffs[k] = 0;
 				}
 			}
@@ -248,16 +248,16 @@ struct DayPeriodRulesDataSink : public ResourceSink {
 
 	// Translate "before" to CUTOFF_TYPE_BEFORE, for example.
 	static CutoffType getCutoffTypeFromString(const char * type_str) {
-		if(uprv_strcmp(type_str, "from") == 0) {
+		if(strcmp(type_str, "from") == 0) {
 			return CUTOFF_TYPE_FROM;
 		}
-		else if(uprv_strcmp(type_str, "before") == 0) {
+		else if(strcmp(type_str, "before") == 0) {
 			return CUTOFF_TYPE_BEFORE;
 		}
-		else if(uprv_strcmp(type_str, "after") == 0) {
+		else if(strcmp(type_str, "after") == 0) {
 			return CUTOFF_TYPE_AFTER;
 		}
-		else if(uprv_strcmp(type_str, "at") == 0) {
+		else if(strcmp(type_str, "at") == 0) {
 			return CUTOFF_TYPE_AT;
 		}
 		else {
@@ -375,12 +375,12 @@ const DayPeriodRules * DayPeriodRules::getInstance(const Locale &locale, UErrorC
 	char name[ULOC_FULLNAME_CAPACITY];
 	char parentName[ULOC_FULLNAME_CAPACITY];
 
-	if(uprv_strlen(localeCode) < ULOC_FULLNAME_CAPACITY) {
-		uprv_strcpy(name, localeCode);
+	if(strlen(localeCode) < ULOC_FULLNAME_CAPACITY) {
+		strcpy(name, localeCode);
 
 		// Treat empty string as root.
 		if(*name == '\0') {
-			uprv_strcpy(name, "root");
+			strcpy(name, "root");
 		}
 	}
 	else {
@@ -398,7 +398,7 @@ const DayPeriodRules * DayPeriodRules::getInstance(const Locale &locale, UErrorC
 				// Saves a lookup in the hash table.
 				break;
 			}
-			uprv_strcpy(name, parentName);
+			strcpy(name, parentName);
 		}
 		else {
 			break;

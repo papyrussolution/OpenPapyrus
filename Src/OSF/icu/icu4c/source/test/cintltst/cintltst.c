@@ -430,7 +430,7 @@ bool ctest_resetICU()
 
 UChar * CharsToUChars(const char * str) 
 {
-	/* Might be faster to just use uprv_strlen() as the preflight len - liu */
+	/* Might be faster to just use strlen() as the preflight len - liu */
 	int32_t len = u_unescape(str, 0, 0); /* preflight */
 	/* Do NOT use malloc() - we are supposed to be acting like user code! */
 	UChar * buf = (UChar *)SAlloc::M(sizeof(UChar) * (len + 1));
@@ -662,7 +662,7 @@ U_CFUNC bool assertEquals(const char * message, const char * expected, const cha
 {
 	SETIFZ(expected, "(null)");
 	SETIFZ(actual, "(null)");
-	if(uprv_strcmp(expected, actual) != 0) {
+	if(strcmp(expected, actual) != 0) {
 		log_err("FAIL: %s; got \"%s\"; expected \"%s\"\n", message, actual, expected);
 		return FALSE;
 	}

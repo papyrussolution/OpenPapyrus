@@ -431,7 +431,7 @@ static const char * getCharCatName(UChar32 cp) {
 	/* Return unknown if the table of names above is not up to
 	   date. */
 
-	if(cat >= UPRV_LENGTHOF(charCatNames)) {
+	if(cat >= SIZEOFARRAYi(charCatNames)) {
 		return "unknown";
 	}
 	else {
@@ -1100,7 +1100,7 @@ static UChar32 findAlgName(AlgorithmicRange * range, UCharNameChoice nameChoice,
 			indexes, elementBases, elements, buffer, sizeof(buffer));
 
 		    /* compare the first suffix */
-		    if(0==uprv_strcmp(otherName, buffer)) {
+		    if(0==strcmp(otherName, buffer)) {
 			    return start;
 		    }
 
@@ -1230,7 +1230,7 @@ static int32_t calcAlgNameSetsLengths(int32_t maxNameLength) {
 static int32_t calcExtNameSetsLengths(int32_t maxNameLength) {
 	int32_t i, length;
 
-	for(i = 0; i<UPRV_LENGTHOF(charCatNames); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(charCatNames); ++i) {
 		/*
 		 * for each category, count the length of the category name
 		 * plus 9=
@@ -1536,8 +1536,8 @@ U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice,
 				   We could use a binary search, or a trie, if
 				   we really wanted to. */
 				uint8 cat = getCharCat(cp);
-				for(lower[i] = 0, cIdx = 0; cIdx < UPRV_LENGTHOF(charCatNames); ++cIdx) {
-					if(!uprv_strcmp(lower + 1, charCatNames[cIdx])) {
+				for(lower[i] = 0, cIdx = 0; cIdx < SIZEOFARRAYi(charCatNames); ++cIdx) {
+					if(!strcmp(lower + 1, charCatNames[cIdx])) {
 						if(cat == cIdx) {
 							return cp;
 						}
@@ -2004,7 +2004,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 			switch(inRange->type) {
 				case 0:
 				    /* swap prefix string */
-				    ds->swapInvChars(ds, inRange+1, (int32_t)uprv_strlen((const char *)(inRange+1)),
+				    ds->swapInvChars(ds, inRange+1, (int32_t)strlen((const char *)(inRange+1)),
 					outRange+1, pErrorCode);
 				    if(U_FAILURE(*pErrorCode)) {
 					    udata_printError(ds, "uchar_swapNames(prefix string of algorithmic range %u) failed\n",

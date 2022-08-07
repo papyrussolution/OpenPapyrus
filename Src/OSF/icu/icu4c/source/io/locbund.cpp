@@ -74,8 +74,8 @@ U_CAPI ULocaleBundle * u_locbund_init(ULocaleBundle * result, const char * loc)
 		if(result->fLocale == 0) {
 			return 0;
 		}
-		uprv_strcpy(result->fLocale, loc);
-		result->isInvariantLocale = uprv_strcmp(result->fLocale, "en_US_POSIX") == 0;
+		strcpy(result->fLocale, loc);
+		result->isInvariantLocale = strcmp(result->fLocale, "en_US_POSIX") == 0;
 	}
 	return result;
 }

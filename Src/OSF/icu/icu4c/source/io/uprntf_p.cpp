@@ -91,7 +91,7 @@ static void u_printf_set_sign(UNumberFormat * format, const u_printf_spec_info *
 		}
 		else {
 			UChar plusSymbol[UPRINTF_SYMBOL_BUFFER_SIZE];
-			int32_t symbolLen = unum_getSymbol(format, UNUM_PLUS_SIGN_SYMBOL, plusSymbol, UPRV_LENGTHOF(plusSymbol), status);
+			int32_t symbolLen = unum_getSymbol(format, UNUM_PLUS_SIGN_SYMBOL, plusSymbol, SIZEOFARRAYi(plusSymbol), status);
 			unum_setTextAttribute(format, UNUM_POSITIVE_PREFIX, plusSymbol, symbolLen, status);
 		}
 	}
@@ -139,7 +139,7 @@ static int32_t u_printf_string_handler(const u_printf_stream_handler * handler, 
 			}
 		}
 		else {
-			s = ufmt_defaultCPToUnicode(arg, argSize, buffer, UPRV_LENGTHOF(buffer));
+			s = ufmt_defaultCPToUnicode(arg, argSize, buffer, SIZEOFARRAYi(buffer));
 		}
 	}
 	else {
@@ -166,7 +166,7 @@ static int32_t u_printf_char_handler(const u_printf_stream_handler * handler, vo
 	int32_t len = 1, written;
 	unsigned char arg = (unsigned char)(args[0].int64Value);
 	/* convert from default codepage to Unicode */
-	ufmt_defaultCPToUnicode((const char *)&arg, 2, s, UPRV_LENGTHOF(s));
+	ufmt_defaultCPToUnicode((const char *)&arg, 2, s, SIZEOFARRAYi(s));
 	/* Remember that this may be an MBCS character */
 	if(arg != 0) {
 		len = u_strlen(s);

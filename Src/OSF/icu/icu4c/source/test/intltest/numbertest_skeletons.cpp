@@ -219,7 +219,7 @@ void NumberSkeletonTest::invalidTokens() {
             u"00+",
     };
 
-    expectedErrorSkeleton(cases, UPRV_LENGTHOF(cases));
+    expectedErrorSkeleton(cases, SIZEOFARRAYi(cases));
 }
 
 void NumberSkeletonTest::unknownTokens() {
@@ -232,7 +232,7 @@ void NumberSkeletonTest::unknownTokens() {
             u"numbering-system/français", // non-invariant characters for C++
             u"currency-USD"};
 
-    expectedErrorSkeleton(cases, UPRV_LENGTHOF(cases));
+    expectedErrorSkeleton(cases, SIZEOFARRAYi(cases));
 }
 
 void NumberSkeletonTest::unexpectedTokens() {
@@ -244,7 +244,7 @@ void NumberSkeletonTest::unexpectedTokens() {
             u"precision-integer/ group-off",
             u"precision-integer// group-off"};
 
-    expectedErrorSkeleton(cases, UPRV_LENGTHOF(cases));
+    expectedErrorSkeleton(cases, SIZEOFARRAYi(cases));
 }
 
 void NumberSkeletonTest::duplicateValues() {
@@ -257,7 +257,7 @@ void NumberSkeletonTest::duplicateValues() {
             u"engineering compact-long",
             u"sign-auto sign-always"};
 
-    expectedErrorSkeleton(cases, UPRV_LENGTHOF(cases));
+    expectedErrorSkeleton(cases, SIZEOFARRAYi(cases));
 }
 
 void NumberSkeletonTest::stemsRequiringOption() {

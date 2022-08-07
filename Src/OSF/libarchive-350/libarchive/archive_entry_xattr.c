@@ -36,16 +36,13 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_xattr.c 201096 2009-12-28 
 
 void archive_entry_xattr_clear(ArchiveEntry * entry)
 {
-	struct ae_xattr * xp;
-
-	while(entry->xattr_head != NULL) {
-		xp = entry->xattr_head->next;
+	while(entry->xattr_head) {
+		struct ae_xattr * xp = entry->xattr_head->next;
 		SAlloc::F(entry->xattr_head->name);
 		SAlloc::F(entry->xattr_head->value);
 		SAlloc::F(entry->xattr_head);
 		entry->xattr_head = xp;
 	}
-
 	entry->xattr_head = NULL;
 }
 
@@ -70,31 +67,25 @@ void archive_entry_xattr_add_entry(ArchiveEntry * entry, const char * name, cons
  */
 int archive_entry_xattr_count(ArchiveEntry * entry)
 {
-	struct ae_xattr * xp;
 	int count = 0;
-	for(xp = entry->xattr_head; xp != NULL; xp = xp->next)
+	for(struct ae_xattr * xp = entry->xattr_head; xp; xp = xp->next)
 		count++;
-
 	return count;
 }
 
 int archive_entry_xattr_reset(ArchiveEntry * entry)
 {
 	entry->xattr_p = entry->xattr_head;
-
 	return archive_entry_xattr_count(entry);
 }
 
-int archive_entry_xattr_next(ArchiveEntry * entry,
-    const char ** name, const void ** value, size_t * size)
+int archive_entry_xattr_next(ArchiveEntry * entry, const char ** name, const void ** value, size_t * size)
 {
 	if(entry->xattr_p) {
 		*name = entry->xattr_p->name;
 		*value = entry->xattr_p->value;
 		*size = entry->xattr_p->size;
-
 		entry->xattr_p = entry->xattr_p->next;
-
 		return ARCHIVE_OK;
 	}
 	else {
@@ -104,7 +95,3 @@ int archive_entry_xattr_next(ArchiveEntry * entry,
 		return ARCHIVE_WARN;
 	}
 }
-
-/*
- * end of xattr handling
- */

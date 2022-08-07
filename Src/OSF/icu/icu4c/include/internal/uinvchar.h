@@ -152,7 +152,7 @@ U_CAPI int32_t U_EXPORT2 uprv_compareInvEbcdicAsAscii(const char * s1, const cha
  * @internal
  */
 #if U_CHARSET_FAMILY==U_ASCII_FAMILY
-	#define uprv_compareInvCharsAsAscii(s1, s2) uprv_strcmp(s1, s2)
+	#define uprv_compareInvCharsAsAscii(s1, s2) strcmp(s1, s2)
 #elif U_CHARSET_FAMILY==U_EBCDIC_FAMILY
 	#define uprv_compareInvCharsAsAscii(s1, s2) uprv_compareInvEbcdicAsAscii(s1, s2)
 #else

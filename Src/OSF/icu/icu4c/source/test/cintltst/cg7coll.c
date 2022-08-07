@@ -152,7 +152,7 @@ static void TestG7Locales()
 	const UChar * defRules;
 	int32_t i, rlen, j, n;
 	log_verbose("Testing  ucol_openRules for all the locales\n");
-	for(i = 0; i < UPRV_LENGTHOF(locales); i++) {
+	for(i = 0; i < SIZEOFARRAYi(locales); i++) {
 		const char * locale = locales[i];
 		status = U_ZERO_ERROR;
 		myCollation = ucol_open(locale, &status);

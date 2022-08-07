@@ -128,7 +128,7 @@ bool CollationKey::operator == (const CollationKey& source) const
 {
 	return getLength() == source.getLength() &&
 	       (this == &source ||
-	       uprv_memcmp(getBytes(), source.getBytes(), getLength()) == 0);
+	       memcmp(getBytes(), source.getBytes(), getLength()) == 0);
 }
 
 const CollationKey&CollationKey::operator = (const CollationKey& other)
@@ -183,7 +183,7 @@ UCollationResult CollationKey::compareTo(const CollationKey& target, UErrorCode 
 			result = UCOL_GREATER;
 		}
 		if(minLength > 0) {
-			int diff = uprv_memcmp(src, tgt, minLength);
+			int diff = memcmp(src, tgt, minLength);
 			if(diff > 0) {
 				return UCOL_GREATER;
 			}

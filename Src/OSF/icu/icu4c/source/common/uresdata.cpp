@@ -61,7 +61,7 @@ static int32_t _res_findTableItem(const ResourceData * pResData, const uint16 * 
 		mid = (start + limit) / 2;
 		tableKey = RES_GET_KEY16(pResData, keyOffsets[mid]);
 		if(pResData->useNativeStrcmp) {
-			result = uprv_strcmp(key, tableKey);
+			result = strcmp(key, tableKey);
 		}
 		else {
 			result = uprv_compareInvCharsAsAscii(key, tableKey);
@@ -94,7 +94,7 @@ static int32_t _res_findTable32Item(const ResourceData * pResData, const int32_t
 		mid = (start + limit) / 2;
 		tableKey = RES_GET_KEY32(pResData, keyOffsets[mid]);
 		if(pResData->useNativeStrcmp) {
-			result = uprv_strcmp(key, tableKey);
+			result = strcmp(key, tableKey);
 		}
 		else {
 			result = uprv_compareInvCharsAsAscii(key, tableKey);
@@ -898,7 +898,7 @@ U_CFUNC Resource res_findResource(const ResourceData * pResData, Resource r, cha
 	UResType type = (UResType)RES_GET_TYPE(t1);
 
 	/* if you come in with an empty path, you'll be getting back the same resource */
-	if(!uprv_strlen(pathP)) {
+	if(!strlen(pathP)) {
 		return r;
 	}
 
@@ -994,7 +994,7 @@ typedef struct Row {
 
 static int32_t U_CALLCONV ures_compareRows(const void * context, const void * left, const void * right) {
 	const char * keyChars = (const char *)context;
-	return (int32_t)uprv_strcmp(keyChars+((const Row*)left)->keyIndex,
+	return (int32_t)strcmp(keyChars+((const Row*)left)->keyIndex,
 		   keyChars+((const Row*)right)->keyIndex);
 }
 
@@ -1084,7 +1084,7 @@ static void ures_swapResource(const UDataSwapper * ds,
 		    /* swap known formats */
 #if !UCONFIG_NO_COLLATION
 		    if(key && /* the binary is in a table */ (key!=gUnknownKey ? /* its table key string is "%%CollationBin" */ 0==ds->compareInvChars(ds, key, -1,
-			gCollationBinKey, UPRV_LENGTHOF(gCollationBinKey)-1) :
+			gCollationBinKey, SIZEOFARRAYi(gCollationBinKey)-1) :
 		        /* its table key string is unknown but it looks like a collation binary */
 			ucol_looksLikeCollationBinary(ds, p+1, count))) {
 			    ucol_swap(ds, p+1, count, q+1, pErrorCode);

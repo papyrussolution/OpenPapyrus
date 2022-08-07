@@ -317,8 +317,8 @@ static UStringPrepProfile* usprep_getProfile(const char * path, const char * nam
 		LocalMemory<UStringPrepKey> key;
 		LocalMemory<char> keyName;
 		LocalMemory<char> keyPath;
-		if(key.allocateInsteadAndReset() == NULL || keyName.allocateInsteadAndCopy(static_cast<int32_t>(uprv_strlen(name)+1)) == NULL ||
-		    (path != NULL && keyPath.allocateInsteadAndCopy(static_cast<int32_t>(uprv_strlen(path)+1)) == NULL)) {
+		if(key.allocateInsteadAndReset() == NULL || keyName.allocateInsteadAndCopy(static_cast<int32_t>(strlen(name)+1)) == NULL ||
+		    (path != NULL && keyPath.allocateInsteadAndCopy(static_cast<int32_t>(strlen(path)+1)) == NULL)) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			usprep_unload(newProfile.getAlias());
 			return NULL;
@@ -333,10 +333,10 @@ static UStringPrepProfile* usprep_getProfile(const char * path, const char * nam
 		else {
 			/* initialize the key members */
 			key->name = keyName.orphan();
-			uprv_strcpy(key->name, name);
+			strcpy(key->name, name);
 			if(path != NULL) {
 				key->path = keyPath.orphan();
-				uprv_strcpy(key->path, path);
+				strcpy(key->path, path);
 			}
 			profile = newProfile.orphan();
 
@@ -367,7 +367,7 @@ U_CAPI UStringPrepProfile* U_EXPORT2 usprep_openByType(UStringPrepProfileType ty
 		return NULL;
 	}
 	int32_t index = (int32_t)type;
-	if(index < 0 || index >= UPRV_LENGTHOF(PROFILE_NAMES)) {
+	if(index < 0 || index >= SIZEOFARRAYi(PROFILE_NAMES)) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}

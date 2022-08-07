@@ -220,7 +220,7 @@ static const Field names_UDebugEnumType[] =
 
 // --- Add new enum types above this line ---
 
-#define COUNT_CASE(x)  case UDBG_ ## x: return (actual ? count_ ## x : UPRV_LENGTHOF(names_ ## x));
+#define COUNT_CASE(x)  case UDBG_ ## x: return (actual ? count_ ## x : SIZEOFARRAYi(names_ ## x));
 #define COUNT_FAIL_CASE(x) case UDBG_ ## x: return -1;
 
 #define FIELD_CASE(x)  case UDBG_ ## x: return names_ ## x;
@@ -394,7 +394,7 @@ U_CAPI int32_t paramEmpty(const USystemParams * /* param */, char * target, int3
 U_CAPI int32_t paramStatic(const USystemParams * param, char * target, int32_t targetCapacity, UErrorCode * status) {
 	if(param->paramStr==NULL) return paramEmpty(param, target, targetCapacity, status);
 	if(U_FAILURE(*status)) return 0;
-	int32_t len = static_cast<int32_t>(uprv_strlen(param->paramStr));
+	int32_t len = static_cast<int32_t>(strlen(param->paramStr));
 	if(target!=NULL) {
 		uprv_strncpy(target, param->paramStr, smin(len, targetCapacity));
 	}
@@ -406,7 +406,7 @@ static const char * nullString = "(null)";
 static int32_t stringToStringBuffer(char * target, int32_t targetCapacity, const char * str, UErrorCode * status) {
 	if(str==NULL) str = nullString;
 
-	int32_t len = static_cast<int32_t>(uprv_strlen(str));
+	int32_t len = static_cast<int32_t>(strlen(str));
 	if(U_SUCCESS(*status)) {
 		if(target!=NULL) {
 			uprv_strncpy(target, str, smin(len, targetCapacity));
@@ -414,7 +414,7 @@ static int32_t stringToStringBuffer(char * target, int32_t targetCapacity, const
 	}
 	else {
 		const char * s = u_errorName(*status);
-		len = static_cast<int32_t>(uprv_strlen(s));
+		len = static_cast<int32_t>(strlen(s));
 		if(target!=NULL) {
 			uprv_strncpy(target, s, smin(len, targetCapacity));
 		}
@@ -551,7 +551,7 @@ static const USystemParams systemParams[] = {
 	{ "uconfig.have_parseallinput", paramInteger, "b", UCONFIG_HAVE_PARSEALLINPUT},
 };
 
-#define U_SYSPARAM_COUNT UPRV_LENGTHOF(systemParams)
+#define U_SYSPARAM_COUNT SIZEOFARRAYi(systemParams)
 
 U_CAPI const char * udbg_getSystemParameterNameByIndex(int32_t i) {
 	if(i>=0 && i < (int32_t)U_SYSPARAM_COUNT) {
@@ -625,7 +625,7 @@ static std::string mapTicketId(const char * ticketStr) {
 	// to the ICU-1234 and CLDR-1234 format.
 	if(ticket.rfind(OLD_CLDR_PREFIX) == 0) {
 		// map cldrbug:1234 to CLDR-1234
-		ticket.replace(0, uprv_strlen(OLD_CLDR_PREFIX), CLDR_BUG_PREFIX);
+		ticket.replace(0, strlen(OLD_CLDR_PREFIX), CLDR_BUG_PREFIX);
 	}
 	else if(::isdigit(ticket[0])) {
 		// map 1234 to ICU-1234

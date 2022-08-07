@@ -5,7 +5,6 @@ package ru.petroglif.styloq;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -344,7 +343,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	{
 		ListData = null;
 		try {
-			ArrayList<Long> id_list = db.GetForeignSvcIdList(true);
+			ArrayList<Long> id_list = db.GetForeignSvcIdList(true, true);
 			if(id_list != null && id_list.size() > 0) {
 				ListData = new ArrayList<ListEntry>();
 				for(int i = 0; i < id_list.size(); i++) {
@@ -356,16 +355,20 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			;
 		}
 	}
+	private void UpdateSvcListView()
+	{
+		View v = findViewById(R.id.serviceListView);
+		if(v != null && v instanceof RecyclerView) {
+			RecyclerView rv = (RecyclerView)v;
+			RecyclerView.Adapter a = rv.getAdapter();
+			if(a != null)
+				a.notifyDataSetChanged();
+		}
+	}
 	private void RefreshStatus()
 	{
 		if(ListData != null) {
-			View v = findViewById(R.id.serviceListView);
-			if(v != null && v instanceof RecyclerView) {
-				RecyclerView rv = (RecyclerView)v;
-				RecyclerView.Adapter a = rv.getAdapter();
-				if(a != null)
-					a.notifyDataSetChanged();
-			}
+			UpdateSvcListView();
 		}
 	}
 	private class ResetTouchedListItemIdx_TimerTask extends TimerTask {
@@ -474,7 +477,6 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		switch(ev) {
 			case SLib.EV_CREATE:
 				{
-					Resources.Theme th_ = null; // @debug
 					setContentView(R.layout.activity_main);
 					SetupRecyclerListView(null, R.id.serviceListView, R.layout.li_service);
 					{
@@ -486,7 +488,6 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									db.SetupPeerInstance();
 									MakeListData(db);
 								}
-								th_ = getTheme(); // @debug
 							} catch(StyloQException e) {
 								;
 							}
@@ -502,11 +503,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							StyloQDatabase db = app_ctx.GetDB();
 							if(db != null) {
 								MakeListData(db);
-								View v = findViewById(R.id.serviceListView);
-								RecyclerView view = (v != null && v instanceof RecyclerView) ? (RecyclerView)findViewById(R.id.serviceListView) : null;
-								RecyclerView.Adapter adapter = (view != null) ? view.getAdapter() : null;
-								if(adapter != null)
-									adapter.notifyDataSetChanged();
+								UpdateSvcListView();
 							}
 						} catch(StyloQException e) {
 							;
@@ -595,6 +592,20 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 											SLib.SetupImage(this, img_view, blob_signature);
 										}
 									}
+									//
+									/* @debug {
+										iv.setOnTouchListener(
+											new View.OnTouchListener() {
+												public boolean onTouch(View v, MotionEvent event)
+												{
+													int action = event.getAction();
+													//if(action == MotionEvent.A)
+													// ... Respond to touch events
+													return false;
+												}
+											}
+										);
+									}*/
 								}
 							}
 						}
@@ -826,6 +837,17 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									}
 									app_ctx.DisplayError(this, reply_errmsg, 0);
 								}
+								// @v11.4.6 {
+								try {
+									StyloQDatabase db = app_ctx.GetDB();
+									if(db != null) {
+										MakeListData(db);
+										UpdateSvcListView();
+									}
+								} catch(StyloQException e) {
+									;
+								}
+								// } @v11.4.6
 							}
 						}
 					}

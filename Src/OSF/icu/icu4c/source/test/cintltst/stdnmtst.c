@@ -44,7 +44,7 @@ static int dotestname(const char * name, const char * standard, const char * exp
 		log_err_status(error, "FAIL: could not find %s standard name for %s\n", standard, name);
 		res = 0;
 	}
-	else if(expected && (name == tag || uprv_strcmp(expected, tag))) {
+	else if(expected && (name == tag || strcmp(expected, tag))) {
 		log_err("FAIL: expected %s for %s standard name for %s, got %s\n", expected, standard, name, tag);
 		res = 0;
 	}
@@ -126,7 +126,7 @@ static int dotestconv(const char * name, const char * standard, const char * exp
 		log_err_status(error, "FAIL: could not find %s canonical name for %s\n", (standard ? "\"\"" : standard), name);
 		res = 0;
 	}
-	else if(expected && (name == tag || uprv_strcmp(expected, tag) != 0)) {
+	else if(expected && (name == tag || strcmp(expected, tag) != 0)) {
 		log_err("FAIL: expected %s for %s canonical name for %s, got %s\n", expected, standard, name, tag);
 		res = 0;
 	}
@@ -188,8 +188,8 @@ static bool doTestNames(const char * name, const char * standard, const char ** 
 		for(idx = 0; idx < enumCount; idx++) {
 			enumName = uenum_next(myEnum, &len, &err);
 			testName = expected[idx];
-			if(uprv_strcmp(enumName, testName) != 0 || U_FAILURE(err)
-			 || len != (int32_t)uprv_strlen(expected[idx])) {
+			if(strcmp(enumName, testName) != 0 || U_FAILURE(err)
+			 || len != (int32_t)strlen(expected[idx])) {
 				log_err("FAIL: uenum_next(%d) == \"%s\". expected \"%s\", len=%d, error=%s\n",
 				    idx, enumName, testName, len, u_errorName(err));
 			}
@@ -243,9 +243,9 @@ static bool doTestUCharNames(const char * name, const char * standard, const cha
 			UChar testName[256];
 			int32_t len;
 			const UChar * enumName = uenum_unext(myEnum, &len, &err);
-			u_uastrncpy(testName, expected[idx], UPRV_LENGTHOF(testName));
+			u_uastrncpy(testName, expected[idx], SIZEOFARRAYi(testName));
 			if(u_strcmp(enumName, testName) != 0 || U_FAILURE(err)
-			 || len != (int32_t)uprv_strlen(expected[idx])) {
+			 || len != (int32_t)strlen(expected[idx])) {
 				log_err("FAIL: uenum_next(%d) == \"%s\". expected \"%s\", len=%d, error=%s\n",
 				    idx, enumName, testName, len, u_errorName(err));
 			}
@@ -287,19 +287,19 @@ static void TestStandardNames()
 		"ISO-2022-KR",
 	};
 
-	doTestNames("ASCII", "IANA", asciiIANA, UPRV_LENGTHOF(asciiIANA));
-	doTestNames("US-ASCII", "IANA", asciiIANA, UPRV_LENGTHOF(asciiIANA));
-	doTestNames("ASCII", "MIME", asciiMIME, UPRV_LENGTHOF(asciiMIME));
-	doTestNames("ascii", "mime", asciiMIME, UPRV_LENGTHOF(asciiMIME));
+	doTestNames("ASCII", "IANA", asciiIANA, SIZEOFARRAYi(asciiIANA));
+	doTestNames("US-ASCII", "IANA", asciiIANA, SIZEOFARRAYi(asciiIANA));
+	doTestNames("ASCII", "MIME", asciiMIME, SIZEOFARRAYi(asciiMIME));
+	doTestNames("ascii", "mime", asciiMIME, SIZEOFARRAYi(asciiMIME));
 
 	doTestNames("ASCII", "crazy", asciiMIME, -1);
 	doTestNames("crazy", "MIME", asciiMIME, -1);
 
 	doTestNames("LMBCS-1", "MIME", asciiMIME, 0);
 
-	doTestNames("ISO_2022,locale=ko,version=0", "MIME", iso2022MIME, UPRV_LENGTHOF(iso2022MIME));
-	doTestNames("csiso2022kr", "MIME", iso2022MIME, UPRV_LENGTHOF(iso2022MIME));
+	doTestNames("ISO_2022,locale=ko,version=0", "MIME", iso2022MIME, SIZEOFARRAYi(iso2022MIME));
+	doTestNames("csiso2022kr", "MIME", iso2022MIME, SIZEOFARRAYi(iso2022MIME));
 
 	log_verbose(" Testing unext()\n");
-	doTestUCharNames("ASCII", "IANA", asciiIANA, UPRV_LENGTHOF(asciiIANA));
+	doTestUCharNames("ASCII", "IANA", asciiIANA, SIZEOFARRAYi(asciiIANA));
 }

@@ -561,7 +561,7 @@ void HebrewCalendar::handleComputeFields(int32_t julianDay, UErrorCode & status)
 	bool isLeap = isLeapYear(year);
 
 	int32_t month = 0;
-	int32_t momax = UPRV_LENGTHOF(MONTH_START);
+	int32_t momax = SIZEOFARRAYi(MONTH_START);
 	while(month < momax && dayOfYear > (isLeap ? LEAP_MONTH_START[month][type] : MONTH_START[month][type])) {
 		month++;
 	}

@@ -208,7 +208,7 @@ void RegexMatcher::init2(UText * input, UErrorCode & status) {
 		return;
 	}
 
-	if(fPattern->fDataSize > UPRV_LENGTHOF(fSmallData)) {
+	if(fPattern->fDataSize > SIZEOFARRAYi(fSmallData)) {
 		fData = (int64_t*)uprv_malloc(fPattern->fDataSize * sizeof(int64_t));
 		if(fData == NULL) {
 			status = fDeferredStatus = U_MEMORY_ALLOCATION_ERROR;

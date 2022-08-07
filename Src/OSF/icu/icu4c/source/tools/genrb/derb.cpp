@@ -87,7 +87,7 @@ extern int main(int argc, char * argv[]) {
 		++pname;
 	}
 	/* error handling, printing usage message */
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 	/* error handling, printing usage message */
 	if(argc<0) {
 		slfprintf_stderr("%s: error in command line argument \"%s\"\n", pname, argv[-argc]);
@@ -183,12 +183,12 @@ extern int main(int argc, char * argv[]) {
 
 		icu::CharString infile;
 		const char * thename = NULL;
-		bool fromICUData = !uprv_strcmp(inputDir, "-");
+		bool fromICUData = !strcmp(inputDir, "-");
 		if(!fromICUData) {
 			bool absfilename = *arg == U_FILE_SEP_CHAR;
 #if U_PLATFORM_HAS_WIN32_API
 			if(!absfilename) {
-				absfilename = (uprv_strlen(arg) > 2 && isalpha(arg[0])
+				absfilename = (strlen(arg) > 2 && isalpha(arg[0])
 				 && arg[1] == ':' && arg[2] == U_FILE_SEP_CHAR);
 			}
 #endif
@@ -242,7 +242,7 @@ extern int main(int argc, char * argv[]) {
 				}
 				thefile.appendPathPart(filename, status);
 				if(*ext) {
-					thefile.truncate(thefile.length() - (int32_t)uprv_strlen(ext));
+					thefile.truncate(thefile.length() - (int32_t)strlen(ext));
 				}
 				thefile.append(".txt", status);
 				if(U_FAILURE(status)) {
@@ -286,7 +286,7 @@ extern int main(int argc, char * argv[]) {
 				u_fprintf(out, "%s", locale.data());
 			}
 			else {
-				u_fprintf(out, "%.*s%.*S", (int32_t)(ext - filename),  filename, UPRV_LENGTHOF(sp), sp);
+				u_fprintf(out, "%.*s%.*S", (int32_t)(ext - filename),  filename, SIZEOFARRAYi(sp), sp);
 			}
 			printOutBundle(out, bundle, 0, pname, &status);
 			if(!tostdout) {
@@ -366,8 +366,7 @@ static void printHex(UFILE * out, uint8_t what)
 	printString(out, hex, 2);
 }
 
-static void printOutAlias(UFILE * out, UResourceBundle * parent, Resource r, const char * key,
-    int32_t indent, const char * pname, UErrorCode * status) 
+static void printOutAlias(UFILE * out, UResourceBundle * parent, Resource r, const char * key, int32_t indent, const char * pname, UErrorCode * status) 
 {
 	static const UChar cr[] = { 0xA }; // LF
 	int32_t len = 0;
@@ -387,13 +386,13 @@ static void printOutAlias(UFILE * out, UResourceBundle * parent, Resource r, con
 		if(key) {
 			printCString(out, key, -1);
 		}
-		printString(out, openStr, UPRV_LENGTHOF(openStr));
+		printString(out, openStr, SIZEOFARRAYi(openStr));
 		printString(out, string, len);
-		printString(out, closeStr, UPRV_LENGTHOF(closeStr));
+		printString(out, closeStr, SIZEOFARRAYi(closeStr));
 		if(verbose) {
 			printCString(out, " // ALIAS", -1);
 		}
-		printString(out, cr, UPRV_LENGTHOF(cr));
+		printString(out, cr, SIZEOFARRAYi(cr));
 	}
 	else {
 		reportError(pname, status, "getting binary value");
@@ -404,7 +403,6 @@ static void printOutAlias(UFILE * out, UResourceBundle * parent, Resource r, con
 static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t indent, const char * pname, UErrorCode * status)
 {
 	static const UChar cr[] = { 0xA }; // LF
-
 /*    int32_t noOfElements = ures_getSize(resource);*/
 	int32_t i = 0;
 	const char * key = ures_getKey(resource);
@@ -414,7 +412,6 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		    int32_t len = 0;
 		    const UChar * thestr = ures_getString(resource, &len, status);
 		    UChar * string = quotedString(thestr);
-
 		    /* TODO: String truncation */
 		    if(opt_truncate && len > truncsize) {
 			    char msg[128];
@@ -427,49 +424,43 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		    if(key) {
 			    static const UChar openStr[] = { 0x0020, 0x007B, 0x0020, 0x0022 }; /* " { \"" */
 			    static const UChar closeStr[] = { 0x0022, 0x0020, 0x007D }; /* "\" }" */
-			    printCString(out, key, (int32_t)uprv_strlen(key));
-			    printString(out, openStr, UPRV_LENGTHOF(openStr));
+			    printCString(out, key, (int32_t)strlen(key));
+			    printString(out, openStr, SIZEOFARRAYi(openStr));
 			    printString(out, string, len);
-			    printString(out, closeStr, UPRV_LENGTHOF(closeStr));
+			    printString(out, closeStr, SIZEOFARRAYi(closeStr));
 		    }
 		    else {
 			    static const UChar openStr[] = { 0x0022 }; /* "\"" */
 			    static const UChar closeStr[] = { 0x0022, 0x002C }; /* "\"," */
-
-			    printString(out, openStr, UPRV_LENGTHOF(openStr));
+			    printString(out, openStr, SIZEOFARRAYi(openStr));
 			    printString(out, string, (int32_t)(u_strlen(string)));
-			    printString(out, closeStr, UPRV_LENGTHOF(closeStr));
+			    printString(out, closeStr, SIZEOFARRAYi(closeStr));
 		    }
-
 		    if(verbose) {
 			    printCString(out, "// STRING", -1);
 		    }
-		    printString(out, cr, UPRV_LENGTHOF(cr));
-
+		    printString(out, cr, SIZEOFARRAYi(cr));
 		    uprv_free(string);
 	    }
 	    break;
-
 		case URES_INT:
 	    {
-		    static const UChar openStr[] = { 0x003A, 0x0069, 0x006E, 0x0074, 0x0020, 0x007B, 0x0020 }; /* ":int
-			                                                                                          { " */
+		    static const UChar openStr[] = { 0x003A, 0x0069, 0x006E, 0x0074, 0x0020, 0x007B, 0x0020 }; /* ":int { " */
 		    static const UChar closeStr[] = { 0x0020, 0x007D }; /* " }" */
 		    UChar num[20];
-
 		    printIndent(out, indent);
 		    if(key) {
 			    printCString(out, key, -1);
 		    }
-		    printString(out, openStr, UPRV_LENGTHOF(openStr));
+		    printString(out, openStr, SIZEOFARRAYi(openStr));
 		    uprv_itou(num, 20, ures_getInt(resource, status), 10, 0);
 		    printString(out, num, u_strlen(num));
-		    printString(out, closeStr, UPRV_LENGTHOF(closeStr));
+		    printString(out, closeStr, SIZEOFARRAYi(closeStr));
 
 		    if(verbose) {
 			    printCString(out, "// INT", -1);
 		    }
-		    printString(out, cr, UPRV_LENGTHOF(cr));
+		    printString(out, cr, SIZEOFARRAYi(cr));
 		    break;
 	    }
 		case URES_BINARY:
@@ -496,15 +487,15 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 			    if(key) {
 				    printCString(out, key, -1);
 			    }
-			    printString(out, openStr, UPRV_LENGTHOF(openStr));
+			    printString(out, openStr, SIZEOFARRAYi(openStr));
 			    for(i = 0; i<len; i++) {
 				    printHex(out, *data++);
 			    }
-			    printString(out, closeStr, UPRV_LENGTHOF(closeStr));
+			    printString(out, closeStr, SIZEOFARRAYi(closeStr));
 			    if(verbose) {
 				    printCString(out, " // BINARY", -1);
 			    }
-			    printString(out, cr, UPRV_LENGTHOF(cr));
+			    printString(out, cr, SIZEOFARRAYi(cr));
 		    }
 		    else {
 			    reportError(pname, status, "getting binary value");
@@ -530,7 +521,7 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 			    if(key) {
 				    printCString(out, key, -1);
 			    }
-			    printString(out, openStr, UPRV_LENGTHOF(openStr));
+			    printString(out, openStr, SIZEOFARRAYi(openStr));
 			    for(i = 0; i < len - 1; i++) {
 				    int32_t numLen =  uprv_itou(num, 20, data[i], 10, 0);
 				    num[numLen++] = 0x002C; /* ',' */
@@ -542,11 +533,11 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 				    uprv_itou(num, 20, data[len - 1], 10, 0);
 				    printString(out, num, u_strlen(num));
 			    }
-			    printString(out, closeStr, UPRV_LENGTHOF(closeStr));
+			    printString(out, closeStr, SIZEOFARRAYi(closeStr));
 			    if(verbose) {
 				    printCString(out, "// INTVECTOR", -1);
 			    }
-			    printString(out, cr, UPRV_LENGTHOF(cr));
+			    printString(out, cr, SIZEOFARRAYi(cr));
 		    }
 		    else {
 			    reportError(pname, status, "getting int vector");
@@ -565,7 +556,7 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		    if(key) {
 			    printCString(out, key, -1);
 		    }
-		    printString(out, openStr, UPRV_LENGTHOF(openStr));
+		    printString(out, openStr, SIZEOFARRAYi(openStr));
 		    if(verbose) {
 			    if(ures_getType(resource) == URES_TABLE) {
 				    printCString(out, "// TABLE", -1);
@@ -574,7 +565,7 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 				    printCString(out, "// ARRAY", -1);
 			    }
 		    }
-		    printString(out, cr, UPRV_LENGTHOF(cr));
+		    printString(out, cr, SIZEOFARRAYi(cr));
 
 		    if(suppressAliases == FALSE) {
 			    while(U_SUCCESS(*status) && ures_hasNext(resource)) {
@@ -617,7 +608,7 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		    }
 
 		    printIndent(out, indent);
-		    printString(out, closeStr, UPRV_LENGTHOF(closeStr));
+		    printString(out, closeStr, SIZEOFARRAYi(closeStr));
 		    ures_close(t);
 	    }
 	    break;

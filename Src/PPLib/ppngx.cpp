@@ -1039,7 +1039,7 @@ int PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 	static NgxReqQueue * P_Queue = 0;
 
 	int    ok = -1;
-	const  uint max_threads = 64;
+	const  uint max_threads = 32; // @v11.4.6 64-->32 @todo make the config param
 	uint   thread_count = 0;
 	ENTER_CRITICAL_SECTION
 	PPWorkingPipeSession * p_thread = 0;

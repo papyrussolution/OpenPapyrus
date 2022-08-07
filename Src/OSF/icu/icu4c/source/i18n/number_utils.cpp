@@ -68,7 +68,7 @@ const char16_t* utils::getPatternForStyle(const Locale & locale, const char * ns
 	}
 
 	// Fall back to latn if native numbering system does not have the right pattern
-	if(U_FAILURE(localStatus) && uprv_strcmp("latn", nsName) != 0) {
+	if(U_FAILURE(localStatus) && strcmp("latn", nsName) != 0) {
 		localStatus = U_ZERO_ERROR;
 		pattern = doGetPattern(res.getAlias(), "latn", patternKey, status, localStatus);
 		if(U_FAILURE(status)) {
@@ -114,7 +114,7 @@ void DecNum::setTo(StringPiece str, UErrorCode & status) {
 }
 
 void DecNum::setTo(const char * str, UErrorCode & status) {
-	_setTo(str, static_cast<int32_t>(uprv_strlen(str)), status);
+	_setTo(str, static_cast<int32_t>(strlen(str)), status);
 }
 
 void DecNum::setTo(double d, UErrorCode & status) {
@@ -249,7 +249,7 @@ void DecNum::toString(ByteSink& output, UErrorCode & status) const
 		return;
 	}
 	uprv_decNumberToString(fData, buffer.getAlias());
-	output.Append(buffer.getAlias(), static_cast<int32_t>(uprv_strlen(buffer.getAlias())));
+	output.Append(buffer.getAlias(), static_cast<int32_t>(strlen(buffer.getAlias())));
 }
 
 #endif /* #if !UCONFIG_NO_FORMATTING */

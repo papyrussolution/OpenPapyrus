@@ -258,7 +258,7 @@ static int32_t u_scanf_skip_leading_positive_sign(UFILE * input, UNumberFormat *
 	int32_t symbolLen;
 	UErrorCode localStatus = U_ZERO_ERROR;
 	if(U_SUCCESS(*status)) {
-		symbolLen = unum_getSymbol(format, UNUM_PLUS_SIGN_SYMBOL, plusSymbol, UPRV_LENGTHOF(plusSymbol), &localStatus);
+		symbolLen = unum_getSymbol(format, UNUM_PLUS_SIGN_SYMBOL, plusSymbol, SIZEOFARRAYi(plusSymbol), &localStatus);
 		if(U_SUCCESS(localStatus)) {
 			/* skip all leading ws in the input */
 			while(((isNotEOF = ufile_getch(input, &c)) == TRUE) && (count < symbolLen && c == plusSymbol[count])) {

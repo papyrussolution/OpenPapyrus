@@ -59,7 +59,7 @@ extern int main(int argc, char * argv[])
 	UErrorCode errorCode = U_ZERO_ERROR;
 	/* preset then read command line options */
 	options[2].value = u_getDataDirectory();
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 	/* error handling, printing usage message */
 	if(argc<0) {
 		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
@@ -130,7 +130,7 @@ static int outputJavaStuff(const char * progname, const char * outputDir) {
 	char file[512];
 	FILE * out;
 
-	uprv_strcpy(file, outputDir);
+	strcpy(file, outputDir);
 	if(*outputDir && /* don't put a trailing slash if outputDir is empty */
 	    file[strlen(file)-1]!=U_FILE_SEP_CHAR) {
 		uprv_strcat(file, U_FILE_SEP_STRING);

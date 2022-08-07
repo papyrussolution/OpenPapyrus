@@ -1976,7 +1976,7 @@ bool MeasureUnit::operator == (const UObject& other) const {
 		return false;
 	}
 	const MeasureUnit &rhs = static_cast<const MeasureUnit&>(other);
-	return uprv_strcmp(getIdentifier(), rhs.getIdentifier()) == 0;
+	return strcmp(getIdentifier(), rhs.getIdentifier()) == 0;
 }
 
 int32_t MeasureUnit::getAvailable(MeasureUnit * dest,
@@ -1985,20 +1985,20 @@ int32_t MeasureUnit::getAvailable(MeasureUnit * dest,
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	if(destCapacity < UPRV_LENGTHOF(gSubTypes)) {
+	if(destCapacity < SIZEOFARRAYi(gSubTypes)) {
 		errorCode = U_BUFFER_OVERFLOW_ERROR;
-		return UPRV_LENGTHOF(gSubTypes);
+		return SIZEOFARRAYi(gSubTypes);
 	}
 	int32_t idx = 0;
-	for(int32_t typeIdx = 0; typeIdx < UPRV_LENGTHOF(gTypes); ++typeIdx) {
+	for(int32_t typeIdx = 0; typeIdx < SIZEOFARRAYi(gTypes); ++typeIdx) {
 		int32_t len = gOffsets[typeIdx + 1] - gOffsets[typeIdx];
 		for(int32_t subTypeIdx = 0; subTypeIdx < len; ++subTypeIdx) {
 			dest[idx].setTo(typeIdx, subTypeIdx);
 			++idx;
 		}
 	}
-	U_ASSERT(idx == UPRV_LENGTHOF(gSubTypes));
-	return UPRV_LENGTHOF(gSubTypes);
+	U_ASSERT(idx == SIZEOFARRAYi(gSubTypes));
+	return SIZEOFARRAYi(gSubTypes);
 }
 
 int32_t MeasureUnit::getAvailable(const char * type,
@@ -2008,7 +2008,7 @@ int32_t MeasureUnit::getAvailable(const char * type,
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	int32_t typeIdx = binarySearch(gTypes, 0, UPRV_LENGTHOF(gTypes), type);
+	int32_t typeIdx = binarySearch(gTypes, 0, SIZEOFARRAYi(gTypes), type);
 	if(typeIdx == -1) {
 		return 0;
 	}
@@ -2025,7 +2025,7 @@ int32_t MeasureUnit::getAvailable(const char * type,
 
 StringEnumeration * MeasureUnit::getAvailableTypes(UErrorCode & errorCode) {
 	UEnumeration * uenum = uenum_openCharStringsEnumeration(
-		gTypes, UPRV_LENGTHOF(gTypes), &errorCode);
+		gTypes, SIZEOFARRAYi(gTypes), &errorCode);
 	if(U_FAILURE(errorCode)) {
 		uenum_close(uenum);
 		return NULL;
@@ -2041,10 +2041,10 @@ StringEnumeration * MeasureUnit::getAvailableTypes(UErrorCode & errorCode) {
 
 bool MeasureUnit::findBySubType(StringPiece subType, MeasureUnit* output) {
 	// Sanity checking kCurrencyOffset and final entry in gOffsets
-	U_ASSERT(uprv_strcmp(gTypes[kCurrencyOffset], "currency") == 0);
-	U_ASSERT(gOffsets[UPRV_LENGTHOF(gOffsets) - 1] == UPRV_LENGTHOF(gSubTypes));
+	U_ASSERT(strcmp(gTypes[kCurrencyOffset], "currency") == 0);
+	U_ASSERT(gOffsets[SIZEOFARRAYi(gOffsets) - 1] == SIZEOFARRAYi(gSubTypes));
 
-	for(int32_t t = 0; t < UPRV_LENGTHOF(gOffsets) - 1; t++) {
+	for(int32_t t = 0; t < SIZEOFARRAYi(gOffsets) - 1; t++) {
 		// Skip currency units
 		if(t == kCurrencyOffset) {
 			continue;
@@ -2071,7 +2071,7 @@ MeasureUnit * MeasureUnit::create(int typeId, int subTypeId, UErrorCode & status
 }
 
 void MeasureUnit::initTime(const char * timeId) {
-	int32_t result = binarySearch(gTypes, 0, UPRV_LENGTHOF(gTypes), "duration");
+	int32_t result = binarySearch(gTypes, 0, SIZEOFARRAYi(gTypes), "duration");
 	U_ASSERT(result != -1);
 	fTypeId = result;
 	result = binarySearch(gSubTypes, gOffsets[fTypeId], gOffsets[fTypeId + 1], timeId);
@@ -2080,7 +2080,7 @@ void MeasureUnit::initTime(const char * timeId) {
 }
 
 void MeasureUnit::initCurrency(StringPiece isoCurrency) {
-	int32_t result = binarySearch(gTypes, 0, UPRV_LENGTHOF(gTypes), "currency");
+	int32_t result = binarySearch(gTypes, 0, SIZEOFARRAYi(gTypes), "currency");
 	U_ASSERT(result != -1);
 	fTypeId = result;
 	result = binarySearch(

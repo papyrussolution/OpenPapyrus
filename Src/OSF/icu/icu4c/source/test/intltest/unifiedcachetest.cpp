@@ -35,11 +35,11 @@ U_NAMESPACE_BEGIN
 template <> U_EXPORT
 const UCTItem * LocaleCacheKey<UCTItem>::createObject(const void * context, UErrorCode & status) const {
 	const UnifiedCache * cacheContext = (const UnifiedCache*)context;
-	if(uprv_strcmp(fLoc.getName(), "zh") == 0) {
+	if(strcmp(fLoc.getName(), "zh") == 0) {
 		status = U_MISSING_RESOURCE_ERROR;
 		return NULL;
 	}
-	if(uprv_strcmp(fLoc.getLanguage(), fLoc.getName()) != 0) {
+	if(strcmp(fLoc.getLanguage(), fLoc.getName()) != 0) {
 		const UCTItem * item = NULL;
 		if(cacheContext == NULL) {
 			UnifiedCache::getByLocale(fLoc.getLanguage(), item, status);
@@ -134,7 +134,7 @@ void UnifiedCacheTest::TestEvictionPolicy() {
 	const UCTItem * unusedReference = NULL;
 
 	// Add 5 in-use entries
-	for(int32_t i = 0; i < UPRV_LENGTHOF(usedReferences); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(usedReferences); i++) {
 		cache.get(
 			LocaleCacheKey<UCTItem>(locales[i]),
 			&cache,
@@ -146,7 +146,7 @@ void UnifiedCacheTest::TestEvictionPolicy() {
 	for(int32_t i = 0; i < 10; ++i) {
 		cache.get(
 			LocaleCacheKey<UCTItem>(
-				locales[i + UPRV_LENGTHOF(usedReferences)]),
+				locales[i + SIZEOFARRAYi(usedReferences)]),
 			&cache,
 			unusedReference,
 			status);
@@ -154,11 +154,11 @@ void UnifiedCacheTest::TestEvictionPolicy() {
 	unusedReference->removeRef();
 
 	// unused count not to exceed in use count
-	assertEquals("T1", UPRV_LENGTHOF(usedReferences), cache.unusedCount());
-	assertEquals("T2", 2*UPRV_LENGTHOF(usedReferences), cache.keyCount());
+	assertEquals("T1", SIZEOFARRAYi(usedReferences), cache.unusedCount());
+	assertEquals("T2", 2*SIZEOFARRAYi(usedReferences), cache.keyCount());
 
 	// Free up those used entries.
-	for(int32_t i = 0; i < UPRV_LENGTHOF(usedReferences); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(usedReferences); i++) {
 		usedReferences[i]->removeRef();
 	}
 

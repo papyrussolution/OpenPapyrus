@@ -282,12 +282,10 @@ static int asn1_template_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent,
 		tfld = (ASN1_VALUE*)fld;
 		fld = &tfld;
 	}
-
 	if(flags & ASN1_TFLG_SK_MASK) {
 		char * tname;
 		ASN1_VALUE * skitem;
 		STACK_OF(ASN1_VALUE) *stack;
-
 		/* SET OF, SEQUENCE OF */
 		if(fname) {
 			if(pctx->flags & ASN1_PCTX_FLAGS_SHOW_SSOF) {
@@ -295,8 +293,7 @@ static int asn1_template_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent,
 					tname = "SET";
 				else
 					tname = "SEQUENCE";
-				if(BIO_printf(out, "%*s%s OF %s {\n",
-				    indent, "", tname, tt->field_name) <= 0)
+				if(BIO_printf(out, "%*s%s OF %s {\n", indent, "", tname, tt->field_name) <= 0)
 					return 0;
 			}
 			else if(BIO_printf(out, "%*s%s:\n", indent, "", fname) <= 0)
@@ -306,15 +303,11 @@ static int asn1_template_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent,
 		for(i = 0; i < sk_ASN1_VALUE_num(stack); i++) {
 			if((i > 0) && (BIO_puts(out, "\n") <= 0))
 				return 0;
-
 			skitem = sk_ASN1_VALUE_value(stack, i);
-			if(!asn1_item_print_ctx(out, &skitem, indent + 2,
-			    ASN1_ITEM_ptr(tt->item), NULL, NULL, 1,
-			    pctx))
+			if(!asn1_item_print_ctx(out, &skitem, indent + 2, ASN1_ITEM_ptr(tt->item), NULL, NULL, 1, pctx))
 				return 0;
 		}
-		if(i == 0 && BIO_printf(out, "%*s<%s>\n", indent + 2, "",
-		    stack == NULL ? "ABSENT" : "EMPTY") <= 0)
+		if(i == 0 && BIO_printf(out, "%*s<%s>\n", indent + 2, "", stack == NULL ? "ABSENT" : "EMPTY") <= 0)
 			return 0;
 		if(pctx->flags & ASN1_PCTX_FLAGS_SHOW_SEQUENCE) {
 			if(BIO_printf(out, "%*s}\n", indent, "") <= 0)
@@ -322,17 +315,13 @@ static int asn1_template_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent,
 		}
 		return 1;
 	}
-	return asn1_item_print_ctx(out, fld, indent, ASN1_ITEM_ptr(tt->item),
-		   fname, sname, 0, pctx);
+	return asn1_item_print_ctx(out, fld, indent, ASN1_ITEM_ptr(tt->item), fname, sname, 0, pctx);
 }
 
-static int asn1_print_fsname(BIO * out, int indent,
-    const char * fname, const char * sname,
-    const ASN1_PCTX * pctx)
+static int asn1_print_fsname(BIO * out, int indent, const char * fname, const char * sname, const ASN1_PCTX * pctx)
 {
 	static const char spaces[] = "                    ";
 	static const int nspaces = sizeof(spaces) - 1;
-
 	while(indent > nspaces) {
 		if(BIO_write(out, spaces, nspaces) != nspaces)
 			return 0;
@@ -369,19 +358,10 @@ static int asn1_print_boolean(BIO * out, int boolval)
 {
 	const char * str;
 	switch(boolval) {
-		case -1:
-		    str = "BOOL ABSENT";
-		    break;
-
-		case 0:
-		    str = "FALSE";
-		    break;
-
-		default:
-		    str = "TRUE";
-		    break;
+		case -1: str = "BOOL ABSENT"; break;
+		case 0: str = "FALSE"; break;
+		default: str = "TRUE"; break;
 	}
-
 	if(BIO_puts(out, str) <= 0)
 		return 0;
 	return 1;
@@ -389,9 +369,8 @@ static int asn1_print_boolean(BIO * out, int boolval)
 
 static int asn1_print_integer(BIO * out, const ASN1_INTEGER * str)
 {
-	char * s;
 	int ret = 1;
-	s = i2s_ASN1_INTEGER(NULL, str);
+	char * s = i2s_ASN1_INTEGER(NULL, str);
 	if(!s)
 		return 0;
 	if(BIO_puts(out, s) <= 0)
@@ -403,8 +382,7 @@ static int asn1_print_integer(BIO * out, const ASN1_INTEGER * str)
 static int asn1_print_oid(BIO * out, const ASN1_OBJECT * oid)
 {
 	char objbuf[80];
-	const char * ln;
-	ln = OBJ_nid2ln(OBJ_obj2nid(oid));
+	const char * ln = OBJ_nid2ln(OBJ_obj2nid(oid));
 	if(!ln)
 		ln = "";
 	OBJ_obj2txt(objbuf, sizeof(objbuf), oid, 1);
@@ -421,17 +399,13 @@ static int asn1_print_obstring(BIO * out, const ASN1_STRING * str, int indent)
 	}
 	else if(BIO_puts(out, "\n") <= 0)
 		return 0;
-	if((str->length > 0)
-	 && BIO_dump_indent(out, (const char *)str->data, str->length,
+	if((str->length > 0) && BIO_dump_indent(out, (const char *)str->data, str->length,
 	    indent + 2) <= 0)
 		return 0;
 	return 1;
 }
 
-static int asn1_primitive_print(BIO * out, ASN1_VALUE ** fld,
-    const ASN1_ITEM * it, int indent,
-    const char * fname, const char * sname,
-    const ASN1_PCTX * pctx)
+static int asn1_primitive_print(BIO * out, ASN1_VALUE ** fld, const ASN1_ITEM * it, int indent, const char * fname, const char * sname, const ASN1_PCTX * pctx)
 {
 	long utype;
 	ASN1_STRING * str;

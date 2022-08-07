@@ -1102,7 +1102,7 @@ void DateFormatRegressionTest::Test4182066()
 		"09/12/+1",
 		"09/12/001",
 	};
-	int32_t STRINGS_COUNT = UPRV_LENGTHOF(STRINGS);
+	int32_t STRINGS_COUNT = SIZEOFARRAYi(STRINGS);
 	UDate FAIL_DATE = (UDate)0;
 	UDate DATES[] = {
 		date(2000-1900, UCAL_FEBRUARY, 29),
@@ -1279,7 +1279,7 @@ void DateFormatRegressionTest::Test1684(void)
 		new Test1684Data(2001, 12, 30, /*2002, 1,  6,*/ 2002, 1, 1, UCAL_SUNDAY,    "2002 01 01 Sun", "2001 12 06 Sun")
 	};
 
-#define kTest1684Count  UPRV_LENGTHOF(tests)
+#define kTest1684Count  SIZEOFARRAYi(tests)
 
 	int32_t pass = 0, error = 0, warning = 0;
 	int32_t i;

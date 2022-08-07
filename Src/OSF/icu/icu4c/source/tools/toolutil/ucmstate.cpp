@@ -235,7 +235,7 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 	}
 
 	/* stop at the beginning of the mapping section */
-	if(uprv_memcmp(s, "CHARMAP", 7)==0) {
+	if(memcmp(s, "CHARMAP", 7)==0) {
 		return FALSE;
 	}
 
@@ -268,17 +268,17 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 	}
 
 	/* collect the information from the header field, ignore unknown keys */
-	if(uprv_strcmp(*pKey, "uconv_class")==0) {
-		if(uprv_strcmp(*pValue, "DBCS")==0) {
+	if(strcmp(*pKey, "uconv_class")==0) {
+		if(strcmp(*pValue, "DBCS")==0) {
 			states->conversionType = UCNV_DBCS;
 		}
-		else if(uprv_strcmp(*pValue, "SBCS")==0) {
+		else if(strcmp(*pValue, "SBCS")==0) {
 			states->conversionType = UCNV_SBCS;
 		}
-		else if(uprv_strcmp(*pValue, "MBCS")==0) {
+		else if(strcmp(*pValue, "MBCS")==0) {
 			states->conversionType = UCNV_MBCS;
 		}
-		else if(uprv_strcmp(*pValue, "EBCDIC_STATEFUL")==0) {
+		else if(strcmp(*pValue, "EBCDIC_STATEFUL")==0) {
 			states->conversionType = UCNV_EBCDIC_STATEFUL;
 		}
 		else {
@@ -287,7 +287,7 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 		}
 		return TRUE;
 	}
-	else if(uprv_strcmp(*pKey, "mb_cur_max")==0) {
+	else if(strcmp(*pKey, "mb_cur_max")==0) {
 		c = **pValue;
 		if('1'<=c && c<='4' && (*pValue)[1]==0) {
 			states->maxCharLength = (int8_t)(c-'0');
@@ -299,7 +299,7 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 		}
 		return TRUE;
 	}
-	else if(uprv_strcmp(*pKey, "mb_cur_min")==0) {
+	else if(strcmp(*pKey, "mb_cur_min")==0) {
 		c = **pValue;
 		if('1'<=c && c<='4' && (*pValue)[1]==0) {
 			states->minCharLength = (int8_t)(c-'0');
@@ -310,7 +310,7 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 		}
 		return TRUE;
 	}
-	else if(uprv_strcmp(*pKey, "icu:state")==0) {
+	else if(strcmp(*pKey, "icu:state")==0) {
 		/* if an SBCS/DBCS/EBCDIC_STATEFUL converter has icu:state, then turn it into MBCS */
 		switch(states->conversionType) {
 			case UCNV_SBCS:
@@ -332,12 +332,12 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 		ucm_addState(states, *pValue);
 		return TRUE;
 	}
-	else if(uprv_strcmp(*pKey, "icu:base")==0) {
+	else if(strcmp(*pKey, "icu:base")==0) {
 		if(**pValue==0) {
 			slfprintf_stderr("ucm error: <icu:base> without a base table name\n");
 			exit(U_INVALID_TABLE_FORMAT);
 		}
-		uprv_strcpy(ucm->baseName, *pValue);
+		strcpy(ucm->baseName, *pValue);
 		return TRUE;
 	}
 

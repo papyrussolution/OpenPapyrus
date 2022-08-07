@@ -150,7 +150,7 @@ int main(int argc, char * argv[])
 	U_MAIN_INIT_ARGS(argc, argv);
 	/* preset then read command line options */
 	options[OPT_DESTDIR].value = u_getDataDirectory();
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 	if(options[OPT_VERSION].doesOccur) {
 		printf("icuexportdata version %s, ICU tool to dump data files for external consumers\n", U_ICU_DATA_VERSION);
 		printf("%s\n", U_COPYRIGHT_STRING);
@@ -212,15 +212,15 @@ int main(int argc, char * argv[])
 		return argc<0 ? U_ILLEGAL_ARGUMENT_ERROR : U_ZERO_ERROR;
 	}
 	const char * mode = options[OPT_MODE].value;
-	if(uprv_strcmp(mode, "uprops") != 0) {
+	if(strcmp(mode, "uprops") != 0) {
 		slfprintf_stderr("Invalid option for --mode (must be uprops)\n");
 		return U_ILLEGAL_ARGUMENT_ERROR;
 	}
 	if(options[OPT_TRIE_TYPE].doesOccur) {
-		if(uprv_strcmp(options[OPT_TRIE_TYPE].value, "fast") == 0) {
+		if(strcmp(options[OPT_TRIE_TYPE].value, "fast") == 0) {
 			trieType = UCPTRIE_TYPE_FAST;
 		}
-		else if(uprv_strcmp(options[OPT_TRIE_TYPE].value, "small") == 0) {
+		else if(strcmp(options[OPT_TRIE_TYPE].value, "small") == 0) {
 			trieType = UCPTRIE_TYPE_SMALL;
 		}
 		else {

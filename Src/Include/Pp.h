@@ -2984,7 +2984,7 @@ protected:
 	static const int RpvInvSignValue = 0xECA5B7F9;
 	//
 	// Descr: Если функция PPBaseFilt::Read встретила несоответствие считываемой версии
-	//   фильтра текущей, и считываемая версия меньше текущей, то вызывает метод ReadPreviosVer()
+	//   фильтра текущей, и считываемая версия меньше текущей, то вызывает метод ReadPreviousVer()
 	//   с номером считанной версии в качестве параметра.
 	//
 	//   Специальный случай: если параметр ver == PPBaseFilt::RpvInvSignValue (0xECA5B7F9) то это значит, что считанная в начале
@@ -2993,14 +2993,14 @@ protected:
 	//   если в ответ на такой параметр функция вернет <0 то считывание продолжится.
 	//   Если порожденный класс каким-то специальным способом обрабатывает эту ситуацию, то
 	//   он должен вернуть >0 (ok) или 0 (error).
-	// Note: К моменту вызова ReadPreviosVer() смещение на чтение из буфера rBuf
+	// Note: К моменту вызова ReadPreviousVer() смещение на чтение из буфера rBuf
 	//   возвращется на исходную позицию, где оно находилось до вызова PPBaseFilt::Read
 	// Returns:
 	//   >0 - фильтр с заданной версией успешно считан.
 	//   <0 - функция не поддерживается или нет возможности считать фильтр с заданным номером версии.
 	//   0  - ошибка
 	//
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	//
 	// Descr: Реализует извлечение параметров фильтрации из текстового описания.
 	//   Функция вызывается из PPBaseFilt::Read при обнаружении специального префикса.
@@ -4217,7 +4217,7 @@ struct QuotFilt : public PPBaseFilt {
 	ObjIdListFilt LocList;   // Список складов
 	ObjIdListFilt GoodsList; // @v10.1.3 Список товаров, по которым следует получить отчет. Имеет приоритет перед GoodsGrpID и GoodsID
 private:
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
 //
 //
@@ -4674,7 +4674,7 @@ public:
 	SString Formula;         //
 	//
 private:
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
 //
 // Стандарты штрихкодов
@@ -28133,7 +28133,7 @@ struct PersonFilt : public PPBaseFilt {
 	ObjIdListFilt List;       // Список идентификаторов персоналий, которые следует показать
 	SString SrchStr_;         //
 private:
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
 
 typedef TempPersonTbl::Rec PsnAttrViewItem;
@@ -28909,7 +28909,7 @@ public:
 private:
 	int    InitInstance();
 	virtual int Describe(long flags, SString & rBuf) const;
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	char * WriteObjIdListFilt(char * p, const ObjIdListFilt & rList) const;
 	const  void * ReadObjIdListFilt(const /*char*/void * p, ObjIdListFilt & rList);
 	int    ReadFromProp_Before8604(PPID obj, PPID id, PPID prop);
@@ -39007,7 +39007,7 @@ public:
 	BillFilt();
 	BillFilt & FASTCALL operator = (const BillFilt &);
 	virtual int Describe(long flags, SString & rBuf) const;
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	//
 	// Descr: Инициализирует поля фильтра.
 	// ARG(setupVal   IN): Если этот параметр не нулевой, то устанавливает значения некоторых
@@ -39021,36 +39021,36 @@ public:
 	// int    Init(int setupValues, long extraParam);
 	void   FASTCALL SetupBrowseBillsType(BrowseBillsType);
 	enum bff_tag {
-		fShowDebt  = 0x00000001, // Показывать долг
-		fDebtOnly  = 0x00000002, // Выводить только неоплаченные документы
+		fShowDebt          = 0x00000001, // Показывать долг
+		fDebtOnly          = 0x00000002, // Выводить только неоплаченные документы
 		// if(fOrderOnly) then выводить только не закрытые заказы
 		fPaymNeeded        = 0x00000004, // Выводить документы, требующие оплаты (независимо от операции)
 		fFreightedOnly     = 0x00000008, // Только зафрахтованные документы (BillTbl::Rec.Flags & BILLF_FREIGHT)
-		fCashOnly  = 0x00000010, // Документы розницы через кассовый узел
-		fOrderOnly = 0x00000020, // Заказы
-		fInvOnly   = 0x00000040, // Инвентаризация //
+		fCashOnly          = 0x00000010, // Документы розницы через кассовый узел
+		fOrderOnly         = 0x00000020, // Заказы
+		fInvOnly           = 0x00000040, // Инвентаризация //
 		fAsSelector        = 0x00000080, // Если флаг fAsSelector установлен, то броузер работает как
 			// селектор. При этом, если был выбран какой-то документ, то поле sel содержит его идентификатор.
-		fLabelOnly = 0x00000100, // Показывать только меченые документы
+		fLabelOnly         = 0x00000100, // Показывать только меченые документы
 		fAllCurrencies     = 0x00000200, // Показывать все валюты
 		fAccturnOnly       = 0x00000400, // Только бухгалтерские документы
 		fSetupNewBill      = 0x00000800, // Формировать поля нового док в соответствии с фильтром
-		fDraftOnly = 0x00001000, // Драфт-документы
+		fDraftOnly         = 0x00001000, // Драфт-документы
 		fDebtsWithPayments = 0x00002000, // Долговые документы с оплатами
-		fPoolOnly  = 0x00004000, // Только пулы документов
-		fShowAck   = 0x00008000, // Показывать с номерами подтверждений
+		fPoolOnly          = 0x00004000, // Только пулы документов
+		fShowAck           = 0x00008000, // Показывать с номерами подтверждений
 		fEditPoolByType    = 0x00010000, // Изменения пула производить с помощью AssocID
 		fIgnoreRtPeriod    = 0x00020000, // @internal Функция PPViewBill::Init не должна устанавливать пересечение this->Period с периодом доступа на чтение.
 		fShowWoAgent       = 0x00040000, // Показывать только документы без агента
 		fBillListOnly      = 0x00080000, // Если задан список документов List, то не проверять остальные
 			// критерии фильтра. Если List.IsEmpty, то это флаг игнорируется.
-		fWmsOnly   = 0x00100000, // Только документы складских операций
+		fWmsOnly           = 0x00100000, // Только документы складских операций
 		fUnshippedOnly     = 0x00200000, // Только не отгруженные документы !(BillTbl::Rec::Flags & BILLF_SHIPPED)
 		fShippedOnly       = 0x00400000, // Только отгруженные документы (BillTbl::Rec::Flags & BILLF_SHIPPED)
 		fDiscountOnly      = 0x00800000, // Только со скидкой на весь документ
-		fDescOrder = 0x01000000, // Сортировка в обратном порядке
+		fDescOrder         = 0x01000000, // Сортировка в обратном порядке
 		fAddZeroLoc        = 0x02000000, // При построении выборки добавлять нулевую локацию к списку складов, по которому фильтруется отчет.
-		fExportEDI = 0x04000000, // Специальный флаг, используемый при экспорте
+		fExportEDI         = 0x04000000, // Специальный флаг, используемый при экспорте
 		// @v10.7.0 fCcPrintedOnly     = 0x08000000, // @v9.7.12 Только документы, по которым отпечатан кассовый чек
 		// @v10.7.0 fCcNotPrintedOnly  = 0x10000000  // @v10.6.13 Только документы, по которым не отпечатан кассовый чек
 		fNoTempTable       = 0x20000000, // @v10.9.0 Не создавать временную таблицу, даже если условия фильтрации этого требуют
@@ -39799,7 +39799,7 @@ public:
 	LotFilt(const LotFilt & rS);
 	LotFilt & FASTCALL operator = (const LotFilt & rS);
 	virtual int Describe(long flags, SString & rBuf) const;
-	int    ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	int    GetExtssData(int fldID, SString & rBuf) const;
 	int    PutExtssData(int fldID, const char * pBuf);
 	enum {
@@ -40139,7 +40139,7 @@ class FreightFilt : public PPBaseFilt {
 public:
 	FreightFilt();
 	FreightFilt & FASTCALL operator = (const FreightFilt &);
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	enum {
 		fUnshippedOnly     = 0x0001, // Только неотгруженные
 		fFillLaggageFields = 0x0002, // Заполнять багажные поля (Brutto, PckgCount, Volume)
@@ -40643,7 +40643,7 @@ public:
 	long   Reserve;          // @anchor
 	ObjIdListFilt LocList;
 private:
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
 
 class PrcssrSupplInterchange {
@@ -40711,6 +40711,7 @@ public:
 	};
 	int    IsEqualExcept(const GoodsRestFilt & rS, long flags) const;
 	virtual int Describe(long flags, SString & rBuf) const;
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver); // @v11.4.6
 	//
 	// Descr: Устанавливает признак использования котировки QuotKindID.
 	// ARG(v IN):
@@ -40765,11 +40766,11 @@ public:
 		// @#{fExtByArCode^fRestrictByArCode}
 		fCrosstab               = 0x02000000, // Кросстаб, если включена опция fEachLocation
 		fShowGoodsMatrixBelongs = 0x04000000, // Отображать принадлежность товарной матрице
-		fCalcUncompleteSess     = 0x08000000,    // Рассчитывать с учетом незавершенных сессий
-		fZeroSupplAgent         = 0x10000000,    // Только с нулевым агентом поставщика
-		fCalcCVat               = 0x20000000,    // Рассчитывать валовую сумму НДС в ценах поступления //
-		fCalcPVat               = 0x40000000,    // Рассчитывать валовую сумму НДС в ценах реализации //
-		fForceNullRest          = 0x80000000     // Предписывает показывать товар с нулевым остатком даже если не было ни одного лота
+		fCalcUncompleteSess     = 0x08000000, // Рассчитывать с учетом незавершенных сессий
+		fZeroSupplAgent         = 0x10000000, // Только с нулевым агентом поставщика
+		fCalcCVat               = 0x20000000, // Рассчитывать валовую сумму НДС в ценах поступления //
+		fCalcPVat               = 0x40000000, // Рассчитывать валовую сумму НДС в ценах реализации //
+		fForceNullRest          = 0x80000000  // Предписывает показывать товар с нулевым остатком даже если не было ни одного лота
 	};
 	//
 	// Descr: Значения флагов, хранящихся в поле Flags2
@@ -40777,31 +40778,34 @@ public:
 	enum {
 		f2CalcPrognosis = 0x00000001, // Рассчитывать прогноз продаж (специальная форма диалога фильтра и отчета)
 		f2CostByQuot    = 0x00000002, // Котировку трактовать как цены поступления
-		f2RetailPrice   = 0x00000004  // @v10.3.2 Цены реализации рассчитывать по правилам, применяемым для определения розничных цен
+		f2RetailPrice   = 0x00000004, // @v10.3.2 Цены реализации рассчитывать по правилам, применяемым для определения розничных цен
+		f2BelowOneRest  = 0x00000008, // @v11.4.6 Показывать только те позиции, остаток которых менее 1.0
+		f2FractRest     = 0x00000010  // @v11.4.6 Показывать только дробные остатки  
 	};
 	//
 	// Descr: Опции экспорта Universe-HTT
 	//
 	enum {
-		uefRest  = 0x0001, // Экспортировать значения остатков
-		uefPrice = 0x0002, // Экспортировать цены
+		uefRest          = 0x0001, // Экспортировать значения остатков
+		uefPrice         = 0x0002, // Экспортировать цены
 		uefZeroAbsPrices = 0x0004  // Обнулять цены для позиций, которые есть на сервере, но отсутствуют в отчете
 	};
 	enum {
 		evfShowLastSaleDate = 0x0001 // Показывать дату последней продажи
 	};
-	char   ReserveStart[4];  // @anchor
+	char   ReserveStart[64]; // @anchor // @v11.4.6 [4]-->[64]
+	int32  InitOrder;        // @v11.4.6 Инициирующий порядок сортировки
 	uint32 DiffParam;        // Параметр дифференциации записей отчета
 	PPID   UhttExpLocID;     // Склад, по которому синхронизируется загрузка данных на сервер Universe-HTT
 		// Если UhttExpLocID == 0, то синхронизируется по LocList.GetSingle()
 	int16  UhttExpFlags;     // Опции экспорта в Universe-HTT
 	uint16 ExtViewFlags;     // Дополнительные опции просмотра
-	PPID   DiffLotTagID;     // Тип тега лотов, по значениям которого следует дифференцировать отчет
-	DateRange DraftRcptPrd;  // Период расчета будущих драфт приходов
 	int16  PrgnTerm;         // Количество дней, на которые необходимо спрогнозировать продажи.
 		// По смыслу, это поле конфликтует с PrgnPeriod, однако имеет несколько отличное применение:
 		// используется для расчета дополнительного поля прогноза продаж без признака CalcPrognosis.
 	int16  ExhaustTerm;      // Срок истощения остатков (<0 - количество дней, прошедшее после истощения остатка)
+	PPID   DiffLotTagID;     // Тип тега лотов, по значениям которого следует дифференцировать отчет
+	DateRange DraftRcptPrd;  // Период расчета будущих драфт приходов
 	uint   CalcMethod;       // GoodsRestParam::pcmXXX
 	long   Flags;            //
 	int    AmtType;          // 0 - в обеих ценах, 1 - поступления, 2 - реализации
@@ -40817,6 +40821,7 @@ public:
 	SubstGrpGoods Sgg;       //
 	LDATE  DeficitDt;        //
 	uint   WaitMsgID;        //
+	RealRange RestRange;     // @v11.4.6 Диапазон значений остатка 
 	long   Reserve;          // @anchor
 	ObjIdListFilt LocList;   //
 	ObjIdListFilt GoodsList; // Для вывода детализации по ид подстановки
@@ -40903,7 +40908,8 @@ public:
 		OrdByPrice,
 		OrdByGrp_Price,
 		OrdByBarCode,
-		OrdByGrp_BarCode
+		OrdByGrp_BarCode,
+		OrdByRest // @v11.4.6
 	};
 	// @erik v10.7.13 {
 	/*enum {
@@ -41720,7 +41726,7 @@ public:
 	ObjIdListFilt RcknBillList; // Список зачетных документов, по которым следует построить отчет
 	ObjIdListFilt DebtDimList;  // Список долговых размерностей, которыми следут ограничить построение отчета
 private:
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
 
 struct DebtTrnovrViewItem { // @transient
@@ -43423,7 +43429,7 @@ public:
 	static int FASTCALL HasGoodsGrouping(Grouping grp)
 		{ return BIN(oneof9(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer, gGoodsDateSerial, gGoodsCard)); } //@erik v10.5.2 add{gGoodsCard}
 	CCheckFilt();
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	CCheckFilt & FASTCALL operator = (const CCheckFilt & src);
 	//
 	// Descr: Устанавливает список кассовых узлов (NodeList) в соотвествии
@@ -43912,7 +43918,7 @@ public:
 	ObjIdListFilt   ArList;       // Список статей контрагентов
 	ObjIdListFilt   AgentList;    // Список статей агентов
 private:
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
 
 struct TrfrAnlzViewItem {
@@ -44524,7 +44530,7 @@ struct SCardFilt : public PPBaseFilt {
 	SCardFilt * P_ExludeOwnerF; // Фильтр, по которому из выборки исключаются владельцы карт, под него подпадающие
 	PersonFilt * P_OwnerF;      // @v8.4.2 @construction Фильтр по владельцам
 private:
-	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
 
 struct SCardTotal {
@@ -46771,6 +46777,7 @@ public:
 		//styloqfDocStatusFlagsMask = (styloqfDocDraft|styloqfDocTransmission|styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
 		styloqfDocTransmission     = 0x0080, // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как 
 			// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
+		styloqfPassive             = 0x0100  // @v11.4.6 Флаг для kForeignService. Означает, что сервис пассивен (относительно клиента) и не должен отображаться в регулярном списке у клиента.
 	};
 	// 
 	// Статусы документов заказа клиент-->сервис
@@ -46982,10 +46989,12 @@ public:
 		sqbcRsrvAttendancePrereq = 102, // Модуль данных, передаваемых сервисом клиенту для формирования записи на обслуживаение.
 		sqbcRsrvPushIndexContent = 103, // @v11.3.4 Параметры передачи сервисам-медиаторам данных для поисковой индексации
 		sqbcRsrvIndoorSvcPrereq  = 104, // @v11.4.4 Параметры обслуживания внутри помещения сервиса (horeca, shop, etc)
+			// Буфер параметров команды содержит идентификатор кассового узла.
 			// Данные строятся на основании параметров, определяемых кассовым узлом.
 		sqbcGoodsInfo            = 105, // @v11.4.4 Параметры, определяющие вывод информации об одном товаре 
 		sqbcLocalBarcodeSearch   = 106, // @v11.4.5 Поиск в пределах сервиса (преимущественно) по штрихкоду. 
-			// Если сервис предоставяет такую функцию, то она отображается в виде иконки на экране мобильного устройства, а не в общем списке.
+			// Если сервис предоставляет такую функцию, то она отображается в виде иконки на экране мобильного устройства, а не в общем списке.
+		sqbcIncomingListOrder    = 107  // @v11.4.6 Список входящих заказов (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
 	};
 	//
 	// Descr: Идентификаторы типов документов обмена
@@ -47004,8 +47013,12 @@ public:
 		Item();
 		bool   FASTCALL IsEq(const Item & rS) const;
 		int    GetAttendanceParam(StyloQAttendancePrereqParam & rP) const;
+		bool   CanApplyPrepareAheadOption() const;
 		enum {
-			fResultPersistent = 0x0001
+			fResultPersistent = 0x0001,
+			fPrepareAhead     = 0x0002  // @v11.4.6 Данные команды готовятся заранее чтобы при запросе от клиента отдать их максимально быстро.
+				// Эта опция не может быть применена в случае, если параметры команды содержат ссылку на контекстные данные!
+				// Поскольку не ясно какой именно результат должен быть подготовлен заранее.
 		};
 		int32  Ver;                 //
 		int32  BaseCmdId;           //
@@ -47013,6 +47026,7 @@ public:
 		S_GUID Uuid;                //
 		int32  ObjTypeRestriction;  //
 		int32  ObjGroupRestriction; //
+		int32  ObjIdRestriction;    // @v11.2.6
 		int32  ResultExpiryTimeSec; // @v11.2.5 Период истечения срока действия результата в секундах. (<=0 - undefined)
 			// Если ResultExpiryPeriodSec то клиент может пользоваться результатом запроса в течении этого времени без
 			// повторного обращения к сервису.
@@ -47032,8 +47046,18 @@ public:
 	//
 	static int GetCanonicalFileName(SString & rFileName);
 	static SString & GetBaseCommandName(int cmdId, SString & rBuf);
+	//
+	// Descr: Возвращает копию полного списка команд, управляемого глобальным объектом класса SCachedFileEntity.
+	//
+	static bool  GetFullList(const char * pDbSymb, StyloQCommandList & rList);
 	StyloQCommandList();
+	StyloQCommandList(const StyloQCommandList & rS);
 	~StyloQCommandList();
+	StyloQCommandList & FASTCALL operator = (const StyloQCommandList & rS);
+	bool   FASTCALL operator == (const StyloQCommandList & rS) const { return IsEq(rS); }
+	StyloQCommandList & Z();
+	bool   FASTCALL Copy(const StyloQCommandList & rS);
+	bool   FASTCALL IsEq(const StyloQCommandList & rS) const;
 	Item * CreateNewItem(uint * pIdx);
 	uint   GetCount() const;
 	Item * Get(uint idx);
@@ -47050,9 +47074,10 @@ public:
 	//
 	int    Validate(const Item * pSelectedItem) const;
 	int    Store(const char * pFileName) const;
-	int    Load(const char * pDbSymb, const char * pFileName);
+	bool   Load(const char * pDbSymb, const char * pFileName);
 	StyloQCommandList * CreateSubListByContext(PPObjID oid, int baseCmdId, bool skipInternalCommands) const;
 	StyloQCommandList * CreateSubListByDbSymb(const char * pDbSymb, int baseCmdId) const;
+	bool   GetSubListByDbSymb(const char * pDbSymb, int baseCmdId, StyloQCommandList & rList) const;
 	//
 	// Descr: Формирует json-объект по списку команд для передачи клиенту.
 	//   Если pParent == 0, то формирует автономный безымянный json-объект,
@@ -47197,6 +47222,8 @@ public:
 		int    OpID;
 		int    ClientID;  // service-domain-id
 		int    DlvrLocID; // service-domain-id
+		int    AgentID;   // @v11.4.6 service-domain-id
+		int    PosNodeID; // @v11.4.6 service-domain-id
 		double Amount;    // @v11.3.10
 		SString Code;
 		SString BaseCurrencySymb; // @v11.3.12
@@ -47466,8 +47493,8 @@ private:
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	int    ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
 		SString & rResult, SString & rDocDeclaration, bool debugOutput);
-	int    ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
-		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
+	int    ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
+	int    ProcessCommand_IncomingListOrder(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
 	// Returns:
@@ -54764,13 +54791,13 @@ public:
 	// Descr: Режимы функции AcceptCheck
 	//
 	enum {
-		accmRegular = 0, // Обычное проведение кассового чека
+		accmRegular         = 0, // Обычное проведение кассового чека
 		accmSuspended       = 1, // Сохранение отложенного чека
 		accmAveragePrinting = 2, // Аварийная печать уже проведенного чека (до этого печать завершилась с ошибкой)
-		accmJunk    = 3, // Сохранение временной копии чека (с флагами CCHKF_SUSPENDED|CCHKF_JUNK)
+		accmJunk            = 3, // Сохранение временной копии чека (с флагами CCHKF_SUSPENDED|CCHKF_JUNK)
 	};
 
-	virtual int    AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode);
+	virtual int    AcceptCheck(PPID * pCcID, const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode);
 	virtual void   ClearCheck();
 	virtual void   ClearRow();
 	virtual void   OnUpdateList(int goBottom);
@@ -55243,7 +55270,7 @@ public:
 
 	CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterCcPack, uint ctrFlags/*int isTouchScreen = 0*/);
 	~CheckPaneDialog();
-	virtual int    AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode);
+	virtual int    AcceptCheck(PPID * pCcID, const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode);
 	virtual void   ClearCheck();
 	virtual void   OnUpdateList(int goBottom);
 	void   SetSCard(const char * pStr);

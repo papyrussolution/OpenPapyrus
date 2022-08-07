@@ -79,7 +79,7 @@ UnicodeString & UnicodeString::caseMap(int32_t caseLocale, uint32_t options, UCA
 #endif
 
 	// Try to avoid heap-allocating a new character array for this string.
-	if(writable ? oldLength <= UPRV_LENGTHOF(oldBuffer) : oldLength < US_STACKBUF_SIZE) {
+	if(writable ? oldLength <= SIZEOFARRAYi(oldBuffer) : oldLength < US_STACKBUF_SIZE) {
 		// Short string: Copy the contents into a temporary buffer and
 		// case-map back into the current array, or into the stack buffer.
 		UChar * buffer = getArrayStart();
@@ -134,7 +134,7 @@ UnicodeString & UnicodeString::caseMap(int32_t caseLocale, uint32_t options, UCA
 		}
 #endif
 		stringCaseMapper(caseLocale, options | U_OMIT_UNCHANGED_TEXT, UCASEMAP_BREAK_ITERATOR
-		    replacementChars, UPRV_LENGTHOF(replacementChars),
+		    replacementChars, SIZEOFARRAYi(replacementChars),
 		    oldArray, oldLength, &edits, errorCode);
 		if(U_SUCCESS(errorCode)) {
 			// Grow the buffer at most once, not for multiple doReplace() calls.

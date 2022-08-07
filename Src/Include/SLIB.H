@@ -1281,7 +1281,8 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 #define DECL_INVARIANT_C()    int InvariantC(SInvariantParam * pInvP) const
 #define IMPL_INVARIANT_C(cls) int cls::InvariantC(SInvariantParam * pInvP) const
 //
-#define SIZEOFARRAY(array) (sizeof(array)/sizeof((array)[0]))
+#define SIZEOFARRAY(array)  (sizeof(array)/sizeof((array)[0]))
+#define SIZEOFARRAYi(array) static_cast<int>(sizeof(array)/sizeof((array)[0]))
 #define IS_ODD(n)          ((n) & 1)
 #define IS_EVEN(n)         (!(IS_ODD(n)))
 
@@ -15188,7 +15189,7 @@ public:
 };
 
 template <class T> class TSClassWrapper : public SClassWrapper {
-	virtual void * Create() { return new T; }
+	virtual void * Create() { return new T(); }
 	virtual void Destroy(void * ptr) { delete static_cast<T *>(ptr); }
 };
 //
@@ -15642,9 +15643,9 @@ private:
 	public:
 		GlobalObjectArray();
 		~GlobalObjectArray();
-		void Destroy();
-		uint CreateObject(SClassWrapper & rCls);
-		int  DestroyObject(uint idx);
+		void   Destroy();
+		uint   CreateObject(SClassWrapper & rCls);
+		int    DestroyObject(uint idx);
 		void * FASTCALL GetObject(uint idx);
 	private:
 		SCriticalSection::Data Cs;
@@ -15663,6 +15664,46 @@ extern SlSession SLS;
 #define DefaultYear  (SLS.GetTLA().DefaultYear_)
 #define DefaultMonth (SLS.GetTLA().DefaultMonth_)
 #define P_SlRez      (SLS.GetTLA().GetRez())
+//
+// Descr: Объект, держащий относительно стабильное представление сущности, хранимой в файле.
+//   Нужен для того, что бы не обращаться каждый раз за таким представлением к исходному файлу, но,
+//   если файл вдруг изменился, то перестроить сущность и работать с ней дальше.
+//   Примеры (потенциального) использования: pp.ini, stqc.xml etc.
+//
+class SCachedFileEntity {
+public:
+	SCachedFileEntity();
+	virtual ~SCachedFileEntity();
+	const char * GetFilePath() const;
+	int    Init(const char * pFilePath);
+	//
+	// Descr: Выполняет проверку времени модификации файла и, если файл был изменен, то запускает 
+	//   виртуальные функции DestroyEntity() и InitEntity().
+	//   Функция защищена критической секцией поэтому может вызываться из разных потоков.
+	// ARG(force IN): Если true, то перезагрузка entity осуществляется не взирая на время модификации файла
+	// Returns:
+	//   <0 - файл не был модифицирован, следовательно и попытки перезагрузки не предпринималось.
+	//   >0 - перезагрузка осуществлена успешно
+	//    0 - ошибка
+	//
+	int    Reload(bool force);
+protected:
+	virtual bool InitEntity();
+	virtual void DestroyEntity();
+	bool   InitFileModTime();
+	bool   IsModified();
+	void * P_Entity;
+	mutable SMtLock Lck; // Блокирующи объект, используемый одновременно в общем методе Reload() и в методах получения копии 
+		// сущности, реализуемых порожденными классами.
+private:
+	enum {
+		stError       = 0x0001,
+		stInitialized = 0x0002
+	};
+	uint   State;
+	SString FilePath;
+	LDATETIME ModTime; // Время последней модификации файла
+};
 //
 // Descr: Интерфейс к некоторым методам библиотеки GDI+ (Microsoft)
 //

@@ -166,7 +166,7 @@ struct {
 	int32_t fIndex;
 	bool next(int32_t &rIndex) {
 		Mutex lock;
-		if(fIndex >= UPRV_LENGTHOF(TestCases)) {
+		if(fIndex >= SIZEOFARRAYi(TestCases)) {
 			return FALSE;
 		}
 		rIndex = fIndex++;
@@ -196,13 +196,13 @@ void CalendarLimitTest::TestLimitsThread(int32_t threadNum) {
 		logln("begin test of %s calendar.", testCase.type);
 		UErrorCode status = U_ZERO_ERROR;
 		char buf[64];
-		uprv_strcpy(buf, "root@calendar=");
+		strcpy(buf, "root@calendar=");
 		strcat(buf, testCase.type);
 		cal.adoptInstead(Calendar::createInstance(buf, status));
 		if(failure(status, "Calendar::createInstance", TRUE)) {
 			continue;
 		}
-		if(uprv_strcmp(cal->getType(), testCase.type) != 0) {
+		if(strcmp(cal->getType(), testCase.type) != 0) {
 			errln((UnicodeString)"FAIL: Wrong calendar type: " + cal->getType()
 			    + " Requested: " + testCase.type);
 			continue;
@@ -398,7 +398,7 @@ void CalendarLimitTest::doLimitsTest(Calendar& cal,
 				    ", actual_min=" + minActual);
 			}
 			if(maxActual < maxLow || maxActual > maxHigh) {
-				if(uprv_strcmp(cal.getType(), "chinese") == 0 &&
+				if(strcmp(cal.getType(), "chinese") == 0 &&
 				    testMillis >= 1802044800000.0 &&
 				    logKnownIssue("12620", "chinese calendar failures for some actualMax tests")) {
 					logln((UnicodeString)"KnownFail: [" + cal.getType() + "] " +
@@ -417,7 +417,7 @@ void CalendarLimitTest::doLimitsTest(Calendar& cal,
 			}
 			if(v < minActual || v > maxActual) {
 				// timebomb per #9967, fix with #9972
-				if(uprv_strcmp(cal.getType(), "dangi") == 0 &&
+				if(strcmp(cal.getType(), "dangi") == 0 &&
 				    testMillis >= 1865635198000.0 &&
 				    logKnownIssue("9972", "as per #9967")) { // Feb 2029 gregorian, end of dangi 4361
 					logln((UnicodeString)"KnownFail: [" + cal.getType() + "] " +
@@ -427,7 +427,7 @@ void CalendarLimitTest::doLimitsTest(Calendar& cal,
 					    ", allowed=(" + minLow + ".." + minHigh + ")..(" +
 					    maxLow + ".." + maxHigh + ")");
 				}
-				else if(uprv_strcmp(cal.getType(), "chinese") == 0 &&
+				else if(strcmp(cal.getType(), "chinese") == 0 &&
 				    testMillis >= 1832544000000.0 &&
 				    logKnownIssue("12620", "chinese calendar failures for some actualMax tests")) {
 					logln((UnicodeString)"KnownFail: [" + cal.getType() + "] " +

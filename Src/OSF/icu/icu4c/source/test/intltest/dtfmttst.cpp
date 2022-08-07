@@ -184,7 +184,7 @@ void DateFormatTest::TestPatterns() {
 	};
 
 	IcuTestErrorCode errorCode(*this, "TestPatterns()");
-	for(int32_t i = 0; i < UPRV_LENGTHOF(EXPECTED); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(EXPECTED); i++) {
 		// Verify that patterns have the correct values
 		UnicodeString actualPattern(EXPECTED[i].actualPattern, -1, US_INV);
 		UnicodeString expectedPattern(EXPECTED[i].expectedPattern, -1, US_INV);
@@ -483,7 +483,7 @@ static const char * DATEFORMAT_FIELD_NAMES[] = {
 };
 
 static const int32_t DATEFORMAT_FIELD_NAMES_LENGTH =
-    UPRV_LENGTHOF(DATEFORMAT_FIELD_NAMES);
+    SIZEOFARRAYi(DATEFORMAT_FIELD_NAMES);
 
 /**
  * Verify that returned field position indices are correct.
@@ -506,9 +506,9 @@ void DateFormatTest::TestFieldPosition() {
 	assertEquals("patternChars", PATTERN_CHARS, DateFormatSymbols::getPatternUChars());
 	assertTrue("DATEFORMAT_FIELD_NAMES", DATEFORMAT_FIELD_NAMES_LENGTH == UDAT_FIELD_COUNT);
 #if UDAT_HAS_PATTERN_CHAR_FOR_TIME_SEPARATOR
-	assertTrue("Data", UDAT_FIELD_COUNT == uprv_strlen(PATTERN_CHARS));
+	assertTrue("Data", UDAT_FIELD_COUNT == strlen(PATTERN_CHARS));
 #else
-	assertTrue("Data", UDAT_FIELD_COUNT == uprv_strlen(PATTERN_CHARS) + 1); // +1 for missing TIME_SEPARATOR pattern
+	assertTrue("Data", UDAT_FIELD_COUNT == strlen(PATTERN_CHARS) + 1); // +1 for missing TIME_SEPARATOR pattern
 	                                                                        // char
 #endif
 
@@ -577,7 +577,7 @@ void DateFormatTest::TestFieldPosition() {
 #endif
 	};
 
-	const int32_t EXPECTED_LENGTH = UPRV_LENGTHOF(EXPECTED);
+	const int32_t EXPECTED_LENGTH = SIZEOFARRAYi(EXPECTED);
 
 	assertTrue("data size", EXPECTED_LENGTH == COUNT * UDAT_FIELD_COUNT);
 
@@ -652,7 +652,7 @@ void DateFormatTest::TestGeneral() {
 		"y/M/d H:mm:ss.SSS", "F", "2004 03 10 16:36:31.567", "2004/3/10 16:36:31.567",
 		"y/M/d H:mm:ss.SSSS", "pf", "2004/3/10 16:36:31.5679", "2004 03 10 16:36:31.567", "2004/3/10 16:36:31.5670",
 	};
-	expect(DATA, UPRV_LENGTHOF(DATA), Locale("en", "", ""));
+	expect(DATA, SIZEOFARRAYi(DATA), Locale("en", "", ""));
 }
 
 // -------------------------------------
@@ -956,11 +956,11 @@ void DateFormatTest::TestBadInput135()
 	DateFormat::EStyle looks[] = {
 		DateFormat::SHORT, DateFormat::MEDIUM, DateFormat::LONG, DateFormat::FULL
 	};
-	int32_t looks_length = UPRV_LENGTHOF(looks);
+	int32_t looks_length = SIZEOFARRAYi(looks);
 	const char * strings[] = {
 		"Mar 15", "Mar 15 1997", "asdf", "3/1/97 1:23:", "3/1/00 1:23:45 AM"
 	};
-	int32_t strings_length = UPRV_LENGTHOF(strings);
+	int32_t strings_length = SIZEOFARRAYi(strings);
 	DateFormat * full = DateFormat::createDateTimeInstance(DateFormat::LONG, DateFormat::LONG);
 	if(full==NULL) {
 		dataerrln("could not create date time instance");
@@ -1078,8 +1078,8 @@ void DateFormatTest::TestBadInput135a()
 	}
 	const char * s;
 	UDate date;
-	const uint32_t PF_LENGTH = UPRV_LENGTHOF(parseFormats);
-	const uint32_t INPUT_LENGTH = UPRV_LENGTHOF(inputStrings);
+	const uint32_t PF_LENGTH = SIZEOFARRAYi(parseFormats);
+	const uint32_t INPUT_LENGTH = SIZEOFARRAYi(inputStrings);
 
 	dateParse->applyPattern("d MMMM, yyyy");
 	dateParse->adoptTimeZone(TimeZone::createDefault());
@@ -1262,7 +1262,7 @@ void DateFormatTest::TestDateFormatZone146()
 			UnicodeString("short format:   "), UnicodeString("4/4/97 11:00 PM"),
 			UnicodeString("M/d/yy h:mm a")
 		};
-		int32_t DATA_length = UPRV_LENGTHOF(DATA);
+		int32_t DATA_length = SIZEOFARRAYi(DATA);
 
 		for(int32_t i = 0; i<DATA_length; i += 3) {
 			SimpleDateFormat fmt(DATA[i+2], Locale::getEnglish(), status);
@@ -1488,7 +1488,7 @@ void DateFormatTest::TestSpaceParsing() {
 		NULL,                "12h34m56s",   "1970 01 01 12:34:56",
 		NULL,                "12:34:56",    "1970 01 01 12:34:56"
 	};
-	const int32_t DATA_len = UPRV_LENGTHOF(DATA);
+	const int32_t DATA_len = SIZEOFARRAYi(DATA);
 
 	expectParse(DATA, DATA_len, Locale("en"));
 }
@@ -1509,7 +1509,7 @@ void DateFormatTest::TestExactCountFormat() {
 		NULL,     "00+05",  NULL,
 		"ahhmm",  "PM730",  "1970 01 01 19:30:00",
 	};
-	const int32_t DATA_len = UPRV_LENGTHOF(DATA);
+	const int32_t DATA_len = SIZEOFARRAYi(DATA);
 
 	expectParse(DATA, DATA_len, Locale("en"));
 }
@@ -1527,7 +1527,7 @@ void DateFormatTest::TestWhiteSpaceParsing() {
 		"MM   d yy",   " 04 01 03",    "2003 04 01",
 		NULL,          " 04  01   03 ", "2003 04 01",
 	};
-	const int32_t DATA_len = UPRV_LENGTHOF(DATA);
+	const int32_t DATA_len = SIZEOFARRAYi(DATA);
 
 	expectParse(DATA, DATA_len, Locale("en"));
 }
@@ -1639,8 +1639,8 @@ void DateFormatTest::TestStandAloneMonths()
 		"LLL", "fp", "1970 12 01 0:00:00", "pro", "1970 12 01 0:00:00",
 	};
 
-	expect(EN_DATA, UPRV_LENGTHOF(EN_DATA), Locale("en", "", ""));
-	expect(CS_DATA, UPRV_LENGTHOF(CS_DATA), Locale("cs", "", ""));
+	expect(EN_DATA, SIZEOFARRAYi(EN_DATA), Locale("en", "", ""));
+	expect(CS_DATA, SIZEOFARRAYi(CS_DATA), Locale("cs", "", ""));
 }
 
 void DateFormatTest::TestStandAloneDays()
@@ -1685,8 +1685,8 @@ void DateFormatTest::TestStandAloneDays()
 		"ccc", "fp", "1970 01 03 0:00:00", "so",      "1970 01 03 0:00:00",
 	};
 
-	expect(EN_DATA, UPRV_LENGTHOF(EN_DATA), Locale("en", "", ""));
-	expect(CS_DATA, UPRV_LENGTHOF(CS_DATA), Locale("cs", "", ""));
+	expect(EN_DATA, SIZEOFARRAYi(EN_DATA), Locale("en", "", ""));
+	expect(CS_DATA, SIZEOFARRAYi(CS_DATA), Locale("cs", "", ""));
 }
 
 void DateFormatTest::TestShortDays()
@@ -1709,8 +1709,8 @@ void DateFormatTest::TestShortDays()
 		"cccccc d",        "fp", "1970 01 17 0:00:00", "l\\u00F6 17",          "1970 01 17 0:00:00",
 		"cccccc",          "fp", "1970 01 03 0:00:00", "l\\u00F6",             "1970 01 03 0:00:00",
 	};
-	expect(EN_DATA, UPRV_LENGTHOF(EN_DATA), Locale("en", "", ""));
-	expect(SV_DATA, UPRV_LENGTHOF(SV_DATA), Locale("sv", "", ""));
+	expect(EN_DATA, SIZEOFARRAYi(EN_DATA), Locale("en", "", ""));
+	expect(SV_DATA, SIZEOFARRAYi(SV_DATA), Locale("sv", "", ""));
 }
 
 void DateFormatTest::TestNarrowNames()
@@ -1832,9 +1832,9 @@ void DateFormatTest::TestNarrowNames()
 		"h:mm aaaaa", "2015 01 01 22:00:00", "10:00 p.\\u00A0m.",
 	};
 
-	expectFormat(EN_DATA, UPRV_LENGTHOF(EN_DATA), Locale("en", "", ""));
-	expectFormat(CS_DATA, UPRV_LENGTHOF(CS_DATA), Locale("cs", "", ""));
-	expectFormat(CA_DATA, UPRV_LENGTHOF(CA_DATA), Locale("ca", "", ""));
+	expectFormat(EN_DATA, SIZEOFARRAYi(EN_DATA), Locale("en", "", ""));
+	expectFormat(CS_DATA, SIZEOFARRAYi(CS_DATA), Locale("cs", "", ""));
+	expectFormat(CA_DATA, SIZEOFARRAYi(CA_DATA), Locale("ca", "", ""));
 }
 
 void DateFormatTest::TestEras()
@@ -1853,7 +1853,7 @@ void DateFormatTest::TestEras()
 		"MMMM dd yyyy GGGG", "fp", "-438 07 17", "July 17 0439 Before Christ", "-438 07 17",
 	};
 
-	expect(EN_DATA, UPRV_LENGTHOF(EN_DATA), Locale("en", "", ""));
+	expect(EN_DATA, SIZEOFARRAYi(EN_DATA), Locale("en", "", ""));
 }
 
 void DateFormatTest::TestQuarters()
@@ -1887,8 +1887,8 @@ void DateFormatTest::TestQuarters()
 		"qqqqq",   "fp", "1970 01 01", "1T",                  "1970 01 01",
 	};
 
-	expect(EN_DATA, UPRV_LENGTHOF(EN_DATA), Locale("en", "", ""));
-	expect(ES_MX_DATA, UPRV_LENGTHOF(ES_MX_DATA), Locale("es", "MX", ""));
+	expect(EN_DATA, SIZEOFARRAYi(EN_DATA), Locale("en", "", ""));
+	expect(ES_MX_DATA, SIZEOFARRAYi(ES_MX_DATA), Locale("es", "MX", ""));
 }
 
 /**
@@ -2016,7 +2016,7 @@ void DateFormatTest::expect(const char ** data, int32_t data_length,
 
 		const char * control = data[i++];
 
-		if(uprv_strcmp(control, "fp") == 0) {
+		if(strcmp(control, "fp") == 0) {
 			// 'f'
 			const char * datestr = data[i++];
 			const char * string = data[i++];
@@ -2037,7 +2037,7 @@ void DateFormatTest::expect(const char ** data, int32_t data_length,
 			}
 		}
 
-		else if(uprv_strcmp(control, "pf") == 0) {
+		else if(strcmp(control, "pf") == 0) {
 			// 'p'
 			const char * string = data[i++];
 			const char * datestr = data[i++];
@@ -2056,7 +2056,7 @@ void DateFormatTest::expect(const char ** data, int32_t data_length,
 			    fmt.format(date, str.remove()));
 		}
 
-		else if(uprv_strcmp(control, "F") == 0) {
+		else if(strcmp(control, "F") == 0) {
 			const char * datestr  = data[i++];
 			const char * string   = data[i++];
 			UDate date = ref.parse(ctou(datestr), ec);
@@ -2204,7 +2204,7 @@ void DateFormatTest::TestGenericTime() {
 		"y/M/d H:mm", "pf", "2004/10/31 1:30", "2004 10 31 01:30 PST", "2004/10/31 1:30",
 	};
 
-	const int32_t ZDATA_length = UPRV_LENGTHOF(ZDATA);
+	const int32_t ZDATA_length = SIZEOFARRAYi(ZDATA);
 	expect(ZDATA, ZDATA_length, en);
 
 	UErrorCode status = U_ZERO_ERROR;
@@ -2221,7 +2221,7 @@ void DateFormatTest::TestGenericTime() {
 		dataerrln("Fail construct SimpleDateFormat: %s", u_errorName(status));
 		return;
 	}
-	const int32_t formats_length = UPRV_LENGTHOF(formats);
+	const int32_t formats_length = SIZEOFARRAYi(formats);
 
 	UnicodeString test;
 	SimpleDateFormat univ("yyyy MM dd HH:mm zzz", en, status);
@@ -2230,7 +2230,7 @@ void DateFormatTest::TestGenericTime() {
 		"2004 01 02 03:04 PST",
 		"2004 07 08 09:10 PDT"
 	};
-	int32_t times_length = UPRV_LENGTHOF(times);
+	int32_t times_length = SIZEOFARRAYi(times);
 	for(int i = 0; i < times_length; ++i) {
 		UDate d = univ.parse(times[i], status);
 		logln(UnicodeString("\ntime: ") + d);
@@ -2310,7 +2310,7 @@ void DateFormatTest::TestGenericTimeZoneOrder() {
 		"y/M/d v H:mm", "pf", "2004/7/1 PT 1:00", "2004 07 01 01:00 PDT", "2004/7/1 PT 1:00",
 		"v y/M/d H:mm", "pf", "PT 2004/7/1 1:00", "2004 07 01 01:00 PDT", "PT 2004/7/1 1:00",
 	};
-	const int32_t XDATA_length = UPRV_LENGTHOF(XDATA);
+	const int32_t XDATA_length = SIZEOFARRAYi(XDATA);
 	Locale en("en");
 	expect(XDATA, XDATA_length, en);
 }
@@ -2338,7 +2338,7 @@ void DateFormatTest::TestZTimeZoneParsing() {
 	};
 
 	UnicodeString result;
-	int32_t tests_length = UPRV_LENGTHOF(tests);
+	int32_t tests_length = SIZEOFARRAYi(tests);
 	for(int i = 0; i < tests_length; ++i) {
 		pp.setIndex(0);
 		UDate d = univ.parse(tests[i].input, pp);
@@ -3638,7 +3638,7 @@ void DateFormatTest::TestTimeZoneInLocale()
 		{ "it-u-ca-roc-tz-aruaq",              "America/Argentina/San_Juan", "roc" },
 	};
 
-	for(int32_t i = 0; i < UPRV_LENGTHOF(tests); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(tests); ++i) {
 		UErrorCode status = U_ZERO_ERROR;
 		const char ** testLine = tests[i];
 		Locale locale(testLine[0]);
@@ -3997,7 +3997,7 @@ void DateFormatTest::TestGMTParsing() {
 		"HH:mm:ssZZZZZ",    "14:25:45Z",            "14:25:45 +0000",
 		"HH:mm:ssZZZZZ",    "15:00:00-08:00",       "15:00:00 -0800",
 	};
-	const int32_t DATA_len = UPRV_LENGTHOF(DATA);
+	const int32_t DATA_len = SIZEOFARRAYi(DATA);
 	expectParse(DATA, DATA_len, Locale("en"));
 }
 
@@ -4755,7 +4755,7 @@ void DateFormatTest::TestDotAndAtLeniency() {
 	// Test for date/time parsing regression with CLDR 22.1/ICU 50 pattern strings.
 	// For details see http://bugs.icu-project.org/trac/ticket/9789
 	static const char * locales[] = { "en", "fr" };
-	for(int32_t i = 0; i < UPRV_LENGTHOF(locales); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(locales); ++i) {
 		Locale locale(locales[i]);
 
 		for(DateFormat::EStyle dateStyle = DateFormat::FULL; dateStyle <= DateFormat::SHORT;
@@ -5110,7 +5110,7 @@ void DateFormatTest::TestNumberFormatOverride() {
 
 	UDate test_date = date(97, 6 - 1, 15);
 
-	for(int i = 0; i < UPRV_LENGTHOF(DATA); i++) {
+	for(int i = 0; i < SIZEOFARRAYi(DATA); i++) {
 		fields = DATA[i][0];
 
 		LocalPointer<SimpleDateFormat> fmt;
@@ -5325,7 +5325,7 @@ void DateFormatTest::TestPatternFromSkeleton() {
 		{Locale::getEnglish(), "msSSSS", "mm:ss.SSSS"}
 	};
 
-	for(size_t i = 0; i < UPRV_LENGTHOF(TESTDATA); i++) {
+	for(size_t i = 0; i < SIZEOFARRAYi(TESTDATA); i++) {
 		UErrorCode status = U_ZERO_ERROR;
 		LocalPointer<DateFormat> fmt(
 			DateFormat::createInstanceForSkeleton(

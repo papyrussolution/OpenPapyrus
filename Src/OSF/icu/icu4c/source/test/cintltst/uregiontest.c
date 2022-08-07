@@ -430,7 +430,7 @@ static void TestGroupingChildren() {
 		"EU",  "AT,BE,CY,CZ,DE,DK,EE,ES,FI,FR,GR,HR,HU,IE,IT,LT,LU,LV,MT,NL,PL,PT,SE,SI,SK,BG,RO"
 	};
 
-	for(int32_t i = 0; i < UPRV_LENGTHOF(testGroupings); i += 2) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(testGroupings); i += 2) {
 		const char * groupingCode = testGroupings[i];
 		const char * expectedChildren = testGroupings[i + 1];
 
@@ -447,9 +447,9 @@ static void TestGroupingChildren() {
 				while((actualChild = uenum_next(actualChildren, NULL, &err)) != NULL && *expectedChildStart != '\0') {
 					expectedChildEnd = uprv_strchr(expectedChildStart, ',');
 					if(expectedChildEnd == NULL) {
-						expectedChildEnd = expectedChildStart + uprv_strlen(expectedChildStart);
+						expectedChildEnd = expectedChildStart + strlen(expectedChildStart);
 					}
-					if(uprv_strlen(actualChild) != (size_t)(expectedChildEnd - expectedChildStart) ||
+					if(strlen(actualChild) != (size_t)(expectedChildEnd - expectedChildStart) ||
 					    uprv_strncmp(actualChild, expectedChildStart, expectedChildEnd - expectedChildStart) != 0) {
 						log_err("Mismatch in child list for %s at position %d: expected %s, got %s\n",
 						    groupingCode,
@@ -618,7 +618,7 @@ static void TestGetPreferredValues() {
 						bool found = FALSE;
 						uenum_reset(preferredRegions, &status);
 						while((check = uenum_next(preferredRegions, NULL, &status)) != NULL && U_SUCCESS(status)) {
-							if(!uprv_strcmp(check, preferredCode)) {
+							if(!strcmp(check, preferredCode)) {
 								found = TRUE;
 								break;
 							}

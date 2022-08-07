@@ -89,7 +89,7 @@ void AstroTest::TestSolarLongitude() {
 	};
 
 	logln("");
-	for(uint32_t i = 0; i < UPRV_LENGTHOF(tests); i++) {
+	for(uint32_t i = 0; i < SIZEOFARRAYi(tests); i++) {
 		gc->clear();
 		gc->set(tests[i].d[0], tests[i].d[1]-1, tests[i].d[2], tests[i].d[3], tests[i].d[4]);
 
@@ -118,7 +118,7 @@ void AstroTest::TestLunarPosition() {
 	};
 	logln("");
 
-	for(int32_t i = 0; i < UPRV_LENGTHOF(tests); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(tests); i++) {
 		gc->clear();
 		gc->set((int32_t)tests[i][0], (int32_t)tests[i][1]-1, (int32_t)tests[i][2], (int32_t)tests[i][3], (int32_t)tests[i][4]);
 		astro->setDate(gc->getTime(status));
@@ -173,7 +173,7 @@ void AstroTest::TestCoverage() {
 		myastro, myastro2, myastro3, myastro2 // check cache
 	};
 
-	for(uint32_t i = 0; i < UPRV_LENGTHOF(astronomers); ++i) {
+	for(uint32_t i = 0; i < SIZEOFARRAYi(astronomers); ++i) {
 		CalendarAstronomer * anAstro = astronomers[i];
 
 		//logln("astro: " + astro);
@@ -449,7 +449,7 @@ void AstroTest::TestMoonAge() {
 	     59.80247650195558,
 	     357.54163205513123, 268.41779281511094, 4.82340276581624};
 	static const double precision = CalendarAstronomer::PI/32;
-	for(int32_t i = 0; i < UPRV_LENGTHOF(testcase); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(testcase); i++) {
 		gc->clear();
 		logln((UnicodeString)"CASE["+i+"]: Year "+(int32_t)testcase[i][0]+" Month "+(int32_t)testcase[i][1]+" Day "+
 		    (int32_t)testcase[i][2]+" Hour "+(int32_t)testcase[i][3]+" Minutes "+(int32_t)testcase[i][4]+

@@ -77,7 +77,7 @@ bool CharString::contains(StringPiece s) const {
 	const char * p = buffer.getAlias();
 	int32_t lastStart = len - s.length();
 	for(int32_t i = 0; i <= lastStart; ++i) {
-		if(uprv_memcmp(p + i, s.data(), s.length()) == 0) {
+		if(memcmp(p + i, s.data(), s.length()) == 0) {
 			return true;
 		}
 	}
@@ -111,7 +111,7 @@ CharString &CharString::append(const char * s, int32_t sLength, UErrorCode & err
 		return *this;
 	}
 	if(sLength<0) {
-		sLength = static_cast<int32_t>(uprv_strlen(s));
+		sLength = static_cast<int32_t>(strlen(s));
 	}
 	if(sLength>0) {
 		if(s==(buffer.getAlias()+len)) {

@@ -76,7 +76,7 @@ static void initMsg(const char * pname)
 #endif
 			err = U_ZERO_ERROR;
 			// that was try #1, try again with a path 
-			uprv_strcpy(dataPath, u_getDataDirectory());
+			strcpy(dataPath, u_getDataDirectory());
 			uprv_strcat(dataPath, U_FILE_SEP_STRING);
 			uprv_strcat(dataPath, UCONVMSG);
 			gBundle = u_wmsg_setPath(dataPath, &err);
@@ -114,7 +114,7 @@ static struct callback_ent {
 
 static const struct callback_ent * findCallback(const char * name) 
 {
-	const int count = UPRV_LENGTHOF(transcode_callbacks);
+	const int count = SIZEOFARRAYi(transcode_callbacks);
 	// We'll do a linear search, there aren't many of them and bsearch() may not be that portable. 
 	for(int i = 0; i < count; ++i) {
 		if(!uprv_stricmp(name, transcode_callbacks[i].name)) {
@@ -752,7 +752,7 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 					int8_t i, length, errorLength;
 
 					UErrorCode localError = U_ZERO_ERROR;
-					errorLength = UPRV_LENGTHOF(errorUChars);
+					errorLength = SIZEOFARRAYi(errorUChars);
 					ucnv_getInvalidUChars(convto, errorUChars, &errorLength, &localError);
 					if(U_FAILURE(localError) || errorLength == 0) {
 						// need at least 1 so that we don't access beyond the length of
@@ -863,7 +863,7 @@ static void usage(const char * pname, int ecode)
 	FILE * fp = ecode ? stderr : stdout;
 	initMsg(pname);
 	msg = ures_getStringByKey(gBundle, ecode ? "lcUsageWord" : "ucUsageWord", &msgLen, &err);
-	UnicodeString upname(pname, (int32_t)(uprv_strlen(pname) + 1));
+	UnicodeString upname(pname, (int32_t)(strlen(pname) + 1));
 	UnicodeString mname(msg, msgLen + 1);
 	int res = u_wmsg(fp, "usage", mname.getBuffer(), upname.getBuffer());
 	if(!ecode) {
@@ -872,7 +872,7 @@ static void usage(const char * pname, int ecode)
 		}
 		if(!u_wmsg(fp, "help")) {
 			// Now dump callbacks and finish
-			const int count = UPRV_LENGTHOF(transcode_callbacks);
+			const int count = SIZEOFARRAYi(transcode_callbacks);
 			for(int i = 0; i < count; ++i) {
 				fprintf(fp, " %s", transcode_callbacks[i].name);
 			}
@@ -1132,10 +1132,10 @@ extern int main(int argc, char ** argv)
 		return printTransliterators(printCanon) ? 3 : 0;
 	}
 
-	if(!fromcpage || !uprv_strcmp(fromcpage, "-")) {
+	if(!fromcpage || !strcmp(fromcpage, "-")) {
 		fromcpage = ucnv_getDefaultName();
 	}
-	if(!tocpage || !uprv_strcmp(tocpage, "-")) {
+	if(!tocpage || !strcmp(tocpage, "-")) {
 		tocpage = ucnv_getDefaultName();
 	}
 	// Open the correct output file or connect to stdout for reading input

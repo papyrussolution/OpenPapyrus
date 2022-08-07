@@ -61,7 +61,7 @@ public:
 	}
 	const Range * nextRange() 
 	{
-		if(rangeIndex<UPRV_LENGTHOF(ranges)) {
+		if(rangeIndex<SIZEOFARRAYi(ranges)) {
 			return ranges+rangeIndex++;
 		}
 		else {

@@ -25,7 +25,7 @@ IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0
 	Bbt = bbtUndef; // @v10.9.1
 }
 
-int BillFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 2) {

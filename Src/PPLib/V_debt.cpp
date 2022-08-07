@@ -100,7 +100,7 @@ IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); DebtTrnovrFilt::DebtTrnovrFilt() : PPBaseF
 	Init(1, 0);
 }
 
-/*virtual*/int DebtTrnovrFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int DebtTrnovrFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 1) {
@@ -2345,7 +2345,6 @@ DBQuery * PPViewDebtTrnovr::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			q->addField(tbl->ID);      // #9 : #13 @stub
 		}
 		q->addField(*dbe_stop);        // #10 : #14
-		// @v9.1.5 {
 		if(Filt.Sgb.S == SubstGrpBill::sgbDlvrLoc) {
 			PPDbqFuncPool::InitObjNameFunc(dbe_locowner, PPDbqFuncPool::IdLocOwnerName, tbl->ID);
 			q->addField(dbe_locowner); // #11 : #15
@@ -2353,7 +2352,6 @@ DBQuery * PPViewDebtTrnovr::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		else {
 			q->addField(tbl->ID);      // #11 : #15 @stub
 		}
-		// } @v9.1.5
 		q->addField(tbl->ExpiryDebt);  // #12 : #16 // @v9.1.8
 		if(Filt.InitOrder == OrdByDebit)
 			q->orderBy(tbl->CurID, tbl->Sell, 0L);

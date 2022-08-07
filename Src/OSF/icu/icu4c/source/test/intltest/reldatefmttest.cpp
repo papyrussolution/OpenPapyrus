@@ -875,7 +875,7 @@ void RelativeDateTimeFormatterTest::runIndexedTest(int32_t index, bool exec, con
 }
 
 void RelativeDateTimeFormatterTest::TestEnglish() {
-	RunTest("en", kEnglish, UPRV_LENGTHOF(kEnglish));
+	RunTest("en", kEnglish, SIZEOFARRAYi(kEnglish));
 }
 
 void RelativeDateTimeFormatterTest::TestEnglishCaps() {
@@ -898,27 +898,27 @@ void RelativeDateTimeFormatterTest::TestEnglishCaps() {
 	RelativeDateTimeFormatter fmt2(fmt);
 	fmt3 = fmt2;
 	assertSuccess("", status);
-	RunTest(fmt3, kEnglishCaps, UPRV_LENGTHOF(kEnglishCaps), "en caps");
+	RunTest(fmt3, kEnglishCaps, SIZEOFARRAYi(kEnglishCaps), "en caps");
 }
 
 void RelativeDateTimeFormatterTest::TestEnglishShort() {
-	RunTest("en", UDAT_STYLE_SHORT, kEnglishShort, UPRV_LENGTHOF(kEnglishShort));
+	RunTest("en", UDAT_STYLE_SHORT, kEnglishShort, SIZEOFARRAYi(kEnglishShort));
 }
 
 void RelativeDateTimeFormatterTest::TestEnglishNarrow() {
-	RunTest("en", UDAT_STYLE_NARROW, kEnglishShort, UPRV_LENGTHOF(kEnglishShort));
+	RunTest("en", UDAT_STYLE_NARROW, kEnglishShort, SIZEOFARRAYi(kEnglishShort));
 }
 
 void RelativeDateTimeFormatterTest::TestSerbian() {
-	RunTest("sr", kSerbian, UPRV_LENGTHOF(kSerbian));
+	RunTest("sr", kSerbian, SIZEOFARRAYi(kSerbian));
 }
 
 void RelativeDateTimeFormatterTest::TestSerbianFallback() {
-	RunTest("sr", UDAT_STYLE_NARROW, kSerbianNarrow, UPRV_LENGTHOF(kSerbianNarrow));
+	RunTest("sr", UDAT_STYLE_NARROW, kSerbianNarrow, SIZEOFARRAYi(kSerbianNarrow));
 }
 
 void RelativeDateTimeFormatterTest::TestEnglishNoQuantity() {
-	RunTest("en", kEnglishNoQuantity, UPRV_LENGTHOF(kEnglishNoQuantity));
+	RunTest("en", kEnglishNoQuantity, SIZEOFARRAYi(kEnglishNoQuantity));
 }
 
 void RelativeDateTimeFormatterTest::TestEnglishNoQuantityCaps() {
@@ -935,7 +935,7 @@ void RelativeDateTimeFormatterTest::TestEnglishNoQuantityCaps() {
 	RunTest(
 		fmt,
 		kEnglishNoQuantityCaps,
-		UPRV_LENGTHOF(kEnglishNoQuantityCaps),
+		SIZEOFARRAYi(kEnglishNoQuantityCaps),
 		"en caps no quantity");
 }
 
@@ -944,7 +944,7 @@ void RelativeDateTimeFormatterTest::TestEnglishNoQuantityShort() {
 		"en",
 		UDAT_STYLE_SHORT,
 		kEnglishNoQuantityShort,
-		UPRV_LENGTHOF(kEnglishNoQuantityShort));
+		SIZEOFARRAYi(kEnglishNoQuantityShort));
 }
 
 void RelativeDateTimeFormatterTest::TestEnglishNoQuantityNarrow() {
@@ -952,17 +952,17 @@ void RelativeDateTimeFormatterTest::TestEnglishNoQuantityNarrow() {
 		"en",
 		UDAT_STYLE_NARROW,
 		kEnglishNoQuantityNarrow,
-		UPRV_LENGTHOF(kEnglishNoQuantityNarrow));
+		SIZEOFARRAYi(kEnglishNoQuantityNarrow));
 }
 
 void RelativeDateTimeFormatterTest::TestSpanishNoQuantity() {
-	RunTest("es", kSpanishNoQuantity, UPRV_LENGTHOF(kSpanishNoQuantity));
+	RunTest("es", kSpanishNoQuantity, SIZEOFARRAYi(kSpanishNoQuantity));
 }
 
 void RelativeDateTimeFormatterTest::TestAfrikaans() {
-	RunTest("af", kAfrikaans, UPRV_LENGTHOF(kAfrikaans));
-	RunTest("af", kAfrikaansNoQuantity, UPRV_LENGTHOF(kAfrikaansNoQuantity));
-	RunTest("af", kAfrikaansFormatNumeric, UPRV_LENGTHOF(kAfrikaansFormatNumeric), true);
+	RunTest("af", kAfrikaans, SIZEOFARRAYi(kAfrikaans));
+	RunTest("af", kAfrikaansNoQuantity, SIZEOFARRAYi(kAfrikaansNoQuantity));
+	RunTest("af", kAfrikaansFormatNumeric, SIZEOFARRAYi(kAfrikaansFormatNumeric), true);
 }
 
 void RelativeDateTimeFormatterTest::TestFormatWithQuantityIllegalArgument() {
@@ -1006,11 +1006,11 @@ void RelativeDateTimeFormatterTest::TestCustomNumberFormat() {
 
 	// Test copy constructor.
 	RelativeDateTimeFormatter fmt2(fmt);
-	RunTest(fmt2, kEnglishDecimal, UPRV_LENGTHOF(kEnglishDecimal), "en decimal digits");
+	RunTest(fmt2, kEnglishDecimal, SIZEOFARRAYi(kEnglishDecimal), "en decimal digits");
 
 	// Test assignment
 	fmt = RelativeDateTimeFormatter("es", status);
-	RunTest(fmt, kSpanishNoQuantity, UPRV_LENGTHOF(kSpanishNoQuantity), "assignment operator");
+	RunTest(fmt, kSpanishNoQuantity, SIZEOFARRAYi(kSpanishNoQuantity), "assignment operator");
 }
 
 void RelativeDateTimeFormatterTest::TestGetters() {
@@ -1267,11 +1267,11 @@ void RelativeDateTimeFormatterTest::TestSidewaysDataLoading()
 }
 
 void RelativeDateTimeFormatterTest::TestFormatNumeric() {
-	RunTest("en", kEnglishFormatNumeric, UPRV_LENGTHOF(kEnglishFormatNumeric), true);
+	RunTest("en", kEnglishFormatNumeric, SIZEOFARRAYi(kEnglishFormatNumeric), true);
 }
 
 void RelativeDateTimeFormatterTest::TestFormat() {
-	RunTest("en", kEnglishFormat, UPRV_LENGTHOF(kEnglishFormat), false);
+	RunTest("en", kEnglishFormat, SIZEOFARRAYi(kEnglishFormat), false);
 }
 
 void RelativeDateTimeFormatterTest::TestLocales() {
@@ -1297,7 +1297,7 @@ void RelativeDateTimeFormatterTest::TestFields() {
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 0, 8}
 		};
-		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	{
 		const char16_t* message = u"automatic numeric unit";
@@ -1309,7 +1309,7 @@ void RelativeDateTimeFormatterTest::TestFields() {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 3, 4},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 5, 9}
 		};
-		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	{
 		const char16_t* message = u"manual absolute unit";
@@ -1318,7 +1318,7 @@ void RelativeDateTimeFormatterTest::TestFields() {
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 0, 11}
 		};
-		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	{
 		const char16_t* message = u"manual numeric unit";
@@ -1332,7 +1332,7 @@ void RelativeDateTimeFormatterTest::TestFields() {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 3, 6},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 7, 12}
 		};
-		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	{
 		const char16_t* message = u"manual numeric resolved unit";
@@ -1343,7 +1343,7 @@ void RelativeDateTimeFormatterTest::TestFields() {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 0, 2},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 3, 12}
 		};
-		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	// Test when the number field is at the end
 	fmt = RelativeDateTimeFormatter("sw", status);
@@ -1356,7 +1356,7 @@ void RelativeDateTimeFormatterTest::TestFields() {
 			{UFIELD_CATEGORY_NUMBER, UNUM_INTEGER_FIELD, 13, 15},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 13, 15}
 		};
-		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 }
 
@@ -1381,7 +1381,7 @@ void RelativeDateTimeFormatterTest::TestRBNF()
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 0, 11},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 12, 21}
 		};
-		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 }
 

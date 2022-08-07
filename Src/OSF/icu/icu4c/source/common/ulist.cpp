@@ -161,8 +161,8 @@ U_CAPI bool U_EXPORT2 ulist_containsString(const UList * list, const char * data
 	if(list) {
 		const UListNode * pointer;
 		for(pointer = list->head; pointer != NULL; pointer = pointer->next) {
-			if(length == (int32_t)uprv_strlen((const char *)pointer->data)) {
-				if(uprv_memcmp(data, pointer->data, length) == 0) {
+			if(length == (int32_t)strlen((const char *)pointer->data)) {
+				if(memcmp(data, pointer->data, length) == 0) {
 					return TRUE;
 				}
 			}
@@ -175,7 +175,7 @@ U_CAPI bool U_EXPORT2 ulist_removeString(UList * list, const char * data) {
 	if(list) {
 		UListNode * pointer;
 		for(pointer = list->head; pointer != NULL; pointer = pointer->next) {
-			if(uprv_strcmp(data, (const char *)pointer->data) == 0) {
+			if(strcmp(data, (const char *)pointer->data) == 0) {
 				ulist_removeItem(list, pointer);
 				// Remove only the first occurrence, like Java LinkedList.remove(Object).
 				return TRUE;
@@ -255,7 +255,7 @@ U_CAPI const char * U_EXPORT2 ulist_next_keyword_value(UEnumeration * en, int32_
 
 	s = (const char *)ulist_getNext((UList*)(en->context));
 	if(s != NULL && resultLength != NULL) {
-		*resultLength = static_cast<int32_t>(uprv_strlen(s));
+		*resultLength = static_cast<int32_t>(strlen(s));
 	}
 	return s;
 }

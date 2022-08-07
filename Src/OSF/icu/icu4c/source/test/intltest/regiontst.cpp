@@ -361,7 +361,7 @@ void RegionTest::runIndexedTest(int32_t index, bool exec, const char *& name, ch
 }
 
 void RegionTest::TestKnownRegions() {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(knownRegions); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(knownRegions); i++) {
 		KnownRegion rd = knownRegions[i];
 		UErrorCode status = U_ZERO_ERROR;
 		const Region * r = Region::getInstance(rd.code, status);
@@ -429,7 +429,7 @@ void RegionTest::TestGetInstanceString() {
 		    u_errorName(status));
 	}
 
-	for(int32_t i = 0; i < UPRV_LENGTHOF(testData); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(testData); i++) {
 		TestData data = testData[i];
 		status = U_ZERO_ERROR;
 		r = Region::getInstance(data.inputID, status);
@@ -443,7 +443,7 @@ void RegionTest::TestGetInstanceString() {
 			id = "NULL";
 			type = URGN_UNKNOWN;
 		}
-		if(uprv_strcmp(id, data.expectedID)) {
+		if(strcmp(id, data.expectedID)) {
 			dataerrln("Unexpected region ID for Region::getInstance(\"%s\"); Expected: %s Got: %s",
 			    data.inputID,
 			    data.expectedID,
@@ -482,7 +482,7 @@ void RegionTest::TestGetInstanceInt() {
 		    u_errorName(status));
 	}
 
-	for(int32_t i = 0; i < UPRV_LENGTHOF(testData); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(testData); i++) {
 		TestData data = testData[i];
 		status = U_ZERO_ERROR;
 		const Region * r = Region::getInstance(data.inputID, status);
@@ -496,7 +496,7 @@ void RegionTest::TestGetInstanceInt() {
 			id = "NULL";
 			type = URGN_UNKNOWN;
 		}
-		if(uprv_strcmp(data.expectedID, id)) {
+		if(strcmp(data.expectedID, id)) {
 			dataerrln("Unexpected region ID for Region.getInstance(%d)); Expected: %s Got: %s",
 			    data.inputID,
 			    data.expectedID,
@@ -513,7 +513,7 @@ void RegionTest::TestGetInstanceInt() {
 
 void RegionTest::TestGetContainedRegions() 
 {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(knownRegions); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(knownRegions); i++) {
 		KnownRegion rd = knownRegions[i];
 		UErrorCode status = U_ZERO_ERROR;
 		const Region * r = Region::getInstance(rd.code, status);
@@ -547,7 +547,7 @@ void RegionTest::TestGetContainedRegions()
 }
 
 void RegionTest::TestGetContainedRegionsWithType() {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(knownRegions); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(knownRegions); i++) {
 		KnownRegion rd = knownRegions[i];
 		UErrorCode status = U_ZERO_ERROR;
 
@@ -583,7 +583,7 @@ void RegionTest::TestGetContainedRegionsWithType() {
 }
 
 void RegionTest::TestGetContainingRegion() {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(knownRegions); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(knownRegions); i++) {
 		KnownRegion rd = knownRegions[i];
 		UErrorCode status = U_ZERO_ERROR;
 		const Region * r = Region::getInstance(rd.code, status);
@@ -611,7 +611,7 @@ void RegionTest::TestGetContainingRegion() {
 }
 
 void RegionTest::TestGetContainingRegionWithType() {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(knownRegions); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(knownRegions); i++) {
 		KnownRegion rd = knownRegions[i];
 		UErrorCode status = U_ZERO_ERROR;
 
@@ -676,7 +676,7 @@ void RegionTest::TestGetPreferredValues() {
 				bool found = FALSE;
 				preferredValues->reset(status);
 				while(const char * check = preferredValues->next(NULL, status)) {
-					if(!uprv_strcmp(check, data[i])) {
+					if(!strcmp(check, data[i])) {
 						found = TRUE;
 						break;
 					}
@@ -696,7 +696,7 @@ void RegionTest::TestGetPreferredValues() {
 }
 
 void RegionTest::TestContains() {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(knownRegions); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(knownRegions); i++) {
 		KnownRegion rd = knownRegions[i];
 		UErrorCode status = U_ZERO_ERROR;
 
@@ -749,7 +749,7 @@ void RegionTest::TestAvailableTerritories() {
 			}
 		}
 		else {
-			uprv_strcpy(availableTerritoriesString, "NULL");
+			strcpy(availableTerritoriesString, "NULL");
 		}
 		if(containedInWorld) {
 			for(int32_t i = 0; i < containedInWorld->count(status); i++) {
@@ -760,7 +760,7 @@ void RegionTest::TestAvailableTerritories() {
 			}
 		}
 		else {
-			uprv_strcpy(containedInWorldString, "NULL");
+			strcpy(containedInWorldString, "NULL");
 		}
 		errln(
 			"Available territories and all territories contained in world should be the same set.\nAvailable          = %s\nContained in World = %s",
@@ -800,7 +800,7 @@ void RegionTest::TestGroupingChildren() {
 		"EU",  "AT,BE,CY,CZ,DE,DK,EE,ES,FI,FR,GR,HR,HU,IE,IT,LT,LU,LV,MT,NL,PL,PT,SE,SI,SK,BG,RO"
 	};
 
-	for(int32_t i = 0; i < UPRV_LENGTHOF(testGroupings); i += 2) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(testGroupings); i += 2) {
 		const char * groupingCode = testGroupings[i];
 		const char * expectedChildren = testGroupings[i + 1];
 
@@ -817,9 +817,9 @@ void RegionTest::TestGroupingChildren() {
 				while((actualChild = actualChildren->next(NULL, err)) != NULL && *expectedChildStart != '\0') {
 					expectedChildEnd = uprv_strchr(expectedChildStart, ',');
 					if(expectedChildEnd == NULL) {
-						expectedChildEnd = expectedChildStart + uprv_strlen(expectedChildStart);
+						expectedChildEnd = expectedChildStart + strlen(expectedChildStart);
 					}
-					if(uprv_strlen(actualChild) != size_t(expectedChildEnd - expectedChildStart) ||
+					if(strlen(actualChild) != size_t(expectedChildEnd - expectedChildStart) ||
 					    uprv_strncmp(actualChild, expectedChildStart, expectedChildEnd - expectedChildStart) != 0) {
 						errln("Mismatch in child list for %s at position %d: expected %s, got %s\n",
 						    groupingCode,

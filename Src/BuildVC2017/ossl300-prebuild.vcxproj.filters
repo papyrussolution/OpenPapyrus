@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\include">
+      <UniqueIdentifier>{50f2d9eb-c284-4d16-bac6-04d7d82e044f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\include\openssl">
+      <UniqueIdentifier>{79ee6cd2-fe9e-4668-a3e0-6f93939a8a08}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\OpenSSL-302\ms\applink.c" />
+  </ItemGroup>
+</Project>

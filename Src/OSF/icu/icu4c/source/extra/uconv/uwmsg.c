@@ -88,7 +88,7 @@ U_CFUNC int u_wmsg(FILE * fp, const char * tag, ...)
 	va_list ap;
 #endif
 	UChar result[4096];
-	int32_t resultLength = UPRV_LENGTHOF(result);
+	int32_t resultLength = SIZEOFARRAYi(result);
 	if(gBundle == NULL) {
 #if 0
 		slfprintf_stderr("u_wmsg: No path set!!\n"); /* FIXME: codepage?? */
@@ -100,8 +100,8 @@ U_CFUNC int u_wmsg(FILE * fp, const char * tag, ...)
 		return -1;
 	}
 #if UCONFIG_NO_FORMATTING
-	resultLength = UPRV_LENGTHOF(gNoFormatting);
-	if((msgLen + resultLength) <= UPRV_LENGTHOF(result)) {
+	resultLength = SIZEOFARRAYi(gNoFormatting);
+	if((msgLen + resultLength) <= SIZEOFARRAYi(result)) {
 		memcpy(result, msg, msgLen * U_SIZEOF_UCHAR);
 		memcpy(result + msgLen, gNoFormatting, resultLength);
 		resultLength += msgLen;

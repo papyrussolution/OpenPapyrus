@@ -28,7 +28,7 @@ void DataDrivenNumberFormatTestSuite::run(const char * fileName, bool runAllTest
 	fFileLineNumber = 0;
 	fFormatTestNumber = 0;
 	UErrorCode status = U_ZERO_ERROR;
-	for(int32_t i = 0; i < UPRV_LENGTHOF(fPreviousFormatters); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(fPreviousFormatters); ++i) {
 		delete fPreviousFormatters[i];
 		fPreviousFormatters[i] = newFormatter(status);
 	}
@@ -80,7 +80,7 @@ void DataDrivenNumberFormatTestSuite::run(const char * fileName, bool runAllTest
 			// column specification
 		}
 		else if(state == 1) {
-			columnCount = splitBy(columnValues, UPRV_LENGTHOF(columnValues), 0x9);
+			columnCount = splitBy(columnValues, SIZEOFARRAYi(columnValues), 0x9);
 			for(int32_t i = 0; i < columnCount; ++i) {
 				columnTypes[i] = NumberFormatTestTuple::getFieldByName(
 					columnValues[i]);
@@ -127,7 +127,7 @@ void DataDrivenNumberFormatTestSuite::run(const char * fileName, bool runAllTest
 }
 
 DataDrivenNumberFormatTestSuite::~DataDrivenNumberFormatTestSuite() {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(fPreviousFormatters); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(fPreviousFormatters); ++i) {
 		delete fPreviousFormatters[i];
 	}
 }
@@ -141,7 +141,7 @@ void DataDrivenNumberFormatTestSuite::setTupleField(UErrorCode & status) {
 		return;
 	}
 	UnicodeString parts[3];
-	int32_t partCount = splitBy(parts, UPRV_LENGTHOF(parts), 0x20);
+	int32_t partCount = splitBy(parts, SIZEOFARRAYi(parts), 0x20);
 	if(partCount < 3) {
 		showError("Set expects 2 parameters");
 		status = U_PARSE_ERROR;
@@ -188,7 +188,7 @@ void DataDrivenNumberFormatTestSuite::showError(const char * message) {
 void DataDrivenNumberFormatTestSuite::showFailure(const UnicodeString & message) {
 	UChar lineStr[20];
 	uprv_itou(
-		lineStr, UPRV_LENGTHOF(lineStr), (uint32_t)fFileLineNumber, 10, 1);
+		lineStr, SIZEOFARRAYi(lineStr), (uint32_t)fFileLineNumber, 10, 1);
 	UnicodeString fullMessage("line ");
 	dataerrln(fullMessage.append(lineStr).append(": ")
 	    .append(prettify(message)));
@@ -232,7 +232,7 @@ bool DataDrivenNumberFormatTestSuite::isPass(const NumberFormatTestTuple &tuple,
 		result = isFormatPass(
 			tuple,
 			fPreviousFormatters[
-				fFormatTestNumber % UPRV_LENGTHOF(fPreviousFormatters)],
+				fFormatTestNumber % SIZEOFARRAYi(fPreviousFormatters)],
 			appendErrorMessage,
 			status);
 	}

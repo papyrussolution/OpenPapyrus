@@ -309,7 +309,7 @@ static int32_t _getStringOrCopyKey(const char * path, const char * locale,
 	}
 	else {
 		/* no string from a resource bundle: convert the substitute */
-		length = (int32_t)uprv_strlen(substitute);
+		length = (int32_t)strlen(substitute);
 		u_charsToUChars(substitute, dest, smin(length, destCapacity));
 		*pErrorCode = U_USING_DEFAULT_WARNING;
 	}
@@ -343,7 +343,7 @@ static int32_t _getDisplayNameForComponent(const char * locale, const char * dis
 	if(!length) {
 		// For the display name, we treat this as unknown language (ICU-20273).
 		if(getter == uloc_getLanguage) {
-			uprv_strcpy(localeBuffer, "und");
+			strcpy(localeBuffer, "und");
 		}
 		else {
 			return u_terminateUChars(dest, destCapacity, 0, pErrorCode);

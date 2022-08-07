@@ -581,7 +581,7 @@ static void TestNumberFormat()
 	 * Since it is close to the 1.5 release, I (markus) am disabling this test just
 	 * for this release (I added the test itself only last week).
 	 * For the next release, we need to fix this.
-	 * Then, remove the uprv_strcmp("1.5", ...) and this comment, and the include "cstring.h" at the beginning of
+	 * Then, remove the strcmp("1.5", ...) and this comment, and the include "cstring.h" at the beginning of
 	 *this file.
 	 */
 	if(u_strcmp(result, temp1) != 0) {
@@ -603,7 +603,7 @@ static void TestNumberFormat()
 		}
 	}
 	for(i = 0; i < UNUM_FORMAT_SYMBOL_COUNT; ++i) {
-		resultlength = unum_getSymbol(cur_frpattern, (UNumberFormatSymbol)i, symbol, UPRV_LENGTHOF(symbol), &status);
+		resultlength = unum_getSymbol(cur_frpattern, (UNumberFormatSymbol)i, symbol, SIZEOFARRAYi(symbol), &status);
 		if(U_FAILURE(status)) {
 			log_err("Error from unum_getSymbol(%d): %s\n", i, myErrorName(status));
 			return;
@@ -613,7 +613,7 @@ static void TestNumberFormat()
 		}
 	}
 	/*try getting from a bogus symbol*/
-	unum_getSymbol(cur_frpattern, (UNumberFormatSymbol)i, symbol, UPRV_LENGTHOF(symbol), &status);
+	unum_getSymbol(cur_frpattern, (UNumberFormatSymbol)i, symbol, SIZEOFARRAYi(symbol), &status);
 	if(U_SUCCESS(status)) {
 		log_err("Error : Expected U_ILLEGAL_ARGUMENT_ERROR for bogus symbol");
 	}
@@ -752,19 +752,19 @@ static void TestNumberFormat()
 	log_verbose("\nTesting spellout format\n");
 	if(spellout_def) {
 		static const int32_t values[] = { 0, -5, 105, 1005, 105050 };
-		for(i = 0; i < UPRV_LENGTHOF(values); ++i) {
+		for(i = 0; i < SIZEOFARRAYi(values); ++i) {
 			UChar buffer[128];
 			int32_t len;
 			int32_t value = values[i];
 			status = U_ZERO_ERROR;
-			len = unum_format(spellout_def, value, buffer, UPRV_LENGTHOF(buffer), NULL, &status);
+			len = unum_format(spellout_def, value, buffer, SIZEOFARRAYi(buffer), NULL, &status);
 			if(U_FAILURE(status)) {
 				log_err("Error in formatting using unum_format(spellout_fmt, ...): %s\n", myErrorName(status));
 			}
 			else {
 				int32_t pp = 0;
 				int32_t parseResult;
-				/*ustrToAstr(buffer, len, logbuf, UPRV_LENGTHOF(logbuf));*/
+				/*ustrToAstr(buffer, len, logbuf, SIZEOFARRAYi(logbuf));*/
 				log_verbose("formatted %d as '%s', length: %d\n", value, aescstrdup(buffer, len), len);
 
 				parseResult = unum_parse(spellout_def, buffer, len, &pp, &status);
@@ -867,7 +867,7 @@ static void TestNumberFormat()
 		if(U_FAILURE(status)) {
 			log_err("File %s, Line %d, status = %s\n", __FILE__, __LINE__, u_errorName(status));
 		}
-		if(uprv_strcmp(parseExpected, desta) != 0) {
+		if(strcmp(parseExpected, desta) != 0) {
 			log_err("File %s, Line %d, (expected, actual) = (\"%s\", \"%s\")\n",
 			    __FILE__, __LINE__, parseExpected, desta);
 		}
@@ -1269,7 +1269,7 @@ static void TestSigDigRounding()
 	unum_setAttribute(fmt, UNUM_ROUNDING_MODE, UNUM_ROUND_UP);
 	unum_setDoubleAttribute(fmt, UNUM_ROUNDING_INCREMENT, 20.0);
 
-	(void)unum_formatDouble(fmt, d, result, UPRV_LENGTHOF(result), NULL, &status);
+	(void)unum_formatDouble(fmt, d, result, SIZEOFARRAYi(result), NULL, &status);
 	if(U_FAILURE(status)) {
 		log_err("Error in formatting using unum_formatDouble(.....): %s\n", myErrorName(status));
 		return;
@@ -1543,13 +1543,13 @@ static void TestInt64Format() {
 static void test_fmt(UNumberFormat * fmt, bool isDecimal) {
 	char temp[512];
 	UChar buffer[512];
-	int32_t BUFSIZE = UPRV_LENGTHOF(buffer);
+	int32_t BUFSIZE = SIZEOFARRAYi(buffer);
 	double vals[] = {
 		-.2, 0, .2, 5.5, 15.2, 250, 123456789
 	};
 	int i;
 
-	for(i = 0; i < UPRV_LENGTHOF(vals); ++i) {
+	for(i = 0; i < SIZEOFARRAYi(vals); ++i) {
 		UErrorCode status = U_ZERO_ERROR;
 		unum_formatDouble(fmt, vals[i], buffer, BUFSIZE, NULL, &status);
 		if(U_FAILURE(status)) {
@@ -1644,7 +1644,7 @@ static void test_fmt(UNumberFormat * fmt, bool isDecimal) {
 							log_err("unexpected ruleset len: %d ex: %d val: %s\n", len2, i, temp);
 						}
 						else {
-							for(i = 0; i < UPRV_LENGTHOF(vals); ++i) {
+							for(i = 0; i < SIZEOFARRAYi(vals); ++i) {
 								status = U_ZERO_ERROR;
 								unum_formatDouble(fmt, vals[i], buffer, BUFSIZE, NULL, &status);
 								if(U_FAILURE(status)) {
@@ -1708,7 +1708,7 @@ static void TestNonExistentCurrency() {
 		unum_getSymbol(format,
 		    UNUM_CURRENCY_SYMBOL,
 		    currencySymbol,
-		    UPRV_LENGTHOF(currencySymbol),
+		    SIZEOFARRAYi(currencySymbol),
 		    &status);
 		if(u_strcmp(currencySymbol, QQQ) != 0) {
 			log_err("unum_open set the currency to QQQ\n");
@@ -1723,7 +1723,7 @@ static void TestRBNFFormat() {
 	UChar pat[1024];
 	UChar tempUChars[512];
 	UNumberFormat * formats[5];
-	int COUNT = UPRV_LENGTHOF(formats);
+	int COUNT = SIZEOFARRAYi(formats);
 	int i;
 
 	for(i = 0; i < COUNT; ++i) {
@@ -2031,7 +2031,7 @@ static void TestNBSPInPattern() {
 #define SPECIAL_PATTERN "\\u00A4\\u00A4'\\u062f.\\u0625.\\u200f\\u00a0'###0.00"
 		UChar pat[200];
 		testcase = "ar_AE special pattern: " SPECIAL_PATTERN;
-		u_unescape(SPECIAL_PATTERN, pat, UPRV_LENGTHOF(pat));
+		u_unescape(SPECIAL_PATTERN, pat, SIZEOFARRAYi(pat));
 		unum_applyPattern(nf, FALSE, pat, -1, NULL, &status);
 		if(U_FAILURE(status)) {
 			log_err("%s: unum_applyPattern failed with %s\n", testcase, u_errorName(status));
@@ -2538,7 +2538,7 @@ static void TestUNumberingSystem() {
 			int32_t ulen, radix = unumsys_getRadix(unumsys);
 			bool isAlgorithmic = unumsys_isAlgorithmic(unumsys);
 			numsys = unumsys_getName(unumsys);
-			if(uprv_strcmp(numsys,
+			if(strcmp(numsys,
 			    itemPtr->numsys) != 0 || radix != itemPtr->radix || !isAlgorithmic != !itemPtr->isAlgorithmic) {
 				log_data_err("unumsys name/radix/isAlgorithmic for locale %s, expected %s/%d/%d, got %s/%d/%d\n",
 				    itemPtr->locale, itemPtr->numsys, itemPtr->radix, itemPtr->isAlgorithmic, numsys, radix, isAlgorithmic);
@@ -2571,8 +2571,8 @@ static void TestUNumberingSystem() {
 				unumsys = unumsys_openByName(numsys, &status);
 				if(U_SUCCESS(status)) {
 					numsysCount++;
-					if(uprv_strcmp(numsys, "latn") ) foundLatn = TRUE;
-					if(uprv_strcmp(numsys, "arab") ) foundArab = TRUE;
+					if(strcmp(numsys, "latn") ) foundLatn = TRUE;
+					if(strcmp(numsys, "arab") ) foundArab = TRUE;
 					unumsys_close(unumsys);
 				}
 				else {
@@ -2669,11 +2669,11 @@ static void TestCurrencyIsoPluralFormat() {
 
 	int32_t i, sIndex;
 
-	for(i = 0; i<UPRV_LENGTHOF(DATA); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(DATA); ++i) {
 		const char * localeString = DATA[i][0];
 		double numberToBeFormat = atof(DATA[i][1]);
 		const char * currencyISOCode = DATA[i][2];
-		for(sIndex = 0; sIndex < UPRV_LENGTHOF(currencyStyles); ++sIndex) {
+		for(sIndex = 0; sIndex < SIZEOFARRAYi(currencyStyles); ++sIndex) {
 			UNumberFormatStyle style = currencyStyles[sIndex];
 			UErrorCode status = U_ZERO_ERROR;
 			UChar currencyCode[4];
@@ -2836,7 +2836,7 @@ static void TestCurrencyUsage() {
 			log_err("FAIL: currency usage attribute is not UNUM_CASH_CURRENCY\n");
 		}
 
-		for(j = 0; j<UPRV_LENGTHOF(DATA); ++j) {
+		for(j = 0; j<SIZEOFARRAYi(DATA); ++j) {
 			UChar expect[64];
 			int32_t expectLen;
 			UChar currencyCode[4];
@@ -2845,12 +2845,12 @@ static void TestCurrencyUsage() {
 			UFieldPosition pos = {0};
 
 			u_charsToUChars(DATA[j][0], currencyCode, 3);
-			expectLen = u_unescape(DATA[j][1], expect, UPRV_LENGTHOF(expect));
+			expectLen = u_unescape(DATA[j][1], expect, SIZEOFARRAYi(expect));
 
 			unum_setTextAttribute(unumFmt, UNUM_CURRENCY_CODE, currencyCode, 3, &status);
 			assertSuccess("num_setTextAttribute()", &status);
 
-			resultLen = unum_formatDouble(unumFmt, numberToBeFormat, result, UPRV_LENGTHOF(result),
+			resultLen = unum_formatDouble(unumFmt, numberToBeFormat, result, SIZEOFARRAYi(result),
 				&pos, &status);
 			assertSuccess("num_formatDouble()", &status);
 
@@ -3393,7 +3393,7 @@ static void TestParseCases()
 		decstr[0] = 0;
 		dclen = unum_parseDecimal(unumDec, itemPtr->text, -1, &parsePos, decstr, 32, &status);
 		(void)dclen;
-		if(status != itemPtr->decStatus || parsePos != itemPtr->decPos || uprv_strcmp(decstr, itemPtr->decString) != 0) {
+		if(status != itemPtr->decStatus || parsePos != itemPtr->decPos || strcmp(decstr, itemPtr->decString) != 0) {
 			char btext[32];
 			u_austrcpy(btext, itemPtr->text);
 			log_err(

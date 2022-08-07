@@ -201,7 +201,7 @@ static void TestFormattedValue()
 			{UNUM_FRACTION_FIELD, 3, 5},
 			{UNUM_COMPACT_FIELD, 5, 6}
 		};
-		checkFormattedValue("FormattedNumber as FormattedValue", fv, u"55.00K", UFIELD_CATEGORY_NUMBER, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkFormattedValue("FormattedNumber as FormattedValue", fv, u"55.00K", UFIELD_CATEGORY_NUMBER, expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	// cleanup:
@@ -304,8 +304,8 @@ static void TestPerUnitInArabic() {
 		log_err("FAIL: unumf_openResult failed");
 		return;
 	}
-	for(int32_t i = 0; i < UPRV_LENGTHOF(simpleMeasureUnits); ++i) {
-		for(int32_t j = 0; j < UPRV_LENGTHOF(simpleMeasureUnits); ++j) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(simpleMeasureUnits); ++i) {
+		for(int32_t j = 0; j < SIZEOFARRAYi(simpleMeasureUnits); ++j) {
 			status = U_ZERO_ERROR;
 			sprintf(buffer, "measure-unit/%s per-measure-unit/%s",
 			    simpleMeasureUnits[i], simpleMeasureUnits[j]);

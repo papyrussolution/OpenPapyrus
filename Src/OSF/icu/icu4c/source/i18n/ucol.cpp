@@ -110,10 +110,10 @@ U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8 * src1, int32_t src1Leng
 
 	/* check lengths and capacity */
 	if(src1Length<0) {
-		src1Length = (int32_t)uprv_strlen((const char *)src1)+1;
+		src1Length = (int32_t)strlen((const char *)src1)+1;
 	}
 	if(src2Length<0) {
-		src2Length = (int32_t)uprv_strlen((const char *)src2)+1;
+		src2Length = (int32_t)strlen((const char *)src2)+1;
 	}
 
 	int32_t destLength = src1Length+src2Length;

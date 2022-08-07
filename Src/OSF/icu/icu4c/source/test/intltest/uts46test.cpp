@@ -164,7 +164,7 @@ void UTS46Test::TestAPI() {
 	}
 	// UTF-8
 	char buffer[100];
-	TestCheckedArrayByteSink sink(buffer, UPRV_LENGTHOF(buffer));
+	TestCheckedArrayByteSink sink(buffer, SIZEOFARRAYi(buffer));
 	errorCode = U_ZERO_ERROR;
 	nontrans->labelToUnicodeUTF8(StringPiece((const char *)NULL, 5), sink, info, errorCode);
 	if(errorCode!=U_ILLEGAL_ARGUMENT_ERROR || sink.NumberOfBytesWritten()!=0) {
@@ -231,7 +231,7 @@ void UTS46Test::TestNotSTD3() {
 	    UNICODE_STRING_SIMPLE("\\u0000a_2+2=4\\u000A.essen.net").unescape() ||
 	    info.hasErrors()
 	    ) {
-		prettify(result).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
+		prettify(result).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
 		errln("notSTD3.nameToUnicode(non-LDH ASCII) unexpected errors %04lx string %s",
 		    (long)info.getErrors(), buffer);
 	}
@@ -245,7 +245,7 @@ void UTS46Test::TestNotSTD3() {
 	input = UNICODE_STRING_SIMPLE("a\\u2260b\\u226Ec\\u226Fd").unescape();
 	not3->nameToUnicode(input, result, info, errorCode);
 	if(result!=input || info.hasErrors()) {
-		prettify(result).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
+		prettify(result).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
 		errln("notSTD3.nameToUnicode(equiv to non-LDH ASCII) unexpected errors %04lx string %s",
 		    (long)info.getErrors(), buffer);
 	}
@@ -352,10 +352,10 @@ void UTS46Test::TestTooLong() {
 	UnicodeString s(count, u'a', count); // capacity, code point, count
 	char16_t dest[60000];
 	UErrorCode errorCode = U_ZERO_ERROR;
-	u_strToPunycode(s.getBuffer(), s.length(), dest, UPRV_LENGTHOF(dest), nullptr, &errorCode);
+	u_strToPunycode(s.getBuffer(), s.length(), dest, SIZEOFARRAYi(dest), nullptr, &errorCode);
 	assertEquals("encode: expected an error for too-long input", U_INPUT_TOO_LONG_ERROR, errorCode);
 	errorCode = U_ZERO_ERROR;
-	u_strFromPunycode(s.getBuffer(), s.length(), dest, UPRV_LENGTHOF(dest), nullptr, &errorCode);
+	u_strFromPunycode(s.getBuffer(), s.length(), dest, SIZEOFARRAYi(dest), nullptr, &errorCode);
 	assertEquals("decode: expected an error for too-long input", U_INPUT_TOO_LONG_ERROR, errorCode);
 }
 
@@ -714,7 +714,7 @@ void UTS46Test::TestSomeCases() {
 	IcuTestErrorCode errorCode(*this, "TestSomeCases");
 	char buffer[400], buffer2[400];
 	int32_t i;
-	for(i = 0; i<UPRV_LENGTHOF(testCases); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(testCases); ++i) {
 		const TestCase &testCase = testCases[i];
 		UnicodeString input(ctou(testCase.s));
 		UnicodeString expected(ctou(testCase.u));
@@ -742,7 +742,7 @@ void UTS46Test::TestSomeCases() {
 				continue;
 			}
 			if(uN!=expected) {
-				prettify(uN).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
+				prettify(uN).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
 				errln("N.nameToUnicode([%d] %s) unexpected string %s",
 				    (int)i, testCase.s, buffer);
 				continue;
@@ -760,7 +760,7 @@ void UTS46Test::TestSomeCases() {
 				continue;
 			}
 			if(uT!=expected) {
-				prettify(uT).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
+				prettify(uT).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
 				errln("T.nameToUnicode([%d] %s) unexpected string %s",
 				    (int)i, testCase.s, buffer);
 				continue;
@@ -773,24 +773,24 @@ void UTS46Test::TestSomeCases() {
 		}
 		// ToASCII is all-ASCII if no severe errors
 		if((aNInfo.getErrors()&severeErrors)==0 && !isASCII(aN)) {
-			prettify(aN).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
+			prettify(aN).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
 			errln("N.nameToASCII([%d] %s) (errors %04lx) result is not ASCII %s",
 			    (int)i, testCase.s, aNInfo.getErrors(), buffer);
 			continue;
 		}
 		if((aTInfo.getErrors()&severeErrors)==0 && !isASCII(aT)) {
-			prettify(aT).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
+			prettify(aT).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
 			errln("T.nameToASCII([%d] %s) (errors %04lx) result is not ASCII %s",
 			    (int)i, testCase.s, aTInfo.getErrors(), buffer);
 			continue;
 		}
 		if(verbose) {
 			char m = mode=='B' ? mode : 'N';
-			prettify(aN).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
+			prettify(aN).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
 			logln("%c.nameToASCII([%d] %s) (errors %04lx) result string: %s",
 			    m, (int)i, testCase.s, aNInfo.getErrors(), buffer);
 			if(mode!='B') {
-				prettify(aT).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
+				prettify(aT).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
 				logln("T.nameToASCII([%d] %s) (errors %04lx) result string: %s",
 				    (int)i, testCase.s, aTInfo.getErrors(), buffer);
 			}
@@ -808,32 +808,32 @@ void UTS46Test::TestSomeCases() {
 			continue;
 		}
 		if(aN!=uNaN) {
-			prettify(aN).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
-			prettify(uNaN).extract(0, 0x7fffffff, buffer2, UPRV_LENGTHOF(buffer2));
+			prettify(aN).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
+			prettify(uNaN).extract(0, 0x7fffffff, buffer2, SIZEOFARRAYi(buffer2));
 			errln("N.nameToASCII([%d] %s)!=N.nameToUnicode().N.nameToASCII() "
 			    "(errors %04lx) %s vs. %s",
 			    (int)i, testCase.s, aNInfo.getErrors(), buffer, buffer2);
 			continue;
 		}
 		if(aT!=uTaN) {
-			prettify(aT).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
-			prettify(uTaN).extract(0, 0x7fffffff, buffer2, UPRV_LENGTHOF(buffer2));
+			prettify(aT).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
+			prettify(uTaN).extract(0, 0x7fffffff, buffer2, SIZEOFARRAYi(buffer2));
 			errln("T.nameToASCII([%d] %s)!=T.nameToUnicode().N.nameToASCII() "
 			    "(errors %04lx) %s vs. %s",
 			    (int)i, testCase.s, aNInfo.getErrors(), buffer, buffer2);
 			continue;
 		}
 		if(uN!=aNuN) {
-			prettify(uN).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
-			prettify(aNuN).extract(0, 0x7fffffff, buffer2, UPRV_LENGTHOF(buffer2));
+			prettify(uN).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
+			prettify(aNuN).extract(0, 0x7fffffff, buffer2, SIZEOFARRAYi(buffer2));
 			errln("N.nameToUnicode([%d] %s)!=N.nameToASCII().N.nameToUnicode() "
 			    "(errors %04lx) %s vs. %s",
 			    (int)i, testCase.s, uNInfo.getErrors(), buffer, buffer2);
 			continue;
 		}
 		if(uT!=aTuN) {
-			prettify(uT).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
-			prettify(aTuN).extract(0, 0x7fffffff, buffer2, UPRV_LENGTHOF(buffer2));
+			prettify(uT).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
+			prettify(aTuN).extract(0, 0x7fffffff, buffer2, SIZEOFARRAYi(buffer2));
 			errln("T.nameToUnicode([%d] %s)!=T.nameToASCII().N.nameToUnicode() "
 			    "(errors %04lx) %s vs. %s",
 			    (int)i, testCase.s, uNInfo.getErrors(), buffer, buffer2);
@@ -853,8 +853,8 @@ void UTS46Test::TestSomeCases() {
 		}
 		if(aN.indexOf((UChar)0x2e) < 0) {
 			if(aN!=aNL || aNInfo.getErrors()!=aNLInfo.getErrors()) {
-				prettify(aN).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
-				prettify(aNL).extract(0, 0x7fffffff, buffer2, UPRV_LENGTHOF(buffer2));
+				prettify(aN).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
+				prettify(aNL).extract(0, 0x7fffffff, buffer2, SIZEOFARRAYi(buffer2));
 				errln("N.nameToASCII([%d] %s)!=N.labelToASCII() "
 				    "(errors %04lx vs %04lx) %s vs. %s",
 				    (int)i, testCase.s, aNInfo.getErrors(), aNLInfo.getErrors(), buffer, buffer2);
@@ -870,8 +870,8 @@ void UTS46Test::TestSomeCases() {
 		}
 		if(aT.indexOf((UChar)0x2e) < 0) {
 			if(aT!=aTL || aTInfo.getErrors()!=aTLInfo.getErrors()) {
-				prettify(aT).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
-				prettify(aTL).extract(0, 0x7fffffff, buffer2, UPRV_LENGTHOF(buffer2));
+				prettify(aT).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
+				prettify(aTL).extract(0, 0x7fffffff, buffer2, SIZEOFARRAYi(buffer2));
 				errln("T.nameToASCII([%d] %s)!=T.labelToASCII() "
 				    "(errors %04lx vs %04lx) %s vs. %s",
 				    (int)i, testCase.s, aTInfo.getErrors(), aTLInfo.getErrors(), buffer, buffer2);
@@ -887,8 +887,8 @@ void UTS46Test::TestSomeCases() {
 		}
 		if(uN.indexOf((UChar)0x2e) < 0) {
 			if(uN!=uNL || uNInfo.getErrors()!=uNLInfo.getErrors()) {
-				prettify(uN).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
-				prettify(uNL).extract(0, 0x7fffffff, buffer2, UPRV_LENGTHOF(buffer2));
+				prettify(uN).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
+				prettify(uNL).extract(0, 0x7fffffff, buffer2, SIZEOFARRAYi(buffer2));
 				errln("N.nameToUnicode([%d] %s)!=N.labelToUnicode() "
 				    "(errors %04lx vs %04lx) %s vs. %s",
 				    (int)i, testCase.s, uNInfo.getErrors(), uNLInfo.getErrors(), buffer, buffer2);
@@ -904,8 +904,8 @@ void UTS46Test::TestSomeCases() {
 		}
 		if(uT.indexOf((UChar)0x2e) < 0) {
 			if(uT!=uTL || uTInfo.getErrors()!=uTLInfo.getErrors()) {
-				prettify(uT).extract(0, 0x7fffffff, buffer, UPRV_LENGTHOF(buffer));
-				prettify(uTL).extract(0, 0x7fffffff, buffer2, UPRV_LENGTHOF(buffer2));
+				prettify(uT).extract(0, 0x7fffffff, buffer, SIZEOFARRAYi(buffer));
+				prettify(uTL).extract(0, 0x7fffffff, buffer2, SIZEOFARRAYi(buffer2));
 				errln("T.nameToUnicode([%d] %s)!=T.labelToUnicode() "
 				    "(errors %04lx vs %04lx) %s vs. %s",
 				    (int)i, testCase.s, uTInfo.getErrors(), uTLInfo.getErrors(), buffer, buffer2);

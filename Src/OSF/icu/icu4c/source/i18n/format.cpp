@@ -73,8 +73,8 @@ Format::Format(const Format &that) : UObject(that)
 Format&Format::operator = (const Format& that)
 {
 	if(this != &that) {
-		uprv_strcpy(validLocale, that.validLocale);
-		uprv_strcpy(actualLocale, that.actualLocale);
+		strcpy(validLocale, that.validLocale);
+		strcpy(actualLocale, that.actualLocale);
 	}
 	return *this;
 }

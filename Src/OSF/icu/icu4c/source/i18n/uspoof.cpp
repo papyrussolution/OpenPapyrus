@@ -379,7 +379,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_check2UTF8(const USpoofChecker * sc,
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
-	UnicodeString idStr = UnicodeString::fromUTF8(StringPiece(id, length>=0 ? length : static_cast<int32_t>(uprv_strlen(id))));
+	UnicodeString idStr = UnicodeString::fromUTF8(StringPiece(id, length>=0 ? length : static_cast<int32_t>(strlen(id))));
 	int32_t result = uspoof_check2UnicodeString(sc, idStr, checkResult, status);
 	return result;
 }
@@ -414,8 +414,8 @@ U_CAPI int32_t U_EXPORT2 uspoof_areConfusableUTF8(const USpoofChecker * sc,
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-	UnicodeString id1Str = UnicodeString::fromUTF8(StringPiece(id1, length1>=0 ? length1 : static_cast<int32_t>(uprv_strlen(id1))));
-	UnicodeString id2Str = UnicodeString::fromUTF8(StringPiece(id2, length2>=0 ? length2 : static_cast<int32_t>(uprv_strlen(id2))));
+	UnicodeString id1Str = UnicodeString::fromUTF8(StringPiece(id1, length1>=0 ? length1 : static_cast<int32_t>(strlen(id1))));
+	UnicodeString id2Str = UnicodeString::fromUTF8(StringPiece(id2, length2>=0 ? length2 : static_cast<int32_t>(strlen(id2))));
 	int32_t results = uspoof_areConfusableUnicodeString(sc, id1Str, id2Str, status);
 	return results;
 }
@@ -679,7 +679,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_getSkeletonUTF8(const USpoofChecker * sc,
 		return 0;
 	}
 
-	UnicodeString srcStr = UnicodeString::fromUTF8(StringPiece(id, length>=0 ? length : static_cast<int32_t>(uprv_strlen(id))));
+	UnicodeString srcStr = UnicodeString::fromUTF8(StringPiece(id, length>=0 ? length : static_cast<int32_t>(strlen(id))));
 	UnicodeString destStr;
 	uspoof_getSkeletonUnicodeString(sc, type, srcStr, destStr, status);
 	if(U_FAILURE(*status)) {

@@ -564,7 +564,7 @@ int QuotUpdFilt::Read_Pre720(SBuffer & rBuf, long)
 		return PPSetErrorSLib();
 }
 
-int QuotUpdFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int QuotUpdFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 1) {

@@ -810,7 +810,7 @@ void TimeZoneRegressionTest::Test4154650()
 		BAD,  GOOD_ERA, GOOD_YEAR, GOOD_MONTH, GOOD_DAY, GOOD_DOW, 24*3600000,
 	};
 
-	int32_t dataLen = UPRV_LENGTHOF(DATA);
+	int32_t dataLen = SIZEOFARRAYi(DATA);
 
 	UErrorCode status = U_ZERO_ERROR;
 	TimeZone * tz = TimeZone::createDefault();
@@ -989,7 +989,7 @@ void TimeZoneRegressionTest::Test4176686() {
 		"DateFormat.format(dst)/dst zone", fmt2.format(dst, l), "GMT+2:15",
 	};
 
-	for(int32_t idx = 0; idx<UPRV_LENGTHOF(DATA); idx += 3) {
+	for(int32_t idx = 0; idx<SIZEOFARRAYi(DATA); idx += 3) {
 		if(DATA[idx+1]!=(DATA[idx+2])) {
 			errln("FAIL: " + DATA[idx] + " -> " + DATA[idx+1] + ", exp " + DATA[idx+2]);
 		}

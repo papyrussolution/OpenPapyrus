@@ -521,7 +521,7 @@ void LocaleTest::TestDisplayNames()
 		/* test that the default locale has a display name for its own language */
 		/* Currently, there is no language information in the "tl" data file so this test will fail if default
 		   locale is "tl" */
-		if(uprv_strcmp(Locale().getLanguage(), "tl") != 0) {
+		if(strcmp(Locale().getLanguage(), "tl") != 0) {
 			Locale().getDisplayLanguage(Locale(), s);
 			if(s.length()<=3 && s.charAt(0)<=0x7f) {
 				/* check <=3 to reject getting the language code as a display name */
@@ -913,9 +913,9 @@ void LocaleTest::TestGetLangsAndCountries()
 		for(i = 0; i < 15; i++) {
 			int32_t j;
 			for(j = 0; j < testCount; j++)
-				if(uprv_strcmp(test[j], spotCheck1[i])== 0)
+				if(strcmp(test[j], spotCheck1[i])== 0)
 					break;
-			if(j == testCount || (uprv_strcmp(test[j], spotCheck1[i])!=0))
+			if(j == testCount || (strcmp(test[j], spotCheck1[i])!=0))
 				errln("Couldn't find " + (UnicodeString)spotCheck1[i] + " in language list.");
 		}
 	}
@@ -3863,7 +3863,7 @@ void LocaleTest::TestKeywordVariants() {
 	const UnicodeString * keywordString;
 	int32_t keywordLen = 0;
 
-	for(i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		status = U_ZERO_ERROR;
 		Locale l(testCases[i].localeID);
 		keywords = l.createKeywords(status);
@@ -3928,7 +3928,7 @@ void LocaleTest::TestKeywordVariants() {
 			delete keywords;
 		}
 		result = l.getName();
-		if(uprv_strcmp(testCases[i].expectedLocaleID, result) != 0) {
+		if(strcmp(testCases[i].expectedLocaleID, result) != 0) {
 			err("Expected to get \"%s\" from \"%s\". Got \"%s\" instead\n",
 			    testCases[i].expectedLocaleID, testCases[i].localeID, result);
 		}
@@ -4007,12 +4007,12 @@ void LocaleTest::TestKeywordVariantParsing() {
 	int32_t resultLen = 0;
 	char buffer[256];
 
-	for(i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		*buffer = 0;
 		Locale l(testCases[i].localeID);
 		resultLen = l.getKeywordValue(testCases[i].keyword, buffer, 256, status);
 		(void)resultLen; // Suppress unused variable warning.
-		if(uprv_strcmp(testCases[i].expectedValue, buffer) != 0) {
+		if(strcmp(testCases[i].expectedValue, buffer) != 0) {
 			err("Expected to extract \"%s\" from \"%s\" for keyword \"%s\". Got \"%s\" instead\n",
 			    testCases[i].expectedValue, testCases[i].localeID, testCases[i].keyword, buffer);
 		}
@@ -4168,7 +4168,7 @@ void LocaleTest::TestSetKeywordValue() {
 
 	Locale l(Locale::getGerman());
 
-	for(i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		l.setKeywordValue(testCases[i].keyword, testCases[i].value, status);
 		if(U_FAILURE(status)) {
 			err("FAIL: Locale::setKeywordValue failed - %s\n", u_errorName(status));
@@ -4177,7 +4177,7 @@ void LocaleTest::TestSetKeywordValue() {
 		*buffer = 0;
 		resultLen = l.getKeywordValue(testCases[i].keyword, buffer, 256, status);
 		(void)resultLen; // Suppress unused variable warning.
-		if(uprv_strcmp(testCases[i].value, buffer) != 0) {
+		if(strcmp(testCases[i].value, buffer) != 0) {
 			err("Expected to extract \"%s\" for keyword \"%s\". Got \"%s\" instead\n",
 			    testCases[i].value, testCases[i].keyword, buffer);
 		}
@@ -4260,7 +4260,7 @@ void LocaleTest::TestGetBaseName() {
 
 	int32_t i = 0;
 
-	for(i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		Locale loc(testCases[i].localeID);
 		if(strcmp(testCases[i].baseName, loc.getBaseName())) {
 			errln("For locale \"%s\" expected baseName \"%s\", but got \"%s\"",
@@ -4321,12 +4321,12 @@ void LocaleTest::_checklocs(const char * label, const char * req, const Locale &
 	const char * actual = actualLoc.getName();
 	int32_t reqValid = _loccmp(req, valid);
 	int32_t validActual = _loccmp(valid, actual);
-	if(((0 == uprv_strcmp(expReqValid, "gt") && reqValid > 0) ||
-	    (0 == uprv_strcmp(expReqValid, "ge") && reqValid >= 0) ||
-	    (0 == uprv_strcmp(expReqValid, "eq") && reqValid == 0)) &&
-	    ((0 == uprv_strcmp(expValidActual, "gt") && validActual > 0) ||
-	    (0 == uprv_strcmp(expValidActual, "ge") && validActual >= 0) ||
-	    (0 == uprv_strcmp(expValidActual, "eq") && validActual == 0))) {
+	if(((0 == strcmp(expReqValid, "gt") && reqValid > 0) ||
+	    (0 == strcmp(expReqValid, "ge") && reqValid >= 0) ||
+	    (0 == strcmp(expReqValid, "eq") && reqValid == 0)) &&
+	    ((0 == strcmp(expValidActual, "gt") && validActual > 0) ||
+	    (0 == strcmp(expValidActual, "ge") && validActual >= 0) ||
+	    (0 == strcmp(expValidActual, "eq") && validActual == 0))) {
 		logln("%s; req=%s, valid=%s, actual=%s",
 		    label, req, valid, actual);
 	}
@@ -4875,12 +4875,12 @@ void LocaleTest::TestCanonicalization(void)
 
 	int32_t i, j;
 
-	for(i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		for(j = 0; j<3; ++j) {
 			const char * expected = (j==1) ? testCases[i].canonicalID : testCases[i].getNameID;
 			Locale loc = _canonicalize(j, testCases[i].localeID);
 			const char * getName = loc.isBogus() ? "BOGUS" : loc.getName();
-			if(uprv_strcmp(expected, getName) != 0) {
+			if(strcmp(expected, getName) != 0) {
 				errln("FAIL: %s(%s).getName() => \"%s\", expected \"%s\"",
 				    label[j], testCases[i].localeID, getName, expected);
 			}
@@ -5032,7 +5032,7 @@ void LocaleTest::TestCanonicalize(void)
 		{ "en-t-s0-ascii-d0-NaMe", "en-t-d0-charname-s0-ascii" },
 	};
 	int32_t i;
-	for(i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		UErrorCode status = U_ZERO_ERROR;
 		std::string otag = testCases[i].localeID;
 		Locale loc = Locale::forLanguageTag(otag.c_str(), status);
@@ -5459,7 +5459,7 @@ void LocaleTest::TestBug20900() {
 	};
 
 	IcuTestErrorCode status(*this, "TestBug20900");
-	for(int32_t i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		Locale loc = Locale::createCanonical(testCases[i].localeID);
 		std::string result = loc.toLanguageTag<std::string>(status);
 		const char * tag = loc.isBogus() ? "BOGUS" : result.c_str();
@@ -5648,7 +5648,7 @@ void LocaleTest::TestForLanguageTag() {
 		{"und-1994-biske-rozaj-x-private", "__1994_BISKE_ROZAJ@x=private"},
 	};
 	int32_t i;
-	for(i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		UErrorCode status = U_ZERO_ERROR;
 		std::string otag = testCases[i].inputTag;
 		std::string tag = Locale::forLanguageTag(otag.c_str(), status).getName();
@@ -5754,7 +5754,7 @@ void LocaleTest::TestToLanguageTag() {
 		{"und-1994-biske-rozaj-x-private", "und-1994-biske-rozaj-x-private"},
 	};
 	int32_t i;
-	for(i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		UErrorCode status = U_ZERO_ERROR;
 		std::string otag = testCases[i].localeID;
 		std::string tag = Locale::forLanguageTag(otag.c_str(), status).toLanguageTag<std::string>(status);
@@ -6002,13 +6002,13 @@ void LocaleTest::TestBug11053UnderlineTimeZone() {
 		"Pacific/Pago_Pago",
 	};
 	std::string locale_str;
-	for(int32_t i = 0; i < UPRV_LENGTHOF(tz_in_ext); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(tz_in_ext); i++) {
 		locale_str = "en-u-tz-";
 		locale_str += tz_in_ext[i];
 		Locale l(locale_str.c_str());
 		assertTrue((locale_str + " !l.isBogus()").c_str(), !l.isBogus());
 	}
-	for(int32_t i = 0; i < UPRV_LENGTHOF(tzname_with_underline); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(tzname_with_underline); i++) {
 		locale_str = "en@timezone=";
 		locale_str +=  tzname_with_underline[i];
 		Locale l(locale_str.c_str());
@@ -6380,7 +6380,7 @@ void LocaleTest::TestUndCAPI() {
 	assertEquals("uloc_getLanguage()", empty, tmp);
 }
 
-#define ARRAY_RANGE(array) (array), ((array) + UPRV_LENGTHOF(array))
+#define ARRAY_RANGE(array) (array), ((array) + SIZEOFARRAYi(array))
 
 void LocaleTest::TestRangeIterator() {
 	IcuTestErrorCode status(*this, "TestRangeIterator");
@@ -6561,7 +6561,7 @@ void LocaleTest::TestSetUnicodeKeywordValueNullInLongLocale() {
 	IcuTestErrorCode status(*this, "TestSetUnicodeKeywordValueNullInLongLocale");
 	const char * exts[] = {"cf", "cu", "em", "kk", "kr", "ks", "kv", "lb", "lw",
 			       "ms", "nu", "rg", "sd", "ss", "tz"};
-	for(int32_t i = 0; i < UPRV_LENGTHOF(exts); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(exts); i++) {
 		CharString tag("de-u", status);
 		for(int32_t j = 0; j <= i; j++) {
 			tag.append("-", status).append(exts[j], status);

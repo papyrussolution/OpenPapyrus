@@ -35,7 +35,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	public  CommonPrereqModule CPM;
 	private JSONArray WharehouseListData;
 	private JSONArray QuotKindListData;
-	private ArrayList <JSONObject> BrandListData;
+	private ArrayList <BusinessEntity.Brand> BrandListData;
 	private ViewDescriptionList VdlDocs; // Описание таблицы просмотра существующих заказов
 	private ArrayList <Document.EditAction> DocEditActionList;
 	private void RefreshCurrentDocStatus()
@@ -66,13 +66,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		CPM.AddGoodsGroupsToSimpleIndex();
 		if(BrandListData != null) {
 			for(int i = 0; i < BrandListData.size(); i++) {
-				JSONObject js_item = BrandListData.get(i);
-				if(js_item != null) {
-					int id = js_item.optInt("id", 0);
-					if(id > 0) {
-						String nm = js_item.optString("nm");
-						CPM.AddSimpleIndexEntry(SLib.PPOBJ_BRAND, id, SLib.PPOBJATTR_NAME, nm, null);
-					}
+				BusinessEntity.Brand item = BrandListData.get(i);
+				if(item != null) {
+					int id = item.ID;
+					if(id > 0 && SLib.GetLen(item.Name) > 0)
+						CPM.AddSimpleIndexEntry(SLib.PPOBJ_BRAND, id, SLib.PPOBJATTR_NAME, item.Name, null);
 				}
 			}
 		}
@@ -347,8 +345,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		int result = -1;
 		if(BrandListData != null && id > 0) {
 			for(int i = 0; result < 0 && i < BrandListData.size(); i++) {
-				final int iter_id = BrandListData.get(i).optInt("id", 0);
-				if(iter_id == id)
+				BusinessEntity.Brand item = BrandListData.get(i);
+				if(item != null && item.ID == id)
 					result = i;
 			}
 		}
@@ -699,18 +697,20 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								{
 									JSONArray temp_array = js_head.optJSONArray("brand_list");
 									if(temp_array != null) {
-										BrandListData = new ArrayList<JSONObject>();
+										BrandListData = new ArrayList<BusinessEntity.Brand>();
 										for(int i = 0; i < temp_array.length(); i++) {
 											Object temp_obj = temp_array.get(i);
-											if(temp_obj != null && temp_obj instanceof JSONObject)
-												BrandListData.add((JSONObject) temp_obj);
+											if(temp_obj != null && temp_obj instanceof JSONObject) {
+												BusinessEntity.Brand new_entry = new BusinessEntity.Brand();
+												if(new_entry.FromJsonObj((JSONObject)temp_obj))
+													BrandListData.add(new_entry);
+											}
 										}
-										Collections.sort(BrandListData, new Comparator<JSONObject>() {
-											@Override
-											public int compare(JSONObject lh, JSONObject rh)
+										Collections.sort(BrandListData, new Comparator<BusinessEntity.Brand>() {
+											@Override public int compare(BusinessEntity.Brand lh, BusinessEntity.Brand rh)
 											{
-												String ls = lh.optString("nm", "");
-												String rs = rh.optString("nm", "");
+												String ls = lh.Name;
+												String rs = rh.Name;
 												return ls.toLowerCase().compareTo(rs.toLowerCase());
 											}
 										});
@@ -1018,10 +1018,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								else if(a.GetListRcId() == R.id.orderPrereqBrandListView) {
 									if(BrandListData != null && ev_subj.ItemIdx < BrandListData.size()) {
 										View iv = ev_subj.RvHolder.itemView;
-										JSONObject cur_entry = (JSONObject)BrandListData.get(ev_subj.ItemIdx);
+										BusinessEntity.Brand cur_entry = BrandListData.get(ev_subj.ItemIdx);
 										if(cur_entry != null) {
-											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.optString("nm", ""));
-											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_BRAND, cur_entry.optInt("id", 0));
+											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.Name);
+											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_BRAND, cur_entry.ID);
 										}
 									}
 								}
@@ -1495,7 +1495,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										break;
 									case R.id.orderPrereqBrandListView:
 										if(BrandListData != null && ev_subj.ItemIdx < BrandListData.size()) {
-											final int brand_id = BrandListData.get(ev_subj.ItemIdx).optInt("id", 0);
+											final int brand_id = BrandListData.get(ev_subj.ItemIdx).ID;
 											if(CPM.SetGoodsFilterByBrand(brand_id)) {
 												SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
 												do_update_goods_list_and_toggle_to_it = true;

@@ -90,7 +90,7 @@ typedef struct ILcidPosixMap {
  * @param _posixID the full POSIX ID for this entry.
  */
 #define ILCID_POSIX_MAP(_posixID) \
-	{UPRV_LENGTHOF(locmap_ ## _posixID), locmap_ ## _posixID}
+	{SIZEOFARRAYi(locmap_ ## _posixID), locmap_ ## _posixID}
 
 /*
    //
@@ -927,7 +927,7 @@ static const ILcidPosixMap gPosixIDmap[] = {
 	ILCID_POSIX_MAP(zu), /* zu  Zulu                      0x35 */
 };
 
-static const uint32_t gLocaleCount = UPRV_LENGTHOF(gPosixIDmap);
+static const uint32_t gLocaleCount = SIZEOFARRAYi(gPosixIDmap);
 
 /**
  * Do not call this function. It is called by hostID.
@@ -957,7 +957,7 @@ static uint32_t getHostID(const ILcidPosixMap * this_0, const char * posixID, UE
 {
 	int32_t bestIdx = 0;
 	int32_t bestIdxDiff = 0;
-	int32_t posixIDlen = (int32_t)uprv_strlen(posixID);
+	int32_t posixIDlen = (int32_t)strlen(posixID);
 	uint32_t idx;
 
 	for(idx = 0; idx < this_0->numRegions; idx++) {
@@ -1043,12 +1043,12 @@ U_CAPI int32_t uprv_convertToPosix(uint32_t hostid, char * posixID, int32_t posi
 
 		// Note: LOCALE_ALLOW_NEUTRAL_NAMES was enabled in Windows7+, prior versions did not handle neutral
 		// (no-region) locale names.
-		tmpLen = LCIDToLocaleName(hostid, (PWSTR)windowsLocaleName, UPRV_LENGTHOF(windowsLocaleName), LOCALE_ALLOW_NEUTRAL_NAMES);
+		tmpLen = LCIDToLocaleName(hostid, (PWSTR)windowsLocaleName, SIZEOFARRAYi(windowsLocaleName), LOCALE_ALLOW_NEUTRAL_NAMES);
 		if(tmpLen > 1) {
 			int32_t i = 0;
 			// Only need to look up in table if have _, eg for de-de_phoneb type alternate sort.
 			bLookup = FALSE;
-			for(i = 0; i < UPRV_LENGTHOF(locName); i++) {
+			for(i = 0; i < SIZEOFARRAYi(locName); i++) {
 				locName[i] = (char)(windowsLocaleName[i]);
 
 				// Windows locale name may contain sorting variant, such as "es-ES_tradnl".
@@ -1092,13 +1092,13 @@ U_CAPI int32_t uprv_convertToPosix(uint32_t hostid, char * posixID, int32_t posi
 		/* On Windows, when locale name has a variant, we still look up the hardcoded table.
 		   If a match in the hardcoded table is longer than the Windows locale name without
 		   variant, we use the one as the result */
-		if(pCandidate && (pPosixID == NULL || uprv_strlen(pCandidate) > uprv_strlen(pPosixID))) {
+		if(pCandidate && (pPosixID == NULL || strlen(pCandidate) > strlen(pPosixID))) {
 			pPosixID = pCandidate;
 		}
 	}
 
 	if(pPosixID) {
-		int32_t resLen = static_cast<int32_t>(uprv_strlen(pPosixID));
+		int32_t resLen = static_cast<int32_t>(strlen(pPosixID));
 		int32_t copyLen = resLen <= posixIDCapacity ? resLen : posixIDCapacity;
 		uprv_memcpy(posixID, pPosixID, copyLen);
 		if(resLen < posixIDCapacity) {
@@ -1154,7 +1154,7 @@ U_CAPI uint32_t uprv_convertToLCIDPlatform(const char * localeID, UErrorCode * s
 		}
 		else {
 			// If the locale ID contains keywords other than collation, just use the base name.
-			len = uloc_getBaseName(localeID, baseName, UPRV_LENGTHOF(baseName) - 1, status);
+			len = uloc_getBaseName(localeID, baseName, SIZEOFARRAYi(baseName) - 1, status);
 
 			if(U_SUCCESS(*status) && len > 0) {
 				baseName[len] = 0;
@@ -1165,13 +1165,13 @@ U_CAPI uint32_t uprv_convertToLCIDPlatform(const char * localeID, UErrorCode * s
 
 	char asciiBCP47Tag[LOCALE_NAME_MAX_LENGTH] = {};
 	// this will change it from de_DE@collation=phonebook to de-DE-u-co-phonebk form
-	(void)uloc_toLanguageTag(mylocaleID, asciiBCP47Tag, UPRV_LENGTHOF(asciiBCP47Tag), FALSE, status);
+	(void)uloc_toLanguageTag(mylocaleID, asciiBCP47Tag, SIZEOFARRAYi(asciiBCP47Tag), FALSE, status);
 
 	if(U_SUCCESS(*status)) {
 		// Need it to be UTF-16, not 8-bit
 		wchar_t bcp47Tag[LOCALE_NAME_MAX_LENGTH] = {};
 		int32_t i;
-		for(i = 0; i < UPRV_LENGTHOF(bcp47Tag); i++) {
+		for(i = 0; i < SIZEOFARRAYi(bcp47Tag); i++) {
 			if(asciiBCP47Tag[i] == '\0') {
 				break;
 			}
@@ -1181,7 +1181,7 @@ U_CAPI uint32_t uprv_convertToLCIDPlatform(const char * localeID, UErrorCode * s
 			}
 		}
 
-		if(i < (UPRV_LENGTHOF(bcp47Tag) - 1)) {
+		if(i < (SIZEOFARRAYi(bcp47Tag) - 1)) {
 			// Ensure it's null terminated
 			bcp47Tag[i] = L'\0';
 			LCID lcid = LocaleNameToLCID(bcp47Tag, LOCALE_ALLOW_NEUTRAL_NAMES);
@@ -1219,7 +1219,7 @@ U_CAPI uint32_t uprv_convertToLCID(const char * langID, const char * posixID, UE
 	uint32_t idx;
 
 	/* Check for incomplete id. */
-	if(!langID || !posixID || uprv_strlen(langID) < 2 || uprv_strlen(posixID) < 2) {
+	if(!langID || !posixID || strlen(langID) < 2 || strlen(posixID) < 2) {
 		return 0;
 	}
 
@@ -1231,7 +1231,7 @@ U_CAPI uint32_t uprv_convertToLCID(const char * langID, const char * posixID, UE
 		if(mid == oldmid)
 			break;
 
-		compVal = uprv_strcmp(langID, gPosixIDmap[mid].regionMaps->posixID);
+		compVal = strcmp(langID, gPosixIDmap[mid].regionMaps->posixID);
 		if(compVal < 0) {
 			high = mid;
 		}

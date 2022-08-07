@@ -82,7 +82,7 @@ static bool U_CALLCONV udata_cleanup(void)
 		gCommonDataCache = NULL; /* Cleanup is not thread safe.       */
 	}
 	gCommonDataCacheInitOnce.reset();
-	for(i = 0; i < UPRV_LENGTHOF(gCommonICUDataArray) && gCommonICUDataArray[i]; ++i) {
+	for(i = 0; i < SIZEOFARRAYi(gCommonICUDataArray) && gCommonICUDataArray[i]; ++i) {
 		udata_close(gCommonICUDataArray[i]);
 		gCommonICUDataArray[i] = NULL;
 	}
@@ -99,7 +99,7 @@ static bool U_CALLCONV findCommonICUDataByName(const char * inBasename, UErrorCo
 		return FALSE;
 	{
 		Mutex lock;
-		for(i = 0; i < UPRV_LENGTHOF(gCommonICUDataArray); ++i) {
+		for(i = 0; i < SIZEOFARRAYi(gCommonICUDataArray); ++i) {
 			if(gCommonICUDataArray[i] && (gCommonICUDataArray[i]->pHeader == pData->pHeader)) {
 				/* The data pointer is already in the array. */
 				found = TRUE;
@@ -130,7 +130,7 @@ static bool setCommonICUData(UDataMemory * pData,     /* The new common data.  B
 	/* their locals.        */
 	UDatamemory_assign(newCommonData, pData);
 	umtx_lock(NULL);
-	for(i = 0; i < UPRV_LENGTHOF(gCommonICUDataArray); ++i) {
+	for(i = 0; i < SIZEOFARRAYi(gCommonICUDataArray); ++i) {
 		if(gCommonICUDataArray[i] == NULL) {
 			gCommonICUDataArray[i] = newCommonData;
 			didUpdate = TRUE;
@@ -143,7 +143,7 @@ static bool setCommonICUData(UDataMemory * pData,     /* The new common data.  B
 	}
 	umtx_unlock(NULL);
 
-	if(i == UPRV_LENGTHOF(gCommonICUDataArray) && warn) {
+	if(i == SIZEOFARRAYi(gCommonICUDataArray) && warn) {
 		*pErr = U_USING_DEFAULT_WARNING;
 	}
 	if(didUpdate) {
@@ -291,7 +291,7 @@ static UDataMemory * udata_cacheDataItem(const char * path, UDataMemory * item, 
 	UDatamemory_assign(newElement->item, item);
 
 	baseName = findBasename(path);
-	nameLen = (int32_t)uprv_strlen(baseName);
+	nameLen = (int32_t)strlen(baseName);
 	newElement->name = (char *)uprv_malloc(nameLen+1);
 	if(newElement->name == NULL) {
 		*pErr = U_MEMORY_ALLOCATION_ERROR;
@@ -299,7 +299,7 @@ static UDataMemory * udata_cacheDataItem(const char * path, UDataMemory * item, 
 		uprv_free(newElement);
 		return NULL;
 	}
-	uprv_strcpy(newElement->name, baseName);
+	strcpy(newElement->name, baseName);
 
 	/* Stick the new DataCacheElement into the hash table.
 	 */
@@ -404,7 +404,7 @@ UDataPathIterator::UDataPathIterator(const char * inPath, const char * pkg,
 
 	/** Item **/
 	basename = findBasename(item);
-	basenameLen = (int32_t)uprv_strlen(basename);
+	basenameLen = (int32_t)strlen(basename);
 
 	/** Item path **/
 	if(basename == item) {
@@ -464,14 +464,14 @@ const char * UDataPathIterator::next(UErrorCode * pErrorCode)
 
 		if(nextPath == itemPath.data()) { /* we were processing item's path. */
 			nextPath = path; /* start with regular path next tm. */
-			pathLen = (int32_t)uprv_strlen(currentPath);
+			pathLen = (int32_t)strlen(currentPath);
 		}
 		else {
 			/* fix up next for next time */
 			nextPath = uprv_strchr(currentPath, U_PATH_SEP_CHAR);
 			if(nextPath == NULL) {
 				/* segment: entire path */
-				pathLen = (int32_t)uprv_strlen(currentPath);
+				pathLen = (int32_t)strlen(currentPath);
 			}
 			else {
 				/* segment: until next segment */
@@ -506,7 +506,7 @@ const char * UDataPathIterator::next(UErrorCode * pErrorCode)
 		    (pathLen>=4) &&
 		    uprv_strncmp(pathBuffer.data() +(pathLen-4), suffix.data(), 4)==0 && /* suffix matches */
 		    uprv_strncmp(findBasename(pathBuffer.data()), basename, basenameLen)==0 &&/* base matches */
-		    uprv_strlen(pathBasename)==(basenameLen+4)) { /* base+suffix = full len */
+		    strlen(pathBasename)==(basenameLen+4)) { /* base+suffix = full len */
 #ifdef UDATA_DEBUG
 			slfprintf_stderr("Have %s file on the path: %s\n", suffix.data(), pathBuffer.data());
 #endif
@@ -521,7 +521,7 @@ const char * UDataPathIterator::next(UErrorCode * pErrorCode)
 					continue;
 				}
 				/* Check if it is a directory with the same name as our package */
-				if(!packageStub.isEmpty() && (pathLen > packageStub.length()) && !uprv_strcmp(pathBuffer.data() + pathLen - packageStub.length(), packageStub.data())) {
+				if(!packageStub.isEmpty() && (pathLen > packageStub.length()) && !strcmp(pathBuffer.data() + pathLen - packageStub.length(), packageStub.data())) {
 #ifdef UDATA_DEBUG
 					slfprintf_stderr("Found stub %s (will add package %s of len %d)\n", packageStub.data(), basename, basenameLen);
 #endif
@@ -601,7 +601,7 @@ static UDataMemory * openCommonData(const char * path,          /* Path from Ope
 	/* ??????? TODO revisit this */
 	if(commonDataIndex >= 0) {
 		/* "mini-cache" for common ICU data */
-		if(commonDataIndex >= UPRV_LENGTHOF(gCommonICUDataArray)) {
+		if(commonDataIndex >= SIZEOFARRAYi(gCommonICUDataArray)) {
 			return NULL;
 		}
 		{
@@ -1017,8 +1017,8 @@ static UDataMemory * doLoadFromCommonData(bool isICUData, const char * /*pkgName
  */
 static bool isTimeZoneFile(const char * name, const char * type) 
 {
-	return ((uprv_strcmp(type, "res") == 0) && (uprv_strcmp(name, "zoneinfo64") == 0 ||
-	       uprv_strcmp(name, "timezoneTypes") == 0 || uprv_strcmp(name, "windowsZones") == 0 || uprv_strcmp(name, "metaZones") == 0));
+	return ((strcmp(type, "res") == 0) && (strcmp(name, "zoneinfo64") == 0 ||
+	       strcmp(name, "timezoneTypes") == 0 || strcmp(name, "windowsZones") == 0 || strcmp(name, "metaZones") == 0));
 }
 
 /*
@@ -1061,8 +1061,8 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 	FileTracer::traceOpen(path, type, name);
 	// Is this path ICU data? 
 	if(!path || sstreq(path, U_ICUDATA_ALIAS) || /* "ICUDATA" */ !uprv_strncmp(path, U_ICUDATA_NAME U_TREE_SEPARATOR_STRING, /* "icudt26e-" */
-	    uprv_strlen(U_ICUDATA_NAME U_TREE_SEPARATOR_STRING)) || !uprv_strncmp(path, U_ICUDATA_ALIAS U_TREE_SEPARATOR_STRING, /* "ICUDATA-" */
-	    uprv_strlen(U_ICUDATA_ALIAS U_TREE_SEPARATOR_STRING))) {
+	    strlen(U_ICUDATA_NAME U_TREE_SEPARATOR_STRING)) || !uprv_strncmp(path, U_ICUDATA_ALIAS U_TREE_SEPARATOR_STRING, /* "ICUDATA-" */
+	    strlen(U_ICUDATA_ALIAS U_TREE_SEPARATOR_STRING))) {
 		isICUData = TRUE;
 	}
 #if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR) // Windows:  try "foo\bar" and "foo/bar" 

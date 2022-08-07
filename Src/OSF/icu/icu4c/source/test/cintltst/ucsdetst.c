@@ -161,7 +161,7 @@ static void TestUTF16(void)
 		0x0020, 0x002b, 0x0020, 0x0627, 0x0646, 0x062a, 0x0631, 0x0646,
 		0x064a, 0x062a, 0x0000
 	};
-	int32_t beLength = 0, leLength = 0, cLength = UPRV_LENGTHOF(chars);
+	int32_t beLength = 0, leLength = 0, cLength = SIZEOFARRAYi(chars);
 	char * beBytes = extractBytes(chars, cLength, "UTF-16BE", &beLength);
 	char * leBytes = extractBytes(chars, cLength, "UTF-16LE", &leLength);
 	UCharsetDetector * csd = ucsdet_open(&status);
@@ -415,7 +415,7 @@ static void TestBufferOverflow() {
 		goto bail;
 	}
 
-	for(idx = 0; idx < UPRV_LENGTHOF(testStrings); idx++) {
+	for(idx = 0; idx < SIZEOFARRAYi(testStrings); idx++) {
 		ucsdet_setText(csd, testStrings[idx], -1, &status);
 		match = ucsdet_detect(csd, &status);
 
@@ -517,7 +517,7 @@ static void TestIBM424(void)
 		0x0000
 	};
 
-	int32_t bLength = 0, brLength = 0, cLength = UPRV_LENGTHOF(chars), crLength = UPRV_LENGTHOF(chars_reverse);
+	int32_t bLength = 0, brLength = 0, cLength = SIZEOFARRAYi(chars), crLength = SIZEOFARRAYi(chars_reverse);
 	char * bytes = extractBytes(chars, cLength, "IBM424", &bLength);
 	char * bytes_r = extractBytes(chars_reverse, crLength, "IBM424", &brLength);
 	UCharsetDetector * csd = ucsdet_open(&status);
@@ -612,7 +612,7 @@ static void TestIBM420(void)
 		0x0000,
 	};
 
-	int32_t bLength = 0, brLength = 0, cLength = UPRV_LENGTHOF(chars), crLength = UPRV_LENGTHOF(chars_reverse);
+	int32_t bLength = 0, brLength = 0, cLength = SIZEOFARRAYi(chars), crLength = SIZEOFARRAYi(chars_reverse);
 
 	char * bytes = extractBytes(chars, cLength, "IBM420", &bLength);
 	char * bytes_r = extractBytes(chars_reverse, crLength, "IBM420", &brLength);

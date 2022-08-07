@@ -132,14 +132,14 @@ void UCharsTrieTest::TestEmpty() {
 	static const StringAndValue data[] = {
 		{ "", 0 }
 	};
-	checkData(data, UPRV_LENGTHOF(data));
+	checkData(data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::Test_a() {
 	static const StringAndValue data[] = {
 		{ "a", 1 }
 	};
-	checkData(data, UPRV_LENGTHOF(data));
+	checkData(data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::Test_a_ab() {
@@ -147,7 +147,7 @@ void UCharsTrieTest::Test_a_ab() {
 		{ "a", 1 },
 		{ "ab", 100 }
 	};
-	checkData(data, UPRV_LENGTHOF(data));
+	checkData(data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::TestShortestBranch() {
@@ -155,7 +155,7 @@ void UCharsTrieTest::TestShortestBranch() {
 		{ "a", 1000 },
 		{ "b", 2000 }
 	};
-	checkData(data, UPRV_LENGTHOF(data));
+	checkData(data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::TestBranches() {
@@ -175,7 +175,7 @@ void UCharsTrieTest::TestBranches() {
 		{ "vv", 0x7fffffff },
 		{ "zz", (int32_t)0x80000000 }
 	};
-	for(int32_t length = 2; length<=UPRV_LENGTHOF(data); ++length) {
+	for(int32_t length = 2; length<=SIZEOFARRAYi(data); ++length) {
 		logln("TestBranches length=%d", (int)length);
 		checkData(data, length);
 	}
@@ -194,7 +194,7 @@ void UCharsTrieTest::TestLongSequence() {
 		  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", -3 }
 	};
-	checkData(data, UPRV_LENGTHOF(data));
+	checkData(data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::TestLongBranch() {
@@ -222,7 +222,7 @@ void UCharsTrieTest::TestLongBranch() {
 		{ "t234567890", 0x77777777 },
 		{ "z", (int32_t)0x80000001 }
 	};
-	checkData(data, UPRV_LENGTHOF(data));
+	checkData(data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::TestValuesForState() {
@@ -236,7 +236,7 @@ void UCharsTrieTest::TestValuesForState() {
 		{ "abcde", -5 },
 		{ "abcdef", -6 }
 	};
-	checkData(data, UPRV_LENGTHOF(data));
+	checkData(data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::TestCompact() {
@@ -263,7 +263,7 @@ void UCharsTrieTest::TestCompact() {
 		{ "xjuly", 7 },
 		{ "xjune", 6 }
 	};
-	checkData(data, UPRV_LENGTHOF(data));
+	checkData(data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::TestFirstForCodePoint() {
@@ -278,7 +278,7 @@ void UCharsTrieTest::TestFirstForCodePoint() {
 		{ "\\U00050000xy", 8 },
 		{ "\\U00050000xyz", 9 }
 	};
-	checkData(data, UPRV_LENGTHOF(data));
+	checkData(data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::TestNextForCodePoint() {
@@ -287,7 +287,7 @@ void UCharsTrieTest::TestNextForCodePoint() {
 		{ "\\u4dff\\U00010000\\u9999\\U00020002", 44444 },
 		{ "\\u4dff\\U000103ff", 99999 }
 	};
-	LocalPointer<UCharsTrie> trie(buildTrie(data, UPRV_LENGTHOF(data), USTRINGTRIE_BUILD_FAST));
+	LocalPointer<UCharsTrie> trie(buildTrie(data, SIZEOFARRAYi(data), USTRINGTRIE_BUILD_FAST));
 	if(trie.isNull()) {
 		return; // buildTrie() reported an error
 	}
@@ -465,7 +465,7 @@ UCharsTrie * UCharsTrieTest::buildMonthsTrie(UStringTrieBuildOption buildOption)
 		{ "jun.", 6 },
 		{ "june", 6 }
 	};
-	return buildTrie(data, UPRV_LENGTHOF(data), buildOption);
+	return buildTrie(data, SIZEOFARRAYi(data), buildOption);
 }
 
 void UCharsTrieTest::TestHasUniqueValue() {
@@ -597,10 +597,10 @@ void UCharsTrieTest::TestIteratorFromBranch() {
 		{ "uar", 1 },
 		{ "uary", 1 }
 	};
-	checkIterator(iter, data, UPRV_LENGTHOF(data));
+	checkIterator(iter, data, SIZEOFARRAYi(data));
 	// Reset, and we should get the same result.
 	logln("after iter.reset()");
-	checkIterator(iter.reset(), data, UPRV_LENGTHOF(data));
+	checkIterator(iter.reset(), data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::TestIteratorFromLinearMatch() {
@@ -625,10 +625,10 @@ void UCharsTrieTest::TestIteratorFromLinearMatch() {
 		{ "r", 1 },
 		{ "ry", 1 }
 	};
-	checkIterator(iter, data, UPRV_LENGTHOF(data));
+	checkIterator(iter, data, SIZEOFARRAYi(data));
 	// Reset, and we should get the same result.
 	logln("after iter.reset()");
-	checkIterator(iter.reset(), data, UPRV_LENGTHOF(data));
+	checkIterator(iter.reset(), data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::TestTruncatingIteratorFromRoot() {
@@ -671,10 +671,10 @@ void UCharsTrieTest::TestTruncatingIteratorFromRoot() {
 		{ "jun.", 6 },
 		{ "june", 6 }
 	};
-	checkIterator(iter, data, UPRV_LENGTHOF(data));
+	checkIterator(iter, data, SIZEOFARRAYi(data));
 	// Reset, and we should get the same result.
 	logln("after iter.reset()");
-	checkIterator(iter.reset(), data, UPRV_LENGTHOF(data));
+	checkIterator(iter.reset(), data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::TestTruncatingIteratorFromLinearMatchShort() {
@@ -683,7 +683,7 @@ void UCharsTrieTest::TestTruncatingIteratorFromLinearMatchShort() {
 		{ "abcdepq", 200 },
 		{ "abcdeyz", 3000 }
 	};
-	LocalPointer<UCharsTrie> trie(buildTrie(data, UPRV_LENGTHOF(data), USTRINGTRIE_BUILD_FAST));
+	LocalPointer<UCharsTrie> trie(buildTrie(data, SIZEOFARRAYi(data), USTRINGTRIE_BUILD_FAST));
 	if(trie.isNull()) {
 		return; // buildTrie() reported an error
 	}
@@ -699,10 +699,10 @@ void UCharsTrieTest::TestTruncatingIteratorFromLinearMatchShort() {
 	static const StringAndValue expected[] = {
 		{ "cd", -1 }
 	};
-	checkIterator(iter, expected, UPRV_LENGTHOF(expected));
+	checkIterator(iter, expected, SIZEOFARRAYi(expected));
 	// Reset, and we should get the same result.
 	logln("after iter.reset()");
-	checkIterator(iter.reset(), expected, UPRV_LENGTHOF(expected));
+	checkIterator(iter.reset(), expected, SIZEOFARRAYi(expected));
 }
 
 void UCharsTrieTest::TestTruncatingIteratorFromLinearMatchLong() {
@@ -711,7 +711,7 @@ void UCharsTrieTest::TestTruncatingIteratorFromLinearMatchLong() {
 		{ "abcdepq", 200 },
 		{ "abcdeyz", 3000 }
 	};
-	LocalPointer<UCharsTrie> trie(buildTrie(data, UPRV_LENGTHOF(data), USTRINGTRIE_BUILD_FAST));
+	LocalPointer<UCharsTrie> trie(buildTrie(data, SIZEOFARRAYi(data), USTRINGTRIE_BUILD_FAST));
 	if(trie.isNull()) {
 		return; // buildTrie() reported an error
 	}
@@ -730,10 +730,10 @@ void UCharsTrieTest::TestTruncatingIteratorFromLinearMatchLong() {
 		{ "dep", -1 },
 		{ "dey", -1 }
 	};
-	checkIterator(iter, expected, UPRV_LENGTHOF(expected));
+	checkIterator(iter, expected, SIZEOFARRAYi(expected));
 	// Reset, and we should get the same result.
 	logln("after iter.reset()");
-	checkIterator(iter.reset(), expected, UPRV_LENGTHOF(expected));
+	checkIterator(iter.reset(), expected, SIZEOFARRAYi(expected));
 }
 
 void UCharsTrieTest::TestIteratorFromUChars() {
@@ -744,13 +744,13 @@ void UCharsTrieTest::TestIteratorFromUChars() {
 	};
 	builder_->clear();
 	IcuTestErrorCode errorCode(*this, "TestIteratorFromUChars()");
-	for(int32_t i = 0; i<UPRV_LENGTHOF(data); ++i) {
+	for(int32_t i = 0; i<SIZEOFARRAYi(data); ++i) {
 		builder_->add(data[i].s, data[i].value, errorCode);
 	}
 	UnicodeString trieUChars;
 	builder_->buildUnicodeString(USTRINGTRIE_BUILD_FAST, trieUChars, errorCode);
 	UCharsTrie::Iterator iter(trieUChars.getBuffer(), 0, errorCode);
-	checkIterator(iter, data, UPRV_LENGTHOF(data));
+	checkIterator(iter, data, SIZEOFARRAYi(data));
 }
 
 void UCharsTrieTest::checkData(const StringAndValue data[], int32_t dataLength) {
@@ -1112,7 +1112,7 @@ void UCharsTrieTest::checkIterator(UCharsTrie::Iterator &iter,
 		if(iter.getString()!=expectedString) {
 			char buffer[1000];
 			UnicodeString invString(prettify(iter.getString()));
-			invString.extract(0, invString.length(), buffer, UPRV_LENGTHOF(buffer), US_INV);
+			invString.extract(0, invString.length(), buffer, SIZEOFARRAYi(buffer), US_INV);
 			errln("trie iterator next().getString()=%s but expected %s for item %d",
 			    buffer, data[i].s, (int)i);
 		}

@@ -134,8 +134,8 @@ DecimalFormatSymbols&DecimalFormatSymbols::operator = (const DecimalFormatSymbol
 			currencySpcAfterSym[i].fastCopyFrom(rhs.currencySpcAfterSym[i]);
 		}
 		locale = rhs.locale;
-		uprv_strcpy(validLocale, rhs.validLocale);
-		uprv_strcpy(actualLocale, rhs.actualLocale);
+		strcpy(validLocale, rhs.validLocale);
+		strcpy(actualLocale, rhs.actualLocale);
 		fIsCustomCurrencySymbol = rhs.fIsCustomCurrencySymbol;
 		fIsCustomIntlCurrencySymbol = rhs.fIsCustomIntlCurrencySymbol;
 		fCodePointZero = rhs.fCodePointZero;
@@ -170,8 +170,8 @@ bool DecimalFormatSymbols::operator == (const DecimalFormatSymbols& that) const
 	}
 	// No need to check fCodePointZero since it is based on fSymbols
 	return locale == that.locale &&
-	       uprv_strcmp(validLocale, that.validLocale) == 0 &&
-	       uprv_strcmp(actualLocale, that.actualLocale) == 0;
+	       strcmp(validLocale, that.validLocale) == 0 &&
+	       strcmp(actualLocale, that.actualLocale) == 0;
 }
 
 namespace {
@@ -202,7 +202,7 @@ struct DecFmtSymDataSink : public ResourceSink {
 		}
 		for(int32_t j = 0; symbolsTable.getKeyAndValue(j, key, value); ++j) {
 			for(int32_t i = 0; i<DecimalFormatSymbols::kFormatSymbolCount; i++) {
-				if(gNumberElementKeys[i] != NULL && uprv_strcmp(key, gNumberElementKeys[i]) == 0) {
+				if(gNumberElementKeys[i] != NULL && strcmp(key, gNumberElementKeys[i]) == 0) {
 					if(!seenSymbol[i]) {
 						seenSymbol[i] = TRUE;
 						dfs.setSymbol(
@@ -260,11 +260,11 @@ struct CurrencySpacingSink : public ResourceSink {
 		ResourceTable spacingTypesTable = value.getTable(errorCode);
 		for(int32_t i = 0; spacingTypesTable.getKeyAndValue(i, key, value); ++i) {
 			bool beforeCurrency;
-			if(uprv_strcmp(key, gBeforeCurrencyTag) == 0) {
+			if(strcmp(key, gBeforeCurrencyTag) == 0) {
 				beforeCurrency = TRUE;
 				hasBeforeCurrency = TRUE;
 			}
-			else if(uprv_strcmp(key, gAfterCurrencyTag) == 0) {
+			else if(strcmp(key, gAfterCurrencyTag) == 0) {
 				beforeCurrency = FALSE;
 				hasAfterCurrency = TRUE;
 			}
@@ -275,13 +275,13 @@ struct CurrencySpacingSink : public ResourceSink {
 			ResourceTable patternsTable = value.getTable(errorCode);
 			for(int32_t j = 0; patternsTable.getKeyAndValue(j, key, value); ++j) {
 				UCurrencySpacing pattern;
-				if(uprv_strcmp(key, gCurrencyMatchTag) == 0) {
+				if(strcmp(key, gCurrencyMatchTag) == 0) {
 					pattern = UNUM_CURRENCY_MATCH;
 				}
-				else if(uprv_strcmp(key, gCurrencySudMatchTag) == 0) {
+				else if(strcmp(key, gCurrencySudMatchTag) == 0) {
 					pattern = UNUM_CURRENCY_SURROUNDING_MATCH;
 				}
-				else if(uprv_strcmp(key, gCurrencyInsertBtnTag) == 0) {
+				else if(strcmp(key, gCurrencyInsertBtnTag) == 0) {
 					pattern = UNUM_CURRENCY_INSERT;
 				}
 				else {
@@ -384,7 +384,7 @@ void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status,
 	// Now load the rest of the data from the data sink.
 	// Start with loading this nsName if it is not Latin.
 	DecFmtSymDataSink sink(*this);
-	if(uprv_strcmp(nsName, gLatn) != 0) {
+	if(strcmp(nsName, gLatn) != 0) {
 		CharString path;
 		path.append(gNumberElements, status)
 		.append('/', status)
@@ -437,7 +437,7 @@ void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status,
 	UErrorCode internalStatus = U_ZERO_ERROR; // don't propagate failures out
 	UChar curriso[4];
 	UnicodeString tempStr;
-	int32_t currisoLength = ucurr_forLocale(locStr, curriso, UPRV_LENGTHOF(curriso), &internalStatus);
+	int32_t currisoLength = ucurr_forLocale(locStr, curriso, SIZEOFARRAYi(curriso), &internalStatus);
 	if(U_SUCCESS(internalStatus) && currisoLength == 3) {
 		setCurrency(curriso, status);
 	}

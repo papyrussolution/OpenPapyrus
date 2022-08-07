@@ -201,12 +201,10 @@ err:
 
 	return ret;
 }
-
-/* SMIME sender */
-
-int SMIME_write_ASN1(BIO * bio, ASN1_VALUE * val, BIO * data, int flags,
-    int ctype_nid, int econt_nid,
-    STACK_OF(X509_ALGOR) * mdalgs, const ASN1_ITEM * it)
+//
+// SMIME sender 
+//
+int SMIME_write_ASN1(BIO * bio, ASN1_VALUE * val, BIO * data, int flags, int ctype_nid, int econt_nid, STACK_OF(X509_ALGOR) * mdalgs, const ASN1_ITEM * it)
 {
 	char bound[33], c;
 	int i;
@@ -216,7 +214,6 @@ int SMIME_write_ASN1(BIO * bio, ASN1_VALUE * val, BIO * data, int flags,
 		mime_prefix = "application/x-pkcs7-";
 	else
 		mime_prefix = "application/pkcs7-";
-
 	if(flags & SMIME_CRLFEOL)
 		mime_eol = "\r\n";
 	else
@@ -240,31 +237,24 @@ int SMIME_write_ASN1(BIO * bio, ASN1_VALUE * val, BIO * data, int flags,
 		BIO_printf(bio, " protocol=\"%ssignature\";", mime_prefix);
 		BIO_puts(bio, " micalg=\"");
 		asn1_write_micalg(bio, mdalgs);
-		BIO_printf(bio, "\"; boundary=\"----%s\"%s%s",
-		    bound, mime_eol, mime_eol);
-		BIO_printf(bio, "This is an S/MIME signed message%s%s",
-		    mime_eol, mime_eol);
-		/* Now write out the first part */
+		BIO_printf(bio, "\"; boundary=\"----%s\"%s%s", bound, mime_eol, mime_eol);
+		BIO_printf(bio, "This is an S/MIME signed message%s%s", mime_eol, mime_eol);
+		// Now write out the first part 
 		BIO_printf(bio, "------%s%s", bound, mime_eol);
 		if(!asn1_output_data(bio, data, val, flags, it))
 			return 0;
 		BIO_printf(bio, "%s------%s%s", mime_eol, bound, mime_eol);
-
-		/* Headers for signature */
-
+		// Headers for signature 
 		BIO_printf(bio, "Content-Type: %ssignature;", mime_prefix);
 		BIO_printf(bio, " name=\"smime.p7s\"%s", mime_eol);
 		BIO_printf(bio, "Content-Transfer-Encoding: base64%s", mime_eol);
 		BIO_printf(bio, "Content-Disposition: attachment;");
 		BIO_printf(bio, " filename=\"smime.p7s\"%s%s", mime_eol, mime_eol);
 		B64_write_ASN1(bio, val, NULL, 0, it);
-		BIO_printf(bio, "%s------%s--%s%s", mime_eol, bound,
-		    mime_eol, mime_eol);
+		BIO_printf(bio, "%s------%s--%s%s", mime_eol, bound, mime_eol, mime_eol);
 		return 1;
 	}
-
-	/* Determine smime-type header */
-
+	// Determine smime-type header
 	if(ctype_nid == NID_pkcs7_enveloped)
 		msg_type = "enveloped-data";
 	else if(ctype_nid == NID_pkcs7_signed) {
@@ -287,8 +277,7 @@ int SMIME_write_ASN1(BIO * bio, ASN1_VALUE * val, BIO * data, int flags,
 	if(msg_type)
 		BIO_printf(bio, " smime-type=%s;", msg_type);
 	BIO_printf(bio, " name=\"%s\"%s", cname, mime_eol);
-	BIO_printf(bio, "Content-Transfer-Encoding: base64%s%s",
-	    mime_eol, mime_eol);
+	BIO_printf(bio, "Content-Transfer-Encoding: base64%s%s", mime_eol, mime_eol);
 	if(!B64_write_ASN1(bio, val, data, flags, it))
 		return 0;
 	BIO_printf(bio, "%s", mime_eol);

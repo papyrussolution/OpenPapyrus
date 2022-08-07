@@ -253,7 +253,7 @@ static const char * collReorderCodes[UCOL_REORDER_CODE_LIMIT - UCOL_REORDER_CODE
 };
 
 int32_t getReorderCode(const char * s) {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(collReorderCodes); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(collReorderCodes); ++i) {
 		if(uprv_stricmp(s, collReorderCodes[i]) == 0) {
 			return UCOL_REORDER_CODE_FIRST + i;
 		}
@@ -276,14 +276,14 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	if(uprv_strcmp(loc.getName(), loc.getBaseName()) == 0) {
+	if(strcmp(loc.getName(), loc.getBaseName()) == 0) {
 		// No keywords.
 		return;
 	}
 	char value[1024]; // The reordering value could be long.
 	// Check for collation keywords that were already deprecated
 	// before any were supported in createInstance() (except for "collation").
-	int32_t length = loc.getKeywordValue("colHiraganaQuaternary", value, UPRV_LENGTHOF(value), errorCode);
+	int32_t length = loc.getKeywordValue("colHiraganaQuaternary", value, SIZEOFARRAYi(value), errorCode);
 	if(U_FAILURE(errorCode)) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
@@ -292,7 +292,7 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 		errorCode = U_UNSUPPORTED_ERROR;
 		return;
 	}
-	length = loc.getKeywordValue("variableTop", value, UPRV_LENGTHOF(value), errorCode);
+	length = loc.getKeywordValue("variableTop", value, SIZEOFARRAYi(value), errorCode);
 	if(U_FAILURE(errorCode)) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
@@ -305,8 +305,8 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 	if(errorCode == U_STRING_NOT_TERMINATED_WARNING) {
 		errorCode = U_ZERO_ERROR;
 	}
-	for(int32_t i = 0; i < UPRV_LENGTHOF(collAttributes); ++i) {
-		length = loc.getKeywordValue(collAttributes[i].name, value, UPRV_LENGTHOF(value), errorCode);
+	for(int32_t i = 0; i < SIZEOFARRAYi(collAttributes); ++i) {
+		length = loc.getKeywordValue(collAttributes[i].name, value, SIZEOFARRAYi(value), errorCode);
 		if(U_FAILURE(errorCode) || errorCode == U_STRING_NOT_TERMINATED_WARNING) {
 			errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 			return;
@@ -315,7 +315,7 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 			continue;
 		}
 		for(int32_t j = 0;; ++j) {
-			if(j == UPRV_LENGTHOF(collAttributeValues)) {
+			if(j == SIZEOFARRAYi(collAttributeValues)) {
 				errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 				return;
 			}
@@ -325,7 +325,7 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 			}
 		}
 	}
-	length = loc.getKeywordValue("colReorder", value, UPRV_LENGTHOF(value), errorCode);
+	length = loc.getKeywordValue("colReorder", value, SIZEOFARRAYi(value), errorCode);
 	if(U_FAILURE(errorCode) || errorCode == U_STRING_NOT_TERMINATED_WARNING) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
@@ -335,7 +335,7 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 		int32_t codesLength = 0;
 		char * scriptName = value;
 		for(;;) {
-			if(codesLength == UPRV_LENGTHOF(codes)) {
+			if(codesLength == SIZEOFARRAYi(codes)) {
 				errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 				return;
 			}
@@ -365,7 +365,7 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 		}
 		coll.setReorderCodes(codes, codesLength, errorCode);
 	}
-	length = loc.getKeywordValue("kv", value, UPRV_LENGTHOF(value), errorCode);
+	length = loc.getKeywordValue("kv", value, SIZEOFARRAYi(value), errorCode);
 	if(U_FAILURE(errorCode) || errorCode == U_STRING_NOT_TERMINATED_WARNING) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
@@ -778,7 +778,7 @@ public:
 		if(index < availableLocaleListCount) {
 			result = availableLocaleList[index++].getName();
 			if(resultLength) {
-				*resultLength = (int32_t)uprv_strlen(result);
+				*resultLength = (int32_t)strlen(result);
 			}
 		}
 		else {
@@ -928,8 +928,8 @@ UCollationResult Collator::internalCompareUTF8(const char * left, int32_t leftLe
 		return UCOL_EQUAL;
 	}
 	return compareUTF8(
-		StringPiece(left, (leftLength < 0) ? static_cast<int32_t>(uprv_strlen(left)) : leftLength),
-		StringPiece(right, (rightLength < 0) ? static_cast<int32_t>(uprv_strlen(right)) : rightLength),
+		StringPiece(left, (leftLength < 0) ? static_cast<int32_t>(strlen(left)) : leftLength),
+		StringPiece(right, (rightLength < 0) ? static_cast<int32_t>(strlen(right)) : rightLength),
 		errorCode);
 }
 

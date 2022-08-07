@@ -2404,10 +2404,11 @@ int CPosProcessor::AcceptCheckToBeCleared()
 
 int CPosProcessor::AutosaveCheck()
 {
-	return (CsObj.GetEqCfg().Flags & PPEquipConfig::fAutosaveSyncChecks) ? AcceptCheck(0, 0, 0.0, accmJunk) : -1;
+	PPID   cc_id = 0;
+	return (CsObj.GetEqCfg().Flags & PPEquipConfig::fAutosaveSyncChecks) ? AcceptCheck(&cc_id, 0, 0, 0.0, accmJunk) : -1;
 }
 
-/*virtual*/int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
+/*virtual*/int CPosProcessor::AcceptCheck(PPID * pCcID, const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
 {
 	int    ok = 1;
 	const  int turn_check_before_printing = 1;
@@ -2661,6 +2662,7 @@ int CPosProcessor::AutosaveCheck()
 			//
 			if((epb.R == 0 && epb.SyncPrnErr != 3) || (epb.RExt == 0 && epb.ExtSyncPrnErr != 3)) // ???
 				PPError();
+			ASSIGN_PTR(pCcID, epb.Pack.Rec.ID); // @v11.4.6
 		}
 	}
 	if(mode != accmJunk && (mode != accmAveragePrinting || reprint_regular))
@@ -3479,9 +3481,9 @@ int FASTCALL CheckPaneDialog::valid(ushort command)
 	return r;
 }
 
-/*virtual*/int CheckPaneDialog::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
+/*virtual*/int CheckPaneDialog::AcceptCheck(PPID * pCcID, const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
 {
-	int    ok = CPosProcessor::AcceptCheck(pPl, altPosNodeID, cash, mode /*suspended*/);
+	int    ok = CPosProcessor::AcceptCheck(pCcID, pPl, altPosNodeID, cash, mode /*suspended*/);
 	if(!oneof2(mode, accmJunk, accmAveragePrinting)) {
 		if(ClearCDYTimeout)
 			PrintCheckClock = clock();
@@ -3498,6 +3500,7 @@ int CheckPaneDialog::SuspendCheck()
 	int    ok = -1;
 	const int  prev_state = GetState();
 	const PPID prev_agent_id = P.GetAgentID(1);
+	PPID   cc_id = 0;
 	if(IsState(sEMPTYLIST_EMPTYBUF)) {
 		SelectSuspendedCheck();
 	}
@@ -3508,7 +3511,7 @@ int CheckPaneDialog::SuspendCheck()
 			CDispCommand(cdispcmdTotal, 0, cct.Amount, 0.0);
 			if(cct.Discount != 0.0)
 				CDispCommand(cdispcmdTotalDiscount, 0, (cct.Discount * 100.0) / (cct.Amount + cct.Discount), cct.Discount);
-			AcceptCheck(0, 0, cct.Amount, accmSuspended);
+			AcceptCheck(&cc_id, 0, 0, cct.Amount, accmSuspended);
 			ok = 1;
 		}
 	}
@@ -4202,6 +4205,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			else {
 				PosPaymentBlock paym_blk2(0, BonusMaxPart);
 				if(CalculatePaymentList(paym_blk2, 1) > 0) {
+					PPID   cc_id = 0;
 					CDispCommand(cdispcmdClear, 0, 0.0, 0.0);
 					CDispCommand(cdispcmdTotal, 0, paym_blk2.GetTotal(), 0.0);
 					if(paym_blk2.GetDiscount() != 0.0)
@@ -4212,7 +4216,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 								paym_blk2.NoteAmt = paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt;
 								InformCashNoteAndDelivery(H(), paym_blk2);
 								CDispCommand(cdispcmdChange, 0, paym_blk2.NoteAmt, paym_blk2.DeliveryAmt);
-								AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.NoteAmt, accmRegular);
+								AcceptCheck(&cc_id, &paym_blk2.CcPl, 0, paym_blk2.NoteAmt, accmRegular);
 							}
 							break;
 						case cpmBank:
@@ -4228,13 +4232,13 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 								}
 								if(bnk_paym_result) { // @v10.9.0
 									PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип до чека
-									AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
+									AcceptCheck(&cc_id, &paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
 									PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип после чека
 								}
 							}
 							break;
 						case cpmIncorpCrd:
-							AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
+							AcceptCheck(&cc_id, &paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
 							break;
 						case cpmUndef:
 							{
@@ -4317,7 +4321,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 											PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип до чека
 											// @v11.3.6 const PPID alt_reg_id = (paym_blk2.AltCashReg > 0) ? AltRegisterID : 0;
 											const PPID alt_reg_id = ((paym_blk2.Flags & PosPaymentBlock::fAltCashRegUse) && (paym_blk2.Flags & PosPaymentBlock::fAltCashRegEnabled)) ? AltRegisterID : 0; // @v11.3.6
-											AcceptCheck(&paym_blk2.CcPl, alt_reg_id, paym_blk2.NoteAmt, accmRegular);
+											AcceptCheck(&cc_id, &paym_blk2.CcPl, alt_reg_id, paym_blk2.NoteAmt, accmRegular);
 											PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип после чека
 										}
 									}
@@ -7602,10 +7606,11 @@ int CheckPaneDialog::SelectSuspendedCheck()
 						// @v10.6.11 {
 						if(sel_chk.Flags & _SelCheck::fUnfinished) {
 							// ReprintCheck
+							PPID   cc_id = 0;
 							Flags |= fReprinting;
 							int r1 = RestoreSuspendedCheck(sel_chk.CheckID, 1/*unfinishedForReprinting*/);
 							if(r1)
-								r1 = AcceptCheck(&SelPack.AL_Const(), 0, 0.0, CPosProcessor::accmAveragePrinting); // @v10.7.3 0-->&SelPack.AL_Const()
+								r1 = AcceptCheck(&cc_id, &SelPack.AL_Const(), 0, 0.0, CPosProcessor::accmAveragePrinting); // @v10.7.3 0-->&SelPack.AL_Const()
 							Flags &= ~fReprinting;
 							THROW(r1);
 						}
@@ -8078,7 +8083,8 @@ int CPosProcessor::Backend_Release()
 	int    ok = 1;
 	ResetCurrentLine();
 	if(P.getCount()) {
-		THROW(AcceptCheck(0, 0, 0, accmSuspended) > 0);
+		PPID   cc_id = 0;
+		THROW(AcceptCheck(&cc_id, 0, 0, 0, accmSuspended) > 0);
 	}
 	CATCHZOK
 	return ok;
@@ -13056,9 +13062,10 @@ int PrcssrCCheckGenerator::Run()
 			//
 			// выбор метода платежа и проведение чека
 			//
+			PPID   cc_id = 0;
 			CcAmountList pl;
 			pl.Add((cc_count%20 == 0) ? CCAMTTYP_BANK : CCAMTTYP_CASH, cct.Amount);
-			P.P_Pan->AcceptCheck(&pl, 0, cct.Amount, CPosProcessor::accmRegular);
+			P.P_Pan->AcceptCheck(&cc_id, &pl, 0, cct.Amount, CPosProcessor::accmRegular);
 			P.P_Pan->ClearCheck();
 		}
 		if(P.MaxCheckDelay) {

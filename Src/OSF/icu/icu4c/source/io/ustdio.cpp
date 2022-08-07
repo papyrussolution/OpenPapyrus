@@ -253,7 +253,7 @@ U_CAPI UChar32 U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001
 	UChar buf[2];
 	int32_t idx = 0;
 	bool isError = FALSE;
-	U16_APPEND(buf, idx, UPRV_LENGTHOF(buf), uc, isError);
+	U16_APPEND(buf, idx, SIZEOFARRAYi(buf), uc, isError);
 	if(isError) {
 		return U_EOF;
 	}
@@ -395,7 +395,7 @@ void ufile_fill_uchar_buffer(UFILE * f)
 	if(f->fFileno == 0) {
 		/* Special case. Read from stdin one line at a time. */
 		char * retStr = fgets(charBuffer, ufmt_min(maxCPBytes, UFILE_CHARBUFFER_SIZE), f->fFile);
-		bytesRead = (int32_t)(retStr ? uprv_strlen(charBuffer) : 0);
+		bytesRead = (int32_t)(retStr ? strlen(charBuffer) : 0);
 	}
 	else {
 		/* A normal file */

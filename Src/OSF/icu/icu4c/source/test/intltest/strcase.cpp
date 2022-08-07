@@ -205,53 +205,53 @@ void StringCaseTest::TestCaseConversion()
 		UnicodeString s;
 
 		/* lowercase with root locale */
-		s = UnicodeString(FALSE, beforeLower, UPRV_LENGTHOF(beforeLower));
+		s = UnicodeString(FALSE, beforeLower, SIZEOFARRAYi(beforeLower));
 		s.toLower("");
-		if(s.length()!=UPRV_LENGTHOF(lowerRoot) ||
+		if(s.length()!=SIZEOFARRAYi(lowerRoot) ||
 		    s!=UnicodeString(FALSE, lowerRoot, s.length())
 		    ) {
 			errln("error in toLower(root locale)=\"" + s + "\" expected \"" +
-			    UnicodeString(FALSE, lowerRoot, UPRV_LENGTHOF(lowerRoot)) + "\"");
+			    UnicodeString(FALSE, lowerRoot, SIZEOFARRAYi(lowerRoot)) + "\"");
 		}
 
 		/* lowercase with turkish locale */
-		s = UnicodeString(FALSE, beforeLower, UPRV_LENGTHOF(beforeLower));
+		s = UnicodeString(FALSE, beforeLower, SIZEOFARRAYi(beforeLower));
 		s.setCharAt(0, beforeLower[0]).toLower(Locale("tr"));
-		if(s.length()!=UPRV_LENGTHOF(lowerTurkish) ||
+		if(s.length()!=SIZEOFARRAYi(lowerTurkish) ||
 		    s!=UnicodeString(FALSE, lowerTurkish, s.length())
 		    ) {
 			errln("error in toLower(turkish locale)=\"" + s + "\" expected \"" +
-			    UnicodeString(FALSE, lowerTurkish, UPRV_LENGTHOF(lowerTurkish)) + "\"");
+			    UnicodeString(FALSE, lowerTurkish, SIZEOFARRAYi(lowerTurkish)) + "\"");
 		}
 
 		/* uppercase with root locale */
-		s = UnicodeString(FALSE, beforeUpper, UPRV_LENGTHOF(beforeUpper));
+		s = UnicodeString(FALSE, beforeUpper, SIZEOFARRAYi(beforeUpper));
 		s.setCharAt(0, beforeUpper[0]).toUpper(Locale(""));
-		if(s.length()!=UPRV_LENGTHOF(upperRoot) ||
+		if(s.length()!=SIZEOFARRAYi(upperRoot) ||
 		    s!=UnicodeString(FALSE, upperRoot, s.length())
 		    ) {
 			errln("error in toUpper(root locale)=\"" + s + "\" expected \"" +
-			    UnicodeString(FALSE, upperRoot, UPRV_LENGTHOF(upperRoot)) + "\"");
+			    UnicodeString(FALSE, upperRoot, SIZEOFARRAYi(upperRoot)) + "\"");
 		}
 
 		/* uppercase with turkish locale */
-		s = UnicodeString(FALSE, beforeUpper, UPRV_LENGTHOF(beforeUpper));
+		s = UnicodeString(FALSE, beforeUpper, SIZEOFARRAYi(beforeUpper));
 		s.toUpper(Locale("tr"));
-		if(s.length()!=UPRV_LENGTHOF(upperTurkish) ||
+		if(s.length()!=SIZEOFARRAYi(upperTurkish) ||
 		    s!=UnicodeString(FALSE, upperTurkish, s.length())
 		    ) {
 			errln("error in toUpper(turkish locale)=\"" + s + "\" expected \"" +
-			    UnicodeString(FALSE, upperTurkish, UPRV_LENGTHOF(upperTurkish)) + "\"");
+			    UnicodeString(FALSE, upperTurkish, SIZEOFARRAYi(upperTurkish)) + "\"");
 		}
 
 		/* uppercase a short string with root locale */
-		s = UnicodeString(FALSE, beforeMiniUpper, UPRV_LENGTHOF(beforeMiniUpper));
+		s = UnicodeString(FALSE, beforeMiniUpper, SIZEOFARRAYi(beforeMiniUpper));
 		s.setCharAt(0, beforeMiniUpper[0]).toUpper("");
-		if(s.length()!=UPRV_LENGTHOF(miniUpper) ||
+		if(s.length()!=SIZEOFARRAYi(miniUpper) ||
 		    s!=UnicodeString(FALSE, miniUpper, s.length())
 		    ) {
 			errln("error in toUpper(root locale)=\"" + s + "\" expected \"" +
-			    UnicodeString(FALSE, miniUpper, UPRV_LENGTHOF(miniUpper)) + "\"");
+			    UnicodeString(FALSE, miniUpper, SIZEOFARRAYi(miniUpper)) + "\"");
 		}
 	}
 
@@ -570,7 +570,7 @@ void StringCaseTest::TestCasing() {
 						// or even just { 0 } as boundaries.
 						static const UChar rules[] = { 0x2e, 0x2a, 0x3b }; // ".*;"
 						UParseError parseError;
-						iter.adoptInstead(ubrk_openRules(rules, UPRV_LENGTHOF(rules), NULL, 0, &parseError,
+						iter.adoptInstead(ubrk_openRules(rules, SIZEOFARRAYi(rules), NULL, 0, &parseError,
 						    &status));
 					}
 				}
@@ -722,7 +722,7 @@ void StringCaseTest::assertGreekUpper(const char16_t * s, const char16_t * expec
 		// Keep in sync with the UTF-8 capacities near the bottom of this function.
 		0, length / 2, length - 1, length, length + 1
 	};
-	for(int32_t i = 0; i < UPRV_LENGTHOF(capacities); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(capacities); ++i) {
 		int32_t cap = capacities[i];
 		UChar * dest16 = result16.getBuffer(expected16.length() + 1);
 		u_memset(dest16, 0x55AA, result16.getCapacity());
@@ -754,7 +754,7 @@ void StringCaseTest::assertGreekUpper(const char16_t * s, const char16_t * expec
 	s16.toUTF8String(s8);
 	msg = UnicodeString("ucasemap_utf8ToUpper/Greek(\"") + s16 + "\")";
 	char dest8[1000];
-	length = ucasemap_utf8ToUpper(csm.getAlias(), dest8, UPRV_LENGTHOF(dest8),
+	length = ucasemap_utf8ToUpper(csm.getAlias(), dest8, SIZEOFARRAYi(dest8),
 		s8.data(), static_cast<int32_t>(s8.length()), &errorCode);
 	assertSuccess("ucasemap_utf8ToUpper", errorCode);
 	StringPiece result8(dest8, length);
@@ -768,9 +768,9 @@ void StringCaseTest::assertGreekUpper(const char16_t * s, const char16_t * expec
 	capacities[4] = length + 1;
 	char dest8b[1000];
 	int32_t expected8Length = length; // Assuming the previous call worked.
-	for(int32_t i = 0; i < UPRV_LENGTHOF(capacities); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(capacities); ++i) {
 		int32_t cap = capacities[i];
-		memset(dest8b, 0x5A, UPRV_LENGTHOF(dest8b));
+		memset(dest8b, 0x5A, SIZEOFARRAYi(dest8b));
 		UErrorCode errorCode = U_ZERO_ERROR;
 		length = ucasemap_utf8ToUpper(csm.getAlias(), dest8b, cap,
 			s8.data(), static_cast<int32_t>(s8.length()), &errorCode);
@@ -982,10 +982,10 @@ void StringCaseTest::TestEdits() {
 	};
 	TestUtility::checkEditsIter(*this, u"coarse",
 	    edits.getCoarseIterator(), edits.getCoarseIterator(),
-	    coarseExpectedChanges, UPRV_LENGTHOF(coarseExpectedChanges), TRUE, errorCode);
+	    coarseExpectedChanges, SIZEOFARRAYi(coarseExpectedChanges), TRUE, errorCode);
 	TestUtility::checkEditsIter(*this, u"coarse changes",
 	    edits.getCoarseChangesIterator(), edits.getCoarseChangesIterator(),
-	    coarseExpectedChanges, UPRV_LENGTHOF(coarseExpectedChanges), FALSE, errorCode);
+	    coarseExpectedChanges, SIZEOFARRAYi(coarseExpectedChanges), FALSE, errorCode);
 
 	static const EditChange fineExpectedChanges[] = {
 		{ FALSE, 10003, 10003 },
@@ -999,10 +999,10 @@ void StringCaseTest::TestEdits() {
 	};
 	TestUtility::checkEditsIter(*this, u"fine",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    fineExpectedChanges, UPRV_LENGTHOF(fineExpectedChanges), TRUE, errorCode);
+	    fineExpectedChanges, SIZEOFARRAYi(fineExpectedChanges), TRUE, errorCode);
 	TestUtility::checkEditsIter(*this, u"fine changes",
 	    edits.getFineChangesIterator(), edits.getFineChangesIterator(),
-	    fineExpectedChanges, UPRV_LENGTHOF(fineExpectedChanges), FALSE, errorCode);
+	    fineExpectedChanges, SIZEOFARRAYi(fineExpectedChanges), FALSE, errorCode);
 
 	edits.reset();
 	assertFalse("reset hasChanges", edits.hasChanges());
@@ -1262,7 +1262,7 @@ void StringCaseTest::TestCaseMapWithEdits() {
 	Edits edits;
 
 	int32_t length = CaseMap::toLower("tr", U_OMIT_UNCHANGED_TEXT,
-		u"IstanBul", 8, dest, UPRV_LENGTHOF(dest), &edits, errorCode);
+		u"IstanBul", 8, dest, SIZEOFARRAYi(dest), &edits, errorCode);
 	assertEquals(u"toLower(IstanBul)", UnicodeString(u"ıb"), UnicodeString(TRUE, dest, length));
 	static const EditChange lowerExpectedChanges[] = {
 		{ TRUE, 1, 1 },
@@ -1272,12 +1272,12 @@ void StringCaseTest::TestCaseMapWithEdits() {
 	};
 	TestUtility::checkEditsIter(*this, u"toLower(IstanBul)",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    lowerExpectedChanges, UPRV_LENGTHOF(lowerExpectedChanges),
+	    lowerExpectedChanges, SIZEOFARRAYi(lowerExpectedChanges),
 	    TRUE, errorCode);
 
 	edits.reset();
 	length = CaseMap::toUpper("el", U_OMIT_UNCHANGED_TEXT,
-		u"Πατάτα", 6, dest, UPRV_LENGTHOF(dest), &edits, errorCode);
+		u"Πατάτα", 6, dest, SIZEOFARRAYi(dest), &edits, errorCode);
 	assertEquals(u"toUpper(Πατάτα)", UnicodeString(u"ΑΤΑΤΑ"), UnicodeString(TRUE, dest, length));
 	static const EditChange upperExpectedChanges[] = {
 		{ FALSE, 1, 1 },
@@ -1289,7 +1289,7 @@ void StringCaseTest::TestCaseMapWithEdits() {
 	};
 	TestUtility::checkEditsIter(*this, u"toUpper(Πατάτα)",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    upperExpectedChanges, UPRV_LENGTHOF(upperExpectedChanges),
+	    upperExpectedChanges, SIZEOFARRAYi(upperExpectedChanges),
 	    TRUE, errorCode);
 
 	edits.reset();
@@ -1300,7 +1300,7 @@ void StringCaseTest::TestCaseMapWithEdits() {
 		U_TITLECASE_NO_BREAK_ADJUSTMENT |
 		U_TITLECASE_NO_LOWERCASE,
 		nullptr, u"IjssEL IglOo", 12,
-		dest, UPRV_LENGTHOF(dest), &edits, errorCode);
+		dest, SIZEOFARRAYi(dest), &edits, errorCode);
 	assertEquals(u"toTitle(IjssEL IglOo)", UnicodeString(u"J"), UnicodeString(TRUE, dest, length));
 	static const EditChange titleExpectedChanges[] = {
 		{ FALSE, 1, 1 },
@@ -1309,13 +1309,13 @@ void StringCaseTest::TestCaseMapWithEdits() {
 	};
 	TestUtility::checkEditsIter(*this, u"toTitle(IjssEL IglOo)",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    titleExpectedChanges, UPRV_LENGTHOF(titleExpectedChanges),
+	    titleExpectedChanges, SIZEOFARRAYi(titleExpectedChanges),
 	    TRUE, errorCode);
 #endif
 
 	// No explicit nor automatic edits.reset(). Edits should be appended.
 	length = CaseMap::fold(U_OMIT_UNCHANGED_TEXT | U_EDITS_NO_RESET | U_FOLD_CASE_EXCLUDE_SPECIAL_I,
-		u"IßtanBul", 8, dest, UPRV_LENGTHOF(dest), &edits, errorCode);
+		u"IßtanBul", 8, dest, SIZEOFARRAYi(dest), &edits, errorCode);
 	assertEquals(u"foldCase(IßtanBul)", UnicodeString(u"ıssb"), UnicodeString(TRUE, dest, length));
 	static const EditChange foldExpectedChanges[] = {
 #if !UCONFIG_NO_BREAK_ITERATION
@@ -1333,7 +1333,7 @@ void StringCaseTest::TestCaseMapWithEdits() {
 	};
 	TestUtility::checkEditsIter(*this, u"foldCase(no Edits reset, IßtanBul)",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    foldExpectedChanges, UPRV_LENGTHOF(foldExpectedChanges),
+	    foldExpectedChanges, SIZEOFARRAYi(foldExpectedChanges),
 	    TRUE, errorCode);
 }
 
@@ -1344,7 +1344,7 @@ void StringCaseTest::TestCaseMapUTF8WithEdits() {
 
 	int32_t length = CaseMap::utf8ToLower("tr", U_OMIT_UNCHANGED_TEXT,
 		reinterpret_cast<const char *>(u8"IstanBul"), 8,
-		dest, UPRV_LENGTHOF(dest), &edits, errorCode);
+		dest, SIZEOFARRAYi(dest), &edits, errorCode);
 	assertEquals(u"toLower(IstanBul)", UnicodeString(u"ıb"),
 	    UnicodeString::fromUTF8(StringPiece(dest, length)));
 	static const EditChange lowerExpectedChanges[] = {
@@ -1355,13 +1355,13 @@ void StringCaseTest::TestCaseMapUTF8WithEdits() {
 	};
 	TestUtility::checkEditsIter(*this, u"toLower(IstanBul)",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    lowerExpectedChanges, UPRV_LENGTHOF(lowerExpectedChanges),
+	    lowerExpectedChanges, SIZEOFARRAYi(lowerExpectedChanges),
 	    TRUE, errorCode);
 
 	edits.reset();
 	length = CaseMap::utf8ToUpper("el", U_OMIT_UNCHANGED_TEXT,
 		reinterpret_cast<const char *>(u8"Πατάτα"), 6 * 2,
-		dest, UPRV_LENGTHOF(dest), &edits, errorCode);
+		dest, SIZEOFARRAYi(dest), &edits, errorCode);
 	assertEquals(u"toUpper(Πατάτα)", UnicodeString(u"ΑΤΑΤΑ"),
 	    UnicodeString::fromUTF8(StringPiece(dest, length)));
 	static const EditChange upperExpectedChanges[] = {
@@ -1374,7 +1374,7 @@ void StringCaseTest::TestCaseMapUTF8WithEdits() {
 	};
 	TestUtility::checkEditsIter(*this, u"toUpper(Πατάτα)",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    upperExpectedChanges, UPRV_LENGTHOF(upperExpectedChanges),
+	    upperExpectedChanges, SIZEOFARRAYi(upperExpectedChanges),
 	    TRUE, errorCode);
 
 	edits.reset();
@@ -1384,7 +1384,7 @@ void StringCaseTest::TestCaseMapUTF8WithEdits() {
 		U_TITLECASE_NO_BREAK_ADJUSTMENT |
 		U_TITLECASE_NO_LOWERCASE,
 		nullptr, reinterpret_cast<const char *>(u8"IjssEL IglOo"), 12,
-		dest, UPRV_LENGTHOF(dest), &edits, errorCode);
+		dest, SIZEOFARRAYi(dest), &edits, errorCode);
 	assertEquals(u"toTitle(IjssEL IglOo)", UnicodeString(u"J"),
 	    UnicodeString::fromUTF8(StringPiece(dest, length)));
 	static const EditChange titleExpectedChanges[] = {
@@ -1394,7 +1394,7 @@ void StringCaseTest::TestCaseMapUTF8WithEdits() {
 	};
 	TestUtility::checkEditsIter(*this, u"toTitle(IjssEL IglOo)",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    titleExpectedChanges, UPRV_LENGTHOF(titleExpectedChanges),
+	    titleExpectedChanges, SIZEOFARRAYi(titleExpectedChanges),
 	    TRUE, errorCode);
 #endif
 
@@ -1402,7 +1402,7 @@ void StringCaseTest::TestCaseMapUTF8WithEdits() {
 	length = CaseMap::utf8Fold(U_OMIT_UNCHANGED_TEXT | U_EDITS_NO_RESET |
 		U_FOLD_CASE_EXCLUDE_SPECIAL_I,
 		reinterpret_cast<const char *>(u8"IßtanBul"), 1 + 2 + 6,
-		dest, UPRV_LENGTHOF(dest), &edits, errorCode);
+		dest, SIZEOFARRAYi(dest), &edits, errorCode);
 	assertEquals(u"foldCase(IßtanBul)", UnicodeString(u"ıssb"),
 	    UnicodeString::fromUTF8(StringPiece(dest, length)));
 	static const EditChange foldExpectedChanges[] = {
@@ -1421,7 +1421,7 @@ void StringCaseTest::TestCaseMapUTF8WithEdits() {
 	};
 	TestUtility::checkEditsIter(*this, u"foldCase(IßtanBul)",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    foldExpectedChanges, UPRV_LENGTHOF(foldExpectedChanges),
+	    foldExpectedChanges, SIZEOFARRAYi(foldExpectedChanges),
 	    TRUE, errorCode);
 }
 
@@ -1434,11 +1434,11 @@ void StringCaseTest::TestCaseMapToString() {
 
 	// Omit unchanged text.
 	int32_t length = CaseMap::toLower("tr", U_OMIT_UNCHANGED_TEXT,
-		u"IstanBul", 8, dest, UPRV_LENGTHOF(dest), nullptr, errorCode);
+		u"IstanBul", 8, dest, SIZEOFARRAYi(dest), nullptr, errorCode);
 	assertEquals(u"toLower(IstanBul)",
 	    UnicodeString(u"ıb"), UnicodeString(TRUE, dest, length));
 	length = CaseMap::toUpper("el", U_OMIT_UNCHANGED_TEXT,
-		u"Πατάτα", 6, dest, UPRV_LENGTHOF(dest), nullptr, errorCode);
+		u"Πατάτα", 6, dest, SIZEOFARRAYi(dest), nullptr, errorCode);
 	assertEquals(u"toUpper(Πατάτα)",
 	    UnicodeString(u"ΑΤΑΤΑ"), UnicodeString(TRUE, dest, length));
 #if !UCONFIG_NO_BREAK_ITERATION
@@ -1447,22 +1447,22 @@ void StringCaseTest::TestCaseMapToString() {
 		U_TITLECASE_NO_BREAK_ADJUSTMENT |
 		U_TITLECASE_NO_LOWERCASE,
 		nullptr, u"IjssEL IglOo", 12,
-		dest, UPRV_LENGTHOF(dest), nullptr, errorCode);
+		dest, SIZEOFARRAYi(dest), nullptr, errorCode);
 	assertEquals(u"toTitle(IjssEL IglOo)",
 	    UnicodeString(u"J"), UnicodeString(TRUE, dest, length));
 #endif
 	length = CaseMap::fold(U_OMIT_UNCHANGED_TEXT | U_FOLD_CASE_EXCLUDE_SPECIAL_I,
-		u"IßtanBul", 8, dest, UPRV_LENGTHOF(dest), nullptr, errorCode);
+		u"IßtanBul", 8, dest, SIZEOFARRAYi(dest), nullptr, errorCode);
 	assertEquals(u"foldCase(IßtanBul)",
 	    UnicodeString(u"ıssb"), UnicodeString(TRUE, dest, length));
 
 	// Return the whole result string.
 	length = CaseMap::toLower("tr", 0,
-		u"IstanBul", 8, dest, UPRV_LENGTHOF(dest), nullptr, errorCode);
+		u"IstanBul", 8, dest, SIZEOFARRAYi(dest), nullptr, errorCode);
 	assertEquals(u"toLower(IstanBul)",
 	    UnicodeString(u"ıstanbul"), UnicodeString(TRUE, dest, length));
 	length = CaseMap::toUpper("el", 0,
-		u"Πατάτα", 6, dest, UPRV_LENGTHOF(dest), nullptr, errorCode);
+		u"Πατάτα", 6, dest, SIZEOFARRAYi(dest), nullptr, errorCode);
 	assertEquals(u"toUpper(Πατάτα)",
 	    UnicodeString(u"ΠΑΤΑΤΑ"), UnicodeString(TRUE, dest, length));
 #if !UCONFIG_NO_BREAK_ITERATION
@@ -1470,12 +1470,12 @@ void StringCaseTest::TestCaseMapToString() {
 		U_TITLECASE_NO_BREAK_ADJUSTMENT |
 		U_TITLECASE_NO_LOWERCASE,
 		nullptr, u"IjssEL IglOo", 12,
-		dest, UPRV_LENGTHOF(dest), nullptr, errorCode);
+		dest, SIZEOFARRAYi(dest), nullptr, errorCode);
 	assertEquals(u"toTitle(IjssEL IglOo)",
 	    UnicodeString(u"IJssEL IglOo"), UnicodeString(TRUE, dest, length));
 #endif
 	length = CaseMap::fold(U_FOLD_CASE_EXCLUDE_SPECIAL_I,
-		u"IßtanBul", 8, dest, UPRV_LENGTHOF(dest), nullptr, errorCode);
+		u"IßtanBul", 8, dest, SIZEOFARRAYi(dest), nullptr, errorCode);
 	assertEquals(u"foldCase(IßtanBul)",
 	    UnicodeString(u"ısstanbul"), UnicodeString(TRUE, dest, length));
 }
@@ -1564,7 +1564,7 @@ void StringCaseTest::TestInPlaceTitle() {
 	IcuTestErrorCode errorCode(*this, "TestInPlaceTitle");
 	char16_t s[32] = u"ß ß ß日本語 abcdef";
 	const char16_t * expected = u"Ss Ss Ss日本語 Abcdef";
-	int32_t length = u_strToTitle(s, UPRV_LENGTHOF(s), s, -1, nullptr, "", errorCode);
+	int32_t length = u_strToTitle(s, SIZEOFARRAYi(s), s, -1, nullptr, "", errorCode);
 	assertEquals("u_strToTitle(in-place) length", u_strlen(expected), length);
 	assertEquals("u_strToTitle(in-place)", expected, s);
 }

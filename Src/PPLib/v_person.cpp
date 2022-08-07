@@ -1715,7 +1715,7 @@ PersonFilt & FASTCALL PersonFilt::operator = (const PersonFilt &src)
 int PersonFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, extssNameText, SrchStr_, rBuf); }
 int PersonFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, SrchStr_, pBuf); }
 
-/*virtual*/int PersonFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int PersonFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 0) {

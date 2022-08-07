@@ -586,7 +586,7 @@ void RegexPattern::dumpOp(int32_t index) const
 	int32_t val = URX_VAL(op);
 	int32_t type        = URX_TYPE(op);
 	int32_t pinnedType  = type;
-	if((uint32_t)pinnedType >= UPRV_LENGTHOF(opNames)) {
+	if((uint32_t)pinnedType >= SIZEOFARRAYi(opNames)) {
 		pinnedType = 0;
 	}
 

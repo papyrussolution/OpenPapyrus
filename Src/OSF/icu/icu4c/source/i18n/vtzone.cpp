@@ -562,7 +562,7 @@ static TimeZoneRule* createRuleByRRULE(const UnicodeString & zonename, int rawOf
 	UnicodeString rrule = *((UnicodeString *)dates->elementAt(0));
 	int32_t month, dayOfWeek, nthDayOfWeek, dayOfMonth = 0;
 	int32_t days[7];
-	int32_t daysCount = UPRV_LENGTHOF(days);
+	int32_t daysCount = SIZEOFARRAYi(days);
 	UDate until;
 
 	parseRRULE(rrule, month, dayOfWeek, nthDayOfWeek, days, daysCount, until, status);
@@ -640,7 +640,7 @@ static TimeZoneRule* createRuleByRRULE(const UnicodeString & zonename, int rawOf
 			UDate tmp_until;
 			int32_t tmp_month, tmp_dayOfWeek, tmp_nthDayOfWeek;
 			int32_t tmp_days[7];
-			int32_t tmp_daysCount = UPRV_LENGTHOF(tmp_days);
+			int32_t tmp_daysCount = SIZEOFARRAYi(tmp_days);
 			parseRRULE(rrule, tmp_month, tmp_dayOfWeek, tmp_nthDayOfWeek, tmp_days, tmp_daysCount, tmp_until, status);
 			if(U_FAILURE(status)) {
 				return nullptr;

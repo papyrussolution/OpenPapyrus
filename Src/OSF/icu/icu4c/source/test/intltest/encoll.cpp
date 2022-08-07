@@ -322,7 +322,7 @@ void CollationEnglishTest::TestTertiary(/* char * par */)
 
 	//test more interesting cases
 	Collator::EComparisonResult expected;
-	const int32_t testMoreSize = UPRV_LENGTHOF(testMore);
+	const int32_t testMoreSize = SIZEOFARRAYi(testMore);
 	for(i = 0; i < testMoreSize; i++) {
 		for(j = 0; j < testMoreSize; j++) {
 			if(i <  j)
@@ -356,7 +356,7 @@ void CollationEnglishTest::TestSecondary(/* char * par */)
 	//test acute and grave ordering (compare to french collation)
 	int32_t j;
 	Collator::EComparisonResult expected;
-	const int32_t testAcuteSize = UPRV_LENGTHOF(testAcute);
+	const int32_t testAcuteSize = SIZEOFARRAYi(testAcute);
 	for(i = 0; i < testAcuteSize; i++) {
 		for(j = 0; j < testAcuteSize; j++) {
 			if(i <  j)

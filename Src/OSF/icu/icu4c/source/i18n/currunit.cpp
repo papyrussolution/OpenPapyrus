@@ -53,8 +53,8 @@ CurrencyUnit::CurrencyUnit(StringPiece _isoCode, UErrorCode & ec) {
 	// Note: unlike the old constructor, reject empty arguments with an error.
 	char isoCodeBuffer[4];
 	const char * isoCodeToUse;
-	// uprv_memchr checks that the string contains no internal NULs
-	if(_isoCode.length() != 3 || uprv_memchr(_isoCode.data(), 0, 3) != nullptr) {
+	// memchr checks that the string contains no internal NULs
+	if(_isoCode.length() != 3 || memchr(_isoCode.data(), 0, 3) != nullptr) {
 		isoCodeToUse = kDefaultCurrency8;
 		ec = U_ILLEGAL_ARGUMENT_ERROR;
 	}
@@ -82,7 +82,7 @@ CurrencyUnit::CurrencyUnit(const CurrencyUnit& other) : MeasureUnit(other) {
 CurrencyUnit::CurrencyUnit(const MeasureUnit& other, UErrorCode & ec) : MeasureUnit(other) {
 	// Make sure this is a currency.
 	// OK to hard-code the string because we are comparing against another hard-coded string.
-	if(uprv_strcmp("currency", getType()) != 0) {
+	if(strcmp("currency", getType()) != 0) {
 		ec = U_ILLEGAL_ARGUMENT_ERROR;
 		isoCode[0] = 0;
 	}

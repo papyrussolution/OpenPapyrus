@@ -184,8 +184,7 @@ static int print_nc_ipadd(BIO * bp, ASN1_OCTET_STRING * ip)
 	len = ip->length;
 	BIO_puts(bp, "IP:");
 	if(len == 8) {
-		BIO_printf(bp, "%d.%d.%d.%d/%d.%d.%d.%d",
-		    p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+		BIO_printf(bp, "%d.%d.%d.%d/%d.%d.%d.%d", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
 	}
 	else if(len == 32) {
 		for(i = 0; i < 16; i++) {

@@ -186,7 +186,7 @@ static void getPrefixSuffix(const char * src, int32_t srcLength,
 	*prefixLen = i;
 	*suffixLen = srcLength - i;
 	/* special prefixes must not be followed by suffixes! */
-	if((findStringIndex(special_prefixes, UPRV_LENGTHOF(special_prefixes), *prefix, *prefixLen-1) != -1) && (*suffix != NULL)) {
+	if((findStringIndex(special_prefixes, SIZEOFARRAYi(special_prefixes), *prefix, *prefixLen-1) != -1) && (*suffix != NULL)) {
 		*status = U_PARSE_ERROR;
 		return;
 	}

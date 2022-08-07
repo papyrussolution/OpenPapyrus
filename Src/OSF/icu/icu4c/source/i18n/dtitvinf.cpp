@@ -69,8 +69,8 @@ void DateIntervalInfo::setIntervalPattern(const UnicodeString & skeleton, UCalen
 void DateIntervalInfo::setFallbackIntervalPattern(const UnicodeString & fallbackPattern, UErrorCode & status) 
 {
 	if(U_SUCCESS(status)) {
-		const int32_t firstPatternIndex = fallbackPattern.indexOf(gFirstPattern, UPRV_LENGTHOF(gFirstPattern), 0);
-		const int32_t secondPatternIndex = fallbackPattern.indexOf(gSecondPattern, UPRV_LENGTHOF(gSecondPattern), 0);
+		const int32_t firstPatternIndex = fallbackPattern.indexOf(gFirstPattern, SIZEOFARRAYi(gFirstPattern), 0);
+		const int32_t secondPatternIndex = fallbackPattern.indexOf(gSecondPattern, SIZEOFARRAYi(gSecondPattern), 0);
 		if(firstPatternIndex == -1 || secondPatternIndex == -1) {
 			status = U_ILLEGAL_ARGUMENT_ERROR;
 		}
@@ -176,7 +176,7 @@ struct DateIntervalInfo::DateIntervalSink : public ResourceSink {
 			return;
 		}
 		for(int32_t i = 0; dateIntervalData.getKeyAndValue(i, key, value); i++) {
-			if(uprv_strcmp(key, gIntervalDateTimePatternTag) != 0) {
+			if(strcmp(key, gIntervalDateTimePatternTag) != 0) {
 				continue;
 			}
 			// Handle aliases and tables. Ignore the rest.
@@ -536,7 +536,7 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 	// 2 means only z/v, h/K, or H/k differs
 	// -1 means having different field.
 	bestMatchDistanceInfo = 0;
-	int8 fieldLength = UPRV_LENGTHOF(skeletonFieldWidth);
+	int8 fieldLength = SIZEOFARRAYi(skeletonFieldWidth);
 
 	int32_t pos = UHASH_FIRST;
 	const UHashElement* elem = nullptr;

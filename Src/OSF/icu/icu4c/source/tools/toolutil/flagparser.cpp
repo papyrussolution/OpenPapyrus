@@ -72,7 +72,7 @@ U_CAPI int32_t U_EXPORT2 parseFlagsFile(const char * fileName,
 				continue;
 			}
 
-			if((int32_t)uprv_strlen(buffer) == (currentBufferSize - 1) && buffer[currentBufferSize-2] != '\n') {
+			if((int32_t)strlen(buffer) == (currentBufferSize - 1) && buffer[currentBufferSize-2] != '\n') {
 				/* Allocate more space for buffer if it did not read the entire line */
 				allocateMoreSpace = TRUE;
 				T_FileStream_rewind(f);
@@ -92,7 +92,7 @@ U_CAPI int32_t U_EXPORT2 parseFlagsFile(const char * fileName,
 				else {
 					if(flagNames != NULL) {
 						if(idx >= 0) {
-							uprv_strcpy(flagBuffer[idx], tmpFlagBuffer);
+							strcpy(flagBuffer[idx], tmpFlagBuffer);
 						}
 						else {
 							/* No match found.  Skip it. */
@@ -100,7 +100,7 @@ U_CAPI int32_t U_EXPORT2 parseFlagsFile(const char * fileName,
 						}
 					}
 					else {
-						uprv_strcpy(flagBuffer[i++], tmpFlagBuffer);
+						strcpy(flagBuffer[i++], tmpFlagBuffer);
 					}
 				}
 			}

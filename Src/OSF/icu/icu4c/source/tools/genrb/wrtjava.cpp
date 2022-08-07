@@ -178,7 +178,7 @@ static int32_t uCharsToChars(char * target, int32_t targetLen, const UChar * sou
 		}
 		else {
 			if(*enc =='\0' || source[i]==0x0000) {
-				uprv_strcpy(str, "\\u");
+				strcpy(str, "\\u");
 				itostr(str+2, source[i], 16, 4);
 				if(j+6<targetLen) {
 					uprv_strcat(target, str);
@@ -348,12 +348,12 @@ static void array_write_java(const ArrayResource * res, UErrorCode * status)
 		if(allStrings==FALSE) {
 			const char * object = "new Object[]{\n";
 			write_tabs(out);
-			T_FileStream_write(out, object, (int32_t)uprv_strlen(object));
+			T_FileStream_write(out, object, (int32_t)strlen(object));
 			tabCount++;
 		}
 		else {
 			write_tabs(out);
-			T_FileStream_write(out, arr, (int32_t)uprv_strlen(arr));
+			T_FileStream_write(out, arr, (int32_t)strlen(arr));
 			tabCount++;
 		}
 		while(current) {
@@ -375,7 +375,7 @@ static void array_write_java(const ArrayResource * res, UErrorCode * status)
 	}
 	else {
 		write_tabs(out);
-		T_FileStream_write(out, arr, (int32_t)uprv_strlen(arr));
+		T_FileStream_write(out, arr, (int32_t)strlen(arr));
 		write_tabs(out);
 		T_FileStream_write(out, "},\n", 3);
 	}
@@ -392,8 +392,8 @@ static void intvector_write_java(const IntVectorResource * res, UErrorCode * /*s
 	buf[0] = 0;
 	write_tabs(out);
 
-	if(resname != NULL && uprv_strcmp(resname, "DateTimeElements")==0) {
-		T_FileStream_write(out, stringArr, (int32_t)uprv_strlen(stringArr));
+	if(resname != NULL && strcmp(resname, "DateTimeElements")==0) {
+		T_FileStream_write(out, stringArr, (int32_t)strlen(stringArr));
 		tabCount++;
 		for(i = 0; i<res->fCount; i++) {
 			write_tabs(out);
@@ -405,11 +405,11 @@ static void intvector_write_java(const IntVectorResource * res, UErrorCode * /*s
 		}
 	}
 	else {
-		T_FileStream_write(out, intArr, (int32_t)uprv_strlen(intArr));
+		T_FileStream_write(out, intArr, (int32_t)strlen(intArr));
 		tabCount++;
 		for(i = 0; i<res->fCount; i++) {
 			write_tabs(out);
-			/* T_FileStream_write(out, intC, (int32_t)uprv_strlen(intC)); */
+			/* T_FileStream_write(out, intC, (int32_t)strlen(intC)); */
 			len = itostr(buf, res->fArray[i], 10, 0);
 			T_FileStream_write(out, buf, len);
 			/* T_FileStream_write(out,"),",2);  */
@@ -430,7 +430,7 @@ static void int_write_java(const IntResource * res, UErrorCode * /*status*/) {
 
 	/* write the binary data */
 	write_tabs(out);
-	T_FileStream_write(out, intC, (int32_t)uprv_strlen(intC));
+	T_FileStream_write(out, intC, (int32_t)strlen(intC));
 	len = itostr(buf, res->fValue, 10, 0);
 	T_FileStream_write(out, buf, len);
 	T_FileStream_write(out, "),\n", 3);
@@ -447,7 +447,7 @@ static void bytes_write_java(const BinaryResource * res, UErrorCode * /*status*/
 		byteArray = res->fData;
 
 		write_tabs(out);
-		T_FileStream_write(out, type, (int32_t)uprv_strlen(type));
+		T_FileStream_write(out, type, (int32_t)strlen(type));
 		T_FileStream_write(out, "\n", 1);
 		tabCount++;
 
@@ -463,7 +463,7 @@ static void bytes_write_java(const BinaryResource * res, UErrorCode * /*status*/
 				sprintf(byteBuffer, byteDecl, (byteArray[byteIterator]-256));
 			}
 
-			T_FileStream_write(out, byteBuffer, (int32_t)uprv_strlen(byteBuffer));
+			T_FileStream_write(out, byteBuffer, (int32_t)strlen(byteBuffer));
 
 			if(byteIterator%16 == 15) {
 				T_FileStream_write(out, "\n", 1);
@@ -481,7 +481,7 @@ static void bytes_write_java(const BinaryResource * res, UErrorCode * /*status*/
 	else {
 		/* Empty array */
 		write_tabs(out);
-		T_FileStream_write(out, type, (int32_t)uprv_strlen(type));
+		T_FileStream_write(out, type, (int32_t)strlen(type));
 		T_FileStream_write(out, "},\n", 3);
 	}
 }
@@ -500,7 +500,7 @@ static void table_write_java(const TableResource * res, UErrorCode * status) {
 	if(res->fCount > 0) {
 		if(start==FALSE) {
 			write_tabs(out);
-			T_FileStream_write(out, obj, (int32_t)uprv_strlen(obj));
+			T_FileStream_write(out, obj, (int32_t)strlen(obj));
 			tabCount++;
 		}
 		start = FALSE;
@@ -521,7 +521,7 @@ static void table_write_java(const TableResource * res, UErrorCode * status) {
 			if(currentKeyString != NULL) {
 				T_FileStream_write(out, "\"", 1);
 				T_FileStream_write(out, currentKeyString,
-				    (int32_t)uprv_strlen(currentKeyString));
+				    (int32_t)strlen(currentKeyString));
 				T_FileStream_write(out, "\",\n", 2);
 
 				T_FileStream_write(out, "\n", 1);
@@ -544,7 +544,7 @@ static void table_write_java(const TableResource * res, UErrorCode * status) {
 	}
 	else {
 		write_tabs(out);
-		T_FileStream_write(out, obj, (int32_t)uprv_strlen(obj));
+		T_FileStream_write(out, obj, (int32_t)strlen(obj));
 
 		write_tabs(out);
 		T_FileStream_write(out, "},\n", 3);
@@ -603,15 +603,15 @@ void bundle_write_java(struct SRBRoot * bundle, const char * outputDir, const ch
 	bName = (bundleName==NULL) ? "LocaleElements" : bundleName;
 	pName = (packageName==NULL) ? "com.ibm.icu.impl.data" : packageName;
 
-	uprv_strcpy(className, bName);
+	strcpy(className, bName);
 	srBundle = bundle;
-	if(uprv_strcmp(srBundle->fLocale, "root")!=0) {
+	if(strcmp(srBundle->fLocale, "root")!=0) {
 		uprv_strcat(className, "_");
 		uprv_strcat(className, srBundle->fLocale);
 	}
 	if(outputDir) {
-		uprv_strcpy(fileName, outputDir);
-		if(outputDir[uprv_strlen(outputDir)-1] !=U_FILE_SEP_CHAR) {
+		strcpy(fileName, outputDir);
+		if(outputDir[strlen(outputDir)-1] !=U_FILE_SEP_CHAR) {
 			uprv_strcat(fileName, U_FILE_SEP_STRING);
 		}
 		uprv_strcat(fileName, className);
@@ -637,21 +637,21 @@ void bundle_write_java(struct SRBRoot * bundle, const char * outputDir, const ch
 		return;
 	}
 	if(getIncludeCopyright()) {
-		T_FileStream_write(out, copyRight, (int32_t)uprv_strlen(copyRight));
-		T_FileStream_write(out, warningMsg, (int32_t)uprv_strlen(warningMsg));
+		T_FileStream_write(out, copyRight, (int32_t)strlen(copyRight));
+		T_FileStream_write(out, warningMsg, (int32_t)strlen(warningMsg));
 	}
-	T_FileStream_write(out, "package ", (int32_t)uprv_strlen("package "));
-	T_FileStream_write(out, pName, (int32_t)uprv_strlen(pName));
+	T_FileStream_write(out, "package ", (int32_t)strlen("package "));
+	T_FileStream_write(out, pName, (int32_t)strlen(pName));
 	T_FileStream_write(out, ";\n\n", 3);
-	T_FileStream_write(out, javaClass, (int32_t)uprv_strlen(javaClass));
-	T_FileStream_write(out, className, (int32_t)uprv_strlen(className));
-	T_FileStream_write(out, javaClass1, (int32_t)uprv_strlen(javaClass1));
+	T_FileStream_write(out, javaClass, (int32_t)strlen(javaClass));
+	T_FileStream_write(out, className, (int32_t)strlen(className));
+	T_FileStream_write(out, javaClass1, (int32_t)strlen(javaClass1));
 
 	/* if(j1) {
-	      T_FileStream_write(out, javaClass1, (int32_t)uprv_strlen(javaClass1));
+	      T_FileStream_write(out, javaClass1, (int32_t)strlen(javaClass1));
 	   }else {
 	       sprintf(constructor,javaClassICU,className);
-	       T_FileStream_write(out, constructor, (int32_t)uprv_strlen(constructor));
+	       T_FileStream_write(out, constructor, (int32_t)strlen(constructor));
 	   }
 	 */
 	if(outputEnc && *outputEnc!='\0') {
@@ -663,7 +663,7 @@ void bundle_write_java(struct SRBRoot * bundle, const char * outputDir, const ch
 		}
 	}
 	res_write_java(bundle->fRoot, status);
-	T_FileStream_write(out, closeClass, (int32_t)uprv_strlen(closeClass));
+	T_FileStream_write(out, closeClass, (int32_t)strlen(closeClass));
 	T_FileStream_close(out);
 	ucnv_close(conv);
 }

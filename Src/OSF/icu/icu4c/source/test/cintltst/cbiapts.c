@@ -876,13 +876,13 @@ typedef struct {
 } RBBITailoringTest;
 
 static const RBBITailoringTest tailoringTests[] = {
-	{ "en", UBRK_CHARACTER, thTest, thTestOffs_thFwd, thTestOffs_thRev, UPRV_LENGTHOF(thTestOffs_thFwd) },
-	{ "en_US_POSIX", UBRK_CHARACTER, thTest, thTestOffs_thFwd, thTestOffs_thRev, UPRV_LENGTHOF(thTestOffs_thFwd) },
-	{ "en", UBRK_LINE,      heTest, heTestOffs_heFwd, heTestOffs_heRev, UPRV_LENGTHOF(heTestOffs_heFwd) },
-	{ "he", UBRK_LINE,      heTest, heTestOffs_heFwd, heTestOffs_heRev, UPRV_LENGTHOF(heTestOffs_heFwd) },
-	{ "en", UBRK_LINE,      fiTest, fiTestOffs_enFwd, fiTestOffs_enRev, UPRV_LENGTHOF(fiTestOffs_enFwd) },
-	{ "fi", UBRK_LINE,      fiTest, fiTestOffs_fiFwd, fiTestOffs_fiRev, UPRV_LENGTHOF(fiTestOffs_fiFwd) },
-	{ "km", UBRK_WORD,      kmTest, kmTestOffs_kmFwd, kmTestOffs_kmRev, UPRV_LENGTHOF(kmTestOffs_kmFwd) },
+	{ "en", UBRK_CHARACTER, thTest, thTestOffs_thFwd, thTestOffs_thRev, SIZEOFARRAYi(thTestOffs_thFwd) },
+	{ "en_US_POSIX", UBRK_CHARACTER, thTest, thTestOffs_thFwd, thTestOffs_thRev, SIZEOFARRAYi(thTestOffs_thFwd) },
+	{ "en", UBRK_LINE,      heTest, heTestOffs_heFwd, heTestOffs_heRev, SIZEOFARRAYi(heTestOffs_heFwd) },
+	{ "he", UBRK_LINE,      heTest, heTestOffs_heFwd, heTestOffs_heRev, SIZEOFARRAYi(heTestOffs_heFwd) },
+	{ "en", UBRK_LINE,      fiTest, fiTestOffs_enFwd, fiTestOffs_enRev, SIZEOFARRAYi(fiTestOffs_enFwd) },
+	{ "fi", UBRK_LINE,      fiTest, fiTestOffs_fiFwd, fiTestOffs_fiRev, SIZEOFARRAYi(fiTestOffs_fiFwd) },
+	{ "km", UBRK_WORD,      kmTest, kmTestOffs_kmFwd, kmTestOffs_kmRev, SIZEOFARRAYi(kmTestOffs_kmFwd) },
 	{ NULL, UBRK_CHARACTER, NULL, NULL, NULL, 0 },
 };
 
@@ -1010,18 +1010,18 @@ static void TestBug11665() {
 	UErrorCode status = U_ZERO_ERROR;
 
 	ctest_resetICU();
-	bi = ubrk_open(UBRK_WORD, "en_US", japaneseText, UPRV_LENGTHOF(japaneseText), &status);
+	bi = ubrk_open(UBRK_WORD, "en_US", japaneseText, SIZEOFARRAYi(japaneseText), &status);
 	TEST_ASSERT_SUCCESS(status);
 	if(!bi) {
 		return;
 	}
 	for(brk = ubrk_first(bi); brk != UBRK_DONE; brk = ubrk_next(bi)) {
 		boundaries[brkIdx] = brk;
-		if(++brkIdx >= UPRV_LENGTHOF(boundaries) - 1) {
+		if(++brkIdx >= SIZEOFARRAYi(boundaries) - 1) {
 			break;
 		}
 	}
-	if(brkIdx <= 2 || brkIdx >= UPRV_LENGTHOF(boundaries)) {
+	if(brkIdx <= 2 || brkIdx >= SIZEOFARRAYi(boundaries)) {
 		log_err("%s:%d too few or many breaks found.\n", __FILE__, __LINE__);
 	}
 	else {
@@ -1032,7 +1032,7 @@ static void TestBug11665() {
 				log_err("%s:%d Break #%d differs between first and second iteration.\n", __FILE__, __LINE__, brkIdx);
 				break;
 			}
-			if(++brkIdx >= UPRV_LENGTHOF(boundaries) - 1) {
+			if(++brkIdx >= SIZEOFARRAYi(boundaries) - 1) {
 				log_err("%s:%d Too many breaks.\n", __FILE__, __LINE__);
 				break;
 			}

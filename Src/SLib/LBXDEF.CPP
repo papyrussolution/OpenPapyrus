@@ -131,7 +131,7 @@ int    ListBoxDef::refresh() { return 1; }
 int    ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.Search(id, pIDx, 0); }
 int    ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~_SlConst.VectorImageMask), 0); }
 int    ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | _SlConst.VectorImageMask), 0); }
-int    ListBoxDef::HasItemColorSpec() const { return BIN(ColorAssoc.getCount()); }
+bool   ListBoxDef::HasItemColorSpec() const { return (ColorAssoc.getCount() > 0); }
 
 #define RANGE(val,min,max) ((val)<(min)?(min):((val)>(max)?(max):(val)))
 

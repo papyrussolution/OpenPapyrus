@@ -2147,7 +2147,6 @@ int FileFormatRegBase::GetMime(int id, SString & rMime) const
 {
 	rMime.Z();
 	int    ok = 0;
-	// @v10.0.05 {
 	for(uint pos = 0; !ok && SVector::lsearch(&id, &pos, CMPF_LONG); pos++) {
 		const Entry * p_entry = static_cast<const Entry *>(at(pos));
 		assert(p_entry->FmtId == id);
@@ -2160,22 +2159,6 @@ int FileFormatRegBase::GetMime(int id, SString & rMime) const
 		}
 		// @v10.2.12 @fix break;
 	}
-	// } @v10.0.05 
-	/* @v10.0.05
-	for(uint i = 0; !ok && i < getCount(); i++) {
-		const Entry * p_entry = static_cast<const Entry *>(at(i));
-		if(p_entry && p_entry->FmtId == id) {
-			if(p_entry->MimeType && p_entry->MimeSubtypeIdx) {
-				SFileFormat::GetMimeTypeName(p_entry->MimeType, rMime);
-				SString temp_buf;
-				GetS(p_entry->MimeSubtypeIdx, temp_buf);
-				rMime.CatChar('/').Cat(temp_buf);
-				ok = 1;
-			}
-			break;
-		}
-	}
-	*/
 	return ok;
 }
 
@@ -2188,8 +2171,14 @@ int FileFormatRegBase::GetExt(int id, SString & rExt) const
 		if(p_entry && p_entry->FmtId == id) {
 			if(p_entry->ExtIdx && GetS(p_entry->ExtIdx, temp_buf)) {
 				// В регистрационной записи может быть несколько расширений, разделенных ';' - берем первое
-				StringSet ss(';', temp_buf);
-				if(ss.get(0U, temp_buf)) {
+				if(temp_buf.HasChr(';')) {
+					StringSet ss(';', temp_buf);
+					if(ss.get(0U, temp_buf)) {
+						rExt = temp_buf;
+						ok = 1;
+					}
+				}
+				else {
 					rExt = temp_buf;
 					ok = 1;
 				}
@@ -3166,7 +3155,272 @@ int SLldAlphabetAnalyzer::CollectFileData(const char * pFileName)
 //
 //
 //
+SCachedFileEntity::SCachedFileEntity() : State(0), ModTime(ZERODATETIME)
+{
+}
+
+/*virtual*/SCachedFileEntity::~SCachedFileEntity()
+{
+}
+
+int SCachedFileEntity::Init(const char * pFilePath)
+{
+	int    ok = 0;
+	ENTER_CRITICAL_SECTION
+	if(State & stInitialized) {
+		ok = -1;
+	}
+	else if(!isempty(pFilePath)) {
+		SPathStruc::NormalizePath(pFilePath, SPathStruc::npfSlash|SPathStruc::npfCompensateDotDot, FilePath);
+		if(fileExists(FilePath)) {
+			State |= stInitialized;
+			State &= ~stError;
+			ok = 1;
+		}
+		else {
+			FilePath.Z();
+			State |= stError;
+		}
+	}
+	else
+		State |= stError;
+	LEAVE_CRITICAL_SECTION
+	return ok;
+}
+
+bool SCachedFileEntity::InitFileModTime()
+{
+	return (FilePath.NotEmpty() && SFile::GetTime(FilePath, 0, 0, &ModTime));
+}
+
+bool SCachedFileEntity::IsModified()
+{
+	LDATETIME current_mod_time = ZERODATETIME;
+	if(FilePath.NotEmpty() && SFile::GetTime(FilePath, 0, 0, &current_mod_time)) {
+		return (!ModTime || cmp(current_mod_time, ModTime) > 0);
+	}
+	else
+		return false;
+}
+
+const char * SCachedFileEntity::GetFilePath() const { return FilePath; }
+
+/*virtual*/bool SCachedFileEntity::InitEntity()
+{
+	return false;
+}
+
+/*virtual*/void SCachedFileEntity::DestroyEntity()
+{
+}
+
+int SCachedFileEntity::Reload(bool force)
+{
+	int    ok = -1;
+	bool   do_load = false;
+	LDATETIME current_mod_time = ZERODATETIME;
+	Lck.Lock();
+	if(force)
+		do_load = true;
+	else {
+		if(FilePath.IsEmpty())
+			ok = 0;
+		else if(!SFile::GetTime(FilePath, 0, 0, &current_mod_time)) {
+			ok = 0;
+		}
+		else if(!ModTime || cmp(current_mod_time, ModTime) > 0)
+			do_load = true;
+	}
+	if(do_load) {
+		DestroyEntity();
+		if(InitEntity()) {
+			ok = 1;
+			if(!current_mod_time) {
+				if(SFile::GetTime(FilePath, 0, 0, &current_mod_time)) {
+					ModTime = current_mod_time;
+				}
+				else {
+					// Фантастический сценарий: мы успешно проделали все шаги по проверки и загрузке файла, но
+					// споткнулись на получении времени модификации. Скорее всего этого не будет, но если да,
+					// то не будем инициировать ошибку, но обнулим время модификации.
+					ModTime = ZERODATETIME;
+				}
+			}
+		}
+		else {
+			DestroyEntity();
+			State |= stError;
+		}
+	}
+	Lck.Unlock();
+	return ok;
+}
+//
+//
+//
 #if SLTEST_RUNNING // {
+
+SLTEST_R(SCachedFileEntity)
+{
+	static uint GloIdx = 0;
+	static ACount Counter;
+
+	class SCachedFileEntity_TestSs : public SCachedFileEntity {
+	public:
+		static SCachedFileEntity_TestSs * GetGlobalObj(const char * pFileName)
+		{
+			SCachedFileEntity_TestSs * p_result = 0;
+			if(!GloIdx) {
+				ENTER_CRITICAL_SECTION
+				if(!GloIdx) {
+					TSClassWrapper <SCachedFileEntity_TestSs> cls;
+					GloIdx = SLS.CreateGlobalObject(cls);
+					p_result = static_cast<SCachedFileEntity_TestSs *>(SLS.GetGlobalObject(GloIdx));
+					if(p_result) {
+						if(!p_result->Init(pFileName))
+							p_result = 0;
+					}
+				}
+				LEAVE_CRITICAL_SECTION
+			}
+			if(GloIdx && !p_result) {
+				p_result = static_cast<SCachedFileEntity_TestSs *>(SLS.GetGlobalObject(GloIdx));
+			}
+			return p_result;
+		}
+		SCachedFileEntity_TestSs() : SCachedFileEntity()
+		{
+		}
+		virtual ~SCachedFileEntity_TestSs()
+		{
+		}
+		virtual bool InitEntity()
+		{
+			bool   ok = true;
+			Ss.Z();
+			THROW(fileExists(GetFilePath()));
+			{
+				SFile f(GetFilePath(), SFile::mRead);
+				SString line_buf;
+				THROW(f.IsValid());
+				while(f.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+					if(line_buf.NotEmpty()) {
+						Ss.add(line_buf);
+					}
+				}
+			}
+			CATCHZOK
+			return ok;
+		}
+		virtual void DestroyEntity()
+		{
+			Ss.Z();
+		}
+		void Get(StringSet & rC) const
+		{
+			Lck.Lock();
+			rC = Ss;
+			Lck.Unlock();
+		}
+	private:
+		StringSet Ss;
+	};
+	class _ThreadWriter : public SlThread {
+		SString FilePath;
+	public:
+		_ThreadWriter(const char * pFilePath) : SlThread(), FilePath(pFilePath)
+		{
+		}
+		virtual void Run()
+		{
+			const int64 start_clock = clock();
+			SString line_buf;
+			do {
+				ENTER_CRITICAL_SECTION
+				{
+					SFile f(FilePath, SFile::mAppend);
+					assert(f.IsValid());
+					if(f.IsValid()) {
+						Counter.Incr();
+						line_buf.Z().CatLongZ(Counter, 12);
+						f.WriteLine(line_buf.CR());
+					}
+				}
+				LEAVE_CRITICAL_SECTION
+				SDelay(100);
+			} while((clock() - start_clock) < 60000);
+		}
+	};
+	class _Thread : public SlThread {
+		SString FilePath;
+	public:
+		_Thread(const char * pFilePath) : SlThread(), FilePath(pFilePath)
+		{
+		}
+		virtual void Run()
+		{
+			const int64 start_clock = clock();
+			StringSet ss;
+			SString temp_buf;
+			uint   prev_count = 0;
+			do {
+				SCachedFileEntity_TestSs * p_obj = SCachedFileEntity_TestSs::GetGlobalObj(FilePath);
+				if(p_obj && p_obj->Reload(false)) {
+					p_obj->Get(ss);
+					uint c = ss.getCount();
+					assert(c > 0);
+					assert(c >= static_cast<uint>(Counter)-2);
+					long test_v = 0;
+					uint test_c = 1;
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+						test_v = temp_buf.ToLong();
+						assert(test_v == test_c);
+						test_c++;
+					}
+					assert(test_c == (c+1));
+					assert(!prev_count || c >= prev_count);
+					prev_count = c;
+				}
+				SDelay(10);
+			} while((clock() - start_clock) < 80000);
+		}
+	};
+
+	int    ok = 1;
+	SString file_path(MakeOutputFilePath("SCachedFileEntity_SsTest.txt"));
+	{
+		SFile f(file_path, SFile::mWrite);
+		assert(f.IsValid());
+		if(f.IsValid()) {
+			SString line_buf;
+			for(uint i = 0; i < 20; i++) {
+				Counter.Incr();
+				line_buf.Z().CatLongZ(Counter, 12);
+				f.WriteLine(line_buf.CR());
+			}
+		}
+	}
+	HANDLE tl[128];
+	uint   tc = 0;
+	MEMSZERO(tl);
+	{
+		for(uint i = 0; i < 40; i++) {
+			_Thread * p_thr = new _Thread(file_path);
+			p_thr->Start();
+			tl[tc++] = *p_thr;
+		}
+	}
+	{
+		for(uint i = 0; i < 4; i++) {
+			_ThreadWriter * p_thr = new _ThreadWriter(file_path);
+			p_thr->Start();
+			tl[tc++] = *p_thr;
+		}
+	}
+	::WaitForMultipleObjects(tc, tl, TRUE, INFINITE);
+	SLS.DestroyGlobalObject(GloIdx);
+	return ok;
+}
 
 SLTEST_R(SFile)
 {

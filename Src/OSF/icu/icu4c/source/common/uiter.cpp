@@ -978,7 +978,7 @@ U_CAPI void U_EXPORT2 uiter_setUTF8(UCharIterator * iter, const char * s, int32_
 				iter->limit = length;
 			}
 			else {
-				iter->limit = (int32_t)uprv_strlen(s);
+				iter->limit = (int32_t)strlen(s);
 			}
 			iter->length = iter->limit<=1 ? iter->limit : -1;
 		}

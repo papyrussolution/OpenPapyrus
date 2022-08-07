@@ -448,7 +448,7 @@ static void TestToASCII() {
 	UChar buf[MAX_DEST_SIZE];
 	const char * testName = "uidna_toASCII";
 	TestFunc func = uidna_toASCII;
-	for(i = 0; i< UPRV_LENGTHOF(unicodeIn); i++) {
+	for(i = 0; i< SIZEOFARRAYi(unicodeIn); i++) {
 		u_charsToUChars(asciiIn[i], buf, (int32_t)strlen(asciiIn[i])+1);
 		testAPI(unicodeIn[i], buf, testName, FALSE, U_ZERO_ERROR, TRUE, TRUE, func);
 	}
@@ -459,7 +459,7 @@ static void TestToUnicode() {
 	UChar buf[MAX_DEST_SIZE];
 	const char * testName = "uidna_toUnicode";
 	TestFunc func = uidna_toUnicode;
-	for(i = 0; i< UPRV_LENGTHOF(asciiIn); i++) {
+	for(i = 0; i< SIZEOFARRAYi(asciiIn); i++) {
 		u_charsToUChars(asciiIn[i], buf, (int32_t)strlen(asciiIn[i])+1);
 		testAPI(buf, unicodeIn[i], testName, FALSE, U_ZERO_ERROR, TRUE, TRUE, func);
 	}
@@ -474,7 +474,7 @@ static void TestIDNToUnicode() {
 	UParseError parseError;
 	const char * testName = "uidna_IDNToUnicode";
 	TestFunc func = uidna_IDNToUnicode;
-	for(i = 0; i< UPRV_LENGTHOF(domainNames); i++) {
+	for(i = 0; i< SIZEOFARRAYi(domainNames); i++) {
 		bufLen = (int32_t)strlen(domainNames[i]);
 		bufLen = u_unescape(domainNames[i], buf, bufLen+1);
 		func(buf, bufLen, expected, MAX_DEST_SIZE, UIDNA_ALLOW_UNASSIGNED, &parseError, &status);
@@ -502,7 +502,7 @@ static void TestIDNToASCII() {
 	const char * testName = "udina_IDNToASCII";
 	TestFunc func = uidna_IDNToASCII;
 
-	for(i = 0; i< UPRV_LENGTHOF(domainNames); i++) {
+	for(i = 0; i< SIZEOFARRAYi(domainNames); i++) {
 		bufLen = (int32_t)strlen(domainNames[i]);
 		bufLen = u_unescape(domainNames[i], buf, bufLen+1);
 		func(buf, bufLen, expected, MAX_DEST_SIZE, UIDNA_ALLOW_UNASSIGNED, &parseError, &status);
@@ -600,7 +600,7 @@ static void TestCompare() {
 	/* prepend www. */
 	u_strcat(source, www);
 
-	for(i = 0; i< UPRV_LENGTHOF(unicodeIn); i++) {
+	for(i = 0; i< SIZEOFARRAYi(unicodeIn); i++) {
 		UChar * src;
 		int32_t srcLen;
 
@@ -649,7 +649,7 @@ static void TestJB4490() {
 	UChar output1[40] = {0};
 	UChar output2[40] = {0};
 	int32_t i;
-	for(i = 0; i< UPRV_LENGTHOF(data); i++) {
+	for(i = 0; i< SIZEOFARRAYi(data); i++) {
 		const UChar * src1 = data[i];
 		int32_t src1Len = u_strlen(src1);
 		UChar * dest1 = output1;
@@ -680,7 +680,7 @@ static void TestJB4475() {
 	};
 	int i;
 	UChar output[40] = {0};
-	for(i = 0; i< UPRV_LENGTHOF(input); i++) {
+	for(i = 0; i< SIZEOFARRAYi(input); i++) {
 		const UChar * src = input[i];
 		int32_t srcLen = u_strlen(src);
 		UChar * dest = output;
@@ -723,8 +723,8 @@ static void TestLength() {
 				0xFE06, 0xFE07, 0xFE08, 0xFE09, 0xFE0A, 0xFE0B, 0xFE0C, 0xFE0D, 0xFE0E,
 				0xFE0F, 0xFEFF, 0x0000};
 
-		int32_t len1 = UPRV_LENGTHOF(ul1)-1 /*remove the null termination*/;
-		int32_t destLen = UPRV_LENGTHOF(dest);
+		int32_t len1 = SIZEOFARRAYi(ul1)-1 /*remove the null termination*/;
+		int32_t destLen = SIZEOFARRAYi(dest);
 		UErrorCode status = U_ZERO_ERROR;
 		UParseError ps;
 		int32_t len = (int32_t)strlen(cl);
@@ -735,14 +735,14 @@ static void TestLength() {
 		}
 
 		status = U_ZERO_ERROR;
-		destLen = UPRV_LENGTHOF(dest);
+		destLen = SIZEOFARRAYi(dest);
 		len = -1;
 		destLen = uidna_toUnicode(ul, len, dest, destLen, UIDNA_DEFAULT, &ps, &status);
 		if(status != U_ZERO_ERROR) {
 			log_err_status(status, "uidna_toUnicode failed with error %s.\n", u_errorName(status));
 		}
 		status = U_ZERO_ERROR;
-		destLen = UPRV_LENGTHOF(dest);
+		destLen = SIZEOFARRAYi(dest);
 		len = (int32_t)strlen(cl);
 		destLen = uidna_toASCII(ul, len, dest, destLen, UIDNA_DEFAULT, &ps, &status);
 		if(status != U_IDNA_LABEL_TOO_LONG_ERROR) {
@@ -750,7 +750,7 @@ static void TestLength() {
 		}
 
 		status = U_ZERO_ERROR;
-		destLen = UPRV_LENGTHOF(dest);
+		destLen = SIZEOFARRAYi(dest);
 		len = -1;
 		destLen = uidna_toASCII(ul, len, dest, destLen, UIDNA_DEFAULT, &ps, &status);
 		if(status != U_IDNA_LABEL_TOO_LONG_ERROR) {
@@ -758,14 +758,14 @@ static void TestLength() {
 		}
 
 		status = U_ZERO_ERROR;
-		destLen = UPRV_LENGTHOF(dest);
+		destLen = SIZEOFARRAYi(dest);
 		destLen = uidna_toASCII(ul1, len1, dest, destLen, UIDNA_DEFAULT, &ps, &status);
 		if(status != U_ZERO_ERROR) {
 			log_err_status(status, "uidna_toASCII failed with error %s.\n", u_errorName(status));
 		}
 
 		status = U_ZERO_ERROR;
-		destLen = UPRV_LENGTHOF(dest);
+		destLen = SIZEOFARRAYi(dest);
 		len1 = -1;
 		destLen = uidna_toASCII(ul1, len1, dest, destLen, UIDNA_DEFAULT, &ps, &status);
 		if(status != U_ZERO_ERROR) {
@@ -777,7 +777,7 @@ static void TestLength() {
 		    "my_very_very_long_and_incredibly_uncreative_domain_label.my_very_very_long_and_incredibly_uncreative_domain_label.my_very_very_long_and_incredibly_uncreative_domain_label.my_very_very_long_and_incredibly_uncreative_domain_label.my_very_very_long_and_incredibly_uncreative_domain_label.my_very_very_long_and_incredibly_uncreative_domain_label.ibm.com";
 		UChar ul[400] = {'\0'};
 		UChar dest[400] = {'\0'};
-		int32_t destLen = UPRV_LENGTHOF(dest);
+		int32_t destLen = SIZEOFARRAYi(dest);
 		UErrorCode status = U_ZERO_ERROR;
 		UParseError ps;
 		int32_t len = (int32_t)strlen(cl);
@@ -789,7 +789,7 @@ static void TestLength() {
 		}
 
 		status = U_ZERO_ERROR;
-		destLen = UPRV_LENGTHOF(dest);
+		destLen = SIZEOFARRAYi(dest);
 		len = -1;
 		destLen = uidna_IDNToUnicode(ul, len, dest, destLen, UIDNA_DEFAULT, &ps, &status);
 		if(status != U_IDNA_DOMAIN_NAME_TOO_LONG_ERROR) {
@@ -797,7 +797,7 @@ static void TestLength() {
 		}
 
 		status = U_ZERO_ERROR;
-		destLen = UPRV_LENGTHOF(dest);
+		destLen = SIZEOFARRAYi(dest);
 		len = (int32_t)strlen(cl);
 		destLen = uidna_IDNToASCII(ul, len, dest, destLen, UIDNA_DEFAULT, &ps, &status);
 		if(status != U_IDNA_DOMAIN_NAME_TOO_LONG_ERROR) {
@@ -805,7 +805,7 @@ static void TestLength() {
 		}
 
 		status = U_ZERO_ERROR;
-		destLen = UPRV_LENGTHOF(dest);
+		destLen = SIZEOFARRAYi(dest);
 		len = -1;
 		destLen = uidna_IDNToASCII(ul, len, dest, destLen, UIDNA_DEFAULT, &ps, &status);
 		if(status != U_IDNA_DOMAIN_NAME_TOO_LONG_ERROR) {
@@ -883,7 +883,7 @@ static void TestUTS46() {
 
 	/* These calls should succeed. */
 	length = uidna_labelToASCII(uts46, fA_sharps16, -1,
-		dest16, UPRV_LENGTHOF(dest16), &info, &errorCode);
+		dest16, SIZEOFARRAYi(dest16), &info, &errorCode);
 	if(U_FAILURE(errorCode) || length != 4 || 0 != u_memcmp(dest16, fass16, 5) ||
 	    !info.isTransitionalDifferent || info.errors != 0
 	    ) {
@@ -891,7 +891,7 @@ static void TestUTS46() {
 	}
 	errorCode = U_ZERO_ERROR;
 	length = uidna_labelToUnicode(uts46, fA_sharps16, u_strlen(fA_sharps16),
-		dest16, UPRV_LENGTHOF(dest16), &info, &errorCode);
+		dest16, SIZEOFARRAYi(dest16), &info, &errorCode);
 	if(U_FAILURE(errorCode) || length != 3 || 0 != u_memcmp(dest16, fa_sharps16, 4) ||
 	    !info.isTransitionalDifferent || info.errors != 0
 	    ) {
@@ -918,7 +918,7 @@ static void TestUTS46() {
 
 	errorCode = U_ZERO_ERROR;
 	length = uidna_labelToASCII_UTF8(uts46, fA_sharps8, -1,
-		dest8, UPRV_LENGTHOF(dest8), &info, &errorCode);
+		dest8, SIZEOFARRAYi(dest8), &info, &errorCode);
 	if(U_FAILURE(errorCode) || length != 4 || 0 != memcmp(dest8, fass8, 5) ||
 	    !info.isTransitionalDifferent || info.errors != 0
 	    ) {
@@ -926,7 +926,7 @@ static void TestUTS46() {
 	}
 	errorCode = U_ZERO_ERROR;
 	length = uidna_labelToUnicodeUTF8(uts46, fA_sharps8, (int32_t)strlen(fA_sharps8),
-		dest8, UPRV_LENGTHOF(dest8), &info, &errorCode);
+		dest8, SIZEOFARRAYi(dest8), &info, &errorCode);
 	if(U_FAILURE(errorCode) || length != 4 || 0 != memcmp(dest8, fa_sharps8, 5) ||
 	    !info.isTransitionalDifferent || info.errors != 0
 	    ) {
@@ -973,13 +973,13 @@ static void TestUTS46() {
 	/* These calls should fail. */
 	errorCode = U_USELESS_COLLATOR_ERROR;
 	length = uidna_labelToASCII(uts46, fA_sharps16, -1,
-		dest16, UPRV_LENGTHOF(dest16), &info, &errorCode);
+		dest16, SIZEOFARRAYi(dest16), &info, &errorCode);
 	if(errorCode != U_USELESS_COLLATOR_ERROR) {
 		log_err("uidna_labelToASCII(failure) failed: %s\n", u_errorName(errorCode));
 	}
 	errorCode = U_ZERO_ERROR;
 	length = uidna_labelToUnicode(uts46, fA_sharps16, u_strlen(fA_sharps16),
-		dest16, UPRV_LENGTHOF(dest16), NULL, &errorCode);
+		dest16, SIZEOFARRAYi(dest16), NULL, &errorCode);
 	if(errorCode != U_ILLEGAL_ARGUMENT_ERROR) {
 		log_err("uidna_labelToUnicode(UIDNAInfo=NULL) failed: %s\n", u_errorName(errorCode));
 	}
@@ -998,7 +998,7 @@ static void TestUTS46() {
 
 	errorCode = U_ZERO_ERROR;
 	length = uidna_labelToASCII_UTF8(uts46, fA_sharps8, -1,
-		NULL, UPRV_LENGTHOF(dest8), &info, &errorCode);
+		NULL, SIZEOFARRAYi(dest8), &info, &errorCode);
 	if(errorCode != U_ILLEGAL_ARGUMENT_ERROR) {
 		log_err("uidna_labelToASCII_UTF8(dest=NULL) failed: %s\n", u_errorName(errorCode));
 	}

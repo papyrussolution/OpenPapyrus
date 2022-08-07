@@ -54,7 +54,7 @@ U_CFUNC int genres32(const char * prog, const char * path)
 	char file[512];
 	FILE * out;
 
-	uprv_strcpy(file, path);
+	strcpy(file, path);
 	if(file[strlen(file)-1]!=U_FILE_SEP_CHAR) {
 		uprv_strcat(file, U_FILE_SEP_STRING);
 	}

@@ -731,8 +731,8 @@ UnicodeString & U_EXPORT2 Transliterator::getDisplayName(const UnicodeString & i
 	// build the char * key
 	if(uprv_isInvariantUString(ID.getBuffer(), ID.length())) {
 		char key[200];
-		uprv_strcpy(key, RB_DISPLAY_NAME_PREFIX);
-		int32_t length = (int32_t)uprv_strlen(RB_DISPLAY_NAME_PREFIX);
+		strcpy(key, RB_DISPLAY_NAME_PREFIX);
+		int32_t length = (int32_t)strlen(RB_DISPLAY_NAME_PREFIX);
 		ID.extract(0, (int32_t)(sizeof(key)-length), key+length, (int32_t)(sizeof(key)-length), US_INV);
 
 		// Try to retrieve a UnicodeString from the bundle.
@@ -766,10 +766,10 @@ UnicodeString & U_EXPORT2 Transliterator::getDisplayName(const UnicodeString & i
 
 			// Use display names for the scripts, if they exist
 			UnicodeString s;
-			length = (int32_t)uprv_strlen(RB_SCRIPT_DISPLAY_NAME_PREFIX);
+			length = (int32_t)strlen(RB_SCRIPT_DISPLAY_NAME_PREFIX);
 			for(int j = 1; j<=2; ++j) {
 				status = U_ZERO_ERROR;
-				uprv_strcpy(key, RB_SCRIPT_DISPLAY_NAME_PREFIX);
+				strcpy(key, RB_SCRIPT_DISPLAY_NAME_PREFIX);
 				args[j].getString(s);
 				if(uprv_isInvariantUString(s.getBuffer(), s.length())) {
 					s.extract(0, sizeof(key)-length-1, key+length, (int32_t)sizeof(key)-length-1, US_INV);

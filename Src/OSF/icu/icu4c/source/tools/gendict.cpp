@@ -240,7 +240,7 @@ int main(int argc, char ** argv)
 	//
 	U_MAIN_INIT_ARGS(argc, argv);
 	progName = argv[0];
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 	if(argc<0) {
 		// Unrecognized option
 		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
@@ -352,7 +352,7 @@ int main(int argc, char ** argv)
 			fileLine.extract(valueStart, valueLength, s, 16, US_INV);
 			char * end;
 			unsigned long value = uprv_strtoul(s, &end, 0);
-			if(end == s || *end != 0 || (int32_t)uprv_strlen(s) != valueLength || value > 0xffffffff) {
+			if(end == s || *end != 0 || (int32_t)strlen(s) != valueLength || value > 0xffffffff) {
 				slfprintf_stderr("Error: value syntax error or value too large on line %i!\n", lineCount);
 				isOk = FALSE;
 				continue;

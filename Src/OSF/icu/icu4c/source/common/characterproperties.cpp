@@ -51,11 +51,11 @@ bool U_CALLCONV characterproperties_cleanup()
 		in.fSet = nullptr;
 		in.fInitOnce.reset();
 	}
-	for(int32_t i = 0; i < UPRV_LENGTHOF(sets); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(sets); ++i) {
 		delete sets[i];
 		sets[i] = nullptr;
 	}
-	for(int32_t i = 0; i < UPRV_LENGTHOF(maps); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(maps); ++i) {
 		ucptrie_close(reinterpret_cast<UCPTrie *>(maps[i]));
 		maps[i] = nullptr;
 	}

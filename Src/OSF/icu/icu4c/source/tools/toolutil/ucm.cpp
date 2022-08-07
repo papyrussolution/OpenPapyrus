@@ -342,7 +342,7 @@ static uint8_t checkBaseExtUnicode(UCMStates * baseStates, UCMTable * base, UCMT
 				result |= NEEDS_MOVE;
 				/* does mb map from an input sequence that is a prefix of me's? */
 			}
-			else if(mb->uLen<me->uLen && 0==uprv_memcmp(UCM_GET_CODE_POINTS(base, mb), UCM_GET_CODE_POINTS(ext, me), 4*mb->uLen)) {
+			else if(mb->uLen<me->uLen && 0==memcmp(UCM_GET_CODE_POINTS(base, mb), UCM_GET_CODE_POINTS(ext, me), 4*mb->uLen)) {
 				if(moveToExt) {
 					/* mark this mapping to be moved to the extension table */
 					mb->moveFlag |= UCM_MOVE_TO_EXT;
@@ -363,7 +363,7 @@ static uint8_t checkBaseExtUnicode(UCMStates * baseStates, UCMTable * base, UCMT
 			 * same output: remove the extension mapping,
 			 * otherwise treat as an error
 			 */
-			if(mb->f==me->f && mb->bLen==me->bLen && 0==uprv_memcmp(UCM_GET_BYTES(base, mb), UCM_GET_BYTES(ext, me), mb->bLen)) {
+			if(mb->f==me->f && mb->bLen==me->bLen && 0==memcmp(UCM_GET_BYTES(base, mb), UCM_GET_BYTES(ext, me), mb->bLen)) {
 				me->moveFlag |= UCM_REMOVE_MAPPING;
 				result |= NEEDS_MOVE;
 			}
@@ -389,16 +389,15 @@ static uint8_t checkBaseExtUnicode(UCMStates * baseStates, UCMTable * base, UCMT
 static uint8_t checkBaseExtBytes(UCMStates * baseStates, UCMTable * base, UCMTable * ext, bool moveToExt, bool intersectBase) 
 {
 	UCMapping * mb, * me;
-	int32_t b, e, bLimit, eLimit, cmp;
-	uint8_t result;
-	bool isSISO;
+	int32_t b = 0;
+	int32_t e = 0;
+	int32_t cmp;
 	int32_t * baseMap = base->reverseMap;
 	int32_t * extMap = ext->reverseMap;
-	b = e = 0;
-	bLimit = base->mappingsLength;
-	eLimit = ext->mappingsLength;
-	result = 0;
-	isSISO = (bool)(baseStates->outputType==MBCS_OUTPUT_2_SISO);
+	int32_t bLimit = base->mappingsLength;
+	int32_t eLimit = ext->mappingsLength;
+	uint8_t result = 0;
+	const bool isSISO = (bool)(baseStates->outputType==MBCS_OUTPUT_2_SISO);
 	for(;;) {
 		/* skip irrelevant mappings on both sides */
 		for(;; ++b) {
@@ -440,7 +439,7 @@ static uint8_t checkBaseExtBytes(UCMStates * baseStates, UCMTable * base, UCMTab
 				 * occurs in a separate single-byte state
 				 */
 			}
-			else if(mb->bLen<me->bLen && (!isSISO || mb->bLen>1) && 0==uprv_memcmp(UCM_GET_BYTES(base, mb), UCM_GET_BYTES(ext, me), mb->bLen)) {
+			else if(mb->bLen<me->bLen && (!isSISO || mb->bLen>1) && 0==memcmp(UCM_GET_BYTES(base, mb), UCM_GET_BYTES(ext, me), mb->bLen)) {
 				if(moveToExt) {
 					/* mark this mapping to be moved to the extension table */
 					mb->moveFlag |= UCM_MOVE_TO_EXT;
@@ -461,7 +460,7 @@ static uint8_t checkBaseExtBytes(UCMStates * baseStates, UCMTable * base, UCMTab
 			 * same output: remove the extension mapping,
 			 * otherwise treat as an error
 			 */
-			if(mb->f==me->f && mb->uLen==me->uLen && 0==uprv_memcmp(UCM_GET_CODE_POINTS(base, mb), UCM_GET_CODE_POINTS(ext, me), 4*mb->uLen)) {
+			if(mb->f==me->f && mb->uLen==me->uLen && 0==memcmp(UCM_GET_CODE_POINTS(base, mb), UCM_GET_CODE_POINTS(ext, me), 4*mb->uLen)) {
 				me->moveFlag |= UCM_REMOVE_MAPPING;
 				result |= NEEDS_MOVE;
 			}
@@ -568,7 +567,7 @@ U_CAPI void U_EXPORT2 ucm_mergeTables(UCMTable * fromUTable, UCMTable * toUTable
 			 * fallback Unicode->codepage
 			 */
 			if((fromUMapping->bLen==subcharLength &&
-			    0==uprv_memcmp(UCM_GET_BYTES(fromUTable, fromUMapping), subchar, subcharLength)) ||
+			    0==memcmp(UCM_GET_BYTES(fromUTable, fromUMapping), subchar, subcharLength)) ||
 			    (subchar1!=0 && fromUMapping->bLen==1 && fromUMapping->b.bytes[0]==subchar1)
 			    ) {
 				fromUMapping->f = 2; /* SUB mapping */
@@ -605,7 +604,7 @@ U_CAPI void U_EXPORT2 ucm_mergeTables(UCMTable * fromUTable, UCMTable * toUTable
 	while(fromUIndex<fromUTop) {
 		/* leftover fromU mappings are fallbacks */
 		if((fromUMapping->bLen==subcharLength &&
-		    0==uprv_memcmp(UCM_GET_BYTES(fromUTable, fromUMapping), subchar, subcharLength)) ||
+		    0==memcmp(UCM_GET_BYTES(fromUTable, fromUMapping), subchar, subcharLength)) ||
 		    (subchar1!=0 && fromUMapping->bLen==1 && fromUMapping->b.bytes[0]==subchar1)
 		    ) {
 			fromUMapping->f = 2; /* SUB mapping */
@@ -1107,7 +1106,7 @@ U_CAPI void U_EXPORT2 ucm_readTable(UCMFile * ucm, FileStream* convFile,
 			continue;
 		}
 		/* stop at the end of the mapping table */
-		if(0==uprv_strcmp(line, "END CHARMAP")) {
+		if(0==strcmp(line, "END CHARMAP")) {
 			break;
 		}
 		isOK &= ucm_addMappingFromLine(ucm, line, forBase, baseStates);

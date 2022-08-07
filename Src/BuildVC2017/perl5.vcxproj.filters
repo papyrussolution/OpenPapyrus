@@ -1,0 +1,294 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\perl5\av.c" />
+    <ClCompile Include="..\OSF\perl5\caretx.c" />
+    <ClCompile Include="..\OSF\perl5\deb.c" />
+    <ClCompile Include="..\OSF\perl5\doio.c" />
+    <ClCompile Include="..\OSF\perl5\doop.c" />
+    <ClCompile Include="..\OSF\perl5\dquote.c" />
+    <ClCompile Include="..\OSF\perl5\dump.c" />
+    <ClCompile Include="..\OSF\perl5\generate_uudmap.c" />
+    <ClCompile Include="..\OSF\perl5\globals.c" />
+    <ClCompile Include="..\OSF\perl5\gv.c" />
+    <ClCompile Include="..\OSF\perl5\hv.c" />
+    <ClCompile Include="..\OSF\perl5\keywords.c" />
+    <ClCompile Include="..\OSF\perl5\locale.c" />
+    <ClCompile Include="..\OSF\perl5\malloc.c" />
+    <ClCompile Include="..\OSF\perl5\mathoms.c" />
+    <ClCompile Include="..\OSF\perl5\mg.c" />
+    <ClCompile Include="..\OSF\perl5\miniperlmain.c" />
+    <ClCompile Include="..\OSF\perl5\mro_core.c" />
+    <ClCompile Include="..\OSF\perl5\numeric.c" />
+    <ClCompile Include="..\OSF\perl5\op.c" />
+    <ClCompile Include="..\OSF\perl5\pad.c" />
+    <ClCompile Include="..\OSF\perl5\perl.c" />
+    <ClCompile Include="..\OSF\perl5\perlio.c" />
+    <ClCompile Include="..\OSF\perl5\perly.c" />
+    <ClCompile Include="..\OSF\perl5\pp.c" />
+    <ClCompile Include="..\OSF\perl5\pp_ctl.c" />
+    <ClCompile Include="..\OSF\perl5\pp_hot.c" />
+    <ClCompile Include="..\OSF\perl5\pp_pack.c" />
+    <ClCompile Include="..\OSF\perl5\pp_sort.c" />
+    <ClCompile Include="..\OSF\perl5\pp_sys.c" />
+    <ClCompile Include="..\OSF\perl5\reentr.c" />
+    <ClCompile Include="..\OSF\perl5\regcomp.c" />
+    <ClCompile Include="..\OSF\perl5\regexec.c" />
+    <ClCompile Include="..\OSF\perl5\run.c" />
+    <ClCompile Include="..\OSF\perl5\scope.c" />
+    <ClCompile Include="..\OSF\perl5\sv.c" />
+    <ClCompile Include="..\OSF\perl5\taint.c" />
+    <ClCompile Include="..\OSF\perl5\time64.c" />
+    <ClCompile Include="..\OSF\perl5\toke.c" />
+    <ClCompile Include="..\OSF\perl5\universal.c" />
+    <ClCompile Include="..\OSF\perl5\utf8.c" />
+    <ClCompile Include="..\OSF\perl5\util.c" />
+    <ClCompile Include="..\OSF\perl5\win32\fcrypt.c" />
+    <ClCompile Include="..\OSF\perl5\win32\perlglob.c" />
+    <ClCompile Include="..\OSF\perl5\win32\perllib.c" />
+    <ClCompile Include="..\OSF\perl5\win32\runperl.c" />
+    <ClCompile Include="..\OSF\perl5\win32\win32.c" />
+    <ClCompile Include="..\OSF\perl5\win32\win32sck.c" />
+    <ClCompile Include="..\OSF\perl5\win32\win32thread.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\perl5\av.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\charclass_invlists.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\cop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\cv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\dosish.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\ebcdic_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\embed.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\embedvar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\EXTERN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\fakesdio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\feature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\form.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\gv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\handy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\hv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\hv_func.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\hv_macro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\inline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\INTERN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\intrpvar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\invlist_inline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\iperlsys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\keywords.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\l1_char_class_tab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\malloc_ctl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\metaconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\mg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\mg_raw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\mg_vtable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\mydtrace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\nostdio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\op.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\op_reg_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\opcode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\opnames.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\overload.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\pad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\patchlevel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perl_inc_macro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perl_langinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perl_siphash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perlapi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perlio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perliol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perlsdio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perlvars.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perly.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\pp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\pp_proto.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\proto.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\reentr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\regcharclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\regcomp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\regexp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\regnodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\sbox32_hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\scope.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\sv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\time64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\time64_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\uconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\uni_keywords.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\unicode_constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\unixish.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\utf8.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\utfebcdic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\vutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\warnings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\XSUB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\zaphod32_hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\win32\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\perl5\perl-internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

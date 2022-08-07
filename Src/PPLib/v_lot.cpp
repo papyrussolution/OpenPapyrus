@@ -38,7 +38,7 @@ LotFilt & FASTCALL LotFilt::operator = (const LotFilt & s)
 int LotFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
 int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
-/*virtual*/int LotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int LotFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 0) {

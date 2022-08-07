@@ -146,7 +146,7 @@ void TestArabicShapeThreads::doTailTest() {
 
 	for(int32_t loopCount = 0; loopCount < 100; loopCount++) {
 		status = U_ZERO_ERROR;
-		length = u_shapeArabic(src, -1, dst, UPRV_LENGTHOF(dst),
+		length = u_shapeArabic(src, -1, dst, SIZEOFARRAYi(dst),
 			U_SHAPE_LETTERS_SHAPE|U_SHAPE_SEEN_TWOCELL_NEAR, &status);
 		if(U_FAILURE(status)) {
 			IntlTest::gTest->errln("Fail: status %s\n", u_errorName(status));
@@ -156,7 +156,7 @@ void TestArabicShapeThreads::doTailTest() {
 			IntlTest::gTest->errln("Fail: len %d expected 3\n", length);
 			return;
 		}
-		else if(u_strncmp(dst, dst_old, UPRV_LENGTHOF(dst))) {
+		else if(u_strncmp(dst, dst_old, SIZEOFARRAYi(dst))) {
 			IntlTest::gTest->errln("Fail: got U+%04X U+%04X expected U+%04X U+%04X\n",
 			    dst[0], dst[1], dst_old[0], dst_old[1]);
 			return;
@@ -164,7 +164,7 @@ void TestArabicShapeThreads::doTailTest() {
 
 		// Trying new tail
 		status = U_ZERO_ERROR;
-		length = u_shapeArabic(src, -1, dst, UPRV_LENGTHOF(dst),
+		length = u_shapeArabic(src, -1, dst, SIZEOFARRAYi(dst),
 			U_SHAPE_LETTERS_SHAPE|U_SHAPE_SEEN_TWOCELL_NEAR|U_SHAPE_TAIL_NEW_UNICODE, &status);
 		if(U_FAILURE(status)) {
 			IntlTest::gTest->errln("Fail: status %s\n", u_errorName(status));
@@ -174,7 +174,7 @@ void TestArabicShapeThreads::doTailTest() {
 			IntlTest::gTest->errln("Fail: len %d expected 3\n", length);
 			return;
 		}
-		else if(u_strncmp(dst, dst_new, UPRV_LENGTHOF(dst))) {
+		else if(u_strncmp(dst, dst_new, SIZEOFARRAYi(dst))) {
 			IntlTest::gTest->errln("Fail: got U+%04X U+%04X expected U+%04X U+%04X\n",
 			    dst[0], dst[1], dst_new[0], dst_new[1]);
 			return;
@@ -190,13 +190,13 @@ void MultithreadTest::TestArabicShapingThreads()
 	int32_t i;
 
 	logln("-> do TestArabicShapingThreads <- Firing off threads.. ");
-	for(i = 0; i < UPRV_LENGTHOF(threads); i++) {
+	for(i = 0; i < SIZEOFARRAYi(threads); i++) {
 		if(threads[i].start() != 0) {
 			errln("Error starting thread %d", i);
 		}
 	}
 
-	for(i = 0; i < UPRV_LENGTHOF(threads); i++) {
+	for(i = 0; i < SIZEOFARRAYi(threads); i++) {
 		threads[i].join();
 	}
 	logln("->TestArabicShapingThreads <- Got all threads! cya");
@@ -465,7 +465,7 @@ public:
 			FormatThreadTestData(12345, UnicodeString(u"12,345")),
 			FormatThreadTestData(81890.23, UnicodeString(u"81,890.23")),
 		};
-		int32_t kNumberFormatTestDataLength = UPRV_LENGTHOF(kNumberFormatTestData);
+		int32_t kNumberFormatTestDataLength = SIZEOFARRAYi(kNumberFormatTestData);
 
 		// Keep this data here to avoid static initialization.
 		FormatThreadTestData kPercentFormatTestData[] =
@@ -478,7 +478,7 @@ public:
 			FormatThreadTestData(
 				81890.23, CharsToUnicodeString("8\\u202F189\\u202F023\\u00a0%")),
 		};
-		int32_t kPercentFormatTestDataLength = UPRV_LENGTHOF(kPercentFormatTestData);
+		int32_t kPercentFormatTestDataLength = SIZEOFARRAYi(kPercentFormatTestData);
 		int32_t iteration;
 
 		status = U_ZERO_ERROR;
@@ -620,7 +620,7 @@ void MultithreadTest::TestThreadedIntl()
 	    kFormatThreadThreads, kFormatThreadIterations);
 	FormatThreadTest tests[kFormatThreadThreads];
 	int32_t j;
-	for(j = 0; j < UPRV_LENGTHOF(tests); j++) {
+	for(j = 0; j < SIZEOFARRAYi(tests); j++) {
 		tests[j].fNum = j;
 		int32_t threadStatus = tests[j].start();
 		if(threadStatus != 0) {
@@ -630,7 +630,7 @@ void MultithreadTest::TestThreadedIntl()
 		}
 	}
 
-	for(j = 0; j<UPRV_LENGTHOF(tests); j++) {
+	for(j = 0; j<SIZEOFARRAYi(tests); j++) {
 		tests[j].join();
 		logln("Thread # %d is complete..", j);
 	}
@@ -824,7 +824,7 @@ void MultithreadTest::TestCollators()
 	UVersionInfo uniVersion;
 	static const UVersionInfo v62 = { 6, 2, 0, 0 };
 	u_getUnicodeVersion(uniVersion);
-	bool isAtLeastUCA62 = uprv_memcmp(uniVersion, v62, 4) >= 0;
+	bool isAtLeastUCA62 = memcmp(uniVersion, v62, 4) >= 0;
 
 	LocalPointer<Collator> coll(Collator::createInstance(Locale::getRoot(), status));
 	if(U_FAILURE(status)) {
@@ -974,11 +974,11 @@ void MultithreadTest::TestAnyTranslit() {
 	gSharedTranslit = tx.getAlias();
 	TxThread threads[4];
 	int32_t i;
-	for(i = 0; i<UPRV_LENGTHOF(threads); i++) {
+	for(i = 0; i<SIZEOFARRAYi(threads); i++) {
 		threads[i].start();
 	}
 
-	for(i = 0; i<UPRV_LENGTHOF(threads); i++) {
+	for(i = 0; i<SIZEOFARRAYi(threads); i++) {
 		threads[i].join();
 	}
 	gSharedTranslit = NULL;
@@ -1028,7 +1028,7 @@ template <> U_EXPORT
 const UCTMultiThreadItem * LocaleCacheKey<UCTMultiThreadItem>::createObject(const void * context, UErrorCode & status) const {
 	const UnifiedCache * cacheContext = (const UnifiedCache*)context;
 
-	if(uprv_strcmp(fLoc.getLanguage(), fLoc.getName()) != 0) {
+	if(strcmp(fLoc.getLanguage(), fLoc.getName()) != 0) {
 		const UCTMultiThreadItem * result = NULL;
 		if(cacheContext == NULL) {
 			UnifiedCache::getByLocale(fLoc.getLanguage(), result, status);
@@ -1140,9 +1140,9 @@ void MultithreadTest::TestUnifiedCache() {
 
 	gObjectsCreated = 0;
 
-	UnifiedCacheThread * threads[CACHE_LOAD][UPRV_LENGTHOF(gCacheLocales)];
+	UnifiedCacheThread * threads[CACHE_LOAD][SIZEOFARRAYi(gCacheLocales)];
 	for(int32_t i = 0; i<CACHE_LOAD; ++i) {
-		for(int32_t j = 0; j<UPRV_LENGTHOF(gCacheLocales); ++j) {
+		for(int32_t j = 0; j<SIZEOFARRAYi(gCacheLocales); ++j) {
 			// Each thread works with a pair of locales.
 			threads[i][j] = new UnifiedCacheThread(
 				&cache, gCacheLocales[j], gCacheLocales2[j]);
@@ -1151,7 +1151,7 @@ void MultithreadTest::TestUnifiedCache() {
 	}
 
 	for(int32_t i = 0; i<CACHE_LOAD; ++i) {
-		for(int32_t j = 0; j<UPRV_LENGTHOF(gCacheLocales); ++j) {
+		for(int32_t j = 0; j<SIZEOFARRAYi(gCacheLocales); ++j) {
 			threads[i][j]->join();
 		}
 	}
@@ -1163,22 +1163,22 @@ void MultithreadTest::TestUnifiedCache() {
 		errln("%s:%d Too few objects created.", __FILE__, __LINE__);
 	}
 	// We know that each thread cannot create more than 2 objects in
-	// the cache, and there are UPRV_LENGTHOF(gCacheLocales) pairs of
+	// the cache, and there are SIZEOFARRAYi(gCacheLocales) pairs of
 	// objects fetched from the cache. If the threads run in series because
 	// of eviction, at worst case each thread creates two objects.
-	if(gObjectsCreated > 2 * CACHE_LOAD * UPRV_LENGTHOF(gCacheLocales)) {
+	if(gObjectsCreated > 2 * CACHE_LOAD * SIZEOFARRAYi(gCacheLocales)) {
 		errln("%s:%d Too many objects created, got %d, expected %d",
 		    __FILE__,
 		    __LINE__,
 		    gObjectsCreated,
-		    2 * CACHE_LOAD * UPRV_LENGTHOF(gCacheLocales));
+		    2 * CACHE_LOAD * SIZEOFARRAYi(gCacheLocales));
 	}
 
 	assertEquals(WHERE, 2, cache.unusedCount());
 
 	// clean up threads
 	for(int32_t i = 0; i<CACHE_LOAD; ++i) {
-		for(int32_t j = 0; j<UPRV_LENGTHOF(gCacheLocales); ++j) {
+		for(int32_t j = 0; j<SIZEOFARRAYi(gCacheLocales); ++j) {
 			delete threads[i][j];
 		}
 	}
@@ -1237,10 +1237,10 @@ void MultithreadTest::TestBreakTranslit() {
 	gTranslitExpected = &expected;
 
 	BreakTranslitThread threads[4];
-	for(int i = 0; i<UPRV_LENGTHOF(threads); ++i) {
+	for(int i = 0; i<SIZEOFARRAYi(threads); ++i) {
 		threads[i].start();
 	}
-	for(int i = 0; i<UPRV_LENGTHOF(threads); ++i) {
+	for(int i = 0; i<SIZEOFARRAYi(threads); ++i) {
 		threads[i].join();
 	}
 

@@ -107,7 +107,7 @@ static void testTrieGetRanges(const char * testName, const UCPTrie * trie, const
 	    option == UCPMAP_RANGE_FIXED_LEAD_SURROGATES ? "fixedLeadSurr" : "fixedAllSurr";
 	char name[80];
 	int32_t s;
-	for(s = 0; s < UPRV_LENGTHOF(iterStarts); ++s) {
+	for(s = 0; s < SIZEOFARRAYi(iterStarts); ++s) {
 		UChar32 start = iterStarts[s];
 		int32_t i, i0;
 		UChar32 end, expEnd;
@@ -424,7 +424,7 @@ static void testTrieUTF16(const char * testName,
 			U16_APPEND_UNSAFE(s, length, prevCP); /* start of the range */
 			values[countValues++] = value;
 		}
-		U_ASSERT(length < UPRV_LENGTHOF(s) && countValues < UPRV_LENGTHOF(values));
+		U_ASSERT(length < SIZEOFARRAYi(s) && countValues < SIZEOFARRAYi(values));
 		c = checkRanges[i].limit;
 		prevCP = (prevCP+c)/2; /* middle of the range */
 		if(!ACCIDENTAL_SURROGATE_PAIR(s, length, prevCP)) {
@@ -439,12 +439,12 @@ static void testTrieUTF16(const char * testName,
 		}
 	}
 	limit = s+length;
-	if(length>UPRV_LENGTHOF(s)) {
-		log_err("UTF-16 test string length %d > capacity %d\n", (int)length, (int)UPRV_LENGTHOF(s));
+	if(length>SIZEOFARRAYi(s)) {
+		log_err("UTF-16 test string length %d > capacity %d\n", (int)length, (int)SIZEOFARRAYi(s));
 		return;
 	}
-	if(countValues>UPRV_LENGTHOF(values)) {
-		log_err("UTF-16 test values length %d > capacity %d\n", (int)countValues, (int)UPRV_LENGTHOF(values));
+	if(countValues>SIZEOFARRAYi(values)) {
+		log_err("UTF-16 test values length %d > capacity %d\n", (int)countValues, (int)SIZEOFARRAYi(values));
 		return;
 	}
 	/* try forward */
@@ -566,7 +566,7 @@ static void testTrieUTF8(const char * testName,
 		else {
 			values[countValues++] = value;
 		}
-		U_ASSERT(length < UPRV_LENGTHOF(s) && countValues < UPRV_LENGTHOF(values));
+		U_ASSERT(length < SIZEOFARRAYi(s) && countValues < SIZEOFARRAYi(values));
 		c = checkRanges[i].limit;
 		prevCP = (prevCP+c)/2; /* middle of the range */
 		U8_APPEND_UNSAFE(s, length, prevCP);
@@ -609,12 +609,12 @@ static void testTrieUTF8(const char * testName,
 		values[countValues++] = errorValue;
 	}
 	limit = s+length;
-	if(length>UPRV_LENGTHOF(s)) {
-		log_err("UTF-8 test string length %d > capacity %d\n", (int)length, (int)UPRV_LENGTHOF(s));
+	if(length>SIZEOFARRAYi(s)) {
+		log_err("UTF-8 test string length %d > capacity %d\n", (int)length, (int)SIZEOFARRAYi(s));
 		return;
 	}
-	if(countValues>UPRV_LENGTHOF(values)) {
-		log_err("UTF-8 test values length %d > capacity %d\n", (int)countValues, (int)UPRV_LENGTHOF(values));
+	if(countValues>SIZEOFARRAYi(values)) {
+		log_err("UTF-8 test values length %d > capacity %d\n", (int)countValues, (int)SIZEOFARRAYi(values));
 		return;
 	}
 	/* try forward */
@@ -958,20 +958,20 @@ static UMutableCPTrie * testTrieSerializeAllValueWidth(const char * testName,
 	}
 	testBuilder(testName, mutableTrie, checkRanges, countCheckRanges);
 	if(oredValues <= 0xffff) {
-		uprv_strcpy(name, testName);
+		strcpy(name, testName);
 		uprv_strcat(name, ".16");
 		testTrieSerialize(name, mutableTrie, UCPTRIE_TYPE_FAST, UCPTRIE_VALUE_BITS_16, withClone, checkRanges, countCheckRanges);
 	}
-	uprv_strcpy(name, testName);
+	strcpy(name, testName);
 	uprv_strcat(name, ".32");
 	testTrieSerialize(name, mutableTrie, UCPTRIE_TYPE_FAST, UCPTRIE_VALUE_BITS_32, withClone, checkRanges, countCheckRanges);
 	if(oredValues <= 0xff) {
-		uprv_strcpy(name, testName);
+		strcpy(name, testName);
 		uprv_strcat(name, ".8");
 		testTrieSerialize(name, mutableTrie, UCPTRIE_TYPE_FAST, UCPTRIE_VALUE_BITS_8, withClone, checkRanges, countCheckRanges);
 	}
 	if(oredValues <= 0xffff) {
-		uprv_strcpy(name, testName);
+		strcpy(name, testName);
 		uprv_strcat(name, ".small16");
 		testTrieSerialize(name, mutableTrie, UCPTRIE_TYPE_SMALL, UCPTRIE_VALUE_BITS_16, withClone, checkRanges, countCheckRanges);
 	}
@@ -1173,33 +1173,33 @@ static const CheckRange
 
 static void TrieTestSet1() 
 {
-	testTrieRanges("set1", FALSE, setRanges1, UPRV_LENGTHOF(setRanges1), checkRanges1, UPRV_LENGTHOF(checkRanges1));
+	testTrieRanges("set1", FALSE, setRanges1, SIZEOFARRAYi(setRanges1), checkRanges1, SIZEOFARRAYi(checkRanges1));
 }
 
 static void TrieTestSet2Overlap() 
 {
-	testTrieRanges("set2-overlap", FALSE, setRanges2, UPRV_LENGTHOF(setRanges2), checkRanges2, UPRV_LENGTHOF(checkRanges2));
+	testTrieRanges("set2-overlap", FALSE, setRanges2, SIZEOFARRAYi(setRanges2), checkRanges2, SIZEOFARRAYi(checkRanges2));
 }
 
 static void TrieTestSet3Initial9() 
 {
-	testTrieRanges("set3-initial-9", FALSE, setRanges3, UPRV_LENGTHOF(setRanges3), checkRanges3, UPRV_LENGTHOF(checkRanges3));
-	testTrieRanges("set3-initial-9-clone", TRUE, setRanges3, UPRV_LENGTHOF(setRanges3), checkRanges3, UPRV_LENGTHOF(checkRanges3));
+	testTrieRanges("set3-initial-9", FALSE, setRanges3, SIZEOFARRAYi(setRanges3), checkRanges3, SIZEOFARRAYi(checkRanges3));
+	testTrieRanges("set3-initial-9-clone", TRUE, setRanges3, SIZEOFARRAYi(setRanges3), checkRanges3, SIZEOFARRAYi(checkRanges3));
 }
 
 static void TrieTestSetEmpty() 
 {
-	testTrieRanges("set-empty", FALSE, setRangesEmpty, 0, checkRangesEmpty, UPRV_LENGTHOF(checkRangesEmpty));
+	testTrieRanges("set-empty", FALSE, setRangesEmpty, 0, checkRangesEmpty, SIZEOFARRAYi(checkRangesEmpty));
 }
 
 static void TrieTestSetSingleValue() 
 {
-	testTrieRanges("set-single-value", FALSE, setRangesSingleValue, UPRV_LENGTHOF(setRangesSingleValue), checkRangesSingleValue, UPRV_LENGTHOF(checkRangesSingleValue));
+	testTrieRanges("set-single-value", FALSE, setRangesSingleValue, SIZEOFARRAYi(setRangesSingleValue), checkRangesSingleValue, SIZEOFARRAYi(checkRangesSingleValue));
 }
 
 static void TrieTestSet2OverlapWithClone() 
 {
-	testTrieRanges("set2-overlap.withClone", TRUE, setRanges2, UPRV_LENGTHOF(setRanges2), checkRanges2, UPRV_LENGTHOF(checkRanges2));
+	testTrieRanges("set2-overlap.withClone", TRUE, setRanges2, SIZEOFARRAYi(setRanges2), checkRanges2, SIZEOFARRAYi(checkRanges2));
 }
 
 /* test mutable-trie memory management -------------------------------------- */
@@ -1248,7 +1248,7 @@ static void FreeBlocksTest() {
 	}
 
 	mutableTrie = testTrieSerializeAllValueWidth(testName, mutableTrie, FALSE,
-		checkRanges, UPRV_LENGTHOF(checkRanges));
+		checkRanges, SIZEOFARRAYi(checkRanges));
 	umutablecptrie_close(mutableTrie);
 }
 
@@ -1291,7 +1291,7 @@ static void GrowDataArrayTest()
 		umutablecptrie_close(mutableTrie);
 		return;
 	}
-	mutableTrie = testTrieSerializeAllValueWidth(testName, mutableTrie, FALSE, checkRanges, UPRV_LENGTHOF(checkRanges));
+	mutableTrie = testTrieSerializeAllValueWidth(testName, mutableTrie, FALSE, checkRanges, SIZEOFARRAYi(checkRanges));
 	umutablecptrie_close(mutableTrie);
 }
 
@@ -1323,7 +1323,7 @@ static void ManyAllSameBlocksTest()
 			log_err("error: UMutableCPTrie U+%04lx unexpected value\n", (long)i);
 		}
 	}
-	mutableTrie = testTrieSerializeAllValueWidth(testName, mutableTrie, FALSE, checkRanges, UPRV_LENGTHOF(checkRanges));
+	mutableTrie = testTrieSerializeAllValueWidth(testName, mutableTrie, FALSE, checkRanges, SIZEOFARRAYi(checkRanges));
 	umutablecptrie_close(mutableTrie);
 }
 
@@ -1371,7 +1371,7 @@ static void MuchDataTest()
 		umutablecptrie_close(mutableTrie);
 		return;
 	}
-	U_ASSERT(r <= UPRV_LENGTHOF(checkRanges));
+	U_ASSERT(r <= SIZEOFARRAYi(checkRanges));
 	testBuilder(testName, mutableTrie, checkRanges, r);
 	testTrieSerialize("much-data.16", mutableTrie, UCPTRIE_TYPE_FAST, UCPTRIE_VALUE_BITS_16, FALSE, checkRanges, r);
 	umutablecptrie_close(mutableTrie);
@@ -1460,19 +1460,19 @@ static void TrieTestGetRangesFixedSurr() {
 
 	uint32_t initialValue, errorValue;
 	getSpecialValues(
-		checkRangesFixedLeadSurr1, UPRV_LENGTHOF(checkRangesFixedLeadSurr1),
+		checkRangesFixedLeadSurr1, SIZEOFARRAYi(checkRangesFixedLeadSurr1),
 		&initialValue, &errorValue);
 	UMutableCPTrie * mutableTrie = makeTrieWithRanges(
-		"fixedSurr", FALSE, setRangesFixedSurr, UPRV_LENGTHOF(setRangesFixedSurr),
+		"fixedSurr", FALSE, setRangesFixedSurr, SIZEOFARRAYi(setRangesFixedSurr),
 		initialValue, errorValue);
 	UErrorCode errorCode = U_ZERO_ERROR;
 	if(mutableTrie == NULL) {
 		return;
 	}
 	testGetRangesFixedSurr("fixedLeadSurr1", mutableTrie, UCPMAP_RANGE_FIXED_LEAD_SURROGATES,
-	    checkRangesFixedLeadSurr1, UPRV_LENGTHOF(checkRangesFixedLeadSurr1));
+	    checkRangesFixedLeadSurr1, SIZEOFARRAYi(checkRangesFixedLeadSurr1));
 	testGetRangesFixedSurr("fixedAllSurr1", mutableTrie, UCPMAP_RANGE_FIXED_ALL_SURROGATES,
-	    checkRangesFixedAllSurr1, UPRV_LENGTHOF(checkRangesFixedAllSurr1));
+	    checkRangesFixedAllSurr1, SIZEOFARRAYi(checkRangesFixedAllSurr1));
 	// Setting a range in the middle of lead surrogates makes no difference.
 	umutablecptrie_setRange(mutableTrie, 0xd844, 0xd899, 5, &errorCode);
 	if(U_FAILURE(errorCode)) {
@@ -1481,7 +1481,7 @@ static void TrieTestGetRangesFixedSurr() {
 		return;
 	}
 	testGetRangesFixedSurr("fixedLeadSurr2", mutableTrie, UCPMAP_RANGE_FIXED_LEAD_SURROGATES,
-	    checkRangesFixedLeadSurr1, UPRV_LENGTHOF(checkRangesFixedLeadSurr1));
+	    checkRangesFixedLeadSurr1, SIZEOFARRAYi(checkRangesFixedLeadSurr1));
 	// Bridge the gap before the lead surrogates.
 	umutablecptrie_set(mutableTrie, 0xd7ff, 5, &errorCode);
 	if(U_FAILURE(errorCode)) {
@@ -1490,9 +1490,9 @@ static void TrieTestGetRangesFixedSurr() {
 		return;
 	}
 	testGetRangesFixedSurr("fixedLeadSurr3", mutableTrie, UCPMAP_RANGE_FIXED_LEAD_SURROGATES,
-	    checkRangesFixedLeadSurr3, UPRV_LENGTHOF(checkRangesFixedLeadSurr3));
+	    checkRangesFixedLeadSurr3, SIZEOFARRAYi(checkRangesFixedLeadSurr3));
 	testGetRangesFixedSurr("fixedAllSurr3", mutableTrie, UCPMAP_RANGE_FIXED_ALL_SURROGATES,
-	    checkRangesFixedAllSurr3, UPRV_LENGTHOF(checkRangesFixedAllSurr3));
+	    checkRangesFixedAllSurr3, SIZEOFARRAYi(checkRangesFixedAllSurr3));
 	// Bridge the gap after the trail surrogates.
 	umutablecptrie_set(mutableTrie, 0xe000, 5, &errorCode);
 	if(U_FAILURE(errorCode)) {
@@ -1501,7 +1501,7 @@ static void TrieTestGetRangesFixedSurr() {
 		return;
 	}
 	testGetRangesFixedSurr("fixedSurr4", mutableTrie, UCPMAP_RANGE_FIXED_ALL_SURROGATES,
-	    checkRangesFixedSurr4, UPRV_LENGTHOF(checkRangesFixedSurr4));
+	    checkRangesFixedSurr4, SIZEOFARRAYi(checkRangesFixedSurr4));
 	umutablecptrie_close(mutableTrie);
 }
 
@@ -1537,8 +1537,8 @@ static void TestSmallNullBlockMatchesFast() {
 	};
 
 	testTrieRanges("small0-in-fast", FALSE,
-	    setRanges, UPRV_LENGTHOF(setRanges),
-	    checkRanges, UPRV_LENGTHOF(checkRanges));
+	    setRanges, SIZEOFARRAYi(setRanges),
+	    checkRanges, SIZEOFARRAYi(checkRanges));
 }
 
 static void ShortAllSameBlocksTest() {
@@ -1567,7 +1567,7 @@ static void ShortAllSameBlocksTest() {
 		umutablecptrie_close(mutableTrie);
 		return;
 	}
-	mutableTrie = testTrieSerializeAllValueWidth(testName, mutableTrie, FALSE, checkRanges, UPRV_LENGTHOF(checkRanges));
+	mutableTrie = testTrieSerializeAllValueWidth(testName, mutableTrie, FALSE, checkRanges, SIZEOFARRAYi(checkRanges));
 	umutablecptrie_close(mutableTrie);
 }
 

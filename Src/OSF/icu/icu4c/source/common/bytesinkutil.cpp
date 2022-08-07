@@ -28,7 +28,7 @@ bool ByteSinkUtil::appendChange(int32_t length, const char16_t * s16, int32_t s1
 			desiredCapacity = INT32_MAX;
 		}
 		char * buffer = sink.GetAppendBuffer(U8_MAX_LENGTH, desiredCapacity,
-			scratch, UPRV_LENGTHOF(scratch), &capacity);
+			scratch, SIZEOFARRAYi(scratch), &capacity);
 		capacity -= U8_MAX_LENGTH - 1;
 		int32_t j = 0;
 		for(; i < s16Length && j < capacity;) {

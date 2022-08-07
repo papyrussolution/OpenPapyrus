@@ -13,7 +13,7 @@
 U_NAMESPACE_BEGIN
 
 StringPiece::StringPiece(const char * str)
-	: ptr_(str), length_((str == NULL) ? 0 : static_cast<int32_t>(uprv_strlen(str))) {
+	: ptr_(str), length_((str == NULL) ? 0 : static_cast<int32_t>(strlen(str))) {
 }
 
 StringPiece::StringPiece(const StringPiece & x, int32_t pos) {
@@ -47,7 +47,7 @@ StringPiece::StringPiece(const StringPiece & x, int32_t pos, int32_t len) {
 void StringPiece::set(const char * str) {
 	ptr_ = str;
 	if(str)
-		length_ = static_cast<int32_t>(uprv_strlen(str));
+		length_ = static_cast<int32_t>(strlen(str));
 	else
 		length_ = 0;
 }
@@ -108,7 +108,7 @@ U_EXPORT bool U_EXPORT2 operator == (const StringPiece & x, const StringPiece & 
 	--len;
 	if(p[len] != p2[len]) return false;
 	// At this point we can, but don't have to, ignore the last byte.
-	return uprv_memcmp(p, p2, len) == 0;
+	return memcmp(p, p2, len) == 0;
 }
 
 const int32_t StringPiece::npos = 0x7fffffff;

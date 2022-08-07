@@ -59,7 +59,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_getDisplayName(const UConverter * cnv,
 	}
 	else {
 		/* convert the internal name into a Unicode string */
-		length = (int32_t)uprv_strlen(cnv->sharedData->staticData->name);
+		length = (int32_t)strlen(cnv->sharedData->staticData->name);
 		u_charsToUChars(cnv->sharedData->staticData->name, displayName, smin(length, displayNameCapacity));
 	}
 	return u_terminateUChars(displayName, displayNameCapacity, length, pErrorCode);

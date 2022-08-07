@@ -76,7 +76,7 @@ static const int32_t PRIMES[] = {
 	1073741789, 2147483647 /*, 4294967291 */
 };
 
-#define PRIMES_LENGTH UPRV_LENGTHOF(PRIMES)
+#define PRIMES_LENGTH SIZEOFARRAYi(PRIMES)
 #define DEFAULT_PRIME_INDEX 4
 
 /* These ratios are tuned to the PRIMES array such that a resize
@@ -811,12 +811,12 @@ U_CAPI int32_t U_EXPORT2 uhash_hashUChars(const UHashTok key) {
 U_CAPI int32_t U_EXPORT2 uhash_hashChars(const UHashTok key) 
 {
 	const char * s = (const char *)key.pointer;
-	return s == NULL ? 0 : static_cast<int32_t>(ustr_hashCharsN(s, static_cast<int32_t>(uprv_strlen(s))));
+	return s == NULL ? 0 : static_cast<int32_t>(ustr_hashCharsN(s, static_cast<int32_t>(strlen(s))));
 }
 
 U_CAPI int32_t U_EXPORT2 uhash_hashIChars(const UHashTok key) {
 	const char * s = (const char *)key.pointer;
-	return s == NULL ? 0 : ustr_hashICharsN(s, static_cast<int32_t>(uprv_strlen(s)));
+	return s == NULL ? 0 : ustr_hashICharsN(s, static_cast<int32_t>(strlen(s)));
 }
 
 U_CAPI bool U_EXPORT2 uhash_equals(const UHashtable * hash1, const UHashtable * hash2) {

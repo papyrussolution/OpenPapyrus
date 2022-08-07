@@ -127,11 +127,11 @@ void TestUScriptCodeAPI() {
 			err = U_ZERO_ERROR;
 			capacity = 10;
 			num = uscript_getCode("ja", script, capacity, &err);
-			if(num!=UPRV_LENGTHOF(jaCode)) {
+			if(num!=SIZEOFARRAYi(jaCode)) {
 				log_err("Errors uscript_getScriptCode() for Japanese locale: num=%d, expected %d \n",
-				    num, UPRV_LENGTHOF(jaCode));
+				    num, SIZEOFARRAYi(jaCode));
 			}
-			for(j = 0; j<UPRV_LENGTHOF(jaCode); j++) {
+			for(j = 0; j<SIZEOFARRAYi(jaCode); j++) {
 				if(script[j]!=jaCode[j]) {
 					log_err("Japanese locale: code #%d was %d (%s) but expected %d (%s)\n", j,
 					    script[j], uscript_getName(script[j]),
@@ -159,34 +159,34 @@ void TestUScriptCodeAPI() {
 
 		// Should work regardless of whether we have locale data for the language.
 		err = U_ZERO_ERROR;
-		num = uscript_getCode("tg", scripts, UPRV_LENGTHOF(scripts), &err);
+		num = uscript_getCode("tg", scripts, SIZEOFARRAYi(scripts), &err);
 		assertEqualScripts("tg script: Cyrl", CYRILLIC, 1, scripts, num, err); // Tajik
 		err = U_ZERO_ERROR;
-		num = uscript_getCode("xsr", scripts, UPRV_LENGTHOF(scripts), &err);
+		num = uscript_getCode("xsr", scripts, SIZEOFARRAYi(scripts), &err);
 		assertEqualScripts("xsr script: Deva", DEVANAGARI, 1, scripts, num, err); // Sherpa
 
 		// Multi-script languages.
 		err = U_ZERO_ERROR;
-		num = uscript_getCode("ja", scripts, UPRV_LENGTHOF(scripts), &err);
+		num = uscript_getCode("ja", scripts, SIZEOFARRAYi(scripts), &err);
 		assertEqualScripts("ja scripts: Kana Hira Hani",
-		    JAPANESE, UPRV_LENGTHOF(JAPANESE), scripts, num, err);
+		    JAPANESE, SIZEOFARRAYi(JAPANESE), scripts, num, err);
 		err = U_ZERO_ERROR;
-		num = uscript_getCode("ko", scripts, UPRV_LENGTHOF(scripts), &err);
+		num = uscript_getCode("ko", scripts, SIZEOFARRAYi(scripts), &err);
 		assertEqualScripts("ko scripts: Hang Hani",
-		    KOREAN, UPRV_LENGTHOF(KOREAN), scripts, num, err);
+		    KOREAN, SIZEOFARRAYi(KOREAN), scripts, num, err);
 		err = U_ZERO_ERROR;
-		num = uscript_getCode("zh", scripts, UPRV_LENGTHOF(scripts), &err);
+		num = uscript_getCode("zh", scripts, SIZEOFARRAYi(scripts), &err);
 		assertEqualScripts("zh script: Hani", HAN, 1, scripts, num, err);
 		err = U_ZERO_ERROR;
-		num = uscript_getCode("zh-Hant", scripts, UPRV_LENGTHOF(scripts), &err);
+		num = uscript_getCode("zh-Hant", scripts, SIZEOFARRAYi(scripts), &err);
 		assertEqualScripts("zh-Hant scripts: Hani Bopo", HAN_BOPO, 2, scripts, num, err);
 		err = U_ZERO_ERROR;
-		num = uscript_getCode("zh-TW", scripts, UPRV_LENGTHOF(scripts), &err);
+		num = uscript_getCode("zh-TW", scripts, SIZEOFARRAYi(scripts), &err);
 		assertEqualScripts("zh-TW scripts: Hani Bopo", HAN_BOPO, 2, scripts, num, err);
 
 		// Ambiguous API, but this probably wants to return Latin rather than Rongorongo (Roro).
 		err = U_ZERO_ERROR;
-		num = uscript_getCode("ro-RO", scripts, UPRV_LENGTHOF(scripts), &err);
+		num = uscript_getCode("ro-RO", scripts, SIZEOFARRAYi(scripts), &err);
 		assertEqualScripts("ro-RO script: Latn", LATIN, 1, scripts, num, err);
 	}
 
@@ -204,7 +204,7 @@ void TestUScriptCodeAPI() {
 			NULL
 		};
 		i = 0;
-		while(i<UPRV_LENGTHOF(testAbbr)) {
+		while(i<SIZEOFARRAYi(testAbbr)) {
 			const char * name = uscript_getName(testAbbr[i]);
 			if(name == NULL) {
 				log_data_err("Couldn't get script name\n");
@@ -242,7 +242,7 @@ void TestUScriptCodeAPI() {
 			NULL
 		};
 		i = 0;
-		while(i<UPRV_LENGTHOF(testAbbr)) {
+		while(i<SIZEOFARRAYi(testAbbr)) {
 			const char * name = uscript_getShortName(testAbbr[i]);
 			numErrors = 0;
 			if(strcmp(expectedAbbr[i], name)!=0) {
@@ -314,7 +314,7 @@ void TestUScriptCodeAPI() {
 		UErrorCode status = U_ZERO_ERROR;
 		bool passed = TRUE;
 
-		for(i = 0; i<UPRV_LENGTHOF(codepoints); ++i) {
+		for(i = 0; i<SIZEOFARRAYi(codepoints); ++i) {
 			code = uscript_getScript(codepoints[i], &status);
 			if(U_SUCCESS(status)) {
 				if(code != expected[i] ||
@@ -460,7 +460,7 @@ void TestUScriptCodeAPI() {
 			"Cpmn", "Ougr", "Tnsa", "Toto", "Vith",
 		};
 		int32_t j = 0;
-		if(UPRV_LENGTHOF(expectedLong)!=(USCRIPT_CODE_LIMIT-USCRIPT_BALINESE)) {
+		if(SIZEOFARRAYi(expectedLong)!=(USCRIPT_CODE_LIMIT-USCRIPT_BALINESE)) {
 			log_err("need to add new script codes in cucdapi.c!\n");
 			return;
 		}
@@ -474,11 +474,11 @@ void TestUScriptCodeAPI() {
 				log_err("uscript_getShortName failed for code %i: %s!=%s\n", i, name, expectedShort[j]);
 			}
 		}
-		for(i = 0; i<UPRV_LENGTHOF(expectedLong); i++) {
+		for(i = 0; i<SIZEOFARRAYi(expectedLong); i++) {
 			UScriptCode fillIn[5] = {USCRIPT_INVALID_CODE};
 			UErrorCode status = U_ZERO_ERROR;
 			int32_t len = 0;
-			len = uscript_getCode(expectedShort[i], fillIn, UPRV_LENGTHOF(fillIn), &status);
+			len = uscript_getCode(expectedShort[i], fillIn, SIZEOFARRAYi(fillIn), &status);
 			if(U_FAILURE(status)) {
 				log_err("uscript_getCode failed for script name %s. Error: %s\n", expectedShort[i], u_errorName(status));
 			}
@@ -578,13 +578,13 @@ void TestGetScriptExtensions() {
 
 	/* errors and overflows */
 	errorCode = U_PARSE_ERROR;
-	length = uscript_getScriptExtensions(0x0640, scripts, UPRV_LENGTHOF(scripts), &errorCode);
+	length = uscript_getScriptExtensions(0x0640, scripts, SIZEOFARRAYi(scripts), &errorCode);
 	if(errorCode!=U_PARSE_ERROR) {
 		log_err("uscript_getScriptExtensions(U+0640, U_PARSE_ERROR) did not preserve the UErrorCode - %s\n",
 		    u_errorName(errorCode));
 	}
 	errorCode = U_ZERO_ERROR;
-	length = uscript_getScriptExtensions(0x0640, NULL, UPRV_LENGTHOF(scripts), &errorCode);
+	length = uscript_getScriptExtensions(0x0640, NULL, SIZEOFARRAYi(scripts), &errorCode);
 	if(errorCode!=U_ILLEGAL_ARGUMENT_ERROR) {
 		log_err("uscript_getScriptExtensions(U+0640, NULL) did not set U_ILLEGAL_ARGUMENT_ERROR - %s\n",
 		    u_errorName(errorCode));
@@ -617,13 +617,13 @@ void TestGetScriptExtensions() {
 
 	/* invalid code points */
 	errorCode = U_ZERO_ERROR;
-	length = uscript_getScriptExtensions(-1, scripts, UPRV_LENGTHOF(scripts), &errorCode);
+	length = uscript_getScriptExtensions(-1, scripts, SIZEOFARRAYi(scripts), &errorCode);
 	if(U_FAILURE(errorCode) || length!=1 || scripts[0]!=USCRIPT_UNKNOWN) {
 		log_err("uscript_getScriptExtensions(-1)=%d does not return {UNKNOWN} - %s\n",
 		    (int)length, u_errorName(errorCode));
 	}
 	errorCode = U_ZERO_ERROR;
-	length = uscript_getScriptExtensions(0x110000, scripts, UPRV_LENGTHOF(scripts), &errorCode);
+	length = uscript_getScriptExtensions(0x110000, scripts, SIZEOFARRAYi(scripts), &errorCode);
 	if(U_FAILURE(errorCode) || length!=1 || scripts[0]!=USCRIPT_UNKNOWN) {
 		log_err("uscript_getScriptExtensions(0x110000)=%d does not return {UNKNOWN} - %s\n",
 		    (int)length, u_errorName(errorCode));
@@ -637,7 +637,7 @@ void TestGetScriptExtensions() {
 		    (int)length, u_errorName(errorCode));
 	}
 	errorCode = U_ZERO_ERROR;
-	length = uscript_getScriptExtensions(0x0640, scripts, UPRV_LENGTHOF(scripts), &errorCode);
+	length = uscript_getScriptExtensions(0x0640, scripts, SIZEOFARRAYi(scripts), &errorCode);
 	if(U_FAILURE(errorCode) || length<3 ||
 	    !scriptsContain(scripts, length, USCRIPT_ARABIC) ||
 	    !scriptsContain(scripts, length, USCRIPT_SYRIAC) ||
@@ -646,13 +646,13 @@ void TestGetScriptExtensions() {
 		    (int)length, u_errorName(errorCode));
 	}
 	errorCode = U_ZERO_ERROR;
-	length = uscript_getScriptExtensions(0xfdf2, scripts, UPRV_LENGTHOF(scripts), &errorCode);
+	length = uscript_getScriptExtensions(0xfdf2, scripts, SIZEOFARRAYi(scripts), &errorCode);
 	if(U_FAILURE(errorCode) || length!=2 || scripts[0]!=USCRIPT_ARABIC || scripts[1]!=USCRIPT_THAANA) {
 		log_err("uscript_getScriptExtensions(U+FDF2)=%d failed - %s\n",
 		    (int)length, u_errorName(errorCode));
 	}
 	errorCode = U_ZERO_ERROR;
-	length = uscript_getScriptExtensions(0xff65, scripts, UPRV_LENGTHOF(scripts), &errorCode);
+	length = uscript_getScriptExtensions(0xff65, scripts, SIZEOFARRAYi(scripts), &errorCode);
 	if(U_FAILURE(errorCode) || length!=6 || scripts[0]!=USCRIPT_BOPOMOFO || scripts[5]!=USCRIPT_YI) {
 		log_err("uscript_getScriptExtensions(U+FF65)=%d failed - %s\n",
 		    (int)length, u_errorName(errorCode));
@@ -664,7 +664,7 @@ void TestScriptMetadataAPI() {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UChar sample[8];
 
-	if(uscript_getSampleString(USCRIPT_LATIN, sample, UPRV_LENGTHOF(sample), &errorCode)!=1 ||
+	if(uscript_getSampleString(USCRIPT_LATIN, sample, SIZEOFARRAYi(sample), &errorCode)!=1 ||
 	    U_FAILURE(errorCode) ||
 	    uscript_getScript(sample[0], &errorCode)!=USCRIPT_LATIN ||
 	    sample[1]!=0) {
@@ -677,7 +677,7 @@ void TestScriptMetadataAPI() {
 		log_err("uscript_getSampleString(Latn, capacity=0) failed - %s\n", u_errorName(errorCode));
 	}
 	errorCode = U_ZERO_ERROR;
-	if(uscript_getSampleString(USCRIPT_INVALID_CODE, sample, UPRV_LENGTHOF(sample), &errorCode)!=0 ||
+	if(uscript_getSampleString(USCRIPT_INVALID_CODE, sample, SIZEOFARRAYi(sample), &errorCode)!=0 ||
 	    U_FAILURE(errorCode) ||
 	    sample[0]!=0) {
 		log_err("uscript_getSampleString(invalid) failed - %s\n", u_errorName(errorCode));
@@ -730,12 +730,12 @@ void TestBinaryValues() {
 	static const char * const falseValues[] = { "N", "No", "F", "False" };
 	static const char * const trueValues[] = { "Y", "Yes", "T", "True" };
 	int32_t i;
-	for(i = 0; i<UPRV_LENGTHOF(falseValues); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(falseValues); ++i) {
 		if(FALSE!=u_getPropertyValueEnum(UCHAR_ALPHABETIC, falseValues[i])) {
 			log_data_err("u_getPropertyValueEnum(UCHAR_ALPHABETIC, \"%s\")!=FALSE (Are you missing data?)\n", falseValues[i]);
 		}
 	}
-	for(i = 0; i<UPRV_LENGTHOF(trueValues); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(trueValues); ++i) {
 		if(TRUE!=u_getPropertyValueEnum(UCHAR_ALPHABETIC, trueValues[i])) {
 			log_data_err("u_getPropertyValueEnum(UCHAR_ALPHABETIC, \"%s\")!=TRUE (Are you missing data?)\n", trueValues[i]);
 		}

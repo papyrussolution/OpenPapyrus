@@ -35,7 +35,7 @@ UnicodeTest::UnicodeTest()
 		ZDELETE(unknownPropertyNames);
 	}
 	// Ignore some property names altogether.
-	for(int32_t i = 0; i<UPRV_LENGTHOF(ignorePropNames); ++i) {
+	for(int32_t i = 0; i<SIZEOFARRAYi(ignorePropNames); ++i) {
 		unknownPropertyNames->puti(UnicodeString(ignorePropNames[i], -1, US_INV), 1, errorCode);
 	}
 }
@@ -157,7 +157,7 @@ static const UProperty
 	UCHAR_CHANGES_WHEN_NFKC_CASEFOLDED
 };
 
-static int32_t numErrors[UPRV_LENGTHOF(derivedPropsIndex)] = { 0 };
+static int32_t numErrors[SIZEOFARRAYi(derivedPropsIndex)] = { 0 };
 
 enum { MAX_ERRORS = 50 };
 
@@ -174,7 +174,7 @@ U_CFUNC void U_CALLCONV derivedPropsLineFn(void * context, char * fields[][2], i
 	}
 
 	/* parse derived binary property name, ignore unknown names */
-	i = getTokenIndex(derivedPropsNames, UPRV_LENGTHOF(derivedPropsNames), fields[1][0]);
+	i = getTokenIndex(derivedPropsNames, SIZEOFARRAYi(derivedPropsNames), fields[1][0]);
 	if(i<0) {
 		UnicodeString propName(fields[1][0], (int32_t)(fields[1][1]-fields[1][0]));
 		propName.trim();
@@ -192,12 +192,12 @@ void UnicodeTest::TestAdditionalProperties()
 {
 #if !UCONFIG_NO_NORMALIZATION
 	// test DerivedCoreProperties.txt and DerivedNormalizationProps.txt
-	if(UPRV_LENGTHOF(derivedProps)<UPRV_LENGTHOF(derivedPropsNames)) {
-		errln("error: UnicodeTest::derivedProps[] too short, need at least %d UnicodeSets\n", UPRV_LENGTHOF(derivedPropsNames));
+	if(SIZEOFARRAYi(derivedProps)<SIZEOFARRAYi(derivedPropsNames)) {
+		errln("error: UnicodeTest::derivedProps[] too short, need at least %d UnicodeSets\n", SIZEOFARRAYi(derivedPropsNames));
 		return;
 	}
-	if(UPRV_LENGTHOF(derivedPropsIndex)!=UPRV_LENGTHOF(derivedPropsNames)) {
-		errln("error in ucdtest.cpp: UPRV_LENGTHOF(derivedPropsIndex)!=UPRV_LENGTHOF(derivedPropsNames)\n");
+	if(SIZEOFARRAYi(derivedPropsIndex)!=SIZEOFARRAYi(derivedPropsNames)) {
+		errln("error in ucdtest.cpp: SIZEOFARRAYi(derivedPropsIndex)!=SIZEOFARRAYi(derivedPropsNames)\n");
 		return;
 	}
 	char path[500];
@@ -226,7 +226,7 @@ void UnicodeTest::TestAdditionalProperties()
 	uint32_t i;
 	UChar32 start, end;
 	// test all TRUE properties
-	for(i = 0; i<UPRV_LENGTHOF(derivedPropsNames); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(derivedPropsNames); ++i) {
 		rangeCount = derivedProps[i].getRangeCount();
 		for(range = 0; range<rangeCount && numErrors[i]<MAX_ERRORS; ++range) {
 			start = derivedProps[i].getRangeStart(range);
@@ -243,11 +243,11 @@ void UnicodeTest::TestAdditionalProperties()
 		}
 	}
 	// invert all properties
-	for(i = 0; i<UPRV_LENGTHOF(derivedPropsNames); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(derivedPropsNames); ++i) {
 		derivedProps[i].complement();
 	}
 	// test all FALSE properties
-	for(i = 0; i<UPRV_LENGTHOF(derivedPropsNames); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(derivedPropsNames); ++i) {
 		rangeCount = derivedProps[i].getRangeCount();
 		for(range = 0; range<rangeCount && numErrors[i]<MAX_ERRORS; ++range) {
 			start = derivedProps[i].getRangeStart(range);
@@ -281,7 +281,7 @@ void UnicodeTest::TestBinaryValues()
 	static const char * const falseValues[] = { "N", "No", "F", "False" };
 	static const char * const trueValues[] = { "Y", "Yes", "T", "True" };
 	int32_t i;
-	for(i = 0; i<UPRV_LENGTHOF(falseValues); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(falseValues); ++i) {
 		UnicodeString pattern = UNICODE_STRING_SIMPLE("[:Alphabetic=:]");
 		pattern.insert(pattern.length()-2, UnicodeString(falseValues[i], -1, US_INV));
 		errorCode = U_ZERO_ERROR;
@@ -295,7 +295,7 @@ void UnicodeTest::TestBinaryValues()
 			errln("UnicodeSet([:Alphabetic=%s:]).complement()!=UnicodeSet([:Alphabetic:])\n", falseValues[i]);
 		}
 	}
-	for(i = 0; i<UPRV_LENGTHOF(trueValues); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(trueValues); ++i) {
 		UnicodeString pattern = UNICODE_STRING_SIMPLE("[:Alphabetic=:]");
 		pattern.insert(pattern.length()-2, UnicodeString(trueValues[i], -1, US_INV));
 		errorCode = U_ZERO_ERROR;
@@ -747,11 +747,11 @@ void UnicodeTest::TestDefaultScriptExtensions() {
 	UScriptCode scx[20];
 	scx[0] = USCRIPT_INVALID_CODE;
 	assertEquals("U+3000 num scx", 1, // IDEOGRAPHIC SPACE
-	    uscript_getScriptExtensions(0x3000, scx, UPRV_LENGTHOF(scx), errorCode));
+	    uscript_getScriptExtensions(0x3000, scx, SIZEOFARRAYi(scx), errorCode));
 	assertEquals("U+3000 num scx[0]", USCRIPT_COMMON, scx[0]);
 	scx[0] = USCRIPT_INVALID_CODE;
 	assertEquals("U+3012 num scx", 1, // POSTAL MARK
-	    uscript_getScriptExtensions(0x3012, scx, UPRV_LENGTHOF(scx), errorCode));
+	    uscript_getScriptExtensions(0x3012, scx, SIZEOFARRAYi(scx), errorCode));
 	assertEquals("U+3012 num scx[0]", USCRIPT_COMMON, scx[0]);
 }
 
@@ -765,7 +765,7 @@ void UnicodeTest::TestInvalidCodePointFolding() {
 		0x110000, // out of range
 		-1 // negative
 	};
-	for(int32_t i = 0; i<UPRV_LENGTHOF(invalidCodePoints); ++i) {
+	for(int32_t i = 0; i<SIZEOFARRAYi(invalidCodePoints); ++i) {
 		UChar32 cp = invalidCodePoints[i];
 		assertEquals("Invalid code points should be echoed back",
 		    cp, u_foldCase(cp, U_FOLD_CASE_DEFAULT));

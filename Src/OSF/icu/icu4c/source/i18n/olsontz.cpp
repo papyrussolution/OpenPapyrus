@@ -48,7 +48,7 @@ static bool arrayEqual(const void * a1, const void * a2, int32_t size)
 	if(a1 == a2) {
 		return TRUE;
 	}
-	return (uprv_memcmp(a1, a2, size) == 0);
+	return (memcmp(a1, a2, size) == 0);
 }
 
 U_NAMESPACE_BEGIN

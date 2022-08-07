@@ -13,7 +13,7 @@
 #include "localeprioritylist.h"
 #include "ucbuf.h"
 
-#define ARRAY_RANGE(array) (array), ((array) + UPRV_LENGTHOF(array))
+#define ARRAY_RANGE(array) (array), ((array) + SIZEOFARRAYi(array))
 
 namespace {
 const char * locString(const Locale * loc) {

@@ -154,7 +154,7 @@ bool RBBIDataWrapper::operator ==(const RBBIDataWrapper &other) const
 	if(fHeader->fLength != other.fHeader->fLength) {
 		return false;
 	}
-	if(uprv_memcmp(fHeader, other.fHeader, fHeader->fLength) == 0) {
+	if(memcmp(fHeader, other.fHeader, fHeader->fLength) == 0) {
 		return true;
 	}
 	return false;

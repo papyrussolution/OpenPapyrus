@@ -118,7 +118,7 @@ void TestGetSetAttr() {
 		log_err_status(status, "Unable to open collator. %s\n", u_errorName(status));
 		return;
 	}
-	for(i = 0; i<UPRV_LENGTHOF(attrs); i++) {
+	for(i = 0; i<SIZEOFARRAYi(attrs); i++) {
 		currAttr = attrs[i].att;
 		ucol_setAttribute(coll, currAttr, UCOL_DEFAULT, &status);
 		if(U_FAILURE(status)) {
@@ -299,7 +299,7 @@ void TestProperty()
 	ucol_getVersion(col, versionArray);
 	/* Check for a version greater than some value rather than equality
 	 * so that we need not update the expected version each time. */
-	if(uprv_memcmp(versionArray, currVersionArray, 4) < 0) {
+	if(memcmp(versionArray, currVersionArray, 4) < 0) {
 		log_err("Testing ucol_getVersion() - unexpected result: %02x.%02x.%02x.%02x\n",
 		    versionArray[0], versionArray[1], versionArray[2], versionArray[3]);
 	}
@@ -312,7 +312,7 @@ void TestProperty()
 	 * rather than hardcoding (and updating each time) a particular UCA version. */
 	u_getUnicodeVersion(versionUCDArray);
 	ucol_getUCAVersion(col, versionUCAArray);
-	if(0!=uprv_memcmp(versionUCAArray, versionUCDArray, 4)) {
+	if(0!=memcmp(versionUCAArray, versionUCDArray, 4)) {
 		log_err("Testing ucol_getUCAVersion() - unexpected result: %hu.%hu.%hu.%hu\n",
 		    versionUCAArray[0], versionUCAArray[1], versionUCAArray[2], versionUCAArray[3]);
 	}
@@ -856,9 +856,9 @@ static void TestBengaliSortKey(void)
 	int32_t sortKeyLen2 = 0;
 	UErrorCode status = U_ZERO_ERROR;
 	char sortKeyStr1[2048];
-	uint32_t sortKeyStrLen1 = UPRV_LENGTHOF(sortKeyStr1);
+	uint32_t sortKeyStrLen1 = SIZEOFARRAYi(sortKeyStr1);
 	char sortKeyStr2[2048];
-	uint32_t sortKeyStrLen2 = UPRV_LENGTHOF(sortKeyStr2);
+	uint32_t sortKeyStrLen2 = SIZEOFARRAYi(sortKeyStr2);
 	UCollationResult result;
 
 	static UChar preRules[41] =
@@ -923,8 +923,8 @@ void TestOpenVsOpenRules() {
 	int32_t sortKeyLen1, sortKeyLen2;
 	uint8_t * sortKey1 = NULL, * sortKey2 = NULL;
 	char sortKeyStr1[512], sortKeyStr2[512];
-	uint32_t sortKeyStrLen1 = UPRV_LENGTHOF(sortKeyStr1),
-	    sortKeyStrLen2 = UPRV_LENGTHOF(sortKeyStr2);
+	uint32_t sortKeyStrLen1 = SIZEOFARRAYi(sortKeyStr1),
+	    sortKeyStrLen2 = SIZEOFARRAYi(sortKeyStr2);
 	ULocaleData * uld;
 	int32_t x, y, z;
 	USet * eSet;
@@ -1058,7 +1058,7 @@ void TestSortKey()
 	UChar * test1, * test2, * test3;
 	UErrorCode status = U_ZERO_ERROR;
 	char toStringBuffer[256], * resultP;
-	uint32_t toStringLen = UPRV_LENGTHOF(toStringBuffer);
+	uint32_t toStringLen = SIZEOFARRAYi(toStringBuffer);
 
 	uint8_t s1[] = { 0x9f, 0x00 };
 	uint8_t s2[] = { 0x61, 0x00 };
@@ -1400,7 +1400,7 @@ void TestGetLocale() {
 	};
 
 	/* test opening collators for different locales */
-	for(i = 0; i<UPRV_LENGTHOF(testStruct); i++) {
+	for(i = 0; i<SIZEOFARRAYi(testStruct); i++) {
 		status = U_ZERO_ERROR;
 		coll = ucol_open(testStruct[i].requestedLocale, &status);
 		if(U_FAILURE(status)) {
@@ -1594,7 +1594,7 @@ void TestBounds() {
 	};
 
 	int32_t i = 0, j = 0, k = 0, buffSize = 0, skSize = 0, lowerSize = 0, upperSize = 0;
-	int32_t arraySize = UPRV_LENGTHOF(tests);
+	int32_t arraySize = SIZEOFARRAYi(tests);
 
 	if(U_SUCCESS(status) && coll) {
 		for(i = 0; i<arraySize; i++) {
@@ -1640,12 +1640,12 @@ void TestBounds() {
 		}
 #endif
 
-		for(i = 0; i<UPRV_LENGTHOF(test); i++) {
+		for(i = 0; i<SIZEOFARRAYi(test); i++) {
 			buffSize = u_unescape(test[i], buffer, 512);
 			skSize = ucol_getSortKey(coll, buffer, buffSize, sortkey, 512);
 			lowerSize = ucol_getBound(sortkey, skSize, UCOL_BOUND_LOWER, 1, lower, 512, &status);
 			upperSize = ucol_getBound(sortkey, skSize, UCOL_BOUND_UPPER_LONG, 1, upper, 512, &status);
-			for(j = i+1; j<UPRV_LENGTHOF(test); j++) {
+			for(j = i+1; j<SIZEOFARRAYi(test); j++) {
 				buffSize = u_unescape(test[j], buffer, 512);
 				skSize = ucol_getSortKey(coll, buffer, buffSize, sortkey, 512);
 				if(strcmp((const char *)lower, (const char *)sortkey) > 0) {
@@ -1842,7 +1842,7 @@ void TestGetTailoredSet() {
 	int32_t buffLen = 0;
 	USet * set = NULL;
 
-	for(i = 0; i < UPRV_LENGTHOF(setTest); i++) {
+	for(i = 0; i < SIZEOFARRAYi(setTest); i++) {
 		buffLen = u_unescape(setTest[i].rules, buff, 1024);
 		coll = ucol_openRules(buff, buffLen, UCOL_DEFAULT, UCOL_DEFAULT, &pError, &status);
 		if(U_SUCCESS(status)) {
@@ -1888,7 +1888,7 @@ void TestMergeSortKeys() {
 			"abcd",
 			"abcde"
 		};
-		uint32_t casesSize = UPRV_LENGTHOF(cases);
+		uint32_t casesSize = SIZEOFARRAYi(cases);
 		const char * prefix = "foo";
 		const char * suffix = "egg";
 		char outBuff1[256], outBuff2[256];
@@ -2044,7 +2044,7 @@ static void TestShortString(void)
 	char fromShortBuffer[256], normalizedBuffer[256], fromNormalizedBuffer[256];
 	const char * locale = NULL;
 
-	for(i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		status = U_ZERO_ERROR;
 		if(testCases[i].locale) {
 			locale = testCases[i].locale;
@@ -2110,9 +2110,9 @@ static void doSetsTest(const char * locale, const USet * ref, USet * set, const 
 	if(!uset_containsAll(ref, set)) {
 		log_err("%s: Some stuff from %s is not present in the set\n", locale, inSet);
 		uset_removeAll(set, ref);
-		bufLen = uset_toPattern(set, buffer, UPRV_LENGTHOF(buffer), TRUE, status);
+		bufLen = uset_toPattern(set, buffer, SIZEOFARRAYi(buffer), TRUE, status);
 		log_info("    missing: %s\n", aescstrdup(buffer, bufLen));
-		bufLen = uset_toPattern(ref, buffer, UPRV_LENGTHOF(buffer), TRUE, status);
+		bufLen = uset_toPattern(ref, buffer, SIZEOFARRAYi(buffer), TRUE, status);
 		log_info("    total: size=%i  %s\n", uset_getItemCount(ref), aescstrdup(buffer, bufLen));
 	}
 
@@ -2192,7 +2192,7 @@ static void TestGetContractionsAndUnsafes(void)
 	UChar buffer[65536];
 	int32_t setLen = 0;
 
-	for(i = 0; i < UPRV_LENGTHOF(tests); i++) {
+	for(i = 0; i < SIZEOFARRAYi(tests); i++) {
 		log_verbose("Testing locale: %s\n", tests[i].locale);
 		coll = ucol_open(tests[i].locale, &status);
 		if(coll == NULL || U_FAILURE(status)) {
@@ -2309,11 +2309,11 @@ static void TestOpenBinary(void)
 	}
 #endif
 
-	genericOrderingTest(coll, wUCA, UPRV_LENGTHOF(wUCA));
+	genericOrderingTest(coll, wUCA, SIZEOFARRAYi(wUCA));
 
-	genericOrderingTest(cloneWUCA, wUCA, UPRV_LENGTHOF(wUCA));
+	genericOrderingTest(cloneWUCA, wUCA, SIZEOFARRAYi(wUCA));
 #if OPEN_BINARY_ACCEPTS_NULL_BASE
-	genericOrderingTest(cloneNOUCA, noUCA, UPRV_LENGTHOF(noUCA));
+	genericOrderingTest(cloneNOUCA, noUCA, SIZEOFARRAYi(noUCA));
 #endif
 
 	if(image != imageBuffer) {
@@ -2373,7 +2373,7 @@ static bool uenum_contains(UEnumeration * e, const char * s, UErrorCode * status
 	const char * t;
 	uenum_reset(e, status);
 	while(((t = uenum_next(e, NULL, status)) != NULL) && U_SUCCESS(*status)) {
-		if(uprv_strcmp(s, t) == 0) {
+		if(strcmp(s, t) == 0) {
 			return TRUE;
 		}
 	}
@@ -2407,7 +2407,7 @@ static void TestGetKeywordValuesForLocale() {
 	const char * locale = NULL, * value = NULL;
 	bool errorOccurred = FALSE;
 
-	for(i = 0; i < UPRV_LENGTHOF(PREFERRED) && !errorOccurred; i++) {
+	for(i = 0; i < SIZEOFARRAYi(PREFERRED) && !errorOccurred; i++) {
 		locale = PREFERRED[i][0];
 		value = NULL;
 		size = 0;

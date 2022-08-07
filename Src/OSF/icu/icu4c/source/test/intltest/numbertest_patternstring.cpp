@@ -145,7 +145,7 @@ void PatternStringTest::testCurrencyDecimal() {
         u"a3€14b",
         UFIELD_CATEGORY_NUMBER,
         expectedFieldPositions,
-        UPRV_LENGTHOF(expectedFieldPositions)
+        SIZEOFARRAYi(expectedFieldPositions)
     );
 }
 

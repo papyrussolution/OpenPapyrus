@@ -229,7 +229,7 @@ void CollationThaiTest::TestCornerCases() {
 		// Periods are ignored entirely
 		"\\u0e01.\\u0e01.",                      "<",    "\\u0e01\\u0e32",
 	};
-	const int32_t TESTS_length = UPRV_LENGTHOF(TESTS);
+	const int32_t TESTS_length = SIZEOFARRAYi(TESTS);
 
 	if(coll == 0) {
 		errln("Error: could not construct Thai collator");
@@ -365,7 +365,7 @@ void CollationThaiTest::TestInvalidThai() {
 
 	CollationElementIterator* c = ((RuleBasedCollator*)coll)->createCollationElementIterator(iteratorText);
 
-	for(i = 0; i < UPRV_LENGTHOF(tests); i++) {
+	for(i = 0; i < SIZEOFARRAYi(tests); i++) {
 		len = u_unescape(tests[i], strings[i], 20);
 		strings[i][len] = 0;
 		toSort[i] = strings[i];
@@ -443,7 +443,7 @@ void CollationThaiTest::TestReordering() {
 		errln("Unable to set the Thai collator clone to secondary strength");
 		return;
 	}
-	compareArray(*coll2, tests, UPRV_LENGTHOF(tests));
+	compareArray(*coll2, tests, SIZEOFARRAYi(tests));
 
 	const char * rule = "& c < ab";
 	const char * testcontraction[] = { "\\u0E41ab", ">", "\\u0E41c"}; // After UCA 4.1 Thai are normal so won't

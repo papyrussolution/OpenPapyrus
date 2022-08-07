@@ -78,7 +78,7 @@ void test_FieldPosition_example(void)
 	//***** no error detection yet !!!!!!!
 	//***** this test is for compiler checks and visual verification only.
 	double doubleNum[] = { 123456789.0, -12345678.9, 1234567.89, -123456.789, 12345.6789, -1234.56789, 123.456789, -12.3456789, 1.23456789};
-	int32_t dNumSize = UPRV_LENGTHOF(doubleNum);
+	int32_t dNumSize = SIZEOFARRAYi(doubleNum);
 	UErrorCode status = U_ZERO_ERROR;
 	DecimalFormat* fmt = (DecimalFormat*)NumberFormat::createInstance(status);
 	if(U_FAILURE(status)) {
@@ -256,7 +256,7 @@ void test_Formattable(void)
 		ucs,
 		ucs_ptr
 	};
-	const int32_t ft_cnt = UPRV_LENGTHOF(ftarray);
+	const int32_t ft_cnt = SIZEOFARRAYi(ftarray);
 	Formattable ft_arr(ftarray, ft_cnt);
 	UnicodeString temp;
 	if((ft_arr[0].getType() == Formattable::kDate) && (ft_arr[0].getDate()   == 1.0)
@@ -322,8 +322,8 @@ void test_Formattable(void)
 	const Formattable ftarr1[] = { Formattable( (int32_t)1), Formattable( (int32_t)2) };
 	const Formattable ftarr2[] = { Formattable( (int32_t)3), Formattable( (int32_t)4) };
 
-	const int32_t ftarr1_cnt = UPRV_LENGTHOF(ftarr1);
-	const int32_t ftarr2_cnt = UPRV_LENGTHOF(ftarr2);
+	const int32_t ftarr1_cnt = SIZEOFARRAYi(ftarr1);
+	const int32_t ftarr2_cnt = SIZEOFARRAYi(ftarr2);
 
 	ft_arr.setArray(ftarr1, ftarr1_cnt);
 	if((ft_arr[0].getType() == Formattable::kLong) && (ft_arr[0].getLong() == (int32_t)1)) {

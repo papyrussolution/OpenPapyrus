@@ -3056,7 +3056,7 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 	P_ParamList[pp++] = &QuotParam;
 	{
 		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_IMPEXPCFGS_CFGS));
-		if(SmartListBox::IsValidS(p_box)) {
+		if(p_box) { // @v11.4.6 @fix SmartListBox::IsValidS(p_box)-->p_box
 			SetupStrListBox(p_box);
 			for(uint i = 0; i < CfgsList.getCount(); i++)
 				p_box->addItem(CfgsList.Get(i).Id, CfgsList.Get(i).Txt);

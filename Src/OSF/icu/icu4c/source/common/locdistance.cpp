@@ -135,7 +135,7 @@ int32_t LocaleDistance::getBestIndexAndDistance(const LSR &desired,
 			distance &= ~DISTANCE_IS_FINAL_OR_SKIP_SCRIPT;
 		}
 		else { // <*, *>
-			if(uprv_strcmp(desired.language, supported.language) == 0) {
+			if(strcmp(desired.language, supported.language) == 0) {
 				distance = 0;
 			}
 			else {
@@ -166,7 +166,7 @@ int32_t LocaleDistance::getBestIndexAndDistance(const LSR &desired,
 
 		int32_t scriptDistance;
 		if(star || flags != 0) {
-			if(uprv_strcmp(desired.script, supported.script) == 0) {
+			if(strcmp(desired.script, supported.script) == 0) {
 				scriptDistance = 0;
 			}
 			else {
@@ -184,7 +184,7 @@ int32_t LocaleDistance::getBestIndexAndDistance(const LSR &desired,
 			continue;
 		}
 
-		if(uprv_strcmp(desired.region, supported.region) == 0) {
+		if(strcmp(desired.region, supported.region) == 0) {
 			// regionDistance = 0
 		}
 		else if(star || (flags & DISTANCE_IS_FINAL) != 0) {
@@ -265,7 +265,7 @@ int32_t LocaleDistance::getDesSuppScriptDistance(BytesTrie &iter, uint64_t start
 	if(distance < 0) {
 		UStringTrieResult result = iter.resetToState64(startState).next(u'*'); // <*, *>
 		U_ASSERT(USTRINGTRIE_HAS_VALUE(result));
-		if(uprv_strcmp(desired, supported) == 0) {
+		if(strcmp(desired, supported) == 0) {
 			distance = 0; // same script
 		}
 		else {

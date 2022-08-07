@@ -349,7 +349,7 @@ DateFormat* U_EXPORT2 DateFormat::create(EStyle timeStyle, EStyle dateStyle, con
 	char buffer[8];
 	int32_t count = locale.getKeywordValue("compat", buffer, sizeof(buffer), status);
 	// if the locale has "@compat=host", create a host-specific DateFormat...
-	if(count > 0 && uprv_strcmp(buffer, "host") == 0) {
+	if(count > 0 && strcmp(buffer, "host") == 0) {
 		Win32DateFormat * f = new Win32DateFormat(timeStyle, dateStyle, locale, status);
 		if(U_SUCCESS(status)) {
 			return f;

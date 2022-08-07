@@ -1,0 +1,8 @@
+// OPENSSL-LIB-INTERNAL.H
+//
+#ifndef __OPENSSL_LIB_INTERNAL_H
+#define __OPENSSL_LIB_INTERNAL_H
+
+#include <slib.h>
+
+#endif // __OPENSSL_LIB_INTERNAL_H

@@ -176,7 +176,7 @@ static bool shouldChangeToVavDash(const UnicodeString & text) {
 
 PatternHandler* createPatternHandler(const char * lang, const UnicodeString & two, const UnicodeString & end,
     UErrorCode & status) {
-	if(uprv_strcmp(lang, "es") == 0) {
+	if(strcmp(lang, "es") == 0) {
 		// Spanish
 		UnicodeString spanishYStr(true, spanishY, -1);
 		bool twoIsY = two == spanishYStr;
@@ -199,7 +199,7 @@ PatternHandler* createPatternHandler(const char * lang, const UnicodeString & tw
 				endIsO ? replacement : end, end, status);
 		}
 	}
-	else if(uprv_strcmp(lang, "he") == 0 || uprv_strcmp(lang, "iw") == 0) {
+	else if(strcmp(lang, "he") == 0 || strcmp(lang, "iw") == 0) {
 		// Hebrew
 		UnicodeString hebrewVavStr(true, hebrewVav, -1);
 		bool twoIsVav = two == hebrewVavStr;
@@ -403,7 +403,7 @@ static const char * typeWidthToStyleString(UListFormatterType type, UListFormatt
 static const UChar solidus = 0x2F;
 static const UChar aliasPrefix[] = { 0x6C, 0x69, 0x73, 0x74, 0x50, 0x61, 0x74, 0x74, 0x65, 0x72, 0x6E, 0x2F }; // "listPattern/"
 enum {
-	kAliasPrefixLen = UPRV_LENGTHOF(aliasPrefix),
+	kAliasPrefixLen = SIZEOFARRAYi(aliasPrefix),
 	kStyleLenMax = 24 // longest currently is 14
 };
 
@@ -457,16 +457,16 @@ struct ListFormatter::ListPatternsSink : public ResourceSink {
 		}
 		ResourceTable listPatterns = value.getTable(errorCode);
 		for(int i = 0; U_SUCCESS(errorCode) && listPatterns.getKeyAndValue(i, key, value); ++i) {
-			if(uprv_strcmp(key, "2") == 0) {
+			if(strcmp(key, "2") == 0) {
 				handleValueForPattern(value, two, errorCode);
 			}
-			else if(uprv_strcmp(key, "end") == 0) {
+			else if(strcmp(key, "end") == 0) {
 				handleValueForPattern(value, end, errorCode);
 			}
-			else if(uprv_strcmp(key, "middle") == 0) {
+			else if(strcmp(key, "middle") == 0) {
 				handleValueForPattern(value, middle, errorCode);
 			}
-			else if(uprv_strcmp(key, "start") == 0) {
+			else if(strcmp(key, "start") == 0) {
 				handleValueForPattern(value, start, errorCode);
 			}
 		}
@@ -491,10 +491,10 @@ ListFormatInternal* ListFormatter::loadListFormatInternal(const Locale & locale,
 
 	for(;;) {
 		ures_getAllItemsWithFallback(rb, currentStyle, sink, errorCode);
-		if(U_FAILURE(errorCode) || sink.aliasedStyle[0] == 0 || uprv_strcmp(currentStyle, sink.aliasedStyle) == 0) {
+		if(U_FAILURE(errorCode) || sink.aliasedStyle[0] == 0 || strcmp(currentStyle, sink.aliasedStyle) == 0) {
 			break;
 		}
-		uprv_strcpy(currentStyle, sink.aliasedStyle);
+		strcpy(currentStyle, sink.aliasedStyle);
 	}
 	ures_close(rb);
 	if(U_FAILURE(errorCode)) {

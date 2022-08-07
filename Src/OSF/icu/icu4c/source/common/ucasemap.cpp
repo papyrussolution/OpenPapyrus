@@ -768,7 +768,7 @@ void ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERA
 
 	// Get the string length.
 	if(srcLength == -1) {
-		srcLength = (int32_t)uprv_strlen((const char *)src);
+		srcLength = (int32_t)strlen((const char *)src);
 	}
 
 	if(edits != nullptr && (options & U_EDITS_NO_RESET) == 0) {
@@ -797,7 +797,7 @@ int32_t ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_IT
 	}
 	/* get the string length */
 	if(srcLength==-1) {
-		srcLength = (int32_t)uprv_strlen((const char *)src);
+		srcLength = (int32_t)strlen((const char *)src);
 	}
 	/* check for overlapping source and destination */
 	if(dest && ((src>=dest && src<(dest+destCapacity)) || (dest>=src && dest<(src+srcLength)))) {

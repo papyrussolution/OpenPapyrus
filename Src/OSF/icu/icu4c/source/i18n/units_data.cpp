@@ -59,7 +59,7 @@ public:
 		if(U_FAILURE(status)) {
 			return;
 		}
-		if(uprv_strcmp(source, "convertUnits") != 0) {
+		if(strcmp(source, "convertUnits") != 0) {
 			// This is very strict, however it is the cheapest way to be sure
 			// that with `value`, we're looking at the convertUnits table.
 			status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -75,13 +75,13 @@ public:
 			UnicodeString factor = ICU_Utility::makeBogusString();
 			UnicodeString offset = ICU_Utility::makeBogusString();
 			for(int32_t i = 0; unitTable.getKeyAndValue(i, key, value); i++) {
-				if(uprv_strcmp(key, "target") == 0) {
+				if(strcmp(key, "target") == 0) {
 					baseUnit = value.getUnicodeString(status);
 				}
-				else if(uprv_strcmp(key, "factor") == 0) {
+				else if(strcmp(key, "factor") == 0) {
 					factor = value.getUnicodeString(status);
 				}
-				else if(uprv_strcmp(key, "offset") == 0) {
+				else if(strcmp(key, "offset") == 0) {
 					offset = value.getUnicodeString(status);
 				}
 			}
@@ -154,7 +154,7 @@ public:
 		if(U_FAILURE(status)) {
 			return;
 		}
-		if(uprv_strcmp(key, "unitPreferenceData") != 0) {
+		if(strcmp(key, "unitPreferenceData") != 0) {
 			// This is very strict, however it is the cheapest way to be sure
 			// that with `value`, we're looking at the convertUnits table.
 			status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -213,12 +213,12 @@ public:
 							return;
 						}
 						for(int32_t i = 0; unitPref.getKeyAndValue(i, key, value); ++i) {
-							if(uprv_strcmp(key, "unit") == 0) {
+							if(strcmp(key, "unit") == 0) {
 								int32_t length;
 								const UChar * u = value.getString(length, status);
 								up->unit.appendInvariantChars(u, length, status);
 							}
-							else if(uprv_strcmp(key, "geq") == 0) {
+							else if(strcmp(key, "geq") == 0) {
 								int32_t length;
 								const UChar * g = value.getString(length, status);
 								CharString geq;
@@ -227,7 +227,7 @@ public:
 								dq.setToDecNumber(geq.data(), status);
 								up->geq = dq.toDouble();
 							}
-							else if(uprv_strcmp(key, "skeleton") == 0) {
+							else if(strcmp(key, "skeleton") == 0) {
 								up->skeleton = value.getUnicodeString(status);
 							}
 						}
@@ -319,7 +319,7 @@ int32_t getPreferenceMetadataIndex(const MaybeStackVector<UnitPreferenceMetadata
 		if(lastDashIdx > 0) {
 			desired.usage.truncate(lastDashIdx);
 		}
-		else if(uprv_strcmp(desired.usage.data(), "default") != 0) {
+		else if(strcmp(desired.usage.data(), "default") != 0) {
 			desired.usage.truncate(0).append("default", status);
 		}
 		else {
@@ -335,7 +335,7 @@ int32_t getPreferenceMetadataIndex(const MaybeStackVector<UnitPreferenceMetadata
 	U_ASSERT(foundCategory);
 	U_ASSERT(foundUsage);
 	if(!foundRegion) {
-		if(uprv_strcmp(desired.region.data(), "001") != 0) {
+		if(strcmp(desired.region.data(), "001") != 0) {
 			desired.region.truncate(0).append("001", status);
 			idx = binarySearch(metadata, desired, &foundCategory, &foundUsage, &foundRegion, status);
 		}
@@ -363,27 +363,28 @@ UnitPreferenceMetadata::UnitPreferenceMetadata(StringPiece category, StringPiece
 	this->prefsCount = prefsCount;
 }
 
-int32_t UnitPreferenceMetadata::compareTo(const UnitPreferenceMetadata &other) const {
-	int32_t cmp = uprv_strcmp(category.data(), other.category.data());
+int32_t UnitPreferenceMetadata::compareTo(const UnitPreferenceMetadata &other) const 
+{
+	int32_t cmp = strcmp(category.data(), other.category.data());
 	if(cmp == 0) {
-		cmp = uprv_strcmp(usage.data(), other.usage.data());
+		cmp = strcmp(usage.data(), other.usage.data());
 	}
 	if(cmp == 0) {
-		cmp = uprv_strcmp(region.data(), other.region.data());
+		cmp = strcmp(region.data(), other.region.data());
 	}
 	return cmp;
 }
 
-int32_t UnitPreferenceMetadata::compareTo(const UnitPreferenceMetadata &other, bool * foundCategory,
-    bool * foundUsage, bool * foundRegion) const {
-	int32_t cmp = uprv_strcmp(category.data(), other.category.data());
+int32_t UnitPreferenceMetadata::compareTo(const UnitPreferenceMetadata &other, bool * foundCategory, bool * foundUsage, bool * foundRegion) const 
+{
+	int32_t cmp = strcmp(category.data(), other.category.data());
 	if(cmp == 0) {
 		*foundCategory = true;
-		cmp = uprv_strcmp(usage.data(), other.usage.data());
+		cmp = strcmp(usage.data(), other.usage.data());
 	}
 	if(cmp == 0) {
 		*foundUsage = true;
-		cmp = uprv_strcmp(region.data(), other.region.data());
+		cmp = strcmp(region.data(), other.region.data());
 	}
 	if(cmp == 0) {
 		*foundRegion = true;

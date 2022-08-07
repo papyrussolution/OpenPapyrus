@@ -130,15 +130,15 @@ static UHashtable    * cache = NULL;
 // UInitOnce singleton initialization function
 static void U_CALLCONV initSingletons(const char * what, UErrorCode & errorCode) {
 #if !NORM2_HARDCODE_NFC_DATA
-	if(uprv_strcmp(what, "nfc") == 0) {
+	if(strcmp(what, "nfc") == 0) {
 		nfcSingleton    = Norm2AllModes::createInstance(NULL, "nfc", errorCode);
 	}
 	else
 #endif
-	if(uprv_strcmp(what, "nfkc") == 0) {
+	if(strcmp(what, "nfkc") == 0) {
 		nfkcSingleton    = Norm2AllModes::createInstance(NULL, "nfkc", errorCode);
 	}
-	else if(uprv_strcmp(what, "nfkc_cf") == 0) {
+	else if(strcmp(what, "nfkc_cf") == 0) {
 		nfkc_cfSingleton = Norm2AllModes::createInstance(NULL, "nfkc_cf", errorCode);
 	}
 	else {
@@ -258,13 +258,13 @@ const Normalizer2 * Normalizer2::getInstance(const char * packageName,
 	}
 	const Norm2AllModes * allModes = NULL;
 	if(packageName==NULL) {
-		if(0==uprv_strcmp(name, "nfc")) {
+		if(0==strcmp(name, "nfc")) {
 			allModes = Norm2AllModes::getNFCInstance(errorCode);
 		}
-		else if(0==uprv_strcmp(name, "nfkc")) {
+		else if(0==strcmp(name, "nfkc")) {
 			allModes = Norm2AllModes::getNFKCInstance(errorCode);
 		}
-		else if(0==uprv_strcmp(name, "nfkc_cf")) {
+		else if(0==strcmp(name, "nfkc_cf")) {
 			allModes = Norm2AllModes::getNFKC_CFInstance(errorCode);
 		}
 	}
@@ -291,7 +291,7 @@ const Normalizer2 * Normalizer2::getInstance(const char * packageName,
 				}
 				void * temp = uhash_get(cache, name);
 				if(temp==NULL) {
-					int32_t keyLength = static_cast<int32_t>(uprv_strlen(name)+1);
+					int32_t keyLength = static_cast<int32_t>(strlen(name)+1);
 					char * nameCopy = (char *)uprv_malloc(keyLength);
 					if(nameCopy==NULL) {
 						errorCode = U_MEMORY_ALLOCATION_ERROR;

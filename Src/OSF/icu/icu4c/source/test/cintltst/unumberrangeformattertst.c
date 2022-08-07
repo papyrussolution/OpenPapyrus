@@ -80,7 +80,7 @@ static void TestFormattedValue()
 			{UFIELD_CATEGORY_NUMBER, UNUM_INTEGER_FIELD, 6, 9},
 			{UFIELD_CATEGORY_NUMBER, UNUM_COMPACT_FIELD, 9, 10}
 		};
-		checkMixedFormattedValue("FormattedNumber as FormattedValue", fv, u"55K – 150K", expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue("FormattedNumber as FormattedValue", fv, u"55K – 150K", expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	assertIntEquals("Identity result should match", UNUM_IDENTITY_RESULT_NOT_EQUAL, unumrf_resultGetIdentityResult(uresult, &ec));
 	// cleanup:

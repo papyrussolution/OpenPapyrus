@@ -567,12 +567,12 @@ void IntlTestSpoof::testRestrictionLevel() {
 	//    allow u303c, which has an interesting script extension of Hani Hira Kana.
 	allowedChars.addAll(*uspoof_getRecommendedUnicodeSet(&status)).add(0x303C);
 
-	for(int32_t testNum = 0; testNum < UPRV_LENGTHOF(tests); testNum++) {
+	for(int32_t testNum = 0; testNum < SIZEOFARRAYi(tests); testNum++) {
 		status = U_ZERO_ERROR;
 		const Test &test = tests[testNum];
 		UnicodeString testString = UnicodeString(test.fId).unescape();
 		URestrictionLevel expectedLevel = test.fExpectedRestrictionLevel;
-		for(int levelIndex = 0; levelIndex<UPRV_LENGTHOF(restrictionLevels); levelIndex++) {
+		for(int levelIndex = 0; levelIndex<SIZEOFARRAYi(restrictionLevels); levelIndex++) {
 			status = U_ZERO_ERROR;
 			URestrictionLevel levelSetInSpoofChecker = restrictionLevels[levelIndex];
 			USpoofChecker * sc = uspoof_open(&status);
@@ -627,7 +627,7 @@ void IntlTestSpoof::testMixedNumbers() {
 		{"\\u0061\\u30A2\\u30FC\\u303C\\u0031\\u0967\\u0661\\u06F1", "[\\u0030\\u0660\\u06F0\\u0966]"}
 	};
 	UErrorCode status = U_ZERO_ERROR;
-	for(int32_t testNum = 0; testNum < UPRV_LENGTHOF(tests); testNum++) {
+	for(int32_t testNum = 0; testNum < SIZEOFARRAYi(tests); testNum++) {
 		char msgBuf[100];
 		sprintf(msgBuf, "testNum = %d ", testNum);
 		Test &test = tests[testNum];

@@ -970,7 +970,7 @@ void IntlTestRBNF::TestLLong()
 			&NEG_TWO_TO_32X5, &TWO_TO_32, &NEG_FIVE
 		};
 		const int TUPLE_WIDTH = 3;
-		const int TUPLE_COUNT = UPRV_LENGTHOF(tuples)/TUPLE_WIDTH;
+		const int TUPLE_COUNT = SIZEOFARRAYi(tuples)/TUPLE_WIDTH;
 		for(int i = 0; i < TUPLE_COUNT; ++i) {
 			const llong lhs = *tuples[i*TUPLE_WIDTH+0];
 			const llong rhs = *tuples[i*TUPLE_WIDTH+1];
@@ -1050,7 +1050,7 @@ void IntlTestRBNF::TestLLong()
 			&BIG_FIVEp1, &FIVE, &ONE
 		};
 		const int TUPLE_WIDTH = 3;
-		const int TUPLE_COUNT = UPRV_LENGTHOF(tuples)/TUPLE_WIDTH;
+		const int TUPLE_COUNT = SIZEOFARRAYi(tuples)/TUPLE_WIDTH;
 		for(int i = 0; i < TUPLE_COUNT; ++i) {
 			const llong lhs = *tuples[i*TUPLE_WIDTH+0];
 			const llong rhs = *tuples[i*TUPLE_WIDTH+1];
@@ -1866,7 +1866,7 @@ void IntlTestRBNF::TestLocalizations(void)
 				"  \n <\n  <\n  %main\n  >\n  , \t <\t   en\t  ,  \tfoo \t\t > \n\n >  \n ", // Pattern_White_Space
 				                                                                             // ok
 			};
-			int32_t goodLocsLen = UPRV_LENGTHOF(goodLocs);
+			int32_t goodLocsLen = SIZEOFARRAYi(goodLocs);
 
 			static const char * badLocs[] = {
 				" ", // non-zero length
@@ -1892,7 +1892,7 @@ void IntlTestRBNF::TestLocalizations(void)
 				"<<%main<>>", // open angle in string
 				"<<%main>> x", // extra non-space text at end
 			};
-			int32_t badLocsLen = UPRV_LENGTHOF(badLocs);
+			int32_t badLocsLen = SIZEOFARRAYi(badLocs);
 
 			for(i = 0; i < goodLocsLen; ++i) {
 				logln("[%d] '%s'", i, goodLocs[i]);
@@ -1949,7 +1949,7 @@ void IntlTestRBNF::TestAllLocales()
 			}
 
 #if !UCONFIG_NO_COLLATION
-			for(unsigned int numidx = 0; numidx < UPRV_LENGTHOF(numbers); numidx++) {
+			for(unsigned int numidx = 0; numidx < SIZEOFARRAYi(numbers); numidx++) {
 				double n = numbers[numidx];
 				UnicodeString str;
 				f->format(n, str);
@@ -2365,7 +2365,7 @@ void IntlTestRBNF::TestParseFailure() {
 		u"・・・・・・・・・・・・・・・・・・・・・・・・"
 	};
 	if(assertSuccess("", status, true, __FILE__, __LINE__)) {
-		for(int i = 0; i < UPRV_LENGTHOF(testData); ++i) {
+		for(int i = 0; i < SIZEOFARRAYi(testData); ++i) {
 			UnicodeString spelledNumberString(testData[i]);
 			Formattable actualNumber;
 			rbnf.parse(spelledNumberString, actualNumber, status);

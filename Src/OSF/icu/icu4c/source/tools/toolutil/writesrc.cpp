@@ -44,12 +44,12 @@ static FILE * usrc_createWithoutHeader(const char * path, const char * filename)
 	}
 	else {
 		/* concatenate path and filename, with U_FILE_SEP_CHAR in between if necessary */
-		uprv_strcpy(buffer, path);
-		q = buffer+uprv_strlen(buffer);
+		strcpy(buffer, path);
+		q = buffer+strlen(buffer);
 		if(q>buffer && (c = *(q-1))!=U_FILE_SEP_CHAR && c!=U_FILE_ALT_SEP_CHAR) {
 			*q++ = U_FILE_SEP_CHAR;
 		}
-		uprv_strcpy(q, filename);
+		strcpy(q, filename);
 		p = buffer;
 	}
 

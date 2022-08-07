@@ -137,14 +137,14 @@ static UErrorCode GetEquivalentWindowsLocaleName(const Locale & locale, UnicodeS
 	char asciiBCP47Tag[LOCALE_NAME_MAX_LENGTH] = {};
 
 	// Convert from names like "en_CA" and "de_DE@collation=phonebook" to "en-CA" and "de-DE-u-co-phonebk".
-	(void)uloc_toLanguageTag(locale.getName(), asciiBCP47Tag, UPRV_LENGTHOF(asciiBCP47Tag), FALSE, &status);
+	(void)uloc_toLanguageTag(locale.getName(), asciiBCP47Tag, SIZEOFARRAYi(asciiBCP47Tag), FALSE, &status);
 
 	if(U_SUCCESS(status)) {
 		// Need it to be UTF-16, not 8-bit
 		// TODO: This seems like a good thing for a helper
 		wchar_t bcp47Tag[LOCALE_NAME_MAX_LENGTH] = {};
 		int32_t i;
-		for(i = 0; i < UPRV_LENGTHOF(bcp47Tag); i++) {
+		for(i = 0; i < SIZEOFARRAYi(bcp47Tag); i++) {
 			if(asciiBCP47Tag[i] == '\0') {
 				break;
 			}
@@ -155,12 +155,12 @@ static UErrorCode GetEquivalentWindowsLocaleName(const Locale & locale, UnicodeS
 		}
 
 		// Ensure it's null terminated
-		if(i < (UPRV_LENGTHOF(bcp47Tag) - 1)) {
+		if(i < (SIZEOFARRAYi(bcp47Tag) - 1)) {
 			bcp47Tag[i] = L'\0';
 		}
 		else {
 			// Ran out of room.
-			bcp47Tag[UPRV_LENGTHOF(bcp47Tag) - 1] = L'\0';
+			bcp47Tag[SIZEOFARRAYi(bcp47Tag) - 1] = L'\0';
 		}
 
 		wchar_t windowsLocaleName[LOCALE_NAME_MAX_LENGTH] = {};
@@ -172,7 +172,7 @@ static UErrorCode GetEquivalentWindowsLocaleName(const Locale & locale, UnicodeS
 
 		// TODO: We could add some sort of exception table for cases like ku vs ckb.
 
-		int length = ResolveLocaleName(bcp47Tag, windowsLocaleName, UPRV_LENGTHOF(windowsLocaleName));
+		int length = ResolveLocaleName(bcp47Tag, windowsLocaleName, SIZEOFARRAYi(windowsLocaleName));
 
 		if(length > 0) {
 			*buffer = new UnicodeString(windowsLocaleName);
@@ -201,7 +201,7 @@ Win32NumberFormat::Win32NumberFormat(const Locale &locale, bool currency, UError
 		// Resolve actual locale to be used later
 		UErrorCode tmpsts = U_ZERO_ERROR;
 		char tmpLocID[ULOC_FULLNAME_CAPACITY];
-		int32_t len = uloc_getLocaleForLCID(fLCID, tmpLocID, UPRV_LENGTHOF(tmpLocID) - 1, &tmpsts);
+		int32_t len = uloc_getLocaleForLCID(fLCID, tmpLocID, SIZEOFARRAYi(tmpLocID) - 1, &tmpsts);
 		if(U_SUCCESS(tmpsts)) {
 			tmpLocID[len] = 0;
 			fLocale = Locale((const char *)tmpLocID);

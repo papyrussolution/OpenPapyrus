@@ -62,20 +62,20 @@ LSR &LSR::operator = (LSR &&other) U_NOEXCEPT {
 
 bool LSR::isEquivalentTo(const LSR &other) const {
 	return
-		uprv_strcmp(language, other.language) == 0 &&
-		uprv_strcmp(script, other.script) == 0 &&
+		strcmp(language, other.language) == 0 &&
+		strcmp(script, other.script) == 0 &&
 		regionIndex == other.regionIndex &&
 	        // Compare regions if both are ill-formed (and their indexes are 0).
-		(regionIndex > 0 || uprv_strcmp(region, other.region) == 0);
+		(regionIndex > 0 || strcmp(region, other.region) == 0);
 }
 
 bool LSR::operator == (const LSR &other) const {
 	return
-		uprv_strcmp(language, other.language) == 0 &&
-		uprv_strcmp(script, other.script) == 0 &&
+		strcmp(language, other.language) == 0 &&
+		strcmp(script, other.script) == 0 &&
 		regionIndex == other.regionIndex &&
 	        // Compare regions if both are ill-formed (and their indexes are 0).
-		(regionIndex > 0 || uprv_strcmp(region, other.region) == 0) &&
+		(regionIndex > 0 || strcmp(region, other.region) == 0) &&
 		flags == other.flags;
 }
 
@@ -111,8 +111,8 @@ int32_t LSR::indexForRegion(const char * region)
 LSR &LSR::setHashCode() 
 {
 	if(hashCode == 0) {
-		uint32_t h = ustr_hashCharsN(language, static_cast<int32_t>(uprv_strlen(language)));
-		h = h * 37 + ustr_hashCharsN(script, static_cast<int32_t>(uprv_strlen(script)));
+		uint32_t h = ustr_hashCharsN(language, static_cast<int32_t>(strlen(language)));
+		h = h * 37 + ustr_hashCharsN(script, static_cast<int32_t>(strlen(script)));
 		h = h * 37 + regionIndex;
 		hashCode = h * 37 + flags;
 	}

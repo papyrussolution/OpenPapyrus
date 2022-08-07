@@ -151,7 +151,7 @@ static int8 highBit(int32_t value)
 
 static int32_t getPairIndex(UChar32 ch)
 {
-	int32_t pairedCharCount = UPRV_LENGTHOF(pairedChars);
+	int32_t pairedCharCount = SIZEOFARRAYi(pairedChars);
 	int32_t pairedCharPower = 1 << highBit(pairedCharCount);
 	int32_t pairedCharExtra = pairedCharCount - pairedCharPower;
 

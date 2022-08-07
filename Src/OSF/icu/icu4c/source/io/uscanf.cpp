@@ -54,7 +54,7 @@ u_vfscanf(UFILE * f,
 	int32_t converted;
 	UChar * pattern;
 	UChar patBuffer[UFMT_DEFAULT_BUFFER_SIZE];
-	int32_t size = (int32_t)uprv_strlen(patternSpecification) + 1;
+	int32_t size = (int32_t)strlen(patternSpecification) + 1;
 
 	/* convert from the default codepage to Unicode */
 	if(size >= MAX_UCHAR_BUFFER_SIZE(patBuffer)) {

@@ -1140,7 +1140,7 @@ int PPBaseFilt::Write(SBuffer & rBuf, long) const
 	return ok;
 }
 
-/*virtual*/int PPBaseFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int PPBaseFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	return -1;
 }
@@ -1176,7 +1176,7 @@ int PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 		if(_signature.bin != preserve_signature) {
 			const  size_t preserve_rd_offs_inner = rBuf.GetRdOffs();
 			rBuf.SetRdOffs(preserve_rd_offs);
-			inv_sign_result = ReadPreviosVer(rBuf, RpvInvSignValue);
+			inv_sign_result = ReadPreviousVer(rBuf, RpvInvSignValue);
 			THROW(inv_sign_result);
 			//rBuf.SetRdOffs(preserve_rd_offs_inner);
 			_signature.bin = preserve_signature;
@@ -1187,7 +1187,7 @@ int PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 			THROW_SL(rBuf.Read(Ver));
 			if(labs(Ver) < labs(preserve_ver)) { // (GoodsFilt имеет метку версии с минусом)
 				rBuf.SetRdOffs(preserve_rd_offs);
-				int r = ReadPreviosVer(rBuf, Ver);
+				int r = ReadPreviousVer(rBuf, Ver);
 				THROW(r);
 				THROW_PP(r > 0, PPERR_INVFILTVERSION);
 				Ver = preserve_ver;

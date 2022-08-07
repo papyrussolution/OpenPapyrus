@@ -127,7 +127,7 @@ static void U_CALLCONV initFromResourceBundle(UErrorCode & sts) {
 			bcpKeyId = bcpKeyIdBuf->data();
 		}
 
-		bool isTZ = uprv_strcmp(legacyKeyId, "timezone") == 0;
+		bool isTZ = strcmp(legacyKeyId, "timezone") == 0;
 
 		UHashtable * typeDataMap = uhash_open(uhash_hashIChars, uhash_compareIChars, NULL, &sts);
 		if(U_FAILURE(sts)) {
@@ -173,15 +173,15 @@ static void U_CALLCONV initFromResourceBundle(UErrorCode & sts) {
 				const char * legacyTypeId = ures_getKey(typeMapEntry.getAlias());
 
 				// special types
-				if(uprv_strcmp(legacyTypeId, "CODEPOINTS") == 0) {
+				if(strcmp(legacyTypeId, "CODEPOINTS") == 0) {
 					specialTypes |= SPECIALTYPE_CODEPOINTS;
 					continue;
 				}
-				if(uprv_strcmp(legacyTypeId, "REORDER_CODE") == 0) {
+				if(strcmp(legacyTypeId, "REORDER_CODE") == 0) {
 					specialTypes |= SPECIALTYPE_REORDER_CODE;
 					continue;
 				}
-				if(uprv_strcmp(legacyTypeId, "RG_KEY_VALUE") == 0) {
+				if(strcmp(legacyTypeId, "RG_KEY_VALUE") == 0) {
 					specialTypes |= SPECIALTYPE_RG_KEY_VALUE;
 					continue;
 				}

@@ -167,29 +167,29 @@ void SimpleFormatterTest::TestManyArguments() {
 		"Prefix: Templates frogtommy{0} and leg are out of order.",
 		fmt.formatAndAppend(
 			params,
-			UPRV_LENGTHOF(params),
+			SIZEOFARRAYi(params),
 			appendTo,
 			offsets,
-			UPRV_LENGTHOF(offsets),
+			SIZEOFARRAYi(offsets),
 			status));
 	if(!assertSuccess("Status", status)) {
 		return;
 	}
-	verifyOffsets(expectedOffsets, offsets, UPRV_LENGTHOF(expectedOffsets));
+	verifyOffsets(expectedOffsets, offsets, SIZEOFARRAYi(expectedOffsets));
 	appendTo.remove();
 
 	// Ensure we don't write to offsets array beyond its length.
 	status = U_ZERO_ERROR;
-	offsets[UPRV_LENGTHOF(offsets) - 1] = 289;
+	offsets[SIZEOFARRAYi(offsets) - 1] = 289;
 	appendTo.remove();
 	fmt.formatAndAppend(
 		params,
-		UPRV_LENGTHOF(params),
+		SIZEOFARRAYi(params),
 		appendTo,
 		offsets,
-		UPRV_LENGTHOF(offsets) - 1,
+		SIZEOFARRAYi(offsets) - 1,
 		status);
-	assertEquals("Offsets buffer length", 289, offsets[UPRV_LENGTHOF(offsets) - 1]);
+	assertEquals("Offsets buffer length", 289, offsets[SIZEOFARRAYi(offsets) - 1]);
 
 	// Test assignment
 	SimpleFormatter s;
@@ -200,7 +200,7 @@ void SimpleFormatterTest::TestManyArguments() {
 		"Templates frogtommy{0} and leg are out of order.",
 		s.formatAndAppend(
 			params,
-			UPRV_LENGTHOF(params),
+			SIZEOFARRAYi(params),
 			appendTo,
 			NULL,
 			0,
@@ -214,7 +214,7 @@ void SimpleFormatterTest::TestManyArguments() {
 		"Templates frogtommy{0} and leg are out of order.",
 		r.formatAndAppend(
 			params,
-			UPRV_LENGTHOF(params),
+			SIZEOFARRAYi(params),
 			appendTo,
 			NULL,
 			0,
@@ -258,14 +258,14 @@ void SimpleFormatterTest::TestTooFewArgumentValues() {
 
 	status = U_ZERO_ERROR;
 	fmt.formatAndAppend(
-		params, UPRV_LENGTHOF(params), appendTo, NULL, 0, status);
+		params, SIZEOFARRAYi(params), appendTo, NULL, 0, status);
 	if(status != U_ILLEGAL_ARGUMENT_ERROR) {
 		errln("Expected U_ILLEGAL_ARGUMENT_ERROR");
 	}
 
 	status = U_ZERO_ERROR;
 	fmt.formatAndReplace(
-		params, UPRV_LENGTHOF(params), appendTo, NULL, 0, status);
+		params, SIZEOFARRAYi(params), appendTo, NULL, 0, status);
 	if(status != U_ILLEGAL_ARGUMENT_ERROR) {
 		errln("Expected U_ILLEGAL_ARGUMENT_ERROR");
 	}
@@ -358,16 +358,16 @@ void SimpleFormatterTest::TestFormatReplaceNoOptimization()
 		"frog, original, freddy and by",
 		fmt.formatAndReplace(
 			params,
-			UPRV_LENGTHOF(params),
+			SIZEOFARRAYi(params),
 			result,
 			offsets,
-			UPRV_LENGTHOF(offsets),
+			SIZEOFARRAYi(offsets),
 			status));
 	if(!assertSuccess("Status", status)) {
 		return;
 	}
 	int32_t expectedOffsets[] = {6, 16, 0, 27};
-	verifyOffsets(expectedOffsets, offsets, UPRV_LENGTHOF(expectedOffsets));
+	verifyOffsets(expectedOffsets, offsets, SIZEOFARRAYi(expectedOffsets));
 }
 
 void SimpleFormatterTest::TestFormatReplaceNoOptimizationLeadingText() {
@@ -388,16 +388,16 @@ void SimpleFormatterTest::TestFormatReplaceNoOptimizationLeadingText() {
 		"boo original, freddy, frog and by",
 		fmt.formatAndReplace(
 			params,
-			UPRV_LENGTHOF(params),
+			SIZEOFARRAYi(params),
 			result,
 			offsets,
-			UPRV_LENGTHOF(offsets),
+			SIZEOFARRAYi(offsets),
 			status));
 	if(!assertSuccess("Status", status)) {
 		return;
 	}
 	int32_t expectedOffsets[] = {14, 22, 4, 31};
-	verifyOffsets(expectedOffsets, offsets, UPRV_LENGTHOF(expectedOffsets));
+	verifyOffsets(expectedOffsets, offsets, SIZEOFARRAYi(expectedOffsets));
 }
 
 void SimpleFormatterTest::TestFormatReplaceOptimization() {
@@ -418,16 +418,16 @@ void SimpleFormatterTest::TestFormatReplaceOptimization() {
 		"original, freddy, frog and by",
 		fmt.formatAndReplace(
 			params,
-			UPRV_LENGTHOF(params),
+			SIZEOFARRAYi(params),
 			result,
 			offsets,
-			UPRV_LENGTHOF(offsets),
+			SIZEOFARRAYi(offsets),
 			status));
 	if(!assertSuccess("Status", status)) {
 		return;
 	}
 	int32_t expectedOffsets[] = {10, 18, 0, 27};
-	verifyOffsets(expectedOffsets, offsets, UPRV_LENGTHOF(expectedOffsets));
+	verifyOffsets(expectedOffsets, offsets, SIZEOFARRAYi(expectedOffsets));
 }
 
 void SimpleFormatterTest::TestFormatReplaceNoOptimizationLeadingArgumentUsedTwice() {
@@ -448,16 +448,16 @@ void SimpleFormatterTest::TestFormatReplaceNoOptimizationLeadingArgumentUsedTwic
 		"original, freddy, frog and by original",
 		fmt.formatAndReplace(
 			params,
-			UPRV_LENGTHOF(params),
+			SIZEOFARRAYi(params),
 			result,
 			offsets,
-			UPRV_LENGTHOF(offsets),
+			SIZEOFARRAYi(offsets),
 			status));
 	if(!assertSuccess("Status", status)) {
 		return;
 	}
 	int32_t expectedOffsets[] = {10, 18, 30, 27};
-	verifyOffsets(expectedOffsets, offsets, UPRV_LENGTHOF(expectedOffsets));
+	verifyOffsets(expectedOffsets, offsets, SIZEOFARRAYi(expectedOffsets));
 }
 
 void SimpleFormatterTest::TestFormatReplaceOptimizationNoOffsets() {
@@ -477,7 +477,7 @@ void SimpleFormatterTest::TestFormatReplaceOptimizationNoOffsets() {
 		"original, freddy, frog and by",
 		fmt.formatAndReplace(
 			params,
-			UPRV_LENGTHOF(params),
+			SIZEOFARRAYi(params),
 			result,
 			NULL,
 			0,
@@ -496,7 +496,7 @@ void SimpleFormatterTest::TestFormatReplaceNoOptimizationNoOffsets() {
 		"Arguments previous: and frog",
 		fmt.formatAndReplace(
 			params,
-			UPRV_LENGTHOF(params),
+			SIZEOFARRAYi(params),
 			result,
 			NULL,
 			0,

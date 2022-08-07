@@ -375,7 +375,7 @@ void UTS46::processUTF8(StringPiece src,
 		char stackArray[256];
 		int32_t destCapacity;
 		char * destArray = dest.GetAppendBuffer(srcLength, srcLength+20,
-			stackArray, UPRV_LENGTHOF(stackArray), &destCapacity);
+			stackArray, SIZEOFARRAYi(stackArray), &destCapacity);
 		bool disallowNonLDHDot = (options&UIDNA_USE_STD3_RULES)!=0;
 		int32_t i;
 		for(i = 0;; ++i) {
@@ -1389,7 +1389,7 @@ U_CAPI int32_t U_EXPORT2 uidna_labelToASCII_UTF8(const UIDNA * idna,
 	if(!checkArgs(label, length, dest, capacity, pInfo, pErrorCode)) {
 		return 0;
 	}
-	StringPiece src(label, length<0 ? static_cast<int32_t>(uprv_strlen(label)) : length);
+	StringPiece src(label, length<0 ? static_cast<int32_t>(strlen(label)) : length);
 	CheckedArrayByteSink sink(dest, capacity);
 	IDNAInfo info;
 	reinterpret_cast<const IDNA *>(idna)->labelToASCII_UTF8(src, sink, info, *pErrorCode);
@@ -1404,7 +1404,7 @@ U_CAPI int32_t U_EXPORT2 uidna_labelToUnicodeUTF8(const UIDNA * idna,
 	if(!checkArgs(label, length, dest, capacity, pInfo, pErrorCode)) {
 		return 0;
 	}
-	StringPiece src(label, length<0 ? static_cast<int32_t>(uprv_strlen(label)) : length);
+	StringPiece src(label, length<0 ? static_cast<int32_t>(strlen(label)) : length);
 	CheckedArrayByteSink sink(dest, capacity);
 	IDNAInfo info;
 	reinterpret_cast<const IDNA *>(idna)->labelToUnicodeUTF8(src, sink, info, *pErrorCode);
@@ -1419,7 +1419,7 @@ U_CAPI int32_t U_EXPORT2 uidna_nameToASCII_UTF8(const UIDNA * idna,
 	if(!checkArgs(name, length, dest, capacity, pInfo, pErrorCode)) {
 		return 0;
 	}
-	StringPiece src(name, length<0 ? static_cast<int32_t>(uprv_strlen(name)) : length);
+	StringPiece src(name, length<0 ? static_cast<int32_t>(strlen(name)) : length);
 	CheckedArrayByteSink sink(dest, capacity);
 	IDNAInfo info;
 	reinterpret_cast<const IDNA *>(idna)->nameToASCII_UTF8(src, sink, info, *pErrorCode);
@@ -1434,7 +1434,7 @@ U_CAPI int32_t U_EXPORT2 uidna_nameToUnicodeUTF8(const UIDNA * idna,
 	if(!checkArgs(name, length, dest, capacity, pInfo, pErrorCode)) {
 		return 0;
 	}
-	StringPiece src(name, length<0 ? static_cast<int32_t>(uprv_strlen(name)) : length);
+	StringPiece src(name, length<0 ? static_cast<int32_t>(strlen(name)) : length);
 	CheckedArrayByteSink sink(dest, capacity);
 	IDNAInfo info;
 	reinterpret_cast<const IDNA *>(idna)->nameToUnicodeUTF8(src, sink, info, *pErrorCode);

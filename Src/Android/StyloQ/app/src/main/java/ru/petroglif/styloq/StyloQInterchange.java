@@ -236,7 +236,7 @@ public class StyloQInterchange {
 			if(appCtx != null) {
 				StyloQDatabase db = appCtx.GetDB();
 				if(db != null) {
-					ArrayList<Long> svc_id_list = db.GetForeignSvcIdList(true);
+					ArrayList<Long> svc_id_list = db.GetForeignSvcIdList(true, true);
 					if(svc_id_list != null) {
 						for(int svcidx = 0; svcidx < svc_id_list.size(); svcidx++) {
 							final long svc_id = svc_id_list.get(svcidx);

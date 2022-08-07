@@ -84,7 +84,7 @@ static int32_t toEnum(const Numberformattesttuple_EnumConversion * table,
 		return 0;
 	}
 	for(int32_t i = 0; i < tableLength; ++i) {
-		if(uprv_strcmp(cstr.data(), table[i].str) == 0) {
+		if(strcmp(cstr.data(), table[i].str) == 0) {
 			return table[i].value;
 		}
 	}
@@ -166,7 +166,7 @@ static void intToStr(const void * intPtr, UnicodeString & appendTo) {
 	else {
 		x = static_cast<uint32_t>(xSigned);
 	}
-	int32_t len = uprv_itou(buffer, UPRV_LENGTHOF(buffer), x, 10, 1);
+	int32_t len = uprv_itou(buffer, SIZEOFARRAYi(buffer), x, 10, 1);
 	appendTo.append(buffer, 0, len);
 }
 
@@ -191,7 +191,7 @@ static void doubleToStr(const void * doublePtr, UnicodeString & appendTo) {
 
 static void strToERounding(const UnicodeString & str, void * roundPtr, UErrorCode & status) {
 	int32_t val = toEnum(
-		gRoundingEnum, UPRV_LENGTHOF(gRoundingEnum), str, status);
+		gRoundingEnum, SIZEOFARRAYi(gRoundingEnum), str, status);
 	*static_cast<DecimalFormat::ERoundingMode *>(roundPtr) = (DecimalFormat::ERoundingMode)val;
 }
 
@@ -200,14 +200,14 @@ static void eRoundingToStr(const void * roundPtr, UnicodeString & appendTo) {
 	    *static_cast<const DecimalFormat::ERoundingMode *>(roundPtr);
 	fromEnum(
 		gRoundingEnum,
-		UPRV_LENGTHOF(gRoundingEnum),
+		SIZEOFARRAYi(gRoundingEnum),
 		rounding,
 		appendTo);
 }
 
 static void strToCurrencyUsage(const UnicodeString & str, void * currencyUsagePtr, UErrorCode & status) {
 	int32_t val = toEnum(
-		gCurrencyUsageEnum, UPRV_LENGTHOF(gCurrencyUsageEnum), str, status);
+		gCurrencyUsageEnum, SIZEOFARRAYi(gCurrencyUsageEnum), str, status);
 	*static_cast<UCurrencyUsage *>(currencyUsagePtr) = (UCurrencyUsage)val;
 }
 
@@ -216,14 +216,14 @@ static void currencyUsageToStr(const void * currencyUsagePtr, UnicodeString & ap
 	    *static_cast<const UCurrencyUsage *>(currencyUsagePtr);
 	fromEnum(
 		gCurrencyUsageEnum,
-		UPRV_LENGTHOF(gCurrencyUsageEnum),
+		SIZEOFARRAYi(gCurrencyUsageEnum),
 		currencyUsage,
 		appendTo);
 }
 
 static void strToEPadPosition(const UnicodeString & str, void * padPositionPtr, UErrorCode & status) {
 	int32_t val = toEnum(
-		gPadPositionEnum, UPRV_LENGTHOF(gPadPositionEnum), str, status);
+		gPadPositionEnum, SIZEOFARRAYi(gPadPositionEnum), str, status);
 	*static_cast<DecimalFormat::EPadPosition *>(padPositionPtr) =
 	    (DecimalFormat::EPadPosition)val;
 }
@@ -233,14 +233,14 @@ static void ePadPositionToStr(const void * padPositionPtr, UnicodeString & appen
 	    *static_cast<const DecimalFormat::EPadPosition *>(padPositionPtr);
 	fromEnum(
 		gPadPositionEnum,
-		UPRV_LENGTHOF(gPadPositionEnum),
+		SIZEOFARRAYi(gPadPositionEnum),
 		padPosition,
 		appendTo);
 }
 
 static void strToFormatStyle(const UnicodeString & str, void * formatStylePtr, UErrorCode & status) {
 	int32_t val = toEnum(
-		gFormatStyleEnum, UPRV_LENGTHOF(gFormatStyleEnum), str, status);
+		gFormatStyleEnum, SIZEOFARRAYi(gFormatStyleEnum), str, status);
 	*static_cast<UNumberFormatStyle *>(formatStylePtr) = (UNumberFormatStyle)val;
 }
 
@@ -249,7 +249,7 @@ static void formatStyleToStr(const void * formatStylePtr, UnicodeString & append
 	    *static_cast<const UNumberFormatStyle *>(formatStylePtr);
 	fromEnum(
 		gFormatStyleEnum,
-		UPRV_LENGTHOF(gFormatStyleEnum),
+		SIZEOFARRAYi(gFormatStyleEnum),
 		formatStyle,
 		appendTo);
 }
@@ -390,8 +390,8 @@ ENumberFormatTestTupleField NumberFormatTestTuple::getFieldByName(const UnicodeS
 		return kNumberFormatTestTupleFieldCount;
 	}
 	int32_t result = -1;
-	for(int32_t i = 0; i < UPRV_LENGTHOF(gFieldData); ++i) {
-		if(uprv_strcmp(gFieldData[i].name, buffer.data()) == 0) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(gFieldData); ++i) {
+		if(strcmp(gFieldData[i].name, buffer.data()) == 0) {
 			result = i;
 			break;
 		}

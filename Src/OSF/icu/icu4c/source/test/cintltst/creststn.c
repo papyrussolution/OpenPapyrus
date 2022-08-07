@@ -189,7 +189,7 @@ param[] =
 	{ "ne",           U_USING_DEFAULT_WARNING,  e_Root,    { TRUE, FALSE, FALSE }, { TRUE, FALSE, FALSE } }
 };
 
-static int32_t bundles_count = UPRV_LENGTHOF(param);
+static int32_t bundles_count = SIZEOFARRAYi(param);
 
 /*static void printUChars(UChar *);*/
 static void TestDecodedBundle();
@@ -373,7 +373,7 @@ static void TestAliasConflict() {
 	}
 	ures_close(he);
 
-	size = UPRV_LENGTHOF(norwayNames);
+	size = SIZEOFARRAYi(norwayNames);
 	for(i = 0; i < size; i++) {
 		status = U_ZERO_ERROR;
 		norway = ures_open(NULL, norwayNames[i], &status);
@@ -670,7 +670,7 @@ static void TestNewTypes() {
 		    "]"
 		    );
 
-		patternLen = (int32_t)uprv_strlen(pattern);
+		patternLen = (int32_t)strlen(pattern);
 		expectedEscaped = (UChar *)SAlloc::M(U_SIZEOF_UCHAR * patternLen);
 		got = tres_getString(theBundle, -1, "test_unescaping", &len, &status);
 		expectedLen = u_unescape(pattern, expectedEscaped, patternLen);
@@ -1081,8 +1081,8 @@ static void TestAPI() {
 	}
 #endif
 
-	u_memset(largeBuffer, 0x0030, UPRV_LENGTHOF(largeBuffer));
-	largeBuffer[UPRV_LENGTHOF(largeBuffer)-1] = 0;
+	u_memset(largeBuffer, 0x0030, SIZEOFARRAYi(largeBuffer));
+	largeBuffer[SIZEOFARRAYi(largeBuffer)-1] = 0;
 
 	/*Test ures_openU */
 
@@ -2364,7 +2364,7 @@ static void TestResourceLevelAliasing() {
 			log_err("FAIL: Couldn't get testGetStringByKeyAliasing resource: %s\n", u_errorName(status));
 		}
 		else {
-			for(i = 0; i < UPRV_LENGTHOF(strings); i++) {
+			for(i = 0; i < SIZEOFARRAYi(strings); i++) {
 				result = tres_getString(tb, -1, keys[i], &resultLen, &status);
 				if(U_FAILURE(status)) {
 					log_err("(1) Fetching the resource with key %s failed. Error: %s\n", keys[i], u_errorName(status));
@@ -2375,7 +2375,7 @@ static void TestResourceLevelAliasing() {
 					log_err("(1) Didn't get correct string while accessing alias table by key (%s)\n", keys[i]);
 				}
 			}
-			for(i = 0; i < UPRV_LENGTHOF(strings); i++) {
+			for(i = 0; i < SIZEOFARRAYi(strings); i++) {
 				result = tres_getString(tb, i, NULL, &resultLen, &status);
 				if(U_FAILURE(status)) {
 					log_err("(2) Fetching the resource with key %s failed. Error: %s\n", keys[i], u_errorName(status));
@@ -2386,7 +2386,7 @@ static void TestResourceLevelAliasing() {
 					log_err("(2) Didn't get correct string while accessing alias table by index (%s)\n", strings[i]);
 				}
 			}
-			for(i = 0; i < UPRV_LENGTHOF(strings); i++) {
+			for(i = 0; i < SIZEOFARRAYi(strings); i++) {
 				result = ures_getNextString(tb, &resultLen, &key, &status);
 				if(U_FAILURE(status)) {
 					log_err("(3) Fetching the resource with key %s failed. Error: %s\n", keys[i], u_errorName(status));
@@ -2403,7 +2403,7 @@ static void TestResourceLevelAliasing() {
 			log_err("FAIL: Couldn't get testGetStringByIndexAliasing resource: %s\n", u_errorName(status));
 		}
 		else {
-			for(i = 0; i < UPRV_LENGTHOF(strings); i++) {
+			for(i = 0; i < SIZEOFARRAYi(strings); i++) {
 				result = tres_getString(tb, i, NULL, &resultLen, &status);
 				if(U_FAILURE(status)) {
 					log_err("Fetching the resource with key %s failed. Error: %s\n", keys[i], u_errorName(status));
@@ -2414,7 +2414,7 @@ static void TestResourceLevelAliasing() {
 					log_err("Didn't get correct string while accessing alias by index in an array (%s)\n", strings[i]);
 				}
 			}
-			for(i = 0; i < UPRV_LENGTHOF(strings); i++) {
+			for(i = 0; i < SIZEOFARRAYi(strings); i++) {
 				result = ures_getNextString(tb, &resultLen, &key, &status);
 				if(U_FAILURE(status)) {
 					log_err("Fetching the resource with key %s failed. Error: %s\n", keys[i], u_errorName(status));
@@ -2579,7 +2579,7 @@ static void TestTicket9804() {
 	}
 	else {
 		const char * locale = ures_getLocaleByType(t, ULOC_ACTUAL_LOCALE, &status);
-		if(uprv_strcmp("he", locale) != 0) {
+		if(strcmp("he", locale) != 0) {
 			log_err("Eras should be in the 'he' locale, but was in: %s", locale);
 		}
 	}

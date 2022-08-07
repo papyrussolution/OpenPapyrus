@@ -176,7 +176,7 @@ static void TestUListFmtToValue()
 		const char * message = "Field position test 1";
 		const UChar * expectedString = u"hello, wonderful, and world";
 		const UChar * inputs[] = { u"hello", u"wonderful", u"world" };
-		ulistfmt_formatStringsToResult(fmt, inputs, NULL, UPRV_LENGTHOF(inputs), fl, &ec);
+		ulistfmt_formatStringsToResult(fmt, inputs, NULL, SIZEOFARRAYi(inputs), fl, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
 			// field, begin index, end index
@@ -194,13 +194,13 @@ static void TestUListFmtToValue()
 			ulistfmt_resultAsValue(fl, &ec),
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 	{
 		const char * message = "Field position test 1";
 		const UChar * expectedString = u"A, B, C, D, E, F, and G";
 		const UChar * inputs[] = { u"A", u"B", u"C", u"D", u"E", u"F", u"G" };
-		ulistfmt_formatStringsToResult(fmt, inputs, NULL, UPRV_LENGTHOF(inputs), fl, &ec);
+		ulistfmt_formatStringsToResult(fmt, inputs, NULL, SIZEOFARRAYi(inputs), fl, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
 			// field, begin index, end index
@@ -230,7 +230,7 @@ static void TestUListFmtToValue()
 			ulistfmt_resultAsValue(fl, &ec),
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	ulistfmt_close(fmt);
@@ -247,7 +247,7 @@ static void TestUListOpenStyled()
 		const char * message = "openStyled test 1";
 		const UChar * expectedString = u"A, B, or C";
 		const UChar * inputs[] = { u"A", u"B", u"C", };
-		ulistfmt_formatStringsToResult(fmt, inputs, NULL, UPRV_LENGTHOF(inputs), fl, &ec);
+		ulistfmt_formatStringsToResult(fmt, inputs, NULL, SIZEOFARRAYi(inputs), fl, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
 			// field, begin index, end index
@@ -265,7 +265,7 @@ static void TestUListOpenStyled()
 			ulistfmt_resultAsValue(fl, &ec),
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 	ulistfmt_close(fmt);
 	ulistfmt_closeResult(fl);

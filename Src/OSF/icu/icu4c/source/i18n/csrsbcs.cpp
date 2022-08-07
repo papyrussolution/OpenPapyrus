@@ -978,7 +978,7 @@ bool CharsetRecog_8859_1::match(InputText * textIn, CharsetMatch * results) cons
 	const char * name = textIn->fC1Bytes ? "windows-1252" : "ISO-8859-1";
 	uint32_t i;
 	int32_t bestConfidenceSoFar = -1;
-	for(i = 0; i < UPRV_LENGTHOF(ngrams_8859_1); i++) {
+	for(i = 0; i < SIZEOFARRAYi(ngrams_8859_1); i++) {
 		const int32_t * ngrams = ngrams_8859_1[i].ngrams;
 		const char * lang   = ngrams_8859_1[i].lang;
 		int32_t confidence = match_sbcs(textIn, ngrams, charMap_8859_1);
@@ -1004,7 +1004,7 @@ bool CharsetRecog_8859_2::match(InputText * textIn, CharsetMatch * results) cons
 	const char * name = textIn->fC1Bytes ? "windows-1250" : "ISO-8859-2";
 	uint32_t i;
 	int32_t bestConfidenceSoFar = -1;
-	for(i = 0; i < UPRV_LENGTHOF(ngrams_8859_2); i++) {
+	for(i = 0; i < SIZEOFARRAYi(ngrams_8859_2); i++) {
 		const int32_t * ngrams = ngrams_8859_2[i].ngrams;
 		const char * lang   = ngrams_8859_2[i].lang;
 		int32_t confidence = match_sbcs(textIn, ngrams, charMap_8859_2);

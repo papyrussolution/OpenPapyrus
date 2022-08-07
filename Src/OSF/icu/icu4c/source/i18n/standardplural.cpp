@@ -31,38 +31,38 @@ const char * StandardPlural::getKeyword(Form p) {
 int32_t StandardPlural::indexOrNegativeFromString(const char * keyword) {
 	switch(*keyword++) {
 		case 'f':
-		    if(uprv_strcmp(keyword, "ew") == 0) {
+		    if(strcmp(keyword, "ew") == 0) {
 			    return FEW;
 		    }
 		    break;
 		case 'm':
-		    if(uprv_strcmp(keyword, "any") == 0) {
+		    if(strcmp(keyword, "any") == 0) {
 			    return MANY;
 		    }
 		    break;
 		case 'o':
-		    if(uprv_strcmp(keyword, "ther") == 0) {
+		    if(strcmp(keyword, "ther") == 0) {
 			    return OTHER;
 		    }
-		    else if(uprv_strcmp(keyword, "ne") == 0) {
+		    else if(strcmp(keyword, "ne") == 0) {
 			    return ONE;
 		    }
 		    break;
 		case 't':
-		    if(uprv_strcmp(keyword, "wo") == 0) {
+		    if(strcmp(keyword, "wo") == 0) {
 			    return TWO;
 		    }
 		    break;
 		case 'z':
-		    if(uprv_strcmp(keyword, "ero") == 0) {
+		    if(strcmp(keyword, "ero") == 0) {
 			    return ZERO;
 		    }
 		    break;
 		case '=':
-		    if(uprv_strcmp(keyword, "0") == 0) {
+		    if(strcmp(keyword, "0") == 0) {
 			    return EQ_0;
 		    }
-		    else if(uprv_strcmp(keyword, "1") == 0) {
+		    else if(strcmp(keyword, "1") == 0) {
 			    return EQ_1;
 		    }
 		    break;

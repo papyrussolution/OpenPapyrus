@@ -7033,15 +7033,149 @@ int ImportSpecial(const char * pPath_)
 	SString out_buf;
 	SString temp_buf;
 	// result:
-	// nm;eml;pw;phn;dob;id;cntry;cty;adr;src // id!
+	// nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src // id!
 	if(!isempty(pPath_)) {
 		SString _path;
 		(_path = pPath_).SetLastSlash().Cat(p_worksubdir);
 		(filename = _path).SetLastSlash().Cat("si.csv");
 		SFile f_out(filename, SFile::mWrite);
 		THROW(f_out.IsValid());
-		(out_buf = "nm;eml;pw;phn;dob;id;cntry;cty;adr;src").CR(); // id!
+		(out_buf = "nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src").CR(); // id!
 		f_out.WriteLine(out_buf);
+		{
+			// postru01.tsv
+			StringSet ss("\t");
+			(filename = _path).SetLastSlash().Cat("postru01.tsv");
+			SFile f_in(filename, SFile::mRead);
+			if(f_in.IsValid()) {
+				/*
+				"rpobarcode_ccode"	                            #0
+				"mailtype_ncode"	                            #1
+				"mailtypegroup_ccode"	                        #2
+				"mailctg_ncode"	                #3
+				"gr_weight"	                    #4 
+				"rpo_sndr_name"                 #5  	
+				"rpo_inn_ccode"	                #6  
+				"rpo_kpp_ccode"	                #7
+				"sndr_acnt_ccode"	
+				"index_to_ccode"	
+				"index_ufps_to_ccode"	
+				"settlement_to_name"	                         #11 city
+				"macroregion_to_ncode"	
+				"rpo_rcpn_name"	                                 #13 name
+				"rpo_rcpn_phone_ccode"	                         #14 phone   
+				"assigned_in_private_office_flag"	
+				"customs_notice_flag"	
+				"accept_local_dts"	
+				"accept_local_timezone"	
+				"index_accept_ccode"	
+				"postobjecttype_accept_ccode"	
+				"accept_cutoff_local_time"	
+				"accept_with_cutoff_local_dts"	
+				"index_border_firstmile_exit_ccode"	
+				"index_ufps_accept_ccode"	
+				"settlement_accept_name"	
+				"macroregion_accept_ncode"	
+				"postobjecttype_firstmile_exit_ccode"	
+				"firstmile_exit_local_dts"	
+				"firstmile_exit_local_timezone"	
+				"firstmile_cutoff_local_time"	
+				"firstmile_deadline_local_dts"	
+				"index_border_potencialdelivery_ccode"	
+				"postobjecttype_potencialdelivery_ccode"	
+				"firstoper_in_potencialdelivery_local_dts"	
+				"firstoper_in_potencialdelivery_local_timezone"	
+				"arrival_local_dts"	
+				"arrival_local_timezone"	
+				"transferred_to_PVZ_local_dts"	
+				"transferred_to_PVZ_local_timezone"	
+				"first_delivery_attempt_local_dts"	
+				"first_delivery_attempt_local_timezone"	
+				"operattr_first_delivery_attempt_ncode"	
+				"opertype_first_delivery_attempt_ncode"	
+				"delivery_local_dts"	
+				"delivery_local_timezone"	
+				"index_delivery_ccode"	
+				"opertype_delivery_ncode"	
+				"operattr_delivery_ncode"	
+				"return_local_dts"	
+				"return_local_timezone"	
+				"operattr_return_ncode"	
+				"opertype_return_ncode"	
+				"delivery_term_days"	
+				"general_deadline_local_dts"	
+				"arrive_cutoff_local_time"	
+				"lastmile_deadline_local_dts"	
+				"lastrpo_local_dts"	
+				"lastrpo_local_timezone"	
+				"operattr_lastrpo_ncode"	
+				"opertype_lastrpo_ncode"	
+				"index_lastrpo_ccode"	
+				"real_term_calendar_days"	
+				"real_term_working_days"	
+				"waystatus_ccode"	
+				"generalstatus_ccode"	
+				"internalstatus_ccode"	
+				"clientstatus_ccode"	
+				"resending_local_dts"	
+				"resending_local_timezone"	
+				"editing_local_dts"	
+				"editing_local_timezone"	
+				"value_date"	
+				"dws_job"	
+				"deleted_flag"	
+				"as_of_date"
+				*/
+				//
+				//SString sample_file_name;
+				//(sample_file_name = _path).SetLastSlash().Cat("postru01.tsv-sample");
+				//SFile f_sample_out(sample_file_name, SFile::mWrite);
+				//
+				SString nm;
+				SString phn;
+				SString city;
+				for(uint line_no = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); line_no++) {
+					/*
+					if(line_no < 10000) {
+						f_sample_out.WriteLine((temp_buf = line_buf).CR());
+					}
+					else
+						return 1;
+					*/
+					//
+					if(line_no > 0 && line_buf.NotEmpty()) {
+						uint fldno = 0;
+						ss.setBuf(line_buf);
+						nm.Z();
+						phn.Z();
+						city.Z();
+						for(uint ssp = 0; ss.get(&ssp, temp_buf); fldno++) {
+							temp_buf.StripQuotes().Strip();
+							switch(fldno) {
+								case 11:
+									(city = temp_buf).Utf8ToLower();
+									break;
+								case 13:
+									(nm = temp_buf).Utf8ToLower();
+									break;
+								case 14:
+									(phn = temp_buf).Utf8ToLower();
+									break;
+							}
+						}
+						if(nm.NotEmptyS() && phn.NotEmptyS()) {
+							temp_buf = nm;
+							(nm = "cn").Colon().Cat(temp_buf);
+
+							out_buf.Z().Cat(nm).Semicol().Cat(""/*eml*/).Semicol().Cat(""/*pwd*/).Semicol().Cat(phn).
+								Semicol().Cat(""/*gender*/).Semicol()./*Cat(dob, DATF_ISO8601CENT).*/Semicol().Cat(""/*ident*/).Semicol().Cat("ru").Semicol().Cat(city).
+								Semicol().Cat(""/*zip*/).Semicol().Cat("postru").CR();
+							f_out.WriteLine(out_buf);
+						}
+					}
+				}
+			}
+		}
 		{
 			// yvesrochercustomer-USA.csv
 			//phone_number,city,internal_last_update,last_name,cell_phone_number,fid_number,@timestamp,first_name,id_customer,full_name,@version,email,zip_code
@@ -7116,7 +7250,7 @@ int ImportSpecial(const char * pPath_)
 									break;
 							}
 						}
-						// "nm;eml;pw;phn;dob;id;cntry;cty;adr;src"
+						// "nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src"
 						if(first_name.NotEmpty() && last_name.NotEmpty()) {
 							(nm = "sn").Colon().Cat(last_name).Space().Cat(first_name);
 						}
@@ -7135,7 +7269,7 @@ int ImportSpecial(const char * pPath_)
 							temp_buf = phn;
 						phn = temp_buf;
 						out_buf.Z().Cat(nm).Semicol().Cat(eml).Semicol().Cat(""/*pwd*/).Semicol().Cat(phn).
-							Semicol()./*Cat(dob, DATF_ISO8601CENT).*/Semicol().Cat(ident).Semicol()./*Cat("ru").*/Semicol().Cat(city).
+							Semicol().Cat(""/*gender*/).Semicol()./*Cat(dob, DATF_ISO8601CENT).*/Semicol().Cat(ident).Semicol()./*Cat("ru").*/Semicol().Cat(city).
 							Semicol().Cat(zip).Semicol().Cat("yvesrocher").CR();
 						f_out.WriteLine(out_buf);
 					}
@@ -7197,9 +7331,9 @@ int ImportSpecial(const char * pPath_)
 								}
 							}
 						}
-						// "nm;eml;pw;phn;dob;id;cntry;cty;adr;src"
+						// "nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src"
 						out_buf.Z().Cat(nm).Semicol().Cat(""/*eml*/).Semicol().Cat(""/*pwd*/).Semicol().Cat(phn).
-							Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat(ident).Semicol().Cat("ru").Semicol().Cat("").
+							Semicol().Cat(""/*gender*/).Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat(ident).Semicol().Cat("ru").Semicol().Cat("").
 							Semicol().Cat(addr).Semicol().Cat("fbk").CR();
 						f_out.WriteLine(out_buf);
 					}
@@ -7252,9 +7386,9 @@ int ImportSpecial(const char * pPath_)
 										break;
 								}
 							}
-							// nm;eml;pw;phn;dob;id;cntry;cty;adr;src
+							// nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src
 							out_buf.Z().Cat(nm).Semicol().Cat(eml).Semicol().Cat("").Semicol().Cat(phn).
-								Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat(""/*id*/).Semicol().Cat("ru").Semicol().Cat("moscow").
+								Semicol().Cat(""/*gender*/).Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat(""/*id*/).Semicol().Cat("ru").Semicol().Cat("moscow").
 								Semicol().Cat(""/*adr*/).Semicol().Cat("unkn"/*src*/).CR();
 							f_out.WriteLine(out_buf);
 						}
@@ -7291,9 +7425,9 @@ int ImportSpecial(const char * pPath_)
 														phn.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
 														addr.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
 														nm.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
-														// nm;eml;pw;phn;dob;id;cntry;cty;adr;src
+														// nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src
 														out_buf.Z().Cat("cn:").Cat(nm).Semicol().Cat(eml).Semicol().Cat(""/*pwd*/).Semicol().Cat(phn).
-															Semicol().Cat(""/*dob*/).Semicol().Cat(""/*id*/).Semicol().Cat("ru").Semicol().Cat(""/*cty*/).
+															Semicol().Cat(""/*gender*/).Semicol().Cat(""/*dob*/).Semicol().Cat(""/*id*/).Semicol().Cat("ru").Semicol().Cat(""/*cty*/).
 															Semicol().Cat(addr).Semicol().Cat("avito").CR();
 														f_out.WriteLine(out_buf);
 													}
@@ -7369,9 +7503,9 @@ int ImportSpecial(const char * pPath_)
 														sex = "homme";
 													if(country.IsEqiAscii("Argentina"))
 														country = "ar";
-													// nm;eml;pw;phn;dob;id;cntry;cty;adr;src
+													// nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src
 													out_buf.Z().Cat("cn:").Cat(nm).Semicol().Cat(eml).Semicol().Cat(""/*pwd*/).Semicol().Cat(phn).
-														Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat(ident).Semicol().Cat(country).Semicol().Cat(""/*cty*/).
+														Semicol().Cat(sex/*gender*/).Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat(ident).Semicol().Cat(country).Semicol().Cat(""/*cty*/).
 														Semicol().Cat(addr).Semicol().Cat("pareto").CR();
 													f_out.WriteLine(out_buf);
 												}

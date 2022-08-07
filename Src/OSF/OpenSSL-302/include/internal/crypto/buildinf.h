@@ -1,0 +1,262 @@
+#ifdef _WIN64
+  #ifdef _M_ARM64
+    #define PLATFORM "platform: VC-WIN64-ARM"
+  #else
+    #define PLATFORM "platform: VC-WIN64A"
+  #endif
+  #define DATE "built on: date unspecified"
+  #ifdef _DEBUG
+    #define CFLAGS_OPTS " -GF -GS -Gd -Gm- -Od -RTC1 -W3 -WX- -Zi"
+  #else
+    #define CFLAGS_OPTS " -GF -GL -GS -Gd -Gm- -Gy -Ob2 -Oi -Ox -W3 -WX- -Zi"
+  #endif
+#else
+  #ifdef _M_ARM
+    #define PLATFORM "platform: VC-WIN32-ARM"
+  #else
+    #define PLATFORM "platform: VC-WIN32"
+  #endif
+  #define DATE "built on: date unspecified"
+  #ifdef _DEBUG
+    #define CFLAGS_OPTS " -GF -GS -Gd -Gm- -Od -Oy- -RTC1 -W3 -WX- -Zi"
+  #else
+    #define CFLAGS_OPTS " -GF -GL -GS -Gd -Gm- -Gy -Ob2 -Oi -Ox -Oy- -W3 -WX- -Zi"
+  #endif
+#endif
+
+#ifdef _DLL
+#ifdef _DEBUG
+#define CFLAG_RT " -MDd"
+#else
+#define CFLAG_RT " -MD"
+#endif
+#else
+#ifdef _DEBUG
+#define CFLAG_RT " -MTd"
+#else
+#define CFLAG_RT " -MT"
+#endif
+#endif
+
+#ifdef _DEBUG
+#define CFLAG_DEF__DEBUG " -D_DEBUG"
+#else
+#define CFLAG_DEF__DEBUG ""
+#endif
+#ifdef NDEBUG
+#define CFLAG_DEF_NDEBUG " -DNDEBUG"
+#else
+#define CFLAG_DEF_NDEBUG ""
+#endif
+#ifdef WIN32_LEAN_AND_MEAN
+#define CFLAG_DEF_WIN32_LEAN_AND_MEAN " -DWIN32_LEAN_AND_MEAN"
+#else
+#define CFLAG_DEF_WIN32_LEAN_AND_MEAN ""
+#endif
+#ifdef _CRT_SECURE_NO_DEPRECATE
+#define CFLAG_DEF__CRT_SECURE_NO_DEPRECATE " -D_CRT_SECURE_NO_DEPRECATE"
+#else
+#define CFLAG_DEF__CRT_SECURE_NO_DEPRECATE ""
+#endif
+#ifdef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define CFLAG_DEF__WINSOCK_DEPRECATED_NO_WARNINGS " -D_WINSOCK_DEPRECATED_NO_WARNINGS"
+#else
+#define CFLAG_DEF__WINSOCK_DEPRECATED_NO_WARNINGS ""
+#endif
+#ifdef _UNICODE
+#define CFLAG_DEF__UNICODE " -D_UNICODE"
+#else
+#define CFLAG_DEF__UNICODE ""
+#endif
+#ifdef UNICODE
+#define CFLAG_DEF_UNICODE " -DUNICODE"
+#else
+#define CFLAG_DEF_UNICODE ""
+#endif
+#ifdef L_ENDIAN
+#define CFLAG_DEF_L_ENDIAN " -DL_ENDIAN"
+#else
+#define CFLAG_DEF_L_ENDIAN ""
+#endif
+#ifdef ZLIB
+#define CFLAG_DEF_ZLIB " -DZLIB"
+#else
+#define CFLAG_DEF_ZLIB ""
+#endif
+#ifdef OPENSSL_SYS_WIN32
+#define CFLAG_DEF_OPENSSL_SYS_WIN32 " -DOPENSSL_SYS_WIN32"
+#else
+#define CFLAG_DEF_OPENSSL_SYS_WIN32 ""
+#endif
+#ifdef OPENSSL_SYS_WIN64A
+#define CFLAG_DEF_OPENSSL_SYS_WIN64A " -DOPENSSL_SYS_WIN64A"
+#else
+#define CFLAG_DEF_OPENSSL_SYS_WIN64A ""
+#endif
+#ifdef OPENSSL_SYS_WIN_CORE
+#define CFLAG_DEF_OPENSSL_SYS_WIN_CORE " -DOPENSSL_SYS_WIN_CORE"
+#else
+#define CFLAG_DEF_OPENSSL_SYS_WIN_CORE ""
+#endif
+#ifdef OPENSSL_IA32_SSE2
+#define CFLAG_DEF_OPENSSL_IA32_SSE2 " -DOPENSSL_IA32_SSE2"
+#else
+#define CFLAG_DEF_OPENSSL_IA32_SSE2 ""
+#endif
+#ifdef OPENSSL_PIC
+#define CFLAG_DEF_OPENSSL_PIC " -DOPENSSL_PIC"
+#else
+#define CFLAG_DEF_OPENSSL_PIC ""
+#endif
+#ifdef OPENSSL_USE_APPLINK
+#define CFLAG_DEF_OPENSSL_USE_APPLINK " -DOPENSSL_USE_APPLINK"
+#else
+#define CFLAG_DEF_OPENSSL_USE_APPLINK ""
+#endif
+#ifdef OPENSSL_CPUID_OBJ
+#define CFLAG_DEF_OPENSSL_CPUID_OBJ " -DOPENSSL_CPUID_OBJ"
+#else
+#define CFLAG_DEF_OPENSSL_CPUID_OBJ ""
+#endif
+#ifdef OPENSSL_BN_ASM_GF2m
+#define CFLAG_DEF_OPENSSL_BN_ASM_GF2m " -DOPENSSL_BN_ASM_GF2m"
+#else
+#define CFLAG_DEF_OPENSSL_BN_ASM_GF2m ""
+#endif
+#ifdef OPENSSL_BN_ASM_MONT
+#define CFLAG_DEF_OPENSSL_BN_ASM_MONT " -DOPENSSL_BN_ASM_MONT"
+#else
+#define CFLAG_DEF_OPENSSL_BN_ASM_MONT ""
+#endif
+#ifdef OPENSSL_BN_ASM_MONT5
+#define CFLAG_DEF_OPENSSL_BN_ASM_MONT5 " -DOPENSSL_BN_ASM_MONT5"
+#else
+#define CFLAG_DEF_OPENSSL_BN_ASM_MONT5 ""
+#endif
+#ifdef OPENSSL_BN_ASM_PART_WORDS
+#define CFLAG_DEF_OPENSSL_BN_ASM_PART_WORDS " -DOPENSSL_BN_ASM_PART_WORDS"
+#else
+#define CFLAG_DEF_OPENSSL_BN_ASM_PART_WORDS ""
+#endif
+#ifdef AES_ASM
+#define CFLAG_DEF_AES_ASM " -DAES_ASM"
+#else
+#define CFLAG_DEF_AES_ASM ""
+#endif
+#ifdef BSAES_ASM
+#define CFLAG_DEF_BSAES_ASM " -DBSAES_ASM"
+#else
+#define CFLAG_DEF_BSAES_ASM ""
+#endif
+#ifdef ECP_NISTZ256_ASM
+#define CFLAG_DEF_ECP_NISTZ256_ASM " -DECP_NISTZ256_ASM"
+#else
+#define CFLAG_DEF_ECP_NISTZ256_ASM ""
+#endif
+#ifdef GHASH_ASM
+#define CFLAG_DEF_GHASH_ASM " -DGHASH_ASM"
+#else
+#define CFLAG_DEF_GHASH_ASM ""
+#endif
+#ifdef KECCAK1600_ASM
+#define CFLAG_DEF_KECCAK1600_ASM " -DKECCAK1600_ASM"
+#else
+#define CFLAG_DEF_KECCAK1600_ASM ""
+#endif
+#ifdef MD5_ASM
+#define CFLAG_DEF_MD5_ASM " -DMD5_ASM"
+#else
+#define CFLAG_DEF_MD5_ASM ""
+#endif
+#ifdef PADLOCK_ASM
+#define CFLAG_DEF_PADLOCK_ASM " -DPADLOCK_ASM"
+#else
+#define CFLAG_DEF_PADLOCK_ASM ""
+#endif
+#ifdef POLY1305_ASM
+#define CFLAG_DEF_POLY1305_ASM " -DPOLY1305_ASM"
+#else
+#define CFLAG_DEF_POLY1305_ASM ""
+#endif
+#ifdef RC4_ASM
+#define CFLAG_DEF_RC4_ASM " -DRC4_ASM"
+#else
+#define CFLAG_DEF_RC4_ASM ""
+#endif
+#ifdef RMD160_ASM
+#define CFLAG_DEF_RMD160_ASM " -DRMD160_ASM"
+#else
+#define CFLAG_DEF_RMD160_ASM ""
+#endif
+#ifdef SHA1_ASM
+#define CFLAG_DEF_SHA1_ASM " -DSHA1_ASM"
+#else
+#define CFLAG_DEF_SHA1_ASM ""
+#endif
+#ifdef SHA256_ASM
+#define CFLAG_DEF_SHA256_ASM " -DSHA256_ASM"
+#else
+#define CFLAG_DEF_SHA256_ASM ""
+#endif
+#ifdef SHA512_ASM
+#define CFLAG_DEF_SHA512_ASM " -DSHA512_ASM"
+#else
+#define CFLAG_DEF_SHA512_ASM ""
+#endif
+#ifdef VPAES_ASM
+#define CFLAG_DEF_VPAES_ASM " -DVPAES_ASM"
+#else
+#define CFLAG_DEF_VPAES_ASM ""
+#endif
+#ifdef WHIRLPOOL_ASM
+#define CFLAG_DEF_WHIRLPOOL_ASM " -DWHIRLPOOL_ASM"
+#else
+#define CFLAG_DEF_WHIRLPOOL_ASM ""
+#endif
+#ifdef X25519_ASM
+#define CFLAG_DEF_X25519_ASM " -DX25519_ASM"
+#else
+#define CFLAG_DEF_X25519_ASM ""
+#endif
+
+#define CFLAGS_DEFS \
+   CFLAG_DEF__DEBUG \
+   CFLAG_DEF_NDEBUG \
+   CFLAG_DEF_WIN32_LEAN_AND_MEAN \
+   CFLAG_DEF__CRT_SECURE_NO_DEPRECATE \
+   CFLAG_DEF__WINSOCK_DEPRECATED_NO_WARNINGS \
+   CFLAG_DEF__UNICODE \
+   CFLAG_DEF_UNICODE \
+   CFLAG_DEF_L_ENDIAN \
+   CFLAG_DEF_ZLIB \
+   CFLAG_DEF_OPENSSL_SYS_WIN32 \
+   CFLAG_DEF_OPENSSL_SYS_WIN64A \
+   CFLAG_DEF_OPENSSL_SYS_WIN_CORE \
+   CFLAG_DEF_OPENSSL_IA32_SSE2 \
+   CFLAG_DEF_OPENSSL_PIC \
+   CFLAG_DEF_OPENSSL_USE_APPLINK \
+   CFLAG_DEF_OPENSSL_CPUID_OBJ \
+   CFLAG_DEF_OPENSSL_BN_ASM_GF2m \
+   CFLAG_DEF_OPENSSL_BN_ASM_MONT \
+   CFLAG_DEF_OPENSSL_BN_ASM_MONT5 \
+   CFLAG_DEF_OPENSSL_BN_ASM_PART_WORDS \
+   CFLAG_DEF_AES_ASM \
+   CFLAG_DEF_BSAES_ASM \
+   CFLAG_DEF_ECP_NISTZ256_ASM \
+   CFLAG_DEF_GHASH_ASM \
+   CFLAG_DEF_KECCAK1600_ASM \
+   CFLAG_DEF_MD5_ASM \
+   CFLAG_DEF_PADLOCK_ASM \
+   CFLAG_DEF_POLY1305_ASM \
+   CFLAG_DEF_RC4_ASM \
+   CFLAG_DEF_RMD160_ASM \
+   CFLAG_DEF_SHA1_ASM \
+   CFLAG_DEF_SHA256_ASM \
+   CFLAG_DEF_SHA512_ASM \
+   CFLAG_DEF_VPAES_ASM \
+   CFLAG_DEF_WHIRLPOOL_ASM \
+   CFLAG_DEF_X25519_ASM
+
+#define CFLAGS "compiler: cl" CFLAGS_OPTS CFLAG_RT CFLAGS_DEFS
+
+static const char compiler_flags[] = CFLAGS;

@@ -79,7 +79,7 @@ U_IO_API STD_ISTREAM & U_EXPORT2 operator>>(STD_ISTREAM& stream, UnicodeString &
 	converter = u_getDefaultConverter(&errorCode);
 	if(U_SUCCESS(errorCode)) {
 		UChar * us = uBuffer;
-		const UChar * uLimit = uBuffer + UPRV_LENGTHOF(uBuffer);
+		const UChar * uLimit = uBuffer + SIZEOFARRAYi(uBuffer);
 		const char * s, * sLimit;
 		char ch;
 		UChar ch32;

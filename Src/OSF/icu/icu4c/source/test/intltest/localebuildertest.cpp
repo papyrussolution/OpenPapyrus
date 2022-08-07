@@ -183,10 +183,10 @@ void LocaleBuilderTest::TestLocaleBuilder() {
 	};
 	UErrorCode status = U_ZERO_ERROR;
 	LocaleBuilder bld;
-	for(int tidx = 0; tidx < UPRV_LENGTHOF(TESTCASES); tidx++) {
+	for(int tidx = 0; tidx < SIZEOFARRAYi(TESTCASES); tidx++) {
 		const char * (&testCase)[14] = TESTCASES[tidx];
 		std::string actions;
-		for(int p = 0; p < UPRV_LENGTHOF(testCase); p++) {
+		for(int p = 0; p < SIZEOFARRAYi(testCase); p++) {
 			if(testCase[p] == nullptr) {
 				actions += " (nullptr)";
 				break;
@@ -904,7 +904,7 @@ void LocaleBuilderTest::TestSetUnicodeLocaleKeywordWellFormed() {
 		"ZZ", "Lant",
 		"ko", "",
 	};
-	for(int i = 0; i < UPRV_LENGTHOF(wellFormed_key_value); i += 2) {
+	for(int i = 0; i < SIZEOFARRAYi(wellFormed_key_value); i += 2) {
 		UErrorCode status = U_ZERO_ERROR;
 		LocaleBuilder bld;
 		bld.setUnicodeLocaleKeyword(wellFormed_key_value[i],
@@ -1122,7 +1122,7 @@ void LocaleBuilderTest::TestAddRemoveUnicodeLocaleAttributeWellFormed() {
 		"kkDSFJkR",
 	};
 	LocaleBuilder bld;
-	for(int i = 0; i < UPRV_LENGTHOF(wellFormedAttributes); i++) {
+	for(int i = 0; i < SIZEOFARRAYi(wellFormedAttributes); i++) {
 		if(i % 5 == 0) {
 			bld.clear();
 		}
@@ -1576,7 +1576,7 @@ void LocaleBuilderTest::TestSetExtensionValidateOthersWellFormed() {
 	};
 
 	const char * aToZ = "abcdefghijklmnopqrstuvwxyz";
-	const int32_t aToZLen = static_cast<int32_t>(uprv_strlen(aToZ));
+	const int32_t aToZLen = static_cast<int32_t>(strlen(aToZ));
 	int32_t i = 0;
 	for(const char * extension : wellFormedExtensions) {
 		char ch = aToZ[i];
@@ -1593,25 +1593,25 @@ void LocaleBuilderTest::TestSetExtensionValidateOthersWellFormed() {
 
 	const char * someChars =
 	    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*()-_=+;:,.<>?";
-	const int32_t someCharsLen = static_cast<int32_t>(uprv_strlen(someChars));
+	const int32_t someCharsLen = static_cast<int32_t>(strlen(someChars));
 	for(int32_t i = 0; i < someCharsLen; i++) {
 		char ch = someChars[i];
 		UErrorCode status = U_ZERO_ERROR;
 		LocaleBuilder bld;
-		bld.setExtension(ch, wellFormedExtensions[ch % UPRV_LENGTHOF(wellFormedExtensions)]);
+		bld.setExtension(ch, wellFormedExtensions[ch % SIZEOFARRAYi(wellFormedExtensions)]);
 		Locale loc = bld.build(status);
 		if(uprv_isASCIILetter(ch) || ('0' <= ch && ch <= '9')) {
 			if(ch != 't' && ch != 'T' && ch != 'u' && ch != 'U' && ch != 'x' && ch != 'X') {
 				if(U_FAILURE(status)) {
 					errln("setExtension('%c', \"%s\") got Error: %s\n",
-					    ch, wellFormedExtensions[ch % UPRV_LENGTHOF(wellFormedExtensions)], u_errorName(status));
+					    ch, wellFormedExtensions[ch % SIZEOFARRAYi(wellFormedExtensions)], u_errorName(status));
 				}
 			}
 		}
 		else {
 			if(status != U_ILLEGAL_ARGUMENT_ERROR) {
 				errln("setExtension('%c', \"%s\") should fail but has no Error\n",
-				    ch, wellFormedExtensions[ch % UPRV_LENGTHOF(wellFormedExtensions)]);
+				    ch, wellFormedExtensions[ch % SIZEOFARRAYi(wellFormedExtensions)]);
 			}
 		}
 	}
@@ -1629,7 +1629,7 @@ void LocaleBuilderTest::TestSetExtensionValidateOthersIllFormed() {
 		"87654321-a-0-3", // First subtag too long
 	};
 	const char * aToZ = "abcdefghijklmnopqrstuvwxyz";
-	const int32_t aToZLen = static_cast<int32_t>(uprv_strlen(aToZ));
+	const int32_t aToZLen = static_cast<int32_t>(strlen(aToZ));
 	int32_t i = 0;
 	for(const char * ill : illFormed) {
 		char ch = aToZ[i];

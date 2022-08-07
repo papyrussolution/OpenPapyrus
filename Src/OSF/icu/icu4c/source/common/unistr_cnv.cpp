@@ -28,7 +28,7 @@ UnicodeString::UnicodeString(const char * codepageData)
 {
 	fUnion.fFields.fLengthAndFlags = kShortString;
 	if(codepageData != 0) {
-		doCodepageCreate(codepageData, (int32_t)uprv_strlen(codepageData), 0);
+		doCodepageCreate(codepageData, (int32_t)strlen(codepageData), 0);
 	}
 }
 
@@ -47,7 +47,7 @@ UnicodeString::UnicodeString(const char * codepageData,
     const char * codepage) {
 	fUnion.fFields.fLengthAndFlags = kShortString;
 	if(codepageData != 0) {
-		doCodepageCreate(codepageData, (int32_t)uprv_strlen(codepageData), codepage);
+		doCodepageCreate(codepageData, (int32_t)strlen(codepageData), codepage);
 	}
 }
 
@@ -75,7 +75,7 @@ UnicodeString::UnicodeString(const char * src, int32_t srcLength,
 		else {
 			// get input length
 			if(srcLength==-1) {
-				srcLength = (int32_t)uprv_strlen(src);
+				srcLength = (int32_t)strlen(src);
 			}
 			if(srcLength>0) {
 				if(cnv!=0) {
@@ -283,7 +283,7 @@ void UnicodeString::doCodepageCreate(const char * codepageData,
 		return;
 	}
 	if(dataLength == -1) {
-		dataLength = (int32_t)uprv_strlen(codepageData);
+		dataLength = (int32_t)strlen(codepageData);
 	}
 
 	UErrorCode status = U_ZERO_ERROR;

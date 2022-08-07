@@ -524,7 +524,7 @@ void TimeUnitFormat::searchInLocaleChain(UTimeUnitFormatStyle style, const char 
 	}
 	UErrorCode status = U_ZERO_ERROR;
 	char parentLocale[ULOC_FULLNAME_CAPACITY];
-	uprv_strcpy(parentLocale, localeName);
+	strcpy(parentLocale, localeName);
 	int32_t locNameLen;
 	U_ASSERT(countToPatterns != NULL);
 	while((locNameLen = uloc_getParent(parentLocale, parentLocale,
@@ -568,7 +568,7 @@ void TimeUnitFormat::searchInLocaleChain(UTimeUnitFormatStyle style, const char 
 
 	// if no unitsShort resource was found even after fallback to root locale
 	// then search the units resource fallback from the current level to root
-	if(locNameLen == 0 && uprv_strcmp(key, gShortUnitsTag) == 0) {
+	if(locNameLen == 0 && strcmp(key, gShortUnitsTag) == 0) {
 #ifdef TMUTFMT_DEBUG
 		std::cout << "loop into searchInLocaleChain since Short-Long-Alternative \n";
 #endif
@@ -589,7 +589,7 @@ void TimeUnitFormat::searchInLocaleChain(UTimeUnitFormatStyle style, const char 
 
 	// if not found the pattern for this plural count at all,
 	// fall-back to plural count "other"
-	if(uprv_strcmp(searchPluralCount, gPluralCountOther) == 0) {
+	if(strcmp(searchPluralCount, gPluralCountOther) == 0) {
 		// set default fall back the same as the resource in root
 		LocalPointer<MessageFormat> messageFormat;
 		const UChar * pattern = NULL;

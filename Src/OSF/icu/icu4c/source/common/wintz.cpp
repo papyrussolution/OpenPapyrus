@@ -111,9 +111,9 @@ U_CAPI const char * U_EXPORT2 uprv_detectWindowsTimeZone()
 	//     DST setting is "Disabled".
 	//
 	if(dynamicTZI.DynamicDaylightTimeDisabled != 0 &&
-	    uprv_memcmp(&dynamicTZI.StandardDate, &dynamicTZI.DaylightDate, sizeof(dynamicTZI.StandardDate)) == 0 &&
-	    ((dynamicTZI.TimeZoneKeyName[0] != L'\0' && uprv_memcmp(&dynamicTZI.StandardDate, &systemTimeAllZero, sizeof(systemTimeAllZero)) == 0) ||
-	    (dynamicTZI.TimeZoneKeyName[0] == L'\0' && uprv_memcmp(&dynamicTZI.StandardDate, &systemTimeAllZero, sizeof(systemTimeAllZero)) != 0))) {
+	    memcmp(&dynamicTZI.StandardDate, &dynamicTZI.DaylightDate, sizeof(dynamicTZI.StandardDate)) == 0 &&
+	    ((dynamicTZI.TimeZoneKeyName[0] != L'\0' && memcmp(&dynamicTZI.StandardDate, &systemTimeAllZero, sizeof(systemTimeAllZero)) == 0) ||
+	    (dynamicTZI.TimeZoneKeyName[0] == L'\0' && memcmp(&dynamicTZI.StandardDate, &systemTimeAllZero, sizeof(systemTimeAllZero)) != 0))) {
 		LONG utcOffsetMins = dynamicTZI.Bias;
 		if(utcOffsetMins == 0) {
 			return uprv_strdup("Etc/UTC");
@@ -149,8 +149,8 @@ U_CAPI const char * U_EXPORT2 uprv_detectWindowsTimeZone()
 			// -180, and the
 			// corresponding time zone ID would be "Etc/GMT-3". (So there is no need to negate utcOffsetMins
 			// below.)
-			int ret = snprintf(gmtOffsetTz, UPRV_LENGTHOF(gmtOffsetTz), "Etc/GMT%+ld", utcOffsetMins / 60);
-			if(ret > 0 && ret < UPRV_LENGTHOF(gmtOffsetTz)) {
+			int ret = snprintf(gmtOffsetTz, SIZEOFARRAYi(gmtOffsetTz), "Etc/GMT%+ld", utcOffsetMins / 60);
+			if(ret > 0 && ret < SIZEOFARRAYi(gmtOffsetTz)) {
 				return uprv_strdup(gmtOffsetTz);
 			}
 		}
@@ -220,7 +220,7 @@ U_CAPI const char * U_EXPORT2 uprv_detectWindowsTimeZone()
 
 		for(DWORD i = 0; i < numTimeZoneSubKeys; i++) {
 			// Note: RegEnumKeyExW wants the size of the buffer in characters.
-			DWORD size = UPRV_LENGTHOF(timezoneSubKeyName);
+			DWORD size = SIZEOFARRAYi(timezoneSubKeyName);
 			ret = RegEnumKeyExW(hKeyAllTimeZones, i, timezoneSubKeyName, &size, nullptr, nullptr, nullptr, nullptr);
 
 			if(ret != ERROR_SUCCESS) {
@@ -307,13 +307,13 @@ U_CAPI const char * U_EXPORT2 uprv_detectWindowsTimeZone()
 	wchar_t regionCodeW[3] = {};
 	char regionCode[3] = {}; // 2 letter ISO 3166 country/region code made entirely of invariant chars.
 	int geoId = GetUserGeoID(GEOCLASS_NATION);
-	int regionCodeLen = GetGeoInfoW(geoId, GEO_ISO2, regionCodeW, UPRV_LENGTHOF(regionCodeW), 0);
+	int regionCodeLen = GetGeoInfoW(geoId, GEO_ISO2, regionCodeW, SIZEOFARRAYi(regionCodeW), 0);
 
 	const UChar * icuTZ16 = nullptr;
 	int32_t tzListLen = 0;
 
 	if(regionCodeLen != 0) {
-		for(int i = 0; i < UPRV_LENGTHOF(regionCodeW); i++) {
+		for(int i = 0; i < SIZEOFARRAYi(regionCodeW); i++) {
 			regionCode[i] = static_cast<char>(regionCodeW[i]);
 		}
 		icuTZ16 = ures_getStringByKey(winTZBundle.getAlias(), regionCode, &tzListLen, &status);

@@ -450,7 +450,7 @@ static void TestDotNet() {
 		ucal_close(cal);
 		return;
 	}
-	for(i = 0; i < UPRV_LENGTHOF(dotNetDateTimeTicks); ++i) {
+	for(i = 0; i < SIZEOFARRAYi(dotNetDateTimeTicks); ++i) {
 		/* Test conversion from .Net/Universal time to ICU time. */
 		dt = dotNetDateTimeTicks + i;
 		millis = utmscale_toInt64(dt->ticks, UDTS_ICU4C_TIME, &errorCode);

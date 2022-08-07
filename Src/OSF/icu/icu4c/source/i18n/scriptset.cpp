@@ -40,7 +40,7 @@ ScriptSet & ScriptSet::operator = (const ScriptSet &other) {
 }
 
 bool ScriptSet::operator ==(const ScriptSet &other) const {
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(bits); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
 		if(bits[i] != other.bits[i]) {
 			return false;
 		}
@@ -90,14 +90,14 @@ ScriptSet &ScriptSet::reset(UScriptCode script, UErrorCode & status) {
 }
 
 ScriptSet &ScriptSet::Union(const ScriptSet &other) {
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(bits); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
 		bits[i] |= other.bits[i];
 	}
 	return *this;
 }
 
 ScriptSet &ScriptSet::intersect(const ScriptSet &other) {
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(bits); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
 		bits[i] &= other.bits[i];
 	}
 	return *this;
@@ -113,7 +113,7 @@ ScriptSet &ScriptSet::intersect(UScriptCode script, UErrorCode & status) {
 }
 
 bool ScriptSet::intersects(const ScriptSet &other) const {
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(bits); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
 		if((bits[i] & other.bits[i]) != 0) {
 			return true;
 		}
@@ -128,7 +128,7 @@ bool ScriptSet::contains(const ScriptSet &other) const {
 }
 
 ScriptSet &ScriptSet::setAll() {
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(bits); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
 		bits[i] = 0xffffffffu;
 	}
 	return *this;
@@ -144,7 +144,7 @@ int32_t ScriptSet::countMembers() const {
 	// This bit counter is good for sparse numbers of '1's, which is
 	//  very much the case that we will usually have.
 	int32_t count = 0;
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(bits); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
 		uint32_t x = bits[i];
 		while(x > 0) {
 			count++;
@@ -156,7 +156,7 @@ int32_t ScriptSet::countMembers() const {
 
 int32_t ScriptSet::hashCode() const {
 	int32_t hash = 0;
-	for(int32_t i = 0; i<UPRV_LENGTHOF(bits); i++) {
+	for(int32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
 		hash ^= bits[i];
 	}
 	return hash;
@@ -177,7 +177,7 @@ int32_t ScriptSet::nextSetBit(int32_t fromIndex) const {
 }
 
 bool ScriptSet::isEmpty() const {
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(bits); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
 		if(bits[i] != 0) {
 			return FALSE;
 		}

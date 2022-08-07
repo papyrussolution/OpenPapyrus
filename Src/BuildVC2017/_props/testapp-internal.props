@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+    <Import Project="vs_common.props" />
+    <Import Project="win-build.props" />
+    <Import Project="zlib-testapp.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\apps\include;$(OutDir)_work;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZLIB;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>setargv.obj;ws2_32.lib;crypt32.lib;$(OutDir)libcrypto-3-static.lib;$(OutDir)libssl-3-static.lib;$(OutDir)libtestutil-static.lib;$(OutDir)libcommon-static.lib;$(OutDir)libdefault-static.lib;$(ZLIB_LIB_DIR)libz-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\apps\include;$(OutDir)_work;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZLIB;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>setargv.obj;ws2_32.lib;crypt32.lib;$(OutDir)libcrypto-3-static.lib;$(OutDir)libssl-3-static.lib;$(OutDir)libtestutil-static.lib;$(OutDir)libcommon-static.lib;$(OutDir)libdefault-static.lib;$(ZLIB_LIB_DIR)libz-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\apps\include;$(OutDir)_work;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZLIB;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>setargv.obj;ws2_32.lib;crypt32.lib;$(OutDir)libcrypto-3-static.lib;$(OutDir)libssl-3-static.lib;$(OutDir)libtestutil-static.lib;$(OutDir)libcommon-static.lib;$(OutDir)libdefault-static.lib;$(ZLIB_LIB_DIR)libz-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\apps\include;$(OutDir)_work;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZLIB;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>setargv.obj;ws2_32.lib;crypt32.lib;$(OutDir)libcrypto-3-static.lib;$(OutDir)libssl-3-static.lib;$(OutDir)libtestutil-static.lib;$(OutDir)libcommon-static.lib;$(OutDir)libdefault-static.lib;$(ZLIB_LIB_DIR)libz-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

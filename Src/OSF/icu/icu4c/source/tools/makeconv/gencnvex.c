@@ -110,7 +110,7 @@ static uint32_t CnvExtWrite(NewConverter * cnvData, const UConverterStaticData *
 	else {
 		_MBCSHeader header = { { 0, 0, 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		/* write the header and base table name for an extension-only table */
-		length = (int32_t)uprv_strlen(extData->ucm->baseName)+1;
+		length = (int32_t)strlen(extData->ucm->baseName)+1;
 		while(length&3) {
 			/* add padding */
 			extData->ucm->baseName[length++] = 0;
@@ -822,7 +822,7 @@ static void addFromUTrieEntry(CnvExtData * extData, UChar32 c, uint32_t value) {
 
 		extData->stage1[i1] = (uint16_t)newBlock;
 		extData->stage2Top = newBlock+MBCS_STAGE_2_BLOCK_SIZE;
-		if(extData->stage2Top>UPRV_LENGTHOF(extData->stage2)) {
+		if(extData->stage2Top>SIZEOFARRAYi(extData->stage2)) {
 			slfprintf_stderr("error: too many stage 2 entries at U+%04x\n", (int)c);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
@@ -844,7 +844,7 @@ static void addFromUTrieEntry(CnvExtData * extData, UChar32 c, uint32_t value) {
 		extData->stage2[i2] = (uint16_t)(newBlock>>UCNV_EXT_STAGE_2_LEFT_SHIFT);
 
 		extData->stage3Top = newBlock+MBCS_STAGE_3_BLOCK_SIZE;
-		if(extData->stage3Top>UPRV_LENGTHOF(extData->stage3)) {
+		if(extData->stage3Top>SIZEOFARRAYi(extData->stage3)) {
 			slfprintf_stderr("error: too many stage 3 entries at U+%04x\n", (int)c);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
@@ -891,7 +891,7 @@ static void addFromUTrieEntry(CnvExtData * extData, UChar32 c, uint32_t value) {
 		}
 	}
 	else {
-		if((i3b = extData->stage3bTop++)>=UPRV_LENGTHOF(extData->stage3b)) {
+		if((i3b = extData->stage3bTop++)>=SIZEOFARRAYi(extData->stage3b)) {
 			slfprintf_stderr("error: too many stage 3b entries at U+%04x\n", (int)c);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}

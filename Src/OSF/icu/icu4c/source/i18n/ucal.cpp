@@ -148,12 +148,12 @@ U_CAPI UCalendar*  U_EXPORT2 ucal_open(const UChar * zoneID,
 		if(locale == nullptr) {
 			locale = uloc_getDefault();
 		}
-		int32_t localeLength = static_cast<int32_t>(uprv_strlen(locale));
+		int32_t localeLength = static_cast<int32_t>(strlen(locale));
 		if(localeLength >= ULOC_LOCALE_IDENTIFIER_CAPACITY) {
 			*status = U_ILLEGAL_ARGUMENT_ERROR;
 			return nullptr;
 		}
-		uprv_strcpy(localeBuf, locale);
+		strcpy(localeBuf, locale);
 		uloc_setKeywordValue("calendar", "gregorian", localeBuf, ULOC_LOCALE_IDENTIFIER_CAPACITY, status);
 		if(U_FAILURE(*status)) {
 			return nullptr;
@@ -643,7 +643,7 @@ U_CAPI UEnumeration* U_EXPORT2 ucal_getKeywordValuesForLocale(const char * /* ke
 			if(U_SUCCESS(*status) && !commonlyUsed) {
 				// If not commonlyUsed, add other available values
 				for(int32_t i = 0; CAL_TYPES[i] != nullptr; i++) {
-					if(!ulist_containsString(values, CAL_TYPES[i], (int32_t)uprv_strlen(CAL_TYPES[i]))) {
+					if(!ulist_containsString(values, CAL_TYPES[i], (int32_t)strlen(CAL_TYPES[i]))) {
 						ulist_addItemEndList(values, CAL_TYPES[i], FALSE, status);
 						if(U_FAILURE(*status)) {
 							break;

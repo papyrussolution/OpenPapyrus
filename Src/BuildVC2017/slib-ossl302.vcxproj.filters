@@ -1,0 +1,614 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\SLib\Arma.cpp" />
+    <ClCompile Include="..\SLib\base64.cpp" />
+    <ClCompile Include="..\SLib\Bist.cpp" />
+    <ClCompile Include="..\SLib\bitarray.cpp" />
+    <ClCompile Include="..\SLib\bitstr.cpp" />
+    <ClCompile Include="..\SLib\Bnfldlst.cpp" />
+    <ClCompile Include="..\Slib\chksyscr.cpp" />
+    <ClCompile Include="..\SLib\cregexp.cpp" />
+    <ClCompile Include="..\SLib\crypto.cpp" />
+    <ClCompile Include="..\SLib\dec.cpp" />
+    <ClCompile Include="..\SLib\Dlgprocs.cpp" />
+    <ClCompile Include="..\Slib\findfile.cpp" />
+    <ClCompile Include="..\SLib\fsif.cpp" />
+    <ClCompile Include="..\SLib\futil.cpp" />
+    <ClCompile Include="..\SLib\gamma.cpp" />
+    <ClCompile Include="..\SLib\gencpp.cpp" />
+    <ClCompile Include="..\SLib\hashfunc.cpp" />
+    <ClCompile Include="..\SLib\hashtab.cpp" />
+    <ClCompile Include="..\SLib\Idea.cpp" />
+    <ClCompile Include="..\SLib\json.cpp" />
+    <ClCompile Include="..\SLib\Lbxdef.cpp" />
+    <ClCompile Include="..\SLib\Listwin.cpp" />
+    <ClCompile Include="..\SLib\lss_lin.cpp" />
+    <ClCompile Include="..\SLib\Lvect.cpp" />
+    <ClCompile Include="..\SLib\lzari.cpp" />
+    <ClCompile Include="..\Slib\macaddr.cpp" />
+    <ClCompile Include="..\SLib\mailsess.cpp" />
+    <ClCompile Include="..\SLib\Makepath.c" />
+    <ClCompile Include="..\SLib\Mkstring.cpp" />
+    <ClCompile Include="..\SLib\Msgbox.cpp" />
+    <ClCompile Include="..\SLib\punycode.cpp" />
+    <ClCompile Include="..\SLib\Range.cpp" />
+    <ClCompile Include="..\SLib\sarc.cpp" />
+    <ClCompile Include="..\SLib\Sarray.cpp" />
+    <ClCompile Include="..\SLib\Sbrodef.cpp" />
+    <ClCompile Include="..\Slib\sbuffer.cpp" />
+    <ClCompile Include="..\SLib\Scomport.cpp" />
+    <ClCompile Include="..\SLib\sc_cfg.cpp" />
+    <ClCompile Include="..\SLib\sc_cli.cpp" />
+    <ClCompile Include="..\SLib\sc_ggrp.cpp" />
+    <ClCompile Include="..\SLib\sc_goods.cpp" />
+    <ClCompile Include="..\SLib\sc_order.cpp" />
+    <ClCompile Include="..\SLib\sc_pgm.cpp" />
+    <ClCompile Include="..\SLib\sc_todo.cpp" />
+    <ClCompile Include="..\SLib\sdate.cpp" />
+    <ClCompile Include="..\Slib\sdebug.cpp" />
+    <ClCompile Include="..\SLib\Sdirec.cpp" />
+    <ClCompile Include="..\SLib\sdraw.cpp" />
+    <ClCompile Include="..\SLib\sextprc.cpp" />
+    <ClCompile Include="..\Slib\sfile.cpp" />
+    <ClCompile Include="..\SLib\sformat.cpp" />
+    <ClCompile Include="..\SLib\sfsort.cpp" />
+    <ClCompile Include="..\SLib\sfxtree2.cpp" />
+    <ClCompile Include="..\SLib\sgeo.cpp" />
+    <ClCompile Include="..\SLib\sgiflib.cpp" />
+    <ClCompile Include="..\SLib\simage.cpp" />
+    <ClCompile Include="..\SLib\sinifile.cpp" />
+    <ClCompile Include="..\SLib\slib-pch.cpp" />
+    <ClCompile Include="..\SLib\slsess.cpp" />
+    <ClCompile Include="..\SLib\sltest.cpp" />
+    <ClCompile Include="..\SLib\slutil.cpp" />
+    <ClCompile Include="..\SLib\smath.cpp" />
+    <ClCompile Include="..\SLib\smem.cpp" />
+    <ClCompile Include="..\SLib\Smrtlbx.cpp" />
+    <ClCompile Include="..\SLib\sossl.cpp" />
+    <ClCompile Include="..\SLib\spip.cpp" />
+    <ClCompile Include="..\SLib\Sprinter.cpp" />
+    <ClCompile Include="..\SLib\srng.cpp" />
+    <ClCompile Include="..\SLib\Sstack.cpp" />
+    <ClCompile Include="..\SLib\sstorage.cpp" />
+    <ClCompile Include="..\Slib\sstring.cpp" />
+    <ClCompile Include="..\SLib\ssvg.cpp" />
+    <ClCompile Include="..\SLib\ssystem.cpp" />
+    <ClCompile Include="..\SLib\ss_bmhr.cpp" />
+    <ClCompile Include="..\SLib\stchbrw.cpp" />
+    <ClCompile Include="..\Slib\stcp.cpp" />
+    <ClCompile Include="..\SLib\stext.cpp" />
+    <ClCompile Include="..\SLib\sthread.cpp" />
+    <ClCompile Include="..\SLib\stoolti.cpp" />
+    <ClCompile Include="..\SLib\str2date.cpp" />
+    <ClCompile Include="..\SLib\Strset.cpp" />
+    <ClCompile Include="..\SLib\Stype.cpp" />
+    <ClCompile Include="..\SLib\sunit.cpp" />
+    <ClCompile Include="..\SLib\sxml.cpp" />
+    <ClCompile Include="..\SLib\tab.cpp" />
+    <ClCompile Include="..\SLib\TCanvas.cpp" />
+    <ClCompile Include="..\SLib\tcontrol.cpp" />
+    <ClCompile Include="..\SLib\Tdialog.cpp" />
+    <ClCompile Include="..\SLib\Toolbar.cpp" />
+    <ClCompile Include="..\SLib\Tprogram.cpp" />
+    <ClCompile Include="..\SLib\tprogram_exp.cpp" />
+    <ClCompile Include="..\SLib\Transp.cpp" />
+    <ClCompile Include="..\SLib\trect.cpp" />
+    <ClCompile Include="..\SLib\treewnd.cpp" />
+    <ClCompile Include="..\SLib\tsstat.cpp" />
+    <ClCompile Include="..\SLib\Tview.cpp" />
+    <ClCompile Include="..\SLib\Tvrez.cpp" />
+    <ClCompile Include="..\SLib\Twindow.cpp" />
+    <ClCompile Include="..\SLib\ui.cpp" />
+    <ClCompile Include="..\SLib\uri.cpp" />
+    <ClCompile Include="..\SLib\usb.cpp" />
+    <ClCompile Include="..\SLib\vtbutton.cpp" />
+    <ClCompile Include="..\SLib\Wbrowse.cpp" />
+    <ClCompile Include="..\SLib\whatman.cpp" />
+    <ClCompile Include="..\SLib\winreg.cpp" />
+    <ClCompile Include="..\Slib\winsrvc.cpp" />
+    <ClCompile Include="..\SLib\wmi.cpp" />
+    <ClCompile Include="..\SLib\suc.cpp" />
+    <ClCompile Include="..\SLib\curl-parsedate.cpp" />
+    <ClCompile Include="..\SLib\uchardet.cpp" />
+    <ClCompile Include="..\SLib\test-cairo.cpp" />
+    <ClCompile Include="..\SLib\test-openssl.cpp" />
+    <ClCompile Include="..\SLib\saudio.cpp" />
+    <ClCompile Include="..\SLib\curl-inet_ntop.cpp" />
+    <ClCompile Include="..\SLib\bdb.cpp" />
+    <ClCompile Include="..\SLib\Bextins.cpp" />
+    <ClCompile Include="..\SLib\Bextqry.cpp" />
+    <ClCompile Include="..\SLib\Bnkey.cpp" />
+    <ClCompile Include="..\SLib\Btrv.cpp" />
+    <ClCompile Include="..\SLib\Dbbackup.cpp" />
+    <ClCompile Include="..\SLib\Dbdict.cpp" />
+    <ClCompile Include="..\SLib\Dbeop.cpp" />
+    <ClCompile Include="..\SLib\Dbf.cpp" />
+    <ClCompile Include="..\SLib\dboci.cpp" />
+    <ClCompile Include="..\SLib\dbprvdr.cpp" />
+    <ClCompile Include="..\SLib\Dbq.cpp" />
+    <ClCompile Include="..\SLib\Dbqbrdef.cpp" />
+    <ClCompile Include="..\SLib\Dbquery.cpp" />
+    <ClCompile Include="..\SLib\dbsess.cpp" />
+    <ClCompile Include="..\SLib\dbsql.cpp" />
+    <ClCompile Include="..\SLib\Dbtable.cpp" />
+    <ClCompile Include="..\SLib\dbtablec.cpp" />
+    <ClCompile Include="..\SLib\dti.cpp" />
+    <ClCompile Include="..\SLib\gensql.cpp" />
+    <ClCompile Include="..\SLib\Kr.cpp" />
+    <ClCompile Include="..\SLib\sdrecord.cpp" />
+    <ClCompile Include="..\SLib\soapdbt.cpp" />
+    <ClCompile Include="..\SLib\txttable.cpp" />
+    <ClCompile Include="..\SLib\xlstable.cpp" />
+    <ClCompile Include="..\SLib\xmltable.cpp" />
+    <ClCompile Include="..\SLib\Comdisp.cpp" />
+    <ClCompile Include="..\SLib\dconvstr.c" />
+    <ClCompile Include="..\SLib\sfann2.cpp" />
+    <ClCompile Include="..\SLib\sclipboard.cpp" />
+    <ClCompile Include="..\SLib\sxmlad.cpp" />
+    <ClCompile Include="..\SLib\samqp.cpp" />
+    <ClCompile Include="..\SLib\xxhash.c" />
+    <ClCompile Include="..\SLib\ineturl.cpp" />
+    <ClCompile Include="..\SLib\slprintf.c" />
+    <ClCompile Include="..\SLib\dbsql-mysql.cpp" />
+    <ClCompile Include="..\SLib\layout-flex.cpp" />
+    <ClCompile Include="..\SLib\scss.cpp" />
+    <ClCompile Include="..\SLib\gumbo\char_ref.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\parser.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\tag.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\tokenizer.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\gumbo-lib.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\tulipindicators.cpp" />
+    <ClCompile Include="..\SLib\dirent.cpp" />
+    <ClCompile Include="..\SLib\slib-getopt.cpp" />
+    <ClCompile Include="..\SLib\slib-winapi-helper.cpp" />
+    <ClCompile Include="..\SLib\sregexp2.cpp" />
+    <ClCompile Include="..\SLib\srp.cpp" />
+    <ClCompile Include="..\SLib\LMDB\mdb.c">
+      <Filter>LMDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\LMDB\midl.c">
+      <Filter>LMDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\LMDB\mtest.c">
+      <Filter>LMDB\TEST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\alloc.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\alloc-aligned.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\alloc-override.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\alloc-override-osx.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\alloc-posix.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\arena.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\bitmap.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\heap.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\init.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\options.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\os.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\page.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\page-queue.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\random.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\region.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\segment.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\static.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\stats.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\test\main-override.c">
+      <Filter>MiMalloc\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\test\main-override-static.c">
+      <Filter>MiMalloc\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\test\main-override.cpp">
+      <Filter>MiMalloc\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\test\mimalloc-test.cpp">
+      <Filter>MiMalloc\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\szlib.c" />
+    <ClCompile Include="..\SLib\dbsql-sqlite.cpp" />
+    <ClCompile Include="..\SLib\dbkv-lmdb.cpp" />
+    <ClCompile Include="..\SLib\sfilestorage.cpp" />
+    <ClCompile Include="..\SLib\mimalloc\segment-cache.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\json.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Slib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\StyloConduit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\sxml.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\tv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Tvdefs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\SLCONFIG.H">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Uri.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\snet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\uchardet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Db.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Dbf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Dbqbrdef.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Dbquery.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\fann2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\amqp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\xxh3.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\xxhash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\slport.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\comdisp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\gumbo.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_enum.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_gperf.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_sizes.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_strings.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\gumbo-internal.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\slib-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\dirent.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\getopt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\LMDB\lmdb.h">
+      <Filter>LMDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\LMDB\midl.h">
+      <Filter>LMDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\bitmap.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc-atomic.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc-internal.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc-new-delete.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc-override.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc-types.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\zlib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\dbkv-lmdb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\slib-ossl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\cpuid32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\cputype32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\debugbreak32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\dispatchpatch32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\divfixedi32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\divfixedv32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\instrset32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\libad32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\memcmp32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\memcpy32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\memmove32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\memset32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\mersenne32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\mother32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\physseed32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\popcount32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\procname32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\rdtsc32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\round32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\sfmt32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\strcat32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\strcmp32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\strcountset32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\strcountutf832.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\strcpy32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\stricmp32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\strlen32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\strspn32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\strstr32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\strtouplow32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\substring32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\cachesize64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\cpuid64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\cputype64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\debugbreak64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\dispatchpatch64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\divfixedi64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\divfixedv64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\instrset64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\libad64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\memcmp64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\memcpy64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\memmove64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\memset64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\mersenne64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\mother64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\physseed64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\popcount64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\procname64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\rdtsc64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\round64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\sfmt64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\strcat64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\strcmp64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\strcountset64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\strcpy64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\stricmp64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\strlen64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\strspn64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\strstr64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\strtouplow64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\substring64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\strcountutf864.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\Asmlib\unalignedisfaster32.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\ASMLIB\unalignedisfaster64.asm">
+      <Filter>ASM64</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="ASM">
+      <UniqueIdentifier>{d678e316-f10d-4cd2-928b-1513201c67ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{da870128-489a-49fa-944b-9bf065332813}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ASM64">
+      <UniqueIdentifier>{7623d283-94b8-455d-8d0d-2d87af64d135}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gumbo">
+      <UniqueIdentifier>{02087afb-fcf9-4722-871b-666bd601ebc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gumbo\Header">
+      <UniqueIdentifier>{1f5f75fd-58a2-4a11-85fc-a6c3a4a98f72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LMDB">
+      <UniqueIdentifier>{2943b66e-3a62-409d-8a91-1761890dff1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LMDB\TEST">
+      <UniqueIdentifier>{6e4d51e6-1203-4a63-8f1a-6141119cef16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MiMalloc">
+      <UniqueIdentifier>{0d498665-ec60-4a89-89fa-77fa174fcf66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MiMalloc\Test">
+      <UniqueIdentifier>{57e86c28-dcc4-4858-a8ed-c5db19e21433}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

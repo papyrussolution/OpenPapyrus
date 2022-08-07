@@ -1,0 +1,1528 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="asm">
+      <UniqueIdentifier>{9cc240bd-2493-4942-bcb1-d8972c470e94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asm\x86">
+      <UniqueIdentifier>{d1e77f4d-0ff8-47c1-b434-83bd424d695e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asm\x64">
+      <UniqueIdentifier>{8226097c-6d0f-42ea-b0a4-a232df2a8f57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="providers">
+      <UniqueIdentifier>{9a2cd187-3c27-475c-829a-000fe78f724c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="providers\implementations">
+      <UniqueIdentifier>{c9a30306-d0a9-46bc-a9c2-bd754b986522}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="providers\implementations\asymciphers">
+      <UniqueIdentifier>{873364b8-6bc9-4547-aa96-4141ee89f84f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="x86">
+      <UniqueIdentifier>{5e28b6b0-8282-4f04-afc2-f4c07356aa67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="x64">
+      <UniqueIdentifier>{0e9187fa-6d3c-417c-a114-af3345339dec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arch">
+      <UniqueIdentifier>{903d07d5-9ad0-46cc-a5bc-cfb40cd1c422}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="curve448">
+      <UniqueIdentifier>{6c1d5f9f-d06b-4b53-85db-82104954f89c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="curve448\arch_32">
+      <UniqueIdentifier>{67b317b3-3450-4a68-8166-f509b5853acc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="curve448\arch_64">
+      <UniqueIdentifier>{591d339a-65f3-47ea-8f8c-c250f64496c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{0877a4ac-c339-4113-94bf-4301788d7c58}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\des_enc.c">
+      <Filter>x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\fcrypt_b.c">
+      <Filter>x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sha\keccak1600.c">
+      <Filter>x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\async\arch\async_posix.c">
+      <Filter>arch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\async\arch\async_win.c">
+      <Filter>arch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\async\arch\async_null.c">
+      <Filter>arch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\curve448\eddsa.c">
+      <Filter>curve448</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\curve448\f_generic.c">
+      <Filter>curve448</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\curve448\scalar.c">
+      <Filter>curve448</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\curve448\curve448.c">
+      <Filter>curve448</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\curve448\curve448_tables.c">
+      <Filter>curve448</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\curve448\arch_32\f_impl32.c">
+      <Filter>curve448\arch_32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\defltprov.c">
+      <Filter>providers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\asymciphers\rsa_enc.c">
+      <Filter>providers\implementations\asymciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\nullprov.c">
+      <Filter>providers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\baseprov.c">
+      <Filter>providers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\prov_running.c">
+      <Filter>providers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\curve448\arch_64\f_impl64.c">
+      <Filter>curve448\arch_64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bf_buff.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bf_lbuf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bf_nbio.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bf_null.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bf_prefix.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bf_readbuff.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bio_addr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bio_cb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bio_dump.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bio_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bio_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bio_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bio_print.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bio_sock.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bio_sock2.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_acpt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_bio.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_conn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_core.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_dgram.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_fd.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_file.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_log.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_mem.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_null.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\bss_sock.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bio\ossl_core_bio.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\x_val.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_bitstr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_d2i_fp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_digest.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_dup.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_gentm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_i2d_fp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_int.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_mbstr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_object.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_octet.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_print.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_sign.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_strex.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_strnid.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_time.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_type.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_utctm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_utf8.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\a_verify.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\aes\aes_cfb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\aes\aes_ecb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\aes\aes_ige.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\aes\aes_misc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\aes\aes_ofb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\aes\aes_wrap.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\ameth_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\aria\aria.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\asn_mime.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\asn_moid.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\asn_mstbl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\asn_pack.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1_dsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\asn1_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\asn1_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\asn1_item_list.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\asn1_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\asn1_parse.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\bio_asn1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\bio_ndef.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bsearch.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\context.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\core_algorithm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\core_fetch.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\core_namemap.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cpt_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cpuid.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cryptlib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ctype.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cversion.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\d2i_param.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\d2i_pr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\d2i_pu.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\der_writer.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ebcdic.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\evp_asn1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ex_data.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\f_int.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\f_string.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\getenv.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\i2d_evp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\info.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\init.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\initthread.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\mem.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\mem_sec.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\n_pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\nsseq.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\o_dir.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\o_fopen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\o_init.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\o_str.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\o_time.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\p5_pbe.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\p5_pbev2.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\p5_scrypt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\p8_pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\packet.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\param_build.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\param_build_set.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\params.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\params_dup.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\params_from_text.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\passphrase.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\provider.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\provider_child.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\provider_conf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\provider_core.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\provider_predefined.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\punycode.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\self_test_core.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sparse_array.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\t_bitst.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\t_pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\t_spki.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\tasn_dec.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\tasn_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\tasn_fre.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\tasn_new.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\tasn_prn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\tasn_scn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\tasn_typ.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\tasn_utl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\threads_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\threads_none.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\threads_pthread.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\threads_win.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\trace.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\uid.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\x_algor.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\x_bignum.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\x_info.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\x_int64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\x_long.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\x_pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\x_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\asn1\x_spki.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\buffer\buf_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\buffer\buffer.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cast\c_cfb64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cast\c_ecb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cast\c_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cast\c_ofb64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cast\c_skey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmac\cmac.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_asn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_client.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_ctx.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_hdr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_http.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_msg.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_protect.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_server.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_status.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_util.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cmp\cmp_vfy.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_asn1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_att.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_cd.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_dd.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_dh.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_ec.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_env.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_ess.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_io.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_kari.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_pwri.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_rsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_sd.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cms\cms_smime.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\comp\c_zlib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\comp\comp_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\comp\comp_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\conf\conf_api.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\conf\conf_def.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\conf\conf_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\conf\conf_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\conf\conf_mall.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\conf\conf_mod.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\conf\conf_sap.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\conf\conf_ssl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dso\dso_dl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dso\dso_dlfcn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dso\dso_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dso\dso_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dso\dso_openssl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dso\dso_vms.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dso\dso_win32.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\http\http_client.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\http\http_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\http\http_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\md5\md5_dgst.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\md5\md5_one.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\md5\md5_sha1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\md4\md4_dgst.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\md4\md4_one.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\mdc2\mdc2_one.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\mdc2\mdc2dgst.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\crmf\crmf_asn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\crmf\crmf_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\crmf\crmf_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\crmf\crmf_pbm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ct\ct_b64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ct\ct_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ct\ct_log.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ct\ct_oct.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ct\ct_policy.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ct\ct_prn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ct\ct_sct.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ct\ct_sct_ctx.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ct\ct_vfy.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ct\ct_x509v3.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_ameth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_asn1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_backend.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_check.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_depr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_group_params.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_kdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_pmeth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_prn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dh\dh_rfc5114.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\encode_decode\decoder_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\encode_decode\decoder_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\encode_decode\decoder_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\encode_decode\decoder_pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\encode_decode\encoder_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\encode_decode\encoder_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\encode_decode\encoder_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\encode_decode\encoder_pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_all.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_cnf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_ctrl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_dyn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_fat.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_init.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_list.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_openssl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_rdrand.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\eng_table.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\tb_asnmth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\tb_cipher.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\tb_dh.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\tb_digest.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\tb_dsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\tb_eckey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\tb_pkmeth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\tb_rand.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\engine\tb_rsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\err\err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\err\err_all.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\err\err_all_legacy.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\err\err_blocks.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\err\err_prn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ess\ess_asn1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ess\ess_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ess\ess_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\asymcipher.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\bio_b64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\bio_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\bio_md.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\bio_ok.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\c_allc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\c_alld.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\cmeth_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\ctrl_params_translate.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\dh_ctrl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\dh_support.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\digest.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\dsa_ctrl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_aes.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_aes_cbc_hmac_sha1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_aes_cbc_hmac_sha256.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_aria.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_bf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_camellia.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_cast.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_chacha20_poly1305.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_des.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_des3.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_idea.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_null.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_old.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_rc2.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_rc4.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_rc4_hmac_md5.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_rc5.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_seed.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_sm4.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\e_xcbc_d.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\ec_ctrl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\ec_support.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\encode.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\evp_cnf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\evp_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\evp_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\evp_fetch.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\evp_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\evp_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\evp_pbe.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\evp_pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\evp_rand.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\evp_utils.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\exchange.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\kdf_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\kdf_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\kem.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\keymgmt_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\keymgmt_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\legacy_blake2.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\legacy_md4.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\legacy_md5.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\legacy_md5_sha1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\legacy_mdc2.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\legacy_ripemd.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\legacy_sha.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\legacy_wp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\m_null.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\m_sigver.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\mac_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\mac_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\names.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\p_dec.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\p_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\p_legacy.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\p_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\p_open.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\p_seal.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\p_sign.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\p_verify.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\p5_crpt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\p5_crpt2.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\pbe_scrypt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\pmeth_check.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\pmeth_gn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\pmeth_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\evp\signature.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\poly1305\poly1305.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\property\defn_cache.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\property\property.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\property\property_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\property\property_parse.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\property\property_query.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\property\property_string.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rand\prov_seed.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rand\rand_deprecated.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rand\rand_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rand\rand_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rand\rand_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rand\rand_pool.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rand\randfile.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_x931g.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_ameth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_asn1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_backend.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_chk.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_crpt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_depr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_mp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_mp_names.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_none.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_oaep.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_ossl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_pk1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_pmeth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_prn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_pss.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_saos.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_schemes.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_sign.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_sp800_56b_check.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_sp800_56b_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rsa\rsa_x931.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ripemd\rmd_one.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ripemd\rmd_dgst.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rc2\rc2ofb64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rc2\rc2cfb64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rc2\rc2_skey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rc2\rc2_ecb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\rc2\rc2_cbc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\seed\seed.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\seed\seed_cbc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\seed\seed_cfb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\seed\seed_ecb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\seed\seed_ofb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs7\bio_pk7.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs7\pk7_asn1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs7\pk7_attr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs7\pk7_doit.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs7\pk7_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs7\pk7_mime.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs7\pk7_smime.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs7\pkcs7err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_add.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_asn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_attr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_crpt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_crt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_decr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_init.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_kiss.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_mutl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_npas.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_p8d.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_p8e.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_sbag.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\p12_utl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pkcs12\pk12err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\xts128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\cbc128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\ccm128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\cfb128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\ctr128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\cts128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\gcm128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\ocb128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\ofb128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\siv128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\modes\wrap128.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\lhash\lhash.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\lhash\lh_stats.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\kdf\kdf_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\idea\i_cbc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\idea\i_cfb64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\idea\i_ecb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\idea\i_ofb64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\idea\i_skey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pvkfmt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pem_all.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pem_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pem_info.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pem_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pem_oth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pem_pk8.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pem_pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pem_sign.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pem_x509.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\pem\pem_xaux.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ocsp\v3_ocsp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ocsp\ocsp_vfy.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ocsp\ocsp_srv.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ocsp\ocsp_prn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ocsp\ocsp_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ocsp\ocsp_http.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ocsp\ocsp_ext.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ocsp\ocsp_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ocsp\ocsp_cl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ocsp\ocsp_asn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\objects\obj_xref.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\objects\obj_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\objects\obj_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\objects\obj_dat.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\objects\o_names.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sm2\sm2_crypt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sm2\sm2_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sm2\sm2_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sm2\sm2_sign.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\siphash\siphash.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sm3\legacy_sm3.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sm3\sm3.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sm4\sm4.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\srp\srp_vfy.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\srp\srp_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\stack\stack.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\store\store_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\store\store_init.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\store\store_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\store\store_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\store\store_register.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\store\store_result.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\store\store_strings.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_asn1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_conf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_req_print.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_req_utils.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_rsp_print.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_rsp_sign.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_rsp_utils.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_rsp_verify.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ts\ts_verify_ctx.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\txt_db\txt_db.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ui\ui_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ui\ui_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ui\ui_null.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ui\ui_openssl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ui\ui_util.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\by_dir.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\by_file.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\by_store.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\pcy_cache.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\pcy_data.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\pcy_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\pcy_map.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\pcy_node.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\pcy_tree.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\t_crl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\t_req.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\t_x509.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_addr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_admis.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_akeya.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_akid.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_asid.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_bcons.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_bitst.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_conf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_cpols.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_crld.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_enum.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_extku.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_genn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_ia5.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_info.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_int.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_ist.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_ncons.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_pci.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_pcia.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_pcons.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_pku.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_pmaps.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_prn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_purp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_san.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_skid.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_sxnet.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_tlsf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_utf8.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3_utl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\v3err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x_all.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x_attrib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x_crl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x_exten.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x_name.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x_pubkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x_req.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x_x509.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x_x509a.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_att.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_cmp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_d2.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_def.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_ext.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_lu.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_obj.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_r2x.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_req.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_set.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_trust.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_txt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_v3.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_vfy.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509_vpm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509cset.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509name.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509rset.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509spki.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\x509\x509type.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_ameth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_asn1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_backend.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_check.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_depr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_ossl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_pmeth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_prn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_sign.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\dsa\dsa_vrf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ffc\ffc_backend.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ffc\ffc_dh.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ffc\ffc_key_generate.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ffc\ffc_key_validate.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ffc\ffc_params.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ffc\ffc_params_generate.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ffc\ffc_params_validate.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\hmac\hmac.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\engines\e_capi.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\engines\e_padlock.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\async\async.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\async\async_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\async\async_wait.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bf\bf_cfb64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bf\bf_ecb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bf\bf_ofb64.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bf\bf_skey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_add.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_blind.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_const.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_conv.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_ctx.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_depr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_dh.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_div.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_exp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_exp2.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_gcd.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_gf2m.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_intern.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_kron.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_mod.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_mont.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_mpi.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_mul.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_nist.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_prime.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_print.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_rand.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_recp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_rsa_fips186_4.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_shift.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_sqr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_sqrt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_srp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_word.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_x931p.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\camellia\cmll_cfb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\camellia\cmll_ctr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\camellia\cmll_ecb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\camellia\cmll_ofb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\cbc_cksm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\cbc_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\cfb_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\cfb64ede.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\cfb64enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\ecb_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\ecb3_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\fcrypt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\ofb_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\ofb64ede.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\ofb64enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\pcbc_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\qud_cksm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\rand_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\set_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\str2key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\xcbc_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\curve25519.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_ameth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_asn1.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_backend.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_check.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_curve.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_cvt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_deprecated.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_kmeth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_lib.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_mult.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_oct.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_pmeth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec_print.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec2_oct.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ec2_smpl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecdh_kdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecdh_ossl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecdsa_ossl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecdsa_sign.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecdsa_vrf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\eck_prn.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecp_mont.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecp_nist.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecp_nistz256.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecp_oct.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecp_smpl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecx_backend.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecx_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ec\ecx_meth.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sha\sha1_one.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sha\sha1dgst.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sha\sha3.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sha\sha256.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\sha\sha512.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\whrlpool\wp_dgst.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\camellia\cmll_misc.c">
+      <Filter>x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bf\bf_enc.c">
+      <Filter>x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\whrlpool\wp_block.c">
+      <Filter>x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_asm.c">
+      <Filter>x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\rsaz_exp.c">
+      <Filter>x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\rsaz_exp_x2.c">
+      <Filter>x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-302\crypto\openssl-crypto-pch.cpp" />
+    <ClCompile Include="..\OSF\OpenSSL-302\crypto\rc5\rc5_ecb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-302\crypto\rc5\rc5_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-302\crypto\rc5\rc5_skey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-302\crypto\rc5\rc5cfb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-302\crypto\rc5\rc5ofb64.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-gcm-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-mb-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-sha1-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-sha256-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aes-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\bsaes-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\cmll-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\ecp_nistz256-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\ghash-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aes-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-x86.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\bf-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\bn-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\cmll-x86.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\co-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\crypt586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\des-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\ghash-x86.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\md5-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\md5-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rc4-md5-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rc4-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha1-mb-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha1-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha256-mb-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha512-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rc4-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rmd-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha1-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha256-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha512-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\vpaes-x86.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\vpaes-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64cpuid.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-gf2m.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-mont.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-mont5.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86-gf2m.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86-mont.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\wp-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\wp-mmx.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-avx2.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-avx512.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\chacha-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\chacha-x86.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\ecp_nistz256-x86.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\poly1305-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\poly1305-x86.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\keccak1600-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x25519-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\engines\asm\e_padlock-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\engines\asm\e_padlock-x86.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86cpuid.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\openssl-crypto-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\aes_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\arch32-f_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\arch32-intrinsics.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\arch64-f_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\arch64-intrinsics.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\arm_arch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\asn1_item_list.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\asn1_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\async_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\async_null.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\async_posix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\async_win.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\bf_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\bf_pi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\bio_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\bn_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\bn_prime.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\buildinf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\cast_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\cast_s.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\charmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\cmll_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\cmp_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\cms_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\comp_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\conf_def.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\conf_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\crmf_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\ct_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\curve448_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\curve448utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\des_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\dh_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\dsa_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\dso_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\ec_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\ecx_backend.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\ed448.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\encoder_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\eng_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\err_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\evp_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\ext_dat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\field.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\hmac_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\idea_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\legacy_meth.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\lhash_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\md4_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\md5_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\mips_arch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\obj_compat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\obj_dat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\obj_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\obj_xref.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\ocsp_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\p12_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\pcy_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\pem_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\pk7_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\point_448.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\property_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\provider_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\rand_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\rc2_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\rc4_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\rc5_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\rmd_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\rmdconst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\rsa_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\rsaz_exp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\s390x_arch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\seed_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\sha_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\sm3_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\spr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\standard_exts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\standard_methods.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\store_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\tbl_standard.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\ts_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\ui_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\v3_admis.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\vms_rms.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\word.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\wp_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\internal\crypto\x509_local.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\__DECC_INCLUDE_EPILOGUE.H">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\__DECC_INCLUDE_PROLOGUE.H">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\aes_platform.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\aria.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\asn1.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\asn1_dsa.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\asn1err.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\async.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\asyncerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\bioerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\bn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\bn_conf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\bn_dh.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\bn_srp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\bnerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\buffererr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\chacha.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\cmll_platform.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\cmperr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\cmserr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\comperr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\conferr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\crmferr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\cryptlib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\cryptoerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\cterr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\ctype.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\decoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\decodererr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\des_platform.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\dh.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\dherr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\dsa.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\dsaerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\dso_conf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\ec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\ecerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\ecx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\encoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\encodererr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\engine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\engineerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\err.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\ess.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\esserr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\evp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\evperr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\httperr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\lhash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\md32_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\modes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\objects.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\objectserr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\ocsperr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\pem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\pemerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\pkcs7.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\pkcs7err.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\pkcs12err.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\poly1305.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\ppc_arch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\punycode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\rand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\rand_pool.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\randerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\rsa.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\rsaerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\security_bits.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\sha.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\siphash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\siv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\sm2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\sm2err.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\sm4.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\sparc_arch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\sparse_array.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\store.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\storeerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\tserr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\uierr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\x509.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\x509err.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-302\include\crypto\x509v3err.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OSF\OpenSSL-302\include\crypto\bn_conf.h.in">
+      <Filter>Header</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\include\crypto\dso_conf.h.in">
+      <Filter>Header</Filter>
+    </None>
+  </ItemGroup>
+</Project>

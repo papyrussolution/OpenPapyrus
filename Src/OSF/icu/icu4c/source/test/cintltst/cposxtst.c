@@ -80,10 +80,10 @@ void TestMessageCatalog()
 		if(u_strcmp(ustr, exp) != 0) {
 			log_err("FAIL: u_catgets => \"%s\", exp. \"%s\"\n", str, DATA[i+2]);
 		}
-		if(len != (int32_t)uprv_strlen(DATA[i+2])) {
-			log_err("FAIL: u_catgets => len=%d, exp. %d\n", len, uprv_strlen(DATA[i+2]));
+		if(len != (int32_t)strlen(DATA[i+2])) {
+			log_err("FAIL: u_catgets => len=%d, exp. %d\n", len, strlen(DATA[i+2]));
 		}
-		if(uprv_strcmp(err, DATA[i+3]) != 0) {
+		if(strcmp(err, DATA[i+3]) != 0) {
 			log_err("FAIL: u_catgets => %s, exp. %s\n", err, DATA[i+3]);
 		}
 	}

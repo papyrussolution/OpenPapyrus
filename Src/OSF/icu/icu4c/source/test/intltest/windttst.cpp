@@ -122,15 +122,15 @@ void Win32DateTimeTest::testLocales(DateFormatTest * log)
 		GetLocaleInfoW(lcidRecords[i].lcid, LOCALE_RETURN_NUMBER|LOCALE_ICALENDARTYPE, (LPWSTR)&value, sizeof(value)/sizeof(WCHAR));
 		calType = value;
 		char localeID[64];
-		uprv_strcpy(localeID, lcidRecords[i].localeID);
+		strcpy(localeID, lcidRecords[i].localeID);
 		uprv_strcat(localeID, getCalendarType(calType));
 
 		UnicodeString ubBuffer, udBuffer, utBuffer;
 		Locale ulocale(localeID);
 		int32_t wdLength, wtLength;
 
-		wdLength = GetDateFormatW(lcidRecords[i].lcid, DATE_LONGDATE, &winNow, NULL, wdBuffer, UPRV_LENGTHOF(wdBuffer));
-		wtLength = GetTimeFormatW(lcidRecords[i].lcid, 0, &winNow, NULL, wtBuffer, UPRV_LENGTHOF(wtBuffer));
+		wdLength = GetDateFormatW(lcidRecords[i].lcid, DATE_LONGDATE, &winNow, NULL, wdBuffer, SIZEOFARRAYi(wdBuffer));
+		wtLength = GetTimeFormatW(lcidRecords[i].lcid, 0, &winNow, NULL, wtBuffer, SIZEOFARRAYi(wtBuffer));
 		if(uprv_strchr(localeID, '@') > 0) {
 			uprv_strcat(localeID, ";");
 		}

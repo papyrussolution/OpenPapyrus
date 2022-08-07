@@ -2287,7 +2287,7 @@ void NumberFormatRegressionTest::Test4176114() {
 		"000,000", "000,000",
 		"0,000,000,000,000.0000", "0,000,000,000,000.0000", // Reported
 	};
-	int DATA_length = UPRV_LENGTHOF(DATA);
+	int DATA_length = SIZEOFARRAYi(DATA);
 	UErrorCode status = U_ZERO_ERROR;
 	UnicodeString s;
 	for(int i = 0; i<DATA_length; i += 2) {
@@ -2315,7 +2315,7 @@ void NumberFormatRegressionTest::Test4179818() {
 		"1.2501", "#.#",   "1.3",
 		"0.9999", "#",     "1",
 	};
-	int DATA_length = UPRV_LENGTHOF(DATA);
+	int DATA_length = SIZEOFARRAYi(DATA);
 	double DOUBLE[] = {
 		1.2511,
 		1.2501,
@@ -2547,7 +2547,7 @@ void NumberFormatRegressionTest::Test4216742() {
 		return;
 	}
 	int32_t DATA[] = { INT32_MIN, INT32_MAX, -100000000, 100000000 };
-	int DATA_length = UPRV_LENGTHOF(DATA);
+	int DATA_length = SIZEOFARRAYi(DATA);
 	for(int i = 0; i<DATA_length; ++i) {
 		UnicodeString str((UnicodeString)"" + DATA[i]);
 		for(int m = 1; m <= 100; m++) {
@@ -2582,7 +2582,7 @@ void NumberFormatRegressionTest::Test4216742() {
 void NumberFormatRegressionTest::Test4217661() {
 	const double D[] = {  0.001, 1.001, 0.006,  1.006 };
 	const char * S[] = { "0",   "1",   "0.01", "1.01" };
-	int D_length = UPRV_LENGTHOF(D);
+	int D_length = SIZEOFARRAYi(D);
 	UErrorCode status = U_ZERO_ERROR;
 	NumberFormat * fmt = NumberFormat::createInstance(Locale::getUS(), status);
 	if(failure(status, "createInstance", Locale::getUS(), TRUE)) {
@@ -2637,7 +2637,7 @@ void NumberFormatRegressionTest::Test4243011() {
 	if(!failure(status, "DecimalFormat ct", Locale::getUS())) {
 		const double NUM[] = {  -2.5,  -1.5,  -0.5,  0.5,  1.5,  2.5,  3.5,  4.5 };
 		const char * STR[] = { "-2.", "-2.", "-0.", "0.", "2.", "2.", "4.", "4." };
-		int32_t N = UPRV_LENGTHOF(NUM);
+		int32_t N = SIZEOFARRAYi(NUM);
 
 		for(int32_t i = 0; i<N; ++i) {
 			UnicodeString str;

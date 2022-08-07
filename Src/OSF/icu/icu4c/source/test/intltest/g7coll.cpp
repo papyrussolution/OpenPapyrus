@@ -110,7 +110,7 @@ void G7CollationTest::TestG7Locales(/* char * par */)
 		Locale("ja", "JP", "")
 	};
 
-	for(i = 0; i < UPRV_LENGTHOF(locales); i++) {
+	for(i = 0; i < SIZEOFARRAYi(locales); i++) {
 		UnicodeString dispName;
 		UErrorCode status = U_ZERO_ERROR;
 

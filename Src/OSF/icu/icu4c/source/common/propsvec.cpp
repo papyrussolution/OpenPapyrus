@@ -342,7 +342,7 @@ U_CAPI void U_EXPORT2 upvec_compact(UPropsVectors * pv, UPVecCompactHandler * ha
 		start = (UChar32)row[0];
 
 		/* count a new values vector if it is different from the current one */
-		if(count<0 || 0!=uprv_memcmp(row+2, row-valueColumns, valueColumns*4)) {
+		if(count<0 || 0!=memcmp(row+2, row-valueColumns, valueColumns*4)) {
 			count += valueColumns;
 		}
 
@@ -381,7 +381,7 @@ U_CAPI void U_EXPORT2 upvec_compact(UPropsVectors * pv, UPVecCompactHandler * ha
 		limit = (UChar32)row[1];
 
 		/* add a new values vector if it is different from the current one */
-		if(count<0 || 0!=uprv_memcmp(row+2, pv->v+count, valueColumns*4)) {
+		if(count<0 || 0!=memcmp(row+2, pv->v+count, valueColumns*4)) {
 			count += valueColumns;
 			uprv_memmove(pv->v+count, row+2, (size_t)valueColumns*4);
 		}

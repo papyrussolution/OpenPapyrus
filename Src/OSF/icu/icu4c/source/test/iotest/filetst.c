@@ -36,10 +36,10 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 	void * origPtr, * ptr;
 	U_STRING_DECL(myStringOrig, "My-String", 9);
 	U_STRING_INIT(myStringOrig, "My-String", 9);
-	u_memset(myUString, 0x2a, UPRV_LENGTHOF(myUString));
-	u_memset(uStringBuf, 0x2a, UPRV_LENGTHOF(uStringBuf));
-	memset(myString, '*', UPRV_LENGTHOF(myString));
-	memset(testBuf, '*', UPRV_LENGTHOF(testBuf));
+	u_memset(myUString, 0x2a, SIZEOFARRAYi(myUString));
+	u_memset(uStringBuf, 0x2a, SIZEOFARRAYi(uStringBuf));
+	memset(myString, '*', SIZEOFARRAYi(myString));
+	memset(testBuf, '*', SIZEOFARRAYi(testBuf));
 	if(myFile == NULL) {
 		if(uprv_strstr(description, "ULONGNAME")) {
 			log_info("Can't %s test file, OK.\n", description);
@@ -220,12 +220,12 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 		log_err("%%s Got: %s, Expected: My String\n", myString);
 	}
 	u_fscanf(myFile, "Unicode String %%S: %S\n", myUString);
-	u_austrncpy(myString, myUString, UPRV_LENGTHOF(myUString));
+	u_austrncpy(myString, myUString, SIZEOFARRAYi(myUString));
 	if(strcmp(myString, "My-String")) {
 		log_err("%%S Got: %S, Expected: My String\n", myUString);
 	}
 	u_fscanf(myFile, "NULL Unicode String %%S: %S\n", myUString);
-	u_austrncpy(myString, myUString, UPRV_LENGTHOF(myUString));
+	u_austrncpy(myString, myUString, SIZEOFARRAYi(myUString));
 	if(strcmp(myString, "(null)")) {
 		log_err("%%S Got: %S, Expected: My String\n", myUString);
 	}
@@ -243,31 +243,31 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 	u_fgets(myUString, 4, myFile);
 	myString[2] = '!';
 	myString[3] = '!';
-	u_austrncpy(myString, myUString, UPRV_LENGTHOF(myUString));
+	u_austrncpy(myString, myUString, SIZEOFARRAYi(myUString));
 	if(strcmp(myString, "\t\n") != 0) {
 		log_err("u_fgets got \"%s\"\n", myString);
 	}
 
-	if(u_fgets(myUString, UPRV_LENGTHOF(myUString), myFile) != myUString) {
+	if(u_fgets(myUString, SIZEOFARRAYi(myUString), myFile) != myUString) {
 		log_err("u_fgets did not return myUString\n");
 	}
-	u_austrncpy(myString, myUString, UPRV_LENGTHOF(myUString));
+	u_austrncpy(myString, myUString, SIZEOFARRAYi(myUString));
 	if(strcmp(myString, "Pointer to integer (Count) %n: n=1  n=1\n") != 0) {
 		log_err("u_fgets got \"%s\"\n", myString);
 	}
 
-	if(u_fgets(myUString, UPRV_LENGTHOF(myUString), myFile) != myUString) {
+	if(u_fgets(myUString, SIZEOFARRAYi(myUString), myFile) != myUString) {
 		log_err("u_fgets did not return myUString\n");
 	}
-	u_austrncpy(myString, myUString, UPRV_LENGTHOF(myUString));
+	u_austrncpy(myString, myUString, SIZEOFARRAYi(myUString));
 	if(strcmp(myString, "Pointer to integer Value: 37\n") != 0) {
 		log_err("u_fgets got \"%s\"\n", myString);
 	}
 
-	if(u_fgets(myUString, UPRV_LENGTHOF(myUString), myFile) != myUString) {
+	if(u_fgets(myUString, SIZEOFARRAYi(myUString), myFile) != myUString) {
 		log_err("u_fgets did not return myUString\n");
 	}
-	u_austrncpy(myString, myUString, UPRV_LENGTHOF(myUString));
+	u_austrncpy(myString, myUString, SIZEOFARRAYi(myUString));
 	if(strcmp(myString, "This is a long test123456789012345678901234567890123456789012345678901234567890\n") != 0) {
 		log_err("u_fgets got \"%s\"\n", myString);
 	}
@@ -279,7 +279,7 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 	if(u_fgets(myUString, 1, myFile) != myUString) {
 		log_err("u_fgets did not return myUString\n");
 	}
-	u_austrncpy(myString, myUString, UPRV_LENGTHOF(myUString));
+	u_austrncpy(myString, myUString, SIZEOFARRAYi(myUString));
 	if(strcmp(myString, "") != 0) {
 		log_err("u_fgets got \"%s\"\n", myString);
 	}
@@ -287,13 +287,13 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 	if(u_fgets(myUString, 2, myFile) != myUString) {
 		log_err("u_fgets did not return myUString\n");
 	}
-	u_austrncpy(myString, myUString, UPRV_LENGTHOF(myUString));
+	u_austrncpy(myString, myUString, SIZEOFARRAYi(myUString));
 	if(strcmp(myString, "\t") != 0) {
 		log_err("u_fgets got \"%s\"\n", myString);
 	}
 
-	u_austrncpy(myString, u_fgets(myUString, UPRV_LENGTHOF(myUString), myFile),
-	    UPRV_LENGTHOF(myUString));
+	u_austrncpy(myString, u_fgets(myUString, SIZEOFARRAYi(myUString), myFile),
+	    SIZEOFARRAYi(myUString));
 	if(strcmp(myString, "Normal fprintf count: n=1  n=1\n") != 0) {
 		log_err("u_fgets got \"%s\"\n", myString);
 	}
@@ -301,8 +301,8 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 	if(u_feof(myFile)) {
 		log_err("Got feof while reading the file and not at the end of the file.\n");
 	}
-	u_austrncpy(myString, u_fgets(myUString, UPRV_LENGTHOF(myUString), myFile),
-	    UPRV_LENGTHOF(myUString));
+	u_austrncpy(myString, u_fgets(myUString, SIZEOFARRAYi(myUString), myFile),
+	    SIZEOFARRAYi(myUString));
 	if(strcmp(myString, "\tNormal fprintf count value: n=27\n") != 0) {
 		log_err("u_fgets got \"%s\"\n", myString);
 	}
@@ -368,7 +368,7 @@ static void StdinBuffering() {
 
 	buff[0] = 0x40;
 	buff[1] = 0;
-	u_fgets(buff, UPRV_LENGTHOF(buff), uStdIn);
+	u_fgets(buff, SIZEOFARRAYi(buff), uStdIn);
 	u_fprintf(uStdOut, "%S\n", buff);
 	u_fscanf(uStdIn, "%d", &num);
 	u_fprintf(uStdOut, "%d\n", num);
@@ -449,8 +449,8 @@ static void TestfgetsBuffers()
 		log_err("u_fputc should return U_EOF for 0xFFFFFFFF.\n");
 	}
 	u_fputc(0xFF41, myFile);
-	u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
-	u_memset(expectedBuffer, 0, UPRV_LENGTHOF(expectedBuffer));
+	u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
+	u_memset(expectedBuffer, 0, SIZEOFARRAYi(expectedBuffer));
 	u_uastrncpy(buffer, testStr, expectedSize+1);
 	for(repetitions = 0; repetitions < 16; repetitions++) {
 		u_file_write(buffer, expectedSize, myFile);
@@ -458,7 +458,7 @@ static void TestfgetsBuffers()
 	}
 	u_fclose(myFile);
 
-	u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
+	u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
 	myFile = u_fopen(STANDARD_TEST_FILE, "r", NULL, "UTF-16");
 	if(u_fgetc(myFile) != 0x3BC) {
 		log_err("The first character is wrong\n");
@@ -466,7 +466,7 @@ static void TestfgetsBuffers()
 	if(u_fgetc(myFile) != 0xFF41) {
 		log_err("The second character is wrong\n");
 	}
-	if(u_fgets(buffer, UPRV_LENGTHOF(buffer), myFile) != buffer) {
+	if(u_fgets(buffer, SIZEOFARRAYi(buffer), myFile) != buffer) {
 		log_err("Didn't get the buffer back\n");
 		return;
 	}
@@ -491,8 +491,8 @@ static void TestfgetsBuffers()
 
 	u_fputc(0x3BC, myFile);
 	u_fputc(0xFF41, myFile);
-	u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
-	u_memset(expectedBuffer, 0, UPRV_LENGTHOF(expectedBuffer));
+	u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
+	u_memset(expectedBuffer, 0, SIZEOFARRAYi(expectedBuffer));
 	u_uastrncpy(buffer, testStr, expectedSize+1);
 	for(repetitions = 0; repetitions < 16; repetitions++) {
 		u_file_write(buffer, expectedSize, myFile);
@@ -500,7 +500,7 @@ static void TestfgetsBuffers()
 	}
 	u_fclose(myFile);
 
-	u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
+	u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
 	myFile = u_fopen(STANDARD_TEST_FILE, "r", NULL, "UTF-8");
 	if(strcmp(u_fgetcodepage(myFile), "UTF-8") != 0) {
 		log_err("Got %s instead of UTF-8\n", u_fgetcodepage(myFile));
@@ -511,7 +511,7 @@ static void TestfgetsBuffers()
 	if(u_fgetc(myFile) != 0xFF41) {
 		log_err("The second character is wrong\n");
 	}
-	if(u_fgets(buffer, UPRV_LENGTHOF(buffer), myFile) != buffer) {
+	if(u_fgets(buffer, SIZEOFARRAYi(buffer), myFile) != buffer) {
 		log_err("Didn't get the buffer back\n");
 		return;
 	}
@@ -532,8 +532,8 @@ static void TestfgetsBuffers()
 	myFile = u_fopen(STANDARD_TEST_FILE, "w", NULL, "UTF-8");
 
 	u_fputc(0xFF41, myFile);
-	u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
-	u_memset(expectedBuffer, 0, UPRV_LENGTHOF(expectedBuffer));
+	u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
+	u_memset(expectedBuffer, 0, SIZEOFARRAYi(expectedBuffer));
 	u_uastrncpy(buffer, testStr, expectedSize+1);
 	for(repetitions = 0; repetitions < 1; repetitions++) {
 		u_file_write(buffer, expectedSize, myFile);
@@ -541,7 +541,7 @@ static void TestfgetsBuffers()
 	}
 	u_fclose(myFile);
 
-	u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
+	u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
 	myFile = u_fopen(STANDARD_TEST_FILE, "r", NULL, "UTF-8");
 	if(u_fgets(buffer, 2, myFile) != buffer) {
 		log_err("Didn't get the buffer back\n");
@@ -566,13 +566,13 @@ static void TestFileReadBuffering() {
 	int32_t how_many;
 	int32_t repetitions;
 
-	u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
+	u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
 	for(repetitions = 0; repetitions < 2; repetitions++) {
-		u_file_write(buffer, UPRV_LENGTHOF(buffer), myFile);
+		u_file_write(buffer, SIZEOFARRAYi(buffer), myFile);
 	}
 
 	u_fclose(myFile);
-	u_memset(buffer, 0xDEAD, UPRV_LENGTHOF(buffer));
+	u_memset(buffer, 0xDEAD, SIZEOFARRAYi(buffer));
 	myFile = u_fopen(STANDARD_TEST_FILE, "r", NULL, "UTF-16");
 	how_many = u_file_read(buffer, 1024, myFile);
 	if(how_many != 1024 || buffer[1023] != 0xBEEF) {
@@ -596,7 +596,7 @@ static void TestfgetsLineCount() {
 		log_err("Can't write test file.\n");
 		return;
 	}
-	u_memset(expectedBuffer, 0, UPRV_LENGTHOF(expectedBuffer));
+	u_memset(expectedBuffer, 0, SIZEOFARRAYi(expectedBuffer));
 
 	for(repetitions = 0; repetitions < 16; repetitions++) {
 		fwrite(testStr, sizeof(testStr[0]), expectedSize, stdFile);
@@ -613,9 +613,9 @@ static void TestfgetsLineCount() {
 		char * returnedCharBuffer;
 		UChar * returnedUCharBuffer;
 
-		u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
-		returnedCharBuffer = fgets(charBuffer, UPRV_LENGTHOF(charBuffer), stdFile);
-		returnedUCharBuffer = u_fgets(buffer, UPRV_LENGTHOF(buffer), myFile);
+		u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
+		returnedCharBuffer = fgets(charBuffer, SIZEOFARRAYi(charBuffer), stdFile);
+		returnedUCharBuffer = u_fgets(buffer, SIZEOFARRAYi(buffer), myFile);
 
 		if(!returnedCharBuffer && !returnedUCharBuffer) {
 			/* Both returned NULL. stop. */
@@ -682,18 +682,18 @@ static void TestfgetsNewLineHandling() {
 		log_err("Can't write test file.\n");
 		return;
 	}
-	for(lineIdx = 0; lineIdx < UPRV_LENGTHOF(testUStr); lineIdx++) {
+	for(lineIdx = 0; lineIdx < SIZEOFARRAYi(testUStr); lineIdx++) {
 		u_file_write(testUStr[lineIdx], u_strlen(testUStr[lineIdx]), myFile);
 	}
 	u_fclose(myFile);
 
 	myFile = u_fopen(STANDARD_TEST_FILE, "rb", NULL, "UTF-8");
 
-	for(lineIdx = 0; lineIdx < UPRV_LENGTHOF(testUStr); lineIdx++) {
+	for(lineIdx = 0; lineIdx < SIZEOFARRAYi(testUStr); lineIdx++) {
 		UChar * returnedUCharBuffer;
 
-		u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
-		returnedUCharBuffer = u_fgets(buffer, UPRV_LENGTHOF(buffer), myFile);
+		u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
+		returnedUCharBuffer = u_fgets(buffer, SIZEOFARRAYi(buffer), myFile);
 
 		if(!returnedUCharBuffer) {
 			/* Returned NULL. stop. */
@@ -706,10 +706,10 @@ static void TestfgetsNewLineHandling() {
 			log_err("u_fgets wrote too much\n");
 		}
 	}
-	if(lineIdx != UPRV_LENGTHOF(testUStr)) {
+	if(lineIdx != SIZEOFARRAYi(testUStr)) {
 		log_err("u_fgets read too much\n");
 	}
-	if(u_fgets(buffer, UPRV_LENGTHOF(buffer), myFile) != NULL) {
+	if(u_fgets(buffer, SIZEOFARRAYi(buffer), myFile) != NULL) {
 		log_err("u_file_write wrote too much\n");
 	}
 	u_fclose(myFile);
@@ -743,7 +743,7 @@ static void TestLineCount(const char * prefixLine, const char * line, int32_t nu
 
 	/* Read the prefix line. This can make sure that a Windows newline is either on a boundary or before it. */
 	u_uastrncpy(expectedBuffer, prefixLine, (int32_t)strlen(prefixLine)+1);
-	returnedUCharBuffer = u_fgets(buffer, UPRV_LENGTHOF(buffer), myFile);
+	returnedUCharBuffer = u_fgets(buffer, SIZEOFARRAYi(buffer), myFile);
 	if(u_strcmp(returnedUCharBuffer, expectedBuffer) != 0) {
 		log_err("prefix buffer is different. prefix=\"%s\"\n", prefixLine);
 		return;
@@ -751,8 +751,8 @@ static void TestLineCount(const char * prefixLine, const char * line, int32_t nu
 
 	u_uastrncpy(expectedBuffer, line, (int32_t)strlen(line)+1);
 	for(repetitions = 0;; repetitions++) {
-		u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
-		returnedUCharBuffer = u_fgets(buffer, UPRV_LENGTHOF(buffer), myFile);
+		u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
+		returnedUCharBuffer = u_fgets(buffer, SIZEOFARRAYi(buffer), myFile);
 
 		if(!returnedUCharBuffer) {
 			/* returned NULL. stop. */
@@ -792,10 +792,10 @@ static void TestFgetsLineBuffering() {
 		log_err("Can't write test file.\n");
 		return;
 	}
-	u_memset(buffer, 0xBEEF, UPRV_LENGTHOF(buffer));
+	u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
 
 	/* Write one very long line */
-	for(repetitions = 0; repetitions < (UPRV_LENGTHOF(buffer)*2); repetitions++) {
+	for(repetitions = 0; repetitions < (SIZEOFARRAYi(buffer)*2); repetitions++) {
 		fwrite(repetitions ? "1" : "2", 1, 1, stdFile);
 	}
 	fclose(stdFile);
@@ -807,13 +807,13 @@ static void TestFgetsLineBuffering() {
 	}
 
 	/* Read part of one very long line */
-	returnedUCharBuffer = u_fgets(buffer, UPRV_LENGTHOF(buffer)-1, myFile);
-	if(u_strlen(returnedUCharBuffer) != (UPRV_LENGTHOF(buffer)-2)) {
+	returnedUCharBuffer = u_fgets(buffer, SIZEOFARRAYi(buffer)-1, myFile);
+	if(u_strlen(returnedUCharBuffer) != (SIZEOFARRAYi(buffer)-2)) {
 		log_err("Line is wrong length. Got %d. Expected %d.\n",
-		    u_strlen(returnedUCharBuffer), (UPRV_LENGTHOF(buffer)-2));
+		    u_strlen(returnedUCharBuffer), (SIZEOFARRAYi(buffer)-2));
 	}
 	/* We better not read too much */
-	if(buffer[UPRV_LENGTHOF(buffer)-1] != 0xBEEF) {
+	if(buffer[SIZEOFARRAYi(buffer)-1] != 0xBEEF) {
 		log_err("Too much data was written\n");
 	}
 
@@ -824,7 +824,7 @@ static void TestCodepage() {
 	UFILE * myFile = NULL;
 	static const UChar strABAccentA[] = { 0x0041, 0x0042, 0x00C1, 0x0043, 0};
 	static const UChar strBadConversion[] = { 0x0041, 0x0042, 0xfffd, 0x0043, 0};
-	UChar testBuf[UPRV_LENGTHOF(strABAccentA)*2]; /* *2 to see if too much was  */
+	UChar testBuf[SIZEOFARRAYi(strABAccentA)*2]; /* *2 to see if too much was  */
 	char convName[UCNV_MAX_CONVERTER_NAME_LENGTH];
 	int32_t retVal;
 	UErrorCode status = U_ZERO_ERROR;
@@ -1116,15 +1116,15 @@ static void TestFilePrintCompatibility() {
 			return; \
 		} \
 		/* Reinitialize the buffer to verify null termination works. */ \
-		u_memset(uBuffer, 0x2a, UPRV_LENGTHOF(uBuffer)); \
-		memset(buffer, '*', UPRV_LENGTHOF(buffer)); \
+		u_memset(uBuffer, 0x2a, SIZEOFARRAYi(uBuffer)); \
+		memset(buffer, '*', SIZEOFARRAYi(buffer)); \
     \
 		uNumPrinted = u_fprintf(myFile, uFormat, uValue); \
 		u_fclose(myFile); \
 		myFile = u_fopen(STANDARD_TEST_FILE, "r", STANDARD_TEST_LOCALE, NULL); \
-		u_fgets(uBuffer, UPRV_LENGTHOF(uBuffer), myFile); \
+		u_fgets(uBuffer, SIZEOFARRAYi(uBuffer), myFile); \
 		u_fclose(myFile); \
-		u_austrncpy(compBuffer, uBuffer, UPRV_LENGTHOF(uBuffer)); \
+		u_austrncpy(compBuffer, uBuffer, SIZEOFARRAYi(uBuffer)); \
 		cNumPrinted = sprintf(buffer, cFormat, cValue); \
 		if(strcmp(buffer, compBuffer) != 0) { \
 			log_err("%" uFormat " Got: \"%s\", Expected: \"%s\"\n", compBuffer, buffer); \
@@ -1255,15 +1255,15 @@ static void TestFprintfFormat() {
 
 	myFile = u_fopen(STANDARD_TEST_FILE, "w", STANDARD_TEST_LOCALE, NULL);
 	/* Reinitialize the buffer to verify null termination works. */
-	u_memset(uBuffer, 0x2a, UPRV_LENGTHOF(uBuffer));
-	memset(buffer, '*', UPRV_LENGTHOF(buffer));
+	u_memset(uBuffer, 0x2a, SIZEOFARRAYi(uBuffer));
+	memset(buffer, '*', SIZEOFARRAYi(buffer));
 
 	uNumPrinted = u_fprintf(myFile, "%d % d %d", -1234, 1234, 1234);
 	u_fclose(myFile);
 	myFile = u_fopen(STANDARD_TEST_FILE, "r", STANDARD_TEST_LOCALE, NULL);
-	u_fgets(uBuffer, UPRV_LENGTHOF(uBuffer), myFile);
+	u_fgets(uBuffer, SIZEOFARRAYi(uBuffer), myFile);
 	u_fclose(myFile);
-	u_austrncpy(compBuffer, uBuffer, UPRV_LENGTHOF(uBuffer));
+	u_austrncpy(compBuffer, uBuffer, SIZEOFARRAYi(uBuffer));
 	cNumPrinted = sprintf(buffer, "%d % d %d", -1234, 1234, 1234);
 	if(strcmp(buffer, compBuffer) != 0) {
 		log_err("%%d %% d %%d Got: \"%s\", Expected: \"%s\"\n", compBuffer, buffer);
@@ -1295,10 +1295,10 @@ static void TestFScanSetFormat(const char * format, const UChar * uValue, const 
 		return;
 	}
 	/* Reinitialize the buffer to verify null termination works. */
-	u_memset(uBuffer, 0x2a, UPRV_LENGTHOF(uBuffer));
-	uBuffer[UPRV_LENGTHOF(uBuffer)-1] = 0;
-	memset(buffer, '*', UPRV_LENGTHOF(buffer));
-	buffer[UPRV_LENGTHOF(buffer)-1] = 0;
+	u_memset(uBuffer, 0x2a, SIZEOFARRAYi(uBuffer));
+	uBuffer[SIZEOFARRAYi(uBuffer)-1] = 0;
+	memset(buffer, '*', SIZEOFARRAYi(buffer));
+	buffer[SIZEOFARRAYi(buffer)-1] = 0;
 
 	u_fprintf(myFile, "%S", uValue);
 	u_fclose(myFile);
@@ -1306,9 +1306,9 @@ static void TestFScanSetFormat(const char * format, const UChar * uValue, const 
 	uNumScanned = u_fscanf(myFile, format, uBuffer);
 	u_fclose(myFile);
 	if(expectedToPass) {
-		u_austrncpy(compBuffer, uBuffer, UPRV_LENGTHOF(uBuffer));
+		u_austrncpy(compBuffer, uBuffer, SIZEOFARRAYi(uBuffer));
 		cNumScanned = sscanf(cValue, format, buffer);
-		if(strncmp(buffer, compBuffer, UPRV_LENGTHOF(buffer)) != 0) {
+		if(strncmp(buffer, compBuffer, SIZEOFARRAYi(buffer)) != 0) {
 			log_err("%s Got: \"%s\", Expected: \"%s\"\n", format, compBuffer, buffer);
 		}
 		if(cNumScanned != uNumScanned) {
@@ -1388,8 +1388,8 @@ static void TestBadFScanfFormat(const char * format, const UChar * uValue, const
 		return;
 	}
 	/* Reinitialize the buffer to verify null termination works. */
-	u_memset(uBuffer, 0x2a, UPRV_LENGTHOF(uBuffer));
-	uBuffer[UPRV_LENGTHOF(uBuffer)-1] = 0;
+	u_memset(uBuffer, 0x2a, SIZEOFARRAYi(uBuffer));
+	uBuffer[SIZEOFARRAYi(uBuffer)-1] = 0;
 
 	u_fprintf(myFile, "%S", uValue);
 	u_fclose(myFile);
@@ -1437,7 +1437,7 @@ static void Test_u_vfprintf(const char * expectedResult, const char * format, ..
 		log_err("Test file can't be opened\n");
 		return;
 	}
-	u_fgets(uBuffer, UPRV_LENGTHOF(uBuffer), myFile);
+	u_fgets(uBuffer, SIZEOFARRAYi(uBuffer), myFile);
 	u_uastrcpy(uBuffer2, expectedResult);
 	if(u_strcmp(uBuffer, uBuffer2) != 0) {
 		log_err("Got two different results for \"%s\" expected \"%s\"\n", format, expectedResult);
@@ -1462,7 +1462,7 @@ static void Test_u_vfprintf(const char * expectedResult, const char * format, ..
 		log_err("Test file can't be opened\n");
 		return;
 	}
-	u_fgets(uBuffer, UPRV_LENGTHOF(uBuffer), myFile);
+	u_fgets(uBuffer, SIZEOFARRAYi(uBuffer), myFile);
 	u_uastrcpy(uBuffer2, expectedResult);
 	if(u_strcmp(uBuffer, uBuffer2) != 0) {
 		log_err("Got two different results for \"%s\" expected \"%s\"\n", format, expectedResult);
@@ -1485,7 +1485,7 @@ static void TestUnicodeFormat()
 	static const UChar TEST_STR[] = { 0x03BC, 0x0025, 0x0024, 0};
 	static const UChar PERCENT_S[] = { 0x03BC, 0x0025, 0x0053, 0};
 
-	u_memset(myUString, 0x2a, UPRV_LENGTHOF(myUString));
+	u_memset(myUString, 0x2a, SIZEOFARRAYi(myUString));
 
 	myFile = u_fopen(STANDARD_TEST_FILE, "w", NULL, "UTF-8");
 	if(!myFile) {

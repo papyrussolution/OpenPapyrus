@@ -39,7 +39,8 @@ static int32_t setCodes(const UScriptCode * src, int32_t length, UScriptCode * d
 	return length;
 }
 
-static int32_t setOneCode(UScriptCode script, UScriptCode * scripts, int32_t capacity, UErrorCode * err) {
+static int32_t setOneCode(UScriptCode script, UScriptCode * scripts, int32_t capacity, UErrorCode * err) 
+{
 	if(U_FAILURE(*err)) {
 		return 0;
 	}
@@ -51,8 +52,8 @@ static int32_t setOneCode(UScriptCode script, UScriptCode * scripts, int32_t cap
 	return 1;
 }
 
-static int32_t getCodesFromLocale(const char * locale,
-    UScriptCode * scripts, int32_t capacity, UErrorCode * err) {
+static int32_t getCodesFromLocale(const char * locale, UScriptCode * scripts, int32_t capacity, UErrorCode * err) 
+{
 	UErrorCode internalErrorCode = U_ZERO_ERROR;
 	char lang[8] = {0};
 	char script[8] = {0};
@@ -62,22 +63,22 @@ static int32_t getCodesFromLocale(const char * locale,
 	}
 	// Multi-script languages, equivalent to the LocaleScript data
 	// that we used to load from locale resource bundles.
-	/*length = */ uloc_getLanguage(locale, lang, UPRV_LENGTHOF(lang), &internalErrorCode);
+	/*length = */ uloc_getLanguage(locale, lang, SIZEOFARRAYi(lang), &internalErrorCode);
 	if(U_FAILURE(internalErrorCode) || internalErrorCode == U_STRING_NOT_TERMINATED_WARNING) {
 		return 0;
 	}
-	if(0 == uprv_strcmp(lang, "ja")) {
-		return setCodes(JAPANESE, UPRV_LENGTHOF(JAPANESE), scripts, capacity, err);
+	if(0 == strcmp(lang, "ja")) {
+		return setCodes(JAPANESE, SIZEOFARRAYi(JAPANESE), scripts, capacity, err);
 	}
-	if(0 == uprv_strcmp(lang, "ko")) {
-		return setCodes(KOREAN, UPRV_LENGTHOF(KOREAN), scripts, capacity, err);
+	if(0 == strcmp(lang, "ko")) {
+		return setCodes(KOREAN, SIZEOFARRAYi(KOREAN), scripts, capacity, err);
 	}
-	scriptLength = uloc_getScript(locale, script, UPRV_LENGTHOF(script), &internalErrorCode);
+	scriptLength = uloc_getScript(locale, script, SIZEOFARRAYi(script), &internalErrorCode);
 	if(U_FAILURE(internalErrorCode) || internalErrorCode == U_STRING_NOT_TERMINATED_WARNING) {
 		return 0;
 	}
-	if(0 == uprv_strcmp(lang, "zh") && 0 == uprv_strcmp(script, "Hant")) {
-		return setCodes(HAN_BOPO, UPRV_LENGTHOF(HAN_BOPO), scripts, capacity, err);
+	if(0 == strcmp(lang, "zh") && 0 == strcmp(script, "Hant")) {
+		return setCodes(HAN_BOPO, SIZEOFARRAYi(HAN_BOPO), scripts, capacity, err);
 	}
 	// Explicit script code.
 	if(scriptLength != 0) {

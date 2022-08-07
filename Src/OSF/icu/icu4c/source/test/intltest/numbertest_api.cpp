@@ -1453,7 +1453,7 @@ void NumberFormatterApiTest::unitUsage() {
 			(uTestCase + u" field positions").getTerminatedBuffer(),
 			formattedNum,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 	assertFormatDescendingBig(
 		uTestCase.getTerminatedBuffer(),
@@ -1490,7 +1490,7 @@ void NumberFormatterApiTest::unitUsage() {
 			(uTestCase + u" field positions").getTerminatedBuffer(),
 			formattedNum,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 	assertFormatDescendingBig(
 		uTestCase.getTerminatedBuffer(),
@@ -1528,7 +1528,7 @@ void NumberFormatterApiTest::unitUsage() {
 			(uTestCase + u" field positions").getTerminatedBuffer(),
 			formattedNum,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 	assertFormatDescendingBig(
 		uTestCase.getTerminatedBuffer(),
@@ -1577,7 +1577,7 @@ void NumberFormatterApiTest::unitUsage() {
 			(uTestCase + u" field positions").getTerminatedBuffer(),
 			formattedNum,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 	assertFormatDescending(
 		uTestCase.getTerminatedBuffer(),
@@ -2291,7 +2291,7 @@ void NumberFormatterApiTest::unitInflections() {
 			{"percent", "ru", nullptr, 1, u"1 процент"}, // one
 			{"percent", "ru", "genitive", 1, u"1 процента"}, // one
 		};
-		runUnitInflectionsTestCases(unf, skeleton, percentCases, UPRV_LENGTHOF(percentCases), status);
+		runUnitInflectionsTestCases(unf, skeleton, percentCases, SIZEOFARRAYi(percentCases), status);
 	}
 	{
 		// General testing of inflection rules
@@ -2369,7 +2369,7 @@ void NumberFormatterApiTest::unitInflections() {
 			{"square-decimeter-square-second", "fr", nullptr, 1, u"1\u00A0décimètre carré-seconde carrée"},
 			{"square-decimeter-square-second", "fr", nullptr, 2, u"2\u00A0décimètres carrés-secondes carrées"},
 		};
-		runUnitInflectionsTestCases(unf, skeleton, testCases, UPRV_LENGTHOF(testCases), status);
+		runUnitInflectionsTestCases(unf, skeleton, testCases, SIZEOFARRAYi(testCases), status);
 	}
 	{
 		// Testing inflection of mixed units:
@@ -2391,7 +2391,7 @@ void NumberFormatterApiTest::unitInflections() {
 			{"meter-and-centimeter", "de", "dative", 1.1, u"1 Meter, 10 Zentimetern"},
 			{"meter-and-centimeter", "de", "dative", 2.1, u"2 Metern, 10 Zentimetern"},
 		};
-		runUnitInflectionsTestCases(unf, skeleton, testCases, UPRV_LENGTHOF(testCases),
+		runUnitInflectionsTestCases(unf, skeleton, testCases, SIZEOFARRAYi(testCases),
 		    status);
 	}
 	// TODO: add a usage case that selects between preferences with different
@@ -4682,7 +4682,7 @@ void NumberFormatterApiTest::signCoverage() {
 	};
 	for(auto& cas : cases) {
 		auto sign = cas.sign;
-		for(int32_t i = 0; i < UPRV_LENGTHOF(inputs); i++) {
+		for(int32_t i = 0; i < SIZEOFARRAYi(inputs); i++) {
 			auto input = inputs[i];
 			auto expected = cas.expectedStrings[i];
 			auto actual = NumberFormatter::with()
@@ -4971,7 +4971,7 @@ void NumberFormatterApiTest::fieldPositionLogic() {
 		message,
 		fmtd,
 		expectedFieldPositions,
-		UPRV_LENGTHOF(expectedFieldPositions));
+		SIZEOFARRAYi(expectedFieldPositions));
 
 	// Test the iteration functionality of nextFieldPosition
 	ConstrainedFieldPosition actual;
@@ -5023,7 +5023,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5046,7 +5046,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5069,7 +5069,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5092,7 +5092,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5115,7 +5115,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5138,7 +5138,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5163,7 +5163,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5185,7 +5185,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5207,7 +5207,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5229,7 +5229,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5251,7 +5251,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5274,7 +5274,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5300,7 +5300,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -5325,7 +5325,7 @@ void NumberFormatterApiTest::fieldPositionCoverage() {
 			message,
 			result,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 }
 

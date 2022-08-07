@@ -2408,7 +2408,7 @@ void StringSearchTest::TestSubclass()
 	search.reset();
 	// comparing constructors
 
-	for(i = 0; i < UPRV_LENGTHOF(expected); i++) {
+	for(i = 0; i < SIZEOFARRAYi(expected); i++) {
 		if(search.next(status) != expected[i]) {
 			errln("Error getting next match");
 		}
@@ -2419,7 +2419,7 @@ void StringSearchTest::TestSubclass()
 	if(search.next(status) != USEARCH_DONE) {
 		errln("Error should have reached the end of the iteration");
 	}
-	for(i = UPRV_LENGTHOF(expected) - 1; i >= 0; i--) {
+	for(i = SIZEOFARRAYi(expected) - 1; i >= 0; i--) {
 		if(search.previous(status) != expected[i]) {
 			errln("Error getting previous match");
 		}

@@ -154,12 +154,12 @@ TimeZoneNamesDelegate::TimeZoneNamesDelegate(const Locale & locale, UErrorCode &
 			status = U_MEMORY_ALLOCATION_ERROR;
 		}
 		if(U_SUCCESS(status)) {
-			newKey = (char *)uprv_malloc(uprv_strlen(key) + 1);
+			newKey = (char *)uprv_malloc(strlen(key) + 1);
 			if(newKey == NULL) {
 				status = U_MEMORY_ALLOCATION_ERROR;
 			}
 			else {
-				uprv_strcpy(newKey, key);
+				strcpy(newKey, key);
 			}
 		}
 		if(U_SUCCESS(status)) {
@@ -326,7 +326,7 @@ UnicodeString &TimeZoneNames::getDisplayName(const UnicodeString & tzID, UTimeZo
 	getTimeZoneDisplayName(tzID, type, name);
 	if(name.isEmpty()) {
 		UChar mzIDBuf[32];
-		UnicodeString mzID(mzIDBuf, 0, UPRV_LENGTHOF(mzIDBuf));
+		UnicodeString mzID(mzIDBuf, 0, SIZEOFARRAYi(mzIDBuf));
 		getMetaZoneID(tzID, date, mzID);
 		getMetaZoneDisplayName(mzID, type, name);
 	}

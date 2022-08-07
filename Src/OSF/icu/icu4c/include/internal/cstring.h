@@ -20,9 +20,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#define uprv_strcpy(dst, src) U_STANDARD_CPP_NAMESPACE strcpy(dst, src)
-#define uprv_strlen(str) U_STANDARD_CPP_NAMESPACE strlen(str)
-#define uprv_strcmp(s1, s2) U_STANDARD_CPP_NAMESPACE strcmp(s1, s2)
+// @sobolev #define uprv_strcpy_Removed(dst, src) U_STANDARD_CPP_NAMESPACE strcpy(dst, src)
+// @sobolev #define uprv_strlen_Removed(str) U_STANDARD_CPP_NAMESPACE strlen(str)
+// @sobolev #define uprv_strcmp_Removed(s1, s2) U_STANDARD_CPP_NAMESPACE strcmp(s1, s2)
 #define uprv_strcat(dst, src) U_STANDARD_CPP_NAMESPACE strcat(dst, src)
 #define uprv_strchr(s, c) U_STANDARD_CPP_NAMESPACE strchr(s, c)
 #define uprv_strstr(s, c) U_STANDARD_CPP_NAMESPACE strstr(s, c)

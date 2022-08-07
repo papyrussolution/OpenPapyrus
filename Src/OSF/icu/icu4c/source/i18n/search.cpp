@@ -71,8 +71,7 @@ USearchAttributeValue SearchIterator::getAttribute(USearchAttribute attribute) c
 		case USEARCH_OVERLAP:
 		    return (m_search_->isOverlap == TRUE ? USEARCH_ON : USEARCH_OFF);
 		case USEARCH_CANONICAL_MATCH:
-		    return (m_search_->isCanonicalMatch == TRUE ? USEARCH_ON :
-			   USEARCH_OFF);
+		    return (m_search_->isCanonicalMatch == TRUE ? USEARCH_ON : USEARCH_OFF);
 		case USEARCH_ELEMENT_COMPARISON:
 	    {
 		    int16 value = m_search_->elementComparisonType;
@@ -88,15 +87,8 @@ USearchAttributeValue SearchIterator::getAttribute(USearchAttribute attribute) c
 	}
 }
 
-int32_t SearchIterator::getMatchedStart() const
-{
-	return m_search_->matchedIndex;
-}
-
-int32_t SearchIterator::getMatchedLength() const
-{
-	return m_search_->matchedLength;
-}
+int32_t SearchIterator::getMatchedStart() const { return m_search_->matchedIndex; }
+int32_t SearchIterator::getMatchedLength() const { return m_search_->matchedLength; }
 
 void SearchIterator::getMatchedText(UnicodeString & result) const
 {
@@ -132,10 +124,7 @@ void SearchIterator::setBreakIterator(BreakIterator * breakiter, UErrorCode & st
 	}
 }
 
-const BreakIterator * SearchIterator::getBreakIterator(void) const
-{
-	return m_breakiterator_;
-}
+const BreakIterator * SearchIterator::getBreakIterator(void) const { return m_breakiterator_; }
 
 void SearchIterator::setText(const UnicodeString & text, UErrorCode & status)
 {
@@ -159,10 +148,7 @@ void SearchIterator::setText(CharacterIterator &text, UErrorCode & status)
 	}
 }
 
-const UnicodeString & SearchIterator::getText(void) const
-{
-	return m_text_;
-}
+const UnicodeString & SearchIterator::getText(void) const { return m_text_; }
 
 // operator overloading ----------------------------------------------
 
@@ -179,7 +165,7 @@ bool SearchIterator::operator == (const SearchIterator &that) const
 	       m_search_->matchedLength    == that.m_search_->matchedLength &&
 	       m_search_->textLength       == that.m_search_->textLength &&
 	       getOffset() == that.getOffset() &&
-	       (uprv_memcmp(m_search_->text, that.m_search_->text,
+	       (memcmp(m_search_->text, that.m_search_->text,
 	       m_search_->textLength * sizeof(UChar)) == 0));
 }
 
@@ -194,8 +180,7 @@ int32_t SearchIterator::first(UErrorCode & status)
 	return handleNext(0, status);
 }
 
-int32_t SearchIterator::following(int32_t position,
-    UErrorCode & status)
+int32_t SearchIterator::following(int32_t position, UErrorCode & status)
 {
 	if(U_FAILURE(status)) {
 		return USEARCH_DONE;
@@ -213,8 +198,7 @@ int32_t SearchIterator::last(UErrorCode & status)
 	return handlePrev(m_search_->textLength, status);
 }
 
-int32_t SearchIterator::preceding(int32_t position,
-    UErrorCode & status)
+int32_t SearchIterator::preceding(int32_t position, UErrorCode & status)
 {
 	if(U_FAILURE(status)) {
 		return USEARCH_DONE;

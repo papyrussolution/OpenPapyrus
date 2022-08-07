@@ -1015,7 +1015,7 @@ static UChar32 _extFromU(UConverter * cnv, const UConverterSharedData * sharedDa
 	if((cnv->options&_MBCS_OPTION_GB18030)!=0) {
 		int32_t i;
 		const uint32_t * range = gb18030Ranges[0];
-		for(i = 0; i<UPRV_LENGTHOF(gb18030Ranges); range += 4, ++i) {
+		for(i = 0; i<SIZEOFARRAYi(gb18030Ranges); range += 4, ++i) {
 			if(range[0]<=(uint32_t)cp && (uint32_t)cp<=range[1]) {
 				/* found the Unicode code point, output the four-byte sequence for it */
 				char bytes[4];
@@ -1057,7 +1057,7 @@ static int8 _extToU(UConverter * cnv, const UConverterSharedData * sharedData, i
 		int32_t i;
 		uint32_t linear = LINEAR_18030(cnv->toUBytes[0], cnv->toUBytes[1], cnv->toUBytes[2], cnv->toUBytes[3]);
 		const uint32_t * range = gb18030Ranges[0];
-		for(i = 0; i<UPRV_LENGTHOF(gb18030Ranges); range += 4, ++i) {
+		for(i = 0; i<SIZEOFARRAYi(gb18030Ranges); range += 4, ++i) {
 			if(range[2]<=linear && linear<=range[3]) {
 				// found the sequence, output the Unicode code point for it 
 				*pErrorCode = U_ZERO_ERROR;
@@ -1221,7 +1221,7 @@ static bool _EBCDICSwapLFNL(UConverterSharedData * sharedData, UErrorCode * pErr
 
 	/* set the canonical converter name */
 	name = (char *)newResults+sizeofFromUBytes;
-	uprv_strcpy(name, sharedData->staticData->name);
+	strcpy(name, sharedData->staticData->name);
 	uprv_strcat(name, UCNV_SWAP_LFNL_OPTION_STRING);
 	/* set the pointers */
 	icu::umtx_lock(NULL);
@@ -1428,7 +1428,7 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData, UConvert
 		}
 		/* load the base table */
 		baseName = (const char *)header+headerLength*4;
-		if(0==uprv_strcmp(baseName, sharedData->staticData->name)) {
+		if(0==strcmp(baseName, sharedData->staticData->name)) {
 			/* forbid loading this same extension-only file */
 			*pErrorCode = U_INVALID_TABLE_FORMAT;
 			return;

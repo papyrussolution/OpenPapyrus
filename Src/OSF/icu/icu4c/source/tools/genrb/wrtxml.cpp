@@ -102,15 +102,15 @@ static void write_tabs(FileStream* os) {
 static char * getID(const char * id, const char * curKey, char * result)
 {
 	if(curKey == NULL) {
-		result = (char*)uprv_malloc(sizeof(char)*uprv_strlen(id) + 1);
-		memzero(result, sizeof(char)*uprv_strlen(id) + 1);
-		uprv_strcpy(result, id);
+		result = (char*)uprv_malloc(sizeof(char)*strlen(id) + 1);
+		memzero(result, sizeof(char)*strlen(id) + 1);
+		strcpy(result, id);
 	}
 	else {
-		result = (char*)uprv_malloc(sizeof(char)*(uprv_strlen(id) + 1 + uprv_strlen(curKey)) + 1);
-		memzero(result, sizeof(char)*(uprv_strlen(id) + 1 + uprv_strlen(curKey)) + 1);
+		result = (char*)uprv_malloc(sizeof(char)*(strlen(id) + 1 + strlen(curKey)) + 1);
+		memzero(result, sizeof(char)*(strlen(id) + 1 + strlen(curKey)) + 1);
 		if(id[0]!='\0') {
-			uprv_strcpy(result, id);
+			strcpy(result, id);
 			uprv_strcat(result, "_");
 		}
 		uprv_strcat(result, curKey);
@@ -185,7 +185,7 @@ static void strnrepchr(char * src, int32_t srcLen, char s, char r) {
  * use "en" as the default value for language
  */
 static char * parseFilename(const char * id, char * /*lang*/) {
-	int idLen = (int)uprv_strlen(id);
+	int idLen = (int)strlen(id);
 	char * localeID = (char*)uprv_malloc(idLen);
 	int pos = 0;
 	int canonCapacity = 0;
@@ -270,24 +270,24 @@ static char * convertAndEscape(char ** pDest, int32_t destCap, int32_t* destLeng
 			if(c <=0x007F) {
 				switch(c) {
 					case '\x26':
-					    uprv_strcpy(dest+( destLen), "\x26\x61\x6d\x70\x3b"); /* &amp;*/
-					    destLen += (int32_t)uprv_strlen("\x26\x61\x6d\x70\x3b");
+					    strcpy(dest+( destLen), "\x26\x61\x6d\x70\x3b"); /* &amp;*/
+					    destLen += (int32_t)strlen("\x26\x61\x6d\x70\x3b");
 					    break;
 					case '\x3c':
-					    uprv_strcpy(dest+(destLen), "\x26\x6c\x74\x3b"); /* &lt;*/
-					    destLen += (int32_t)uprv_strlen("\x26\x6c\x74\x3b");
+					    strcpy(dest+(destLen), "\x26\x6c\x74\x3b"); /* &lt;*/
+					    destLen += (int32_t)strlen("\x26\x6c\x74\x3b");
 					    break;
 					case '\x3e':
-					    uprv_strcpy(dest+(destLen), "\x26\x67\x74\x3b"); /* &gt;*/
-					    destLen += (int32_t)uprv_strlen("\x26\x67\x74\x3b");
+					    strcpy(dest+(destLen), "\x26\x67\x74\x3b"); /* &gt;*/
+					    destLen += (int32_t)strlen("\x26\x67\x74\x3b");
 					    break;
 					case '\x22':
-					    uprv_strcpy(dest+(destLen), "\x26\x71\x75\x6f\x74\x3b"); /* &quot;*/
-					    destLen += (int32_t)uprv_strlen("\x26\x71\x75\x6f\x74\x3b");
+					    strcpy(dest+(destLen), "\x26\x71\x75\x6f\x74\x3b"); /* &quot;*/
+					    destLen += (int32_t)strlen("\x26\x71\x75\x6f\x74\x3b");
 					    break;
 					case '\x27':
-					    uprv_strcpy(dest+(destLen), "\x26\x61\x70\x6f\x73\x3b"); /* &apos; */
-					    destLen += (int32_t)uprv_strlen("\x26\x61\x70\x6f\x73\x3b");
+					    strcpy(dest+(destLen), "\x26\x61\x70\x6f\x73\x3b"); /* &apos; */
+					    destLen += (int32_t)strlen("\x26\x61\x70\x6f\x73\x3b");
 					    break;
 
 					/* Disallow C0 controls except TAB, CR, LF*/
@@ -566,18 +566,18 @@ static char * printContainer(SResource * res,
 
 	write_utf8_file(out, UnicodeString("<"));
 	write_utf8_file(out, UnicodeString(container));
-	printAttribute("id", sid, (int32_t)uprv_strlen(sid));
+	printAttribute("id", sid, (int32_t)strlen(sid));
 
 	if(resname != NULL) {
-		printAttribute("resname", resname, (int32_t)uprv_strlen(resname));
+		printAttribute("resname", resname, (int32_t)strlen(resname));
 	}
 
 	if(mimetype != NULL) {
-		printAttribute("mime-type", mimetype, (int32_t)uprv_strlen(mimetype));
+		printAttribute("mime-type", mimetype, (int32_t)strlen(mimetype));
 	}
 
 	if(restype != NULL) {
-		printAttribute("restype", restype, (int32_t)uprv_strlen(restype));
+		printAttribute("restype", restype, (int32_t)strlen(restype));
 	}
 
 	tabCount += 1;
@@ -740,7 +740,7 @@ static void intvector_write_xml(IntVectorResource * res, const char * id, const 
 		write_utf8_file(out, UnicodeString("<"));
 		write_utf8_file(out, UnicodeString(trans_unit));
 
-		printAttribute("id", ivd, (int32_t)uprv_strlen(ivd));
+		printAttribute("id", ivd, (int32_t)strlen(ivd));
 		printAttribute("restype", integer_restype, (int32_t)strlen(integer_restype));
 
 		write_utf8_file(out, UnicodeString(">\n"));
@@ -801,10 +801,10 @@ static void bin_write_xml(BinaryResource * res, const char * id, const char * /*
 	uint32_t crc = 0xFFFFFFFF;
 
 	char fileName[1024] = {0};
-	int32_t tLen = ( outDir == NULL) ? 0 : (int32_t)uprv_strlen(outDir);
+	int32_t tLen = ( outDir == NULL) ? 0 : (int32_t)strlen(outDir);
 	char * fn =  (char*)uprv_malloc(sizeof(char) * (tLen+1024 +
 		(res->fFileName !=NULL ?
-		uprv_strlen(res->fFileName) : 0)));
+		strlen(res->fFileName) : 0)));
 	const char * ext = NULL;
 
 	char * f = NULL;
@@ -812,7 +812,7 @@ static void bin_write_xml(BinaryResource * res, const char * id, const char * /*
 	fn[0] = 0;
 
 	if(res->fFileName != NULL) {
-		uprv_strcpy(fileName, res->fFileName);
+		strcpy(fileName, res->fFileName);
 		f = uprv_strrchr(fileName, '\\');
 
 		if(f != NULL) {
@@ -829,16 +829,16 @@ static void bin_write_xml(BinaryResource * res, const char * id, const char * /*
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
 
-		if(uprv_strcmp(ext, ".jpg")==0 || uprv_strcmp(ext, ".jpeg")==0 || uprv_strcmp(ext, ".gif")==0) {
+		if(strcmp(ext, ".jpg")==0 || strcmp(ext, ".jpeg")==0 || strcmp(ext, ".gif")==0) {
 			m_type = "image";
 		}
-		else if(uprv_strcmp(ext, ".wav")==0 || uprv_strcmp(ext, ".au")==0) {
+		else if(strcmp(ext, ".wav")==0 || strcmp(ext, ".au")==0) {
 			m_type = "audio";
 		}
-		else if(uprv_strcmp(ext, ".avi")==0 || uprv_strcmp(ext, ".mpg")==0 || uprv_strcmp(ext, ".mpeg")==0) {
+		else if(strcmp(ext, ".avi")==0 || strcmp(ext, ".mpg")==0 || strcmp(ext, ".mpeg")==0) {
 			m_type = "video";
 		}
-		else if(uprv_strcmp(ext, ".txt")==0 || uprv_strcmp(ext, ".text")==0) {
+		else if(strcmp(ext, ".txt")==0 || strcmp(ext, ".text")==0) {
 			m_type = "text";
 		}
 
@@ -852,7 +852,7 @@ static void bin_write_xml(BinaryResource * res, const char * id, const char * /*
 		write_tabs(out);
 
 		write_utf8_file(out, UnicodeString(external_file));
-		printAttribute("href", f, (int32_t)uprv_strlen(f));
+		printAttribute("href", f, (int32_t)strlen(f));
 		write_utf8_file(out, UnicodeString("/>\n"));
 		tabCount -= 1;
 		write_tabs(out);
@@ -878,7 +878,7 @@ static void bin_write_xml(BinaryResource * res, const char * id, const char * /*
 		write_tabs(out);
 
 		write_utf8_file(out, UnicodeString(internal_file));
-		printAttribute("form", application_mimetype, (int32_t)uprv_strlen(application_mimetype));
+		printAttribute("form", application_mimetype, (int32_t)strlen(application_mimetype));
 
 		while(i <res->fLength) {
 			len = itostr(temp, res->fData[i], 16, 2);
@@ -1033,16 +1033,16 @@ void bundle_write_xml(struct SRBRoot * bundle, const char * outputDir, const cha
 	else {
 		first = 0;
 	}
-	index = (int32_t)(uprv_strlen(filename) - uprv_strlen(textExt) - first);
+	index = (int32_t)(strlen(filename) - strlen(textExt) - first);
 	originalFileName = (char*)uprv_malloc(sizeof(char)*index+1);
 	memzero(originalFileName, sizeof(char)*index+1);
 	uprv_strncpy(originalFileName, filename + first, index);
-	if(uprv_strcmp(originalFileName, srBundle->fLocale) != 0) {
+	if(strcmp(originalFileName, srBundle->fLocale) != 0) {
 		fprintf(stdout, "Warning: The file name is not same as the resource name!\n");
 	}
 	temp = originalFileName;
-	originalFileName = (char*)uprv_malloc(sizeof(char)* (uprv_strlen(temp)+uprv_strlen(textExt)) + 1);
-	memzero(originalFileName, sizeof(char)* (uprv_strlen(temp)+uprv_strlen(textExt)) + 1);
+	originalFileName = (char*)uprv_malloc(sizeof(char)* (strlen(temp)+strlen(textExt)) + 1);
+	memzero(originalFileName, sizeof(char)* (strlen(temp)+strlen(textExt)) + 1);
 	uprv_strcat(originalFileName, temp);
 	uprv_strcat(originalFileName, textExt);
 	uprv_free(temp);
@@ -1078,33 +1078,33 @@ void bundle_write_xml(struct SRBRoot * bundle, const char * outputDir, const cha
 		/* }*/
 	}
 	else {
-		lang = (char*)uprv_malloc(sizeof(char)*uprv_strlen(language) +1);
-		memzero(lang, sizeof(char)*uprv_strlen(language) +1);
-		uprv_strcpy(lang, language);
+		lang = (char*)uprv_malloc(sizeof(char)*strlen(language) +1);
+		memzero(lang, sizeof(char)*strlen(language) +1);
+		strcpy(lang, language);
 	}
 
 	if(outFileName) {
-		outputFileName = (char*)uprv_malloc(sizeof(char)*uprv_strlen(outFileName) + 1);
-		memzero(outputFileName, sizeof(char)*uprv_strlen(outFileName) + 1);
-		uprv_strcpy(outputFileName, outFileName);
+		outputFileName = (char*)uprv_malloc(sizeof(char)*strlen(outFileName) + 1);
+		memzero(outputFileName, sizeof(char)*strlen(outFileName) + 1);
+		strcpy(outputFileName, outFileName);
 	}
 	else {
-		outputFileName = (char*)uprv_malloc(sizeof(char)*uprv_strlen(srBundle->fLocale) + 1);
-		memzero(outputFileName, sizeof(char)*uprv_strlen(srBundle->fLocale) + 1);
-		uprv_strcpy(outputFileName, srBundle->fLocale);
+		outputFileName = (char*)uprv_malloc(sizeof(char)*strlen(srBundle->fLocale) + 1);
+		memzero(outputFileName, sizeof(char)*strlen(srBundle->fLocale) + 1);
+		strcpy(outputFileName, srBundle->fLocale);
 	}
 
 	if(outputDir) {
-		xmlfileName = (char*)uprv_malloc(sizeof(char)*(uprv_strlen(outputDir) + uprv_strlen(outputFileName) + uprv_strlen(xliffExt) + 1) +1);
-		memzero(xmlfileName, sizeof(char)*(uprv_strlen(outputDir)+ uprv_strlen(outputFileName) + uprv_strlen(xliffExt) + 1) +1);
+		xmlfileName = (char*)uprv_malloc(sizeof(char)*(strlen(outputDir) + strlen(outputFileName) + strlen(xliffExt) + 1) +1);
+		memzero(xmlfileName, sizeof(char)*(strlen(outputDir)+ strlen(outputFileName) + strlen(xliffExt) + 1) +1);
 	}
 	else {
-		xmlfileName = (char*)uprv_malloc(sizeof(char)*(uprv_strlen(outputFileName) + uprv_strlen(xliffExt)) +1);
-		memzero(xmlfileName, sizeof(char)*(uprv_strlen(outputFileName) + uprv_strlen(xliffExt)) +1);
+		xmlfileName = (char*)uprv_malloc(sizeof(char)*(strlen(outputFileName) + strlen(xliffExt)) +1);
+		memzero(xmlfileName, sizeof(char)*(strlen(outputFileName) + strlen(xliffExt)) +1);
 	}
 	if(outputDir) {
-		uprv_strcpy(xmlfileName, outputDir);
-		if(outputDir[uprv_strlen(outputDir)-1] !=U_FILE_SEP_CHAR) {
+		strcpy(xmlfileName, outputDir);
+		if(outputDir[strlen(outputDir)-1] !=U_FILE_SEP_CHAR) {
 			uprv_strcat(xmlfileName, U_FILE_SEP_STRING);
 		}
 	}
@@ -1139,7 +1139,7 @@ void bundle_write_xml(struct SRBRoot * bundle, const char * outputDir, const cha
 	write_tabs(out);
 	write_utf8_file(out, UnicodeString(fileStart));
 	/* check if lang and language are the same */
-	if(language != NULL && uprv_strcmp(lang, srBundle->fLocale)!=0) {
+	if(language != NULL && strcmp(lang, srBundle->fLocale)!=0) {
 		slfprintf_stderr(
 			"Warning: The top level tag in the resource and language specified are not the same. Please check the input.\n");
 	}
@@ -1162,8 +1162,8 @@ void bundle_write_xml(struct SRBRoot * bundle, const char * outputDir, const cha
 	write_tabs(out);
 
 	write_utf8_file(out, UnicodeString(tool_start));
-	printAttribute("tool-id", tool_id, (int32_t)uprv_strlen(tool_id));
-	printAttribute("tool-name", tool_name, (int32_t)uprv_strlen(tool_name));
+	printAttribute("tool-id", tool_id, (int32_t)strlen(tool_id));
+	printAttribute("tool-name", tool_name, (int32_t)strlen(tool_name));
 	write_utf8_file(out, UnicodeString("/>\n"));
 
 	tabCount -= 1;

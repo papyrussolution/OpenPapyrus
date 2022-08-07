@@ -970,7 +970,7 @@ void MessagePattern::parseDouble(int32_t start, int32_t limit, bool allowInfinit
 				break; // number too long
 			}
 			msg.extract(start, length, numberChars, capacity, US_INV);
-			if((int32_t)uprv_strlen(numberChars)<length) {
+			if((int32_t)strlen(numberChars)<length) {
 				break; // contains non-invariant character that was turned into NUL
 			}
 			char * end;

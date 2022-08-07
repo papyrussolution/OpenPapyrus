@@ -173,7 +173,7 @@ static void TestSecondary()
 	}
 	log_verbose("Testing fr_CA Collation with Secondary strength\n");
 	/*test acute and grave ordering (compare to french collation)*/
-	testAcuteSize = UPRV_LENGTHOF(testAcute);
+	testAcuteSize = SIZEOFARRAYi(testAcute);
 	for(i = 0; i < testAcuteSize; i++) {
 		for(j = 0; j < testAcuteSize; j++) {
 			if(i <  j) expected = UCOL_LESS;
@@ -301,7 +301,7 @@ static void TestGetSortKey() {
 		log_data_err("error opening collator -> %s. (Are you missing data?)\n", u_errorName(status));
 		return;
 	}
-	lenActualSortKey = ucol_getSortKey(pCollator, (const UChar*)pucUTF16, UPRV_LENGTHOF(pucUTF16), pucSortKey, LENSORTKEY);
+	lenActualSortKey = ucol_getSortKey(pCollator, (const UChar*)pucUTF16, SIZEOFARRAYi(pucUTF16), pucSortKey, LENSORTKEY);
 	if(lenActualSortKey > LENSORTKEY) {
 		log_err("sort key too big for original buffer. Got: %d Expected: %d\n", lenActualSortKey, LENSORTKEY);
 		return;

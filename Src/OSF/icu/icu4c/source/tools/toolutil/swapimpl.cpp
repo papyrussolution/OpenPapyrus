@@ -998,7 +998,7 @@ U_CAPI int32_t U_EXPORT2 udata_swap(const UDataSwapper * ds,
 	}
 
 	/* dispatch to the swap function for the dataFormat */
-	for(i = 0; i<UPRV_LENGTHOF(swapFns); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(swapFns); ++i) {
 		if(0==memcmp(swapFns[i].dataFormat, pInfo->dataFormat, 4)) {
 			swappedLength = swapFns[i].swapFn(ds, inData, length, outData, pErrorCode);
 

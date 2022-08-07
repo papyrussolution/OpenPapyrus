@@ -3794,7 +3794,7 @@ public:
 	void   SetOption(uint option, int set = 1);
 	int    SetUserData(const void * pData, size_t size);
 	int    GetUserData(void * pData, size_t * pSize) const;
-	int    HasCapability(long c) const { return BIN(CFlags & c); }
+	bool   HasCapability(long c) const { return LOGIC(CFlags & c); }
 	int    GetImageIdxByID(long id, long * pIDx);
 	void * CreateImageList(HINSTANCE hInst); // @v10.9.4 HIMAGELIST-->(void *)
 	//
@@ -3814,7 +3814,7 @@ public:
 	void   ClearImageAssocList();
 	int    SetItemColor(long itemID, SColor fgColor, SColor bckgColor);
 	int    ResetItemColor(long itemID);
-	int    HasItemColorSpec() const;
+	bool   HasItemColorSpec() const;
 	int    GetItemColor(long itemID, SColor * pFgColor, SColor * pBckgColor) const;
 	long   GetCapability() const { return CFlags; }
 	uint32 GetSignature() const { return Sign; }

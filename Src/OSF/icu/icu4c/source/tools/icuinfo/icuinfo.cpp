@@ -225,7 +225,7 @@ extern int main(int argc, char * argv[])
 	UErrorCode errorCode = U_ZERO_ERROR;
 	bool didSomething = FALSE;
 	/* preset then read command line options */
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 	/* error handling, printing usage message */
 	if(argc<0) {
 		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);

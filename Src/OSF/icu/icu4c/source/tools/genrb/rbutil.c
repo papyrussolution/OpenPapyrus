@@ -42,10 +42,10 @@ void get_basename(char * basename, const char * filename)
 	const char * lastSlash = uprv_strrchr(filename, U_FILE_SEP_CHAR) + 1;
 	char * lastDot;
 	if(lastSlash>filename) {
-		uprv_strcpy(basename, lastSlash);
+		strcpy(basename, lastSlash);
 	}
 	else {
-		uprv_strcpy(basename, filename);
+		strcpy(basename, filename);
 	}
 	/* strip off any suffix */
 	lastDot = uprv_strrchr(basename, '.');

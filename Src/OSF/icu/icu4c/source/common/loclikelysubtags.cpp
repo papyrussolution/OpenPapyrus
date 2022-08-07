@@ -374,15 +374,15 @@ LSR XLikelySubtags::makeMaximizedLsr(const char * language, const char * script,
 	if(variant[0] == 'P' && variant[1] == 'S') {
 		int32_t lsrFlags = *region == 0 ?
 		    LSR::EXPLICIT_LANGUAGE | LSR::EXPLICIT_SCRIPT : LSR::EXPLICIT_LSR;
-		if(uprv_strcmp(variant, "PSACCENT") == 0) {
+		if(strcmp(variant, "PSACCENT") == 0) {
 			return LSR(PSEUDO_ACCENTS_PREFIX, language, script,
 				   *region == 0 ? "XA" : region, lsrFlags, errorCode);
 		}
-		else if(uprv_strcmp(variant, "PSBIDI") == 0) {
+		else if(strcmp(variant, "PSBIDI") == 0) {
 			return LSR(PSEUDO_BIDI_PREFIX, language, script,
 				   *region == 0 ? "XB" : region, lsrFlags, errorCode);
 		}
-		else if(uprv_strcmp(variant, "PSCRACK") == 0) {
+		else if(strcmp(variant, "PSCRACK") == 0) {
 			return LSR(PSEUDO_CRACKED_PREFIX, language, script,
 				   *region == 0 ? "XC" : region, lsrFlags, errorCode);
 		}
@@ -396,13 +396,13 @@ LSR XLikelySubtags::makeMaximizedLsr(const char * language, const char * script,
 }
 
 LSR XLikelySubtags::maximize(const char * language, const char * script, const char * region) const {
-	if(uprv_strcmp(language, "und") == 0) {
+	if(strcmp(language, "und") == 0) {
 		language = "";
 	}
-	if(uprv_strcmp(script, "Zzzz") == 0) {
+	if(strcmp(script, "Zzzz") == 0) {
 		script = "";
 	}
-	if(uprv_strcmp(region, "ZZ") == 0) {
+	if(strcmp(region, "ZZ") == 0) {
 		region = "";
 	}
 	if(*script != 0 && *region != 0 && *language != 0) {
@@ -520,10 +520,10 @@ int32_t XLikelySubtags::compareLikely(const LSR &lsr, const LSR &other, int32_t 
 	// likelyInfo bit 1 is set if the previous comparison with lsr
 	// was for equal language and script.
 	// Otherwise the scripts differed.
-	if(uprv_strcmp(lsr.language, other.language) != 0) {
+	if(strcmp(lsr.language, other.language) != 0) {
 		return 0xfffffffc; // negative, lsr not better than other
 	}
-	if(uprv_strcmp(lsr.script, other.script) != 0) {
+	if(strcmp(lsr.script, other.script) != 0) {
 		int32_t index;
 		if(likelyInfo >= 0 && (likelyInfo & 2) == 0) {
 			index = likelyInfo >> 2;
@@ -533,14 +533,14 @@ int32_t XLikelySubtags::compareLikely(const LSR &lsr, const LSR &other, int32_t 
 			likelyInfo = index << 2;
 		}
 		const LSR &likely = lsrs[index];
-		if(uprv_strcmp(lsr.script, likely.script) == 0) {
+		if(strcmp(lsr.script, likely.script) == 0) {
 			return likelyInfo | 1;
 		}
 		else {
 			return likelyInfo & ~1;
 		}
 	}
-	if(uprv_strcmp(lsr.region, other.region) != 0) {
+	if(strcmp(lsr.region, other.region) != 0) {
 		int32_t index;
 		if(likelyInfo >= 0 && (likelyInfo & 2) != 0) {
 			index = likelyInfo >> 2;
@@ -550,7 +550,7 @@ int32_t XLikelySubtags::compareLikely(const LSR &lsr, const LSR &other, int32_t 
 			likelyInfo = (index << 2) | 2;
 		}
 		const LSR &likely = lsrs[index];
-		if(uprv_strcmp(lsr.region, likely.region) == 0) {
+		if(strcmp(lsr.region, likely.region) == 0) {
 			return likelyInfo | 1;
 		}
 		else {
@@ -562,10 +562,10 @@ int32_t XLikelySubtags::compareLikely(const LSR &lsr, const LSR &other, int32_t 
 
 // Subset of maximize().
 int32_t XLikelySubtags::getLikelyIndex(const char * language, const char * script) const {
-	if(uprv_strcmp(language, "und") == 0) {
+	if(strcmp(language, "und") == 0) {
 		language = "";
 	}
-	if(uprv_strcmp(script, "Zzzz") == 0) {
+	if(strcmp(script, "Zzzz") == 0) {
 		script = "";
 	}
 

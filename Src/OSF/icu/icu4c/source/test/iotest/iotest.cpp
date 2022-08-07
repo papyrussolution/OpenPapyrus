@@ -211,14 +211,14 @@ static void U_CALLCONV DataDrivenPrintf(void)
 					    STANDARD_TEST_FILE);
 					continue;
 				}
-				u_memset(uBuffer, 0x2A, UPRV_LENGTHOF(uBuffer));
-				uBuffer[UPRV_LENGTHOF(uBuffer)-1] = 0;
+				u_memset(uBuffer, 0x2A, SIZEOFARRAYi(uBuffer));
+				uBuffer[SIZEOFARRAYi(uBuffer)-1] = 0;
 				tempStr = testCase->getString("format", errorCode);
-				tempStr.extract(format, UPRV_LENGTHOF(format), errorCode);
+				tempStr.extract(format, SIZEOFARRAYi(format), errorCode);
 				tempStr = testCase->getString("result", errorCode);
-				tempStr.extract(expectedResult, UPRV_LENGTHOF(expectedResult), errorCode);
+				tempStr.extract(expectedResult, SIZEOFARRAYi(expectedResult), errorCode);
 				tempStr = testCase->getString("argument", errorCode);
-				tempStr.extract(argument, UPRV_LENGTHOF(argument), errorCode);
+				tempStr.extract(argument, SIZEOFARRAYi(argument), errorCode);
 				u_austrncpy(cBuffer, format, sizeof(cBuffer));
 				if(U_FAILURE(errorCode)) {
 					log_err("error retrieving icuio/printf test case %d - %s\n",
@@ -294,7 +294,7 @@ static void U_CALLCONV DataDrivenPrintf(void)
 					    STANDARD_TEST_FILE);
 				}
 				uBuffer[0] = 0;
-				u_fgets(uBuffer, UPRV_LENGTHOF(uBuffer), testFile.getAlias());
+				u_fgets(uBuffer, SIZEOFARRAYi(uBuffer), testFile.getAlias());
 				if(u_strcmp(uBuffer, expectedResult) != 0) {
 					u_austrncpy(cBuffer, uBuffer, sizeof(cBuffer));
 					u_austrncpy(cFormat, format, sizeof(cFormat));
@@ -405,14 +405,14 @@ static void U_CALLCONV DataDrivenScanf(void)
                     log_err("Can't open test file - %s\n",
                             STANDARD_TEST_FILE);
                 }*/
-				u_memset(uBuffer, 0x2A, UPRV_LENGTHOF(uBuffer));
-				uBuffer[UPRV_LENGTHOF(uBuffer)-1] = 0;
+				u_memset(uBuffer, 0x2A, SIZEOFARRAYi(uBuffer));
+				uBuffer[SIZEOFARRAYi(uBuffer)-1] = 0;
 				tempStr = testCase->getString("format", errorCode);
-				tempStr.extract(format, UPRV_LENGTHOF(format), errorCode);
+				tempStr.extract(format, SIZEOFARRAYi(format), errorCode);
 				tempStr = testCase->getString("result", errorCode);
-				tempStr.extract(expectedResult, UPRV_LENGTHOF(expectedResult), errorCode);
+				tempStr.extract(expectedResult, SIZEOFARRAYi(expectedResult), errorCode);
 				tempStr = testCase->getString("argument", errorCode);
-				tempStr.extract(argument, UPRV_LENGTHOF(argument), errorCode);
+				tempStr.extract(argument, SIZEOFARRAYi(argument), errorCode);
 				u_austrncpy(cBuffer, format, sizeof(cBuffer));
 				if(U_FAILURE(errorCode)) {
 					log_err("error retrieving icuio/printf test case %d - %s\n",
@@ -531,7 +531,7 @@ static void U_CALLCONV DataDrivenScanf(void)
                             STANDARD_TEST_FILE);
                 }
                 uBuffer[0];
-                u_fgets(uBuffer, UPRV_LENGTHOF(uBuffer), testFile);
+                u_fgets(uBuffer, SIZEOFARRAYi(uBuffer), testFile);
                 if(u_strcmp(uBuffer, expectedResult) != 0) {
                     u_austrncpy(cBuffer, uBuffer, sizeof(cBuffer));
                     u_austrncpy(cFormat, format, sizeof(cFormat));
@@ -606,14 +606,14 @@ static void U_CALLCONV DataDrivenPrintfPrecision(void)
 					errorCode = U_ZERO_ERROR;
 					continue;
 				}
-				u_memset(uBuffer, 0x2A, UPRV_LENGTHOF(uBuffer));
-				uBuffer[UPRV_LENGTHOF(uBuffer)-1] = 0;
+				u_memset(uBuffer, 0x2A, SIZEOFARRAYi(uBuffer));
+				uBuffer[SIZEOFARRAYi(uBuffer)-1] = 0;
 				tempStr = testCase->getString("format", errorCode);
-				tempStr.extract(format, UPRV_LENGTHOF(format), errorCode);
+				tempStr.extract(format, SIZEOFARRAYi(format), errorCode);
 				tempStr = testCase->getString("result", errorCode);
-				tempStr.extract(expectedResult, UPRV_LENGTHOF(expectedResult), errorCode);
+				tempStr.extract(expectedResult, SIZEOFARRAYi(expectedResult), errorCode);
 				tempStr = testCase->getString("argument", errorCode);
-				tempStr.extract(argument, UPRV_LENGTHOF(argument), errorCode);
+				tempStr.extract(argument, SIZEOFARRAYi(argument), errorCode);
 				precision = testCase->getInt28("precision", errorCode);
 				u_austrncpy(cBuffer, format, sizeof(cBuffer));
 				if(U_FAILURE(errorCode)) {

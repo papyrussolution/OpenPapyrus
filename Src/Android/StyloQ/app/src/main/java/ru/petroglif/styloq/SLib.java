@@ -4881,19 +4881,19 @@ public class SLib {
 		}
 		public void SetupRecyclerListView(View parentView, int rcListView, int rcItemView)
 		{
-			RecyclerView view = (RecyclerView)((parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView));
-			if(view != null) {
+			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
+			if(view != null && view instanceof RecyclerView) {
 				RecyclerListAdapter adapter = new RecyclerListAdapter(this, rcListView, rcItemView);
-				view.setAdapter(adapter);
+				((RecyclerView)view).setAdapter(adapter);
 				//view.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 			}
 		}
 		public void SetupRecyclerListView(View parentView, int rcListView, LinearLayout itemLayout)
 		{
-			RecyclerView view = (RecyclerView)((parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView));
-			if(view != null) {
+			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
+			if(view != null && view instanceof RecyclerView) {
 				RecyclerListAdapter adapter = new RecyclerListAdapter(this, rcListView, itemLayout);
-				view.setAdapter(adapter);
+				((RecyclerView)view).setAdapter(adapter);
 				//view.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 			}
 		}
@@ -4904,9 +4904,9 @@ public class SLib {
 		}
 		public void SetRecyclerListFocusedIndex(View parentView, int rcListView, int idx)
 		{
-			RecyclerView view = (RecyclerView)((parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView));
-			if(view != null)
-				SetRecyclerListFocusedIndex(view.getAdapter(), idx);
+			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
+			if(view != null && view instanceof RecyclerView)
+				SetRecyclerListFocusedIndex(((RecyclerView)view).getAdapter(), idx);
 		}
 		/*public int GetRecyclerListFocusedIndex(RecyclerView.Adapter adapter)
 		{
@@ -4925,18 +4925,18 @@ public class SLib {
 		}
 		public int GetRecyclerListFocusedIndex(View parentView, int rcListView)
 		{
-			RecyclerView view = (RecyclerView)((parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView));
-			return (view != null) ? GetListFocusedIndex(view.getAdapter()) : -1;
+			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
+			return (view != null && view instanceof RecyclerView) ? GetListFocusedIndex(((RecyclerView)view).getAdapter()) : -1;
 		}
 		public void SetupViewPagerWithFragmentAdapter(int rcViewPager)
 		{
-			ViewPager2 view = (ViewPager2)findViewById(rcViewPager);
-			if(view != null) {
-				view.setUserInputEnabled(false); // Этот вызов предотвращает переключение между табуляторами скользящим
+			View view = findViewById(rcViewPager);
+			if(view != null && view instanceof ViewPager2) {
+				((ViewPager2)view).setUserInputEnabled(false); // Этот вызов предотвращает переключение между табуляторами скользящим
 					// движением по экрану. Будучи весьма эффектной, эта функция мешает управлять конкретными страницами,
 					// которые сами по себе бывают довольно сложными.
 				FragmentAdapter adapter = new FragmentAdapter(this);
-				view.setAdapter(adapter);
+				((ViewPager2)view).setAdapter(adapter);
 			}
 		}
 		public void SetupListView(int rcListView, int rcItemView, ArrayList data)

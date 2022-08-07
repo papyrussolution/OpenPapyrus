@@ -47,7 +47,7 @@ extern int main(int argc, char * argv[])
 	uint32_t maxSize;
 	U_MAIN_INIT_ARGS(argc, argv);
 	/* preset then read command line options */
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 	/* error handling, printing usage message */
 	if(argc<0) {
 		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);

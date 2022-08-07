@@ -55,19 +55,19 @@ static void Testj2269() {
 }
 
 static const UChar PAT[] = {91, 97, 45, 99, 123, 97, 98, 125, 93, 0}; /* "[a-c{ab}]" */
-static const int32_t PAT_LEN = UPRV_LENGTHOF(PAT) - 1;
+static const int32_t PAT_LEN = SIZEOFARRAYi(PAT) - 1;
 
 static const UChar PAT_lb[] = {0x6C, 0x62, 0}; /* "lb" */
-static const int32_t PAT_lb_LEN = UPRV_LENGTHOF(PAT_lb) - 1;
+static const int32_t PAT_lb_LEN = SIZEOFARRAYi(PAT_lb) - 1;
 
 static const UChar VAL_SP[] = {0x53, 0x50, 0}; /* "SP" */
-static const int32_t VAL_SP_LEN = UPRV_LENGTHOF(VAL_SP) - 1;
+static const int32_t VAL_SP_LEN = SIZEOFARRAYi(VAL_SP) - 1;
 
 static const UChar STR_bc[] = {98, 99, 0}; /* "bc" */
-static const int32_t STR_bc_LEN = UPRV_LENGTHOF(STR_bc) - 1;
+static const int32_t STR_bc_LEN = SIZEOFARRAYi(STR_bc) - 1;
 
 static const UChar STR_ab[] = {97, 98, 0}; /* "ab" */
-static const int32_t STR_ab_LEN = UPRV_LENGTHOF(STR_ab) - 1;
+static const int32_t STR_ab_LEN = SIZEOFARRAYi(STR_ab) - 1;
 
 /**
  * Basic API test for uset.x
@@ -437,7 +437,7 @@ static void expectItems(const USet* set,
 			}
 			else {
 				itemLen = uset_getItem(set, itemIndex, NULL, NULL,
-					itemStr, UPRV_LENGTHOF(itemStr), &ec);
+					itemStr, SIZEOFARRAYi(itemStr), &ec);
 				isString = true;
 			}
 			if(U_FAILURE(ec) || itemLen < 0) {
@@ -534,7 +534,7 @@ static void TestSerialized() {
 		return;
 	}
 
-	length = uset_serialize(set, buffer, UPRV_LENGTHOF(buffer), &errorCode);
+	length = uset_serialize(set, buffer, SIZEOFARRAYi(buffer), &errorCode);
 	if(U_FAILURE(errorCode)) {
 		log_err("unable to uset_serialize([:Cf:]) - %s\n", u_errorName(errorCode));
 		uset_close(set);

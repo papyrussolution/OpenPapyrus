@@ -33,7 +33,7 @@ static const UChar NO_NAME[]    = { 0 };   // for empty no-fallback time zone na
 
 // stuff for TZDBTimeZoneNames
 static const char * TZDBNAMES_KEYS[]       = {"ss", "sd"};
-static const int32_t TZDBNAMES_KEYS_SIZE = UPRV_LENGTHOF(TZDBNAMES_KEYS);
+static const int32_t TZDBNAMES_KEYS_SIZE = SIZEOFARRAYi(TZDBNAMES_KEYS);
 
 static UMutex gDataMutex;
 
@@ -613,7 +613,7 @@ private:
 		// TODO: Is there a more efficient way, like intern() in Java?
 		void * key = (void *)ZoneMeta::findMetaZoneID(mzID);
 		void * value;
-		if(uprv_memcmp(names, EMPTY_NAMES, sizeof(EMPTY_NAMES)) == 0) {
+		if(memcmp(names, EMPTY_NAMES, sizeof(EMPTY_NAMES)) == 0) {
 			value = (void *)EMPTY;
 		}
 		else {
@@ -1249,7 +1249,7 @@ static void mergeTimeZoneKey(const UnicodeString & mzID, char * result) {
 
 	char mzIdChar[ZID_KEY_MAX + 1];
 	int32_t keyLen;
-	int32_t prefixLen = static_cast<int32_t>(uprv_strlen(gMZPrefix));
+	int32_t prefixLen = static_cast<int32_t>(strlen(gMZPrefix));
 	keyLen = mzID.extract(0, mzID.length(), mzIdChar, ZID_KEY_MAX + 1, US_INV);
 	uprv_memcpy((void *)result, (void *)gMZPrefix, prefixLen);
 	uprv_memcpy((void *)(result + prefixLen), (void *)mzIdChar, keyLen);
@@ -1437,7 +1437,7 @@ struct TimeZoneNamesImpl::ZoneStringsLoader : public ResourceSink {
 	virtual ~ZoneStringsLoader();
 
 	void * createKey(const char * key, UErrorCode & status) {
-		int32_t len = sizeof(char) * (static_cast<int32_t>(uprv_strlen(key)) + 1);
+		int32_t len = sizeof(char) * (static_cast<int32_t>(strlen(key)) + 1);
 		char * newKey = (char *)uprv_malloc(len);
 		if(newKey == NULL) {
 			status = U_MEMORY_ALLOCATION_ERROR;
@@ -1449,11 +1449,11 @@ struct TimeZoneNamesImpl::ZoneStringsLoader : public ResourceSink {
 	}
 
 	bool isMetaZone(const char * key) {
-		return (uprv_strlen(key) >= MZ_PREFIX_LEN && uprv_memcmp(key, gMZPrefix, MZ_PREFIX_LEN) == 0);
+		return (strlen(key) >= MZ_PREFIX_LEN && memcmp(key, gMZPrefix, MZ_PREFIX_LEN) == 0);
 	}
 
 	UnicodeString mzIDFromKey(const char * key) {
-		return UnicodeString(key + MZ_PREFIX_LEN, static_cast<int32_t>(uprv_strlen(key)) - MZ_PREFIX_LEN, US_INV);
+		return UnicodeString(key + MZ_PREFIX_LEN, static_cast<int32_t>(strlen(key)) - MZ_PREFIX_LEN, US_INV);
 	}
 
 	UnicodeString tzIDFromKey(const char * key) {
@@ -1930,7 +1930,7 @@ bool TZDBNameSearchHandler::handleMatch(int32_t matchLength, const CharacterNode
 					// as metazone China (China Standard Time).
 					for(int32_t j = 0; j < ninfo->nRegions; j++) {
 						const char * region = ninfo->parseRegions[j];
-						if(uprv_strcmp(fRegion, region) == 0) {
+						if(strcmp(fRegion, region) == 0) {
 							match = ninfo;
 							matchRegion = TRUE;
 							break;
@@ -2106,7 +2106,7 @@ TZDBTimeZoneNames::TZDBTimeZoneNames(const Locale & locale)
 	: fLocale(locale) {
 	bool useWorld = TRUE;
 	const char * region = fLocale.getCountry();
-	int32_t regionLen = static_cast<int32_t>(uprv_strlen(region));
+	int32_t regionLen = static_cast<int32_t>(strlen(region));
 	if(regionLen == 0) {
 		UErrorCode status = U_ZERO_ERROR;
 		CharString loc;
@@ -2120,11 +2120,11 @@ TZDBTimeZoneNames::TZDBTimeZoneNames(const Locale & locale)
 		}
 	}
 	else if(regionLen < (int32_t)sizeof(fRegion)) {
-		uprv_strcpy(fRegion, region);
+		strcpy(fRegion, region);
 		useWorld = FALSE;
 	}
 	if(useWorld) {
-		uprv_strcpy(fRegion, "001");
+		strcpy(fRegion, "001");
 	}
 }
 

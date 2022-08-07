@@ -50,7 +50,7 @@ static const UChar RIYADH8[] = { 0x52, 0x69, 0x79, 0x61, 0x64, 0x68, 0x38, 0 }; 
 
 static bool contains(const char ** list, const char * str) {
 	for(int32_t i = 0; list[i]; i++) {
-		if(uprv_strcmp(list[i], str) == 0) {
+		if(strcmp(list[i], str) == 0) {
 			return TRUE;
 		}
 	}
@@ -111,8 +111,8 @@ void TimeZoneFormatTest::TestTimeZoneRoundTrip() {
 	}
 
 	// Set up test dates
-	UDate DATES[UPRV_LENGTHOF(testDateData)];
-	const int32_t nDates = UPRV_LENGTHOF(testDateData);
+	UDate DATES[SIZEOFARRAYi(testDateData)];
+	const int32_t nDates = SIZEOFARRAYi(testDateData);
 	cal->clear();
 	for(int32_t i = 0; i < nDates; i++) {
 		cal->set(testDateData[i][0], testDateData[i][1], testDateData[i][2]);
@@ -138,7 +138,7 @@ void TimeZoneFormatTest::TestTimeZoneRoundTrip() {
 
 	if(quick) {
 		LOCALES = testLocales;
-		nLocales = UPRV_LENGTHOF(testLocales);
+		nLocales = SIZEOFARRAYi(testLocales);
 	}
 	else {
 		LOCALES = Locale::getAvailableLocales(nLocales);
@@ -163,7 +163,7 @@ void TimeZoneFormatTest::TestTimeZoneRoundTrip() {
 		gmtFmt.setTimeZone(*TimeZone::getGMT());
 		gmtFmt.format(0.0, localGMTString);
 
-		for(int32_t patidx = 0; patidx < UPRV_LENGTHOF(PATTERNS); patidx++) {
+		for(int32_t patidx = 0; patidx < SIZEOFARRAYi(PATTERNS); patidx++) {
 			SimpleDateFormat * sdf = new SimpleDateFormat((UnicodeString)PATTERNS[patidx], LOCALES[locidx], status);
 			if(U_FAILURE(status)) {
 				dataerrln((UnicodeString)"new SimpleDateFormat failed for pattern " +
@@ -218,7 +218,7 @@ void TimeZoneFormatTest::TestTimeZoneRoundTrip() {
 						status = U_ZERO_ERROR;
 					}
 
-					if(uprv_strcmp(PATTERNS[patidx], "V") == 0) {
+					if(strcmp(PATTERNS[patidx], "V") == 0) {
 						// Short zone ID - should support roundtrip for canonical CLDR IDs
 						UnicodeString canonicalID;
 						TimeZone::getCanonicalID(*tzid, canonicalID, status);
@@ -246,7 +246,7 @@ void TimeZoneFormatTest::TestTimeZoneRoundTrip() {
 							}
 						}
 					}
-					else if(uprv_strcmp(PATTERNS[patidx], "VV") == 0) {
+					else if(strcmp(PATTERNS[patidx], "VV") == 0) {
 						// Zone ID - full roundtrip support
 						if(outtzid != *tzid) {
 							errln((UnicodeString)"Zone ID round trip failued; tz="  + *tzid
@@ -255,7 +255,7 @@ void TimeZoneFormatTest::TestTimeZoneRoundTrip() {
 							    + ", outtz=" + outtzid);
 						}
 					}
-					else if(uprv_strcmp(PATTERNS[patidx], "VVV") == 0 || uprv_strcmp(PATTERNS[patidx], "VVVV") == 0) {
+					else if(strcmp(PATTERNS[patidx], "VVV") == 0 || strcmp(PATTERNS[patidx], "VVVV") == 0) {
 						// Location: time zone rule must be preserved except
 						// zones not actually associated with a specific location.
 						// Time zones in this category do not have "/" in its ID.
@@ -297,7 +297,7 @@ void TimeZoneFormatTest::TestTimeZoneRoundTrip() {
 						bool isOffsetFormat = (*PATTERNS[patidx] == 'Z' || *PATTERNS[patidx] == 'O' || *PATTERNS[patidx] == 'X' || *PATTERNS[patidx] == 'x');
 						bool minutesOffset = FALSE;
 						if(*PATTERNS[patidx] == 'X' || *PATTERNS[patidx] == 'x') {
-							minutesOffset = (uprv_strlen(PATTERNS[patidx]) <= 3);
+							minutesOffset = (strlen(PATTERNS[patidx]) <= 3);
 						}
 						if(!isOffsetFormat) {
 							// Check if localized GMT format is used as a fallback of name
@@ -373,9 +373,9 @@ static bool isSpecialTimeRoundTripCase(const char * loc,
 
 	bool isExcluded = FALSE;
 	for(int32_t i = 0; EXCLUSIONS[i].id != NULL; i++) {
-		if(EXCLUSIONS[i].loc == NULL || uprv_strcmp(loc, EXCLUSIONS[i].loc) == 0) {
+		if(EXCLUSIONS[i].loc == NULL || strcmp(loc, EXCLUSIONS[i].loc) == 0) {
 			if(id.compare(EXCLUSIONS[i].id) == 0) {
-				if(EXCLUSIONS[i].pattern == NULL || uprv_strcmp(pattern, EXCLUSIONS[i].pattern) == 0) {
+				if(EXCLUSIONS[i].pattern == NULL || strcmp(pattern, EXCLUSIONS[i].pattern) == 0) {
 					if(EXCLUSIONS[i].time == U_DATE_MIN || EXCLUSIONS[i].time == time) {
 						isExcluded = TRUE;
 					}
@@ -402,7 +402,7 @@ struct LocaleData {
 	int32_t localeIndex;
 	int32_t patternIndex;
 	int32_t testCounts;
-	UDate times[UPRV_LENGTHOF(PATTERNS)]; // Performance data, Elapsed time for each pattern.
+	UDate times[SIZEOFARRAYi(PATTERNS)]; // Performance data, Elapsed time for each pattern.
 	const Locale* locales;
 	int32_t nLocales;
 	UDate START_TIME;
@@ -411,20 +411,20 @@ struct LocaleData {
 
 	LocaleData() : localeIndex(0), patternIndex(0), testCounts(0), locales(NULL),
 		nLocales(0), START_TIME(0), END_TIME(0), numDone(0) {
-		for(int i = 0; i<UPRV_LENGTHOF(times); i++) {
+		for(int i = 0; i<SIZEOFARRAYi(times); i++) {
 			times[i] = 0;
 		}
 	}
 
 	void resetTestIteration() {
 		localeIndex = -1;
-		patternIndex = UPRV_LENGTHOF(PATTERNS);
+		patternIndex = SIZEOFARRAYi(PATTERNS);
 		numDone = 0;
 	}
 
 	bool nextTest(int32_t &rLocaleIndex, int32_t &rPatternIndex) {
 		Mutex lock;
-		if(patternIndex >= UPRV_LENGTHOF(PATTERNS) - 1) {
+		if(patternIndex >= SIZEOFARRAYi(PATTERNS) - 1) {
 			if(localeIndex >= nLocales - 1) {
 				return FALSE;
 			}
@@ -440,7 +440,7 @@ struct LocaleData {
 
 	void addTime(UDate amount, int32_t patIdx) {
 		Mutex lock;
-		U_ASSERT(patIdx < UPRV_LENGTHOF(PATTERNS));
+		U_ASSERT(patIdx < SIZEOFARRAYi(PATTERNS));
 		times[patIdx] += amount;
 	}
 };
@@ -456,7 +456,7 @@ void TimeZoneFormatTest::TestTimeRoundTrip() {
 	}
 
 	const char * testAllProp = getProperty("TimeZoneRoundTripAll");
-	bool bTestAll = (testAllProp && uprv_strcmp(testAllProp, "true") == 0);
+	bool bTestAll = (testAllProp && strcmp(testAllProp, "true") == 0);
 
 	UDate START_TIME, END_TIME;
 	if(bTestAll || !quick) {
@@ -497,11 +497,11 @@ void TimeZoneFormatTest::TestTimeRoundTrip() {
 	}
 	else if(quick) {
 		gLocaleData->locales = locales1;
-		gLocaleData->nLocales = UPRV_LENGTHOF(locales1);
+		gLocaleData->nLocales = SIZEOFARRAYi(locales1);
 	}
 	else {
 		gLocaleData->locales = locales2;
-		gLocaleData->nLocales = UPRV_LENGTHOF(locales2);
+		gLocaleData->nLocales = SIZEOFARRAYi(locales2);
 	}
 
 	gLocaleData->START_TIME = START_TIME;
@@ -516,7 +516,7 @@ void TimeZoneFormatTest::TestTimeRoundTrip() {
 
 	UDate total = 0;
 	logln("### Elapsed time by patterns ###");
-	for(int32_t i = 0; i < UPRV_LENGTHOF(PATTERNS); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(PATTERNS); i++) {
 		logln(UnicodeString("") + gLocaleData->times[i] + "ms (" + PATTERNS[i] + ")");
 		total += gLocaleData->times[i];
 	}
@@ -581,7 +581,7 @@ void TimeZoneFormatTest::RunTimeRoundTripTests(int32_t threadNumber) {
 		const UnicodeString * tzid;
 		timer = Calendar::getNow();
 		while((tzid = tzids->snext(status))) {
-			if(uprv_strcmp(PATTERNS[patidx], "V") == 0) {
+			if(strcmp(PATTERNS[patidx], "V") == 0) {
 				// Some zones do not have short ID assigned, such as Asia/Riyadh87.
 				// The time roundtrip will fail for such zones with pattern "V" (short zone ID).
 				// This is expected behavior.
@@ -590,7 +590,7 @@ void TimeZoneFormatTest::RunTimeRoundTripTests(int32_t threadNumber) {
 					continue;
 				}
 			}
-			else if(uprv_strcmp(PATTERNS[patidx], "VVV") == 0) {
+			else if(strcmp(PATTERNS[patidx], "VVV") == 0) {
 				// Some zones are not associated with any region, such as Etc/GMT+8.
 				// The time roundtrip will fail for such zone with pattern "VVV" (exemplar location).
 				// This is expected behavior.
@@ -599,7 +599,7 @@ void TimeZoneFormatTest::RunTimeRoundTripTests(int32_t threadNumber) {
 				}
 			}
 			if((*tzid == "Pacific/Apia" || *tzid == "Pacific/Midway" || *tzid == "Pacific/Pago_Pago") && 
-				uprv_strcmp(PATTERNS[patidx], "vvvv") == 0 && logKnownIssue("11052", "Ambiguous zone name - Samoa Time")) {
+				strcmp(PATTERNS[patidx], "vvvv") == 0 && logKnownIssue("11052", "Ambiguous zone name - Samoa Time")) {
 				continue;
 			}
 			BasicTimeZone * tz = (BasicTimeZone*)TimeZone::createTimeZone(*tzid);
@@ -1003,7 +1003,7 @@ void TimeZoneFormatTest::TestISOFormat() {
 	}
 	UDate d = Calendar::getNow();
 
-	for(uint32_t i = 0; i < UPRV_LENGTHOF(OFFSET); i++) {
+	for(uint32_t i = 0; i < SIZEOFARRAYi(OFFSET); i++) {
 		SimpleTimeZone* tz = new SimpleTimeZone(OFFSET[i], UnicodeString("Zone Offset:") + OFFSET[i] + "ms");
 		sdf->adoptTimeZone(tz);
 		for(int32_t j = 0; PATTERN[j] != 0; j++) {
@@ -1047,7 +1047,7 @@ void TimeZoneFormatTest::TestISOFormat() {
 
 			sdf->parse(UnicodeString(ISO_STR[i][j]), *(outcal.getAlias()), pos);
 
-			if(pos.getIndex() != (int32_t)uprv_strlen(ISO_STR[i][j])) {
+			if(pos.getIndex() != (int32_t)strlen(ISO_STR[i][j])) {
 				errln((UnicodeString)"FAIL: Failed to parse the entire input string: " + ISO_STR[i][j]);
 			}
 

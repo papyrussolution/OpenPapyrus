@@ -86,10 +86,10 @@ public:
 		}
 		for(int32_t i = 0; resIndexTable.getKeyAndValue(i, key, value); ++i) {
 			ULocAvailableType type;
-			if(uprv_strcmp(key, "InstalledLocales") == 0) {
+			if(strcmp(key, "InstalledLocales") == 0) {
 				type = ULOC_AVAILABLE_DEFAULT;
 			}
-			else if(uprv_strcmp(key, "AliasLocales") == 0) {
+			else if(strcmp(key, "AliasLocales") == 0) {
 				type = ULOC_AVAILABLE_ONLY_LEGACY_ALIASES;
 			}
 			else {
@@ -172,7 +172,7 @@ private:
 /* ### Get available **************************************************/
 
 static bool U_CALLCONV uloc_cleanup() {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(gAvailableLocaleNames); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(gAvailableLocaleNames); i++) {
 		uprv_free(gAvailableLocaleNames[i]);
 		gAvailableLocaleNames[i] = nullptr;
 		gAvailableLocaleCounts[i] = 0;

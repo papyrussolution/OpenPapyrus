@@ -94,7 +94,7 @@ const UCollationResult results[] = {
 
 static
 void uprv_appendByteToHexString(char * dst, uint8_t val) {
-	uint32_t len = (uint32_t)uprv_strlen(dst);
+	uint32_t len = (uint32_t)strlen(dst);
 	*(dst+len) = T_CString_itosOffset((val >> 4));
 	*(dst+len+1) = T_CString_itosOffset((val & 0xF));
 	*(dst+len+2) = 0;
@@ -110,7 +110,7 @@ static char * U_EXPORT2 sortKeyToString(const UCollator * coll, const uint8_t * 
 	char * current = buffer;
 	const uint8_t * currentSk = sortkey;
 
-	uprv_strcpy(current, "[");
+	strcpy(current, "[");
 
 	while(strength <= UCOL_QUATERNARY && strength <= ucol_getStrength(coll)) {
 		if(strength > UCOL_PRIMARY) {
@@ -414,15 +414,15 @@ static void doTestVariant(UCollator* myCollation, const UChar source[], const UC
 
 	/* Check that sort key generated with null terminated string is identical  */
 	/*  to that generated with a length specified.   */
-	if(uprv_strcmp((const char *)sortKey1, (const char *)sortKey1a) != 0 ||
-	    uprv_strcmp((const char *)sortKey2, (const char *)sortKey2a) != 0) {
+	if(strcmp((const char *)sortKey1, (const char *)sortKey1a) != 0 ||
+	    strcmp((const char *)sortKey2, (const char *)sortKey2a) != 0) {
 		log_err("Sort Keys from null terminated and explicit length strings differ.\n");
 	}
 
 	/*memcmp(sortKey1, sortKey2,sortklenmax);*/
-	temp = uprv_strcmp((const char *)sortKey1, (const char *)sortKey2);
-	gSortklen1 = (int)uprv_strlen((const char *)sortKey1)+1;
-	gSortklen2 = (int)uprv_strlen((const char *)sortKey2)+1;
+	temp = strcmp((const char *)sortKey1, (const char *)sortKey2);
+	gSortklen1 = (int)strlen((const char *)sortKey1)+1;
+	gSortklen2 = (int)strlen((const char *)sortKey2)+1;
 	if(sortklen1 != gSortklen1) {
 		log_err("SortKey length does not match Expected: %i Got: %i\n", sortklen1, gSortklen1);
 		log_verbose("Generated sortkey: %s\n", sortKeyToString(myCollation, sortKey1, buffer, &len));
@@ -1035,7 +1035,7 @@ static void TestVariableTop(void)
 	/* space is supposed to be a variable */
 	source[0] = ' ';
 	len = ucol_getSortKey(enCollation, source, 1, result, sizeof(result));
-	if(uprv_memcmp(expected, result, len) != 0) {
+	if(memcmp(expected, result, len) != 0) {
 		log_err("ERROR: SHIFTED alternate does not return 0 for primary of space\n");
 	}
 	ch = 'a';
@@ -1043,7 +1043,7 @@ static void TestVariableTop(void)
 		source[0] = ch;
 		len = ucol_getSortKey(myCollation, source, 1, result,
 			sizeof(result));
-		if(uprv_memcmp(expected, result, len) != 0) {
+		if(memcmp(expected, result, len) != 0) {
 			log_err("ERROR: SHIFTED alternate does not return 0 for primary of %c\n",
 			    ch);
 		}
@@ -1107,7 +1107,7 @@ static void TestSurrogates(void)
 	/* tests that \uD800\uDC02 still has the same value, not changed */
 	enlen = ucol_getSortKey(enCollation, source[3], 2, enresult, 20);
 	mylen = ucol_getSortKey(myCollation, source[3], 2, myresult, 20);
-	if(enlen != mylen || uprv_memcmp(enresult, myresult, enlen) != 0) {
+	if(enlen != mylen || memcmp(enresult, myresult, enlen) != 0) {
 		log_verbose("Failed : non-tailored supplementary characters should have the same value\n");
 	}
 	ucol_close(enCollation);
@@ -1141,9 +1141,9 @@ static void TestInvalidRules()
 		UParseError parseError;
 		UErrorCode status = U_ZERO_ERROR;
 		UCollator* coll = 0;
-		u_charsToUChars(rulesArr[i], rules, (int32_t)uprv_strlen(rulesArr[i]) + 1);
-		u_charsToUChars(preContextArr[i], preContextExp, (int32_t)uprv_strlen(preContextArr[i]) + 1);
-		u_charsToUChars(postContextArr[i], postContextExp, (int32_t)uprv_strlen(postContextArr[i]) + 1);
+		u_charsToUChars(rulesArr[i], rules, (int32_t)strlen(rulesArr[i]) + 1);
+		u_charsToUChars(preContextArr[i], preContextExp, (int32_t)strlen(preContextArr[i]) + 1);
+		u_charsToUChars(postContextArr[i], postContextExp, (int32_t)strlen(postContextArr[i]) + 1);
 		/* clean up stuff in parseError */
 		u_memset(parseError.preContext, 0x0000, U_PARSE_CONTEXT_LEN);
 		u_memset(parseError.postContext, 0x0000, U_PARSE_CONTEXT_LEN);

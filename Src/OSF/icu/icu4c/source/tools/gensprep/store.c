@@ -541,7 +541,7 @@ extern void generateData(const char * dataDir, const char * bundleName) {
 	UNewDataMemory * pData;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	int32_t size, dataLength;
-	char * fileName = (char *)uprv_malloc(uprv_strlen(bundleName) +100);
+	char * fileName = (char *)uprv_malloc(strlen(bundleName) +100);
 
 #if UCONFIG_NO_IDNA
 

@@ -781,7 +781,7 @@ UnicodeString PluralRules::getRuleFromResource(const Locale & locale, UPluralTyp
 		UErrorCode status = U_ZERO_ERROR;
 		char parentLocaleName[ULOC_FULLNAME_CAPACITY];
 		const char * curLocaleName2 = locale.getBaseName();
-		uprv_strcpy(parentLocaleName, curLocaleName2);
+		strcpy(parentLocaleName, curLocaleName2);
 
 		while(uloc_getParent(parentLocaleName, parentLocaleName,
 		    ULOC_FULLNAME_CAPACITY, &status) > 0) {
@@ -1186,7 +1186,7 @@ PluralRuleParser::~PluralRuleParser()
 int32_t PluralRuleParser::getNumberValue(const UnicodeString & token) 
 {
 	char digits[128];
-	int32_t i = token.extract(0, token.length(), digits, UPRV_LENGTHOF(digits), US_INV);
+	int32_t i = token.extract(0, token.length(), digits, SIZEOFARRAYi(digits), US_INV);
 	digits[i] = '\0';
 	return (int32_t)satoi(digits);
 }
@@ -1902,7 +1902,7 @@ const char * PluralAvailableLocalesEnumeration::next(int32_t * resultLength, UEr
 	}
 	const char * result = ures_getKey(fRes);
 	if(resultLength != nullptr) {
-		*resultLength = static_cast<int32_t>(uprv_strlen(result));
+		*resultLength = static_cast<int32_t>(strlen(result));
 	}
 	return result;
 }

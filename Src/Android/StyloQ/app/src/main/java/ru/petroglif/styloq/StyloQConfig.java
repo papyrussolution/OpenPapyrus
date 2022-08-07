@@ -39,6 +39,8 @@ public class StyloQConfig {
 	public static int rolePrivateService = 3;
 	public static int roleMediator       = 4;
 
+	public static int featrfMediator = 0x0001; // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)
+
 	private Map<Integer, String> L;
 
 	StyloQConfig()

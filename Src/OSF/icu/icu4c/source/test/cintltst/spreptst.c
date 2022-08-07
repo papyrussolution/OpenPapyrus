@@ -1,20 +1,11 @@
+// spreptst.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2003-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  spreptst.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2003jul11
- *   created by: Ram Viswanadha
- */
+// Copyright (C) 2003-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2003jul11
+// created by: Ram Viswanadha
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #if !UCONFIG_NO_IDNA
@@ -23,9 +14,7 @@
 #include "nfsprep.h"
 
 void addUStringPrepTest(TestNode** root);
-void doStringPrepTest(const char * binFileName, const char * txtFileName,
-    int32_t options, UErrorCode * errorCode);
-
+void doStringPrepTest(const char * binFileName, const char * txtFileName, int32_t options, UErrorCode * errorCode);
 static void Test_nfs4_cs_prep_data();
 static void Test_nfs4_cis_prep_data();
 static void Test_nfs4_mixed_prep_data();
@@ -53,39 +42,38 @@ void addUStringPrepTest(TestNode** root)
 	addTest(root, &TestStringPrepProfiles,              "spreptst/TestStringPrepProfiles");
 }
 
-static void Test_nfs4_cs_prep_data() {
+static void Test_nfs4_cs_prep_data() 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	loadTestData(&errorCode);
 	if(U_FAILURE(errorCode)) {
 		log_data_err("Could not load testdata.dat, status = %s\n", u_errorName(errorCode));
 		return;
 	}
-
 	log_verbose("Testing nfs4_cs_prep_ci.txt\n");
 	doStringPrepTest("nfscsi", "nfs4_cs_prep_ci.txt", USPREP_DEFAULT, &errorCode);
-
 	log_verbose("Testing nfs4_cs_prep_cs.txt\n");
 	errorCode = U_ZERO_ERROR;
 	doStringPrepTest("nfscss", "nfs4_cs_prep_cs.txt", USPREP_DEFAULT, &errorCode);
 }
 
-static void Test_nfs4_cis_prep_data() {
+static void Test_nfs4_cis_prep_data() 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	log_verbose("Testing nfs4_cis_prep.txt\n");
 	doStringPrepTest("nfscis", "nfs4_cis_prep.txt", USPREP_DEFAULT, &errorCode);
 }
 
-static void Test_nfs4_mixed_prep_data() {
+static void Test_nfs4_mixed_prep_data() 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	loadTestData(&errorCode);
 	if(U_FAILURE(errorCode)) {
 		log_data_err("Could not load testdata.dat, status = %s\n", u_errorName(errorCode));
 		return;
 	}
-
 	log_verbose("Testing nfs4_mixed_prep_s.txt\n");
 	doStringPrepTest("nfsmxs", "nfs4_mixed_prep_s.txt", USPREP_DEFAULT, &errorCode);
-
 	errorCode = U_ZERO_ERROR;
 	log_verbose("Testing nfs4_mixed_prep_p.txt\n");
 	doStringPrepTest("nfsmxp", "nfs4_mixed_prep_p.txt", USPREP_DEFAULT, &errorCode);
@@ -99,8 +87,7 @@ static const struct ConformanceTestCases {
 	UErrorCode expectedStatus;
 }
 
-conformanceTestCases[] =
-{
+conformanceTestCases[] = {
 	{/*0*/
 		"Case folding ASCII U+0043 U+0041 U+0046 U+0045",
 		"\x43\x41\x46\x45", "\x63\x61\x66\x65",
@@ -276,26 +263,19 @@ conformanceTestCases[] =
 
 #define MAX_BUFFER_SIZE  1000
 
-static int32_t unescapeData(const char * src, int32_t srcLen,
-    char * dest, int32_t destCapacity,
-    UErrorCode * status) {
+static int32_t unescapeData(const char * src, int32_t srcLen, char * dest, int32_t destCapacity, UErrorCode * status) 
+{
 	(void)srcLen; // suppress compiler warnings about unused variable
-
 	UChar b1Stack[MAX_BUFFER_SIZE];
-	int32_t b1Capacity = MAX_BUFFER_SIZE,
-	    b1Len      = 0,
-	    destLen    = 0;
-
+	int32_t b1Capacity = MAX_BUFFER_SIZE, destLen    = 0;
 	UChar * b1 = b1Stack;
-
-	b1Len = u_unescape(src, b1, b1Capacity);
-
+	int32_t b1Len = u_unescape(src, b1, b1Capacity);
 	u_strToUTF8(dest, destCapacity, &destLen, b1, b1Len, status);
-
 	return destLen;
 }
 
-static void Test_nfs4_cis_prep() {
+static void Test_nfs4_cis_prep() 
+{
 	int32_t i = 0;
 	UErrorCode loadStatus = U_ZERO_ERROR;
 	loadTestData(&loadStatus);
@@ -304,7 +284,7 @@ static void Test_nfs4_cis_prep() {
 		return;
 	}
 
-	for(i = 0; i< UPRV_LENGTHOF(conformanceTestCases); i++) {
+	for(i = 0; i< SIZEOFARRAYi(conformanceTestCases); i++) {
 		const char * src = conformanceTestCases[i].in;
 		UErrorCode status = U_ZERO_ERROR;
 		UParseError parseError;
@@ -427,7 +407,7 @@ static void Test_nfs4_mixed_prep() {
 		char src[MAX_BUFFER_SIZE];
 		int32_t srcLen;
 
-		for(i = 0; i< UPRV_LENGTHOF(mixed_prep_data); i++) {
+		for(i = 0; i< SIZEOFARRAYi(mixed_prep_data); i++) {
 			int32_t destLen = 0;
 			char * dest = NULL;
 			UErrorCode status = U_ZERO_ERROR;
@@ -719,43 +699,43 @@ static const char * profile_test_case[] = {
 
 UStringPrepProfileType getTypeFromProfileName(const char * profileName) 
 {
-	if(uprv_strcmp(profileName, "RFC4013_SASLPREP") == 0) {
+	if(strcmp(profileName, "RFC4013_SASLPREP") == 0) {
 		return USPREP_RFC4013_SASLPREP;
 	}
-	else if(uprv_strcmp(profileName, "RFC4011_MIB") == 0) {
+	else if(strcmp(profileName, "RFC4011_MIB") == 0) {
 		return USPREP_RFC4011_MIB;
 	}
-	else if(uprv_strcmp(profileName, "RFC4505_TRACE") == 0) {
+	else if(strcmp(profileName, "RFC4505_TRACE") == 0) {
 		return USPREP_RFC4505_TRACE;
 	}
-	else if(uprv_strcmp(profileName, "RFC4518_LDAP") == 0) {
+	else if(strcmp(profileName, "RFC4518_LDAP") == 0) {
 		return USPREP_RFC4518_LDAP;
 	}
-	else if(uprv_strcmp(profileName, "RFC4518_LDAP_CI") == 0) {
+	else if(strcmp(profileName, "RFC4518_LDAP_CI") == 0) {
 		return USPREP_RFC4518_LDAP_CI;
 	}
-	else if(uprv_strcmp(profileName, "RFC3920_RESOURCEPREP") == 0) {
+	else if(strcmp(profileName, "RFC3920_RESOURCEPREP") == 0) {
 		return USPREP_RFC3920_RESOURCEPREP;
 	}
-	else if(uprv_strcmp(profileName, "RFC3920_NODEPREP") == 0) {
+	else if(strcmp(profileName, "RFC3920_NODEPREP") == 0) {
 		return USPREP_RFC3920_NODEPREP;
 	}
-	else if(uprv_strcmp(profileName, "RFC3722_ISCSI") == 0) {
+	else if(strcmp(profileName, "RFC3722_ISCSI") == 0) {
 		return USPREP_RFC3722_ISCSI;
 	}
-	else if(uprv_strcmp(profileName, "RFC3530_NFS4_CS_PREP") == 0) {
+	else if(strcmp(profileName, "RFC3530_NFS4_CS_PREP") == 0) {
 		return USPREP_RFC3530_NFS4_CS_PREP;
 	}
-	else if(uprv_strcmp(profileName, "RFC3530_NFS4_CS_PREP_CI") == 0) {
+	else if(strcmp(profileName, "RFC3530_NFS4_CS_PREP_CI") == 0) {
 		return USPREP_RFC3530_NFS4_CS_PREP_CI;
 	}
-	else if(uprv_strcmp(profileName, "RFC3530_NFS4_CIS_PREP") == 0) {
+	else if(strcmp(profileName, "RFC3530_NFS4_CIS_PREP") == 0) {
 		return USPREP_RFC3530_NFS4_CIS_PREP;
 	}
-	else if(uprv_strcmp(profileName, "RFC3530_NFS4_MIXED_PREP_PREFIX") == 0) {
+	else if(strcmp(profileName, "RFC3530_NFS4_MIXED_PREP_PREFIX") == 0) {
 		return USPREP_RFC3530_NFS4_MIXED_PREP_PREFIX;
 	}
-	else if(uprv_strcmp(profileName, "RFC3530_NFS4_MIXED_PREP_SUFFIX") == 0) {
+	else if(strcmp(profileName, "RFC3530_NFS4_MIXED_PREP_SUFFIX") == 0) {
 		return USPREP_RFC3530_NFS4_MIXED_PREP_SUFFIX;
 	}
 	/* Should not happen. */
@@ -772,7 +752,7 @@ static void TestStringPrepProfiles()
 	int32_t srcLength, resultLength, expectedLength;
 	int32_t i, testNum = 0;
 	UStringPrepProfile * sprep = NULL;
-	for(i = 0; i < UPRV_LENGTHOF(profile_test_case); i++) {
+	for(i = 0; i < SIZEOFARRAYi(profile_test_case); i++) {
 		if(uprv_strstr(profile_test_case[i], "RFC")) {
 			if(sprep != NULL) {
 				usprep_close(sprep);

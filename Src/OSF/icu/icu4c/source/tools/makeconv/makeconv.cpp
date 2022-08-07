@@ -196,7 +196,7 @@ int main(int argc, char * argv[])
 
 	/* preset then read command line options */
 	options[OPT_DESTDIR].value = u_getDataDirectory();
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 
 	if(options[OPT_VERSION].doesOccur) {
 		printf("makeconv version %u.%u, ICU tool to read .ucm codepage mapping files and write .cnv files\n", dataInfo.formatVersion[0], dataInfo.formatVersion[1]);
@@ -268,7 +268,7 @@ int main(int argc, char * argv[])
 		const char * arg = getLongPathname(*argv);
 
 		const char * sourcedir = options[OPT_SOURCEDIR].value;
-		if(sourcedir != NULL && *sourcedir != 0 && uprv_strcmp(sourcedir, ".") != 0) {
+		if(sourcedir != NULL && *sourcedir != 0 && strcmp(sourcedir, ".") != 0) {
 			pathBuf.clear();
 			pathBuf.appendPathPart(sourcedir, localError);
 			pathBuf.appendPathPart(arg, localError);
@@ -296,11 +296,11 @@ int main(int argc, char * argv[])
 		}
 
 		/* the basename without extension is the converter name */
-		if((outFileName.length() - outBasenameStart) >= UPRV_LENGTHOF(cnvName)) {
+		if((outFileName.length() - outBasenameStart) >= SIZEOFARRAYi(cnvName)) {
 			slfprintf_stderr("converter name %s too long\n", outFileName.data() + outBasenameStart);
 			return U_BUFFER_OVERFLOW_ERROR;
 		}
-		uprv_strcpy(cnvName, outFileName.data() + outBasenameStart);
+		strcpy(cnvName, outFileName.data() + outBasenameStart);
 
 		/*Adds the target extension*/
 		outFileName.append(CONVERTER_FILE_EXTENSION, localError);
@@ -342,7 +342,7 @@ int main(int argc, char * argv[])
 			if(uprv_stricmp(p, data.staticData.name) && !QUIET) {
 				slfprintf_stderr("Warning: %s%s claims to be '%s'\n", cnvName,  CONVERTER_FILE_EXTENSION, data.staticData.name);
 			}
-			uprv_strcpy((char *)data.staticData.name, cnvName);
+			strcpy((char *)data.staticData.name, cnvName);
 			if(!uprv_isInvariantString((char *)data.staticData.name, -1)) {
 				slfprintf_stderr("Error: A converter name must contain only invariant characters.\n%s is not a valid converter name.\n", data.staticData.name);
 				if(U_SUCCESS(err)) {
@@ -403,17 +403,17 @@ static void readHeader(ConvData * data, FileStream* convFile, UErrorCode * pErro
 			continue;
 		}
 		/* stop at the beginning of the mapping section */
-		if(uprv_strcmp(line, "CHARMAP")==0) {
+		if(strcmp(line, "CHARMAP")==0) {
 			break;
 		}
 		/* collect the information from the header field, ignore unknown keys */
-		if(uprv_strcmp(key, "code_set_name")==0) {
+		if(strcmp(key, "code_set_name")==0) {
 			if(*value!=0) {
-				uprv_strcpy((char *)staticData->name, value);
+				strcpy((char *)staticData->name, value);
 				getPlatformAndCCSIDFromName(value, &staticData->platform, &staticData->codepage);
 			}
 		}
-		else if(uprv_strcmp(key, "subchar")==0) {
+		else if(strcmp(key, "subchar")==0) {
 			uint8_t bytes[UCNV_EXT_MAX_BYTES];
 			int8_t length;
 			s = value;
@@ -428,7 +428,7 @@ static void readHeader(ConvData * data, FileStream* convFile, UErrorCode * pErro
 				return;
 			}
 		}
-		else if(uprv_strcmp(key, "subchar1")==0) {
+		else if(strcmp(key, "subchar1")==0) {
 			uint8_t bytes[UCNV_EXT_MAX_BYTES];
 			s = value;
 			if(1==ucm_parseBytes(bytes, line, (const char **)&s) && *s==0) {
@@ -462,7 +462,7 @@ static void readHeader(ConvData * data, FileStream* convFile, UErrorCode * pErro
 		prototype = ucnv_converterStaticData[staticData->conversionType];
 		if(prototype!=NULL) {
 			if(staticData->name[0]==0) {
-				uprv_strcpy((char *)staticData->name, prototype->name);
+				strcpy((char *)staticData->name, prototype->name);
 			}
 
 			if(staticData->codepage==0) {
@@ -555,7 +555,7 @@ static bool readFile(ConvData * data, const char * converterName, UErrorCode * p
 			continue; /* ignore empty and comment lines */
 		}
 
-		if(0==uprv_strcmp(line, "CHARMAP")) {
+		if(0==strcmp(line, "CHARMAP")) {
 			/* read the extension table */
 			ucm_readTable(data->ucm, convFile, FALSE, baseStates, pErrorCode);
 		}
@@ -661,9 +661,9 @@ static void createConverter(ConvData * data, const char * converterName, UErrorC
 		initConvData(&baseData);
 
 		/* assemble a path/filename for data->ucm->baseName */
-		uprv_strcpy(baseFilename, converterName);
+		strcpy(baseFilename, converterName);
 		basename = (char *)findBasename(baseFilename);
-		uprv_strcpy(basename, data->ucm->baseName);
+		strcpy(basename, data->ucm->baseName);
 		uprv_strcat(basename, ".ucm");
 
 		/* read the base table */

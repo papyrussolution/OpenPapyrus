@@ -62,7 +62,7 @@ void CollationAPITest::TestProperty(/* char * par */)
 	col->getVersion(versionArray);
 	// Check for a version greater than some value rather than equality
 	// so that we need not update the expected version each time.
-	if(uprv_memcmp(versionArray, currVersionArray, 4) < 0) {
+	if(memcmp(versionArray, currVersionArray, 4) < 0) {
 		errln("Testing Collator::getVersion() - unexpected result: %02x.%02x.%02x.%02x", versionArray[0], versionArray[1], versionArray[2], versionArray[3]);
 	}
 	else {
@@ -1137,12 +1137,12 @@ void CollationAPITest::TestSortKeyOverflow()
 	// 2 bytes for the Cyrillic i, 1 byte for the primary-compression terminator,
 	// 2 bytes for the Greek phi, and 1 byte for the NUL terminator.
 	uint8_t sortKey[12];
-	int32_t length = col->getSortKey(i_and_phi, 2, sortKey, UPRV_LENGTHOF(sortKey));
+	int32_t length = col->getSortKey(i_and_phi, 2, sortKey, SIZEOFARRAYi(sortKey));
 	uint8_t sortKey2[12];
 	for(int32_t capacity = 0; capacity < length; ++capacity) {
-		memset(sortKey2, 2, UPRV_LENGTHOF(sortKey2));
+		memset(sortKey2, 2, SIZEOFARRAYi(sortKey2));
 		int32_t length2 = col->getSortKey(i_and_phi, 2, sortKey2, capacity);
-		if(length2 != length || 0 != uprv_memcmp(sortKey, sortKey2, capacity)) {
+		if(length2 != length || 0 != memcmp(sortKey, sortKey2, capacity)) {
 			errln("getSortKey(i_and_phi, capacity=%d) failed to write proper prefix", capacity);
 		}
 		else if(sortKey2[capacity] != 2 || sortKey2[capacity + 1] != 2) {
@@ -1166,7 +1166,7 @@ void CollationAPITest::TestSortKeyOverflow()
 		col->getCollationKey(s, collKey, errorCode);
 		int32_t collKeyLength;
 		const uint8_t * collSortKey = collKey.getByteArray(collKeyLength);
-		if(collKeyLength != length || 0 != uprv_memcmp(longSortKey.getAlias(), collSortKey, length)) {
+		if(collKeyLength != length || 0 != memcmp(longSortKey.getAlias(), collSortKey, length)) {
 			errln("getCollationKey(prefix[%d]+i_and_phi) failed to write proper sort key", prefixLength);
 		}
 
@@ -1571,7 +1571,7 @@ void CollationAPITest::TestGetLocale() {
 	u_unescape(rules, rlz, 256);
 
 	/* test opening collators for different locales */
-	for(i = 0; i<UPRV_LENGTHOF(testStruct); i++) {
+	for(i = 0; i<SIZEOFARRAYi(testStruct); i++) {
 		status = U_ZERO_ERROR;
 		coll = Collator::createInstance(testStruct[i].requestedLocale, status);
 		if(U_FAILURE(status)) {
@@ -1753,7 +1753,7 @@ void CollationAPITest::TestBounds() {
 	};
 
 	int32_t i = 0, j = 0, k = 0, buffSize = 0, skSize = 0, lowerSize = 0, upperSize = 0;
-	int32_t arraySize = UPRV_LENGTHOF(tests);
+	int32_t arraySize = SIZEOFARRAYi(tests);
 
 	(void)lowerSize; // Suppress unused variable warnings.
 	(void)upperSize;
@@ -1780,12 +1780,12 @@ void CollationAPITest::TestBounds() {
 		}
 	}
 
-	for(i = 0; i<UPRV_LENGTHOF(test); i++) {
+	for(i = 0; i<SIZEOFARRAYi(test); i++) {
 		buffSize = u_unescape(test[i], buffer, 512);
 		skSize = coll->getSortKey(buffer, buffSize, sortkey, 512);
 		lowerSize = ucol_getBound(sortkey, skSize, UCOL_BOUND_LOWER, 1, lower, 512, &status);
 		upperSize = ucol_getBound(sortkey, skSize, UCOL_BOUND_UPPER_LONG, 1, upper, 512, &status);
-		for(j = i+1; j<UPRV_LENGTHOF(test); j++) {
+		for(j = i+1; j<SIZEOFARRAYi(test); j++) {
 			buffSize = u_unescape(test[j], buffer, 512);
 			skSize = coll->getSortKey(buffer, buffSize, sortkey, 512);
 			if(strcmp((const char *)lower, (const char *)sortkey) > 0) {
@@ -1816,7 +1816,7 @@ void CollationAPITest::TestGetTailoredSet()
 	UnicodeString buff;
 	UnicodeSet * set = NULL;
 
-	for(i = 0; i < UPRV_LENGTHOF(setTest); i++) {
+	for(i = 0; i < SIZEOFARRAYi(setTest); i++) {
 		buff = UnicodeString(setTest[i].rules, -1, US_INV).unescape();
 		RuleBasedCollator coll(buff, status);
 		if(U_SUCCESS(status)) {
@@ -2265,7 +2265,7 @@ void CollationAPITest::TestCloneBinary() {
 	UnicodeString ue = UNICODE_STRING_SIMPLE("ue");
 	assertEquals("rbc/primary: u-umlaut==ue", (int32_t)UCOL_EQUAL, rbc->compare(uUmlaut, ue, errorCode));
 	uint8_t bin[25000];
-	int32_t binLength = rbc->cloneBinary(bin, UPRV_LENGTHOF(bin), errorCode);
+	int32_t binLength = rbc->cloneBinary(bin, SIZEOFARRAYi(bin), errorCode);
 	if(errorCode.errDataIfFailureAndReset("rbc->cloneBinary()")) {
 		return;
 	}
@@ -2279,7 +2279,7 @@ void CollationAPITest::TestCloneBinary() {
 	assertEquals("rbc2: u-umlaut==ue", (int32_t)UCOL_EQUAL, rbc2.compare(uUmlaut, ue, errorCode));
 	assertTrue("rbc==rbc2", *rbc == rbc2);
 	uint8_t bin2[25000];
-	int32_t bin2Length = rbc2.cloneBinary(bin2, UPRV_LENGTHOF(bin2), errorCode);
+	int32_t bin2Length = rbc2.cloneBinary(bin2, SIZEOFARRAYi(bin2), errorCode);
 	assertEquals("len(rbc binary)==len(rbc2 binary)", binLength, bin2Length);
 	assertTrue("rbc binary==rbc2 binary", binLength == bin2Length && memcmp(bin, bin2, binLength) == 0);
 

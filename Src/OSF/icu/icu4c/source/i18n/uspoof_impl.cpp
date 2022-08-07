@@ -116,7 +116,7 @@ void SpoofImpl::setAllowedLocales(const char * localesList, UErrorCode & status)
 	UnicodeSet * tmpSet = NULL;
 	const char * locStart = localesList;
 	const char * locEnd = NULL;
-	const char * localesListEnd = localesList + uprv_strlen(localesList);
+	const char * localesListEnd = localesList + strlen(localesList);
 	int32_t localeListCount = 0; // Number of locales provided by caller.
 	// Loop runs once per locale from the localesList, a comma separated list of locales.
 	do {
@@ -200,7 +200,7 @@ const char * SpoofImpl::getAllowedLocales(UErrorCode & /*status*/) { return fAll
 void SpoofImpl::addScriptChars(const char * locale, UnicodeSet * allowedChars, UErrorCode & status) 
 {
 	UScriptCode scripts[30];
-	int32_t numScripts = uscript_getCode(locale, scripts, UPRV_LENGTHOF(scripts), &status);
+	int32_t numScripts = uscript_getCode(locale, scripts, SIZEOFARRAYi(scripts), &status);
 	if(U_FAILURE(status)) {
 		return;
 	}

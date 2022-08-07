@@ -147,7 +147,7 @@ void TimeZoneTest::TestGenericAPI()
 		errcheckln(status, "FAIL: getTZDataVersion failed - %s", u_errorName(status));
 	}
 	else {
-		int32_t tzverLen = uprv_strlen(tzver);
+		int32_t tzverLen = strlen(tzver);
 		if(tzverLen == 5 || tzverLen == 6 /* 4 digits + 1 or 2 letters */) {
 			logln((UnicodeString)"tzdata version: " + tzver);
 		}
@@ -693,7 +693,7 @@ void TimeZoneTest::TestGetAvailableIDsNew()
 		if(U_FAILURE(ec)) {
 			break;
 		}
-		if(uprv_strcmp(region, "001") == 0) {
+		if(strcmp(region, "001") == 0) {
 			errln((UnicodeString)"FAIL: CANONICALLOC contains non location zone: " + *id1);
 		}
 	}
@@ -709,7 +709,7 @@ void TimeZoneTest::TestGetAvailableIDsNew()
 		if(U_FAILURE(ec)) {
 			break;
 		}
-		if(uprv_strcmp(region, "US") != 0) {
+		if(strcmp(region, "US") != 0) {
 			errln((UnicodeString)"FAIL: ANY_US contains non-US zone ID: " + *id1);
 		}
 	}
@@ -1389,7 +1389,7 @@ void TimeZoneTest::TestAliasedNames()
 	int32_t i, j, k, loc;
 	UnicodeString fromName, toName;
 	TimeZone * from = NULL, * to = NULL;
-	for(i = 0; i < UPRV_LENGTHOF(kData); i++) {
+	for(i = 0; i < SIZEOFARRAYi(kData); i++) {
 		from = TimeZone::createTimeZone(kData[i].from);
 		to = TimeZone::createTimeZone(kData[i].to);
 		if(!from->hasSameRules(*to)) {
@@ -1398,8 +1398,8 @@ void TimeZoneTest::TestAliasedNames()
 		if(!quick) {
 			for(loc = 0; loc < noLoc; loc++) {
 				const char * locale = uloc_getAvailable(loc);
-				for(j = 0; j < UPRV_LENGTHOF(styles); j++) {
-					for(k = 0; k < UPRV_LENGTHOF(useDst); k++) {
+				for(j = 0; j < SIZEOFARRAYi(styles); j++) {
+					for(k = 0; k < SIZEOFARRAYi(useDst); k++) {
 						fromName.remove();
 						toName.remove();
 						from->getDisplayName(useDst[k], styles[j], locale, fromName);
@@ -1982,9 +1982,9 @@ void TimeZoneTest::TestFebruary() {
 	TimeZone * tz;
 	UDate dt;
 	int32_t t, i, raw, dst;
-	for(t = 0; t < UPRV_LENGTHOF(timezones); ++t) {
+	for(t = 0; t < SIZEOFARRAYi(timezones); ++t) {
 		tz = timezones[t];
-		for(i = 0; i < UPRV_LENGTHOF(data); ++i) {
+		for(i = 0; i < SIZEOFARRAYi(data); ++i) {
 			gc.set(data[i].year, data[i].month, data[i].day,
 			    data[i].hour, data[i].minute, data[i].second);
 			dt = gc.getTime(status);
@@ -2412,7 +2412,7 @@ void TimeZoneTest::TestGetRegion()
 				errln((UnicodeString)"Fail: getRegion(\"" + data[i].id + "\") returns "
 				    + region + " [expected: U_ILLEGAL_ARGUMENT_ERROR]");
 			}
-			else if(uprv_strcmp(region, data[i].region) != 0) {
+			else if(strcmp(region, data[i].region) != 0) {
 				errln((UnicodeString)"Fail: getRegion(\"" + data[i].id + "\") returns "
 				    + region + " [expected: " + data[i].region + "]");
 			}

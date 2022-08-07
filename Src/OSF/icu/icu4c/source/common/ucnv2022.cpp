@@ -514,10 +514,10 @@ static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs
 
 			/* set the function pointers to appropriate functions */
 			cnv->sharedData = (UConverterSharedData*)(&_ISO2022JPData);
-			uprv_strcpy(myConverterData->locale, "ja");
+			strcpy(myConverterData->locale, "ja");
 
-			(void)uprv_strcpy(myConverterData->name, "ISO_2022,locale=ja,version=");
-			size_t len = uprv_strlen(myConverterData->name);
+			(void)strcpy(myConverterData->name, "ISO_2022,locale=ja,version=");
+			size_t len = strlen(myConverterData->name);
 			myConverterData->name[len] = (char)(myConverterData->version+(int)'0');
 			myConverterData->name[len+1] = '\0';
 		}
@@ -553,12 +553,12 @@ static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs
 				}
 
 				if(version==1) {
-					(void)uprv_strcpy(myConverterData->name, "ISO_2022,locale=ko,version=1");
+					(void)strcpy(myConverterData->name, "ISO_2022,locale=ko,version=1");
 					uprv_memcpy(cnv->subChars, myConverterData->currentConverter->subChars, 4);
 					cnv->subCharLen = myConverterData->currentConverter->subCharLen;
 				}
 				else {
-					(void)uprv_strcpy(myConverterData->name, "ISO_2022,locale=ko,version=0");
+					(void)strcpy(myConverterData->name, "ISO_2022,locale=ko,version=0");
 				}
 
 				/* initialize the state variables */
@@ -567,7 +567,7 @@ static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs
 
 				/* set the function pointers to appropriate functions */
 				cnv->sharedData = (UConverterSharedData*)&_ISO2022KRData;
-				uprv_strcpy(myConverterData->locale, "ko");
+				strcpy(myConverterData->locale, "ko");
 			}
 		}
 		else if(((myLocale[0]=='z' && myLocale[1]=='h') || (myLocale[0]=='c'&& myLocale[1]=='n'))&&
@@ -592,19 +592,19 @@ static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs
 
 			/* set the function pointers to appropriate functions */
 			cnv->sharedData = (UConverterSharedData*)&_ISO2022CNData;
-			uprv_strcpy(myConverterData->locale, "cn");
+			strcpy(myConverterData->locale, "cn");
 
 			if(version==0) {
 				myConverterData->version = 0;
-				(void)uprv_strcpy(myConverterData->name, "ISO_2022,locale=zh,version=0");
+				(void)strcpy(myConverterData->name, "ISO_2022,locale=zh,version=0");
 			}
 			else if(version==1) {
 				myConverterData->version = 1;
-				(void)uprv_strcpy(myConverterData->name, "ISO_2022,locale=zh,version=1");
+				(void)strcpy(myConverterData->name, "ISO_2022,locale=zh,version=1");
 			}
 			else {
 				myConverterData->version = 2;
-				(void)uprv_strcpy(myConverterData->name, "ISO_2022,locale=zh,version=2");
+				(void)strcpy(myConverterData->name, "ISO_2022,locale=zh,version=2");
 			}
 		}
 #endif  // !UCONFIG_ONLY_HTML_CONVERSION
@@ -620,7 +620,7 @@ static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs
 
 			cnv->sharedData = (UConverterSharedData*)&_ISO2022Data;
 			/* initialize the state variables */
-			uprv_strcpy(myConverterData->name, "ISO_2022");
+			strcpy(myConverterData->name, "ISO_2022");
 #else
 			*errorCode = U_MISSING_RESOURCE_ERROR;
 			// Was U_UNSUPPORTED_ERROR but changed in ICU 55 to a more standard
@@ -1788,7 +1788,7 @@ getTrail:
 				}
 
 				/* try all the other possible charsets */
-				for(i = 0; i < UPRV_LENGTHOF(jpCharsetPref); ++i) {
+				for(i = 0; i < SIZEOFARRAYi(jpCharsetPref); ++i) {
 					cs = (int8)jpCharsetPref[i];
 					if(CSM(cs) & csm) {
 						choices[choiceCount++] = cs;

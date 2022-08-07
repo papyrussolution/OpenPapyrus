@@ -1037,7 +1037,7 @@ static void OpenMessageFormatTest(void)
 	const char * PAT = "Number {1,number,#0.000}, String {0}, Date {2,date,12:mm:ss.SSS}";
 	int32_t length = 0;
 	UErrorCode status = U_ZERO_ERROR;
-	u_uastrncpy(pattern, PAT, UPRV_LENGTHOF(pattern));
+	u_uastrncpy(pattern, PAT, SIZEOFARRAYi(pattern));
 	/* Test umsg_open */
 	f1 = umsg_open(pattern, length, NULL, NULL, &status);
 	if(U_FAILURE(status)) {
@@ -1103,10 +1103,10 @@ static void MessageLength(void)
 	UChar result[128] = {0};
 	UChar expected[sizeof(expectedChars)];
 
-	u_uastrncpy(pattern, patChars, UPRV_LENGTHOF(pattern));
-	u_uastrncpy(expected, expectedChars, UPRV_LENGTHOF(expected));
+	u_uastrncpy(pattern, patChars, SIZEOFARRAYi(pattern));
+	u_uastrncpy(expected, expectedChars, SIZEOFARRAYi(expected));
 
-	u_formatMessage("en_US", pattern, 6, result, UPRV_LENGTHOF(result), &status, arg);
+	u_formatMessage("en_US", pattern, 6, result, SIZEOFARRAYi(result), &status, arg);
 	if(U_FAILURE(status)) {
 		log_err("u_formatMessage method failed. Error: %s \n", u_errorName(status));
 	}
@@ -1125,7 +1125,7 @@ static void TestMessageWithUnusedArgNumber() {
 	int32_t length;
 	U_STRING_INIT(pattern, "abc {1} def", 11);
 	U_STRING_INIT(expected, "abc y def", 9);
-	length = u_formatMessage("en", pattern, -1, result, UPRV_LENGTHOF(result), &errorCode, x, y);
+	length = u_formatMessage("en", pattern, -1, result, SIZEOFARRAYi(result), &errorCode, x, y);
 	if(U_FAILURE(errorCode) || length != u_strlen(expected) || u_strcmp(result, expected) != 0) {
 		log_err("u_formatMessage(pattern with only {1}, 2 args) failed: result length %d, UErrorCode %s \n", (int)length, u_errorName(errorCode));
 	}

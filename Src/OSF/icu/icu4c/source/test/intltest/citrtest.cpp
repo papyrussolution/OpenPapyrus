@@ -974,7 +974,7 @@ class SubCharIter : public CharacterIterator {
 public:
 	// public default constructor, to get coverage of CharacterIterator()
 	SubCharIter() : CharacterIterator() {
-		textLength = end = UPRV_LENGTHOF(s);
+		textLength = end = SIZEOFARRAYi(s);
 		s[0] = 0x61; // 'a'
 		s[1] = 0xd900; // U+50400
 		s[2] = 0xdd00;
@@ -983,7 +983,7 @@ public:
 
 	// useful stuff, mostly dummy but testing coverage and subclassability
 	virtual UChar nextPostInc() override {
-		if(pos<UPRV_LENGTHOF(s)) {
+		if(pos<SIZEOFARRAYi(s)) {
 			return s[pos++];
 		}
 		else {
@@ -992,9 +992,9 @@ public:
 	}
 
 	virtual UChar32 next32PostInc() override {
-		if(pos<UPRV_LENGTHOF(s)) {
+		if(pos<SIZEOFARRAYi(s)) {
 			UChar32 c;
-			U16_NEXT(s, pos, UPRV_LENGTHOF(s), c);
+			U16_NEXT(s, pos, SIZEOFARRAYi(s), c);
 			return c;
 		}
 		else {
@@ -1003,7 +1003,7 @@ public:
 	}
 
 	virtual bool hasNext() override {
-		return pos<UPRV_LENGTHOF(s);
+		return pos<SIZEOFARRAYi(s);
 	}
 
 	virtual UChar first() override {
@@ -1014,15 +1014,15 @@ public:
 	virtual UChar32 first32() override {
 		UChar32 c;
 		pos = 0;
-		U16_NEXT(s, pos, UPRV_LENGTHOF(s), c);
+		U16_NEXT(s, pos, SIZEOFARRAYi(s), c);
 		pos = 0;
 		return c;
 	}
 
 	virtual UChar setIndex(int32_t position) override {
-		if(0<=position && position<=UPRV_LENGTHOF(s)) {
+		if(0<=position && position<=SIZEOFARRAYi(s)) {
 			pos = position;
-			if(pos<UPRV_LENGTHOF(s)) {
+			if(pos<SIZEOFARRAYi(s)) {
 				return s[pos];
 			}
 		}
@@ -1030,11 +1030,11 @@ public:
 	}
 
 	virtual UChar32 setIndex32(int32_t position) override {
-		if(0<=position && position<=UPRV_LENGTHOF(s)) {
+		if(0<=position && position<=SIZEOFARRAYi(s)) {
 			pos = position;
-			if(pos<UPRV_LENGTHOF(s)) {
+			if(pos<SIZEOFARRAYi(s)) {
 				UChar32 c;
-				U16_GET(s, 0, pos, UPRV_LENGTHOF(s), c);
+				U16_GET(s, 0, pos, SIZEOFARRAYi(s), c);
 				return c;
 			}
 		}
@@ -1042,7 +1042,7 @@ public:
 	}
 
 	virtual UChar current() const override {
-		if(pos<UPRV_LENGTHOF(s)) {
+		if(pos<SIZEOFARRAYi(s)) {
 			return s[pos];
 		}
 		else {
@@ -1051,9 +1051,9 @@ public:
 	}
 
 	virtual UChar32 current32() const override {
-		if(pos<UPRV_LENGTHOF(s)) {
+		if(pos<SIZEOFARRAYi(s)) {
 			UChar32 c;
-			U16_GET(s, 0, pos, UPRV_LENGTHOF(s), c);
+			U16_GET(s, 0, pos, SIZEOFARRAYi(s), c);
 			return c;
 		}
 		else {
@@ -1062,7 +1062,7 @@ public:
 	}
 
 	virtual UChar next() override {
-		if(pos<UPRV_LENGTHOF(s) && ++pos<UPRV_LENGTHOF(s)) {
+		if(pos<SIZEOFARRAYi(s) && ++pos<SIZEOFARRAYi(s)) {
 			return s[pos];
 		}
 		else {
@@ -1071,13 +1071,13 @@ public:
 	}
 
 	virtual UChar32 next32() override {
-		if(pos<UPRV_LENGTHOF(s)) {
-			U16_FWD_1(s, pos, UPRV_LENGTHOF(s));
+		if(pos<SIZEOFARRAYi(s)) {
+			U16_FWD_1(s, pos, SIZEOFARRAYi(s));
 		}
-		if(pos<UPRV_LENGTHOF(s)) {
+		if(pos<SIZEOFARRAYi(s)) {
 			UChar32 c;
 			int32_t i = pos;
-			U16_NEXT(s, i, UPRV_LENGTHOF(s), c);
+			U16_NEXT(s, i, SIZEOFARRAYi(s), c);
 			return c;
 		}
 		else {
@@ -1090,7 +1090,7 @@ public:
 	}
 
 	virtual void getText(UnicodeString & result) override {
-		result.setTo(s, UPRV_LENGTHOF(s));
+		result.setTo(s, SIZEOFARRAYi(s));
 	}
 
 	// dummy implementations of other pure virtual base class functions

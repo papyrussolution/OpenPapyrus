@@ -64,7 +64,7 @@ const char * getGenderString(UnicodeString uGender, UErrorCode status)
 	int32_t last = GENDER_COUNT;
 	while(first < last) {
 		int32_t mid = (first + last) / 2;
-		int32_t cmp = uprv_strcmp(gender.data(), gGenders[mid]);
+		int32_t cmp = strcmp(gender.data(), gGenders[mid]);
 		if(cmp == 0) {
 			return gGenders[mid];
 		}
@@ -89,17 +89,17 @@ static int32_t getIndex(const char * pluralKeyword, UErrorCode & status) {
 	// pluralKeyword can also be "dnam", "per", or "gender"
 	switch(*pluralKeyword) {
 		case 'd':
-		    if(uprv_strcmp(pluralKeyword + 1, "nam") == 0) {
+		    if(strcmp(pluralKeyword + 1, "nam") == 0) {
 			    return DNAM_INDEX;
 		    }
 		    break;
 		case 'g':
-		    if(uprv_strcmp(pluralKeyword + 1, "ender") == 0) {
+		    if(strcmp(pluralKeyword + 1, "ender") == 0) {
 			    return GENDER_INDEX;
 		    }
 		    break;
 		case 'p':
-		    if(uprv_strcmp(pluralKeyword + 1, "er") == 0) {
+		    if(strcmp(pluralKeyword + 1, "er") == 0) {
 			    return PER_INDEX;
 		    }
 		    break;
@@ -192,8 +192,8 @@ UnicodeString getGenderForBuiltin(const Locale &locale, const MeasureUnit &built
 	// Map duration-year-person, duration-week-person, etc. to duration-year, duration-week, ...
 	// TODO(ICU-20400): Get duration-*-person data properly with aliases.
 	StringPiece subtypeForResource;
-	int32_t subtypeLen = static_cast<int32_t>(uprv_strlen(builtinUnit.getSubtype()));
-	if(subtypeLen > 7 && uprv_strcmp(builtinUnit.getSubtype() + subtypeLen - 7, "-person") == 0) {
+	int32_t subtypeLen = static_cast<int32_t>(strlen(builtinUnit.getSubtype()));
+	if(subtypeLen > 7 && strcmp(builtinUnit.getSubtype() + subtypeLen - 7, "-person") == 0) {
 		subtypeForResource = {builtinUnit.getSubtype(), subtypeLen - 7};
 	}
 	else {
@@ -285,11 +285,11 @@ private:
 	    ResourceTable &caseTable,
 	    ResourceValue &value,
 	    UErrorCode & status) {
-		if(uprv_strcmp(gender, "") != 0) {
+		if(strcmp(gender, "") != 0) {
 			if(loadForGender(genderTable, gender, caseTable, value, status)) {
 				return true;
 			}
-			if(uprv_strcmp(gender, "neuter") != 0 &&
+			if(strcmp(gender, "neuter") != 0 &&
 			    loadForGender(genderTable, "neuter", caseTable, value, status)) {
 				return true;
 			}
@@ -313,11 +313,11 @@ private:
 			return false;
 		}
 		caseTable = value.getTable(status);
-		if(uprv_strcmp(caseVariant, "") != 0) {
+		if(strcmp(caseVariant, "") != 0) {
 			if(loadForCase(caseTable, caseVariant, value)) {
 				return true;
 			}
-			if(uprv_strcmp(caseVariant, "nominative") != 0 &&
+			if(strcmp(caseVariant, "nominative") != 0 &&
 			    loadForCase(caseTable, "nominative", value)) {
 				return true;
 			}
@@ -391,7 +391,7 @@ public:
 	}
 
 	void put(const char * key, ResourceValue &value, bool /*noFallback*/, UErrorCode & status) U_OVERRIDE {
-		if(uprv_strcmp(key, "case") == 0) {
+		if(strcmp(key, "case") == 0) {
 			return;
 		}
 		int32_t index = getIndex(key, status);
@@ -439,8 +439,8 @@ void getMeasureData(const Locale &locale, const MeasureUnit &unit,
 	subKey.append("/", status);
 	// Map duration-year-person, duration-week-person, etc. to duration-year, duration-week, ...
 	// TODO(ICU-20400): Get duration-*-person data properly with aliases.
-	int32_t subtypeLen = static_cast<int32_t>(uprv_strlen(unit.getSubtype()));
-	if(subtypeLen > 7 && uprv_strcmp(unit.getSubtype() + subtypeLen - 7, "-person") == 0) {
+	int32_t subtypeLen = static_cast<int32_t>(strlen(unit.getSubtype()));
+	if(subtypeLen > 7 && strcmp(unit.getSubtype() + subtypeLen - 7, "-person") == 0) {
 		subKey.append({unit.getSubtype(), subtypeLen - 7}, status);
 	}
 	else {
@@ -911,7 +911,7 @@ void LongNameHandler::forMeasureUnit(const Locale &loc,
 	// 2. Put the unitId into normalized order
 	U_ASSERT(fillIn != nullptr);
 
-	if(uprv_strcmp(unitRef.getType(), "") != 0) {
+	if(strcmp(unitRef.getType(), "") != 0) {
 		// Handling built-in units:
 		//
 		// 3. Set result to be getValue(unitId with length, pluralCategory, caseVariant)
@@ -1263,7 +1263,7 @@ void LongNameHandler::processPatternTimes(MeasureUnitImpl &&productUnit,
 		//      singlePluralCategory, singleCaseVariant), such as "{0} metrem"
 		UnicodeString singleUnitArray[ARRAY_LENGTH];
 		// At this point we are left with a Simple Unit:
-		U_ASSERT(uprv_strcmp(singleUnit->build(status).getIdentifier(), singleUnit->getSimpleUnitID()) ==
+		U_ASSERT(strcmp(singleUnit->build(status).getIdentifier(), singleUnit->getSimpleUnitID()) ==
 		    0);
 		getMeasureData(loc, singleUnit->build(status), width, singleCaseVariant, singleUnitArray,
 		    status);
@@ -1332,7 +1332,7 @@ void LongNameHandler::processPatternTimes(MeasureUnitImpl &&productUnit,
 				}
 			}
 
-			if(uprv_strcmp(singlePluralCategory, "") != 0) {
+			if(strcmp(singlePluralCategory, "") != 0) {
 				plural = static_cast<StandardPlural::Form>(getIndex(singlePluralCategory, status));
 			}
 

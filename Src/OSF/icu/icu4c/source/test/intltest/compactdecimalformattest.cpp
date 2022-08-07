@@ -289,42 +289,42 @@ void CompactDecimalFormatTest::runIndexedTest(int32_t index, bool exec, const ch
 }
 
 void CompactDecimalFormatTest::TestEnglishShort() {
-	CheckLocale("en", UNUM_SHORT, kEnglishShort, UPRV_LENGTHOF(kEnglishShort));
+	CheckLocale("en", UNUM_SHORT, kEnglishShort, SIZEOFARRAYi(kEnglishShort));
 }
 
 void CompactDecimalFormatTest::TestSerbianShort() {
-	CheckLocale("sr", UNUM_SHORT, kSerbianShort, UPRV_LENGTHOF(kSerbianShort));
+	CheckLocale("sr", UNUM_SHORT, kSerbianShort, SIZEOFARRAYi(kSerbianShort));
 }
 
 void CompactDecimalFormatTest::TestSerbianLong() {
-	CheckLocale("sr", UNUM_LONG, kSerbianLong, UPRV_LENGTHOF(kSerbianLong));
+	CheckLocale("sr", UNUM_LONG, kSerbianLong, SIZEOFARRAYi(kSerbianLong));
 }
 
 void CompactDecimalFormatTest::TestSerbianLongNegative() {
-	CheckLocale("sr", UNUM_LONG, kSerbianLongNegative, UPRV_LENGTHOF(kSerbianLongNegative));
+	CheckLocale("sr", UNUM_LONG, kSerbianLongNegative, SIZEOFARRAYi(kSerbianLongNegative));
 }
 
 void CompactDecimalFormatTest::TestJapaneseShort() {
-	CheckLocale(Locale::getJapan(), UNUM_SHORT, kJapaneseShort, UPRV_LENGTHOF(kJapaneseShort));
+	CheckLocale(Locale::getJapan(), UNUM_SHORT, kJapaneseShort, SIZEOFARRAYi(kJapaneseShort));
 }
 
 void CompactDecimalFormatTest::TestSwahiliShort() {
-	CheckLocale("sw", UNUM_SHORT, kSwahiliShort, UPRV_LENGTHOF(kSwahiliShort));
+	CheckLocale("sw", UNUM_SHORT, kSwahiliShort, SIZEOFARRAYi(kSwahiliShort));
 }
 
 void CompactDecimalFormatTest::TestEnglishCurrency() {
 	CheckLocaleWithCurrency(
-		"en", UNUM_SHORT, u"USD", kEnglishCurrencyTestData, UPRV_LENGTHOF(kEnglishCurrencyTestData));
+		"en", UNUM_SHORT, u"USD", kEnglishCurrencyTestData, SIZEOFARRAYi(kEnglishCurrencyTestData));
 }
 
 void CompactDecimalFormatTest::TestGermanCurrency() {
 	CheckLocaleWithCurrency(
-		"de", UNUM_SHORT, u"EUR", kGermanCurrencyTestData, UPRV_LENGTHOF(kGermanCurrencyTestData));
+		"de", UNUM_SHORT, u"EUR", kGermanCurrencyTestData, SIZEOFARRAYi(kGermanCurrencyTestData));
 }
 
 void CompactDecimalFormatTest::TestChineseCurrency() {
 	CheckLocaleWithCurrency(
-		"zh", UNUM_SHORT, u"CNY", kChineseCurrencyTestData, UPRV_LENGTHOF(kChineseCurrencyTestData));
+		"zh", UNUM_SHORT, u"CNY", kChineseCurrencyTestData, SIZEOFARRAYi(kChineseCurrencyTestData));
 }
 
 void CompactDecimalFormatTest::TestFieldPosition() {
@@ -345,7 +345,7 @@ void CompactDecimalFormatTest::TestFieldPosition() {
 }
 
 void CompactDecimalFormatTest::TestCsShort() {
-	CheckLocale("cs", UNUM_SHORT, kCsShort, UPRV_LENGTHOF(kCsShort));
+	CheckLocale("cs", UNUM_SHORT, kCsShort, SIZEOFARRAYi(kCsShort));
 }
 
 void CompactDecimalFormatTest::TestSkLong() {
@@ -354,15 +354,15 @@ void CompactDecimalFormatTest::TestSkLong() {
 	//   few{"0"}
 	//   one{"0"}
 	//   other{"0"}
-	CheckLocale("sk", UNUM_LONG, kSkLong, UPRV_LENGTHOF(kSkLong));
+	CheckLocale("sk", UNUM_LONG, kSkLong, SIZEOFARRAYi(kSkLong));
 }
 
 void CompactDecimalFormatTest::TestSwahiliShortNegative() {
-	CheckLocale("sw", UNUM_SHORT, kSwahiliShortNegative, UPRV_LENGTHOF(kSwahiliShortNegative));
+	CheckLocale("sw", UNUM_SHORT, kSwahiliShortNegative, SIZEOFARRAYi(kSwahiliShortNegative));
 }
 
 void CompactDecimalFormatTest::TestArabicLong() {
-	CheckLocale("ar-EG", UNUM_LONG, kArabicLong, UPRV_LENGTHOF(kArabicLong));
+	CheckLocale("ar-EG", UNUM_LONG, kArabicLong, SIZEOFARRAYi(kArabicLong));
 }
 
 void CompactDecimalFormatTest::TestDefaultSignificantDigits() {

@@ -516,7 +516,7 @@ void ListFormatterTest::TestFormattedValue() {
 			u"wonderful",
 			u"world"
 		};
-		FormattedList result = fmt->formatStringsToValue(inputs, UPRV_LENGTHOF(inputs), status);
+		FormattedList result = fmt->formatStringsToValue(inputs, SIZEOFARRAYi(inputs), status);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
 			// field, begin index, end index
 			{UFIELD_CATEGORY_LIST_SPAN, 0, 0, 5},
@@ -533,7 +533,7 @@ void ListFormatterTest::TestFormattedValue() {
 			result,
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -548,7 +548,7 @@ void ListFormatterTest::TestFormattedValue() {
 			u"bbbbbbb",
 			u"ccc"
 		};
-		FormattedList result = fmt->formatStringsToValue(inputs, UPRV_LENGTHOF(inputs), status);
+		FormattedList result = fmt->formatStringsToValue(inputs, SIZEOFARRAYi(inputs), status);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
 			// field, begin index, end index
 			{UFIELD_CATEGORY_LIST_SPAN, 0, 0, 2},
@@ -563,7 +563,7 @@ void ListFormatterTest::TestFormattedValue() {
 			result,
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -584,7 +584,7 @@ void ListFormatterTest::TestFormattedValue() {
 			u"h",
 			u"i",
 		};
-		FormattedList result = fmt->formatStringsToValue(inputs, UPRV_LENGTHOF(inputs), status);
+		FormattedList result = fmt->formatStringsToValue(inputs, SIZEOFARRAYi(inputs), status);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
 			// field, begin index, end index
 			{UFIELD_CATEGORY_LIST_SPAN, 0, 0, 1},
@@ -619,7 +619,7 @@ void ListFormatterTest::TestFormattedValue() {
 			result,
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 }
 
@@ -697,18 +697,18 @@ void ListFormatterTest::TestCreateStyled() {
 			u"B",
 			u"C"
 		};
-		FormattedList result = fmt->formatStringsToValue(inputs3, UPRV_LENGTHOF(inputs3), status);
+		FormattedList result = fmt->formatStringsToValue(inputs3, SIZEOFARRAYi(inputs3), status);
 		assertEquals(message, cas.expected3, result.toTempString(status));
 		const UnicodeString inputs2[] = {
 			u"A",
 			u"B"
 		};
-		result = fmt->formatStringsToValue(inputs2, UPRV_LENGTHOF(inputs2), status);
+		result = fmt->formatStringsToValue(inputs2, SIZEOFARRAYi(inputs2), status);
 		assertEquals(message, cas.expected2, result.toTempString(status));
 		const UnicodeString inputs1[] = {
 			u"A"
 		};
-		result = fmt->formatStringsToValue(inputs1, UPRV_LENGTHOF(inputs1), status);
+		result = fmt->formatStringsToValue(inputs1, SIZEOFARRAYi(inputs1), status);
 		assertEquals(message, cas.expected1, result.toTempString(status));
 	}
 }
@@ -777,12 +777,12 @@ void ListFormatterTest::TestContextual() {
 				    + Int64ToUnicodeString(width);
 				if(cas.data3 == nullptr) {
 					const UnicodeString inputs2[] = { cas.data1, cas.data2 };
-					FormattedList result = fmt->formatStringsToValue(inputs2, UPRV_LENGTHOF(inputs2), status);
+					FormattedList result = fmt->formatStringsToValue(inputs2, SIZEOFARRAYi(inputs2), status);
 					assertEquals(message, cas.expected, result.toTempString(status));
 				}
 				else {
 					const UnicodeString inputs3[] = { cas.data1, cas.data2, cas.data3 };
-					FormattedList result = fmt->formatStringsToValue(inputs3, UPRV_LENGTHOF(inputs3), status);
+					FormattedList result = fmt->formatStringsToValue(inputs3, SIZEOFARRAYi(inputs3), status);
 					assertEquals(message, cas.expected, result.toTempString(status));
 				}
 			}
@@ -811,7 +811,7 @@ void ListFormatterTest::TestNextPosition() {
 				if(status.errIfFailureAndReset()) {
 					continue;
 				}
-				for(int32_t n = 1; n <= UPRV_LENGTHOF(inputs); n++) {
+				for(int32_t n = 1; n <= SIZEOFARRAYi(inputs); n++) {
 					FormattedList result = fmt->formatStringsToValue(
 						inputs, n, status);
 					int32_t elements = 0;

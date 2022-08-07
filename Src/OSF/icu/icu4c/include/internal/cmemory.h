@@ -58,28 +58,24 @@
 		U_STANDARD_CPP_NAMESPACE memmove(dst, src, size); \
 } UPRV_BLOCK_MACRO_END
 #else
-#define uprv_memcpy(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
-		U_ASSERT(dst != NULL); U_ASSERT(src != NULL); U_STANDARD_CPP_NAMESPACE memcpy(dst, src, size); \
-} UPRV_BLOCK_MACRO_END
-#define uprv_memmove(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
-		U_ASSERT(dst != NULL); U_ASSERT(src != NULL); U_STANDARD_CPP_NAMESPACE memmove(dst, src, size); \
-} UPRV_BLOCK_MACRO_END
+#define uprv_memcpy(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { U_ASSERT(dst != NULL); U_ASSERT(src != NULL); U_STANDARD_CPP_NAMESPACE memcpy(dst, src, size); } UPRV_BLOCK_MACRO_END
+#define uprv_memmove(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { U_ASSERT(dst != NULL); U_ASSERT(src != NULL); U_STANDARD_CPP_NAMESPACE memmove(dst, src, size); } UPRV_BLOCK_MACRO_END
 #endif
 
 /**
- * \def UPRV_LENGTHOF
+ * \def SIZEOFARRAYi
  * Convenience macro to determine the length of a fixed array at compile-time.
  * @param array A fixed length array
  * @return The length of the array, in elements
  * @internal
  */
-#define UPRV_LENGTHOF(array) (int32_t)(sizeof(array)/sizeof((array)[0]))
+// @sobolev #define UPRV_LENGTHOF_Removed(array) (int32_t)(sizeof(array)/sizeof((array)[0]))
 // @sobolev #define uprv_memset_Removed(buffer, mark, size) U_STANDARD_CPP_NAMESPACE memset(buffer, mark, size)
-#define uprv_memcmp(buffer1, buffer2, size) U_STANDARD_CPP_NAMESPACE memcmp(buffer1, buffer2, size)
-#define uprv_memchr(ptr, value, num) U_STANDARD_CPP_NAMESPACE memchr(ptr, value, num)
+// @sobolev #define uprv_memcmp_Removed(buffer1, buffer2, size) U_STANDARD_CPP_NAMESPACE memcmp(buffer1, buffer2, size)
+// @sobolev #define uprv_memchr_Removed(ptr, value, num) U_STANDARD_CPP_NAMESPACE memchr(ptr, value, num)
 U_CAPI void * U_EXPORT2 uprv_malloc(size_t s) U_MALLOC_ATTR U_ALLOC_SIZE_ATTR(1);
 U_CAPI void * U_EXPORT2 uprv_realloc(void * mem, size_t size) U_ALLOC_SIZE_ATTR(2);
-U_CAPI void U_EXPORT2 uprv_free(void * mem);
+U_CAPI void   U_EXPORT2 uprv_free(void * mem);
 U_CAPI void * U_EXPORT2 uprv_calloc(size_t num, size_t size) U_MALLOC_ATTR U_ALLOC_SIZE_ATTR2(1, 2);
 
 /**

@@ -95,11 +95,21 @@ public class CommandListActivity extends SLib.SlActivity {
 								if(vg != null && vg instanceof ViewGroup)
 									SLib.SubstituteStringSignatures(app_ctx, (ViewGroup)vg);
 							}
-							View v = findViewById(R.id.CTLIMG_SVCINVITATION_QRCODE);
-							if(v != null && v instanceof ImageView) {
-								Bitmap bmp = MakeQrCodeImage(InvitationData);
-								if(bmp != null)
-									((ImageView)v).setImageBitmap(bmp);
+							{
+								View v = findViewById(R.id.CTLIMG_SVCINVITATION_QRCODE);
+								if(v != null && v instanceof ImageView) {
+									Bitmap bmp = MakeQrCodeImage(InvitationData);
+									if(bmp != null)
+										((ImageView)v).setImageBitmap(bmp);
+								}
+							}
+							if(ActivityCtx instanceof CommandListActivity) {
+								String fmt_text = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_STQ_HINT_FRIENDINVITATION);
+								String svc_name = ((CommandListActivity)ActivityCtx).SvcPack.GetSvcName(null);
+								if(SLib.GetLen(fmt_text) > 0 && SLib.GetLen(svc_name) > 0) {
+									String hint_text = String.format(fmt_text, svc_name);
+									SLib.SetCtrlString(this, R.id.CTL_SVCINVITATION_HINT, hint_text);
+								}
 							}
 						}
 						//SetDTS(Data);
@@ -274,7 +284,7 @@ public class CommandListActivity extends SLib.SlActivity {
 							{
 								View vg = findViewById(R.id.CTL_PAGEHEADER_ROOT);
 								if(vg != null && vg instanceof ViewGroup)
-									SLib.SubstituteStringSignatures(app_ctx, (ViewGroup) vg);
+									SLib.SubstituteStringSignatures(app_ctx, (ViewGroup)vg);
 							}
 							try {
 								Db = app_ctx.GetDB();

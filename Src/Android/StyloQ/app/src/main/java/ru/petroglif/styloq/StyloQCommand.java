@@ -40,6 +40,7 @@ public class StyloQCommand {
 	public static final int sqbcGoodsInfo            = 105; // @v11.4.5 Параметры, определяющие вывод информации об одном товаре
 	public static final int sqbcLocalBarcodeSearch   = 106; // @v11.4.5 Поиск в пределах сервиса (преимущественно) по штрихкоду.
 		// Если сервис предоставяет такую функцию, то она отображается в виде иконки на экране мобильного устройства, а не в общем списке.
+	public static final int sqbcIncomingListOrder    = 107;  // @v11.4.6 Список входящих заказов (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
 
 	public static class ViewDefinitionEntry {
 		String Zone;

@@ -108,8 +108,8 @@ void currTest()
 
 	/*Compare each currency symbol against all the
 	   currency symbols, including itself*/
-	for(i = 0; i < UPRV_LENGTHOF(currency); i += 1) {
-		for(j = 0; j < UPRV_LENGTHOF(currency); j += 1) {
+	for(i = 0; i < SIZEOFARRAYi(currency); i += 1) {
+		for(j = 0; j < SIZEOFARRAYi(currency); j += 1) {
 			u_strcpy(source, currency[i]);
 			u_strcpy(target, currency[j]);
 
@@ -135,7 +135,7 @@ void currTest()
 			sortKey2 = (uint8_t*)SAlloc::M(sizeof(uint8_t) * (sortklen+1));
 			ucol_getSortKey(c, target, u_strlen(target), sortKey2, sortklen+1);
 
-			res = uprv_memcmp(sortKey1, sortKey2, sortklen);
+			res = memcmp(sortKey1, sortKey2, sortklen);
 			if(res < 0) keyResult = (UCollationResult)-1;
 			else if(res > 0) keyResult = (UCollationResult)1;
 			else keyResult = (UCollationResult)0;

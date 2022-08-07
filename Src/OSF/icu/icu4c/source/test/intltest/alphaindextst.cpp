@@ -314,7 +314,7 @@ void AlphabeticIndexTest::APITest() {
 	// if Russian sorts Cyrillic first.
 	int32_t reorderCodes[20];
 	int32_t expectedLatinIndex = 0;
-	if(index->getCollator().getReorderCodes(reorderCodes, UPRV_LENGTHOF(reorderCodes), status) > 0) {
+	if(index->getCollator().getReorderCodes(reorderCodes, SIZEOFARRAYi(reorderCodes), status) > 0) {
 		expectedLatinIndex = index->getBucketCount(status) - 1;
 	}
 	n = index->getBucketIndex(adam, status);
@@ -422,7 +422,7 @@ void AlphabeticIndexTest::HackPinyinTest() {
 	AlphabeticIndex aindex(Locale::createFromName("zh"), status);
 	TEST_CHECK_STATUS;
 
-	UnicodeString names[UPRV_LENGTHOF(pinyinTestData)];
+	UnicodeString names[SIZEOFARRAYi(pinyinTestData)];
 	int32_t nameCount;
 	for(nameCount = 0; pinyinTestData[nameCount] != NULL; nameCount++) {
 		names[nameCount] = UnicodeString(pinyinTestData[nameCount], -1, UnicodeString::kInvariant).unescape();
@@ -527,7 +527,7 @@ static const char * localeAndIndexCharactersLists[][2] = {
 
 void AlphabeticIndexTest::TestIndexCharactersList() {
 	UErrorCode status = U_ZERO_ERROR;
-	for(int32_t i = 0; i < UPRV_LENGTHOF(localeAndIndexCharactersLists); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(localeAndIndexCharactersLists); ++i) {
 		const char *(&localeAndIndexCharacters)[2] = localeAndIndexCharactersLists[i];
 		const char * locale = localeAndIndexCharacters[0];
 		UnicodeString expectedIndexCharacters
@@ -556,7 +556,7 @@ void AlphabeticIndexTest::TestHaniFirst() {
 		return;
 	}
 	int32_t reorderCodes[] = { USCRIPT_HAN };
-	coll->setReorderCodes(reorderCodes, UPRV_LENGTHOF(reorderCodes), status);
+	coll->setReorderCodes(reorderCodes, SIZEOFARRAYi(reorderCodes), status);
 	TEST_CHECK_STATUS;
 	AlphabeticIndex index(coll.orphan(), status);
 	TEST_CHECK_STATUS;
@@ -585,7 +585,7 @@ void AlphabeticIndexTest::TestPinyinFirst() {
 		return;
 	}
 	int32_t reorderCodes[] = { USCRIPT_HAN };
-	coll->setReorderCodes(reorderCodes, UPRV_LENGTHOF(reorderCodes), status);
+	coll->setReorderCodes(reorderCodes, SIZEOFARRAYi(reorderCodes), status);
 	TEST_CHECK_STATUS;
 	AlphabeticIndex index(coll.orphan(), status);
 	TEST_CHECK_STATUS;
@@ -634,7 +634,7 @@ void AlphabeticIndexTest::TestSchSt() {
 		{ "Steiff", 22, "St" },
 		{ "Thomas", 23, "T" }
 	};
-	for(int32_t i = 0; i < UPRV_LENGTHOF(testCases); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(testCases); ++i) {
 		const TestCase &testCase = testCases[i];
 		UnicodeString name = UnicodeString(testCase.name).unescape();
 		UnicodeString label = UnicodeString(testCase.bucketLabel).unescape();
@@ -667,7 +667,7 @@ void AlphabeticIndexTest::TestNoLabels() {
 void AlphabeticIndexTest::TestChineseZhuyin() {
 	UErrorCode status = U_ZERO_ERROR;
 	char loc[100];
-	uloc_forLanguageTag("zh-u-co-zhuyin", loc, UPRV_LENGTHOF(loc), NULL, &status);
+	uloc_forLanguageTag("zh-u-co-zhuyin", loc, SIZEOFARRAYi(loc), NULL, &status);
 	AlphabeticIndex index(loc, status);
 	LocalPointer<AlphabeticIndex::ImmutableIndex> immIndex(index.buildImmutableIndex(status));
 	TEST_CHECK_STATUS;
@@ -688,7 +688,7 @@ void AlphabeticIndexTest::TestJapaneseKanji() {
 	// They should all go into the overflow bucket.
 	static const UChar32 kanji[] = { 0x4E9C, 0x95C7, 0x4E00, 0x58F1 };
 	int32_t overflowIndex = immIndex->getBucketCount() - 1;
-	for(int32_t i = 0; i < UPRV_LENGTHOF(kanji); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(kanji); ++i) {
 		char msg[40];
 		sprintf(msg, "kanji[%d]=U+%04lX in overflow bucket", (int)i, (long)kanji[i]);
 		assertEquals(msg, overflowIndex, immIndex->getBucketIndex(UnicodeString(kanji[i]), status));

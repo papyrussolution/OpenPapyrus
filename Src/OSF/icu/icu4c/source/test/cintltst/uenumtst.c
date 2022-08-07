@@ -205,7 +205,7 @@ static void EnumerationTest()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t len = 0;
-	UEnumeration * en = getchArrayEnum(test1, UPRV_LENGTHOF(test1));
+	UEnumeration * en = getchArrayEnum(test1, SIZEOFARRAYi(test1));
 	const char * string = NULL;
 	const UChar * uString = NULL;
 	while((string = uenum_next(en, &len, &status))) {
@@ -274,7 +274,7 @@ static UEnumeration * getuchArrayEnum(const UChar ** source, int32_t size) {
 static void DefaultNextTest() {
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t len = 0;
-	UEnumeration * en = getuchArrayEnum(test2, UPRV_LENGTHOF(test2));
+	UEnumeration * en = getuchArrayEnum(test2, SIZEOFARRAYi(test2));
 	const char * string = NULL;
 	const UChar * uString = NULL;
 	while((uString = uenum_unext(en, &len, &status))) {

@@ -96,7 +96,7 @@ static bool tmaEqual(const TimeUnitAmount& left, const TimeUnitAmount& right) {
 void TimeUnitTest::testBasic() {
 	const char * locales[] = {"en", "sl", "fr", "zh", "ar", "ru", "zh_Hant", "pa"};
 	for(unsigned int locIndex = 0;
-	    locIndex < UPRV_LENGTHOF(locales);
+	    locIndex < SIZEOFARRAYi(locales);
 	    ++locIndex) {
 		UErrorCode status = U_ZERO_ERROR;
 		Locale loc(locales[locIndex]);
@@ -118,7 +118,7 @@ void TimeUnitTest::testBasic() {
 				std::cout << "time unit: " << j << "\n";
 #endif
 				double tests[] = {0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 5, 10, 100, 101.35};
-				for(unsigned int i = 0; i < UPRV_LENGTHOF(tests); ++i) {
+				for(unsigned int i = 0; i < SIZEOFARRAYi(tests); ++i) {
 #ifdef TUFMTTS_DEBUG
 					std::cout << "number: " << tests[i] << "\n";
 #endif
@@ -369,18 +369,18 @@ void TimeUnitTest::testGreekWithFallback() {
 
 	int counter = 0;
 	for(unsigned int locIndex = 0;
-	    locIndex < UPRV_LENGTHOF(locales);
+	    locIndex < SIZEOFARRAYi(locales);
 	    ++locIndex) {
 		Locale l = Locale::createFromName(locales[locIndex]);
 
 		for(unsigned int numberIndex = 0;
-		    numberIndex < UPRV_LENGTHOF(numbers);
+		    numberIndex < SIZEOFARRAYi(numbers);
 		    ++numberIndex) {
 			for(unsigned int styleIndex = 0;
-			    styleIndex < UPRV_LENGTHOF(styles);
+			    styleIndex < SIZEOFARRAYi(styles);
 			    ++styleIndex) {
 				for(unsigned int unitIndex = 0;
-				    unitIndex < UPRV_LENGTHOF(tunits);
+				    unitIndex < SIZEOFARRAYi(tunits);
 				    ++unitIndex) {
 					LocalPointer<TimeUnitAmount>tamt(new TimeUnitAmount(numbers[numberIndex], tunits[unitIndex],
 					    status));
@@ -475,8 +475,8 @@ void TimeUnitTest::test10219Plurals() {
 		dataerrln("generating NumberFormat Object failed: %s", u_errorName(status));
 		return;
 	}
-	for(int32_t j = 0; j < UPRV_LENGTHOF(values); ++j) {
-		for(int32_t i = 0; i < UPRV_LENGTHOF(expected[j]); ++i) {
+	for(int32_t j = 0; j < SIZEOFARRAYi(values); ++j) {
+		for(int32_t i = 0; i < SIZEOFARRAYi(expected[j]); ++i) {
 			nf->setMinimumFractionDigits(i);
 			nf->setMaximumFractionDigits(i);
 			nf->setRoundingMode(DecimalFormat::kRoundDown);

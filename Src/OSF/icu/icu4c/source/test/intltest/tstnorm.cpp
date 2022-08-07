@@ -15,7 +15,7 @@
 #include "testutil.h"
 #include "tstnorm.h"
 
-#define ARRAY_LENGTH(array) UPRV_LENGTHOF(array)
+#define ARRAY_LENGTH(array) SIZEOFARRAYi(array)
 
 void BasicNormalizerTest::runIndexedTest(int32_t index, bool exec,
     const char *& name, char * /*par*/) {
@@ -389,7 +389,7 @@ void BasicNormalizerTest::TestZeroIndex() {
 		"c\\u0321\\u0327", "c\\u0321\\u0327", "c\\u0321\\u0327",
 		"c\\u0327\\u0321", "\\u00E7\\u0321", "c\\u0327\\u0321",
 	};
-	int32_t DATA_length = UPRV_LENGTHOF(DATA);
+	int32_t DATA_length = SIZEOFARRAYi(DATA);
 
 	for(int32_t i = 0; i<DATA_length; i += 3) {
 		UErrorCode status = U_ZERO_ERROR;
@@ -722,7 +722,7 @@ void BasicNormalizerTest::TestPreviousNext(const UChar * src, int32_t srcLength,
 		if(c1!=c2) {
 			// copy the moves until the current (m) move, and terminate
 			char history[64];
-			uprv_strcpy(history, moves);
+			strcpy(history, moves);
 			history[move-moves] = 0;
 			dataerrln("error: mismatch in Normalizer iteration (%s) at %s: "
 			    "got c1=U+%04lx != expected c2=U+%04lx",
@@ -734,7 +734,7 @@ void BasicNormalizerTest::TestPreviousNext(const UChar * src, int32_t srcLength,
 		if(iter.getIndex()!=expectIndex[iter32.getIndex()]) {
 			// copy the moves until the current (m) move, and terminate
 			char history[64];
-			uprv_strcpy(history, moves);
+			strcpy(history, moves);
 			history[move-moves] = 0;
 			errln("error: index mismatch in Normalizer iteration (%s) at %s: "
 			    "Normalizer index %ld expected %ld\n",
@@ -805,27 +805,27 @@ void BasicNormalizerTest::TestPreviousNext() {
 	// for both sets of test data
 	static const char * const moves = "0+0+0--0-0-+++0--+++++++0--------";
 
-	TestPreviousNext(src, UPRV_LENGTHOF(src),
-	    expect, UPRV_LENGTHOF(expect),
+	TestPreviousNext(src, SIZEOFARRAYi(src),
+	    expect, SIZEOFARRAYi(expect),
 	    expectIndex,
 	    SRC_MIDDLE, EXPECT_MIDDLE,
 	    moves, UNORM_NFD, "basic");
 
-	TestPreviousNext(src_j2911, UPRV_LENGTHOF(src_j2911),
-	    expect_j2911, UPRV_LENGTHOF(expect_j2911),
+	TestPreviousNext(src_j2911, SIZEOFARRAYi(src_j2911),
+	    expect_j2911, SIZEOFARRAYi(expect_j2911),
 	    expectIndex_j2911,
 	    SRC_MIDDLE, EXPECT_MIDDLE,
 	    moves, UNORM_NFKC, "j2911");
 
 	// try again from different "middle" indexes
-	TestPreviousNext(src, UPRV_LENGTHOF(src),
-	    expect, UPRV_LENGTHOF(expect),
+	TestPreviousNext(src, SIZEOFARRAYi(src),
+	    expect, SIZEOFARRAYi(expect),
 	    expectIndex,
 	    SRC_MIDDLE_2, EXPECT_MIDDLE_2,
 	    moves, UNORM_NFD, "basic_2");
 
-	TestPreviousNext(src_j2911, UPRV_LENGTHOF(src_j2911),
-	    expect_j2911, UPRV_LENGTHOF(expect_j2911),
+	TestPreviousNext(src_j2911, SIZEOFARRAYi(src_j2911),
+	    expect_j2911, SIZEOFARRAYi(expect_j2911),
 	    expectIndex_j2911,
 	    SRC_MIDDLE_2, EXPECT_MIDDLE_2,
 	    moves, UNORM_NFKC, "j2911_2");
@@ -862,7 +862,7 @@ void BasicNormalizerTest::TestConcatenate() {
 	int32_t i;
 
 	/* test concatenation */
-	for(i = 0; i<UPRV_LENGTHOF(cases); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(cases); ++i) {
 		switch(*cases[i][0]) {
 			case 'C': mode = UNORM_NFC; break;
 			case 'D': mode = UNORM_NFD; break;
@@ -1122,7 +1122,7 @@ void BasicNormalizerTest::TestCompare() {
 		{ UNORM_UNICODE_3_2<<UNORM_COMPARE_NORM_OPTIONS_SHIFT, "Unicode 3.2" }
 	};
 
-	int32_t i, j, k, count = UPRV_LENGTHOF(strings);
+	int32_t i, j, k, count = SIZEOFARRAYi(strings);
 	int32_t result, refResult;
 
 	UErrorCode errorCode;
@@ -1135,7 +1135,7 @@ void BasicNormalizerTest::TestCompare() {
 	// test them each with each other
 	for(i = 0; i<count; ++i) {
 		for(j = i; j<count; ++j) {
-			for(k = 0; k<UPRV_LENGTHOF(opt); ++k) {
+			for(k = 0; k<SIZEOFARRAYi(opt); ++k) {
 				// test Normalizer::compare
 				errorCode = U_ZERO_ERROR;
 				result = _norm_compare(s[i], s[j], opt[k].options, errorCode);
@@ -1175,7 +1175,7 @@ void BasicNormalizerTest::TestCompare() {
 	}
 
 	// collect all sets into one for contiguous output
-	for(i = 0; i<UPRV_LENGTHOF(iI); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(iI); ++i) {
 		if(nfcImpl->getCanonStartSet(iI[i], iSet)) {
 			set.addAll(iSet);
 		}
@@ -1192,7 +1192,7 @@ void BasicNormalizerTest::TestCompare() {
 		}
 
 		s1.setTo(c);
-		for(k = 0; k<UPRV_LENGTHOF(opt); ++k) {
+		for(k = 0; k<SIZEOFARRAYi(opt); ++k) {
 			// test Normalizer::compare
 			errorCode = U_ZERO_ERROR;
 			result = _norm_compare(s1, s2, opt[k].options, errorCode);
@@ -1513,7 +1513,7 @@ void BasicNormalizerTest::TestCustomComp()
 	if(errorCode.errDataIfFailureAndReset("unable to load testdata/testnorm.nrm")) {
 		return;
 	}
-	for(int32_t i = 0; i<UPRV_LENGTHOF(pairs); ++i) {
+	for(int32_t i = 0; i<SIZEOFARRAYi(pairs); ++i) {
 		const Local_StringPair & pair = pairs[i];
 		UnicodeString input = UnicodeString(pair.input, -1, US_INV).unescape();
 		UnicodeString expected = UnicodeString(pair.expected, -1, US_INV).unescape();
@@ -1550,7 +1550,7 @@ void BasicNormalizerTest::TestCustomFCC()
 	if(errorCode.errDataIfFailureAndReset("unable to load testdata/testnorm.nrm")) {
 		return;
 	}
-	for(int32_t i = 0; i<UPRV_LENGTHOF(pairs); ++i) {
+	for(int32_t i = 0; i<SIZEOFARRAYi(pairs); ++i) {
 		const Local_StringPair & pair = pairs[i];
 		UnicodeString input = UnicodeString(pair.input, -1, US_INV).unescape();
 		UnicodeString expected = UnicodeString(pair.expected, -1, US_INV).unescape();
@@ -1628,7 +1628,7 @@ void BasicNormalizerTest::TestComposeUTF8WithEdits()
 	assertEquals("normalizeUTF8 with Edits numberOfChanges", 9, edits.numberOfChanges());
 	TestUtility::checkEditsIter(*this, u"normalizeUTF8 with Edits",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    expectedChanges, UPRV_LENGTHOF(expectedChanges),
+	    expectedChanges, SIZEOFARRAYi(expectedChanges),
 	    TRUE, errorCode);
 
 	assertFalse("isNormalizedUTF8(source)", nfkc_cf->isNormalizedUTF8(src, errorCode));
@@ -1645,7 +1645,7 @@ void BasicNormalizerTest::TestComposeUTF8WithEdits()
 	assertEquals("normalizeUTF8 omit unchanged numberOfChanges", 9, edits.numberOfChanges());
 	TestUtility::checkEditsIter(*this, u"normalizeUTF8 omit unchanged",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    expectedChanges, UPRV_LENGTHOF(expectedChanges),
+	    expectedChanges, SIZEOFARRAYi(expectedChanges),
 	    TRUE, errorCode);
 
 	// With filter: The normalization code does not see the "A" substrings.
@@ -1674,7 +1674,7 @@ void BasicNormalizerTest::TestComposeUTF8WithEdits()
 	assertEquals("filtered normalizeUTF8 numberOfChanges", 7, edits.numberOfChanges());
 	TestUtility::checkEditsIter(*this, u"filtered normalizeUTF8",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    filteredChanges, UPRV_LENGTHOF(filteredChanges),
+	    filteredChanges, SIZEOFARRAYi(filteredChanges),
 	    TRUE, errorCode);
 
 	assertFalse("filtered isNormalizedUTF8(source)", fn2.isNormalizedUTF8(src, errorCode));
@@ -1693,7 +1693,7 @@ void BasicNormalizerTest::TestComposeUTF8WithEdits()
 	assertEquals("filtered normalizeUTF8 omit unchanged numberOfChanges", 7, edits.numberOfChanges());
 	TestUtility::checkEditsIter(*this, u"filtered normalizeUTF8 omit unchanged",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    filteredChanges, UPRV_LENGTHOF(filteredChanges),
+	    filteredChanges, SIZEOFARRAYi(filteredChanges),
 	    TRUE, errorCode);
 }
 
@@ -1737,7 +1737,7 @@ void BasicNormalizerTest::TestDecomposeUTF8WithEdits() {
 	assertEquals("normalizeUTF8 with Edits numberOfChanges", 10, edits.numberOfChanges());
 	TestUtility::checkEditsIter(*this, u"normalizeUTF8 with Edits",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    expectedChanges, UPRV_LENGTHOF(expectedChanges),
+	    expectedChanges, SIZEOFARRAYi(expectedChanges),
 	    TRUE, errorCode);
 
 	assertFalse("isNormalizedUTF8(source)", nfkd_cf->isNormalizedUTF8(src, errorCode));
@@ -1754,7 +1754,7 @@ void BasicNormalizerTest::TestDecomposeUTF8WithEdits() {
 	assertEquals("normalizeUTF8 omit unchanged numberOfChanges", 10, edits.numberOfChanges());
 	TestUtility::checkEditsIter(*this, u"normalizeUTF8 omit unchanged",
 	    edits.getFineIterator(), edits.getFineIterator(),
-	    expectedChanges, UPRV_LENGTHOF(expectedChanges),
+	    expectedChanges, SIZEOFARRAYi(expectedChanges),
 	    TRUE, errorCode);
 
 	// Not testing FilteredNormalizer2:

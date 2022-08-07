@@ -563,7 +563,7 @@ static struct SResource * parseString(ParseState* state, char * tag, uint32_t st
 	struct UString   * tokenValue;
 	struct SResource * result = NULL;
 
-/*    if(tag != NULL && uprv_strcmp(tag, "%%UCARULES") == 0)
+/*    if(tag != NULL && strcmp(tag, "%%UCARULES") == 0)
     {
         return parseUCARules(tag, startline, status);
     }*/
@@ -629,7 +629,7 @@ static struct SResource* resLookup(struct SResource* res, const char * key) {
 	TableResource * list = static_cast<TableResource *>(res);
 	SResource * current = list->fFirst;
 	while(current) {
-		if(uprv_strcmp(((list->fRoot->fKeys) + (current->fKey)), key) == 0) {
+		if(strcmp(((list->fRoot->fKeys) + (current->fKey)), key) == 0) {
 			return current;
 		}
 		current = current->fNext;
@@ -687,7 +687,7 @@ void GenrbImporter::getRules(const char * localeID, const char * collationType,
 		}
 	}
 	else {
-		int32_t dirlen  = (int32_t)uprv_strlen(inputDir);
+		int32_t dirlen  = (int32_t)strlen(inputDir);
 
 		if((filename[0] != U_FILE_SEP_CHAR) && (inputDir[dirlen-1] !='.')) {
 			/*
@@ -826,25 +826,25 @@ static TableResource * addCollation(ParseState* state, TableResource  * result, 
 		if(result == NULL) {
 			// Ignore the parsed resources, continue parsing.
 		}
-		else if(uprv_strcmp(subtag, "Version") == 0 && member->isString()) {
+		else if(strcmp(subtag, "Version") == 0 && member->isString()) {
 			StringResource * sr = static_cast<StringResource *>(member);
 			char ver[40];
 			int32_t length = sr->length();
 
-			if(length >= UPRV_LENGTHOF(ver)) {
-				length = UPRV_LENGTHOF(ver) - 1;
+			if(length >= SIZEOFARRAYi(ver)) {
+				length = SIZEOFARRAYi(ver) - 1;
 			}
 
-			sr->fString.extract(0, length, ver, UPRV_LENGTHOF(ver), US_INV);
+			sr->fString.extract(0, length, ver, SIZEOFARRAYi(ver), US_INV);
 			u_versionFromString(version, ver);
 
 			result->add(member, line, *status);
 			member = NULL;
 		}
-		else if(uprv_strcmp(subtag, "%%CollationBin")==0) {
+		else if(strcmp(subtag, "%%CollationBin")==0) {
 			/* discard duplicate %%CollationBin if any*/
 		}
-		else if(uprv_strcmp(subtag, "Sequence") == 0 && member->isString()) {
+		else if(strcmp(subtag, "Sequence") == 0 && member->isString()) {
 			StringResource * sr = static_cast<StringResource *>(member);
 			rules = sr->fString;
 			haveRules = TRUE;
@@ -1041,7 +1041,7 @@ static struct SResource * parseCollationElements(ParseState* state, char * tag, 
 				return NULL;
 			}
 
-			if(uprv_strcmp(subtag, "default") == 0) {
+			if(strcmp(subtag, "default") == 0) {
 				member = parseResource(state, subtag, NULL, status);
 
 				if(U_FAILURE(*status)) {
@@ -1075,7 +1075,7 @@ static struct SResource * parseCollationElements(ParseState* state, char * tag, 
 					/* we could have a table too */
 					token = peekToken(state, 1, &tokenValue, &line, &comment, status);
 					u_UCharsToChars(tokenValue->fChars, typeKeyword, u_strlen(tokenValue->fChars) + 1);
-					if(uprv_strcmp(typeKeyword, "alias") == 0) {
+					if(strcmp(typeKeyword, "alias") == 0) {
 						member = parseResource(state, subtag, NULL, status);
 						if(U_FAILURE(*status)) {
 							res_close(result);
@@ -1189,10 +1189,10 @@ static struct SResource * realParseTable(ParseState* state, TableResource * tabl
 
 static struct SResource * parseTable(ParseState* state, char * tag, uint32_t startline, const struct UString * comment,
     UErrorCode * status) {
-	if(tag != NULL && uprv_strcmp(tag, "CollationElements") == 0) {
+	if(tag != NULL && strcmp(tag, "CollationElements") == 0) {
 		return parseCollationElements(state, tag, startline, FALSE, status);
 	}
-	if(tag != NULL && uprv_strcmp(tag, "collations") == 0) {
+	if(tag != NULL && strcmp(tag, "collations") == 0) {
 		return parseCollationElements(state, tag, startline, TRUE, status);
 	}
 	if(isVerbose()) {
@@ -1563,7 +1563,7 @@ static struct SResource * parseInclude(ParseState* state, char * tag, uint32_t s
 
 	if(state->inputdir!=NULL) {
 		if(state->inputdir[state->inputdirLength - 1] != U_FILE_SEP_CHAR) {
-			uprv_strcpy(fullname, state->inputdir);
+			strcpy(fullname, state->inputdir);
 
 			fullname[state->inputdirLength] = U_FILE_SEP_CHAR;
 			fullname[state->inputdirLength + 1] = '\0';
@@ -1571,12 +1571,12 @@ static struct SResource * parseInclude(ParseState* state, char * tag, uint32_t s
 			uprv_strcat(fullname, filename);
 		}
 		else {
-			uprv_strcpy(fullname, state->inputdir);
+			strcpy(fullname, state->inputdir);
 			uprv_strcat(fullname, filename);
 		}
 	}
 	else {
-		uprv_strcpy(fullname, filename);
+		strcpy(fullname, filename);
 	}
 
 	ucbuf = ucbuf_open(fullname, &cp, getShowWarning(), FALSE, status);
@@ -1862,9 +1862,9 @@ struct SRBRoot * parse(UCHARBUF * buf, const char * inputDir, const char * outpu
 	initLookahead(&state, buf, status);
 
 	state.inputdir       = inputDir;
-	state.inputdirLength = (state.inputdir != NULL) ? (uint32_t)uprv_strlen(state.inputdir) : 0;
+	state.inputdirLength = (state.inputdir != NULL) ? (uint32_t)strlen(state.inputdir) : 0;
 	state.outputdir       = outputDir;
-	state.outputdirLength = (state.outputdir != NULL) ? (uint32_t)uprv_strlen(state.outputdir) : 0;
+	state.outputdirLength = (state.outputdir != NULL) ? (uint32_t)strlen(state.outputdir) : 0;
 	state.filename = filename;
 	state.makeBinaryCollation = makeBinaryCollation;
 	state.omitCollationRules = omitCollationRules;

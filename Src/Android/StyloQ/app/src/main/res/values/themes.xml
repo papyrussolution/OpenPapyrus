@@ -1,6 +1,27 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.StyloQ" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.StyloQ.Light" parent="Theme.MaterialComponents.Light">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/Primary</item>
+        <item name="colorPrimaryVariant">@color/PrimaryDark</item>
+        <item name="colorOnPrimary">@color/TextPrimary</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/PrimaryLight</item>
+        <item name="colorSecondaryVariant">@color/PrimaryDark</item>
+        <item name="colorOnSecondary">@color/TextSecondary</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+        <item name="android:fontFamily">"sans-serif"</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/TextPrimary</item>
+        <item name="isLightTheme">true</item>
+        <item name="materialButtonStyle">@style/PushButton</item>
+        <item name="spinnerStyle">@style/ComboBox</item>
+    </style>
+    <style name="Theme.StyloQ.Dark" parent="Theme.MaterialComponents.DayNight">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <!-- Primary brand color. -->

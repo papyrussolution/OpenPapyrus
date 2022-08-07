@@ -2304,7 +2304,7 @@ int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition s
 		return (int32_t)(bmpSet->spanUTF8(s0, length, spanCondition)-s0);
 	}
 	if(length<0) {
-		length = (int32_t)uprv_strlen(s);
+		length = (int32_t)strlen(s);
 	}
 	if(!length) {
 		return 0;
@@ -2342,7 +2342,7 @@ int32_t UnicodeSet::spanBackUTF8(const char * s, int32_t length, USetSpanConditi
 		return bmpSet->spanBackUTF8(s0, length, spanCondition);
 	}
 	if(length<0) {
-		length = (int32_t)uprv_strlen(s);
+		length = (int32_t)strlen(s);
 	}
 	if(!length) {
 		return 0;

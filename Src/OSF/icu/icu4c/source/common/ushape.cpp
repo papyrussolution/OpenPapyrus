@@ -107,8 +107,7 @@ static const uint8 tashkeelMedial[] = {
 	/* FE7F */ 1
 };
 
-static const UChar yehHamzaToYeh[] =
-{
+static const UChar yehHamzaToYeh[] = {
 /* isolated*/ 0xFEEF,
 /* final   */ 0xFEF0
 };
@@ -118,8 +117,7 @@ static const uint8 IrrelevantPos[] = {
 	0x8, 0xA, 0xC, 0xE
 };
 
-static const UChar convertLamAlef[] =
-{
+static const UChar convertLamAlef[] = {
 /*FEF5*/ 0x0622,
 /*FEF6*/ 0x0622,
 /*FEF7*/ 0x0623,
@@ -130,8 +128,7 @@ static const UChar convertLamAlef[] =
 /*FEFC*/ 0x0627
 };
 
-static const UChar araLink[178] =
-{
+static const UChar araLink[178] = {
 	1           + 32 + 256 * 0x11,/*0x0622*/
 	1           + 32 + 256 * 0x13,/*0x0623*/
 	1                + 256 * 0x15,/*0x0624*/
@@ -264,8 +261,7 @@ static const uint8 presALink[] = {
 /*FC6*/ 4,    4,    4
 };
 
-static const uint8 presBLink[] =
-{
+static const uint8 presBLink[] = {
 /***********0*****1*****2*****3*****4*****5*****6*****7*****8*****9*****A*****B*****C*****D*****E*****F*/
 /*FE7*/ 1 + 2, 1 + 2, 1 + 2,    0, 1 + 2,    0, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2,
 /*FE8*/ 0,    0,    1,    0,    1,    0,    1,    0,    1,    0,    1,    2, 1 + 2,    0,    1,    0,
@@ -278,8 +274,7 @@ static const uint8 presBLink[] =
 /*FEF*/ 1,    0,    1,    2, 1 + 2,    0,    1,    0,    1,    0,    1,    0,    1,    0,    0,    0
 };
 
-static const UChar convertFBto06[] =
-{
+static const UChar convertFBto06[] = {
 /***********0******1******2******3******4******5******6******7******8******9******A******B******C******D******E******F***/
 /*FB5*/ 0x671, 0x671, 0x67B, 0x67B, 0x67B, 0x67B, 0x67E, 0x67E, 0x67E, 0x67E,     0,     0,     0,     0, 0x67A, 0x67A,
 /*FB6*/ 0x67A, 0x67A,     0,     0,     0,     0, 0x679, 0x679, 0x679, 0x679,     0,     0,     0,     0,     0,     0,
@@ -294,8 +289,7 @@ static const UChar convertFBto06[] =
 /*FBF*/ 0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0, 0x6CC, 0x6CC, 0x6CC, 0x6CC
 };
 
-static const UChar convertFEto06[] =
-{
+static const UChar convertFEto06[] = {
 /***********0******1******2******3******4******5******6******7******8******9******A******B******C******D******E******F***/
 /*FE7*/ 0x64B, 0x64B, 0x64C, 0x64C, 0x64D, 0x64D, 0x64E, 0x64E, 0x64F, 0x64F, 0x650, 0x650, 0x651, 0x651, 0x652, 0x652,
 /*FE8*/ 0x621, 0x622, 0x622, 0x623, 0x623, 0x624, 0x624, 0x625, 0x625, 0x626, 0x626, 0x626, 0x626, 0x627, 0x627, 0x628,
@@ -308,8 +302,7 @@ static const UChar convertFEto06[] =
 /*FEF*/ 0x649, 0x64A, 0x64A, 0x64A, 0x64A, 0x65C, 0x65C, 0x65D, 0x65D, 0x65E, 0x65E, 0x65F, 0x65F
 };
 
-static const uint8 shapeTable[4][4][4] =
-{
+static const uint8 shapeTable[4][4][4] = {
 	{ {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 1, 0, 3}, {0, 1, 0, 1} },
 	{ {0, 0, 2, 2}, {0, 0, 1, 2}, {0, 1, 1, 2}, {0, 1, 1, 3} },
 	{ {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 1, 0, 3}, {0, 1, 0, 3} },
@@ -322,14 +315,11 @@ static const uint8 shapeTable[4][4][4] =
  * Since we know that we are only looking for BMP code points,
  * we can safely just work with code units (again, at least UTF-16).
  */
-static void _shapeToArabicDigitsWithContext(UChar * s, int32_t length,
-    UChar digitBase,
-    bool isLogical, bool lastStrongWasAL) {
+static void _shapeToArabicDigitsWithContext(UChar * s, int32_t length, UChar digitBase, bool isLogical, bool lastStrongWasAL) 
+{
 	int32_t i;
 	UChar c;
-
 	digitBase -= 0x30;
-
 	/* the iteration direction depends on the type of input */
 	if(isLogical) {
 		for(i = 0; i < length; ++i) {
@@ -344,8 +334,7 @@ static void _shapeToArabicDigitsWithContext(UChar * s, int32_t length,
 				    break;
 				case U_EUROPEAN_NUMBER: /* EN */
 				    if(lastStrongWasAL && (uint32_t)(c-0x30)<10) {
-					    s[i] = (UChar)(digitBase+c); /* digitBase+(c-0x30) - digitBase was modified
-					                                    above */
+					    s[i] = (UChar)(digitBase+c); /* digitBase+(c-0x30) - digitBase was modified above */
 				    }
 				    break;
 				default:
@@ -366,8 +355,7 @@ static void _shapeToArabicDigitsWithContext(UChar * s, int32_t length,
 				    break;
 				case U_EUROPEAN_NUMBER: /* EN */
 				    if(lastStrongWasAL && (uint32_t)(c-0x30)<10) {
-					    s[i] = (UChar)(digitBase+c); /* digitBase+(c-0x30) - digitBase was modified
-					                                    above */
+					    s[i] = (UChar)(digitBase+c); /* digitBase+(c-0x30) - digitBase was modified above */
 				    }
 				    break;
 				default:
@@ -376,23 +364,20 @@ static void _shapeToArabicDigitsWithContext(UChar * s, int32_t length,
 		}
 	}
 }
-
 /*
  * Name     : invertBuffer
  * Function : This function inverts the buffer, it's used
  *           in case the user specifies the buffer to be
  *           U_SHAPE_TEXT_DIRECTION_LOGICAL
  */
-static void invertBuffer(UChar * buffer, int32_t size, uint32_t /*options*/, int32_t lowlimit, int32_t highlimit) {
-	UChar temp;
-	int32_t i = 0, j = 0;
-	for(i = lowlimit, j = size-highlimit-1; i<j; i++, j--) {
-		temp = buffer[i];
+static void invertBuffer(UChar * buffer, int32_t size, uint32_t /*options*/, int32_t lowlimit, int32_t highlimit) 
+{
+	for(int32_t i = lowlimit, j = size-highlimit-1; i<j; i++, j--) {
+		UChar temp = buffer[i];
 		buffer[i] = buffer[j];
 		buffer[j] = temp;
 	}
 }
-
 /*
  * Name     : changeLamAlef
  * Function : Converts the Alef characters into an equivalent
@@ -401,27 +386,24 @@ static void invertBuffer(UChar * buffer, int32_t size, uint32_t /*options*/, int
  *           later it'll be converted into the 0xFExx LamAlefs
  *           in the shaping function.
  */
-static inline UChar changeLamAlef(UChar ch) {
+static inline UChar changeLamAlef(UChar ch) 
+{
 	switch(ch) {
-		case 0x0622:
-		    return 0x065C;
-		case 0x0623:
-		    return 0x065D;
-		case 0x0625:
-		    return 0x065E;
-		case 0x0627:
-		    return 0x065F;
+		case 0x0622: return 0x065C;
+		case 0x0623: return 0x065D;
+		case 0x0625: return 0x065E;
+		case 0x0627: return 0x065F;
 	}
 	return 0;
 }
-
 /*
  * Name     : getLink
  * Function : Resolves the link between the characters as
  *           Arabic characters have four forms :
  *           Isolated, Initial, Middle and Final Form
  */
-static UChar getLink(UChar ch) {
+static UChar getLink(UChar ch) 
+{
 	if(ch >= 0x0622 && ch <= 0x06D3) {
 		return(araLink[ch-0x0622]);
 	}
@@ -441,7 +423,6 @@ static UChar getLink(UChar ch) {
 		return 0;
 	}
 }
-
 /*
  * Name     : countSpaces
  * Function : Counts the number of spaces
@@ -463,45 +444,35 @@ static void countSpaces(UChar * dest, int32_t size, uint32_t /*options*/, int32_
 	*spacesCountl = countl;
 	*spacesCountr = countr;
 }
-
 /*
  * Name     : isTashkeelChar
  * Function : Returns 1 for Tashkeel characters in 06 range else return 0
  */
-static inline int32_t isTashkeelChar(UChar ch) {
-	return (int32_t)( ch>=0x064B && ch<= 0x0652 );
-}
-
+static inline int32_t isTashkeelChar(UChar ch) { return (int32_t)( ch>=0x064B && ch<= 0x0652 ); }
 /*
  * Name     : isTashkeelCharFE
  * Function : Returns 1 for Tashkeel characters in FE range else return 0
  */
-static inline int32_t isTashkeelCharFE(UChar ch) {
-	return (int32_t)( ch>=0xFE70 && ch<= 0xFE7F );
-}
+static inline int32_t isTashkeelCharFE(UChar ch) { return (int32_t)( ch>=0xFE70 && ch<= 0xFE7F ); }
 
 /*
  * Name     : isAlefChar
  * Function : Returns 1 for Alef characters else return 0
  */
-static inline int32_t isAlefChar(UChar ch) {
-	return (int32_t)( (ch==0x0622)||(ch==0x0623)||(ch==0x0625)||(ch==0x0627));
-}
-
+static inline int32_t isAlefChar(UChar ch) { return (int32_t)( (ch==0x0622)||(ch==0x0623)||(ch==0x0625)||(ch==0x0627)); }
 /*
  * Name     : isLamAlefChar
  * Function : Returns 1 for LamAlef characters else return 0
  */
-static inline int32_t isLamAlefChar(UChar ch) {
-	return (int32_t)((ch>=0xFEF5)&&(ch<=0xFEFC));
-}
+static inline int32_t isLamAlefChar(UChar ch) { return (int32_t)((ch>=0xFEF5)&&(ch<=0xFEFC)); }
 
 /*BIDI
  * Name     : isTailChar
  * Function : returns 1 if the character matches one of the tail characters (0xfe73 or 0x200b) otherwise returns 0
  */
 
-static inline int32_t isTailChar(UChar ch) {
+static inline int32_t isTailChar(UChar ch) 
+{
 	if(ch == OLD_TAIL_CHAR || ch == NEW_TAIL_CHAR) {
 		return 1;
 	}
@@ -872,11 +843,11 @@ static int32_t handleGeneratedSpaces(UChar * dest, int32_t sourceLength,
  *         will be set to U_NO_SPACE_AVAILABLE as defined in utypes.h
  */
 
-static int32_t expandCompositCharAtBegin(UChar * dest, int32_t sourceLength, int32_t destSize, UErrorCode * pErrorCode) {
+static int32_t expandCompositCharAtBegin(UChar * dest, int32_t sourceLength, int32_t destSize, UErrorCode * pErrorCode) 
+{
 	int32_t i = 0, j = 0;
 	int32_t countl = 0;
-	UChar * tempbuffer = NULL;
-	tempbuffer = (UChar *)uprv_malloc((sourceLength+1)*U_SIZEOF_UCHAR);
+	UChar * tempbuffer = (UChar *)uprv_malloc((sourceLength+1)*U_SIZEOF_UCHAR);
 	/* Test for NULL */
 	if(tempbuffer == NULL) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -893,8 +864,7 @@ static int32_t expandCompositCharAtBegin(UChar * dest, int32_t sourceLength, int
 		if(countl>0 && isLamAlefChar(dest[i])) {
 			tempbuffer[j] = LAM_CHAR;
 			/* to ensure the array index is within the range */
-			U_ASSERT(dest[i] >= 0xFEF5u
-			 && dest[i]-0xFEF5u < UPRV_LENGTHOF(convertLamAlef));
+			U_ASSERT(dest[i] >= 0xFEF5u && dest[i]-0xFEF5u < SIZEOFARRAYi(convertLamAlef));
 			tempbuffer[j-1] = convertLamAlef[ dest[i] - 0xFEF5 ];
 			j--;
 			countl--;
@@ -909,9 +879,7 @@ static int32_t expandCompositCharAtBegin(UChar * dest, int32_t sourceLength, int
 		j--;
 	}
 	u_memcpy(dest, tempbuffer, sourceLength);
-
 	uprv_free(tempbuffer);
-
 	destSize = sourceLength;
 	return destSize;
 }
@@ -925,14 +893,12 @@ static int32_t expandCompositCharAtBegin(UChar * dest, int32_t sourceLength, int
  *           there are no spaces to expand the LamAlef, an error
  *           will be set to U_NO_SPACE_AVAILABLE as defined in utypes.h
  */
-
 static int32_t expandCompositCharAtEnd(UChar * dest, int32_t sourceLength, int32_t destSize, UErrorCode * pErrorCode) 
 {
 	int32_t i = 0, j = 0;
 	int32_t countr = 0;
 	int32_t inpsize = sourceLength;
-	UChar * tempbuffer = NULL;
-	tempbuffer = (UChar *)uprv_malloc((sourceLength+1)*U_SIZEOF_UCHAR);
+	UChar * tempbuffer = (UChar *)uprv_malloc((sourceLength+1)*U_SIZEOF_UCHAR);
 	/* Test for NULL */
 	if(tempbuffer == NULL) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -943,10 +909,8 @@ static int32_t expandCompositCharAtEnd(UChar * dest, int32_t sourceLength, int32
 		countr++;
 		inpsize--;
 	}
-
 	i = sourceLength - countr - 1;
 	j = sourceLength - 1;
-
 	while(i >= 0 && j >= 0) {
 		if(countr>0 && isLamAlefChar(dest[i])) {
 			tempbuffer[j] = LAM_CHAR;
@@ -973,9 +937,7 @@ static int32_t expandCompositCharAtEnd(UChar * dest, int32_t sourceLength, int32
 		}
 	}
 	u_memcpy(dest, tempbuffer, sourceLength);
-
 	uprv_free(tempbuffer);
-
 	destSize = sourceLength;
 	return destSize;
 }
@@ -990,12 +952,10 @@ static int32_t expandCompositCharAtEnd(UChar * dest, int32_t sourceLength, int32
  */
 
 static int32_t expandCompositCharAtNear(UChar * dest, int32_t sourceLength, int32_t destSize, UErrorCode * pErrorCode,
-    int yehHamzaOption, int seenTailOption, int lamAlefOption, struct uShapeVariables shapeVars) {
-	int32_t i = 0;
-
+    int yehHamzaOption, int seenTailOption, int lamAlefOption, struct uShapeVariables shapeVars) 
+{
 	UChar lamalefChar, yehhamzaChar;
-
-	for(i = 0; i<=sourceLength-1; i++) {
+	for(int32_t i = 0; i<=sourceLength-1; i++) {
 		if(seenTailOption && isSeenTailFamilyChar(dest[i])) {
 			if((i>0) && (dest[i-1] == SPACE_CHAR)) {
 				dest[i-1] = shapeVars.tailChar;
@@ -1045,21 +1005,17 @@ static int32_t expandCompositCharAtNear(UChar * dest, int32_t sourceLength, int3
  *            U_NO_SPACE_AVAILABLE as defined in utypes.h
  */
 
-static int32_t expandCompositChar(UChar * dest, int32_t sourceLength,
-    int32_t destSize, uint32_t options,
-    UErrorCode * pErrorCode, int shapingMode, struct uShapeVariables shapeVars) {
+static int32_t expandCompositChar(UChar * dest, int32_t sourceLength, int32_t destSize, uint32_t options, UErrorCode * pErrorCode, int shapingMode, struct uShapeVariables shapeVars) 
+{
 	int32_t i = 0, j = 0;
-
 	UChar * tempbuffer = NULL;
 	int yehHamzaOption = 0;
 	int seenTailOption = 0;
 	int lamAlefOption = 0;
-
 	if(shapingMode == 1) {
 		if((options&U_SHAPE_LAMALEF_MASK) == U_SHAPE_LAMALEF_AUTO) {
 			if(shapeVars.spacesRelativeToTextBeginEnd == 0) {
 				destSize = expandCompositCharAtEnd(dest, sourceLength, destSize, pErrorCode);
-
 				if(*pErrorCode == U_NO_SPACE_AVAILABLE) {
 					*pErrorCode = U_ZERO_ERROR;
 					destSize = expandCompositCharAtBegin(dest, sourceLength, destSize, pErrorCode);
@@ -1067,7 +1023,6 @@ static int32_t expandCompositChar(UChar * dest, int32_t sourceLength,
 			}
 			else {
 				destSize = expandCompositCharAtBegin(dest, sourceLength, destSize, pErrorCode);
-
 				if(*pErrorCode == U_NO_SPACE_AVAILABLE) {
 					*pErrorCode = U_ZERO_ERROR;
 					destSize = expandCompositCharAtEnd(dest, sourceLength, destSize, pErrorCode);
@@ -1290,8 +1245,7 @@ static int32_t shapeUnicode(UChar * dest, int32_t sourceLength,
 					}
 					else {
 						/* to ensure the array index is within the range */
-						U_ASSERT(dest[i] >= 0x064Bu
-						 && dest[i]-0x064Bu < UPRV_LENGTHOF(IrrelevantPos));
+						U_ASSERT(dest[i] >= 0x064Bu && dest[i]-0x064Bu < SIZEOFARRAYi(IrrelevantPos));
 						dest[i] =  0xFE70 + IrrelevantPos[(dest[i] - 0x064B)] + static_cast<UChar>(Shape);
 					}
 				}
@@ -1526,8 +1480,8 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const UChar * source, int32_t sourceLengt
 		}
 
 		/* Start of Arabic letter shaping part */
-		if(outputSize<=UPRV_LENGTHOF(buffer)) {
-			outputSize = UPRV_LENGTHOF(buffer);
+		if(outputSize<=SIZEOFARRAYi(buffer)) {
+			outputSize = SIZEOFARRAYi(buffer);
 			tempbuffer = buffer;
 		}
 		else {
@@ -1694,6 +1648,5 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const UChar * source, int32_t sourceLengt
 			    break;
 		}
 	}
-
 	return u_terminateUChars(dest, destCapacity, destLength, pErrorCode);
 }

@@ -73,8 +73,8 @@ void CollationCurrencyTest::currencyTest(/*char *par*/)
 
 	// Compare each currency symbol against all the
 	// currency symbols, including itself
-	for(i = 0; i < UPRV_LENGTHOF(currency); i += 1) {
-		for(j = 0; j < UPRV_LENGTHOF(currency); j += 1) {
+	for(i = 0; i < SIZEOFARRAYi(currency); i += 1) {
+		for(j = 0; j < SIZEOFARRAYi(currency); j += 1) {
 			UnicodeString source(currency[i], 1);
 			UnicodeString target(currency[j], 1);
 

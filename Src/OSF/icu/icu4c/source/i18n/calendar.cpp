@@ -828,7 +828,7 @@ Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode &
 		char keyword[ULOC_FULLNAME_CAPACITY] = "";
 		UErrorCode tmpStatus = U_ZERO_ERROR;
 		l.getKeywordValue("calendar", keyword, ULOC_FULLNAME_CAPACITY, tmpStatus);
-		if(U_SUCCESS(tmpStatus) && uprv_strcmp(keyword, "iso8601") == 0) {
+		if(U_SUCCESS(tmpStatus) && strcmp(keyword, "iso8601") == 0) {
 			c->setFirstDayOfWeek(UCAL_MONDAY);
 			c->setMinimalDaysInFirstWeek(4);
 		}
@@ -1652,8 +1652,8 @@ void Calendar::roll(UCalendarDateFields field, int32_t amount, UErrorCode & stat
 		    int32_t era = get(UCAL_ERA, status);
 		    if(era == 0) {
 			    const char * calType = getType();
-			    if(uprv_strcmp(calType,
-				"gregorian")==0 || uprv_strcmp(calType, "roc")==0 || uprv_strcmp(calType, "coptic")==0) {
+			    if(strcmp(calType,
+				"gregorian")==0 || strcmp(calType, "roc")==0 || strcmp(calType, "coptic")==0) {
 				    amount = -amount;
 				    era0WithYearsThatGoBackwards = TRUE;
 			    }
@@ -1957,7 +1957,7 @@ void Calendar::add(UCalendarDateFields field, int32_t amount, UErrorCode & statu
 				int32_t era = get(UCAL_ERA, status);
 				if(era == 0) {
 					const char * calType = getType();
-					if(uprv_strcmp(calType, "gregorian")==0 || uprv_strcmp(calType, "roc")==0 || uprv_strcmp(calType, "coptic")==0) {
+					if(strcmp(calType, "gregorian")==0 || strcmp(calType, "roc")==0 || strcmp(calType, "coptic")==0) {
 						amount = -amount;
 					}
 				}
@@ -3503,7 +3503,7 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 	Locale min(desiredLocale);
 	min.minimizeSubtags(myStatus);
 	Locale useLocale;
-	if(uprv_strlen(desiredLocale.getCountry()) == 0 || (uprv_strlen(desiredLocale.getScript()) > 0 && uprv_strlen(min.getScript()) == 0)) {
+	if(strlen(desiredLocale.getCountry()) == 0 || (strlen(desiredLocale.getScript()) > 0 && strlen(min.getScript()) == 0)) {
 		myStatus = U_ZERO_ERROR;
 		Locale max(desiredLocale);
 		max.addLikelySubtags(myStatus);
@@ -3525,7 +3525,7 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 	ures_getByKey(calData.getAlias(), gCalendar, calData.getAlias(), &status);
 
 	LocalUResourceBundlePointer monthNames;
-	if(type && *type != '\0' && uprv_strcmp(type, gGregorian) != 0) {
+	if(type && *type != '\0' && strcmp(type, gGregorian) != 0) {
 		monthNames.adoptInstead(ures_getByKeyWithFallback(calData.getAlias(), type, NULL, &status));
 		ures_getByKeyWithFallback(monthNames.getAlias(), gMonthNames,
 		    monthNames.getAlias(), &status);

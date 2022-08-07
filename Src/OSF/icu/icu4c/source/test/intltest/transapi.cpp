@@ -158,7 +158,7 @@ void TransliteratorAPITest::TestgetInverse() {
 		"Any-Hex",
 		"Hex-Any"
 	};
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(TransID); i = i+2) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(TransID); i = i+2) {
 		Transliterator * trans1 = Transliterator::createInstance(TransID[i], UTRANS_FORWARD, parseError, status);
 		if(t1 == 0) {
 			errln("FAIL: in instantiation for" + TransID[i]);
@@ -230,7 +230,7 @@ void TransliteratorAPITest::TestGetDisplayName() {
 	return;
 #else
 
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(dispNames); i = i+2) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(dispNames); i = i+2) {
 		t = Transliterator::createInstance(dispNames[i+0], UTRANS_FORWARD, parseError, status);
 		if(t==0) {
 			dataerrln("FAIL: construction: " + dispNames[i+0] + " - " + u_errorName(status));
@@ -282,7 +282,7 @@ void TransliteratorAPITest::TestTransliterate1() {
 	UErrorCode status = U_ZERO_ERROR;
 	UParseError parseError;
 
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(Data); i = i+3) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(Data); i = i+3) {
 		t = Transliterator::createInstance(Data[i+0], UTRANS_FORWARD, parseError, status);
 		if(t==0) {
 			dataerrln("FAIL: construction: " + Data[i+0] + " Error: "  + u_errorName(status));
@@ -333,7 +333,7 @@ void TransliteratorAPITest::TestTransliterate2() {
 	UErrorCode status = U_ZERO_ERROR;
 	UParseError parseError;
 
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(Data2); i = i+6) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(Data2); i = i+6) {
 		t = Transliterator::createInstance(Data2[i+0], UTRANS_FORWARD, parseError, status);
 		if(t==0) {
 			dataerrln("FAIL: construction: " + prettify(Data2[i+0]) + " - " + u_errorName(status));
@@ -405,7 +405,7 @@ void TransliteratorAPITest::TestTransliterate3() {
 
 	if(t == 0)
 		errln("FAIL : construction");
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(Data); i = i+3) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(Data); i = i+3) {
 		start = getInt(Data[i+0]);
 		limit = getInt(Data[i+1]);
 		t->transliterate(rs, start, limit);
@@ -453,7 +453,7 @@ void TransliteratorAPITest::TestSimpleKeyboardTransliterator() {
 		{-1, 16, 14, 16}, //invalid since START<0
 		{3,  50, 2,  50}//invalid since LIMIT>text.length()
 	};
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(index1); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(index1); i++) {
 		status = U_ZERO_ERROR;
 		t->transliterate(rs, index1[i], insertion, status);
 		if(status == U_ILLEGAL_ARGUMENT_ERROR)
@@ -516,7 +516,7 @@ void TransliteratorAPITest::TestKeyboardTransliterator1() {
 	status = U_ZERO_ERROR;
 	index.contextStart = index.contextLimit = index.start = index.limit = 0;
 	logln("Testing transliterate(Replaceable, int32_t, UChar, UErrorCode)");
-	for(i = 10; i<UPRV_LENGTHOF(Data); i = i+2) {
+	for(i = 10; i<SIZEOFARRAYi(Data); i = i+2) {
 		UnicodeString log;
 		if(Data[i+0] != "") {
 			log = s + " + " + Data[i+0] + " -> ";
@@ -607,7 +607,7 @@ void TransliteratorAPITest::TestKeyboardTransliterator3() {
 		delete t;
 		return;
 	}
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(Data); i = i+4) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(Data); i = i+4) {
 		UnicodeString log;
 		index.contextStart = getInt(Data[i+0]);
 		index.contextLimit = index.limit = getInt(Data[i+1]);

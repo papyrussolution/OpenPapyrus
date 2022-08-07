@@ -91,7 +91,7 @@ extern int main(int argc, char * argv[])
 	U_MAIN_INIT_ARGS(argc, argv);
 	options[kOptDestDir].value = ".";
 	/* read command line options */
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 
 	/* error handling, printing usage message */
 	if(argc<0) {

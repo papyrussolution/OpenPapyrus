@@ -54,7 +54,7 @@ struct RCEBuffer {
 	const RCEI * get();
 };
 
-RCEBuffer::RCEBuffer() : buffer(defaultBuffer), bufferIndex(0), bufferSize(UPRV_LENGTHOF(defaultBuffer))
+RCEBuffer::RCEBuffer() : buffer(defaultBuffer), bufferIndex(0), bufferSize(SIZEOFARRAYi(defaultBuffer))
 {
 }
 
@@ -103,7 +103,7 @@ PCEBuffer::PCEBuffer()
 {
 	buffer = defaultBuffer;
 	bufferIndex = 0;
-	bufferSize = UPRV_LENGTHOF(defaultBuffer);
+	bufferSize = SIZEOFARRAYi(defaultBuffer);
 }
 
 PCEBuffer::~PCEBuffer()

@@ -189,7 +189,7 @@ extern int main(int argc, char * argv[])
 	U_MAIN_INIT_ARGS(argc, argv);
 	/* preset then read command line options */
 	options[DESTDIR].value = options[SOURCEDIR].value = u_getDataDirectory();
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 	/* error handling, printing usage message */
 	if(argc<0) {
 		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
@@ -221,12 +221,12 @@ extern int main(int argc, char * argv[])
 	const char * sourcedir = options[SOURCEDIR].value;
 	if(sourcedir != NULL && *sourcedir != 0) {
 		char * end;
-		uprv_strcpy(pathBuf, sourcedir);
+		strcpy(pathBuf, sourcedir);
 		end = uprv_strchr(pathBuf, 0);
 		if(*(end-1)!=U_FILE_SEP_CHAR) {
 			*(end++) = U_FILE_SEP_CHAR;
 		}
-		uprv_strcpy(end, path);
+		strcpy(end, path);
 		path = pathBuf;
 	}
 
@@ -296,7 +296,7 @@ static void parseFile(FileStream * in) {
 		while(T_FileStream_readLine(in, lastLine, MAX_LINE_SIZE) != NULL) {
 			lastLineSize = chomp_Local(lastLine);
 			if(lineSize == 0 || (lastLineSize > 0 && isspace((int)*lastLine))) {
-				uprv_strcpy(line + lineSize, lastLine);
+				strcpy(line + lineSize, lastLine);
 				lineSize += lastLineSize;
 			}
 			else if(lineSize > 0) {
@@ -331,7 +331,7 @@ static void parseFile(FileStream * in) {
 			}
 			/* Was the last line consumed */
 			if(lastLineSize > 0) {
-				uprv_strcpy(line, lastLine);
+				strcpy(line, lastLine);
 				lineSize = lastLineSize;
 			}
 			else {
@@ -493,7 +493,7 @@ static uint16_t getTagNumber(const char * tag, uint16_t tagLen) {
 
 	for(t = 0; t < tagCount; ++t) {
 		const char * currTag = GET_TAG_STR(tags[t].tag);
-		if(uprv_strlen(currTag) == tagLen && !uprv_strnicmp(currTag, tag, tagLen)) {
+		if(strlen(currTag) == tagLen && !uprv_strnicmp(currTag, tag, tagLen)) {
 			return t;
 		}
 	}
@@ -574,7 +574,7 @@ static uint16_t addToKnownAliases(const char * alias) {
 /*    for (idx = 0; idx < knownAliasesCount; idx++) {
         uint16_t num = GET_ALIAS_NUM(alias);
         if(knownAliases[idx] != num
- && uprv_strcmp(alias, GET_ALIAS_STR(knownAliases[idx])) == 0)
+ && strcmp(alias, GET_ALIAS_STR(knownAliases[idx])) == 0)
         {
             slfprintf_stderr("%s:%d: warning: duplicate alias %s and %s found\n", path,
                 lineNum, alias, GET_ALIAS_STR(knownAliases[idx]));
@@ -660,7 +660,7 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
 						 *duplicate,
 						 * not just a lenient-match duplicate.
 						 */
-						if(verbose || 0 == uprv_strcmp(alias, GET_ALIAS_STR(aliasNum))) {
+						if(verbose || 0 == strcmp(alias, GET_ALIAS_STR(aliasNum))) {
 							slfprintf_stderr("%s:%d: warning: duplicate aliases %s and %s found for standard %s and converter %s\n",
 							    path, lineNum, alias, GET_ALIAS_STR(aliasNum), GET_TAG_STR(tags[standard].tag), GET_ALIAS_STR(converters[converter].converter));
 						}
@@ -887,12 +887,12 @@ static void createOneAliasList(uint16_t * aliasArrLists, uint32_t tag, uint32_t 
 static void createNormalizedAliasStrings(char * normalizedStrings, const char * origStringBlock, int32_t stringBlockLength) {
 	int32_t currStrLen;
 	uprv_memcpy(normalizedStrings, origStringBlock, stringBlockLength);
-	while((currStrLen = (int32_t)uprv_strlen(origStringBlock)) < stringBlockLength) {
+	while((currStrLen = (int32_t)strlen(origStringBlock)) < stringBlockLength) {
 		int32_t currStrSize = currStrLen + 1;
 		if(currStrLen > 0) {
 			int32_t normStrLen;
 			ucnv_io_stripForCompare(normalizedStrings, origStringBlock);
-			normStrLen = (int32_t)uprv_strlen(normalizedStrings);
+			normStrLen = (int32_t)strlen(normalizedStrings);
 			if(normStrLen > 0) {
 				memset(normalizedStrings + normStrLen, 0, currStrSize - normStrLen);
 			}
@@ -1008,7 +1008,7 @@ static char * allocString(StringBlock * block, const char * s, int32_t length)
 	uint32_t top;
 	char * p;
 	if(length<0) {
-		length = (int32_t)uprv_strlen(s);
+		length = (int32_t)strlen(s);
 	}
 	/*
 	 * add 1 for the terminating NUL
@@ -1042,7 +1042,7 @@ static int compareAliases(const void * alias1, const void * alias2)
 	int result = ucnv_compareNames(GET_ALIAS_STR(*(uint16_t*)alias1), GET_ALIAS_STR(*(uint16_t*)alias2));
 	if(!result) {
 		/* Sort the shortest first */
-		return (int)uprv_strlen(GET_ALIAS_STR(*(uint16_t*)alias1)) - (int)uprv_strlen(GET_ALIAS_STR(*(uint16_t*)alias2));
+		return (int)strlen(GET_ALIAS_STR(*(uint16_t*)alias1)) - (int)strlen(GET_ALIAS_STR(*(uint16_t*)alias2));
 	}
 	return result;
 }

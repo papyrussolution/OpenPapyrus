@@ -66,7 +66,7 @@ static void TestPatterns(void)
 	const char * num[] = { "0",   "0.", ".0", "0" };
 
 	log_verbose("\nTesting different format patterns\n");
-	pat_length = UPRV_LENGTHOF(pat);
+	pat_length = SIZEOFARRAYi(pat);
 	for(i = 0; i < pat_length; ++i) {
 		status = U_ZERO_ERROR;
 		u_uastrcpy(upat, pat[i]);
@@ -234,9 +234,9 @@ static void TestExponential(void)
 		0, -1, 1, 123500000
 	};
 
-	pat_length = UPRV_LENGTHOF(pat);
-	val_length = UPRV_LENGTHOF(val);
-	lval_length = UPRV_LENGTHOF(lval);
+	pat_length = SIZEOFARRAYi(pat);
+	val_length = SIZEOFARRAYi(val);
+	lval_length = SIZEOFARRAYi(lval);
 	ival = 0;
 	ilval = 0;
 	for(p = 0; p < pat_length; ++p) {
@@ -503,7 +503,7 @@ static void TestCurrencyObject(void)
 
 			u_UCharsToChars(isoCode, cStr, u_strlen(isoCode));
 			log_verbose("ISO code %s\n", cStr);
-			if(*currency[i] && uprv_strcmp(cStr, currency[i])) {
+			if(*currency[i] && strcmp(cStr, currency[i])) {
 				log_err("FAIL: currency should be %s, but is %s\n", currency[i], cStr);
 			}
 
@@ -775,7 +775,7 @@ static void TestCurrencyKeywords(void)
 
 	for(i = 0; i < noLocales; i++) {
 		strcpy(currLoc, uloc_getAvailable(i));
-		for(j = 0; j < UPRV_LENGTHOF(currencies); j++) {
+		for(j = 0; j < SIZEOFARRAYi(currencies); j++) {
 			strcpy(locale, currLoc);
 			strcat(locale, "@currency=");
 			strcat(locale, currencies[j]);
@@ -855,7 +855,7 @@ static void TestGetKeywordValuesForLocale() {
 			matchPref = TRUE;
 			for(j = 0; j < size; j++) {
 				if((value = uenum_next(pref, &valueLength, &status)) != NULL && U_SUCCESS(status)) {
-					if(uprv_strcmp(value, PREFERRED[i][j+1]) != 0) {
+					if(strcmp(value, PREFERRED[i][j+1]) != 0) {
 						log_err("ERROR: locale %s got keywords #%d %s expected %s\n", loc, j, value,
 						    PREFERRED[i][j+1]);
 
@@ -889,7 +889,7 @@ static void TestGetKeywordValuesForLocale() {
 			ALLList = ulist_getListFromEnum(ALL);
 			for(j = 0; j < size; j++) {
 				if((value = uenum_next(all, &valueLength, &status)) != NULL && U_SUCCESS(status)) {
-					if(!ulist_containsString(ALLList, value, (int32_t)uprv_strlen(value))) {
+					if(!ulist_containsString(ALLList, value, (int32_t)strlen(value))) {
 						log_err("Locale %s have %s not in ALL\n", loc, value);
 						matchAll = FALSE;
 						break;

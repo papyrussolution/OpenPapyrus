@@ -1286,7 +1286,7 @@ U_CFUNC int32_t ustrcase_mapWithOverlap(int32_t caseLocale, uint32_t options, UC
 	/* check for overlapping source and destination */
 	if(dest && ((src>=dest && src<(dest+destCapacity)) || (dest>=src && dest<(src+srcLength)))) {
 		/* overlap: provide a temporary destination buffer and later copy the result */
-		if(destCapacity<=UPRV_LENGTHOF(buffer)) {
+		if(destCapacity<=SIZEOFARRAYi(buffer)) {
 			/* the stack buffer is large enough */
 			temp = buffer;
 		}

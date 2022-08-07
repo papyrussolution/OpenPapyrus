@@ -596,7 +596,7 @@ void PluralFormatTest::pluralFormatExtendedParseTest() {
 		"=0 {Foo} =0.0 {Bar}",
 		" = {Foo}",
 	};
-	int len = UPRV_LENGTHOF(failures);
+	int len = SIZEOFARRAYi(failures);
 
 	for(int i = 0; i < len; ++i) {
 		UErrorCode status = U_ZERO_ERROR;

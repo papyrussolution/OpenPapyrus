@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/******************************************************************************
- *   Copyright (C) 2008-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2008-2012, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "filestrm.h"
@@ -98,48 +95,26 @@ static char * pathToFullPath(const char * path, const char * source);
 /* map non-tree separator (such as '\') to tree separator ('/') inplace. */
 static void fixDirToTreePath(char * s);
 
-U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
-    const char * name,
-    const char * entrypointName,
-    const char * type,
-    const char * source,
-    const char * copyRight,
-    const char * dataFile,
-    uint32_t max_size,
-    bool sourceTOC,
-    bool verbose,
-    char * gencmnFileName) {
+U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir, const char * name, const char * entrypointName, const char * type,
+    const char * source, const char * copyRight, const char * dataFile, uint32_t max_size, bool sourceTOC, bool verbose, char * gencmnFileName) 
+{
 	static char buffer[4096];
-	char * line;
 	char * linePtr;
 	char * s = NULL;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	uint32_t i, fileOffset, basenameOffset, length, nread;
 	FileStream * in, * file;
-
-	line = (char *)uprv_malloc(sizeof(char) * LINE_BUFFER_SIZE);
+	char * line = (char *)uprv_malloc(sizeof(char) * LINE_BUFFER_SIZE);
 	if(line == NULL) {
 		slfprintf_stderr("gencmn: unable to allocate memory for line buffer of size %d\n", LINE_BUFFER_SIZE);
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
-
 	linePtr = line;
-
 	maxSize = max_size;
-
-	if(destDir == NULL) {
-		destDir = u_getDataDirectory();
-	}
-	if(name == NULL) {
-		name = COMMON_DATA_NAME;
-	}
-	if(type == NULL) {
-		type = DATA_TYPE;
-	}
-	if(source == NULL) {
-		source = ".";
-	}
-
+	SETIFZQ(destDir, u_getDataDirectory());
+	SETIFZQ(name, COMMON_DATA_NAME);
+	SETIFZQ(type, DATA_TYPE);
+	SETIFZQ(source, ".");
 	if(dataFile == NULL) {
 		in = T_FileStream_stdin();
 	}
@@ -150,7 +125,6 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 			exit(U_FILE_ACCESS_ERROR);
 		}
 	}
-
 	if(verbose) {
 		if(sourceTOC) {
 			printf("generating %s_%s.c (table of contents source file)\n", name, type);
@@ -159,12 +133,10 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 			printf("generating %s.%s (common data file with table of contents)\n", name, type);
 		}
 	}
-
 	/* read the list of files and get their lengths */
-	while((s != NULL && *s != 0) || (s = T_FileStream_readLine(in, (line = linePtr),
-	    LINE_BUFFER_SIZE))!=NULL) {
+	while((s && *s != 0) || (s = T_FileStream_readLine(in, (line = linePtr), LINE_BUFFER_SIZE))!=NULL) {
 		/* remove trailing newline characters and parse space separated items */
-		if(s != NULL && *s != 0) {
+		if(s && *s != 0) {
 			line = s;
 		}
 		else {
@@ -182,13 +154,10 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 			}
 			++s;
 		}
-
 		/* check for comment */
-
 		if(*line == '#') {
 			continue;
 		}
-
 		/* add the file */
 #if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 		{
@@ -200,24 +169,18 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 #endif
 		addFile(getLongPathname(line), name, source, sourceTOC, verbose);
 	}
-
 	uprv_free(linePtr);
-
 	if(in!=T_FileStream_stdin()) {
 		T_FileStream_close(in);
 	}
-
 	if(fileCount==0) {
 		slfprintf_stderr("gencmn: no files listed in %s\n", dataFile == NULL ? "<stdin>" : dataFile);
 		return;
 	}
-
 	/* sort the files by basename */
 	qsort(files, fileCount, sizeof(File), compareFiles);
-
 	if(!sourceTOC) {
 		UNewDataMemory * out;
-
 		/* determine the offsets of all basenames and files in this common one */
 		basenameOffset = 4+8*fileCount;
 		fileOffset = (basenameOffset+(basenameTotal+15))&~0xf;
@@ -227,32 +190,23 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 			files[i].basenameOffset = basenameOffset;
 			basenameOffset += files[i].basenameLength;
 		}
-
 		/* create the output file */
-		out = udata_create(destDir, type, name,
-			&dataInfo,
-			copyRight == NULL ? U_COPYRIGHT_STRING : copyRight,
-			&errorCode);
+		out = udata_create(destDir, type, name, &dataInfo, copyRight == NULL ? U_COPYRIGHT_STRING : copyRight, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			slfprintf_stderr("gencmn: udata_create(-d %s -n %s -t %s) failed - %s\n",
-			    destDir, name, type,
-			    u_errorName(errorCode));
+			slfprintf_stderr("gencmn: udata_create(-d %s -n %s -t %s) failed - %s\n", destDir, name, type, u_errorName(errorCode));
 			exit(errorCode);
 		}
-
 		/* write the table of contents */
 		udata_write32(out, fileCount);
 		for(i = 0; i<fileCount; ++i) {
 			udata_write32(out, files[i].basenameOffset);
 			udata_write32(out, files[i].fileOffset);
 		}
-
 		/* write the basenames */
 		for(i = 0; i<fileCount; ++i) {
 			udata_writeString(out, files[i].basename, files[i].basenameLength);
 		}
 		length = 4+8*fileCount+basenameTotal;
-
 		/* copy the files */
 		for(i = 0; i<fileCount; ++i) {
 			/* pad to 16-align the next file */
@@ -260,14 +214,9 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 			if(length!=0) {
 				udata_writePadding(out, 16-length);
 			}
-
 			if(verbose) {
-				printf("adding %s (%ld byte%s)\n",
-				    files[i].pathname,
-				    (long)files[i].fileSize,
-				    files[i].fileSize == 1 ? "" : "s");
+				printf("adding %s (%ld byte%s)\n", files[i].pathname, (long)files[i].fileSize, files[i].fileSize == 1 ? "" : "s");
 			}
-
 			/* copy the next file */
 			file = T_FileStream_open(files[i].pathname, "rb");
 			if(!file) {
@@ -303,29 +252,27 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 	}
 	else {
 		/* write a .c source file with the table of contents */
-		char * filename;
 		FileStream * out;
-
 		/* create the output filename */
-		filename = s = buffer;
-		uprv_strcpy(filename, destDir);
-		s = filename+uprv_strlen(filename);
+		char * filename = s = buffer;
+		strcpy(filename, destDir);
+		s = filename+strlen(filename);
 		if(s>filename && *(s-1)!=U_FILE_SEP_CHAR) {
 			*s++ = U_FILE_SEP_CHAR;
 		}
-		uprv_strcpy(s, name);
+		strcpy(s, name);
 		if(*(type)!=0) {
-			s += uprv_strlen(s);
+			s += strlen(s);
 			*s++ = '_';
-			uprv_strcpy(s, type);
+			strcpy(s, type);
 		}
-		s += uprv_strlen(s);
-		uprv_strcpy(s, ".c");
+		s += strlen(s);
+		strcpy(s, ".c");
 
 		/* open the output file */
 		out = T_FileStream_open(filename, "w");
-		if(gencmnFileName != NULL) {
-			uprv_strcpy(gencmnFileName, filename);
+		if(gencmnFileName) {
+			strcpy(gencmnFileName, filename);
 		}
 		if(!out) {
 			slfprintf_stderr("gencmn: unable to open .c output file %s\n", filename);
@@ -420,9 +367,9 @@ static void addFile(const char * filename, const char * name, const char * sourc
 		}
 		fullPath = pathToFullPath(filename, source);
 		/* store the pathname */
-		length = (uint32_t)(uprv_strlen(filename) + 1 + uprv_strlen(name) + 1);
+		length = (uint32_t)(strlen(filename) + 1 + strlen(name) + 1);
 		s = allocString(length);
-		uprv_strcpy(s, name);
+		strcpy(s, name);
 		uprv_strcat(s, U_TREE_ENTRY_SEP_STRING);
 		uprv_strcat(s, filename);
 
@@ -464,9 +411,9 @@ static void addFile(const char * filename, const char * name, const char * sourc
 		char * t;
 		/* get and store the basename */
 		/* need to include the package name */
-		length = (uint32_t)(uprv_strlen(filename) + 1 + uprv_strlen(name) + 1);
+		length = (uint32_t)(strlen(filename) + 1 + strlen(name) + 1);
 		s = allocString(length);
-		uprv_strcpy(s, name);
+		strcpy(s, name);
 		uprv_strcat(s, U_TREE_ENTRY_SEP_STRING);
 		uprv_strcat(s, filename);
 		fixDirToTreePath(s);
@@ -488,10 +435,10 @@ static void addFile(const char * filename, const char * name, const char * sourc
 	++fileCount;
 }
 
-static char * allocString(uint32_t length) {
+static char * allocString(uint32_t length) 
+{
 	uint32_t top = stringTop+length;
 	char * p;
-
 	if(top>STRING_STORE_SIZE) {
 		slfprintf_stderr("gencmn: out of memory\n");
 		exit(U_MEMORY_ALLOCATION_ERROR);
@@ -501,23 +448,20 @@ static char * allocString(uint32_t length) {
 	return p;
 }
 
-static char * pathToFullPath(const char * path, const char * source) {
-	int32_t length;
-	int32_t newLength;
-	char * fullPath;
+static char * pathToFullPath(const char * path, const char * source) 
+{
 	int32_t n;
-
-	length = (uint32_t)(uprv_strlen(path) + 1);
-	newLength = (length + 1 + (int32_t)uprv_strlen(source));
-	fullPath = (char *)uprv_malloc(newLength);
-	if(source != NULL) {
-		uprv_strcpy(fullPath, source);
+	int32_t length = (uint32_t)(strlen(path) + 1);
+	int32_t newLength = (length + 1 + (int32_t)strlen(source));
+	char * fullPath = (char *)uprv_malloc(newLength);
+	if(source) {
+		strcpy(fullPath, source);
 		uprv_strcat(fullPath, U_FILE_SEP_STRING);
 	}
 	else {
 		fullPath[0] = 0;
 	}
-	n = (int32_t)uprv_strlen(fullPath);
+	n = (int32_t)strlen(fullPath);
 	fullPath[n] = 0;   /* Suppress compiler warning for unused variable n    */
 	                   /*  when conditional code below is not compiled.      */
 	uprv_strcat(fullPath, path);
@@ -543,12 +487,12 @@ static char * pathToFullPath(const char * path, const char * source) {
 	return fullPath;
 }
 
-U_CDECL_BEGIN
-static int compareFiles(const void * file1, const void * file2) {
+U_CDECL_BEGIN 
+static int compareFiles(const void * file1, const void * file2) 
+{
 	/* sort by basename */
-	return uprv_strcmp(((File*)file1)->basename, ((File*)file2)->basename);
+	return strcmp(((File*)file1)->basename, ((File*)file2)->basename);
 }
-
 U_CDECL_END
 
 static void fixDirToTreePath(char * s)

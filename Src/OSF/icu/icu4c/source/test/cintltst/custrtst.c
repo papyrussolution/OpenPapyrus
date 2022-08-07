@@ -219,7 +219,7 @@ static void TestStringFunctions()
 		if(temp[k] != 0xa4)
 			log_err("something threw an error in u_strncpy()\n");
 
-		u_memset(temp, 0x3F, UPRV_LENGTHOF(temp) - 1);
+		u_memset(temp, 0x3F, SIZEOFARRAYi(temp) - 1);
 		u_uastrncpy(temp, raw[i][j], k-1);
 		if(u_strncmp(temp, dataTable[i][j], k-1)!=0)
 			log_err("something threw an error in u_uastrncpy(k-1)\n");
@@ -227,7 +227,7 @@ static void TestStringFunctions()
 		if(temp[k-1] != 0x3F)
 			log_err("something threw an error in u_uastrncpy(k-1)\n");
 
-		u_memset(temp, 0x3F, UPRV_LENGTHOF(temp) - 1);
+		u_memset(temp, 0x3F, SIZEOFARRAYi(temp) - 1);
 		u_uastrncpy(temp, raw[i][j], k+1);
 		if(u_strcmp(temp, dataTable[i][j])!=0)
 			log_err("something threw an error in u_uastrncpy(k+1)\n");
@@ -235,7 +235,7 @@ static void TestStringFunctions()
 		if(temp[k] != 0)
 			log_err("something threw an error in u_uastrncpy(k+1)\n");
 
-		u_memset(temp, 0x3F, UPRV_LENGTHOF(temp) - 1);
+		u_memset(temp, 0x3F, SIZEOFARRAYi(temp) - 1);
 		u_uastrncpy(temp, raw[i][j], k);
 		if(u_strncmp(temp, dataTable[i][j], k)!=0)
 			log_err("something threw an error in u_uastrncpy(k)\n");
@@ -349,7 +349,7 @@ static void TestStringFunctions()
 			currToken++;
 		}
 
-		if(currToken != UPRV_LENGTHOF(tokens)) {
+		if(currToken != SIZEOFARRAYi(tokens)) {
 			log_err("Didn't get correct number of tokens\n");
 		}
 		state = delimBuf; /* Give it an "invalid" saveState */
@@ -413,7 +413,7 @@ static void TestStringFunctions()
 		UCharIterator iter1, iter2;
 		int32_t len1, len2, r1, r2;
 
-		for(i = 0; i<(UPRV_LENGTHOF(strings)-1); ++i) {
+		for(i = 0; i<(SIZEOFARRAYi(strings)-1); ++i) {
 			if(u_strcmpCodePointOrder(strings[i], strings[i+1])>=0) {
 				log_err("error: u_strcmpCodePointOrder() fails for string %d and the following one\n", i);
 			}
@@ -706,12 +706,12 @@ static void TestSurrogateSearching() {
 	if(
 		first!=u_strchr(s, nul) ||
 		first!=u_strchr32(s, nul) ||
-		first!=u_memchr(s, nul, UPRV_LENGTHOF(s)) ||
-		first!=u_memchr32(s, nul, UPRV_LENGTHOF(s)) ||
+		first!=u_memchr(s, nul, SIZEOFARRAYi(s)) ||
+		first!=u_memchr32(s, nul, SIZEOFARRAYi(s)) ||
 		first!=u_strrchr(s, nul) ||
 		first!=u_strrchr32(s, nul) ||
-		first!=u_memrchr(s, nul, UPRV_LENGTHOF(s)) ||
-		first!=u_memrchr32(s, nul, UPRV_LENGTHOF(s))
+		first!=u_memrchr(s, nul, SIZEOFARRAYi(s)) ||
+		first!=u_memrchr32(s, nul, SIZEOFARRAYi(s))
 		) {
 		log_err("error: one of the u_str[|mem][r]chr[32](s, nul) does not find the terminator of s\n");
 	}
@@ -721,13 +721,13 @@ static void TestSurrogateSearching() {
 		s!=u_strstr(s, &nul) ||
 		s!=u_strFindFirst(s, -1, &nul, -1) ||
 		s!=u_strFindFirst(s, -1, &nul, 0) ||
-		s!=u_strFindFirst(s, UPRV_LENGTHOF(s), &nul, -1) ||
-		s!=u_strFindFirst(s, UPRV_LENGTHOF(s), &nul, 0) ||
+		s!=u_strFindFirst(s, SIZEOFARRAYi(s), &nul, -1) ||
+		s!=u_strFindFirst(s, SIZEOFARRAYi(s), &nul, 0) ||
 		s!=u_strrstr(s, &nul) ||
 		s!=u_strFindLast(s, -1, &nul, -1) ||
 		s!=u_strFindLast(s, -1, &nul, 0) ||
-		s!=u_strFindLast(s, UPRV_LENGTHOF(s), &nul, -1) ||
-		s!=u_strFindLast(s, UPRV_LENGTHOF(s), &nul, 0)
+		s!=u_strFindLast(s, SIZEOFARRAYi(s), &nul, -1) ||
+		s!=u_strFindLast(s, SIZEOFARRAYi(s), &nul, 0)
 		) {
 		log_err("error: one of the u_str[str etc](s, \"\") does not find s itself\n");
 	}
@@ -1090,16 +1090,16 @@ static void TestUnescape() {
 		0x50, 0x72, 0x69, 0x76, 0x61, 0x74, 0x65, 0x73, 0x20,
 		0x5a, 0x65, 0x69, 0x63, 0x68, 0x65, 0x6e, 0x3a, 0x20, 0xdbc8, 0xdf45, 0x1b, 0x03, 0x0a, 0x20, 0x1b, 0x263A, 0
 	};
-	static const int32_t explength = UPRV_LENGTHOF(expect)-1;
+	static const int32_t explength = SIZEOFARRAYi(expect)-1;
 	int32_t length;
 
 	/* test u_unescape() */
-	length = u_unescape(input, buffer, UPRV_LENGTHOF(buffer));
+	length = u_unescape(input, buffer, SIZEOFARRAYi(buffer));
 	if(length!=explength || u_strcmp(buffer, expect)!=0) {
 		log_err("failure in u_unescape(): length %d!=%d and/or incorrect result string\n", length, explength);
 	}
 	/* try preflighting */
-	length = u_unescape(input, NULL, UPRV_LENGTHOF(buffer));
+	length = u_unescape(input, NULL, SIZEOFARRAYi(buffer));
 	if(length!=explength || u_strcmp(buffer, expect)!=0) {
 		log_err("failure in u_unescape(preflighting): length %d!=%d\n", length, explength);
 	}
@@ -1116,7 +1116,7 @@ static void TestUnescapeRepeatedSurrogateLead20725()
 		log_err("memory allocation error");
 	}
 	for(int32_t i = 0; i < repeat; i++) {
-		uprv_strcpy(src + (i * 6), "\\ud841");
+		strcpy(src + (i * 6), "\\ud841");
 	}
 	int32_t len = u_unescape(src, dest, repeat);
 	if(len != repeat) {
@@ -1181,7 +1181,7 @@ static void TestCountChar32() {
 	int32_t i, length, number;
 
 	/* test u_strHasMoreChar32Than() with length>=0 */
-	length = UPRV_LENGTHOF(string);
+	length = SIZEOFARRAYi(string);
 	while(length>=0) {
 		for(i = 0; i<=length; ++i) {
 			for(number = -1; number<=((length-i)+2); ++number) {
@@ -1192,7 +1192,7 @@ static void TestCountChar32() {
 	}
 
 	/* test u_strHasMoreChar32Than() with NUL-termination (length=-1) */
-	length = UPRV_LENGTHOF(string);
+	length = SIZEOFARRAYi(string);
 	u_memcpy(buffer, string, length);
 	while(length>=0) {
 		buffer[length] = 0;
@@ -1495,7 +1495,7 @@ static void TestUCharIterator() {
 	}
 
 	/* test get/set state */
-	length = UPRV_LENGTHOF(text)-1;
+	length = SIZEOFARRAYi(text)-1;
 	uiter_setString(&iter1, text, -1);
 	uiter_setString(&iter2, text, length);
 	testIteratorState(&iter1, &iter2, "UTF16IteratorState", length/2);
@@ -1518,7 +1518,7 @@ static void TestUCharIterator() {
 	compareIterators(&iter1, "UTF16Iterator", &iter2, "UTF8Iterator_1");
 
 	/* test get/set state */
-	length = UPRV_LENGTHOF(text)-1;
+	length = SIZEOFARRAYi(text)-1;
 	uiter_setUTF8(&iter1, bytes, -1);
 	testIteratorState(&iter1, &iter2, "UTF8IteratorState", length/2);
 	testIteratorState(&iter1, &iter2, "UTF8IteratorStatePlus1", length/2+1);

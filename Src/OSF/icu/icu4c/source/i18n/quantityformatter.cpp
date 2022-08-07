@@ -22,14 +22,14 @@ U_NAMESPACE_BEGIN
 
 QuantityFormatter::QuantityFormatter() 
 {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(formatters); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(formatters); ++i) {
 		formatters[i] = NULL;
 	}
 }
 
 QuantityFormatter::QuantityFormatter(const QuantityFormatter &other) 
 {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(formatters); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(formatters); ++i) {
 		formatters[i] = other.formatters[i] ? new SimpleFormatter(*other.formatters[i]) : 0;
 	}
 }
@@ -39,7 +39,7 @@ QuantityFormatter &QuantityFormatter::operator = (const QuantityFormatter & othe
 	if(this == &other) {
 		return *this;
 	}
-	for(int32_t i = 0; i < UPRV_LENGTHOF(formatters); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(formatters); ++i) {
 		delete formatters[i];
 		formatters[i] = other.formatters[i] ? new SimpleFormatter(*other.formatters[i]) : 0;
 	}
@@ -48,14 +48,14 @@ QuantityFormatter &QuantityFormatter::operator = (const QuantityFormatter & othe
 
 QuantityFormatter::~QuantityFormatter() 
 {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(formatters); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(formatters); ++i) {
 		delete formatters[i];
 	}
 }
 
 void QuantityFormatter::reset() 
 {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(formatters); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(formatters); ++i) {
 		ZDELETE(formatters[i]);
 	}
 }

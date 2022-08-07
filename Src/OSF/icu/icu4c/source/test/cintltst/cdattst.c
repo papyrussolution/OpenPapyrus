@@ -927,7 +927,7 @@ static void TestDateFormatCalendar() {
 	}
 
 	/* Check if formatCalendar matches the original date */
-	len1 = udat_formatCalendar(date, cal, buf1, UPRV_LENGTHOF(buf1), NULL, &ec);
+	len1 = udat_formatCalendar(date, cal, buf1, SIZEOFARRAYi(buf1), NULL, &ec);
 	if(U_FAILURE(ec)) {
 		log_err("FAIL: udat_formatCalendar(4/5/2001) failed with %s\n",
 		    u_errorName(ec));
@@ -950,7 +950,7 @@ static void TestDateFormatCalendar() {
 	}
 
 	/* Check if formatCalendar matches the original time */
-	len1 = udat_formatCalendar(time, cal, buf1, UPRV_LENGTHOF(buf1), NULL, &ec);
+	len1 = udat_formatCalendar(time, cal, buf1, SIZEOFARRAYi(buf1), NULL, &ec);
 	if(U_FAILURE(ec)) {
 		log_err("FAIL: udat_formatCalendar(17:45) failed with %s\n",
 		    u_errorName(ec));
@@ -1303,7 +1303,7 @@ static void TestExtremeDates()
 		log_data_err("FAIL: udat_open (%s) (Are you missing data?)\n", u_errorName(ec));
 		return;
 	}
-	_aux2ExtremeDates(fmt, small__, large, buf, UPRV_LENGTHOF(buf), cbuf, 0, &ec);
+	_aux2ExtremeDates(fmt, small__, large, buf, SIZEOFARRAYi(buf), cbuf, 0, &ec);
 	udat_close(fmt);
 }
 
@@ -1315,8 +1315,8 @@ static void TestAllLocales()
 	};
 	localeCount = uloc_countAvailable();
 	for(idx = 0; idx < localeCount; idx++) {
-		for(dateIdx = 0; dateIdx < UPRV_LENGTHOF(style); dateIdx++) {
-			for(timeIdx = 0; timeIdx < UPRV_LENGTHOF(style); timeIdx++) {
+		for(dateIdx = 0; dateIdx < SIZEOFARRAYi(style); dateIdx++) {
+			for(timeIdx = 0; timeIdx < SIZEOFARRAYi(style); timeIdx++) {
 				UErrorCode status = U_ZERO_ERROR;
 				udat_close(udat_open(style[dateIdx], style[timeIdx],
 				    uloc_getAvailable(idx), NULL, 0, NULL, 0, &status));
@@ -1420,7 +1420,7 @@ static void TestRelativeCrash()
 			UErrorCode subStatus = U_ZERO_ERROR;
 			what = "udat_getSymbols";
 			log_verbose("Trying %s on a relative date..\n", what);
-			udat_getSymbols(icudf, UDAT_ERAS, 0, erabuf, UPRV_LENGTHOF(erabuf), &subStatus);
+			udat_getSymbols(icudf, UDAT_ERAS, 0, erabuf, SIZEOFARRAYi(erabuf), &subStatus);
 			if(subStatus == U_ZERO_ERROR) {
 				log_verbose("Success: %s returned %s.\n", what, u_errorName(subStatus));
 			}
@@ -1774,7 +1774,7 @@ static void TestOverrideNumberFormat() {
 	}
 	udat_close(fmt);
 
-	for(i = 0; i<UPRV_LENGTHOF(overrideNumberFormat); i++) {
+	for(i = 0; i<SIZEOFARRAYi(overrideNumberFormat); i++) {
 		status = U_ZERO_ERROR;
 		UChar ubuf[kUbufMax];
 		UDateFormat* fmt2;
@@ -1791,7 +1791,7 @@ static void TestOverrideNumberFormat() {
 		}
 
 		u_uastrcpy(fields, overrideNumberFormat[i][0]);
-		u_unescape(overrideNumberFormat[i][1], expected, UPRV_LENGTHOF(expected));
+		u_unescape(overrideNumberFormat[i][1], expected, SIZEOFARRAYi(expected));
 
 		if(strcmp(overrideNumberFormat[i][0], "") == 0) { // use the one w/o field
 			udat_adoptNumberFormat(fmt2, overrideFmt2);
@@ -2110,7 +2110,7 @@ static void TestNarrowQuarters()
 	UDate parsedDate = 0;
 	UDate expectedFormatParsedDate = 0;
 	UDate expectedStandaloneParsedDate = 0;
-	for(int32_t i = 0; i < UPRV_LENGTHOF(testCases); i += 3) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(testCases); i += 3) {
 		const UChar * localeID = testCases[i];
 		const UChar * pattern = testCases[i + 1];
 		const UChar * expectedResult = testCases[i + 2];

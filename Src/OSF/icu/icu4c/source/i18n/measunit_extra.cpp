@@ -182,7 +182,7 @@ public:
 		for(int32_t i = 0; table.getKeyAndValue(i, simpleUnitID, value); ++i) {
 			U_ASSERT(i < table.getSize());
 			U_ASSERT(outIndex < outSize);
-			if(uprv_strcmp(simpleUnitID, "kilogram") == 0) {
+			if(strcmp(simpleUnitID, "kilogram") == 0) {
 				// For parsing, we use "gram", the prefixless metric mass unit. We
 				// thus ignore the SI Base Unit of Mass: it exists due to being the
 				// mass conversion target unit, but not needed for MeasureUnit
@@ -1040,7 +1040,7 @@ MeasureUnitImpl MeasureUnitImpl::copyAndSimplify(UErrorCode & status) const {
 		// However, n is very small (number of units, generally, at maximum equal to 10)
 		bool unitExist = false;
 		for(int32_t j = 0; j < result.singleUnits.length(); j++) {
-			if(uprv_strcmp(result.singleUnits[j]->getSimpleUnitID(), singleUnit.getSimpleUnitID()) ==
+			if(strcmp(result.singleUnits[j]->getSimpleUnitID(), singleUnit.getSimpleUnitID()) ==
 			    0 &&
 			    result.singleUnits[j]->unitPrefix == singleUnit.unitPrefix) {
 				unitExist = true;

@@ -341,11 +341,11 @@ BreakIterator* BreakIterator::makeInstance(const Locale & loc, int32_t kind, UEr
 		case UBRK_LINE:
 	    {
 		    UTRACE_ENTRY(UTRACE_UBRK_CREATE_LINE);
-		    uprv_strcpy(lbType, "line");
+		    strcpy(lbType, "line");
 		    char lbKeyValue[kKeyValueLenMax] = {0};
 		    UErrorCode kvStatus = U_ZERO_ERROR;
 		    int32_t kLen = loc.getKeywordValue("lb", lbKeyValue, kKeyValueLenMax, kvStatus);
-		    if(U_SUCCESS(kvStatus) && kLen > 0 && (uprv_strcmp(lbKeyValue, "strict")==0 || uprv_strcmp(lbKeyValue, "normal")==0 || uprv_strcmp(lbKeyValue, "loose")==0)) {
+		    if(U_SUCCESS(kvStatus) && kLen > 0 && (strcmp(lbKeyValue, "strict")==0 || strcmp(lbKeyValue, "normal")==0 || strcmp(lbKeyValue, "loose")==0)) {
 			    uprv_strcat(lbType, "_");
 			    uprv_strcat(lbType, lbKeyValue);
 		    }
@@ -363,7 +363,7 @@ BreakIterator* BreakIterator::makeInstance(const Locale & loc, int32_t kind, UEr
 		    char ssKeyValue[kKeyValueLenMax] = {0};
 		    UErrorCode kvStatus = U_ZERO_ERROR;
 		    int32_t kLen = loc.getKeywordValue("ss", ssKeyValue, kKeyValueLenMax, kvStatus);
-		    if(U_SUCCESS(kvStatus) && kLen > 0 && uprv_strcmp(ssKeyValue, "standard")==0) {
+		    if(U_SUCCESS(kvStatus) && kLen > 0 && strcmp(ssKeyValue, "standard")==0) {
 			    FilteredBreakIteratorBuilder* fbiBuilder = FilteredBreakIteratorBuilder::createInstance(loc, kvStatus);
 			    if(U_SUCCESS(kvStatus)) {
 				    result = fbiBuilder->build(result, status);

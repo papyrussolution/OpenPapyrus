@@ -621,7 +621,7 @@ void SSearchTest::offsetTest()
 		"pe\\u0302che",
 	};
 
-	int32_t testCount = UPRV_LENGTHOF(test);
+	int32_t testCount = SIZEOFARRAYi(test);
 	UErrorCode status = U_ZERO_ERROR;
 	RuleBasedCollator * col = (RuleBasedCollator*)Collator::createInstance(Locale::getEnglish(), status);
 	if(U_FAILURE(status)) {
@@ -768,7 +768,7 @@ void SSearchTest::sharpSTest()
 	    &status));
 	TEST_ASSERT_SUCCESS(status);
 
-	for(uint32_t t = 0; t < UPRV_LENGTHOF(targets); t += 1) {
+	for(uint32_t t = 0; t < SIZEOFARRAYi(targets); t += 1) {
 		bool bFound;
 		UnicodeString target = targets[t].unescape();
 
@@ -1427,12 +1427,12 @@ void SSearchTest::monkeyTest(char * params)
 		&contractionMonkey,
 		&expansionMonkey
 	};
-	int32_t monkeyCount = UPRV_LENGTHOF(monkeys);
+	int32_t monkeyCount = SIZEOFARRAYi(monkeys);
 	// int32_t nonMatchCount = 0;
 
 	UCollationStrength strengths[] = {UCOL_PRIMARY, UCOL_SECONDARY, UCOL_TERTIARY};
 	const char * strengthNames[] = {"primary", "secondary", "tertiary"};
-	int32_t strengthCount = UPRV_LENGTHOF(strengths);
+	int32_t strengthCount = SIZEOFARRAYi(strengths);
 	int32_t loopCount = quick ? 1000 : 10000;
 	int32_t firstStrength = 0;
 	int32_t lastStrength  = strengthCount - 1;//*/ 0;

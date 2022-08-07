@@ -270,17 +270,15 @@ CollationTailoring * CollationBuilder::parseAndBuild(const UnicodeString & ruleS
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
-	ownedSettings.fastLatinOptions = CollationFastLatin::getOptions(
-		tailoring->data, ownedSettings,
-		ownedSettings.fastLatinPrimaries, UPRV_LENGTHOF(ownedSettings.fastLatinPrimaries));
+	ownedSettings.fastLatinOptions = CollationFastLatin::getOptions(tailoring->data, ownedSettings, ownedSettings.fastLatinPrimaries, SIZEOFARRAYi(ownedSettings.fastLatinPrimaries));
 	tailoring->rules = ruleString;
 	tailoring->rules.getTerminatedBuffer(); // ensure NUL-termination
 	tailoring->setVersion(base->version, rulesVersion);
 	return tailoring.orphan();
 }
 
-void CollationBuilder::addReset(int32_t strength, const UnicodeString & str,
-    const char *&parserErrorReason, UErrorCode & errorCode) {
+void CollationBuilder::addReset(int32_t strength, const UnicodeString & str, const char *&parserErrorReason, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -316,7 +314,6 @@ void CollationBuilder::addReset(int32_t strength, const UnicodeString & str,
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-
 	int64_t node = nodes.elementAti(index);
 	// If the index is for a "weaker" node,
 	// then skip backwards over this and further "weaker" nodes.
@@ -324,7 +321,6 @@ void CollationBuilder::addReset(int32_t strength, const UnicodeString & str,
 		index = previousIndexFromNode(node);
 		node = nodes.elementAti(index);
 	}
-
 	// Find or insert a node whose index we will put into a temporary CE.
 	if(strengthFromNode(node) == strength && isTailoredNode(node)) {
 		// Reset to just before this same-strength tailored node.

@@ -875,7 +875,7 @@ static void roundtripBOCU1(UConverter * bocu1, int32_t number, const UChar * tex
 		log_err("ucnv_fromUChars(BOCU-1, text(%d)[%d]) failed: %s\n", number, length, u_errorName(errorCode));
 		goto cleanup;
 	}
-	if(bocu1RefLength!=bocu1ICULength || 0!=uprv_memcmp(bocu1Ref, bocu1ICU, bocu1RefLength)) {
+	if(bocu1RefLength!=bocu1ICULength || 0!=memcmp(bocu1Ref, bocu1ICU, bocu1RefLength)) {
 		log_err("Unicode(%d)[%d] -> BOCU-1: reference[%d]!=ICU[%d]\n", number, length, bocu1RefLength, bocu1ICULength);
 		goto cleanup;
 	}
@@ -924,21 +924,21 @@ static const struct {
 	const UChar * s;
 	int32_t length;
 } strings[] = {
-	{ feff,         UPRV_LENGTHOF(feff) },
-	{ ascii,        UPRV_LENGTHOF(ascii) },
-	{ crlf,         UPRV_LENGTHOF(crlf) },
-	{ nul,          UPRV_LENGTHOF(nul) },
-	{ latin,        UPRV_LENGTHOF(latin) },
-	{ devanagari,   UPRV_LENGTHOF(devanagari) },
-	{ hiragana,     UPRV_LENGTHOF(hiragana) },
-	{ unihan,       UPRV_LENGTHOF(unihan) },
-	{ hangul,       UPRV_LENGTHOF(hangul) },
-	{ surrogates,   UPRV_LENGTHOF(surrogates) },
-	{ plane1,       UPRV_LENGTHOF(plane1) },
-	{ plane2,       UPRV_LENGTHOF(plane2) },
-	{ plane15,      UPRV_LENGTHOF(plane15) },
-	{ plane16,      UPRV_LENGTHOF(plane16) },
-	{ c0,           UPRV_LENGTHOF(c0) }
+	{ feff,         SIZEOFARRAYi(feff) },
+	{ ascii,        SIZEOFARRAYi(ascii) },
+	{ crlf,         SIZEOFARRAYi(crlf) },
+	{ nul,          SIZEOFARRAYi(nul) },
+	{ latin,        SIZEOFARRAYi(latin) },
+	{ devanagari,   SIZEOFARRAYi(devanagari) },
+	{ hiragana,     SIZEOFARRAYi(hiragana) },
+	{ unihan,       SIZEOFARRAYi(unihan) },
+	{ hangul,       SIZEOFARRAYi(hangul) },
+	{ surrogates,   SIZEOFARRAYi(surrogates) },
+	{ plane1,       SIZEOFARRAYi(plane1) },
+	{ plane2,       SIZEOFARRAYi(plane2) },
+	{ plane15,      SIZEOFARRAYi(plane15) },
+	{ plane16,      SIZEOFARRAYi(plane16) },
+	{ c0,           SIZEOFARRAYi(c0) }
 };
 
 /*
@@ -960,7 +960,7 @@ static void TestBOCU1()
 	text = (UChar *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(UChar));
 	/* text 1: each of strings[] once */
 	length = 0;
-	for(i = 0; i<UPRV_LENGTHOF(strings); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(strings); ++i) {
 		u_memcpy(text+length, strings[i].s, strings[i].length);
 		length += strings[i].length;
 	}
@@ -968,7 +968,7 @@ static void TestBOCU1()
 
 	/* text 2: each of strings[] twice */
 	length = 0;
-	for(i = 0; i<UPRV_LENGTHOF(strings); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(strings); ++i) {
 		u_memcpy(text+length, strings[i].s, strings[i].length);
 		length += strings[i].length;
 		u_memcpy(text+length, strings[i].s, strings[i].length);
@@ -979,8 +979,8 @@ static void TestBOCU1()
 	/* text 3: each of strings[] many times (set step vs. |strings| so that all strings are used) */
 	length = 0;
 	for(i = 1; length<5000; i += 7) {
-		if(i>=UPRV_LENGTHOF(strings)) {
-			i -= UPRV_LENGTHOF(strings);
+		if(i>=SIZEOFARRAYi(strings)) {
+			i -= SIZEOFARRAYi(strings);
 		}
 		u_memcpy(text+length, strings[i].s, strings[i].length);
 		length += strings[i].length;

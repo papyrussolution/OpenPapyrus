@@ -192,7 +192,7 @@ PPID SCardFilt::GetOwnerPersonKind() const
 	return pk_id;
 }
 
-int SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int SCardFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	struct SCardFilt_v1 : public PPBaseFilt {

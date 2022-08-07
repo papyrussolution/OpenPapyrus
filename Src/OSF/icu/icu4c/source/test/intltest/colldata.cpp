@@ -414,7 +414,7 @@ bail:
 	// Maybe use [:HST=T:] and look for the end of the last range?
 	// Maybe use script boundary mappings instead of this code??
 	UChar jamoRanges[] = {Hangul::JAMO_L_BASE, Hangul::JAMO_V_BASE, Hangul::JAMO_T_BASE + 1, 0x11FF};
-	UnicodeString jamoString(FALSE, jamoRanges, UPRV_LENGTHOF(jamoRanges));
+	UnicodeString jamoString(FALSE, jamoRanges, SIZEOFARRAYi(jamoRanges));
 	CEList hanList(coll, hanString, status);
 	CEList jamoList(coll, jamoString, status);
 	int32_t j = 0;

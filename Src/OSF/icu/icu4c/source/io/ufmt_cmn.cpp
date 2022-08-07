@@ -174,7 +174,7 @@ UChar * ufmt_defaultCPToUnicode(const char * s, int32_t sSize, UChar * target, i
 	if(U_FAILURE(status) || defConverter == 0)
 		return 0;
 	if(sSize <= 0) {
-		sSize = static_cast<int32_t>(uprv_strlen(s)) + 1;
+		sSize = static_cast<int32_t>(strlen(s)) + 1;
 	}
 	/* perform the conversion in one swoop */
 	if(target != 0) {

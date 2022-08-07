@@ -269,7 +269,7 @@ bool CharsetRecog_sjis::nextChar(IteratedChar* it, InputText* det) const {
 }
 
 bool CharsetRecog_sjis::match(InputText* det, CharsetMatch * results) const {
-	int32_t confidence = match_mbcs(det, commonChars_sjis, UPRV_LENGTHOF(commonChars_sjis));
+	int32_t confidence = match_mbcs(det, commonChars_sjis, SIZEOFARRAYi(commonChars_sjis));
 	results->set(det, this, confidence);
 	return (confidence > 0);
 }
@@ -369,7 +369,7 @@ const char * CharsetRecog_euc_jp::getLanguage() const
 
 bool CharsetRecog_euc_jp::match(InputText * det, CharsetMatch * results) const
 {
-	int32_t confidence = match_mbcs(det, commonChars_euc_jp, UPRV_LENGTHOF(commonChars_euc_jp));
+	int32_t confidence = match_mbcs(det, commonChars_euc_jp, SIZEOFARRAYi(commonChars_euc_jp));
 	results->set(det, this, confidence);
 	return (confidence > 0);
 }
@@ -391,7 +391,7 @@ const char * CharsetRecog_euc_kr::getLanguage() const
 
 bool CharsetRecog_euc_kr::match(InputText * det, CharsetMatch * results) const
 {
-	int32_t confidence =  match_mbcs(det, commonChars_euc_kr, UPRV_LENGTHOF(commonChars_euc_kr));
+	int32_t confidence =  match_mbcs(det, commonChars_euc_kr, SIZEOFARRAYi(commonChars_euc_kr));
 	results->set(det, this, confidence);
 	return (confidence > 0);
 }
@@ -443,7 +443,7 @@ const char * CharsetRecog_big5::getLanguage() const
 
 bool CharsetRecog_big5::match(InputText * det, CharsetMatch * results) const
 {
-	int32_t confidence = match_mbcs(det, commonChars_big5, UPRV_LENGTHOF(commonChars_big5));
+	int32_t confidence = match_mbcs(det, commonChars_big5, SIZEOFARRAYi(commonChars_big5));
 	results->set(det, this, confidence);
 	return (confidence > 0);
 }
@@ -519,7 +519,7 @@ const char * CharsetRecog_gb_18030::getLanguage() const
 
 bool CharsetRecog_gb_18030::match(InputText * det, CharsetMatch * results) const
 {
-	int32_t confidence = match_mbcs(det, commonChars_gb_18030, UPRV_LENGTHOF(commonChars_gb_18030));
+	int32_t confidence = match_mbcs(det, commonChars_gb_18030, SIZEOFARRAYi(commonChars_gb_18030));
 	results->set(det, this, confidence);
 	return (confidence > 0);
 }

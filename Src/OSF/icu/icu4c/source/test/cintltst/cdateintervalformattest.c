@@ -202,7 +202,7 @@ static const double deltas[] = {
 	8640000000.0, // 100 days
 	-1.0
 };
-enum { kNumDeltas = UPRV_LENGTHOF(deltas) - 1 };
+enum { kNumDeltas = SIZEOFARRAYi(deltas) - 1 };
 
 typedef struct {
 	int32_t posBegin;
@@ -409,7 +409,7 @@ static void TestFormatToResult()
 			{UFIELD_CATEGORY_DATE, UDAT_HOUR_OF_DAY0_FIELD, 42, 44},
 			{UFIELD_CATEGORY_DATE, UDAT_MINUTE_FIELD, 45, 47}
 		};
-		checkMixedFormattedValue(message, udtitvfmt_resultAsValue(fdi, &ec), expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, udtitvfmt_resultAsValue(fdi, &ec), expectedString, expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	{
 		const char * message = "Field position test 2";
@@ -429,7 +429,7 @@ static void TestFormatToResult()
 			{UFIELD_CATEGORY_DATE, UDAT_MINUTE_FIELD, 29, 31},
 			{UFIELD_CATEGORY_DATE, UDAT_AM_PM_FIELD, 32, 35}
 		};
-		checkMixedFormattedValue(message, udtitvfmt_resultAsValue(fdi, &ec), expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, udtitvfmt_resultAsValue(fdi, &ec), expectedString, expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	udtitvfmt_close(fmt);
 	udtitvfmt_closeResult(fdi);
@@ -475,7 +475,7 @@ static void TestFormatCalendarToResult() {
 			udtitvfmt_resultAsValue(fdi, &ec),
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 	{
 		const char * message = "Field position test 2";
@@ -500,7 +500,7 @@ static void TestFormatCalendarToResult() {
 			udtitvfmt_resultAsValue(fdi, &ec),
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 	{
 		const char * message = "Field position test 3";
@@ -532,7 +532,7 @@ static void TestFormatCalendarToResult() {
 			udtitvfmt_resultAsValue(fdi, &ec),
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 	{
 		// Date across Julian Gregorian change date.
@@ -567,7 +567,7 @@ static void TestFormatCalendarToResult() {
 			udtitvfmt_resultAsValue(fdi, &ec),
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	ucal_close(ucal1);

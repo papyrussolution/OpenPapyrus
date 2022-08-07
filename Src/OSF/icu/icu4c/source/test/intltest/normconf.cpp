@@ -157,7 +157,7 @@ void NormalizerConformanceTest::TestConformance(FileStream * input, int32_t opti
 	// UnicodeSet for all code points that are not mentioned in NormalizationTest.txt
 	UnicodeSet other(0, 0x10ffff);
 
-	int32_t count, countMoreCases = UPRV_LENGTHOF(moreCases);
+	int32_t count, countMoreCases = SIZEOFARRAYi(moreCases);
 	for(count = 1;; ++count) {
 		if(!T_FileStream_eof(input)) {
 			T_FileStream_readLine(input, lineBuf, (int32_t)sizeof(lineBuf));
@@ -171,7 +171,7 @@ void NormalizerConformanceTest::TestConformance(FileStream * input, int32_t opti
 				// all done
 				break;
 			}
-			uprv_strcpy(lineBuf, moreCases[count]);
+			strcpy(lineBuf, moreCases[count]);
 		}
 		if(lineBuf[0] == 0 || lineBuf[0] == '\n' || lineBuf[0] == '\r') continue;
 

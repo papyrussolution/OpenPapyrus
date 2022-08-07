@@ -1550,7 +1550,7 @@ void CollationDataBuilder::buildFastLatinTable(CollationData & data, UErrorCode 
 	if(fastLatinBuilder->forData(data, errorCode)) {
 		const uint16 * table = fastLatinBuilder->getTable();
 		int32_t length = fastLatinBuilder->lengthOfTable();
-		if(base && length == base->fastLatinTableLength && uprv_memcmp(table, base->fastLatinTable, length * 2) == 0) {
+		if(base && length == base->fastLatinTableLength && memcmp(table, base->fastLatinTable, length * 2) == 0) {
 			// Same fast Latin table as in the base, use that one instead.
 			ZDELETE(fastLatinBuilder);
 			table = base->fastLatinTable;

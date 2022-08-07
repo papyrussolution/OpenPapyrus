@@ -344,7 +344,7 @@ static void TestBuilder() {
 	udatpg_close(dtpg);
 
 	/* sample code in Userguide */
-	patternCapacity = UPRV_LENGTHOF(pattern);
+	patternCapacity = SIZEOFARRAYi(pattern);
 	status = U_ZERO_ERROR;
 	generator = udatpg_open(locale, &status);
 	if(U_FAILURE(status)) {
@@ -363,7 +363,7 @@ static void TestBuilder() {
 	}
 
 	/* use it to format (or parse) */
-	formattedCapacity = UPRV_LENGTHOF(formatted);
+	formattedCapacity = SIZEOFARRAYi(formatted);
 	resultLen = udat_format(formatter, ucal_getNow(), formatted, formattedCapacity,
 		NULL, &status);
 	/* for French, the result is "13 sept." */
@@ -414,7 +414,7 @@ static void TestOptions() {
 		{ "da", skel_hhmm, UDATPG_MATCH_HOUR_FIELD_LENGTH, patn_hhpmm_a },
 	};
 
-	int count = UPRV_LENGTHOF(testData);
+	int count = SIZEOFARRAYi(testData);
 	const DTPtnGenOptionsData * testDataPtr = testData;
 
 	for(; count-- > 0; ++testDataPtr) {
@@ -473,7 +473,7 @@ static void TestGetFieldDisplayNames() {
 		{ "it",    UDATPG_SECOND_FIELD,               UDATPG_NARROW,      "s" },
 	};
 
-	int count = UPRV_LENGTHOF(testData);
+	int count = SIZEOFARRAYi(testData);
 	const FieldDisplayNameData * testDataPtr = testData;
 	for(; count-- > 0; ++testDataPtr) {
 		UErrorCode status = U_ZERO_ERROR;
@@ -558,7 +558,7 @@ static void TestGetDefaultHourCycle()
 		{ "zh_TW",    UDAT_HOUR_CYCLE_12 },
 		{ "ko_KR",    UDAT_HOUR_CYCLE_12 },
 	};
-	int count = UPRV_LENGTHOF(testData);
+	int count = SIZEOFARRAYi(testData);
 	const HourCycleData * testDataPtr = testData;
 	for(; count-- > 0; ++testDataPtr) {
 		UErrorCode status = U_ZERO_ERROR;
@@ -613,7 +613,7 @@ static void TestEras() {
 		"en@calendar=buddhist",
 	};
 	UErrorCode err = U_ZERO_ERROR;
-	for(int32_t i = 0; i < UPRV_LENGTHOF(localeIDs); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(localeIDs); i++) {
 		const char * locale = localeIDs[i];
 		UDateTimePatternGenerator* dtpg = udatpg_open(locale, &err);
 		if(U_SUCCESS(err)) {

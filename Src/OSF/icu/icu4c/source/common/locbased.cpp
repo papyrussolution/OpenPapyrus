@@ -45,8 +45,8 @@ void LocaleBased::setLocaleIDs(const char * validID, const char * actualID)
 
 void LocaleBased::setLocaleIDs(const Locale & validID, const Locale & actualID) 
 {
-	uprv_strcpy(valid, validID.getName());
-	uprv_strcpy(actual, actualID.getName());
+	strcpy(valid, validID.getName());
+	strcpy(actual, actualID.getName());
 }
 
 U_NAMESPACE_END

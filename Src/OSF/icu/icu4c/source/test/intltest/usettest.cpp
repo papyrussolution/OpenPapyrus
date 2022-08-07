@@ -789,7 +789,7 @@ void UnicodeSetTest::TestAPI() {
 		errln("FAIL"); return;
 	}
 	uint16_t buf[32];
-	int32_t slen = set.serialize(buf, UPRV_LENGTHOF(buf), status);
+	int32_t slen = set.serialize(buf, SIZEOFARRAYi(buf), status);
 	if(U_FAILURE(status)) {
 		errln("FAIL: serialize"); return;
 	}
@@ -1158,7 +1158,7 @@ void UnicodeSetTest::TestPropertySet() {
 		"\\uFDF2"
 	};
 
-	static const int32_t DATA_LEN = UPRV_LENGTHOF(DATA);
+	static const int32_t DATA_LEN = SIZEOFARRAYi(DATA);
 
 	for(int32_t i = 0; i<DATA_LEN; i += 3) {
 		expectContainment(UnicodeString(DATA[i], -1, US_INV), CharsToUnicodeString(DATA[i+1]),
@@ -1569,7 +1569,7 @@ void UnicodeSetTest::TestInvalidCodePoint() {
 		(UChar32)-1, 8,           0, 8,
 		8, 0x110000,              8, 0x10FFFF
 	};
-	const int32_t DATA_LENGTH = UPRV_LENGTHOF(DATA);
+	const int32_t DATA_LENGTH = SIZEOFARRAYi(DATA);
 
 	UnicodeString pat;
 	int32_t i;
@@ -1632,7 +1632,7 @@ void UnicodeSetTest::TestInvalidCodePoint() {
 		(UChar32)-1,
 		0x110000
 	};
-	const int32_t DATA2_LENGTH = UPRV_LENGTHOF(DATA2);
+	const int32_t DATA2_LENGTH = SIZEOFARRAYi(DATA2);
 
 	for(i = 0; i<DATA2_LENGTH; ++i) {
 		UChar32 c = DATA2[i], end = 0x10FFFF;
@@ -2493,7 +2493,7 @@ public:
 			const UnicodeString * s;
 			char * s8 = utf8;
 			int32_t length8, utf8Count = 0;
-			while(iter.nextRange() && stringsLength<UPRV_LENGTHOF(strings)) {
+			while(iter.nextRange() && stringsLength<SIZEOFARRAYi(strings)) {
 				if(iter.isString()) {
 					// Store the pointer to the set's string element
 					// which we happen to know is a stable pointer.
@@ -3255,7 +3255,7 @@ void UnicodeSetTest::testSpan(const UnicodeSetWithStrings * sets[4],
 				s, length, isUTF16,
 				whichSpans,
 				type, typeName,
-				limits, UPRV_LENGTHOF(limits), expectCount);
+				limits, SIZEOFARRAYi(limits), expectCount);
 			if(typeName[0]==0) {
 				break; // All types tried.
 			}
@@ -3264,9 +3264,9 @@ void UnicodeSetTest::testSpan(const UnicodeSetWithStrings * sets[4],
 			}
 			if(expectCount<0) {
 				expectCount = limitsCount;
-				if(limitsCount>UPRV_LENGTHOF(limits)) {
+				if(limitsCount>SIZEOFARRAYi(limits)) {
 					errln("FAIL: %s[0x%lx].%s.%s span count=%ld > %ld capacity - too many spans",
-					    testName, (long)index, setNames[i], typeName, (long)limitsCount, (long)UPRV_LENGTHOF(limits));
+					    testName, (long)index, setNames[i], typeName, (long)limitsCount, (long)SIZEOFARRAYi(limits));
 					return;
 				}
 				memcpy(expectLimits, limits, limitsCount*4);
@@ -3464,7 +3464,7 @@ void UnicodeSetTest::testSpanContents(const UnicodeSetWithStrings * sets[4], uin
 
 	UChar32 c, first;
 	for(first = c = 0;; c = nextCodePoint(c)) {
-		if(c>0x10ffff || length>(UPRV_LENGTHOF(s)-U16_MAX_LENGTH)) {
+		if(c>0x10ffff || length>(SIZEOFARRAYi(s)-U16_MAX_LENGTH)) {
 			localWhichSpans = whichSpans;
 			if(stringContainsUnpairedSurrogate(s, length) && inconsistentSurrogates) {
 				localWhichSpans &= ~SPAN_UTF8;
@@ -3500,7 +3500,7 @@ void UnicodeSetTest::testSpanUTF16String(const UnicodeSetWithStrings * sets[4], 
 		return;
 	}
 	testSpan(sets, s, -1, TRUE, (whichSpans&~SPAN_UTF8), testName, 0);
-	testSpan(sets, s, UPRV_LENGTHOF(s)-1, TRUE, (whichSpans&~SPAN_UTF8), testName, 1);
+	testSpan(sets, s, SIZEOFARRAYi(s)-1, TRUE, (whichSpans&~SPAN_UTF8), testName, 1);
 }
 
 void UnicodeSetTest::testSpanUTF8String(const UnicodeSetWithStrings * sets[4], uint32_t whichSpans, const char * testName) {
@@ -3597,7 +3597,7 @@ void UnicodeSetTest::testSpanUTF8String(const UnicodeSetWithStrings * sets[4], u
 		return;
 	}
 	testSpan(sets, s, -1, FALSE, (whichSpans&~SPAN_UTF16), testName, 0);
-	testSpan(sets, s, UPRV_LENGTHOF(s)-1, FALSE, (whichSpans&~SPAN_UTF16), testName, 1);
+	testSpan(sets, s, SIZEOFARRAYi(s)-1, FALSE, (whichSpans&~SPAN_UTF16), testName, 1);
 }
 
 // Take a set of span options and multiply them so that
@@ -3798,7 +3798,7 @@ void UnicodeSetTest::TestSpan() {
 	char * testNameLimit = testName;
 
 	int32_t i, j;
-	for(i = 0; i<UPRV_LENGTHOF(testdata); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(testdata); ++i) {
 		const char * s = testdata[i];
 		if(s[0]=='[') {
 			// Create new test sets from this pattern.

@@ -240,7 +240,7 @@ UnicodeString::UnicodeString(const char * src, int32_t length, EInvariant) {
 	}
 	else {
 		if(length<0) {
-			length = (int32_t)uprv_strlen(src);
+			length = (int32_t)strlen(src);
 		}
 		if(cloneArrayIfNeeded(length, length, FALSE)) {
 			u_charsToUChars(src, getArrayStart(), length);
@@ -268,7 +268,7 @@ UnicodeString::UnicodeString(const char * codepageData, int32_t dataLength) {
 		return;
 	}
 	if(dataLength == -1) {
-		dataLength = (int32_t)uprv_strlen(codepageData);
+		dataLength = (int32_t)strlen(codepageData);
 	}
 	setToUTF8(StringPiece(codepageData, dataLength));
 }
@@ -374,7 +374,7 @@ U_CAPI void unistr_printLengths()
 		printf("%2d,  %9d\n", i, (int32_t)finalLengthCounts[i]);
 	}
 	int32_t beyond = beyondCount;
-	for(; i < UPRV_LENGTHOF(finalLengthCounts); ++i) {
+	for(; i < SIZEOFARRAYi(finalLengthCounts); ++i) {
 		beyond += finalLengthCounts[i];
 	}
 	printf(">59, %9d\n", beyond);
@@ -615,7 +615,7 @@ bool UnicodeString::doEquals(const UnicodeString & text, int32_t len) const
 {
 	// Requires: this & text not bogus and have same lengths.
 	// Byte-wise comparison works for equality regardless of endianness.
-	return uprv_memcmp(getArrayStart(), text.getArrayStart(), len * U_SIZEOF_UCHAR) == 0;
+	return memcmp(getArrayStart(), text.getArrayStart(), len * U_SIZEOF_UCHAR) == 0;
 }
 
 int8 UnicodeString::doCompare(int32_t start,
@@ -668,7 +668,7 @@ int8 UnicodeString::doCompare(int32_t start,
 	}
 
 	/*
-	 * note that uprv_memcmp() returns an int but we return an int8;
+	 * note that memcmp() returns an int but we return an int8;
 	 * we need to take care not to truncate the result -
 	 * one way to do this is to right-shift the value to
 	 * move the sign bit into the lower 8 bits and making sure that this
@@ -680,7 +680,7 @@ int8 UnicodeString::doCompare(int32_t start,
 
 #if U_IS_BIG_ENDIAN
 		// big-endian: byte comparison works
-		result = uprv_memcmp(chars, srcChars, minLength * sizeof(UChar));
+		result = memcmp(chars, srcChars, minLength * sizeof(UChar));
 		if(result != 0) {
 			return (int8)(result >> 15 | 1);
 		}

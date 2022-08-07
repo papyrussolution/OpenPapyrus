@@ -382,7 +382,7 @@ void NumberFormatTest::TestPatterns(void)
 		errcheckln(status, "FAIL: Could not construct DecimalFormatSymbols - %s", u_errorName(status)); return;
 	}
 	const char * pat[] = { "#.#", "#.", ".#", "#" };
-	int32_t pat_length = UPRV_LENGTHOF(pat);
+	int32_t pat_length = SIZEOFARRAYi(pat);
 	const char * newpat[] = { "0.#", "0.", "#.0", "0" };
 	const char * num[] = { "0",   "0.", ".0", "0" };
 	for(int32_t i = 0; i<pat_length; ++i) {
@@ -459,7 +459,7 @@ void NumberFormatTest::TestExponential(void)
 		errcheckln(status, "FAIL: Bad status returned by DecimalFormatSymbols ct - %s", u_errorName(status)); return;
 	}
 	const char * pat[] = { "0.####E0", "00.000E00", "##0.######E000", "0.###E0;[0.###E0]"  };
-	int32_t pat_length = UPRV_LENGTHOF(pat);
+	int32_t pat_length = SIZEOFARRAYi(pat);
 
 // The following #if statements allow this test to be built and run on
 // platforms that do not have standard IEEE numerics.  For example,
@@ -471,7 +471,7 @@ void NumberFormatTest::TestExponential(void)
 
 #if DBL_MAX_10_EXP > 300
 	double val[] = { 0.01234, 123456789, 1.23e300, -3.141592653e-271 };
-	int32_t val_length = UPRV_LENGTHOF(val);
+	int32_t val_length = SIZEOFARRAYi(val);
 	const char * valFormat[] =
 	{
 		// 0.####E0
@@ -492,7 +492,7 @@ void NumberFormatTest::TestExponential(void)
 	};
 #elif DBL_MAX_10_EXP > 70
 	double val[] = { 0.01234, 123456789, 1.23e70, -3.141592653e-71 };
-	int32_t val_length = UPRV_LENGTHOF(val);
+	int32_t val_length = SIZEOFARRAYi(val);
 	char * valFormat[] =
 	{
 		// 0.####E0
@@ -521,7 +521,7 @@ void NumberFormatTest::TestExponential(void)
 #endif
 
 	int32_t lval[] = { 0, -1, 1, 123456789 };
-	int32_t lval_length = UPRV_LENGTHOF(lval);
+	int32_t lval_length = SIZEOFARRAYi(lval);
 	const char * lvalFormat[] =
 	{
 		// 0.####E0
@@ -924,7 +924,7 @@ void NumberFormatTest::TestCurrency(void)
 	if(U_FAILURE(status))
 		errln((UnicodeString)"FAIL: Status " + (int32_t)status);
 
-	for(int i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(int i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		status = U_ZERO_ERROR;
 		const char * localeID = testCases[i][0];
 		UnicodeString expected(testCases[i][1], -1, US_INV);
@@ -1111,7 +1111,7 @@ void NumberFormatTest::TestLenientParse(void)
 	}
 	else {
 		format->setLenient(TRUE);
-		for(int32_t t = 0; t < UPRV_LENGTHOF(lenientAffixTestCases); t += 1) {
+		for(int32_t t = 0; t < SIZEOFARRAYi(lenientAffixTestCases); t += 1) {
 			UnicodeString testCase = ctou(lenientAffixTestCases[t]);
 
 			format->parse(testCase, n, status);
@@ -1137,7 +1137,7 @@ void NumberFormatTest::TestLenientParse(void)
 	}
 	else {
 		mFormat->setLenient(TRUE);
-		for(int32_t t = 0; t < UPRV_LENGTHOF(lenientMinusTestCases); t += 1) {
+		for(int32_t t = 0; t < SIZEOFARRAYi(lenientMinusTestCases); t += 1) {
 			UnicodeString testCase = ctou(lenientMinusTestCases[t]);
 
 			mFormat->parse(testCase, n, status);
@@ -1159,7 +1159,7 @@ void NumberFormatTest::TestLenientParse(void)
 	}
 	else {
 		mFormat->setLenient(TRUE);
-		for(int32_t t = 0; t < UPRV_LENGTHOF(lenientMinusTestCases); t += 1) {
+		for(int32_t t = 0; t < SIZEOFARRAYi(lenientMinusTestCases); t += 1) {
 			UnicodeString testCase = ctou(lenientMinusTestCases[t]);
 
 			mFormat->parse(testCase, n, status);
@@ -1181,7 +1181,7 @@ void NumberFormatTest::TestLenientParse(void)
 	}
 	else {
 		cFormat->setLenient(TRUE);
-		for(int32_t t = 0; t < UPRV_LENGTHOF(lenientCurrencyTestCases); t += 1) {
+		for(int32_t t = 0; t < SIZEOFARRAYi(lenientCurrencyTestCases); t += 1) {
 			UnicodeString testCase = ctou(lenientCurrencyTestCases[t]);
 
 			cFormat->parse(testCase, n, status);
@@ -1195,7 +1195,7 @@ void NumberFormatTest::TestLenientParse(void)
 			}
 		}
 
-		for(int32_t t = 0; t < UPRV_LENGTHOF(lenientNegativeCurrencyTestCases); t += 1) {
+		for(int32_t t = 0; t < SIZEOFARRAYi(lenientNegativeCurrencyTestCases); t += 1) {
 			UnicodeString testCase = ctou(lenientNegativeCurrencyTestCases[t]);
 
 			cFormat->parse(testCase, n, status);
@@ -1219,7 +1219,7 @@ void NumberFormatTest::TestLenientParse(void)
 	}
 	else {
 		pFormat->setLenient(TRUE);
-		for(int32_t t = 0; t < UPRV_LENGTHOF(lenientPercentTestCases); t += 1) {
+		for(int32_t t = 0; t < SIZEOFARRAYi(lenientPercentTestCases); t += 1) {
 			UnicodeString testCase = ctou(lenientPercentTestCases[t]);
 
 			pFormat->parse(testCase, n, status);
@@ -1234,7 +1234,7 @@ void NumberFormatTest::TestLenientParse(void)
 			}
 		}
 
-		for(int32_t t = 0; t < UPRV_LENGTHOF(lenientNegativePercentTestCases); t += 1) {
+		for(int32_t t = 0; t < SIZEOFARRAYi(lenientNegativePercentTestCases); t += 1) {
 			UnicodeString testCase = ctou(lenientNegativePercentTestCases[t]);
 
 			pFormat->parse(testCase, n, status);
@@ -1261,7 +1261,7 @@ void NumberFormatTest::TestLenientParse(void)
 	}
 	else {
 		// first, make sure that they fail with a strict parse
-		for(int32_t t = 0; t < UPRV_LENGTHOF(strictFailureTestCases); t += 1) {
+		for(int32_t t = 0; t < SIZEOFARRAYi(strictFailureTestCases); t += 1) {
 			UnicodeString testCase = ctou(strictFailureTestCases[t]);
 
 			nFormat->parse(testCase, n, status);
@@ -1277,7 +1277,7 @@ void NumberFormatTest::TestLenientParse(void)
 
 		// then, make sure that they pass with a lenient parse
 		nFormat->setLenient(TRUE);
-		for(int32_t t = 0; t < UPRV_LENGTHOF(strictFailureTestCases); t += 1) {
+		for(int32_t t = 0; t < SIZEOFARRAYi(strictFailureTestCases); t += 1) {
 			UnicodeString testCase = ctou(strictFailureTestCases[t]);
 
 			nFormat->parse(testCase, n, status);
@@ -1458,7 +1458,7 @@ void NumberFormatTest::TestScientific() {
 	// Test pattern round-trip
 	const char * PAT[] = { "#E0", "0.####E0", "00.000E00", "##0.####E000",
 			      "0.###E0;[0.###E0]" };
-	int32_t PAT_length = UPRV_LENGTHOF(PAT);
+	int32_t PAT_length = SIZEOFARRAYi(PAT);
 	int32_t DIGITS[] = {
 		// min int, max int, min frac, max frac
 		1, 1, 0, 0, // "#E0"
@@ -2336,7 +2336,7 @@ void NumberFormatTest::TestSymbolsWithBadLocale() {
 	}; // expect U_USING_DEFAULT_WARNING for both
 
 	unsigned int i;
-	for(i = 0; i < UPRV_LENGTHOF(badLocales); i++) {
+	for(i = 0; i < SIZEOFARRAYi(badLocales); i++) {
 		const char * localeName = badLocales[i];
 		Locale locBad(localeName);
 		assertTrue(WHERE, !locBad.isBogus());
@@ -3108,15 +3108,15 @@ void NumberFormatTest::expectParseCurrency(const NumberFormat &fmt, const UChar 
 	sprintf(theInfo, "For locale %s, string \"%s\", currency ",
 	    fmt.getLocale(ULOC_ACTUAL_LOCALE, status).getBaseName(),
 	    text);
-	u_austrcpy(theInfo+uprv_strlen(theInfo), currency);
+	u_austrcpy(theInfo+strlen(theInfo), currency);
 
 	char theOperation[100];
 
-	uprv_strcpy(theOperation, theInfo);
+	strcpy(theOperation, theInfo);
 	uprv_strcat(theOperation, ", check amount:");
 	assertTrue(theOperation, amount ==  currencyAmount->getNumber().getDouble(status));
 
-	uprv_strcpy(theOperation, theInfo);
+	strcpy(theOperation, theInfo);
 	uprv_strcat(theOperation, ", check currency:");
 	assertEquals(theOperation, currency, currencyAmount->getISOCurrency());
 }
@@ -3312,7 +3312,7 @@ void NumberFormatTest::TestRoundingPattern() {
 		{ (UnicodeString)"##0.65", 1.234, (UnicodeString)"1.30" },
 		{ (UnicodeString)"#50",    1230,  (UnicodeString)"1250" }
 	};
-	int32_t numOfTests = UPRV_LENGTHOF(tests);
+	int32_t numOfTests = SIZEOFARRAYi(tests);
 	UnicodeString result;
 
 	DecimalFormat * df = (DecimalFormat*)NumberFormat::createCurrencyInstance(Locale::getEnglish(), status);
@@ -3487,7 +3487,7 @@ void NumberFormatTest::TestSpaceParsing() {
 		delete foo;
 		return;
 	}
-	for(uint32_t i = 0; i < UPRV_LENGTHOF(DATA); ++i) {
+	for(uint32_t i = 0; i < SIZEOFARRAYi(DATA); ++i) {
 		ParsePosition parsePosition(0);
 		UnicodeString stringToBeParsed = ctou(DATA[i].stringToParse);
 		int parsedPosition = DATA[i].parsedPos;
@@ -3630,7 +3630,7 @@ void NumberFormatTest::TestMultiCurrencySign() {
 	const UChar tripleCurrencySign[] = {0xA4, 0xA4, 0xA4, 0};
 	UnicodeString tripleCurrencyStr(tripleCurrencySign);
 
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(DATA); ++i) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(DATA); ++i) {
 		const char * locale = DATA[i][0];
 		UnicodeString pat = ctou(DATA[i][1]);
 		double numberToBeFormat = atof(DATA[i][2]);
@@ -3710,7 +3710,7 @@ void NumberFormatTest::TestCurrencyFormatForMixParsing() {
 		// "1,234.56 US dollars" // Fails in 62 because currency format is not compatible with pattern.
 	};
 	const CurrencyAmount* curramt = NULL;
-	for(uint32_t i = 0; i < UPRV_LENGTHOF(formats); ++i) {
+	for(uint32_t i = 0; i < SIZEOFARRAYi(formats); ++i) {
 		UnicodeString stringToBeParsed = ctou(formats[i]);
 		logln(UnicodeString("stringToBeParsed: ") + stringToBeParsed);
 		Formattable result;
@@ -3802,7 +3802,7 @@ void NumberFormatTest::TestDecimalFormatCurrencyParse() {
 	};
 	// NOTE: ICU 62 requires that the currency format match the pattern in strict mode.
 	fmt->setLenient(TRUE);
-	for(uint32_t i = 0; i < UPRV_LENGTHOF(DATA); ++i) {
+	for(uint32_t i = 0; i < SIZEOFARRAYi(DATA); ++i) {
 		UnicodeString stringToBeParsed = ctou(DATA[i][0]);
 		double parsedResult = atof(DATA[i][1]);
 		UErrorCode status = U_ZERO_ERROR;
@@ -3854,13 +3854,13 @@ void NumberFormatTest::TestCurrencyIsoPluralFormat() {
 		UNUM_CURRENCY_PLURAL
 	};
 
-	for(int32_t i = 0; i<UPRV_LENGTHOF(DATA); ++i) {
+	for(int32_t i = 0; i<SIZEOFARRAYi(DATA); ++i) {
 		const char * localeString = DATA[i][0];
 		double numberToBeFormat = atof(DATA[i][1]);
 		const char * currencyISOCode = DATA[i][2];
 		logln(UnicodeString(u"Locale: ") + localeString + "; amount: " + numberToBeFormat);
 		Locale locale(localeString);
-		for(int32_t kIndex = 0; kIndex < UPRV_LENGTHOF(currencyStyles); ++kIndex) {
+		for(int32_t kIndex = 0; kIndex < SIZEOFARRAYi(currencyStyles); ++kIndex) {
 			UNumberFormatStyle k = currencyStyles[kIndex];
 			logln(UnicodeString(u"UNumberFormatStyle: ") + k);
 			UErrorCode status = U_ZERO_ERROR;
@@ -3974,8 +3974,8 @@ void NumberFormatTest::TestCurrencyParsing() {
 	for(;;) {
 		printf("loop: %d\n", deadloop++);
 #endif
-	for(uint32_t i = 0; i< UPRV_LENGTHOF(DATA); ++i) { /* i = test case #  - should be i=0*/
-		for(int32_t kIndex = 2; kIndex < UPRV_LENGTHOF(currencyStyles); ++kIndex) {
+	for(uint32_t i = 0; i< SIZEOFARRAYi(DATA); ++i) { /* i = test case #  - should be i=0*/
+		for(int32_t kIndex = 2; kIndex < SIZEOFARRAYi(currencyStyles); ++kIndex) {
 			UNumberFormatStyle k = currencyStyles[kIndex]; /* k = style */
 			const char * localeString = DATA[i][0];
 			double numberToBeFormat = atof(DATA[i][1]);
@@ -6601,7 +6601,7 @@ void NumberFormatTest::TestParseCurrencyInUCurr() {
 	};
 
 	Locale locale("en_US");
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(DATA); ++i) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(DATA); ++i) {
 		UnicodeString formatted = ctou(DATA[i]);
 		UErrorCode status = U_ZERO_ERROR;
 		LocalPointer<NumberFormat> numFmt(NumberFormat::createInstance(locale, UNUM_CURRENCY, status), status);
@@ -6623,7 +6623,7 @@ void NumberFormatTest::TestParseCurrencyInUCurr() {
 		}
 	}
 
-	for(uint32_t i = 0; i<UPRV_LENGTHOF(WRONG_DATA); ++i) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(WRONG_DATA); ++i) {
 		UnicodeString formatted = ctou(WRONG_DATA[i]);
 		UErrorCode status = U_ZERO_ERROR;
 		NumberFormat* numFmt = NumberFormat::createInstance(locale, UNUM_CURRENCY, status);
@@ -6758,7 +6758,7 @@ void NumberFormatTest::TestFormatAttributes() {
 			UNUM_DECIMAL_SEPARATOR_FIELD, 7, 8,
 			UNUM_FRACTION_FIELD, 8, 10,
 		};
-		int32_t tupleCount = UPRV_LENGTHOF(expected)/3;
+		int32_t tupleCount = SIZEOFARRAYi(expected)/3;
 
 		FieldPositionIterator posIter;
 		UnicodeString result;
@@ -6791,7 +6791,7 @@ void NumberFormatTest::TestFormatAttributes() {
 			UNUM_EXPONENT_SIGN_FIELD, 6, 7,
 			UNUM_EXPONENT_FIELD, 7, 8
 		};
-		int32_t tupleCount = UPRV_LENGTHOF(expected)/3;
+		int32_t tupleCount = SIZEOFARRAYi(expected)/3;
 
 		FieldPositionIterator posIter;
 		UnicodeString result;
@@ -7065,7 +7065,7 @@ void NumberFormatTest::TestExplicitParents() {
 
 	UnicodeString s;
 
-	for(int i = 0; i < UPRV_LENGTHOF(parentLocaleTests); i++) {
+	for(int i = 0; i < SIZEOFARRAYi(parentLocaleTests); i++) {
 		UErrorCode status = U_ZERO_ERROR;
 		const char * localeID = parentLocaleTests[i][0];
 		UnicodeString expected(parentLocaleTests[i][1], -1, US_INV);
@@ -7115,11 +7115,11 @@ void NumberFormatTest::TestAvailableNumberingSystems() {
 		const char * nsname = availableNumberingSystems->next(&len, status);
 		NumberingSystem* ns = NumberingSystem::createInstanceByName(nsname, status);
 		logln("OK for ns = %s", nsname);
-		if(uprv_strcmp(nsname, ns->getName())) {
+		if(strcmp(nsname, ns->getName())) {
 			errln("FAIL: Numbering system name didn't match for name = %s\n", nsname);
 		}
 		if(prevName != nullptr) {
-			int comp = uprv_strcmp(prevName, nsname);
+			int comp = strcmp(prevName, nsname);
 			assertTrue(
 				UnicodeString(u"NS names should be in alphabetical order: ")
 				+ prevName + u" vs " + nsname,
@@ -7595,7 +7595,7 @@ void NumberFormatTest::TestSignificantDigits() {
 
 	UnicodeString result;
 	UnicodeString expectedResult;
-	for(unsigned int i = 0; i < UPRV_LENGTHOF(input); ++i) {
+	for(unsigned int i = 0; i < SIZEOFARRAYi(input); ++i) {
 		numberFormat->format(input[i], result);
 		UnicodeString expectedResult(expected[i]);
 		if(result != expectedResult) {
@@ -7878,7 +7878,7 @@ void NumberFormatTest::Test10419RoundingWith0FractionDigits() {
 		dataerrln("Failure creating DecimalFormat %s", u_errorName(status));
 		return;
 	}
-	for(int32_t i = 0; i < UPRV_LENGTHOF(items); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(items); ++i) {
 		decfmt->setRoundingMode(items[i].mode);
 		decfmt->setMaximumFractionDigits(0);
 		UnicodeString actual;
@@ -7953,8 +7953,8 @@ void NumberFormatTest::TestRoundingScientific10542() {
 			expected,
 			roundingModes,
 			descriptions,
-			UPRV_LENGTHOF(values),
-			UPRV_LENGTHOF(roundingModes));
+			SIZEOFARRAYi(values),
+			SIZEOFARRAYi(roundingModes));
 	}
 	{
 		double values[] = {-3006.0, -3005, -3004, 3014, 3015, 3016};
@@ -7974,8 +7974,8 @@ void NumberFormatTest::TestRoundingScientific10542() {
 			expected,
 			roundingModes,
 			descriptions,
-			UPRV_LENGTHOF(values),
-			UPRV_LENGTHOF(roundingModes));
+			SIZEOFARRAYi(values),
+			SIZEOFARRAYi(roundingModes));
 	}
 /* Commented out for now until we decide how rounding to zero should work, +0 vs. -0
     {
@@ -7995,8 +7995,8 @@ void NumberFormatTest::TestRoundingScientific10542() {
                 expected,
                 roundingModes,
                 descriptions,
-                UPRV_LENGTHOF(values),
-                UPRV_LENGTHOF(roundingModes));
+                SIZEOFARRAYi(values),
+                SIZEOFARRAYi(roundingModes));
     }
  */
 	{
@@ -8017,8 +8017,8 @@ void NumberFormatTest::TestRoundingScientific10542() {
 			expected,
 			roundingModes,
 			descriptions,
-			UPRV_LENGTHOF(values),
-			UPRV_LENGTHOF(roundingModes));
+			SIZEOFARRAYi(values),
+			SIZEOFARRAYi(roundingModes));
 	}
 	{
 		double values[] = {-1e25, -1e25 + 1e15, -1e25 - 1e15};
@@ -8038,8 +8038,8 @@ void NumberFormatTest::TestRoundingScientific10542() {
 			expected,
 			roundingModes,
 			descriptions,
-			UPRV_LENGTHOF(values),
-			UPRV_LENGTHOF(roundingModes));
+			SIZEOFARRAYi(values),
+			SIZEOFARRAYi(roundingModes));
 	}
 	{
 		double values[] = {1e-25, 1e-25 + 1e-35, 1e-25 - 1e-35};
@@ -8059,8 +8059,8 @@ void NumberFormatTest::TestRoundingScientific10542() {
 			expected,
 			roundingModes,
 			descriptions,
-			UPRV_LENGTHOF(values),
-			UPRV_LENGTHOF(roundingModes));
+			SIZEOFARRAYi(values),
+			SIZEOFARRAYi(roundingModes));
 	}
 	{
 		double values[] = {-1e-25, -1e-25 + 1e-35, -1e-25 - 1e-35};
@@ -8080,8 +8080,8 @@ void NumberFormatTest::TestRoundingScientific10542() {
 			expected,
 			roundingModes,
 			descriptions,
-			UPRV_LENGTHOF(values),
-			UPRV_LENGTHOF(roundingModes));
+			SIZEOFARRAYi(values),
+			SIZEOFARRAYi(roundingModes));
 	}
 }
 
@@ -9572,7 +9572,7 @@ void NumberFormatTest::Test13763_FieldPositionIteratorOffset() {
 		UNUM_DECIMAL_SEPARATOR_FIELD, 13, 14,
 		UNUM_FRACTION_FIELD, 14, 15,
 	};
-	int32_t tupleCount = UPRV_LENGTHOF(expected)/3;
+	int32_t tupleCount = SIZEOFARRAYi(expected)/3;
 	expectPositions(fpi, expected, tupleCount, result);
 }
 

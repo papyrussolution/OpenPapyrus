@@ -14,8 +14,8 @@ static const char * const gPluralForms[] = {
 };
 
 PluralMapBase::Category PluralMapBase::toCategory(const char * pluralForm) {
-	for(int32_t i = 0; i < UPRV_LENGTHOF(gPluralForms); ++i) {
-		if(uprv_strcmp(pluralForm, gPluralForms[i]) == 0) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(gPluralForms); ++i) {
+		if(strcmp(pluralForm, gPluralForms[i]) == 0) {
 			return static_cast<Category>(i);
 		}
 	}
@@ -31,7 +31,7 @@ PluralMapBase::Category PluralMapBase::toCategory(const UnicodeString & pluralFo
 
 const char * PluralMapBase::getCategoryName(Category c) {
 	int32_t index = c;
-	return (index < 0 || index >= UPRV_LENGTHOF(gPluralForms)) ?
+	return (index < 0 || index >= SIZEOFARRAYi(gPluralForms)) ?
 	       NULL : gPluralForms[index];
 }
 

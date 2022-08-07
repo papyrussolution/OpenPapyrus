@@ -88,7 +88,7 @@ static int32_t ucnv_copyPlatformString(char * platformString, UConverterPlatform
 	switch(pltfrm)
 	{
 		case UCNV_IBM:
-		    uprv_strcpy(platformString, "ibm-");
+		    strcpy(platformString, "ibm-");
 		    return 4;
 		case UCNV_UNKNOWN:
 		    break;
@@ -1534,7 +1534,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_toUChars(UConverter * cnv, UChar * dest, int32_t d
 	ucnv_resetToUnicode(cnv);
 	originalDest = dest;
 	if(srcLength==-1) {
-		srcLength = (int32_t)uprv_strlen(src);
+		srcLength = (int32_t)strlen(src);
 	}
 	if(srcLength>0) {
 		srcLimit = src+srcLength;
@@ -1546,7 +1546,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_toUChars(UConverter * cnv, UChar * dest, int32_t d
 		/* if an overflow occurs, then get the preflighting length */
 		if(*pErrorCode==U_BUFFER_OVERFLOW_ERROR) {
 			UChar buffer[1024];
-			destLimit = buffer+UPRV_LENGTHOF(buffer);
+			destLimit = buffer+SIZEOFARRAYi(buffer);
 			do {
 				dest = buffer;
 				*pErrorCode = U_ZERO_ERROR;
@@ -2305,8 +2305,8 @@ static const UAmbiguousConverter * ucnv_getAmbiguous(const UConverter * cnv)
 		return NULL;
 	}
 
-	for(i = 0; i<UPRV_LENGTHOF(ambiguousConverters); ++i) {
-		if(0==uprv_strcmp(name, ambiguousConverters[i].name)) {
+	for(i = 0; i<SIZEOFARRAYi(ambiguousConverters); ++i) {
+		if(0==strcmp(name, ambiguousConverters[i].name)) {
 			return ambiguousConverters+i;
 		}
 	}
@@ -2389,7 +2389,7 @@ U_CAPI const char * U_EXPORT2 ucnv_detectUnicodeSignature(const char * source, i
 	}
 	SETIFZQ(signatureLength, &dummy);
 	if(sourceLength==-1) {
-		sourceLength = (int32_t)uprv_strlen(source);
+		sourceLength = (int32_t)strlen(source);
 	}
 	while(i<sourceLength&& i<SIG_MAX_LEN) {
 		start[i] = source[i];

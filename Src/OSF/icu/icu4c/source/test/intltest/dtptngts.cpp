@@ -580,7 +580,7 @@ void IntlTestDateTimePatternGeneratorAPI::testAPI(/*char *par*/)
 
 	// ======== Test getSkeleton and getBaseSkeleton
 
-	int32_t i, count = UPRV_LENGTHOF(testGetSkeletonAndBase);
+	int32_t i, count = SIZEOFARRAYi(testGetSkeletonAndBase);
 	for(i = 0; i < count; i++) {
 		status = U_ZERO_ERROR;
 		pattern                            = UnicodeString(testGetSkeletonAndBase[i][0]);
@@ -962,7 +962,7 @@ void IntlTestDateTimePatternGeneratorAPI::testOptions(/*char *par*/)
 		{ "zh@calendar=chinese",  "GUMMM", "rU\\u5E74MMM", UDATPG_MATCH_NO_OPTIONS },
 	};
 
-	int count = UPRV_LENGTHOF(testData);
+	int count = SIZEOFARRAYi(testData);
 	const DTPtnGenOptionsData * testDataPtr = testData;
 
 	for(; count-- > 0; ++testDataPtr) {
@@ -1082,7 +1082,7 @@ void IntlTestDateTimePatternGeneratorAPI::testAllFieldPatterns(/*char *par*/)
 		DateTimePatternGenerator * dtpg = DateTimePatternGenerator::createInstance(locale, status);
 		if(U_SUCCESS(status)) {
 			const AllFieldsTestItem * testDataPtr = testData;
-			int itemCount = UPRV_LENGTHOF(testData);
+			int itemCount = SIZEOFARRAYi(testData);
 			for(; itemCount-- > 0; ++testDataPtr) {
 				char skelBuf[FIELD_LENGTH_MAX];
 				int32_t chrIndx, lenIndx;
@@ -1158,7 +1158,7 @@ void IntlTestDateTimePatternGeneratorAPI::testStaticGetSkeleton(/*char *par*/)
 		"JJmm"
 	};
 
-	for(size_t i = 0; i < UPRV_LENGTHOF(testData); i++) {
+	for(size_t i = 0; i < SIZEOFARRAYi(testData); i++) {
 		UErrorCode status = U_ZERO_ERROR;
 		UnicodeString skeleton = DateTimePatternGenerator::staticGetSkeleton(testData[i], status);
 		if(!assertSuccess("staticGetSkeleton", status)) {
@@ -1193,7 +1193,7 @@ void IntlTestDateTimePatternGeneratorAPI::testC() {
 	};
 
 	UErrorCode status = U_ZERO_ERROR;
-	int32_t numTests = UPRV_LENGTHOF(tests);
+	int32_t numTests = SIZEOFARRAYi(tests);
 	for(int32_t i = 0; i < numTests; ++i) {
 		DateTimePatternGenerator * gen = DateTimePatternGenerator::createInstance(
 			Locale::forLanguageTag(tests[i][0], status), status);
@@ -1264,7 +1264,7 @@ void IntlTestDateTimePatternGeneratorAPI::testSkeletonsWithDayPeriods() {
 		errln("ERROR: createEmptyInstance fails, status: %s", u_errorName(status));
 	}
 	else {
-		int32_t i, len = UPRV_LENGTHOF(patterns);
+		int32_t i, len = SIZEOFARRAYi(patterns);
 		for(i = 0; i < len; i++) {
 			UnicodeString conflictingPattern;
 			(void)gen->addPattern(UnicodeString(patterns[i]), TRUE, conflictingPattern, status);
@@ -1274,7 +1274,7 @@ void IntlTestDateTimePatternGeneratorAPI::testSkeletonsWithDayPeriods() {
 			}
 		}
 		if(U_SUCCESS(status)) {
-			len = UPRV_LENGTHOF(testItems);
+			len = SIZEOFARRAYi(testItems);
 			for(i = 0; i < len; i++) {
 				status = U_ZERO_ERROR;
 				UDateTimePatternMatchOptions options = UDATPG_MATCH_HOUR_FIELD_LENGTH;
@@ -1320,7 +1320,7 @@ void IntlTestDateTimePatternGeneratorAPI::testGetFieldDisplayNames() {
 		{ "it",    UDATPG_SECOND_FIELD,               UDATPG_NARROW,      "s" },
 	};
 
-	int count = UPRV_LENGTHOF(testData);
+	int count = SIZEOFARRAYi(testData);
 	const FieldDisplayNameData * testDataPtr = testData;
 	for(; count-- > 0; ++testDataPtr) {
 		UErrorCode status = U_ZERO_ERROR;
@@ -1505,7 +1505,7 @@ void IntlTestDateTimePatternGeneratorAPI::testFallbackWithDefaultRootLocale() {
 	UErrorCode status = U_ZERO_ERROR;
 	char original[ULOC_FULLNAME_CAPACITY];
 
-	uprv_strcpy(original, uloc_getDefault());
+	strcpy(original, uloc_getDefault());
 	uloc_setDefault("root", &status);
 	if(U_FAILURE(status)) {
 		errln("ERROR: Failed to change the default locale to root! Default is: %s\n", uloc_getDefault());
@@ -1646,11 +1646,11 @@ void IntlTestDateTimePatternGeneratorAPI::testBestPattern() {
 		{ "ckb_IR",     "BSSS",        u"SSS \u251c'Dayperiod': B\u2524" },
 	};
 
-	for(int32_t i = 0; i < UPRV_LENGTHOF(testCases); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(testCases); i++) {
 		UErrorCode err = U_ZERO_ERROR;
 		UnicodeString actualPattern;
 
-		if(uprv_strcmp(testCases[i].skeleton, "full") != 0) {
+		if(strcmp(testCases[i].skeleton, "full") != 0) {
 			LocalPointer<DateTimePatternGenerator> dtpg(DateTimePatternGenerator::createInstance(testCases[i].localeID, err),
 			    err);
 			actualPattern = dtpg->getBestPattern(UnicodeString(testCases[i].skeleton), err);

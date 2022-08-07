@@ -673,7 +673,7 @@ static void testTrieRanges2(const char * testName,
 	    checkRanges, countCheckRanges,
 	    dataIs32, FALSE);
 
-	uprv_strcpy(name, testName);
+	strcpy(name, testName);
 	uprv_strcat(name, "-latin1Linear");
 	testTrieRanges(name,
 	    setRanges, countSetRanges,
@@ -690,14 +690,14 @@ static void testTrieRanges4(const char * testName,
     const CheckRange checkRanges[], int32_t countCheckRanges) {
 	char name[40];
 
-	uprv_strcpy(name, testName);
+	strcpy(name, testName);
 	uprv_strcat(name, ".32");
 	testTrieRanges2(name,
 	    setRanges, countSetRanges,
 	    checkRanges, countCheckRanges,
 	    TRUE);
 
-	uprv_strcpy(name, testName);
+	strcpy(name, testName);
 	uprv_strcat(name, ".16");
 	testTrieRanges2(name,
 	    setRanges, countSetRanges,
@@ -808,14 +808,14 @@ static const CheckRange
 
 static void TrieTest() {
 	testTrieRanges4("set1",
-	    setRanges1, UPRV_LENGTHOF(setRanges1),
-	    checkRanges1, UPRV_LENGTHOF(checkRanges1));
+	    setRanges1, SIZEOFARRAYi(setRanges1),
+	    checkRanges1, SIZEOFARRAYi(checkRanges1));
 	testTrieRanges4("set2-overlap",
-	    setRanges2, UPRV_LENGTHOF(setRanges2),
-	    checkRanges2, UPRV_LENGTHOF(checkRanges2));
+	    setRanges2, SIZEOFARRAYi(setRanges2),
+	    checkRanges2, SIZEOFARRAYi(checkRanges2));
 	testTrieRanges4("set3-initial-9",
-	    setRanges3, UPRV_LENGTHOF(setRanges3),
-	    checkRanges3, UPRV_LENGTHOF(checkRanges3));
+	    setRanges3, SIZEOFARRAYi(setRanges3),
+	    checkRanges3, SIZEOFARRAYi(checkRanges3));
 }
 
 /* test utrie_unserializeDummy() -------------------------------------------- */

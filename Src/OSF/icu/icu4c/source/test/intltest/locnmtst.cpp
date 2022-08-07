@@ -174,7 +174,7 @@ void LocaleDisplayNamesTest::TestUldnOpen() {
 	// make sure that NULL gives us the default locale as usual
 	ldn = uldn_open(NULL, ULDN_STANDARD_NAMES, &status);
 	const char * locale = uldn_getLocale(ldn);
-	if(0 != uprv_strcmp(uloc_getDefault(), locale)) {
+	if(0 != strcmp(uloc_getDefault(), locale)) {
 		errln("uldn_getLocale(uldn_open(NULL))=%s != default locale %s\n", locale, uloc_getDefault());
 	}
 	uldn_close(ldn);

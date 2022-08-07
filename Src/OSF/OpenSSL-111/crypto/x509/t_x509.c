@@ -110,29 +110,23 @@ int X509_print_ex(BIO * bp, X509 * x, ulong nmflags,
 			neg = (bs->type == V_ASN1_NEG_INTEGER) ? " (Negative)" : "";
 			if(BIO_printf(bp, "\n%12s%s", "", neg) <= 0)
 				goto err;
-
 			for(i = 0; i < bs->length; i++) {
-				if(BIO_printf(bp, "%02x%c", bs->data[i],
-				    ((i + 1 == bs->length) ? '\n' : ':')) <= 0)
+				if(BIO_printf(bp, "%02x%c", bs->data[i], ((i + 1 == bs->length) ? '\n' : ':')) <= 0)
 					goto err;
 			}
 		}
 	}
-
 	if(!(cflag & X509_FLAG_NO_SIGNAME)) {
 		const X509_ALGOR * tsig_alg = X509_get0_tbs_sigalg(x);
-
 		if(BIO_puts(bp, "    ") <= 0)
 			goto err;
 		if(X509_signature_print(bp, tsig_alg, NULL) <= 0)
 			goto err;
 	}
-
 	if(!(cflag & X509_FLAG_NO_ISSUER)) {
 		if(BIO_printf(bp, "        Issuer:%c", mlch) <= 0)
 			goto err;
-		if(X509_NAME_print_ex(bp, X509_get_issuer_name(x), nmindent, nmflags)
-		    < 0)
+		if(X509_NAME_print_ex(bp, X509_get_issuer_name(x), nmindent, nmflags) < 0)
 			goto err;
 		if(BIO_write(bp, "\n", 1) <= 0)
 			goto err;
@@ -154,8 +148,7 @@ int X509_print_ex(BIO * bp, X509 * x, ulong nmflags,
 	if(!(cflag & X509_FLAG_NO_SUBJECT)) {
 		if(BIO_printf(bp, "        Subject:%c", mlch) <= 0)
 			goto err;
-		if(X509_NAME_print_ex
-			    (bp, X509_get_subject_name(x), nmindent, nmflags) < 0)
+		if(X509_NAME_print_ex(bp, X509_get_subject_name(x), nmindent, nmflags) < 0)
 			goto err;
 		if(BIO_write(bp, "\n", 1) <= 0)
 			goto err;
@@ -172,7 +165,6 @@ int X509_print_ex(BIO * bp, X509 * x, ulong nmflags,
 			goto err;
 		if(BIO_puts(bp, "\n") <= 0)
 			goto err;
-
 		pkey = X509_get0_pubkey(x);
 		if(!pkey) {
 			BIO_printf(bp, "%12sUnable to load Public Key\n", "");
@@ -182,28 +174,24 @@ int X509_print_ex(BIO * bp, X509 * x, ulong nmflags,
 			EVP_PKEY_print_public(bp, pkey, 16, NULL);
 		}
 	}
-
 	if(!(cflag & X509_FLAG_NO_IDS)) {
 		const ASN1_BIT_STRING * iuid, * suid;
 		X509_get0_uids(x, &iuid, &suid);
-		if(iuid != NULL) {
+		if(iuid) {
 			if(BIO_printf(bp, "%8sIssuer Unique ID: ", "") <= 0)
 				goto err;
 			if(!X509_signature_dump(bp, iuid, 12))
 				goto err;
 		}
-		if(suid != NULL) {
+		if(suid) {
 			if(BIO_printf(bp, "%8sSubject Unique ID: ", "") <= 0)
 				goto err;
 			if(!X509_signature_dump(bp, suid, 12))
 				goto err;
 		}
 	}
-
 	if(!(cflag & X509_FLAG_NO_EXTENSIONS))
-		X509V3_extensions_print(bp, "X509v3 extensions",
-		    X509_get0_extensions(x), cflag, 8);
-
+		X509V3_extensions_print(bp, "X509v3 extensions", X509_get0_extensions(x), cflag, 8);
 	if(!(cflag & X509_FLAG_NO_SIGDUMP)) {
 		const X509_ALGOR * sig_alg;
 		const ASN1_BIT_STRING * sig;

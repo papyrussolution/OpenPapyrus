@@ -652,7 +652,7 @@ static bool versionFilter(UChar32 ch, void * context) {
 	UVersionInfo v;
 	u_charAge(ch, v);
 	UVersionInfo* version = (UVersionInfo*)context;
-	return uprv_memcmp(&v, &none, sizeof(v)) > 0 && uprv_memcmp(&v, version, sizeof(v)) <= 0;
+	return memcmp(&v, &none, sizeof(v)) > 0 && memcmp(&v, version, sizeof(v)) <= 0;
 }
 
 typedef struct {

@@ -990,7 +990,7 @@ void UTextTest::ErrorTest()
 
 		// Check setIndex
 		int32_t i;
-		int32_t startMapLimit = UPRV_LENGTHOF(startMap);
+		int32_t startMapLimit = SIZEOFARRAYi(startMap);
 		for(i = 0; i<startMapLimit; i++) {
 			utext_setNativeIndex(ut, i);
 			int64_t cpIndex = utext_getNativeIndex(ut);
@@ -1060,7 +1060,7 @@ void UTextTest::ErrorTest()
 		UText * ut = utext_openUnicodeString(NULL, &u16str, &status);
 		TEST_SUCCESS(status);
 
-		int32_t startMapLimit = UPRV_LENGTHOF(startMap);
+		int32_t startMapLimit = SIZEOFARRAYi(startMap);
 		int i;
 		for(i = 0; i<startMapLimit; i++) {
 			utext_setNativeIndex(ut, i);
@@ -1128,7 +1128,7 @@ void UTextTest::ErrorTest()
 		UText * ut = utext_openReplaceable(NULL, &u16str, &status);
 		TEST_SUCCESS(status);
 
-		int32_t startMapLimit = UPRV_LENGTHOF(startMap);
+		int32_t startMapLimit = SIZEOFARRAYi(startMap);
 		int i;
 		for(i = 0; i<startMapLimit; i++) {
 			utext_setNativeIndex(ut, i);
@@ -1499,8 +1499,8 @@ void UTextTest::Ticket12130() {
 	for(int32_t startIdx = 0; startIdx<str.length(); ++startIdx) {
 		int32_t endIdx = startIdx + 20;
 
-		u_memset(extractBuffer, 0, UPRV_LENGTHOF(extractBuffer));
-		utext_extract(&ut, startIdx, endIdx, extractBuffer, UPRV_LENGTHOF(extractBuffer), &status);
+		u_memset(extractBuffer, 0, SIZEOFARRAYi(extractBuffer));
+		utext_extract(&ut, startIdx, endIdx, extractBuffer, SIZEOFARRAYi(extractBuffer), &status);
 		if(U_FAILURE(status)) {
 			errln("%s:%d %s", __FILE__, __LINE__, u_errorName(status));
 			return;
@@ -1526,8 +1526,8 @@ void UTextTest::Ticket12130() {
 	utext_openUChars(&ut, ustr, str.length(), &status);
 	for(int32_t startIdx = 0; startIdx<str.length(); ++startIdx) {
 		int32_t endIdx = startIdx + 20;
-		u_memset(extractBuffer, 0, UPRV_LENGTHOF(extractBuffer));
-		utext_extract(&ut, startIdx, endIdx, extractBuffer, UPRV_LENGTHOF(extractBuffer), &status);
+		u_memset(extractBuffer, 0, SIZEOFARRAYi(extractBuffer));
+		utext_extract(&ut, startIdx, endIdx, extractBuffer, SIZEOFARRAYi(extractBuffer), &status);
 		if(U_FAILURE(status)) {
 			errln("%s:%d %s", __FILE__, __LINE__, u_errorName(status));
 			return;

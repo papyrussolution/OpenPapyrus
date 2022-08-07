@@ -275,7 +275,7 @@ static void TestOpenInverse() {
 		"Hex-Any"
 	};
 
-	for(i = 0; i<UPRV_LENGTHOF(TransID); i = i+2) {
+	for(i = 0; i<SIZEOFARRAYi(TransID); i = i+2) {
 		status = U_ZERO_ERROR;
 		t1 = utrans_open(TransID[i], UTRANS_FORWARD, NULL, 0, NULL, &status);
 		if(t1 == NULL || U_FAILURE(status)) {
@@ -507,7 +507,7 @@ static void TestFilter() {
 		"abcde",
 		"\\u0061\\u0062\\u0063\\u0064\\u0065"
 	};
-	int32_t DATA_length = UPRV_LENGTHOF(DATA);
+	int32_t DATA_length = SIZEOFARRAYi(DATA);
 	int32_t i;
 
 	UTransliterator* hex = utrans_open("Any-Hex", UTRANS_FORWARD, NULL, 0, NULL, &status);

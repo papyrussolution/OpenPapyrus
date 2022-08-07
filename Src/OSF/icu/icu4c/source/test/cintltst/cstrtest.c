@@ -69,11 +69,11 @@ static void TestAPI(void)
 
 	log_verbose("Testing the API in cstring\n");
 	T_CString_toLowerCase(src);
-	if(uprv_strcmp(src, "hello there") != 0) {
+	if(strcmp(src, "hello there") != 0) {
 		log_err("FAIL: *** T_CString_toLowerCase() failed. Expected: \"hello there\", Got: \"%s\"\n", src);
 	}
 	T_CString_toUpperCase(src);
-	if(uprv_strcmp(src, "HELLO THERE") != 0) {
+	if(strcmp(src, "HELLO THERE") != 0) {
 		log_err("FAIL: *** T_CString_toUpperCase() failed. Expected: \"HELLO THERE\", Got: \"%s\"\n", src);
 	}
 
@@ -86,7 +86,7 @@ static void TestAPI(void)
 		log_err("FAIL: ****T_CString_stringToInteger(\"100\", 16) failed. Expected: 256, Got: %d\n", intValue);
 	}
 	i = T_CString_integerToString(src, 34556, 10);
-	if(uprv_strcmp(src, "34556") != 0 || i != 5) {
+	if(strcmp(src, "34556") != 0 || i != 5) {
 		log_err("FAIL: ****integerToString(src, 34566, 10); failed. Expected: \"34556\", Got: %s\n", src);
 	}
 	i = T_CString_integerToString(src, 431, 16);
@@ -94,7 +94,7 @@ static void TestAPI(void)
 		log_err("FAIL: ****integerToString(src, 431, 16); failed. Expected: \"1AF\", Got: %s\n", src);
 	}
 	i = T_CString_int64ToString(src, U_INT64_MAX, 10);
-	if(uprv_strcmp(src,  "9223372036854775807") != 0 || i != 19) {
+	if(strcmp(src,  "9223372036854775807") != 0 || i != 19) {
 		log_err("FAIL: ****integerToString(src, 9223372036854775807, 10); failed. Got: %s\n", src);
 	}
 	i = T_CString_int64ToString(src, U_INT64_MAX, 16);
@@ -102,7 +102,7 @@ static void TestAPI(void)
 		log_err("FAIL: ****integerToString(src, 7FFFFFFFFFFFFFFF, 16); failed. Got: %s\n", src);
 	}
 
-	uprv_strcpy(src, "this is lower case");
+	strcpy(src, "this is lower case");
 	if(uprv_stricmp(src, "THIS is lower CASE") != 0) {
 		log_err("FAIL: *****uprv_stricmp() failed.");
 	}
@@ -126,12 +126,12 @@ static void TestAPI(void)
 	}
 
 	temp = uprv_strdup("strdup");
-	if(uprv_strcmp(temp, "strdup") !=0) {
+	if(strcmp(temp, "strdup") !=0) {
 		log_err("FAIL: uprv_strdup() failed. Expected: \"strdup\", Got: %s\n", temp);
 	}
 	uprv_free((char *)temp);
 
-	uprv_strcpy(src, "this is lower case");
+	strcpy(src, "this is lower case");
 	if(uprv_strnicmp(src, "THIS", 4) != 0) {
 		log_err("FAIL: *****uprv_strnicmp() failed.");
 	}
@@ -244,11 +244,11 @@ static void TestInvariant() {
 			}
 
 			errorCode = U_ZERO_ERROR;
-			length = ucnv_toUChars(cnv, us, UPRV_LENGTHOF(us), invariantChars, -1, &errorCode);
+			length = ucnv_toUChars(cnv, us, SIZEOFARRAYi(us), invariantChars, -1, &errorCode);
 			if(U_FAILURE(errorCode)) {
 				log_err("ucnv_toUChars(invariantChars) failed - %s\n", u_errorName(errorCode));
 			}
-			else if(length!=UPRV_LENGTHOF(invariantUChars)-1 || u_strcmp(us, invariantUChars)!=0) {
+			else if(length!=SIZEOFARRAYi(invariantUChars)-1 || u_strcmp(us, invariantUChars)!=0) {
 				log_err("ucnv_toUChars(invariantChars) failed\n");
 			}
 
@@ -276,7 +276,7 @@ static void TestInvariant() {
 		}
 	}
 
-	for(i = 0; i<UPRV_LENGTHOF(nonASCIIUChars); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(nonASCIIUChars); ++i) {
 		if(uprv_isInvariantUString(nonASCIIUChars+i, 1)) {
 			log_err("uprv_isInvariantUString(nonASCIIUChars[%d]) failed\n", i);
 		}
@@ -320,11 +320,11 @@ static void TestCompareInvEbcdicAsAscii() {
 		{ "\x81\x81\x82", "aab" }
 	};
 	int32_t i;
-	for(i = 1; i<UPRV_LENGTHOF(invStrings); ++i) {
+	for(i = 1; i<SIZEOFARRAYi(invStrings); ++i) {
 		int32_t diff1, diff2;
 		/* compare previous vs. current */
 		diff1 = getSign(uprv_compareInvEbcdicAsAscii(invStrings[i-1][0], invStrings[i][0]));
-		if(diff1>0 || (diff1==0 && 0!=uprv_strcmp(invStrings[i-1][0], invStrings[i][0]))) {
+		if(diff1>0 || (diff1==0 && 0!=strcmp(invStrings[i-1][0], invStrings[i][0]))) {
 			log_err("uprv_compareInvEbcdicAsAscii(%s, %s)=%hd is wrong\n",
 			    invStrings[i-1][1], invStrings[i][1], (short)diff1);
 		}

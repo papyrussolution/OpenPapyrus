@@ -76,28 +76,28 @@ extern int testData(TestIDNA& test)
 	if(uprv_strchr(srcDir, U_FILE_SEP_CHAR) == NULL) {
 		filename[0] = 0x2E;
 		filename[1] = U_FILE_SEP_CHAR;
-		uprv_strcpy(filename+2, srcDir);
+		strcpy(filename+2, srcDir);
 	}
 	else {
-		uprv_strcpy(filename, srcDir);
+		strcpy(filename, srcDir);
 	}
-	basename = filename+uprv_strlen(filename);
+	basename = filename+strlen(filename);
 	if(basename>filename && *(basename-1)!=U_FILE_SEP_CHAR) {
 		*basename++ = U_FILE_SEP_CHAR;
 	}
 	/* process unassigned */
-	basename = filename+uprv_strlen(filename);
+	basename = filename+strlen(filename);
 	if(basename>filename && *(basename-1)!=U_FILE_SEP_CHAR) {
 		*basename++ = U_FILE_SEP_CHAR;
 	}
 	/* first copy misc directory */
 	saveBasename = basename;
 	(void)saveBasename; // Suppress set but not used warning.
-	uprv_strcpy(basename, SPREP_DIR);
-	basename = basename + uprv_strlen(SPREP_DIR);
+	strcpy(basename, SPREP_DIR);
+	basename = basename + strlen(SPREP_DIR);
 	*basename++ = U_FILE_SEP_CHAR;
 	/* process unassigned */
-	uprv_strcpy(basename, fileNames[0]);
+	strcpy(basename, fileNames[0]);
 	parseMappings(filename, TRUE, test, &errorCode);
 	if(U_FAILURE(errorCode)) {
 		test.errln("Could not open file %s for reading \n", filename);

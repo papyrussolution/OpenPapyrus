@@ -24,7 +24,7 @@ CCheckFilt & FASTCALL CCheckFilt::operator = (const CCheckFilt & src)
 	return *this;
 }
 
-/*virtual*/int CCheckFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int CCheckFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 3) {
@@ -3896,7 +3896,8 @@ private:
 			if(FiscalPrintintgEnabled()) {
 				CheckPaneDialog * cc_dlg = new CheckPaneDialog(Data.Rec.CashID, Data.Rec.ID, &Data, 0/*ctrFlags*/);
                 if(cc_dlg) {
-					int r = cc_dlg->AcceptCheck(0, 0, 0.0, CPosProcessor::accmAveragePrinting);
+					PPID   cc_id = 0;
+					int    r = cc_dlg->AcceptCheck(&cc_id, 0, 0, 0.0, CPosProcessor::accmAveragePrinting);
 					ZDELETE(cc_dlg);
 					if(r > 0) {
 						CCheckPacket new_pack;

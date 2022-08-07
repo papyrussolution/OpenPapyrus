@@ -575,7 +575,7 @@ void SimpleDateFormat::construct(EStyle timeStyle,
 
 	bool cTypeIsGregorian = TRUE;
 	LocalUResourceBundlePointer dateTimePatterns;
-	if(cType && uprv_strcmp(cType, "gregorian") != 0) {
+	if(cType && strcmp(cType, "gregorian") != 0) {
 		CharString resourcePath("calendar/", status);
 		resourcePath.append(cType, status).append("/DateTimePatterns", status);
 		dateTimePatterns.adoptInstead(
@@ -621,7 +621,7 @@ void SimpleDateFormat::construct(EStyle timeStyle,
 	UnicodeString timePattern;
 	if(timeStyle >= kFull && timeStyle <= kShort) {
 		const char * baseLocID = locale.getBaseName();
-		if(baseLocID[0]!=0 && uprv_strcmp(baseLocID, "und")!=0) {
+		if(baseLocID[0]!=0 && strcmp(baseLocID, "und")!=0) {
 			UErrorCode useStatus = U_ZERO_ERROR;
 			Locale baseLoc(baseLocID);
 			Locale validLoc(getLocale(ULOC_VALID_LOCALE, useStatus));
@@ -810,8 +810,8 @@ void SimpleDateFormat::initialize(const Locale & locale,
 	// if format is non-numeric (includes 年) and fDateOverride is not already specified.
 	// Now this does get updated if applyPattern subsequently changes the pattern type.
 	if(fDateOverride.isBogus() && fHasHanYearChar &&
-	    fCalendar != nullptr && uprv_strcmp(fCalendar->getType(), "japanese") == 0 &&
-	    uprv_strcmp(fLocale.getLanguage(), "ja") == 0) {
+	    fCalendar != nullptr && strcmp(fCalendar->getType(), "japanese") == 0 &&
+	    strcmp(fLocale.getLanguage(), "ja") == 0) {
 		fDateOverride.setTo(u"y=jpanyear", -1);
 	}
 
@@ -903,7 +903,7 @@ UnicodeString &SimpleDateFormat::_format(Calendar& cal, UnicodeString & appendTo
 	}
 	Calendar* workCal = &cal;
 	Calendar* calClone = NULL;
-	if(&cal != fCalendar && uprv_strcmp(cal.getType(), fCalendar->getType()) != 0) {
+	if(&cal != fCalendar && strcmp(cal.getType(), fCalendar->getType()) != 0) {
 		// Different calendar type
 		// We use the time and time zone from the input calendar, but
 		// do not use the input calendar for field calculation.
@@ -1018,7 +1018,7 @@ int32_t SimpleDateFormat::getLevelFromChar(UChar ch) {
 		-1, 20, 10, 70, -1, 10,  0, 20,  0, 10,  0, -1, -1, -1, -1, -1
 	};
 
-	return ch < UPRV_LENGTHOF(mapCharToLevel) ? mapCharToLevel[ch] : -1;
+	return ch < SIZEOFARRAYi(mapCharToLevel) ? mapCharToLevel[ch] : -1;
 }
 
 bool SimpleDateFormat::isSyntaxChar(UChar ch) {
@@ -1062,7 +1062,7 @@ bool SimpleDateFormat::isSyntaxChar(UChar ch) {
 		TRUE,  TRUE,  TRUE, FALSE, FALSE, FALSE, FALSE, FALSE
 	};
 
-	return ch < UPRV_LENGTHOF(mapCharToIsSyntax) ? mapCharToIsSyntax[ch] : FALSE;
+	return ch < SIZEOFARRAYi(mapCharToIsSyntax) ? mapCharToIsSyntax[ch] : FALSE;
 }
 
 // Map index into pattern character string to Calendar field number.
@@ -1258,7 +1258,7 @@ void SimpleDateFormat::processOverrideString(const Locale &locale, const Unicode
 			LocalPointer<NSOverride> cur(new NSOverride);
 			if(!cur.isNull()) {
 				char kw[ULOC_KEYWORD_AND_VALUES_CAPACITY];
-				uprv_strcpy(kw, "numbers=");
+				strcpy(kw, "numbers=");
 				nsName.extract(0, len, kw+8, ULOC_KEYWORD_AND_VALUES_CAPACITY-8, US_INV);
 
 				Locale ovrLoc(locale.getLanguage(), locale.getCountry(), locale.getVariant(), kw);
@@ -1350,8 +1350,8 @@ void SimpleDateFormat::subFormat(UnicodeString & appendTo,
 	const NumberFormat * currentNumberFormat;
 	DateFormatSymbols::ECapitalizationContextUsageType capContextUsageType = DateFormatSymbols::kCapContextUsageOther;
 
-	bool isHebrewCalendar = (uprv_strcmp(cal.getType(), "hebrew") == 0);
-	bool isChineseCalendar = (uprv_strcmp(cal.getType(), "chinese") == 0 || uprv_strcmp(cal.getType(), "dangi") == 0);
+	bool isHebrewCalendar = (strcmp(cal.getType(), "hebrew") == 0);
+	bool isChineseCalendar = (strcmp(cal.getType(), "chinese") == 0 || strcmp(cal.getType(), "dangi") == 0);
 
 	// if the pattern character is unrecognized, signal an error and dump out
 	if(patternCharIndex == UDAT_FIELD_COUNT) {
@@ -1625,7 +1625,7 @@ void SimpleDateFormat::subFormat(UnicodeString & appendTo,
 		case UDAT_TIMEZONE_ISO_LOCAL_FIELD: // 'x'
 	    {
 		    UChar zsbuf[ZONE_NAME_U16_MAX];
-		    UnicodeString zoneString(zsbuf, 0, UPRV_LENGTHOF(zsbuf));
+		    UnicodeString zoneString(zsbuf, 0, SIZEOFARRAYi(zsbuf));
 		    const TimeZone& tz = cal.getTimeZone();
 		    UDate date = cal.getTime(status);
 		    const TimeZoneFormat * tzfmt = tzFormat(status);
@@ -2143,7 +2143,7 @@ void SimpleDateFormat::parse(const UnicodeString & text, Calendar& cal, ParsePos
 
 	Calendar* calClone = NULL;
 	Calendar * workCal = &cal;
-	if(&cal != fCalendar && uprv_strcmp(cal.getType(), fCalendar->getType()) != 0) {
+	if(&cal != fCalendar && strcmp(cal.getType(), fCalendar->getType()) != 0) {
 		// Different calendar type
 		// We use the time/zone from the input calendar, but
 		// do not use the input calendar for field calculation.
@@ -2803,7 +2803,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, U
 	if(numericLeapMonthFormatter) {
 		numericLeapMonthFormatter->setFormats((const Format**)&currentNumberFormat, 1);
 	}
-	bool isChineseCalendar = (uprv_strcmp(cal.getType(), "chinese") == 0 || uprv_strcmp(cal.getType(), "dangi") == 0);
+	bool isChineseCalendar = (strcmp(cal.getType(), "chinese") == 0 || strcmp(cal.getType(), "dangi") == 0);
 
 	// If there are any spaces here, skip over them.  If we hit the end
 	// of the string, then fail.
@@ -3669,7 +3669,7 @@ void SimpleDateFormat::applyPattern(const UnicodeString & pattern)
 	parsePattern();
 	// Hack to update use of Gannen year numbering for ja@calendar=japanese -
 	// use only if format is non-numeric (includes 年) and no other fDateOverride.
-	if(fCalendar != nullptr && uprv_strcmp(fCalendar->getType(), "japanese") == 0 && uprv_strcmp(fLocale.getLanguage(), "ja") == 0) {
+	if(fCalendar != nullptr && strcmp(fCalendar->getType(), "japanese") == 0 && strcmp(fLocale.getLanguage(), "ja") == 0) {
 		if(fDateOverride==UnicodeString(u"y=jpanyear") && !fHasHanYearChar) {
 			// Gannen numbering is set but new pattern should not use it, unset;
 			// use procedure from adoptNumberFormat to clear overrides

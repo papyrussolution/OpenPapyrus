@@ -55,7 +55,7 @@ NumberingSystem::NumberingSystem()
 	//UnicodeString defaultDigits = DEFAULT_DIGITS;
 	UnicodeString defaultDigits(STextConst::P_DigitsW);
 	desc.setTo(defaultDigits);
-	uprv_strcpy(name, gLatn);
+	strcpy(name, gLatn);
 }
 /**
  * Copy constructor.
@@ -113,13 +113,13 @@ NumberingSystem* U_EXPORT2 NumberingSystem::createInstance(const Locale & inLoca
 	if(count > 0) { // @numbers keyword was specified in the locale
 		U_ASSERT(count < ULOC_KEYWORDS_CAPACITY);
 		buffer[count] = '\0'; // Make sure it is null terminated.
-		if(!uprv_strcmp(buffer, gDefault) || !uprv_strcmp(buffer, gNative) ||
-		    !uprv_strcmp(buffer, gTraditional) || !uprv_strcmp(buffer, gFinance)) {
+		if(!strcmp(buffer, gDefault) || !strcmp(buffer, gNative) ||
+		    !strcmp(buffer, gTraditional) || !strcmp(buffer, gFinance)) {
 			nsResolved = FALSE;
 		}
 	}
 	else {
-		uprv_strcpy(buffer, gDefault);
+		strcpy(buffer, gDefault);
 		nsResolved = FALSE;
 	}
 
@@ -150,11 +150,11 @@ NumberingSystem* U_EXPORT2 NumberingSystem::createInstance(const Locale & inLoca
 
 			if(!nsResolved) { // Fallback behavior per TR35 - traditional falls back to native, finance and
 				          // native fall back to default
-				if(!uprv_strcmp(buffer, gNative) || !uprv_strcmp(buffer, gFinance)) {
-					uprv_strcpy(buffer, gDefault);
+				if(!strcmp(buffer, gNative) || !strcmp(buffer, gFinance)) {
+					strcpy(buffer, gDefault);
 				}
-				else if(!uprv_strcmp(buffer, gTraditional)) {
-					uprv_strcpy(buffer, gNative);
+				else if(!strcmp(buffer, gTraditional)) {
+					strcpy(buffer, gNative);
 				}
 				else { // If we get here we couldn't find even the default numbering system
 					usingFallback = TRUE;

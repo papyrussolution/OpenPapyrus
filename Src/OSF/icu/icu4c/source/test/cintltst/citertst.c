@@ -116,8 +116,8 @@ static void TestBug672() {
 		ucol_close(coll);
 	}
 
-	if(uprv_memcmp(result[0], result[1], 3) != 0 ||
-	    uprv_memcmp(result[1], result[2], 3) != 0) {
+	if(memcmp(result[0], result[1], 3) != 0 ||
+	    memcmp(result[1], result[2], 3) != 0) {
 		log_err("ERROR: Different locales have different offsets at the same character\n");
 	}
 }
@@ -190,8 +190,8 @@ static void TestBug672Normalize() {
 		ucol_close(coll);
 	}
 
-	if(uprv_memcmp(result[0], result[1], 3) != 0 ||
-	    uprv_memcmp(result[1], result[2], 3) != 0) {
+	if(memcmp(result[0], result[1], 3) != 0 ||
+	    memcmp(result[1], result[2], 3) != 0) {
 		log_err("ERROR: Different locales have different offsets at the same character\n");
 	}
 }
@@ -1101,7 +1101,7 @@ static const UChar tsceText[] = {   /* Nothing in here should be ignorable */
 	0x0020, 0x1E4D,             /* small letter o with tilde and acute, decomposes */
 	0x0020
 };
-enum { kLen_tsceText = UPRV_LENGTHOF(tsceText) };
+enum { kLen_tsceText = SIZEOFARRAYi(tsceText) };
 
 static const int32_t rootStandardOffsets[] = {
 	0,  1, 2,
@@ -1117,7 +1117,7 @@ static const int32_t rootStandardOffsets[] = {
 	28,
 	29
 };
-enum { kLen_rootStandardOffsets = UPRV_LENGTHOF(rootStandardOffsets) };
+enum { kLen_rootStandardOffsets = SIZEOFARRAYi(rootStandardOffsets) };
 
 static const int32_t rootSearchOffsets[] = {
 	0,  1, 2,
@@ -1133,7 +1133,7 @@ static const int32_t rootSearchOffsets[] = {
 	28,
 	29
 };
-enum { kLen_rootSearchOffsets = UPRV_LENGTHOF(rootSearchOffsets) };
+enum { kLen_rootSearchOffsets = SIZEOFARRAYi(rootSearchOffsets) };
 
 typedef struct {
 	const char * locale;

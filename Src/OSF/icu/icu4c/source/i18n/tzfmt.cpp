@@ -295,7 +295,7 @@ TimeZoneFormat::TimeZoneFormat(const Locale & locale, UErrorCode & status)
 	}
 
 	const char * region = fLocale.getCountry();
-	int32_t regionLen = static_cast<int32_t>(uprv_strlen(region));
+	int32_t regionLen = static_cast<int32_t>(strlen(region));
 	if(regionLen == 0) {
 		CharString loc;
 		{
@@ -312,7 +312,7 @@ TimeZoneFormat::TimeZoneFormat(const Locale & locale, UErrorCode & status)
 		}
 	}
 	else if(regionLen < (int32_t)sizeof(fTargetRegion)) {
-		uprv_strcpy(fTargetRegion, region);
+		strcpy(fTargetRegion, region);
 	}
 	else {
 		fTargetRegion[0] = 0;
@@ -752,7 +752,7 @@ UnicodeString &TimeZoneFormat::format(const Formattable& obj, UnicodeString & ap
 			int32_t rawOffset, dstOffset;
 			tz->getOffset(date, FALSE, rawOffset, dstOffset, status);
 			UChar buf[ZONE_NAME_U16_MAX];
-			UnicodeString result(buf, 0, UPRV_LENGTHOF(buf));
+			UnicodeString result(buf, 0, SIZEOFARRAYi(buf));
 			formatOffsetLocalizedGMT(rawOffset + dstOffset, result, status);
 			if(U_SUCCESS(status)) {
 				appendTo.append(result);
@@ -818,7 +818,7 @@ TimeZone* TimeZoneFormat::parse(UTimeZoneFormatStyle style, const UnicodeString 
 
 	UErrorCode status = U_ZERO_ERROR;
 	UChar tzIDBuf[32];
-	UnicodeString tzID(tzIDBuf, 0, UPRV_LENGTHOF(tzIDBuf));
+	UnicodeString tzID(tzIDBuf, 0, SIZEOFARRAYi(tzIDBuf));
 
 	bool parseTZDBAbbrev = ((parseOptions & UTZFMT_PARSE_OPTION_TZ_DATABASE_ABBREVIATIONS) != 0);
 
@@ -1069,7 +1069,7 @@ TimeZone* TimeZoneFormat::parse(UTimeZoneFormatStyle style, const UnicodeString 
 	// Failed to parse the input text as the time zone format in the specified style.
 	// Check the longest match among other styles below.
 	UChar parsedIDBuf[32];
-	UnicodeString parsedID(parsedIDBuf, 0, UPRV_LENGTHOF(parsedIDBuf));
+	UnicodeString parsedID(parsedIDBuf, 0, SIZEOFARRAYi(parsedIDBuf));
 	UTimeZoneFormatTimeType parsedTimeType = UTZFMT_TIME_TYPE_UNKNOWN;
 
 	U_ASSERT(parsedPos < 0);
@@ -1376,7 +1376,7 @@ const TZDBTimeZoneNames* TimeZoneFormat::getTZDBTimeZoneNames(UErrorCode & statu
 
 UnicodeString &TimeZoneFormat::formatExemplarLocation(const TimeZone& tz, UnicodeString & name) const {
 	UChar locationBuf[ZONE_NAME_U16_MAX];
-	UnicodeString location(locationBuf, 0, UPRV_LENGTHOF(locationBuf));
+	UnicodeString location(locationBuf, 0, SIZEOFARRAYi(locationBuf));
 	const UChar * canonicalID = ZoneMeta::getCanonicalCLDRID(tz);
 
 	if(canonicalID) {
@@ -2415,7 +2415,7 @@ UVector* TimeZoneFormat::parseOffsetPattern(const UnicodeString & pattern, Offse
 	bool isPrevQuote = FALSE;
 	bool inQuote = FALSE;
 	UChar textBuf[32];
-	UnicodeString text(textBuf, 0, UPRV_LENGTHOF(textBuf));
+	UnicodeString text(textBuf, 0, SIZEOFARRAYi(textBuf));
 	GMTOffsetField::FieldType itemType = GMTOffsetField::TEXT;
 	int32_t itemLength = 1;
 
@@ -2696,7 +2696,7 @@ UTimeZoneFormatTimeType TimeZoneFormat::getTimeType(UTimeZoneNameType nameType) 
 UnicodeString &TimeZoneFormat::getTimeZoneID(const TimeZoneNames::MatchInfoCollection* matches, int32_t idx, UnicodeString & tzID) const {
 	if(!matches->getTimeZoneIDAt(idx, tzID)) {
 		UChar mzIDBuf[32];
-		UnicodeString mzID(mzIDBuf, 0, UPRV_LENGTHOF(mzIDBuf));
+		UnicodeString mzID(mzIDBuf, 0, SIZEOFARRAYi(mzIDBuf));
 		if(matches->getMetaZoneIDAt(idx, mzID)) {
 			fTimeZoneNames->getReferenceZoneID(mzID, fTargetRegion, tzID);
 		}

@@ -783,7 +783,7 @@ void NumberRangeFormatterTest::testFieldPositions() {
 			result,
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 
 	{
@@ -811,7 +811,7 @@ void NumberRangeFormatterTest::testFieldPositions() {
 			result,
 			expectedString,
 			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+			SIZEOFARRAYi(expectedFieldPositions));
 	}
 }
 

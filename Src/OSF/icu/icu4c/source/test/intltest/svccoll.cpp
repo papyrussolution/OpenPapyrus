@@ -192,7 +192,7 @@ void CollationServiceTest::TestRegister()
 
 		if(fufu.isValid()) {
 			const char * nlocstr = ucol_getLocaleByType(fufu.getAlias(), ULOC_VALID_LOCALE, &status);
-			if(uprv_strcmp(nlocstr, "fu_FU") != 0) {
+			if(strcmp(nlocstr, "fu_FU") != 0) {
 				errln(UnicodeString("asked for uloc valid locale after close and got ") + nlocstr);
 			}
 		}
@@ -553,7 +553,7 @@ int32_t CollationServiceTest::checkAvailable(const char * msg) {
 static const char * KW[] = {
 	"collation"
 };
-static const int32_t KW_COUNT = UPRV_LENGTHOF(KW);
+static const int32_t KW_COUNT = SIZEOFARRAYi(KW);
 
 static const char * KWVAL[] = {
 	"phonebook",
@@ -561,7 +561,7 @@ static const char * KWVAL[] = {
 	"emoji",
 	"eor"
 };
-static const int32_t KWVAL_COUNT = UPRV_LENGTHOF(KWVAL);
+static const int32_t KWVAL_COUNT = SIZEOFARRAYi(KWVAL);
 
 void CollationServiceTest::TestSeparateTree() {
 	UErrorCode ec = U_ZERO_ERROR;

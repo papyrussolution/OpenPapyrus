@@ -1029,7 +1029,7 @@ void DateIntervalFormatTest::testFormat() {
 		"ja-u-ca-japanese", "H 31 04 15 09:00:00", JP_ERA_2019_NARROW " 1 05 15 09:00:00", "GGGGGyMd",
 		"H31/04/15\\uFF5E" JP_ERA_2019_NARROW "1/05/15",
 	};
-	expect(DATA, UPRV_LENGTHOF(DATA));
+	expect(DATA, SIZEOFARRAYi(DATA));
 }
 
 /**
@@ -1126,7 +1126,7 @@ void DateIntervalFormatTest::testHourMetacharacters() {
 		// regression test for ICU-21343
 		"de", "CE 2010 09 27 01:00:00", "CE 2010 09 27 10:00:00", "KK", "1 \\u2013 10 Uhr AM",
 	};
-	expect(DATA, UPRV_LENGTHOF(DATA));
+	expect(DATA, SIZEOFARRAYi(DATA));
 }
 
 void DateIntervalFormatTest::expect(const char ** data, int32_t data_length) {
@@ -1242,7 +1242,7 @@ void DateIntervalFormatTest::testFormatUserDII() {
 
 		"es", "2007 01 10 10:10:10", "2007 01 10 10:10:20", "10 ene 2007",
 	};
-	expectUserDII(DATA, UPRV_LENGTHOF(DATA));
+	expectUserDII(DATA, SIZEOFARRAYi(DATA));
 }
 
 /*
@@ -1536,12 +1536,12 @@ void DateIntervalFormatTest::testStress() {
 	};
 
 	uint32_t localeIndex;
-	for(localeIndex = 0; localeIndex < UPRV_LENGTHOF(testLocale); ++localeIndex) {
+	for(localeIndex = 0; localeIndex < SIZEOFARRAYi(testLocale); ++localeIndex) {
 		char locName[32];
-		uprv_strcpy(locName, testLocale[localeIndex][0]);
+		strcpy(locName, testLocale[localeIndex][0]);
 		uprv_strcat(locName, testLocale[localeIndex][1]);
 		stress(DATA,
-		    UPRV_LENGTHOF(DATA),
+		    SIZEOFARRAYi(DATA),
 		    Locale(testLocale[localeIndex][0], testLocale[localeIndex][1], testLocale[localeIndex][2]),
 		    locName);
 	}
@@ -1614,14 +1614,14 @@ void DateIntervalFormatTest::stress(const char ** data, int32_t data_length,
 		DateInterval dtitv(date, date_2);
 
 		for(uint32_t skeletonIndex = 0;
-		    skeletonIndex < UPRV_LENGTHOF(skeleton);
+		    skeletonIndex < SIZEOFARRAYi(skeleton);
 		    ++skeletonIndex) {
 			const UnicodeString & oneSkeleton = skeleton[skeletonIndex];
 			DateIntervalFormat* dtitvfmt = DateIntervalFormat::createInstance(oneSkeleton, loc, ec);
 			if(!assertSuccess("createInstance(skeleton)", ec)) return;
 			/*
 			   // reset the calendar to be Gregorian calendar for "th"
-			   if( uprv_strcmp(locName, "th") == 0) {
+			   if( strcmp(locName, "th") == 0) {
 			    GregorianCalendar* gregCal = new GregorianCalendar(loc, ec);
 			    if(!assertSuccess("GregorianCalendar()", ec)) return;
 			    const DateFormat* dformat = dtitvfmt->getDateFormat();
@@ -1660,7 +1660,7 @@ void DateIntervalFormatTest::stress(const char ** data, int32_t data_length,
 		if(!assertSuccess("createInstance(skeleton,dtitvinf)", ec)) return;
 		FieldPosition pos(FieldPosition::DONT_CARE);
 		dtitvfmt->format(&dtitv, str.remove(), pos, ec);
-		if(uprv_strcmp(locName, "th")) {
+		if(strcmp(locName, "th")) {
 			if(!assertSuccess("format", ec)) return;
 #ifdef DTIFMTTS_DEBUG
 			PRINTMESG("interval format using user defined DateIntervalInfo\n");
@@ -1830,7 +1830,7 @@ void DateIntervalFormatTest::testFormattedDateInterval()
 			{UFIELD_CATEGORY_DATE, UDAT_DATE_FIELD, 10, 12},
 			{UFIELD_CATEGORY_DATE, UDAT_YEAR_FIELD, 14, 18}
 		};
-		checkMixedFormattedValue(message, result, UnicodeString(expectedString), expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, result, UnicodeString(expectedString), expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	{
 		const char16_t* message = u"FormattedDateInterval identical dates test: no span field";
@@ -1844,7 +1844,7 @@ void DateIntervalFormatTest::testFormattedDateInterval()
 			{UFIELD_CATEGORY_DATE, UDAT_DATE_FIELD, 5, 7},
 			{UFIELD_CATEGORY_DATE, UDAT_YEAR_FIELD, 9, 13}
 		};
-		checkMixedFormattedValue(message, result, UnicodeString(expectedString), expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, result, UnicodeString(expectedString), expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 	// Test sample code
 	{
@@ -1898,7 +1898,7 @@ void DateIntervalFormatTest::testFormattedDateInterval()
 			{UFIELD_CATEGORY_DATE, UDAT_DATE_FIELD, 26, 28},
 			{UFIELD_CATEGORY_DATE, UDAT_YEAR_FIELD, 30, 34}
 		};
-		checkMixedFormattedValue(message, result, UnicodeString(expectedString), expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, result, UnicodeString(expectedString), expectedFieldPositions, SIZEOFARRAYi(expectedFieldPositions));
 	}
 }
 

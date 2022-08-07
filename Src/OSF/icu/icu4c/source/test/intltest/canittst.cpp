@@ -142,7 +142,7 @@ void CanonicalIteratorTest::TestBasic() {
 	int32_t i = 0;
 	CanonicalIterator it("", status);
 	if(U_SUCCESS(status)) {
-		for(i = 0; i < UPRV_LENGTHOF(testArray); ++i) {
+		for(i = 0; i < SIZEOFARRAYi(testArray); ++i) {
 			//logln("Results for: " + name.transliterate(testArray[i]));
 			UnicodeString testStr = CharsToUnicodeString(testArray[i][0]);
 			it.setSource(testStr, status);

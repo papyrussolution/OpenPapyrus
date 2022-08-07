@@ -1174,7 +1174,7 @@ static const UChar UNESCAPE_MAP[] = {
 	/*t*/ 0x74, 0x09,
 	/*v*/ 0x76, 0x0b
 };
-enum { UNESCAPE_MAP_LENGTH = UPRV_LENGTHOF(UNESCAPE_MAP) };
+enum { UNESCAPE_MAP_LENGTH = SIZEOFARRAYi(UNESCAPE_MAP) };
 
 /* Convert one octal digit to a numeric value 0..7, or -1 on failure */
 static int32_t _digit8(UChar c) 
@@ -1383,7 +1383,7 @@ U_CAPI int32_t U_EXPORT2 u_unescape(const char * src, UChar * dest, int32_t dest
 				i += (int32_t)(src - segment);
 			}
 			++src; /* advance past '\\' */
-			c32 = (UChar32)u_unescapeAt(_charPtr_charAt, &lenParsed, (int32_t)uprv_strlen(src), (void *)src);
+			c32 = (UChar32)u_unescapeAt(_charPtr_charAt, &lenParsed, (int32_t)strlen(src), (void *)src);
 			if(lenParsed == 0) {
 				goto err;
 			}

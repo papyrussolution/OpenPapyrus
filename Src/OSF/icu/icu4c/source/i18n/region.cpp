@@ -341,7 +341,7 @@ void U_CALLCONV Region::loadRegionData(UErrorCode & status) {
 			return; // error out
 		}
 		const char * parent = ures_getKey(mapping.getAlias());
-		if(uprv_strcmp(parent, "containedGroupings") == 0 || uprv_strcmp(parent, "deprecated") == 0) {
+		if(strcmp(parent, "containedGroupings") == 0 || strcmp(parent, "deprecated") == 0) {
 			continue; // handle new pseudo-parent types added in ICU data per cldrbug 7808; for now just
 			          // skip.
 			// #11232 is to do something useful with these.

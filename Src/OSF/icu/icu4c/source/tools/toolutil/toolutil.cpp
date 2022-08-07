@@ -92,7 +92,7 @@ U_CAPI const char * U_EXPORT2 getLongPathname(const char * pathname) {
 			const char * basename = findBasename(pathname);
 			if(basename!=pathname) {
 				/* prepend the long filename with the original path */
-				uprv_memmove(info.cFileName+(basename-pathname), info.cFileName, uprv_strlen(info.cFileName)+1);
+				uprv_memmove(info.cFileName+(basename-pathname), info.cFileName, strlen(info.cFileName)+1);
 				uprv_memcpy(info.cFileName, pathname, basename-pathname);
 			}
 			pathname = info.cFileName;
@@ -264,7 +264,7 @@ U_CAPI UToolMemory * U_EXPORT2 utm_open(const char * name, int32_t initialCapaci
 	}
 	mem->array = mem->staticArray;
 
-	uprv_strcpy(mem->name, name);
+	strcpy(mem->name, name);
 	mem->capacity = initialCapacity;
 	mem->maxCapacity = maxCapacity;
 	mem->size = size;

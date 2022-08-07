@@ -69,7 +69,7 @@ struct ExtParams_Before24 {
 	RealRange DimW;
 };
 
-/*virtual*/int GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int GoodsFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == -24) {

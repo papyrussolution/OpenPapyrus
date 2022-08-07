@@ -1203,7 +1203,45 @@ struct _BtsFormatBlock {
 	_BtsFormatBlock(int bts) : Bts(bts), Fmt(0), Fmt2(0)
 	{
 	}
-	const  int    Bts;
+	void   ToString(SString & rBuf) const
+	{
+		rBuf.Z();
+		switch(Bts) {
+			case BTS_INT:
+				break;
+			case BTS_REAL:
+				{
+					int prec = SFMTPRC(Fmt);
+					if(prec > 0) {
+						rBuf.CatChar('0').Dot().CatLongZ(1, prec);
+					}
+					else if(prec < 0) {
+						rBuf.CatChar('1').CatCharN('0', (-prec)-1);
+					}
+					else
+						rBuf.CatChar('0');
+				}
+				break;
+			case BTS_DATE:
+				PPGetSubStrById(PPTXT_FORMATLIST_DATE, SFMTFLAG(Fmt), rBuf);
+				break;
+			case BTS_TIME:
+				PPGetSubStrById(PPTXT_FORMATLIST_TIME, SFMTFLAG(Fmt), rBuf);
+				break;
+			case BTS_DATETIME:
+				{
+					SString _d;
+					SString _t;
+					PPGetSubStrById(PPTXT_FORMATLIST_DATE, SFMTFLAG(Fmt), _d);
+					PPGetSubStrById(PPTXT_FORMATLIST_TIME, SFMTFLAG(Fmt2), _t);
+					rBuf.Cat(_d);
+					if(_t.NotEmpty())
+						rBuf.Space().Cat(_t);
+				}
+				break;
+		}
+	}
+	const  int Bts;
 	long   Fmt;
 	long   Fmt2;
 };
@@ -1298,6 +1336,14 @@ public:
 		setCtrlString(CTL_MOBCLEDT_TXT, Data.Text); // Поле "Text"
 		SetupStringCombo(this, CTLSEL_MOBCLEDT_AGGR, PPTXT_AGGRFUNCNAMELIST, Data.TotalFunc);
 		SetupField();
+		{
+			SString temp_buf;
+			_BtsFormatBlock blk(Data.DataType);
+			blk.Fmt = Data.Format;
+			blk.Fmt2 = Data.Format2;
+			blk.ToString(temp_buf);
+			setCtrlString(CTL_MOBCLEDT_FMT, temp_buf);
+		}
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -1344,6 +1390,10 @@ private:
 				if(EditBtsFormat(blk) > 0) {
 					Data.Format = blk.Fmt;
 					Data.Format2 = blk.Fmt2;
+
+					SString temp_buf;
+					blk.ToString(temp_buf);
+					setCtrlString(CTL_MOBCLEDT_FMT, temp_buf);
 				}
 			}
 		}

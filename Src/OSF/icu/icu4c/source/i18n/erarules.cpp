@@ -136,7 +136,7 @@ EraRules* EraRules::createInstance(const char * calType, bool includeTentativeEr
 		const char * eraIdxStr = ures_getKey(eraRuleRes.getAlias());
 		char * endp;
 		int32_t eraIdx = (int32_t)strtol(eraIdxStr, &endp, 10);
-		if((size_t)(endp - eraIdxStr) != uprv_strlen(eraIdxStr)) {
+		if((size_t)(endp - eraIdxStr) != strlen(eraIdxStr)) {
 			status = U_INVALID_FORMAT_ERROR;
 			return nullptr;
 		}
@@ -159,7 +159,7 @@ EraRules* EraRules::createInstance(const char * calType, bool includeTentativeEr
 				return nullptr;
 			}
 			const char * key = ures_getKey(res.getAlias());
-			if(uprv_strcmp(key, "start") == 0) {
+			if(strcmp(key, "start") == 0) {
 				const int32_t * fields = ures_getIntVector(res.getAlias(), &len, &status);
 				if(U_FAILURE(status)) {
 					return nullptr;
@@ -170,13 +170,13 @@ EraRules* EraRules::createInstance(const char * calType, bool includeTentativeEr
 				}
 				startDates[eraIdx] = encodeDate(fields[0], fields[1], fields[2]);
 			}
-			else if(uprv_strcmp(key, "named") == 0) {
+			else if(strcmp(key, "named") == 0) {
 				const UChar * val = ures_getString(res.getAlias(), &len, &status);
 				if(u_strncmp(val, VAL_FALSE, VAL_FALSE_LEN) == 0) {
 					hasName = FALSE;
 				}
 			}
-			else if(uprv_strcmp(key, "end") == 0) {
+			else if(strcmp(key, "end") == 0) {
 				hasEnd = TRUE;
 			}
 		}

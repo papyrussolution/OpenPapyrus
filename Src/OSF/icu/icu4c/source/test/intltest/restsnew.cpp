@@ -154,7 +154,7 @@ param[] =
 	{ "ne",         0,   U_USING_DEFAULT_WARNING,  e_Root,      { TRUE, FALSE, FALSE }, { TRUE, FALSE, FALSE } }
 };
 
-static int32_t bundles_count = UPRV_LENGTHOF(param);
+static int32_t bundles_count = SIZEOFARRAYi(param);
 
 //***************************************************************************************
 
@@ -215,7 +215,7 @@ NewResourceBundleTest::~NewResourceBundleTest()
 {
 	if(param[5].locale) {
 		int idx;
-		for(idx = 0; idx < UPRV_LENGTHOF(param); idx++) {
+		for(idx = 0; idx < SIZEOFARRAYi(param); idx++) {
 			delete param[idx].locale;
 			param[idx].locale = NULL;
 		}
@@ -351,7 +351,7 @@ void NewResourceBundleTest::TestIteration()
 	UnicodeString element("TE_IN");
 	UnicodeString action;
 
-	for(i = 0; i<UPRV_LENGTHOF(data); i = i+2) {
+	for(i = 0; i<SIZEOFARRAYi(data); i = i+2) {
 		action = "te_IN";
 		action += ".get(";
 		action += data[i];
@@ -557,7 +557,7 @@ void NewResourceBundleTest::TestOtherAPI() {
 		UnicodeString element("TE_IN");
 		UnicodeString action;
 
-		for(i = 0; i<UPRV_LENGTHOF(data); i = i+2) {
+		for(i = 0; i<SIZEOFARRAYi(data); i = i+2) {
 			action = "te_IN";
 			action += ".get(";
 			action += data[i];
@@ -719,7 +719,7 @@ bool NewResourceBundleTest::testTag(const char * frag,
 		//--------------------------------------------------------------------------
 		// string
 
-		uprv_strcpy(tag, "string_");
+		strcpy(tag, "string_");
 		uprv_strcat(tag, frag);
 
 		action = param[i].name;
@@ -745,7 +745,7 @@ bool NewResourceBundleTest::testTag(const char * frag,
 		//--------------------------------------------------------------------------
 		// array   ResourceBundle using the key
 
-		uprv_strcpy(tag, "array_");
+		strcpy(tag, "array_");
 		uprv_strcat(tag, frag);
 
 		action = param[i].name;
@@ -811,7 +811,7 @@ bool NewResourceBundleTest::testTag(const char * frag,
 		//--------------------------------------------------------------------------
 		// 2dArray
 
-		uprv_strcpy(tag, "array_2d_");
+		strcpy(tag, "array_2d_");
 		uprv_strcat(tag, frag);
 
 		action = param[i].name;
@@ -897,7 +897,7 @@ bool NewResourceBundleTest::testTag(const char * frag,
 		//--------------------------------------------------------------------------
 		// taggedArray
 
-		uprv_strcpy(tag, "tagged_array_");
+		strcpy(tag, "tagged_array_");
 		uprv_strcat(tag, frag);
 
 		action = param[i].name;
@@ -963,7 +963,7 @@ bool NewResourceBundleTest::testTag(const char * frag,
 			status = U_ZERO_ERROR;
 			string = kErrorUChars;
 			char item_tag[8];
-			uprv_strcpy(item_tag, "tag");
+			strcpy(item_tag, "tag");
 			uprv_strcat(item_tag, itoa(index, buf));
 			ResourceBundle tags = theBundle.get(tag, status);
 			if(U_SUCCESS(status)) {
@@ -1135,7 +1135,7 @@ void NewResourceBundleTest::TestNewTypes() {
 		UnicodeString str = theBundle.getStringEx("testescape", status);
 		CONFIRM_UErrorCode(status, U_ZERO_ERROR);
 		if(U_SUCCESS(status)) {
-			u_charsToUChars(expect, uExpect, (int32_t)uprv_strlen(expect)+1);
+			u_charsToUChars(expect, uExpect, (int32_t)strlen(expect)+1);
 			if(str.compare(uExpect)!=0) {
 				errln("Did not get the expected string for testescape expected. Expected : "
 				    +UnicodeString(uExpect)+ " Got: " + str);
@@ -1147,7 +1147,7 @@ void NewResourceBundleTest::TestNewTypes() {
 		UnicodeString str = theBundle.getStringEx("test_underscores", status);
 		expect = "test message ....";
 		CONFIRM_UErrorCode(status, U_ZERO_ERROR);
-		u_charsToUChars(expect, uExpect, (int32_t)uprv_strlen(expect)+1);
+		u_charsToUChars(expect, uExpect, (int32_t)strlen(expect)+1);
 		if(str.compare(uExpect)!=0) {
 			errln("Did not get the expected string for test_underscores.\n");
 		}
@@ -1361,14 +1361,14 @@ void NewResourceBundleTest::TestIntervalAliasFallbacks() {
 		"roc",
 	};
 
-	for(int lidx = 0; lidx < UPRV_LENGTHOF(locales); lidx++) {
+	for(int lidx = 0; lidx < SIZEOFARRAYi(locales); lidx++) {
 		UErrorCode status = U_ZERO_ERROR;
 		UResourceBundle * rb = ures_open(NULL, locales[lidx], &status);
 		if(U_FAILURE(status)) {
 			errln("Cannot open bundle for locale %s", locales[lidx]);
 			break;
 		}
-		for(int cidx = 0; cidx < UPRV_LENGTHOF(calendars); cidx++) {
+		for(int cidx = 0; cidx < SIZEOFARRAYi(calendars); cidx++) {
 			CharString key;
 			key.append("calendar/", status);
 			key.append(calendars[cidx], status);
@@ -1482,7 +1482,7 @@ void NewResourceBundleTest::TestOpenDirectFillIn() {
 		return;
 	}
 
-	if(0!=uprv_strcmp("idna_rules", ures_getLocale(&idna_rules, errorCode))) {
+	if(0!=strcmp("idna_rules", ures_getLocale(&idna_rules, errorCode))) {
 		errln("ures_openDirectFillIn(\"idna_rules\").getLocale()!=idna_rules");
 	}
 	errorCode.reset();

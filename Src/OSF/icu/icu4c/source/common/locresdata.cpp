@@ -91,9 +91,9 @@ uloc_getTableStringWithFallback(const char *path, const char *locale,
                 *pErrorCode = errorCode; /*save the errorCode*/
                 errorCode = U_ZERO_ERROR;
                 /* may be a deprecated code */
-                if(uprv_strcmp(tableKey, "Countries")==0) {
+                if(strcmp(tableKey, "Countries")==0) {
                     replacement =  uloc_getCurrentCountryID(itemKey);
-                }else if(uprv_strcmp(tableKey, "Languages")==0) {
+                }else if(strcmp(tableKey, "Languages")==0) {
                     replacement =  uloc_getCurrentLanguageID(itemKey);
                 }
                 /*pointer comparison is ok since uloc_getCurrentCountryID & uloc_getCurrentLanguageID return the key itself is replacement is not found*/
@@ -126,7 +126,7 @@ uloc_getTableStringWithFallback(const char *path, const char *locale,
             u_UCharsToChars(fallbackLocale, explicitFallbackName, len);
             
             /* guard against recursive fallback */
-            if(uprv_strcmp(explicitFallbackName, locale)==0) {
+            if(strcmp(explicitFallbackName, locale)==0) {
                 *pErrorCode = U_INTERNAL_PROGRAM_ERROR;
                 break;
             }

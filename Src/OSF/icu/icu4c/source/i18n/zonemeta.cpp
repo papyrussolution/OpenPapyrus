@@ -259,7 +259,7 @@ const UChar * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tzid,
 	// If not, resolve CLDR canonical ID with resource data
 	bool isInputCanonical = FALSE;
 	char id[ZID_KEY_MAX + 1];
-	tzid.extract(0, 0x7fffffff, id, UPRV_LENGTHOF(id), US_INV);
+	tzid.extract(0, 0x7fffffff, id, SIZEOFARRAYi(id), US_INV);
 
 	// replace '/' with ':'
 	char * p = id;
@@ -784,7 +784,7 @@ static void U_CALLCONV initAvailableMetaZoneIDs() {
 			break;
 		}
 		const char * mzID = ures_getKey(res.getAlias());
-		int32_t len = static_cast<int32_t>(uprv_strlen(mzID));
+		int32_t len = static_cast<int32_t>(strlen(mzID));
 		UChar * uMzID = (UChar *)uprv_malloc(sizeof(UChar) * (len + 1));
 		if(uMzID == NULL) {
 			status = U_MEMORY_ALLOCATION_ERROR;

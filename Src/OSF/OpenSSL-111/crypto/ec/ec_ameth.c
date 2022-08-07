@@ -344,40 +344,33 @@ static int do_EC_KEY_print(BIO * bp, const EC_KEY * x, int off, ec_print_t ktype
 		if(publen == 0)
 			goto err;
 	}
-
 	if(ktype == EC_KEY_PRINT_PRIVATE && EC_KEY_get0_private_key(x) != NULL) {
 		privlen = EC_KEY_priv2buf(x, &priv);
 		if(privlen == 0)
 			goto err;
 	}
-
 	if(ktype == EC_KEY_PRINT_PRIVATE)
 		ecstr = "Private-Key";
 	else if(ktype == EC_KEY_PRINT_PUBLIC)
 		ecstr = "Public-Key";
 	else
 		ecstr = "ECDSA-Parameters";
-
 	if(!BIO_indent(bp, off, 128))
 		goto err;
-	if(BIO_printf(bp, "%s: (%d bit)\n", ecstr,
-	    EC_GROUP_order_bits(group)) <= 0)
+	if(BIO_printf(bp, "%s: (%d bit)\n", ecstr, EC_GROUP_order_bits(group)) <= 0)
 		goto err;
-
 	if(privlen != 0) {
 		if(BIO_printf(bp, "%*spriv:\n", off, "") <= 0)
 			goto err;
 		if(ASN1_buf_print(bp, priv, privlen, off + 4) == 0)
 			goto err;
 	}
-
 	if(publen != 0) {
 		if(BIO_printf(bp, "%*spub:\n", off, "") <= 0)
 			goto err;
 		if(ASN1_buf_print(bp, pub, publen, off + 4) == 0)
 			goto err;
 	}
-
 	if(!ECPKParameters_print(bp, group, off))
 		goto err;
 	ret = 1;
@@ -389,11 +382,9 @@ err:
 	return ret;
 }
 
-static int eckey_param_decode(EVP_PKEY * pkey,
-    const uchar ** pder, int derlen)
+static int eckey_param_decode(EVP_PKEY * pkey, const uchar ** pder, int derlen)
 {
 	EC_KEY * eckey;
-
 	if((eckey = d2i_ECParameters(NULL, pder, derlen)) == NULL) {
 		ECerr(EC_F_ECKEY_PARAM_DECODE, ERR_R_EC_LIB);
 		return 0;
@@ -407,29 +398,24 @@ static int eckey_param_encode(const EVP_PKEY * pkey, uchar ** pder)
 	return i2d_ECParameters(pkey->pkey.ec, pder);
 }
 
-static int eckey_param_print(BIO * bp, const EVP_PKEY * pkey, int indent,
-    ASN1_PCTX * ctx)
+static int eckey_param_print(BIO * bp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * ctx)
 {
 	return do_EC_KEY_print(bp, pkey->pkey.ec, indent, EC_KEY_PRINT_PARAM);
 }
 
-static int eckey_pub_print(BIO * bp, const EVP_PKEY * pkey, int indent,
-    ASN1_PCTX * ctx)
+static int eckey_pub_print(BIO * bp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * ctx)
 {
 	return do_EC_KEY_print(bp, pkey->pkey.ec, indent, EC_KEY_PRINT_PUBLIC);
 }
 
-static int eckey_priv_print(BIO * bp, const EVP_PKEY * pkey, int indent,
-    ASN1_PCTX * ctx)
+static int eckey_priv_print(BIO * bp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * ctx)
 {
 	return do_EC_KEY_print(bp, pkey->pkey.ec, indent, EC_KEY_PRINT_PRIVATE);
 }
 
-static int old_ec_priv_decode(EVP_PKEY * pkey,
-    const uchar ** pder, int derlen)
+static int old_ec_priv_decode(EVP_PKEY * pkey, const uchar ** pder, int derlen)
 {
 	EC_KEY * ec;
-
 	if((ec = d2i_ECPrivateKey(NULL, pder, derlen)) == NULL) {
 		ECerr(EC_F_OLD_EC_PRIV_DECODE, EC_R_DECODE_ERROR);
 		return 0;
@@ -511,20 +497,17 @@ static int ec_pkey_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 static int ec_pkey_check(const EVP_PKEY * pkey)
 {
 	EC_KEY * eckey = pkey->pkey.ec;
-
 	/* stay consistent to what EVP_PKEY_check demands */
 	if(eckey->priv_key == NULL) {
 		ECerr(EC_F_EC_PKEY_CHECK, EC_R_MISSING_PRIVATE_KEY);
 		return 0;
 	}
-
 	return EC_KEY_check_key(eckey);
 }
 
 static int ec_pkey_public_check(const EVP_PKEY * pkey)
 {
 	EC_KEY * eckey = pkey->pkey.ec;
-
 	/*
 	 * Note: it unnecessary to check eckey->pub_key here since
 	 * it will be checked in EC_KEY_check_key(). In fact, the
@@ -533,20 +516,17 @@ static int ec_pkey_public_check(const EVP_PKEY * pkey)
 	 * someone passes a whole EC key (public + private), this
 	 * will also work...
 	 */
-
 	return EC_KEY_check_key(eckey);
 }
 
 static int ec_pkey_param_check(const EVP_PKEY * pkey)
 {
 	EC_KEY * eckey = pkey->pkey.ec;
-
 	/* stay consistent to what EVP_PKEY_check demands */
 	if(eckey->group == NULL) {
 		ECerr(EC_F_EC_PKEY_PARAM_CHECK, EC_R_MISSING_PARAMETERS);
 		return 0;
 	}
-
 	return EC_GROUP_check(eckey->group, NULL);
 }
 
@@ -556,20 +536,16 @@ const EVP_PKEY_ASN1_METHOD eckey_asn1_meth = {
 	0,
 	"EC",
 	"OpenSSL EC algorithm",
-
 	eckey_pub_decode,
 	eckey_pub_encode,
 	eckey_pub_cmp,
 	eckey_pub_print,
-
 	eckey_priv_decode,
 	eckey_priv_encode,
 	eckey_priv_print,
-
 	int_ec_size,
 	ec_bits,
 	ec_security_bits,
-
 	eckey_param_decode,
 	eckey_param_encode,
 	ec_missing_parameters,
@@ -577,14 +553,11 @@ const EVP_PKEY_ASN1_METHOD eckey_asn1_meth = {
 	ec_cmp_parameters,
 	eckey_param_print,
 	0,
-
 	int_ec_free,
 	ec_pkey_ctrl,
 	old_ec_priv_decode,
 	old_ec_priv_encode,
-
 	0, 0, 0,
-
 	ec_pkey_check,
 	ec_pkey_public_check,
 	ec_pkey_param_check
@@ -611,8 +584,7 @@ int ECParameters_print(BIO * bp, const EC_KEY * x)
 
 #ifndef OPENSSL_NO_CMS
 
-static int ecdh_cms_set_peerkey(EVP_PKEY_CTX * pctx,
-    X509_ALGOR * alg, ASN1_BIT_STRING * pubkey)
+static int ecdh_cms_set_peerkey(EVP_PKEY_CTX * pctx, X509_ALGOR * alg, ASN1_BIT_STRING * pubkey)
 {
 	const ASN1_OBJECT * aoid;
 	int atype;

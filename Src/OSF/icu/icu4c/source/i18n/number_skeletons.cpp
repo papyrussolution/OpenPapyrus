@@ -1088,7 +1088,7 @@ void blueprint_helpers::parseMeasureUnitOption(const StringSegment& segment, Mac
 	}
 	for(int32_t i = 0; i < numUnits; i++) {
 		auto& unit = units[i];
-		if(uprv_strcmp(subType.data(), unit.getSubtype()) == 0) {
+		if(strcmp(subType.data(), unit.getSubtype()) == 0) {
 			macros.unit = unit;
 			return;
 		}
@@ -1767,7 +1767,7 @@ bool GeneratorHelpers::integerWidth(const MacroProps& macros, UnicodeString & sb
 bool GeneratorHelpers::symbols(const MacroProps& macros, UnicodeString & sb, UErrorCode & status) {
 	if(macros.symbols.isNumberingSystem()) {
 		const NumberingSystem& ns = *macros.symbols.getNumberingSystem();
-		if(uprv_strcmp(ns.getName(), "latn") == 0) {
+		if(strcmp(ns.getName(), "latn") == 0) {
 			sb.append(u"latin", -1);
 		}
 		else {

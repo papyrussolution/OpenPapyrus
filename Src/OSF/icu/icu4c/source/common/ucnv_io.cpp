@@ -510,7 +510,7 @@ static inline uint32_t findConverter(const char * alias, bool * containsOption, 
 	int isUnnormalized = (gMainTable.optionTable->stringNormalizationType == UCNV_IO_UNNORMALIZED);
 	char strippedName[UCNV_MAX_CONVERTER_NAME_LENGTH];
 	if(!isUnnormalized) {
-		if(uprv_strlen(alias) >= UCNV_MAX_CONVERTER_NAME_LENGTH) {
+		if(strlen(alias) >= UCNV_MAX_CONVERTER_NAME_LENGTH) {
 			*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 			return UINT32_MAX;
 		}
@@ -536,7 +536,7 @@ static inline uint32_t findConverter(const char * alias, bool * containsOption, 
 			result = ucnv_compareNames(alias, GET_STRING(gMainTable.aliasList[mid]));
 		}
 		else {
-			result = uprv_strcmp(alias, GET_NORMALIZED_STRING(gMainTable.aliasList[mid]));
+			result = strcmp(alias, GET_NORMALIZED_STRING(gMainTable.aliasList[mid]));
 		}
 
 		if(result < 0) {
@@ -739,7 +739,7 @@ static const char * U_CALLCONV ucnv_io_nextStandardAliases(UEnumeration * enumer
 		if(myContext->listIdx < listCount) {
 			const char * myStr = GET_STRING(currList[myContext->listIdx++]);
 			if(resultLength) {
-				*resultLength = (int32_t)uprv_strlen(myStr);
+				*resultLength = (int32_t)strlen(myStr);
 			}
 			return myStr;
 		}
@@ -951,7 +951,7 @@ static const char * U_CALLCONV ucnv_io_nextAllConverters(UEnumeration * enumerat
 	if(*myContext < gMainTable.converterListSize) {
 		const char * myStr = GET_STRING(gMainTable.converterList[(*myContext)++]);
 		if(resultLength) {
-			*resultLength = (int32_t)uprv_strlen(myStr);
+			*resultLength = (int32_t)strlen(myStr);
 		}
 		return myStr;
 	}
@@ -1039,7 +1039,7 @@ static int32_t U_CALLCONV io_compareRows(const void * context, const void * left
 	char strippedRight[UCNV_MAX_CONVERTER_NAME_LENGTH];
 	TempAliasTable * tempTable = (TempAliasTable*)context;
 	const char * chars = tempTable->chars;
-	return (int32_t)uprv_strcmp(tempTable->stripForCompare(strippedLeft, chars+2*((const TempRow*)left)->strIndex),
+	return (int32_t)strcmp(tempTable->stripForCompare(strippedLeft, chars+2*((const TempRow*)left)->strIndex),
 		   tempTable->stripForCompare(strippedRight, chars+2*((const TempRow*)right)->strIndex));
 }
 

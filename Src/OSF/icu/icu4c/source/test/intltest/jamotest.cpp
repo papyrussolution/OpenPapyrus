@@ -128,7 +128,7 @@ void JamoTest::TestJamo() {
 		"karka", "(Ki)(A)(L)(Ki)(A)", "kalka",
 	};
 
-	enum { CASE_length = UPRV_LENGTHOF(CASE) };
+	enum { CASE_length = SIZEOFARRAYi(CASE) };
 
 	for(int32_t i = 0; i<CASE_length; i += 3) {
 		UnicodeString jamo = nameToJamo(CASE[i+1]);
@@ -364,7 +364,7 @@ void JamoTest::TestRealText() {
 		"\\ucc38\\uc870\\ud558\\uc2ed\\uc2dc\\uc624."
 	};
 
-	enum { WHAT_IS_UNICODE_length = UPRV_LENGTHOF(WHAT_IS_UNICODE) };
+	enum { WHAT_IS_UNICODE_length = SIZEOFARRAYi(WHAT_IS_UNICODE) };
 
 	UParseError parseError;
 	UErrorCode status = U_ZERO_ERROR;

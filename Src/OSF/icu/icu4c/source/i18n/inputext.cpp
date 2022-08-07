@@ -44,14 +44,14 @@ void InputText::setText(const char * in, int32_t len)
 	fInputLen  = 0;
 	fC1Bytes   = FALSE;
 	fRawInput  = (const uint8 *)in;
-	fRawLength = len == -1 ? (int32_t)uprv_strlen(in) : len;
+	fRawLength = len == -1 ? (int32_t)strlen(in) : len;
 }
 
 void InputText::setDeclaredEncoding(const char * encoding, int32_t len)
 {
 	if(encoding) {
 		if(len == -1) {
-			len = (int32_t)uprv_strlen(encoding);
+			len = (int32_t)strlen(encoding);
 		}
 
 		len += 1; // to make place for the \0 at the end.

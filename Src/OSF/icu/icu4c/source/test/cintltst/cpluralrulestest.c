@@ -168,13 +168,13 @@ static const char * knownKeywords[] = {
 	"zero"
 };
 enum {
-	kNumKeywords = UPRV_LENGTHOF(knownKeywords)
+	kNumKeywords = SIZEOFARRAYi(knownKeywords)
 };
 
 /* Return the index of keyword in knownKeywords[], or -1 if not found */
 static int32_t getKeywordIndex(const char * keyword) {
 	int32_t i, compare;
-	for(i = 0; i < kNumKeywords && (compare = uprv_strcmp(keyword, knownKeywords[i])) >= 0; i++) {
+	for(i = 0; i < kNumKeywords && (compare = strcmp(keyword, knownKeywords[i])) >= 0; i++) {
 		if(compare == 0) {
 			return i;
 		}
@@ -255,7 +255,7 @@ static void TestGetKeywords() {
 			if(keywordCount > kNumKeywords) {
 				log_err("FAIL: uplrules_getKeywords for locale %s, got too many keywords %d\n", itemPtr->locale, keywordCount);
 			}
-			if(uprv_memcmp(expectKeywords, getKeywords, kNumKeywords) != 0) {
+			if(memcmp(expectKeywords, getKeywords, kNumKeywords) != 0) {
 				log_err("FAIL: uplrules_getKeywords for locale %s, got wrong keyword set; with reference to knownKeywords:\n"
 				    "        expected { %d %d %d %d %d %d },\n"
 				    "        got      { %d %d %d %d %d %d }\n",

@@ -49,7 +49,7 @@ U_CAPI bool U_EXPORT2 isFileModTimeLater(const char * filePath, const char * che
 			DIRENT * dirEntry = NULL;
 
 			while((dirEntry = readdir(pDir)) != NULL) {
-				if(uprv_strcmp(dirEntry->d_name, SKIP1) != 0 && uprv_strcmp(dirEntry->d_name, SKIP2) != 0) {
+				if(strcmp(dirEntry->d_name, SKIP1) != 0 && strcmp(dirEntry->d_name, SKIP2) != 0) {
 					UErrorCode status = U_ZERO_ERROR;
 					icu::CharString newpath(checkAgainst, -1, status);
 					newpath.append(U_FILE_SEP_STRING, -1, status);
@@ -130,7 +130,7 @@ static int32_t whichFileModTimeIsLater(const char * file1, const char * file2) {
 
 /* Swap the file separater character given with the new one in the file path. */
 U_CAPI void U_EXPORT2 swapFileSepChar(char * filePath, const char oldFileSepChar, const char newFileSepChar) {
-	for(int32_t i = 0, length = static_cast<int32_t>(uprv_strlen(filePath)); i < length; i++) {
+	for(int32_t i = 0, length = static_cast<int32_t>(strlen(filePath)); i < length; i++) {
 		filePath[i] = (filePath[i] == oldFileSepChar ) ? newFileSepChar : filePath[i];
 	}
 }

@@ -222,8 +222,8 @@ static int32_t hexType = HEX_0X;
 U_CAPI bool U_EXPORT2 checkAssemblyHeaderName(const char * optAssembly) 
 {
 	assemblyHeaderIndex = -1;
-	for(int32_t idx = 0; idx < UPRV_LENGTHOF(assemblyHeader); idx++) {
-		if(uprv_strcmp(optAssembly, assemblyHeader[idx].name) == 0) {
+	for(int32_t idx = 0; idx < SIZEOFARRAYi(assemblyHeader); idx++) {
+		if(strcmp(optAssembly, assemblyHeader[idx].name) == 0) {
 			assemblyHeaderIndex = idx;
 			hexType = assemblyHeader[idx].hexType; /* set the hex type */
 			return TRUE;
@@ -235,7 +235,7 @@ U_CAPI bool U_EXPORT2 checkAssemblyHeaderName(const char * optAssembly)
 U_CAPI void U_EXPORT2 printAssemblyHeadersToStdErr() 
 {
 	slfprintf_stderr("%s", assemblyHeader[0].name);
-	for(int32_t idx = 1; idx < UPRV_LENGTHOF(assemblyHeader); idx++) {
+	for(int32_t idx = 1; idx < SIZEOFARRAYi(assemblyHeader); idx++) {
 		slfprintf_stderr(", %s", assemblyHeader[idx].name);
 	}
 	slfprintf_stderr(")\n");
@@ -264,11 +264,11 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	if(outFilePath != NULL) {
-		if(uprv_strlen(buffer.chars) >= outFilePathCapacity) {
+		if(strlen(buffer.chars) >= outFilePathCapacity) {
 			slfprintf_stderr("genccode: filename too long\n");
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
-		uprv_strcpy(outFilePath, buffer.chars);
+		strcpy(outFilePath, buffer.chars);
 	}
 
 #if defined (WINDOWS_WITH_GNUC) && U_PLATFORM != U_PF_CYGWIN
@@ -277,12 +277,12 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 #endif
 
 	if(optEntryPoint != NULL) {
-		uprv_strcpy(entry, optEntryPoint);
+		strcpy(entry, optEntryPoint);
 		uprv_strcat(entry, "_dat");
 	}
 
 	/* turn dashes or dots in the entry name into underscores */
-	length = uprv_strlen(entry);
+	length = strlen(entry);
 	for(i = 0; i<length; ++i) {
 		if(entry[i]=='-' || entry[i]=='.') {
 			entry[i] = '_';
@@ -348,7 +348,7 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename, const char * destdir, co
 	}
 	if(optName != NULL) { /* prepend  'icudt28_' */
 		// +2 includes the _ and the NUL
-		if(uprv_strlen(optName) + 2 > sizeof(entry)) {
+		if(strlen(optName) + 2 > sizeof(entry)) {
 			slfprintf_stderr("genccode: entry name too long (long filename?)\n");
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
@@ -358,14 +358,14 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename, const char * destdir, co
 	else {
 		entry[0] = 0;
 	}
-	getOutFilename(filename, destdir, buffer, static_cast<int32_t>(sizeof(buffer)), entry + uprv_strlen(entry), 
-		static_cast<int32_t>(sizeof(entry) - uprv_strlen(entry)), ".c", optFilename);
+	getOutFilename(filename, destdir, buffer, static_cast<int32_t>(sizeof(buffer)), entry + strlen(entry), 
+		static_cast<int32_t>(sizeof(entry) - strlen(entry)), ".c", optFilename);
 	if(outFilePath != NULL) {
-		if(uprv_strlen(buffer) >= outFilePathCapacity) {
+		if(strlen(buffer) >= outFilePathCapacity) {
 			slfprintf_stderr("genccode: filename too long\n");
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
-		uprv_strcpy(outFilePath, buffer);
+		strcpy(outFilePath, buffer);
 	}
 	out = T_FileStream_open(buffer, "w");
 	if(!out) {
@@ -373,7 +373,7 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename, const char * destdir, co
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	/* turn dashes or dots in the entry name into underscores */
-	length = uprv_strlen(entry);
+	length = strlen(entry);
 	for(i = 0; i<length; ++i) {
 		if(entry[i]=='-' || entry[i]=='.') {
 			entry[i] = '_';
@@ -491,8 +491,8 @@ static uint32_t write32(FileStream * out, uint32_t bitField, uint32_t column) {
 	}
 	else {
 		*(s++) = '\n';
-		uprv_strcpy(s, assemblyHeader[assemblyHeaderIndex].beginLine);
-		s += uprv_strlen(s);
+		strcpy(s, assemblyHeader[assemblyHeaderIndex].beginLine);
+		s += strlen(s);
 		column = 1;
 	}
 
@@ -1115,19 +1115,19 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 		optFilename);
 
 	if(outFilePath != NULL) {
-		if(uprv_strlen(buffer) >= outFilePathCapacity) {
+		if(strlen(buffer) >= outFilePathCapacity) {
 			slfprintf_stderr("genccode: filename too long\n");
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
-		uprv_strcpy(outFilePath, buffer);
+		strcpy(outFilePath, buffer);
 	}
 
 	if(optEntryPoint != NULL) {
-		uprv_strcpy(entry+entryOffset, optEntryPoint);
+		strcpy(entry+entryOffset, optEntryPoint);
 		uprv_strcat(entry+entryOffset, "_dat");
 	}
 	/* turn dashes in the entry name into underscores */
-	entryLength = (int32_t)uprv_strlen(entry+entryLengthOffset);
+	entryLength = (int32_t)strlen(entry+entryLengthOffset);
 	for(i = 0; i<entryLength; ++i) {
 		if(entry[entryLengthOffset+i]=='-') {
 			entry[entryLengthOffset+i] = '_';
@@ -1193,11 +1193,11 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 	memzero(&symbolNames, sizeof(symbolNames));
 	/* write the linker export directive */
 	if(optWinDllExport) {
-		uprv_strcpy(objHeader.linkerOptions, "-export:");
+		strcpy(objHeader.linkerOptions, "-export:");
 		length = 8;
-		uprv_strcpy(objHeader.linkerOptions+length, entry);
+		strcpy(objHeader.linkerOptions+length, entry);
 		length += entryLength;
-		uprv_strcpy(objHeader.linkerOptions+length, ",data ");
+		strcpy(objHeader.linkerOptions+length, ",data ");
 		length += 6;
 	}
 	else {
@@ -1230,7 +1230,7 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 		symbols[0].N.Name.Short = 0;
 		symbols[0].N.Name.Long = 4;
 		symbolNames.sizeofLongNames = 4+entryLength+1;
-		uprv_strcpy(symbolNames.longNames, entry);
+		strcpy(symbolNames.longNames, entry);
 	}
 	symbols[0].SectionNumber = 2;
 	symbols[0].StorageClass = IMAGE_SYM_CLASS_EXTERNAL;

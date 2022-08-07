@@ -195,29 +195,29 @@ static const UBiDiLevel testLevelsXX[] = { 2 };
 static const uint8_t testVisualMapXX[] = { 0 };
 
 const BiDiTestData tests[] = {
-	{testText1,  UPRV_LENGTHOF(testText1),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_LTR, 0, testLevels1, testVisualMap1},
-	{testText2,  UPRV_LENGTHOF(testText2),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_RTL, 1, testLevels2, testVisualMap2},
-	{testText3,  UPRV_LENGTHOF(testText3),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_LTR, 0, testLevels3, testVisualMap3},
-	{testText4,  UPRV_LENGTHOF(testText4),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 0, testLevels4, testVisualMap4},
-	{testText5,  UPRV_LENGTHOF(testText5),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 1, testLevels5, testVisualMap5},
-	{testText6,  UPRV_LENGTHOF(testText6),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 1, testLevels6, testVisualMap6},
+	{testText1,  SIZEOFARRAYi(testText1),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_LTR, 0, testLevels1, testVisualMap1},
+	{testText2,  SIZEOFARRAYi(testText2),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_RTL, 1, testLevels2, testVisualMap2},
+	{testText3,  SIZEOFARRAYi(testText3),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_LTR, 0, testLevels3, testVisualMap3},
+	{testText4,  SIZEOFARRAYi(testText4),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 0, testLevels4, testVisualMap4},
+	{testText5,  SIZEOFARRAYi(testText5),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 1, testLevels5, testVisualMap5},
+	{testText6,  SIZEOFARRAYi(testText6),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 1, testLevels6, testVisualMap6},
 	{NULL,       0,                        UBIDI_DEFAULT_LTR, -1, -1, UBIDI_LTR, 0, NULL, NULL},
-	{testText8,  UPRV_LENGTHOF(testText8),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_RTL, 1, testLevels8, testVisualMap8},
-	{testText9,  UPRV_LENGTHOF(testText9),  64, -1, -1, UBIDI_MIXED, 64, testLevels9, testVisualMap9},
-	{testText10, UPRV_LENGTHOF(testText10), 64, -1, -1, UBIDI_MIXED, 64, testLevels10, testVisualMap10},
-	{testText11, UPRV_LENGTHOF(testText11), UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 0, testLevels11, testVisualMap11},
-	{testText12, UPRV_LENGTHOF(testText12), UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 0, testLevels12, testVisualMap12},
-	{testText12, UPRV_LENGTHOF(testText12), UBIDI_DEFAULT_RTL, -1, -1, UBIDI_MIXED, 0, testLevels13, testVisualMap13},
-	{testText12, UPRV_LENGTHOF(testText12), 2, -1, -1, UBIDI_MIXED, 2, testLevels14, testVisualMap14},
-	{testText12, UPRV_LENGTHOF(testText12), 5, -1, -1, UBIDI_MIXED, 5, testLevels15, testVisualMap15},
-	{testText12, UPRV_LENGTHOF(testText12), UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 0, testLevels16, testVisualMap16},
-	{testText13, UPRV_LENGTHOF(testText13), UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 0, testLevels17, testVisualMap17},
-	{testText13, UPRV_LENGTHOF(testText13), UBIDI_DEFAULT_LTR, 0, 6, UBIDI_MIXED, 0, testLevels18, testVisualMap18},
-	{testText14, UPRV_LENGTHOF(testText14), UBIDI_DEFAULT_LTR, 13, 14, UBIDI_RTL, 1, testLevels19, testVisualMap19},
-	{testText15, UPRV_LENGTHOF(testText15), UBIDI_DEFAULT_LTR, 2, 3, UBIDI_LTR, 2, testLevels20, testVisualMap19},
-	{testText16, UPRV_LENGTHOF(testText16), UBIDI_RTL, 0, 8, UBIDI_MIXED, 1, testLevels21, testVisualMap20},
-	{testText17, UPRV_LENGTHOF(testText17), UBIDI_LTR, 0, 8, UBIDI_MIXED, 0, testLevels22, testVisualMap21},
-	{testTextXX, UPRV_LENGTHOF(testTextXX), UBIDI_RTL, -1, -1, UBIDI_MIXED, 1, testLevelsXX, testVisualMapXX}
+	{testText8,  SIZEOFARRAYi(testText8),  UBIDI_DEFAULT_LTR, -1, -1, UBIDI_RTL, 1, testLevels8, testVisualMap8},
+	{testText9,  SIZEOFARRAYi(testText9),  64, -1, -1, UBIDI_MIXED, 64, testLevels9, testVisualMap9},
+	{testText10, SIZEOFARRAYi(testText10), 64, -1, -1, UBIDI_MIXED, 64, testLevels10, testVisualMap10},
+	{testText11, SIZEOFARRAYi(testText11), UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 0, testLevels11, testVisualMap11},
+	{testText12, SIZEOFARRAYi(testText12), UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 0, testLevels12, testVisualMap12},
+	{testText12, SIZEOFARRAYi(testText12), UBIDI_DEFAULT_RTL, -1, -1, UBIDI_MIXED, 0, testLevels13, testVisualMap13},
+	{testText12, SIZEOFARRAYi(testText12), 2, -1, -1, UBIDI_MIXED, 2, testLevels14, testVisualMap14},
+	{testText12, SIZEOFARRAYi(testText12), 5, -1, -1, UBIDI_MIXED, 5, testLevels15, testVisualMap15},
+	{testText12, SIZEOFARRAYi(testText12), UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 0, testLevels16, testVisualMap16},
+	{testText13, SIZEOFARRAYi(testText13), UBIDI_DEFAULT_LTR, -1, -1, UBIDI_MIXED, 0, testLevels17, testVisualMap17},
+	{testText13, SIZEOFARRAYi(testText13), UBIDI_DEFAULT_LTR, 0, 6, UBIDI_MIXED, 0, testLevels18, testVisualMap18},
+	{testText14, SIZEOFARRAYi(testText14), UBIDI_DEFAULT_LTR, 13, 14, UBIDI_RTL, 1, testLevels19, testVisualMap19},
+	{testText15, SIZEOFARRAYi(testText15), UBIDI_DEFAULT_LTR, 2, 3, UBIDI_LTR, 2, testLevels20, testVisualMap19},
+	{testText16, SIZEOFARRAYi(testText16), UBIDI_RTL, 0, 8, UBIDI_MIXED, 1, testLevels21, testVisualMap20},
+	{testText17, SIZEOFARRAYi(testText17), UBIDI_LTR, 0, 8, UBIDI_MIXED, 0, testLevels22, testVisualMap21},
+	{testTextXX, SIZEOFARRAYi(testTextXX), UBIDI_RTL, -1, -1, UBIDI_MIXED, 1, testLevelsXX, testVisualMapXX}
 };
 
-const int bidiTestCount = UPRV_LENGTHOF(tests);
+const int bidiTestCount = SIZEOFARRAYi(tests);

@@ -43,7 +43,7 @@ static const int32_t LAST_RESORT_DATA[] = { 2, 0, 2, 0 };
 static const int32_t POW10[] = { 1, 10, 100, 1000, 10000, 100000,
 				 1000000, 10000000, 100000000, 1000000000 };
 
-static const int32_t MAX_POW10 = UPRV_LENGTHOF(POW10) - 1;
+static const int32_t MAX_POW10 = SIZEOFARRAYi(POW10) - 1;
 
 #define ISO_CURRENCY_CODE_LENGTH 3
 
@@ -343,7 +343,7 @@ struct CReg : public icu::UMemory {
 	CReg(const UChar * _iso, const char * _id)
 		: next(0)
 	{
-		int32_t len = (int32_t)uprv_strlen(_id);
+		int32_t len = (int32_t)strlen(_id);
 		if(len > (int32_t)(sizeof(id)-1)) {
 			len = (sizeof(id)-1);
 		}
@@ -400,7 +400,7 @@ struct CReg : public icu::UMemory {
 		/* register cleanup of the mutex */
 		ucln_common_registerCleanup(UCLN_COMMON_CURRENCY, currency_cleanup);
 		while(p) {
-			if(uprv_strcmp(id, p->id) == 0) {
+			if(strcmp(id, p->id) == 0) {
 				result = p->iso;
 				break;
 			}
@@ -476,7 +476,7 @@ U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale, UChar * buff, int3
 	char currency[4]; // ISO currency codes are alpha3 codes.
 	UErrorCode localStatus = U_ZERO_ERROR;
 	int32_t resLen = uloc_getKeywordValue(locale, "currency",
-		currency, UPRV_LENGTHOF(currency), &localStatus);
+		currency, SIZEOFARRAYi(currency), &localStatus);
 	if(U_SUCCESS(localStatus) && resLen == 3 && uprv_isInvariantString(currency, resLen)) {
 		if(resLen < buffCapacity) {
 			T_CString_toUpperCase(currency);
@@ -487,7 +487,7 @@ U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale, UChar * buff, int3
 
 	// get country or country_variant in `id'
 	char id[ULOC_FULLNAME_CAPACITY];
-	idForLocale(locale, id, UPRV_LENGTHOF(id), ec);
+	idForLocale(locale, id, SIZEOFARRAYi(id), ec);
 	if(U_FAILURE(*ec)) {
 		return 0;
 	}
@@ -528,7 +528,7 @@ U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale, UChar * buff, int3
 
 	if((U_FAILURE(localStatus)) && strchr(id, '_') != 0) {
 		// We don't know about it.  Check to see if we support the variant.
-		uloc_getParent(locale, id, UPRV_LENGTHOF(id), ec);
+		uloc_getParent(locale, id, SIZEOFARRAYi(id), ec);
 		*ec = U_USING_FALLBACK_WARNING;
 		// TODO: Loop over the shortened id rather than recursing and
 		// looking again for a currency keyword.
@@ -560,16 +560,16 @@ static bool fallback(char * loc) {
 		return FALSE;
 	}
 	UErrorCode status = U_ZERO_ERROR;
-	if(uprv_strcmp(loc, "en_GB") == 0) {
+	if(strcmp(loc, "en_GB") == 0) {
 		// HACK: See #13368.  We need "en_GB" to fall back to "en_001" instead of "en"
 		// in order to consume the correct data strings.  This hack will be removed
 		// when proper data sink loading is implemented here.
 		// NOTE: "001" adds 1 char over "GB".  However, both call sites allocate
 		// arrays with length ULOC_FULLNAME_CAPACITY (plenty of room for en_001).
-		uprv_strcpy(loc + 3, "001");
+		strcpy(loc + 3, "001");
 	}
 	else {
-		uloc_getParent(loc, loc, (int32_t)uprv_strlen(loc), &status);
+		uloc_getParent(loc, loc, (int32_t)strlen(loc), &status);
 	}
 	/*
 	   char *i = uprv_strrchr(loc, '_');
@@ -827,7 +827,7 @@ static void getCurrencyNameCount(const char * loc, int32_t* total_currency_name_
 	*total_currency_symbol_count = 0;
 	const UChar * s = NULL;
 	char locale[ULOC_FULLNAME_CAPACITY] = "";
-	uprv_strcpy(locale, loc);
+	strcpy(locale, loc);
 	const icu::Hashtable * currencySymbolsEquiv = getCurrSymbolsEquiv();
 	for(;;) {
 		UErrorCode ec2 = U_ZERO_ERROR;
@@ -1207,7 +1207,7 @@ static void linearSearch(const CurrencyNameStruct* currencyNames,
 	for(int32_t index = begin; index <= end; ++index) {
 		int32_t len = currencyNames[index].currencyNameLen;
 		if(len > *maxMatchLen && len <= textLen &&
-		    uprv_memcmp(currencyNames[index].currencyName, text, len * sizeof(UChar)) == 0) {
+		    memcmp(currencyNames[index].currencyName, text, len * sizeof(UChar)) == 0) {
 			*partialMatchLen = MAX(*partialMatchLen, len);
 			*maxMatchIndex = index;
 			*maxMatchLen = len;
@@ -1361,7 +1361,7 @@ static CurrencyNameCacheEntry* getCacheEntry(const char * locale, UErrorCode & e
 	int8 found = -1;
 	for(int8 i = 0; i < CURRENCY_NAME_CACHE_NUM; ++i) {
 		if(currCache[i]!= NULL &&
-		    uprv_strcmp(locale, currCache[i]->locale) == 0) {
+		    strcmp(locale, currCache[i]->locale) == 0) {
 			found = i;
 			break;
 		}
@@ -1381,7 +1381,7 @@ static CurrencyNameCacheEntry* getCacheEntry(const char * locale, UErrorCode & e
 		// check again.
 		for(int8 i = 0; i < CURRENCY_NAME_CACHE_NUM; ++i) {
 			if(currCache[i]!= NULL &&
-			    uprv_strcmp(locale, currCache[i]->locale) == 0) {
+			    strcmp(locale, currCache[i]->locale) == 0) {
 				found = i;
 				break;
 			}
@@ -1402,7 +1402,7 @@ static CurrencyNameCacheEntry* getCacheEntry(const char * locale, UErrorCode & e
 			}
 			cacheEntry = (CurrencyNameCacheEntry*)uprv_malloc(sizeof(CurrencyNameCacheEntry));
 			currCache[currentCacheEntryIndex] = cacheEntry;
-			uprv_strcpy(cacheEntry->locale, locale);
+			strcpy(cacheEntry->locale, locale);
 			cacheEntry->currencyNames = currencyNames;
 			cacheEntry->totalCurrencyNameCount = total_currency_name_count;
 			cacheEntry->currencySymbols = currencySymbols;
@@ -1967,7 +1967,7 @@ static const char * U_CALLCONV ucurr_nextCurrencyList(UEnumeration * enumerator,
 	UCurrencyContext * myContext = (UCurrencyContext*)(enumerator->context);
 
 	/* Find the next in the list that matches the type we are looking for. */
-	while(myContext->listIdx < UPRV_LENGTHOF(gCurrencyList)-1) {
+	while(myContext->listIdx < SIZEOFARRAYi(gCurrencyList)-1) {
 		const struct CurrencyList * currItem = &gCurrencyList[myContext->listIdx++];
 		if(UCURR_MATCHES_BITMASK(currItem->currType, myContext->currType)) {
 			if(resultLength) {
@@ -2472,7 +2472,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucurr_getKeywordValuesForLocale(const char * key
 			break;
 		}
 		const char * region = ures_getKey(&bundlekey);
-		bool isPrefRegion = uprv_strcmp(region, prefRegion) == 0 ? TRUE : FALSE;
+		bool isPrefRegion = strcmp(region, prefRegion) == 0 ? TRUE : FALSE;
 		if(!isPrefRegion && commonlyUsed) {
 			// With commonlyUsed=true, we do not put
 			// currencies for other regions in the
@@ -2525,11 +2525,11 @@ U_CAPI UEnumeration * U_EXPORT2 ucurr_getKeywordValuesForLocale(const char * key
 			else {
 				hasTo = TRUE;
 			}
-			if(isPrefRegion && !hasTo && !ulist_containsString(values, curID, (int32_t)uprv_strlen(curID))) {
+			if(isPrefRegion && !hasTo && !ulist_containsString(values, curID, (int32_t)strlen(curID))) {
 				// Currently active currency for the target country
 				ulist_addItemEndList(values, curID, TRUE, status);
 			}
-			else if(!ulist_containsString(otherValues, curID, (int32_t)uprv_strlen(curID)) && !commonlyUsed) {
+			else if(!ulist_containsString(otherValues, curID, (int32_t)strlen(curID)) && !commonlyUsed) {
 				ulist_addItemEndList(otherValues, curID, TRUE, status);
 			}
 			else {
@@ -2551,9 +2551,9 @@ U_CAPI UEnumeration * U_EXPORT2 ucurr_getKeywordValuesForLocale(const char * key
 			char * value = NULL;
 			ulist_resetList(otherValues);
 			while((value = (char *)ulist_getNext(otherValues)) != NULL) {
-				if(!ulist_containsString(values, value, (int32_t)uprv_strlen(value))) {
+				if(!ulist_containsString(values, value, (int32_t)strlen(value))) {
 					char * tmpValue = (char *)uprv_malloc(sizeof(char) * ULOC_KEYWORDS_CAPACITY);
-					uprv_memcpy(tmpValue, value, uprv_strlen(value) + 1);
+					uprv_memcpy(tmpValue, value, strlen(value) + 1);
 					ulist_addItemEndList(values, tmpValue, TRUE, status);
 					if(U_FAILURE(*status)) {
 						break;

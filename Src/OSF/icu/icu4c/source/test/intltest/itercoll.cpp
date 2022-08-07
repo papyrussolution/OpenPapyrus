@@ -213,7 +213,7 @@ void CollationIteratorTest::TestOffset(/* char * par */)
 	iter->setOffset(1, status); // sets offset in the middle of ch
 	int32_t order2Length = 0;
 	Order * order2 = getOrders(*iter, order2Length);
-	if(orderLength != order2Length || uprv_memcmp(order, order2, orderLength * sizeof(Order)) != 0) {
+	if(orderLength != order2Length || memcmp(order, order2, orderLength * sizeof(Order)) != 0) {
 		errln(
 			"Error: setting offset in the middle of a contraction should be the same as setting it to the start of the contraction");
 	}
@@ -226,7 +226,7 @@ void CollationIteratorTest::TestOffset(/* char * par */)
 	order = getOrders(*iter, orderLength);
 	iter->setOffset(4, status); // sets offset in the middle of ch
 	order2 = getOrders(*iter, order2Length);
-	if(orderLength != order2Length || uprv_memcmp(order, order2, orderLength * sizeof(Order)) != 0) {
+	if(orderLength != order2Length || memcmp(order, order2, orderLength * sizeof(Order)) != 0) {
 		errln(
 			"Error: setting offset in the middle of a contraction should be the same as setting it to the start of the contraction");
 	}
@@ -239,7 +239,7 @@ void CollationIteratorTest::TestOffset(/* char * par */)
 	order = getOrders(*iter, orderLength);
 	iter->setOffset(1, status); // sets offset in the middle of surrogate
 	order2 = getOrders(*iter, order2Length);
-	if(orderLength != order2Length || uprv_memcmp(order, order2, orderLength * sizeof(Order)) != 0) {
+	if(orderLength != order2Length || memcmp(order, order2, orderLength * sizeof(Order)) != 0) {
 		errln(
 			"Error: setting offset in the middle of a surrogate pair should be the same as setting it to the start of the surrogate pair");
 	}
@@ -252,7 +252,7 @@ void CollationIteratorTest::TestOffset(/* char * par */)
 	order = getOrders(*iter, orderLength);
 	iter->setOffset(7, status); // sets offset in the middle of surrogate
 	order2 = getOrders(*iter, order2Length);
-	if(orderLength != order2Length || uprv_memcmp(order, order2, orderLength * sizeof(Order)) != 0) {
+	if(orderLength != order2Length || memcmp(order, order2, orderLength * sizeof(Order)) != 0) {
 		errln(
 			"Error: setting offset in the middle of a surrogate pair should be the same as setting it to the start of the surrogate pair");
 	}

@@ -11,13 +11,92 @@ GoodsRestViewItem::GoodsRestViewItem()
 	THISZERO();
 }
 
-IMPLEMENT_PPFILT_FACTORY(GoodsRest); GoodsRestFilt::GoodsRestFilt() : PPBaseFilt(PPFILT_GOODSREST, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(GoodsRest); GoodsRestFilt::GoodsRestFilt() : PPBaseFilt(PPFILT_GOODSREST, 0, 1) // @v11.4.6 ver 0-->1
 {
 	SetFlatChunk(offsetof(GoodsRestFilt, ReserveStart),
 		offsetof(GoodsRestFilt, Reserve)-offsetof(GoodsRestFilt, ReserveStart)+sizeof(Reserve));
 	SetBranchObjIdListFilt(offsetof(GoodsRestFilt, LocList));
 	SetBranchObjIdListFilt(offsetof(GoodsRestFilt, GoodsList));
 	Init(1, 0);
+}
+
+int GoodsRestFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
+{
+	int    ok = -1;
+	if(ver == 0) {
+		class GoodsRestFilt_v0 : public PPBaseFilt {
+		public:
+			GoodsRestFilt_v0() : PPBaseFilt(PPFILT_GOODSREST, 0, 0)
+			{
+				SetFlatChunk(offsetof(GoodsRestFilt_v0, ReserveStart),
+					offsetof(GoodsRestFilt_v0, Reserve)-offsetof(GoodsRestFilt_v0, ReserveStart)+sizeof(Reserve));
+				SetBranchObjIdListFilt(offsetof(GoodsRestFilt_v0, LocList));
+				SetBranchObjIdListFilt(offsetof(GoodsRestFilt_v0, GoodsList));
+				Init(1, 0);
+			}
+			char   ReserveStart[4];  // @anchor
+			uint32 DiffParam;
+			PPID   UhttExpLocID;
+			int16  UhttExpFlags;
+			uint16 ExtViewFlags;
+			PPID   DiffLotTagID;
+			DateRange DraftRcptPrd;
+			int16  PrgnTerm;
+			int16  ExhaustTerm;
+			uint   CalcMethod;
+			long   Flags;
+			int    AmtType;
+			long   Flags2;
+			DateRange PrgnPeriod;
+			LDATE  Date;
+			PPID   SupplID;
+			PPID   GoodsGrpID;
+			PPID   QuotKindID;
+			PPID   AgentID;
+			PPID   BrandID;
+			SubstGrpGoods Sgg;
+			LDATE  DeficitDt;
+			uint   WaitMsgID;
+			long   Reserve;          // @anchor
+			ObjIdListFilt LocList;   //
+			ObjIdListFilt GoodsList; // Для вывода детализации по ид подстановки
+		};
+		GoodsRestFilt_v0 fv0;
+		THROW(fv0.Read(rBuf, 0));
+#define CPYFLD(f) f = fv0.f
+		CPYFLD(DiffParam);
+		CPYFLD(UhttExpLocID);
+		CPYFLD(UhttExpFlags);
+		CPYFLD(ExtViewFlags);
+		CPYFLD(DiffLotTagID);
+		CPYFLD(DraftRcptPrd);
+		CPYFLD(PrgnTerm);
+		CPYFLD(ExhaustTerm);
+		CPYFLD(CalcMethod);
+		CPYFLD(Flags);
+		CPYFLD(AmtType);
+		CPYFLD(Flags2);
+		CPYFLD(PrgnPeriod);
+		CPYFLD(Date);
+		CPYFLD(SupplID);
+		CPYFLD(GoodsGrpID);
+		CPYFLD(QuotKindID);
+		CPYFLD(AgentID);
+		CPYFLD(BrandID);
+		CPYFLD(Sgg);
+		CPYFLD(DeficitDt);
+		CPYFLD(WaitMsgID);
+		CPYFLD(LocList);
+		CPYFLD(GoodsList);
+#undef CPYFLD
+		InitOrder = 0;
+		RestRange.Z();
+		Reserve = 0;
+		MEMSZERO(ReserveStart);
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
 }
 
 /*virtual*/int GoodsRestFilt::Describe(long flags, SString & rBuf) const
@@ -113,6 +192,10 @@ int GoodsRestFilt::IsEqualExcept(const GoodsRestFilt & rS, long flags) const
 	if(NEQ_FLD(BrandID))
 		return 0;
 	if(NEQ_FLD(Sgg))
+		return 0;
+	if(NEQ_FLD(InitOrder)) // @v11.4.6
+		return 0;
+	if(NEQ_FLD(RestRange)) // @v11.4.6
 		return 0;
 	if(NEQ_FLD(DeficitDt))
 		return 0;
@@ -538,6 +621,7 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	}
 	setWL(BIN(Data.Flags & GoodsRestFilt::fLabelOnly));
 	SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, &Data.DraftRcptPrd);
+	SetupStringCombo(this, CTLSEL_GOODSREST_ORD, PPTXT_GOODSRESTORDER, Data.InitOrder); // @v11.4.6
 	SetupCtrls();
 	SetupCrosstab();
 	return ok;
@@ -593,6 +677,7 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 	SETFLAG(Data.Flags, GoodsRestFilt::fLabelOnly, getWL());
 	Data.Flags2 &= ~GoodsRestFilt::f2CalcPrognosis;
 	GetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, &Data.DraftRcptPrd);
+	getCtrlData(CTLSEL_GOODSREST_ORD, &Data.InitOrder); // @v11.4.6
 	ASSIGN_PTR(pFilt, Data);
 	CATCHZOKPPERRBYDLG
 	return ok;
@@ -2702,7 +2787,7 @@ int PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 	int    ok = -1;
 	TempOrderTbl * p_o = 0;
 	BExtInsert * p_bei = 0;
-	if(oneof4(ord, OrdByPrice, OrdByGrp_Price, OrdByBarCode, OrdByGrp_BarCode)) {
+	if(oneof5(ord, OrdByPrice, OrdByGrp_Price, OrdByBarCode, OrdByGrp_BarCode, OrdByRest)) { // @v11.4.6 OrdByRest
 		SString temp_buf;
 		SString code_buf;
 		TempGoodsRestTbl::Key0 k;
@@ -2710,7 +2795,7 @@ int PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 		BExtQuery q(p_t, 0, 64);
 		THROW(p_o = CreateTempOrderFile());
 		THROW_MEM(p_bei = new BExtInsert(p_o));
-		q.select(p_t->ID__, p_t->GoodsID, p_t->GoodsGrp, /*p_t->BarCode*/p_t->BarcodeSP, p_t->Price, 0L);
+		q.select(p_t->ID__, p_t->GoodsID, p_t->GoodsGrp, /*p_t->BarCode*/p_t->BarcodeSP, p_t->Price, p_t->Quantity, 0L); // @v11.4.6 p_t->Quantity
 		MEMSZERO(k);
 		for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 			TempOrderTbl::Rec ord_rec;
@@ -2718,6 +2803,8 @@ int PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 			ord_rec.ID = p_t->data.ID__;
 			if(ord == OrdByPrice)
 				sprintf(ord_rec.Name, "%055.8lf", p_t->data.Price);
+			if(ord == OrdByRest) // @v11.4.6
+				sprintf(ord_rec.Name, "%055.8lf", p_t->data.Quantity);
 			else if(ord == OrdByBarCode) {
 				StrPool.GetS(p_t->data.BarcodeSP, code_buf);
 				sprintf(ord_rec.Name, "%-63s", /*p_t->data.BarCode*/code_buf.cptr());
@@ -3334,14 +3421,14 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 	if(!P_Tbl)
 		return 0;
 	long   ff = 0;
-	IterOrder ord = PPViewGoodsRest::OrdByDefault;
+	// @v11.4.6 IterOrder ord = PPViewGoodsRest::OrdByDefault;
+	IterOrder ord = static_cast<IterOrder>(Filt.InitOrder); // @v11.4.6
 	if(Filt.Flags & GoodsRestFilt::fDisplayWoPacks)
 		ff = QTTYF_FRACTION | NMBF_NOZERO;
 	else if(LConfig.Flags & CFGFLG_USEPACKAGE)
 		ff = QTTYF_COMPLPACK | QTTYF_FRACTION | NMBF_NOZERO;
 	else
 		ff = QTTYF_FRACTION | NMBF_NOZERO;
-
 	uint   brw_id = 0;
 	TempGoodsRestTbl * tbl = 0;
 	TempOrderTbl * p_ot = 0;
@@ -3379,7 +3466,7 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 				else
 					brw_id = BROWSER_GOODSREST;
 		}
-		if(oneof4(ord, OrdByPrice, OrdByGrp_Price, OrdByBarCode, OrdByGrp_BarCode))
+		if(oneof5(ord, OrdByPrice, OrdByGrp_Price, OrdByBarCode, OrdByGrp_BarCode, OrdByRest)) // @v11.4.6 OrdByRest
 			THROW(CreateOrderTable(ord, &p_ot));
 		THROW_MEM(q = new DBQuery);
 		q->syntax |= DBQuery::t_select;
@@ -3492,7 +3579,14 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 			q->from(p_ot, tbl, 0L).where(*dbq).orderBy(p_ot->Name, 0L);
 		}
 		else {
-			q->from(tbl, 0L).where(*dbq).orderBy(tbl->GoodsName, tbl->LocID, 0L);
+			q->from(tbl, 0L).where(*dbq);
+			// @v11.4.6 {
+			if(ord == OrdByGoodsID)
+				q->orderBy(tbl->GoodsID, tbl->LocID, 0L);
+			else if(ord == OrdByGrp_GoodsName)
+				q->orderBy(tbl->GoodsGrp, tbl->GoodsName, 0L);
+			else // } @v11.4.6 
+				q->orderBy(tbl->GoodsName, tbl->LocID, 0L);
 		}
 		THROW(CheckQueryPtr(q));
 	}

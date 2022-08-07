@@ -758,7 +758,7 @@ static UTrie2 * testTrieSerializeAllValueBits(const char * testName, UTrie2 * tr
 	 * Test with both valueBits serializations,
 	 * and that utrie2_serialize() can be called multiple times.
 	 */
-	uprv_strcpy(name, testName);
+	strcpy(name, testName);
 	uprv_strcat(name, ".16");
 	testTrieSerialize(name, trie, UTRIE2_16_VALUE_BITS, withClone, checkRanges, countCheckRanges);
 	if(withClone) {
@@ -777,7 +777,7 @@ static UTrie2 * testTrieSerializeAllValueBits(const char * testName, UTrie2 * tr
 			testNewTrie(testName, trie, checkRanges, countCheckRanges);
 		}
 	}
-	uprv_strcpy(name, testName);
+	strcpy(name, testName);
 	uprv_strcat(name, ".32");
 	testTrieSerialize(name, trie, UTRIE2_32_VALUE_BITS, withClone, checkRanges, countCheckRanges);
 	return trie; /* could be the clone */
@@ -1022,31 +1022,31 @@ static const CheckRange
 
 static void TrieTest() {
 	testTrieRanges("set1", FALSE,
-	    setRanges1, UPRV_LENGTHOF(setRanges1),
-	    checkRanges1, UPRV_LENGTHOF(checkRanges1));
+	    setRanges1, SIZEOFARRAYi(setRanges1),
+	    checkRanges1, SIZEOFARRAYi(checkRanges1));
 	testTrieRanges("set2-overlap", FALSE,
-	    setRanges2, UPRV_LENGTHOF(setRanges2),
-	    checkRanges2, UPRV_LENGTHOF(checkRanges2));
+	    setRanges2, SIZEOFARRAYi(setRanges2),
+	    checkRanges2, SIZEOFARRAYi(checkRanges2));
 	testTrieRanges("set3-initial-9", FALSE,
-	    setRanges3, UPRV_LENGTHOF(setRanges3),
-	    checkRanges3, UPRV_LENGTHOF(checkRanges3));
+	    setRanges3, SIZEOFARRAYi(setRanges3),
+	    checkRanges3, SIZEOFARRAYi(checkRanges3));
 	testTrieRanges("set-empty", FALSE,
 	    setRangesEmpty, 0,
-	    checkRangesEmpty, UPRV_LENGTHOF(checkRangesEmpty));
+	    checkRangesEmpty, SIZEOFARRAYi(checkRangesEmpty));
 	testTrieRanges("set-single-value", FALSE,
-	    setRangesSingleValue, UPRV_LENGTHOF(setRangesSingleValue),
-	    checkRangesSingleValue, UPRV_LENGTHOF(checkRangesSingleValue));
+	    setRangesSingleValue, SIZEOFARRAYi(setRangesSingleValue),
+	    checkRangesSingleValue, SIZEOFARRAYi(checkRangesSingleValue));
 
 	testTrieRanges("set2-overlap.withClone", TRUE,
-	    setRanges2, UPRV_LENGTHOF(setRanges2),
-	    checkRanges2, UPRV_LENGTHOF(checkRanges2));
+	    setRanges2, SIZEOFARRAYi(setRanges2),
+	    checkRanges2, SIZEOFARRAYi(checkRanges2));
 }
 
 static void EnumNewTrieForLeadSurrogateTest() {
 	static const char * const testName = "enum-for-lead";
 	UTrie2 * trie = makeTrieWithRanges(testName, FALSE,
-		setRanges2, UPRV_LENGTHOF(setRanges2),
-		checkRanges2, UPRV_LENGTHOF(checkRanges2));
+		setRanges2, SIZEOFARRAYi(setRanges2),
+		checkRanges2, SIZEOFARRAYi(checkRanges2));
 	while(trie!=NULL) {
 		const CheckRange * checkRanges;
 
@@ -1118,7 +1118,7 @@ static void dummyTest(UTrie2ValueBits valueBits) {
 		return;
 	}
 
-	testFrozenTrie(testName, trie, valueBits, checkRanges, UPRV_LENGTHOF(checkRanges));
+	testFrozenTrie(testName, trie, valueBits, checkRanges, SIZEOFARRAYi(checkRanges));
 	utrie2_close(trie);
 }
 
@@ -1174,7 +1174,7 @@ static void FreeBlocksTest() {
 		utrie2_close(trie);
 		return;
 	}
-	trie = testTrieSerializeAllValueBits(testName, trie, FALSE, checkRanges, UPRV_LENGTHOF(checkRanges));
+	trie = testTrieSerializeAllValueBits(testName, trie, FALSE, checkRanges, SIZEOFARRAYi(checkRanges));
 	utrie2_close(trie);
 }
 
@@ -1226,7 +1226,7 @@ static void GrowDataArrayTest()
 		utrie2_close(trie);
 		return;
 	}
-	trie = testTrieSerializeAllValueBits(testName, trie, FALSE, checkRanges, UPRV_LENGTHOF(checkRanges));
+	trie = testTrieSerializeAllValueBits(testName, trie, FALSE, checkRanges, SIZEOFARRAYi(checkRanges));
 	utrie2_close(trie);
 }
 
@@ -1311,7 +1311,7 @@ static void testTrie2FromTrie1(const char * testName, const SetRange setRanges[]
 
 	getSpecialValues(checkRanges, countCheckRanges, &initialValue, &errorValue);
 
-	uprv_strcpy(name, testName);
+	strcpy(name, testName);
 	uprv_strcat(name, ".16");
 	trie2 = utrie2_fromUTrie(&trie1_16, errorValue, &errorCode);
 	if(U_SUCCESS(errorCode)) {
@@ -1328,7 +1328,7 @@ static void testTrie2FromTrie1(const char * testName, const SetRange setRanges[]
 	}
 	utrie2_close(trie2);
 
-	uprv_strcpy(name, testName);
+	strcpy(name, testName);
 	uprv_strcat(name, ".32");
 	trie2 = utrie2_fromUTrie(&trie1_32, errorValue, &errorCode);
 	if(U_SUCCESS(errorCode)) {
@@ -1348,7 +1348,7 @@ static void testTrie2FromTrie1(const char * testName, const SetRange setRanges[]
 
 static void Trie12ConversionTest() 
 {
-	testTrie2FromTrie1("trie1->trie2", setRanges2, UPRV_LENGTHOF(setRanges2), checkRanges2, UPRV_LENGTHOF(checkRanges2));
+	testTrie2FromTrie1("trie1->trie2", setRanges2, SIZEOFARRAYi(setRanges2), checkRanges2, SIZEOFARRAYi(checkRanges2));
 }
 
 void addTrie2Test(TestNode** root) 

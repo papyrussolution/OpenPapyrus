@@ -161,7 +161,7 @@ void CollationFrenchTest::TestSecondary(/* char * par */)
 	if(U_FAILURE(status))
 		errln("Error setting attribute in French collator");
 	else {
-		const int32_t testAcuteSize = UPRV_LENGTHOF(testAcute);
+		const int32_t testAcuteSize = SIZEOFARRAYi(testAcute);
 		for(i = 0; i < testAcuteSize; i++) {
 			for(j = 0; j < testAcuteSize; j++) {
 				if(i <  j)

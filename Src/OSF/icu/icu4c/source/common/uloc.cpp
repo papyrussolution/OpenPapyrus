@@ -472,7 +472,7 @@ static const char * _ConvertBCP47(const char * id, char * buffer, int32_t length
 /* Gets the size of the shortest subtag in the given localeID. */
 static int32_t getShortestSubtagLength(const char * localeID) 
 {
-	int32_t localeIDLength = static_cast<int32_t>(uprv_strlen(localeID));
+	int32_t localeIDLength = static_cast<int32_t>(strlen(localeID));
 	int32_t length = localeIDLength;
 	int32_t tmpLength = 0;
 	int32_t i;
@@ -570,7 +570,7 @@ typedef struct {
 static int32_t U_CALLCONV compareKeywordStructs(const void * /*context*/, const void * left, const void * right) {
 	const char * leftString = ((const KeywordStruct*)left)->keyword;
 	const char * rightString = ((const KeywordStruct*)right)->keyword;
-	return uprv_strcmp(leftString, rightString);
+	return strcmp(leftString, rightString);
 }
 
 U_CFUNC void ulocimp_getKeywords(const char * localeID, char prev, ByteSink& sink, bool valuesToo, UErrorCode * status)
@@ -650,7 +650,7 @@ U_CFUNC void ulocimp_getKeywords(const char * localeID, char prev, ByteSink& sin
 				pos++;
 			}
 			else {
-				i = (int32_t)uprv_strlen(equalSign);
+				i = (int32_t)strlen(equalSign);
 				while(i && equalSign[i-1] == ' ') {
 					i--;
 				}
@@ -658,7 +658,7 @@ U_CFUNC void ulocimp_getKeywords(const char * localeID, char prev, ByteSink& sin
 			}
 			/* If this is a duplicate keyword, then ignore it */
 			for(j = 0; j<numKeywords; ++j) {
-				if(uprv_strcmp(keywordList[j].keyword, keywordList[numKeywords].keyword) == 0) {
+				if(strcmp(keywordList[j].keyword, keywordList[numKeywords].keyword) == 0) {
 					duplicate = TRUE;
 					break;
 				}
@@ -778,14 +778,14 @@ U_CAPI void U_EXPORT2 ulocimp_getKeywordValue(const char * localeID, const char 
 			}
 			localeKeywordNameBuffer[keyValueLen] = 0; /* terminate */
 			startSearchHere = uprv_strchr(nextSeparator, ';');
-			if(uprv_strcmp(keywordNameBuffer, localeKeywordNameBuffer) == 0) {
+			if(strcmp(keywordNameBuffer, localeKeywordNameBuffer) == 0) {
 				/* current entry matches the keyword. */
 				nextSeparator++; /* skip '=' */
 				/* First strip leading & trailing spaces (TC decided to tolerate these) */
 				while(*nextSeparator == ' ') {
 					nextSeparator++;
 				}
-				keyValueTail = (startSearchHere) ? startSearchHere : nextSeparator + uprv_strlen(nextSeparator);
+				keyValueTail = (startSearchHere) ? startSearchHere : nextSeparator + strlen(nextSeparator);
 				while(keyValueTail > nextSeparator && *(keyValueTail-1) == ' ') {
 					keyValueTail--;
 				}
@@ -837,7 +837,7 @@ U_CAPI int32_t U_EXPORT2 uloc_setKeywordValue(const char * keywordName, const ch
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-	bufLen = (int32_t)uprv_strlen(buffer);
+	bufLen = (int32_t)strlen(buffer);
 	if(bufferCapacity<bufLen) {
 		/* The capacity is less than the length?! Is this NULL terminated? */
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -885,10 +885,10 @@ U_CAPI int32_t U_EXPORT2 uloc_setKeywordValue(const char * keywordName, const ch
 			return needLen; /* no change */
 		}
 		*startSearchHere++ = '@';
-		uprv_strcpy(startSearchHere, keywordNameBuffer);
+		strcpy(startSearchHere, keywordNameBuffer);
 		startSearchHere += keywordNameLen;
 		*startSearchHere++ = '=';
-		uprv_strcpy(startSearchHere, keywordValueBuffer);
+		strcpy(startSearchHere, keywordValueBuffer);
 		U_ASSERT(*status != U_STRING_NOT_TERMINATED_WARNING);
 		return needLen;
 	} /* end shortcut - no @ */
@@ -941,7 +941,7 @@ U_CAPI int32_t U_EXPORT2 uloc_setKeywordValue(const char * keywordName, const ch
 		while(*nextEqualsign == ' ') {
 			nextEqualsign++;
 		}
-		keyValueTail = (nextSeparator) ? nextSeparator : nextEqualsign + uprv_strlen(nextEqualsign);
+		keyValueTail = (nextSeparator) ? nextSeparator : nextEqualsign + strlen(nextEqualsign);
 		while(keyValueTail > nextEqualsign && *(keyValueTail-1) == ' ') {
 			keyValueTail--;
 		}
@@ -949,7 +949,7 @@ U_CAPI int32_t U_EXPORT2 uloc_setKeywordValue(const char * keywordName, const ch
 			*status = U_ILLEGAL_ARGUMENT_ERROR; /* empty key value in passed-in locale */
 			return 0;
 		}
-		rc = uprv_strcmp(keywordNameBuffer, localeKeywordNameBuffer);
+		rc = strcmp(keywordNameBuffer, localeKeywordNameBuffer);
 		if(rc == 0) {
 			/* Current entry matches the input keyword. Update the entry */
 			if(keywordValueLen > 0) { /* updating a value */
@@ -1053,7 +1053,7 @@ static int16 _findIndex(const char * const* list, const char * key)
 	/* Make two passes through two NULL-terminated arrays at 'list' */
 	while(pass++ < 2) {
 		while(*list) {
-			if(uprv_strcmp(key, *list) == 0) {
+			if(strcmp(key, *list) == 0) {
 				return (int16)(list - anchor);
 			}
 			list++;
@@ -1244,7 +1244,7 @@ static int32_t U_CALLCONV uloc_kw_countKeywords(UEnumeration * en, UErrorCode * 
 	int32_t result = 0;
 	while(*kw) {
 		result++;
-		kw += uprv_strlen(kw)+1;
+		kw += strlen(kw)+1;
 	}
 	return result;
 }
@@ -1254,7 +1254,7 @@ static const char * U_CALLCONV uloc_kw_nextKeyword(UEnumeration* en, int32_t* re
 	const char * result = ((UKeywordsContext*)en->context)->current;
 	int32_t len = 0;
 	if(*result) {
-		len = (int32_t)uprv_strlen(((UKeywordsContext*)en->context)->current);
+		len = (int32_t)strlen(((UKeywordsContext*)en->context)->current);
 		((UKeywordsContext*)en->context)->current += len+1;
 	}
 	else {
@@ -1366,7 +1366,7 @@ U_CAPI UEnumeration* U_EXPORT2 uloc_openKeywords(const char * localeID, UErrorCo
 #define OPTION_SET(options, mask) ((options & mask) != 0)
 
 static const char i_default[] = {'i', '-', 'd', 'e', 'f', 'a', 'u', 'l', 't'};
-#define I_DEFAULT_LENGTH UPRV_LENGTHOF(i_default)
+#define I_DEFAULT_LENGTH SIZEOFARRAYi(i_default)
 
 /**
  * Canonicalize the given localeID, to level 1 or to level 2,
@@ -1538,7 +1538,7 @@ static void _canonicalize(const char * localeID, ByteSink& sink, uint32_t option
 		}
 
 		/* Look up the ID in the canonicalization map */
-		for(j = 0; j<UPRV_LENGTHOF(CANONICALIZE_MAP); j++) {
+		for(j = 0; j<SIZEOFARRAYi(CANONICALIZE_MAP); j++) {
 			StringPiece id(CANONICALIZE_MAP[j].id);
 			if(tag == id) {
 				if(id.empty() && tmpLocaleID != NULL) {
@@ -1905,7 +1905,7 @@ U_CAPI uint32_t U_EXPORT2 uloc_getLCID(const char * localeID)
 	char langID[ULOC_FULLNAME_CAPACITY];
 	uint32_t lcid = 0;
 	/* Check for incomplete id. */
-	if(!localeID || uprv_strlen(localeID) < 2) {
+	if(!localeID || strlen(localeID) < 2) {
 		return 0;
 	}
 	// First, attempt Windows platform lookup if available, but fall
@@ -1933,10 +1933,10 @@ U_CAPI uint32_t U_EXPORT2 uloc_getLCID(const char * localeID)
 			ulocimp_getKeywordValue(localeID, "collation", sink, &status);
 		}
 		if(U_SUCCESS(status) && !collVal.isEmpty()) {
-			len = uloc_getBaseName(localeID, tmpLocaleID, UPRV_LENGTHOF(tmpLocaleID) - 1, &status);
+			len = uloc_getBaseName(localeID, tmpLocaleID, SIZEOFARRAYi(tmpLocaleID) - 1, &status);
 			if(U_SUCCESS(status) && len > 0) {
 				tmpLocaleID[len] = 0;
-				len = uloc_setKeywordValue("collation", collVal.data(), tmpLocaleID, UPRV_LENGTHOF(tmpLocaleID) - len - 1, &status);
+				len = uloc_setKeywordValue("collation", collVal.data(), tmpLocaleID, SIZEOFARRAYi(tmpLocaleID) - len - 1, &status);
 				if(U_SUCCESS(status) && len > 0) {
 					tmpLocaleID[len] = 0;
 					return uprv_convertToLCID(langID, tmpLocaleID, &status);

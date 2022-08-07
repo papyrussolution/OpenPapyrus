@@ -26,7 +26,7 @@ void ResourceTracer::trace(const char * resType) const
 	// The longest type ("intvector") is 9 chars
 	const char kSpaces[] = "         ";
 	CharString format;
-	format.append(kSpaces, sizeof(kSpaces) - 1 - uprv_strlen(resType), status);
+	format.append(kSpaces, sizeof(kSpaces) - 1 - strlen(resType), status);
 	format.append("(%s) %s @ %s", status);
 	UTRACE_DATA3(UTRACE_VERBOSE, format.data(), resType, filePath.data(), resPath.data());
 	UTRACE_EXIT_STATUS(status);
@@ -87,7 +87,7 @@ CharString& ResourceTracer::getResPath(CharString& output, UErrorCode & status) 
 
 void FileTracer::traceOpen(const char * path, const char * type, const char * name) 
 {
-	if(uprv_strcmp(type, "res") == 0) {
+	if(strcmp(type, "res") == 0) {
 		traceOpenResFile(path, name);
 	}
 	else {

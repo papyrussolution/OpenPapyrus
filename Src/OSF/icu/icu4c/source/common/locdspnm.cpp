@@ -71,10 +71,10 @@ inline UnicodeString &ICUDataTable::getNoFallback(const char * tableKey, const c
 ICUDataTable::ICUDataTable(const char * path, const Locale & locale) : path(NULL), locale(Locale::getRoot())
 {
 	if(path) {
-		int32_t len = static_cast<int32_t>(uprv_strlen(path));
+		int32_t len = static_cast<int32_t>(strlen(path));
 		this->path = (const char *)uprv_malloc(len + 1);
 		if(this->path) {
-			uprv_strcpy((char *)this->path, path);
+			strcpy((char *)this->path, path);
 			this->locale = locale;
 		}
 	}
@@ -338,22 +338,22 @@ struct LocaleDisplayNamesImpl::CapitalizationContextSink : public ResourceSink {
 		}
 		for(int i = 0; contexts.getKeyAndValue(i, key, value); ++i) {
 			CapContextUsage usageEnum;
-			if(uprv_strcmp(key, "key") == 0) {
+			if(strcmp(key, "key") == 0) {
 				usageEnum = kCapContextUsageKey;
 			}
-			else if(uprv_strcmp(key, "keyValue") == 0) {
+			else if(strcmp(key, "keyValue") == 0) {
 				usageEnum = kCapContextUsageKeyValue;
 			}
-			else if(uprv_strcmp(key, "languages") == 0) {
+			else if(strcmp(key, "languages") == 0) {
 				usageEnum = kCapContextUsageLanguage;
 			}
-			else if(uprv_strcmp(key, "script") == 0) {
+			else if(strcmp(key, "script") == 0) {
 				usageEnum = kCapContextUsageScript;
 			}
-			else if(uprv_strcmp(key, "territory") == 0) {
+			else if(strcmp(key, "territory") == 0) {
 				usageEnum = kCapContextUsageTerritory;
 			}
-			else if(uprv_strcmp(key, "variant") == 0) {
+			else if(strcmp(key, "variant") == 0) {
 				usageEnum = kCapContextUsageVariant;
 			}
 			else {
@@ -485,8 +485,8 @@ UDisplayContext LocaleDisplayNamesImpl::getContext(UDisplayContextType type) con
 	return (UDisplayContext)0;
 }
 
-UnicodeString &LocaleDisplayNamesImpl::adjustForUsageAndContext(CapContextUsage usage,
-    UnicodeString & result) const {
+UnicodeString &LocaleDisplayNamesImpl::adjustForUsageAndContext(CapContextUsage usage, UnicodeString & result) const 
+{
 #if !UCONFIG_NO_BREAK_ITERATION
 	// check to see whether we need to titlecase result
 	if(result.length() > 0 && u_islower(result.char32At(0)) && capitalizationBrkIter!= NULL &&
@@ -509,15 +509,15 @@ UnicodeString &LocaleDisplayNamesImpl::localeDisplayName(const Locale & loc, Uni
 	}
 	UnicodeString resultName;
 	const char * lang = loc.getLanguage();
-	if(uprv_strlen(lang) == 0) {
+	if(strlen(lang) == 0) {
 		lang = "root";
 	}
 	const char * script = loc.getScript();
 	const char * country = loc.getCountry();
 	const char * variant = loc.getVariant();
-	bool hasScript = uprv_strlen(script) > 0;
-	bool hasCountry = uprv_strlen(country) > 0;
-	bool hasVariant = uprv_strlen(variant) > 0;
+	bool hasScript = strlen(script) > 0;
+	bool hasCountry = strlen(country) > 0;
+	bool hasVariant = strlen(variant) > 0;
 	if(dialectHandling == ULDN_DIALECT_NAMES) {
 		char buffer[ULOC_FULLNAME_CAPACITY];
 		do { // loop construct is so we can break early out of search
@@ -678,7 +678,7 @@ UnicodeString &LocaleDisplayNamesImpl::localeIdName(const char * localeId,
 
 UnicodeString &LocaleDisplayNamesImpl::languageDisplayName(const char * lang,
     UnicodeString & result) const {
-	if(uprv_strcmp("root", lang) == 0 || uprv_strchr(lang, '_') != NULL) {
+	if(strcmp("root", lang) == 0 || uprv_strchr(lang, '_') != NULL) {
 		return result = UnicodeString(lang, -1, US_INV);
 	}
 	if(nameLength == UDISPCTX_LENGTH_SHORT) {
@@ -798,7 +798,7 @@ UnicodeString &LocaleDisplayNamesImpl::keyValueDisplayName(const char * key,
     const char * value,
     UnicodeString & result,
     bool skipAdjust) const {
-	if(uprv_strcmp(key, "currency") == 0) {
+	if(strcmp(key, "currency") == 0) {
 		// ICU4C does not have ICU4J CurrencyDisplayInfo equivalent for now.
 		UErrorCode sts = U_ZERO_ERROR;
 		UnicodeString ustrValue(value, -1, US_INV);

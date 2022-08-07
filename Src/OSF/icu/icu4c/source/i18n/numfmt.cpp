@@ -968,7 +968,7 @@ NumberFormat* NumberFormat::internalCreateInstance(const Locale & loc, UNumberFo
 		char cfKeyValue[kKeyValueLenMax] = {0};
 		UErrorCode kvStatus = U_ZERO_ERROR;
 		int32_t kLen = loc.getKeywordValue("cf", cfKeyValue, kKeyValueLenMax, kvStatus);
-		if(U_SUCCESS(kvStatus) && kLen > 0 && uprv_strcmp(cfKeyValue, "account")==0) {
+		if(U_SUCCESS(kvStatus) && kLen > 0 && strcmp(cfKeyValue, "account")==0) {
 			kind = UNUM_CURRENCY_ACCOUNTING;
 		}
 	}
@@ -1227,7 +1227,7 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 		int32_t count = desiredLocale.getKeywordValue("compat", buffer, sizeof(buffer), status);
 
 		// if the locale has "@compat=host", create a host-specific NumberFormat
-		if(U_SUCCESS(status) && count > 0 && uprv_strcmp(buffer, "host") == 0) {
+		if(U_SUCCESS(status) && count > 0 && strcmp(buffer, "host") == 0) {
 			bool curr = TRUE;
 
 			switch(style) {

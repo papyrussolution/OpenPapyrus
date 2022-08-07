@@ -108,7 +108,7 @@ int32_t BytesTrieElement::compareStringTo(const BytesTrieElement &other, const C
 	else {
 		commonLength = otherString.length();
 	}
-	int32_t diff = uprv_memcmp(thisString.data(), otherString.data(), commonLength);
+	int32_t diff = memcmp(thisString.data(), otherString.data(), commonLength);
 	return diff!=0 ? diff : lengthDiff;
 }
 
@@ -325,7 +325,7 @@ bool BytesTrieBuilder::BTLinearMatchNode::operator == (const Node &other) const
 		return false;
 	}
 	const BTLinearMatchNode &o = (const BTLinearMatchNode &)other;
-	return 0==uprv_memcmp(s, o.s, length);
+	return 0==memcmp(s, o.s, length);
 }
 
 void BytesTrieBuilder::BTLinearMatchNode::write(StringTrieBuilder &builder) 

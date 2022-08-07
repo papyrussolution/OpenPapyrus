@@ -1079,7 +1079,7 @@ void TestMessageFormat::testFormat()
 	{
 		Formattable(UDate(8.71068e+011), Formattable::kIsDate)
 	};
-	const int32_t ft_cnt = UPRV_LENGTHOF(ftarray);
+	const int32_t ft_cnt = SIZEOFARRAYi(ftarray);
 	Formattable ft_arr(ftarray, ft_cnt);
 
 	Formattable* fmt = new Formattable(UDate(8.71068e+011), Formattable::kIsDate);
@@ -1521,7 +1521,7 @@ void TestMessageFormat::TestUnlimitedArgsAndSubformats() {
 		Formattable("of course"),
 		Formattable("Horace"),
 	};
-	const int32_t ARGS_LENGTH = UPRV_LENGTHOF(ARGS);
+	const int32_t ARGS_LENGTH = SIZEOFARRAYi(ARGS);
 	Formattable ARGS_OBJ(ARGS, ARGS_LENGTH);
 
 	UnicodeString expected =
@@ -1555,7 +1555,7 @@ void TestMessageFormat::TestRBNF() {
 		// do not always parse, so do not include them
 		"0", "1", "12", "100", "123", "1001", "123,456", "-17",
 	};
-	int32_t values_count = UPRV_LENGTHOF(values);
+	int32_t values_count = SIZEOFARRAYi(values);
 
 	UnicodeString formats[] = {
 		"There are {0,spellout} files to search.",
@@ -1565,7 +1565,7 @@ void TestMessageFormat::TestRBNF() {
 		"Searching this file will take {0,duration} to complete.",
 		"Searching this file will take {0,duration,%with-words} to complete.",
 	};
-	int32_t formats_count = UPRV_LENGTHOF(formats);
+	int32_t formats_count = SIZEOFARRAYi(formats);
 
 	Formattable args[1];
 
@@ -1641,7 +1641,7 @@ void TestMessageFormat::TestApostropheMode() {
 		"I don't know", "I don't know", "I don''t know",
 		"I don't know", "I don''t know", "I don''t know"
 	};
-	int32_t tuples_count = UPRV_LENGTHOF(tuples);
+	int32_t tuples_count = SIZEOFARRAYi(tuples);
 
 	for(int i = 0; i < tuples_count; i += 3) {
 		UnicodeString & desired = tuples[i];
@@ -1738,7 +1738,7 @@ void TestMessageFormat::testAutoQuoteApostrophe() {
 		"'} '{'}'", "'} '{'}''",
 		"'} {{{''", "'} {{{'''",
 	};
-	int32_t pattern_count = UPRV_LENGTHOF(patterns);
+	int32_t pattern_count = SIZEOFARRAYi(patterns);
 
 	for(int i = 0; i < pattern_count; i += 2) {
 		UErrorCode status = U_ZERO_ERROR;

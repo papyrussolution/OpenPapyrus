@@ -34,7 +34,7 @@ static USet* createFlattenSet(USet * origSet, UErrorCode * status) {
 	for(idx = 0; idx < origItemCount; idx++) {
 		graphmeSize = uset_getItem(origSet, idx,
 			&start, &end,
-			graphme, UPRV_LENGTHOF(graphme),
+			graphme, SIZEOFARRAYi(graphme),
 			status);
 		if(U_FAILURE(*status)) {
 			log_err("ERROR: uset_getItem returned %s\n", u_errorName(*status));
@@ -455,7 +455,7 @@ static void testLCID(UResourceBundle * currentBundle,
 	}
 
 	status = U_ZERO_ERROR;
-	len = uprv_convertToPosix(expectedLCID, lcidStringC, UPRV_LENGTHOF(lcidStringC) - 1, &status);
+	len = uprv_convertToPosix(expectedLCID, lcidStringC, SIZEOFARRAYi(lcidStringC) - 1, &status);
 	if(U_FAILURE(status)) {
 		log_err("ERROR:   %.4x does not have a POSIX mapping due to %s\n",
 		    expectedLCID, u_errorName(status));
@@ -930,7 +930,7 @@ static void VerifyTranslation(void)
 			int32_t langSize;
 			int32_t strIdx;
 			UChar32 badChar;
-			langSize = uloc_getDisplayLanguage(currLoc, currLoc, langBuffer, UPRV_LENGTHOF(langBuffer), &errorCode);
+			langSize = uloc_getDisplayLanguage(currLoc, currLoc, langBuffer, SIZEOFARRAYi(langBuffer), &errorCode);
 			if(U_FAILURE(errorCode)) {
 				log_err("error uloc_getDisplayLanguage returned %s\n", u_errorName(errorCode));
 			}
@@ -940,7 +940,7 @@ static void VerifyTranslation(void)
 					log_err("getDisplayLanguage(%s) at index %d returned characters not in the exemplar characters: %04X.\n", currLoc, strIdx, badChar);
 				}
 			}
-			langSize = uloc_getDisplayCountry(currLoc, currLoc, langBuffer, UPRV_LENGTHOF(langBuffer), &errorCode);
+			langSize = uloc_getDisplayCountry(currLoc, currLoc, langBuffer, SIZEOFARRAYi(langBuffer), &errorCode);
 			if(U_FAILURE(errorCode)) {
 				log_err("error uloc_getDisplayCountry returned %s\n", u_errorName(errorCode));
 			}
@@ -1013,7 +1013,7 @@ static void VerifyTranslation(void)
 				ures_close(cal);
 			}
 			errorCode = U_ZERO_ERROR;
-			numScripts = uscript_getCode(currLoc, scripts, UPRV_LENGTHOF(scripts), &errorCode);
+			numScripts = uscript_getCode(currLoc, scripts, SIZEOFARRAYi(scripts), &errorCode);
 			if(strcmp(currLoc, "yi") == 0 && numScripts > 0 && log_knownIssue("11217", "Fix result of uscript_getCode for yi: USCRIPT_YI -> USCRIPT_HEBREW")) {
 				scripts[0] = USCRIPT_HEBREW;
 			}
@@ -1183,7 +1183,7 @@ static void TestExemplarSet() {
 				codeSets[j] = NULL;
 			}
 			for(j = 0; j<codeLen; ++j) {
-				uprv_strcpy(cbuf, "[:");
+				strcpy(cbuf, "[:");
 				if(code[j]==-1) {
 					log_err("USCRIPT_INVALID_CODE returned for locale: %s\n", locale);
 					continue;
@@ -1199,7 +1199,7 @@ static void TestExemplarSet() {
 			itemCount = uset_getItemCount(exemplarSet);
 			for(m = 0; m<itemCount && !existsInScript; ++m) {
 				strLen = uset_getItem(exemplarSet, m, &start, &end, ubuf,
-					UPRV_LENGTHOF(ubuf), &ec);
+					SIZEOFARRAYi(ubuf), &ec);
 				/* failure here might mean str[] needs to be larger */
 				if(!assertSuccess("uset_getItem", &ec)) goto END;
 				if(strLen == 0) {
@@ -1475,21 +1475,21 @@ static void TestAvailableIsoCodes(void)
 	UDate date1978 = (UDate)260172000000.0; /* year 1978 */
 	UDate date1981 = (UDate)346896000000.0; /* year 1981 */
 	UDate date1992 = (UDate)693792000000.0; /* year 1992 */
-	UChar * isoCode = (UChar *)SAlloc::M(sizeof(UChar) * (uprv_strlen(usdCode) + 1));
+	UChar * isoCode = (UChar *)SAlloc::M(sizeof(UChar) * (strlen(usdCode) + 1));
 	/* testing available codes with no time ranges */
-	u_charsToUChars(eurCode, isoCode, (int32_t)uprv_strlen(usdCode) + 1);
+	u_charsToUChars(eurCode, isoCode, (int32_t)strlen(usdCode) + 1);
 	if(ucurr_isAvailable(isoCode, U_DATE_MIN, U_DATE_MAX, &errorCode) == FALSE) {
 		log_data_err("FAIL: ISO code (%s) is not found.\n", eurCode);
 	}
-	u_charsToUChars(usdCode, isoCode, (int32_t)uprv_strlen(zzzCode) + 1);
+	u_charsToUChars(usdCode, isoCode, (int32_t)strlen(zzzCode) + 1);
 	if(ucurr_isAvailable(isoCode, U_DATE_MIN, U_DATE_MAX, &errorCode) == FALSE) {
 		log_data_err("FAIL: ISO code (%s) is not found.\n", usdCode);
 	}
-	u_charsToUChars(zzzCode, isoCode, (int32_t)uprv_strlen(zzzCode) + 1);
+	u_charsToUChars(zzzCode, isoCode, (int32_t)strlen(zzzCode) + 1);
 	if(ucurr_isAvailable(isoCode, U_DATE_MIN, U_DATE_MAX, &errorCode) == TRUE) {
 		log_err("FAIL: ISO code (%s) is reported as available, but it doesn't exist.\n", zzzCode);
 	}
-	u_charsToUChars(lastCode, isoCode, (int32_t)uprv_strlen(zzzCode) + 1);
+	u_charsToUChars(lastCode, isoCode, (int32_t)strlen(zzzCode) + 1);
 	if(ucurr_isAvailable(isoCode, U_DATE_MIN, U_DATE_MAX, &errorCode) == FALSE) {
 		log_data_err("FAIL: ISO code (%s) is not found.\n", lastCode);
 	}

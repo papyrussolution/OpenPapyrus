@@ -161,6 +161,8 @@ public class CommonPrereqModule {
 				CurrentOrder = new Document(opID, SvcIdent, app_ctx);
 				CurrentOrder.H.BaseCurrencySymb = GetBaseCurrencySymb();
 				CurrentOrder.H.OrgCmdUuid = CmdUuid;
+				if(PosNodeID > 0)
+					CurrentOrder.H.PosNodeID = PosNodeID;
 			}
 		}
 	}
@@ -336,7 +338,13 @@ public class CommonPrereqModule {
 			if(item != null && item.GoodsID > 0 && item.Set != null && item.Set.Qtty > 0.0) {
 				CommonPrereqModule.WareEntry goods_item = FindGoodsItemByGoodsID(item.GoodsID);
 				double price = goods_item.JsItem.optDouble("price", 0.0);
-				InitCurrenDocument(SLib.PPEDIOP_ORDER);
+				int    op_id = 0;
+				int    posnode_id = GetPosNodeID();
+				if(posnode_id > 0)
+					op_id = SLib.sqbdtCCheck;
+				else
+					op_id = SLib.PPEDIOP_ORDER;
+				InitCurrenDocument(op_id);
 				Document.TransferItem ti = item;
 				ti.Set.Price = price;
 				int max_row_idx = 0;
@@ -403,7 +411,6 @@ public class CommonPrereqModule {
 				if(new_cli_entry != null) {
 					if(CurrentOrder == null) {
 						InitCurrenDocument(opID);
-						//CurrentOrder = new Document(SLib.PPEDIOP_ORDER, SvcIdent, app_ctx);
 						CurrentOrder.H.ClientID = cliID;
 						CurrentOrder.H.DlvrLocID = dlvrLocID;
 						CurrentOrder.H.BaseCurrencySymb = BaseCurrencySymb;
@@ -563,12 +570,12 @@ public class CommonPrereqModule {
 					// Такой документ просто удаляем
 					if(!force) {
 						class OnResultListener implements SLib.ConfirmationListener {
-							@Override
-							public void OnResult(SLib.ConfirmationResult r)
+							@Override public void OnResult(SLib.ConfirmationResult r)
 							{
-								if(r == SLib.ConfirmationResult.YES) {
+								if(r == SLib.ConfirmationResult.YES)
 									Helper_CancelCurrentDocument(true);
-								}
+								else
+									CurrentDocument_RemoteOp_Finish();
 							}
 						}
 						String text = app_ctx.GetString(ppstr2.PPSTR_CONFIRMATION, ppstr2.PPCFM_STQ_RMVORD_DRAFT);
@@ -625,7 +632,7 @@ public class CommonPrereqModule {
 					String timewatch_text = ((h > 0) ? Integer.toString(h) + ":" : "") + String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60));
 					if(tv_ind_et.getVisibility() != View.VISIBLE)
 						tv_ind_et.setVisibility(View.VISIBLE);
-					((TextView) tv_ind_et).setText(timewatch_text);
+					((TextView)tv_ind_et).setText(timewatch_text);
 				}
 				{
 					if(tv_ind_img != null && tv_ind_img instanceof ImageView) {

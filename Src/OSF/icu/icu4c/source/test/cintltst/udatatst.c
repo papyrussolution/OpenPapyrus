@@ -155,7 +155,7 @@ static void TestUDataOpen() {
 		if(uprv_fileExists(icuDataFilePath)) {
 			int i;
 			log_verbose("Testing udata_open() on %s\n", icuDataFilePath);
-			for(i = 0; i<UPRV_LENGTHOF(memMap); i++) {
+			for(i = 0; i<SIZEOFARRAYi(memMap); i++) {
 				/* lots_of_mallocs(); */
 				status = U_ZERO_ERROR;
 				result = udata_open(path, memMap[i][1], memMap[i][0], &status);
@@ -201,7 +201,7 @@ static void TestUDataOpen() {
 		if(uprv_fileExists(icuDataFilePath)) {
 			int i;
 			log_verbose("Testing udata_open() on %s\n", icuDataFilePath);
-			for(i = 0; i<UPRV_LENGTHOF(memMap); i++) {
+			for(i = 0; i<SIZEOFARRAYi(memMap); i++) {
 				/* lots_of_mallocs(); */
 				status = U_ZERO_ERROR;
 				result = udata_open(path, memMap[i][1], memMap[i][0], &status);
@@ -258,7 +258,7 @@ static void TestUDataOpen() {
 		strcat(icuDataFilePath, dirSepString);
 		strcat(icuDataFilePath, U_ICUDATA_NAME);
 		log_verbose("Testing udata_open() on %s\n", icuDataFilePath);
-		for(i = 0; i<UPRV_LENGTHOF(memMap); i++) {
+		for(i = 0; i<SIZEOFARRAYi(memMap); i++) {
 			status = U_ZERO_ERROR;
 			result = udata_open(icuDataFilePath, memMap[i][1], memMap[i][0], &status);
 			if(U_FAILURE(status)) {
@@ -1201,24 +1201,24 @@ static void TestICUDataName()
 	    typeChar);
 
 	log_verbose("Expected: %s\n", expectDataName);
-	if(uprv_strlen(expectDataName) != expectLen) {
+	if(strlen(expectDataName) != expectLen) {
 		log_err("*Expected* length is wrong (test err?), should be %d is %d\n",
-		    expectLen, uprv_strlen(expectDataName));
+		    expectLen, strlen(expectDataName));
 	}
 
-	if(uprv_strlen(U_ICUDATA_NAME) != expectLen) {
+	if(strlen(U_ICUDATA_NAME) != expectLen) {
 		log_err("U_ICUDATA_NAME length should be %d is %d\n",
-		    expectLen, uprv_strlen(U_ICUDATA_NAME));
+		    expectLen, strlen(U_ICUDATA_NAME));
 	}
 
-	if(uprv_strcmp(U_ICUDATA_NAME, expectDataName)) {
+	if(strcmp(U_ICUDATA_NAME, expectDataName)) {
 		log_err("U_ICUDATA_NAME should be %s but is %s\n",
 		    expectDataName, U_ICUDATA_NAME);
 	}
 
 	/* ICUDATA_NAME comes from the build system on *nix */
 #ifdef ICUDATA_NAME
-	if(uprv_strcmp(U_ICUDATA_NAME, ICUDATA_NAME)) {
+	if(strcmp(U_ICUDATA_NAME, ICUDATA_NAME)) {
 		log_err("ICUDATA_NAME  and U_ICUDATA_NAME don't match: "
 		    "ICUDATA_NAME=%s, U_ICUDATA_NAME=%s.  Check configure.in, icudefs.mk.in, utypes.h...\n",  ICUDATA_NAME, U_ICUDATA_NAME);
 	}
@@ -1609,7 +1609,7 @@ static void TestSwapCase(UDataMemory * pData, const char * name,
 	}
 
 	/* compare the final contents with the original */
-	if(0!=uprv_memcmp(inHeader, buffer2, length)) {
+	if(0!=memcmp(inHeader, buffer2, length)) {
 		const uint8_t * original;
 		uint8_t diff[8];
 		int32_t i, j;
@@ -1732,32 +1732,32 @@ static void TestSwapData() {
 	errorCode = U_ZERO_ERROR;
 #endif
 
-	for(i = 0; i<UPRV_LENGTHOF(swapCases); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(swapCases); ++i) {
 		/* build the name for logging */
 		errorCode = U_ZERO_ERROR;
 		if(swapCases[i].name[0]=='*') {
 			pkg = testPath;
 			nm = swapCases[i].name+1;
-			uprv_strcpy(name, "testdata");
+			strcpy(name, "testdata");
 		}
-		else if(uprv_strcmp(swapCases[i].type, "brk")==0
-		 || uprv_strcmp(swapCases[i].type, "dict")==0) {
+		else if(strcmp(swapCases[i].type, "brk")==0
+		 || strcmp(swapCases[i].type, "dict")==0) {
 			pkg = U_ICUDATA_BRKITR;
 			nm = swapCases[i].name;
-			uprv_strcpy(name, U_ICUDATA_BRKITR);
+			strcpy(name, U_ICUDATA_BRKITR);
 #if !UCONFIG_NO_COLLATION
 		}
-		else if(uprv_strcmp(swapCases[i].name, "ucadata")==0
-		 || uprv_strcmp(swapCases[i].name, "invuca")==0) {
+		else if(strcmp(swapCases[i].name, "ucadata")==0
+		 || strcmp(swapCases[i].name, "invuca")==0) {
 			pkg = U_ICUDATA_COLL;
 			nm = swapCases[i].name;
-			uprv_strcpy(name, U_ICUDATA_COLL);
+			strcpy(name, U_ICUDATA_COLL);
 #endif  /* !UCONFIG_NO_COLLATION */
 		}
 		else {
 			pkg = NULL;
 			nm = swapCases[i].name;
-			uprv_strcpy(name, "NULL");
+			strcpy(name, "NULL");
 		}
 		uprv_strcat(name, "/");
 		uprv_strcat(name, nm);

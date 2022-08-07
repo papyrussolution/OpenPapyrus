@@ -340,7 +340,7 @@ void TZGNCore::initialize(const Locale & locale, UErrorCode & status) {
 
 	// target region
 	const char * region = fLocale.getCountry();
-	int32_t regionLen = static_cast<int32_t>(uprv_strlen(region));
+	int32_t regionLen = static_cast<int32_t>(strlen(region));
 	if(regionLen == 0) {
 		CharString loc;
 		{
@@ -358,7 +358,7 @@ void TZGNCore::initialize(const Locale & locale, UErrorCode & status) {
 		}
 	}
 	else if(regionLen < (int32_t)sizeof(fTargetRegion)) {
-		uprv_strcpy(fTargetRegion, region);
+		strcpy(fTargetRegion, region);
 	}
 	else {
 		fTargetRegion[0] = 0;
@@ -541,7 +541,7 @@ UnicodeString &TZGNCore::formatGenericNonLocationName(const TimeZone& tz, UTimeZ
 
 	// Try meta zone
 	UChar mzIDBuf[32];
-	UnicodeString mzID(mzIDBuf, 0, UPRV_LENGTHOF(mzIDBuf));
+	UnicodeString mzID(mzIDBuf, 0, SIZEOFARRAYi(mzIDBuf));
 	fTimeZoneNames->getMetaZoneID(tzID, date, mzID);
 	if(!mzID.isEmpty()) {
 		UErrorCode status = U_ZERO_ERROR;
@@ -599,7 +599,7 @@ UnicodeString &TZGNCore::formatGenericNonLocationName(const TimeZone& tz, UTimeZ
 		if(useStandard) {
 			UTimeZoneNameType stdNameType = (nameType == UTZNM_LONG_GENERIC)
 			    ? UTZNM_LONG_STANDARD : UTZNM_SHORT_STANDARD;
-			UnicodeString stdName(tmpNameBuf, 0, UPRV_LENGTHOF(tmpNameBuf));
+			UnicodeString stdName(tmpNameBuf, 0, SIZEOFARRAYi(tmpNameBuf));
 			fTimeZoneNames->getDisplayName(tzID, stdNameType, date, stdName);
 			if(!stdName.isEmpty()) {
 				name.setTo(stdName);
@@ -610,7 +610,7 @@ UnicodeString &TZGNCore::formatGenericNonLocationName(const TimeZone& tz, UTimeZ
 				// For now, we check if the standard name is different from its generic
 				// name below.
 				UChar genNameBuf[ZONE_NAME_U16_MAX];
-				UnicodeString mzGenericName(genNameBuf, 0, UPRV_LENGTHOF(genNameBuf));
+				UnicodeString mzGenericName(genNameBuf, 0, SIZEOFARRAYi(genNameBuf));
 				fTimeZoneNames->getMetaZoneDisplayName(mzID, nameType, mzGenericName);
 				if(stdName.caseCompare(mzGenericName, 0) == 0) {
 					name.setToBogus();
@@ -619,14 +619,14 @@ UnicodeString &TZGNCore::formatGenericNonLocationName(const TimeZone& tz, UTimeZ
 		}
 		if(name.isEmpty()) {
 			// Get a name from meta zone
-			UnicodeString mzName(tmpNameBuf, 0, UPRV_LENGTHOF(tmpNameBuf));
+			UnicodeString mzName(tmpNameBuf, 0, SIZEOFARRAYi(tmpNameBuf));
 			fTimeZoneNames->getMetaZoneDisplayName(mzID, nameType, mzName);
 			if(!mzName.isEmpty()) {
 				// Check if we need to use a partial location format.
 				// This check is done by comparing offset with the meta zone's
 				// golden zone at the given date.
 				UChar idBuf[32];
-				UnicodeString goldenID(idBuf, 0, UPRV_LENGTHOF(idBuf));
+				UnicodeString goldenID(idBuf, 0, SIZEOFARRAYi(idBuf));
 				fTimeZoneNames->getReferenceZoneID(mzID, fTargetRegion, goldenID);
 				if(!goldenID.isEmpty() && goldenID != tzID) {
 					TimeZone * goldenZone = TimeZone::createTimeZone(goldenID);
@@ -1133,12 +1133,12 @@ TimeZoneGenericNames* TimeZoneGenericNames::createInstance(const Locale & locale
 				status = U_MEMORY_ALLOCATION_ERROR;
 			}
 			if(U_SUCCESS(status)) {
-				newKey = (char *)uprv_malloc(uprv_strlen(key) + 1);
+				newKey = (char *)uprv_malloc(strlen(key) + 1);
 				if(newKey == NULL) {
 					status = U_MEMORY_ALLOCATION_ERROR;
 				}
 				else {
-					uprv_strcpy(newKey, key);
+					strcpy(newKey, key);
 				}
 			}
 			if(U_SUCCESS(status)) {

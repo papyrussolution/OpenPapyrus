@@ -2581,8 +2581,8 @@ static void TestStrengthIdentical(void)
 
 	UChar pattern[] = {0x05E9, 0x0591, 0x05E9};
 	UChar text[] = {0x05E9, 0x0592, 0x05E9};
-	int32_t pLen = UPRV_LENGTHOF(pattern);
-	int32_t tLen = UPRV_LENGTHOF(text);
+	int32_t pLen = SIZEOFARRAYi(pattern);
+	int32_t tLen = SIZEOFARRAYi(text);
 	int32_t expectedPos = 0;
 	int32_t expectedLen = 3;
 
@@ -2668,12 +2668,12 @@ static const int32_t scKoSrchOff23[] = { 5, 21, 25 };
 static const int32_t scKoSrchOff45[] = { 7, 30     };
 
 static const PatternAndOffsets scKoSrchPatternsOffsets[] = {
-	{ scKoPat0, scKoSrchOff01, UPRV_LENGTHOF(scKoSrchOff01) },
-	{ scKoPat1, scKoSrchOff01, UPRV_LENGTHOF(scKoSrchOff01) },
-	{ scKoPat2, scKoSrchOff23, UPRV_LENGTHOF(scKoSrchOff23) },
-	{ scKoPat3, scKoSrchOff23, UPRV_LENGTHOF(scKoSrchOff23) },
-	{ scKoPat4, scKoSrchOff45, UPRV_LENGTHOF(scKoSrchOff45) },
-	{ scKoPat5, scKoSrchOff45, UPRV_LENGTHOF(scKoSrchOff45) },
+	{ scKoPat0, scKoSrchOff01, SIZEOFARRAYi(scKoSrchOff01) },
+	{ scKoPat1, scKoSrchOff01, SIZEOFARRAYi(scKoSrchOff01) },
+	{ scKoPat2, scKoSrchOff23, SIZEOFARRAYi(scKoSrchOff23) },
+	{ scKoPat3, scKoSrchOff23, SIZEOFARRAYi(scKoSrchOff23) },
+	{ scKoPat4, scKoSrchOff45, SIZEOFARRAYi(scKoSrchOff45) },
+	{ scKoPat5, scKoSrchOff45, SIZEOFARRAYi(scKoSrchOff45) },
 	{ NULL,     NULL,          0                           }
 };
 
@@ -2683,12 +2683,12 @@ static const int32_t scKoStndOff3[]  = { 25    };
 static const int32_t scKoStndOff45[] = { 7, 30 };
 
 static const PatternAndOffsets scKoStndPatternsOffsets[] = {
-	{ scKoPat0, scKoStndOff01, UPRV_LENGTHOF(scKoStndOff01) },
-	{ scKoPat1, scKoStndOff01, UPRV_LENGTHOF(scKoStndOff01) },
-	{ scKoPat2, scKoStndOff2,  UPRV_LENGTHOF(scKoStndOff2)  },
-	{ scKoPat3, scKoStndOff3,  UPRV_LENGTHOF(scKoStndOff3)  },
-	{ scKoPat4, scKoStndOff45, UPRV_LENGTHOF(scKoStndOff45) },
-	{ scKoPat5, scKoStndOff45, UPRV_LENGTHOF(scKoStndOff45) },
+	{ scKoPat0, scKoStndOff01, SIZEOFARRAYi(scKoStndOff01) },
+	{ scKoPat1, scKoStndOff01, SIZEOFARRAYi(scKoStndOff01) },
+	{ scKoPat2, scKoStndOff2,  SIZEOFARRAYi(scKoStndOff2)  },
+	{ scKoPat3, scKoStndOff3,  SIZEOFARRAYi(scKoStndOff3)  },
+	{ scKoPat4, scKoStndOff45, SIZEOFARRAYi(scKoStndOff45) },
+	{ scKoPat5, scKoStndOff45, SIZEOFARRAYi(scKoStndOff45) },
 	{ NULL,     NULL,          0                           }
 };
 
@@ -2928,8 +2928,8 @@ static void TestPCEBuffer_100df()
 	{ 0x0020, 0x0020, 0x00df, 0x0020, 0x0041, 0x00df, 0x0020, 0x0061, 0x00df, 0x0020, 0x00c5, 0x00df, 0x0020, 0x212b, 0x00df, 0x0020,
 	  0x0041, 0x030a, 0x00df, 0x0020, 0x00e5, 0x00df, 0x0020, 0x0061, 0x02da, 0x00df, 0x0020, 0x0061, 0x030a, 0x00df, 0x0020,
 	  0xd8fa, 0xdeae, 0x00df, 0x0020, 0x2027, 0x00df };
-	uint32_t searchLen = UPRV_LENGTHOF(search);
-	uint32_t sourceLen = UPRV_LENGTHOF(source);
+	uint32_t searchLen = SIZEOFARRAYi(search);
+	uint32_t sourceLen = SIZEOFARRAYi(source);
 	TestPCEBuffer_with(search, searchLen, source, sourceLen);
 }
 
@@ -2943,8 +2943,8 @@ static void TestPCEBuffer_2surr()
 	{ 0x0020, 0x0020, 0xdfff, 0x0020, 0x0041, 0xdfff, 0x0020, 0x0061, 0xdfff, 0x0020, 0x00c5, 0xdfff, 0x0020, 0x212b, 0xdfff, 0x0020,
 	  0x0041, 0x030a, 0xdfff, 0x0020, 0x00e5, 0xdfff, 0x0020, 0x0061, 0x02da, 0xdfff, 0x0020, 0x0061, 0x030a, 0xdfff, 0x0020,
 	  0xd8fa, 0xdeae, 0xdfff, 0x0020, 0x2027, 0xdfff };
-	uint32_t searchLen = UPRV_LENGTHOF(search);
-	uint32_t sourceLen = UPRV_LENGTHOF(source);
+	uint32_t searchLen = SIZEOFARRAYi(search);
+	uint32_t sourceLen = SIZEOFARRAYi(source);
 	TestPCEBuffer_with(search, searchLen, source, sourceLen);
 }
 
@@ -2963,8 +2963,8 @@ static void TestMatchFollowedByIgnorables() {
 	int32_t matchLength = 0;
 	const int32_t expectedMatchLength = 1;
 
-	searchLen = UPRV_LENGTHOF(search);
-	sourceLen = UPRV_LENGTHOF(source);
+	searchLen = SIZEOFARRAYi(search);
+	sourceLen = SIZEOFARRAYi(source);
 
 	coll = ucol_openFromShortString("LHR_AN_CX_EX_FX_HX_NX_S3",
 		FALSE,

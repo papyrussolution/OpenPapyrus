@@ -250,19 +250,19 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 	}
 
 	static int32_t keyToDirection(const char * key) {
-		if(uprv_strcmp(key, "-2") == 0) {
+		if(strcmp(key, "-2") == 0) {
 			return UDAT_DIRECTION_LAST_2;
 		}
-		if(uprv_strcmp(key, "-1") == 0) {
+		if(strcmp(key, "-1") == 0) {
 			return UDAT_DIRECTION_LAST;
 		}
-		if(uprv_strcmp(key, "0") == 0) {
+		if(strcmp(key, "0") == 0) {
 			return UDAT_DIRECTION_THIS;
 		}
-		if(uprv_strcmp(key, "1") == 0) {
+		if(strcmp(key, "1") == 0) {
 			return UDAT_DIRECTION_NEXT;
 		}
-		if(uprv_strcmp(key, "2") == 0) {
+		if(strcmp(key, "2") == 0) {
 			return UDAT_DIRECTION_NEXT_2;
 		}
 		return -1;
@@ -287,11 +287,11 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 	// Utility functions
 	static UDateRelativeDateTimeFormatterStyle styleFromString(const char * s) 
 	{
-		int32_t len = static_cast<int32_t>(uprv_strlen(s));
-		if(len >= 7 && uprv_strcmp(s + len - 7, "-narrow") == 0) {
+		int32_t len = static_cast<int32_t>(strlen(s));
+		if(len >= 7 && strcmp(s + len - 7, "-narrow") == 0) {
 			return UDAT_STYLE_NARROW;
 		}
-		if(len >= 6 && uprv_strcmp(s + len - 6, "-short") == 0) {
+		if(len >= 6 && strcmp(s + len - 6, "-short") == 0) {
 			return UDAT_STYLE_SHORT;
 		}
 		return UDAT_STYLE_LONG;
@@ -418,7 +418,7 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 				}
 
 				int32_t relUnitIndex = relUnitFromGeneric(genericUnit);
-				if(relUnitIndex == UDAT_REL_UNIT_SECOND && uprv_strcmp(key, "0") == 0 &&
+				if(relUnitIndex == UDAT_REL_UNIT_SECOND && strcmp(key, "0") == 0 &&
 				    outputData.absoluteUnits[style][UDAT_ABSOLUTE_NOW][UDAT_DIRECTION_PLAIN].isEmpty()) {
 					// Handle "NOW"
 					outputData.absoluteUnits[style][UDAT_ABSOLUTE_NOW]
@@ -476,10 +476,10 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 			return;
 		}
 		for(int32_t i = 0; relativeTimeTable.getKeyAndValue(i, key, value); ++i) {
-			if(uprv_strcmp(key, "past") == 0) {
+			if(strcmp(key, "past") == 0) {
 				pastFutureIndex = 0;
 			}
-			else if(uprv_strcmp(key, "future") == 0) {
+			else if(strcmp(key, "future") == 0) {
 				pastFutureIndex = 1;
 			}
 			else {
@@ -520,14 +520,14 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 
 		for(int32_t i = 0; unitTypesTable.getKeyAndValue(i, key, value); ++i) {
 			// Handle display name.
-			if(uprv_strcmp(key, "dn") == 0 && value.getType() == URES_STRING) {
+			if(strcmp(key, "dn") == 0 && value.getType() == URES_STRING) {
 				handlePlainDirection(value, errorCode);
 			}
 			if(value.getType() == URES_TABLE) {
-				if(uprv_strcmp(key, "relative") == 0) {
+				if(strcmp(key, "relative") == 0) {
 					consumeTableRelative(key, value, errorCode);
 				}
-				else if(uprv_strcmp(key, "relativeTime") == 0) {
+				else if(strcmp(key, "relativeTime") == 0) {
 					consumeTableRelativeTime(key, value, errorCode);
 				}
 			}
@@ -547,7 +547,7 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 			}
 			else {
 				style = styleFromString(key);
-				int32_t unitSize = static_cast<int32_t>(uprv_strlen(key)) - styleSuffixLength(style);
+				int32_t unitSize = static_cast<int32_t>(strlen(key)) - styleSuffixLength(style);
 				genericUnit = unitOrNegativeFromString(key, unitSize);
 				if(style >= 0 && genericUnit != INVALID_UNIT) {
 					consumeTimeUnit(key, value, errorCode);

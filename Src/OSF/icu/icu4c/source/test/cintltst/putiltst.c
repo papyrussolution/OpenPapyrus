@@ -487,7 +487,7 @@ static void TestErrorName() {
 
 	for(code = 0; code<_CODE_ARR_LEN; code++) {
 		errorName = u_errorName(errorCode[code]);
-		if(uprv_strcmp(str[code], errorName)!=0) {
+		if(strcmp(str[code], errorName)!=0) {
 			log_err("Error : u_errorName failed. Expected: %s Got: %s \n", str[code], errorName);
 		}
 	}
@@ -514,7 +514,7 @@ static void Test_aestrncpy(int32_t line, const uint8_t * expect, const uint8_t *
 	if(ret != str_buf) {
 		log_err("\n%s:%d: FAIL: uprv_aestrncpy returned %p expected %p\n", __FILE__, line, (void *)ret, (void *)str_buf);
 	}
-	if(!uprv_memcmp(str_buf, expect, AESTRNCPY_SIZE)) {
+	if(!memcmp(str_buf, expect, AESTRNCPY_SIZE)) {
 		log_verbose("\n%s:%d: OK - compared OK.", __FILE__, line);
 		log_verbose("\n%s:%d:         expected: %s", __FILE__, line, dump_binline((uint8_t*)expect));
 		log_verbose("\n%s:%d:         got     : %s\n", __FILE__, line, dump_binline(str_buf));
@@ -589,7 +589,7 @@ static void toolutil_findBasename(void)
 			""
 		},
 	};
-	int32_t count = UPRV_LENGTHOF(testCases);
+	int32_t count = SIZEOFARRAYi(testCases);
 	int32_t i;
 
 	log_verbose("Testing findBaseName()\n");
@@ -684,7 +684,7 @@ static void toolutil_findDirname(void)
 			""
 		}
 	};
-	int32_t count = UPRV_LENGTHOF(testCases);
+	int32_t count = SIZEOFARRAYi(testCases);
 
 	log_verbose("Testing findDirname()\n");
 	for(i = 0; i<count; i++) {

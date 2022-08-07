@@ -56,7 +56,7 @@ int TrfrAnlzFilt::HasDateGrouping() const
 int TrfrAnlzFilt::HasBillGrouping() const
 	{ return oneof2(Grp, gGoodsBill, gBillCntragent); }
 
-int TrfrAnlzFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int TrfrAnlzFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 3) {

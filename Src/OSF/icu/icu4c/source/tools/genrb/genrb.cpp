@@ -126,7 +126,7 @@ int main(int argc,
 
 	options[JAVA_PACKAGE].value = "com.ibm.icu.impl.data";
 	options[BUNDLE_NAME].value = "LocaleElements";
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 
 	/* error handling, printing usage message */
 	if(argc<0) {
@@ -142,7 +142,7 @@ int main(int argc,
 	}
 	if(options[FORMAT_VERSION].doesOccur) {
 		const char * s = options[FORMAT_VERSION].value;
-		if(uprv_strlen(s) != 1 || (s[0] < '1' && '3' < s[0])) {
+		if(strlen(s) != 1 || (s[0] < '1' && '3' < s[0])) {
 			slfprintf_stderr("%s: unsupported --formatVersion %s\n", argv[0], s);
 			illegalArg = TRUE;
 		}
@@ -272,12 +272,12 @@ int main(int argc,
 		}
 		else {
 			const char * poolResName = "pool.res";
-			char * nameWithoutSuffix = static_cast<char *>(uprv_malloc(uprv_strlen(poolResName) + 1));
+			char * nameWithoutSuffix = static_cast<char *>(uprv_malloc(strlen(poolResName) + 1));
 			if(nameWithoutSuffix == NULL) {
 				slfprintf_stderr("out of memory error\n");
 				return U_MEMORY_ALLOCATION_ERROR;
 			}
-			uprv_strcpy(nameWithoutSuffix, poolResName);
+			strcpy(nameWithoutSuffix, poolResName);
 			*uprv_strrchr(nameWithoutSuffix, '.') = 0;
 			newPoolBundle->fLocale = nameWithoutSuffix;
 		}
@@ -573,7 +573,7 @@ void processFile(const char * filename, const char * cp,
 		}
 	}
 	else {
-		dirlen  = (int32_t)uprv_strlen(inputDir);
+		dirlen  = (int32_t)strlen(inputDir);
 
 		if(inputDir[dirlen-1] != U_FILE_SEP_CHAR) {
 			/*
@@ -727,14 +727,14 @@ static char * make_res_filename(const char * filename,
 	}
 
 	if(packageName != NULL) {
-		pkgLen = (int32_t)(1 + uprv_strlen(packageName));
+		pkgLen = (int32_t)(1 + strlen(packageName));
 	}
 
 	/* setup */
 	basename = dirname = resName = 0;
 
 	/* determine basename, and compiled file names */
-	basename = (char *)uprv_malloc(sizeof(char) * (uprv_strlen(filename) + 1));
+	basename = (char *)uprv_malloc(sizeof(char) * (strlen(filename) + 1));
 	if(basename == 0) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		goto finish;
@@ -742,7 +742,7 @@ static char * make_res_filename(const char * filename,
 
 	get_basename(basename, filename);
 
-	dirname = (char *)uprv_malloc(sizeof(char) * (uprv_strlen(filename) + 1));
+	dirname = (char *)uprv_malloc(sizeof(char) * (strlen(filename) + 1));
 	if(dirname == 0) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		goto finish;
@@ -752,15 +752,15 @@ static char * make_res_filename(const char * filename,
 
 	if(outputDir == NULL) {
 		/* output in same dir as .txt */
-		resName = (char *)uprv_malloc(sizeof(char) * (uprv_strlen(dirname)
+		resName = (char *)uprv_malloc(sizeof(char) * (strlen(dirname)
 			+ pkgLen
-			+ uprv_strlen(basename)
-			+ uprv_strlen(RES_SUFFIX) + 8));
+			+ strlen(basename)
+			+ strlen(RES_SUFFIX) + 8));
 		if(resName == 0) {
 			status = U_MEMORY_ALLOCATION_ERROR;
 			goto finish;
 		}
-		uprv_strcpy(resName, dirname);
+		strcpy(resName, dirname);
 		if(packageName != NULL) {
 			uprv_strcat(resName, packageName);
 			uprv_strcat(resName, "_");
@@ -768,14 +768,14 @@ static char * make_res_filename(const char * filename,
 		uprv_strcat(resName, basename);
 	}
 	else {
-		int32_t dirlen      = (int32_t)uprv_strlen(outputDir);
-		int32_t basenamelen = (int32_t)uprv_strlen(basename);
+		int32_t dirlen      = (int32_t)strlen(outputDir);
+		int32_t basenamelen = (int32_t)strlen(basename);
 		resName = (char *)uprv_malloc(sizeof(char) * (dirlen + pkgLen + basenamelen + 8));
 		if(resName == NULL) {
 			status = U_MEMORY_ALLOCATION_ERROR;
 			goto finish;
 		}
-		uprv_strcpy(resName, outputDir);
+		strcpy(resName, outputDir);
 		if(outputDir[dirlen] != U_FILE_SEP_CHAR) {
 			resName[dirlen] = U_FILE_SEP_CHAR;
 			resName[dirlen + 1] = '\0';

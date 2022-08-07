@@ -1251,8 +1251,8 @@ void DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 	const UnicodeString * pattern = &intervalPattern;
 	bool order = laterDateFirst;
 	// check for "latestFirst:" or "earliestFirst:" prefix
-	int8 prefixLength = UPRV_LENGTHOF(gLaterFirstPrefix);
-	int8 earliestFirstLength = UPRV_LENGTHOF(gEarlierFirstPrefix);
+	int8 prefixLength = SIZEOFARRAYi(gLaterFirstPrefix);
+	int8 earliestFirstLength = SIZEOFARRAYi(gEarlierFirstPrefix);
 	UnicodeString realPattern;
 	if(intervalPattern.startsWith(gLaterFirstPrefix, prefixLength)) {
 		order = true;

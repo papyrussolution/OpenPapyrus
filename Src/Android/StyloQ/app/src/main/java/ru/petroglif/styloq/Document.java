@@ -30,6 +30,8 @@ public class Document {
 			Time = null;
 			DueTime = null;
 			OpID = 0;
+			AgentID = 0; // @v11.4.6
+			PosNodeID = 0; // @v11.4.6
 			ClientID = 0;
 			DlvrLocID = 0;
 			Flags = 0;
@@ -53,6 +55,10 @@ public class Document {
 			else if(!SLib.LDATETIME.ArEq(DueTime, s.DueTime))
 				yes = false;
 			else if(ClientID != s.ClientID)
+				yes = false;
+			else if(AgentID != s.AgentID)
+				yes = false;
+			else if(PosNodeID != s.PosNodeID)
 				yes = false;
 			else if(DlvrLocID != s.DlvrLocID)
 				yes = false;
@@ -90,6 +96,8 @@ public class Document {
 		int    OpID;
 		int    ClientID;  // service-domain-id
 		int    DlvrLocID; // service-domain-id
+		int    AgentID;   // @v11.4.6 Для документа агентского заказа - ид агента (фактически, он ассоциируется с владельцем нашего устройства)
+		int    PosNodeID; // @v11.4.6 Для кассового чека - кассовый узел, к которому он привязывается //
 		int    Flags;     // Проекция поля SecTable.Rec.Flags styloqfDocXXX
 		double Amount;    // Номинальная сумма документа
 		String Code;
@@ -683,6 +691,11 @@ public class Document {
 	{
 		boolean ok = true;
 		if(H != null) {
+			// @v11.4.6 {
+			if(H.Time == null || !SLib.CheckDate(H.Time.d)) {
+				H.Time = new SLib.LDATETIME(System.currentTimeMillis());
+			}
+			// } @v11.4.6
 			H.Amount = CalcNominalAmount();
 		}
 		return ok;
@@ -714,6 +727,12 @@ public class Document {
 				if(H.DueTime != null)
 					result.put("duetm", SLib.datetimefmt(H.DueTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
 				result.put("opid", H.OpID);
+				if(H.PosNodeID > 0) { // @v11.4.6
+					result.put("posnodeid", H.PosNodeID);
+				}
+				if(H.AgentID > 0) { // @v11.4.6
+					result.put("agentid", H.AgentID);
+				}
 				if(H.ClientID > 0) {
 					result.put("cliid", H.ClientID);
 				}
@@ -832,6 +851,8 @@ public class Document {
 				H.DueTime = SLib.strtodatetime(jsObj.optString("duetm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
 				H.OpID = jsObj.optInt("opid", 0);
 				H.ClientID = jsObj.optInt("cliid", 0);
+				H.PosNodeID = jsObj.optInt("posnodeid", 0);
+				H.AgentID = jsObj.optInt("agentid", 0);
 				H.DlvrLocID = jsObj.optInt("dlvrlocid", 0);
 				{
 					String svc_ident_hex = jsObj.optString("svcident", null);

@@ -21,7 +21,7 @@ FreightFilt & FASTCALL FreightFilt::operator = (const FreightFilt & rS)
 	return *this;
 }
 
-int FreightFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int FreightFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 0) {

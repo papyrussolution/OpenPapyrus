@@ -87,7 +87,7 @@ U_CAPI UNewDataMemory * U_EXPORT2 udata_create(const char * dir, const char * ty
 	/* open the output file */
 	if(dir!=NULL && *dir!=0) { /* if dir has a value, we prepend it to the filename */
 		char * p = filename+strlen(dir);
-		uprv_strcpy(filename, dir);
+		strcpy(filename, dir);
 		if(*(p-1)!=dirSepChar) {
 			*p++ = dirSepChar;
 			*p = 0;
@@ -111,7 +111,7 @@ U_CAPI UNewDataMemory * U_EXPORT2 udata_create(const char * dir, const char * ty
 	/* write the header information */
 	headerSize = (uint16_t)(pInfo->size+4);
 	if(comment!=NULL && *comment!=0) {
-		commentLength = (uint16_t)(uprv_strlen(comment)+1);
+		commentLength = (uint16_t)(strlen(comment)+1);
 		headerSize += commentLength;
 	}
 	else {
@@ -242,7 +242,7 @@ U_CAPI void U_EXPORT2 udata_writeString(UNewDataMemory * pData, const char * s, 
 {
 	if(pData && pData->file) {
 		if(length==-1) {
-			length = (int32_t)uprv_strlen(s);
+			length = (int32_t)strlen(s);
 		}
 		if(length>0) {
 			T_FileStream_write(pData->file, s, length);

@@ -118,7 +118,7 @@ param[] =
 	{ "ne",         NULL,   U_USING_DEFAULT_WARNING,  e_Root,      { TRUE, FALSE, FALSE }, { TRUE, FALSE, FALSE } }
 };
 
-static const int32_t bundles_count = UPRV_LENGTHOF(param);
+static const int32_t bundles_count = SIZEOFARRAYi(param);
 
 //***************************************************************************************
 
@@ -179,7 +179,7 @@ ResourceBundleTest::~ResourceBundleTest()
 {
 	if(param[5].locale) {
 		int idx;
-		for(idx = 0; idx < UPRV_LENGTHOF(param); idx++) {
+		for(idx = 0; idx < SIZEOFARRAYi(param); idx++) {
 			delete param[idx].locale;
 			param[idx].locale = NULL;
 		}
@@ -377,7 +377,7 @@ bool ResourceBundleTest::testTag(const char * frag,
 		//--------------------------------------------------------------------------
 		// string
 
-		uprv_strcpy(tag, "string_");
+		strcpy(tag, "string_");
 		uprv_strcat(tag, frag);
 
 		action = param[i].name;
@@ -405,7 +405,7 @@ bool ResourceBundleTest::testTag(const char * frag,
 		//--------------------------------------------------------------------------
 		// array
 
-		uprv_strcpy(tag, "array_");
+		strcpy(tag, "array_");
 		uprv_strcat(tag, frag);
 
 		action = param[i].name;
@@ -535,7 +535,7 @@ void ResourceBundleTest::TestGetSize(void)
 		return;
 	}
 
-	for(i = 0; i < UPRV_LENGTHOF(test); i++) {
+	for(i = 0; i < SIZEOFARRAYi(test); i++) {
 		ResourceBundle res = rb.get(test[i].key, status);
 		if(U_FAILURE(status)) {
 			err("Couldn't find the key %s. Error: %s\n", u_errorName(status));
@@ -580,7 +580,7 @@ void ResourceBundleTest::TestGetLocaleByType(void)
 		return;
 	}
 
-	for(i = 0; i < UPRV_LENGTHOF(test); i++) {
+	for(i = 0; i < SIZEOFARRAYi(test); i++) {
 		ResourceBundle rb(testdatapath, test[i].requestedLocale, status);
 		if(U_FAILURE(status)) {
 			err("Could not open resource bundle %s (error %s)\n", test[i].requestedLocale, u_errorName(status));

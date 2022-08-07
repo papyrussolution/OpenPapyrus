@@ -241,7 +241,7 @@ static void TestCalendar()
 
 	/*Test ucal_set/getDefaultTimeZone and ucal_getHostTimeZone */
 	status = U_ZERO_ERROR;
-	i = ucal_getDefaultTimeZone(zone1, UPRV_LENGTHOF(zone1), &status);
+	i = ucal_getDefaultTimeZone(zone1, SIZEOFARRAYi(zone1), &status);
 	if(U_FAILURE(status) || status == U_STRING_NOT_TERMINATED_WARNING) {
 		log_err("FAIL: ucal_getDefaultTimeZone() => %s\n",
 		    u_errorName(status));
@@ -253,7 +253,7 @@ static void TestCalendar()
 			    u_errorName(status));
 		}
 		else {
-			i = ucal_getDefaultTimeZone(zone2, UPRV_LENGTHOF(zone2), &status);
+			i = ucal_getDefaultTimeZone(zone2, SIZEOFARRAYi(zone2), &status);
 			if(U_FAILURE(status)) {
 				log_err("FAIL: ucal_getDefaultTimeZone() => %s\n",
 				    u_errorName(status));
@@ -265,7 +265,7 @@ static void TestCalendar()
 				else {
 					// Redetect the host timezone, it should be the same as zone1 even though ICU's
 					// default timezone has been changed.
-					i = ucal_getHostTimeZone(zone2, UPRV_LENGTHOF(zone2), &status);
+					i = ucal_getHostTimeZone(zone2, SIZEOFARRAYi(zone2), &status);
 					if(U_FAILURE(status) || status == U_STRING_NOT_TERMINATED_WARNING) {
 						log_err("FAIL: ucal_getHostTimeZone() => %s\n", u_errorName(status));
 					}
@@ -291,7 +291,7 @@ static void TestCalendar()
 		log_err_status(status, "FAIL: ucal_getTZDataVersion() => %s\n", u_errorName(status));
 	}
 	else {
-		tzverLen = uprv_strlen(tzver);
+		tzverLen = strlen(tzver);
 		if(tzverLen == 5 || tzverLen == 6 /* 4 digits + 1 or 2 letters */) {
 			log_verbose("PASS: ucal_getTZDataVersion returned %s\n", tzver);
 		}
@@ -303,7 +303,7 @@ static void TestCalendar()
 	/*Testing ucal_getCanonicalTimeZoneID*/
 	status = U_ZERO_ERROR;
 	resultlength = ucal_getCanonicalTimeZoneID(PST, -1,
-		canonicalID, UPRV_LENGTHOF(canonicalID), &isSystemID, &status);
+		canonicalID, SIZEOFARRAYi(canonicalID), &isSystemID, &status);
 	if(U_FAILURE(status)) {
 		log_data_err("FAIL: error in ucal_getCanonicalTimeZoneID : %s\n", u_errorName(status));
 	}
@@ -509,7 +509,7 @@ static void TestCalendar()
 		if(U_SUCCESS(status)) {
 			const char * calType = ucal_getType(caldef, &status);
 			if(U_SUCCESS(status) && calType != NULL) {
-				if(uprv_strcmp(calType, ucalGetTypeTestPtr->expectedResult) != 0) {
+				if(strcmp(calType, ucalGetTypeTestPtr->expectedResult) != 0) {
 					log_err("FAIL: ucal_open %s type %d does not return %s calendar\n", localeToDisplay,
 					    ucalGetTypeTestPtr->calType, ucalGetTypeTestPtr->expectedResult);
 				}
@@ -648,7 +648,7 @@ static void TestGetSetDateAPI()
 
 	/*testing ucal_setTimeZone() and ucal_getTimeZoneID function*/
 	log_verbose("\nTesting if the function ucal_setTimeZone() and ucal_getTimeZoneID work fine\n");
-	idLen = ucal_getTimeZoneID(caldef2, id, UPRV_LENGTHOF(id), &status);
+	idLen = ucal_getTimeZoneID(caldef2, id, SIZEOFARRAYi(id), &status);
 	(void)idLen; /* Suppress set but not used warning. */
 	if(U_FAILURE(status)) {
 		log_err("Error in getTimeZoneID : %s\n", u_errorName(status));
@@ -674,7 +674,7 @@ static void TestGetSetDateAPI()
 	else
 		log_verbose("ucal_setTimeZone worked fine\n");
 
-	idLen = ucal_getTimeZoneID(caldef2, id, UPRV_LENGTHOF(id), &status);
+	idLen = ucal_getTimeZoneID(caldef2, id, SIZEOFARRAYi(id), &status);
 	if(U_FAILURE(status)) {
 		log_err("Error in getTimeZoneID : %s\n", u_errorName(status));
 	}
@@ -1672,7 +1672,7 @@ static void TestGetKeywordValuesForLocale() {
 				matchPref = TRUE;
 				for(j = 0; j < EXPECTED_SIZE[i]; j++) {
 					if((value = uenum_next(pref, &valueLength, &status)) != NULL && U_SUCCESS(status)) {
-						if(uprv_strcmp(value, PREFERRED[i][j+1]) != 0) {
+						if(strcmp(value, PREFERRED[i][j+1]) != 0) {
 							matchPref = FALSE;
 							break;
 						}
@@ -1700,7 +1700,7 @@ static void TestGetKeywordValuesForLocale() {
 				ALLList = ulist_getListFromEnum(ALL);
 				for(j = 0; j < size; j++) {
 					if((value = uenum_next(all, &valueLength, &status)) != NULL && U_SUCCESS(status)) {
-						if(!ulist_containsString(ALLList, value, (int32_t)uprv_strlen(value))) {
+						if(!ulist_containsString(ALLList, value, (int32_t)strlen(value))) {
 							log_err("Locale %s have %s not in ALL\n", loc, value);
 							matchAll = FALSE;
 							break;
@@ -1771,8 +1771,8 @@ static const TestWeekendDates weekendDates_ar_OM[] = {
 	{ 2000, UCAL_MARCH, 18,  8,  0, 1 }, /* Sat 08:00        */
 };
 static const TestWeekendDatesList testDates[] = {
-	{ "en_US", weekendDates_en_US, UPRV_LENGTHOF(weekendDates_en_US) },
-	{ "ar_OM", weekendDates_ar_OM, UPRV_LENGTHOF(weekendDates_ar_OM) },
+	{ "en_US", weekendDates_en_US, SIZEOFARRAYi(weekendDates_en_US) },
+	{ "ar_OM", weekendDates_ar_OM, SIZEOFARRAYi(weekendDates_ar_OM) },
 };
 
 typedef struct {
@@ -1806,18 +1806,18 @@ static const TestDaysOfWeek daysOfWeek_hi_IN[] = { /* Sunday only */
 	{ UCAL_SUNDAY,   UCAL_WEEKEND,       0        },
 };
 static const TestDaysOfWeekList testDays[] = {
-	{ "en_US", daysOfWeek_en_US, UPRV_LENGTHOF(daysOfWeek_en_US) },
-	{ "ar_OM", daysOfWeek_ar_OM, UPRV_LENGTHOF(daysOfWeek_ar_OM) },
-	{ "hi_IN", daysOfWeek_hi_IN, UPRV_LENGTHOF(daysOfWeek_hi_IN) },
-	{ "en_US@rg=OMZZZZ", daysOfWeek_ar_OM, UPRV_LENGTHOF(daysOfWeek_ar_OM) },
-	{ "hi@rg=USZZZZ",    daysOfWeek_en_US, UPRV_LENGTHOF(daysOfWeek_en_US) },
+	{ "en_US", daysOfWeek_en_US, SIZEOFARRAYi(daysOfWeek_en_US) },
+	{ "ar_OM", daysOfWeek_ar_OM, SIZEOFARRAYi(daysOfWeek_ar_OM) },
+	{ "hi_IN", daysOfWeek_hi_IN, SIZEOFARRAYi(daysOfWeek_hi_IN) },
+	{ "en_US@rg=OMZZZZ", daysOfWeek_ar_OM, SIZEOFARRAYi(daysOfWeek_ar_OM) },
+	{ "hi@rg=USZZZZ",    daysOfWeek_en_US, SIZEOFARRAYi(daysOfWeek_en_US) },
 };
 
 static const UChar logDateFormat[] = { 0x0045, 0x0045, 0x0045, 0x0020, 0x004D, 0x004D, 0x004D, 0x0020, 0x0064, 0x0064, 0x0020, 0x0079,
 				       0x0079, 0x0079, 0x0079, 0x0020, 0x0047, 0x0020, 0x0048, 0x0048, 0x003A, 0x006D, 0x006D, 0x003A,
 				       0x0073, 0x0073, 0x002E, 0x0053, 0x0053, 0x0053, 0 }; /* "EEE MMM dd yyyy G
                                                                                                HH:mm:ss.SSS" */
-enum { kFormattedDateMax = 2*UPRV_LENGTHOF(logDateFormat) };
+enum { kFormattedDateMax = 2*SIZEOFARRAYi(logDateFormat) };
 
 static void TestWeekend() {
 	const TestWeekendDatesList * testDatesPtr = testDates;
@@ -1833,7 +1833,7 @@ static void TestWeekend() {
 		log_data_err("Unable to create UDateFormat - %s\n", u_errorName(fmtStatus));
 		return;
 	}
-	for(count = UPRV_LENGTHOF(testDates); count-- > 0; ++testDatesPtr) {
+	for(count = SIZEOFARRAYi(testDates); count-- > 0; ++testDatesPtr) {
 		UErrorCode status = U_ZERO_ERROR;
 		UCalendar * cal = ucal_open(NULL, 0, testDatesPtr->locale, UCAL_GREGORIAN, &status);
 		log_verbose("locale: %s\n", testDatesPtr->locale);
@@ -1891,7 +1891,7 @@ static void TestWeekend() {
 		udat_close(fmt);
 	}
 
-	for(count = UPRV_LENGTHOF(testDays); count-- > 0; ++testDaysPtr) {
+	for(count = SIZEOFARRAYi(testDays); count-- > 0; ++testDaysPtr) {
 		UErrorCode status = U_ZERO_ERROR;
 		UCalendar * cal = ucal_open(NULL, 0, testDaysPtr->locale, UCAL_GREGORIAN, &status);
 		log_verbose("locale: %s\n", testDaysPtr->locale);
@@ -2559,7 +2559,7 @@ void TestAddRollEra0AndEraBounds() {
 					log_err("FAIL: set era 0 year 1 then roll -2 years and get year,era for %s, error %s\n",
 					    eraTestItemPtr->locale, u_errorName(status));
 				}
-				else if(uprv_strcmp(calType, "chinese")!=0 && (eraAfter != 0 || yrAfter != -1)) {
+				else if(strcmp(calType, "chinese")!=0 && (eraAfter != 0 || yrAfter != -1)) {
 					log_err(
 						"FAIL: era 0 roll -2 years from year 1 does not stay within era or produce year -1 for %s (get era %d year %d)\n",
 						eraTestItemPtr->locale,
@@ -2573,7 +2573,7 @@ void TestAddRollEra0AndEraBounds() {
 			{
 				int32_t eraMin = ucal_getLimit(ucalTest, UCAL_ERA, UCAL_MINIMUM, &status);
 				const char * calType = ucal_getType(ucalTest, &status);
-				if(eraMin != 0 && uprv_strcmp(calType, "chinese") != 0) {
+				if(eraMin != 0 && strcmp(calType, "chinese") != 0) {
 					log_err("FAIL: ucal_getLimit returns minimum era %d (should be 0) for calType %s, error %s\n",
 					    eraMin,
 					    calType,
@@ -2893,7 +2893,7 @@ void TestGetWindowsTimeZoneID() {
 	int32_t len;
 	{
 		status = U_ZERO_ERROR;
-		len = ucal_getWindowsTimeZoneID(tzNewYork, u_strlen(tzNewYork), winID, UPRV_LENGTHOF(winID), &status);
+		len = ucal_getWindowsTimeZoneID(tzNewYork, u_strlen(tzNewYork), winID, SIZEOFARRAYi(winID), &status);
 		if(U_FAILURE(status)) {
 			log_data_err("FAIL: Windows ID for America/New_York, status %s\n", u_errorName(status));
 		}
@@ -2903,7 +2903,7 @@ void TestGetWindowsTimeZoneID() {
 	}
 	{
 		status = U_ZERO_ERROR;
-		len = ucal_getWindowsTimeZoneID(tzTronto, u_strlen(tzTronto), winID, UPRV_LENGTHOF(winID), &status);
+		len = ucal_getWindowsTimeZoneID(tzTronto, u_strlen(tzTronto), winID, SIZEOFARRAYi(winID), &status);
 		if(U_FAILURE(status)) {
 			log_data_err("FAIL: Windows ID for America/Toronto, status %s\n", u_errorName(status));
 		}
@@ -2913,7 +2913,7 @@ void TestGetWindowsTimeZoneID() {
 	}
 	{
 		status = U_ZERO_ERROR;
-		len = ucal_getWindowsTimeZoneID(sBogus, u_strlen(sBogus), winID, UPRV_LENGTHOF(winID), &status);
+		len = ucal_getWindowsTimeZoneID(sBogus, u_strlen(sBogus), winID, SIZEOFARRAYi(winID), &status);
 		if(U_FAILURE(status)) {
 			log_data_err("FAIL: Windows ID for Bogus, status %s\n", u_errorName(status));
 		}
@@ -2930,7 +2930,7 @@ void TestGetTimeZoneIDByWindowsID()
 	int32_t len;
 	{
 		status = U_ZERO_ERROR;
-		len = ucal_getTimeZoneIDForWindowsID(winEastern, -1, NULL, tzID, UPRV_LENGTHOF(tzID), &status);
+		len = ucal_getTimeZoneIDForWindowsID(winEastern, -1, NULL, tzID, SIZEOFARRAYi(tzID), &status);
 		if(U_FAILURE(status)) {
 			log_data_err("FAIL: TZ ID for Eastern Standard Time, status %s\n", u_errorName(status));
 		}
@@ -2940,7 +2940,7 @@ void TestGetTimeZoneIDByWindowsID()
 	}
 	{
 		status = U_ZERO_ERROR;
-		len = ucal_getTimeZoneIDForWindowsID(winEastern, u_strlen(winEastern), "US", tzID, UPRV_LENGTHOF(tzID), &status);
+		len = ucal_getTimeZoneIDForWindowsID(winEastern, u_strlen(winEastern), "US", tzID, SIZEOFARRAYi(tzID), &status);
 		if(U_FAILURE(status)) {
 			log_data_err("FAIL: TZ ID for Eastern Standard Time - US, status %s\n", u_errorName(status));
 		}
@@ -2950,7 +2950,7 @@ void TestGetTimeZoneIDByWindowsID()
 	}
 	{
 		status = U_ZERO_ERROR;
-		len = ucal_getTimeZoneIDForWindowsID(winEastern, u_strlen(winEastern), "CA", tzID, UPRV_LENGTHOF(tzID), &status);
+		len = ucal_getTimeZoneIDForWindowsID(winEastern, u_strlen(winEastern), "CA", tzID, SIZEOFARRAYi(tzID), &status);
 		if(U_FAILURE(status)) {
 			log_data_err("FAIL: TZ ID for Eastern Standard Time - CA, status %s\n", u_errorName(status));
 		}
@@ -2960,7 +2960,7 @@ void TestGetTimeZoneIDByWindowsID()
 	}
 	{
 		status = U_ZERO_ERROR;
-		len = ucal_getTimeZoneIDForWindowsID(sBogus, -1, NULL, tzID, UPRV_LENGTHOF(tzID), &status);
+		len = ucal_getTimeZoneIDForWindowsID(sBogus, -1, NULL, tzID, SIZEOFARRAYi(tzID), &status);
 		if(U_FAILURE(status)) {
 			log_data_err("FAIL: TZ ID for Bogus, status %s\n", u_errorName(status));
 		}
@@ -2974,7 +2974,7 @@ void TestGetTimeZoneIDByWindowsID()
 	// input variant characters don't cause abort() to be called and/or that ICU doesn't crash.
 	{
 		status = U_ZERO_ERROR;
-		len = ucal_getTimeZoneIDForWindowsID(sBogusWithVariantCharacters, -1, NULL, tzID, UPRV_LENGTHOF(tzID), &status);
+		len = ucal_getTimeZoneIDForWindowsID(sBogusWithVariantCharacters, -1, NULL, tzID, SIZEOFARRAYi(tzID), &status);
 	}
 #endif
 }
@@ -3129,8 +3129,8 @@ void TestGetTimeZoneOffsetFromLocal()
 	}
 
 	// Calculate millis
-	UDate MILLIS[UPRV_LENGTHOF(DATES)];
-	for(int32_t i = 0; i < UPRV_LENGTHOF(DATES); i++) {
+	UDate MILLIS[SIZEOFARRAYi(DATES)];
+	for(int32_t i = 0; i < SIZEOFARRAYi(DATES); i++) {
 		ucal_setDateTime(cal, DATES[i][0], DATES[i][1], DATES[i][2],
 		    DATES[i][3], DATES[i][4], 0, &status);
 		MILLIS[i] = ucal_getMillis(cal, &status);
@@ -3148,7 +3148,7 @@ void TestGetTimeZoneOffsetFromLocal()
 	// int32_t* rawOffset, int32_t* dstOffset, UErrorCode * status);
 	// with nonExistingTimeOpt=UCAL_TZ_LOCAL_STANDARD and
 	// duplicatedTimeOpt=UCAL_TZ_LOCAL_STANDARD
-	for(int m = 0; m < UPRV_LENGTHOF(DATES); m++) {
+	for(int m = 0; m < SIZEOFARRAYi(DATES); m++) {
 		status = U_ZERO_ERROR;
 		ucal_setMillis(cal, MILLIS[m], &status);
 		if(U_FAILURE(status)) {
@@ -3179,7 +3179,7 @@ void TestGetTimeZoneOffsetFromLocal()
 	// int32_t* rawOffset, int32_t* dstOffset, UErrorCode * status);
 	// with nonExistingTimeOpt=UCAL_TZ_LOCAL_DAYLIGHT and
 	// duplicatedTimeOpt=UCAL_TZ_LOCAL_DAYLIGHT
-	for(int m = 0; m < UPRV_LENGTHOF(DATES); m++) {
+	for(int m = 0; m < SIZEOFARRAYi(DATES); m++) {
 		status = U_ZERO_ERROR;
 		ucal_setMillis(cal, MILLIS[m], &status);
 		if(U_FAILURE(status)) {
@@ -3210,7 +3210,7 @@ void TestGetTimeZoneOffsetFromLocal()
 	// int32_t* rawOffset, int32_t* dstOffset, UErrorCode * status);
 	// with nonExistingTimeOpt=UCAL_TZ_LOCAL_FORMER and
 	// duplicatedTimeOpt=UCAL_TZ_LOCAL_LATTER
-	for(int m = 0; m < UPRV_LENGTHOF(DATES); m++) {
+	for(int m = 0; m < SIZEOFARRAYi(DATES); m++) {
 		status = U_ZERO_ERROR;
 		ucal_setMillis(cal, MILLIS[m], &status);
 		if(U_FAILURE(status)) {
@@ -3241,7 +3241,7 @@ void TestGetTimeZoneOffsetFromLocal()
 	// int32_t* rawOffset, int32_t* dstOffset, UErrorCode * status);
 	// with nonExistingTimeOpt=UCAL_TZ_LOCAL_LATTER and
 	// duplicatedTimeOpt=UCAL_TZ_LOCAL_FORMER
-	for(int m = 0; m < UPRV_LENGTHOF(DATES); m++) {
+	for(int m = 0; m < SIZEOFARRAYi(DATES); m++) {
 		status = U_ZERO_ERROR;
 		ucal_setMillis(cal, MILLIS[m], &status);
 		if(U_FAILURE(status)) {

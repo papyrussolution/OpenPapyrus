@@ -104,7 +104,7 @@ static int32_t searchForLibraryName(const char * libName) {
 	int32_t i;
 
 	for(i = 0; i<libraryCount; i++) {
-		if(!uprv_strcmp(libName, libraryList[i].name)) {
+		if(!strcmp(libName, libraryList[i].name)) {
 			return i;
 		}
 	}

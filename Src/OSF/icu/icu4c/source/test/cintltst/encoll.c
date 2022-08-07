@@ -344,7 +344,7 @@ static void TestTertiary()
 		}
 	}
 	/*test more interesting cases */
-	testMoreSize = UPRV_LENGTHOF(testMore);
+	testMoreSize = SIZEOFARRAYi(testMore);
 	for(i = 0; i < testMoreSize; i++) {
 		for(j = 0; j < testMoreSize; j++) {
 			if(i <  j) expected = UCOL_LESS;
@@ -390,7 +390,7 @@ static void TestSecondary()
 	}
 
 	/*test acute and grave ordering (compare to french collation) */
-	testAcuteSize = UPRV_LENGTHOF(testAcute);
+	testAcuteSize = SIZEOFARRAYi(testAcute);
 	for(i = 0; i < testAcuteSize; i++) {
 		for(j = 0; j < testAcuteSize; j++) {
 			if(i <  j) expected = UCOL_LESS;

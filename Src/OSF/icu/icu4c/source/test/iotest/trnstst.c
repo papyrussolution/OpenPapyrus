@@ -180,7 +180,7 @@ static void TestTranslitStringOut()
 
 	log_verbose("opening a transliterator and UFILE for testing\n");
 
-	f = u_fstropen(ubuf, UPRV_LENGTHOF(ubuf), "en_US_POSIX");
+	f = u_fstropen(ubuf, SIZEOFARRAYi(ubuf), "en_US_POSIX");
 	if(!f) {
 		log_err("Couldn't open test file for writing\n");
 		return;

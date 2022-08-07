@@ -92,7 +92,7 @@ void IntlTestNumberFormat::testLocale(/* char * par, */ const Locale & locale, c
 	fFormat = NumberFormat::createPercentInstance(locale, fStatus);
 	testFormat(/* par */);
 
-	if(uprv_strcmp(locale.getName(), "en_US_POSIX") != 0) {
+	if(strcmp(locale.getName(), "en_US_POSIX") != 0) {
 		name = "Scientific test";
 		logln((UnicodeString)name + " (" + localeName + ")");
 		fStatus = U_ZERO_ERROR;

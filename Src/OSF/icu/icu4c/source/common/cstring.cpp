@@ -151,7 +151,7 @@ U_CAPI int32_t U_EXPORT2 T_CString_integerToString(char * buffer, int32_t v, int
 		uval  = uval / radix;
 	} while(uval != 0);
 	/* copy converted number into user buffer  */
-	uprv_strcpy(buffer+length, tbuf+tbx);
+	strcpy(buffer+length, tbuf+tbx);
 	length += sizeof(tbuf) - tbx -1;
 	return length;
 }
@@ -183,7 +183,7 @@ U_CAPI int32_t U_EXPORT2 T_CString_int64ToString(char * buffer, int64_t v, uint3
 		uval  = uval / radix;
 	} while(uval != 0);
 	/* copy converted number into user buffer  */
-	uprv_strcpy(buffer+length, tbuf+tbx);
+	strcpy(buffer+length, tbuf+tbx);
 	length += sizeof(tbuf) - tbx -1;
 	return length;
 }
@@ -283,7 +283,7 @@ U_CAPI int U_EXPORT2 uprv_strnicmp(const char * str1, const char * str2, uint32_
 
 U_CAPI char * U_EXPORT2 uprv_strdup(const char * src) 
 {
-	size_t len = uprv_strlen(src) + 1;
+	size_t len = strlen(src) + 1;
 	char * dup = (char *)uprv_malloc(len);
 	if(dup) {
 		uprv_memcpy(dup, src, len);

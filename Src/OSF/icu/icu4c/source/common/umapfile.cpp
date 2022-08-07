@@ -134,7 +134,7 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, /* Fill in with info on the resul
 	// Convert from UTF-8 string to UTF-16 string.
 	wchar_t utf16Path[MAX_PATH];
 	int32_t pathUtf16Len = 0;
-	u_strFromUTF8(reinterpret_cast<UChar *>(utf16Path), static_cast<int32_t>(UPRV_LENGTHOF(utf16Path)), &pathUtf16Len, path, -1, status);
+	u_strFromUTF8(reinterpret_cast<UChar *>(utf16Path), static_cast<int32_t>(SIZEOFARRAYi(utf16Path)), &pathUtf16Len, path, -1, status);
 
 	if(U_FAILURE(*status)) {
 		return FALSE;
@@ -414,7 +414,7 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, const char * path, UErrorCode * s
 		inBasename++;
 	}
 	basename = uprv_computeDirPath(path, pathBuffer);
-	if(uprv_strcmp(inBasename, U_ICUDATA_NAME ".dat") != 0) {
+	if(strcmp(inBasename, U_ICUDATA_NAME ".dat") != 0) {
 		/* must mmap file... for build */
 		int fd;
 		int length;
@@ -457,10 +457,10 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, const char * path, UErrorCode * s
 	/* BUT FOR BATCH MODE IT IS AN EXCEPTION BECAUSE */
 	/* THE FIRST THREE LETTERS ARE PREASSIGNED TO THE */
 	/* PROJECT!!!!! */
-	uprv_strcpy(pathBuffer, "IXMI" U_ICU_VERSION_SHORT "DA");
+	strcpy(pathBuffer, "IXMI" U_ICU_VERSION_SHORT "DA");
 #else
 	/* set up the library name */
-	uprv_strcpy(basename, LIB_PREFIX U_LIBICUDATA_NAME U_ICU_VERSION_SHORT LIB_SUFFIX);
+	strcpy(basename, LIB_PREFIX U_LIBICUDATA_NAME U_ICU_VERSION_SHORT LIB_SUFFIX);
 #endif
 
 #ifdef UDATA_DEBUG

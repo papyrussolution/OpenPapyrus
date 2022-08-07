@@ -475,7 +475,7 @@ static void U_CALLCONV _UTF7FromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 		inDirectMode = (bool)((status>>24)&1);
 		base64Counter = (int8)(status>>16);
 		bits = (uint8)status;
-		U_ASSERT(bits<=UPRV_LENGTHOF(toBase64));
+		U_ASSERT(bits<=SIZEOFARRAYi(toBase64));
 	}
 
 	/* UTF-7 always encodes UTF-16 code units, therefore we need only a simple sourceIndex */

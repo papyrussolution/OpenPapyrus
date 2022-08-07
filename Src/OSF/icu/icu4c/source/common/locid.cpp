@@ -337,7 +337,7 @@ Locale & Locale::operator = (const Locale & other)
 	}
 	setToBogus();
 	if(other.fullName == other.fullNameBuffer) {
-		uprv_strcpy(fullNameBuffer, other.fullNameBuffer);
+		strcpy(fullNameBuffer, other.fullNameBuffer);
 	}
 	else if(other.fullName == nullptr) {
 		fullName = nullptr;
@@ -353,9 +353,9 @@ Locale & Locale::operator = (const Locale & other)
 		baseName = uprv_strdup(other.baseName);
 		if(baseName == nullptr) return *this;
 	}
-	uprv_strcpy(language, other.language);
-	uprv_strcpy(script, other.script);
-	uprv_strcpy(country, other.country);
+	strcpy(language, other.language);
+	strcpy(script, other.script);
+	strcpy(country, other.country);
 	variantBegin = other.variantBegin;
 	fIsBogus = other.fIsBogus;
 	return *this;
@@ -368,7 +368,7 @@ Locale & Locale::operator = (Locale&& other) U_NOEXCEPT
 	if(fullName != fullNameBuffer) 
 		uprv_free(fullName);
 	if(other.fullName == other.fullNameBuffer || other.baseName == other.fullNameBuffer) {
-		uprv_strcpy(fullNameBuffer, other.fullNameBuffer);
+		strcpy(fullNameBuffer, other.fullNameBuffer);
 	}
 	if(other.fullName == other.fullNameBuffer) {
 		fullName = fullNameBuffer;
@@ -385,9 +385,9 @@ Locale & Locale::operator = (Locale&& other) U_NOEXCEPT
 	else {
 		baseName = other.baseName;
 	}
-	uprv_strcpy(language, other.language);
-	uprv_strcpy(script, other.script);
-	uprv_strcpy(country, other.country);
+	strcpy(language, other.language);
+	strcpy(script, other.script);
+	strcpy(country, other.country);
 
 	variantBegin = other.variantBegin;
 	fIsBogus = other.fIsBogus;
@@ -404,7 +404,7 @@ Locale * Locale::clone() const {
 bool
 Locale::operator == (const Locale &other) const
 {
-	return (uprv_strcmp(other.fullName, fullName) == 0);
+	return (strcmp(other.fullName, fullName) == 0);
 }
 
 namespace {
@@ -435,7 +435,8 @@ static const char * const KNOWN_CANONICALIZED[] = {
 	"zh_Hant_TW", "zh_TW", "zu", "zu_ZA"
 };
 
-static bool U_CALLCONV cleanupKnownCanonicalized() {
+static bool U_CALLCONV cleanupKnownCanonicalized() 
+{
 	gKnownCanonicalizedInitOnce.reset();
 	if(gKnownCanonicalized) {
 		uhash_close(gKnownCanonicalized);
@@ -443,22 +444,16 @@ static bool U_CALLCONV cleanupKnownCanonicalized() {
 	return TRUE;
 }
 
-static void U_CALLCONV loadKnownCanonicalized(UErrorCode & status) {
-	ucln_common_registerCleanup(UCLN_COMMON_LOCALE_KNOWN_CANONICALIZED,
-	    cleanupKnownCanonicalized);
-	LocalUHashtablePointer newKnownCanonicalizedMap(
-		uhash_open(uhash_hashChars, uhash_compareChars, nullptr, &status));
-	for(int32_t i = 0;
-	    U_SUCCESS(status) && i < UPRV_LENGTHOF(KNOWN_CANONICALIZED);
-	    i++) {
-		uhash_puti(newKnownCanonicalizedMap.getAlias(),
-		    (void *)KNOWN_CANONICALIZED[i],
-		    1, &status);
+static void U_CALLCONV loadKnownCanonicalized(UErrorCode & status) 
+{
+	ucln_common_registerCleanup(UCLN_COMMON_LOCALE_KNOWN_CANONICALIZED, cleanupKnownCanonicalized);
+	LocalUHashtablePointer newKnownCanonicalizedMap(uhash_open(uhash_hashChars, uhash_compareChars, nullptr, &status));
+	for(int32_t i = 0; U_SUCCESS(status) && i < SIZEOFARRAYi(KNOWN_CANONICALIZED); i++) {
+		uhash_puti(newKnownCanonicalizedMap.getAlias(), (void *)KNOWN_CANONICALIZED[i], 1, &status);
 	}
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	gKnownCanonicalized = newKnownCanonicalizedMap.orphan();
 }
 
@@ -669,7 +664,7 @@ void AliasDataBuilder::readScriptAlias(UResourceBundle * alias, UniqueCharString
 {
 	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
-		[] (const char * type) { U_ASSERT(uprv_strlen(type) == 4); },
+		[] (const char * type) { U_ASSERT(strlen(type) == 4); },
 		[](const UnicodeString & replacement) { U_ASSERT(replacement.length() == 4); },
 #else
 		[](const char *) {},
@@ -688,7 +683,7 @@ void AliasDataBuilder::readTerritoryAlias(UResourceBundle * alias, UniqueCharStr
 {
 	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
-		[] (const char * type) { U_ASSERT(uprv_strlen(type) == 2 || uprv_strlen(type) == 3); },
+		[] (const char * type) { U_ASSERT(strlen(type) == 2 || strlen(type) == 3); },
 #else
 		[](const char *) {},
 #endif
@@ -708,8 +703,8 @@ void AliasDataBuilder::readVariantAlias(UResourceBundle * alias, UniqueCharStrin
 	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
 		[] (const char * type) {
-			U_ASSERT(uprv_strlen(type) >= 4 && uprv_strlen(type) <= 8);
-			U_ASSERT(uprv_strlen(type) != 4 ||
+			U_ASSERT(strlen(type) >= 4 && strlen(type) <= 8);
+			U_ASSERT(strlen(type) != 4 ||
 			(type[0] >= '0' && type[0] <= '9'));
 		},
 		[](const UnicodeString & replacement) {
@@ -738,7 +733,7 @@ void AliasDataBuilder::readSubdivisionAlias(UResourceBundle * alias, UniqueCharS
 {
 	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
-		[] (const char * type) { U_ASSERT(uprv_strlen(type) >= 3 && uprv_strlen(type) <= 8); },
+		[] (const char * type) { U_ASSERT(strlen(type) >= 3 && strlen(type) <= 8); },
 #else
 		[](const char *) {},
 #endif
@@ -932,11 +927,7 @@ private:
 	UVector variants;
 
 	const AliasData* data;
-
-	inline bool notEmpty(const char * str) {
-		return str && str[0] != NULL_CHAR;
-	}
-
+	inline bool notEmpty(const char * str) { return str && str[0] != NULL_CHAR; }
 	/**
 	 * If replacement is neither null nor empty and input is either null or empty,
 	 * return replacement.
@@ -964,7 +955,7 @@ private:
 		    (a != nullptr && b == nullptr)) {
 			return false;
 		}
-		return uprv_strcmp(a, b) == 0;
+		return strcmp(a, b) == 0;
 	}
 
 	// Gather fields and generate locale ID into out.
@@ -1040,7 +1031,7 @@ void AliasReplacer::parseLanguageReplacement(const char * replacement,
 		return;
 	}
 	// We have multiple field so we have to allocate and parse
-	CharString* str = new CharString(replacement, (int32_t)uprv_strlen(replacement), status);
+	CharString* str = new CharString(replacement, (int32_t)strlen(replacement), status);
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -1058,7 +1049,7 @@ void AliasReplacer::parseLanguageReplacement(const char * replacement,
 	endOfField = (char *)uprv_strchr(start, '_');
 	size_t len = 0;
 	if(endOfField == nullptr) {
-		len = uprv_strlen(start);
+		len = strlen(start);
 	}
 	else {
 		len = endOfField - start;
@@ -1073,7 +1064,7 @@ void AliasReplacer::parseLanguageReplacement(const char * replacement,
 		start = endOfField++;
 		endOfField = (char *)uprv_strchr(start, '_');
 		if(endOfField == nullptr) {
-			len = uprv_strlen(start);
+			len = strlen(start);
 		}
 		else {
 			len = endOfField - start;
@@ -1089,7 +1080,7 @@ void AliasReplacer::parseLanguageReplacement(const char * replacement,
 		start = endOfField++;
 		endOfField = (char *)uprv_strchr(start, '_');
 		if(endOfField == nullptr) {
-			len = uprv_strlen(start);
+			len = strlen(start);
 		}
 		else {
 			len = endOfField - start;
@@ -1131,7 +1122,7 @@ bool AliasReplacer::replaceLanguage(bool checkLanguage, bool checkRegion,
 			searchVariant = (const char *)(variants.elementAt(variant_index));
 		}
 
-		if(searchVariant != nullptr && uprv_strlen(searchVariant) < 4) {
+		if(searchVariant != nullptr && strlen(searchVariant) < 4) {
 			// Do not consider  ill-formed variant subtag.
 			searchVariant = nullptr;
 		}
@@ -1161,7 +1152,7 @@ bool AliasReplacer::replaceLanguage(bool checkLanguage, bool checkRegion,
 		    toBeFreed,
 		    status);
 		replacedLanguage =
-		    (replacedLanguage != nullptr && uprv_strcmp(replacedLanguage, "und") == 0) ?
+		    (replacedLanguage != nullptr && strcmp(replacedLanguage, "und") == 0) ?
 		    language : replacedLanguage;
 		replacedScript = deleteOrReplace(script, nullptr, replacedScript);
 		replacedRegion = deleteOrReplace(region, searchRegion, replacedRegion);
@@ -1237,8 +1228,8 @@ bool AliasReplacer::replaceTerritory(UVector& toBeFreed, UErrorCode & status)
 		l.addLikelySubtags(status);
 		const char * likelyRegion = l.getCountry();
 		LocalPointer<CharString> item;
-		if(likelyRegion != nullptr && uprv_strlen(likelyRegion) > 0) {
-			size_t len = uprv_strlen(likelyRegion);
+		if(likelyRegion != nullptr && strlen(likelyRegion) > 0) {
+			size_t len = strlen(likelyRegion);
 			const char * foundInReplacement = uprv_strstr(replacement,
 				likelyRegion);
 			if(foundInReplacement != nullptr) {
@@ -1306,13 +1297,13 @@ bool AliasReplacer::replaceVariant(UErrorCode & status)
 			// Found no replacement data for this variant.
 			continue;
 		}
-		U_ASSERT((uprv_strlen(replacement) >= 5 && uprv_strlen(replacement) <= 8) || (uprv_strlen(replacement) == 4 && replacement[0] >= '0' && replacement[0] <= '9'));
+		U_ASSERT((strlen(replacement) >= 5 && strlen(replacement) <= 8) || (strlen(replacement) == 4 && replacement[0] >= '0' && replacement[0] <= '9'));
 		if(!same(variant, replacement)) {
 			variants.setElementAt((void *)replacement, i);
 			// Special hack to handle hepburn-heploc => alalc97
-			if(uprv_strcmp(variant, "heploc") == 0) {
+			if(strcmp(variant, "heploc") == 0) {
 				for(int32_t j = 0; j < variants.size(); j++) {
-					if(uprv_strcmp((const char *)(variants.elementAt(j)), "hepburn") == 0) {
+					if(strcmp((const char *)(variants.elementAt(j)), "hepburn") == 0) {
 						variants.removeElementAt(j);
 					}
 				}
@@ -1333,7 +1324,7 @@ bool AliasReplacer::replaceSubdivision(StringPiece subdivision, CharString& outp
 		const char * firstSpace = uprv_strchr(replacement, ' ');
 		// Found replacement data for this subdivision.
 		size_t len = (firstSpace != nullptr) ?
-		    (firstSpace - replacement) : uprv_strlen(replacement);
+		    (firstSpace - replacement) : strlen(replacement);
 		if(2 <= len && len <= 8) {
 			output.append(replacement, (int32_t)len, status);
 			if(2 == len) {
@@ -1393,7 +1384,7 @@ bool AliasReplacer::replaceTransformedExtensions(CharString& transformedExtensio
 			tkey = nextTKey;
 		} while(tkey != nullptr);
 		tfields.sort([](UElement e1, UElement e2) -> int32_t {
-				return uprv_strcmp((const char *)e1.pointer, (const char *)e2.pointer);
+				return strcmp((const char *)e1.pointer, (const char *)e2.pointer);
 			}, status);
 		for(int32_t i = 0; i < tfields.size(); i++) {
 			if(output.length() > 0) {
@@ -1434,7 +1425,7 @@ CharString&AliasReplacer::outputToString(CharString& out, UErrorCode status)
 			out.append(SEP_CHAR, status);
 		}
 		variants.sort([](UElement e1, UElement e2) -> int32_t {
-				return uprv_strcmp((const char *)e1.pointer, (const char *)e2.pointer);
+				return strcmp((const char *)e1.pointer, (const char *)e2.pointer);
 			}, status);
 		int32_t variantsStart = out.length();
 		for(int32_t i = 0; i < variants.size(); i++) {
@@ -1498,7 +1489,7 @@ bool AliasReplacer::replace(const Locale & locale, CharString& out, UErrorCode &
 
 	// Sort the variants
 	variants.sort([](UElement e1, UElement e2) -> int32_t {
-			return uprv_strcmp((const char *)e1.pointer, (const char *)e2.pointer);
+			return strcmp((const char *)e1.pointer, (const char *)e2.pointer);
 		}, status);
 
 	// A changed count to assert when loop too many times.
@@ -1561,8 +1552,8 @@ bool AliasReplacer::replace(const Locale & locale, CharString& out, UErrorCode &
 		if(U_SUCCESS(status) && !iter.isNull()) {
 			const char * key;
 			while((key = iter->next(nullptr, status)) != nullptr) {
-				if(uprv_strcmp("sd", key) == 0 || uprv_strcmp("rg", key) == 0 ||
-				    uprv_strcmp("t", key) == 0) {
+				if(strcmp("sd", key) == 0 || strcmp("rg", key) == 0 ||
+				    strcmp("t", key) == 0) {
 					CharString value;
 					CharStringByteSink valueSink(&value);
 					locale.getKeywordValue(key, valueSink, status);
@@ -1571,14 +1562,14 @@ bool AliasReplacer::replace(const Locale & locale, CharString& out, UErrorCode &
 						continue;
 					}
 					CharString replacement;
-					if(uprv_strlen(key) == 2) {
+					if(strlen(key) == 2) {
 						if(replaceSubdivision(value.toStringPiece(), replacement, status)) {
 							changed++;
 							temp.setKeywordValue(key, replacement.data(), status);
 						}
 					}
 					else {
-						U_ASSERT(uprv_strcmp(key, "t") == 0);
+						U_ASSERT(strcmp(key, "t") == 0);
 						if(replaceTransformedExtensions(value, replacement, status)) {
 							changed++;
 							temp.setKeywordValue(key, replacement.data(), status);
@@ -1599,7 +1590,7 @@ bool AliasReplacer::replace(const Locale & locale, CharString& out, UErrorCode &
 		return false;
 	}
 	// If the tag is not changed, return.
-	if(uprv_strcmp(out.data(), locale.getName()) == 0) {
+	if(strcmp(out.data(), locale.getName()) == 0) {
 		out.clear();
 		return false;
 	}
@@ -1618,7 +1609,7 @@ bool canonicalizeLocale(const Locale & locale, CharString& out, UErrorCode & sta
 // of resources in the startup time until we really need it.
 bool isKnownCanonicalizedLocale(const char * locale, UErrorCode & status)
 {
-	if(uprv_strcmp(locale, "c") == 0 || uprv_strcmp(locale, "en") == 0 || uprv_strcmp(locale, "en_US") == 0) {
+	if(strcmp(locale, "c") == 0 || strcmp(locale, "en") == 0 || strcmp(locale, "en_US") == 0) {
 		return true;
 	}
 	// common well-known Canonicalized.
@@ -1634,7 +1625,7 @@ bool isKnownCanonicalizedLocale(const char * locale, UErrorCode & status)
 // Function for testing.
 U_CAPI const char * const* ulocimp_getKnownCanonicalizedLocaleForTest(int32_t* length)
 {
-	*length = UPRV_LENGTHOF(KNOWN_CANONICALIZED);
+	*length = SIZEOFARRAYi(KNOWN_CANONICALIZED);
 	return KNOWN_CANONICALIZED;
 }
 
@@ -1696,9 +1687,7 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 				break; // error: out of memory
 			}
 			err = U_ZERO_ERROR;
-			length = canonicalize ?
-			    uloc_canonicalize(localeID, fullName, length+1, &err) :
-			    uloc_getName(localeID, fullName, length+1, &err);
+			length = canonicalize ? uloc_canonicalize(localeID, fullName, length+1, &err) : uloc_getName(localeID, fullName, length+1, &err);
 		}
 		if(U_FAILURE(err) || err == U_STRING_NOT_TERMINATED_WARNING) {
 			/* should never occur */
@@ -1706,15 +1695,12 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 		}
 
 		variantBegin = length;
-
 		/* after uloc_getName/canonicalize() we know that only '_' are separators */
 		/* But _ could also appeared in timezone such as "en@timezone=America/Los_Angeles" */
 		separator = field[0] = fullName;
 		fieldIdx = 1;
 		char * at = uprv_strchr(fullName, '@');
-		while((separator = uprv_strchr(field[fieldIdx-1], SEP_CHAR)) != 0 &&
-		    fieldIdx < UPRV_LENGTHOF(field)-1 &&
-		    (at == nullptr || separator < at)) {
+		while((separator = uprv_strchr(field[fieldIdx-1], SEP_CHAR)) != 0 && fieldIdx < SIZEOFARRAYi(field)-1 && (at == nullptr || separator < at)) {
 			field[fieldIdx] = separator + 1;
 			fieldLen[fieldIdx-1] = (int32_t)(separator - field[fieldIdx-1]);
 			fieldIdx++;
@@ -1722,8 +1708,8 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 		// variant may contain @foo or .foo POSIX cruft; remove it
 		separator = uprv_strchr(field[fieldIdx-1], '@');
 		char * sep2 = uprv_strchr(field[fieldIdx-1], '.');
-		if(separator!=NULL || sep2 != NULL) {
-			if(separator==NULL || (sep2!=NULL && separator > sep2)) {
+		if(separator || sep2) {
+			if(separator==NULL || (sep2 && separator > sep2)) {
 				separator = sep2;
 			}
 			fieldLen[fieldIdx-1] = (int32_t)(separator - field[fieldIdx-1]);
@@ -1731,11 +1717,9 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 		else {
 			fieldLen[fieldIdx-1] = length - (int32_t)(field[fieldIdx-1] - fullName);
 		}
-
 		if(fieldLen[0] >= (int32_t)(sizeof(language))) {
 			break; // error: the language field is too long
 		}
-
 		variantField = 1; /* Usually the 2nd one, except when a script or country is also used. */
 		if(fieldLen[0] > 0) {
 			/* We have a language */
@@ -1763,13 +1747,11 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 			/* We have a variant */
 			variantBegin = (int32_t)(field[variantField] - fullName);
 		}
-
 		err = U_ZERO_ERROR;
 		initBaseName(err);
 		if(U_FAILURE(err)) {
 			break;
 		}
-
 		if(canonicalize) {
 			if(!isKnownCanonicalizedLocale(fullName, err)) {
 				CharString replaced;
@@ -1833,7 +1815,7 @@ void Locale::initBaseName(UErrorCode & status) {
 
 int32_t Locale::hashCode() const
 {
-	return ustr_hashCharsN(fullName, static_cast<int32_t>(uprv_strlen(fullName)));
+	return ustr_hashCharsN(fullName, static_cast<int32_t>(strlen(fullName)));
 }
 
 void Locale::setToBogus() {
@@ -1858,7 +1840,7 @@ const Locale & U_EXPORT2 Locale::getDefault()
 {
 	{
 		Mutex lock(&gDefaultLocaleMutex);
-		if(gDefaultLocale != NULL) {
+		if(gDefaultLocale) {
 			return *gDefaultLocale;
 		}
 	}
@@ -2241,7 +2223,7 @@ public:
 		int32_t result = 0;
 		while(*kw) {
 			result++;
-			kw += uprv_strlen(kw)+1;
+			kw += strlen(kw)+1;
 		}
 		return result;
 	}
@@ -2251,7 +2233,7 @@ public:
 		int32_t len;
 		if(U_SUCCESS(status) && *current != 0) {
 			result = current;
-			len = (int32_t)uprv_strlen(current);
+			len = (int32_t)strlen(current);
 			current += len+1;
 			if(resultLength) {
 				*resultLength = len;
@@ -2296,7 +2278,7 @@ public:
 			const char * key = uloc_toUnicodeLocaleKey(legacy_key);
 			if(key != nullptr) {
 				if(resultLength != nullptr) {
-					*resultLength = static_cast<int32_t>(uprv_strlen(key));
+					*resultLength = static_cast<int32_t>(strlen(key));
 				}
 				return key;
 			}
@@ -2427,7 +2409,7 @@ void Locale::getUnicodeKeywordValue(StringPiece keywordName,
 		return;
 	}
 
-	sink.Append(unicode_value, static_cast<int32_t>(uprv_strlen(unicode_value)));
+	sink.Append(unicode_value, static_cast<int32_t>(strlen(unicode_value)));
 }
 
 void Locale::setKeywordValue(const char * keywordName, const char * keywordValue, UErrorCode & status)
@@ -2438,7 +2420,7 @@ void Locale::setKeywordValue(const char * keywordName, const char * keywordValue
 	if(status == U_STRING_NOT_TERMINATED_WARNING) {
 		status = U_ZERO_ERROR;
 	}
-	int32_t bufferLength = smax((int32_t)(uprv_strlen(fullName) + 1), ULOC_FULLNAME_CAPACITY);
+	int32_t bufferLength = smax((int32_t)(strlen(fullName) + 1), ULOC_FULLNAME_CAPACITY);
 	int32_t newLength = uloc_setKeywordValue(keywordName, keywordValue, fullName,
 		bufferLength, &status) + 1;
 	U_ASSERT(status != U_STRING_NOT_TERMINATED_WARNING);
@@ -2450,7 +2432,7 @@ void Locale::setKeywordValue(const char * keywordName, const char * keywordValue
 			status = U_MEMORY_ALLOCATION_ERROR;
 			return;
 		}
-		uprv_strcpy(newFullName, fullName);
+		strcpy(newFullName, fullName);
 		if(fullName != fullNameBuffer) {
 			// if full Name is already on the heap, need to free it.
 			uprv_free(fullName);

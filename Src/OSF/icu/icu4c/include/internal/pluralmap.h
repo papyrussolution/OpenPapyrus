@@ -87,7 +87,7 @@ public:
 
 	PluralMap(const PluralMap<T> &other) : fOtherVariant(other.fOtherVariant) {
 		fVariants[0] = &fOtherVariant;
-		for(int32_t i = 1; i < UPRV_LENGTHOF(fVariants); ++i) {
+		for(int32_t i = 1; i < SIZEOFARRAYi(fVariants); ++i) {
 			fVariants[i] = other.fVariants[i] ?
 			    new T(*other.fVariants[i]) : NULL;
 		}
@@ -97,7 +97,7 @@ public:
 		if(this == &other) {
 			return *this;
 		}
-		for(int32_t i = 0; i < UPRV_LENGTHOF(fVariants); ++i) {
+		for(int32_t i = 0; i < SIZEOFARRAYi(fVariants); ++i) {
 			if(fVariants[i] != NULL && other.fVariants[i] != NULL) {
 				*fVariants[i] = *other.fVariants[i];
 			}
@@ -116,7 +116,7 @@ public:
 	}
 
 	~PluralMap() {
-		for(int32_t i = 1; i < UPRV_LENGTHOF(fVariants); ++i) {
+		for(int32_t i = 1; i < SIZEOFARRAYi(fVariants); ++i) {
 			delete fVariants[i];
 		}
 	}
@@ -126,7 +126,7 @@ public:
 	 */
 	void clear() {
 		*fVariants[0] = T();
-		for(int32_t i = 1; i < UPRV_LENGTHOF(fVariants); ++i) {
+		for(int32_t i = 1; i < SIZEOFARRAYi(fVariants); ++i) {
 			delete fVariants[i];
 			fVariants[i] = NULL;
 		}
@@ -142,7 +142,7 @@ public:
 	const T * next(Category &index) const {
 		int32_t idx = index;
 		++idx;
-		for(; idx < UPRV_LENGTHOF(fVariants); ++idx) {
+		for(; idx < SIZEOFARRAYi(fVariants); ++idx) {
 			if(fVariants[idx] != NULL) {
 				index = static_cast<Category>(idx);
 				return fVariants[idx];
@@ -175,7 +175,7 @@ public:
 	 */
 	const T &get(Category v) const {
 		int32_t index = v;
-		if(index < 0 || index >= UPRV_LENGTHOF(fVariants) || fVariants[index] == NULL) {
+		if(index < 0 || index >= SIZEOFARRAYi(fVariants) || fVariants[index] == NULL) {
 			return *fVariants[0];
 		}
 		return *fVariants[index];
@@ -238,7 +238,7 @@ public:
 	 */
 	bool equals(const PluralMap<T> &rhs,
 	    bool (*eqFunc)(const T &, const T &)) const {
-		for(int32_t i = 0; i < UPRV_LENGTHOF(fVariants); ++i) {
+		for(int32_t i = 0; i < SIZEOFARRAYi(fVariants); ++i) {
 			if(fVariants[i] == rhs.fVariants[i]) {
 				continue;
 			}
@@ -263,7 +263,7 @@ private:
 			return NULL;
 		}
 		int32_t index = category;
-		if(index < 0 || index >= UPRV_LENGTHOF(fVariants)) {
+		if(index < 0 || index >= SIZEOFARRAYi(fVariants)) {
 			status = U_ILLEGAL_ARGUMENT_ERROR;
 			return NULL;
 		}
@@ -279,7 +279,7 @@ private:
 
 	void initializeNew() {
 		fVariants[0] = &fOtherVariant;
-		for(int32_t i = 1; i < UPRV_LENGTHOF(fVariants); ++i) {
+		for(int32_t i = 1; i < SIZEOFARRAYi(fVariants); ++i) {
 			fVariants[i] = NULL;
 		}
 	}

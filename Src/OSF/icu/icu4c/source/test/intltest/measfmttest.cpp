@@ -3188,32 +3188,32 @@ void MeasureFormatTest::TestExamplesInDocs() {
 		"Feet and inches",
 		fmtFrFull,
 		feetAndInches,
-		UPRV_LENGTHOF(feetAndInches),
+		SIZEOFARRAYi(feetAndInches),
 		"70 pieds et 5,3\\u00A0pouces");
 	verifyFormatWithPrefix(
 		"Feet and inches",
 		fmtFrFull,
 		"Prefix: ",
 		feetAndInches,
-		UPRV_LENGTHOF(feetAndInches),
+		SIZEOFARRAYi(feetAndInches),
 		"Prefix: 70 pieds et 5,3\\u00A0pouces");
 	verifyFormat(
 		"Foot and inch",
 		fmtFrFull,
 		footAndInch,
-		UPRV_LENGTHOF(footAndInch),
+		SIZEOFARRAYi(footAndInch),
 		"1\\u00A0pied et 1\\u00A0pouce");
 	verifyFormat(
 		"Foot and inch narrow",
 		fmtFrNarrow,
 		footAndInch,
-		UPRV_LENGTHOF(footAndInch),
+		SIZEOFARRAYi(footAndInch),
 		"1\\u2032 1\\u2033");
 	verifyFormat(
 		"Inch and feet",
 		fmtEn,
 		inchAndFeet,
-		UPRV_LENGTHOF(inchAndFeet),
+		SIZEOFARRAYi(inchAndFeet),
 		"1 inch, 2 feet");
 }
 
@@ -3305,116 +3305,116 @@ void MeasureFormatTest::TestFormatPeriodEn() {
 	}
 
 	ExpectedResult fullData[] = {
-		{t_1m_59_9996s, UPRV_LENGTHOF(t_1m_59_9996s), "1 minute, 59.9996 seconds"},
-		{t_19m, UPRV_LENGTHOF(t_19m), "19 minutes"},
-		{t_1h_23_5s, UPRV_LENGTHOF(t_1h_23_5s), "1 hour, 23.5 seconds"},
-		{t_1h_23_5m, UPRV_LENGTHOF(t_1h_23_5m), "1 hour, 23.5 minutes"},
-		{t_1h_0m_23s, UPRV_LENGTHOF(t_1h_0m_23s), "1 hour, 0 minutes, 23 seconds"},
-		{t_2y_5M_3w_4d, UPRV_LENGTHOF(t_2y_5M_3w_4d), "2 years, 5 months, 3 weeks, 4 days"}
+		{t_1m_59_9996s, SIZEOFARRAYi(t_1m_59_9996s), "1 minute, 59.9996 seconds"},
+		{t_19m, SIZEOFARRAYi(t_19m), "19 minutes"},
+		{t_1h_23_5s, SIZEOFARRAYi(t_1h_23_5s), "1 hour, 23.5 seconds"},
+		{t_1h_23_5m, SIZEOFARRAYi(t_1h_23_5m), "1 hour, 23.5 minutes"},
+		{t_1h_0m_23s, SIZEOFARRAYi(t_1h_0m_23s), "1 hour, 0 minutes, 23 seconds"},
+		{t_2y_5M_3w_4d, SIZEOFARRAYi(t_2y_5M_3w_4d), "2 years, 5 months, 3 weeks, 4 days"}
 	};
 
 	ExpectedResult abbrevData[] = {
-		{t_1m_59_9996s, UPRV_LENGTHOF(t_1m_59_9996s), "1 min, 59.9996 sec"},
-		{t_19m, UPRV_LENGTHOF(t_19m), "19 min"},
-		{t_1h_23_5s, UPRV_LENGTHOF(t_1h_23_5s), "1 hr, 23.5 sec"},
-		{t_1h_23_5m, UPRV_LENGTHOF(t_1h_23_5m), "1 hr, 23.5 min"},
-		{t_1h_0m_23s, UPRV_LENGTHOF(t_1h_0m_23s), "1 hr, 0 min, 23 sec"},
-		{t_2y_5M_3w_4d, UPRV_LENGTHOF(t_2y_5M_3w_4d), "2 yrs, 5 mths, 3 wks, 4 days"}
+		{t_1m_59_9996s, SIZEOFARRAYi(t_1m_59_9996s), "1 min, 59.9996 sec"},
+		{t_19m, SIZEOFARRAYi(t_19m), "19 min"},
+		{t_1h_23_5s, SIZEOFARRAYi(t_1h_23_5s), "1 hr, 23.5 sec"},
+		{t_1h_23_5m, SIZEOFARRAYi(t_1h_23_5m), "1 hr, 23.5 min"},
+		{t_1h_0m_23s, SIZEOFARRAYi(t_1h_0m_23s), "1 hr, 0 min, 23 sec"},
+		{t_2y_5M_3w_4d, SIZEOFARRAYi(t_2y_5M_3w_4d), "2 yrs, 5 mths, 3 wks, 4 days"}
 	};
 
 	ExpectedResult narrowData[] = {
-		{t_1m_59_9996s, UPRV_LENGTHOF(t_1m_59_9996s), "1m 59.9996s"},
-		{t_19m, UPRV_LENGTHOF(t_19m), "19m"},
-		{t_1h_23_5s, UPRV_LENGTHOF(t_1h_23_5s), "1h 23.5s"},
-		{t_1h_23_5m, UPRV_LENGTHOF(t_1h_23_5m), "1h 23.5m"},
-		{t_1h_0m_23s, UPRV_LENGTHOF(t_1h_0m_23s), "1h 0m 23s"},
-		{t_2y_5M_3w_4d, UPRV_LENGTHOF(t_2y_5M_3w_4d), "2y 5m 3w 4d"}
+		{t_1m_59_9996s, SIZEOFARRAYi(t_1m_59_9996s), "1m 59.9996s"},
+		{t_19m, SIZEOFARRAYi(t_19m), "19m"},
+		{t_1h_23_5s, SIZEOFARRAYi(t_1h_23_5s), "1h 23.5s"},
+		{t_1h_23_5m, SIZEOFARRAYi(t_1h_23_5m), "1h 23.5m"},
+		{t_1h_0m_23s, SIZEOFARRAYi(t_1h_0m_23s), "1h 0m 23s"},
+		{t_2y_5M_3w_4d, SIZEOFARRAYi(t_2y_5M_3w_4d), "2y 5m 3w 4d"}
 	};
 
 	ExpectedResult numericData[] = {
-		{t_1m_59_9996s, UPRV_LENGTHOF(t_1m_59_9996s), "1:59.9996"},
-		{t_19m, UPRV_LENGTHOF(t_19m), "19m"},
-		{t_1h_23_5s, UPRV_LENGTHOF(t_1h_23_5s), "1:00:23.5"},
-		{t_1h_23_5m, UPRV_LENGTHOF(t_1h_23_5m), "1:23.5"},
-		{t_1h_0m_23s, UPRV_LENGTHOF(t_1h_0m_23s), "1:00:23"},
-		{t_5h_17m, UPRV_LENGTHOF(t_5h_17m), "5:17"},
-		{t_neg5h_17m, UPRV_LENGTHOF(t_neg5h_17m), "-5h 17m"},
-		{t_19m_28s, UPRV_LENGTHOF(t_19m_28s), "19:28"},
-		{t_2y_5M_3w_4d, UPRV_LENGTHOF(t_2y_5M_3w_4d), "2y 5m 3w 4d"},
-		{t_0h_0m_9s, UPRV_LENGTHOF(t_0h_0m_9s), "0:00:09"},
-		{t_6h_56_92m, UPRV_LENGTHOF(t_6h_56_92m), "6:56.92"},
-		{t_6_7h_56_92m, UPRV_LENGTHOF(t_6_7h_56_92m), "6:56.92"},
-		{t_3h_4s_5m, UPRV_LENGTHOF(t_3h_4s_5m), "3h 4s 5m"},
-		{t_3h_5h, UPRV_LENGTHOF(t_3h_5h), "3h 5h"}
+		{t_1m_59_9996s, SIZEOFARRAYi(t_1m_59_9996s), "1:59.9996"},
+		{t_19m, SIZEOFARRAYi(t_19m), "19m"},
+		{t_1h_23_5s, SIZEOFARRAYi(t_1h_23_5s), "1:00:23.5"},
+		{t_1h_23_5m, SIZEOFARRAYi(t_1h_23_5m), "1:23.5"},
+		{t_1h_0m_23s, SIZEOFARRAYi(t_1h_0m_23s), "1:00:23"},
+		{t_5h_17m, SIZEOFARRAYi(t_5h_17m), "5:17"},
+		{t_neg5h_17m, SIZEOFARRAYi(t_neg5h_17m), "-5h 17m"},
+		{t_19m_28s, SIZEOFARRAYi(t_19m_28s), "19:28"},
+		{t_2y_5M_3w_4d, SIZEOFARRAYi(t_2y_5M_3w_4d), "2y 5m 3w 4d"},
+		{t_0h_0m_9s, SIZEOFARRAYi(t_0h_0m_9s), "0:00:09"},
+		{t_6h_56_92m, SIZEOFARRAYi(t_6h_56_92m), "6:56.92"},
+		{t_6_7h_56_92m, SIZEOFARRAYi(t_6_7h_56_92m), "6:56.92"},
+		{t_3h_4s_5m, SIZEOFARRAYi(t_3h_4s_5m), "3h 4s 5m"},
+		{t_3h_5h, SIZEOFARRAYi(t_3h_5h), "3h 5h"}
 	};
 
 	ExpectedResult fullDataDe[] = {
-		{t_1m_59_9996s, UPRV_LENGTHOF(t_1m_59_9996s), "1 Minute, 59,9996 Sekunden"},
-		{t_19m, UPRV_LENGTHOF(t_19m), "19 Minuten"},
-		{t_1h_23_5s, UPRV_LENGTHOF(t_1h_23_5s), "1 Stunde, 23,5 Sekunden"},
-		{t_1h_23_5m, UPRV_LENGTHOF(t_1h_23_5m), "1 Stunde, 23,5 Minuten"},
-		{t_1h_0m_23s, UPRV_LENGTHOF(t_1h_0m_23s), "1 Stunde, 0 Minuten und 23 Sekunden"},
-		{t_2y_5M_3w_4d, UPRV_LENGTHOF(t_2y_5M_3w_4d), "2 Jahre, 5 Monate, 3 Wochen und 4 Tage"}
+		{t_1m_59_9996s, SIZEOFARRAYi(t_1m_59_9996s), "1 Minute, 59,9996 Sekunden"},
+		{t_19m, SIZEOFARRAYi(t_19m), "19 Minuten"},
+		{t_1h_23_5s, SIZEOFARRAYi(t_1h_23_5s), "1 Stunde, 23,5 Sekunden"},
+		{t_1h_23_5m, SIZEOFARRAYi(t_1h_23_5m), "1 Stunde, 23,5 Minuten"},
+		{t_1h_0m_23s, SIZEOFARRAYi(t_1h_0m_23s), "1 Stunde, 0 Minuten und 23 Sekunden"},
+		{t_2y_5M_3w_4d, SIZEOFARRAYi(t_2y_5M_3w_4d), "2 Jahre, 5 Monate, 3 Wochen und 4 Tage"}
 	};
 
 	ExpectedResult numericDataDe[] = {
-		{t_1m_59_9996s, UPRV_LENGTHOF(t_1m_59_9996s), "1:59,9996"},
-		{t_19m, UPRV_LENGTHOF(t_19m), "19 Min."},
-		{t_1h_23_5s, UPRV_LENGTHOF(t_1h_23_5s), "1:00:23,5"},
-		{t_1h_23_5m, UPRV_LENGTHOF(t_1h_23_5m), "1:23,5"},
-		{t_1h_0m_23s, UPRV_LENGTHOF(t_1h_0m_23s), "1:00:23"},
-		{t_5h_17m, UPRV_LENGTHOF(t_5h_17m), "5:17"},
-		{t_19m_28s, UPRV_LENGTHOF(t_19m_28s), "19:28"},
-		{t_2y_5M_3w_4d, UPRV_LENGTHOF(t_2y_5M_3w_4d), "2 J, 5 M, 3 W und 4 T"},
-		{t_0h_0m_17s, UPRV_LENGTHOF(t_0h_0m_17s), "0:00:17"},
-		{t_6h_56_92m, UPRV_LENGTHOF(t_6h_56_92m), "6:56,92"},
-		{t_3h_5h, UPRV_LENGTHOF(t_3h_5h), "3 Std., 5 Std."}
+		{t_1m_59_9996s, SIZEOFARRAYi(t_1m_59_9996s), "1:59,9996"},
+		{t_19m, SIZEOFARRAYi(t_19m), "19 Min."},
+		{t_1h_23_5s, SIZEOFARRAYi(t_1h_23_5s), "1:00:23,5"},
+		{t_1h_23_5m, SIZEOFARRAYi(t_1h_23_5m), "1:23,5"},
+		{t_1h_0m_23s, SIZEOFARRAYi(t_1h_0m_23s), "1:00:23"},
+		{t_5h_17m, SIZEOFARRAYi(t_5h_17m), "5:17"},
+		{t_19m_28s, SIZEOFARRAYi(t_19m_28s), "19:28"},
+		{t_2y_5M_3w_4d, SIZEOFARRAYi(t_2y_5M_3w_4d), "2 J, 5 M, 3 W und 4 T"},
+		{t_0h_0m_17s, SIZEOFARRAYi(t_0h_0m_17s), "0:00:17"},
+		{t_6h_56_92m, SIZEOFARRAYi(t_6h_56_92m), "6:56,92"},
+		{t_3h_5h, SIZEOFARRAYi(t_3h_5h), "3 Std., 5 Std."}
 	};
 
 	ExpectedResult numericDataBn[] = {
-		{t_1m_59_9996s, UPRV_LENGTHOF(t_1m_59_9996s), "\\u09E7:\\u09EB\\u09EF.\\u09EF\\u09EF\\u09EF\\u09EC"},
-		{t_19m, UPRV_LENGTHOF(t_19m), "\\u09E7\\u09EF \\u09AE\\u09BF\\u0983"},
-		{t_1h_23_5s, UPRV_LENGTHOF(t_1h_23_5s), "\\u09E7:\\u09E6\\u09E6:\\u09E8\\u09E9.\\u09EB"},
-		{t_1h_0m_23s, UPRV_LENGTHOF(t_1h_0m_23s), "\\u09E7:\\u09E6\\u09E6:\\u09E8\\u09E9"},
-		{t_1h_23_5m, UPRV_LENGTHOF(t_1h_23_5m), "\\u09E7:\\u09E8\\u09E9.\\u09EB"},
-		{t_5h_17m, UPRV_LENGTHOF(t_5h_17m), "\\u09EB:\\u09E7\\u09ED"},
-		{t_19m_28s, UPRV_LENGTHOF(t_19m_28s), "\\u09E7\\u09EF:\\u09E8\\u09EE"},
-		{t_2y_5M_3w_4d, UPRV_LENGTHOF(t_2y_5M_3w_4d),
+		{t_1m_59_9996s, SIZEOFARRAYi(t_1m_59_9996s), "\\u09E7:\\u09EB\\u09EF.\\u09EF\\u09EF\\u09EF\\u09EC"},
+		{t_19m, SIZEOFARRAYi(t_19m), "\\u09E7\\u09EF \\u09AE\\u09BF\\u0983"},
+		{t_1h_23_5s, SIZEOFARRAYi(t_1h_23_5s), "\\u09E7:\\u09E6\\u09E6:\\u09E8\\u09E9.\\u09EB"},
+		{t_1h_0m_23s, SIZEOFARRAYi(t_1h_0m_23s), "\\u09E7:\\u09E6\\u09E6:\\u09E8\\u09E9"},
+		{t_1h_23_5m, SIZEOFARRAYi(t_1h_23_5m), "\\u09E7:\\u09E8\\u09E9.\\u09EB"},
+		{t_5h_17m, SIZEOFARRAYi(t_5h_17m), "\\u09EB:\\u09E7\\u09ED"},
+		{t_19m_28s, SIZEOFARRAYi(t_19m_28s), "\\u09E7\\u09EF:\\u09E8\\u09EE"},
+		{t_2y_5M_3w_4d, SIZEOFARRAYi(t_2y_5M_3w_4d),
 		 "\\u09E8 \\u09AC\\u099B\\u09B0, \\u09EB \\u09AE\\u09BE\\u09B8, \\u09E9 \\u09B8\\u09AA\\u09CD\\u09A4\\u09BE\\u09B9, \\u09EA \\u09A6\\u09BF\\u09A8"},
-		{t_0h_0m_17s, UPRV_LENGTHOF(t_0h_0m_17s), "\\u09E6:\\u09E6\\u09E6:\\u09E7\\u09ED"},
-		{t_6h_56_92m, UPRV_LENGTHOF(t_6h_56_92m), "\\u09EC:\\u09EB\\u09EC.\\u09EF\\u09E8"},
-		{t_3h_5h, UPRV_LENGTHOF(t_3h_5h), "\\u09E9 \\u0998\\u0983, \\u09EB \\u0998\\u0983"}
+		{t_0h_0m_17s, SIZEOFARRAYi(t_0h_0m_17s), "\\u09E6:\\u09E6\\u09E6:\\u09E7\\u09ED"},
+		{t_6h_56_92m, SIZEOFARRAYi(t_6h_56_92m), "\\u09EC:\\u09EB\\u09EC.\\u09EF\\u09E8"},
+		{t_3h_5h, SIZEOFARRAYi(t_3h_5h), "\\u09E9 \\u0998\\u0983, \\u09EB \\u0998\\u0983"}
 	};
 
 	ExpectedResult numericDataBnLatn[] = {
-		{t_1m_59_9996s, UPRV_LENGTHOF(t_1m_59_9996s), "1:59.9996"},
-		{t_19m, UPRV_LENGTHOF(t_19m), "19 \\u09AE\\u09BF\\u0983"},
-		{t_1h_23_5s, UPRV_LENGTHOF(t_1h_23_5s), "1:00:23.5"},
-		{t_1h_0m_23s, UPRV_LENGTHOF(t_1h_0m_23s), "1:00:23"},
-		{t_1h_23_5m, UPRV_LENGTHOF(t_1h_23_5m), "1:23.5"},
-		{t_5h_17m, UPRV_LENGTHOF(t_5h_17m), "5:17"},
-		{t_19m_28s, UPRV_LENGTHOF(t_19m_28s), "19:28"},
-		{t_2y_5M_3w_4d, UPRV_LENGTHOF(t_2y_5M_3w_4d),
+		{t_1m_59_9996s, SIZEOFARRAYi(t_1m_59_9996s), "1:59.9996"},
+		{t_19m, SIZEOFARRAYi(t_19m), "19 \\u09AE\\u09BF\\u0983"},
+		{t_1h_23_5s, SIZEOFARRAYi(t_1h_23_5s), "1:00:23.5"},
+		{t_1h_0m_23s, SIZEOFARRAYi(t_1h_0m_23s), "1:00:23"},
+		{t_1h_23_5m, SIZEOFARRAYi(t_1h_23_5m), "1:23.5"},
+		{t_5h_17m, SIZEOFARRAYi(t_5h_17m), "5:17"},
+		{t_19m_28s, SIZEOFARRAYi(t_19m_28s), "19:28"},
+		{t_2y_5M_3w_4d, SIZEOFARRAYi(t_2y_5M_3w_4d),
 		 "2 \\u09AC\\u099B\\u09B0, 5 \\u09AE\\u09BE\\u09B8, 3 \\u09B8\\u09AA\\u09CD\\u09A4\\u09BE\\u09B9, 4 \\u09A6\\u09BF\\u09A8"},
-		{t_0h_0m_17s, UPRV_LENGTHOF(t_0h_0m_17s), "0:00:17"},
-		{t_6h_56_92m, UPRV_LENGTHOF(t_6h_56_92m), "6:56.92"},
-		{t_3h_5h, UPRV_LENGTHOF(t_3h_5h), "3 \\u0998\\u0983, 5 \\u0998\\u0983"}
+		{t_0h_0m_17s, SIZEOFARRAYi(t_0h_0m_17s), "0:00:17"},
+		{t_6h_56_92m, SIZEOFARRAYi(t_6h_56_92m), "6:56.92"},
+		{t_3h_5h, SIZEOFARRAYi(t_3h_5h), "3 \\u0998\\u0983, 5 \\u0998\\u0983"}
 	};
 
 	ExpectedResult fullDataSpellout[] = {
-		{t_1y, UPRV_LENGTHOF(t_1y), "one year"},
-		{t_5M, UPRV_LENGTHOF(t_5M), "five months"},
-		{t_4d, UPRV_LENGTHOF(t_4d), "four days"},
-		{t_2h, UPRV_LENGTHOF(t_2h), "two hours"},
-		{t_19m, UPRV_LENGTHOF(t_19m), "nineteen minutes"}
+		{t_1y, SIZEOFARRAYi(t_1y), "one year"},
+		{t_5M, SIZEOFARRAYi(t_5M), "five months"},
+		{t_4d, SIZEOFARRAYi(t_4d), "four days"},
+		{t_2h, SIZEOFARRAYi(t_2h), "two hours"},
+		{t_19m, SIZEOFARRAYi(t_19m), "nineteen minutes"}
 	};
 
 	ExpectedResult fullDataSpelloutFr[] = {
-		{t_1y, UPRV_LENGTHOF(t_1y), "un\\u00A0an"},
-		{t_5M, UPRV_LENGTHOF(t_5M), "cinq\\u00A0mois"},
-		{t_4d, UPRV_LENGTHOF(t_4d), "quatre\\u00A0jours"},
-		{t_2h, UPRV_LENGTHOF(t_2h), "deux\\u00A0heures"},
-		{t_19m, UPRV_LENGTHOF(t_19m), "dix-neuf minutes"}
+		{t_1y, SIZEOFARRAYi(t_1y), "un\\u00A0an"},
+		{t_5M, SIZEOFARRAYi(t_5M), "cinq\\u00A0mois"},
+		{t_4d, SIZEOFARRAYi(t_4d), "quatre\\u00A0jours"},
+		{t_2h, SIZEOFARRAYi(t_2h), "deux\\u00A0heures"},
+		{t_19m, SIZEOFARRAYi(t_19m), "dix-neuf minutes"}
 	};
 
 	Locale en(Locale::getEnglish());
@@ -3428,34 +3428,34 @@ void MeasureFormatTest::TestFormatPeriodEn() {
 	if(!assertSuccess("Error creating measure format en WIDE", status)) {
 		return;
 	}
-	verifyFormat("en WIDE", mf, fullData, UPRV_LENGTHOF(fullData));
+	verifyFormat("en WIDE", mf, fullData, SIZEOFARRAYi(fullData));
 
 	// exercise copy constructor
 	{
 		MeasureFormat mf2(mf);
-		verifyFormat("en WIDE copy", mf2, fullData, UPRV_LENGTHOF(fullData));
+		verifyFormat("en WIDE copy", mf2, fullData, SIZEOFARRAYi(fullData));
 	}
 	// exercise clone
 	{
 		MeasureFormat * mf3 = mf.clone();
-		verifyFormat("en WIDE copy", *mf3, fullData, UPRV_LENGTHOF(fullData));
+		verifyFormat("en WIDE copy", *mf3, fullData, SIZEOFARRAYi(fullData));
 		delete mf3;
 	}
 	mf = MeasureFormat(en, UMEASFMT_WIDTH_SHORT, nf->clone(), status);
 	if(!assertSuccess("Error creating measure format en SHORT", status)) {
 		return;
 	}
-	verifyFormat("en SHORT", mf, abbrevData, UPRV_LENGTHOF(abbrevData));
+	verifyFormat("en SHORT", mf, abbrevData, SIZEOFARRAYi(abbrevData));
 	mf = MeasureFormat(en, UMEASFMT_WIDTH_NARROW, nf->clone(), status);
 	if(!assertSuccess("Error creating measure format en NARROW", status)) {
 		return;
 	}
-	verifyFormat("en NARROW", mf, narrowData, UPRV_LENGTHOF(narrowData));
+	verifyFormat("en NARROW", mf, narrowData, SIZEOFARRAYi(narrowData));
 	mf = MeasureFormat(en, UMEASFMT_WIDTH_NUMERIC, nf->clone(), status);
 	if(!assertSuccess("Error creating measure format en NUMERIC", status)) {
 		return;
 	}
-	verifyFormat("en NUMERIC", mf, numericData, UPRV_LENGTHOF(numericData));
+	verifyFormat("en NUMERIC", mf, numericData, SIZEOFARRAYi(numericData));
 
 	Locale de(Locale::getGerman());
 	nf.adoptInstead(NumberFormat::createInstance(de, status));
@@ -3467,12 +3467,12 @@ void MeasureFormatTest::TestFormatPeriodEn() {
 	if(!assertSuccess("Error creating measure format de WIDE", status)) {
 		return;
 	}
-	verifyFormat("de WIDE", mf, fullDataDe, UPRV_LENGTHOF(fullDataDe));
+	verifyFormat("de WIDE", mf, fullDataDe, SIZEOFARRAYi(fullDataDe));
 	mf = MeasureFormat(de, UMEASFMT_WIDTH_NUMERIC, nf->clone(), status);
 	if(!assertSuccess("Error creating measure format de NUMERIC", status)) {
 		return;
 	}
-	verifyFormat("de NUMERIC", mf, numericDataDe, UPRV_LENGTHOF(numericDataDe));
+	verifyFormat("de NUMERIC", mf, numericDataDe, SIZEOFARRAYi(numericDataDe));
 
 	Locale bengali("bn");
 	nf.adoptInstead(NumberFormat::createInstance(bengali, status));
@@ -3484,7 +3484,7 @@ void MeasureFormatTest::TestFormatPeriodEn() {
 	if(!assertSuccess("Error creating measure format bn NUMERIC", status)) {
 		return;
 	}
-	verifyFormat("bn NUMERIC", mf, numericDataBn, UPRV_LENGTHOF(numericDataBn));
+	verifyFormat("bn NUMERIC", mf, numericDataBn, SIZEOFARRAYi(numericDataBn));
 
 	Locale bengaliLatin("bn-u-nu-latn");
 	nf.adoptInstead(NumberFormat::createInstance(bengaliLatin, status));
@@ -3496,7 +3496,7 @@ void MeasureFormatTest::TestFormatPeriodEn() {
 	if(!assertSuccess("Error creating measure format bn-u-nu-latn NUMERIC", status)) {
 		return;
 	}
-	verifyFormat("bn-u-nu-latn NUMERIC", mf, numericDataBnLatn, UPRV_LENGTHOF(numericDataBnLatn));
+	verifyFormat("bn-u-nu-latn NUMERIC", mf, numericDataBnLatn, SIZEOFARRAYi(numericDataBnLatn));
 
 	status = U_ZERO_ERROR;
 	LocalPointer<RuleBasedNumberFormat> rbnf(new RuleBasedNumberFormat(URBNF_SPELLOUT, en, status));
@@ -3508,7 +3508,7 @@ void MeasureFormatTest::TestFormatPeriodEn() {
 	if(!assertSuccess("Error creating measure format en WIDE with rbnf", status)) {
 		return;
 	}
-	verifyFormat("en WIDE rbnf", mf, fullDataSpellout, UPRV_LENGTHOF(fullDataSpellout));
+	verifyFormat("en WIDE rbnf", mf, fullDataSpellout, SIZEOFARRAYi(fullDataSpellout));
 
 	Locale fr(Locale::getFrench());
 	LocalPointer<RuleBasedNumberFormat> rbnffr(new RuleBasedNumberFormat(URBNF_SPELLOUT, fr, status));
@@ -3520,7 +3520,7 @@ void MeasureFormatTest::TestFormatPeriodEn() {
 	if(!assertSuccess("Error creating measure format fr WIDE with rbnf", status)) {
 		return;
 	}
-	verifyFormat("fr WIDE rbnf", mf, fullDataSpelloutFr, UPRV_LENGTHOF(fullDataSpellout));
+	verifyFormat("fr WIDE rbnf", mf, fullDataSpelloutFr, SIZEOFARRAYi(fullDataSpellout));
 }
 
 void MeasureFormatTest::Test10219FractionalPlurals() {
@@ -3531,8 +3531,8 @@ void MeasureFormatTest::Test10219FractionalPlurals() {
 		{"1 minute", "1.0 minutes", "1.01 minutes"}
 	};
 	UErrorCode status = U_ZERO_ERROR;
-	for(int j = 0; j < UPRV_LENGTHOF(values); j++) {
-		for(int i = 0; i < UPRV_LENGTHOF(expected[j]); i++) {
+	for(int j = 0; j < SIZEOFARRAYi(values); j++) {
+		for(int i = 0; i < SIZEOFARRAYi(expected[j]); i++) {
 			DecimalFormat * df =
 			    (DecimalFormat*)NumberFormat::createInstance(en, status);
 			if(U_FAILURE(status)) {
@@ -3650,10 +3650,10 @@ void MeasureFormatTest::TestGreek() {
 	};                              // year (other)
 
 	int32_t counter = 0;
-	for(int32_t locIndex = 0; locIndex < UPRV_LENGTHOF(locales); ++locIndex) {
-		for(int32_t numIndex = 0; numIndex < UPRV_LENGTHOF(numbers); ++numIndex) {
-			for(int32_t styleIndex = 0; styleIndex < UPRV_LENGTHOF(styles); ++styleIndex) {
-				for(int32_t unitIndex = 0; unitIndex < UPRV_LENGTHOF(units); ++unitIndex) {
+	for(int32_t locIndex = 0; locIndex < SIZEOFARRAYi(locales); ++locIndex) {
+		for(int32_t numIndex = 0; numIndex < SIZEOFARRAYi(numbers); ++numIndex) {
+			for(int32_t styleIndex = 0; styleIndex < SIZEOFARRAYi(styles); ++styleIndex) {
+				for(int32_t unitIndex = 0; unitIndex < SIZEOFARRAYi(units); ++unitIndex) {
 					Measure measure(numbers[numIndex], new MeasureUnit(units[unitIndex]), status);
 					if(!assertSuccess("Error creating Measure", status)) {
 						return;
@@ -3883,7 +3883,7 @@ void MeasureFormatTest::helperTestMultiples(const Locale &locale,
 		return;
 	}
 	UnicodeString buffer;
-	fmt.formatMeasures(measures, UPRV_LENGTHOF(measures), buffer, pos, status);
+	fmt.formatMeasures(measures, SIZEOFARRAYi(measures), buffer, pos, status);
 	if(!assertSuccess("Error formatting measures", status)) {
 		return;
 	}
@@ -3899,34 +3899,34 @@ void MeasureFormatTest::TestManyLocaleDurations() {
 	if(!assertSuccess("Error creating measures", status)) {
 		return;
 	}
-	helperTestManyLocaleDurations("da", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5 t og 37 m");
-	helperTestManyLocaleDurations("da", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5.37");
-	helperTestManyLocaleDurations("de", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5 Std., 37 Min.");
-	helperTestManyLocaleDurations("de", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("en", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5h 37m");
-	helperTestManyLocaleDurations("en", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("en_GB", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5h 37m");
-	helperTestManyLocaleDurations("en_GB", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("es", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5h 37min");
-	helperTestManyLocaleDurations("es", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("fi", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5t 37min");
-	helperTestManyLocaleDurations("fi", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5.37");
-	helperTestManyLocaleDurations("fr", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5h 37min");
-	helperTestManyLocaleDurations("fr", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("is", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5 klst. og 37 m\\u00EDn.");
-	helperTestManyLocaleDurations("is", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("ja", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5h37m");
-	helperTestManyLocaleDurations("ja", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("nb", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5t, 37m");
-	helperTestManyLocaleDurations("nb", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("nl", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5 u, 37 m");
-	helperTestManyLocaleDurations("nl", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("nn", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5t 37m");
-	helperTestManyLocaleDurations("nn", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("sv", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5h 37m");
-	helperTestManyLocaleDurations("sv", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
-	helperTestManyLocaleDurations("zh", UMEASFMT_WIDTH_NARROW,  measures, UPRV_LENGTHOF(measures), "5\\u5C0F\\u65F637\\u5206\\u949F");
-	helperTestManyLocaleDurations("zh", UMEASFMT_WIDTH_NUMERIC, measures, UPRV_LENGTHOF(measures), "5:37");
+	helperTestManyLocaleDurations("da", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5 t og 37 m");
+	helperTestManyLocaleDurations("da", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5.37");
+	helperTestManyLocaleDurations("de", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5 Std., 37 Min.");
+	helperTestManyLocaleDurations("de", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("en", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5h 37m");
+	helperTestManyLocaleDurations("en", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("en_GB", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5h 37m");
+	helperTestManyLocaleDurations("en_GB", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("es", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5h 37min");
+	helperTestManyLocaleDurations("es", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("fi", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5t 37min");
+	helperTestManyLocaleDurations("fi", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5.37");
+	helperTestManyLocaleDurations("fr", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5h 37min");
+	helperTestManyLocaleDurations("fr", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("is", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5 klst. og 37 m\\u00EDn.");
+	helperTestManyLocaleDurations("is", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("ja", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5h37m");
+	helperTestManyLocaleDurations("ja", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("nb", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5t, 37m");
+	helperTestManyLocaleDurations("nb", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("nl", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5 u, 37 m");
+	helperTestManyLocaleDurations("nl", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("nn", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5t 37m");
+	helperTestManyLocaleDurations("nn", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("sv", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5h 37m");
+	helperTestManyLocaleDurations("sv", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
+	helperTestManyLocaleDurations("zh", UMEASFMT_WIDTH_NARROW,  measures, SIZEOFARRAYi(measures), "5\\u5C0F\\u65F637\\u5206\\u949F");
+	helperTestManyLocaleDurations("zh", UMEASFMT_WIDTH_NUMERIC, measures, SIZEOFARRAYi(measures), "5:37");
 }
 
 void MeasureFormatTest::helperTestManyLocaleDurations(const char * localeID,
@@ -4138,7 +4138,7 @@ void MeasureFormatTest::TestFieldPositionMultiple() {
 		fmt,
 		prefix,
 		first,
-		UPRV_LENGTHOF(first),
+		SIZEOFARRAYi(first),
 		NumberFormat::kIntegerField,
 		8,
 		11);
@@ -4147,7 +4147,7 @@ void MeasureFormatTest::TestFieldPositionMultiple() {
 		fmt,
 		prefix,
 		second,
-		UPRV_LENGTHOF(second),
+		SIZEOFARRAYi(second),
 		NumberFormat::kDecimalSeparatorField,
 		23,
 		24);
@@ -4156,7 +4156,7 @@ void MeasureFormatTest::TestFieldPositionMultiple() {
 		fmt,
 		prefix,
 		third,
-		UPRV_LENGTHOF(third),
+		SIZEOFARRAYi(third),
 		NumberFormat::kDecimalSeparatorField,
 		0,
 		0);
@@ -4249,7 +4249,7 @@ void MeasureFormatTest::TestDoubleZero() {
 	}
 	nf->setMinimumFractionDigits(2);
 	nf->setMaximumFractionDigits(2);
-	fmt.formatMeasures(measures, UPRV_LENGTHOF(measures), appendTo, pos, status);
+	fmt.formatMeasures(measures, SIZEOFARRAYi(measures), appendTo, pos, status);
 	if(!assertSuccess("Error formatting", status)) {
 		return;
 	}
@@ -4259,7 +4259,7 @@ void MeasureFormatTest::TestDoubleZero() {
 		appendTo);
 	measures[0] = Measure(-4.7, MeasureUnit::createHour(status), status);
 	appendTo.remove();
-	fmt.formatMeasures(measures, UPRV_LENGTHOF(measures), appendTo, pos, status);
+	fmt.formatMeasures(measures, SIZEOFARRAYi(measures), appendTo, pos, status);
 	if(!assertSuccess("Error formatting", status)) {
 		return;
 	}
@@ -4637,7 +4637,7 @@ void MeasureFormatTest::TestParseBuiltIns() {
 	status.assertSuccess();
 	for(int32_t i = 0; i < totalCount; i++) {
 		MeasureUnit &unit = units[i];
-		if(uprv_strcmp(unit.getType(), "currency") == 0) {
+		if(strcmp(unit.getType(), "currency") == 0) {
 			continue;
 		}
 
@@ -4788,22 +4788,22 @@ void MeasureFormatTest::TestCompoundUnitOperations() {
 	verifySingleUnit(kiloSquareSecond, UMEASURE_PREFIX_KILO, 2, "square-kilosecond");
 	const char * meterSecondSub[] = {"meter", "square-kilosecond"};
 	verifyCompoundUnit(meterSecond, "meter-square-kilosecond",
-	    meterSecondSub, UPRV_LENGTHOF(meterSecondSub));
+	    meterSecondSub, SIZEOFARRAYi(meterSecondSub));
 	const char * cubicMeterSecond1Sub[] = {"cubic-meter", "square-kilosecond"};
 	verifyCompoundUnit(cubicMeterSecond1, "cubic-meter-square-kilosecond",
-	    cubicMeterSecond1Sub, UPRV_LENGTHOF(cubicMeterSecond1Sub));
+	    cubicMeterSecond1Sub, SIZEOFARRAYi(cubicMeterSecond1Sub));
 	const char * centimeterSecond1Sub[] = {"centimeter", "square-kilosecond"};
 	verifyCompoundUnit(centimeterSecond1, "centimeter-square-kilosecond",
-	    centimeterSecond1Sub, UPRV_LENGTHOF(centimeterSecond1Sub));
+	    centimeterSecond1Sub, SIZEOFARRAYi(centimeterSecond1Sub));
 	const char * secondCubicMeterSub[] = {"cubic-meter", "square-kilosecond"};
 	verifyCompoundUnit(secondCubicMeter, "cubic-meter-square-kilosecond",
-	    secondCubicMeterSub, UPRV_LENGTHOF(secondCubicMeterSub));
+	    secondCubicMeterSub, SIZEOFARRAYi(secondCubicMeterSub));
 	const char * secondCentimeterSub[] = {"centimeter", "square-kilosecond"};
 	verifyCompoundUnit(secondCentimeter, "centimeter-square-kilosecond",
-	    secondCentimeterSub, UPRV_LENGTHOF(secondCentimeterSub));
+	    secondCentimeterSub, SIZEOFARRAYi(secondCentimeterSub));
 	const char * secondCentimeterPerKilometerSub[] = {"centimeter", "square-kilosecond", "per-kilometer"};
 	verifyCompoundUnit(secondCentimeterPerKilometer, "centimeter-square-kilosecond-per-kilometer",
-	    secondCentimeterPerKilometerSub, UPRV_LENGTHOF(secondCentimeterPerKilometerSub));
+	    secondCentimeterPerKilometerSub, SIZEOFARRAYi(secondCentimeterPerKilometerSub));
 
 	assertTrue("reordering equality", cubicMeterSecond1 == secondCubicMeter);
 	assertTrue("additional simple units inequality", secondCubicMeter != secondCentimeter);
@@ -4829,10 +4829,10 @@ void MeasureFormatTest::TestCompoundUnitOperations() {
 
 	const char * footInchSub[] = {"foot", "inch"};
 	verifyMixedUnit(footInch, "foot-and-inch",
-	    footInchSub, UPRV_LENGTHOF(footInchSub));
+	    footInchSub, SIZEOFARRAYi(footInchSub));
 	const char * inchFootSub[] = {"inch", "foot"};
 	verifyMixedUnit(inchFoot, "inch-and-foot",
-	    inchFootSub, UPRV_LENGTHOF(inchFootSub));
+	    inchFootSub, SIZEOFARRAYi(inchFootSub));
 
 	assertTrue("order matters inequality", footInch != inchFoot);
 
@@ -4964,7 +4964,7 @@ void MeasureFormatTest::Test21223_FrenchDuration() {
 	};
 	UnicodeString result;
 	FieldPosition pos;
-	mf.formatMeasures(H5M10, UPRV_LENGTHOF(H5M10), result, pos, status);
+	mf.formatMeasures(H5M10, SIZEOFARRAYi(H5M10), result, pos, status);
 	assertEquals("Should have consistent spacing", u"5h 10min", result);
 
 	// Test additional locales:
@@ -4973,7 +4973,7 @@ void MeasureFormatTest::Test21223_FrenchDuration() {
 	// for (int32_t i=0; i<localeCount; i++) {
 	//     auto& loc = locales[i];
 	//     MeasureFormat mf1(loc, UMEASFMT_WIDTH_NARROW, status);
-	//     mf1.formatMeasures(H5M10, UPRV_LENGTHOF(H5M10), result.remove(), pos, status);
+	//     mf1.formatMeasures(H5M10, SIZEOFARRAYi(H5M10), result.remove(), pos, status);
 	//     assertFalse(result + u" " + loc.getName(), TRUE);
 	// }
 }

@@ -159,7 +159,7 @@ U_CAPI UChar * U_EXPORT2 u_uastrcpy(UChar * ucs1,
 		    ucs1,
 		    MAX_STRLEN,
 		    s2,
-		    (int32_t)uprv_strlen(s2),
+		    (int32_t)strlen(s2),
 		    &err);
 		u_releaseDefaultConverter(cnv);
 		if(U_FAILURE(err)) {

@@ -545,7 +545,7 @@ static void U_CALLCONV UConverter_toUnicode_CompoundText_OFFSETS(UConverterToUni
 				}
 
 				sourceOffset =
-				    static_cast<int32_t>(uprv_strlen((char *)escSeqCompoundText[currentState]) - args->converter->toULength);
+				    static_cast<int32_t>(strlen((char *)escSeqCompoundText[currentState]) - args->converter->toULength);
 
 				mySource += sourceOffset;
 

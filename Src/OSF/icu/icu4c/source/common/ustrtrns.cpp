@@ -1011,7 +1011,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest, int32_t 
 			u_terminateUChars(dest, destCapacity, reqLength, pErrorCode);
 			return dest;
 		}
-		srcLength = static_cast<int32_t>(uprv_strlen(src));
+		srcLength = static_cast<int32_t>(strlen(src));
 	}
 	/* Faster loop without ongoing checking for srcLength and pDestLimit. */
 	UChar32 ch;

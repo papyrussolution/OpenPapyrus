@@ -120,35 +120,30 @@ static const UChar gLastResortEras[2][3] =
 typedef enum LastResortSize {
 	kMonthNum = 13,
 	kMonthLen = 3,
-
 	kDayNum = 8,
 	kDayLen = 2,
-
 	kAmPmNum = 2,
 	kAmPmLen = 3,
-
 	kQuarterNum = 4,
 	kQuarterLen = 2,
-
 	kEraNum = 2,
 	kEraLen = 3,
-
 	kZoneNum = 5,
 	kZoneLen = 4,
-
 	kGmtHourNum = 4,
 	kGmtHourLen = 10
 } LastResortSize;
 
 U_NAMESPACE_BEGIN
 
-SharedDateFormatSymbols::~SharedDateFormatSymbols() {
+SharedDateFormatSymbols::~SharedDateFormatSymbols() 
+{
 }
 
 template <> U_I18N_API const SharedDateFormatSymbols * LocaleCacheKey<SharedDateFormatSymbols>::createObject(const void * /*unusedContext*/, UErrorCode & status) const 
 {
 	char type[256];
-	Calendar::getCalendarTypeFromLocale(fLoc, type, UPRV_LENGTHOF(type), status);
+	Calendar::getCalendarTypeFromLocale(fLoc, type, SIZEOFARRAYi(type), status);
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
@@ -522,7 +517,7 @@ DateFormatSymbols::operator == (const DateFormatSymbols &other) const
 	    fStandaloneAbbreviatedDayPeriodsCount == other.fStandaloneAbbreviatedDayPeriodsCount &&
 	    fStandaloneWideDayPeriodsCount == other.fStandaloneWideDayPeriodsCount &&
 	    fStandaloneNarrowDayPeriodsCount == other.fStandaloneNarrowDayPeriodsCount &&
-	    (uprv_memcmp(fCapitalization, other.fCapitalization, sizeof(fCapitalization))==0)) {
+	    (memcmp(fCapitalization, other.fCapitalization, sizeof(fCapitalization))==0)) {
 		// Now compare the arrays themselves
 		if(arrayCompare(fEras, other.fEras, fErasCount) &&
 		    arrayCompare(fEraNames, other.fEraNames, fEraNamesCount) &&
@@ -1512,12 +1507,12 @@ struct CalendarDataSink : public ResourceSink {
 			// Only visit the resources that were referenced by an alias on the previous calendar
 			// (AmPmMarkersAbbr is an exception).
 			if(!resourcesToVisit.isNull() && !resourcesToVisit->isEmpty() && !resourcesToVisit->contains(&keyUString)
-			 && uprv_strcmp(key, gAmPmMarkersAbbrTag) != 0) {
+			 && strcmp(key, gAmPmMarkersAbbrTag) != 0) {
 				continue;
 			}
 
 			// == Handle data ==
-			if(uprv_strcmp(key, gAmPmMarkersTag) == 0 || uprv_strcmp(key, gAmPmMarkersAbbrTag) == 0 || uprv_strcmp(key, gAmPmMarkersNarrowTag) == 0) {
+			if(strcmp(key, gAmPmMarkersTag) == 0 || strcmp(key, gAmPmMarkersAbbrTag) == 0 || strcmp(key, gAmPmMarkersNarrowTag) == 0) {
 				if(arrays.get(keyUString) == NULL) {
 					ResourceArray resourceArray = value.getArray(errorCode);
 					int32_t arraySize = resourceArray.getSize();
@@ -1530,9 +1525,9 @@ struct CalendarDataSink : public ResourceSink {
 					}
 				}
 			}
-			else if(uprv_strcmp(key, gErasTag) == 0 || uprv_strcmp(key, gDayNamesTag) == 0 || uprv_strcmp(key, gMonthNamesTag) == 0 || 
-				uprv_strcmp(key, gQuartersTag) == 0 || uprv_strcmp(key, gDayPeriodTag) == 0 || uprv_strcmp(key, gMonthPatternsTag) == 0 || 
-				uprv_strcmp(key, gCyclicNameSetsTag) == 0) {
+			else if(strcmp(key, gErasTag) == 0 || strcmp(key, gDayNamesTag) == 0 || strcmp(key, gMonthNamesTag) == 0 || 
+				strcmp(key, gQuartersTag) == 0 || strcmp(key, gDayPeriodTag) == 0 || strcmp(key, gMonthPatternsTag) == 0 || 
+				strcmp(key, gCyclicNameSetsTag) == 0) {
 				processResource(keyUString, key, value, errorCode);
 			}
 		}
@@ -1605,7 +1600,7 @@ struct CalendarDataSink : public ResourceSink {
 			UnicodeString keyUString(key, -1, US_INV);
 
 			// Ignore '%variant' keys
-			if(keyUString.endsWith(kVariantTagUChar, UPRV_LENGTHOF(kVariantTagUChar))) {
+			if(keyUString.endsWith(kVariantTagUChar, SIZEOFARRAYi(kVariantTagUChar))) {
 				continue;
 			}
 
@@ -1639,34 +1634,27 @@ struct CalendarDataSink : public ResourceSink {
 				continue;
 			}
 			U_ASSERT(stringMap == NULL);
-
 			// Store the current path's length and append the current key to the path.
 			int32_t pathLength = path.length();
 			path.append(SOLIDUS).append(keyUString);
-
 			// In cyclicNameSets ignore everything but years/format/abbreviated
 			// and zodiacs/format/abbreviated
-			if(path.startsWith(kCyclicNameSetsTagUChar, UPRV_LENGTHOF(kCyclicNameSetsTagUChar))) {
+			if(path.startsWith(kCyclicNameSetsTagUChar, SIZEOFARRAYi(kCyclicNameSetsTagUChar))) {
 				bool skip = TRUE;
-				int32_t startIndex = UPRV_LENGTHOF(kCyclicNameSetsTagUChar);
+				int32_t startIndex = SIZEOFARRAYi(kCyclicNameSetsTagUChar);
 				int32_t length = 0;
 				if(startIndex == path.length()
-				 || path.compare(startIndex, (length = UPRV_LENGTHOF(kZodiacsUChar)), kZodiacsUChar, 0,
-				    UPRV_LENGTHOF(kZodiacsUChar)) == 0
-				 || path.compare(startIndex, (length = UPRV_LENGTHOF(kYearsTagUChar)), kYearsTagUChar, 0,
-				    UPRV_LENGTHOF(kYearsTagUChar)) == 0
-				 || path.compare(startIndex, (length = UPRV_LENGTHOF(kDayPartsTagUChar)), kDayPartsTagUChar, 0,
-				    UPRV_LENGTHOF(kDayPartsTagUChar)) == 0) {
+				 || path.compare(startIndex, (length = SIZEOFARRAYi(kZodiacsUChar)), kZodiacsUChar, 0, SIZEOFARRAYi(kZodiacsUChar)) == 0
+				 || path.compare(startIndex, (length = SIZEOFARRAYi(kYearsTagUChar)), kYearsTagUChar, 0, SIZEOFARRAYi(kYearsTagUChar)) == 0
+				 || path.compare(startIndex, (length = SIZEOFARRAYi(kDayPartsTagUChar)), kDayPartsTagUChar, 0, SIZEOFARRAYi(kDayPartsTagUChar)) == 0) {
 					startIndex += length;
 					length = 0;
 					if(startIndex == path.length()
-					 || path.compare(startIndex, (length = UPRV_LENGTHOF(kFormatTagUChar)), kFormatTagUChar, 0,
-					    UPRV_LENGTHOF(kFormatTagUChar)) == 0) {
+					 || path.compare(startIndex, (length = SIZEOFARRAYi(kFormatTagUChar)), kFormatTagUChar, 0, SIZEOFARRAYi(kFormatTagUChar)) == 0) {
 						startIndex += length;
 						length = 0;
 						if(startIndex == path.length()
-						 || path.compare(startIndex, (length = UPRV_LENGTHOF(kAbbrTagUChar)), kAbbrTagUChar, 0,
-						    UPRV_LENGTHOF(kAbbrTagUChar)) == 0) {
+						 || path.compare(startIndex, (length = SIZEOFARRAYi(kAbbrTagUChar)), kAbbrTagUChar, 0, SIZEOFARRAYi(kAbbrTagUChar)) == 0) {
 							skip = FALSE;
 						}
 					}
@@ -1750,7 +1738,7 @@ struct CalendarDataSink : public ResourceSink {
 				return NONE;
 			}
 			UnicodeString aliasPath(aliasPathUChar, aliasPathSize);
-			const int32_t aliasPrefixLength = UPRV_LENGTHOF(kCalendarAliasPrefixUChar);
+			const int32_t aliasPrefixLength = SIZEOFARRAYi(kCalendarAliasPrefixUChar);
 			if(aliasPath.startsWith(kCalendarAliasPrefixUChar, aliasPrefixLength)
 			 && aliasPath.length() > aliasPrefixLength) {
 				int32_t typeLimit = aliasPath.indexOf(SOLIDUS, aliasPrefixLength);
@@ -1769,7 +1757,7 @@ struct CalendarDataSink : public ResourceSink {
 					 && currentRelativePath == aliasRelativePath) {
 						// If we have an alias to a different calendar, the path to the resource
 						// must be the same
-						if(aliasCalendarType.compare(kGregorianTagUChar, UPRV_LENGTHOF(kGregorianTagUChar)) == 0) {
+						if(aliasCalendarType.compare(kGregorianTagUChar, SIZEOFARRAYi(kGregorianTagUChar)) == 0) {
 							return GREGORIAN;
 						}
 						else if(nextCalendarType.isBogus()) {
@@ -1875,7 +1863,7 @@ static void initLeapMonthPattern(UnicodeString * field, int32_t index, CalendarD
 		UnicodeString pathUString(path.data(), -1, US_INV);
 		Hashtable * leapMonthTable = static_cast<Hashtable*>(sink.maps.get(pathUString));
 		if(leapMonthTable) {
-			UnicodeString leapLabel(FALSE, kLeapTagUChar, UPRV_LENGTHOF(kLeapTagUChar));
+			UnicodeString leapLabel(FALSE, kLeapTagUChar, SIZEOFARRAYi(kLeapTagUChar));
 			UnicodeString * leapMonthPattern = static_cast<UnicodeString *>(leapMonthTable->get(leapLabel));
 			if(leapMonthPattern) {
 				field[index].fastCopyFrom(*leapMonthPattern);
@@ -1953,7 +1941,7 @@ UnicodeString * loadDayPeriodStrings(CalendarDataSink &sink, CharString &path, i
 	UnicodeString pathUString(path.data(), -1, US_INV);
 	Hashtable* map = static_cast<Hashtable*>(sink.maps.get(pathUString));
 
-	stringCount = UPRV_LENGTHOF(dayPeriodKeys);
+	stringCount = SIZEOFARRAYi(dayPeriodKeys);
 	UnicodeString * strings = new UnicodeString[stringCount];
 	if(strings == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
@@ -2085,8 +2073,8 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 		UResourceBundle * ctb = ures_getByKeyWithFallback(cb, calendarTypeCArray, NULL, &status);
 		if(status == U_MISSING_RESOURCE_ERROR) {
 			ures_close(ctb);
-			if(uprv_strcmp(calendarTypeCArray, gGregorianTag) != 0) {
-				calendarType.setTo(FALSE, kGregorianTagUChar, UPRV_LENGTHOF(kGregorianTagUChar));
+			if(strcmp(calendarTypeCArray, gGregorianTag) != 0) {
+				calendarType.setTo(FALSE, kGregorianTagUChar, SIZEOFARRAYi(kGregorianTagUChar));
 				calendarSink.visitAllResources();
 				status = oldStatus;
 				continue;
@@ -2099,14 +2087,14 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 		ures_close(ctb);
 		if(U_FAILURE(status)) break;
 		// Stop loading when gregorian was loaded
-		if(uprv_strcmp(calendarTypeCArray, gGregorianTag) == 0) {
+		if(strcmp(calendarTypeCArray, gGregorianTag) == 0) {
 			break;
 		}
 		// Get the next calendar type to process from the sink
 		calendarType = calendarSink.nextCalendarType;
 		// Gregorian is always the last fallback
 		if(calendarType.isBogus()) {
-			calendarType.setTo(FALSE, kGregorianTagUChar, UPRV_LENGTHOF(kGregorianTagUChar));
+			calendarType.setTo(FALSE, kGregorianTagUChar, SIZEOFARRAYi(kGregorianTagUChar));
 			calendarSink.visitAllResources();
 		}
 	}
@@ -2168,14 +2156,12 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 						int32_t compResult = 0;
 						// linear search; list is short and we cannot be sure that bsearch is
 						// available
-						while(typeMapPtr->usageTypeName && (compResult = uprv_strcmp(usageType, typeMapPtr->usageTypeName)) > 0) {
+						while(typeMapPtr->usageTypeName && (compResult = strcmp(usageType, typeMapPtr->usageTypeName)) > 0) {
 							++typeMapPtr;
 						}
 						if(typeMapPtr->usageTypeName && compResult == 0) {
-							fCapitalization[typeMapPtr->usageTypeEnumValue][0] =
-							    static_cast<bool>(intVector[0]);
-							fCapitalization[typeMapPtr->usageTypeEnumValue][1] =
-							    static_cast<bool>(intVector[1]);
+							fCapitalization[typeMapPtr->usageTypeEnumValue][0] = static_cast<bool>(intVector[0]);
+							fCapitalization[typeMapPtr->usageTypeEnumValue][1] = static_cast<bool>(intVector[1]);
 						}
 					}
 				}

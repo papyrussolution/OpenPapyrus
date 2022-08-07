@@ -69,7 +69,7 @@ static void U_CALLCONV TestStream(void)
 		return;
 	}
 	ucnv_close(defConv);
-	strncpy(defConvName, ucnv_getDefaultName(), UPRV_LENGTHOF(defConvName));
+	strncpy(defConvName, ucnv_getDefaultName(), SIZEOFARRAYi(defConvName));
 	ucnv_setDefaultName("UTF-8");
 
 	static const char * const TESTSTRING = "\x20\x74\x48\x69\x73\xCE\xBC\xE2\x80\x82\x20\x6D\x75\x20\x77\x6F\x72\x6C\x64";
@@ -145,7 +145,7 @@ static void U_CALLCONV TestStream(void)
 	ostrstream outLargeStream(testLargeStreamBuf, sizeof(testLargeStreamBuf));
 #endif
 	UChar large_array[200];
-	int32_t large_array_length = UPRV_LENGTHOF(large_array);
+	int32_t large_array_length = SIZEOFARRAYi(large_array);
 	for(int32_t i = 0; i < large_array_length; i++) {
 		large_array[i] = 0x41;
 	}

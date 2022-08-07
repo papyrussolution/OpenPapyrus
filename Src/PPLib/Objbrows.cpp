@@ -471,8 +471,8 @@ int PPListDialog::addStringToList(long itemId, const char * pText)
 void PPListDialog::updateList(long pos, int byPos /*= 1*/)
 {
 	SmartListBox * p_box = P_Box;
-	if(SmartListBox::IsValidS(p_box)) {
-		const long sav_pos = p_box->P_Def->_curItem();
+	if(p_box) {
+		const long sav_pos = p_box->P_Def ? p_box->P_Def->_curItem() : 0;
 		p_box->freeAll();
 		if(setupList()) {
 			p_box->Draw_();

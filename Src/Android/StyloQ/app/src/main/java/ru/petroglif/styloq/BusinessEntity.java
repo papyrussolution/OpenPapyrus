@@ -53,4 +53,25 @@ public class BusinessEntity {
 		int    BaseUnitID;
 		double BaseRatio;
 	}
+	public static class Brand {
+		Brand()
+		{
+			ID = 0;
+			Name = null;
+		}
+		public boolean FromJsonObj(JSONObject jsObj)
+		{
+			boolean result = false;
+			if(jsObj != null) {
+				ID = jsObj.optInt("id", 0);
+				if(ID > 0) {
+					Name = jsObj.optString("nm", null);
+					result = true;
+				}
+			}
+			return result;
+		}
+		int    ID;
+		String Name;
+	}
 }

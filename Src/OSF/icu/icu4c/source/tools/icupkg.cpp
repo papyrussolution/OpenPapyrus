@@ -258,7 +258,7 @@ extern int main(int argc, char * argv[]) {
 	/* get the program basename */
 	pname = findBasename(argv[0]);
 
-	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
+	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 	isHelp = options[OPT_HELP_H].doesOccur || options[OPT_HELP_QUESTION_MARK].doesOccur;
 	if(isHelp) {
 		printUsage(pname, TRUE);

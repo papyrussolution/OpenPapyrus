@@ -441,7 +441,7 @@ U_CAPI UCHARBUF* U_EXPORT2 ucbuf_open(const char * fileName, const char ** cp, b
 		*error = U_ILLEGAL_ARGUMENT_ERROR;
 		return FALSE;
 	}
-	if(!uprv_strcmp(fileName, "-")) {
+	if(!strcmp(fileName, "-")) {
 		in = T_FileStream_stdin();
 	}
 	else {
@@ -632,8 +632,8 @@ U_CAPI const char * U_EXPORT2 ucbuf_resolveFileName(const char * inputDir,
 		return NULL;
 	}
 
-	dirlen  = (int32_t)uprv_strlen(inputDir);
-	filelen = (int32_t)uprv_strlen(fileName);
+	dirlen  = (int32_t)strlen(inputDir);
+	filelen = (int32_t)strlen(fileName);
 	if(inputDir[dirlen-1] != U_FILE_SEP_CHAR) {
 		requiredLen = dirlen + filelen + 2;
 		if((*len < requiredLen) || target==NULL) {
@@ -655,7 +655,7 @@ U_CAPI const char * U_EXPORT2 ucbuf_resolveFileName(const char * inputDir,
 		 * genrb -s. icu/data  --- start from CWD and look in icu/data dir
 		 */
 		if((fileName[0] != U_FILE_SEP_CHAR) && (inputDir[dirlen-1] !='.')) {
-			uprv_strcpy(target, inputDir);
+			strcpy(target, inputDir);
 			target[dirlen] = U_FILE_SEP_CHAR;
 		}
 		target[dirlen + 1] = '\0';
@@ -668,7 +668,7 @@ U_CAPI const char * U_EXPORT2 ucbuf_resolveFileName(const char * inputDir,
 			return NULL;
 		}
 
-		uprv_strcpy(target, inputDir);
+		strcpy(target, inputDir);
 	}
 
 	uprv_strcat(target, fileName);

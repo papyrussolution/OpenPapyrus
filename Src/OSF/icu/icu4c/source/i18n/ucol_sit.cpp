@@ -128,7 +128,7 @@ static const AttributeConversion conversions[12] = {
 
 static UColAttributeValue ucol_sit_letterToAttributeValue(char letter, UErrorCode * status) {
 	uint32_t i = 0;
-	for(i = 0; i < UPRV_LENGTHOF(conversions); i++) {
+	for(i = 0; i < SIZEOFARRAYi(conversions); i++) {
 		if(conversions[i].letter == letter) {
 			return conversions[i].value;
 		}

@@ -2798,7 +2798,7 @@ U_CAPI int32_t U_EXPORT2 unorm2_swap(const UDataSwapper * ds,
 	}
 
 	/* read the first few indexes */
-	for(i = 0; i<UPRV_LENGTHOF(indexes); ++i) {
+	for(i = 0; i<SIZEOFARRAYi(indexes); ++i) {
 		indexes[i] = udata_readInt32(ds, inIndexes[i]);
 	}
 

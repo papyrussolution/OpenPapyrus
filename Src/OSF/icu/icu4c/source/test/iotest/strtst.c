@@ -29,8 +29,8 @@ static void TestString()
 	U_STRING_DECL(myStringOrig, "My-String", 9);
 
 	U_STRING_INIT(myStringOrig, "My-String", 9);
-	u_memset(myUString, 0x0a, UPRV_LENGTHOF(myUString));
-	u_memset(uStringBuf, 0x0a, UPRV_LENGTHOF(uStringBuf));
+	u_memset(myUString, 0x0a, SIZEOFARRAYi(myUString));
+	u_memset(uStringBuf, 0x0a, SIZEOFARRAYi(uStringBuf));
 
 	*n = -1234;
 	if(sizeof(void *) == 4) {
@@ -164,14 +164,14 @@ static void TestString()
 
 	u_sprintf(uStringBuf, "Unicode String %%S: %S", myStringOrig);
 	u_sscanf(uStringBuf, "Unicode String %%S: %S", myUString);
-	u_austrncpy(myString, myUString, UPRV_LENGTHOF(myString));
+	u_austrncpy(myString, myUString, SIZEOFARRAYi(myString));
 	if(strcmp(myString, "My-String")) {
 		log_err("%%S Got: %s, Expected: My String\n", myString);
 	}
 
 	u_sprintf(uStringBuf, "NULL Unicode String %%S: %S", NULL);
 	u_sscanf(uStringBuf, "NULL Unicode String %%S: %S", myUString);
-	u_austrncpy(myString, myUString, UPRV_LENGTHOF(myString));
+	u_austrncpy(myString, myUString, SIZEOFARRAYi(myString));
 	if(strcmp(myString, "(null)")) {
 		log_err("%%S Got: %s, Expected: (null)\n", myString);
 	}
@@ -203,7 +203,7 @@ static void TestString()
 		    "This is a long test12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
 
 		retVal = u_sprintf(uStringBuf, longStr);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(uStringBuf));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(uStringBuf));
 		if(strcmp(myString, longStr)) {
 			log_err("%%S Got: %s, Expected: %s\n", myString, longStr);
 		}
@@ -212,7 +212,7 @@ static void TestString()
 		}
 
 		retVal = u_sprintf(uStringBuf, "%s", longStr);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(uStringBuf));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(uStringBuf));
 		if(strcmp(myString, longStr)) {
 			log_err("%%S Got: %s, Expected: %s\n", myString, longStr);
 		}
@@ -220,13 +220,13 @@ static void TestString()
 			log_err("%%S returned different sizes. Got: %d  Expected: %d\n", retVal, strlen(longStr));
 		}
 
-		u_uastrncpy(myUString, longStr, UPRV_LENGTHOF(longStr));
+		u_uastrncpy(myUString, longStr, SIZEOFARRAYi(longStr));
 		u_sprintf_u(uStringBuf, myUString);
 		if(u_strcmp(myUString, uStringBuf)) {
 			log_err("%%S Long strings differ. Expected: %s\n", longStr);
 		}
 
-		u_uastrncpy(myUString, longStr, UPRV_LENGTHOF(longStr));
+		u_uastrncpy(myUString, longStr, SIZEOFARRAYi(longStr));
 		retVal = u_sprintf_u(uStringBuf, myUString+10);
 		if(u_strcmp(myUString+10, uStringBuf)) {
 			log_err("%%S Long strings differ. Expected: %s\n", longStr + 10);
@@ -235,8 +235,8 @@ static void TestString()
 			log_err("%%S returned different sizes. Got: %d  Expected: %d\n", retVal, strlen(longStr));
 		}
 
-		u_memset(uStringBuf, 1, UPRV_LENGTHOF(longStr));
-		u_uastrncpy(myUString, longStr, UPRV_LENGTHOF(longStr));
+		u_memset(uStringBuf, 1, SIZEOFARRAYi(longStr));
+		u_uastrncpy(myUString, longStr, SIZEOFARRAYi(longStr));
 		retVal = u_snprintf_u(uStringBuf, 10, myUString);
 		if(u_strncmp(myUString, uStringBuf, 10) || uStringBuf[10] != 1 || retVal != 10) {
 			log_err("%%S Long strings differ. Expected the first 10 characters of %s\n", longStr);
@@ -252,7 +252,7 @@ static void TestLocalizedString() {
 	char cBuffer[256];
 	int32_t numResult = -1;
 	const char * locale;
-	UFILE * strFile = u_fstropen(testStr, UPRV_LENGTHOF(testStr), "en_US");
+	UFILE * strFile = u_fstropen(testStr, SIZEOFARRAYi(testStr), "en_US");
 
 	if(!strFile) {
 		log_err("u_fstropen failed to work\n");
@@ -295,7 +295,7 @@ static void TestLocalizedString() {
 		log_err("u_fscanf failed to work on a de string Got: %d\n", numResult);
 	}
 
-	strFile = u_fstropen(testStr, UPRV_LENGTHOF(testStr), NULL);
+	strFile = u_fstropen(testStr, SIZEOFARRAYi(testStr), NULL);
 	u_fprintf(strFile, "%d", 1234);
 	u_frewind(strFile);
 	numResult = -1;
@@ -312,9 +312,9 @@ static void TestLocalizedString() {
 
 #if !UCONFIG_NO_FORMATTING
 #define Test_u_snprintf(limit, format, value, expectedSize, expectedStr) UPRV_BLOCK_MACRO_BEGIN { \
-		u_uastrncpy(testStr, "xxxxxxxxxxxxxx", UPRV_LENGTHOF(testStr)); \
+		u_uastrncpy(testStr, "xxxxxxxxxxxxxx", SIZEOFARRAYi(testStr)); \
 		size = u_snprintf(testStr, limit, format, value); \
-		u_austrncpy(cTestResult, testStr, UPRV_LENGTHOF(cTestResult)); \
+		u_austrncpy(cTestResult, testStr, SIZEOFARRAYi(cTestResult)); \
 		if(size != expectedSize || strcmp(cTestResult, expectedStr) != 0) { \
 			log_err("Unexpected formatting. size=%d expectedSize=%d cTestResult=%s expectedStr=%s\n", \
 			    size, expectedSize, cTestResult, expectedStr); \
@@ -357,11 +357,11 @@ static void TestSnprintf()
 
 #define TestSPrintFormat(uFormat, uValue, cFormat, cValue) UPRV_BLOCK_MACRO_BEGIN { \
 		/* Reinitialize the buffer to verify null termination works. */ \
-		u_memset(uBuffer, 0x2a, UPRV_LENGTHOF(uBuffer)); \
-		memset(buffer, '*', UPRV_LENGTHOF(buffer)); \
+		u_memset(uBuffer, 0x2a, SIZEOFARRAYi(uBuffer)); \
+		memset(buffer, '*', SIZEOFARRAYi(buffer)); \
     \
 		uNumPrinted = u_sprintf(uBuffer, uFormat, uValue); \
-		u_austrncpy(compBuffer, uBuffer, UPRV_LENGTHOF(uBuffer)); \
+		u_austrncpy(compBuffer, uBuffer, SIZEOFARRAYi(uBuffer)); \
 		cNumPrinted = sprintf(buffer, cFormat, cValue); \
 		if(strcmp(buffer, compBuffer) != 0) { \
 			log_err("%" uFormat " Got: \"%s\", Expected: \"%s\"\n", compBuffer, buffer); \
@@ -493,7 +493,7 @@ static void TestSprintfFormat() {
 
 	/* Test reordering format */
 	u_sprintf(uBuffer, reorderFormat, "truncateiftoolong", 99, 990099, "12345678901234567890", 10, 0x123456789abcdef2LL);
-	u_austrncpy(compBuffer, uBuffer, UPRV_LENGTHOF(uBuffer));
+	u_austrncpy(compBuffer, uBuffer, SIZEOFARRAYi(uBuffer));
 
 	if(strcmp(compBuffer, reorderResult) != 0) {
 		log_err("%s Got: \"%s\", Expected: \"%s\"\n", reorderFormat, compBuffer, buffer);
@@ -511,28 +511,28 @@ static void TestStringCompatibility() {
 	char testBuf[256] = "";
 	int32_t num;
 
-	u_memset(myUString, 0x0a, UPRV_LENGTHOF(myUString));
-	u_memset(uStringBuf, 0x0a, UPRV_LENGTHOF(uStringBuf));
+	u_memset(myUString, 0x0a, SIZEOFARRAYi(myUString));
+	u_memset(uStringBuf, 0x0a, SIZEOFARRAYi(uStringBuf));
 
 	/* Compare against C API compatibility */
 	for(num = -STANDARD_TEST_NUM_RANGE; num < STANDARD_TEST_NUM_RANGE; num++) {
 		sprintf(testBuf, "%x", (int)num);
 		u_sprintf(uStringBuf, "%x", num);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
 		if(strcmp(myString, testBuf) != 0) {
 			log_err("%%x Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
 		}
 
 		sprintf(testBuf, "%X", (int)num);
 		u_sprintf(uStringBuf, "%X", num);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
 		if(strcmp(myString, testBuf) != 0) {
 			log_err("%%X Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
 		}
 
 		sprintf(testBuf, "%o", (int)num);
 		u_sprintf(uStringBuf, "%o", num);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
 		if(strcmp(myString, testBuf) != 0) {
 			log_err("%%o Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
 		}
@@ -540,49 +540,49 @@ static void TestStringCompatibility() {
 		/* sprintf is not compatible on all platforms e.g. the iSeries*/
 		sprintf(testBuf, "%d", (int)num);
 		u_sprintf(uStringBuf, "%d", num);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
 		if(strcmp(myString, testBuf) != 0) {
 			log_err("%%d Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
 		}
 
 		sprintf(testBuf, "%i", (int)num);
 		u_sprintf(uStringBuf, "%i", num);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
 		if(strcmp(myString, testBuf) != 0) {
 			log_err("%%i Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
 		}
 
 		sprintf(testBuf, "%f", (double)num);
 		u_sprintf(uStringBuf, "%f", (double)num);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
 		if(strcmp(myString, testBuf) != 0) {
 			log_err("%%f Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
 		}
 
 /*        sprintf(testBuf, "%e", (double)num);
         u_sprintf(uStringBuf, "%e", (double)num);
-        u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+        u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
         if(strcmp(myString, testBuf) != 0) {
             log_err("%%e Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
         }
 
         sprintf(testBuf, "%E", (double)num);
         u_sprintf(uStringBuf, "%E", (double)num);
-        u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+        u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
         if(strcmp(myString, testBuf) != 0) {
             log_err("%%E Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
         }*/
 
 		sprintf(testBuf, "%g", (double)num);
 		u_sprintf(uStringBuf, "%g", (double)num);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
 		if(strcmp(myString, testBuf) != 0) {
 			log_err("%%g Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
 		}
 
 		sprintf(testBuf, "%G", (double)num);
 		u_sprintf(uStringBuf, "%G", (double)num);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
 		if(strcmp(myString, testBuf) != 0) {
 			log_err("%%G Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
 		}
@@ -593,7 +593,7 @@ static void TestStringCompatibility() {
 		uStringBuf[0] = (UChar)0xfffe;
 		sprintf(testBuf, "%c", (char)num);
 		u_sprintf(uStringBuf, "%c", num);
-		u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
+		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
 		if(testBuf[0] != myString[0] || myString[0] != num) {
 			log_err("%%c Got: 0x%x, Expected: 0x%x\n", myString[0], testBuf[0]);
 		}
@@ -610,16 +610,16 @@ static void TestSScanSetFormat(const char * format, const UChar * uValue, const 
 	int32_t cNumScanned;
 
 	/* Reinitialize the buffer to verify null termination works. */
-	u_memset(uBuffer, 0x2a, UPRV_LENGTHOF(uBuffer));
-	uBuffer[UPRV_LENGTHOF(uBuffer)-1] = 0;
-	memset(buffer, '*', UPRV_LENGTHOF(buffer));
-	buffer[UPRV_LENGTHOF(buffer)-1] = 0;
+	u_memset(uBuffer, 0x2a, SIZEOFARRAYi(uBuffer));
+	uBuffer[SIZEOFARRAYi(uBuffer)-1] = 0;
+	memset(buffer, '*', SIZEOFARRAYi(buffer));
+	buffer[SIZEOFARRAYi(buffer)-1] = 0;
 
 	uNumScanned = u_sscanf(uValue, format, uBuffer);
 	if(expectedToPass) {
-		u_austrncpy(compBuffer, uBuffer, UPRV_LENGTHOF(uBuffer));
+		u_austrncpy(compBuffer, uBuffer, SIZEOFARRAYi(uBuffer));
 		cNumScanned = sscanf(cValue, format, buffer);
-		if(strncmp(buffer, compBuffer, UPRV_LENGTHOF(uBuffer)) != 0) {
+		if(strncmp(buffer, compBuffer, SIZEOFARRAYi(uBuffer)) != 0) {
 			log_err("%s Got: \"%s\", Expected: \"%s\"\n", format, compBuffer, buffer);
 		}
 		if(cNumScanned != uNumScanned) {
@@ -692,8 +692,8 @@ static void TestBadSScanfFormat(const char * format, const UChar * uValue, const
 	int32_t uNumScanned;
 
 	/* Reinitialize the buffer to verify null termination works. */
-	u_memset(uBuffer, 0x2a, UPRV_LENGTHOF(uBuffer));
-	uBuffer[UPRV_LENGTHOF(uBuffer)-1] = 0;
+	u_memset(uBuffer, 0x2a, SIZEOFARRAYi(uBuffer));
+	uBuffer[SIZEOFARRAYi(uBuffer)-1] = 0;
 
 	uNumScanned = u_sscanf(uValue, format, uBuffer);
 	if(uNumScanned != 0 || uBuffer[0] != 0x2a || uBuffer[1] != 0x2a) {

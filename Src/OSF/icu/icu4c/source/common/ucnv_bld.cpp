@@ -358,7 +358,7 @@ static const UConverterSharedData * getAlgorithmicTypeFromName(const char * real
 
 	/* do a binary search for the alias */
 	start = 0;
-	limit = UPRV_LENGTHOF(cnvNameType);
+	limit = SIZEOFARRAYi(cnvNameType);
 	mid = limit;
 	lastMid = UINT32_MAX;
 
@@ -368,7 +368,7 @@ static const UConverterSharedData * getAlgorithmicTypeFromName(const char * real
 			break; /* We haven't moved, and it wasn't found. */
 		}
 		lastMid = mid;
-		result = uprv_strcmp(strippedName, cnvNameType[mid].name);
+		result = strcmp(strippedName, cnvNameType[mid].name);
 
 		if(result < 0) {
 			limit = mid;
@@ -1105,7 +1105,7 @@ U_CFUNC const char * ucnv_bld_getAvailableConverter(uint16 n, UErrorCode * pErro
 static inline void internalSetName(const char * name, UErrorCode * status) {
 	UConverterNamePieces stackPieces;
 	UConverterLoadArgs stackArgs = UCNV_LOAD_ARGS_INITIALIZER;
-	int32_t length = (int32_t)(uprv_strlen(name));
+	int32_t length = (int32_t)(strlen(name));
 	bool containsOption = (bool)(uprv_strchr(name, UCNV_OPTION_SEP_CHAR) != NULL);
 	const UConverterSharedData * algorithmicSharedData;
 
@@ -1181,7 +1181,7 @@ U_CAPI const char * U_EXPORT2 ucnv_getDefaultName() {
 
 		if(name == NULL || name[0] == 0
 		 || U_FAILURE(errorCode) || cnv == NULL
-		 || uprv_strlen(name)>=sizeof(gDefaultConverterNameBuffer)) {
+		 || strlen(name)>=sizeof(gDefaultConverterNameBuffer)) {
 			/* Panic time, let's use a fallback. */
 #if(U_CHARSET_FAMILY == U_ASCII_FAMILY)
 			name = "US-ASCII";
@@ -1338,7 +1338,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 		ds->swapArray32(ds, &inStaticData->codepage, 4,
 		    &outStaticData->codepage, pErrorCode);
 
-		ds->swapInvChars(ds, inStaticData->name, (int32_t)uprv_strlen(inStaticData->name),
+		ds->swapInvChars(ds, inStaticData->name, (int32_t)strlen(inStaticData->name),
 		    outStaticData->name, pErrorCode);
 		if(U_FAILURE(*pErrorCode)) {
 			udata_printError(ds, "ucnv_swap(): error swapping converter name\n");
@@ -1486,7 +1486,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 				/* swap the base name, between the header and the extension data */
 				const char * inBaseName = (const char *)inBytes+count;
 				char * outBaseName = (char *)outBytes+count;
-				ds->swapInvChars(ds, inBaseName, (int32_t)uprv_strlen(inBaseName),
+				ds->swapInvChars(ds, inBaseName, (int32_t)strlen(inBaseName),
 				    outBaseName, pErrorCode);
 			}
 			else {

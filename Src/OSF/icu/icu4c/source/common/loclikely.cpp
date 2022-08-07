@@ -567,7 +567,7 @@ static bool _uloc_addLikelySubtags(const char * localeID, icu::ByteSink& sink, U
 	success = createLikelySubtagsString(lang, langLength, script, scriptLength, region, regionLength,
 		trailing, trailingLength, sink, err);
 	if(!success) {
-		const int32_t localIDLength = (int32_t)uprv_strlen(localeID);
+		const int32_t localIDLength = (int32_t)strlen(localeID);
 		/*
 		 * If we get here, we need to return localeID.
 		 */
@@ -619,7 +619,7 @@ static void _uloc_minimizeSubtags(const char * localeID, icu::ByteSink& sink, UE
 		trailingIndex++;
 	}
 	trailing = &localeID[trailingIndex];
-	trailingLength = (int32_t)uprv_strlen(trailing);
+	trailingLength = (int32_t)strlen(trailing);
 	CHECK_TRAILING_VARIANT_SIZE(trailing, trailingLength);
 	{
 		icu::CharString base;
@@ -643,7 +643,7 @@ static void _uloc_minimizeSubtags(const char * localeID, icu::ByteSink& sink, UE
 		/**
 		 * If we got here, return the locale ID parameter unchanged.
 		 **/
-		const int32_t localeIDLength = (int32_t)uprv_strlen(localeID);
+		const int32_t localeIDLength = (int32_t)strlen(localeID);
 		sink.Append(localeID, localeIDLength);
 		return;
 	}
@@ -816,14 +816,14 @@ static const char LANG_DIR_STRING[] =
 U_CAPI bool U_EXPORT2 uloc_isRightToLeft(const char * locale) {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	char script[8];
-	int32_t scriptLength = uloc_getScript(locale, script, UPRV_LENGTHOF(script), &errorCode);
+	int32_t scriptLength = uloc_getScript(locale, script, SIZEOFARRAYi(script), &errorCode);
 	if(U_FAILURE(errorCode) || errorCode == U_STRING_NOT_TERMINATED_WARNING ||
 	    scriptLength == 0) {
 		// Fastpath: We know the likely scripts and their writing direction
 		// for some common languages.
 		errorCode = U_ZERO_ERROR;
 		char lang[8];
-		int32_t langLength = uloc_getLanguage(locale, lang, UPRV_LENGTHOF(lang), &errorCode);
+		int32_t langLength = uloc_getLanguage(locale, lang, SIZEOFARRAYi(lang), &errorCode);
 		if(U_FAILURE(errorCode) || errorCode == U_STRING_NOT_TERMINATED_WARNING) {
 			return FALSE;
 		}
@@ -847,7 +847,7 @@ U_CAPI bool U_EXPORT2 uloc_isRightToLeft(const char * locale) {
 		if(U_FAILURE(errorCode) || errorCode == U_STRING_NOT_TERMINATED_WARNING) {
 			return FALSE;
 		}
-		scriptLength = uloc_getScript(likely.data(), script, UPRV_LENGTHOF(script), &errorCode);
+		scriptLength = uloc_getScript(likely.data(), script, SIZEOFARRAYi(script), &errorCode);
 		if(U_FAILURE(errorCode) || errorCode == U_STRING_NOT_TERMINATED_WARNING ||
 		    scriptLength == 0) {
 			return FALSE;
@@ -884,7 +884,7 @@ U_CAPI int32_t U_EXPORT2 ulocimp_getRegionForSupplementalData(const char * local
 		for(; *rgPtr!= 0; rgPtr++) {
 			*rgPtr = uprv_toupper(*rgPtr);
 		}
-		rgLen = (uprv_strcmp(rgBuf+2, "ZZZZ") == 0) ? 2 : 0;
+		rgLen = (strcmp(rgBuf+2, "ZZZZ") == 0) ? 2 : 0;
 	}
 
 	if(rgLen == 0) {

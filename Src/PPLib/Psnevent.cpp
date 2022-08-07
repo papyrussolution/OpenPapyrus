@@ -294,7 +294,7 @@ const char * PPObjPersonEvent::GetNamePtr()
 			GetObjectName(PPOBJ_PERSON, r_rec.SecondID, NameBuf, 1);
 		}
 		{
-			SString r_temp_buf = SLS.AcquireRvlStr();
+			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v11.4.6 @fix (SString r_temp_buf)-->SString & r_temp_buf
 			P_Tbl->GetItemMemo(r_rec.ID, r_temp_buf);
 			if(r_temp_buf.NotEmptyS())
 				NameBuf.CatDiv('-', 1).Cat(r_temp_buf);

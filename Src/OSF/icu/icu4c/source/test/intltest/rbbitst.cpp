@@ -1178,7 +1178,7 @@ bool RBBITest::testCaseIsKnownIssue(const UnicodeString & testCase, const char *
 		{"21097", "LineBreakTest.txt", u"a.2\u3000\u300C"},
 	};
 
-	for(int n = 0; n<UPRV_LENGTHOF(badTestCases); n++) {
+	for(int n = 0; n<SIZEOFARRAYi(badTestCases); n++) {
 		const TestCase &badCase = badTestCases[n];
 		if(!strcmp(fileName, badCase.fFileName) &&
 		    testCase == UnicodeString(badCase.fString)) {
@@ -3379,7 +3379,7 @@ void RBBITest::TestWordBreaks(void)
 		errcheckln(status, "Creation of break iterator failed %s", u_errorName(status));
 		return;
 	}
-	for(loop = 0; loop < UPRV_LENGTHOF(strlist); loop++) {
+	for(loop = 0; loop < SIZEOFARRAYi(strlist); loop++) {
 		// printf("looping %d\n", loop);
 		UnicodeString ustr = CharsToUnicodeString(strlist[loop]);
 		// RBBICharMonkey monkey;
@@ -3446,8 +3446,8 @@ void RBBITest::TestWordBoundary(void)
 		"\\u003b\\u0027\\u00b7\\u47a3",
 	};
 	int loop;
-	for(loop = 0; loop < UPRV_LENGTHOF(strlist); loop++) {
-		u_unescape(strlist[loop], str, UPRV_LENGTHOF(str));
+	for(loop = 0; loop < SIZEOFARRAYi(strlist); loop++) {
+		u_unescape(strlist[loop], str, SIZEOFARRAYi(str));
 		UnicodeString ustr(str);
 		int forward[50];
 		int count = 0;
@@ -3456,7 +3456,7 @@ void RBBITest::TestWordBoundary(void)
 		int prev = -1;
 		for(int32_t boundary = bi->first(); boundary != BreakIterator::DONE; boundary = bi->next()) {
 			++count;
-			if(count >= UPRV_LENGTHOF(forward)) {
+			if(count >= SIZEOFARRAYi(forward)) {
 				errln("%s:%d too many breaks found. (loop, count, boundary) = (%d, %d, %d)",
 				    __FILE__, __LINE__, loop, count, boundary);
 				return;
@@ -3548,7 +3548,7 @@ void RBBITest::TestLineBreaks(void)
 	if(U_FAILURE(status)) {
 		return;
 	}
-	for(loop = 0; loop < UPRV_LENGTHOF(strlist); loop++) {
+	for(loop = 0; loop < SIZEOFARRAYi(strlist); loop++) {
 		// printf("looping %d\n", loop);
 		int32_t t = u_unescape(strlist[loop], str, STRSIZE);
 		if(t >= STRSIZE) {
@@ -3618,8 +3618,8 @@ void RBBITest::TestSentBreaks(void)
 		errcheckln(status, "Creation of break iterator failed %s", u_errorName(status));
 		return;
 	}
-	for(loop = 0; loop < UPRV_LENGTHOF(strlist); loop++) {
-		u_unescape(strlist[loop], str, UPRV_LENGTHOF(str));
+	for(loop = 0; loop < SIZEOFARRAYi(strlist); loop++) {
+		u_unescape(strlist[loop], str, SIZEOFARRAYi(str));
 		UnicodeString ustr(str);
 
 		RBBISentMonkey monkey;
@@ -4027,7 +4027,7 @@ void RBBITest::RunMonkey(BreakIterator * bi, RBBIMonkeyKind &mk, const char * na
 					u_charName(c, U_EXTENDED_CHAR_NAME, cName, sizeof(cName), &status);
 
 					char buffer[200];
-					auto ret = snprintf(buffer, UPRV_LENGTHOF(buffer),
+					auto ret = snprintf(buffer, SIZEOFARRAYi(buffer),
 						"%4s %3i :  %1s  %1s  %10s  %-*s  %-40s  %-40s",
 						currentLineFlag.c_str(),
 						ci,
@@ -4038,7 +4038,7 @@ void RBBITest::RunMonkey(BreakIterator * bi, RBBIMonkeyKind &mk, const char * na
 						mk.classNameFromCodepoint(c).c_str(),
 						mk.getAppliedRule(ci).c_str(), cName);
 					(void)ret;
-					U_ASSERT(0 <= ret && ret < UPRV_LENGTHOF(buffer));
+					U_ASSERT(0 <= ret && ret < SIZEOFARRAYi(buffer));
 
 					// Output the error
 					if(ci == i) {

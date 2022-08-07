@@ -972,7 +972,7 @@ void RBBITableBuilder::setAdd(UVector * dest, UVector * source)
 		}
 		// This check is required for machines with segmented memory, like i5/OS.
 		// Direct pointer comparison is not recommended.
-		else if(uprv_memcmp(destPtr, sourcePtr, sizeof(void *)) < 0) {
+		else if(memcmp(destPtr, sourcePtr, sizeof(void *)) < 0) {
 			dest->setElementAt(*destPtr++, di++);
 		}
 		else { /* *sourcePtr < *destPtr */

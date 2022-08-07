@@ -42,7 +42,7 @@ U_CAPI int U_EXPORT2 u_parseArgs(int argc, char * argv[], int optionCount, UOpti
 					/* search for the option string */
 					int j;
 					for(j = 0; j<optionCount; ++j) {
-						if(options[j].longName && uprv_strcmp(arg, options[j].longName)==0) {
+						if(options[j].longName && strcmp(arg, options[j].longName)==0) {
 							option = options+j;
 							break;
 						}

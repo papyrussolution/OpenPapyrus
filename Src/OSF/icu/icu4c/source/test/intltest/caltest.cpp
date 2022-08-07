@@ -2504,7 +2504,7 @@ void CalendarTest::TestISO8601() {
 			errln("Error: Failed to create a calendar for locale: %s", TEST_LOCALES[i]);
 			continue;
 		}
-		if(uprv_strcmp(cal->getType(), "gregorian") != 0) {
+		if(strcmp(cal->getType(), "gregorian") != 0) {
 			errln("Error: Gregorian calendar is not used for locale: %s", TEST_LOCALES[i]);
 			continue;
 		}
@@ -3048,7 +3048,7 @@ void CalendarTest::TestTimeZoneInLocale() {
 		{ "it-u-ca-roc-tz-aruaq",              "America/Argentina/San_Juan", "roc" },
 	};
 
-	for(int32_t i = 0; i < UPRV_LENGTHOF(tests); ++i) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(tests); ++i) {
 		UErrorCode status = U_ZERO_ERROR;
 		const char ** testLine = tests[i];
 		Locale locale(testLine[0]);

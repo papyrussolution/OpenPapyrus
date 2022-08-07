@@ -24,7 +24,7 @@ int QuotFilt::IsSeries() const
 	return BIN(Flags & fSeries && GoodsID && QuotKindID);
 }
 
-int QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int QuotFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 4) {

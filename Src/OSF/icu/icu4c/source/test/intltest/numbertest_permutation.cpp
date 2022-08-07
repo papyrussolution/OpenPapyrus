@@ -90,7 +90,7 @@ void NumberPermutationTest::testPermutations() {
 	// Convert kSkeletonParts to a more convenient data structure
 	auto skeletonParts = std::vector<std::vector<const char16_t*> >();
 	auto currentSection = std::vector<const char16_t*>();
-	for(int32_t i = 0; i < UPRV_LENGTHOF(kSkeletonParts); i++) {
+	for(int32_t i = 0; i < SIZEOFARRAYi(kSkeletonParts); i++) {
 		const char16_t* skeletonPart = kSkeletonParts[i];
 		if(skeletonPart == nullptr) {
 			skeletonParts.push_back(currentSection);

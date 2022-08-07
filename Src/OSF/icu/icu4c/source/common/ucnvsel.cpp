@@ -112,12 +112,10 @@ static void generateSelectorData(UConverterSelector* result, UPropsVectors * upv
 			uset_getItem(excludedCodePoints, j, &start_char, &end_char, NULL, 0,
 			    status);
 			for(int32_t col = 0; col < columns; col++) {
-				upvec_setValue(upvec, start_char, end_char, col, static_cast<uint32_t>(~0), static_cast<uint32_t>(~0),
-				    status);
+				upvec_setValue(upvec, start_char, end_char, col, static_cast<uint32_t>(~0), static_cast<uint32_t>(~0), status);
 			}
 		}
 	}
-
 	// alright. Now, let's put things in the same exact form you'd get when you
 	// unserialize things.
 	result->trie = upvec_compactToUTrie2WithRowIndexes(upvec, status);
@@ -128,9 +126,8 @@ static void generateSelectorData(UConverterSelector* result, UPropsVectors * upv
 
 /* open a selector. If converterListSize is 0, build for all converters.
    If excludedCodePoints is NULL, don't exclude any codepoints */
-U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_open(const char * const*  converterList, int32_t converterListSize,
-    const USet* excludedCodePoints,
-    const UConverterUnicodeSet whichSet, UErrorCode * status) {
+U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_open(const char * const*  converterList, int32_t converterListSize, const USet* excludedCodePoints, const UConverterUnicodeSet whichSet, UErrorCode * status) 
+{
 	// check if already failed
 	if(U_FAILURE(*status)) {
 		return NULL;
@@ -140,10 +137,8 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_open(const char * const*  converter
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
-
 	// allocate a new converter
-	LocalUConverterSelectorPointer newSelector(
-		(UConverterSelector*)uprv_malloc(sizeof(UConverterSelector)));
+	LocalUConverterSelectorPointer newSelector((UConverterSelector*)uprv_malloc(sizeof(UConverterSelector)));
 	if(newSelector.isNull()) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
@@ -153,20 +148,17 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_open(const char * const*  converter
 		converterList = NULL;
 		converterListSize = ucnv_countAvailable();
 	}
-	newSelector->encodings =
-	    (char **)uprv_malloc(converterListSize * sizeof(char *));
+	newSelector->encodings = (char **)uprv_malloc(converterListSize * sizeof(char *));
 	if(!newSelector->encodings) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
 	newSelector->encodings[0] = NULL; // now we can call ucnvsel_close()
-
 	// make a backup copy of the list of converters
 	int32_t totalSize = 0;
 	int32_t i;
 	for(i = 0; i < converterListSize; i++) {
-		totalSize +=
-		    (int32_t)uprv_strlen(converterList != NULL ? converterList[i] : ucnv_getAvailableName(i)) + 1;
+		totalSize += (int32_t)strlen(converterList != NULL ? converterList[i] : ucnv_getAvailableName(i)) + 1;
 	}
 	// 4-align the totalSize to 4-align the size of the serialized form
 	int32_t encodingStrPadding = totalSize & 3;
@@ -179,46 +171,41 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_open(const char * const*  converter
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
-
 	for(i = 0; i < converterListSize; i++) {
 		newSelector->encodings[i] = allStrings;
-		uprv_strcpy(newSelector->encodings[i],
-		    converterList != NULL ? converterList[i] : ucnv_getAvailableName(i));
-		allStrings += uprv_strlen(newSelector->encodings[i]) + 1;
+		strcpy(newSelector->encodings[i], converterList != NULL ? converterList[i] : ucnv_getAvailableName(i));
+		allStrings += strlen(newSelector->encodings[i]) + 1;
 	}
 	while(encodingStrPadding > 0) {
 		*allStrings++ = 0;
 		--encodingStrPadding;
 	}
-
 	newSelector->ownEncodingStrings = TRUE;
 	newSelector->encodingsCount = converterListSize;
 	UPropsVectors * upvec = upvec_open((converterListSize+31)/32, status);
 	generateSelectorData(newSelector.getAlias(), upvec, excludedCodePoints, whichSet, status);
 	upvec_close(upvec);
-
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-
 	return newSelector.orphan();
 }
 
 /* close opened selector */
-U_CAPI void U_EXPORT2 ucnvsel_close(UConverterSelector * sel) {
-	if(!sel) {
-		return;
+U_CAPI void U_EXPORT2 ucnvsel_close(UConverterSelector * sel) 
+{
+	if(sel) {
+		if(sel->ownEncodingStrings) {
+			uprv_free(sel->encodings[0]);
+		}
+		uprv_free(sel->encodings);
+		if(sel->ownPv) {
+			uprv_free(sel->pv);
+		}
+		utrie2_close(sel->trie);
+		uprv_free(sel->swapped);
+		uprv_free(sel);
 	}
-	if(sel->ownEncodingStrings) {
-		uprv_free(sel->encodings[0]);
-	}
-	uprv_free(sel->encodings);
-	if(sel->ownPv) {
-		uprv_free(sel->pv);
-	}
-	utrie2_close(sel->trie);
-	uprv_free(sel->swapped);
-	uprv_free(sel);
 }
 
 static const UDataInfo dataInfo = {
@@ -257,17 +244,15 @@ enum {
  */
 
 /* serialize a selector */
-U_CAPI int32_t U_EXPORT2 ucnvsel_serialize(const UConverterSelector* sel,
-    void * buffer, int32_t bufferCapacity, UErrorCode * status) {
+U_CAPI int32_t U_EXPORT2 ucnvsel_serialize(const UConverterSelector* sel, void * buffer, int32_t bufferCapacity, UErrorCode * status) 
+{
 	// check if already failed
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
 	// ensure args make sense!
 	uint8 * p = (uint8 *)buffer;
-	if(bufferCapacity < 0 ||
-	    (bufferCapacity > 0 && (p == NULL || (U_POINTER_MASK_LSB(p, 3) != 0)))
-	    ) {
+	if(bufferCapacity < 0 || (bufferCapacity > 0 && (p == NULL || (U_POINTER_MASK_LSB(p, 3) != 0)))) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -277,14 +262,12 @@ U_CAPI int32_t U_EXPORT2 ucnvsel_serialize(const UConverterSelector* sel,
 		return 0;
 	}
 	*status = U_ZERO_ERROR;
-
 	DataHeader header;
 	memzero(&header, sizeof(header));
 	header.dataHeader.headerSize = (uint16)((sizeof(header) + 15) & ~15);
 	header.dataHeader.magic1 = 0xda;
 	header.dataHeader.magic2 = 0x27;
 	uprv_memcpy(&header.info, &dataInfo, sizeof(dataInfo));
-
 	int32_t indexes[UCNVSEL_INDEX_COUNT] = {
 		serializedTrieSize,
 		sel->pvCount,
@@ -552,7 +535,7 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_openFromSerialized(const void * buf
 	char * s = (char *)p;
 	for(int32_t i = 0; i < sel->encodingsCount; ++i) {
 		sel->encodings[i] = s;
-		s += uprv_strlen(s) + 1;
+		s += strlen(s) + 1;
 	}
 	p += sel->encodingStrLength;
 	return sel;
@@ -601,7 +584,7 @@ static const char * U_CALLCONV ucnvsel_next_encoding(UEnumeration* enumerator,
 	result = sel->encodings[((Enumerator*)(enumerator->context))->index[cur] ];
 	((Enumerator*)(enumerator->context))->cur++;
 	if(resultLength) {
-		*resultLength = (int32_t)uprv_strlen(result);
+		*resultLength = (int32_t)strlen(result);
 	}
 	return result;
 }
@@ -759,7 +742,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForUTF8(const UConverterSelector* 
 	}
 	memset(mask, ~0, columns *4);
 	if(length < 0) {
-		length = (int32_t)uprv_strlen(s);
+		length = (int32_t)strlen(s);
 	}
 	if(s) {
 		const char * limit = s + length;

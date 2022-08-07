@@ -150,7 +150,7 @@ static FILE * fopenOrError(const char * filename)
 	FILE * f = 0;
 	char fnbuf[FILENAME_BUFFER];
 	const char * directory = ctest_dataSrcDir();
-	needLen = (int32_t)(uprv_strlen(directory) + uprv_strlen(TDSRCPATH) + uprv_strlen(filename) + 1);
+	needLen = (int32_t)(strlen(directory) + strlen(TDSRCPATH) + strlen(filename) + 1);
 	if(needLen > FILENAME_BUFFER) {
 		log_err("FAIL: Could not load %s. Filename buffer overflow, needed %d but buffer is %d\n", filename, needLen, FILENAME_BUFFER);
 	}
@@ -368,7 +368,7 @@ static void TestSelector()
 	for(i = 1; i < 3; i++) {
 		excluded_sets[i] = uset_open(i*30, i*30+500);
 	}
-	for(testCaseIdx = 0; testCaseIdx < UPRV_LENGTHOF(getEncodingsFns); testCaseIdx++) {
+	for(testCaseIdx = 0; testCaseIdx < SIZEOFARRAYi(getEncodingsFns); testCaseIdx++) {
 		int32_t excluded_set_id;
 		int32_t num_encodings;
 		const char ** encodings = getEncodingsFns[testCaseIdx](&num_encodings);
@@ -384,7 +384,7 @@ static void TestSelector()
 		 * The handling of the exclusion set is independent of the
 		 * set of encodings, so there is no need to test every combination.
 		 */
-		excluded_set_id = testCaseIdx % UPRV_LENGTHOF(excluded_sets);
+		excluded_set_id = testCaseIdx % SIZEOFARRAYi(excluded_sets);
 		{
 			UConverterSelector * sel_rt, * sel_fb;
 			char * buffer_fb = NULL;
@@ -444,7 +444,7 @@ static void TestSelector()
 				verifyResult(ucnvsel_selectForUTF8(sel_rt, s, -1, &status), manual_rt);
 				verifyResult(ucnvsel_selectForUTF8(sel_fb, s, -1, &status), manual_fb);
 
-				u_strFromUTF8(utf16, UPRV_LENGTHOF(utf16), &length16, s, length8, &status);
+				u_strFromUTF8(utf16, SIZEOFARRAYi(utf16), &length16, s, length8, &status);
 				if(U_FAILURE(status)) {
 					log_err("error converting the test text (string %ld) to UTF-16 - %s\n",
 					    (long)text.number, u_errorName(status));
