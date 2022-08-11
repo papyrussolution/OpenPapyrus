@@ -173,7 +173,7 @@ class LazyMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
+  	kAFieldNumber = 1,
   };
   // optional int32 a = 1;
   bool has_a() const;
@@ -203,9 +203,7 @@ class LazyMessage final :
 // ===================================================================
 
 static const int kLazyEnumOptionFieldNumber = 138596335;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::lazy_imports::LazyEnum, ::protobuf_unittest::lazy_imports::LazyEnum_IsValid>, 14, false >
-  lazy_enum_option;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::lazy_imports::LazyEnum, ::protobuf_unittest::lazy_imports::LazyEnum_IsValid>, 14, false > lazy_enum_option;
 
 // ===================================================================
 
@@ -218,10 +216,10 @@ extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESP
 // optional int32 a = 1;
 inline bool LazyMessage::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool LazyMessage::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void LazyMessage::clear_a() {
   a_ = 0;

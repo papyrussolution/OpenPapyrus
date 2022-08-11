@@ -359,22 +359,22 @@ uint8_t* MyMessage::_InternalSerialize(
 
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_e = 2;
   for(int i = 0, n = this->_internal_repeated_e_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(2, this->_internal_repeated_e(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(2, this->_internal_repeated_e(i), target);
   }
 
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_e = 3 [packed = true];
   {
-    int byte_size = _repeated_packed_e_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteEnumPacked(3, repeated_packed_e_, byte_size, target);
-    }
+  	int byte_size = _repeated_packed_e_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteEnumPacked(3, repeated_packed_e_, byte_size, target);
+  	}
   }
 
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_unexpected_e = 4;
   for(int i = 0, n = this->_internal_repeated_packed_unexpected_e_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(4, this->_internal_repeated_packed_unexpected_e(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(4, this->_internal_repeated_packed_unexpected_e(i), target);
   }
 
   switch(o_case()) {
@@ -408,21 +408,21 @@ size_t MyMessage::ByteSizeLong() const {
 
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_e = 2;
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_e_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_e(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_repeated_e_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_e(static_cast<int>(i)));
     }
     total_size += (1UL * count) + data_size;
   }
 
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_e = 3 [packed = true];
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_packed_e_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_packed_e(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_repeated_packed_e_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_packed_e(static_cast<int>(i)));
     }
     if(data_size > 0) {
-      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _repeated_packed_e_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -431,9 +431,9 @@ size_t MyMessage::ByteSizeLong() const {
 
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_unexpected_e = 4;
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_packed_unexpected_e_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_packed_unexpected_e(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_repeated_packed_unexpected_e_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_packed_unexpected_e(static_cast<int>(i)));
     }
     total_size += (1UL * count) + data_size;
   }

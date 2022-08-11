@@ -1501,22 +1501,21 @@ uint8_t* EmptyMap::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = EmptyMap_MapEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it) {
+      	it = this->_internal_map().begin();
+      	it != this->_internal_map().end(); ++it) {
         target = EmptyMap_MapEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
       }
     }
@@ -1710,33 +1709,32 @@ uint8_t* StringtoInt::_InternalSerialize(
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.StringtoInt.MapEntry.key");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = StringtoInt_MapEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it) {
+      	it = this->_internal_map().begin();
+      	it != this->_internal_map().end(); ++it) {
         target = StringtoInt_MapEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -1931,33 +1929,32 @@ uint8_t* IntToString::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->second.data(), static_cast<int>(p->second.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.IntToString.MapEntry.value");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = IntToString_MapEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)].second));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it) {
+      	it = this->_internal_map().begin();
+      	it != this->_internal_map().end(); ++it) {
         target = IntToString_MapEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -2152,33 +2149,32 @@ uint8_t* BoolToString::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< bool, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->second.data(), static_cast<int>(p->second.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.BoolToString.MapEntry.value");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = BoolToString_MapEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)].second));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it) {
+      	it = this->_internal_map().begin();
+      	it != this->_internal_map().end(); ++it) {
         target = BoolToString_MapEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -2405,33 +2401,32 @@ uint8_t* Mixed1::_InternalSerialize(
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.Mixed1.MapEntry.key");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, float >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< std::string, float >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = Mixed1_MapEntry_DoNotUse::Funcs::InternalSerialize(2, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< std::string, float >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it) {
+      	it = this->_internal_map().begin();
+      	it != this->_internal_map().end(); ++it) {
         target = Mixed1_MapEntry_DoNotUse::Funcs::InternalSerialize(2, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -2650,22 +2645,21 @@ uint8_t* Mixed2::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = Mixed2_MapEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it) {
+      	it = this->_internal_map().begin();
+      	it != this->_internal_map().end(); ++it) {
         target = Mixed2_MapEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
       }
     }
@@ -3061,33 +3055,32 @@ uint8_t* MapOfObjects::_InternalSerialize(
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.MapOfObjects.MapEntry.key");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = MapOfObjects_MapEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M >::const_iterator
-          it = this->_internal_map().begin();
-          it != this->_internal_map().end(); ++it) {
+      	it = this->_internal_map().begin();
+      	it != this->_internal_map().end(); ++it) {
         target = MapOfObjects_MapEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -3408,8 +3401,8 @@ uint8_t* MapIn::_InternalSerialize(
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -3418,27 +3411,26 @@ uint8_t* MapIn::_InternalSerialize(
           p->second.data(), static_cast<int>(p->second.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.MapIn.MapInputEntry.value");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map_input().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_input().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
-          it = this->_internal_map_input().begin();
-          it != this->_internal_map_input().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_input().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator it = this->_internal_map_input().begin(); it != this->_internal_map_input().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = MapIn_MapInputEntry_DoNotUse::Funcs::InternalSerialize(3, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
-          it = this->_internal_map_input().begin();
-          it != this->_internal_map_input().end(); ++it) {
+      	it = this->_internal_map_input().begin();
+      	it != this->_internal_map_input().end(); ++it) {
         target = MapIn_MapInputEntry_DoNotUse::Funcs::InternalSerialize(3, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -3451,33 +3443,32 @@ uint8_t* MapIn::_InternalSerialize(
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.MapIn.MapAnyEntry.key");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map_any().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_any().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator
-          it = this->_internal_map_any().begin();
-          it != this->_internal_map_any().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_any().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator it = this->_internal_map_any().begin(); it != this->_internal_map_any().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = MapIn_MapAnyEntry_DoNotUse::Funcs::InternalSerialize(4, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator
-          it = this->_internal_map_any().begin();
-          it != this->_internal_map_any().end(); ++it) {
+      	it = this->_internal_map_any().begin();
+      	it != this->_internal_map_any().end(); ++it) {
         target = MapIn_MapAnyEntry_DoNotUse::Funcs::InternalSerialize(4, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -3800,33 +3791,32 @@ uint8_t* MapOut::_InternalSerialize(
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.MapOut.Map1Entry.key");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map1().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map1().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM >::const_iterator
-          it = this->_internal_map1().begin();
-          it != this->_internal_map1().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map1().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM >::const_iterator it = this->_internal_map1().begin(); it != this->_internal_map1().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = MapOut_Map1Entry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM >::const_iterator
-          it = this->_internal_map1().begin();
-          it != this->_internal_map1().end(); ++it) {
+      	it = this->_internal_map1().begin();
+      	it != this->_internal_map1().end(); ++it) {
         target = MapOut_Map1Entry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -3839,33 +3829,32 @@ uint8_t* MapOut::_InternalSerialize(
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.MapOut.Map2Entry.key");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map2().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map2().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut >::const_iterator
-          it = this->_internal_map2().begin();
-          it != this->_internal_map2().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map2().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut >::const_iterator it = this->_internal_map2().begin(); it != this->_internal_map2().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = MapOut_Map2Entry_DoNotUse::Funcs::InternalSerialize(2, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut >::const_iterator
-          it = this->_internal_map2().begin();
-          it != this->_internal_map2().end(); ++it) {
+      	it = this->_internal_map2().begin();
+      	it != this->_internal_map2().end(); ++it) {
         target = MapOut_Map2Entry_DoNotUse::Funcs::InternalSerialize(2, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -3878,33 +3867,32 @@ uint8_t* MapOut::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->second.data(), static_cast<int>(p->second.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.MapOut.Map3Entry.value");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map3().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map3().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
-          it = this->_internal_map3().begin();
-          it != this->_internal_map3().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map3().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator it = this->_internal_map3().begin(); it != this->_internal_map3().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = MapOut_Map3Entry_DoNotUse::Funcs::InternalSerialize(3, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)].second));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
-          it = this->_internal_map3().begin();
-          it != this->_internal_map3().end(); ++it) {
+      	it = this->_internal_map3().begin();
+      	it != this->_internal_map3().end(); ++it) {
         target = MapOut_Map3Entry_DoNotUse::Funcs::InternalSerialize(3, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -3926,33 +3914,32 @@ uint8_t* MapOut::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< bool, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->second.data(), static_cast<int>(p->second.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "proto_util_converter.testing.MapOut.Map4Entry.value");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_map4().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map4().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator
-          it = this->_internal_map4().begin();
-          it != this->_internal_map4().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map4().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator it = this->_internal_map4().begin(); it != this->_internal_map4().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = MapOut_Map4Entry_DoNotUse::Funcs::InternalSerialize(5, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)].second));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator
-          it = this->_internal_map4().begin();
-          it != this->_internal_map4().end(); ++it) {
+      	it = this->_internal_map4().begin();
+      	it != this->_internal_map4().end(); ++it) {
         target = MapOut_Map4Entry_DoNotUse::Funcs::InternalSerialize(5, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }

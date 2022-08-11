@@ -181,9 +181,9 @@ class NestedFieldMask final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedMaskFieldNumber = 3,
-    kDataFieldNumber = 1,
-    kSingleMaskFieldNumber = 2,
+  	kRepeatedMaskFieldNumber = 3,
+  	kDataFieldNumber = 1,
+  	kSingleMaskFieldNumber = 2,
   };
   // repeated .google.protobuf.FieldMask repeated_mask = 3;
   int repeated_mask_size() const;
@@ -351,10 +351,10 @@ class FieldMaskTest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedMaskFieldNumber = 3,
-    kNestedMaskFieldNumber = 4,
-    kIdFieldNumber = 1,
-    kSingleMaskFieldNumber = 2,
+  	kRepeatedMaskFieldNumber = 3,
+  	kNestedMaskFieldNumber = 4,
+  	kIdFieldNumber = 1,
+  	kSingleMaskFieldNumber = 2,
   };
   // repeated .google.protobuf.FieldMask repeated_mask = 3;
   int repeated_mask_size() const;
@@ -539,18 +539,18 @@ class FieldMaskTestCases final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSingleMaskFieldNumber = 1,
-    kMultipleMaskFieldNumber = 2,
-    kSnakeCamelFieldNumber = 3,
-    kEmptyFieldFieldNumber = 4,
-    kApiaryFormat1FieldNumber = 5,
-    kApiaryFormat2FieldNumber = 6,
-    kApiaryFormat3FieldNumber = 7,
-    kMapKey1FieldNumber = 8,
-    kMapKey2FieldNumber = 9,
-    kMapKey3FieldNumber = 10,
-    kMapKey4FieldNumber = 11,
-    kMapKey5FieldNumber = 12,
+  	kSingleMaskFieldNumber = 1,
+  	kMultipleMaskFieldNumber = 2,
+  	kSnakeCamelFieldNumber = 3,
+  	kEmptyFieldFieldNumber = 4,
+  	kApiaryFormat1FieldNumber = 5,
+  	kApiaryFormat2FieldNumber = 6,
+  	kApiaryFormat3FieldNumber = 7,
+  	kMapKey1FieldNumber = 8,
+  	kMapKey2FieldNumber = 9,
+  	kMapKey3FieldNumber = 10,
+  	kMapKey4FieldNumber = 11,
+  	kMapKey5FieldNumber = 12,
   };
   // .proto_util_converter.testing.FieldMaskWrapper single_mask = 1;
   bool has_single_mask() const;
@@ -895,7 +895,7 @@ class FieldMaskWrapper final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMaskFieldNumber = 1,
+  	kMaskFieldNumber = 1,
   };
   // .google.protobuf.FieldMask mask = 1;
   bool has_mask() const;
@@ -987,8 +987,9 @@ inline void NestedFieldMask::set_allocated_data(std::string* data) {
 
 // .google.protobuf.FieldMask single_mask = 2;
 inline bool NestedFieldMask::_internal_has_single_mask() const { return this != internal_default_instance() && single_mask_ != nullptr; }
-inline bool NestedFieldMask::has_single_mask() const {
-  return _internal_has_single_mask();
+inline bool NestedFieldMask::has_single_mask() const
+{
+	return _internal_has_single_mask();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& NestedFieldMask::_internal_single_mask() const {
   const ::PROTOBUF_NAMESPACE_ID::FieldMask* p = single_mask_;
@@ -1069,8 +1070,9 @@ inline void NestedFieldMask::set_allocated_single_mask(::PROTOBUF_NAMESPACE_ID::
 
 // repeated .google.protobuf.FieldMask repeated_mask = 3;
 inline int NestedFieldMask::_internal_repeated_mask_size() const { return repeated_mask_.size(); }
-inline int NestedFieldMask::repeated_mask_size() const {
-  return _internal_repeated_mask_size();
+inline int NestedFieldMask::repeated_mask_size() const
+{
+	return _internal_repeated_mask_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* NestedFieldMask::mutable_repeated_mask(int index) {
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.NestedFieldMask.repeated_mask)
@@ -1154,8 +1156,9 @@ inline void FieldMaskTest::set_allocated_id(std::string* id) {
 
 // .google.protobuf.FieldMask single_mask = 2;
 inline bool FieldMaskTest::_internal_has_single_mask() const { return this != internal_default_instance() && single_mask_ != nullptr; }
-inline bool FieldMaskTest::has_single_mask() const {
-  return _internal_has_single_mask();
+inline bool FieldMaskTest::has_single_mask() const
+{
+	return _internal_has_single_mask();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& FieldMaskTest::_internal_single_mask() const {
   const ::PROTOBUF_NAMESPACE_ID::FieldMask* p = single_mask_;
@@ -1236,8 +1239,9 @@ inline void FieldMaskTest::set_allocated_single_mask(::PROTOBUF_NAMESPACE_ID::Fi
 
 // repeated .google.protobuf.FieldMask repeated_mask = 3;
 inline int FieldMaskTest::_internal_repeated_mask_size() const { return repeated_mask_.size(); }
-inline int FieldMaskTest::repeated_mask_size() const {
-  return _internal_repeated_mask_size();
+inline int FieldMaskTest::repeated_mask_size() const
+{
+	return _internal_repeated_mask_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskTest::mutable_repeated_mask(int index) {
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.FieldMaskTest.repeated_mask)
@@ -1269,8 +1273,9 @@ FieldMaskTest::repeated_mask() const {
 
 // repeated .proto_util_converter.testing.NestedFieldMask nested_mask = 4;
 inline int FieldMaskTest::_internal_nested_mask_size() const { return nested_mask_.size(); }
-inline int FieldMaskTest::nested_mask_size() const {
-  return _internal_nested_mask_size();
+inline int FieldMaskTest::nested_mask_size() const
+{
+	return _internal_nested_mask_size();
 }
 inline void FieldMaskTest::clear_nested_mask() {
   nested_mask_.Clear();
@@ -1309,8 +1314,9 @@ FieldMaskTest::nested_mask() const {
 
 // .proto_util_converter.testing.FieldMaskWrapper single_mask = 1;
 inline bool FieldMaskTestCases::_internal_has_single_mask() const { return this != internal_default_instance() && single_mask_ != nullptr; }
-inline bool FieldMaskTestCases::has_single_mask() const {
-  return _internal_has_single_mask();
+inline bool FieldMaskTestCases::has_single_mask() const
+{
+	return _internal_has_single_mask();
 }
 inline void FieldMaskTestCases::clear_single_mask() {
   if(GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
@@ -1396,8 +1402,9 @@ inline void FieldMaskTestCases::set_allocated_single_mask(::proto_util_converter
 
 // .proto_util_converter.testing.FieldMaskWrapper multiple_mask = 2;
 inline bool FieldMaskTestCases::_internal_has_multiple_mask() const { return this != internal_default_instance() && multiple_mask_ != nullptr; }
-inline bool FieldMaskTestCases::has_multiple_mask() const {
-  return _internal_has_multiple_mask();
+inline bool FieldMaskTestCases::has_multiple_mask() const
+{
+	return _internal_has_multiple_mask();
 }
 inline void FieldMaskTestCases::clear_multiple_mask() {
   if(GetArenaForAllocation() == nullptr && multiple_mask_ != nullptr) {
@@ -1483,8 +1490,9 @@ inline void FieldMaskTestCases::set_allocated_multiple_mask(::proto_util_convert
 
 // .proto_util_converter.testing.FieldMaskWrapper snake_camel = 3;
 inline bool FieldMaskTestCases::_internal_has_snake_camel() const { return this != internal_default_instance() && snake_camel_ != nullptr; }
-inline bool FieldMaskTestCases::has_snake_camel() const {
-  return _internal_has_snake_camel();
+inline bool FieldMaskTestCases::has_snake_camel() const
+{
+	return _internal_has_snake_camel();
 }
 inline void FieldMaskTestCases::clear_snake_camel() {
   if(GetArenaForAllocation() == nullptr && snake_camel_ != nullptr) {
@@ -1570,8 +1578,9 @@ inline void FieldMaskTestCases::set_allocated_snake_camel(::proto_util_converter
 
 // .proto_util_converter.testing.FieldMaskWrapper empty_field = 4;
 inline bool FieldMaskTestCases::_internal_has_empty_field() const { return this != internal_default_instance() && empty_field_ != nullptr; }
-inline bool FieldMaskTestCases::has_empty_field() const {
-  return _internal_has_empty_field();
+inline bool FieldMaskTestCases::has_empty_field() const
+{
+	return _internal_has_empty_field();
 }
 inline void FieldMaskTestCases::clear_empty_field() {
   if(GetArenaForAllocation() == nullptr && empty_field_ != nullptr) {
@@ -1657,8 +1666,9 @@ inline void FieldMaskTestCases::set_allocated_empty_field(::proto_util_converter
 
 // .proto_util_converter.testing.FieldMaskWrapper apiary_format1 = 5;
 inline bool FieldMaskTestCases::_internal_has_apiary_format1() const { return this != internal_default_instance() && apiary_format1_ != nullptr; }
-inline bool FieldMaskTestCases::has_apiary_format1() const {
-  return _internal_has_apiary_format1();
+inline bool FieldMaskTestCases::has_apiary_format1() const
+{
+	return _internal_has_apiary_format1();
 }
 inline void FieldMaskTestCases::clear_apiary_format1() {
   if(GetArenaForAllocation() == nullptr && apiary_format1_ != nullptr) {
@@ -1744,8 +1754,9 @@ inline void FieldMaskTestCases::set_allocated_apiary_format1(::proto_util_conver
 
 // .proto_util_converter.testing.FieldMaskWrapper apiary_format2 = 6;
 inline bool FieldMaskTestCases::_internal_has_apiary_format2() const { return this != internal_default_instance() && apiary_format2_ != nullptr; }
-inline bool FieldMaskTestCases::has_apiary_format2() const {
-  return _internal_has_apiary_format2();
+inline bool FieldMaskTestCases::has_apiary_format2() const
+{
+	return _internal_has_apiary_format2();
 }
 inline void FieldMaskTestCases::clear_apiary_format2() {
   if(GetArenaForAllocation() == nullptr && apiary_format2_ != nullptr) {
@@ -1831,8 +1842,9 @@ inline void FieldMaskTestCases::set_allocated_apiary_format2(::proto_util_conver
 
 // .proto_util_converter.testing.FieldMaskWrapper apiary_format3 = 7;
 inline bool FieldMaskTestCases::_internal_has_apiary_format3() const { return this != internal_default_instance() && apiary_format3_ != nullptr; }
-inline bool FieldMaskTestCases::has_apiary_format3() const {
-  return _internal_has_apiary_format3();
+inline bool FieldMaskTestCases::has_apiary_format3() const
+{
+	return _internal_has_apiary_format3();
 }
 inline void FieldMaskTestCases::clear_apiary_format3() {
   if(GetArenaForAllocation() == nullptr && apiary_format3_ != nullptr) {
@@ -1918,8 +1930,9 @@ inline void FieldMaskTestCases::set_allocated_apiary_format3(::proto_util_conver
 
 // .proto_util_converter.testing.FieldMaskWrapper map_key1 = 8;
 inline bool FieldMaskTestCases::_internal_has_map_key1() const { return this != internal_default_instance() && map_key1_ != nullptr; }
-inline bool FieldMaskTestCases::has_map_key1() const {
-  return _internal_has_map_key1();
+inline bool FieldMaskTestCases::has_map_key1() const
+{
+	return _internal_has_map_key1();
 }
 inline void FieldMaskTestCases::clear_map_key1() {
   if(GetArenaForAllocation() == nullptr && map_key1_ != nullptr) {
@@ -2005,8 +2018,9 @@ inline void FieldMaskTestCases::set_allocated_map_key1(::proto_util_converter::t
 
 // .proto_util_converter.testing.FieldMaskWrapper map_key2 = 9;
 inline bool FieldMaskTestCases::_internal_has_map_key2() const { return this != internal_default_instance() && map_key2_ != nullptr; }
-inline bool FieldMaskTestCases::has_map_key2() const {
-  return _internal_has_map_key2();
+inline bool FieldMaskTestCases::has_map_key2() const
+{
+	return _internal_has_map_key2();
 }
 inline void FieldMaskTestCases::clear_map_key2() {
   if(GetArenaForAllocation() == nullptr && map_key2_ != nullptr) {
@@ -2092,8 +2106,9 @@ inline void FieldMaskTestCases::set_allocated_map_key2(::proto_util_converter::t
 
 // .proto_util_converter.testing.FieldMaskWrapper map_key3 = 10;
 inline bool FieldMaskTestCases::_internal_has_map_key3() const { return this != internal_default_instance() && map_key3_ != nullptr; }
-inline bool FieldMaskTestCases::has_map_key3() const {
-  return _internal_has_map_key3();
+inline bool FieldMaskTestCases::has_map_key3() const
+{
+	return _internal_has_map_key3();
 }
 inline void FieldMaskTestCases::clear_map_key3() {
   if(GetArenaForAllocation() == nullptr && map_key3_ != nullptr) {
@@ -2179,8 +2194,9 @@ inline void FieldMaskTestCases::set_allocated_map_key3(::proto_util_converter::t
 
 // .proto_util_converter.testing.FieldMaskWrapper map_key4 = 11;
 inline bool FieldMaskTestCases::_internal_has_map_key4() const { return this != internal_default_instance() && map_key4_ != nullptr; }
-inline bool FieldMaskTestCases::has_map_key4() const {
-  return _internal_has_map_key4();
+inline bool FieldMaskTestCases::has_map_key4() const
+{
+	return _internal_has_map_key4();
 }
 inline void FieldMaskTestCases::clear_map_key4() {
   if(GetArenaForAllocation() == nullptr && map_key4_ != nullptr) {
@@ -2266,8 +2282,9 @@ inline void FieldMaskTestCases::set_allocated_map_key4(::proto_util_converter::t
 
 // .proto_util_converter.testing.FieldMaskWrapper map_key5 = 12;
 inline bool FieldMaskTestCases::_internal_has_map_key5() const { return this != internal_default_instance() && map_key5_ != nullptr; }
-inline bool FieldMaskTestCases::has_map_key5() const {
-  return _internal_has_map_key5();
+inline bool FieldMaskTestCases::has_map_key5() const
+{
+	return _internal_has_map_key5();
 }
 inline void FieldMaskTestCases::clear_map_key5() {
   if(GetArenaForAllocation() == nullptr && map_key5_ != nullptr) {
@@ -2357,8 +2374,9 @@ inline void FieldMaskTestCases::set_allocated_map_key5(::proto_util_converter::t
 
 // .google.protobuf.FieldMask mask = 1;
 inline bool FieldMaskWrapper::_internal_has_mask() const { return this != internal_default_instance() && mask_ != nullptr; }
-inline bool FieldMaskWrapper::has_mask() const {
-  return _internal_has_mask();
+inline bool FieldMaskWrapper::has_mask() const
+{
+	return _internal_has_mask();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& FieldMaskWrapper::_internal_mask() const {
   const ::PROTOBUF_NAMESPACE_ID::FieldMask* p = mask_;

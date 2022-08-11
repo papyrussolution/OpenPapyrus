@@ -658,6 +658,9 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				base_cmd_id_list.add(StyloQCommandList::sqbcGoodsInfo); // @v11.4.4
 				base_cmd_id_list.add(StyloQCommandList::sqbcLocalBarcodeSearch); // @v11.4.5
 				base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListOrder); // @v11.4.6
+				// @construction base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListCCheck); // @v11.4.7
+				// @construction base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListTSess); // @v11.4.7
+				// @construction base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListTodo); // @v11.4.7
 				StrAssocArray basecmd_list;
 				for(uint i = 0; i < base_cmd_id_list.getCount(); i++) {
 					const long base_cmd_id = base_cmd_id_list.get(i);
@@ -732,7 +735,12 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 						break;
 					case StyloQCommandList::sqbcGoodsInfo: EditGoodsInfoFilter(); break; // @v11.4.4
 					case StyloQCommandList::sqbcLocalBarcodeSearch: break; // @todo // @v11.4.5 
-					case StyloQCommandList::sqbcIncomingListOrder: break; // @todo // @v11.4.6
+					case StyloQCommandList::sqbcIncomingListOrder: // @v11.4.7
+					case StyloQCommandList::sqbcIncomingListCCheck: // @todo // @v11.4.7
+					case StyloQCommandList::sqbcIncomingListTSess: // @todo // @v11.4.7
+					case StyloQCommandList::sqbcIncomingListTodo: // @todo // @v11.4.7
+						EditIncomingListFilter(Data.BaseCmdId);
+						break;
 					default: return;
 				}
 			}
@@ -855,6 +863,54 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					}
 					SETIFZ(p_filt, new StyloQAttendancePrereqParam);
 					if(PPStyloQInterchange::Edit_RsrvAttendancePrereqParam(*p_filt) > 0) {
+						Data.Param.Z();
+						THROW(PPView::WriteFiltPtr(Data.Param, p_filt));
+					}
+					else
+						Data.Param.SetRdOffs(sav_offs);
+				}
+			}
+			CATCH
+				Data.Param.SetRdOffs(sav_offs);
+			ENDCATCH
+			ZDELETE(p_filt);
+		}
+		void EditIncomingListFilter(int32 baseCmdId)
+		{
+			assert(oneof4(baseCmdId, StyloQCommandList::sqbcIncomingListOrder, StyloQCommandList::sqbcIncomingListCCheck, StyloQCommandList::sqbcIncomingListTSess, 
+				StyloQCommandList::sqbcIncomingListTodo));
+			size_t sav_offs = 0;
+			StyloQIncomingListParam * p_filt = 0;
+			uint   pos = 0;
+			{
+				const StyloQIncomingListParam pattern_filt;
+				sav_offs = Data.Param.GetRdOffs();
+				{
+					if(Data.Param.GetAvailableSize()) {
+						PPBaseFilt * p_base_filt = 0;
+						THROW(PPView::ReadFiltPtr(Data.Param, &p_base_filt));
+						if(p_base_filt) {
+							if(p_base_filt->GetSignature() == pattern_filt.GetSignature()) {
+								p_filt = static_cast<StyloQIncomingListParam *>(p_base_filt);
+								assert(p_filt->StQBaseCmdId == baseCmdId);
+								if(p_filt->StQBaseCmdId != baseCmdId) {
+									// Путаница в фильтрах - убиваем считанный фильтр чтобы создать новый.
+									ZDELETE(p_base_filt);
+									p_filt = 0;
+								}
+							}
+							else {
+								assert(p_filt == 0);
+								// Путаница в фильтрах - убиваем считанный фильтр чтобы создать новый.
+								ZDELETE(p_base_filt);
+							}
+						}
+					}
+					if(!p_filt) {
+						p_filt = new StyloQIncomingListParam;
+						p_filt->StQBaseCmdId = baseCmdId;
+					}
+					if(PPStyloQInterchange::Edit_IncomingListParam(*p_filt) > 0) {
 						Data.Param.Z();
 						THROW(PPView::WriteFiltPtr(Data.Param, p_filt));
 					}
@@ -1026,6 +1082,32 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				case StyloQCommandList::sqbcLocalBarcodeSearch: // @v11.4.5
 					break;
 				case StyloQCommandList::sqbcIncomingListOrder: // @v11.4.6
+					{
+						enable_cmd_param = true;
+						enable_viewcmd = false;
+						enable_viewcombo = false;
+					}
+					break;
+				case StyloQCommandList::sqbcIncomingListCCheck: // @v11.4.7
+					{
+						enable_cmd_param = true;
+						enable_viewcmd = false;
+						enable_viewcombo = false;
+					}
+					break;
+				case StyloQCommandList::sqbcIncomingListTSess: // @v11.4.7
+					{
+						enable_cmd_param = true;
+						enable_viewcmd = false;
+						enable_viewcombo = false;
+					}
+					break;
+				case StyloQCommandList::sqbcIncomingListTodo: // @v11.4.7
+					{
+						enable_cmd_param = true;
+						enable_viewcmd = false;
+						enable_viewcombo = false;
+					}
 					break;
 			}
 			enableCommand(cmCmdParam, enable_cmd_param);

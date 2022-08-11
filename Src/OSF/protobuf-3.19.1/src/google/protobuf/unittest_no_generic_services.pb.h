@@ -190,7 +190,7 @@ class TestMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
+  	kAFieldNumber = 1,
   };
   // optional int32 a = 1;
   bool has_a() const;
@@ -206,113 +206,61 @@ class TestMessage final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -377,9 +325,7 @@ class TestMessage final :
 // ===================================================================
 
 static const int kTestExtensionFieldNumber = 1000;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::no_generic_services_test::TestMessage,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  test_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::no_generic_services_test::TestMessage, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > test_extension;
 
 // ===================================================================
 
@@ -392,10 +338,10 @@ extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unitte
 // optional int32 a = 1;
 inline bool TestMessage::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestMessage::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestMessage::clear_a() {
   a_ = 0;

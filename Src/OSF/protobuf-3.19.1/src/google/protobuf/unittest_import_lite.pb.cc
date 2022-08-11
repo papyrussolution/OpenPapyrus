@@ -40,20 +40,20 @@ bool ImportEnumLite_IsValid(int value)
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> ImportEnumLite_strings[3] = {};
 
 static const char ImportEnumLite_names[] =
-  "IMPORT_LITE_BAR"
-  "IMPORT_LITE_BAZ"
-  "IMPORT_LITE_FOO";
+	"IMPORT_LITE_BAR"
+	"IMPORT_LITE_BAZ"
+	"IMPORT_LITE_FOO";
 
 static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry ImportEnumLite_entries[] = {
-  { {ImportEnumLite_names + 0, 15}, 8 },
-  { {ImportEnumLite_names + 15, 15}, 9 },
-  { {ImportEnumLite_names + 30, 15}, 7 },
+	{ {ImportEnumLite_names + 0, 15}, 8 },
+	{ {ImportEnumLite_names + 15, 15}, 9 },
+	{ {ImportEnumLite_names + 30, 15}, 7 },
 };
 
 static const int ImportEnumLite_entries_by_number[] = {
-  2, // 7 -> IMPORT_LITE_FOO
-  0, // 8 -> IMPORT_LITE_BAR
-  1, // 9 -> IMPORT_LITE_BAZ
+	2, // 7 -> IMPORT_LITE_FOO
+	0, // 8 -> IMPORT_LITE_BAR
+	1, // 9 -> IMPORT_LITE_BAZ
 };
 
 const std::string& ImportEnumLite_Name(ImportEnumLite value)

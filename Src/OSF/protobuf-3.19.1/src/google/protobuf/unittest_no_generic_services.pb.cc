@@ -290,9 +290,7 @@ void TestMessage::InternalSwap(TestMessage* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto[0]);
 }
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::no_generic_services_test::TestMessage,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  test_extension(kTestExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::no_generic_services_test::TestMessage, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > test_extension(kTestExtensionFieldNumber, 0);
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace no_generic_services_test

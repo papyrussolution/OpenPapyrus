@@ -305,7 +305,7 @@ public class CommandListActivity extends SLib.SlActivity {
 											if(ListData == null)
 												ListData = new StyloQCommand.List();
 										}
-										SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
+										SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature, false);
 										{
 											StyloQCommand.Item scan_barcode_cmd_item = ListData.GetItemWithParticularBaseId(StyloQCommand.sqbcLocalBarcodeSearch);
 											SLib.SetCtrlVisibility(this, R.id.tbButtonScan, (scan_barcode_cmd_item != null) ? View.VISIBLE : View.GONE);

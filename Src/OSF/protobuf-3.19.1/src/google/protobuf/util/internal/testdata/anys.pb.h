@@ -205,30 +205,30 @@ class AnyTestCases final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEmptyAnyFieldNumber = 1,
-    kTypeOnlyAnyFieldNumber = 2,
-    kWrapperAnyFieldNumber = 3,
-    kAnyWithTimestampValueFieldNumber = 4,
-    kAnyWithDurationValueFieldNumber = 5,
-    kAnyWithStructValueFieldNumber = 6,
-    kRecursiveAnyFieldNumber = 7,
-    kAnyWithMessageValueFieldNumber = 8,
-    kAnyWithNestedMessageFieldNumber = 9,
-    kAnyWithMessageWithWrapperTypeFieldNumber = 10,
-    kAnyWithMessageWithTimestampFieldNumber = 11,
-    kAnyWithMessageContainingMapFieldNumber = 12,
-    kAnyWithMessageContainingStructFieldNumber = 13,
-    kAnyWithMessageContainingRepeatedMessageFieldNumber = 14,
-    kRecursiveAnyWithTypeFieldAtEndFieldNumber = 15,
-    kRepeatedAnyFieldNumber = 16,
-    kEmptyAnyWithNullTypeUrlFieldNumber = 17,
-    kAnyWithEmptyFieldNumber = 18,
-    kAnyWithDefaultTimestampFieldNumber = 19,
-    kTopLevelAnyFieldNumber = 50,
-    kTopLevelAnyWithTypeFieldAtEndFieldNumber = 51,
-    kTopLevelAnyWithPivotOneFieldNumber = 52,
-    kTopLevelAnyWithPivotTwoFieldNumber = 53,
-    kTopLevelAnyUnorderedFieldNumber = 54,
+  	kEmptyAnyFieldNumber = 1,
+  	kTypeOnlyAnyFieldNumber = 2,
+  	kWrapperAnyFieldNumber = 3,
+  	kAnyWithTimestampValueFieldNumber = 4,
+  	kAnyWithDurationValueFieldNumber = 5,
+  	kAnyWithStructValueFieldNumber = 6,
+  	kRecursiveAnyFieldNumber = 7,
+  	kAnyWithMessageValueFieldNumber = 8,
+  	kAnyWithNestedMessageFieldNumber = 9,
+  	kAnyWithMessageWithWrapperTypeFieldNumber = 10,
+  	kAnyWithMessageWithTimestampFieldNumber = 11,
+  	kAnyWithMessageContainingMapFieldNumber = 12,
+  	kAnyWithMessageContainingStructFieldNumber = 13,
+  	kAnyWithMessageContainingRepeatedMessageFieldNumber = 14,
+  	kRecursiveAnyWithTypeFieldAtEndFieldNumber = 15,
+  	kRepeatedAnyFieldNumber = 16,
+  	kEmptyAnyWithNullTypeUrlFieldNumber = 17,
+  	kAnyWithEmptyFieldNumber = 18,
+  	kAnyWithDefaultTimestampFieldNumber = 19,
+  	kTopLevelAnyFieldNumber = 50,
+  	kTopLevelAnyWithTypeFieldAtEndFieldNumber = 51,
+  	kTopLevelAnyWithPivotOneFieldNumber = 52,
+  	kTopLevelAnyWithPivotTwoFieldNumber = 53,
+  	kTopLevelAnyUnorderedFieldNumber = 54,
   };
   // .proto_util_converter.testing.AnyWrapper empty_any = 1;
   bool has_empty_any() const;
@@ -801,7 +801,7 @@ class AnyWrapper final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAnyFieldNumber = 1,
+  	kAnyFieldNumber = 1,
   };
   // .google.protobuf.Any any = 1;
   bool has_any() const;
@@ -937,13 +937,13 @@ class Imports final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDblFieldNumber = 1,
-    kStructFieldNumber = 2,
-    kTimestampFieldNumber = 3,
-    kDurationFieldNumber = 4,
-    kI32FieldNumber = 5,
-    kEmptyFieldNumber = 6,
-    kDataFieldNumber = 100,
+  	kDblFieldNumber = 1,
+  	kStructFieldNumber = 2,
+  	kTimestampFieldNumber = 3,
+  	kDurationFieldNumber = 4,
+  	kI32FieldNumber = 5,
+  	kEmptyFieldNumber = 6,
+  	kDataFieldNumber = 100,
   };
   // .google.protobuf.DoubleValue dbl = 1;
   bool has_dbl() const;
@@ -1211,16 +1211,16 @@ class Data final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMsgsFieldNumber = 3,
-    kMapDataFieldNumber = 7,
-    kRepeatedDataFieldNumber = 9,
-    kRepeatedAnyFieldNumber = 10,
-    kStrFieldNumber = 2,
-    kNestedDataFieldNumber = 4,
-    kIntWrapperFieldNumber = 5,
-    kTimeFieldNumber = 6,
-    kStructDataFieldNumber = 8,
-    kAttrFieldNumber = 1,
+  	kMsgsFieldNumber = 3,
+  	kMapDataFieldNumber = 7,
+  	kRepeatedDataFieldNumber = 9,
+  	kRepeatedAnyFieldNumber = 10,
+  	kStrFieldNumber = 2,
+  	kNestedDataFieldNumber = 4,
+  	kIntWrapperFieldNumber = 5,
+  	kTimeFieldNumber = 6,
+  	kStructDataFieldNumber = 8,
+  	kAttrFieldNumber = 1,
   };
   // repeated string msgs = 3;
   int msgs_size() const;
@@ -1394,11 +1394,7 @@ class Data final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> msgs_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      Data_MapDataEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_data_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<Data_MapDataEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_data_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Data > repeated_data_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any > repeated_any_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr str_;
@@ -1515,8 +1511,8 @@ class AnyIn final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSomethingFieldNumber = 1,
-    kAnyFieldNumber = 2,
+  	kSomethingFieldNumber = 1,
+  	kAnyFieldNumber = 2,
   };
   // string something = 1;
   void clear_something();
@@ -1667,7 +1663,7 @@ class AnyOut final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAnyFieldNumber = 1,
+  	kAnyFieldNumber = 1,
   };
   // .google.protobuf.Any any = 1;
   bool has_any() const;
@@ -1803,7 +1799,7 @@ class AnyM final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFooFieldNumber = 1,
+  	kFooFieldNumber = 1,
   };
   // string foo = 1;
   void clear_foo();
@@ -1843,8 +1839,9 @@ class AnyM final :
 
 // .proto_util_converter.testing.AnyWrapper empty_any = 1;
 inline bool AnyTestCases::_internal_has_empty_any() const { return this != internal_default_instance() && empty_any_ != nullptr; }
-inline bool AnyTestCases::has_empty_any() const {
-  return _internal_has_empty_any();
+inline bool AnyTestCases::has_empty_any() const
+{
+	return _internal_has_empty_any();
 }
 inline void AnyTestCases::clear_empty_any() {
   if(GetArenaForAllocation() == nullptr && empty_any_ != nullptr) {
@@ -1930,8 +1927,9 @@ inline void AnyTestCases::set_allocated_empty_any(::proto_util_converter::testin
 
 // .proto_util_converter.testing.AnyWrapper type_only_any = 2;
 inline bool AnyTestCases::_internal_has_type_only_any() const { return this != internal_default_instance() && type_only_any_ != nullptr; }
-inline bool AnyTestCases::has_type_only_any() const {
-  return _internal_has_type_only_any();
+inline bool AnyTestCases::has_type_only_any() const
+{
+	return _internal_has_type_only_any();
 }
 inline void AnyTestCases::clear_type_only_any() {
   if(GetArenaForAllocation() == nullptr && type_only_any_ != nullptr) {
@@ -2017,8 +2015,9 @@ inline void AnyTestCases::set_allocated_type_only_any(::proto_util_converter::te
 
 // .proto_util_converter.testing.AnyWrapper wrapper_any = 3;
 inline bool AnyTestCases::_internal_has_wrapper_any() const { return this != internal_default_instance() && wrapper_any_ != nullptr; }
-inline bool AnyTestCases::has_wrapper_any() const {
-  return _internal_has_wrapper_any();
+inline bool AnyTestCases::has_wrapper_any() const
+{
+	return _internal_has_wrapper_any();
 }
 inline void AnyTestCases::clear_wrapper_any() {
   if(GetArenaForAllocation() == nullptr && wrapper_any_ != nullptr) {
@@ -2104,8 +2103,9 @@ inline void AnyTestCases::set_allocated_wrapper_any(::proto_util_converter::test
 
 // .proto_util_converter.testing.AnyWrapper any_with_timestamp_value = 4;
 inline bool AnyTestCases::_internal_has_any_with_timestamp_value() const { return this != internal_default_instance() && any_with_timestamp_value_ != nullptr; }
-inline bool AnyTestCases::has_any_with_timestamp_value() const {
-  return _internal_has_any_with_timestamp_value();
+inline bool AnyTestCases::has_any_with_timestamp_value() const
+{
+	return _internal_has_any_with_timestamp_value();
 }
 inline void AnyTestCases::clear_any_with_timestamp_value() {
   if(GetArenaForAllocation() == nullptr && any_with_timestamp_value_ != nullptr) {
@@ -2191,8 +2191,9 @@ inline void AnyTestCases::set_allocated_any_with_timestamp_value(::proto_util_co
 
 // .proto_util_converter.testing.AnyWrapper any_with_duration_value = 5;
 inline bool AnyTestCases::_internal_has_any_with_duration_value() const { return this != internal_default_instance() && any_with_duration_value_ != nullptr; }
-inline bool AnyTestCases::has_any_with_duration_value() const {
-  return _internal_has_any_with_duration_value();
+inline bool AnyTestCases::has_any_with_duration_value() const
+{
+	return _internal_has_any_with_duration_value();
 }
 inline void AnyTestCases::clear_any_with_duration_value() {
   if(GetArenaForAllocation() == nullptr && any_with_duration_value_ != nullptr) {
@@ -2278,8 +2279,9 @@ inline void AnyTestCases::set_allocated_any_with_duration_value(::proto_util_con
 
 // .proto_util_converter.testing.AnyWrapper any_with_struct_value = 6;
 inline bool AnyTestCases::_internal_has_any_with_struct_value() const { return this != internal_default_instance() && any_with_struct_value_ != nullptr; }
-inline bool AnyTestCases::has_any_with_struct_value() const {
-  return _internal_has_any_with_struct_value();
+inline bool AnyTestCases::has_any_with_struct_value() const
+{
+	return _internal_has_any_with_struct_value();
 }
 inline void AnyTestCases::clear_any_with_struct_value() {
   if(GetArenaForAllocation() == nullptr && any_with_struct_value_ != nullptr) {
@@ -2365,8 +2367,9 @@ inline void AnyTestCases::set_allocated_any_with_struct_value(::proto_util_conve
 
 // .proto_util_converter.testing.AnyWrapper recursive_any = 7;
 inline bool AnyTestCases::_internal_has_recursive_any() const { return this != internal_default_instance() && recursive_any_ != nullptr; }
-inline bool AnyTestCases::has_recursive_any() const {
-  return _internal_has_recursive_any();
+inline bool AnyTestCases::has_recursive_any() const
+{
+	return _internal_has_recursive_any();
 }
 inline void AnyTestCases::clear_recursive_any() {
   if(GetArenaForAllocation() == nullptr && recursive_any_ != nullptr) {
@@ -2452,8 +2455,9 @@ inline void AnyTestCases::set_allocated_recursive_any(::proto_util_converter::te
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_value = 8;
 inline bool AnyTestCases::_internal_has_any_with_message_value() const { return this != internal_default_instance() && any_with_message_value_ != nullptr; }
-inline bool AnyTestCases::has_any_with_message_value() const {
-  return _internal_has_any_with_message_value();
+inline bool AnyTestCases::has_any_with_message_value() const
+{
+	return _internal_has_any_with_message_value();
 }
 inline void AnyTestCases::clear_any_with_message_value() {
   if(GetArenaForAllocation() == nullptr && any_with_message_value_ != nullptr) {
@@ -2539,8 +2543,9 @@ inline void AnyTestCases::set_allocated_any_with_message_value(::proto_util_conv
 
 // .proto_util_converter.testing.AnyWrapper any_with_nested_message = 9;
 inline bool AnyTestCases::_internal_has_any_with_nested_message() const { return this != internal_default_instance() && any_with_nested_message_ != nullptr; }
-inline bool AnyTestCases::has_any_with_nested_message() const {
-  return _internal_has_any_with_nested_message();
+inline bool AnyTestCases::has_any_with_nested_message() const
+{
+	return _internal_has_any_with_nested_message();
 }
 inline void AnyTestCases::clear_any_with_nested_message() {
   if(GetArenaForAllocation() == nullptr && any_with_nested_message_ != nullptr) {
@@ -2626,8 +2631,9 @@ inline void AnyTestCases::set_allocated_any_with_nested_message(::proto_util_con
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_with_wrapper_type = 10;
 inline bool AnyTestCases::_internal_has_any_with_message_with_wrapper_type() const { return this != internal_default_instance() && any_with_message_with_wrapper_type_ != nullptr; }
-inline bool AnyTestCases::has_any_with_message_with_wrapper_type() const {
-  return _internal_has_any_with_message_with_wrapper_type();
+inline bool AnyTestCases::has_any_with_message_with_wrapper_type() const
+{
+	return _internal_has_any_with_message_with_wrapper_type();
 }
 inline void AnyTestCases::clear_any_with_message_with_wrapper_type() {
   if(GetArenaForAllocation() == nullptr && any_with_message_with_wrapper_type_ != nullptr) {
@@ -2713,8 +2719,9 @@ inline void AnyTestCases::set_allocated_any_with_message_with_wrapper_type(::pro
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_with_timestamp = 11;
 inline bool AnyTestCases::_internal_has_any_with_message_with_timestamp() const { return this != internal_default_instance() && any_with_message_with_timestamp_ != nullptr; }
-inline bool AnyTestCases::has_any_with_message_with_timestamp() const {
-  return _internal_has_any_with_message_with_timestamp();
+inline bool AnyTestCases::has_any_with_message_with_timestamp() const
+{
+	return _internal_has_any_with_message_with_timestamp();
 }
 inline void AnyTestCases::clear_any_with_message_with_timestamp() {
   if(GetArenaForAllocation() == nullptr && any_with_message_with_timestamp_ != nullptr) {
@@ -2800,8 +2807,9 @@ inline void AnyTestCases::set_allocated_any_with_message_with_timestamp(::proto_
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_containing_map = 12;
 inline bool AnyTestCases::_internal_has_any_with_message_containing_map() const { return this != internal_default_instance() && any_with_message_containing_map_ != nullptr; }
-inline bool AnyTestCases::has_any_with_message_containing_map() const {
-  return _internal_has_any_with_message_containing_map();
+inline bool AnyTestCases::has_any_with_message_containing_map() const
+{
+	return _internal_has_any_with_message_containing_map();
 }
 inline void AnyTestCases::clear_any_with_message_containing_map() {
   if(GetArenaForAllocation() == nullptr && any_with_message_containing_map_ != nullptr) {
@@ -2887,8 +2895,9 @@ inline void AnyTestCases::set_allocated_any_with_message_containing_map(::proto_
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_containing_struct = 13;
 inline bool AnyTestCases::_internal_has_any_with_message_containing_struct() const { return this != internal_default_instance() && any_with_message_containing_struct_ != nullptr; }
-inline bool AnyTestCases::has_any_with_message_containing_struct() const {
-  return _internal_has_any_with_message_containing_struct();
+inline bool AnyTestCases::has_any_with_message_containing_struct() const
+{
+	return _internal_has_any_with_message_containing_struct();
 }
 inline void AnyTestCases::clear_any_with_message_containing_struct() {
   if(GetArenaForAllocation() == nullptr && any_with_message_containing_struct_ != nullptr) {
@@ -2974,8 +2983,9 @@ inline void AnyTestCases::set_allocated_any_with_message_containing_struct(::pro
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_containing_repeated_message = 14;
 inline bool AnyTestCases::_internal_has_any_with_message_containing_repeated_message() const { return this != internal_default_instance() && any_with_message_containing_repeated_message_ != nullptr; }
-inline bool AnyTestCases::has_any_with_message_containing_repeated_message() const {
-  return _internal_has_any_with_message_containing_repeated_message();
+inline bool AnyTestCases::has_any_with_message_containing_repeated_message() const
+{
+	return _internal_has_any_with_message_containing_repeated_message();
 }
 inline void AnyTestCases::clear_any_with_message_containing_repeated_message() {
   if(GetArenaForAllocation() == nullptr && any_with_message_containing_repeated_message_ != nullptr) {
@@ -3061,8 +3071,9 @@ inline void AnyTestCases::set_allocated_any_with_message_containing_repeated_mes
 
 // .proto_util_converter.testing.AnyWrapper recursive_any_with_type_field_at_end = 15;
 inline bool AnyTestCases::_internal_has_recursive_any_with_type_field_at_end() const { return this != internal_default_instance() && recursive_any_with_type_field_at_end_ != nullptr; }
-inline bool AnyTestCases::has_recursive_any_with_type_field_at_end() const {
-  return _internal_has_recursive_any_with_type_field_at_end();
+inline bool AnyTestCases::has_recursive_any_with_type_field_at_end() const
+{
+	return _internal_has_recursive_any_with_type_field_at_end();
 }
 inline void AnyTestCases::clear_recursive_any_with_type_field_at_end() {
   if(GetArenaForAllocation() == nullptr && recursive_any_with_type_field_at_end_ != nullptr) {
@@ -3148,8 +3159,9 @@ inline void AnyTestCases::set_allocated_recursive_any_with_type_field_at_end(::p
 
 // .proto_util_converter.testing.AnyWrapper repeated_any = 16;
 inline bool AnyTestCases::_internal_has_repeated_any() const { return this != internal_default_instance() && repeated_any_ != nullptr; }
-inline bool AnyTestCases::has_repeated_any() const {
-  return _internal_has_repeated_any();
+inline bool AnyTestCases::has_repeated_any() const
+{
+	return _internal_has_repeated_any();
 }
 inline void AnyTestCases::clear_repeated_any() {
   if(GetArenaForAllocation() == nullptr && repeated_any_ != nullptr) {
@@ -3235,8 +3247,9 @@ inline void AnyTestCases::set_allocated_repeated_any(::proto_util_converter::tes
 
 // .proto_util_converter.testing.AnyWrapper empty_any_with_null_type_url = 17;
 inline bool AnyTestCases::_internal_has_empty_any_with_null_type_url() const { return this != internal_default_instance() && empty_any_with_null_type_url_ != nullptr; }
-inline bool AnyTestCases::has_empty_any_with_null_type_url() const {
-  return _internal_has_empty_any_with_null_type_url();
+inline bool AnyTestCases::has_empty_any_with_null_type_url() const
+{
+	return _internal_has_empty_any_with_null_type_url();
 }
 inline void AnyTestCases::clear_empty_any_with_null_type_url() {
   if(GetArenaForAllocation() == nullptr && empty_any_with_null_type_url_ != nullptr) {
@@ -3322,8 +3335,9 @@ inline void AnyTestCases::set_allocated_empty_any_with_null_type_url(::proto_uti
 
 // .proto_util_converter.testing.AnyWrapper any_with_empty = 18;
 inline bool AnyTestCases::_internal_has_any_with_empty() const { return this != internal_default_instance() && any_with_empty_ != nullptr; }
-inline bool AnyTestCases::has_any_with_empty() const {
-  return _internal_has_any_with_empty();
+inline bool AnyTestCases::has_any_with_empty() const
+{
+	return _internal_has_any_with_empty();
 }
 inline void AnyTestCases::clear_any_with_empty() {
   if(GetArenaForAllocation() == nullptr && any_with_empty_ != nullptr) {
@@ -3409,8 +3423,9 @@ inline void AnyTestCases::set_allocated_any_with_empty(::proto_util_converter::t
 
 // .proto_util_converter.testing.AnyWrapper any_with_default_timestamp = 19;
 inline bool AnyTestCases::_internal_has_any_with_default_timestamp() const { return this != internal_default_instance() && any_with_default_timestamp_ != nullptr; }
-inline bool AnyTestCases::has_any_with_default_timestamp() const {
-  return _internal_has_any_with_default_timestamp();
+inline bool AnyTestCases::has_any_with_default_timestamp() const
+{
+	return _internal_has_any_with_default_timestamp();
 }
 inline void AnyTestCases::clear_any_with_default_timestamp() {
   if(GetArenaForAllocation() == nullptr && any_with_default_timestamp_ != nullptr) {
@@ -3496,8 +3511,9 @@ inline void AnyTestCases::set_allocated_any_with_default_timestamp(::proto_util_
 
 // .google.protobuf.Any top_level_any = 50;
 inline bool AnyTestCases::_internal_has_top_level_any() const { return this != internal_default_instance() && top_level_any_ != nullptr; }
-inline bool AnyTestCases::has_top_level_any() const {
-  return _internal_has_top_level_any();
+inline bool AnyTestCases::has_top_level_any() const
+{
+	return _internal_has_top_level_any();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& AnyTestCases::_internal_top_level_any() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = top_level_any_;
@@ -3578,8 +3594,9 @@ inline void AnyTestCases::set_allocated_top_level_any(::PROTOBUF_NAMESPACE_ID::A
 
 // .google.protobuf.Any top_level_any_with_type_field_at_end = 51;
 inline bool AnyTestCases::_internal_has_top_level_any_with_type_field_at_end() const { return this != internal_default_instance() && top_level_any_with_type_field_at_end_ != nullptr; }
-inline bool AnyTestCases::has_top_level_any_with_type_field_at_end() const {
-  return _internal_has_top_level_any_with_type_field_at_end();
+inline bool AnyTestCases::has_top_level_any_with_type_field_at_end() const
+{
+	return _internal_has_top_level_any_with_type_field_at_end();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& AnyTestCases::_internal_top_level_any_with_type_field_at_end() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = top_level_any_with_type_field_at_end_;
@@ -3660,8 +3677,9 @@ inline void AnyTestCases::set_allocated_top_level_any_with_type_field_at_end(::P
 
 // .google.protobuf.Any top_level_any_with_pivot_one = 52;
 inline bool AnyTestCases::_internal_has_top_level_any_with_pivot_one() const { return this != internal_default_instance() && top_level_any_with_pivot_one_ != nullptr; }
-inline bool AnyTestCases::has_top_level_any_with_pivot_one() const {
-  return _internal_has_top_level_any_with_pivot_one();
+inline bool AnyTestCases::has_top_level_any_with_pivot_one() const
+{
+	return _internal_has_top_level_any_with_pivot_one();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& AnyTestCases::_internal_top_level_any_with_pivot_one() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = top_level_any_with_pivot_one_;
@@ -3742,8 +3760,9 @@ inline void AnyTestCases::set_allocated_top_level_any_with_pivot_one(::PROTOBUF_
 
 // .google.protobuf.Any top_level_any_with_pivot_two = 53;
 inline bool AnyTestCases::_internal_has_top_level_any_with_pivot_two() const { return this != internal_default_instance() && top_level_any_with_pivot_two_ != nullptr; }
-inline bool AnyTestCases::has_top_level_any_with_pivot_two() const {
-  return _internal_has_top_level_any_with_pivot_two();
+inline bool AnyTestCases::has_top_level_any_with_pivot_two() const
+{
+	return _internal_has_top_level_any_with_pivot_two();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& AnyTestCases::_internal_top_level_any_with_pivot_two() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = top_level_any_with_pivot_two_;
@@ -3824,8 +3843,9 @@ inline void AnyTestCases::set_allocated_top_level_any_with_pivot_two(::PROTOBUF_
 
 // .google.protobuf.Any top_level_any_unordered = 54;
 inline bool AnyTestCases::_internal_has_top_level_any_unordered() const { return this != internal_default_instance() && top_level_any_unordered_ != nullptr; }
-inline bool AnyTestCases::has_top_level_any_unordered() const {
-  return _internal_has_top_level_any_unordered();
+inline bool AnyTestCases::has_top_level_any_unordered() const
+{
+	return _internal_has_top_level_any_unordered();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& AnyTestCases::_internal_top_level_any_unordered() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = top_level_any_unordered_;
@@ -3910,8 +3930,9 @@ inline void AnyTestCases::set_allocated_top_level_any_unordered(::PROTOBUF_NAMES
 
 // .google.protobuf.Any any = 1;
 inline bool AnyWrapper::_internal_has_any() const { return this != internal_default_instance() && any_ != nullptr; }
-inline bool AnyWrapper::has_any() const {
-  return _internal_has_any();
+inline bool AnyWrapper::has_any() const
+{
+	return _internal_has_any();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& AnyWrapper::_internal_any() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = any_;
@@ -3996,8 +4017,9 @@ inline void AnyWrapper::set_allocated_any(::PROTOBUF_NAMESPACE_ID::Any* any) {
 
 // .google.protobuf.DoubleValue dbl = 1;
 inline bool Imports::_internal_has_dbl() const { return this != internal_default_instance() && dbl_ != nullptr; }
-inline bool Imports::has_dbl() const {
-  return _internal_has_dbl();
+inline bool Imports::has_dbl() const
+{
+	return _internal_has_dbl();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& Imports::_internal_dbl() const {
   const ::PROTOBUF_NAMESPACE_ID::DoubleValue* p = dbl_;
@@ -4078,8 +4100,9 @@ inline void Imports::set_allocated_dbl(::PROTOBUF_NAMESPACE_ID::DoubleValue* dbl
 
 // .google.protobuf.Struct struct = 2;
 inline bool Imports::_internal_has_struct_() const { return this != internal_default_instance() && struct__ != nullptr; }
-inline bool Imports::has_struct_() const {
-  return _internal_has_struct_();
+inline bool Imports::has_struct_() const
+{
+	return _internal_has_struct_();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Struct& Imports::_internal_struct_() const {
   const ::PROTOBUF_NAMESPACE_ID::Struct* p = struct__;
@@ -4160,8 +4183,9 @@ inline void Imports::set_allocated_struct_(::PROTOBUF_NAMESPACE_ID::Struct* stru
 
 // .google.protobuf.Timestamp timestamp = 3;
 inline bool Imports::_internal_has_timestamp() const { return this != internal_default_instance() && timestamp_ != nullptr; }
-inline bool Imports::has_timestamp() const {
-  return _internal_has_timestamp();
+inline bool Imports::has_timestamp() const
+{
+	return _internal_has_timestamp();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& Imports::_internal_timestamp() const {
   const ::PROTOBUF_NAMESPACE_ID::Timestamp* p = timestamp_;
@@ -4242,8 +4266,9 @@ inline void Imports::set_allocated_timestamp(::PROTOBUF_NAMESPACE_ID::Timestamp*
 
 // .google.protobuf.Duration duration = 4;
 inline bool Imports::_internal_has_duration() const { return this != internal_default_instance() && duration_ != nullptr; }
-inline bool Imports::has_duration() const {
-  return _internal_has_duration();
+inline bool Imports::has_duration() const
+{
+	return _internal_has_duration();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Duration& Imports::_internal_duration() const {
   const ::PROTOBUF_NAMESPACE_ID::Duration* p = duration_;
@@ -4324,8 +4349,9 @@ inline void Imports::set_allocated_duration(::PROTOBUF_NAMESPACE_ID::Duration* d
 
 // .google.protobuf.Int32Value i32 = 5;
 inline bool Imports::_internal_has_i32() const { return this != internal_default_instance() && i32_ != nullptr; }
-inline bool Imports::has_i32() const {
-  return _internal_has_i32();
+inline bool Imports::has_i32() const
+{
+	return _internal_has_i32();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& Imports::_internal_i32() const {
   const ::PROTOBUF_NAMESPACE_ID::Int32Value* p = i32_;
@@ -4406,8 +4432,9 @@ inline void Imports::set_allocated_i32(::PROTOBUF_NAMESPACE_ID::Int32Value* i32)
 
 // .google.protobuf.Empty empty = 6;
 inline bool Imports::_internal_has_empty() const { return this != internal_default_instance() && empty_ != nullptr; }
-inline bool Imports::has_empty() const {
-  return _internal_has_empty();
+inline bool Imports::has_empty() const
+{
+	return _internal_has_empty();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Empty& Imports::_internal_empty() const {
   const ::PROTOBUF_NAMESPACE_ID::Empty* p = empty_;
@@ -4488,8 +4515,9 @@ inline void Imports::set_allocated_empty(::PROTOBUF_NAMESPACE_ID::Empty* empty) 
 
 // .proto_util_converter.testing.Data data = 100;
 inline bool Imports::_internal_has_data() const { return this != internal_default_instance() && data_ != nullptr; }
-inline bool Imports::has_data() const {
-  return _internal_has_data();
+inline bool Imports::has_data() const
+{
+	return _internal_has_data();
 }
 inline void Imports::clear_data() {
   if(GetArenaForAllocation() == nullptr && data_ != nullptr) {
@@ -4647,8 +4675,9 @@ inline void Data::set_allocated_str(std::string* str) {
 
 // repeated string msgs = 3;
 inline int Data::_internal_msgs_size() const { return msgs_.size(); }
-inline int Data::msgs_size() const {
-  return _internal_msgs_size();
+inline int Data::msgs_size() const
+{
+	return _internal_msgs_size();
 }
 inline void Data::clear_msgs() {
   msgs_.Clear();
@@ -4715,8 +4744,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * Data::mutable_ms
 
 // .proto_util_converter.testing.Data nested_data = 4;
 inline bool Data::_internal_has_nested_data() const { return this != internal_default_instance() && nested_data_ != nullptr; }
-inline bool Data::has_nested_data() const {
-  return _internal_has_nested_data();
+inline bool Data::has_nested_data() const
+{
+	return _internal_has_nested_data();
 }
 inline void Data::clear_nested_data() {
   if(GetArenaForAllocation() == nullptr && nested_data_ != nullptr) {
@@ -4802,8 +4832,9 @@ inline void Data::set_allocated_nested_data(::proto_util_converter::testing::Dat
 
 // .google.protobuf.Int32Value int_wrapper = 5;
 inline bool Data::_internal_has_int_wrapper() const { return this != internal_default_instance() && int_wrapper_ != nullptr; }
-inline bool Data::has_int_wrapper() const {
-  return _internal_has_int_wrapper();
+inline bool Data::has_int_wrapper() const
+{
+	return _internal_has_int_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& Data::_internal_int_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::Int32Value* p = int_wrapper_;
@@ -4884,8 +4915,9 @@ inline void Data::set_allocated_int_wrapper(::PROTOBUF_NAMESPACE_ID::Int32Value*
 
 // .google.protobuf.Timestamp time = 6;
 inline bool Data::_internal_has_time() const { return this != internal_default_instance() && time_ != nullptr; }
-inline bool Data::has_time() const {
-  return _internal_has_time();
+inline bool Data::has_time() const
+{
+	return _internal_has_time();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& Data::_internal_time() const {
   const ::PROTOBUF_NAMESPACE_ID::Timestamp* p = time_;
@@ -4966,8 +4998,9 @@ inline void Data::set_allocated_time(::PROTOBUF_NAMESPACE_ID::Timestamp* time) {
 
 // map<string, string> map_data = 7;
 inline int Data::_internal_map_data_size() const { return map_data_.size(); }
-inline int Data::map_data_size() const {
-  return _internal_map_data_size();
+inline int Data::map_data_size() const
+{
+	return _internal_map_data_size();
 }
 inline void Data::clear_map_data() {
   map_data_.Clear();
@@ -4975,22 +5008,26 @@ inline void Data::clear_map_data() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 Data::_internal_map_data() const { return map_data_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-Data::map_data() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.Data.map_data)
-  return _internal_map_data();
+Data::map_data() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.Data.map_data)
+	return _internal_map_data();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * Data::_internal_mutable_map_data() {
-  return map_data_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * Data::_internal_mutable_map_data()
+{
+	return map_data_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * Data::mutable_map_data() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.Data.map_data)
-  return _internal_mutable_map_data();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * Data::mutable_map_data()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.Data.map_data)
+	return _internal_mutable_map_data();
 }
 
 // .google.protobuf.Struct struct_data = 8;
 inline bool Data::_internal_has_struct_data() const { return this != internal_default_instance() && struct_data_ != nullptr; }
-inline bool Data::has_struct_data() const {
-  return _internal_has_struct_data();
+inline bool Data::has_struct_data() const
+{
+	return _internal_has_struct_data();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Struct& Data::_internal_struct_data() const {
   const ::PROTOBUF_NAMESPACE_ID::Struct* p = struct_data_;
@@ -5071,8 +5108,9 @@ inline void Data::set_allocated_struct_data(::PROTOBUF_NAMESPACE_ID::Struct* str
 
 // repeated .proto_util_converter.testing.Data repeated_data = 9;
 inline int Data::_internal_repeated_data_size() const { return repeated_data_.size(); }
-inline int Data::repeated_data_size() const {
-  return _internal_repeated_data_size();
+inline int Data::repeated_data_size() const
+{
+	return _internal_repeated_data_size();
 }
 inline void Data::clear_repeated_data() {
   repeated_data_.Clear();
@@ -5107,8 +5145,9 @@ Data::repeated_data() const {
 
 // repeated .google.protobuf.Any repeated_any = 10;
 inline int Data::_internal_repeated_any_size() const { return repeated_any_.size(); }
-inline int Data::repeated_any_size() const {
-  return _internal_repeated_any_size();
+inline int Data::repeated_any_size() const
+{
+	return _internal_repeated_any_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* Data::mutable_repeated_any(int index) {
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.Data.repeated_any)
@@ -5192,8 +5231,9 @@ inline void AnyIn::set_allocated_something(std::string* something) {
 
 // .google.protobuf.Any any = 2;
 inline bool AnyIn::_internal_has_any() const { return this != internal_default_instance() && any_ != nullptr; }
-inline bool AnyIn::has_any() const {
-  return _internal_has_any();
+inline bool AnyIn::has_any() const
+{
+	return _internal_has_any();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& AnyIn::_internal_any() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = any_;
@@ -5278,8 +5318,9 @@ inline void AnyIn::set_allocated_any(::PROTOBUF_NAMESPACE_ID::Any* any) {
 
 // .google.protobuf.Any any = 1;
 inline bool AnyOut::_internal_has_any() const { return this != internal_default_instance() && any_ != nullptr; }
-inline bool AnyOut::has_any() const {
-  return _internal_has_any();
+inline bool AnyOut::has_any() const
+{
+	return _internal_has_any();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& AnyOut::_internal_any() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = any_;

@@ -221,12 +221,12 @@ class MyMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedEFieldNumber = 2,
-    kRepeatedPackedEFieldNumber = 3,
-    kRepeatedPackedUnexpectedEFieldNumber = 4,
-    kEFieldNumber = 1,
-    kOneofE1FieldNumber = 5,
-    kOneofE2FieldNumber = 6,
+  	kRepeatedEFieldNumber = 2,
+  	kRepeatedPackedEFieldNumber = 3,
+  	kRepeatedPackedUnexpectedEFieldNumber = 4,
+  	kEFieldNumber = 1,
+  	kOneofE1FieldNumber = 5,
+  	kOneofE2FieldNumber = 6,
   };
   // repeated .proto3_preserve_unknown_enum_unittest.MyEnum repeated_e = 2;
   int repeated_e_size() const;
@@ -237,13 +237,13 @@ class MyMessage final :
   private:
   ::proto3_preserve_unknown_enum_unittest::MyEnum _internal_repeated_e(int index) const;
   void _internal_add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_e();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_e();
   public:
   ::proto3_preserve_unknown_enum_unittest::MyEnum repeated_e(int index) const;
   void set_repeated_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnum value);
   void add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_e() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_e();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_e() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_e();
 
   // repeated .proto3_preserve_unknown_enum_unittest.MyEnum repeated_packed_e = 3 [packed = true];
   int repeated_packed_e_size() const;
@@ -254,13 +254,13 @@ class MyMessage final :
   private:
   ::proto3_preserve_unknown_enum_unittest::MyEnum _internal_repeated_packed_e(int index) const;
   void _internal_add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_packed_e();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_packed_e();
   public:
   ::proto3_preserve_unknown_enum_unittest::MyEnum repeated_packed_e(int index) const;
   void set_repeated_packed_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnum value);
   void add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_packed_e() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_packed_e();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_packed_e() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_packed_e();
 
   // repeated .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra repeated_packed_unexpected_e = 4;
   int repeated_packed_unexpected_e_size() const;
@@ -271,13 +271,13 @@ class MyMessage final :
   private:
   ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra _internal_repeated_packed_unexpected_e(int index) const;
   void _internal_add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_packed_unexpected_e();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_packed_unexpected_e();
   public:
   ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra repeated_packed_unexpected_e(int index) const;
   void set_repeated_packed_unexpected_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
   void add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_packed_unexpected_e() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_packed_unexpected_e();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_packed_unexpected_e() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_packed_unexpected_e();
 
   // .proto3_preserve_unknown_enum_unittest.MyEnum e = 1;
   void clear_e();
@@ -457,12 +457,12 @@ class MyMessagePlusExtra final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedEFieldNumber = 2,
-    kRepeatedPackedEFieldNumber = 3,
-    kRepeatedPackedUnexpectedEFieldNumber = 4,
-    kEFieldNumber = 1,
-    kOneofE1FieldNumber = 5,
-    kOneofE2FieldNumber = 6,
+  	kRepeatedEFieldNumber = 2,
+  	kRepeatedPackedEFieldNumber = 3,
+  	kRepeatedPackedUnexpectedEFieldNumber = 4,
+  	kEFieldNumber = 1,
+  	kOneofE1FieldNumber = 5,
+  	kOneofE2FieldNumber = 6,
   };
   // repeated .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra repeated_e = 2;
   int repeated_e_size() const;
@@ -473,13 +473,13 @@ class MyMessagePlusExtra final :
   private:
   ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra _internal_repeated_e(int index) const;
   void _internal_add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_e();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_e();
   public:
   ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra repeated_e(int index) const;
   void set_repeated_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
   void add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_e() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_e();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_e() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_e();
 
   // repeated .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra repeated_packed_e = 3 [packed = true];
   int repeated_packed_e_size() const;
@@ -490,13 +490,13 @@ class MyMessagePlusExtra final :
   private:
   ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra _internal_repeated_packed_e(int index) const;
   void _internal_add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_packed_e();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_packed_e();
   public:
   ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra repeated_packed_e(int index) const;
   void set_repeated_packed_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
   void add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_packed_e() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_packed_e();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_packed_e() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_packed_e();
 
   // repeated .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra repeated_packed_unexpected_e = 4 [packed = true];
   int repeated_packed_unexpected_e_size() const;
@@ -507,13 +507,13 @@ class MyMessagePlusExtra final :
   private:
   ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra _internal_repeated_packed_unexpected_e(int index) const;
   void _internal_add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_packed_unexpected_e();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_packed_unexpected_e();
   public:
   ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra repeated_packed_unexpected_e(int index) const;
   void set_repeated_packed_unexpected_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
   void add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_packed_unexpected_e() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_packed_unexpected_e();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_packed_unexpected_e() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_packed_unexpected_e();
 
   // .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra e = 1;
   void clear_e();
@@ -613,197 +613,216 @@ inline void MyMessage::set_e(::proto3_preserve_unknown_enum_unittest::MyEnum val
 
 // repeated .proto3_preserve_unknown_enum_unittest.MyEnum repeated_e = 2;
 inline int MyMessage::_internal_repeated_e_size() const { return repeated_e_.size(); }
-inline int MyMessage::repeated_e_size() const {
-  return _internal_repeated_e_size();
+inline int MyMessage::repeated_e_size() const
+{
+	return _internal_repeated_e_size();
 }
 inline void MyMessage::clear_repeated_e() {
   repeated_e_.Clear();
 }
 inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_repeated_e(int index) const { return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnum >(repeated_e_.Get(index)); }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::repeated_e(int index) const {
-  // @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_e)
-  return _internal_repeated_e(index);
+inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::repeated_e(int index) const
+{
+	// @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_e)
+	return _internal_repeated_e(index);
 }
-inline void MyMessage::set_repeated_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnum value) {
-  repeated_e_.Set(index, value);
-  // @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_e)
+inline void MyMessage::set_repeated_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnum value)
+{
+	repeated_e_.Set(index, value);
+	// @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_e)
 }
-inline void MyMessage::_internal_add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnum value) {
-  repeated_e_.Add(value);
+inline void MyMessage::_internal_add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnum value)
+{
+	repeated_e_.Add(value);
 }
-inline void MyMessage::add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnum value) {
-  _internal_add_repeated_e(value);
-  // @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_e)
+inline void MyMessage::add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnum value)
+{
+	_internal_add_repeated_e(value);
+	// @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_e)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-MyMessage::repeated_e() const {
-  // @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_e)
-  return repeated_e_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & MyMessage::repeated_e() const
+{
+	// @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_e)
+	return repeated_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::_internal_mutable_repeated_e() {
-  return &repeated_e_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::_internal_mutable_repeated_e()
+{
+	return &repeated_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::mutable_repeated_e() {
-  // @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_e)
-  return _internal_mutable_repeated_e();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::mutable_repeated_e()
+{
+	// @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_e)
+	return _internal_mutable_repeated_e();
 }
 
 // repeated .proto3_preserve_unknown_enum_unittest.MyEnum repeated_packed_e = 3 [packed = true];
 inline int MyMessage::_internal_repeated_packed_e_size() const { return repeated_packed_e_.size(); }
-inline int MyMessage::repeated_packed_e_size() const {
-  return _internal_repeated_packed_e_size();
+inline int MyMessage::repeated_packed_e_size() const
+{
+	return _internal_repeated_packed_e_size();
 }
 inline void MyMessage::clear_repeated_packed_e() {
   repeated_packed_e_.Clear();
 }
 inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_repeated_packed_e(int index) const { return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnum >(repeated_packed_e_.Get(index)); }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::repeated_packed_e(int index) const {
-  // @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
-  return _internal_repeated_packed_e(index);
+inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::repeated_packed_e(int index) const
+{
+	// @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
+	return _internal_repeated_packed_e(index);
 }
-inline void MyMessage::set_repeated_packed_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnum value) {
-  repeated_packed_e_.Set(index, value);
-  // @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
+inline void MyMessage::set_repeated_packed_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnum value)
+{
+	repeated_packed_e_.Set(index, value);
+	// @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
 }
-inline void MyMessage::_internal_add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnum value) {
-  repeated_packed_e_.Add(value);
+inline void MyMessage::_internal_add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnum value)
+{
+	repeated_packed_e_.Add(value);
 }
-inline void MyMessage::add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnum value) {
-  _internal_add_repeated_packed_e(value);
-  // @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
+inline void MyMessage::add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnum value)
+{
+	_internal_add_repeated_packed_e(value);
+	// @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-MyMessage::repeated_packed_e() const {
-  // @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
-  return repeated_packed_e_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & MyMessage::repeated_packed_e() const
+{
+	// @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
+	return repeated_packed_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::_internal_mutable_repeated_packed_e() {
-  return &repeated_packed_e_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::_internal_mutable_repeated_packed_e()
+{
+	return &repeated_packed_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::mutable_repeated_packed_e() {
-  // @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
-  return _internal_mutable_repeated_packed_e();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::mutable_repeated_packed_e()
+{
+	// @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
+	return _internal_mutable_repeated_packed_e();
 }
 
 // repeated .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra repeated_packed_unexpected_e = 4;
 inline int MyMessage::_internal_repeated_packed_unexpected_e_size() const { return repeated_packed_unexpected_e_.size(); }
-inline int MyMessage::repeated_packed_unexpected_e_size() const {
-  return _internal_repeated_packed_unexpected_e_size();
+inline int MyMessage::repeated_packed_unexpected_e_size() const
+{
+	return _internal_repeated_packed_unexpected_e_size();
 }
 inline void MyMessage::clear_repeated_packed_unexpected_e() {
   repeated_packed_unexpected_e_.Clear();
 }
 inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessage::_internal_repeated_packed_unexpected_e(int index) const { return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(repeated_packed_unexpected_e_.Get(index)); }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessage::repeated_packed_unexpected_e(int index) const {
-  // @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
-  return _internal_repeated_packed_unexpected_e(index);
+inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessage::repeated_packed_unexpected_e(int index) const
+{
+	// @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
+	return _internal_repeated_packed_unexpected_e(index);
 }
-inline void MyMessage::set_repeated_packed_unexpected_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  repeated_packed_unexpected_e_.Set(index, value);
-  // @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
+inline void MyMessage::set_repeated_packed_unexpected_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	repeated_packed_unexpected_e_.Set(index, value);
+	// @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
 }
-inline void MyMessage::_internal_add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  repeated_packed_unexpected_e_.Add(value);
+inline void MyMessage::_internal_add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	repeated_packed_unexpected_e_.Add(value);
 }
-inline void MyMessage::add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  _internal_add_repeated_packed_unexpected_e(value);
-  // @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
+inline void MyMessage::add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	_internal_add_repeated_packed_unexpected_e(value);
+	// @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-MyMessage::repeated_packed_unexpected_e() const {
-  // @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
-  return repeated_packed_unexpected_e_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & MyMessage::repeated_packed_unexpected_e() const
+{
+	// @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
+	return repeated_packed_unexpected_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::_internal_mutable_repeated_packed_unexpected_e() {
-  return &repeated_packed_unexpected_e_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::_internal_mutable_repeated_packed_unexpected_e()
+{
+	return &repeated_packed_unexpected_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::mutable_repeated_packed_unexpected_e() {
-  // @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
-  return _internal_mutable_repeated_packed_unexpected_e();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::mutable_repeated_packed_unexpected_e()
+{
+	// @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
+	return _internal_mutable_repeated_packed_unexpected_e();
 }
 
 // .proto3_preserve_unknown_enum_unittest.MyEnum oneof_e_1 = 5;
-inline bool MyMessage::_internal_has_oneof_e_1() const {
-  return o_case() == kOneofE1;
+inline bool MyMessage::_internal_has_oneof_e_1() const { return o_case() == kOneofE1; }
+inline bool MyMessage::has_oneof_e_1() const
+{
+	return _internal_has_oneof_e_1();
 }
-inline bool MyMessage::has_oneof_e_1() const {
-  return _internal_has_oneof_e_1();
-}
-inline void MyMessage::set_has_oneof_e_1() {
-  _oneof_case_[0] = kOneofE1;
-}
+inline void MyMessage::set_has_oneof_e_1() { _oneof_case_[0] = kOneofE1; }
 inline void MyMessage::clear_oneof_e_1() {
   if(_internal_has_oneof_e_1()) {
     o_.oneof_e_1_ = 0;
     clear_has_o();
   }
 }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_oneof_e_1() const {
-  if(_internal_has_oneof_e_1()) {
-    return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnum >(o_.oneof_e_1_);
-  }
-  return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnum >(0);
+inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_oneof_e_1() const
+{
+	if(_internal_has_oneof_e_1()) {
+		return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnum >(o_.oneof_e_1_);
+	}
+	return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnum >(0);
 }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::oneof_e_1() const {
-  // @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessage.oneof_e_1)
-  return _internal_oneof_e_1();
+inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::oneof_e_1() const
+{
+	// @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessage.oneof_e_1)
+	return _internal_oneof_e_1();
 }
-inline void MyMessage::_internal_set_oneof_e_1(::proto3_preserve_unknown_enum_unittest::MyEnum value) {
-  if(!_internal_has_oneof_e_1()) {
-    clear_o();
-    set_has_oneof_e_1();
-  }
-  o_.oneof_e_1_ = value;
+inline void MyMessage::_internal_set_oneof_e_1(::proto3_preserve_unknown_enum_unittest::MyEnum value)
+{
+	if(!_internal_has_oneof_e_1()) {
+		clear_o();
+		set_has_oneof_e_1();
+	}
+	o_.oneof_e_1_ = value;
 }
-inline void MyMessage::set_oneof_e_1(::proto3_preserve_unknown_enum_unittest::MyEnum value) {
-  _internal_set_oneof_e_1(value);
-  // @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessage.oneof_e_1)
+inline void MyMessage::set_oneof_e_1(::proto3_preserve_unknown_enum_unittest::MyEnum value)
+{
+	_internal_set_oneof_e_1(value);
+	// @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessage.oneof_e_1)
 }
 
 // .proto3_preserve_unknown_enum_unittest.MyEnum oneof_e_2 = 6;
-inline bool MyMessage::_internal_has_oneof_e_2() const {
-  return o_case() == kOneofE2;
+inline bool MyMessage::_internal_has_oneof_e_2() const { return o_case() == kOneofE2; }
+inline bool MyMessage::has_oneof_e_2() const
+{
+	return _internal_has_oneof_e_2();
 }
-inline bool MyMessage::has_oneof_e_2() const {
-  return _internal_has_oneof_e_2();
-}
-inline void MyMessage::set_has_oneof_e_2() {
-  _oneof_case_[0] = kOneofE2;
-}
+inline void MyMessage::set_has_oneof_e_2() { _oneof_case_[0] = kOneofE2; }
 inline void MyMessage::clear_oneof_e_2() {
   if(_internal_has_oneof_e_2()) {
     o_.oneof_e_2_ = 0;
     clear_has_o();
   }
 }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_oneof_e_2() const {
-  if(_internal_has_oneof_e_2()) {
-    return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnum >(o_.oneof_e_2_);
-  }
-  return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnum >(0);
+inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_oneof_e_2() const
+{
+	if(_internal_has_oneof_e_2()) {
+		return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnum >(o_.oneof_e_2_);
+	}
+	return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnum >(0);
 }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::oneof_e_2() const {
-  // @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessage.oneof_e_2)
-  return _internal_oneof_e_2();
+inline ::proto3_preserve_unknown_enum_unittest::MyEnum MyMessage::oneof_e_2() const
+{
+	// @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessage.oneof_e_2)
+	return _internal_oneof_e_2();
 }
-inline void MyMessage::_internal_set_oneof_e_2(::proto3_preserve_unknown_enum_unittest::MyEnum value) {
-  if(!_internal_has_oneof_e_2()) {
-    clear_o();
-    set_has_oneof_e_2();
-  }
-  o_.oneof_e_2_ = value;
+inline void MyMessage::_internal_set_oneof_e_2(::proto3_preserve_unknown_enum_unittest::MyEnum value)
+{
+	if(!_internal_has_oneof_e_2()) {
+		clear_o();
+		set_has_oneof_e_2();
+	}
+	o_.oneof_e_2_ = value;
 }
-inline void MyMessage::set_oneof_e_2(::proto3_preserve_unknown_enum_unittest::MyEnum value) {
-  _internal_set_oneof_e_2(value);
-  // @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessage.oneof_e_2)
+inline void MyMessage::set_oneof_e_2(::proto3_preserve_unknown_enum_unittest::MyEnum value)
+{
+	_internal_set_oneof_e_2(value);
+	// @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessage.oneof_e_2)
 }
 
-inline bool MyMessage::has_o() const {
-  return o_case() != O_NOT_SET;
-}
-inline void MyMessage::clear_has_o() {
-  _oneof_case_[0] = O_NOT_SET;
-}
+inline bool MyMessage::has_o() const { return o_case() != O_NOT_SET; }
+inline void MyMessage::clear_has_o() { _oneof_case_[0] = O_NOT_SET; }
 inline MyMessage::OCase MyMessage::o_case() const { return MyMessage::OCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -829,197 +848,216 @@ inline void MyMessagePlusExtra::set_e(::proto3_preserve_unknown_enum_unittest::M
 
 // repeated .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra repeated_e = 2;
 inline int MyMessagePlusExtra::_internal_repeated_e_size() const { return repeated_e_.size(); }
-inline int MyMessagePlusExtra::repeated_e_size() const {
-  return _internal_repeated_e_size();
+inline int MyMessagePlusExtra::repeated_e_size() const
+{
+	return _internal_repeated_e_size();
 }
 inline void MyMessagePlusExtra::clear_repeated_e() {
   repeated_e_.Clear();
 }
 inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::_internal_repeated_e(int index) const { return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(repeated_e_.Get(index)); }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::repeated_e(int index) const {
-  // @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_e)
-  return _internal_repeated_e(index);
+inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::repeated_e(int index) const
+{
+	// @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_e)
+	return _internal_repeated_e(index);
 }
-inline void MyMessagePlusExtra::set_repeated_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  repeated_e_.Set(index, value);
-  // @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_e)
+inline void MyMessagePlusExtra::set_repeated_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	repeated_e_.Set(index, value);
+	// @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_e)
 }
-inline void MyMessagePlusExtra::_internal_add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  repeated_e_.Add(value);
+inline void MyMessagePlusExtra::_internal_add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	repeated_e_.Add(value);
 }
-inline void MyMessagePlusExtra::add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  _internal_add_repeated_e(value);
-  // @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_e)
+inline void MyMessagePlusExtra::add_repeated_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	_internal_add_repeated_e(value);
+	// @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_e)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-MyMessagePlusExtra::repeated_e() const {
-  // @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_e)
-  return repeated_e_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & MyMessagePlusExtra::repeated_e() const
+{
+	// @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_e)
+	return repeated_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::_internal_mutable_repeated_e() {
-  return &repeated_e_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::_internal_mutable_repeated_e()
+{
+	return &repeated_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::mutable_repeated_e() {
-  // @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_e)
-  return _internal_mutable_repeated_e();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::mutable_repeated_e()
+{
+	// @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_e)
+	return _internal_mutable_repeated_e();
 }
 
 // repeated .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra repeated_packed_e = 3 [packed = true];
 inline int MyMessagePlusExtra::_internal_repeated_packed_e_size() const { return repeated_packed_e_.size(); }
-inline int MyMessagePlusExtra::repeated_packed_e_size() const {
-  return _internal_repeated_packed_e_size();
+inline int MyMessagePlusExtra::repeated_packed_e_size() const
+{
+	return _internal_repeated_packed_e_size();
 }
 inline void MyMessagePlusExtra::clear_repeated_packed_e() {
   repeated_packed_e_.Clear();
 }
 inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::_internal_repeated_packed_e(int index) const { return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(repeated_packed_e_.Get(index)); }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::repeated_packed_e(int index) const {
-  // @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_e)
-  return _internal_repeated_packed_e(index);
+inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::repeated_packed_e(int index) const
+{
+	// @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_e)
+	return _internal_repeated_packed_e(index);
 }
-inline void MyMessagePlusExtra::set_repeated_packed_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  repeated_packed_e_.Set(index, value);
-  // @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_e)
+inline void MyMessagePlusExtra::set_repeated_packed_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	repeated_packed_e_.Set(index, value);
+	// @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_e)
 }
-inline void MyMessagePlusExtra::_internal_add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  repeated_packed_e_.Add(value);
+inline void MyMessagePlusExtra::_internal_add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	repeated_packed_e_.Add(value);
 }
-inline void MyMessagePlusExtra::add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  _internal_add_repeated_packed_e(value);
-  // @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_e)
+inline void MyMessagePlusExtra::add_repeated_packed_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	_internal_add_repeated_packed_e(value);
+	// @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_e)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-MyMessagePlusExtra::repeated_packed_e() const {
-  // @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_e)
-  return repeated_packed_e_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & MyMessagePlusExtra::repeated_packed_e() const
+{
+	// @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_e)
+	return repeated_packed_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::_internal_mutable_repeated_packed_e() {
-  return &repeated_packed_e_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::_internal_mutable_repeated_packed_e()
+{
+	return &repeated_packed_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::mutable_repeated_packed_e() {
-  // @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_e)
-  return _internal_mutable_repeated_packed_e();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::mutable_repeated_packed_e()
+{
+	// @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_e)
+	return _internal_mutable_repeated_packed_e();
 }
 
 // repeated .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra repeated_packed_unexpected_e = 4 [packed = true];
 inline int MyMessagePlusExtra::_internal_repeated_packed_unexpected_e_size() const { return repeated_packed_unexpected_e_.size(); }
-inline int MyMessagePlusExtra::repeated_packed_unexpected_e_size() const {
-  return _internal_repeated_packed_unexpected_e_size();
+inline int MyMessagePlusExtra::repeated_packed_unexpected_e_size() const
+{
+	return _internal_repeated_packed_unexpected_e_size();
 }
 inline void MyMessagePlusExtra::clear_repeated_packed_unexpected_e() {
   repeated_packed_unexpected_e_.Clear();
 }
 inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::_internal_repeated_packed_unexpected_e(int index) const { return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(repeated_packed_unexpected_e_.Get(index)); }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::repeated_packed_unexpected_e(int index) const {
-  // @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_unexpected_e)
-  return _internal_repeated_packed_unexpected_e(index);
+inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::repeated_packed_unexpected_e(int index) const
+{
+	// @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_unexpected_e)
+	return _internal_repeated_packed_unexpected_e(index);
 }
-inline void MyMessagePlusExtra::set_repeated_packed_unexpected_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  repeated_packed_unexpected_e_.Set(index, value);
-  // @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_unexpected_e)
+inline void MyMessagePlusExtra::set_repeated_packed_unexpected_e(int index, ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	repeated_packed_unexpected_e_.Set(index, value);
+	// @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_unexpected_e)
 }
-inline void MyMessagePlusExtra::_internal_add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  repeated_packed_unexpected_e_.Add(value);
+inline void MyMessagePlusExtra::_internal_add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	repeated_packed_unexpected_e_.Add(value);
 }
-inline void MyMessagePlusExtra::add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  _internal_add_repeated_packed_unexpected_e(value);
-  // @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_unexpected_e)
+inline void MyMessagePlusExtra::add_repeated_packed_unexpected_e(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	_internal_add_repeated_packed_unexpected_e(value);
+	// @@protoc_insertion_point(field_add:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_unexpected_e)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-MyMessagePlusExtra::repeated_packed_unexpected_e() const {
-  // @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_unexpected_e)
-  return repeated_packed_unexpected_e_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & MyMessagePlusExtra::repeated_packed_unexpected_e() const
+{
+	// @@protoc_insertion_point(field_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_unexpected_e)
+	return repeated_packed_unexpected_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::_internal_mutable_repeated_packed_unexpected_e() {
-  return &repeated_packed_unexpected_e_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::_internal_mutable_repeated_packed_unexpected_e()
+{
+	return &repeated_packed_unexpected_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::mutable_repeated_packed_unexpected_e() {
-  // @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_unexpected_e)
-  return _internal_mutable_repeated_packed_unexpected_e();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessagePlusExtra::mutable_repeated_packed_unexpected_e()
+{
+	// @@protoc_insertion_point(field_mutable_list:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.repeated_packed_unexpected_e)
+	return _internal_mutable_repeated_packed_unexpected_e();
 }
 
 // .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra oneof_e_1 = 5;
-inline bool MyMessagePlusExtra::_internal_has_oneof_e_1() const {
-  return o_case() == kOneofE1;
+inline bool MyMessagePlusExtra::_internal_has_oneof_e_1() const { return o_case() == kOneofE1; }
+inline bool MyMessagePlusExtra::has_oneof_e_1() const
+{
+	return _internal_has_oneof_e_1();
 }
-inline bool MyMessagePlusExtra::has_oneof_e_1() const {
-  return _internal_has_oneof_e_1();
-}
-inline void MyMessagePlusExtra::set_has_oneof_e_1() {
-  _oneof_case_[0] = kOneofE1;
-}
+inline void MyMessagePlusExtra::set_has_oneof_e_1() { _oneof_case_[0] = kOneofE1; }
 inline void MyMessagePlusExtra::clear_oneof_e_1() {
   if(_internal_has_oneof_e_1()) {
     o_.oneof_e_1_ = 0;
     clear_has_o();
   }
 }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::_internal_oneof_e_1() const {
-  if(_internal_has_oneof_e_1()) {
-    return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(o_.oneof_e_1_);
-  }
-  return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(0);
+inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::_internal_oneof_e_1() const
+{
+	if(_internal_has_oneof_e_1()) {
+		return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(o_.oneof_e_1_);
+	}
+	return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(0);
 }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::oneof_e_1() const {
-  // @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.oneof_e_1)
-  return _internal_oneof_e_1();
+inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::oneof_e_1() const
+{
+	// @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.oneof_e_1)
+	return _internal_oneof_e_1();
 }
-inline void MyMessagePlusExtra::_internal_set_oneof_e_1(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  if(!_internal_has_oneof_e_1()) {
-    clear_o();
-    set_has_oneof_e_1();
-  }
-  o_.oneof_e_1_ = value;
+inline void MyMessagePlusExtra::_internal_set_oneof_e_1(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	if(!_internal_has_oneof_e_1()) {
+		clear_o();
+		set_has_oneof_e_1();
+	}
+	o_.oneof_e_1_ = value;
 }
-inline void MyMessagePlusExtra::set_oneof_e_1(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  _internal_set_oneof_e_1(value);
-  // @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.oneof_e_1)
+inline void MyMessagePlusExtra::set_oneof_e_1(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	_internal_set_oneof_e_1(value);
+	// @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.oneof_e_1)
 }
 
 // .proto3_preserve_unknown_enum_unittest.MyEnumPlusExtra oneof_e_2 = 6;
-inline bool MyMessagePlusExtra::_internal_has_oneof_e_2() const {
-  return o_case() == kOneofE2;
+inline bool MyMessagePlusExtra::_internal_has_oneof_e_2() const { return o_case() == kOneofE2; }
+inline bool MyMessagePlusExtra::has_oneof_e_2() const
+{
+	return _internal_has_oneof_e_2();
 }
-inline bool MyMessagePlusExtra::has_oneof_e_2() const {
-  return _internal_has_oneof_e_2();
-}
-inline void MyMessagePlusExtra::set_has_oneof_e_2() {
-  _oneof_case_[0] = kOneofE2;
-}
+inline void MyMessagePlusExtra::set_has_oneof_e_2() { _oneof_case_[0] = kOneofE2; }
 inline void MyMessagePlusExtra::clear_oneof_e_2() {
   if(_internal_has_oneof_e_2()) {
     o_.oneof_e_2_ = 0;
     clear_has_o();
   }
 }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::_internal_oneof_e_2() const {
-  if(_internal_has_oneof_e_2()) {
-    return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(o_.oneof_e_2_);
-  }
-  return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(0);
+inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::_internal_oneof_e_2() const
+{
+	if(_internal_has_oneof_e_2()) {
+		return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(o_.oneof_e_2_);
+	}
+	return static_cast< ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra >(0);
 }
-inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::oneof_e_2() const {
-  // @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.oneof_e_2)
-  return _internal_oneof_e_2();
+inline ::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra MyMessagePlusExtra::oneof_e_2() const
+{
+	// @@protoc_insertion_point(field_get:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.oneof_e_2)
+	return _internal_oneof_e_2();
 }
-inline void MyMessagePlusExtra::_internal_set_oneof_e_2(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  if(!_internal_has_oneof_e_2()) {
-    clear_o();
-    set_has_oneof_e_2();
-  }
-  o_.oneof_e_2_ = value;
+inline void MyMessagePlusExtra::_internal_set_oneof_e_2(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	if(!_internal_has_oneof_e_2()) {
+		clear_o();
+		set_has_oneof_e_2();
+	}
+	o_.oneof_e_2_ = value;
 }
-inline void MyMessagePlusExtra::set_oneof_e_2(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value) {
-  _internal_set_oneof_e_2(value);
-  // @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.oneof_e_2)
+inline void MyMessagePlusExtra::set_oneof_e_2(::proto3_preserve_unknown_enum_unittest::MyEnumPlusExtra value)
+{
+	_internal_set_oneof_e_2(value);
+	// @@protoc_insertion_point(field_set:proto3_preserve_unknown_enum_unittest.MyMessagePlusExtra.oneof_e_2)
 }
 
-inline bool MyMessagePlusExtra::has_o() const {
-  return o_case() != O_NOT_SET;
-}
-inline void MyMessagePlusExtra::clear_has_o() {
-  _oneof_case_[0] = O_NOT_SET;
-}
+inline bool MyMessagePlusExtra::has_o() const { return o_case() != O_NOT_SET; }
+inline void MyMessagePlusExtra::clear_has_o() { _oneof_case_[0] = O_NOT_SET; }
 inline MyMessagePlusExtra::OCase MyMessagePlusExtra::o_case() const { return MyMessagePlusExtra::OCase(_oneof_case_[0]); }
 #ifdef __GNUC__
 	#pragma GCC diagnostic pop

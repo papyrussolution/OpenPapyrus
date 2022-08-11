@@ -210,7 +210,7 @@ class ImportMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDFieldNumber = 1,
+  	kDFieldNumber = 1,
   };
   // optional int32 d = 1;
   bool has_d() const;
@@ -251,10 +251,10 @@ class ImportMessage final :
 // optional int32 d = 1;
 inline bool ImportMessage::_internal_has_d() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool ImportMessage::has_d() const {
-  return _internal_has_d();
+	return _internal_has_d();
 }
 inline void ImportMessage::clear_d() {
   d_ = 0;

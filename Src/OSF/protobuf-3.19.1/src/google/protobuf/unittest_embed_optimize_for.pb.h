@@ -169,8 +169,8 @@ class TestEmbedOptimizedForSize final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedMessageFieldNumber = 2,
-    kOptionalMessageFieldNumber = 1,
+  	kRepeatedMessageFieldNumber = 2,
+  	kOptionalMessageFieldNumber = 1,
   };
   // repeated .protobuf_unittest.TestOptimizedForSize repeated_message = 2;
   int repeated_message_size() const;
@@ -234,10 +234,10 @@ class TestEmbedOptimizedForSize final :
 inline bool TestEmbedOptimizedForSize::_internal_has_optional_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || optional_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestEmbedOptimizedForSize::has_optional_message() const {
-  return _internal_has_optional_message();
+	return _internal_has_optional_message();
 }
 inline const ::protobuf_unittest::TestOptimizedForSize& TestEmbedOptimizedForSize::_internal_optional_message() const {
   const ::protobuf_unittest::TestOptimizedForSize* p = optional_message_;
@@ -318,8 +318,9 @@ inline void TestEmbedOptimizedForSize::set_allocated_optional_message(::protobuf
 
 // repeated .protobuf_unittest.TestOptimizedForSize repeated_message = 2;
 inline int TestEmbedOptimizedForSize::_internal_repeated_message_size() const { return repeated_message_.size(); }
-inline int TestEmbedOptimizedForSize::repeated_message_size() const {
-  return _internal_repeated_message_size();
+inline int TestEmbedOptimizedForSize::repeated_message_size() const
+{
+	return _internal_repeated_message_size();
 }
 inline ::protobuf_unittest::TestOptimizedForSize* TestEmbedOptimizedForSize::mutable_repeated_message(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestEmbedOptimizedForSize.repeated_message)

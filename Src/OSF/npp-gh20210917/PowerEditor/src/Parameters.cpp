@@ -6432,7 +6432,7 @@ NppDate::NppDate(ulong year, ulong month, ulong day) : _year(year), _month(month
 // if the value of nbDaysFromNow is 0 then the date will be now
 NppDate::NppDate(int nbDaysFromNow)
 {
-	const time_t oneDay = (60 * 60 * 24);
+	const time_t oneDay = SSECSPERDAY;
 	time_t rawtime;
 	time(&rawtime);
 	rawtime += (nbDaysFromNow * oneDay);

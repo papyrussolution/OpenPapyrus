@@ -228,7 +228,7 @@ static const uchar verify[] = {
 
 typedef struct Tests {
 	const uchar * in;
-	unsigned int inlen;
+	uint inlen;
 	/*
 	 * GOOD == positive return value from DTLSv1_listen, no output yet
 	 * VERIFY == 0 return value, HelloVerifyRequest sent
@@ -255,18 +255,17 @@ static tests testpackets[9] = {
 
 #define COOKIE_LEN  20
 
-static int cookie_gen(SSL * ssl, uchar * cookie, unsigned int * cookie_len)
+static int cookie_gen(SSL * ssl, uchar * cookie, uint * cookie_len)
 {
-	unsigned int i;
-	for(i = 0; i < COOKIE_LEN; i++, cookie++)
+	for(uint i = 0; i < COOKIE_LEN; i++, cookie++)
 		*cookie = i;
 	*cookie_len = COOKIE_LEN;
 	return 1;
 }
 
-static int cookie_verify(SSL * ssl, const uchar * cookie, unsigned int cookie_len)
+static int cookie_verify(SSL * ssl, const uchar * cookie, uint cookie_len)
 {
-	unsigned int i;
+	uint i;
 	if(cookie_len != COOKIE_LEN)
 		return 0;
 	for(i = 0; i < COOKIE_LEN; i++, cookie++) {

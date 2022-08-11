@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/ListItemRegular" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/CTL_INCOMINGLIST_BILL_LISTITEM"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView style="@style/FormText"
+            android:id="@+id/CTL_DOCUMENT_DATE"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/TextPrimary"
+            />
+        <TextView style="@style/FormText"
+            android:id="@+id/CTL_DOCUMENT_CODE"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/TextPrimary"
+            />
+        <TextView style="@style/FormText"
+            android:id="@+id/CTL_DOCUMENT_AMOUNT"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/TextPrimary"
+            android:textAlignment="textEnd"
+            />
+    </LinearLayout>
+    <TextView style="@style/FormText"
+        android:id="@+id/CTL_DOCUMENT_CLI"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textColor="@color/TextPrimary"
+        />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        >
+        <TextView style="@style/FormText"
+            android:id="@+id/CTL_DOCUMENT_AGENT"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/TextPrimary"
+            />
+        <ImageView
+            android:id="@+id/CTL_DOCUMENT_EXPANDSTATUS"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/ic_triangleleft03">
+        </ImageView>
+    </LinearLayout>
+    <TextView style="@style/FormText"
+        android:id="@+id/CTL_DOCUMENT_MEMO"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textColor="@color/TextPrimary"
+        />
+    <ListView
+        android:id="@+id/CTL_DOCUMENT_DETAILLIST"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginRight="2dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="2dp"
+        >
+    </ListView>
+</LinearLayout>

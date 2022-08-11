@@ -219,7 +219,7 @@ class TestAllTypes_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBbFieldNumber = 1,
+  	kBbFieldNumber = 1,
   };
   // int32 bb = 1;
   void clear_bb();
@@ -366,57 +366,57 @@ class TestAllTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedInt32FieldNumber = 31,
-    kRepeatedInt64FieldNumber = 32,
-    kRepeatedUint32FieldNumber = 33,
-    kRepeatedUint64FieldNumber = 34,
-    kRepeatedSint32FieldNumber = 35,
-    kRepeatedSint64FieldNumber = 36,
-    kRepeatedFixed32FieldNumber = 37,
-    kRepeatedFixed64FieldNumber = 38,
-    kRepeatedSfixed32FieldNumber = 39,
-    kRepeatedSfixed64FieldNumber = 40,
-    kRepeatedFloatFieldNumber = 41,
-    kRepeatedDoubleFieldNumber = 42,
-    kRepeatedBoolFieldNumber = 43,
-    kRepeatedStringFieldNumber = 44,
-    kRepeatedBytesFieldNumber = 45,
-    kRepeatedNestedMessageFieldNumber = 48,
-    kRepeatedForeignMessageFieldNumber = 49,
-    kRepeatedImportMessageFieldNumber = 50,
-    kRepeatedNestedEnumFieldNumber = 51,
-    kRepeatedForeignEnumFieldNumber = 52,
-    kRepeatedStringPieceFieldNumber = 54,
-    kRepeatedCordFieldNumber = 55,
-    kRepeatedLazyMessageFieldNumber = 57,
-    kOptionalStringFieldNumber = 14,
-    kOptionalBytesFieldNumber = 15,
-    kOptionalStringPieceFieldNumber = 24,
-    kOptionalCordFieldNumber = 25,
-    kOptionalNestedMessageFieldNumber = 18,
-    kOptionalForeignMessageFieldNumber = 19,
-    kOptionalImportMessageFieldNumber = 20,
-    kOptionalPublicImportMessageFieldNumber = 26,
-    kOptionalLazyMessageFieldNumber = 27,
-    kOptionalInt64FieldNumber = 2,
-    kOptionalInt32FieldNumber = 1,
-    kOptionalUint32FieldNumber = 3,
-    kOptionalUint64FieldNumber = 4,
-    kOptionalSint64FieldNumber = 6,
-    kOptionalSint32FieldNumber = 5,
-    kOptionalFixed32FieldNumber = 7,
-    kOptionalFixed64FieldNumber = 8,
-    kOptionalSfixed64FieldNumber = 10,
-    kOptionalSfixed32FieldNumber = 9,
-    kOptionalFloatFieldNumber = 11,
-    kOptionalDoubleFieldNumber = 12,
-    kOptionalBoolFieldNumber = 13,
-    kOptionalNestedEnumFieldNumber = 21,
-    kOptionalForeignEnumFieldNumber = 22,
-    kOneofUint32FieldNumber = 111,
-    kOneofNestedMessageFieldNumber = 112,
-    kOneofStringFieldNumber = 113,
-    kOneofBytesFieldNumber = 114,
+  	kRepeatedInt32FieldNumber = 31,
+  	kRepeatedInt64FieldNumber = 32,
+  	kRepeatedUint32FieldNumber = 33,
+  	kRepeatedUint64FieldNumber = 34,
+  	kRepeatedSint32FieldNumber = 35,
+  	kRepeatedSint64FieldNumber = 36,
+  	kRepeatedFixed32FieldNumber = 37,
+  	kRepeatedFixed64FieldNumber = 38,
+  	kRepeatedSfixed32FieldNumber = 39,
+  	kRepeatedSfixed64FieldNumber = 40,
+  	kRepeatedFloatFieldNumber = 41,
+  	kRepeatedDoubleFieldNumber = 42,
+  	kRepeatedBoolFieldNumber = 43,
+  	kRepeatedStringFieldNumber = 44,
+  	kRepeatedBytesFieldNumber = 45,
+  	kRepeatedNestedMessageFieldNumber = 48,
+  	kRepeatedForeignMessageFieldNumber = 49,
+  	kRepeatedImportMessageFieldNumber = 50,
+  	kRepeatedNestedEnumFieldNumber = 51,
+  	kRepeatedForeignEnumFieldNumber = 52,
+  	kRepeatedStringPieceFieldNumber = 54,
+  	kRepeatedCordFieldNumber = 55,
+  	kRepeatedLazyMessageFieldNumber = 57,
+  	kOptionalStringFieldNumber = 14,
+  	kOptionalBytesFieldNumber = 15,
+  	kOptionalStringPieceFieldNumber = 24,
+  	kOptionalCordFieldNumber = 25,
+  	kOptionalNestedMessageFieldNumber = 18,
+  	kOptionalForeignMessageFieldNumber = 19,
+  	kOptionalImportMessageFieldNumber = 20,
+  	kOptionalPublicImportMessageFieldNumber = 26,
+  	kOptionalLazyMessageFieldNumber = 27,
+  	kOptionalInt64FieldNumber = 2,
+  	kOptionalInt32FieldNumber = 1,
+  	kOptionalUint32FieldNumber = 3,
+  	kOptionalUint64FieldNumber = 4,
+  	kOptionalSint64FieldNumber = 6,
+  	kOptionalSint32FieldNumber = 5,
+  	kOptionalFixed32FieldNumber = 7,
+  	kOptionalFixed64FieldNumber = 8,
+  	kOptionalSfixed64FieldNumber = 10,
+  	kOptionalSfixed32FieldNumber = 9,
+  	kOptionalFloatFieldNumber = 11,
+  	kOptionalDoubleFieldNumber = 12,
+  	kOptionalBoolFieldNumber = 13,
+  	kOptionalNestedEnumFieldNumber = 21,
+  	kOptionalForeignEnumFieldNumber = 22,
+  	kOneofUint32FieldNumber = 111,
+  	kOneofNestedMessageFieldNumber = 112,
+  	kOneofStringFieldNumber = 113,
+  	kOneofBytesFieldNumber = 114,
   };
   // repeated int32 repeated_int32 = 31;
   int repeated_int32_size() const;
@@ -770,13 +770,13 @@ class TestAllTypes final :
   private:
   ::proto3_lite_unittest::TestAllTypes_NestedEnum _internal_repeated_nested_enum(int index) const;
   void _internal_add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_nested_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_nested_enum();
   public:
   ::proto3_lite_unittest::TestAllTypes_NestedEnum repeated_nested_enum(int index) const;
   void set_repeated_nested_enum(int index, ::proto3_lite_unittest::TestAllTypes_NestedEnum value);
   void add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_nested_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_nested_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_nested_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_nested_enum();
 
   // repeated .proto3_lite_unittest.ForeignEnum repeated_foreign_enum = 52;
   int repeated_foreign_enum_size() const;
@@ -787,13 +787,13 @@ class TestAllTypes final :
   private:
   ::proto3_lite_unittest::ForeignEnum _internal_repeated_foreign_enum(int index) const;
   void _internal_add_repeated_foreign_enum(::proto3_lite_unittest::ForeignEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_foreign_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_foreign_enum();
   public:
   ::proto3_lite_unittest::ForeignEnum repeated_foreign_enum(int index) const;
   void set_repeated_foreign_enum(int index, ::proto3_lite_unittest::ForeignEnum value);
   void add_repeated_foreign_enum(::proto3_lite_unittest::ForeignEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_foreign_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_foreign_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_foreign_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_foreign_enum();
 
   // repeated string repeated_string_piece = 54 [ctype = STRING_PIECE];
   int repeated_string_piece_size() const;
@@ -1398,20 +1398,20 @@ class TestPackedTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPackedInt32FieldNumber = 90,
-    kPackedInt64FieldNumber = 91,
-    kPackedUint32FieldNumber = 92,
-    kPackedUint64FieldNumber = 93,
-    kPackedSint32FieldNumber = 94,
-    kPackedSint64FieldNumber = 95,
-    kPackedFixed32FieldNumber = 96,
-    kPackedFixed64FieldNumber = 97,
-    kPackedSfixed32FieldNumber = 98,
-    kPackedSfixed64FieldNumber = 99,
-    kPackedFloatFieldNumber = 100,
-    kPackedDoubleFieldNumber = 101,
-    kPackedBoolFieldNumber = 102,
-    kPackedEnumFieldNumber = 103,
+  	kPackedInt32FieldNumber = 90,
+  	kPackedInt64FieldNumber = 91,
+  	kPackedUint32FieldNumber = 92,
+  	kPackedUint64FieldNumber = 93,
+  	kPackedSint32FieldNumber = 94,
+  	kPackedSint64FieldNumber = 95,
+  	kPackedFixed32FieldNumber = 96,
+  	kPackedFixed64FieldNumber = 97,
+  	kPackedSfixed32FieldNumber = 98,
+  	kPackedSfixed64FieldNumber = 99,
+  	kPackedFloatFieldNumber = 100,
+  	kPackedDoubleFieldNumber = 101,
+  	kPackedBoolFieldNumber = 102,
+  	kPackedEnumFieldNumber = 103,
   };
   // repeated int32 packed_int32 = 90 [packed = true];
   int packed_int32_size() const;
@@ -1669,13 +1669,13 @@ class TestPackedTypes final :
   private:
   ::proto3_lite_unittest::ForeignEnum _internal_packed_enum(int index) const;
   void _internal_add_packed_enum(::proto3_lite_unittest::ForeignEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_packed_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_packed_enum();
   public:
   ::proto3_lite_unittest::ForeignEnum packed_enum(int index) const;
   void set_packed_enum(int index, ::proto3_lite_unittest::ForeignEnum value);
   void add_packed_enum(::proto3_lite_unittest::ForeignEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& packed_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_packed_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & packed_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_packed_enum();
 
   // @@protoc_insertion_point(class_scope:proto3_lite_unittest.TestPackedTypes)
  private:
@@ -1803,20 +1803,20 @@ class TestUnpackedTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedInt32FieldNumber = 1,
-    kRepeatedInt64FieldNumber = 2,
-    kRepeatedUint32FieldNumber = 3,
-    kRepeatedUint64FieldNumber = 4,
-    kRepeatedSint32FieldNumber = 5,
-    kRepeatedSint64FieldNumber = 6,
-    kRepeatedFixed32FieldNumber = 7,
-    kRepeatedFixed64FieldNumber = 8,
-    kRepeatedSfixed32FieldNumber = 9,
-    kRepeatedSfixed64FieldNumber = 10,
-    kRepeatedFloatFieldNumber = 11,
-    kRepeatedDoubleFieldNumber = 12,
-    kRepeatedBoolFieldNumber = 13,
-    kRepeatedNestedEnumFieldNumber = 14,
+  	kRepeatedInt32FieldNumber = 1,
+  	kRepeatedInt64FieldNumber = 2,
+  	kRepeatedUint32FieldNumber = 3,
+  	kRepeatedUint64FieldNumber = 4,
+  	kRepeatedSint32FieldNumber = 5,
+  	kRepeatedSint64FieldNumber = 6,
+  	kRepeatedFixed32FieldNumber = 7,
+  	kRepeatedFixed64FieldNumber = 8,
+  	kRepeatedSfixed32FieldNumber = 9,
+  	kRepeatedSfixed64FieldNumber = 10,
+  	kRepeatedFloatFieldNumber = 11,
+  	kRepeatedDoubleFieldNumber = 12,
+  	kRepeatedBoolFieldNumber = 13,
+  	kRepeatedNestedEnumFieldNumber = 14,
   };
   // repeated int32 repeated_int32 = 1 [packed = false];
   int repeated_int32_size() const;
@@ -2074,13 +2074,13 @@ class TestUnpackedTypes final :
   private:
   ::proto3_lite_unittest::TestAllTypes_NestedEnum _internal_repeated_nested_enum(int index) const;
   void _internal_add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_nested_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_nested_enum();
   public:
   ::proto3_lite_unittest::TestAllTypes_NestedEnum repeated_nested_enum(int index) const;
   void set_repeated_nested_enum(int index, ::proto3_lite_unittest::TestAllTypes_NestedEnum value);
   void add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_nested_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_nested_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_nested_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_nested_enum();
 
   // @@protoc_insertion_point(class_scope:proto3_lite_unittest.TestUnpackedTypes)
  private:
@@ -2201,8 +2201,8 @@ class NestedTestAllTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kChildFieldNumber = 1,
-    kPayloadFieldNumber = 2,
+  	kChildFieldNumber = 1,
+  	kPayloadFieldNumber = 2,
   };
   // .proto3_lite_unittest.NestedTestAllTypes child = 1;
   bool has_child() const;
@@ -2347,7 +2347,7 @@ class ForeignMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kCFieldNumber = 1,
+  	kCFieldNumber = 1,
   };
   // int32 c = 1;
   void clear_c();
@@ -2838,8 +2838,9 @@ inline void TestAllTypes::set_allocated_optional_bytes(std::string* optional_byt
 
 // .proto3_lite_unittest.TestAllTypes.NestedMessage optional_nested_message = 18;
 inline bool TestAllTypes::_internal_has_optional_nested_message() const { return this != internal_default_instance() && optional_nested_message_ != nullptr; }
-inline bool TestAllTypes::has_optional_nested_message() const {
-  return _internal_has_optional_nested_message();
+inline bool TestAllTypes::has_optional_nested_message() const
+{
+	return _internal_has_optional_nested_message();
 }
 inline void TestAllTypes::clear_optional_nested_message() {
   if(GetArenaForAllocation() == nullptr && optional_nested_message_ != nullptr) {
@@ -2925,8 +2926,9 @@ inline void TestAllTypes::set_allocated_optional_nested_message(::proto3_lite_un
 
 // .proto3_lite_unittest.ForeignMessage optional_foreign_message = 19;
 inline bool TestAllTypes::_internal_has_optional_foreign_message() const { return this != internal_default_instance() && optional_foreign_message_ != nullptr; }
-inline bool TestAllTypes::has_optional_foreign_message() const {
-  return _internal_has_optional_foreign_message();
+inline bool TestAllTypes::has_optional_foreign_message() const
+{
+	return _internal_has_optional_foreign_message();
 }
 inline void TestAllTypes::clear_optional_foreign_message() {
   if(GetArenaForAllocation() == nullptr && optional_foreign_message_ != nullptr) {
@@ -3012,8 +3014,9 @@ inline void TestAllTypes::set_allocated_optional_foreign_message(::proto3_lite_u
 
 // .protobuf_unittest_import.ImportMessage optional_import_message = 20;
 inline bool TestAllTypes::_internal_has_optional_import_message() const { return this != internal_default_instance() && optional_import_message_ != nullptr; }
-inline bool TestAllTypes::has_optional_import_message() const {
-  return _internal_has_optional_import_message();
+inline bool TestAllTypes::has_optional_import_message() const
+{
+	return _internal_has_optional_import_message();
 }
 inline const ::protobuf_unittest_import::ImportMessage& TestAllTypes::_internal_optional_import_message() const {
   const ::protobuf_unittest_import::ImportMessage* p = optional_import_message_;
@@ -3226,8 +3229,9 @@ inline void TestAllTypes::set_allocated_optional_cord(std::string* optional_cord
 
 // .protobuf_unittest_import.PublicImportMessage optional_public_import_message = 26;
 inline bool TestAllTypes::_internal_has_optional_public_import_message() const { return this != internal_default_instance() && optional_public_import_message_ != nullptr; }
-inline bool TestAllTypes::has_optional_public_import_message() const {
-  return _internal_has_optional_public_import_message();
+inline bool TestAllTypes::has_optional_public_import_message() const
+{
+	return _internal_has_optional_public_import_message();
 }
 inline const ::protobuf_unittest_import::PublicImportMessage& TestAllTypes::_internal_optional_public_import_message() const {
   const ::protobuf_unittest_import::PublicImportMessage* p = optional_public_import_message_;
@@ -3308,8 +3312,9 @@ inline void TestAllTypes::set_allocated_optional_public_import_message(::protobu
 
 // .proto3_lite_unittest.TestAllTypes.NestedMessage optional_lazy_message = 27 [lazy = true];
 inline bool TestAllTypes::_internal_has_optional_lazy_message() const { return this != internal_default_instance() && optional_lazy_message_ != nullptr; }
-inline bool TestAllTypes::has_optional_lazy_message() const {
-  return _internal_has_optional_lazy_message();
+inline bool TestAllTypes::has_optional_lazy_message() const
+{
+	return _internal_has_optional_lazy_message();
 }
 inline void TestAllTypes::clear_optional_lazy_message() {
   if(GetArenaForAllocation() == nullptr && optional_lazy_message_ != nullptr) {
@@ -3395,8 +3400,9 @@ inline void TestAllTypes::set_allocated_optional_lazy_message(::proto3_lite_unit
 
 // repeated int32 repeated_int32 = 31;
 inline int TestAllTypes::_internal_repeated_int32_size() const { return repeated_int32_.size(); }
-inline int TestAllTypes::repeated_int32_size() const {
-  return _internal_repeated_int32_size();
+inline int TestAllTypes::repeated_int32_size() const
+{
+	return _internal_repeated_int32_size();
 }
 inline void TestAllTypes::clear_repeated_int32() {
   repeated_int32_.Clear();
@@ -3434,8 +3440,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypes::mutable
 
 // repeated int64 repeated_int64 = 32;
 inline int TestAllTypes::_internal_repeated_int64_size() const { return repeated_int64_.size(); }
-inline int TestAllTypes::repeated_int64_size() const {
-  return _internal_repeated_int64_size();
+inline int TestAllTypes::repeated_int64_size() const
+{
+	return _internal_repeated_int64_size();
 }
 inline void TestAllTypes::clear_repeated_int64() {
   repeated_int64_.Clear();
@@ -3473,8 +3480,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypes::mutable
 
 // repeated uint32 repeated_uint32 = 33;
 inline int TestAllTypes::_internal_repeated_uint32_size() const { return repeated_uint32_.size(); }
-inline int TestAllTypes::repeated_uint32_size() const {
-  return _internal_repeated_uint32_size();
+inline int TestAllTypes::repeated_uint32_size() const
+{
+	return _internal_repeated_uint32_size();
 }
 inline void TestAllTypes::clear_repeated_uint32() {
   repeated_uint32_.Clear();
@@ -3512,8 +3520,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestAllTypes::mutabl
 
 // repeated uint64 repeated_uint64 = 34;
 inline int TestAllTypes::_internal_repeated_uint64_size() const { return repeated_uint64_.size(); }
-inline int TestAllTypes::repeated_uint64_size() const {
-  return _internal_repeated_uint64_size();
+inline int TestAllTypes::repeated_uint64_size() const
+{
+	return _internal_repeated_uint64_size();
 }
 inline void TestAllTypes::clear_repeated_uint64() {
   repeated_uint64_.Clear();
@@ -3551,8 +3560,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestAllTypes::mutabl
 
 // repeated sint32 repeated_sint32 = 35;
 inline int TestAllTypes::_internal_repeated_sint32_size() const { return repeated_sint32_.size(); }
-inline int TestAllTypes::repeated_sint32_size() const {
-  return _internal_repeated_sint32_size();
+inline int TestAllTypes::repeated_sint32_size() const
+{
+	return _internal_repeated_sint32_size();
 }
 inline void TestAllTypes::clear_repeated_sint32() {
   repeated_sint32_.Clear();
@@ -3590,8 +3600,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypes::mutable
 
 // repeated sint64 repeated_sint64 = 36;
 inline int TestAllTypes::_internal_repeated_sint64_size() const { return repeated_sint64_.size(); }
-inline int TestAllTypes::repeated_sint64_size() const {
-  return _internal_repeated_sint64_size();
+inline int TestAllTypes::repeated_sint64_size() const
+{
+	return _internal_repeated_sint64_size();
 }
 inline void TestAllTypes::clear_repeated_sint64() {
   repeated_sint64_.Clear();
@@ -3629,8 +3640,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypes::mutable
 
 // repeated fixed32 repeated_fixed32 = 37;
 inline int TestAllTypes::_internal_repeated_fixed32_size() const { return repeated_fixed32_.size(); }
-inline int TestAllTypes::repeated_fixed32_size() const {
-  return _internal_repeated_fixed32_size();
+inline int TestAllTypes::repeated_fixed32_size() const
+{
+	return _internal_repeated_fixed32_size();
 }
 inline void TestAllTypes::clear_repeated_fixed32() {
   repeated_fixed32_.Clear();
@@ -3668,8 +3680,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestAllTypes::mutabl
 
 // repeated fixed64 repeated_fixed64 = 38;
 inline int TestAllTypes::_internal_repeated_fixed64_size() const { return repeated_fixed64_.size(); }
-inline int TestAllTypes::repeated_fixed64_size() const {
-  return _internal_repeated_fixed64_size();
+inline int TestAllTypes::repeated_fixed64_size() const
+{
+	return _internal_repeated_fixed64_size();
 }
 inline void TestAllTypes::clear_repeated_fixed64() {
   repeated_fixed64_.Clear();
@@ -3707,8 +3720,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestAllTypes::mutabl
 
 // repeated sfixed32 repeated_sfixed32 = 39;
 inline int TestAllTypes::_internal_repeated_sfixed32_size() const { return repeated_sfixed32_.size(); }
-inline int TestAllTypes::repeated_sfixed32_size() const {
-  return _internal_repeated_sfixed32_size();
+inline int TestAllTypes::repeated_sfixed32_size() const
+{
+	return _internal_repeated_sfixed32_size();
 }
 inline void TestAllTypes::clear_repeated_sfixed32() {
   repeated_sfixed32_.Clear();
@@ -3746,8 +3760,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypes::mutable
 
 // repeated sfixed64 repeated_sfixed64 = 40;
 inline int TestAllTypes::_internal_repeated_sfixed64_size() const { return repeated_sfixed64_.size(); }
-inline int TestAllTypes::repeated_sfixed64_size() const {
-  return _internal_repeated_sfixed64_size();
+inline int TestAllTypes::repeated_sfixed64_size() const
+{
+	return _internal_repeated_sfixed64_size();
 }
 inline void TestAllTypes::clear_repeated_sfixed64() {
   repeated_sfixed64_.Clear();
@@ -3785,8 +3800,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypes::mutable
 
 // repeated float repeated_float = 41;
 inline int TestAllTypes::_internal_repeated_float_size() const { return repeated_float_.size(); }
-inline int TestAllTypes::repeated_float_size() const {
-  return _internal_repeated_float_size();
+inline int TestAllTypes::repeated_float_size() const
+{
+	return _internal_repeated_float_size();
 }
 inline void TestAllTypes::clear_repeated_float() {
   repeated_float_.Clear();
@@ -3824,8 +3840,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * TestAllTypes::mutable_r
 
 // repeated double repeated_double = 42;
 inline int TestAllTypes::_internal_repeated_double_size() const { return repeated_double_.size(); }
-inline int TestAllTypes::repeated_double_size() const {
-  return _internal_repeated_double_size();
+inline int TestAllTypes::repeated_double_size() const
+{
+	return _internal_repeated_double_size();
 }
 inline void TestAllTypes::clear_repeated_double() {
   repeated_double_.Clear();
@@ -3863,8 +3880,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * TestAllTypes::mutable_
 
 // repeated bool repeated_bool = 43;
 inline int TestAllTypes::_internal_repeated_bool_size() const { return repeated_bool_.size(); }
-inline int TestAllTypes::repeated_bool_size() const {
-  return _internal_repeated_bool_size();
+inline int TestAllTypes::repeated_bool_size() const
+{
+	return _internal_repeated_bool_size();
 }
 inline void TestAllTypes::clear_repeated_bool() {
   repeated_bool_.Clear();
@@ -3902,8 +3920,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * TestAllTypes::mutable_re
 
 // repeated string repeated_string = 44;
 inline int TestAllTypes::_internal_repeated_string_size() const { return repeated_string_.size(); }
-inline int TestAllTypes::repeated_string_size() const {
-  return _internal_repeated_string_size();
+inline int TestAllTypes::repeated_string_size() const
+{
+	return _internal_repeated_string_size();
 }
 inline void TestAllTypes::clear_repeated_string() {
   repeated_string_.Clear();
@@ -3970,8 +3989,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypes::mu
 
 // repeated bytes repeated_bytes = 45;
 inline int TestAllTypes::_internal_repeated_bytes_size() const { return repeated_bytes_.size(); }
-inline int TestAllTypes::repeated_bytes_size() const {
-  return _internal_repeated_bytes_size();
+inline int TestAllTypes::repeated_bytes_size() const
+{
+	return _internal_repeated_bytes_size();
 }
 inline void TestAllTypes::clear_repeated_bytes() {
   repeated_bytes_.Clear();
@@ -4038,8 +4058,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypes::mu
 
 // repeated .proto3_lite_unittest.TestAllTypes.NestedMessage repeated_nested_message = 48;
 inline int TestAllTypes::_internal_repeated_nested_message_size() const { return repeated_nested_message_.size(); }
-inline int TestAllTypes::repeated_nested_message_size() const {
-  return _internal_repeated_nested_message_size();
+inline int TestAllTypes::repeated_nested_message_size() const
+{
+	return _internal_repeated_nested_message_size();
 }
 inline void TestAllTypes::clear_repeated_nested_message() {
   repeated_nested_message_.Clear();
@@ -4074,8 +4095,9 @@ TestAllTypes::repeated_nested_message() const {
 
 // repeated .proto3_lite_unittest.ForeignMessage repeated_foreign_message = 49;
 inline int TestAllTypes::_internal_repeated_foreign_message_size() const { return repeated_foreign_message_.size(); }
-inline int TestAllTypes::repeated_foreign_message_size() const {
-  return _internal_repeated_foreign_message_size();
+inline int TestAllTypes::repeated_foreign_message_size() const
+{
+	return _internal_repeated_foreign_message_size();
 }
 inline void TestAllTypes::clear_repeated_foreign_message() {
   repeated_foreign_message_.Clear();
@@ -4110,8 +4132,9 @@ TestAllTypes::repeated_foreign_message() const {
 
 // repeated .protobuf_unittest_import.ImportMessage repeated_import_message = 50;
 inline int TestAllTypes::_internal_repeated_import_message_size() const { return repeated_import_message_.size(); }
-inline int TestAllTypes::repeated_import_message_size() const {
-  return _internal_repeated_import_message_size();
+inline int TestAllTypes::repeated_import_message_size() const
+{
+	return _internal_repeated_import_message_size();
 }
 inline ::protobuf_unittest_import::ImportMessage* TestAllTypes::mutable_repeated_import_message(int index) {
   // @@protoc_insertion_point(field_mutable:proto3_lite_unittest.TestAllTypes.repeated_import_message)
@@ -4143,82 +4166,97 @@ TestAllTypes::repeated_import_message() const {
 
 // repeated .proto3_lite_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 51;
 inline int TestAllTypes::_internal_repeated_nested_enum_size() const { return repeated_nested_enum_.size(); }
-inline int TestAllTypes::repeated_nested_enum_size() const {
-  return _internal_repeated_nested_enum_size();
+inline int TestAllTypes::repeated_nested_enum_size() const
+{
+	return _internal_repeated_nested_enum_size();
 }
 inline void TestAllTypes::clear_repeated_nested_enum() {
   repeated_nested_enum_.Clear();
 }
 inline ::proto3_lite_unittest::TestAllTypes_NestedEnum TestAllTypes::_internal_repeated_nested_enum(int index) const { return static_cast< ::proto3_lite_unittest::TestAllTypes_NestedEnum >(repeated_nested_enum_.Get(index)); }
-inline ::proto3_lite_unittest::TestAllTypes_NestedEnum TestAllTypes::repeated_nested_enum(int index) const {
-  // @@protoc_insertion_point(field_get:proto3_lite_unittest.TestAllTypes.repeated_nested_enum)
-  return _internal_repeated_nested_enum(index);
+inline ::proto3_lite_unittest::TestAllTypes_NestedEnum TestAllTypes::repeated_nested_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:proto3_lite_unittest.TestAllTypes.repeated_nested_enum)
+	return _internal_repeated_nested_enum(index);
 }
-inline void TestAllTypes::set_repeated_nested_enum(int index, ::proto3_lite_unittest::TestAllTypes_NestedEnum value) {
-  repeated_nested_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:proto3_lite_unittest.TestAllTypes.repeated_nested_enum)
+inline void TestAllTypes::set_repeated_nested_enum(int index, ::proto3_lite_unittest::TestAllTypes_NestedEnum value)
+{
+	repeated_nested_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:proto3_lite_unittest.TestAllTypes.repeated_nested_enum)
 }
-inline void TestAllTypes::_internal_add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value) {
-  repeated_nested_enum_.Add(value);
+inline void TestAllTypes::_internal_add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value)
+{
+	repeated_nested_enum_.Add(value);
 }
-inline void TestAllTypes::add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value) {
-  _internal_add_repeated_nested_enum(value);
-  // @@protoc_insertion_point(field_add:proto3_lite_unittest.TestAllTypes.repeated_nested_enum)
+inline void TestAllTypes::add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value)
+{
+	_internal_add_repeated_nested_enum(value);
+	// @@protoc_insertion_point(field_add:proto3_lite_unittest.TestAllTypes.repeated_nested_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestAllTypes::repeated_nested_enum() const {
-  // @@protoc_insertion_point(field_list:proto3_lite_unittest.TestAllTypes.repeated_nested_enum)
-  return repeated_nested_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestAllTypes::repeated_nested_enum() const
+{
+	// @@protoc_insertion_point(field_list:proto3_lite_unittest.TestAllTypes.repeated_nested_enum)
+	return repeated_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::_internal_mutable_repeated_nested_enum() {
-  return &repeated_nested_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::_internal_mutable_repeated_nested_enum()
+{
+	return &repeated_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::mutable_repeated_nested_enum() {
-  // @@protoc_insertion_point(field_mutable_list:proto3_lite_unittest.TestAllTypes.repeated_nested_enum)
-  return _internal_mutable_repeated_nested_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::mutable_repeated_nested_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:proto3_lite_unittest.TestAllTypes.repeated_nested_enum)
+	return _internal_mutable_repeated_nested_enum();
 }
 
 // repeated .proto3_lite_unittest.ForeignEnum repeated_foreign_enum = 52;
 inline int TestAllTypes::_internal_repeated_foreign_enum_size() const { return repeated_foreign_enum_.size(); }
-inline int TestAllTypes::repeated_foreign_enum_size() const {
-  return _internal_repeated_foreign_enum_size();
+inline int TestAllTypes::repeated_foreign_enum_size() const
+{
+	return _internal_repeated_foreign_enum_size();
 }
 inline void TestAllTypes::clear_repeated_foreign_enum() {
   repeated_foreign_enum_.Clear();
 }
 inline ::proto3_lite_unittest::ForeignEnum TestAllTypes::_internal_repeated_foreign_enum(int index) const { return static_cast< ::proto3_lite_unittest::ForeignEnum >(repeated_foreign_enum_.Get(index)); }
-inline ::proto3_lite_unittest::ForeignEnum TestAllTypes::repeated_foreign_enum(int index) const {
-  // @@protoc_insertion_point(field_get:proto3_lite_unittest.TestAllTypes.repeated_foreign_enum)
-  return _internal_repeated_foreign_enum(index);
+inline ::proto3_lite_unittest::ForeignEnum TestAllTypes::repeated_foreign_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:proto3_lite_unittest.TestAllTypes.repeated_foreign_enum)
+	return _internal_repeated_foreign_enum(index);
 }
-inline void TestAllTypes::set_repeated_foreign_enum(int index, ::proto3_lite_unittest::ForeignEnum value) {
-  repeated_foreign_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:proto3_lite_unittest.TestAllTypes.repeated_foreign_enum)
+inline void TestAllTypes::set_repeated_foreign_enum(int index, ::proto3_lite_unittest::ForeignEnum value)
+{
+	repeated_foreign_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:proto3_lite_unittest.TestAllTypes.repeated_foreign_enum)
 }
-inline void TestAllTypes::_internal_add_repeated_foreign_enum(::proto3_lite_unittest::ForeignEnum value) {
-  repeated_foreign_enum_.Add(value);
+inline void TestAllTypes::_internal_add_repeated_foreign_enum(::proto3_lite_unittest::ForeignEnum value)
+{
+	repeated_foreign_enum_.Add(value);
 }
-inline void TestAllTypes::add_repeated_foreign_enum(::proto3_lite_unittest::ForeignEnum value) {
-  _internal_add_repeated_foreign_enum(value);
-  // @@protoc_insertion_point(field_add:proto3_lite_unittest.TestAllTypes.repeated_foreign_enum)
+inline void TestAllTypes::add_repeated_foreign_enum(::proto3_lite_unittest::ForeignEnum value)
+{
+	_internal_add_repeated_foreign_enum(value);
+	// @@protoc_insertion_point(field_add:proto3_lite_unittest.TestAllTypes.repeated_foreign_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestAllTypes::repeated_foreign_enum() const {
-  // @@protoc_insertion_point(field_list:proto3_lite_unittest.TestAllTypes.repeated_foreign_enum)
-  return repeated_foreign_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestAllTypes::repeated_foreign_enum() const
+{
+	// @@protoc_insertion_point(field_list:proto3_lite_unittest.TestAllTypes.repeated_foreign_enum)
+	return repeated_foreign_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::_internal_mutable_repeated_foreign_enum() {
-  return &repeated_foreign_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::_internal_mutable_repeated_foreign_enum()
+{
+	return &repeated_foreign_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::mutable_repeated_foreign_enum() {
-  // @@protoc_insertion_point(field_mutable_list:proto3_lite_unittest.TestAllTypes.repeated_foreign_enum)
-  return _internal_mutable_repeated_foreign_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::mutable_repeated_foreign_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:proto3_lite_unittest.TestAllTypes.repeated_foreign_enum)
+	return _internal_mutable_repeated_foreign_enum();
 }
 
 // repeated string repeated_string_piece = 54 [ctype = STRING_PIECE];
 inline int TestAllTypes::_internal_repeated_string_piece_size() const { return repeated_string_piece_.size(); }
-inline int TestAllTypes::repeated_string_piece_size() const {
-  return _internal_repeated_string_piece_size();
+inline int TestAllTypes::repeated_string_piece_size() const
+{
+	return _internal_repeated_string_piece_size();
 }
 inline void TestAllTypes::clear_repeated_string_piece() {
   repeated_string_piece_.Clear();
@@ -4285,8 +4323,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypes::mu
 
 // repeated string repeated_cord = 55 [ctype = CORD];
 inline int TestAllTypes::_internal_repeated_cord_size() const { return repeated_cord_.size(); }
-inline int TestAllTypes::repeated_cord_size() const {
-  return _internal_repeated_cord_size();
+inline int TestAllTypes::repeated_cord_size() const
+{
+	return _internal_repeated_cord_size();
 }
 inline void TestAllTypes::clear_repeated_cord() {
   repeated_cord_.Clear();
@@ -4353,8 +4392,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypes::mu
 
 // repeated .proto3_lite_unittest.TestAllTypes.NestedMessage repeated_lazy_message = 57 [lazy = true];
 inline int TestAllTypes::_internal_repeated_lazy_message_size() const { return repeated_lazy_message_.size(); }
-inline int TestAllTypes::repeated_lazy_message_size() const {
-  return _internal_repeated_lazy_message_size();
+inline int TestAllTypes::repeated_lazy_message_size() const
+{
+	return _internal_repeated_lazy_message_size();
 }
 inline void TestAllTypes::clear_repeated_lazy_message() {
   repeated_lazy_message_.Clear();
@@ -4388,15 +4428,12 @@ TestAllTypes::repeated_lazy_message() const {
 }
 
 // uint32 oneof_uint32 = 111;
-inline bool TestAllTypes::_internal_has_oneof_uint32() const {
-  return oneof_field_case() == kOneofUint32;
+inline bool TestAllTypes::_internal_has_oneof_uint32() const { return oneof_field_case() == kOneofUint32; }
+inline bool TestAllTypes::has_oneof_uint32() const
+{
+	return _internal_has_oneof_uint32();
 }
-inline bool TestAllTypes::has_oneof_uint32() const {
-  return _internal_has_oneof_uint32();
-}
-inline void TestAllTypes::set_has_oneof_uint32() {
-  _oneof_case_[0] = kOneofUint32;
-}
+inline void TestAllTypes::set_has_oneof_uint32() { _oneof_case_[0] = kOneofUint32; }
 inline void TestAllTypes::clear_oneof_uint32() {
   if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
@@ -4423,15 +4460,12 @@ inline void TestAllTypes::set_oneof_uint32(uint32_t value) {
 }
 
 // .proto3_lite_unittest.TestAllTypes.NestedMessage oneof_nested_message = 112;
-inline bool TestAllTypes::_internal_has_oneof_nested_message() const {
-  return oneof_field_case() == kOneofNestedMessage;
+inline bool TestAllTypes::_internal_has_oneof_nested_message() const { return oneof_field_case() == kOneofNestedMessage; }
+inline bool TestAllTypes::has_oneof_nested_message() const
+{
+	return _internal_has_oneof_nested_message();
 }
-inline bool TestAllTypes::has_oneof_nested_message() const {
-  return _internal_has_oneof_nested_message();
-}
-inline void TestAllTypes::set_has_oneof_nested_message() {
-  _oneof_case_[0] = kOneofNestedMessage;
-}
+inline void TestAllTypes::set_has_oneof_nested_message() { _oneof_case_[0] = kOneofNestedMessage; }
 inline void TestAllTypes::clear_oneof_nested_message() {
   if(_internal_has_oneof_nested_message()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -4493,15 +4527,12 @@ inline ::proto3_lite_unittest::TestAllTypes_NestedMessage* TestAllTypes::mutable
 }
 
 // string oneof_string = 113;
-inline bool TestAllTypes::_internal_has_oneof_string() const {
-  return oneof_field_case() == kOneofString;
+inline bool TestAllTypes::_internal_has_oneof_string() const { return oneof_field_case() == kOneofString; }
+inline bool TestAllTypes::has_oneof_string() const
+{
+	return _internal_has_oneof_string();
 }
-inline bool TestAllTypes::has_oneof_string() const {
-  return _internal_has_oneof_string();
-}
-inline void TestAllTypes::set_has_oneof_string() {
-  _oneof_case_[0] = kOneofString;
-}
+inline void TestAllTypes::set_has_oneof_string() { _oneof_case_[0] = kOneofString; }
 inline void TestAllTypes::clear_oneof_string() {
   if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -4574,15 +4605,12 @@ inline void TestAllTypes::set_allocated_oneof_string(std::string* oneof_string) 
 }
 
 // bytes oneof_bytes = 114;
-inline bool TestAllTypes::_internal_has_oneof_bytes() const {
-  return oneof_field_case() == kOneofBytes;
+inline bool TestAllTypes::_internal_has_oneof_bytes() const { return oneof_field_case() == kOneofBytes; }
+inline bool TestAllTypes::has_oneof_bytes() const
+{
+	return _internal_has_oneof_bytes();
 }
-inline bool TestAllTypes::has_oneof_bytes() const {
-  return _internal_has_oneof_bytes();
-}
-inline void TestAllTypes::set_has_oneof_bytes() {
-  _oneof_case_[0] = kOneofBytes;
-}
+inline void TestAllTypes::set_has_oneof_bytes() { _oneof_case_[0] = kOneofBytes; }
 inline void TestAllTypes::clear_oneof_bytes() {
   if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -4654,12 +4682,8 @@ inline void TestAllTypes::set_allocated_oneof_bytes(std::string* oneof_bytes) {
   // @@protoc_insertion_point(field_set_allocated:proto3_lite_unittest.TestAllTypes.oneof_bytes)
 }
 
-inline bool TestAllTypes::has_oneof_field() const {
-  return oneof_field_case() != ONEOF_FIELD_NOT_SET;
-}
-inline void TestAllTypes::clear_has_oneof_field() {
-  _oneof_case_[0] = ONEOF_FIELD_NOT_SET;
-}
+inline bool TestAllTypes::has_oneof_field() const { return oneof_field_case() != ONEOF_FIELD_NOT_SET; }
+inline void TestAllTypes::clear_has_oneof_field() { _oneof_case_[0] = ONEOF_FIELD_NOT_SET; }
 inline TestAllTypes::OneofFieldCase TestAllTypes::oneof_field_case() const { return TestAllTypes::OneofFieldCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -4667,8 +4691,9 @@ inline TestAllTypes::OneofFieldCase TestAllTypes::oneof_field_case() const { ret
 
 // repeated int32 packed_int32 = 90 [packed = true];
 inline int TestPackedTypes::_internal_packed_int32_size() const { return packed_int32_.size(); }
-inline int TestPackedTypes::packed_int32_size() const {
-  return _internal_packed_int32_size();
+inline int TestPackedTypes::packed_int32_size() const
+{
+	return _internal_packed_int32_size();
 }
 inline void TestPackedTypes::clear_packed_int32() {
   packed_int32_.Clear();
@@ -4706,8 +4731,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestPackedTypes::muta
 
 // repeated int64 packed_int64 = 91 [packed = true];
 inline int TestPackedTypes::_internal_packed_int64_size() const { return packed_int64_.size(); }
-inline int TestPackedTypes::packed_int64_size() const {
-  return _internal_packed_int64_size();
+inline int TestPackedTypes::packed_int64_size() const
+{
+	return _internal_packed_int64_size();
 }
 inline void TestPackedTypes::clear_packed_int64() {
   packed_int64_.Clear();
@@ -4745,8 +4771,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestPackedTypes::muta
 
 // repeated uint32 packed_uint32 = 92 [packed = true];
 inline int TestPackedTypes::_internal_packed_uint32_size() const { return packed_uint32_.size(); }
-inline int TestPackedTypes::packed_uint32_size() const {
-  return _internal_packed_uint32_size();
+inline int TestPackedTypes::packed_uint32_size() const
+{
+	return _internal_packed_uint32_size();
 }
 inline void TestPackedTypes::clear_packed_uint32() {
   packed_uint32_.Clear();
@@ -4784,8 +4811,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestPackedTypes::mut
 
 // repeated uint64 packed_uint64 = 93 [packed = true];
 inline int TestPackedTypes::_internal_packed_uint64_size() const { return packed_uint64_.size(); }
-inline int TestPackedTypes::packed_uint64_size() const {
-  return _internal_packed_uint64_size();
+inline int TestPackedTypes::packed_uint64_size() const
+{
+	return _internal_packed_uint64_size();
 }
 inline void TestPackedTypes::clear_packed_uint64() {
   packed_uint64_.Clear();
@@ -4823,8 +4851,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestPackedTypes::mut
 
 // repeated sint32 packed_sint32 = 94 [packed = true];
 inline int TestPackedTypes::_internal_packed_sint32_size() const { return packed_sint32_.size(); }
-inline int TestPackedTypes::packed_sint32_size() const {
-  return _internal_packed_sint32_size();
+inline int TestPackedTypes::packed_sint32_size() const
+{
+	return _internal_packed_sint32_size();
 }
 inline void TestPackedTypes::clear_packed_sint32() {
   packed_sint32_.Clear();
@@ -4862,8 +4891,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestPackedTypes::muta
 
 // repeated sint64 packed_sint64 = 95 [packed = true];
 inline int TestPackedTypes::_internal_packed_sint64_size() const { return packed_sint64_.size(); }
-inline int TestPackedTypes::packed_sint64_size() const {
-  return _internal_packed_sint64_size();
+inline int TestPackedTypes::packed_sint64_size() const
+{
+	return _internal_packed_sint64_size();
 }
 inline void TestPackedTypes::clear_packed_sint64() {
   packed_sint64_.Clear();
@@ -4901,8 +4931,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestPackedTypes::muta
 
 // repeated fixed32 packed_fixed32 = 96 [packed = true];
 inline int TestPackedTypes::_internal_packed_fixed32_size() const { return packed_fixed32_.size(); }
-inline int TestPackedTypes::packed_fixed32_size() const {
-  return _internal_packed_fixed32_size();
+inline int TestPackedTypes::packed_fixed32_size() const
+{
+	return _internal_packed_fixed32_size();
 }
 inline void TestPackedTypes::clear_packed_fixed32() {
   packed_fixed32_.Clear();
@@ -4940,8 +4971,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestPackedTypes::mut
 
 // repeated fixed64 packed_fixed64 = 97 [packed = true];
 inline int TestPackedTypes::_internal_packed_fixed64_size() const { return packed_fixed64_.size(); }
-inline int TestPackedTypes::packed_fixed64_size() const {
-  return _internal_packed_fixed64_size();
+inline int TestPackedTypes::packed_fixed64_size() const
+{
+	return _internal_packed_fixed64_size();
 }
 inline void TestPackedTypes::clear_packed_fixed64() {
   packed_fixed64_.Clear();
@@ -4979,8 +5011,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestPackedTypes::mut
 
 // repeated sfixed32 packed_sfixed32 = 98 [packed = true];
 inline int TestPackedTypes::_internal_packed_sfixed32_size() const { return packed_sfixed32_.size(); }
-inline int TestPackedTypes::packed_sfixed32_size() const {
-  return _internal_packed_sfixed32_size();
+inline int TestPackedTypes::packed_sfixed32_size() const
+{
+	return _internal_packed_sfixed32_size();
 }
 inline void TestPackedTypes::clear_packed_sfixed32() {
   packed_sfixed32_.Clear();
@@ -5018,8 +5051,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestPackedTypes::muta
 
 // repeated sfixed64 packed_sfixed64 = 99 [packed = true];
 inline int TestPackedTypes::_internal_packed_sfixed64_size() const { return packed_sfixed64_.size(); }
-inline int TestPackedTypes::packed_sfixed64_size() const {
-  return _internal_packed_sfixed64_size();
+inline int TestPackedTypes::packed_sfixed64_size() const
+{
+	return _internal_packed_sfixed64_size();
 }
 inline void TestPackedTypes::clear_packed_sfixed64() {
   packed_sfixed64_.Clear();
@@ -5057,8 +5091,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestPackedTypes::muta
 
 // repeated float packed_float = 100 [packed = true];
 inline int TestPackedTypes::_internal_packed_float_size() const { return packed_float_.size(); }
-inline int TestPackedTypes::packed_float_size() const {
-  return _internal_packed_float_size();
+inline int TestPackedTypes::packed_float_size() const
+{
+	return _internal_packed_float_size();
 }
 inline void TestPackedTypes::clear_packed_float() {
   packed_float_.Clear();
@@ -5096,8 +5131,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * TestPackedTypes::mutabl
 
 // repeated double packed_double = 101 [packed = true];
 inline int TestPackedTypes::_internal_packed_double_size() const { return packed_double_.size(); }
-inline int TestPackedTypes::packed_double_size() const {
-  return _internal_packed_double_size();
+inline int TestPackedTypes::packed_double_size() const
+{
+	return _internal_packed_double_size();
 }
 inline void TestPackedTypes::clear_packed_double() {
   packed_double_.Clear();
@@ -5135,8 +5171,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * TestPackedTypes::mutab
 
 // repeated bool packed_bool = 102 [packed = true];
 inline int TestPackedTypes::_internal_packed_bool_size() const { return packed_bool_.size(); }
-inline int TestPackedTypes::packed_bool_size() const {
-  return _internal_packed_bool_size();
+inline int TestPackedTypes::packed_bool_size() const
+{
+	return _internal_packed_bool_size();
 }
 inline void TestPackedTypes::clear_packed_bool() {
   packed_bool_.Clear();
@@ -5174,39 +5211,46 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * TestPackedTypes::mutable
 
 // repeated .proto3_lite_unittest.ForeignEnum packed_enum = 103 [packed = true];
 inline int TestPackedTypes::_internal_packed_enum_size() const { return packed_enum_.size(); }
-inline int TestPackedTypes::packed_enum_size() const {
-  return _internal_packed_enum_size();
+inline int TestPackedTypes::packed_enum_size() const
+{
+	return _internal_packed_enum_size();
 }
 inline void TestPackedTypes::clear_packed_enum() {
   packed_enum_.Clear();
 }
 inline ::proto3_lite_unittest::ForeignEnum TestPackedTypes::_internal_packed_enum(int index) const { return static_cast< ::proto3_lite_unittest::ForeignEnum >(packed_enum_.Get(index)); }
-inline ::proto3_lite_unittest::ForeignEnum TestPackedTypes::packed_enum(int index) const {
-  // @@protoc_insertion_point(field_get:proto3_lite_unittest.TestPackedTypes.packed_enum)
-  return _internal_packed_enum(index);
+inline ::proto3_lite_unittest::ForeignEnum TestPackedTypes::packed_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:proto3_lite_unittest.TestPackedTypes.packed_enum)
+	return _internal_packed_enum(index);
 }
-inline void TestPackedTypes::set_packed_enum(int index, ::proto3_lite_unittest::ForeignEnum value) {
-  packed_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:proto3_lite_unittest.TestPackedTypes.packed_enum)
+inline void TestPackedTypes::set_packed_enum(int index, ::proto3_lite_unittest::ForeignEnum value)
+{
+	packed_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:proto3_lite_unittest.TestPackedTypes.packed_enum)
 }
-inline void TestPackedTypes::_internal_add_packed_enum(::proto3_lite_unittest::ForeignEnum value) {
-  packed_enum_.Add(value);
+inline void TestPackedTypes::_internal_add_packed_enum(::proto3_lite_unittest::ForeignEnum value)
+{
+	packed_enum_.Add(value);
 }
-inline void TestPackedTypes::add_packed_enum(::proto3_lite_unittest::ForeignEnum value) {
-  _internal_add_packed_enum(value);
-  // @@protoc_insertion_point(field_add:proto3_lite_unittest.TestPackedTypes.packed_enum)
+inline void TestPackedTypes::add_packed_enum(::proto3_lite_unittest::ForeignEnum value)
+{
+	_internal_add_packed_enum(value);
+	// @@protoc_insertion_point(field_add:proto3_lite_unittest.TestPackedTypes.packed_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestPackedTypes::packed_enum() const {
-  // @@protoc_insertion_point(field_list:proto3_lite_unittest.TestPackedTypes.packed_enum)
-  return packed_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestPackedTypes::packed_enum() const
+{
+	// @@protoc_insertion_point(field_list:proto3_lite_unittest.TestPackedTypes.packed_enum)
+	return packed_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestPackedTypes::_internal_mutable_packed_enum() {
-  return &packed_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestPackedTypes::_internal_mutable_packed_enum()
+{
+	return &packed_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestPackedTypes::mutable_packed_enum() {
-  // @@protoc_insertion_point(field_mutable_list:proto3_lite_unittest.TestPackedTypes.packed_enum)
-  return _internal_mutable_packed_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestPackedTypes::mutable_packed_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:proto3_lite_unittest.TestPackedTypes.packed_enum)
+	return _internal_mutable_packed_enum();
 }
 
 // -------------------------------------------------------------------
@@ -5215,8 +5259,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestPackedTypes::mutable_pa
 
 // repeated int32 repeated_int32 = 1 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_int32_size() const { return repeated_int32_.size(); }
-inline int TestUnpackedTypes::repeated_int32_size() const {
-  return _internal_repeated_int32_size();
+inline int TestUnpackedTypes::repeated_int32_size() const
+{
+	return _internal_repeated_int32_size();
 }
 inline void TestUnpackedTypes::clear_repeated_int32() {
   repeated_int32_.Clear();
@@ -5254,8 +5299,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestUnpackedTypes::mu
 
 // repeated int64 repeated_int64 = 2 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_int64_size() const { return repeated_int64_.size(); }
-inline int TestUnpackedTypes::repeated_int64_size() const {
-  return _internal_repeated_int64_size();
+inline int TestUnpackedTypes::repeated_int64_size() const
+{
+	return _internal_repeated_int64_size();
 }
 inline void TestUnpackedTypes::clear_repeated_int64() {
   repeated_int64_.Clear();
@@ -5293,8 +5339,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestUnpackedTypes::mu
 
 // repeated uint32 repeated_uint32 = 3 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_uint32_size() const { return repeated_uint32_.size(); }
-inline int TestUnpackedTypes::repeated_uint32_size() const {
-  return _internal_repeated_uint32_size();
+inline int TestUnpackedTypes::repeated_uint32_size() const
+{
+	return _internal_repeated_uint32_size();
 }
 inline void TestUnpackedTypes::clear_repeated_uint32() {
   repeated_uint32_.Clear();
@@ -5332,8 +5379,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestUnpackedTypes::m
 
 // repeated uint64 repeated_uint64 = 4 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_uint64_size() const { return repeated_uint64_.size(); }
-inline int TestUnpackedTypes::repeated_uint64_size() const {
-  return _internal_repeated_uint64_size();
+inline int TestUnpackedTypes::repeated_uint64_size() const
+{
+	return _internal_repeated_uint64_size();
 }
 inline void TestUnpackedTypes::clear_repeated_uint64() {
   repeated_uint64_.Clear();
@@ -5371,8 +5419,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestUnpackedTypes::m
 
 // repeated sint32 repeated_sint32 = 5 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_sint32_size() const { return repeated_sint32_.size(); }
-inline int TestUnpackedTypes::repeated_sint32_size() const {
-  return _internal_repeated_sint32_size();
+inline int TestUnpackedTypes::repeated_sint32_size() const
+{
+	return _internal_repeated_sint32_size();
 }
 inline void TestUnpackedTypes::clear_repeated_sint32() {
   repeated_sint32_.Clear();
@@ -5410,8 +5459,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestUnpackedTypes::mu
 
 // repeated sint64 repeated_sint64 = 6 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_sint64_size() const { return repeated_sint64_.size(); }
-inline int TestUnpackedTypes::repeated_sint64_size() const {
-  return _internal_repeated_sint64_size();
+inline int TestUnpackedTypes::repeated_sint64_size() const
+{
+	return _internal_repeated_sint64_size();
 }
 inline void TestUnpackedTypes::clear_repeated_sint64() {
   repeated_sint64_.Clear();
@@ -5449,8 +5499,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestUnpackedTypes::mu
 
 // repeated fixed32 repeated_fixed32 = 7 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_fixed32_size() const { return repeated_fixed32_.size(); }
-inline int TestUnpackedTypes::repeated_fixed32_size() const {
-  return _internal_repeated_fixed32_size();
+inline int TestUnpackedTypes::repeated_fixed32_size() const
+{
+	return _internal_repeated_fixed32_size();
 }
 inline void TestUnpackedTypes::clear_repeated_fixed32() {
   repeated_fixed32_.Clear();
@@ -5488,8 +5539,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestUnpackedTypes::m
 
 // repeated fixed64 repeated_fixed64 = 8 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_fixed64_size() const { return repeated_fixed64_.size(); }
-inline int TestUnpackedTypes::repeated_fixed64_size() const {
-  return _internal_repeated_fixed64_size();
+inline int TestUnpackedTypes::repeated_fixed64_size() const
+{
+	return _internal_repeated_fixed64_size();
 }
 inline void TestUnpackedTypes::clear_repeated_fixed64() {
   repeated_fixed64_.Clear();
@@ -5527,8 +5579,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestUnpackedTypes::m
 
 // repeated sfixed32 repeated_sfixed32 = 9 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_sfixed32_size() const { return repeated_sfixed32_.size(); }
-inline int TestUnpackedTypes::repeated_sfixed32_size() const {
-  return _internal_repeated_sfixed32_size();
+inline int TestUnpackedTypes::repeated_sfixed32_size() const
+{
+	return _internal_repeated_sfixed32_size();
 }
 inline void TestUnpackedTypes::clear_repeated_sfixed32() {
   repeated_sfixed32_.Clear();
@@ -5566,8 +5619,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestUnpackedTypes::mu
 
 // repeated sfixed64 repeated_sfixed64 = 10 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_sfixed64_size() const { return repeated_sfixed64_.size(); }
-inline int TestUnpackedTypes::repeated_sfixed64_size() const {
-  return _internal_repeated_sfixed64_size();
+inline int TestUnpackedTypes::repeated_sfixed64_size() const
+{
+	return _internal_repeated_sfixed64_size();
 }
 inline void TestUnpackedTypes::clear_repeated_sfixed64() {
   repeated_sfixed64_.Clear();
@@ -5605,8 +5659,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestUnpackedTypes::mu
 
 // repeated float repeated_float = 11 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_float_size() const { return repeated_float_.size(); }
-inline int TestUnpackedTypes::repeated_float_size() const {
-  return _internal_repeated_float_size();
+inline int TestUnpackedTypes::repeated_float_size() const
+{
+	return _internal_repeated_float_size();
 }
 inline void TestUnpackedTypes::clear_repeated_float() {
   repeated_float_.Clear();
@@ -5644,8 +5699,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * TestUnpackedTypes::muta
 
 // repeated double repeated_double = 12 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_double_size() const { return repeated_double_.size(); }
-inline int TestUnpackedTypes::repeated_double_size() const {
-  return _internal_repeated_double_size();
+inline int TestUnpackedTypes::repeated_double_size() const
+{
+	return _internal_repeated_double_size();
 }
 inline void TestUnpackedTypes::clear_repeated_double() {
   repeated_double_.Clear();
@@ -5683,8 +5739,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * TestUnpackedTypes::mut
 
 // repeated bool repeated_bool = 13 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_bool_size() const { return repeated_bool_.size(); }
-inline int TestUnpackedTypes::repeated_bool_size() const {
-  return _internal_repeated_bool_size();
+inline int TestUnpackedTypes::repeated_bool_size() const
+{
+	return _internal_repeated_bool_size();
 }
 inline void TestUnpackedTypes::clear_repeated_bool() {
   repeated_bool_.Clear();
@@ -5722,39 +5779,46 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * TestUnpackedTypes::mutab
 
 // repeated .proto3_lite_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 14 [packed = false];
 inline int TestUnpackedTypes::_internal_repeated_nested_enum_size() const { return repeated_nested_enum_.size(); }
-inline int TestUnpackedTypes::repeated_nested_enum_size() const {
-  return _internal_repeated_nested_enum_size();
+inline int TestUnpackedTypes::repeated_nested_enum_size() const
+{
+	return _internal_repeated_nested_enum_size();
 }
 inline void TestUnpackedTypes::clear_repeated_nested_enum() {
   repeated_nested_enum_.Clear();
 }
 inline ::proto3_lite_unittest::TestAllTypes_NestedEnum TestUnpackedTypes::_internal_repeated_nested_enum(int index) const { return static_cast< ::proto3_lite_unittest::TestAllTypes_NestedEnum >(repeated_nested_enum_.Get(index)); }
-inline ::proto3_lite_unittest::TestAllTypes_NestedEnum TestUnpackedTypes::repeated_nested_enum(int index) const {
-  // @@protoc_insertion_point(field_get:proto3_lite_unittest.TestUnpackedTypes.repeated_nested_enum)
-  return _internal_repeated_nested_enum(index);
+inline ::proto3_lite_unittest::TestAllTypes_NestedEnum TestUnpackedTypes::repeated_nested_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:proto3_lite_unittest.TestUnpackedTypes.repeated_nested_enum)
+	return _internal_repeated_nested_enum(index);
 }
-inline void TestUnpackedTypes::set_repeated_nested_enum(int index, ::proto3_lite_unittest::TestAllTypes_NestedEnum value) {
-  repeated_nested_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:proto3_lite_unittest.TestUnpackedTypes.repeated_nested_enum)
+inline void TestUnpackedTypes::set_repeated_nested_enum(int index, ::proto3_lite_unittest::TestAllTypes_NestedEnum value)
+{
+	repeated_nested_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:proto3_lite_unittest.TestUnpackedTypes.repeated_nested_enum)
 }
-inline void TestUnpackedTypes::_internal_add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value) {
-  repeated_nested_enum_.Add(value);
+inline void TestUnpackedTypes::_internal_add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value)
+{
+	repeated_nested_enum_.Add(value);
 }
-inline void TestUnpackedTypes::add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value) {
-  _internal_add_repeated_nested_enum(value);
-  // @@protoc_insertion_point(field_add:proto3_lite_unittest.TestUnpackedTypes.repeated_nested_enum)
+inline void TestUnpackedTypes::add_repeated_nested_enum(::proto3_lite_unittest::TestAllTypes_NestedEnum value)
+{
+	_internal_add_repeated_nested_enum(value);
+	// @@protoc_insertion_point(field_add:proto3_lite_unittest.TestUnpackedTypes.repeated_nested_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestUnpackedTypes::repeated_nested_enum() const {
-  // @@protoc_insertion_point(field_list:proto3_lite_unittest.TestUnpackedTypes.repeated_nested_enum)
-  return repeated_nested_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestUnpackedTypes::repeated_nested_enum() const
+{
+	// @@protoc_insertion_point(field_list:proto3_lite_unittest.TestUnpackedTypes.repeated_nested_enum)
+	return repeated_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestUnpackedTypes::_internal_mutable_repeated_nested_enum() {
-  return &repeated_nested_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestUnpackedTypes::_internal_mutable_repeated_nested_enum()
+{
+	return &repeated_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestUnpackedTypes::mutable_repeated_nested_enum() {
-  // @@protoc_insertion_point(field_mutable_list:proto3_lite_unittest.TestUnpackedTypes.repeated_nested_enum)
-  return _internal_mutable_repeated_nested_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestUnpackedTypes::mutable_repeated_nested_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:proto3_lite_unittest.TestUnpackedTypes.repeated_nested_enum)
+	return _internal_mutable_repeated_nested_enum();
 }
 
 // -------------------------------------------------------------------
@@ -5763,8 +5827,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestUnpackedTypes::mutable_
 
 // .proto3_lite_unittest.NestedTestAllTypes child = 1;
 inline bool NestedTestAllTypes::_internal_has_child() const { return this != internal_default_instance() && child_ != nullptr; }
-inline bool NestedTestAllTypes::has_child() const {
-  return _internal_has_child();
+inline bool NestedTestAllTypes::has_child() const
+{
+	return _internal_has_child();
 }
 inline void NestedTestAllTypes::clear_child() {
   if(GetArenaForAllocation() == nullptr && child_ != nullptr) {
@@ -5850,8 +5915,9 @@ inline void NestedTestAllTypes::set_allocated_child(::proto3_lite_unittest::Nest
 
 // .proto3_lite_unittest.TestAllTypes payload = 2;
 inline bool NestedTestAllTypes::_internal_has_payload() const { return this != internal_default_instance() && payload_ != nullptr; }
-inline bool NestedTestAllTypes::has_payload() const {
-  return _internal_has_payload();
+inline bool NestedTestAllTypes::has_payload() const
+{
+	return _internal_has_payload();
 }
 inline void NestedTestAllTypes::clear_payload() {
   if(GetArenaForAllocation() == nullptr && payload_ != nullptr) {

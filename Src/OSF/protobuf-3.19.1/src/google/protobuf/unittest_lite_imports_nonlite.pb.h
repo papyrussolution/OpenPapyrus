@@ -156,8 +156,8 @@ class TestLiteImportsNonlite final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMessageFieldNumber = 1,
-    kMessageWithRequiredFieldNumber = 2,
+  	kMessageFieldNumber = 1,
+  	kMessageWithRequiredFieldNumber = 2,
   };
   // optional .protobuf_unittest.TestAllTypes message = 1;
   bool has_message() const;
@@ -223,10 +223,10 @@ class TestLiteImportsNonlite final :
 inline bool TestLiteImportsNonlite::_internal_has_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestLiteImportsNonlite::has_message() const {
-  return _internal_has_message();
+	return _internal_has_message();
 }
 inline const ::protobuf_unittest::TestAllTypes& TestLiteImportsNonlite::_internal_message() const {
   const ::protobuf_unittest::TestAllTypes* p = message_;
@@ -309,10 +309,10 @@ inline void TestLiteImportsNonlite::set_allocated_message(::protobuf_unittest::T
 inline bool TestLiteImportsNonlite::_internal_has_message_with_required() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || message_with_required_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestLiteImportsNonlite::has_message_with_required() const {
-  return _internal_has_message_with_required();
+	return _internal_has_message_with_required();
 }
 inline const ::protobuf_unittest::TestRequired& TestLiteImportsNonlite::_internal_message_with_required() const {
   const ::protobuf_unittest::TestRequired* p = message_with_required_;

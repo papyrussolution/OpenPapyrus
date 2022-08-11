@@ -171,7 +171,7 @@ class Four final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAStringFieldNumber = 1,
+  	kAStringFieldNumber = 1,
   };
   // string a_string = 1;
   void clear_a_string();

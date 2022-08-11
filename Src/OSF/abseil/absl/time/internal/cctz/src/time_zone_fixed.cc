@@ -49,21 +49,21 @@ bool FixedOffsetFromName(const std::string & name, seconds* offset)
 	if(np[0] != '+' && np[0] != '-') return false;
 	if(np[3] != ':' || np[6] != ':') // see note below about large offsets
 		return false;
-
 	int hours = Parse02d(np + 1);
 	if(hours == -1) return false;
 	int mins = Parse02d(np + 4);
 	if(mins == -1) return false;
 	int secs = Parse02d(np + 7);
 	if(secs == -1) return false;
-
 	secs += ((hours * 60) + mins) * 60;
-	if(secs > 24 * 60 * 60) return false; // outside supported offset range
+	if(secs > SSECSPERDAY) 
+		return false; // outside supported offset range
 	*offset = seconds(secs * (np[0] == '-' ? -1 : 1)); // "-" means west
 	return true;
 }
 
-std::string FixedOffsetToName(const seconds& offset) {
+std::string FixedOffsetToName(const seconds& offset) 
+{
 	if(offset == seconds::zero()) return "UTC";
 	if(offset < std::chrono::hours(-24) || offset > std::chrono::hours(24)) {
 		// We don't support fixed-offset zones more than 24 hours

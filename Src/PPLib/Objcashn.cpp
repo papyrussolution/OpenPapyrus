@@ -1361,6 +1361,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			SetClusterData(CTL_EXTDEV_EGAISMODE, Data.EgaisMode);
 			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 0, CASHFX_CHECKEGAISMUNIQ); // @v10.1.1
 			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 1, CASHFX_BNKSLIPAFTERRCPT); // @v10.9.11
+			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 2, CASHFX_SYNCOPENSESSSOFT); // @v11.4.7
 			SetClusterData(CTL_EXTDEV_CHKEGMUNIQ, Data.ExtFlags); // @v10.1.1
 			Data.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
 			setCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);

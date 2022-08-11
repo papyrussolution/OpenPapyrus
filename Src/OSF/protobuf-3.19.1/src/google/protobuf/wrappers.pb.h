@@ -197,7 +197,7 @@ class DoubleValue final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // double value = 1;
   void clear_value();
@@ -324,7 +324,7 @@ class FloatValue final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // float value = 1;
   void clear_value();
@@ -451,7 +451,7 @@ class Int64Value final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // int64 value = 1;
   void clear_value();
@@ -578,7 +578,7 @@ class UInt64Value final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // uint64 value = 1;
   void clear_value();
@@ -705,7 +705,7 @@ class Int32Value final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // int32 value = 1;
   void clear_value();
@@ -832,7 +832,7 @@ class UInt32Value final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // uint32 value = 1;
   void clear_value();
@@ -959,7 +959,7 @@ class BoolValue final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // bool value = 1;
   void clear_value();
@@ -1086,7 +1086,7 @@ class StringValue final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // string value = 1;
   void clear_value();
@@ -1218,7 +1218,7 @@ class BytesValue final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // bytes value = 1;
   void clear_value();

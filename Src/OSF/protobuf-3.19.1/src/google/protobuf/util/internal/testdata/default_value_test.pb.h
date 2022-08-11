@@ -210,17 +210,17 @@ class DefaultValueTest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedDoubleFieldNumber = 2,
-    kStringValueFieldNumber = 15,
-    kBytesValueFieldNumber = 17,
-    kDoubleValueFieldNumber = 1,
-    kInt64ValueFieldNumber = 5,
-    kFloatValueFieldNumber = 3,
-    kInt32ValueFieldNumber = 9,
-    kUint64ValueFieldNumber = 7,
-    kUint32ValueFieldNumber = 11,
-    kBoolValueFieldNumber = 13,
-    kEnumValueFieldNumber = 18,
+  	kRepeatedDoubleFieldNumber = 2,
+  	kStringValueFieldNumber = 15,
+  	kBytesValueFieldNumber = 17,
+  	kDoubleValueFieldNumber = 1,
+  	kInt64ValueFieldNumber = 5,
+  	kFloatValueFieldNumber = 3,
+  	kInt32ValueFieldNumber = 9,
+  	kUint64ValueFieldNumber = 7,
+  	kUint32ValueFieldNumber = 11,
+  	kBoolValueFieldNumber = 13,
+  	kEnumValueFieldNumber = 18,
   };
   // repeated double repeated_double = 2;
   int repeated_double_size() const;
@@ -396,8 +396,9 @@ inline void DefaultValueTest::set_double_value(double value) {
 
 // repeated double repeated_double = 2;
 inline int DefaultValueTest::_internal_repeated_double_size() const { return repeated_double_.size(); }
-inline int DefaultValueTest::repeated_double_size() const {
-  return _internal_repeated_double_size();
+inline int DefaultValueTest::repeated_double_size() const
+{
+	return _internal_repeated_double_size();
 }
 inline void DefaultValueTest::clear_repeated_double() {
   repeated_double_.Clear();

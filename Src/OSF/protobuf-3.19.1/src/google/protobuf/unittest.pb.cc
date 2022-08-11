@@ -5839,20 +5839,20 @@ uint8_t* TestAllTypes::_InternalSerialize(
 
   // repeated .protobuf_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 51;
   for(int i = 0, n = this->_internal_repeated_nested_enum_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(51, this->_internal_repeated_nested_enum(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(51, this->_internal_repeated_nested_enum(i), target);
   }
 
   // repeated .protobuf_unittest.ForeignEnum repeated_foreign_enum = 52;
   for(int i = 0, n = this->_internal_repeated_foreign_enum_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(52, this->_internal_repeated_foreign_enum(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(52, this->_internal_repeated_foreign_enum(i), target);
   }
 
   // repeated .protobuf_unittest_import.ImportEnum repeated_import_enum = 53;
   for(int i = 0, n = this->_internal_repeated_import_enum_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(53, this->_internal_repeated_import_enum(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(53, this->_internal_repeated_import_enum(i), target);
   }
 
   // repeated string repeated_string_piece = 54 [ctype = STRING_PIECE];
@@ -6190,27 +6190,27 @@ size_t TestAllTypes::ByteSizeLong() const {
 
   // repeated .protobuf_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 51;
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_nested_enum_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_nested_enum(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_repeated_nested_enum_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_nested_enum(static_cast<int>(i)));
     }
     total_size += (2UL * count) + data_size;
   }
 
   // repeated .protobuf_unittest.ForeignEnum repeated_foreign_enum = 52;
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_foreign_enum_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_foreign_enum(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_repeated_foreign_enum_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_foreign_enum(static_cast<int>(i)));
     }
     total_size += (2UL * count) + data_size;
   }
 
   // repeated .protobuf_unittest_import.ImportEnum repeated_import_enum = 53;
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_import_enum_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_import_enum(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_repeated_import_enum_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_import_enum(static_cast<int>(i)));
     }
     total_size += (2UL * count) + data_size;
   }
@@ -15296,8 +15296,8 @@ uint8_t* TestCamelCaseFieldNames::_InternalSerialize(
 
   // repeated .protobuf_unittest.ForeignEnum RepeatedEnumField = 9;
   for(int i = 0, n = this->_internal_repeatedenumfield_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(9, this->_internal_repeatedenumfield(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(9, this->_internal_repeatedenumfield(i), target);
   }
 
   // repeated .protobuf_unittest.ForeignMessage RepeatedMessageField = 10;
@@ -15357,9 +15357,9 @@ size_t TestCamelCaseFieldNames::ByteSizeLong() const {
 
   // repeated .protobuf_unittest.ForeignEnum RepeatedEnumField = 9;
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeatedenumfield_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeatedenumfield(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_repeatedenumfield_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeatedenumfield(static_cast<int>(i)));
     }
     total_size += (1UL * count) + data_size;
   }
@@ -22889,10 +22889,10 @@ uint8_t* TestPackedTypes::_InternalSerialize(
 
   // repeated .protobuf_unittest.ForeignEnum packed_enum = 103 [packed = true];
   {
-    int byte_size = _packed_enum_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteEnumPacked(103, packed_enum_, byte_size, target);
-    }
+  	int byte_size = _packed_enum_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteEnumPacked(103, packed_enum_, byte_size, target);
+  	}
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -23049,12 +23049,12 @@ size_t TestPackedTypes::ByteSizeLong() const {
 
   // repeated .protobuf_unittest.ForeignEnum packed_enum = 103 [packed = true];
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_packed_enum_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_packed_enum(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_packed_enum_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_packed_enum(static_cast<int>(i)));
     }
     if(data_size > 0) {
-      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _packed_enum_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -23567,8 +23567,8 @@ uint8_t* TestUnpackedTypes::_InternalSerialize(
 
   // repeated .protobuf_unittest.ForeignEnum unpacked_enum = 103 [packed = false];
   for(int i = 0, n = this->_internal_unpacked_enum_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(103, this->_internal_unpacked_enum(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(103, this->_internal_unpacked_enum(i), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -23687,9 +23687,9 @@ size_t TestUnpackedTypes::ByteSizeLong() const {
 
   // repeated .protobuf_unittest.ForeignEnum unpacked_enum = 103 [packed = false];
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_unpacked_enum_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_unpacked_enum(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_unpacked_enum_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_unpacked_enum(static_cast<int>(i)));
     }
     total_size += (2UL * count) + data_size;
   }
@@ -27821,8 +27821,8 @@ uint8_t* TestHugeFieldNumbers::_InternalSerialize(
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -27831,27 +27831,26 @@ uint8_t* TestHugeFieldNumbers::_InternalSerialize(
           p->second.data(), static_cast<int>(p->second.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
           "protobuf_unittest.TestHugeFieldNumbers.StringStringMapEntry.value");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_string_string_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_string_string_map().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
-          it = this->_internal_string_string_map().begin();
-          it != this->_internal_string_string_map().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_string_string_map().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator it = this->_internal_string_string_map().begin(); it != this->_internal_string_string_map().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestHugeFieldNumbers_StringStringMapEntry_DoNotUse::Funcs::InternalSerialize(536870010, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
-          it = this->_internal_string_string_map().begin();
-          it != this->_internal_string_string_map().end(); ++it) {
+      	it = this->_internal_string_string_map().begin();
+      	it != this->_internal_string_string_map().end(); ++it) {
         target = TestHugeFieldNumbers_StringStringMapEntry_DoNotUse::Funcs::InternalSerialize(536870010, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -28919,438 +28918,192 @@ void TestService_Stub::Bar(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
 }
 const std::string TestNestedExtension_test_default("test");
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestNestedExtension::kTestFieldNumber;
+	const int TestNestedExtension::kTestFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  TestNestedExtension::test(kTestFieldNumber, TestNestedExtension_test_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > TestNestedExtension::test(kTestFieldNumber, TestNestedExtension_test_default);
 const std::string TestNestedExtension_nested_string_extension_default("");
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestNestedExtension::kNestedStringExtensionFieldNumber;
+	const int TestNestedExtension::kNestedStringExtensionFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  TestNestedExtension::nested_string_extension(kNestedStringExtensionFieldNumber, TestNestedExtension_nested_string_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > TestNestedExtension::nested_string_extension(kNestedStringExtensionFieldNumber, TestNestedExtension_nested_string_extension_default);
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestNestedExtension::kOptionalgroupExtensionFieldNumber;
+	const int TestNestedExtension::kOptionalgroupExtensionFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestGroupExtension,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestNestedExtension_OptionalGroup_extension >, 10, false >
-  TestNestedExtension::optionalgroup_extension(kOptionalgroupExtensionFieldNumber, ::protobuf_unittest::TestNestedExtension_OptionalGroup_extension::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestGroupExtension, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestNestedExtension_OptionalGroup_extension >, 10, false > TestNestedExtension::optionalgroup_extension(kOptionalgroupExtensionFieldNumber, ::protobuf_unittest::TestNestedExtension_OptionalGroup_extension::default_instance());
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestNestedExtension::kOptionalForeignEnumExtensionFieldNumber;
+	const int TestNestedExtension::kOptionalForeignEnumExtensionFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestGroupExtension,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false >
-  TestNestedExtension::optional_foreign_enum_extension(kOptionalForeignEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(4));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestGroupExtension, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false > TestNestedExtension::optional_foreign_enum_extension(kOptionalForeignEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(4));
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestRequired::kSingleFieldNumber;
+	const int TestRequired::kSingleFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestRequired >, 11, false >
-  TestRequired::single(kSingleFieldNumber, ::protobuf_unittest::TestRequired::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestRequired >, 11, false > TestRequired::single(kSingleFieldNumber, ::protobuf_unittest::TestRequired::default_instance());
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestRequired::kMultiFieldNumber;
+	const int TestRequired::kMultiFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestRequired >, 11, false >
-  TestRequired::multi(kMultiFieldNumber, ::protobuf_unittest::TestRequired::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestRequired >, 11, false > TestRequired::multi(kMultiFieldNumber, ::protobuf_unittest::TestRequired::default_instance());
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestExtensionOrderings1::kTestExtOrderings1FieldNumber;
+	const int TestExtensionOrderings1::kTestExtOrderings1FieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings1 >, 11, false >
-  TestExtensionOrderings1::test_ext_orderings1(kTestExtOrderings1FieldNumber, ::protobuf_unittest::TestExtensionOrderings1::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings1 >, 11, false > TestExtensionOrderings1::test_ext_orderings1(kTestExtOrderings1FieldNumber, ::protobuf_unittest::TestExtensionOrderings1::default_instance());
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestExtensionOrderings2_TestExtensionOrderings3::kTestExtOrderings3FieldNumber;
+	const int TestExtensionOrderings2_TestExtensionOrderings3::kTestExtOrderings3FieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings2_TestExtensionOrderings3 >, 11, false >
-  TestExtensionOrderings2_TestExtensionOrderings3::test_ext_orderings3(kTestExtOrderings3FieldNumber, ::protobuf_unittest::TestExtensionOrderings2_TestExtensionOrderings3::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings2_TestExtensionOrderings3 >, 11, false > TestExtensionOrderings2_TestExtensionOrderings3::test_ext_orderings3(kTestExtOrderings3FieldNumber, ::protobuf_unittest::TestExtensionOrderings2_TestExtensionOrderings3::default_instance());
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestExtensionOrderings2::kTestExtOrderings2FieldNumber;
+	const int TestExtensionOrderings2::kTestExtOrderings2FieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings2 >, 11, false >
-  TestExtensionOrderings2::test_ext_orderings2(kTestExtOrderings2FieldNumber, ::protobuf_unittest::TestExtensionOrderings2::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings2 >, 11, false > TestExtensionOrderings2::test_ext_orderings2(kTestExtOrderings2FieldNumber, ::protobuf_unittest::TestExtensionOrderings2::default_instance());
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestParsingMerge::kOptionalExtFieldNumber;
+	const int TestParsingMerge::kOptionalExtFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestParsingMerge,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false >
-  TestParsingMerge::optional_ext(kOptionalExtFieldNumber, ::protobuf_unittest::TestAllTypes::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestParsingMerge, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false > TestParsingMerge::optional_ext(kOptionalExtFieldNumber, ::protobuf_unittest::TestAllTypes::default_instance());
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestParsingMerge::kRepeatedExtFieldNumber;
+	const int TestParsingMerge::kRepeatedExtFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestParsingMerge,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false >
-  TestParsingMerge::repeated_ext(kRepeatedExtFieldNumber, ::protobuf_unittest::TestAllTypes::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestParsingMerge, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false > TestParsingMerge::repeated_ext(kRepeatedExtFieldNumber, ::protobuf_unittest::TestAllTypes::default_instance());
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestExtensionRangeSerialize::kBarOneFieldNumber;
+	const int TestExtensionRangeSerialize::kBarOneFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  TestExtensionRangeSerialize::bar_one(kBarOneFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > TestExtensionRangeSerialize::bar_one(kBarOneFieldNumber, 0);
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestExtensionRangeSerialize::kBarTwoFieldNumber;
+	const int TestExtensionRangeSerialize::kBarTwoFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  TestExtensionRangeSerialize::bar_two(kBarTwoFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > TestExtensionRangeSerialize::bar_two(kBarTwoFieldNumber, 0);
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestExtensionRangeSerialize::kBarThreeFieldNumber;
+	const int TestExtensionRangeSerialize::kBarThreeFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  TestExtensionRangeSerialize::bar_three(kBarThreeFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > TestExtensionRangeSerialize::bar_three(kBarThreeFieldNumber, 0);
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestExtensionRangeSerialize::kBarFourFieldNumber;
+	const int TestExtensionRangeSerialize::kBarFourFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  TestExtensionRangeSerialize::bar_four(kBarFourFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > TestExtensionRangeSerialize::bar_four(kBarFourFieldNumber, 0);
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestExtensionRangeSerialize::kBarFiveFieldNumber;
+	const int TestExtensionRangeSerialize::kBarFiveFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  TestExtensionRangeSerialize::bar_five(kBarFiveFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  optional_int32_extension(kOptionalInt32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 3, false >
-  optional_int64_extension(kOptionalInt64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false >
-  optional_uint32_extension(kOptionalUint32ExtensionFieldNumber, 0u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false >
-  optional_uint64_extension(kOptionalUint64ExtensionFieldNumber, uint64_t{0u});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 17, false >
-  optional_sint32_extension(kOptionalSint32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false >
-  optional_sint64_extension(kOptionalSint64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 7, false >
-  optional_fixed32_extension(kOptionalFixed32ExtensionFieldNumber, 0u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false >
-  optional_fixed64_extension(kOptionalFixed64ExtensionFieldNumber, uint64_t{0u});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false >
-  optional_sfixed32_extension(kOptionalSfixed32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 16, false >
-  optional_sfixed64_extension(kOptionalSfixed64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< float >, 2, false >
-  optional_float_extension(kOptionalFloatExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< double >, 1, false >
-  optional_double_extension(kOptionalDoubleExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< bool >, 8, false >
-  optional_bool_extension(kOptionalBoolExtensionFieldNumber, false);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > TestExtensionRangeSerialize::bar_five(kBarFiveFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > optional_int32_extension(kOptionalInt32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 3, false > optional_int64_extension(kOptionalInt64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false > optional_uint32_extension(kOptionalUint32ExtensionFieldNumber, 0u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false > optional_uint64_extension(kOptionalUint64ExtensionFieldNumber, uint64_t{0u});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 17, false > optional_sint32_extension(kOptionalSint32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false > optional_sint64_extension(kOptionalSint64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 7, false > optional_fixed32_extension(kOptionalFixed32ExtensionFieldNumber, 0u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false > optional_fixed64_extension(kOptionalFixed64ExtensionFieldNumber, uint64_t{0u});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false > optional_sfixed32_extension(kOptionalSfixed32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 16, false > optional_sfixed64_extension(kOptionalSfixed64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< float >, 2, false > optional_float_extension(kOptionalFloatExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< double >, 1, false > optional_double_extension(kOptionalDoubleExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< bool >, 8, false > optional_bool_extension(kOptionalBoolExtensionFieldNumber, false);
 const std::string optional_string_extension_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  optional_string_extension(kOptionalStringExtensionFieldNumber, optional_string_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > optional_string_extension(kOptionalStringExtensionFieldNumber, optional_string_extension_default);
 const std::string optional_bytes_extension_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false >
-  optional_bytes_extension(kOptionalBytesExtensionFieldNumber, optional_bytes_extension_default);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::OptionalGroup_extension >, 10, false >
-  optionalgroup_extension(kOptionalgroupExtensionFieldNumber, ::protobuf_unittest::OptionalGroup_extension::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false >
-  optional_nested_message_extension(kOptionalNestedMessageExtensionFieldNumber, ::protobuf_unittest::TestAllTypes_NestedMessage::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ForeignMessage >, 11, false >
-  optional_foreign_message_extension(kOptionalForeignMessageExtensionFieldNumber, ::protobuf_unittest::ForeignMessage::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest_import::ImportMessage >, 11, false >
-  optional_import_message_extension(kOptionalImportMessageExtensionFieldNumber, ::protobuf_unittest_import::ImportMessage::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false >
-  optional_nested_enum_extension(kOptionalNestedEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::TestAllTypes_NestedEnum >(1));
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false >
-  optional_foreign_enum_extension(kOptionalForeignEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(4));
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false >
-  optional_import_enum_extension(kOptionalImportEnumExtensionFieldNumber, static_cast< ::protobuf_unittest_import::ImportEnum >(7));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false > optional_bytes_extension(kOptionalBytesExtensionFieldNumber, optional_bytes_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::OptionalGroup_extension >, 10, false > optionalgroup_extension(kOptionalgroupExtensionFieldNumber, ::protobuf_unittest::OptionalGroup_extension::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false > optional_nested_message_extension(kOptionalNestedMessageExtensionFieldNumber, ::protobuf_unittest::TestAllTypes_NestedMessage::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ForeignMessage >, 11, false > optional_foreign_message_extension(kOptionalForeignMessageExtensionFieldNumber, ::protobuf_unittest::ForeignMessage::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest_import::ImportMessage >, 11, false > optional_import_message_extension(kOptionalImportMessageExtensionFieldNumber, ::protobuf_unittest_import::ImportMessage::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false > optional_nested_enum_extension(kOptionalNestedEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::TestAllTypes_NestedEnum >(1));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false > optional_foreign_enum_extension(kOptionalForeignEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(4));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false > optional_import_enum_extension(kOptionalImportEnumExtensionFieldNumber, static_cast< ::protobuf_unittest_import::ImportEnum >(7));
 const std::string optional_string_piece_extension_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  optional_string_piece_extension(kOptionalStringPieceExtensionFieldNumber, optional_string_piece_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > optional_string_piece_extension(kOptionalStringPieceExtensionFieldNumber, optional_string_piece_extension_default);
 const std::string optional_cord_extension_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  optional_cord_extension(kOptionalCordExtensionFieldNumber, optional_cord_extension_default);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest_import::PublicImportMessage >, 11, false >
-  optional_public_import_message_extension(kOptionalPublicImportMessageExtensionFieldNumber, ::protobuf_unittest_import::PublicImportMessage::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false >
-  optional_lazy_message_extension(kOptionalLazyMessageExtensionFieldNumber, ::protobuf_unittest::TestAllTypes_NestedMessage::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, false >
-  repeated_int32_extension(kRepeatedInt32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, false >
-  repeated_int64_extension(kRepeatedInt64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, false >
-  repeated_uint32_extension(kRepeatedUint32ExtensionFieldNumber, 0u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, false >
-  repeated_uint64_extension(kRepeatedUint64ExtensionFieldNumber, uint64_t{0u});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, false >
-  repeated_sint32_extension(kRepeatedSint32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, false >
-  repeated_sint64_extension(kRepeatedSint64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, false >
-  repeated_fixed32_extension(kRepeatedFixed32ExtensionFieldNumber, 0u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, false >
-  repeated_fixed64_extension(kRepeatedFixed64ExtensionFieldNumber, uint64_t{0u});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, false >
-  repeated_sfixed32_extension(kRepeatedSfixed32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, false >
-  repeated_sfixed64_extension(kRepeatedSfixed64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, false >
-  repeated_float_extension(kRepeatedFloatExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, false >
-  repeated_double_extension(kRepeatedDoubleExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, false >
-  repeated_bool_extension(kRepeatedBoolExtensionFieldNumber, false);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > optional_cord_extension(kOptionalCordExtensionFieldNumber, optional_cord_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest_import::PublicImportMessage >, 11, false > optional_public_import_message_extension(kOptionalPublicImportMessageExtensionFieldNumber, ::protobuf_unittest_import::PublicImportMessage::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false > optional_lazy_message_extension(kOptionalLazyMessageExtensionFieldNumber, ::protobuf_unittest::TestAllTypes_NestedMessage::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, false > repeated_int32_extension(kRepeatedInt32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, false > repeated_int64_extension(kRepeatedInt64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, false > repeated_uint32_extension(kRepeatedUint32ExtensionFieldNumber, 0u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, false > repeated_uint64_extension(kRepeatedUint64ExtensionFieldNumber, uint64_t{0u});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, false > repeated_sint32_extension(kRepeatedSint32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, false > repeated_sint64_extension(kRepeatedSint64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, false > repeated_fixed32_extension(kRepeatedFixed32ExtensionFieldNumber, 0u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, false > repeated_fixed64_extension(kRepeatedFixed64ExtensionFieldNumber, uint64_t{0u});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, false > repeated_sfixed32_extension(kRepeatedSfixed32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, false > repeated_sfixed64_extension(kRepeatedSfixed64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, false > repeated_float_extension(kRepeatedFloatExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, false > repeated_double_extension(kRepeatedDoubleExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, false > repeated_bool_extension(kRepeatedBoolExtensionFieldNumber, false);
 const std::string repeated_string_extension_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false >
-  repeated_string_extension(kRepeatedStringExtensionFieldNumber, repeated_string_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false > repeated_string_extension(kRepeatedStringExtensionFieldNumber, repeated_string_extension_default);
 const std::string repeated_bytes_extension_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 12, false >
-  repeated_bytes_extension(kRepeatedBytesExtensionFieldNumber, repeated_bytes_extension_default);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::RepeatedGroup_extension >, 10, false >
-  repeatedgroup_extension(kRepeatedgroupExtensionFieldNumber, ::protobuf_unittest::RepeatedGroup_extension::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false >
-  repeated_nested_message_extension(kRepeatedNestedMessageExtensionFieldNumber, ::protobuf_unittest::TestAllTypes_NestedMessage::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::ForeignMessage >, 11, false >
-  repeated_foreign_message_extension(kRepeatedForeignMessageExtensionFieldNumber, ::protobuf_unittest::ForeignMessage::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest_import::ImportMessage >, 11, false >
-  repeated_import_message_extension(kRepeatedImportMessageExtensionFieldNumber, ::protobuf_unittest_import::ImportMessage::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false >
-  repeated_nested_enum_extension(kRepeatedNestedEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::TestAllTypes_NestedEnum >(1));
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false >
-  repeated_foreign_enum_extension(kRepeatedForeignEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(4));
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false >
-  repeated_import_enum_extension(kRepeatedImportEnumExtensionFieldNumber, static_cast< ::protobuf_unittest_import::ImportEnum >(7));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 12, false > repeated_bytes_extension(kRepeatedBytesExtensionFieldNumber, repeated_bytes_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::RepeatedGroup_extension >, 10, false > repeatedgroup_extension(kRepeatedgroupExtensionFieldNumber, ::protobuf_unittest::RepeatedGroup_extension::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false > repeated_nested_message_extension(kRepeatedNestedMessageExtensionFieldNumber, ::protobuf_unittest::TestAllTypes_NestedMessage::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::ForeignMessage >, 11, false > repeated_foreign_message_extension(kRepeatedForeignMessageExtensionFieldNumber, ::protobuf_unittest::ForeignMessage::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest_import::ImportMessage >, 11, false > repeated_import_message_extension(kRepeatedImportMessageExtensionFieldNumber, ::protobuf_unittest_import::ImportMessage::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false > repeated_nested_enum_extension(kRepeatedNestedEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::TestAllTypes_NestedEnum >(1));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false > repeated_foreign_enum_extension(kRepeatedForeignEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(4));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false > repeated_import_enum_extension(kRepeatedImportEnumExtensionFieldNumber, static_cast< ::protobuf_unittest_import::ImportEnum >(7));
 const std::string repeated_string_piece_extension_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false >
-  repeated_string_piece_extension(kRepeatedStringPieceExtensionFieldNumber, repeated_string_piece_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false > repeated_string_piece_extension(kRepeatedStringPieceExtensionFieldNumber, repeated_string_piece_extension_default);
 const std::string repeated_cord_extension_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false >
-  repeated_cord_extension(kRepeatedCordExtensionFieldNumber, repeated_cord_extension_default);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false >
-  repeated_lazy_message_extension(kRepeatedLazyMessageExtensionFieldNumber, ::protobuf_unittest::TestAllTypes_NestedMessage::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  default_int32_extension(kDefaultInt32ExtensionFieldNumber, 41);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 3, false >
-  default_int64_extension(kDefaultInt64ExtensionFieldNumber, int64_t{42});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false >
-  default_uint32_extension(kDefaultUint32ExtensionFieldNumber, 43u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false >
-  default_uint64_extension(kDefaultUint64ExtensionFieldNumber, uint64_t{44u});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 17, false >
-  default_sint32_extension(kDefaultSint32ExtensionFieldNumber, -45);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false >
-  default_sint64_extension(kDefaultSint64ExtensionFieldNumber, int64_t{46});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 7, false >
-  default_fixed32_extension(kDefaultFixed32ExtensionFieldNumber, 47u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false >
-  default_fixed64_extension(kDefaultFixed64ExtensionFieldNumber, uint64_t{48u});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false >
-  default_sfixed32_extension(kDefaultSfixed32ExtensionFieldNumber, 49);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 16, false >
-  default_sfixed64_extension(kDefaultSfixed64ExtensionFieldNumber, int64_t{-50});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< float >, 2, false >
-  default_float_extension(kDefaultFloatExtensionFieldNumber, 51.5f);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< double >, 1, false >
-  default_double_extension(kDefaultDoubleExtensionFieldNumber, 52000);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< bool >, 8, false >
-  default_bool_extension(kDefaultBoolExtensionFieldNumber, true);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false > repeated_cord_extension(kRepeatedCordExtensionFieldNumber, repeated_cord_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false > repeated_lazy_message_extension(kRepeatedLazyMessageExtensionFieldNumber, ::protobuf_unittest::TestAllTypes_NestedMessage::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > default_int32_extension(kDefaultInt32ExtensionFieldNumber, 41);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 3, false > default_int64_extension(kDefaultInt64ExtensionFieldNumber, int64_t{42});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false > default_uint32_extension(kDefaultUint32ExtensionFieldNumber, 43u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false > default_uint64_extension(kDefaultUint64ExtensionFieldNumber, uint64_t{44u});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 17, false > default_sint32_extension(kDefaultSint32ExtensionFieldNumber, -45);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false > default_sint64_extension(kDefaultSint64ExtensionFieldNumber, int64_t{46});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 7, false > default_fixed32_extension(kDefaultFixed32ExtensionFieldNumber, 47u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false > default_fixed64_extension(kDefaultFixed64ExtensionFieldNumber, uint64_t{48u});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false > default_sfixed32_extension(kDefaultSfixed32ExtensionFieldNumber, 49);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 16, false > default_sfixed64_extension(kDefaultSfixed64ExtensionFieldNumber, int64_t{-50});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< float >, 2, false > default_float_extension(kDefaultFloatExtensionFieldNumber, 51.5f);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< double >, 1, false > default_double_extension(kDefaultDoubleExtensionFieldNumber, 52000);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< bool >, 8, false > default_bool_extension(kDefaultBoolExtensionFieldNumber, true);
 const std::string default_string_extension_default("hello");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  default_string_extension(kDefaultStringExtensionFieldNumber, default_string_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > default_string_extension(kDefaultStringExtensionFieldNumber, default_string_extension_default);
 const std::string default_bytes_extension_default("world");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false >
-  default_bytes_extension(kDefaultBytesExtensionFieldNumber, default_bytes_extension_default);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false >
-  default_nested_enum_extension(kDefaultNestedEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::TestAllTypes_NestedEnum >(2));
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false >
-  default_foreign_enum_extension(kDefaultForeignEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(5));
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false >
-  default_import_enum_extension(kDefaultImportEnumExtensionFieldNumber, static_cast< ::protobuf_unittest_import::ImportEnum >(8));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false > default_bytes_extension(kDefaultBytesExtensionFieldNumber, default_bytes_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false > default_nested_enum_extension(kDefaultNestedEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::TestAllTypes_NestedEnum >(2));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false > default_foreign_enum_extension(kDefaultForeignEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(5));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false > default_import_enum_extension(kDefaultImportEnumExtensionFieldNumber, static_cast< ::protobuf_unittest_import::ImportEnum >(8));
 const std::string default_string_piece_extension_default("abc");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  default_string_piece_extension(kDefaultStringPieceExtensionFieldNumber, default_string_piece_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > default_string_piece_extension(kDefaultStringPieceExtensionFieldNumber, default_string_piece_extension_default);
 const std::string default_cord_extension_default("123");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  default_cord_extension(kDefaultCordExtensionFieldNumber, default_cord_extension_default);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false >
-  oneof_uint32_extension(kOneofUint32ExtensionFieldNumber, 0u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false >
-  oneof_nested_message_extension(kOneofNestedMessageExtensionFieldNumber, ::protobuf_unittest::TestAllTypes_NestedMessage::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > default_cord_extension(kDefaultCordExtensionFieldNumber, default_cord_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false > oneof_uint32_extension(kOneofUint32ExtensionFieldNumber, 0u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false > oneof_nested_message_extension(kOneofNestedMessageExtensionFieldNumber, ::protobuf_unittest::TestAllTypes_NestedMessage::default_instance());
 const std::string oneof_string_extension_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  oneof_string_extension(kOneofStringExtensionFieldNumber, oneof_string_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > oneof_string_extension(kOneofStringExtensionFieldNumber, oneof_string_extension_default);
 const std::string oneof_bytes_extension_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false >
-  oneof_bytes_extension(kOneofBytesExtensionFieldNumber, oneof_bytes_extension_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false > oneof_bytes_extension(kOneofBytesExtensionFieldNumber, oneof_bytes_extension_default);
 const std::string my_extension_string_default("");
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  my_extension_string(kMyExtensionStringFieldNumber, my_extension_string_default);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  my_extension_int(kMyExtensionIntFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, true >
-  packed_int32_extension(kPackedInt32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, true >
-  packed_int64_extension(kPackedInt64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, true >
-  packed_uint32_extension(kPackedUint32ExtensionFieldNumber, 0u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, true >
-  packed_uint64_extension(kPackedUint64ExtensionFieldNumber, uint64_t{0u});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, true >
-  packed_sint32_extension(kPackedSint32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, true >
-  packed_sint64_extension(kPackedSint64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, true >
-  packed_fixed32_extension(kPackedFixed32ExtensionFieldNumber, 0u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, true >
-  packed_fixed64_extension(kPackedFixed64ExtensionFieldNumber, uint64_t{0u});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, true >
-  packed_sfixed32_extension(kPackedSfixed32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, true >
-  packed_sfixed64_extension(kPackedSfixed64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, true >
-  packed_float_extension(kPackedFloatExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, true >
-  packed_double_extension(kPackedDoubleExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, true >
-  packed_bool_extension(kPackedBoolExtensionFieldNumber, false);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, true >
-  packed_enum_extension(kPackedEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(4));
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, false >
-  unpacked_int32_extension(kUnpackedInt32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, false >
-  unpacked_int64_extension(kUnpackedInt64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, false >
-  unpacked_uint32_extension(kUnpackedUint32ExtensionFieldNumber, 0u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, false >
-  unpacked_uint64_extension(kUnpackedUint64ExtensionFieldNumber, uint64_t{0u});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, false >
-  unpacked_sint32_extension(kUnpackedSint32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, false >
-  unpacked_sint64_extension(kUnpackedSint64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, false >
-  unpacked_fixed32_extension(kUnpackedFixed32ExtensionFieldNumber, 0u);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, false >
-  unpacked_fixed64_extension(kUnpackedFixed64ExtensionFieldNumber, uint64_t{0u});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, false >
-  unpacked_sfixed32_extension(kUnpackedSfixed32ExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, false >
-  unpacked_sfixed64_extension(kUnpackedSfixed64ExtensionFieldNumber, int64_t{0});
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, false >
-  unpacked_float_extension(kUnpackedFloatExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, false >
-  unpacked_double_extension(kUnpackedDoubleExtensionFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, false >
-  unpacked_bool_extension(kUnpackedBoolExtensionFieldNumber, false);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false >
-  unpacked_enum_extension(kUnpackedEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(4));
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestHugeFieldNumbers,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false >
-  test_all_types(kTestAllTypesFieldNumber, ::protobuf_unittest::TestAllTypes::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionInsideTable,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  test_extension_inside_table_extension(kTestExtensionInsideTableExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > my_extension_string(kMyExtensionStringFieldNumber, my_extension_string_default);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > my_extension_int(kMyExtensionIntFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, true > packed_int32_extension(kPackedInt32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, true > packed_int64_extension(kPackedInt64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, true > packed_uint32_extension(kPackedUint32ExtensionFieldNumber, 0u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, true > packed_uint64_extension(kPackedUint64ExtensionFieldNumber, uint64_t{0u});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, true > packed_sint32_extension(kPackedSint32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, true > packed_sint64_extension(kPackedSint64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, true > packed_fixed32_extension(kPackedFixed32ExtensionFieldNumber, 0u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, true > packed_fixed64_extension(kPackedFixed64ExtensionFieldNumber, uint64_t{0u});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, true > packed_sfixed32_extension(kPackedSfixed32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, true > packed_sfixed64_extension(kPackedSfixed64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, true > packed_float_extension(kPackedFloatExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, true > packed_double_extension(kPackedDoubleExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, true > packed_bool_extension(kPackedBoolExtensionFieldNumber, false);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, true > packed_enum_extension(kPackedEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(4));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, false > unpacked_int32_extension(kUnpackedInt32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, false > unpacked_int64_extension(kUnpackedInt64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, false > unpacked_uint32_extension(kUnpackedUint32ExtensionFieldNumber, 0u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, false > unpacked_uint64_extension(kUnpackedUint64ExtensionFieldNumber, uint64_t{0u});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, false > unpacked_sint32_extension(kUnpackedSint32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, false > unpacked_sint64_extension(kUnpackedSint64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, false > unpacked_fixed32_extension(kUnpackedFixed32ExtensionFieldNumber, 0u);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, false > unpacked_fixed64_extension(kUnpackedFixed64ExtensionFieldNumber, uint64_t{0u});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, false > unpacked_sfixed32_extension(kUnpackedSfixed32ExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, false > unpacked_sfixed64_extension(kUnpackedSfixed64ExtensionFieldNumber, int64_t{0});
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, false > unpacked_float_extension(kUnpackedFloatExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, false > unpacked_double_extension(kUnpackedDoubleExtensionFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, false > unpacked_bool_extension(kUnpackedBoolExtensionFieldNumber, false);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false > unpacked_enum_extension(kUnpackedEnumExtensionFieldNumber, static_cast< ::protobuf_unittest::ForeignEnum >(4));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestHugeFieldNumbers, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false > test_all_types(kTestAllTypesFieldNumber, ::protobuf_unittest::TestAllTypes::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionInsideTable, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > test_extension_inside_table_extension(kTestExtensionInsideTableExtensionFieldNumber, 0);
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest

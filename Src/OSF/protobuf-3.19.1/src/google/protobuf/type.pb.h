@@ -266,12 +266,12 @@ class Type final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFieldsFieldNumber = 2,
-    kOneofsFieldNumber = 3,
-    kOptionsFieldNumber = 4,
-    kNameFieldNumber = 1,
-    kSourceContextFieldNumber = 5,
-    kSyntaxFieldNumber = 6,
+  	kFieldsFieldNumber = 2,
+  	kOneofsFieldNumber = 3,
+  	kOptionsFieldNumber = 4,
+  	kNameFieldNumber = 1,
+  	kSourceContextFieldNumber = 5,
+  	kSyntaxFieldNumber = 6,
   };
   // repeated .google.protobuf.Field fields = 2;
   int fields_size() const;
@@ -546,16 +546,16 @@ class Field final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOptionsFieldNumber = 9,
-    kNameFieldNumber = 4,
-    kTypeUrlFieldNumber = 6,
-    kJsonNameFieldNumber = 10,
-    kDefaultValueFieldNumber = 11,
-    kKindFieldNumber = 1,
-    kCardinalityFieldNumber = 2,
-    kNumberFieldNumber = 3,
-    kOneofIndexFieldNumber = 7,
-    kPackedFieldNumber = 8,
+  	kOptionsFieldNumber = 9,
+  	kNameFieldNumber = 4,
+  	kTypeUrlFieldNumber = 6,
+  	kJsonNameFieldNumber = 10,
+  	kDefaultValueFieldNumber = 11,
+  	kKindFieldNumber = 1,
+  	kCardinalityFieldNumber = 2,
+  	kNumberFieldNumber = 3,
+  	kOneofIndexFieldNumber = 7,
+  	kPackedFieldNumber = 8,
   };
   // repeated .google.protobuf.Option options = 9;
   int options_size() const;
@@ -799,11 +799,11 @@ class Enum final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEnumvalueFieldNumber = 2,
-    kOptionsFieldNumber = 3,
-    kNameFieldNumber = 1,
-    kSourceContextFieldNumber = 4,
-    kSyntaxFieldNumber = 5,
+  	kEnumvalueFieldNumber = 2,
+  	kOptionsFieldNumber = 3,
+  	kNameFieldNumber = 1,
+  	kSourceContextFieldNumber = 4,
+  	kSyntaxFieldNumber = 5,
   };
   // repeated .google.protobuf.EnumValue enumvalue = 2;
   int enumvalue_size() const;
@@ -998,9 +998,9 @@ class EnumValue final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOptionsFieldNumber = 3,
-    kNameFieldNumber = 1,
-    kNumberFieldNumber = 2,
+  	kOptionsFieldNumber = 3,
+  	kNameFieldNumber = 1,
+  	kNumberFieldNumber = 2,
   };
   // repeated .google.protobuf.Option options = 3;
   int options_size() const;
@@ -1159,8 +1159,8 @@ class Option final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNameFieldNumber = 1,
-    kValueFieldNumber = 2,
+  	kNameFieldNumber = 1,
+  	kValueFieldNumber = 2,
   };
   // string name = 1;
   void clear_name();
@@ -1267,8 +1267,9 @@ inline void Type::set_allocated_name(std::string* name) {
 
 // repeated .google.protobuf.Field fields = 2;
 inline int Type::_internal_fields_size() const { return fields_.size(); }
-inline int Type::fields_size() const {
-  return _internal_fields_size();
+inline int Type::fields_size() const
+{
+	return _internal_fields_size();
 }
 inline void Type::clear_fields() {
   fields_.Clear();
@@ -1303,8 +1304,9 @@ Type::fields() const {
 
 // repeated string oneofs = 3;
 inline int Type::_internal_oneofs_size() const { return oneofs_.size(); }
-inline int Type::oneofs_size() const {
-  return _internal_oneofs_size();
+inline int Type::oneofs_size() const
+{
+	return _internal_oneofs_size();
 }
 inline void Type::clear_oneofs() {
   oneofs_.Clear();
@@ -1371,8 +1373,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * Type::mutable_on
 
 // repeated .google.protobuf.Option options = 4;
 inline int Type::_internal_options_size() const { return options_.size(); }
-inline int Type::options_size() const {
-  return _internal_options_size();
+inline int Type::options_size() const
+{
+	return _internal_options_size();
 }
 inline void Type::clear_options() {
   options_.Clear();
@@ -1407,8 +1410,9 @@ Type::options() const {
 
 // .google.protobuf.SourceContext source_context = 5;
 inline bool Type::_internal_has_source_context() const { return this != internal_default_instance() && source_context_ != nullptr; }
-inline bool Type::has_source_context() const {
-  return _internal_has_source_context();
+inline bool Type::has_source_context() const
+{
+	return _internal_has_source_context();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::SourceContext& Type::_internal_source_context() const {
   const ::PROTOBUF_NAMESPACE_ID::SourceContext* p = source_context_;
@@ -1697,8 +1701,9 @@ inline void Field::set_packed(bool value) {
 
 // repeated .google.protobuf.Option options = 9;
 inline int Field::_internal_options_size() const { return options_.size(); }
-inline int Field::options_size() const {
-  return _internal_options_size();
+inline int Field::options_size() const
+{
+	return _internal_options_size();
 }
 inline void Field::clear_options() {
   options_.Clear();
@@ -1881,8 +1886,9 @@ inline void Enum::set_allocated_name(std::string* name) {
 
 // repeated .google.protobuf.EnumValue enumvalue = 2;
 inline int Enum::_internal_enumvalue_size() const { return enumvalue_.size(); }
-inline int Enum::enumvalue_size() const {
-  return _internal_enumvalue_size();
+inline int Enum::enumvalue_size() const
+{
+	return _internal_enumvalue_size();
 }
 inline void Enum::clear_enumvalue() {
   enumvalue_.Clear();
@@ -1917,8 +1923,9 @@ Enum::enumvalue() const {
 
 // repeated .google.protobuf.Option options = 3;
 inline int Enum::_internal_options_size() const { return options_.size(); }
-inline int Enum::options_size() const {
-  return _internal_options_size();
+inline int Enum::options_size() const
+{
+	return _internal_options_size();
 }
 inline void Enum::clear_options() {
   options_.Clear();
@@ -1953,8 +1960,9 @@ Enum::options() const {
 
 // .google.protobuf.SourceContext source_context = 4;
 inline bool Enum::_internal_has_source_context() const { return this != internal_default_instance() && source_context_ != nullptr; }
-inline bool Enum::has_source_context() const {
-  return _internal_has_source_context();
+inline bool Enum::has_source_context() const
+{
+	return _internal_has_source_context();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::SourceContext& Enum::_internal_source_context() const {
   const ::PROTOBUF_NAMESPACE_ID::SourceContext* p = source_context_;
@@ -2123,8 +2131,9 @@ inline void EnumValue::set_number(int32_t value) {
 
 // repeated .google.protobuf.Option options = 3;
 inline int EnumValue::_internal_options_size() const { return options_.size(); }
-inline int EnumValue::options_size() const {
-  return _internal_options_size();
+inline int EnumValue::options_size() const
+{
+	return _internal_options_size();
 }
 inline void EnumValue::clear_options() {
   options_.Clear();
@@ -2211,8 +2220,9 @@ inline void Option::set_allocated_name(std::string* name) {
 
 // .google.protobuf.Any value = 2;
 inline bool Option::_internal_has_value() const { return this != internal_default_instance() && value_ != nullptr; }
-inline bool Option::has_value() const {
-  return _internal_has_value();
+inline bool Option::has_value() const
+{
+	return _internal_has_value();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& Option::_internal_value() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = value_;

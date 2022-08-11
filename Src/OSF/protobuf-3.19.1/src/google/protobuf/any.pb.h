@@ -179,8 +179,8 @@ class Any final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kTypeUrlFieldNumber = 1,
-    kValueFieldNumber = 2,
+  	kTypeUrlFieldNumber = 1,
+  	kValueFieldNumber = 2,
   };
   // string type_url = 1;
   void clear_type_url();

@@ -41,7 +41,7 @@
                             android:layout_height="wrap_content"
                             android:layout_width="match_parent"
                             android:layout_marginRight="16dp"
-                            android:text="@{billno}"
+                            android:text="@{code}"
                             />
                         <TextView style="@style/FormText"
                             android:id="@+id/CTL_DOCUMENT_CODE"
@@ -60,10 +60,29 @@
                             android:layout_height="wrap_content"
                             android:layout_width="match_parent"
                             android:layout_marginRight="16dp"
-                            android:text="@{billdate}"
+                            android:text="@{date}"
                             />
                         <TextView style="@style/FormText"
                             android:id="@+id/CTL_DOCUMENT_DATE"
+                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_weight="1"
+                            />
+                    </LinearLayout>
+                    <LinearLayout style="@style/TextWithLabel"
+                        android:layout_height="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView style="@style/FormLabelText"
+                            android:id="@+id/CTLLBL_DOCUMENT_DUEDATE"
+                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_marginRight="16dp"
+                            android:text="@{duedate}"
+                            />
+                        <TextView style="@style/FormText"
+                            android:id="@+id/CTL_DOCUMENT_DUEDATE"
                             android:layout_height="wrap_content"
                             android:layout_width="match_parent"
                             android:layout_weight="1"

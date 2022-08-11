@@ -16,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.IdRes;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
@@ -40,6 +42,8 @@ public class CommonPrereqModule {
 	public SimpleSearchResult SearchResult;
 	public ArrayList <CliEntry> CliListData;
 	public ArrayList<JSONObject> GoodsGroupListData;
+	public ArrayList <BusinessEntity.Brand> BrandListData;
+	public ArrayList <Document> IncomingDocListData;
 	public GoodsFilt Gf;
 	private String BaseCurrencySymb;
 	private int AgentID; // Если исходный документ для формирования заказов ассоциирован
@@ -119,7 +123,8 @@ public class CommonPrereqModule {
 		tabCurrentOrder,
 		tabBookingDocument,
 		tabOrders,
-		tabSearch
+		tabSearch,
+		tabIncomingList
 	}
 	public static class TabEntry {
 		TabEntry(CommonPrereqModule.Tab id, String text, /*View*/SLib.SlFragmentStatic view)
@@ -908,6 +913,19 @@ public class CommonPrereqModule {
 			}
 		}
 	}
+	public void AddBrandsToSimpleIndex()
+	{
+		if(BrandListData != null) {
+			for(int i = 0; i < BrandListData.size(); i++) {
+				BusinessEntity.Brand item = BrandListData.get(i);
+				if(item != null) {
+					int id = item.ID;
+					if(id > 0 && SLib.GetLen(item.Name) > 0)
+						AddSimpleIndexEntry(SLib.PPOBJ_BRAND, id, SLib.PPOBJATTR_NAME, item.Name, null);
+				}
+			}
+		}
+	}
 	public boolean SearchInSimpleIndex(String pattern)
 	{
 		final int min_pattern_len = 4;
@@ -981,7 +999,9 @@ public class CommonPrereqModule {
 		CmdDescr = null;
 		CmdUuid = null;
 		GoodsGroupListData = null;
+		BrandListData = null;
 		GoodsListData = null;
+		IncomingDocListData = null;
 		BaseCurrencySymb = null;
 		AgentID = 0;
 		PosNodeID = 0;
@@ -1033,7 +1053,85 @@ public class CommonPrereqModule {
 				title_text = (SLib.GetLen(title_text) > 0) ? (title_text + "\n" + CmdDescr) : CmdDescr;
 			if(SLib.GetLen(title_text) > 0)
 				SLib.SetCtrlString(ActivityInstance, R.id.CTL_PAGEHEADER_TOPIC, title_text);
-			SLib.SetupImage(ActivityInstance, ActivityInstance.findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
+			SLib.SetupImage(ActivityInstance, ActivityInstance.findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature, false);
+		}
+	}
+	public TabEntry SearchTabEntry(@IdRes int viewPagerRcId, Tab tab)
+	{
+		TabEntry result = null;
+		if(ActivityInstance != null && tab != Tab.tabUndef) {
+			View v = ActivityInstance.findViewById(viewPagerRcId);
+			if(v != null && v instanceof ViewPager2) {
+				for(int tidx = 0; tidx < TabList.size(); tidx++) {
+					if(TabList.get(tidx).TabId == tab)
+						result = TabList.get(tidx);
+				}
+			}
+		}
+		return result;
+	}
+	public void GotoTab(CommonPrereqModule.Tab tab, @IdRes int viewPagerRcId, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
+	{
+		if(ActivityInstance != null && tab != CommonPrereqModule.Tab.tabUndef) {
+			ViewPager2 view_pager = (ViewPager2)ActivityInstance.findViewById(viewPagerRcId);
+			if(view_pager != null) {
+				for(int tidx = 0; tidx < TabList.size(); tidx++) {
+					final CommonPrereqModule.TabEntry te = TabList.get(tidx);
+					if(te.TabId == tab) {
+						SLib.SlFragmentStatic f = te.TabView;
+						if(f != null) {
+							view_pager.setCurrentItem(tidx);
+							if(recyclerViewToUpdate != 0) {
+								View fv2 = view_pager.getChildAt(tidx);
+								//f.requireView();
+								View fv = f.getView();
+								if(fv != null && fv instanceof ViewGroup) {
+									fv.refreshDrawableState(); // @v11.4.3
+									View lv = fv.findViewById(recyclerViewToUpdate);
+									if(lv != null && lv instanceof RecyclerView) {
+										RecyclerView.Adapter gva = ((RecyclerView)lv).getAdapter();
+										if(gva != null) {
+											if(goToIndex >= 0 && goToIndex < gva.getItemCount()) {
+												ActivityInstance.SetRecyclerListFocusedIndex(gva, goToIndex);
+												((RecyclerView)lv).scrollToPosition(goToIndex);
+											}
+											gva.notifyDataSetChanged();
+										}
+									}
+								}
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+	public void NotifyTabContentChanged(@IdRes int viewPagerRcId, CommonPrereqModule.Tab tab, int innerViewId)
+	{
+		if(ActivityInstance != null && tab != CommonPrereqModule.Tab.tabUndef) {
+			View vp = ActivityInstance.findViewById(viewPagerRcId);
+			if(vp != null && vp instanceof ViewPager2 && TabList != null) {
+				for(int tidx = 0; tidx < TabList.size(); tidx++) {
+					if(TabList.get(tidx).TabId == tab) {
+						SLib.SlFragmentStatic f = TabList.get(tidx).TabView;
+						if(f != null) {
+							View fv = f.getView();
+							View lv = (fv != null && innerViewId != 0) ? fv.findViewById(innerViewId) : null;
+							if(lv != null) {
+								if(lv instanceof RecyclerView) {
+									RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
+									if(gva != null)
+										gva.notifyDataSetChanged();
+								}
+								else
+									lv.refreshDrawableState();
+							}
+						}
+						break;
+					}
+				}
+			}
 		}
 	}
 	public void SetTabVisibility(CommonPrereqModule.Tab tabId, int visibilityMode)
@@ -1417,7 +1515,7 @@ public class CommonPrereqModule {
 	public void MakeProcessorListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		//ProcessorListData = jsHead.optJSONArray("processor_list");
-		JSONArray temp_array = jsHead.optJSONArray("processor_list");
+		JSONArray temp_array = (jsHead != null) ? jsHead.optJSONArray("processor_list") : null;
 		if(temp_array != null) {
 			ProcessorListData = new ArrayList<ProcessorEntry>();
 			for(int i = 0; i < temp_array.length(); i++) {
@@ -1445,7 +1543,7 @@ public class CommonPrereqModule {
 	}
 	public void MakeUomListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
-		JSONArray js_uom_list = jsHead.optJSONArray("uom_list");
+		JSONArray js_uom_list = (jsHead != null) ? jsHead.optJSONArray("uom_list") : null;
 		if(js_uom_list != null && js_uom_list.length() > 0) {
 			UomListData = new ArrayList<BusinessEntity.Uom>();
 			for(int i = 0; i < js_uom_list.length(); i++) {
@@ -1464,7 +1562,7 @@ public class CommonPrereqModule {
 	}
 	public void MakeGoodsGroupListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
-		JSONArray temp_array = jsHead.optJSONArray("goodsgroup_list");
+		JSONArray temp_array = (jsHead != null) ? jsHead.optJSONArray("goodsgroup_list") : null;
 		if(temp_array != null) {
 			GoodsGroupListData = new ArrayList<JSONObject>();
 			for(int i = 0; i < temp_array.length(); i++) {
@@ -1482,6 +1580,68 @@ public class CommonPrereqModule {
 			});
 		}
 	}
+	public void MakeBrandListFromCommonJson(JSONObject jsHead) throws JSONException
+	{
+		JSONArray temp_array = (jsHead != null) ? jsHead.optJSONArray("brand_list") : null;
+		if(temp_array != null) {
+			BrandListData = new ArrayList<BusinessEntity.Brand>();
+			for(int i = 0; i < temp_array.length(); i++) {
+				Object temp_obj = temp_array.get(i);
+				if(temp_obj != null && temp_obj instanceof JSONObject) {
+					BusinessEntity.Brand new_entry = new BusinessEntity.Brand();
+					if(new_entry.FromJsonObj((JSONObject)temp_obj))
+						BrandListData.add(new_entry);
+				}
+			}
+			Collections.sort(BrandListData, new Comparator<BusinessEntity.Brand>() {
+				@Override public int compare(BusinessEntity.Brand lh, BusinessEntity.Brand rh)
+				{
+					String ls = lh.Name;
+					String rs = rh.Name;
+					return ls.toLowerCase().compareTo(rs.toLowerCase());
+				}
+			});
+		}
+	}
+	public void MakeClientListFromCommonJson(JSONObject jsHead) throws JSONException
+	{
+		JSONArray temp_array = jsHead.optJSONArray("client_list");
+		if(temp_array != null) {
+			CliListData = new ArrayList<CommonPrereqModule.CliEntry>();
+			for(int i = 0; i < temp_array.length(); i++) {
+				Object temp_obj = temp_array.get(i);
+				if(temp_obj != null && temp_obj instanceof JSONObject)
+					CliListData.add(new CommonPrereqModule.CliEntry((JSONObject) temp_obj));
+			}
+			Collections.sort(CliListData, new Comparator<CommonPrereqModule.CliEntry>() {
+				@Override public int compare(CommonPrereqModule.CliEntry lh, CommonPrereqModule.CliEntry rh)
+				{
+					String ls = lh.JsItem.optString("nm", "");
+					String rs = lh.JsItem.optString("nm", "");
+					return ls.toLowerCase().compareTo(rs.toLowerCase());
+				}
+			});
+		}
+	}
+	public void MakeIncomingDocFromCommonJson(JSONObject jsHead) throws JSONException
+	{
+		JSONArray js_uom_list = (jsHead != null) ? jsHead.optJSONArray("doc_list") : null;
+		if(js_uom_list != null && js_uom_list.length() > 0) {
+			IncomingDocListData = new ArrayList<Document>();
+			for(int i = 0; i < js_uom_list.length(); i++) {
+				final JSONObject js_uom = js_uom_list.optJSONObject(i);
+				if(js_uom != null) {
+					Document doc = new Document();
+					if(doc.FromJsonObj(js_uom))
+						IncomingDocListData.add(doc);
+					else
+						doc = null;
+				}
+			}
+		}
+		else
+			IncomingDocListData = null;
+	}
 	public int FindGoodsGroupItemIndexByID(int id)
 	{
 		int result = -1;
@@ -1489,6 +1649,18 @@ public class CommonPrereqModule {
 			for(int i = 0; result < 0 && i < GoodsGroupListData.size(); i++) {
 				final int iter_id = GoodsGroupListData.get(i).optInt("id", 0);
 				if(iter_id == id)
+					result = i;
+			}
+		}
+		return result;
+	}
+	int FindBrandItemIndexByID(int id)
+	{
+		int result = -1;
+		if(BrandListData != null && id > 0) {
+			for(int i = 0; result < 0 && i < BrandListData.size(); i++) {
+				BusinessEntity.Brand item = BrandListData.get(i);
+				if(item != null && item.ID == id)
 					result = i;
 			}
 		}

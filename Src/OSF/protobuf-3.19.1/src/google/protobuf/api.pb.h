@@ -175,13 +175,13 @@ class Api final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMethodsFieldNumber = 2,
-    kOptionsFieldNumber = 3,
-    kMixinsFieldNumber = 6,
-    kNameFieldNumber = 1,
-    kVersionFieldNumber = 4,
-    kSourceContextFieldNumber = 5,
-    kSyntaxFieldNumber = 7,
+  	kMethodsFieldNumber = 2,
+  	kOptionsFieldNumber = 3,
+  	kMixinsFieldNumber = 6,
+  	kNameFieldNumber = 1,
+  	kVersionFieldNumber = 4,
+  	kSourceContextFieldNumber = 5,
+  	kSyntaxFieldNumber = 7,
   };
   // repeated .google.protobuf.Method methods = 2;
   int methods_size() const;
@@ -408,13 +408,13 @@ class Method final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOptionsFieldNumber = 6,
-    kNameFieldNumber = 1,
-    kRequestTypeUrlFieldNumber = 2,
-    kResponseTypeUrlFieldNumber = 4,
-    kRequestStreamingFieldNumber = 3,
-    kResponseStreamingFieldNumber = 5,
-    kSyntaxFieldNumber = 7,
+  	kOptionsFieldNumber = 6,
+  	kNameFieldNumber = 1,
+  	kRequestTypeUrlFieldNumber = 2,
+  	kResponseTypeUrlFieldNumber = 4,
+  	kRequestStreamingFieldNumber = 3,
+  	kResponseStreamingFieldNumber = 5,
+  	kSyntaxFieldNumber = 7,
   };
   // repeated .google.protobuf.Option options = 6;
   int options_size() const;
@@ -623,8 +623,8 @@ class Mixin final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNameFieldNumber = 1,
-    kRootFieldNumber = 2,
+  	kNameFieldNumber = 1,
+  	kRootFieldNumber = 2,
   };
   // string name = 1;
   void clear_name();
@@ -727,8 +727,9 @@ inline void Api::set_allocated_name(std::string* name) {
 
 // repeated .google.protobuf.Method methods = 2;
 inline int Api::_internal_methods_size() const { return methods_.size(); }
-inline int Api::methods_size() const {
-  return _internal_methods_size();
+inline int Api::methods_size() const
+{
+	return _internal_methods_size();
 }
 inline void Api::clear_methods() {
   methods_.Clear();
@@ -763,8 +764,9 @@ Api::methods() const {
 
 // repeated .google.protobuf.Option options = 3;
 inline int Api::_internal_options_size() const { return options_.size(); }
-inline int Api::options_size() const {
-  return _internal_options_size();
+inline int Api::options_size() const
+{
+	return _internal_options_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Option* Api::mutable_options(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.Api.options)
@@ -844,8 +846,9 @@ inline void Api::set_allocated_version(std::string* version) {
 
 // .google.protobuf.SourceContext source_context = 5;
 inline bool Api::_internal_has_source_context() const { return this != internal_default_instance() && source_context_ != nullptr; }
-inline bool Api::has_source_context() const {
-  return _internal_has_source_context();
+inline bool Api::has_source_context() const
+{
+	return _internal_has_source_context();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::SourceContext& Api::_internal_source_context() const {
   const ::PROTOBUF_NAMESPACE_ID::SourceContext* p = source_context_;
@@ -926,8 +929,9 @@ inline void Api::set_allocated_source_context(::PROTOBUF_NAMESPACE_ID::SourceCon
 
 // repeated .google.protobuf.Mixin mixins = 6;
 inline int Api::_internal_mixins_size() const { return mixins_.size(); }
-inline int Api::mixins_size() const {
-  return _internal_mixins_size();
+inline int Api::mixins_size() const
+{
+	return _internal_mixins_size();
 }
 inline void Api::clear_mixins() {
   mixins_.Clear();
@@ -1164,8 +1168,9 @@ inline void Method::set_response_streaming(bool value) {
 
 // repeated .google.protobuf.Option options = 6;
 inline int Method::_internal_options_size() const { return options_.size(); }
-inline int Method::options_size() const {
-  return _internal_options_size();
+inline int Method::options_size() const
+{
+	return _internal_options_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Option* Method::mutable_options(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.Method.options)

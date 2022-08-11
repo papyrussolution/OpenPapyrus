@@ -292,8 +292,10 @@ int PPCashMachine::SyncOpenSession(LDATE * pDate)
 		THROW(tra.Commit());
 	}
 	// @v11.3.12 {
-	assert(P_SyncIntrf);
-	CALLPTRMEMB(P_SyncIntrf, OpenSession(new_sess_id));
+	if(!(NodeRec.ExtFlags & CASHFX_SYNCOPENSESSSOFT)) { // @v11.4.7
+		assert(P_SyncIntrf);
+		CALLPTRMEMB(P_SyncIntrf, OpenSession(new_sess_id));
+	}
 	// } @v11.3.12
 	DS.SetOperDate(dtm);
 	CATCHZOK

@@ -264,26 +264,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	}
 	private void NotifyTabContentChanged(CommonPrereqModule.Tab tabId, int innerViewId)
 	{
-		ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ATTENDANCEPREREQ);
-		if(view_pager != null && CPM.TabList != null) {
-			for(int tidx = 0; tidx < CPM.TabList.size(); tidx++) {
-				if(CPM.TabList.get(tidx).TabId == tabId) {
-					SLib.SlFragmentStatic f = CPM.TabList.get(tidx).TabView;
-					if(f != null) {
-						View fv = f.getView();
-						if(innerViewId != 0 && fv != null && fv instanceof ViewGroup) {
-							View lv = fv.findViewById(innerViewId);
-							if(lv != null && lv instanceof RecyclerView) {
-								RecyclerView.Adapter gva = ((RecyclerView)lv).getAdapter();
-								if(gva != null)
-									gva.notifyDataSetChanged();
-							}
-						}
-					}
-					break;
-				}
-			}
-		}
+		CPM.NotifyTabContentChanged(R.id.VIEWPAGER_ATTENDANCEPREREQ, tabId, innerViewId);
 	}
 	private void NotifyCurrentOrderChanged()
 	{
@@ -628,43 +609,6 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					CPM.TabList.add(new CommonPrereqModule.TabEntry(_t.Tab, title, f));
 				}
 			}
-			/*
-			if(CPM.GoodsGroupListData != null) {
-				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabGoodsGroups;
-				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_attendanceprereq_goodsgroups, tab_layout_rcid);
-				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{group_pl}"), f));
-			}
-			if(CPM.GoodsListData != null) {
-				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabGoods;
-				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_attendanceprereq_goods, tab_layout_rcid);
-				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{ware_pl}"), f));
-			}
-			if(CPM.ProcessorListData != null) {
-				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabProcessors;
-				String title = (SLib.GetLen(P.PrcTitle) > 0) ? P.PrcTitle : SLib.ExpandString(app_ctx, "@{processor_pl}");
-				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_attendanceprereq_processors, tab_layout_rcid);
-				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, title, f));
-			}
-			{
-				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabAttendance;
-				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_attendanceprereq_attendance, tab_layout_rcid);
-				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{booking}"), f));
-			}
-			{
-				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabBookingDocument;
-				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_attendanceprereq_booking, tab_layout_rcid);
-				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{orderdocument}"), f));
-			}
-			{
-				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabOrders;
-				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_attendanceprereq_orders, tab_layout_rcid);
-				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{booking_pl}"), f));
-			}
-			{
-				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabSearch;
-				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_searchpane, tab_layout_rcid);
-				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "[search]"), f));
-			}*/
 		}
 	}
 	private void MakeSimpleSearchIndex()
@@ -687,53 +631,11 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	}
 	private CommonPrereqModule.TabEntry SearchTabEntry(CommonPrereqModule.Tab tab)
 	{
-		CommonPrereqModule.TabEntry result = null;
-		if(tab != CommonPrereqModule.Tab.tabUndef) {
-			View v = findViewById(R.id.VIEWPAGER_ATTENDANCEPREREQ);
-			if(v != null && v instanceof ViewPager2) {
-				for(int tidx = 0; tidx < CPM.TabList.size(); tidx++) {
-					if(CPM.TabList.get(tidx).TabId == tab)
-						result = CPM.TabList.get(tidx);
-				}
-			}
-		}
-		return result;
+		return CPM.SearchTabEntry(R.id.VIEWPAGER_ATTENDANCEPREREQ, tab);
 	}
 	private void GotoTab(CommonPrereqModule.Tab tab, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
 	{
-		if(tab != CommonPrereqModule.Tab.tabUndef) {
-			ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ATTENDANCEPREREQ);
-			if(view_pager != null) {
-				for(int tidx = 0; tidx < CPM.TabList.size(); tidx++) {
-					final CommonPrereqModule.TabEntry te = CPM.TabList.get(tidx);
-					if(te.TabId == tab) {
-						SLib.SlFragmentStatic f = te.TabView;
-						if(f != null) {
-							view_pager.setCurrentItem(tidx);
-							if(recyclerViewToUpdate != 0) {
-								View fv2 = view_pager.getChildAt(tidx);
-								//f.requireView();
-								View fv = f.getView();
-								if(fv != null && fv instanceof ViewGroup) {
-									View lv = fv.findViewById(recyclerViewToUpdate);
-									if(lv != null && lv instanceof RecyclerView) {
-										RecyclerView.Adapter gva = ((RecyclerView)lv).getAdapter();
-										if(gva != null) {
-											if(goToIndex >= 0 && goToIndex < gva.getItemCount()) {
-												SetRecyclerListFocusedIndex(gva, goToIndex);
-												((RecyclerView)lv).scrollToPosition(goToIndex);
-											}
-											gva.notifyDataSetChanged();
-										}
-									}
-								}
-							}
-						}
-						break;
-					}
-				}
-			}
-		}
+		CPM.GotoTab(tab, R.id.VIEWPAGER_ATTENDANCEPREREQ, recyclerViewToUpdate, goToIndex, nestedIndex);
 	}
 	private void SetListBackground(View iv, Object adapter, int itemIdxToDraw, int objType, int objID)
 	{
@@ -1017,10 +919,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						case R.id.attendancePrereqBookingListView: result = new Integer(CPM.GetCurrentDocumentBookingListCount()); break;
 						case R.id.attendancePrereqOrderListView: result = new Integer((CPM.OrderHList != null) ? CPM.OrderHList.size() : 0); break;
 						case R.id.searchPaneListView:
-						{
 							result = new Integer((CPM.SearchResult != null) ? CPM.SearchResult.GetObjTypeCount() : 0);
 							//result = new Integer((SearchResult != null && SearchResult.List != null) ? SearchResult.List.size() : 0);
-						}
 						break;
 					}
 				}
@@ -1199,7 +1099,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 											}
 										}
 										String blob_signature = cur_entry.JsItem.optString("imgblobs", null);
-										SLib.SetupImage(this, iv.findViewById(R.id.ATTENDANCEPREREQ_GOODS_IMG), blob_signature);
+										SLib.SetupImage(this, iv.findViewById(R.id.ATTENDANCEPREREQ_GOODS_IMG), blob_signature, false);
 										SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODS, cur_id);
 										{
 											ImageView ctl = (ImageView)iv.findViewById(R.id.ATTENDANCEPREREQ_GOODS_EXPANDSTATUS);
@@ -1518,7 +1418,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 											final int cur_id = cur_entry.JsItem.optInt("id", 0);
 											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
 											String blob_signature = cur_entry.JsItem.optString("imgblobs", null);
-											SLib.SetupImage(this, iv.findViewById(R.id.ATTENDANCEPREREQ_PRC_IMG), blob_signature);
+											SLib.SetupImage(this, iv.findViewById(R.id.ATTENDANCEPREREQ_PRC_IMG), blob_signature, false);
 											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_PROCESSOR, cur_id);
 											{
 												ImageView ctl = (ImageView)iv.findViewById(R.id.ATTENDANCEPREREQ_PRC_EXPANDSTATUS);

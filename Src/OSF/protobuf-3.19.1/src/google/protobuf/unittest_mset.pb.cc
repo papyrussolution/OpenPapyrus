@@ -1262,17 +1262,13 @@ void RawMessageSet::InternalSwap(RawMessageSet* other) {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[4]);
 }
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestMessageSetExtension1::kMessageSetExtensionFieldNumber;
+	const int TestMessageSetExtension1::kMessageSetExtensionFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto2_wireformat_unittest::TestMessageSet,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestMessageSetExtension1 >, 11, false >
-  TestMessageSetExtension1::message_set_extension(kMessageSetExtensionFieldNumber, ::protobuf_unittest::TestMessageSetExtension1::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto2_wireformat_unittest::TestMessageSet, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestMessageSetExtension1 >, 11, false > TestMessageSetExtension1::message_set_extension(kMessageSetExtensionFieldNumber, ::protobuf_unittest::TestMessageSetExtension1::default_instance());
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestMessageSetExtension2::kMessageSetExtensionFieldNumber;
+	const int TestMessageSetExtension2::kMessageSetExtensionFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto2_wireformat_unittest::TestMessageSet,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestMessageSetExtension2 >, 11, false >
-  TestMessageSetExtension2::message_set_extension(kMessageSetExtensionFieldNumber, ::protobuf_unittest::TestMessageSetExtension2::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto2_wireformat_unittest::TestMessageSet, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestMessageSetExtension2 >, 11, false > TestMessageSetExtension2::message_set_extension(kMessageSetExtensionFieldNumber, ::protobuf_unittest::TestMessageSetExtension2::default_instance());
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest

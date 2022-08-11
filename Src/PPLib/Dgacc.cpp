@@ -278,9 +278,14 @@ void ArticleCtrlGroup::SetupAccSheet(TDialog * pDlg)
 {
 	PPID   single_id = Data.ArList.GetSingle();
 	long   sacf = sacfDisableIfZeroSheet;
+	// @v11.4.7 {
+	uint   flags = 0;
+	if(Flags & fUseByContextValue)
+		flags |= OLW_INSCONTEXTEDITEMS;
+	// } @v11.4.7 
 	if(Flags & fNonEmptyExchageParam)
 		sacf |= sacfNonEmptyExchageParam;
-	SetupArCombo(pDlg, CtlselAr, single_id, 0, Data.AcsID, sacf);
+	SetupArCombo(pDlg, CtlselAr, single_id, flags, Data.AcsID, sacf);
 	if(Data.ArList.GetCount() > 1) {
 		SetComboBoxListText(pDlg, CtlselAr);
 		pDlg->disableCtrl(CtlselAr, 1);

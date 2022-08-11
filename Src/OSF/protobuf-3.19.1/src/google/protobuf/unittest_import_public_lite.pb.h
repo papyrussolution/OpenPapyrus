@@ -155,7 +155,7 @@ class PublicImportMessageLite final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEFieldNumber = 1,
+  	kEFieldNumber = 1,
   };
   // optional int32 e = 1;
   bool has_e() const;
@@ -196,10 +196,10 @@ class PublicImportMessageLite final :
 // optional int32 e = 1;
 inline bool PublicImportMessageLite::_internal_has_e() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool PublicImportMessageLite::has_e() const {
-  return _internal_has_e();
+	return _internal_has_e();
 }
 inline void PublicImportMessageLite::clear_e() {
   e_ = 0;

@@ -202,16 +202,16 @@ class OneOfsRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
-    kAnyDataFieldNumber = 19,
-    kStrDataFieldNumber = 2,
-    kIntDataFieldNumber = 3,
-    kMessageDataFieldNumber = 4,
-    kMoreDataFieldNumber = 5,
-    kStructDataFieldNumber = 6,
-    kValueDataFieldNumber = 7,
-    kListValueDataFieldNumber = 8,
-    kTsDataFieldNumber = 9,
+  	kValueFieldNumber = 1,
+  	kAnyDataFieldNumber = 19,
+  	kStrDataFieldNumber = 2,
+  	kIntDataFieldNumber = 3,
+  	kMessageDataFieldNumber = 4,
+  	kMoreDataFieldNumber = 5,
+  	kStructDataFieldNumber = 6,
+  	kValueDataFieldNumber = 7,
+  	kListValueDataFieldNumber = 8,
+  	kTsDataFieldNumber = 9,
   };
   // string value = 1;
   void clear_value();
@@ -536,11 +536,11 @@ class RequestWithSimpleOneof final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
-    kStrDataFieldNumber = 2,
-    kIntDataFieldNumber = 3,
-    kMessageDataFieldNumber = 4,
-    kMoreDataFieldNumber = 5,
+  	kValueFieldNumber = 1,
+  	kStrDataFieldNumber = 2,
+  	kIntDataFieldNumber = 3,
+  	kMessageDataFieldNumber = 4,
+  	kMoreDataFieldNumber = 5,
   };
   // string value = 1;
   void clear_value();
@@ -758,7 +758,7 @@ class Data final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataValueFieldNumber = 1,
+  	kDataValueFieldNumber = 1,
   };
   // int32 data_value = 1;
   void clear_data_value();
@@ -885,7 +885,7 @@ class MoreData final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kStrValueFieldNumber = 1,
+  	kStrValueFieldNumber = 1,
   };
   // string str_value = 1;
   void clear_str_value();
@@ -1017,7 +1017,7 @@ class Response final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // string value = 1;
   void clear_value();
@@ -1104,15 +1104,12 @@ inline void OneOfsRequest::set_allocated_value(std::string* value) {
 }
 
 // string str_data = 2;
-inline bool OneOfsRequest::_internal_has_str_data() const {
-  return data_case() == kStrData;
+inline bool OneOfsRequest::_internal_has_str_data() const { return data_case() == kStrData; }
+inline bool OneOfsRequest::has_str_data() const
+{
+	return _internal_has_str_data();
 }
-inline bool OneOfsRequest::has_str_data() const {
-  return _internal_has_str_data();
-}
-inline void OneOfsRequest::set_has_str_data() {
-  _oneof_case_[0] = kStrData;
-}
+inline void OneOfsRequest::set_has_str_data() { _oneof_case_[0] = kStrData; }
 inline void OneOfsRequest::clear_str_data() {
   if(_internal_has_str_data()) {
     data_.str_data_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -1185,15 +1182,12 @@ inline void OneOfsRequest::set_allocated_str_data(std::string* str_data) {
 }
 
 // int32 int_data = 3;
-inline bool OneOfsRequest::_internal_has_int_data() const {
-  return data_case() == kIntData;
+inline bool OneOfsRequest::_internal_has_int_data() const { return data_case() == kIntData; }
+inline bool OneOfsRequest::has_int_data() const
+{
+	return _internal_has_int_data();
 }
-inline bool OneOfsRequest::has_int_data() const {
-  return _internal_has_int_data();
-}
-inline void OneOfsRequest::set_has_int_data() {
-  _oneof_case_[0] = kIntData;
-}
+inline void OneOfsRequest::set_has_int_data() { _oneof_case_[0] = kIntData; }
 inline void OneOfsRequest::clear_int_data() {
   if(_internal_has_int_data()) {
     data_.int_data_ = 0;
@@ -1220,15 +1214,12 @@ inline void OneOfsRequest::set_int_data(int32_t value) {
 }
 
 // .proto_util_converter.testing.oneofs.Data message_data = 4;
-inline bool OneOfsRequest::_internal_has_message_data() const {
-  return data_case() == kMessageData;
+inline bool OneOfsRequest::_internal_has_message_data() const { return data_case() == kMessageData; }
+inline bool OneOfsRequest::has_message_data() const
+{
+	return _internal_has_message_data();
 }
-inline bool OneOfsRequest::has_message_data() const {
-  return _internal_has_message_data();
-}
-inline void OneOfsRequest::set_has_message_data() {
-  _oneof_case_[0] = kMessageData;
-}
+inline void OneOfsRequest::set_has_message_data() { _oneof_case_[0] = kMessageData; }
 inline void OneOfsRequest::clear_message_data() {
   if(_internal_has_message_data()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -1290,15 +1281,12 @@ inline ::proto_util_converter::testing::oneofs::Data* OneOfsRequest::mutable_mes
 }
 
 // .proto_util_converter.testing.oneofs.MoreData more_data = 5;
-inline bool OneOfsRequest::_internal_has_more_data() const {
-  return data_case() == kMoreData;
+inline bool OneOfsRequest::_internal_has_more_data() const { return data_case() == kMoreData; }
+inline bool OneOfsRequest::has_more_data() const
+{
+	return _internal_has_more_data();
 }
-inline bool OneOfsRequest::has_more_data() const {
-  return _internal_has_more_data();
-}
-inline void OneOfsRequest::set_has_more_data() {
-  _oneof_case_[0] = kMoreData;
-}
+inline void OneOfsRequest::set_has_more_data() { _oneof_case_[0] = kMoreData; }
 inline void OneOfsRequest::clear_more_data() {
   if(_internal_has_more_data()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -1360,15 +1348,12 @@ inline ::proto_util_converter::testing::oneofs::MoreData* OneOfsRequest::mutable
 }
 
 // .google.protobuf.Struct struct_data = 6;
-inline bool OneOfsRequest::_internal_has_struct_data() const {
-  return data_case() == kStructData;
+inline bool OneOfsRequest::_internal_has_struct_data() const { return data_case() == kStructData; }
+inline bool OneOfsRequest::has_struct_data() const
+{
+	return _internal_has_struct_data();
 }
-inline bool OneOfsRequest::has_struct_data() const {
-  return _internal_has_struct_data();
-}
-inline void OneOfsRequest::set_has_struct_data() {
-  _oneof_case_[0] = kStructData;
-}
+inline void OneOfsRequest::set_has_struct_data() { _oneof_case_[0] = kStructData; }
 inline ::PROTOBUF_NAMESPACE_ID::Struct* OneOfsRequest::release_struct_data() {
   // @@protoc_insertion_point(field_release:proto_util_converter.testing.oneofs.OneOfsRequest.struct_data)
   if(_internal_has_struct_data()) {
@@ -1422,15 +1407,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Struct* OneOfsRequest::mutable_struct_data() {
 }
 
 // .google.protobuf.Value value_data = 7;
-inline bool OneOfsRequest::_internal_has_value_data() const {
-  return data_case() == kValueData;
+inline bool OneOfsRequest::_internal_has_value_data() const { return data_case() == kValueData; }
+inline bool OneOfsRequest::has_value_data() const
+{
+	return _internal_has_value_data();
 }
-inline bool OneOfsRequest::has_value_data() const {
-  return _internal_has_value_data();
-}
-inline void OneOfsRequest::set_has_value_data() {
-  _oneof_case_[0] = kValueData;
-}
+inline void OneOfsRequest::set_has_value_data() { _oneof_case_[0] = kValueData; }
 inline ::PROTOBUF_NAMESPACE_ID::Value* OneOfsRequest::release_value_data() {
   // @@protoc_insertion_point(field_release:proto_util_converter.testing.oneofs.OneOfsRequest.value_data)
   if(_internal_has_value_data()) {
@@ -1484,15 +1466,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Value* OneOfsRequest::mutable_value_data() {
 }
 
 // .google.protobuf.ListValue list_value_data = 8;
-inline bool OneOfsRequest::_internal_has_list_value_data() const {
-  return data_case() == kListValueData;
+inline bool OneOfsRequest::_internal_has_list_value_data() const { return data_case() == kListValueData; }
+inline bool OneOfsRequest::has_list_value_data() const
+{
+	return _internal_has_list_value_data();
 }
-inline bool OneOfsRequest::has_list_value_data() const {
-  return _internal_has_list_value_data();
-}
-inline void OneOfsRequest::set_has_list_value_data() {
-  _oneof_case_[0] = kListValueData;
-}
+inline void OneOfsRequest::set_has_list_value_data() { _oneof_case_[0] = kListValueData; }
 inline ::PROTOBUF_NAMESPACE_ID::ListValue* OneOfsRequest::release_list_value_data() {
   // @@protoc_insertion_point(field_release:proto_util_converter.testing.oneofs.OneOfsRequest.list_value_data)
   if(_internal_has_list_value_data()) {
@@ -1546,15 +1525,12 @@ inline ::PROTOBUF_NAMESPACE_ID::ListValue* OneOfsRequest::mutable_list_value_dat
 }
 
 // .google.protobuf.Timestamp ts_data = 9;
-inline bool OneOfsRequest::_internal_has_ts_data() const {
-  return data_case() == kTsData;
+inline bool OneOfsRequest::_internal_has_ts_data() const { return data_case() == kTsData; }
+inline bool OneOfsRequest::has_ts_data() const
+{
+	return _internal_has_ts_data();
 }
-inline bool OneOfsRequest::has_ts_data() const {
-  return _internal_has_ts_data();
-}
-inline void OneOfsRequest::set_has_ts_data() {
-  _oneof_case_[0] = kTsData;
-}
+inline void OneOfsRequest::set_has_ts_data() { _oneof_case_[0] = kTsData; }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* OneOfsRequest::release_ts_data() {
   // @@protoc_insertion_point(field_release:proto_util_converter.testing.oneofs.OneOfsRequest.ts_data)
   if(_internal_has_ts_data()) {
@@ -1609,8 +1585,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* OneOfsRequest::mutable_ts_data() {
 
 // .google.protobuf.Any any_data = 19;
 inline bool OneOfsRequest::_internal_has_any_data() const { return this != internal_default_instance() && any_data_ != nullptr; }
-inline bool OneOfsRequest::has_any_data() const {
-  return _internal_has_any_data();
+inline bool OneOfsRequest::has_any_data() const
+{
+	return _internal_has_any_data();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& OneOfsRequest::_internal_any_data() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = any_data_;
@@ -1689,12 +1666,8 @@ inline void OneOfsRequest::set_allocated_any_data(::PROTOBUF_NAMESPACE_ID::Any* 
   // @@protoc_insertion_point(field_set_allocated:proto_util_converter.testing.oneofs.OneOfsRequest.any_data)
 }
 
-inline bool OneOfsRequest::has_data() const {
-  return data_case() != DATA_NOT_SET;
-}
-inline void OneOfsRequest::clear_has_data() {
-  _oneof_case_[0] = DATA_NOT_SET;
-}
+inline bool OneOfsRequest::has_data() const { return data_case() != DATA_NOT_SET; }
+inline void OneOfsRequest::clear_has_data() { _oneof_case_[0] = DATA_NOT_SET; }
 inline OneOfsRequest::DataCase OneOfsRequest::data_case() const { return OneOfsRequest::DataCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -1749,15 +1722,12 @@ inline void RequestWithSimpleOneof::set_allocated_value(std::string* value) {
 }
 
 // string str_data = 2;
-inline bool RequestWithSimpleOneof::_internal_has_str_data() const {
-  return data_case() == kStrData;
+inline bool RequestWithSimpleOneof::_internal_has_str_data() const { return data_case() == kStrData; }
+inline bool RequestWithSimpleOneof::has_str_data() const
+{
+	return _internal_has_str_data();
 }
-inline bool RequestWithSimpleOneof::has_str_data() const {
-  return _internal_has_str_data();
-}
-inline void RequestWithSimpleOneof::set_has_str_data() {
-  _oneof_case_[0] = kStrData;
-}
+inline void RequestWithSimpleOneof::set_has_str_data() { _oneof_case_[0] = kStrData; }
 inline void RequestWithSimpleOneof::clear_str_data() {
   if(_internal_has_str_data()) {
     data_.str_data_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -1830,15 +1800,12 @@ inline void RequestWithSimpleOneof::set_allocated_str_data(std::string* str_data
 }
 
 // int32 int_data = 3;
-inline bool RequestWithSimpleOneof::_internal_has_int_data() const {
-  return data_case() == kIntData;
+inline bool RequestWithSimpleOneof::_internal_has_int_data() const { return data_case() == kIntData; }
+inline bool RequestWithSimpleOneof::has_int_data() const
+{
+	return _internal_has_int_data();
 }
-inline bool RequestWithSimpleOneof::has_int_data() const {
-  return _internal_has_int_data();
-}
-inline void RequestWithSimpleOneof::set_has_int_data() {
-  _oneof_case_[0] = kIntData;
-}
+inline void RequestWithSimpleOneof::set_has_int_data() { _oneof_case_[0] = kIntData; }
 inline void RequestWithSimpleOneof::clear_int_data() {
   if(_internal_has_int_data()) {
     data_.int_data_ = 0;
@@ -1865,15 +1832,12 @@ inline void RequestWithSimpleOneof::set_int_data(int32_t value) {
 }
 
 // .proto_util_converter.testing.oneofs.Data message_data = 4;
-inline bool RequestWithSimpleOneof::_internal_has_message_data() const {
-  return data_case() == kMessageData;
+inline bool RequestWithSimpleOneof::_internal_has_message_data() const { return data_case() == kMessageData; }
+inline bool RequestWithSimpleOneof::has_message_data() const
+{
+	return _internal_has_message_data();
 }
-inline bool RequestWithSimpleOneof::has_message_data() const {
-  return _internal_has_message_data();
-}
-inline void RequestWithSimpleOneof::set_has_message_data() {
-  _oneof_case_[0] = kMessageData;
-}
+inline void RequestWithSimpleOneof::set_has_message_data() { _oneof_case_[0] = kMessageData; }
 inline void RequestWithSimpleOneof::clear_message_data() {
   if(_internal_has_message_data()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -1935,15 +1899,12 @@ inline ::proto_util_converter::testing::oneofs::Data* RequestWithSimpleOneof::mu
 }
 
 // .proto_util_converter.testing.oneofs.MoreData more_data = 5;
-inline bool RequestWithSimpleOneof::_internal_has_more_data() const {
-  return data_case() == kMoreData;
+inline bool RequestWithSimpleOneof::_internal_has_more_data() const { return data_case() == kMoreData; }
+inline bool RequestWithSimpleOneof::has_more_data() const
+{
+	return _internal_has_more_data();
 }
-inline bool RequestWithSimpleOneof::has_more_data() const {
-  return _internal_has_more_data();
-}
-inline void RequestWithSimpleOneof::set_has_more_data() {
-  _oneof_case_[0] = kMoreData;
-}
+inline void RequestWithSimpleOneof::set_has_more_data() { _oneof_case_[0] = kMoreData; }
 inline void RequestWithSimpleOneof::clear_more_data() {
   if(_internal_has_more_data()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -2004,12 +1965,8 @@ inline ::proto_util_converter::testing::oneofs::MoreData* RequestWithSimpleOneof
   return _msg;
 }
 
-inline bool RequestWithSimpleOneof::has_data() const {
-  return data_case() != DATA_NOT_SET;
-}
-inline void RequestWithSimpleOneof::clear_has_data() {
-  _oneof_case_[0] = DATA_NOT_SET;
-}
+inline bool RequestWithSimpleOneof::has_data() const { return data_case() != DATA_NOT_SET; }
+inline void RequestWithSimpleOneof::clear_has_data() { _oneof_case_[0] = DATA_NOT_SET; }
 inline RequestWithSimpleOneof::DataCase RequestWithSimpleOneof::data_case() const { return RequestWithSimpleOneof::DataCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 

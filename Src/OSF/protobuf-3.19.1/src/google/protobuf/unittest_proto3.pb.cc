@@ -1871,18 +1871,18 @@ uint8_t* TestAllTypes::_InternalSerialize(
 
   // repeated .proto3_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 51;
   {
-    int byte_size = _repeated_nested_enum_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteEnumPacked(51, repeated_nested_enum_, byte_size, target);
-    }
+  	int byte_size = _repeated_nested_enum_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteEnumPacked(51, repeated_nested_enum_, byte_size, target);
+  	}
   }
 
   // repeated .proto3_unittest.ForeignEnum repeated_foreign_enum = 52;
   {
-    int byte_size = _repeated_foreign_enum_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteEnumPacked(52, repeated_foreign_enum_, byte_size, target);
-    }
+  	int byte_size = _repeated_foreign_enum_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteEnumPacked(52, repeated_foreign_enum_, byte_size, target);
+  	}
   }
 
   // repeated string repeated_string_piece = 54 [ctype = STRING_PIECE];
@@ -2127,12 +2127,12 @@ size_t TestAllTypes::ByteSizeLong() const {
 
   // repeated .proto3_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 51;
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_nested_enum_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_nested_enum(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_repeated_nested_enum_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_nested_enum(static_cast<int>(i)));
     }
     if(data_size > 0) {
-      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _repeated_nested_enum_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -2141,12 +2141,12 @@ size_t TestAllTypes::ByteSizeLong() const {
 
   // repeated .proto3_unittest.ForeignEnum repeated_foreign_enum = 52;
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_foreign_enum_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_foreign_enum(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_repeated_foreign_enum_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_foreign_enum(static_cast<int>(i)));
     }
     if(data_size > 0) {
-      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _repeated_foreign_enum_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -2900,10 +2900,10 @@ uint8_t* TestPackedTypes::_InternalSerialize(
 
   // repeated .proto3_unittest.ForeignEnum packed_enum = 103 [packed = true];
   {
-    int byte_size = _packed_enum_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteEnumPacked(103, packed_enum_, byte_size, target);
-    }
+  	int byte_size = _packed_enum_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteEnumPacked(103, packed_enum_, byte_size, target);
+  	}
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3060,12 +3060,12 @@ size_t TestPackedTypes::ByteSizeLong() const {
 
   // repeated .proto3_unittest.ForeignEnum packed_enum = 103 [packed = true];
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_packed_enum_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_packed_enum(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_packed_enum_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_packed_enum(static_cast<int>(i)));
     }
     if(data_size > 0) {
-      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _packed_enum_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -3574,8 +3574,8 @@ uint8_t* TestUnpackedTypes::_InternalSerialize(
 
   // repeated .proto3_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 14 [packed = false];
   for(int i = 0, n = this->_internal_repeated_nested_enum_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(14, this->_internal_repeated_nested_enum(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(14, this->_internal_repeated_nested_enum(i), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3694,9 +3694,9 @@ size_t TestUnpackedTypes::ByteSizeLong() const {
 
   // repeated .proto3_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 14 [packed = false];
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_nested_enum_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_nested_enum(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_repeated_nested_enum_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_nested_enum(static_cast<int>(i)));
     }
     total_size += (1UL * count) + data_size;
   }

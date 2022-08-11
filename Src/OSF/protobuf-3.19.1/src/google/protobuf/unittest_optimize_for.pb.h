@@ -167,10 +167,10 @@ class TestOptimizedForSize final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMsgFieldNumber = 19,
-    kIFieldNumber = 1,
-    kIntegerFieldFieldNumber = 2,
-    kStringFieldFieldNumber = 3,
+  	kMsgFieldNumber = 19,
+  	kIFieldNumber = 1,
+  	kIntegerFieldFieldNumber = 2,
+  	kStringFieldFieldNumber = 3,
   };
   // optional .protobuf_unittest.ForeignMessage msg = 19;
   bool has_msg() const;
@@ -235,113 +235,61 @@ class TestOptimizedForSize final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestOptimizedForSize, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -392,13 +340,9 @@ class TestOptimizedForSize final :
   void clear_foo();
   FooCase foo_case() const;
   static const int kTestExtensionFieldNumber = 1234;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestOptimizedForSize,
-      ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-    test_extension;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestOptimizedForSize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > test_extension;
   static const int kTestExtension2FieldNumber = 1235;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestOptimizedForSize,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestRequiredOptimizedForSize >, 11, false >
-    test_extension2;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestOptimizedForSize, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestRequiredOptimizedForSize >, 11, false > test_extension2;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestOptimizedForSize)
  private:
   class _Internal;
@@ -519,7 +463,7 @@ class TestRequiredOptimizedForSize final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kXFieldNumber = 1,
+  	kXFieldNumber = 1,
   };
   // required int32 x = 1;
   bool has_x() const;
@@ -638,7 +582,7 @@ class TestOptionalOptimizedForSize final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOFieldNumber = 1,
+  	kOFieldNumber = 1,
   };
   // optional .protobuf_unittest.TestRequiredOptimizedForSize o = 1;
   bool has_o() const;
@@ -684,10 +628,10 @@ class TestOptionalOptimizedForSize final :
 // optional int32 i = 1;
 inline bool TestOptimizedForSize::_internal_has_i() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOptimizedForSize::has_i() const {
-  return _internal_has_i();
+	return _internal_has_i();
 }
 inline void TestOptimizedForSize::clear_i() {
   i_ = 0;
@@ -711,10 +655,10 @@ inline void TestOptimizedForSize::set_i(int32_t value) {
 inline bool TestOptimizedForSize::_internal_has_msg() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || msg_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestOptimizedForSize::has_msg() const {
-  return _internal_has_msg();
+	return _internal_has_msg();
 }
 inline const ::protobuf_unittest::ForeignMessage& TestOptimizedForSize::_internal_msg() const {
   const ::protobuf_unittest::ForeignMessage* p = msg_;
@@ -794,15 +738,12 @@ inline void TestOptimizedForSize::set_allocated_msg(::protobuf_unittest::Foreign
 }
 
 // int32 integer_field = 2;
-inline bool TestOptimizedForSize::_internal_has_integer_field() const {
-  return foo_case() == kIntegerField;
+inline bool TestOptimizedForSize::_internal_has_integer_field() const { return foo_case() == kIntegerField; }
+inline bool TestOptimizedForSize::has_integer_field() const
+{
+	return _internal_has_integer_field();
 }
-inline bool TestOptimizedForSize::has_integer_field() const {
-  return _internal_has_integer_field();
-}
-inline void TestOptimizedForSize::set_has_integer_field() {
-  _oneof_case_[0] = kIntegerField;
-}
+inline void TestOptimizedForSize::set_has_integer_field() { _oneof_case_[0] = kIntegerField; }
 inline void TestOptimizedForSize::clear_integer_field() {
   if(_internal_has_integer_field()) {
     foo_.integer_field_ = 0;
@@ -829,15 +770,12 @@ inline void TestOptimizedForSize::set_integer_field(int32_t value) {
 }
 
 // string string_field = 3;
-inline bool TestOptimizedForSize::_internal_has_string_field() const {
-  return foo_case() == kStringField;
+inline bool TestOptimizedForSize::_internal_has_string_field() const { return foo_case() == kStringField; }
+inline bool TestOptimizedForSize::has_string_field() const
+{
+	return _internal_has_string_field();
 }
-inline bool TestOptimizedForSize::has_string_field() const {
-  return _internal_has_string_field();
-}
-inline void TestOptimizedForSize::set_has_string_field() {
-  _oneof_case_[0] = kStringField;
-}
+inline void TestOptimizedForSize::set_has_string_field() { _oneof_case_[0] = kStringField; }
 inline void TestOptimizedForSize::clear_string_field() {
   if(_internal_has_string_field()) {
     foo_.string_field_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -909,12 +847,8 @@ inline void TestOptimizedForSize::set_allocated_string_field(std::string* string
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.TestOptimizedForSize.string_field)
 }
 
-inline bool TestOptimizedForSize::has_foo() const {
-  return foo_case() != FOO_NOT_SET;
-}
-inline void TestOptimizedForSize::clear_has_foo() {
-  _oneof_case_[0] = FOO_NOT_SET;
-}
+inline bool TestOptimizedForSize::has_foo() const { return foo_case() != FOO_NOT_SET; }
+inline void TestOptimizedForSize::clear_has_foo() { _oneof_case_[0] = FOO_NOT_SET; }
 inline TestOptimizedForSize::FooCase TestOptimizedForSize::foo_case() const { return TestOptimizedForSize::FooCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -923,10 +857,10 @@ inline TestOptimizedForSize::FooCase TestOptimizedForSize::foo_case() const { re
 // required int32 x = 1;
 inline bool TestRequiredOptimizedForSize::_internal_has_x() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequiredOptimizedForSize::has_x() const {
-  return _internal_has_x();
+	return _internal_has_x();
 }
 inline void TestRequiredOptimizedForSize::clear_x() {
   x_ = 0;
@@ -954,10 +888,10 @@ inline void TestRequiredOptimizedForSize::set_x(int32_t value) {
 inline bool TestOptionalOptimizedForSize::_internal_has_o() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || o_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestOptionalOptimizedForSize::has_o() const {
-  return _internal_has_o();
+	return _internal_has_o();
 }
 inline void TestOptionalOptimizedForSize::clear_o() {
   if(o_ != nullptr) o_->Clear();

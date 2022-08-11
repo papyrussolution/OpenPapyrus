@@ -1,5 +1,5 @@
 // V_BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -24,8 +24,9 @@ struct Balance_AccItem {
 	PPID   ID;
 	int16  Ac;
 	int16  Sb;
-	PPID   CurID;
 	int16  Kind;
+	uint16 Reserve; // @alignment
+	PPID   CurID;
 };
 
 IMPL_CMPCFUNC(Balance_AccItem_AcSb, p1, p2) { RET_CMPCASCADE2(static_cast<const Balance_AccItem *>(p1), static_cast<const Balance_AccItem *>(p2), Ac, Sb); }
@@ -42,7 +43,7 @@ int PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 		uint   i;
 		int    zero_trnovr;
 		int    skip;
-		int    th = BIN(Filt.Flags & BALFORM_THOUSAND);
+		const  bool th = LOGIC(Filt.Flags & BALFORM_THOUSAND);
 		Balance_AccItem * p_aci;
 		SArray aca(sizeof(Balance_AccItem));
 		PPAccount acc_rec;

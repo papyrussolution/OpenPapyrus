@@ -1631,8 +1631,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 				p_result->InsertBool("electronically", true);
 				//P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_RECEIPT_ELECTRONICALLY, paperless);
 			}
-			if(p_inner)
-				p_result->Insert("clientInfo", p_inner);
+			p_result->InsertNz("clientInfo", p_inner);
 		}
 		// } @v11.3.10 
 		if(P_SlipFmt) {

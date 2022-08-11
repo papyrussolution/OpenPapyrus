@@ -166,10 +166,10 @@ class TestAny final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedAnyValueFieldNumber = 3,
-    kTextFieldNumber = 4,
-    kAnyValueFieldNumber = 2,
-    kInt32ValueFieldNumber = 1,
+  	kRepeatedAnyValueFieldNumber = 3,
+  	kTextFieldNumber = 4,
+  	kAnyValueFieldNumber = 2,
+  	kInt32ValueFieldNumber = 1,
   };
   // repeated .google.protobuf.Any repeated_any_value = 3;
   int repeated_any_value_size() const;
@@ -273,8 +273,9 @@ inline void TestAny::set_int32_value(int32_t value) {
 
 // .google.protobuf.Any any_value = 2;
 inline bool TestAny::_internal_has_any_value() const { return this != internal_default_instance() && any_value_ != nullptr; }
-inline bool TestAny::has_any_value() const {
-  return _internal_has_any_value();
+inline bool TestAny::has_any_value() const
+{
+	return _internal_has_any_value();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& TestAny::_internal_any_value() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = any_value_;
@@ -355,8 +356,9 @@ inline void TestAny::set_allocated_any_value(::PROTOBUF_NAMESPACE_ID::Any* any_v
 
 // repeated .google.protobuf.Any repeated_any_value = 3;
 inline int TestAny::_internal_repeated_any_value_size() const { return repeated_any_value_.size(); }
-inline int TestAny::repeated_any_value_size() const {
-  return _internal_repeated_any_value_size();
+inline int TestAny::repeated_any_value_size() const
+{
+	return _internal_repeated_any_value_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* TestAny::mutable_repeated_any_value(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestAny.repeated_any_value)

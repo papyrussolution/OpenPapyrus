@@ -17,6 +17,7 @@ public class Document {
 	ArrayList <BookingItem> BkList; // Список позиций повременных элементов, связанных с процессорами
 	ArrayList <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
 	private int AfterTransmitStatus; // @transient Флаги статуса документа, которые должны быть установлены в БД после успешной отправки сервису
+	public int DetailExpandStatus_Ti; // @transient
 
 	public static class Head {
 		public static boolean ArEq(final Head a1, final Head a2)
@@ -532,6 +533,7 @@ public class Document {
 	Document()
 	{
 		AfterTransmitStatus = 0;
+		DetailExpandStatus_Ti = 0;
 		H = null;
 		TiList = null;
 		BkList = null;
@@ -739,6 +741,10 @@ public class Document {
 				if(H.DlvrLocID > 0) {
 					result.put("dlvrlocid", H.DlvrLocID);
 				}
+				// @v11.4.7 {
+				if(H.Amount > 0)
+					result.put("amount", H.Amount);
+				// } @v11.4.7
 				if(SLib.GetLen(H.Memo) > 0)
 					result.put("memo", H.Memo);
 				if(TiList != null && TiList.size() > 0) {
@@ -865,6 +871,7 @@ public class Document {
 						H.BaseCurrencySymb = base_currency_symb;
 				}
 				H.Code = jsObj.optString("code", null);
+				H.Amount = jsObj.optDouble("amount", 0.0); // @v11.4.7
 				H.Memo = jsObj.optString("memo", null);
 				JSONArray js_ti_list = jsObj.optJSONArray("ti_list");
 				if(js_ti_list != null && js_ti_list.length() > 0) {

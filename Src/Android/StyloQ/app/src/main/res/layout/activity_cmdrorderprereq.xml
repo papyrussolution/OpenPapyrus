@@ -24,48 +24,6 @@
             android:orientation="vertical"
             android:padding="4dp"
             >
-            <!--
-            <LinearLayout style="@style/PageHeaderRegular"
-                android:id="@+id/CTL_PAGEHEADER_ROOT"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="2dp"
-                >
-                <ImageView style="@style/OuterImage_Side"
-                    android:id="@+id/CTLIMG_PAGEHEADER_SVC"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp">
-                </ImageView>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    >
-                    <TextView style="@style/PageHeaderTitleText"
-                        android:id="@+id/CTL_PAGEHEADER_SVCTITLE"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                    <TextView style="@style/PageHeaderTopicText"
-                        android:id="@+id/CTL_PAGEHEADER_TOPIC"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
-                    <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
-                        android:layout_gravity="center_vertical"
-                        app:srcCompat="@drawable/ic_search"/>
-                    <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonClearFiter"
-                        android:layout_gravity="center_vertical"
-                        app:srcCompat="@drawable/ic_filterrmv01"/>
-                </LinearLayout>>
-            </LinearLayout>
-            -->
             <LinearLayout style="@style/PageHeaderRegular"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

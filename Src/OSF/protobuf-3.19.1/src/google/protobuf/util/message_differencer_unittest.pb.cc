@@ -791,33 +791,32 @@ uint8_t* TestDiffMessage_Item::_InternalSerialize(
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
           "protobuf_unittest.TestDiffMessage.Item.MpEntry.key");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_mp().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_mp().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator
-          it = this->_internal_mp().begin();
-          it != this->_internal_mp().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_mp().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator it = this->_internal_mp().begin(); it != this->_internal_mp().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestDiffMessage_Item_MpEntry_DoNotUse::Funcs::InternalSerialize(8, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator
-          it = this->_internal_mp().begin();
-          it != this->_internal_mp().end(); ++it) {
+      	it = this->_internal_mp().begin();
+      	it != this->_internal_mp().end(); ++it) {
         target = TestDiffMessage_Item_MpEntry_DoNotUse::Funcs::InternalSerialize(8, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
@@ -1414,11 +1413,9 @@ void TestDiffMessage::InternalSwap(TestDiffMessage* other) {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fmessage_5fdifferencer_5funittest_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fmessage_5fdifferencer_5funittest_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fmessage_5fdifferencer_5funittest_2eproto[3]);
 }
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestField::kTfFieldNumber;
+	const int TestField::kTfFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestDiffMessage,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestField >, 11, false >
-  TestField::tf(kTfFieldNumber, ::protobuf_unittest::TestField::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestDiffMessage, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestField >, 11, false > TestField::tf(kTfFieldNumber, ::protobuf_unittest::TestField::default_instance());
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest

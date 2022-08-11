@@ -20,10 +20,8 @@ X509 * X509_REQ_to_X509(X509_REQ * r, int days, EVP_PKEY * pkey)
 		ERR_raise(ERR_LIB_X509, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	/* duplicate the request */
 	xi = &ret->cert_info;
-
 	if(sk_X509_ATTRIBUTE_num(r->req_info.attributes) != 0) {
 		if((xi->version = ASN1_INTEGER_new()) == NULL)
 			goto err;
@@ -32,27 +30,21 @@ X509 * X509_REQ_to_X509(X509_REQ * r, int days, EVP_PKEY * pkey)
 /*-     xi->extensions=ri->attributes; <- bad, should not ever be done
         ri->attributes=NULL; */
 	}
-
 	xn = X509_REQ_get_subject_name(r);
 	if(X509_set_subject_name(ret, xn) == 0)
 		goto err;
 	if(X509_set_issuer_name(ret, xn) == 0)
 		goto err;
-
 	if(X509_gmtime_adj(xi->validity.notBefore, 0) == NULL)
 		goto err;
-	if(X509_gmtime_adj(xi->validity.notAfter, (long)60 * 60 * 24 * days) ==
-	    NULL)
+	if(X509_gmtime_adj(xi->validity.notAfter, (long)SSECSPERDAY * days) == NULL)
 		goto err;
-
 	pubkey = X509_REQ_get0_pubkey(r);
 	if(pubkey == NULL || !X509_set_pubkey(ret, pubkey))
 		goto err;
-
 	if(!X509_sign(ret, pkey, EVP_md5()))
 		goto err;
 	return ret;
-
 err:
 	X509_free(ret);
 	return NULL;

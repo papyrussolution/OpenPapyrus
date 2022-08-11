@@ -94,20 +94,17 @@ void IntlTestDateFormatAPI::TestEquals(void)
 	UDate start = Calendar::getNow();
 	while(Calendar::getNow() == start); // Wait for time to change
 	DateFormat * b = DateFormat::createInstance();
-
 	if(!a || !b) {
 		dataerrln("Error calling DateFormat::createInstance()");
 		delete a;
 		delete b;
 		return;
 	}
-
 	if(!(*a == *b))
 		errln("FAIL: DateFormat objects created at different times are unequal.");
-
 	SimpleDateFormat * sdtfmt = dynamic_cast<SimpleDateFormat *>(b);
-	if(sdtfmt != NULL) {
-		double ONE_YEAR = 365*24*60*60*1000.0;
+	if(sdtfmt) {
+		double ONE_YEAR = 365 * SSECSPERDAY * 1000.0;
 		sdtfmt->set2DigitYearStart(start + 50*ONE_YEAR, status);
 		if(U_FAILURE(status))
 			errln("FAIL: setTwoDigitStartDate failed.");
@@ -117,7 +114,6 @@ void IntlTestDateFormatAPI::TestEquals(void)
 	delete a;
 	delete b;
 }
-
 /**
  * This test checks various generic API methods in DateFormat to achieve 100%
  * API coverage.
@@ -125,11 +121,8 @@ void IntlTestDateFormatAPI::TestEquals(void)
 void IntlTestDateFormatAPI::testAPI(/* char * par */)
 {
 	UErrorCode status = U_ZERO_ERROR;
-
 // ======= Test constructors
-
 	logln("Testing DateFormat constructors");
-
 	DateFormat * def = DateFormat::createInstance();
 	DateFormat * fr = DateFormat::createTimeInstance(DateFormat::FULL, Locale::getFrench());
 	DateFormat * it = DateFormat::createDateInstance(DateFormat::MEDIUM, Locale::getItalian());

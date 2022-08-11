@@ -165,8 +165,8 @@ class Timestamp final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSecondsFieldNumber = 1,
-    kNanosFieldNumber = 2,
+  	kSecondsFieldNumber = 1,
+  	kNanosFieldNumber = 2,
   };
   // int64 seconds = 1;
   void clear_seconds();

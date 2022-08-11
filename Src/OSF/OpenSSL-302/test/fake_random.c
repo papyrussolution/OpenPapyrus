@@ -61,7 +61,7 @@ static int fake_rand_generate(void * vrng, unsigned char * out, size_t outlen, u
 	FAKE_RAND * frng = (FAKE_RAND*)vrng;
 	size_t l;
 	uint32_t r;
-	if(frng->cb != NULL)
+	if(frng->cb)
 		return (*frng->cb)(out, outlen, frng->name, frng->ctx);
 	while(outlen > 0) {
 		r = test_random();
@@ -194,19 +194,13 @@ void fake_rand_finish(OSSL_PROVIDER * p)
 	OSSL_PROVIDER_unload(p);
 }
 
-void fake_rand_set_callback(EVP_RAND_CTX * rng,
-    int (* cb)(unsigned char * out, size_t outlen,
-    const char * name, EVP_RAND_CTX * ctx))
+void fake_rand_set_callback(EVP_RAND_CTX * rng, int (* cb)(unsigned char * out, size_t outlen, const char * name, EVP_RAND_CTX * ctx))
 {
-	if(rng != NULL)
+	if(rng)
 		((FAKE_RAND*)rng->algctx)->cb = cb;
 }
 
-void fake_rand_set_public_private_callbacks(OSSL_LIB_CTX * libctx,
-    int (* cb)(unsigned char * out,
-    size_t outlen,
-    const char * name,
-    EVP_RAND_CTX * ctx))
+void fake_rand_set_public_private_callbacks(OSSL_LIB_CTX * libctx, int (* cb)(unsigned char * out, size_t outlen, const char * name, EVP_RAND_CTX * ctx))
 {
 	fake_rand_set_callback(RAND_get0_private(libctx), cb);
 	fake_rand_set_callback(RAND_get0_public(libctx), cb);

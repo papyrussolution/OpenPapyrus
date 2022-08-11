@@ -172,7 +172,7 @@ class NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDFieldNumber = 1,
+  	kDFieldNumber = 1,
   };
   // optional int32 d = 1;
   bool has_d() const;
@@ -307,7 +307,7 @@ class ArenaMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedNestedMessageFieldNumber = 1,
+  	kRepeatedNestedMessageFieldNumber = 1,
   };
   // repeated .proto2_arena_unittest.NestedMessage repeated_nested_message = 1;
   int repeated_nested_message_size() const;
@@ -350,10 +350,10 @@ class ArenaMessage final :
 // optional int32 d = 1;
 inline bool NestedMessage::_internal_has_d() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool NestedMessage::has_d() const {
-  return _internal_has_d();
+	return _internal_has_d();
 }
 inline void NestedMessage::clear_d() {
   d_ = 0;
@@ -379,8 +379,9 @@ inline void NestedMessage::set_d(int32_t value) {
 
 // repeated .proto2_arena_unittest.NestedMessage repeated_nested_message = 1;
 inline int ArenaMessage::_internal_repeated_nested_message_size() const { return repeated_nested_message_.size(); }
-inline int ArenaMessage::repeated_nested_message_size() const {
-  return _internal_repeated_nested_message_size();
+inline int ArenaMessage::repeated_nested_message_size() const
+{
+	return _internal_repeated_nested_message_size();
 }
 inline void ArenaMessage::clear_repeated_nested_message() {
   repeated_nested_message_.Clear();

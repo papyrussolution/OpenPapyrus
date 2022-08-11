@@ -102,7 +102,8 @@ UDate TimeZoneRegressionTest::findTransitionBinary(const SimpleTimeZone& tz, UDa
 	return (min + max) / 2;
 }
 
-UDate TimeZoneRegressionTest::findTransitionStepwise(const SimpleTimeZone& tz, UDate min, UDate max) {
+UDate TimeZoneRegressionTest::findTransitionStepwise(const SimpleTimeZone& tz, UDate min, UDate max) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	bool startsInDST = tz.inDaylightTime(min, status);
 	if(failure(status, "SimpleTimeZone::inDaylightTime")) return 0;
@@ -111,11 +112,10 @@ UDate TimeZoneRegressionTest::findTransitionStepwise(const SimpleTimeZone& tz, U
 			return min;
 		}
 		if(failure(status, "SimpleTimeZone::inDaylightTime")) return 0;
-		min += (UDate)24*60*60*1000; // one day
+		min += (UDate)SSECSPERDAY * 1000; // one day
 	}
 	return 0;
 }
-
 /**
  * @bug 4073215
  */
@@ -590,20 +590,18 @@ void TimeZoneRegressionTest:: Test4154542()
 {
 	const int32_t GOOD = 1;
 	const int32_t BAD  = 0;
-
 	const int32_t GOOD_MONTH       = UCAL_JANUARY;
 	const int32_t GOOD_DAY         = 1;
 	const int32_t GOOD_DAY_OF_WEEK = UCAL_SUNDAY;
 	const int32_t GOOD_TIME        = 0;
-
 	int32_t DATA [] = {
 		GOOD, INT32_MIN,    0,  INT32_MAX,   INT32_MIN,
 		GOOD, UCAL_JANUARY,    -5,  UCAL_SUNDAY,     0,
-		GOOD, UCAL_DECEMBER,    5,  UCAL_SATURDAY,   24*60*60*1000,
-		BAD,  UCAL_DECEMBER,    5,  UCAL_SATURDAY,   24*60*60*1000+1,
+		GOOD, UCAL_DECEMBER,    5,  UCAL_SATURDAY,   SSECSPERDAY * 1000,
+		BAD,  UCAL_DECEMBER,    5,  UCAL_SATURDAY,   SSECSPERDAY * 1000 + 1,
 		BAD,  UCAL_DECEMBER,    5,  UCAL_SATURDAY,  -1,
 		BAD,  UCAL_JANUARY,    -6,  UCAL_SUNDAY,     0,
-		BAD,  UCAL_DECEMBER,    6,  UCAL_SATURDAY,   24*60*60*1000,
+		BAD,  UCAL_DECEMBER,    6,  UCAL_SATURDAY,   SSECSPERDAY * 1000,
 		GOOD, UCAL_DECEMBER,    1,  0,                   0,
 		GOOD, UCAL_DECEMBER,   31,  0,                   0,
 		BAD,  UCAL_APRIL,      31,  0,                   0,
@@ -622,7 +620,6 @@ void TimeZoneRegressionTest:: Test4154542()
 		errln("Fail: failed to create SimpleTimeZone %s", u_errorName(status));
 		return;
 	}
-
 	for(int32_t i = 0; i < 18*5; i += 5) {
 		bool shouldBeGood = (DATA[i] == GOOD);
 		int32_t month     = DATA[i+1];

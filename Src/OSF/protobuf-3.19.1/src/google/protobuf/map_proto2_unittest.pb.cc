@@ -831,22 +831,21 @@ uint8_t* TestEnumMap::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_known_map_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_known_map_field().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum >::const_iterator
-          it = this->_internal_known_map_field().begin();
-          it != this->_internal_known_map_field().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_known_map_field().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum >::const_iterator it = this->_internal_known_map_field().begin(); it != this->_internal_known_map_field().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestEnumMap_KnownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(101, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum >::const_iterator
-          it = this->_internal_known_map_field().begin();
-          it != this->_internal_known_map_field().end(); ++it) {
+      	it = this->_internal_known_map_field().begin();
+      	it != this->_internal_known_map_field().end(); ++it) {
         target = TestEnumMap_KnownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(101, it->first, it->second, target, stream);
       }
     }
@@ -859,22 +858,21 @@ uint8_t* TestEnumMap::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_unknown_map_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_unknown_map_field().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum >::const_iterator
-          it = this->_internal_unknown_map_field().begin();
-          it != this->_internal_unknown_map_field().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_unknown_map_field().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum >::const_iterator it = this->_internal_unknown_map_field().begin(); it != this->_internal_unknown_map_field().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestEnumMap_UnknownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(102, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum >::const_iterator
-          it = this->_internal_unknown_map_field().begin();
-          it != this->_internal_unknown_map_field().end(); ++it) {
+      	it = this->_internal_unknown_map_field().begin();
+      	it != this->_internal_unknown_map_field().end(); ++it) {
         target = TestEnumMap_UnknownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(102, it->first, it->second, target, stream);
       }
     }
@@ -1105,22 +1103,21 @@ uint8_t* TestEnumMapPlusExtra::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_known_map_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_known_map_field().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra >::const_iterator
-          it = this->_internal_known_map_field().begin();
-          it != this->_internal_known_map_field().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_known_map_field().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra >::const_iterator it = this->_internal_known_map_field().begin(); it != this->_internal_known_map_field().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(101, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra >::const_iterator
-          it = this->_internal_known_map_field().begin();
-          it != this->_internal_known_map_field().end(); ++it) {
+      	it = this->_internal_known_map_field().begin();
+      	it != this->_internal_known_map_field().end(); ++it) {
         target = TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(101, it->first, it->second, target, stream);
       }
     }
@@ -1133,22 +1130,21 @@ uint8_t* TestEnumMapPlusExtra::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_unknown_map_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_unknown_map_field().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra >::const_iterator
-          it = this->_internal_unknown_map_field().begin();
-          it != this->_internal_unknown_map_field().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_unknown_map_field().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra >::const_iterator it = this->_internal_unknown_map_field().begin(); it != this->_internal_unknown_map_field().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(102, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra >::const_iterator
-          it = this->_internal_unknown_map_field().begin();
-          it != this->_internal_unknown_map_field().end(); ++it) {
+      	it = this->_internal_unknown_map_field().begin();
+      	it != this->_internal_unknown_map_field().end(); ++it) {
         target = TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(102, it->first, it->second, target, stream);
       }
     }
@@ -1352,22 +1348,21 @@ uint8_t* TestImportEnumMap::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_import_enum_amp().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_import_enum_amp().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest_import::ImportEnumForMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest_import::ImportEnumForMap >::const_iterator
-          it = this->_internal_import_enum_amp().begin();
-          it != this->_internal_import_enum_amp().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_import_enum_amp().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest_import::ImportEnumForMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest_import::ImportEnumForMap >::const_iterator it = this->_internal_import_enum_amp().begin(); it != this->_internal_import_enum_amp().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestImportEnumMap_ImportEnumAmpEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest_import::ImportEnumForMap >::const_iterator
-          it = this->_internal_import_enum_amp().begin();
-          it != this->_internal_import_enum_amp().end(); ++it) {
+      	it = this->_internal_import_enum_amp().begin();
+      	it != this->_internal_import_enum_amp().end(); ++it) {
         target = TestImportEnumMap_ImportEnumAmpEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
       }
     }
@@ -1562,22 +1557,21 @@ uint8_t* TestIntIntMap::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-          it = this->_internal_m().begin();
-          it != this->_internal_m().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator it = this->_internal_m().begin(); it != this->_internal_m().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestIntIntMap_MEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-          it = this->_internal_m().begin();
-          it != this->_internal_m().end(); ++it) {
+      	it = this->_internal_m().begin();
+      	it != this->_internal_m().end(); ++it) {
         target = TestIntIntMap_MEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
       }
     }
@@ -2058,22 +2052,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_int32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_int32().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_int32().begin();
-          it != this->_internal_m_int32().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_int32().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_int32().begin(); it != this->_internal_m_int32().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MInt32Entry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_int32().begin();
-          it != this->_internal_m_int32().end(); ++it) {
+      	it = this->_internal_m_int32().begin();
+      	it != this->_internal_m_int32().end(); ++it) {
         target = TestMaps_MInt32Entry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
       }
     }
@@ -2086,22 +2079,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_int64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_int64().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_int64().begin();
-          it != this->_internal_m_int64().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_int64().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_int64().begin(); it != this->_internal_m_int64().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MInt64Entry_DoNotUse::Funcs::InternalSerialize(2, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_int64().begin();
-          it != this->_internal_m_int64().end(); ++it) {
+      	it = this->_internal_m_int64().begin();
+      	it != this->_internal_m_int64().end(); ++it) {
         target = TestMaps_MInt64Entry_DoNotUse::Funcs::InternalSerialize(2, it->first, it->second, target, stream);
       }
     }
@@ -2114,22 +2106,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_uint32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_uint32().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_uint32().begin();
-          it != this->_internal_m_uint32().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_uint32().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_uint32().begin(); it != this->_internal_m_uint32().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MUint32Entry_DoNotUse::Funcs::InternalSerialize(3, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_uint32().begin();
-          it != this->_internal_m_uint32().end(); ++it) {
+      	it = this->_internal_m_uint32().begin();
+      	it != this->_internal_m_uint32().end(); ++it) {
         target = TestMaps_MUint32Entry_DoNotUse::Funcs::InternalSerialize(3, it->first, it->second, target, stream);
       }
     }
@@ -2142,22 +2133,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_uint64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_uint64().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_uint64().begin();
-          it != this->_internal_m_uint64().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_uint64().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_uint64().begin(); it != this->_internal_m_uint64().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MUint64Entry_DoNotUse::Funcs::InternalSerialize(4, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_uint64().begin();
-          it != this->_internal_m_uint64().end(); ++it) {
+      	it = this->_internal_m_uint64().begin();
+      	it != this->_internal_m_uint64().end(); ++it) {
         target = TestMaps_MUint64Entry_DoNotUse::Funcs::InternalSerialize(4, it->first, it->second, target, stream);
       }
     }
@@ -2170,22 +2160,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_sint32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_sint32().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_sint32().begin();
-          it != this->_internal_m_sint32().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_sint32().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_sint32().begin(); it != this->_internal_m_sint32().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MSint32Entry_DoNotUse::Funcs::InternalSerialize(5, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_sint32().begin();
-          it != this->_internal_m_sint32().end(); ++it) {
+      	it = this->_internal_m_sint32().begin();
+      	it != this->_internal_m_sint32().end(); ++it) {
         target = TestMaps_MSint32Entry_DoNotUse::Funcs::InternalSerialize(5, it->first, it->second, target, stream);
       }
     }
@@ -2198,22 +2187,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_sint64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_sint64().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_sint64().begin();
-          it != this->_internal_m_sint64().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_sint64().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_sint64().begin(); it != this->_internal_m_sint64().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MSint64Entry_DoNotUse::Funcs::InternalSerialize(6, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_sint64().begin();
-          it != this->_internal_m_sint64().end(); ++it) {
+      	it = this->_internal_m_sint64().begin();
+      	it != this->_internal_m_sint64().end(); ++it) {
         target = TestMaps_MSint64Entry_DoNotUse::Funcs::InternalSerialize(6, it->first, it->second, target, stream);
       }
     }
@@ -2226,22 +2214,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_fixed32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_fixed32().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_fixed32().begin();
-          it != this->_internal_m_fixed32().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_fixed32().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_fixed32().begin(); it != this->_internal_m_fixed32().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MFixed32Entry_DoNotUse::Funcs::InternalSerialize(7, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_fixed32().begin();
-          it != this->_internal_m_fixed32().end(); ++it) {
+      	it = this->_internal_m_fixed32().begin();
+      	it != this->_internal_m_fixed32().end(); ++it) {
         target = TestMaps_MFixed32Entry_DoNotUse::Funcs::InternalSerialize(7, it->first, it->second, target, stream);
       }
     }
@@ -2254,22 +2241,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_fixed64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_fixed64().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_fixed64().begin();
-          it != this->_internal_m_fixed64().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_fixed64().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_fixed64().begin(); it != this->_internal_m_fixed64().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MFixed64Entry_DoNotUse::Funcs::InternalSerialize(8, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_fixed64().begin();
-          it != this->_internal_m_fixed64().end(); ++it) {
+      	it = this->_internal_m_fixed64().begin();
+      	it != this->_internal_m_fixed64().end(); ++it) {
         target = TestMaps_MFixed64Entry_DoNotUse::Funcs::InternalSerialize(8, it->first, it->second, target, stream);
       }
     }
@@ -2282,22 +2268,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_sfixed32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_sfixed32().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_sfixed32().begin();
-          it != this->_internal_m_sfixed32().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_sfixed32().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_sfixed32().begin(); it != this->_internal_m_sfixed32().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MSfixed32Entry_DoNotUse::Funcs::InternalSerialize(9, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_sfixed32().begin();
-          it != this->_internal_m_sfixed32().end(); ++it) {
+      	it = this->_internal_m_sfixed32().begin();
+      	it != this->_internal_m_sfixed32().end(); ++it) {
         target = TestMaps_MSfixed32Entry_DoNotUse::Funcs::InternalSerialize(9, it->first, it->second, target, stream);
       }
     }
@@ -2310,22 +2295,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_sfixed64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_sfixed64().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_sfixed64().begin();
-          it != this->_internal_m_sfixed64().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_sfixed64().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_sfixed64().begin(); it != this->_internal_m_sfixed64().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MSfixed64Entry_DoNotUse::Funcs::InternalSerialize(10, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_sfixed64().begin();
-          it != this->_internal_m_sfixed64().end(); ++it) {
+      	it = this->_internal_m_sfixed64().begin();
+      	it != this->_internal_m_sfixed64().end(); ++it) {
         target = TestMaps_MSfixed64Entry_DoNotUse::Funcs::InternalSerialize(10, it->first, it->second, target, stream);
       }
     }
@@ -2338,22 +2322,21 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_bool().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_bool().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< bool, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_bool().begin();
-          it != this->_internal_m_bool().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_bool().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< bool, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_bool().begin(); it != this->_internal_m_bool().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MBoolEntry_DoNotUse::Funcs::InternalSerialize(11, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< bool, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_bool().begin();
-          it != this->_internal_m_bool().end(); ++it) {
+      	it = this->_internal_m_bool().begin();
+      	it != this->_internal_m_bool().end(); ++it) {
         target = TestMaps_MBoolEntry_DoNotUse::Funcs::InternalSerialize(11, it->first, it->second, target, stream);
       }
     }
@@ -2365,33 +2348,32 @@ uint8_t* TestMaps::_InternalSerialize(
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
+    	static void Check(ConstPtr p) {
+    		(void)p;
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
           "protobuf_unittest.TestMaps.MStringEntry.key");
-      }
+    	}
     };
 
     if(stream->IsSerializationDeterministic() && this->_internal_m_string().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_string().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
-      size_type n = 0;
-      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_string().begin();
-          it != this->_internal_m_string().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+    	::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_m_string().size()]);
+    	typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestIntIntMap >::size_type size_type;
+    	size_type n = 0;
+    	for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestIntIntMap >::const_iterator it = this->_internal_m_string().begin(); it != this->_internal_m_string().end(); ++it, ++n) {
+    		items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+    	}
+    	::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for(size_type i = 0; i < n; i++) {
         target = TestMaps_MStringEntry_DoNotUse::Funcs::InternalSerialize(12, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
-    } else {
+    }
+    else {
       for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestIntIntMap >::const_iterator
-          it = this->_internal_m_string().begin();
-          it != this->_internal_m_string().end(); ++it) {
+      	it = this->_internal_m_string().begin();
+      	it != this->_internal_m_string().end(); ++it) {
         target = TestMaps_MStringEntry_DoNotUse::Funcs::InternalSerialize(12, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }

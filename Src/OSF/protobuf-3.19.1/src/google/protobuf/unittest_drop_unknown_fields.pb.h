@@ -234,8 +234,8 @@ class Foo final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kInt32ValueFieldNumber = 1,
-    kEnumValueFieldNumber = 2,
+  	kInt32ValueFieldNumber = 1,
+  	kEnumValueFieldNumber = 2,
   };
   // int32 int32_value = 1;
   void clear_int32_value();
@@ -392,9 +392,9 @@ class FooWithExtraFields final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kInt32ValueFieldNumber = 1,
-    kEnumValueFieldNumber = 2,
-    kExtraInt32ValueFieldNumber = 3,
+  	kInt32ValueFieldNumber = 1,
+  	kEnumValueFieldNumber = 2,
+  	kExtraInt32ValueFieldNumber = 3,
   };
   // int32 int32_value = 1;
   void clear_int32_value();

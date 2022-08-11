@@ -473,9 +473,9 @@ class TestMessageWithCustomOptions final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldFieldNumber = 3,
-    kField1FieldNumber = 1,
-    kOneofFieldFieldNumber = 2,
+  	kMapFieldFieldNumber = 3,
+  	kField1FieldNumber = 1,
+  	kOneofFieldFieldNumber = 2,
   };
   // map<string, string> map_field = 3 [(.protobuf_unittest.field_opt1) = 12345];
   int map_field_size() const;
@@ -539,11 +539,7 @@ class TestMessageWithCustomOptions final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMessageWithCustomOptions_MapFieldEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMessageWithCustomOptions_MapFieldEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_field_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr field1_;
   union AnOneofUnion {
     constexpr AnOneofUnion() : _constinit_{} {}
@@ -1769,10 +1765,10 @@ class ComplexOptionType1 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFoo4FieldNumber = 4,
-    kFooFieldNumber = 1,
-    kFoo2FieldNumber = 2,
-    kFoo3FieldNumber = 3,
+  	kFoo4FieldNumber = 4,
+  	kFooFieldNumber = 1,
+  	kFoo2FieldNumber = 2,
+  	kFoo3FieldNumber = 3,
   };
   // repeated int32 foo4 = 4;
   int foo4_size() const;
@@ -1833,113 +1829,61 @@ class ComplexOptionType1 final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType1, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -2112,7 +2056,7 @@ class ComplexOptionType2_ComplexOptionType4 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kWaldoFieldNumber = 1,
+  	kWaldoFieldNumber = 1,
   };
   // optional int32 waldo = 1;
   bool has_waldo() const;
@@ -2128,9 +2072,7 @@ class ComplexOptionType2_ComplexOptionType4 final :
   public:
 
   static const int kComplexOpt4FieldNumber = 7633546;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4 >, 11, false >
-    complex_opt4;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4 >, 11, false > complex_opt4;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.ComplexOptionType2.ComplexOptionType4)
  private:
   class _Internal;
@@ -2253,10 +2195,10 @@ class ComplexOptionType2 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBarneyFieldNumber = 4,
-    kBarFieldNumber = 1,
-    kFredFieldNumber = 3,
-    kBazFieldNumber = 2,
+  	kBarneyFieldNumber = 4,
+  	kBarFieldNumber = 1,
+  	kFredFieldNumber = 3,
+  	kBazFieldNumber = 2,
   };
   // repeated .protobuf_unittest.ComplexOptionType2.ComplexOptionType4 barney = 4;
   int barney_size() const;
@@ -2324,113 +2266,61 @@ class ComplexOptionType2 final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<ComplexOptionType2, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -2603,7 +2493,7 @@ class ComplexOptionType3_ComplexOptionType5 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPlughFieldNumber = 3,
+  	kPlughFieldNumber = 3,
   };
   // optional int32 plugh = 3;
   bool has_plugh() const;
@@ -2740,8 +2630,8 @@ class ComplexOptionType3 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kComplexoptiontype5FieldNumber = 2,
-    kQuxFieldNumber = 1,
+  	kComplexoptiontype5FieldNumber = 2,
+  	kQuxFieldNumber = 1,
   };
   // optional group ComplexOptionType5 = 2 { ... };
   bool has_complexoptiontype5() const;
@@ -2895,7 +2785,7 @@ class ComplexOpt6 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kXyzzyFieldNumber = 7593951,
+  	kXyzzyFieldNumber = 7593951,
   };
   // optional int32 xyzzy = 7593951;
   bool has_xyzzy() const;
@@ -3129,113 +3019,61 @@ class AggregateMessageSet final :
   // accessors -------------------------------------------------------
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<AggregateMessageSet, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -3403,7 +3241,7 @@ class AggregateMessageSetElement final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSFieldNumber = 1,
+  	kSFieldNumber = 1,
   };
   // optional string s = 1;
   bool has_s() const;
@@ -3424,9 +3262,7 @@ class AggregateMessageSetElement final :
   public:
 
   static const int kMessageSetExtensionFieldNumber = 15447542;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::AggregateMessageSet,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::AggregateMessageSetElement >, 11, false >
-    message_set_extension;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::AggregateMessageSet, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::AggregateMessageSetElement >, 11, false > message_set_extension;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.AggregateMessageSetElement)
  private:
   class _Internal;
@@ -3547,12 +3383,12 @@ class Aggregate final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSFieldNumber = 2,
-    kSubFieldNumber = 3,
-    kFileFieldNumber = 4,
-    kMsetFieldNumber = 5,
-    kAnyFieldNumber = 6,
-    kIFieldNumber = 1,
+  	kSFieldNumber = 2,
+  	kSubFieldNumber = 3,
+  	kFileFieldNumber = 4,
+  	kMsetFieldNumber = 5,
+  	kAnyFieldNumber = 6,
+  	kIFieldNumber = 1,
   };
   // optional string s = 2;
   bool has_s() const;
@@ -3658,9 +3494,7 @@ class Aggregate final :
   public:
 
   static const int kNestedFieldNumber = 15476903;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FileOptions,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false >
-    nested;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FileOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false > nested;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.Aggregate)
  private:
   class _Internal;
@@ -3786,7 +3620,7 @@ class AggregateMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFieldnameFieldNumber = 1,
+  	kFieldnameFieldNumber = 1,
   };
   // optional int32 fieldname = 1 [(.protobuf_unittest.fieldopt) = {
   bool has_fieldname() const;
@@ -3921,7 +3755,7 @@ class NestedOptionType_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNestedFieldFieldNumber = 1,
+  	kNestedFieldFieldNumber = 1,
   };
   // optional int32 nested_field = 1 [(.protobuf_unittest.field_opt1) = 1002];
   bool has_nested_field() const;
@@ -4057,9 +3891,7 @@ class NestedOptionType final :
   // accessors -------------------------------------------------------
 
   static const int kNestedExtensionFieldNumber = 7912573;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FileOptions,
-      ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-    nested_extension;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FileOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > nested_extension;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.NestedOptionType)
  private:
   class _Internal;
@@ -4195,7 +4027,7 @@ class OldOptionType final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // required .protobuf_unittest.OldOptionType.TestEnum value = 1;
   bool has_value() const;
@@ -4348,7 +4180,7 @@ class NewOptionType final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // required .protobuf_unittest.NewOptionType.TestEnum value = 1;
   bool has_value() const;
@@ -4583,173 +4415,89 @@ class AggregateService_Stub : public AggregateService {
 // ===================================================================
 
 static const int kFileOpt1FieldNumber = 7736974;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FileOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false >
-  file_opt1;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FileOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false > file_opt1;
 static const int kMessageOpt1FieldNumber = 7739036;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  message_opt1;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > message_opt1;
 static const int kFieldOpt1FieldNumber = 7740936;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FieldOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false >
-  field_opt1;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FieldOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false > field_opt1;
 static const int kFieldOpt2FieldNumber = 7753913;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FieldOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  field_opt2;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FieldOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > field_opt2;
 static const int kOneofOpt1FieldNumber = 7740111;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::OneofOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  oneof_opt1;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::OneofOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > oneof_opt1;
 static const int kEnumOpt1FieldNumber = 7753576;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::EnumOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false >
-  enum_opt1;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::EnumOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false > enum_opt1;
 static const int kEnumValueOpt1FieldNumber = 1560678;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::EnumValueOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  enum_value_opt1;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::EnumValueOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > enum_value_opt1;
 static const int kServiceOpt1FieldNumber = 7887650;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::ServiceOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false >
-  service_opt1;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::ServiceOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false > service_opt1;
 static const int kMethodOpt1FieldNumber = 7890860;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MethodOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::MethodOpt1, ::protobuf_unittest::MethodOpt1_IsValid>, 14, false >
-  method_opt1;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MethodOptions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::MethodOpt1, ::protobuf_unittest::MethodOpt1_IsValid>, 14, false > method_opt1;
 static const int kBoolOptFieldNumber = 7706090;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< bool >, 8, false >
-  bool_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< bool >, 8, false > bool_opt;
 static const int kInt32OptFieldNumber = 7705709;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  int32_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > int32_opt;
 static const int kInt64OptFieldNumber = 7705542;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 3, false >
-  int64_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 3, false > int64_opt;
 static const int kUint32OptFieldNumber = 7704880;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false >
-  uint32_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false > uint32_opt;
 static const int kUint64OptFieldNumber = 7702367;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false >
-  uint64_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false > uint64_opt;
 static const int kSint32OptFieldNumber = 7701568;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 17, false >
-  sint32_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 17, false > sint32_opt;
 static const int kSint64OptFieldNumber = 7700863;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false >
-  sint64_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false > sint64_opt;
 static const int kFixed32OptFieldNumber = 7700307;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 7, false >
-  fixed32_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 7, false > fixed32_opt;
 static const int kFixed64OptFieldNumber = 7700194;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false >
-  fixed64_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false > fixed64_opt;
 static const int kSfixed32OptFieldNumber = 7698645;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false >
-  sfixed32_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false > sfixed32_opt;
 static const int kSfixed64OptFieldNumber = 7685475;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 16, false >
-  sfixed64_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 16, false > sfixed64_opt;
 static const int kFloatOptFieldNumber = 7675390;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< float >, 2, false >
-  float_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< float >, 2, false > float_opt;
 static const int kDoubleOptFieldNumber = 7673293;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< double >, 1, false >
-  double_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< double >, 1, false > double_opt;
 static const int kStringOptFieldNumber = 7673285;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  string_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > string_opt;
 static const int kBytesOptFieldNumber = 7673238;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false >
-  bytes_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false > bytes_opt;
 static const int kEnumOptFieldNumber = 7673233;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::DummyMessageContainingEnum_TestEnumType, ::protobuf_unittest::DummyMessageContainingEnum_TestEnumType_IsValid>, 14, false >
-  enum_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::DummyMessageContainingEnum_TestEnumType, ::protobuf_unittest::DummyMessageContainingEnum_TestEnumType_IsValid>, 14, false > enum_opt;
 static const int kMessageTypeOptFieldNumber = 7665967;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::DummyMessageInvalidAsOptionType >, 11, false >
-  message_type_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::DummyMessageInvalidAsOptionType >, 11, false > message_type_opt;
 static const int kQuuxFieldNumber = 7663707;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::ComplexOptionType1,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  quux;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::ComplexOptionType1, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > quux;
 static const int kCorgeFieldNumber = 7663442;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::ComplexOptionType1,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType3 >, 11, false >
-  corge;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::ComplexOptionType1, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType3 >, 11, false > corge;
 static const int kGraultFieldNumber = 7650927;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::ComplexOptionType2,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  grault;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::ComplexOptionType2, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > grault;
 static const int kGarplyFieldNumber = 7649992;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::ComplexOptionType2,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType1 >, 11, false >
-  garply;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::ComplexOptionType2, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType1 >, 11, false > garply;
 static const int kComplexOpt1FieldNumber = 7646756;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType1 >, 11, false >
-  complex_opt1;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType1 >, 11, false > complex_opt1;
 static const int kComplexOpt2FieldNumber = 7636949;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType2 >, 11, false >
-  complex_opt2;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType2 >, 11, false > complex_opt2;
 static const int kComplexOpt3FieldNumber = 7636463;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType3 >, 11, false >
-  complex_opt3;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOptionType3 >, 11, false > complex_opt3;
 static const int kComplexopt6FieldNumber = 7595468;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOpt6 >, 10, false >
-  complexopt6;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ComplexOpt6 >, 10, false > complexopt6;
 static const int kFileoptFieldNumber = 15478479;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FileOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false >
-  fileopt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FileOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false > fileopt;
 static const int kMsgoptFieldNumber = 15480088;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false >
-  msgopt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false > msgopt;
 static const int kFieldoptFieldNumber = 15481374;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FieldOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false >
-  fieldopt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::FieldOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false > fieldopt;
 static const int kEnumoptFieldNumber = 15483218;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::EnumOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false >
-  enumopt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::EnumOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false > enumopt;
 static const int kEnumvaloptFieldNumber = 15486921;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::EnumValueOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false >
-  enumvalopt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::EnumValueOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false > enumvalopt;
 static const int kServiceoptFieldNumber = 15497145;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::ServiceOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false >
-  serviceopt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::ServiceOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false > serviceopt;
 static const int kMethodoptFieldNumber = 15512713;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MethodOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false >
-  methodopt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MethodOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::Aggregate >, 11, false > methodopt;
 static const int kRequiredEnumOptFieldNumber = 106161807;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::OldOptionType >, 11, false >
-  required_enum_opt;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::OldOptionType >, 11, false > required_enum_opt;
 
 // ===================================================================
 
@@ -4764,10 +4512,10 @@ extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESP
 // optional string field1 = 1 [ctype = CORD, (.protobuf_unittest.field_opt1) = 8765432109];
 inline bool TestMessageWithCustomOptions::_internal_has_field1() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestMessageWithCustomOptions::has_field1() const {
-  return _internal_has_field1();
+	return _internal_has_field1();
 }
 inline void TestMessageWithCustomOptions::clear_field1() {
   field1_.ClearToEmpty();
@@ -4826,15 +4574,12 @@ inline void TestMessageWithCustomOptions::set_allocated_field1(std::string* fiel
 }
 
 // int32 oneof_field = 2;
-inline bool TestMessageWithCustomOptions::_internal_has_oneof_field() const {
-  return AnOneof_case() == kOneofField;
+inline bool TestMessageWithCustomOptions::_internal_has_oneof_field() const { return AnOneof_case() == kOneofField; }
+inline bool TestMessageWithCustomOptions::has_oneof_field() const
+{
+	return _internal_has_oneof_field();
 }
-inline bool TestMessageWithCustomOptions::has_oneof_field() const {
-  return _internal_has_oneof_field();
-}
-inline void TestMessageWithCustomOptions::set_has_oneof_field() {
-  _oneof_case_[0] = kOneofField;
-}
+inline void TestMessageWithCustomOptions::set_has_oneof_field() { _oneof_case_[0] = kOneofField; }
 inline void TestMessageWithCustomOptions::clear_oneof_field() {
   if(_internal_has_oneof_field()) {
     AnOneof_.oneof_field_ = 0;
@@ -4862,8 +4607,9 @@ inline void TestMessageWithCustomOptions::set_oneof_field(int32_t value) {
 
 // map<string, string> map_field = 3 [(.protobuf_unittest.field_opt1) = 12345];
 inline int TestMessageWithCustomOptions::_internal_map_field_size() const { return map_field_.size(); }
-inline int TestMessageWithCustomOptions::map_field_size() const {
-  return _internal_map_field_size();
+inline int TestMessageWithCustomOptions::map_field_size() const
+{
+	return _internal_map_field_size();
 }
 inline void TestMessageWithCustomOptions::clear_map_field() {
   map_field_.Clear();
@@ -4871,24 +4617,23 @@ inline void TestMessageWithCustomOptions::clear_map_field() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestMessageWithCustomOptions::_internal_map_field() const { return map_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestMessageWithCustomOptions::map_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMessageWithCustomOptions.map_field)
-  return _internal_map_field();
+TestMessageWithCustomOptions::map_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMessageWithCustomOptions.map_field)
+	return _internal_map_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMessageWithCustomOptions::_internal_mutable_map_field() {
-  return map_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMessageWithCustomOptions::_internal_mutable_map_field()
+{
+	return map_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMessageWithCustomOptions::mutable_map_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMessageWithCustomOptions.map_field)
-  return _internal_mutable_map_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMessageWithCustomOptions::mutable_map_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMessageWithCustomOptions.map_field)
+	return _internal_mutable_map_field();
 }
 
-inline bool TestMessageWithCustomOptions::has_AnOneof() const {
-  return AnOneof_case() != ANONEOF_NOT_SET;
-}
-inline void TestMessageWithCustomOptions::clear_has_AnOneof() {
-  _oneof_case_[0] = ANONEOF_NOT_SET;
-}
+inline bool TestMessageWithCustomOptions::has_AnOneof() const { return AnOneof_case() != ANONEOF_NOT_SET; }
+inline void TestMessageWithCustomOptions::clear_has_AnOneof() { _oneof_case_[0] = ANONEOF_NOT_SET; }
 inline TestMessageWithCustomOptions::AnOneofCase TestMessageWithCustomOptions::AnOneof_case() const { return TestMessageWithCustomOptions::AnOneofCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -4941,10 +4686,10 @@ inline TestMessageWithCustomOptions::AnOneofCase TestMessageWithCustomOptions::A
 // optional int32 foo = 1;
 inline bool ComplexOptionType1::_internal_has_foo() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool ComplexOptionType1::has_foo() const {
-  return _internal_has_foo();
+	return _internal_has_foo();
 }
 inline void ComplexOptionType1::clear_foo() {
   foo_ = 0;
@@ -4967,10 +4712,10 @@ inline void ComplexOptionType1::set_foo(int32_t value) {
 // optional int32 foo2 = 2;
 inline bool ComplexOptionType1::_internal_has_foo2() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool ComplexOptionType1::has_foo2() const {
-  return _internal_has_foo2();
+	return _internal_has_foo2();
 }
 inline void ComplexOptionType1::clear_foo2() {
   foo2_ = 0;
@@ -4993,10 +4738,10 @@ inline void ComplexOptionType1::set_foo2(int32_t value) {
 // optional int32 foo3 = 3;
 inline bool ComplexOptionType1::_internal_has_foo3() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool ComplexOptionType1::has_foo3() const {
-  return _internal_has_foo3();
+	return _internal_has_foo3();
 }
 inline void ComplexOptionType1::clear_foo3() {
   foo3_ = 0;
@@ -5018,8 +4763,9 @@ inline void ComplexOptionType1::set_foo3(int32_t value) {
 
 // repeated int32 foo4 = 4;
 inline int ComplexOptionType1::_internal_foo4_size() const { return foo4_.size(); }
-inline int ComplexOptionType1::foo4_size() const {
-  return _internal_foo4_size();
+inline int ComplexOptionType1::foo4_size() const
+{
+	return _internal_foo4_size();
 }
 inline void ComplexOptionType1::clear_foo4() {
   foo4_.Clear();
@@ -5062,10 +4808,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * ComplexOptionType1::m
 // optional int32 waldo = 1;
 inline bool ComplexOptionType2_ComplexOptionType4::_internal_has_waldo() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool ComplexOptionType2_ComplexOptionType4::has_waldo() const {
-  return _internal_has_waldo();
+	return _internal_has_waldo();
 }
 inline void ComplexOptionType2_ComplexOptionType4::clear_waldo() {
   waldo_ = 0;
@@ -5093,10 +4839,10 @@ inline void ComplexOptionType2_ComplexOptionType4::set_waldo(int32_t value) {
 inline bool ComplexOptionType2::_internal_has_bar() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || bar_ != nullptr);
-  return value;
+	return value;
 }
 inline bool ComplexOptionType2::has_bar() const {
-  return _internal_has_bar();
+	return _internal_has_bar();
 }
 inline void ComplexOptionType2::clear_bar() {
   if(bar_ != nullptr) bar_->Clear();
@@ -5181,10 +4927,10 @@ inline void ComplexOptionType2::set_allocated_bar(::protobuf_unittest::ComplexOp
 // optional int32 baz = 2;
 inline bool ComplexOptionType2::_internal_has_baz() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool ComplexOptionType2::has_baz() const {
-  return _internal_has_baz();
+	return _internal_has_baz();
 }
 inline void ComplexOptionType2::clear_baz() {
   baz_ = 0;
@@ -5208,10 +4954,10 @@ inline void ComplexOptionType2::set_baz(int32_t value) {
 inline bool ComplexOptionType2::_internal_has_fred() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || fred_ != nullptr);
-  return value;
+	return value;
 }
 inline bool ComplexOptionType2::has_fred() const {
-  return _internal_has_fred();
+	return _internal_has_fred();
 }
 inline void ComplexOptionType2::clear_fred() {
   if(fred_ != nullptr) fred_->Clear();
@@ -5295,8 +5041,9 @@ inline void ComplexOptionType2::set_allocated_fred(::protobuf_unittest::ComplexO
 
 // repeated .protobuf_unittest.ComplexOptionType2.ComplexOptionType4 barney = 4;
 inline int ComplexOptionType2::_internal_barney_size() const { return barney_.size(); }
-inline int ComplexOptionType2::barney_size() const {
-  return _internal_barney_size();
+inline int ComplexOptionType2::barney_size() const
+{
+	return _internal_barney_size();
 }
 inline void ComplexOptionType2::clear_barney() {
   barney_.Clear();
@@ -5336,10 +5083,10 @@ ComplexOptionType2::barney() const {
 // optional int32 plugh = 3;
 inline bool ComplexOptionType3_ComplexOptionType5::_internal_has_plugh() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool ComplexOptionType3_ComplexOptionType5::has_plugh() const {
-  return _internal_has_plugh();
+	return _internal_has_plugh();
 }
 inline void ComplexOptionType3_ComplexOptionType5::clear_plugh() {
   plugh_ = 0;
@@ -5366,10 +5113,10 @@ inline void ComplexOptionType3_ComplexOptionType5::set_plugh(int32_t value) {
 // optional int32 qux = 1;
 inline bool ComplexOptionType3::_internal_has_qux() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool ComplexOptionType3::has_qux() const {
-  return _internal_has_qux();
+	return _internal_has_qux();
 }
 inline void ComplexOptionType3::clear_qux() {
   qux_ = 0;
@@ -5393,10 +5140,10 @@ inline void ComplexOptionType3::set_qux(int32_t value) {
 inline bool ComplexOptionType3::_internal_has_complexoptiontype5() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || complexoptiontype5_ != nullptr);
-  return value;
+	return value;
 }
 inline bool ComplexOptionType3::has_complexoptiontype5() const {
-  return _internal_has_complexoptiontype5();
+	return _internal_has_complexoptiontype5();
 }
 inline void ComplexOptionType3::clear_complexoptiontype5() {
   if(complexoptiontype5_ != nullptr) complexoptiontype5_->Clear();
@@ -5485,10 +5232,10 @@ inline void ComplexOptionType3::set_allocated_complexoptiontype5(::protobuf_unit
 // optional int32 xyzzy = 7593951;
 inline bool ComplexOpt6::_internal_has_xyzzy() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool ComplexOpt6::has_xyzzy() const {
-  return _internal_has_xyzzy();
+	return _internal_has_xyzzy();
 }
 inline void ComplexOpt6::clear_xyzzy() {
   xyzzy_ = 0;
@@ -5523,10 +5270,10 @@ inline void ComplexOpt6::set_xyzzy(int32_t value) {
 // optional string s = 1;
 inline bool AggregateMessageSetElement::_internal_has_s() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool AggregateMessageSetElement::has_s() const {
-  return _internal_has_s();
+	return _internal_has_s();
 }
 inline void AggregateMessageSetElement::clear_s() {
   s_.ClearToEmpty();
@@ -5591,10 +5338,10 @@ inline void AggregateMessageSetElement::set_allocated_s(std::string* s) {
 // optional int32 i = 1;
 inline bool Aggregate::_internal_has_i() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool Aggregate::has_i() const {
-  return _internal_has_i();
+	return _internal_has_i();
 }
 inline void Aggregate::clear_i() {
   i_ = 0;
@@ -5617,10 +5364,10 @@ inline void Aggregate::set_i(int32_t value) {
 // optional string s = 2;
 inline bool Aggregate::_internal_has_s() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Aggregate::has_s() const {
-  return _internal_has_s();
+	return _internal_has_s();
 }
 inline void Aggregate::clear_s() {
   s_.ClearToEmpty();
@@ -5682,10 +5429,10 @@ inline void Aggregate::set_allocated_s(std::string* s) {
 inline bool Aggregate::_internal_has_sub() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || sub_ != nullptr);
-  return value;
+	return value;
 }
 inline bool Aggregate::has_sub() const {
-  return _internal_has_sub();
+	return _internal_has_sub();
 }
 inline void Aggregate::clear_sub() {
   if(sub_ != nullptr) sub_->Clear();
@@ -5771,10 +5518,10 @@ inline void Aggregate::set_allocated_sub(::protobuf_unittest::Aggregate* sub) {
 inline bool Aggregate::_internal_has_file() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
   PROTOBUF_ASSUME(!value || file_ != nullptr);
-  return value;
+	return value;
 }
 inline bool Aggregate::has_file() const {
-  return _internal_has_file();
+	return _internal_has_file();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FileOptions& Aggregate::_internal_file() const {
   const ::PROTOBUF_NAMESPACE_ID::FileOptions* p = file_;
@@ -5857,10 +5604,10 @@ inline void Aggregate::set_allocated_file(::PROTOBUF_NAMESPACE_ID::FileOptions* 
 inline bool Aggregate::_internal_has_mset() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
   PROTOBUF_ASSUME(!value || mset_ != nullptr);
-  return value;
+	return value;
 }
 inline bool Aggregate::has_mset() const {
-  return _internal_has_mset();
+	return _internal_has_mset();
 }
 inline void Aggregate::clear_mset() {
   if(mset_ != nullptr) mset_->Clear();
@@ -5946,10 +5693,10 @@ inline void Aggregate::set_allocated_mset(::protobuf_unittest::AggregateMessageS
 inline bool Aggregate::_internal_has_any() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
   PROTOBUF_ASSUME(!value || any_ != nullptr);
-  return value;
+	return value;
 }
 inline bool Aggregate::has_any() const {
-  return _internal_has_any();
+	return _internal_has_any();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& Aggregate::_internal_any() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = any_;
@@ -6035,10 +5782,10 @@ inline void Aggregate::set_allocated_any(::PROTOBUF_NAMESPACE_ID::Any* any) {
 // optional int32 fieldname = 1 [(.protobuf_unittest.fieldopt) = {
 inline bool AggregateMessage::_internal_has_fieldname() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool AggregateMessage::has_fieldname() const {
-  return _internal_has_fieldname();
+	return _internal_has_fieldname();
 }
 inline void AggregateMessage::clear_fieldname() {
   fieldname_ = 0;
@@ -6065,10 +5812,10 @@ inline void AggregateMessage::set_fieldname(int32_t value) {
 // optional int32 nested_field = 1 [(.protobuf_unittest.field_opt1) = 1002];
 inline bool NestedOptionType_NestedMessage::_internal_has_nested_field() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool NestedOptionType_NestedMessage::has_nested_field() const {
-  return _internal_has_nested_field();
+	return _internal_has_nested_field();
 }
 inline void NestedOptionType_NestedMessage::clear_nested_field() {
   nested_field_ = 0;
@@ -6099,10 +5846,10 @@ inline void NestedOptionType_NestedMessage::set_nested_field(int32_t value) {
 // required .protobuf_unittest.OldOptionType.TestEnum value = 1;
 inline bool OldOptionType::_internal_has_value() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool OldOptionType::has_value() const {
-  return _internal_has_value();
+	return _internal_has_value();
 }
 inline void OldOptionType::clear_value() {
   value_ = 0;
@@ -6130,10 +5877,10 @@ inline void OldOptionType::set_value(::protobuf_unittest::OldOptionType_TestEnum
 // required .protobuf_unittest.NewOptionType.TestEnum value = 1;
 inline bool NewOptionType::_internal_has_value() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool NewOptionType::has_value() const {
-  return _internal_has_value();
+	return _internal_has_value();
 }
 inline void NewOptionType::clear_value() {
   value_ = 0;

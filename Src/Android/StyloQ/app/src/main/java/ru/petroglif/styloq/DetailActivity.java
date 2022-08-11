@@ -41,7 +41,7 @@ public class DetailActivity extends SLib.SlActivity {
 									blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
 								SLib.SetCtrlString(this, R.id.CTL_PAGEHEADER_SVCTITLE, svc_pack.GetSvcName(face));
 							}
-							SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
+							SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature, false);
 						}
 						if(SLib.GetLen(ResultText) > 0) {
 							JSONObject jsobj = new JSONObject(ResultText);
@@ -62,7 +62,7 @@ public class DetailActivity extends SLib.SlActivity {
 													SLib.SetCtrlString(this, R.id.CTL_GOODSDETAIL_NAME, js_detail.optString("nm", null));
 													View vimg = findViewById(R.id.CTL_GOODSDETAIL_IMG);
 													if(vimg != null)
-														SLib.SetupImage(this, vimg, js_detail.optString("imgblobs", null));
+														SLib.SetupImage(this, vimg, js_detail.optString("imgblobs", null), false);
 												}
 											}
 										}

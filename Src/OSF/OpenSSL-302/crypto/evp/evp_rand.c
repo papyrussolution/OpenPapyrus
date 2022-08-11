@@ -21,7 +21,6 @@ struct evp_rand_st {
 	const char * description;
 	CRYPTO_REF_COUNT refcnt;
 	CRYPTO_RWLOCK * refcnt_lock;
-
 	const OSSL_DISPATCH * dispatch;
 	OSSL_FUNC_rand_newctx_fn * newctx;
 	OSSL_FUNC_rand_freectx_fn * freectx;
@@ -46,8 +45,7 @@ static int evp_rand_up_ref(void * vrand)
 {
 	EVP_RAND * rand = (EVP_RAND*)vrand;
 	int ref = 0;
-
-	if(rand != NULL)
+	if(rand)
 		return CRYPTO_UP_REF(&rand->refcnt, &ref, rand->refcnt_lock);
 	return 1;
 }
@@ -81,7 +79,7 @@ static void * evp_rand_new(void)
 /* Enable locking of the underlying DRBG/RAND if available */
 int EVP_RAND_enable_locking(EVP_RAND_CTX * rand)
 {
-	if(rand->meth->enable_locking != NULL)
+	if(rand->meth->enable_locking)
 		return rand->meth->enable_locking(rand->algctx);
 	ERR_raise(ERR_LIB_EVP, EVP_R_LOCKING_NOT_SUPPORTED);
 	return 0;
@@ -90,15 +88,13 @@ int EVP_RAND_enable_locking(EVP_RAND_CTX * rand)
 /* Lock the underlying DRBG/RAND if available */
 static int evp_rand_lock(EVP_RAND_CTX * rand)
 {
-	if(rand->meth->lock != NULL)
-		return rand->meth->lock(rand->algctx);
-	return 1;
+	return rand->meth->lock ? rand->meth->lock(rand->algctx) : 1;
 }
 
 /* Unlock the underlying DRBG/RAND if available */
 static void evp_rand_unlock(EVP_RAND_CTX * rand)
 {
-	if(rand->meth->unlock != NULL)
+	if(rand->meth->unlock)
 		rand->meth->unlock(rand->algctx);
 }
 
@@ -124,99 +120,99 @@ static void * evp_rand_from_algorithm(int name_id, const OSSL_ALGORITHM * algode
 	for(; fns->function_id != 0; fns++) {
 		switch(fns->function_id) {
 			case OSSL_FUNC_RAND_NEWCTX:
-			    if(rand->newctx != NULL)
+			    if(rand->newctx)
 				    break;
 			    rand->newctx = OSSL_FUNC_rand_newctx(fns);
 			    fnctxcnt++;
 			    break;
 			case OSSL_FUNC_RAND_FREECTX:
-			    if(rand->freectx != NULL)
+			    if(rand->freectx)
 				    break;
 			    rand->freectx = OSSL_FUNC_rand_freectx(fns);
 			    fnctxcnt++;
 			    break;
 			case OSSL_FUNC_RAND_INSTANTIATE:
-			    if(rand->instantiate != NULL)
+			    if(rand->instantiate)
 				    break;
 			    rand->instantiate = OSSL_FUNC_rand_instantiate(fns);
 			    fnrandcnt++;
 			    break;
 			case OSSL_FUNC_RAND_UNINSTANTIATE:
-			    if(rand->uninstantiate != NULL)
+			    if(rand->uninstantiate)
 				    break;
 			    rand->uninstantiate = OSSL_FUNC_rand_uninstantiate(fns);
 			    fnrandcnt++;
 			    break;
 			case OSSL_FUNC_RAND_GENERATE:
-			    if(rand->generate != NULL)
+			    if(rand->generate)
 				    break;
 			    rand->generate = OSSL_FUNC_rand_generate(fns);
 			    fnrandcnt++;
 			    break;
 			case OSSL_FUNC_RAND_RESEED:
-			    if(rand->reseed != NULL)
+			    if(rand->reseed)
 				    break;
 			    rand->reseed = OSSL_FUNC_rand_reseed(fns);
 			    break;
 			case OSSL_FUNC_RAND_NONCE:
-			    if(rand->nonce != NULL)
+			    if(rand->nonce)
 				    break;
 			    rand->nonce = OSSL_FUNC_rand_nonce(fns);
 			    break;
 			case OSSL_FUNC_RAND_ENABLE_LOCKING:
-			    if(rand->enable_locking != NULL)
+			    if(rand->enable_locking)
 				    break;
 			    rand->enable_locking = OSSL_FUNC_rand_enable_locking(fns);
 			    fnenablelockcnt++;
 			    break;
 			case OSSL_FUNC_RAND_LOCK:
-			    if(rand->lock != NULL)
+			    if(rand->lock)
 				    break;
 			    rand->lock = OSSL_FUNC_rand_lock(fns);
 			    fnlockcnt++;
 			    break;
 			case OSSL_FUNC_RAND_UNLOCK:
-			    if(rand->unlock != NULL)
+			    if(rand->unlock)
 				    break;
 			    rand->unlock = OSSL_FUNC_rand_unlock(fns);
 			    fnlockcnt++;
 			    break;
 			case OSSL_FUNC_RAND_GETTABLE_PARAMS:
-			    if(rand->gettable_params != NULL)
+			    if(rand->gettable_params)
 				    break;
 			    rand->gettable_params =
 				OSSL_FUNC_rand_gettable_params(fns);
 			    break;
 			case OSSL_FUNC_RAND_GETTABLE_CTX_PARAMS:
-			    if(rand->gettable_ctx_params != NULL)
+			    if(rand->gettable_ctx_params)
 				    break;
 			    rand->gettable_ctx_params =
 				OSSL_FUNC_rand_gettable_ctx_params(fns);
 			    break;
 			case OSSL_FUNC_RAND_SETTABLE_CTX_PARAMS:
-			    if(rand->settable_ctx_params != NULL)
+			    if(rand->settable_ctx_params)
 				    break;
 			    rand->settable_ctx_params =
 				OSSL_FUNC_rand_settable_ctx_params(fns);
 			    break;
 			case OSSL_FUNC_RAND_GET_PARAMS:
-			    if(rand->get_params != NULL)
+			    if(rand->get_params)
 				    break;
 			    rand->get_params = OSSL_FUNC_rand_get_params(fns);
 			    break;
 			case OSSL_FUNC_RAND_GET_CTX_PARAMS:
-			    if(rand->get_ctx_params != NULL)
+			    if(rand->get_ctx_params)
 				    break;
 			    rand->get_ctx_params = OSSL_FUNC_rand_get_ctx_params(fns);
 			    fnctxcnt++;
 			    break;
 			case OSSL_FUNC_RAND_SET_CTX_PARAMS:
-			    if(rand->set_ctx_params != NULL)
+			    if(rand->set_ctx_params)
 				    break;
 			    rand->set_ctx_params = OSSL_FUNC_rand_set_ctx_params(fns);
 			    break;
 			case OSSL_FUNC_RAND_VERIFY_ZEROIZATION:
-			    if(rand->verify_zeroization != NULL)
+			    if(rand->verify_zeroization)
 				    break;
 			    rand->verify_zeroization = OSSL_FUNC_rand_verify_zeroization(fns);
 #ifdef FIPS_MODULE
@@ -234,10 +230,7 @@ static void * evp_rand_from_algorithm(int name_id, const OSSL_ALGORITHM * algode
 	 * In addition, if locking can be enabled, we need a complete set of
 	 * locking functions.
 	 */
-	if(fnrandcnt != 3
-	    || fnctxcnt != 3
-	    || (fnenablelockcnt != 0 && fnenablelockcnt != 1)
-	    || (fnlockcnt != 0 && fnlockcnt != 2)
+	if(fnrandcnt != 3 || fnctxcnt != 3 || (fnenablelockcnt != 0 && fnenablelockcnt != 1) || (fnlockcnt != 0 && fnlockcnt != 2)
 #ifdef FIPS_MODULE
 	    || fnzeroizecnt != 1
 #endif
@@ -246,7 +239,7 @@ static void * evp_rand_from_algorithm(int name_id, const OSSL_ALGORITHM * algode
 		ERR_raise(ERR_LIB_EVP, EVP_R_INVALID_PROVIDER_FUNCTIONS);
 		return NULL;
 	}
-	if(prov != NULL && !ossl_provider_up_ref(prov)) {
+	if(prov && !ossl_provider_up_ref(prov)) {
 		evp_rand_free(rand);
 		ERR_raise(ERR_LIB_EVP, ERR_R_INTERNAL_ERROR);
 		return NULL;
@@ -297,15 +290,12 @@ const OSSL_PROVIDER * EVP_RAND_get0_provider(const EVP_RAND * rand)
 
 int EVP_RAND_get_params(EVP_RAND * rand, OSSL_PARAM params[])
 {
-	if(rand->get_params != NULL)
-		return rand->get_params(params);
-	return 1;
+	return rand->get_params ? rand->get_params(params) : 1;
 }
 
 static int evp_rand_ctx_up_ref(EVP_RAND_CTX * ctx)
 {
 	int ref = 0;
-
 	return CRYPTO_UP_REF(&ctx->refcnt, &ref, ctx->refcnt_lock);
 }
 
@@ -324,7 +314,7 @@ EVP_RAND_CTX * EVP_RAND_CTX_new(EVP_RAND * rand, EVP_RAND_CTX * parent)
 		ERR_raise(ERR_LIB_EVP, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-	if(parent != NULL) {
+	if(parent) {
 		if(!evp_rand_ctx_up_ref(parent)) {
 			ERR_raise(ERR_LIB_EVP, ERR_R_INTERNAL_ERROR);
 			CRYPTO_THREAD_lock_free(ctx->refcnt_lock);
@@ -384,7 +374,6 @@ static int evp_rand_get_ctx_params_locked(EVP_RAND_CTX * ctx,
 int EVP_RAND_CTX_get_params(EVP_RAND_CTX * ctx, OSSL_PARAM params[])
 {
 	int res;
-
 	if(!evp_rand_lock(ctx))
 		return 0;
 	res = evp_rand_get_ctx_params_locked(ctx, params);
@@ -392,18 +381,14 @@ int EVP_RAND_CTX_get_params(EVP_RAND_CTX * ctx, OSSL_PARAM params[])
 	return res;
 }
 
-static int evp_rand_set_ctx_params_locked(EVP_RAND_CTX * ctx,
-    const OSSL_PARAM params[])
+static int evp_rand_set_ctx_params_locked(EVP_RAND_CTX * ctx, const OSSL_PARAM params[])
 {
-	if(ctx->meth->set_ctx_params != NULL)
-		return ctx->meth->set_ctx_params(ctx->algctx, params);
-	return 1;
+	return ctx->meth->set_ctx_params ? ctx->meth->set_ctx_params(ctx->algctx, params) : 1;
 }
 
 int EVP_RAND_CTX_set_params(EVP_RAND_CTX * ctx, const OSSL_PARAM params[])
 {
 	int res;
-
 	if(!evp_rand_lock(ctx))
 		return 0;
 	res = evp_rand_set_ctx_params_locked(ctx, params);
@@ -458,44 +443,27 @@ const OSSL_PARAM * EVP_RAND_CTX_settable_params(EVP_RAND_CTX * ctx)
 	return ctx->meth->settable_ctx_params(ctx->algctx, provctx);
 }
 
-void EVP_RAND_do_all_provided(OSSL_LIB_CTX * libctx,
-    void (*fn)(EVP_RAND * rand, void * arg),
-    void * arg)
+void EVP_RAND_do_all_provided(OSSL_LIB_CTX * libctx, void (*fn)(EVP_RAND * rand, void * arg), void * arg)
 {
-	evp_generic_do_all(libctx, OSSL_OP_RAND,
-	    (void (*)(void *, void *))fn, arg,
-	    evp_rand_from_algorithm, evp_rand_up_ref,
-	    evp_rand_free);
+	evp_generic_do_all(libctx, OSSL_OP_RAND, (void (*)(void *, void *))fn, arg, evp_rand_from_algorithm, evp_rand_up_ref, evp_rand_free);
 }
 
-int EVP_RAND_names_do_all(const EVP_RAND * rand,
-    void (*fn)(const char * name, void * data),
-    void * data)
+int EVP_RAND_names_do_all(const EVP_RAND * rand, void (*fn)(const char * name, void * data), void * data)
 {
-	if(rand->prov != NULL)
-		return evp_names_do_all(rand->prov, rand->name_id, fn, data);
-
-	return 1;
+	return rand->prov ? evp_names_do_all(rand->prov, rand->name_id, fn, data) : 1;
 }
 
-static int evp_rand_instantiate_locked(EVP_RAND_CTX * ctx, unsigned int strength, int prediction_resistance,
-    const uchar * pstr, size_t pstr_len, const OSSL_PARAM params[])
+static int evp_rand_instantiate_locked(EVP_RAND_CTX * ctx, unsigned int strength, int prediction_resistance, const uchar * pstr, size_t pstr_len, const OSSL_PARAM params[])
 {
-	return ctx->meth->instantiate(ctx->algctx, strength, prediction_resistance,
-		   pstr, pstr_len, params);
+	return ctx->meth->instantiate(ctx->algctx, strength, prediction_resistance, pstr, pstr_len, params);
 }
 
-int EVP_RAND_instantiate(EVP_RAND_CTX * ctx, unsigned int strength,
-    int prediction_resistance,
-    const uchar * pstr, size_t pstr_len,
-    const OSSL_PARAM params[])
+int EVP_RAND_instantiate(EVP_RAND_CTX * ctx, unsigned int strength, int prediction_resistance, const uchar * pstr, size_t pstr_len, const OSSL_PARAM params[])
 {
 	int res;
-
 	if(!evp_rand_lock(ctx))
 		return 0;
-	res = evp_rand_instantiate_locked(ctx, strength, prediction_resistance,
-		pstr, pstr_len, params);
+	res = evp_rand_instantiate_locked(ctx, strength, prediction_resistance, pstr, pstr_len, params);
 	evp_rand_unlock(ctx);
 	return res;
 }
@@ -508,7 +476,6 @@ static int evp_rand_uninstantiate_locked(EVP_RAND_CTX * ctx)
 int EVP_RAND_uninstantiate(EVP_RAND_CTX * ctx)
 {
 	int res;
-
 	if(!evp_rand_lock(ctx))
 		return 0;
 	res = evp_rand_uninstantiate_locked(ctx);
@@ -516,26 +483,18 @@ int EVP_RAND_uninstantiate(EVP_RAND_CTX * ctx)
 	return res;
 }
 
-static int evp_rand_generate_locked(EVP_RAND_CTX * ctx, uchar * out,
-    size_t outlen, unsigned int strength,
-    int prediction_resistance,
-    const uchar * addin,
-    size_t addin_len)
+static int evp_rand_generate_locked(EVP_RAND_CTX * ctx, uchar * out, size_t outlen, unsigned int strength, int prediction_resistance, const uchar * addin, size_t addin_len)
 {
 	size_t chunk, max_request = 0;
 	OSSL_PARAM params[2] = { OSSL_PARAM_END, OSSL_PARAM_END };
-
-	params[0] = OSSL_PARAM_construct_size_t(OSSL_RAND_PARAM_MAX_REQUEST,
-		&max_request);
-	if(!evp_rand_get_ctx_params_locked(ctx, params)
-	    || max_request == 0) {
+	params[0] = OSSL_PARAM_construct_size_t(OSSL_RAND_PARAM_MAX_REQUEST, &max_request);
+	if(!evp_rand_get_ctx_params_locked(ctx, params) || max_request == 0) {
 		ERR_raise(ERR_LIB_EVP, EVP_R_UNABLE_TO_GET_MAXIMUM_REQUEST_SIZE);
 		return 0;
 	}
 	for(; outlen > 0; outlen -= chunk, out += chunk) {
 		chunk = outlen > max_request ? max_request : outlen;
-		if(!ctx->meth->generate(ctx->algctx, out, chunk, strength,
-		    prediction_resistance, addin, addin_len)) {
+		if(!ctx->meth->generate(ctx->algctx, out, chunk, strength, prediction_resistance, addin, addin_len)) {
 			ERR_raise(ERR_LIB_EVP, EVP_R_GENERATE_ERROR);
 			return 0;
 		}
@@ -548,40 +507,27 @@ static int evp_rand_generate_locked(EVP_RAND_CTX * ctx, uchar * out,
 	return 1;
 }
 
-int EVP_RAND_generate(EVP_RAND_CTX * ctx, uchar * out, size_t outlen,
-    unsigned int strength, int prediction_resistance,
-    const uchar * addin, size_t addin_len)
+int EVP_RAND_generate(EVP_RAND_CTX * ctx, uchar * out, size_t outlen, unsigned int strength, int prediction_resistance, const uchar * addin, size_t addin_len)
 {
 	int res;
-
 	if(!evp_rand_lock(ctx))
 		return 0;
-	res = evp_rand_generate_locked(ctx, out, outlen, strength,
-		prediction_resistance, addin, addin_len);
+	res = evp_rand_generate_locked(ctx, out, outlen, strength, prediction_resistance, addin, addin_len);
 	evp_rand_unlock(ctx);
 	return res;
 }
 
-static int evp_rand_reseed_locked(EVP_RAND_CTX * ctx, int prediction_resistance,
-    const uchar * ent, size_t ent_len,
-    const uchar * addin, size_t addin_len)
+static int evp_rand_reseed_locked(EVP_RAND_CTX * ctx, int prediction_resistance, const uchar * ent, size_t ent_len, const uchar * addin, size_t addin_len)
 {
-	if(ctx->meth->reseed != NULL)
-		return ctx->meth->reseed(ctx->algctx, prediction_resistance,
-			   ent, ent_len, addin, addin_len);
-	return 1;
+	return ctx->meth->reseed ? ctx->meth->reseed(ctx->algctx, prediction_resistance, ent, ent_len, addin, addin_len) : 1;
 }
 
-int EVP_RAND_reseed(EVP_RAND_CTX * ctx, int prediction_resistance,
-    const uchar * ent, size_t ent_len,
-    const uchar * addin, size_t addin_len)
+int EVP_RAND_reseed(EVP_RAND_CTX * ctx, int prediction_resistance, const uchar * ent, size_t ent_len, const uchar * addin, size_t addin_len)
 {
 	int res;
-
 	if(!evp_rand_lock(ctx))
 		return 0;
-	res = evp_rand_reseed_locked(ctx, prediction_resistance,
-		ent, ent_len, addin, addin_len);
+	res = evp_rand_reseed_locked(ctx, prediction_resistance, ent, ent_len, addin, addin_len);
 	evp_rand_unlock(ctx);
 	return res;
 }
@@ -590,7 +536,6 @@ static unsigned int evp_rand_strength_locked(EVP_RAND_CTX * ctx)
 {
 	OSSL_PARAM params[2] = { OSSL_PARAM_END, OSSL_PARAM_END };
 	unsigned int strength = 0;
-
 	params[0] = OSSL_PARAM_construct_uint(OSSL_RAND_PARAM_STRENGTH, &strength);
 	if(!evp_rand_get_ctx_params_locked(ctx, params))
 		return 0;
@@ -600,7 +545,6 @@ static unsigned int evp_rand_strength_locked(EVP_RAND_CTX * ctx)
 unsigned int EVP_RAND_get_strength(EVP_RAND_CTX * ctx)
 {
 	unsigned int res;
-
 	if(!evp_rand_lock(ctx))
 		return 0;
 	res = evp_rand_strength_locked(ctx);
@@ -608,11 +552,9 @@ unsigned int EVP_RAND_get_strength(EVP_RAND_CTX * ctx)
 	return res;
 }
 
-static int evp_rand_nonce_locked(EVP_RAND_CTX * ctx, uchar * out,
-    size_t outlen)
+static int evp_rand_nonce_locked(EVP_RAND_CTX * ctx, uchar * out, size_t outlen)
 {
 	unsigned int str = evp_rand_strength_locked(ctx);
-
 	if(ctx->meth->nonce == NULL)
 		return 0;
 	if(ctx->meth->nonce(ctx->algctx, out, str, outlen, outlen))
@@ -623,7 +565,6 @@ static int evp_rand_nonce_locked(EVP_RAND_CTX * ctx, uchar * out,
 int EVP_RAND_nonce(EVP_RAND_CTX * ctx, uchar * out, size_t outlen)
 {
 	int res;
-
 	if(!evp_rand_lock(ctx))
 		return 0;
 	res = evp_rand_nonce_locked(ctx, out, outlen);
@@ -635,7 +576,6 @@ int EVP_RAND_get_state(EVP_RAND_CTX * ctx)
 {
 	OSSL_PARAM params[2] = { OSSL_PARAM_END, OSSL_PARAM_END };
 	int state;
-
 	params[0] = OSSL_PARAM_construct_int(OSSL_RAND_PARAM_STATE, &state);
 	if(!EVP_RAND_CTX_get_params(ctx, params))
 		state = EVP_RAND_STATE_ERROR;
@@ -644,15 +584,12 @@ int EVP_RAND_get_state(EVP_RAND_CTX * ctx)
 
 static int evp_rand_verify_zeroization_locked(EVP_RAND_CTX * ctx)
 {
-	if(ctx->meth->verify_zeroization != NULL)
-		return ctx->meth->verify_zeroization(ctx->algctx);
-	return 0;
+	return ctx->meth->verify_zeroization ? ctx->meth->verify_zeroization(ctx->algctx) : 0;
 }
 
 int EVP_RAND_verify_zeroization(EVP_RAND_CTX * ctx)
 {
 	int res;
-
 	if(!evp_rand_lock(ctx))
 		return 0;
 	res = evp_rand_verify_zeroization_locked(ctx);

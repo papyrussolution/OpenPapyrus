@@ -23,17 +23,14 @@ static int print_mode = 0;
 #include <openssl/bn.h>
 #include <openssl/opensslconf.h>
 
-static const char * kP256DefaultResult =
-    "A1E24B223B8E81BC1FFF99BAFB909EDB895FACDE7D6DA5EF5E7B3255FB378E0F";
-
+static const char * kP256DefaultResult = "A1E24B223B8E81BC1FFF99BAFB909EDB895FACDE7D6DA5EF5E7B3255FB378E0F";
 /*
  * Perform a deterministic walk on the curve, by starting from |point| and
  * using the X-coordinate of the previous point as the next scalar for
  * point multiplication.
  * Returns the X-coordinate of the end result or NULL on error.
  */
-static BIGNUM * walk_curve(const EC_GROUP * group, EC_POINT * point,
-    ossl_intmax_t num)
+static BIGNUM * walk_curve(const EC_GROUP * group, EC_POINT * point, ossl_intmax_t num)
 {
 	BIGNUM * scalar = NULL;
 	ossl_intmax_t i;
@@ -61,24 +58,19 @@ static int test_curve(void)
 	 * would be straightforward.
 	 */
 	if(!TEST_ptr(group = EC_GROUP_new_by_curve_name(NID_X9_62_prime256v1))
-	    || !TEST_ptr(point = EC_POINT_dup(EC_GROUP_get0_generator(group),
-	    group))
+	    || !TEST_ptr(point = EC_POINT_dup(EC_GROUP_get0_generator(group), group))
 	    || !TEST_ptr(result = walk_curve(group, point, num_repeats)))
 		return 0;
-
 	if(print_mode) {
 		BN_print(bio_out, result);
 		BIO_printf(bio_out, "\n");
 		ret = 1;
 	}
 	else {
-		if(!TEST_true(BN_hex2bn(&expected_result, kP256DefaultResult))
-		    || !TEST_ptr(expected_result)
-		    || !TEST_BN_eq(result, expected_result))
+		if(!TEST_true(BN_hex2bn(&expected_result, kP256DefaultResult)) || !TEST_ptr(expected_result) || !TEST_BN_eq(result, expected_result))
 			goto err;
 		ret = 1;
 	}
-
 err:
 	EC_GROUP_free(group);
 	EC_POINT_free(point);
@@ -105,7 +97,6 @@ const OPTIONS * test_get_options(void)
 	};
 	return test_options;
 }
-
 /*
  * Stress test the curve. If the '-num' argument is given, runs the loop
  * |num| times and prints the resulting X-coordinate. Otherwise runs the test

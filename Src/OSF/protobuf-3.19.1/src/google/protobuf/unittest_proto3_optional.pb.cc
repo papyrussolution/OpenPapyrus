@@ -1663,17 +1663,13 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Proto3OptionalExtensions::GetC
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fproto3_5foptional_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fproto3_5foptional_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fproto3_5foptional_2eproto[4]);
 }
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int Proto3OptionalExtensions::kExtNoOptionalFieldNumber;
+	const int Proto3OptionalExtensions::kExtNoOptionalFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  Proto3OptionalExtensions::ext_no_optional(kExtNoOptionalFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > Proto3OptionalExtensions::ext_no_optional(kExtNoOptionalFieldNumber, 0);
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int Proto3OptionalExtensions::kExtWithOptionalFieldNumber;
+	const int Proto3OptionalExtensions::kExtWithOptionalFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  Proto3OptionalExtensions::ext_with_optional(kExtWithOptionalFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > Proto3OptionalExtensions::ext_with_optional(kExtWithOptionalFieldNumber, 0);
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest

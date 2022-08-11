@@ -843,7 +843,7 @@ LTIME LTIME::encode(int h, int m, int s, int ms)
 
 long FASTCALL LTIME::settotalsec(long s)
 {
-	long   inc_dt = s / (3600 * 24); // @v11.2.11 @fix (3600 * 60 * 60)-->(3600 * 24)
+	long   inc_dt = s / SSECSPERDAY; // @v11.2.11 @fix (3600 * 60 * 60)-->(3600 * 24)
 	encodetime(s / 3600, (s % 3600) / 60, s % 60, 0, this);
 	return inc_dt;
 }
@@ -924,11 +924,11 @@ long STDCALL diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long 
 	if(dd != 0) {
 		if(dd > 0 && dt < 0) {
 			dd--;
-			dt += (24 * 3600L * 1000L);
+			dt += (SSECSPERDAY * 1000L);
 		}
 		else if(dd < 0 && dt > 0) {
 			dd++;
-			dt -= (24 * 3600L * 1000L);
+			dt -= (SSECSPERDAY * 1000L);
 		}
 	}
 	ASSIGN_PTR(pDiffDays, dd);
@@ -951,14 +951,14 @@ long STDCALL diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2)
 {
 	long dif_days = 0;
 	long ds = diffdatetime(d1, t1, d2, t2, 3, &dif_days);
-	return (ds + dif_days * 3600 * 24);
+	return (ds + dif_days * SSECSPERDAY);
 }
 
 long FASTCALL diffdatetimesec(const LDATETIME & dtm1, const LDATETIME & dtm2)
 {
 	long   dif_days = 0;
 	long   ds = diffdatetime(dtm1, dtm2, 3, &dif_days);
-	return (ds + dif_days * 3600 * 24);
+	return (ds + dif_days * SSECSPERDAY);
 }
 
 LDATETIME FASTCALL plusdatetime(const LDATETIME & dtm1, long plus, int dim)
@@ -1301,10 +1301,10 @@ LDATETIME & LDATETIME::Z()
 
 long FASTCALL LDATETIME::settotalsec(long s)
 {
-	long   inc_dt = s / (3600 * 24);
+	long   inc_dt = s / SSECSPERDAY;
 	if(inc_dt)
 		d = plusdate(d, inc_dt);
-	t.settotalsec(s % (3600 * 24));
+	t.settotalsec(s % SSECSPERDAY);
 	return inc_dt;
 }
 
@@ -1874,7 +1874,7 @@ int64 STimeChunk::GetDurationMs() const
 	if(Start.d && Finish.d && !Finish.IsFar()) {
 		long days = 0;
 		long diff = diffdatetime(Finish, Start, 4, &days);
-		return ((int64)(diff * 10) + ((int64)days * 1000 * 60 * 60 * 24));
+		return ((int64)(diff * 10) + ((int64)days * 1000 * SSECSPERDAY));
 	}
 	else
 		return -1;
@@ -2309,7 +2309,7 @@ int DateTimeRepeating::Next_(LDATETIME startDtm, LDATETIME * pNextDtm) const
 			}
 			else {
 				const long s = (temp_dtm.t.totalsec() + quantsec);
-				if(s < 24 * 60 * 60) {
+				if(s < SSECSPERDAY) {
 					temp_dtm.t.settotalsec(s);
 					ok = 1;
 				}
@@ -2446,7 +2446,7 @@ LDATETIME DateTimeRepIterator::Next()
 				else {
 					long s = temp_dtm.t.totalsec();
 					s += Dr.Dtl.D.QuantSec;
-					if(s < 24 * 60 * 60) {
+					if(s < SSECSPERDAY) {
 						temp_dtm.t.settotalsec(s);
 						result = temp_dtm;
 					}

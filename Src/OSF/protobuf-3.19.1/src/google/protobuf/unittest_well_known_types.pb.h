@@ -262,25 +262,25 @@ class TestWellKnownTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAnyFieldFieldNumber = 1,
-    kApiFieldFieldNumber = 2,
-    kDurationFieldFieldNumber = 3,
-    kEmptyFieldFieldNumber = 4,
-    kFieldMaskFieldFieldNumber = 5,
-    kSourceContextFieldFieldNumber = 6,
-    kStructFieldFieldNumber = 7,
-    kTimestampFieldFieldNumber = 8,
-    kTypeFieldFieldNumber = 9,
-    kDoubleFieldFieldNumber = 10,
-    kFloatFieldFieldNumber = 11,
-    kInt64FieldFieldNumber = 12,
-    kUint64FieldFieldNumber = 13,
-    kInt32FieldFieldNumber = 14,
-    kUint32FieldFieldNumber = 15,
-    kBoolFieldFieldNumber = 16,
-    kStringFieldFieldNumber = 17,
-    kBytesFieldFieldNumber = 18,
-    kValueFieldFieldNumber = 19,
+  	kAnyFieldFieldNumber = 1,
+  	kApiFieldFieldNumber = 2,
+  	kDurationFieldFieldNumber = 3,
+  	kEmptyFieldFieldNumber = 4,
+  	kFieldMaskFieldFieldNumber = 5,
+  	kSourceContextFieldFieldNumber = 6,
+  	kStructFieldFieldNumber = 7,
+  	kTimestampFieldFieldNumber = 8,
+  	kTypeFieldFieldNumber = 9,
+  	kDoubleFieldFieldNumber = 10,
+  	kFloatFieldFieldNumber = 11,
+  	kInt64FieldFieldNumber = 12,
+  	kUint64FieldFieldNumber = 13,
+  	kInt32FieldFieldNumber = 14,
+  	kUint32FieldFieldNumber = 15,
+  	kBoolFieldFieldNumber = 16,
+  	kStringFieldFieldNumber = 17,
+  	kBytesFieldFieldNumber = 18,
+  	kValueFieldFieldNumber = 19,
   };
   // .google.protobuf.Any any_field = 1;
   bool has_any_field() const;
@@ -758,24 +758,24 @@ class RepeatedWellKnownTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAnyFieldFieldNumber = 1,
-    kApiFieldFieldNumber = 2,
-    kDurationFieldFieldNumber = 3,
-    kEmptyFieldFieldNumber = 4,
-    kFieldMaskFieldFieldNumber = 5,
-    kSourceContextFieldFieldNumber = 6,
-    kStructFieldFieldNumber = 7,
-    kTimestampFieldFieldNumber = 8,
-    kTypeFieldFieldNumber = 9,
-    kDoubleFieldFieldNumber = 10,
-    kFloatFieldFieldNumber = 11,
-    kInt64FieldFieldNumber = 12,
-    kUint64FieldFieldNumber = 13,
-    kInt32FieldFieldNumber = 14,
-    kUint32FieldFieldNumber = 15,
-    kBoolFieldFieldNumber = 16,
-    kStringFieldFieldNumber = 17,
-    kBytesFieldFieldNumber = 18,
+  	kAnyFieldFieldNumber = 1,
+  	kApiFieldFieldNumber = 2,
+  	kDurationFieldFieldNumber = 3,
+  	kEmptyFieldFieldNumber = 4,
+  	kFieldMaskFieldFieldNumber = 5,
+  	kSourceContextFieldFieldNumber = 6,
+  	kStructFieldFieldNumber = 7,
+  	kTimestampFieldFieldNumber = 8,
+  	kTypeFieldFieldNumber = 9,
+  	kDoubleFieldFieldNumber = 10,
+  	kFloatFieldFieldNumber = 11,
+  	kInt64FieldFieldNumber = 12,
+  	kUint64FieldFieldNumber = 13,
+  	kInt32FieldFieldNumber = 14,
+  	kUint32FieldFieldNumber = 15,
+  	kBoolFieldFieldNumber = 16,
+  	kStringFieldFieldNumber = 17,
+  	kBytesFieldFieldNumber = 18,
   };
   // repeated .google.protobuf.Any any_field = 1;
   int any_field_size() const;
@@ -1220,24 +1220,24 @@ class OneofWellKnownTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAnyFieldFieldNumber = 1,
-    kApiFieldFieldNumber = 2,
-    kDurationFieldFieldNumber = 3,
-    kEmptyFieldFieldNumber = 4,
-    kFieldMaskFieldFieldNumber = 5,
-    kSourceContextFieldFieldNumber = 6,
-    kStructFieldFieldNumber = 7,
-    kTimestampFieldFieldNumber = 8,
-    kTypeFieldFieldNumber = 9,
-    kDoubleFieldFieldNumber = 10,
-    kFloatFieldFieldNumber = 11,
-    kInt64FieldFieldNumber = 12,
-    kUint64FieldFieldNumber = 13,
-    kInt32FieldFieldNumber = 14,
-    kUint32FieldFieldNumber = 15,
-    kBoolFieldFieldNumber = 16,
-    kStringFieldFieldNumber = 17,
-    kBytesFieldFieldNumber = 18,
+  	kAnyFieldFieldNumber = 1,
+  	kApiFieldFieldNumber = 2,
+  	kDurationFieldFieldNumber = 3,
+  	kEmptyFieldFieldNumber = 4,
+  	kFieldMaskFieldFieldNumber = 5,
+  	kSourceContextFieldFieldNumber = 6,
+  	kStructFieldFieldNumber = 7,
+  	kTimestampFieldFieldNumber = 8,
+  	kTypeFieldFieldNumber = 9,
+  	kDoubleFieldFieldNumber = 10,
+  	kFloatFieldFieldNumber = 11,
+  	kInt64FieldFieldNumber = 12,
+  	kUint64FieldFieldNumber = 13,
+  	kInt32FieldFieldNumber = 14,
+  	kUint32FieldFieldNumber = 15,
+  	kBoolFieldFieldNumber = 16,
+  	kStringFieldFieldNumber = 17,
+  	kBytesFieldFieldNumber = 18,
   };
   // .google.protobuf.Any any_field = 1;
   bool has_any_field() const;
@@ -1631,8 +1631,8 @@ public:
   explicit MapWellKnownTypes_AnyFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_AnyFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_AnyFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_AnyFieldEntry_DoNotUse*>(&_MapWellKnownTypes_AnyFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1648,8 +1648,8 @@ public:
   explicit MapWellKnownTypes_ApiFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_ApiFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_ApiFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_ApiFieldEntry_DoNotUse*>(&_MapWellKnownTypes_ApiFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1665,8 +1665,8 @@ public:
   explicit MapWellKnownTypes_DurationFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_DurationFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_DurationFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_DurationFieldEntry_DoNotUse*>(&_MapWellKnownTypes_DurationFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1682,8 +1682,8 @@ public:
   explicit MapWellKnownTypes_EmptyFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_EmptyFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_EmptyFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_EmptyFieldEntry_DoNotUse*>(&_MapWellKnownTypes_EmptyFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1699,8 +1699,8 @@ public:
   explicit MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse*>(&_MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1716,8 +1716,8 @@ public:
   explicit MapWellKnownTypes_SourceContextFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_SourceContextFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_SourceContextFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_SourceContextFieldEntry_DoNotUse*>(&_MapWellKnownTypes_SourceContextFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1733,8 +1733,8 @@ public:
   explicit MapWellKnownTypes_StructFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_StructFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_StructFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_StructFieldEntry_DoNotUse*>(&_MapWellKnownTypes_StructFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1750,8 +1750,8 @@ public:
   explicit MapWellKnownTypes_TimestampFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_TimestampFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_TimestampFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_TimestampFieldEntry_DoNotUse*>(&_MapWellKnownTypes_TimestampFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1767,8 +1767,8 @@ public:
   explicit MapWellKnownTypes_TypeFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_TypeFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_TypeFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_TypeFieldEntry_DoNotUse*>(&_MapWellKnownTypes_TypeFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1784,8 +1784,8 @@ public:
   explicit MapWellKnownTypes_DoubleFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_DoubleFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_DoubleFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_DoubleFieldEntry_DoNotUse*>(&_MapWellKnownTypes_DoubleFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1801,8 +1801,8 @@ public:
   explicit MapWellKnownTypes_FloatFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_FloatFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_FloatFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_FloatFieldEntry_DoNotUse*>(&_MapWellKnownTypes_FloatFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1818,8 +1818,8 @@ public:
   explicit MapWellKnownTypes_Int64FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_Int64FieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_Int64FieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_Int64FieldEntry_DoNotUse*>(&_MapWellKnownTypes_Int64FieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1835,8 +1835,8 @@ public:
   explicit MapWellKnownTypes_Uint64FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_Uint64FieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_Uint64FieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_Uint64FieldEntry_DoNotUse*>(&_MapWellKnownTypes_Uint64FieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1852,8 +1852,8 @@ public:
   explicit MapWellKnownTypes_Int32FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_Int32FieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_Int32FieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_Int32FieldEntry_DoNotUse*>(&_MapWellKnownTypes_Int32FieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1869,8 +1869,8 @@ public:
   explicit MapWellKnownTypes_Uint32FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_Uint32FieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_Uint32FieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_Uint32FieldEntry_DoNotUse*>(&_MapWellKnownTypes_Uint32FieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1886,8 +1886,8 @@ public:
   explicit MapWellKnownTypes_BoolFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_BoolFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_BoolFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_BoolFieldEntry_DoNotUse*>(&_MapWellKnownTypes_BoolFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1903,8 +1903,8 @@ public:
   explicit MapWellKnownTypes_StringFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_StringFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_StringFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_StringFieldEntry_DoNotUse*>(&_MapWellKnownTypes_StringFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1920,8 +1920,8 @@ public:
   explicit MapWellKnownTypes_BytesFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_BytesFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_BytesFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_BytesFieldEntry_DoNotUse*>(&_MapWellKnownTypes_BytesFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2032,24 +2032,24 @@ class MapWellKnownTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAnyFieldFieldNumber = 1,
-    kApiFieldFieldNumber = 2,
-    kDurationFieldFieldNumber = 3,
-    kEmptyFieldFieldNumber = 4,
-    kFieldMaskFieldFieldNumber = 5,
-    kSourceContextFieldFieldNumber = 6,
-    kStructFieldFieldNumber = 7,
-    kTimestampFieldFieldNumber = 8,
-    kTypeFieldFieldNumber = 9,
-    kDoubleFieldFieldNumber = 10,
-    kFloatFieldFieldNumber = 11,
-    kInt64FieldFieldNumber = 12,
-    kUint64FieldFieldNumber = 13,
-    kInt32FieldFieldNumber = 14,
-    kUint32FieldFieldNumber = 15,
-    kBoolFieldFieldNumber = 16,
-    kStringFieldFieldNumber = 17,
-    kBytesFieldFieldNumber = 18,
+  	kAnyFieldFieldNumber = 1,
+  	kApiFieldFieldNumber = 2,
+  	kDurationFieldFieldNumber = 3,
+  	kEmptyFieldFieldNumber = 4,
+  	kFieldMaskFieldFieldNumber = 5,
+  	kSourceContextFieldFieldNumber = 6,
+  	kStructFieldFieldNumber = 7,
+  	kTimestampFieldFieldNumber = 8,
+  	kTypeFieldFieldNumber = 9,
+  	kDoubleFieldFieldNumber = 10,
+  	kFloatFieldFieldNumber = 11,
+  	kInt64FieldFieldNumber = 12,
+  	kUint64FieldFieldNumber = 13,
+  	kInt32FieldFieldNumber = 14,
+  	kUint32FieldFieldNumber = 15,
+  	kBoolFieldFieldNumber = 16,
+  	kStringFieldFieldNumber = 17,
+  	kBytesFieldFieldNumber = 18,
   };
   // map<int32, .google.protobuf.Any> any_field = 1;
   int any_field_size() const;
@@ -2292,96 +2292,24 @@ class MapWellKnownTypes final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_AnyFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::Any,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> any_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_ApiFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::Api,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> api_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_DurationFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::Duration,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> duration_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_EmptyFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::Empty,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> empty_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> field_mask_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_SourceContextFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> source_context_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_StructFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::Struct,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> struct_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_TimestampFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> timestamp_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_TypeFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::Type,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> type_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_DoubleFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> double_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_FloatFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> float_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_Int64FieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> int64_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_Uint64FieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> uint64_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_Int32FieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> int32_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_Uint32FieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> uint32_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_BoolFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> bool_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_StringFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> string_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapWellKnownTypes_BytesFieldEntry_DoNotUse,
-      int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> bytes_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_AnyFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Any, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> any_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_ApiFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Api, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> api_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_DurationFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Duration, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> duration_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_EmptyFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Empty, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> empty_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> field_mask_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_SourceContextFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> source_context_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_StructFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Struct, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> struct_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_TimestampFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> timestamp_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_TypeFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Type, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> type_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_DoubleFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> double_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_FloatFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> float_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_Int64FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> int64_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_Uint64FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> uint64_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_Int32FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> int32_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_Uint32FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> uint32_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_BoolFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> bool_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_StringFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> string_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapWellKnownTypes_BytesFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> bytes_field_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2funittest_5fwell_5fknown_5ftypes_2eproto;
 };
@@ -2398,8 +2326,9 @@ class MapWellKnownTypes final :
 
 // .google.protobuf.Any any_field = 1;
 inline bool TestWellKnownTypes::_internal_has_any_field() const { return this != internal_default_instance() && any_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_any_field() const {
-  return _internal_has_any_field();
+inline bool TestWellKnownTypes::has_any_field() const
+{
+	return _internal_has_any_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& TestWellKnownTypes::_internal_any_field() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = any_field_;
@@ -2480,8 +2409,9 @@ inline void TestWellKnownTypes::set_allocated_any_field(::PROTOBUF_NAMESPACE_ID:
 
 // .google.protobuf.Api api_field = 2;
 inline bool TestWellKnownTypes::_internal_has_api_field() const { return this != internal_default_instance() && api_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_api_field() const {
-  return _internal_has_api_field();
+inline bool TestWellKnownTypes::has_api_field() const
+{
+	return _internal_has_api_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Api& TestWellKnownTypes::_internal_api_field() const {
   const ::PROTOBUF_NAMESPACE_ID::Api* p = api_field_;
@@ -2562,8 +2492,9 @@ inline void TestWellKnownTypes::set_allocated_api_field(::PROTOBUF_NAMESPACE_ID:
 
 // .google.protobuf.Duration duration_field = 3;
 inline bool TestWellKnownTypes::_internal_has_duration_field() const { return this != internal_default_instance() && duration_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_duration_field() const {
-  return _internal_has_duration_field();
+inline bool TestWellKnownTypes::has_duration_field() const
+{
+	return _internal_has_duration_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Duration& TestWellKnownTypes::_internal_duration_field() const {
   const ::PROTOBUF_NAMESPACE_ID::Duration* p = duration_field_;
@@ -2644,8 +2575,9 @@ inline void TestWellKnownTypes::set_allocated_duration_field(::PROTOBUF_NAMESPAC
 
 // .google.protobuf.Empty empty_field = 4;
 inline bool TestWellKnownTypes::_internal_has_empty_field() const { return this != internal_default_instance() && empty_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_empty_field() const {
-  return _internal_has_empty_field();
+inline bool TestWellKnownTypes::has_empty_field() const
+{
+	return _internal_has_empty_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Empty& TestWellKnownTypes::_internal_empty_field() const {
   const ::PROTOBUF_NAMESPACE_ID::Empty* p = empty_field_;
@@ -2726,8 +2658,9 @@ inline void TestWellKnownTypes::set_allocated_empty_field(::PROTOBUF_NAMESPACE_I
 
 // .google.protobuf.FieldMask field_mask_field = 5;
 inline bool TestWellKnownTypes::_internal_has_field_mask_field() const { return this != internal_default_instance() && field_mask_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_field_mask_field() const {
-  return _internal_has_field_mask_field();
+inline bool TestWellKnownTypes::has_field_mask_field() const
+{
+	return _internal_has_field_mask_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& TestWellKnownTypes::_internal_field_mask_field() const {
   const ::PROTOBUF_NAMESPACE_ID::FieldMask* p = field_mask_field_;
@@ -2808,8 +2741,9 @@ inline void TestWellKnownTypes::set_allocated_field_mask_field(::PROTOBUF_NAMESP
 
 // .google.protobuf.SourceContext source_context_field = 6;
 inline bool TestWellKnownTypes::_internal_has_source_context_field() const { return this != internal_default_instance() && source_context_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_source_context_field() const {
-  return _internal_has_source_context_field();
+inline bool TestWellKnownTypes::has_source_context_field() const
+{
+	return _internal_has_source_context_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::SourceContext& TestWellKnownTypes::_internal_source_context_field() const {
   const ::PROTOBUF_NAMESPACE_ID::SourceContext* p = source_context_field_;
@@ -2890,8 +2824,9 @@ inline void TestWellKnownTypes::set_allocated_source_context_field(::PROTOBUF_NA
 
 // .google.protobuf.Struct struct_field = 7;
 inline bool TestWellKnownTypes::_internal_has_struct_field() const { return this != internal_default_instance() && struct_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_struct_field() const {
-  return _internal_has_struct_field();
+inline bool TestWellKnownTypes::has_struct_field() const
+{
+	return _internal_has_struct_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Struct& TestWellKnownTypes::_internal_struct_field() const {
   const ::PROTOBUF_NAMESPACE_ID::Struct* p = struct_field_;
@@ -2972,8 +2907,9 @@ inline void TestWellKnownTypes::set_allocated_struct_field(::PROTOBUF_NAMESPACE_
 
 // .google.protobuf.Timestamp timestamp_field = 8;
 inline bool TestWellKnownTypes::_internal_has_timestamp_field() const { return this != internal_default_instance() && timestamp_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_timestamp_field() const {
-  return _internal_has_timestamp_field();
+inline bool TestWellKnownTypes::has_timestamp_field() const
+{
+	return _internal_has_timestamp_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TestWellKnownTypes::_internal_timestamp_field() const {
   const ::PROTOBUF_NAMESPACE_ID::Timestamp* p = timestamp_field_;
@@ -3054,8 +2990,9 @@ inline void TestWellKnownTypes::set_allocated_timestamp_field(::PROTOBUF_NAMESPA
 
 // .google.protobuf.Type type_field = 9;
 inline bool TestWellKnownTypes::_internal_has_type_field() const { return this != internal_default_instance() && type_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_type_field() const {
-  return _internal_has_type_field();
+inline bool TestWellKnownTypes::has_type_field() const
+{
+	return _internal_has_type_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Type& TestWellKnownTypes::_internal_type_field() const {
   const ::PROTOBUF_NAMESPACE_ID::Type* p = type_field_;
@@ -3136,8 +3073,9 @@ inline void TestWellKnownTypes::set_allocated_type_field(::PROTOBUF_NAMESPACE_ID
 
 // .google.protobuf.DoubleValue double_field = 10;
 inline bool TestWellKnownTypes::_internal_has_double_field() const { return this != internal_default_instance() && double_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_double_field() const {
-  return _internal_has_double_field();
+inline bool TestWellKnownTypes::has_double_field() const
+{
+	return _internal_has_double_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& TestWellKnownTypes::_internal_double_field() const {
   const ::PROTOBUF_NAMESPACE_ID::DoubleValue* p = double_field_;
@@ -3218,8 +3156,9 @@ inline void TestWellKnownTypes::set_allocated_double_field(::PROTOBUF_NAMESPACE_
 
 // .google.protobuf.FloatValue float_field = 11;
 inline bool TestWellKnownTypes::_internal_has_float_field() const { return this != internal_default_instance() && float_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_float_field() const {
-  return _internal_has_float_field();
+inline bool TestWellKnownTypes::has_float_field() const
+{
+	return _internal_has_float_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FloatValue& TestWellKnownTypes::_internal_float_field() const {
   const ::PROTOBUF_NAMESPACE_ID::FloatValue* p = float_field_;
@@ -3300,8 +3239,9 @@ inline void TestWellKnownTypes::set_allocated_float_field(::PROTOBUF_NAMESPACE_I
 
 // .google.protobuf.Int64Value int64_field = 12;
 inline bool TestWellKnownTypes::_internal_has_int64_field() const { return this != internal_default_instance() && int64_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_int64_field() const {
-  return _internal_has_int64_field();
+inline bool TestWellKnownTypes::has_int64_field() const
+{
+	return _internal_has_int64_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Int64Value& TestWellKnownTypes::_internal_int64_field() const {
   const ::PROTOBUF_NAMESPACE_ID::Int64Value* p = int64_field_;
@@ -3382,8 +3322,9 @@ inline void TestWellKnownTypes::set_allocated_int64_field(::PROTOBUF_NAMESPACE_I
 
 // .google.protobuf.UInt64Value uint64_field = 13;
 inline bool TestWellKnownTypes::_internal_has_uint64_field() const { return this != internal_default_instance() && uint64_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_uint64_field() const {
-  return _internal_has_uint64_field();
+inline bool TestWellKnownTypes::has_uint64_field() const
+{
+	return _internal_has_uint64_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::UInt64Value& TestWellKnownTypes::_internal_uint64_field() const {
   const ::PROTOBUF_NAMESPACE_ID::UInt64Value* p = uint64_field_;
@@ -3464,8 +3405,9 @@ inline void TestWellKnownTypes::set_allocated_uint64_field(::PROTOBUF_NAMESPACE_
 
 // .google.protobuf.Int32Value int32_field = 14;
 inline bool TestWellKnownTypes::_internal_has_int32_field() const { return this != internal_default_instance() && int32_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_int32_field() const {
-  return _internal_has_int32_field();
+inline bool TestWellKnownTypes::has_int32_field() const
+{
+	return _internal_has_int32_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& TestWellKnownTypes::_internal_int32_field() const {
   const ::PROTOBUF_NAMESPACE_ID::Int32Value* p = int32_field_;
@@ -3546,8 +3488,9 @@ inline void TestWellKnownTypes::set_allocated_int32_field(::PROTOBUF_NAMESPACE_I
 
 // .google.protobuf.UInt32Value uint32_field = 15;
 inline bool TestWellKnownTypes::_internal_has_uint32_field() const { return this != internal_default_instance() && uint32_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_uint32_field() const {
-  return _internal_has_uint32_field();
+inline bool TestWellKnownTypes::has_uint32_field() const
+{
+	return _internal_has_uint32_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::UInt32Value& TestWellKnownTypes::_internal_uint32_field() const {
   const ::PROTOBUF_NAMESPACE_ID::UInt32Value* p = uint32_field_;
@@ -3628,8 +3571,9 @@ inline void TestWellKnownTypes::set_allocated_uint32_field(::PROTOBUF_NAMESPACE_
 
 // .google.protobuf.BoolValue bool_field = 16;
 inline bool TestWellKnownTypes::_internal_has_bool_field() const { return this != internal_default_instance() && bool_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_bool_field() const {
-  return _internal_has_bool_field();
+inline bool TestWellKnownTypes::has_bool_field() const
+{
+	return _internal_has_bool_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::BoolValue& TestWellKnownTypes::_internal_bool_field() const {
   const ::PROTOBUF_NAMESPACE_ID::BoolValue* p = bool_field_;
@@ -3710,8 +3654,9 @@ inline void TestWellKnownTypes::set_allocated_bool_field(::PROTOBUF_NAMESPACE_ID
 
 // .google.protobuf.StringValue string_field = 17;
 inline bool TestWellKnownTypes::_internal_has_string_field() const { return this != internal_default_instance() && string_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_string_field() const {
-  return _internal_has_string_field();
+inline bool TestWellKnownTypes::has_string_field() const
+{
+	return _internal_has_string_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::StringValue& TestWellKnownTypes::_internal_string_field() const {
   const ::PROTOBUF_NAMESPACE_ID::StringValue* p = string_field_;
@@ -3792,8 +3737,9 @@ inline void TestWellKnownTypes::set_allocated_string_field(::PROTOBUF_NAMESPACE_
 
 // .google.protobuf.BytesValue bytes_field = 18;
 inline bool TestWellKnownTypes::_internal_has_bytes_field() const { return this != internal_default_instance() && bytes_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_bytes_field() const {
-  return _internal_has_bytes_field();
+inline bool TestWellKnownTypes::has_bytes_field() const
+{
+	return _internal_has_bytes_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::BytesValue& TestWellKnownTypes::_internal_bytes_field() const {
   const ::PROTOBUF_NAMESPACE_ID::BytesValue* p = bytes_field_;
@@ -3874,8 +3820,9 @@ inline void TestWellKnownTypes::set_allocated_bytes_field(::PROTOBUF_NAMESPACE_I
 
 // .google.protobuf.Value value_field = 19;
 inline bool TestWellKnownTypes::_internal_has_value_field() const { return this != internal_default_instance() && value_field_ != nullptr; }
-inline bool TestWellKnownTypes::has_value_field() const {
-  return _internal_has_value_field();
+inline bool TestWellKnownTypes::has_value_field() const
+{
+	return _internal_has_value_field();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Value& TestWellKnownTypes::_internal_value_field() const {
   const ::PROTOBUF_NAMESPACE_ID::Value* p = value_field_;
@@ -3960,8 +3907,9 @@ inline void TestWellKnownTypes::set_allocated_value_field(::PROTOBUF_NAMESPACE_I
 
 // repeated .google.protobuf.Any any_field = 1;
 inline int RepeatedWellKnownTypes::_internal_any_field_size() const { return any_field_.size(); }
-inline int RepeatedWellKnownTypes::any_field_size() const {
-  return _internal_any_field_size();
+inline int RepeatedWellKnownTypes::any_field_size() const
+{
+	return _internal_any_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* RepeatedWellKnownTypes::mutable_any_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.any_field)
@@ -3993,8 +3941,9 @@ RepeatedWellKnownTypes::any_field() const {
 
 // repeated .google.protobuf.Api api_field = 2;
 inline int RepeatedWellKnownTypes::_internal_api_field_size() const { return api_field_.size(); }
-inline int RepeatedWellKnownTypes::api_field_size() const {
-  return _internal_api_field_size();
+inline int RepeatedWellKnownTypes::api_field_size() const
+{
+	return _internal_api_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Api* RepeatedWellKnownTypes::mutable_api_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.api_field)
@@ -4026,8 +3975,9 @@ RepeatedWellKnownTypes::api_field() const {
 
 // repeated .google.protobuf.Duration duration_field = 3;
 inline int RepeatedWellKnownTypes::_internal_duration_field_size() const { return duration_field_.size(); }
-inline int RepeatedWellKnownTypes::duration_field_size() const {
-  return _internal_duration_field_size();
+inline int RepeatedWellKnownTypes::duration_field_size() const
+{
+	return _internal_duration_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* RepeatedWellKnownTypes::mutable_duration_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.duration_field)
@@ -4059,8 +4009,9 @@ RepeatedWellKnownTypes::duration_field() const {
 
 // repeated .google.protobuf.Empty empty_field = 4;
 inline int RepeatedWellKnownTypes::_internal_empty_field_size() const { return empty_field_.size(); }
-inline int RepeatedWellKnownTypes::empty_field_size() const {
-  return _internal_empty_field_size();
+inline int RepeatedWellKnownTypes::empty_field_size() const
+{
+	return _internal_empty_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Empty* RepeatedWellKnownTypes::mutable_empty_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.empty_field)
@@ -4092,8 +4043,9 @@ RepeatedWellKnownTypes::empty_field() const {
 
 // repeated .google.protobuf.FieldMask field_mask_field = 5;
 inline int RepeatedWellKnownTypes::_internal_field_mask_field_size() const { return field_mask_field_.size(); }
-inline int RepeatedWellKnownTypes::field_mask_field_size() const {
-  return _internal_field_mask_field_size();
+inline int RepeatedWellKnownTypes::field_mask_field_size() const
+{
+	return _internal_field_mask_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* RepeatedWellKnownTypes::mutable_field_mask_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.field_mask_field)
@@ -4125,8 +4077,9 @@ RepeatedWellKnownTypes::field_mask_field() const {
 
 // repeated .google.protobuf.SourceContext source_context_field = 6;
 inline int RepeatedWellKnownTypes::_internal_source_context_field_size() const { return source_context_field_.size(); }
-inline int RepeatedWellKnownTypes::source_context_field_size() const {
-  return _internal_source_context_field_size();
+inline int RepeatedWellKnownTypes::source_context_field_size() const
+{
+	return _internal_source_context_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::SourceContext* RepeatedWellKnownTypes::mutable_source_context_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.source_context_field)
@@ -4158,8 +4111,9 @@ RepeatedWellKnownTypes::source_context_field() const {
 
 // repeated .google.protobuf.Struct struct_field = 7;
 inline int RepeatedWellKnownTypes::_internal_struct_field_size() const { return struct_field_.size(); }
-inline int RepeatedWellKnownTypes::struct_field_size() const {
-  return _internal_struct_field_size();
+inline int RepeatedWellKnownTypes::struct_field_size() const
+{
+	return _internal_struct_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Struct* RepeatedWellKnownTypes::mutable_struct_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.struct_field)
@@ -4191,8 +4145,9 @@ RepeatedWellKnownTypes::struct_field() const {
 
 // repeated .google.protobuf.Timestamp timestamp_field = 8;
 inline int RepeatedWellKnownTypes::_internal_timestamp_field_size() const { return timestamp_field_.size(); }
-inline int RepeatedWellKnownTypes::timestamp_field_size() const {
-  return _internal_timestamp_field_size();
+inline int RepeatedWellKnownTypes::timestamp_field_size() const
+{
+	return _internal_timestamp_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* RepeatedWellKnownTypes::mutable_timestamp_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.timestamp_field)
@@ -4224,8 +4179,9 @@ RepeatedWellKnownTypes::timestamp_field() const {
 
 // repeated .google.protobuf.Type type_field = 9;
 inline int RepeatedWellKnownTypes::_internal_type_field_size() const { return type_field_.size(); }
-inline int RepeatedWellKnownTypes::type_field_size() const {
-  return _internal_type_field_size();
+inline int RepeatedWellKnownTypes::type_field_size() const
+{
+	return _internal_type_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Type* RepeatedWellKnownTypes::mutable_type_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.type_field)
@@ -4257,8 +4213,9 @@ RepeatedWellKnownTypes::type_field() const {
 
 // repeated .google.protobuf.DoubleValue double_field = 10;
 inline int RepeatedWellKnownTypes::_internal_double_field_size() const { return double_field_.size(); }
-inline int RepeatedWellKnownTypes::double_field_size() const {
-  return _internal_double_field_size();
+inline int RepeatedWellKnownTypes::double_field_size() const
+{
+	return _internal_double_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* RepeatedWellKnownTypes::mutable_double_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.double_field)
@@ -4290,8 +4247,9 @@ RepeatedWellKnownTypes::double_field() const {
 
 // repeated .google.protobuf.FloatValue float_field = 11;
 inline int RepeatedWellKnownTypes::_internal_float_field_size() const { return float_field_.size(); }
-inline int RepeatedWellKnownTypes::float_field_size() const {
-  return _internal_float_field_size();
+inline int RepeatedWellKnownTypes::float_field_size() const
+{
+	return _internal_float_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::FloatValue* RepeatedWellKnownTypes::mutable_float_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.float_field)
@@ -4323,8 +4281,9 @@ RepeatedWellKnownTypes::float_field() const {
 
 // repeated .google.protobuf.Int64Value int64_field = 12;
 inline int RepeatedWellKnownTypes::_internal_int64_field_size() const { return int64_field_.size(); }
-inline int RepeatedWellKnownTypes::int64_field_size() const {
-  return _internal_int64_field_size();
+inline int RepeatedWellKnownTypes::int64_field_size() const
+{
+	return _internal_int64_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int64Value* RepeatedWellKnownTypes::mutable_int64_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.int64_field)
@@ -4356,8 +4315,9 @@ RepeatedWellKnownTypes::int64_field() const {
 
 // repeated .google.protobuf.UInt64Value uint64_field = 13;
 inline int RepeatedWellKnownTypes::_internal_uint64_field_size() const { return uint64_field_.size(); }
-inline int RepeatedWellKnownTypes::uint64_field_size() const {
-  return _internal_uint64_field_size();
+inline int RepeatedWellKnownTypes::uint64_field_size() const
+{
+	return _internal_uint64_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* RepeatedWellKnownTypes::mutable_uint64_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.uint64_field)
@@ -4389,8 +4349,9 @@ RepeatedWellKnownTypes::uint64_field() const {
 
 // repeated .google.protobuf.Int32Value int32_field = 14;
 inline int RepeatedWellKnownTypes::_internal_int32_field_size() const { return int32_field_.size(); }
-inline int RepeatedWellKnownTypes::int32_field_size() const {
-  return _internal_int32_field_size();
+inline int RepeatedWellKnownTypes::int32_field_size() const
+{
+	return _internal_int32_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int32Value* RepeatedWellKnownTypes::mutable_int32_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.int32_field)
@@ -4422,8 +4383,9 @@ RepeatedWellKnownTypes::int32_field() const {
 
 // repeated .google.protobuf.UInt32Value uint32_field = 15;
 inline int RepeatedWellKnownTypes::_internal_uint32_field_size() const { return uint32_field_.size(); }
-inline int RepeatedWellKnownTypes::uint32_field_size() const {
-  return _internal_uint32_field_size();
+inline int RepeatedWellKnownTypes::uint32_field_size() const
+{
+	return _internal_uint32_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* RepeatedWellKnownTypes::mutable_uint32_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.uint32_field)
@@ -4455,8 +4417,9 @@ RepeatedWellKnownTypes::uint32_field() const {
 
 // repeated .google.protobuf.BoolValue bool_field = 16;
 inline int RepeatedWellKnownTypes::_internal_bool_field_size() const { return bool_field_.size(); }
-inline int RepeatedWellKnownTypes::bool_field_size() const {
-  return _internal_bool_field_size();
+inline int RepeatedWellKnownTypes::bool_field_size() const
+{
+	return _internal_bool_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::BoolValue* RepeatedWellKnownTypes::mutable_bool_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.bool_field)
@@ -4488,8 +4451,9 @@ RepeatedWellKnownTypes::bool_field() const {
 
 // repeated .google.protobuf.StringValue string_field = 17;
 inline int RepeatedWellKnownTypes::_internal_string_field_size() const { return string_field_.size(); }
-inline int RepeatedWellKnownTypes::string_field_size() const {
-  return _internal_string_field_size();
+inline int RepeatedWellKnownTypes::string_field_size() const
+{
+	return _internal_string_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::StringValue* RepeatedWellKnownTypes::mutable_string_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.string_field)
@@ -4521,8 +4485,9 @@ RepeatedWellKnownTypes::string_field() const {
 
 // repeated .google.protobuf.BytesValue bytes_field = 18;
 inline int RepeatedWellKnownTypes::_internal_bytes_field_size() const { return bytes_field_.size(); }
-inline int RepeatedWellKnownTypes::bytes_field_size() const {
-  return _internal_bytes_field_size();
+inline int RepeatedWellKnownTypes::bytes_field_size() const
+{
+	return _internal_bytes_field_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::BytesValue* RepeatedWellKnownTypes::mutable_bytes_field(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RepeatedWellKnownTypes.bytes_field)
@@ -4557,15 +4522,12 @@ RepeatedWellKnownTypes::bytes_field() const {
 // OneofWellKnownTypes
 
 // .google.protobuf.Any any_field = 1;
-inline bool OneofWellKnownTypes::_internal_has_any_field() const {
-  return oneof_field_case() == kAnyField;
+inline bool OneofWellKnownTypes::_internal_has_any_field() const { return oneof_field_case() == kAnyField; }
+inline bool OneofWellKnownTypes::has_any_field() const
+{
+	return _internal_has_any_field();
 }
-inline bool OneofWellKnownTypes::has_any_field() const {
-  return _internal_has_any_field();
-}
-inline void OneofWellKnownTypes::set_has_any_field() {
-  _oneof_case_[0] = kAnyField;
-}
+inline void OneofWellKnownTypes::set_has_any_field() { _oneof_case_[0] = kAnyField; }
 inline ::PROTOBUF_NAMESPACE_ID::Any* OneofWellKnownTypes::release_any_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.any_field)
   if(_internal_has_any_field()) {
@@ -4619,15 +4581,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* OneofWellKnownTypes::mutable_any_field() {
 }
 
 // .google.protobuf.Api api_field = 2;
-inline bool OneofWellKnownTypes::_internal_has_api_field() const {
-  return oneof_field_case() == kApiField;
+inline bool OneofWellKnownTypes::_internal_has_api_field() const { return oneof_field_case() == kApiField; }
+inline bool OneofWellKnownTypes::has_api_field() const
+{
+	return _internal_has_api_field();
 }
-inline bool OneofWellKnownTypes::has_api_field() const {
-  return _internal_has_api_field();
-}
-inline void OneofWellKnownTypes::set_has_api_field() {
-  _oneof_case_[0] = kApiField;
-}
+inline void OneofWellKnownTypes::set_has_api_field() { _oneof_case_[0] = kApiField; }
 inline ::PROTOBUF_NAMESPACE_ID::Api* OneofWellKnownTypes::release_api_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.api_field)
   if(_internal_has_api_field()) {
@@ -4681,15 +4640,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Api* OneofWellKnownTypes::mutable_api_field() {
 }
 
 // .google.protobuf.Duration duration_field = 3;
-inline bool OneofWellKnownTypes::_internal_has_duration_field() const {
-  return oneof_field_case() == kDurationField;
+inline bool OneofWellKnownTypes::_internal_has_duration_field() const { return oneof_field_case() == kDurationField; }
+inline bool OneofWellKnownTypes::has_duration_field() const
+{
+	return _internal_has_duration_field();
 }
-inline bool OneofWellKnownTypes::has_duration_field() const {
-  return _internal_has_duration_field();
-}
-inline void OneofWellKnownTypes::set_has_duration_field() {
-  _oneof_case_[0] = kDurationField;
-}
+inline void OneofWellKnownTypes::set_has_duration_field() { _oneof_case_[0] = kDurationField; }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* OneofWellKnownTypes::release_duration_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.duration_field)
   if(_internal_has_duration_field()) {
@@ -4743,15 +4699,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* OneofWellKnownTypes::mutable_duration_
 }
 
 // .google.protobuf.Empty empty_field = 4;
-inline bool OneofWellKnownTypes::_internal_has_empty_field() const {
-  return oneof_field_case() == kEmptyField;
+inline bool OneofWellKnownTypes::_internal_has_empty_field() const { return oneof_field_case() == kEmptyField; }
+inline bool OneofWellKnownTypes::has_empty_field() const
+{
+	return _internal_has_empty_field();
 }
-inline bool OneofWellKnownTypes::has_empty_field() const {
-  return _internal_has_empty_field();
-}
-inline void OneofWellKnownTypes::set_has_empty_field() {
-  _oneof_case_[0] = kEmptyField;
-}
+inline void OneofWellKnownTypes::set_has_empty_field() { _oneof_case_[0] = kEmptyField; }
 inline ::PROTOBUF_NAMESPACE_ID::Empty* OneofWellKnownTypes::release_empty_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.empty_field)
   if(_internal_has_empty_field()) {
@@ -4805,15 +4758,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Empty* OneofWellKnownTypes::mutable_empty_field(
 }
 
 // .google.protobuf.FieldMask field_mask_field = 5;
-inline bool OneofWellKnownTypes::_internal_has_field_mask_field() const {
-  return oneof_field_case() == kFieldMaskField;
+inline bool OneofWellKnownTypes::_internal_has_field_mask_field() const { return oneof_field_case() == kFieldMaskField; }
+inline bool OneofWellKnownTypes::has_field_mask_field() const
+{
+	return _internal_has_field_mask_field();
 }
-inline bool OneofWellKnownTypes::has_field_mask_field() const {
-  return _internal_has_field_mask_field();
-}
-inline void OneofWellKnownTypes::set_has_field_mask_field() {
-  _oneof_case_[0] = kFieldMaskField;
-}
+inline void OneofWellKnownTypes::set_has_field_mask_field() { _oneof_case_[0] = kFieldMaskField; }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* OneofWellKnownTypes::release_field_mask_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.field_mask_field)
   if(_internal_has_field_mask_field()) {
@@ -4867,15 +4817,12 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* OneofWellKnownTypes::mutable_field_ma
 }
 
 // .google.protobuf.SourceContext source_context_field = 6;
-inline bool OneofWellKnownTypes::_internal_has_source_context_field() const {
-  return oneof_field_case() == kSourceContextField;
+inline bool OneofWellKnownTypes::_internal_has_source_context_field() const { return oneof_field_case() == kSourceContextField; }
+inline bool OneofWellKnownTypes::has_source_context_field() const
+{
+	return _internal_has_source_context_field();
 }
-inline bool OneofWellKnownTypes::has_source_context_field() const {
-  return _internal_has_source_context_field();
-}
-inline void OneofWellKnownTypes::set_has_source_context_field() {
-  _oneof_case_[0] = kSourceContextField;
-}
+inline void OneofWellKnownTypes::set_has_source_context_field() { _oneof_case_[0] = kSourceContextField; }
 inline ::PROTOBUF_NAMESPACE_ID::SourceContext* OneofWellKnownTypes::release_source_context_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.source_context_field)
   if(_internal_has_source_context_field()) {
@@ -4929,15 +4876,12 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* OneofWellKnownTypes::mutable_sour
 }
 
 // .google.protobuf.Struct struct_field = 7;
-inline bool OneofWellKnownTypes::_internal_has_struct_field() const {
-  return oneof_field_case() == kStructField;
+inline bool OneofWellKnownTypes::_internal_has_struct_field() const { return oneof_field_case() == kStructField; }
+inline bool OneofWellKnownTypes::has_struct_field() const
+{
+	return _internal_has_struct_field();
 }
-inline bool OneofWellKnownTypes::has_struct_field() const {
-  return _internal_has_struct_field();
-}
-inline void OneofWellKnownTypes::set_has_struct_field() {
-  _oneof_case_[0] = kStructField;
-}
+inline void OneofWellKnownTypes::set_has_struct_field() { _oneof_case_[0] = kStructField; }
 inline ::PROTOBUF_NAMESPACE_ID::Struct* OneofWellKnownTypes::release_struct_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.struct_field)
   if(_internal_has_struct_field()) {
@@ -4991,15 +4935,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Struct* OneofWellKnownTypes::mutable_struct_fiel
 }
 
 // .google.protobuf.Timestamp timestamp_field = 8;
-inline bool OneofWellKnownTypes::_internal_has_timestamp_field() const {
-  return oneof_field_case() == kTimestampField;
+inline bool OneofWellKnownTypes::_internal_has_timestamp_field() const { return oneof_field_case() == kTimestampField; }
+inline bool OneofWellKnownTypes::has_timestamp_field() const
+{
+	return _internal_has_timestamp_field();
 }
-inline bool OneofWellKnownTypes::has_timestamp_field() const {
-  return _internal_has_timestamp_field();
-}
-inline void OneofWellKnownTypes::set_has_timestamp_field() {
-  _oneof_case_[0] = kTimestampField;
-}
+inline void OneofWellKnownTypes::set_has_timestamp_field() { _oneof_case_[0] = kTimestampField; }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* OneofWellKnownTypes::release_timestamp_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.timestamp_field)
   if(_internal_has_timestamp_field()) {
@@ -5053,15 +4994,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* OneofWellKnownTypes::mutable_timestam
 }
 
 // .google.protobuf.Type type_field = 9;
-inline bool OneofWellKnownTypes::_internal_has_type_field() const {
-  return oneof_field_case() == kTypeField;
+inline bool OneofWellKnownTypes::_internal_has_type_field() const { return oneof_field_case() == kTypeField; }
+inline bool OneofWellKnownTypes::has_type_field() const
+{
+	return _internal_has_type_field();
 }
-inline bool OneofWellKnownTypes::has_type_field() const {
-  return _internal_has_type_field();
-}
-inline void OneofWellKnownTypes::set_has_type_field() {
-  _oneof_case_[0] = kTypeField;
-}
+inline void OneofWellKnownTypes::set_has_type_field() { _oneof_case_[0] = kTypeField; }
 inline ::PROTOBUF_NAMESPACE_ID::Type* OneofWellKnownTypes::release_type_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.type_field)
   if(_internal_has_type_field()) {
@@ -5115,15 +5053,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Type* OneofWellKnownTypes::mutable_type_field() 
 }
 
 // .google.protobuf.DoubleValue double_field = 10;
-inline bool OneofWellKnownTypes::_internal_has_double_field() const {
-  return oneof_field_case() == kDoubleField;
+inline bool OneofWellKnownTypes::_internal_has_double_field() const { return oneof_field_case() == kDoubleField; }
+inline bool OneofWellKnownTypes::has_double_field() const
+{
+	return _internal_has_double_field();
 }
-inline bool OneofWellKnownTypes::has_double_field() const {
-  return _internal_has_double_field();
-}
-inline void OneofWellKnownTypes::set_has_double_field() {
-  _oneof_case_[0] = kDoubleField;
-}
+inline void OneofWellKnownTypes::set_has_double_field() { _oneof_case_[0] = kDoubleField; }
 inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* OneofWellKnownTypes::release_double_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.double_field)
   if(_internal_has_double_field()) {
@@ -5177,15 +5112,12 @@ inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* OneofWellKnownTypes::mutable_double
 }
 
 // .google.protobuf.FloatValue float_field = 11;
-inline bool OneofWellKnownTypes::_internal_has_float_field() const {
-  return oneof_field_case() == kFloatField;
+inline bool OneofWellKnownTypes::_internal_has_float_field() const { return oneof_field_case() == kFloatField; }
+inline bool OneofWellKnownTypes::has_float_field() const
+{
+	return _internal_has_float_field();
 }
-inline bool OneofWellKnownTypes::has_float_field() const {
-  return _internal_has_float_field();
-}
-inline void OneofWellKnownTypes::set_has_float_field() {
-  _oneof_case_[0] = kFloatField;
-}
+inline void OneofWellKnownTypes::set_has_float_field() { _oneof_case_[0] = kFloatField; }
 inline ::PROTOBUF_NAMESPACE_ID::FloatValue* OneofWellKnownTypes::release_float_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.float_field)
   if(_internal_has_float_field()) {
@@ -5239,15 +5171,12 @@ inline ::PROTOBUF_NAMESPACE_ID::FloatValue* OneofWellKnownTypes::mutable_float_f
 }
 
 // .google.protobuf.Int64Value int64_field = 12;
-inline bool OneofWellKnownTypes::_internal_has_int64_field() const {
-  return oneof_field_case() == kInt64Field;
+inline bool OneofWellKnownTypes::_internal_has_int64_field() const { return oneof_field_case() == kInt64Field; }
+inline bool OneofWellKnownTypes::has_int64_field() const
+{
+	return _internal_has_int64_field();
 }
-inline bool OneofWellKnownTypes::has_int64_field() const {
-  return _internal_has_int64_field();
-}
-inline void OneofWellKnownTypes::set_has_int64_field() {
-  _oneof_case_[0] = kInt64Field;
-}
+inline void OneofWellKnownTypes::set_has_int64_field() { _oneof_case_[0] = kInt64Field; }
 inline ::PROTOBUF_NAMESPACE_ID::Int64Value* OneofWellKnownTypes::release_int64_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.int64_field)
   if(_internal_has_int64_field()) {
@@ -5301,15 +5230,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Int64Value* OneofWellKnownTypes::mutable_int64_f
 }
 
 // .google.protobuf.UInt64Value uint64_field = 13;
-inline bool OneofWellKnownTypes::_internal_has_uint64_field() const {
-  return oneof_field_case() == kUint64Field;
+inline bool OneofWellKnownTypes::_internal_has_uint64_field() const { return oneof_field_case() == kUint64Field; }
+inline bool OneofWellKnownTypes::has_uint64_field() const
+{
+	return _internal_has_uint64_field();
 }
-inline bool OneofWellKnownTypes::has_uint64_field() const {
-  return _internal_has_uint64_field();
-}
-inline void OneofWellKnownTypes::set_has_uint64_field() {
-  _oneof_case_[0] = kUint64Field;
-}
+inline void OneofWellKnownTypes::set_has_uint64_field() { _oneof_case_[0] = kUint64Field; }
 inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* OneofWellKnownTypes::release_uint64_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.uint64_field)
   if(_internal_has_uint64_field()) {
@@ -5363,15 +5289,12 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* OneofWellKnownTypes::mutable_uint64
 }
 
 // .google.protobuf.Int32Value int32_field = 14;
-inline bool OneofWellKnownTypes::_internal_has_int32_field() const {
-  return oneof_field_case() == kInt32Field;
+inline bool OneofWellKnownTypes::_internal_has_int32_field() const { return oneof_field_case() == kInt32Field; }
+inline bool OneofWellKnownTypes::has_int32_field() const
+{
+	return _internal_has_int32_field();
 }
-inline bool OneofWellKnownTypes::has_int32_field() const {
-  return _internal_has_int32_field();
-}
-inline void OneofWellKnownTypes::set_has_int32_field() {
-  _oneof_case_[0] = kInt32Field;
-}
+inline void OneofWellKnownTypes::set_has_int32_field() { _oneof_case_[0] = kInt32Field; }
 inline ::PROTOBUF_NAMESPACE_ID::Int32Value* OneofWellKnownTypes::release_int32_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.int32_field)
   if(_internal_has_int32_field()) {
@@ -5425,15 +5348,12 @@ inline ::PROTOBUF_NAMESPACE_ID::Int32Value* OneofWellKnownTypes::mutable_int32_f
 }
 
 // .google.protobuf.UInt32Value uint32_field = 15;
-inline bool OneofWellKnownTypes::_internal_has_uint32_field() const {
-  return oneof_field_case() == kUint32Field;
+inline bool OneofWellKnownTypes::_internal_has_uint32_field() const { return oneof_field_case() == kUint32Field; }
+inline bool OneofWellKnownTypes::has_uint32_field() const
+{
+	return _internal_has_uint32_field();
 }
-inline bool OneofWellKnownTypes::has_uint32_field() const {
-  return _internal_has_uint32_field();
-}
-inline void OneofWellKnownTypes::set_has_uint32_field() {
-  _oneof_case_[0] = kUint32Field;
-}
+inline void OneofWellKnownTypes::set_has_uint32_field() { _oneof_case_[0] = kUint32Field; }
 inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* OneofWellKnownTypes::release_uint32_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.uint32_field)
   if(_internal_has_uint32_field()) {
@@ -5487,15 +5407,12 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* OneofWellKnownTypes::mutable_uint32
 }
 
 // .google.protobuf.BoolValue bool_field = 16;
-inline bool OneofWellKnownTypes::_internal_has_bool_field() const {
-  return oneof_field_case() == kBoolField;
+inline bool OneofWellKnownTypes::_internal_has_bool_field() const { return oneof_field_case() == kBoolField; }
+inline bool OneofWellKnownTypes::has_bool_field() const
+{
+	return _internal_has_bool_field();
 }
-inline bool OneofWellKnownTypes::has_bool_field() const {
-  return _internal_has_bool_field();
-}
-inline void OneofWellKnownTypes::set_has_bool_field() {
-  _oneof_case_[0] = kBoolField;
-}
+inline void OneofWellKnownTypes::set_has_bool_field() { _oneof_case_[0] = kBoolField; }
 inline ::PROTOBUF_NAMESPACE_ID::BoolValue* OneofWellKnownTypes::release_bool_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.bool_field)
   if(_internal_has_bool_field()) {
@@ -5549,15 +5466,12 @@ inline ::PROTOBUF_NAMESPACE_ID::BoolValue* OneofWellKnownTypes::mutable_bool_fie
 }
 
 // .google.protobuf.StringValue string_field = 17;
-inline bool OneofWellKnownTypes::_internal_has_string_field() const {
-  return oneof_field_case() == kStringField;
+inline bool OneofWellKnownTypes::_internal_has_string_field() const { return oneof_field_case() == kStringField; }
+inline bool OneofWellKnownTypes::has_string_field() const
+{
+	return _internal_has_string_field();
 }
-inline bool OneofWellKnownTypes::has_string_field() const {
-  return _internal_has_string_field();
-}
-inline void OneofWellKnownTypes::set_has_string_field() {
-  _oneof_case_[0] = kStringField;
-}
+inline void OneofWellKnownTypes::set_has_string_field() { _oneof_case_[0] = kStringField; }
 inline ::PROTOBUF_NAMESPACE_ID::StringValue* OneofWellKnownTypes::release_string_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.string_field)
   if(_internal_has_string_field()) {
@@ -5611,15 +5525,12 @@ inline ::PROTOBUF_NAMESPACE_ID::StringValue* OneofWellKnownTypes::mutable_string
 }
 
 // .google.protobuf.BytesValue bytes_field = 18;
-inline bool OneofWellKnownTypes::_internal_has_bytes_field() const {
-  return oneof_field_case() == kBytesField;
+inline bool OneofWellKnownTypes::_internal_has_bytes_field() const { return oneof_field_case() == kBytesField; }
+inline bool OneofWellKnownTypes::has_bytes_field() const
+{
+	return _internal_has_bytes_field();
 }
-inline bool OneofWellKnownTypes::has_bytes_field() const {
-  return _internal_has_bytes_field();
-}
-inline void OneofWellKnownTypes::set_has_bytes_field() {
-  _oneof_case_[0] = kBytesField;
-}
+inline void OneofWellKnownTypes::set_has_bytes_field() { _oneof_case_[0] = kBytesField; }
 inline ::PROTOBUF_NAMESPACE_ID::BytesValue* OneofWellKnownTypes::release_bytes_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.bytes_field)
   if(_internal_has_bytes_field()) {
@@ -5672,12 +5583,8 @@ inline ::PROTOBUF_NAMESPACE_ID::BytesValue* OneofWellKnownTypes::mutable_bytes_f
   return _msg;
 }
 
-inline bool OneofWellKnownTypes::has_oneof_field() const {
-  return oneof_field_case() != ONEOF_FIELD_NOT_SET;
-}
-inline void OneofWellKnownTypes::clear_has_oneof_field() {
-  _oneof_case_[0] = ONEOF_FIELD_NOT_SET;
-}
+inline bool OneofWellKnownTypes::has_oneof_field() const { return oneof_field_case() != ONEOF_FIELD_NOT_SET; }
+inline void OneofWellKnownTypes::clear_has_oneof_field() { _oneof_case_[0] = ONEOF_FIELD_NOT_SET; }
 inline OneofWellKnownTypes::OneofFieldCase OneofWellKnownTypes::oneof_field_case() const { return OneofWellKnownTypes::OneofFieldCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -5721,362 +5628,434 @@ inline OneofWellKnownTypes::OneofFieldCase OneofWellKnownTypes::oneof_field_case
 
 // map<int32, .google.protobuf.Any> any_field = 1;
 inline int MapWellKnownTypes::_internal_any_field_size() const { return any_field_.size(); }
-inline int MapWellKnownTypes::any_field_size() const {
-  return _internal_any_field_size();
+inline int MapWellKnownTypes::any_field_size() const
+{
+	return _internal_any_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >&
 MapWellKnownTypes::_internal_any_field() const { return any_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >&
-MapWellKnownTypes::any_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.any_field)
-  return _internal_any_field();
+MapWellKnownTypes::any_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.any_field)
+	return _internal_any_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any > * MapWellKnownTypes::_internal_mutable_any_field() {
-  return any_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any > * MapWellKnownTypes::_internal_mutable_any_field()
+{
+	return any_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any > * MapWellKnownTypes::mutable_any_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.any_field)
-  return _internal_mutable_any_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any > * MapWellKnownTypes::mutable_any_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.any_field)
+	return _internal_mutable_any_field();
 }
 
 // map<int32, .google.protobuf.Api> api_field = 2;
 inline int MapWellKnownTypes::_internal_api_field_size() const { return api_field_.size(); }
-inline int MapWellKnownTypes::api_field_size() const {
-  return _internal_api_field_size();
+inline int MapWellKnownTypes::api_field_size() const
+{
+	return _internal_api_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >&
 MapWellKnownTypes::_internal_api_field() const { return api_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >&
-MapWellKnownTypes::api_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.api_field)
-  return _internal_api_field();
+MapWellKnownTypes::api_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.api_field)
+	return _internal_api_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api > * MapWellKnownTypes::_internal_mutable_api_field() {
-  return api_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api > * MapWellKnownTypes::_internal_mutable_api_field()
+{
+	return api_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api > * MapWellKnownTypes::mutable_api_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.api_field)
-  return _internal_mutable_api_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api > * MapWellKnownTypes::mutable_api_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.api_field)
+	return _internal_mutable_api_field();
 }
 
 // map<int32, .google.protobuf.Duration> duration_field = 3;
 inline int MapWellKnownTypes::_internal_duration_field_size() const { return duration_field_.size(); }
-inline int MapWellKnownTypes::duration_field_size() const {
-  return _internal_duration_field_size();
+inline int MapWellKnownTypes::duration_field_size() const
+{
+	return _internal_duration_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >&
 MapWellKnownTypes::_internal_duration_field() const { return duration_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >&
-MapWellKnownTypes::duration_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.duration_field)
-  return _internal_duration_field();
+MapWellKnownTypes::duration_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.duration_field)
+	return _internal_duration_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration > * MapWellKnownTypes::_internal_mutable_duration_field() {
-  return duration_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration > * MapWellKnownTypes::_internal_mutable_duration_field()
+{
+	return duration_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration > * MapWellKnownTypes::mutable_duration_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.duration_field)
-  return _internal_mutable_duration_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration > * MapWellKnownTypes::mutable_duration_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.duration_field)
+	return _internal_mutable_duration_field();
 }
 
 // map<int32, .google.protobuf.Empty> empty_field = 4;
 inline int MapWellKnownTypes::_internal_empty_field_size() const { return empty_field_.size(); }
-inline int MapWellKnownTypes::empty_field_size() const {
-  return _internal_empty_field_size();
+inline int MapWellKnownTypes::empty_field_size() const
+{
+	return _internal_empty_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >&
 MapWellKnownTypes::_internal_empty_field() const { return empty_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >&
-MapWellKnownTypes::empty_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.empty_field)
-  return _internal_empty_field();
+MapWellKnownTypes::empty_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.empty_field)
+	return _internal_empty_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty > * MapWellKnownTypes::_internal_mutable_empty_field() {
-  return empty_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty > * MapWellKnownTypes::_internal_mutable_empty_field()
+{
+	return empty_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty > * MapWellKnownTypes::mutable_empty_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.empty_field)
-  return _internal_mutable_empty_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty > * MapWellKnownTypes::mutable_empty_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.empty_field)
+	return _internal_mutable_empty_field();
 }
 
 // map<int32, .google.protobuf.FieldMask> field_mask_field = 5;
 inline int MapWellKnownTypes::_internal_field_mask_field_size() const { return field_mask_field_.size(); }
-inline int MapWellKnownTypes::field_mask_field_size() const {
-  return _internal_field_mask_field_size();
+inline int MapWellKnownTypes::field_mask_field_size() const
+{
+	return _internal_field_mask_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >&
 MapWellKnownTypes::_internal_field_mask_field() const { return field_mask_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >&
-MapWellKnownTypes::field_mask_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.field_mask_field)
-  return _internal_field_mask_field();
+MapWellKnownTypes::field_mask_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.field_mask_field)
+	return _internal_field_mask_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask > * MapWellKnownTypes::_internal_mutable_field_mask_field() {
-  return field_mask_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask > * MapWellKnownTypes::_internal_mutable_field_mask_field()
+{
+	return field_mask_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask > * MapWellKnownTypes::mutable_field_mask_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.field_mask_field)
-  return _internal_mutable_field_mask_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask > * MapWellKnownTypes::mutable_field_mask_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.field_mask_field)
+	return _internal_mutable_field_mask_field();
 }
 
 // map<int32, .google.protobuf.SourceContext> source_context_field = 6;
 inline int MapWellKnownTypes::_internal_source_context_field_size() const { return source_context_field_.size(); }
-inline int MapWellKnownTypes::source_context_field_size() const {
-  return _internal_source_context_field_size();
+inline int MapWellKnownTypes::source_context_field_size() const
+{
+	return _internal_source_context_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >&
 MapWellKnownTypes::_internal_source_context_field() const { return source_context_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >&
-MapWellKnownTypes::source_context_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.source_context_field)
-  return _internal_source_context_field();
+MapWellKnownTypes::source_context_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.source_context_field)
+	return _internal_source_context_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext > * MapWellKnownTypes::_internal_mutable_source_context_field() {
-  return source_context_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext > * MapWellKnownTypes::_internal_mutable_source_context_field()
+{
+	return source_context_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext > * MapWellKnownTypes::mutable_source_context_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.source_context_field)
-  return _internal_mutable_source_context_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext > * MapWellKnownTypes::mutable_source_context_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.source_context_field)
+	return _internal_mutable_source_context_field();
 }
 
 // map<int32, .google.protobuf.Struct> struct_field = 7;
 inline int MapWellKnownTypes::_internal_struct_field_size() const { return struct_field_.size(); }
-inline int MapWellKnownTypes::struct_field_size() const {
-  return _internal_struct_field_size();
+inline int MapWellKnownTypes::struct_field_size() const
+{
+	return _internal_struct_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >&
 MapWellKnownTypes::_internal_struct_field() const { return struct_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >&
-MapWellKnownTypes::struct_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.struct_field)
-  return _internal_struct_field();
+MapWellKnownTypes::struct_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.struct_field)
+	return _internal_struct_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct > * MapWellKnownTypes::_internal_mutable_struct_field() {
-  return struct_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct > * MapWellKnownTypes::_internal_mutable_struct_field()
+{
+	return struct_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct > * MapWellKnownTypes::mutable_struct_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.struct_field)
-  return _internal_mutable_struct_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct > * MapWellKnownTypes::mutable_struct_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.struct_field)
+	return _internal_mutable_struct_field();
 }
 
 // map<int32, .google.protobuf.Timestamp> timestamp_field = 8;
 inline int MapWellKnownTypes::_internal_timestamp_field_size() const { return timestamp_field_.size(); }
-inline int MapWellKnownTypes::timestamp_field_size() const {
-  return _internal_timestamp_field_size();
+inline int MapWellKnownTypes::timestamp_field_size() const
+{
+	return _internal_timestamp_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >&
 MapWellKnownTypes::_internal_timestamp_field() const { return timestamp_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >&
-MapWellKnownTypes::timestamp_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.timestamp_field)
-  return _internal_timestamp_field();
+MapWellKnownTypes::timestamp_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.timestamp_field)
+	return _internal_timestamp_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp > * MapWellKnownTypes::_internal_mutable_timestamp_field() {
-  return timestamp_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp > * MapWellKnownTypes::_internal_mutable_timestamp_field()
+{
+	return timestamp_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp > * MapWellKnownTypes::mutable_timestamp_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.timestamp_field)
-  return _internal_mutable_timestamp_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp > * MapWellKnownTypes::mutable_timestamp_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.timestamp_field)
+	return _internal_mutable_timestamp_field();
 }
 
 // map<int32, .google.protobuf.Type> type_field = 9;
 inline int MapWellKnownTypes::_internal_type_field_size() const { return type_field_.size(); }
-inline int MapWellKnownTypes::type_field_size() const {
-  return _internal_type_field_size();
+inline int MapWellKnownTypes::type_field_size() const
+{
+	return _internal_type_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >&
 MapWellKnownTypes::_internal_type_field() const { return type_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >&
-MapWellKnownTypes::type_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.type_field)
-  return _internal_type_field();
+MapWellKnownTypes::type_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.type_field)
+	return _internal_type_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type > * MapWellKnownTypes::_internal_mutable_type_field() {
-  return type_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type > * MapWellKnownTypes::_internal_mutable_type_field()
+{
+	return type_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type > * MapWellKnownTypes::mutable_type_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.type_field)
-  return _internal_mutable_type_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type > * MapWellKnownTypes::mutable_type_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.type_field)
+	return _internal_mutable_type_field();
 }
 
 // map<int32, .google.protobuf.DoubleValue> double_field = 10;
 inline int MapWellKnownTypes::_internal_double_field_size() const { return double_field_.size(); }
-inline int MapWellKnownTypes::double_field_size() const {
-  return _internal_double_field_size();
+inline int MapWellKnownTypes::double_field_size() const
+{
+	return _internal_double_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >&
 MapWellKnownTypes::_internal_double_field() const { return double_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >&
-MapWellKnownTypes::double_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.double_field)
-  return _internal_double_field();
+MapWellKnownTypes::double_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.double_field)
+	return _internal_double_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue > * MapWellKnownTypes::_internal_mutable_double_field() {
-  return double_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue > * MapWellKnownTypes::_internal_mutable_double_field()
+{
+	return double_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue > * MapWellKnownTypes::mutable_double_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.double_field)
-  return _internal_mutable_double_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue > * MapWellKnownTypes::mutable_double_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.double_field)
+	return _internal_mutable_double_field();
 }
 
 // map<int32, .google.protobuf.FloatValue> float_field = 11;
 inline int MapWellKnownTypes::_internal_float_field_size() const { return float_field_.size(); }
-inline int MapWellKnownTypes::float_field_size() const {
-  return _internal_float_field_size();
+inline int MapWellKnownTypes::float_field_size() const
+{
+	return _internal_float_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >&
 MapWellKnownTypes::_internal_float_field() const { return float_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >&
-MapWellKnownTypes::float_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.float_field)
-  return _internal_float_field();
+MapWellKnownTypes::float_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.float_field)
+	return _internal_float_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue > * MapWellKnownTypes::_internal_mutable_float_field() {
-  return float_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue > * MapWellKnownTypes::_internal_mutable_float_field()
+{
+	return float_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue > * MapWellKnownTypes::mutable_float_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.float_field)
-  return _internal_mutable_float_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue > * MapWellKnownTypes::mutable_float_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.float_field)
+	return _internal_mutable_float_field();
 }
 
 // map<int32, .google.protobuf.Int64Value> int64_field = 12;
 inline int MapWellKnownTypes::_internal_int64_field_size() const { return int64_field_.size(); }
-inline int MapWellKnownTypes::int64_field_size() const {
-  return _internal_int64_field_size();
+inline int MapWellKnownTypes::int64_field_size() const
+{
+	return _internal_int64_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >&
 MapWellKnownTypes::_internal_int64_field() const { return int64_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >&
-MapWellKnownTypes::int64_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.int64_field)
-  return _internal_int64_field();
+MapWellKnownTypes::int64_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.int64_field)
+	return _internal_int64_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value > * MapWellKnownTypes::_internal_mutable_int64_field() {
-  return int64_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value > * MapWellKnownTypes::_internal_mutable_int64_field()
+{
+	return int64_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value > * MapWellKnownTypes::mutable_int64_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.int64_field)
-  return _internal_mutable_int64_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value > * MapWellKnownTypes::mutable_int64_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.int64_field)
+	return _internal_mutable_int64_field();
 }
 
 // map<int32, .google.protobuf.UInt64Value> uint64_field = 13;
 inline int MapWellKnownTypes::_internal_uint64_field_size() const { return uint64_field_.size(); }
-inline int MapWellKnownTypes::uint64_field_size() const {
-  return _internal_uint64_field_size();
+inline int MapWellKnownTypes::uint64_field_size() const
+{
+	return _internal_uint64_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >&
 MapWellKnownTypes::_internal_uint64_field() const { return uint64_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >&
-MapWellKnownTypes::uint64_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.uint64_field)
-  return _internal_uint64_field();
+MapWellKnownTypes::uint64_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.uint64_field)
+	return _internal_uint64_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value > * MapWellKnownTypes::_internal_mutable_uint64_field() {
-  return uint64_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value > * MapWellKnownTypes::_internal_mutable_uint64_field()
+{
+	return uint64_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value > * MapWellKnownTypes::mutable_uint64_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.uint64_field)
-  return _internal_mutable_uint64_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value > * MapWellKnownTypes::mutable_uint64_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.uint64_field)
+	return _internal_mutable_uint64_field();
 }
 
 // map<int32, .google.protobuf.Int32Value> int32_field = 14;
 inline int MapWellKnownTypes::_internal_int32_field_size() const { return int32_field_.size(); }
-inline int MapWellKnownTypes::int32_field_size() const {
-  return _internal_int32_field_size();
+inline int MapWellKnownTypes::int32_field_size() const
+{
+	return _internal_int32_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >&
 MapWellKnownTypes::_internal_int32_field() const { return int32_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >&
-MapWellKnownTypes::int32_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.int32_field)
-  return _internal_int32_field();
+MapWellKnownTypes::int32_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.int32_field)
+	return _internal_int32_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value > * MapWellKnownTypes::_internal_mutable_int32_field() {
-  return int32_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value > * MapWellKnownTypes::_internal_mutable_int32_field()
+{
+	return int32_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value > * MapWellKnownTypes::mutable_int32_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.int32_field)
-  return _internal_mutable_int32_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value > * MapWellKnownTypes::mutable_int32_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.int32_field)
+	return _internal_mutable_int32_field();
 }
 
 // map<int32, .google.protobuf.UInt32Value> uint32_field = 15;
 inline int MapWellKnownTypes::_internal_uint32_field_size() const { return uint32_field_.size(); }
-inline int MapWellKnownTypes::uint32_field_size() const {
-  return _internal_uint32_field_size();
+inline int MapWellKnownTypes::uint32_field_size() const
+{
+	return _internal_uint32_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >&
 MapWellKnownTypes::_internal_uint32_field() const { return uint32_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >&
-MapWellKnownTypes::uint32_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.uint32_field)
-  return _internal_uint32_field();
+MapWellKnownTypes::uint32_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.uint32_field)
+	return _internal_uint32_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value > * MapWellKnownTypes::_internal_mutable_uint32_field() {
-  return uint32_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value > * MapWellKnownTypes::_internal_mutable_uint32_field()
+{
+	return uint32_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value > * MapWellKnownTypes::mutable_uint32_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.uint32_field)
-  return _internal_mutable_uint32_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value > * MapWellKnownTypes::mutable_uint32_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.uint32_field)
+	return _internal_mutable_uint32_field();
 }
 
 // map<int32, .google.protobuf.BoolValue> bool_field = 16;
 inline int MapWellKnownTypes::_internal_bool_field_size() const { return bool_field_.size(); }
-inline int MapWellKnownTypes::bool_field_size() const {
-  return _internal_bool_field_size();
+inline int MapWellKnownTypes::bool_field_size() const
+{
+	return _internal_bool_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >&
 MapWellKnownTypes::_internal_bool_field() const { return bool_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >&
-MapWellKnownTypes::bool_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.bool_field)
-  return _internal_bool_field();
+MapWellKnownTypes::bool_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.bool_field)
+	return _internal_bool_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue > * MapWellKnownTypes::_internal_mutable_bool_field() {
-  return bool_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue > * MapWellKnownTypes::_internal_mutable_bool_field()
+{
+	return bool_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue > * MapWellKnownTypes::mutable_bool_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.bool_field)
-  return _internal_mutable_bool_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue > * MapWellKnownTypes::mutable_bool_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.bool_field)
+	return _internal_mutable_bool_field();
 }
 
 // map<int32, .google.protobuf.StringValue> string_field = 17;
 inline int MapWellKnownTypes::_internal_string_field_size() const { return string_field_.size(); }
-inline int MapWellKnownTypes::string_field_size() const {
-  return _internal_string_field_size();
+inline int MapWellKnownTypes::string_field_size() const
+{
+	return _internal_string_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >&
 MapWellKnownTypes::_internal_string_field() const { return string_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >&
-MapWellKnownTypes::string_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.string_field)
-  return _internal_string_field();
+MapWellKnownTypes::string_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.string_field)
+	return _internal_string_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue > * MapWellKnownTypes::_internal_mutable_string_field() {
-  return string_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue > * MapWellKnownTypes::_internal_mutable_string_field()
+{
+	return string_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue > * MapWellKnownTypes::mutable_string_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.string_field)
-  return _internal_mutable_string_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue > * MapWellKnownTypes::mutable_string_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.string_field)
+	return _internal_mutable_string_field();
 }
 
 // map<int32, .google.protobuf.BytesValue> bytes_field = 18;
 inline int MapWellKnownTypes::_internal_bytes_field_size() const { return bytes_field_.size(); }
-inline int MapWellKnownTypes::bytes_field_size() const {
-  return _internal_bytes_field_size();
+inline int MapWellKnownTypes::bytes_field_size() const
+{
+	return _internal_bytes_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >&
 MapWellKnownTypes::_internal_bytes_field() const { return bytes_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >&
-MapWellKnownTypes::bytes_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.bytes_field)
-  return _internal_bytes_field();
+MapWellKnownTypes::bytes_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MapWellKnownTypes.bytes_field)
+	return _internal_bytes_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue > * MapWellKnownTypes::_internal_mutable_bytes_field() {
-  return bytes_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue > * MapWellKnownTypes::_internal_mutable_bytes_field()
+{
+	return bytes_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue > * MapWellKnownTypes::mutable_bytes_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.bytes_field)
-  return _internal_mutable_bytes_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue > * MapWellKnownTypes::mutable_bytes_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MapWellKnownTypes.bytes_field)
+	return _internal_mutable_bytes_field();
 }
 
 #ifdef __GNUC__

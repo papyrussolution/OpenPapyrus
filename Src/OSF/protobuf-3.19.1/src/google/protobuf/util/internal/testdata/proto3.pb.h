@@ -210,7 +210,7 @@ class Proto3Message final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEnumValueFieldNumber = 1,
+  	kEnumValueFieldNumber = 1,
   };
   // .proto_util_converter.testing.Proto3Message.NestedEnum enum_value = 1;
   void clear_enum_value();

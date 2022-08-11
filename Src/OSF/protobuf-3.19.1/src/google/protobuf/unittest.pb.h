@@ -800,7 +800,7 @@ class TestAllTypes_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBbFieldNumber = 1,
+  	kBbFieldNumber = 1,
   };
   // optional int32 bb = 1;
   bool has_bb() const;
@@ -935,7 +935,7 @@ class TestAllTypes_OptionalGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 17,
+  	kAFieldNumber = 17,
   };
   // optional int32 a = 17;
   bool has_a() const;
@@ -1070,7 +1070,7 @@ class TestAllTypes_RepeatedGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 47,
+  	kAFieldNumber = 47,
   };
   // optional int32 a = 47;
   bool has_a() const;
@@ -1237,81 +1237,81 @@ class TestAllTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedInt32FieldNumber = 31,
-    kRepeatedInt64FieldNumber = 32,
-    kRepeatedUint32FieldNumber = 33,
-    kRepeatedUint64FieldNumber = 34,
-    kRepeatedSint32FieldNumber = 35,
-    kRepeatedSint64FieldNumber = 36,
-    kRepeatedFixed32FieldNumber = 37,
-    kRepeatedFixed64FieldNumber = 38,
-    kRepeatedSfixed32FieldNumber = 39,
-    kRepeatedSfixed64FieldNumber = 40,
-    kRepeatedFloatFieldNumber = 41,
-    kRepeatedDoubleFieldNumber = 42,
-    kRepeatedBoolFieldNumber = 43,
-    kRepeatedStringFieldNumber = 44,
-    kRepeatedBytesFieldNumber = 45,
-    kRepeatedgroupFieldNumber = 46,
-    kRepeatedNestedMessageFieldNumber = 48,
-    kRepeatedForeignMessageFieldNumber = 49,
-    kRepeatedImportMessageFieldNumber = 50,
-    kRepeatedNestedEnumFieldNumber = 51,
-    kRepeatedForeignEnumFieldNumber = 52,
-    kRepeatedImportEnumFieldNumber = 53,
-    kRepeatedStringPieceFieldNumber = 54,
-    kRepeatedCordFieldNumber = 55,
-    kRepeatedLazyMessageFieldNumber = 57,
-    kOptionalStringFieldNumber = 14,
-    kOptionalBytesFieldNumber = 15,
-    kOptionalStringPieceFieldNumber = 24,
-    kOptionalCordFieldNumber = 25,
-    kDefaultStringFieldNumber = 74,
-    kDefaultBytesFieldNumber = 75,
-    kDefaultStringPieceFieldNumber = 84,
-    kDefaultCordFieldNumber = 85,
-    kOptionalgroupFieldNumber = 16,
-    kOptionalNestedMessageFieldNumber = 18,
-    kOptionalForeignMessageFieldNumber = 19,
-    kOptionalImportMessageFieldNumber = 20,
-    kOptionalPublicImportMessageFieldNumber = 26,
-    kOptionalLazyMessageFieldNumber = 27,
-    kOptionalInt64FieldNumber = 2,
-    kOptionalInt32FieldNumber = 1,
-    kOptionalUint32FieldNumber = 3,
-    kOptionalUint64FieldNumber = 4,
-    kOptionalSint64FieldNumber = 6,
-    kOptionalSint32FieldNumber = 5,
-    kOptionalFixed32FieldNumber = 7,
-    kOptionalFixed64FieldNumber = 8,
-    kOptionalSfixed64FieldNumber = 10,
-    kOptionalSfixed32FieldNumber = 9,
-    kOptionalFloatFieldNumber = 11,
-    kOptionalDoubleFieldNumber = 12,
-    kOptionalBoolFieldNumber = 13,
-    kDefaultImportEnumFieldNumber = 83,
-    kOptionalNestedEnumFieldNumber = 21,
-    kOptionalForeignEnumFieldNumber = 22,
-    kOptionalImportEnumFieldNumber = 23,
-    kDefaultInt32FieldNumber = 61,
-    kDefaultInt64FieldNumber = 62,
-    kDefaultUint64FieldNumber = 64,
-    kDefaultUint32FieldNumber = 63,
-    kDefaultSint32FieldNumber = 65,
-    kDefaultSint64FieldNumber = 66,
-    kDefaultFixed64FieldNumber = 68,
-    kDefaultFixed32FieldNumber = 67,
-    kDefaultSfixed32FieldNumber = 69,
-    kDefaultSfixed64FieldNumber = 70,
-    kDefaultDoubleFieldNumber = 72,
-    kDefaultFloatFieldNumber = 71,
-    kDefaultBoolFieldNumber = 73,
-    kDefaultNestedEnumFieldNumber = 81,
-    kDefaultForeignEnumFieldNumber = 82,
-    kOneofUint32FieldNumber = 111,
-    kOneofNestedMessageFieldNumber = 112,
-    kOneofStringFieldNumber = 113,
-    kOneofBytesFieldNumber = 114,
+  	kRepeatedInt32FieldNumber = 31,
+  	kRepeatedInt64FieldNumber = 32,
+  	kRepeatedUint32FieldNumber = 33,
+  	kRepeatedUint64FieldNumber = 34,
+  	kRepeatedSint32FieldNumber = 35,
+  	kRepeatedSint64FieldNumber = 36,
+  	kRepeatedFixed32FieldNumber = 37,
+  	kRepeatedFixed64FieldNumber = 38,
+  	kRepeatedSfixed32FieldNumber = 39,
+  	kRepeatedSfixed64FieldNumber = 40,
+  	kRepeatedFloatFieldNumber = 41,
+  	kRepeatedDoubleFieldNumber = 42,
+  	kRepeatedBoolFieldNumber = 43,
+  	kRepeatedStringFieldNumber = 44,
+  	kRepeatedBytesFieldNumber = 45,
+  	kRepeatedgroupFieldNumber = 46,
+  	kRepeatedNestedMessageFieldNumber = 48,
+  	kRepeatedForeignMessageFieldNumber = 49,
+  	kRepeatedImportMessageFieldNumber = 50,
+  	kRepeatedNestedEnumFieldNumber = 51,
+  	kRepeatedForeignEnumFieldNumber = 52,
+  	kRepeatedImportEnumFieldNumber = 53,
+  	kRepeatedStringPieceFieldNumber = 54,
+  	kRepeatedCordFieldNumber = 55,
+  	kRepeatedLazyMessageFieldNumber = 57,
+  	kOptionalStringFieldNumber = 14,
+  	kOptionalBytesFieldNumber = 15,
+  	kOptionalStringPieceFieldNumber = 24,
+  	kOptionalCordFieldNumber = 25,
+  	kDefaultStringFieldNumber = 74,
+  	kDefaultBytesFieldNumber = 75,
+  	kDefaultStringPieceFieldNumber = 84,
+  	kDefaultCordFieldNumber = 85,
+  	kOptionalgroupFieldNumber = 16,
+  	kOptionalNestedMessageFieldNumber = 18,
+  	kOptionalForeignMessageFieldNumber = 19,
+  	kOptionalImportMessageFieldNumber = 20,
+  	kOptionalPublicImportMessageFieldNumber = 26,
+  	kOptionalLazyMessageFieldNumber = 27,
+  	kOptionalInt64FieldNumber = 2,
+  	kOptionalInt32FieldNumber = 1,
+  	kOptionalUint32FieldNumber = 3,
+  	kOptionalUint64FieldNumber = 4,
+  	kOptionalSint64FieldNumber = 6,
+  	kOptionalSint32FieldNumber = 5,
+  	kOptionalFixed32FieldNumber = 7,
+  	kOptionalFixed64FieldNumber = 8,
+  	kOptionalSfixed64FieldNumber = 10,
+  	kOptionalSfixed32FieldNumber = 9,
+  	kOptionalFloatFieldNumber = 11,
+  	kOptionalDoubleFieldNumber = 12,
+  	kOptionalBoolFieldNumber = 13,
+  	kDefaultImportEnumFieldNumber = 83,
+  	kOptionalNestedEnumFieldNumber = 21,
+  	kOptionalForeignEnumFieldNumber = 22,
+  	kOptionalImportEnumFieldNumber = 23,
+  	kDefaultInt32FieldNumber = 61,
+  	kDefaultInt64FieldNumber = 62,
+  	kDefaultUint64FieldNumber = 64,
+  	kDefaultUint32FieldNumber = 63,
+  	kDefaultSint32FieldNumber = 65,
+  	kDefaultSint64FieldNumber = 66,
+  	kDefaultFixed64FieldNumber = 68,
+  	kDefaultFixed32FieldNumber = 67,
+  	kDefaultSfixed32FieldNumber = 69,
+  	kDefaultSfixed64FieldNumber = 70,
+  	kDefaultDoubleFieldNumber = 72,
+  	kDefaultFloatFieldNumber = 71,
+  	kDefaultBoolFieldNumber = 73,
+  	kDefaultNestedEnumFieldNumber = 81,
+  	kDefaultForeignEnumFieldNumber = 82,
+  	kOneofUint32FieldNumber = 111,
+  	kOneofNestedMessageFieldNumber = 112,
+  	kOneofStringFieldNumber = 113,
+  	kOneofBytesFieldNumber = 114,
   };
   // repeated int32 repeated_int32 = 31;
   int repeated_int32_size() const;
@@ -1681,13 +1681,13 @@ class TestAllTypes final :
   private:
   ::protobuf_unittest::TestAllTypes_NestedEnum _internal_repeated_nested_enum(int index) const;
   void _internal_add_repeated_nested_enum(::protobuf_unittest::TestAllTypes_NestedEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_nested_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_nested_enum();
   public:
   ::protobuf_unittest::TestAllTypes_NestedEnum repeated_nested_enum(int index) const;
   void set_repeated_nested_enum(int index, ::protobuf_unittest::TestAllTypes_NestedEnum value);
   void add_repeated_nested_enum(::protobuf_unittest::TestAllTypes_NestedEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_nested_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_nested_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_nested_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_nested_enum();
 
   // repeated .protobuf_unittest.ForeignEnum repeated_foreign_enum = 52;
   int repeated_foreign_enum_size() const;
@@ -1698,13 +1698,13 @@ class TestAllTypes final :
   private:
   ::protobuf_unittest::ForeignEnum _internal_repeated_foreign_enum(int index) const;
   void _internal_add_repeated_foreign_enum(::protobuf_unittest::ForeignEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_foreign_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_foreign_enum();
   public:
   ::protobuf_unittest::ForeignEnum repeated_foreign_enum(int index) const;
   void set_repeated_foreign_enum(int index, ::protobuf_unittest::ForeignEnum value);
   void add_repeated_foreign_enum(::protobuf_unittest::ForeignEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_foreign_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_foreign_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_foreign_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_foreign_enum();
 
   // repeated .protobuf_unittest_import.ImportEnum repeated_import_enum = 53;
   int repeated_import_enum_size() const;
@@ -1715,13 +1715,13 @@ class TestAllTypes final :
   private:
   ::protobuf_unittest_import::ImportEnum _internal_repeated_import_enum(int index) const;
   void _internal_add_repeated_import_enum(::protobuf_unittest_import::ImportEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_import_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_import_enum();
   public:
   ::protobuf_unittest_import::ImportEnum repeated_import_enum(int index) const;
   void set_repeated_import_enum(int index, ::protobuf_unittest_import::ImportEnum value);
   void add_repeated_import_enum(::protobuf_unittest_import::ImportEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_import_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_import_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_import_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_import_enum();
 
   // repeated string repeated_string_piece = 54 [ctype = STRING_PIECE];
   int repeated_string_piece_size() const;
@@ -2753,9 +2753,9 @@ class NestedTestAllTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedChildFieldNumber = 3,
-    kChildFieldNumber = 1,
-    kPayloadFieldNumber = 2,
+  	kRepeatedChildFieldNumber = 3,
+  	kChildFieldNumber = 1,
+  	kPayloadFieldNumber = 2,
   };
   // repeated .protobuf_unittest.NestedTestAllTypes repeated_child = 3;
   int repeated_child_size() const;
@@ -2936,8 +2936,8 @@ class TestDeprecatedFields final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDeprecatedInt32FieldNumber = 1,
-    kDeprecatedInt32InOneofFieldNumber = 2,
+  	kDeprecatedInt32FieldNumber = 1,
+  	kDeprecatedInt32InOneofFieldNumber = 2,
   };
   // optional int32 deprecated_int32 = 1 [deprecated = true];
   PROTOBUF_DEPRECATED bool has_deprecated_int32() const;
@@ -3197,8 +3197,8 @@ class ForeignMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kCFieldNumber = 1,
-    kDFieldNumber = 2,
+  	kCFieldNumber = 1,
+  	kDFieldNumber = 2,
   };
   // optional int32 c = 1;
   bool has_c() const;
@@ -3446,113 +3446,61 @@ class TestAllExtensions final :
   // accessors -------------------------------------------------------
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -3720,7 +3668,7 @@ class OptionalGroup_extension final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 17,
+  	kAFieldNumber = 17,
   };
   // optional int32 a = 17;
   bool has_a() const;
@@ -3855,7 +3803,7 @@ class RepeatedGroup_extension final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 47,
+  	kAFieldNumber = 47,
   };
   // optional int32 a = 47;
   bool has_a() const;
@@ -3990,7 +3938,7 @@ class TestGroup_OptionalGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 17,
+  	kAFieldNumber = 17,
   };
   // optional int32 a = 17;
   bool has_a() const;
@@ -4127,8 +4075,8 @@ class TestGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOptionalgroupFieldNumber = 16,
-    kOptionalForeignEnumFieldNumber = 22,
+  	kOptionalgroupFieldNumber = 16,
+  	kOptionalForeignEnumFieldNumber = 22,
   };
   // optional group OptionalGroup = 16 { ... };
   bool has_optionalgroup() const;
@@ -4282,113 +4230,61 @@ class TestGroupExtension final :
   // accessors -------------------------------------------------------
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestGroupExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -4556,7 +4452,7 @@ class TestNestedExtension_OptionalGroup_extension final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 17,
+  	kAFieldNumber = 17,
   };
   // optional int32 a = 17;
   bool has_a() const;
@@ -4675,21 +4571,13 @@ class TestNestedExtension final :
   // accessors -------------------------------------------------------
 
   static const int kTestFieldNumber = 1002;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-      ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-    test;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > test;
   static const int kNestedStringExtensionFieldNumber = 1003;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-      ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-    nested_string_extension;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > nested_string_extension;
   static const int kOptionalgroupExtensionFieldNumber = 16;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestGroupExtension,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestNestedExtension_OptionalGroup_extension >, 10, false >
-    optionalgroup_extension;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestGroupExtension, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestNestedExtension_OptionalGroup_extension >, 10, false > optionalgroup_extension;
   static const int kOptionalForeignEnumExtensionFieldNumber = 22;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestGroupExtension,
-      ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false >
-    optional_foreign_enum_extension;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestGroupExtension, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false > optional_foreign_enum_extension;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestNestedExtension)
  private:
   class _Internal;
@@ -4808,9 +4696,9 @@ class TestChildExtension final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
-    kBFieldNumber = 2,
-    kOptionalExtensionFieldNumber = 3,
+  	kAFieldNumber = 1,
+  	kBFieldNumber = 2,
+  	kOptionalExtensionFieldNumber = 3,
   };
   // optional string a = 1;
   bool has_a() const;
@@ -4988,39 +4876,39 @@ class TestRequired final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
-    kDummy2FieldNumber = 2,
-    kBFieldNumber = 3,
-    kDummy4FieldNumber = 4,
-    kDummy5FieldNumber = 5,
-    kDummy6FieldNumber = 6,
-    kDummy7FieldNumber = 7,
-    kDummy8FieldNumber = 8,
-    kDummy9FieldNumber = 9,
-    kDummy10FieldNumber = 10,
-    kDummy11FieldNumber = 11,
-    kDummy12FieldNumber = 12,
-    kDummy13FieldNumber = 13,
-    kDummy14FieldNumber = 14,
-    kDummy15FieldNumber = 15,
-    kDummy16FieldNumber = 16,
-    kDummy17FieldNumber = 17,
-    kDummy18FieldNumber = 18,
-    kDummy19FieldNumber = 19,
-    kDummy20FieldNumber = 20,
-    kDummy21FieldNumber = 21,
-    kDummy22FieldNumber = 22,
-    kDummy23FieldNumber = 23,
-    kDummy24FieldNumber = 24,
-    kDummy25FieldNumber = 25,
-    kDummy26FieldNumber = 26,
-    kDummy27FieldNumber = 27,
-    kDummy28FieldNumber = 28,
-    kDummy29FieldNumber = 29,
-    kDummy30FieldNumber = 30,
-    kDummy31FieldNumber = 31,
-    kDummy32FieldNumber = 32,
-    kCFieldNumber = 33,
+  	kAFieldNumber = 1,
+  	kDummy2FieldNumber = 2,
+  	kBFieldNumber = 3,
+  	kDummy4FieldNumber = 4,
+  	kDummy5FieldNumber = 5,
+  	kDummy6FieldNumber = 6,
+  	kDummy7FieldNumber = 7,
+  	kDummy8FieldNumber = 8,
+  	kDummy9FieldNumber = 9,
+  	kDummy10FieldNumber = 10,
+  	kDummy11FieldNumber = 11,
+  	kDummy12FieldNumber = 12,
+  	kDummy13FieldNumber = 13,
+  	kDummy14FieldNumber = 14,
+  	kDummy15FieldNumber = 15,
+  	kDummy16FieldNumber = 16,
+  	kDummy17FieldNumber = 17,
+  	kDummy18FieldNumber = 18,
+  	kDummy19FieldNumber = 19,
+  	kDummy20FieldNumber = 20,
+  	kDummy21FieldNumber = 21,
+  	kDummy22FieldNumber = 22,
+  	kDummy23FieldNumber = 23,
+  	kDummy24FieldNumber = 24,
+  	kDummy25FieldNumber = 25,
+  	kDummy26FieldNumber = 26,
+  	kDummy27FieldNumber = 27,
+  	kDummy28FieldNumber = 28,
+  	kDummy29FieldNumber = 29,
+  	kDummy30FieldNumber = 30,
+  	kDummy31FieldNumber = 31,
+  	kDummy32FieldNumber = 32,
+  	kCFieldNumber = 33,
   };
   // required int32 a = 1;
   bool has_a() const;
@@ -5452,13 +5340,9 @@ class TestRequired final :
   public:
 
   static const int kSingleFieldNumber = 1000;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestRequired >, 11, false >
-    single;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestRequired >, 11, false > single;
   static const int kMultiFieldNumber = 1001;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-      ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestRequired >, 11, false >
-    multi;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestRequired >, 11, false > multi;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestRequired)
  private:
   class _Internal;
@@ -5613,9 +5497,9 @@ class TestRequiredForeign final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedMessageFieldNumber = 2,
-    kOptionalMessageFieldNumber = 1,
-    kDummyFieldNumber = 3,
+  	kRepeatedMessageFieldNumber = 2,
+  	kOptionalMessageFieldNumber = 1,
+  	kDummyFieldNumber = 3,
   };
   // repeated .protobuf_unittest.TestRequired repeated_message = 2;
   int repeated_message_size() const;
@@ -5786,9 +5670,9 @@ class TestRequiredMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedMessageFieldNumber = 2,
-    kOptionalMessageFieldNumber = 1,
-    kRequiredMessageFieldNumber = 3,
+  	kRepeatedMessageFieldNumber = 2,
+  	kOptionalMessageFieldNumber = 1,
+  	kRequiredMessageFieldNumber = 3,
   };
   // repeated .protobuf_unittest.TestRequired repeated_message = 2;
   int repeated_message_size() const;
@@ -5964,7 +5848,7 @@ class TestForeignNested final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kForeignNestedFieldNumber = 1,
+  	kForeignNestedFieldNumber = 1,
   };
   // optional .protobuf_unittest.TestAllTypes.NestedMessage foreign_nested = 1;
   bool has_foreign_nested() const;
@@ -6203,113 +6087,61 @@ class TestEmptyMessageWithExtensions final :
   // accessors -------------------------------------------------------
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestEmptyMessageWithExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -6477,7 +6309,7 @@ class TestPickleNestedMessage_NestedMessage_NestedNestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kCcFieldNumber = 1,
+  	kCcFieldNumber = 1,
   };
   // optional int32 cc = 1;
   bool has_cc() const;
@@ -6614,7 +6446,7 @@ class TestPickleNestedMessage_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBbFieldNumber = 1,
+  	kBbFieldNumber = 1,
   };
   // optional int32 bb = 1;
   bool has_bb() const;
@@ -6850,113 +6682,61 @@ class TestMultipleExtensionRanges final :
   // accessors -------------------------------------------------------
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMultipleExtensionRanges, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -7124,8 +6904,8 @@ class TestReallyLargeTagNumber final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
-    kBbFieldNumber = 268435455,
+  	kAFieldNumber = 1,
+  	kBbFieldNumber = 268435455,
   };
   // optional int32 a = 1;
   bool has_a() const;
@@ -7274,8 +7054,8 @@ class TestRecursiveMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
-    kIFieldNumber = 2,
+  	kAFieldNumber = 1,
+  	kIFieldNumber = 2,
   };
   // optional .protobuf_unittest.TestRecursiveMessage a = 1;
   bool has_a() const;
@@ -7429,7 +7209,7 @@ class TestMutualRecursionA_SubMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBFieldNumber = 1,
+  	kBFieldNumber = 1,
   };
   // optional .protobuf_unittest.TestMutualRecursionB b = 1;
   bool has_b() const;
@@ -7569,8 +7349,8 @@ class TestMutualRecursionA_SubGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSubMessageFieldNumber = 3,
-    kNotInThisSccFieldNumber = 4,
+  	kSubMessageFieldNumber = 3,
+  	kNotInThisSccFieldNumber = 4,
   };
   // optional .protobuf_unittest.TestMutualRecursionA.SubMessage sub_message = 3;
   bool has_sub_message() const;
@@ -7732,8 +7512,8 @@ class TestMutualRecursionA final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBbFieldNumber = 1,
-    kSubgroupFieldNumber = 2,
+  	kBbFieldNumber = 1,
+  	kSubgroupFieldNumber = 2,
   };
   // optional .protobuf_unittest.TestMutualRecursionB bb = 1;
   bool has_bb() const;
@@ -7892,8 +7672,8 @@ class TestMutualRecursionB final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
-    kOptionalInt32FieldNumber = 2,
+  	kAFieldNumber = 1,
+  	kOptionalInt32FieldNumber = 2,
   };
   // optional .protobuf_unittest.TestMutualRecursionA a = 1;
   bool has_a() const;
@@ -8047,7 +7827,7 @@ class TestIsInitialized_SubMessage_SubGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIFieldNumber = 2,
+  	kIFieldNumber = 2,
   };
   // required int32 i = 2;
   bool has_i() const;
@@ -8184,7 +7964,7 @@ class TestIsInitialized_SubMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSubgroupFieldNumber = 1,
+  	kSubgroupFieldNumber = 1,
   };
   // optional group SubGroup = 1 { ... };
   bool has_subgroup() const;
@@ -8326,7 +8106,7 @@ class TestIsInitialized final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSubMessageFieldNumber = 1,
+  	kSubMessageFieldNumber = 1,
   };
   // optional .protobuf_unittest.TestIsInitialized.SubMessage sub_message = 1;
   bool has_sub_message() const;
@@ -8466,7 +8246,7 @@ class TestDupFieldNumber_Foo final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
+  	kAFieldNumber = 1,
   };
   // optional int32 a = 1;
   bool has_a() const;
@@ -8601,7 +8381,7 @@ class TestDupFieldNumber_Bar final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
+  	kAFieldNumber = 1,
   };
   // optional int32 a = 1;
   bool has_a() const;
@@ -8739,9 +8519,9 @@ class TestDupFieldNumber final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFooFieldNumber = 2,
-    kBarFieldNumber = 3,
-    kAFieldNumber = 1,
+  	kFooFieldNumber = 2,
+  	kBarFieldNumber = 3,
+  	kAFieldNumber = 1,
   };
   // optional group Foo = 2 { ... };
   bool has_foo() const;
@@ -8914,7 +8694,7 @@ class TestEagerMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSubMessageFieldNumber = 1,
+  	kSubMessageFieldNumber = 1,
   };
   // optional .protobuf_unittest.TestAllTypes sub_message = 1 [lazy = false];
   bool has_sub_message() const;
@@ -9054,7 +8834,7 @@ class TestLazyMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSubMessageFieldNumber = 1,
+  	kSubMessageFieldNumber = 1,
   };
   // optional .protobuf_unittest.TestAllTypes sub_message = 1 [lazy = true];
   bool has_sub_message() const;
@@ -9194,8 +8974,8 @@ class TestNestedMessageHasBits_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNestedmessageRepeatedInt32FieldNumber = 1,
-    kNestedmessageRepeatedForeignmessageFieldNumber = 2,
+  	kNestedmessageRepeatedInt32FieldNumber = 1,
+  	kNestedmessageRepeatedForeignmessageFieldNumber = 2,
   };
   // repeated int32 nestedmessage_repeated_int32 = 1;
   int nestedmessage_repeated_int32_size() const;
@@ -9354,7 +9134,7 @@ class TestNestedMessageHasBits final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOptionalNestedMessageFieldNumber = 1,
+  	kOptionalNestedMessageFieldNumber = 1,
   };
   // optional .protobuf_unittest.TestNestedMessageHasBits.NestedMessage optional_nested_message = 1;
   bool has_optional_nested_message() const;
@@ -9494,18 +9274,18 @@ class TestCamelCaseFieldNames final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedPrimitiveFieldFieldNumber = 7,
-    kRepeatedStringFieldFieldNumber = 8,
-    kRepeatedEnumFieldFieldNumber = 9,
-    kRepeatedMessageFieldFieldNumber = 10,
-    kRepeatedStringPieceFieldFieldNumber = 11,
-    kRepeatedCordFieldFieldNumber = 12,
-    kStringFieldFieldNumber = 2,
-    kStringPieceFieldFieldNumber = 5,
-    kCordFieldFieldNumber = 6,
-    kMessageFieldFieldNumber = 4,
-    kPrimitiveFieldFieldNumber = 1,
-    kEnumFieldFieldNumber = 3,
+  	kRepeatedPrimitiveFieldFieldNumber = 7,
+  	kRepeatedStringFieldFieldNumber = 8,
+  	kRepeatedEnumFieldFieldNumber = 9,
+  	kRepeatedMessageFieldFieldNumber = 10,
+  	kRepeatedStringPieceFieldFieldNumber = 11,
+  	kRepeatedCordFieldFieldNumber = 12,
+  	kStringFieldFieldNumber = 2,
+  	kStringPieceFieldFieldNumber = 5,
+  	kCordFieldFieldNumber = 6,
+  	kMessageFieldFieldNumber = 4,
+  	kPrimitiveFieldFieldNumber = 1,
+  	kEnumFieldFieldNumber = 3,
   };
   // repeated int32 RepeatedPrimitiveField = 7;
   int repeatedprimitivefield_size() const;
@@ -9559,13 +9339,13 @@ class TestCamelCaseFieldNames final :
   private:
   ::protobuf_unittest::ForeignEnum _internal_repeatedenumfield(int index) const;
   void _internal_add_repeatedenumfield(::protobuf_unittest::ForeignEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeatedenumfield();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeatedenumfield();
   public:
   ::protobuf_unittest::ForeignEnum repeatedenumfield(int index) const;
   void set_repeatedenumfield(int index, ::protobuf_unittest::ForeignEnum value);
   void add_repeatedenumfield(::protobuf_unittest::ForeignEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeatedenumfield() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeatedenumfield();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeatedenumfield() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeatedenumfield();
 
   // repeated .protobuf_unittest.ForeignMessage RepeatedMessageField = 10;
   int repeatedmessagefield_size() const;
@@ -9872,8 +9652,8 @@ class TestFieldOrderings_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOoFieldNumber = 2,
-    kBbFieldNumber = 1,
+  	kOoFieldNumber = 2,
+  	kBbFieldNumber = 1,
   };
   // optional int64 oo = 2;
   bool has_oo() const;
@@ -10024,10 +9804,10 @@ class TestFieldOrderings final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMyStringFieldNumber = 11,
-    kOptionalNestedMessageFieldNumber = 200,
-    kMyIntFieldNumber = 1,
-    kMyFloatFieldNumber = 101,
+  	kMyStringFieldNumber = 11,
+  	kOptionalNestedMessageFieldNumber = 200,
+  	kMyIntFieldNumber = 1,
+  	kMyFloatFieldNumber = 101,
   };
   // optional string my_string = 11;
   bool has_my_string() const;
@@ -10092,113 +9872,61 @@ class TestFieldOrderings final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestFieldOrderings, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -10371,7 +10099,7 @@ class TestExtensionOrderings1 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMyStringFieldNumber = 1,
+  	kMyStringFieldNumber = 1,
   };
   // optional string my_string = 1;
   bool has_my_string() const;
@@ -10392,9 +10120,7 @@ class TestExtensionOrderings1 final :
   public:
 
   static const int kTestExtOrderings1FieldNumber = 13;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings1 >, 11, false >
-    test_ext_orderings1;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings1 >, 11, false > test_ext_orderings1;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestExtensionOrderings1)
  private:
   class _Internal;
@@ -10515,7 +10241,7 @@ class TestExtensionOrderings2_TestExtensionOrderings3 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMyStringFieldNumber = 1,
+  	kMyStringFieldNumber = 1,
   };
   // optional string my_string = 1;
   bool has_my_string() const;
@@ -10536,9 +10262,7 @@ class TestExtensionOrderings2_TestExtensionOrderings3 final :
   public:
 
   static const int kTestExtOrderings3FieldNumber = 14;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings2_TestExtensionOrderings3 >, 11, false >
-    test_ext_orderings3;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings2_TestExtensionOrderings3 >, 11, false > test_ext_orderings3;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestExtensionOrderings2.TestExtensionOrderings3)
  private:
   class _Internal;
@@ -10661,7 +10385,7 @@ class TestExtensionOrderings2 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMyStringFieldNumber = 1,
+  	kMyStringFieldNumber = 1,
   };
   // optional string my_string = 1;
   bool has_my_string() const;
@@ -10682,9 +10406,7 @@ class TestExtensionOrderings2 final :
   public:
 
   static const int kTestExtOrderings2FieldNumber = 12;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings2 >, 11, false >
-    test_ext_orderings2;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtensionOrderings2 >, 11, false > test_ext_orderings2;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestExtensionOrderings2)
  private:
   class _Internal;
@@ -10805,33 +10527,33 @@ class TestExtremeDefaultValues final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEscapedBytesFieldNumber = 1,
-    kUtf8StringFieldNumber = 6,
-    kCppTrigraphFieldNumber = 20,
-    kStringWithZeroFieldNumber = 23,
-    kBytesWithZeroFieldNumber = 24,
-    kStringPieceWithZeroFieldNumber = 25,
-    kCordWithZeroFieldNumber = 26,
-    kReplacementStringFieldNumber = 27,
-    kZeroFloatFieldNumber = 7,
-    kLargeUint64FieldNumber = 3,
-    kLargeUint32FieldNumber = 2,
-    kSmallInt32FieldNumber = 4,
-    kSmallInt64FieldNumber = 5,
-    kOneFloatFieldNumber = 8,
-    kSmallFloatFieldNumber = 9,
-    kNegativeOneFloatFieldNumber = 10,
-    kNegativeFloatFieldNumber = 11,
-    kLargeFloatFieldNumber = 12,
-    kSmallNegativeFloatFieldNumber = 13,
-    kInfDoubleFieldNumber = 14,
-    kNegInfDoubleFieldNumber = 15,
-    kNanDoubleFieldNumber = 16,
-    kInfFloatFieldNumber = 17,
-    kNegInfFloatFieldNumber = 18,
-    kNanFloatFieldNumber = 19,
-    kReallySmallInt32FieldNumber = 21,
-    kReallySmallInt64FieldNumber = 22,
+  	kEscapedBytesFieldNumber = 1,
+  	kUtf8StringFieldNumber = 6,
+  	kCppTrigraphFieldNumber = 20,
+  	kStringWithZeroFieldNumber = 23,
+  	kBytesWithZeroFieldNumber = 24,
+  	kStringPieceWithZeroFieldNumber = 25,
+  	kCordWithZeroFieldNumber = 26,
+  	kReplacementStringFieldNumber = 27,
+  	kZeroFloatFieldNumber = 7,
+  	kLargeUint64FieldNumber = 3,
+  	kLargeUint32FieldNumber = 2,
+  	kSmallInt32FieldNumber = 4,
+  	kSmallInt64FieldNumber = 5,
+  	kOneFloatFieldNumber = 8,
+  	kSmallFloatFieldNumber = 9,
+  	kNegativeOneFloatFieldNumber = 10,
+  	kNegativeFloatFieldNumber = 11,
+  	kLargeFloatFieldNumber = 12,
+  	kSmallNegativeFloatFieldNumber = 13,
+  	kInfDoubleFieldNumber = 14,
+  	kNegInfDoubleFieldNumber = 15,
+  	kNanDoubleFieldNumber = 16,
+  	kInfFloatFieldNumber = 17,
+  	kNegInfFloatFieldNumber = 18,
+  	kNanFloatFieldNumber = 19,
+  	kReallySmallInt32FieldNumber = 21,
+  	kReallySmallInt64FieldNumber = 22,
   };
   // optional bytes escaped_bytes = 1 [default = "\000\001\007\010\014\n\r\t\013\\\'\"\376"];
   bool has_escaped_bytes() const;
@@ -11384,7 +11106,7 @@ class SparseEnumMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSparseEnumFieldNumber = 1,
+  	kSparseEnumFieldNumber = 1,
   };
   // optional .protobuf_unittest.TestSparseEnum sparse_enum = 1;
   bool has_sparse_enum() const;
@@ -11519,7 +11241,7 @@ class OneString final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // optional string data = 1;
   bool has_data() const;
@@ -11659,7 +11381,7 @@ class MoreString final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // repeated string data = 1;
   int data_size() const;
@@ -11804,7 +11526,7 @@ class OneBytes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // optional bytes data = 1;
   bool has_data() const;
@@ -11944,7 +11666,7 @@ class MoreBytes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // repeated bytes data = 1;
   int data_size() const;
@@ -12089,7 +11811,7 @@ class Int32Message final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // optional int32 data = 1;
   bool has_data() const;
@@ -12224,7 +11946,7 @@ class Uint32Message final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // optional uint32 data = 1;
   bool has_data() const;
@@ -12359,7 +12081,7 @@ class Int64Message final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // optional int64 data = 1;
   bool has_data() const;
@@ -12494,7 +12216,7 @@ class Uint64Message final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // optional uint64 data = 1;
   bool has_data() const;
@@ -12629,7 +12351,7 @@ class BoolMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // optional bool data = 1;
   bool has_data() const;
@@ -12764,8 +12486,8 @@ class TestOneof_FooGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBFieldNumber = 6,
-    kAFieldNumber = 5,
+  	kBFieldNumber = 6,
+  	kAFieldNumber = 5,
   };
   // optional string b = 6;
   bool has_b() const;
@@ -12929,10 +12651,10 @@ class TestOneof final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFooIntFieldNumber = 1,
-    kFooStringFieldNumber = 2,
-    kFooMessageFieldNumber = 3,
-    kFoogroupFieldNumber = 4,
+  	kFooIntFieldNumber = 1,
+  	kFooStringFieldNumber = 2,
+  	kFooMessageFieldNumber = 3,
+  	kFoogroupFieldNumber = 4,
   };
   // int32 foo_int = 1;
   bool has_foo_int() const;
@@ -13138,8 +12860,8 @@ class TestOneofBackwardsCompatible_FooGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBFieldNumber = 6,
-    kAFieldNumber = 5,
+  	kBFieldNumber = 6,
+  	kAFieldNumber = 5,
   };
   // optional string b = 6;
   bool has_b() const;
@@ -13295,10 +13017,10 @@ class TestOneofBackwardsCompatible final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFooStringFieldNumber = 2,
-    kFooMessageFieldNumber = 3,
-    kFoogroupFieldNumber = 4,
-    kFooIntFieldNumber = 1,
+  	kFooStringFieldNumber = 2,
+  	kFooMessageFieldNumber = 3,
+  	kFoogroupFieldNumber = 4,
+  	kFooIntFieldNumber = 1,
   };
   // optional string foo_string = 2;
   bool has_foo_string() const;
@@ -13490,8 +13212,8 @@ class TestOneof2_FooGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBFieldNumber = 10,
-    kAFieldNumber = 9,
+  	kBFieldNumber = 10,
+  	kAFieldNumber = 9,
   };
   // optional string b = 10;
   bool has_b() const;
@@ -13645,8 +13367,8 @@ class TestOneof2_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kCorgeIntFieldNumber = 2,
-    kQuxIntFieldNumber = 1,
+  	kCorgeIntFieldNumber = 2,
+  	kQuxIntFieldNumber = 1,
   };
   // repeated int32 corge_int = 2;
   int corge_int_size() const;
@@ -13850,27 +13572,27 @@ class TestOneof2 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBazStringFieldNumber = 19,
-    kBazIntFieldNumber = 18,
-    kFooIntFieldNumber = 1,
-    kFooStringFieldNumber = 2,
-    kFooCordFieldNumber = 3,
-    kFooStringPieceFieldNumber = 4,
-    kFooBytesFieldNumber = 5,
-    kFooEnumFieldNumber = 6,
-    kFooMessageFieldNumber = 7,
-    kFoogroupFieldNumber = 8,
-    kFooLazyMessageFieldNumber = 11,
-    kBarIntFieldNumber = 12,
-    kBarStringFieldNumber = 13,
-    kBarCordFieldNumber = 14,
-    kBarStringPieceFieldNumber = 15,
-    kBarBytesFieldNumber = 16,
-    kBarEnumFieldNumber = 17,
-    kBarStringWithEmptyDefaultFieldNumber = 20,
-    kBarCordWithEmptyDefaultFieldNumber = 21,
-    kBarStringPieceWithEmptyDefaultFieldNumber = 22,
-    kBarBytesWithEmptyDefaultFieldNumber = 23,
+  	kBazStringFieldNumber = 19,
+  	kBazIntFieldNumber = 18,
+  	kFooIntFieldNumber = 1,
+  	kFooStringFieldNumber = 2,
+  	kFooCordFieldNumber = 3,
+  	kFooStringPieceFieldNumber = 4,
+  	kFooBytesFieldNumber = 5,
+  	kFooEnumFieldNumber = 6,
+  	kFooMessageFieldNumber = 7,
+  	kFoogroupFieldNumber = 8,
+  	kFooLazyMessageFieldNumber = 11,
+  	kBarIntFieldNumber = 12,
+  	kBarStringFieldNumber = 13,
+  	kBarCordFieldNumber = 14,
+  	kBarStringPieceFieldNumber = 15,
+  	kBarBytesFieldNumber = 16,
+  	kBarEnumFieldNumber = 17,
+  	kBarStringWithEmptyDefaultFieldNumber = 20,
+  	kBarCordWithEmptyDefaultFieldNumber = 21,
+  	kBarStringPieceWithEmptyDefaultFieldNumber = 22,
+  	kBarBytesWithEmptyDefaultFieldNumber = 23,
   };
   // optional string baz_string = 19 [default = "BAZ"];
   bool has_baz_string() const;
@@ -14427,7 +14149,7 @@ class TestRequiredOneof_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRequiredDoubleFieldNumber = 1,
+  	kRequiredDoubleFieldNumber = 1,
   };
   // required double required_double = 1;
   bool has_required_double() const;
@@ -14571,9 +14293,9 @@ class TestRequiredOneof final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFooIntFieldNumber = 1,
-    kFooStringFieldNumber = 2,
-    kFooMessageFieldNumber = 3,
+  	kFooIntFieldNumber = 1,
+  	kFooStringFieldNumber = 2,
+  	kFooMessageFieldNumber = 3,
   };
   // int32 foo_int = 1;
   bool has_foo_int() const;
@@ -14759,20 +14481,20 @@ class TestPackedTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPackedInt32FieldNumber = 90,
-    kPackedInt64FieldNumber = 91,
-    kPackedUint32FieldNumber = 92,
-    kPackedUint64FieldNumber = 93,
-    kPackedSint32FieldNumber = 94,
-    kPackedSint64FieldNumber = 95,
-    kPackedFixed32FieldNumber = 96,
-    kPackedFixed64FieldNumber = 97,
-    kPackedSfixed32FieldNumber = 98,
-    kPackedSfixed64FieldNumber = 99,
-    kPackedFloatFieldNumber = 100,
-    kPackedDoubleFieldNumber = 101,
-    kPackedBoolFieldNumber = 102,
-    kPackedEnumFieldNumber = 103,
+  	kPackedInt32FieldNumber = 90,
+  	kPackedInt64FieldNumber = 91,
+  	kPackedUint32FieldNumber = 92,
+  	kPackedUint64FieldNumber = 93,
+  	kPackedSint32FieldNumber = 94,
+  	kPackedSint64FieldNumber = 95,
+  	kPackedFixed32FieldNumber = 96,
+  	kPackedFixed64FieldNumber = 97,
+  	kPackedSfixed32FieldNumber = 98,
+  	kPackedSfixed64FieldNumber = 99,
+  	kPackedFloatFieldNumber = 100,
+  	kPackedDoubleFieldNumber = 101,
+  	kPackedBoolFieldNumber = 102,
+  	kPackedEnumFieldNumber = 103,
   };
   // repeated int32 packed_int32 = 90 [packed = true];
   int packed_int32_size() const;
@@ -15030,13 +14752,13 @@ class TestPackedTypes final :
   private:
   ::protobuf_unittest::ForeignEnum _internal_packed_enum(int index) const;
   void _internal_add_packed_enum(::protobuf_unittest::ForeignEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_packed_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_packed_enum();
   public:
   ::protobuf_unittest::ForeignEnum packed_enum(int index) const;
   void set_packed_enum(int index, ::protobuf_unittest::ForeignEnum value);
   void add_packed_enum(::protobuf_unittest::ForeignEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& packed_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_packed_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & packed_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_packed_enum();
 
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestPackedTypes)
  private:
@@ -15177,20 +14899,20 @@ class TestUnpackedTypes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUnpackedInt32FieldNumber = 90,
-    kUnpackedInt64FieldNumber = 91,
-    kUnpackedUint32FieldNumber = 92,
-    kUnpackedUint64FieldNumber = 93,
-    kUnpackedSint32FieldNumber = 94,
-    kUnpackedSint64FieldNumber = 95,
-    kUnpackedFixed32FieldNumber = 96,
-    kUnpackedFixed64FieldNumber = 97,
-    kUnpackedSfixed32FieldNumber = 98,
-    kUnpackedSfixed64FieldNumber = 99,
-    kUnpackedFloatFieldNumber = 100,
-    kUnpackedDoubleFieldNumber = 101,
-    kUnpackedBoolFieldNumber = 102,
-    kUnpackedEnumFieldNumber = 103,
+  	kUnpackedInt32FieldNumber = 90,
+  	kUnpackedInt64FieldNumber = 91,
+  	kUnpackedUint32FieldNumber = 92,
+  	kUnpackedUint64FieldNumber = 93,
+  	kUnpackedSint32FieldNumber = 94,
+  	kUnpackedSint64FieldNumber = 95,
+  	kUnpackedFixed32FieldNumber = 96,
+  	kUnpackedFixed64FieldNumber = 97,
+  	kUnpackedSfixed32FieldNumber = 98,
+  	kUnpackedSfixed64FieldNumber = 99,
+  	kUnpackedFloatFieldNumber = 100,
+  	kUnpackedDoubleFieldNumber = 101,
+  	kUnpackedBoolFieldNumber = 102,
+  	kUnpackedEnumFieldNumber = 103,
   };
   // repeated int32 unpacked_int32 = 90 [packed = false];
   int unpacked_int32_size() const;
@@ -15448,13 +15170,13 @@ class TestUnpackedTypes final :
   private:
   ::protobuf_unittest::ForeignEnum _internal_unpacked_enum(int index) const;
   void _internal_add_unpacked_enum(::protobuf_unittest::ForeignEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_unpacked_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_unpacked_enum();
   public:
   ::protobuf_unittest::ForeignEnum unpacked_enum(int index) const;
   void set_unpacked_enum(int index, ::protobuf_unittest::ForeignEnum value);
   void add_unpacked_enum(::protobuf_unittest::ForeignEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& unpacked_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_unpacked_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & unpacked_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_unpacked_enum();
 
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestUnpackedTypes)
  private:
@@ -15588,113 +15310,61 @@ class TestPackedExtensions final :
   // accessors -------------------------------------------------------
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestPackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -15862,113 +15532,61 @@ class TestUnpackedExtensions final :
   // accessors -------------------------------------------------------
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestUnpackedExtensions, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -16136,7 +15754,7 @@ class TestDynamicExtensions_DynamicMessageType final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDynamicFieldFieldNumber = 2100,
+  	kDynamicFieldFieldNumber = 2100,
   };
   // optional int32 dynamic_field = 2100;
   bool has_dynamic_field() const;
@@ -16292,13 +15910,13 @@ class TestDynamicExtensions final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedExtensionFieldNumber = 2005,
-    kPackedExtensionFieldNumber = 2006,
-    kMessageExtensionFieldNumber = 2003,
-    kDynamicMessageExtensionFieldNumber = 2004,
-    kScalarExtensionFieldNumber = 2000,
-    kEnumExtensionFieldNumber = 2001,
-    kDynamicEnumExtensionFieldNumber = 2002,
+  	kRepeatedExtensionFieldNumber = 2005,
+  	kPackedExtensionFieldNumber = 2006,
+  	kMessageExtensionFieldNumber = 2003,
+  	kDynamicMessageExtensionFieldNumber = 2004,
+  	kScalarExtensionFieldNumber = 2000,
+  	kEnumExtensionFieldNumber = 2001,
+  	kDynamicEnumExtensionFieldNumber = 2002,
   };
   // repeated string repeated_extension = 2005;
   int repeated_extension_size() const;
@@ -16545,12 +16163,12 @@ class TestRepeatedScalarDifferentTagSizes final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedFixed32FieldNumber = 12,
-    kRepeatedInt32FieldNumber = 13,
-    kRepeatedFixed64FieldNumber = 2046,
-    kRepeatedInt64FieldNumber = 2047,
-    kRepeatedFloatFieldNumber = 262142,
-    kRepeatedUint64FieldNumber = 262143,
+  	kRepeatedFixed32FieldNumber = 12,
+  	kRepeatedInt32FieldNumber = 13,
+  	kRepeatedFixed64FieldNumber = 2046,
+  	kRepeatedInt64FieldNumber = 2047,
+  	kRepeatedFloatFieldNumber = 262142,
+  	kRepeatedUint64FieldNumber = 262143,
   };
   // repeated fixed32 repeated_fixed32 = 12;
   int repeated_fixed32_size() const;
@@ -16790,7 +16408,7 @@ class TestParsingMerge_RepeatedFieldsGenerator_Group1 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kField1FieldNumber = 11,
+  	kField1FieldNumber = 11,
   };
   // optional .protobuf_unittest.TestAllTypes field1 = 11;
   bool has_field1() const;
@@ -16930,7 +16548,7 @@ class TestParsingMerge_RepeatedFieldsGenerator_Group2 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kField1FieldNumber = 21,
+  	kField1FieldNumber = 21,
   };
   // optional .protobuf_unittest.TestAllTypes field1 = 21;
   bool has_field1() const;
@@ -17073,13 +16691,13 @@ class TestParsingMerge_RepeatedFieldsGenerator final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kField1FieldNumber = 1,
-    kField2FieldNumber = 2,
-    kField3FieldNumber = 3,
-    kGroup1FieldNumber = 10,
-    kGroup2FieldNumber = 20,
-    kExt1FieldNumber = 1000,
-    kExt2FieldNumber = 1001,
+  	kField1FieldNumber = 1,
+  	kField2FieldNumber = 2,
+  	kField3FieldNumber = 3,
+  	kGroup1FieldNumber = 10,
+  	kGroup2FieldNumber = 20,
+  	kExt1FieldNumber = 1000,
+  	kExt2FieldNumber = 1001,
   };
   // repeated .protobuf_unittest.TestAllTypes field1 = 1;
   int field1_size() const;
@@ -17318,7 +16936,7 @@ class TestParsingMerge_OptionalGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOptionalGroupAllTypesFieldNumber = 11,
+  	kOptionalGroupAllTypesFieldNumber = 11,
   };
   // optional .protobuf_unittest.TestAllTypes optional_group_all_types = 11;
   bool has_optional_group_all_types() const;
@@ -17458,7 +17076,7 @@ class TestParsingMerge_RepeatedGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedGroupAllTypesFieldNumber = 21,
+  	kRepeatedGroupAllTypesFieldNumber = 21,
   };
   // optional .protobuf_unittest.TestAllTypes repeated_group_all_types = 21;
   bool has_repeated_group_all_types() const;
@@ -17602,11 +17220,11 @@ class TestParsingMerge final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedAllTypesFieldNumber = 3,
-    kRepeatedgroupFieldNumber = 20,
-    kRequiredAllTypesFieldNumber = 1,
-    kOptionalAllTypesFieldNumber = 2,
-    kOptionalgroupFieldNumber = 10,
+  	kRepeatedAllTypesFieldNumber = 3,
+  	kRepeatedgroupFieldNumber = 20,
+  	kRequiredAllTypesFieldNumber = 1,
+  	kOptionalAllTypesFieldNumber = 2,
+  	kOptionalgroupFieldNumber = 10,
   };
   // repeated .protobuf_unittest.TestAllTypes repeated_all_types = 3;
   int repeated_all_types_size() const;
@@ -17695,113 +17313,61 @@ class TestParsingMerge final :
   ::protobuf_unittest::TestParsingMerge_OptionalGroup* unsafe_arena_release_optionalgroup();
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestParsingMerge, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -17850,13 +17416,9 @@ class TestParsingMerge final :
   }
 
   static const int kOptionalExtFieldNumber = 1000;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestParsingMerge,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false >
-    optional_ext;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestParsingMerge, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false > optional_ext;
   static const int kRepeatedExtFieldNumber = 1001;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestParsingMerge,
-      ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false >
-    repeated_ext;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestParsingMerge, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false > repeated_ext;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestParsingMerge)
  private:
   class _Internal;
@@ -17983,7 +17545,7 @@ class TestCommentInjectionMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
+  	kAFieldNumber = 1,
   };
   // optional string a = 1 [default = "*/ <- Neither should this."];
   bool has_a() const;
@@ -18718,13 +18280,13 @@ class TestJsonName final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFieldName1FieldNumber = 1,
-    kFieldName2FieldNumber = 2,
-    kFieldName3FieldNumber = 3,
-    kFieldName4FieldNumber = 4,
-    kFIELDNAME5FieldNumber = 5,
-    kFieldName6FieldNumber = 6,
-    kFieldname7FieldNumber = 7,
+  	kFieldName1FieldNumber = 1,
+  	kFieldName2FieldNumber = 2,
+  	kFieldName3FieldNumber = 3,
+  	kFieldName4FieldNumber = 4,
+  	kFIELDNAME5FieldNumber = 5,
+  	kFieldName6FieldNumber = 6,
+  	kFieldname7FieldNumber = 7,
   };
   // optional int32 field_name1 = 1;
   bool has_field_name1() const;
@@ -18943,7 +18505,7 @@ class TestHugeFieldNumbers_OptionalGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kGroupAFieldNumber = 536870009,
+  	kGroupAFieldNumber = 536870009,
   };
   // optional int32 group_a = 536870009;
   bool has_group_a() const;
@@ -19119,20 +18681,20 @@ class TestHugeFieldNumbers final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedInt32FieldNumber = 536870002,
-    kPackedInt32FieldNumber = 536870003,
-    kStringStringMapFieldNumber = 536870010,
-    kOptionalStringFieldNumber = 536870005,
-    kOptionalBytesFieldNumber = 536870006,
-    kOptionalMessageFieldNumber = 536870007,
-    kOptionalgroupFieldNumber = 536870008,
-    kOptionalInt32FieldNumber = 536870000,
-    kFixed32FieldNumber = 536870001,
-    kOptionalEnumFieldNumber = 536870004,
-    kOneofUint32FieldNumber = 536870011,
-    kOneofTestAllTypesFieldNumber = 536870012,
-    kOneofStringFieldNumber = 536870013,
-    kOneofBytesFieldNumber = 536870014,
+  	kRepeatedInt32FieldNumber = 536870002,
+  	kPackedInt32FieldNumber = 536870003,
+  	kStringStringMapFieldNumber = 536870010,
+  	kOptionalStringFieldNumber = 536870005,
+  	kOptionalBytesFieldNumber = 536870006,
+  	kOptionalMessageFieldNumber = 536870007,
+  	kOptionalgroupFieldNumber = 536870008,
+  	kOptionalInt32FieldNumber = 536870000,
+  	kFixed32FieldNumber = 536870001,
+  	kOptionalEnumFieldNumber = 536870004,
+  	kOneofUint32FieldNumber = 536870011,
+  	kOneofTestAllTypesFieldNumber = 536870012,
+  	kOneofStringFieldNumber = 536870013,
+  	kOneofBytesFieldNumber = 536870014,
   };
   // repeated int32 repeated_int32 = 536870002 [packed = false];
   int repeated_int32_size() const;
@@ -19364,113 +18926,61 @@ class TestHugeFieldNumbers final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestHugeFieldNumbers, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -19541,11 +19051,7 @@ class TestHugeFieldNumbers final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > repeated_int32_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > packed_int32_;
   mutable std::atomic<int> _packed_int32_cached_byte_size_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestHugeFieldNumbers_StringStringMapEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> string_string_map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestHugeFieldNumbers_StringStringMapEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> string_string_map_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr optional_string_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr optional_bytes_;
   ::protobuf_unittest::ForeignMessage* optional_message_;
@@ -19673,15 +19179,15 @@ class TestExtensionInsideTable final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kField1FieldNumber = 1,
-    kField2FieldNumber = 2,
-    kField3FieldNumber = 3,
-    kField4FieldNumber = 4,
-    kField6FieldNumber = 6,
-    kField7FieldNumber = 7,
-    kField8FieldNumber = 8,
-    kField9FieldNumber = 9,
-    kField10FieldNumber = 10,
+  	kField1FieldNumber = 1,
+  	kField2FieldNumber = 2,
+  	kField3FieldNumber = 3,
+  	kField4FieldNumber = 4,
+  	kField6FieldNumber = 6,
+  	kField7FieldNumber = 7,
+  	kField8FieldNumber = 8,
+  	kField9FieldNumber = 9,
+  	kField10FieldNumber = 10,
   };
   // optional int32 field1 = 1;
   bool has_field1() const;
@@ -19801,113 +19307,61 @@ class TestExtensionInsideTable final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionInsideTable, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -20085,10 +19539,10 @@ class TestExtensionRangeSerialize final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFooOneFieldNumber = 1,
-    kFooTwoFieldNumber = 6,
-    kFooThreeFieldNumber = 7,
-    kFooFourFieldNumber = 13,
+  	kFooOneFieldNumber = 1,
+  	kFooTwoFieldNumber = 6,
+  	kFooThreeFieldNumber = 7,
+  	kFooFourFieldNumber = 13,
   };
   // optional int32 foo_one = 1;
   bool has_foo_one() const;
@@ -20143,113 +19597,61 @@ class TestExtensionRangeSerialize final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestExtensionRangeSerialize, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -20298,25 +19700,15 @@ class TestExtensionRangeSerialize final :
   }
 
   static const int kBarOneFieldNumber = 2;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize,
-      ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-    bar_one;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > bar_one;
   static const int kBarTwoFieldNumber = 4;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize,
-      ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-    bar_two;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > bar_two;
   static const int kBarThreeFieldNumber = 10;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize,
-      ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-    bar_three;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > bar_three;
   static const int kBarFourFieldNumber = 15;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize,
-      ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-    bar_four;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > bar_four;
   static const int kBarFiveFieldNumber = 19;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize,
-      ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-    bar_five;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionRangeSerialize, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > bar_five;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestExtensionRangeSerialize)
  private:
   class _Internal;
@@ -20398,433 +19790,219 @@ class TestService_Stub : public TestService {
 // ===================================================================
 
 static const int kOptionalInt32ExtensionFieldNumber = 1;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  optional_int32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > optional_int32_extension;
 static const int kOptionalInt64ExtensionFieldNumber = 2;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 3, false >
-  optional_int64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 3, false > optional_int64_extension;
 static const int kOptionalUint32ExtensionFieldNumber = 3;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false >
-  optional_uint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false > optional_uint32_extension;
 static const int kOptionalUint64ExtensionFieldNumber = 4;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false >
-  optional_uint64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false > optional_uint64_extension;
 static const int kOptionalSint32ExtensionFieldNumber = 5;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 17, false >
-  optional_sint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 17, false > optional_sint32_extension;
 static const int kOptionalSint64ExtensionFieldNumber = 6;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false >
-  optional_sint64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false > optional_sint64_extension;
 static const int kOptionalFixed32ExtensionFieldNumber = 7;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 7, false >
-  optional_fixed32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 7, false > optional_fixed32_extension;
 static const int kOptionalFixed64ExtensionFieldNumber = 8;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false >
-  optional_fixed64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false > optional_fixed64_extension;
 static const int kOptionalSfixed32ExtensionFieldNumber = 9;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false >
-  optional_sfixed32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false > optional_sfixed32_extension;
 static const int kOptionalSfixed64ExtensionFieldNumber = 10;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 16, false >
-  optional_sfixed64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 16, false > optional_sfixed64_extension;
 static const int kOptionalFloatExtensionFieldNumber = 11;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< float >, 2, false >
-  optional_float_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< float >, 2, false > optional_float_extension;
 static const int kOptionalDoubleExtensionFieldNumber = 12;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< double >, 1, false >
-  optional_double_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< double >, 1, false > optional_double_extension;
 static const int kOptionalBoolExtensionFieldNumber = 13;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< bool >, 8, false >
-  optional_bool_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< bool >, 8, false > optional_bool_extension;
 static const int kOptionalStringExtensionFieldNumber = 14;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  optional_string_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > optional_string_extension;
 static const int kOptionalBytesExtensionFieldNumber = 15;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false >
-  optional_bytes_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false > optional_bytes_extension;
 static const int kOptionalgroupExtensionFieldNumber = 16;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::OptionalGroup_extension >, 10, false >
-  optionalgroup_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::OptionalGroup_extension >, 10, false > optionalgroup_extension;
 static const int kOptionalNestedMessageExtensionFieldNumber = 18;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false >
-  optional_nested_message_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false > optional_nested_message_extension;
 static const int kOptionalForeignMessageExtensionFieldNumber = 19;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ForeignMessage >, 11, false >
-  optional_foreign_message_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::ForeignMessage >, 11, false > optional_foreign_message_extension;
 static const int kOptionalImportMessageExtensionFieldNumber = 20;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest_import::ImportMessage >, 11, false >
-  optional_import_message_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest_import::ImportMessage >, 11, false > optional_import_message_extension;
 static const int kOptionalNestedEnumExtensionFieldNumber = 21;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false >
-  optional_nested_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false > optional_nested_enum_extension;
 static const int kOptionalForeignEnumExtensionFieldNumber = 22;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false >
-  optional_foreign_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false > optional_foreign_enum_extension;
 static const int kOptionalImportEnumExtensionFieldNumber = 23;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false >
-  optional_import_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false > optional_import_enum_extension;
 static const int kOptionalStringPieceExtensionFieldNumber = 24;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  optional_string_piece_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > optional_string_piece_extension;
 static const int kOptionalCordExtensionFieldNumber = 25;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  optional_cord_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > optional_cord_extension;
 static const int kOptionalPublicImportMessageExtensionFieldNumber = 26;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest_import::PublicImportMessage >, 11, false >
-  optional_public_import_message_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest_import::PublicImportMessage >, 11, false > optional_public_import_message_extension;
 static const int kOptionalLazyMessageExtensionFieldNumber = 27;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false >
-  optional_lazy_message_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false > optional_lazy_message_extension;
 static const int kRepeatedInt32ExtensionFieldNumber = 31;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, false >
-  repeated_int32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, false > repeated_int32_extension;
 static const int kRepeatedInt64ExtensionFieldNumber = 32;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, false >
-  repeated_int64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, false > repeated_int64_extension;
 static const int kRepeatedUint32ExtensionFieldNumber = 33;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, false >
-  repeated_uint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, false > repeated_uint32_extension;
 static const int kRepeatedUint64ExtensionFieldNumber = 34;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, false >
-  repeated_uint64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, false > repeated_uint64_extension;
 static const int kRepeatedSint32ExtensionFieldNumber = 35;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, false >
-  repeated_sint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, false > repeated_sint32_extension;
 static const int kRepeatedSint64ExtensionFieldNumber = 36;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, false >
-  repeated_sint64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, false > repeated_sint64_extension;
 static const int kRepeatedFixed32ExtensionFieldNumber = 37;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, false >
-  repeated_fixed32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, false > repeated_fixed32_extension;
 static const int kRepeatedFixed64ExtensionFieldNumber = 38;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, false >
-  repeated_fixed64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, false > repeated_fixed64_extension;
 static const int kRepeatedSfixed32ExtensionFieldNumber = 39;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, false >
-  repeated_sfixed32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, false > repeated_sfixed32_extension;
 static const int kRepeatedSfixed64ExtensionFieldNumber = 40;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, false >
-  repeated_sfixed64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, false > repeated_sfixed64_extension;
 static const int kRepeatedFloatExtensionFieldNumber = 41;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, false >
-  repeated_float_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, false > repeated_float_extension;
 static const int kRepeatedDoubleExtensionFieldNumber = 42;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, false >
-  repeated_double_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, false > repeated_double_extension;
 static const int kRepeatedBoolExtensionFieldNumber = 43;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, false >
-  repeated_bool_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, false > repeated_bool_extension;
 static const int kRepeatedStringExtensionFieldNumber = 44;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false >
-  repeated_string_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false > repeated_string_extension;
 static const int kRepeatedBytesExtensionFieldNumber = 45;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 12, false >
-  repeated_bytes_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 12, false > repeated_bytes_extension;
 static const int kRepeatedgroupExtensionFieldNumber = 46;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::RepeatedGroup_extension >, 10, false >
-  repeatedgroup_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::RepeatedGroup_extension >, 10, false > repeatedgroup_extension;
 static const int kRepeatedNestedMessageExtensionFieldNumber = 48;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false >
-  repeated_nested_message_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false > repeated_nested_message_extension;
 static const int kRepeatedForeignMessageExtensionFieldNumber = 49;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::ForeignMessage >, 11, false >
-  repeated_foreign_message_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::ForeignMessage >, 11, false > repeated_foreign_message_extension;
 static const int kRepeatedImportMessageExtensionFieldNumber = 50;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest_import::ImportMessage >, 11, false >
-  repeated_import_message_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest_import::ImportMessage >, 11, false > repeated_import_message_extension;
 static const int kRepeatedNestedEnumExtensionFieldNumber = 51;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false >
-  repeated_nested_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false > repeated_nested_enum_extension;
 static const int kRepeatedForeignEnumExtensionFieldNumber = 52;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false >
-  repeated_foreign_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false > repeated_foreign_enum_extension;
 static const int kRepeatedImportEnumExtensionFieldNumber = 53;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false >
-  repeated_import_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false > repeated_import_enum_extension;
 static const int kRepeatedStringPieceExtensionFieldNumber = 54;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false >
-  repeated_string_piece_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false > repeated_string_piece_extension;
 static const int kRepeatedCordExtensionFieldNumber = 55;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false >
-  repeated_cord_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedStringTypeTraits, 9, false > repeated_cord_extension;
 static const int kRepeatedLazyMessageExtensionFieldNumber = 57;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false >
-  repeated_lazy_message_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false > repeated_lazy_message_extension;
 static const int kDefaultInt32ExtensionFieldNumber = 61;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  default_int32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > default_int32_extension;
 static const int kDefaultInt64ExtensionFieldNumber = 62;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 3, false >
-  default_int64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 3, false > default_int64_extension;
 static const int kDefaultUint32ExtensionFieldNumber = 63;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false >
-  default_uint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false > default_uint32_extension;
 static const int kDefaultUint64ExtensionFieldNumber = 64;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false >
-  default_uint64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 4, false > default_uint64_extension;
 static const int kDefaultSint32ExtensionFieldNumber = 65;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 17, false >
-  default_sint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 17, false > default_sint32_extension;
 static const int kDefaultSint64ExtensionFieldNumber = 66;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false >
-  default_sint64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 18, false > default_sint64_extension;
 static const int kDefaultFixed32ExtensionFieldNumber = 67;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 7, false >
-  default_fixed32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 7, false > default_fixed32_extension;
 static const int kDefaultFixed64ExtensionFieldNumber = 68;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false >
-  default_fixed64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint64_t >, 6, false > default_fixed64_extension;
 static const int kDefaultSfixed32ExtensionFieldNumber = 69;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false >
-  default_sfixed32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 15, false > default_sfixed32_extension;
 static const int kDefaultSfixed64ExtensionFieldNumber = 70;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 16, false >
-  default_sfixed64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int64_t >, 16, false > default_sfixed64_extension;
 static const int kDefaultFloatExtensionFieldNumber = 71;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< float >, 2, false >
-  default_float_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< float >, 2, false > default_float_extension;
 static const int kDefaultDoubleExtensionFieldNumber = 72;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< double >, 1, false >
-  default_double_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< double >, 1, false > default_double_extension;
 static const int kDefaultBoolExtensionFieldNumber = 73;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< bool >, 8, false >
-  default_bool_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< bool >, 8, false > default_bool_extension;
 static const int kDefaultStringExtensionFieldNumber = 74;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  default_string_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > default_string_extension;
 static const int kDefaultBytesExtensionFieldNumber = 75;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false >
-  default_bytes_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false > default_bytes_extension;
 static const int kDefaultNestedEnumExtensionFieldNumber = 81;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false >
-  default_nested_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::TestAllTypes_NestedEnum, ::protobuf_unittest::TestAllTypes_NestedEnum_IsValid>, 14, false > default_nested_enum_extension;
 static const int kDefaultForeignEnumExtensionFieldNumber = 82;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false >
-  default_foreign_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false > default_foreign_enum_extension;
 static const int kDefaultImportEnumExtensionFieldNumber = 83;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false >
-  default_import_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest_import::ImportEnum, ::protobuf_unittest_import::ImportEnum_IsValid>, 14, false > default_import_enum_extension;
 static const int kDefaultStringPieceExtensionFieldNumber = 84;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  default_string_piece_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > default_string_piece_extension;
 static const int kDefaultCordExtensionFieldNumber = 85;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  default_cord_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > default_cord_extension;
 static const int kOneofUint32ExtensionFieldNumber = 111;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false >
-  oneof_uint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< uint32_t >, 13, false > oneof_uint32_extension;
 static const int kOneofNestedMessageExtensionFieldNumber = 112;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false >
-  oneof_nested_message_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes_NestedMessage >, 11, false > oneof_nested_message_extension;
 static const int kOneofStringExtensionFieldNumber = 113;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  oneof_string_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > oneof_string_extension;
 static const int kOneofBytesExtensionFieldNumber = 114;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false >
-  oneof_bytes_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestAllExtensions, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 12, false > oneof_bytes_extension;
 static const int kMyExtensionStringFieldNumber = 50;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings,
-    ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false >
-  my_extension_string;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings, ::PROTOBUF_NAMESPACE_ID::internal::StringTypeTraits, 9, false > my_extension_string;
 static const int kMyExtensionIntFieldNumber = 5;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  my_extension_int;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestFieldOrderings, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > my_extension_int;
 static const int kPackedInt32ExtensionFieldNumber = 90;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, true >
-  packed_int32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, true > packed_int32_extension;
 static const int kPackedInt64ExtensionFieldNumber = 91;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, true >
-  packed_int64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, true > packed_int64_extension;
 static const int kPackedUint32ExtensionFieldNumber = 92;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, true >
-  packed_uint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, true > packed_uint32_extension;
 static const int kPackedUint64ExtensionFieldNumber = 93;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, true >
-  packed_uint64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, true > packed_uint64_extension;
 static const int kPackedSint32ExtensionFieldNumber = 94;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, true >
-  packed_sint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, true > packed_sint32_extension;
 static const int kPackedSint64ExtensionFieldNumber = 95;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, true >
-  packed_sint64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, true > packed_sint64_extension;
 static const int kPackedFixed32ExtensionFieldNumber = 96;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, true >
-  packed_fixed32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, true > packed_fixed32_extension;
 static const int kPackedFixed64ExtensionFieldNumber = 97;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, true >
-  packed_fixed64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, true > packed_fixed64_extension;
 static const int kPackedSfixed32ExtensionFieldNumber = 98;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, true >
-  packed_sfixed32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, true > packed_sfixed32_extension;
 static const int kPackedSfixed64ExtensionFieldNumber = 99;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, true >
-  packed_sfixed64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, true > packed_sfixed64_extension;
 static const int kPackedFloatExtensionFieldNumber = 100;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, true >
-  packed_float_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, true > packed_float_extension;
 static const int kPackedDoubleExtensionFieldNumber = 101;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, true >
-  packed_double_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, true > packed_double_extension;
 static const int kPackedBoolExtensionFieldNumber = 102;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, true >
-  packed_bool_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, true > packed_bool_extension;
 static const int kPackedEnumExtensionFieldNumber = 103;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, true >
-  packed_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestPackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, true > packed_enum_extension;
 static const int kUnpackedInt32ExtensionFieldNumber = 90;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, false >
-  unpacked_int32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, false > unpacked_int32_extension;
 static const int kUnpackedInt64ExtensionFieldNumber = 91;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, false >
-  unpacked_int64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 3, false > unpacked_int64_extension;
 static const int kUnpackedUint32ExtensionFieldNumber = 92;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, false >
-  unpacked_uint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 13, false > unpacked_uint32_extension;
 static const int kUnpackedUint64ExtensionFieldNumber = 93;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, false >
-  unpacked_uint64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 4, false > unpacked_uint64_extension;
 static const int kUnpackedSint32ExtensionFieldNumber = 94;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, false >
-  unpacked_sint32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 17, false > unpacked_sint32_extension;
 static const int kUnpackedSint64ExtensionFieldNumber = 95;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, false >
-  unpacked_sint64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 18, false > unpacked_sint64_extension;
 static const int kUnpackedFixed32ExtensionFieldNumber = 96;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, false >
-  unpacked_fixed32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint32_t >, 7, false > unpacked_fixed32_extension;
 static const int kUnpackedFixed64ExtensionFieldNumber = 97;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, false >
-  unpacked_fixed64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< uint64_t >, 6, false > unpacked_fixed64_extension;
 static const int kUnpackedSfixed32ExtensionFieldNumber = 98;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, false >
-  unpacked_sfixed32_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 15, false > unpacked_sfixed32_extension;
 static const int kUnpackedSfixed64ExtensionFieldNumber = 99;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, false >
-  unpacked_sfixed64_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int64_t >, 16, false > unpacked_sfixed64_extension;
 static const int kUnpackedFloatExtensionFieldNumber = 100;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, false >
-  unpacked_float_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< float >, 2, false > unpacked_float_extension;
 static const int kUnpackedDoubleExtensionFieldNumber = 101;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, false >
-  unpacked_double_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< double >, 1, false > unpacked_double_extension;
 static const int kUnpackedBoolExtensionFieldNumber = 102;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, false >
-  unpacked_bool_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< bool >, 8, false > unpacked_bool_extension;
 static const int kUnpackedEnumExtensionFieldNumber = 103;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false >
-  unpacked_enum_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestUnpackedExtensions, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedEnumTypeTraits< ::protobuf_unittest::ForeignEnum, ::protobuf_unittest::ForeignEnum_IsValid>, 14, false > unpacked_enum_extension;
 static const int kTestAllTypesFieldNumber = 536860000;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestHugeFieldNumbers,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false >
-  test_all_types;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestHugeFieldNumbers, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestAllTypes >, 11, false > test_all_types;
 static const int kTestExtensionInsideTableExtensionFieldNumber = 5;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionInsideTable,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  test_extension_inside_table_extension;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestExtensionInsideTable, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > test_extension_inside_table_extension;
 
 // ===================================================================
 
@@ -20837,10 +20015,10 @@ extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unitte
 // optional int32 bb = 1;
 inline bool TestAllTypes_NestedMessage::_internal_has_bb() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes_NestedMessage::has_bb() const {
-  return _internal_has_bb();
+	return _internal_has_bb();
 }
 inline void TestAllTypes_NestedMessage::clear_bb() {
   bb_ = 0;
@@ -20867,10 +20045,10 @@ inline void TestAllTypes_NestedMessage::set_bb(int32_t value) {
 // optional int32 a = 17;
 inline bool TestAllTypes_OptionalGroup::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes_OptionalGroup::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestAllTypes_OptionalGroup::clear_a() {
   a_ = 0;
@@ -20897,10 +20075,10 @@ inline void TestAllTypes_OptionalGroup::set_a(int32_t value) {
 // optional int32 a = 47;
 inline bool TestAllTypes_RepeatedGroup::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes_RepeatedGroup::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestAllTypes_RepeatedGroup::clear_a() {
   a_ = 0;
@@ -20927,10 +20105,10 @@ inline void TestAllTypes_RepeatedGroup::set_a(int32_t value) {
 // optional int32 optional_int32 = 1;
 inline bool TestAllTypes::_internal_has_optional_int32() const {
   bool value = (_has_bits_[0] & 0x00008000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_int32() const {
-  return _internal_has_optional_int32();
+	return _internal_has_optional_int32();
 }
 inline void TestAllTypes::clear_optional_int32() {
   optional_int32_ = 0;
@@ -20953,10 +20131,10 @@ inline void TestAllTypes::set_optional_int32(int32_t value) {
 // optional int64 optional_int64 = 2;
 inline bool TestAllTypes::_internal_has_optional_int64() const {
   bool value = (_has_bits_[0] & 0x00004000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_int64() const {
-  return _internal_has_optional_int64();
+	return _internal_has_optional_int64();
 }
 inline void TestAllTypes::clear_optional_int64() {
   optional_int64_ = int64_t{0};
@@ -20979,10 +20157,10 @@ inline void TestAllTypes::set_optional_int64(int64_t value) {
 // optional uint32 optional_uint32 = 3;
 inline bool TestAllTypes::_internal_has_optional_uint32() const {
   bool value = (_has_bits_[0] & 0x00010000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_uint32() const {
-  return _internal_has_optional_uint32();
+	return _internal_has_optional_uint32();
 }
 inline void TestAllTypes::clear_optional_uint32() {
   optional_uint32_ = 0u;
@@ -21005,10 +20183,10 @@ inline void TestAllTypes::set_optional_uint32(uint32_t value) {
 // optional uint64 optional_uint64 = 4;
 inline bool TestAllTypes::_internal_has_optional_uint64() const {
   bool value = (_has_bits_[0] & 0x00020000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_uint64() const {
-  return _internal_has_optional_uint64();
+	return _internal_has_optional_uint64();
 }
 inline void TestAllTypes::clear_optional_uint64() {
   optional_uint64_ = uint64_t{0u};
@@ -21031,10 +20209,10 @@ inline void TestAllTypes::set_optional_uint64(uint64_t value) {
 // optional sint32 optional_sint32 = 5;
 inline bool TestAllTypes::_internal_has_optional_sint32() const {
   bool value = (_has_bits_[0] & 0x00080000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_sint32() const {
-  return _internal_has_optional_sint32();
+	return _internal_has_optional_sint32();
 }
 inline void TestAllTypes::clear_optional_sint32() {
   optional_sint32_ = 0;
@@ -21057,10 +20235,10 @@ inline void TestAllTypes::set_optional_sint32(int32_t value) {
 // optional sint64 optional_sint64 = 6;
 inline bool TestAllTypes::_internal_has_optional_sint64() const {
   bool value = (_has_bits_[0] & 0x00040000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_sint64() const {
-  return _internal_has_optional_sint64();
+	return _internal_has_optional_sint64();
 }
 inline void TestAllTypes::clear_optional_sint64() {
   optional_sint64_ = int64_t{0};
@@ -21083,10 +20261,10 @@ inline void TestAllTypes::set_optional_sint64(int64_t value) {
 // optional fixed32 optional_fixed32 = 7;
 inline bool TestAllTypes::_internal_has_optional_fixed32() const {
   bool value = (_has_bits_[0] & 0x00100000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_fixed32() const {
-  return _internal_has_optional_fixed32();
+	return _internal_has_optional_fixed32();
 }
 inline void TestAllTypes::clear_optional_fixed32() {
   optional_fixed32_ = 0u;
@@ -21109,10 +20287,10 @@ inline void TestAllTypes::set_optional_fixed32(uint32_t value) {
 // optional fixed64 optional_fixed64 = 8;
 inline bool TestAllTypes::_internal_has_optional_fixed64() const {
   bool value = (_has_bits_[0] & 0x00200000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_fixed64() const {
-  return _internal_has_optional_fixed64();
+	return _internal_has_optional_fixed64();
 }
 inline void TestAllTypes::clear_optional_fixed64() {
   optional_fixed64_ = uint64_t{0u};
@@ -21135,10 +20313,10 @@ inline void TestAllTypes::set_optional_fixed64(uint64_t value) {
 // optional sfixed32 optional_sfixed32 = 9;
 inline bool TestAllTypes::_internal_has_optional_sfixed32() const {
   bool value = (_has_bits_[0] & 0x00800000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_sfixed32() const {
-  return _internal_has_optional_sfixed32();
+	return _internal_has_optional_sfixed32();
 }
 inline void TestAllTypes::clear_optional_sfixed32() {
   optional_sfixed32_ = 0;
@@ -21161,10 +20339,10 @@ inline void TestAllTypes::set_optional_sfixed32(int32_t value) {
 // optional sfixed64 optional_sfixed64 = 10;
 inline bool TestAllTypes::_internal_has_optional_sfixed64() const {
   bool value = (_has_bits_[0] & 0x00400000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_sfixed64() const {
-  return _internal_has_optional_sfixed64();
+	return _internal_has_optional_sfixed64();
 }
 inline void TestAllTypes::clear_optional_sfixed64() {
   optional_sfixed64_ = int64_t{0};
@@ -21187,10 +20365,10 @@ inline void TestAllTypes::set_optional_sfixed64(int64_t value) {
 // optional float optional_float = 11;
 inline bool TestAllTypes::_internal_has_optional_float() const {
   bool value = (_has_bits_[0] & 0x01000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_float() const {
-  return _internal_has_optional_float();
+	return _internal_has_optional_float();
 }
 inline void TestAllTypes::clear_optional_float() {
   optional_float_ = 0;
@@ -21213,10 +20391,10 @@ inline void TestAllTypes::set_optional_float(float value) {
 // optional double optional_double = 12;
 inline bool TestAllTypes::_internal_has_optional_double() const {
   bool value = (_has_bits_[0] & 0x02000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_double() const {
-  return _internal_has_optional_double();
+	return _internal_has_optional_double();
 }
 inline void TestAllTypes::clear_optional_double() {
   optional_double_ = 0;
@@ -21239,10 +20417,10 @@ inline void TestAllTypes::set_optional_double(double value) {
 // optional bool optional_bool = 13;
 inline bool TestAllTypes::_internal_has_optional_bool() const {
   bool value = (_has_bits_[0] & 0x04000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_bool() const {
-  return _internal_has_optional_bool();
+	return _internal_has_optional_bool();
 }
 inline void TestAllTypes::clear_optional_bool() {
   optional_bool_ = false;
@@ -21265,10 +20443,10 @@ inline void TestAllTypes::set_optional_bool(bool value) {
 // optional string optional_string = 14;
 inline bool TestAllTypes::_internal_has_optional_string() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_string() const {
-  return _internal_has_optional_string();
+	return _internal_has_optional_string();
 }
 inline void TestAllTypes::clear_optional_string() {
   optional_string_.ClearToEmpty();
@@ -21329,10 +20507,10 @@ inline void TestAllTypes::set_allocated_optional_string(std::string* optional_st
 // optional bytes optional_bytes = 15;
 inline bool TestAllTypes::_internal_has_optional_bytes() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_bytes() const {
-  return _internal_has_optional_bytes();
+	return _internal_has_optional_bytes();
 }
 inline void TestAllTypes::clear_optional_bytes() {
   optional_bytes_.ClearToEmpty();
@@ -21394,10 +20572,10 @@ inline void TestAllTypes::set_allocated_optional_bytes(std::string* optional_byt
 inline bool TestAllTypes::_internal_has_optionalgroup() const {
   bool value = (_has_bits_[0] & 0x00000100u) != 0;
   PROTOBUF_ASSUME(!value || optionalgroup_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optionalgroup() const {
-  return _internal_has_optionalgroup();
+	return _internal_has_optionalgroup();
 }
 inline void TestAllTypes::clear_optionalgroup() {
   if(optionalgroup_ != nullptr) optionalgroup_->Clear();
@@ -21483,10 +20661,10 @@ inline void TestAllTypes::set_allocated_optionalgroup(::protobuf_unittest::TestA
 inline bool TestAllTypes::_internal_has_optional_nested_message() const {
   bool value = (_has_bits_[0] & 0x00000200u) != 0;
   PROTOBUF_ASSUME(!value || optional_nested_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_nested_message() const {
-  return _internal_has_optional_nested_message();
+	return _internal_has_optional_nested_message();
 }
 inline void TestAllTypes::clear_optional_nested_message() {
   if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
@@ -21572,10 +20750,10 @@ inline void TestAllTypes::set_allocated_optional_nested_message(::protobuf_unitt
 inline bool TestAllTypes::_internal_has_optional_foreign_message() const {
   bool value = (_has_bits_[0] & 0x00000400u) != 0;
   PROTOBUF_ASSUME(!value || optional_foreign_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_foreign_message() const {
-  return _internal_has_optional_foreign_message();
+	return _internal_has_optional_foreign_message();
 }
 inline void TestAllTypes::clear_optional_foreign_message() {
   if(optional_foreign_message_ != nullptr) optional_foreign_message_->Clear();
@@ -21661,10 +20839,10 @@ inline void TestAllTypes::set_allocated_optional_foreign_message(::protobuf_unit
 inline bool TestAllTypes::_internal_has_optional_import_message() const {
   bool value = (_has_bits_[0] & 0x00000800u) != 0;
   PROTOBUF_ASSUME(!value || optional_import_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_import_message() const {
-  return _internal_has_optional_import_message();
+	return _internal_has_optional_import_message();
 }
 inline const ::protobuf_unittest_import::ImportMessage& TestAllTypes::_internal_optional_import_message() const {
   const ::protobuf_unittest_import::ImportMessage* p = optional_import_message_;
@@ -21746,10 +20924,10 @@ inline void TestAllTypes::set_allocated_optional_import_message(::protobuf_unitt
 // optional .protobuf_unittest.TestAllTypes.NestedEnum optional_nested_enum = 21;
 inline bool TestAllTypes::_internal_has_optional_nested_enum() const {
   bool value = (_has_bits_[0] & 0x10000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_nested_enum() const {
-  return _internal_has_optional_nested_enum();
+	return _internal_has_optional_nested_enum();
 }
 inline void TestAllTypes::clear_optional_nested_enum() {
   optional_nested_enum_ = 1;
@@ -21773,10 +20951,10 @@ inline void TestAllTypes::set_optional_nested_enum(::protobuf_unittest::TestAllT
 // optional .protobuf_unittest.ForeignEnum optional_foreign_enum = 22;
 inline bool TestAllTypes::_internal_has_optional_foreign_enum() const {
   bool value = (_has_bits_[0] & 0x20000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_foreign_enum() const {
-  return _internal_has_optional_foreign_enum();
+	return _internal_has_optional_foreign_enum();
 }
 inline void TestAllTypes::clear_optional_foreign_enum() {
   optional_foreign_enum_ = 4;
@@ -21800,10 +20978,10 @@ inline void TestAllTypes::set_optional_foreign_enum(::protobuf_unittest::Foreign
 // optional .protobuf_unittest_import.ImportEnum optional_import_enum = 23;
 inline bool TestAllTypes::_internal_has_optional_import_enum() const {
   bool value = (_has_bits_[0] & 0x40000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_import_enum() const {
-  return _internal_has_optional_import_enum();
+	return _internal_has_optional_import_enum();
 }
 inline void TestAllTypes::clear_optional_import_enum() {
   optional_import_enum_ = 7;
@@ -21827,10 +21005,10 @@ inline void TestAllTypes::set_optional_import_enum(::protobuf_unittest_import::I
 // optional string optional_string_piece = 24 [ctype = STRING_PIECE];
 inline bool TestAllTypes::_internal_has_optional_string_piece() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_string_piece() const {
-  return _internal_has_optional_string_piece();
+	return _internal_has_optional_string_piece();
 }
 inline void TestAllTypes::clear_optional_string_piece() {
   optional_string_piece_.ClearToEmpty();
@@ -21891,10 +21069,10 @@ inline void TestAllTypes::set_allocated_optional_string_piece(std::string* optio
 // optional string optional_cord = 25 [ctype = CORD];
 inline bool TestAllTypes::_internal_has_optional_cord() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_cord() const {
-  return _internal_has_optional_cord();
+	return _internal_has_optional_cord();
 }
 inline void TestAllTypes::clear_optional_cord() {
   optional_cord_.ClearToEmpty();
@@ -21956,10 +21134,10 @@ inline void TestAllTypes::set_allocated_optional_cord(std::string* optional_cord
 inline bool TestAllTypes::_internal_has_optional_public_import_message() const {
   bool value = (_has_bits_[0] & 0x00001000u) != 0;
   PROTOBUF_ASSUME(!value || optional_public_import_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_public_import_message() const {
-  return _internal_has_optional_public_import_message();
+	return _internal_has_optional_public_import_message();
 }
 inline const ::protobuf_unittest_import::PublicImportMessage& TestAllTypes::_internal_optional_public_import_message() const {
   const ::protobuf_unittest_import::PublicImportMessage* p = optional_public_import_message_;
@@ -22042,10 +21220,10 @@ inline void TestAllTypes::set_allocated_optional_public_import_message(::protobu
 inline bool TestAllTypes::_internal_has_optional_lazy_message() const {
   bool value = (_has_bits_[0] & 0x00002000u) != 0;
   PROTOBUF_ASSUME(!value || optional_lazy_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_optional_lazy_message() const {
-  return _internal_has_optional_lazy_message();
+	return _internal_has_optional_lazy_message();
 }
 inline void TestAllTypes::clear_optional_lazy_message() {
   if(optional_lazy_message_ != nullptr) optional_lazy_message_->Clear();
@@ -22129,8 +21307,9 @@ inline void TestAllTypes::set_allocated_optional_lazy_message(::protobuf_unittes
 
 // repeated int32 repeated_int32 = 31;
 inline int TestAllTypes::_internal_repeated_int32_size() const { return repeated_int32_.size(); }
-inline int TestAllTypes::repeated_int32_size() const {
-  return _internal_repeated_int32_size();
+inline int TestAllTypes::repeated_int32_size() const
+{
+	return _internal_repeated_int32_size();
 }
 inline void TestAllTypes::clear_repeated_int32() {
   repeated_int32_.Clear();
@@ -22168,8 +21347,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypes::mutable
 
 // repeated int64 repeated_int64 = 32;
 inline int TestAllTypes::_internal_repeated_int64_size() const { return repeated_int64_.size(); }
-inline int TestAllTypes::repeated_int64_size() const {
-  return _internal_repeated_int64_size();
+inline int TestAllTypes::repeated_int64_size() const
+{
+	return _internal_repeated_int64_size();
 }
 inline void TestAllTypes::clear_repeated_int64() {
   repeated_int64_.Clear();
@@ -22207,8 +21387,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypes::mutable
 
 // repeated uint32 repeated_uint32 = 33;
 inline int TestAllTypes::_internal_repeated_uint32_size() const { return repeated_uint32_.size(); }
-inline int TestAllTypes::repeated_uint32_size() const {
-  return _internal_repeated_uint32_size();
+inline int TestAllTypes::repeated_uint32_size() const
+{
+	return _internal_repeated_uint32_size();
 }
 inline void TestAllTypes::clear_repeated_uint32() {
   repeated_uint32_.Clear();
@@ -22246,8 +21427,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestAllTypes::mutabl
 
 // repeated uint64 repeated_uint64 = 34;
 inline int TestAllTypes::_internal_repeated_uint64_size() const { return repeated_uint64_.size(); }
-inline int TestAllTypes::repeated_uint64_size() const {
-  return _internal_repeated_uint64_size();
+inline int TestAllTypes::repeated_uint64_size() const
+{
+	return _internal_repeated_uint64_size();
 }
 inline void TestAllTypes::clear_repeated_uint64() {
   repeated_uint64_.Clear();
@@ -22285,8 +21467,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestAllTypes::mutabl
 
 // repeated sint32 repeated_sint32 = 35;
 inline int TestAllTypes::_internal_repeated_sint32_size() const { return repeated_sint32_.size(); }
-inline int TestAllTypes::repeated_sint32_size() const {
-  return _internal_repeated_sint32_size();
+inline int TestAllTypes::repeated_sint32_size() const
+{
+	return _internal_repeated_sint32_size();
 }
 inline void TestAllTypes::clear_repeated_sint32() {
   repeated_sint32_.Clear();
@@ -22324,8 +21507,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypes::mutable
 
 // repeated sint64 repeated_sint64 = 36;
 inline int TestAllTypes::_internal_repeated_sint64_size() const { return repeated_sint64_.size(); }
-inline int TestAllTypes::repeated_sint64_size() const {
-  return _internal_repeated_sint64_size();
+inline int TestAllTypes::repeated_sint64_size() const
+{
+	return _internal_repeated_sint64_size();
 }
 inline void TestAllTypes::clear_repeated_sint64() {
   repeated_sint64_.Clear();
@@ -22363,8 +21547,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypes::mutable
 
 // repeated fixed32 repeated_fixed32 = 37;
 inline int TestAllTypes::_internal_repeated_fixed32_size() const { return repeated_fixed32_.size(); }
-inline int TestAllTypes::repeated_fixed32_size() const {
-  return _internal_repeated_fixed32_size();
+inline int TestAllTypes::repeated_fixed32_size() const
+{
+	return _internal_repeated_fixed32_size();
 }
 inline void TestAllTypes::clear_repeated_fixed32() {
   repeated_fixed32_.Clear();
@@ -22402,8 +21587,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestAllTypes::mutabl
 
 // repeated fixed64 repeated_fixed64 = 38;
 inline int TestAllTypes::_internal_repeated_fixed64_size() const { return repeated_fixed64_.size(); }
-inline int TestAllTypes::repeated_fixed64_size() const {
-  return _internal_repeated_fixed64_size();
+inline int TestAllTypes::repeated_fixed64_size() const
+{
+	return _internal_repeated_fixed64_size();
 }
 inline void TestAllTypes::clear_repeated_fixed64() {
   repeated_fixed64_.Clear();
@@ -22441,8 +21627,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestAllTypes::mutabl
 
 // repeated sfixed32 repeated_sfixed32 = 39;
 inline int TestAllTypes::_internal_repeated_sfixed32_size() const { return repeated_sfixed32_.size(); }
-inline int TestAllTypes::repeated_sfixed32_size() const {
-  return _internal_repeated_sfixed32_size();
+inline int TestAllTypes::repeated_sfixed32_size() const
+{
+	return _internal_repeated_sfixed32_size();
 }
 inline void TestAllTypes::clear_repeated_sfixed32() {
   repeated_sfixed32_.Clear();
@@ -22480,8 +21667,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypes::mutable
 
 // repeated sfixed64 repeated_sfixed64 = 40;
 inline int TestAllTypes::_internal_repeated_sfixed64_size() const { return repeated_sfixed64_.size(); }
-inline int TestAllTypes::repeated_sfixed64_size() const {
-  return _internal_repeated_sfixed64_size();
+inline int TestAllTypes::repeated_sfixed64_size() const
+{
+	return _internal_repeated_sfixed64_size();
 }
 inline void TestAllTypes::clear_repeated_sfixed64() {
   repeated_sfixed64_.Clear();
@@ -22519,8 +21707,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypes::mutable
 
 // repeated float repeated_float = 41;
 inline int TestAllTypes::_internal_repeated_float_size() const { return repeated_float_.size(); }
-inline int TestAllTypes::repeated_float_size() const {
-  return _internal_repeated_float_size();
+inline int TestAllTypes::repeated_float_size() const
+{
+	return _internal_repeated_float_size();
 }
 inline void TestAllTypes::clear_repeated_float() {
   repeated_float_.Clear();
@@ -22558,8 +21747,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * TestAllTypes::mutable_r
 
 // repeated double repeated_double = 42;
 inline int TestAllTypes::_internal_repeated_double_size() const { return repeated_double_.size(); }
-inline int TestAllTypes::repeated_double_size() const {
-  return _internal_repeated_double_size();
+inline int TestAllTypes::repeated_double_size() const
+{
+	return _internal_repeated_double_size();
 }
 inline void TestAllTypes::clear_repeated_double() {
   repeated_double_.Clear();
@@ -22597,8 +21787,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * TestAllTypes::mutable_
 
 // repeated bool repeated_bool = 43;
 inline int TestAllTypes::_internal_repeated_bool_size() const { return repeated_bool_.size(); }
-inline int TestAllTypes::repeated_bool_size() const {
-  return _internal_repeated_bool_size();
+inline int TestAllTypes::repeated_bool_size() const
+{
+	return _internal_repeated_bool_size();
 }
 inline void TestAllTypes::clear_repeated_bool() {
   repeated_bool_.Clear();
@@ -22636,8 +21827,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * TestAllTypes::mutable_re
 
 // repeated string repeated_string = 44;
 inline int TestAllTypes::_internal_repeated_string_size() const { return repeated_string_.size(); }
-inline int TestAllTypes::repeated_string_size() const {
-  return _internal_repeated_string_size();
+inline int TestAllTypes::repeated_string_size() const
+{
+	return _internal_repeated_string_size();
 }
 inline void TestAllTypes::clear_repeated_string() {
   repeated_string_.Clear();
@@ -22704,8 +21896,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypes::mu
 
 // repeated bytes repeated_bytes = 45;
 inline int TestAllTypes::_internal_repeated_bytes_size() const { return repeated_bytes_.size(); }
-inline int TestAllTypes::repeated_bytes_size() const {
-  return _internal_repeated_bytes_size();
+inline int TestAllTypes::repeated_bytes_size() const
+{
+	return _internal_repeated_bytes_size();
 }
 inline void TestAllTypes::clear_repeated_bytes() {
   repeated_bytes_.Clear();
@@ -22772,8 +21965,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypes::mu
 
 // repeated group RepeatedGroup = 46 { ... };
 inline int TestAllTypes::_internal_repeatedgroup_size() const { return repeatedgroup_.size(); }
-inline int TestAllTypes::repeatedgroup_size() const {
-  return _internal_repeatedgroup_size();
+inline int TestAllTypes::repeatedgroup_size() const
+{
+	return _internal_repeatedgroup_size();
 }
 inline void TestAllTypes::clear_repeatedgroup() {
   repeatedgroup_.Clear();
@@ -22808,8 +22002,9 @@ TestAllTypes::repeatedgroup() const {
 
 // repeated .protobuf_unittest.TestAllTypes.NestedMessage repeated_nested_message = 48;
 inline int TestAllTypes::_internal_repeated_nested_message_size() const { return repeated_nested_message_.size(); }
-inline int TestAllTypes::repeated_nested_message_size() const {
-  return _internal_repeated_nested_message_size();
+inline int TestAllTypes::repeated_nested_message_size() const
+{
+	return _internal_repeated_nested_message_size();
 }
 inline void TestAllTypes::clear_repeated_nested_message() {
   repeated_nested_message_.Clear();
@@ -22844,8 +22039,9 @@ TestAllTypes::repeated_nested_message() const {
 
 // repeated .protobuf_unittest.ForeignMessage repeated_foreign_message = 49;
 inline int TestAllTypes::_internal_repeated_foreign_message_size() const { return repeated_foreign_message_.size(); }
-inline int TestAllTypes::repeated_foreign_message_size() const {
-  return _internal_repeated_foreign_message_size();
+inline int TestAllTypes::repeated_foreign_message_size() const
+{
+	return _internal_repeated_foreign_message_size();
 }
 inline void TestAllTypes::clear_repeated_foreign_message() {
   repeated_foreign_message_.Clear();
@@ -22880,8 +22076,9 @@ TestAllTypes::repeated_foreign_message() const {
 
 // repeated .protobuf_unittest_import.ImportMessage repeated_import_message = 50;
 inline int TestAllTypes::_internal_repeated_import_message_size() const { return repeated_import_message_.size(); }
-inline int TestAllTypes::repeated_import_message_size() const {
-  return _internal_repeated_import_message_size();
+inline int TestAllTypes::repeated_import_message_size() const
+{
+	return _internal_repeated_import_message_size();
 }
 inline ::protobuf_unittest_import::ImportMessage* TestAllTypes::mutable_repeated_import_message(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestAllTypes.repeated_import_message)
@@ -22913,125 +22110,147 @@ TestAllTypes::repeated_import_message() const {
 
 // repeated .protobuf_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 51;
 inline int TestAllTypes::_internal_repeated_nested_enum_size() const { return repeated_nested_enum_.size(); }
-inline int TestAllTypes::repeated_nested_enum_size() const {
-  return _internal_repeated_nested_enum_size();
+inline int TestAllTypes::repeated_nested_enum_size() const
+{
+	return _internal_repeated_nested_enum_size();
 }
 inline void TestAllTypes::clear_repeated_nested_enum() {
   repeated_nested_enum_.Clear();
 }
 inline ::protobuf_unittest::TestAllTypes_NestedEnum TestAllTypes::_internal_repeated_nested_enum(int index) const { return static_cast< ::protobuf_unittest::TestAllTypes_NestedEnum >(repeated_nested_enum_.Get(index)); }
-inline ::protobuf_unittest::TestAllTypes_NestedEnum TestAllTypes::repeated_nested_enum(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypes.repeated_nested_enum)
-  return _internal_repeated_nested_enum(index);
+inline ::protobuf_unittest::TestAllTypes_NestedEnum TestAllTypes::repeated_nested_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypes.repeated_nested_enum)
+	return _internal_repeated_nested_enum(index);
 }
-inline void TestAllTypes::set_repeated_nested_enum(int index, ::protobuf_unittest::TestAllTypes_NestedEnum value) {
-  assert(::protobuf_unittest::TestAllTypes_NestedEnum_IsValid(value));
-  repeated_nested_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestAllTypes.repeated_nested_enum)
+inline void TestAllTypes::set_repeated_nested_enum(int index, ::protobuf_unittest::TestAllTypes_NestedEnum value)
+{
+	assert(::protobuf_unittest::TestAllTypes_NestedEnum_IsValid(value));
+	repeated_nested_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestAllTypes.repeated_nested_enum)
 }
-inline void TestAllTypes::_internal_add_repeated_nested_enum(::protobuf_unittest::TestAllTypes_NestedEnum value) {
-  assert(::protobuf_unittest::TestAllTypes_NestedEnum_IsValid(value));
-  repeated_nested_enum_.Add(value);
+inline void TestAllTypes::_internal_add_repeated_nested_enum(::protobuf_unittest::TestAllTypes_NestedEnum value)
+{
+	assert(::protobuf_unittest::TestAllTypes_NestedEnum_IsValid(value));
+	repeated_nested_enum_.Add(value);
 }
-inline void TestAllTypes::add_repeated_nested_enum(::protobuf_unittest::TestAllTypes_NestedEnum value) {
-  _internal_add_repeated_nested_enum(value);
-  // @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypes.repeated_nested_enum)
+inline void TestAllTypes::add_repeated_nested_enum(::protobuf_unittest::TestAllTypes_NestedEnum value)
+{
+	_internal_add_repeated_nested_enum(value);
+	// @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypes.repeated_nested_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestAllTypes::repeated_nested_enum() const {
-  // @@protoc_insertion_point(field_list:protobuf_unittest.TestAllTypes.repeated_nested_enum)
-  return repeated_nested_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestAllTypes::repeated_nested_enum() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_unittest.TestAllTypes.repeated_nested_enum)
+	return repeated_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::_internal_mutable_repeated_nested_enum() {
-  return &repeated_nested_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::_internal_mutable_repeated_nested_enum()
+{
+	return &repeated_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::mutable_repeated_nested_enum() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypes.repeated_nested_enum)
-  return _internal_mutable_repeated_nested_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::mutable_repeated_nested_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypes.repeated_nested_enum)
+	return _internal_mutable_repeated_nested_enum();
 }
 
 // repeated .protobuf_unittest.ForeignEnum repeated_foreign_enum = 52;
 inline int TestAllTypes::_internal_repeated_foreign_enum_size() const { return repeated_foreign_enum_.size(); }
-inline int TestAllTypes::repeated_foreign_enum_size() const {
-  return _internal_repeated_foreign_enum_size();
+inline int TestAllTypes::repeated_foreign_enum_size() const
+{
+	return _internal_repeated_foreign_enum_size();
 }
 inline void TestAllTypes::clear_repeated_foreign_enum() {
   repeated_foreign_enum_.Clear();
 }
 inline ::protobuf_unittest::ForeignEnum TestAllTypes::_internal_repeated_foreign_enum(int index) const { return static_cast< ::protobuf_unittest::ForeignEnum >(repeated_foreign_enum_.Get(index)); }
-inline ::protobuf_unittest::ForeignEnum TestAllTypes::repeated_foreign_enum(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypes.repeated_foreign_enum)
-  return _internal_repeated_foreign_enum(index);
+inline ::protobuf_unittest::ForeignEnum TestAllTypes::repeated_foreign_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypes.repeated_foreign_enum)
+	return _internal_repeated_foreign_enum(index);
 }
-inline void TestAllTypes::set_repeated_foreign_enum(int index, ::protobuf_unittest::ForeignEnum value) {
-  assert(::protobuf_unittest::ForeignEnum_IsValid(value));
-  repeated_foreign_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestAllTypes.repeated_foreign_enum)
+inline void TestAllTypes::set_repeated_foreign_enum(int index, ::protobuf_unittest::ForeignEnum value)
+{
+	assert(::protobuf_unittest::ForeignEnum_IsValid(value));
+	repeated_foreign_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestAllTypes.repeated_foreign_enum)
 }
-inline void TestAllTypes::_internal_add_repeated_foreign_enum(::protobuf_unittest::ForeignEnum value) {
-  assert(::protobuf_unittest::ForeignEnum_IsValid(value));
-  repeated_foreign_enum_.Add(value);
+inline void TestAllTypes::_internal_add_repeated_foreign_enum(::protobuf_unittest::ForeignEnum value)
+{
+	assert(::protobuf_unittest::ForeignEnum_IsValid(value));
+	repeated_foreign_enum_.Add(value);
 }
-inline void TestAllTypes::add_repeated_foreign_enum(::protobuf_unittest::ForeignEnum value) {
-  _internal_add_repeated_foreign_enum(value);
-  // @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypes.repeated_foreign_enum)
+inline void TestAllTypes::add_repeated_foreign_enum(::protobuf_unittest::ForeignEnum value)
+{
+	_internal_add_repeated_foreign_enum(value);
+	// @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypes.repeated_foreign_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestAllTypes::repeated_foreign_enum() const {
-  // @@protoc_insertion_point(field_list:protobuf_unittest.TestAllTypes.repeated_foreign_enum)
-  return repeated_foreign_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestAllTypes::repeated_foreign_enum() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_unittest.TestAllTypes.repeated_foreign_enum)
+	return repeated_foreign_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::_internal_mutable_repeated_foreign_enum() {
-  return &repeated_foreign_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::_internal_mutable_repeated_foreign_enum()
+{
+	return &repeated_foreign_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::mutable_repeated_foreign_enum() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypes.repeated_foreign_enum)
-  return _internal_mutable_repeated_foreign_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::mutable_repeated_foreign_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypes.repeated_foreign_enum)
+	return _internal_mutable_repeated_foreign_enum();
 }
 
 // repeated .protobuf_unittest_import.ImportEnum repeated_import_enum = 53;
 inline int TestAllTypes::_internal_repeated_import_enum_size() const { return repeated_import_enum_.size(); }
-inline int TestAllTypes::repeated_import_enum_size() const {
-  return _internal_repeated_import_enum_size();
+inline int TestAllTypes::repeated_import_enum_size() const
+{
+	return _internal_repeated_import_enum_size();
 }
 inline void TestAllTypes::clear_repeated_import_enum() {
   repeated_import_enum_.Clear();
 }
 inline ::protobuf_unittest_import::ImportEnum TestAllTypes::_internal_repeated_import_enum(int index) const { return static_cast< ::protobuf_unittest_import::ImportEnum >(repeated_import_enum_.Get(index)); }
-inline ::protobuf_unittest_import::ImportEnum TestAllTypes::repeated_import_enum(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypes.repeated_import_enum)
-  return _internal_repeated_import_enum(index);
+inline ::protobuf_unittest_import::ImportEnum TestAllTypes::repeated_import_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypes.repeated_import_enum)
+	return _internal_repeated_import_enum(index);
 }
-inline void TestAllTypes::set_repeated_import_enum(int index, ::protobuf_unittest_import::ImportEnum value) {
-  assert(::protobuf_unittest_import::ImportEnum_IsValid(value));
-  repeated_import_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestAllTypes.repeated_import_enum)
+inline void TestAllTypes::set_repeated_import_enum(int index, ::protobuf_unittest_import::ImportEnum value)
+{
+	assert(::protobuf_unittest_import::ImportEnum_IsValid(value));
+	repeated_import_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestAllTypes.repeated_import_enum)
 }
-inline void TestAllTypes::_internal_add_repeated_import_enum(::protobuf_unittest_import::ImportEnum value) {
-  assert(::protobuf_unittest_import::ImportEnum_IsValid(value));
-  repeated_import_enum_.Add(value);
+inline void TestAllTypes::_internal_add_repeated_import_enum(::protobuf_unittest_import::ImportEnum value)
+{
+	assert(::protobuf_unittest_import::ImportEnum_IsValid(value));
+	repeated_import_enum_.Add(value);
 }
-inline void TestAllTypes::add_repeated_import_enum(::protobuf_unittest_import::ImportEnum value) {
-  _internal_add_repeated_import_enum(value);
-  // @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypes.repeated_import_enum)
+inline void TestAllTypes::add_repeated_import_enum(::protobuf_unittest_import::ImportEnum value)
+{
+	_internal_add_repeated_import_enum(value);
+	// @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypes.repeated_import_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestAllTypes::repeated_import_enum() const {
-  // @@protoc_insertion_point(field_list:protobuf_unittest.TestAllTypes.repeated_import_enum)
-  return repeated_import_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestAllTypes::repeated_import_enum() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_unittest.TestAllTypes.repeated_import_enum)
+	return repeated_import_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::_internal_mutable_repeated_import_enum() {
-  return &repeated_import_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::_internal_mutable_repeated_import_enum()
+{
+	return &repeated_import_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::mutable_repeated_import_enum() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypes.repeated_import_enum)
-  return _internal_mutable_repeated_import_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypes::mutable_repeated_import_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypes.repeated_import_enum)
+	return _internal_mutable_repeated_import_enum();
 }
 
 // repeated string repeated_string_piece = 54 [ctype = STRING_PIECE];
 inline int TestAllTypes::_internal_repeated_string_piece_size() const { return repeated_string_piece_.size(); }
-inline int TestAllTypes::repeated_string_piece_size() const {
-  return _internal_repeated_string_piece_size();
+inline int TestAllTypes::repeated_string_piece_size() const
+{
+	return _internal_repeated_string_piece_size();
 }
 inline void TestAllTypes::clear_repeated_string_piece() {
   repeated_string_piece_.Clear();
@@ -23098,8 +22317,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypes::mu
 
 // repeated string repeated_cord = 55 [ctype = CORD];
 inline int TestAllTypes::_internal_repeated_cord_size() const { return repeated_cord_.size(); }
-inline int TestAllTypes::repeated_cord_size() const {
-  return _internal_repeated_cord_size();
+inline int TestAllTypes::repeated_cord_size() const
+{
+	return _internal_repeated_cord_size();
 }
 inline void TestAllTypes::clear_repeated_cord() {
   repeated_cord_.Clear();
@@ -23166,8 +22386,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypes::mu
 
 // repeated .protobuf_unittest.TestAllTypes.NestedMessage repeated_lazy_message = 57 [lazy = true];
 inline int TestAllTypes::_internal_repeated_lazy_message_size() const { return repeated_lazy_message_.size(); }
-inline int TestAllTypes::repeated_lazy_message_size() const {
-  return _internal_repeated_lazy_message_size();
+inline int TestAllTypes::repeated_lazy_message_size() const
+{
+	return _internal_repeated_lazy_message_size();
 }
 inline void TestAllTypes::clear_repeated_lazy_message() {
   repeated_lazy_message_.Clear();
@@ -23203,10 +22424,10 @@ TestAllTypes::repeated_lazy_message() const {
 // optional int32 default_int32 = 61 [default = 41];
 inline bool TestAllTypes::_internal_has_default_int32() const {
   bool value = (_has_bits_[0] & 0x80000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_int32() const {
-  return _internal_has_default_int32();
+	return _internal_has_default_int32();
 }
 inline void TestAllTypes::clear_default_int32() {
   default_int32_ = 41;
@@ -23229,10 +22450,10 @@ inline void TestAllTypes::set_default_int32(int32_t value) {
 // optional int64 default_int64 = 62 [default = 42];
 inline bool TestAllTypes::_internal_has_default_int64() const {
   bool value = (_has_bits_[1] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_int64() const {
-  return _internal_has_default_int64();
+	return _internal_has_default_int64();
 }
 inline void TestAllTypes::clear_default_int64() {
   default_int64_ = int64_t{42};
@@ -23255,10 +22476,10 @@ inline void TestAllTypes::set_default_int64(int64_t value) {
 // optional uint32 default_uint32 = 63 [default = 43];
 inline bool TestAllTypes::_internal_has_default_uint32() const {
   bool value = (_has_bits_[1] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_uint32() const {
-  return _internal_has_default_uint32();
+	return _internal_has_default_uint32();
 }
 inline void TestAllTypes::clear_default_uint32() {
   default_uint32_ = 43u;
@@ -23281,10 +22502,10 @@ inline void TestAllTypes::set_default_uint32(uint32_t value) {
 // optional uint64 default_uint64 = 64 [default = 44];
 inline bool TestAllTypes::_internal_has_default_uint64() const {
   bool value = (_has_bits_[1] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_uint64() const {
-  return _internal_has_default_uint64();
+	return _internal_has_default_uint64();
 }
 inline void TestAllTypes::clear_default_uint64() {
   default_uint64_ = uint64_t{44u};
@@ -23307,10 +22528,10 @@ inline void TestAllTypes::set_default_uint64(uint64_t value) {
 // optional sint32 default_sint32 = 65 [default = -45];
 inline bool TestAllTypes::_internal_has_default_sint32() const {
   bool value = (_has_bits_[1] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_sint32() const {
-  return _internal_has_default_sint32();
+	return _internal_has_default_sint32();
 }
 inline void TestAllTypes::clear_default_sint32() {
   default_sint32_ = -45;
@@ -23333,10 +22554,10 @@ inline void TestAllTypes::set_default_sint32(int32_t value) {
 // optional sint64 default_sint64 = 66 [default = 46];
 inline bool TestAllTypes::_internal_has_default_sint64() const {
   bool value = (_has_bits_[1] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_sint64() const {
-  return _internal_has_default_sint64();
+	return _internal_has_default_sint64();
 }
 inline void TestAllTypes::clear_default_sint64() {
   default_sint64_ = int64_t{46};
@@ -23359,10 +22580,10 @@ inline void TestAllTypes::set_default_sint64(int64_t value) {
 // optional fixed32 default_fixed32 = 67 [default = 47];
 inline bool TestAllTypes::_internal_has_default_fixed32() const {
   bool value = (_has_bits_[1] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_fixed32() const {
-  return _internal_has_default_fixed32();
+	return _internal_has_default_fixed32();
 }
 inline void TestAllTypes::clear_default_fixed32() {
   default_fixed32_ = 47u;
@@ -23385,10 +22606,10 @@ inline void TestAllTypes::set_default_fixed32(uint32_t value) {
 // optional fixed64 default_fixed64 = 68 [default = 48];
 inline bool TestAllTypes::_internal_has_default_fixed64() const {
   bool value = (_has_bits_[1] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_fixed64() const {
-  return _internal_has_default_fixed64();
+	return _internal_has_default_fixed64();
 }
 inline void TestAllTypes::clear_default_fixed64() {
   default_fixed64_ = uint64_t{48u};
@@ -23411,10 +22632,10 @@ inline void TestAllTypes::set_default_fixed64(uint64_t value) {
 // optional sfixed32 default_sfixed32 = 69 [default = 49];
 inline bool TestAllTypes::_internal_has_default_sfixed32() const {
   bool value = (_has_bits_[1] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_sfixed32() const {
-  return _internal_has_default_sfixed32();
+	return _internal_has_default_sfixed32();
 }
 inline void TestAllTypes::clear_default_sfixed32() {
   default_sfixed32_ = 49;
@@ -23437,10 +22658,10 @@ inline void TestAllTypes::set_default_sfixed32(int32_t value) {
 // optional sfixed64 default_sfixed64 = 70 [default = -50];
 inline bool TestAllTypes::_internal_has_default_sfixed64() const {
   bool value = (_has_bits_[1] & 0x00000100u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_sfixed64() const {
-  return _internal_has_default_sfixed64();
+	return _internal_has_default_sfixed64();
 }
 inline void TestAllTypes::clear_default_sfixed64() {
   default_sfixed64_ = int64_t{-50};
@@ -23463,10 +22684,10 @@ inline void TestAllTypes::set_default_sfixed64(int64_t value) {
 // optional float default_float = 71 [default = 51.5];
 inline bool TestAllTypes::_internal_has_default_float() const {
   bool value = (_has_bits_[1] & 0x00000400u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_float() const {
-  return _internal_has_default_float();
+	return _internal_has_default_float();
 }
 inline void TestAllTypes::clear_default_float() {
   default_float_ = 51.5f;
@@ -23489,10 +22710,10 @@ inline void TestAllTypes::set_default_float(float value) {
 // optional double default_double = 72 [default = 52000];
 inline bool TestAllTypes::_internal_has_default_double() const {
   bool value = (_has_bits_[1] & 0x00000200u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_double() const {
-  return _internal_has_default_double();
+	return _internal_has_default_double();
 }
 inline void TestAllTypes::clear_default_double() {
   default_double_ = 52000;
@@ -23515,10 +22736,10 @@ inline void TestAllTypes::set_default_double(double value) {
 // optional bool default_bool = 73 [default = true];
 inline bool TestAllTypes::_internal_has_default_bool() const {
   bool value = (_has_bits_[1] & 0x00000800u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_bool() const {
-  return _internal_has_default_bool();
+	return _internal_has_default_bool();
 }
 inline void TestAllTypes::clear_default_bool() {
   default_bool_ = true;
@@ -23541,10 +22762,10 @@ inline void TestAllTypes::set_default_bool(bool value) {
 // optional string default_string = 74 [default = "hello"];
 inline bool TestAllTypes::_internal_has_default_string() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_string() const {
-  return _internal_has_default_string();
+	return _internal_has_default_string();
 }
 inline void TestAllTypes::clear_default_string() {
   default_string_.ClearToDefault(::protobuf_unittest::TestAllTypes::_i_give_permission_to_break_this_code_default_default_string_, GetArenaForAllocation());
@@ -23596,10 +22817,10 @@ inline void TestAllTypes::set_allocated_default_string(std::string* default_stri
 // optional bytes default_bytes = 75 [default = "world"];
 inline bool TestAllTypes::_internal_has_default_bytes() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_bytes() const {
-  return _internal_has_default_bytes();
+	return _internal_has_default_bytes();
 }
 inline void TestAllTypes::clear_default_bytes() {
   default_bytes_.ClearToDefault(::protobuf_unittest::TestAllTypes::_i_give_permission_to_break_this_code_default_default_bytes_, GetArenaForAllocation());
@@ -23651,10 +22872,10 @@ inline void TestAllTypes::set_allocated_default_bytes(std::string* default_bytes
 // optional .protobuf_unittest.TestAllTypes.NestedEnum default_nested_enum = 81 [default = BAR];
 inline bool TestAllTypes::_internal_has_default_nested_enum() const {
   bool value = (_has_bits_[1] & 0x00001000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_nested_enum() const {
-  return _internal_has_default_nested_enum();
+	return _internal_has_default_nested_enum();
 }
 inline void TestAllTypes::clear_default_nested_enum() {
   default_nested_enum_ = 2;
@@ -23678,10 +22899,10 @@ inline void TestAllTypes::set_default_nested_enum(::protobuf_unittest::TestAllTy
 // optional .protobuf_unittest.ForeignEnum default_foreign_enum = 82 [default = FOREIGN_BAR];
 inline bool TestAllTypes::_internal_has_default_foreign_enum() const {
   bool value = (_has_bits_[1] & 0x00002000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_foreign_enum() const {
-  return _internal_has_default_foreign_enum();
+	return _internal_has_default_foreign_enum();
 }
 inline void TestAllTypes::clear_default_foreign_enum() {
   default_foreign_enum_ = 5;
@@ -23705,10 +22926,10 @@ inline void TestAllTypes::set_default_foreign_enum(::protobuf_unittest::ForeignE
 // optional .protobuf_unittest_import.ImportEnum default_import_enum = 83 [default = IMPORT_BAR];
 inline bool TestAllTypes::_internal_has_default_import_enum() const {
   bool value = (_has_bits_[0] & 0x08000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_import_enum() const {
-  return _internal_has_default_import_enum();
+	return _internal_has_default_import_enum();
 }
 inline void TestAllTypes::clear_default_import_enum() {
   default_import_enum_ = 8;
@@ -23732,10 +22953,10 @@ inline void TestAllTypes::set_default_import_enum(::protobuf_unittest_import::Im
 // optional string default_string_piece = 84 [default = "abc", ctype = STRING_PIECE];
 inline bool TestAllTypes::_internal_has_default_string_piece() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_string_piece() const {
-  return _internal_has_default_string_piece();
+	return _internal_has_default_string_piece();
 }
 inline void TestAllTypes::clear_default_string_piece() {
   default_string_piece_.ClearToDefault(::protobuf_unittest::TestAllTypes::_i_give_permission_to_break_this_code_default_default_string_piece_, GetArenaForAllocation());
@@ -23787,10 +23008,10 @@ inline void TestAllTypes::set_allocated_default_string_piece(std::string* defaul
 // optional string default_cord = 85 [default = "123", ctype = CORD];
 inline bool TestAllTypes::_internal_has_default_cord() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool TestAllTypes::has_default_cord() const {
-  return _internal_has_default_cord();
+	return _internal_has_default_cord();
 }
 inline void TestAllTypes::clear_default_cord() {
   default_cord_.ClearToDefault(::protobuf_unittest::TestAllTypes::_i_give_permission_to_break_this_code_default_default_cord_, GetArenaForAllocation());
@@ -23840,15 +23061,12 @@ inline void TestAllTypes::set_allocated_default_cord(std::string* default_cord) 
 }
 
 // uint32 oneof_uint32 = 111;
-inline bool TestAllTypes::_internal_has_oneof_uint32() const {
-  return oneof_field_case() == kOneofUint32;
+inline bool TestAllTypes::_internal_has_oneof_uint32() const { return oneof_field_case() == kOneofUint32; }
+inline bool TestAllTypes::has_oneof_uint32() const
+{
+	return _internal_has_oneof_uint32();
 }
-inline bool TestAllTypes::has_oneof_uint32() const {
-  return _internal_has_oneof_uint32();
-}
-inline void TestAllTypes::set_has_oneof_uint32() {
-  _oneof_case_[0] = kOneofUint32;
-}
+inline void TestAllTypes::set_has_oneof_uint32() { _oneof_case_[0] = kOneofUint32; }
 inline void TestAllTypes::clear_oneof_uint32() {
   if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
@@ -23875,15 +23093,12 @@ inline void TestAllTypes::set_oneof_uint32(uint32_t value) {
 }
 
 // .protobuf_unittest.TestAllTypes.NestedMessage oneof_nested_message = 112;
-inline bool TestAllTypes::_internal_has_oneof_nested_message() const {
-  return oneof_field_case() == kOneofNestedMessage;
+inline bool TestAllTypes::_internal_has_oneof_nested_message() const { return oneof_field_case() == kOneofNestedMessage; }
+inline bool TestAllTypes::has_oneof_nested_message() const
+{
+	return _internal_has_oneof_nested_message();
 }
-inline bool TestAllTypes::has_oneof_nested_message() const {
-  return _internal_has_oneof_nested_message();
-}
-inline void TestAllTypes::set_has_oneof_nested_message() {
-  _oneof_case_[0] = kOneofNestedMessage;
-}
+inline void TestAllTypes::set_has_oneof_nested_message() { _oneof_case_[0] = kOneofNestedMessage; }
 inline void TestAllTypes::clear_oneof_nested_message() {
   if(_internal_has_oneof_nested_message()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -23945,15 +23160,12 @@ inline ::protobuf_unittest::TestAllTypes_NestedMessage* TestAllTypes::mutable_on
 }
 
 // string oneof_string = 113;
-inline bool TestAllTypes::_internal_has_oneof_string() const {
-  return oneof_field_case() == kOneofString;
+inline bool TestAllTypes::_internal_has_oneof_string() const { return oneof_field_case() == kOneofString; }
+inline bool TestAllTypes::has_oneof_string() const
+{
+	return _internal_has_oneof_string();
 }
-inline bool TestAllTypes::has_oneof_string() const {
-  return _internal_has_oneof_string();
-}
-inline void TestAllTypes::set_has_oneof_string() {
-  _oneof_case_[0] = kOneofString;
-}
+inline void TestAllTypes::set_has_oneof_string() { _oneof_case_[0] = kOneofString; }
 inline void TestAllTypes::clear_oneof_string() {
   if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -24026,15 +23238,12 @@ inline void TestAllTypes::set_allocated_oneof_string(std::string* oneof_string) 
 }
 
 // bytes oneof_bytes = 114;
-inline bool TestAllTypes::_internal_has_oneof_bytes() const {
-  return oneof_field_case() == kOneofBytes;
+inline bool TestAllTypes::_internal_has_oneof_bytes() const { return oneof_field_case() == kOneofBytes; }
+inline bool TestAllTypes::has_oneof_bytes() const
+{
+	return _internal_has_oneof_bytes();
 }
-inline bool TestAllTypes::has_oneof_bytes() const {
-  return _internal_has_oneof_bytes();
-}
-inline void TestAllTypes::set_has_oneof_bytes() {
-  _oneof_case_[0] = kOneofBytes;
-}
+inline void TestAllTypes::set_has_oneof_bytes() { _oneof_case_[0] = kOneofBytes; }
 inline void TestAllTypes::clear_oneof_bytes() {
   if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -24106,12 +23315,8 @@ inline void TestAllTypes::set_allocated_oneof_bytes(std::string* oneof_bytes) {
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.TestAllTypes.oneof_bytes)
 }
 
-inline bool TestAllTypes::has_oneof_field() const {
-  return oneof_field_case() != ONEOF_FIELD_NOT_SET;
-}
-inline void TestAllTypes::clear_has_oneof_field() {
-  _oneof_case_[0] = ONEOF_FIELD_NOT_SET;
-}
+inline bool TestAllTypes::has_oneof_field() const { return oneof_field_case() != ONEOF_FIELD_NOT_SET; }
+inline void TestAllTypes::clear_has_oneof_field() { _oneof_case_[0] = ONEOF_FIELD_NOT_SET; }
 inline TestAllTypes::OneofFieldCase TestAllTypes::oneof_field_case() const { return TestAllTypes::OneofFieldCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -24121,10 +23326,10 @@ inline TestAllTypes::OneofFieldCase TestAllTypes::oneof_field_case() const { ret
 inline bool NestedTestAllTypes::_internal_has_child() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || child_ != nullptr);
-  return value;
+	return value;
 }
 inline bool NestedTestAllTypes::has_child() const {
-  return _internal_has_child();
+	return _internal_has_child();
 }
 inline void NestedTestAllTypes::clear_child() {
   if(child_ != nullptr) child_->Clear();
@@ -24210,10 +23415,10 @@ inline void NestedTestAllTypes::set_allocated_child(::protobuf_unittest::NestedT
 inline bool NestedTestAllTypes::_internal_has_payload() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || payload_ != nullptr);
-  return value;
+	return value;
 }
 inline bool NestedTestAllTypes::has_payload() const {
-  return _internal_has_payload();
+	return _internal_has_payload();
 }
 inline void NestedTestAllTypes::clear_payload() {
   if(payload_ != nullptr) payload_->Clear();
@@ -24297,8 +23502,9 @@ inline void NestedTestAllTypes::set_allocated_payload(::protobuf_unittest::TestA
 
 // repeated .protobuf_unittest.NestedTestAllTypes repeated_child = 3;
 inline int NestedTestAllTypes::_internal_repeated_child_size() const { return repeated_child_.size(); }
-inline int NestedTestAllTypes::repeated_child_size() const {
-  return _internal_repeated_child_size();
+inline int NestedTestAllTypes::repeated_child_size() const
+{
+	return _internal_repeated_child_size();
 }
 inline void NestedTestAllTypes::clear_repeated_child() {
   repeated_child_.Clear();
@@ -24338,10 +23544,10 @@ NestedTestAllTypes::repeated_child() const {
 // optional int32 deprecated_int32 = 1 [deprecated = true];
 inline bool TestDeprecatedFields::_internal_has_deprecated_int32() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDeprecatedFields::has_deprecated_int32() const {
-  return _internal_has_deprecated_int32();
+	return _internal_has_deprecated_int32();
 }
 inline void TestDeprecatedFields::clear_deprecated_int32() {
   deprecated_int32_ = 0;
@@ -24362,15 +23568,12 @@ inline void TestDeprecatedFields::set_deprecated_int32(int32_t value) {
 }
 
 // int32 deprecated_int32_in_oneof = 2 [deprecated = true];
-inline bool TestDeprecatedFields::_internal_has_deprecated_int32_in_oneof() const {
-  return oneof_fields_case() == kDeprecatedInt32InOneof;
+inline bool TestDeprecatedFields::_internal_has_deprecated_int32_in_oneof() const { return oneof_fields_case() == kDeprecatedInt32InOneof; }
+inline bool TestDeprecatedFields::has_deprecated_int32_in_oneof() const
+{
+	return _internal_has_deprecated_int32_in_oneof();
 }
-inline bool TestDeprecatedFields::has_deprecated_int32_in_oneof() const {
-  return _internal_has_deprecated_int32_in_oneof();
-}
-inline void TestDeprecatedFields::set_has_deprecated_int32_in_oneof() {
-  _oneof_case_[0] = kDeprecatedInt32InOneof;
-}
+inline void TestDeprecatedFields::set_has_deprecated_int32_in_oneof() { _oneof_case_[0] = kDeprecatedInt32InOneof; }
 inline void TestDeprecatedFields::clear_deprecated_int32_in_oneof() {
   if(_internal_has_deprecated_int32_in_oneof()) {
     oneof_fields_.deprecated_int32_in_oneof_ = 0;
@@ -24396,12 +23599,8 @@ inline void TestDeprecatedFields::set_deprecated_int32_in_oneof(int32_t value) {
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestDeprecatedFields.deprecated_int32_in_oneof)
 }
 
-inline bool TestDeprecatedFields::has_oneof_fields() const {
-  return oneof_fields_case() != ONEOF_FIELDS_NOT_SET;
-}
-inline void TestDeprecatedFields::clear_has_oneof_fields() {
-  _oneof_case_[0] = ONEOF_FIELDS_NOT_SET;
-}
+inline bool TestDeprecatedFields::has_oneof_fields() const { return oneof_fields_case() != ONEOF_FIELDS_NOT_SET; }
+inline void TestDeprecatedFields::clear_has_oneof_fields() { _oneof_case_[0] = ONEOF_FIELDS_NOT_SET; }
 inline TestDeprecatedFields::OneofFieldsCase TestDeprecatedFields::oneof_fields_case() const { return TestDeprecatedFields::OneofFieldsCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -24414,10 +23613,10 @@ inline TestDeprecatedFields::OneofFieldsCase TestDeprecatedFields::oneof_fields_
 // optional int32 c = 1;
 inline bool ForeignMessage::_internal_has_c() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool ForeignMessage::has_c() const {
-  return _internal_has_c();
+	return _internal_has_c();
 }
 inline void ForeignMessage::clear_c() {
   c_ = 0;
@@ -24440,10 +23639,10 @@ inline void ForeignMessage::set_c(int32_t value) {
 // optional int32 d = 2;
 inline bool ForeignMessage::_internal_has_d() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool ForeignMessage::has_d() const {
-  return _internal_has_d();
+	return _internal_has_d();
 }
 inline void ForeignMessage::clear_d() {
   d_ = 0;
@@ -24478,10 +23677,10 @@ inline void ForeignMessage::set_d(int32_t value) {
 // optional int32 a = 17;
 inline bool OptionalGroup_extension::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool OptionalGroup_extension::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void OptionalGroup_extension::clear_a() {
   a_ = 0;
@@ -24508,10 +23707,10 @@ inline void OptionalGroup_extension::set_a(int32_t value) {
 // optional int32 a = 47;
 inline bool RepeatedGroup_extension::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool RepeatedGroup_extension::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void RepeatedGroup_extension::clear_a() {
   a_ = 0;
@@ -24538,10 +23737,10 @@ inline void RepeatedGroup_extension::set_a(int32_t value) {
 // optional int32 a = 17;
 inline bool TestGroup_OptionalGroup::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestGroup_OptionalGroup::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestGroup_OptionalGroup::clear_a() {
   a_ = 0;
@@ -24569,10 +23768,10 @@ inline void TestGroup_OptionalGroup::set_a(int32_t value) {
 inline bool TestGroup::_internal_has_optionalgroup() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || optionalgroup_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestGroup::has_optionalgroup() const {
-  return _internal_has_optionalgroup();
+	return _internal_has_optionalgroup();
 }
 inline void TestGroup::clear_optionalgroup() {
   if(optionalgroup_ != nullptr) optionalgroup_->Clear();
@@ -24657,10 +23856,10 @@ inline void TestGroup::set_allocated_optionalgroup(::protobuf_unittest::TestGrou
 // optional .protobuf_unittest.ForeignEnum optional_foreign_enum = 22;
 inline bool TestGroup::_internal_has_optional_foreign_enum() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestGroup::has_optional_foreign_enum() const {
-  return _internal_has_optional_foreign_enum();
+	return _internal_has_optional_foreign_enum();
 }
 inline void TestGroup::clear_optional_foreign_enum() {
   optional_foreign_enum_ = 4;
@@ -24692,10 +23891,10 @@ inline void TestGroup::set_optional_foreign_enum(::protobuf_unittest::ForeignEnu
 // optional int32 a = 17;
 inline bool TestNestedExtension_OptionalGroup_extension::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestNestedExtension_OptionalGroup_extension::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestNestedExtension_OptionalGroup_extension::clear_a() {
   a_ = 0;
@@ -24726,10 +23925,10 @@ inline void TestNestedExtension_OptionalGroup_extension::set_a(int32_t value) {
 // optional string a = 1;
 inline bool TestChildExtension::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestChildExtension::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestChildExtension::clear_a() {
   a_.ClearToEmpty();
@@ -24790,10 +23989,10 @@ inline void TestChildExtension::set_allocated_a(std::string* a) {
 // optional string b = 2;
 inline bool TestChildExtension::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestChildExtension::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestChildExtension::clear_b() {
   b_.ClearToEmpty();
@@ -24855,10 +24054,10 @@ inline void TestChildExtension::set_allocated_b(std::string* b) {
 inline bool TestChildExtension::_internal_has_optional_extension() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
   PROTOBUF_ASSUME(!value || optional_extension_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestChildExtension::has_optional_extension() const {
-  return _internal_has_optional_extension();
+	return _internal_has_optional_extension();
 }
 inline void TestChildExtension::clear_optional_extension() {
   if(optional_extension_ != nullptr) optional_extension_->Clear();
@@ -24947,10 +24146,10 @@ inline void TestChildExtension::set_allocated_optional_extension(::protobuf_unit
 // required int32 a = 1;
 inline bool TestRequired::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestRequired::clear_a() {
   a_ = 0;
@@ -24973,10 +24172,10 @@ inline void TestRequired::set_a(int32_t value) {
 // optional int32 dummy2 = 2;
 inline bool TestRequired::_internal_has_dummy2() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy2() const {
-  return _internal_has_dummy2();
+	return _internal_has_dummy2();
 }
 inline void TestRequired::clear_dummy2() {
   dummy2_ = 0;
@@ -24999,10 +24198,10 @@ inline void TestRequired::set_dummy2(int32_t value) {
 // required int32 b = 3;
 inline bool TestRequired::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestRequired::clear_b() {
   b_ = 0;
@@ -25025,10 +24224,10 @@ inline void TestRequired::set_b(int32_t value) {
 // optional int32 dummy4 = 4;
 inline bool TestRequired::_internal_has_dummy4() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy4() const {
-  return _internal_has_dummy4();
+	return _internal_has_dummy4();
 }
 inline void TestRequired::clear_dummy4() {
   dummy4_ = 0;
@@ -25051,10 +24250,10 @@ inline void TestRequired::set_dummy4(int32_t value) {
 // optional int32 dummy5 = 5;
 inline bool TestRequired::_internal_has_dummy5() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy5() const {
-  return _internal_has_dummy5();
+	return _internal_has_dummy5();
 }
 inline void TestRequired::clear_dummy5() {
   dummy5_ = 0;
@@ -25077,10 +24276,10 @@ inline void TestRequired::set_dummy5(int32_t value) {
 // optional int32 dummy6 = 6;
 inline bool TestRequired::_internal_has_dummy6() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy6() const {
-  return _internal_has_dummy6();
+	return _internal_has_dummy6();
 }
 inline void TestRequired::clear_dummy6() {
   dummy6_ = 0;
@@ -25103,10 +24302,10 @@ inline void TestRequired::set_dummy6(int32_t value) {
 // optional int32 dummy7 = 7;
 inline bool TestRequired::_internal_has_dummy7() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy7() const {
-  return _internal_has_dummy7();
+	return _internal_has_dummy7();
 }
 inline void TestRequired::clear_dummy7() {
   dummy7_ = 0;
@@ -25129,10 +24328,10 @@ inline void TestRequired::set_dummy7(int32_t value) {
 // optional int32 dummy8 = 8;
 inline bool TestRequired::_internal_has_dummy8() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy8() const {
-  return _internal_has_dummy8();
+	return _internal_has_dummy8();
 }
 inline void TestRequired::clear_dummy8() {
   dummy8_ = 0;
@@ -25155,10 +24354,10 @@ inline void TestRequired::set_dummy8(int32_t value) {
 // optional int32 dummy9 = 9;
 inline bool TestRequired::_internal_has_dummy9() const {
   bool value = (_has_bits_[0] & 0x00000100u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy9() const {
-  return _internal_has_dummy9();
+	return _internal_has_dummy9();
 }
 inline void TestRequired::clear_dummy9() {
   dummy9_ = 0;
@@ -25181,10 +24380,10 @@ inline void TestRequired::set_dummy9(int32_t value) {
 // optional int32 dummy10 = 10;
 inline bool TestRequired::_internal_has_dummy10() const {
   bool value = (_has_bits_[0] & 0x00000200u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy10() const {
-  return _internal_has_dummy10();
+	return _internal_has_dummy10();
 }
 inline void TestRequired::clear_dummy10() {
   dummy10_ = 0;
@@ -25207,10 +24406,10 @@ inline void TestRequired::set_dummy10(int32_t value) {
 // optional int32 dummy11 = 11;
 inline bool TestRequired::_internal_has_dummy11() const {
   bool value = (_has_bits_[0] & 0x00000400u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy11() const {
-  return _internal_has_dummy11();
+	return _internal_has_dummy11();
 }
 inline void TestRequired::clear_dummy11() {
   dummy11_ = 0;
@@ -25233,10 +24432,10 @@ inline void TestRequired::set_dummy11(int32_t value) {
 // optional int32 dummy12 = 12;
 inline bool TestRequired::_internal_has_dummy12() const {
   bool value = (_has_bits_[0] & 0x00000800u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy12() const {
-  return _internal_has_dummy12();
+	return _internal_has_dummy12();
 }
 inline void TestRequired::clear_dummy12() {
   dummy12_ = 0;
@@ -25259,10 +24458,10 @@ inline void TestRequired::set_dummy12(int32_t value) {
 // optional int32 dummy13 = 13;
 inline bool TestRequired::_internal_has_dummy13() const {
   bool value = (_has_bits_[0] & 0x00001000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy13() const {
-  return _internal_has_dummy13();
+	return _internal_has_dummy13();
 }
 inline void TestRequired::clear_dummy13() {
   dummy13_ = 0;
@@ -25285,10 +24484,10 @@ inline void TestRequired::set_dummy13(int32_t value) {
 // optional int32 dummy14 = 14;
 inline bool TestRequired::_internal_has_dummy14() const {
   bool value = (_has_bits_[0] & 0x00002000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy14() const {
-  return _internal_has_dummy14();
+	return _internal_has_dummy14();
 }
 inline void TestRequired::clear_dummy14() {
   dummy14_ = 0;
@@ -25311,10 +24510,10 @@ inline void TestRequired::set_dummy14(int32_t value) {
 // optional int32 dummy15 = 15;
 inline bool TestRequired::_internal_has_dummy15() const {
   bool value = (_has_bits_[0] & 0x00004000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy15() const {
-  return _internal_has_dummy15();
+	return _internal_has_dummy15();
 }
 inline void TestRequired::clear_dummy15() {
   dummy15_ = 0;
@@ -25337,10 +24536,10 @@ inline void TestRequired::set_dummy15(int32_t value) {
 // optional int32 dummy16 = 16;
 inline bool TestRequired::_internal_has_dummy16() const {
   bool value = (_has_bits_[0] & 0x00008000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy16() const {
-  return _internal_has_dummy16();
+	return _internal_has_dummy16();
 }
 inline void TestRequired::clear_dummy16() {
   dummy16_ = 0;
@@ -25363,10 +24562,10 @@ inline void TestRequired::set_dummy16(int32_t value) {
 // optional int32 dummy17 = 17;
 inline bool TestRequired::_internal_has_dummy17() const {
   bool value = (_has_bits_[0] & 0x00010000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy17() const {
-  return _internal_has_dummy17();
+	return _internal_has_dummy17();
 }
 inline void TestRequired::clear_dummy17() {
   dummy17_ = 0;
@@ -25389,10 +24588,10 @@ inline void TestRequired::set_dummy17(int32_t value) {
 // optional int32 dummy18 = 18;
 inline bool TestRequired::_internal_has_dummy18() const {
   bool value = (_has_bits_[0] & 0x00020000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy18() const {
-  return _internal_has_dummy18();
+	return _internal_has_dummy18();
 }
 inline void TestRequired::clear_dummy18() {
   dummy18_ = 0;
@@ -25415,10 +24614,10 @@ inline void TestRequired::set_dummy18(int32_t value) {
 // optional int32 dummy19 = 19;
 inline bool TestRequired::_internal_has_dummy19() const {
   bool value = (_has_bits_[0] & 0x00040000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy19() const {
-  return _internal_has_dummy19();
+	return _internal_has_dummy19();
 }
 inline void TestRequired::clear_dummy19() {
   dummy19_ = 0;
@@ -25441,10 +24640,10 @@ inline void TestRequired::set_dummy19(int32_t value) {
 // optional int32 dummy20 = 20;
 inline bool TestRequired::_internal_has_dummy20() const {
   bool value = (_has_bits_[0] & 0x00080000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy20() const {
-  return _internal_has_dummy20();
+	return _internal_has_dummy20();
 }
 inline void TestRequired::clear_dummy20() {
   dummy20_ = 0;
@@ -25467,10 +24666,10 @@ inline void TestRequired::set_dummy20(int32_t value) {
 // optional int32 dummy21 = 21;
 inline bool TestRequired::_internal_has_dummy21() const {
   bool value = (_has_bits_[0] & 0x00100000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy21() const {
-  return _internal_has_dummy21();
+	return _internal_has_dummy21();
 }
 inline void TestRequired::clear_dummy21() {
   dummy21_ = 0;
@@ -25493,10 +24692,10 @@ inline void TestRequired::set_dummy21(int32_t value) {
 // optional int32 dummy22 = 22;
 inline bool TestRequired::_internal_has_dummy22() const {
   bool value = (_has_bits_[0] & 0x00200000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy22() const {
-  return _internal_has_dummy22();
+	return _internal_has_dummy22();
 }
 inline void TestRequired::clear_dummy22() {
   dummy22_ = 0;
@@ -25519,10 +24718,10 @@ inline void TestRequired::set_dummy22(int32_t value) {
 // optional int32 dummy23 = 23;
 inline bool TestRequired::_internal_has_dummy23() const {
   bool value = (_has_bits_[0] & 0x00400000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy23() const {
-  return _internal_has_dummy23();
+	return _internal_has_dummy23();
 }
 inline void TestRequired::clear_dummy23() {
   dummy23_ = 0;
@@ -25545,10 +24744,10 @@ inline void TestRequired::set_dummy23(int32_t value) {
 // optional int32 dummy24 = 24;
 inline bool TestRequired::_internal_has_dummy24() const {
   bool value = (_has_bits_[0] & 0x00800000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy24() const {
-  return _internal_has_dummy24();
+	return _internal_has_dummy24();
 }
 inline void TestRequired::clear_dummy24() {
   dummy24_ = 0;
@@ -25571,10 +24770,10 @@ inline void TestRequired::set_dummy24(int32_t value) {
 // optional int32 dummy25 = 25;
 inline bool TestRequired::_internal_has_dummy25() const {
   bool value = (_has_bits_[0] & 0x01000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy25() const {
-  return _internal_has_dummy25();
+	return _internal_has_dummy25();
 }
 inline void TestRequired::clear_dummy25() {
   dummy25_ = 0;
@@ -25597,10 +24796,10 @@ inline void TestRequired::set_dummy25(int32_t value) {
 // optional int32 dummy26 = 26;
 inline bool TestRequired::_internal_has_dummy26() const {
   bool value = (_has_bits_[0] & 0x02000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy26() const {
-  return _internal_has_dummy26();
+	return _internal_has_dummy26();
 }
 inline void TestRequired::clear_dummy26() {
   dummy26_ = 0;
@@ -25623,10 +24822,10 @@ inline void TestRequired::set_dummy26(int32_t value) {
 // optional int32 dummy27 = 27;
 inline bool TestRequired::_internal_has_dummy27() const {
   bool value = (_has_bits_[0] & 0x04000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy27() const {
-  return _internal_has_dummy27();
+	return _internal_has_dummy27();
 }
 inline void TestRequired::clear_dummy27() {
   dummy27_ = 0;
@@ -25649,10 +24848,10 @@ inline void TestRequired::set_dummy27(int32_t value) {
 // optional int32 dummy28 = 28;
 inline bool TestRequired::_internal_has_dummy28() const {
   bool value = (_has_bits_[0] & 0x08000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy28() const {
-  return _internal_has_dummy28();
+	return _internal_has_dummy28();
 }
 inline void TestRequired::clear_dummy28() {
   dummy28_ = 0;
@@ -25675,10 +24874,10 @@ inline void TestRequired::set_dummy28(int32_t value) {
 // optional int32 dummy29 = 29;
 inline bool TestRequired::_internal_has_dummy29() const {
   bool value = (_has_bits_[0] & 0x10000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy29() const {
-  return _internal_has_dummy29();
+	return _internal_has_dummy29();
 }
 inline void TestRequired::clear_dummy29() {
   dummy29_ = 0;
@@ -25701,10 +24900,10 @@ inline void TestRequired::set_dummy29(int32_t value) {
 // optional int32 dummy30 = 30;
 inline bool TestRequired::_internal_has_dummy30() const {
   bool value = (_has_bits_[0] & 0x20000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy30() const {
-  return _internal_has_dummy30();
+	return _internal_has_dummy30();
 }
 inline void TestRequired::clear_dummy30() {
   dummy30_ = 0;
@@ -25727,10 +24926,10 @@ inline void TestRequired::set_dummy30(int32_t value) {
 // optional int32 dummy31 = 31;
 inline bool TestRequired::_internal_has_dummy31() const {
   bool value = (_has_bits_[0] & 0x40000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy31() const {
-  return _internal_has_dummy31();
+	return _internal_has_dummy31();
 }
 inline void TestRequired::clear_dummy31() {
   dummy31_ = 0;
@@ -25753,10 +24952,10 @@ inline void TestRequired::set_dummy31(int32_t value) {
 // optional int32 dummy32 = 32;
 inline bool TestRequired::_internal_has_dummy32() const {
   bool value = (_has_bits_[0] & 0x80000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_dummy32() const {
-  return _internal_has_dummy32();
+	return _internal_has_dummy32();
 }
 inline void TestRequired::clear_dummy32() {
   dummy32_ = 0;
@@ -25779,10 +24978,10 @@ inline void TestRequired::set_dummy32(int32_t value) {
 // required int32 c = 33;
 inline bool TestRequired::_internal_has_c() const {
   bool value = (_has_bits_[1] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequired::has_c() const {
-  return _internal_has_c();
+	return _internal_has_c();
 }
 inline void TestRequired::clear_c() {
   c_ = 0;
@@ -25810,10 +25009,10 @@ inline void TestRequired::set_c(int32_t value) {
 inline bool TestRequiredForeign::_internal_has_optional_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || optional_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestRequiredForeign::has_optional_message() const {
-  return _internal_has_optional_message();
+	return _internal_has_optional_message();
 }
 inline void TestRequiredForeign::clear_optional_message() {
   if(optional_message_ != nullptr) optional_message_->Clear();
@@ -25897,8 +25096,9 @@ inline void TestRequiredForeign::set_allocated_optional_message(::protobuf_unitt
 
 // repeated .protobuf_unittest.TestRequired repeated_message = 2;
 inline int TestRequiredForeign::_internal_repeated_message_size() const { return repeated_message_.size(); }
-inline int TestRequiredForeign::repeated_message_size() const {
-  return _internal_repeated_message_size();
+inline int TestRequiredForeign::repeated_message_size() const
+{
+	return _internal_repeated_message_size();
 }
 inline void TestRequiredForeign::clear_repeated_message() {
   repeated_message_.Clear();
@@ -25934,10 +25134,10 @@ TestRequiredForeign::repeated_message() const {
 // optional int32 dummy = 3;
 inline bool TestRequiredForeign::_internal_has_dummy() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequiredForeign::has_dummy() const {
-  return _internal_has_dummy();
+	return _internal_has_dummy();
 }
 inline void TestRequiredForeign::clear_dummy() {
   dummy_ = 0;
@@ -25965,10 +25165,10 @@ inline void TestRequiredForeign::set_dummy(int32_t value) {
 inline bool TestRequiredMessage::_internal_has_optional_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || optional_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestRequiredMessage::has_optional_message() const {
-  return _internal_has_optional_message();
+	return _internal_has_optional_message();
 }
 inline void TestRequiredMessage::clear_optional_message() {
   if(optional_message_ != nullptr) optional_message_->Clear();
@@ -26052,8 +25252,9 @@ inline void TestRequiredMessage::set_allocated_optional_message(::protobuf_unitt
 
 // repeated .protobuf_unittest.TestRequired repeated_message = 2;
 inline int TestRequiredMessage::_internal_repeated_message_size() const { return repeated_message_.size(); }
-inline int TestRequiredMessage::repeated_message_size() const {
-  return _internal_repeated_message_size();
+inline int TestRequiredMessage::repeated_message_size() const
+{
+	return _internal_repeated_message_size();
 }
 inline void TestRequiredMessage::clear_repeated_message() {
   repeated_message_.Clear();
@@ -26090,10 +25291,10 @@ TestRequiredMessage::repeated_message() const {
 inline bool TestRequiredMessage::_internal_has_required_message() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || required_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestRequiredMessage::has_required_message() const {
-  return _internal_has_required_message();
+	return _internal_has_required_message();
 }
 inline void TestRequiredMessage::clear_required_message() {
   if(required_message_ != nullptr) required_message_->Clear();
@@ -26183,10 +25384,10 @@ inline void TestRequiredMessage::set_allocated_required_message(::protobuf_unitt
 inline bool TestForeignNested::_internal_has_foreign_nested() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || foreign_nested_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestForeignNested::has_foreign_nested() const {
-  return _internal_has_foreign_nested();
+	return _internal_has_foreign_nested();
 }
 inline void TestForeignNested::clear_foreign_nested() {
   if(foreign_nested_ != nullptr) foreign_nested_->Clear();
@@ -26283,10 +25484,10 @@ inline void TestForeignNested::set_allocated_foreign_nested(::protobuf_unittest:
 // optional int32 cc = 1;
 inline bool TestPickleNestedMessage_NestedMessage_NestedNestedMessage::_internal_has_cc() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPickleNestedMessage_NestedMessage_NestedNestedMessage::has_cc() const {
-  return _internal_has_cc();
+	return _internal_has_cc();
 }
 inline void TestPickleNestedMessage_NestedMessage_NestedNestedMessage::clear_cc() {
   cc_ = 0;
@@ -26313,10 +25514,10 @@ inline void TestPickleNestedMessage_NestedMessage_NestedNestedMessage::set_cc(in
 // optional int32 bb = 1;
 inline bool TestPickleNestedMessage_NestedMessage::_internal_has_bb() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPickleNestedMessage_NestedMessage::has_bb() const {
-  return _internal_has_bb();
+	return _internal_has_bb();
 }
 inline void TestPickleNestedMessage_NestedMessage::clear_bb() {
   bb_ = 0;
@@ -26351,10 +25552,10 @@ inline void TestPickleNestedMessage_NestedMessage::set_bb(int32_t value) {
 // optional int32 a = 1;
 inline bool TestReallyLargeTagNumber::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestReallyLargeTagNumber::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestReallyLargeTagNumber::clear_a() {
   a_ = 0;
@@ -26377,10 +25578,10 @@ inline void TestReallyLargeTagNumber::set_a(int32_t value) {
 // optional int32 bb = 268435455;
 inline bool TestReallyLargeTagNumber::_internal_has_bb() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestReallyLargeTagNumber::has_bb() const {
-  return _internal_has_bb();
+	return _internal_has_bb();
 }
 inline void TestReallyLargeTagNumber::clear_bb() {
   bb_ = 0;
@@ -26408,10 +25609,10 @@ inline void TestReallyLargeTagNumber::set_bb(int32_t value) {
 inline bool TestRecursiveMessage::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || a_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestRecursiveMessage::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestRecursiveMessage::clear_a() {
   if(a_ != nullptr) a_->Clear();
@@ -26496,10 +25697,10 @@ inline void TestRecursiveMessage::set_allocated_a(::protobuf_unittest::TestRecur
 // optional int32 i = 2;
 inline bool TestRecursiveMessage::_internal_has_i() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRecursiveMessage::has_i() const {
-  return _internal_has_i();
+	return _internal_has_i();
 }
 inline void TestRecursiveMessage::clear_i() {
   i_ = 0;
@@ -26527,10 +25728,10 @@ inline void TestRecursiveMessage::set_i(int32_t value) {
 inline bool TestMutualRecursionA_SubMessage::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || b_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestMutualRecursionA_SubMessage::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestMutualRecursionA_SubMessage::clear_b() {
   if(b_ != nullptr) b_->Clear();
@@ -26620,10 +25821,10 @@ inline void TestMutualRecursionA_SubMessage::set_allocated_b(::protobuf_unittest
 inline bool TestMutualRecursionA_SubGroup::_internal_has_sub_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || sub_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestMutualRecursionA_SubGroup::has_sub_message() const {
-  return _internal_has_sub_message();
+	return _internal_has_sub_message();
 }
 inline void TestMutualRecursionA_SubGroup::clear_sub_message() {
   if(sub_message_ != nullptr) sub_message_->Clear();
@@ -26709,10 +25910,10 @@ inline void TestMutualRecursionA_SubGroup::set_allocated_sub_message(::protobuf_
 inline bool TestMutualRecursionA_SubGroup::_internal_has_not_in_this_scc() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || not_in_this_scc_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestMutualRecursionA_SubGroup::has_not_in_this_scc() const {
-  return _internal_has_not_in_this_scc();
+	return _internal_has_not_in_this_scc();
 }
 inline void TestMutualRecursionA_SubGroup::clear_not_in_this_scc() {
   if(not_in_this_scc_ != nullptr) not_in_this_scc_->Clear();
@@ -26802,10 +26003,10 @@ inline void TestMutualRecursionA_SubGroup::set_allocated_not_in_this_scc(::proto
 inline bool TestMutualRecursionA::_internal_has_bb() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || bb_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestMutualRecursionA::has_bb() const {
-  return _internal_has_bb();
+	return _internal_has_bb();
 }
 inline void TestMutualRecursionA::clear_bb() {
   if(bb_ != nullptr) bb_->Clear();
@@ -26891,10 +26092,10 @@ inline void TestMutualRecursionA::set_allocated_bb(::protobuf_unittest::TestMutu
 inline bool TestMutualRecursionA::_internal_has_subgroup() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || subgroup_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestMutualRecursionA::has_subgroup() const {
-  return _internal_has_subgroup();
+	return _internal_has_subgroup();
 }
 inline void TestMutualRecursionA::clear_subgroup() {
   if(subgroup_ != nullptr) subgroup_->Clear();
@@ -26984,10 +26185,10 @@ inline void TestMutualRecursionA::set_allocated_subgroup(::protobuf_unittest::Te
 inline bool TestMutualRecursionB::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || a_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestMutualRecursionB::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestMutualRecursionB::clear_a() {
   if(a_ != nullptr) a_->Clear();
@@ -27072,10 +26273,10 @@ inline void TestMutualRecursionB::set_allocated_a(::protobuf_unittest::TestMutua
 // optional int32 optional_int32 = 2;
 inline bool TestMutualRecursionB::_internal_has_optional_int32() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestMutualRecursionB::has_optional_int32() const {
-  return _internal_has_optional_int32();
+	return _internal_has_optional_int32();
 }
 inline void TestMutualRecursionB::clear_optional_int32() {
   optional_int32_ = 0;
@@ -27102,10 +26303,10 @@ inline void TestMutualRecursionB::set_optional_int32(int32_t value) {
 // required int32 i = 2;
 inline bool TestIsInitialized_SubMessage_SubGroup::_internal_has_i() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestIsInitialized_SubMessage_SubGroup::has_i() const {
-  return _internal_has_i();
+	return _internal_has_i();
 }
 inline void TestIsInitialized_SubMessage_SubGroup::clear_i() {
   i_ = 0;
@@ -27133,10 +26334,10 @@ inline void TestIsInitialized_SubMessage_SubGroup::set_i(int32_t value) {
 inline bool TestIsInitialized_SubMessage::_internal_has_subgroup() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || subgroup_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestIsInitialized_SubMessage::has_subgroup() const {
-  return _internal_has_subgroup();
+	return _internal_has_subgroup();
 }
 inline void TestIsInitialized_SubMessage::clear_subgroup() {
   if(subgroup_ != nullptr) subgroup_->Clear();
@@ -27226,10 +26427,10 @@ inline void TestIsInitialized_SubMessage::set_allocated_subgroup(::protobuf_unit
 inline bool TestIsInitialized::_internal_has_sub_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || sub_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestIsInitialized::has_sub_message() const {
-  return _internal_has_sub_message();
+	return _internal_has_sub_message();
 }
 inline void TestIsInitialized::clear_sub_message() {
   if(sub_message_ != nullptr) sub_message_->Clear();
@@ -27318,10 +26519,10 @@ inline void TestIsInitialized::set_allocated_sub_message(::protobuf_unittest::Te
 // optional int32 a = 1;
 inline bool TestDupFieldNumber_Foo::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDupFieldNumber_Foo::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestDupFieldNumber_Foo::clear_a() {
   a_ = 0;
@@ -27348,10 +26549,10 @@ inline void TestDupFieldNumber_Foo::set_a(int32_t value) {
 // optional int32 a = 1;
 inline bool TestDupFieldNumber_Bar::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDupFieldNumber_Bar::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestDupFieldNumber_Bar::clear_a() {
   a_ = 0;
@@ -27378,10 +26579,10 @@ inline void TestDupFieldNumber_Bar::set_a(int32_t value) {
 // optional int32 a = 1;
 inline bool TestDupFieldNumber::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDupFieldNumber::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestDupFieldNumber::clear_a() {
   a_ = 0;
@@ -27405,10 +26606,10 @@ inline void TestDupFieldNumber::set_a(int32_t value) {
 inline bool TestDupFieldNumber::_internal_has_foo() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || foo_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestDupFieldNumber::has_foo() const {
-  return _internal_has_foo();
+	return _internal_has_foo();
 }
 inline void TestDupFieldNumber::clear_foo() {
   if(foo_ != nullptr) foo_->Clear();
@@ -27494,10 +26695,10 @@ inline void TestDupFieldNumber::set_allocated_foo(::protobuf_unittest::TestDupFi
 inline bool TestDupFieldNumber::_internal_has_bar() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || bar_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestDupFieldNumber::has_bar() const {
-  return _internal_has_bar();
+	return _internal_has_bar();
 }
 inline void TestDupFieldNumber::clear_bar() {
   if(bar_ != nullptr) bar_->Clear();
@@ -27587,10 +26788,10 @@ inline void TestDupFieldNumber::set_allocated_bar(::protobuf_unittest::TestDupFi
 inline bool TestEagerMessage::_internal_has_sub_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || sub_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestEagerMessage::has_sub_message() const {
-  return _internal_has_sub_message();
+	return _internal_has_sub_message();
 }
 inline void TestEagerMessage::clear_sub_message() {
   if(sub_message_ != nullptr) sub_message_->Clear();
@@ -27680,10 +26881,10 @@ inline void TestEagerMessage::set_allocated_sub_message(::protobuf_unittest::Tes
 inline bool TestLazyMessage::_internal_has_sub_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || sub_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestLazyMessage::has_sub_message() const {
-  return _internal_has_sub_message();
+	return _internal_has_sub_message();
 }
 inline void TestLazyMessage::clear_sub_message() {
   if(sub_message_ != nullptr) sub_message_->Clear();
@@ -27771,8 +26972,9 @@ inline void TestLazyMessage::set_allocated_sub_message(::protobuf_unittest::Test
 
 // repeated int32 nestedmessage_repeated_int32 = 1;
 inline int TestNestedMessageHasBits_NestedMessage::_internal_nestedmessage_repeated_int32_size() const { return nestedmessage_repeated_int32_.size(); }
-inline int TestNestedMessageHasBits_NestedMessage::nestedmessage_repeated_int32_size() const {
-  return _internal_nestedmessage_repeated_int32_size();
+inline int TestNestedMessageHasBits_NestedMessage::nestedmessage_repeated_int32_size() const
+{
+	return _internal_nestedmessage_repeated_int32_size();
 }
 inline void TestNestedMessageHasBits_NestedMessage::clear_nestedmessage_repeated_int32() {
   nestedmessage_repeated_int32_.Clear();
@@ -27810,8 +27012,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestNestedMessageHasB
 
 // repeated .protobuf_unittest.ForeignMessage nestedmessage_repeated_foreignmessage = 2;
 inline int TestNestedMessageHasBits_NestedMessage::_internal_nestedmessage_repeated_foreignmessage_size() const { return nestedmessage_repeated_foreignmessage_.size(); }
-inline int TestNestedMessageHasBits_NestedMessage::nestedmessage_repeated_foreignmessage_size() const {
-  return _internal_nestedmessage_repeated_foreignmessage_size();
+inline int TestNestedMessageHasBits_NestedMessage::nestedmessage_repeated_foreignmessage_size() const
+{
+	return _internal_nestedmessage_repeated_foreignmessage_size();
 }
 inline void TestNestedMessageHasBits_NestedMessage::clear_nestedmessage_repeated_foreignmessage() {
   nestedmessage_repeated_foreignmessage_.Clear();
@@ -27852,10 +27055,10 @@ TestNestedMessageHasBits_NestedMessage::nestedmessage_repeated_foreignmessage() 
 inline bool TestNestedMessageHasBits::_internal_has_optional_nested_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || optional_nested_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestNestedMessageHasBits::has_optional_nested_message() const {
-  return _internal_has_optional_nested_message();
+	return _internal_has_optional_nested_message();
 }
 inline void TestNestedMessageHasBits::clear_optional_nested_message() {
   if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
@@ -27944,10 +27147,10 @@ inline void TestNestedMessageHasBits::set_allocated_optional_nested_message(::pr
 // optional int32 PrimitiveField = 1;
 inline bool TestCamelCaseFieldNames::_internal_has_primitivefield() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestCamelCaseFieldNames::has_primitivefield() const {
-  return _internal_has_primitivefield();
+	return _internal_has_primitivefield();
 }
 inline void TestCamelCaseFieldNames::clear_primitivefield() {
   primitivefield_ = 0;
@@ -27970,10 +27173,10 @@ inline void TestCamelCaseFieldNames::set_primitivefield(int32_t value) {
 // optional string StringField = 2;
 inline bool TestCamelCaseFieldNames::_internal_has_stringfield() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestCamelCaseFieldNames::has_stringfield() const {
-  return _internal_has_stringfield();
+	return _internal_has_stringfield();
 }
 inline void TestCamelCaseFieldNames::clear_stringfield() {
   stringfield_.ClearToEmpty();
@@ -28034,10 +27237,10 @@ inline void TestCamelCaseFieldNames::set_allocated_stringfield(std::string* stri
 // optional .protobuf_unittest.ForeignEnum EnumField = 3;
 inline bool TestCamelCaseFieldNames::_internal_has_enumfield() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestCamelCaseFieldNames::has_enumfield() const {
-  return _internal_has_enumfield();
+	return _internal_has_enumfield();
 }
 inline void TestCamelCaseFieldNames::clear_enumfield() {
   enumfield_ = 4;
@@ -28062,10 +27265,10 @@ inline void TestCamelCaseFieldNames::set_enumfield(::protobuf_unittest::ForeignE
 inline bool TestCamelCaseFieldNames::_internal_has_messagefield() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
   PROTOBUF_ASSUME(!value || messagefield_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestCamelCaseFieldNames::has_messagefield() const {
-  return _internal_has_messagefield();
+	return _internal_has_messagefield();
 }
 inline void TestCamelCaseFieldNames::clear_messagefield() {
   if(messagefield_ != nullptr) messagefield_->Clear();
@@ -28150,10 +27353,10 @@ inline void TestCamelCaseFieldNames::set_allocated_messagefield(::protobuf_unitt
 // optional string StringPieceField = 5 [ctype = STRING_PIECE];
 inline bool TestCamelCaseFieldNames::_internal_has_stringpiecefield() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestCamelCaseFieldNames::has_stringpiecefield() const {
-  return _internal_has_stringpiecefield();
+	return _internal_has_stringpiecefield();
 }
 inline void TestCamelCaseFieldNames::clear_stringpiecefield() {
   stringpiecefield_.ClearToEmpty();
@@ -28214,10 +27417,10 @@ inline void TestCamelCaseFieldNames::set_allocated_stringpiecefield(std::string*
 // optional string CordField = 6 [ctype = CORD];
 inline bool TestCamelCaseFieldNames::_internal_has_cordfield() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestCamelCaseFieldNames::has_cordfield() const {
-  return _internal_has_cordfield();
+	return _internal_has_cordfield();
 }
 inline void TestCamelCaseFieldNames::clear_cordfield() {
   cordfield_.ClearToEmpty();
@@ -28277,8 +27480,9 @@ inline void TestCamelCaseFieldNames::set_allocated_cordfield(std::string* cordfi
 
 // repeated int32 RepeatedPrimitiveField = 7;
 inline int TestCamelCaseFieldNames::_internal_repeatedprimitivefield_size() const { return repeatedprimitivefield_.size(); }
-inline int TestCamelCaseFieldNames::repeatedprimitivefield_size() const {
-  return _internal_repeatedprimitivefield_size();
+inline int TestCamelCaseFieldNames::repeatedprimitivefield_size() const
+{
+	return _internal_repeatedprimitivefield_size();
 }
 inline void TestCamelCaseFieldNames::clear_repeatedprimitivefield() {
   repeatedprimitivefield_.Clear();
@@ -28316,8 +27520,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestCamelCaseFieldNam
 
 // repeated string RepeatedStringField = 8;
 inline int TestCamelCaseFieldNames::_internal_repeatedstringfield_size() const { return repeatedstringfield_.size(); }
-inline int TestCamelCaseFieldNames::repeatedstringfield_size() const {
-  return _internal_repeatedstringfield_size();
+inline int TestCamelCaseFieldNames::repeatedstringfield_size() const
+{
+	return _internal_repeatedstringfield_size();
 }
 inline void TestCamelCaseFieldNames::clear_repeatedstringfield() {
   repeatedstringfield_.Clear();
@@ -28384,47 +27589,55 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestCamelCaseFie
 
 // repeated .protobuf_unittest.ForeignEnum RepeatedEnumField = 9;
 inline int TestCamelCaseFieldNames::_internal_repeatedenumfield_size() const { return repeatedenumfield_.size(); }
-inline int TestCamelCaseFieldNames::repeatedenumfield_size() const {
-  return _internal_repeatedenumfield_size();
+inline int TestCamelCaseFieldNames::repeatedenumfield_size() const
+{
+	return _internal_repeatedenumfield_size();
 }
 inline void TestCamelCaseFieldNames::clear_repeatedenumfield() {
   repeatedenumfield_.Clear();
 }
 inline ::protobuf_unittest::ForeignEnum TestCamelCaseFieldNames::_internal_repeatedenumfield(int index) const { return static_cast< ::protobuf_unittest::ForeignEnum >(repeatedenumfield_.Get(index)); }
-inline ::protobuf_unittest::ForeignEnum TestCamelCaseFieldNames::repeatedenumfield(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestCamelCaseFieldNames.RepeatedEnumField)
-  return _internal_repeatedenumfield(index);
+inline ::protobuf_unittest::ForeignEnum TestCamelCaseFieldNames::repeatedenumfield(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestCamelCaseFieldNames.RepeatedEnumField)
+	return _internal_repeatedenumfield(index);
 }
-inline void TestCamelCaseFieldNames::set_repeatedenumfield(int index, ::protobuf_unittest::ForeignEnum value) {
-  assert(::protobuf_unittest::ForeignEnum_IsValid(value));
-  repeatedenumfield_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestCamelCaseFieldNames.RepeatedEnumField)
+inline void TestCamelCaseFieldNames::set_repeatedenumfield(int index, ::protobuf_unittest::ForeignEnum value)
+{
+	assert(::protobuf_unittest::ForeignEnum_IsValid(value));
+	repeatedenumfield_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestCamelCaseFieldNames.RepeatedEnumField)
 }
-inline void TestCamelCaseFieldNames::_internal_add_repeatedenumfield(::protobuf_unittest::ForeignEnum value) {
-  assert(::protobuf_unittest::ForeignEnum_IsValid(value));
-  repeatedenumfield_.Add(value);
+inline void TestCamelCaseFieldNames::_internal_add_repeatedenumfield(::protobuf_unittest::ForeignEnum value)
+{
+	assert(::protobuf_unittest::ForeignEnum_IsValid(value));
+	repeatedenumfield_.Add(value);
 }
-inline void TestCamelCaseFieldNames::add_repeatedenumfield(::protobuf_unittest::ForeignEnum value) {
-  _internal_add_repeatedenumfield(value);
-  // @@protoc_insertion_point(field_add:protobuf_unittest.TestCamelCaseFieldNames.RepeatedEnumField)
+inline void TestCamelCaseFieldNames::add_repeatedenumfield(::protobuf_unittest::ForeignEnum value)
+{
+	_internal_add_repeatedenumfield(value);
+	// @@protoc_insertion_point(field_add:protobuf_unittest.TestCamelCaseFieldNames.RepeatedEnumField)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestCamelCaseFieldNames::repeatedenumfield() const {
-  // @@protoc_insertion_point(field_list:protobuf_unittest.TestCamelCaseFieldNames.RepeatedEnumField)
-  return repeatedenumfield_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestCamelCaseFieldNames::repeatedenumfield() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_unittest.TestCamelCaseFieldNames.RepeatedEnumField)
+	return repeatedenumfield_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestCamelCaseFieldNames::_internal_mutable_repeatedenumfield() {
-  return &repeatedenumfield_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestCamelCaseFieldNames::_internal_mutable_repeatedenumfield()
+{
+	return &repeatedenumfield_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestCamelCaseFieldNames::mutable_repeatedenumfield() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestCamelCaseFieldNames.RepeatedEnumField)
-  return _internal_mutable_repeatedenumfield();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestCamelCaseFieldNames::mutable_repeatedenumfield()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestCamelCaseFieldNames.RepeatedEnumField)
+	return _internal_mutable_repeatedenumfield();
 }
 
 // repeated .protobuf_unittest.ForeignMessage RepeatedMessageField = 10;
 inline int TestCamelCaseFieldNames::_internal_repeatedmessagefield_size() const { return repeatedmessagefield_.size(); }
-inline int TestCamelCaseFieldNames::repeatedmessagefield_size() const {
-  return _internal_repeatedmessagefield_size();
+inline int TestCamelCaseFieldNames::repeatedmessagefield_size() const
+{
+	return _internal_repeatedmessagefield_size();
 }
 inline void TestCamelCaseFieldNames::clear_repeatedmessagefield() {
   repeatedmessagefield_.Clear();
@@ -28459,8 +27672,9 @@ TestCamelCaseFieldNames::repeatedmessagefield() const {
 
 // repeated string RepeatedStringPieceField = 11 [ctype = STRING_PIECE];
 inline int TestCamelCaseFieldNames::_internal_repeatedstringpiecefield_size() const { return repeatedstringpiecefield_.size(); }
-inline int TestCamelCaseFieldNames::repeatedstringpiecefield_size() const {
-  return _internal_repeatedstringpiecefield_size();
+inline int TestCamelCaseFieldNames::repeatedstringpiecefield_size() const
+{
+	return _internal_repeatedstringpiecefield_size();
 }
 inline void TestCamelCaseFieldNames::clear_repeatedstringpiecefield() {
   repeatedstringpiecefield_.Clear();
@@ -28527,8 +27741,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestCamelCaseFie
 
 // repeated string RepeatedCordField = 12 [ctype = CORD];
 inline int TestCamelCaseFieldNames::_internal_repeatedcordfield_size() const { return repeatedcordfield_.size(); }
-inline int TestCamelCaseFieldNames::repeatedcordfield_size() const {
-  return _internal_repeatedcordfield_size();
+inline int TestCamelCaseFieldNames::repeatedcordfield_size() const
+{
+	return _internal_repeatedcordfield_size();
 }
 inline void TestCamelCaseFieldNames::clear_repeatedcordfield() {
   repeatedcordfield_.Clear();
@@ -28600,10 +27815,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestCamelCaseFie
 // optional int64 oo = 2;
 inline bool TestFieldOrderings_NestedMessage::_internal_has_oo() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestFieldOrderings_NestedMessage::has_oo() const {
-  return _internal_has_oo();
+	return _internal_has_oo();
 }
 inline void TestFieldOrderings_NestedMessage::clear_oo() {
   oo_ = int64_t{0};
@@ -28626,10 +27841,10 @@ inline void TestFieldOrderings_NestedMessage::set_oo(int64_t value) {
 // optional int32 bb = 1;
 inline bool TestFieldOrderings_NestedMessage::_internal_has_bb() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestFieldOrderings_NestedMessage::has_bb() const {
-  return _internal_has_bb();
+	return _internal_has_bb();
 }
 inline void TestFieldOrderings_NestedMessage::clear_bb() {
   bb_ = 0;
@@ -28656,10 +27871,10 @@ inline void TestFieldOrderings_NestedMessage::set_bb(int32_t value) {
 // optional string my_string = 11;
 inline bool TestFieldOrderings::_internal_has_my_string() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestFieldOrderings::has_my_string() const {
-  return _internal_has_my_string();
+	return _internal_has_my_string();
 }
 inline void TestFieldOrderings::clear_my_string() {
   my_string_.ClearToEmpty();
@@ -28720,10 +27935,10 @@ inline void TestFieldOrderings::set_allocated_my_string(std::string* my_string) 
 // optional int64 my_int = 1;
 inline bool TestFieldOrderings::_internal_has_my_int() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestFieldOrderings::has_my_int() const {
-  return _internal_has_my_int();
+	return _internal_has_my_int();
 }
 inline void TestFieldOrderings::clear_my_int() {
   my_int_ = int64_t{0};
@@ -28746,10 +27961,10 @@ inline void TestFieldOrderings::set_my_int(int64_t value) {
 // optional float my_float = 101;
 inline bool TestFieldOrderings::_internal_has_my_float() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestFieldOrderings::has_my_float() const {
-  return _internal_has_my_float();
+	return _internal_has_my_float();
 }
 inline void TestFieldOrderings::clear_my_float() {
   my_float_ = 0;
@@ -28773,10 +27988,10 @@ inline void TestFieldOrderings::set_my_float(float value) {
 inline bool TestFieldOrderings::_internal_has_optional_nested_message() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || optional_nested_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestFieldOrderings::has_optional_nested_message() const {
-  return _internal_has_optional_nested_message();
+	return _internal_has_optional_nested_message();
 }
 inline void TestFieldOrderings::clear_optional_nested_message() {
   if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
@@ -28865,10 +28080,10 @@ inline void TestFieldOrderings::set_allocated_optional_nested_message(::protobuf
 // optional string my_string = 1;
 inline bool TestExtensionOrderings1::_internal_has_my_string() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionOrderings1::has_my_string() const {
-  return _internal_has_my_string();
+	return _internal_has_my_string();
 }
 inline void TestExtensionOrderings1::clear_my_string() {
   my_string_.ClearToEmpty();
@@ -28933,10 +28148,10 @@ inline void TestExtensionOrderings1::set_allocated_my_string(std::string* my_str
 // optional string my_string = 1;
 inline bool TestExtensionOrderings2_TestExtensionOrderings3::_internal_has_my_string() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionOrderings2_TestExtensionOrderings3::has_my_string() const {
-  return _internal_has_my_string();
+	return _internal_has_my_string();
 }
 inline void TestExtensionOrderings2_TestExtensionOrderings3::clear_my_string() {
   my_string_.ClearToEmpty();
@@ -29001,10 +28216,10 @@ inline void TestExtensionOrderings2_TestExtensionOrderings3::set_allocated_my_st
 // optional string my_string = 1;
 inline bool TestExtensionOrderings2::_internal_has_my_string() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionOrderings2::has_my_string() const {
-  return _internal_has_my_string();
+	return _internal_has_my_string();
 }
 inline void TestExtensionOrderings2::clear_my_string() {
   my_string_.ClearToEmpty();
@@ -29069,10 +28284,10 @@ inline void TestExtensionOrderings2::set_allocated_my_string(std::string* my_str
 // optional bytes escaped_bytes = 1 [default = "\000\001\007\010\014\n\r\t\013\\\'\"\376"];
 inline bool TestExtremeDefaultValues::_internal_has_escaped_bytes() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_escaped_bytes() const {
-  return _internal_has_escaped_bytes();
+	return _internal_has_escaped_bytes();
 }
 inline void TestExtremeDefaultValues::clear_escaped_bytes() {
   escaped_bytes_.ClearToDefault(::protobuf_unittest::TestExtremeDefaultValues::_i_give_permission_to_break_this_code_default_escaped_bytes_, GetArenaForAllocation());
@@ -29124,10 +28339,10 @@ inline void TestExtremeDefaultValues::set_allocated_escaped_bytes(std::string* e
 // optional uint32 large_uint32 = 2 [default = 4294967295];
 inline bool TestExtremeDefaultValues::_internal_has_large_uint32() const {
   bool value = (_has_bits_[0] & 0x00000400u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_large_uint32() const {
-  return _internal_has_large_uint32();
+	return _internal_has_large_uint32();
 }
 inline void TestExtremeDefaultValues::clear_large_uint32() {
   large_uint32_ = 4294967295u;
@@ -29150,10 +28365,10 @@ inline void TestExtremeDefaultValues::set_large_uint32(uint32_t value) {
 // optional uint64 large_uint64 = 3 [default = 18446744073709551615];
 inline bool TestExtremeDefaultValues::_internal_has_large_uint64() const {
   bool value = (_has_bits_[0] & 0x00000200u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_large_uint64() const {
-  return _internal_has_large_uint64();
+	return _internal_has_large_uint64();
 }
 inline void TestExtremeDefaultValues::clear_large_uint64() {
   large_uint64_ = uint64_t{18446744073709551615u};
@@ -29176,10 +28391,10 @@ inline void TestExtremeDefaultValues::set_large_uint64(uint64_t value) {
 // optional int32 small_int32 = 4 [default = -2147483647];
 inline bool TestExtremeDefaultValues::_internal_has_small_int32() const {
   bool value = (_has_bits_[0] & 0x00000800u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_small_int32() const {
-  return _internal_has_small_int32();
+	return _internal_has_small_int32();
 }
 inline void TestExtremeDefaultValues::clear_small_int32() {
   small_int32_ = -2147483647;
@@ -29202,10 +28417,10 @@ inline void TestExtremeDefaultValues::set_small_int32(int32_t value) {
 // optional int64 small_int64 = 5 [default = -9223372036854775807];
 inline bool TestExtremeDefaultValues::_internal_has_small_int64() const {
   bool value = (_has_bits_[0] & 0x00001000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_small_int64() const {
-  return _internal_has_small_int64();
+	return _internal_has_small_int64();
 }
 inline void TestExtremeDefaultValues::clear_small_int64() {
   small_int64_ = int64_t{-9223372036854775807};
@@ -29228,10 +28443,10 @@ inline void TestExtremeDefaultValues::set_small_int64(int64_t value) {
 // optional int32 really_small_int32 = 21 [default = -2147483648];
 inline bool TestExtremeDefaultValues::_internal_has_really_small_int32() const {
   bool value = (_has_bits_[0] & 0x02000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_really_small_int32() const {
-  return _internal_has_really_small_int32();
+	return _internal_has_really_small_int32();
 }
 inline void TestExtremeDefaultValues::clear_really_small_int32() {
   really_small_int32_ = -2147483647 - 1;
@@ -29254,10 +28469,10 @@ inline void TestExtremeDefaultValues::set_really_small_int32(int32_t value) {
 // optional int64 really_small_int64 = 22 [default = -9223372036854775808];
 inline bool TestExtremeDefaultValues::_internal_has_really_small_int64() const {
   bool value = (_has_bits_[0] & 0x04000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_really_small_int64() const {
-  return _internal_has_really_small_int64();
+	return _internal_has_really_small_int64();
 }
 inline void TestExtremeDefaultValues::clear_really_small_int64() {
   really_small_int64_ = int64_t{-9223372036854775807} - 1;
@@ -29280,10 +28495,10 @@ inline void TestExtremeDefaultValues::set_really_small_int64(int64_t value) {
 // optional string utf8_string = 6 [default = "\341\210\264"];
 inline bool TestExtremeDefaultValues::_internal_has_utf8_string() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_utf8_string() const {
-  return _internal_has_utf8_string();
+	return _internal_has_utf8_string();
 }
 inline void TestExtremeDefaultValues::clear_utf8_string() {
   utf8_string_.ClearToDefault(::protobuf_unittest::TestExtremeDefaultValues::_i_give_permission_to_break_this_code_default_utf8_string_, GetArenaForAllocation());
@@ -29335,10 +28550,10 @@ inline void TestExtremeDefaultValues::set_allocated_utf8_string(std::string* utf
 // optional float zero_float = 7 [default = 0];
 inline bool TestExtremeDefaultValues::_internal_has_zero_float() const {
   bool value = (_has_bits_[0] & 0x00000100u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_zero_float() const {
-  return _internal_has_zero_float();
+	return _internal_has_zero_float();
 }
 inline void TestExtremeDefaultValues::clear_zero_float() {
   zero_float_ = 0;
@@ -29361,10 +28576,10 @@ inline void TestExtremeDefaultValues::set_zero_float(float value) {
 // optional float one_float = 8 [default = 1];
 inline bool TestExtremeDefaultValues::_internal_has_one_float() const {
   bool value = (_has_bits_[0] & 0x00002000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_one_float() const {
-  return _internal_has_one_float();
+	return _internal_has_one_float();
 }
 inline void TestExtremeDefaultValues::clear_one_float() {
   one_float_ = 1;
@@ -29387,10 +28602,10 @@ inline void TestExtremeDefaultValues::set_one_float(float value) {
 // optional float small_float = 9 [default = 1.5];
 inline bool TestExtremeDefaultValues::_internal_has_small_float() const {
   bool value = (_has_bits_[0] & 0x00004000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_small_float() const {
-  return _internal_has_small_float();
+	return _internal_has_small_float();
 }
 inline void TestExtremeDefaultValues::clear_small_float() {
   small_float_ = 1.5f;
@@ -29413,10 +28628,10 @@ inline void TestExtremeDefaultValues::set_small_float(float value) {
 // optional float negative_one_float = 10 [default = -1];
 inline bool TestExtremeDefaultValues::_internal_has_negative_one_float() const {
   bool value = (_has_bits_[0] & 0x00008000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_negative_one_float() const {
-  return _internal_has_negative_one_float();
+	return _internal_has_negative_one_float();
 }
 inline void TestExtremeDefaultValues::clear_negative_one_float() {
   negative_one_float_ = -1;
@@ -29439,10 +28654,10 @@ inline void TestExtremeDefaultValues::set_negative_one_float(float value) {
 // optional float negative_float = 11 [default = -1.5];
 inline bool TestExtremeDefaultValues::_internal_has_negative_float() const {
   bool value = (_has_bits_[0] & 0x00010000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_negative_float() const {
-  return _internal_has_negative_float();
+	return _internal_has_negative_float();
 }
 inline void TestExtremeDefaultValues::clear_negative_float() {
   negative_float_ = -1.5f;
@@ -29465,10 +28680,10 @@ inline void TestExtremeDefaultValues::set_negative_float(float value) {
 // optional float large_float = 12 [default = 2e+08];
 inline bool TestExtremeDefaultValues::_internal_has_large_float() const {
   bool value = (_has_bits_[0] & 0x00020000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_large_float() const {
-  return _internal_has_large_float();
+	return _internal_has_large_float();
 }
 inline void TestExtremeDefaultValues::clear_large_float() {
   large_float_ = 2e+08f;
@@ -29491,10 +28706,10 @@ inline void TestExtremeDefaultValues::set_large_float(float value) {
 // optional float small_negative_float = 13 [default = -8e-28];
 inline bool TestExtremeDefaultValues::_internal_has_small_negative_float() const {
   bool value = (_has_bits_[0] & 0x00040000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_small_negative_float() const {
-  return _internal_has_small_negative_float();
+	return _internal_has_small_negative_float();
 }
 inline void TestExtremeDefaultValues::clear_small_negative_float() {
   small_negative_float_ = -8e-28f;
@@ -29517,10 +28732,10 @@ inline void TestExtremeDefaultValues::set_small_negative_float(float value) {
 // optional double inf_double = 14 [default = inf];
 inline bool TestExtremeDefaultValues::_internal_has_inf_double() const {
   bool value = (_has_bits_[0] & 0x00080000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_inf_double() const {
-  return _internal_has_inf_double();
+	return _internal_has_inf_double();
 }
 inline void TestExtremeDefaultValues::clear_inf_double() {
   inf_double_ = std::numeric_limits<double>::infinity();
@@ -29543,10 +28758,10 @@ inline void TestExtremeDefaultValues::set_inf_double(double value) {
 // optional double neg_inf_double = 15 [default = -inf];
 inline bool TestExtremeDefaultValues::_internal_has_neg_inf_double() const {
   bool value = (_has_bits_[0] & 0x00100000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_neg_inf_double() const {
-  return _internal_has_neg_inf_double();
+	return _internal_has_neg_inf_double();
 }
 inline void TestExtremeDefaultValues::clear_neg_inf_double() {
   neg_inf_double_ = -std::numeric_limits<double>::infinity();
@@ -29569,10 +28784,10 @@ inline void TestExtremeDefaultValues::set_neg_inf_double(double value) {
 // optional double nan_double = 16 [default = nan];
 inline bool TestExtremeDefaultValues::_internal_has_nan_double() const {
   bool value = (_has_bits_[0] & 0x00200000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_nan_double() const {
-  return _internal_has_nan_double();
+	return _internal_has_nan_double();
 }
 inline void TestExtremeDefaultValues::clear_nan_double() {
   nan_double_ = std::numeric_limits<double>::quiet_NaN();
@@ -29595,10 +28810,10 @@ inline void TestExtremeDefaultValues::set_nan_double(double value) {
 // optional float inf_float = 17 [default = inf];
 inline bool TestExtremeDefaultValues::_internal_has_inf_float() const {
   bool value = (_has_bits_[0] & 0x00400000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_inf_float() const {
-  return _internal_has_inf_float();
+	return _internal_has_inf_float();
 }
 inline void TestExtremeDefaultValues::clear_inf_float() {
   inf_float_ = std::numeric_limits<float>::infinity();
@@ -29621,10 +28836,10 @@ inline void TestExtremeDefaultValues::set_inf_float(float value) {
 // optional float neg_inf_float = 18 [default = -inf];
 inline bool TestExtremeDefaultValues::_internal_has_neg_inf_float() const {
   bool value = (_has_bits_[0] & 0x00800000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_neg_inf_float() const {
-  return _internal_has_neg_inf_float();
+	return _internal_has_neg_inf_float();
 }
 inline void TestExtremeDefaultValues::clear_neg_inf_float() {
   neg_inf_float_ = -std::numeric_limits<float>::infinity();
@@ -29647,10 +28862,10 @@ inline void TestExtremeDefaultValues::set_neg_inf_float(float value) {
 // optional float nan_float = 19 [default = nan];
 inline bool TestExtremeDefaultValues::_internal_has_nan_float() const {
   bool value = (_has_bits_[0] & 0x01000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_nan_float() const {
-  return _internal_has_nan_float();
+	return _internal_has_nan_float();
 }
 inline void TestExtremeDefaultValues::clear_nan_float() {
   nan_float_ = std::numeric_limits<float>::quiet_NaN();
@@ -29673,10 +28888,10 @@ inline void TestExtremeDefaultValues::set_nan_float(float value) {
 // optional string cpp_trigraph = 20 [default = "? ? ?? ?? ??? ??/ ??-"];
 inline bool TestExtremeDefaultValues::_internal_has_cpp_trigraph() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_cpp_trigraph() const {
-  return _internal_has_cpp_trigraph();
+	return _internal_has_cpp_trigraph();
 }
 inline void TestExtremeDefaultValues::clear_cpp_trigraph() {
   cpp_trigraph_.ClearToDefault(::protobuf_unittest::TestExtremeDefaultValues::_i_give_permission_to_break_this_code_default_cpp_trigraph_, GetArenaForAllocation());
@@ -29728,10 +28943,10 @@ inline void TestExtremeDefaultValues::set_allocated_cpp_trigraph(std::string* cp
 // optional string string_with_zero = 23 [default = "hel\000lo"];
 inline bool TestExtremeDefaultValues::_internal_has_string_with_zero() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_string_with_zero() const {
-  return _internal_has_string_with_zero();
+	return _internal_has_string_with_zero();
 }
 inline void TestExtremeDefaultValues::clear_string_with_zero() {
   string_with_zero_.ClearToDefault(::protobuf_unittest::TestExtremeDefaultValues::_i_give_permission_to_break_this_code_default_string_with_zero_, GetArenaForAllocation());
@@ -29783,10 +28998,10 @@ inline void TestExtremeDefaultValues::set_allocated_string_with_zero(std::string
 // optional bytes bytes_with_zero = 24 [default = "wor\000ld"];
 inline bool TestExtremeDefaultValues::_internal_has_bytes_with_zero() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_bytes_with_zero() const {
-  return _internal_has_bytes_with_zero();
+	return _internal_has_bytes_with_zero();
 }
 inline void TestExtremeDefaultValues::clear_bytes_with_zero() {
   bytes_with_zero_.ClearToDefault(::protobuf_unittest::TestExtremeDefaultValues::_i_give_permission_to_break_this_code_default_bytes_with_zero_, GetArenaForAllocation());
@@ -29838,10 +29053,10 @@ inline void TestExtremeDefaultValues::set_allocated_bytes_with_zero(std::string*
 // optional string string_piece_with_zero = 25 [default = "ab\000c", ctype = STRING_PIECE];
 inline bool TestExtremeDefaultValues::_internal_has_string_piece_with_zero() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_string_piece_with_zero() const {
-  return _internal_has_string_piece_with_zero();
+	return _internal_has_string_piece_with_zero();
 }
 inline void TestExtremeDefaultValues::clear_string_piece_with_zero() {
   string_piece_with_zero_.ClearToDefault(::protobuf_unittest::TestExtremeDefaultValues::_i_give_permission_to_break_this_code_default_string_piece_with_zero_, GetArenaForAllocation());
@@ -29893,10 +29108,10 @@ inline void TestExtremeDefaultValues::set_allocated_string_piece_with_zero(std::
 // optional string cord_with_zero = 26 [default = "12\0003", ctype = CORD];
 inline bool TestExtremeDefaultValues::_internal_has_cord_with_zero() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_cord_with_zero() const {
-  return _internal_has_cord_with_zero();
+	return _internal_has_cord_with_zero();
 }
 inline void TestExtremeDefaultValues::clear_cord_with_zero() {
   cord_with_zero_.ClearToDefault(::protobuf_unittest::TestExtremeDefaultValues::_i_give_permission_to_break_this_code_default_cord_with_zero_, GetArenaForAllocation());
@@ -29948,10 +29163,10 @@ inline void TestExtremeDefaultValues::set_allocated_cord_with_zero(std::string* 
 // optional string replacement_string = 27 [default = "${unknown}"];
 inline bool TestExtremeDefaultValues::_internal_has_replacement_string() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtremeDefaultValues::has_replacement_string() const {
-  return _internal_has_replacement_string();
+	return _internal_has_replacement_string();
 }
 inline void TestExtremeDefaultValues::clear_replacement_string() {
   replacement_string_.ClearToDefault(::protobuf_unittest::TestExtremeDefaultValues::_i_give_permission_to_break_this_code_default_replacement_string_, GetArenaForAllocation());
@@ -30007,10 +29222,10 @@ inline void TestExtremeDefaultValues::set_allocated_replacement_string(std::stri
 // optional .protobuf_unittest.TestSparseEnum sparse_enum = 1;
 inline bool SparseEnumMessage::_internal_has_sparse_enum() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool SparseEnumMessage::has_sparse_enum() const {
-  return _internal_has_sparse_enum();
+	return _internal_has_sparse_enum();
 }
 inline void SparseEnumMessage::clear_sparse_enum() {
   sparse_enum_ = 123;
@@ -30038,10 +29253,10 @@ inline void SparseEnumMessage::set_sparse_enum(::protobuf_unittest::TestSparseEn
 // optional string data = 1;
 inline bool OneString::_internal_has_data() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool OneString::has_data() const {
-  return _internal_has_data();
+	return _internal_has_data();
 }
 inline void OneString::clear_data() {
   data_.ClearToEmpty();
@@ -30105,8 +29320,9 @@ inline void OneString::set_allocated_data(std::string* data) {
 
 // repeated string data = 1;
 inline int MoreString::_internal_data_size() const { return data_.size(); }
-inline int MoreString::data_size() const {
-  return _internal_data_size();
+inline int MoreString::data_size() const
+{
+	return _internal_data_size();
 }
 inline void MoreString::clear_data() {
   data_.Clear();
@@ -30178,10 +29394,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * MoreString::muta
 // optional bytes data = 1;
 inline bool OneBytes::_internal_has_data() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool OneBytes::has_data() const {
-  return _internal_has_data();
+	return _internal_has_data();
 }
 inline void OneBytes::clear_data() {
   data_.ClearToEmpty();
@@ -30245,8 +29461,9 @@ inline void OneBytes::set_allocated_data(std::string* data) {
 
 // repeated bytes data = 1;
 inline int MoreBytes::_internal_data_size() const { return data_.size(); }
-inline int MoreBytes::data_size() const {
-  return _internal_data_size();
+inline int MoreBytes::data_size() const
+{
+	return _internal_data_size();
 }
 inline void MoreBytes::clear_data() {
   data_.Clear();
@@ -30318,10 +29535,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * MoreBytes::mutab
 // optional int32 data = 1;
 inline bool Int32Message::_internal_has_data() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Int32Message::has_data() const {
-  return _internal_has_data();
+	return _internal_has_data();
 }
 inline void Int32Message::clear_data() {
   data_ = 0;
@@ -30348,10 +29565,10 @@ inline void Int32Message::set_data(int32_t value) {
 // optional uint32 data = 1;
 inline bool Uint32Message::_internal_has_data() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Uint32Message::has_data() const {
-  return _internal_has_data();
+	return _internal_has_data();
 }
 inline void Uint32Message::clear_data() {
   data_ = 0u;
@@ -30378,10 +29595,10 @@ inline void Uint32Message::set_data(uint32_t value) {
 // optional int64 data = 1;
 inline bool Int64Message::_internal_has_data() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Int64Message::has_data() const {
-  return _internal_has_data();
+	return _internal_has_data();
 }
 inline void Int64Message::clear_data() {
   data_ = int64_t{0};
@@ -30408,10 +29625,10 @@ inline void Int64Message::set_data(int64_t value) {
 // optional uint64 data = 1;
 inline bool Uint64Message::_internal_has_data() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Uint64Message::has_data() const {
-  return _internal_has_data();
+	return _internal_has_data();
 }
 inline void Uint64Message::clear_data() {
   data_ = uint64_t{0u};
@@ -30438,10 +29655,10 @@ inline void Uint64Message::set_data(uint64_t value) {
 // optional bool data = 1;
 inline bool BoolMessage::_internal_has_data() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool BoolMessage::has_data() const {
-  return _internal_has_data();
+	return _internal_has_data();
 }
 inline void BoolMessage::clear_data() {
   data_ = false;
@@ -30468,10 +29685,10 @@ inline void BoolMessage::set_data(bool value) {
 // optional int32 a = 5;
 inline bool TestOneof_FooGroup::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneof_FooGroup::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestOneof_FooGroup::clear_a() {
   a_ = 0;
@@ -30494,10 +29711,10 @@ inline void TestOneof_FooGroup::set_a(int32_t value) {
 // optional string b = 6;
 inline bool TestOneof_FooGroup::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneof_FooGroup::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestOneof_FooGroup::clear_b() {
   b_.ClearToEmpty();
@@ -30560,15 +29777,12 @@ inline void TestOneof_FooGroup::set_allocated_b(std::string* b) {
 // TestOneof
 
 // int32 foo_int = 1;
-inline bool TestOneof::_internal_has_foo_int() const {
-  return foo_case() == kFooInt;
+inline bool TestOneof::_internal_has_foo_int() const { return foo_case() == kFooInt; }
+inline bool TestOneof::has_foo_int() const
+{
+	return _internal_has_foo_int();
 }
-inline bool TestOneof::has_foo_int() const {
-  return _internal_has_foo_int();
-}
-inline void TestOneof::set_has_foo_int() {
-  _oneof_case_[0] = kFooInt;
-}
+inline void TestOneof::set_has_foo_int() { _oneof_case_[0] = kFooInt; }
 inline void TestOneof::clear_foo_int() {
   if(_internal_has_foo_int()) {
     foo_.foo_int_ = 0;
@@ -30595,15 +29809,12 @@ inline void TestOneof::set_foo_int(int32_t value) {
 }
 
 // string foo_string = 2;
-inline bool TestOneof::_internal_has_foo_string() const {
-  return foo_case() == kFooString;
+inline bool TestOneof::_internal_has_foo_string() const { return foo_case() == kFooString; }
+inline bool TestOneof::has_foo_string() const
+{
+	return _internal_has_foo_string();
 }
-inline bool TestOneof::has_foo_string() const {
-  return _internal_has_foo_string();
-}
-inline void TestOneof::set_has_foo_string() {
-  _oneof_case_[0] = kFooString;
-}
+inline void TestOneof::set_has_foo_string() { _oneof_case_[0] = kFooString; }
 inline void TestOneof::clear_foo_string() {
   if(_internal_has_foo_string()) {
     foo_.foo_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -30676,15 +29887,12 @@ inline void TestOneof::set_allocated_foo_string(std::string* foo_string) {
 }
 
 // .protobuf_unittest.TestAllTypes foo_message = 3;
-inline bool TestOneof::_internal_has_foo_message() const {
-  return foo_case() == kFooMessage;
+inline bool TestOneof::_internal_has_foo_message() const { return foo_case() == kFooMessage; }
+inline bool TestOneof::has_foo_message() const
+{
+	return _internal_has_foo_message();
 }
-inline bool TestOneof::has_foo_message() const {
-  return _internal_has_foo_message();
-}
-inline void TestOneof::set_has_foo_message() {
-  _oneof_case_[0] = kFooMessage;
-}
+inline void TestOneof::set_has_foo_message() { _oneof_case_[0] = kFooMessage; }
 inline void TestOneof::clear_foo_message() {
   if(_internal_has_foo_message()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -30746,15 +29954,12 @@ inline ::protobuf_unittest::TestAllTypes* TestOneof::mutable_foo_message() {
 }
 
 // group FooGroup = 4 { ... };
-inline bool TestOneof::_internal_has_foogroup() const {
-  return foo_case() == kFoogroup;
+inline bool TestOneof::_internal_has_foogroup() const { return foo_case() == kFoogroup; }
+inline bool TestOneof::has_foogroup() const
+{
+	return _internal_has_foogroup();
 }
-inline bool TestOneof::has_foogroup() const {
-  return _internal_has_foogroup();
-}
-inline void TestOneof::set_has_foogroup() {
-  _oneof_case_[0] = kFoogroup;
-}
+inline void TestOneof::set_has_foogroup() { _oneof_case_[0] = kFoogroup; }
 inline void TestOneof::clear_foogroup() {
   if(_internal_has_foogroup()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -30815,12 +30020,8 @@ inline ::protobuf_unittest::TestOneof_FooGroup* TestOneof::mutable_foogroup() {
   return _msg;
 }
 
-inline bool TestOneof::has_foo() const {
-  return foo_case() != FOO_NOT_SET;
-}
-inline void TestOneof::clear_has_foo() {
-  _oneof_case_[0] = FOO_NOT_SET;
-}
+inline bool TestOneof::has_foo() const { return foo_case() != FOO_NOT_SET; }
+inline void TestOneof::clear_has_foo() { _oneof_case_[0] = FOO_NOT_SET; }
 inline TestOneof::FooCase TestOneof::foo_case() const { return TestOneof::FooCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -30829,10 +30030,10 @@ inline TestOneof::FooCase TestOneof::foo_case() const { return TestOneof::FooCas
 // optional int32 a = 5;
 inline bool TestOneofBackwardsCompatible_FooGroup::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneofBackwardsCompatible_FooGroup::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestOneofBackwardsCompatible_FooGroup::clear_a() {
   a_ = 0;
@@ -30855,10 +30056,10 @@ inline void TestOneofBackwardsCompatible_FooGroup::set_a(int32_t value) {
 // optional string b = 6;
 inline bool TestOneofBackwardsCompatible_FooGroup::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneofBackwardsCompatible_FooGroup::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestOneofBackwardsCompatible_FooGroup::clear_b() {
   b_.ClearToEmpty();
@@ -30923,10 +30124,10 @@ inline void TestOneofBackwardsCompatible_FooGroup::set_allocated_b(std::string* 
 // optional int32 foo_int = 1;
 inline bool TestOneofBackwardsCompatible::_internal_has_foo_int() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneofBackwardsCompatible::has_foo_int() const {
-  return _internal_has_foo_int();
+	return _internal_has_foo_int();
 }
 inline void TestOneofBackwardsCompatible::clear_foo_int() {
   foo_int_ = 0;
@@ -30949,10 +30150,10 @@ inline void TestOneofBackwardsCompatible::set_foo_int(int32_t value) {
 // optional string foo_string = 2;
 inline bool TestOneofBackwardsCompatible::_internal_has_foo_string() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneofBackwardsCompatible::has_foo_string() const {
-  return _internal_has_foo_string();
+	return _internal_has_foo_string();
 }
 inline void TestOneofBackwardsCompatible::clear_foo_string() {
   foo_string_.ClearToEmpty();
@@ -31014,10 +30215,10 @@ inline void TestOneofBackwardsCompatible::set_allocated_foo_string(std::string* 
 inline bool TestOneofBackwardsCompatible::_internal_has_foo_message() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || foo_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestOneofBackwardsCompatible::has_foo_message() const {
-  return _internal_has_foo_message();
+	return _internal_has_foo_message();
 }
 inline void TestOneofBackwardsCompatible::clear_foo_message() {
   if(foo_message_ != nullptr) foo_message_->Clear();
@@ -31103,10 +30304,10 @@ inline void TestOneofBackwardsCompatible::set_allocated_foo_message(::protobuf_u
 inline bool TestOneofBackwardsCompatible::_internal_has_foogroup() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
   PROTOBUF_ASSUME(!value || foogroup_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestOneofBackwardsCompatible::has_foogroup() const {
-  return _internal_has_foogroup();
+	return _internal_has_foogroup();
 }
 inline void TestOneofBackwardsCompatible::clear_foogroup() {
   if(foogroup_ != nullptr) foogroup_->Clear();
@@ -31195,10 +30396,10 @@ inline void TestOneofBackwardsCompatible::set_allocated_foogroup(::protobuf_unit
 // optional int32 a = 9;
 inline bool TestOneof2_FooGroup::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneof2_FooGroup::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestOneof2_FooGroup::clear_a() {
   a_ = 0;
@@ -31221,10 +30422,10 @@ inline void TestOneof2_FooGroup::set_a(int32_t value) {
 // optional string b = 10;
 inline bool TestOneof2_FooGroup::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneof2_FooGroup::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestOneof2_FooGroup::clear_b() {
   b_.ClearToEmpty();
@@ -31289,10 +30490,10 @@ inline void TestOneof2_FooGroup::set_allocated_b(std::string* b) {
 // optional int64 qux_int = 1;
 inline bool TestOneof2_NestedMessage::_internal_has_qux_int() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneof2_NestedMessage::has_qux_int() const {
-  return _internal_has_qux_int();
+	return _internal_has_qux_int();
 }
 inline void TestOneof2_NestedMessage::clear_qux_int() {
   qux_int_ = int64_t{0};
@@ -31314,8 +30515,9 @@ inline void TestOneof2_NestedMessage::set_qux_int(int64_t value) {
 
 // repeated int32 corge_int = 2;
 inline int TestOneof2_NestedMessage::_internal_corge_int_size() const { return corge_int_.size(); }
-inline int TestOneof2_NestedMessage::corge_int_size() const {
-  return _internal_corge_int_size();
+inline int TestOneof2_NestedMessage::corge_int_size() const
+{
+	return _internal_corge_int_size();
 }
 inline void TestOneof2_NestedMessage::clear_corge_int() {
   corge_int_.Clear();
@@ -31356,15 +30558,12 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestOneof2_NestedMess
 // TestOneof2
 
 // int32 foo_int = 1;
-inline bool TestOneof2::_internal_has_foo_int() const {
-  return foo_case() == kFooInt;
+inline bool TestOneof2::_internal_has_foo_int() const { return foo_case() == kFooInt; }
+inline bool TestOneof2::has_foo_int() const
+{
+	return _internal_has_foo_int();
 }
-inline bool TestOneof2::has_foo_int() const {
-  return _internal_has_foo_int();
-}
-inline void TestOneof2::set_has_foo_int() {
-  _oneof_case_[0] = kFooInt;
-}
+inline void TestOneof2::set_has_foo_int() { _oneof_case_[0] = kFooInt; }
 inline void TestOneof2::clear_foo_int() {
   if(_internal_has_foo_int()) {
     foo_.foo_int_ = 0;
@@ -31391,15 +30590,12 @@ inline void TestOneof2::set_foo_int(int32_t value) {
 }
 
 // string foo_string = 2;
-inline bool TestOneof2::_internal_has_foo_string() const {
-  return foo_case() == kFooString;
+inline bool TestOneof2::_internal_has_foo_string() const { return foo_case() == kFooString; }
+inline bool TestOneof2::has_foo_string() const
+{
+	return _internal_has_foo_string();
 }
-inline bool TestOneof2::has_foo_string() const {
-  return _internal_has_foo_string();
-}
-inline void TestOneof2::set_has_foo_string() {
-  _oneof_case_[0] = kFooString;
-}
+inline void TestOneof2::set_has_foo_string() { _oneof_case_[0] = kFooString; }
 inline void TestOneof2::clear_foo_string() {
   if(_internal_has_foo_string()) {
     foo_.foo_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -31472,15 +30668,12 @@ inline void TestOneof2::set_allocated_foo_string(std::string* foo_string) {
 }
 
 // string foo_cord = 3 [ctype = CORD];
-inline bool TestOneof2::_internal_has_foo_cord() const {
-  return foo_case() == kFooCord;
+inline bool TestOneof2::_internal_has_foo_cord() const { return foo_case() == kFooCord; }
+inline bool TestOneof2::has_foo_cord() const
+{
+	return _internal_has_foo_cord();
 }
-inline bool TestOneof2::has_foo_cord() const {
-  return _internal_has_foo_cord();
-}
-inline void TestOneof2::set_has_foo_cord() {
-  _oneof_case_[0] = kFooCord;
-}
+inline void TestOneof2::set_has_foo_cord() { _oneof_case_[0] = kFooCord; }
 inline void TestOneof2::clear_foo_cord() {
   if(_internal_has_foo_cord()) {
     foo_.foo_cord_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -31553,15 +30746,12 @@ inline void TestOneof2::set_allocated_foo_cord(std::string* foo_cord) {
 }
 
 // string foo_string_piece = 4 [ctype = STRING_PIECE];
-inline bool TestOneof2::_internal_has_foo_string_piece() const {
-  return foo_case() == kFooStringPiece;
+inline bool TestOneof2::_internal_has_foo_string_piece() const { return foo_case() == kFooStringPiece; }
+inline bool TestOneof2::has_foo_string_piece() const
+{
+	return _internal_has_foo_string_piece();
 }
-inline bool TestOneof2::has_foo_string_piece() const {
-  return _internal_has_foo_string_piece();
-}
-inline void TestOneof2::set_has_foo_string_piece() {
-  _oneof_case_[0] = kFooStringPiece;
-}
+inline void TestOneof2::set_has_foo_string_piece() { _oneof_case_[0] = kFooStringPiece; }
 inline void TestOneof2::clear_foo_string_piece() {
   if(_internal_has_foo_string_piece()) {
     foo_.foo_string_piece_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -31634,15 +30824,12 @@ inline void TestOneof2::set_allocated_foo_string_piece(std::string* foo_string_p
 }
 
 // bytes foo_bytes = 5;
-inline bool TestOneof2::_internal_has_foo_bytes() const {
-  return foo_case() == kFooBytes;
+inline bool TestOneof2::_internal_has_foo_bytes() const { return foo_case() == kFooBytes; }
+inline bool TestOneof2::has_foo_bytes() const
+{
+	return _internal_has_foo_bytes();
 }
-inline bool TestOneof2::has_foo_bytes() const {
-  return _internal_has_foo_bytes();
-}
-inline void TestOneof2::set_has_foo_bytes() {
-  _oneof_case_[0] = kFooBytes;
-}
+inline void TestOneof2::set_has_foo_bytes() { _oneof_case_[0] = kFooBytes; }
 inline void TestOneof2::clear_foo_bytes() {
   if(_internal_has_foo_bytes()) {
     foo_.foo_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -31715,54 +30902,52 @@ inline void TestOneof2::set_allocated_foo_bytes(std::string* foo_bytes) {
 }
 
 // .protobuf_unittest.TestOneof2.NestedEnum foo_enum = 6;
-inline bool TestOneof2::_internal_has_foo_enum() const {
-  return foo_case() == kFooEnum;
+inline bool TestOneof2::_internal_has_foo_enum() const { return foo_case() == kFooEnum; }
+inline bool TestOneof2::has_foo_enum() const
+{
+	return _internal_has_foo_enum();
 }
-inline bool TestOneof2::has_foo_enum() const {
-  return _internal_has_foo_enum();
-}
-inline void TestOneof2::set_has_foo_enum() {
-  _oneof_case_[0] = kFooEnum;
-}
+inline void TestOneof2::set_has_foo_enum() { _oneof_case_[0] = kFooEnum; }
 inline void TestOneof2::clear_foo_enum() {
   if(_internal_has_foo_enum()) {
     foo_.foo_enum_ = 1;
     clear_has_foo();
   }
 }
-inline ::protobuf_unittest::TestOneof2_NestedEnum TestOneof2::_internal_foo_enum() const {
-  if(_internal_has_foo_enum()) {
-    return static_cast< ::protobuf_unittest::TestOneof2_NestedEnum >(foo_.foo_enum_);
-  }
-  return static_cast< ::protobuf_unittest::TestOneof2_NestedEnum >(1);
+inline ::protobuf_unittest::TestOneof2_NestedEnum TestOneof2::_internal_foo_enum() const
+{
+	if(_internal_has_foo_enum()) {
+		return static_cast< ::protobuf_unittest::TestOneof2_NestedEnum >(foo_.foo_enum_);
+	}
+	return static_cast< ::protobuf_unittest::TestOneof2_NestedEnum >(1);
 }
-inline ::protobuf_unittest::TestOneof2_NestedEnum TestOneof2::foo_enum() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestOneof2.foo_enum)
-  return _internal_foo_enum();
+inline ::protobuf_unittest::TestOneof2_NestedEnum TestOneof2::foo_enum() const
+{
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestOneof2.foo_enum)
+	return _internal_foo_enum();
 }
-inline void TestOneof2::_internal_set_foo_enum(::protobuf_unittest::TestOneof2_NestedEnum value) {
-  assert(::protobuf_unittest::TestOneof2_NestedEnum_IsValid(value));
-  if(!_internal_has_foo_enum()) {
-    clear_foo();
-    set_has_foo_enum();
-  }
-  foo_.foo_enum_ = value;
+inline void TestOneof2::_internal_set_foo_enum(::protobuf_unittest::TestOneof2_NestedEnum value)
+{
+	assert(::protobuf_unittest::TestOneof2_NestedEnum_IsValid(value));
+	if(!_internal_has_foo_enum()) {
+		clear_foo();
+		set_has_foo_enum();
+	}
+	foo_.foo_enum_ = value;
 }
-inline void TestOneof2::set_foo_enum(::protobuf_unittest::TestOneof2_NestedEnum value) {
-  _internal_set_foo_enum(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestOneof2.foo_enum)
+inline void TestOneof2::set_foo_enum(::protobuf_unittest::TestOneof2_NestedEnum value)
+{
+	_internal_set_foo_enum(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestOneof2.foo_enum)
 }
 
 // .protobuf_unittest.TestOneof2.NestedMessage foo_message = 7;
-inline bool TestOneof2::_internal_has_foo_message() const {
-  return foo_case() == kFooMessage;
+inline bool TestOneof2::_internal_has_foo_message() const { return foo_case() == kFooMessage; }
+inline bool TestOneof2::has_foo_message() const
+{
+	return _internal_has_foo_message();
 }
-inline bool TestOneof2::has_foo_message() const {
-  return _internal_has_foo_message();
-}
-inline void TestOneof2::set_has_foo_message() {
-  _oneof_case_[0] = kFooMessage;
-}
+inline void TestOneof2::set_has_foo_message() { _oneof_case_[0] = kFooMessage; }
 inline void TestOneof2::clear_foo_message() {
   if(_internal_has_foo_message()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -31824,15 +31009,12 @@ inline ::protobuf_unittest::TestOneof2_NestedMessage* TestOneof2::mutable_foo_me
 }
 
 // group FooGroup = 8 { ... };
-inline bool TestOneof2::_internal_has_foogroup() const {
-  return foo_case() == kFoogroup;
+inline bool TestOneof2::_internal_has_foogroup() const { return foo_case() == kFoogroup; }
+inline bool TestOneof2::has_foogroup() const
+{
+	return _internal_has_foogroup();
 }
-inline bool TestOneof2::has_foogroup() const {
-  return _internal_has_foogroup();
-}
-inline void TestOneof2::set_has_foogroup() {
-  _oneof_case_[0] = kFoogroup;
-}
+inline void TestOneof2::set_has_foogroup() { _oneof_case_[0] = kFoogroup; }
 inline void TestOneof2::clear_foogroup() {
   if(_internal_has_foogroup()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -31894,15 +31076,12 @@ inline ::protobuf_unittest::TestOneof2_FooGroup* TestOneof2::mutable_foogroup() 
 }
 
 // .protobuf_unittest.TestOneof2.NestedMessage foo_lazy_message = 11 [lazy = true];
-inline bool TestOneof2::_internal_has_foo_lazy_message() const {
-  return foo_case() == kFooLazyMessage;
+inline bool TestOneof2::_internal_has_foo_lazy_message() const { return foo_case() == kFooLazyMessage; }
+inline bool TestOneof2::has_foo_lazy_message() const
+{
+	return _internal_has_foo_lazy_message();
 }
-inline bool TestOneof2::has_foo_lazy_message() const {
-  return _internal_has_foo_lazy_message();
-}
-inline void TestOneof2::set_has_foo_lazy_message() {
-  _oneof_case_[0] = kFooLazyMessage;
-}
+inline void TestOneof2::set_has_foo_lazy_message() { _oneof_case_[0] = kFooLazyMessage; }
 inline void TestOneof2::clear_foo_lazy_message() {
   if(_internal_has_foo_lazy_message()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -31964,15 +31143,12 @@ inline ::protobuf_unittest::TestOneof2_NestedMessage* TestOneof2::mutable_foo_la
 }
 
 // int32 bar_int = 12 [default = 5];
-inline bool TestOneof2::_internal_has_bar_int() const {
-  return bar_case() == kBarInt;
+inline bool TestOneof2::_internal_has_bar_int() const { return bar_case() == kBarInt; }
+inline bool TestOneof2::has_bar_int() const
+{
+	return _internal_has_bar_int();
 }
-inline bool TestOneof2::has_bar_int() const {
-  return _internal_has_bar_int();
-}
-inline void TestOneof2::set_has_bar_int() {
-  _oneof_case_[1] = kBarInt;
-}
+inline void TestOneof2::set_has_bar_int() { _oneof_case_[1] = kBarInt; }
 inline void TestOneof2::clear_bar_int() {
   if(_internal_has_bar_int()) {
     bar_.bar_int_ = 5;
@@ -31999,15 +31175,12 @@ inline void TestOneof2::set_bar_int(int32_t value) {
 }
 
 // string bar_string = 13 [default = "STRING"];
-inline bool TestOneof2::_internal_has_bar_string() const {
-  return bar_case() == kBarString;
+inline bool TestOneof2::_internal_has_bar_string() const { return bar_case() == kBarString; }
+inline bool TestOneof2::has_bar_string() const
+{
+	return _internal_has_bar_string();
 }
-inline bool TestOneof2::has_bar_string() const {
-  return _internal_has_bar_string();
-}
-inline void TestOneof2::set_has_bar_string() {
-  _oneof_case_[1] = kBarString;
-}
+inline void TestOneof2::set_has_bar_string() { _oneof_case_[1] = kBarString; }
 inline void TestOneof2::clear_bar_string() {
   if(_internal_has_bar_string()) {
     bar_.bar_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
@@ -32080,15 +31253,12 @@ inline void TestOneof2::set_allocated_bar_string(std::string* bar_string) {
 }
 
 // string bar_cord = 14 [default = "CORD", ctype = CORD];
-inline bool TestOneof2::_internal_has_bar_cord() const {
-  return bar_case() == kBarCord;
+inline bool TestOneof2::_internal_has_bar_cord() const { return bar_case() == kBarCord; }
+inline bool TestOneof2::has_bar_cord() const
+{
+	return _internal_has_bar_cord();
 }
-inline bool TestOneof2::has_bar_cord() const {
-  return _internal_has_bar_cord();
-}
-inline void TestOneof2::set_has_bar_cord() {
-  _oneof_case_[1] = kBarCord;
-}
+inline void TestOneof2::set_has_bar_cord() { _oneof_case_[1] = kBarCord; }
 inline void TestOneof2::clear_bar_cord() {
   if(_internal_has_bar_cord()) {
     bar_.bar_cord_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
@@ -32161,15 +31331,12 @@ inline void TestOneof2::set_allocated_bar_cord(std::string* bar_cord) {
 }
 
 // string bar_string_piece = 15 [default = "SPIECE", ctype = STRING_PIECE];
-inline bool TestOneof2::_internal_has_bar_string_piece() const {
-  return bar_case() == kBarStringPiece;
+inline bool TestOneof2::_internal_has_bar_string_piece() const { return bar_case() == kBarStringPiece; }
+inline bool TestOneof2::has_bar_string_piece() const
+{
+	return _internal_has_bar_string_piece();
 }
-inline bool TestOneof2::has_bar_string_piece() const {
-  return _internal_has_bar_string_piece();
-}
-inline void TestOneof2::set_has_bar_string_piece() {
-  _oneof_case_[1] = kBarStringPiece;
-}
+inline void TestOneof2::set_has_bar_string_piece() { _oneof_case_[1] = kBarStringPiece; }
 inline void TestOneof2::clear_bar_string_piece() {
   if(_internal_has_bar_string_piece()) {
     bar_.bar_string_piece_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
@@ -32242,15 +31409,12 @@ inline void TestOneof2::set_allocated_bar_string_piece(std::string* bar_string_p
 }
 
 // bytes bar_bytes = 16 [default = "BYTES"];
-inline bool TestOneof2::_internal_has_bar_bytes() const {
-  return bar_case() == kBarBytes;
+inline bool TestOneof2::_internal_has_bar_bytes() const { return bar_case() == kBarBytes; }
+inline bool TestOneof2::has_bar_bytes() const
+{
+	return _internal_has_bar_bytes();
 }
-inline bool TestOneof2::has_bar_bytes() const {
-  return _internal_has_bar_bytes();
-}
-inline void TestOneof2::set_has_bar_bytes() {
-  _oneof_case_[1] = kBarBytes;
-}
+inline void TestOneof2::set_has_bar_bytes() { _oneof_case_[1] = kBarBytes; }
 inline void TestOneof2::clear_bar_bytes() {
   if(_internal_has_bar_bytes()) {
     bar_.bar_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
@@ -32323,54 +31487,52 @@ inline void TestOneof2::set_allocated_bar_bytes(std::string* bar_bytes) {
 }
 
 // .protobuf_unittest.TestOneof2.NestedEnum bar_enum = 17 [default = BAR];
-inline bool TestOneof2::_internal_has_bar_enum() const {
-  return bar_case() == kBarEnum;
+inline bool TestOneof2::_internal_has_bar_enum() const { return bar_case() == kBarEnum; }
+inline bool TestOneof2::has_bar_enum() const
+{
+	return _internal_has_bar_enum();
 }
-inline bool TestOneof2::has_bar_enum() const {
-  return _internal_has_bar_enum();
-}
-inline void TestOneof2::set_has_bar_enum() {
-  _oneof_case_[1] = kBarEnum;
-}
+inline void TestOneof2::set_has_bar_enum() { _oneof_case_[1] = kBarEnum; }
 inline void TestOneof2::clear_bar_enum() {
   if(_internal_has_bar_enum()) {
     bar_.bar_enum_ = 2;
     clear_has_bar();
   }
 }
-inline ::protobuf_unittest::TestOneof2_NestedEnum TestOneof2::_internal_bar_enum() const {
-  if(_internal_has_bar_enum()) {
-    return static_cast< ::protobuf_unittest::TestOneof2_NestedEnum >(bar_.bar_enum_);
-  }
-  return static_cast< ::protobuf_unittest::TestOneof2_NestedEnum >(2);
+inline ::protobuf_unittest::TestOneof2_NestedEnum TestOneof2::_internal_bar_enum() const
+{
+	if(_internal_has_bar_enum()) {
+		return static_cast< ::protobuf_unittest::TestOneof2_NestedEnum >(bar_.bar_enum_);
+	}
+	return static_cast< ::protobuf_unittest::TestOneof2_NestedEnum >(2);
 }
-inline ::protobuf_unittest::TestOneof2_NestedEnum TestOneof2::bar_enum() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestOneof2.bar_enum)
-  return _internal_bar_enum();
+inline ::protobuf_unittest::TestOneof2_NestedEnum TestOneof2::bar_enum() const
+{
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestOneof2.bar_enum)
+	return _internal_bar_enum();
 }
-inline void TestOneof2::_internal_set_bar_enum(::protobuf_unittest::TestOneof2_NestedEnum value) {
-  assert(::protobuf_unittest::TestOneof2_NestedEnum_IsValid(value));
-  if(!_internal_has_bar_enum()) {
-    clear_bar();
-    set_has_bar_enum();
-  }
-  bar_.bar_enum_ = value;
+inline void TestOneof2::_internal_set_bar_enum(::protobuf_unittest::TestOneof2_NestedEnum value)
+{
+	assert(::protobuf_unittest::TestOneof2_NestedEnum_IsValid(value));
+	if(!_internal_has_bar_enum()) {
+		clear_bar();
+		set_has_bar_enum();
+	}
+	bar_.bar_enum_ = value;
 }
-inline void TestOneof2::set_bar_enum(::protobuf_unittest::TestOneof2_NestedEnum value) {
-  _internal_set_bar_enum(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestOneof2.bar_enum)
+inline void TestOneof2::set_bar_enum(::protobuf_unittest::TestOneof2_NestedEnum value)
+{
+	_internal_set_bar_enum(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestOneof2.bar_enum)
 }
 
 // string bar_string_with_empty_default = 20 [default = ""];
-inline bool TestOneof2::_internal_has_bar_string_with_empty_default() const {
-  return bar_case() == kBarStringWithEmptyDefault;
+inline bool TestOneof2::_internal_has_bar_string_with_empty_default() const { return bar_case() == kBarStringWithEmptyDefault; }
+inline bool TestOneof2::has_bar_string_with_empty_default() const
+{
+	return _internal_has_bar_string_with_empty_default();
 }
-inline bool TestOneof2::has_bar_string_with_empty_default() const {
-  return _internal_has_bar_string_with_empty_default();
-}
-inline void TestOneof2::set_has_bar_string_with_empty_default() {
-  _oneof_case_[1] = kBarStringWithEmptyDefault;
-}
+inline void TestOneof2::set_has_bar_string_with_empty_default() { _oneof_case_[1] = kBarStringWithEmptyDefault; }
 inline void TestOneof2::clear_bar_string_with_empty_default() {
   if(_internal_has_bar_string_with_empty_default()) {
     bar_.bar_string_with_empty_default_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -32443,15 +31605,12 @@ inline void TestOneof2::set_allocated_bar_string_with_empty_default(std::string*
 }
 
 // string bar_cord_with_empty_default = 21 [default = "", ctype = CORD];
-inline bool TestOneof2::_internal_has_bar_cord_with_empty_default() const {
-  return bar_case() == kBarCordWithEmptyDefault;
+inline bool TestOneof2::_internal_has_bar_cord_with_empty_default() const { return bar_case() == kBarCordWithEmptyDefault; }
+inline bool TestOneof2::has_bar_cord_with_empty_default() const
+{
+	return _internal_has_bar_cord_with_empty_default();
 }
-inline bool TestOneof2::has_bar_cord_with_empty_default() const {
-  return _internal_has_bar_cord_with_empty_default();
-}
-inline void TestOneof2::set_has_bar_cord_with_empty_default() {
-  _oneof_case_[1] = kBarCordWithEmptyDefault;
-}
+inline void TestOneof2::set_has_bar_cord_with_empty_default() { _oneof_case_[1] = kBarCordWithEmptyDefault; }
 inline void TestOneof2::clear_bar_cord_with_empty_default() {
   if(_internal_has_bar_cord_with_empty_default()) {
     bar_.bar_cord_with_empty_default_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -32524,15 +31683,12 @@ inline void TestOneof2::set_allocated_bar_cord_with_empty_default(std::string* b
 }
 
 // string bar_string_piece_with_empty_default = 22 [default = "", ctype = STRING_PIECE];
-inline bool TestOneof2::_internal_has_bar_string_piece_with_empty_default() const {
-  return bar_case() == kBarStringPieceWithEmptyDefault;
+inline bool TestOneof2::_internal_has_bar_string_piece_with_empty_default() const { return bar_case() == kBarStringPieceWithEmptyDefault; }
+inline bool TestOneof2::has_bar_string_piece_with_empty_default() const
+{
+	return _internal_has_bar_string_piece_with_empty_default();
 }
-inline bool TestOneof2::has_bar_string_piece_with_empty_default() const {
-  return _internal_has_bar_string_piece_with_empty_default();
-}
-inline void TestOneof2::set_has_bar_string_piece_with_empty_default() {
-  _oneof_case_[1] = kBarStringPieceWithEmptyDefault;
-}
+inline void TestOneof2::set_has_bar_string_piece_with_empty_default() { _oneof_case_[1] = kBarStringPieceWithEmptyDefault; }
 inline void TestOneof2::clear_bar_string_piece_with_empty_default() {
   if(_internal_has_bar_string_piece_with_empty_default()) {
     bar_.bar_string_piece_with_empty_default_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -32605,15 +31761,12 @@ inline void TestOneof2::set_allocated_bar_string_piece_with_empty_default(std::s
 }
 
 // bytes bar_bytes_with_empty_default = 23 [default = ""];
-inline bool TestOneof2::_internal_has_bar_bytes_with_empty_default() const {
-  return bar_case() == kBarBytesWithEmptyDefault;
+inline bool TestOneof2::_internal_has_bar_bytes_with_empty_default() const { return bar_case() == kBarBytesWithEmptyDefault; }
+inline bool TestOneof2::has_bar_bytes_with_empty_default() const
+{
+	return _internal_has_bar_bytes_with_empty_default();
 }
-inline bool TestOneof2::has_bar_bytes_with_empty_default() const {
-  return _internal_has_bar_bytes_with_empty_default();
-}
-inline void TestOneof2::set_has_bar_bytes_with_empty_default() {
-  _oneof_case_[1] = kBarBytesWithEmptyDefault;
-}
+inline void TestOneof2::set_has_bar_bytes_with_empty_default() { _oneof_case_[1] = kBarBytesWithEmptyDefault; }
 inline void TestOneof2::clear_bar_bytes_with_empty_default() {
   if(_internal_has_bar_bytes_with_empty_default()) {
     bar_.bar_bytes_with_empty_default_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -32688,10 +31841,10 @@ inline void TestOneof2::set_allocated_bar_bytes_with_empty_default(std::string* 
 // optional int32 baz_int = 18;
 inline bool TestOneof2::_internal_has_baz_int() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneof2::has_baz_int() const {
-  return _internal_has_baz_int();
+	return _internal_has_baz_int();
 }
 inline void TestOneof2::clear_baz_int() {
   baz_int_ = 0;
@@ -32714,10 +31867,10 @@ inline void TestOneof2::set_baz_int(int32_t value) {
 // optional string baz_string = 19 [default = "BAZ"];
 inline bool TestOneof2::_internal_has_baz_string() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestOneof2::has_baz_string() const {
-  return _internal_has_baz_string();
+	return _internal_has_baz_string();
 }
 inline void TestOneof2::clear_baz_string() {
   baz_string_.ClearToDefault(::protobuf_unittest::TestOneof2::_i_give_permission_to_break_this_code_default_baz_string_, GetArenaForAllocation());
@@ -32766,18 +31919,10 @@ inline void TestOneof2::set_allocated_baz_string(std::string* baz_string) {
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.TestOneof2.baz_string)
 }
 
-inline bool TestOneof2::has_foo() const {
-  return foo_case() != FOO_NOT_SET;
-}
-inline void TestOneof2::clear_has_foo() {
-  _oneof_case_[0] = FOO_NOT_SET;
-}
-inline bool TestOneof2::has_bar() const {
-  return bar_case() != BAR_NOT_SET;
-}
-inline void TestOneof2::clear_has_bar() {
-  _oneof_case_[1] = BAR_NOT_SET;
-}
+inline bool TestOneof2::has_foo() const { return foo_case() != FOO_NOT_SET; }
+inline void TestOneof2::clear_has_foo() { _oneof_case_[0] = FOO_NOT_SET; }
+inline bool TestOneof2::has_bar() const { return bar_case() != BAR_NOT_SET; }
+inline void TestOneof2::clear_has_bar() { _oneof_case_[1] = BAR_NOT_SET; }
 inline TestOneof2::FooCase TestOneof2::foo_case() const { return TestOneof2::FooCase(_oneof_case_[0]); }
 inline TestOneof2::BarCase TestOneof2::bar_case() const { return TestOneof2::BarCase(_oneof_case_[1]); }
 // -------------------------------------------------------------------
@@ -32787,10 +31932,10 @@ inline TestOneof2::BarCase TestOneof2::bar_case() const { return TestOneof2::Bar
 // required double required_double = 1;
 inline bool TestRequiredOneof_NestedMessage::_internal_has_required_double() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequiredOneof_NestedMessage::has_required_double() const {
-  return _internal_has_required_double();
+	return _internal_has_required_double();
 }
 inline void TestRequiredOneof_NestedMessage::clear_required_double() {
   required_double_ = 0;
@@ -32815,15 +31960,12 @@ inline void TestRequiredOneof_NestedMessage::set_required_double(double value) {
 // TestRequiredOneof
 
 // int32 foo_int = 1;
-inline bool TestRequiredOneof::_internal_has_foo_int() const {
-  return foo_case() == kFooInt;
+inline bool TestRequiredOneof::_internal_has_foo_int() const { return foo_case() == kFooInt; }
+inline bool TestRequiredOneof::has_foo_int() const
+{
+	return _internal_has_foo_int();
 }
-inline bool TestRequiredOneof::has_foo_int() const {
-  return _internal_has_foo_int();
-}
-inline void TestRequiredOneof::set_has_foo_int() {
-  _oneof_case_[0] = kFooInt;
-}
+inline void TestRequiredOneof::set_has_foo_int() { _oneof_case_[0] = kFooInt; }
 inline void TestRequiredOneof::clear_foo_int() {
   if(_internal_has_foo_int()) {
     foo_.foo_int_ = 0;
@@ -32850,15 +31992,12 @@ inline void TestRequiredOneof::set_foo_int(int32_t value) {
 }
 
 // string foo_string = 2;
-inline bool TestRequiredOneof::_internal_has_foo_string() const {
-  return foo_case() == kFooString;
+inline bool TestRequiredOneof::_internal_has_foo_string() const { return foo_case() == kFooString; }
+inline bool TestRequiredOneof::has_foo_string() const
+{
+	return _internal_has_foo_string();
 }
-inline bool TestRequiredOneof::has_foo_string() const {
-  return _internal_has_foo_string();
-}
-inline void TestRequiredOneof::set_has_foo_string() {
-  _oneof_case_[0] = kFooString;
-}
+inline void TestRequiredOneof::set_has_foo_string() { _oneof_case_[0] = kFooString; }
 inline void TestRequiredOneof::clear_foo_string() {
   if(_internal_has_foo_string()) {
     foo_.foo_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -32931,15 +32070,12 @@ inline void TestRequiredOneof::set_allocated_foo_string(std::string* foo_string)
 }
 
 // .protobuf_unittest.TestRequiredOneof.NestedMessage foo_message = 3;
-inline bool TestRequiredOneof::_internal_has_foo_message() const {
-  return foo_case() == kFooMessage;
+inline bool TestRequiredOneof::_internal_has_foo_message() const { return foo_case() == kFooMessage; }
+inline bool TestRequiredOneof::has_foo_message() const
+{
+	return _internal_has_foo_message();
 }
-inline bool TestRequiredOneof::has_foo_message() const {
-  return _internal_has_foo_message();
-}
-inline void TestRequiredOneof::set_has_foo_message() {
-  _oneof_case_[0] = kFooMessage;
-}
+inline void TestRequiredOneof::set_has_foo_message() { _oneof_case_[0] = kFooMessage; }
 inline void TestRequiredOneof::clear_foo_message() {
   if(_internal_has_foo_message()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -33000,12 +32136,8 @@ inline ::protobuf_unittest::TestRequiredOneof_NestedMessage* TestRequiredOneof::
   return _msg;
 }
 
-inline bool TestRequiredOneof::has_foo() const {
-  return foo_case() != FOO_NOT_SET;
-}
-inline void TestRequiredOneof::clear_has_foo() {
-  _oneof_case_[0] = FOO_NOT_SET;
-}
+inline bool TestRequiredOneof::has_foo() const { return foo_case() != FOO_NOT_SET; }
+inline void TestRequiredOneof::clear_has_foo() { _oneof_case_[0] = FOO_NOT_SET; }
 inline TestRequiredOneof::FooCase TestRequiredOneof::foo_case() const { return TestRequiredOneof::FooCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -33013,8 +32145,9 @@ inline TestRequiredOneof::FooCase TestRequiredOneof::foo_case() const { return T
 
 // repeated int32 packed_int32 = 90 [packed = true];
 inline int TestPackedTypes::_internal_packed_int32_size() const { return packed_int32_.size(); }
-inline int TestPackedTypes::packed_int32_size() const {
-  return _internal_packed_int32_size();
+inline int TestPackedTypes::packed_int32_size() const
+{
+	return _internal_packed_int32_size();
 }
 inline void TestPackedTypes::clear_packed_int32() {
   packed_int32_.Clear();
@@ -33052,8 +32185,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestPackedTypes::muta
 
 // repeated int64 packed_int64 = 91 [packed = true];
 inline int TestPackedTypes::_internal_packed_int64_size() const { return packed_int64_.size(); }
-inline int TestPackedTypes::packed_int64_size() const {
-  return _internal_packed_int64_size();
+inline int TestPackedTypes::packed_int64_size() const
+{
+	return _internal_packed_int64_size();
 }
 inline void TestPackedTypes::clear_packed_int64() {
   packed_int64_.Clear();
@@ -33091,8 +32225,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestPackedTypes::muta
 
 // repeated uint32 packed_uint32 = 92 [packed = true];
 inline int TestPackedTypes::_internal_packed_uint32_size() const { return packed_uint32_.size(); }
-inline int TestPackedTypes::packed_uint32_size() const {
-  return _internal_packed_uint32_size();
+inline int TestPackedTypes::packed_uint32_size() const
+{
+	return _internal_packed_uint32_size();
 }
 inline void TestPackedTypes::clear_packed_uint32() {
   packed_uint32_.Clear();
@@ -33130,8 +32265,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestPackedTypes::mut
 
 // repeated uint64 packed_uint64 = 93 [packed = true];
 inline int TestPackedTypes::_internal_packed_uint64_size() const { return packed_uint64_.size(); }
-inline int TestPackedTypes::packed_uint64_size() const {
-  return _internal_packed_uint64_size();
+inline int TestPackedTypes::packed_uint64_size() const
+{
+	return _internal_packed_uint64_size();
 }
 inline void TestPackedTypes::clear_packed_uint64() {
   packed_uint64_.Clear();
@@ -33169,8 +32305,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestPackedTypes::mut
 
 // repeated sint32 packed_sint32 = 94 [packed = true];
 inline int TestPackedTypes::_internal_packed_sint32_size() const { return packed_sint32_.size(); }
-inline int TestPackedTypes::packed_sint32_size() const {
-  return _internal_packed_sint32_size();
+inline int TestPackedTypes::packed_sint32_size() const
+{
+	return _internal_packed_sint32_size();
 }
 inline void TestPackedTypes::clear_packed_sint32() {
   packed_sint32_.Clear();
@@ -33208,8 +32345,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestPackedTypes::muta
 
 // repeated sint64 packed_sint64 = 95 [packed = true];
 inline int TestPackedTypes::_internal_packed_sint64_size() const { return packed_sint64_.size(); }
-inline int TestPackedTypes::packed_sint64_size() const {
-  return _internal_packed_sint64_size();
+inline int TestPackedTypes::packed_sint64_size() const
+{
+	return _internal_packed_sint64_size();
 }
 inline void TestPackedTypes::clear_packed_sint64() {
   packed_sint64_.Clear();
@@ -33247,8 +32385,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestPackedTypes::muta
 
 // repeated fixed32 packed_fixed32 = 96 [packed = true];
 inline int TestPackedTypes::_internal_packed_fixed32_size() const { return packed_fixed32_.size(); }
-inline int TestPackedTypes::packed_fixed32_size() const {
-  return _internal_packed_fixed32_size();
+inline int TestPackedTypes::packed_fixed32_size() const
+{
+	return _internal_packed_fixed32_size();
 }
 inline void TestPackedTypes::clear_packed_fixed32() {
   packed_fixed32_.Clear();
@@ -33286,8 +32425,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestPackedTypes::mut
 
 // repeated fixed64 packed_fixed64 = 97 [packed = true];
 inline int TestPackedTypes::_internal_packed_fixed64_size() const { return packed_fixed64_.size(); }
-inline int TestPackedTypes::packed_fixed64_size() const {
-  return _internal_packed_fixed64_size();
+inline int TestPackedTypes::packed_fixed64_size() const
+{
+	return _internal_packed_fixed64_size();
 }
 inline void TestPackedTypes::clear_packed_fixed64() {
   packed_fixed64_.Clear();
@@ -33325,8 +32465,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestPackedTypes::mut
 
 // repeated sfixed32 packed_sfixed32 = 98 [packed = true];
 inline int TestPackedTypes::_internal_packed_sfixed32_size() const { return packed_sfixed32_.size(); }
-inline int TestPackedTypes::packed_sfixed32_size() const {
-  return _internal_packed_sfixed32_size();
+inline int TestPackedTypes::packed_sfixed32_size() const
+{
+	return _internal_packed_sfixed32_size();
 }
 inline void TestPackedTypes::clear_packed_sfixed32() {
   packed_sfixed32_.Clear();
@@ -33364,8 +32505,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestPackedTypes::muta
 
 // repeated sfixed64 packed_sfixed64 = 99 [packed = true];
 inline int TestPackedTypes::_internal_packed_sfixed64_size() const { return packed_sfixed64_.size(); }
-inline int TestPackedTypes::packed_sfixed64_size() const {
-  return _internal_packed_sfixed64_size();
+inline int TestPackedTypes::packed_sfixed64_size() const
+{
+	return _internal_packed_sfixed64_size();
 }
 inline void TestPackedTypes::clear_packed_sfixed64() {
   packed_sfixed64_.Clear();
@@ -33403,8 +32545,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestPackedTypes::muta
 
 // repeated float packed_float = 100 [packed = true];
 inline int TestPackedTypes::_internal_packed_float_size() const { return packed_float_.size(); }
-inline int TestPackedTypes::packed_float_size() const {
-  return _internal_packed_float_size();
+inline int TestPackedTypes::packed_float_size() const
+{
+	return _internal_packed_float_size();
 }
 inline void TestPackedTypes::clear_packed_float() {
   packed_float_.Clear();
@@ -33442,8 +32585,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * TestPackedTypes::mutabl
 
 // repeated double packed_double = 101 [packed = true];
 inline int TestPackedTypes::_internal_packed_double_size() const { return packed_double_.size(); }
-inline int TestPackedTypes::packed_double_size() const {
-  return _internal_packed_double_size();
+inline int TestPackedTypes::packed_double_size() const
+{
+	return _internal_packed_double_size();
 }
 inline void TestPackedTypes::clear_packed_double() {
   packed_double_.Clear();
@@ -33481,8 +32625,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * TestPackedTypes::mutab
 
 // repeated bool packed_bool = 102 [packed = true];
 inline int TestPackedTypes::_internal_packed_bool_size() const { return packed_bool_.size(); }
-inline int TestPackedTypes::packed_bool_size() const {
-  return _internal_packed_bool_size();
+inline int TestPackedTypes::packed_bool_size() const
+{
+	return _internal_packed_bool_size();
 }
 inline void TestPackedTypes::clear_packed_bool() {
   packed_bool_.Clear();
@@ -33520,41 +32665,48 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * TestPackedTypes::mutable
 
 // repeated .protobuf_unittest.ForeignEnum packed_enum = 103 [packed = true];
 inline int TestPackedTypes::_internal_packed_enum_size() const { return packed_enum_.size(); }
-inline int TestPackedTypes::packed_enum_size() const {
-  return _internal_packed_enum_size();
+inline int TestPackedTypes::packed_enum_size() const
+{
+	return _internal_packed_enum_size();
 }
 inline void TestPackedTypes::clear_packed_enum() {
   packed_enum_.Clear();
 }
 inline ::protobuf_unittest::ForeignEnum TestPackedTypes::_internal_packed_enum(int index) const { return static_cast< ::protobuf_unittest::ForeignEnum >(packed_enum_.Get(index)); }
-inline ::protobuf_unittest::ForeignEnum TestPackedTypes::packed_enum(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestPackedTypes.packed_enum)
-  return _internal_packed_enum(index);
+inline ::protobuf_unittest::ForeignEnum TestPackedTypes::packed_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestPackedTypes.packed_enum)
+	return _internal_packed_enum(index);
 }
-inline void TestPackedTypes::set_packed_enum(int index, ::protobuf_unittest::ForeignEnum value) {
-  assert(::protobuf_unittest::ForeignEnum_IsValid(value));
-  packed_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestPackedTypes.packed_enum)
+inline void TestPackedTypes::set_packed_enum(int index, ::protobuf_unittest::ForeignEnum value)
+{
+	assert(::protobuf_unittest::ForeignEnum_IsValid(value));
+	packed_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestPackedTypes.packed_enum)
 }
-inline void TestPackedTypes::_internal_add_packed_enum(::protobuf_unittest::ForeignEnum value) {
-  assert(::protobuf_unittest::ForeignEnum_IsValid(value));
-  packed_enum_.Add(value);
+inline void TestPackedTypes::_internal_add_packed_enum(::protobuf_unittest::ForeignEnum value)
+{
+	assert(::protobuf_unittest::ForeignEnum_IsValid(value));
+	packed_enum_.Add(value);
 }
-inline void TestPackedTypes::add_packed_enum(::protobuf_unittest::ForeignEnum value) {
-  _internal_add_packed_enum(value);
-  // @@protoc_insertion_point(field_add:protobuf_unittest.TestPackedTypes.packed_enum)
+inline void TestPackedTypes::add_packed_enum(::protobuf_unittest::ForeignEnum value)
+{
+	_internal_add_packed_enum(value);
+	// @@protoc_insertion_point(field_add:protobuf_unittest.TestPackedTypes.packed_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestPackedTypes::packed_enum() const {
-  // @@protoc_insertion_point(field_list:protobuf_unittest.TestPackedTypes.packed_enum)
-  return packed_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestPackedTypes::packed_enum() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_unittest.TestPackedTypes.packed_enum)
+	return packed_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestPackedTypes::_internal_mutable_packed_enum() {
-  return &packed_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestPackedTypes::_internal_mutable_packed_enum()
+{
+	return &packed_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestPackedTypes::mutable_packed_enum() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestPackedTypes.packed_enum)
-  return _internal_mutable_packed_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestPackedTypes::mutable_packed_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestPackedTypes.packed_enum)
+	return _internal_mutable_packed_enum();
 }
 
 // -------------------------------------------------------------------
@@ -33563,8 +32715,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestPackedTypes::mutable_pa
 
 // repeated int32 unpacked_int32 = 90 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_int32_size() const { return unpacked_int32_.size(); }
-inline int TestUnpackedTypes::unpacked_int32_size() const {
-  return _internal_unpacked_int32_size();
+inline int TestUnpackedTypes::unpacked_int32_size() const
+{
+	return _internal_unpacked_int32_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_int32() {
   unpacked_int32_.Clear();
@@ -33602,8 +32755,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestUnpackedTypes::mu
 
 // repeated int64 unpacked_int64 = 91 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_int64_size() const { return unpacked_int64_.size(); }
-inline int TestUnpackedTypes::unpacked_int64_size() const {
-  return _internal_unpacked_int64_size();
+inline int TestUnpackedTypes::unpacked_int64_size() const
+{
+	return _internal_unpacked_int64_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_int64() {
   unpacked_int64_.Clear();
@@ -33641,8 +32795,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestUnpackedTypes::mu
 
 // repeated uint32 unpacked_uint32 = 92 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_uint32_size() const { return unpacked_uint32_.size(); }
-inline int TestUnpackedTypes::unpacked_uint32_size() const {
-  return _internal_unpacked_uint32_size();
+inline int TestUnpackedTypes::unpacked_uint32_size() const
+{
+	return _internal_unpacked_uint32_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_uint32() {
   unpacked_uint32_.Clear();
@@ -33680,8 +32835,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestUnpackedTypes::m
 
 // repeated uint64 unpacked_uint64 = 93 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_uint64_size() const { return unpacked_uint64_.size(); }
-inline int TestUnpackedTypes::unpacked_uint64_size() const {
-  return _internal_unpacked_uint64_size();
+inline int TestUnpackedTypes::unpacked_uint64_size() const
+{
+	return _internal_unpacked_uint64_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_uint64() {
   unpacked_uint64_.Clear();
@@ -33719,8 +32875,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestUnpackedTypes::m
 
 // repeated sint32 unpacked_sint32 = 94 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_sint32_size() const { return unpacked_sint32_.size(); }
-inline int TestUnpackedTypes::unpacked_sint32_size() const {
-  return _internal_unpacked_sint32_size();
+inline int TestUnpackedTypes::unpacked_sint32_size() const
+{
+	return _internal_unpacked_sint32_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_sint32() {
   unpacked_sint32_.Clear();
@@ -33758,8 +32915,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestUnpackedTypes::mu
 
 // repeated sint64 unpacked_sint64 = 95 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_sint64_size() const { return unpacked_sint64_.size(); }
-inline int TestUnpackedTypes::unpacked_sint64_size() const {
-  return _internal_unpacked_sint64_size();
+inline int TestUnpackedTypes::unpacked_sint64_size() const
+{
+	return _internal_unpacked_sint64_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_sint64() {
   unpacked_sint64_.Clear();
@@ -33797,8 +32955,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestUnpackedTypes::mu
 
 // repeated fixed32 unpacked_fixed32 = 96 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_fixed32_size() const { return unpacked_fixed32_.size(); }
-inline int TestUnpackedTypes::unpacked_fixed32_size() const {
-  return _internal_unpacked_fixed32_size();
+inline int TestUnpackedTypes::unpacked_fixed32_size() const
+{
+	return _internal_unpacked_fixed32_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_fixed32() {
   unpacked_fixed32_.Clear();
@@ -33836,8 +32995,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestUnpackedTypes::m
 
 // repeated fixed64 unpacked_fixed64 = 97 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_fixed64_size() const { return unpacked_fixed64_.size(); }
-inline int TestUnpackedTypes::unpacked_fixed64_size() const {
-  return _internal_unpacked_fixed64_size();
+inline int TestUnpackedTypes::unpacked_fixed64_size() const
+{
+	return _internal_unpacked_fixed64_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_fixed64() {
   unpacked_fixed64_.Clear();
@@ -33875,8 +33035,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestUnpackedTypes::m
 
 // repeated sfixed32 unpacked_sfixed32 = 98 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_sfixed32_size() const { return unpacked_sfixed32_.size(); }
-inline int TestUnpackedTypes::unpacked_sfixed32_size() const {
-  return _internal_unpacked_sfixed32_size();
+inline int TestUnpackedTypes::unpacked_sfixed32_size() const
+{
+	return _internal_unpacked_sfixed32_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_sfixed32() {
   unpacked_sfixed32_.Clear();
@@ -33914,8 +33075,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestUnpackedTypes::mu
 
 // repeated sfixed64 unpacked_sfixed64 = 99 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_sfixed64_size() const { return unpacked_sfixed64_.size(); }
-inline int TestUnpackedTypes::unpacked_sfixed64_size() const {
-  return _internal_unpacked_sfixed64_size();
+inline int TestUnpackedTypes::unpacked_sfixed64_size() const
+{
+	return _internal_unpacked_sfixed64_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_sfixed64() {
   unpacked_sfixed64_.Clear();
@@ -33953,8 +33115,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestUnpackedTypes::mu
 
 // repeated float unpacked_float = 100 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_float_size() const { return unpacked_float_.size(); }
-inline int TestUnpackedTypes::unpacked_float_size() const {
-  return _internal_unpacked_float_size();
+inline int TestUnpackedTypes::unpacked_float_size() const
+{
+	return _internal_unpacked_float_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_float() {
   unpacked_float_.Clear();
@@ -33992,8 +33155,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * TestUnpackedTypes::muta
 
 // repeated double unpacked_double = 101 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_double_size() const { return unpacked_double_.size(); }
-inline int TestUnpackedTypes::unpacked_double_size() const {
-  return _internal_unpacked_double_size();
+inline int TestUnpackedTypes::unpacked_double_size() const
+{
+	return _internal_unpacked_double_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_double() {
   unpacked_double_.Clear();
@@ -34031,8 +33195,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * TestUnpackedTypes::mut
 
 // repeated bool unpacked_bool = 102 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_bool_size() const { return unpacked_bool_.size(); }
-inline int TestUnpackedTypes::unpacked_bool_size() const {
-  return _internal_unpacked_bool_size();
+inline int TestUnpackedTypes::unpacked_bool_size() const
+{
+	return _internal_unpacked_bool_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_bool() {
   unpacked_bool_.Clear();
@@ -34070,41 +33235,48 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * TestUnpackedTypes::mutab
 
 // repeated .protobuf_unittest.ForeignEnum unpacked_enum = 103 [packed = false];
 inline int TestUnpackedTypes::_internal_unpacked_enum_size() const { return unpacked_enum_.size(); }
-inline int TestUnpackedTypes::unpacked_enum_size() const {
-  return _internal_unpacked_enum_size();
+inline int TestUnpackedTypes::unpacked_enum_size() const
+{
+	return _internal_unpacked_enum_size();
 }
 inline void TestUnpackedTypes::clear_unpacked_enum() {
   unpacked_enum_.Clear();
 }
 inline ::protobuf_unittest::ForeignEnum TestUnpackedTypes::_internal_unpacked_enum(int index) const { return static_cast< ::protobuf_unittest::ForeignEnum >(unpacked_enum_.Get(index)); }
-inline ::protobuf_unittest::ForeignEnum TestUnpackedTypes::unpacked_enum(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestUnpackedTypes.unpacked_enum)
-  return _internal_unpacked_enum(index);
+inline ::protobuf_unittest::ForeignEnum TestUnpackedTypes::unpacked_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestUnpackedTypes.unpacked_enum)
+	return _internal_unpacked_enum(index);
 }
-inline void TestUnpackedTypes::set_unpacked_enum(int index, ::protobuf_unittest::ForeignEnum value) {
-  assert(::protobuf_unittest::ForeignEnum_IsValid(value));
-  unpacked_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestUnpackedTypes.unpacked_enum)
+inline void TestUnpackedTypes::set_unpacked_enum(int index, ::protobuf_unittest::ForeignEnum value)
+{
+	assert(::protobuf_unittest::ForeignEnum_IsValid(value));
+	unpacked_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestUnpackedTypes.unpacked_enum)
 }
-inline void TestUnpackedTypes::_internal_add_unpacked_enum(::protobuf_unittest::ForeignEnum value) {
-  assert(::protobuf_unittest::ForeignEnum_IsValid(value));
-  unpacked_enum_.Add(value);
+inline void TestUnpackedTypes::_internal_add_unpacked_enum(::protobuf_unittest::ForeignEnum value)
+{
+	assert(::protobuf_unittest::ForeignEnum_IsValid(value));
+	unpacked_enum_.Add(value);
 }
-inline void TestUnpackedTypes::add_unpacked_enum(::protobuf_unittest::ForeignEnum value) {
-  _internal_add_unpacked_enum(value);
-  // @@protoc_insertion_point(field_add:protobuf_unittest.TestUnpackedTypes.unpacked_enum)
+inline void TestUnpackedTypes::add_unpacked_enum(::protobuf_unittest::ForeignEnum value)
+{
+	_internal_add_unpacked_enum(value);
+	// @@protoc_insertion_point(field_add:protobuf_unittest.TestUnpackedTypes.unpacked_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestUnpackedTypes::unpacked_enum() const {
-  // @@protoc_insertion_point(field_list:protobuf_unittest.TestUnpackedTypes.unpacked_enum)
-  return unpacked_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestUnpackedTypes::unpacked_enum() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_unittest.TestUnpackedTypes.unpacked_enum)
+	return unpacked_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestUnpackedTypes::_internal_mutable_unpacked_enum() {
-  return &unpacked_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestUnpackedTypes::_internal_mutable_unpacked_enum()
+{
+	return &unpacked_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestUnpackedTypes::mutable_unpacked_enum() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestUnpackedTypes.unpacked_enum)
-  return _internal_mutable_unpacked_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestUnpackedTypes::mutable_unpacked_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestUnpackedTypes.unpacked_enum)
+	return _internal_mutable_unpacked_enum();
 }
 
 // -------------------------------------------------------------------
@@ -34122,10 +33294,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestUnpackedTypes::mutable_
 // optional int32 dynamic_field = 2100;
 inline bool TestDynamicExtensions_DynamicMessageType::_internal_has_dynamic_field() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDynamicExtensions_DynamicMessageType::has_dynamic_field() const {
-  return _internal_has_dynamic_field();
+	return _internal_has_dynamic_field();
 }
 inline void TestDynamicExtensions_DynamicMessageType::clear_dynamic_field() {
   dynamic_field_ = 0;
@@ -34152,10 +33324,10 @@ inline void TestDynamicExtensions_DynamicMessageType::set_dynamic_field(int32_t 
 // optional fixed32 scalar_extension = 2000;
 inline bool TestDynamicExtensions::_internal_has_scalar_extension() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDynamicExtensions::has_scalar_extension() const {
-  return _internal_has_scalar_extension();
+	return _internal_has_scalar_extension();
 }
 inline void TestDynamicExtensions::clear_scalar_extension() {
   scalar_extension_ = 0u;
@@ -34178,10 +33350,10 @@ inline void TestDynamicExtensions::set_scalar_extension(uint32_t value) {
 // optional .protobuf_unittest.ForeignEnum enum_extension = 2001;
 inline bool TestDynamicExtensions::_internal_has_enum_extension() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDynamicExtensions::has_enum_extension() const {
-  return _internal_has_enum_extension();
+	return _internal_has_enum_extension();
 }
 inline void TestDynamicExtensions::clear_enum_extension() {
   enum_extension_ = 4;
@@ -34205,10 +33377,10 @@ inline void TestDynamicExtensions::set_enum_extension(::protobuf_unittest::Forei
 // optional .protobuf_unittest.TestDynamicExtensions.DynamicEnumType dynamic_enum_extension = 2002;
 inline bool TestDynamicExtensions::_internal_has_dynamic_enum_extension() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDynamicExtensions::has_dynamic_enum_extension() const {
-  return _internal_has_dynamic_enum_extension();
+	return _internal_has_dynamic_enum_extension();
 }
 inline void TestDynamicExtensions::clear_dynamic_enum_extension() {
   dynamic_enum_extension_ = 2200;
@@ -34233,10 +33405,10 @@ inline void TestDynamicExtensions::set_dynamic_enum_extension(::protobuf_unittes
 inline bool TestDynamicExtensions::_internal_has_message_extension() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || message_extension_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestDynamicExtensions::has_message_extension() const {
-  return _internal_has_message_extension();
+	return _internal_has_message_extension();
 }
 inline void TestDynamicExtensions::clear_message_extension() {
   if(message_extension_ != nullptr) message_extension_->Clear();
@@ -34322,10 +33494,10 @@ inline void TestDynamicExtensions::set_allocated_message_extension(::protobuf_un
 inline bool TestDynamicExtensions::_internal_has_dynamic_message_extension() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || dynamic_message_extension_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestDynamicExtensions::has_dynamic_message_extension() const {
-  return _internal_has_dynamic_message_extension();
+	return _internal_has_dynamic_message_extension();
 }
 inline void TestDynamicExtensions::clear_dynamic_message_extension() {
   if(dynamic_message_extension_ != nullptr) dynamic_message_extension_->Clear();
@@ -34409,8 +33581,9 @@ inline void TestDynamicExtensions::set_allocated_dynamic_message_extension(::pro
 
 // repeated string repeated_extension = 2005;
 inline int TestDynamicExtensions::_internal_repeated_extension_size() const { return repeated_extension_.size(); }
-inline int TestDynamicExtensions::repeated_extension_size() const {
-  return _internal_repeated_extension_size();
+inline int TestDynamicExtensions::repeated_extension_size() const
+{
+	return _internal_repeated_extension_size();
 }
 inline void TestDynamicExtensions::clear_repeated_extension() {
   repeated_extension_.Clear();
@@ -34477,8 +33650,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestDynamicExten
 
 // repeated sint32 packed_extension = 2006 [packed = true];
 inline int TestDynamicExtensions::_internal_packed_extension_size() const { return packed_extension_.size(); }
-inline int TestDynamicExtensions::packed_extension_size() const {
-  return _internal_packed_extension_size();
+inline int TestDynamicExtensions::packed_extension_size() const
+{
+	return _internal_packed_extension_size();
 }
 inline void TestDynamicExtensions::clear_packed_extension() {
   packed_extension_.Clear();
@@ -34520,8 +33694,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestDynamicExtensions
 
 // repeated fixed32 repeated_fixed32 = 12;
 inline int TestRepeatedScalarDifferentTagSizes::_internal_repeated_fixed32_size() const { return repeated_fixed32_.size(); }
-inline int TestRepeatedScalarDifferentTagSizes::repeated_fixed32_size() const {
-  return _internal_repeated_fixed32_size();
+inline int TestRepeatedScalarDifferentTagSizes::repeated_fixed32_size() const
+{
+	return _internal_repeated_fixed32_size();
 }
 inline void TestRepeatedScalarDifferentTagSizes::clear_repeated_fixed32() {
   repeated_fixed32_.Clear();
@@ -34559,8 +33734,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestRepeatedScalarDi
 
 // repeated int32 repeated_int32 = 13;
 inline int TestRepeatedScalarDifferentTagSizes::_internal_repeated_int32_size() const { return repeated_int32_.size(); }
-inline int TestRepeatedScalarDifferentTagSizes::repeated_int32_size() const {
-  return _internal_repeated_int32_size();
+inline int TestRepeatedScalarDifferentTagSizes::repeated_int32_size() const
+{
+	return _internal_repeated_int32_size();
 }
 inline void TestRepeatedScalarDifferentTagSizes::clear_repeated_int32() {
   repeated_int32_.Clear();
@@ -34598,8 +33774,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestRepeatedScalarDif
 
 // repeated fixed64 repeated_fixed64 = 2046;
 inline int TestRepeatedScalarDifferentTagSizes::_internal_repeated_fixed64_size() const { return repeated_fixed64_.size(); }
-inline int TestRepeatedScalarDifferentTagSizes::repeated_fixed64_size() const {
-  return _internal_repeated_fixed64_size();
+inline int TestRepeatedScalarDifferentTagSizes::repeated_fixed64_size() const
+{
+	return _internal_repeated_fixed64_size();
 }
 inline void TestRepeatedScalarDifferentTagSizes::clear_repeated_fixed64() {
   repeated_fixed64_.Clear();
@@ -34637,8 +33814,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestRepeatedScalarDi
 
 // repeated int64 repeated_int64 = 2047;
 inline int TestRepeatedScalarDifferentTagSizes::_internal_repeated_int64_size() const { return repeated_int64_.size(); }
-inline int TestRepeatedScalarDifferentTagSizes::repeated_int64_size() const {
-  return _internal_repeated_int64_size();
+inline int TestRepeatedScalarDifferentTagSizes::repeated_int64_size() const
+{
+	return _internal_repeated_int64_size();
 }
 inline void TestRepeatedScalarDifferentTagSizes::clear_repeated_int64() {
   repeated_int64_.Clear();
@@ -34676,8 +33854,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestRepeatedScalarDif
 
 // repeated float repeated_float = 262142;
 inline int TestRepeatedScalarDifferentTagSizes::_internal_repeated_float_size() const { return repeated_float_.size(); }
-inline int TestRepeatedScalarDifferentTagSizes::repeated_float_size() const {
-  return _internal_repeated_float_size();
+inline int TestRepeatedScalarDifferentTagSizes::repeated_float_size() const
+{
+	return _internal_repeated_float_size();
 }
 inline void TestRepeatedScalarDifferentTagSizes::clear_repeated_float() {
   repeated_float_.Clear();
@@ -34715,8 +33894,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * TestRepeatedScalarDiffe
 
 // repeated uint64 repeated_uint64 = 262143;
 inline int TestRepeatedScalarDifferentTagSizes::_internal_repeated_uint64_size() const { return repeated_uint64_.size(); }
-inline int TestRepeatedScalarDifferentTagSizes::repeated_uint64_size() const {
-  return _internal_repeated_uint64_size();
+inline int TestRepeatedScalarDifferentTagSizes::repeated_uint64_size() const
+{
+	return _internal_repeated_uint64_size();
 }
 inline void TestRepeatedScalarDifferentTagSizes::clear_repeated_uint64() {
   repeated_uint64_.Clear();
@@ -34760,10 +33940,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestRepeatedScalarDi
 inline bool TestParsingMerge_RepeatedFieldsGenerator_Group1::_internal_has_field1() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || field1_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestParsingMerge_RepeatedFieldsGenerator_Group1::has_field1() const {
-  return _internal_has_field1();
+	return _internal_has_field1();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator_Group1::clear_field1() {
   if(field1_ != nullptr) field1_->Clear();
@@ -34853,10 +34033,10 @@ inline void TestParsingMerge_RepeatedFieldsGenerator_Group1::set_allocated_field
 inline bool TestParsingMerge_RepeatedFieldsGenerator_Group2::_internal_has_field1() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || field1_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestParsingMerge_RepeatedFieldsGenerator_Group2::has_field1() const {
-  return _internal_has_field1();
+	return _internal_has_field1();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator_Group2::clear_field1() {
   if(field1_ != nullptr) field1_->Clear();
@@ -34944,8 +34124,9 @@ inline void TestParsingMerge_RepeatedFieldsGenerator_Group2::set_allocated_field
 
 // repeated .protobuf_unittest.TestAllTypes field1 = 1;
 inline int TestParsingMerge_RepeatedFieldsGenerator::_internal_field1_size() const { return field1_.size(); }
-inline int TestParsingMerge_RepeatedFieldsGenerator::field1_size() const {
-  return _internal_field1_size();
+inline int TestParsingMerge_RepeatedFieldsGenerator::field1_size() const
+{
+	return _internal_field1_size();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator::clear_field1() {
   field1_.Clear();
@@ -34980,8 +34161,9 @@ TestParsingMerge_RepeatedFieldsGenerator::field1() const {
 
 // repeated .protobuf_unittest.TestAllTypes field2 = 2;
 inline int TestParsingMerge_RepeatedFieldsGenerator::_internal_field2_size() const { return field2_.size(); }
-inline int TestParsingMerge_RepeatedFieldsGenerator::field2_size() const {
-  return _internal_field2_size();
+inline int TestParsingMerge_RepeatedFieldsGenerator::field2_size() const
+{
+	return _internal_field2_size();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator::clear_field2() {
   field2_.Clear();
@@ -35016,8 +34198,9 @@ TestParsingMerge_RepeatedFieldsGenerator::field2() const {
 
 // repeated .protobuf_unittest.TestAllTypes field3 = 3;
 inline int TestParsingMerge_RepeatedFieldsGenerator::_internal_field3_size() const { return field3_.size(); }
-inline int TestParsingMerge_RepeatedFieldsGenerator::field3_size() const {
-  return _internal_field3_size();
+inline int TestParsingMerge_RepeatedFieldsGenerator::field3_size() const
+{
+	return _internal_field3_size();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator::clear_field3() {
   field3_.Clear();
@@ -35052,8 +34235,9 @@ TestParsingMerge_RepeatedFieldsGenerator::field3() const {
 
 // repeated group Group1 = 10 { ... };
 inline int TestParsingMerge_RepeatedFieldsGenerator::_internal_group1_size() const { return group1_.size(); }
-inline int TestParsingMerge_RepeatedFieldsGenerator::group1_size() const {
-  return _internal_group1_size();
+inline int TestParsingMerge_RepeatedFieldsGenerator::group1_size() const
+{
+	return _internal_group1_size();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator::clear_group1() {
   group1_.Clear();
@@ -35088,8 +34272,9 @@ TestParsingMerge_RepeatedFieldsGenerator::group1() const {
 
 // repeated group Group2 = 20 { ... };
 inline int TestParsingMerge_RepeatedFieldsGenerator::_internal_group2_size() const { return group2_.size(); }
-inline int TestParsingMerge_RepeatedFieldsGenerator::group2_size() const {
-  return _internal_group2_size();
+inline int TestParsingMerge_RepeatedFieldsGenerator::group2_size() const
+{
+	return _internal_group2_size();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator::clear_group2() {
   group2_.Clear();
@@ -35124,8 +34309,9 @@ TestParsingMerge_RepeatedFieldsGenerator::group2() const {
 
 // repeated .protobuf_unittest.TestAllTypes ext1 = 1000;
 inline int TestParsingMerge_RepeatedFieldsGenerator::_internal_ext1_size() const { return ext1_.size(); }
-inline int TestParsingMerge_RepeatedFieldsGenerator::ext1_size() const {
-  return _internal_ext1_size();
+inline int TestParsingMerge_RepeatedFieldsGenerator::ext1_size() const
+{
+	return _internal_ext1_size();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator::clear_ext1() {
   ext1_.Clear();
@@ -35160,8 +34346,9 @@ TestParsingMerge_RepeatedFieldsGenerator::ext1() const {
 
 // repeated .protobuf_unittest.TestAllTypes ext2 = 1001;
 inline int TestParsingMerge_RepeatedFieldsGenerator::_internal_ext2_size() const { return ext2_.size(); }
-inline int TestParsingMerge_RepeatedFieldsGenerator::ext2_size() const {
-  return _internal_ext2_size();
+inline int TestParsingMerge_RepeatedFieldsGenerator::ext2_size() const
+{
+	return _internal_ext2_size();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator::clear_ext2() {
   ext2_.Clear();
@@ -35202,10 +34389,10 @@ TestParsingMerge_RepeatedFieldsGenerator::ext2() const {
 inline bool TestParsingMerge_OptionalGroup::_internal_has_optional_group_all_types() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || optional_group_all_types_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestParsingMerge_OptionalGroup::has_optional_group_all_types() const {
-  return _internal_has_optional_group_all_types();
+	return _internal_has_optional_group_all_types();
 }
 inline void TestParsingMerge_OptionalGroup::clear_optional_group_all_types() {
   if(optional_group_all_types_ != nullptr) optional_group_all_types_->Clear();
@@ -35295,10 +34482,10 @@ inline void TestParsingMerge_OptionalGroup::set_allocated_optional_group_all_typ
 inline bool TestParsingMerge_RepeatedGroup::_internal_has_repeated_group_all_types() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || repeated_group_all_types_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestParsingMerge_RepeatedGroup::has_repeated_group_all_types() const {
-  return _internal_has_repeated_group_all_types();
+	return _internal_has_repeated_group_all_types();
 }
 inline void TestParsingMerge_RepeatedGroup::clear_repeated_group_all_types() {
   if(repeated_group_all_types_ != nullptr) repeated_group_all_types_->Clear();
@@ -35388,10 +34575,10 @@ inline void TestParsingMerge_RepeatedGroup::set_allocated_repeated_group_all_typ
 inline bool TestParsingMerge::_internal_has_required_all_types() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || required_all_types_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestParsingMerge::has_required_all_types() const {
-  return _internal_has_required_all_types();
+	return _internal_has_required_all_types();
 }
 inline void TestParsingMerge::clear_required_all_types() {
   if(required_all_types_ != nullptr) required_all_types_->Clear();
@@ -35477,10 +34664,10 @@ inline void TestParsingMerge::set_allocated_required_all_types(::protobuf_unitte
 inline bool TestParsingMerge::_internal_has_optional_all_types() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || optional_all_types_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestParsingMerge::has_optional_all_types() const {
-  return _internal_has_optional_all_types();
+	return _internal_has_optional_all_types();
 }
 inline void TestParsingMerge::clear_optional_all_types() {
   if(optional_all_types_ != nullptr) optional_all_types_->Clear();
@@ -35564,8 +34751,9 @@ inline void TestParsingMerge::set_allocated_optional_all_types(::protobuf_unitte
 
 // repeated .protobuf_unittest.TestAllTypes repeated_all_types = 3;
 inline int TestParsingMerge::_internal_repeated_all_types_size() const { return repeated_all_types_.size(); }
-inline int TestParsingMerge::repeated_all_types_size() const {
-  return _internal_repeated_all_types_size();
+inline int TestParsingMerge::repeated_all_types_size() const
+{
+	return _internal_repeated_all_types_size();
 }
 inline void TestParsingMerge::clear_repeated_all_types() {
   repeated_all_types_.Clear();
@@ -35602,10 +34790,10 @@ TestParsingMerge::repeated_all_types() const {
 inline bool TestParsingMerge::_internal_has_optionalgroup() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
   PROTOBUF_ASSUME(!value || optionalgroup_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestParsingMerge::has_optionalgroup() const {
-  return _internal_has_optionalgroup();
+	return _internal_has_optionalgroup();
 }
 inline void TestParsingMerge::clear_optionalgroup() {
   if(optionalgroup_ != nullptr) optionalgroup_->Clear();
@@ -35689,8 +34877,9 @@ inline void TestParsingMerge::set_allocated_optionalgroup(::protobuf_unittest::T
 
 // repeated group RepeatedGroup = 20 { ... };
 inline int TestParsingMerge::_internal_repeatedgroup_size() const { return repeatedgroup_.size(); }
-inline int TestParsingMerge::repeatedgroup_size() const {
-  return _internal_repeatedgroup_size();
+inline int TestParsingMerge::repeatedgroup_size() const
+{
+	return _internal_repeatedgroup_size();
 }
 inline void TestParsingMerge::clear_repeatedgroup() {
   repeatedgroup_.Clear();
@@ -35730,10 +34919,10 @@ TestParsingMerge::repeatedgroup() const {
 // optional string a = 1 [default = "*/ <- Neither should this."];
 inline bool TestCommentInjectionMessage::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestCommentInjectionMessage::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestCommentInjectionMessage::clear_a() {
   a_.ClearToDefault(::protobuf_unittest::TestCommentInjectionMessage::_i_give_permission_to_break_this_code_default_a_, GetArenaForAllocation());
@@ -35813,10 +35002,10 @@ inline void TestCommentInjectionMessage::set_allocated_a(std::string* a) {
 // optional int32 field_name1 = 1;
 inline bool TestJsonName::_internal_has_field_name1() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJsonName::has_field_name1() const {
-  return _internal_has_field_name1();
+	return _internal_has_field_name1();
 }
 inline void TestJsonName::clear_field_name1() {
   field_name1_ = 0;
@@ -35839,10 +35028,10 @@ inline void TestJsonName::set_field_name1(int32_t value) {
 // optional int32 fieldName2 = 2;
 inline bool TestJsonName::_internal_has_fieldname2() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJsonName::has_fieldname2() const {
-  return _internal_has_fieldname2();
+	return _internal_has_fieldname2();
 }
 inline void TestJsonName::clear_fieldname2() {
   fieldname2_ = 0;
@@ -35865,10 +35054,10 @@ inline void TestJsonName::set_fieldname2(int32_t value) {
 // optional int32 FieldName3 = 3;
 inline bool TestJsonName::_internal_has_fieldname3() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJsonName::has_fieldname3() const {
-  return _internal_has_fieldname3();
+	return _internal_has_fieldname3();
 }
 inline void TestJsonName::clear_fieldname3() {
   fieldname3_ = 0;
@@ -35891,10 +35080,10 @@ inline void TestJsonName::set_fieldname3(int32_t value) {
 // optional int32 _field_name4 = 4;
 inline bool TestJsonName::_internal_has__field_name4() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJsonName::has__field_name4() const {
-  return _internal_has__field_name4();
+	return _internal_has__field_name4();
 }
 inline void TestJsonName::clear__field_name4() {
   _field_name4_ = 0;
@@ -35917,10 +35106,10 @@ inline void TestJsonName::set__field_name4(int32_t value) {
 // optional int32 FIELD_NAME5 = 5;
 inline bool TestJsonName::_internal_has_field_name5() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJsonName::has_field_name5() const {
-  return _internal_has_field_name5();
+	return _internal_has_field_name5();
 }
 inline void TestJsonName::clear_field_name5() {
   field_name5_ = 0;
@@ -35943,10 +35132,10 @@ inline void TestJsonName::set_field_name5(int32_t value) {
 // optional int32 field_name6 = 6 [json_name = "@type"];
 inline bool TestJsonName::_internal_has_field_name6() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJsonName::has_field_name6() const {
-  return _internal_has_field_name6();
+	return _internal_has_field_name6();
 }
 inline void TestJsonName::clear_field_name6() {
   field_name6_ = 0;
@@ -35969,10 +35158,10 @@ inline void TestJsonName::set_field_name6(int32_t value) {
 // optional int32 fieldname7 = 7;
 inline bool TestJsonName::_internal_has_fieldname7() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJsonName::has_fieldname7() const {
-  return _internal_has_fieldname7();
+	return _internal_has_fieldname7();
 }
 inline void TestJsonName::clear_fieldname7() {
   fieldname7_ = 0;
@@ -35999,10 +35188,10 @@ inline void TestJsonName::set_fieldname7(int32_t value) {
 // optional int32 group_a = 536870009;
 inline bool TestHugeFieldNumbers_OptionalGroup::_internal_has_group_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestHugeFieldNumbers_OptionalGroup::has_group_a() const {
-  return _internal_has_group_a();
+	return _internal_has_group_a();
 }
 inline void TestHugeFieldNumbers_OptionalGroup::clear_group_a() {
   group_a_ = 0;
@@ -36031,10 +35220,10 @@ inline void TestHugeFieldNumbers_OptionalGroup::set_group_a(int32_t value) {
 // optional int32 optional_int32 = 536870000;
 inline bool TestHugeFieldNumbers::_internal_has_optional_int32() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestHugeFieldNumbers::has_optional_int32() const {
-  return _internal_has_optional_int32();
+	return _internal_has_optional_int32();
 }
 inline void TestHugeFieldNumbers::clear_optional_int32() {
   optional_int32_ = 0;
@@ -36057,10 +35246,10 @@ inline void TestHugeFieldNumbers::set_optional_int32(int32_t value) {
 // optional int32 fixed_32 = 536870001;
 inline bool TestHugeFieldNumbers::_internal_has_fixed_32() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestHugeFieldNumbers::has_fixed_32() const {
-  return _internal_has_fixed_32();
+	return _internal_has_fixed_32();
 }
 inline void TestHugeFieldNumbers::clear_fixed_32() {
   fixed_32_ = 0;
@@ -36082,8 +35271,9 @@ inline void TestHugeFieldNumbers::set_fixed_32(int32_t value) {
 
 // repeated int32 repeated_int32 = 536870002 [packed = false];
 inline int TestHugeFieldNumbers::_internal_repeated_int32_size() const { return repeated_int32_.size(); }
-inline int TestHugeFieldNumbers::repeated_int32_size() const {
-  return _internal_repeated_int32_size();
+inline int TestHugeFieldNumbers::repeated_int32_size() const
+{
+	return _internal_repeated_int32_size();
 }
 inline void TestHugeFieldNumbers::clear_repeated_int32() {
   repeated_int32_.Clear();
@@ -36121,8 +35311,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestHugeFieldNumbers:
 
 // repeated int32 packed_int32 = 536870003 [packed = true];
 inline int TestHugeFieldNumbers::_internal_packed_int32_size() const { return packed_int32_.size(); }
-inline int TestHugeFieldNumbers::packed_int32_size() const {
-  return _internal_packed_int32_size();
+inline int TestHugeFieldNumbers::packed_int32_size() const
+{
+	return _internal_packed_int32_size();
 }
 inline void TestHugeFieldNumbers::clear_packed_int32() {
   packed_int32_.Clear();
@@ -36161,10 +35352,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestHugeFieldNumbers:
 // optional .protobuf_unittest.ForeignEnum optional_enum = 536870004;
 inline bool TestHugeFieldNumbers::_internal_has_optional_enum() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool TestHugeFieldNumbers::has_optional_enum() const {
-  return _internal_has_optional_enum();
+	return _internal_has_optional_enum();
 }
 inline void TestHugeFieldNumbers::clear_optional_enum() {
   optional_enum_ = 4;
@@ -36188,10 +35379,10 @@ inline void TestHugeFieldNumbers::set_optional_enum(::protobuf_unittest::Foreign
 // optional string optional_string = 536870005;
 inline bool TestHugeFieldNumbers::_internal_has_optional_string() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestHugeFieldNumbers::has_optional_string() const {
-  return _internal_has_optional_string();
+	return _internal_has_optional_string();
 }
 inline void TestHugeFieldNumbers::clear_optional_string() {
   optional_string_.ClearToEmpty();
@@ -36252,10 +35443,10 @@ inline void TestHugeFieldNumbers::set_allocated_optional_string(std::string* opt
 // optional bytes optional_bytes = 536870006;
 inline bool TestHugeFieldNumbers::_internal_has_optional_bytes() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestHugeFieldNumbers::has_optional_bytes() const {
-  return _internal_has_optional_bytes();
+	return _internal_has_optional_bytes();
 }
 inline void TestHugeFieldNumbers::clear_optional_bytes() {
   optional_bytes_.ClearToEmpty();
@@ -36317,10 +35508,10 @@ inline void TestHugeFieldNumbers::set_allocated_optional_bytes(std::string* opti
 inline bool TestHugeFieldNumbers::_internal_has_optional_message() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
   PROTOBUF_ASSUME(!value || optional_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestHugeFieldNumbers::has_optional_message() const {
-  return _internal_has_optional_message();
+	return _internal_has_optional_message();
 }
 inline void TestHugeFieldNumbers::clear_optional_message() {
   if(optional_message_ != nullptr) optional_message_->Clear();
@@ -36406,10 +35597,10 @@ inline void TestHugeFieldNumbers::set_allocated_optional_message(::protobuf_unit
 inline bool TestHugeFieldNumbers::_internal_has_optionalgroup() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
   PROTOBUF_ASSUME(!value || optionalgroup_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestHugeFieldNumbers::has_optionalgroup() const {
-  return _internal_has_optionalgroup();
+	return _internal_has_optionalgroup();
 }
 inline void TestHugeFieldNumbers::clear_optionalgroup() {
   if(optionalgroup_ != nullptr) optionalgroup_->Clear();
@@ -36493,8 +35684,9 @@ inline void TestHugeFieldNumbers::set_allocated_optionalgroup(::protobuf_unittes
 
 // map<string, string> string_string_map = 536870010;
 inline int TestHugeFieldNumbers::_internal_string_string_map_size() const { return string_string_map_.size(); }
-inline int TestHugeFieldNumbers::string_string_map_size() const {
-  return _internal_string_string_map_size();
+inline int TestHugeFieldNumbers::string_string_map_size() const
+{
+	return _internal_string_string_map_size();
 }
 inline void TestHugeFieldNumbers::clear_string_string_map() {
   string_string_map_.Clear();
@@ -36502,28 +35694,28 @@ inline void TestHugeFieldNumbers::clear_string_string_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestHugeFieldNumbers::_internal_string_string_map() const { return string_string_map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestHugeFieldNumbers::string_string_map() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestHugeFieldNumbers.string_string_map)
-  return _internal_string_string_map();
+TestHugeFieldNumbers::string_string_map() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestHugeFieldNumbers.string_string_map)
+	return _internal_string_string_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestHugeFieldNumbers::_internal_mutable_string_string_map() {
-  return string_string_map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestHugeFieldNumbers::_internal_mutable_string_string_map()
+{
+	return string_string_map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestHugeFieldNumbers::mutable_string_string_map() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestHugeFieldNumbers.string_string_map)
-  return _internal_mutable_string_string_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestHugeFieldNumbers::mutable_string_string_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestHugeFieldNumbers.string_string_map)
+	return _internal_mutable_string_string_map();
 }
 
 // uint32 oneof_uint32 = 536870011;
-inline bool TestHugeFieldNumbers::_internal_has_oneof_uint32() const {
-  return oneof_field_case() == kOneofUint32;
+inline bool TestHugeFieldNumbers::_internal_has_oneof_uint32() const { return oneof_field_case() == kOneofUint32; }
+inline bool TestHugeFieldNumbers::has_oneof_uint32() const
+{
+	return _internal_has_oneof_uint32();
 }
-inline bool TestHugeFieldNumbers::has_oneof_uint32() const {
-  return _internal_has_oneof_uint32();
-}
-inline void TestHugeFieldNumbers::set_has_oneof_uint32() {
-  _oneof_case_[0] = kOneofUint32;
-}
+inline void TestHugeFieldNumbers::set_has_oneof_uint32() { _oneof_case_[0] = kOneofUint32; }
 inline void TestHugeFieldNumbers::clear_oneof_uint32() {
   if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
@@ -36550,15 +35742,12 @@ inline void TestHugeFieldNumbers::set_oneof_uint32(uint32_t value) {
 }
 
 // .protobuf_unittest.TestAllTypes oneof_test_all_types = 536870012;
-inline bool TestHugeFieldNumbers::_internal_has_oneof_test_all_types() const {
-  return oneof_field_case() == kOneofTestAllTypes;
+inline bool TestHugeFieldNumbers::_internal_has_oneof_test_all_types() const { return oneof_field_case() == kOneofTestAllTypes; }
+inline bool TestHugeFieldNumbers::has_oneof_test_all_types() const
+{
+	return _internal_has_oneof_test_all_types();
 }
-inline bool TestHugeFieldNumbers::has_oneof_test_all_types() const {
-  return _internal_has_oneof_test_all_types();
-}
-inline void TestHugeFieldNumbers::set_has_oneof_test_all_types() {
-  _oneof_case_[0] = kOneofTestAllTypes;
-}
+inline void TestHugeFieldNumbers::set_has_oneof_test_all_types() { _oneof_case_[0] = kOneofTestAllTypes; }
 inline void TestHugeFieldNumbers::clear_oneof_test_all_types() {
   if(_internal_has_oneof_test_all_types()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -36620,15 +35809,12 @@ inline ::protobuf_unittest::TestAllTypes* TestHugeFieldNumbers::mutable_oneof_te
 }
 
 // string oneof_string = 536870013;
-inline bool TestHugeFieldNumbers::_internal_has_oneof_string() const {
-  return oneof_field_case() == kOneofString;
+inline bool TestHugeFieldNumbers::_internal_has_oneof_string() const { return oneof_field_case() == kOneofString; }
+inline bool TestHugeFieldNumbers::has_oneof_string() const
+{
+	return _internal_has_oneof_string();
 }
-inline bool TestHugeFieldNumbers::has_oneof_string() const {
-  return _internal_has_oneof_string();
-}
-inline void TestHugeFieldNumbers::set_has_oneof_string() {
-  _oneof_case_[0] = kOneofString;
-}
+inline void TestHugeFieldNumbers::set_has_oneof_string() { _oneof_case_[0] = kOneofString; }
 inline void TestHugeFieldNumbers::clear_oneof_string() {
   if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -36701,15 +35887,12 @@ inline void TestHugeFieldNumbers::set_allocated_oneof_string(std::string* oneof_
 }
 
 // bytes oneof_bytes = 536870014;
-inline bool TestHugeFieldNumbers::_internal_has_oneof_bytes() const {
-  return oneof_field_case() == kOneofBytes;
+inline bool TestHugeFieldNumbers::_internal_has_oneof_bytes() const { return oneof_field_case() == kOneofBytes; }
+inline bool TestHugeFieldNumbers::has_oneof_bytes() const
+{
+	return _internal_has_oneof_bytes();
 }
-inline bool TestHugeFieldNumbers::has_oneof_bytes() const {
-  return _internal_has_oneof_bytes();
-}
-inline void TestHugeFieldNumbers::set_has_oneof_bytes() {
-  _oneof_case_[0] = kOneofBytes;
-}
+inline void TestHugeFieldNumbers::set_has_oneof_bytes() { _oneof_case_[0] = kOneofBytes; }
 inline void TestHugeFieldNumbers::clear_oneof_bytes() {
   if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -36781,12 +35964,8 @@ inline void TestHugeFieldNumbers::set_allocated_oneof_bytes(std::string* oneof_b
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.TestHugeFieldNumbers.oneof_bytes)
 }
 
-inline bool TestHugeFieldNumbers::has_oneof_field() const {
-  return oneof_field_case() != ONEOF_FIELD_NOT_SET;
-}
-inline void TestHugeFieldNumbers::clear_has_oneof_field() {
-  _oneof_case_[0] = ONEOF_FIELD_NOT_SET;
-}
+inline bool TestHugeFieldNumbers::has_oneof_field() const { return oneof_field_case() != ONEOF_FIELD_NOT_SET; }
+inline void TestHugeFieldNumbers::clear_has_oneof_field() { _oneof_case_[0] = ONEOF_FIELD_NOT_SET; }
 inline TestHugeFieldNumbers::OneofFieldCase TestHugeFieldNumbers::oneof_field_case() const { return TestHugeFieldNumbers::OneofFieldCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -36795,10 +35974,10 @@ inline TestHugeFieldNumbers::OneofFieldCase TestHugeFieldNumbers::oneof_field_ca
 // optional int32 field1 = 1;
 inline bool TestExtensionInsideTable::_internal_has_field1() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionInsideTable::has_field1() const {
-  return _internal_has_field1();
+	return _internal_has_field1();
 }
 inline void TestExtensionInsideTable::clear_field1() {
   field1_ = 0;
@@ -36821,10 +36000,10 @@ inline void TestExtensionInsideTable::set_field1(int32_t value) {
 // optional int32 field2 = 2;
 inline bool TestExtensionInsideTable::_internal_has_field2() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionInsideTable::has_field2() const {
-  return _internal_has_field2();
+	return _internal_has_field2();
 }
 inline void TestExtensionInsideTable::clear_field2() {
   field2_ = 0;
@@ -36847,10 +36026,10 @@ inline void TestExtensionInsideTable::set_field2(int32_t value) {
 // optional int32 field3 = 3;
 inline bool TestExtensionInsideTable::_internal_has_field3() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionInsideTable::has_field3() const {
-  return _internal_has_field3();
+	return _internal_has_field3();
 }
 inline void TestExtensionInsideTable::clear_field3() {
   field3_ = 0;
@@ -36873,10 +36052,10 @@ inline void TestExtensionInsideTable::set_field3(int32_t value) {
 // optional int32 field4 = 4;
 inline bool TestExtensionInsideTable::_internal_has_field4() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionInsideTable::has_field4() const {
-  return _internal_has_field4();
+	return _internal_has_field4();
 }
 inline void TestExtensionInsideTable::clear_field4() {
   field4_ = 0;
@@ -36899,10 +36078,10 @@ inline void TestExtensionInsideTable::set_field4(int32_t value) {
 // optional int32 field6 = 6;
 inline bool TestExtensionInsideTable::_internal_has_field6() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionInsideTable::has_field6() const {
-  return _internal_has_field6();
+	return _internal_has_field6();
 }
 inline void TestExtensionInsideTable::clear_field6() {
   field6_ = 0;
@@ -36925,10 +36104,10 @@ inline void TestExtensionInsideTable::set_field6(int32_t value) {
 // optional int32 field7 = 7;
 inline bool TestExtensionInsideTable::_internal_has_field7() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionInsideTable::has_field7() const {
-  return _internal_has_field7();
+	return _internal_has_field7();
 }
 inline void TestExtensionInsideTable::clear_field7() {
   field7_ = 0;
@@ -36951,10 +36130,10 @@ inline void TestExtensionInsideTable::set_field7(int32_t value) {
 // optional int32 field8 = 8;
 inline bool TestExtensionInsideTable::_internal_has_field8() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionInsideTable::has_field8() const {
-  return _internal_has_field8();
+	return _internal_has_field8();
 }
 inline void TestExtensionInsideTable::clear_field8() {
   field8_ = 0;
@@ -36977,10 +36156,10 @@ inline void TestExtensionInsideTable::set_field8(int32_t value) {
 // optional int32 field9 = 9;
 inline bool TestExtensionInsideTable::_internal_has_field9() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionInsideTable::has_field9() const {
-  return _internal_has_field9();
+	return _internal_has_field9();
 }
 inline void TestExtensionInsideTable::clear_field9() {
   field9_ = 0;
@@ -37003,10 +36182,10 @@ inline void TestExtensionInsideTable::set_field9(int32_t value) {
 // optional int32 field10 = 10;
 inline bool TestExtensionInsideTable::_internal_has_field10() const {
   bool value = (_has_bits_[0] & 0x00000100u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionInsideTable::has_field10() const {
-  return _internal_has_field10();
+	return _internal_has_field10();
 }
 inline void TestExtensionInsideTable::clear_field10() {
   field10_ = 0;
@@ -37033,10 +36212,10 @@ inline void TestExtensionInsideTable::set_field10(int32_t value) {
 // optional int32 foo_one = 1;
 inline bool TestExtensionRangeSerialize::_internal_has_foo_one() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionRangeSerialize::has_foo_one() const {
-  return _internal_has_foo_one();
+	return _internal_has_foo_one();
 }
 inline void TestExtensionRangeSerialize::clear_foo_one() {
   foo_one_ = 0;
@@ -37059,10 +36238,10 @@ inline void TestExtensionRangeSerialize::set_foo_one(int32_t value) {
 // optional int32 foo_two = 6;
 inline bool TestExtensionRangeSerialize::_internal_has_foo_two() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionRangeSerialize::has_foo_two() const {
-  return _internal_has_foo_two();
+	return _internal_has_foo_two();
 }
 inline void TestExtensionRangeSerialize::clear_foo_two() {
   foo_two_ = 0;
@@ -37085,10 +36264,10 @@ inline void TestExtensionRangeSerialize::set_foo_two(int32_t value) {
 // optional int32 foo_three = 7;
 inline bool TestExtensionRangeSerialize::_internal_has_foo_three() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionRangeSerialize::has_foo_three() const {
-  return _internal_has_foo_three();
+	return _internal_has_foo_three();
 }
 inline void TestExtensionRangeSerialize::clear_foo_three() {
   foo_three_ = 0;
@@ -37111,10 +36290,10 @@ inline void TestExtensionRangeSerialize::set_foo_three(int32_t value) {
 // optional int32 foo_four = 13;
 inline bool TestExtensionRangeSerialize::_internal_has_foo_four() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtensionRangeSerialize::has_foo_four() const {
-  return _internal_has_foo_four();
+	return _internal_has_foo_four();
 }
 inline void TestExtensionRangeSerialize::clear_foo_four() {
   foo_four_ = 0;

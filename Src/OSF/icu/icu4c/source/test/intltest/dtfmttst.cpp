@@ -838,9 +838,6 @@ void DateFormatTest::TestCzechMonths459()
 	//}
 	delete fmt;
 }
-
-// -------------------------------------
-
 /**
  * Test the handling of 'D' in patterns.
  */
@@ -851,7 +848,7 @@ void DateFormatTest::TestLetterDPattern212()
 	UnicodeString bigD("yyyy-DDD.hh:mm:ss");
 	UnicodeString littleD("yyyy-ddd.hh:mm:ss");
 	UDate expLittleD = date(95, 0, 1, 5, 1, 29);
-	UDate expBigD = expLittleD + 39 * 24 * 3600000.0;
+	UDate expBigD = expLittleD + 39 * SSECSPERDAY * 1000.0;
 	expLittleD = expBigD; // Expect the same, with default lenient parsing
 	logln((UnicodeString)"dateString= " + dateString);
 	SimpleDateFormat * formatter = new SimpleDateFormat(bigD, status);

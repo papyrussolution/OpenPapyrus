@@ -113,22 +113,20 @@ TEST(DateTimeTest, DayInMonths) {
 	EXPECT_EQ(kSecondsPerDay, CreateTimestamp(2016, 1, 1) - CreateTimestamp(2015, 12, 31));
 }
 
-TEST(DateTimeTest, LeapYear) {
+TEST(DateTimeTest, LeapYear) 
+{
 	// Non-leap year.
-	EXPECT_EQ(kSecondsPerDay,
-	    CreateTimestamp(2015, 3, 1) - CreateTimestamp(2015, 2, 28));
+	EXPECT_EQ(kSecondsPerDay, CreateTimestamp(2015, 3, 1) - CreateTimestamp(2015, 2, 28));
 	// Leap year.
-	EXPECT_EQ(kSecondsPerDay,
-	    CreateTimestamp(2016, 3, 1) - CreateTimestamp(2016, 2, 29));
+	EXPECT_EQ(kSecondsPerDay, CreateTimestamp(2016, 3, 1) - CreateTimestamp(2016, 2, 29));
 	// Non-leap year.
-	EXPECT_EQ(kSecondsPerDay,
-	    CreateTimestamp(2100, 3, 1) - CreateTimestamp(2100, 2, 28));
+	EXPECT_EQ(kSecondsPerDay, CreateTimestamp(2100, 3, 1) - CreateTimestamp(2100, 2, 28));
 	// Leap year.
-	EXPECT_EQ(kSecondsPerDay,
-	    CreateTimestamp(2400, 3, 1) - CreateTimestamp(2400, 2, 29));
+	EXPECT_EQ(kSecondsPerDay, CreateTimestamp(2400, 3, 1) - CreateTimestamp(2400, 2, 29));
 }
 
-TEST(DateTimeTest, WrongDays) {
+TEST(DateTimeTest, WrongDays) 
+{
 	int64 seconds;
 	DateTime time;
 	time.hour = 0;

@@ -20736,6 +20736,8 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_NOTIFYEQPTIMEMISM  0x04000000L // @v10.8.1 (sync) Информировать в кассовой панели о расхождении времени на регистраторе со временем на компьютере
 #define CASHFX_BNKSLIPAFTERRCPT   0x08000000L // @v10.9.11 (sync) Печатать банковский слип после кассового чека (иначе сначала слип, потом чек)
 #define CASHFX_USEGOODSMATRIX     0x10000000L // @v11.2.8 Применять ограничения товарной матрицы в кассовой панели
+#define CASHFX_SYNCOPENSESSSOFT   0x20000000L // @v11.4.7 (sync) Открывать кассовую сессию без подачи соответствующей команды устройству.
+	// Причина: на некоторых устройствах функция открытия сессии влечет проблемы.
 //
 // Идентификаторы строковых свойств кассовых узлов.
 // Attention: Ни в коем случае не менять значения идентификаторов - @persistent
@@ -46916,6 +46918,28 @@ private:
 	int    InitInstance();
 };
 
+class StyloQIncomingListParam : public PPBaseFilt {
+public:
+	StyloQIncomingListParam();
+	StyloQIncomingListParam(const StyloQIncomingListParam & rS);
+	StyloQIncomingListParam & FASTCALL operator = (const StyloQIncomingListParam & rS);
+
+	uint8  ReserveStart[64];
+	int    StQBaseCmdId;
+	int    LookbackDays;
+	long   Reserve;
+	//
+	// Фильтры, представленные здесь не подлежать прямому интерактивному редактированию пользователем.
+	// Наружу выводится лишь часть критериев этих фильтров, остальные параметры будут задаваться автоматически.
+	//
+	BillFilt * P_BF;
+	PrjTaskFilt * P_TdF;
+	TSessionFilt * P_TsF;
+	CCheckFilt * P_CcF;
+private:
+	int    InitInstance();
+};
+
 class StyloQIndexingParam : public PPBaseFilt {
 public:
 	StyloQIndexingParam();
@@ -46994,7 +47018,10 @@ public:
 		sqbcGoodsInfo            = 105, // @v11.4.4 Параметры, определяющие вывод информации об одном товаре 
 		sqbcLocalBarcodeSearch   = 106, // @v11.4.5 Поиск в пределах сервиса (преимущественно) по штрихкоду. 
 			// Если сервис предоставляет такую функцию, то она отображается в виде иконки на экране мобильного устройства, а не в общем списке.
-		sqbcIncomingListOrder    = 107  // @v11.4.6 Список входящих заказов (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
+		sqbcIncomingListOrder    = 107, // @v11.4.6 Список входящих заказов (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
+		sqbcIncomingListCCheck   = 108, // @v11.4.7 Список входящих кассовых чеков (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
+		sqbcIncomingListTSess    = 109, // @v11.4.7 Список входящих технологических сессий (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
+		sqbcIncomingListTodo     = 110, // @v11.4.7 Список входящих задач (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
 	};
 	//
 	// Descr: Идентификаторы типов документов обмена
@@ -47012,7 +47039,31 @@ public:
 	struct Item {
 		Item();
 		bool   FASTCALL IsEq(const Item & rS) const;
-		int    GetAttendanceParam(StyloQAttendancePrereqParam & rP) const;
+		//
+		// T must be inherited from PPBaseFilt (StyloQAttendancePrereqParam, StyloQIncomingListParam, etc)
+		//
+		template <typename T> int GetSpecialParam(T & rP) const
+		{
+			rP.Init(0, 0);
+			int    ok = 1;
+			PPBaseFilt * p_base_filt = 0;
+			SBuffer _param = Param; // Функция должна быть const и дабы не менять состояние Param при чтении просто сделаем его дубликат.
+			const T pattern_filt;
+			if(_param.GetAvailableSize()) {
+				THROW(PPView::ReadFiltPtr(_param, &p_base_filt));
+				if(p_base_filt) {
+					THROW(p_base_filt->GetSignature() == pattern_filt.GetSignature());
+					rP = *static_cast<T *>(p_base_filt);
+				}
+			}
+			else
+				ok = -1;
+			CATCHZOK
+			delete p_base_filt;
+			return ok;
+		}
+		//int    GetAttendanceParam(StyloQAttendancePrereqParam & rP) const;
+		//int    GetIncomingListParam(StyloQIncomingListParam & rP) const;
 		bool   CanApplyPrepareAheadOption() const;
 		enum {
 			fResultPersistent = 0x0001,
@@ -47236,6 +47287,24 @@ public:
 		TSCollection <BookingItem> BkList; // @v11.3.6
 		TSVector <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
 	};
+	//
+	// Descr: Так получилось, что эта структура стала часто используемой в качестве сборщика важных параметров
+	//  при подготовке данных.
+	//
+	struct Stq_CmdStat_MakeRsrv_Response {
+		static void RegisterOid(Stq_CmdStat_MakeRsrv_Response * pThis, PPObjID oid);
+		static void RegisterBlobOid(Stq_CmdStat_MakeRsrv_Response * pThis, PPObjID oid);
+
+		Stq_CmdStat_MakeRsrv_Response();
+		uint   GoodsCount;
+		uint   GoodsGroupCount;
+		uint   BrandCount;
+		uint   ClientCount;
+		uint   DlvrLocCount;
+		uint   PrcCount; // @v11.3.8
+		PPObjIDArray OidList; // @v11.4.7 Список объектов, обработанных при подготовке данных
+		PPObjIDArray BlobOidList; // @v11.3.8 Список объектов, имеющих blob'ы, обработанных при подготовке данных
+	};
 
 	PPStyloQInterchange();
 	explicit PPStyloQInterchange(StyloQCore * pStQC);
@@ -47386,7 +47455,8 @@ public:
 	SlSRP::Verifier * InitSrpVerifier(const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, const SBinaryChunk & rSrpV, const SBinaryChunk & rA, SBinaryChunk & rResultB) const;
 	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,
 		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
-	int    MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, const StyloQCommandList::Item * pCmd, long expirationSec, PPObjIDArray & rOidList, S_GUID & rDocUuid, SString & rResult);
+	int    MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, const StyloQCommandList::Item * pCmd, long expirationSec, 
+		S_GUID & rDocUuid, SString & rResult, Stq_CmdStat_MakeRsrv_Response * pStat);
 	//
 	// Descr: Флаги функции GetBlobInfo
 	//
@@ -47399,6 +47469,7 @@ public:
 	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
 	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
 	static int   Edit_GoodsInfoParam(StyloQGoodsInfoParam & rParam);
+	static int   Edit_IncomingListParam(StyloQIncomingListParam & rParam);
 	//
 	// Descr: Отправляет одному из медиаторов Stylo-Q запрос на индексацию данных из всех
 	//   баз данных, которые содержат сервисы Stylo-Q.
@@ -47419,15 +47490,9 @@ private:
 	struct Stq_ReqBlobInfoEntry : public StyloQBlobInfo {
 		Stq_ReqBlobInfoEntry();
 		Stq_ReqBlobInfoEntry & Z();
-		//PPObjID Oid;         // При подготовке списка blob'ов к отправке это поле содержит ИД объекта, которому принадлежит blob
-		//uint  InnerBlobNumber; // Порядковый номер blob'а по отношению к объекту oid. Используется при подготовке к отправке.
-		//int   HashAlg;       // SHASF_XXX Алгоритм хэширования 
 		bool  Missing;       // При получении ответа от медиатора true означает, что у медиатора нет такого blob'а
 		bool  RepDiffHash;   // При получении ответа от медиатора, если у медиатора хэш blob'а отличается от нашего, то это поле устанавливается в true  
 		uint8 Reserve[2];    // @alignment
-		//SString SrcFileName; // При подготовке к отправке blob'ов содержит полный путь исходного файла
-		//SString Signature;   // Сигнатура blob'а: имя, с которым он будет храниться у медиатора
-		//SBinaryChunk Hash;   // Хэш blob'а построенный с помощью алгоритма HashAlg
 	};
 	class Stq_ReqBlobInfoList : public TSCollection <Stq_ReqBlobInfoEntry> {
 	public:
@@ -47435,16 +47500,6 @@ private:
 		bool   SearchSignature(const char * pSignature, uint * pPos) const;
 		SJson * MakeRequestInfoListQuery() const;
 		bool   ParseRequestInfoListReply(const SJson * pJs);
-	};
-	struct Stq_CmdStat_MakeRsrv_Response {
-		Stq_CmdStat_MakeRsrv_Response();
-		uint   GoodsCount;
-		uint   GoodsGroupCount;
-		uint   BrandCount;
-		uint   ClientCount;
-		uint   DlvrLocCount;
-		uint   PrcCount; // @v11.3.8
-		PPObjIDArray BlobOidList; // @v11.3.8
 	};
 	struct InnerGoodsEntry { // @flat
 		explicit InnerGoodsEntry(PPID goodsID);
@@ -47482,8 +47537,14 @@ private:
 	SJson * MakeObjJson_OwnFace(const StyloQCore::StoragePacket & rOwnPack, uint flags);
 	SJson * MakeObjJson_Goods(const SBinaryChunk & rOwnIdent, const PPGoodsPacket & rPack, const InnerGoodsEntry * pInnerEntry, uint flags, 
 		const StyloQGoodsInfoParam * pGi, Stq_CmdStat_MakeRsrv_Response * pStat);
+	SJson * MakeObjArrayJson_Uom(const SBinaryChunk & rOwnIdent, PPIDArray & rIdList, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjJson_GoodsGroup(const SBinaryChunk & rOwnIdent, const Goods2Tbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
+	//
+	// Note: Функция выполнит операция sortAndUndup над rIdList
+	//
+	SJson * MakeObjArrayJson_GoodsGroup(const SBinaryChunk & rOwnIdent, PPIDArray & rIdList, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjJson_Brand(const SBinaryChunk & rOwnIdent, const PPBrandPacket & rPack, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
+	SJson * MakeObjArrayJson_Brand(const SBinaryChunk & rOwnIdent, PPIDArray & rIdList, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjJson_Prc(const SBinaryChunk & rOwnIdent, const ProcessorTbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    MakeDocDeclareJs(const StyloQCommandList::Item & rCmdItem, const char * pDl600Symb, SString & rDocDeclaration);
 	int    ProcessCommand_PersonEvent(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos);
@@ -52859,8 +52920,9 @@ public:
 	};
 	enum {
 		fByOpAccSheet2        = 0x0001, // При выборе вида операции брать дополнительную таблицу статей операции
-		fNonEmptyExchageParam = 0x0002  // Показывать только статьи с не пустой конфигурацией обмена в соглашении
+		fNonEmptyExchageParam = 0x0002, // Показывать только статьи с не пустой конфигурацией обмена в соглашении
 			// Проекция флага sacfNonEmptyExchageParam
+		fUseByContextValue    = 0x0004  // @v11.4.7  
 	};
 	ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, long accSheetID, long flags = 0);
 	void   SetAccSheet(long accSheetID);

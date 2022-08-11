@@ -544,6 +544,28 @@ int SJson::Insert(const char * pTextLabel, SJson * pValue)
 	return ok;
 }
 
+int SJson::InsertNz(const char * pTextLabel, SJson * pValue)
+{
+	int    ok = 1;
+	// verify if the parameters are valid
+	assert(pTextLabel);
+	if(pValue) {
+		assert(this != pValue);
+		// enforce type coherence
+		assert(Type == SJson::tOBJECT);
+		// create label json_value
+		SJson * p_label = json_new_string(pTextLabel);
+		THROW(p_label);
+		// insert value and check for error
+		THROW(json_insert_child(p_label, pValue));
+		THROW(json_insert_child(this, p_label)); // insert value and check for error
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;	
+}
+
 int SJson::InsertString(const char * pTextLabel, const char * pStr) { return Insert(pTextLabel, json_new_string(pStr)); }
 int SJson::InsertNumber(const char * pTextLabel, const char * pStr) { return Insert(pTextLabel, json_new_number(pStr)); }
 int FASTCALL SJson::InsertNull(const char * pTextLabel) { return Insert(pTextLabel, json_new_null()); }

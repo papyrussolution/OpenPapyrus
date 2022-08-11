@@ -21,8 +21,7 @@
 //#include "internal/nelem.h"
 
 typedef struct {
-	int field_type,         /* either NID_X9_62_prime_field or
-	                         * NID_X9_62_characteristic_two_field */
+	int field_type, /* either NID_X9_62_prime_field or NID_X9_62_characteristic_two_field */
 	    seed_len, param_len;
 	unsigned int cofactor;  /* promoted to BN_ULONG */
 } EC_CURVE_DATA;

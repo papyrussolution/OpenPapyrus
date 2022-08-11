@@ -185,14 +185,12 @@ static const int32_t gFieldRangeBias[] = {
 // offset the years within the current millennium down to 1-999
 static const int32_t HEBREW_CAL_CUR_MILLENIUM_START_YEAR = 5000;
 static const int32_t HEBREW_CAL_CUR_MILLENIUM_END_YEAR = 6000;
-
 /**
  * Maximum range for detecting daylight offset of a time zone when parsed time zone
  * string indicates it's daylight saving time, but the detected time zone does not
  * observe daylight saving time at the parsed date.
  */
-static const double MAX_DAYLIGHT_DETECTION_RANGE = 30*365*24*60*60*1000.0;
-
+static const double MAX_DAYLIGHT_DETECTION_RANGE = 30 * 365 * SSECSPERDAY * 1000.0;
 static UMutex LOCK;
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(SimpleDateFormat)

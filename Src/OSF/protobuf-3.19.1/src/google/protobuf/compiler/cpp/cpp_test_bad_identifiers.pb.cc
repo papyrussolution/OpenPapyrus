@@ -966,8 +966,8 @@ uint8_t* TestConflictingSymbolNames_Data2::_InternalSerialize(
 
   // repeated .protobuf_unittest.TestConflictingSymbolNames.TestEnum data = 1;
   for(int i = 0, n = this->_internal_data_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(1, this->_internal_data(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(1, this->_internal_data(i), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -988,9 +988,9 @@ size_t TestConflictingSymbolNames_Data2::ByteSizeLong() const {
 
   // repeated .protobuf_unittest.TestConflictingSymbolNames.TestEnum data = 1;
   {
-    size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_data_size());for(unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_data(static_cast<int>(i)));
+  	size_t data_size = 0;
+  	unsigned int count = static_cast<unsigned int>(this->_internal_data_size());for(unsigned int i = 0; i < count; i++) {
+    	data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_data(static_cast<int>(i)));
     }
     total_size += (1UL * count) + data_size;
   }
@@ -3833,14 +3833,10 @@ void TestConflictingMethodNames_Stub::Closure(::PROTOBUF_NAMESPACE_ID::RpcContro
                        controller, request, response, done);
 }
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int TestConflictingSymbolNamesExtension::kRepeatedInt32ExtFieldNumber;
+	const int TestConflictingSymbolNamesExtension::kRepeatedInt32ExtFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestConflictingSymbolNames,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, true >
-  TestConflictingSymbolNamesExtension::repeated_int32_ext(kRepeatedInt32ExtFieldNumber, 0);
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestConflictingSymbolNames,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  void_(kVoidFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestConflictingSymbolNames, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, true > TestConflictingSymbolNamesExtension::repeated_int32_ext(kRepeatedInt32ExtFieldNumber, 0);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestConflictingSymbolNames, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > void_(kVoidFieldNumber, 0);
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest

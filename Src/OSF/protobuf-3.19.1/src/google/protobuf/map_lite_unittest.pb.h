@@ -317,8 +317,8 @@ public:
   explicit TestMapLite_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapInt32Int32Entry_DoNotUse& other);
   static const TestMapLite_MapInt32Int32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapInt32Int32Entry_DoNotUse*>(&_TestMapLite_MapInt32Int32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -332,8 +332,8 @@ public:
   explicit TestMapLite_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapInt64Int64Entry_DoNotUse& other);
   static const TestMapLite_MapInt64Int64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapInt64Int64Entry_DoNotUse*>(&_TestMapLite_MapInt64Int64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -347,8 +347,8 @@ public:
   explicit TestMapLite_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapUint32Uint32Entry_DoNotUse& other);
   static const TestMapLite_MapUint32Uint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapUint32Uint32Entry_DoNotUse*>(&_TestMapLite_MapUint32Uint32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -362,8 +362,8 @@ public:
   explicit TestMapLite_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapUint64Uint64Entry_DoNotUse& other);
   static const TestMapLite_MapUint64Uint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapUint64Uint64Entry_DoNotUse*>(&_TestMapLite_MapUint64Uint64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -377,8 +377,8 @@ public:
   explicit TestMapLite_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapSint32Sint32Entry_DoNotUse& other);
   static const TestMapLite_MapSint32Sint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapSint32Sint32Entry_DoNotUse*>(&_TestMapLite_MapSint32Sint32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -392,8 +392,8 @@ public:
   explicit TestMapLite_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapSint64Sint64Entry_DoNotUse& other);
   static const TestMapLite_MapSint64Sint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapSint64Sint64Entry_DoNotUse*>(&_TestMapLite_MapSint64Sint64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -407,8 +407,8 @@ public:
   explicit TestMapLite_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapFixed32Fixed32Entry_DoNotUse& other);
   static const TestMapLite_MapFixed32Fixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapFixed32Fixed32Entry_DoNotUse*>(&_TestMapLite_MapFixed32Fixed32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -422,8 +422,8 @@ public:
   explicit TestMapLite_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapFixed64Fixed64Entry_DoNotUse& other);
   static const TestMapLite_MapFixed64Fixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapFixed64Fixed64Entry_DoNotUse*>(&_TestMapLite_MapFixed64Fixed64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -437,8 +437,8 @@ public:
   explicit TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse& other);
   static const TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse*>(&_TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -452,8 +452,8 @@ public:
   explicit TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse& other);
   static const TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse*>(&_TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -467,8 +467,8 @@ public:
   explicit TestMapLite_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapInt32FloatEntry_DoNotUse& other);
   static const TestMapLite_MapInt32FloatEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapInt32FloatEntry_DoNotUse*>(&_TestMapLite_MapInt32FloatEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -482,8 +482,8 @@ public:
   explicit TestMapLite_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapInt32DoubleEntry_DoNotUse& other);
   static const TestMapLite_MapInt32DoubleEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapInt32DoubleEntry_DoNotUse*>(&_TestMapLite_MapInt32DoubleEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -497,8 +497,8 @@ public:
   explicit TestMapLite_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapBoolBoolEntry_DoNotUse& other);
   static const TestMapLite_MapBoolBoolEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapBoolBoolEntry_DoNotUse*>(&_TestMapLite_MapBoolBoolEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -512,8 +512,8 @@ public:
   explicit TestMapLite_MapStringStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapStringStringEntry_DoNotUse& other);
   static const TestMapLite_MapStringStringEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapStringStringEntry_DoNotUse*>(&_TestMapLite_MapStringStringEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -527,8 +527,8 @@ public:
   explicit TestMapLite_MapInt32BytesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapInt32BytesEntry_DoNotUse& other);
   static const TestMapLite_MapInt32BytesEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapInt32BytesEntry_DoNotUse*>(&_TestMapLite_MapInt32BytesEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -542,8 +542,8 @@ public:
   explicit TestMapLite_MapInt32EnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapInt32EnumEntry_DoNotUse& other);
   static const TestMapLite_MapInt32EnumEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapInt32EnumEntry_DoNotUse*>(&_TestMapLite_MapInt32EnumEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -557,8 +557,8 @@ public:
   explicit TestMapLite_MapInt32ForeignMessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_MapInt32ForeignMessageEntry_DoNotUse& other);
   static const TestMapLite_MapInt32ForeignMessageEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_MapInt32ForeignMessageEntry_DoNotUse*>(&_TestMapLite_MapInt32ForeignMessageEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -572,8 +572,8 @@ public:
   explicit TestMapLite_TeboringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMapLite_TeboringEntry_DoNotUse& other);
   static const TestMapLite_TeboringEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMapLite_TeboringEntry_DoNotUse*>(&_TestMapLite_TeboringEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -675,24 +675,24 @@ class TestMapLite final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapInt32Int32FieldNumber = 1,
-    kMapInt64Int64FieldNumber = 2,
-    kMapUint32Uint32FieldNumber = 3,
-    kMapUint64Uint64FieldNumber = 4,
-    kMapSint32Sint32FieldNumber = 5,
-    kMapSint64Sint64FieldNumber = 6,
-    kMapFixed32Fixed32FieldNumber = 7,
-    kMapFixed64Fixed64FieldNumber = 8,
-    kMapSfixed32Sfixed32FieldNumber = 9,
-    kMapSfixed64Sfixed64FieldNumber = 10,
-    kMapInt32FloatFieldNumber = 11,
-    kMapInt32DoubleFieldNumber = 12,
-    kMapBoolBoolFieldNumber = 13,
-    kMapStringStringFieldNumber = 14,
-    kMapInt32BytesFieldNumber = 15,
-    kMapInt32EnumFieldNumber = 16,
-    kMapInt32ForeignMessageFieldNumber = 17,
-    kTeboringFieldNumber = 18,
+  	kMapInt32Int32FieldNumber = 1,
+  	kMapInt64Int64FieldNumber = 2,
+  	kMapUint32Uint32FieldNumber = 3,
+  	kMapUint64Uint64FieldNumber = 4,
+  	kMapSint32Sint32FieldNumber = 5,
+  	kMapSint64Sint64FieldNumber = 6,
+  	kMapFixed32Fixed32FieldNumber = 7,
+  	kMapFixed64Fixed64FieldNumber = 8,
+  	kMapSfixed32Sfixed32FieldNumber = 9,
+  	kMapSfixed64Sfixed64FieldNumber = 10,
+  	kMapInt32FloatFieldNumber = 11,
+  	kMapInt32DoubleFieldNumber = 12,
+  	kMapBoolBoolFieldNumber = 13,
+  	kMapStringStringFieldNumber = 14,
+  	kMapInt32BytesFieldNumber = 15,
+  	kMapInt32EnumFieldNumber = 16,
+  	kMapInt32ForeignMessageFieldNumber = 17,
+  	kTeboringFieldNumber = 18,
   };
   // map<int32, int32> map_int32_int32 = 1;
   int map_int32_int32_size() const;
@@ -935,96 +935,24 @@ class TestMapLite final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapInt32Int32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_int32_int32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapInt64Int64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64> map_int64_int64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapUint32Uint32Entry_DoNotUse,
-      uint32_t, uint32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32> map_uint32_uint32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapUint64Uint64Entry_DoNotUse,
-      uint64_t, uint64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> map_uint64_uint64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapSint32Sint32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32> map_sint32_sint32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapSint64Sint64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64> map_sint64_sint64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapFixed32Fixed32Entry_DoNotUse,
-      uint32_t, uint32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32> map_fixed32_fixed32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapFixed64Fixed64Entry_DoNotUse,
-      uint64_t, uint64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64> map_fixed64_fixed64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32> map_sfixed32_sfixed32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64> map_sfixed64_sfixed64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapInt32FloatEntry_DoNotUse,
-      int32_t, float,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_int32_float_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapInt32DoubleEntry_DoNotUse,
-      int32_t, double,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE> map_int32_double_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapBoolBoolEntry_DoNotUse,
-      bool, bool,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_bool_bool_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapStringStringEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_string_string_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapInt32BytesEntry_DoNotUse,
-      int32_t, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BYTES> map_int32_bytes_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapInt32EnumEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::MapEnumLite,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_int32_enum_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_MapInt32ForeignMessageEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::ForeignMessageLite,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_foreign_message_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMapLite_TeboringEntry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> teboring_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapInt32Int32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_int32_int32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapInt64Int64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64> map_int64_int64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapUint32Uint32Entry_DoNotUse, uint32_t, uint32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32> map_uint32_uint32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapUint64Uint64Entry_DoNotUse, uint64_t, uint64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> map_uint64_uint64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapSint32Sint32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32> map_sint32_sint32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapSint64Sint64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64> map_sint64_sint64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapFixed32Fixed32Entry_DoNotUse, uint32_t, uint32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32> map_fixed32_fixed32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapFixed64Fixed64Entry_DoNotUse, uint64_t, uint64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64> map_fixed64_fixed64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32> map_sfixed32_sfixed32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64> map_sfixed64_sfixed64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapInt32FloatEntry_DoNotUse, int32_t, float, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_int32_float_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapInt32DoubleEntry_DoNotUse, int32_t, double, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE> map_int32_double_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapBoolBoolEntry_DoNotUse, bool, bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_bool_bool_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapStringStringEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_string_string_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapInt32BytesEntry_DoNotUse, int32_t, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BYTES> map_int32_bytes_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapInt32EnumEntry_DoNotUse, int32_t, ::protobuf_unittest::MapEnumLite, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_int32_enum_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_MapInt32ForeignMessageEntry_DoNotUse, int32_t, ::protobuf_unittest::ForeignMessageLite, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_foreign_message_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMapLite_TeboringEntry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> teboring_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5flite_5funittest_2eproto;
 };
@@ -1039,8 +967,8 @@ public:
   explicit TestArenaMapLite_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapInt32Int32Entry_DoNotUse& other);
   static const TestArenaMapLite_MapInt32Int32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapInt32Int32Entry_DoNotUse*>(&_TestArenaMapLite_MapInt32Int32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1054,8 +982,8 @@ public:
   explicit TestArenaMapLite_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapInt64Int64Entry_DoNotUse& other);
   static const TestArenaMapLite_MapInt64Int64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapInt64Int64Entry_DoNotUse*>(&_TestArenaMapLite_MapInt64Int64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1069,8 +997,8 @@ public:
   explicit TestArenaMapLite_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapUint32Uint32Entry_DoNotUse& other);
   static const TestArenaMapLite_MapUint32Uint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapUint32Uint32Entry_DoNotUse*>(&_TestArenaMapLite_MapUint32Uint32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1084,8 +1012,8 @@ public:
   explicit TestArenaMapLite_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapUint64Uint64Entry_DoNotUse& other);
   static const TestArenaMapLite_MapUint64Uint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapUint64Uint64Entry_DoNotUse*>(&_TestArenaMapLite_MapUint64Uint64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1099,8 +1027,8 @@ public:
   explicit TestArenaMapLite_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapSint32Sint32Entry_DoNotUse& other);
   static const TestArenaMapLite_MapSint32Sint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapSint32Sint32Entry_DoNotUse*>(&_TestArenaMapLite_MapSint32Sint32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1114,8 +1042,8 @@ public:
   explicit TestArenaMapLite_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapSint64Sint64Entry_DoNotUse& other);
   static const TestArenaMapLite_MapSint64Sint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapSint64Sint64Entry_DoNotUse*>(&_TestArenaMapLite_MapSint64Sint64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1129,8 +1057,8 @@ public:
   explicit TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse& other);
   static const TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse*>(&_TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1144,8 +1072,8 @@ public:
   explicit TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse& other);
   static const TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse*>(&_TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1159,8 +1087,8 @@ public:
   explicit TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse& other);
   static const TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse*>(&_TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1174,8 +1102,8 @@ public:
   explicit TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse& other);
   static const TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse*>(&_TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1189,8 +1117,8 @@ public:
   explicit TestArenaMapLite_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapInt32FloatEntry_DoNotUse& other);
   static const TestArenaMapLite_MapInt32FloatEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapInt32FloatEntry_DoNotUse*>(&_TestArenaMapLite_MapInt32FloatEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1204,8 +1132,8 @@ public:
   explicit TestArenaMapLite_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapInt32DoubleEntry_DoNotUse& other);
   static const TestArenaMapLite_MapInt32DoubleEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapInt32DoubleEntry_DoNotUse*>(&_TestArenaMapLite_MapInt32DoubleEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1219,8 +1147,8 @@ public:
   explicit TestArenaMapLite_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapBoolBoolEntry_DoNotUse& other);
   static const TestArenaMapLite_MapBoolBoolEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapBoolBoolEntry_DoNotUse*>(&_TestArenaMapLite_MapBoolBoolEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1234,8 +1162,8 @@ public:
   explicit TestArenaMapLite_MapStringStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapStringStringEntry_DoNotUse& other);
   static const TestArenaMapLite_MapStringStringEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapStringStringEntry_DoNotUse*>(&_TestArenaMapLite_MapStringStringEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1249,8 +1177,8 @@ public:
   explicit TestArenaMapLite_MapInt32BytesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapInt32BytesEntry_DoNotUse& other);
   static const TestArenaMapLite_MapInt32BytesEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapInt32BytesEntry_DoNotUse*>(&_TestArenaMapLite_MapInt32BytesEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1264,8 +1192,8 @@ public:
   explicit TestArenaMapLite_MapInt32EnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapInt32EnumEntry_DoNotUse& other);
   static const TestArenaMapLite_MapInt32EnumEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapInt32EnumEntry_DoNotUse*>(&_TestArenaMapLite_MapInt32EnumEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1279,8 +1207,8 @@ public:
   explicit TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse& other);
   static const TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse*>(&_TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1382,23 +1310,23 @@ class TestArenaMapLite final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapInt32Int32FieldNumber = 1,
-    kMapInt64Int64FieldNumber = 2,
-    kMapUint32Uint32FieldNumber = 3,
-    kMapUint64Uint64FieldNumber = 4,
-    kMapSint32Sint32FieldNumber = 5,
-    kMapSint64Sint64FieldNumber = 6,
-    kMapFixed32Fixed32FieldNumber = 7,
-    kMapFixed64Fixed64FieldNumber = 8,
-    kMapSfixed32Sfixed32FieldNumber = 9,
-    kMapSfixed64Sfixed64FieldNumber = 10,
-    kMapInt32FloatFieldNumber = 11,
-    kMapInt32DoubleFieldNumber = 12,
-    kMapBoolBoolFieldNumber = 13,
-    kMapStringStringFieldNumber = 14,
-    kMapInt32BytesFieldNumber = 15,
-    kMapInt32EnumFieldNumber = 16,
-    kMapInt32ForeignMessageFieldNumber = 17,
+  	kMapInt32Int32FieldNumber = 1,
+  	kMapInt64Int64FieldNumber = 2,
+  	kMapUint32Uint32FieldNumber = 3,
+  	kMapUint64Uint64FieldNumber = 4,
+  	kMapSint32Sint32FieldNumber = 5,
+  	kMapSint64Sint64FieldNumber = 6,
+  	kMapFixed32Fixed32FieldNumber = 7,
+  	kMapFixed64Fixed64FieldNumber = 8,
+  	kMapSfixed32Sfixed32FieldNumber = 9,
+  	kMapSfixed64Sfixed64FieldNumber = 10,
+  	kMapInt32FloatFieldNumber = 11,
+  	kMapInt32DoubleFieldNumber = 12,
+  	kMapBoolBoolFieldNumber = 13,
+  	kMapStringStringFieldNumber = 14,
+  	kMapInt32BytesFieldNumber = 15,
+  	kMapInt32EnumFieldNumber = 16,
+  	kMapInt32ForeignMessageFieldNumber = 17,
   };
   // map<int32, int32> map_int32_int32 = 1;
   int map_int32_int32_size() const;
@@ -1628,91 +1556,23 @@ class TestArenaMapLite final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapInt32Int32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_int32_int32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapInt64Int64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64> map_int64_int64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapUint32Uint32Entry_DoNotUse,
-      uint32_t, uint32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32> map_uint32_uint32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapUint64Uint64Entry_DoNotUse,
-      uint64_t, uint64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> map_uint64_uint64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapSint32Sint32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32> map_sint32_sint32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapSint64Sint64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64> map_sint64_sint64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse,
-      uint32_t, uint32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32> map_fixed32_fixed32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse,
-      uint64_t, uint64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64> map_fixed64_fixed64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32> map_sfixed32_sfixed32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64> map_sfixed64_sfixed64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapInt32FloatEntry_DoNotUse,
-      int32_t, float,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_int32_float_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapInt32DoubleEntry_DoNotUse,
-      int32_t, double,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE> map_int32_double_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapBoolBoolEntry_DoNotUse,
-      bool, bool,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_bool_bool_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapStringStringEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_string_string_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapInt32BytesEntry_DoNotUse,
-      int32_t, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BYTES> map_int32_bytes_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapInt32EnumEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::MapEnumLite,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_int32_enum_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::ForeignMessageArenaLite,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_foreign_message_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapInt32Int32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_int32_int32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapInt64Int64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64> map_int64_int64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapUint32Uint32Entry_DoNotUse, uint32_t, uint32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32> map_uint32_uint32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapUint64Uint64Entry_DoNotUse, uint64_t, uint64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> map_uint64_uint64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapSint32Sint32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32> map_sint32_sint32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapSint64Sint64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64> map_sint64_sint64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse, uint32_t, uint32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32> map_fixed32_fixed32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse, uint64_t, uint64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64> map_fixed64_fixed64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32> map_sfixed32_sfixed32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64> map_sfixed64_sfixed64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapInt32FloatEntry_DoNotUse, int32_t, float, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_int32_float_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapInt32DoubleEntry_DoNotUse, int32_t, double, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE> map_int32_double_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapBoolBoolEntry_DoNotUse, bool, bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_bool_bool_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapStringStringEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_string_string_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapInt32BytesEntry_DoNotUse, int32_t, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BYTES> map_int32_bytes_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapInt32EnumEntry_DoNotUse, int32_t, ::protobuf_unittest::MapEnumLite, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_int32_enum_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse, int32_t, ::protobuf_unittest::ForeignMessageArenaLite, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_foreign_message_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5flite_5funittest_2eproto;
 };
@@ -1727,8 +1587,8 @@ public:
   explicit TestRequiredMessageMapLite_MapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestRequiredMessageMapLite_MapFieldEntry_DoNotUse& other);
   static const TestRequiredMessageMapLite_MapFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestRequiredMessageMapLite_MapFieldEntry_DoNotUse*>(&_TestRequiredMessageMapLite_MapFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1830,7 +1690,7 @@ class TestRequiredMessageMapLite final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldFieldNumber = 1,
+  	kMapFieldFieldNumber = 1,
   };
   // map<int32, .protobuf_unittest.TestRequiredLite> map_field = 1;
   int map_field_size() const;
@@ -1852,11 +1712,7 @@ class TestRequiredMessageMapLite final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestRequiredMessageMapLite_MapFieldEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::TestRequiredLite,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestRequiredMessageMapLite_MapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::TestRequiredLite, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_field_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5flite_5funittest_2eproto;
 };
@@ -1871,8 +1727,8 @@ public:
   explicit TestEnumMapLite_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestEnumMapLite_KnownMapFieldEntry_DoNotUse& other);
   static const TestEnumMapLite_KnownMapFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestEnumMapLite_KnownMapFieldEntry_DoNotUse*>(&_TestEnumMapLite_KnownMapFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1886,8 +1742,8 @@ public:
   explicit TestEnumMapLite_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestEnumMapLite_UnknownMapFieldEntry_DoNotUse& other);
   static const TestEnumMapLite_UnknownMapFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestEnumMapLite_UnknownMapFieldEntry_DoNotUse*>(&_TestEnumMapLite_UnknownMapFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -1989,8 +1845,8 @@ class TestEnumMapLite final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kKnownMapFieldFieldNumber = 101,
-    kUnknownMapFieldFieldNumber = 102,
+  	kKnownMapFieldFieldNumber = 101,
+  	kUnknownMapFieldFieldNumber = 102,
   };
   // map<int32, .protobuf_unittest.Proto2MapEnumLite> known_map_field = 101;
   int known_map_field_size() const;
@@ -2025,16 +1881,8 @@ class TestEnumMapLite final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestEnumMapLite_KnownMapFieldEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::Proto2MapEnumLite,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> known_map_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestEnumMapLite_UnknownMapFieldEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::Proto2MapEnumLite,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> unknown_map_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestEnumMapLite_KnownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnumLite, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> known_map_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestEnumMapLite_UnknownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnumLite, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> unknown_map_field_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5flite_5funittest_2eproto;
 };
@@ -2049,8 +1897,8 @@ public:
   explicit TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse& other);
   static const TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse*>(&_TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -2064,8 +1912,8 @@ public:
   explicit TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse& other);
   static const TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse*>(&_TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -2167,8 +2015,8 @@ class TestEnumMapPlusExtraLite final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kKnownMapFieldFieldNumber = 101,
-    kUnknownMapFieldFieldNumber = 102,
+  	kKnownMapFieldFieldNumber = 101,
+  	kUnknownMapFieldFieldNumber = 102,
   };
   // map<int32, .protobuf_unittest.Proto2MapEnumPlusExtraLite> known_map_field = 101;
   int known_map_field_size() const;
@@ -2203,16 +2051,8 @@ class TestEnumMapPlusExtraLite final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> known_map_field_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> unknown_map_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> known_map_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> unknown_map_field_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5flite_5funittest_2eproto;
 };
@@ -2227,8 +2067,8 @@ public:
   explicit TestMessageMapLite_MapInt32MessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMessageMapLite_MapInt32MessageEntry_DoNotUse& other);
   static const TestMessageMapLite_MapInt32MessageEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMessageMapLite_MapInt32MessageEntry_DoNotUse*>(&_TestMessageMapLite_MapInt32MessageEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
 };
 
 // -------------------------------------------------------------------
@@ -2330,7 +2170,7 @@ class TestMessageMapLite final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapInt32MessageFieldNumber = 1,
+  	kMapInt32MessageFieldNumber = 1,
   };
   // map<int32, .protobuf_unittest.TestAllTypesLite> map_int32_message = 1;
   int map_int32_message_size() const;
@@ -2352,11 +2192,7 @@ class TestMessageMapLite final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
-      TestMessageMapLite_MapInt32MessageEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::TestAllTypesLite,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_message_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<TestMessageMapLite_MapInt32MessageEntry_DoNotUse, int32_t, ::protobuf_unittest::TestAllTypesLite, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_message_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5flite_5funittest_2eproto;
 };
@@ -2458,9 +2294,9 @@ class TestRequiredLite final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
-    kBFieldNumber = 2,
-    kCFieldNumber = 3,
+  	kAFieldNumber = 1,
+  	kBFieldNumber = 2,
+  	kCFieldNumber = 3,
   };
   // required int32 a = 1;
   bool has_a() const;
@@ -2615,7 +2451,7 @@ class ForeignMessageArenaLite final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kCFieldNumber = 1,
+  	kCFieldNumber = 1,
   };
   // optional int32 c = 1;
   bool has_c() const;
@@ -2691,8 +2527,9 @@ class ForeignMessageArenaLite final :
 
 // map<int32, int32> map_int32_int32 = 1;
 inline int TestMapLite::_internal_map_int32_int32_size() const { return map_int32_int32_.size(); }
-inline int TestMapLite::map_int32_int32_size() const {
-  return _internal_map_int32_int32_size();
+inline int TestMapLite::map_int32_int32_size() const
+{
+	return _internal_map_int32_int32_size();
 }
 inline void TestMapLite::clear_map_int32_int32() {
   map_int32_int32_.Clear();
@@ -2700,22 +2537,26 @@ inline void TestMapLite::clear_map_int32_int32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestMapLite::_internal_map_int32_int32() const { return map_int32_int32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestMapLite::map_int32_int32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_int32)
-  return _internal_map_int32_int32();
+TestMapLite::map_int32_int32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_int32)
+	return _internal_map_int32_int32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::_internal_mutable_map_int32_int32() {
-  return map_int32_int32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::_internal_mutable_map_int32_int32()
+{
+	return map_int32_int32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::mutable_map_int32_int32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_int32)
-  return _internal_mutable_map_int32_int32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::mutable_map_int32_int32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_int32)
+	return _internal_mutable_map_int32_int32();
 }
 
 // map<int64, int64> map_int64_int64 = 2;
 inline int TestMapLite::_internal_map_int64_int64_size() const { return map_int64_int64_.size(); }
-inline int TestMapLite::map_int64_int64_size() const {
-  return _internal_map_int64_int64_size();
+inline int TestMapLite::map_int64_int64_size() const
+{
+	return _internal_map_int64_int64_size();
 }
 inline void TestMapLite::clear_map_int64_int64() {
   map_int64_int64_.Clear();
@@ -2723,22 +2564,26 @@ inline void TestMapLite::clear_map_int64_int64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestMapLite::_internal_map_int64_int64() const { return map_int64_int64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestMapLite::map_int64_int64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int64_int64)
-  return _internal_map_int64_int64();
+TestMapLite::map_int64_int64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int64_int64)
+	return _internal_map_int64_int64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::_internal_mutable_map_int64_int64() {
-  return map_int64_int64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::_internal_mutable_map_int64_int64()
+{
+	return map_int64_int64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::mutable_map_int64_int64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int64_int64)
-  return _internal_mutable_map_int64_int64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::mutable_map_int64_int64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int64_int64)
+	return _internal_mutable_map_int64_int64();
 }
 
 // map<uint32, uint32> map_uint32_uint32 = 3;
 inline int TestMapLite::_internal_map_uint32_uint32_size() const { return map_uint32_uint32_.size(); }
-inline int TestMapLite::map_uint32_uint32_size() const {
-  return _internal_map_uint32_uint32_size();
+inline int TestMapLite::map_uint32_uint32_size() const
+{
+	return _internal_map_uint32_uint32_size();
 }
 inline void TestMapLite::clear_map_uint32_uint32() {
   map_uint32_uint32_.Clear();
@@ -2746,22 +2591,26 @@ inline void TestMapLite::clear_map_uint32_uint32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
 TestMapLite::_internal_map_uint32_uint32() const { return map_uint32_uint32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
-TestMapLite::map_uint32_uint32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_uint32_uint32)
-  return _internal_map_uint32_uint32();
+TestMapLite::map_uint32_uint32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_uint32_uint32)
+	return _internal_map_uint32_uint32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMapLite::_internal_mutable_map_uint32_uint32() {
-  return map_uint32_uint32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMapLite::_internal_mutable_map_uint32_uint32()
+{
+	return map_uint32_uint32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMapLite::mutable_map_uint32_uint32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_uint32_uint32)
-  return _internal_mutable_map_uint32_uint32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMapLite::mutable_map_uint32_uint32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_uint32_uint32)
+	return _internal_mutable_map_uint32_uint32();
 }
 
 // map<uint64, uint64> map_uint64_uint64 = 4;
 inline int TestMapLite::_internal_map_uint64_uint64_size() const { return map_uint64_uint64_.size(); }
-inline int TestMapLite::map_uint64_uint64_size() const {
-  return _internal_map_uint64_uint64_size();
+inline int TestMapLite::map_uint64_uint64_size() const
+{
+	return _internal_map_uint64_uint64_size();
 }
 inline void TestMapLite::clear_map_uint64_uint64() {
   map_uint64_uint64_.Clear();
@@ -2769,22 +2618,26 @@ inline void TestMapLite::clear_map_uint64_uint64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 TestMapLite::_internal_map_uint64_uint64() const { return map_uint64_uint64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
-TestMapLite::map_uint64_uint64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_uint64_uint64)
-  return _internal_map_uint64_uint64();
+TestMapLite::map_uint64_uint64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_uint64_uint64)
+	return _internal_map_uint64_uint64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMapLite::_internal_mutable_map_uint64_uint64() {
-  return map_uint64_uint64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMapLite::_internal_mutable_map_uint64_uint64()
+{
+	return map_uint64_uint64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMapLite::mutable_map_uint64_uint64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_uint64_uint64)
-  return _internal_mutable_map_uint64_uint64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMapLite::mutable_map_uint64_uint64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_uint64_uint64)
+	return _internal_mutable_map_uint64_uint64();
 }
 
 // map<sint32, sint32> map_sint32_sint32 = 5;
 inline int TestMapLite::_internal_map_sint32_sint32_size() const { return map_sint32_sint32_.size(); }
-inline int TestMapLite::map_sint32_sint32_size() const {
-  return _internal_map_sint32_sint32_size();
+inline int TestMapLite::map_sint32_sint32_size() const
+{
+	return _internal_map_sint32_sint32_size();
 }
 inline void TestMapLite::clear_map_sint32_sint32() {
   map_sint32_sint32_.Clear();
@@ -2792,22 +2645,26 @@ inline void TestMapLite::clear_map_sint32_sint32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestMapLite::_internal_map_sint32_sint32() const { return map_sint32_sint32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestMapLite::map_sint32_sint32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_sint32_sint32)
-  return _internal_map_sint32_sint32();
+TestMapLite::map_sint32_sint32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_sint32_sint32)
+	return _internal_map_sint32_sint32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::_internal_mutable_map_sint32_sint32() {
-  return map_sint32_sint32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::_internal_mutable_map_sint32_sint32()
+{
+	return map_sint32_sint32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::mutable_map_sint32_sint32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_sint32_sint32)
-  return _internal_mutable_map_sint32_sint32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::mutable_map_sint32_sint32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_sint32_sint32)
+	return _internal_mutable_map_sint32_sint32();
 }
 
 // map<sint64, sint64> map_sint64_sint64 = 6;
 inline int TestMapLite::_internal_map_sint64_sint64_size() const { return map_sint64_sint64_.size(); }
-inline int TestMapLite::map_sint64_sint64_size() const {
-  return _internal_map_sint64_sint64_size();
+inline int TestMapLite::map_sint64_sint64_size() const
+{
+	return _internal_map_sint64_sint64_size();
 }
 inline void TestMapLite::clear_map_sint64_sint64() {
   map_sint64_sint64_.Clear();
@@ -2815,22 +2672,26 @@ inline void TestMapLite::clear_map_sint64_sint64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestMapLite::_internal_map_sint64_sint64() const { return map_sint64_sint64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestMapLite::map_sint64_sint64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_sint64_sint64)
-  return _internal_map_sint64_sint64();
+TestMapLite::map_sint64_sint64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_sint64_sint64)
+	return _internal_map_sint64_sint64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::_internal_mutable_map_sint64_sint64() {
-  return map_sint64_sint64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::_internal_mutable_map_sint64_sint64()
+{
+	return map_sint64_sint64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::mutable_map_sint64_sint64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_sint64_sint64)
-  return _internal_mutable_map_sint64_sint64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::mutable_map_sint64_sint64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_sint64_sint64)
+	return _internal_mutable_map_sint64_sint64();
 }
 
 // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
 inline int TestMapLite::_internal_map_fixed32_fixed32_size() const { return map_fixed32_fixed32_.size(); }
-inline int TestMapLite::map_fixed32_fixed32_size() const {
-  return _internal_map_fixed32_fixed32_size();
+inline int TestMapLite::map_fixed32_fixed32_size() const
+{
+	return _internal_map_fixed32_fixed32_size();
 }
 inline void TestMapLite::clear_map_fixed32_fixed32() {
   map_fixed32_fixed32_.Clear();
@@ -2838,22 +2699,26 @@ inline void TestMapLite::clear_map_fixed32_fixed32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
 TestMapLite::_internal_map_fixed32_fixed32() const { return map_fixed32_fixed32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
-TestMapLite::map_fixed32_fixed32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_fixed32_fixed32)
-  return _internal_map_fixed32_fixed32();
+TestMapLite::map_fixed32_fixed32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_fixed32_fixed32)
+	return _internal_map_fixed32_fixed32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMapLite::_internal_mutable_map_fixed32_fixed32() {
-  return map_fixed32_fixed32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMapLite::_internal_mutable_map_fixed32_fixed32()
+{
+	return map_fixed32_fixed32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMapLite::mutable_map_fixed32_fixed32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_fixed32_fixed32)
-  return _internal_mutable_map_fixed32_fixed32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMapLite::mutable_map_fixed32_fixed32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_fixed32_fixed32)
+	return _internal_mutable_map_fixed32_fixed32();
 }
 
 // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
 inline int TestMapLite::_internal_map_fixed64_fixed64_size() const { return map_fixed64_fixed64_.size(); }
-inline int TestMapLite::map_fixed64_fixed64_size() const {
-  return _internal_map_fixed64_fixed64_size();
+inline int TestMapLite::map_fixed64_fixed64_size() const
+{
+	return _internal_map_fixed64_fixed64_size();
 }
 inline void TestMapLite::clear_map_fixed64_fixed64() {
   map_fixed64_fixed64_.Clear();
@@ -2861,22 +2726,26 @@ inline void TestMapLite::clear_map_fixed64_fixed64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 TestMapLite::_internal_map_fixed64_fixed64() const { return map_fixed64_fixed64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
-TestMapLite::map_fixed64_fixed64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_fixed64_fixed64)
-  return _internal_map_fixed64_fixed64();
+TestMapLite::map_fixed64_fixed64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_fixed64_fixed64)
+	return _internal_map_fixed64_fixed64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMapLite::_internal_mutable_map_fixed64_fixed64() {
-  return map_fixed64_fixed64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMapLite::_internal_mutable_map_fixed64_fixed64()
+{
+	return map_fixed64_fixed64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMapLite::mutable_map_fixed64_fixed64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_fixed64_fixed64)
-  return _internal_mutable_map_fixed64_fixed64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMapLite::mutable_map_fixed64_fixed64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_fixed64_fixed64)
+	return _internal_mutable_map_fixed64_fixed64();
 }
 
 // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
 inline int TestMapLite::_internal_map_sfixed32_sfixed32_size() const { return map_sfixed32_sfixed32_.size(); }
-inline int TestMapLite::map_sfixed32_sfixed32_size() const {
-  return _internal_map_sfixed32_sfixed32_size();
+inline int TestMapLite::map_sfixed32_sfixed32_size() const
+{
+	return _internal_map_sfixed32_sfixed32_size();
 }
 inline void TestMapLite::clear_map_sfixed32_sfixed32() {
   map_sfixed32_sfixed32_.Clear();
@@ -2884,22 +2753,26 @@ inline void TestMapLite::clear_map_sfixed32_sfixed32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestMapLite::_internal_map_sfixed32_sfixed32() const { return map_sfixed32_sfixed32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestMapLite::map_sfixed32_sfixed32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_sfixed32_sfixed32)
-  return _internal_map_sfixed32_sfixed32();
+TestMapLite::map_sfixed32_sfixed32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_sfixed32_sfixed32)
+	return _internal_map_sfixed32_sfixed32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::_internal_mutable_map_sfixed32_sfixed32() {
-  return map_sfixed32_sfixed32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::_internal_mutable_map_sfixed32_sfixed32()
+{
+	return map_sfixed32_sfixed32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::mutable_map_sfixed32_sfixed32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_sfixed32_sfixed32)
-  return _internal_mutable_map_sfixed32_sfixed32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::mutable_map_sfixed32_sfixed32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_sfixed32_sfixed32)
+	return _internal_mutable_map_sfixed32_sfixed32();
 }
 
 // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
 inline int TestMapLite::_internal_map_sfixed64_sfixed64_size() const { return map_sfixed64_sfixed64_.size(); }
-inline int TestMapLite::map_sfixed64_sfixed64_size() const {
-  return _internal_map_sfixed64_sfixed64_size();
+inline int TestMapLite::map_sfixed64_sfixed64_size() const
+{
+	return _internal_map_sfixed64_sfixed64_size();
 }
 inline void TestMapLite::clear_map_sfixed64_sfixed64() {
   map_sfixed64_sfixed64_.Clear();
@@ -2907,22 +2780,26 @@ inline void TestMapLite::clear_map_sfixed64_sfixed64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestMapLite::_internal_map_sfixed64_sfixed64() const { return map_sfixed64_sfixed64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestMapLite::map_sfixed64_sfixed64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_sfixed64_sfixed64)
-  return _internal_map_sfixed64_sfixed64();
+TestMapLite::map_sfixed64_sfixed64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_sfixed64_sfixed64)
+	return _internal_map_sfixed64_sfixed64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::_internal_mutable_map_sfixed64_sfixed64() {
-  return map_sfixed64_sfixed64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::_internal_mutable_map_sfixed64_sfixed64()
+{
+	return map_sfixed64_sfixed64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::mutable_map_sfixed64_sfixed64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_sfixed64_sfixed64)
-  return _internal_mutable_map_sfixed64_sfixed64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMapLite::mutable_map_sfixed64_sfixed64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_sfixed64_sfixed64)
+	return _internal_mutable_map_sfixed64_sfixed64();
 }
 
 // map<int32, float> map_int32_float = 11;
 inline int TestMapLite::_internal_map_int32_float_size() const { return map_int32_float_.size(); }
-inline int TestMapLite::map_int32_float_size() const {
-  return _internal_map_int32_float_size();
+inline int TestMapLite::map_int32_float_size() const
+{
+	return _internal_map_int32_float_size();
 }
 inline void TestMapLite::clear_map_int32_float() {
   map_int32_float_.Clear();
@@ -2930,22 +2807,26 @@ inline void TestMapLite::clear_map_int32_float() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >&
 TestMapLite::_internal_map_int32_float() const { return map_int32_float_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >&
-TestMapLite::map_int32_float() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_float)
-  return _internal_map_int32_float();
+TestMapLite::map_int32_float() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_float)
+	return _internal_map_int32_float();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestMapLite::_internal_mutable_map_int32_float() {
-  return map_int32_float_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestMapLite::_internal_mutable_map_int32_float()
+{
+	return map_int32_float_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestMapLite::mutable_map_int32_float() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_float)
-  return _internal_mutable_map_int32_float();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestMapLite::mutable_map_int32_float()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_float)
+	return _internal_mutable_map_int32_float();
 }
 
 // map<int32, double> map_int32_double = 12;
 inline int TestMapLite::_internal_map_int32_double_size() const { return map_int32_double_.size(); }
-inline int TestMapLite::map_int32_double_size() const {
-  return _internal_map_int32_double_size();
+inline int TestMapLite::map_int32_double_size() const
+{
+	return _internal_map_int32_double_size();
 }
 inline void TestMapLite::clear_map_int32_double() {
   map_int32_double_.Clear();
@@ -2953,22 +2834,26 @@ inline void TestMapLite::clear_map_int32_double() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >&
 TestMapLite::_internal_map_int32_double() const { return map_int32_double_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >&
-TestMapLite::map_int32_double() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_double)
-  return _internal_map_int32_double();
+TestMapLite::map_int32_double() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_double)
+	return _internal_map_int32_double();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestMapLite::_internal_mutable_map_int32_double() {
-  return map_int32_double_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestMapLite::_internal_mutable_map_int32_double()
+{
+	return map_int32_double_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestMapLite::mutable_map_int32_double() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_double)
-  return _internal_mutable_map_int32_double();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestMapLite::mutable_map_int32_double()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_double)
+	return _internal_mutable_map_int32_double();
 }
 
 // map<bool, bool> map_bool_bool = 13;
 inline int TestMapLite::_internal_map_bool_bool_size() const { return map_bool_bool_.size(); }
-inline int TestMapLite::map_bool_bool_size() const {
-  return _internal_map_bool_bool_size();
+inline int TestMapLite::map_bool_bool_size() const
+{
+	return _internal_map_bool_bool_size();
 }
 inline void TestMapLite::clear_map_bool_bool() {
   map_bool_bool_.Clear();
@@ -2976,22 +2861,26 @@ inline void TestMapLite::clear_map_bool_bool() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >&
 TestMapLite::_internal_map_bool_bool() const { return map_bool_bool_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >&
-TestMapLite::map_bool_bool() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_bool_bool)
-  return _internal_map_bool_bool();
+TestMapLite::map_bool_bool() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_bool_bool)
+	return _internal_map_bool_bool();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestMapLite::_internal_mutable_map_bool_bool() {
-  return map_bool_bool_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestMapLite::_internal_mutable_map_bool_bool()
+{
+	return map_bool_bool_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestMapLite::mutable_map_bool_bool() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_bool_bool)
-  return _internal_mutable_map_bool_bool();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestMapLite::mutable_map_bool_bool()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_bool_bool)
+	return _internal_mutable_map_bool_bool();
 }
 
 // map<string, string> map_string_string = 14;
 inline int TestMapLite::_internal_map_string_string_size() const { return map_string_string_.size(); }
-inline int TestMapLite::map_string_string_size() const {
-  return _internal_map_string_string_size();
+inline int TestMapLite::map_string_string_size() const
+{
+	return _internal_map_string_string_size();
 }
 inline void TestMapLite::clear_map_string_string() {
   map_string_string_.Clear();
@@ -2999,22 +2888,26 @@ inline void TestMapLite::clear_map_string_string() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestMapLite::_internal_map_string_string() const { return map_string_string_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestMapLite::map_string_string() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_string_string)
-  return _internal_map_string_string();
+TestMapLite::map_string_string() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_string_string)
+	return _internal_map_string_string();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMapLite::_internal_mutable_map_string_string() {
-  return map_string_string_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMapLite::_internal_mutable_map_string_string()
+{
+	return map_string_string_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMapLite::mutable_map_string_string() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_string_string)
-  return _internal_mutable_map_string_string();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMapLite::mutable_map_string_string()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_string_string)
+	return _internal_mutable_map_string_string();
 }
 
 // map<int32, bytes> map_int32_bytes = 15;
 inline int TestMapLite::_internal_map_int32_bytes_size() const { return map_int32_bytes_.size(); }
-inline int TestMapLite::map_int32_bytes_size() const {
-  return _internal_map_int32_bytes_size();
+inline int TestMapLite::map_int32_bytes_size() const
+{
+	return _internal_map_int32_bytes_size();
 }
 inline void TestMapLite::clear_map_int32_bytes() {
   map_int32_bytes_.Clear();
@@ -3022,22 +2915,26 @@ inline void TestMapLite::clear_map_int32_bytes() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
 TestMapLite::_internal_map_int32_bytes() const { return map_int32_bytes_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
-TestMapLite::map_int32_bytes() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_bytes)
-  return _internal_map_int32_bytes();
+TestMapLite::map_int32_bytes() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_bytes)
+	return _internal_map_int32_bytes();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestMapLite::_internal_mutable_map_int32_bytes() {
-  return map_int32_bytes_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestMapLite::_internal_mutable_map_int32_bytes()
+{
+	return map_int32_bytes_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestMapLite::mutable_map_int32_bytes() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_bytes)
-  return _internal_mutable_map_int32_bytes();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestMapLite::mutable_map_int32_bytes()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_bytes)
+	return _internal_mutable_map_int32_bytes();
 }
 
 // map<int32, .protobuf_unittest.MapEnumLite> map_int32_enum = 16;
 inline int TestMapLite::_internal_map_int32_enum_size() const { return map_int32_enum_.size(); }
-inline int TestMapLite::map_int32_enum_size() const {
-  return _internal_map_int32_enum_size();
+inline int TestMapLite::map_int32_enum_size() const
+{
+	return _internal_map_int32_enum_size();
 }
 inline void TestMapLite::clear_map_int32_enum() {
   map_int32_enum_.Clear();
@@ -3045,42 +2942,50 @@ inline void TestMapLite::clear_map_int32_enum() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >&
 TestMapLite::_internal_map_int32_enum() const { return map_int32_enum_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >&
-TestMapLite::map_int32_enum() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_enum)
-  return _internal_map_int32_enum();
+TestMapLite::map_int32_enum() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_enum)
+	return _internal_map_int32_enum();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite > * TestMapLite::_internal_mutable_map_int32_enum() {
-  return map_int32_enum_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite > * TestMapLite::_internal_mutable_map_int32_enum()
+{
+	return map_int32_enum_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite > * TestMapLite::mutable_map_int32_enum() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_enum)
-  return _internal_mutable_map_int32_enum();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite > * TestMapLite::mutable_map_int32_enum()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_enum)
+	return _internal_mutable_map_int32_enum();
 }
 
 // map<int32, .protobuf_unittest.ForeignMessageLite> map_int32_foreign_message = 17;
 inline int TestMapLite::_internal_map_int32_foreign_message_size() const { return map_int32_foreign_message_.size(); }
-inline int TestMapLite::map_int32_foreign_message_size() const {
-  return _internal_map_int32_foreign_message_size();
+inline int TestMapLite::map_int32_foreign_message_size() const
+{
+	return _internal_map_int32_foreign_message_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageLite >&
 TestMapLite::_internal_map_int32_foreign_message() const { return map_int32_foreign_message_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageLite >&
-TestMapLite::map_int32_foreign_message() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_foreign_message)
-  return _internal_map_int32_foreign_message();
+TestMapLite::map_int32_foreign_message() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.map_int32_foreign_message)
+	return _internal_map_int32_foreign_message();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageLite > * TestMapLite::_internal_mutable_map_int32_foreign_message() {
-  return map_int32_foreign_message_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageLite > * TestMapLite::_internal_mutable_map_int32_foreign_message()
+{
+	return map_int32_foreign_message_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageLite > * TestMapLite::mutable_map_int32_foreign_message() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_foreign_message)
-  return _internal_mutable_map_int32_foreign_message();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageLite > * TestMapLite::mutable_map_int32_foreign_message()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.map_int32_foreign_message)
+	return _internal_mutable_map_int32_foreign_message();
 }
 
 // map<int32, int32> teboring = 18;
 inline int TestMapLite::_internal_teboring_size() const { return teboring_.size(); }
-inline int TestMapLite::teboring_size() const {
-  return _internal_teboring_size();
+inline int TestMapLite::teboring_size() const
+{
+	return _internal_teboring_size();
 }
 inline void TestMapLite::clear_teboring() {
   teboring_.Clear();
@@ -3088,16 +2993,19 @@ inline void TestMapLite::clear_teboring() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestMapLite::_internal_teboring() const { return teboring_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestMapLite::teboring() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.teboring)
-  return _internal_teboring();
+TestMapLite::teboring() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMapLite.teboring)
+	return _internal_teboring();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::_internal_mutable_teboring() {
-  return teboring_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::_internal_mutable_teboring()
+{
+	return teboring_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::mutable_teboring() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.teboring)
-  return _internal_mutable_teboring();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::mutable_teboring()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMapLite.teboring)
+	return _internal_mutable_teboring();
 }
 
 // -------------------------------------------------------------------
@@ -3140,8 +3048,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMapLite::mutable_t
 
 // map<int32, int32> map_int32_int32 = 1;
 inline int TestArenaMapLite::_internal_map_int32_int32_size() const { return map_int32_int32_.size(); }
-inline int TestArenaMapLite::map_int32_int32_size() const {
-  return _internal_map_int32_int32_size();
+inline int TestArenaMapLite::map_int32_int32_size() const
+{
+	return _internal_map_int32_int32_size();
 }
 inline void TestArenaMapLite::clear_map_int32_int32() {
   map_int32_int32_.Clear();
@@ -3149,22 +3058,26 @@ inline void TestArenaMapLite::clear_map_int32_int32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestArenaMapLite::_internal_map_int32_int32() const { return map_int32_int32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestArenaMapLite::map_int32_int32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_int32)
-  return _internal_map_int32_int32();
+TestArenaMapLite::map_int32_int32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_int32)
+	return _internal_map_int32_int32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::_internal_mutable_map_int32_int32() {
-  return map_int32_int32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::_internal_mutable_map_int32_int32()
+{
+	return map_int32_int32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::mutable_map_int32_int32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_int32)
-  return _internal_mutable_map_int32_int32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::mutable_map_int32_int32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_int32)
+	return _internal_mutable_map_int32_int32();
 }
 
 // map<int64, int64> map_int64_int64 = 2;
 inline int TestArenaMapLite::_internal_map_int64_int64_size() const { return map_int64_int64_.size(); }
-inline int TestArenaMapLite::map_int64_int64_size() const {
-  return _internal_map_int64_int64_size();
+inline int TestArenaMapLite::map_int64_int64_size() const
+{
+	return _internal_map_int64_int64_size();
 }
 inline void TestArenaMapLite::clear_map_int64_int64() {
   map_int64_int64_.Clear();
@@ -3172,22 +3085,26 @@ inline void TestArenaMapLite::clear_map_int64_int64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestArenaMapLite::_internal_map_int64_int64() const { return map_int64_int64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestArenaMapLite::map_int64_int64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int64_int64)
-  return _internal_map_int64_int64();
+TestArenaMapLite::map_int64_int64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int64_int64)
+	return _internal_map_int64_int64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::_internal_mutable_map_int64_int64() {
-  return map_int64_int64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::_internal_mutable_map_int64_int64()
+{
+	return map_int64_int64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::mutable_map_int64_int64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int64_int64)
-  return _internal_mutable_map_int64_int64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::mutable_map_int64_int64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int64_int64)
+	return _internal_mutable_map_int64_int64();
 }
 
 // map<uint32, uint32> map_uint32_uint32 = 3;
 inline int TestArenaMapLite::_internal_map_uint32_uint32_size() const { return map_uint32_uint32_.size(); }
-inline int TestArenaMapLite::map_uint32_uint32_size() const {
-  return _internal_map_uint32_uint32_size();
+inline int TestArenaMapLite::map_uint32_uint32_size() const
+{
+	return _internal_map_uint32_uint32_size();
 }
 inline void TestArenaMapLite::clear_map_uint32_uint32() {
   map_uint32_uint32_.Clear();
@@ -3195,22 +3112,26 @@ inline void TestArenaMapLite::clear_map_uint32_uint32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
 TestArenaMapLite::_internal_map_uint32_uint32() const { return map_uint32_uint32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
-TestArenaMapLite::map_uint32_uint32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_uint32_uint32)
-  return _internal_map_uint32_uint32();
+TestArenaMapLite::map_uint32_uint32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_uint32_uint32)
+	return _internal_map_uint32_uint32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMapLite::_internal_mutable_map_uint32_uint32() {
-  return map_uint32_uint32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMapLite::_internal_mutable_map_uint32_uint32()
+{
+	return map_uint32_uint32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMapLite::mutable_map_uint32_uint32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_uint32_uint32)
-  return _internal_mutable_map_uint32_uint32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMapLite::mutable_map_uint32_uint32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_uint32_uint32)
+	return _internal_mutable_map_uint32_uint32();
 }
 
 // map<uint64, uint64> map_uint64_uint64 = 4;
 inline int TestArenaMapLite::_internal_map_uint64_uint64_size() const { return map_uint64_uint64_.size(); }
-inline int TestArenaMapLite::map_uint64_uint64_size() const {
-  return _internal_map_uint64_uint64_size();
+inline int TestArenaMapLite::map_uint64_uint64_size() const
+{
+	return _internal_map_uint64_uint64_size();
 }
 inline void TestArenaMapLite::clear_map_uint64_uint64() {
   map_uint64_uint64_.Clear();
@@ -3218,22 +3139,26 @@ inline void TestArenaMapLite::clear_map_uint64_uint64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 TestArenaMapLite::_internal_map_uint64_uint64() const { return map_uint64_uint64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
-TestArenaMapLite::map_uint64_uint64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_uint64_uint64)
-  return _internal_map_uint64_uint64();
+TestArenaMapLite::map_uint64_uint64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_uint64_uint64)
+	return _internal_map_uint64_uint64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMapLite::_internal_mutable_map_uint64_uint64() {
-  return map_uint64_uint64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMapLite::_internal_mutable_map_uint64_uint64()
+{
+	return map_uint64_uint64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMapLite::mutable_map_uint64_uint64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_uint64_uint64)
-  return _internal_mutable_map_uint64_uint64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMapLite::mutable_map_uint64_uint64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_uint64_uint64)
+	return _internal_mutable_map_uint64_uint64();
 }
 
 // map<sint32, sint32> map_sint32_sint32 = 5;
 inline int TestArenaMapLite::_internal_map_sint32_sint32_size() const { return map_sint32_sint32_.size(); }
-inline int TestArenaMapLite::map_sint32_sint32_size() const {
-  return _internal_map_sint32_sint32_size();
+inline int TestArenaMapLite::map_sint32_sint32_size() const
+{
+	return _internal_map_sint32_sint32_size();
 }
 inline void TestArenaMapLite::clear_map_sint32_sint32() {
   map_sint32_sint32_.Clear();
@@ -3241,22 +3166,26 @@ inline void TestArenaMapLite::clear_map_sint32_sint32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestArenaMapLite::_internal_map_sint32_sint32() const { return map_sint32_sint32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestArenaMapLite::map_sint32_sint32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_sint32_sint32)
-  return _internal_map_sint32_sint32();
+TestArenaMapLite::map_sint32_sint32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_sint32_sint32)
+	return _internal_map_sint32_sint32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::_internal_mutable_map_sint32_sint32() {
-  return map_sint32_sint32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::_internal_mutable_map_sint32_sint32()
+{
+	return map_sint32_sint32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::mutable_map_sint32_sint32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_sint32_sint32)
-  return _internal_mutable_map_sint32_sint32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::mutable_map_sint32_sint32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_sint32_sint32)
+	return _internal_mutable_map_sint32_sint32();
 }
 
 // map<sint64, sint64> map_sint64_sint64 = 6;
 inline int TestArenaMapLite::_internal_map_sint64_sint64_size() const { return map_sint64_sint64_.size(); }
-inline int TestArenaMapLite::map_sint64_sint64_size() const {
-  return _internal_map_sint64_sint64_size();
+inline int TestArenaMapLite::map_sint64_sint64_size() const
+{
+	return _internal_map_sint64_sint64_size();
 }
 inline void TestArenaMapLite::clear_map_sint64_sint64() {
   map_sint64_sint64_.Clear();
@@ -3264,22 +3193,26 @@ inline void TestArenaMapLite::clear_map_sint64_sint64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestArenaMapLite::_internal_map_sint64_sint64() const { return map_sint64_sint64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestArenaMapLite::map_sint64_sint64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_sint64_sint64)
-  return _internal_map_sint64_sint64();
+TestArenaMapLite::map_sint64_sint64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_sint64_sint64)
+	return _internal_map_sint64_sint64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::_internal_mutable_map_sint64_sint64() {
-  return map_sint64_sint64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::_internal_mutable_map_sint64_sint64()
+{
+	return map_sint64_sint64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::mutable_map_sint64_sint64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_sint64_sint64)
-  return _internal_mutable_map_sint64_sint64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::mutable_map_sint64_sint64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_sint64_sint64)
+	return _internal_mutable_map_sint64_sint64();
 }
 
 // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
 inline int TestArenaMapLite::_internal_map_fixed32_fixed32_size() const { return map_fixed32_fixed32_.size(); }
-inline int TestArenaMapLite::map_fixed32_fixed32_size() const {
-  return _internal_map_fixed32_fixed32_size();
+inline int TestArenaMapLite::map_fixed32_fixed32_size() const
+{
+	return _internal_map_fixed32_fixed32_size();
 }
 inline void TestArenaMapLite::clear_map_fixed32_fixed32() {
   map_fixed32_fixed32_.Clear();
@@ -3287,22 +3220,26 @@ inline void TestArenaMapLite::clear_map_fixed32_fixed32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
 TestArenaMapLite::_internal_map_fixed32_fixed32() const { return map_fixed32_fixed32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
-TestArenaMapLite::map_fixed32_fixed32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_fixed32_fixed32)
-  return _internal_map_fixed32_fixed32();
+TestArenaMapLite::map_fixed32_fixed32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_fixed32_fixed32)
+	return _internal_map_fixed32_fixed32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMapLite::_internal_mutable_map_fixed32_fixed32() {
-  return map_fixed32_fixed32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMapLite::_internal_mutable_map_fixed32_fixed32()
+{
+	return map_fixed32_fixed32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMapLite::mutable_map_fixed32_fixed32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_fixed32_fixed32)
-  return _internal_mutable_map_fixed32_fixed32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMapLite::mutable_map_fixed32_fixed32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_fixed32_fixed32)
+	return _internal_mutable_map_fixed32_fixed32();
 }
 
 // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
 inline int TestArenaMapLite::_internal_map_fixed64_fixed64_size() const { return map_fixed64_fixed64_.size(); }
-inline int TestArenaMapLite::map_fixed64_fixed64_size() const {
-  return _internal_map_fixed64_fixed64_size();
+inline int TestArenaMapLite::map_fixed64_fixed64_size() const
+{
+	return _internal_map_fixed64_fixed64_size();
 }
 inline void TestArenaMapLite::clear_map_fixed64_fixed64() {
   map_fixed64_fixed64_.Clear();
@@ -3310,22 +3247,26 @@ inline void TestArenaMapLite::clear_map_fixed64_fixed64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 TestArenaMapLite::_internal_map_fixed64_fixed64() const { return map_fixed64_fixed64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
-TestArenaMapLite::map_fixed64_fixed64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_fixed64_fixed64)
-  return _internal_map_fixed64_fixed64();
+TestArenaMapLite::map_fixed64_fixed64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_fixed64_fixed64)
+	return _internal_map_fixed64_fixed64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMapLite::_internal_mutable_map_fixed64_fixed64() {
-  return map_fixed64_fixed64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMapLite::_internal_mutable_map_fixed64_fixed64()
+{
+	return map_fixed64_fixed64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMapLite::mutable_map_fixed64_fixed64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_fixed64_fixed64)
-  return _internal_mutable_map_fixed64_fixed64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMapLite::mutable_map_fixed64_fixed64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_fixed64_fixed64)
+	return _internal_mutable_map_fixed64_fixed64();
 }
 
 // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
 inline int TestArenaMapLite::_internal_map_sfixed32_sfixed32_size() const { return map_sfixed32_sfixed32_.size(); }
-inline int TestArenaMapLite::map_sfixed32_sfixed32_size() const {
-  return _internal_map_sfixed32_sfixed32_size();
+inline int TestArenaMapLite::map_sfixed32_sfixed32_size() const
+{
+	return _internal_map_sfixed32_sfixed32_size();
 }
 inline void TestArenaMapLite::clear_map_sfixed32_sfixed32() {
   map_sfixed32_sfixed32_.Clear();
@@ -3333,22 +3274,26 @@ inline void TestArenaMapLite::clear_map_sfixed32_sfixed32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestArenaMapLite::_internal_map_sfixed32_sfixed32() const { return map_sfixed32_sfixed32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestArenaMapLite::map_sfixed32_sfixed32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_sfixed32_sfixed32)
-  return _internal_map_sfixed32_sfixed32();
+TestArenaMapLite::map_sfixed32_sfixed32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_sfixed32_sfixed32)
+	return _internal_map_sfixed32_sfixed32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::_internal_mutable_map_sfixed32_sfixed32() {
-  return map_sfixed32_sfixed32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::_internal_mutable_map_sfixed32_sfixed32()
+{
+	return map_sfixed32_sfixed32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::mutable_map_sfixed32_sfixed32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_sfixed32_sfixed32)
-  return _internal_mutable_map_sfixed32_sfixed32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMapLite::mutable_map_sfixed32_sfixed32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_sfixed32_sfixed32)
+	return _internal_mutable_map_sfixed32_sfixed32();
 }
 
 // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
 inline int TestArenaMapLite::_internal_map_sfixed64_sfixed64_size() const { return map_sfixed64_sfixed64_.size(); }
-inline int TestArenaMapLite::map_sfixed64_sfixed64_size() const {
-  return _internal_map_sfixed64_sfixed64_size();
+inline int TestArenaMapLite::map_sfixed64_sfixed64_size() const
+{
+	return _internal_map_sfixed64_sfixed64_size();
 }
 inline void TestArenaMapLite::clear_map_sfixed64_sfixed64() {
   map_sfixed64_sfixed64_.Clear();
@@ -3356,22 +3301,26 @@ inline void TestArenaMapLite::clear_map_sfixed64_sfixed64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestArenaMapLite::_internal_map_sfixed64_sfixed64() const { return map_sfixed64_sfixed64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestArenaMapLite::map_sfixed64_sfixed64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_sfixed64_sfixed64)
-  return _internal_map_sfixed64_sfixed64();
+TestArenaMapLite::map_sfixed64_sfixed64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_sfixed64_sfixed64)
+	return _internal_map_sfixed64_sfixed64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::_internal_mutable_map_sfixed64_sfixed64() {
-  return map_sfixed64_sfixed64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::_internal_mutable_map_sfixed64_sfixed64()
+{
+	return map_sfixed64_sfixed64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::mutable_map_sfixed64_sfixed64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_sfixed64_sfixed64)
-  return _internal_mutable_map_sfixed64_sfixed64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMapLite::mutable_map_sfixed64_sfixed64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_sfixed64_sfixed64)
+	return _internal_mutable_map_sfixed64_sfixed64();
 }
 
 // map<int32, float> map_int32_float = 11;
 inline int TestArenaMapLite::_internal_map_int32_float_size() const { return map_int32_float_.size(); }
-inline int TestArenaMapLite::map_int32_float_size() const {
-  return _internal_map_int32_float_size();
+inline int TestArenaMapLite::map_int32_float_size() const
+{
+	return _internal_map_int32_float_size();
 }
 inline void TestArenaMapLite::clear_map_int32_float() {
   map_int32_float_.Clear();
@@ -3379,22 +3328,26 @@ inline void TestArenaMapLite::clear_map_int32_float() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >&
 TestArenaMapLite::_internal_map_int32_float() const { return map_int32_float_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >&
-TestArenaMapLite::map_int32_float() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_float)
-  return _internal_map_int32_float();
+TestArenaMapLite::map_int32_float() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_float)
+	return _internal_map_int32_float();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestArenaMapLite::_internal_mutable_map_int32_float() {
-  return map_int32_float_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestArenaMapLite::_internal_mutable_map_int32_float()
+{
+	return map_int32_float_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestArenaMapLite::mutable_map_int32_float() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_float)
-  return _internal_mutable_map_int32_float();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestArenaMapLite::mutable_map_int32_float()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_float)
+	return _internal_mutable_map_int32_float();
 }
 
 // map<int32, double> map_int32_double = 12;
 inline int TestArenaMapLite::_internal_map_int32_double_size() const { return map_int32_double_.size(); }
-inline int TestArenaMapLite::map_int32_double_size() const {
-  return _internal_map_int32_double_size();
+inline int TestArenaMapLite::map_int32_double_size() const
+{
+	return _internal_map_int32_double_size();
 }
 inline void TestArenaMapLite::clear_map_int32_double() {
   map_int32_double_.Clear();
@@ -3402,22 +3355,26 @@ inline void TestArenaMapLite::clear_map_int32_double() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >&
 TestArenaMapLite::_internal_map_int32_double() const { return map_int32_double_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >&
-TestArenaMapLite::map_int32_double() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_double)
-  return _internal_map_int32_double();
+TestArenaMapLite::map_int32_double() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_double)
+	return _internal_map_int32_double();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestArenaMapLite::_internal_mutable_map_int32_double() {
-  return map_int32_double_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestArenaMapLite::_internal_mutable_map_int32_double()
+{
+	return map_int32_double_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestArenaMapLite::mutable_map_int32_double() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_double)
-  return _internal_mutable_map_int32_double();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestArenaMapLite::mutable_map_int32_double()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_double)
+	return _internal_mutable_map_int32_double();
 }
 
 // map<bool, bool> map_bool_bool = 13;
 inline int TestArenaMapLite::_internal_map_bool_bool_size() const { return map_bool_bool_.size(); }
-inline int TestArenaMapLite::map_bool_bool_size() const {
-  return _internal_map_bool_bool_size();
+inline int TestArenaMapLite::map_bool_bool_size() const
+{
+	return _internal_map_bool_bool_size();
 }
 inline void TestArenaMapLite::clear_map_bool_bool() {
   map_bool_bool_.Clear();
@@ -3425,22 +3382,26 @@ inline void TestArenaMapLite::clear_map_bool_bool() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >&
 TestArenaMapLite::_internal_map_bool_bool() const { return map_bool_bool_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >&
-TestArenaMapLite::map_bool_bool() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_bool_bool)
-  return _internal_map_bool_bool();
+TestArenaMapLite::map_bool_bool() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_bool_bool)
+	return _internal_map_bool_bool();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestArenaMapLite::_internal_mutable_map_bool_bool() {
-  return map_bool_bool_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestArenaMapLite::_internal_mutable_map_bool_bool()
+{
+	return map_bool_bool_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestArenaMapLite::mutable_map_bool_bool() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_bool_bool)
-  return _internal_mutable_map_bool_bool();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestArenaMapLite::mutable_map_bool_bool()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_bool_bool)
+	return _internal_mutable_map_bool_bool();
 }
 
 // map<string, string> map_string_string = 14;
 inline int TestArenaMapLite::_internal_map_string_string_size() const { return map_string_string_.size(); }
-inline int TestArenaMapLite::map_string_string_size() const {
-  return _internal_map_string_string_size();
+inline int TestArenaMapLite::map_string_string_size() const
+{
+	return _internal_map_string_string_size();
 }
 inline void TestArenaMapLite::clear_map_string_string() {
   map_string_string_.Clear();
@@ -3448,22 +3409,26 @@ inline void TestArenaMapLite::clear_map_string_string() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestArenaMapLite::_internal_map_string_string() const { return map_string_string_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestArenaMapLite::map_string_string() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_string_string)
-  return _internal_map_string_string();
+TestArenaMapLite::map_string_string() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_string_string)
+	return _internal_map_string_string();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestArenaMapLite::_internal_mutable_map_string_string() {
-  return map_string_string_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestArenaMapLite::_internal_mutable_map_string_string()
+{
+	return map_string_string_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestArenaMapLite::mutable_map_string_string() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_string_string)
-  return _internal_mutable_map_string_string();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestArenaMapLite::mutable_map_string_string()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_string_string)
+	return _internal_mutable_map_string_string();
 }
 
 // map<int32, bytes> map_int32_bytes = 15;
 inline int TestArenaMapLite::_internal_map_int32_bytes_size() const { return map_int32_bytes_.size(); }
-inline int TestArenaMapLite::map_int32_bytes_size() const {
-  return _internal_map_int32_bytes_size();
+inline int TestArenaMapLite::map_int32_bytes_size() const
+{
+	return _internal_map_int32_bytes_size();
 }
 inline void TestArenaMapLite::clear_map_int32_bytes() {
   map_int32_bytes_.Clear();
@@ -3471,22 +3436,26 @@ inline void TestArenaMapLite::clear_map_int32_bytes() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
 TestArenaMapLite::_internal_map_int32_bytes() const { return map_int32_bytes_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
-TestArenaMapLite::map_int32_bytes() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_bytes)
-  return _internal_map_int32_bytes();
+TestArenaMapLite::map_int32_bytes() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_bytes)
+	return _internal_map_int32_bytes();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestArenaMapLite::_internal_mutable_map_int32_bytes() {
-  return map_int32_bytes_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestArenaMapLite::_internal_mutable_map_int32_bytes()
+{
+	return map_int32_bytes_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestArenaMapLite::mutable_map_int32_bytes() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_bytes)
-  return _internal_mutable_map_int32_bytes();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestArenaMapLite::mutable_map_int32_bytes()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_bytes)
+	return _internal_mutable_map_int32_bytes();
 }
 
 // map<int32, .protobuf_unittest.MapEnumLite> map_int32_enum = 16;
 inline int TestArenaMapLite::_internal_map_int32_enum_size() const { return map_int32_enum_.size(); }
-inline int TestArenaMapLite::map_int32_enum_size() const {
-  return _internal_map_int32_enum_size();
+inline int TestArenaMapLite::map_int32_enum_size() const
+{
+	return _internal_map_int32_enum_size();
 }
 inline void TestArenaMapLite::clear_map_int32_enum() {
   map_int32_enum_.Clear();
@@ -3494,22 +3463,26 @@ inline void TestArenaMapLite::clear_map_int32_enum() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >&
 TestArenaMapLite::_internal_map_int32_enum() const { return map_int32_enum_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >&
-TestArenaMapLite::map_int32_enum() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_enum)
-  return _internal_map_int32_enum();
+TestArenaMapLite::map_int32_enum() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_enum)
+	return _internal_map_int32_enum();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite > * TestArenaMapLite::_internal_mutable_map_int32_enum() {
-  return map_int32_enum_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite > * TestArenaMapLite::_internal_mutable_map_int32_enum()
+{
+	return map_int32_enum_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite > * TestArenaMapLite::mutable_map_int32_enum() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_enum)
-  return _internal_mutable_map_int32_enum();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite > * TestArenaMapLite::mutable_map_int32_enum()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_enum)
+	return _internal_mutable_map_int32_enum();
 }
 
 // map<int32, .protobuf_unittest.ForeignMessageArenaLite> map_int32_foreign_message = 17;
 inline int TestArenaMapLite::_internal_map_int32_foreign_message_size() const { return map_int32_foreign_message_.size(); }
-inline int TestArenaMapLite::map_int32_foreign_message_size() const {
-  return _internal_map_int32_foreign_message_size();
+inline int TestArenaMapLite::map_int32_foreign_message_size() const
+{
+	return _internal_map_int32_foreign_message_size();
 }
 inline void TestArenaMapLite::clear_map_int32_foreign_message() {
   map_int32_foreign_message_.Clear();
@@ -3517,16 +3490,19 @@ inline void TestArenaMapLite::clear_map_int32_foreign_message() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageArenaLite >&
 TestArenaMapLite::_internal_map_int32_foreign_message() const { return map_int32_foreign_message_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageArenaLite >&
-TestArenaMapLite::map_int32_foreign_message() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_foreign_message)
-  return _internal_map_int32_foreign_message();
+TestArenaMapLite::map_int32_foreign_message() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMapLite.map_int32_foreign_message)
+	return _internal_map_int32_foreign_message();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageArenaLite > * TestArenaMapLite::_internal_mutable_map_int32_foreign_message() {
-  return map_int32_foreign_message_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageArenaLite > * TestArenaMapLite::_internal_mutable_map_int32_foreign_message()
+{
+	return map_int32_foreign_message_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageArenaLite > * TestArenaMapLite::mutable_map_int32_foreign_message() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_foreign_message)
-  return _internal_mutable_map_int32_foreign_message();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageArenaLite > * TestArenaMapLite::mutable_map_int32_foreign_message()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMapLite.map_int32_foreign_message)
+	return _internal_mutable_map_int32_foreign_message();
 }
 
 // -------------------------------------------------------------------
@@ -3537,8 +3513,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessag
 
 // map<int32, .protobuf_unittest.TestRequiredLite> map_field = 1;
 inline int TestRequiredMessageMapLite::_internal_map_field_size() const { return map_field_.size(); }
-inline int TestRequiredMessageMapLite::map_field_size() const {
-  return _internal_map_field_size();
+inline int TestRequiredMessageMapLite::map_field_size() const
+{
+	return _internal_map_field_size();
 }
 inline void TestRequiredMessageMapLite::clear_map_field() {
   map_field_.Clear();
@@ -3546,16 +3523,19 @@ inline void TestRequiredMessageMapLite::clear_map_field() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredLite >&
 TestRequiredMessageMapLite::_internal_map_field() const { return map_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredLite >&
-TestRequiredMessageMapLite::map_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestRequiredMessageMapLite.map_field)
-  return _internal_map_field();
+TestRequiredMessageMapLite::map_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestRequiredMessageMapLite.map_field)
+	return _internal_map_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredLite > * TestRequiredMessageMapLite::_internal_mutable_map_field() {
-  return map_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredLite > * TestRequiredMessageMapLite::_internal_mutable_map_field()
+{
+	return map_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredLite > * TestRequiredMessageMapLite::mutable_map_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestRequiredMessageMapLite.map_field)
-  return _internal_mutable_map_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredLite > * TestRequiredMessageMapLite::mutable_map_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestRequiredMessageMapLite.map_field)
+	return _internal_mutable_map_field();
 }
 
 // -------------------------------------------------------------------
@@ -3568,8 +3548,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredL
 
 // map<int32, .protobuf_unittest.Proto2MapEnumLite> known_map_field = 101;
 inline int TestEnumMapLite::_internal_known_map_field_size() const { return known_map_field_.size(); }
-inline int TestEnumMapLite::known_map_field_size() const {
-  return _internal_known_map_field_size();
+inline int TestEnumMapLite::known_map_field_size() const
+{
+	return _internal_known_map_field_size();
 }
 inline void TestEnumMapLite::clear_known_map_field() {
   known_map_field_.Clear();
@@ -3577,22 +3558,26 @@ inline void TestEnumMapLite::clear_known_map_field() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >&
 TestEnumMapLite::_internal_known_map_field() const { return known_map_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >&
-TestEnumMapLite::known_map_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestEnumMapLite.known_map_field)
-  return _internal_known_map_field();
+TestEnumMapLite::known_map_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestEnumMapLite.known_map_field)
+	return _internal_known_map_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite > * TestEnumMapLite::_internal_mutable_known_map_field() {
-  return known_map_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite > * TestEnumMapLite::_internal_mutable_known_map_field()
+{
+	return known_map_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite > * TestEnumMapLite::mutable_known_map_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestEnumMapLite.known_map_field)
-  return _internal_mutable_known_map_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite > * TestEnumMapLite::mutable_known_map_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestEnumMapLite.known_map_field)
+	return _internal_mutable_known_map_field();
 }
 
 // map<int32, .protobuf_unittest.Proto2MapEnumLite> unknown_map_field = 102;
 inline int TestEnumMapLite::_internal_unknown_map_field_size() const { return unknown_map_field_.size(); }
-inline int TestEnumMapLite::unknown_map_field_size() const {
-  return _internal_unknown_map_field_size();
+inline int TestEnumMapLite::unknown_map_field_size() const
+{
+	return _internal_unknown_map_field_size();
 }
 inline void TestEnumMapLite::clear_unknown_map_field() {
   unknown_map_field_.Clear();
@@ -3600,16 +3585,19 @@ inline void TestEnumMapLite::clear_unknown_map_field() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >&
 TestEnumMapLite::_internal_unknown_map_field() const { return unknown_map_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >&
-TestEnumMapLite::unknown_map_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestEnumMapLite.unknown_map_field)
-  return _internal_unknown_map_field();
+TestEnumMapLite::unknown_map_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestEnumMapLite.unknown_map_field)
+	return _internal_unknown_map_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite > * TestEnumMapLite::_internal_mutable_unknown_map_field() {
-  return unknown_map_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite > * TestEnumMapLite::_internal_mutable_unknown_map_field()
+{
+	return unknown_map_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite > * TestEnumMapLite::mutable_unknown_map_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestEnumMapLite.unknown_map_field)
-  return _internal_mutable_unknown_map_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite > * TestEnumMapLite::mutable_unknown_map_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestEnumMapLite.unknown_map_field)
+	return _internal_mutable_unknown_map_field();
 }
 
 // -------------------------------------------------------------------
@@ -3622,8 +3610,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum
 
 // map<int32, .protobuf_unittest.Proto2MapEnumPlusExtraLite> known_map_field = 101;
 inline int TestEnumMapPlusExtraLite::_internal_known_map_field_size() const { return known_map_field_.size(); }
-inline int TestEnumMapPlusExtraLite::known_map_field_size() const {
-  return _internal_known_map_field_size();
+inline int TestEnumMapPlusExtraLite::known_map_field_size() const
+{
+	return _internal_known_map_field_size();
 }
 inline void TestEnumMapPlusExtraLite::clear_known_map_field() {
   known_map_field_.Clear();
@@ -3631,22 +3620,26 @@ inline void TestEnumMapPlusExtraLite::clear_known_map_field() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >&
 TestEnumMapPlusExtraLite::_internal_known_map_field() const { return known_map_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >&
-TestEnumMapPlusExtraLite::known_map_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestEnumMapPlusExtraLite.known_map_field)
-  return _internal_known_map_field();
+TestEnumMapPlusExtraLite::known_map_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestEnumMapPlusExtraLite.known_map_field)
+	return _internal_known_map_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite > * TestEnumMapPlusExtraLite::_internal_mutable_known_map_field() {
-  return known_map_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite > * TestEnumMapPlusExtraLite::_internal_mutable_known_map_field()
+{
+	return known_map_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite > * TestEnumMapPlusExtraLite::mutable_known_map_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestEnumMapPlusExtraLite.known_map_field)
-  return _internal_mutable_known_map_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite > * TestEnumMapPlusExtraLite::mutable_known_map_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestEnumMapPlusExtraLite.known_map_field)
+	return _internal_mutable_known_map_field();
 }
 
 // map<int32, .protobuf_unittest.Proto2MapEnumPlusExtraLite> unknown_map_field = 102;
 inline int TestEnumMapPlusExtraLite::_internal_unknown_map_field_size() const { return unknown_map_field_.size(); }
-inline int TestEnumMapPlusExtraLite::unknown_map_field_size() const {
-  return _internal_unknown_map_field_size();
+inline int TestEnumMapPlusExtraLite::unknown_map_field_size() const
+{
+	return _internal_unknown_map_field_size();
 }
 inline void TestEnumMapPlusExtraLite::clear_unknown_map_field() {
   unknown_map_field_.Clear();
@@ -3654,16 +3647,19 @@ inline void TestEnumMapPlusExtraLite::clear_unknown_map_field() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >&
 TestEnumMapPlusExtraLite::_internal_unknown_map_field() const { return unknown_map_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >&
-TestEnumMapPlusExtraLite::unknown_map_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestEnumMapPlusExtraLite.unknown_map_field)
-  return _internal_unknown_map_field();
+TestEnumMapPlusExtraLite::unknown_map_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestEnumMapPlusExtraLite.unknown_map_field)
+	return _internal_unknown_map_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite > * TestEnumMapPlusExtraLite::_internal_mutable_unknown_map_field() {
-  return unknown_map_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite > * TestEnumMapPlusExtraLite::_internal_mutable_unknown_map_field()
+{
+	return unknown_map_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite > * TestEnumMapPlusExtraLite::mutable_unknown_map_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestEnumMapPlusExtraLite.unknown_map_field)
-  return _internal_mutable_unknown_map_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite > * TestEnumMapPlusExtraLite::mutable_unknown_map_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestEnumMapPlusExtraLite.unknown_map_field)
+	return _internal_mutable_unknown_map_field();
 }
 
 // -------------------------------------------------------------------
@@ -3674,22 +3670,26 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnum
 
 // map<int32, .protobuf_unittest.TestAllTypesLite> map_int32_message = 1;
 inline int TestMessageMapLite::_internal_map_int32_message_size() const { return map_int32_message_.size(); }
-inline int TestMessageMapLite::map_int32_message_size() const {
-  return _internal_map_int32_message_size();
+inline int TestMessageMapLite::map_int32_message_size() const
+{
+	return _internal_map_int32_message_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesLite >&
 TestMessageMapLite::_internal_map_int32_message() const { return map_int32_message_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesLite >&
-TestMessageMapLite::map_int32_message() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMessageMapLite.map_int32_message)
-  return _internal_map_int32_message();
+TestMessageMapLite::map_int32_message() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMessageMapLite.map_int32_message)
+	return _internal_map_int32_message();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesLite > * TestMessageMapLite::_internal_mutable_map_int32_message() {
-  return map_int32_message_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesLite > * TestMessageMapLite::_internal_mutable_map_int32_message()
+{
+	return map_int32_message_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesLite > * TestMessageMapLite::mutable_map_int32_message() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMessageMapLite.map_int32_message)
-  return _internal_mutable_map_int32_message();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesLite > * TestMessageMapLite::mutable_map_int32_message()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMessageMapLite.map_int32_message)
+	return _internal_mutable_map_int32_message();
 }
 
 // -------------------------------------------------------------------
@@ -3699,10 +3699,10 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesL
 // required int32 a = 1;
 inline bool TestRequiredLite::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequiredLite::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestRequiredLite::clear_a() {
   a_ = 0;
@@ -3725,10 +3725,10 @@ inline void TestRequiredLite::set_a(int32_t value) {
 // required int32 b = 2;
 inline bool TestRequiredLite::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequiredLite::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestRequiredLite::clear_b() {
   b_ = 0;
@@ -3751,10 +3751,10 @@ inline void TestRequiredLite::set_b(int32_t value) {
 // required int32 c = 3;
 inline bool TestRequiredLite::_internal_has_c() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRequiredLite::has_c() const {
-  return _internal_has_c();
+	return _internal_has_c();
 }
 inline void TestRequiredLite::clear_c() {
   c_ = 0;
@@ -3781,10 +3781,10 @@ inline void TestRequiredLite::set_c(int32_t value) {
 // optional int32 c = 1;
 inline bool ForeignMessageArenaLite::_internal_has_c() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool ForeignMessageArenaLite::has_c() const {
-  return _internal_has_c();
+	return _internal_has_c();
 }
 inline void ForeignMessageArenaLite::clear_c() {
   c_ = 0;

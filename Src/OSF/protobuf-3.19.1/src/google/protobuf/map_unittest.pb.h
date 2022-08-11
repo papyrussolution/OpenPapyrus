@@ -322,8 +322,8 @@ public:
   explicit TestMap_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapInt32Int32Entry_DoNotUse& other);
   static const TestMap_MapInt32Int32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapInt32Int32Entry_DoNotUse*>(&_TestMap_MapInt32Int32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -339,8 +339,8 @@ public:
   explicit TestMap_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapInt64Int64Entry_DoNotUse& other);
   static const TestMap_MapInt64Int64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapInt64Int64Entry_DoNotUse*>(&_TestMap_MapInt64Int64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -356,8 +356,8 @@ public:
   explicit TestMap_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapUint32Uint32Entry_DoNotUse& other);
   static const TestMap_MapUint32Uint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapUint32Uint32Entry_DoNotUse*>(&_TestMap_MapUint32Uint32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -373,8 +373,8 @@ public:
   explicit TestMap_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapUint64Uint64Entry_DoNotUse& other);
   static const TestMap_MapUint64Uint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapUint64Uint64Entry_DoNotUse*>(&_TestMap_MapUint64Uint64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -390,8 +390,8 @@ public:
   explicit TestMap_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapSint32Sint32Entry_DoNotUse& other);
   static const TestMap_MapSint32Sint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapSint32Sint32Entry_DoNotUse*>(&_TestMap_MapSint32Sint32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -407,8 +407,8 @@ public:
   explicit TestMap_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapSint64Sint64Entry_DoNotUse& other);
   static const TestMap_MapSint64Sint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapSint64Sint64Entry_DoNotUse*>(&_TestMap_MapSint64Sint64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -424,8 +424,8 @@ public:
   explicit TestMap_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapFixed32Fixed32Entry_DoNotUse& other);
   static const TestMap_MapFixed32Fixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapFixed32Fixed32Entry_DoNotUse*>(&_TestMap_MapFixed32Fixed32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -441,8 +441,8 @@ public:
   explicit TestMap_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapFixed64Fixed64Entry_DoNotUse& other);
   static const TestMap_MapFixed64Fixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapFixed64Fixed64Entry_DoNotUse*>(&_TestMap_MapFixed64Fixed64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -458,8 +458,8 @@ public:
   explicit TestMap_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapSfixed32Sfixed32Entry_DoNotUse& other);
   static const TestMap_MapSfixed32Sfixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapSfixed32Sfixed32Entry_DoNotUse*>(&_TestMap_MapSfixed32Sfixed32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -475,8 +475,8 @@ public:
   explicit TestMap_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapSfixed64Sfixed64Entry_DoNotUse& other);
   static const TestMap_MapSfixed64Sfixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapSfixed64Sfixed64Entry_DoNotUse*>(&_TestMap_MapSfixed64Sfixed64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -492,8 +492,8 @@ public:
   explicit TestMap_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapInt32FloatEntry_DoNotUse& other);
   static const TestMap_MapInt32FloatEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapInt32FloatEntry_DoNotUse*>(&_TestMap_MapInt32FloatEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -509,8 +509,8 @@ public:
   explicit TestMap_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapInt32DoubleEntry_DoNotUse& other);
   static const TestMap_MapInt32DoubleEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapInt32DoubleEntry_DoNotUse*>(&_TestMap_MapInt32DoubleEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -526,8 +526,8 @@ public:
   explicit TestMap_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapBoolBoolEntry_DoNotUse& other);
   static const TestMap_MapBoolBoolEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapBoolBoolEntry_DoNotUse*>(&_TestMap_MapBoolBoolEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -560,8 +560,8 @@ public:
   explicit TestMap_MapInt32BytesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapInt32BytesEntry_DoNotUse& other);
   static const TestMap_MapInt32BytesEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapInt32BytesEntry_DoNotUse*>(&_TestMap_MapInt32BytesEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -577,8 +577,8 @@ public:
   explicit TestMap_MapInt32EnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapInt32EnumEntry_DoNotUse& other);
   static const TestMap_MapInt32EnumEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapInt32EnumEntry_DoNotUse*>(&_TestMap_MapInt32EnumEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -594,8 +594,8 @@ public:
   explicit TestMap_MapInt32ForeignMessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapInt32ForeignMessageEntry_DoNotUse& other);
   static const TestMap_MapInt32ForeignMessageEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapInt32ForeignMessageEntry_DoNotUse*>(&_TestMap_MapInt32ForeignMessageEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -612,7 +612,7 @@ public:
   void MergeFrom(const TestMap_MapStringForeignMessageEntry_DoNotUse& other);
   static const TestMap_MapStringForeignMessageEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapStringForeignMessageEntry_DoNotUse*>(&_TestMap_MapStringForeignMessageEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "protobuf_unittest.TestMap.MapStringForeignMessageEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -628,8 +628,8 @@ public:
   explicit TestMap_MapInt32AllTypesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_MapInt32AllTypesEntry_DoNotUse& other);
   static const TestMap_MapInt32AllTypesEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_MapInt32AllTypesEntry_DoNotUse*>(&_TestMap_MapInt32AllTypesEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -740,25 +740,25 @@ class TestMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapInt32Int32FieldNumber = 1,
-    kMapInt64Int64FieldNumber = 2,
-    kMapUint32Uint32FieldNumber = 3,
-    kMapUint64Uint64FieldNumber = 4,
-    kMapSint32Sint32FieldNumber = 5,
-    kMapSint64Sint64FieldNumber = 6,
-    kMapFixed32Fixed32FieldNumber = 7,
-    kMapFixed64Fixed64FieldNumber = 8,
-    kMapSfixed32Sfixed32FieldNumber = 9,
-    kMapSfixed64Sfixed64FieldNumber = 10,
-    kMapInt32FloatFieldNumber = 11,
-    kMapInt32DoubleFieldNumber = 12,
-    kMapBoolBoolFieldNumber = 13,
-    kMapStringStringFieldNumber = 14,
-    kMapInt32BytesFieldNumber = 15,
-    kMapInt32EnumFieldNumber = 16,
-    kMapInt32ForeignMessageFieldNumber = 17,
-    kMapStringForeignMessageFieldNumber = 18,
-    kMapInt32AllTypesFieldNumber = 19,
+  	kMapInt32Int32FieldNumber = 1,
+  	kMapInt64Int64FieldNumber = 2,
+  	kMapUint32Uint32FieldNumber = 3,
+  	kMapUint64Uint64FieldNumber = 4,
+  	kMapSint32Sint32FieldNumber = 5,
+  	kMapSint64Sint64FieldNumber = 6,
+  	kMapFixed32Fixed32FieldNumber = 7,
+  	kMapFixed64Fixed64FieldNumber = 8,
+  	kMapSfixed32Sfixed32FieldNumber = 9,
+  	kMapSfixed64Sfixed64FieldNumber = 10,
+  	kMapInt32FloatFieldNumber = 11,
+  	kMapInt32DoubleFieldNumber = 12,
+  	kMapBoolBoolFieldNumber = 13,
+  	kMapStringStringFieldNumber = 14,
+  	kMapInt32BytesFieldNumber = 15,
+  	kMapInt32EnumFieldNumber = 16,
+  	kMapInt32ForeignMessageFieldNumber = 17,
+  	kMapStringForeignMessageFieldNumber = 18,
+  	kMapInt32AllTypesFieldNumber = 19,
   };
   // map<int32, int32> map_int32_int32 = 1;
   int map_int32_int32_size() const;
@@ -1014,101 +1014,25 @@ class TestMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapInt32Int32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_int32_int32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapInt64Int64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64> map_int64_int64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapUint32Uint32Entry_DoNotUse,
-      uint32_t, uint32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32> map_uint32_uint32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapUint64Uint64Entry_DoNotUse,
-      uint64_t, uint64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> map_uint64_uint64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapSint32Sint32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32> map_sint32_sint32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapSint64Sint64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64> map_sint64_sint64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapFixed32Fixed32Entry_DoNotUse,
-      uint32_t, uint32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32> map_fixed32_fixed32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapFixed64Fixed64Entry_DoNotUse,
-      uint64_t, uint64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64> map_fixed64_fixed64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapSfixed32Sfixed32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32> map_sfixed32_sfixed32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapSfixed64Sfixed64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64> map_sfixed64_sfixed64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapInt32FloatEntry_DoNotUse,
-      int32_t, float,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_int32_float_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapInt32DoubleEntry_DoNotUse,
-      int32_t, double,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE> map_int32_double_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapBoolBoolEntry_DoNotUse,
-      bool, bool,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_bool_bool_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapStringStringEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_string_string_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapInt32BytesEntry_DoNotUse,
-      int32_t, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BYTES> map_int32_bytes_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapInt32EnumEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::MapEnum,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_int32_enum_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapInt32ForeignMessageEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::ForeignMessage,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_foreign_message_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapStringForeignMessageEntry_DoNotUse,
-      std::string, ::protobuf_unittest::ForeignMessage,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_string_foreign_message_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMap_MapInt32AllTypesEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::TestAllTypes,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_all_types_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapInt32Int32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_int32_int32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapInt64Int64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64> map_int64_int64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapUint32Uint32Entry_DoNotUse, uint32_t, uint32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32> map_uint32_uint32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapUint64Uint64Entry_DoNotUse, uint64_t, uint64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> map_uint64_uint64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapSint32Sint32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32> map_sint32_sint32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapSint64Sint64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64> map_sint64_sint64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapFixed32Fixed32Entry_DoNotUse, uint32_t, uint32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32> map_fixed32_fixed32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapFixed64Fixed64Entry_DoNotUse, uint64_t, uint64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64> map_fixed64_fixed64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapSfixed32Sfixed32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32> map_sfixed32_sfixed32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapSfixed64Sfixed64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64> map_sfixed64_sfixed64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapInt32FloatEntry_DoNotUse, int32_t, float, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_int32_float_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapInt32DoubleEntry_DoNotUse, int32_t, double, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE> map_int32_double_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapBoolBoolEntry_DoNotUse, bool, bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_bool_bool_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapStringStringEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_string_string_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapInt32BytesEntry_DoNotUse, int32_t, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BYTES> map_int32_bytes_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapInt32EnumEntry_DoNotUse, int32_t, ::protobuf_unittest::MapEnum, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_int32_enum_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapInt32ForeignMessageEntry_DoNotUse, int32_t, ::protobuf_unittest::ForeignMessage, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_foreign_message_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapStringForeignMessageEntry_DoNotUse, std::string, ::protobuf_unittest::ForeignMessage, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_string_foreign_message_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMap_MapInt32AllTypesEntry_DoNotUse, int32_t, ::protobuf_unittest::TestAllTypes, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_all_types_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5funittest_2eproto;
 };
@@ -1217,7 +1141,7 @@ class TestMapSubmessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kTestMapFieldNumber = 1,
+  	kTestMapFieldNumber = 1,
   };
   // .protobuf_unittest.TestMap test_map = 1;
   bool has_test_map() const;
@@ -1259,8 +1183,8 @@ public:
   explicit TestMessageMap_MapInt32MessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMessageMap_MapInt32MessageEntry_DoNotUse& other);
   static const TestMessageMap_MapInt32MessageEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMessageMap_MapInt32MessageEntry_DoNotUse*>(&_TestMessageMap_MapInt32MessageEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1371,7 +1295,7 @@ class TestMessageMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapInt32MessageFieldNumber = 1,
+  	kMapInt32MessageFieldNumber = 1,
   };
   // map<int32, .protobuf_unittest.TestAllTypes> map_int32_message = 1;
   int map_int32_message_size() const;
@@ -1393,11 +1317,7 @@ class TestMessageMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestMessageMap_MapInt32MessageEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::TestAllTypes,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_message_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestMessageMap_MapInt32MessageEntry_DoNotUse, int32_t, ::protobuf_unittest::TestAllTypes, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_message_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5funittest_2eproto;
 };
@@ -1412,8 +1332,8 @@ public:
   explicit TestSameTypeMap_Map1Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestSameTypeMap_Map1Entry_DoNotUse& other);
   static const TestSameTypeMap_Map1Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestSameTypeMap_Map1Entry_DoNotUse*>(&_TestSameTypeMap_Map1Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1429,8 +1349,8 @@ public:
   explicit TestSameTypeMap_Map2Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestSameTypeMap_Map2Entry_DoNotUse& other);
   static const TestSameTypeMap_Map2Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestSameTypeMap_Map2Entry_DoNotUse*>(&_TestSameTypeMap_Map2Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1541,8 +1461,8 @@ class TestSameTypeMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMap1FieldNumber = 1,
-    kMap2FieldNumber = 2,
+  	kMap1FieldNumber = 1,
+  	kMap2FieldNumber = 2,
   };
   // map<int32, int32> map1 = 1;
   int map1_size() const;
@@ -1577,16 +1497,8 @@ class TestSameTypeMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestSameTypeMap_Map1Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map1_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestSameTypeMap_Map2Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map2_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestSameTypeMap_Map1Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map1_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestSameTypeMap_Map2Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map2_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5funittest_2eproto;
 };
@@ -1601,8 +1513,8 @@ public:
   explicit TestRequiredMessageMap_MapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestRequiredMessageMap_MapFieldEntry_DoNotUse& other);
   static const TestRequiredMessageMap_MapFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestRequiredMessageMap_MapFieldEntry_DoNotUse*>(&_TestRequiredMessageMap_MapFieldEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1713,7 +1625,7 @@ class TestRequiredMessageMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldFieldNumber = 1,
+  	kMapFieldFieldNumber = 1,
   };
   // map<int32, .protobuf_unittest.TestRequired> map_field = 1;
   int map_field_size() const;
@@ -1735,11 +1647,7 @@ class TestRequiredMessageMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestRequiredMessageMap_MapFieldEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::TestRequired,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_field_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestRequiredMessageMap_MapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::TestRequired, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_field_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5funittest_2eproto;
 };
@@ -1754,8 +1662,8 @@ public:
   explicit TestArenaMap_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapInt32Int32Entry_DoNotUse& other);
   static const TestArenaMap_MapInt32Int32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapInt32Int32Entry_DoNotUse*>(&_TestArenaMap_MapInt32Int32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1771,8 +1679,8 @@ public:
   explicit TestArenaMap_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapInt64Int64Entry_DoNotUse& other);
   static const TestArenaMap_MapInt64Int64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapInt64Int64Entry_DoNotUse*>(&_TestArenaMap_MapInt64Int64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1788,8 +1696,8 @@ public:
   explicit TestArenaMap_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapUint32Uint32Entry_DoNotUse& other);
   static const TestArenaMap_MapUint32Uint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapUint32Uint32Entry_DoNotUse*>(&_TestArenaMap_MapUint32Uint32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1805,8 +1713,8 @@ public:
   explicit TestArenaMap_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapUint64Uint64Entry_DoNotUse& other);
   static const TestArenaMap_MapUint64Uint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapUint64Uint64Entry_DoNotUse*>(&_TestArenaMap_MapUint64Uint64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1822,8 +1730,8 @@ public:
   explicit TestArenaMap_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapSint32Sint32Entry_DoNotUse& other);
   static const TestArenaMap_MapSint32Sint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapSint32Sint32Entry_DoNotUse*>(&_TestArenaMap_MapSint32Sint32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1839,8 +1747,8 @@ public:
   explicit TestArenaMap_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapSint64Sint64Entry_DoNotUse& other);
   static const TestArenaMap_MapSint64Sint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapSint64Sint64Entry_DoNotUse*>(&_TestArenaMap_MapSint64Sint64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1856,8 +1764,8 @@ public:
   explicit TestArenaMap_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapFixed32Fixed32Entry_DoNotUse& other);
   static const TestArenaMap_MapFixed32Fixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapFixed32Fixed32Entry_DoNotUse*>(&_TestArenaMap_MapFixed32Fixed32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1873,8 +1781,8 @@ public:
   explicit TestArenaMap_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapFixed64Fixed64Entry_DoNotUse& other);
   static const TestArenaMap_MapFixed64Fixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapFixed64Fixed64Entry_DoNotUse*>(&_TestArenaMap_MapFixed64Fixed64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1890,8 +1798,8 @@ public:
   explicit TestArenaMap_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapSfixed32Sfixed32Entry_DoNotUse& other);
   static const TestArenaMap_MapSfixed32Sfixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapSfixed32Sfixed32Entry_DoNotUse*>(&_TestArenaMap_MapSfixed32Sfixed32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1907,8 +1815,8 @@ public:
   explicit TestArenaMap_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapSfixed64Sfixed64Entry_DoNotUse& other);
   static const TestArenaMap_MapSfixed64Sfixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapSfixed64Sfixed64Entry_DoNotUse*>(&_TestArenaMap_MapSfixed64Sfixed64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1924,8 +1832,8 @@ public:
   explicit TestArenaMap_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapInt32FloatEntry_DoNotUse& other);
   static const TestArenaMap_MapInt32FloatEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapInt32FloatEntry_DoNotUse*>(&_TestArenaMap_MapInt32FloatEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1941,8 +1849,8 @@ public:
   explicit TestArenaMap_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapInt32DoubleEntry_DoNotUse& other);
   static const TestArenaMap_MapInt32DoubleEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapInt32DoubleEntry_DoNotUse*>(&_TestArenaMap_MapInt32DoubleEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1958,8 +1866,8 @@ public:
   explicit TestArenaMap_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapBoolBoolEntry_DoNotUse& other);
   static const TestArenaMap_MapBoolBoolEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapBoolBoolEntry_DoNotUse*>(&_TestArenaMap_MapBoolBoolEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1992,8 +1900,8 @@ public:
   explicit TestArenaMap_MapInt32BytesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapInt32BytesEntry_DoNotUse& other);
   static const TestArenaMap_MapInt32BytesEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapInt32BytesEntry_DoNotUse*>(&_TestArenaMap_MapInt32BytesEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2009,8 +1917,8 @@ public:
   explicit TestArenaMap_MapInt32EnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapInt32EnumEntry_DoNotUse& other);
   static const TestArenaMap_MapInt32EnumEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapInt32EnumEntry_DoNotUse*>(&_TestArenaMap_MapInt32EnumEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2026,8 +1934,8 @@ public:
   explicit TestArenaMap_MapInt32ForeignMessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestArenaMap_MapInt32ForeignMessageEntry_DoNotUse& other);
   static const TestArenaMap_MapInt32ForeignMessageEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestArenaMap_MapInt32ForeignMessageEntry_DoNotUse*>(&_TestArenaMap_MapInt32ForeignMessageEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2138,23 +2046,23 @@ class TestArenaMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapInt32Int32FieldNumber = 1,
-    kMapInt64Int64FieldNumber = 2,
-    kMapUint32Uint32FieldNumber = 3,
-    kMapUint64Uint64FieldNumber = 4,
-    kMapSint32Sint32FieldNumber = 5,
-    kMapSint64Sint64FieldNumber = 6,
-    kMapFixed32Fixed32FieldNumber = 7,
-    kMapFixed64Fixed64FieldNumber = 8,
-    kMapSfixed32Sfixed32FieldNumber = 9,
-    kMapSfixed64Sfixed64FieldNumber = 10,
-    kMapInt32FloatFieldNumber = 11,
-    kMapInt32DoubleFieldNumber = 12,
-    kMapBoolBoolFieldNumber = 13,
-    kMapStringStringFieldNumber = 14,
-    kMapInt32BytesFieldNumber = 15,
-    kMapInt32EnumFieldNumber = 16,
-    kMapInt32ForeignMessageFieldNumber = 17,
+  	kMapInt32Int32FieldNumber = 1,
+  	kMapInt64Int64FieldNumber = 2,
+  	kMapUint32Uint32FieldNumber = 3,
+  	kMapUint64Uint64FieldNumber = 4,
+  	kMapSint32Sint32FieldNumber = 5,
+  	kMapSint64Sint64FieldNumber = 6,
+  	kMapFixed32Fixed32FieldNumber = 7,
+  	kMapFixed64Fixed64FieldNumber = 8,
+  	kMapSfixed32Sfixed32FieldNumber = 9,
+  	kMapSfixed64Sfixed64FieldNumber = 10,
+  	kMapInt32FloatFieldNumber = 11,
+  	kMapInt32DoubleFieldNumber = 12,
+  	kMapBoolBoolFieldNumber = 13,
+  	kMapStringStringFieldNumber = 14,
+  	kMapInt32BytesFieldNumber = 15,
+  	kMapInt32EnumFieldNumber = 16,
+  	kMapInt32ForeignMessageFieldNumber = 17,
   };
   // map<int32, int32> map_int32_int32 = 1;
   int map_int32_int32_size() const;
@@ -2384,91 +2292,23 @@ class TestArenaMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapInt32Int32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_int32_int32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapInt64Int64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64> map_int64_int64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapUint32Uint32Entry_DoNotUse,
-      uint32_t, uint32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32> map_uint32_uint32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapUint64Uint64Entry_DoNotUse,
-      uint64_t, uint64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> map_uint64_uint64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapSint32Sint32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32> map_sint32_sint32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapSint64Sint64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64> map_sint64_sint64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapFixed32Fixed32Entry_DoNotUse,
-      uint32_t, uint32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32> map_fixed32_fixed32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapFixed64Fixed64Entry_DoNotUse,
-      uint64_t, uint64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64> map_fixed64_fixed64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapSfixed32Sfixed32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32> map_sfixed32_sfixed32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapSfixed64Sfixed64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64> map_sfixed64_sfixed64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapInt32FloatEntry_DoNotUse,
-      int32_t, float,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_int32_float_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapInt32DoubleEntry_DoNotUse,
-      int32_t, double,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE> map_int32_double_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapBoolBoolEntry_DoNotUse,
-      bool, bool,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_bool_bool_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapStringStringEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_string_string_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapInt32BytesEntry_DoNotUse,
-      int32_t, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BYTES> map_int32_bytes_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapInt32EnumEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::MapEnum,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_int32_enum_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestArenaMap_MapInt32ForeignMessageEntry_DoNotUse,
-      int32_t, ::protobuf_unittest::ForeignMessage,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_foreign_message_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapInt32Int32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_int32_int32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapInt64Int64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64> map_int64_int64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapUint32Uint32Entry_DoNotUse, uint32_t, uint32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32> map_uint32_uint32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapUint64Uint64Entry_DoNotUse, uint64_t, uint64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> map_uint64_uint64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapSint32Sint32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32> map_sint32_sint32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapSint64Sint64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64> map_sint64_sint64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapFixed32Fixed32Entry_DoNotUse, uint32_t, uint32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32> map_fixed32_fixed32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapFixed64Fixed64Entry_DoNotUse, uint64_t, uint64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64> map_fixed64_fixed64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapSfixed32Sfixed32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32> map_sfixed32_sfixed32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapSfixed64Sfixed64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64> map_sfixed64_sfixed64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapInt32FloatEntry_DoNotUse, int32_t, float, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_int32_float_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapInt32DoubleEntry_DoNotUse, int32_t, double, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE> map_int32_double_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapBoolBoolEntry_DoNotUse, bool, bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_bool_bool_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapStringStringEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_string_string_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapInt32BytesEntry_DoNotUse, int32_t, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BYTES> map_int32_bytes_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapInt32EnumEntry_DoNotUse, int32_t, ::protobuf_unittest::MapEnum, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_int32_enum_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestArenaMap_MapInt32ForeignMessageEntry_DoNotUse, int32_t, ::protobuf_unittest::ForeignMessage, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_int32_foreign_message_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5funittest_2eproto;
 };
@@ -2484,7 +2324,7 @@ public:
   void MergeFrom(const MessageContainingEnumCalledType_TypeEntry_DoNotUse& other);
   static const MessageContainingEnumCalledType_TypeEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MessageContainingEnumCalledType_TypeEntry_DoNotUse*>(&_MessageContainingEnumCalledType_TypeEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "protobuf_unittest.MessageContainingEnumCalledType.TypeEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2612,7 +2452,7 @@ class MessageContainingEnumCalledType final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kTypeFieldNumber = 1,
+  	kTypeFieldNumber = 1,
   };
   // map<string, .protobuf_unittest.MessageContainingEnumCalledType> type = 1;
   int type_size() const;
@@ -2634,11 +2474,7 @@ class MessageContainingEnumCalledType final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MessageContainingEnumCalledType_TypeEntry_DoNotUse,
-      std::string, ::protobuf_unittest::MessageContainingEnumCalledType,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> type_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MessageContainingEnumCalledType_TypeEntry_DoNotUse, std::string, ::protobuf_unittest::MessageContainingEnumCalledType, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> type_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5funittest_2eproto;
 };
@@ -2653,8 +2489,8 @@ public:
   explicit MessageContainingMapCalledEntry_EntryEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MessageContainingMapCalledEntry_EntryEntry_DoNotUse& other);
   static const MessageContainingMapCalledEntry_EntryEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MessageContainingMapCalledEntry_EntryEntry_DoNotUse*>(&_MessageContainingMapCalledEntry_EntryEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2765,7 +2601,7 @@ class MessageContainingMapCalledEntry final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEntryFieldNumber = 1,
+  	kEntryFieldNumber = 1,
   };
   // map<int32, int32> entry = 1;
   int entry_size() const;
@@ -2787,11 +2623,7 @@ class MessageContainingMapCalledEntry final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MessageContainingMapCalledEntry_EntryEntry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> entry_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MessageContainingMapCalledEntry_EntryEntry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> entry_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5funittest_2eproto;
 };
@@ -2807,7 +2639,7 @@ public:
   void MergeFrom(const TestRecursiveMapMessage_AEntry_DoNotUse& other);
   static const TestRecursiveMapMessage_AEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestRecursiveMapMessage_AEntry_DoNotUse*>(&_TestRecursiveMapMessage_AEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "protobuf_unittest.TestRecursiveMapMessage.AEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2918,7 +2750,7 @@ class TestRecursiveMapMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
+  	kAFieldNumber = 1,
   };
   // map<string, .protobuf_unittest.TestRecursiveMapMessage> a = 1;
   int a_size() const;
@@ -2940,11 +2772,7 @@ class TestRecursiveMapMessage final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestRecursiveMapMessage_AEntry_DoNotUse,
-      std::string, ::protobuf_unittest::TestRecursiveMapMessage,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> a_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestRecursiveMapMessage_AEntry_DoNotUse, std::string, ::protobuf_unittest::TestRecursiveMapMessage, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> a_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2fmap_5funittest_2eproto;
 };
@@ -2999,8 +2827,9 @@ class TestRecursiveMapMessage final :
 
 // map<int32, int32> map_int32_int32 = 1;
 inline int TestMap::_internal_map_int32_int32_size() const { return map_int32_int32_.size(); }
-inline int TestMap::map_int32_int32_size() const {
-  return _internal_map_int32_int32_size();
+inline int TestMap::map_int32_int32_size() const
+{
+	return _internal_map_int32_int32_size();
 }
 inline void TestMap::clear_map_int32_int32() {
   map_int32_int32_.Clear();
@@ -3008,22 +2837,26 @@ inline void TestMap::clear_map_int32_int32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestMap::_internal_map_int32_int32() const { return map_int32_int32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestMap::map_int32_int32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_int32)
-  return _internal_map_int32_int32();
+TestMap::map_int32_int32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_int32)
+	return _internal_map_int32_int32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::_internal_mutable_map_int32_int32() {
-  return map_int32_int32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::_internal_mutable_map_int32_int32()
+{
+	return map_int32_int32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::mutable_map_int32_int32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_int32)
-  return _internal_mutable_map_int32_int32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::mutable_map_int32_int32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_int32)
+	return _internal_mutable_map_int32_int32();
 }
 
 // map<int64, int64> map_int64_int64 = 2;
 inline int TestMap::_internal_map_int64_int64_size() const { return map_int64_int64_.size(); }
-inline int TestMap::map_int64_int64_size() const {
-  return _internal_map_int64_int64_size();
+inline int TestMap::map_int64_int64_size() const
+{
+	return _internal_map_int64_int64_size();
 }
 inline void TestMap::clear_map_int64_int64() {
   map_int64_int64_.Clear();
@@ -3031,22 +2864,26 @@ inline void TestMap::clear_map_int64_int64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestMap::_internal_map_int64_int64() const { return map_int64_int64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestMap::map_int64_int64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int64_int64)
-  return _internal_map_int64_int64();
+TestMap::map_int64_int64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int64_int64)
+	return _internal_map_int64_int64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::_internal_mutable_map_int64_int64() {
-  return map_int64_int64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::_internal_mutable_map_int64_int64()
+{
+	return map_int64_int64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::mutable_map_int64_int64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int64_int64)
-  return _internal_mutable_map_int64_int64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::mutable_map_int64_int64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int64_int64)
+	return _internal_mutable_map_int64_int64();
 }
 
 // map<uint32, uint32> map_uint32_uint32 = 3;
 inline int TestMap::_internal_map_uint32_uint32_size() const { return map_uint32_uint32_.size(); }
-inline int TestMap::map_uint32_uint32_size() const {
-  return _internal_map_uint32_uint32_size();
+inline int TestMap::map_uint32_uint32_size() const
+{
+	return _internal_map_uint32_uint32_size();
 }
 inline void TestMap::clear_map_uint32_uint32() {
   map_uint32_uint32_.Clear();
@@ -3054,22 +2891,26 @@ inline void TestMap::clear_map_uint32_uint32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
 TestMap::_internal_map_uint32_uint32() const { return map_uint32_uint32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
-TestMap::map_uint32_uint32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_uint32_uint32)
-  return _internal_map_uint32_uint32();
+TestMap::map_uint32_uint32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_uint32_uint32)
+	return _internal_map_uint32_uint32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMap::_internal_mutable_map_uint32_uint32() {
-  return map_uint32_uint32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMap::_internal_mutable_map_uint32_uint32()
+{
+	return map_uint32_uint32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMap::mutable_map_uint32_uint32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_uint32_uint32)
-  return _internal_mutable_map_uint32_uint32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMap::mutable_map_uint32_uint32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_uint32_uint32)
+	return _internal_mutable_map_uint32_uint32();
 }
 
 // map<uint64, uint64> map_uint64_uint64 = 4;
 inline int TestMap::_internal_map_uint64_uint64_size() const { return map_uint64_uint64_.size(); }
-inline int TestMap::map_uint64_uint64_size() const {
-  return _internal_map_uint64_uint64_size();
+inline int TestMap::map_uint64_uint64_size() const
+{
+	return _internal_map_uint64_uint64_size();
 }
 inline void TestMap::clear_map_uint64_uint64() {
   map_uint64_uint64_.Clear();
@@ -3077,22 +2918,26 @@ inline void TestMap::clear_map_uint64_uint64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 TestMap::_internal_map_uint64_uint64() const { return map_uint64_uint64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
-TestMap::map_uint64_uint64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_uint64_uint64)
-  return _internal_map_uint64_uint64();
+TestMap::map_uint64_uint64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_uint64_uint64)
+	return _internal_map_uint64_uint64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMap::_internal_mutable_map_uint64_uint64() {
-  return map_uint64_uint64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMap::_internal_mutable_map_uint64_uint64()
+{
+	return map_uint64_uint64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMap::mutable_map_uint64_uint64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_uint64_uint64)
-  return _internal_mutable_map_uint64_uint64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMap::mutable_map_uint64_uint64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_uint64_uint64)
+	return _internal_mutable_map_uint64_uint64();
 }
 
 // map<sint32, sint32> map_sint32_sint32 = 5;
 inline int TestMap::_internal_map_sint32_sint32_size() const { return map_sint32_sint32_.size(); }
-inline int TestMap::map_sint32_sint32_size() const {
-  return _internal_map_sint32_sint32_size();
+inline int TestMap::map_sint32_sint32_size() const
+{
+	return _internal_map_sint32_sint32_size();
 }
 inline void TestMap::clear_map_sint32_sint32() {
   map_sint32_sint32_.Clear();
@@ -3100,22 +2945,26 @@ inline void TestMap::clear_map_sint32_sint32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestMap::_internal_map_sint32_sint32() const { return map_sint32_sint32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestMap::map_sint32_sint32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_sint32_sint32)
-  return _internal_map_sint32_sint32();
+TestMap::map_sint32_sint32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_sint32_sint32)
+	return _internal_map_sint32_sint32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::_internal_mutable_map_sint32_sint32() {
-  return map_sint32_sint32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::_internal_mutable_map_sint32_sint32()
+{
+	return map_sint32_sint32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::mutable_map_sint32_sint32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_sint32_sint32)
-  return _internal_mutable_map_sint32_sint32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::mutable_map_sint32_sint32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_sint32_sint32)
+	return _internal_mutable_map_sint32_sint32();
 }
 
 // map<sint64, sint64> map_sint64_sint64 = 6;
 inline int TestMap::_internal_map_sint64_sint64_size() const { return map_sint64_sint64_.size(); }
-inline int TestMap::map_sint64_sint64_size() const {
-  return _internal_map_sint64_sint64_size();
+inline int TestMap::map_sint64_sint64_size() const
+{
+	return _internal_map_sint64_sint64_size();
 }
 inline void TestMap::clear_map_sint64_sint64() {
   map_sint64_sint64_.Clear();
@@ -3123,22 +2972,26 @@ inline void TestMap::clear_map_sint64_sint64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestMap::_internal_map_sint64_sint64() const { return map_sint64_sint64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestMap::map_sint64_sint64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_sint64_sint64)
-  return _internal_map_sint64_sint64();
+TestMap::map_sint64_sint64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_sint64_sint64)
+	return _internal_map_sint64_sint64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::_internal_mutable_map_sint64_sint64() {
-  return map_sint64_sint64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::_internal_mutable_map_sint64_sint64()
+{
+	return map_sint64_sint64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::mutable_map_sint64_sint64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_sint64_sint64)
-  return _internal_mutable_map_sint64_sint64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::mutable_map_sint64_sint64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_sint64_sint64)
+	return _internal_mutable_map_sint64_sint64();
 }
 
 // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
 inline int TestMap::_internal_map_fixed32_fixed32_size() const { return map_fixed32_fixed32_.size(); }
-inline int TestMap::map_fixed32_fixed32_size() const {
-  return _internal_map_fixed32_fixed32_size();
+inline int TestMap::map_fixed32_fixed32_size() const
+{
+	return _internal_map_fixed32_fixed32_size();
 }
 inline void TestMap::clear_map_fixed32_fixed32() {
   map_fixed32_fixed32_.Clear();
@@ -3146,22 +2999,26 @@ inline void TestMap::clear_map_fixed32_fixed32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
 TestMap::_internal_map_fixed32_fixed32() const { return map_fixed32_fixed32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
-TestMap::map_fixed32_fixed32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_fixed32_fixed32)
-  return _internal_map_fixed32_fixed32();
+TestMap::map_fixed32_fixed32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_fixed32_fixed32)
+	return _internal_map_fixed32_fixed32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMap::_internal_mutable_map_fixed32_fixed32() {
-  return map_fixed32_fixed32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMap::_internal_mutable_map_fixed32_fixed32()
+{
+	return map_fixed32_fixed32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMap::mutable_map_fixed32_fixed32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_fixed32_fixed32)
-  return _internal_mutable_map_fixed32_fixed32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestMap::mutable_map_fixed32_fixed32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_fixed32_fixed32)
+	return _internal_mutable_map_fixed32_fixed32();
 }
 
 // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
 inline int TestMap::_internal_map_fixed64_fixed64_size() const { return map_fixed64_fixed64_.size(); }
-inline int TestMap::map_fixed64_fixed64_size() const {
-  return _internal_map_fixed64_fixed64_size();
+inline int TestMap::map_fixed64_fixed64_size() const
+{
+	return _internal_map_fixed64_fixed64_size();
 }
 inline void TestMap::clear_map_fixed64_fixed64() {
   map_fixed64_fixed64_.Clear();
@@ -3169,22 +3026,26 @@ inline void TestMap::clear_map_fixed64_fixed64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 TestMap::_internal_map_fixed64_fixed64() const { return map_fixed64_fixed64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
-TestMap::map_fixed64_fixed64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_fixed64_fixed64)
-  return _internal_map_fixed64_fixed64();
+TestMap::map_fixed64_fixed64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_fixed64_fixed64)
+	return _internal_map_fixed64_fixed64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMap::_internal_mutable_map_fixed64_fixed64() {
-  return map_fixed64_fixed64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMap::_internal_mutable_map_fixed64_fixed64()
+{
+	return map_fixed64_fixed64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMap::mutable_map_fixed64_fixed64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_fixed64_fixed64)
-  return _internal_mutable_map_fixed64_fixed64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestMap::mutable_map_fixed64_fixed64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_fixed64_fixed64)
+	return _internal_mutable_map_fixed64_fixed64();
 }
 
 // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
 inline int TestMap::_internal_map_sfixed32_sfixed32_size() const { return map_sfixed32_sfixed32_.size(); }
-inline int TestMap::map_sfixed32_sfixed32_size() const {
-  return _internal_map_sfixed32_sfixed32_size();
+inline int TestMap::map_sfixed32_sfixed32_size() const
+{
+	return _internal_map_sfixed32_sfixed32_size();
 }
 inline void TestMap::clear_map_sfixed32_sfixed32() {
   map_sfixed32_sfixed32_.Clear();
@@ -3192,22 +3053,26 @@ inline void TestMap::clear_map_sfixed32_sfixed32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestMap::_internal_map_sfixed32_sfixed32() const { return map_sfixed32_sfixed32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestMap::map_sfixed32_sfixed32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_sfixed32_sfixed32)
-  return _internal_map_sfixed32_sfixed32();
+TestMap::map_sfixed32_sfixed32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_sfixed32_sfixed32)
+	return _internal_map_sfixed32_sfixed32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::_internal_mutable_map_sfixed32_sfixed32() {
-  return map_sfixed32_sfixed32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::_internal_mutable_map_sfixed32_sfixed32()
+{
+	return map_sfixed32_sfixed32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::mutable_map_sfixed32_sfixed32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_sfixed32_sfixed32)
-  return _internal_mutable_map_sfixed32_sfixed32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestMap::mutable_map_sfixed32_sfixed32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_sfixed32_sfixed32)
+	return _internal_mutable_map_sfixed32_sfixed32();
 }
 
 // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
 inline int TestMap::_internal_map_sfixed64_sfixed64_size() const { return map_sfixed64_sfixed64_.size(); }
-inline int TestMap::map_sfixed64_sfixed64_size() const {
-  return _internal_map_sfixed64_sfixed64_size();
+inline int TestMap::map_sfixed64_sfixed64_size() const
+{
+	return _internal_map_sfixed64_sfixed64_size();
 }
 inline void TestMap::clear_map_sfixed64_sfixed64() {
   map_sfixed64_sfixed64_.Clear();
@@ -3215,22 +3080,26 @@ inline void TestMap::clear_map_sfixed64_sfixed64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestMap::_internal_map_sfixed64_sfixed64() const { return map_sfixed64_sfixed64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestMap::map_sfixed64_sfixed64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_sfixed64_sfixed64)
-  return _internal_map_sfixed64_sfixed64();
+TestMap::map_sfixed64_sfixed64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_sfixed64_sfixed64)
+	return _internal_map_sfixed64_sfixed64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::_internal_mutable_map_sfixed64_sfixed64() {
-  return map_sfixed64_sfixed64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::_internal_mutable_map_sfixed64_sfixed64()
+{
+	return map_sfixed64_sfixed64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::mutable_map_sfixed64_sfixed64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_sfixed64_sfixed64)
-  return _internal_mutable_map_sfixed64_sfixed64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestMap::mutable_map_sfixed64_sfixed64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_sfixed64_sfixed64)
+	return _internal_mutable_map_sfixed64_sfixed64();
 }
 
 // map<int32, float> map_int32_float = 11;
 inline int TestMap::_internal_map_int32_float_size() const { return map_int32_float_.size(); }
-inline int TestMap::map_int32_float_size() const {
-  return _internal_map_int32_float_size();
+inline int TestMap::map_int32_float_size() const
+{
+	return _internal_map_int32_float_size();
 }
 inline void TestMap::clear_map_int32_float() {
   map_int32_float_.Clear();
@@ -3238,22 +3107,26 @@ inline void TestMap::clear_map_int32_float() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >&
 TestMap::_internal_map_int32_float() const { return map_int32_float_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >&
-TestMap::map_int32_float() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_float)
-  return _internal_map_int32_float();
+TestMap::map_int32_float() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_float)
+	return _internal_map_int32_float();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestMap::_internal_mutable_map_int32_float() {
-  return map_int32_float_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestMap::_internal_mutable_map_int32_float()
+{
+	return map_int32_float_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestMap::mutable_map_int32_float() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_float)
-  return _internal_mutable_map_int32_float();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestMap::mutable_map_int32_float()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_float)
+	return _internal_mutable_map_int32_float();
 }
 
 // map<int32, double> map_int32_double = 12;
 inline int TestMap::_internal_map_int32_double_size() const { return map_int32_double_.size(); }
-inline int TestMap::map_int32_double_size() const {
-  return _internal_map_int32_double_size();
+inline int TestMap::map_int32_double_size() const
+{
+	return _internal_map_int32_double_size();
 }
 inline void TestMap::clear_map_int32_double() {
   map_int32_double_.Clear();
@@ -3261,22 +3134,26 @@ inline void TestMap::clear_map_int32_double() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >&
 TestMap::_internal_map_int32_double() const { return map_int32_double_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >&
-TestMap::map_int32_double() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_double)
-  return _internal_map_int32_double();
+TestMap::map_int32_double() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_double)
+	return _internal_map_int32_double();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestMap::_internal_mutable_map_int32_double() {
-  return map_int32_double_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestMap::_internal_mutable_map_int32_double()
+{
+	return map_int32_double_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestMap::mutable_map_int32_double() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_double)
-  return _internal_mutable_map_int32_double();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestMap::mutable_map_int32_double()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_double)
+	return _internal_mutable_map_int32_double();
 }
 
 // map<bool, bool> map_bool_bool = 13;
 inline int TestMap::_internal_map_bool_bool_size() const { return map_bool_bool_.size(); }
-inline int TestMap::map_bool_bool_size() const {
-  return _internal_map_bool_bool_size();
+inline int TestMap::map_bool_bool_size() const
+{
+	return _internal_map_bool_bool_size();
 }
 inline void TestMap::clear_map_bool_bool() {
   map_bool_bool_.Clear();
@@ -3284,22 +3161,26 @@ inline void TestMap::clear_map_bool_bool() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >&
 TestMap::_internal_map_bool_bool() const { return map_bool_bool_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >&
-TestMap::map_bool_bool() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_bool_bool)
-  return _internal_map_bool_bool();
+TestMap::map_bool_bool() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_bool_bool)
+	return _internal_map_bool_bool();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestMap::_internal_mutable_map_bool_bool() {
-  return map_bool_bool_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestMap::_internal_mutable_map_bool_bool()
+{
+	return map_bool_bool_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestMap::mutable_map_bool_bool() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_bool_bool)
-  return _internal_mutable_map_bool_bool();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestMap::mutable_map_bool_bool()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_bool_bool)
+	return _internal_mutable_map_bool_bool();
 }
 
 // map<string, string> map_string_string = 14;
 inline int TestMap::_internal_map_string_string_size() const { return map_string_string_.size(); }
-inline int TestMap::map_string_string_size() const {
-  return _internal_map_string_string_size();
+inline int TestMap::map_string_string_size() const
+{
+	return _internal_map_string_string_size();
 }
 inline void TestMap::clear_map_string_string() {
   map_string_string_.Clear();
@@ -3307,22 +3188,26 @@ inline void TestMap::clear_map_string_string() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestMap::_internal_map_string_string() const { return map_string_string_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestMap::map_string_string() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_string_string)
-  return _internal_map_string_string();
+TestMap::map_string_string() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_string_string)
+	return _internal_map_string_string();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMap::_internal_mutable_map_string_string() {
-  return map_string_string_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMap::_internal_mutable_map_string_string()
+{
+	return map_string_string_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMap::mutable_map_string_string() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_string_string)
-  return _internal_mutable_map_string_string();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMap::mutable_map_string_string()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_string_string)
+	return _internal_mutable_map_string_string();
 }
 
 // map<int32, bytes> map_int32_bytes = 15;
 inline int TestMap::_internal_map_int32_bytes_size() const { return map_int32_bytes_.size(); }
-inline int TestMap::map_int32_bytes_size() const {
-  return _internal_map_int32_bytes_size();
+inline int TestMap::map_int32_bytes_size() const
+{
+	return _internal_map_int32_bytes_size();
 }
 inline void TestMap::clear_map_int32_bytes() {
   map_int32_bytes_.Clear();
@@ -3330,22 +3215,26 @@ inline void TestMap::clear_map_int32_bytes() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
 TestMap::_internal_map_int32_bytes() const { return map_int32_bytes_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
-TestMap::map_int32_bytes() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_bytes)
-  return _internal_map_int32_bytes();
+TestMap::map_int32_bytes() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_bytes)
+	return _internal_map_int32_bytes();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestMap::_internal_mutable_map_int32_bytes() {
-  return map_int32_bytes_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestMap::_internal_mutable_map_int32_bytes()
+{
+	return map_int32_bytes_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestMap::mutable_map_int32_bytes() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_bytes)
-  return _internal_mutable_map_int32_bytes();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestMap::mutable_map_int32_bytes()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_bytes)
+	return _internal_mutable_map_int32_bytes();
 }
 
 // map<int32, .protobuf_unittest.MapEnum> map_int32_enum = 16;
 inline int TestMap::_internal_map_int32_enum_size() const { return map_int32_enum_.size(); }
-inline int TestMap::map_int32_enum_size() const {
-  return _internal_map_int32_enum_size();
+inline int TestMap::map_int32_enum_size() const
+{
+	return _internal_map_int32_enum_size();
 }
 inline void TestMap::clear_map_int32_enum() {
   map_int32_enum_.Clear();
@@ -3353,76 +3242,91 @@ inline void TestMap::clear_map_int32_enum() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >&
 TestMap::_internal_map_int32_enum() const { return map_int32_enum_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >&
-TestMap::map_int32_enum() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_enum)
-  return _internal_map_int32_enum();
+TestMap::map_int32_enum() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_enum)
+	return _internal_map_int32_enum();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum > * TestMap::_internal_mutable_map_int32_enum() {
-  return map_int32_enum_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum > * TestMap::_internal_mutable_map_int32_enum()
+{
+	return map_int32_enum_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum > * TestMap::mutable_map_int32_enum() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_enum)
-  return _internal_mutable_map_int32_enum();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum > * TestMap::mutable_map_int32_enum()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_enum)
+	return _internal_mutable_map_int32_enum();
 }
 
 // map<int32, .protobuf_unittest.ForeignMessage> map_int32_foreign_message = 17;
 inline int TestMap::_internal_map_int32_foreign_message_size() const { return map_int32_foreign_message_.size(); }
-inline int TestMap::map_int32_foreign_message_size() const {
-  return _internal_map_int32_foreign_message_size();
+inline int TestMap::map_int32_foreign_message_size() const
+{
+	return _internal_map_int32_foreign_message_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >&
 TestMap::_internal_map_int32_foreign_message() const { return map_int32_foreign_message_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >&
-TestMap::map_int32_foreign_message() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_foreign_message)
-  return _internal_map_int32_foreign_message();
+TestMap::map_int32_foreign_message() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_foreign_message)
+	return _internal_map_int32_foreign_message();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage > * TestMap::_internal_mutable_map_int32_foreign_message() {
-  return map_int32_foreign_message_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage > * TestMap::_internal_mutable_map_int32_foreign_message()
+{
+	return map_int32_foreign_message_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage > * TestMap::mutable_map_int32_foreign_message() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_foreign_message)
-  return _internal_mutable_map_int32_foreign_message();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage > * TestMap::mutable_map_int32_foreign_message()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_foreign_message)
+	return _internal_mutable_map_int32_foreign_message();
 }
 
 // map<string, .protobuf_unittest.ForeignMessage> map_string_foreign_message = 18;
 inline int TestMap::_internal_map_string_foreign_message_size() const { return map_string_foreign_message_.size(); }
-inline int TestMap::map_string_foreign_message_size() const {
-  return _internal_map_string_foreign_message_size();
+inline int TestMap::map_string_foreign_message_size() const
+{
+	return _internal_map_string_foreign_message_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage >&
 TestMap::_internal_map_string_foreign_message() const { return map_string_foreign_message_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage >&
-TestMap::map_string_foreign_message() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_string_foreign_message)
-  return _internal_map_string_foreign_message();
+TestMap::map_string_foreign_message() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_string_foreign_message)
+	return _internal_map_string_foreign_message();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage > * TestMap::_internal_mutable_map_string_foreign_message() {
-  return map_string_foreign_message_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage > * TestMap::_internal_mutable_map_string_foreign_message()
+{
+	return map_string_foreign_message_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage > * TestMap::mutable_map_string_foreign_message() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_string_foreign_message)
-  return _internal_mutable_map_string_foreign_message();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage > * TestMap::mutable_map_string_foreign_message()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_string_foreign_message)
+	return _internal_mutable_map_string_foreign_message();
 }
 
 // map<int32, .protobuf_unittest.TestAllTypes> map_int32_all_types = 19;
 inline int TestMap::_internal_map_int32_all_types_size() const { return map_int32_all_types_.size(); }
-inline int TestMap::map_int32_all_types_size() const {
-  return _internal_map_int32_all_types_size();
+inline int TestMap::map_int32_all_types_size() const
+{
+	return _internal_map_int32_all_types_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >&
 TestMap::_internal_map_int32_all_types() const { return map_int32_all_types_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >&
-TestMap::map_int32_all_types() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_all_types)
-  return _internal_map_int32_all_types();
+TestMap::map_int32_all_types() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMap.map_int32_all_types)
+	return _internal_map_int32_all_types();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes > * TestMap::_internal_mutable_map_int32_all_types() {
-  return map_int32_all_types_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes > * TestMap::_internal_mutable_map_int32_all_types()
+{
+	return map_int32_all_types_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes > * TestMap::mutable_map_int32_all_types() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_all_types)
-  return _internal_mutable_map_int32_all_types();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes > * TestMap::mutable_map_int32_all_types()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMap.map_int32_all_types)
+	return _internal_mutable_map_int32_all_types();
 }
 
 // -------------------------------------------------------------------
@@ -3431,8 +3335,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes 
 
 // .protobuf_unittest.TestMap test_map = 1;
 inline bool TestMapSubmessage::_internal_has_test_map() const { return this != internal_default_instance() && test_map_ != nullptr; }
-inline bool TestMapSubmessage::has_test_map() const {
-  return _internal_has_test_map();
+inline bool TestMapSubmessage::has_test_map() const
+{
+	return _internal_has_test_map();
 }
 inline void TestMapSubmessage::clear_test_map() {
   if(GetArenaForAllocation() == nullptr && test_map_ != nullptr) {
@@ -3524,22 +3429,26 @@ inline void TestMapSubmessage::set_allocated_test_map(::protobuf_unittest::TestM
 
 // map<int32, .protobuf_unittest.TestAllTypes> map_int32_message = 1;
 inline int TestMessageMap::_internal_map_int32_message_size() const { return map_int32_message_.size(); }
-inline int TestMessageMap::map_int32_message_size() const {
-  return _internal_map_int32_message_size();
+inline int TestMessageMap::map_int32_message_size() const
+{
+	return _internal_map_int32_message_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >&
 TestMessageMap::_internal_map_int32_message() const { return map_int32_message_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >&
-TestMessageMap::map_int32_message() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestMessageMap.map_int32_message)
-  return _internal_map_int32_message();
+TestMessageMap::map_int32_message() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestMessageMap.map_int32_message)
+	return _internal_map_int32_message();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes > * TestMessageMap::_internal_mutable_map_int32_message() {
-  return map_int32_message_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes > * TestMessageMap::_internal_mutable_map_int32_message()
+{
+	return map_int32_message_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes > * TestMessageMap::mutable_map_int32_message() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMessageMap.map_int32_message)
-  return _internal_mutable_map_int32_message();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes > * TestMessageMap::mutable_map_int32_message()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMessageMap.map_int32_message)
+	return _internal_mutable_map_int32_message();
 }
 
 // -------------------------------------------------------------------
@@ -3552,8 +3461,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes 
 
 // map<int32, int32> map1 = 1;
 inline int TestSameTypeMap::_internal_map1_size() const { return map1_.size(); }
-inline int TestSameTypeMap::map1_size() const {
-  return _internal_map1_size();
+inline int TestSameTypeMap::map1_size() const
+{
+	return _internal_map1_size();
 }
 inline void TestSameTypeMap::clear_map1() {
   map1_.Clear();
@@ -3561,22 +3471,26 @@ inline void TestSameTypeMap::clear_map1() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestSameTypeMap::_internal_map1() const { return map1_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestSameTypeMap::map1() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestSameTypeMap.map1)
-  return _internal_map1();
+TestSameTypeMap::map1() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestSameTypeMap.map1)
+	return _internal_map1();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestSameTypeMap::_internal_mutable_map1() {
-  return map1_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestSameTypeMap::_internal_mutable_map1()
+{
+	return map1_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestSameTypeMap::mutable_map1() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestSameTypeMap.map1)
-  return _internal_mutable_map1();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestSameTypeMap::mutable_map1()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestSameTypeMap.map1)
+	return _internal_mutable_map1();
 }
 
 // map<int32, int32> map2 = 2;
 inline int TestSameTypeMap::_internal_map2_size() const { return map2_.size(); }
-inline int TestSameTypeMap::map2_size() const {
-  return _internal_map2_size();
+inline int TestSameTypeMap::map2_size() const
+{
+	return _internal_map2_size();
 }
 inline void TestSameTypeMap::clear_map2() {
   map2_.Clear();
@@ -3584,16 +3498,19 @@ inline void TestSameTypeMap::clear_map2() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestSameTypeMap::_internal_map2() const { return map2_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestSameTypeMap::map2() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestSameTypeMap.map2)
-  return _internal_map2();
+TestSameTypeMap::map2() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestSameTypeMap.map2)
+	return _internal_map2();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestSameTypeMap::_internal_mutable_map2() {
-  return map2_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestSameTypeMap::_internal_mutable_map2()
+{
+	return map2_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestSameTypeMap::mutable_map2() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestSameTypeMap.map2)
-  return _internal_mutable_map2();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestSameTypeMap::mutable_map2()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestSameTypeMap.map2)
+	return _internal_mutable_map2();
 }
 
 // -------------------------------------------------------------------
@@ -3604,22 +3521,26 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestSameTypeMap::mutab
 
 // map<int32, .protobuf_unittest.TestRequired> map_field = 1;
 inline int TestRequiredMessageMap::_internal_map_field_size() const { return map_field_.size(); }
-inline int TestRequiredMessageMap::map_field_size() const {
-  return _internal_map_field_size();
+inline int TestRequiredMessageMap::map_field_size() const
+{
+	return _internal_map_field_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired >&
 TestRequiredMessageMap::_internal_map_field() const { return map_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired >&
-TestRequiredMessageMap::map_field() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestRequiredMessageMap.map_field)
-  return _internal_map_field();
+TestRequiredMessageMap::map_field() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestRequiredMessageMap.map_field)
+	return _internal_map_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired > * TestRequiredMessageMap::_internal_mutable_map_field() {
-  return map_field_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired > * TestRequiredMessageMap::_internal_mutable_map_field()
+{
+	return map_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired > * TestRequiredMessageMap::mutable_map_field() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestRequiredMessageMap.map_field)
-  return _internal_mutable_map_field();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired > * TestRequiredMessageMap::mutable_map_field()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestRequiredMessageMap.map_field)
+	return _internal_mutable_map_field();
 }
 
 // -------------------------------------------------------------------
@@ -3662,8 +3583,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired 
 
 // map<int32, int32> map_int32_int32 = 1;
 inline int TestArenaMap::_internal_map_int32_int32_size() const { return map_int32_int32_.size(); }
-inline int TestArenaMap::map_int32_int32_size() const {
-  return _internal_map_int32_int32_size();
+inline int TestArenaMap::map_int32_int32_size() const
+{
+	return _internal_map_int32_int32_size();
 }
 inline void TestArenaMap::clear_map_int32_int32() {
   map_int32_int32_.Clear();
@@ -3671,22 +3593,26 @@ inline void TestArenaMap::clear_map_int32_int32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestArenaMap::_internal_map_int32_int32() const { return map_int32_int32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestArenaMap::map_int32_int32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_int32)
-  return _internal_map_int32_int32();
+TestArenaMap::map_int32_int32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_int32)
+	return _internal_map_int32_int32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::_internal_mutable_map_int32_int32() {
-  return map_int32_int32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::_internal_mutable_map_int32_int32()
+{
+	return map_int32_int32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::mutable_map_int32_int32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_int32)
-  return _internal_mutable_map_int32_int32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::mutable_map_int32_int32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_int32)
+	return _internal_mutable_map_int32_int32();
 }
 
 // map<int64, int64> map_int64_int64 = 2;
 inline int TestArenaMap::_internal_map_int64_int64_size() const { return map_int64_int64_.size(); }
-inline int TestArenaMap::map_int64_int64_size() const {
-  return _internal_map_int64_int64_size();
+inline int TestArenaMap::map_int64_int64_size() const
+{
+	return _internal_map_int64_int64_size();
 }
 inline void TestArenaMap::clear_map_int64_int64() {
   map_int64_int64_.Clear();
@@ -3694,22 +3620,26 @@ inline void TestArenaMap::clear_map_int64_int64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestArenaMap::_internal_map_int64_int64() const { return map_int64_int64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestArenaMap::map_int64_int64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int64_int64)
-  return _internal_map_int64_int64();
+TestArenaMap::map_int64_int64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int64_int64)
+	return _internal_map_int64_int64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::_internal_mutable_map_int64_int64() {
-  return map_int64_int64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::_internal_mutable_map_int64_int64()
+{
+	return map_int64_int64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::mutable_map_int64_int64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int64_int64)
-  return _internal_mutable_map_int64_int64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::mutable_map_int64_int64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int64_int64)
+	return _internal_mutable_map_int64_int64();
 }
 
 // map<uint32, uint32> map_uint32_uint32 = 3;
 inline int TestArenaMap::_internal_map_uint32_uint32_size() const { return map_uint32_uint32_.size(); }
-inline int TestArenaMap::map_uint32_uint32_size() const {
-  return _internal_map_uint32_uint32_size();
+inline int TestArenaMap::map_uint32_uint32_size() const
+{
+	return _internal_map_uint32_uint32_size();
 }
 inline void TestArenaMap::clear_map_uint32_uint32() {
   map_uint32_uint32_.Clear();
@@ -3717,22 +3647,26 @@ inline void TestArenaMap::clear_map_uint32_uint32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
 TestArenaMap::_internal_map_uint32_uint32() const { return map_uint32_uint32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
-TestArenaMap::map_uint32_uint32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_uint32_uint32)
-  return _internal_map_uint32_uint32();
+TestArenaMap::map_uint32_uint32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_uint32_uint32)
+	return _internal_map_uint32_uint32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMap::_internal_mutable_map_uint32_uint32() {
-  return map_uint32_uint32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMap::_internal_mutable_map_uint32_uint32()
+{
+	return map_uint32_uint32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMap::mutable_map_uint32_uint32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_uint32_uint32)
-  return _internal_mutable_map_uint32_uint32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMap::mutable_map_uint32_uint32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_uint32_uint32)
+	return _internal_mutable_map_uint32_uint32();
 }
 
 // map<uint64, uint64> map_uint64_uint64 = 4;
 inline int TestArenaMap::_internal_map_uint64_uint64_size() const { return map_uint64_uint64_.size(); }
-inline int TestArenaMap::map_uint64_uint64_size() const {
-  return _internal_map_uint64_uint64_size();
+inline int TestArenaMap::map_uint64_uint64_size() const
+{
+	return _internal_map_uint64_uint64_size();
 }
 inline void TestArenaMap::clear_map_uint64_uint64() {
   map_uint64_uint64_.Clear();
@@ -3740,22 +3674,26 @@ inline void TestArenaMap::clear_map_uint64_uint64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 TestArenaMap::_internal_map_uint64_uint64() const { return map_uint64_uint64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
-TestArenaMap::map_uint64_uint64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_uint64_uint64)
-  return _internal_map_uint64_uint64();
+TestArenaMap::map_uint64_uint64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_uint64_uint64)
+	return _internal_map_uint64_uint64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMap::_internal_mutable_map_uint64_uint64() {
-  return map_uint64_uint64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMap::_internal_mutable_map_uint64_uint64()
+{
+	return map_uint64_uint64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMap::mutable_map_uint64_uint64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_uint64_uint64)
-  return _internal_mutable_map_uint64_uint64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMap::mutable_map_uint64_uint64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_uint64_uint64)
+	return _internal_mutable_map_uint64_uint64();
 }
 
 // map<sint32, sint32> map_sint32_sint32 = 5;
 inline int TestArenaMap::_internal_map_sint32_sint32_size() const { return map_sint32_sint32_.size(); }
-inline int TestArenaMap::map_sint32_sint32_size() const {
-  return _internal_map_sint32_sint32_size();
+inline int TestArenaMap::map_sint32_sint32_size() const
+{
+	return _internal_map_sint32_sint32_size();
 }
 inline void TestArenaMap::clear_map_sint32_sint32() {
   map_sint32_sint32_.Clear();
@@ -3763,22 +3701,26 @@ inline void TestArenaMap::clear_map_sint32_sint32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestArenaMap::_internal_map_sint32_sint32() const { return map_sint32_sint32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestArenaMap::map_sint32_sint32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_sint32_sint32)
-  return _internal_map_sint32_sint32();
+TestArenaMap::map_sint32_sint32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_sint32_sint32)
+	return _internal_map_sint32_sint32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::_internal_mutable_map_sint32_sint32() {
-  return map_sint32_sint32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::_internal_mutable_map_sint32_sint32()
+{
+	return map_sint32_sint32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::mutable_map_sint32_sint32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_sint32_sint32)
-  return _internal_mutable_map_sint32_sint32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::mutable_map_sint32_sint32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_sint32_sint32)
+	return _internal_mutable_map_sint32_sint32();
 }
 
 // map<sint64, sint64> map_sint64_sint64 = 6;
 inline int TestArenaMap::_internal_map_sint64_sint64_size() const { return map_sint64_sint64_.size(); }
-inline int TestArenaMap::map_sint64_sint64_size() const {
-  return _internal_map_sint64_sint64_size();
+inline int TestArenaMap::map_sint64_sint64_size() const
+{
+	return _internal_map_sint64_sint64_size();
 }
 inline void TestArenaMap::clear_map_sint64_sint64() {
   map_sint64_sint64_.Clear();
@@ -3786,22 +3728,26 @@ inline void TestArenaMap::clear_map_sint64_sint64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestArenaMap::_internal_map_sint64_sint64() const { return map_sint64_sint64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestArenaMap::map_sint64_sint64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_sint64_sint64)
-  return _internal_map_sint64_sint64();
+TestArenaMap::map_sint64_sint64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_sint64_sint64)
+	return _internal_map_sint64_sint64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::_internal_mutable_map_sint64_sint64() {
-  return map_sint64_sint64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::_internal_mutable_map_sint64_sint64()
+{
+	return map_sint64_sint64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::mutable_map_sint64_sint64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_sint64_sint64)
-  return _internal_mutable_map_sint64_sint64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::mutable_map_sint64_sint64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_sint64_sint64)
+	return _internal_mutable_map_sint64_sint64();
 }
 
 // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
 inline int TestArenaMap::_internal_map_fixed32_fixed32_size() const { return map_fixed32_fixed32_.size(); }
-inline int TestArenaMap::map_fixed32_fixed32_size() const {
-  return _internal_map_fixed32_fixed32_size();
+inline int TestArenaMap::map_fixed32_fixed32_size() const
+{
+	return _internal_map_fixed32_fixed32_size();
 }
 inline void TestArenaMap::clear_map_fixed32_fixed32() {
   map_fixed32_fixed32_.Clear();
@@ -3809,22 +3755,26 @@ inline void TestArenaMap::clear_map_fixed32_fixed32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
 TestArenaMap::_internal_map_fixed32_fixed32() const { return map_fixed32_fixed32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
-TestArenaMap::map_fixed32_fixed32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_fixed32_fixed32)
-  return _internal_map_fixed32_fixed32();
+TestArenaMap::map_fixed32_fixed32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_fixed32_fixed32)
+	return _internal_map_fixed32_fixed32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMap::_internal_mutable_map_fixed32_fixed32() {
-  return map_fixed32_fixed32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMap::_internal_mutable_map_fixed32_fixed32()
+{
+	return map_fixed32_fixed32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMap::mutable_map_fixed32_fixed32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_fixed32_fixed32)
-  return _internal_mutable_map_fixed32_fixed32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestArenaMap::mutable_map_fixed32_fixed32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_fixed32_fixed32)
+	return _internal_mutable_map_fixed32_fixed32();
 }
 
 // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
 inline int TestArenaMap::_internal_map_fixed64_fixed64_size() const { return map_fixed64_fixed64_.size(); }
-inline int TestArenaMap::map_fixed64_fixed64_size() const {
-  return _internal_map_fixed64_fixed64_size();
+inline int TestArenaMap::map_fixed64_fixed64_size() const
+{
+	return _internal_map_fixed64_fixed64_size();
 }
 inline void TestArenaMap::clear_map_fixed64_fixed64() {
   map_fixed64_fixed64_.Clear();
@@ -3832,22 +3782,26 @@ inline void TestArenaMap::clear_map_fixed64_fixed64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 TestArenaMap::_internal_map_fixed64_fixed64() const { return map_fixed64_fixed64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
-TestArenaMap::map_fixed64_fixed64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_fixed64_fixed64)
-  return _internal_map_fixed64_fixed64();
+TestArenaMap::map_fixed64_fixed64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_fixed64_fixed64)
+	return _internal_map_fixed64_fixed64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMap::_internal_mutable_map_fixed64_fixed64() {
-  return map_fixed64_fixed64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMap::_internal_mutable_map_fixed64_fixed64()
+{
+	return map_fixed64_fixed64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMap::mutable_map_fixed64_fixed64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_fixed64_fixed64)
-  return _internal_mutable_map_fixed64_fixed64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestArenaMap::mutable_map_fixed64_fixed64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_fixed64_fixed64)
+	return _internal_mutable_map_fixed64_fixed64();
 }
 
 // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
 inline int TestArenaMap::_internal_map_sfixed32_sfixed32_size() const { return map_sfixed32_sfixed32_.size(); }
-inline int TestArenaMap::map_sfixed32_sfixed32_size() const {
-  return _internal_map_sfixed32_sfixed32_size();
+inline int TestArenaMap::map_sfixed32_sfixed32_size() const
+{
+	return _internal_map_sfixed32_sfixed32_size();
 }
 inline void TestArenaMap::clear_map_sfixed32_sfixed32() {
   map_sfixed32_sfixed32_.Clear();
@@ -3855,22 +3809,26 @@ inline void TestArenaMap::clear_map_sfixed32_sfixed32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestArenaMap::_internal_map_sfixed32_sfixed32() const { return map_sfixed32_sfixed32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestArenaMap::map_sfixed32_sfixed32() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_sfixed32_sfixed32)
-  return _internal_map_sfixed32_sfixed32();
+TestArenaMap::map_sfixed32_sfixed32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_sfixed32_sfixed32)
+	return _internal_map_sfixed32_sfixed32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::_internal_mutable_map_sfixed32_sfixed32() {
-  return map_sfixed32_sfixed32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::_internal_mutable_map_sfixed32_sfixed32()
+{
+	return map_sfixed32_sfixed32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::mutable_map_sfixed32_sfixed32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_sfixed32_sfixed32)
-  return _internal_mutable_map_sfixed32_sfixed32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestArenaMap::mutable_map_sfixed32_sfixed32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_sfixed32_sfixed32)
+	return _internal_mutable_map_sfixed32_sfixed32();
 }
 
 // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
 inline int TestArenaMap::_internal_map_sfixed64_sfixed64_size() const { return map_sfixed64_sfixed64_.size(); }
-inline int TestArenaMap::map_sfixed64_sfixed64_size() const {
-  return _internal_map_sfixed64_sfixed64_size();
+inline int TestArenaMap::map_sfixed64_sfixed64_size() const
+{
+	return _internal_map_sfixed64_sfixed64_size();
 }
 inline void TestArenaMap::clear_map_sfixed64_sfixed64() {
   map_sfixed64_sfixed64_.Clear();
@@ -3878,22 +3836,26 @@ inline void TestArenaMap::clear_map_sfixed64_sfixed64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestArenaMap::_internal_map_sfixed64_sfixed64() const { return map_sfixed64_sfixed64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestArenaMap::map_sfixed64_sfixed64() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_sfixed64_sfixed64)
-  return _internal_map_sfixed64_sfixed64();
+TestArenaMap::map_sfixed64_sfixed64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_sfixed64_sfixed64)
+	return _internal_map_sfixed64_sfixed64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::_internal_mutable_map_sfixed64_sfixed64() {
-  return map_sfixed64_sfixed64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::_internal_mutable_map_sfixed64_sfixed64()
+{
+	return map_sfixed64_sfixed64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::mutable_map_sfixed64_sfixed64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_sfixed64_sfixed64)
-  return _internal_mutable_map_sfixed64_sfixed64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestArenaMap::mutable_map_sfixed64_sfixed64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_sfixed64_sfixed64)
+	return _internal_mutable_map_sfixed64_sfixed64();
 }
 
 // map<int32, float> map_int32_float = 11;
 inline int TestArenaMap::_internal_map_int32_float_size() const { return map_int32_float_.size(); }
-inline int TestArenaMap::map_int32_float_size() const {
-  return _internal_map_int32_float_size();
+inline int TestArenaMap::map_int32_float_size() const
+{
+	return _internal_map_int32_float_size();
 }
 inline void TestArenaMap::clear_map_int32_float() {
   map_int32_float_.Clear();
@@ -3901,22 +3863,26 @@ inline void TestArenaMap::clear_map_int32_float() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >&
 TestArenaMap::_internal_map_int32_float() const { return map_int32_float_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >&
-TestArenaMap::map_int32_float() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_float)
-  return _internal_map_int32_float();
+TestArenaMap::map_int32_float() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_float)
+	return _internal_map_int32_float();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestArenaMap::_internal_mutable_map_int32_float() {
-  return map_int32_float_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestArenaMap::_internal_mutable_map_int32_float()
+{
+	return map_int32_float_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestArenaMap::mutable_map_int32_float() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_float)
-  return _internal_mutable_map_int32_float();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestArenaMap::mutable_map_int32_float()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_float)
+	return _internal_mutable_map_int32_float();
 }
 
 // map<int32, double> map_int32_double = 12;
 inline int TestArenaMap::_internal_map_int32_double_size() const { return map_int32_double_.size(); }
-inline int TestArenaMap::map_int32_double_size() const {
-  return _internal_map_int32_double_size();
+inline int TestArenaMap::map_int32_double_size() const
+{
+	return _internal_map_int32_double_size();
 }
 inline void TestArenaMap::clear_map_int32_double() {
   map_int32_double_.Clear();
@@ -3924,22 +3890,26 @@ inline void TestArenaMap::clear_map_int32_double() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >&
 TestArenaMap::_internal_map_int32_double() const { return map_int32_double_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >&
-TestArenaMap::map_int32_double() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_double)
-  return _internal_map_int32_double();
+TestArenaMap::map_int32_double() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_double)
+	return _internal_map_int32_double();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestArenaMap::_internal_mutable_map_int32_double() {
-  return map_int32_double_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestArenaMap::_internal_mutable_map_int32_double()
+{
+	return map_int32_double_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestArenaMap::mutable_map_int32_double() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_double)
-  return _internal_mutable_map_int32_double();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestArenaMap::mutable_map_int32_double()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_double)
+	return _internal_mutable_map_int32_double();
 }
 
 // map<bool, bool> map_bool_bool = 13;
 inline int TestArenaMap::_internal_map_bool_bool_size() const { return map_bool_bool_.size(); }
-inline int TestArenaMap::map_bool_bool_size() const {
-  return _internal_map_bool_bool_size();
+inline int TestArenaMap::map_bool_bool_size() const
+{
+	return _internal_map_bool_bool_size();
 }
 inline void TestArenaMap::clear_map_bool_bool() {
   map_bool_bool_.Clear();
@@ -3947,22 +3917,26 @@ inline void TestArenaMap::clear_map_bool_bool() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >&
 TestArenaMap::_internal_map_bool_bool() const { return map_bool_bool_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >&
-TestArenaMap::map_bool_bool() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_bool_bool)
-  return _internal_map_bool_bool();
+TestArenaMap::map_bool_bool() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_bool_bool)
+	return _internal_map_bool_bool();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestArenaMap::_internal_mutable_map_bool_bool() {
-  return map_bool_bool_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestArenaMap::_internal_mutable_map_bool_bool()
+{
+	return map_bool_bool_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestArenaMap::mutable_map_bool_bool() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_bool_bool)
-  return _internal_mutable_map_bool_bool();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestArenaMap::mutable_map_bool_bool()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_bool_bool)
+	return _internal_mutable_map_bool_bool();
 }
 
 // map<string, string> map_string_string = 14;
 inline int TestArenaMap::_internal_map_string_string_size() const { return map_string_string_.size(); }
-inline int TestArenaMap::map_string_string_size() const {
-  return _internal_map_string_string_size();
+inline int TestArenaMap::map_string_string_size() const
+{
+	return _internal_map_string_string_size();
 }
 inline void TestArenaMap::clear_map_string_string() {
   map_string_string_.Clear();
@@ -3970,22 +3944,26 @@ inline void TestArenaMap::clear_map_string_string() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestArenaMap::_internal_map_string_string() const { return map_string_string_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestArenaMap::map_string_string() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_string_string)
-  return _internal_map_string_string();
+TestArenaMap::map_string_string() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_string_string)
+	return _internal_map_string_string();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestArenaMap::_internal_mutable_map_string_string() {
-  return map_string_string_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestArenaMap::_internal_mutable_map_string_string()
+{
+	return map_string_string_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestArenaMap::mutable_map_string_string() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_string_string)
-  return _internal_mutable_map_string_string();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestArenaMap::mutable_map_string_string()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_string_string)
+	return _internal_mutable_map_string_string();
 }
 
 // map<int32, bytes> map_int32_bytes = 15;
 inline int TestArenaMap::_internal_map_int32_bytes_size() const { return map_int32_bytes_.size(); }
-inline int TestArenaMap::map_int32_bytes_size() const {
-  return _internal_map_int32_bytes_size();
+inline int TestArenaMap::map_int32_bytes_size() const
+{
+	return _internal_map_int32_bytes_size();
 }
 inline void TestArenaMap::clear_map_int32_bytes() {
   map_int32_bytes_.Clear();
@@ -3993,22 +3971,26 @@ inline void TestArenaMap::clear_map_int32_bytes() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
 TestArenaMap::_internal_map_int32_bytes() const { return map_int32_bytes_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
-TestArenaMap::map_int32_bytes() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_bytes)
-  return _internal_map_int32_bytes();
+TestArenaMap::map_int32_bytes() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_bytes)
+	return _internal_map_int32_bytes();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestArenaMap::_internal_mutable_map_int32_bytes() {
-  return map_int32_bytes_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestArenaMap::_internal_mutable_map_int32_bytes()
+{
+	return map_int32_bytes_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestArenaMap::mutable_map_int32_bytes() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_bytes)
-  return _internal_mutable_map_int32_bytes();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * TestArenaMap::mutable_map_int32_bytes()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_bytes)
+	return _internal_mutable_map_int32_bytes();
 }
 
 // map<int32, .protobuf_unittest.MapEnum> map_int32_enum = 16;
 inline int TestArenaMap::_internal_map_int32_enum_size() const { return map_int32_enum_.size(); }
-inline int TestArenaMap::map_int32_enum_size() const {
-  return _internal_map_int32_enum_size();
+inline int TestArenaMap::map_int32_enum_size() const
+{
+	return _internal_map_int32_enum_size();
 }
 inline void TestArenaMap::clear_map_int32_enum() {
   map_int32_enum_.Clear();
@@ -4016,36 +3998,43 @@ inline void TestArenaMap::clear_map_int32_enum() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >&
 TestArenaMap::_internal_map_int32_enum() const { return map_int32_enum_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >&
-TestArenaMap::map_int32_enum() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_enum)
-  return _internal_map_int32_enum();
+TestArenaMap::map_int32_enum() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_enum)
+	return _internal_map_int32_enum();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum > * TestArenaMap::_internal_mutable_map_int32_enum() {
-  return map_int32_enum_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum > * TestArenaMap::_internal_mutable_map_int32_enum()
+{
+	return map_int32_enum_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum > * TestArenaMap::mutable_map_int32_enum() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_enum)
-  return _internal_mutable_map_int32_enum();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum > * TestArenaMap::mutable_map_int32_enum()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_enum)
+	return _internal_mutable_map_int32_enum();
 }
 
 // map<int32, .protobuf_unittest.ForeignMessage> map_int32_foreign_message = 17;
 inline int TestArenaMap::_internal_map_int32_foreign_message_size() const { return map_int32_foreign_message_.size(); }
-inline int TestArenaMap::map_int32_foreign_message_size() const {
-  return _internal_map_int32_foreign_message_size();
+inline int TestArenaMap::map_int32_foreign_message_size() const
+{
+	return _internal_map_int32_foreign_message_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >&
 TestArenaMap::_internal_map_int32_foreign_message() const { return map_int32_foreign_message_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >&
-TestArenaMap::map_int32_foreign_message() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_foreign_message)
-  return _internal_map_int32_foreign_message();
+TestArenaMap::map_int32_foreign_message() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestArenaMap.map_int32_foreign_message)
+	return _internal_map_int32_foreign_message();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage > * TestArenaMap::_internal_mutable_map_int32_foreign_message() {
-  return map_int32_foreign_message_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage > * TestArenaMap::_internal_mutable_map_int32_foreign_message()
+{
+	return map_int32_foreign_message_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage > * TestArenaMap::mutable_map_int32_foreign_message() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_foreign_message)
-  return _internal_mutable_map_int32_foreign_message();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage > * TestArenaMap::mutable_map_int32_foreign_message()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestArenaMap.map_int32_foreign_message)
+	return _internal_mutable_map_int32_foreign_message();
 }
 
 // -------------------------------------------------------------------
@@ -4056,8 +4045,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessag
 
 // map<string, .protobuf_unittest.MessageContainingEnumCalledType> type = 1;
 inline int MessageContainingEnumCalledType::_internal_type_size() const { return type_.size(); }
-inline int MessageContainingEnumCalledType::type_size() const {
-  return _internal_type_size();
+inline int MessageContainingEnumCalledType::type_size() const
+{
+	return _internal_type_size();
 }
 inline void MessageContainingEnumCalledType::clear_type() {
   type_.Clear();
@@ -4065,16 +4055,19 @@ inline void MessageContainingEnumCalledType::clear_type() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType >&
 MessageContainingEnumCalledType::_internal_type() const { return type_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType >&
-MessageContainingEnumCalledType::type() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MessageContainingEnumCalledType.type)
-  return _internal_type();
+MessageContainingEnumCalledType::type() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MessageContainingEnumCalledType.type)
+	return _internal_type();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType > * MessageContainingEnumCalledType::_internal_mutable_type() {
-  return type_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType > * MessageContainingEnumCalledType::_internal_mutable_type()
+{
+	return type_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType > * MessageContainingEnumCalledType::mutable_type() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MessageContainingEnumCalledType.type)
-  return _internal_mutable_type();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType > * MessageContainingEnumCalledType::mutable_type()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MessageContainingEnumCalledType.type)
+	return _internal_mutable_type();
 }
 
 // -------------------------------------------------------------------
@@ -4085,8 +4078,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageCo
 
 // map<int32, int32> entry = 1;
 inline int MessageContainingMapCalledEntry::_internal_entry_size() const { return entry_.size(); }
-inline int MessageContainingMapCalledEntry::entry_size() const {
-  return _internal_entry_size();
+inline int MessageContainingMapCalledEntry::entry_size() const
+{
+	return _internal_entry_size();
 }
 inline void MessageContainingMapCalledEntry::clear_entry() {
   entry_.Clear();
@@ -4094,16 +4088,19 @@ inline void MessageContainingMapCalledEntry::clear_entry() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 MessageContainingMapCalledEntry::_internal_entry() const { return entry_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-MessageContainingMapCalledEntry::entry() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.MessageContainingMapCalledEntry.entry)
-  return _internal_entry();
+MessageContainingMapCalledEntry::entry() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.MessageContainingMapCalledEntry.entry)
+	return _internal_entry();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * MessageContainingMapCalledEntry::_internal_mutable_entry() {
-  return entry_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * MessageContainingMapCalledEntry::_internal_mutable_entry()
+{
+	return entry_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * MessageContainingMapCalledEntry::mutable_entry() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MessageContainingMapCalledEntry.entry)
-  return _internal_mutable_entry();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * MessageContainingMapCalledEntry::mutable_entry()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.MessageContainingMapCalledEntry.entry)
+	return _internal_mutable_entry();
 }
 
 // -------------------------------------------------------------------
@@ -4114,8 +4111,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * MessageContainingMapCa
 
 // map<string, .protobuf_unittest.TestRecursiveMapMessage> a = 1;
 inline int TestRecursiveMapMessage::_internal_a_size() const { return a_.size(); }
-inline int TestRecursiveMapMessage::a_size() const {
-  return _internal_a_size();
+inline int TestRecursiveMapMessage::a_size() const
+{
+	return _internal_a_size();
 }
 inline void TestRecursiveMapMessage::clear_a() {
   a_.Clear();
@@ -4123,16 +4121,19 @@ inline void TestRecursiveMapMessage::clear_a() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage >&
 TestRecursiveMapMessage::_internal_a() const { return a_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage >&
-TestRecursiveMapMessage::a() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestRecursiveMapMessage.a)
-  return _internal_a();
+TestRecursiveMapMessage::a() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestRecursiveMapMessage.a)
+	return _internal_a();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage > * TestRecursiveMapMessage::_internal_mutable_a() {
-  return a_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage > * TestRecursiveMapMessage::_internal_mutable_a()
+{
+	return a_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage > * TestRecursiveMapMessage::mutable_a() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestRecursiveMapMessage.a)
-  return _internal_mutable_a();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage > * TestRecursiveMapMessage::mutable_a()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestRecursiveMapMessage.a)
+	return _internal_mutable_a();
 }
 
 #ifdef __GNUC__

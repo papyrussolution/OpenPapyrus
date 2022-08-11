@@ -6441,14 +6441,10 @@ void TestMessageFieldsWithSameJsonName::InternalSwap(TestMessageFieldsWithSameJs
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[15]);
 }
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
-const int NestedBook::kAnotherBookFieldNumber;
+	const int NestedBook::kAnotherBookFieldNumber;
 #endif
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto_util_converter::testing::Book,
-    ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::proto_util_converter::testing::NestedBook >, 11, false >
-  NestedBook::another_book(kAnotherBookFieldNumber, ::proto_util_converter::testing::NestedBook::default_instance());
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto_util_converter::testing::Book,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::proto_util_converter::testing::Author >, 11, false >
-  more_author(kMoreAuthorFieldNumber, ::proto_util_converter::testing::Author::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto_util_converter::testing::Book, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::proto_util_converter::testing::NestedBook >, 11, false > NestedBook::another_book(kAnotherBookFieldNumber, ::proto_util_converter::testing::NestedBook::default_instance());
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto_util_converter::testing::Book, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::proto_util_converter::testing::Author >, 11, false > more_author(kMoreAuthorFieldNumber, ::proto_util_converter::testing::Author::default_instance());
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace testing

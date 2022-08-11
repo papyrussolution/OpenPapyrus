@@ -9,13 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <ImageView
-            android:id="@+id/ATTENDANCEPREREQ_PRC_EXPANDSTATUS"
-            android:layout_width="24dp"
-            android:layout_height="36dp"
-            android:layout_marginTop="12dp"
-            android:src="@drawable/ic_triangleleft03">
-        </ImageView>
         <ImageView style="@style/OuterImage_Side"
             android:id="@+id/ATTENDANCEPREREQ_PRC_IMG"
             android:layout_width="48dp"
@@ -24,8 +17,16 @@
         <TextView style="@style/GenericListItemText"
             android:id="@+id/LVITEM_GENERICNAME"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             />
+        <ImageView
+            android:id="@+id/ATTENDANCEPREREQ_PRC_EXPANDSTATUS"
+            android:layout_width="24dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/ic_triangleleft03">
+        </ImageView>
     </LinearLayout>
     <ListView
         android:id="@+id/goodsByPrcListView"

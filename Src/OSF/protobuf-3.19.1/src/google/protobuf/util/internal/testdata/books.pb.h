@@ -255,8 +255,8 @@ class Book_Data final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kCopyrightFieldNumber = 8,
-    kYearFieldNumber = 7,
+  	kCopyrightFieldNumber = 8,
+  	kYearFieldNumber = 7,
   };
   // optional string copyright = 8;
   bool has_copyright() const;
@@ -410,8 +410,8 @@ class Book_Label final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kKeyFieldNumber = 1,
-    kValueFieldNumber = 2,
+  	kKeyFieldNumber = 1,
+  	kValueFieldNumber = 2,
   };
   // optional string key = 1;
   bool has_key() const;
@@ -594,18 +594,18 @@ class Book final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kLabelsFieldNumber = 10,
-    kPrimitiveRepeatedFieldNumber = 14,
-    kTitleFieldNumber = 1,
-    kContentFieldNumber = 5,
-    kSnakeFieldFieldNumber = 12,
-    kAuthorFieldNumber = 2,
-    kDataFieldNumber = 6,
-    kPublisherFieldNumber = 9,
-    kTypeNotFoundFieldNumber = 13,
-    kPublishedFieldNumber = 4,
-    kLengthFieldNumber = 3,
-    kTypeFieldNumber = 11,
+  	kLabelsFieldNumber = 10,
+  	kPrimitiveRepeatedFieldNumber = 14,
+  	kTitleFieldNumber = 1,
+  	kContentFieldNumber = 5,
+  	kSnakeFieldFieldNumber = 12,
+  	kAuthorFieldNumber = 2,
+  	kDataFieldNumber = 6,
+  	kPublisherFieldNumber = 9,
+  	kTypeNotFoundFieldNumber = 13,
+  	kPublishedFieldNumber = 4,
+  	kLengthFieldNumber = 3,
+  	kTypeFieldNumber = 11,
   };
   // repeated .proto_util_converter.testing.Book.Label labels = 10;
   int labels_size() const;
@@ -808,113 +808,61 @@ class Book final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          Book, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<Book, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          Book, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<Book, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          Book, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<Book, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          Book, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<Book, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          Book, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<Book, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          Book, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<Book, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          Book, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<Book, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          Book, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<Book, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              Book, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<Book, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          Book, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<Book, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -1095,7 +1043,7 @@ class Publisher final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNameFieldNumber = 1,
+  	kNameFieldNumber = 1,
   };
   // required string name = 1;
   bool has_name() const;
@@ -1235,11 +1183,11 @@ class Author final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPseudonymFieldNumber = 3,
-    kFriendFieldNumber = 5,
-    kNameFieldNumber = 2,
-    kIdFieldNumber = 1,
-    kAliveFieldNumber = 4,
+  	kPseudonymFieldNumber = 3,
+  	kFriendFieldNumber = 5,
+  	kNameFieldNumber = 2,
+  	kIdFieldNumber = 1,
+  	kAliveFieldNumber = 4,
   };
   // repeated string pseudonym = 3;
   int pseudonym_size() const;
@@ -1449,10 +1397,10 @@ class BadAuthor final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNameFieldNumber = 2,
-    kAliveFieldNumber = 4,
-    kIdFieldNumber = 1,
-    kPseudonymFieldNumber = 3,
+  	kNameFieldNumber = 2,
+  	kAliveFieldNumber = 4,
+  	kIdFieldNumber = 1,
+  	kPseudonymFieldNumber = 3,
   };
   // repeated uint64 name = 2;
   int name_size() const;
@@ -1651,36 +1599,36 @@ class Primitive final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepFix32FieldNumber = 16,
-    kRepU32FieldNumber = 17,
-    kRepI32FieldNumber = 18,
-    kRepSf32FieldNumber = 19,
-    kRepS32FieldNumber = 20,
-    kRepFix64FieldNumber = 21,
-    kRepU64FieldNumber = 22,
-    kRepI64FieldNumber = 23,
-    kRepSf64FieldNumber = 24,
-    kRepS64FieldNumber = 25,
-    kRepStrFieldNumber = 26,
-    kRepBytesFieldNumber = 27,
-    kRepFloatFieldNumber = 28,
-    kRepDoubleFieldNumber = 29,
-    kRepBoolFieldNumber = 30,
-    kStrFieldNumber = 11,
-    kBytesFieldNumber = 12,
-    kFix32FieldNumber = 1,
-    kU32FieldNumber = 2,
-    kI32FieldNumber = 3,
-    kSf32FieldNumber = 4,
-    kFix64FieldNumber = 6,
-    kU64FieldNumber = 7,
-    kI64FieldNumber = 8,
-    kSf64FieldNumber = 9,
-    kS32FieldNumber = 5,
-    kFloatFieldNumber = 13,
-    kS64FieldNumber = 10,
-    kDoubleFieldNumber = 14,
-    kBoolFieldNumber = 15,
+  	kRepFix32FieldNumber = 16,
+  	kRepU32FieldNumber = 17,
+  	kRepI32FieldNumber = 18,
+  	kRepSf32FieldNumber = 19,
+  	kRepS32FieldNumber = 20,
+  	kRepFix64FieldNumber = 21,
+  	kRepU64FieldNumber = 22,
+  	kRepI64FieldNumber = 23,
+  	kRepSf64FieldNumber = 24,
+  	kRepS64FieldNumber = 25,
+  	kRepStrFieldNumber = 26,
+  	kRepBytesFieldNumber = 27,
+  	kRepFloatFieldNumber = 28,
+  	kRepDoubleFieldNumber = 29,
+  	kRepBoolFieldNumber = 30,
+  	kStrFieldNumber = 11,
+  	kBytesFieldNumber = 12,
+  	kFix32FieldNumber = 1,
+  	kU32FieldNumber = 2,
+  	kI32FieldNumber = 3,
+  	kSf32FieldNumber = 4,
+  	kFix64FieldNumber = 6,
+  	kU64FieldNumber = 7,
+  	kI64FieldNumber = 8,
+  	kSf64FieldNumber = 9,
+  	kS32FieldNumber = 5,
+  	kFloatFieldNumber = 13,
+  	kS64FieldNumber = 10,
+  	kDoubleFieldNumber = 14,
+  	kBoolFieldNumber = 15,
   };
   // repeated fixed32 rep_fix32 = 16;
   int rep_fix32_size() const;
@@ -2331,19 +2279,19 @@ class PackedPrimitive final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepFix32FieldNumber = 16,
-    kRepU32FieldNumber = 17,
-    kRepI32FieldNumber = 18,
-    kRepSf32FieldNumber = 19,
-    kRepS32FieldNumber = 20,
-    kRepFix64FieldNumber = 21,
-    kRepU64FieldNumber = 22,
-    kRepI64FieldNumber = 23,
-    kRepSf64FieldNumber = 24,
-    kRepS64FieldNumber = 25,
-    kRepFloatFieldNumber = 28,
-    kRepDoubleFieldNumber = 29,
-    kRepBoolFieldNumber = 30,
+  	kRepFix32FieldNumber = 16,
+  	kRepU32FieldNumber = 17,
+  	kRepI32FieldNumber = 18,
+  	kRepSf32FieldNumber = 19,
+  	kRepS32FieldNumber = 20,
+  	kRepFix64FieldNumber = 21,
+  	kRepU64FieldNumber = 22,
+  	kRepI64FieldNumber = 23,
+  	kRepSf64FieldNumber = 24,
+  	kRepS64FieldNumber = 25,
+  	kRepFloatFieldNumber = 28,
+  	kRepDoubleFieldNumber = 29,
+  	kRepBoolFieldNumber = 30,
   };
   // repeated fixed32 rep_fix32 = 16 [packed = true];
   int rep_fix32_size() const;
@@ -2729,7 +2677,7 @@ class NestedBook final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBookFieldNumber = 1,
+  	kBookFieldNumber = 1,
   };
   // optional .proto_util_converter.testing.Book book = 1;
   bool has_book() const;
@@ -2750,9 +2698,7 @@ class NestedBook final :
   ::proto_util_converter::testing::Book* unsafe_arena_release_book();
 
   static const int kAnotherBookFieldNumber = 301;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto_util_converter::testing::Book,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::proto_util_converter::testing::NestedBook >, 11, false >
-    another_book;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto_util_converter::testing::Book, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::proto_util_converter::testing::NestedBook >, 11, false > another_book;
   // @@protoc_insertion_point(class_scope:proto_util_converter.testing.NestedBook)
  private:
   class _Internal;
@@ -2873,7 +2819,7 @@ class BadNestedBook final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBookFieldNumber = 1,
+  	kBookFieldNumber = 1,
   };
   // repeated uint32 book = 1 [packed = true];
   int book_size() const;
@@ -3014,11 +2960,11 @@ class Cyclic final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMAuthorFieldNumber = 5,
-    kMStrFieldNumber = 2,
-    kMBookFieldNumber = 3,
-    kMCyclicFieldNumber = 4,
-    kMIntFieldNumber = 1,
+  	kMAuthorFieldNumber = 5,
+  	kMStrFieldNumber = 2,
+  	kMBookFieldNumber = 3,
+  	kMCyclicFieldNumber = 4,
+  	kMIntFieldNumber = 1,
   };
   // repeated .proto_util_converter.testing.Author m_author = 5;
   int m_author_size() const;
@@ -3227,7 +3173,7 @@ class TestJsonName1 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOneValueFieldNumber = 1,
+  	kOneValueFieldNumber = 1,
   };
   // optional int32 one_value = 1 [json_name = "value"];
   bool has_one_value() const;
@@ -3362,7 +3308,7 @@ class TestJsonName2 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAnotherValueFieldNumber = 1,
+  	kAnotherValueFieldNumber = 1,
   };
   // optional int32 another_value = 1 [json_name = "value"];
   bool has_another_value() const;
@@ -3497,22 +3443,22 @@ class TestPrimitiveFieldsWithSameJsonName final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValStr1FieldNumber = 1,
-    kValStr1FieldNumber_2 = 2,
-    kValInt321FieldNumber = 3,
-    kValInt321FieldNumber_4 = 4,
-    kValUint321FieldNumber = 5,
-    kValUint321FieldNumber_6 = 6,
-    kValInt641FieldNumber = 7,
-    kValInt641FieldNumber_8 = 8,
-    kValUint641FieldNumber = 9,
-    kValUint641FieldNumber_10 = 10,
-    kValBool1FieldNumber = 11,
-    kValBool1FieldNumber_12 = 12,
-    kValFloat1FieldNumber = 15,
-    kValDouble1FieldNumber = 13,
-    kValDouble1FieldNumber_14 = 14,
-    kValFloat1FieldNumber_16 = 16,
+  	kValStr1FieldNumber = 1,
+  	kValStr1FieldNumber_2 = 2,
+  	kValInt321FieldNumber = 3,
+  	kValInt321FieldNumber_4 = 4,
+  	kValUint321FieldNumber = 5,
+  	kValUint321FieldNumber_6 = 6,
+  	kValInt641FieldNumber = 7,
+  	kValInt641FieldNumber_8 = 8,
+  	kValUint641FieldNumber = 9,
+  	kValUint641FieldNumber_10 = 10,
+  	kValBool1FieldNumber = 11,
+  	kValBool1FieldNumber_12 = 12,
+  	kValFloat1FieldNumber = 15,
+  	kValDouble1FieldNumber = 13,
+  	kValDouble1FieldNumber_14 = 14,
+  	kValFloat1FieldNumber_16 = 16,
   };
   // optional string val_str1 = 1;
   bool has_val_str1() const;
@@ -3867,8 +3813,8 @@ class TestRepeatedFieldsWithSameJsonName final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepStr1FieldNumber = 1,
-    kRepStr1FieldNumber_2 = 2,
+  	kRepStr1FieldNumber = 1,
+  	kRepStr1FieldNumber_2 = 2,
   };
   // repeated string rep_str1 = 1;
   int rep_str1_size() const;
@@ -4038,8 +3984,8 @@ class TestMessageFieldsWithSameJsonName final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPrim1FieldNumber = 1,
-    kPrim1FieldNumber_2 = 2,
+  	kPrim1FieldNumber = 1,
+  	kPrim1FieldNumber_2 = 2,
   };
   // optional .proto_util_converter.testing.Primitive prim1 = 1;
   bool has_prim1() const;
@@ -4093,9 +4039,7 @@ class TestMessageFieldsWithSameJsonName final :
 // ===================================================================
 
 static const int kMoreAuthorFieldNumber = 201;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto_util_converter::testing::Book,
-    ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::proto_util_converter::testing::Author >, 11, false >
-  more_author;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto_util_converter::testing::Book, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedMessageTypeTraits< ::proto_util_converter::testing::Author >, 11, false > more_author;
 
 // ===================================================================
 
@@ -4108,10 +4052,10 @@ extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto_util_conv
 // optional uint32 year = 7;
 inline bool Book_Data::_internal_has_year() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool Book_Data::has_year() const {
-  return _internal_has_year();
+	return _internal_has_year();
 }
 inline void Book_Data::clear_year() {
   year_ = 0u;
@@ -4134,10 +4078,10 @@ inline void Book_Data::set_year(uint32_t value) {
 // optional string copyright = 8;
 inline bool Book_Data::_internal_has_copyright() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Book_Data::has_copyright() const {
-  return _internal_has_copyright();
+	return _internal_has_copyright();
 }
 inline void Book_Data::clear_copyright() {
   copyright_.ClearToEmpty();
@@ -4202,10 +4146,10 @@ inline void Book_Data::set_allocated_copyright(std::string* copyright) {
 // optional string key = 1;
 inline bool Book_Label::_internal_has_key() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Book_Label::has_key() const {
-  return _internal_has_key();
+	return _internal_has_key();
 }
 inline void Book_Label::clear_key() {
   key_.ClearToEmpty();
@@ -4266,10 +4210,10 @@ inline void Book_Label::set_allocated_key(std::string* key) {
 // optional string value = 2;
 inline bool Book_Label::_internal_has_value() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool Book_Label::has_value() const {
-  return _internal_has_value();
+	return _internal_has_value();
 }
 inline void Book_Label::clear_value() {
   value_.ClearToEmpty();
@@ -4334,10 +4278,10 @@ inline void Book_Label::set_allocated_value(std::string* value) {
 // optional string title = 1;
 inline bool Book::_internal_has_title() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Book::has_title() const {
-  return _internal_has_title();
+	return _internal_has_title();
 }
 inline void Book::clear_title() {
   title_.ClearToEmpty();
@@ -4399,10 +4343,10 @@ inline void Book::set_allocated_title(std::string* title) {
 inline bool Book::_internal_has_author() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
   PROTOBUF_ASSUME(!value || author_ != nullptr);
-  return value;
+	return value;
 }
 inline bool Book::has_author() const {
-  return _internal_has_author();
+	return _internal_has_author();
 }
 inline void Book::clear_author() {
   if(author_ != nullptr) author_->Clear();
@@ -4487,10 +4431,10 @@ inline void Book::set_allocated_author(::proto_util_converter::testing::Author* 
 // optional uint32 length = 3;
 inline bool Book::_internal_has_length() const {
   bool value = (_has_bits_[0] & 0x00000100u) != 0;
-  return value;
+	return value;
 }
 inline bool Book::has_length() const {
-  return _internal_has_length();
+	return _internal_has_length();
 }
 inline void Book::clear_length() {
   length_ = 0u;
@@ -4513,10 +4457,10 @@ inline void Book::set_length(uint32_t value) {
 // optional int64 published = 4;
 inline bool Book::_internal_has_published() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool Book::has_published() const {
-  return _internal_has_published();
+	return _internal_has_published();
 }
 inline void Book::clear_published() {
   published_ = int64_t{0};
@@ -4539,10 +4483,10 @@ inline void Book::set_published(int64_t value) {
 // optional bytes content = 5;
 inline bool Book::_internal_has_content() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool Book::has_content() const {
-  return _internal_has_content();
+	return _internal_has_content();
 }
 inline void Book::clear_content() {
   content_.ClearToEmpty();
@@ -4604,10 +4548,10 @@ inline void Book::set_allocated_content(std::string* content) {
 inline bool Book::_internal_has_data() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
   PROTOBUF_ASSUME(!value || data_ != nullptr);
-  return value;
+	return value;
 }
 inline bool Book::has_data() const {
-  return _internal_has_data();
+	return _internal_has_data();
 }
 inline void Book::clear_data() {
   if(data_ != nullptr) data_->Clear();
@@ -4693,10 +4637,10 @@ inline void Book::set_allocated_data(::proto_util_converter::testing::Book_Data*
 inline bool Book::_internal_has_publisher() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
   PROTOBUF_ASSUME(!value || publisher_ != nullptr);
-  return value;
+	return value;
 }
 inline bool Book::has_publisher() const {
-  return _internal_has_publisher();
+	return _internal_has_publisher();
 }
 inline void Book::clear_publisher() {
   if(publisher_ != nullptr) publisher_->Clear();
@@ -4780,8 +4724,9 @@ inline void Book::set_allocated_publisher(::proto_util_converter::testing::Publi
 
 // repeated .proto_util_converter.testing.Book.Label labels = 10;
 inline int Book::_internal_labels_size() const { return labels_.size(); }
-inline int Book::labels_size() const {
-  return _internal_labels_size();
+inline int Book::labels_size() const
+{
+	return _internal_labels_size();
 }
 inline void Book::clear_labels() {
   labels_.Clear();
@@ -4817,10 +4762,10 @@ Book::labels() const {
 // optional .proto_util_converter.testing.Book.Type type = 11;
 inline bool Book::_internal_has_type() const {
   bool value = (_has_bits_[0] & 0x00000200u) != 0;
-  return value;
+	return value;
 }
 inline bool Book::has_type() const {
-  return _internal_has_type();
+	return _internal_has_type();
 }
 inline void Book::clear_type() {
   type_ = 1;
@@ -4844,10 +4789,10 @@ inline void Book::set_type(::proto_util_converter::testing::Book_Type value) {
 // optional string snake_field = 12;
 inline bool Book::_internal_has_snake_field() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool Book::has_snake_field() const {
-  return _internal_has_snake_field();
+	return _internal_has_snake_field();
 }
 inline void Book::clear_snake_field() {
   snake_field_.ClearToEmpty();
@@ -4909,10 +4854,10 @@ inline void Book::set_allocated_snake_field(std::string* snake_field) {
 inline bool Book::_internal_has_type_not_found() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
   PROTOBUF_ASSUME(!value || type_not_found_ != nullptr);
-  return value;
+	return value;
 }
 inline bool Book::has_type_not_found() const {
-  return _internal_has_type_not_found();
+	return _internal_has_type_not_found();
 }
 inline const ::proto_util_converter::testing::AnyWrapper& Book::_internal_type_not_found() const {
   const ::proto_util_converter::testing::AnyWrapper* p = type_not_found_;
@@ -4993,8 +4938,9 @@ inline void Book::set_allocated_type_not_found(::proto_util_converter::testing::
 
 // repeated int32 primitive_repeated = 14;
 inline int Book::_internal_primitive_repeated_size() const { return primitive_repeated_.size(); }
-inline int Book::primitive_repeated_size() const {
-  return _internal_primitive_repeated_size();
+inline int Book::primitive_repeated_size() const
+{
+	return _internal_primitive_repeated_size();
 }
 inline void Book::clear_primitive_repeated() {
   primitive_repeated_.Clear();
@@ -5037,10 +4983,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Book::mutable_primiti
 // required string name = 1;
 inline bool Publisher::_internal_has_name() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Publisher::has_name() const {
-  return _internal_has_name();
+	return _internal_has_name();
 }
 inline void Publisher::clear_name() {
   name_.ClearToEmpty();
@@ -5105,10 +5051,10 @@ inline void Publisher::set_allocated_name(std::string* name) {
 // optional uint64 id = 1 [json_name = "@id"];
 inline bool Author::_internal_has_id() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool Author::has_id() const {
-  return _internal_has_id();
+	return _internal_has_id();
 }
 inline void Author::clear_id() {
   id_ = uint64_t{0u};
@@ -5131,10 +5077,10 @@ inline void Author::set_id(uint64_t value) {
 // optional string name = 2;
 inline bool Author::_internal_has_name() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Author::has_name() const {
-  return _internal_has_name();
+	return _internal_has_name();
 }
 inline void Author::clear_name() {
   name_.ClearToEmpty();
@@ -5194,8 +5140,9 @@ inline void Author::set_allocated_name(std::string* name) {
 
 // repeated string pseudonym = 3;
 inline int Author::_internal_pseudonym_size() const { return pseudonym_.size(); }
-inline int Author::pseudonym_size() const {
-  return _internal_pseudonym_size();
+inline int Author::pseudonym_size() const
+{
+	return _internal_pseudonym_size();
 }
 inline void Author::clear_pseudonym() {
   pseudonym_.Clear();
@@ -5263,10 +5210,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * Author::mutable_
 // optional bool alive = 4;
 inline bool Author::_internal_has_alive() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool Author::has_alive() const {
-  return _internal_has_alive();
+	return _internal_has_alive();
 }
 inline void Author::clear_alive() {
   alive_ = false;
@@ -5288,8 +5235,9 @@ inline void Author::set_alive(bool value) {
 
 // repeated .proto_util_converter.testing.Author friend = 5;
 inline int Author::_internal_friend__size() const { return friend__.size(); }
-inline int Author::friend__size() const {
-  return _internal_friend__size();
+inline int Author::friend__size() const
+{
+	return _internal_friend__size();
 }
 inline void Author::clear_friend_() {
   friend__.Clear();
@@ -5329,10 +5277,10 @@ Author::friend_() const {
 // optional string id = 1;
 inline bool BadAuthor::_internal_has_id() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool BadAuthor::has_id() const {
-  return _internal_has_id();
+	return _internal_has_id();
 }
 inline void BadAuthor::clear_id() {
   id_.ClearToEmpty();
@@ -5392,8 +5340,9 @@ inline void BadAuthor::set_allocated_id(std::string* id) {
 
 // repeated uint64 name = 2;
 inline int BadAuthor::_internal_name_size() const { return name_.size(); }
-inline int BadAuthor::name_size() const {
-  return _internal_name_size();
+inline int BadAuthor::name_size() const
+{
+	return _internal_name_size();
 }
 inline void BadAuthor::clear_name() {
   name_.Clear();
@@ -5432,10 +5381,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * BadAuthor::mutable_n
 // optional string pseudonym = 3;
 inline bool BadAuthor::_internal_has_pseudonym() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool BadAuthor::has_pseudonym() const {
-  return _internal_has_pseudonym();
+	return _internal_has_pseudonym();
 }
 inline void BadAuthor::clear_pseudonym() {
   pseudonym_.ClearToEmpty();
@@ -5495,8 +5444,9 @@ inline void BadAuthor::set_allocated_pseudonym(std::string* pseudonym) {
 
 // repeated bool alive = 4 [packed = true];
 inline int BadAuthor::_internal_alive_size() const { return alive_.size(); }
-inline int BadAuthor::alive_size() const {
-  return _internal_alive_size();
+inline int BadAuthor::alive_size() const
+{
+	return _internal_alive_size();
 }
 inline void BadAuthor::clear_alive() {
   alive_.Clear();
@@ -5539,10 +5489,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * BadAuthor::mutable_alive
 // optional fixed32 fix32 = 1;
 inline bool Primitive::_internal_has_fix32() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_fix32() const {
-  return _internal_has_fix32();
+	return _internal_has_fix32();
 }
 inline void Primitive::clear_fix32() {
   fix32_ = 0u;
@@ -5565,10 +5515,10 @@ inline void Primitive::set_fix32(uint32_t value) {
 // optional uint32 u32 = 2;
 inline bool Primitive::_internal_has_u32() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_u32() const {
-  return _internal_has_u32();
+	return _internal_has_u32();
 }
 inline void Primitive::clear_u32() {
   u32_ = 0u;
@@ -5591,10 +5541,10 @@ inline void Primitive::set_u32(uint32_t value) {
 // optional int32 i32 = 3;
 inline bool Primitive::_internal_has_i32() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_i32() const {
-  return _internal_has_i32();
+	return _internal_has_i32();
 }
 inline void Primitive::clear_i32() {
   i32_ = 0;
@@ -5617,10 +5567,10 @@ inline void Primitive::set_i32(int32_t value) {
 // optional sfixed32 sf32 = 4;
 inline bool Primitive::_internal_has_sf32() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_sf32() const {
-  return _internal_has_sf32();
+	return _internal_has_sf32();
 }
 inline void Primitive::clear_sf32() {
   sf32_ = 0;
@@ -5643,10 +5593,10 @@ inline void Primitive::set_sf32(int32_t value) {
 // optional sint32 s32 = 5;
 inline bool Primitive::_internal_has_s32() const {
   bool value = (_has_bits_[0] & 0x00000400u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_s32() const {
-  return _internal_has_s32();
+	return _internal_has_s32();
 }
 inline void Primitive::clear_s32() {
   s32_ = 0;
@@ -5669,10 +5619,10 @@ inline void Primitive::set_s32(int32_t value) {
 // optional fixed64 fix64 = 6;
 inline bool Primitive::_internal_has_fix64() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_fix64() const {
-  return _internal_has_fix64();
+	return _internal_has_fix64();
 }
 inline void Primitive::clear_fix64() {
   fix64_ = uint64_t{0u};
@@ -5695,10 +5645,10 @@ inline void Primitive::set_fix64(uint64_t value) {
 // optional uint64 u64 = 7;
 inline bool Primitive::_internal_has_u64() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_u64() const {
-  return _internal_has_u64();
+	return _internal_has_u64();
 }
 inline void Primitive::clear_u64() {
   u64_ = uint64_t{0u};
@@ -5721,10 +5671,10 @@ inline void Primitive::set_u64(uint64_t value) {
 // optional int64 i64 = 8;
 inline bool Primitive::_internal_has_i64() const {
   bool value = (_has_bits_[0] & 0x00000100u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_i64() const {
-  return _internal_has_i64();
+	return _internal_has_i64();
 }
 inline void Primitive::clear_i64() {
   i64_ = int64_t{0};
@@ -5747,10 +5697,10 @@ inline void Primitive::set_i64(int64_t value) {
 // optional sfixed64 sf64 = 9;
 inline bool Primitive::_internal_has_sf64() const {
   bool value = (_has_bits_[0] & 0x00000200u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_sf64() const {
-  return _internal_has_sf64();
+	return _internal_has_sf64();
 }
 inline void Primitive::clear_sf64() {
   sf64_ = int64_t{0};
@@ -5773,10 +5723,10 @@ inline void Primitive::set_sf64(int64_t value) {
 // optional sint64 s64 = 10;
 inline bool Primitive::_internal_has_s64() const {
   bool value = (_has_bits_[0] & 0x00001000u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_s64() const {
-  return _internal_has_s64();
+	return _internal_has_s64();
 }
 inline void Primitive::clear_s64() {
   s64_ = int64_t{0};
@@ -5799,10 +5749,10 @@ inline void Primitive::set_s64(int64_t value) {
 // optional string str = 11;
 inline bool Primitive::_internal_has_str() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_str() const {
-  return _internal_has_str();
+	return _internal_has_str();
 }
 inline void Primitive::clear_str() {
   str_.ClearToEmpty();
@@ -5863,10 +5813,10 @@ inline void Primitive::set_allocated_str(std::string* str) {
 // optional bytes bytes = 12;
 inline bool Primitive::_internal_has_bytes() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_bytes() const {
-  return _internal_has_bytes();
+	return _internal_has_bytes();
 }
 inline void Primitive::clear_bytes() {
   bytes_.ClearToEmpty();
@@ -5927,10 +5877,10 @@ inline void Primitive::set_allocated_bytes(std::string* bytes) {
 // optional float float = 13;
 inline bool Primitive::_internal_has_float_() const {
   bool value = (_has_bits_[0] & 0x00000800u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_float_() const {
-  return _internal_has_float_();
+	return _internal_has_float_();
 }
 inline void Primitive::clear_float_() {
   float__ = 0;
@@ -5953,10 +5903,10 @@ inline void Primitive::set_float_(float value) {
 // optional double double = 14;
 inline bool Primitive::_internal_has_double_() const {
   bool value = (_has_bits_[0] & 0x00002000u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_double_() const {
-  return _internal_has_double_();
+	return _internal_has_double_();
 }
 inline void Primitive::clear_double_() {
   double__ = 0;
@@ -5979,10 +5929,10 @@ inline void Primitive::set_double_(double value) {
 // optional bool bool = 15;
 inline bool Primitive::_internal_has_bool_() const {
   bool value = (_has_bits_[0] & 0x00004000u) != 0;
-  return value;
+	return value;
 }
 inline bool Primitive::has_bool_() const {
-  return _internal_has_bool_();
+	return _internal_has_bool_();
 }
 inline void Primitive::clear_bool_() {
   bool__ = false;
@@ -6004,8 +5954,9 @@ inline void Primitive::set_bool_(bool value) {
 
 // repeated fixed32 rep_fix32 = 16;
 inline int Primitive::_internal_rep_fix32_size() const { return rep_fix32_.size(); }
-inline int Primitive::rep_fix32_size() const {
-  return _internal_rep_fix32_size();
+inline int Primitive::rep_fix32_size() const
+{
+	return _internal_rep_fix32_size();
 }
 inline void Primitive::clear_rep_fix32() {
   rep_fix32_.Clear();
@@ -6043,8 +5994,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * Primitive::mutable_r
 
 // repeated uint32 rep_u32 = 17;
 inline int Primitive::_internal_rep_u32_size() const { return rep_u32_.size(); }
-inline int Primitive::rep_u32_size() const {
-  return _internal_rep_u32_size();
+inline int Primitive::rep_u32_size() const
+{
+	return _internal_rep_u32_size();
 }
 inline void Primitive::clear_rep_u32() {
   rep_u32_.Clear();
@@ -6082,8 +6034,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * Primitive::mutable_r
 
 // repeated int32 rep_i32 = 18;
 inline int Primitive::_internal_rep_i32_size() const { return rep_i32_.size(); }
-inline int Primitive::rep_i32_size() const {
-  return _internal_rep_i32_size();
+inline int Primitive::rep_i32_size() const
+{
+	return _internal_rep_i32_size();
 }
 inline void Primitive::clear_rep_i32() {
   rep_i32_.Clear();
@@ -6121,8 +6074,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Primitive::mutable_re
 
 // repeated sfixed32 rep_sf32 = 19;
 inline int Primitive::_internal_rep_sf32_size() const { return rep_sf32_.size(); }
-inline int Primitive::rep_sf32_size() const {
-  return _internal_rep_sf32_size();
+inline int Primitive::rep_sf32_size() const
+{
+	return _internal_rep_sf32_size();
 }
 inline void Primitive::clear_rep_sf32() {
   rep_sf32_.Clear();
@@ -6160,8 +6114,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Primitive::mutable_re
 
 // repeated sint32 rep_s32 = 20;
 inline int Primitive::_internal_rep_s32_size() const { return rep_s32_.size(); }
-inline int Primitive::rep_s32_size() const {
-  return _internal_rep_s32_size();
+inline int Primitive::rep_s32_size() const
+{
+	return _internal_rep_s32_size();
 }
 inline void Primitive::clear_rep_s32() {
   rep_s32_.Clear();
@@ -6199,8 +6154,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Primitive::mutable_re
 
 // repeated fixed64 rep_fix64 = 21;
 inline int Primitive::_internal_rep_fix64_size() const { return rep_fix64_.size(); }
-inline int Primitive::rep_fix64_size() const {
-  return _internal_rep_fix64_size();
+inline int Primitive::rep_fix64_size() const
+{
+	return _internal_rep_fix64_size();
 }
 inline void Primitive::clear_rep_fix64() {
   rep_fix64_.Clear();
@@ -6238,8 +6194,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * Primitive::mutable_r
 
 // repeated uint64 rep_u64 = 22;
 inline int Primitive::_internal_rep_u64_size() const { return rep_u64_.size(); }
-inline int Primitive::rep_u64_size() const {
-  return _internal_rep_u64_size();
+inline int Primitive::rep_u64_size() const
+{
+	return _internal_rep_u64_size();
 }
 inline void Primitive::clear_rep_u64() {
   rep_u64_.Clear();
@@ -6277,8 +6234,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * Primitive::mutable_r
 
 // repeated int64 rep_i64 = 23;
 inline int Primitive::_internal_rep_i64_size() const { return rep_i64_.size(); }
-inline int Primitive::rep_i64_size() const {
-  return _internal_rep_i64_size();
+inline int Primitive::rep_i64_size() const
+{
+	return _internal_rep_i64_size();
 }
 inline void Primitive::clear_rep_i64() {
   rep_i64_.Clear();
@@ -6316,8 +6274,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * Primitive::mutable_re
 
 // repeated sfixed64 rep_sf64 = 24;
 inline int Primitive::_internal_rep_sf64_size() const { return rep_sf64_.size(); }
-inline int Primitive::rep_sf64_size() const {
-  return _internal_rep_sf64_size();
+inline int Primitive::rep_sf64_size() const
+{
+	return _internal_rep_sf64_size();
 }
 inline void Primitive::clear_rep_sf64() {
   rep_sf64_.Clear();
@@ -6355,8 +6314,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * Primitive::mutable_re
 
 // repeated sint64 rep_s64 = 25;
 inline int Primitive::_internal_rep_s64_size() const { return rep_s64_.size(); }
-inline int Primitive::rep_s64_size() const {
-  return _internal_rep_s64_size();
+inline int Primitive::rep_s64_size() const
+{
+	return _internal_rep_s64_size();
 }
 inline void Primitive::clear_rep_s64() {
   rep_s64_.Clear();
@@ -6394,8 +6354,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * Primitive::mutable_re
 
 // repeated string rep_str = 26;
 inline int Primitive::_internal_rep_str_size() const { return rep_str_.size(); }
-inline int Primitive::rep_str_size() const {
-  return _internal_rep_str_size();
+inline int Primitive::rep_str_size() const
+{
+	return _internal_rep_str_size();
 }
 inline void Primitive::clear_rep_str() {
   rep_str_.Clear();
@@ -6462,8 +6423,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * Primitive::mutab
 
 // repeated bytes rep_bytes = 27;
 inline int Primitive::_internal_rep_bytes_size() const { return rep_bytes_.size(); }
-inline int Primitive::rep_bytes_size() const {
-  return _internal_rep_bytes_size();
+inline int Primitive::rep_bytes_size() const
+{
+	return _internal_rep_bytes_size();
 }
 inline void Primitive::clear_rep_bytes() {
   rep_bytes_.Clear();
@@ -6530,8 +6492,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * Primitive::mutab
 
 // repeated float rep_float = 28;
 inline int Primitive::_internal_rep_float_size() const { return rep_float_.size(); }
-inline int Primitive::rep_float_size() const {
-  return _internal_rep_float_size();
+inline int Primitive::rep_float_size() const
+{
+	return _internal_rep_float_size();
 }
 inline void Primitive::clear_rep_float() {
   rep_float_.Clear();
@@ -6569,8 +6532,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * Primitive::mutable_rep_
 
 // repeated double rep_double = 29;
 inline int Primitive::_internal_rep_double_size() const { return rep_double_.size(); }
-inline int Primitive::rep_double_size() const {
-  return _internal_rep_double_size();
+inline int Primitive::rep_double_size() const
+{
+	return _internal_rep_double_size();
 }
 inline void Primitive::clear_rep_double() {
   rep_double_.Clear();
@@ -6608,8 +6572,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * Primitive::mutable_rep
 
 // repeated bool rep_bool = 30;
 inline int Primitive::_internal_rep_bool_size() const { return rep_bool_.size(); }
-inline int Primitive::rep_bool_size() const {
-  return _internal_rep_bool_size();
+inline int Primitive::rep_bool_size() const
+{
+	return _internal_rep_bool_size();
 }
 inline void Primitive::clear_rep_bool() {
   rep_bool_.Clear();
@@ -6651,8 +6616,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * Primitive::mutable_rep_b
 
 // repeated fixed32 rep_fix32 = 16 [packed = true];
 inline int PackedPrimitive::_internal_rep_fix32_size() const { return rep_fix32_.size(); }
-inline int PackedPrimitive::rep_fix32_size() const {
-  return _internal_rep_fix32_size();
+inline int PackedPrimitive::rep_fix32_size() const
+{
+	return _internal_rep_fix32_size();
 }
 inline void PackedPrimitive::clear_rep_fix32() {
   rep_fix32_.Clear();
@@ -6690,8 +6656,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * PackedPrimitive::mut
 
 // repeated uint32 rep_u32 = 17 [packed = true];
 inline int PackedPrimitive::_internal_rep_u32_size() const { return rep_u32_.size(); }
-inline int PackedPrimitive::rep_u32_size() const {
-  return _internal_rep_u32_size();
+inline int PackedPrimitive::rep_u32_size() const
+{
+	return _internal_rep_u32_size();
 }
 inline void PackedPrimitive::clear_rep_u32() {
   rep_u32_.Clear();
@@ -6729,8 +6696,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * PackedPrimitive::mut
 
 // repeated int32 rep_i32 = 18 [packed = true];
 inline int PackedPrimitive::_internal_rep_i32_size() const { return rep_i32_.size(); }
-inline int PackedPrimitive::rep_i32_size() const {
-  return _internal_rep_i32_size();
+inline int PackedPrimitive::rep_i32_size() const
+{
+	return _internal_rep_i32_size();
 }
 inline void PackedPrimitive::clear_rep_i32() {
   rep_i32_.Clear();
@@ -6768,8 +6736,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PackedPrimitive::muta
 
 // repeated sfixed32 rep_sf32 = 19 [packed = true];
 inline int PackedPrimitive::_internal_rep_sf32_size() const { return rep_sf32_.size(); }
-inline int PackedPrimitive::rep_sf32_size() const {
-  return _internal_rep_sf32_size();
+inline int PackedPrimitive::rep_sf32_size() const
+{
+	return _internal_rep_sf32_size();
 }
 inline void PackedPrimitive::clear_rep_sf32() {
   rep_sf32_.Clear();
@@ -6807,8 +6776,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PackedPrimitive::muta
 
 // repeated sint32 rep_s32 = 20 [packed = true];
 inline int PackedPrimitive::_internal_rep_s32_size() const { return rep_s32_.size(); }
-inline int PackedPrimitive::rep_s32_size() const {
-  return _internal_rep_s32_size();
+inline int PackedPrimitive::rep_s32_size() const
+{
+	return _internal_rep_s32_size();
 }
 inline void PackedPrimitive::clear_rep_s32() {
   rep_s32_.Clear();
@@ -6846,8 +6816,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PackedPrimitive::muta
 
 // repeated fixed64 rep_fix64 = 21 [packed = true];
 inline int PackedPrimitive::_internal_rep_fix64_size() const { return rep_fix64_.size(); }
-inline int PackedPrimitive::rep_fix64_size() const {
-  return _internal_rep_fix64_size();
+inline int PackedPrimitive::rep_fix64_size() const
+{
+	return _internal_rep_fix64_size();
 }
 inline void PackedPrimitive::clear_rep_fix64() {
   rep_fix64_.Clear();
@@ -6885,8 +6856,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * PackedPrimitive::mut
 
 // repeated uint64 rep_u64 = 22 [packed = true];
 inline int PackedPrimitive::_internal_rep_u64_size() const { return rep_u64_.size(); }
-inline int PackedPrimitive::rep_u64_size() const {
-  return _internal_rep_u64_size();
+inline int PackedPrimitive::rep_u64_size() const
+{
+	return _internal_rep_u64_size();
 }
 inline void PackedPrimitive::clear_rep_u64() {
   rep_u64_.Clear();
@@ -6924,8 +6896,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * PackedPrimitive::mut
 
 // repeated int64 rep_i64 = 23 [packed = true];
 inline int PackedPrimitive::_internal_rep_i64_size() const { return rep_i64_.size(); }
-inline int PackedPrimitive::rep_i64_size() const {
-  return _internal_rep_i64_size();
+inline int PackedPrimitive::rep_i64_size() const
+{
+	return _internal_rep_i64_size();
 }
 inline void PackedPrimitive::clear_rep_i64() {
   rep_i64_.Clear();
@@ -6963,8 +6936,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * PackedPrimitive::muta
 
 // repeated sfixed64 rep_sf64 = 24 [packed = true];
 inline int PackedPrimitive::_internal_rep_sf64_size() const { return rep_sf64_.size(); }
-inline int PackedPrimitive::rep_sf64_size() const {
-  return _internal_rep_sf64_size();
+inline int PackedPrimitive::rep_sf64_size() const
+{
+	return _internal_rep_sf64_size();
 }
 inline void PackedPrimitive::clear_rep_sf64() {
   rep_sf64_.Clear();
@@ -7002,8 +6976,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * PackedPrimitive::muta
 
 // repeated sint64 rep_s64 = 25 [packed = true];
 inline int PackedPrimitive::_internal_rep_s64_size() const { return rep_s64_.size(); }
-inline int PackedPrimitive::rep_s64_size() const {
-  return _internal_rep_s64_size();
+inline int PackedPrimitive::rep_s64_size() const
+{
+	return _internal_rep_s64_size();
 }
 inline void PackedPrimitive::clear_rep_s64() {
   rep_s64_.Clear();
@@ -7041,8 +7016,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * PackedPrimitive::muta
 
 // repeated float rep_float = 28 [packed = true];
 inline int PackedPrimitive::_internal_rep_float_size() const { return rep_float_.size(); }
-inline int PackedPrimitive::rep_float_size() const {
-  return _internal_rep_float_size();
+inline int PackedPrimitive::rep_float_size() const
+{
+	return _internal_rep_float_size();
 }
 inline void PackedPrimitive::clear_rep_float() {
   rep_float_.Clear();
@@ -7080,8 +7056,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * PackedPrimitive::mutabl
 
 // repeated double rep_double = 29 [packed = true];
 inline int PackedPrimitive::_internal_rep_double_size() const { return rep_double_.size(); }
-inline int PackedPrimitive::rep_double_size() const {
-  return _internal_rep_double_size();
+inline int PackedPrimitive::rep_double_size() const
+{
+	return _internal_rep_double_size();
 }
 inline void PackedPrimitive::clear_rep_double() {
   rep_double_.Clear();
@@ -7119,8 +7096,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * PackedPrimitive::mutab
 
 // repeated bool rep_bool = 30 [packed = true];
 inline int PackedPrimitive::_internal_rep_bool_size() const { return rep_bool_.size(); }
-inline int PackedPrimitive::rep_bool_size() const {
-  return _internal_rep_bool_size();
+inline int PackedPrimitive::rep_bool_size() const
+{
+	return _internal_rep_bool_size();
 }
 inline void PackedPrimitive::clear_rep_bool() {
   rep_bool_.Clear();
@@ -7164,10 +7142,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * PackedPrimitive::mutable
 inline bool NestedBook::_internal_has_book() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || book_ != nullptr);
-  return value;
+	return value;
 }
 inline bool NestedBook::has_book() const {
-  return _internal_has_book();
+	return _internal_has_book();
 }
 inline void NestedBook::clear_book() {
   if(book_ != nullptr) book_->Clear();
@@ -7255,8 +7233,9 @@ inline void NestedBook::set_allocated_book(::proto_util_converter::testing::Book
 
 // repeated uint32 book = 1 [packed = true];
 inline int BadNestedBook::_internal_book_size() const { return book_.size(); }
-inline int BadNestedBook::book_size() const {
-  return _internal_book_size();
+inline int BadNestedBook::book_size() const
+{
+	return _internal_book_size();
 }
 inline void BadNestedBook::clear_book() {
   book_.Clear();
@@ -7299,10 +7278,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * BadNestedBook::mutab
 // optional int32 m_int = 1;
 inline bool Cyclic::_internal_has_m_int() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool Cyclic::has_m_int() const {
-  return _internal_has_m_int();
+	return _internal_has_m_int();
 }
 inline void Cyclic::clear_m_int() {
   m_int_ = 0;
@@ -7325,10 +7304,10 @@ inline void Cyclic::set_m_int(int32_t value) {
 // optional string m_str = 2;
 inline bool Cyclic::_internal_has_m_str() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Cyclic::has_m_str() const {
-  return _internal_has_m_str();
+	return _internal_has_m_str();
 }
 inline void Cyclic::clear_m_str() {
   m_str_.ClearToEmpty();
@@ -7390,10 +7369,10 @@ inline void Cyclic::set_allocated_m_str(std::string* m_str) {
 inline bool Cyclic::_internal_has_m_book() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || m_book_ != nullptr);
-  return value;
+	return value;
 }
 inline bool Cyclic::has_m_book() const {
-  return _internal_has_m_book();
+	return _internal_has_m_book();
 }
 inline void Cyclic::clear_m_book() {
   if(m_book_ != nullptr) m_book_->Clear();
@@ -7477,8 +7456,9 @@ inline void Cyclic::set_allocated_m_book(::proto_util_converter::testing::Book* 
 
 // repeated .proto_util_converter.testing.Author m_author = 5;
 inline int Cyclic::_internal_m_author_size() const { return m_author_.size(); }
-inline int Cyclic::m_author_size() const {
-  return _internal_m_author_size();
+inline int Cyclic::m_author_size() const
+{
+	return _internal_m_author_size();
 }
 inline void Cyclic::clear_m_author() {
   m_author_.Clear();
@@ -7515,10 +7495,10 @@ Cyclic::m_author() const {
 inline bool Cyclic::_internal_has_m_cyclic() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
   PROTOBUF_ASSUME(!value || m_cyclic_ != nullptr);
-  return value;
+	return value;
 }
 inline bool Cyclic::has_m_cyclic() const {
-  return _internal_has_m_cyclic();
+	return _internal_has_m_cyclic();
 }
 inline void Cyclic::clear_m_cyclic() {
   if(m_cyclic_ != nullptr) m_cyclic_->Clear();
@@ -7607,10 +7587,10 @@ inline void Cyclic::set_allocated_m_cyclic(::proto_util_converter::testing::Cycl
 // optional int32 one_value = 1 [json_name = "value"];
 inline bool TestJsonName1::_internal_has_one_value() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJsonName1::has_one_value() const {
-  return _internal_has_one_value();
+	return _internal_has_one_value();
 }
 inline void TestJsonName1::clear_one_value() {
   one_value_ = 0;
@@ -7637,10 +7617,10 @@ inline void TestJsonName1::set_one_value(int32_t value) {
 // optional int32 another_value = 1 [json_name = "value"];
 inline bool TestJsonName2::_internal_has_another_value() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJsonName2::has_another_value() const {
-  return _internal_has_another_value();
+	return _internal_has_another_value();
 }
 inline void TestJsonName2::clear_another_value() {
   another_value_ = 0;
@@ -7667,10 +7647,10 @@ inline void TestJsonName2::set_another_value(int32_t value) {
 // optional string val_str1 = 1;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_str1() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_str1() const {
-  return _internal_has_val_str1();
+	return _internal_has_val_str1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_str1() {
   val_str1_.ClearToEmpty();
@@ -7731,10 +7711,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_allocated_val_str1(std::str
 // optional string val_str_1 = 2;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_str_1() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_str_1() const {
-  return _internal_has_val_str_1();
+	return _internal_has_val_str_1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_str_1() {
   val_str_1_.ClearToEmpty();
@@ -7795,10 +7775,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_allocated_val_str_1(std::st
 // optional int32 val_int321 = 3;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_int321() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_int321() const {
-  return _internal_has_val_int321();
+	return _internal_has_val_int321();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_int321() {
   val_int321_ = 0;
@@ -7821,10 +7801,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_int321(int32_t value) {
 // optional int32 val_int32_1 = 4;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_int32_1() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_int32_1() const {
-  return _internal_has_val_int32_1();
+	return _internal_has_val_int32_1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_int32_1() {
   val_int32_1_ = 0;
@@ -7847,10 +7827,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_int32_1(int32_t value) 
 // optional uint32 val_uint321 = 5;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_uint321() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_uint321() const {
-  return _internal_has_val_uint321();
+	return _internal_has_val_uint321();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_uint321() {
   val_uint321_ = 0u;
@@ -7873,10 +7853,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_uint321(uint32_t value)
 // optional uint32 val_uint32_1 = 6;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_uint32_1() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_uint32_1() const {
-  return _internal_has_val_uint32_1();
+	return _internal_has_val_uint32_1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_uint32_1() {
   val_uint32_1_ = 0u;
@@ -7899,10 +7879,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_uint32_1(uint32_t value
 // optional int64 val_int641 = 7;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_int641() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_int641() const {
-  return _internal_has_val_int641();
+	return _internal_has_val_int641();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_int641() {
   val_int641_ = int64_t{0};
@@ -7925,10 +7905,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_int641(int64_t value) {
 // optional int64 val_int64_1 = 8;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_int64_1() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_int64_1() const {
-  return _internal_has_val_int64_1();
+	return _internal_has_val_int64_1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_int64_1() {
   val_int64_1_ = int64_t{0};
@@ -7951,10 +7931,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_int64_1(int64_t value) 
 // optional uint64 val_uint641 = 9;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_uint641() const {
   bool value = (_has_bits_[0] & 0x00000100u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_uint641() const {
-  return _internal_has_val_uint641();
+	return _internal_has_val_uint641();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_uint641() {
   val_uint641_ = uint64_t{0u};
@@ -7977,10 +7957,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_uint641(uint64_t value)
 // optional uint64 val_uint64_1 = 10;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_uint64_1() const {
   bool value = (_has_bits_[0] & 0x00000200u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_uint64_1() const {
-  return _internal_has_val_uint64_1();
+	return _internal_has_val_uint64_1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_uint64_1() {
   val_uint64_1_ = uint64_t{0u};
@@ -8003,10 +7983,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_uint64_1(uint64_t value
 // optional bool val_bool1 = 11;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_bool1() const {
   bool value = (_has_bits_[0] & 0x00000400u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_bool1() const {
-  return _internal_has_val_bool1();
+	return _internal_has_val_bool1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_bool1() {
   val_bool1_ = false;
@@ -8029,10 +8009,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_bool1(bool value) {
 // optional bool val_bool_1 = 12;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_bool_1() const {
   bool value = (_has_bits_[0] & 0x00000800u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_bool_1() const {
-  return _internal_has_val_bool_1();
+	return _internal_has_val_bool_1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_bool_1() {
   val_bool_1_ = false;
@@ -8055,10 +8035,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_bool_1(bool value) {
 // optional double val_double1 = 13;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_double1() const {
   bool value = (_has_bits_[0] & 0x00002000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_double1() const {
-  return _internal_has_val_double1();
+	return _internal_has_val_double1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_double1() {
   val_double1_ = 0;
@@ -8081,10 +8061,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_double1(double value) {
 // optional double val_double_1 = 14;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_double_1() const {
   bool value = (_has_bits_[0] & 0x00004000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_double_1() const {
-  return _internal_has_val_double_1();
+	return _internal_has_val_double_1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_double_1() {
   val_double_1_ = 0;
@@ -8107,10 +8087,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_double_1(double value) 
 // optional float val_float1 = 15;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_float1() const {
   bool value = (_has_bits_[0] & 0x00001000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_float1() const {
-  return _internal_has_val_float1();
+	return _internal_has_val_float1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_float1() {
   val_float1_ = 0;
@@ -8133,10 +8113,10 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_float1(float value) {
 // optional float val_float_1 = 16;
 inline bool TestPrimitiveFieldsWithSameJsonName::_internal_has_val_float_1() const {
   bool value = (_has_bits_[0] & 0x00008000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestPrimitiveFieldsWithSameJsonName::has_val_float_1() const {
-  return _internal_has_val_float_1();
+	return _internal_has_val_float_1();
 }
 inline void TestPrimitiveFieldsWithSameJsonName::clear_val_float_1() {
   val_float_1_ = 0;
@@ -8162,8 +8142,9 @@ inline void TestPrimitiveFieldsWithSameJsonName::set_val_float_1(float value) {
 
 // repeated string rep_str1 = 1;
 inline int TestRepeatedFieldsWithSameJsonName::_internal_rep_str1_size() const { return rep_str1_.size(); }
-inline int TestRepeatedFieldsWithSameJsonName::rep_str1_size() const {
-  return _internal_rep_str1_size();
+inline int TestRepeatedFieldsWithSameJsonName::rep_str1_size() const
+{
+	return _internal_rep_str1_size();
 }
 inline void TestRepeatedFieldsWithSameJsonName::clear_rep_str1() {
   rep_str1_.Clear();
@@ -8230,8 +8211,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestRepeatedFiel
 
 // repeated string rep_str_1 = 2;
 inline int TestRepeatedFieldsWithSameJsonName::_internal_rep_str_1_size() const { return rep_str_1_.size(); }
-inline int TestRepeatedFieldsWithSameJsonName::rep_str_1_size() const {
-  return _internal_rep_str_1_size();
+inline int TestRepeatedFieldsWithSameJsonName::rep_str_1_size() const
+{
+	return _internal_rep_str_1_size();
 }
 inline void TestRepeatedFieldsWithSameJsonName::clear_rep_str_1() {
   rep_str_1_.Clear();
@@ -8304,10 +8286,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestRepeatedFiel
 inline bool TestMessageFieldsWithSameJsonName::_internal_has_prim1() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || prim1_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestMessageFieldsWithSameJsonName::has_prim1() const {
-  return _internal_has_prim1();
+	return _internal_has_prim1();
 }
 inline void TestMessageFieldsWithSameJsonName::clear_prim1() {
   if(prim1_ != nullptr) prim1_->Clear();
@@ -8393,10 +8375,10 @@ inline void TestMessageFieldsWithSameJsonName::set_allocated_prim1(::proto_util_
 inline bool TestMessageFieldsWithSameJsonName::_internal_has_prim_1() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || prim_1_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestMessageFieldsWithSameJsonName::has_prim_1() const {
-  return _internal_has_prim_1();
+	return _internal_has_prim_1();
 }
 inline void TestMessageFieldsWithSameJsonName::clear_prim_1() {
   if(prim_1_ != nullptr) prim_1_->Clear();

@@ -63,7 +63,6 @@ EC_GROUP * ossl_ec_group_new_ex(OSSL_LIB_CTX * libctx, const char * propq, const
 	if(!meth->group_init(ret))
 		goto err;
 	return ret;
-
 err:
 	BN_free(ret->order);
 	BN_free(ret->cofactor);
@@ -73,13 +72,9 @@ err:
 }
 
 #ifndef OPENSSL_NO_DEPRECATED_3_0
-#ifndef FIPS_MODULE
-EC_GROUP * EC_GROUP_new(const EC_METHOD * meth)
-{
-	return ossl_ec_group_new_ex(NULL, NULL, meth);
-}
-
-#endif
+	#ifndef FIPS_MODULE
+		EC_GROUP * EC_GROUP_new(const EC_METHOD * meth) { return ossl_ec_group_new_ex(NULL, NULL, meth); }
+	#endif
 #endif
 
 void EC_pre_comp_free(EC_GROUP * group)
@@ -117,42 +112,37 @@ void EC_pre_comp_free(EC_GROUP * group)
 
 void EC_GROUP_free(EC_GROUP * group)
 {
-	if(!group)
-		return;
-
-	if(group->meth->group_finish != 0)
-		group->meth->group_finish(group);
-
-	EC_pre_comp_free(group);
-	BN_MONT_CTX_free(group->mont_data);
-	EC_POINT_free(group->generator);
-	BN_free(group->order);
-	BN_free(group->cofactor);
-	OPENSSL_free(group->seed);
-	OPENSSL_free(group->propq);
-	OPENSSL_free(group);
+	if(group) {
+		if(group->meth->group_finish != 0)
+			group->meth->group_finish(group);
+		EC_pre_comp_free(group);
+		BN_MONT_CTX_free(group->mont_data);
+		EC_POINT_free(group->generator);
+		BN_free(group->order);
+		BN_free(group->cofactor);
+		OPENSSL_free(group->seed);
+		OPENSSL_free(group->propq);
+		OPENSSL_free(group);
+	}
 }
 
 #ifndef OPENSSL_NO_DEPRECATED_3_0
 void EC_GROUP_clear_free(EC_GROUP * group)
 {
-	if(!group)
-		return;
-
-	if(group->meth->group_clear_finish != 0)
-		group->meth->group_clear_finish(group);
-	else if(group->meth->group_finish != 0)
-		group->meth->group_finish(group);
-
-	EC_pre_comp_free(group);
-	BN_MONT_CTX_free(group->mont_data);
-	EC_POINT_clear_free(group->generator);
-	BN_clear_free(group->order);
-	BN_clear_free(group->cofactor);
-	OPENSSL_clear_free(group->seed, group->seed_len);
-	OPENSSL_clear_free(group, sizeof(*group));
+	if(group) {
+		if(group->meth->group_clear_finish != 0)
+			group->meth->group_clear_finish(group);
+		else if(group->meth->group_finish != 0)
+			group->meth->group_finish(group);
+		EC_pre_comp_free(group);
+		BN_MONT_CTX_free(group->mont_data);
+		EC_POINT_clear_free(group->generator);
+		BN_clear_free(group->order);
+		BN_clear_free(group->cofactor);
+		OPENSSL_clear_free(group->seed, group->seed_len);
+		OPENSSL_clear_free(group, sizeof(*group));
+	}
 }
-
 #endif
 
 int EC_GROUP_copy(EC_GROUP * dest, const EC_GROUP * src)
@@ -264,17 +254,13 @@ EC_GROUP * EC_GROUP_dup(const EC_GROUP * a)
 {
 	EC_GROUP * t = NULL;
 	int ok = 0;
-
 	if(!a)
 		return NULL;
-
 	if((t = ossl_ec_group_new_ex(a->libctx, a->propq, a->meth)) == NULL)
 		return NULL;
 	if(!EC_GROUP_copy(t, a))
 		goto err;
-
 	ok = 1;
-
 err:
 	if(!ok) {
 		EC_GROUP_free(t);
@@ -284,18 +270,9 @@ err:
 }
 
 #ifndef OPENSSL_NO_DEPRECATED_3_0
-const EC_METHOD * EC_GROUP_method_of(const EC_GROUP * group)
-{
-	return group->meth;
-}
-
-int EC_METHOD_get_field_type(const EC_METHOD * meth)
-{
-	return meth->field_type;
-}
-
+	const EC_METHOD * EC_GROUP_method_of(const EC_GROUP * group) { return group->meth; }
+	int EC_METHOD_get_field_type(const EC_METHOD * meth) { return meth->field_type; }
 #endif
-
 static int ec_precompute_mont_data(EC_GROUP *);
 
 /*-

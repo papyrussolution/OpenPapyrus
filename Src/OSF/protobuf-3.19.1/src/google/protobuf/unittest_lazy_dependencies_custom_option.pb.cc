@@ -259,9 +259,7 @@ void LazyMessage::InternalSwap(LazyMessage* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata LazyMessage::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_5fcustom_5foption_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_5fcustom_5foption_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5flazy_5fdependencies_5fcustom_5foption_2eproto[0]);
 }
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-    ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::lazy_imports::LazyEnum, ::protobuf_unittest::lazy_imports::LazyEnum_IsValid>, 14, false >
-  lazy_enum_option(kLazyEnumOptionFieldNumber, static_cast< ::protobuf_unittest::lazy_imports::LazyEnum >(1));
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::EnumTypeTraits< ::protobuf_unittest::lazy_imports::LazyEnum, ::protobuf_unittest::lazy_imports::LazyEnum_IsValid>, 14, false > lazy_enum_option(kLazyEnumOptionFieldNumber, static_cast< ::protobuf_unittest::lazy_imports::LazyEnum >(1));
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace lazy_imports

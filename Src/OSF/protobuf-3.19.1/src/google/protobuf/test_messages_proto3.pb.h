@@ -362,8 +362,8 @@ class TestAllTypesProto3_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kCorecursiveFieldNumber = 2,
-    kAFieldNumber = 1,
+  	kCorecursiveFieldNumber = 2,
+  	kAFieldNumber = 1,
   };
   // .protobuf_test_messages.proto3.TestAllTypesProto3 corecursive = 2;
   bool has_corecursive() const;
@@ -415,8 +415,8 @@ public:
   explicit TestAllTypesProto3_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapInt32Int32Entry_DoNotUse& other);
   static const TestAllTypesProto3_MapInt32Int32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapInt32Int32Entry_DoNotUse*>(&_TestAllTypesProto3_MapInt32Int32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -432,8 +432,8 @@ public:
   explicit TestAllTypesProto3_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapInt64Int64Entry_DoNotUse& other);
   static const TestAllTypesProto3_MapInt64Int64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapInt64Int64Entry_DoNotUse*>(&_TestAllTypesProto3_MapInt64Int64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -449,8 +449,8 @@ public:
   explicit TestAllTypesProto3_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapUint32Uint32Entry_DoNotUse& other);
   static const TestAllTypesProto3_MapUint32Uint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapUint32Uint32Entry_DoNotUse*>(&_TestAllTypesProto3_MapUint32Uint32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -466,8 +466,8 @@ public:
   explicit TestAllTypesProto3_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapUint64Uint64Entry_DoNotUse& other);
   static const TestAllTypesProto3_MapUint64Uint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapUint64Uint64Entry_DoNotUse*>(&_TestAllTypesProto3_MapUint64Uint64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -483,8 +483,8 @@ public:
   explicit TestAllTypesProto3_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapSint32Sint32Entry_DoNotUse& other);
   static const TestAllTypesProto3_MapSint32Sint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapSint32Sint32Entry_DoNotUse*>(&_TestAllTypesProto3_MapSint32Sint32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -500,8 +500,8 @@ public:
   explicit TestAllTypesProto3_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapSint64Sint64Entry_DoNotUse& other);
   static const TestAllTypesProto3_MapSint64Sint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapSint64Sint64Entry_DoNotUse*>(&_TestAllTypesProto3_MapSint64Sint64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -517,8 +517,8 @@ public:
   explicit TestAllTypesProto3_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapFixed32Fixed32Entry_DoNotUse& other);
   static const TestAllTypesProto3_MapFixed32Fixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapFixed32Fixed32Entry_DoNotUse*>(&_TestAllTypesProto3_MapFixed32Fixed32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -534,8 +534,8 @@ public:
   explicit TestAllTypesProto3_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapFixed64Fixed64Entry_DoNotUse& other);
   static const TestAllTypesProto3_MapFixed64Fixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapFixed64Fixed64Entry_DoNotUse*>(&_TestAllTypesProto3_MapFixed64Fixed64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -551,8 +551,8 @@ public:
   explicit TestAllTypesProto3_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapSfixed32Sfixed32Entry_DoNotUse& other);
   static const TestAllTypesProto3_MapSfixed32Sfixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapSfixed32Sfixed32Entry_DoNotUse*>(&_TestAllTypesProto3_MapSfixed32Sfixed32Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -568,8 +568,8 @@ public:
   explicit TestAllTypesProto3_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapSfixed64Sfixed64Entry_DoNotUse& other);
   static const TestAllTypesProto3_MapSfixed64Sfixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapSfixed64Sfixed64Entry_DoNotUse*>(&_TestAllTypesProto3_MapSfixed64Sfixed64Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -585,8 +585,8 @@ public:
   explicit TestAllTypesProto3_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapInt32FloatEntry_DoNotUse& other);
   static const TestAllTypesProto3_MapInt32FloatEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapInt32FloatEntry_DoNotUse*>(&_TestAllTypesProto3_MapInt32FloatEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -602,8 +602,8 @@ public:
   explicit TestAllTypesProto3_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapInt32DoubleEntry_DoNotUse& other);
   static const TestAllTypesProto3_MapInt32DoubleEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapInt32DoubleEntry_DoNotUse*>(&_TestAllTypesProto3_MapInt32DoubleEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -619,8 +619,8 @@ public:
   explicit TestAllTypesProto3_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestAllTypesProto3_MapBoolBoolEntry_DoNotUse& other);
   static const TestAllTypesProto3_MapBoolBoolEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapBoolBoolEntry_DoNotUse*>(&_TestAllTypesProto3_MapBoolBoolEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -654,7 +654,7 @@ public:
   void MergeFrom(const TestAllTypesProto3_MapStringBytesEntry_DoNotUse& other);
   static const TestAllTypesProto3_MapStringBytesEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapStringBytesEntry_DoNotUse*>(&_TestAllTypesProto3_MapStringBytesEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "protobuf_test_messages.proto3.TestAllTypesProto3.MapStringBytesEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -671,7 +671,7 @@ public:
   void MergeFrom(const TestAllTypesProto3_MapStringNestedMessageEntry_DoNotUse& other);
   static const TestAllTypesProto3_MapStringNestedMessageEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapStringNestedMessageEntry_DoNotUse*>(&_TestAllTypesProto3_MapStringNestedMessageEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "protobuf_test_messages.proto3.TestAllTypesProto3.MapStringNestedMessageEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -688,7 +688,7 @@ public:
   void MergeFrom(const TestAllTypesProto3_MapStringForeignMessageEntry_DoNotUse& other);
   static const TestAllTypesProto3_MapStringForeignMessageEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapStringForeignMessageEntry_DoNotUse*>(&_TestAllTypesProto3_MapStringForeignMessageEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "protobuf_test_messages.proto3.TestAllTypesProto3.MapStringForeignMessageEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -705,7 +705,7 @@ public:
   void MergeFrom(const TestAllTypesProto3_MapStringNestedEnumEntry_DoNotUse& other);
   static const TestAllTypesProto3_MapStringNestedEnumEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapStringNestedEnumEntry_DoNotUse*>(&_TestAllTypesProto3_MapStringNestedEnumEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "protobuf_test_messages.proto3.TestAllTypesProto3.MapStringNestedEnumEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -722,7 +722,7 @@ public:
   void MergeFrom(const TestAllTypesProto3_MapStringForeignEnumEntry_DoNotUse& other);
   static const TestAllTypesProto3_MapStringForeignEnumEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestAllTypesProto3_MapStringForeignEnumEntry_DoNotUse*>(&_TestAllTypesProto3_MapStringForeignEnumEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "protobuf_test_messages.proto3.TestAllTypesProto3.MapStringForeignEnumEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -890,157 +890,157 @@ class TestAllTypesProto3 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedInt32FieldNumber = 31,
-    kRepeatedInt64FieldNumber = 32,
-    kRepeatedUint32FieldNumber = 33,
-    kRepeatedUint64FieldNumber = 34,
-    kRepeatedSint32FieldNumber = 35,
-    kRepeatedSint64FieldNumber = 36,
-    kRepeatedFixed32FieldNumber = 37,
-    kRepeatedFixed64FieldNumber = 38,
-    kRepeatedSfixed32FieldNumber = 39,
-    kRepeatedSfixed64FieldNumber = 40,
-    kRepeatedFloatFieldNumber = 41,
-    kRepeatedDoubleFieldNumber = 42,
-    kRepeatedBoolFieldNumber = 43,
-    kRepeatedStringFieldNumber = 44,
-    kRepeatedBytesFieldNumber = 45,
-    kRepeatedNestedMessageFieldNumber = 48,
-    kRepeatedForeignMessageFieldNumber = 49,
-    kRepeatedNestedEnumFieldNumber = 51,
-    kRepeatedForeignEnumFieldNumber = 52,
-    kRepeatedStringPieceFieldNumber = 54,
-    kRepeatedCordFieldNumber = 55,
-    kMapInt32Int32FieldNumber = 56,
-    kMapInt64Int64FieldNumber = 57,
-    kMapUint32Uint32FieldNumber = 58,
-    kMapUint64Uint64FieldNumber = 59,
-    kMapSint32Sint32FieldNumber = 60,
-    kMapSint64Sint64FieldNumber = 61,
-    kMapFixed32Fixed32FieldNumber = 62,
-    kMapFixed64Fixed64FieldNumber = 63,
-    kMapSfixed32Sfixed32FieldNumber = 64,
-    kMapSfixed64Sfixed64FieldNumber = 65,
-    kMapInt32FloatFieldNumber = 66,
-    kMapInt32DoubleFieldNumber = 67,
-    kMapBoolBoolFieldNumber = 68,
-    kMapStringStringFieldNumber = 69,
-    kMapStringBytesFieldNumber = 70,
-    kMapStringNestedMessageFieldNumber = 71,
-    kMapStringForeignMessageFieldNumber = 72,
-    kMapStringNestedEnumFieldNumber = 73,
-    kMapStringForeignEnumFieldNumber = 74,
-    kPackedInt32FieldNumber = 75,
-    kPackedInt64FieldNumber = 76,
-    kPackedUint32FieldNumber = 77,
-    kPackedUint64FieldNumber = 78,
-    kPackedSint32FieldNumber = 79,
-    kPackedSint64FieldNumber = 80,
-    kPackedFixed32FieldNumber = 81,
-    kPackedFixed64FieldNumber = 82,
-    kPackedSfixed32FieldNumber = 83,
-    kPackedSfixed64FieldNumber = 84,
-    kPackedFloatFieldNumber = 85,
-    kPackedDoubleFieldNumber = 86,
-    kPackedBoolFieldNumber = 87,
-    kPackedNestedEnumFieldNumber = 88,
-    kUnpackedInt32FieldNumber = 89,
-    kUnpackedInt64FieldNumber = 90,
-    kUnpackedUint32FieldNumber = 91,
-    kUnpackedUint64FieldNumber = 92,
-    kUnpackedSint32FieldNumber = 93,
-    kUnpackedSint64FieldNumber = 94,
-    kUnpackedFixed32FieldNumber = 95,
-    kUnpackedFixed64FieldNumber = 96,
-    kUnpackedSfixed32FieldNumber = 97,
-    kUnpackedSfixed64FieldNumber = 98,
-    kUnpackedFloatFieldNumber = 99,
-    kUnpackedDoubleFieldNumber = 100,
-    kUnpackedBoolFieldNumber = 101,
-    kUnpackedNestedEnumFieldNumber = 102,
-    kRepeatedBoolWrapperFieldNumber = 211,
-    kRepeatedInt32WrapperFieldNumber = 212,
-    kRepeatedInt64WrapperFieldNumber = 213,
-    kRepeatedUint32WrapperFieldNumber = 214,
-    kRepeatedUint64WrapperFieldNumber = 215,
-    kRepeatedFloatWrapperFieldNumber = 216,
-    kRepeatedDoubleWrapperFieldNumber = 217,
-    kRepeatedStringWrapperFieldNumber = 218,
-    kRepeatedBytesWrapperFieldNumber = 219,
-    kRepeatedDurationFieldNumber = 311,
-    kRepeatedTimestampFieldNumber = 312,
-    kRepeatedFieldmaskFieldNumber = 313,
-    kRepeatedAnyFieldNumber = 315,
-    kRepeatedValueFieldNumber = 316,
-    kRepeatedListValueFieldNumber = 317,
-    kRepeatedStructFieldNumber = 324,
-    kOptionalStringFieldNumber = 14,
-    kOptionalBytesFieldNumber = 15,
-    kOptionalStringPieceFieldNumber = 24,
-    kOptionalCordFieldNumber = 25,
-    kOptionalNestedMessageFieldNumber = 18,
-    kOptionalForeignMessageFieldNumber = 19,
-    kRecursiveMessageFieldNumber = 27,
-    kOptionalBoolWrapperFieldNumber = 201,
-    kOptionalInt32WrapperFieldNumber = 202,
-    kOptionalInt64WrapperFieldNumber = 203,
-    kOptionalUint32WrapperFieldNumber = 204,
-    kOptionalUint64WrapperFieldNumber = 205,
-    kOptionalFloatWrapperFieldNumber = 206,
-    kOptionalDoubleWrapperFieldNumber = 207,
-    kOptionalStringWrapperFieldNumber = 208,
-    kOptionalBytesWrapperFieldNumber = 209,
-    kOptionalDurationFieldNumber = 301,
-    kOptionalTimestampFieldNumber = 302,
-    kOptionalFieldMaskFieldNumber = 303,
-    kOptionalStructFieldNumber = 304,
-    kOptionalAnyFieldNumber = 305,
-    kOptionalValueFieldNumber = 306,
-    kOptionalInt64FieldNumber = 2,
-    kOptionalInt32FieldNumber = 1,
-    kOptionalUint32FieldNumber = 3,
-    kOptionalUint64FieldNumber = 4,
-    kOptionalSint64FieldNumber = 6,
-    kOptionalSint32FieldNumber = 5,
-    kOptionalFixed32FieldNumber = 7,
-    kOptionalFixed64FieldNumber = 8,
-    kOptionalSfixed64FieldNumber = 10,
-    kOptionalSfixed32FieldNumber = 9,
-    kOptionalFloatFieldNumber = 11,
-    kOptionalDoubleFieldNumber = 12,
-    kOptionalBoolFieldNumber = 13,
-    kOptionalNestedEnumFieldNumber = 21,
-    kOptionalForeignEnumFieldNumber = 22,
-    kOptionalAliasedEnumFieldNumber = 23,
-    kFieldName18FieldNumber = 418,
-    kOptionalNullValueFieldNumber = 307,
-    kFieldname1FieldNumber = 401,
-    kFieldName2FieldNumber = 402,
-    kFieldName3FieldNumber = 403,
-    kFieldName4FieldNumber = 404,
-    kField0Name5FieldNumber = 405,
-    kField0Name6FieldNumber = 406,
-    kFieldName7FieldNumber = 407,
-    kFieldName8FieldNumber = 408,
-    kFieldName9FieldNumber = 409,
-    kFieldName10FieldNumber = 410,
-    kFIELDNAME11FieldNumber = 411,
-    kFIELDName12FieldNumber = 412,
-    kFieldName13FieldNumber = 413,
-    kFieldName14FieldNumber = 414,
-    kFieldName15FieldNumber = 415,
-    kFieldName16FieldNumber = 416,
-    kFieldName17FieldNumber = 417,
-    kOneofUint32FieldNumber = 111,
-    kOneofNestedMessageFieldNumber = 112,
-    kOneofStringFieldNumber = 113,
-    kOneofBytesFieldNumber = 114,
-    kOneofBoolFieldNumber = 115,
-    kOneofUint64FieldNumber = 116,
-    kOneofFloatFieldNumber = 117,
-    kOneofDoubleFieldNumber = 118,
-    kOneofEnumFieldNumber = 119,
-    kOneofNullValueFieldNumber = 120,
+  	kRepeatedInt32FieldNumber = 31,
+  	kRepeatedInt64FieldNumber = 32,
+  	kRepeatedUint32FieldNumber = 33,
+  	kRepeatedUint64FieldNumber = 34,
+  	kRepeatedSint32FieldNumber = 35,
+  	kRepeatedSint64FieldNumber = 36,
+  	kRepeatedFixed32FieldNumber = 37,
+  	kRepeatedFixed64FieldNumber = 38,
+  	kRepeatedSfixed32FieldNumber = 39,
+  	kRepeatedSfixed64FieldNumber = 40,
+  	kRepeatedFloatFieldNumber = 41,
+  	kRepeatedDoubleFieldNumber = 42,
+  	kRepeatedBoolFieldNumber = 43,
+  	kRepeatedStringFieldNumber = 44,
+  	kRepeatedBytesFieldNumber = 45,
+  	kRepeatedNestedMessageFieldNumber = 48,
+  	kRepeatedForeignMessageFieldNumber = 49,
+  	kRepeatedNestedEnumFieldNumber = 51,
+  	kRepeatedForeignEnumFieldNumber = 52,
+  	kRepeatedStringPieceFieldNumber = 54,
+  	kRepeatedCordFieldNumber = 55,
+  	kMapInt32Int32FieldNumber = 56,
+  	kMapInt64Int64FieldNumber = 57,
+  	kMapUint32Uint32FieldNumber = 58,
+  	kMapUint64Uint64FieldNumber = 59,
+  	kMapSint32Sint32FieldNumber = 60,
+  	kMapSint64Sint64FieldNumber = 61,
+  	kMapFixed32Fixed32FieldNumber = 62,
+  	kMapFixed64Fixed64FieldNumber = 63,
+  	kMapSfixed32Sfixed32FieldNumber = 64,
+  	kMapSfixed64Sfixed64FieldNumber = 65,
+  	kMapInt32FloatFieldNumber = 66,
+  	kMapInt32DoubleFieldNumber = 67,
+  	kMapBoolBoolFieldNumber = 68,
+  	kMapStringStringFieldNumber = 69,
+  	kMapStringBytesFieldNumber = 70,
+  	kMapStringNestedMessageFieldNumber = 71,
+  	kMapStringForeignMessageFieldNumber = 72,
+  	kMapStringNestedEnumFieldNumber = 73,
+  	kMapStringForeignEnumFieldNumber = 74,
+  	kPackedInt32FieldNumber = 75,
+  	kPackedInt64FieldNumber = 76,
+  	kPackedUint32FieldNumber = 77,
+  	kPackedUint64FieldNumber = 78,
+  	kPackedSint32FieldNumber = 79,
+  	kPackedSint64FieldNumber = 80,
+  	kPackedFixed32FieldNumber = 81,
+  	kPackedFixed64FieldNumber = 82,
+  	kPackedSfixed32FieldNumber = 83,
+  	kPackedSfixed64FieldNumber = 84,
+  	kPackedFloatFieldNumber = 85,
+  	kPackedDoubleFieldNumber = 86,
+  	kPackedBoolFieldNumber = 87,
+  	kPackedNestedEnumFieldNumber = 88,
+  	kUnpackedInt32FieldNumber = 89,
+  	kUnpackedInt64FieldNumber = 90,
+  	kUnpackedUint32FieldNumber = 91,
+  	kUnpackedUint64FieldNumber = 92,
+  	kUnpackedSint32FieldNumber = 93,
+  	kUnpackedSint64FieldNumber = 94,
+  	kUnpackedFixed32FieldNumber = 95,
+  	kUnpackedFixed64FieldNumber = 96,
+  	kUnpackedSfixed32FieldNumber = 97,
+  	kUnpackedSfixed64FieldNumber = 98,
+  	kUnpackedFloatFieldNumber = 99,
+  	kUnpackedDoubleFieldNumber = 100,
+  	kUnpackedBoolFieldNumber = 101,
+  	kUnpackedNestedEnumFieldNumber = 102,
+  	kRepeatedBoolWrapperFieldNumber = 211,
+  	kRepeatedInt32WrapperFieldNumber = 212,
+  	kRepeatedInt64WrapperFieldNumber = 213,
+  	kRepeatedUint32WrapperFieldNumber = 214,
+  	kRepeatedUint64WrapperFieldNumber = 215,
+  	kRepeatedFloatWrapperFieldNumber = 216,
+  	kRepeatedDoubleWrapperFieldNumber = 217,
+  	kRepeatedStringWrapperFieldNumber = 218,
+  	kRepeatedBytesWrapperFieldNumber = 219,
+  	kRepeatedDurationFieldNumber = 311,
+  	kRepeatedTimestampFieldNumber = 312,
+  	kRepeatedFieldmaskFieldNumber = 313,
+  	kRepeatedAnyFieldNumber = 315,
+  	kRepeatedValueFieldNumber = 316,
+  	kRepeatedListValueFieldNumber = 317,
+  	kRepeatedStructFieldNumber = 324,
+  	kOptionalStringFieldNumber = 14,
+  	kOptionalBytesFieldNumber = 15,
+  	kOptionalStringPieceFieldNumber = 24,
+  	kOptionalCordFieldNumber = 25,
+  	kOptionalNestedMessageFieldNumber = 18,
+  	kOptionalForeignMessageFieldNumber = 19,
+  	kRecursiveMessageFieldNumber = 27,
+  	kOptionalBoolWrapperFieldNumber = 201,
+  	kOptionalInt32WrapperFieldNumber = 202,
+  	kOptionalInt64WrapperFieldNumber = 203,
+  	kOptionalUint32WrapperFieldNumber = 204,
+  	kOptionalUint64WrapperFieldNumber = 205,
+  	kOptionalFloatWrapperFieldNumber = 206,
+  	kOptionalDoubleWrapperFieldNumber = 207,
+  	kOptionalStringWrapperFieldNumber = 208,
+  	kOptionalBytesWrapperFieldNumber = 209,
+  	kOptionalDurationFieldNumber = 301,
+  	kOptionalTimestampFieldNumber = 302,
+  	kOptionalFieldMaskFieldNumber = 303,
+  	kOptionalStructFieldNumber = 304,
+  	kOptionalAnyFieldNumber = 305,
+  	kOptionalValueFieldNumber = 306,
+  	kOptionalInt64FieldNumber = 2,
+  	kOptionalInt32FieldNumber = 1,
+  	kOptionalUint32FieldNumber = 3,
+  	kOptionalUint64FieldNumber = 4,
+  	kOptionalSint64FieldNumber = 6,
+  	kOptionalSint32FieldNumber = 5,
+  	kOptionalFixed32FieldNumber = 7,
+  	kOptionalFixed64FieldNumber = 8,
+  	kOptionalSfixed64FieldNumber = 10,
+  	kOptionalSfixed32FieldNumber = 9,
+  	kOptionalFloatFieldNumber = 11,
+  	kOptionalDoubleFieldNumber = 12,
+  	kOptionalBoolFieldNumber = 13,
+  	kOptionalNestedEnumFieldNumber = 21,
+  	kOptionalForeignEnumFieldNumber = 22,
+  	kOptionalAliasedEnumFieldNumber = 23,
+  	kFieldName18FieldNumber = 418,
+  	kOptionalNullValueFieldNumber = 307,
+  	kFieldname1FieldNumber = 401,
+  	kFieldName2FieldNumber = 402,
+  	kFieldName3FieldNumber = 403,
+  	kFieldName4FieldNumber = 404,
+  	kField0Name5FieldNumber = 405,
+  	kField0Name6FieldNumber = 406,
+  	kFieldName7FieldNumber = 407,
+  	kFieldName8FieldNumber = 408,
+  	kFieldName9FieldNumber = 409,
+  	kFieldName10FieldNumber = 410,
+  	kFIELDNAME11FieldNumber = 411,
+  	kFIELDName12FieldNumber = 412,
+  	kFieldName13FieldNumber = 413,
+  	kFieldName14FieldNumber = 414,
+  	kFieldName15FieldNumber = 415,
+  	kFieldName16FieldNumber = 416,
+  	kFieldName17FieldNumber = 417,
+  	kOneofUint32FieldNumber = 111,
+  	kOneofNestedMessageFieldNumber = 112,
+  	kOneofStringFieldNumber = 113,
+  	kOneofBytesFieldNumber = 114,
+  	kOneofBoolFieldNumber = 115,
+  	kOneofUint64FieldNumber = 116,
+  	kOneofFloatFieldNumber = 117,
+  	kOneofDoubleFieldNumber = 118,
+  	kOneofEnumFieldNumber = 119,
+  	kOneofNullValueFieldNumber = 120,
   };
   // repeated int32 repeated_int32 = 31;
   int repeated_int32_size() const;
@@ -1378,13 +1378,13 @@ class TestAllTypesProto3 final :
   private:
   ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum _internal_repeated_nested_enum(int index) const;
   void _internal_add_repeated_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_nested_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_nested_enum();
   public:
   ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum repeated_nested_enum(int index) const;
   void set_repeated_nested_enum(int index, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value);
   void add_repeated_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_nested_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_nested_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_nested_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_nested_enum();
 
   // repeated .protobuf_test_messages.proto3.ForeignEnum repeated_foreign_enum = 52;
   int repeated_foreign_enum_size() const;
@@ -1395,13 +1395,13 @@ class TestAllTypesProto3 final :
   private:
   ::protobuf_test_messages::proto3::ForeignEnum _internal_repeated_foreign_enum(int index) const;
   void _internal_add_repeated_foreign_enum(::protobuf_test_messages::proto3::ForeignEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_repeated_foreign_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_repeated_foreign_enum();
   public:
   ::protobuf_test_messages::proto3::ForeignEnum repeated_foreign_enum(int index) const;
   void set_repeated_foreign_enum(int index, ::protobuf_test_messages::proto3::ForeignEnum value);
   void add_repeated_foreign_enum(::protobuf_test_messages::proto3::ForeignEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& repeated_foreign_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_repeated_foreign_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & repeated_foreign_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_repeated_foreign_enum();
 
   // repeated string repeated_string_piece = 54 [ctype = STRING_PIECE];
   int repeated_string_piece_size() const;
@@ -1960,13 +1960,13 @@ class TestAllTypesProto3 final :
   private:
   ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum _internal_packed_nested_enum(int index) const;
   void _internal_add_packed_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_packed_nested_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_packed_nested_enum();
   public:
   ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum packed_nested_enum(int index) const;
   void set_packed_nested_enum(int index, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value);
   void add_packed_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& packed_nested_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_packed_nested_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & packed_nested_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_packed_nested_enum();
 
   // repeated int32 unpacked_int32 = 89 [packed = false];
   int unpacked_int32_size() const;
@@ -2224,13 +2224,13 @@ class TestAllTypesProto3 final :
   private:
   ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum _internal_unpacked_nested_enum(int index) const;
   void _internal_add_unpacked_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_unpacked_nested_enum();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_unpacked_nested_enum();
   public:
   ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum unpacked_nested_enum(int index) const;
   void set_unpacked_nested_enum(int index, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value);
   void add_unpacked_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& unpacked_nested_enum() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_unpacked_nested_enum();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & unpacked_nested_enum() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_unpacked_nested_enum();
 
   // repeated .google.protobuf.BoolValue repeated_bool_wrapper = 211;
   int repeated_bool_wrapper_size() const;
@@ -3385,101 +3385,25 @@ class TestAllTypesProto3 final :
   mutable std::atomic<int> _repeated_foreign_enum_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> repeated_string_piece_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> repeated_cord_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapInt32Int32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_int32_int32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapInt64Int64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64> map_int64_int64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapUint32Uint32Entry_DoNotUse,
-      uint32_t, uint32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32> map_uint32_uint32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapUint64Uint64Entry_DoNotUse,
-      uint64_t, uint64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> map_uint64_uint64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapSint32Sint32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32> map_sint32_sint32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapSint64Sint64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64> map_sint64_sint64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapFixed32Fixed32Entry_DoNotUse,
-      uint32_t, uint32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32> map_fixed32_fixed32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapFixed64Fixed64Entry_DoNotUse,
-      uint64_t, uint64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64> map_fixed64_fixed64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapSfixed32Sfixed32Entry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32> map_sfixed32_sfixed32_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapSfixed64Sfixed64Entry_DoNotUse,
-      int64_t, int64_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64> map_sfixed64_sfixed64_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapInt32FloatEntry_DoNotUse,
-      int32_t, float,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_int32_float_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapInt32DoubleEntry_DoNotUse,
-      int32_t, double,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE> map_int32_double_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapBoolBoolEntry_DoNotUse,
-      bool, bool,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_bool_bool_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapStringStringEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_string_string_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapStringBytesEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BYTES> map_string_bytes_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapStringNestedMessageEntry_DoNotUse,
-      std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_string_nested_message_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapStringForeignMessageEntry_DoNotUse,
-      std::string, ::protobuf_test_messages::proto3::ForeignMessage,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_string_foreign_message_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapStringNestedEnumEntry_DoNotUse,
-      std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_string_nested_enum_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestAllTypesProto3_MapStringForeignEnumEntry_DoNotUse,
-      std::string, ::protobuf_test_messages::proto3::ForeignEnum,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_string_foreign_enum_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapInt32Int32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_int32_int32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapInt64Int64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64> map_int64_int64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapUint32Uint32Entry_DoNotUse, uint32_t, uint32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32> map_uint32_uint32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapUint64Uint64Entry_DoNotUse, uint64_t, uint64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> map_uint64_uint64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapSint32Sint32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32> map_sint32_sint32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapSint64Sint64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64> map_sint64_sint64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapFixed32Fixed32Entry_DoNotUse, uint32_t, uint32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32> map_fixed32_fixed32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapFixed64Fixed64Entry_DoNotUse, uint64_t, uint64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64> map_fixed64_fixed64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapSfixed32Sfixed32Entry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32> map_sfixed32_sfixed32_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapSfixed64Sfixed64Entry_DoNotUse, int64_t, int64_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64> map_sfixed64_sfixed64_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapInt32FloatEntry_DoNotUse, int32_t, float, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_int32_float_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapInt32DoubleEntry_DoNotUse, int32_t, double, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE> map_int32_double_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapBoolBoolEntry_DoNotUse, bool, bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_bool_bool_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapStringStringEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_string_string_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapStringBytesEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BYTES> map_string_bytes_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapStringNestedMessageEntry_DoNotUse, std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_string_nested_message_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapStringForeignMessageEntry_DoNotUse, std::string, ::protobuf_test_messages::proto3::ForeignMessage, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_string_foreign_message_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapStringNestedEnumEntry_DoNotUse, std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_string_nested_enum_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestAllTypesProto3_MapStringForeignEnumEntry_DoNotUse, std::string, ::protobuf_test_messages::proto3::ForeignEnum, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> map_string_foreign_enum_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > packed_int32_;
   mutable std::atomic<int> _packed_int32_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > packed_int64_;
@@ -3712,7 +3636,7 @@ class ForeignMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kCFieldNumber = 1,
+  	kCFieldNumber = 1,
   };
   // int32 c = 1;
   void clear_c();
@@ -3975,8 +3899,9 @@ inline void TestAllTypesProto3_NestedMessage::set_a(int32_t value) {
 
 // .protobuf_test_messages.proto3.TestAllTypesProto3 corecursive = 2;
 inline bool TestAllTypesProto3_NestedMessage::_internal_has_corecursive() const { return this != internal_default_instance() && corecursive_ != nullptr; }
-inline bool TestAllTypesProto3_NestedMessage::has_corecursive() const {
-  return _internal_has_corecursive();
+inline bool TestAllTypesProto3_NestedMessage::has_corecursive() const
+{
+	return _internal_has_corecursive();
 }
 inline void TestAllTypesProto3_NestedMessage::clear_corecursive() {
   if(GetArenaForAllocation() == nullptr && corecursive_ != nullptr) {
@@ -4434,8 +4359,9 @@ inline void TestAllTypesProto3::set_allocated_optional_bytes(std::string* option
 
 // .protobuf_test_messages.proto3.TestAllTypesProto3.NestedMessage optional_nested_message = 18;
 inline bool TestAllTypesProto3::_internal_has_optional_nested_message() const { return this != internal_default_instance() && optional_nested_message_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_nested_message() const {
-  return _internal_has_optional_nested_message();
+inline bool TestAllTypesProto3::has_optional_nested_message() const
+{
+	return _internal_has_optional_nested_message();
 }
 inline void TestAllTypesProto3::clear_optional_nested_message() {
   if(GetArenaForAllocation() == nullptr && optional_nested_message_ != nullptr) {
@@ -4521,8 +4447,9 @@ inline void TestAllTypesProto3::set_allocated_optional_nested_message(::protobuf
 
 // .protobuf_test_messages.proto3.ForeignMessage optional_foreign_message = 19;
 inline bool TestAllTypesProto3::_internal_has_optional_foreign_message() const { return this != internal_default_instance() && optional_foreign_message_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_foreign_message() const {
-  return _internal_has_optional_foreign_message();
+inline bool TestAllTypesProto3::has_optional_foreign_message() const
+{
+	return _internal_has_optional_foreign_message();
 }
 inline void TestAllTypesProto3::clear_optional_foreign_message() {
   if(GetArenaForAllocation() == nullptr && optional_foreign_message_ != nullptr) {
@@ -4758,8 +4685,9 @@ inline void TestAllTypesProto3::set_allocated_optional_cord(std::string* optiona
 
 // .protobuf_test_messages.proto3.TestAllTypesProto3 recursive_message = 27;
 inline bool TestAllTypesProto3::_internal_has_recursive_message() const { return this != internal_default_instance() && recursive_message_ != nullptr; }
-inline bool TestAllTypesProto3::has_recursive_message() const {
-  return _internal_has_recursive_message();
+inline bool TestAllTypesProto3::has_recursive_message() const
+{
+	return _internal_has_recursive_message();
 }
 inline void TestAllTypesProto3::clear_recursive_message() {
   if(GetArenaForAllocation() == nullptr && recursive_message_ != nullptr) {
@@ -4845,8 +4773,9 @@ inline void TestAllTypesProto3::set_allocated_recursive_message(::protobuf_test_
 
 // repeated int32 repeated_int32 = 31;
 inline int TestAllTypesProto3::_internal_repeated_int32_size() const { return repeated_int32_.size(); }
-inline int TestAllTypesProto3::repeated_int32_size() const {
-  return _internal_repeated_int32_size();
+inline int TestAllTypesProto3::repeated_int32_size() const
+{
+	return _internal_repeated_int32_size();
 }
 inline void TestAllTypesProto3::clear_repeated_int32() {
   repeated_int32_.Clear();
@@ -4884,8 +4813,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypesProto3::m
 
 // repeated int64 repeated_int64 = 32;
 inline int TestAllTypesProto3::_internal_repeated_int64_size() const { return repeated_int64_.size(); }
-inline int TestAllTypesProto3::repeated_int64_size() const {
-  return _internal_repeated_int64_size();
+inline int TestAllTypesProto3::repeated_int64_size() const
+{
+	return _internal_repeated_int64_size();
 }
 inline void TestAllTypesProto3::clear_repeated_int64() {
   repeated_int64_.Clear();
@@ -4923,8 +4853,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypesProto3::m
 
 // repeated uint32 repeated_uint32 = 33;
 inline int TestAllTypesProto3::_internal_repeated_uint32_size() const { return repeated_uint32_.size(); }
-inline int TestAllTypesProto3::repeated_uint32_size() const {
-  return _internal_repeated_uint32_size();
+inline int TestAllTypesProto3::repeated_uint32_size() const
+{
+	return _internal_repeated_uint32_size();
 }
 inline void TestAllTypesProto3::clear_repeated_uint32() {
   repeated_uint32_.Clear();
@@ -4962,8 +4893,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestAllTypesProto3::
 
 // repeated uint64 repeated_uint64 = 34;
 inline int TestAllTypesProto3::_internal_repeated_uint64_size() const { return repeated_uint64_.size(); }
-inline int TestAllTypesProto3::repeated_uint64_size() const {
-  return _internal_repeated_uint64_size();
+inline int TestAllTypesProto3::repeated_uint64_size() const
+{
+	return _internal_repeated_uint64_size();
 }
 inline void TestAllTypesProto3::clear_repeated_uint64() {
   repeated_uint64_.Clear();
@@ -5001,8 +4933,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestAllTypesProto3::
 
 // repeated sint32 repeated_sint32 = 35;
 inline int TestAllTypesProto3::_internal_repeated_sint32_size() const { return repeated_sint32_.size(); }
-inline int TestAllTypesProto3::repeated_sint32_size() const {
-  return _internal_repeated_sint32_size();
+inline int TestAllTypesProto3::repeated_sint32_size() const
+{
+	return _internal_repeated_sint32_size();
 }
 inline void TestAllTypesProto3::clear_repeated_sint32() {
   repeated_sint32_.Clear();
@@ -5040,8 +4973,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypesProto3::m
 
 // repeated sint64 repeated_sint64 = 36;
 inline int TestAllTypesProto3::_internal_repeated_sint64_size() const { return repeated_sint64_.size(); }
-inline int TestAllTypesProto3::repeated_sint64_size() const {
-  return _internal_repeated_sint64_size();
+inline int TestAllTypesProto3::repeated_sint64_size() const
+{
+	return _internal_repeated_sint64_size();
 }
 inline void TestAllTypesProto3::clear_repeated_sint64() {
   repeated_sint64_.Clear();
@@ -5079,8 +5013,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypesProto3::m
 
 // repeated fixed32 repeated_fixed32 = 37;
 inline int TestAllTypesProto3::_internal_repeated_fixed32_size() const { return repeated_fixed32_.size(); }
-inline int TestAllTypesProto3::repeated_fixed32_size() const {
-  return _internal_repeated_fixed32_size();
+inline int TestAllTypesProto3::repeated_fixed32_size() const
+{
+	return _internal_repeated_fixed32_size();
 }
 inline void TestAllTypesProto3::clear_repeated_fixed32() {
   repeated_fixed32_.Clear();
@@ -5118,8 +5053,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestAllTypesProto3::
 
 // repeated fixed64 repeated_fixed64 = 38;
 inline int TestAllTypesProto3::_internal_repeated_fixed64_size() const { return repeated_fixed64_.size(); }
-inline int TestAllTypesProto3::repeated_fixed64_size() const {
-  return _internal_repeated_fixed64_size();
+inline int TestAllTypesProto3::repeated_fixed64_size() const
+{
+	return _internal_repeated_fixed64_size();
 }
 inline void TestAllTypesProto3::clear_repeated_fixed64() {
   repeated_fixed64_.Clear();
@@ -5157,8 +5093,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestAllTypesProto3::
 
 // repeated sfixed32 repeated_sfixed32 = 39;
 inline int TestAllTypesProto3::_internal_repeated_sfixed32_size() const { return repeated_sfixed32_.size(); }
-inline int TestAllTypesProto3::repeated_sfixed32_size() const {
-  return _internal_repeated_sfixed32_size();
+inline int TestAllTypesProto3::repeated_sfixed32_size() const
+{
+	return _internal_repeated_sfixed32_size();
 }
 inline void TestAllTypesProto3::clear_repeated_sfixed32() {
   repeated_sfixed32_.Clear();
@@ -5196,8 +5133,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypesProto3::m
 
 // repeated sfixed64 repeated_sfixed64 = 40;
 inline int TestAllTypesProto3::_internal_repeated_sfixed64_size() const { return repeated_sfixed64_.size(); }
-inline int TestAllTypesProto3::repeated_sfixed64_size() const {
-  return _internal_repeated_sfixed64_size();
+inline int TestAllTypesProto3::repeated_sfixed64_size() const
+{
+	return _internal_repeated_sfixed64_size();
 }
 inline void TestAllTypesProto3::clear_repeated_sfixed64() {
   repeated_sfixed64_.Clear();
@@ -5235,8 +5173,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypesProto3::m
 
 // repeated float repeated_float = 41;
 inline int TestAllTypesProto3::_internal_repeated_float_size() const { return repeated_float_.size(); }
-inline int TestAllTypesProto3::repeated_float_size() const {
-  return _internal_repeated_float_size();
+inline int TestAllTypesProto3::repeated_float_size() const
+{
+	return _internal_repeated_float_size();
 }
 inline void TestAllTypesProto3::clear_repeated_float() {
   repeated_float_.Clear();
@@ -5274,8 +5213,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * TestAllTypesProto3::mut
 
 // repeated double repeated_double = 42;
 inline int TestAllTypesProto3::_internal_repeated_double_size() const { return repeated_double_.size(); }
-inline int TestAllTypesProto3::repeated_double_size() const {
-  return _internal_repeated_double_size();
+inline int TestAllTypesProto3::repeated_double_size() const
+{
+	return _internal_repeated_double_size();
 }
 inline void TestAllTypesProto3::clear_repeated_double() {
   repeated_double_.Clear();
@@ -5313,8 +5253,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * TestAllTypesProto3::mu
 
 // repeated bool repeated_bool = 43;
 inline int TestAllTypesProto3::_internal_repeated_bool_size() const { return repeated_bool_.size(); }
-inline int TestAllTypesProto3::repeated_bool_size() const {
-  return _internal_repeated_bool_size();
+inline int TestAllTypesProto3::repeated_bool_size() const
+{
+	return _internal_repeated_bool_size();
 }
 inline void TestAllTypesProto3::clear_repeated_bool() {
   repeated_bool_.Clear();
@@ -5352,8 +5293,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * TestAllTypesProto3::muta
 
 // repeated string repeated_string = 44;
 inline int TestAllTypesProto3::_internal_repeated_string_size() const { return repeated_string_.size(); }
-inline int TestAllTypesProto3::repeated_string_size() const {
-  return _internal_repeated_string_size();
+inline int TestAllTypesProto3::repeated_string_size() const
+{
+	return _internal_repeated_string_size();
 }
 inline void TestAllTypesProto3::clear_repeated_string() {
   repeated_string_.Clear();
@@ -5420,8 +5362,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypesProt
 
 // repeated bytes repeated_bytes = 45;
 inline int TestAllTypesProto3::_internal_repeated_bytes_size() const { return repeated_bytes_.size(); }
-inline int TestAllTypesProto3::repeated_bytes_size() const {
-  return _internal_repeated_bytes_size();
+inline int TestAllTypesProto3::repeated_bytes_size() const
+{
+	return _internal_repeated_bytes_size();
 }
 inline void TestAllTypesProto3::clear_repeated_bytes() {
   repeated_bytes_.Clear();
@@ -5488,8 +5431,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypesProt
 
 // repeated .protobuf_test_messages.proto3.TestAllTypesProto3.NestedMessage repeated_nested_message = 48;
 inline int TestAllTypesProto3::_internal_repeated_nested_message_size() const { return repeated_nested_message_.size(); }
-inline int TestAllTypesProto3::repeated_nested_message_size() const {
-  return _internal_repeated_nested_message_size();
+inline int TestAllTypesProto3::repeated_nested_message_size() const
+{
+	return _internal_repeated_nested_message_size();
 }
 inline void TestAllTypesProto3::clear_repeated_nested_message() {
   repeated_nested_message_.Clear();
@@ -5524,8 +5468,9 @@ TestAllTypesProto3::repeated_nested_message() const {
 
 // repeated .protobuf_test_messages.proto3.ForeignMessage repeated_foreign_message = 49;
 inline int TestAllTypesProto3::_internal_repeated_foreign_message_size() const { return repeated_foreign_message_.size(); }
-inline int TestAllTypesProto3::repeated_foreign_message_size() const {
-  return _internal_repeated_foreign_message_size();
+inline int TestAllTypesProto3::repeated_foreign_message_size() const
+{
+	return _internal_repeated_foreign_message_size();
 }
 inline void TestAllTypesProto3::clear_repeated_foreign_message() {
   repeated_foreign_message_.Clear();
@@ -5560,82 +5505,97 @@ TestAllTypesProto3::repeated_foreign_message() const {
 
 // repeated .protobuf_test_messages.proto3.TestAllTypesProto3.NestedEnum repeated_nested_enum = 51;
 inline int TestAllTypesProto3::_internal_repeated_nested_enum_size() const { return repeated_nested_enum_.size(); }
-inline int TestAllTypesProto3::repeated_nested_enum_size() const {
-  return _internal_repeated_nested_enum_size();
+inline int TestAllTypesProto3::repeated_nested_enum_size() const
+{
+	return _internal_repeated_nested_enum_size();
 }
 inline void TestAllTypesProto3::clear_repeated_nested_enum() {
   repeated_nested_enum_.Clear();
 }
 inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::_internal_repeated_nested_enum(int index) const { return static_cast< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum >(repeated_nested_enum_.Get(index)); }
-inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::repeated_nested_enum(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_enum)
-  return _internal_repeated_nested_enum(index);
+inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::repeated_nested_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_enum)
+	return _internal_repeated_nested_enum(index);
 }
-inline void TestAllTypesProto3::set_repeated_nested_enum(int index, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  repeated_nested_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_enum)
+inline void TestAllTypesProto3::set_repeated_nested_enum(int index, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	repeated_nested_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_enum)
 }
-inline void TestAllTypesProto3::_internal_add_repeated_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  repeated_nested_enum_.Add(value);
+inline void TestAllTypesProto3::_internal_add_repeated_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	repeated_nested_enum_.Add(value);
 }
-inline void TestAllTypesProto3::add_repeated_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  _internal_add_repeated_nested_enum(value);
-  // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_enum)
+inline void TestAllTypesProto3::add_repeated_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	_internal_add_repeated_nested_enum(value);
+	// @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestAllTypesProto3::repeated_nested_enum() const {
-  // @@protoc_insertion_point(field_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_enum)
-  return repeated_nested_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestAllTypesProto3::repeated_nested_enum() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_enum)
+	return repeated_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::_internal_mutable_repeated_nested_enum() {
-  return &repeated_nested_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::_internal_mutable_repeated_nested_enum()
+{
+	return &repeated_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::mutable_repeated_nested_enum() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_enum)
-  return _internal_mutable_repeated_nested_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::mutable_repeated_nested_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_enum)
+	return _internal_mutable_repeated_nested_enum();
 }
 
 // repeated .protobuf_test_messages.proto3.ForeignEnum repeated_foreign_enum = 52;
 inline int TestAllTypesProto3::_internal_repeated_foreign_enum_size() const { return repeated_foreign_enum_.size(); }
-inline int TestAllTypesProto3::repeated_foreign_enum_size() const {
-  return _internal_repeated_foreign_enum_size();
+inline int TestAllTypesProto3::repeated_foreign_enum_size() const
+{
+	return _internal_repeated_foreign_enum_size();
 }
 inline void TestAllTypesProto3::clear_repeated_foreign_enum() {
   repeated_foreign_enum_.Clear();
 }
 inline ::protobuf_test_messages::proto3::ForeignEnum TestAllTypesProto3::_internal_repeated_foreign_enum(int index) const { return static_cast< ::protobuf_test_messages::proto3::ForeignEnum >(repeated_foreign_enum_.Get(index)); }
-inline ::protobuf_test_messages::proto3::ForeignEnum TestAllTypesProto3::repeated_foreign_enum(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_enum)
-  return _internal_repeated_foreign_enum(index);
+inline ::protobuf_test_messages::proto3::ForeignEnum TestAllTypesProto3::repeated_foreign_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_enum)
+	return _internal_repeated_foreign_enum(index);
 }
-inline void TestAllTypesProto3::set_repeated_foreign_enum(int index, ::protobuf_test_messages::proto3::ForeignEnum value) {
-  repeated_foreign_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_enum)
+inline void TestAllTypesProto3::set_repeated_foreign_enum(int index, ::protobuf_test_messages::proto3::ForeignEnum value)
+{
+	repeated_foreign_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_enum)
 }
-inline void TestAllTypesProto3::_internal_add_repeated_foreign_enum(::protobuf_test_messages::proto3::ForeignEnum value) {
-  repeated_foreign_enum_.Add(value);
+inline void TestAllTypesProto3::_internal_add_repeated_foreign_enum(::protobuf_test_messages::proto3::ForeignEnum value)
+{
+	repeated_foreign_enum_.Add(value);
 }
-inline void TestAllTypesProto3::add_repeated_foreign_enum(::protobuf_test_messages::proto3::ForeignEnum value) {
-  _internal_add_repeated_foreign_enum(value);
-  // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_enum)
+inline void TestAllTypesProto3::add_repeated_foreign_enum(::protobuf_test_messages::proto3::ForeignEnum value)
+{
+	_internal_add_repeated_foreign_enum(value);
+	// @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestAllTypesProto3::repeated_foreign_enum() const {
-  // @@protoc_insertion_point(field_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_enum)
-  return repeated_foreign_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestAllTypesProto3::repeated_foreign_enum() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_enum)
+	return repeated_foreign_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::_internal_mutable_repeated_foreign_enum() {
-  return &repeated_foreign_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::_internal_mutable_repeated_foreign_enum()
+{
+	return &repeated_foreign_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::mutable_repeated_foreign_enum() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_enum)
-  return _internal_mutable_repeated_foreign_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::mutable_repeated_foreign_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_enum)
+	return _internal_mutable_repeated_foreign_enum();
 }
 
 // repeated string repeated_string_piece = 54 [ctype = STRING_PIECE];
 inline int TestAllTypesProto3::_internal_repeated_string_piece_size() const { return repeated_string_piece_.size(); }
-inline int TestAllTypesProto3::repeated_string_piece_size() const {
-  return _internal_repeated_string_piece_size();
+inline int TestAllTypesProto3::repeated_string_piece_size() const
+{
+	return _internal_repeated_string_piece_size();
 }
 inline void TestAllTypesProto3::clear_repeated_string_piece() {
   repeated_string_piece_.Clear();
@@ -5702,8 +5662,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypesProt
 
 // repeated string repeated_cord = 55 [ctype = CORD];
 inline int TestAllTypesProto3::_internal_repeated_cord_size() const { return repeated_cord_.size(); }
-inline int TestAllTypesProto3::repeated_cord_size() const {
-  return _internal_repeated_cord_size();
+inline int TestAllTypesProto3::repeated_cord_size() const
+{
+	return _internal_repeated_cord_size();
 }
 inline void TestAllTypesProto3::clear_repeated_cord() {
   repeated_cord_.Clear();
@@ -5770,8 +5731,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestAllTypesProt
 
 // repeated int32 packed_int32 = 75 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_int32_size() const { return packed_int32_.size(); }
-inline int TestAllTypesProto3::packed_int32_size() const {
-  return _internal_packed_int32_size();
+inline int TestAllTypesProto3::packed_int32_size() const
+{
+	return _internal_packed_int32_size();
 }
 inline void TestAllTypesProto3::clear_packed_int32() {
   packed_int32_.Clear();
@@ -5809,8 +5771,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypesProto3::m
 
 // repeated int64 packed_int64 = 76 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_int64_size() const { return packed_int64_.size(); }
-inline int TestAllTypesProto3::packed_int64_size() const {
-  return _internal_packed_int64_size();
+inline int TestAllTypesProto3::packed_int64_size() const
+{
+	return _internal_packed_int64_size();
 }
 inline void TestAllTypesProto3::clear_packed_int64() {
   packed_int64_.Clear();
@@ -5848,8 +5811,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypesProto3::m
 
 // repeated uint32 packed_uint32 = 77 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_uint32_size() const { return packed_uint32_.size(); }
-inline int TestAllTypesProto3::packed_uint32_size() const {
-  return _internal_packed_uint32_size();
+inline int TestAllTypesProto3::packed_uint32_size() const
+{
+	return _internal_packed_uint32_size();
 }
 inline void TestAllTypesProto3::clear_packed_uint32() {
   packed_uint32_.Clear();
@@ -5887,8 +5851,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestAllTypesProto3::
 
 // repeated uint64 packed_uint64 = 78 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_uint64_size() const { return packed_uint64_.size(); }
-inline int TestAllTypesProto3::packed_uint64_size() const {
-  return _internal_packed_uint64_size();
+inline int TestAllTypesProto3::packed_uint64_size() const
+{
+	return _internal_packed_uint64_size();
 }
 inline void TestAllTypesProto3::clear_packed_uint64() {
   packed_uint64_.Clear();
@@ -5926,8 +5891,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestAllTypesProto3::
 
 // repeated sint32 packed_sint32 = 79 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_sint32_size() const { return packed_sint32_.size(); }
-inline int TestAllTypesProto3::packed_sint32_size() const {
-  return _internal_packed_sint32_size();
+inline int TestAllTypesProto3::packed_sint32_size() const
+{
+	return _internal_packed_sint32_size();
 }
 inline void TestAllTypesProto3::clear_packed_sint32() {
   packed_sint32_.Clear();
@@ -5965,8 +5931,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypesProto3::m
 
 // repeated sint64 packed_sint64 = 80 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_sint64_size() const { return packed_sint64_.size(); }
-inline int TestAllTypesProto3::packed_sint64_size() const {
-  return _internal_packed_sint64_size();
+inline int TestAllTypesProto3::packed_sint64_size() const
+{
+	return _internal_packed_sint64_size();
 }
 inline void TestAllTypesProto3::clear_packed_sint64() {
   packed_sint64_.Clear();
@@ -6004,8 +5971,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypesProto3::m
 
 // repeated fixed32 packed_fixed32 = 81 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_fixed32_size() const { return packed_fixed32_.size(); }
-inline int TestAllTypesProto3::packed_fixed32_size() const {
-  return _internal_packed_fixed32_size();
+inline int TestAllTypesProto3::packed_fixed32_size() const
+{
+	return _internal_packed_fixed32_size();
 }
 inline void TestAllTypesProto3::clear_packed_fixed32() {
   packed_fixed32_.Clear();
@@ -6043,8 +6011,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestAllTypesProto3::
 
 // repeated fixed64 packed_fixed64 = 82 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_fixed64_size() const { return packed_fixed64_.size(); }
-inline int TestAllTypesProto3::packed_fixed64_size() const {
-  return _internal_packed_fixed64_size();
+inline int TestAllTypesProto3::packed_fixed64_size() const
+{
+	return _internal_packed_fixed64_size();
 }
 inline void TestAllTypesProto3::clear_packed_fixed64() {
   packed_fixed64_.Clear();
@@ -6082,8 +6051,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestAllTypesProto3::
 
 // repeated sfixed32 packed_sfixed32 = 83 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_sfixed32_size() const { return packed_sfixed32_.size(); }
-inline int TestAllTypesProto3::packed_sfixed32_size() const {
-  return _internal_packed_sfixed32_size();
+inline int TestAllTypesProto3::packed_sfixed32_size() const
+{
+	return _internal_packed_sfixed32_size();
 }
 inline void TestAllTypesProto3::clear_packed_sfixed32() {
   packed_sfixed32_.Clear();
@@ -6121,8 +6091,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypesProto3::m
 
 // repeated sfixed64 packed_sfixed64 = 84 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_sfixed64_size() const { return packed_sfixed64_.size(); }
-inline int TestAllTypesProto3::packed_sfixed64_size() const {
-  return _internal_packed_sfixed64_size();
+inline int TestAllTypesProto3::packed_sfixed64_size() const
+{
+	return _internal_packed_sfixed64_size();
 }
 inline void TestAllTypesProto3::clear_packed_sfixed64() {
   packed_sfixed64_.Clear();
@@ -6160,8 +6131,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypesProto3::m
 
 // repeated float packed_float = 85 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_float_size() const { return packed_float_.size(); }
-inline int TestAllTypesProto3::packed_float_size() const {
-  return _internal_packed_float_size();
+inline int TestAllTypesProto3::packed_float_size() const
+{
+	return _internal_packed_float_size();
 }
 inline void TestAllTypesProto3::clear_packed_float() {
   packed_float_.Clear();
@@ -6199,8 +6171,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * TestAllTypesProto3::mut
 
 // repeated double packed_double = 86 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_double_size() const { return packed_double_.size(); }
-inline int TestAllTypesProto3::packed_double_size() const {
-  return _internal_packed_double_size();
+inline int TestAllTypesProto3::packed_double_size() const
+{
+	return _internal_packed_double_size();
 }
 inline void TestAllTypesProto3::clear_packed_double() {
   packed_double_.Clear();
@@ -6238,8 +6211,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * TestAllTypesProto3::mu
 
 // repeated bool packed_bool = 87 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_bool_size() const { return packed_bool_.size(); }
-inline int TestAllTypesProto3::packed_bool_size() const {
-  return _internal_packed_bool_size();
+inline int TestAllTypesProto3::packed_bool_size() const
+{
+	return _internal_packed_bool_size();
 }
 inline void TestAllTypesProto3::clear_packed_bool() {
   packed_bool_.Clear();
@@ -6277,45 +6251,53 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * TestAllTypesProto3::muta
 
 // repeated .protobuf_test_messages.proto3.TestAllTypesProto3.NestedEnum packed_nested_enum = 88 [packed = true];
 inline int TestAllTypesProto3::_internal_packed_nested_enum_size() const { return packed_nested_enum_.size(); }
-inline int TestAllTypesProto3::packed_nested_enum_size() const {
-  return _internal_packed_nested_enum_size();
+inline int TestAllTypesProto3::packed_nested_enum_size() const
+{
+	return _internal_packed_nested_enum_size();
 }
 inline void TestAllTypesProto3::clear_packed_nested_enum() {
   packed_nested_enum_.Clear();
 }
 inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::_internal_packed_nested_enum(int index) const { return static_cast< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum >(packed_nested_enum_.Get(index)); }
-inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::packed_nested_enum(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.packed_nested_enum)
-  return _internal_packed_nested_enum(index);
+inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::packed_nested_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.packed_nested_enum)
+	return _internal_packed_nested_enum(index);
 }
-inline void TestAllTypesProto3::set_packed_nested_enum(int index, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  packed_nested_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.packed_nested_enum)
+inline void TestAllTypesProto3::set_packed_nested_enum(int index, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	packed_nested_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.packed_nested_enum)
 }
-inline void TestAllTypesProto3::_internal_add_packed_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  packed_nested_enum_.Add(value);
+inline void TestAllTypesProto3::_internal_add_packed_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	packed_nested_enum_.Add(value);
 }
-inline void TestAllTypesProto3::add_packed_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  _internal_add_packed_nested_enum(value);
-  // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.packed_nested_enum)
+inline void TestAllTypesProto3::add_packed_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	_internal_add_packed_nested_enum(value);
+	// @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.packed_nested_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestAllTypesProto3::packed_nested_enum() const {
-  // @@protoc_insertion_point(field_list:protobuf_test_messages.proto3.TestAllTypesProto3.packed_nested_enum)
-  return packed_nested_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestAllTypesProto3::packed_nested_enum() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_test_messages.proto3.TestAllTypesProto3.packed_nested_enum)
+	return packed_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::_internal_mutable_packed_nested_enum() {
-  return &packed_nested_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::_internal_mutable_packed_nested_enum()
+{
+	return &packed_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::mutable_packed_nested_enum() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.packed_nested_enum)
-  return _internal_mutable_packed_nested_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::mutable_packed_nested_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.packed_nested_enum)
+	return _internal_mutable_packed_nested_enum();
 }
 
 // repeated int32 unpacked_int32 = 89 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_int32_size() const { return unpacked_int32_.size(); }
-inline int TestAllTypesProto3::unpacked_int32_size() const {
-  return _internal_unpacked_int32_size();
+inline int TestAllTypesProto3::unpacked_int32_size() const
+{
+	return _internal_unpacked_int32_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_int32() {
   unpacked_int32_.Clear();
@@ -6353,8 +6335,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypesProto3::m
 
 // repeated int64 unpacked_int64 = 90 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_int64_size() const { return unpacked_int64_.size(); }
-inline int TestAllTypesProto3::unpacked_int64_size() const {
-  return _internal_unpacked_int64_size();
+inline int TestAllTypesProto3::unpacked_int64_size() const
+{
+	return _internal_unpacked_int64_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_int64() {
   unpacked_int64_.Clear();
@@ -6392,8 +6375,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypesProto3::m
 
 // repeated uint32 unpacked_uint32 = 91 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_uint32_size() const { return unpacked_uint32_.size(); }
-inline int TestAllTypesProto3::unpacked_uint32_size() const {
-  return _internal_unpacked_uint32_size();
+inline int TestAllTypesProto3::unpacked_uint32_size() const
+{
+	return _internal_unpacked_uint32_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_uint32() {
   unpacked_uint32_.Clear();
@@ -6431,8 +6415,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestAllTypesProto3::
 
 // repeated uint64 unpacked_uint64 = 92 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_uint64_size() const { return unpacked_uint64_.size(); }
-inline int TestAllTypesProto3::unpacked_uint64_size() const {
-  return _internal_unpacked_uint64_size();
+inline int TestAllTypesProto3::unpacked_uint64_size() const
+{
+	return _internal_unpacked_uint64_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_uint64() {
   unpacked_uint64_.Clear();
@@ -6470,8 +6455,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestAllTypesProto3::
 
 // repeated sint32 unpacked_sint32 = 93 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_sint32_size() const { return unpacked_sint32_.size(); }
-inline int TestAllTypesProto3::unpacked_sint32_size() const {
-  return _internal_unpacked_sint32_size();
+inline int TestAllTypesProto3::unpacked_sint32_size() const
+{
+	return _internal_unpacked_sint32_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_sint32() {
   unpacked_sint32_.Clear();
@@ -6509,8 +6495,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypesProto3::m
 
 // repeated sint64 unpacked_sint64 = 94 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_sint64_size() const { return unpacked_sint64_.size(); }
-inline int TestAllTypesProto3::unpacked_sint64_size() const {
-  return _internal_unpacked_sint64_size();
+inline int TestAllTypesProto3::unpacked_sint64_size() const
+{
+	return _internal_unpacked_sint64_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_sint64() {
   unpacked_sint64_.Clear();
@@ -6548,8 +6535,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypesProto3::m
 
 // repeated fixed32 unpacked_fixed32 = 95 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_fixed32_size() const { return unpacked_fixed32_.size(); }
-inline int TestAllTypesProto3::unpacked_fixed32_size() const {
-  return _internal_unpacked_fixed32_size();
+inline int TestAllTypesProto3::unpacked_fixed32_size() const
+{
+	return _internal_unpacked_fixed32_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_fixed32() {
   unpacked_fixed32_.Clear();
@@ -6587,8 +6575,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * TestAllTypesProto3::
 
 // repeated fixed64 unpacked_fixed64 = 96 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_fixed64_size() const { return unpacked_fixed64_.size(); }
-inline int TestAllTypesProto3::unpacked_fixed64_size() const {
-  return _internal_unpacked_fixed64_size();
+inline int TestAllTypesProto3::unpacked_fixed64_size() const
+{
+	return _internal_unpacked_fixed64_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_fixed64() {
   unpacked_fixed64_.Clear();
@@ -6626,8 +6615,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * TestAllTypesProto3::
 
 // repeated sfixed32 unpacked_sfixed32 = 97 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_sfixed32_size() const { return unpacked_sfixed32_.size(); }
-inline int TestAllTypesProto3::unpacked_sfixed32_size() const {
-  return _internal_unpacked_sfixed32_size();
+inline int TestAllTypesProto3::unpacked_sfixed32_size() const
+{
+	return _internal_unpacked_sfixed32_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_sfixed32() {
   unpacked_sfixed32_.Clear();
@@ -6665,8 +6655,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestAllTypesProto3::m
 
 // repeated sfixed64 unpacked_sfixed64 = 98 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_sfixed64_size() const { return unpacked_sfixed64_.size(); }
-inline int TestAllTypesProto3::unpacked_sfixed64_size() const {
-  return _internal_unpacked_sfixed64_size();
+inline int TestAllTypesProto3::unpacked_sfixed64_size() const
+{
+	return _internal_unpacked_sfixed64_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_sfixed64() {
   unpacked_sfixed64_.Clear();
@@ -6704,8 +6695,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * TestAllTypesProto3::m
 
 // repeated float unpacked_float = 99 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_float_size() const { return unpacked_float_.size(); }
-inline int TestAllTypesProto3::unpacked_float_size() const {
-  return _internal_unpacked_float_size();
+inline int TestAllTypesProto3::unpacked_float_size() const
+{
+	return _internal_unpacked_float_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_float() {
   unpacked_float_.Clear();
@@ -6743,8 +6735,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * TestAllTypesProto3::mut
 
 // repeated double unpacked_double = 100 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_double_size() const { return unpacked_double_.size(); }
-inline int TestAllTypesProto3::unpacked_double_size() const {
-  return _internal_unpacked_double_size();
+inline int TestAllTypesProto3::unpacked_double_size() const
+{
+	return _internal_unpacked_double_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_double() {
   unpacked_double_.Clear();
@@ -6782,8 +6775,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * TestAllTypesProto3::mu
 
 // repeated bool unpacked_bool = 101 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_bool_size() const { return unpacked_bool_.size(); }
-inline int TestAllTypesProto3::unpacked_bool_size() const {
-  return _internal_unpacked_bool_size();
+inline int TestAllTypesProto3::unpacked_bool_size() const
+{
+	return _internal_unpacked_bool_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_bool() {
   unpacked_bool_.Clear();
@@ -6821,45 +6815,53 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * TestAllTypesProto3::muta
 
 // repeated .protobuf_test_messages.proto3.TestAllTypesProto3.NestedEnum unpacked_nested_enum = 102 [packed = false];
 inline int TestAllTypesProto3::_internal_unpacked_nested_enum_size() const { return unpacked_nested_enum_.size(); }
-inline int TestAllTypesProto3::unpacked_nested_enum_size() const {
-  return _internal_unpacked_nested_enum_size();
+inline int TestAllTypesProto3::unpacked_nested_enum_size() const
+{
+	return _internal_unpacked_nested_enum_size();
 }
 inline void TestAllTypesProto3::clear_unpacked_nested_enum() {
   unpacked_nested_enum_.Clear();
 }
 inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::_internal_unpacked_nested_enum(int index) const { return static_cast< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum >(unpacked_nested_enum_.Get(index)); }
-inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::unpacked_nested_enum(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.unpacked_nested_enum)
-  return _internal_unpacked_nested_enum(index);
+inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::unpacked_nested_enum(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.unpacked_nested_enum)
+	return _internal_unpacked_nested_enum(index);
 }
-inline void TestAllTypesProto3::set_unpacked_nested_enum(int index, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  unpacked_nested_enum_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.unpacked_nested_enum)
+inline void TestAllTypesProto3::set_unpacked_nested_enum(int index, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	unpacked_nested_enum_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.unpacked_nested_enum)
 }
-inline void TestAllTypesProto3::_internal_add_unpacked_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  unpacked_nested_enum_.Add(value);
+inline void TestAllTypesProto3::_internal_add_unpacked_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	unpacked_nested_enum_.Add(value);
 }
-inline void TestAllTypesProto3::add_unpacked_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  _internal_add_unpacked_nested_enum(value);
-  // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.unpacked_nested_enum)
+inline void TestAllTypesProto3::add_unpacked_nested_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	_internal_add_unpacked_nested_enum(value);
+	// @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.unpacked_nested_enum)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestAllTypesProto3::unpacked_nested_enum() const {
-  // @@protoc_insertion_point(field_list:protobuf_test_messages.proto3.TestAllTypesProto3.unpacked_nested_enum)
-  return unpacked_nested_enum_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestAllTypesProto3::unpacked_nested_enum() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_test_messages.proto3.TestAllTypesProto3.unpacked_nested_enum)
+	return unpacked_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::_internal_mutable_unpacked_nested_enum() {
-  return &unpacked_nested_enum_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::_internal_mutable_unpacked_nested_enum()
+{
+	return &unpacked_nested_enum_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::mutable_unpacked_nested_enum() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.unpacked_nested_enum)
-  return _internal_mutable_unpacked_nested_enum();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestAllTypesProto3::mutable_unpacked_nested_enum()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.unpacked_nested_enum)
+	return _internal_mutable_unpacked_nested_enum();
 }
 
 // map<int32, int32> map_int32_int32 = 56;
 inline int TestAllTypesProto3::_internal_map_int32_int32_size() const { return map_int32_int32_.size(); }
-inline int TestAllTypesProto3::map_int32_int32_size() const {
-  return _internal_map_int32_int32_size();
+inline int TestAllTypesProto3::map_int32_int32_size() const
+{
+	return _internal_map_int32_int32_size();
 }
 inline void TestAllTypesProto3::clear_map_int32_int32() {
   map_int32_int32_.Clear();
@@ -6867,22 +6869,26 @@ inline void TestAllTypesProto3::clear_map_int32_int32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestAllTypesProto3::_internal_map_int32_int32() const { return map_int32_int32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestAllTypesProto3::map_int32_int32() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_int32)
-  return _internal_map_int32_int32();
+TestAllTypesProto3::map_int32_int32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_int32)
+	return _internal_map_int32_int32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::_internal_mutable_map_int32_int32() {
-  return map_int32_int32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::_internal_mutable_map_int32_int32()
+{
+	return map_int32_int32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::mutable_map_int32_int32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_int32)
-  return _internal_mutable_map_int32_int32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::mutable_map_int32_int32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_int32)
+	return _internal_mutable_map_int32_int32();
 }
 
 // map<int64, int64> map_int64_int64 = 57;
 inline int TestAllTypesProto3::_internal_map_int64_int64_size() const { return map_int64_int64_.size(); }
-inline int TestAllTypesProto3::map_int64_int64_size() const {
-  return _internal_map_int64_int64_size();
+inline int TestAllTypesProto3::map_int64_int64_size() const
+{
+	return _internal_map_int64_int64_size();
 }
 inline void TestAllTypesProto3::clear_map_int64_int64() {
   map_int64_int64_.Clear();
@@ -6890,22 +6896,26 @@ inline void TestAllTypesProto3::clear_map_int64_int64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestAllTypesProto3::_internal_map_int64_int64() const { return map_int64_int64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestAllTypesProto3::map_int64_int64() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int64_int64)
-  return _internal_map_int64_int64();
+TestAllTypesProto3::map_int64_int64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int64_int64)
+	return _internal_map_int64_int64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::_internal_mutable_map_int64_int64() {
-  return map_int64_int64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::_internal_mutable_map_int64_int64()
+{
+	return map_int64_int64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::mutable_map_int64_int64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int64_int64)
-  return _internal_mutable_map_int64_int64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::mutable_map_int64_int64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int64_int64)
+	return _internal_mutable_map_int64_int64();
 }
 
 // map<uint32, uint32> map_uint32_uint32 = 58;
 inline int TestAllTypesProto3::_internal_map_uint32_uint32_size() const { return map_uint32_uint32_.size(); }
-inline int TestAllTypesProto3::map_uint32_uint32_size() const {
-  return _internal_map_uint32_uint32_size();
+inline int TestAllTypesProto3::map_uint32_uint32_size() const
+{
+	return _internal_map_uint32_uint32_size();
 }
 inline void TestAllTypesProto3::clear_map_uint32_uint32() {
   map_uint32_uint32_.Clear();
@@ -6913,22 +6923,26 @@ inline void TestAllTypesProto3::clear_map_uint32_uint32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
 TestAllTypesProto3::_internal_map_uint32_uint32() const { return map_uint32_uint32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
-TestAllTypesProto3::map_uint32_uint32() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_uint32_uint32)
-  return _internal_map_uint32_uint32();
+TestAllTypesProto3::map_uint32_uint32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_uint32_uint32)
+	return _internal_map_uint32_uint32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestAllTypesProto3::_internal_mutable_map_uint32_uint32() {
-  return map_uint32_uint32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestAllTypesProto3::_internal_mutable_map_uint32_uint32()
+{
+	return map_uint32_uint32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestAllTypesProto3::mutable_map_uint32_uint32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_uint32_uint32)
-  return _internal_mutable_map_uint32_uint32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestAllTypesProto3::mutable_map_uint32_uint32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_uint32_uint32)
+	return _internal_mutable_map_uint32_uint32();
 }
 
 // map<uint64, uint64> map_uint64_uint64 = 59;
 inline int TestAllTypesProto3::_internal_map_uint64_uint64_size() const { return map_uint64_uint64_.size(); }
-inline int TestAllTypesProto3::map_uint64_uint64_size() const {
-  return _internal_map_uint64_uint64_size();
+inline int TestAllTypesProto3::map_uint64_uint64_size() const
+{
+	return _internal_map_uint64_uint64_size();
 }
 inline void TestAllTypesProto3::clear_map_uint64_uint64() {
   map_uint64_uint64_.Clear();
@@ -6936,22 +6950,26 @@ inline void TestAllTypesProto3::clear_map_uint64_uint64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 TestAllTypesProto3::_internal_map_uint64_uint64() const { return map_uint64_uint64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
-TestAllTypesProto3::map_uint64_uint64() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_uint64_uint64)
-  return _internal_map_uint64_uint64();
+TestAllTypesProto3::map_uint64_uint64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_uint64_uint64)
+	return _internal_map_uint64_uint64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestAllTypesProto3::_internal_mutable_map_uint64_uint64() {
-  return map_uint64_uint64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestAllTypesProto3::_internal_mutable_map_uint64_uint64()
+{
+	return map_uint64_uint64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestAllTypesProto3::mutable_map_uint64_uint64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_uint64_uint64)
-  return _internal_mutable_map_uint64_uint64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestAllTypesProto3::mutable_map_uint64_uint64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_uint64_uint64)
+	return _internal_mutable_map_uint64_uint64();
 }
 
 // map<sint32, sint32> map_sint32_sint32 = 60;
 inline int TestAllTypesProto3::_internal_map_sint32_sint32_size() const { return map_sint32_sint32_.size(); }
-inline int TestAllTypesProto3::map_sint32_sint32_size() const {
-  return _internal_map_sint32_sint32_size();
+inline int TestAllTypesProto3::map_sint32_sint32_size() const
+{
+	return _internal_map_sint32_sint32_size();
 }
 inline void TestAllTypesProto3::clear_map_sint32_sint32() {
   map_sint32_sint32_.Clear();
@@ -6959,22 +6977,26 @@ inline void TestAllTypesProto3::clear_map_sint32_sint32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestAllTypesProto3::_internal_map_sint32_sint32() const { return map_sint32_sint32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestAllTypesProto3::map_sint32_sint32() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sint32_sint32)
-  return _internal_map_sint32_sint32();
+TestAllTypesProto3::map_sint32_sint32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sint32_sint32)
+	return _internal_map_sint32_sint32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::_internal_mutable_map_sint32_sint32() {
-  return map_sint32_sint32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::_internal_mutable_map_sint32_sint32()
+{
+	return map_sint32_sint32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::mutable_map_sint32_sint32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sint32_sint32)
-  return _internal_mutable_map_sint32_sint32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::mutable_map_sint32_sint32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sint32_sint32)
+	return _internal_mutable_map_sint32_sint32();
 }
 
 // map<sint64, sint64> map_sint64_sint64 = 61;
 inline int TestAllTypesProto3::_internal_map_sint64_sint64_size() const { return map_sint64_sint64_.size(); }
-inline int TestAllTypesProto3::map_sint64_sint64_size() const {
-  return _internal_map_sint64_sint64_size();
+inline int TestAllTypesProto3::map_sint64_sint64_size() const
+{
+	return _internal_map_sint64_sint64_size();
 }
 inline void TestAllTypesProto3::clear_map_sint64_sint64() {
   map_sint64_sint64_.Clear();
@@ -6982,22 +7004,26 @@ inline void TestAllTypesProto3::clear_map_sint64_sint64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestAllTypesProto3::_internal_map_sint64_sint64() const { return map_sint64_sint64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestAllTypesProto3::map_sint64_sint64() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sint64_sint64)
-  return _internal_map_sint64_sint64();
+TestAllTypesProto3::map_sint64_sint64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sint64_sint64)
+	return _internal_map_sint64_sint64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::_internal_mutable_map_sint64_sint64() {
-  return map_sint64_sint64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::_internal_mutable_map_sint64_sint64()
+{
+	return map_sint64_sint64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::mutable_map_sint64_sint64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sint64_sint64)
-  return _internal_mutable_map_sint64_sint64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::mutable_map_sint64_sint64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sint64_sint64)
+	return _internal_mutable_map_sint64_sint64();
 }
 
 // map<fixed32, fixed32> map_fixed32_fixed32 = 62;
 inline int TestAllTypesProto3::_internal_map_fixed32_fixed32_size() const { return map_fixed32_fixed32_.size(); }
-inline int TestAllTypesProto3::map_fixed32_fixed32_size() const {
-  return _internal_map_fixed32_fixed32_size();
+inline int TestAllTypesProto3::map_fixed32_fixed32_size() const
+{
+	return _internal_map_fixed32_fixed32_size();
 }
 inline void TestAllTypesProto3::clear_map_fixed32_fixed32() {
   map_fixed32_fixed32_.Clear();
@@ -7005,22 +7031,26 @@ inline void TestAllTypesProto3::clear_map_fixed32_fixed32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
 TestAllTypesProto3::_internal_map_fixed32_fixed32() const { return map_fixed32_fixed32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >&
-TestAllTypesProto3::map_fixed32_fixed32() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_fixed32_fixed32)
-  return _internal_map_fixed32_fixed32();
+TestAllTypesProto3::map_fixed32_fixed32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_fixed32_fixed32)
+	return _internal_map_fixed32_fixed32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestAllTypesProto3::_internal_mutable_map_fixed32_fixed32() {
-  return map_fixed32_fixed32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestAllTypesProto3::_internal_mutable_map_fixed32_fixed32()
+{
+	return map_fixed32_fixed32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestAllTypesProto3::mutable_map_fixed32_fixed32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_fixed32_fixed32)
-  return _internal_mutable_map_fixed32_fixed32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t > * TestAllTypesProto3::mutable_map_fixed32_fixed32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_fixed32_fixed32)
+	return _internal_mutable_map_fixed32_fixed32();
 }
 
 // map<fixed64, fixed64> map_fixed64_fixed64 = 63;
 inline int TestAllTypesProto3::_internal_map_fixed64_fixed64_size() const { return map_fixed64_fixed64_.size(); }
-inline int TestAllTypesProto3::map_fixed64_fixed64_size() const {
-  return _internal_map_fixed64_fixed64_size();
+inline int TestAllTypesProto3::map_fixed64_fixed64_size() const
+{
+	return _internal_map_fixed64_fixed64_size();
 }
 inline void TestAllTypesProto3::clear_map_fixed64_fixed64() {
   map_fixed64_fixed64_.Clear();
@@ -7028,22 +7058,26 @@ inline void TestAllTypesProto3::clear_map_fixed64_fixed64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 TestAllTypesProto3::_internal_map_fixed64_fixed64() const { return map_fixed64_fixed64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
-TestAllTypesProto3::map_fixed64_fixed64() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_fixed64_fixed64)
-  return _internal_map_fixed64_fixed64();
+TestAllTypesProto3::map_fixed64_fixed64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_fixed64_fixed64)
+	return _internal_map_fixed64_fixed64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestAllTypesProto3::_internal_mutable_map_fixed64_fixed64() {
-  return map_fixed64_fixed64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestAllTypesProto3::_internal_mutable_map_fixed64_fixed64()
+{
+	return map_fixed64_fixed64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestAllTypesProto3::mutable_map_fixed64_fixed64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_fixed64_fixed64)
-  return _internal_mutable_map_fixed64_fixed64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t > * TestAllTypesProto3::mutable_map_fixed64_fixed64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_fixed64_fixed64)
+	return _internal_mutable_map_fixed64_fixed64();
 }
 
 // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 64;
 inline int TestAllTypesProto3::_internal_map_sfixed32_sfixed32_size() const { return map_sfixed32_sfixed32_.size(); }
-inline int TestAllTypesProto3::map_sfixed32_sfixed32_size() const {
-  return _internal_map_sfixed32_sfixed32_size();
+inline int TestAllTypesProto3::map_sfixed32_sfixed32_size() const
+{
+	return _internal_map_sfixed32_sfixed32_size();
 }
 inline void TestAllTypesProto3::clear_map_sfixed32_sfixed32() {
   map_sfixed32_sfixed32_.Clear();
@@ -7051,22 +7085,26 @@ inline void TestAllTypesProto3::clear_map_sfixed32_sfixed32() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 TestAllTypesProto3::_internal_map_sfixed32_sfixed32() const { return map_sfixed32_sfixed32_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-TestAllTypesProto3::map_sfixed32_sfixed32() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sfixed32_sfixed32)
-  return _internal_map_sfixed32_sfixed32();
+TestAllTypesProto3::map_sfixed32_sfixed32() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sfixed32_sfixed32)
+	return _internal_map_sfixed32_sfixed32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::_internal_mutable_map_sfixed32_sfixed32() {
-  return map_sfixed32_sfixed32_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::_internal_mutable_map_sfixed32_sfixed32()
+{
+	return map_sfixed32_sfixed32_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::mutable_map_sfixed32_sfixed32() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sfixed32_sfixed32)
-  return _internal_mutable_map_sfixed32_sfixed32();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * TestAllTypesProto3::mutable_map_sfixed32_sfixed32()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sfixed32_sfixed32)
+	return _internal_mutable_map_sfixed32_sfixed32();
 }
 
 // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 65;
 inline int TestAllTypesProto3::_internal_map_sfixed64_sfixed64_size() const { return map_sfixed64_sfixed64_.size(); }
-inline int TestAllTypesProto3::map_sfixed64_sfixed64_size() const {
-  return _internal_map_sfixed64_sfixed64_size();
+inline int TestAllTypesProto3::map_sfixed64_sfixed64_size() const
+{
+	return _internal_map_sfixed64_sfixed64_size();
 }
 inline void TestAllTypesProto3::clear_map_sfixed64_sfixed64() {
   map_sfixed64_sfixed64_.Clear();
@@ -7074,22 +7112,26 @@ inline void TestAllTypesProto3::clear_map_sfixed64_sfixed64() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
 TestAllTypesProto3::_internal_map_sfixed64_sfixed64() const { return map_sfixed64_sfixed64_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >&
-TestAllTypesProto3::map_sfixed64_sfixed64() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sfixed64_sfixed64)
-  return _internal_map_sfixed64_sfixed64();
+TestAllTypesProto3::map_sfixed64_sfixed64() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sfixed64_sfixed64)
+	return _internal_map_sfixed64_sfixed64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::_internal_mutable_map_sfixed64_sfixed64() {
-  return map_sfixed64_sfixed64_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::_internal_mutable_map_sfixed64_sfixed64()
+{
+	return map_sfixed64_sfixed64_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::mutable_map_sfixed64_sfixed64() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sfixed64_sfixed64)
-  return _internal_mutable_map_sfixed64_sfixed64();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t > * TestAllTypesProto3::mutable_map_sfixed64_sfixed64()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_sfixed64_sfixed64)
+	return _internal_mutable_map_sfixed64_sfixed64();
 }
 
 // map<int32, float> map_int32_float = 66;
 inline int TestAllTypesProto3::_internal_map_int32_float_size() const { return map_int32_float_.size(); }
-inline int TestAllTypesProto3::map_int32_float_size() const {
-  return _internal_map_int32_float_size();
+inline int TestAllTypesProto3::map_int32_float_size() const
+{
+	return _internal_map_int32_float_size();
 }
 inline void TestAllTypesProto3::clear_map_int32_float() {
   map_int32_float_.Clear();
@@ -7097,22 +7139,26 @@ inline void TestAllTypesProto3::clear_map_int32_float() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >&
 TestAllTypesProto3::_internal_map_int32_float() const { return map_int32_float_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >&
-TestAllTypesProto3::map_int32_float() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_float)
-  return _internal_map_int32_float();
+TestAllTypesProto3::map_int32_float() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_float)
+	return _internal_map_int32_float();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestAllTypesProto3::_internal_mutable_map_int32_float() {
-  return map_int32_float_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestAllTypesProto3::_internal_mutable_map_int32_float()
+{
+	return map_int32_float_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestAllTypesProto3::mutable_map_int32_float() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_float)
-  return _internal_mutable_map_int32_float();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float > * TestAllTypesProto3::mutable_map_int32_float()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_float)
+	return _internal_mutable_map_int32_float();
 }
 
 // map<int32, double> map_int32_double = 67;
 inline int TestAllTypesProto3::_internal_map_int32_double_size() const { return map_int32_double_.size(); }
-inline int TestAllTypesProto3::map_int32_double_size() const {
-  return _internal_map_int32_double_size();
+inline int TestAllTypesProto3::map_int32_double_size() const
+{
+	return _internal_map_int32_double_size();
 }
 inline void TestAllTypesProto3::clear_map_int32_double() {
   map_int32_double_.Clear();
@@ -7120,22 +7166,26 @@ inline void TestAllTypesProto3::clear_map_int32_double() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >&
 TestAllTypesProto3::_internal_map_int32_double() const { return map_int32_double_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >&
-TestAllTypesProto3::map_int32_double() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_double)
-  return _internal_map_int32_double();
+TestAllTypesProto3::map_int32_double() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_double)
+	return _internal_map_int32_double();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestAllTypesProto3::_internal_mutable_map_int32_double() {
-  return map_int32_double_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestAllTypesProto3::_internal_mutable_map_int32_double()
+{
+	return map_int32_double_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestAllTypesProto3::mutable_map_int32_double() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_double)
-  return _internal_mutable_map_int32_double();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double > * TestAllTypesProto3::mutable_map_int32_double()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_int32_double)
+	return _internal_mutable_map_int32_double();
 }
 
 // map<bool, bool> map_bool_bool = 68;
 inline int TestAllTypesProto3::_internal_map_bool_bool_size() const { return map_bool_bool_.size(); }
-inline int TestAllTypesProto3::map_bool_bool_size() const {
-  return _internal_map_bool_bool_size();
+inline int TestAllTypesProto3::map_bool_bool_size() const
+{
+	return _internal_map_bool_bool_size();
 }
 inline void TestAllTypesProto3::clear_map_bool_bool() {
   map_bool_bool_.Clear();
@@ -7143,22 +7193,26 @@ inline void TestAllTypesProto3::clear_map_bool_bool() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >&
 TestAllTypesProto3::_internal_map_bool_bool() const { return map_bool_bool_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >&
-TestAllTypesProto3::map_bool_bool() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_bool_bool)
-  return _internal_map_bool_bool();
+TestAllTypesProto3::map_bool_bool() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_bool_bool)
+	return _internal_map_bool_bool();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestAllTypesProto3::_internal_mutable_map_bool_bool() {
-  return map_bool_bool_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestAllTypesProto3::_internal_mutable_map_bool_bool()
+{
+	return map_bool_bool_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestAllTypesProto3::mutable_map_bool_bool() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_bool_bool)
-  return _internal_mutable_map_bool_bool();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, bool > * TestAllTypesProto3::mutable_map_bool_bool()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_bool_bool)
+	return _internal_mutable_map_bool_bool();
 }
 
 // map<string, string> map_string_string = 69;
 inline int TestAllTypesProto3::_internal_map_string_string_size() const { return map_string_string_.size(); }
-inline int TestAllTypesProto3::map_string_string_size() const {
-  return _internal_map_string_string_size();
+inline int TestAllTypesProto3::map_string_string_size() const
+{
+	return _internal_map_string_string_size();
 }
 inline void TestAllTypesProto3::clear_map_string_string() {
   map_string_string_.Clear();
@@ -7166,22 +7220,26 @@ inline void TestAllTypesProto3::clear_map_string_string() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestAllTypesProto3::_internal_map_string_string() const { return map_string_string_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestAllTypesProto3::map_string_string() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_string)
-  return _internal_map_string_string();
+TestAllTypesProto3::map_string_string() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_string)
+	return _internal_map_string_string();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestAllTypesProto3::_internal_mutable_map_string_string() {
-  return map_string_string_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestAllTypesProto3::_internal_mutable_map_string_string()
+{
+	return map_string_string_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestAllTypesProto3::mutable_map_string_string() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_string)
-  return _internal_mutable_map_string_string();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestAllTypesProto3::mutable_map_string_string()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_string)
+	return _internal_mutable_map_string_string();
 }
 
 // map<string, bytes> map_string_bytes = 70;
 inline int TestAllTypesProto3::_internal_map_string_bytes_size() const { return map_string_bytes_.size(); }
-inline int TestAllTypesProto3::map_string_bytes_size() const {
-  return _internal_map_string_bytes_size();
+inline int TestAllTypesProto3::map_string_bytes_size() const
+{
+	return _internal_map_string_bytes_size();
 }
 inline void TestAllTypesProto3::clear_map_string_bytes() {
   map_string_bytes_.Clear();
@@ -7189,22 +7247,26 @@ inline void TestAllTypesProto3::clear_map_string_bytes() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestAllTypesProto3::_internal_map_string_bytes() const { return map_string_bytes_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestAllTypesProto3::map_string_bytes() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_bytes)
-  return _internal_map_string_bytes();
+TestAllTypesProto3::map_string_bytes() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_bytes)
+	return _internal_map_string_bytes();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestAllTypesProto3::_internal_mutable_map_string_bytes() {
-  return map_string_bytes_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestAllTypesProto3::_internal_mutable_map_string_bytes()
+{
+	return map_string_bytes_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestAllTypesProto3::mutable_map_string_bytes() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_bytes)
-  return _internal_mutable_map_string_bytes();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestAllTypesProto3::mutable_map_string_bytes()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_bytes)
+	return _internal_mutable_map_string_bytes();
 }
 
 // map<string, .protobuf_test_messages.proto3.TestAllTypesProto3.NestedMessage> map_string_nested_message = 71;
 inline int TestAllTypesProto3::_internal_map_string_nested_message_size() const { return map_string_nested_message_.size(); }
-inline int TestAllTypesProto3::map_string_nested_message_size() const {
-  return _internal_map_string_nested_message_size();
+inline int TestAllTypesProto3::map_string_nested_message_size() const
+{
+	return _internal_map_string_nested_message_size();
 }
 inline void TestAllTypesProto3::clear_map_string_nested_message() {
   map_string_nested_message_.Clear();
@@ -7212,22 +7274,26 @@ inline void TestAllTypesProto3::clear_map_string_nested_message() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage >&
 TestAllTypesProto3::_internal_map_string_nested_message() const { return map_string_nested_message_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage >&
-TestAllTypesProto3::map_string_nested_message() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_nested_message)
-  return _internal_map_string_nested_message();
+TestAllTypesProto3::map_string_nested_message() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_nested_message)
+	return _internal_map_string_nested_message();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage > * TestAllTypesProto3::_internal_mutable_map_string_nested_message() {
-  return map_string_nested_message_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage > * TestAllTypesProto3::_internal_mutable_map_string_nested_message()
+{
+	return map_string_nested_message_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage > * TestAllTypesProto3::mutable_map_string_nested_message() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_nested_message)
-  return _internal_mutable_map_string_nested_message();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage > * TestAllTypesProto3::mutable_map_string_nested_message()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_nested_message)
+	return _internal_mutable_map_string_nested_message();
 }
 
 // map<string, .protobuf_test_messages.proto3.ForeignMessage> map_string_foreign_message = 72;
 inline int TestAllTypesProto3::_internal_map_string_foreign_message_size() const { return map_string_foreign_message_.size(); }
-inline int TestAllTypesProto3::map_string_foreign_message_size() const {
-  return _internal_map_string_foreign_message_size();
+inline int TestAllTypesProto3::map_string_foreign_message_size() const
+{
+	return _internal_map_string_foreign_message_size();
 }
 inline void TestAllTypesProto3::clear_map_string_foreign_message() {
   map_string_foreign_message_.Clear();
@@ -7235,22 +7301,26 @@ inline void TestAllTypesProto3::clear_map_string_foreign_message() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignMessage >&
 TestAllTypesProto3::_internal_map_string_foreign_message() const { return map_string_foreign_message_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignMessage >&
-TestAllTypesProto3::map_string_foreign_message() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_foreign_message)
-  return _internal_map_string_foreign_message();
+TestAllTypesProto3::map_string_foreign_message() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_foreign_message)
+	return _internal_map_string_foreign_message();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignMessage > * TestAllTypesProto3::_internal_mutable_map_string_foreign_message() {
-  return map_string_foreign_message_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignMessage > * TestAllTypesProto3::_internal_mutable_map_string_foreign_message()
+{
+	return map_string_foreign_message_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignMessage > * TestAllTypesProto3::mutable_map_string_foreign_message() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_foreign_message)
-  return _internal_mutable_map_string_foreign_message();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignMessage > * TestAllTypesProto3::mutable_map_string_foreign_message()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_foreign_message)
+	return _internal_mutable_map_string_foreign_message();
 }
 
 // map<string, .protobuf_test_messages.proto3.TestAllTypesProto3.NestedEnum> map_string_nested_enum = 73;
 inline int TestAllTypesProto3::_internal_map_string_nested_enum_size() const { return map_string_nested_enum_.size(); }
-inline int TestAllTypesProto3::map_string_nested_enum_size() const {
-  return _internal_map_string_nested_enum_size();
+inline int TestAllTypesProto3::map_string_nested_enum_size() const
+{
+	return _internal_map_string_nested_enum_size();
 }
 inline void TestAllTypesProto3::clear_map_string_nested_enum() {
   map_string_nested_enum_.Clear();
@@ -7258,22 +7328,26 @@ inline void TestAllTypesProto3::clear_map_string_nested_enum() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum >&
 TestAllTypesProto3::_internal_map_string_nested_enum() const { return map_string_nested_enum_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum >&
-TestAllTypesProto3::map_string_nested_enum() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_nested_enum)
-  return _internal_map_string_nested_enum();
+TestAllTypesProto3::map_string_nested_enum() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_nested_enum)
+	return _internal_map_string_nested_enum();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum > * TestAllTypesProto3::_internal_mutable_map_string_nested_enum() {
-  return map_string_nested_enum_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum > * TestAllTypesProto3::_internal_mutable_map_string_nested_enum()
+{
+	return map_string_nested_enum_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum > * TestAllTypesProto3::mutable_map_string_nested_enum() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_nested_enum)
-  return _internal_mutable_map_string_nested_enum();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum > * TestAllTypesProto3::mutable_map_string_nested_enum()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_nested_enum)
+	return _internal_mutable_map_string_nested_enum();
 }
 
 // map<string, .protobuf_test_messages.proto3.ForeignEnum> map_string_foreign_enum = 74;
 inline int TestAllTypesProto3::_internal_map_string_foreign_enum_size() const { return map_string_foreign_enum_.size(); }
-inline int TestAllTypesProto3::map_string_foreign_enum_size() const {
-  return _internal_map_string_foreign_enum_size();
+inline int TestAllTypesProto3::map_string_foreign_enum_size() const
+{
+	return _internal_map_string_foreign_enum_size();
 }
 inline void TestAllTypesProto3::clear_map_string_foreign_enum() {
   map_string_foreign_enum_.Clear();
@@ -7281,28 +7355,28 @@ inline void TestAllTypesProto3::clear_map_string_foreign_enum() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignEnum >&
 TestAllTypesProto3::_internal_map_string_foreign_enum() const { return map_string_foreign_enum_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignEnum >&
-TestAllTypesProto3::map_string_foreign_enum() const {
-  // @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_foreign_enum)
-  return _internal_map_string_foreign_enum();
+TestAllTypesProto3::map_string_foreign_enum() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_foreign_enum)
+	return _internal_map_string_foreign_enum();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignEnum > * TestAllTypesProto3::_internal_mutable_map_string_foreign_enum() {
-  return map_string_foreign_enum_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignEnum > * TestAllTypesProto3::_internal_mutable_map_string_foreign_enum()
+{
+	return map_string_foreign_enum_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignEnum > * TestAllTypesProto3::mutable_map_string_foreign_enum() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_foreign_enum)
-  return _internal_mutable_map_string_foreign_enum();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_test_messages::proto3::ForeignEnum > * TestAllTypesProto3::mutable_map_string_foreign_enum()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_test_messages.proto3.TestAllTypesProto3.map_string_foreign_enum)
+	return _internal_mutable_map_string_foreign_enum();
 }
 
 // uint32 oneof_uint32 = 111;
-inline bool TestAllTypesProto3::_internal_has_oneof_uint32() const {
-  return oneof_field_case() == kOneofUint32;
+inline bool TestAllTypesProto3::_internal_has_oneof_uint32() const { return oneof_field_case() == kOneofUint32; }
+inline bool TestAllTypesProto3::has_oneof_uint32() const
+{
+	return _internal_has_oneof_uint32();
 }
-inline bool TestAllTypesProto3::has_oneof_uint32() const {
-  return _internal_has_oneof_uint32();
-}
-inline void TestAllTypesProto3::set_has_oneof_uint32() {
-  _oneof_case_[0] = kOneofUint32;
-}
+inline void TestAllTypesProto3::set_has_oneof_uint32() { _oneof_case_[0] = kOneofUint32; }
 inline void TestAllTypesProto3::clear_oneof_uint32() {
   if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
@@ -7329,15 +7403,12 @@ inline void TestAllTypesProto3::set_oneof_uint32(uint32_t value) {
 }
 
 // .protobuf_test_messages.proto3.TestAllTypesProto3.NestedMessage oneof_nested_message = 112;
-inline bool TestAllTypesProto3::_internal_has_oneof_nested_message() const {
-  return oneof_field_case() == kOneofNestedMessage;
+inline bool TestAllTypesProto3::_internal_has_oneof_nested_message() const { return oneof_field_case() == kOneofNestedMessage; }
+inline bool TestAllTypesProto3::has_oneof_nested_message() const
+{
+	return _internal_has_oneof_nested_message();
 }
-inline bool TestAllTypesProto3::has_oneof_nested_message() const {
-  return _internal_has_oneof_nested_message();
-}
-inline void TestAllTypesProto3::set_has_oneof_nested_message() {
-  _oneof_case_[0] = kOneofNestedMessage;
-}
+inline void TestAllTypesProto3::set_has_oneof_nested_message() { _oneof_case_[0] = kOneofNestedMessage; }
 inline void TestAllTypesProto3::clear_oneof_nested_message() {
   if(_internal_has_oneof_nested_message()) {
     if(GetArenaForAllocation() == nullptr) {
@@ -7399,15 +7470,12 @@ inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* TestA
 }
 
 // string oneof_string = 113;
-inline bool TestAllTypesProto3::_internal_has_oneof_string() const {
-  return oneof_field_case() == kOneofString;
+inline bool TestAllTypesProto3::_internal_has_oneof_string() const { return oneof_field_case() == kOneofString; }
+inline bool TestAllTypesProto3::has_oneof_string() const
+{
+	return _internal_has_oneof_string();
 }
-inline bool TestAllTypesProto3::has_oneof_string() const {
-  return _internal_has_oneof_string();
-}
-inline void TestAllTypesProto3::set_has_oneof_string() {
-  _oneof_case_[0] = kOneofString;
-}
+inline void TestAllTypesProto3::set_has_oneof_string() { _oneof_case_[0] = kOneofString; }
 inline void TestAllTypesProto3::clear_oneof_string() {
   if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -7480,15 +7548,12 @@ inline void TestAllTypesProto3::set_allocated_oneof_string(std::string* oneof_st
 }
 
 // bytes oneof_bytes = 114;
-inline bool TestAllTypesProto3::_internal_has_oneof_bytes() const {
-  return oneof_field_case() == kOneofBytes;
+inline bool TestAllTypesProto3::_internal_has_oneof_bytes() const { return oneof_field_case() == kOneofBytes; }
+inline bool TestAllTypesProto3::has_oneof_bytes() const
+{
+	return _internal_has_oneof_bytes();
 }
-inline bool TestAllTypesProto3::has_oneof_bytes() const {
-  return _internal_has_oneof_bytes();
-}
-inline void TestAllTypesProto3::set_has_oneof_bytes() {
-  _oneof_case_[0] = kOneofBytes;
-}
+inline void TestAllTypesProto3::set_has_oneof_bytes() { _oneof_case_[0] = kOneofBytes; }
 inline void TestAllTypesProto3::clear_oneof_bytes() {
   if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -7561,15 +7626,12 @@ inline void TestAllTypesProto3::set_allocated_oneof_bytes(std::string* oneof_byt
 }
 
 // bool oneof_bool = 115;
-inline bool TestAllTypesProto3::_internal_has_oneof_bool() const {
-  return oneof_field_case() == kOneofBool;
+inline bool TestAllTypesProto3::_internal_has_oneof_bool() const { return oneof_field_case() == kOneofBool; }
+inline bool TestAllTypesProto3::has_oneof_bool() const
+{
+	return _internal_has_oneof_bool();
 }
-inline bool TestAllTypesProto3::has_oneof_bool() const {
-  return _internal_has_oneof_bool();
-}
-inline void TestAllTypesProto3::set_has_oneof_bool() {
-  _oneof_case_[0] = kOneofBool;
-}
+inline void TestAllTypesProto3::set_has_oneof_bool() { _oneof_case_[0] = kOneofBool; }
 inline void TestAllTypesProto3::clear_oneof_bool() {
   if(_internal_has_oneof_bool()) {
     oneof_field_.oneof_bool_ = false;
@@ -7596,15 +7658,12 @@ inline void TestAllTypesProto3::set_oneof_bool(bool value) {
 }
 
 // uint64 oneof_uint64 = 116;
-inline bool TestAllTypesProto3::_internal_has_oneof_uint64() const {
-  return oneof_field_case() == kOneofUint64;
+inline bool TestAllTypesProto3::_internal_has_oneof_uint64() const { return oneof_field_case() == kOneofUint64; }
+inline bool TestAllTypesProto3::has_oneof_uint64() const
+{
+	return _internal_has_oneof_uint64();
 }
-inline bool TestAllTypesProto3::has_oneof_uint64() const {
-  return _internal_has_oneof_uint64();
-}
-inline void TestAllTypesProto3::set_has_oneof_uint64() {
-  _oneof_case_[0] = kOneofUint64;
-}
+inline void TestAllTypesProto3::set_has_oneof_uint64() { _oneof_case_[0] = kOneofUint64; }
 inline void TestAllTypesProto3::clear_oneof_uint64() {
   if(_internal_has_oneof_uint64()) {
     oneof_field_.oneof_uint64_ = uint64_t{0u};
@@ -7631,15 +7690,12 @@ inline void TestAllTypesProto3::set_oneof_uint64(uint64_t value) {
 }
 
 // float oneof_float = 117;
-inline bool TestAllTypesProto3::_internal_has_oneof_float() const {
-  return oneof_field_case() == kOneofFloat;
+inline bool TestAllTypesProto3::_internal_has_oneof_float() const { return oneof_field_case() == kOneofFloat; }
+inline bool TestAllTypesProto3::has_oneof_float() const
+{
+	return _internal_has_oneof_float();
 }
-inline bool TestAllTypesProto3::has_oneof_float() const {
-  return _internal_has_oneof_float();
-}
-inline void TestAllTypesProto3::set_has_oneof_float() {
-  _oneof_case_[0] = kOneofFloat;
-}
+inline void TestAllTypesProto3::set_has_oneof_float() { _oneof_case_[0] = kOneofFloat; }
 inline void TestAllTypesProto3::clear_oneof_float() {
   if(_internal_has_oneof_float()) {
     oneof_field_.oneof_float_ = 0;
@@ -7666,15 +7722,12 @@ inline void TestAllTypesProto3::set_oneof_float(float value) {
 }
 
 // double oneof_double = 118;
-inline bool TestAllTypesProto3::_internal_has_oneof_double() const {
-  return oneof_field_case() == kOneofDouble;
+inline bool TestAllTypesProto3::_internal_has_oneof_double() const { return oneof_field_case() == kOneofDouble; }
+inline bool TestAllTypesProto3::has_oneof_double() const
+{
+	return _internal_has_oneof_double();
 }
-inline bool TestAllTypesProto3::has_oneof_double() const {
-  return _internal_has_oneof_double();
-}
-inline void TestAllTypesProto3::set_has_oneof_double() {
-  _oneof_case_[0] = kOneofDouble;
-}
+inline void TestAllTypesProto3::set_has_oneof_double() { _oneof_case_[0] = kOneofDouble; }
 inline void TestAllTypesProto3::clear_oneof_double() {
   if(_internal_has_oneof_double()) {
     oneof_field_.oneof_double_ = 0;
@@ -7701,85 +7754,88 @@ inline void TestAllTypesProto3::set_oneof_double(double value) {
 }
 
 // .protobuf_test_messages.proto3.TestAllTypesProto3.NestedEnum oneof_enum = 119;
-inline bool TestAllTypesProto3::_internal_has_oneof_enum() const {
-  return oneof_field_case() == kOneofEnum;
+inline bool TestAllTypesProto3::_internal_has_oneof_enum() const { return oneof_field_case() == kOneofEnum; }
+inline bool TestAllTypesProto3::has_oneof_enum() const
+{
+	return _internal_has_oneof_enum();
 }
-inline bool TestAllTypesProto3::has_oneof_enum() const {
-  return _internal_has_oneof_enum();
-}
-inline void TestAllTypesProto3::set_has_oneof_enum() {
-  _oneof_case_[0] = kOneofEnum;
-}
+inline void TestAllTypesProto3::set_has_oneof_enum() { _oneof_case_[0] = kOneofEnum; }
 inline void TestAllTypesProto3::clear_oneof_enum() {
   if(_internal_has_oneof_enum()) {
     oneof_field_.oneof_enum_ = 0;
     clear_has_oneof_field();
   }
 }
-inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::_internal_oneof_enum() const {
-  if(_internal_has_oneof_enum()) {
-    return static_cast< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum >(oneof_field_.oneof_enum_);
-  }
-  return static_cast< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum >(0);
+inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::_internal_oneof_enum() const
+{
+	if(_internal_has_oneof_enum()) {
+		return static_cast< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum >(oneof_field_.oneof_enum_);
+	}
+	return static_cast< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum >(0);
 }
-inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::oneof_enum() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.oneof_enum)
-  return _internal_oneof_enum();
+inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum TestAllTypesProto3::oneof_enum() const
+{
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.oneof_enum)
+	return _internal_oneof_enum();
 }
-inline void TestAllTypesProto3::_internal_set_oneof_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  if(!_internal_has_oneof_enum()) {
-    clear_oneof_field();
-    set_has_oneof_enum();
-  }
-  oneof_field_.oneof_enum_ = value;
+inline void TestAllTypesProto3::_internal_set_oneof_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	if(!_internal_has_oneof_enum()) {
+		clear_oneof_field();
+		set_has_oneof_enum();
+	}
+	oneof_field_.oneof_enum_ = value;
 }
-inline void TestAllTypesProto3::set_oneof_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value) {
-  _internal_set_oneof_enum(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.oneof_enum)
+inline void TestAllTypesProto3::set_oneof_enum(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedEnum value)
+{
+	_internal_set_oneof_enum(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.oneof_enum)
 }
 
 // .google.protobuf.NullValue oneof_null_value = 120;
-inline bool TestAllTypesProto3::_internal_has_oneof_null_value() const {
-  return oneof_field_case() == kOneofNullValue;
+inline bool TestAllTypesProto3::_internal_has_oneof_null_value() const { return oneof_field_case() == kOneofNullValue; }
+inline bool TestAllTypesProto3::has_oneof_null_value() const
+{
+	return _internal_has_oneof_null_value();
 }
-inline bool TestAllTypesProto3::has_oneof_null_value() const {
-  return _internal_has_oneof_null_value();
-}
-inline void TestAllTypesProto3::set_has_oneof_null_value() {
-  _oneof_case_[0] = kOneofNullValue;
-}
+inline void TestAllTypesProto3::set_has_oneof_null_value() { _oneof_case_[0] = kOneofNullValue; }
 inline void TestAllTypesProto3::clear_oneof_null_value() {
   if(_internal_has_oneof_null_value()) {
     oneof_field_.oneof_null_value_ = 0;
     clear_has_oneof_field();
   }
 }
-inline ::PROTOBUF_NAMESPACE_ID::NullValue TestAllTypesProto3::_internal_oneof_null_value() const {
-  if(_internal_has_oneof_null_value()) {
-    return static_cast< ::PROTOBUF_NAMESPACE_ID::NullValue >(oneof_field_.oneof_null_value_);
-  }
-  return static_cast< ::PROTOBUF_NAMESPACE_ID::NullValue >(0);
+inline ::PROTOBUF_NAMESPACE_ID::NullValue TestAllTypesProto3::_internal_oneof_null_value() const
+{
+	if(_internal_has_oneof_null_value()) {
+		return static_cast< ::PROTOBUF_NAMESPACE_ID::NullValue >(oneof_field_.oneof_null_value_);
+	}
+	return static_cast< ::PROTOBUF_NAMESPACE_ID::NullValue >(0);
 }
-inline ::PROTOBUF_NAMESPACE_ID::NullValue TestAllTypesProto3::oneof_null_value() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.oneof_null_value)
-  return _internal_oneof_null_value();
+inline ::PROTOBUF_NAMESPACE_ID::NullValue TestAllTypesProto3::oneof_null_value() const
+{
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.oneof_null_value)
+	return _internal_oneof_null_value();
 }
-inline void TestAllTypesProto3::_internal_set_oneof_null_value(::PROTOBUF_NAMESPACE_ID::NullValue value) {
-  if(!_internal_has_oneof_null_value()) {
-    clear_oneof_field();
-    set_has_oneof_null_value();
-  }
-  oneof_field_.oneof_null_value_ = value;
+inline void TestAllTypesProto3::_internal_set_oneof_null_value(::PROTOBUF_NAMESPACE_ID::NullValue value)
+{
+	if(!_internal_has_oneof_null_value()) {
+		clear_oneof_field();
+		set_has_oneof_null_value();
+	}
+	oneof_field_.oneof_null_value_ = value;
 }
-inline void TestAllTypesProto3::set_oneof_null_value(::PROTOBUF_NAMESPACE_ID::NullValue value) {
-  _internal_set_oneof_null_value(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.oneof_null_value)
+inline void TestAllTypesProto3::set_oneof_null_value(::PROTOBUF_NAMESPACE_ID::NullValue value)
+{
+	_internal_set_oneof_null_value(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.oneof_null_value)
 }
 
 // .google.protobuf.BoolValue optional_bool_wrapper = 201;
 inline bool TestAllTypesProto3::_internal_has_optional_bool_wrapper() const { return this != internal_default_instance() && optional_bool_wrapper_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_bool_wrapper() const {
-  return _internal_has_optional_bool_wrapper();
+inline bool TestAllTypesProto3::has_optional_bool_wrapper() const
+{
+	return _internal_has_optional_bool_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::BoolValue& TestAllTypesProto3::_internal_optional_bool_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::BoolValue* p = optional_bool_wrapper_;
@@ -7860,8 +7916,9 @@ inline void TestAllTypesProto3::set_allocated_optional_bool_wrapper(::PROTOBUF_N
 
 // .google.protobuf.Int32Value optional_int32_wrapper = 202;
 inline bool TestAllTypesProto3::_internal_has_optional_int32_wrapper() const { return this != internal_default_instance() && optional_int32_wrapper_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_int32_wrapper() const {
-  return _internal_has_optional_int32_wrapper();
+inline bool TestAllTypesProto3::has_optional_int32_wrapper() const
+{
+	return _internal_has_optional_int32_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& TestAllTypesProto3::_internal_optional_int32_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::Int32Value* p = optional_int32_wrapper_;
@@ -7942,8 +7999,9 @@ inline void TestAllTypesProto3::set_allocated_optional_int32_wrapper(::PROTOBUF_
 
 // .google.protobuf.Int64Value optional_int64_wrapper = 203;
 inline bool TestAllTypesProto3::_internal_has_optional_int64_wrapper() const { return this != internal_default_instance() && optional_int64_wrapper_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_int64_wrapper() const {
-  return _internal_has_optional_int64_wrapper();
+inline bool TestAllTypesProto3::has_optional_int64_wrapper() const
+{
+	return _internal_has_optional_int64_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Int64Value& TestAllTypesProto3::_internal_optional_int64_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::Int64Value* p = optional_int64_wrapper_;
@@ -8024,8 +8082,9 @@ inline void TestAllTypesProto3::set_allocated_optional_int64_wrapper(::PROTOBUF_
 
 // .google.protobuf.UInt32Value optional_uint32_wrapper = 204;
 inline bool TestAllTypesProto3::_internal_has_optional_uint32_wrapper() const { return this != internal_default_instance() && optional_uint32_wrapper_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_uint32_wrapper() const {
-  return _internal_has_optional_uint32_wrapper();
+inline bool TestAllTypesProto3::has_optional_uint32_wrapper() const
+{
+	return _internal_has_optional_uint32_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::UInt32Value& TestAllTypesProto3::_internal_optional_uint32_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::UInt32Value* p = optional_uint32_wrapper_;
@@ -8106,8 +8165,9 @@ inline void TestAllTypesProto3::set_allocated_optional_uint32_wrapper(::PROTOBUF
 
 // .google.protobuf.UInt64Value optional_uint64_wrapper = 205;
 inline bool TestAllTypesProto3::_internal_has_optional_uint64_wrapper() const { return this != internal_default_instance() && optional_uint64_wrapper_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_uint64_wrapper() const {
-  return _internal_has_optional_uint64_wrapper();
+inline bool TestAllTypesProto3::has_optional_uint64_wrapper() const
+{
+	return _internal_has_optional_uint64_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::UInt64Value& TestAllTypesProto3::_internal_optional_uint64_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::UInt64Value* p = optional_uint64_wrapper_;
@@ -8188,8 +8248,9 @@ inline void TestAllTypesProto3::set_allocated_optional_uint64_wrapper(::PROTOBUF
 
 // .google.protobuf.FloatValue optional_float_wrapper = 206;
 inline bool TestAllTypesProto3::_internal_has_optional_float_wrapper() const { return this != internal_default_instance() && optional_float_wrapper_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_float_wrapper() const {
-  return _internal_has_optional_float_wrapper();
+inline bool TestAllTypesProto3::has_optional_float_wrapper() const
+{
+	return _internal_has_optional_float_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FloatValue& TestAllTypesProto3::_internal_optional_float_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::FloatValue* p = optional_float_wrapper_;
@@ -8270,8 +8331,9 @@ inline void TestAllTypesProto3::set_allocated_optional_float_wrapper(::PROTOBUF_
 
 // .google.protobuf.DoubleValue optional_double_wrapper = 207;
 inline bool TestAllTypesProto3::_internal_has_optional_double_wrapper() const { return this != internal_default_instance() && optional_double_wrapper_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_double_wrapper() const {
-  return _internal_has_optional_double_wrapper();
+inline bool TestAllTypesProto3::has_optional_double_wrapper() const
+{
+	return _internal_has_optional_double_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& TestAllTypesProto3::_internal_optional_double_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::DoubleValue* p = optional_double_wrapper_;
@@ -8352,8 +8414,9 @@ inline void TestAllTypesProto3::set_allocated_optional_double_wrapper(::PROTOBUF
 
 // .google.protobuf.StringValue optional_string_wrapper = 208;
 inline bool TestAllTypesProto3::_internal_has_optional_string_wrapper() const { return this != internal_default_instance() && optional_string_wrapper_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_string_wrapper() const {
-  return _internal_has_optional_string_wrapper();
+inline bool TestAllTypesProto3::has_optional_string_wrapper() const
+{
+	return _internal_has_optional_string_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::StringValue& TestAllTypesProto3::_internal_optional_string_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::StringValue* p = optional_string_wrapper_;
@@ -8434,8 +8497,9 @@ inline void TestAllTypesProto3::set_allocated_optional_string_wrapper(::PROTOBUF
 
 // .google.protobuf.BytesValue optional_bytes_wrapper = 209;
 inline bool TestAllTypesProto3::_internal_has_optional_bytes_wrapper() const { return this != internal_default_instance() && optional_bytes_wrapper_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_bytes_wrapper() const {
-  return _internal_has_optional_bytes_wrapper();
+inline bool TestAllTypesProto3::has_optional_bytes_wrapper() const
+{
+	return _internal_has_optional_bytes_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::BytesValue& TestAllTypesProto3::_internal_optional_bytes_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::BytesValue* p = optional_bytes_wrapper_;
@@ -8516,8 +8580,9 @@ inline void TestAllTypesProto3::set_allocated_optional_bytes_wrapper(::PROTOBUF_
 
 // repeated .google.protobuf.BoolValue repeated_bool_wrapper = 211;
 inline int TestAllTypesProto3::_internal_repeated_bool_wrapper_size() const { return repeated_bool_wrapper_.size(); }
-inline int TestAllTypesProto3::repeated_bool_wrapper_size() const {
-  return _internal_repeated_bool_wrapper_size();
+inline int TestAllTypesProto3::repeated_bool_wrapper_size() const
+{
+	return _internal_repeated_bool_wrapper_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::BoolValue* TestAllTypesProto3::mutable_repeated_bool_wrapper(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_bool_wrapper)
@@ -8549,8 +8614,9 @@ TestAllTypesProto3::repeated_bool_wrapper() const {
 
 // repeated .google.protobuf.Int32Value repeated_int32_wrapper = 212;
 inline int TestAllTypesProto3::_internal_repeated_int32_wrapper_size() const { return repeated_int32_wrapper_.size(); }
-inline int TestAllTypesProto3::repeated_int32_wrapper_size() const {
-  return _internal_repeated_int32_wrapper_size();
+inline int TestAllTypesProto3::repeated_int32_wrapper_size() const
+{
+	return _internal_repeated_int32_wrapper_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int32Value* TestAllTypesProto3::mutable_repeated_int32_wrapper(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_int32_wrapper)
@@ -8582,8 +8648,9 @@ TestAllTypesProto3::repeated_int32_wrapper() const {
 
 // repeated .google.protobuf.Int64Value repeated_int64_wrapper = 213;
 inline int TestAllTypesProto3::_internal_repeated_int64_wrapper_size() const { return repeated_int64_wrapper_.size(); }
-inline int TestAllTypesProto3::repeated_int64_wrapper_size() const {
-  return _internal_repeated_int64_wrapper_size();
+inline int TestAllTypesProto3::repeated_int64_wrapper_size() const
+{
+	return _internal_repeated_int64_wrapper_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int64Value* TestAllTypesProto3::mutable_repeated_int64_wrapper(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_int64_wrapper)
@@ -8615,8 +8682,9 @@ TestAllTypesProto3::repeated_int64_wrapper() const {
 
 // repeated .google.protobuf.UInt32Value repeated_uint32_wrapper = 214;
 inline int TestAllTypesProto3::_internal_repeated_uint32_wrapper_size() const { return repeated_uint32_wrapper_.size(); }
-inline int TestAllTypesProto3::repeated_uint32_wrapper_size() const {
-  return _internal_repeated_uint32_wrapper_size();
+inline int TestAllTypesProto3::repeated_uint32_wrapper_size() const
+{
+	return _internal_repeated_uint32_wrapper_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* TestAllTypesProto3::mutable_repeated_uint32_wrapper(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_uint32_wrapper)
@@ -8648,8 +8716,9 @@ TestAllTypesProto3::repeated_uint32_wrapper() const {
 
 // repeated .google.protobuf.UInt64Value repeated_uint64_wrapper = 215;
 inline int TestAllTypesProto3::_internal_repeated_uint64_wrapper_size() const { return repeated_uint64_wrapper_.size(); }
-inline int TestAllTypesProto3::repeated_uint64_wrapper_size() const {
-  return _internal_repeated_uint64_wrapper_size();
+inline int TestAllTypesProto3::repeated_uint64_wrapper_size() const
+{
+	return _internal_repeated_uint64_wrapper_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* TestAllTypesProto3::mutable_repeated_uint64_wrapper(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_uint64_wrapper)
@@ -8681,8 +8750,9 @@ TestAllTypesProto3::repeated_uint64_wrapper() const {
 
 // repeated .google.protobuf.FloatValue repeated_float_wrapper = 216;
 inline int TestAllTypesProto3::_internal_repeated_float_wrapper_size() const { return repeated_float_wrapper_.size(); }
-inline int TestAllTypesProto3::repeated_float_wrapper_size() const {
-  return _internal_repeated_float_wrapper_size();
+inline int TestAllTypesProto3::repeated_float_wrapper_size() const
+{
+	return _internal_repeated_float_wrapper_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::FloatValue* TestAllTypesProto3::mutable_repeated_float_wrapper(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_float_wrapper)
@@ -8714,8 +8784,9 @@ TestAllTypesProto3::repeated_float_wrapper() const {
 
 // repeated .google.protobuf.DoubleValue repeated_double_wrapper = 217;
 inline int TestAllTypesProto3::_internal_repeated_double_wrapper_size() const { return repeated_double_wrapper_.size(); }
-inline int TestAllTypesProto3::repeated_double_wrapper_size() const {
-  return _internal_repeated_double_wrapper_size();
+inline int TestAllTypesProto3::repeated_double_wrapper_size() const
+{
+	return _internal_repeated_double_wrapper_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* TestAllTypesProto3::mutable_repeated_double_wrapper(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_double_wrapper)
@@ -8747,8 +8818,9 @@ TestAllTypesProto3::repeated_double_wrapper() const {
 
 // repeated .google.protobuf.StringValue repeated_string_wrapper = 218;
 inline int TestAllTypesProto3::_internal_repeated_string_wrapper_size() const { return repeated_string_wrapper_.size(); }
-inline int TestAllTypesProto3::repeated_string_wrapper_size() const {
-  return _internal_repeated_string_wrapper_size();
+inline int TestAllTypesProto3::repeated_string_wrapper_size() const
+{
+	return _internal_repeated_string_wrapper_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::StringValue* TestAllTypesProto3::mutable_repeated_string_wrapper(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_string_wrapper)
@@ -8780,8 +8852,9 @@ TestAllTypesProto3::repeated_string_wrapper() const {
 
 // repeated .google.protobuf.BytesValue repeated_bytes_wrapper = 219;
 inline int TestAllTypesProto3::_internal_repeated_bytes_wrapper_size() const { return repeated_bytes_wrapper_.size(); }
-inline int TestAllTypesProto3::repeated_bytes_wrapper_size() const {
-  return _internal_repeated_bytes_wrapper_size();
+inline int TestAllTypesProto3::repeated_bytes_wrapper_size() const
+{
+	return _internal_repeated_bytes_wrapper_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::BytesValue* TestAllTypesProto3::mutable_repeated_bytes_wrapper(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_bytes_wrapper)
@@ -8813,8 +8886,9 @@ TestAllTypesProto3::repeated_bytes_wrapper() const {
 
 // .google.protobuf.Duration optional_duration = 301;
 inline bool TestAllTypesProto3::_internal_has_optional_duration() const { return this != internal_default_instance() && optional_duration_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_duration() const {
-  return _internal_has_optional_duration();
+inline bool TestAllTypesProto3::has_optional_duration() const
+{
+	return _internal_has_optional_duration();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Duration& TestAllTypesProto3::_internal_optional_duration() const {
   const ::PROTOBUF_NAMESPACE_ID::Duration* p = optional_duration_;
@@ -8895,8 +8969,9 @@ inline void TestAllTypesProto3::set_allocated_optional_duration(::PROTOBUF_NAMES
 
 // .google.protobuf.Timestamp optional_timestamp = 302;
 inline bool TestAllTypesProto3::_internal_has_optional_timestamp() const { return this != internal_default_instance() && optional_timestamp_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_timestamp() const {
-  return _internal_has_optional_timestamp();
+inline bool TestAllTypesProto3::has_optional_timestamp() const
+{
+	return _internal_has_optional_timestamp();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TestAllTypesProto3::_internal_optional_timestamp() const {
   const ::PROTOBUF_NAMESPACE_ID::Timestamp* p = optional_timestamp_;
@@ -8977,8 +9052,9 @@ inline void TestAllTypesProto3::set_allocated_optional_timestamp(::PROTOBUF_NAME
 
 // .google.protobuf.FieldMask optional_field_mask = 303;
 inline bool TestAllTypesProto3::_internal_has_optional_field_mask() const { return this != internal_default_instance() && optional_field_mask_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_field_mask() const {
-  return _internal_has_optional_field_mask();
+inline bool TestAllTypesProto3::has_optional_field_mask() const
+{
+	return _internal_has_optional_field_mask();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& TestAllTypesProto3::_internal_optional_field_mask() const {
   const ::PROTOBUF_NAMESPACE_ID::FieldMask* p = optional_field_mask_;
@@ -9059,8 +9135,9 @@ inline void TestAllTypesProto3::set_allocated_optional_field_mask(::PROTOBUF_NAM
 
 // .google.protobuf.Struct optional_struct = 304;
 inline bool TestAllTypesProto3::_internal_has_optional_struct() const { return this != internal_default_instance() && optional_struct_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_struct() const {
-  return _internal_has_optional_struct();
+inline bool TestAllTypesProto3::has_optional_struct() const
+{
+	return _internal_has_optional_struct();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Struct& TestAllTypesProto3::_internal_optional_struct() const {
   const ::PROTOBUF_NAMESPACE_ID::Struct* p = optional_struct_;
@@ -9141,8 +9218,9 @@ inline void TestAllTypesProto3::set_allocated_optional_struct(::PROTOBUF_NAMESPA
 
 // .google.protobuf.Any optional_any = 305;
 inline bool TestAllTypesProto3::_internal_has_optional_any() const { return this != internal_default_instance() && optional_any_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_any() const {
-  return _internal_has_optional_any();
+inline bool TestAllTypesProto3::has_optional_any() const
+{
+	return _internal_has_optional_any();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& TestAllTypesProto3::_internal_optional_any() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = optional_any_;
@@ -9223,8 +9301,9 @@ inline void TestAllTypesProto3::set_allocated_optional_any(::PROTOBUF_NAMESPACE_
 
 // .google.protobuf.Value optional_value = 306;
 inline bool TestAllTypesProto3::_internal_has_optional_value() const { return this != internal_default_instance() && optional_value_ != nullptr; }
-inline bool TestAllTypesProto3::has_optional_value() const {
-  return _internal_has_optional_value();
+inline bool TestAllTypesProto3::has_optional_value() const
+{
+	return _internal_has_optional_value();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Value& TestAllTypesProto3::_internal_optional_value() const {
   const ::PROTOBUF_NAMESPACE_ID::Value* p = optional_value_;
@@ -9323,8 +9402,9 @@ inline void TestAllTypesProto3::set_optional_null_value(::PROTOBUF_NAMESPACE_ID:
 
 // repeated .google.protobuf.Duration repeated_duration = 311;
 inline int TestAllTypesProto3::_internal_repeated_duration_size() const { return repeated_duration_.size(); }
-inline int TestAllTypesProto3::repeated_duration_size() const {
-  return _internal_repeated_duration_size();
+inline int TestAllTypesProto3::repeated_duration_size() const
+{
+	return _internal_repeated_duration_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* TestAllTypesProto3::mutable_repeated_duration(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_duration)
@@ -9356,8 +9436,9 @@ TestAllTypesProto3::repeated_duration() const {
 
 // repeated .google.protobuf.Timestamp repeated_timestamp = 312;
 inline int TestAllTypesProto3::_internal_repeated_timestamp_size() const { return repeated_timestamp_.size(); }
-inline int TestAllTypesProto3::repeated_timestamp_size() const {
-  return _internal_repeated_timestamp_size();
+inline int TestAllTypesProto3::repeated_timestamp_size() const
+{
+	return _internal_repeated_timestamp_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TestAllTypesProto3::mutable_repeated_timestamp(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_timestamp)
@@ -9389,8 +9470,9 @@ TestAllTypesProto3::repeated_timestamp() const {
 
 // repeated .google.protobuf.FieldMask repeated_fieldmask = 313;
 inline int TestAllTypesProto3::_internal_repeated_fieldmask_size() const { return repeated_fieldmask_.size(); }
-inline int TestAllTypesProto3::repeated_fieldmask_size() const {
-  return _internal_repeated_fieldmask_size();
+inline int TestAllTypesProto3::repeated_fieldmask_size() const
+{
+	return _internal_repeated_fieldmask_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* TestAllTypesProto3::mutable_repeated_fieldmask(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_fieldmask)
@@ -9422,8 +9504,9 @@ TestAllTypesProto3::repeated_fieldmask() const {
 
 // repeated .google.protobuf.Struct repeated_struct = 324;
 inline int TestAllTypesProto3::_internal_repeated_struct_size() const { return repeated_struct_.size(); }
-inline int TestAllTypesProto3::repeated_struct_size() const {
-  return _internal_repeated_struct_size();
+inline int TestAllTypesProto3::repeated_struct_size() const
+{
+	return _internal_repeated_struct_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Struct* TestAllTypesProto3::mutable_repeated_struct(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_struct)
@@ -9455,8 +9538,9 @@ TestAllTypesProto3::repeated_struct() const {
 
 // repeated .google.protobuf.Any repeated_any = 315;
 inline int TestAllTypesProto3::_internal_repeated_any_size() const { return repeated_any_.size(); }
-inline int TestAllTypesProto3::repeated_any_size() const {
-  return _internal_repeated_any_size();
+inline int TestAllTypesProto3::repeated_any_size() const
+{
+	return _internal_repeated_any_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* TestAllTypesProto3::mutable_repeated_any(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_any)
@@ -9488,8 +9572,9 @@ TestAllTypesProto3::repeated_any() const {
 
 // repeated .google.protobuf.Value repeated_value = 316;
 inline int TestAllTypesProto3::_internal_repeated_value_size() const { return repeated_value_.size(); }
-inline int TestAllTypesProto3::repeated_value_size() const {
-  return _internal_repeated_value_size();
+inline int TestAllTypesProto3::repeated_value_size() const
+{
+	return _internal_repeated_value_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Value* TestAllTypesProto3::mutable_repeated_value(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_value)
@@ -9521,8 +9606,9 @@ TestAllTypesProto3::repeated_value() const {
 
 // repeated .google.protobuf.ListValue repeated_list_value = 317;
 inline int TestAllTypesProto3::_internal_repeated_list_value_size() const { return repeated_list_value_.size(); }
-inline int TestAllTypesProto3::repeated_list_value_size() const {
-  return _internal_repeated_list_value_size();
+inline int TestAllTypesProto3::repeated_list_value_size() const
+{
+	return _internal_repeated_list_value_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::ListValue* TestAllTypesProto3::mutable_repeated_list_value(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_list_value)
@@ -9876,12 +9962,8 @@ inline void TestAllTypesProto3::set_field_name18__(int32_t value) {
 	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto3.TestAllTypesProto3.Field_name18__)
 }
 
-inline bool TestAllTypesProto3::has_oneof_field() const {
-  return oneof_field_case() != ONEOF_FIELD_NOT_SET;
-}
-inline void TestAllTypesProto3::clear_has_oneof_field() {
-  _oneof_case_[0] = ONEOF_FIELD_NOT_SET;
-}
+inline bool TestAllTypesProto3::has_oneof_field() const { return oneof_field_case() != ONEOF_FIELD_NOT_SET; }
+inline void TestAllTypesProto3::clear_has_oneof_field() { _oneof_case_[0] = ONEOF_FIELD_NOT_SET; }
 inline TestAllTypesProto3::OneofFieldCase TestAllTypesProto3::oneof_field_case() const { return TestAllTypesProto3::OneofFieldCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 

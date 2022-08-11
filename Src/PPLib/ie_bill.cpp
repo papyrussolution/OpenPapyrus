@@ -4244,6 +4244,7 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 				// } @v11.4.3 
 				if(!pack.SetupObject(ar_id, sob)) {
 					Logger.LogLastError();
+					rowidx++; // @important // @v11.4.7 @fix
 				}
 				else {
 					if(dlvr_loc_id) {
@@ -4267,6 +4268,7 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 					bool skip_this_doc = false;
 					if(!Period.IsZero() && !Period.CheckDate(pack.Rec.Dt)) {
 						skip_this_doc = true;
+						rowidx++; // @important // @v11.4.7 @fix
 					}
 					else {
 						do {
@@ -4370,6 +4372,10 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 				rowidx++; // @important
 			}
 			//}
+			// @v11.4.7 @fix {
+			if(rowidx == preserve_idx)
+				rowidx++;
+			// } @v11.4.7 @fix 
 			assert(rowidx > preserve_idx || (rowidx < pRowList->getCount())); // Защита от зацикливания //
 		}
 	}

@@ -10,14 +10,12 @@ namespace {
 static const int64 kSecondsPerMinute = 60;
 static const int64 kSecondsPerHour = 3600;
 static const int64 kSecondsPerDay = kSecondsPerHour * 24;
-static const int64 kSecondsPer400Years =
-    kSecondsPerDay * (400 * 365 + 400 / 4 - 3);
+static const int64 kSecondsPer400Years = kSecondsPerDay * (400 * 365 + 400 / 4 - 3);
 // Seconds from 0001-01-01T00:00:00 to 1970-01-01T:00:00:00
 static const int64 kSecondsFromEraToEpoch = 62135596800LL;
 // The range of timestamp values we support.
 static const int64 kMinTime = -62135596800LL;  // 0001-01-01T00:00:00
 static const int64 kMaxTime = 253402300799LL;  // 9999-12-31T23:59:59
-
 static const int kNanosPerMillisecond = 1000000;
 static const int kNanosPerMicrosecond = 1000;
 

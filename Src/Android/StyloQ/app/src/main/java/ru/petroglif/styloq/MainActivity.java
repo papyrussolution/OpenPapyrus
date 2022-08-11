@@ -589,7 +589,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 										View img_view = iv.findViewById(R.id.LVITEM_IMG);
 										if(cur_entry.Face != null && img_view != null && img_view instanceof ImageView) {
 											String blob_signature = cur_entry.Face.Get(StyloQFace.tagImageBlobSignature, 0);
-											SLib.SetupImage(this, img_view, blob_signature);
+											SLib.SetupImage(this, img_view, blob_signature, false);
 										}
 									}
 									//

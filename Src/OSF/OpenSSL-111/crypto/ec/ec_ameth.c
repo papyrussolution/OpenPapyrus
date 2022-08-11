@@ -127,27 +127,21 @@ static int eckey_pub_decode(EVP_PKEY * pkey, X509_PUBKEY * pubkey)
 	int ptype, pklen;
 	EC_KEY * eckey = NULL;
 	X509_ALGOR * palg;
-
 	if(!X509_PUBKEY_get0_param(NULL, &p, &pklen, &palg, pubkey))
 		return 0;
 	X509_ALGOR_get0(NULL, &ptype, &pval, palg);
-
 	eckey = eckey_type2param(ptype, pval);
-
 	if(!eckey) {
 		ECerr(EC_F_ECKEY_PUB_DECODE, ERR_R_EC_LIB);
 		return 0;
 	}
-
 	/* We have parameters now set public key */
 	if(!o2i_ECPublicKey(&eckey, &p, pklen)) {
 		ECerr(EC_F_ECKEY_PUB_DECODE, EC_R_DECODE_ERROR);
 		goto ecerr;
 	}
-
 	EVP_PKEY_assign_EC_KEY(pkey, eckey);
 	return 1;
-
 ecerr:
 	EC_KEY_free(eckey);
 	return 0;
@@ -286,7 +280,6 @@ static int ec_missing_parameters(const EVP_PKEY * pkey)
 static int ec_copy_parameters(EVP_PKEY * to, const EVP_PKEY * from)
 {
 	EC_GROUP * group = EC_GROUP_dup(EC_KEY_get0_group(from->pkey.ec));
-
 	if(group == NULL)
 		return 0;
 	if(to->pkey.ec == NULL) {
@@ -305,8 +298,8 @@ err:
 
 static int ec_cmp_parameters(const EVP_PKEY * a, const EVP_PKEY * b)
 {
-	const EC_GROUP * group_a = EC_KEY_get0_group(a->pkey.ec),
-	    * group_b = EC_KEY_get0_group(b->pkey.ec);
+	const EC_GROUP * group_a = EC_KEY_get0_group(a->pkey.ec);
+	const EC_GROUP * group_b = EC_KEY_get0_group(b->pkey.ec);
 	if(group_a == NULL || group_b == NULL)
 		return -2;
 	if(EC_GROUP_cmp(group_a, group_b, NULL))

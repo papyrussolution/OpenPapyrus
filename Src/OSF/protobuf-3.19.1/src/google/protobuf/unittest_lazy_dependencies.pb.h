@@ -181,7 +181,7 @@ class ImportedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kLazyMessageFieldNumber = 1,
+  	kLazyMessageFieldNumber = 1,
   };
   // optional .protobuf_unittest.lazy_imports.LazyMessage lazy_message = 1;
   bool has_lazy_message() const;
@@ -426,10 +426,10 @@ class MessageCustomOption2 final :
 inline bool ImportedMessage::_internal_has_lazy_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || lazy_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool ImportedMessage::has_lazy_message() const {
-  return _internal_has_lazy_message();
+	return _internal_has_lazy_message();
 }
 inline const ::protobuf_unittest::lazy_imports::LazyMessage& ImportedMessage::_internal_lazy_message() const {
   const ::protobuf_unittest::lazy_imports::LazyMessage* p = lazy_message_;

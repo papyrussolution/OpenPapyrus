@@ -143,7 +143,6 @@ static double Time_F(int s)
 {
 	double ret;
 	static HANDLE thr;
-
 	if(s == START) {
 		schlock = 0;
 		thr = CreateThread(NULL, 4096, sleepy, NULL, 0, NULL);
@@ -162,7 +161,6 @@ static double Time_F(int s)
 			TerminateThread(thr, 0);
 		CloseHandle(thr);
 	}
-
 	return ret;
 }
 

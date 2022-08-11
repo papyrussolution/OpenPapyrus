@@ -2859,9 +2859,9 @@ int PPObjBill::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 		{
 			int    s = 1;
 			if(dir > 0)
-				setDTS((ObjRights*)pData);
+				setDTS(static_cast<ObjRights *>(pData));
 			else if(dir < 0)
-				getDTS((ObjRights*)pData);
+				getDTS(static_cast<ObjRights *>(pData));
 			else
 				s = TDialog::TransmitData(dir, pData);
 			return s;

@@ -317,19 +317,19 @@ class MapsTestCases final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEmptyMapFieldNumber = 1,
-    kStringToIntFieldNumber = 2,
-    kIntToStringFieldNumber = 3,
-    kMixed1FieldNumber = 4,
-    kMixed2FieldNumber = 5,
-    kMapOfObjectsFieldNumber = 6,
-    kEmptyKeyStringToInt1FieldNumber = 7,
-    kEmptyKeyStringToInt2FieldNumber = 8,
-    kEmptyKeyStringToInt3FieldNumber = 9,
-    kEmptyKeyBoolToStringFieldNumber = 10,
-    kEmptyKeyIntToStringFieldNumber = 11,
-    kEmptyKeyMixedFieldNumber = 12,
-    kEmptyKeyMapObjectsFieldNumber = 13,
+  	kEmptyMapFieldNumber = 1,
+  	kStringToIntFieldNumber = 2,
+  	kIntToStringFieldNumber = 3,
+  	kMixed1FieldNumber = 4,
+  	kMixed2FieldNumber = 5,
+  	kMapOfObjectsFieldNumber = 6,
+  	kEmptyKeyStringToInt1FieldNumber = 7,
+  	kEmptyKeyStringToInt2FieldNumber = 8,
+  	kEmptyKeyStringToInt3FieldNumber = 9,
+  	kEmptyKeyBoolToStringFieldNumber = 10,
+  	kEmptyKeyIntToStringFieldNumber = 11,
+  	kEmptyKeyMixedFieldNumber = 12,
+  	kEmptyKeyMapObjectsFieldNumber = 13,
   };
   // .proto_util_converter.testing.EmptyMap empty_map = 1;
   bool has_empty_map() const;
@@ -599,8 +599,8 @@ public:
   explicit EmptyMap_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const EmptyMap_MapEntry_DoNotUse& other);
   static const EmptyMap_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const EmptyMap_MapEntry_DoNotUse*>(&_EmptyMap_MapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -711,7 +711,7 @@ class EmptyMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 1,
+  	kMapFieldNumber = 1,
   };
   // map<int32, int32> map = 1;
   int map_size() const;
@@ -733,11 +733,7 @@ class EmptyMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      EmptyMap_MapEntry_DoNotUse,
-      int32_t, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<EmptyMap_MapEntry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto;
 };
@@ -753,7 +749,7 @@ public:
   void MergeFrom(const StringtoInt_MapEntry_DoNotUse& other);
   static const StringtoInt_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const StringtoInt_MapEntry_DoNotUse*>(&_StringtoInt_MapEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.StringtoInt.MapEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -864,7 +860,7 @@ class StringtoInt final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 1,
+  	kMapFieldNumber = 1,
   };
   // map<string, int32> map = 1;
   int map_size() const;
@@ -886,11 +882,7 @@ class StringtoInt final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      StringtoInt_MapEntry_DoNotUse,
-      std::string, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<StringtoInt_MapEntry_DoNotUse, std::string, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto;
 };
@@ -905,7 +897,7 @@ public:
   explicit IntToString_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const IntToString_MapEntry_DoNotUse& other);
   static const IntToString_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const IntToString_MapEntry_DoNotUse*>(&_IntToString_MapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
   static bool ValidateValue(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.IntToString.MapEntry.value"); }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
@@ -1017,7 +1009,7 @@ class IntToString final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 1,
+  	kMapFieldNumber = 1,
   };
   // map<int32, string> map = 1;
   int map_size() const;
@@ -1039,11 +1031,7 @@ class IntToString final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      IntToString_MapEntry_DoNotUse,
-      int32_t, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<IntToString_MapEntry_DoNotUse, int32_t, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto;
 };
@@ -1058,7 +1046,7 @@ public:
   explicit BoolToString_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const BoolToString_MapEntry_DoNotUse& other);
   static const BoolToString_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const BoolToString_MapEntry_DoNotUse*>(&_BoolToString_MapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
   static bool ValidateValue(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.BoolToString.MapEntry.value"); }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
@@ -1170,7 +1158,7 @@ class BoolToString final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 1,
+  	kMapFieldNumber = 1,
   };
   // map<bool, string> map = 1;
   int map_size() const;
@@ -1192,11 +1180,7 @@ class BoolToString final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      BoolToString_MapEntry_DoNotUse,
-      bool, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<BoolToString_MapEntry_DoNotUse, bool, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto;
 };
@@ -1212,7 +1196,7 @@ public:
   void MergeFrom(const Mixed1_MapEntry_DoNotUse& other);
   static const Mixed1_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const Mixed1_MapEntry_DoNotUse*>(&_Mixed1_MapEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.Mixed1.MapEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1323,8 +1307,8 @@ class Mixed1 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 2,
-    kMsgFieldNumber = 1,
+  	kMapFieldNumber = 2,
+  	kMsgFieldNumber = 1,
   };
   // map<string, float> map = 2;
   int map_size() const;
@@ -1360,11 +1344,7 @@ class Mixed1 final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      Mixed1_MapEntry_DoNotUse,
-      std::string, float,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<Mixed1_MapEntry_DoNotUse, std::string, float, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr msg_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto;
@@ -1380,8 +1360,8 @@ public:
   explicit Mixed2_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const Mixed2_MapEntry_DoNotUse& other);
   static const Mixed2_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const Mixed2_MapEntry_DoNotUse*>(&_Mixed2_MapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1512,8 +1492,8 @@ class Mixed2 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 1,
-    kEeFieldNumber = 2,
+  	kMapFieldNumber = 1,
+  	kEeFieldNumber = 2,
   };
   // map<int32, bool> map = 1;
   int map_size() const;
@@ -1544,11 +1524,7 @@ class Mixed2 final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      Mixed2_MapEntry_DoNotUse,
-      int32_t, bool,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<Mixed2_MapEntry_DoNotUse, int32_t, bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_;
   int ee_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto;
@@ -1658,7 +1634,7 @@ class MapOfObjects_M final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kInnerTextFieldNumber = 1,
+  	kInnerTextFieldNumber = 1,
   };
   // string inner_text = 1;
   void clear_inner_text();
@@ -1697,7 +1673,7 @@ public:
   void MergeFrom(const MapOfObjects_MapEntry_DoNotUse& other);
   static const MapOfObjects_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapOfObjects_MapEntry_DoNotUse*>(&_MapOfObjects_MapEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.MapOfObjects.MapEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1809,7 +1785,7 @@ class MapOfObjects final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 1,
+  	kMapFieldNumber = 1,
   };
   // map<string, .proto_util_converter.testing.MapOfObjects.M> map = 1;
   int map_size() const;
@@ -1831,11 +1807,7 @@ class MapOfObjects final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapOfObjects_MapEntry_DoNotUse,
-      std::string, ::proto_util_converter::testing::MapOfObjects_M,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapOfObjects_MapEntry_DoNotUse, std::string, ::proto_util_converter::testing::MapOfObjects_M, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto;
 };
@@ -1964,7 +1936,7 @@ public:
   void MergeFrom(const MapIn_MapAnyEntry_DoNotUse& other);
   static const MapIn_MapAnyEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapIn_MapAnyEntry_DoNotUse*>(&_MapIn_MapAnyEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.MapIn.MapAnyEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2075,10 +2047,10 @@ class MapIn final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kThingsFieldNumber = 2,
-    kMapInputFieldNumber = 3,
-    kMapAnyFieldNumber = 4,
-    kOtherFieldNumber = 1,
+  	kThingsFieldNumber = 2,
+  	kMapInputFieldNumber = 3,
+  	kMapAnyFieldNumber = 4,
+  	kOtherFieldNumber = 1,
   };
   // repeated string things = 2;
   int things_size() const;
@@ -2152,16 +2124,8 @@ class MapIn final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> things_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapIn_MapInputEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_input_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapIn_MapAnyEntry_DoNotUse,
-      std::string, ::PROTOBUF_NAMESPACE_ID::Any,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_any_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapIn_MapInputEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_input_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapIn_MapAnyEntry_DoNotUse, std::string, ::PROTOBUF_NAMESPACE_ID::Any, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_any_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr other_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto;
@@ -2178,7 +2142,7 @@ public:
   void MergeFrom(const MapOut_Map1Entry_DoNotUse& other);
   static const MapOut_Map1Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapOut_Map1Entry_DoNotUse*>(&_MapOut_Map1Entry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.MapOut.Map1Entry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2195,7 +2159,7 @@ public:
   void MergeFrom(const MapOut_Map2Entry_DoNotUse& other);
   static const MapOut_Map2Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapOut_Map2Entry_DoNotUse*>(&_MapOut_Map2Entry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.MapOut.Map2Entry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2211,7 +2175,7 @@ public:
   explicit MapOut_Map3Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapOut_Map3Entry_DoNotUse& other);
   static const MapOut_Map3Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapOut_Map3Entry_DoNotUse*>(&_MapOut_Map3Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
   static bool ValidateValue(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.MapOut.Map3Entry.value"); }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
@@ -2228,7 +2192,7 @@ public:
   explicit MapOut_Map4Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapOut_Map4Entry_DoNotUse& other);
   static const MapOut_Map4Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapOut_Map4Entry_DoNotUse*>(&_MapOut_Map4Entry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
   static bool ValidateValue(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.MapOut.Map4Entry.value"); }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
@@ -2340,11 +2304,11 @@ class MapOut final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMap1FieldNumber = 1,
-    kMap2FieldNumber = 2,
-    kMap3FieldNumber = 3,
-    kMap4FieldNumber = 5,
-    kBarFieldNumber = 4,
+  	kMap1FieldNumber = 1,
+  	kMap2FieldNumber = 2,
+  	kMap3FieldNumber = 3,
+  	kMap4FieldNumber = 5,
+  	kBarFieldNumber = 4,
   };
   // map<string, .proto_util_converter.testing.MapM> map1 = 1;
   int map1_size() const;
@@ -2419,26 +2383,10 @@ class MapOut final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapOut_Map1Entry_DoNotUse,
-      std::string, ::proto_util_converter::testing::MapM,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map1_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapOut_Map2Entry_DoNotUse,
-      std::string, ::proto_util_converter::testing::MapOut,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map2_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapOut_Map3Entry_DoNotUse,
-      int32_t, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map3_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MapOut_Map4Entry_DoNotUse,
-      bool, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map4_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapOut_Map1Entry_DoNotUse, std::string, ::proto_util_converter::testing::MapM, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map1_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapOut_Map2Entry_DoNotUse, std::string, ::proto_util_converter::testing::MapOut, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map2_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapOut_Map3Entry_DoNotUse, int32_t, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map3_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MapOut_Map4Entry_DoNotUse, bool, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map4_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bar_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto;
@@ -2548,8 +2496,8 @@ class MapOutWireFormat_Map1Entry final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kKeyFieldNumber = 1,
-    kValueFieldNumber = 2,
+  	kKeyFieldNumber = 1,
+  	kValueFieldNumber = 2,
   };
   // string key = 1;
   void clear_key();
@@ -2700,8 +2648,8 @@ class MapOutWireFormat_Map2Entry final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kKeyFieldNumber = 1,
-    kValueFieldNumber = 2,
+  	kKeyFieldNumber = 1,
+  	kValueFieldNumber = 2,
   };
   // string key = 1;
   void clear_key();
@@ -2852,8 +2800,8 @@ class MapOutWireFormat_Map3Entry final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 2,
-    kKeyFieldNumber = 1,
+  	kValueFieldNumber = 2,
+  	kKeyFieldNumber = 1,
   };
   // string value = 2;
   void clear_value();
@@ -2995,8 +2943,8 @@ class MapOutWireFormat_Map4Entry final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 2,
-    kKeyFieldNumber = 1,
+  	kValueFieldNumber = 2,
+  	kKeyFieldNumber = 1,
   };
   // string value = 2;
   void clear_value();
@@ -3143,11 +3091,11 @@ class MapOutWireFormat final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMap1FieldNumber = 1,
-    kMap2FieldNumber = 2,
-    kMap3FieldNumber = 3,
-    kMap4FieldNumber = 5,
-    kBarFieldNumber = 4,
+  	kMap1FieldNumber = 1,
+  	kMap2FieldNumber = 2,
+  	kMap3FieldNumber = 3,
+  	kMap4FieldNumber = 5,
+  	kBarFieldNumber = 4,
   };
   // repeated .proto_util_converter.testing.MapOutWireFormat.Map1Entry map1 = 1;
   int map1_size() const;
@@ -3347,7 +3295,7 @@ class MapM final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFooFieldNumber = 1,
+  	kFooFieldNumber = 1,
   };
   // string foo = 1;
   void clear_foo();
@@ -3387,8 +3335,9 @@ class MapM final :
 
 // .proto_util_converter.testing.EmptyMap empty_map = 1;
 inline bool MapsTestCases::_internal_has_empty_map() const { return this != internal_default_instance() && empty_map_ != nullptr; }
-inline bool MapsTestCases::has_empty_map() const {
-  return _internal_has_empty_map();
+inline bool MapsTestCases::has_empty_map() const
+{
+	return _internal_has_empty_map();
 }
 inline void MapsTestCases::clear_empty_map() {
   if(GetArenaForAllocation() == nullptr && empty_map_ != nullptr) {
@@ -3474,8 +3423,9 @@ inline void MapsTestCases::set_allocated_empty_map(::proto_util_converter::testi
 
 // .proto_util_converter.testing.StringtoInt string_to_int = 2;
 inline bool MapsTestCases::_internal_has_string_to_int() const { return this != internal_default_instance() && string_to_int_ != nullptr; }
-inline bool MapsTestCases::has_string_to_int() const {
-  return _internal_has_string_to_int();
+inline bool MapsTestCases::has_string_to_int() const
+{
+	return _internal_has_string_to_int();
 }
 inline void MapsTestCases::clear_string_to_int() {
   if(GetArenaForAllocation() == nullptr && string_to_int_ != nullptr) {
@@ -3561,8 +3511,9 @@ inline void MapsTestCases::set_allocated_string_to_int(::proto_util_converter::t
 
 // .proto_util_converter.testing.IntToString int_to_string = 3;
 inline bool MapsTestCases::_internal_has_int_to_string() const { return this != internal_default_instance() && int_to_string_ != nullptr; }
-inline bool MapsTestCases::has_int_to_string() const {
-  return _internal_has_int_to_string();
+inline bool MapsTestCases::has_int_to_string() const
+{
+	return _internal_has_int_to_string();
 }
 inline void MapsTestCases::clear_int_to_string() {
   if(GetArenaForAllocation() == nullptr && int_to_string_ != nullptr) {
@@ -3648,8 +3599,9 @@ inline void MapsTestCases::set_allocated_int_to_string(::proto_util_converter::t
 
 // .proto_util_converter.testing.Mixed1 mixed1 = 4;
 inline bool MapsTestCases::_internal_has_mixed1() const { return this != internal_default_instance() && mixed1_ != nullptr; }
-inline bool MapsTestCases::has_mixed1() const {
-  return _internal_has_mixed1();
+inline bool MapsTestCases::has_mixed1() const
+{
+	return _internal_has_mixed1();
 }
 inline void MapsTestCases::clear_mixed1() {
   if(GetArenaForAllocation() == nullptr && mixed1_ != nullptr) {
@@ -3735,8 +3687,9 @@ inline void MapsTestCases::set_allocated_mixed1(::proto_util_converter::testing:
 
 // .proto_util_converter.testing.Mixed2 mixed2 = 5;
 inline bool MapsTestCases::_internal_has_mixed2() const { return this != internal_default_instance() && mixed2_ != nullptr; }
-inline bool MapsTestCases::has_mixed2() const {
-  return _internal_has_mixed2();
+inline bool MapsTestCases::has_mixed2() const
+{
+	return _internal_has_mixed2();
 }
 inline void MapsTestCases::clear_mixed2() {
   if(GetArenaForAllocation() == nullptr && mixed2_ != nullptr) {
@@ -3822,8 +3775,9 @@ inline void MapsTestCases::set_allocated_mixed2(::proto_util_converter::testing:
 
 // .proto_util_converter.testing.MapOfObjects map_of_objects = 6;
 inline bool MapsTestCases::_internal_has_map_of_objects() const { return this != internal_default_instance() && map_of_objects_ != nullptr; }
-inline bool MapsTestCases::has_map_of_objects() const {
-  return _internal_has_map_of_objects();
+inline bool MapsTestCases::has_map_of_objects() const
+{
+	return _internal_has_map_of_objects();
 }
 inline void MapsTestCases::clear_map_of_objects() {
   if(GetArenaForAllocation() == nullptr && map_of_objects_ != nullptr) {
@@ -3909,8 +3863,9 @@ inline void MapsTestCases::set_allocated_map_of_objects(::proto_util_converter::
 
 // .proto_util_converter.testing.StringtoInt empty_key_string_to_int1 = 7;
 inline bool MapsTestCases::_internal_has_empty_key_string_to_int1() const { return this != internal_default_instance() && empty_key_string_to_int1_ != nullptr; }
-inline bool MapsTestCases::has_empty_key_string_to_int1() const {
-  return _internal_has_empty_key_string_to_int1();
+inline bool MapsTestCases::has_empty_key_string_to_int1() const
+{
+	return _internal_has_empty_key_string_to_int1();
 }
 inline void MapsTestCases::clear_empty_key_string_to_int1() {
   if(GetArenaForAllocation() == nullptr && empty_key_string_to_int1_ != nullptr) {
@@ -3996,8 +3951,9 @@ inline void MapsTestCases::set_allocated_empty_key_string_to_int1(::proto_util_c
 
 // .proto_util_converter.testing.StringtoInt empty_key_string_to_int2 = 8;
 inline bool MapsTestCases::_internal_has_empty_key_string_to_int2() const { return this != internal_default_instance() && empty_key_string_to_int2_ != nullptr; }
-inline bool MapsTestCases::has_empty_key_string_to_int2() const {
-  return _internal_has_empty_key_string_to_int2();
+inline bool MapsTestCases::has_empty_key_string_to_int2() const
+{
+	return _internal_has_empty_key_string_to_int2();
 }
 inline void MapsTestCases::clear_empty_key_string_to_int2() {
   if(GetArenaForAllocation() == nullptr && empty_key_string_to_int2_ != nullptr) {
@@ -4083,8 +4039,9 @@ inline void MapsTestCases::set_allocated_empty_key_string_to_int2(::proto_util_c
 
 // .proto_util_converter.testing.StringtoInt empty_key_string_to_int3 = 9;
 inline bool MapsTestCases::_internal_has_empty_key_string_to_int3() const { return this != internal_default_instance() && empty_key_string_to_int3_ != nullptr; }
-inline bool MapsTestCases::has_empty_key_string_to_int3() const {
-  return _internal_has_empty_key_string_to_int3();
+inline bool MapsTestCases::has_empty_key_string_to_int3() const
+{
+	return _internal_has_empty_key_string_to_int3();
 }
 inline void MapsTestCases::clear_empty_key_string_to_int3() {
   if(GetArenaForAllocation() == nullptr && empty_key_string_to_int3_ != nullptr) {
@@ -4170,8 +4127,9 @@ inline void MapsTestCases::set_allocated_empty_key_string_to_int3(::proto_util_c
 
 // .proto_util_converter.testing.BoolToString empty_key_bool_to_string = 10;
 inline bool MapsTestCases::_internal_has_empty_key_bool_to_string() const { return this != internal_default_instance() && empty_key_bool_to_string_ != nullptr; }
-inline bool MapsTestCases::has_empty_key_bool_to_string() const {
-  return _internal_has_empty_key_bool_to_string();
+inline bool MapsTestCases::has_empty_key_bool_to_string() const
+{
+	return _internal_has_empty_key_bool_to_string();
 }
 inline void MapsTestCases::clear_empty_key_bool_to_string() {
   if(GetArenaForAllocation() == nullptr && empty_key_bool_to_string_ != nullptr) {
@@ -4257,8 +4215,9 @@ inline void MapsTestCases::set_allocated_empty_key_bool_to_string(::proto_util_c
 
 // .proto_util_converter.testing.IntToString empty_key_int_to_string = 11;
 inline bool MapsTestCases::_internal_has_empty_key_int_to_string() const { return this != internal_default_instance() && empty_key_int_to_string_ != nullptr; }
-inline bool MapsTestCases::has_empty_key_int_to_string() const {
-  return _internal_has_empty_key_int_to_string();
+inline bool MapsTestCases::has_empty_key_int_to_string() const
+{
+	return _internal_has_empty_key_int_to_string();
 }
 inline void MapsTestCases::clear_empty_key_int_to_string() {
   if(GetArenaForAllocation() == nullptr && empty_key_int_to_string_ != nullptr) {
@@ -4344,8 +4303,9 @@ inline void MapsTestCases::set_allocated_empty_key_int_to_string(::proto_util_co
 
 // .proto_util_converter.testing.Mixed1 empty_key_mixed = 12;
 inline bool MapsTestCases::_internal_has_empty_key_mixed() const { return this != internal_default_instance() && empty_key_mixed_ != nullptr; }
-inline bool MapsTestCases::has_empty_key_mixed() const {
-  return _internal_has_empty_key_mixed();
+inline bool MapsTestCases::has_empty_key_mixed() const
+{
+	return _internal_has_empty_key_mixed();
 }
 inline void MapsTestCases::clear_empty_key_mixed() {
   if(GetArenaForAllocation() == nullptr && empty_key_mixed_ != nullptr) {
@@ -4431,8 +4391,9 @@ inline void MapsTestCases::set_allocated_empty_key_mixed(::proto_util_converter:
 
 // .proto_util_converter.testing.MapOfObjects empty_key_map_objects = 13;
 inline bool MapsTestCases::_internal_has_empty_key_map_objects() const { return this != internal_default_instance() && empty_key_map_objects_ != nullptr; }
-inline bool MapsTestCases::has_empty_key_map_objects() const {
-  return _internal_has_empty_key_map_objects();
+inline bool MapsTestCases::has_empty_key_map_objects() const
+{
+	return _internal_has_empty_key_map_objects();
 }
 inline void MapsTestCases::clear_empty_key_map_objects() {
   if(GetArenaForAllocation() == nullptr && empty_key_map_objects_ != nullptr) {
@@ -4524,8 +4485,9 @@ inline void MapsTestCases::set_allocated_empty_key_map_objects(::proto_util_conv
 
 // map<int32, int32> map = 1;
 inline int EmptyMap::_internal_map_size() const { return map_.size(); }
-inline int EmptyMap::map_size() const {
-  return _internal_map_size();
+inline int EmptyMap::map_size() const
+{
+	return _internal_map_size();
 }
 inline void EmptyMap::clear_map() {
   map_.Clear();
@@ -4533,16 +4495,19 @@ inline void EmptyMap::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
 EmptyMap::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >&
-EmptyMap::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.EmptyMap.map)
-  return _internal_map();
+EmptyMap::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.EmptyMap.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * EmptyMap::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * EmptyMap::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * EmptyMap::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.EmptyMap.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * EmptyMap::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.EmptyMap.map)
+	return _internal_mutable_map();
 }
 
 // -------------------------------------------------------------------
@@ -4553,8 +4518,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t > * EmptyMap::mutable_map(
 
 // map<string, int32> map = 1;
 inline int StringtoInt::_internal_map_size() const { return map_.size(); }
-inline int StringtoInt::map_size() const {
-  return _internal_map_size();
+inline int StringtoInt::map_size() const
+{
+	return _internal_map_size();
 }
 inline void StringtoInt::clear_map() {
   map_.Clear();
@@ -4562,16 +4528,19 @@ inline void StringtoInt::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
 StringtoInt::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
-StringtoInt::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.StringtoInt.map)
-  return _internal_map();
+StringtoInt::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.StringtoInt.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoInt::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoInt::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoInt::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.StringtoInt.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoInt::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.StringtoInt.map)
+	return _internal_mutable_map();
 }
 
 // -------------------------------------------------------------------
@@ -4582,8 +4551,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoInt::mutab
 
 // map<int32, string> map = 1;
 inline int IntToString::_internal_map_size() const { return map_.size(); }
-inline int IntToString::map_size() const {
-  return _internal_map_size();
+inline int IntToString::map_size() const
+{
+	return _internal_map_size();
 }
 inline void IntToString::clear_map() {
   map_.Clear();
@@ -4591,16 +4561,19 @@ inline void IntToString::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
 IntToString::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
-IntToString::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.IntToString.map)
-  return _internal_map();
+IntToString::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.IntToString.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToString::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToString::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToString::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.IntToString.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToString::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.IntToString.map)
+	return _internal_mutable_map();
 }
 
 // -------------------------------------------------------------------
@@ -4611,8 +4584,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToString::mutab
 
 // map<bool, string> map = 1;
 inline int BoolToString::_internal_map_size() const { return map_.size(); }
-inline int BoolToString::map_size() const {
-  return _internal_map_size();
+inline int BoolToString::map_size() const
+{
+	return _internal_map_size();
 }
 inline void BoolToString::clear_map() {
   map_.Clear();
@@ -4620,16 +4594,19 @@ inline void BoolToString::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >&
 BoolToString::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >&
-BoolToString::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.BoolToString.map)
-  return _internal_map();
+BoolToString::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.BoolToString.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string > * BoolToString::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string > * BoolToString::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string > * BoolToString::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.BoolToString.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string > * BoolToString::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.BoolToString.map)
+	return _internal_mutable_map();
 }
 
 // -------------------------------------------------------------------
@@ -4688,8 +4665,9 @@ inline void Mixed1::set_allocated_msg(std::string* msg) {
 
 // map<string, float> map = 2;
 inline int Mixed1::_internal_map_size() const { return map_.size(); }
-inline int Mixed1::map_size() const {
-  return _internal_map_size();
+inline int Mixed1::map_size() const
+{
+	return _internal_map_size();
 }
 inline void Mixed1::clear_map() {
   map_.Clear();
@@ -4697,16 +4675,19 @@ inline void Mixed1::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >&
 Mixed1::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >&
-Mixed1::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.Mixed1.map)
-  return _internal_map();
+Mixed1::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.Mixed1.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * Mixed1::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * Mixed1::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * Mixed1::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.Mixed1.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * Mixed1::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.Mixed1.map)
+	return _internal_mutable_map();
 }
 
 // -------------------------------------------------------------------
@@ -4717,8 +4698,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * Mixed1::mutable_map(
 
 // map<int32, bool> map = 1;
 inline int Mixed2::_internal_map_size() const { return map_.size(); }
-inline int Mixed2::map_size() const {
-  return _internal_map_size();
+inline int Mixed2::map_size() const
+{
+	return _internal_map_size();
 }
 inline void Mixed2::clear_map() {
   map_.Clear();
@@ -4726,16 +4708,19 @@ inline void Mixed2::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >&
 Mixed2::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >&
-Mixed2::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.Mixed2.map)
-  return _internal_map();
+Mixed2::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.Mixed2.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * Mixed2::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * Mixed2::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * Mixed2::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.Mixed2.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * Mixed2::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.Mixed2.map)
+	return _internal_mutable_map();
 }
 
 // .proto_util_converter.testing.Mixed2.E ee = 2;
@@ -4816,8 +4801,9 @@ inline void MapOfObjects_M::set_allocated_inner_text(std::string* inner_text) {
 
 // map<string, .proto_util_converter.testing.MapOfObjects.M> map = 1;
 inline int MapOfObjects::_internal_map_size() const { return map_.size(); }
-inline int MapOfObjects::map_size() const {
-  return _internal_map_size();
+inline int MapOfObjects::map_size() const
+{
+	return _internal_map_size();
 }
 inline void MapOfObjects::clear_map() {
   map_.Clear();
@@ -4825,16 +4811,19 @@ inline void MapOfObjects::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M >&
 MapOfObjects::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M >&
-MapOfObjects::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOfObjects.map)
-  return _internal_map();
+MapOfObjects::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOfObjects.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M > * MapOfObjects::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M > * MapOfObjects::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M > * MapOfObjects::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOfObjects.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M > * MapOfObjects::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOfObjects.map)
+	return _internal_mutable_map();
 }
 
 // -------------------------------------------------------------------
@@ -4899,8 +4888,9 @@ inline void MapIn::set_allocated_other(std::string* other) {
 
 // repeated string things = 2;
 inline int MapIn::_internal_things_size() const { return things_.size(); }
-inline int MapIn::things_size() const {
-  return _internal_things_size();
+inline int MapIn::things_size() const
+{
+	return _internal_things_size();
 }
 inline void MapIn::clear_things() {
   things_.Clear();
@@ -4967,8 +4957,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * MapIn::mutable_t
 
 // map<string, string> map_input = 3;
 inline int MapIn::_internal_map_input_size() const { return map_input_.size(); }
-inline int MapIn::map_input_size() const {
-  return _internal_map_input_size();
+inline int MapIn::map_input_size() const
+{
+	return _internal_map_input_size();
 }
 inline void MapIn::clear_map_input() {
   map_input_.Clear();
@@ -4976,36 +4967,43 @@ inline void MapIn::clear_map_input() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 MapIn::_internal_map_input() const { return map_input_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-MapIn::map_input() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.MapIn.map_input)
-  return _internal_map_input();
+MapIn::map_input() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.MapIn.map_input)
+	return _internal_map_input();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * MapIn::_internal_mutable_map_input() {
-  return map_input_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * MapIn::_internal_mutable_map_input()
+{
+	return map_input_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * MapIn::mutable_map_input() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapIn.map_input)
-  return _internal_mutable_map_input();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * MapIn::mutable_map_input()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapIn.map_input)
+	return _internal_mutable_map_input();
 }
 
 // map<string, .google.protobuf.Any> map_any = 4;
 inline int MapIn::_internal_map_any_size() const { return map_any_.size(); }
-inline int MapIn::map_any_size() const {
-  return _internal_map_any_size();
+inline int MapIn::map_any_size() const
+{
+	return _internal_map_any_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any >&
 MapIn::_internal_map_any() const { return map_any_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any >&
-MapIn::map_any() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.MapIn.map_any)
-  return _internal_map_any();
+MapIn::map_any() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.MapIn.map_any)
+	return _internal_map_any();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any > * MapIn::_internal_mutable_map_any() {
-  return map_any_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any > * MapIn::_internal_mutable_map_any()
+{
+	return map_any_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any > * MapIn::mutable_map_any() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapIn.map_any)
-  return _internal_mutable_map_any();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any > * MapIn::mutable_map_any()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapIn.map_any)
+	return _internal_mutable_map_any();
 }
 
 // -------------------------------------------------------------------
@@ -5022,8 +5020,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any >
 
 // map<string, .proto_util_converter.testing.MapM> map1 = 1;
 inline int MapOut::_internal_map1_size() const { return map1_.size(); }
-inline int MapOut::map1_size() const {
-  return _internal_map1_size();
+inline int MapOut::map1_size() const
+{
+	return _internal_map1_size();
 }
 inline void MapOut::clear_map1() {
   map1_.Clear();
@@ -5031,22 +5030,26 @@ inline void MapOut::clear_map1() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM >&
 MapOut::_internal_map1() const { return map1_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM >&
-MapOut::map1() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOut.map1)
-  return _internal_map1();
+MapOut::map1() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOut.map1)
+	return _internal_map1();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM > * MapOut::_internal_mutable_map1() {
-  return map1_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM > * MapOut::_internal_mutable_map1()
+{
+	return map1_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM > * MapOut::mutable_map1() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOut.map1)
-  return _internal_mutable_map1();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM > * MapOut::mutable_map1()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOut.map1)
+	return _internal_mutable_map1();
 }
 
 // map<string, .proto_util_converter.testing.MapOut> map2 = 2;
 inline int MapOut::_internal_map2_size() const { return map2_.size(); }
-inline int MapOut::map2_size() const {
-  return _internal_map2_size();
+inline int MapOut::map2_size() const
+{
+	return _internal_map2_size();
 }
 inline void MapOut::clear_map2() {
   map2_.Clear();
@@ -5054,22 +5057,26 @@ inline void MapOut::clear_map2() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut >&
 MapOut::_internal_map2() const { return map2_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut >&
-MapOut::map2() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOut.map2)
-  return _internal_map2();
+MapOut::map2() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOut.map2)
+	return _internal_map2();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut > * MapOut::_internal_mutable_map2() {
-  return map2_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut > * MapOut::_internal_mutable_map2()
+{
+	return map2_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut > * MapOut::mutable_map2() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOut.map2)
-  return _internal_mutable_map2();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut > * MapOut::mutable_map2()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOut.map2)
+	return _internal_mutable_map2();
 }
 
 // map<int32, string> map3 = 3;
 inline int MapOut::_internal_map3_size() const { return map3_.size(); }
-inline int MapOut::map3_size() const {
-  return _internal_map3_size();
+inline int MapOut::map3_size() const
+{
+	return _internal_map3_size();
 }
 inline void MapOut::clear_map3() {
   map3_.Clear();
@@ -5077,22 +5084,26 @@ inline void MapOut::clear_map3() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
 MapOut::_internal_map3() const { return map3_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
-MapOut::map3() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOut.map3)
-  return _internal_map3();
+MapOut::map3() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOut.map3)
+	return _internal_map3();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * MapOut::_internal_mutable_map3() {
-  return map3_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * MapOut::_internal_mutable_map3()
+{
+	return map3_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * MapOut::mutable_map3() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOut.map3)
-  return _internal_mutable_map3();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * MapOut::mutable_map3()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOut.map3)
+	return _internal_mutable_map3();
 }
 
 // map<bool, string> map4 = 5;
 inline int MapOut::_internal_map4_size() const { return map4_.size(); }
-inline int MapOut::map4_size() const {
-  return _internal_map4_size();
+inline int MapOut::map4_size() const
+{
+	return _internal_map4_size();
 }
 inline void MapOut::clear_map4() {
   map4_.Clear();
@@ -5100,16 +5111,19 @@ inline void MapOut::clear_map4() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >&
 MapOut::_internal_map4() const { return map4_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >&
-MapOut::map4() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOut.map4)
-  return _internal_map4();
+MapOut::map4() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOut.map4)
+	return _internal_map4();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string > * MapOut::_internal_mutable_map4() {
-  return map4_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string > * MapOut::_internal_mutable_map4()
+{
+	return map4_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string > * MapOut::mutable_map4() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOut.map4)
-  return _internal_mutable_map4();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, std::string > * MapOut::mutable_map4()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOut.map4)
+	return _internal_mutable_map4();
 }
 
 // string bar = 4;
@@ -5214,8 +5228,9 @@ inline void MapOutWireFormat_Map1Entry::set_allocated_key(std::string* key) {
 
 // .proto_util_converter.testing.MapM value = 2;
 inline bool MapOutWireFormat_Map1Entry::_internal_has_value() const { return this != internal_default_instance() && value_ != nullptr; }
-inline bool MapOutWireFormat_Map1Entry::has_value() const {
-  return _internal_has_value();
+inline bool MapOutWireFormat_Map1Entry::has_value() const
+{
+	return _internal_has_value();
 }
 inline void MapOutWireFormat_Map1Entry::clear_value() {
   if(GetArenaForAllocation() == nullptr && value_ != nullptr) {
@@ -5353,8 +5368,9 @@ inline void MapOutWireFormat_Map2Entry::set_allocated_key(std::string* key) {
 
 // .proto_util_converter.testing.MapOut value = 2;
 inline bool MapOutWireFormat_Map2Entry::_internal_has_value() const { return this != internal_default_instance() && value_ != nullptr; }
-inline bool MapOutWireFormat_Map2Entry::has_value() const {
-  return _internal_has_value();
+inline bool MapOutWireFormat_Map2Entry::has_value() const
+{
+	return _internal_has_value();
 }
 inline void MapOutWireFormat_Map2Entry::clear_value() {
   if(GetArenaForAllocation() == nullptr && value_ != nullptr) {
@@ -5584,8 +5600,9 @@ inline void MapOutWireFormat_Map4Entry::set_allocated_value(std::string* value) 
 
 // repeated .proto_util_converter.testing.MapOutWireFormat.Map1Entry map1 = 1;
 inline int MapOutWireFormat::_internal_map1_size() const { return map1_.size(); }
-inline int MapOutWireFormat::map1_size() const {
-  return _internal_map1_size();
+inline int MapOutWireFormat::map1_size() const
+{
+	return _internal_map1_size();
 }
 inline void MapOutWireFormat::clear_map1() {
   map1_.Clear();
@@ -5620,8 +5637,9 @@ MapOutWireFormat::map1() const {
 
 // repeated .proto_util_converter.testing.MapOutWireFormat.Map2Entry map2 = 2;
 inline int MapOutWireFormat::_internal_map2_size() const { return map2_.size(); }
-inline int MapOutWireFormat::map2_size() const {
-  return _internal_map2_size();
+inline int MapOutWireFormat::map2_size() const
+{
+	return _internal_map2_size();
 }
 inline void MapOutWireFormat::clear_map2() {
   map2_.Clear();
@@ -5656,8 +5674,9 @@ MapOutWireFormat::map2() const {
 
 // repeated .proto_util_converter.testing.MapOutWireFormat.Map3Entry map3 = 3;
 inline int MapOutWireFormat::_internal_map3_size() const { return map3_.size(); }
-inline int MapOutWireFormat::map3_size() const {
-  return _internal_map3_size();
+inline int MapOutWireFormat::map3_size() const
+{
+	return _internal_map3_size();
 }
 inline void MapOutWireFormat::clear_map3() {
   map3_.Clear();
@@ -5692,8 +5711,9 @@ MapOutWireFormat::map3() const {
 
 // repeated .proto_util_converter.testing.MapOutWireFormat.Map4Entry map4 = 5;
 inline int MapOutWireFormat::_internal_map4_size() const { return map4_.size(); }
-inline int MapOutWireFormat::map4_size() const {
-  return _internal_map4_size();
+inline int MapOutWireFormat::map4_size() const
+{
+	return _internal_map4_size();
 }
 inline void MapOutWireFormat::clear_map4() {
   map4_.Clear();

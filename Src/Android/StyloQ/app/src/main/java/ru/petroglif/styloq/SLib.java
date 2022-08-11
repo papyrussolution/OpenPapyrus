@@ -5198,7 +5198,7 @@ public class SLib {
 							result += _ih1;
 						}
 					}
-					int total_dividers_height = lv.getDividerHeight() * (_count_a - 1);
+					int total_dividers_height = 0;// lv.getDividerHeight() * (_count_a - 1);
 					result += total_dividers_height;
 					//ViewGroup.LayoutParams params = listView.getLayoutParams();
 					//params.height = total_items_height + total_dividers_height;
@@ -5209,7 +5209,7 @@ public class SLib {
 		}
 		return result;
 	}
-	public static void SetupImage(Activity activity, View imgView, String blobSignature)
+	public static void SetupImage(Activity activity, View imgView, String blobSignature, boolean dontRemoveIfNoImg)
 	{
 		if(imgView != null && imgView instanceof ImageView) {
 			ImageView imgv = (ImageView)imgView;
@@ -5218,7 +5218,7 @@ public class SLib {
 				Glide.with(activity).load(GlideSupport.ModelPrefix + blobSignature)./*centerCrop().*/
 					/*signature(new ObjectKey(blobSignature)).*/into(imgv);
 			}
-			else
+			else if(!dontRemoveIfNoImg)
 				imgv.setVisibility(View.GONE);
 		}
 	}

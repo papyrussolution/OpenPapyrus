@@ -1293,6 +1293,9 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 #define SGIGABYTE(v)       (1024i64 * 1024i64 * 1024i64 * (v))
 #define	MEGABYTE	       SMEGABYTE(1)
 #define	GIGABYTE	       SMEGABYTE(1024)
+
+#define SSECSPERDAY        (24 * 60 * 60)
+#define SSECSPERDAY64      (24LL * 60LL * 60LL)
 //
 //
 // @v11.2.0 { // @v11.4.0 (some modifications)
@@ -11988,6 +11991,14 @@ struct SJson {
 	int    FASTCALL ToStr(SStringU & rBuf) const;
 	void   FASTCALL AssignText(const SString & rT);
 	int    Insert(const char * pTextLabel, SJson * pValue);
+	//
+	// Descr: То же, что и Insert(const char * pTextLabel, SJson * pValue), но ничего не делает, если pValue == 0
+	// Returns:
+	//   >0 - success
+	//    0 - error
+	//   <0 - pValue == 0
+	//
+	int    InsertNz(const char * pTextLabel, SJson * pValue);
 	int    InsertString(const char * pTextLabel, const char * pStr);
 	int    InsertNumber(const char * pTextLabel, const char * pStr);
 	int    InsertDouble(const char * pTextLabel, double val, long fmt);

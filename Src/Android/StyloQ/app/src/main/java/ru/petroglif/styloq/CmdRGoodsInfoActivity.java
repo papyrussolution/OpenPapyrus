@@ -90,7 +90,7 @@ public class CmdRGoodsInfoActivity extends SLib.SlActivity {
 										SLib.SetCtrlString(this, R.id.CTL_PAGEHEADER_SVCTITLE, SvcPack.GetSvcName(face));
 										StyloQDatabase.SecStoragePacket cmdl_pack = db.GetForeignSvcCommandList(SvcIdent);
 									}
-									SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
+									SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature, false);
 								}
 								/*
 								if(SLib.GetLen(CmdName) > 0) {
@@ -181,7 +181,7 @@ public class CmdRGoodsInfoActivity extends SLib.SlActivity {
 								if(js_detail != null) {
 									View vimg = findViewById(R.id.CTL_GOODSDETAIL_IMG);
 									if(vimg != null)
-										SLib.SetupImage(this, vimg, js_detail.optString("imgblobs", null));
+										SLib.SetupImage(this, vimg, js_detail.optString("imgblobs", null), false);
 									{
 										final String text = js_detail.optString("nm", null);
 										final int ctl_id = R.id.CTL_GOODSDETAIL_NAME;

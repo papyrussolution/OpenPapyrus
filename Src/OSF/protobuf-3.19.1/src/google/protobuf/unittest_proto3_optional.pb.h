@@ -208,7 +208,7 @@ class TestProto3Optional_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBbFieldNumber = 1,
+  	kBbFieldNumber = 1,
   };
   // optional int32 bb = 1;
   bool has_bb() const;
@@ -363,27 +363,27 @@ class TestProto3Optional final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOptionalStringFieldNumber = 14,
-    kOptionalBytesFieldNumber = 15,
-    kOptionalCordFieldNumber = 16,
-    kOptionalNestedMessageFieldNumber = 18,
-    kLazyNestedMessageFieldNumber = 19,
-    kOptionalInt64FieldNumber = 2,
-    kOptionalInt32FieldNumber = 1,
-    kOptionalUint32FieldNumber = 3,
-    kOptionalUint64FieldNumber = 4,
-    kOptionalSint64FieldNumber = 6,
-    kOptionalSint32FieldNumber = 5,
-    kOptionalFixed32FieldNumber = 7,
-    kOptionalFixed64FieldNumber = 8,
-    kOptionalSfixed64FieldNumber = 10,
-    kOptionalSfixed32FieldNumber = 9,
-    kOptionalFloatFieldNumber = 11,
-    kOptionalDoubleFieldNumber = 12,
-    kOptionalBoolFieldNumber = 13,
-    kOptionalNestedEnumFieldNumber = 21,
-    kSingularInt32FieldNumber = 22,
-    kSingularInt64FieldNumber = 23,
+  	kOptionalStringFieldNumber = 14,
+  	kOptionalBytesFieldNumber = 15,
+  	kOptionalCordFieldNumber = 16,
+  	kOptionalNestedMessageFieldNumber = 18,
+  	kLazyNestedMessageFieldNumber = 19,
+  	kOptionalInt64FieldNumber = 2,
+  	kOptionalInt32FieldNumber = 1,
+  	kOptionalUint32FieldNumber = 3,
+  	kOptionalUint64FieldNumber = 4,
+  	kOptionalSint64FieldNumber = 6,
+  	kOptionalSint32FieldNumber = 5,
+  	kOptionalFixed32FieldNumber = 7,
+  	kOptionalFixed64FieldNumber = 8,
+  	kOptionalSfixed64FieldNumber = 10,
+  	kOptionalSfixed32FieldNumber = 9,
+  	kOptionalFloatFieldNumber = 11,
+  	kOptionalDoubleFieldNumber = 12,
+  	kOptionalBoolFieldNumber = 13,
+  	kOptionalNestedEnumFieldNumber = 21,
+  	kSingularInt32FieldNumber = 22,
+  	kSingularInt64FieldNumber = 23,
   };
   // optional string optional_string = 14;
   bool has_optional_string() const;
@@ -815,7 +815,7 @@ class TestProto3OptionalMessage_NestedMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSFieldNumber = 1,
+  	kSFieldNumber = 1,
   };
   // string s = 1;
   void clear_s();
@@ -949,8 +949,8 @@ class TestProto3OptionalMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNestedMessageFieldNumber = 1,
-    kOptionalNestedMessageFieldNumber = 2,
+  	kNestedMessageFieldNumber = 1,
+  	kOptionalNestedMessageFieldNumber = 2,
   };
   // .protobuf_unittest.TestProto3OptionalMessage.NestedMessage nested_message = 1;
   bool has_nested_message() const;
@@ -1088,13 +1088,9 @@ class Proto3OptionalExtensions final :
   // accessors -------------------------------------------------------
 
   static const int kExtNoOptionalFieldNumber = 355886728;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-      ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-    ext_no_optional;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > ext_no_optional;
   static const int kExtWithOptionalFieldNumber = 355886729;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions,
-      ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-    ext_with_optional;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::PROTOBUF_NAMESPACE_ID::MessageOptions, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > ext_with_optional;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.Proto3OptionalExtensions)
  private:
   class _Internal;
@@ -1119,10 +1115,10 @@ class Proto3OptionalExtensions final :
 // optional int32 bb = 1;
 inline bool TestProto3Optional_NestedMessage::_internal_has_bb() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional_NestedMessage::has_bb() const {
-  return _internal_has_bb();
+	return _internal_has_bb();
 }
 inline void TestProto3Optional_NestedMessage::clear_bb() {
   bb_ = 0;
@@ -1149,10 +1145,10 @@ inline void TestProto3Optional_NestedMessage::set_bb(int32_t value) {
 // optional int32 optional_int32 = 1;
 inline bool TestProto3Optional::_internal_has_optional_int32() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_int32() const {
-  return _internal_has_optional_int32();
+	return _internal_has_optional_int32();
 }
 inline void TestProto3Optional::clear_optional_int32() {
   optional_int32_ = 0;
@@ -1175,10 +1171,10 @@ inline void TestProto3Optional::set_optional_int32(int32_t value) {
 // optional int64 optional_int64 = 2;
 inline bool TestProto3Optional::_internal_has_optional_int64() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_int64() const {
-  return _internal_has_optional_int64();
+	return _internal_has_optional_int64();
 }
 inline void TestProto3Optional::clear_optional_int64() {
   optional_int64_ = int64_t{0};
@@ -1201,10 +1197,10 @@ inline void TestProto3Optional::set_optional_int64(int64_t value) {
 // optional uint32 optional_uint32 = 3;
 inline bool TestProto3Optional::_internal_has_optional_uint32() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_uint32() const {
-  return _internal_has_optional_uint32();
+	return _internal_has_optional_uint32();
 }
 inline void TestProto3Optional::clear_optional_uint32() {
   optional_uint32_ = 0u;
@@ -1227,10 +1223,10 @@ inline void TestProto3Optional::set_optional_uint32(uint32_t value) {
 // optional uint64 optional_uint64 = 4;
 inline bool TestProto3Optional::_internal_has_optional_uint64() const {
   bool value = (_has_bits_[0] & 0x00000100u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_uint64() const {
-  return _internal_has_optional_uint64();
+	return _internal_has_optional_uint64();
 }
 inline void TestProto3Optional::clear_optional_uint64() {
   optional_uint64_ = uint64_t{0u};
@@ -1253,10 +1249,10 @@ inline void TestProto3Optional::set_optional_uint64(uint64_t value) {
 // optional sint32 optional_sint32 = 5;
 inline bool TestProto3Optional::_internal_has_optional_sint32() const {
   bool value = (_has_bits_[0] & 0x00000400u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_sint32() const {
-  return _internal_has_optional_sint32();
+	return _internal_has_optional_sint32();
 }
 inline void TestProto3Optional::clear_optional_sint32() {
   optional_sint32_ = 0;
@@ -1279,10 +1275,10 @@ inline void TestProto3Optional::set_optional_sint32(int32_t value) {
 // optional sint64 optional_sint64 = 6;
 inline bool TestProto3Optional::_internal_has_optional_sint64() const {
   bool value = (_has_bits_[0] & 0x00000200u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_sint64() const {
-  return _internal_has_optional_sint64();
+	return _internal_has_optional_sint64();
 }
 inline void TestProto3Optional::clear_optional_sint64() {
   optional_sint64_ = int64_t{0};
@@ -1305,10 +1301,10 @@ inline void TestProto3Optional::set_optional_sint64(int64_t value) {
 // optional fixed32 optional_fixed32 = 7;
 inline bool TestProto3Optional::_internal_has_optional_fixed32() const {
   bool value = (_has_bits_[0] & 0x00000800u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_fixed32() const {
-  return _internal_has_optional_fixed32();
+	return _internal_has_optional_fixed32();
 }
 inline void TestProto3Optional::clear_optional_fixed32() {
   optional_fixed32_ = 0u;
@@ -1331,10 +1327,10 @@ inline void TestProto3Optional::set_optional_fixed32(uint32_t value) {
 // optional fixed64 optional_fixed64 = 8;
 inline bool TestProto3Optional::_internal_has_optional_fixed64() const {
   bool value = (_has_bits_[0] & 0x00001000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_fixed64() const {
-  return _internal_has_optional_fixed64();
+	return _internal_has_optional_fixed64();
 }
 inline void TestProto3Optional::clear_optional_fixed64() {
   optional_fixed64_ = uint64_t{0u};
@@ -1357,10 +1353,10 @@ inline void TestProto3Optional::set_optional_fixed64(uint64_t value) {
 // optional sfixed32 optional_sfixed32 = 9;
 inline bool TestProto3Optional::_internal_has_optional_sfixed32() const {
   bool value = (_has_bits_[0] & 0x00004000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_sfixed32() const {
-  return _internal_has_optional_sfixed32();
+	return _internal_has_optional_sfixed32();
 }
 inline void TestProto3Optional::clear_optional_sfixed32() {
   optional_sfixed32_ = 0;
@@ -1383,10 +1379,10 @@ inline void TestProto3Optional::set_optional_sfixed32(int32_t value) {
 // optional sfixed64 optional_sfixed64 = 10;
 inline bool TestProto3Optional::_internal_has_optional_sfixed64() const {
   bool value = (_has_bits_[0] & 0x00002000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_sfixed64() const {
-  return _internal_has_optional_sfixed64();
+	return _internal_has_optional_sfixed64();
 }
 inline void TestProto3Optional::clear_optional_sfixed64() {
   optional_sfixed64_ = int64_t{0};
@@ -1409,10 +1405,10 @@ inline void TestProto3Optional::set_optional_sfixed64(int64_t value) {
 // optional float optional_float = 11;
 inline bool TestProto3Optional::_internal_has_optional_float() const {
   bool value = (_has_bits_[0] & 0x00008000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_float() const {
-  return _internal_has_optional_float();
+	return _internal_has_optional_float();
 }
 inline void TestProto3Optional::clear_optional_float() {
   optional_float_ = 0;
@@ -1435,10 +1431,10 @@ inline void TestProto3Optional::set_optional_float(float value) {
 // optional double optional_double = 12;
 inline bool TestProto3Optional::_internal_has_optional_double() const {
   bool value = (_has_bits_[0] & 0x00010000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_double() const {
-  return _internal_has_optional_double();
+	return _internal_has_optional_double();
 }
 inline void TestProto3Optional::clear_optional_double() {
   optional_double_ = 0;
@@ -1461,10 +1457,10 @@ inline void TestProto3Optional::set_optional_double(double value) {
 // optional bool optional_bool = 13;
 inline bool TestProto3Optional::_internal_has_optional_bool() const {
   bool value = (_has_bits_[0] & 0x00020000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_bool() const {
-  return _internal_has_optional_bool();
+	return _internal_has_optional_bool();
 }
 inline void TestProto3Optional::clear_optional_bool() {
   optional_bool_ = false;
@@ -1487,10 +1483,10 @@ inline void TestProto3Optional::set_optional_bool(bool value) {
 // optional string optional_string = 14;
 inline bool TestProto3Optional::_internal_has_optional_string() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_string() const {
-  return _internal_has_optional_string();
+	return _internal_has_optional_string();
 }
 inline void TestProto3Optional::clear_optional_string() {
   optional_string_.ClearToEmpty();
@@ -1551,10 +1547,10 @@ inline void TestProto3Optional::set_allocated_optional_string(std::string* optio
 // optional bytes optional_bytes = 15;
 inline bool TestProto3Optional::_internal_has_optional_bytes() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_bytes() const {
-  return _internal_has_optional_bytes();
+	return _internal_has_optional_bytes();
 }
 inline void TestProto3Optional::clear_optional_bytes() {
   optional_bytes_.ClearToEmpty();
@@ -1615,10 +1611,10 @@ inline void TestProto3Optional::set_allocated_optional_bytes(std::string* option
 // optional string optional_cord = 16 [ctype = CORD];
 inline bool TestProto3Optional::_internal_has_optional_cord() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_cord() const {
-  return _internal_has_optional_cord();
+	return _internal_has_optional_cord();
 }
 inline void TestProto3Optional::clear_optional_cord() {
   optional_cord_.ClearToEmpty();
@@ -1680,10 +1676,10 @@ inline void TestProto3Optional::set_allocated_optional_cord(std::string* optiona
 inline bool TestProto3Optional::_internal_has_optional_nested_message() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
   PROTOBUF_ASSUME(!value || optional_nested_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_nested_message() const {
-  return _internal_has_optional_nested_message();
+	return _internal_has_optional_nested_message();
 }
 inline void TestProto3Optional::clear_optional_nested_message() {
   if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
@@ -1769,10 +1765,10 @@ inline void TestProto3Optional::set_allocated_optional_nested_message(::protobuf
 inline bool TestProto3Optional::_internal_has_lazy_nested_message() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
   PROTOBUF_ASSUME(!value || lazy_nested_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_lazy_nested_message() const {
-  return _internal_has_lazy_nested_message();
+	return _internal_has_lazy_nested_message();
 }
 inline void TestProto3Optional::clear_lazy_nested_message() {
   if(lazy_nested_message_ != nullptr) lazy_nested_message_->Clear();
@@ -1857,10 +1853,10 @@ inline void TestProto3Optional::set_allocated_lazy_nested_message(::protobuf_uni
 // optional .protobuf_unittest.TestProto3Optional.NestedEnum optional_nested_enum = 21;
 inline bool TestProto3Optional::_internal_has_optional_nested_enum() const {
   bool value = (_has_bits_[0] & 0x00040000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestProto3Optional::has_optional_nested_enum() const {
-  return _internal_has_optional_nested_enum();
+	return _internal_has_optional_nested_enum();
 }
 inline void TestProto3Optional::clear_optional_nested_enum() {
   optional_nested_enum_ = 0;
@@ -1974,8 +1970,9 @@ inline void TestProto3OptionalMessage_NestedMessage::set_allocated_s(std::string
 
 // .protobuf_unittest.TestProto3OptionalMessage.NestedMessage nested_message = 1;
 inline bool TestProto3OptionalMessage::_internal_has_nested_message() const { return this != internal_default_instance() && nested_message_ != nullptr; }
-inline bool TestProto3OptionalMessage::has_nested_message() const {
-  return _internal_has_nested_message();
+inline bool TestProto3OptionalMessage::has_nested_message() const
+{
+	return _internal_has_nested_message();
 }
 inline void TestProto3OptionalMessage::clear_nested_message() {
   if(GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
@@ -2063,10 +2060,10 @@ inline void TestProto3OptionalMessage::set_allocated_nested_message(::protobuf_u
 inline bool TestProto3OptionalMessage::_internal_has_optional_nested_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || optional_nested_message_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestProto3OptionalMessage::has_optional_nested_message() const {
-  return _internal_has_optional_nested_message();
+	return _internal_has_optional_nested_message();
 }
 inline void TestProto3OptionalMessage::clear_optional_nested_message() {
   if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();

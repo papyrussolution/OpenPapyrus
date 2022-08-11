@@ -278,50 +278,50 @@ class DefaultValueTestCases final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEmptyDoubleFieldNumber = 1,
-    kDoubleWithDefaultValueFieldNumber = 2,
-    kDoubleWithNondefaultValueFieldNumber = 3,
-    kRepeatedDoubleFieldNumber = 4,
-    kNestedMessageFieldNumber = 5,
-    kRepeatedNestedMessageFieldNumber = 6,
-    kDoubleMessageWithOneofFieldNumber = 7,
-    kEmptyStructFieldNumber = 201,
-    kEmptyStruct2FieldNumber = 202,
-    kStructWithNullValueFieldNumber = 203,
-    kStructWithValuesFieldNumber = 204,
-    kStructWithNestedStructFieldNumber = 205,
-    kStructWithNestedListFieldNumber = 206,
-    kStructWithListOfNullsFieldNumber = 207,
-    kStructWithListOfListsFieldNumber = 208,
-    kStructWithListOfStructsFieldNumber = 209,
-    kTopLevelStructFieldNumber = 210,
-    kValueWrapperSimpleFieldNumber = 212,
-    kValueWrapperWithStructFieldNumber = 213,
-    kValueWrapperWithListFieldNumber = 214,
-    kListValueWrapperFieldNumber = 215,
-    kTopLevelValueSimpleFieldNumber = 216,
-    kTopLevelValueWithStructFieldNumber = 217,
-    kTopLevelValueWithListFieldNumber = 218,
-    kTopLevelListvalueFieldNumber = 219,
-    kEmptyAnyFieldNumber = 301,
-    kTypeOnlyAnyFieldNumber = 302,
-    kRecursiveAnyFieldNumber = 303,
-    kAnyWithMessageValueFieldNumber = 304,
-    kAnyWithNestedMessageFieldNumber = 305,
-    kAnyWithMessageContainingMapFieldNumber = 306,
-    kAnyWithMessageContainingStructFieldNumber = 307,
-    kTopLevelAnyFieldNumber = 308,
-    kEmptyMapFieldNumber = 401,
-    kStringToIntFieldNumber = 402,
-    kIntToStringFieldNumber = 403,
-    kMixed1FieldNumber = 404,
-    kMixed2FieldNumber = 405,
-    kEmptyMixed2FieldNumber = 406,
-    kMapOfObjectsFieldNumber = 407,
-    kMixedEmptyFieldNumber = 408,
-    kMessageMapEmptyFieldNumber = 409,
-    kDoubleValueFieldNumber = 501,
-    kDoubleValueDefaultFieldNumber = 502,
+  	kEmptyDoubleFieldNumber = 1,
+  	kDoubleWithDefaultValueFieldNumber = 2,
+  	kDoubleWithNondefaultValueFieldNumber = 3,
+  	kRepeatedDoubleFieldNumber = 4,
+  	kNestedMessageFieldNumber = 5,
+  	kRepeatedNestedMessageFieldNumber = 6,
+  	kDoubleMessageWithOneofFieldNumber = 7,
+  	kEmptyStructFieldNumber = 201,
+  	kEmptyStruct2FieldNumber = 202,
+  	kStructWithNullValueFieldNumber = 203,
+  	kStructWithValuesFieldNumber = 204,
+  	kStructWithNestedStructFieldNumber = 205,
+  	kStructWithNestedListFieldNumber = 206,
+  	kStructWithListOfNullsFieldNumber = 207,
+  	kStructWithListOfListsFieldNumber = 208,
+  	kStructWithListOfStructsFieldNumber = 209,
+  	kTopLevelStructFieldNumber = 210,
+  	kValueWrapperSimpleFieldNumber = 212,
+  	kValueWrapperWithStructFieldNumber = 213,
+  	kValueWrapperWithListFieldNumber = 214,
+  	kListValueWrapperFieldNumber = 215,
+  	kTopLevelValueSimpleFieldNumber = 216,
+  	kTopLevelValueWithStructFieldNumber = 217,
+  	kTopLevelValueWithListFieldNumber = 218,
+  	kTopLevelListvalueFieldNumber = 219,
+  	kEmptyAnyFieldNumber = 301,
+  	kTypeOnlyAnyFieldNumber = 302,
+  	kRecursiveAnyFieldNumber = 303,
+  	kAnyWithMessageValueFieldNumber = 304,
+  	kAnyWithNestedMessageFieldNumber = 305,
+  	kAnyWithMessageContainingMapFieldNumber = 306,
+  	kAnyWithMessageContainingStructFieldNumber = 307,
+  	kTopLevelAnyFieldNumber = 308,
+  	kEmptyMapFieldNumber = 401,
+  	kStringToIntFieldNumber = 402,
+  	kIntToStringFieldNumber = 403,
+  	kMixed1FieldNumber = 404,
+  	kMixed2FieldNumber = 405,
+  	kEmptyMixed2FieldNumber = 406,
+  	kMapOfObjectsFieldNumber = 407,
+  	kMixedEmptyFieldNumber = 408,
+  	kMessageMapEmptyFieldNumber = 409,
+  	kDoubleValueFieldNumber = 501,
+  	kDoubleValueDefaultFieldNumber = 502,
   };
   // .proto_util_converter.testing.DoubleMessage empty_double = 1;
   bool has_empty_double() const;
@@ -1280,13 +1280,13 @@ class DoubleMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedDoubleFieldNumber = 2,
-    kRepeatedNestedMessageFieldNumber = 4,
-    kNestedMessageFieldNumber = 3,
-    kDoubleWrapperFieldNumber = 100,
-    kDoubleValueFieldNumber = 1,
-    kStrValueFieldNumber = 112,
-    kNumValueFieldNumber = 113,
+  	kRepeatedDoubleFieldNumber = 2,
+  	kRepeatedNestedMessageFieldNumber = 4,
+  	kNestedMessageFieldNumber = 3,
+  	kDoubleWrapperFieldNumber = 100,
+  	kDoubleValueFieldNumber = 1,
+  	kStrValueFieldNumber = 112,
+  	kNumValueFieldNumber = 113,
   };
   // repeated double repeated_double = 2;
   int repeated_double_size() const;
@@ -1534,7 +1534,7 @@ class StructMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kStructFieldNumber = 1,
+  	kStructFieldNumber = 1,
   };
   // .google.protobuf.Struct struct = 1;
   bool has_struct_() const;
@@ -1670,7 +1670,7 @@ class ValueMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // .google.protobuf.Value value = 1;
   bool has_value() const;
@@ -1806,7 +1806,7 @@ class ListValueMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kShoppingListFieldNumber = 1,
+  	kShoppingListFieldNumber = 1,
   };
   // .google.protobuf.ListValue shopping_list = 1;
   bool has_shopping_list() const;
@@ -1942,7 +1942,7 @@ class RequestMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kContentFieldNumber = 1,
+  	kContentFieldNumber = 1,
   };
   // string content = 1;
   void clear_content();
@@ -2074,8 +2074,8 @@ class AnyMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAnyFieldNumber = 1,
-    kDataFieldNumber = 2,
+  	kAnyFieldNumber = 1,
+  	kDataFieldNumber = 2,
   };
   // .google.protobuf.Any any = 1;
   bool has_any() const;
@@ -2248,13 +2248,13 @@ class AnyData final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMsgsFieldNumber = 3,
-    kMapDataFieldNumber = 7,
-    kRepeatedDataFieldNumber = 9,
-    kStrFieldNumber = 2,
-    kNestedDataFieldNumber = 4,
-    kStructDataFieldNumber = 8,
-    kAttrFieldNumber = 1,
+  	kMsgsFieldNumber = 3,
+  	kMapDataFieldNumber = 7,
+  	kRepeatedDataFieldNumber = 9,
+  	kStrFieldNumber = 2,
+  	kNestedDataFieldNumber = 4,
+  	kStructDataFieldNumber = 8,
+  	kAttrFieldNumber = 1,
   };
   // repeated string msgs = 3;
   int msgs_size() const;
@@ -2376,11 +2376,7 @@ class AnyData final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> msgs_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      AnyData_MapDataEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_data_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<AnyData_MapDataEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_data_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::AnyData > repeated_data_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr str_;
   ::proto_util_converter::testing::AnyData* nested_data_;
@@ -2401,7 +2397,7 @@ public:
   void MergeFrom(const StringtoIntMap_MapEntry_DoNotUse& other);
   static const StringtoIntMap_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const StringtoIntMap_MapEntry_DoNotUse*>(&_StringtoIntMap_MapEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.StringtoIntMap.MapEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2512,7 +2508,7 @@ class StringtoIntMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 1,
+  	kMapFieldNumber = 1,
   };
   // map<string, int32> map = 1;
   int map_size() const;
@@ -2534,11 +2530,7 @@ class StringtoIntMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      StringtoIntMap_MapEntry_DoNotUse,
-      std::string, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<StringtoIntMap_MapEntry_DoNotUse, std::string, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fdefault_5fvalue_2eproto;
 };
@@ -2553,7 +2545,7 @@ public:
   explicit IntToStringMap_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const IntToStringMap_MapEntry_DoNotUse& other);
   static const IntToStringMap_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const IntToStringMap_MapEntry_DoNotUse*>(&_IntToStringMap_MapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
   static bool ValidateValue(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.IntToStringMap.MapEntry.value"); }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
@@ -2665,7 +2657,7 @@ class IntToStringMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 1,
+  	kMapFieldNumber = 1,
   };
   // map<int32, string> map = 1;
   int map_size() const;
@@ -2687,11 +2679,7 @@ class IntToStringMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      IntToStringMap_MapEntry_DoNotUse,
-      int32_t, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<IntToStringMap_MapEntry_DoNotUse, int32_t, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fdefault_5fvalue_2eproto;
 };
@@ -2707,7 +2695,7 @@ public:
   void MergeFrom(const MixedMap_MapEntry_DoNotUse& other);
   static const MixedMap_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MixedMap_MapEntry_DoNotUse*>(&_MixedMap_MapEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.MixedMap.MapEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2818,9 +2806,9 @@ class MixedMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 2,
-    kMsgFieldNumber = 1,
-    kIntValueFieldNumber = 3,
+  	kMapFieldNumber = 2,
+  	kMsgFieldNumber = 1,
+  	kIntValueFieldNumber = 3,
   };
   // map<string, float> map = 2;
   int map_size() const;
@@ -2865,11 +2853,7 @@ class MixedMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MixedMap_MapEntry_DoNotUse,
-      std::string, float,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MixedMap_MapEntry_DoNotUse, std::string, float, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FLOAT> map_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr msg_;
   int32_t int_value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -2886,8 +2870,8 @@ public:
   explicit MixedMap2_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MixedMap2_MapEntry_DoNotUse& other);
   static const MixedMap2_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MixedMap2_MapEntry_DoNotUse*>(&_MixedMap2_MapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -3018,9 +3002,9 @@ class MixedMap2 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 1,
-    kMsgFieldNumber = 4,
-    kEeFieldNumber = 2,
+  	kMapFieldNumber = 1,
+  	kMsgFieldNumber = 4,
+  	kEeFieldNumber = 2,
   };
   // map<int32, bool> map = 1;
   int map_size() const;
@@ -3065,11 +3049,7 @@ class MixedMap2 final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MixedMap2_MapEntry_DoNotUse,
-      int32_t, bool,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MixedMap2_MapEntry_DoNotUse, int32_t, bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL> map_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr msg_;
   int ee_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -3180,8 +3160,8 @@ class MessageMap_M final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kInnerTextFieldNumber = 2,
-    kInnerIntFieldNumber = 1,
+  	kInnerTextFieldNumber = 2,
+  	kInnerIntFieldNumber = 1,
   };
   // string inner_text = 2;
   void clear_inner_text();
@@ -3230,7 +3210,7 @@ public:
   void MergeFrom(const MessageMap_MapEntry_DoNotUse& other);
   static const MessageMap_MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MessageMap_MapEntry_DoNotUse*>(&_MessageMap_MapEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto_util_converter.testing.MessageMap.MapEntry.key"); }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -3342,7 +3322,7 @@ class MessageMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMapFieldNumber = 1,
+  	kMapFieldNumber = 1,
   };
   // map<string, .proto_util_converter.testing.MessageMap.M> map = 1;
   int map_size() const;
@@ -3364,11 +3344,7 @@ class MessageMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MessageMap_MapEntry_DoNotUse,
-      std::string, ::proto_util_converter::testing::MessageMap_M,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<MessageMap_MapEntry_DoNotUse, std::string, ::proto_util_converter::testing::MessageMap_M, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2finternal_2ftestdata_2fdefault_5fvalue_2eproto;
 };
@@ -3477,7 +3453,7 @@ class DoubleValueMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDoubleFieldNumber = 1,
+  	kDoubleFieldNumber = 1,
   };
   // .google.protobuf.DoubleValue double = 1;
   bool has_double_() const;
@@ -3521,8 +3497,9 @@ class DoubleValueMessage final :
 
 // .proto_util_converter.testing.DoubleMessage empty_double = 1;
 inline bool DefaultValueTestCases::_internal_has_empty_double() const { return this != internal_default_instance() && empty_double_ != nullptr; }
-inline bool DefaultValueTestCases::has_empty_double() const {
-  return _internal_has_empty_double();
+inline bool DefaultValueTestCases::has_empty_double() const
+{
+	return _internal_has_empty_double();
 }
 inline void DefaultValueTestCases::clear_empty_double() {
   if(GetArenaForAllocation() == nullptr && empty_double_ != nullptr) {
@@ -3608,8 +3585,9 @@ inline void DefaultValueTestCases::set_allocated_empty_double(::proto_util_conve
 
 // .proto_util_converter.testing.DoubleMessage double_with_default_value = 2;
 inline bool DefaultValueTestCases::_internal_has_double_with_default_value() const { return this != internal_default_instance() && double_with_default_value_ != nullptr; }
-inline bool DefaultValueTestCases::has_double_with_default_value() const {
-  return _internal_has_double_with_default_value();
+inline bool DefaultValueTestCases::has_double_with_default_value() const
+{
+	return _internal_has_double_with_default_value();
 }
 inline void DefaultValueTestCases::clear_double_with_default_value() {
   if(GetArenaForAllocation() == nullptr && double_with_default_value_ != nullptr) {
@@ -3695,8 +3673,9 @@ inline void DefaultValueTestCases::set_allocated_double_with_default_value(::pro
 
 // .proto_util_converter.testing.DoubleMessage double_with_nondefault_value = 3;
 inline bool DefaultValueTestCases::_internal_has_double_with_nondefault_value() const { return this != internal_default_instance() && double_with_nondefault_value_ != nullptr; }
-inline bool DefaultValueTestCases::has_double_with_nondefault_value() const {
-  return _internal_has_double_with_nondefault_value();
+inline bool DefaultValueTestCases::has_double_with_nondefault_value() const
+{
+	return _internal_has_double_with_nondefault_value();
 }
 inline void DefaultValueTestCases::clear_double_with_nondefault_value() {
   if(GetArenaForAllocation() == nullptr && double_with_nondefault_value_ != nullptr) {
@@ -3782,8 +3761,9 @@ inline void DefaultValueTestCases::set_allocated_double_with_nondefault_value(::
 
 // .proto_util_converter.testing.DoubleMessage repeated_double = 4;
 inline bool DefaultValueTestCases::_internal_has_repeated_double() const { return this != internal_default_instance() && repeated_double_ != nullptr; }
-inline bool DefaultValueTestCases::has_repeated_double() const {
-  return _internal_has_repeated_double();
+inline bool DefaultValueTestCases::has_repeated_double() const
+{
+	return _internal_has_repeated_double();
 }
 inline void DefaultValueTestCases::clear_repeated_double() {
   if(GetArenaForAllocation() == nullptr && repeated_double_ != nullptr) {
@@ -3869,8 +3849,9 @@ inline void DefaultValueTestCases::set_allocated_repeated_double(::proto_util_co
 
 // .proto_util_converter.testing.DoubleMessage nested_message = 5;
 inline bool DefaultValueTestCases::_internal_has_nested_message() const { return this != internal_default_instance() && nested_message_ != nullptr; }
-inline bool DefaultValueTestCases::has_nested_message() const {
-  return _internal_has_nested_message();
+inline bool DefaultValueTestCases::has_nested_message() const
+{
+	return _internal_has_nested_message();
 }
 inline void DefaultValueTestCases::clear_nested_message() {
   if(GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
@@ -3956,8 +3937,9 @@ inline void DefaultValueTestCases::set_allocated_nested_message(::proto_util_con
 
 // .proto_util_converter.testing.DoubleMessage repeated_nested_message = 6;
 inline bool DefaultValueTestCases::_internal_has_repeated_nested_message() const { return this != internal_default_instance() && repeated_nested_message_ != nullptr; }
-inline bool DefaultValueTestCases::has_repeated_nested_message() const {
-  return _internal_has_repeated_nested_message();
+inline bool DefaultValueTestCases::has_repeated_nested_message() const
+{
+	return _internal_has_repeated_nested_message();
 }
 inline void DefaultValueTestCases::clear_repeated_nested_message() {
   if(GetArenaForAllocation() == nullptr && repeated_nested_message_ != nullptr) {
@@ -4043,8 +4025,9 @@ inline void DefaultValueTestCases::set_allocated_repeated_nested_message(::proto
 
 // .proto_util_converter.testing.DoubleMessage double_message_with_oneof = 7;
 inline bool DefaultValueTestCases::_internal_has_double_message_with_oneof() const { return this != internal_default_instance() && double_message_with_oneof_ != nullptr; }
-inline bool DefaultValueTestCases::has_double_message_with_oneof() const {
-  return _internal_has_double_message_with_oneof();
+inline bool DefaultValueTestCases::has_double_message_with_oneof() const
+{
+	return _internal_has_double_message_with_oneof();
 }
 inline void DefaultValueTestCases::clear_double_message_with_oneof() {
   if(GetArenaForAllocation() == nullptr && double_message_with_oneof_ != nullptr) {
@@ -4130,8 +4113,9 @@ inline void DefaultValueTestCases::set_allocated_double_message_with_oneof(::pro
 
 // .proto_util_converter.testing.StructMessage empty_struct = 201;
 inline bool DefaultValueTestCases::_internal_has_empty_struct() const { return this != internal_default_instance() && empty_struct_ != nullptr; }
-inline bool DefaultValueTestCases::has_empty_struct() const {
-  return _internal_has_empty_struct();
+inline bool DefaultValueTestCases::has_empty_struct() const
+{
+	return _internal_has_empty_struct();
 }
 inline void DefaultValueTestCases::clear_empty_struct() {
   if(GetArenaForAllocation() == nullptr && empty_struct_ != nullptr) {
@@ -4217,8 +4201,9 @@ inline void DefaultValueTestCases::set_allocated_empty_struct(::proto_util_conve
 
 // .proto_util_converter.testing.StructMessage empty_struct2 = 202;
 inline bool DefaultValueTestCases::_internal_has_empty_struct2() const { return this != internal_default_instance() && empty_struct2_ != nullptr; }
-inline bool DefaultValueTestCases::has_empty_struct2() const {
-  return _internal_has_empty_struct2();
+inline bool DefaultValueTestCases::has_empty_struct2() const
+{
+	return _internal_has_empty_struct2();
 }
 inline void DefaultValueTestCases::clear_empty_struct2() {
   if(GetArenaForAllocation() == nullptr && empty_struct2_ != nullptr) {
@@ -4304,8 +4289,9 @@ inline void DefaultValueTestCases::set_allocated_empty_struct2(::proto_util_conv
 
 // .proto_util_converter.testing.StructMessage struct_with_null_value = 203;
 inline bool DefaultValueTestCases::_internal_has_struct_with_null_value() const { return this != internal_default_instance() && struct_with_null_value_ != nullptr; }
-inline bool DefaultValueTestCases::has_struct_with_null_value() const {
-  return _internal_has_struct_with_null_value();
+inline bool DefaultValueTestCases::has_struct_with_null_value() const
+{
+	return _internal_has_struct_with_null_value();
 }
 inline void DefaultValueTestCases::clear_struct_with_null_value() {
   if(GetArenaForAllocation() == nullptr && struct_with_null_value_ != nullptr) {
@@ -4391,8 +4377,9 @@ inline void DefaultValueTestCases::set_allocated_struct_with_null_value(::proto_
 
 // .proto_util_converter.testing.StructMessage struct_with_values = 204;
 inline bool DefaultValueTestCases::_internal_has_struct_with_values() const { return this != internal_default_instance() && struct_with_values_ != nullptr; }
-inline bool DefaultValueTestCases::has_struct_with_values() const {
-  return _internal_has_struct_with_values();
+inline bool DefaultValueTestCases::has_struct_with_values() const
+{
+	return _internal_has_struct_with_values();
 }
 inline void DefaultValueTestCases::clear_struct_with_values() {
   if(GetArenaForAllocation() == nullptr && struct_with_values_ != nullptr) {
@@ -4478,8 +4465,9 @@ inline void DefaultValueTestCases::set_allocated_struct_with_values(::proto_util
 
 // .proto_util_converter.testing.StructMessage struct_with_nested_struct = 205;
 inline bool DefaultValueTestCases::_internal_has_struct_with_nested_struct() const { return this != internal_default_instance() && struct_with_nested_struct_ != nullptr; }
-inline bool DefaultValueTestCases::has_struct_with_nested_struct() const {
-  return _internal_has_struct_with_nested_struct();
+inline bool DefaultValueTestCases::has_struct_with_nested_struct() const
+{
+	return _internal_has_struct_with_nested_struct();
 }
 inline void DefaultValueTestCases::clear_struct_with_nested_struct() {
   if(GetArenaForAllocation() == nullptr && struct_with_nested_struct_ != nullptr) {
@@ -4565,8 +4553,9 @@ inline void DefaultValueTestCases::set_allocated_struct_with_nested_struct(::pro
 
 // .proto_util_converter.testing.StructMessage struct_with_nested_list = 206;
 inline bool DefaultValueTestCases::_internal_has_struct_with_nested_list() const { return this != internal_default_instance() && struct_with_nested_list_ != nullptr; }
-inline bool DefaultValueTestCases::has_struct_with_nested_list() const {
-  return _internal_has_struct_with_nested_list();
+inline bool DefaultValueTestCases::has_struct_with_nested_list() const
+{
+	return _internal_has_struct_with_nested_list();
 }
 inline void DefaultValueTestCases::clear_struct_with_nested_list() {
   if(GetArenaForAllocation() == nullptr && struct_with_nested_list_ != nullptr) {
@@ -4652,8 +4641,9 @@ inline void DefaultValueTestCases::set_allocated_struct_with_nested_list(::proto
 
 // .proto_util_converter.testing.StructMessage struct_with_list_of_nulls = 207;
 inline bool DefaultValueTestCases::_internal_has_struct_with_list_of_nulls() const { return this != internal_default_instance() && struct_with_list_of_nulls_ != nullptr; }
-inline bool DefaultValueTestCases::has_struct_with_list_of_nulls() const {
-  return _internal_has_struct_with_list_of_nulls();
+inline bool DefaultValueTestCases::has_struct_with_list_of_nulls() const
+{
+	return _internal_has_struct_with_list_of_nulls();
 }
 inline void DefaultValueTestCases::clear_struct_with_list_of_nulls() {
   if(GetArenaForAllocation() == nullptr && struct_with_list_of_nulls_ != nullptr) {
@@ -4739,8 +4729,9 @@ inline void DefaultValueTestCases::set_allocated_struct_with_list_of_nulls(::pro
 
 // .proto_util_converter.testing.StructMessage struct_with_list_of_lists = 208;
 inline bool DefaultValueTestCases::_internal_has_struct_with_list_of_lists() const { return this != internal_default_instance() && struct_with_list_of_lists_ != nullptr; }
-inline bool DefaultValueTestCases::has_struct_with_list_of_lists() const {
-  return _internal_has_struct_with_list_of_lists();
+inline bool DefaultValueTestCases::has_struct_with_list_of_lists() const
+{
+	return _internal_has_struct_with_list_of_lists();
 }
 inline void DefaultValueTestCases::clear_struct_with_list_of_lists() {
   if(GetArenaForAllocation() == nullptr && struct_with_list_of_lists_ != nullptr) {
@@ -4826,8 +4817,9 @@ inline void DefaultValueTestCases::set_allocated_struct_with_list_of_lists(::pro
 
 // .proto_util_converter.testing.StructMessage struct_with_list_of_structs = 209;
 inline bool DefaultValueTestCases::_internal_has_struct_with_list_of_structs() const { return this != internal_default_instance() && struct_with_list_of_structs_ != nullptr; }
-inline bool DefaultValueTestCases::has_struct_with_list_of_structs() const {
-  return _internal_has_struct_with_list_of_structs();
+inline bool DefaultValueTestCases::has_struct_with_list_of_structs() const
+{
+	return _internal_has_struct_with_list_of_structs();
 }
 inline void DefaultValueTestCases::clear_struct_with_list_of_structs() {
   if(GetArenaForAllocation() == nullptr && struct_with_list_of_structs_ != nullptr) {
@@ -4913,8 +4905,9 @@ inline void DefaultValueTestCases::set_allocated_struct_with_list_of_structs(::p
 
 // .google.protobuf.Struct top_level_struct = 210;
 inline bool DefaultValueTestCases::_internal_has_top_level_struct() const { return this != internal_default_instance() && top_level_struct_ != nullptr; }
-inline bool DefaultValueTestCases::has_top_level_struct() const {
-  return _internal_has_top_level_struct();
+inline bool DefaultValueTestCases::has_top_level_struct() const
+{
+	return _internal_has_top_level_struct();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Struct& DefaultValueTestCases::_internal_top_level_struct() const {
   const ::PROTOBUF_NAMESPACE_ID::Struct* p = top_level_struct_;
@@ -4995,8 +4988,9 @@ inline void DefaultValueTestCases::set_allocated_top_level_struct(::PROTOBUF_NAM
 
 // .proto_util_converter.testing.ValueMessage value_wrapper_simple = 212;
 inline bool DefaultValueTestCases::_internal_has_value_wrapper_simple() const { return this != internal_default_instance() && value_wrapper_simple_ != nullptr; }
-inline bool DefaultValueTestCases::has_value_wrapper_simple() const {
-  return _internal_has_value_wrapper_simple();
+inline bool DefaultValueTestCases::has_value_wrapper_simple() const
+{
+	return _internal_has_value_wrapper_simple();
 }
 inline void DefaultValueTestCases::clear_value_wrapper_simple() {
   if(GetArenaForAllocation() == nullptr && value_wrapper_simple_ != nullptr) {
@@ -5082,8 +5076,9 @@ inline void DefaultValueTestCases::set_allocated_value_wrapper_simple(::proto_ut
 
 // .proto_util_converter.testing.ValueMessage value_wrapper_with_struct = 213;
 inline bool DefaultValueTestCases::_internal_has_value_wrapper_with_struct() const { return this != internal_default_instance() && value_wrapper_with_struct_ != nullptr; }
-inline bool DefaultValueTestCases::has_value_wrapper_with_struct() const {
-  return _internal_has_value_wrapper_with_struct();
+inline bool DefaultValueTestCases::has_value_wrapper_with_struct() const
+{
+	return _internal_has_value_wrapper_with_struct();
 }
 inline void DefaultValueTestCases::clear_value_wrapper_with_struct() {
   if(GetArenaForAllocation() == nullptr && value_wrapper_with_struct_ != nullptr) {
@@ -5169,8 +5164,9 @@ inline void DefaultValueTestCases::set_allocated_value_wrapper_with_struct(::pro
 
 // .proto_util_converter.testing.ValueMessage value_wrapper_with_list = 214;
 inline bool DefaultValueTestCases::_internal_has_value_wrapper_with_list() const { return this != internal_default_instance() && value_wrapper_with_list_ != nullptr; }
-inline bool DefaultValueTestCases::has_value_wrapper_with_list() const {
-  return _internal_has_value_wrapper_with_list();
+inline bool DefaultValueTestCases::has_value_wrapper_with_list() const
+{
+	return _internal_has_value_wrapper_with_list();
 }
 inline void DefaultValueTestCases::clear_value_wrapper_with_list() {
   if(GetArenaForAllocation() == nullptr && value_wrapper_with_list_ != nullptr) {
@@ -5256,8 +5252,9 @@ inline void DefaultValueTestCases::set_allocated_value_wrapper_with_list(::proto
 
 // .proto_util_converter.testing.ListValueMessage list_value_wrapper = 215;
 inline bool DefaultValueTestCases::_internal_has_list_value_wrapper() const { return this != internal_default_instance() && list_value_wrapper_ != nullptr; }
-inline bool DefaultValueTestCases::has_list_value_wrapper() const {
-  return _internal_has_list_value_wrapper();
+inline bool DefaultValueTestCases::has_list_value_wrapper() const
+{
+	return _internal_has_list_value_wrapper();
 }
 inline void DefaultValueTestCases::clear_list_value_wrapper() {
   if(GetArenaForAllocation() == nullptr && list_value_wrapper_ != nullptr) {
@@ -5343,8 +5340,9 @@ inline void DefaultValueTestCases::set_allocated_list_value_wrapper(::proto_util
 
 // .google.protobuf.Value top_level_value_simple = 216;
 inline bool DefaultValueTestCases::_internal_has_top_level_value_simple() const { return this != internal_default_instance() && top_level_value_simple_ != nullptr; }
-inline bool DefaultValueTestCases::has_top_level_value_simple() const {
-  return _internal_has_top_level_value_simple();
+inline bool DefaultValueTestCases::has_top_level_value_simple() const
+{
+	return _internal_has_top_level_value_simple();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Value& DefaultValueTestCases::_internal_top_level_value_simple() const {
   const ::PROTOBUF_NAMESPACE_ID::Value* p = top_level_value_simple_;
@@ -5425,8 +5423,9 @@ inline void DefaultValueTestCases::set_allocated_top_level_value_simple(::PROTOB
 
 // .google.protobuf.Value top_level_value_with_struct = 217;
 inline bool DefaultValueTestCases::_internal_has_top_level_value_with_struct() const { return this != internal_default_instance() && top_level_value_with_struct_ != nullptr; }
-inline bool DefaultValueTestCases::has_top_level_value_with_struct() const {
-  return _internal_has_top_level_value_with_struct();
+inline bool DefaultValueTestCases::has_top_level_value_with_struct() const
+{
+	return _internal_has_top_level_value_with_struct();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Value& DefaultValueTestCases::_internal_top_level_value_with_struct() const {
   const ::PROTOBUF_NAMESPACE_ID::Value* p = top_level_value_with_struct_;
@@ -5507,8 +5506,9 @@ inline void DefaultValueTestCases::set_allocated_top_level_value_with_struct(::P
 
 // .google.protobuf.Value top_level_value_with_list = 218;
 inline bool DefaultValueTestCases::_internal_has_top_level_value_with_list() const { return this != internal_default_instance() && top_level_value_with_list_ != nullptr; }
-inline bool DefaultValueTestCases::has_top_level_value_with_list() const {
-  return _internal_has_top_level_value_with_list();
+inline bool DefaultValueTestCases::has_top_level_value_with_list() const
+{
+	return _internal_has_top_level_value_with_list();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Value& DefaultValueTestCases::_internal_top_level_value_with_list() const {
   const ::PROTOBUF_NAMESPACE_ID::Value* p = top_level_value_with_list_;
@@ -5589,8 +5589,9 @@ inline void DefaultValueTestCases::set_allocated_top_level_value_with_list(::PRO
 
 // .google.protobuf.ListValue top_level_listvalue = 219;
 inline bool DefaultValueTestCases::_internal_has_top_level_listvalue() const { return this != internal_default_instance() && top_level_listvalue_ != nullptr; }
-inline bool DefaultValueTestCases::has_top_level_listvalue() const {
-  return _internal_has_top_level_listvalue();
+inline bool DefaultValueTestCases::has_top_level_listvalue() const
+{
+	return _internal_has_top_level_listvalue();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::ListValue& DefaultValueTestCases::_internal_top_level_listvalue() const {
   const ::PROTOBUF_NAMESPACE_ID::ListValue* p = top_level_listvalue_;
@@ -5671,8 +5672,9 @@ inline void DefaultValueTestCases::set_allocated_top_level_listvalue(::PROTOBUF_
 
 // .proto_util_converter.testing.AnyMessage empty_any = 301;
 inline bool DefaultValueTestCases::_internal_has_empty_any() const { return this != internal_default_instance() && empty_any_ != nullptr; }
-inline bool DefaultValueTestCases::has_empty_any() const {
-  return _internal_has_empty_any();
+inline bool DefaultValueTestCases::has_empty_any() const
+{
+	return _internal_has_empty_any();
 }
 inline void DefaultValueTestCases::clear_empty_any() {
   if(GetArenaForAllocation() == nullptr && empty_any_ != nullptr) {
@@ -5758,8 +5760,9 @@ inline void DefaultValueTestCases::set_allocated_empty_any(::proto_util_converte
 
 // .proto_util_converter.testing.AnyMessage type_only_any = 302;
 inline bool DefaultValueTestCases::_internal_has_type_only_any() const { return this != internal_default_instance() && type_only_any_ != nullptr; }
-inline bool DefaultValueTestCases::has_type_only_any() const {
-  return _internal_has_type_only_any();
+inline bool DefaultValueTestCases::has_type_only_any() const
+{
+	return _internal_has_type_only_any();
 }
 inline void DefaultValueTestCases::clear_type_only_any() {
   if(GetArenaForAllocation() == nullptr && type_only_any_ != nullptr) {
@@ -5845,8 +5848,9 @@ inline void DefaultValueTestCases::set_allocated_type_only_any(::proto_util_conv
 
 // .proto_util_converter.testing.AnyMessage recursive_any = 303;
 inline bool DefaultValueTestCases::_internal_has_recursive_any() const { return this != internal_default_instance() && recursive_any_ != nullptr; }
-inline bool DefaultValueTestCases::has_recursive_any() const {
-  return _internal_has_recursive_any();
+inline bool DefaultValueTestCases::has_recursive_any() const
+{
+	return _internal_has_recursive_any();
 }
 inline void DefaultValueTestCases::clear_recursive_any() {
   if(GetArenaForAllocation() == nullptr && recursive_any_ != nullptr) {
@@ -5932,8 +5936,9 @@ inline void DefaultValueTestCases::set_allocated_recursive_any(::proto_util_conv
 
 // .proto_util_converter.testing.AnyMessage any_with_message_value = 304;
 inline bool DefaultValueTestCases::_internal_has_any_with_message_value() const { return this != internal_default_instance() && any_with_message_value_ != nullptr; }
-inline bool DefaultValueTestCases::has_any_with_message_value() const {
-  return _internal_has_any_with_message_value();
+inline bool DefaultValueTestCases::has_any_with_message_value() const
+{
+	return _internal_has_any_with_message_value();
 }
 inline void DefaultValueTestCases::clear_any_with_message_value() {
   if(GetArenaForAllocation() == nullptr && any_with_message_value_ != nullptr) {
@@ -6019,8 +6024,9 @@ inline void DefaultValueTestCases::set_allocated_any_with_message_value(::proto_
 
 // .proto_util_converter.testing.AnyMessage any_with_nested_message = 305;
 inline bool DefaultValueTestCases::_internal_has_any_with_nested_message() const { return this != internal_default_instance() && any_with_nested_message_ != nullptr; }
-inline bool DefaultValueTestCases::has_any_with_nested_message() const {
-  return _internal_has_any_with_nested_message();
+inline bool DefaultValueTestCases::has_any_with_nested_message() const
+{
+	return _internal_has_any_with_nested_message();
 }
 inline void DefaultValueTestCases::clear_any_with_nested_message() {
   if(GetArenaForAllocation() == nullptr && any_with_nested_message_ != nullptr) {
@@ -6106,8 +6112,9 @@ inline void DefaultValueTestCases::set_allocated_any_with_nested_message(::proto
 
 // .proto_util_converter.testing.AnyMessage any_with_message_containing_map = 306;
 inline bool DefaultValueTestCases::_internal_has_any_with_message_containing_map() const { return this != internal_default_instance() && any_with_message_containing_map_ != nullptr; }
-inline bool DefaultValueTestCases::has_any_with_message_containing_map() const {
-  return _internal_has_any_with_message_containing_map();
+inline bool DefaultValueTestCases::has_any_with_message_containing_map() const
+{
+	return _internal_has_any_with_message_containing_map();
 }
 inline void DefaultValueTestCases::clear_any_with_message_containing_map() {
   if(GetArenaForAllocation() == nullptr && any_with_message_containing_map_ != nullptr) {
@@ -6193,8 +6200,9 @@ inline void DefaultValueTestCases::set_allocated_any_with_message_containing_map
 
 // .proto_util_converter.testing.AnyMessage any_with_message_containing_struct = 307;
 inline bool DefaultValueTestCases::_internal_has_any_with_message_containing_struct() const { return this != internal_default_instance() && any_with_message_containing_struct_ != nullptr; }
-inline bool DefaultValueTestCases::has_any_with_message_containing_struct() const {
-  return _internal_has_any_with_message_containing_struct();
+inline bool DefaultValueTestCases::has_any_with_message_containing_struct() const
+{
+	return _internal_has_any_with_message_containing_struct();
 }
 inline void DefaultValueTestCases::clear_any_with_message_containing_struct() {
   if(GetArenaForAllocation() == nullptr && any_with_message_containing_struct_ != nullptr) {
@@ -6280,8 +6288,9 @@ inline void DefaultValueTestCases::set_allocated_any_with_message_containing_str
 
 // .google.protobuf.Any top_level_any = 308;
 inline bool DefaultValueTestCases::_internal_has_top_level_any() const { return this != internal_default_instance() && top_level_any_ != nullptr; }
-inline bool DefaultValueTestCases::has_top_level_any() const {
-  return _internal_has_top_level_any();
+inline bool DefaultValueTestCases::has_top_level_any() const
+{
+	return _internal_has_top_level_any();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& DefaultValueTestCases::_internal_top_level_any() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = top_level_any_;
@@ -6362,8 +6371,9 @@ inline void DefaultValueTestCases::set_allocated_top_level_any(::PROTOBUF_NAMESP
 
 // .proto_util_converter.testing.StringtoIntMap empty_map = 401;
 inline bool DefaultValueTestCases::_internal_has_empty_map() const { return this != internal_default_instance() && empty_map_ != nullptr; }
-inline bool DefaultValueTestCases::has_empty_map() const {
-  return _internal_has_empty_map();
+inline bool DefaultValueTestCases::has_empty_map() const
+{
+	return _internal_has_empty_map();
 }
 inline void DefaultValueTestCases::clear_empty_map() {
   if(GetArenaForAllocation() == nullptr && empty_map_ != nullptr) {
@@ -6449,8 +6459,9 @@ inline void DefaultValueTestCases::set_allocated_empty_map(::proto_util_converte
 
 // .proto_util_converter.testing.StringtoIntMap string_to_int = 402;
 inline bool DefaultValueTestCases::_internal_has_string_to_int() const { return this != internal_default_instance() && string_to_int_ != nullptr; }
-inline bool DefaultValueTestCases::has_string_to_int() const {
-  return _internal_has_string_to_int();
+inline bool DefaultValueTestCases::has_string_to_int() const
+{
+	return _internal_has_string_to_int();
 }
 inline void DefaultValueTestCases::clear_string_to_int() {
   if(GetArenaForAllocation() == nullptr && string_to_int_ != nullptr) {
@@ -6536,8 +6547,9 @@ inline void DefaultValueTestCases::set_allocated_string_to_int(::proto_util_conv
 
 // .proto_util_converter.testing.IntToStringMap int_to_string = 403;
 inline bool DefaultValueTestCases::_internal_has_int_to_string() const { return this != internal_default_instance() && int_to_string_ != nullptr; }
-inline bool DefaultValueTestCases::has_int_to_string() const {
-  return _internal_has_int_to_string();
+inline bool DefaultValueTestCases::has_int_to_string() const
+{
+	return _internal_has_int_to_string();
 }
 inline void DefaultValueTestCases::clear_int_to_string() {
   if(GetArenaForAllocation() == nullptr && int_to_string_ != nullptr) {
@@ -6623,8 +6635,9 @@ inline void DefaultValueTestCases::set_allocated_int_to_string(::proto_util_conv
 
 // .proto_util_converter.testing.MixedMap mixed1 = 404;
 inline bool DefaultValueTestCases::_internal_has_mixed1() const { return this != internal_default_instance() && mixed1_ != nullptr; }
-inline bool DefaultValueTestCases::has_mixed1() const {
-  return _internal_has_mixed1();
+inline bool DefaultValueTestCases::has_mixed1() const
+{
+	return _internal_has_mixed1();
 }
 inline void DefaultValueTestCases::clear_mixed1() {
   if(GetArenaForAllocation() == nullptr && mixed1_ != nullptr) {
@@ -6710,8 +6723,9 @@ inline void DefaultValueTestCases::set_allocated_mixed1(::proto_util_converter::
 
 // .proto_util_converter.testing.MixedMap2 mixed2 = 405;
 inline bool DefaultValueTestCases::_internal_has_mixed2() const { return this != internal_default_instance() && mixed2_ != nullptr; }
-inline bool DefaultValueTestCases::has_mixed2() const {
-  return _internal_has_mixed2();
+inline bool DefaultValueTestCases::has_mixed2() const
+{
+	return _internal_has_mixed2();
 }
 inline void DefaultValueTestCases::clear_mixed2() {
   if(GetArenaForAllocation() == nullptr && mixed2_ != nullptr) {
@@ -6797,8 +6811,9 @@ inline void DefaultValueTestCases::set_allocated_mixed2(::proto_util_converter::
 
 // .proto_util_converter.testing.MixedMap2 empty_mixed2 = 406;
 inline bool DefaultValueTestCases::_internal_has_empty_mixed2() const { return this != internal_default_instance() && empty_mixed2_ != nullptr; }
-inline bool DefaultValueTestCases::has_empty_mixed2() const {
-  return _internal_has_empty_mixed2();
+inline bool DefaultValueTestCases::has_empty_mixed2() const
+{
+	return _internal_has_empty_mixed2();
 }
 inline void DefaultValueTestCases::clear_empty_mixed2() {
   if(GetArenaForAllocation() == nullptr && empty_mixed2_ != nullptr) {
@@ -6884,8 +6899,9 @@ inline void DefaultValueTestCases::set_allocated_empty_mixed2(::proto_util_conve
 
 // .proto_util_converter.testing.MessageMap map_of_objects = 407;
 inline bool DefaultValueTestCases::_internal_has_map_of_objects() const { return this != internal_default_instance() && map_of_objects_ != nullptr; }
-inline bool DefaultValueTestCases::has_map_of_objects() const {
-  return _internal_has_map_of_objects();
+inline bool DefaultValueTestCases::has_map_of_objects() const
+{
+	return _internal_has_map_of_objects();
 }
 inline void DefaultValueTestCases::clear_map_of_objects() {
   if(GetArenaForAllocation() == nullptr && map_of_objects_ != nullptr) {
@@ -6971,8 +6987,9 @@ inline void DefaultValueTestCases::set_allocated_map_of_objects(::proto_util_con
 
 // .proto_util_converter.testing.MixedMap mixed_empty = 408;
 inline bool DefaultValueTestCases::_internal_has_mixed_empty() const { return this != internal_default_instance() && mixed_empty_ != nullptr; }
-inline bool DefaultValueTestCases::has_mixed_empty() const {
-  return _internal_has_mixed_empty();
+inline bool DefaultValueTestCases::has_mixed_empty() const
+{
+	return _internal_has_mixed_empty();
 }
 inline void DefaultValueTestCases::clear_mixed_empty() {
   if(GetArenaForAllocation() == nullptr && mixed_empty_ != nullptr) {
@@ -7058,8 +7075,9 @@ inline void DefaultValueTestCases::set_allocated_mixed_empty(::proto_util_conver
 
 // .proto_util_converter.testing.MessageMap message_map_empty = 409;
 inline bool DefaultValueTestCases::_internal_has_message_map_empty() const { return this != internal_default_instance() && message_map_empty_ != nullptr; }
-inline bool DefaultValueTestCases::has_message_map_empty() const {
-  return _internal_has_message_map_empty();
+inline bool DefaultValueTestCases::has_message_map_empty() const
+{
+	return _internal_has_message_map_empty();
 }
 inline void DefaultValueTestCases::clear_message_map_empty() {
   if(GetArenaForAllocation() == nullptr && message_map_empty_ != nullptr) {
@@ -7145,8 +7163,9 @@ inline void DefaultValueTestCases::set_allocated_message_map_empty(::proto_util_
 
 // .proto_util_converter.testing.DoubleValueMessage double_value = 501;
 inline bool DefaultValueTestCases::_internal_has_double_value() const { return this != internal_default_instance() && double_value_ != nullptr; }
-inline bool DefaultValueTestCases::has_double_value() const {
-  return _internal_has_double_value();
+inline bool DefaultValueTestCases::has_double_value() const
+{
+	return _internal_has_double_value();
 }
 inline void DefaultValueTestCases::clear_double_value() {
   if(GetArenaForAllocation() == nullptr && double_value_ != nullptr) {
@@ -7232,8 +7251,9 @@ inline void DefaultValueTestCases::set_allocated_double_value(::proto_util_conve
 
 // .proto_util_converter.testing.DoubleValueMessage double_value_default = 502;
 inline bool DefaultValueTestCases::_internal_has_double_value_default() const { return this != internal_default_instance() && double_value_default_ != nullptr; }
-inline bool DefaultValueTestCases::has_double_value_default() const {
-  return _internal_has_double_value_default();
+inline bool DefaultValueTestCases::has_double_value_default() const
+{
+	return _internal_has_double_value_default();
 }
 inline void DefaultValueTestCases::clear_double_value_default() {
   if(GetArenaForAllocation() == nullptr && double_value_default_ != nullptr) {
@@ -7341,8 +7361,9 @@ inline void DoubleMessage::set_double_value(double value) {
 
 // repeated double repeated_double = 2;
 inline int DoubleMessage::_internal_repeated_double_size() const { return repeated_double_.size(); }
-inline int DoubleMessage::repeated_double_size() const {
-  return _internal_repeated_double_size();
+inline int DoubleMessage::repeated_double_size() const
+{
+	return _internal_repeated_double_size();
 }
 inline void DoubleMessage::clear_repeated_double() {
   repeated_double_.Clear();
@@ -7380,8 +7401,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * DoubleMessage::mutable
 
 // .proto_util_converter.testing.DoubleMessage nested_message = 3;
 inline bool DoubleMessage::_internal_has_nested_message() const { return this != internal_default_instance() && nested_message_ != nullptr; }
-inline bool DoubleMessage::has_nested_message() const {
-  return _internal_has_nested_message();
+inline bool DoubleMessage::has_nested_message() const
+{
+	return _internal_has_nested_message();
 }
 inline void DoubleMessage::clear_nested_message() {
   if(GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
@@ -7467,8 +7489,9 @@ inline void DoubleMessage::set_allocated_nested_message(::proto_util_converter::
 
 // repeated .proto_util_converter.testing.DoubleMessage repeated_nested_message = 4;
 inline int DoubleMessage::_internal_repeated_nested_message_size() const { return repeated_nested_message_.size(); }
-inline int DoubleMessage::repeated_nested_message_size() const {
-  return _internal_repeated_nested_message_size();
+inline int DoubleMessage::repeated_nested_message_size() const
+{
+	return _internal_repeated_nested_message_size();
 }
 inline void DoubleMessage::clear_repeated_nested_message() {
   repeated_nested_message_.Clear();
@@ -7503,8 +7526,9 @@ DoubleMessage::repeated_nested_message() const {
 
 // .google.protobuf.DoubleValue double_wrapper = 100;
 inline bool DoubleMessage::_internal_has_double_wrapper() const { return this != internal_default_instance() && double_wrapper_ != nullptr; }
-inline bool DoubleMessage::has_double_wrapper() const {
-  return _internal_has_double_wrapper();
+inline bool DoubleMessage::has_double_wrapper() const
+{
+	return _internal_has_double_wrapper();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& DoubleMessage::_internal_double_wrapper() const {
   const ::PROTOBUF_NAMESPACE_ID::DoubleValue* p = double_wrapper_;
@@ -7584,15 +7608,12 @@ inline void DoubleMessage::set_allocated_double_wrapper(::PROTOBUF_NAMESPACE_ID:
 }
 
 // string str_value = 112;
-inline bool DoubleMessage::_internal_has_str_value() const {
-  return value_case() == kStrValue;
+inline bool DoubleMessage::_internal_has_str_value() const { return value_case() == kStrValue; }
+inline bool DoubleMessage::has_str_value() const
+{
+	return _internal_has_str_value();
 }
-inline bool DoubleMessage::has_str_value() const {
-  return _internal_has_str_value();
-}
-inline void DoubleMessage::set_has_str_value() {
-  _oneof_case_[0] = kStrValue;
-}
+inline void DoubleMessage::set_has_str_value() { _oneof_case_[0] = kStrValue; }
 inline void DoubleMessage::clear_str_value() {
   if(_internal_has_str_value()) {
     value_.str_value_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
@@ -7665,15 +7686,12 @@ inline void DoubleMessage::set_allocated_str_value(std::string* str_value) {
 }
 
 // int64 num_value = 113;
-inline bool DoubleMessage::_internal_has_num_value() const {
-  return value_case() == kNumValue;
+inline bool DoubleMessage::_internal_has_num_value() const { return value_case() == kNumValue; }
+inline bool DoubleMessage::has_num_value() const
+{
+	return _internal_has_num_value();
 }
-inline bool DoubleMessage::has_num_value() const {
-  return _internal_has_num_value();
-}
-inline void DoubleMessage::set_has_num_value() {
-  _oneof_case_[0] = kNumValue;
-}
+inline void DoubleMessage::set_has_num_value() { _oneof_case_[0] = kNumValue; }
 inline void DoubleMessage::clear_num_value() {
   if(_internal_has_num_value()) {
     value_.num_value_ = int64_t{0};
@@ -7699,12 +7717,8 @@ inline void DoubleMessage::set_num_value(int64_t value) {
   // @@protoc_insertion_point(field_set:proto_util_converter.testing.DoubleMessage.num_value)
 }
 
-inline bool DoubleMessage::has_value() const {
-  return value_case() != VALUE_NOT_SET;
-}
-inline void DoubleMessage::clear_has_value() {
-  _oneof_case_[0] = VALUE_NOT_SET;
-}
+inline bool DoubleMessage::has_value() const { return value_case() != VALUE_NOT_SET; }
+inline void DoubleMessage::clear_has_value() { _oneof_case_[0] = VALUE_NOT_SET; }
 inline DoubleMessage::ValueCase DoubleMessage::value_case() const { return DoubleMessage::ValueCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
@@ -7712,8 +7726,9 @@ inline DoubleMessage::ValueCase DoubleMessage::value_case() const { return Doubl
 
 // .google.protobuf.Struct struct = 1;
 inline bool StructMessage::_internal_has_struct_() const { return this != internal_default_instance() && struct__ != nullptr; }
-inline bool StructMessage::has_struct_() const {
-  return _internal_has_struct_();
+inline bool StructMessage::has_struct_() const
+{
+	return _internal_has_struct_();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Struct& StructMessage::_internal_struct_() const {
   const ::PROTOBUF_NAMESPACE_ID::Struct* p = struct__;
@@ -7798,8 +7813,9 @@ inline void StructMessage::set_allocated_struct_(::PROTOBUF_NAMESPACE_ID::Struct
 
 // .google.protobuf.Value value = 1;
 inline bool ValueMessage::_internal_has_value() const { return this != internal_default_instance() && value_ != nullptr; }
-inline bool ValueMessage::has_value() const {
-  return _internal_has_value();
+inline bool ValueMessage::has_value() const
+{
+	return _internal_has_value();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Value& ValueMessage::_internal_value() const {
   const ::PROTOBUF_NAMESPACE_ID::Value* p = value_;
@@ -7884,8 +7900,9 @@ inline void ValueMessage::set_allocated_value(::PROTOBUF_NAMESPACE_ID::Value* va
 
 // .google.protobuf.ListValue shopping_list = 1;
 inline bool ListValueMessage::_internal_has_shopping_list() const { return this != internal_default_instance() && shopping_list_ != nullptr; }
-inline bool ListValueMessage::has_shopping_list() const {
-  return _internal_has_shopping_list();
+inline bool ListValueMessage::has_shopping_list() const
+{
+	return _internal_has_shopping_list();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::ListValue& ListValueMessage::_internal_shopping_list() const {
   const ::PROTOBUF_NAMESPACE_ID::ListValue* p = shopping_list_;
@@ -8022,8 +8039,9 @@ inline void RequestMessage::set_allocated_content(std::string* content) {
 
 // .google.protobuf.Any any = 1;
 inline bool AnyMessage::_internal_has_any() const { return this != internal_default_instance() && any_ != nullptr; }
-inline bool AnyMessage::has_any() const {
-  return _internal_has_any();
+inline bool AnyMessage::has_any() const
+{
+	return _internal_has_any();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& AnyMessage::_internal_any() const {
   const ::PROTOBUF_NAMESPACE_ID::Any* p = any_;
@@ -8104,8 +8122,9 @@ inline void AnyMessage::set_allocated_any(::PROTOBUF_NAMESPACE_ID::Any* any) {
 
 // .proto_util_converter.testing.AnyData data = 2;
 inline bool AnyMessage::_internal_has_data() const { return this != internal_default_instance() && data_ != nullptr; }
-inline bool AnyMessage::has_data() const {
-  return _internal_has_data();
+inline bool AnyMessage::has_data() const
+{
+	return _internal_has_data();
 }
 inline void AnyMessage::clear_data() {
   if(GetArenaForAllocation() == nullptr && data_ != nullptr) {
@@ -8263,8 +8282,9 @@ inline void AnyData::set_allocated_str(std::string* str) {
 
 // repeated string msgs = 3;
 inline int AnyData::_internal_msgs_size() const { return msgs_.size(); }
-inline int AnyData::msgs_size() const {
-  return _internal_msgs_size();
+inline int AnyData::msgs_size() const
+{
+	return _internal_msgs_size();
 }
 inline void AnyData::clear_msgs() {
   msgs_.Clear();
@@ -8331,8 +8351,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * AnyData::mutable
 
 // .proto_util_converter.testing.AnyData nested_data = 4;
 inline bool AnyData::_internal_has_nested_data() const { return this != internal_default_instance() && nested_data_ != nullptr; }
-inline bool AnyData::has_nested_data() const {
-  return _internal_has_nested_data();
+inline bool AnyData::has_nested_data() const
+{
+	return _internal_has_nested_data();
 }
 inline void AnyData::clear_nested_data() {
   if(GetArenaForAllocation() == nullptr && nested_data_ != nullptr) {
@@ -8418,8 +8439,9 @@ inline void AnyData::set_allocated_nested_data(::proto_util_converter::testing::
 
 // map<string, string> map_data = 7;
 inline int AnyData::_internal_map_data_size() const { return map_data_.size(); }
-inline int AnyData::map_data_size() const {
-  return _internal_map_data_size();
+inline int AnyData::map_data_size() const
+{
+	return _internal_map_data_size();
 }
 inline void AnyData::clear_map_data() {
   map_data_.Clear();
@@ -8427,22 +8449,26 @@ inline void AnyData::clear_map_data() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 AnyData::_internal_map_data() const { return map_data_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-AnyData::map_data() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.AnyData.map_data)
-  return _internal_map_data();
+AnyData::map_data() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.AnyData.map_data)
+	return _internal_map_data();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * AnyData::_internal_mutable_map_data() {
-  return map_data_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * AnyData::_internal_mutable_map_data()
+{
+	return map_data_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * AnyData::mutable_map_data() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.AnyData.map_data)
-  return _internal_mutable_map_data();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * AnyData::mutable_map_data()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.AnyData.map_data)
+	return _internal_mutable_map_data();
 }
 
 // .google.protobuf.Struct struct_data = 8;
 inline bool AnyData::_internal_has_struct_data() const { return this != internal_default_instance() && struct_data_ != nullptr; }
-inline bool AnyData::has_struct_data() const {
-  return _internal_has_struct_data();
+inline bool AnyData::has_struct_data() const
+{
+	return _internal_has_struct_data();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Struct& AnyData::_internal_struct_data() const {
   const ::PROTOBUF_NAMESPACE_ID::Struct* p = struct_data_;
@@ -8523,8 +8549,9 @@ inline void AnyData::set_allocated_struct_data(::PROTOBUF_NAMESPACE_ID::Struct* 
 
 // repeated .proto_util_converter.testing.AnyData repeated_data = 9;
 inline int AnyData::_internal_repeated_data_size() const { return repeated_data_.size(); }
-inline int AnyData::repeated_data_size() const {
-  return _internal_repeated_data_size();
+inline int AnyData::repeated_data_size() const
+{
+	return _internal_repeated_data_size();
 }
 inline void AnyData::clear_repeated_data() {
   repeated_data_.Clear();
@@ -8565,8 +8592,9 @@ AnyData::repeated_data() const {
 
 // map<string, int32> map = 1;
 inline int StringtoIntMap::_internal_map_size() const { return map_.size(); }
-inline int StringtoIntMap::map_size() const {
-  return _internal_map_size();
+inline int StringtoIntMap::map_size() const
+{
+	return _internal_map_size();
 }
 inline void StringtoIntMap::clear_map() {
   map_.Clear();
@@ -8574,16 +8602,19 @@ inline void StringtoIntMap::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
 StringtoIntMap::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
-StringtoIntMap::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.StringtoIntMap.map)
-  return _internal_map();
+StringtoIntMap::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.StringtoIntMap.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoIntMap::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoIntMap::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoIntMap::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.StringtoIntMap.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoIntMap::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.StringtoIntMap.map)
+	return _internal_mutable_map();
 }
 
 // -------------------------------------------------------------------
@@ -8594,8 +8625,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoIntMap::mu
 
 // map<int32, string> map = 1;
 inline int IntToStringMap::_internal_map_size() const { return map_.size(); }
-inline int IntToStringMap::map_size() const {
-  return _internal_map_size();
+inline int IntToStringMap::map_size() const
+{
+	return _internal_map_size();
 }
 inline void IntToStringMap::clear_map() {
   map_.Clear();
@@ -8603,16 +8635,19 @@ inline void IntToStringMap::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
 IntToStringMap::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
-IntToStringMap::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.IntToStringMap.map)
-  return _internal_map();
+IntToStringMap::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.IntToStringMap.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToStringMap::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToStringMap::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToStringMap::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.IntToStringMap.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToStringMap::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.IntToStringMap.map)
+	return _internal_mutable_map();
 }
 
 // -------------------------------------------------------------------
@@ -8671,8 +8706,9 @@ inline void MixedMap::set_allocated_msg(std::string* msg) {
 
 // map<string, float> map = 2;
 inline int MixedMap::_internal_map_size() const { return map_.size(); }
-inline int MixedMap::map_size() const {
-  return _internal_map_size();
+inline int MixedMap::map_size() const
+{
+	return _internal_map_size();
 }
 inline void MixedMap::clear_map() {
   map_.Clear();
@@ -8680,16 +8716,19 @@ inline void MixedMap::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >&
 MixedMap::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >&
-MixedMap::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.MixedMap.map)
-  return _internal_map();
+MixedMap::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.MixedMap.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * MixedMap::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * MixedMap::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * MixedMap::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MixedMap.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * MixedMap::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MixedMap.map)
+	return _internal_mutable_map();
 }
 
 // int32 int_value = 3;
@@ -8718,8 +8757,9 @@ inline void MixedMap::set_int_value(int32_t value) {
 
 // map<int32, bool> map = 1;
 inline int MixedMap2::_internal_map_size() const { return map_.size(); }
-inline int MixedMap2::map_size() const {
-  return _internal_map_size();
+inline int MixedMap2::map_size() const
+{
+	return _internal_map_size();
 }
 inline void MixedMap2::clear_map() {
   map_.Clear();
@@ -8727,16 +8767,19 @@ inline void MixedMap2::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >&
 MixedMap2::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >&
-MixedMap2::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.MixedMap2.map)
-  return _internal_map();
+MixedMap2::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.MixedMap2.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * MixedMap2::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * MixedMap2::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * MixedMap2::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MixedMap2.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * MixedMap2::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MixedMap2.map)
+	return _internal_mutable_map();
 }
 
 // .proto_util_converter.testing.MixedMap2.E ee = 2;
@@ -8883,8 +8926,9 @@ inline void MessageMap_M::set_allocated_inner_text(std::string* inner_text) {
 
 // map<string, .proto_util_converter.testing.MessageMap.M> map = 1;
 inline int MessageMap::_internal_map_size() const { return map_.size(); }
-inline int MessageMap::map_size() const {
-  return _internal_map_size();
+inline int MessageMap::map_size() const
+{
+	return _internal_map_size();
 }
 inline void MessageMap::clear_map() {
   map_.Clear();
@@ -8892,16 +8936,19 @@ inline void MessageMap::clear_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M >&
 MessageMap::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M >&
-MessageMap::map() const {
-  // @@protoc_insertion_point(field_map:proto_util_converter.testing.MessageMap.map)
-  return _internal_map();
+MessageMap::map() const
+{
+	// @@protoc_insertion_point(field_map:proto_util_converter.testing.MessageMap.map)
+	return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M > * MessageMap::_internal_mutable_map() {
-  return map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M > * MessageMap::_internal_mutable_map()
+{
+	return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M > * MessageMap::mutable_map() {
-  // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MessageMap.map)
-  return _internal_mutable_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M > * MessageMap::mutable_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MessageMap.map)
+	return _internal_mutable_map();
 }
 
 // -------------------------------------------------------------------
@@ -8910,8 +8957,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testin
 
 // .google.protobuf.DoubleValue double = 1;
 inline bool DoubleValueMessage::_internal_has_double_() const { return this != internal_default_instance() && double__ != nullptr; }
-inline bool DoubleValueMessage::has_double_() const {
-  return _internal_has_double_();
+inline bool DoubleValueMessage::has_double_() const
+{
+	return _internal_has_double_();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& DoubleValueMessage::_internal_double_() const {
   const ::PROTOBUF_NAMESPACE_ID::DoubleValue* p = double__;

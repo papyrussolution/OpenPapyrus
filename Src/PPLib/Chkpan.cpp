@@ -6543,10 +6543,11 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 									rowopUp,
 									rowopDown,
 									rowopDoGroup,
-									rowopDelete
+									rowopDelete,
+									rowopPrintLabel // @v11.4.7
 								};
 								int    r = -1;
-								CCheckItem & r_cur_item = P.at(cur);
+								const  CCheckItem & r_cur_item = P.at(cur);
 								long   verb = rowopNone;
 								int8   queue = r_cur_item.Queue;
 								TDialog * dlg = new TDialog(DLG_CHKPANROWOP);
@@ -6556,6 +6557,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 2, rowopDown);
 									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 3, rowopDoGroup);
 									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 4, rowopDelete);
+									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 5, rowopPrintLabel); // @v11.4.7
 									dlg->SetClusterData(CTL_CHKPANROWOP_VERB, verb);
 									dlg->SetupSpin(CTLSPIN_CHKPANROWOP_QUEUE, CTL_CHKPANROWOP_QUEUE, 0, 20, queue);
 									dlg->setCtrlData(CTL_CHKPANROWOP_QUEUE, &queue);
@@ -6592,6 +6594,14 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 												break;
 											case rowopDelete:
 												RemoveRow();
+												break;
+											case rowopPrintLabel: // @v11.4.7
+												{
+													RetailGoodsInfo rgi;
+													rgi.Qtty = fabs(r_cur_item.Quantity);
+													if(GObj.GetRetailGoodsInfo(r_cur_item.GoodsID, 0, 0, 0, 0.0, &rgi, PPObjGoods::rgifConcatQttyToCode) > 0)
+														BarcodeLabelPrinter::PrintGoodsLabel2(&rgi, /*Rec.LabelPrinterID*/0, 0/*silent*/);
+												}
 												break;
 										}
 									}

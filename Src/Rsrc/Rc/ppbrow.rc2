@@ -7200,6 +7200,7 @@ view   StyloQCommand           { "@{view_styloqcommands}" } // @v11.1.9
 filter StyloQAttendancePrereqParam { "@{filter_styloqattendanceprereqparam}" } // @v11.3.3
 filter StyloQIndexingParam     { "@{filter_styloqindexingparam}" } // @v11.3.4
 filter StyloQGoodsInfoParam    { "@{filter_styloqgoodsinfoparam}" } // @v11.4.5
+filter StyloQIncomingListParam { "@{filter_styloqincominglistparam}" } // @v11.4.7
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

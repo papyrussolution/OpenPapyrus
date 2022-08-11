@@ -552,7 +552,7 @@ UnicodeString & DateFormatRoundTripTest::escape(const UnicodeString & src, Unico
 	return dst;
 }
 
-#define U_MILLIS_PER_YEAR (365.25 * 24 * 60 * 60 * 1000)
+#define U_MILLIS_PER_YEAR (365.25 * SSECSPERDAY * 1000)
 
 UDate DateFormatRoundTripTest::generateDate(UDate minDate)
 {
@@ -584,11 +584,9 @@ UDate DateFormatRoundTripTest::generateDate()
 	// Range from (4000-1970) BC to (8000-1970) AD
 	a -= 4000;
 	// Now scale up to ms
-	a *= 365.25 * 24 * 60 * 60 * 1000;
+	a *= 365.25 * SSECSPERDAY * 1000;
 	//return new Date((long)a);
 	return a;
 }
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

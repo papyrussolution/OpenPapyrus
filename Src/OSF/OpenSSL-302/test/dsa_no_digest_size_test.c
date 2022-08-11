@@ -6,25 +6,21 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
-/*
- * DSA low level APIs are deprecated for public use, but still ok for
- * internal use.
- */
 #include "internal/deprecated.h"
 #include "testutil.h"
 #ifndef OPENSSL_NO_DSA
 #include <openssl/dsa.h>
-
+// 
+// DSA low level APIs are deprecated for public use, but still ok for internal use.
+// 
 static DSA * dsakey;
-
 /*
  * These parameters are from test/recipes/04-test_pem_data/dsaparam.pem,
  * converted using dsaparam -C
  */
 static DSA * load_dsa_params(void)
 {
-	static unsigned char dsap_2048[] = {
+	static uchar dsap_2048[] = {
 		0xAE, 0x35, 0x7D, 0x4E, 0x1D, 0x96, 0xE2, 0x9F, 0x00, 0x96,
 		0x60, 0x5A, 0x6E, 0x4D, 0x07, 0x8D, 0xA5, 0x7C, 0xBC, 0xF9,
 		0xAD, 0xD7, 0x9F, 0xD5, 0xE9, 0xEE, 0xA6, 0x33, 0x51, 0xDE,
@@ -52,13 +48,13 @@ static DSA * load_dsa_params(void)
 		0xAE, 0xB6, 0x22, 0x32, 0x16, 0x6B, 0x8C, 0x59, 0xDA, 0xEE,
 		0x1D, 0x33, 0xDF, 0x4C, 0xA2, 0x3D
 	};
-	static unsigned char dsaq_2048[] = {
+	static uchar dsaq_2048[] = {
 		0xAD, 0x2D, 0x6E, 0x17, 0xB0, 0xF3, 0xEB, 0xC7, 0xB8, 0xEE,
 		0x95, 0x78, 0xF2, 0x17, 0xF5, 0x33, 0x01, 0x67, 0xBC, 0xDE,
 		0x93, 0xFF, 0xEE, 0x40, 0xE8, 0x7F, 0xF1, 0x93, 0x6D, 0x4B,
 		0x87, 0x13
 	};
-	static unsigned char dsag_2048[] = {
+	static uchar dsag_2048[] = {
 		0x66, 0x6F, 0xDA, 0x63, 0xA5, 0x8E, 0xD2, 0x4C, 0xD5, 0x45,
 		0x2D, 0x76, 0x5D, 0x5F, 0xCD, 0x4A, 0xB4, 0x1A, 0x42, 0x35,
 		0x86, 0x3A, 0x6F, 0xA9, 0xFA, 0x27, 0xAB, 0xDE, 0x03, 0x21,
@@ -88,12 +84,9 @@ static DSA * load_dsa_params(void)
 	};
 	DSA * dsa = DSA_new();
 	BIGNUM * p, * q, * g;
-
 	if(dsa == NULL)
 		return NULL;
-	if(!DSA_set0_pqg(dsa, p = BN_bin2bn(dsap_2048, sizeof(dsap_2048), NULL),
-	    q = BN_bin2bn(dsaq_2048, sizeof(dsaq_2048), NULL),
-	    g = BN_bin2bn(dsag_2048, sizeof(dsag_2048), NULL))) {
+	if(!DSA_set0_pqg(dsa, p = BN_bin2bn(dsap_2048, sizeof(dsap_2048), NULL), q = BN_bin2bn(dsaq_2048, sizeof(dsaq_2048), NULL), g = BN_bin2bn(dsag_2048, sizeof(dsag_2048), NULL))) {
 		DSA_free(dsa);
 		BN_free(p);
 		BN_free(q);
@@ -107,10 +100,8 @@ static int genkeys(void)
 {
 	if(!TEST_ptr(dsakey = load_dsa_params()))
 		return 0;
-
 	if(!TEST_int_eq(DSA_generate_key(dsakey), 1))
 		return 0;
-
 	return 1;
 }
 
@@ -124,15 +115,14 @@ static int sign_and_verify(int len)
 	size_t sigLength;
 	int digestlen = BN_num_bytes(DSA_get0_q(dsakey));
 	int ok = 0;
-
-	unsigned char * dataToSign = (unsigned char *)OPENSSL_malloc(len);
-	unsigned char * paddedData = (unsigned char *)OPENSSL_malloc(digestlen);
-	unsigned char * signature = NULL;
+	uchar * dataToSign = (uchar *)OPENSSL_malloc(len);
+	uchar * paddedData = (uchar *)OPENSSL_malloc(digestlen);
+	uchar * signature = NULL;
 	EVP_PKEY_CTX * ctx = NULL;
 	EVP_PKEY * pkey = NULL;
 	if(!TEST_ptr(dataToSign) || !TEST_ptr(paddedData) || !TEST_int_eq(RAND_bytes(dataToSign, len), 1))
 		goto end;
-	memset(paddedData, 0, digestlen);
+	memzero(paddedData, digestlen);
 	if(len > digestlen)
 		memcpy(paddedData, dataToSign, digestlen);
 	else
@@ -144,30 +134,24 @@ static int sign_and_verify(int len)
 		goto end;
 	if(!TEST_int_eq(EVP_PKEY_sign_init(ctx), 1))
 		goto end;
-
 	if(EVP_PKEY_sign(ctx, NULL, &sigLength, dataToSign, len) != 1) {
 		TEST_error("Failed to get signature length, len=%d", len);
 		goto end;
 	}
-
-	if(!TEST_ptr(signature = (unsigned char *)OPENSSL_malloc(sigLength)))
+	if(!TEST_ptr(signature = (uchar *)OPENSSL_malloc(sigLength)))
 		goto end;
-
 	if(EVP_PKEY_sign(ctx, signature, &sigLength, dataToSign, len) != 1) {
 		TEST_error("Failed to sign, len=%d", len);
 		goto end;
 	}
-
 	/* Check that the signature is okay via the EVP interface */
 	if(!TEST_int_eq(EVP_PKEY_verify_init(ctx), 1))
 		goto end;
-
 	/* ... using the same data we just signed */
 	if(EVP_PKEY_verify(ctx, signature, sigLength, dataToSign, len) != 1) {
 		TEST_error("EVP verify with unpadded length %d failed\n", len);
 		goto end;
 	}
-
 	/* ... padding/truncating the data to the appropriate digest size */
 	if(EVP_PKEY_verify(ctx, signature, sigLength, paddedData, digestlen) != 1) {
 		TEST_error("EVP verify with length %d failed\n", len);
@@ -192,12 +176,12 @@ end:
 	return ok;
 }
 
-static int dsa_exact_size_test(void) {
+static int dsa_exact_size_test(void) 
+{
 	/*
 	 * For a 2048-bit p, q should be either 224 or 256 bits per the table in
 	 * FIPS 186-4 4.2.
 	 */
-
 	return sign_and_verify(224 / 8) && sign_and_verify(256 / 8);
 }
 

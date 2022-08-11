@@ -47,11 +47,9 @@ static const OSSL_ITEM format_nameid_map[] = {
 int ossl_ec_encoding_name2id(const char * name)
 {
 	size_t i, sz;
-
 	/* Return the default value if there is no name */
 	if(!name)
 		return OPENSSL_EC_NAMED_CURVE;
-
 	for(i = 0, sz = SIZEOFARRAY(encoding_nameid_map); i < sz; i++) {
 		if(strcasecmp(name, (const char *)encoding_nameid_map[i].ptr) == 0)
 			return encoding_nameid_map[i].id;
@@ -82,11 +80,9 @@ char * ossl_ec_check_group_type_id2name(int id)
 static int ec_check_group_type_name2id(const char * name)
 {
 	size_t i, sz;
-
 	/* Return the default value if there is no name */
 	if(!name)
 		return 0;
-
 	for(i = 0, sz = SIZEOFARRAY(check_group_type_nameid_map); i < sz; i++) {
 		if(strcasecmp(name, (const char *)check_group_type_nameid_map[i].ptr) == 0)
 			return check_group_type_nameid_map[i].id;
@@ -97,7 +93,6 @@ static int ec_check_group_type_name2id(const char * name)
 int ossl_ec_set_check_group_type_from_name(EC_KEY * ec, const char * name)
 {
 	int flags = ec_check_group_type_name2id(name);
-
 	if(flags == -1)
 		return 0;
 	EC_KEY_clear_flags(ec, EC_FLAG_CHECK_NAMED_GROUP_MASK);
@@ -126,11 +121,9 @@ static int ec_set_check_group_type_from_param(EC_KEY * ec, const OSSL_PARAM * p)
 int ossl_ec_pt_format_name2id(const char * name)
 {
 	size_t i, sz;
-
 	/* Return the default value if there is no name */
 	if(!name)
 		return (int)POINT_CONVERSION_UNCOMPRESSED;
-
 	for(i = 0, sz = SIZEOFARRAY(format_nameid_map); i < sz; i++) {
 		if(strcasecmp(name, (const char *)format_nameid_map[i].ptr) == 0)
 			return format_nameid_map[i].id;
@@ -148,19 +141,15 @@ char * ossl_ec_pt_format_id2name(int id)
 	return NULL;
 }
 
-static int ec_group_explicit_todata(const EC_GROUP * group, OSSL_PARAM_BLD * tmpl,
-    OSSL_PARAM params[], BN_CTX * bnctx,
-    uchar ** genbuf)
+static int ec_group_explicit_todata(const EC_GROUP * group, OSSL_PARAM_BLD * tmpl, OSSL_PARAM params[], BN_CTX * bnctx, uchar ** genbuf)
 {
-	int ret = 0, fid;
+	int ret = 0;
 	const char * field_type;
 	const OSSL_PARAM * param = NULL;
 	const OSSL_PARAM * param_p = NULL;
 	const OSSL_PARAM * param_a = NULL;
 	const OSSL_PARAM * param_b = NULL;
-
-	fid = EC_GROUP_get_field_type(group);
-
+	int fid = EC_GROUP_get_field_type(group);
 	if(fid == NID_X9_62_prime_field) {
 		field_type = SN_X9_62_prime_field;
 	}
@@ -176,7 +165,6 @@ static int ec_group_explicit_todata(const EC_GROUP * group, OSSL_PARAM_BLD * tmp
 		ERR_raise(ERR_LIB_EC, EC_R_INVALID_FIELD);
 		return 0;
 	}
-
 	param_p = OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_EC_P);
 	param_a = OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_EC_A);
 	param_b = OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_EC_B);
@@ -723,25 +711,21 @@ int ossl_x509_algor_is_sm2(const X509_ALGOR * palg)
 	return 0;
 }
 
-EC_KEY * ossl_ec_key_param_from_x509_algor(const X509_ALGOR * palg,
-    OSSL_LIB_CTX * libctx, const char * propq)
+EC_KEY * ossl_ec_key_param_from_x509_algor(const X509_ALGOR * palg, OSSL_LIB_CTX * libctx, const char * propq)
 {
 	int ptype = 0;
 	const void * pval = NULL;
 	EC_KEY * eckey = NULL;
 	EC_GROUP * group = NULL;
-
 	X509_ALGOR_get0(NULL, &ptype, &pval, palg);
 	if((eckey = EC_KEY_new_ex(libctx, propq)) == NULL) {
 		ERR_raise(ERR_LIB_EC, ERR_R_MALLOC_FAILURE);
 		goto ecerr;
 	}
-
 	if(ptype == V_ASN1_SEQUENCE) {
 		const ASN1_STRING * pstr = (const ASN1_STRING *)pval;
 		const uchar * pm = pstr->data;
 		int pmlen = pstr->length;
-
 		if(d2i_ECParameters(&eckey, &pm, pmlen) == NULL) {
 			ERR_raise(ERR_LIB_EC, EC_R_DECODE_ERROR);
 			goto ecerr;
@@ -764,39 +748,32 @@ EC_KEY * ossl_ec_key_param_from_x509_algor(const X509_ALGOR * palg,
 		ERR_raise(ERR_LIB_EC, EC_R_DECODE_ERROR);
 		goto ecerr;
 	}
-
 	return eckey;
-
 ecerr:
 	EC_KEY_free(eckey);
 	EC_GROUP_free(group);
 	return NULL;
 }
 
-EC_KEY * ossl_ec_key_from_pkcs8(const PKCS8_PRIV_KEY_INFO * p8inf,
-    OSSL_LIB_CTX * libctx, const char * propq)
+EC_KEY * ossl_ec_key_from_pkcs8(const PKCS8_PRIV_KEY_INFO * p8inf, OSSL_LIB_CTX * libctx, const char * propq)
 {
 	const uchar * p = NULL;
 	int pklen;
 	EC_KEY * eckey = NULL;
 	const X509_ALGOR * palg;
-
 	if(!PKCS8_pkey_get0(NULL, &p, &pklen, &palg, p8inf))
 		return 0;
 	eckey = ossl_ec_key_param_from_x509_algor(palg, libctx, propq);
 	if(eckey == NULL)
 		goto err;
-
 	/* We have parameters now set private key */
 	if(!d2i_ECPrivateKey(&eckey, &p, pklen)) {
 		ERR_raise(ERR_LIB_EC, EC_R_DECODE_ERROR);
 		goto err;
 	}
-
 	return eckey;
 err:
 	EC_KEY_free(eckey);
 	return NULL;
 }
-
 #endif

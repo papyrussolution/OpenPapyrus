@@ -165,7 +165,7 @@ class SourceContext final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFileNameFieldNumber = 1,
+  	kFileNameFieldNumber = 1,
   };
   // string file_name = 1;
   void clear_file_name();

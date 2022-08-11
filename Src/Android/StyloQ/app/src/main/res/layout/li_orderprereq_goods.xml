@@ -24,8 +24,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
+            android:orientation="horizontal">
             <View style="@style/FakeView"/>
             <TextView
                 android:id="@+id/ORDERPREREQ_GOODS_PRICE"
@@ -53,8 +52,8 @@
                 android:layout_marginRight="8dp">
                 <ImageButton style="@style/ToolbarButton"
                     android:id="@+id/buttonOrder"
-                    android:layout_height="32dp"
-                    android:layout_width="32dp"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp"
                     android:onClick="OnButtonClk"
                     app:srcCompat="@drawable/ic_shoppingcart01"
                     />

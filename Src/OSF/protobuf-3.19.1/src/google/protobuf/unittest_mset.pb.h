@@ -185,7 +185,7 @@ class TestMessageSetContainer final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMessageSetFieldNumber = 1,
+  	kMessageSetFieldNumber = 1,
   };
   // optional .proto2_wireformat_unittest.TestMessageSet message_set = 1;
   bool has_message_set() const;
@@ -325,9 +325,9 @@ class TestMessageSetExtension1 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kTestAliasingFieldNumber = 17,
-    kRecursiveFieldNumber = 16,
-    kIFieldNumber = 15,
+  	kTestAliasingFieldNumber = 17,
+  	kRecursiveFieldNumber = 16,
+  	kIFieldNumber = 15,
   };
   // optional string test_aliasing = 17 [ctype = STRING_PIECE];
   bool has_test_aliasing() const;
@@ -382,9 +382,7 @@ class TestMessageSetExtension1 final :
   public:
 
   static const int kMessageSetExtensionFieldNumber = 1545008;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto2_wireformat_unittest::TestMessageSet,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestMessageSetExtension1 >, 11, false >
-    message_set_extension;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto2_wireformat_unittest::TestMessageSet, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestMessageSetExtension1 >, 11, false > message_set_extension;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestMessageSetExtension1)
  private:
   class _Internal;
@@ -507,7 +505,7 @@ class TestMessageSetExtension2 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kStrFieldNumber = 25,
+  	kStrFieldNumber = 25,
   };
   // optional string str = 25;
   bool has_str() const;
@@ -528,9 +526,7 @@ class TestMessageSetExtension2 final :
   public:
 
   static const int kMessageSetExtensionFieldNumber = 1547769;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto2_wireformat_unittest::TestMessageSet,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestMessageSetExtension2 >, 11, false >
-    message_set_extension;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::proto2_wireformat_unittest::TestMessageSet, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestMessageSetExtension2 >, 11, false > message_set_extension;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestMessageSetExtension2)
  private:
   class _Internal;
@@ -651,8 +647,8 @@ class RawMessageSet_Item final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMessageFieldNumber = 3,
-    kTypeIdFieldNumber = 2,
+  	kMessageFieldNumber = 3,
+  	kTypeIdFieldNumber = 2,
   };
   // required bytes message = 3;
   bool has_message() const;
@@ -810,7 +806,7 @@ class RawMessageSet final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kItemFieldNumber = 1,
+  	kItemFieldNumber = 1,
   };
   // repeated group Item = 1 { ... };
   int item_size() const;
@@ -854,10 +850,10 @@ class RawMessageSet final :
 inline bool TestMessageSetContainer::_internal_has_message_set() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || message_set_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestMessageSetContainer::has_message_set() const {
-  return _internal_has_message_set();
+	return _internal_has_message_set();
 }
 inline const ::proto2_wireformat_unittest::TestMessageSet& TestMessageSetContainer::_internal_message_set() const {
   const ::proto2_wireformat_unittest::TestMessageSet* p = message_set_;
@@ -943,10 +939,10 @@ inline void TestMessageSetContainer::set_allocated_message_set(::proto2_wireform
 // optional int32 i = 15;
 inline bool TestMessageSetExtension1::_internal_has_i() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestMessageSetExtension1::has_i() const {
-  return _internal_has_i();
+	return _internal_has_i();
 }
 inline void TestMessageSetExtension1::clear_i() {
   i_ = 0;
@@ -970,10 +966,10 @@ inline void TestMessageSetExtension1::set_i(int32_t value) {
 inline bool TestMessageSetExtension1::_internal_has_recursive() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || recursive_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestMessageSetExtension1::has_recursive() const {
-  return _internal_has_recursive();
+	return _internal_has_recursive();
 }
 inline const ::proto2_wireformat_unittest::TestMessageSet& TestMessageSetExtension1::_internal_recursive() const {
   const ::proto2_wireformat_unittest::TestMessageSet* p = recursive_;
@@ -1055,10 +1051,10 @@ inline void TestMessageSetExtension1::set_allocated_recursive(::proto2_wireforma
 // optional string test_aliasing = 17 [ctype = STRING_PIECE];
 inline bool TestMessageSetExtension1::_internal_has_test_aliasing() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestMessageSetExtension1::has_test_aliasing() const {
-  return _internal_has_test_aliasing();
+	return _internal_has_test_aliasing();
 }
 inline void TestMessageSetExtension1::clear_test_aliasing() {
   test_aliasing_.ClearToEmpty();
@@ -1123,10 +1119,10 @@ inline void TestMessageSetExtension1::set_allocated_test_aliasing(std::string* t
 // optional string str = 25;
 inline bool TestMessageSetExtension2::_internal_has_str() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestMessageSetExtension2::has_str() const {
-  return _internal_has_str();
+	return _internal_has_str();
 }
 inline void TestMessageSetExtension2::clear_str() {
   str_.ClearToEmpty();
@@ -1191,10 +1187,10 @@ inline void TestMessageSetExtension2::set_allocated_str(std::string* str) {
 // required int32 type_id = 2;
 inline bool RawMessageSet_Item::_internal_has_type_id() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool RawMessageSet_Item::has_type_id() const {
-  return _internal_has_type_id();
+	return _internal_has_type_id();
 }
 inline void RawMessageSet_Item::clear_type_id() {
   type_id_ = 0;
@@ -1217,10 +1213,10 @@ inline void RawMessageSet_Item::set_type_id(int32_t value) {
 // required bytes message = 3;
 inline bool RawMessageSet_Item::_internal_has_message() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool RawMessageSet_Item::has_message() const {
-  return _internal_has_message();
+	return _internal_has_message();
 }
 inline void RawMessageSet_Item::clear_message() {
   message_.ClearToEmpty();
@@ -1284,8 +1280,9 @@ inline void RawMessageSet_Item::set_allocated_message(std::string* message) {
 
 // repeated group Item = 1 { ... };
 inline int RawMessageSet::_internal_item_size() const { return item_.size(); }
-inline int RawMessageSet::item_size() const {
-  return _internal_item_size();
+inline int RawMessageSet::item_size() const
+{
+	return _internal_item_size();
 }
 inline void RawMessageSet::clear_item() {
   item_.Clear();

@@ -17,7 +17,7 @@ static uint32_t test_random_state[31];
 uint32_t test_random(void) 
 {
 	static unsigned int pos = 3;
-	if(pos == 31)
+	if(pos >= 31) // @sobolev (==)-->(>=)
 		pos = 0;
 	test_random_state[pos] += test_random_state[(pos + 28) % 31];
 	return test_random_state[pos++] / 2;

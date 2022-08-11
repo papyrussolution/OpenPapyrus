@@ -165,7 +165,7 @@ class FieldMask final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPathsFieldNumber = 1,
+  	kPathsFieldNumber = 1,
   };
   // repeated string paths = 1;
   int paths_size() const;
@@ -215,8 +215,9 @@ class FieldMask final :
 
 // repeated string paths = 1;
 inline int FieldMask::_internal_paths_size() const { return paths_.size(); }
-inline int FieldMask::paths_size() const {
-  return _internal_paths_size();
+inline int FieldMask::paths_size() const
+{
+	return _internal_paths_size();
 }
 inline void FieldMask::clear_paths() {
   paths_.Clear();

@@ -707,16 +707,14 @@ void CalendarRegressionTest::test4083167()
 	int32_t sec        = cal->get(UCAL_SECOND, status);
 	int32_t msec    = cal->get(UCAL_MILLISECOND, status);
 	double firstMillisInDay = hr * 3600000 + min * 60000 + sec * 1000 + msec;
-
 	//logln("Current time: " + firstDate.toString());
-
 	for(int32_t validity = 0; validity<30; validity++) {
-		UDate lastDate = firstDate + validity*1000*24*60*60.0;
+		UDate lastDate = firstDate + validity*1000 * SSECSPERDAY; // (24*60*60.0)-->SSECSPERDAY
 		cal->setTime(lastDate, status);
-		hr        = cal->get(UCAL_HOUR_OF_DAY, status);
-		min        = cal->get(UCAL_MINUTE, status);
-		sec        = cal->get(UCAL_SECOND, status);
-		msec    = cal->get(UCAL_MILLISECOND, status);
+		hr   = cal->get(UCAL_HOUR_OF_DAY, status);
+		min  = cal->get(UCAL_MINUTE, status);
+		sec  = cal->get(UCAL_SECOND, status);
+		msec = cal->get(UCAL_MILLISECOND, status);
 		double millisInDay = hr * 3600000.0 + min * 60000.0 + sec * 1000.0 + msec;
 		if(firstMillisInDay != millisInDay)
 			errln(UnicodeString("Day has shifted ") + lastDate);
@@ -725,12 +723,10 @@ void CalendarRegressionTest::test4083167()
 	//finally {
 	TimeZone::setDefault(*saveZone);
 	//}
-
 	delete saveZone;
 	delete newZone;
 	delete cal;
 }
-
 /**
  * @bug 4086724
  */
@@ -1486,7 +1482,6 @@ void CalendarRegressionTest::test4125892() {
 	    !cal->isLeapYear(-80)) // -80 == 81 BC
 		errln("Calendar not proleptic");
 }
-
 /**
  * @bug 4141665
  * GregorianCalendar::equals() ignores cutover date
@@ -1502,7 +1497,7 @@ void CalendarRegressionTest::test4141665()
 	}
 	GregorianCalendar * cal2 = cal->clone();
 	UDate cut = cal->getGregorianChange();
-	UDate cut2 = cut + 100*24*60*60*1000.0; // 100 days later
+	UDate cut2 = cut + 100 * SSECSPERDAY * 1000.0; // 100 days later
 	if(*cal != *cal2) {
 		errln("Cloned GregorianCalendars not equal");
 	}
@@ -1510,7 +1505,6 @@ void CalendarRegressionTest::test4141665()
 	if(*cal == *cal2) {
 		errln("GregorianCalendar::equals() ignores cutover");
 	}
-
 	delete cal;
 	delete cal2;
 }
@@ -1529,7 +1523,6 @@ void CalendarRegressionTest::Test13745()
 		delete cal;
 		return;
 	}
-
 	// this line would overflow before fix 13745
 	cal->setGregorianChange(((double)INT32_MAX+1.0) * MILLIS_IN_DAY, status);
 	if(U_FAILURE(status)) {

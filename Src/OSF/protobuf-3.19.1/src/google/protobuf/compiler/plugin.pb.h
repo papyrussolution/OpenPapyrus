@@ -210,10 +210,10 @@ class Version final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSuffixFieldNumber = 4,
-    kMajorFieldNumber = 1,
-    kMinorFieldNumber = 2,
-    kPatchFieldNumber = 3,
+  	kSuffixFieldNumber = 4,
+  	kMajorFieldNumber = 1,
+  	kMinorFieldNumber = 2,
+  	kPatchFieldNumber = 3,
   };
   // optional string suffix = 4;
   bool has_suffix() const;
@@ -395,10 +395,10 @@ class CodeGeneratorRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFileToGenerateFieldNumber = 1,
-    kProtoFileFieldNumber = 15,
-    kParameterFieldNumber = 2,
-    kCompilerVersionFieldNumber = 3,
+  	kFileToGenerateFieldNumber = 1,
+  	kProtoFileFieldNumber = 15,
+  	kParameterFieldNumber = 2,
+  	kCompilerVersionFieldNumber = 3,
   };
   // repeated string file_to_generate = 1;
   int file_to_generate_size() const;
@@ -599,10 +599,10 @@ class CodeGeneratorResponse_File final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNameFieldNumber = 1,
-    kInsertionPointFieldNumber = 2,
-    kContentFieldNumber = 15,
-    kGeneratedCodeInfoFieldNumber = 16,
+  	kNameFieldNumber = 1,
+  	kInsertionPointFieldNumber = 2,
+  	kContentFieldNumber = 15,
+  	kGeneratedCodeInfoFieldNumber = 16,
   };
   // optional string name = 1;
   bool has_name() const;
@@ -819,9 +819,9 @@ class CodeGeneratorResponse final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFileFieldNumber = 15,
-    kErrorFieldNumber = 1,
-    kSupportedFeaturesFieldNumber = 2,
+  	kFileFieldNumber = 15,
+  	kErrorFieldNumber = 1,
+  	kSupportedFeaturesFieldNumber = 2,
   };
   // repeated .google.protobuf.compiler.CodeGeneratorResponse.File file = 15;
   int file_size() const;
@@ -898,10 +898,10 @@ class CodeGeneratorResponse final :
 // optional int32 major = 1;
 inline bool Version::_internal_has_major() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool Version::has_major() const {
-  return _internal_has_major();
+	return _internal_has_major();
 }
 inline void Version::clear_major() {
   major_ = 0;
@@ -924,10 +924,10 @@ inline void Version::set_major(int32_t value) {
 // optional int32 minor = 2;
 inline bool Version::_internal_has_minor() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool Version::has_minor() const {
-  return _internal_has_minor();
+	return _internal_has_minor();
 }
 inline void Version::clear_minor() {
   minor_ = 0;
@@ -950,10 +950,10 @@ inline void Version::set_minor(int32_t value) {
 // optional int32 patch = 3;
 inline bool Version::_internal_has_patch() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool Version::has_patch() const {
-  return _internal_has_patch();
+	return _internal_has_patch();
 }
 inline void Version::clear_patch() {
   patch_ = 0;
@@ -976,10 +976,10 @@ inline void Version::set_patch(int32_t value) {
 // optional string suffix = 4;
 inline bool Version::_internal_has_suffix() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool Version::has_suffix() const {
-  return _internal_has_suffix();
+	return _internal_has_suffix();
 }
 inline void Version::clear_suffix() {
   suffix_.ClearToEmpty();
@@ -1043,8 +1043,9 @@ inline void Version::set_allocated_suffix(std::string* suffix) {
 
 // repeated string file_to_generate = 1;
 inline int CodeGeneratorRequest::_internal_file_to_generate_size() const { return file_to_generate_.size(); }
-inline int CodeGeneratorRequest::file_to_generate_size() const {
-  return _internal_file_to_generate_size();
+inline int CodeGeneratorRequest::file_to_generate_size() const
+{
+	return _internal_file_to_generate_size();
 }
 inline void CodeGeneratorRequest::clear_file_to_generate() {
   file_to_generate_.Clear();
@@ -1112,10 +1113,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * CodeGeneratorReq
 // optional string parameter = 2;
 inline bool CodeGeneratorRequest::_internal_has_parameter() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool CodeGeneratorRequest::has_parameter() const {
-  return _internal_has_parameter();
+	return _internal_has_parameter();
 }
 inline void CodeGeneratorRequest::clear_parameter() {
   parameter_.ClearToEmpty();
@@ -1175,8 +1176,9 @@ inline void CodeGeneratorRequest::set_allocated_parameter(std::string* parameter
 
 // repeated .google.protobuf.FileDescriptorProto proto_file = 15;
 inline int CodeGeneratorRequest::_internal_proto_file_size() const { return proto_file_.size(); }
-inline int CodeGeneratorRequest::proto_file_size() const {
-  return _internal_proto_file_size();
+inline int CodeGeneratorRequest::proto_file_size() const
+{
+	return _internal_proto_file_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::FileDescriptorProto* CodeGeneratorRequest::mutable_proto_file(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.compiler.CodeGeneratorRequest.proto_file)
@@ -1210,10 +1212,10 @@ CodeGeneratorRequest::proto_file() const {
 inline bool CodeGeneratorRequest::_internal_has_compiler_version() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || compiler_version_ != nullptr);
-  return value;
+	return value;
 }
 inline bool CodeGeneratorRequest::has_compiler_version() const {
-  return _internal_has_compiler_version();
+	return _internal_has_compiler_version();
 }
 inline void CodeGeneratorRequest::clear_compiler_version() {
   if(compiler_version_ != nullptr) compiler_version_->Clear();
@@ -1302,10 +1304,10 @@ inline void CodeGeneratorRequest::set_allocated_compiler_version(::PROTOBUF_NAME
 // optional string name = 1;
 inline bool CodeGeneratorResponse_File::_internal_has_name() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool CodeGeneratorResponse_File::has_name() const {
-  return _internal_has_name();
+	return _internal_has_name();
 }
 inline void CodeGeneratorResponse_File::clear_name() {
   name_.ClearToEmpty();
@@ -1366,10 +1368,10 @@ inline void CodeGeneratorResponse_File::set_allocated_name(std::string* name) {
 // optional string insertion_point = 2;
 inline bool CodeGeneratorResponse_File::_internal_has_insertion_point() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool CodeGeneratorResponse_File::has_insertion_point() const {
-  return _internal_has_insertion_point();
+	return _internal_has_insertion_point();
 }
 inline void CodeGeneratorResponse_File::clear_insertion_point() {
   insertion_point_.ClearToEmpty();
@@ -1430,10 +1432,10 @@ inline void CodeGeneratorResponse_File::set_allocated_insertion_point(std::strin
 // optional string content = 15;
 inline bool CodeGeneratorResponse_File::_internal_has_content() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool CodeGeneratorResponse_File::has_content() const {
-  return _internal_has_content();
+	return _internal_has_content();
 }
 inline void CodeGeneratorResponse_File::clear_content() {
   content_.ClearToEmpty();
@@ -1495,10 +1497,10 @@ inline void CodeGeneratorResponse_File::set_allocated_content(std::string* conte
 inline bool CodeGeneratorResponse_File::_internal_has_generated_code_info() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
   PROTOBUF_ASSUME(!value || generated_code_info_ != nullptr);
-  return value;
+	return value;
 }
 inline bool CodeGeneratorResponse_File::has_generated_code_info() const {
-  return _internal_has_generated_code_info();
+	return _internal_has_generated_code_info();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::GeneratedCodeInfo& CodeGeneratorResponse_File::_internal_generated_code_info() const {
   const ::PROTOBUF_NAMESPACE_ID::GeneratedCodeInfo* p = generated_code_info_;
@@ -1584,10 +1586,10 @@ inline void CodeGeneratorResponse_File::set_allocated_generated_code_info(::PROT
 // optional string error = 1;
 inline bool CodeGeneratorResponse::_internal_has_error() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool CodeGeneratorResponse::has_error() const {
-  return _internal_has_error();
+	return _internal_has_error();
 }
 inline void CodeGeneratorResponse::clear_error() {
   error_.ClearToEmpty();
@@ -1648,10 +1650,10 @@ inline void CodeGeneratorResponse::set_allocated_error(std::string* error) {
 // optional uint64 supported_features = 2;
 inline bool CodeGeneratorResponse::_internal_has_supported_features() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool CodeGeneratorResponse::has_supported_features() const {
-  return _internal_has_supported_features();
+	return _internal_has_supported_features();
 }
 inline void CodeGeneratorResponse::clear_supported_features() {
   supported_features_ = uint64_t{0u};
@@ -1673,8 +1675,9 @@ inline void CodeGeneratorResponse::set_supported_features(uint64_t value) {
 
 // repeated .google.protobuf.compiler.CodeGeneratorResponse.File file = 15;
 inline int CodeGeneratorResponse::_internal_file_size() const { return file_.size(); }
-inline int CodeGeneratorResponse::file_size() const {
-  return _internal_file_size();
+inline int CodeGeneratorResponse::file_size() const
+{
+	return _internal_file_size();
 }
 inline void CodeGeneratorResponse::clear_file() {
   file_.Clear();

@@ -284,7 +284,7 @@ class TestFlagsAndStrings_RepeatedGroup final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFFieldNumber = 3,
+  	kFFieldNumber = 3,
   };
   // required string f = 3;
   bool has_f() const;
@@ -426,8 +426,8 @@ class TestFlagsAndStrings final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedgroupFieldNumber = 2,
-    kAFieldNumber = 1,
+  	kRepeatedgroupFieldNumber = 2,
+  	kAFieldNumber = 1,
   };
   // repeated group RepeatedGroup = 2 { ... };
   int repeatedgroup_size() const;
@@ -579,7 +579,7 @@ class TestBase64ByteArrays final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
+  	kAFieldNumber = 1,
   };
   // required bytes a = 1;
   bool has_a() const;
@@ -719,10 +719,10 @@ class TestJavaScriptJSON final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kInFieldNumber = 3,
-    kVarFieldNumber = 4,
-    kAFieldNumber = 1,
-    kFinalFieldNumber = 2,
+  	kInFieldNumber = 3,
+  	kVarFieldNumber = 4,
+  	kAFieldNumber = 1,
+  	kFinalFieldNumber = 2,
   };
   // optional string in = 3;
   bool has_in() const;
@@ -909,11 +909,11 @@ class TestJavaScriptOrderJSON1 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDFieldNumber = 1,
-    kCFieldNumber = 2,
-    kXFieldNumber = 3,
-    kBFieldNumber = 4,
-    kAFieldNumber = 5,
+  	kDFieldNumber = 1,
+  	kCFieldNumber = 2,
+  	kXFieldNumber = 3,
+  	kBFieldNumber = 4,
+  	kAFieldNumber = 5,
   };
   // optional int32 d = 1;
   bool has_d() const;
@@ -1104,12 +1104,12 @@ class TestJavaScriptOrderJSON2 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kZFieldNumber = 6,
-    kDFieldNumber = 1,
-    kCFieldNumber = 2,
-    kXFieldNumber = 3,
-    kBFieldNumber = 4,
-    kAFieldNumber = 5,
+  	kZFieldNumber = 6,
+  	kDFieldNumber = 1,
+  	kCFieldNumber = 2,
+  	kXFieldNumber = 3,
+  	kBFieldNumber = 4,
+  	kAFieldNumber = 5,
   };
   // repeated .protobuf_unittest.TestJavaScriptOrderJSON1 z = 6;
   int z_size() const;
@@ -1317,8 +1317,8 @@ class TestLargeInt final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
-    kBFieldNumber = 2,
+  	kAFieldNumber = 1,
+  	kBFieldNumber = 2,
   };
   // required int64 a = 1;
   bool has_a() const;
@@ -1488,12 +1488,12 @@ class TestNumbers final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAFieldNumber = 1,
-    kBFieldNumber = 2,
-    kCFieldNumber = 3,
-    kDFieldNumber = 4,
-    kEFieldNumber = 5,
-    kFFieldNumber = 6,
+  	kAFieldNumber = 1,
+  	kBFieldNumber = 2,
+  	kCFieldNumber = 3,
+  	kDFieldNumber = 4,
+  	kEFieldNumber = 5,
+  	kFFieldNumber = 6,
   };
   // optional .protobuf_unittest.TestNumbers.MyType a = 1;
   bool has_a() const;
@@ -1698,9 +1698,9 @@ class TestCamelCase final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNormalFieldFieldNumber = 1,
-    kCAPITALFIELDFieldNumber = 2,
-    kCamelCaseFieldFieldNumber = 3,
+  	kNormalFieldFieldNumber = 1,
+  	kCAPITALFIELDFieldNumber = 2,
+  	kCamelCaseFieldFieldNumber = 3,
   };
   // optional string normal_field = 1;
   bool has_normal_field() const;
@@ -1771,8 +1771,8 @@ public:
   explicit TestBoolMap_BoolMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestBoolMap_BoolMapEntry_DoNotUse& other);
   static const TestBoolMap_BoolMapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestBoolMap_BoolMapEntry_DoNotUse*>(&_TestBoolMap_BoolMapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(void*) { return true; }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateKey(void *) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -1886,7 +1886,7 @@ class TestBoolMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBoolMapFieldNumber = 1,
+  	kBoolMapFieldNumber = 1,
   };
   // map<bool, int32> bool_map = 1;
   int bool_map_size() const;
@@ -1908,11 +1908,7 @@ class TestBoolMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestBoolMap_BoolMapEntry_DoNotUse,
-      bool, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> bool_map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestBoolMap_BoolMapEntry_DoNotUse, bool, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> bool_map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2fjson_5fformat_2eproto;
 };
@@ -2024,8 +2020,8 @@ class TestRecursion final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kChildFieldNumber = 2,
-    kValueFieldNumber = 1,
+  	kChildFieldNumber = 2,
+  	kValueFieldNumber = 1,
   };
   // optional .protobuf_unittest.TestRecursion child = 2;
   bool has_child() const;
@@ -2211,7 +2207,7 @@ class TestStringMap final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kStringMapFieldNumber = 1,
+  	kStringMapFieldNumber = 1,
   };
   // map<string, string> string_map = 1;
   int string_map_size() const;
@@ -2233,11 +2229,7 @@ class TestStringMap final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestStringMap_StringMapEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> string_map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestStringMap_StringMapEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> string_map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2fjson_5fformat_2eproto;
 };
@@ -2381,9 +2373,9 @@ class TestStringSerializer final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepeatedStringFieldNumber = 2,
-    kStringMapFieldNumber = 3,
-    kScalarStringFieldNumber = 1,
+  	kRepeatedStringFieldNumber = 2,
+  	kStringMapFieldNumber = 3,
+  	kScalarStringFieldNumber = 1,
   };
   // repeated string repeated_string = 2;
   int repeated_string_size() const;
@@ -2450,11 +2442,7 @@ class TestStringSerializer final :
   ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> repeated_string_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestStringSerializer_StringMapEntry_DoNotUse,
-      std::string, std::string,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> string_map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestStringSerializer_StringMapEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> string_map_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr scalar_string_;
   friend struct ::TableStruct_google_2fprotobuf_2futil_2fjson_5fformat_2eproto;
 };
@@ -2566,113 +2554,61 @@ class TestMessageWithExtension final :
   // accessors -------------------------------------------------------
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestMessageWithExtension, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -2840,7 +2776,7 @@ class TestExtension final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValueFieldNumber = 1,
+  	kValueFieldNumber = 1,
   };
   // optional string value = 1;
   bool has_value() const;
@@ -2861,9 +2797,7 @@ class TestExtension final :
   public:
 
   static const int kExtFieldNumber = 100;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestMessageWithExtension,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtension >, 11, false >
-    ext;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestMessageWithExtension, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestExtension >, 11, false > ext;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestExtension)
  private:
   class _Internal;
@@ -2984,7 +2918,7 @@ class TestDefaultEnumValue final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEnumValueFieldNumber = 1,
+  	kEnumValueFieldNumber = 1,
   };
   // optional .protobuf_unittest.EnumValue enum_value = 1 [default = DEFAULT];
   bool has_enum_value() const;
@@ -3025,10 +2959,10 @@ class TestDefaultEnumValue final :
 // required string f = 3;
 inline bool TestFlagsAndStrings_RepeatedGroup::_internal_has_f() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestFlagsAndStrings_RepeatedGroup::has_f() const {
-  return _internal_has_f();
+	return _internal_has_f();
 }
 inline void TestFlagsAndStrings_RepeatedGroup::clear_f() {
   f_.ClearToEmpty();
@@ -3093,10 +3027,10 @@ inline void TestFlagsAndStrings_RepeatedGroup::set_allocated_f(std::string* f) {
 // required int32 A = 1;
 inline bool TestFlagsAndStrings::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestFlagsAndStrings::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestFlagsAndStrings::clear_a() {
   a_ = 0;
@@ -3118,8 +3052,9 @@ inline void TestFlagsAndStrings::set_a(int32_t value) {
 
 // repeated group RepeatedGroup = 2 { ... };
 inline int TestFlagsAndStrings::_internal_repeatedgroup_size() const { return repeatedgroup_.size(); }
-inline int TestFlagsAndStrings::repeatedgroup_size() const {
-  return _internal_repeatedgroup_size();
+inline int TestFlagsAndStrings::repeatedgroup_size() const
+{
+	return _internal_repeatedgroup_size();
 }
 inline void TestFlagsAndStrings::clear_repeatedgroup() {
   repeatedgroup_.Clear();
@@ -3159,10 +3094,10 @@ TestFlagsAndStrings::repeatedgroup() const {
 // required bytes a = 1;
 inline bool TestBase64ByteArrays::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestBase64ByteArrays::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestBase64ByteArrays::clear_a() {
   a_.ClearToEmpty();
@@ -3227,10 +3162,10 @@ inline void TestBase64ByteArrays::set_allocated_a(std::string* a) {
 // optional int32 a = 1;
 inline bool TestJavaScriptJSON::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptJSON::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestJavaScriptJSON::clear_a() {
   a_ = 0;
@@ -3253,10 +3188,10 @@ inline void TestJavaScriptJSON::set_a(int32_t value) {
 // optional float final = 2;
 inline bool TestJavaScriptJSON::_internal_has_final() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptJSON::has_final() const {
-  return _internal_has_final();
+	return _internal_has_final();
 }
 inline void TestJavaScriptJSON::clear_final() {
   final_ = 0;
@@ -3279,10 +3214,10 @@ inline void TestJavaScriptJSON::set_final(float value) {
 // optional string in = 3;
 inline bool TestJavaScriptJSON::_internal_has_in() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptJSON::has_in() const {
-  return _internal_has_in();
+	return _internal_has_in();
 }
 inline void TestJavaScriptJSON::clear_in() {
   in_.ClearToEmpty();
@@ -3343,10 +3278,10 @@ inline void TestJavaScriptJSON::set_allocated_in(std::string* in) {
 // optional string Var = 4;
 inline bool TestJavaScriptJSON::_internal_has_var() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptJSON::has_var() const {
-  return _internal_has_var();
+	return _internal_has_var();
 }
 inline void TestJavaScriptJSON::clear_var() {
   var_.ClearToEmpty();
@@ -3411,10 +3346,10 @@ inline void TestJavaScriptJSON::set_allocated_var(std::string* var) {
 // optional int32 d = 1;
 inline bool TestJavaScriptOrderJSON1::_internal_has_d() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptOrderJSON1::has_d() const {
-  return _internal_has_d();
+	return _internal_has_d();
 }
 inline void TestJavaScriptOrderJSON1::clear_d() {
   d_ = 0;
@@ -3437,10 +3372,10 @@ inline void TestJavaScriptOrderJSON1::set_d(int32_t value) {
 // optional int32 c = 2;
 inline bool TestJavaScriptOrderJSON1::_internal_has_c() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptOrderJSON1::has_c() const {
-  return _internal_has_c();
+	return _internal_has_c();
 }
 inline void TestJavaScriptOrderJSON1::clear_c() {
   c_ = 0;
@@ -3463,10 +3398,10 @@ inline void TestJavaScriptOrderJSON1::set_c(int32_t value) {
 // optional bool x = 3;
 inline bool TestJavaScriptOrderJSON1::_internal_has_x() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptOrderJSON1::has_x() const {
-  return _internal_has_x();
+	return _internal_has_x();
 }
 inline void TestJavaScriptOrderJSON1::clear_x() {
   x_ = false;
@@ -3489,10 +3424,10 @@ inline void TestJavaScriptOrderJSON1::set_x(bool value) {
 // optional int32 b = 4;
 inline bool TestJavaScriptOrderJSON1::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptOrderJSON1::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestJavaScriptOrderJSON1::clear_b() {
   b_ = 0;
@@ -3515,10 +3450,10 @@ inline void TestJavaScriptOrderJSON1::set_b(int32_t value) {
 // optional int32 a = 5;
 inline bool TestJavaScriptOrderJSON1::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptOrderJSON1::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestJavaScriptOrderJSON1::clear_a() {
   a_ = 0;
@@ -3545,10 +3480,10 @@ inline void TestJavaScriptOrderJSON1::set_a(int32_t value) {
 // optional int32 d = 1;
 inline bool TestJavaScriptOrderJSON2::_internal_has_d() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptOrderJSON2::has_d() const {
-  return _internal_has_d();
+	return _internal_has_d();
 }
 inline void TestJavaScriptOrderJSON2::clear_d() {
   d_ = 0;
@@ -3571,10 +3506,10 @@ inline void TestJavaScriptOrderJSON2::set_d(int32_t value) {
 // optional int32 c = 2;
 inline bool TestJavaScriptOrderJSON2::_internal_has_c() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptOrderJSON2::has_c() const {
-  return _internal_has_c();
+	return _internal_has_c();
 }
 inline void TestJavaScriptOrderJSON2::clear_c() {
   c_ = 0;
@@ -3597,10 +3532,10 @@ inline void TestJavaScriptOrderJSON2::set_c(int32_t value) {
 // optional bool x = 3;
 inline bool TestJavaScriptOrderJSON2::_internal_has_x() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptOrderJSON2::has_x() const {
-  return _internal_has_x();
+	return _internal_has_x();
 }
 inline void TestJavaScriptOrderJSON2::clear_x() {
   x_ = false;
@@ -3623,10 +3558,10 @@ inline void TestJavaScriptOrderJSON2::set_x(bool value) {
 // optional int32 b = 4;
 inline bool TestJavaScriptOrderJSON2::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptOrderJSON2::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestJavaScriptOrderJSON2::clear_b() {
   b_ = 0;
@@ -3649,10 +3584,10 @@ inline void TestJavaScriptOrderJSON2::set_b(int32_t value) {
 // optional int32 a = 5;
 inline bool TestJavaScriptOrderJSON2::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestJavaScriptOrderJSON2::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestJavaScriptOrderJSON2::clear_a() {
   a_ = 0;
@@ -3674,8 +3609,9 @@ inline void TestJavaScriptOrderJSON2::set_a(int32_t value) {
 
 // repeated .protobuf_unittest.TestJavaScriptOrderJSON1 z = 6;
 inline int TestJavaScriptOrderJSON2::_internal_z_size() const { return z_.size(); }
-inline int TestJavaScriptOrderJSON2::z_size() const {
-  return _internal_z_size();
+inline int TestJavaScriptOrderJSON2::z_size() const
+{
+	return _internal_z_size();
 }
 inline void TestJavaScriptOrderJSON2::clear_z() {
   z_.Clear();
@@ -3715,10 +3651,10 @@ TestJavaScriptOrderJSON2::z() const {
 // required int64 a = 1;
 inline bool TestLargeInt::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestLargeInt::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestLargeInt::clear_a() {
   a_ = int64_t{0};
@@ -3741,10 +3677,10 @@ inline void TestLargeInt::set_a(int64_t value) {
 // required uint64 b = 2;
 inline bool TestLargeInt::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestLargeInt::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestLargeInt::clear_b() {
   b_ = uint64_t{0u};
@@ -3771,10 +3707,10 @@ inline void TestLargeInt::set_b(uint64_t value) {
 // optional .protobuf_unittest.TestNumbers.MyType a = 1;
 inline bool TestNumbers::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestNumbers::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestNumbers::clear_a() {
   a_ = 0;
@@ -3798,10 +3734,10 @@ inline void TestNumbers::set_a(::protobuf_unittest::TestNumbers_MyType value) {
 // optional int32 b = 2;
 inline bool TestNumbers::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestNumbers::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestNumbers::clear_b() {
   b_ = 0;
@@ -3824,10 +3760,10 @@ inline void TestNumbers::set_b(int32_t value) {
 // optional float c = 3;
 inline bool TestNumbers::_internal_has_c() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestNumbers::has_c() const {
-  return _internal_has_c();
+	return _internal_has_c();
 }
 inline void TestNumbers::clear_c() {
   c_ = 0;
@@ -3850,10 +3786,10 @@ inline void TestNumbers::set_c(float value) {
 // optional bool d = 4;
 inline bool TestNumbers::_internal_has_d() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestNumbers::has_d() const {
-  return _internal_has_d();
+	return _internal_has_d();
 }
 inline void TestNumbers::clear_d() {
   d_ = false;
@@ -3876,10 +3812,10 @@ inline void TestNumbers::set_d(bool value) {
 // optional double e = 5;
 inline bool TestNumbers::_internal_has_e() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestNumbers::has_e() const {
-  return _internal_has_e();
+	return _internal_has_e();
 }
 inline void TestNumbers::clear_e() {
   e_ = 0;
@@ -3902,10 +3838,10 @@ inline void TestNumbers::set_e(double value) {
 // optional uint32 f = 6;
 inline bool TestNumbers::_internal_has_f() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestNumbers::has_f() const {
-  return _internal_has_f();
+	return _internal_has_f();
 }
 inline void TestNumbers::clear_f() {
   f_ = 0u;
@@ -3932,10 +3868,10 @@ inline void TestNumbers::set_f(uint32_t value) {
 // optional string normal_field = 1;
 inline bool TestCamelCase::_internal_has_normal_field() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestCamelCase::has_normal_field() const {
-  return _internal_has_normal_field();
+	return _internal_has_normal_field();
 }
 inline void TestCamelCase::clear_normal_field() {
   normal_field_.ClearToEmpty();
@@ -3996,10 +3932,10 @@ inline void TestCamelCase::set_allocated_normal_field(std::string* normal_field)
 // optional int32 CAPITAL_FIELD = 2;
 inline bool TestCamelCase::_internal_has_capital_field() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestCamelCase::has_capital_field() const {
-  return _internal_has_capital_field();
+	return _internal_has_capital_field();
 }
 inline void TestCamelCase::clear_capital_field() {
   capital_field_ = 0;
@@ -4022,10 +3958,10 @@ inline void TestCamelCase::set_capital_field(int32_t value) {
 // optional int32 CamelCaseField = 3;
 inline bool TestCamelCase::_internal_has_camelcasefield() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestCamelCase::has_camelcasefield() const {
-  return _internal_has_camelcasefield();
+	return _internal_has_camelcasefield();
 }
 inline void TestCamelCase::clear_camelcasefield() {
   camelcasefield_ = 0;
@@ -4053,8 +3989,9 @@ inline void TestCamelCase::set_camelcasefield(int32_t value) {
 
 // map<bool, int32> bool_map = 1;
 inline int TestBoolMap::_internal_bool_map_size() const { return bool_map_.size(); }
-inline int TestBoolMap::bool_map_size() const {
-  return _internal_bool_map_size();
+inline int TestBoolMap::bool_map_size() const
+{
+	return _internal_bool_map_size();
 }
 inline void TestBoolMap::clear_bool_map() {
   bool_map_.Clear();
@@ -4062,16 +3999,19 @@ inline void TestBoolMap::clear_bool_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >&
 TestBoolMap::_internal_bool_map() const { return bool_map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >&
-TestBoolMap::bool_map() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestBoolMap.bool_map)
-  return _internal_bool_map();
+TestBoolMap::bool_map() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestBoolMap.bool_map)
+	return _internal_bool_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > * TestBoolMap::_internal_mutable_bool_map() {
-  return bool_map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > * TestBoolMap::_internal_mutable_bool_map()
+{
+	return bool_map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > * TestBoolMap::mutable_bool_map() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestBoolMap.bool_map)
-  return _internal_mutable_bool_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > * TestBoolMap::mutable_bool_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestBoolMap.bool_map)
+	return _internal_mutable_bool_map();
 }
 
 // -------------------------------------------------------------------
@@ -4081,10 +4021,10 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > * TestBoolMap::mutable_bool
 // optional int32 value = 1;
 inline bool TestRecursion::_internal_has_value() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestRecursion::has_value() const {
-  return _internal_has_value();
+	return _internal_has_value();
 }
 inline void TestRecursion::clear_value() {
   value_ = 0;
@@ -4108,10 +4048,10 @@ inline void TestRecursion::set_value(int32_t value) {
 inline bool TestRecursion::_internal_has_child() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || child_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestRecursion::has_child() const {
-  return _internal_has_child();
+	return _internal_has_child();
 }
 inline void TestRecursion::clear_child() {
   if(child_ != nullptr) child_->Clear();
@@ -4201,8 +4141,9 @@ inline void TestRecursion::set_allocated_child(::protobuf_unittest::TestRecursio
 
 // map<string, string> string_map = 1;
 inline int TestStringMap::_internal_string_map_size() const { return string_map_.size(); }
-inline int TestStringMap::string_map_size() const {
-  return _internal_string_map_size();
+inline int TestStringMap::string_map_size() const
+{
+	return _internal_string_map_size();
 }
 inline void TestStringMap::clear_string_map() {
   string_map_.Clear();
@@ -4210,16 +4151,19 @@ inline void TestStringMap::clear_string_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestStringMap::_internal_string_map() const { return string_map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestStringMap::string_map() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestStringMap.string_map)
-  return _internal_string_map();
+TestStringMap::string_map() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestStringMap.string_map)
+	return _internal_string_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringMap::_internal_mutable_string_map() {
-  return string_map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringMap::_internal_mutable_string_map()
+{
+	return string_map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringMap::mutable_string_map() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestStringMap.string_map)
-  return _internal_mutable_string_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringMap::mutable_string_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestStringMap.string_map)
+	return _internal_mutable_string_map();
 }
 
 // -------------------------------------------------------------------
@@ -4231,10 +4175,10 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringMap:
 // optional string scalar_string = 1;
 inline bool TestStringSerializer::_internal_has_scalar_string() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestStringSerializer::has_scalar_string() const {
-  return _internal_has_scalar_string();
+	return _internal_has_scalar_string();
 }
 inline void TestStringSerializer::clear_scalar_string() {
   scalar_string_.ClearToEmpty();
@@ -4294,8 +4238,9 @@ inline void TestStringSerializer::set_allocated_scalar_string(std::string* scala
 
 // repeated string repeated_string = 2;
 inline int TestStringSerializer::_internal_repeated_string_size() const { return repeated_string_.size(); }
-inline int TestStringSerializer::repeated_string_size() const {
-  return _internal_repeated_string_size();
+inline int TestStringSerializer::repeated_string_size() const
+{
+	return _internal_repeated_string_size();
 }
 inline void TestStringSerializer::clear_repeated_string() {
   repeated_string_.Clear();
@@ -4362,8 +4307,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestStringSerial
 
 // map<string, string> string_map = 3;
 inline int TestStringSerializer::_internal_string_map_size() const { return string_map_.size(); }
-inline int TestStringSerializer::string_map_size() const {
-  return _internal_string_map_size();
+inline int TestStringSerializer::string_map_size() const
+{
+	return _internal_string_map_size();
 }
 inline void TestStringSerializer::clear_string_map() {
   string_map_.Clear();
@@ -4371,16 +4317,19 @@ inline void TestStringSerializer::clear_string_map() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestStringSerializer::_internal_string_map() const { return string_map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestStringSerializer::string_map() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestStringSerializer.string_map)
-  return _internal_string_map();
+TestStringSerializer::string_map() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestStringSerializer.string_map)
+	return _internal_string_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringSerializer::_internal_mutable_string_map() {
-  return string_map_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringSerializer::_internal_mutable_string_map()
+{
+	return string_map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringSerializer::mutable_string_map() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestStringSerializer.string_map)
-  return _internal_mutable_string_map();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringSerializer::mutable_string_map()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestStringSerializer.string_map)
+	return _internal_mutable_string_map();
 }
 
 // -------------------------------------------------------------------
@@ -4394,10 +4343,10 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringSeri
 // optional string value = 1;
 inline bool TestExtension::_internal_has_value() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestExtension::has_value() const {
-  return _internal_has_value();
+	return _internal_has_value();
 }
 inline void TestExtension::clear_value() {
   value_.ClearToEmpty();
@@ -4462,10 +4411,10 @@ inline void TestExtension::set_allocated_value(std::string* value) {
 // optional .protobuf_unittest.EnumValue enum_value = 1 [default = DEFAULT];
 inline bool TestDefaultEnumValue::_internal_has_enum_value() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDefaultEnumValue::has_enum_value() const {
-  return _internal_has_enum_value();
+	return _internal_has_enum_value();
 }
 inline void TestDefaultEnumValue::clear_enum_value() {
   enum_value_ = 2;

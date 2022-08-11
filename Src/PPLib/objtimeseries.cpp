@@ -6896,35 +6896,41 @@ int PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 								}
 							}
 							main_trend_val_list.SortByVal();
-							const uint min_dist = sr_detail_list.getCount() / 2; //2;
-							double max_factor = 0.0;
 							uint   max_factor_idx1 = 0;
 							uint   max_factor_idx2 = 0;
-							assert(min_dist >= 2);
-							for(uint mtvli01 = 0; mtvli01 < main_trend_val_list.getCount(); mtvli01++) {
-								for(uint mtvli02 = mtvli01+min_dist-1; mtvli02 < main_trend_val_list.getCount(); mtvli02++) {
-									const uint dist = mtvli02 - mtvli01 + 1;
-									const double dist_val = static_cast<double>(dist);
-									const double angle_dist = atan(main_trend_val_list.at(mtvli02).Val) - atan(main_trend_val_list.at(mtvli01).Val);
-									const double angle_dist_val = angle_dist;
-									assert(angle_dist_val >= 0.0);
-									if(angle_dist_val > 0.0) {
-										const double factor = dist_val / angle_dist_val;
-										if(factor > max_factor) {
-											max_factor = factor;
-											max_factor_idx1 = mtvli01;
-											max_factor_idx2 = mtvli02;
+							if(true) {
+								max_factor_idx1 = 0;
+								max_factor_idx2 = main_trend_val_list.getCount()-1;
+							}
+							else {
+								const uint min_dist = sr_detail_list.getCount() / 2; //2;
+								double max_factor = 0.0;
+								assert(min_dist >= 2);
+								for(uint mtvli01 = 0; mtvli01 < main_trend_val_list.getCount(); mtvli01++) {
+									for(uint mtvli02 = mtvli01+min_dist-1; mtvli02 < main_trend_val_list.getCount(); mtvli02++) {
+										const uint dist = mtvli02 - mtvli01 + 1;
+										const double dist_val = static_cast<double>(dist);
+										const double angle_dist = atan(main_trend_val_list.at(mtvli02).Val) - atan(main_trend_val_list.at(mtvli01).Val);
+										const double angle_dist_val = angle_dist;
+										assert(angle_dist_val >= 0.0);
+										if(angle_dist_val > 0.0) {
+											const double factor = dist_val / angle_dist_val;
+											if(factor > max_factor) {
+												max_factor = factor;
+												max_factor_idx1 = mtvli01;
+												max_factor_idx2 = mtvli02;
+											}
 										}
 									}
 								}
-							}
-							if(max_factor > 0.0) {
-								assert(max_factor_idx2 > max_factor_idx1);
-								assert((max_factor_idx2 - max_factor_idx1 + 1) >= min_dist);
-								if(max_factor_idx2 > max_factor_idx1) {
-									sre_test.OptDelta2Range.low = main_trend_val_list.at(max_factor_idx1).Val;
-									sre_test.OptDelta2Range.upp = main_trend_val_list.at(max_factor_idx2).Val;
+								if(max_factor > 0.0) {
+									assert(max_factor_idx2 > max_factor_idx1);
+									assert((max_factor_idx2 - max_factor_idx1 + 1) >= min_dist);
 								}
+							}
+							if(max_factor_idx2 > max_factor_idx1) {
+								sre_test.OptDelta2Range.low = main_trend_val_list.at(max_factor_idx1).Val;
+								sre_test.OptDelta2Range.upp = main_trend_val_list.at(max_factor_idx2).Val;
 							}
 						}
 						sre_test.BaseFlags &= ~PPObjTimeSeries::Strategy::bfDynMainTrend;

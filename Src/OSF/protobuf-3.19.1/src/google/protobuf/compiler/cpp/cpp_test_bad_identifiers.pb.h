@@ -499,7 +499,7 @@ class TestConflictingSymbolNames_Data1 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // repeated int32 data = 1;
   int data_size() const;
@@ -639,7 +639,7 @@ class TestConflictingSymbolNames_Data2 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // repeated .protobuf_unittest.TestConflictingSymbolNames.TestEnum data = 1;
   int data_size() const;
@@ -650,13 +650,13 @@ class TestConflictingSymbolNames_Data2 final :
   private:
   ::protobuf_unittest::TestConflictingSymbolNames_TestEnum _internal_data(int index) const;
   void _internal_add_data(::protobuf_unittest::TestConflictingSymbolNames_TestEnum value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_data();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * _internal_mutable_data();
   public:
   ::protobuf_unittest::TestConflictingSymbolNames_TestEnum data(int index) const;
   void set_data(int index, ::protobuf_unittest::TestConflictingSymbolNames_TestEnum value);
   void add_data(::protobuf_unittest::TestConflictingSymbolNames_TestEnum value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& data() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_data();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & data() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * mutable_data();
 
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestConflictingSymbolNames.Data2)
  private:
@@ -777,7 +777,7 @@ class TestConflictingSymbolNames_Data3 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // repeated string data = 1;
   int data_size() const;
@@ -922,7 +922,7 @@ class TestConflictingSymbolNames_Data4 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // repeated .protobuf_unittest.TestConflictingSymbolNames.Data4 data = 1;
   int data_size() const;
@@ -1059,7 +1059,7 @@ class TestConflictingSymbolNames_Data5 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // repeated string data = 1 [ctype = STRING_PIECE];
   int data_size() const;
@@ -1207,7 +1207,7 @@ class TestConflictingSymbolNames_Data6 final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 1,
+  	kDataFieldNumber = 1,
   };
   // repeated string data = 1 [ctype = CORD];
   int data_size() const;
@@ -1681,46 +1681,46 @@ class TestConflictingSymbolNames final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIFieldNumber = 4,
-    kNewElementFieldNumber = 5,
-    kIndexFieldNumber = 13,
-    kLengthFieldNumber = 3,
-    kStringFieldNumber = 18,
-    kSomeCordFieldNumber = 28,
-    kSomeStringPieceFieldNumber = 29,
-    kReleaseLengthFieldNumber = 35,
-    kTargetFieldNumber = 38,
-    kDoFieldNumber = 32,
-    kReleaseDoFieldNumber = 36,
-    kInputFieldNumber = 1,
-    kOutputFieldNumber = 2,
-    kTotalSizeFieldNumber = 6,
-    kTagFieldNumber = 7,
-    kSourceFieldNumber = 8,
-    kValueFieldNumber = 9,
-    kFileFieldNumber = 10,
-    kFromFieldNumber = 11,
-    kHandleUninterpretedFieldNumber = 12,
-    kControllerFieldNumber = 14,
-    kAlreadyHereFieldNumber = 15,
-    kUint32FieldNumber = 16,
-    kUint64FieldNumber = 17,
-    kMemsetFieldNumber = 19,
-    kInt32FieldNumber = 20,
-    kInt64FieldNumber = 21,
-    kCachedSizeFieldNumber = 22,
-    kExtensionsFieldNumber = 23,
-    kBitFieldNumber = 24,
-    kBitsFieldNumber = 25,
-    kOffsetsFieldNumber = 26,
-    kReflectionFieldNumber = 27,
-    kIntFieldNumber = 30,
-    kFriendFieldNumber = 31,
-    kFieldTypeFieldNumber = 33,
-    kIsPackedFieldNumber = 34,
-    kClassFieldNumber = 37,
-    kTypedeclFieldNumber = 39,
-    kAutoFieldNumber = 40,
+  	kIFieldNumber = 4,
+  	kNewElementFieldNumber = 5,
+  	kIndexFieldNumber = 13,
+  	kLengthFieldNumber = 3,
+  	kStringFieldNumber = 18,
+  	kSomeCordFieldNumber = 28,
+  	kSomeStringPieceFieldNumber = 29,
+  	kReleaseLengthFieldNumber = 35,
+  	kTargetFieldNumber = 38,
+  	kDoFieldNumber = 32,
+  	kReleaseDoFieldNumber = 36,
+  	kInputFieldNumber = 1,
+  	kOutputFieldNumber = 2,
+  	kTotalSizeFieldNumber = 6,
+  	kTagFieldNumber = 7,
+  	kSourceFieldNumber = 8,
+  	kValueFieldNumber = 9,
+  	kFileFieldNumber = 10,
+  	kFromFieldNumber = 11,
+  	kHandleUninterpretedFieldNumber = 12,
+  	kControllerFieldNumber = 14,
+  	kAlreadyHereFieldNumber = 15,
+  	kUint32FieldNumber = 16,
+  	kUint64FieldNumber = 17,
+  	kMemsetFieldNumber = 19,
+  	kInt32FieldNumber = 20,
+  	kInt64FieldNumber = 21,
+  	kCachedSizeFieldNumber = 22,
+  	kExtensionsFieldNumber = 23,
+  	kBitFieldNumber = 24,
+  	kBitsFieldNumber = 25,
+  	kOffsetsFieldNumber = 26,
+  	kReflectionFieldNumber = 27,
+  	kIntFieldNumber = 30,
+  	kFriendFieldNumber = 31,
+  	kFieldTypeFieldNumber = 33,
+  	kIsPackedFieldNumber = 34,
+  	kClassFieldNumber = 37,
+  	kTypedeclFieldNumber = 39,
+  	kAutoFieldNumber = 40,
   };
   // repeated int32 i = 4;
   int i_size() const;
@@ -2315,113 +2315,61 @@ class TestConflictingSymbolNames final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -2612,9 +2560,7 @@ class TestConflictingSymbolNamesExtension final :
   // accessors -------------------------------------------------------
 
   static const int kRepeatedInt32ExtFieldNumber = 20423638;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestConflictingSymbolNames,
-      ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, true >
-    repeated_int32_ext;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestConflictingSymbolNames, ::PROTOBUF_NAMESPACE_ID::internal::RepeatedPrimitiveTypeTraits< int32_t >, 5, true > repeated_int32_ext;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestConflictingSymbolNamesExtension)
  private:
   class _Internal;
@@ -2755,7 +2701,7 @@ class TestConflictingEnumNames final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kConflictingEnumFieldNumber = 1,
+  	kConflictingEnumFieldNumber = 1,
   };
   // optional .protobuf_unittest.TestConflictingEnumNames.while conflicting_enum = 1;
   bool has_conflicting_enum() const;
@@ -2989,7 +2935,7 @@ class NULL_ final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIntFieldNumber = 1,
+  	kIntFieldNumber = 1,
   };
   // optional int32 int = 1;
   bool has_int_() const;
@@ -3270,9 +3216,7 @@ class TestConflictingMethodNames_Stub : public TestConflictingMethodNames {
 // ===================================================================
 
 static const int kVoidFieldNumber = 314253;
-extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestConflictingSymbolNames,
-    ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >
-  void_;
+extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestConflictingSymbolNames, ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false > void_;
 
 // ===================================================================
 
@@ -3292,8 +3236,9 @@ extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unitte
 
 // repeated int32 data = 1;
 inline int TestConflictingSymbolNames_Data1::_internal_data_size() const { return data_.size(); }
-inline int TestConflictingSymbolNames_Data1::data_size() const {
-  return _internal_data_size();
+inline int TestConflictingSymbolNames_Data1::data_size() const
+{
+	return _internal_data_size();
 }
 inline void TestConflictingSymbolNames_Data1::clear_data() {
   data_.Clear();
@@ -3335,41 +3280,48 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestConflictingSymbol
 
 // repeated .protobuf_unittest.TestConflictingSymbolNames.TestEnum data = 1;
 inline int TestConflictingSymbolNames_Data2::_internal_data_size() const { return data_.size(); }
-inline int TestConflictingSymbolNames_Data2::data_size() const {
-  return _internal_data_size();
+inline int TestConflictingSymbolNames_Data2::data_size() const
+{
+	return _internal_data_size();
 }
 inline void TestConflictingSymbolNames_Data2::clear_data() {
   data_.Clear();
 }
 inline ::protobuf_unittest::TestConflictingSymbolNames_TestEnum TestConflictingSymbolNames_Data2::_internal_data(int index) const { return static_cast< ::protobuf_unittest::TestConflictingSymbolNames_TestEnum >(data_.Get(index)); }
-inline ::protobuf_unittest::TestConflictingSymbolNames_TestEnum TestConflictingSymbolNames_Data2::data(int index) const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
-  return _internal_data(index);
+inline ::protobuf_unittest::TestConflictingSymbolNames_TestEnum TestConflictingSymbolNames_Data2::data(int index) const
+{
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
+	return _internal_data(index);
 }
-inline void TestConflictingSymbolNames_Data2::set_data(int index, ::protobuf_unittest::TestConflictingSymbolNames_TestEnum value) {
-  assert(::protobuf_unittest::TestConflictingSymbolNames_TestEnum_IsValid(value));
-  data_.Set(index, value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
+inline void TestConflictingSymbolNames_Data2::set_data(int index, ::protobuf_unittest::TestConflictingSymbolNames_TestEnum value)
+{
+	assert(::protobuf_unittest::TestConflictingSymbolNames_TestEnum_IsValid(value));
+	data_.Set(index, value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
 }
-inline void TestConflictingSymbolNames_Data2::_internal_add_data(::protobuf_unittest::TestConflictingSymbolNames_TestEnum value) {
-  assert(::protobuf_unittest::TestConflictingSymbolNames_TestEnum_IsValid(value));
-  data_.Add(value);
+inline void TestConflictingSymbolNames_Data2::_internal_add_data(::protobuf_unittest::TestConflictingSymbolNames_TestEnum value)
+{
+	assert(::protobuf_unittest::TestConflictingSymbolNames_TestEnum_IsValid(value));
+	data_.Add(value);
 }
-inline void TestConflictingSymbolNames_Data2::add_data(::protobuf_unittest::TestConflictingSymbolNames_TestEnum value) {
-  _internal_add_data(value);
-  // @@protoc_insertion_point(field_add:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
+inline void TestConflictingSymbolNames_Data2::add_data(::protobuf_unittest::TestConflictingSymbolNames_TestEnum value)
+{
+	_internal_add_data(value);
+	// @@protoc_insertion_point(field_add:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>&
-TestConflictingSymbolNames_Data2::data() const {
-  // @@protoc_insertion_point(field_list:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
-  return data_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> & TestConflictingSymbolNames_Data2::data() const
+{
+	// @@protoc_insertion_point(field_list:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
+	return data_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestConflictingSymbolNames_Data2::_internal_mutable_data() {
-  return &data_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestConflictingSymbolNames_Data2::_internal_mutable_data()
+{
+	return &data_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestConflictingSymbolNames_Data2::mutable_data() {
-  // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
-  return _internal_mutable_data();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestConflictingSymbolNames_Data2::mutable_data()
+{
+	// @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
+	return _internal_mutable_data();
 }
 
 // -------------------------------------------------------------------
@@ -3378,8 +3330,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestConflictingSymbolNames_
 
 // repeated string data = 1;
 inline int TestConflictingSymbolNames_Data3::_internal_data_size() const { return data_.size(); }
-inline int TestConflictingSymbolNames_Data3::data_size() const {
-  return _internal_data_size();
+inline int TestConflictingSymbolNames_Data3::data_size() const
+{
+	return _internal_data_size();
 }
 inline void TestConflictingSymbolNames_Data3::clear_data() {
   data_.Clear();
@@ -3450,8 +3403,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestConflictingS
 
 // repeated .protobuf_unittest.TestConflictingSymbolNames.Data4 data = 1;
 inline int TestConflictingSymbolNames_Data4::_internal_data_size() const { return data_.size(); }
-inline int TestConflictingSymbolNames_Data4::data_size() const {
-  return _internal_data_size();
+inline int TestConflictingSymbolNames_Data4::data_size() const
+{
+	return _internal_data_size();
 }
 inline void TestConflictingSymbolNames_Data4::clear_data() {
   data_.Clear();
@@ -3490,8 +3444,9 @@ TestConflictingSymbolNames_Data4::data() const {
 
 // repeated string data = 1 [ctype = STRING_PIECE];
 inline int TestConflictingSymbolNames_Data5::_internal_data_size() const { return data_.size(); }
-inline int TestConflictingSymbolNames_Data5::data_size() const {
-  return _internal_data_size();
+inline int TestConflictingSymbolNames_Data5::data_size() const
+{
+	return _internal_data_size();
 }
 inline void TestConflictingSymbolNames_Data5::clear_data() {
   data_.Clear();
@@ -3562,8 +3517,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestConflictingS
 
 // repeated string data = 1 [ctype = CORD];
 inline int TestConflictingSymbolNames_Data6::_internal_data_size() const { return data_.size(); }
-inline int TestConflictingSymbolNames_Data6::data_size() const {
-  return _internal_data_size();
+inline int TestConflictingSymbolNames_Data6::data_size() const
+{
+	return _internal_data_size();
 }
 inline void TestConflictingSymbolNames_Data6::clear_data() {
   data_.Clear();
@@ -3647,10 +3603,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestConflictingS
 // optional int32 input = 1;
 inline bool TestConflictingSymbolNames::_internal_has_input() const {
   bool value = (_has_bits_[0] & 0x00000100u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_input() const {
-  return _internal_has_input();
+	return _internal_has_input();
 }
 inline void TestConflictingSymbolNames::clear_input() {
   input_ = 0;
@@ -3673,10 +3629,10 @@ inline void TestConflictingSymbolNames::set_input(int32_t value) {
 // optional int32 output = 2;
 inline bool TestConflictingSymbolNames::_internal_has_output() const {
   bool value = (_has_bits_[0] & 0x00000200u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_output() const {
-  return _internal_has_output();
+	return _internal_has_output();
 }
 inline void TestConflictingSymbolNames::clear_output() {
   output_ = 0;
@@ -3699,10 +3655,10 @@ inline void TestConflictingSymbolNames::set_output(int32_t value) {
 // optional string length = 3;
 inline bool TestConflictingSymbolNames::_internal_has_length() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_length() const {
-  return _internal_has_length();
+	return _internal_has_length();
 }
 inline void TestConflictingSymbolNames::clear_length() {
   length_.ClearToEmpty();
@@ -3762,8 +3718,9 @@ inline void TestConflictingSymbolNames::set_allocated_length(std::string* length
 
 // repeated int32 i = 4;
 inline int TestConflictingSymbolNames::_internal_i_size() const { return i_.size(); }
-inline int TestConflictingSymbolNames::i_size() const {
-  return _internal_i_size();
+inline int TestConflictingSymbolNames::i_size() const
+{
+	return _internal_i_size();
 }
 inline void TestConflictingSymbolNames::clear_i() {
   i_.Clear();
@@ -3801,8 +3758,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestConflictingSymbol
 
 // repeated string new_element = 5 [ctype = STRING_PIECE];
 inline int TestConflictingSymbolNames::_internal_new_element_size() const { return new_element_.size(); }
-inline int TestConflictingSymbolNames::new_element_size() const {
-  return _internal_new_element_size();
+inline int TestConflictingSymbolNames::new_element_size() const
+{
+	return _internal_new_element_size();
 }
 inline void TestConflictingSymbolNames::clear_new_element() {
   new_element_.Clear();
@@ -3870,10 +3828,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestConflictingS
 // optional int32 total_size = 6;
 inline bool TestConflictingSymbolNames::_internal_has_total_size() const {
   bool value = (_has_bits_[0] & 0x00000400u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_total_size() const {
-  return _internal_has_total_size();
+	return _internal_has_total_size();
 }
 inline void TestConflictingSymbolNames::clear_total_size() {
   total_size_ = 0;
@@ -3896,10 +3854,10 @@ inline void TestConflictingSymbolNames::set_total_size(int32_t value) {
 // optional int32 tag = 7;
 inline bool TestConflictingSymbolNames::_internal_has_tag() const {
   bool value = (_has_bits_[0] & 0x00000800u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_tag() const {
-  return _internal_has_tag();
+	return _internal_has_tag();
 }
 inline void TestConflictingSymbolNames::clear_tag() {
   tag_ = 0;
@@ -3922,10 +3880,10 @@ inline void TestConflictingSymbolNames::set_tag(int32_t value) {
 // optional int32 source = 8;
 inline bool TestConflictingSymbolNames::_internal_has_source() const {
   bool value = (_has_bits_[0] & 0x00001000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_source() const {
-  return _internal_has_source();
+	return _internal_has_source();
 }
 inline void TestConflictingSymbolNames::clear_source() {
   source_ = 0;
@@ -3948,10 +3906,10 @@ inline void TestConflictingSymbolNames::set_source(int32_t value) {
 // optional int32 value = 9;
 inline bool TestConflictingSymbolNames::_internal_has_value() const {
   bool value = (_has_bits_[0] & 0x00002000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_value() const {
-  return _internal_has_value();
+	return _internal_has_value();
 }
 inline void TestConflictingSymbolNames::clear_value() {
   value_ = 0;
@@ -3974,10 +3932,10 @@ inline void TestConflictingSymbolNames::set_value(int32_t value) {
 // optional int32 file = 10;
 inline bool TestConflictingSymbolNames::_internal_has_file() const {
   bool value = (_has_bits_[0] & 0x00004000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_file() const {
-  return _internal_has_file();
+	return _internal_has_file();
 }
 inline void TestConflictingSymbolNames::clear_file() {
   file_ = 0;
@@ -4000,10 +3958,10 @@ inline void TestConflictingSymbolNames::set_file(int32_t value) {
 // optional int32 from = 11;
 inline bool TestConflictingSymbolNames::_internal_has_from() const {
   bool value = (_has_bits_[0] & 0x00008000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_from() const {
-  return _internal_has_from();
+	return _internal_has_from();
 }
 inline void TestConflictingSymbolNames::clear_from() {
   from_ = 0;
@@ -4026,10 +3984,10 @@ inline void TestConflictingSymbolNames::set_from(int32_t value) {
 // optional int32 handle_uninterpreted = 12;
 inline bool TestConflictingSymbolNames::_internal_has_handle_uninterpreted() const {
   bool value = (_has_bits_[0] & 0x00010000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_handle_uninterpreted() const {
-  return _internal_has_handle_uninterpreted();
+	return _internal_has_handle_uninterpreted();
 }
 inline void TestConflictingSymbolNames::clear_handle_uninterpreted() {
   handle_uninterpreted_ = 0;
@@ -4051,8 +4009,9 @@ inline void TestConflictingSymbolNames::set_handle_uninterpreted(int32_t value) 
 
 // repeated int32 index = 13;
 inline int TestConflictingSymbolNames::_internal_index_size() const { return index_.size(); }
-inline int TestConflictingSymbolNames::index_size() const {
-  return _internal_index_size();
+inline int TestConflictingSymbolNames::index_size() const
+{
+	return _internal_index_size();
 }
 inline void TestConflictingSymbolNames::clear_index() {
   index_.Clear();
@@ -4091,10 +4050,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestConflictingSymbol
 // optional int32 controller = 14;
 inline bool TestConflictingSymbolNames::_internal_has_controller() const {
   bool value = (_has_bits_[0] & 0x00020000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_controller() const {
-  return _internal_has_controller();
+	return _internal_has_controller();
 }
 inline void TestConflictingSymbolNames::clear_controller() {
   controller_ = 0;
@@ -4117,10 +4076,10 @@ inline void TestConflictingSymbolNames::set_controller(int32_t value) {
 // optional int32 already_here = 15;
 inline bool TestConflictingSymbolNames::_internal_has_already_here() const {
   bool value = (_has_bits_[0] & 0x00040000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_already_here() const {
-  return _internal_has_already_here();
+	return _internal_has_already_here();
 }
 inline void TestConflictingSymbolNames::clear_already_here() {
   already_here_ = 0;
@@ -4143,10 +4102,10 @@ inline void TestConflictingSymbolNames::set_already_here(int32_t value) {
 // optional uint32 uint32 = 16;
 inline bool TestConflictingSymbolNames::_internal_has_uint32() const {
   bool value = (_has_bits_[0] & 0x00080000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_uint32() const {
-  return _internal_has_uint32();
+	return _internal_has_uint32();
 }
 inline void TestConflictingSymbolNames::clear_uint32() {
   uint32_ = 0u;
@@ -4169,10 +4128,10 @@ inline void TestConflictingSymbolNames::set_uint32(uint32_t value) {
 // optional uint64 uint64 = 17;
 inline bool TestConflictingSymbolNames::_internal_has_uint64() const {
   bool value = (_has_bits_[0] & 0x00100000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_uint64() const {
-  return _internal_has_uint64();
+	return _internal_has_uint64();
 }
 inline void TestConflictingSymbolNames::clear_uint64() {
   uint64_ = uint64_t{0u};
@@ -4195,10 +4154,10 @@ inline void TestConflictingSymbolNames::set_uint64(uint64_t value) {
 // optional string string = 18;
 inline bool TestConflictingSymbolNames::_internal_has_string() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_string() const {
-  return _internal_has_string();
+	return _internal_has_string();
 }
 inline void TestConflictingSymbolNames::clear_string() {
   string_.ClearToEmpty();
@@ -4259,10 +4218,10 @@ inline void TestConflictingSymbolNames::set_allocated_string(std::string* string
 // optional int32 memset = 19;
 inline bool TestConflictingSymbolNames::_internal_has_memset() const {
   bool value = (_has_bits_[0] & 0x00200000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_memset() const {
-  return _internal_has_memset();
+	return _internal_has_memset();
 }
 inline void TestConflictingSymbolNames::clear_memset() {
   memset_ = 0;
@@ -4285,10 +4244,10 @@ inline void TestConflictingSymbolNames::set_memset(int32_t value) {
 // optional int32 int32 = 20;
 inline bool TestConflictingSymbolNames::_internal_has_int32() const {
   bool value = (_has_bits_[0] & 0x00400000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_int32() const {
-  return _internal_has_int32();
+	return _internal_has_int32();
 }
 inline void TestConflictingSymbolNames::clear_int32() {
   int32_ = 0;
@@ -4311,10 +4270,10 @@ inline void TestConflictingSymbolNames::set_int32(int32_t value) {
 // optional int64 int64 = 21;
 inline bool TestConflictingSymbolNames::_internal_has_int64() const {
   bool value = (_has_bits_[0] & 0x00800000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_int64() const {
-  return _internal_has_int64();
+	return _internal_has_int64();
 }
 inline void TestConflictingSymbolNames::clear_int64() {
   int64_ = int64_t{0};
@@ -4337,10 +4296,10 @@ inline void TestConflictingSymbolNames::set_int64(int64_t value) {
 // optional uint32 cached_size = 22;
 inline bool TestConflictingSymbolNames::_internal_has_cached_size() const {
   bool value = (_has_bits_[0] & 0x01000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_cached_size() const {
-  return _internal_has_cached_size();
+	return _internal_has_cached_size();
 }
 inline void TestConflictingSymbolNames::clear_cached_size() {
   cached_size_ = 0u;
@@ -4363,10 +4322,10 @@ inline void TestConflictingSymbolNames::set_cached_size(uint32_t value) {
 // optional uint32 extensions = 23;
 inline bool TestConflictingSymbolNames::_internal_has_extensions() const {
   bool value = (_has_bits_[0] & 0x02000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_extensions() const {
-  return _internal_has_extensions();
+	return _internal_has_extensions();
 }
 inline void TestConflictingSymbolNames::clear_extensions() {
   extensions_ = 0u;
@@ -4389,10 +4348,10 @@ inline void TestConflictingSymbolNames::set_extensions(uint32_t value) {
 // optional uint32 bit = 24;
 inline bool TestConflictingSymbolNames::_internal_has_bit() const {
   bool value = (_has_bits_[0] & 0x04000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_bit() const {
-  return _internal_has_bit();
+	return _internal_has_bit();
 }
 inline void TestConflictingSymbolNames::clear_bit() {
   bit_ = 0u;
@@ -4415,10 +4374,10 @@ inline void TestConflictingSymbolNames::set_bit(uint32_t value) {
 // optional uint32 bits = 25;
 inline bool TestConflictingSymbolNames::_internal_has_bits() const {
   bool value = (_has_bits_[0] & 0x08000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_bits() const {
-  return _internal_has_bits();
+	return _internal_has_bits();
 }
 inline void TestConflictingSymbolNames::clear_bits() {
   bits_ = 0u;
@@ -4441,10 +4400,10 @@ inline void TestConflictingSymbolNames::set_bits(uint32_t value) {
 // optional uint32 offsets = 26;
 inline bool TestConflictingSymbolNames::_internal_has_offsets() const {
   bool value = (_has_bits_[0] & 0x10000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_offsets() const {
-  return _internal_has_offsets();
+	return _internal_has_offsets();
 }
 inline void TestConflictingSymbolNames::clear_offsets() {
   offsets_ = 0u;
@@ -4467,10 +4426,10 @@ inline void TestConflictingSymbolNames::set_offsets(uint32_t value) {
 // optional uint32 reflection = 27;
 inline bool TestConflictingSymbolNames::_internal_has_reflection() const {
   bool value = (_has_bits_[0] & 0x20000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_reflection() const {
-  return _internal_has_reflection();
+	return _internal_has_reflection();
 }
 inline void TestConflictingSymbolNames::clear_reflection() {
   reflection_ = 0u;
@@ -4493,10 +4452,10 @@ inline void TestConflictingSymbolNames::set_reflection(uint32_t value) {
 // optional string some_cord = 28 [ctype = CORD];
 inline bool TestConflictingSymbolNames::_internal_has_some_cord() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_some_cord() const {
-  return _internal_has_some_cord();
+	return _internal_has_some_cord();
 }
 inline void TestConflictingSymbolNames::clear_some_cord() {
   some_cord_.ClearToEmpty();
@@ -4557,10 +4516,10 @@ inline void TestConflictingSymbolNames::set_allocated_some_cord(std::string* som
 // optional string some_string_piece = 29 [ctype = STRING_PIECE];
 inline bool TestConflictingSymbolNames::_internal_has_some_string_piece() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_some_string_piece() const {
-  return _internal_has_some_string_piece();
+	return _internal_has_some_string_piece();
 }
 inline void TestConflictingSymbolNames::clear_some_string_piece() {
   some_string_piece_.ClearToEmpty();
@@ -4621,10 +4580,10 @@ inline void TestConflictingSymbolNames::set_allocated_some_string_piece(std::str
 // optional uint32 int = 30;
 inline bool TestConflictingSymbolNames::_internal_has_int_() const {
   bool value = (_has_bits_[0] & 0x40000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_int_() const {
-  return _internal_has_int_();
+	return _internal_has_int_();
 }
 inline void TestConflictingSymbolNames::clear_int_() {
   int__ = 0u;
@@ -4647,10 +4606,10 @@ inline void TestConflictingSymbolNames::set_int_(uint32_t value) {
 // optional uint32 friend = 31;
 inline bool TestConflictingSymbolNames::_internal_has_friend_() const {
   bool value = (_has_bits_[0] & 0x80000000u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_friend_() const {
-  return _internal_has_friend_();
+	return _internal_has_friend_();
 }
 inline void TestConflictingSymbolNames::clear_friend_() {
   friend__ = 0u;
@@ -4673,10 +4632,10 @@ inline void TestConflictingSymbolNames::set_friend_(uint32_t value) {
 // optional uint32 class = 37;
 inline bool TestConflictingSymbolNames::_internal_has_class_() const {
   bool value = (_has_bits_[1] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_class_() const {
-  return _internal_has_class_();
+	return _internal_has_class_();
 }
 inline void TestConflictingSymbolNames::clear_class_() {
   class__ = 0u;
@@ -4699,10 +4658,10 @@ inline void TestConflictingSymbolNames::set_class_(uint32_t value) {
 // optional uint32 typedecl = 39;
 inline bool TestConflictingSymbolNames::_internal_has_typedecl() const {
   bool value = (_has_bits_[1] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_typedecl() const {
-  return _internal_has_typedecl();
+	return _internal_has_typedecl();
 }
 inline void TestConflictingSymbolNames::clear_typedecl() {
   typedecl_ = 0u;
@@ -4725,10 +4684,10 @@ inline void TestConflictingSymbolNames::set_typedecl(uint32_t value) {
 // optional uint32 auto = 40;
 inline bool TestConflictingSymbolNames::_internal_has_auto_() const {
   bool value = (_has_bits_[1] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_auto_() const {
-  return _internal_has_auto_();
+	return _internal_has_auto_();
 }
 inline void TestConflictingSymbolNames::clear_auto_() {
   auto__ = 0u;
@@ -4752,10 +4711,10 @@ inline void TestConflictingSymbolNames::set_auto_(uint32_t value) {
 inline bool TestConflictingSymbolNames::_internal_has_do_() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
   PROTOBUF_ASSUME(!value || do__ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_do_() const {
-  return _internal_has_do_();
+	return _internal_has_do_();
 }
 inline void TestConflictingSymbolNames::clear_do_() {
   if(do__ != nullptr) do__->Clear();
@@ -4840,10 +4799,10 @@ inline void TestConflictingSymbolNames::set_allocated_do_(::protobuf_unittest::T
 // optional int32 field_type = 33;
 inline bool TestConflictingSymbolNames::_internal_has_field_type() const {
   bool value = (_has_bits_[1] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_field_type() const {
-  return _internal_has_field_type();
+	return _internal_has_field_type();
 }
 inline void TestConflictingSymbolNames::clear_field_type() {
   field_type_ = 0;
@@ -4866,10 +4825,10 @@ inline void TestConflictingSymbolNames::set_field_type(int32_t value) {
 // optional bool is_packed = 34;
 inline bool TestConflictingSymbolNames::_internal_has_is_packed() const {
   bool value = (_has_bits_[1] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_is_packed() const {
-  return _internal_has_is_packed();
+	return _internal_has_is_packed();
 }
 inline void TestConflictingSymbolNames::clear_is_packed() {
   is_packed_ = false;
@@ -4892,10 +4851,10 @@ inline void TestConflictingSymbolNames::set_is_packed(bool value) {
 // optional string release_length = 35;
 inline bool TestConflictingSymbolNames::_internal_has_release_length() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_release_length() const {
-  return _internal_has_release_length();
+	return _internal_has_release_length();
 }
 inline void TestConflictingSymbolNames::clear_release_length() {
   release_length_.ClearToEmpty();
@@ -4957,10 +4916,10 @@ inline void TestConflictingSymbolNames::set_allocated_release_length(std::string
 inline bool TestConflictingSymbolNames::_internal_has_release_do() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
   PROTOBUF_ASSUME(!value || release_do_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_release_do() const {
-  return _internal_has_release_do();
+	return _internal_has_release_do();
 }
 inline void TestConflictingSymbolNames::clear_release_do() {
   if(release_do_ != nullptr) release_do_->Clear();
@@ -5045,10 +5004,10 @@ inline void TestConflictingSymbolNames::set_allocated_release_do(::protobuf_unit
 // optional string target = 38;
 inline bool TestConflictingSymbolNames::_internal_has_target() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingSymbolNames::has_target() const {
-  return _internal_has_target();
+	return _internal_has_target();
 }
 inline void TestConflictingSymbolNames::clear_target() {
   target_.ClearToEmpty();
@@ -5117,10 +5076,10 @@ inline void TestConflictingSymbolNames::set_allocated_target(std::string* target
 // optional .protobuf_unittest.TestConflictingEnumNames.while conflicting_enum = 1;
 inline bool TestConflictingEnumNames::_internal_has_conflicting_enum() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestConflictingEnumNames::has_conflicting_enum() const {
-  return _internal_has_conflicting_enum();
+	return _internal_has_conflicting_enum();
 }
 inline void TestConflictingEnumNames::clear_conflicting_enum() {
   conflicting_enum_ = 0;
@@ -5152,10 +5111,10 @@ inline void TestConflictingEnumNames::set_conflicting_enum(::protobuf_unittest::
 // optional int32 int = 1;
 inline bool NULL_::_internal_has_int_() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool NULL_::has_int_() const {
-  return _internal_has_int_();
+	return _internal_has_int_();
 }
 inline void NULL_::clear_int_() {
   int__ = 0;

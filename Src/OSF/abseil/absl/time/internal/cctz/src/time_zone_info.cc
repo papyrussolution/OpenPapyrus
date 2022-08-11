@@ -30,9 +30,7 @@ ABSL_NAMESPACE_BEGIN
 namespace time_internal {
 namespace cctz {
 namespace {
-inline bool IsLeap(year_t year) {
-	return (year % 4) == 0 && ((year % 100) != 0 || (year % 400) == 0);
-}
+inline bool IsLeap(year_t year) { return (year % 4) == 0 && ((year % 100) != 0 || (year % 400) == 0); }
 
 // The number of days in non-leap and leap years respectively.
 const std::int_least32_t kDaysPerYear[2] = {365, 366};
@@ -45,7 +43,7 @@ const std::int_least16_t kMonthOffsets[2][1 + 12 + 1] = {
 };
 
 // We reject leap-second encoded zoneinfo and so assume 60-second minutes.
-const std::int_least32_t kSecsPerDay = 24 * 60 * 60;
+const std::int_least32_t kSecsPerDay = SSECSPERDAY;
 
 // 400-year chunks always have 146097 days (20871 weeks).
 const std::int_least64_t kSecsPer400Years = 146097LL * kSecsPerDay;
@@ -57,30 +55,22 @@ const std::int_least32_t kSecsPerYear[2] = {
 };
 
 // Convert a cctz::weekday to a POSIX TZ weekday number (0==Sun, ..., 6=Sat).
-inline int ToPosixWeekday(weekday wd) {
+inline int ToPosixWeekday(weekday wd) 
+{
 	switch(wd) {
-		case weekday::sunday:
-		    return 0;
-		case weekday::monday:
-		    return 1;
-		case weekday::tuesday:
-		    return 2;
-		case weekday::wednesday:
-		    return 3;
-		case weekday::thursday:
-		    return 4;
-		case weekday::friday:
-		    return 5;
-		case weekday::saturday:
-		    return 6;
+		case weekday::sunday: return 0;
+		case weekday::monday: return 1;
+		case weekday::tuesday: return 2;
+		case weekday::wednesday: return 3;
+		case weekday::thursday: return 4;
+		case weekday::friday: return 5;
+		case weekday::saturday: return 6;
 	}
 	return 0; /*NOTREACHED*/
 }
 
 // Single-byte, unsigned numeric values are encoded directly.
-inline std::uint_fast8_t Decode8(const char* cp) {
-	return static_cast<std::uint_fast8_t>(*cp) & 0xff;
-}
+inline std::uint_fast8_t Decode8(const char* cp) { return static_cast<std::uint_fast8_t>(*cp) & 0xff; }
 
 // Multi-byte, numeric values are encoded using a MSB first,
 // twos-complement representation. These helpers decode, from
@@ -88,7 +78,8 @@ inline std::uint_fast8_t Decode8(const char* cp) {
 // Note: If int_fastXX_t == intXX_t and this machine is not
 // twos complement, then there will be at least one input value
 // we cannot represent.
-std::int_fast32_t Decode32(const char* cp) {
+std::int_fast32_t Decode32(const char* cp) 
+{
 	std::uint_fast32_t v = 0;
 	for(int i = 0; i != (32 / 8); ++i) v = (v << 8) | Decode8(cp++);
 	const std::int_fast32_t s32max = 0x7fffffff;

@@ -184,11 +184,11 @@ class TestField final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRcFieldNumber = 2,
-    kMFieldNumber = 5,
-    kCFieldNumber = 1,
-    kAFieldNumber = 3,
-    kBFieldNumber = 4,
+  	kRcFieldNumber = 2,
+  	kMFieldNumber = 5,
+  	kCFieldNumber = 1,
+  	kAFieldNumber = 3,
+  	kBFieldNumber = 4,
   };
   // repeated int32 rc = 2;
   int rc_size() const;
@@ -267,9 +267,7 @@ class TestField final :
   public:
 
   static const int kTfFieldNumber = 100;
-  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestDiffMessage,
-      ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestField >, 11, false >
-    tf;
+  static ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::TestDiffMessage, ::PROTOBUF_NAMESPACE_ID::internal::MessageTypeTraits< ::protobuf_unittest::TestField >, 11, false > tf;
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestField)
  private:
   class _Internal;
@@ -305,7 +303,7 @@ public:
 #endif
     return true;
  }
-  static bool ValidateValue(void*) { return true; }
+  static bool ValidateValue(void *) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -419,13 +417,13 @@ class TestDiffMessage_Item final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRaFieldNumber = 3,
-    kRbFieldNumber = 5,
-    kRmFieldNumber = 7,
-    kMpFieldNumber = 8,
-    kBFieldNumber = 4,
-    kMFieldNumber = 6,
-    kAFieldNumber = 2,
+  	kRaFieldNumber = 3,
+  	kRbFieldNumber = 5,
+  	kRmFieldNumber = 7,
+  	kMpFieldNumber = 8,
+  	kBFieldNumber = 4,
+  	kMFieldNumber = 6,
+  	kAFieldNumber = 2,
   };
   // repeated int32 ra = 3;
   int ra_size() const;
@@ -560,11 +558,7 @@ class TestDiffMessage_Item final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > ra_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> rb_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField > rm_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      TestDiffMessage_Item_MpEntry_DoNotUse,
-      std::string, int32_t,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> mp_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<TestDiffMessage_Item_MpEntry_DoNotUse, std::string, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> mp_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr b_;
   ::protobuf_unittest::TestField* m_;
   int32_t a_;
@@ -680,14 +674,14 @@ class TestDiffMessage final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kItemFieldNumber = 1,
-    kRwFieldNumber = 10,
-    kRvFieldNumber = 11,
-    kRmFieldNumber = 12,
-    kRanyFieldNumber = 16,
-    kWFieldNumber = 14,
-    kMFieldNumber = 15,
-    kVFieldNumber = 13,
+  	kItemFieldNumber = 1,
+  	kRwFieldNumber = 10,
+  	kRvFieldNumber = 11,
+  	kRmFieldNumber = 12,
+  	kRanyFieldNumber = 16,
+  	kWFieldNumber = 14,
+  	kMFieldNumber = 15,
+  	kVFieldNumber = 13,
   };
   // repeated group Item = 1 { ... };
   int item_size() const;
@@ -830,113 +824,61 @@ class TestDiffMessage final :
   public:
 
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline bool HasExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline bool HasExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.Has(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void ClearExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void ClearExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
     _extensions_.ClearExtension(id.number());
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline int ExtensionSize(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline int ExtensionSize(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _extensions_.ExtensionSize(id.number());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
-    return _proto_TypeTraits::Get(id.number(), _extensions_,
-                                  id.default_value());
+    return _proto_TypeTraits::Get(id.number(), _extensions_, id.default_value());
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Singular::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Mutable(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Mutable(id.number(), _field_type, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::ConstType value) {
     _proto_TypeTraits::Set(id.number(), _field_type, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value,
-                                    &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::SetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void UnsafeArenaSetAllocatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id,
-      typename _proto_TypeTraits::Singular::MutableType value) {
-    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type,
-                                               value, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void UnsafeArenaSetAllocatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id, typename _proto_TypeTraits::Singular::MutableType value) {
+    _proto_TypeTraits::UnsafeArenaSetAllocated(id.number(), _field_type, value, &_extensions_);
 
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  PROTOBUF_NODISCARD inline
-      typename _proto_TypeTraits::Singular::MutableType
-      ReleaseExtension(
-          const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-              TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  PROTOBUF_NODISCARD inline typename _proto_TypeTraits::Singular::MutableType ReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::Release(id.number(), _field_type,
-                                      &_extensions_);
+    return _proto_TypeTraits::Release(id.number(), _field_type, &_extensions_);
   }
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Singular::MutableType
-  UnsafeArenaReleaseExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed> 
+  inline typename _proto_TypeTraits::Singular::MutableType UnsafeArenaReleaseExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestDiffMessage, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type,
-                                                 &_extensions_);
+    return _proto_TypeTraits::UnsafeArenaRelease(id.number(), _field_type, &_extensions_);
   }
 
   template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
@@ -1019,10 +961,10 @@ class TestDiffMessage final :
 // optional int32 a = 3;
 inline bool TestField::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestField::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestField::clear_a() {
   a_ = 0;
@@ -1045,10 +987,10 @@ inline void TestField::set_a(int32_t value) {
 // optional int32 b = 4;
 inline bool TestField::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool TestField::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestField::clear_b() {
   b_ = 0;
@@ -1071,10 +1013,10 @@ inline void TestField::set_b(int32_t value) {
 // optional int32 c = 1;
 inline bool TestField::_internal_has_c() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool TestField::has_c() const {
-  return _internal_has_c();
+	return _internal_has_c();
 }
 inline void TestField::clear_c() {
   c_ = 0;
@@ -1096,8 +1038,9 @@ inline void TestField::set_c(int32_t value) {
 
 // repeated int32 rc = 2;
 inline int TestField::_internal_rc_size() const { return rc_.size(); }
-inline int TestField::rc_size() const {
-  return _internal_rc_size();
+inline int TestField::rc_size() const
+{
+	return _internal_rc_size();
 }
 inline void TestField::clear_rc() {
   rc_.Clear();
@@ -1137,10 +1080,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestField::mutable_rc
 inline bool TestField::_internal_has_m() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || m_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestField::has_m() const {
-  return _internal_has_m();
+	return _internal_has_m();
 }
 inline void TestField::clear_m() {
   if(m_ != nullptr) m_->Clear();
@@ -1231,10 +1174,10 @@ inline void TestField::set_allocated_m(::protobuf_unittest::TestField* m) {
 // optional int32 a = 2;
 inline bool TestDiffMessage_Item::_internal_has_a() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDiffMessage_Item::has_a() const {
-  return _internal_has_a();
+	return _internal_has_a();
 }
 inline void TestDiffMessage_Item::clear_a() {
   a_ = 0;
@@ -1257,10 +1200,10 @@ inline void TestDiffMessage_Item::set_a(int32_t value) {
 // optional string b = 4;
 inline bool TestDiffMessage_Item::_internal_has_b() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDiffMessage_Item::has_b() const {
-  return _internal_has_b();
+	return _internal_has_b();
 }
 inline void TestDiffMessage_Item::clear_b() {
   b_.ClearToEmpty();
@@ -1320,8 +1263,9 @@ inline void TestDiffMessage_Item::set_allocated_b(std::string* b) {
 
 // repeated int32 ra = 3;
 inline int TestDiffMessage_Item::_internal_ra_size() const { return ra_.size(); }
-inline int TestDiffMessage_Item::ra_size() const {
-  return _internal_ra_size();
+inline int TestDiffMessage_Item::ra_size() const
+{
+	return _internal_ra_size();
 }
 inline void TestDiffMessage_Item::clear_ra() {
   ra_.Clear();
@@ -1359,8 +1303,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestDiffMessage_Item:
 
 // repeated string rb = 5;
 inline int TestDiffMessage_Item::_internal_rb_size() const { return rb_.size(); }
-inline int TestDiffMessage_Item::rb_size() const {
-  return _internal_rb_size();
+inline int TestDiffMessage_Item::rb_size() const
+{
+	return _internal_rb_size();
 }
 inline void TestDiffMessage_Item::clear_rb() {
   rb_.Clear();
@@ -1429,10 +1374,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestDiffMessage_
 inline bool TestDiffMessage_Item::_internal_has_m() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || m_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestDiffMessage_Item::has_m() const {
-  return _internal_has_m();
+	return _internal_has_m();
 }
 inline void TestDiffMessage_Item::clear_m() {
   if(m_ != nullptr) m_->Clear();
@@ -1516,8 +1461,9 @@ inline void TestDiffMessage_Item::set_allocated_m(::protobuf_unittest::TestField
 
 // repeated .protobuf_unittest.TestField rm = 7;
 inline int TestDiffMessage_Item::_internal_rm_size() const { return rm_.size(); }
-inline int TestDiffMessage_Item::rm_size() const {
-  return _internal_rm_size();
+inline int TestDiffMessage_Item::rm_size() const
+{
+	return _internal_rm_size();
 }
 inline void TestDiffMessage_Item::clear_rm() {
   rm_.Clear();
@@ -1552,8 +1498,9 @@ TestDiffMessage_Item::rm() const {
 
 // map<string, int32> mp = 8;
 inline int TestDiffMessage_Item::_internal_mp_size() const { return mp_.size(); }
-inline int TestDiffMessage_Item::mp_size() const {
-  return _internal_mp_size();
+inline int TestDiffMessage_Item::mp_size() const
+{
+	return _internal_mp_size();
 }
 inline void TestDiffMessage_Item::clear_mp() {
   mp_.Clear();
@@ -1561,16 +1508,19 @@ inline void TestDiffMessage_Item::clear_mp() {
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
 TestDiffMessage_Item::_internal_mp() const { return mp_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
-TestDiffMessage_Item::mp() const {
-  // @@protoc_insertion_point(field_map:protobuf_unittest.TestDiffMessage.Item.mp)
-  return _internal_mp();
+TestDiffMessage_Item::mp() const
+{
+	// @@protoc_insertion_point(field_map:protobuf_unittest.TestDiffMessage.Item.mp)
+	return _internal_mp();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * TestDiffMessage_Item::_internal_mutable_mp() {
-  return mp_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * TestDiffMessage_Item::_internal_mutable_mp()
+{
+	return mp_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * TestDiffMessage_Item::mutable_mp() {
-  // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestDiffMessage.Item.mp)
-  return _internal_mutable_mp();
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * TestDiffMessage_Item::mutable_mp()
+{
+	// @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestDiffMessage.Item.mp)
+	return _internal_mutable_mp();
 }
 
 // -------------------------------------------------------------------
@@ -1579,8 +1529,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * TestDiffMessage_It
 
 // repeated group Item = 1 { ... };
 inline int TestDiffMessage::_internal_item_size() const { return item_.size(); }
-inline int TestDiffMessage::item_size() const {
-  return _internal_item_size();
+inline int TestDiffMessage::item_size() const
+{
+	return _internal_item_size();
 }
 inline void TestDiffMessage::clear_item() {
   item_.Clear();
@@ -1616,10 +1567,10 @@ TestDiffMessage::item() const {
 // optional int32 v = 13 [deprecated = true];
 inline bool TestDiffMessage::_internal_has_v() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDiffMessage::has_v() const {
-  return _internal_has_v();
+	return _internal_has_v();
 }
 inline void TestDiffMessage::clear_v() {
   v_ = 0;
@@ -1642,10 +1593,10 @@ inline void TestDiffMessage::set_v(int32_t value) {
 // optional string w = 14;
 inline bool TestDiffMessage::_internal_has_w() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool TestDiffMessage::has_w() const {
-  return _internal_has_w();
+	return _internal_has_w();
 }
 inline void TestDiffMessage::clear_w() {
   w_.ClearToEmpty();
@@ -1707,10 +1658,10 @@ inline void TestDiffMessage::set_allocated_w(std::string* w) {
 inline bool TestDiffMessage::_internal_has_m() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || m_ != nullptr);
-  return value;
+	return value;
 }
 inline bool TestDiffMessage::has_m() const {
-  return _internal_has_m();
+	return _internal_has_m();
 }
 inline void TestDiffMessage::clear_m() {
   if(m_ != nullptr) m_->Clear();
@@ -1794,8 +1745,9 @@ inline void TestDiffMessage::set_allocated_m(::protobuf_unittest::TestField* m) 
 
 // repeated int32 rv = 11;
 inline int TestDiffMessage::_internal_rv_size() const { return rv_.size(); }
-inline int TestDiffMessage::rv_size() const {
-  return _internal_rv_size();
+inline int TestDiffMessage::rv_size() const
+{
+	return _internal_rv_size();
 }
 inline void TestDiffMessage::clear_rv() {
   rv_.Clear();
@@ -1833,8 +1785,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestDiffMessage::muta
 
 // repeated string rw = 10;
 inline int TestDiffMessage::_internal_rw_size() const { return rw_.size(); }
-inline int TestDiffMessage::rw_size() const {
-  return _internal_rw_size();
+inline int TestDiffMessage::rw_size() const
+{
+	return _internal_rw_size();
 }
 inline void TestDiffMessage::clear_rw() {
   rw_.Clear();
@@ -1901,8 +1854,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestDiffMessage:
 
 // repeated .protobuf_unittest.TestField rm = 12 [deprecated = true];
 inline int TestDiffMessage::_internal_rm_size() const { return rm_.size(); }
-inline int TestDiffMessage::rm_size() const {
-  return _internal_rm_size();
+inline int TestDiffMessage::rm_size() const
+{
+	return _internal_rm_size();
 }
 inline void TestDiffMessage::clear_rm() {
   rm_.Clear();
@@ -1937,8 +1891,9 @@ TestDiffMessage::rm() const {
 
 // repeated .google.protobuf.Any rany = 16;
 inline int TestDiffMessage::_internal_rany_size() const { return rany_.size(); }
-inline int TestDiffMessage::rany_size() const {
-  return _internal_rany_size();
+inline int TestDiffMessage::rany_size() const
+{
+	return _internal_rany_size();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* TestDiffMessage::mutable_rany(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestDiffMessage.rany)
