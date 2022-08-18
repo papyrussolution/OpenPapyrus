@@ -143,7 +143,7 @@ int BIO_ADDR_rawaddress(const BIO_ADDR * ap, void * p, size_t * l)
 	if(p) {
 		memcpy(p, addrptr, len);
 	}
-	if(l != NULL)
+	if(l)
 		*l = len;
 
 	return 1;
@@ -221,18 +221,18 @@ static int addr_strings(const BIO_ADDR * ap, int numeric,
 	else {
 #endif
 		ASSIGN_PTR(hostname, OPENSSL_strdup(inet_ntoa(ap->s_in.sin_addr)));
-		if(service != NULL) {
+		if(service) {
 			char serv[6]; /* port is 16 bits => max 5 decimal digits */
 			BIO_snprintf(serv, sizeof(serv), "%d", ntohs(ap->s_in.sin_port));
 			*service = OPENSSL_strdup(serv);
 		}
 	}
-	if((hostname != NULL && *hostname == NULL) || (service != NULL && *service == NULL)) {
+	if((hostname && *hostname == NULL) || (service && *service == NULL)) {
 		if(hostname) {
 			OPENSSL_free(*hostname);
 			*hostname = NULL;
 		}
-		if(service != NULL) {
+		if(service) {
 			OPENSSL_free(*service);
 			*service = NULL;
 		}
@@ -393,7 +393,7 @@ void BIO_ADDRINFO_free(BIO_ADDRINFO * bai)
 	/* Free manually when we know that addrinfo_wrap() was used.
 	 * See further comment above addrinfo_wrap()
 	 */
-	while(bai != NULL) {
+	while(bai) {
 		BIO_ADDRINFO * next = bai->bai_next;
 		OPENSSL_free(bai->bai_addr);
 		OPENSSL_free(bai);
@@ -481,7 +481,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service,
 	if(p && strchr(p, ':'))
 		goto spec_err;
 
-	if(h != NULL && host != NULL) {
+	if(h && host) {
 		if(hl == 0
 		   || (hl == 1 && h[0] == '*')) {
 			*host = NULL;
@@ -492,7 +492,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service,
 				goto memerr;
 		}
 	}
-	if(p && service != NULL) {
+	if(p && service) {
 		if(pl == 0
 		   || (pl == 1 && p[0] == '*')) {
 			*service = NULL;
@@ -548,7 +548,7 @@ static int addrinfo_wrap(int family, int socktype, const void * where, size_t wh
 		   creating a memory leak here, we are not.  It will be
 		   all right. */
 		BIO_ADDR * addr = BIO_ADDR_new();
-		if(addr != NULL) {
+		if(addr) {
 			BIO_ADDR_rawmake(addr, family, where, wherelen, port);
 			(*bai)->bai_addr = BIO_ADDR_sockaddr_noconst(addr);
 		}
@@ -846,12 +846,10 @@ retry:
 
 			/* The easiest way to create a linked list from an
 			   array is to start from the back */
-			for(addrlistp = he->h_addr_list; *addrlistp != NULL;
-			    addrlistp++)
+			for(addrlistp = he->h_addr_list; *addrlistp; addrlistp++)
 				;
 
-			for(addresses = addrlistp - he->h_addr_list;
-			    addrlistp--, addresses-- > 0;) {
+			for(addresses = addrlistp - he->h_addr_list; addrlistp--, addresses-- > 0;) {
 				if(!addrinfo_wrap(he->h_addrtype, socktype,
 				    *addrlistp, he->h_length,
 				    se->s_port, &tmp_bai))

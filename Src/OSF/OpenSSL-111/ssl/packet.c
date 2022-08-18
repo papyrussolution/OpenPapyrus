@@ -60,7 +60,7 @@ int WPACKET_reserve_bytes(WPACKET * pkt, size_t len, uchar ** allocbytes)
 		if(BUF_MEM_grow(pkt->buf, newlen) == 0)
 			return 0;
 	}
-	if(allocbytes != NULL)
+	if(allocbytes)
 		*allocbytes = WPACKET_get_curr(pkt);
 
 	return 1;
@@ -147,9 +147,7 @@ int WPACKET_set_flags(WPACKET * pkt, uint flags)
 	/* Internal API, so should not fail */
 	if(!ossl_assert(pkt->subs != NULL))
 		return 0;
-
 	pkt->subs->flags = flags;
-
 	return 1;
 }
 
@@ -217,11 +215,9 @@ static int wpacket_intern_close(WPACKET * pkt, WPACKET_SUB * sub, int doclose)
 int WPACKET_fill_lengths(WPACKET * pkt)
 {
 	WPACKET_SUB * sub;
-
 	if(!ossl_assert(pkt->subs != NULL))
 		return 0;
-
-	for(sub = pkt->subs; sub != NULL; sub = sub->parent) {
+	for(sub = pkt->subs; sub; sub = sub->parent) {
 		if(!wpacket_intern_close(pkt, sub, 0))
 			return 0;
 	}
@@ -249,7 +245,7 @@ int WPACKET_finish(WPACKET * pkt)
 	 * Internal API, so should not fail - but we do negative testing of this
 	 * so no assert (otherwise the tests fail)
 	 */
-	if(pkt->subs == NULL || pkt->subs->parent != NULL)
+	if(pkt->subs == NULL || pkt->subs->parent)
 		return 0;
 
 	ret = wpacket_intern_close(pkt, pkt->subs, 1);
@@ -315,7 +311,7 @@ int WPACKET_set_max_size(WPACKET * pkt, size_t maxsize)
 		return 0;
 
 	/* Find the WPACKET_SUB for the top level */
-	for(sub = pkt->subs; sub->parent != NULL; sub = sub->parent)
+	for(sub = pkt->subs; sub->parent; sub = sub->parent)
 		continue;
 
 	lenbytes = sub->lenbytes;
@@ -364,16 +360,14 @@ int WPACKET_get_total_written(WPACKET * pkt, size_t * written)
 	/* Internal API, so should not fail */
 	if(!ossl_assert(written != NULL))
 		return 0;
-
 	*written = pkt->written;
-
 	return 1;
 }
 
 int WPACKET_get_length(WPACKET * pkt, size_t * len)
 {
 	/* Internal API, so should not fail */
-	if(!ossl_assert(pkt->subs != NULL && len != NULL))
+	if(!ossl_assert(pkt->subs != NULL && len))
 		return 0;
 
 	*len = pkt->written - pkt->subs->pwritten;
@@ -390,7 +384,7 @@ void WPACKET_cleanup(WPACKET * pkt)
 {
 	WPACKET_SUB * sub, * parent;
 
-	for(sub = pkt->subs; sub != NULL; sub = parent) {
+	for(sub = pkt->subs; sub; sub = parent) {
 		parent = sub->parent;
 		OPENSSL_free(sub);
 	}

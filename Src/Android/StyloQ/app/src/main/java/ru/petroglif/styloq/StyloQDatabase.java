@@ -95,6 +95,7 @@ public class StyloQDatabase extends Database {
 		public static final int doctypGeneric     = 4; // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
 		public static final int doctypIndexingContent = 5; // @v11.3.4 Документ, содержащий данные для индексации медиатором
 		public static final int doctypIndoorSvcPrereq = 6; // @v11.4.5 Предопределенный формат данных, подготовленных для формирования данных для обслуживания внутри помещения сервиса (INDOOR)
+		public static final int doctypIncomingList    = 7; // @v11.4.8
 		//
 		SecTable.Rec Rec;
 		SecretTagPool Pool;
@@ -928,6 +929,22 @@ public class StyloQDatabase extends Database {
 						}
 					}
 					else if(docType == SecStoragePacket.doctypIndoorSvcPrereq && raw_doc_type.equalsIgnoreCase("indoorsvcprereq")) { // @v11.4.5
+						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+						{
+							Transaction tra = new Transaction(this, true);
+							// Документ такого типа может быть только один в комбинации {direction; rIdent}
+							ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
+							if(ex_id_list != null) {
+								for(int i = 0; i < ex_id_list.size(); i++) {
+									long _id_to_remove = ex_id_list.get(i);
+									PutPeerEntry(_id_to_remove, null, false); // @throw
+								}
+							}
+							result_id = PutPeerEntry(0, pack, false);
+							tra.Commit();
+						}
+					}
+					else if(docType == SecStoragePacket.doctypIncomingList && raw_doc_type.equalsIgnoreCase("incominglistorder")) { // @v11.4.8
 						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
 						{
 							Transaction tra = new Transaction(this, true);

@@ -401,8 +401,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		//NotifyTabContentChanged(CommonPrereqModule.Tab.tabCurrentOrder, R.id.CTL_DOCUMENT_AMOUNT);
 		NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
 		CommonPrereqModule.TabEntry tab_entry = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
-		if(tab_entry != null && tab_entry.TabView != null)
+		if(tab_entry != null && tab_entry.TabView != null) {
+			CPM.OnCurrentDocumentModification(); // @v11.4.8
 			HandleEvent(SLib.EV_SETVIEWDATA, tab_entry.TabView.getView(), null);
+		}
 	}
 	private boolean SetCurrentOrderClient(JSONObject cliItem, JSONObject dlvrLocItem)
 	{
@@ -519,8 +521,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				vg = (ViewGroup)entry;
 			if(vg != null) {
 				int vg_id = vg.getId();
-				if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR)
-					CPM.UpdateMemoInCurrentDocument(SLib.GetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO));
+				if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR) {
+					boolean umr = CPM.UpdateMemoInCurrentDocument(SLib.GetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO));
+					if(umr)
+						CPM.OnCurrentDocumentModification();
+				}
 			}
 		}
 	}
@@ -673,14 +678,51 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON2, View.GONE);
 							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON3, View.GONE);
 							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_NEXT, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_PREV, View.GONE);
 						}
 						else {
 							Document _doc = CPM.GetCurrentDocument();
 							if(SLib.GetLen(_doc.H.Code) > 0)
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, _doc.H.Code);
-							SLib.LDATE d = _doc.GetNominalDate();
-							if(d != null)
-								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY));
+							{
+								SLib.LDATE d = _doc.GetNominalDate();
+								if(d != null)
+									SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, d.Format(SLib.DATF_ISO8601 | SLib.DATF_CENTURY));
+							}
+							// @v11.4.8 {
+							{
+								if(_doc.H.DueTime == null || !SLib.CheckDate(_doc.H.DueTime.d)) {
+									SLib.LDATETIME time_base = _doc.H.GetNominalTimestamp();
+									if(time_base != null) {
+										if(CPM.GetDefDuePeriodHour() > 0) {
+											_doc.H.DueTime = SLib.plusdatetimesec(time_base, CPM.GetDefDuePeriodHour() * 3600);
+										}
+									}
+								}
+								if(_doc.H.DueTime != null && SLib.CheckDate(_doc.H.DueTime.d)) {
+									SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DUEDATE, _doc.H.DueTime.d.Format(SLib.DATF_ISO8601 | SLib.DATF_CENTURY));
+								}
+								SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_NEXT, _doc.H.IncrementDueDate(true) ? View.VISIBLE : View.GONE);
+								SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_PREV, _doc.H.DecrementDueDate(true) ? View.VISIBLE : View.GONE);
+								{
+									View btn = vg.findViewById(R.id.CTL_DOCUMENT_DUEDATE_PREV);
+									if(btn != null) {
+										btn.setOnClickListener(new View.OnClickListener() {
+											@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }
+										});
+									}
+								}
+								{
+									View btn = vg.findViewById(R.id.CTL_DOCUMENT_DUEDATE_NEXT);
+									if(btn != null) {
+										btn.setOnClickListener(new View.OnClickListener() {
+											@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }
+										});
+									}
+								}
+							}
+							// } @v11.4.8
 							{
 								String cli_name = "";
 								String addr = "";
@@ -750,10 +792,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								if(back_cli_img_view != null) {
 									back_cli_img_view.setVisibility(ViewGroup.VISIBLE);
 									back_cli_img_view.setOnClickListener(new View.OnClickListener() {
-										@Override public void onClick(View v)
-										{
-											HandleEvent(SLib.EV_COMMAND, v, null);
-										}
+										@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }
 									});
 								}
 							}
@@ -1359,7 +1398,15 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													}
 												}
 												else {
-													// select for order
+													// @v11.4.8 {
+													ArrayList <JSONObject> dlvr_loc_list = item.GetDlvrLocListAsArray();
+													if(dlvr_loc_list == null || dlvr_loc_list.size() == 0) {
+														// У контрагента нет адресов доставки - можно выбрать просто заголовочную запись
+														if(SetCurrentOrderClient(item.JsItem, null)) {
+															GotoTab(CommonPrereqModule.Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView, -1, -1);
+														}
+													}
+													// } @v11.4.8
 												}
 											}
 										}
@@ -1423,6 +1470,26 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						CPM.ResetGoodsFiter();
 						SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
 						GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
+					}
+					else if(view_id == R.id.CTL_DOCUMENT_DUEDATE_NEXT) {
+						CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
+						if(te != null) {
+							Document cd = CPM.GetCurrentDocument();
+							if(cd != null && cd.H != null && cd.H.IncrementDueDate(false)) {
+								GetFragmentData(te.TabView); // @v11.4.8
+								NotifyCurrentOrderChanged();
+							}
+						}
+					}
+					else if(view_id == R.id.CTL_DOCUMENT_DUEDATE_PREV) {
+						CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
+						if(te != null) {
+							Document cd = CPM.GetCurrentDocument();
+							if(cd != null && cd.H != null && cd.H.DecrementDueDate(false)) {
+								GetFragmentData(te.TabView); // @v11.4.8
+								NotifyCurrentOrderChanged();
+							}
+						}
 					}
 					else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON1) {
 						if(DocEditActionList != null && DocEditActionList.size() > 0)

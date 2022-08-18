@@ -68,20 +68,16 @@ static int test_bad_asn1(void)
 			ret = 1;
 		goto err;
 	}
-
 	if(derlen != len || memcmp(der, buf, derlen) != 0) {
 		if(TEST_int_eq(expected_error, ASN1_COMPARE))
 			ret = 1;
 		goto err;
 	}
-
 	if(TEST_int_eq(expected_error, ASN1_OK))
 		ret = 1;
-
 err:
 	/* Don't indicate success for memory allocation errors */
-	if(ret == 1
-	    && !TEST_false(ERR_GET_REASON(ERR_peek_error()) == ERR_R_MALLOC_FAILURE))
+	if(ret == 1 && !TEST_false(ERR_GET_REASON(ERR_peek_error()) == ERR_R_MALLOC_FAILURE))
 		ret = 0;
 	BIO_free(bio);
 	OPENSSL_free(der);

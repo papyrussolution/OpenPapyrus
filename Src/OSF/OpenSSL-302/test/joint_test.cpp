@@ -15,6 +15,7 @@
 #include "crypto/rsa.h"
 #include "crypto/sm2.h"
 #include "crypto/poly1305.h"
+#include "crypto/siphash.h"
 #include "internal/sm3.h"
 #include "crypto/sm4.h"
 #include "internal/crypto/rsa_local.h"
@@ -32,6 +33,7 @@
 #include "internal/crypto/property_local.h"
 #include "internal/namemap.h"
 #include "internal/crypto/tbl_standard.h"
+#include "internal/ffc.h"
 #include "crypto/asn1.h"
 #include "internal/crypto/standard_methods.h"
 #include "crypto/asn1_dsa.h"
@@ -49,6 +51,10 @@
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
 #include <openssl/ec.h>
+#include <openssl/pkcs7.h>
+#include <openssl/pem.h>
+#include <openssl/modes.h>
+#include "crypto/modes.h"
 //#include "apps_ui.h"
 //#include <openssl/ui.h>
 #ifndef OPENSSL_NO_BF
@@ -103,7 +109,19 @@
 #ifdef OPENSSL_SYS_WINDOWS
 	#define strcasecmp _stricmp
 #endif
-
+#ifdef __GNUC__
+	#pragma GCC diagnostic ignored "-Wunused-function"
+	#pragma GCC diagnostic ignored "-Wformat"
+#endif
+#ifdef __clang__
+	#pragma clang diagnostic ignored "-Wunused-function"
+	#pragma clang diagnostic ignored "-Wformat"
+#endif
+//
+//
+//
+DEFINE_LHASH_OF(int); // for TestInnerBlock_LHASH
+IMPLEMENT_LHASH_DOALL_ARG(int, short); // for TestInnerBlock_LHASH
 DEFINE_STACK_OF(BIGNUM)
 //
 // AESGCM
@@ -2021,12 +2039,6 @@ public:
 //#endif
 //
 //
-// The macros below generate unused functions which error out one of the clang
-// builds.  We disable this check here.
-#ifdef __clang__
-	#pragma clang diagnostic ignored "-Wunused-function"
-#endif
-
 DEFINE_SPARSE_ARRAY_OF(char);
 
 class TestInnerBlock_SparseArray {
@@ -2112,7 +2124,7 @@ public:
 		size_t i;
 		doall_data->res = 0;
 		for(i = 0; i < doall_data->num_cases; i++)
-			if((doall_data->all || !cases[i].del) && n == cases[i].n && strcmp(value, cases[i].v) == 0) {
+			if((doall_data->all || !cases[i].del) && n == cases[i].n && sstreq(value, cases[i].v)) {
 				doall_data->res = 1;
 				return;
 			}
@@ -2125,7 +2137,7 @@ public:
 		size_t i;
 		doall_data->res = 0;
 		for(i = 0; i < doall_data->num_cases; i++)
-			if(n == cases[i].n && strcmp(value, cases[i].v) == 0) {
+			if(n == cases[i].n && sstreq(value, cases[i].v)) {
 				doall_data->res = 1;
 				ossl_sa_char_set(doall_data->sa, n, NULL);
 				return;
@@ -4878,8 +4890,7 @@ public:
 			|| !TEST_ptr(scsv)
 			|| !TEST_int_eq(sk_SSL_CIPHER_num(scsv), 0))
 			goto err;
-		if(strcmp(SSL_CIPHER_get_name(sk_SSL_CIPHER_value(sk, 0)), "AES256-SHA") != 0 ||
-			strcmp(SSL_CIPHER_get_name(sk_SSL_CIPHER_value(sk, 1)), "DHE-RSA-AES128-SHA") != 0)
+		if(!sstreq(SSL_CIPHER_get_name(sk_SSL_CIPHER_value(sk, 0)), "AES256-SHA") || !sstreq(SSL_CIPHER_get_name(sk_SSL_CIPHER_value(sk, 1)), "DHE-RSA-AES128-SHA"))
 			goto err;
 		ret = 1;
 	err:
@@ -5876,20 +5887,16 @@ public:
 				TEST_note("iteration %zd", i + 1);
 				goto err;
 			}
-
 		/* Deregister in a different order to registration */
 		for(i = 0; i < SIZEOFARRAY(impls); i++) {
 			const size_t j = (1 + i * 3) % SIZEOFARRAY(impls);
 			int nid = impls[j].nid;
 			void * impl = impls[j].impl;
-
-			if(!TEST_true(ossl_method_store_remove(store, nid, impl))
-				|| !TEST_false(ossl_method_store_remove(store, nid, impl))) {
+			if(!TEST_true(ossl_method_store_remove(store, nid, impl)) || !TEST_false(ossl_method_store_remove(store, nid, impl))) {
 				TEST_note("iteration %zd, position %zd", i + 1, j + 1);
 				goto err;
 			}
 		}
-
 		if(TEST_false(ossl_method_store_remove(store, impls[0].nid, impls[0].impl)))
 			ret = 1;
 	err:
@@ -5969,10 +5976,7 @@ public:
 			OSSL_PROPERTY_LIST * pq = NULL;
 			result = NULL;
 			if(queries[i].prov == &fake_prov1) {
-				if(!TEST_true(ossl_method_store_fetch(store,
-					queries[i].nid,
-					queries[i].prop,
-					&fake_prov1, &result))
+				if(!TEST_true(ossl_method_store_fetch(store, queries[i].nid, queries[i].prop, &fake_prov1, &result))
 					|| !TEST_ptr_eq(fake_prov1, &fake_provider1)
 					|| !TEST_str_eq((char*)result, queries[i].expected)) {
 					TEST_note("iteration %zd", i + 1);
@@ -5981,10 +5985,7 @@ public:
 				}
 			}
 			else {
-				if(!TEST_false(ossl_method_store_fetch(store,
-					queries[i].nid,
-					queries[i].prop,
-					&fake_prov1, &result))
+				if(!TEST_false(ossl_method_store_fetch(store, queries[i].nid, queries[i].prop, &fake_prov1, &result))
 					|| !TEST_ptr_eq(fake_prov1, &fake_provider1)
 					|| !TEST_ptr_null(result)) {
 					TEST_note("iteration %zd", i + 1);
@@ -6001,10 +6002,7 @@ public:
 			OSSL_PROPERTY_LIST * pq = NULL;
 			result = NULL;
 			if(queries[i].prov == &fake_prov2) {
-				if(!TEST_true(ossl_method_store_fetch(store,
-					queries[i].nid,
-					queries[i].prop,
-					&fake_prov2, &result))
+				if(!TEST_true(ossl_method_store_fetch(store, queries[i].nid, queries[i].prop, &fake_prov2, &result))
 					|| !TEST_ptr_eq(fake_prov2, &fake_provider2)
 					|| !TEST_str_eq((char*)result, queries[i].expected)) {
 					TEST_note("iteration %zd", i + 1);
@@ -6013,10 +6011,7 @@ public:
 				}
 			}
 			else {
-				if(!TEST_false(ossl_method_store_fetch(store,
-					queries[i].nid,
-					queries[i].prop,
-					&fake_prov2, &result))
+				if(!TEST_false(ossl_method_store_fetch(store, queries[i].nid, queries[i].prop, &fake_prov2, &result))
 					|| !TEST_ptr_eq(fake_prov2, &fake_provider2)
 					|| !TEST_ptr_null(result)) {
 					TEST_note("iteration %zd", i + 1);
@@ -7297,13 +7292,11 @@ public:
 		*out = NULL;
 		return BN_hex2bn(out, in);
 	}
-
 	static int parsedecBN(BIGNUM ** out, const char * in)
 	{
 		*out = NULL;
 		return BN_dec2bn(out, in);
 	}
-
 	static BIGNUM * getBN(STANZA * s, const char * attribute)
 	{
 		const char * hex;
@@ -7318,7 +7311,6 @@ public:
 		}
 		return ret;
 	}
-
 	static int getint(STANZA * s, int * out, const char * attribute)
 	{
 		BIGNUM * ret;
@@ -7332,7 +7324,6 @@ public:
 		BN_free(ret);
 		return st;
 	}
-
 	static int equalBN(const char * op, const BIGNUM * expected, const BIGNUM * actual)
 	{
 		if(BN_cmp(expected, actual) == 0)
@@ -9616,17 +9607,6 @@ public:
 	}
 };
 //
-//
-//
-#ifdef __GNUC__
-	#pragma GCC diagnostic ignored "-Wunused-function"
-	#pragma GCC diagnostic ignored "-Wformat"
-#endif
-#ifdef __clang__
-	#pragma clang diagnostic ignored "-Wunused-function"
-	#pragma clang diagnostic ignored "-Wformat"
-#endif
-//
 // Custom test data
 //
 // We conduct tests with these arrays for every type we try out.
@@ -10341,13 +10321,6 @@ public:
 //
 //
 //
-#ifdef __GNUC__
-	#pragma GCC diagnostic ignored "-Wunused-function"
-#endif
-#ifdef __clang__
-	#pragma clang diagnostic ignored "-Wunused-function"
-#endif
-
 // Badly coded ASN.1 INTEGER zero wrapped in a sequence 
 static uchar TestData_Asn1Decode_t_invalid_zero[] = {
 	0x30, 0x02, /* SEQUENCE tag + length */
@@ -12210,6 +12183,113 @@ static EC_builtin_curve * TestData_Ec_curves = NULL;
 int setup_tests()
 {
 	OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS|OPENSSL_INIT_ADD_ALL_DIGESTS|OPENSSL_INIT_ASYNC, NULL);
+	{
+		class TestInnerBlock_Sanity {
+		public:
+			static int test_sanity_null_zero()
+			{
+				char * p = 0;
+				char bytes[sizeof(p)];
+				// Is NULL equivalent to all-bytes-zero?
+				memzero(bytes, sizeof(bytes));
+				return TEST_mem_eq(&p, sizeof(p), bytes, sizeof(bytes));
+			}
+			static int test_sanity_enum_size()
+			{
+				enum smallchoices { sa, sb, sc };
+				enum medchoices { ma, mb, mc, md, me, mf, mg, mh, mi, mj, mk, ml };
+				enum largechoices {
+					a01, b01, c01, d01, e01, f01, g01, h01, i01, j01,
+					a02, b02, c02, d02, e02, f02, g02, h02, i02, j02,
+					a03, b03, c03, d03, e03, f03, g03, h03, i03, j03,
+					a04, b04, c04, d04, e04, f04, g04, h04, i04, j04,
+					a05, b05, c05, d05, e05, f05, g05, h05, i05, j05,
+					a06, b06, c06, d06, e06, f06, g06, h06, i06, j06,
+					a07, b07, c07, d07, e07, f07, g07, h07, i07, j07,
+					a08, b08, c08, d08, e08, f08, g08, h08, i08, j08,
+					a09, b09, c09, d09, e09, f09, g09, h09, i09, j09,
+					a10, b10, c10, d10, e10, f10, g10, h10, i10, j10,
+					xxx
+				};
+				/* Enum size */
+				if(!TEST_size_t_eq(sizeof(enum smallchoices), sizeof(int)) || !TEST_size_t_eq(sizeof(enum medchoices), sizeof(int)) || !TEST_size_t_eq(sizeof(enum largechoices), sizeof(int)))
+					return 0;
+				return 1;
+			}
+			static int test_sanity_twos_complement()
+			{
+				/* Basic two's complement checks. */
+				if(!TEST_int_eq(~(-1), 0) || !TEST_long_eq(~(-1L), 0L))
+					return 0;
+				return 1;
+			}
+			static int test_sanity_sign()
+			{
+				/* Check that values with sign bit 1 and value bits 0 are valid */
+				if(!TEST_int_eq(-(INT_MIN + 1), INT_MAX) || !TEST_long_eq(-(LONG_MIN + 1), LONG_MAX))
+					return 0;
+				return 1;
+			}
+			static int test_sanity_unsigned_conversion()
+			{
+				// Check that unsigned-to-signed conversions preserve bit patterns
+				if(!TEST_int_eq((int)((uint)INT_MAX + 1), INT_MIN) || !TEST_long_eq((long)((unsigned long)LONG_MAX + 1), LONG_MIN))
+					return 0;
+				return 1;
+			}
+			static int test_sanity_range()
+			{
+				// Verify some types are the correct size
+				if(!TEST_size_t_eq(sizeof(int8_t), 1)
+					|| !TEST_size_t_eq(sizeof(uint8_t), 1)
+					|| !TEST_size_t_eq(sizeof(int16_t), 2)
+					|| !TEST_size_t_eq(sizeof(uint16_t), 2)
+					|| !TEST_size_t_eq(sizeof(int32_t), 4)
+					|| !TEST_size_t_eq(sizeof(uint32_t), 4)
+					|| !TEST_size_t_eq(sizeof(int64_t), 8)
+					|| !TEST_size_t_eq(sizeof(uint64_t), 8)
+			#ifdef UINT128_MAX
+					|| !TEST_size_t_eq(sizeof(int128_t), 16)
+					|| !TEST_size_t_eq(sizeof(uint128_t), 16)
+			#endif
+					|| !TEST_size_t_eq(sizeof(char), 1)
+					|| !TEST_size_t_eq(sizeof(unsigned char), 1))
+					return 0;
+				// We want our long longs to be at least 64 bits 
+				if(!TEST_size_t_ge(sizeof(long long int), 8) || !TEST_size_t_ge(sizeof(unsigned long long int), 8))
+					return 0;
+				// 
+				// Verify intmax_t.
+				// Some platforms defined intmax_t to be 64 bits but still support
+				// an int128_t, so this check is for at least 64 bits.
+				// 
+				if(!TEST_size_t_ge(sizeof(ossl_intmax_t), 8) || !TEST_size_t_ge(sizeof(ossl_uintmax_t), 8) || !TEST_size_t_ge(sizeof(ossl_uintmax_t), sizeof(size_t)))
+					return 0;
+				// This isn't possible to check using the framework functions 
+				if(SIZE_MAX < INT_MAX) {
+					TEST_error("int must not be wider than size_t");
+					return 0;
+				}
+				// SIZE_MAX is always greater than 2*INT_MAX 
+				if(SIZE_MAX - INT_MAX <= INT_MAX) {
+					TEST_error("SIZE_MAX must exceed 2*INT_MAX");
+					return 0;
+				}
+				return 1;
+			}
+			static int test_sanity_memcmp()
+			{
+				return CRYPTO_memcmp("ab", "cd", 2);
+			}
+		};
+		ADD_TEST(TestInnerBlock_Sanity::test_sanity_null_zero);
+		ADD_TEST(TestInnerBlock_Sanity::test_sanity_enum_size);
+		ADD_TEST(TestInnerBlock_Sanity::test_sanity_twos_complement);
+		ADD_TEST(TestInnerBlock_Sanity::test_sanity_sign);
+		ADD_TEST(TestInnerBlock_Sanity::test_sanity_unsigned_conversion);
+		ADD_TEST(TestInnerBlock_Sanity::test_sanity_range);
+		ADD_TEST(TestInnerBlock_Sanity::test_sanity_memcmp);
+	}
 	{
 		//
 		// RAND STATUS
@@ -15998,7 +16078,7 @@ int setup_tests()
 				OSSL_CMP_PKISI_free(si);
 				return res;
 			}
-			static int test_PKISI(void)
+			static int test_PKISI()
 			{
 				SETUP_TEST_FIXTURE(CMP_STATUS_TEST_FIXTURE, set_up);
 				fixture->pkistatus = OSSL_CMP_PKISTATUS_revocationNotification;
@@ -16025,7 +16105,7 @@ int setup_tests()
 		public:
 			#ifndef OPENSSL_NO_DEPRECATED_3_0
 				//#define IS_HEX(ch) ((ch >= '0' && ch <='9') || (ch >= 'A' && ch <='F'))
-				static int test_print_error_format(void)
+				static int test_print_error_format()
 				{
 					/* Variables used to construct an error line */
 					char * lib;
@@ -16104,7 +16184,7 @@ int setup_tests()
 				}
 			#endif
 			/* Test that querying the error queue preserves the OS error. */
-			static int preserves_system_error(void)
+			static int preserves_system_error()
 			{
 			#if defined(OPENSSL_SYS_WINDOWS)
 				SetLastError(ERROR_INVALID_FUNCTION);
@@ -16117,7 +16197,7 @@ int setup_tests()
 			#endif
 			}
 			/* Test that calls to ERR_add_error_[v]data append */
-			static int vdata_appends(void)
+			static int vdata_appends()
 			{
 				const char * data;
 				ERR_raise(ERR_LIB_CRYPTO, ERR_R_MALLOC_FAILURE);
@@ -16126,7 +16206,7 @@ int setup_tests()
 				ERR_peek_error_data(&data, NULL);
 				return TEST_str_eq(data, "hello world");
 			}
-			static int raised_error(void)
+			static int raised_error()
 			{
 				const char * f, * data;
 				int l;
@@ -16148,7 +16228,7 @@ int setup_tests()
 					return 0;
 				return 1;
 			}
-			static int test_marks(void)
+			static int test_marks()
 			{
 				unsigned long mallocfail, shouldnot;
 				/* Set an initial error */
@@ -16249,7 +16329,7 @@ int setup_tests()
 				ERR_clear_error();
 				return 1;
 			}
-			static int test_clear_error(void)
+			static int test_clear_error()
 			{
 				int flags = -1;
 				const char * data = NULL;
@@ -16349,7 +16429,7 @@ int setup_tests()
 			{
 				return TEST_int_eq(ossl_tolower(case_change[n].u), case_change[n].l) && TEST_int_eq(ossl_tolower(case_change[n].l), case_change[n].l);
 			}
-			static int test_ctype_eof(void)
+			static int test_ctype_eof()
 			{
 				return test_ctype_chars(EOF);
 			}
@@ -16422,7 +16502,7 @@ int setup_tests()
 			 * When building the FIPS module, it isn't possible to disable the continuous
 			 * RNG tests.  Tests that require this are skipped.
 			 */
-			static int crngt_skip(void)
+			static int crngt_skip()
 			{
 			#ifdef FIPS_MODULE
 				return 1;
@@ -16705,7 +16785,7 @@ int setup_tests()
 			// setup correctly, in particular whether reseeding  works
 			// as designed.
 			// 
-			static int test_rand_reseed(void)
+			static int test_rand_reseed()
 			{
 				EVP_RAND_CTX * primary;
 				EVP_RAND_CTX * p_public;
@@ -16806,7 +16886,7 @@ int setup_tests()
 					params[1] = OSSL_PARAM_construct_end();
 					return EVP_RAND_CTX_set_params(drbg, params);
 				}
-				static void run_multi_thread_test(void)
+				static void run_multi_thread_test()
 				{
 					uchar buf[256];
 					// time_t start = time(NULL);
@@ -16861,7 +16941,7 @@ int setup_tests()
 					static int wait_for_thread(thread_t thread) { return pthread_join(thread, NULL) == 0; }
 				#endif
 				#define THREADS 3 // The main thread will also run the test, so we'll have THREADS+1 parallel tests running
-				static int test_multi_thread(void)
+				static int test_multi_thread()
 				{
 					thread_t t[THREADS];
 					int i;
@@ -16893,7 +16973,7 @@ int setup_tests()
 				EVP_RAND_free(rand);
 				return drbg;
 			}
-			static int test_rand_prediction_resistance(void)
+			static int test_rand_prediction_resistance()
 			{
 				EVP_RAND_CTX * x = NULL, * y = NULL, * z = NULL;
 				uchar buf1[51], buf2[sizeof(buf1)];
@@ -17358,11 +17438,11 @@ int setup_tests()
 			static int is_exception(const char * msg)
 			{
 				for(const char * const * p = exceptions; *p; ++p)
-					if(strcmp(msg, *p) == 0)
+					if(sstreq(msg, *p))
 						return 1;
 				return 0;
 			}
-			static X509 * make_cert(void)
+			static X509 * make_cert()
 			{
 				X509 * crt = NULL;
 				if(!TEST_ptr(crt = X509_new()))
@@ -17433,7 +17513,7 @@ int setup_tests()
 					if(fn->email) {
 						if(ret && !samename)
 							match = 1;
-						if(!ret && samename && strchr(nameincert, '@') != NULL)
+						if(!ret && samename && strchr(nameincert, '@'))
 							match = 0;
 					}
 					else if(ret)
@@ -17458,7 +17538,7 @@ int setup_tests()
 				}
 				return failed == 0;
 			}
-			static int test_GENERAL_NAME_cmp(void)
+			static int test_GENERAL_NAME_cmp()
 			{
 				size_t i, j;
 				GENERAL_NAME ** namesa = (GENERAL_NAME **)OPENSSL_malloc(sizeof(*namesa) * SIZEOFARRAY(gennames));
@@ -17527,7 +17607,7 @@ int setup_tests()
 					}
 					return 1;
 				}
-				static int dsa_test(void)
+				static int dsa_test()
 				{
 					BN_GENCB * cb;
 					DSA * dsa = NULL;
@@ -17615,7 +17695,7 @@ int setup_tests()
 				#define HCOUNT 6
 				#define GROUP  7
 
-				static int dsa_keygen_test(void)
+				static int dsa_keygen_test()
 				{
 					int ret = 0;
 					EVP_PKEY * param_key = NULL, * key = NULL;
@@ -17902,20 +17982,20 @@ int setup_tests()
 				return ret;
 			}
 			/* test EC_GFp_simple_method directly */
-			static int field_tests_ecp_simple(void)
+			static int field_tests_ecp_simple()
 			{
 				TEST_info("Testing EC_GFp_simple_method()\n");
 				return field_tests(EC_GFp_simple_method(), params_p256, sizeof(params_p256) / 3);
 			}
 			/* test EC_GFp_mont_method directly */
-			static int field_tests_ecp_mont(void)
+			static int field_tests_ecp_mont()
 			{
 				TEST_info("Testing EC_GFp_mont_method()\n");
 				return field_tests(EC_GFp_mont_method(), params_p256, sizeof(params_p256) / 3);
 			}
 			#ifndef OPENSSL_NO_EC2M
 				// test EC_GF2m_simple_method directly 
-				static int field_tests_ec2_simple(void)
+				static int field_tests_ec2_simple()
 				{
 					TEST_info("Testing EC_GF2m_simple_method()\n");
 					return field_tests(EC_GF2m_simple_method(), params_b283, sizeof(params_b283) / 3);
@@ -17942,7 +18022,7 @@ int setup_tests()
 				// 
 				// Tests a point known to cause an incorrect underflow in an old version of ecp_nist521.c
 				// 
-				static int underflow_test(void)
+				static int underflow_test()
 				{
 					BN_CTX * ctx = NULL;
 					EC_GROUP * grp = NULL;
@@ -18000,7 +18080,7 @@ int setup_tests()
 			// 
 			// Tests behavior of the decoded_from_explicit_params flag and API
 			// 
-			static int decoded_flag_test(void)
+			static int decoded_flag_test()
 			{
 				EC_GROUP * grp_copy = NULL;
 				ECPARAMETERS * ecparams = NULL;
@@ -18621,8 +18701,7 @@ int setup_tests()
 				BN_CTX_free(ctx);
 				return r;
 			}
-
-			static int prime_field_tests(void)
+			static int prime_field_tests()
 			{
 				BN_CTX * ctx = NULL;
 				BIGNUM * p = NULL, * a = NULL, * b = NULL, * scalar3 = NULL;
@@ -18983,16 +19062,13 @@ int setup_tests()
 				points[1] = Q;
 				points[2] = Q;
 				points[3] = Q;
-
 				if(!TEST_true(EC_GROUP_get_order(group, z, ctx))
 					|| !TEST_true(BN_add(y, z, BN_value_one()))
 					|| !TEST_BN_even(y)
 					|| !TEST_true(BN_rshift1(y, y)))
 					goto err;
-
 				scalars[0] = y;     /* (group order + 1)/2, so y*Q + y*Q = Q */
 				scalars[1] = y;
-
 				/* z is still the group order */
 				if(!TEST_true(EC_POINTs_mul(group, P, NULL, 2, points, scalars, ctx))
 					|| !TEST_true(EC_POINTs_mul(group, R, z, 2, points, scalars, ctx))
@@ -19004,7 +19080,6 @@ int setup_tests()
 				BN_set_negative(z, 1);
 				scalars[0] = y;
 				scalars[1] = z;     /* z = -(order + y) */
-
 				if(!TEST_true(EC_POINTs_mul(group, P, NULL, 2, points, scalars, ctx))
 					|| !TEST_true(EC_POINT_is_at_infinity(group, P))
 					|| !TEST_true(BN_rand(x, BN_num_bits(y) - 1, 0, 0))
@@ -19099,8 +19174,7 @@ int setup_tests()
 				test_output_bignum("x", x);
 				test_output_bignum("y", y);
 				/* G_y value taken from the standard: */
-				if(!TEST_true(BN_hex2bn(&z, test->y))
-					|| !TEST_BN_eq(y, z))
+				if(!TEST_true(BN_hex2bn(&z, test->y)) || !TEST_BN_eq(y, z))
 					goto err;
 			#else
 				/*
@@ -19118,11 +19192,8 @@ int setup_tests()
 				test_output_bignum("x", x);
 				test_output_bignum("y", y);
 			#endif
-
-				if(!TEST_int_eq(EC_GROUP_get_degree(group), test->degree)
-					|| !group_order_tests(group))
+				if(!TEST_int_eq(EC_GROUP_get_degree(group), test->degree) || !group_order_tests(group))
 					goto err;
-
 				/* more tests using the last curve */
 				if(n == SIZEOFARRAY(char2_curve_tests) - 1) {
 					if(!TEST_true(EC_POINT_set_affine_coordinates(group, P, x, y, ctx))
@@ -19136,16 +19207,12 @@ int setup_tests()
 						|| !TEST_true(EC_POINT_is_at_infinity(group, R)) /* R = P + 2Q */
 						|| !TEST_false(EC_POINT_is_at_infinity(group, Q)))
 						goto err;
-
 			#ifndef OPENSSL_NO_DEPRECATED_3_0
 					TEST_note("combined multiplication ...");
 					points[0] = Q;
 					points[1] = Q;
 					points[2] = Q;
-
-					if(!TEST_true(BN_add(y, z, BN_value_one()))
-						|| !TEST_BN_even(y)
-						|| !TEST_true(BN_rshift1(y, y)))
+					if(!TEST_true(BN_add(y, z, BN_value_one())) || !TEST_BN_even(y) || !TEST_true(BN_rshift1(y, y)))
 						goto err;
 					scalars[0] = y; /* (group order + 1)/2, so y*Q + y*Q = Q */
 					scalars[1] = y;
@@ -19156,32 +19223,23 @@ int setup_tests()
 						|| !TEST_int_eq(0, EC_POINT_cmp(group, P, R, ctx))
 						|| !TEST_int_eq(0, EC_POINT_cmp(group, R, Q, ctx)))
 						goto err;
-
-					if(!TEST_true(BN_rand(y, BN_num_bits(y), 0, 0))
-						|| !TEST_true(BN_add(z, z, y)))
+					if(!TEST_true(BN_rand(y, BN_num_bits(y), 0, 0)) || !TEST_true(BN_add(z, z, y)))
 						goto err;
 					BN_set_negative(z, 1);
 					scalars[0] = y;
 					scalars[1] = z; /* z = -(order + y) */
-
-					if(!TEST_true(EC_POINTs_mul(group, P, NULL, 2, points, scalars, ctx))
-						|| !TEST_true(EC_POINT_is_at_infinity(group, P)))
+					if(!TEST_true(EC_POINTs_mul(group, P, NULL, 2, points, scalars, ctx)) || !TEST_true(EC_POINT_is_at_infinity(group, P)))
 						goto err;
-
-					if(!TEST_true(BN_rand(x, BN_num_bits(y) - 1, 0, 0))
-						|| !TEST_true(BN_add(z, x, y)))
+					if(!TEST_true(BN_rand(x, BN_num_bits(y) - 1, 0, 0)) || !TEST_true(BN_add(z, x, y)))
 						goto err;
 					BN_set_negative(z, 1);
 					scalars[0] = x;
 					scalars[1] = y;
 					scalars[2] = z; /* z = -(x+y) */
-
-					if(!TEST_true(EC_POINTs_mul(group, P, NULL, 3, points, scalars, ctx))
-						|| !TEST_true(EC_POINT_is_at_infinity(group, P)))
+					if(!TEST_true(EC_POINTs_mul(group, P, NULL, 3, points, scalars, ctx)) || !TEST_true(EC_POINT_is_at_infinity(group, P)))
 						goto err;
 			#endif
 				}
-
 				r = 1;
 			err:
 				BN_CTX_free(ctx);
@@ -19199,8 +19257,7 @@ int setup_tests()
 				EC_GROUP_free(group);
 				return r;
 			}
-
-			static int char2_field_tests(void)
+			static int char2_field_tests()
 			{
 				BN_CTX * ctx = NULL;
 				BIGNUM * p = NULL, * a = NULL, * b = NULL;
@@ -19210,7 +19267,6 @@ int setup_tests()
 				uchar buf[100];
 				size_t len;
 				int k, r = 0;
-
 				if(!TEST_ptr(ctx = BN_CTX_new())
 					|| !TEST_ptr(p = BN_new())
 					|| !TEST_ptr(a = BN_new())
@@ -19219,17 +19275,13 @@ int setup_tests()
 					|| !TEST_true(BN_hex2bn(&a, "3"))
 					|| !TEST_true(BN_hex2bn(&b, "1")))
 					goto err;
-
-				if(!TEST_ptr(group = EC_GROUP_new_curve_GF2m(p, a, b, ctx))
-					|| !TEST_true(EC_GROUP_get_curve(group, p, a, b, ctx)))
+				if(!TEST_ptr(group = EC_GROUP_new_curve_GF2m(p, a, b, ctx)) || !TEST_true(EC_GROUP_get_curve(group, p, a, b, ctx)))
 					goto err;
-
 				TEST_info("Curve defined by Weierstrass equation");
 				TEST_note("     y^2 + x*y = x^3 + a*x^2 + b (mod p)");
 				test_output_bignum("a", a);
 				test_output_bignum("b", b);
 				test_output_bignum("p", p);
-
 				if(!TEST_ptr(P = EC_POINT_new(group))
 					|| !TEST_ptr(Q = EC_POINT_new(group))
 					|| !TEST_ptr(R = EC_POINT_new(group))
@@ -19285,39 +19337,29 @@ int setup_tests()
 				} while(!EC_POINT_is_at_infinity(group, P));
 				if(!TEST_true(EC_POINT_add(group, P, Q, R, ctx)) || !TEST_true(EC_POINT_is_at_infinity(group, P)))
 					goto err;
-
 			/* Change test based on whether binary point compression is enabled or not. */
 			#ifdef OPENSSL_EC_BIN_PT_COMP
-				len = EC_POINT_point2oct(group, Q, POINT_CONVERSION_COMPRESSED,
-					buf, sizeof(buf), ctx);
+				len = EC_POINT_point2oct(group, Q, POINT_CONVERSION_COMPRESSED, buf, sizeof(buf), ctx);
 				if(!TEST_size_t_ne(len, 0)
 					|| !TEST_true(EC_POINT_oct2point(group, P, buf, len, ctx))
 					|| !TEST_int_eq(0, EC_POINT_cmp(group, P, Q, ctx)))
 					goto err;
-				test_output_memory("Generator as octet string, compressed form:",
-					buf, len);
+				test_output_memory("Generator as octet string, compressed form:", buf, len);
 			#endif
-
-				len = EC_POINT_point2oct(group, Q, POINT_CONVERSION_UNCOMPRESSED,
-					buf, sizeof(buf), ctx);
+				len = EC_POINT_point2oct(group, Q, POINT_CONVERSION_UNCOMPRESSED, buf, sizeof(buf), ctx);
 				if(!TEST_size_t_ne(len, 0)
 					|| !TEST_true(EC_POINT_oct2point(group, P, buf, len, ctx))
 					|| !TEST_int_eq(0, EC_POINT_cmp(group, P, Q, ctx)))
 					goto err;
-				test_output_memory("Generator as octet string, uncompressed form:",
-					buf, len);
-
+				test_output_memory("Generator as octet string, uncompressed form:", buf, len);
 			/* Change test based on whether binary point compression is enabled or not. */
 			#ifdef OPENSSL_EC_BIN_PT_COMP
-				len =
-					EC_POINT_point2oct(group, Q, POINT_CONVERSION_HYBRID, buf, sizeof(buf),
-					ctx);
+				len = EC_POINT_point2oct(group, Q, POINT_CONVERSION_HYBRID, buf, sizeof(buf), ctx);
 				if(!TEST_size_t_ne(len, 0)
 					|| !TEST_true(EC_POINT_oct2point(group, P, buf, len, ctx))
 					|| !TEST_int_eq(0, EC_POINT_cmp(group, P, Q, ctx)))
 					goto err;
-				test_output_memory("Generator as octet string, hybrid form:",
-					buf, len);
+				test_output_memory("Generator as octet string, hybrid form:", buf, len);
 			#endif
 				if(!TEST_true(EC_POINT_invert(group, P, ctx)) || !TEST_int_eq(0, EC_POINT_cmp(group, P, R, ctx)))
 					goto err;
@@ -19339,8 +19381,7 @@ int setup_tests()
 				BN_free(yplusone);
 				return r;
 			}
-
-			static int hybrid_point_encoding_test(void)
+			static int hybrid_point_encoding_test()
 			{
 				BIGNUM * x = NULL, * y = NULL;
 				EC_GROUP * group = NULL;
@@ -19412,7 +19453,7 @@ int setup_tests()
 				EC_GROUP_free(group);
 				return r;
 			}
-			static int group_field_test(void)
+			static int group_field_test()
 			{
 				int r = 1;
 				BIGNUM * secp521r1_field = NULL;
@@ -20088,8 +20129,7 @@ int setup_tests()
 				BN_CTX_free(bn_ctx);
 				return ret;
 			}
-
-			static int parameter_test(void)
+			static int parameter_test()
 			{
 				EC_GROUP * group = NULL, * group2 = NULL;
 				ECPARAMETERS * ecparameters = NULL;
@@ -20147,7 +20187,7 @@ int setup_tests()
 			 * will always succeed in computing the cofactor. Neither of these curves
 			 * conform to that -- this is just robustness testing.
 			 */
-			static int cofactor_range_test(void)
+			static int cofactor_range_test()
 			{
 				EC_GROUP * group = NULL;
 				BIGNUM * cf = NULL;
@@ -20896,8 +20936,7 @@ int setup_tests()
 				EVP_PKEY_CTX_free(pctx2);
 				return ret;
 			}
-
-			static int ec_d2i_publickey_test(void)
+			static int ec_d2i_publickey_test()
 			{
 				uchar buf[1000];
 				uchar * pubkey_enc = buf;
@@ -20980,7 +21019,7 @@ int setup_tests()
 			// 
 			// test_mod_exp_zero tests that x**0 mod 1 == 0. It returns zero on success.
 			// 
-			static int test_mod_exp_zero(void)
+			static int test_mod_exp_zero()
 			{
 				BIGNUM * a = NULL, * p = NULL, * m = NULL;
 				BIGNUM * r = NULL;
@@ -21238,6 +21277,4418 @@ int setup_tests()
 			TEST_info("Skipping; time_t is less than 64-bits");
 		else
 			ADD_ALL_TESTS_NOSUBTEST(TestInnerBlock_GmDiff::test_gmtime, 1000);
+	}
+	{
+		//
+		// Internal tests for EVP_PKEY method ordering 
+		//
+		class TestInnerBlock_PKeyMeth {
+		public:
+			// Test of EVP_PKEY_ASN1_METHOD ordering 
+			static int test_asn1_meths()
+			{
+				int i;
+				int prev = -1;
+				int good = 1;
+				int pkey_id;
+				const EVP_PKEY_ASN1_METHOD * ameth;
+				for(i = 0; i < EVP_PKEY_asn1_get_count(); i++) {
+					ameth = EVP_PKEY_asn1_get0(i);
+					EVP_PKEY_asn1_get0_info(&pkey_id, NULL, NULL, NULL, NULL, ameth);
+					if(pkey_id < prev)
+						good = 0;
+					prev = pkey_id;
+				}
+				if(!good) {
+					TEST_error("EVP_PKEY_ASN1_METHOD table out of order");
+					for(i = 0; i < EVP_PKEY_asn1_get_count(); i++) {
+						const char * info;
+						ameth = EVP_PKEY_asn1_get0(i);
+						EVP_PKEY_asn1_get0_info(&pkey_id, NULL, NULL, &info, NULL, ameth);
+						if(!info)
+							info = "<NO NAME>";
+						TEST_note("%d : %s : %s", pkey_id, OBJ_nid2ln(pkey_id), info);
+					}
+				}
+				return good;
+			}
+			#ifndef OPENSSL_NO_DEPRECATED_3_0
+			// Test of EVP_PKEY_METHOD ordering 
+			static int test_pkey_meths()
+			{
+				size_t i;
+				int prev = -1;
+				int good = 1;
+				int pkey_id;
+				for(i = 0; i < EVP_PKEY_meth_get_count(); i++) {
+					const EVP_PKEY_METHOD * pmeth = EVP_PKEY_meth_get0(i);
+					EVP_PKEY_meth_get0_info(&pkey_id, NULL, pmeth);
+					if(pkey_id < prev)
+						good = 0;
+					prev = pkey_id;
+				}
+				if(!good) {
+					TEST_error("EVP_PKEY_METHOD table out of order");
+					for(i = 0; i < EVP_PKEY_meth_get_count(); i++) {
+						const EVP_PKEY_METHOD * pmeth = EVP_PKEY_meth_get0(i);
+						EVP_PKEY_meth_get0_info(&pkey_id, NULL, pmeth);
+						TEST_note("%d : %s", pkey_id, OBJ_nid2ln(pkey_id));
+					}
+				}
+				return good;
+			}
+			#endif
+		};
+		ADD_TEST(TestInnerBlock_PKeyMeth::test_asn1_meths);
+		#ifndef OPENSSL_NO_DEPRECATED_3_0
+			ADD_TEST(TestInnerBlock_PKeyMeth::test_pkey_meths);
+		#endif
+	}
+	{
+		//
+		// Tests of the EVP_PKEY_CTX_set_* macro family
+		//
+		class TestInnerBlock_PKeyMethKdf {
+		public:
+			static int test_kdf_tls1_prf()
+			{
+				int ret = 0;
+				EVP_PKEY_CTX * pctx;
+				uchar out[16];
+				size_t outlen = sizeof(out);
+				if((pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_TLS1_PRF, NULL)) == NULL) {
+					TEST_error("EVP_PKEY_TLS1_PRF");
+					goto err;
+				}
+				if(EVP_PKEY_derive_init(pctx) <= 0) {
+					TEST_error("EVP_PKEY_derive_init");
+					goto err;
+				}
+				if(EVP_PKEY_CTX_set_tls1_prf_md(pctx, EVP_sha256()) <= 0) {
+					TEST_error("EVP_PKEY_CTX_set_tls1_prf_md");
+					goto err;
+				}
+				if(EVP_PKEY_CTX_set1_tls1_prf_secret(pctx,
+					(uchar *)"secret", 6) <= 0) {
+					TEST_error("EVP_PKEY_CTX_set1_tls1_prf_secret");
+					goto err;
+				}
+				if(EVP_PKEY_CTX_add1_tls1_prf_seed(pctx,
+					(uchar *)"seed", 4) <= 0) {
+					TEST_error("EVP_PKEY_CTX_add1_tls1_prf_seed");
+					goto err;
+				}
+				if(EVP_PKEY_derive(pctx, out, &outlen) <= 0) {
+					TEST_error("EVP_PKEY_derive");
+					goto err;
+				}
+				{
+					const uchar expected[sizeof(out)] = { 0x8e, 0x4d, 0x93, 0x25, 0x30, 0xd7, 0x65, 0xa0, 0xaa, 0xe9, 0x74, 0xc3, 0x04, 0x73, 0x5e, 0xcc };
+					if(!TEST_mem_eq(out, sizeof(out), expected, sizeof(expected))) {
+						goto err;
+					}
+				}
+				ret = 1;
+			err:
+				EVP_PKEY_CTX_free(pctx);
+				return ret;
+			}
+			static int test_kdf_hkdf()
+			{
+				int ret = 0;
+				EVP_PKEY_CTX * pctx;
+				uchar out[10];
+				size_t outlen = sizeof(out);
+				if((pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_HKDF, NULL)) == NULL) {
+					TEST_error("EVP_PKEY_HKDF");
+					goto err;
+				}
+				if(EVP_PKEY_derive_init(pctx) <= 0) {
+					TEST_error("EVP_PKEY_derive_init");
+					goto err;
+				}
+				if(EVP_PKEY_CTX_set_hkdf_md(pctx, EVP_sha256()) <= 0) {
+					TEST_error("EVP_PKEY_CTX_set_hkdf_md");
+					goto err;
+				}
+				if(EVP_PKEY_CTX_set1_hkdf_salt(pctx, (const uchar*)"salt", 4)
+					<= 0) {
+					TEST_error("EVP_PKEY_CTX_set1_hkdf_salt");
+					goto err;
+				}
+				if(EVP_PKEY_CTX_set1_hkdf_key(pctx, (const uchar*)"secret", 6)
+					<= 0) {
+					TEST_error("EVP_PKEY_CTX_set1_hkdf_key");
+					goto err;
+				}
+				if(EVP_PKEY_CTX_add1_hkdf_info(pctx, (const uchar*)"label", 5)
+					<= 0) {
+					TEST_error("EVP_PKEY_CTX_set1_hkdf_info");
+					goto err;
+				}
+				if(EVP_PKEY_derive(pctx, out, &outlen) <= 0) {
+					TEST_error("EVP_PKEY_derive");
+					goto err;
+				}
+				{
+					const uchar expected[sizeof(out)] = { 0x2a, 0xc4, 0x36, 0x9f, 0x52, 0x59, 0x96, 0xf8, 0xde, 0x13 };
+					if(!TEST_mem_eq(out, sizeof(out), expected, sizeof(expected))) {
+						goto err;
+					}
+				}
+				ret = 1;
+			err:
+				EVP_PKEY_CTX_free(pctx);
+				return ret;
+			}
+			#ifndef OPENSSL_NO_SCRYPT
+				static int test_kdf_scrypt()
+				{
+					int ret = 0;
+					EVP_PKEY_CTX * pctx;
+					uchar out[64];
+					size_t outlen = sizeof(out);
+					if((pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_SCRYPT, NULL)) == NULL) {
+						TEST_error("EVP_PKEY_SCRYPT");
+						goto err;
+					}
+					if(EVP_PKEY_derive_init(pctx) <= 0) {
+						TEST_error("EVP_PKEY_derive_init");
+						goto err;
+					}
+					if(EVP_PKEY_CTX_set1_pbe_pass(pctx, "password", 8) <= 0) {
+						TEST_error("EVP_PKEY_CTX_set1_pbe_pass");
+						goto err;
+					}
+					if(EVP_PKEY_CTX_set1_scrypt_salt(pctx, (uchar *)"NaCl", 4) <= 0) {
+						TEST_error("EVP_PKEY_CTX_set1_scrypt_salt");
+						goto err;
+					}
+					if(EVP_PKEY_CTX_set_scrypt_N(pctx, 1024) <= 0) {
+						TEST_error("EVP_PKEY_CTX_set_scrypt_N");
+						goto err;
+					}
+					if(EVP_PKEY_CTX_set_scrypt_r(pctx, 8) <= 0) {
+						TEST_error("EVP_PKEY_CTX_set_scrypt_r");
+						goto err;
+					}
+					if(EVP_PKEY_CTX_set_scrypt_p(pctx, 16) <= 0) {
+						TEST_error("EVP_PKEY_CTX_set_scrypt_p");
+						goto err;
+					}
+					if(EVP_PKEY_CTX_set_scrypt_maxmem_bytes(pctx, 16) <= 0) {
+						TEST_error("EVP_PKEY_CTX_set_maxmem_bytes");
+						goto err;
+					}
+					if(EVP_PKEY_derive(pctx, out, &outlen) > 0) {
+						TEST_error("EVP_PKEY_derive should have failed");
+						goto err;
+					}
+					if(EVP_PKEY_CTX_set_scrypt_maxmem_bytes(pctx, 10 * 1024 * 1024) <= 0) {
+						TEST_error("EVP_PKEY_CTX_set_maxmem_bytes");
+						goto err;
+					}
+					if(EVP_PKEY_derive(pctx, out, &outlen) <= 0) {
+						TEST_error("EVP_PKEY_derive");
+						goto err;
+					}
+					{
+						const uchar expected[sizeof(out)] = {
+							0xfd, 0xba, 0xbe, 0x1c, 0x9d, 0x34, 0x72, 0x00,
+							0x78, 0x56, 0xe7, 0x19, 0x0d, 0x01, 0xe9, 0xfe,
+							0x7c, 0x6a, 0xd7, 0xcb, 0xc8, 0x23, 0x78, 0x30,
+							0xe7, 0x73, 0x76, 0x63, 0x4b, 0x37, 0x31, 0x62,
+							0x2e, 0xaf, 0x30, 0xd9, 0x2e, 0x22, 0xa3, 0x88,
+							0x6f, 0xf1, 0x09, 0x27, 0x9d, 0x98, 0x30, 0xda,
+							0xc7, 0x27, 0xaf, 0xb9, 0x4a, 0x83, 0xee, 0x6d,
+							0x83, 0x60, 0xcb, 0xdf, 0xa2, 0xcc, 0x06, 0x40
+						};
+						if(!TEST_mem_eq(out, sizeof(out), expected, sizeof(expected))) {
+							goto err;
+						}
+					}
+					ret = 1;
+				err:
+					EVP_PKEY_CTX_free(pctx);
+					return ret;
+				}
+			#endif
+		};
+
+		ADD_TEST(TestInnerBlock_PKeyMethKdf::test_kdf_tls1_prf);
+		ADD_TEST(TestInnerBlock_PKeyMethKdf::test_kdf_hkdf);
+		#ifndef OPENSSL_NO_SCRYPT
+			ADD_TEST(TestInnerBlock_PKeyMethKdf::test_kdf_scrypt);
+		#endif
+	}
+	{
+		//
+		// Tests of the EVP_KDF_CTX APIs 
+		//
+		class TestInnerBlock_EvpKdf {
+		public:
+			static EVP_KDF_CTX * get_kdfbyname_libctx(OSSL_LIB_CTX * libctx, const char * name)
+			{
+				EVP_KDF * kdf = EVP_KDF_fetch(libctx, name, NULL);
+				EVP_KDF_CTX * kctx = EVP_KDF_CTX_new(kdf);
+				EVP_KDF_free(kdf);
+				return kctx;
+			}
+			static EVP_KDF_CTX * get_kdfbyname(const char * name)
+			{
+				return get_kdfbyname_libctx(NULL, name);
+			}
+			static OSSL_PARAM * construct_tls1_prf_params(const char * digest, const char * secret, const char * seed)
+			{
+				OSSL_PARAM * params = (OSSL_PARAM *)OPENSSL_malloc(sizeof(OSSL_PARAM) * 4);
+				if(params) {
+					OSSL_PARAM * p = params;
+					*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, (char*)digest, 0);
+					*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SECRET, (uchar *)secret, strlen(secret));
+					*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED, (uchar *)seed, strlen(seed));
+					*p = OSSL_PARAM_construct_end();
+				}
+				return params;
+			}
+			static int test_kdf_tls1_prf()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[16];
+				static const uchar expected[sizeof(out)] = {
+					0x8e, 0x4d, 0x93, 0x25, 0x30, 0xd7, 0x65, 0xa0,
+					0xaa, 0xe9, 0x74, 0xc3, 0x04, 0x73, 0x5e, 0xcc
+				};
+				OSSL_PARAM * params = construct_tls1_prf_params("sha256", "secret", "seed");
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_TLS1_PRF)) && 
+					TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0) && TEST_mem_eq(out, sizeof(out), expected, sizeof(expected));
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_tls1_prf_invalid_digest()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				OSSL_PARAM * params = construct_tls1_prf_params("blah", "secret", "seed");
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_TLS1_PRF)) && TEST_false(EVP_KDF_CTX_set_params(kctx, params));
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_tls1_prf_zero_output_size()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[16];
+				OSSL_PARAM * params = construct_tls1_prf_params("sha256", "secret", "seed");
+				// Negative test - derive should fail 
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_TLS1_PRF)) && 
+					TEST_true(EVP_KDF_CTX_set_params(kctx, params)) && TEST_int_eq(EVP_KDF_derive(kctx, out, 0, NULL), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_tls1_prf_empty_secret()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[16];
+				OSSL_PARAM * params = construct_tls1_prf_params("sha256", "", "seed");
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_TLS1_PRF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_tls1_prf_1byte_secret()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[16];
+				OSSL_PARAM * params = construct_tls1_prf_params("sha256", "1", "seed");
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_TLS1_PRF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_tls1_prf_empty_seed()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[16];
+				OSSL_PARAM * params = construct_tls1_prf_params("sha256", "secret", "");
+				// Negative test - derive should fail 
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_TLS1_PRF)) && 
+					TEST_true(EVP_KDF_CTX_set_params(kctx, params)) && TEST_int_eq(EVP_KDF_derive(kctx, out, sizeof(out), NULL), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_tls1_prf_1byte_seed()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[16];
+				OSSL_PARAM * params = construct_tls1_prf_params("sha256", "secret", "1");
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_TLS1_PRF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static OSSL_PARAM * construct_hkdf_params(char * digest, char * key, size_t keylen, char * salt, char * info)
+			{
+				OSSL_PARAM * params = (OSSL_PARAM *)OPENSSL_malloc(sizeof(OSSL_PARAM) * 5);
+				OSSL_PARAM * p = params;
+				if(params == NULL)
+					return NULL;
+				if(digest)
+					*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, digest, 0);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, salt, strlen(salt));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, (uchar *)key, keylen);
+				if(info)
+					*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_INFO, info, strlen(info));
+				else
+					*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MODE, "EXTRACT_ONLY", 0);
+				*p = OSSL_PARAM_construct_end();
+				return params;
+			}
+			static int test_kdf_hkdf()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[10];
+				static const uchar expected[sizeof(out)] = {
+					0x2a, 0xc4, 0x36, 0x9f, 0x52, 0x59, 0x96, 0xf8, 0xde, 0x13
+				};
+				OSSL_PARAM * params = construct_hkdf_params("sha256", "secret", 6, "salt", "label");
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_HKDF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0)
+					&& TEST_mem_eq(out, sizeof(out), expected, sizeof(expected));
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int do_kdf_hkdf_gettables(int expand_only, int has_digest)
+			{
+				int ret = 0;
+				size_t sz = 0;
+				OSSL_PARAM * params;
+				OSSL_PARAM params_get[2];
+				const OSSL_PARAM * gettables, * p;
+				EVP_KDF_CTX * kctx = NULL;
+				if(!TEST_ptr(params = construct_hkdf_params(has_digest ? "sha256" : NULL, "secret", 6, "salt", expand_only ? NULL : "label"))
+					|| !TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_HKDF))
+					|| !TEST_true(EVP_KDF_CTX_set_params(kctx, params)))
+					goto err;
+				/* Check OSSL_KDF_PARAM_SIZE is gettable */
+				if(!TEST_ptr(gettables = EVP_KDF_CTX_gettable_params(kctx)) || !TEST_ptr(p = OSSL_PARAM_locate_const(gettables, OSSL_KDF_PARAM_SIZE)))
+					goto err;
+				/* Get OSSL_KDF_PARAM_SIZE as a size_t */
+				params_get[0] = OSSL_PARAM_construct_size_t(OSSL_KDF_PARAM_SIZE, &sz);
+				params_get[1] = OSSL_PARAM_construct_end();
+				if(has_digest) {
+					if(!TEST_int_eq(EVP_KDF_CTX_get_params(kctx, params_get), 1)
+						|| !TEST_size_t_eq(sz, expand_only ? SHA256_DIGEST_LENGTH : SIZE_MAX))
+						goto err;
+				}
+				else {
+					if(!TEST_int_eq(EVP_KDF_CTX_get_params(kctx, params_get), 0))
+						goto err;
+				}
+
+				/* Get params returns -2 if an unsupported parameter is requested */
+				params_get[0] = OSSL_PARAM_construct_end();
+				if(!TEST_int_eq(EVP_KDF_CTX_get_params(kctx, params_get), -2))
+					goto err;
+				ret = 1;
+			err:
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_hkdf_gettables() { return do_kdf_hkdf_gettables(0, 1); }
+			static int test_kdf_hkdf_gettables_expandonly() { return do_kdf_hkdf_gettables(1, 1); }
+			static int test_kdf_hkdf_gettables_no_digest() { return do_kdf_hkdf_gettables(1, 0); }
+			static int test_kdf_hkdf_invalid_digest()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				OSSL_PARAM * params = construct_hkdf_params("blah", "secret", 6, "salt", "label");
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_HKDF)) && TEST_false(EVP_KDF_CTX_set_params(kctx, params));
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_hkdf_derive_set_params_fail()
+			{
+				int ret = 0, i = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				OSSL_PARAM params[2];
+				uchar out[10];
+				if(!TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_HKDF)))
+					goto end;
+				/*
+				 * Set the wrong type for the digest so that it causes a failure
+				 * inside kdf_hkdf_derive() when kdf_hkdf_set_ctx_params() is called
+				 */
+				params[0] = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_DIGEST, &i);
+				params[1] = OSSL_PARAM_construct_end();
+				if(!TEST_int_eq(EVP_KDF_derive(kctx, out, sizeof(out), params), 0))
+					goto end;
+				ret = 1;
+			end:
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			static int test_kdf_hkdf_set_invalid_mode()
+			{
+				int ret = 0, bad_mode = 100;
+				EVP_KDF_CTX * kctx = NULL;
+				OSSL_PARAM params[2];
+				if(!TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_HKDF)))
+					goto end;
+				params[0] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MODE, "BADMODE", 0);
+				params[1] = OSSL_PARAM_construct_end();
+				if(!TEST_int_eq(EVP_KDF_CTX_set_params(kctx, params), 0))
+					goto end;
+				params[0] = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_MODE, &bad_mode);
+				if(!TEST_int_eq(EVP_KDF_CTX_set_params(kctx, params), 0))
+					goto end;
+				ret = 1;
+			end:
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			static int do_kdf_hkdf_set_invalid_param(const char * key, int type)
+			{
+				int ret = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				OSSL_PARAM params[2];
+				uchar buf[2];
+				if(!TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_HKDF)))
+					goto end;
+				/* Set the wrong type for the key so that it causes a failure */
+				if(type == OSSL_PARAM_UTF8_STRING)
+					params[0] = OSSL_PARAM_construct_utf8_string(key, "BAD", 0);
+				else
+					params[0] = OSSL_PARAM_construct_octet_string(key, buf, sizeof(buf));
+				params[1] = OSSL_PARAM_construct_end();
+				if(!TEST_int_eq(EVP_KDF_CTX_set_params(kctx, params), 0))
+					goto end;
+				ret = 1;
+			end:
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			static int test_kdf_hkdf_set_ctx_param_fail()
+			{
+				return do_kdf_hkdf_set_invalid_param(OSSL_KDF_PARAM_MODE, OSSL_PARAM_OCTET_STRING)
+					   && do_kdf_hkdf_set_invalid_param(OSSL_KDF_PARAM_KEY, OSSL_PARAM_UTF8_STRING)
+					   && do_kdf_hkdf_set_invalid_param(OSSL_KDF_PARAM_SALT, OSSL_PARAM_UTF8_STRING)
+					   && do_kdf_hkdf_set_invalid_param(OSSL_KDF_PARAM_INFO, OSSL_PARAM_UTF8_STRING);
+			}
+			static int test_kdf_hkdf_zero_output_size()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[10];
+				OSSL_PARAM * params = construct_hkdf_params("sha256", "secret", 6, "salt", "label");
+				/* Negative test - derive should fail */
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_HKDF)) && TEST_true(EVP_KDF_CTX_set_params(kctx, params)) && TEST_int_eq(EVP_KDF_derive(kctx, out, 0, NULL), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_hkdf_empty_key()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[10];
+				OSSL_PARAM * params = construct_hkdf_params("sha256", "", 0, "salt", "label");
+				int ret = TEST_ptr(params)
+					&& TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_HKDF))
+					&& TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_hkdf_1byte_key()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[10];
+				OSSL_PARAM * params = construct_hkdf_params("sha256", "1", 1, "salt", "label");
+				int ret = TEST_ptr(params)
+					&& TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_HKDF))
+					&& TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_hkdf_empty_salt()
+			{
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[10];
+				OSSL_PARAM * params = construct_hkdf_params("sha256", "secret", 6, "", "label");
+				int ret = TEST_ptr(params) && TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_HKDF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static OSSL_PARAM * construct_pbkdf1_params(char * pass, char * digest, char * salt, uint * iter)
+			{
+				OSSL_PARAM * params = (OSSL_PARAM *)OPENSSL_malloc(sizeof(OSSL_PARAM) * 5);
+				OSSL_PARAM * p = params;
+				if(params == NULL)
+					return NULL;
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_PASSWORD, (uchar *)pass, strlen(pass));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, (uchar *)salt, strlen(salt));
+				*p++ = OSSL_PARAM_construct_uint(OSSL_KDF_PARAM_ITER, iter);
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, digest, 0);
+				*p = OSSL_PARAM_construct_end();
+				return params;
+			}
+			static int test_kdf_pbkdf1()
+			{
+				int ret = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[25];
+				uint iterations = 4096;
+				OSSL_LIB_CTX * libctx = NULL;
+				OSSL_PARAM * params = NULL;
+				OSSL_PROVIDER * legacyprov = NULL;
+				OSSL_PROVIDER * defprov = NULL;
+				const uchar expected[sizeof(out)] = {
+					0xfb, 0x83, 0x4d, 0x36, 0x6d, 0xbc, 0x53, 0x87, 0x35, 0x1b, 0x34, 0x75,
+					0x95, 0x88, 0x32, 0x4f, 0x3e, 0x82, 0x81, 0x01, 0x21, 0x93, 0x64, 0x00,
+					0xcc
+				};
+				if(!TEST_ptr(libctx = OSSL_LIB_CTX_new()))
+					goto err;
+				/* PBKDF1 only available in the legacy provider */
+				legacyprov = OSSL_PROVIDER_load(libctx, "legacy");
+				if(legacyprov == NULL) {
+					OSSL_LIB_CTX_free(libctx);
+					return TEST_skip("PBKDF1 only available in legacy provider");
+				}
+				if(!TEST_ptr(defprov = OSSL_PROVIDER_load(libctx, "default")))
+					goto err;
+				params = construct_pbkdf1_params("passwordPASSWORDpassword", "sha256", "saltSALTsaltSALTsaltSALTsaltSALTsalt", &iterations);
+				if(!TEST_ptr(params)
+					|| !TEST_ptr(kctx = get_kdfbyname_libctx(libctx, OSSL_KDF_NAME_PBKDF1))
+					|| !TEST_true(EVP_KDF_CTX_set_params(kctx, params))
+					|| !TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), NULL), 0)
+					|| !TEST_mem_eq(out, sizeof(out), expected, sizeof(expected)))
+					goto err;
+
+				ret = 1;
+			err:
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				OSSL_PROVIDER_unload(defprov);
+				OSSL_PROVIDER_unload(legacyprov);
+				OSSL_LIB_CTX_free(libctx);
+				return ret;
+			}
+			static OSSL_PARAM * construct_pbkdf2_params(char * pass, char * digest, char * salt, uint * iter, int * mode)
+			{
+				OSSL_PARAM * params = (OSSL_PARAM *)OPENSSL_malloc(sizeof(OSSL_PARAM) * 6);
+				OSSL_PARAM * p = params;
+				if(params == NULL)
+					return NULL;
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_PASSWORD, (uchar *)pass, strlen(pass));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, (uchar *)salt, strlen(salt));
+				*p++ = OSSL_PARAM_construct_uint(OSSL_KDF_PARAM_ITER, iter);
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, digest, 0);
+				*p++ = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_PKCS5, mode);
+				*p = OSSL_PARAM_construct_end();
+				return params;
+			}
+			static int test_kdf_pbkdf2()
+			{
+				int ret = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[25];
+				uint iterations = 4096;
+				int mode = 0;
+				const uchar expected[sizeof(out)] = {
+					0x34, 0x8c, 0x89, 0xdb, 0xcb, 0xd3, 0x2b, 0x2f,
+					0x32, 0xd8, 0x14, 0xb8, 0x11, 0x6e, 0x84, 0xcf,
+					0x2b, 0x17, 0x34, 0x7e, 0xbc, 0x18, 0x00, 0x18,
+					0x1c
+				};
+				OSSL_PARAM * params = construct_pbkdf2_params("passwordPASSWORDpassword", "sha256", "saltSALTsaltSALTsaltSALTsaltSALTsalt", &iterations, &mode);
+				if(!TEST_ptr(params)
+					|| !TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_PBKDF2))
+					|| !TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0)
+					|| !TEST_mem_eq(out, sizeof(out), expected, sizeof(expected)))
+					goto err;
+				ret = 1;
+			err:
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_pbkdf2_small_output()
+			{
+				int ret = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[25];
+				uint iterations = 4096;
+				int mode = 0;
+				OSSL_PARAM * params = construct_pbkdf2_params("passwordPASSWORDpassword", "sha256", "saltSALTsaltSALTsaltSALTsaltSALTsalt", &iterations, &mode);
+				if(!TEST_ptr(params)
+					|| !TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_PBKDF2))
+					|| !TEST_true(EVP_KDF_CTX_set_params(kctx, params))
+					/* A key length that is too small should fail */
+					|| !TEST_int_eq(EVP_KDF_derive(kctx, out, 112 / 8 - 1, NULL), 0))
+					goto err;
+				ret = 1;
+			err:
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_pbkdf2_large_output()
+			{
+				int ret = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[25];
+				size_t len = 0;
+				uint iterations = 4096;
+				int mode = 0;
+				OSSL_PARAM * params;
+				if(sizeof(len) > 32)
+					len = SIZE_MAX;
+				params = construct_pbkdf2_params("passwordPASSWORDpassword", "sha256", "saltSALTsaltSALTsaltSALTsaltSALTsalt", &iterations, &mode);
+				if(!TEST_ptr(params)
+					|| !TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_PBKDF2))
+					/* A key length that is too large should fail */
+					|| !TEST_true(EVP_KDF_CTX_set_params(kctx, params))
+					|| (len != 0 && !TEST_int_eq(EVP_KDF_derive(kctx, out, len, NULL), 0)))
+					goto err;
+
+				ret = 1;
+			err:
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_pbkdf2_small_salt()
+			{
+				int ret = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				uint iterations = 4096;
+				int mode = 0;
+				OSSL_PARAM * params = construct_pbkdf2_params("passwordPASSWORDpassword", "sha256", "saltSALT", &iterations, &mode);
+				if(!TEST_ptr(params)
+					|| !TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_PBKDF2))
+					/* A salt that is too small should fail */
+					|| !TEST_false(EVP_KDF_CTX_set_params(kctx, params)))
+					goto err;
+				ret = 1;
+			err:
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_pbkdf2_small_iterations()
+			{
+				int ret = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				uint iterations = 1;
+				int mode = 0;
+				OSSL_PARAM * params = construct_pbkdf2_params("passwordPASSWORDpassword", "sha256", "saltSALTsaltSALTsaltSALTsaltSALTsalt", &iterations, &mode);
+				if(!TEST_ptr(params)
+					|| !TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_PBKDF2))
+					/* An iteration count that is too small should fail */
+					|| !TEST_false(EVP_KDF_CTX_set_params(kctx, params)))
+					goto err;
+				ret = 1;
+			err:
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_pbkdf2_small_salt_pkcs5()
+			{
+				int ret = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[25];
+				uint iterations = 4096;
+				int mode = 1;
+				OSSL_PARAM mode_params[2];
+				OSSL_PARAM * params = construct_pbkdf2_params("passwordPASSWORDpassword", "sha256", "saltSALT", &iterations, &mode);
+				if(!TEST_ptr(params)
+					|| !TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_PBKDF2))
+					/* A salt that is too small should pass in pkcs5 mode */
+					|| !TEST_true(EVP_KDF_CTX_set_params(kctx, params))
+					|| !TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), NULL), 0))
+					goto err;
+				mode = 0;
+				mode_params[0] = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_PKCS5, &mode);
+				mode_params[1] = OSSL_PARAM_construct_end();
+				/* If the "pkcs5" mode is disabled then the derive will now fail */
+				if(!TEST_true(EVP_KDF_CTX_set_params(kctx, mode_params)) || !TEST_int_eq(EVP_KDF_derive(kctx, out, sizeof(out), NULL), 0))
+					goto err;
+				ret = 1;
+			err:
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_pbkdf2_small_iterations_pkcs5()
+			{
+				int ret = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				uchar out[25];
+				uint iterations = 1;
+				int mode = 1;
+				OSSL_PARAM mode_params[2];
+				OSSL_PARAM * params = construct_pbkdf2_params("passwordPASSWORDpassword", "sha256", "saltSALTsaltSALTsaltSALTsaltSALTsalt", &iterations, &mode);
+				if(!TEST_ptr(params)
+					|| !TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_PBKDF2))
+					/* An iteration count that is too small will pass in pkcs5 mode */
+					|| !TEST_true(EVP_KDF_CTX_set_params(kctx, params))
+					|| !TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), NULL), 0))
+					goto err;
+				mode = 0;
+				mode_params[0] = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_PKCS5, &mode);
+				mode_params[1] = OSSL_PARAM_construct_end();
+				/* If the "pkcs5" mode is disabled then the derive will now fail */
+				if(!TEST_true(EVP_KDF_CTX_set_params(kctx, mode_params))
+					|| !TEST_int_eq(EVP_KDF_derive(kctx, out, sizeof(out), NULL), 0))
+					goto err;
+				ret = 1;
+			err:
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_pbkdf2_invalid_digest()
+			{
+				int ret = 0;
+				EVP_KDF_CTX * kctx = NULL;
+				uint iterations = 4096;
+				int mode = 0;
+				OSSL_PARAM * params = construct_pbkdf2_params("passwordPASSWORDpassword", "blah", "saltSALTsaltSALTsaltSALTsaltSALTsalt", &iterations, &mode);
+				if(!TEST_ptr(params)
+					|| !TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_PBKDF2))
+					/* Unknown digest should fail */
+					|| !TEST_false(EVP_KDF_CTX_set_params(kctx, params)))
+					goto err;
+				ret = 1;
+			err:
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			#ifndef OPENSSL_NO_SCRYPT
+			static int test_kdf_scrypt()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[7], * p = params;
+				uchar out[64];
+				uint nu = 1024, ru = 8, pu = 16, maxmem = 16;
+				static const uchar expected[sizeof(out)] = {
+					0xfd, 0xba, 0xbe, 0x1c, 0x9d, 0x34, 0x72, 0x00,
+					0x78, 0x56, 0xe7, 0x19, 0x0d, 0x01, 0xe9, 0xfe,
+					0x7c, 0x6a, 0xd7, 0xcb, 0xc8, 0x23, 0x78, 0x30,
+					0xe7, 0x73, 0x76, 0x63, 0x4b, 0x37, 0x31, 0x62,
+					0x2e, 0xaf, 0x30, 0xd9, 0x2e, 0x22, 0xa3, 0x88,
+					0x6f, 0xf1, 0x09, 0x27, 0x9d, 0x98, 0x30, 0xda,
+					0xc7, 0x27, 0xaf, 0xb9, 0x4a, 0x83, 0xee, 0x6d,
+					0x83, 0x60, 0xcb, 0xdf, 0xa2, 0xcc, 0x06, 0x40
+				};
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_PASSWORD, (char*)"password", 8);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, (char*)"NaCl", 4);
+				*p++ = OSSL_PARAM_construct_uint(OSSL_KDF_PARAM_SCRYPT_N, &nu);
+				*p++ = OSSL_PARAM_construct_uint(OSSL_KDF_PARAM_SCRYPT_R, &ru);
+				*p++ = OSSL_PARAM_construct_uint(OSSL_KDF_PARAM_SCRYPT_P, &pu);
+				*p++ = OSSL_PARAM_construct_uint(OSSL_KDF_PARAM_SCRYPT_MAXMEM, &maxmem);
+				*p = OSSL_PARAM_construct_end();
+				ret = TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_SCRYPT)) && TEST_true(EVP_KDF_CTX_set_params(kctx, params))
+					/* failure test *//*
+					   && TEST_int_le(EVP_KDF_derive(kctx, out, sizeof(out), NULL), 0)*/
+					&& TEST_true(OSSL_PARAM_set_uint(p - 1, 10 * 1024 * 1024))
+					&& TEST_true(EVP_KDF_CTX_set_params(kctx, p - 1))
+					&& TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), NULL), 0)
+					&& TEST_mem_eq(out, sizeof(out), expected, sizeof(expected));
+
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			#endif /* OPENSSL_NO_SCRYPT */
+			static int test_kdf_ss_hash()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[4], * p = params;
+				uchar out[14];
+				static uchar z[] = {
+					0x6d, 0xbd, 0xc2, 0x3f, 0x04, 0x54, 0x88, 0xe4, 0x06, 0x27, 0x57, 0xb0, 0x6b, 0x9e,
+					0xba, 0xe1, 0x83, 0xfc, 0x5a, 0x59, 0x46, 0xd8, 0x0d, 0xb9, 0x3f, 0xec, 0x6f, 0x62,
+					0xec, 0x07, 0xe3, 0x72, 0x7f, 0x01, 0x26, 0xae, 0xd1, 0x2c, 0xe4, 0xb2, 0x62, 0xf4,
+					0x7d, 0x48, 0xd5, 0x42, 0x87, 0xf8, 0x1d, 0x47, 0x4c, 0x7c, 0x3b, 0x18, 0x50, 0xe9
+				};
+				static uchar other[] = {
+					0xa1, 0xb2, 0xc3, 0xd4, 0xe5, 0x43, 0x41, 0x56, 0x53, 0x69, 0x64, 0x3c, 0x83, 0x2e,
+					0x98, 0x49, 0xdc, 0xdb, 0xa7, 0x1e, 0x9a, 0x31, 0x39, 0xe6, 0x06, 0xe0, 0x95, 0xde,
+					0x3c, 0x26, 0x4a, 0x66, 0xe9, 0x8a, 0x16, 0x58, 0x54, 0xcd, 0x07, 0x98, 0x9b, 0x1e,
+					0xe0, 0xec, 0x3f, 0x8d, 0xbe
+				};
+				static const uchar expected[sizeof(out)] = {
+					0xa4, 0x62, 0xde, 0x16, 0xa8, 0x9d, 0xe8, 0x46, 0x6e, 0xf5, 0x46, 0x0b, 0x47, 0xb8
+				};
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, (char*)"sha224", 0);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, z, sizeof(z));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_INFO, other, sizeof(other));
+				*p = OSSL_PARAM_construct_end();
+				ret = TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_SSKDF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0) && TEST_mem_eq(out, sizeof(out), expected, sizeof(expected));
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			static int test_kdf_x963()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[4], * p = params;
+				uchar out[1024 / 8];
+				/*
+				 * Test data from https://csrc.nist.gov/CSRC/media/Projects/
+				 *  Cryptographic-Algorithm-Validation-Program/documents/components/
+				 *  800-135testvectors/ansx963_2001.zip
+				 */
+				static uchar z[] = {
+					0x00, 0xaa, 0x5b, 0xb7, 0x9b, 0x33, 0xe3, 0x89, 0xfa, 0x58, 0xce, 0xad,
+					0xc0, 0x47, 0x19, 0x7f, 0x14, 0xe7, 0x37, 0x12, 0xf4, 0x52, 0xca, 0xa9,
+					0xfc, 0x4c, 0x9a, 0xdb, 0x36, 0x93, 0x48, 0xb8, 0x15, 0x07, 0x39, 0x2f,
+					0x1a, 0x86, 0xdd, 0xfd, 0xb7, 0xc4, 0xff, 0x82, 0x31, 0xc4, 0xbd, 0x0f,
+					0x44, 0xe4, 0x4a, 0x1b, 0x55, 0xb1, 0x40, 0x47, 0x47, 0xa9, 0xe2, 0xe7,
+					0x53, 0xf5, 0x5e, 0xf0, 0x5a, 0x2d
+				};
+				static uchar shared[] = {
+					0xe3, 0xb5, 0xb4, 0xc1, 0xb0, 0xd5, 0xcf, 0x1d, 0x2b, 0x3a, 0x2f, 0x99,
+					0x37, 0x89, 0x5d, 0x31
+				};
+				static const uchar expected[sizeof(out)] = {
+					0x44, 0x63, 0xf8, 0x69, 0xf3, 0xcc, 0x18, 0x76, 0x9b, 0x52, 0x26, 0x4b,
+					0x01, 0x12, 0xb5, 0x85, 0x8f, 0x7a, 0xd3, 0x2a, 0x5a, 0x2d, 0x96, 0xd8,
+					0xcf, 0xfa, 0xbf, 0x7f, 0xa7, 0x33, 0x63, 0x3d, 0x6e, 0x4d, 0xd2, 0xa5,
+					0x99, 0xac, 0xce, 0xb3, 0xea, 0x54, 0xa6, 0x21, 0x7c, 0xe0, 0xb5, 0x0e,
+					0xef, 0x4f, 0x6b, 0x40, 0xa5, 0xc3, 0x02, 0x50, 0xa5, 0xa8, 0xee, 0xee,
+					0x20, 0x80, 0x02, 0x26, 0x70, 0x89, 0xdb, 0xf3, 0x51, 0xf3, 0xf5, 0x02,
+					0x2a, 0xa9, 0x63, 0x8b, 0xf1, 0xee, 0x41, 0x9d, 0xea, 0x9c, 0x4f, 0xf7,
+					0x45, 0xa2, 0x5a, 0xc2, 0x7b, 0xda, 0x33, 0xca, 0x08, 0xbd, 0x56, 0xdd,
+					0x1a, 0x59, 0xb4, 0x10, 0x6c, 0xf2, 0xdb, 0xbc, 0x0a, 0xb2, 0xaa, 0x8e,
+					0x2e, 0xfa, 0x7b, 0x17, 0x90, 0x2d, 0x34, 0x27, 0x69, 0x51, 0xce, 0xcc,
+					0xab, 0x87, 0xf9, 0x66, 0x1c, 0x3e, 0x88, 0x16
+				};
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, (char*)"sha512", 0);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, z, sizeof(z));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_INFO, shared, sizeof(shared));
+				*p = OSSL_PARAM_construct_end();
+				ret = TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_X963KDF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0) && TEST_mem_eq(out, sizeof(out), expected, sizeof(expected));
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			#if !defined(OPENSSL_NO_CMAC) && !defined(OPENSSL_NO_CAMELLIA)
+			/*
+			 * KBKDF test vectors from RFC 6803 (Camellia Encryption for Kerberos 5)
+			 * section 10.
+			 */
+			static int test_kdf_kbkdf_6803_128()
+			{
+				int ret = 0, i, p;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[7];
+				static uchar input_key[] = {
+					0x57, 0xD0, 0x29, 0x72, 0x98, 0xFF, 0xD9, 0xD3,
+					0x5D, 0xE5, 0xA4, 0x7F, 0xB4, 0xBD, 0xE2, 0x4B,
+				};
+				static uchar constants[][5] = {
+					{ 0x00, 0x00, 0x00, 0x02, 0x99 },
+					{ 0x00, 0x00, 0x00, 0x02, 0xaa },
+					{ 0x00, 0x00, 0x00, 0x02, 0x55 },
+				};
+				static uchar outputs[][16] = {
+					{0xD1, 0x55, 0x77, 0x5A, 0x20, 0x9D, 0x05, 0xF0,
+					 0x2B, 0x38, 0xD4, 0x2A, 0x38, 0x9E, 0x5A, 0x56},
+					{0x64, 0xDF, 0x83, 0xF8, 0x5A, 0x53, 0x2F, 0x17,
+					 0x57, 0x7D, 0x8C, 0x37, 0x03, 0x57, 0x96, 0xAB},
+					{0x3E, 0x4F, 0xBD, 0xF3, 0x0F, 0xB8, 0x25, 0x9C,
+					 0x42, 0x5C, 0xB6, 0xC9, 0x6F, 0x1F, 0x46, 0x35}
+				};
+				static uchar iv[16] = { 0 };
+				uchar result[16] = { 0 };
+				for(i = 0; i < 3; i++) {
+					p = 0;
+					params[p++] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_CIPHER, "CAMELLIA-128-CBC", 0);
+					params[p++] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MAC, "CMAC", 0);
+					params[p++] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MODE, "FEEDBACK", 0);
+					params[p++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, input_key, sizeof(input_key));
+					params[p++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, constants[i], sizeof(constants[i]));
+					params[p++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED, iv, sizeof(iv));
+					params[p] = OSSL_PARAM_construct_end();
+					kctx = get_kdfbyname("KBKDF");
+					ret = TEST_ptr(kctx) && TEST_int_gt(EVP_KDF_derive(kctx, result, sizeof(result), params), 0) && TEST_mem_eq(result, sizeof(result), outputs[i], sizeof(outputs[i]));
+					EVP_KDF_CTX_free(kctx);
+					if(ret != 1)
+						return ret;
+				}
+				return ret;
+			}
+			static int test_kdf_kbkdf_6803_256()
+			{
+				int ret = 0, i, p;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[7];
+				static uchar input_key[] = {
+					0xB9, 0xD6, 0x82, 0x8B, 0x20, 0x56, 0xB7, 0xBE,
+					0x65, 0x6D, 0x88, 0xA1, 0x23, 0xB1, 0xFA, 0xC6,
+					0x82, 0x14, 0xAC, 0x2B, 0x72, 0x7E, 0xCF, 0x5F,
+					0x69, 0xAF, 0xE0, 0xC4, 0xDF, 0x2A, 0x6D, 0x2C,
+				};
+				static uchar constants[][5] = {
+					{ 0x00, 0x00, 0x00, 0x02, 0x99 },
+					{ 0x00, 0x00, 0x00, 0x02, 0xaa },
+					{ 0x00, 0x00, 0x00, 0x02, 0x55 },
+				};
+				static uchar outputs[][32] = {
+					{0xE4, 0x67, 0xF9, 0xA9, 0x55, 0x2B, 0xC7, 0xD3,
+					 0x15, 0x5A, 0x62, 0x20, 0xAF, 0x9C, 0x19, 0x22,
+					 0x0E, 0xEE, 0xD4, 0xFF, 0x78, 0xB0, 0xD1, 0xE6,
+					 0xA1, 0x54, 0x49, 0x91, 0x46, 0x1A, 0x9E, 0x50, },
+					{0x41, 0x2A, 0xEF, 0xC3, 0x62, 0xA7, 0x28, 0x5F,
+					 0xC3, 0x96, 0x6C, 0x6A, 0x51, 0x81, 0xE7, 0x60,
+					 0x5A, 0xE6, 0x75, 0x23, 0x5B, 0x6D, 0x54, 0x9F,
+					 0xBF, 0xC9, 0xAB, 0x66, 0x30, 0xA4, 0xC6, 0x04, },
+					{0xFA, 0x62, 0x4F, 0xA0, 0xE5, 0x23, 0x99, 0x3F,
+					 0xA3, 0x88, 0xAE, 0xFD, 0xC6, 0x7E, 0x67, 0xEB,
+					 0xCD, 0x8C, 0x08, 0xE8, 0xA0, 0x24, 0x6B, 0x1D,
+					 0x73, 0xB0, 0xD1, 0xDD, 0x9F, 0xC5, 0x82, 0xB0, },
+				};
+				static uchar iv[16] = { 0 };
+				uchar result[32] = { 0 };
+				for(i = 0; i < 3; i++) {
+					p = 0;
+					params[p++] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_CIPHER, "CAMELLIA-256-CBC", 0);
+					params[p++] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MAC, "CMAC", 0);
+					params[p++] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MODE, "FEEDBACK", 0);
+					params[p++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, input_key, sizeof(input_key));
+					params[p++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, constants[i], sizeof(constants[i]));
+					params[p++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED, iv, sizeof(iv));
+					params[p] = OSSL_PARAM_construct_end();
+					kctx = get_kdfbyname("KBKDF");
+					ret = TEST_ptr(kctx) && TEST_int_gt(EVP_KDF_derive(kctx, result, sizeof(result), params), 0) && 
+						TEST_mem_eq(result, sizeof(result), outputs[i], sizeof(outputs[i]));
+					EVP_KDF_CTX_free(kctx);
+					if(ret != 1)
+						return ret;
+				}
+				return ret;
+			}
+			#endif
+			static OSSL_PARAM * construct_kbkdf_params(char * digest, char * mac, uchar * key, size_t keylen, char * salt, char * info)
+			{
+				OSSL_PARAM * params = (OSSL_PARAM *)OPENSSL_malloc(sizeof(OSSL_PARAM) * 7);
+				OSSL_PARAM * p = params;
+				if(params == NULL)
+					return NULL;
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, digest, 0);
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MAC, mac, 0);
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MODE, "COUNTER", 0);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, key, keylen);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, salt, strlen(salt));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_INFO, info, strlen(info));
+				*p = OSSL_PARAM_construct_end();
+				return params;
+			}
+			static int test_kdf_kbkdf_invalid_digest()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				static uchar key[] = {0x01};
+				OSSL_PARAM * params = construct_kbkdf_params("blah", "HMAC", key, 1, "prf", "test");
+				if(!TEST_ptr(params))
+					return 0;
+				/* Negative test case - set_params should fail */
+				kctx = get_kdfbyname("KBKDF");
+				ret = TEST_ptr(kctx) && TEST_false(EVP_KDF_CTX_set_params(kctx, params));
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_kbkdf_invalid_mac()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				static uchar key[] = {0x01};
+				OSSL_PARAM * params = construct_kbkdf_params("sha256", "blah", key, 1, "prf", "test");
+				if(!TEST_ptr(params))
+					return 0;
+				/* Negative test case - set_params should fail */
+				kctx = get_kdfbyname("KBKDF");
+				ret = TEST_ptr(kctx) && TEST_false(EVP_KDF_CTX_set_params(kctx, params));
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_kbkdf_empty_key()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				static uchar key[] = {0x01};
+				uchar result[32] = { 0 };
+				OSSL_PARAM * params = construct_kbkdf_params("sha256", "HMAC", key, 0, "prf", "test");
+				if(!TEST_ptr(params))
+					return 0;
+				/* Negative test case - derive should fail */
+				kctx = get_kdfbyname("KBKDF");
+				ret = TEST_ptr(kctx) && TEST_true(EVP_KDF_CTX_set_params(kctx, params)) && TEST_int_eq(EVP_KDF_derive(kctx, result, sizeof(result), NULL), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_kbkdf_1byte_key()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				static uchar key[] = {0x01};
+				uchar result[32] = { 0 };
+				OSSL_PARAM * params = construct_kbkdf_params("sha256", "HMAC", key, 1, "prf", "test");
+				if(!TEST_ptr(params))
+					return 0;
+				kctx = get_kdfbyname("KBKDF");
+				ret = TEST_ptr(kctx) && TEST_int_gt(EVP_KDF_derive(kctx, result, sizeof(result), params), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			static int test_kdf_kbkdf_zero_output_size()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				static uchar key[] = {0x01};
+				uchar result[32] = { 0 };
+				OSSL_PARAM * params = construct_kbkdf_params("sha256", "HMAC", key, 1, "prf", "test");
+				if(!TEST_ptr(params))
+					return 0;
+				/* Negative test case - derive should fail */
+				kctx = get_kdfbyname("KBKDF");
+				ret = TEST_ptr(kctx) && TEST_true(EVP_KDF_CTX_set_params(kctx, params)) && TEST_int_eq(EVP_KDF_derive(kctx, result, 0, NULL), 0);
+				EVP_KDF_CTX_free(kctx);
+				OPENSSL_free(params);
+				return ret;
+			}
+			// Two test vectors from RFC 8009 (AES Encryption with HMAC-SHA2 for Kerberos 5) appendix A.
+			static int test_kdf_kbkdf_8009_prf1()
+			{
+				int ret, i = 0;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[6];
+				char * label = "prf", * digest = "sha256", * prf_input = "test", * mac = "HMAC";
+				static uchar input_key[] = {
+					0x37, 0x05, 0xD9, 0x60, 0x80, 0xC1, 0x77, 0x28,
+					0xA0, 0xE8, 0x00, 0xEA, 0xB6, 0xE0, 0xD2, 0x3C,
+				};
+				static uchar output[] = {
+					0x9D, 0x18, 0x86, 0x16, 0xF6, 0x38, 0x52, 0xFE,
+					0x86, 0x91, 0x5B, 0xB8, 0x40, 0xB4, 0xA8, 0x86,
+					0xFF, 0x3E, 0x6B, 0xB0, 0xF8, 0x19, 0xB4, 0x9B,
+					0x89, 0x33, 0x93, 0xD3, 0x93, 0x85, 0x42, 0x95,
+				};
+				uchar result[sizeof(output)] = { 0 };
+				params[i++] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, digest, 0);
+				params[i++] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MAC, mac, 0);
+				params[i++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, input_key, sizeof(input_key));
+				params[i++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, label, strlen(label));
+				params[i++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_INFO, prf_input, strlen(prf_input));
+				params[i] = OSSL_PARAM_construct_end();
+				kctx = get_kdfbyname("KBKDF");
+				ret = TEST_ptr(kctx) && TEST_int_gt(EVP_KDF_derive(kctx, result, sizeof(result), params), 0) && TEST_mem_eq(result, sizeof(result), output, sizeof(output));
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			static int test_kdf_kbkdf_8009_prf2()
+			{
+				int ret, i = 0;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[6];
+				char * label = "prf", * digest = "sha384", * prf_input = "test",
+					* mac = "HMAC";
+				static uchar input_key[] = {
+					0x6D, 0x40, 0x4D, 0x37, 0xFA, 0xF7, 0x9F, 0x9D,
+					0xF0, 0xD3, 0x35, 0x68, 0xD3, 0x20, 0x66, 0x98,
+					0x00, 0xEB, 0x48, 0x36, 0x47, 0x2E, 0xA8, 0xA0,
+					0x26, 0xD1, 0x6B, 0x71, 0x82, 0x46, 0x0C, 0x52,
+				};
+				static uchar output[] = {
+					0x98, 0x01, 0xF6, 0x9A, 0x36, 0x8C, 0x2B, 0xF6,
+					0x75, 0xE5, 0x95, 0x21, 0xE1, 0x77, 0xD9, 0xA0,
+					0x7F, 0x67, 0xEF, 0xE1, 0xCF, 0xDE, 0x8D, 0x3C,
+					0x8D, 0x6F, 0x6A, 0x02, 0x56, 0xE3, 0xB1, 0x7D,
+					0xB3, 0xC1, 0xB6, 0x2A, 0xD1, 0xB8, 0x55, 0x33,
+					0x60, 0xD1, 0x73, 0x67, 0xEB, 0x15, 0x14, 0xD2,
+				};
+				uchar result[sizeof(output)] = { 0 };
+				params[i++] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, digest, 0);
+				params[i++] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MAC, mac, 0);
+				params[i++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, input_key, sizeof(input_key));
+				params[i++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, label, strlen(label));
+				params[i++] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_INFO, prf_input, strlen(prf_input));
+				params[i] = OSSL_PARAM_construct_end();
+				kctx = get_kdfbyname("KBKDF");
+				ret = TEST_ptr(kctx) && TEST_int_gt(EVP_KDF_derive(kctx, result, sizeof(result), params), 0) && TEST_mem_eq(result, sizeof(result), output, sizeof(output));
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			#if !defined(OPENSSL_NO_CMAC)
+			/*
+			 * Test vector taken from
+			 * https://csrc.nist.gov/CSRC/media/Projects/
+			 *    Cryptographic-Algorithm-Validation-Program/documents/KBKDF800-108/CounterMode.zip
+			 *    Note: Only 32 bit counter is supported ([RLEN=32_BITS])
+			 */
+			static int test_kdf_kbkdf_fixedinfo()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[8], * p = params;
+				static char * cipher = "AES128";
+				static char * mac = "CMAC";
+				static char * mode = "COUNTER";
+				int use_l = 0;
+				int use_separator = 0;
+
+				static uchar input_key[] = {
+					0xc1, 0x0b, 0x15, 0x2e, 0x8c, 0x97, 0xb7, 0x7e,
+					0x18, 0x70, 0x4e, 0x0f, 0x0b, 0xd3, 0x83, 0x05,
+				};
+				static uchar fixed_input[] = {
+					0x98, 0xcd, 0x4c, 0xbb, 0xbe, 0xbe, 0x15, 0xd1,
+					0x7d, 0xc8, 0x6e, 0x6d, 0xba, 0xd8, 0x00, 0xa2,
+					0xdc, 0xbd, 0x64, 0xf7, 0xc7, 0xad, 0x0e, 0x78,
+					0xe9, 0xcf, 0x94, 0xff, 0xdb, 0xa8, 0x9d, 0x03,
+					0xe9, 0x7e, 0xad, 0xf6, 0xc4, 0xf7, 0xb8, 0x06,
+					0xca, 0xf5, 0x2a, 0xa3, 0x8f, 0x09, 0xd0, 0xeb,
+					0x71, 0xd7, 0x1f, 0x49, 0x7b, 0xcc, 0x69, 0x06,
+					0xb4, 0x8d, 0x36, 0xc4,
+				};
+				static uchar output[] = {
+					0x26, 0xfa, 0xf6, 0x19, 0x08, 0xad, 0x9e, 0xe8,
+					0x81, 0xb8, 0x30, 0x5c, 0x22, 0x1d, 0xb5, 0x3f,
+				};
+				uchar result[sizeof(output)] = { 0 };
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_CIPHER, cipher, 0);
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MAC, mac, 0);
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MODE, mode, 0);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, input_key, sizeof(input_key));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_INFO, fixed_input, sizeof(fixed_input));
+				*p++ = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_KBKDF_USE_L, &use_l);
+				*p++ = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_KBKDF_USE_SEPARATOR, &use_separator);
+				*p = OSSL_PARAM_construct_end();
+				kctx = get_kdfbyname("KBKDF");
+				ret = TEST_ptr(kctx) && TEST_int_gt(EVP_KDF_derive(kctx, result, sizeof(result), params), 0) && TEST_mem_eq(result, sizeof(result), output, sizeof(output));
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			#endif /* OPENSSL_NO_CMAC */
+			static int test_kdf_ss_hmac()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[6], * p = params;
+				uchar out[16];
+				static uchar z[] = {
+					0xb7, 0x4a, 0x14, 0x9a, 0x16, 0x15, 0x46, 0xf8, 0xc2, 0x0b, 0x06, 0xac, 0x4e, 0xd4
+				};
+				static uchar other[] = {
+					0x34, 0x8a, 0x37, 0xa2, 0x7e, 0xf1, 0x28, 0x2f, 0x5f, 0x02, 0x0d, 0xcc
+				};
+				static uchar salt[] = {
+					0x36, 0x38, 0x27, 0x1c, 0xcd, 0x68, 0xa2, 0x5d, 0xc2, 0x4e, 0xcd, 0xdd, 0x39, 0xef,
+					0x3f, 0x89
+				};
+				static const uchar expected[sizeof(out)] = {
+					0x44, 0xf6, 0x76, 0xe8, 0x5c, 0x1b, 0x1a, 0x8b, 0xbc, 0x3d, 0x31, 0x92, 0x18, 0x63,
+					0x1c, 0xa3
+				};
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MAC, (char*)OSSL_MAC_NAME_HMAC, 0);
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, (char*)"sha256", 0);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, z, sizeof(z));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_INFO, other, sizeof(other));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, salt, sizeof(salt));
+				*p = OSSL_PARAM_construct_end();
+				ret = TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_SSKDF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0) && TEST_mem_eq(out, sizeof(out), expected, sizeof(expected));
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			static int test_kdf_ss_kmac()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[6], * p = params;
+				uchar out[64];
+				size_t mac_size = 20;
+				static uchar z[] = {
+					0xb7, 0x4a, 0x14, 0x9a, 0x16, 0x15, 0x46, 0xf8, 0xc2, 0x0b, 0x06, 0xac, 0x4e, 0xd4
+				};
+				static uchar other[] = {
+					0x34, 0x8a, 0x37, 0xa2, 0x7e, 0xf1, 0x28, 0x2f, 0x5f, 0x02, 0x0d, 0xcc
+				};
+				static uchar salt[] = {
+					0x36, 0x38, 0x27, 0x1c, 0xcd, 0x68, 0xa2, 0x5d, 0xc2, 0x4e, 0xcd, 0xdd, 0x39, 0xef,
+					0x3f, 0x89
+				};
+				static const uchar expected[sizeof(out)] = {
+					0xe9, 0xc1, 0x84, 0x53, 0xa0, 0x62, 0xb5, 0x3b, 0xdb, 0xfc, 0xbb, 0x5a, 0x34, 0xbd,
+					0xb8, 0xe5, 0xe7, 0x07, 0xee, 0xbb, 0x5d, 0xd1, 0x34, 0x42, 0x43, 0xd8, 0xcf, 0xc2,
+					0xc2, 0xe6, 0x33, 0x2f, 0x91, 0xbd, 0xa5, 0x86, 0xf3, 0x7d, 0xe4, 0x8a, 0x65, 0xd4,
+					0xc5, 0x14, 0xfd, 0xef, 0xaa, 0x1e, 0x67, 0x54, 0xf3, 0x73, 0xd2, 0x38, 0xe1, 0x95,
+					0xae, 0x15, 0x7e, 0x1d, 0xe8, 0x14, 0x98, 0x03
+				};
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MAC, (char*)OSSL_MAC_NAME_KMAC128, 0);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, z, sizeof(z));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_INFO, other, sizeof(other));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, salt, sizeof(salt));
+				*p++ = OSSL_PARAM_construct_size_t(OSSL_KDF_PARAM_MAC_SIZE, &mac_size);
+				*p = OSSL_PARAM_construct_end();
+				ret = TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_SSKDF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0) && TEST_mem_eq(out, sizeof(out), expected, sizeof(expected));
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			static int test_kdf_sshkdf()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[6], * p = params;
+				char kdftype = EVP_KDF_SSHKDF_TYPE_INITIAL_IV_CLI_TO_SRV;
+				uchar out[8];
+				/* Test data from NIST CAVS 14.1 test vectors */
+				static uchar key[] = {
+					0x00, 0x00, 0x00, 0x81, 0x00, 0x87, 0x5c, 0x55, 0x1c, 0xef, 0x52, 0x6a,
+					0x4a, 0x8b, 0xe1, 0xa7, 0xdf, 0x27, 0xe9, 0xed, 0x35, 0x4b, 0xac, 0x9a,
+					0xfb, 0x71, 0xf5, 0x3d, 0xba, 0xe9, 0x05, 0x67, 0x9d, 0x14, 0xf9, 0xfa,
+					0xf2, 0x46, 0x9c, 0x53, 0x45, 0x7c, 0xf8, 0x0a, 0x36, 0x6b, 0xe2, 0x78,
+					0x96, 0x5b, 0xa6, 0x25, 0x52, 0x76, 0xca, 0x2d, 0x9f, 0x4a, 0x97, 0xd2,
+					0x71, 0xf7, 0x1e, 0x50, 0xd8, 0xa9, 0xec, 0x46, 0x25, 0x3a, 0x6a, 0x90,
+					0x6a, 0xc2, 0xc5, 0xe4, 0xf4, 0x8b, 0x27, 0xa6, 0x3c, 0xe0, 0x8d, 0x80,
+					0x39, 0x0a, 0x49, 0x2a, 0xa4, 0x3b, 0xad, 0x9d, 0x88, 0x2c, 0xca, 0xc2,
+					0x3d, 0xac, 0x88, 0xbc, 0xad, 0xa4, 0xb4, 0xd4, 0x26, 0xa3, 0x62, 0x08,
+					0x3d, 0xab, 0x65, 0x69, 0xc5, 0x4c, 0x22, 0x4d, 0xd2, 0xd8, 0x76, 0x43,
+					0xaa, 0x22, 0x76, 0x93, 0xe1, 0x41, 0xad, 0x16, 0x30, 0xce, 0x13, 0x14,
+					0x4e
+				};
+				static uchar xcghash[] = {
+					0x0e, 0x68, 0x3f, 0xc8, 0xa9, 0xed, 0x7c, 0x2f, 0xf0, 0x2d, 0xef, 0x23,
+					0xb2, 0x74, 0x5e, 0xbc, 0x99, 0xb2, 0x67, 0xda, 0xa8, 0x6a, 0x4a, 0xa7,
+					0x69, 0x72, 0x39, 0x08, 0x82, 0x53, 0xf6, 0x42
+				};
+				static uchar sessid[] = {
+					0x0e, 0x68, 0x3f, 0xc8, 0xa9, 0xed, 0x7c, 0x2f, 0xf0, 0x2d, 0xef, 0x23,
+					0xb2, 0x74, 0x5e, 0xbc, 0x99, 0xb2, 0x67, 0xda, 0xa8, 0x6a, 0x4a, 0xa7,
+					0x69, 0x72, 0x39, 0x08, 0x82, 0x53, 0xf6, 0x42
+				};
+				static const uchar expected[sizeof(out)] = {
+					0x41, 0xff, 0x2e, 0xad, 0x16, 0x83, 0xf1, 0xe6
+				};
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, (char*)"sha256", 0);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, key, sizeof(key));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SSHKDF_XCGHASH, xcghash, sizeof(xcghash));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SSHKDF_SESSION_ID, sessid, sizeof(sessid));
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_SSHKDF_TYPE, &kdftype, sizeof(kdftype));
+				*p = OSSL_PARAM_construct_end();
+				ret = TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_SSHKDF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0) && TEST_mem_eq(out, sizeof(out), expected, sizeof(expected));
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			static int test_kdfs_same(EVP_KDF * kdf1, EVP_KDF * kdf2)
+			{
+				/* Fast path in case the two are the same algorithm pointer */
+				if(kdf1 == kdf2)
+					return 1;
+				/*
+				 * Compare their names and providers instead.
+				 * This is necessary in a non-caching build (or a cache flush during fetch)
+				 * because without the algorithm in the cache, fetching it a second time
+				 * will result in a different pointer.
+				 */
+				return TEST_ptr_eq(EVP_KDF_get0_provider(kdf1), EVP_KDF_get0_provider(kdf2)) && TEST_str_eq(EVP_KDF_get0_name(kdf1), EVP_KDF_get0_name(kdf2));
+			}
+			static int test_kdf_get_kdf()
+			{
+				EVP_KDF * kdf1 = NULL, * kdf2 = NULL;
+				ASN1_OBJECT * obj;
+				int ok = 1;
+				if(!TEST_ptr(obj = OBJ_nid2obj(NID_id_pbkdf2))
+					|| !TEST_ptr(kdf1 = EVP_KDF_fetch(NULL, OSSL_KDF_NAME_PBKDF2, NULL))
+					|| !TEST_ptr(kdf2 = EVP_KDF_fetch(NULL, OBJ_nid2sn(OBJ_obj2nid(obj)), NULL))
+					|| !test_kdfs_same(kdf1, kdf2))
+					ok = 0;
+				EVP_KDF_free(kdf1);
+				kdf1 = NULL;
+				EVP_KDF_free(kdf2);
+				kdf2 = NULL;
+				if(!TEST_ptr(kdf1 = EVP_KDF_fetch(NULL, SN_tls1_prf, NULL))
+					|| !TEST_ptr(kdf2 = EVP_KDF_fetch(NULL, LN_tls1_prf, NULL))
+					|| !test_kdfs_same(kdf1, kdf2))
+					ok = 0;
+				/* kdf1 is re-used below, so don't free it here */
+				EVP_KDF_free(kdf2);
+				kdf2 = NULL;
+				if(!TEST_ptr(kdf2 = EVP_KDF_fetch(NULL, OBJ_nid2sn(NID_tls1_prf), NULL)) || !test_kdfs_same(kdf1, kdf2))
+					ok = 0;
+				EVP_KDF_free(kdf1);
+				kdf1 = NULL;
+				EVP_KDF_free(kdf2);
+				kdf2 = NULL;
+				return ok;
+			}
+			#if !defined(OPENSSL_NO_CMS) && !defined(OPENSSL_NO_DES)
+			static int test_kdf_x942_asn1()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx = NULL;
+				OSSL_PARAM params[4], * p = params;
+				const char * cek_alg = SN_id_smime_alg_CMS3DESwrap;
+				uchar out[24];
+				/* RFC2631 Section 2.1.6 Test data */
+				static uchar z[] = {
+					0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
+					0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13
+				};
+				static const uchar expected[sizeof(out)] = {
+					0xa0, 0x96, 0x61, 0x39, 0x23, 0x76, 0xf7, 0x04,
+					0x4d, 0x90, 0x52, 0xa3, 0x97, 0x88, 0x32, 0x46,
+					0xb6, 0x7f, 0x5f, 0x1e, 0xf6, 0x3e, 0xb5, 0xfb
+				};
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, (char*)"sha1", 0);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, z, sizeof(z));
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_CEK_ALG, (char*)cek_alg, 0);
+				*p = OSSL_PARAM_construct_end();
+				ret = TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_X942KDF_ASN1)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0) && TEST_mem_eq(out, sizeof(out), expected, sizeof(expected));
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+			#endif /* OPENSSL_NO_CMS */
+			static int test_kdf_krb5kdf()
+			{
+				int ret;
+				EVP_KDF_CTX * kctx;
+				OSSL_PARAM params[4], * p = params;
+				uchar out[16];
+				static uchar key[] = {
+					0x42, 0x26, 0x3C, 0x6E, 0x89, 0xF4, 0xFC, 0x28,
+					0xB8, 0xDF, 0x68, 0xEE, 0x09, 0x79, 0x9F, 0x15
+				};
+				static uchar constant[] = {
+					0x00, 0x00, 0x00, 0x02, 0x99
+				};
+				static const uchar expected[sizeof(out)] = {
+					0x34, 0x28, 0x0A, 0x38, 0x2B, 0xC9, 0x27, 0x69,
+					0xB2, 0xDA, 0x2F, 0x9E, 0xF0, 0x66, 0x85, 0x4B
+				};
+				*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_CIPHER, (char*)"AES-128-CBC", 0);
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, key, sizeof(key));
+				*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_CONSTANT, constant, sizeof(constant));
+				*p = OSSL_PARAM_construct_end();
+				ret = TEST_ptr(kctx = get_kdfbyname(OSSL_KDF_NAME_KRB5KDF)) && TEST_int_gt(EVP_KDF_derive(kctx, out, sizeof(out), params), 0) && TEST_mem_eq(out, sizeof(out), expected, sizeof(expected));
+				EVP_KDF_CTX_free(kctx);
+				return ret;
+			}
+		};
+
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_pbkdf1);
+		#if !defined(OPENSSL_NO_CMAC) && !defined(OPENSSL_NO_CAMELLIA)
+			ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_kbkdf_6803_128);
+			ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_kbkdf_6803_256);
+		#endif
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_kbkdf_invalid_digest);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_kbkdf_invalid_mac);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_kbkdf_zero_output_size);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_kbkdf_empty_key);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_kbkdf_1byte_key);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_kbkdf_8009_prf1);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_kbkdf_8009_prf2);
+		#if !defined(OPENSSL_NO_CMAC)
+			ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_kbkdf_fixedinfo);
+		#endif
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_get_kdf);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_tls1_prf);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_tls1_prf_invalid_digest);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_tls1_prf_zero_output_size);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_tls1_prf_empty_secret);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_tls1_prf_1byte_secret);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_tls1_prf_empty_seed);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_tls1_prf_1byte_seed);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_invalid_digest);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_zero_output_size);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_empty_key);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_1byte_key);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_empty_salt);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_gettables);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_gettables_expandonly);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_gettables_no_digest);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_derive_set_params_fail);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_set_invalid_mode);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_hkdf_set_ctx_param_fail);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_pbkdf2);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_pbkdf2_small_output);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_pbkdf2_large_output);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_pbkdf2_small_salt);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_pbkdf2_small_iterations);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_pbkdf2_small_salt_pkcs5);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_pbkdf2_small_iterations_pkcs5);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_pbkdf2_invalid_digest);
+		#ifndef OPENSSL_NO_SCRYPT
+			ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_scrypt);
+		#endif
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_ss_hash);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_ss_hmac);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_ss_kmac);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_sshkdf);
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_x963);
+		#if !defined(OPENSSL_NO_CMS) && !defined(OPENSSL_NO_DES)
+			ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_x942_asn1);
+		#endif
+		ADD_TEST(TestInnerBlock_EvpKdf::test_kdf_krb5kdf);
+	}
+	{
+		#ifndef OPENSSL_NO_EC
+		static const uchar cert_der[] = {
+			0x30, 0x82, 0x01, 0x51, 0x30, 0x81, 0xf7, 0xa0, 0x03, 0x02, 0x01, 0x02,
+			0x02, 0x02, 0x03, 0x09, 0x30, 0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce,
+			0x3d, 0x04, 0x03, 0x02, 0x30, 0x27, 0x31, 0x0b, 0x30, 0x09, 0x06, 0x03,
+			0x55, 0x04, 0x06, 0x13, 0x02, 0x55, 0x53, 0x31, 0x18, 0x30, 0x16, 0x06,
+			0x03, 0x55, 0x04, 0x03, 0x0c, 0x0f, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f,
+			0x67, 0x72, 0x61, 0x70, 0x68, 0x79, 0x20, 0x43, 0x41, 0x30, 0x1e, 0x17,
+			0x0d, 0x31, 0x37, 0x30, 0x31, 0x30, 0x31, 0x31, 0x32, 0x30, 0x31, 0x30,
+			0x30, 0x5a, 0x17, 0x0d, 0x33, 0x38, 0x31, 0x32, 0x33, 0x31, 0x30, 0x38,
+			0x33, 0x30, 0x30, 0x30, 0x5a, 0x30, 0x27, 0x31, 0x0b, 0x30, 0x09, 0x06,
+			0x03, 0x55, 0x04, 0x06, 0x13, 0x02, 0x55, 0x53, 0x31, 0x18, 0x30, 0x16,
+			0x06, 0x03, 0x55, 0x04, 0x03, 0x0c, 0x0f, 0x63, 0x72, 0x79, 0x70, 0x74,
+			0x6f, 0x67, 0x72, 0x61, 0x70, 0x68, 0x79, 0x20, 0x43, 0x41, 0x30, 0x59,
+			0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06,
+			0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00,
+			0x04, 0x18, 0xff, 0xcf, 0xbb, 0xf9, 0x39, 0xb8, 0xf5, 0xdd, 0xc3, 0xee,
+			0xc0, 0x40, 0x8b, 0x06, 0x75, 0x06, 0xab, 0x4f, 0xcd, 0xd8, 0x2c, 0x52,
+			0x24, 0x4e, 0x1f, 0xe0, 0x10, 0x46, 0x67, 0xb5, 0x5f, 0x15, 0xb9, 0x62,
+			0xbd, 0x3b, 0xcf, 0x0c, 0x6f, 0xbe, 0x1a, 0xf7, 0xb4, 0xa1, 0x0f, 0xb4,
+			0xb9, 0xcb, 0x6e, 0x86, 0xb3, 0x50, 0xf9, 0x6c, 0x51, 0xbf, 0xc1, 0x82,
+			0xd7, 0xbe, 0xc5, 0xf9, 0x05, 0xa3, 0x13, 0x30, 0x11, 0x30, 0x0f, 0x06,
+			0x03, 0x55, 0x1d, 0x13, 0x01, 0x01, 0xff, 0x04, 0x05, 0x30, 0x03, 0x01,
+			0x01, 0xff, 0x30, 0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x04,
+			0x03, 0x02, 0x03, 0x49, 0x00, 0x30, 0x46, 0x02, 0x21, 0x00, 0xd1, 0x12,
+			0xef, 0x8d, 0x97, 0x5a, 0x6e, 0xb8, 0xb6, 0x41, 0xa7, 0xcf, 0xc0, 0xe7,
+			0xa4, 0x6e, 0xae, 0xda, 0x51, 0xe4, 0x64, 0x54, 0x2b, 0xde, 0x86, 0x95,
+			0xbc, 0xf7, 0x1e, 0x9a, 0xf9, 0x5b, 0x02, 0x21, 0x00, 0xd1, 0x61, 0x86,
+			0xce, 0x66, 0x31, 0xe4, 0x2f, 0x54, 0xbd, 0xf5, 0xc8, 0x2b, 0xb3, 0x44,
+			0xce, 0x24, 0xf8, 0xa5, 0x0b, 0x72, 0x11, 0x21, 0x34, 0xb9, 0x15, 0x4a,
+			0x5f, 0x0e, 0x27, 0x32, 0xa9
+		};
+
+		class TestInnerBlock_PKCS7 {
+		public:
+			static int pkcs7_verify_test()
+			{
+				int ret = 0;
+				BIO * msg_bio = NULL, * x509_bio = NULL, * bio = NULL;
+				X509 * cert = NULL;
+				X509_STORE * store = NULL;
+				PKCS7 * p7 = NULL;
+				const char * sig[] = {
+					"MIME-Version: 1.0\nContent-Type: multipart/signed; protocol=\"application/x-pkcs7-signature\"; micalg=\"sha-256\"; boundary=\"----9B5319FF2E4428B17CD26B69294E7F31\"\n\n",
+					"This is an S/MIME signed message\n\n------9B5319FF2E4428B17CD26B69294E7F31\n",
+					"Content-Type: text/plain\r\n\r\nhello world\n------9B5319FF2E4428B17CD26B69294E7F31\n",
+					"Content-Type: application/x-pkcs7-signature; name=\"smime.p7s\"\n",
+					"Content-Transfer-Encoding: base64\nContent-Disposition: attachment; filename=\"smime.p7s\"\n\n",
+					"MIIDEgYJKoZIhvcNAQcCoIIDAzCCAv8CAQExDzANBglghkgBZQMEAgEFADALBgkq\nhkiG9w0BBwGgggFVMIIBUTCB96ADAgECAgIDCTAKBggqhkjOPQQDAjAnMQswCQYD\nVQQGEwJVUzEYMBYGA1UEAwwPY3J5cHRvZ3JhcGh5IENBMB4XDTE3MDEwMTEyMDEw\nMFoXDTM4MTIzMTA4MzAwMFowJzELMAkGA1UEBhMCVVMxGDAWBgNVBAMMD2NyeXB0\nb2dyYXBoeSBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABBj/z7v5Obj13cPu\nwECLBnUGq0/N2CxSJE4f4BBGZ7VfFblivTvPDG++Gve0oQ+0uctuhrNQ+WxRv8GC\n",
+					"177F+QWjEzARMA8GA1UdEwEB/wQFMAMBAf8wCgYIKoZIzj0EAwIDSQAwRgIhANES\n742XWm64tkGnz8DnpG6u2lHkZFQr3oaVvPcemvlbAiEA0WGGzmYx5C9UvfXIK7NE\nziT4pQtyESE0uRVKXw4nMqkxggGBMIIBfQIBATAtMCcxCzAJBgNVBAYTAlVTMRgw\nFgYDVQQDDA9jcnlwdG9ncmFwaHkgQ0ECAgMJMA0GCWCGSAFlAwQCAQUAoIHkMBgG\nCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTIxMDUyMDE4\nNTA0OVowLwYJKoZIhvcNAQkEMSIEIOdwMRgQrqcnmMYvag+BVvErcc6bwUXI94Ds\n",
+					"QkiyIU9pMHkGCSqGSIb3DQEJDzFsMGowCwYJYIZIAWUDBAEqMAsGCWCGSAFlAwQB\nFjALBglghkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqG\nSIb3DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMAoGCCqGSM49BAMCBEcw\nRQIhANYMJku1fW9T1MIEcAyREArz9kXCY4tWck5Pt0xzrYhaAiBDSP6e43zj4YtI\nuvQW+Lzv+dNF8EPuhgoPNe17RuUSLw==\n\n------9B5319FF2E4428B17CD26B69294E7F31--\n\n"
+				};
+				const char * signed_data = "Content-Type: text/plain\r\n\r\nhello world";
+				if(!TEST_ptr(bio = BIO_new(BIO_s_mem())))
+					goto end;
+				for(size_t i = 0; i < SIZEOFARRAY(sig); ++i)
+					BIO_puts(bio, sig[i]);
+				ret = TEST_ptr(msg_bio = BIO_new_mem_buf(signed_data, strlen(signed_data)))
+					&& TEST_ptr(x509_bio = BIO_new_mem_buf(cert_der, sizeof(cert_der)))
+					&& TEST_ptr(cert = d2i_X509_bio(x509_bio, NULL))
+					&& TEST_int_eq(ERR_peek_error(), 0)
+					&& TEST_ptr(store = X509_STORE_new())
+					&& TEST_true(X509_STORE_add_cert(store, cert))
+					&& TEST_ptr(p7 = SMIME_read_PKCS7(bio, NULL))
+					&& TEST_int_eq(ERR_peek_error(), 0)
+					&& TEST_true(PKCS7_verify(p7, NULL, store, msg_bio, NULL, PKCS7_TEXT))
+					&& TEST_int_eq(ERR_peek_error(), 0);
+			end:
+				X509_STORE_free(store);
+				X509_free(cert);
+				PKCS7_free(p7);
+				BIO_free(msg_bio);
+				BIO_free(x509_bio);
+				BIO_free(bio);
+				return ret;
+			}
+		};
+
+		ADD_TEST(TestInnerBlock_PKCS7::pkcs7_verify_test);
+		#endif /* OPENSSL_NO_EC */
+	}
+	{
+		class TestInnerBlock_SHA {
+		public:
+			static int test_static_sha_common(const char * input, size_t length, const uchar * out, uchar *(*md)(const uchar * d, size_t n, uchar * md))
+			{
+				uchar buf[EVP_MAX_MD_SIZE];
+				const uchar * in = (uchar *)input;
+				const size_t in_len = strlen(input);
+				uchar * sbuf = (*md)(in, in_len, buf);
+				if(!TEST_ptr(sbuf) || !TEST_ptr_eq(sbuf, buf) || !TEST_mem_eq(sbuf, length, out, length))
+					return 0;
+				sbuf = (*md)(in, in_len, NULL);
+				if(!TEST_ptr(sbuf) || !TEST_ptr_ne(sbuf, buf) || !TEST_mem_eq(sbuf, length, out, length))
+					return 0;
+				return 1;
+			}
+			static int test_static_sha1()
+			{
+				static const uchar output[SHA_DIGEST_LENGTH] = {
+					0xa9, 0x99, 0x3e, 0x36, 0x47, 0x06, 0x81, 0x6a,
+					0xba, 0x3e, 0x25, 0x71, 0x78, 0x50, 0xc2, 0x6c,
+					0x9c, 0xd0, 0xd8, 0x9d
+				};
+				return test_static_sha_common("abc", SHA_DIGEST_LENGTH, output, &SHA1);
+			}
+			static int test_static_sha224()
+			{
+				static const uchar output[SHA224_DIGEST_LENGTH] = {
+					0x23, 0x09, 0x7d, 0x22, 0x34, 0x05, 0xd8, 0x22,
+					0x86, 0x42, 0xa4, 0x77, 0xbd, 0xa2, 0x55, 0xb3,
+					0x2a, 0xad, 0xbc, 0xe4, 0xbd, 0xa0, 0xb3, 0xf7,
+					0xe3, 0x6c, 0x9d, 0xa7
+				};
+				return test_static_sha_common("abc", SHA224_DIGEST_LENGTH, output, &SHA224);
+			}
+			static int test_static_sha256()
+			{
+				static const uchar output[SHA256_DIGEST_LENGTH] = {
+					0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea,
+					0x41, 0x41, 0x40, 0xde, 0x5d, 0xae, 0x22, 0x23,
+					0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c,
+					0xb4, 0x10, 0xff, 0x61, 0xf2, 0x00, 0x15, 0xad
+				};
+				return test_static_sha_common("abc", SHA256_DIGEST_LENGTH, output, &SHA256);
+			}
+			static int test_static_sha384()
+			{
+				static const uchar output[SHA384_DIGEST_LENGTH] = {
+					0xcb, 0x00, 0x75, 0x3f, 0x45, 0xa3, 0x5e, 0x8b,
+					0xb5, 0xa0, 0x3d, 0x69, 0x9a, 0xc6, 0x50, 0x07,
+					0x27, 0x2c, 0x32, 0xab, 0x0e, 0xde, 0xd1, 0x63,
+					0x1a, 0x8b, 0x60, 0x5a, 0x43, 0xff, 0x5b, 0xed,
+					0x80, 0x86, 0x07, 0x2b, 0xa1, 0xe7, 0xcc, 0x23,
+					0x58, 0xba, 0xec, 0xa1, 0x34, 0xc8, 0x25, 0xa7
+				};
+				return test_static_sha_common("abc", SHA384_DIGEST_LENGTH, output, &SHA384);
+			}
+			static int test_static_sha512()
+			{
+				static const uchar output[SHA512_DIGEST_LENGTH] = {
+					0xdd, 0xaf, 0x35, 0xa1, 0x93, 0x61, 0x7a, 0xba,
+					0xcc, 0x41, 0x73, 0x49, 0xae, 0x20, 0x41, 0x31,
+					0x12, 0xe6, 0xfa, 0x4e, 0x89, 0xa9, 0x7e, 0xa2,
+					0x0a, 0x9e, 0xee, 0xe6, 0x4b, 0x55, 0xd3, 0x9a,
+					0x21, 0x92, 0x99, 0x2a, 0x27, 0x4f, 0xc1, 0xa8,
+					0x36, 0xba, 0x3c, 0x23, 0xa3, 0xfe, 0xeb, 0xbd,
+					0x45, 0x4d, 0x44, 0x23, 0x64, 0x3c, 0xe8, 0x0e,
+					0x2a, 0x9a, 0xc9, 0x4f, 0xa5, 0x4c, 0xa4, 0x9f
+				};
+				return test_static_sha_common("abc", SHA512_DIGEST_LENGTH, output, &SHA512);
+			}
+		};
+		ADD_TEST(TestInnerBlock_SHA::test_static_sha1);
+		ADD_TEST(TestInnerBlock_SHA::test_static_sha224);
+		ADD_TEST(TestInnerBlock_SHA::test_static_sha256);
+		ADD_TEST(TestInnerBlock_SHA::test_static_sha384);
+		ADD_TEST(TestInnerBlock_SHA::test_static_sha512);
+	}
+	{
+		typedef struct {
+			int min_version;
+			int max_version;
+			int min_ok;
+			int max_ok;
+			int expected_min;
+			int expected_max;
+		} version_test;
+
+		static const version_test version_testdata[] = {
+			/* min           max             ok    expected min    expected max */
+			{0,              0,              1, 1, 0,              0},
+			{TLS1_VERSION,   TLS1_2_VERSION, 1, 1, TLS1_VERSION,   TLS1_2_VERSION},
+			{TLS1_2_VERSION, TLS1_2_VERSION, 1, 1, TLS1_2_VERSION, TLS1_2_VERSION},
+			{TLS1_2_VERSION, TLS1_1_VERSION, 1, 1, TLS1_2_VERSION, TLS1_1_VERSION},
+			{7,              42,             0, 0, 0,              0},
+		};
+
+		class TestInnerBlock_SslCtx {
+		public:
+			static int test_set_min_max_version(int idx_tst)
+			{
+				SSL * ssl = NULL;
+				int testresult = 0;
+				version_test t = version_testdata[idx_tst];
+				SSL_CTX * ctx = SSL_CTX_new(TLS_server_method());
+				if(!ctx)
+					goto end;
+				ssl = SSL_new(ctx);
+				if(ssl == NULL)
+					goto end;
+				if(!TEST_int_eq(SSL_CTX_set_min_proto_version(ctx, t.min_version), t.min_ok))
+					goto end;
+				if(!TEST_int_eq(SSL_CTX_set_max_proto_version(ctx, t.max_version), t.max_ok))
+					goto end;
+				if(!TEST_int_eq(SSL_CTX_get_min_proto_version(ctx), t.expected_min))
+					goto end;
+				if(!TEST_int_eq(SSL_CTX_get_max_proto_version(ctx), t.expected_max))
+					goto end;
+				if(!TEST_int_eq(SSL_set_min_proto_version(ssl, t.min_version), t.min_ok))
+					goto end;
+				if(!TEST_int_eq(SSL_set_max_proto_version(ssl, t.max_version), t.max_ok))
+					goto end;
+				if(!TEST_int_eq(SSL_get_min_proto_version(ssl), t.expected_min))
+					goto end;
+				if(!TEST_int_eq(SSL_get_max_proto_version(ssl), t.expected_max))
+					goto end;
+				testresult = 1;
+			end:
+				SSL_free(ssl);
+				SSL_CTX_free(ctx);
+				return testresult;
+			}
+		};
+		ADD_ALL_TESTS(TestInnerBlock_SslCtx::test_set_min_max_version, sizeof(version_testdata) / sizeof(version_test));
+	}
+	{
+		//
+		// Internal tests for the modes module
+		// 
+		// This file uses the low level AES functions (which are deprecated for
+		// non-internal use) in order to test the modes code
+		// 
+		typedef struct {
+			size_t size;
+			const uchar * data;
+		}  SIZED_DATA;
+		// 
+		// Test of cts128
+		// 
+		// cts128 test vectors from RFC 3962
+		static const uchar cts128_test_key[/*16*/] = "chicken teriyaki";
+		static const uchar cts128_test_input[/*64*/] = "I would like the General Gau's Chicken, please, and wonton soup.";
+		static const uchar cts128_test_iv[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+		static const uchar vector_17[17] = {
+			0xc6, 0x35, 0x35, 0x68, 0xf2, 0xbf, 0x8c, 0xb4,
+			0xd8, 0xa5, 0x80, 0x36, 0x2d, 0xa7, 0xff, 0x7f,
+			0x97
+		};
+
+		static const uchar vector_31[31] = {
+			0xfc, 0x00, 0x78, 0x3e, 0x0e, 0xfd, 0xb2, 0xc1,
+			0xd4, 0x45, 0xd4, 0xc8, 0xef, 0xf7, 0xed, 0x22,
+			0x97, 0x68, 0x72, 0x68, 0xd6, 0xec, 0xcc, 0xc0,
+			0xc0, 0x7b, 0x25, 0xe2, 0x5e, 0xcf, 0xe5
+		};
+
+		static const uchar vector_32[32] = {
+			0x39, 0x31, 0x25, 0x23, 0xa7, 0x86, 0x62, 0xd5,
+			0xbe, 0x7f, 0xcb, 0xcc, 0x98, 0xeb, 0xf5, 0xa8,
+			0x97, 0x68, 0x72, 0x68, 0xd6, 0xec, 0xcc, 0xc0,
+			0xc0, 0x7b, 0x25, 0xe2, 0x5e, 0xcf, 0xe5, 0x84
+		};
+
+		static const uchar vector_47[47] = {
+			0x97, 0x68, 0x72, 0x68, 0xd6, 0xec, 0xcc, 0xc0,
+			0xc0, 0x7b, 0x25, 0xe2, 0x5e, 0xcf, 0xe5, 0x84,
+			0xb3, 0xff, 0xfd, 0x94, 0x0c, 0x16, 0xa1, 0x8c,
+			0x1b, 0x55, 0x49, 0xd2, 0xf8, 0x38, 0x02, 0x9e,
+			0x39, 0x31, 0x25, 0x23, 0xa7, 0x86, 0x62, 0xd5,
+			0xbe, 0x7f, 0xcb, 0xcc, 0x98, 0xeb, 0xf5
+		};
+
+		static const uchar vector_48[48] = {
+			0x97, 0x68, 0x72, 0x68, 0xd6, 0xec, 0xcc, 0xc0,
+			0xc0, 0x7b, 0x25, 0xe2, 0x5e, 0xcf, 0xe5, 0x84,
+			0x9d, 0xad, 0x8b, 0xbb, 0x96, 0xc4, 0xcd, 0xc0,
+			0x3b, 0xc1, 0x03, 0xe1, 0xa1, 0x94, 0xbb, 0xd8,
+			0x39, 0x31, 0x25, 0x23, 0xa7, 0x86, 0x62, 0xd5,
+			0xbe, 0x7f, 0xcb, 0xcc, 0x98, 0xeb, 0xf5, 0xa8
+		};
+
+		static const uchar vector_64[64] = {
+			0x97, 0x68, 0x72, 0x68, 0xd6, 0xec, 0xcc, 0xc0,
+			0xc0, 0x7b, 0x25, 0xe2, 0x5e, 0xcf, 0xe5, 0x84,
+			0x39, 0x31, 0x25, 0x23, 0xa7, 0x86, 0x62, 0xd5,
+			0xbe, 0x7f, 0xcb, 0xcc, 0x98, 0xeb, 0xf5, 0xa8,
+			0x48, 0x07, 0xef, 0xe8, 0x36, 0xee, 0x89, 0xa5,
+			0x26, 0x73, 0x0d, 0xbc, 0x2f, 0x7b, 0xc8, 0x40,
+			0x9d, 0xad, 0x8b, 0xbb, 0x96, 0xc4, 0xcd, 0xc0,
+			0x3b, 0xc1, 0x03, 0xe1, 0xa1, 0x94, 0xbb, 0xd8
+		};
+
+		#define CTS128_TEST_VECTOR(len)                 \
+			{                                           \
+				sizeof(vector_ ## len), vector_ ## len      \
+			}
+		static const SIZED_DATA aes_cts128_vectors[] = {
+			CTS128_TEST_VECTOR(17),
+			CTS128_TEST_VECTOR(31),
+			CTS128_TEST_VECTOR(32),
+			CTS128_TEST_VECTOR(47),
+			CTS128_TEST_VECTOR(48),
+			CTS128_TEST_VECTOR(64),
+		};
+		typedef struct {
+			const char * case_name;
+			size_t (* last_blocks_correction)(const uchar * in, uchar * out, size_t len);
+			size_t (* encrypt_block)(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], block128_f block);
+			size_t (* encrypt_stream)(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], cbc128_f cbc);
+			size_t (* decrypt_block)(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], block128_f block);
+			size_t (* decrypt_stream)(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], cbc128_f cbc);
+		} CTS128_FIXTURE;
+		// 
+		// Test of gcm128
+		// 
+		// Test Case 1
+		static const u8 K1[16], P1[] = { 0 }, A1[] = { 0 }, IV1[12], C1[] = { 0 };
+		static const u8 T1[] = { 0x58, 0xe2, 0xfc, 0xce, 0xfa, 0x7e, 0x30, 0x61, 0x36, 0x7f, 0x1d, 0x57, 0xa4, 0xe7, 0x45, 0x5a };
+		// Test Case 2
+		#define K2 K1
+		#define A2 A1
+		#define IV2 IV1
+		static const u8 P2[16];
+		static const u8 C2[] = { 0x03, 0x88, 0xda, 0xce, 0x60, 0xb6, 0xa3, 0x92, 0xf3, 0x28, 0xc2, 0xb9, 0x71, 0xb2, 0xfe, 0x78 };
+		static const u8 T2[] = { 0xab, 0x6e, 0x47, 0xd4, 0x2c, 0xec, 0x13, 0xbd, 0xf5, 0x3a, 0x67, 0xb2, 0x12, 0x57, 0xbd, 0xdf };
+		// Test Case 3
+		#define A3 A2
+		static const u8 K3[] = { 0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c, 0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08 };
+
+		static const u8 P3[] = {
+			0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
+			0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
+			0x86, 0xa7, 0xa9, 0x53, 0x15, 0x34, 0xf7, 0xda,
+			0x2e, 0x4c, 0x30, 0x3d, 0x8a, 0x31, 0x8a, 0x72,
+			0x1c, 0x3c, 0x0c, 0x95, 0x95, 0x68, 0x09, 0x53,
+			0x2f, 0xcf, 0x0e, 0x24, 0x49, 0xa6, 0xb5, 0x25,
+			0xb1, 0x6a, 0xed, 0xf5, 0xaa, 0x0d, 0xe6, 0x57,
+			0xba, 0x63, 0x7b, 0x39, 0x1a, 0xaf, 0xd2, 0x55
+		};
+
+		static const u8 IV3[] = { 0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad, 0xde, 0xca, 0xf8, 0x88 };
+
+		static const u8 C3[] = {
+			0x42, 0x83, 0x1e, 0xc2, 0x21, 0x77, 0x74, 0x24,
+			0x4b, 0x72, 0x21, 0xb7, 0x84, 0xd0, 0xd4, 0x9c,
+			0xe3, 0xaa, 0x21, 0x2f, 0x2c, 0x02, 0xa4, 0xe0,
+			0x35, 0xc1, 0x7e, 0x23, 0x29, 0xac, 0xa1, 0x2e,
+			0x21, 0xd5, 0x14, 0xb2, 0x54, 0x66, 0x93, 0x1c,
+			0x7d, 0x8f, 0x6a, 0x5a, 0xac, 0x84, 0xaa, 0x05,
+			0x1b, 0xa3, 0x0b, 0x39, 0x6a, 0x0a, 0xac, 0x97,
+			0x3d, 0x58, 0xe0, 0x91, 0x47, 0x3f, 0x59, 0x85
+		};
+
+		static const u8 T3[] = { 0x4d, 0x5c, 0x2a, 0xf3, 0x27, 0xcd, 0x64, 0xa6, 0x2c, 0xf3, 0x5a, 0xbd, 0x2b, 0xa6, 0xfa, 0xb4 };
+		// 
+		// Test Case 4 
+		// 
+		#define K4 K3
+		#define IV4 IV3
+		static const u8 P4[] = {
+			0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
+			0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
+			0x86, 0xa7, 0xa9, 0x53, 0x15, 0x34, 0xf7, 0xda,
+			0x2e, 0x4c, 0x30, 0x3d, 0x8a, 0x31, 0x8a, 0x72,
+			0x1c, 0x3c, 0x0c, 0x95, 0x95, 0x68, 0x09, 0x53,
+			0x2f, 0xcf, 0x0e, 0x24, 0x49, 0xa6, 0xb5, 0x25,
+			0xb1, 0x6a, 0xed, 0xf5, 0xaa, 0x0d, 0xe6, 0x57,
+			0xba, 0x63, 0x7b, 0x39
+		};
+
+		static const u8 A4[] = {
+			0xfe, 0xed, 0xfa, 0xce, 0xde, 0xad, 0xbe, 0xef,
+			0xfe, 0xed, 0xfa, 0xce, 0xde, 0xad, 0xbe, 0xef,
+			0xab, 0xad, 0xda, 0xd2
+		};
+
+		static const u8 C4[] = {
+			0x42, 0x83, 0x1e, 0xc2, 0x21, 0x77, 0x74, 0x24,
+			0x4b, 0x72, 0x21, 0xb7, 0x84, 0xd0, 0xd4, 0x9c,
+			0xe3, 0xaa, 0x21, 0x2f, 0x2c, 0x02, 0xa4, 0xe0,
+			0x35, 0xc1, 0x7e, 0x23, 0x29, 0xac, 0xa1, 0x2e,
+			0x21, 0xd5, 0x14, 0xb2, 0x54, 0x66, 0x93, 0x1c,
+			0x7d, 0x8f, 0x6a, 0x5a, 0xac, 0x84, 0xaa, 0x05,
+			0x1b, 0xa3, 0x0b, 0x39, 0x6a, 0x0a, 0xac, 0x97,
+			0x3d, 0x58, 0xe0, 0x91
+		};
+
+		static const u8 T4[] = { 0x5b, 0xc9, 0x4f, 0xbc, 0x32, 0x21, 0xa5, 0xdb, 0x94, 0xfa, 0xe9, 0x5a, 0xe7, 0x12, 0x1a, 0x47 };
+		// Test Case 5 
+		#define K5 K4
+		#define P5 P4
+		#define A5 A4
+		static const u8 IV5[] = { 0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad };
+
+		static const u8 C5[] = {
+			0x61, 0x35, 0x3b, 0x4c, 0x28, 0x06, 0x93, 0x4a,
+			0x77, 0x7f, 0xf5, 0x1f, 0xa2, 0x2a, 0x47, 0x55,
+			0x69, 0x9b, 0x2a, 0x71, 0x4f, 0xcd, 0xc6, 0xf8,
+			0x37, 0x66, 0xe5, 0xf9, 0x7b, 0x6c, 0x74, 0x23,
+			0x73, 0x80, 0x69, 0x00, 0xe4, 0x9f, 0x24, 0xb2,
+			0x2b, 0x09, 0x75, 0x44, 0xd4, 0x89, 0x6b, 0x42,
+			0x49, 0x89, 0xb5, 0xe1, 0xeb, 0xac, 0x0f, 0x07,
+			0xc2, 0x3f, 0x45, 0x98
+		};
+
+		static const u8 T5[] = { 0x36, 0x12, 0xd2, 0xe7, 0x9e, 0x3b, 0x07, 0x85, 0x56, 0x1b, 0xe1, 0x4a, 0xac, 0xa2, 0xfc, 0xcb };
+
+		// Test Case 6 
+		#define K6 K5
+		#define P6 P5
+		#define A6 A5
+		static const u8 IV6[] = {
+			0x93, 0x13, 0x22, 0x5d, 0xf8, 0x84, 0x06, 0xe5,
+			0x55, 0x90, 0x9c, 0x5a, 0xff, 0x52, 0x69, 0xaa,
+			0x6a, 0x7a, 0x95, 0x38, 0x53, 0x4f, 0x7d, 0xa1,
+			0xe4, 0xc3, 0x03, 0xd2, 0xa3, 0x18, 0xa7, 0x28,
+			0xc3, 0xc0, 0xc9, 0x51, 0x56, 0x80, 0x95, 0x39,
+			0xfc, 0xf0, 0xe2, 0x42, 0x9a, 0x6b, 0x52, 0x54,
+			0x16, 0xae, 0xdb, 0xf5, 0xa0, 0xde, 0x6a, 0x57,
+			0xa6, 0x37, 0xb3, 0x9b
+		};
+		static const u8 C6[] = {
+			0x8c, 0xe2, 0x49, 0x98, 0x62, 0x56, 0x15, 0xb6,
+			0x03, 0xa0, 0x33, 0xac, 0xa1, 0x3f, 0xb8, 0x94,
+			0xbe, 0x91, 0x12, 0xa5, 0xc3, 0xa2, 0x11, 0xa8,
+			0xba, 0x26, 0x2a, 0x3c, 0xca, 0x7e, 0x2c, 0xa7,
+			0x01, 0xe4, 0xa9, 0xa4, 0xfb, 0xa4, 0x3c, 0x90,
+			0xcc, 0xdc, 0xb2, 0x81, 0xd4, 0x8c, 0x7c, 0x6f,
+			0xd6, 0x28, 0x75, 0xd2, 0xac, 0xa4, 0x17, 0x03,
+			0x4c, 0x34, 0xae, 0xe5
+		};
+		static const u8 T6[] = { 0x61, 0x9c, 0xc5, 0xae, 0xff, 0xfe, 0x0b, 0xfa, 0x46, 0x2a, 0xf4, 0x3c, 0x16, 0x99, 0xd0, 0x50 };
+		// Test Case 7 
+		static const u8 K7[24], P7[] = { 0 }, A7[] = { 0 }, IV7[12], C7[] = { 0 };
+		static const u8 T7[] = { 0xcd, 0x33, 0xb2, 0x8a, 0xc7, 0x73, 0xf7, 0x4b, 0xa0, 0x0e, 0xd1, 0xf3, 0x12, 0x57, 0x24, 0x35 };
+		// Test Case 8 
+		#define K8 K7
+		#define IV8 IV7
+		#define A8 A7
+		static const u8 P8[16];
+		static const u8 C8[] = { 0x98, 0xe7, 0x24, 0x7c, 0x07, 0xf0, 0xfe, 0x41, 0x1c, 0x26, 0x7e, 0x43, 0x84, 0xb0, 0xf6, 0x00 };
+		static const u8 T8[] = { 0x2f, 0xf5, 0x8d, 0x80, 0x03, 0x39, 0x27, 0xab, 0x8e, 0xf4, 0xd4, 0x58, 0x75, 0x14, 0xf0, 0xfb };
+		// Test Case 9 
+		#define A9 A8
+		static const u8 K9[] = { 0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c, 0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08, 0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c };
+
+		static const u8 P9[] = {
+			0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
+			0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
+			0x86, 0xa7, 0xa9, 0x53, 0x15, 0x34, 0xf7, 0xda,
+			0x2e, 0x4c, 0x30, 0x3d, 0x8a, 0x31, 0x8a, 0x72,
+			0x1c, 0x3c, 0x0c, 0x95, 0x95, 0x68, 0x09, 0x53,
+			0x2f, 0xcf, 0x0e, 0x24, 0x49, 0xa6, 0xb5, 0x25,
+			0xb1, 0x6a, 0xed, 0xf5, 0xaa, 0x0d, 0xe6, 0x57,
+			0xba, 0x63, 0x7b, 0x39, 0x1a, 0xaf, 0xd2, 0x55
+		};
+
+		static const u8 IV9[] = { 0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad, 0xde, 0xca, 0xf8, 0x88 };
+
+		static const u8 C9[] = {
+			0x39, 0x80, 0xca, 0x0b, 0x3c, 0x00, 0xe8, 0x41,
+			0xeb, 0x06, 0xfa, 0xc4, 0x87, 0x2a, 0x27, 0x57,
+			0x85, 0x9e, 0x1c, 0xea, 0xa6, 0xef, 0xd9, 0x84,
+			0x62, 0x85, 0x93, 0xb4, 0x0c, 0xa1, 0xe1, 0x9c,
+			0x7d, 0x77, 0x3d, 0x00, 0xc1, 0x44, 0xc5, 0x25,
+			0xac, 0x61, 0x9d, 0x18, 0xc8, 0x4a, 0x3f, 0x47,
+			0x18, 0xe2, 0x44, 0x8b, 0x2f, 0xe3, 0x24, 0xd9,
+			0xcc, 0xda, 0x27, 0x10, 0xac, 0xad, 0xe2, 0x56
+		};
+
+		static const u8 T9[] = { 0x99, 0x24, 0xa7, 0xc8, 0x58, 0x73, 0x36, 0xbf, 0xb1, 0x18, 0x02, 0x4d, 0xb8, 0x67, 0x4a, 0x14 };
+
+		// Test Case 10 
+		#define K10 K9
+		#define IV10 IV9
+		static const u8 P10[] = {
+			0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
+			0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
+			0x86, 0xa7, 0xa9, 0x53, 0x15, 0x34, 0xf7, 0xda,
+			0x2e, 0x4c, 0x30, 0x3d, 0x8a, 0x31, 0x8a, 0x72,
+			0x1c, 0x3c, 0x0c, 0x95, 0x95, 0x68, 0x09, 0x53,
+			0x2f, 0xcf, 0x0e, 0x24, 0x49, 0xa6, 0xb5, 0x25,
+			0xb1, 0x6a, 0xed, 0xf5, 0xaa, 0x0d, 0xe6, 0x57,
+			0xba, 0x63, 0x7b, 0x39
+		};
+
+		static const u8 A10[] = {
+			0xfe, 0xed, 0xfa, 0xce, 0xde, 0xad, 0xbe, 0xef,
+			0xfe, 0xed, 0xfa, 0xce, 0xde, 0xad, 0xbe, 0xef,
+			0xab, 0xad, 0xda, 0xd2
+		};
+
+		static const u8 C10[] = {
+			0x39, 0x80, 0xca, 0x0b, 0x3c, 0x00, 0xe8, 0x41,
+			0xeb, 0x06, 0xfa, 0xc4, 0x87, 0x2a, 0x27, 0x57,
+			0x85, 0x9e, 0x1c, 0xea, 0xa6, 0xef, 0xd9, 0x84,
+			0x62, 0x85, 0x93, 0xb4, 0x0c, 0xa1, 0xe1, 0x9c,
+			0x7d, 0x77, 0x3d, 0x00, 0xc1, 0x44, 0xc5, 0x25,
+			0xac, 0x61, 0x9d, 0x18, 0xc8, 0x4a, 0x3f, 0x47,
+			0x18, 0xe2, 0x44, 0x8b, 0x2f, 0xe3, 0x24, 0xd9,
+			0xcc, 0xda, 0x27, 0x10
+		};
+
+		static const u8 T10[] = { 0x25, 0x19, 0x49, 0x8e, 0x80, 0xf1, 0x47, 0x8f, 0x37, 0xba, 0x55, 0xbd, 0x6d, 0x27, 0x61, 0x8c };
+
+		// Test Case 11 
+		#define K11 K10
+		#define P11 P10
+		#define A11 A10
+		static const u8 IV11[] = { 0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad };
+
+		static const u8 C11[] = {
+			0x0f, 0x10, 0xf5, 0x99, 0xae, 0x14, 0xa1, 0x54,
+			0xed, 0x24, 0xb3, 0x6e, 0x25, 0x32, 0x4d, 0xb8,
+			0xc5, 0x66, 0x63, 0x2e, 0xf2, 0xbb, 0xb3, 0x4f,
+			0x83, 0x47, 0x28, 0x0f, 0xc4, 0x50, 0x70, 0x57,
+			0xfd, 0xdc, 0x29, 0xdf, 0x9a, 0x47, 0x1f, 0x75,
+			0xc6, 0x65, 0x41, 0xd4, 0xd4, 0xda, 0xd1, 0xc9,
+			0xe9, 0x3a, 0x19, 0xa5, 0x8e, 0x8b, 0x47, 0x3f,
+			0xa0, 0xf0, 0x62, 0xf7
+		};
+
+		static const u8 T11[] = { 0x65, 0xdc, 0xc5, 0x7f, 0xcf, 0x62, 0x3a, 0x24, 0x09, 0x4f, 0xcc, 0xa4, 0x0d, 0x35, 0x33, 0xf8 };
+
+		// Test Case 12 
+		#define K12 K11
+		#define P12 P11
+		#define A12 A11
+		static const u8 IV12[] = {
+			0x93, 0x13, 0x22, 0x5d, 0xf8, 0x84, 0x06, 0xe5,
+			0x55, 0x90, 0x9c, 0x5a, 0xff, 0x52, 0x69, 0xaa,
+			0x6a, 0x7a, 0x95, 0x38, 0x53, 0x4f, 0x7d, 0xa1,
+			0xe4, 0xc3, 0x03, 0xd2, 0xa3, 0x18, 0xa7, 0x28,
+			0xc3, 0xc0, 0xc9, 0x51, 0x56, 0x80, 0x95, 0x39,
+			0xfc, 0xf0, 0xe2, 0x42, 0x9a, 0x6b, 0x52, 0x54,
+			0x16, 0xae, 0xdb, 0xf5, 0xa0, 0xde, 0x6a, 0x57,
+			0xa6, 0x37, 0xb3, 0x9b
+		};
+		static const u8 C12[] = {
+			0xd2, 0x7e, 0x88, 0x68, 0x1c, 0xe3, 0x24, 0x3c,
+			0x48, 0x30, 0x16, 0x5a, 0x8f, 0xdc, 0xf9, 0xff,
+			0x1d, 0xe9, 0xa1, 0xd8, 0xe6, 0xb4, 0x47, 0xef,
+			0x6e, 0xf7, 0xb7, 0x98, 0x28, 0x66, 0x6e, 0x45,
+			0x81, 0xe7, 0x90, 0x12, 0xaf, 0x34, 0xdd, 0xd9,
+			0xe2, 0xf0, 0x37, 0x58, 0x9b, 0x29, 0x2d, 0xb3,
+			0xe6, 0x7c, 0x03, 0x67, 0x45, 0xfa, 0x22, 0xe7,
+			0xe9, 0xb7, 0x37, 0x3b
+		};
+
+		static const u8 T12[] = { 0xdc, 0xf5, 0x66, 0xff, 0x29, 0x1c, 0x25, 0xbb, 0xb8, 0x56, 0x8f, 0xc3, 0xd3, 0x76, 0xa6, 0xd9 };
+
+		// Test Case 13 
+		static const u8 K13[32], P13[] = { 0 }, A13[] = { 0 }, IV13[12], C13[] = { 0 };
+		static const u8 T13[] = { 0x53, 0x0f, 0x8a, 0xfb, 0xc7, 0x45, 0x36, 0xb9, 0xa9, 0x63, 0xb4, 0xf1, 0xc4, 0xcb, 0x73, 0x8b };
+
+		// Test Case 14 
+		#define K14 K13
+		#define A14 A13
+		static const u8 P14[16], IV14[12];
+		static const u8 C14[] = { 0xce, 0xa7, 0x40, 0x3d, 0x4d, 0x60, 0x6b, 0x6e, 0x07, 0x4e, 0xc5, 0xd3, 0xba, 0xf3, 0x9d, 0x18 };
+		static const u8 T14[] = { 0xd0, 0xd1, 0xc8, 0xa7, 0x99, 0x99, 0x6b, 0xf0, 0x26, 0x5b, 0x98, 0xb5, 0xd4, 0x8a, 0xb9, 0x19 };
+
+		// Test Case 15 
+		#define A15 A14
+		static const u8 K15[] = {
+			0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c,
+			0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08,
+			0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c,
+			0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08
+		};
+
+		static const u8 P15[] = {
+			0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
+			0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
+			0x86, 0xa7, 0xa9, 0x53, 0x15, 0x34, 0xf7, 0xda,
+			0x2e, 0x4c, 0x30, 0x3d, 0x8a, 0x31, 0x8a, 0x72,
+			0x1c, 0x3c, 0x0c, 0x95, 0x95, 0x68, 0x09, 0x53,
+			0x2f, 0xcf, 0x0e, 0x24, 0x49, 0xa6, 0xb5, 0x25,
+			0xb1, 0x6a, 0xed, 0xf5, 0xaa, 0x0d, 0xe6, 0x57,
+			0xba, 0x63, 0x7b, 0x39, 0x1a, 0xaf, 0xd2, 0x55
+		};
+
+		static const u8 IV15[] = {
+			0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad,
+			0xde, 0xca, 0xf8, 0x88
+		};
+
+		static const u8 C15[] = {
+			0x52, 0x2d, 0xc1, 0xf0, 0x99, 0x56, 0x7d, 0x07,
+			0xf4, 0x7f, 0x37, 0xa3, 0x2a, 0x84, 0x42, 0x7d,
+			0x64, 0x3a, 0x8c, 0xdc, 0xbf, 0xe5, 0xc0, 0xc9,
+			0x75, 0x98, 0xa2, 0xbd, 0x25, 0x55, 0xd1, 0xaa,
+			0x8c, 0xb0, 0x8e, 0x48, 0x59, 0x0d, 0xbb, 0x3d,
+			0xa7, 0xb0, 0x8b, 0x10, 0x56, 0x82, 0x88, 0x38,
+			0xc5, 0xf6, 0x1e, 0x63, 0x93, 0xba, 0x7a, 0x0a,
+			0xbc, 0xc9, 0xf6, 0x62, 0x89, 0x80, 0x15, 0xad
+		};
+
+		static const u8 T15[] = { 0xb0, 0x94, 0xda, 0xc5, 0xd9, 0x34, 0x71, 0xbd, 0xec, 0x1a, 0x50, 0x22, 0x70, 0xe3, 0xcc, 0x6c };
+
+		// Test Case 16
+		#define K16 K15
+		#define IV16 IV15
+
+		static const u8 P16[] = {
+			0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
+			0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
+			0x86, 0xa7, 0xa9, 0x53, 0x15, 0x34, 0xf7, 0xda,
+			0x2e, 0x4c, 0x30, 0x3d, 0x8a, 0x31, 0x8a, 0x72,
+			0x1c, 0x3c, 0x0c, 0x95, 0x95, 0x68, 0x09, 0x53,
+			0x2f, 0xcf, 0x0e, 0x24, 0x49, 0xa6, 0xb5, 0x25,
+			0xb1, 0x6a, 0xed, 0xf5, 0xaa, 0x0d, 0xe6, 0x57,
+			0xba, 0x63, 0x7b, 0x39
+		};
+
+		static const u8 A16[] = {
+			0xfe, 0xed, 0xfa, 0xce, 0xde, 0xad, 0xbe, 0xef,
+			0xfe, 0xed, 0xfa, 0xce, 0xde, 0xad, 0xbe, 0xef,
+			0xab, 0xad, 0xda, 0xd2
+		};
+
+		static const u8 C16[] = {
+			0x52, 0x2d, 0xc1, 0xf0, 0x99, 0x56, 0x7d, 0x07,
+			0xf4, 0x7f, 0x37, 0xa3, 0x2a, 0x84, 0x42, 0x7d,
+			0x64, 0x3a, 0x8c, 0xdc, 0xbf, 0xe5, 0xc0, 0xc9,
+			0x75, 0x98, 0xa2, 0xbd, 0x25, 0x55, 0xd1, 0xaa,
+			0x8c, 0xb0, 0x8e, 0x48, 0x59, 0x0d, 0xbb, 0x3d,
+			0xa7, 0xb0, 0x8b, 0x10, 0x56, 0x82, 0x88, 0x38,
+			0xc5, 0xf6, 0x1e, 0x63, 0x93, 0xba, 0x7a, 0x0a,
+			0xbc, 0xc9, 0xf6, 0x62
+		};
+
+		static const u8 T16[] = { 0x76, 0xfc, 0x6e, 0xce, 0x0f, 0x4e, 0x17, 0x68, 0xcd, 0xdf, 0x88, 0x53, 0xbb, 0x2d, 0x55, 0x1b };
+
+		// Test Case 17 
+		#define K17 K16
+		#define P17 P16
+		#define A17 A16
+		static const u8 IV17[] = { 0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad };
+
+		static const u8 C17[] = {
+			0xc3, 0x76, 0x2d, 0xf1, 0xca, 0x78, 0x7d, 0x32,
+			0xae, 0x47, 0xc1, 0x3b, 0xf1, 0x98, 0x44, 0xcb,
+			0xaf, 0x1a, 0xe1, 0x4d, 0x0b, 0x97, 0x6a, 0xfa,
+			0xc5, 0x2f, 0xf7, 0xd7, 0x9b, 0xba, 0x9d, 0xe0,
+			0xfe, 0xb5, 0x82, 0xd3, 0x39, 0x34, 0xa4, 0xf0,
+			0x95, 0x4c, 0xc2, 0x36, 0x3b, 0xc7, 0x3f, 0x78,
+			0x62, 0xac, 0x43, 0x0e, 0x64, 0xab, 0xe4, 0x99,
+			0xf4, 0x7c, 0x9b, 0x1f
+		};
+
+		static const u8 T17[] = { 0x3a, 0x33, 0x7d, 0xbf, 0x46, 0xa7, 0x92, 0xc4, 0x5e, 0x45, 0x49, 0x13, 0xfe, 0x2e, 0xa8, 0xf2 };
+
+		// Test Case 18
+		#define K18 K17
+		#define P18 P17
+		#define A18 A17
+		static const u8 IV18[] = {
+			0x93, 0x13, 0x22, 0x5d, 0xf8, 0x84, 0x06, 0xe5,
+			0x55, 0x90, 0x9c, 0x5a, 0xff, 0x52, 0x69, 0xaa,
+			0x6a, 0x7a, 0x95, 0x38, 0x53, 0x4f, 0x7d, 0xa1,
+			0xe4, 0xc3, 0x03, 0xd2, 0xa3, 0x18, 0xa7, 0x28,
+			0xc3, 0xc0, 0xc9, 0x51, 0x56, 0x80, 0x95, 0x39,
+			0xfc, 0xf0, 0xe2, 0x42, 0x9a, 0x6b, 0x52, 0x54,
+			0x16, 0xae, 0xdb, 0xf5, 0xa0, 0xde, 0x6a, 0x57,
+			0xa6, 0x37, 0xb3, 0x9b
+		};
+
+		static const u8 C18[] = {
+			0x5a, 0x8d, 0xef, 0x2f, 0x0c, 0x9e, 0x53, 0xf1,
+			0xf7, 0x5d, 0x78, 0x53, 0x65, 0x9e, 0x2a, 0x20,
+			0xee, 0xb2, 0xb2, 0x2a, 0xaf, 0xde, 0x64, 0x19,
+			0xa0, 0x58, 0xab, 0x4f, 0x6f, 0x74, 0x6b, 0xf4,
+			0x0f, 0xc0, 0xc3, 0xb7, 0x80, 0xf2, 0x44, 0x45,
+			0x2d, 0xa3, 0xeb, 0xf1, 0xc5, 0xd8, 0x2c, 0xde,
+			0xa2, 0x41, 0x89, 0x97, 0x20, 0x0e, 0xf8, 0x2e,
+			0x44, 0xae, 0x7e, 0x3f
+		};
+
+		static const u8 T18[] = { 0xa4, 0x4a, 0x82, 0x66, 0xee, 0x1c, 0x8e, 0xb0, 0xc8, 0xb5, 0xd4, 0xcf, 0x5a, 0xe9, 0xf1, 0x9a };
+
+		// Test Case 19 
+		#define K19 K1
+		#define P19 P1
+		#define IV19 IV1
+		#define C19 C1
+		static const u8 A19[] = {
+			0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
+			0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
+			0x86, 0xa7, 0xa9, 0x53, 0x15, 0x34, 0xf7, 0xda,
+			0x2e, 0x4c, 0x30, 0x3d, 0x8a, 0x31, 0x8a, 0x72,
+			0x1c, 0x3c, 0x0c, 0x95, 0x95, 0x68, 0x09, 0x53,
+			0x2f, 0xcf, 0x0e, 0x24, 0x49, 0xa6, 0xb5, 0x25,
+			0xb1, 0x6a, 0xed, 0xf5, 0xaa, 0x0d, 0xe6, 0x57,
+			0xba, 0x63, 0x7b, 0x39, 0x1a, 0xaf, 0xd2, 0x55,
+			0x52, 0x2d, 0xc1, 0xf0, 0x99, 0x56, 0x7d, 0x07,
+			0xf4, 0x7f, 0x37, 0xa3, 0x2a, 0x84, 0x42, 0x7d,
+			0x64, 0x3a, 0x8c, 0xdc, 0xbf, 0xe5, 0xc0, 0xc9,
+			0x75, 0x98, 0xa2, 0xbd, 0x25, 0x55, 0xd1, 0xaa,
+			0x8c, 0xb0, 0x8e, 0x48, 0x59, 0x0d, 0xbb, 0x3d,
+			0xa7, 0xb0, 0x8b, 0x10, 0x56, 0x82, 0x88, 0x38,
+			0xc5, 0xf6, 0x1e, 0x63, 0x93, 0xba, 0x7a, 0x0a,
+			0xbc, 0xc9, 0xf6, 0x62, 0x89, 0x80, 0x15, 0xad
+		};
+
+		static const u8 T19[] = { 0x5f, 0xea, 0x79, 0x3a, 0x2d, 0x6f, 0x97, 0x4d, 0x37, 0xe6, 0x8e, 0x0c, 0xb8, 0xff, 0x94, 0x92 };
+
+		// Test Case 20 
+		#define K20 K1
+		#define A20 A1
+		// this results in 0xff in counter LSB
+		static const u8 IV20[64] = { 0xff, 0xff, 0xff, 0xff };
+
+		static const u8 P20[288];
+		static const u8 C20[] = {
+			0x56, 0xb3, 0x37, 0x3c, 0xa9, 0xef, 0x6e, 0x4a,
+			0x2b, 0x64, 0xfe, 0x1e, 0x9a, 0x17, 0xb6, 0x14,
+			0x25, 0xf1, 0x0d, 0x47, 0xa7, 0x5a, 0x5f, 0xce,
+			0x13, 0xef, 0xc6, 0xbc, 0x78, 0x4a, 0xf2, 0x4f,
+			0x41, 0x41, 0xbd, 0xd4, 0x8c, 0xf7, 0xc7, 0x70,
+			0x88, 0x7a, 0xfd, 0x57, 0x3c, 0xca, 0x54, 0x18,
+			0xa9, 0xae, 0xff, 0xcd, 0x7c, 0x5c, 0xed, 0xdf,
+			0xc6, 0xa7, 0x83, 0x97, 0xb9, 0xa8, 0x5b, 0x49,
+			0x9d, 0xa5, 0x58, 0x25, 0x72, 0x67, 0xca, 0xab,
+			0x2a, 0xd0, 0xb2, 0x3c, 0xa4, 0x76, 0xa5, 0x3c,
+			0xb1, 0x7f, 0xb4, 0x1c, 0x4b, 0x8b, 0x47, 0x5c,
+			0xb4, 0xf3, 0xf7, 0x16, 0x50, 0x94, 0xc2, 0x29,
+			0xc9, 0xe8, 0xc4, 0xdc, 0x0a, 0x2a, 0x5f, 0xf1,
+			0x90, 0x3e, 0x50, 0x15, 0x11, 0x22, 0x13, 0x76,
+			0xa1, 0xcd, 0xb8, 0x36, 0x4c, 0x50, 0x61, 0xa2,
+			0x0c, 0xae, 0x74, 0xbc, 0x4a, 0xcd, 0x76, 0xce,
+			0xb0, 0xab, 0xc9, 0xfd, 0x32, 0x17, 0xef, 0x9f,
+			0x8c, 0x90, 0xbe, 0x40, 0x2d, 0xdf, 0x6d, 0x86,
+			0x97, 0xf4, 0xf8, 0x80, 0xdf, 0xf1, 0x5b, 0xfb,
+			0x7a, 0x6b, 0x28, 0x24, 0x1e, 0xc8, 0xfe, 0x18,
+			0x3c, 0x2d, 0x59, 0xe3, 0xf9, 0xdf, 0xff, 0x65,
+			0x3c, 0x71, 0x26, 0xf0, 0xac, 0xb9, 0xe6, 0x42,
+			0x11, 0xf4, 0x2b, 0xae, 0x12, 0xaf, 0x46, 0x2b,
+			0x10, 0x70, 0xbe, 0xf1, 0xab, 0x5e, 0x36, 0x06,
+			0x87, 0x2c, 0xa1, 0x0d, 0xee, 0x15, 0xb3, 0x24,
+			0x9b, 0x1a, 0x1b, 0x95, 0x8f, 0x23, 0x13, 0x4c,
+			0x4b, 0xcc, 0xb7, 0xd0, 0x32, 0x00, 0xbc, 0xe4,
+			0x20, 0xa2, 0xf8, 0xeb, 0x66, 0xdc, 0xf3, 0x64,
+			0x4d, 0x14, 0x23, 0xc1, 0xb5, 0x69, 0x90, 0x03,
+			0xc1, 0x3e, 0xce, 0xf4, 0xbf, 0x38, 0xa3, 0xb6,
+			0x0e, 0xed, 0xc3, 0x40, 0x33, 0xba, 0xc1, 0x90,
+			0x27, 0x83, 0xdc, 0x6d, 0x89, 0xe2, 0xe7, 0x74,
+			0x18, 0x8a, 0x43, 0x9c, 0x7e, 0xbc, 0xc0, 0x67,
+			0x2d, 0xbd, 0xa4, 0xdd, 0xcf, 0xb2, 0x79, 0x46,
+			0x13, 0xb0, 0xbe, 0x41, 0x31, 0x5e, 0xf7, 0x78,
+			0x70, 0x8a, 0x70, 0xee, 0x7d, 0x75, 0x16, 0x5c
+		};
+
+		static const u8 T20[] = { 0x8b, 0x30, 0x7f, 0x6b, 0x33, 0x28, 0x6d, 0x0a, 0xb0, 0x26, 0xa9, 0xed, 0x3f, 0xe1, 0xe8, 0x5f };
+
+		#define GCM128_TEST_VECTOR(n) { {sizeof(K ## n), K ## n}, {sizeof(IV ## n), IV ## n}, {sizeof(A ## n), A ## n}, {sizeof(P ## n), P ## n}, {sizeof(C ## n), C ## n}, {sizeof(T ## n), T ## n} }
+		static struct gcm128_data {
+			const SIZED_DATA K;
+			const SIZED_DATA IV;
+			const SIZED_DATA A;
+			const SIZED_DATA P;
+			const SIZED_DATA C;
+			const SIZED_DATA T;
+		} gcm128_vectors[] = {
+			GCM128_TEST_VECTOR(1),
+			GCM128_TEST_VECTOR(2),
+			GCM128_TEST_VECTOR(3),
+			GCM128_TEST_VECTOR(4),
+			GCM128_TEST_VECTOR(5),
+			GCM128_TEST_VECTOR(6),
+			GCM128_TEST_VECTOR(7),
+			GCM128_TEST_VECTOR(8),
+			GCM128_TEST_VECTOR(9),
+			GCM128_TEST_VECTOR(10),
+			GCM128_TEST_VECTOR(11),
+			GCM128_TEST_VECTOR(12),
+			GCM128_TEST_VECTOR(13),
+			GCM128_TEST_VECTOR(14),
+			GCM128_TEST_VECTOR(15),
+			GCM128_TEST_VECTOR(16),
+			GCM128_TEST_VECTOR(17),
+			GCM128_TEST_VECTOR(18),
+			GCM128_TEST_VECTOR(19),
+			GCM128_TEST_VECTOR(20)
+		};
+
+		class TestInnerBlock_ModesInternal {
+		public:
+			static AES_KEY * cts128_encrypt_key_schedule()
+			{
+				static int init_key = 1;
+				static AES_KEY ks;
+				if(init_key) {
+					assert(strlen((const char *)cts128_test_key) == 16); // @sobolev
+					AES_set_encrypt_key(cts128_test_key, 128, &ks);
+					init_key = 0;
+				}
+				return &ks;
+			}
+			static AES_KEY * cts128_decrypt_key_schedule()
+			{
+				static int init_key = 1;
+				static AES_KEY ks;
+				if(init_key) {
+					AES_set_decrypt_key(cts128_test_key, 128, &ks);
+					init_key = 0;
+				}
+				return &ks;
+			}
+			static size_t last_blocks_correction(const uchar * in, uchar * out, size_t len)
+			{
+				size_t tail;
+				memcpy(out, in, len);
+				if((tail = len % 16) == 0)
+					tail = 16;
+				tail += 16;
+				return tail;
+			}
+			static size_t last_blocks_correction_nist(const uchar * in, uchar * out, size_t len)
+			{
+				size_t tail;
+				if((tail = len % 16) == 0)
+					tail = 16;
+				len -= 16 + tail;
+				memcpy(out, in, len);
+				/* flip two last blocks */
+				memcpy(out + len, in + len + 16, tail);
+				memcpy(out + len + tail, in + len, 16);
+				len += 16 + tail;
+				tail = 16;
+				return tail;
+			}
+			static int execute_cts128(const CTS128_FIXTURE * fixture, int num)
+			{
+				const uchar * test_iv = cts128_test_iv;
+				size_t test_iv_len = sizeof(cts128_test_iv);
+				const uchar * orig_vector = aes_cts128_vectors[num].data;
+				size_t len = aes_cts128_vectors[num].size;
+				const uchar * test_input = cts128_test_input;
+				const AES_KEY * encrypt_key_schedule = cts128_encrypt_key_schedule();
+				const AES_KEY * decrypt_key_schedule = cts128_decrypt_key_schedule();
+				uchar iv[16];
+				/* The largest test inputs are = 64 bytes. */
+				uchar cleartext[64], ciphertext[64], vector[64];
+				size_t tail, size;
+				TEST_info("%s_vector_%lu", fixture->case_name, (unsigned long)len);
+				tail = fixture->last_blocks_correction(orig_vector, vector, len);
+				/* test block-based encryption */
+				memcpy(iv, test_iv, test_iv_len);
+				if(!TEST_size_t_eq(fixture->encrypt_block(test_input, ciphertext, len, encrypt_key_schedule, iv, (block128_f)AES_encrypt), len)
+					|| !TEST_mem_eq(ciphertext, len, vector, len)
+					|| !TEST_mem_eq(iv, sizeof(iv), vector + len - tail, sizeof(iv)))
+					return 0;
+				/* test block-based decryption */
+				memcpy(iv, test_iv, test_iv_len);
+				size = fixture->decrypt_block(ciphertext, cleartext, len, decrypt_key_schedule, iv, (block128_f)AES_decrypt);
+				if(!TEST_true(len == size || len + 16 == size)
+					|| !TEST_mem_eq(cleartext, len, test_input, len)
+					|| !TEST_mem_eq(iv, sizeof(iv), vector + len - tail, sizeof(iv)))
+					return 0;
+				/* test streamed encryption */
+				memcpy(iv, test_iv, test_iv_len);
+				if(!TEST_size_t_eq(fixture->encrypt_stream(test_input, ciphertext, len, encrypt_key_schedule, iv, (cbc128_f)AES_cbc_encrypt), len)
+					|| !TEST_mem_eq(ciphertext, len, vector, len)
+					|| !TEST_mem_eq(iv, sizeof(iv), vector + len - tail, sizeof(iv)))
+					return 0;
+				/* test streamed decryption */
+				memcpy(iv, test_iv, test_iv_len);
+				if(!TEST_size_t_eq(fixture->decrypt_stream(ciphertext, cleartext, len, decrypt_key_schedule, iv, (cbc128_f)AES_cbc_encrypt), len)
+					|| !TEST_mem_eq(cleartext, len, test_input, len)
+					|| !TEST_mem_eq(iv, sizeof(iv), vector + len - tail, sizeof(iv)))
+					return 0;
+				return 1;
+			}
+			static int test_aes_cts128(int idx)
+			{
+				static const CTS128_FIXTURE fixture_cts128 = { "aes_cts128", 
+					last_blocks_correction, CRYPTO_cts128_encrypt_block, CRYPTO_cts128_encrypt, CRYPTO_cts128_decrypt_block, CRYPTO_cts128_decrypt };
+				return execute_cts128(&fixture_cts128, idx);
+			}
+			static int test_aes_cts128_nist(int idx)
+			{
+				static const CTS128_FIXTURE fixture_cts128_nist = { "aes_cts128_nist", 
+					last_blocks_correction_nist, CRYPTO_nistcts128_encrypt_block, CRYPTO_nistcts128_encrypt, CRYPTO_nistcts128_decrypt_block, CRYPTO_nistcts128_decrypt };
+				return execute_cts128(&fixture_cts128_nist, idx);
+			}
+			static int test_gcm128(int idx)
+			{
+				uchar out[512];
+				SIZED_DATA K = gcm128_vectors[idx].K;
+				SIZED_DATA IV = gcm128_vectors[idx].IV;
+				SIZED_DATA A = gcm128_vectors[idx].A;
+				SIZED_DATA P = gcm128_vectors[idx].P;
+				SIZED_DATA C = gcm128_vectors[idx].C;
+				SIZED_DATA T = gcm128_vectors[idx].T;
+				GCM128_CONTEXT ctx;
+				AES_KEY key;
+				/* Size 1 inputs are special-cased to signal NULL. */
+				if(A.size == 1)
+					A.data = NULL;
+				if(P.size == 1)
+					P.data = NULL;
+				if(C.size == 1)
+					C.data = NULL;
+				AES_set_encrypt_key(K.data, K.size * 8, &key);
+				CRYPTO_gcm128_init(&ctx, &key, (block128_f)AES_encrypt);
+				CRYPTO_gcm128_setiv(&ctx, IV.data, IV.size);
+				memzero(out, P.size);
+				if(A.data)
+					CRYPTO_gcm128_aad(&ctx, A.data, A.size);
+				if(P.data)
+					if(!TEST_int_ge(CRYPTO_gcm128_encrypt(&ctx, P.data, out, P.size), 0))
+						return 0;
+				if(!TEST_false(CRYPTO_gcm128_finish(&ctx, T.data, 16)) || (C.data && !TEST_mem_eq(out, P.size, C.data, P.size)))
+					return 0;
+				CRYPTO_gcm128_setiv(&ctx, IV.data, IV.size);
+				memzero(out, P.size);
+				if(A.data)
+					CRYPTO_gcm128_aad(&ctx, A.data, A.size);
+				if(C.data)
+					CRYPTO_gcm128_decrypt(&ctx, C.data, out, P.size);
+				if(!TEST_false(CRYPTO_gcm128_finish(&ctx, T.data, 16)) || (P.data && !TEST_mem_eq(out, P.size, P.data, P.size)))
+					return 0;
+				return 1;
+			}
+		};
+
+		ADD_ALL_TESTS(TestInnerBlock_ModesInternal::test_aes_cts128, SIZEOFARRAY(aes_cts128_vectors));
+		ADD_ALL_TESTS(TestInnerBlock_ModesInternal::test_aes_cts128_nist, SIZEOFARRAY(aes_cts128_vectors));
+		ADD_ALL_TESTS(TestInnerBlock_ModesInternal::test_gcm128, SIZEOFARRAY(gcm128_vectors));
+
+		#undef K2
+		#undef A2
+		#undef IV2
+		#undef A3
+		#undef K4
+		#undef IV4
+		#undef K5
+		#undef P5
+		#undef A5
+		#undef K6
+		#undef P6
+		#undef A6
+		#undef K8
+		#undef IV8
+		#undef A8
+		#undef A9
+		#undef K10
+		#undef IV10
+		#undef K11
+		#undef P11
+		#undef A11
+		#undef K12
+		#undef P12
+		#undef A12
+		#undef K14
+		#undef A14
+		#undef A15
+		#undef K16
+		#undef IV16
+		#undef K17
+		#undef P17
+		#undef A17
+		#undef K18
+		#undef P18
+		#undef A18
+		#undef K19
+		#undef P19
+		#undef IV19
+		#undef C19
+		#undef K20
+		#undef A20
+		#undef GCM128_TEST_VECTOR
+	}
+	{
+		class TestInnerBlock_Stack {
+		public:
+			typedef struct {
+				int n;
+				char c;
+			} SS;
+
+			typedef union {
+				int n;
+				char c;
+			} SU;
+
+			DEFINE_SPECIAL_STACK_OF(sint, int)
+			DEFINE_SPECIAL_STACK_OF_CONST(uchar, unsigned char)
+			DEFINE_STACK_OF(SS)
+			DEFINE_STACK_OF_CONST(SU)
+
+			static int int_compare(const int * const * a, const int * const * b)
+			{
+				if(**a < **b)
+					return -1;
+				if(**a > **b)
+					return 1;
+				return 0;
+			}
+			static int test_int_stack(int reserve)
+			{
+				static int v[] = { 1, 2, -4, 16, 999, 1, -173, 1, 9 };
+				static int notpresent = -1;
+				const int n = SIZEOFARRAY(v);
+				static struct {
+					int value;
+					int unsorted;
+					int sorted;
+					int ex;
+				} finds[] = {
+					{ 2,    1,  5,  5   },
+					{ 9,    7,  6,  6   },
+					{ -173, 5,  0,  0   },
+					{ 999,  3,  8,  8   },
+					{ 0,   -1, -1,  1   }
+				};
+				const int n_finds = SIZEOFARRAY(finds);
+				static struct {
+					int value;
+					int ex;
+				} exfinds[] = {
+					{ 3,    5   },
+					{ 1000, 8   },
+					{ 20,   8   },
+					{ -999, 0   },
+					{ -5,   0   },
+					{ 8,    5   }
+				};
+				const int n_exfinds = SIZEOFARRAY(exfinds);
+				STACK_OF(sint) *s = sk_sint_new_null();
+				int i;
+				int testresult = 0;
+				if(!TEST_ptr(s) || (reserve > 0 && !TEST_true(sk_sint_reserve(s, 5 * reserve))))
+					goto end;
+				/* Check push and num */
+				for(i = 0; i < n; i++) {
+					if(!TEST_int_eq(sk_sint_num(s), i)) {
+						TEST_info("int stack size %d", i);
+						goto end;
+					}
+					sk_sint_push(s, v + i);
+				}
+				if(!TEST_int_eq(sk_sint_num(s), n))
+					goto end;
+				/* check the values */
+				for(i = 0; i < n; i++)
+					if(!TEST_ptr_eq(sk_sint_value(s, i), v + i)) {
+						TEST_info("int value %d", i);
+						goto end;
+					}
+
+				/* find unsorted -- the pointers are compared */
+				for(i = 0; i < n_finds; i++) {
+					int * val = (finds[i].unsorted == -1) ? &notpresent : v + finds[i].unsorted;
+					if(!TEST_int_eq(sk_sint_find(s, val), finds[i].unsorted)) {
+						TEST_info("int unsorted find %d", i);
+						goto end;
+					}
+				}
+				/* find_ex unsorted */
+				for(i = 0; i < n_finds; i++) {
+					int * val = (finds[i].unsorted == -1) ? &notpresent : v + finds[i].unsorted;
+					if(!TEST_int_eq(sk_sint_find_ex(s, val), finds[i].unsorted)) {
+						TEST_info("int unsorted find_ex %d", i);
+						goto end;
+					}
+				}
+				/* sorting */
+				if(!TEST_false(sk_sint_is_sorted(s)))
+					goto end;
+				(void)sk_sint_set_cmp_func(s, &int_compare);
+				sk_sint_sort(s);
+				if(!TEST_true(sk_sint_is_sorted(s)))
+					goto end;
+				/* find sorted -- the value is matched so we don't need to locate it */
+				for(i = 0; i < n_finds; i++)
+					if(!TEST_int_eq(sk_sint_find(s, &finds[i].value), finds[i].sorted)) {
+						TEST_info("int sorted find %d", i);
+						goto end;
+					}
+				/* find_ex sorted */
+				for(i = 0; i < n_finds; i++)
+					if(!TEST_int_eq(sk_sint_find_ex(s, &finds[i].value), finds[i].ex)) {
+						TEST_info("int sorted find_ex present %d", i);
+						goto end;
+					}
+				for(i = 0; i < n_exfinds; i++)
+					if(!TEST_int_eq(sk_sint_find_ex(s, &exfinds[i].value), exfinds[i].ex)) {
+						TEST_info("int sorted find_ex absent %d", i);
+						goto end;
+					}
+				/* shift */
+				if(!TEST_ptr_eq(sk_sint_shift(s), v + 6))
+					goto end;
+				testresult = 1;
+			end:
+				sk_sint_free(s);
+				return testresult;
+			}
+			static int uchar_compare(const unsigned char * const * a, const unsigned char * const * b)
+			{
+				return **a - (signed int)**b;
+			}
+			static int test_uchar_stack(int reserve)
+			{
+				static const unsigned char v[] = { 1, 3, 7, 5, 255, 0 };
+				const int n = SIZEOFARRAY(v);
+				STACK_OF(uchar) *s = sk_uchar_new(&uchar_compare), *r = NULL;
+				int i;
+				int testresult = 0;
+				if(!TEST_ptr(s) || (reserve > 0 && !TEST_true(sk_uchar_reserve(s, 5 * reserve))))
+					goto end;
+				/* unshift and num */
+				for(i = 0; i < n; i++) {
+					if(!TEST_int_eq(sk_uchar_num(s), i)) {
+						TEST_info("uchar stack size %d", i);
+						goto end;
+					}
+					sk_uchar_unshift(s, v + i);
+				}
+				if(!TEST_int_eq(sk_uchar_num(s), n))
+					goto end;
+				/* dup */
+				r = sk_uchar_dup(NULL);
+				if(sk_uchar_num(r) != 0)
+					goto end;
+				sk_uchar_free(r);
+				r = sk_uchar_dup(s);
+				if(!TEST_int_eq(sk_uchar_num(r), n))
+					goto end;
+				sk_uchar_sort(r);
+				/* pop */
+				for(i = 0; i < n; i++)
+					if(!TEST_ptr_eq(sk_uchar_pop(s), v + i)) {
+						TEST_info("uchar pop %d", i);
+						goto end;
+					}
+				/* free -- we rely on the debug malloc to detect leakage here */
+				sk_uchar_free(s);
+				s = NULL;
+				/* dup again */
+				if(!TEST_int_eq(sk_uchar_num(r), n))
+					goto end;
+				/* zero */
+				sk_uchar_zero(r);
+				if(!TEST_int_eq(sk_uchar_num(r), 0))
+					goto end;
+				/* insert */
+				sk_uchar_insert(r, v, 0);
+				sk_uchar_insert(r, v + 2, -1);
+				sk_uchar_insert(r, v + 1, 1);
+				for(i = 0; i < 3; i++)
+					if(!TEST_ptr_eq(sk_uchar_value(r, i), v + i)) {
+						TEST_info("uchar insert %d", i);
+						goto end;
+					}
+				/* delete */
+				if(!TEST_ptr_null(sk_uchar_delete(r, 12)))
+					goto end;
+				if(!TEST_ptr_eq(sk_uchar_delete(r, 1), v + 1))
+					goto end;
+				/* set */
+				(void)sk_uchar_set(r, 1, v + 1);
+				for(i = 0; i < 2; i++)
+					if(!TEST_ptr_eq(sk_uchar_value(r, i), v + i)) {
+						TEST_info("uchar set %d", i);
+						goto end;
+					}
+				testresult = 1;
+			end:
+				sk_uchar_free(r);
+				sk_uchar_free(s);
+				return testresult;
+			}
+			static SS * SS_copy(const SS * p)
+			{
+				SS * q = (SS *)OPENSSL_malloc(sizeof(*q));
+				if(q)
+					memcpy(q, p, sizeof(*q));
+				return q;
+			}
+			static void SS_free(SS * p) { OPENSSL_free(p); }
+			static int test_SS_stack()
+			{
+				STACK_OF(SS) *s = sk_SS_new_null();
+				STACK_OF(SS) *r = NULL;
+				SS * v[10], * p;
+				const int n = SIZEOFARRAY(v);
+				int i;
+				int testresult = 0;
+				/* allocate and push */
+				for(i = 0; i < n; i++) {
+					v[i] = (SS*)OPENSSL_malloc(sizeof(*v[i]));
+					if(!TEST_ptr(v[i]))
+						goto end;
+					v[i]->n = i;
+					v[i]->c = 'A' + i;
+					if(!TEST_int_eq(sk_SS_num(s), i)) {
+						TEST_info("SS stack size %d", i);
+						goto end;
+					}
+					sk_SS_push(s, v[i]);
+				}
+				if(!TEST_int_eq(sk_SS_num(s), n))
+					goto end;
+				/* deepcopy */
+				r = sk_SS_deep_copy(NULL, &SS_copy, &SS_free);
+				if(sk_SS_num(r) != 0)
+					goto end;
+				sk_SS_free(r);
+				r = sk_SS_deep_copy(s, &SS_copy, &SS_free);
+				if(!TEST_ptr(r))
+					goto end;
+				for(i = 0; i < n; i++) {
+					p = sk_SS_value(r, i);
+					if(!TEST_ptr_ne(p, v[i])) {
+						TEST_info("SS deepcopy non-copy %d", i);
+						goto end;
+					}
+					if(!TEST_int_eq(p->n, v[i]->n)) {
+						TEST_info("test SS deepcopy int %d", i);
+						goto end;
+					}
+					if(!TEST_char_eq(p->c, v[i]->c)) {
+						TEST_info("SS deepcopy char %d", i);
+						goto end;
+					}
+				}
+				/* pop_free - we rely on the malloc debug to catch the leak */
+				sk_SS_pop_free(r, &SS_free);
+				r = NULL;
+				/* delete_ptr */
+				p = sk_SS_delete_ptr(s, v[3]);
+				if(!TEST_ptr(p))
+					goto end;
+				SS_free(p);
+				if(!TEST_int_eq(sk_SS_num(s), n - 1))
+					goto end;
+				for(i = 0; i < n-1; i++)
+					if(!TEST_ptr_eq(sk_SS_value(s, i), v[i<3 ? i : 1+i])) {
+						TEST_info("SS delete ptr item %d", i);
+						goto end;
+					}
+				testresult = 1;
+			end:
+				sk_SS_pop_free(r, &SS_free);
+				sk_SS_pop_free(s, &SS_free);
+				return testresult;
+			}
+			static int test_SU_stack()
+			{
+				STACK_OF(SU) *s = sk_SU_new_null();
+				SU v[10];
+				const int n = SIZEOFARRAY(v);
+				int i;
+				int testresult = 0;
+				/* allocate and push */
+				for(i = 0; i < n; i++) {
+					if((i & 1) == 0)
+						v[i].n = i;
+					else
+						v[i].c = 'A' + i;
+					if(!TEST_int_eq(sk_SU_num(s), i)) {
+						TEST_info("SU stack size %d", i);
+						goto end;
+					}
+					sk_SU_push(s, v + i);
+				}
+				if(!TEST_int_eq(sk_SU_num(s), n))
+					goto end;
+				/* check the pointers are correct */
+				for(i = 0; i < n; i++)
+					if(!TEST_ptr_eq(sk_SU_value(s, i),  v + i)) {
+						TEST_info("SU pointer check %d", i);
+						goto end;
+					}
+
+				testresult = 1;
+			end:
+				sk_SU_free(s);
+				return testresult;
+			}
+		};
+		ADD_ALL_TESTS(TestInnerBlock_Stack::test_int_stack, 4);
+		ADD_ALL_TESTS(TestInnerBlock_Stack::test_uchar_stack, 4);
+		ADD_TEST(TestInnerBlock_Stack::test_SS_stack);
+		ADD_TEST(TestInnerBlock_Stack::test_SU_stack);
+	}
+	{
+		static OSSL_FUNC_core_obj_add_sigid_fn * c_obj_add_sigid = NULL;
+		static OSSL_FUNC_core_obj_create_fn * c_obj_create = NULL;
+
+		#define SIG_OID "1.3.6.1.4.1.16604.998877.1"
+		#define SIG_SN "my-sig"
+		#define SIG_LN "my-sig-long"
+		#define DIGEST_OID "1.3.6.1.4.1.16604.998877.2"
+		#define DIGEST_SN "my-digest"
+		#define DIGEST_LN "my-digest-long"
+		#define SIGALG_OID "1.3.6.1.4.1.16604.998877.3"
+		#define SIGALG_SN "my-sigalg"
+		#define SIGALG_LN "my-sigalg-long"
+
+		class TestInnerBlock_UpCall {
+		public:
+			static const OSSL_ALGORITHM * obj_query(void * provctx, int operation_id, int * no_cache)
+			{
+				*no_cache = 0;
+				return NULL;
+			}
+			static int obj_provider_init(const OSSL_CORE_HANDLE * handle, const OSSL_DISPATCH * in, const OSSL_DISPATCH ** out, void ** provctx)
+			{
+				static const OSSL_DISPATCH obj_dispatch_table[] = { { OSSL_FUNC_PROVIDER_QUERY_OPERATION, (void (*)(void))obj_query }, { 0, NULL } };
+				*provctx = (void*)handle;
+				*out = obj_dispatch_table;
+				for(; in->function_id != 0; in++) {
+					switch(in->function_id) {
+						case OSSL_FUNC_CORE_OBJ_ADD_SIGID:
+							c_obj_add_sigid = OSSL_FUNC_core_obj_add_sigid(in);
+							break;
+						case OSSL_FUNC_CORE_OBJ_CREATE:
+							c_obj_create = OSSL_FUNC_core_obj_create(in);
+							break;
+							break;
+						default:
+							/* Just ignore anything we don't understand */
+							break;
+					}
+				}
+				if(!c_obj_create(handle, DIGEST_OID, DIGEST_SN, DIGEST_LN) || !c_obj_create(handle, SIG_OID, SIG_SN, SIG_LN) || !c_obj_create(handle, SIGALG_OID, SIGALG_SN, SIGALG_LN))
+					return 0;
+				if(!c_obj_add_sigid(handle, SIGALG_OID, DIGEST_SN, SIG_LN))
+					return 0;
+				/* additional tests checking empty digest algs are accepted, too */
+				if(!c_obj_add_sigid(handle, SIGALG_OID, "", SIG_LN))
+					return 0;
+				if(!c_obj_add_sigid(handle, SIGALG_OID, NULL, SIG_LN))
+					return 0;
+				/* checking wrong digest alg name is rejected: */
+				if(c_obj_add_sigid(handle, SIGALG_OID, "NonsenseAlg", SIG_LN))
+					return 0;
+				return 1;
+			}
+			static int obj_create_test()
+			{
+				OSSL_LIB_CTX * libctx = OSSL_LIB_CTX_new();
+				OSSL_PROVIDER * objprov = NULL;
+				int sigalgnid, digestnid, signid;
+				int testresult = 0;
+				if(!TEST_ptr(libctx))
+					goto err;
+				if(!TEST_true(OSSL_PROVIDER_add_builtin(libctx, "obj-prov", obj_provider_init)) || !TEST_ptr(objprov = OSSL_PROVIDER_load(libctx, "obj-prov")))
+					goto err;
+				/* Check that the provider created the OIDs/NIDs we expected */
+				sigalgnid = OBJ_txt2nid(SIGALG_OID);
+				if(!TEST_int_ne(sigalgnid, NID_undef)
+					|| !TEST_true(OBJ_find_sigid_algs(sigalgnid, &digestnid, &signid))
+					|| !TEST_int_ne(digestnid, NID_undef)
+					|| !TEST_int_ne(signid, NID_undef)
+					|| !TEST_int_eq(digestnid, OBJ_sn2nid(DIGEST_SN))
+					|| !TEST_int_eq(signid, OBJ_ln2nid(SIG_LN)))
+					goto err;
+				testresult = 1;
+			err:
+				OSSL_PROVIDER_unload(objprov);
+				OSSL_LIB_CTX_free(libctx);
+				return testresult;
+			}
+		};
+		#undef SIG_OID
+		#undef SIG_SN
+		#undef SIG_LN
+		#undef DIGEST_OID
+		#undef DIGEST_SN
+		#undef DIGEST_LN
+		#undef SIGALG_OID
+		#undef SIGALG_SN
+		#undef SIGALG_LN
+
+		ADD_TEST(TestInnerBlock_UpCall::obj_create_test);
+	}
+	{
+		//
+		// Internal tests for the siphash module
+		//
+		typedef struct {
+			size_t size;
+			uchar data[64];
+		} SIZED_DATA;
+
+		typedef struct {
+			int idx;
+			SIZED_DATA expected;
+		} TESTDATA;
+		// 
+		// Test of siphash internal functions
+		// 
+		// From C reference: https://131002.net/siphash/
+		// 
+		static TESTDATA tests[] = {
+			{ 0, { 8, { 0x31, 0x0e, 0x0e, 0xdd, 0x47, 0xdb, 0x6f, 0x72, } } },
+			{ 1, { 8, { 0xfd, 0x67, 0xdc, 0x93, 0xc5, 0x39, 0xf8, 0x74, } } },
+			{ 2, { 8, { 0x5a, 0x4f, 0xa9, 0xd9, 0x09, 0x80, 0x6c, 0x0d, } } },
+			{ 3, { 8, { 0x2d, 0x7e, 0xfb, 0xd7, 0x96, 0x66, 0x67, 0x85, } } },
+			{ 4, { 8, { 0xb7, 0x87, 0x71, 0x27, 0xe0, 0x94, 0x27, 0xcf, } } },
+			{ 5, { 8, { 0x8d, 0xa6, 0x99, 0xcd, 0x64, 0x55, 0x76, 0x18, } } },
+			{ 6, { 8, { 0xce, 0xe3, 0xfe, 0x58, 0x6e, 0x46, 0xc9, 0xcb, } } },
+			{ 7, { 8, { 0x37, 0xd1, 0x01, 0x8b, 0xf5, 0x00, 0x02, 0xab, } } },
+			{ 8, { 8, { 0x62, 0x24, 0x93, 0x9a, 0x79, 0xf5, 0xf5, 0x93, } } },
+			{ 9, { 8, { 0xb0, 0xe4, 0xa9, 0x0b, 0xdf, 0x82, 0x00, 0x9e, } } },
+			{ 10, { 8, { 0xf3, 0xb9, 0xdd, 0x94, 0xc5, 0xbb, 0x5d, 0x7a, } } },
+			{ 11, { 8, { 0xa7, 0xad, 0x6b, 0x22, 0x46, 0x2f, 0xb3, 0xf4, } } },
+			{ 12, { 8, { 0xfb, 0xe5, 0x0e, 0x86, 0xbc, 0x8f, 0x1e, 0x75, } } },
+			{ 13, { 8, { 0x90, 0x3d, 0x84, 0xc0, 0x27, 0x56, 0xea, 0x14, } } },
+			{ 14, { 8, { 0xee, 0xf2, 0x7a, 0x8e, 0x90, 0xca, 0x23, 0xf7, } } },
+			{ 15, { 8, { 0xe5, 0x45, 0xbe, 0x49, 0x61, 0xca, 0x29, 0xa1, } } },
+			{ 16, { 8, { 0xdb, 0x9b, 0xc2, 0x57, 0x7f, 0xcc, 0x2a, 0x3f, } } },
+			{ 17, { 8, { 0x94, 0x47, 0xbe, 0x2c, 0xf5, 0xe9, 0x9a, 0x69, } } },
+			{ 18, { 8, { 0x9c, 0xd3, 0x8d, 0x96, 0xf0, 0xb3, 0xc1, 0x4b, } } },
+			{ 19, { 8, { 0xbd, 0x61, 0x79, 0xa7, 0x1d, 0xc9, 0x6d, 0xbb, } } },
+			{ 20, { 8, { 0x98, 0xee, 0xa2, 0x1a, 0xf2, 0x5c, 0xd6, 0xbe, } } },
+			{ 21, { 8, { 0xc7, 0x67, 0x3b, 0x2e, 0xb0, 0xcb, 0xf2, 0xd0, } } },
+			{ 22, { 8, { 0x88, 0x3e, 0xa3, 0xe3, 0x95, 0x67, 0x53, 0x93, } } },
+			{ 23, { 8, { 0xc8, 0xce, 0x5c, 0xcd, 0x8c, 0x03, 0x0c, 0xa8, } } },
+			{ 24, { 8, { 0x94, 0xaf, 0x49, 0xf6, 0xc6, 0x50, 0xad, 0xb8, } } },
+			{ 25, { 8, { 0xea, 0xb8, 0x85, 0x8a, 0xde, 0x92, 0xe1, 0xbc, } } },
+			{ 26, { 8, { 0xf3, 0x15, 0xbb, 0x5b, 0xb8, 0x35, 0xd8, 0x17, } } },
+			{ 27, { 8, { 0xad, 0xcf, 0x6b, 0x07, 0x63, 0x61, 0x2e, 0x2f, } } },
+			{ 28, { 8, { 0xa5, 0xc9, 0x1d, 0xa7, 0xac, 0xaa, 0x4d, 0xde, } } },
+			{ 29, { 8, { 0x71, 0x65, 0x95, 0x87, 0x66, 0x50, 0xa2, 0xa6, } } },
+			{ 30, { 8, { 0x28, 0xef, 0x49, 0x5c, 0x53, 0xa3, 0x87, 0xad, } } },
+			{ 31, { 8, { 0x42, 0xc3, 0x41, 0xd8, 0xfa, 0x92, 0xd8, 0x32, } } },
+			{ 32, { 8, { 0xce, 0x7c, 0xf2, 0x72, 0x2f, 0x51, 0x27, 0x71, } } },
+			{ 33, { 8, { 0xe3, 0x78, 0x59, 0xf9, 0x46, 0x23, 0xf3, 0xa7, } } },
+			{ 34, { 8, { 0x38, 0x12, 0x05, 0xbb, 0x1a, 0xb0, 0xe0, 0x12, } } },
+			{ 35, { 8, { 0xae, 0x97, 0xa1, 0x0f, 0xd4, 0x34, 0xe0, 0x15, } } },
+			{ 36, { 8, { 0xb4, 0xa3, 0x15, 0x08, 0xbe, 0xff, 0x4d, 0x31, } } },
+			{ 37, { 8, { 0x81, 0x39, 0x62, 0x29, 0xf0, 0x90, 0x79, 0x02, } } },
+			{ 38, { 8, { 0x4d, 0x0c, 0xf4, 0x9e, 0xe5, 0xd4, 0xdc, 0xca, } } },
+			{ 39, { 8, { 0x5c, 0x73, 0x33, 0x6a, 0x76, 0xd8, 0xbf, 0x9a, } } },
+			{ 40, { 8, { 0xd0, 0xa7, 0x04, 0x53, 0x6b, 0xa9, 0x3e, 0x0e, } } },
+			{ 41, { 8, { 0x92, 0x59, 0x58, 0xfc, 0xd6, 0x42, 0x0c, 0xad, } } },
+			{ 42, { 8, { 0xa9, 0x15, 0xc2, 0x9b, 0xc8, 0x06, 0x73, 0x18, } } },
+			{ 43, { 8, { 0x95, 0x2b, 0x79, 0xf3, 0xbc, 0x0a, 0xa6, 0xd4, } } },
+			{ 44, { 8, { 0xf2, 0x1d, 0xf2, 0xe4, 0x1d, 0x45, 0x35, 0xf9, } } },
+			{ 45, { 8, { 0x87, 0x57, 0x75, 0x19, 0x04, 0x8f, 0x53, 0xa9, } } },
+			{ 46, { 8, { 0x10, 0xa5, 0x6c, 0xf5, 0xdf, 0xcd, 0x9a, 0xdb, } } },
+			{ 47, { 8, { 0xeb, 0x75, 0x09, 0x5c, 0xcd, 0x98, 0x6c, 0xd0, } } },
+			{ 48, { 8, { 0x51, 0xa9, 0xcb, 0x9e, 0xcb, 0xa3, 0x12, 0xe6, } } },
+			{ 49, { 8, { 0x96, 0xaf, 0xad, 0xfc, 0x2c, 0xe6, 0x66, 0xc7, } } },
+			{ 50, { 8, { 0x72, 0xfe, 0x52, 0x97, 0x5a, 0x43, 0x64, 0xee, } } },
+			{ 51, { 8, { 0x5a, 0x16, 0x45, 0xb2, 0x76, 0xd5, 0x92, 0xa1, } } },
+			{ 52, { 8, { 0xb2, 0x74, 0xcb, 0x8e, 0xbf, 0x87, 0x87, 0x0a, } } },
+			{ 53, { 8, { 0x6f, 0x9b, 0xb4, 0x20, 0x3d, 0xe7, 0xb3, 0x81, } } },
+			{ 54, { 8, { 0xea, 0xec, 0xb2, 0xa3, 0x0b, 0x22, 0xa8, 0x7f, } } },
+			{ 55, { 8, { 0x99, 0x24, 0xa4, 0x3c, 0xc1, 0x31, 0x57, 0x24, } } },
+			{ 56, { 8, { 0xbd, 0x83, 0x8d, 0x3a, 0xaf, 0xbf, 0x8d, 0xb7, } } },
+			{ 57, { 8, { 0x0b, 0x1a, 0x2a, 0x32, 0x65, 0xd5, 0x1a, 0xea, } } },
+			{ 58, { 8, { 0x13, 0x50, 0x79, 0xa3, 0x23, 0x1c, 0xe6, 0x60, } } },
+			{ 59, { 8, { 0x93, 0x2b, 0x28, 0x46, 0xe4, 0xd7, 0x06, 0x66, } } },
+			{ 60, { 8, { 0xe1, 0x91, 0x5f, 0x5c, 0xb1, 0xec, 0xa4, 0x6c, } } },
+			{ 61, { 8, { 0xf3, 0x25, 0x96, 0x5c, 0xa1, 0x6d, 0x62, 0x9f, } } },
+			{ 62, { 8, { 0x57, 0x5f, 0xf2, 0x8e, 0x60, 0x38, 0x1b, 0xe5, } } },
+			{ 63, { 8, { 0x72, 0x45, 0x06, 0xeb, 0x4c, 0x32, 0x8a, 0x95, } } },
+			{ 0, { 16, { 0xa3, 0x81, 0x7f, 0x04, 0xba, 0x25, 0xa8, 0xe6, 0x6d, 0xf6, 0x72, 0x14, 0xc7, 0x55, 0x02, 0x93, } } },
+			{ 1, { 16, { 0xda, 0x87, 0xc1, 0xd8, 0x6b, 0x99, 0xaf, 0x44, 0x34, 0x76, 0x59, 0x11, 0x9b, 0x22, 0xfc, 0x45, } } },
+			{ 2, { 16, { 0x81, 0x77, 0x22, 0x8d, 0xa4, 0xa4, 0x5d, 0xc7, 0xfc, 0xa3, 0x8b, 0xde, 0xf6, 0x0a, 0xff, 0xe4, } } },
+			{ 3, { 16, { 0x9c, 0x70, 0xb6, 0x0c, 0x52, 0x67, 0xa9, 0x4e, 0x5f, 0x33, 0xb6, 0xb0, 0x29, 0x85, 0xed, 0x51, } } },
+			{ 4, { 16, { 0xf8, 0x81, 0x64, 0xc1, 0x2d, 0x9c, 0x8f, 0xaf, 0x7d, 0x0f, 0x6e, 0x7c, 0x7b, 0xcd, 0x55, 0x79, } } },
+			{ 5, { 16, { 0x13, 0x68, 0x87, 0x59, 0x80, 0x77, 0x6f, 0x88, 0x54, 0x52, 0x7a, 0x07, 0x69, 0x0e, 0x96, 0x27, } } },
+			{ 6, { 16, { 0x14, 0xee, 0xca, 0x33, 0x8b, 0x20, 0x86, 0x13, 0x48, 0x5e, 0xa0, 0x30, 0x8f, 0xd7, 0xa1, 0x5e, } } },
+			{ 7, { 16, { 0xa1, 0xf1, 0xeb, 0xbe, 0xd8, 0xdb, 0xc1, 0x53, 0xc0, 0xb8, 0x4a, 0xa6, 0x1f, 0xf0, 0x82, 0x39, } } },
+			{ 8, { 16, { 0x3b, 0x62, 0xa9, 0xba, 0x62, 0x58, 0xf5, 0x61, 0x0f, 0x83, 0xe2, 0x64, 0xf3, 0x14, 0x97, 0xb4, } } },
+			{ 9, { 16, { 0x26, 0x44, 0x99, 0x06, 0x0a, 0xd9, 0xba, 0xab, 0xc4, 0x7f, 0x8b, 0x02, 0xbb, 0x6d, 0x71, 0xed, } } },
+			{ 10, { 16, { 0x00, 0x11, 0x0d, 0xc3, 0x78, 0x14, 0x69, 0x56, 0xc9, 0x54, 0x47, 0xd3, 0xf3, 0xd0, 0xfb, 0xba, } } },
+			{ 11, { 16, { 0x01, 0x51, 0xc5, 0x68, 0x38, 0x6b, 0x66, 0x77, 0xa2, 0xb4, 0xdc, 0x6f, 0x81, 0xe5, 0xdc, 0x18, } } },
+			{ 12, { 16, { 0xd6, 0x26, 0xb2, 0x66, 0x90, 0x5e, 0xf3, 0x58, 0x82, 0x63, 0x4d, 0xf6, 0x85, 0x32, 0xc1, 0x25, } } },
+			{ 13, { 16, { 0x98, 0x69, 0xe2, 0x47, 0xe9, 0xc0, 0x8b, 0x10, 0xd0, 0x29, 0x93, 0x4f, 0xc4, 0xb9, 0x52, 0xf7, } } },
+			{ 14, { 16, { 0x31, 0xfc, 0xef, 0xac, 0x66, 0xd7, 0xde, 0x9c, 0x7e, 0xc7, 0x48, 0x5f, 0xe4, 0x49, 0x49, 0x02, } } },
+			{ 15, { 16, { 0x54, 0x93, 0xe9, 0x99, 0x33, 0xb0, 0xa8, 0x11, 0x7e, 0x08, 0xec, 0x0f, 0x97, 0xcf, 0xc3, 0xd9, } } },
+			{ 16, { 16, { 0x6e, 0xe2, 0xa4, 0xca, 0x67, 0xb0, 0x54, 0xbb, 0xfd, 0x33, 0x15, 0xbf, 0x85, 0x23, 0x05, 0x77, } } },
+			{ 17, { 16, { 0x47, 0x3d, 0x06, 0xe8, 0x73, 0x8d, 0xb8, 0x98, 0x54, 0xc0, 0x66, 0xc4, 0x7a, 0xe4, 0x77, 0x40, } } },
+			{ 18, { 16, { 0xa4, 0x26, 0xe5, 0xe4, 0x23, 0xbf, 0x48, 0x85, 0x29, 0x4d, 0xa4, 0x81, 0xfe, 0xae, 0xf7, 0x23, } } },
+			{ 19, { 16, { 0x78, 0x01, 0x77, 0x31, 0xcf, 0x65, 0xfa, 0xb0, 0x74, 0xd5, 0x20, 0x89, 0x52, 0x51, 0x2e, 0xb1, } } },
+			{ 20, { 16, { 0x9e, 0x25, 0xfc, 0x83, 0x3f, 0x22, 0x90, 0x73, 0x3e, 0x93, 0x44, 0xa5, 0xe8, 0x38, 0x39, 0xeb, } } },
+			{ 21, { 16, { 0x56, 0x8e, 0x49, 0x5a, 0xbe, 0x52, 0x5a, 0x21, 0x8a, 0x22, 0x14, 0xcd, 0x3e, 0x07, 0x1d, 0x12, } } },
+			{ 22, { 16, { 0x4a, 0x29, 0xb5, 0x45, 0x52, 0xd1, 0x6b, 0x9a, 0x46, 0x9c, 0x10, 0x52, 0x8e, 0xff, 0x0a, 0xae, } } },
+			{ 23, { 16, { 0xc9, 0xd1, 0x84, 0xdd, 0xd5, 0xa9, 0xf5, 0xe0, 0xcf, 0x8c, 0xe2, 0x9a, 0x9a, 0xbf, 0x69, 0x1c, } } },
+			{ 24, { 16, { 0x2d, 0xb4, 0x79, 0xae, 0x78, 0xbd, 0x50, 0xd8, 0x88, 0x2a, 0x8a, 0x17, 0x8a, 0x61, 0x32, 0xad, } } },
+			{ 25, { 16, { 0x8e, 0xce, 0x5f, 0x04, 0x2d, 0x5e, 0x44, 0x7b, 0x50, 0x51, 0xb9, 0xea, 0xcb, 0x8d, 0x8f, 0x6f, } } },
+			{ 26, { 16, { 0x9c, 0x0b, 0x53, 0xb4, 0xb3, 0xc3, 0x07, 0xe8, 0x7e, 0xae, 0xe0, 0x86, 0x78, 0x14, 0x1f, 0x66, } } },
+			{ 27, { 16, { 0xab, 0xf2, 0x48, 0xaf, 0x69, 0xa6, 0xea, 0xe4, 0xbf, 0xd3, 0xeb, 0x2f, 0x12, 0x9e, 0xeb, 0x94, } } },
+			{ 28, { 16, { 0x06, 0x64, 0xda, 0x16, 0x68, 0x57, 0x4b, 0x88, 0xb9, 0x35, 0xf3, 0x02, 0x73, 0x58, 0xae, 0xf4, } } },
+			{ 29, { 16, { 0xaa, 0x4b, 0x9d, 0xc4, 0xbf, 0x33, 0x7d, 0xe9, 0x0c, 0xd4, 0xfd, 0x3c, 0x46, 0x7c, 0x6a, 0xb7, } } },
+			{ 30, { 16, { 0xea, 0x5c, 0x7f, 0x47, 0x1f, 0xaf, 0x6b, 0xde, 0x2b, 0x1a, 0xd7, 0xd4, 0x68, 0x6d, 0x22, 0x87, } } },
+			{ 31, { 16, { 0x29, 0x39, 0xb0, 0x18, 0x32, 0x23, 0xfa, 0xfc, 0x17, 0x23, 0xde, 0x4f, 0x52, 0xc4, 0x3d, 0x35, } } },
+			{ 32, { 16, { 0x7c, 0x39, 0x56, 0xca, 0x5e, 0xea, 0xfc, 0x3e, 0x36, 0x3e, 0x9d, 0x55, 0x65, 0x46, 0xeb, 0x68, } } },
+			{ 33, { 16, { 0x77, 0xc6, 0x07, 0x71, 0x46, 0xf0, 0x1c, 0x32, 0xb6, 0xb6, 0x9d, 0x5f, 0x4e, 0xa9, 0xff, 0xcf, } } },
+			{ 34, { 16, { 0x37, 0xa6, 0x98, 0x6c, 0xb8, 0x84, 0x7e, 0xdf, 0x09, 0x25, 0xf0, 0xf1, 0x30, 0x9b, 0x54, 0xde, } } },
+			{ 35, { 16, { 0xa7, 0x05, 0xf0, 0xe6, 0x9d, 0xa9, 0xa8, 0xf9, 0x07, 0x24, 0x1a, 0x2e, 0x92, 0x3c, 0x8c, 0xc8, } } },
+			{ 36, { 16, { 0x3d, 0xc4, 0x7d, 0x1f, 0x29, 0xc4, 0x48, 0x46, 0x1e, 0x9e, 0x76, 0xed, 0x90, 0x4f, 0x67, 0x11, } } },
+			{ 37, { 16, { 0x0d, 0x62, 0xbf, 0x01, 0xe6, 0xfc, 0x0e, 0x1a, 0x0d, 0x3c, 0x47, 0x51, 0xc5, 0xd3, 0x69, 0x2b, } } },
+			{ 38, { 16, { 0x8c, 0x03, 0x46, 0x8b, 0xca, 0x7c, 0x66, 0x9e, 0xe4, 0xfd, 0x5e, 0x08, 0x4b, 0xbe, 0xe7, 0xb5, } } },
+			{ 39, { 16, { 0x52, 0x8a, 0x5b, 0xb9, 0x3b, 0xaf, 0x2c, 0x9c, 0x44, 0x73, 0xcc, 0xe5, 0xd0, 0xd2, 0x2b, 0xd9, } } },
+			{ 40, { 16, { 0xdf, 0x6a, 0x30, 0x1e, 0x95, 0xc9, 0x5d, 0xad, 0x97, 0xae, 0x0c, 0xc8, 0xc6, 0x91, 0x3b, 0xd8, } } },
+			{ 41, { 16, { 0x80, 0x11, 0x89, 0x90, 0x2c, 0x85, 0x7f, 0x39, 0xe7, 0x35, 0x91, 0x28, 0x5e, 0x70, 0xb6, 0xdb, } } },
+			{ 42, { 16, { 0xe6, 0x17, 0x34, 0x6a, 0xc9, 0xc2, 0x31, 0xbb, 0x36, 0x50, 0xae, 0x34, 0xcc, 0xca, 0x0c, 0x5b, } } },
+			{ 43, { 16, { 0x27, 0xd9, 0x34, 0x37, 0xef, 0xb7, 0x21, 0xaa, 0x40, 0x18, 0x21, 0xdc, 0xec, 0x5a, 0xdf, 0x89, } } },
+			{ 44, { 16, { 0x89, 0x23, 0x7d, 0x9d, 0xed, 0x9c, 0x5e, 0x78, 0xd8, 0xb1, 0xc9, 0xb1, 0x66, 0xcc, 0x73, 0x42, } } },
+			{ 45, { 16, { 0x4a, 0x6d, 0x80, 0x91, 0xbf, 0x5e, 0x7d, 0x65, 0x11, 0x89, 0xfa, 0x94, 0xa2, 0x50, 0xb1, 0x4c, } } },
+			{ 46, { 16, { 0x0e, 0x33, 0xf9, 0x60, 0x55, 0xe7, 0xae, 0x89, 0x3f, 0xfc, 0x0e, 0x3d, 0xcf, 0x49, 0x29, 0x02, } } },
+			{ 47, { 16, { 0xe6, 0x1c, 0x43, 0x2b, 0x72, 0x0b, 0x19, 0xd1, 0x8e, 0xc8, 0xd8, 0x4b, 0xdc, 0x63, 0x15, 0x1b, } } },
+			{ 48, { 16, { 0xf7, 0xe5, 0xae, 0xf5, 0x49, 0xf7, 0x82, 0xcf, 0x37, 0x90, 0x55, 0xa6, 0x08, 0x26, 0x9b, 0x16, } } },
+			{ 49, { 16, { 0x43, 0x8d, 0x03, 0x0f, 0xd0, 0xb7, 0xa5, 0x4f, 0xa8, 0x37, 0xf2, 0xad, 0x20, 0x1a, 0x64, 0x03, } } },
+			{ 50, { 16, { 0xa5, 0x90, 0xd3, 0xee, 0x4f, 0xbf, 0x04, 0xe3, 0x24, 0x7e, 0x0d, 0x27, 0xf2, 0x86, 0x42, 0x3f, } } },
+			{ 51, { 16, { 0x5f, 0xe2, 0xc1, 0xa1, 0x72, 0xfe, 0x93, 0xc4, 0xb1, 0x5c, 0xd3, 0x7c, 0xae, 0xf9, 0xf5, 0x38, } } },
+			{ 52, { 16, { 0x2c, 0x97, 0x32, 0x5c, 0xbd, 0x06, 0xb3, 0x6e, 0xb2, 0x13, 0x3d, 0xd0, 0x8b, 0x3a, 0x01, 0x7c, } } },
+			{ 53, { 16, { 0x92, 0xc8, 0x14, 0x22, 0x7a, 0x6b, 0xca, 0x94, 0x9f, 0xf0, 0x65, 0x9f, 0x00, 0x2a, 0xd3, 0x9e, } } },
+			{ 54, { 16, { 0xdc, 0xe8, 0x50, 0x11, 0x0b, 0xd8, 0x32, 0x8c, 0xfb, 0xd5, 0x08, 0x41, 0xd6, 0x91, 0x1d, 0x87, } } },
+			{ 55, { 16, { 0x67, 0xf1, 0x49, 0x84, 0xc7, 0xda, 0x79, 0x12, 0x48, 0xe3, 0x2b, 0xb5, 0x92, 0x25, 0x83, 0xda, } } },
+			{ 56, { 16, { 0x19, 0x38, 0xf2, 0xcf, 0x72, 0xd5, 0x4e, 0xe9, 0x7e, 0x94, 0x16, 0x6f, 0xa9, 0x1d, 0x2a, 0x36, } } },
+			{ 57, { 16, { 0x74, 0x48, 0x1e, 0x96, 0x46, 0xed, 0x49, 0xfe, 0x0f, 0x62, 0x24, 0x30, 0x16, 0x04, 0x69, 0x8e, } } },
+			{ 58, { 16, { 0x57, 0xfc, 0xa5, 0xde, 0x98, 0xa9, 0xd6, 0xd8, 0x00, 0x64, 0x38, 0xd0, 0x58, 0x3d, 0x8a, 0x1d, } } },
+			{ 59, { 16, { 0x9f, 0xec, 0xde, 0x1c, 0xef, 0xdc, 0x1c, 0xbe, 0xd4, 0x76, 0x36, 0x74, 0xd9, 0x57, 0x53, 0x59, } } },
+			{ 60, { 16, { 0xe3, 0x04, 0x0c, 0x00, 0xeb, 0x28, 0xf1, 0x53, 0x66, 0xca, 0x73, 0xcb, 0xd8, 0x72, 0xe7, 0x40, } } },
+			{ 61, { 16, { 0x76, 0x97, 0x00, 0x9a, 0x6a, 0x83, 0x1d, 0xfe, 0xcc, 0xa9, 0x1c, 0x59, 0x93, 0x67, 0x0f, 0x7a, } } },
+			{ 62, { 16, { 0x58, 0x53, 0x54, 0x23, 0x21, 0xf5, 0x67, 0xa0, 0x05, 0xd5, 0x47, 0xa4, 0xf0, 0x47, 0x59, 0xbd, } } },
+			{ 63, { 16, { 0x51, 0x50, 0xd1, 0x77, 0x2f, 0x50, 0x83, 0x4a, 0x50, 0x3e, 0x06, 0x9a, 0x97, 0x3f, 0xbd, 0x7c, } } }
+		};
+
+		class TestInnerBlock_SipHash {
+		public:
+			static int test_siphash(int idx)
+			{
+				SIPHASH siphash = { 0, };
+				TESTDATA test = tests[idx];
+				uchar key[SIPHASH_KEY_SIZE];
+				uchar in[64];
+				size_t inlen = test.idx;
+				uchar * expected = test.expected.data;
+				size_t expectedlen = test.expected.size;
+				uchar out[SIPHASH_MAX_DIGEST_SIZE];
+				size_t i;
+				if(expectedlen != SIPHASH_MIN_DIGEST_SIZE && expectedlen != SIPHASH_MAX_DIGEST_SIZE) {
+					TEST_info("size %zu vs %d and %d", expectedlen, SIPHASH_MIN_DIGEST_SIZE, SIPHASH_MAX_DIGEST_SIZE);
+					return 0;
+				}
+				if(!TEST_int_le(inlen, sizeof(in)))
+					return 0;
+				/* key and in data are 00 01 02 ... */
+				for(i = 0; i < sizeof(key); i++)
+					key[i] = (uchar)i;
+				for(i = 0; i < inlen; i++)
+					in[i] = (uchar)i;
+				if(!TEST_true(SipHash_set_hash_size(&siphash, expectedlen)) || !TEST_true(SipHash_Init(&siphash, key, 0, 0)))
+					return 0;
+				SipHash_Update(&siphash, in, inlen);
+				if(!TEST_true(SipHash_Final(&siphash, out, expectedlen)) || !TEST_mem_eq(out, expectedlen, expected, expectedlen))
+					return 0;
+				if(inlen > 16) {
+					if(!TEST_true(SipHash_set_hash_size(&siphash, expectedlen)) || !TEST_true(SipHash_Init(&siphash, key, 0, 0)))
+						return 0;
+					SipHash_Update(&siphash, in, 1);
+					SipHash_Update(&siphash, in+1, inlen-1);
+					if(!TEST_true(SipHash_Final(&siphash, out, expectedlen)))
+						return 0;
+					if(!TEST_mem_eq(out, expectedlen, expected, expectedlen)) {
+						TEST_info("SipHash test #%d/1+(N-1) failed.", idx);
+						return 0;
+					}
+				}
+				if(inlen > 32) {
+					size_t half = inlen / 2;
+					if(!TEST_true(SipHash_set_hash_size(&siphash, expectedlen)) || !TEST_true(SipHash_Init(&siphash, key, 0, 0)))
+						return 0;
+					SipHash_Update(&siphash, in, half);
+					SipHash_Update(&siphash, in+half, inlen-half);
+					if(!TEST_true(SipHash_Final(&siphash, out, expectedlen)))
+						return 0;
+					if(!TEST_mem_eq(out, expectedlen, expected, expectedlen)) {
+						TEST_info("SipHash test #%d/2 failed.", idx);
+						return 0;
+					}
+					for(half = 16; half < inlen; half += 16) {
+						if(!TEST_true(SipHash_set_hash_size(&siphash, expectedlen)) || !TEST_true(SipHash_Init(&siphash, key, 0, 0)))
+							return 0;
+						SipHash_Update(&siphash, in, half);
+						SipHash_Update(&siphash, in+half, inlen-half);
+						if(!TEST_true(SipHash_Final(&siphash, out, expectedlen)))
+							return 0;
+						if(!TEST_mem_eq(out, expectedlen, expected, expectedlen)) {
+							TEST_info("SipHash test #%d/%zu+%zu failed.", idx, half, inlen-half);
+							return 0;
+						}
+					}
+				}
+				return 1;
+			}
+			static int test_siphash_basic()
+			{
+				SIPHASH siphash = { 0, };
+				uchar key[SIPHASH_KEY_SIZE];
+				uchar output[SIPHASH_MAX_DIGEST_SIZE];
+				/* Use invalid hash size */
+				return TEST_int_eq(SipHash_set_hash_size(&siphash, 4), 0)
+					   /* Use hash size = 8 */
+					   && TEST_true(SipHash_set_hash_size(&siphash, 8))
+					   && TEST_true(SipHash_Init(&siphash, key, 0, 0))
+					   && TEST_true(SipHash_Final(&siphash, output, 8))
+					   && TEST_int_eq(SipHash_Final(&siphash, output, 16), 0)
+					   /* Use hash size = 16 */
+					   && TEST_true(SipHash_set_hash_size(&siphash, 16))
+					   && TEST_true(SipHash_Init(&siphash, key, 0, 0))
+					   && TEST_int_eq(SipHash_Final(&siphash, output, 8), 0)
+					   && TEST_true(SipHash_Final(&siphash, output, 16))
+   					   /* Use hash size = 0 (default = 16) */
+					   && TEST_true(SipHash_set_hash_size(&siphash, 0))
+					   && TEST_true(SipHash_Init(&siphash, key, 0, 0))
+					   && TEST_int_eq(SipHash_Final(&siphash, output, 8), 0)
+					   && TEST_true(SipHash_Final(&siphash, output, 16));
+			}
+		};
+		ADD_TEST(TestInnerBlock_SipHash::test_siphash_basic);
+		ADD_ALL_TESTS(TestInnerBlock_SipHash::test_siphash, SIZEOFARRAY(tests));
+	}
+	{
+		class TestInnerBlock_ProviderFallback {
+		public:
+			static int test_provider(OSSL_LIB_CTX * ctx)
+			{
+				EVP_KEYMGMT * rsameth = NULL;
+				const OSSL_PROVIDER * prov = NULL;
+				int ok = TEST_true(OSSL_PROVIDER_available(ctx, "default")) && TEST_ptr(rsameth = EVP_KEYMGMT_fetch(ctx, "RSA", NULL)) && 
+					TEST_ptr(prov = EVP_KEYMGMT_get0_provider(rsameth)) && TEST_str_eq(OSSL_PROVIDER_get0_name(prov), "default");
+				EVP_KEYMGMT_free(rsameth);
+				return ok;
+			}
+			static int test_fallback_provider() { return test_provider(NULL); }
+			static int test_explicit_provider()
+			{
+				OSSL_LIB_CTX * ctx = NULL;
+				OSSL_PROVIDER * prov = NULL;
+				int ok = TEST_ptr(ctx = OSSL_LIB_CTX_new()) && TEST_ptr(prov = OSSL_PROVIDER_load(ctx, "default")) && test_provider(ctx) && TEST_true(OSSL_PROVIDER_unload(prov));
+				OSSL_LIB_CTX_free(ctx);
+				return ok;
+			}
+		};
+		ADD_TEST(TestInnerBlock_ProviderFallback::test_fallback_provider);
+		ADD_TEST(TestInnerBlock_ProviderFallback::test_explicit_provider);
+	}
+	{
+		// 
+		// PROVIDER SECTION
+		// 
+		// Even though it's not necessarily ONLY providers doing this part,
+		// they are naturally going to be the most common users of
+		// set_params and get_params functions.
+		// 
+		// In real use cases, setters and getters would take an object with
+		// which the parameters are associated.  This structure is a cheap simulation.
+		// 
+		#define app_p1_init 17           /* A random number */
+		#define app_p2_init 47.11        /* Another random number */
+		#define app_p3_init "deadbeef"   /* Classic */
+		#define app_p4_init "Hello"
+		#define app_p5_init "World"
+		#define app_p6_init "Cookie"
+		#define app_foo_init 'z'
+
+		struct object_st {
+			int p1; // Documented as a native integer, of the size given by sizeof(int). Assumed data type OSSL_PARAM_INTEGER
+			double p2; // Documented as a native double, of the size given by sizeof(double). Assumed data type OSSL_PARAM_REAL
+			// Documented as an arbitrarly large unsigned integer.
+			// The data size must be large enough to accommodate.
+			// Assumed data type OSSL_PARAM_UNSIGNED_INTEGER
+			BIGNUM * p3;
+			// Documented as a C string.
+			// The data size must be large enough to accommodate.
+			// Assumed data type OSSL_PARAM_UTF8_STRING
+			char * p4;
+			size_t p4_l;
+			// Documented as a C string. Assumed data type OSSL_PARAM_UTF8_STRING
+			char p5[256];
+			size_t p5_l;
+			// Documented as a pointer to a constant C string. Assumed data type OSSL_PARAM_UTF8_PTR
+			const char * p6;
+			size_t p6_l;
+		};
+		// 
+		// These arrays consistently do nothing with the "p2" parameter, and
+		// always include a "foo" parameter.  This is to check that the
+		// set_params and get_params calls ignore the lack of parameters that
+		// the application isn't interested in, as well as ignore parameters
+		// they don't understand (the application may have one big bag of parameters).
+		// 
+		static int app_p1; /* "p1" */
+		static double app_p2; /* "p2" is ignored */
+		static BIGNUM * app_p3 = NULL; /* "p3" */
+		static uchar bignumbin[4096]; /* "p3" */
+		static char app_p4[256]; /* "p4" */
+		static char app_p5[256]; /* "p5" */
+		static const char * app_p6 = NULL; /* "p6" */
+		static uchar foo[1]; /* "foo" */
+
+		class TestInnerBlock_PreMethods_Params {
+		public:
+			// 
+			// RAW provider, which handles the parameters in a very raw manner,
+			// with no fancy API and very minimal checking.  The application that
+			// calls these to set or request parameters MUST get its OSSL_PARAM array right.
+			// 
+			static int raw_set_params(void * vobj, const OSSL_PARAM * params)
+			{
+				struct object_st * obj = (struct object_st *)vobj;
+				for(; params->key; params++)
+					if(sstreq(params->key, "p1")) {
+						obj->p1 = *(int*)params->data;
+					}
+					else if(sstreq(params->key, "p2")) {
+						obj->p2 = *(double*)params->data;
+					}
+					else if(sstreq(params->key, "p3")) {
+						BN_free(obj->p3);
+						if(!TEST_ptr(obj->p3 = BN_native2bn((const uchar *)params->data, params->data_size, NULL)))
+							return 0;
+					}
+					else if(sstreq(params->key, "p4")) {
+						OPENSSL_free(obj->p4);
+						if(!TEST_ptr(obj->p4 = OPENSSL_strndup((const char *)params->data, params->data_size)))
+							return 0;
+						obj->p4_l = strlen(obj->p4);
+					}
+					else if(sstreq(params->key, "p5")) {
+						// 
+						// Protect obj->p5 against too much data.  This should not
+						// happen, we don't use that long strings.
+						// 
+						size_t data_length = OPENSSL_strnlen((const char *)params->data, params->data_size);
+						if(!TEST_size_t_lt(data_length, sizeof(obj->p5)))
+							return 0;
+						strncpy(obj->p5, (const char *)params->data, data_length);
+						obj->p5[data_length] = '\0';
+						obj->p5_l = strlen(obj->p5);
+					}
+					else if(sstreq(params->key, "p6")) {
+						obj->p6 = *(const char**)params->data;
+						obj->p6_l = params->data_size;
+					}
+				return 1;
+			}
+			static int raw_get_params(void * vobj, OSSL_PARAM * params)
+			{
+				struct object_st * obj = (struct object_st *)vobj;
+				for(; params->key; params++) {
+					if(sstreq(params->key, "p1")) {
+						params->return_size = sizeof(obj->p1);
+						*(int*)params->data = obj->p1;
+					}
+					else if(sstreq(params->key, "p2")) {
+						params->return_size = sizeof(obj->p2);
+						*(double*)params->data = obj->p2;
+					}
+					else if(sstreq(params->key, "p3")) {
+						params->return_size = BN_num_bytes(obj->p3);
+						if(!TEST_size_t_ge(params->data_size, params->return_size))
+							return 0;
+						BN_bn2nativepad(obj->p3, (uchar *)params->data, params->return_size);
+					}
+					else if(sstreq(params->key, "p4")) {
+						params->return_size = strlen(obj->p4);
+						if(!TEST_size_t_gt(params->data_size, params->return_size))
+							return 0;
+						strcpy((char *)params->data, obj->p4);
+					}
+					else if(sstreq(params->key, "p5")) {
+						params->return_size = strlen(obj->p5);
+						if(!TEST_size_t_gt(params->data_size, params->return_size))
+							return 0;
+						strcpy((char *)params->data, obj->p5);
+					}
+					else if(sstreq(params->key, "p6")) {
+						params->return_size = strlen(obj->p6);
+						*(const char**)params->data = obj->p6;
+					}
+				}
+				return 1;
+			}
+			// 
+			// API provider, which handles the parameters using the API from params.h
+			// 
+			static int api_set_params(void * vobj, const OSSL_PARAM * params)
+			{
+				struct object_st * obj = (struct object_st *)vobj;
+				const OSSL_PARAM * p = NULL;
+				if((p = OSSL_PARAM_locate_const(params, "p1")) != NULL && !TEST_true(OSSL_PARAM_get_int(p, &obj->p1)))
+					return 0;
+				if((p = OSSL_PARAM_locate_const(params, "p2")) != NULL && !TEST_true(OSSL_PARAM_get_double(p, &obj->p2)))
+					return 0;
+				if((p = OSSL_PARAM_locate_const(params, "p3")) != NULL && !TEST_true(OSSL_PARAM_get_BN(p, &obj->p3)))
+					return 0;
+				if((p = OSSL_PARAM_locate_const(params, "p4")) != NULL) {
+					OPENSSL_free(obj->p4);
+					obj->p4 = NULL;
+					// If the value pointer is NULL, we get it automatically allocated 
+					if(!TEST_true(OSSL_PARAM_get_utf8_string(p, &obj->p4, 0)))
+						return 0;
+				}
+				if((p = OSSL_PARAM_locate_const(params, "p5")) != NULL) {
+					char * p5_ptr = obj->p5;
+					if(!TEST_true(OSSL_PARAM_get_utf8_string(p, &p5_ptr, sizeof(obj->p5))))
+						return 0;
+					obj->p5_l = strlen(obj->p5);
+				}
+				if((p = OSSL_PARAM_locate_const(params, "p6")) != NULL) {
+					if(!TEST_true(OSSL_PARAM_get_utf8_ptr(p, &obj->p6)))
+						return 0;
+					obj->p6_l = strlen(obj->p6);
+				}
+				return 1;
+			}
+			static int api_get_params(void * vobj, OSSL_PARAM * params)
+			{
+				struct object_st * obj = (struct object_st *)vobj;
+				OSSL_PARAM * p = NULL;
+				if((p = OSSL_PARAM_locate(params, "p1")) != NULL && !TEST_true(OSSL_PARAM_set_int(p, obj->p1)))
+					return 0;
+				if((p = OSSL_PARAM_locate(params, "p2")) != NULL && !TEST_true(OSSL_PARAM_set_double(p, obj->p2)))
+					return 0;
+				if((p = OSSL_PARAM_locate(params, "p3")) != NULL && !TEST_true(OSSL_PARAM_set_BN(p, obj->p3)))
+					return 0;
+				if((p = OSSL_PARAM_locate(params, "p4")) != NULL && !TEST_true(OSSL_PARAM_set_utf8_string(p, obj->p4)))
+					return 0;
+				if((p = OSSL_PARAM_locate(params, "p5")) != NULL && !TEST_true(OSSL_PARAM_set_utf8_string(p, obj->p5)))
+					return 0;
+				if((p = OSSL_PARAM_locate(params, "p6")) != NULL && !TEST_true(OSSL_PARAM_set_utf8_ptr(p, obj->p6)))
+					return 0;
+				return 1;
+			}
+			// 
+			// The same array again, but constructed at run-time
+			// This exercises the OSSL_PARAM constructor functions
+			// 
+			static OSSL_PARAM * construct_api_params()
+			{
+				size_t n = 0;
+				static OSSL_PARAM params[10];
+				params[n++] = OSSL_PARAM_construct_int("p1", &app_p1);
+				params[n++] = OSSL_PARAM_construct_BN("p3", bignumbin, sizeof(bignumbin));
+				params[n++] = OSSL_PARAM_construct_utf8_string("p4", app_p4, sizeof(app_p4));
+				params[n++] = OSSL_PARAM_construct_utf8_string("p5", app_p5, sizeof(app_p5));
+				// sizeof(app_p6_init), because we know that's what we're using 
+				params[n++] = OSSL_PARAM_construct_utf8_ptr("p6", (char**)&app_p6, sizeof(app_p6_init));
+				params[n++] = OSSL_PARAM_construct_octet_string("foo", &foo, sizeof(foo));
+				params[n++] = OSSL_PARAM_construct_end();
+				return params;
+			}
+		};
+		// 
+		// This structure only simulates a provider dispatch, the real deal is
+		// a bit more code that's not necessary in these tests.
+		// 
+		struct provider_dispatch_st {
+			int (* set_params)(void * obj, const OSSL_PARAM * params);
+			int (* get_params)(void * obj, OSSL_PARAM * params);
+		};
+
+		static const struct provider_dispatch_st provider_raw = { TestInnerBlock_PreMethods_Params::raw_set_params, TestInnerBlock_PreMethods_Params::raw_get_params }; /* "raw" provider */
+		static const struct provider_dispatch_st provider_api = { TestInnerBlock_PreMethods_Params::api_set_params, TestInnerBlock_PreMethods_Params::api_get_params }; /* "api" provider */
+		//
+		// In all our tests, these are variables that get manipulated as parameters
+		//
+		// Here, we define test OSSL_PARAM arrays
+		// 
+		// An array of OSSL_PARAM, specific in the most raw manner possible 
+		static OSSL_PARAM static_raw_params[] = {
+			{ "p1", OSSL_PARAM_INTEGER, &app_p1, sizeof(app_p1), 0 },
+			{ "p3", OSSL_PARAM_UNSIGNED_INTEGER, &bignumbin, sizeof(bignumbin), 0 },
+			{ "p4", OSSL_PARAM_UTF8_STRING, &app_p4, sizeof(app_p4), 0 },
+			{ "p5", OSSL_PARAM_UTF8_STRING, &app_p5, sizeof(app_p5), 0 },
+			// sizeof(app_p6_init) - 1, because we know that's what we're using 
+			{ "p6", OSSL_PARAM_UTF8_PTR, &app_p6, sizeof(app_p6_init) - 1, 0 },
+			{ "foo", OSSL_PARAM_OCTET_STRING, &foo, sizeof(foo), 0 },
+			{ NULL, 0, NULL, 0, 0 }
+		};
+		// 
+		// The same array of OSSL_PARAM, specified with the macros from params.h
+		// 
+		static OSSL_PARAM static_api_params[] = {
+			OSSL_PARAM_int("p1", &app_p1),
+			OSSL_PARAM_BN("p3", &bignumbin, sizeof(bignumbin)),
+			OSSL_PARAM_DEFN("p4", OSSL_PARAM_UTF8_STRING, &app_p4, sizeof(app_p4)),
+			OSSL_PARAM_DEFN("p5", OSSL_PARAM_UTF8_STRING, &app_p5, sizeof(app_p5)),
+			// sizeof(app_p6_init), because we know that's what we're using 
+			OSSL_PARAM_DEFN("p6", OSSL_PARAM_UTF8_PTR, &app_p6, sizeof(app_p6_init) - 1),
+			OSSL_PARAM_DEFN("foo", OSSL_PARAM_OCTET_STRING, &foo, sizeof(foo)),
+			OSSL_PARAM_END
+		};
+		struct param_owner_st {
+			OSSL_PARAM * static_params;
+			OSSL_PARAM *(* constructed_params)();
+		};
+		static const struct param_owner_st raw_params = { static_raw_params, NULL };
+		static const struct param_owner_st api_params = { static_api_params, TestInnerBlock_PreMethods_Params::construct_api_params };
+		// 
+		// Test cases to combine parameters with "provider side" functions
+		// 
+		static struct {
+			const struct provider_dispatch_st * prov;
+			const struct param_owner_st * app;
+			const char * desc;
+		} test_cases[] = {
+			// Tests within specific methods
+			{ &provider_raw, &raw_params, "raw provider vs raw params" },
+			{ &provider_api, &api_params, "api provider vs api params" },
+			// Mixed methods 
+			{ &provider_raw, &api_params, "raw provider vs api params" },
+			{ &provider_api, &raw_params, "api provider vs raw params" },
+		};
+		static const OSSL_PARAM params_from_text[] = {
+			// Fixed size buffer 
+			OSSL_PARAM_int32("int", NULL),
+			OSSL_PARAM_DEFN("short", OSSL_PARAM_INTEGER, NULL, sizeof(int16_t)),
+			OSSL_PARAM_DEFN("ushort", OSSL_PARAM_UNSIGNED_INTEGER, NULL, sizeof(uint16_t)),
+			// Arbitrary size buffer.  Make sure the result fits in a long 
+			OSSL_PARAM_DEFN("num", OSSL_PARAM_INTEGER, NULL, 0),
+			OSSL_PARAM_DEFN("unum", OSSL_PARAM_UNSIGNED_INTEGER, NULL, 0),
+			OSSL_PARAM_END,
+		};
+
+		struct int_from_text_test_st {
+			const char * argname;
+			const char * strval;
+			long int expected_intval;
+			int expected_res;
+			size_t expected_bufsize;
+		};
+		static struct int_from_text_test_st int_from_text_test_cases[] = {
+			{ "int",               "",          0, 0, 0 },
+			{ "int",              "0",          0, 1, 4 },
+			{ "int",            "101",        101, 1, 4 },
+			{ "int",           "-102",       -102, 1, 4 },
+			{ "int",            "12A",         12, 1, 4 },/* incomplete */
+			{ "int",          "0x12B",      0x12B, 1, 4 },
+			{ "hexint",         "12C",      0x12C, 1, 4 },
+			{ "hexint",       "0x12D",          0, 1, 4 },/* zero */
+			/* test check of the target buffer size */
+			{ "int",     "0x7fffffff",  INT32_MAX, 1, 4 },
+			{ "int",     "2147483647",  INT32_MAX, 1, 4 },
+			{ "int",     "2147483648",          0, 0, 0 },/* too small buffer */
+			{ "int",    "-2147483648",  INT32_MIN, 1, 4 },
+			{ "int",    "-2147483649",          0, 0, 4 },/* too small buffer */
+			{ "short",       "0x7fff",  INT16_MAX, 1, 2 },
+			{ "short",        "32767",  INT16_MAX, 1, 2 },
+			{ "short",        "32768",          0, 0, 0 },/* too small buffer */
+			{ "ushort",      "0xffff", UINT16_MAX, 1, 2 },
+			{ "ushort",       "65535", UINT16_MAX, 1, 2 },
+			{ "ushort",       "65536",          0, 0, 0 },/* too small buffer */
+			/* test check of sign extension in arbitrary size results */
+			{ "num",              "0",          0, 1, 1 },
+			{ "num",              "0",          0, 1, 1 },
+			{ "num",           "0xff",       0xff, 1, 2 },/* sign extension */
+			{ "num",          "-0xff",      -0xff, 1, 2 },/* sign extension */
+			{ "num",           "0x7f",       0x7f, 1, 1 },/* no sign extension */
+			{ "num",          "-0x7f",      -0x7f, 1, 1 },/* no sign extension */
+			{ "num",           "0x80",       0x80, 1, 2 },/* sign extension */
+			{ "num",          "-0x80",      -0x80, 1, 1 },/* no sign extension */
+			{ "num",           "0x81",       0x81, 1, 2 },/* sign extension */
+			{ "num",          "-0x81",      -0x81, 1, 2 },/* sign extension */
+			{ "unum",          "0xff",       0xff, 1, 1 },
+			{ "unum",         "-0xff",      -0xff, 0, 0 },/* invalid neg number */
+			{ "unum",          "0x7f",       0x7f, 1, 1 },
+			{ "unum",         "-0x7f",      -0x7f, 0, 0 },/* invalid neg number */
+			{ "unum",          "0x80",       0x80, 1, 1 },
+			{ "unum",         "-0x80",      -0x80, 0, 0 },/* invalid neg number */
+			{ "unum",          "0x81",       0x81, 1, 1 },
+			{ "unum",         "-0x81",      -0x81, 0, 0 },/* invalid neg number */
+		};
+		class TestInnerBlock_Params {
+		public:
+			// 
+			// This program tests the use of OSSL_PARAM, currently in raw form.
+			// 
+			#define p1_init 42    // The ultimate answer
+			#define p2_init 6.283 // Magic number
+			// Stolen from evp_data, BLAKE2s256 test 
+			#define p3_init "4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a30313233343536373839"
+			#define p4_init "BLAKE2s256"             // Random string
+			#define p5_init "Hellow World"           // Random string
+			#define p6_init OPENSSL_FULL_VERSION_STR // Static string
+
+			static void cleanup_object(void * vobj)
+			{
+				struct object_st * obj = (struct object_st *)vobj;
+				BN_free(obj->p3);
+				obj->p3 = NULL;
+				OPENSSL_free(obj->p4);
+				obj->p4 = NULL;
+				OPENSSL_free(obj);
+			}
+			static void * init_object()
+			{
+				struct object_st * obj;
+				if(!TEST_ptr(obj = (struct object_st *)OPENSSL_zalloc(sizeof(*obj))))
+					return NULL;
+				obj->p1 = p1_init;
+				obj->p2 = p2_init;
+				if(!TEST_true(BN_hex2bn(&obj->p3, p3_init)))
+					goto fail;
+				if(!TEST_ptr(obj->p4 = OPENSSL_strdup(p4_init)))
+					goto fail;
+				strcpy(obj->p5, p5_init);
+				obj->p6 = p6_init;
+				return obj;
+			fail:
+				cleanup_object(obj);
+				obj = NULL;
+				return NULL;
+			}
+			// 
+			// APPLICATION SECTION
+			// 
+			static int cleanup_app_variables()
+			{
+				BN_free(app_p3);
+				app_p3 = NULL;
+				return 1;
+			}
+			static int init_app_variables()
+			{
+				int l = 0;
+				cleanup_app_variables();
+				app_p1 = app_p1_init;
+				app_p2 = app_p2_init;
+				if(!BN_hex2bn(&app_p3, app_p3_init) || (l = BN_bn2nativepad(app_p3, bignumbin, sizeof(bignumbin))) < 0)
+					return 0;
+				strcpy(app_p4, app_p4_init);
+				strcpy(app_p5, app_p5_init);
+				app_p6 = app_p6_init;
+				foo[0] = app_foo_init;
+				return 1;
+			}
+			// 
+			// TESTING
+			// 
+			// 
+			// Generic tester of combinations of "providers" and params 
+			// 
+			static int test_case_variant(OSSL_PARAM * params, const struct provider_dispatch_st * prov)
+			{
+				BIGNUM * verify_p3 = NULL;
+				void * obj = NULL;
+				int errcnt = 0;
+				OSSL_PARAM * p;
+				//
+				// Initialize
+				//
+				if(!TEST_ptr(obj = init_object()) || !TEST_true(BN_hex2bn(&verify_p3, p3_init))) {
+					errcnt++;
+					goto fin;
+				}
+				//
+				// Get parameters a first time, just to see that getting works and gets us the values we expect.
+				//
+				init_app_variables();
+				if(!TEST_true(prov->get_params(obj, params))
+					|| !TEST_int_eq(app_p1, p1_init)    /* "provider" value */
+					|| !TEST_double_eq(app_p2, app_p2_init) /* Should remain untouched */
+					|| !TEST_ptr(p = OSSL_PARAM_locate(params, "p3"))
+					|| !TEST_ptr(BN_native2bn(bignumbin, p->return_size, app_p3))
+					|| !TEST_BN_eq(app_p3, verify_p3)   /* "provider" value */
+					|| !TEST_str_eq(app_p4, p4_init)    /* "provider" value */
+					|| !TEST_ptr(p = OSSL_PARAM_locate(params, "p5"))
+					|| !TEST_size_t_eq(p->return_size, sizeof(p5_init) - 1) /* "provider" value */
+					|| !TEST_str_eq(app_p5, p5_init)    /* "provider" value */
+					|| !TEST_ptr(p = OSSL_PARAM_locate(params, "p6"))
+					|| !TEST_size_t_eq(p->return_size, sizeof(p6_init) - 1) /* "provider" value */
+					|| !TEST_str_eq(app_p6, p6_init)    /* "provider" value */
+					|| !TEST_char_eq(foo[0], app_foo_init) /* Should remain untouched */
+					|| !TEST_ptr(p = OSSL_PARAM_locate(params, "foo")))
+					errcnt++;
+				//
+				// Set parameters, then sneak into the object itself and check that its attributes got set (or ignored) properly.
+				//
+				init_app_variables();
+				if(!TEST_true(prov->set_params(obj, params))) {
+					errcnt++;
+				}
+				else {
+					struct object_st * sneakpeek = (struct object_st *)obj;
+					if(!TEST_int_eq(sneakpeek->p1, app_p1)  /* app value set */
+						|| !TEST_double_eq(sneakpeek->p2, p2_init) /* Should remain untouched */
+						|| !TEST_BN_eq(sneakpeek->p3, app_p3) /* app value set */
+						|| !TEST_str_eq(sneakpeek->p4, app_p4) /* app value set */
+						|| !TEST_str_eq(sneakpeek->p5, app_p5) /* app value set */
+						|| !TEST_str_eq(sneakpeek->p6, app_p6)) /* app value set */
+						errcnt++;
+				}
+				//
+				// Get parameters again, checking that we get different values than earlier where relevant.
+				//
+				BN_free(verify_p3);
+				verify_p3 = NULL;
+				if(!TEST_true(BN_hex2bn(&verify_p3, app_p3_init))) {
+					errcnt++;
+					goto fin;
+				}
+				if(!TEST_true(prov->get_params(obj, params)) || !TEST_int_eq(app_p1, app_p1_init) /* app value */
+					|| !TEST_double_eq(app_p2, app_p2_init) /* Should remain untouched */
+					|| !TEST_ptr(p = OSSL_PARAM_locate(params, "p3"))
+					|| !TEST_ptr(BN_native2bn(bignumbin, p->return_size, app_p3))
+					|| !TEST_BN_eq(app_p3, verify_p3)   /* app value */
+					|| !TEST_str_eq(app_p4, app_p4_init) /* app value */
+					|| !TEST_ptr(p = OSSL_PARAM_locate(params, "p5"))
+					|| !TEST_size_t_eq(p->return_size, sizeof(app_p5_init) - 1) /* app value */
+					|| !TEST_str_eq(app_p5, app_p5_init) /* app value */
+					|| !TEST_ptr(p = OSSL_PARAM_locate(params, "p6"))
+					|| !TEST_size_t_eq(p->return_size, sizeof(app_p6_init) - 1) /* app value */
+					|| !TEST_str_eq(app_p6, app_p6_init) /* app value */
+					|| !TEST_char_eq(foo[0], app_foo_init) /* Should remain untouched */
+					|| !TEST_ptr(p = OSSL_PARAM_locate(params, "foo")))
+					errcnt++;
+			fin:
+				BN_free(verify_p3);
+				verify_p3 = NULL;
+				cleanup_app_variables();
+				cleanup_object(obj);
+				return errcnt == 0;
+			}
+			static int test_case(int i)
+			{
+				TEST_info("Case: %s", test_cases[i].desc);
+				return test_case_variant(test_cases[i].app->static_params, test_cases[i].prov)
+					   && (test_cases[i].app->constructed_params == NULL
+					   || test_case_variant(test_cases[i].app->constructed_params(), test_cases[i].prov));
+			}
+			// 
+			// OSSL_PARAM_allocate_from_text() tests
+			// 
+			static int check_int_from_text(const struct int_from_text_test_st a)
+			{
+				OSSL_PARAM param;
+				long int val = 0;
+				int res;
+				if(!OSSL_PARAM_allocate_from_text(&param, params_from_text, a.argname, a.strval, 0, NULL)) {
+					if(a.expected_res)
+						TEST_error("unexpected OSSL_PARAM_allocate_from_text() return for %s \"%s\"", a.argname, a.strval);
+					return !a.expected_res;
+				}
+				/* For data size zero, OSSL_PARAM_get_long() may crash */
+				if(param.data_size == 0) {
+					OPENSSL_free(param.data);
+					TEST_error("unexpected zero size for %s \"%s\"", a.argname, a.strval);
+					return 0;
+				}
+				res = OSSL_PARAM_get_long(&param, &val);
+				OPENSSL_free(param.data);
+				if(res ^ a.expected_res) {
+					TEST_error("unexpected OSSL_PARAM_get_long() return for %s \"%s\": %d != %d", a.argname, a.strval, a.expected_res, res);
+					return 0;
+				}
+				if(val != a.expected_intval) {
+					TEST_error("unexpected result for %s \"%s\":  %li != %li", a.argname, a.strval, a.expected_intval, val);
+					return 0;
+				}
+				if(param.data_size != a.expected_bufsize) {
+					TEST_error("unexpected size for %s \"%s\":  %d != %d", a.argname, a.strval, (int)a.expected_bufsize, (int)param.data_size);
+					return 0;
+				}
+				return a.expected_res;
+			}
+			static int test_allocate_from_text(int i)
+			{
+				return check_int_from_text(int_from_text_test_cases[i]);
+			}
+		};
+		ADD_ALL_TESTS(TestInnerBlock_Params::test_case, SIZEOFARRAY(test_cases));
+		ADD_ALL_TESTS(TestInnerBlock_Params::test_allocate_from_text, SIZEOFARRAY(int_from_text_test_cases));
+
+		#undef app_p1_init
+		#undef app_p2_init
+		#undef app_p3_init
+		#undef app_p4_init
+		#undef app_p5_init
+		#undef app_p6_init
+		#undef app_foo_init
+		#undef p1_init
+		#undef p2_init
+		#undef p3_init
+		#undef p4_init
+		#undef p5_init
+		#undef p6_init
+	}
+	{
+		// 
+		// This is an internal test that is intentionally using internal APIs. Some of
+		// those APIs are deprecated for public use.
+		// 
+		#ifndef OPENSSL_NO_DSA
+		static const uchar dsa_2048_224_sha224_p[] = {
+			0x93, 0x57, 0x93, 0x62, 0x1b, 0x9a, 0x10, 0x9b, 0xc1, 0x56, 0x0f, 0x24,
+			0x71, 0x76, 0x4e, 0xd3, 0xed, 0x78, 0x78, 0x7a, 0xbf, 0x89, 0x71, 0x67,
+			0x8e, 0x03, 0xd8, 0x5b, 0xcd, 0x22, 0x8f, 0x70, 0x74, 0xff, 0x22, 0x05,
+			0x07, 0x0c, 0x4c, 0x60, 0xed, 0x41, 0xe1, 0x9e, 0x9c, 0xaa, 0x3e, 0x19,
+			0x5c, 0x3d, 0x80, 0x58, 0xb2, 0x7f, 0x5f, 0x89, 0xec, 0xb5, 0x19, 0xdb,
+			0x06, 0x11, 0xe9, 0x78, 0x5c, 0xf9, 0xa0, 0x9e, 0x70, 0x62, 0x14, 0x7b,
+			0xda, 0x92, 0xbf, 0xb2, 0x6b, 0x01, 0x6f, 0xb8, 0x68, 0x9c, 0x89, 0x36,
+			0x89, 0x72, 0x79, 0x49, 0x93, 0x3d, 0x14, 0xb2, 0x2d, 0xbb, 0xf0, 0xdf,
+			0x94, 0x45, 0x0b, 0x5f, 0xf1, 0x75, 0x37, 0xeb, 0x49, 0xb9, 0x2d, 0xce,
+			0xb7, 0xf4, 0x95, 0x77, 0xc2, 0xe9, 0x39, 0x1c, 0x4e, 0x0c, 0x40, 0x62,
+			0x33, 0x0a, 0xe6, 0x29, 0x6f, 0xba, 0xef, 0x02, 0xdd, 0x0d, 0xe4, 0x04,
+			0x01, 0x70, 0x40, 0xb9, 0xc9, 0x7e, 0x2f, 0x10, 0x37, 0xe9, 0xde, 0xb0,
+			0xf6, 0xeb, 0x71, 0x7f, 0x9c, 0x35, 0x16, 0xf3, 0x0d, 0xc4, 0xe8, 0x02,
+			0x37, 0x6c, 0xdd, 0xb3, 0x8d, 0x2d, 0x1e, 0x28, 0x13, 0x22, 0x89, 0x40,
+			0xe5, 0xfa, 0x16, 0x67, 0xd6, 0xda, 0x12, 0xa2, 0x38, 0x83, 0x25, 0xcc,
+			0x26, 0xc1, 0x27, 0x74, 0xfe, 0xf6, 0x7a, 0xb6, 0xa1, 0xe4, 0xe8, 0xdf,
+			0x5d, 0xd2, 0x9c, 0x2f, 0xec, 0xea, 0x08, 0xca, 0x48, 0xdb, 0x18, 0x4b,
+			0x12, 0xee, 0x16, 0x9b, 0xa6, 0x00, 0xa0, 0x18, 0x98, 0x7d, 0xce, 0x6c,
+			0x6d, 0xf8, 0xfc, 0x95, 0x51, 0x1b, 0x0a, 0x40, 0xb6, 0xfc, 0xe5, 0xe2,
+			0xb0, 0x26, 0x53, 0x4c, 0xd7, 0xfe, 0xaa, 0x6d, 0xbc, 0xdd, 0xc0, 0x61,
+			0x65, 0xe4, 0x89, 0x44, 0x18, 0x6f, 0xd5, 0x39, 0xcf, 0x75, 0x6d, 0x29,
+			0xcc, 0xf8, 0x40, 0xab
+		};
+		static const uchar dsa_2048_224_sha224_q[] = {
+			0xf2, 0x5e, 0x4e, 0x9a, 0x15, 0xa8, 0x13, 0xdf, 0xa3, 0x17, 0x90, 0xc6,
+			0xd6, 0x5e, 0xb1, 0xfb, 0x31, 0xf8, 0xb5, 0xb1, 0x4b, 0xa7, 0x6d, 0xde,
+			0x57, 0x76, 0x6f, 0x11
+		};
+		static const uchar dsa_2048_224_sha224_seed[] = {
+			0xd2, 0xb1, 0x36, 0xd8, 0x5b, 0x8e, 0xa4, 0xb2, 0x6a, 0xab, 0x4e, 0x85,
+			0x8b, 0x49, 0xf9, 0xdd, 0xe6, 0xa1, 0xcd, 0xad, 0x49, 0x52, 0xe9, 0xb3,
+			0x36, 0x17, 0x06, 0xcf
+		};
+		static const uchar dsa_2048_224_sha224_bad_seed[] = {
+			0xd2, 0xb1, 0x36, 0xd8, 0x5b, 0x8e, 0xa4, 0xb2, 0x6a, 0xab, 0x4e, 0x85,
+			0x8b, 0x49, 0xf9, 0xdd, 0xe6, 0xa1, 0xcd, 0xad, 0x49, 0x52, 0xe9, 0xb3,
+			0x36, 0x17, 0x06, 0xd0
+		};
+		static int dsa_2048_224_sha224_counter = 2878;
+
+		static const uchar dsa_3072_256_sha512_p[] = {
+			0x9a, 0x82, 0x8b, 0x8d, 0xea, 0xd0, 0x56, 0x23, 0x88, 0x2d, 0x5d, 0x41,
+			0x42, 0x4c, 0x13, 0x5a, 0x15, 0x81, 0x59, 0x02, 0xc5, 0x00, 0x82, 0x28,
+			0x01, 0xee, 0x8f, 0x99, 0xfd, 0x6a, 0x95, 0xf2, 0x0f, 0xae, 0x34, 0x77,
+			0x29, 0xcc, 0xc7, 0x50, 0x0e, 0x03, 0xef, 0xb0, 0x4d, 0xe5, 0x10, 0x00,
+			0xa8, 0x7b, 0xce, 0x8c, 0xc6, 0xb2, 0x01, 0x74, 0x23, 0x1b, 0x7f, 0xe8,
+			0xf9, 0x71, 0x28, 0x39, 0xcf, 0x18, 0x04, 0xb2, 0x95, 0x61, 0x2d, 0x11,
+			0x71, 0x6b, 0xdd, 0x0d, 0x0b, 0xf0, 0xe6, 0x97, 0x52, 0x29, 0x9d, 0x45,
+			0xb1, 0x23, 0xda, 0xb0, 0xd5, 0xcb, 0x51, 0x71, 0x8e, 0x40, 0x9c, 0x97,
+			0x13, 0xea, 0x1f, 0x4b, 0x32, 0x5d, 0x27, 0x74, 0x81, 0x8d, 0x47, 0x8a,
+			0x08, 0xce, 0xf4, 0xd1, 0x28, 0xa2, 0x0f, 0x9b, 0x2e, 0xc9, 0xa3, 0x0e,
+			0x5d, 0xde, 0x47, 0x19, 0x6d, 0x5f, 0x98, 0xe0, 0x8e, 0x7f, 0x60, 0x8f,
+			0x25, 0xa7, 0xa4, 0xeb, 0xb9, 0xf3, 0x24, 0xa4, 0x9e, 0xc1, 0xbd, 0x14,
+			0x27, 0x7c, 0x27, 0xc8, 0x4f, 0x5f, 0xed, 0xfd, 0x86, 0xc8, 0xf1, 0xd7,
+			0x82, 0xe2, 0xeb, 0xe5, 0xd2, 0xbe, 0xb0, 0x65, 0x28, 0xab, 0x99, 0x9e,
+			0xcd, 0xd5, 0x22, 0xf8, 0x1b, 0x3b, 0x01, 0xe9, 0x20, 0x3d, 0xe4, 0x98,
+			0x22, 0xfe, 0xfc, 0x09, 0x7e, 0x95, 0x20, 0xda, 0xb6, 0x12, 0x2c, 0x94,
+			0x5c, 0xea, 0x74, 0x71, 0xbd, 0x19, 0xac, 0x78, 0x43, 0x02, 0x51, 0xb8,
+			0x5f, 0x06, 0x1d, 0xea, 0xc8, 0xa4, 0x3b, 0xc9, 0x78, 0xa3, 0x2b, 0x09,
+			0xdc, 0x76, 0x74, 0xc4, 0x23, 0x14, 0x48, 0x2e, 0x84, 0x2b, 0xa3, 0x82,
+			0xc1, 0xba, 0x0b, 0x39, 0x2a, 0x9f, 0x24, 0x7b, 0xd6, 0xc2, 0xea, 0x5a,
+			0xb6, 0xbd, 0x15, 0x82, 0x21, 0x85, 0xe0, 0x6b, 0x12, 0x4f, 0x8d, 0x64,
+			0x75, 0xeb, 0x7e, 0xa1, 0xdb, 0xe0, 0x9d, 0x25, 0xae, 0x3b, 0xe9, 0x9b,
+			0x21, 0x7f, 0x9a, 0x3d, 0x66, 0xd0, 0x52, 0x1d, 0x39, 0x8b, 0xeb, 0xfc,
+			0xec, 0xbe, 0x72, 0x20, 0x5a, 0xdf, 0x1b, 0x00, 0xf1, 0x0e, 0xed, 0xc6,
+			0x78, 0x6f, 0xc9, 0xab, 0xe4, 0xd6, 0x81, 0x8b, 0xcc, 0xf6, 0xd4, 0x6a,
+			0x31, 0x62, 0x08, 0xd9, 0x38, 0x21, 0x8f, 0xda, 0x9e, 0xb1, 0x2b, 0x9c,
+			0xc0, 0xbe, 0xf7, 0x9a, 0x43, 0x2d, 0x07, 0x59, 0x46, 0x0e, 0xd5, 0x23,
+			0x4e, 0xaa, 0x4a, 0x04, 0xc2, 0xde, 0x33, 0xa6, 0x34, 0xba, 0xac, 0x4f,
+			0x78, 0xd8, 0xca, 0x76, 0xce, 0x5e, 0xd4, 0xf6, 0x85, 0x4c, 0x6a, 0x60,
+			0x08, 0x5d, 0x0e, 0x34, 0x8b, 0xf2, 0xb6, 0xe3, 0xb7, 0x51, 0xca, 0x43,
+			0xaa, 0x68, 0x7b, 0x0a, 0x6e, 0xea, 0xce, 0x1e, 0x2c, 0x34, 0x8e, 0x0f,
+			0xe2, 0xcc, 0x38, 0xf2, 0x9a, 0x98, 0xef, 0xe6, 0x7f, 0xf6, 0x62, 0xbb
+		};
+		static const uchar dsa_3072_256_sha512_q[] = {
+			0xc1, 0xdb, 0xc1, 0x21, 0x50, 0x49, 0x63, 0xa3, 0x77, 0x6d, 0x4c, 0x92,
+			0xed, 0x58, 0x9e, 0x98, 0xea, 0xac, 0x7a, 0x90, 0x13, 0x24, 0xf7, 0xcd,
+			0xd7, 0xe6, 0xd4, 0x8f, 0xf0, 0x45, 0x4b, 0xf7
+		};
+		static const uchar dsa_3072_256_sha512_seed[] = {
+			0x35, 0x24, 0xb5, 0x59, 0xd5, 0x27, 0x58, 0x10, 0xf6, 0xa2, 0x7c, 0x9a,
+			0x0d, 0xc2, 0x70, 0x8a, 0xb0, 0x41, 0x4a, 0x84, 0x0b, 0xfe, 0x66, 0xf5,
+			0x3a, 0xbf, 0x4a, 0xa9, 0xcb, 0xfc, 0xa6, 0x22
+		};
+		static int dsa_3072_256_sha512_counter = 1604;
+
+		static const uchar dsa_2048_224_sha256_p[] = {
+			0xe9, 0x13, 0xbc, 0xf2, 0x14, 0x5d, 0xf9, 0x79, 0xd6, 0x6d, 0xf5, 0xc5,
+			0xbe, 0x7b, 0x6f, 0x90, 0x63, 0xd0, 0xfd, 0xee, 0x4f, 0xc4, 0x65, 0x83,
+			0xbf, 0xec, 0xc3, 0x2c, 0x5d, 0x30, 0xc8, 0xa4, 0x3b, 0x2f, 0x3b, 0x29,
+			0x43, 0x69, 0xfb, 0x6e, 0xa9, 0xa4, 0x07, 0x6c, 0xcd, 0xb0, 0xd2, 0xd9,
+			0xd3, 0xe6, 0xf4, 0x87, 0x16, 0xb7, 0xe5, 0x06, 0xb9, 0xba, 0xd6, 0x87,
+			0xbc, 0x01, 0x9e, 0xba, 0xc2, 0xcf, 0x39, 0xb6, 0xec, 0xdc, 0x75, 0x07,
+			0xc1, 0x39, 0x2d, 0x6a, 0x95, 0x31, 0x97, 0xda, 0x54, 0x20, 0x29, 0xe0,
+			0x1b, 0xf9, 0x74, 0x65, 0xaa, 0xc1, 0x47, 0xd3, 0x9e, 0xb4, 0x3c, 0x1d,
+			0xe0, 0xdc, 0x2d, 0x21, 0xab, 0x12, 0x3b, 0xa5, 0x51, 0x1e, 0xc6, 0xbc,
+			0x6b, 0x4c, 0x22, 0xd1, 0x7c, 0xc6, 0xce, 0xcb, 0x8c, 0x1d, 0x1f, 0xce,
+			0x1c, 0xe2, 0x75, 0x49, 0x6d, 0x2c, 0xee, 0x7f, 0x5f, 0xb8, 0x74, 0x42,
+			0x5c, 0x96, 0x77, 0x13, 0xff, 0x80, 0xf3, 0x05, 0xc7, 0xfe, 0x08, 0x3b,
+			0x25, 0x36, 0x46, 0xa2, 0xc4, 0x26, 0xb4, 0xb0, 0x3b, 0xd5, 0xb2, 0x4c,
+			0x13, 0x29, 0x0e, 0x47, 0x31, 0x66, 0x7d, 0x78, 0x57, 0xe6, 0xc2, 0xb5,
+			0x9f, 0x46, 0x17, 0xbc, 0xa9, 0x9a, 0x49, 0x1c, 0x0f, 0x45, 0xe0, 0x88,
+			0x97, 0xa1, 0x30, 0x7c, 0x42, 0xb7, 0x2c, 0x0a, 0xce, 0xb3, 0xa5, 0x7a,
+			0x61, 0x8e, 0xab, 0x44, 0xc1, 0xdc, 0x70, 0xe5, 0xda, 0x78, 0x2a, 0xb4,
+			0xe6, 0x3c, 0xa0, 0x58, 0xda, 0x62, 0x0a, 0xb2, 0xa9, 0x3d, 0xaa, 0x49,
+			0x7e, 0x7f, 0x9a, 0x19, 0x67, 0xee, 0xd6, 0xe3, 0x67, 0x13, 0xe8, 0x6f,
+			0x79, 0x50, 0x76, 0xfc, 0xb3, 0x9d, 0x7e, 0x9e, 0x3e, 0x6e, 0x47, 0xb1,
+			0x11, 0x5e, 0xc8, 0x83, 0x3a, 0x3c, 0xfc, 0x82, 0x5c, 0x9d, 0x34, 0x65,
+			0x73, 0xb4, 0x56, 0xd5
+		};
+		static const uchar dsa_2048_224_sha256_q[] = {
+			0xb0, 0xdf, 0xa1, 0x7b, 0xa4, 0x77, 0x64, 0x0e, 0xb9, 0x28, 0xbb, 0xbc,
+			0xd4, 0x60, 0x02, 0xaf, 0x21, 0x8c, 0xb0, 0x69, 0x0f, 0x8a, 0x7b, 0xc6,
+			0x80, 0xcb, 0x0a, 0x45
+		};
+		static const uchar dsa_2048_224_sha256_g[] = {
+			0x11, 0x7c, 0x5f, 0xf6, 0x99, 0x44, 0x67, 0x5b, 0x69, 0xa3, 0x83, 0xef,
+			0xb5, 0x85, 0xa2, 0x19, 0x35, 0x18, 0x2a, 0xf2, 0x58, 0xf4, 0xc9, 0x58,
+			0x9e, 0xb9, 0xe8, 0x91, 0x17, 0x2f, 0xb0, 0x60, 0x85, 0x95, 0xa6, 0x62,
+			0x36, 0xd0, 0xff, 0x94, 0xb9, 0xa6, 0x50, 0xad, 0xa6, 0xf6, 0x04, 0x28,
+			0xc2, 0xc9, 0xb9, 0x75, 0xf3, 0x66, 0xb4, 0xeb, 0xf6, 0xd5, 0x06, 0x13,
+			0x01, 0x64, 0x82, 0xa9, 0xf1, 0xd5, 0x41, 0xdc, 0xf2, 0x08, 0xfc, 0x2f,
+			0xc4, 0xa1, 0x21, 0xee, 0x7d, 0xbc, 0xda, 0x5a, 0xa4, 0xa2, 0xb9, 0x68,
+			0x87, 0x36, 0xba, 0x53, 0x9e, 0x14, 0x4e, 0x76, 0x5c, 0xba, 0x79, 0x3d,
+			0x0f, 0xe5, 0x99, 0x1c, 0x27, 0xfc, 0xaf, 0x10, 0x63, 0x87, 0x68, 0x0e,
+			0x3e, 0x6e, 0xaa, 0xf3, 0xdf, 0x76, 0x7e, 0x02, 0x9a, 0x41, 0x96, 0xa1,
+			0x6c, 0xbb, 0x67, 0xee, 0x0c, 0xad, 0x72, 0x65, 0xf1, 0x70, 0xb0, 0x39,
+			0x9b, 0x54, 0x5f, 0xd7, 0x6c, 0xc5, 0x9a, 0x90, 0x53, 0x18, 0xde, 0x5e,
+			0x62, 0x89, 0xb9, 0x2f, 0x66, 0x59, 0x3a, 0x3d, 0x10, 0xeb, 0xa5, 0x99,
+			0xf6, 0x21, 0x7d, 0xf2, 0x7b, 0x42, 0x15, 0x1c, 0x55, 0x79, 0x15, 0xaa,
+			0xa4, 0x17, 0x2e, 0x48, 0xc3, 0xa8, 0x36, 0xf5, 0x1a, 0x97, 0xce, 0xbd,
+			0x72, 0xef, 0x1d, 0x50, 0x5b, 0xb1, 0x60, 0x0a, 0x5c, 0x0b, 0xa6, 0x21,
+			0x38, 0x28, 0x4e, 0x89, 0x33, 0x1d, 0xb5, 0x7e, 0x5c, 0xf1, 0x6b, 0x2c,
+			0xbd, 0xad, 0x84, 0xb2, 0x8e, 0x96, 0xe2, 0x30, 0xe7, 0x54, 0xb8, 0xc9,
+			0x70, 0xcb, 0x10, 0x30, 0x63, 0x90, 0xf4, 0x45, 0x64, 0x93, 0x09, 0x38,
+			0x6a, 0x47, 0x58, 0x31, 0x04, 0x1a, 0x18, 0x04, 0x1a, 0xe0, 0xd7, 0x0b,
+			0x3c, 0xbe, 0x2a, 0x9c, 0xec, 0xcc, 0x0d, 0x0c, 0xed, 0xde, 0x54, 0xbc,
+			0xe6, 0x93, 0x59, 0xfc
+		};
+
+		extern FFC_PARAMS * ossl_dh_get0_params(DH * dh);
+
+		class TestInnerBlock_FFC_Internal {
+		public:
+			static int ffc_params_validate_g_unverified_test()
+			{
+				int ret = 0, res;
+				FFC_PARAMS params;
+				BIGNUM * p = NULL, * q = NULL, * g = NULL;
+				BIGNUM * p1 = NULL, * g1 = NULL;
+				ossl_ffc_params_init(&params);
+				if(!TEST_ptr(p = BN_bin2bn(dsa_2048_224_sha256_p, sizeof(dsa_2048_224_sha256_p), NULL)))
+					goto err;
+				p1 = p;
+				if(!TEST_ptr(q = BN_bin2bn(dsa_2048_224_sha256_q, sizeof(dsa_2048_224_sha256_q), NULL)))
+					goto err;
+				if(!TEST_ptr(g = BN_bin2bn(dsa_2048_224_sha256_g, sizeof(dsa_2048_224_sha256_g), NULL)))
+					goto err;
+				g1 = g;
+				/* Fail if g is NULL */
+				ossl_ffc_params_set0_pqg(&params, p, q, NULL);
+				p = NULL;
+				q = NULL;
+				ossl_ffc_params_set_flags(&params, FFC_PARAM_FLAG_VALIDATE_G);
+				ossl_ffc_set_digest(&params, "SHA256", NULL);
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				ossl_ffc_params_set0_pqg(&params, p, q, g);
+				g = NULL;
+				if(!TEST_true(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				/* incorrect g */
+				BN_add_word(g1, 1);
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				/* fail if g < 2 */
+				BN_set_word(g1, 1);
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				BN_copy(g1, p1);
+				/* Fail if g >= p */
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				ret = 1;
+			err:
+				ossl_ffc_params_cleanup(&params);
+				BN_free(p);
+				BN_free(q);
+				BN_free(g);
+				return ret;
+			}
+			static int ffc_params_validate_pq_test()
+			{
+				int ret = 0, res = -1;
+				FFC_PARAMS params;
+				BIGNUM * p = NULL, * q = NULL;
+				ossl_ffc_params_init(&params);
+				if(!TEST_ptr(p = BN_bin2bn(dsa_2048_224_sha224_p, sizeof(dsa_2048_224_sha224_p), NULL)))
+					goto err;
+				if(!TEST_ptr(q = BN_bin2bn(dsa_2048_224_sha224_q, sizeof(dsa_2048_224_sha224_q), NULL)))
+					goto err;
+				/* No p */
+				ossl_ffc_params_set0_pqg(&params, NULL, q, NULL);
+				q = NULL;
+				ossl_ffc_params_set_flags(&params, FFC_PARAM_FLAG_VALIDATE_PQ);
+				ossl_ffc_set_digest(&params, "SHA224", NULL);
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				/* Test valid case */
+				ossl_ffc_params_set0_pqg(&params, p, NULL, NULL);
+				p = NULL;
+				ossl_ffc_params_set_validate_params(&params, dsa_2048_224_sha224_seed, sizeof(dsa_2048_224_sha224_seed), dsa_2048_224_sha224_counter);
+				if(!TEST_true(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				/* Bad counter - so p is not prime */
+				ossl_ffc_params_set_validate_params(&params, dsa_2048_224_sha224_seed, sizeof(dsa_2048_224_sha224_seed), 1);
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				/* seedlen smaller than N */
+				ossl_ffc_params_set_validate_params(&params, dsa_2048_224_sha224_seed, sizeof(dsa_2048_224_sha224_seed)-1, dsa_2048_224_sha224_counter);
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				/* Provided seed doesnt produce a valid prime q */
+				ossl_ffc_params_set_validate_params(&params, dsa_2048_224_sha224_bad_seed, sizeof(dsa_2048_224_sha224_bad_seed), dsa_2048_224_sha224_counter);
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				if(!TEST_ptr(p = BN_bin2bn(dsa_3072_256_sha512_p, sizeof(dsa_3072_256_sha512_p), NULL)))
+					goto err;
+				if(!TEST_ptr(q = BN_bin2bn(dsa_3072_256_sha512_q, sizeof(dsa_3072_256_sha512_q), NULL)))
+					goto err;
+				ossl_ffc_params_set0_pqg(&params, p, q, NULL);
+				p = q  = NULL;
+				ossl_ffc_set_digest(&params, "SHA512", NULL);
+				ossl_ffc_params_set_validate_params(&params, dsa_3072_256_sha512_seed, sizeof(dsa_3072_256_sha512_seed), dsa_3072_256_sha512_counter);
+				/* Q doesn't div P-1 */
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				/* Bad L/N for FIPS DH */
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DH, &res, NULL)))
+					goto err;
+				ret = 1;
+			err:
+				ossl_ffc_params_cleanup(&params);
+				BN_free(p);
+				BN_free(q);
+				return ret;
+			}
+			#endif /* OPENSSL_NO_DSA */
+			#ifndef OPENSSL_NO_DH
+			static int ffc_params_gen_test()
+			{
+				int ret = 0, res = -1;
+				FFC_PARAMS params;
+				ossl_ffc_params_init(&params);
+				if(!TEST_true(ossl_ffc_params_FIPS186_4_generate(NULL, &params, FFC_PARAM_TYPE_DH, 2048, 256, &res, NULL)))
+					goto err;
+				if(!TEST_true(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DH, &res, NULL)))
+					goto err;
+				ret = 1;
+			err:
+				ossl_ffc_params_cleanup(&params);
+				return ret;
+			}
+			static int ffc_params_gen_canonicalg_test()
+			{
+				int ret = 0, res = -1;
+				FFC_PARAMS params;
+				ossl_ffc_params_init(&params);
+				params.gindex = 1;
+				if(!TEST_true(ossl_ffc_params_FIPS186_4_generate(NULL, &params, FFC_PARAM_TYPE_DH, 2048, 256, &res, NULL)))
+					goto err;
+				if(!TEST_true(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DH, &res, NULL)))
+					goto err;
+				if(!TEST_true(ossl_ffc_params_print(bio_out, &params, 4)))
+					goto err;
+				ret = 1;
+			err:
+				ossl_ffc_params_cleanup(&params);
+				return ret;
+			}
+			static int ffc_params_fips186_2_gen_validate_test()
+			{
+				int ret = 0, res = -1;
+				FFC_PARAMS params;
+				BIGNUM * bn = NULL;
+				ossl_ffc_params_init(&params);
+				if(!TEST_ptr(bn = BN_new()))
+					goto err;
+				if(!TEST_true(ossl_ffc_params_FIPS186_2_generate(NULL, &params, FFC_PARAM_TYPE_DH, 1024, 160, &res, NULL)))
+					goto err;
+				if(!TEST_true(ossl_ffc_params_FIPS186_2_validate(NULL, &params, FFC_PARAM_TYPE_DH, &res, NULL)))
+					goto err;
+				/*
+				 * The fips186-2 generation should produce a different q compared to
+				 * fips 186-4 given the same seed value. So validation of q will fail.
+				 */
+				if(!TEST_false(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL)))
+					goto err;
+				/* As the params are randomly generated the error is one of the following */
+				if(!TEST_true(res == FFC_CHECK_Q_MISMATCH || res == FFC_CHECK_Q_NOT_PRIME))
+					goto err;
+				ossl_ffc_params_set_flags(&params, FFC_PARAM_FLAG_VALIDATE_G);
+				/* Partially valid g test will still pass */
+				if(!TEST_int_eq(ossl_ffc_params_FIPS186_4_validate(NULL, &params, FFC_PARAM_TYPE_DSA, &res, NULL), 2))
+					goto err;
+				if(!TEST_true(ossl_ffc_params_print(bio_out, &params, 4)))
+					goto err;
+				ret = 1;
+			err:
+				BN_free(bn);
+				ossl_ffc_params_cleanup(&params);
+				return ret;
+			}
+			static int ffc_public_validate_test()
+			{
+				int ret = 0, res = -1;
+				FFC_PARAMS * params;
+				BIGNUM * pub = NULL;
+				DH * dh = NULL;
+				if(!TEST_ptr(pub = BN_new()))
+					goto err;
+				if(!TEST_ptr(dh = DH_new_by_nid(NID_ffdhe2048)))
+					goto err;
+				params = ossl_dh_get0_params(dh);
+				if(!TEST_true(BN_set_word(pub, 1)))
+					goto err;
+				BN_set_negative(pub, 1);
+				/* Fail if public key is negative */
+				if(!TEST_false(ossl_ffc_validate_public_key(params, pub, &res)))
+					goto err;
+				if(!TEST_int_eq(FFC_ERROR_PUBKEY_TOO_SMALL, res))
+					goto err;
+				if(!TEST_true(BN_set_word(pub, 0)))
+					goto err;
+				if(!TEST_int_eq(FFC_ERROR_PUBKEY_TOO_SMALL, res))
+					goto err;
+				/* Fail if public key is zero */
+				if(!TEST_false(ossl_ffc_validate_public_key(params, pub, &res)))
+					goto err;
+				if(!TEST_int_eq(FFC_ERROR_PUBKEY_TOO_SMALL, res))
+					goto err;
+				/* Fail if public key is 1 */
+				if(!TEST_false(ossl_ffc_validate_public_key(params, BN_value_one(), &res)))
+					goto err;
+				if(!TEST_int_eq(FFC_ERROR_PUBKEY_TOO_SMALL, res))
+					goto err;
+				if(!TEST_true(BN_add_word(pub, 2)))
+					goto err;
+				/* Pass if public key >= 2 */
+				if(!TEST_true(ossl_ffc_validate_public_key(params, pub, &res)))
+					goto err;
+				if(!TEST_ptr(BN_copy(pub, params->p)))
+					goto err;
+				/* Fail if public key = p */
+				if(!TEST_false(ossl_ffc_validate_public_key(params, pub, &res)))
+					goto err;
+				if(!TEST_int_eq(FFC_ERROR_PUBKEY_TOO_LARGE, res))
+					goto err;
+				if(!TEST_true(BN_sub_word(pub, 1)))
+					goto err;
+				/* Fail if public key = p - 1 */
+				if(!TEST_false(ossl_ffc_validate_public_key(params, pub, &res)))
+					goto err;
+				if(!TEST_int_eq(FFC_ERROR_PUBKEY_TOO_LARGE, res))
+					goto err;
+				if(!TEST_true(BN_sub_word(pub, 1)))
+					goto err;
+				/* Fail if public key is not related to p & q */
+				if(!TEST_false(ossl_ffc_validate_public_key(params, pub, &res)))
+					goto err;
+				if(!TEST_int_eq(FFC_ERROR_PUBKEY_INVALID, res))
+					goto err;
+				if(!TEST_true(BN_sub_word(pub, 5)))
+					goto err;
+				/* Pass if public key is valid */
+				if(!TEST_true(ossl_ffc_validate_public_key(params, pub, &res)))
+					goto err;
+				ret = 1;
+			err:
+				DH_free(dh);
+				BN_free(pub);
+				return ret;
+			}
+			static int ffc_private_validate_test()
+			{
+				int ret = 0, res = -1;
+				FFC_PARAMS * params;
+				BIGNUM * priv = NULL;
+				DH * dh = NULL;
+				if(!TEST_ptr(priv = BN_new()))
+					goto err;
+				if(!TEST_ptr(dh = DH_new_by_nid(NID_ffdhe2048)))
+					goto err;
+				params = ossl_dh_get0_params(dh);
+				if(!TEST_true(BN_set_word(priv, 1)))
+					goto err;
+				BN_set_negative(priv, 1);
+				/* Fail if priv key is negative */
+				if(!TEST_false(ossl_ffc_validate_private_key(params->q, priv, &res)))
+					goto err;
+				if(!TEST_int_eq(FFC_ERROR_PRIVKEY_TOO_SMALL, res))
+					goto err;
+				if(!TEST_true(BN_set_word(priv, 0)))
+					goto err;
+				/* Fail if priv key is zero */
+				if(!TEST_false(ossl_ffc_validate_private_key(params->q, priv, &res)))
+					goto err;
+				if(!TEST_int_eq(FFC_ERROR_PRIVKEY_TOO_SMALL, res))
+					goto err;
+				/* Pass if priv key >= 1 */
+				if(!TEST_true(ossl_ffc_validate_private_key(params->q, BN_value_one(), &res)))
+					goto err;
+				if(!TEST_ptr(BN_copy(priv, params->q)))
+					goto err;
+				/* Fail if priv key = upper */
+				if(!TEST_false(ossl_ffc_validate_private_key(params->q, priv, &res)))
+					goto err;
+				if(!TEST_int_eq(FFC_ERROR_PRIVKEY_TOO_LARGE, res))
+					goto err;
+				if(!TEST_true(BN_sub_word(priv, 1)))
+					goto err;
+				/* Pass if priv key <= upper - 1 */
+				if(!TEST_true(ossl_ffc_validate_private_key(params->q, priv, &res)))
+					goto err;
+				ret = 1;
+			err:
+				DH_free(dh);
+				BN_free(priv);
+				return ret;
+			}
+			static int ffc_private_gen_test(int index)
+			{
+				int ret = 0, res = -1, N;
+				FFC_PARAMS * params;
+				BIGNUM * priv = NULL;
+				DH * dh = NULL;
+				BN_CTX * ctx = NULL;
+				if(!TEST_ptr(ctx = BN_CTX_new_ex(NULL)))
+					goto err;
+				if(!TEST_ptr(priv = BN_new()))
+					goto err;
+				if(!TEST_ptr(dh = DH_new_by_nid(NID_ffdhe2048)))
+					goto err;
+				params = ossl_dh_get0_params(dh);
+				N = BN_num_bits(params->q);
+				/* Fail since N < 2*s - where s = 112*/
+				if(!TEST_false(ossl_ffc_generate_private_key(ctx, params, 220, 112, priv)))
+					goto err;
+				/* fail since N > len(q) */
+				if(!TEST_false(ossl_ffc_generate_private_key(ctx, params, N + 1, 112, priv)))
+					goto err;
+				/* pass since 2s <= N <= len(q) */
+				if(!TEST_true(ossl_ffc_generate_private_key(ctx, params, N, 112, priv)))
+					goto err;
+				/* pass since N = len(q) */
+				if(!TEST_true(ossl_ffc_validate_private_key(params->q, priv, &res)))
+					goto err;
+				/* pass since 2s <= N < len(q) */
+				if(!TEST_true(ossl_ffc_generate_private_key(ctx, params, N / 2, 112, priv)))
+					goto err;
+				if(!TEST_true(ossl_ffc_validate_private_key(params->q, priv, &res)))
+					goto err;
+				/* N and s are ignored in this case */
+				if(!TEST_true(ossl_ffc_generate_private_key(ctx, params, 0, 0, priv)))
+					goto err;
+				if(!TEST_true(ossl_ffc_validate_private_key(params->q, priv, &res)))
+					goto err;
+				ret = 1;
+			err:
+				DH_free(dh);
+				BN_free(priv);
+				BN_CTX_free(ctx);
+				return ret;
+			}
+		};
+		#endif /* OPENSSL_NO_DH */
+		#ifndef OPENSSL_NO_DSA
+			ADD_TEST(TestInnerBlock_FFC_Internal::ffc_params_validate_pq_test);
+			ADD_TEST(TestInnerBlock_FFC_Internal::ffc_params_validate_g_unverified_test);
+		#endif /* OPENSSL_NO_DSA */
+		#ifndef OPENSSL_NO_DH
+			ADD_TEST(TestInnerBlock_FFC_Internal::ffc_params_gen_test);
+			ADD_TEST(TestInnerBlock_FFC_Internal::ffc_params_gen_canonicalg_test);
+			ADD_TEST(TestInnerBlock_FFC_Internal::ffc_params_fips186_2_gen_validate_test);
+			ADD_TEST(TestInnerBlock_FFC_Internal::ffc_public_validate_test);
+			ADD_TEST(TestInnerBlock_FFC_Internal::ffc_private_validate_test);
+			ADD_ALL_TESTS(TestInnerBlock_FFC_Internal::ffc_private_gen_test, 10);
+		#endif /* OPENSSL_NO_DH */
+	}
+	{
+		// 
+		// This program tests the use of OSSL_PARAM, currently in raw form.
+		// 
+		struct testdata {
+			const char * in;
+			const uchar * expected;
+			size_t expected_len;
+			const char sep;
+		};
+
+		static const uchar test_1[] = { 0xAB, 0xCD, 0xEF, 0xF1 };
+		static const uchar test_2[] = { 0xAB, 0xCD, 0xEF, 0x76, 0x00 };
+
+		static struct testdata tbl_testdata[] = {
+			{ "AB:CD:EF:F1", test_1, sizeof(test_1), ':', },
+			{ "AB:CD:EF:76:00", test_2, sizeof(test_2), ':', },
+			{ "AB_CD_EF_F1", test_1, sizeof(test_1), '_', },
+			{ "AB_CD_EF_76_00", test_2, sizeof(test_2), '_', },
+			{ "ABCDEFF1", test_1, sizeof(test_1), '\0', },
+			{ "ABCDEF7600", test_2, sizeof(test_2), '\0', },
+		};
+
+		class TestInnerBlock_HexStr {
+		public:
+			static int test_hexstr_sep_to_from(int test_index)
+			{
+				int ret = 0;
+				long len = 0;
+				uchar * buf = NULL;
+				char * out = NULL;
+				struct testdata * test = &tbl_testdata[test_index];
+				if(!TEST_ptr(buf = ossl_hexstr2buf_sep(test->in, &len, test->sep))
+					|| !TEST_mem_eq(buf, len, test->expected, test->expected_len)
+					|| !TEST_ptr(out = ossl_buf2hexstr_sep(buf, len, test->sep))
+					|| !TEST_str_eq(out, test->in))
+					goto err;
+				ret = 1;
+			err:
+				OPENSSL_free(buf);
+				OPENSSL_free(out);
+				return ret;
+			}
+			static int test_hexstr_to_from(int test_index)
+			{
+				int ret = 0;
+				long len = 0;
+				uchar * buf = NULL;
+				char * out = NULL;
+				struct testdata * test = &tbl_testdata[test_index];
+				if(test->sep != '_') {
+					if(!TEST_ptr(buf = OPENSSL_hexstr2buf(test->in, &len)) || !TEST_mem_eq(buf, len, test->expected, test->expected_len)
+						|| !TEST_ptr(out = OPENSSL_buf2hexstr(buf, len)))
+						goto err;
+					if(test->sep == ':') {
+						if(!TEST_str_eq(out, test->in))
+							goto err;
+					}
+					else if(!TEST_str_ne(out, test->in)) {
+						goto err;
+					}
+				}
+				else {
+					if(!TEST_ptr_null(buf = OPENSSL_hexstr2buf(test->in, &len)))
+						goto err;
+				}
+				ret = 1;
+			err:
+				OPENSSL_free(buf);
+				OPENSSL_free(out);
+				return ret;
+			}
+			static int test_hexstr_ex_to_from(int test_index)
+			{
+				size_t len = 0;
+				char   out[64];
+				uchar  buf[64];
+				struct testdata * test = &tbl_testdata[test_index];
+				return TEST_true(OPENSSL_hexstr2buf_ex(buf, sizeof(buf), &len, test->in, ':'))
+					   && TEST_mem_eq(buf, len, test->expected, test->expected_len)
+					   && TEST_true(OPENSSL_buf2hexstr_ex(out, sizeof(out), NULL, buf, len, ':'))
+					   && TEST_str_eq(out, test->in);
+			}
+		};
+		ADD_ALL_TESTS(TestInnerBlock_HexStr::test_hexstr_sep_to_from, SIZEOFARRAY(tbl_testdata));
+		ADD_ALL_TESTS(TestInnerBlock_HexStr::test_hexstr_to_from, SIZEOFARRAY(tbl_testdata));
+		ADD_ALL_TESTS(TestInnerBlock_HexStr::test_hexstr_ex_to_from, 2);
+	}
+	{
+		static int int_tests[] = { 65537, 13, 1, 3, -5, 6, 7, 4, -10, -12, -14, 22, 9, -17, 16, 17, -23, 35, 37, 173, 11 };
+		static const uint n_int_tests = SIZEOFARRAY(int_tests);
+		static short int_found[SIZEOFARRAY(int_tests)];
+		static short int_not_found;
+
+		class TestInnerBlock_LHASH {
+		public:
+			static ulong int_hash(const int * p) { return 3 & *p;  /* To force collisions */ }
+			static int int_cmp(const int * p, const int * q) { return *p != *q; }
+			static int int_find(int n)
+			{
+				for(uint i = 0; i < n_int_tests; i++)
+					if(int_tests[i] == n)
+						return i;
+				return -1;
+			}
+			static void int_doall(int * v)
+			{
+				const int n = int_find(*v);
+				if(n < 0)
+					int_not_found++;
+				else
+					int_found[n]++;
+			}
+
+			static void int_doall_arg(int * p, short * f)
+			{
+				const int n = int_find(*p);
+				if(n < 0)
+					int_not_found++;
+				else
+					f[n]++;
+			}
+			static int test_int_lhash()
+			{
+				static struct {
+					int data;
+					int null;
+				} dels[] = {
+					{ 65537,    0 },
+					{ 173,      0 },
+					{ 999,      1 },
+					{ 37,       0 },
+					{ 1,        0 },
+					{ 34,       1 }
+				};
+				const uint n_dels = SIZEOFARRAY(dels);
+				LHASH_OF(int) *h = lh_int_new(&int_hash, &int_cmp);
+				uint i;
+				int testresult = 0, j, * p;
+				if(!TEST_ptr(h))
+					goto end;
+				/* insert */
+				for(i = 0; i < n_int_tests; i++)
+					if(!TEST_ptr_null(lh_int_insert(h, int_tests + i))) {
+						TEST_info("int insert %d", i);
+						goto end;
+					}
+				/* num_items */
+				if(!TEST_int_eq(lh_int_num_items(h), n_int_tests))
+					goto end;
+				/* retrieve */
+				for(i = 0; i < n_int_tests; i++)
+					if(!TEST_int_eq(*lh_int_retrieve(h, int_tests + i), int_tests[i])) {
+						TEST_info("lhash int retrieve value %d", i);
+						goto end;
+					}
+				for(i = 0; i < n_int_tests; i++)
+					if(!TEST_ptr_eq(lh_int_retrieve(h, int_tests + i), int_tests + i)) {
+						TEST_info("lhash int retrieve address %d", i);
+						goto end;
+					}
+				j = 1;
+				if(!TEST_ptr_eq(lh_int_retrieve(h, &j), int_tests + 2))
+					goto end;
+				/* replace */
+				j = 13;
+				if(!TEST_ptr(p = lh_int_insert(h, &j)))
+					goto end;
+				if(!TEST_ptr_eq(p, int_tests + 1))
+					goto end;
+				if(!TEST_ptr_eq(lh_int_retrieve(h, int_tests + 1), &j))
+					goto end;
+				/* do_all */
+				memzero(int_found, sizeof(int_found));
+				int_not_found = 0;
+				lh_int_doall(h, &int_doall);
+				if(!TEST_int_eq(int_not_found, 0)) {
+					TEST_info("lhash int doall encountered a not found condition");
+					goto end;
+				}
+				for(i = 0; i < n_int_tests; i++)
+					if(!TEST_int_eq(int_found[i], 1)) {
+						TEST_info("lhash int doall %d", i);
+						goto end;
+					}
+				/* do_all_arg */
+				memzero(int_found, sizeof(int_found));
+				int_not_found = 0;
+				lh_int_doall_short(h, int_doall_arg, int_found);
+				if(!TEST_int_eq(int_not_found, 0)) {
+					TEST_info("lhash int doall arg encountered a not found condition");
+					goto end;
+				}
+				for(i = 0; i < n_int_tests; i++)
+					if(!TEST_int_eq(int_found[i], 1)) {
+						TEST_info("lhash int doall arg %d", i);
+						goto end;
+					}
+				/* delete */
+				for(i = 0; i < n_dels; i++) {
+					const int b = lh_int_delete(h, &dels[i].data) == NULL;
+					if(!TEST_int_eq(b ^ dels[i].null,  0)) {
+						TEST_info("lhash int delete %d", i);
+						goto end;
+					}
+				}
+				/* error */
+				if(!TEST_int_eq(lh_int_error(h), 0))
+					goto end;
+				testresult = 1;
+			end:
+				lh_int_free(h);
+				return testresult;
+			}
+			static ulong stress_hash(const int * p) { return *p; }
+			static int test_stress()
+			{
+				LHASH_OF(int) *h = lh_int_new(&stress_hash, &int_cmp);
+				const uint n = 2500000;
+				uint i;
+				int testresult = 0, * p;
+				if(!TEST_ptr(h))
+					goto end;
+				/* insert */
+				for(i = 0; i < n; i++) {
+					p = (int *)OPENSSL_malloc(sizeof(i));
+					if(!TEST_ptr(p)) {
+						TEST_info("lhash stress out of memory %d", i);
+						goto end;
+					}
+					*p = 3 * i + 1;
+					lh_int_insert(h, p);
+				}
+				/* num_items */
+				if(!TEST_int_eq(lh_int_num_items(h), n))
+					goto end;
+				TEST_info("hash full statistics:");
+				OPENSSL_LH_stats_bio((OPENSSL_LHASH*)h, bio_err);
+				TEST_note("hash full node usage:");
+				OPENSSL_LH_node_usage_stats_bio((OPENSSL_LHASH*)h, bio_err);
+				/* delete in a different order */
+				for(i = 0; i < n; i++) {
+					const int j = (7 * i + 4) % n * 3 + 1;
+					if(!TEST_ptr(p = lh_int_delete(h, &j))) {
+						TEST_info("lhash stress delete %d\n", i);
+						goto end;
+					}
+					if(!TEST_int_eq(*p, j)) {
+						TEST_info("lhash stress bad value %d", i);
+						goto end;
+					}
+					OPENSSL_free(p);
+				}
+				TEST_info("hash empty statistics:");
+				OPENSSL_LH_stats_bio((OPENSSL_LHASH*)h, bio_err);
+				TEST_note("hash empty node usage:");
+				OPENSSL_LH_node_usage_stats_bio((OPENSSL_LHASH*)h, bio_err);
+				testresult = 1;
+			end:
+				lh_int_free(h);
+				return testresult;
+			}
+		};
+		ADD_TEST(TestInnerBlock_LHASH::test_int_lhash);
+		ADD_TEST(TestInnerBlock_LHASH::test_stress);
 	}
 	return 1;
 }

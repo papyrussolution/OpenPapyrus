@@ -514,7 +514,7 @@ CURLFORMcode FormAdd(struct curl_httppost ** httppost,
 		/* On error, free allocated fields for all nodes of the FormInfo linked
 		   list without deallocating nodes. List nodes are deallocated later on */
 		struct FormInfo * ptr;
-		for(ptr = first_form; ptr != NULL; ptr = ptr->more) {
+		for(ptr = first_form; ptr; ptr = ptr->more) {
 			if(ptr->name_alloc) {
 				ZFREE(ptr->name);
 				ptr->name_alloc = FALSE;
@@ -539,9 +539,7 @@ CURLFORMcode FormAdd(struct curl_httppost ** httppost,
 		 * alright add the HttpPost item otherwise set return_value accordingly */
 
 		post = NULL;
-		for(form = first_form;
-		    form != NULL;
-		    form = form->more) {
+		for(form = first_form; form; form = form->more) {
 			if(((!form->name || !form->value) && !post) ||
 			    ( (form->contentslength) &&
 			    (form->flags & HTTPPOST_FILENAME) ) ||
@@ -639,7 +637,7 @@ CURLFORMcode FormAdd(struct curl_httppost ** httppost,
 			   list which are not already owned by the httppost linked list
 			   without deallocating nodes. List nodes are deallocated later on */
 			struct FormInfo * ptr;
-			for(ptr = form; ptr != NULL; ptr = ptr->more) {
+			for(ptr = form; ptr; ptr = ptr->more) {
 				if(ptr->name_alloc) {
 					ZFREE(ptr->name);
 					ptr->name_alloc = FALSE;

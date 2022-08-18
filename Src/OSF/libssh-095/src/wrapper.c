@@ -107,7 +107,7 @@ void ssh_cipher_clear(struct ssh_cipher_struct * cipher)
 		ZFREE(cipher->key);
 	}
 #endif
-	if(cipher->cleanup != NULL) {
+	if(cipher->cleanup) {
 		cipher->cleanup(cipher);
 	}
 }
@@ -140,7 +140,7 @@ void crypto_free(struct ssh_crypto_struct * crypto)
 #ifdef HAVE_ECDH
 	ZFREE(crypto->ecdh_client_pubkey);
 	ZFREE(crypto->ecdh_server_pubkey);
-	if(crypto->ecdh_privkey != NULL) {
+	if(crypto->ecdh_privkey) {
 #ifdef HAVE_OPENSSL_ECC
 		EC_KEY_free(crypto->ecdh_privkey);
 #elif defined HAVE_GCRYPT_ECC
@@ -149,11 +149,11 @@ void crypto_free(struct ssh_crypto_struct * crypto)
 		crypto->ecdh_privkey = NULL;
 	}
 #endif
-	if(crypto->session_id != NULL) {
+	if(crypto->session_id) {
 		memzero(crypto->session_id, crypto->digest_len);
 		ZFREE(crypto->session_id);
 	}
-	if(crypto->secret_hash != NULL) {
+	if(crypto->secret_hash) {
 		memzero(crypto->secret_hash, crypto->digest_len);
 		ZFREE(crypto->secret_hash);
 	}
@@ -171,11 +171,11 @@ void crypto_free(struct ssh_crypto_struct * crypto)
 	ZFREE(crypto->decryptIV);
 	ZFREE(crypto->encryptMAC);
 	ZFREE(crypto->decryptMAC);
-	if(crypto->encryptkey != NULL) {
+	if(crypto->encryptkey) {
 		memzero(crypto->encryptkey, crypto->out_cipher->keysize / 8);
 		ZFREE(crypto->encryptkey);
 	}
-	if(crypto->decryptkey != NULL) {
+	if(crypto->decryptkey) {
 		memzero(crypto->decryptkey, crypto->in_cipher->keysize / 8);
 		ZFREE(crypto->decryptkey);
 	}
@@ -209,7 +209,7 @@ static int crypt_set_algorithms2(ssh_session session)
 
 	/*OUT*/
 	wanted = session->next_crypto->kex_methods[SSH_CRYPT_C_S];
-	for(i = 0; i < 64 && ssh_ciphertab[i].name != NULL; ++i) {
+	for(i = 0; i < 64 && ssh_ciphertab[i].name; ++i) {
 		cmp = strcmp(wanted, ssh_ciphertab[i].name);
 		if(cmp == 0) {
 			break;
@@ -225,7 +225,7 @@ static int crypt_set_algorithms2(ssh_session session)
 		ssh_set_error_oom(session);
 		return SSH_ERROR;
 	}
-	if(session->next_crypto->out_cipher->aead_encrypt != NULL) {
+	if(session->next_crypto->out_cipher->aead_encrypt) {
 		/* this cipher has integrated MAC */
 		if(session->next_crypto->out_cipher->ciphertype == SSH_AEAD_CHACHA20_POLY1305) {
 			wanted = "aead-poly1305";
@@ -243,7 +243,7 @@ static int crypt_set_algorithms2(ssh_session session)
 		/*OUT*/
 		wanted = session->next_crypto->kex_methods[SSH_MAC_C_S];
 	}
-	for(i = 0; ssh_hmactab[i].name != NULL; i++) {
+	for(i = 0; ssh_hmactab[i].name; i++) {
 		cmp = strcmp(wanted, ssh_hmactab[i].name);
 		if(cmp == 0) {
 			break;
@@ -258,7 +258,7 @@ static int crypt_set_algorithms2(ssh_session session)
 	session->next_crypto->out_hmac_etm = ssh_hmactab[i].etm;
 	/* in */
 	wanted = session->next_crypto->kex_methods[SSH_CRYPT_S_C];
-	for(i = 0; ssh_ciphertab[i].name != NULL; i++) {
+	for(i = 0; ssh_ciphertab[i].name; i++) {
 		cmp = strcmp(wanted, ssh_ciphertab[i].name);
 		if(cmp == 0) {
 			break;
@@ -275,7 +275,7 @@ static int crypt_set_algorithms2(ssh_session session)
 		ssh_set_error_oom(session);
 		return SSH_ERROR;
 	}
-	if(session->next_crypto->in_cipher->aead_encrypt != NULL) {
+	if(session->next_crypto->in_cipher->aead_encrypt) {
 		/* this cipher has integrated MAC */
 		if(session->next_crypto->in_cipher->ciphertype == SSH_AEAD_CHACHA20_POLY1305) {
 			wanted = "aead-poly1305";
@@ -288,7 +288,7 @@ static int crypt_set_algorithms2(ssh_session session)
 		/* we must scan the kex entries to find hmac algorithms and set their appropriate structure */
 		wanted = session->next_crypto->kex_methods[SSH_MAC_S_C];
 	}
-	for(i = 0; ssh_hmactab[i].name != NULL; i++) {
+	for(i = 0; ssh_hmactab[i].name; i++) {
 		cmp = strcmp(wanted, ssh_hmactab[i].name);
 		if(cmp == 0) {
 			break;
@@ -418,7 +418,7 @@ int crypt_set_algorithms_server(ssh_session session)
 		/* we must scan the kex entries to find hmac algorithms and set their appropriate structure */
 		method = session->next_crypto->kex_methods[SSH_MAC_C_S];
 	}
-	for(i = 0; ssh_hmactab[i].name != NULL; i++) {
+	for(i = 0; ssh_hmactab[i].name; i++) {
 		cmp = strcmp(method, ssh_hmactab[i].name);
 		if(cmp == 0) {
 			break;

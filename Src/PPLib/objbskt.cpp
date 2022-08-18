@@ -1403,7 +1403,7 @@ public:
 		getCtrlData((sel = CTL_GBITEM_VALUE), &Data.Quantity);
 		if(Data.UnitPerPack > 0.0 && qtty_pack > 0.0 && Data.Quantity == 0.0)
 			Data.Quantity = qtty_pack * Data.UnitPerPack;
-		THROW_PP(Data.Quantity >= 0.0, PPERR_INVQTTY);
+		THROW_PP(Data.Quantity >= 0.0, PPERR_QTTYMUSTBEGEZ);
 		Data.Rest = Data.Quantity;
 		getCtrlData((sel = CTL_GBITEM_PRICE), &Data.Price);
 		THROW_PP(Data.Price >= 0.0, PPERR_INVAMOUNT);

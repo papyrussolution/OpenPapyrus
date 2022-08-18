@@ -20,45 +20,31 @@ static int test_fatalerr(void)
 	BIO * wbio = NULL;
 	int ret = 0, len;
 	char buf[80];
-	unsigned char dummyrec[] = {
-		0x17, 0x03, 0x03, 0x00, 0x05, 'D', 'u', 'm', 'm', 'y'
-	};
-
-	if(!TEST_true(create_ssl_ctx_pair(NULL, TLS_method(), TLS_method(),
-	    TLS1_VERSION, 0,
-	    &sctx, &cctx, cert, privkey)))
+	unsigned char dummyrec[] = { 0x17, 0x03, 0x03, 0x00, 0x05, 'D', 'u', 'm', 'm', 'y' };
+	if(!TEST_true(create_ssl_ctx_pair(NULL, TLS_method(), TLS_method(), TLS1_VERSION, 0, &sctx, &cctx, cert, privkey)))
 		goto err;
-
 	/*
 	 * Deliberately set the cipher lists for client and server to be different
 	 * to force a handshake failure.
 	 */
 	if(!TEST_true(SSL_CTX_set_cipher_list(sctx, "AES128-SHA"))
 	    || !TEST_true(SSL_CTX_set_cipher_list(cctx, "AES256-SHA"))
-	    || !TEST_true(SSL_CTX_set_ciphersuites(sctx,
-	    "TLS_AES_128_GCM_SHA256"))
-	    || !TEST_true(SSL_CTX_set_ciphersuites(cctx,
-	    "TLS_AES_256_GCM_SHA384"))
-	    || !TEST_true(create_ssl_objects(sctx, cctx, &sssl, &cssl, NULL,
-	    NULL)))
+	    || !TEST_true(SSL_CTX_set_ciphersuites(sctx, "TLS_AES_128_GCM_SHA256"))
+	    || !TEST_true(SSL_CTX_set_ciphersuites(cctx, "TLS_AES_256_GCM_SHA384"))
+	    || !TEST_true(create_ssl_objects(sctx, cctx, &sssl, &cssl, NULL, NULL)))
 		goto err;
-
 	wbio = SSL_get_wbio(cssl);
 	if(!TEST_ptr(wbio)) {
 		printf("Unexpected NULL bio received\n");
 		goto err;
 	}
-
 	/* Connection should fail */
 	if(!TEST_false(create_ssl_connection(sssl, cssl, SSL_ERROR_NONE)))
 		goto err;
-
 	ERR_clear_error();
-
 	/* Inject a plaintext record from client to server */
 	if(!TEST_int_gt(BIO_write(wbio, dummyrec, sizeof(dummyrec)), 0))
 		goto err;
-
 	/* SSL_read()/SSL_write should fail because of a previous fatal error */
 	if(!TEST_int_le(len = SSL_read(sssl, buf, sizeof(buf) - 1), 0)) {
 		buf[len] = '\0';

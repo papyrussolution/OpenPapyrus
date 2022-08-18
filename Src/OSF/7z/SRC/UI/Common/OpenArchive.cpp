@@ -1945,9 +1945,9 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 		const uint32 kNumVals = (uint32)1 << (kNumHashBytes * 8);
 		CByteArr hashBuffer(kNumVals);
 		Byte * hash = hashBuffer;
-		memset(hash, 0xFF, kNumVals);
+		memset(hash, 0xff, kNumVals);
 		Byte prevs[256];
-		memset(prevs, 0xFF, sizeof(prevs));
+		memset(prevs, 0xff, sizeof(prevs));
 		if(sig2arc.Size() >= 0xFF)
 			return S_FALSE;
 		CUIntVector difficultFormats;

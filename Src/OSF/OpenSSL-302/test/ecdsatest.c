@@ -7,12 +7,10 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 /*
  * Low level APIs are deprecated for public use, but still ok for internal use.
  */
 #include "internal/deprecated.h"
-
 #include <openssl/opensslconf.h> /* To see if OPENSSL_NO_EC is defined */
 #include "testutil.h"
 
@@ -27,8 +25,7 @@ static size_t crv_len = 0;
 static EC_builtin_curve * curves = NULL;
 static OSSL_PROVIDER * fake_rand = NULL;
 
-static int fbytes(unsigned char * buf, size_t num, ossl_unused const char * name,
-    EVP_RAND_CTX * ctx)
+static int fbytes(unsigned char * buf, size_t num, ossl_unused const char * name, EVP_RAND_CTX * ctx)
 {
 	int ret = 0;
 	static int fbytes_counter = 0;
@@ -48,7 +45,6 @@ err:
 	BN_free(tmp);
 	return ret;
 }
-
 /*-
  * This function hijacks the RNG to feed it the chosen ECDSA key and nonce.
  * The ECDSA KATs are from:
@@ -351,7 +347,6 @@ int setup_tests()
 	fake_rand = fake_rand_start(NULL);
 	if(fake_rand == NULL)
 		return 0;
-
 	/* get a list of all internal curves */
 	crv_len = EC_get_builtin_curves(NULL, 0);
 	if(!TEST_ptr(curves = (EC_builtin_curve *)OPENSSL_malloc(sizeof(*curves) * crv_len)) || !TEST_true(EC_get_builtin_curves(curves, crv_len))) {

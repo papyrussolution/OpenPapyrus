@@ -218,7 +218,7 @@ static int read_options(Options * o, int argc, char * argv[])
 			if(sstreq(s, "-i") || sstreq(s, "-include")) {
 				check_lim(i, argc);
 				{
-					Include * p = static_cast<Include *>(malloc(sizeof(Include)));
+					Include * p = static_cast<Include *>(SAlloc::M(sizeof(Include)));
 					symbol * b = add_s_to_b(0, argv[i++]);
 					b = add_s_to_b(b, "/");
 					p->next = 0; p->b = b;
@@ -544,7 +544,7 @@ extern int main(int argc, char * argv[])
 {
 	// \papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
 	SLS.Init("xapian-lang-compiler", 0);
-	Options * o = static_cast<Options *>(malloc(sizeof(Options)));
+	Options * o = static_cast<Options *>(SAlloc::M(sizeof(Options)));
 	argc = read_options(o, argc, argv);
 	if(argc > 1 && argv[1]) {
 		uint fcount = 0;

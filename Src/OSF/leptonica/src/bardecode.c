@@ -365,7 +365,7 @@ static char * barcodeDecode2of5(char * barstr, int32 debugflag)
 
 		found = FALSE;
 		for(j = 0; j < 10; j++) {
-			if(!strcmp(code, Code2of5[j])) {
+			if(sstreq(code, Code2of5[j])) {
 				data[i] = 0x30 + j;
 				found = TRUE;
 				break;
@@ -439,7 +439,7 @@ static char * barcodeDecodeI2of5(char * barstr, int32 debugflag)
 
 		found = FALSE;
 		for(j = 0; j < 10; j++) {
-			if(!strcmp(code1, CodeI2of5[j])) {
+			if(sstreq(code1, CodeI2of5[j])) {
 				data[2 * i] = 0x30 + j;
 				found = TRUE;
 				break;
@@ -448,7 +448,7 @@ static char * barcodeDecodeI2of5(char * barstr, int32 debugflag)
 		if(!found) error = TRUE;
 		found = FALSE;
 		for(j = 0; j < 10; j++) {
-			if(!strcmp(code2, CodeI2of5[j])) {
+			if(sstreq(code2, CodeI2of5[j])) {
 				data[2 * i + 1] = 0x30 + j;
 				found = TRUE;
 				break;
@@ -506,15 +506,12 @@ static char * barcodeDecode93(char * barstr, int32 debugflag)
 		vbarstr = stringReverse(barstr);
 	else
 		vbarstr = stringNew(barstr);
-
 	/* Verify size; skip the first 6 and last 7 bars. */
 	len = strlen(vbarstr);
 	if((len - 13) % 6 != 0) {
 		SAlloc::F(vbarstr);
-		return (char *)ERROR_PTR("size not divisible by 6: invalid code 93",
-			   procName, NULL);
+		return (char *)ERROR_PTR("size not divisible by 6: invalid code 93", procName, NULL);
 	}
-
 	/* Decode the symbols */
 	nsymb = (len - 13) / 6;
 	data = (char *)SAlloc::C(nsymb + 1, sizeof(char));
@@ -525,13 +522,11 @@ static char * barcodeDecode93(char * barstr, int32 debugflag)
 		start = 6 + 6 * i;
 		for(j = 0; j < 6; j++)
 			code[j] = vbarstr[start + j];
-
 		if(debugflag)
 			lept_stderr("code: %s\n", code);
-
 		found = FALSE;
 		for(j = 0; j < C93_START; j++) {
-			if(!strcmp(code, Code93[j])) {
+			if(sstreq(code, Code93[j])) {
 				data[i] = Code93Val[j];
 				index[i] = j;
 				found = TRUE;
@@ -541,7 +536,6 @@ static char * barcodeDecode93(char * barstr, int32 debugflag)
 		if(!found) error = TRUE;
 	}
 	SAlloc::F(vbarstr);
-
 	if(error) {
 		SAlloc::F(index);
 		SAlloc::F(data);
@@ -639,7 +633,7 @@ static char * barcodeDecode39(char * barstr, int32 debugflag)
 
 		found = FALSE;
 		for(j = 0; j < C39_START; j++) {
-			if(!strcmp(code, Code39[j])) {
+			if(sstreq(code, Code39[j])) {
 				data[i] = Code39Val[j];
 				found = TRUE;
 				break;
@@ -713,7 +707,7 @@ static char * barcodeDecodeCodabar(char * barstr, int32 debugflag)
 
 		found = FALSE;
 		for(j = 0; j < 16; j++) {
-			if(!strcmp(code, Codabar[j])) {
+			if(sstreq(code, Codabar[j])) {
 				data[i] = CodabarVal[j];
 				found = TRUE;
 				break;
@@ -776,7 +770,7 @@ static char * barcodeDecodeUpca(char * barstr, int32 debugflag)
 		code[i] = barstr[i + 3];
 	found = FALSE;
 	for(i = 0; i < 10; i++) {
-		if(!strcmp(code, Upca[i])) {
+		if(sstreq(code, Upca[i])) {
 			found = TRUE;
 			break;
 		}
@@ -803,7 +797,7 @@ static char * barcodeDecodeUpca(char * barstr, int32 debugflag)
 
 		found = FALSE;
 		for(j = 0; j < 10; j++) {
-			if(!strcmp(code, Upca[j])) {
+			if(sstreq(code, Upca[j])) {
 				data[i] = 0x30 + j;
 				found = TRUE;
 				break;
@@ -888,7 +882,7 @@ static char * barcodeDecodeEan13(char * barstr, int32 first, int32 debugflag)
 		code[i] = barstr[i + 3];
 	found = FALSE;
 	for(i = 0; i < 10; i++) {
-		if(!strcmp(code, Upca[i])) {
+		if(sstreq(code, Upca[i])) {
 			found = TRUE;
 			break;
 		}
@@ -914,7 +908,7 @@ static char * barcodeDecodeEan13(char * barstr, int32 first, int32 debugflag)
 
 		found = FALSE;
 		for(j = 0; j < 10; j++) {
-			if(!strcmp(code, Upca[j])) {
+			if(sstreq(code, Upca[j])) {
 				data[i] = 0x30 + j;
 				found = TRUE;
 				break;

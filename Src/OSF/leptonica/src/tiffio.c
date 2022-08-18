@@ -1227,10 +1227,10 @@ static int32 writeCustomTiffTags(TIFF    * tif,
 		numaGetIValue(natags, i, &tagval);
 		sval = sarrayGetString(savals, i, L_NOCOPY);
 		type = sarrayGetString(satypes, i, L_NOCOPY);
-		if(!strcmp(type, "char*") || !strcmp(type, "const char*")) {
+		if(sstreq(type, "char*") || sstreq(type, "const char*")) {
 			TIFFSetField(tif, tagval, sval);
 		}
-		else if(!strcmp(type, "uint16")) {
+		else if(sstreq(type, "uint16")) {
 			if(sscanf(sval, "%u", &uval) == 1) {
 				TIFFSetField(tif, tagval, (uint16)uval);
 			}
@@ -1239,7 +1239,7 @@ static int32 writeCustomTiffTags(TIFF    * tif,
 				return ERROR_INT("custom tag(s) not written", procName, 1);
 			}
 		}
-		else if(!strcmp(type, "uint32")) {
+		else if(sstreq(type, "uint32")) {
 			if(sscanf(sval, "%u", &uval) == 1) {
 				TIFFSetField(tif, tagval, uval);
 			}
@@ -1248,7 +1248,7 @@ static int32 writeCustomTiffTags(TIFF    * tif,
 				return ERROR_INT("custom tag(s) not written", procName, 1);
 			}
 		}
-		else if(!strcmp(type, "int32")) {
+		else if(sstreq(type, "int32")) {
 			if(sscanf(sval, "%d", &val) == 1) {
 				TIFFSetField(tif, tagval, val);
 			}
@@ -1257,7 +1257,7 @@ static int32 writeCustomTiffTags(TIFF    * tif,
 				return ERROR_INT("custom tag(s) not written", procName, 1);
 			}
 		}
-		else if(!strcmp(type, "double")) {
+		else if(sstreq(type, "double")) {
 			if(sscanf(sval, "%lf", &dval) == 1) {
 				TIFFSetField(tif, tagval, dval);
 			}
@@ -1266,7 +1266,7 @@ static int32 writeCustomTiffTags(TIFF    * tif,
 				return ERROR_INT("custom tag(s) not written", procName, 1);
 			}
 		}
-		else if(!strcmp(type, "uint16-uint16")) {
+		else if(sstreq(type, "uint16-uint16")) {
 			if(sscanf(sval, "%u-%u", &uval, &uval2) == 2) {
 				TIFFSetField(tif, tagval, (uint16)uval, (uint16)uval2);
 			}
@@ -2466,7 +2466,7 @@ static TIFF * fopenTiffMemstream(const char * filename, const char * operation, 
 		return (TIFF*)ERROR_PTR("&datasize not defined", procName, NULL);
 	if(strcmp(operation, "r") && strcmp(operation, "w"))
 		return (TIFF*)ERROR_PTR("op not 'r' or 'w'", procName, NULL);
-	if(!strcmp(operation, "r"))
+	if(sstreq(operation, "r"))
 		mstream = memstreamCreateForRead(*pdata, *pdatasize);
 	else
 		mstream = memstreamCreateForWrite(pdata, pdatasize);

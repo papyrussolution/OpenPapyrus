@@ -121,30 +121,24 @@ void _cairo_tristrip_move_to(cairo_tristrip_t * strip,
 
 void _cairo_tristrip_translate(cairo_tristrip_t * strip, int x, int y)
 {
-	cairo_fixed_t xoff, yoff;
 	cairo_point_t * p;
 	int i;
-
-	xoff = _cairo_fixed_from_int(x);
-	yoff = _cairo_fixed_from_int(y);
-
+	const cairo_fixed_t xoff = _cairo_fixed_from_int(x);
+	const cairo_fixed_t yoff = _cairo_fixed_from_int(y);
 	for(i = 0, p = strip->points; i < strip->num_points; i++, p++) {
 		p->x += xoff;
 		p->y += yoff;
 	}
 }
 
-void _cairo_tristrip_extents(const cairo_tristrip_t * strip,
-    cairo_box_t * extents)
+void _cairo_tristrip_extents(const cairo_tristrip_t * strip, cairo_box_t * extents)
 {
 	int i;
-
 	if(strip->num_points == 0) {
 		extents->p1.x = extents->p1.y = 0;
 		extents->p2.x = extents->p2.y = 0;
 		return;
 	}
-
 	extents->p2 = extents->p1 = strip->points[0];
 	for(i = 1; i < strip->num_points; i++) {
 		const cairo_point_t * p =  &strip->points[i];

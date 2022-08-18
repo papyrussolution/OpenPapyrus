@@ -14,7 +14,7 @@
 #include <openssl/md5.h>
 #include <openssl/sha.h>
 
-static const unsigned char cov_2char[64] = {
+static const uchar cov_2char[64] = {
 	/* from crypto/des/fcrypt.c */
 	0x2E, 0x2F, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35,
 	0x36, 0x37, 0x38, 0x39, 0x41, 0x42, 0x43, 0x44,
@@ -416,9 +416,7 @@ static char * md5crypt(const char * passwd, const char * magic, const char * sal
 			if(!EVP_DigestUpdate(md2, passwd, passwd_len))
 				goto err;
 		}
-		if(!EVP_DigestUpdate(md2,
-		    (i & 1) ? buf : (const unsigned char*)passwd,
-		    (i & 1) ? sizeof(buf) : passwd_len))
+		if(!EVP_DigestUpdate(md2, (i & 1) ? buf : (const uchar*)passwd, (i & 1) ? sizeof(buf) : passwd_len))
 			goto err;
 		if(!EVP_DigestFinal_ex(md2, buf, NULL))
 			goto err;
@@ -427,16 +425,13 @@ static char * md5crypt(const char * passwd, const char * magic, const char * sal
 	EVP_MD_CTX_free(md);
 	md2 = NULL;
 	md = NULL;
-
 	{
 		/* transform buf into output string */
-		unsigned char buf_perm[sizeof(buf)];
+		uchar buf_perm[sizeof(buf)];
 		int dest, source;
 		char * output;
-
 		/* silly output permutation */
-		for(dest = 0, source = 0; dest < 14;
-		    dest++, source = (source + 6) % 17)
+		for(dest = 0, source = 0; dest < 14; dest++, source = (source + 6) % 17)
 			buf_perm[dest] = buf[source];
 		buf_perm[14] = buf[5];
 		buf_perm[15] = buf[11];
@@ -444,18 +439,13 @@ static char * md5crypt(const char * passwd, const char * magic, const char * sal
 		                * effect" warning */
 		assert(16 == sizeof(buf_perm));
 #endif
-
 		output = salt_out + salt_len;
 		assert(output == out_buf + strlen(out_buf));
-
 		*output++ = ascii_dollar[0];
-
 		for(i = 0; i < 15; i += 3) {
 			*output++ = cov_2char[buf_perm[i + 2] & 0x3f];
-			*output++ = cov_2char[((buf_perm[i + 1] & 0xf) << 2) |
-			    (buf_perm[i + 2] >> 6)];
-			*output++ = cov_2char[((buf_perm[i] & 3) << 4) |
-			    (buf_perm[i + 1] >> 4)];
+			*output++ = cov_2char[((buf_perm[i + 1] & 0xf) << 2) | (buf_perm[i + 2] >> 6)];
+			*output++ = cov_2char[((buf_perm[i] & 3) << 4) | (buf_perm[i + 1] >> 4)];
 			*output++ = cov_2char[buf_perm[i] >> 2];
 		}
 		assert(i == 15);
@@ -467,16 +457,13 @@ static char * md5crypt(const char * passwd, const char * magic, const char * sal
 		ascii2ebcdic(out_buf, out_buf, strlen(out_buf));
 #endif
 	}
-
 	return out_buf;
-
 err:
 	OPENSSL_free(ascii_passwd);
 	EVP_MD_CTX_free(md2);
 	EVP_MD_CTX_free(md);
 	return NULL;
 }
-
 /*
  * SHA based password algorithm, describe by Ulrich Drepper here:
  * https://www.akkadia.org/drepper/SHA-crypt.txt
@@ -484,21 +471,15 @@ err:
  */
 static char * shacrypt(const char * passwd, const char * magic, const char * salt)
 {
-	/* Prefix for optional rounds specification.  */
-	static const char rounds_prefix[] = "rounds=";
-	/* Maximum salt string length.  */
-#define SALT_LEN_MAX 16
-	/* Default number of rounds if not explicitly specified.  */
-#define ROUNDS_DEFAULT 5000
-	/* Minimum number of rounds.  */
-#define ROUNDS_MIN 1000
-	/* Maximum number of rounds.  */
-#define ROUNDS_MAX 999999999
-
+	static const char rounds_prefix[] = "rounds="; /* Prefix for optional rounds specification.  */
+#define SALT_LEN_MAX 16 /* Maximum salt string length.  */
+#define ROUNDS_DEFAULT 5000 /* Default number of rounds if not explicitly specified.  */
+#define ROUNDS_MIN 1000 /* Minimum number of rounds.  */
+#define ROUNDS_MAX 999999999 /* Maximum number of rounds.  */
 	/* "$6$rounds=<N>$......salt......$...shahash(up to 86 chars)...\0" */
 	static char out_buf[3 + 17 + 17 + 86 + 1];
-	unsigned char buf[SHA512_DIGEST_LENGTH];
-	unsigned char temp_buf[SHA512_DIGEST_LENGTH];
+	uchar buf[SHA512_DIGEST_LENGTH];
+	uchar temp_buf[SHA512_DIGEST_LENGTH];
 	size_t buf_size = 0;
 	char ascii_magic[2];
 	char ascii_salt[17];      /* Max 16 chars plus '\0' */
@@ -507,19 +488,16 @@ static char * shacrypt(const char * passwd, const char * magic, const char * sal
 	EVP_MD_CTX * md = NULL, * md2 = NULL;
 	const EVP_MD * sha = NULL;
 	size_t passwd_len, salt_len, magic_len;
-	unsigned int rounds = ROUNDS_DEFAULT;    /* Default */
+	uint rounds = ROUNDS_DEFAULT;    /* Default */
 	char rounds_custom = 0;
 	char * p_bytes = NULL;
 	char * s_bytes = NULL;
 	char * cp = NULL;
-
 	passwd_len = strlen(passwd);
 	magic_len = strlen(magic);
-
 	/* assert it's "5" or "6" */
 	if(magic_len != 1)
 		return NULL;
-
 	switch(magic[0]) {
 		case '5':
 		    sha = EVP_sha256();
@@ -532,11 +510,10 @@ static char * shacrypt(const char * passwd, const char * magic, const char * sal
 		default:
 		    return NULL;
 	}
-
 	if(strncmp(salt, rounds_prefix, sizeof(rounds_prefix) - 1) == 0) {
 		const char * num = salt + sizeof(rounds_prefix) - 1;
 		char * endp;
-		unsigned long int srounds = strtoul(num, &endp, 10);
+		ulong srounds = strtoul(num, &endp, 10);
 		if(*endp == '$') {
 			salt = endp + 1;
 			if(srounds > ROUNDS_MAX)
@@ -756,23 +733,17 @@ err:
 	return NULL;
 }
 
-static int do_passwd(int passed_salt, char ** salt_p, char ** salt_malloc_p,
-    char * passwd, BIO * out, int quiet, int table,
-    int reverse, size_t pw_maxlen, passwd_modes mode)
+static int do_passwd(int passed_salt, char ** salt_p, char ** salt_malloc_p, char * passwd, BIO * out, int quiet, int table, int reverse, size_t pw_maxlen, passwd_modes mode)
 {
 	char * hash = NULL;
-
 	assert(salt_p != NULL);
 	assert(salt_malloc_p != NULL);
-
 	/* first make sure we have a salt */
 	if(!passed_salt) {
 		size_t saltlen = 0;
 		size_t i;
-
 		if(mode == passwd_md5 || mode == passwd_apr1 || mode == passwd_aixmd5)
 			saltlen = 8;
-
 		if(mode == passwd_sha256 || mode == passwd_sha512)
 			saltlen = 16;
 		assert(saltlen != 0);
@@ -801,7 +772,6 @@ static int do_passwd(int passed_salt, char ** salt_p, char ** salt_malloc_p,
 		passwd[pw_maxlen] = 0;
 	}
 	assert(strlen(passwd) <= pw_maxlen);
-
 	/* now compute password hash */
 	if(mode == passwd_md5 || mode == passwd_apr1)
 		hash = md5crypt(passwd, (mode == passwd_md5 ? "1" : "apr1"), *salt_p);
@@ -810,7 +780,6 @@ static int do_passwd(int passed_salt, char ** salt_p, char ** salt_malloc_p,
 	if(mode == passwd_sha256 || mode == passwd_sha512)
 		hash = shacrypt(passwd, (mode == passwd_sha256 ? "5" : "6"), *salt_p);
 	assert(hash != NULL);
-
 	if(table && !reverse)
 		BIO_printf(out, "%s\t%s\n", passwd, hash);
 	else if(table && reverse)
@@ -818,7 +787,6 @@ static int do_passwd(int passed_salt, char ** salt_p, char ** salt_malloc_p,
 	else
 		BIO_printf(out, "%s\n", hash);
 	return 1;
-
 end:
 	return 0;
 }

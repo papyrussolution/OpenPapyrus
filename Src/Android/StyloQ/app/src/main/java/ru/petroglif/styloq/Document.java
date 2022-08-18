@@ -9,9 +9,47 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.StringTokenizer;
 import java.util.UUID;
 
 public class Document {
+	//
+	// Descr: Действия над документами из входящего списка
+	//   Копия соответсвующих значений из Papyrus StyloQIncomingListParam::actionXXX
+	//
+	public static final int actionDocStatus           = 0x0001; // Изменение статуса
+	public static final int actionDocAcceptance       = 0x0002; // Приемка товара (приходные накладные)
+	public static final int actionDocAcceptanceMarks  = 0x0004; // Проверка марок в строках входящего документа (приходные накладные)
+	public static final int actionDocSettingMarks     = 0x0008; // Расстановка марок на строках исходящего документа (расходные накладные)
+	public static final int actionDocInventory        = 0x0010; // Ввод документа инвентаризации
+	public static final int actionGoodsItemCorrection = 0x0020; // Корректировка позиций (количество, цена, удаление позиции, замена товара)
+
+	public static int IncomingListActionsFromString(final String input)
+	{
+		int    result = 0;
+		if(SLib.GetLen(input) > 0) {
+			StringTokenizer toknzr = new StringTokenizer(input, ",");
+			int _c = toknzr.countTokens();
+			for(int i = 0; i < _c; i++) {
+				String tok = toknzr.nextToken();
+				tok.trim();
+				if(tok.equalsIgnoreCase("docstatus"))
+					result |= actionDocStatus;
+				else if(tok.equalsIgnoreCase("DocAcceptance"))
+					result |= actionDocAcceptance;
+				else if(tok.equalsIgnoreCase("DocAcceptanceMarks"))
+					result |= actionDocAcceptanceMarks;
+				else if(tok.equalsIgnoreCase("DocSettingMarks"))
+					result |= actionDocSettingMarks;
+				else if(tok.equalsIgnoreCase("DocInventory"))
+					result |= actionDocInventory;
+				else if(tok.equalsIgnoreCase("GoodsItemCorrection"))
+					result |= actionGoodsItemCorrection;
+			}
+		}
+		return result;
+	}
+
 	Head H;
 	ArrayList <TransferItem> TiList;
 	ArrayList <BookingItem> BkList; // Список позиций повременных элементов, связанных с процессорами
@@ -84,11 +122,56 @@ public class Document {
 		public SLib.LDATE GetNominalDate()
 		{
 			SLib.LDATE d = null;
-			if(Time != null)
+			if(Time != null && SLib.CheckDate(Time.d))
 				d = Time.d;
-			else if(CreationTime != null)
+			else if(CreationTime != null && SLib.CheckDate(CreationTime.d))
 				d = CreationTime.d;
 			return d;
+		}
+		public SLib.LDATETIME GetNominalTimestamp()
+		{
+			SLib.LDATETIME dtm = null;
+			if(Time != null && SLib.CheckDate(Time.d))
+				dtm = Time;
+			else if(CreationTime != null && SLib.CheckDate(CreationTime.d))
+				dtm = CreationTime;
+			return dtm;
+		}
+		public boolean IncrementDueDate(boolean checkOnly)
+		{
+			boolean result = false;
+			SLib.LDATETIME base_dtm = (DueTime != null && SLib.CheckDate(DueTime.d)) ? DueTime : GetNominalTimestamp();
+			if(base_dtm != null && SLib.CheckDate(base_dtm.d)) {
+				SLib.LDATE new_date = SLib.LDATE.Plus(base_dtm.d, 1);
+				if(SLib.CheckDate(new_date)) {
+					if(!checkOnly) {
+						if(DueTime == null)
+							DueTime = new SLib.LDATETIME(new_date, new SLib.LTIME());
+						else
+							DueTime.d = new_date;
+					}
+					result = true;
+				}
+			}
+			return result;
+		}
+		public boolean DecrementDueDate(boolean checkOnly)
+		{
+			boolean result = false;
+			SLib.LDATETIME nominal_dtm = GetNominalTimestamp();
+			if(nominal_dtm != null && SLib.CheckDate(nominal_dtm.d)) {
+				if(DueTime != null && SLib.CheckDate(DueTime.d)) {
+					if(SLib.LDATE.Difference(DueTime.d, nominal_dtm.d) > 0) {
+						SLib.LDATETIME new_dtm = new SLib.LDATETIME(SLib.LDATE.Plus(DueTime.d, -1), DueTime.t);
+						if(new_dtm != null && SLib.CheckDate(new_dtm.d)) {
+							if(!checkOnly)
+								DueTime = new_dtm;
+							result = true;
+						}
+					}
+				}
+			}
+			return result;
 		}
 		long   ID;
 		SLib.LDATETIME CreationTime;
@@ -288,20 +371,13 @@ public class Document {
 	public static int GetImageResourceByDocStatus(int status)
 	{
 		switch(status) {
-			case StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_SUCC:
-				return R.drawable.ic_styloq_document_finished;
-			case StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC:
-				return R.drawable.ic_styloq_document_itrm;
-			case StyloQDatabase.SecStoragePacket.styloqdocstDRAFT:
-				return R.drawable.ic_styloq_document_draft;
-			case StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED:
-				return R.drawable.ic_styloqdocstatus_approved;
-			case StyloQDatabase.SecStoragePacket.styloqdocstREJECTED:
-				return R.drawable.ic_styloqdocstatus_rejected;
-			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED:
-				return R.drawable.ic_styloqdocstatus_cancelled;
-			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT:
-				return R.drawable.ic_styloqdocstatus_cancelled; // @todo change icon
+			case StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_SUCC: return R.drawable.ic_styloq_document_finished;
+			case StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC: return R.drawable.ic_styloq_document_itrm;
+			case StyloQDatabase.SecStoragePacket.styloqdocstDRAFT: return R.drawable.ic_styloq_document_draft;
+			case StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED: return R.drawable.ic_styloqdocstatus_approved;
+			case StyloQDatabase.SecStoragePacket.styloqdocstREJECTED: return R.drawable.ic_styloqdocstatus_rejected;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED: return R.drawable.ic_styloqdocstatus_cancelled;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT: return R.drawable.ic_styloqdocstatus_cancelled; // @todo change icon
 		}
 		return 0;
 	}
@@ -431,6 +507,7 @@ public class Document {
 			UnitID = 0;
 			Flags = 0;
 			Set = new ValuSet();
+			SetAccepted = null; // @v11.4.8
 			XcL = null;
 		}
 		boolean IsEq(final TransferItem s)
@@ -473,6 +550,7 @@ public class Document {
 		int    UnitID;  // service-domain-id
 		int    Flags;
 		ValuSet Set;
+		ValuSet SetAccepted; // @v11.4.8 Набор величин, с которыми согласна принимающая сторона (например при инвентаризации, приемке приходного документа и т.д.)
 		ArrayList <LotExtCode> XcL;
 	}
 	public static class BookingItem {
@@ -784,6 +862,27 @@ public class Document {
 									else
 										js_item.put("set", js_ti_set);
 								}
+								// @v11.4.8 {
+								if(ti.XcL != null && ti.XcL.size() > 0) {
+									JSONArray js_xcl = null;
+									for(int xci = 0; xci < ti.XcL.size(); xci++) {
+										JSONObject js_xce = new JSONObject();
+										LotExtCode xce = ti.XcL.get(xci);
+										if(xce != null && SLib.GetLen(xce.Code) > 0) {
+											js_xce.put("cod", xce.Code);
+											if(xce.BoxRefN > 0)
+												js_xce.put("boxrefn", xce.BoxRefN);
+											if(xce.Flags != 0)
+												js_xce.put("flags", xce.Flags);
+											if(js_xcl == null)
+												js_xcl = new JSONArray();
+											js_xcl.put(js_xce);
+										}
+									}
+									if(js_xcl != null)
+										js_item.put("xcl", js_xcl);
+								}
+								// } @v11.4.8
 								js_list.put(js_item);
 								is_list_empty = false;
 							}
@@ -794,6 +893,27 @@ public class Document {
 					else
 						result.put("ti_list", js_list);
 				}
+				// @v11.4.8 {
+				if(VXcL != null && VXcL.size() > 0) {
+					JSONArray js_xcl = null;
+					for(int xci = 0; xci < VXcL.size(); xci++) {
+						JSONObject js_xce = new JSONObject();
+						LotExtCode xce = VXcL.get(xci);
+						if(xce != null && SLib.GetLen(xce.Code) > 0) {
+							js_xce.put("cod", xce.Code);
+							if(xce.BoxRefN > 0)
+								js_xce.put("boxrefn", xce.BoxRefN);
+							if(xce.Flags != 0)
+								js_xce.put("flags", xce.Flags);
+							if(js_xcl == null)
+								js_xcl = new JSONArray();
+							js_xcl.put(js_xce);
+						}
+					}
+					if(js_xcl != null)
+						result.put("vxcl", js_xcl);
+				}
+				// } @v11.4.8
 				if(BkList != null && BkList.size() > 0) {
 					JSONArray js_list = new JSONArray();
 					for(int i = 0; i < BkList.size(); i++) {
@@ -891,12 +1011,54 @@ public class Document {
 								ti.Set.Price = js_set.optDouble("price", 0.0);
 								ti.Set.Discount = js_set.optDouble("discount", 0.0);
 							}
+							// @v11.4.8 {
+							{
+								JSONArray js_xcl = js_item.optJSONArray("xcl");
+								if(js_xcl != null && js_xcl.length() > 0) {
+									for(int xci = 0; xci < js_xcl.length(); xci++) {
+										JSONObject js_xce = js_xcl.optJSONObject(xci);
+										if(js_xce != null) {
+											LotExtCode xce = new LotExtCode();
+											xce.Code = js_xce.optString("cod", null);
+											if(SLib.GetLen(xce.Code) > 0) {
+												xce.BoxRefN = js_xce.optInt("boxrefn", 0);
+												xce.Flags = js_xce.optInt("flags", 0);
+												if(ti.XcL == null)
+													ti.XcL = new ArrayList<LotExtCode>();
+												ti.XcL.add(xce);
+											}
+										}
+									}
+								}
+							}
+							// } @v11.4.8
 							if(TiList == null)
 								TiList = new ArrayList<TransferItem>();
 							TiList.add(ti);
 						}
 					}
 				}
+				// @v11.4.8 {
+				{
+					JSONArray js_xcl = jsObj.optJSONArray("vxcl");
+					if(js_xcl != null && js_xcl.length() > 0) {
+						for(int xci = 0; xci < js_xcl.length(); xci++) {
+							JSONObject js_xce = js_xcl.optJSONObject(xci);
+							if(js_xce != null) {
+								LotExtCode xce = new LotExtCode();
+								xce.Code = js_xce.optString("cod", null);
+								if(SLib.GetLen(xce.Code) > 0) {
+									xce.BoxRefN = js_xce.optInt("boxrefn", 0);
+									xce.Flags = js_xce.optInt("flags", 0);
+									if(VXcL == null)
+										VXcL = new ArrayList<LotExtCode>();
+									VXcL.add(xce);
+								}
+							}
+						}
+					}
+				}
+				// } @v11.4.8
 				JSONArray js_bk_list = jsObj.optJSONArray("bk_list");
 				if(js_bk_list != null && js_bk_list.length() > 0) {
 					for(int i = 0; i < js_bk_list.length(); i++) {

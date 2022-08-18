@@ -107,9 +107,9 @@ archive_string  * FASTCALL archive_strcat(archive_string *, const void *);
 archive_wstring * FASTCALL archive_wstrcat(archive_wstring *, const wchar_t *);
 
 /* Copy a C string to an archive_string, resizing as necessary. */
-#define	archive_strcpy(as,p) archive_strncpy((as), (p), ((p) == NULL ? 0 : strlen(p)))
-#define	archive_wstrcpy(as,p) archive_wstrncpy((as), (p), ((p) == NULL ? 0 : wcslen(p)))
-#define	archive_strcpy_l(as,p,lo) archive_strncpy_l((as), (p), ((p) == NULL ? 0 : strlen(p)), (lo))
+#define	archive_strcpy(as,p) archive_strncpy((as), (p), sstrlen(p))
+#define	archive_wstrcpy(as,p) archive_wstrncpy((as), (p), sstrlen(p))
+#define	archive_strcpy_l(as,p,lo) archive_strncpy_l((as), (p), sstrlen(p), (lo))
 
 /* Copy a C string to an archive_string with limit, resizing as necessary. */
 #define	archive_strncpy(as,p,l) ((as)->length=0, archive_strncat((as), (p), (l)))

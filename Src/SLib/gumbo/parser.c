@@ -4334,7 +4334,7 @@ GumboOutput * gumbo_parse_with_options(const GumboOptions* options, const char *
 			case GUMBO_TOKEN_COMMENT: token_type = "comment"; break;
 			default: break;
 		}
-		gumbo_debug("Handling %s token @%d:%d in state %d.\n", (char *)token_type, token.position.line, token.position.column, state->_insertion_mode);
+		gumbo_debug("Handling %s token @%d:%d in state %d.\n", token_type, token.position.line, token.position.column, state->_insertion_mode);
 		state->_current_token = &token;
 		state->_self_closing_flag_acknowledged = !(token.type == GUMBO_TOKEN_START_TAG && token.v.start_tag.is_self_closing);
 		has_error = !handle_token(&parser, &token) || has_error;

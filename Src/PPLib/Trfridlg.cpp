@@ -2194,8 +2194,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	sel = CTL_LOT_QUANTITY;
 	setupQuantity(0/*sel*/, 1);
 	THROW(CheckQuantityForIntVal());
-	THROW_PP((Item.Flags & PPTFR_REVAL) || Item.IsCorrectionExp() || oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) ||
-		Item.Quantity_ > 0.0, PPERR_INVQTTY); // @v9.3.1 P_Pack->Rec.OpID == PPOPK_EDI_STOCK // @v9.4.3 Item.IsCorrectionExp()
+	THROW_PP((Item.Flags & PPTFR_REVAL) || Item.IsCorrectionExp() || oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) || Item.Quantity_ > 0.0, PPERR_QTTYMUSTBEGTZ);
 	THROW(r = CheckQuantityVal(&extra_qtty));
 	ASSIGN_PTR(pExtraQtty, extra_qtty);
 	if(r < 0) {

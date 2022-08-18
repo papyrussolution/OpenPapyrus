@@ -8244,8 +8244,8 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,195,130,50,13
 END
 
-DLG_CLIAGT DIALOGEX 41, 0, 445, 272
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+DLG_CLIAGT DIALOGEX 41, 0, 451, 292
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@article_p_cliagt"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
@@ -8270,40 +8270,42 @@ BEGIN
     EDITTEXT        CTL_CLIAGT_DSCNT,285,105,60,13,ES_AUTOHSCROLL
     LTEXT           "@cfgclientdeal_maxdscnt",4009,365,95,64,8
     EDITTEXT        CTL_CLIAGT_MAXDSCNT,365,105,60,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgclientdeal_defpayperiod",4010,285,124,76,8
-    EDITTEXT        CTL_CLIAGT_PAYPERIOD,365,124,60,13,ES_AUTOHSCROLL
-    EDITTEXT        CTL_CLIAGT_RETLIMPRD,15,204,80,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@daterange",4011,15,196,80,8
-    PUSHBUTTON      "",CTLSEL_CLIAGT_RETLIMPRD,95,204,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cfgclientdeal_retlimpart",4012,120,196,45,8
-    EDITTEXT        CTL_CLIAGT_RETLIM,120,204,40,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgclientdeal_defagent",4013,10,65,200,8
+    LTEXT           "@cfgclientdeal_defpayperiod",4010,200,125,130,8
+    EDITTEXT        CTL_CLIAGT_PAYPERIOD,200,135,60,13,ES_AUTOHSCROLL
+    LTEXT           "@cfgclientdeal_defdueperiodhour",4011,200,150,140,8
+    EDITTEXT        CTL_CLIAGT_DUEPERIOD,200,160,60,13,ES_AUTOHSCROLL
+    EDITTEXT        CTL_CLIAGT_RETLIMPRD,15,229,80,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "@daterange",4012,15,221,80,8
+    PUSHBUTTON      "",CTLSEL_CLIAGT_RETLIMPRD,95,229,12,13,BS_BITMAP | NOT WS_TABSTOP
+    LTEXT           "@cfgclientdeal_retlimpart",4013,120,221,45,8
+    EDITTEXT        CTL_CLIAGT_RETLIM,120,229,40,13,ES_AUTOHSCROLL
+    LTEXT           "@cfgclientdeal_defagent",4014,10,65,200,8
     EDITTEXT        CTL_CLIAGT_AGENT,10,75,250,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CLIAGT_AGENT,260,75,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@quotkind",4014,10,95,160,8
+    LTEXT           "@quotkind",4015,10,95,160,8
     EDITTEXT        CTL_CLIAGT_QUOTKIND,10,105,160,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CLIAGT_QUOTKIND,170,105,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cfgclientdeal_extobject",4015,10,125,160,8
+    LTEXT           "@cfgclientdeal_extobject",4016,10,125,160,8
     EDITTEXT        CTL_CLIAGT_EXTOBJECT,10,135,160,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CLIAGT_EXTOBJECT,170,135,13,13,BS_BITMAP | NOT WS_TABSTOP
     EDITTEXT        CTL_CLIAGT_EDIPRV,10,160,160,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@cfgclientdeal_ediprvid",4016,10,150,155,8
+    LTEXT           "@cfgclientdeal_ediprvid",4017,10,150,155,8
     PUSHBUTTON      "",CTLSEL_CLIAGT_EDIPRV,170,160,12,13,BS_BITMAP
-    LTEXT           "@cfgclientdeal_lockprcbefore",4017,285,140,140,15
-    EDITTEXT        CTL_CLIAGT_LOCKPRCBEFORE,285,160,60,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "",CTLCAL_CLIAGT_LOCKPRCBEFORE,345,160,13,13,BS_BITMAP | NOT WS_TABSTOP
-    GROUPBOX        "",CTL_CLIAGT_FLAGS,175,180,265,45,WS_GROUP
-    CONTROL         "@cfgclientdeal_agtf_dontcalcdebtinbill",5317,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,180,191,235,10
-    CONTROL         "@cfgclientdeal_agtf_usemarkedgoodsonly",9413,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,180,201,235,10
-    CONTROL         "@cfgclientdeal_agtf_dontuseminshipmqtty",13509,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,180,210,230,10
-    PUSHBUTTON      "@{cfgclientdeal_pricerounding}...",4018,190,105,70,13
-    PUSHBUTTON      "@but_bills",4019,115,230,100,13
-    PUSHBUTTON      "@{cfgclientdealdebtlimit}...",4020,10,230,100,13
-    PUSHBUTTON      "@cfgclientdeal_bmpp",4021,220,230,220,13
-    PUSHBUTTON      "@but_ok",STDCTL_OKBUTTON,325,250,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,390,250,50,13
-    GROUPBOX        "@cfgclientdeal_retlim",IDC_STATIC,10,180,160,45
-    LTEXT           "@cfgclientdeal_addedlimitval",4022,285,35,140,8
+    LTEXT           "@cfgclientdeal_lockprcbefore",4018,200,175,240,10
+    EDITTEXT        CTL_CLIAGT_LOCKPRCBEFORE,200,185,60,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "",CTLCAL_CLIAGT_LOCKPRCBEFORE,260,185,13,13,BS_BITMAP | NOT WS_TABSTOP
+    GROUPBOX        "",CTL_CLIAGT_FLAGS,175,205,265,45,WS_GROUP
+    CONTROL         "@cfgclientdeal_agtf_dontcalcdebtinbill",5317,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,180,215,235,10
+    CONTROL         "@cfgclientdeal_agtf_usemarkedgoodsonly",9413,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,180,226,235,10
+    CONTROL         "@cfgclientdeal_agtf_dontuseminshipmqtty",13509,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,180,234,230,10
+    PUSHBUTTON      "@{cfgclientdeal_pricerounding}...",4019,190,105,70,13
+    PUSHBUTTON      "@but_bills",4020,115,255,100,13
+    PUSHBUTTON      "@{cfgclientdealdebtlimit}...",4021,10,255,100,13
+    PUSHBUTTON      "@cfgclientdeal_bmpp",4022,220,255,220,13
+    PUSHBUTTON      "@but_ok",STDCTL_OKBUTTON,325,274,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,390,274,50,13
+    GROUPBOX        "@cfgclientdeal_retlim",IDC_STATIC,10,205,160,45
+    LTEXT           "@cfgclientdeal_addedlimitval",4023,285,35,140,8
     EDITTEXT        CTL_CLIAGT_ADDEDLIMITVAL,285,45,60,13,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
 END
 
@@ -13667,28 +13669,48 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,315,130,50,13
 END
 
-DLG_STQINLOPARAM DIALOGEX 57, 32, 375, 177
+DLG_STQINLOPARAM DIALOGEX 57, 32, 581, 222
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@filter_styloqincominglistorderparam"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     LTEXT           "@filter_styloqincominglistparam_lookbackdays",4001,10,15,195,8
     EDITTEXT        CTL_STQINLPARAM_LBD,10,25,40,13,ES_AUTOHSCROLL
+    LTEXT           "@{daterange} (debug)",4002,265,15,125,8
+    EDITTEXT        CTL_STQINLPARAM_PERIOD,265,25,135,13,ES_AUTOHSCROLL
     EDITTEXT        CTL_STQINLPARAM_OP,10,55,210,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@oprkind",4002,10,45,205,8
+    LTEXT           "@oprkind",4003,10,45,205,8
     PUSHBUTTON      "",CTLSEL_STQINLPARAM_OP,220,55,12,13,BS_BITMAP | NOT WS_TABSTOP
     EDITTEXT        CTL_STQINLPARAM_LOC,10,80,210,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@warehouse",4003,10,70,200,8
+    LTEXT           "@warehouse",4004,10,70,200,8
     PUSHBUTTON      "",CTLSEL_STQINLPARAM_LOC,220,80,12,13,BS_BITMAP | NOT WS_TABSTOP
     PUSHBUTTON      "...",STDCTL_LOCLISTBUTTON,235,80,20,13,NOT WS_TABSTOP
     EDITTEXT        CTL_STQINLPARAM_CLI,10,105,210,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@contractor",4004,10,95,190,8
+    LTEXT           "@contractor",4005,10,95,190,8
     PUSHBUTTON      "",CTLSEL_STQINLPARAM_CLI,220,105,12,13,BS_BITMAP | NOT WS_TABSTOP
     EDITTEXT        CTL_STQINLPARAM_AGNT,10,130,210,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@agent",4005,10,120,190,8
+    LTEXT           "@agent",4006,10,120,190,8
     PUSHBUTTON      "",CTLSEL_STQINLPARAM_AGNT,220,130,12,13,BS_BITMAP | NOT WS_TABSTOP
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,100,155,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,170,155,50,13
+    GROUPBOX        "@filter_styloqincominglistparam_actions",CTL_STQINLPARAM_ACTIONS,265,50,210,90,WS_GROUP
+    CONTROL         "@filter_styloqincominglistparam_actiondocstatus",5311,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,275,65,190,10
+    CONTROL         "@filter_styloqincominglistparam_actiondocacceptance",9407,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,275,75,190,10
+    CONTROL         "@filter_styloqincominglistparam_actiondocacceptancemarks",13503,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,275,85,190,10
+    CONTROL         "@filter_styloqincominglistparam_actiondocsettingmarks",17599,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,275,95,190,10
+    CONTROL         "@filter_styloqincominglistparam_actiondocinventory",21695,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,275,105,190,10
+    CONTROL         "@filter_styloqincominglistparam_actiongoodsitemcorrection",25791,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,275,115,190,10
+    GROUPBOX        "",CTL_STQINLPARAM_FLAGS,265,145,300,45,WS_GROUP
+    CONTROL         "@filter_styloqincominglistparam_fbillwithmarksonly",5310,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,275,155,280,10
+    CONTROL         "@filter_styloqincominglistparam_fbillwithmarkedgoodsonly",9406,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,275,165,280,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,450,200,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,515,200,50,13
 END
 
 DLG_STQINLSPARAM DIALOGEX 57, 32, 375, 151
@@ -31798,8 +31820,8 @@ BEGIN
 
     DLG_CLIAGT, DIALOG
     BEGIN
-        RIGHTMARGIN, 400
-        BOTTOMMARGIN, 132
+        RIGHTMARGIN, 406
+        BOTTOMMARGIN, 152
     END
 
     DLG_CMDGROUP, DIALOG
@@ -32707,8 +32729,8 @@ BEGIN
 
     DLG_STQINLOPARAM, DIALOG
     BEGIN
-        RIGHTMARGIN, 301
-        BOTTOMMARGIN, 171
+        RIGHTMARGIN, 507
+        BOTTOMMARGIN, 216
     END
 
     DLG_STQINLSPARAM, DIALOG

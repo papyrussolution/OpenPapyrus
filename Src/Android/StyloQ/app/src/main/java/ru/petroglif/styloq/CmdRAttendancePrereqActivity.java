@@ -89,6 +89,20 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			CurrentBookingBusyList = null;
 			AttendanceTime = null;
 			Duration = 0;
+			WorkHours = null;
+			SetSelectionDate(SLib.GetCurDate());
+		}
+		void Reset()
+		{
+			Ware = null;
+			Prc = null;
+			ArbitraryPrc = null;
+			BusyList = null;
+			WorktimeList = null;
+			CurrentBookingBusyList = null;
+			AttendanceTime = null;
+			Duration = 0;
+			WorkHours = null;
 			SetSelectionDate(SLib.GetCurDate());
 		}
 		boolean IncrementSelectedDate(final Param param, boolean checkOnly)
@@ -262,6 +276,12 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		VdlDocs = null;
 		DocEditActionList = null;
 	}
+	private void ResetAttendanceBlock()
+	{
+		if(AttdcBlk != null)
+			AttdcBlk.Reset();
+		UpdateAttendanceView();
+	}
 	private void NotifyTabContentChanged(CommonPrereqModule.Tab tabId, int innerViewId)
 	{
 		CPM.NotifyTabContentChanged(R.id.VIEWPAGER_ATTENDANCEPREREQ, tabId, innerViewId);
@@ -394,8 +414,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			if(entry != null) {
 				if(AttdcBlk == null)
 					AttdcBlk = new AttendanceBlock(P);
-				AttdcBlk.Prc = entry;
-				int prc_id = AttdcBlk.GetPrcID(false);
+				//int prc_id = AttdcBlk.GetPrcID(false);
+				int prc_id = entry.JsItem.optInt("id", 0);
 				int ware_id = AttdcBlk.GetGoodsID();
 				if(ware_id > 0) {
 					if(prc_id > 0) {
@@ -412,6 +432,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							}
 						}
 						if(ware_belong_to_prc) {
+							AttdcBlk.Prc = entry;
 							AttdcBlk.BusyList = GetBusyListByPrc(AttdcBlk.Prc);
 							AttdcBlk.WorktimeList = GetWorktimeListByPrc(AttdcBlk.Prc);
 							AttdcBlk.SetSelectionDate(AttdcBlk.GetSelectionDate()); // Пересчитывам календарь в соответствии с процессором
@@ -786,7 +807,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			if(vg != null) {
 				int vg_id = vg.getId();
 				if(vg_id == R.id.LAYOUT_ATTENDANCEPREREQ_BOOKING) {
-					CPM.UpdateMemoInCurrentDocument(SLib.GetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO));
+					if(CPM.UpdateMemoInCurrentDocument(SLib.GetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO)))
+						CPM.OnCurrentDocumentModification();
 				}
 			}
 		}
@@ -913,14 +935,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						case R.id.attendancePrereqGoodsListView: result = new Integer(CPM.GetGoodsListSize()); break;
 						case R.id.attendancePrereqGoodsGroupListView: result = new Integer((CPM.GoodsGroupListData != null) ? CPM.GoodsGroupListData.size() : 0); break;
 						case R.id.attendancePrereqProcessorListView: result = new Integer((CPM.ProcessorListData != null) ? CPM.ProcessorListData.size() : 0); break;
-						case R.id.attendancePrereqAttendanceView:
-							result = new Integer(AttdcBlk.GetWorkhoursCount());
-							break;
+						case R.id.attendancePrereqAttendanceView: result = new Integer((AttdcBlk != null) ? AttdcBlk.GetWorkhoursCount() : 0); break;
 						case R.id.attendancePrereqBookingListView: result = new Integer(CPM.GetCurrentDocumentBookingListCount()); break;
 						case R.id.attendancePrereqOrderListView: result = new Integer((CPM.OrderHList != null) ? CPM.OrderHList.size() : 0); break;
-						case R.id.searchPaneListView:
-							result = new Integer((CPM.SearchResult != null) ? CPM.SearchResult.GetObjTypeCount() : 0);
-							//result = new Integer((SearchResult != null && SearchResult.List != null) ? SearchResult.List.size() : 0);
+						case R.id.searchPaneListView: result = new Integer((CPM.SearchResult != null) ? CPM.SearchResult.GetObjTypeCount() : 0);
 						break;
 					}
 				}
@@ -932,6 +950,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					int vg_id = vg.getId();
 					if(vg_id == R.id.LAYOUT_ATTENDANCEPREREQ_ATTENDANCE) {
 						if(AttdcBlk == null) {
+							SLib.SetCtrlVisibility(vg, R.id.CTL_ATTENDANCE_BACK_WARE, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_ATTENDANCE_BACK_PRC, View.GONE);
 							SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_WARE, "");
 							SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_PRC, "");
 							SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_DURATION, "");
@@ -955,6 +975,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							if(AttdcBlk.Ware != null && AttdcBlk.Ware.JsItem != null) {
 								String nm = AttdcBlk.Ware.JsItem.optString("nm", "");
 								SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_WARE, nm);
+								SLib.SetCtrlVisibility(vg, R.id.CTL_ATTENDANCE_BACK_WARE, View.VISIBLE);
+							}
+							else {
+								SLib.SetCtrlVisibility(vg, R.id.CTL_ATTENDANCE_BACK_WARE, View.GONE);
 							}
 							{
 								View view_prctxt = vg.findViewById(R.id.CTL_ATTENDANCE_PRC);
@@ -962,13 +986,17 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									if(AttdcBlk.Prc != null && AttdcBlk.Prc.JsItem != null) {
 										String nm = AttdcBlk.Prc.JsItem.optString("nm", "");
 										SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_PRC, nm);
+										SLib.SetCtrlVisibility(vg, R.id.CTL_ATTENDANCE_BACK_PRC, View.VISIBLE);
 										view_prctxt.setBackgroundResource(0);
 									}
 									else if(AttdcBlk.ArbitraryPrc != null && AttdcBlk.ArbitraryPrc.JsItem != null) {
 										String nm = AttdcBlk.ArbitraryPrc.JsItem.optString("nm", "");
 										SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_PRC, nm);
+										SLib.SetCtrlVisibility(vg, R.id.CTL_ATTENDANCE_BACK_PRC, View.VISIBLE);
 										view_prctxt.setBackgroundResource(R.drawable.shape_arbitraryprcframe);
 									}
+									else
+										SLib.SetCtrlVisibility(vg, R.id.CTL_ATTENDANCE_BACK_PRC, View.GONE);
 								}
 							}
 							SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_DURATION, MakeDurationText(app_ctx, AttdcBlk.Duration));
@@ -1230,7 +1258,6 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												}
 											}
 										}
-
 										boolean busy_hour = false;
 										boolean busy_hour_cur = false;
 										if(/*AttdcBlk.Prc != null &&*/((AttdcBlk.BusyList != null && AttdcBlk.BusyList.size() > 0) ||
@@ -1623,8 +1650,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 											View btn = fv.findViewById(R.id.CTL_PREV);
 											if(btn != null) {
 												btn.setOnClickListener(new View.OnClickListener() {
-													@Override public void onClick(View v)
-														{ HandleEvent(SLib.EV_COMMAND, v, null); }
+													@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }
 												});
 											}
 										}
@@ -1632,8 +1658,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 											View btn = fv.findViewById(R.id.CTL_NEXT);
 											if(btn != null) {
 												btn.setOnClickListener(new View.OnClickListener() {
-													@Override public void onClick(View v)
-														{ HandleEvent(SLib.EV_COMMAND, v, null); }
+													@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }
 												});
 											}
 										}
@@ -1889,7 +1914,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 													CommonPrereqModule.WareEntry ware_entry = CPM.FindGoodsItemByGoodsID(goods_id);
 													if(ware_entry != null) {
 														boolean swr = SetCurrentAttendanceWare(ware_entry);
-														boolean spr = SetCurrentAttendancePrc((CommonPrereqModule.ProcessorEntry) ev_subj.ItemObj);
+														boolean spr = SetCurrentAttendancePrc((CommonPrereqModule.ProcessorEntry)ev_subj.ItemObj);
 														if(swr && spr)
 															GotoTab(CommonPrereqModule.Tab.tabAttendance, 0, -1, -1);
 													}
@@ -1965,7 +1990,12 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 													// select for order
 												}
 												else {
-													if(SetCurrentAttendancePrc(item))
+													final int ware_id = (AttdcBlk != null) ? AttdcBlk.GetGoodsID() : 0;
+													if(ware_id == 0 && item.GoodsExpandStatus == 1) {
+														item.GoodsExpandStatus = 2;
+														a.notifyItemChanged(ev_subj.ItemIdx);
+													}
+													else if(SetCurrentAttendancePrc(item))
 														GotoTab(CommonPrereqModule.Tab.tabAttendance, 0, -1, -1);
 												}
 											}
@@ -2137,7 +2167,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					switch(acn.Action) {
 						case Document.editactionClose:
 							// Просто закрыть сеанс редактирования документа (изменения и передача сервису не предполагаются)
-							CPM.ResetCurrentDocument();
+							{
+								CPM.ResetCurrentDocument();
+								ResetAttendanceBlock();
+							}
 							NotifyCurrentOrderChanged();
 							GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
 							//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
@@ -2158,7 +2191,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							break;
 						case Document.editactionCancelEdition:
 							// Отменить изменения документа (передача сервису не предполагается)
-							CPM.ResetCurrentDocument();
+							{
+								CPM.ResetCurrentDocument();
+								ResetAttendanceBlock();
+							}
 							NotifyCurrentOrderChanged();
 							GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
 							//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
@@ -2216,7 +2252,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							}
 							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 								CPM.MakeCurrentDocList();
-								CPM.ResetCurrentDocument();
+								{
+									CPM.ResetCurrentDocument();
+									ResetAttendanceBlock();
+								}
 								//NotifyCurrentOrderChanged();
 								if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
 									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.VISIBLE);
@@ -2235,7 +2274,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							ScheduleRTmr(null, 0, 0);
 							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 								CPM.MakeCurrentDocList();
-								CPM.ResetCurrentDocument();
+								{
+									CPM.ResetCurrentDocument();
+									ResetAttendanceBlock();
+								}
 								//NotifyCurrentOrderChanged();
 								if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
 									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.VISIBLE);

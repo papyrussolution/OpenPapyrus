@@ -331,24 +331,18 @@ static int key_to_type_specific_pem_param_bio(BIO * out, const void * key,
 
 #endif
 
-/* ---------------------------------------------------------------------- */
-
 #ifndef OPENSSL_NO_DH
-static int prepare_dh_params(const void * dh, int nid, int save,
-    void ** pstr, int * pstrtype)
+static int prepare_dh_params(const void * dh, int nid, int save, void ** pstr, int * pstrtype)
 {
 	ASN1_STRING * params = ASN1_STRING_new();
-
 	if(!params) {
 		ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
-
 	if(nid == EVP_PKEY_DHX)
 		params->length = i2d_DHxparams((const DH *)dh, &params->data);
 	else
 		params->length = i2d_DHparams((const DH *)dh, &params->data);
-
 	if(params->length <= 0) {
 		ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);
 		ASN1_STRING_free(params);
@@ -427,8 +421,6 @@ static int dh_check_key_type(const void * dh, int expected_type)
 #define dh_pem_type            "DH"
 #define dhx_pem_type           "X9.42 DH"
 #endif
-
-/* ---------------------------------------------------------------------- */
 
 #ifndef OPENSSL_NO_DSA
 static int encode_dsa_params(const void * dsa, int nid, void ** pstr, int * pstrtype)
@@ -510,8 +502,6 @@ static int dsa_pki_priv_to_der(const void * dsa, unsigned char ** pder)
 #define dsa_input_type         "DSA"
 #define dsa_pem_type           "DSA"
 #endif
-
-/* ---------------------------------------------------------------------- */
 
 #ifndef OPENSSL_NO_EC
 static int prepare_ec_explicit_params(const void * eckey, void ** pstr, int * pstrtype)
@@ -613,8 +603,6 @@ static int ec_pki_priv_to_der(const void * veckey, unsigned char ** pder)
 #define sm2_pem_type          "SM2"
 #endif
 #endif
-
-/* ---------------------------------------------------------------------- */
 
 #ifndef OPENSSL_NO_EC
 #define prepare_ecx_params NULL

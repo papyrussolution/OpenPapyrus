@@ -160,7 +160,7 @@ U_CAPI void U_EXPORT2 ulist_addItemBeginList(UList * list, const void * data, bo
 U_CAPI bool U_EXPORT2 ulist_containsString(const UList * list, const char * data, int32_t length) {
 	if(list) {
 		const UListNode * pointer;
-		for(pointer = list->head; pointer != NULL; pointer = pointer->next) {
+		for(pointer = list->head; pointer; pointer = pointer->next) {
 			if(length == (int32_t)strlen((const char *)pointer->data)) {
 				if(memcmp(data, pointer->data, length) == 0) {
 					return TRUE;
@@ -174,7 +174,7 @@ U_CAPI bool U_EXPORT2 ulist_containsString(const UList * list, const char * data
 U_CAPI bool U_EXPORT2 ulist_removeString(UList * list, const char * data) {
 	if(list) {
 		UListNode * pointer;
-		for(pointer = list->head; pointer != NULL; pointer = pointer->next) {
+		for(pointer = list->head; pointer; pointer = pointer->next) {
 			if(strcmp(data, (const char *)pointer->data) == 0) {
 				ulist_removeItem(list, pointer);
 				// Remove only the first occurrence, like Java LinkedList.remove(Object).
@@ -217,7 +217,7 @@ U_CAPI void U_EXPORT2 ulist_deleteList(UList * list) {
 
 	if(list) {
 		listHead = list->head;
-		while(listHead != NULL) {
+		while(listHead) {
 			UListNode * listPointer = listHead->next;
 
 			if(listHead->forceDelete) {
@@ -233,7 +233,7 @@ U_CAPI void U_EXPORT2 ulist_deleteList(UList * list) {
 }
 
 U_CAPI void U_EXPORT2 ulist_close_keyword_values_iterator(UEnumeration * en) {
-	if(en != NULL) {
+	if(en) {
 		ulist_deleteList((UList*)(en->context));
 		uprv_free(en);
 	}
@@ -254,7 +254,7 @@ U_CAPI const char * U_EXPORT2 ulist_next_keyword_value(UEnumeration * en, int32_
 	}
 
 	s = (const char *)ulist_getNext((UList*)(en->context));
-	if(s != NULL && resultLength != NULL) {
+	if(s && resultLength) {
 		*resultLength = static_cast<int32_t>(strlen(s));
 	}
 	return s;

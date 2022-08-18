@@ -5541,9 +5541,9 @@ static boolint opj_j2k_read_cpf(opj_j2k_t * p_j2k, uint8 * p_header_data, uint32
 	(void)p_manager;
 	return TRUE;
 }
-/* ----------------------------------------------------------------------- */
-/* J2K / JPT decoder interface                                             */
-/* ----------------------------------------------------------------------- */
+// 
+// J2K / JPT decoder interface
+// 
 void opj_j2k_setup_decoder(opj_j2k_t * j2k, opj_dparameters_t * parameters)
 {
 	if(j2k && parameters) {
@@ -5608,9 +5608,9 @@ static int opj_j2k_get_default_thread_count()
 	}
 	return num_threads;
 }
-/* ----------------------------------------------------------------------- */
-/* J2K encoder interface                                                       */
-/* ----------------------------------------------------------------------- */
+// 
+// J2K encoder interface
+// 
 opj_j2k_t* opj_j2k_create_compress(void)
 {
 	opj_j2k_t * l_j2k = (opj_j2k_t*)opj_calloc(1, sizeof(opj_j2k_t));

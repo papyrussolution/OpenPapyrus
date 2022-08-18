@@ -22,7 +22,6 @@ static int sanity_check_bytes(size_t (*rng)(unsigned char *, size_t), int rounds
 	int i;
 	for(i = 0; i < rounds; i++) {
 		size_t generated = 0;
-
 		int retry;
 		for(retry = 0; retry < max_retries; retry++) {
 			generated = rng(buf, sizeof(buf));
@@ -30,7 +29,6 @@ static int sanity_check_bytes(size_t (*rng)(unsigned char *, size_t), int rounds
 				break;
 			failures++;
 		}
-
 		/*-
 		 * Verify that we don't have too many unexpected runs of zeroes,
 		 * implying that we might be accidentally using the 32-bit RDRAND
@@ -42,28 +40,22 @@ static int sanity_check_bytes(size_t (*rng)(unsigned char *, size_t), int rounds
 				zero_words++;
 			}
 		}
-
 		if(!TEST_int_eq(generated, sizeof(buf)))
 			goto end;
 		if(!TEST_false(!memcmp(prior, buf, sizeof(buf))))
 			goto end;
-
 		/* Verify that the last 7 bytes of buf aren't all the same value */
 		unsigned char * tail = &buf[sizeof(buf) - sizeof(check)];
 		memset(check, tail[0], 7);
 		if(!TEST_false(!memcmp(check, tail, sizeof(check))))
 			goto end;
-
 		/* Save the result and make sure it's different next time */
 		memcpy(prior, buf, sizeof(buf));
 	}
-
 	if(!TEST_int_le(zero_words, max_zero_words))
 		goto end;
-
 	if(!TEST_int_ge(failures, min_failures))
 		goto end;
-
 	testresult = 1;
 end:
 	return testresult;

@@ -615,7 +615,7 @@ l_ok selaFindSelByName(SELA        * sela, const char * name, int32     * pindex
 			continue;
 		}
 		sname = selGetName(sel);
-		if(sname && (!strcmp(name, sname))) {
+		if(sname && (sstreq(name, sname))) {
 			if(pindex)
 				*pindex = i;
 			if(psel)
@@ -807,7 +807,7 @@ char * selaGetCombName(SELA    * sela, int32 size, int32 direction)
 		if(sy != 1 && sx != 1) /* 2-D; not a comb */
 			continue;
 		selname = selGetName(sel);
-		if(!strcmp(selname, combname)) {
+		if(sstreq(selname, combname)) {
 			found = TRUE;
 			break;
 		}

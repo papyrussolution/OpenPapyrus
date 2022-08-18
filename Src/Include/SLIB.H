@@ -1294,8 +1294,10 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 #define	MEGABYTE	       SMEGABYTE(1)
 #define	GIGABYTE	       SMEGABYTE(1024)
 
+#define SSECSPERHOUR       3600
 #define SSECSPERDAY        (24 * 60 * 60)
 #define SSECSPERDAY64      (24LL * 60LL * 60LL)
+#define SSECSPERDAYr       (24.0 * 60.0 * 60.0)
 //
 //
 // @v11.2.0 { // @v11.4.0 (some modifications)

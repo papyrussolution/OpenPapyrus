@@ -4225,9 +4225,15 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 			const SString current_order_ident = p_item->OrderIdent;
 			pack.CreateBlank_WithoutCode(BillParam.ImpOpID, 0, LocID, 0);
 			STRNSCPY(pack.Rec.Code, p_item->OrderIdent);
-			pack.Rec.Dt = checkdate(p_item->OrderDate) ? p_item->OrderDate : getcurdate_();
-			if(checkdate(p_item->DeliveryDate))
+			// @v11.4.8 Дистрибьютор попросил приравнять дату документа к дате отгрузки
+			// @v11.4.8 pack.Rec.Dt = checkdate(p_item->OrderDate) ? p_item->OrderDate : getcurdate_();
+			if(checkdate(p_item->DeliveryDate)) {
+				pack.Rec.Dt = p_item->DeliveryDate; // @v11.4.8
 				pack.Rec.DueDate = p_item->DeliveryDate;
+			}
+			else {
+				pack.Rec.Dt = checkdate(p_item->OrderDate) ? p_item->OrderDate : getcurdate_(); // @v11.4.8
+			}
 			if(p_item->ClientDistrib.NotEmpty() && p_item->ClientDistrib.Divide('_', left_buf, right_buf) > 0) {
 				if(ArObj.Search(left_buf.ToLong(), &ar_rec) > 0) { // @v11.4.3 Fetch-->Search
 					ar_id = ar_rec.ID;
@@ -4280,17 +4286,15 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 								if(GObj.P_Tbl->SearchByArCode(supplArID, p_item->ProductCode, &agc_rec, &goods_rec) > 0) {
 									ti.SetupGoods(goods_rec.ID);
 								}
-								else {
-									if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {
-										ResolveGoodsItem rgi;
-										rgi.ArID = supplArID;
-										STRNSCPY(rgi.ArCode, p_item->ProductCode);
-										(temp_buf = p_item->ProductName).Transf(CTRANSF_UTF8_TO_INNER);
-										STRNSCPY(rgi.GoodsName, temp_buf);
-										if(CreateAbsenceGoods(rgi, 1) > 0) {
-											assert(rgi.ResolvedGoodsID);
-											ti.SetupGoods(rgi.ResolvedGoodsID);
-										}
+								else if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {
+									ResolveGoodsItem rgi;
+									rgi.ArID = supplArID;
+									STRNSCPY(rgi.ArCode, p_item->ProductCode);
+									(temp_buf = p_item->ProductName).Transf(CTRANSF_UTF8_TO_INNER);
+									STRNSCPY(rgi.GoodsName, temp_buf);
+									if(CreateAbsenceGoods(rgi, 1) > 0) {
+										assert(rgi.ResolvedGoodsID);
+										ti.SetupGoods(rgi.ResolvedGoodsID);
 									}
 								}
 							}
@@ -4352,10 +4356,13 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 							PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, msg_buf);
 							Logger.LogMsgCode(mfError, PPERR_DOC_ALREADY_EXISTS, msg_buf);
 						}
-						else if(P_BObj->__TurnPacket(&pack, 0, 1, 1))
-							Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
-						else
-							Logger.LogLastError();
+						else {
+							pack.SetupEdiAttributes(PPEDIOP_SALESORDER, "COKE", 0); // @v11.4.8
+							if(P_BObj->__TurnPacket(&pack, 0, 1, 1))
+								Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
+							else
+								Logger.LogLastError();
+						}
 					}
 				}
 			}

@@ -360,7 +360,7 @@ enum td_type {
 #define YEAR_SEC	31557600.0	/* avg, incl. leap year */
 #define MON_SEC		2629800.0	/* YEAR_SEC / 12 */
 #define WEEK_SEC	604800.0
-#define DAY_SEC		86400.0
+// (replaced with SSECSPERDAYr) #define DAY_SEC 86400.0
 //
 // Prototypes of functions exported by time.c 
 //

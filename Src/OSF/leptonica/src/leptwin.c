@@ -129,30 +129,24 @@ static LPBITMAPINFO DSCreateBitmapInfo(int32 width, int32 height, int32 depth, P
 
 	/* Create the header big enough to contain color table and
 	 * bitmasks if needed. */
-	pbmi = (LPBITMAPINFO)malloc(nInfoSize);
+	pbmi = (LPBITMAPINFO)SAlloc::M(nInfoSize);
 	if(!pbmi)
 		return NULL;
-
 	ZeroMemory(pbmi, nInfoSize);
 	pbmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	pbmi->bmiHeader.biWidth = width;
 	pbmi->bmiHeader.biHeight = height;
 	pbmi->bmiHeader.biPlanes = 1;
 	pbmi->bmiHeader.biBitCount = depth;
-
 	/* override below for 16 and 32 bpp */
 	pbmi->bmiHeader.biCompression = BI_RGB;
-
 	/*  ?? not sure if this is right?  */
 	pbmi->bmiHeader.biSizeImage = DSImageBitsSize(pbmi);
-
 	pbmi->bmiHeader.biXPelsPerMeter = 0;
 	pbmi->bmiHeader.biYPelsPerMeter = 0;
 	pbmi->bmiHeader.biClrUsed = 0; /* override below */
 	pbmi->bmiHeader.biClrImportant = 0;
-
-	switch(depth)
-	{
+	switch(depth) {
 		case 24:
 		    /* 24bpp requires no special handling */
 		    break;
@@ -176,7 +170,6 @@ static LPBITMAPINFO DSCreateBitmapInfo(int32 width, int32 height, int32 depth, P
 		    pMasks[0] = 0xff000000;
 		    pMasks[1] = 0x00ff0000;
 		    pMasks[2] = 0x0000ff00;
-
 		    pbmi->bmiHeader.biCompression = BI_BITFIELDS;
 		    break;
 		case 8:

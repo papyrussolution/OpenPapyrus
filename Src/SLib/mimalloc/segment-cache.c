@@ -322,11 +322,11 @@ mi_decl_nodiscard mi_decl_export bool mi_is_in_heap_region(const void* p) mi_att
    static void* mi_segment_range_of(const void* p, size_t* size) {
    mi_segment_t* segment = _mi_segment_of(p);
    if (segment == NULL) {
-    if (size != NULL) *size = 0;
+    if (size) *size = 0;
     return NULL;
    }
    else {
-    if (size != NULL) *size = segment->segment_size;
+    if (size) *size = segment->segment_size;
     return segment;
    }
    mi_assert_expensive(page == NULL || mi_segment_is_valid(_mi_page_segment(page),tld));

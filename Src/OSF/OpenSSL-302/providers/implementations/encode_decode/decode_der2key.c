@@ -283,19 +283,15 @@ static int der2key_export_object(void * vctx, const void * reference, size_t ref
 	return 0;
 }
 
-/* ---------------------------------------------------------------------- */
-
 #ifndef OPENSSL_NO_DH
 #define dh_evp_type                    EVP_PKEY_DH
 #define dh_d2i_private_key             NULL
 #define dh_d2i_public_key              NULL
 #define dh_d2i_key_params              (d2i_of_void*)d2i_DHparams
 
-static void * dh_d2i_PKCS8(void ** key, const unsigned char ** der, long der_len,
-    struct der2key_ctx_st * ctx)
+static void * dh_d2i_PKCS8(void ** key, const unsigned char ** der, long der_len, struct der2key_ctx_st * ctx)
 {
-	return der2key_decode_p8(der, der_len, ctx,
-		   (key_from_pkcs8_t*)ossl_dh_key_from_pkcs8);
+	return der2key_decode_p8(der, der_len, ctx, (key_from_pkcs8_t*)ossl_dh_key_from_pkcs8);
 }
 
 #define dh_d2i_PUBKEY                  (d2i_of_void*)ossl_d2i_DH_PUBKEY
@@ -318,8 +314,6 @@ static void dh_adjust(void * key, struct der2key_ctx_st * ctx)
 #define dhx_adjust                     dh_adjust
 #endif
 
-/* ---------------------------------------------------------------------- */
-
 #ifndef OPENSSL_NO_DSA
 #define dsa_evp_type                   EVP_PKEY_DSA
 #define dsa_d2i_private_key            (d2i_of_void*)d2i_DSAPrivateKey
@@ -341,8 +335,6 @@ static void dsa_adjust(void * key, struct der2key_ctx_st * ctx)
 }
 
 #endif
-
-/* ---------------------------------------------------------------------- */
 
 #ifndef OPENSSL_NO_EC
 #define ec_evp_type                    EVP_PKEY_EC
@@ -445,8 +437,6 @@ static void * sm2_d2i_PKCS8(void ** key, const unsigned char ** der, long der_le
 #endif
 #endif
 
-/* ---------------------------------------------------------------------- */
-
 #define rsa_evp_type                    EVP_PKEY_RSA
 #define rsa_d2i_private_key             (d2i_of_void*)d2i_RSAPrivateKey
 #define rsa_d2i_public_key              (d2i_of_void*)d2i_RSAPublicKey
@@ -486,9 +476,6 @@ static void rsa_adjust(void * key, struct der2key_ctx_st * ctx)
 #define rsapss_free                     (free_key_fn*)RSA_free
 #define rsapss_check                    rsa_check
 #define rsapss_adjust                   rsa_adjust
-
-/* ---------------------------------------------------------------------- */
-
 /*
  * The DO_ macros help define the selection mask and the method functions
  * for each kind of object we want to decode.

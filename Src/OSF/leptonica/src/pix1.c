@@ -266,16 +266,14 @@ static void pixdata_free(void  * ptr)
  *          However, MSVC++ only accepts the second version.
  * </pre>
  */
-void setPixMemoryManager(alloc_fn allocator,
-    dealloc_fn deallocator)
+void setPixMemoryManager(alloc_fn allocator, dealloc_fn deallocator)
 {
 	if(allocator) pix_mem_manager.allocator = allocator;
 	if(deallocator) pix_mem_manager.deallocator = deallocator;
 }
-
-/*--------------------------------------------------------------------*
-*                             Pix Creation                           *
-*--------------------------------------------------------------------*/
+// 
+// Pix Creation
+// 
 /*!
  * \brief   pixCreate()
  *
@@ -292,7 +290,6 @@ PIX * pixCreate(int32 width, int32 height, int32 depth)
 	memzero(pixd->data, 4LL * pixd->wpl * pixd->h);
 	return pixd;
 }
-
 /*!
  * \brief   pixCreateNoInit()
  *
@@ -308,28 +305,23 @@ PIX * pixCreate(int32 width, int32 height, int32 depth)
  *          not used in the library.
  * </pre>
  */
-PIX * pixCreateNoInit(int32 width,
-    int32 height,
-    int32 depth)
+PIX * pixCreateNoInit(int32 width, int32 height, int32 depth)
 {
 	int32 wpl;
 	PIX * pixd;
 	uint32  * data;
-
 	PROCNAME(__FUNCTION__);
 	if((pixd = pixCreateHeader(width, height, depth)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	wpl = pixGetWpl(pixd);
 	if((data = (uint32*)pixdata_malloc(4LL * wpl * height)) == NULL) {
 		pixDestroy(&pixd);
-		return (PIX *)ERROR_PTR("pixdata_malloc fail for data",
-			   procName, NULL);
+		return (PIX *)ERROR_PTR("pixdata_malloc fail for data", procName, NULL);
 	}
 	pixSetData(pixd, data);
 	pixSetPadBits(pixd, 0);
 	return pixd;
 }
-
 /*!
  * \brief   pixCreateTemplate()
  *
@@ -354,7 +346,6 @@ PIX * pixCreateTemplate(const PIX  * pixs)
 	memzero(pixd->data, 4LL * pixd->wpl * pixd->h);
 	return pixd;
 }
-
 /*!
  * \brief   pixCreateTemplateNoInit()
  *
@@ -376,12 +367,9 @@ PIX * pixCreateTemplateNoInit(const PIX  * pixs)
 {
 	int32 w, h, d;
 	PIX * pixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
-
 	pixGetDimensions(pixs, &w, &h, &d);
 	if((pixd = pixCreateNoInit(w, h, d)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
@@ -393,7 +381,6 @@ PIX * pixCreateTemplateNoInit(const PIX  * pixs)
 	pixSetPadBits(pixd, 0);
 	return pixd;
 }
-
 /*!
  * \brief   pixCreateWithCmap()
  *
@@ -411,19 +398,13 @@ PIX * pixCreateTemplateNoInit(const PIX  * pixs)
  *          to the cmap at index 0.
  * </pre>
  */
-PIX * pixCreateWithCmap(int32 width,
-    int32 height,
-    int32 depth,
-    int32 initcolor)
+PIX * pixCreateWithCmap(int32 width, int32 height, int32 depth, int32 initcolor)
 {
 	PIX * pix;
 	PIXCMAP   * cmap;
-
 	PROCNAME(__FUNCTION__);
-
 	if(depth != 2 && depth != 4 && depth != 8)
 		return (PIX *)ERROR_PTR("depth not 2, 4 or 8 bpp", procName, NULL);
-
 	if((pix = pixCreate(width, height, depth)) == NULL)
 		return (PIX *)ERROR_PTR("pix not made", procName, NULL);
 	cmap = pixcmapCreate(depth);
@@ -455,40 +436,30 @@ PIX * pixCreateWithCmap(int32 width,
  *          allocation of image data in a typesafe way.
  * </pre>
  */
-PIX * pixCreateHeader(int32 width,
-    int32 height,
-    int32 depth)
+PIX * pixCreateHeader(int32 width, int32 height, int32 depth)
 {
 	int32 wpl;
 	uint64 wpl64, bignum;
 	PIX * pixd;
-
 	PROCNAME(__FUNCTION__);
-
-	if((depth != 1) && (depth != 2) && (depth != 4) && (depth != 8)
-	    && (depth != 16) && (depth != 24) && (depth != 32))
-		return (PIX *)ERROR_PTR("depth must be {1, 2, 4, 8, 16, 24, 32}",
-			   procName, NULL);
+	if((depth != 1) && (depth != 2) && (depth != 4) && (depth != 8) && (depth != 16) && (depth != 24) && (depth != 32))
+		return (PIX *)ERROR_PTR("depth must be {1, 2, 4, 8, 16, 24, 32}", procName, NULL);
 	if(width <= 0)
 		return (PIX *)ERROR_PTR("width must be > 0", procName, NULL);
 	if(height <= 0)
 		return (PIX *)ERROR_PTR("height must be > 0", procName, NULL);
-
 	/* Avoid overflow in malloc, malicious or otherwise */
 	wpl64 = ((uint64)width * (uint64)depth + 31) / 32;
 	if(wpl64 > ((1LL << 24) - 1)) {
-		L_ERROR("requested w = %d, h = %d, d = %d\n",
-		    procName, width, height, depth);
+		L_ERROR("requested w = %d, h = %d, d = %d\n", procName, width, height, depth);
 		return (PIX *)ERROR_PTR("wpl >= 2^24", procName, NULL);
 	}
 	wpl = (int32)wpl64;
 	bignum = 4LL * wpl * height; /* number of bytes to be requested */
 	if(bignum > ((1LL << 31) - 1)) {
-		L_ERROR("requested w = %d, h = %d, d = %d\n",
-		    procName, width, height, depth);
+		L_ERROR("requested w = %d, h = %d, d = %d\n", procName, width, height, depth);
 		return (PIX *)ERROR_PTR("requested bytes >= 2^31", procName, NULL);
 	}
-
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 	if(bignum > (1LL << 26)) {
 		L_ERROR("fuzzer requested > 64 MB; refused\n", procName);
@@ -545,11 +516,9 @@ PIX * pixCreateHeader(int32 width,
 PIX * pixClone(PIX  * pixs)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixChangeRefcount(pixs, 1);
-
 	return pixs;
 }
 
@@ -571,14 +540,11 @@ PIX * pixClone(PIX  * pixs)
 void pixDestroy(PIX ** ppix)
 {
 	PIX  * pix;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!ppix) {
 		L_WARNING("ptr address is null!\n", procName);
 		return;
 	}
-
 	if((pix = *ppix) == NULL)
 		return;
 	pixFree(pix);

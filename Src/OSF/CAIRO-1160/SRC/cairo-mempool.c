@@ -226,11 +226,10 @@ static void * buddy_malloc(cairo_mempool_t * pool, int bits)
 
 cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t bytes, int min_bits, int num_sizes)
 {
-	ulong tmp;
 	int num_blocks;
 	int i;
 	/* Align the start to an integral chunk */
-	tmp = ((ulong)base) & ((1 << min_bits) - 1);
+	ulong tmp = ((ulong)base) & ((1 << min_bits) - 1);
 	if(tmp) {
 		tmp = (1 << min_bits) - tmp;
 		base = (char *)base + tmp;
@@ -256,9 +255,9 @@ cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t b
 		SAlloc::F(pool->blocks);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-	memset(pool->map, -1, (num_blocks + 7) >> 3);
+	memset(pool->map, 0xff, (num_blocks + 7) >> 3);
 	clear_bits(pool, 0, num_blocks);
-	/* Now add all blocks to the free list */
+	// Now add all blocks to the free list
 	free_blocks(pool, 0, num_blocks, 1);
 	return CAIRO_STATUS_SUCCESS;
 }

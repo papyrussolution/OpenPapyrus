@@ -208,12 +208,11 @@ static bool mi_region_try_alloc_os(size_t blocks, bool commit, bool allow_large,
 	*region = r;
 	return true;
 }
-
-/* ----------------------------------------------------------------------------
-   Try to claim blocks in suitable regions
-   -----------------------------------------------------------------------------*/
-
-static bool mi_region_is_suitable(const mem_region_t* region, int numa_node, bool allow_large) {
+// 
+// Try to claim blocks in suitable regions
+// 
+static bool mi_region_is_suitable(const mem_region_t* region, int numa_node, bool allow_large) 
+{
 	// initialized at all?
 	mi_region_info_t info;
 	info.value = mi_atomic_load_relaxed(&((mem_region_t*)region)->info);
@@ -337,21 +336,12 @@ static void* mi_region_try_alloc(size_t blocks, bool* commit, bool* large, bool*
 	mi_assert_internal(p != NULL);
 	return p;
 }
-
-/* ----------------------------------------------------------------------------
-   Allocation
-   -----------------------------------------------------------------------------*/
-
+// 
+// Allocation
+// 
 // Allocate `size` memory aligned at `alignment`. Return non NULL on success, with a given memory `id`.
 // (`id` is abstract, but `id = idx*MI_REGION_MAP_BITS + bitidx`)
-void* _mi_mem_alloc_aligned(size_t size,
-    size_t alignment,
-    bool* commit,
-    bool* large,
-    bool* is_pinned,
-    bool* is_zero,
-    size_t* memid,
-    mi_os_tld_t* tld)
+void* _mi_mem_alloc_aligned(size_t size, size_t alignment, bool* commit, bool* large, bool* is_pinned, bool* is_zero, size_t* memid, mi_os_tld_t* tld)
 {
 	mi_assert_internal(memid != NULL && tld != NULL);
 	mi_assert_internal(size > 0);

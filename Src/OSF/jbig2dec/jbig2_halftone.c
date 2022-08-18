@@ -36,7 +36,7 @@ static Jbig2PatternDict * jbig2_hd_new(Jbig2Ctx * ctx, const Jbig2PatternDictPar
 	}
 	/* allocate a new struct */
 	p_new = jbig2_new(ctx, Jbig2PatternDict, 1);
-	if(p_new != NULL) {
+	if(p_new) {
 		p_new->patterns = jbig2_new(ctx, Jbig2Image *, N);
 		if(p_new->patterns == NULL) {
 			jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate pattern in collective bitmap dictionary");
@@ -78,10 +78,9 @@ static Jbig2PatternDict * jbig2_hd_new(Jbig2Ctx * ctx, const Jbig2PatternDictPar
 void jbig2_hd_release(Jbig2Ctx * ctx, Jbig2PatternDict * dict)
 {
 	int i;
-
 	if(dict == NULL)
 		return;
-	if(dict->patterns != NULL)
+	if(dict->patterns)
 		for(i = 0; i < dict->n_patterns; i++)
 			jbig2_image_release(ctx, dict->patterns[i]);
 	jbig2_free(ctx->allocator, dict->patterns);
@@ -134,9 +133,9 @@ static Jbig2PatternDict * jbig2_decode_pattern_dict(Jbig2Ctx * ctx, Jbig2Segment
 	}
 	else {
 		Jbig2WordStream * ws = jbig2_word_stream_buf_new(ctx, data, size);
-		if(ws != NULL) {
+		if(ws) {
 			Jbig2ArithState * as = jbig2_arith_new(ctx, ws);
-			if(as != NULL) {
+			if(as) {
 				code = jbig2_decode_generic_region(ctx, segment, &rparams, as, image, GB_stats);
 			}
 			else {
@@ -199,7 +198,7 @@ int jbig2_pattern_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte 
 	if(!params.HDMMR) {
 		jbig2_free(ctx->allocator, GB_stats);
 	}
-	return (segment->result != NULL) ? 0 : -1;
+	return segment->result ? 0 : -1;
 }
 
 /**

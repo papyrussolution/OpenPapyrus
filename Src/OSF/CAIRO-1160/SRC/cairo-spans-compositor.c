@@ -457,20 +457,15 @@ static cairo_status_t upload_boxes(const cairo_spans_compositor_t * compositor,
 
 static boolint _clip_is_region(const cairo_clip_t * clip)
 {
-	int i;
-
 	if(clip->is_region)
 		return TRUE;
-
 	if(clip->path)
 		return FALSE;
-
-	for(i = 0; i < clip->num_boxes; i++) {
+	for(int i = 0; i < clip->num_boxes; i++) {
 		const cairo_box_t * b = &clip->boxes[i];
 		if(!_cairo_fixed_is_integer(b->p1.x | b->p1.y |  b->p2.x | b->p2.y))
 			return FALSE;
 	}
-
 	return TRUE;
 }
 
@@ -486,22 +481,16 @@ static cairo_int_status_t composite_aligned_boxes(const cairo_spans_compositor_t
 	boolint op_is_source;
 	boolint no_mask;
 	boolint inplace;
-
-	TRACE((stderr, "%s: need_clip_mask=%d, is-bounded=%d\n",
-	    __FUNCTION__, need_clip_mask, extents->is_bounded));
+	TRACE((stderr, "%s: need_clip_mask=%d, is-bounded=%d\n", __FUNCTION__, need_clip_mask, extents->is_bounded));
 	if(need_clip_mask && !extents->is_bounded) {
 		TRACE((stderr, "%s: unsupported clip\n", __FUNCTION__));
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
-
 	no_mask = extents->mask_pattern.base.type == CAIRO_PATTERN_TYPE_SOLID &&
 	    CAIRO_COLOR_IS_OPAQUE(&extents->mask_pattern.solid.color);
 	op_is_source = op_reduces_to_source(extents, no_mask);
 	inplace = !need_clip_mask && op_is_source && no_mask;
-
-	TRACE((stderr, "%s: op-is-source=%d [op=%d], no-mask=%d, inplace=%d\n",
-	    __FUNCTION__, op_is_source, op, no_mask, inplace));
-
+	TRACE((stderr, "%s: op-is-source=%d [op=%d], no-mask=%d, inplace=%d\n", __FUNCTION__, op_is_source, op, no_mask, inplace));
 	if(op == CAIRO_OPERATOR_SOURCE && (need_clip_mask || !no_mask)) {
 		/* SOURCE with a mask is actually a LERP in cairo semantics */
 		if((compositor->flags & CAIRO_SPANS_COMPOSITOR_HAS_LERP) == 0) {
@@ -509,51 +498,33 @@ static cairo_int_status_t composite_aligned_boxes(const cairo_spans_compositor_t
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 		}
 	}
-
 	/* Are we just copying a recording surface? */
-	if(inplace &&
-	    recording_pattern_contains_sample(&extents->source_pattern.base,
-	    &extents->source_sample_area)) {
+	if(inplace && recording_pattern_contains_sample(&extents->source_pattern.base, &extents->source_sample_area)) {
 		cairo_clip_t * recording_clip;
 		const cairo_pattern_t * source = &extents->source_pattern.base;
 		const cairo_matrix_t * m;
 		cairo_matrix_t matrix;
-
 		/* XXX could also do tiling repeat modes... */
-
 		/* first clear the area about to be overwritten */
 		if(!dst->is_clear) {
-			status = compositor->fill_boxes(dst,
-				CAIRO_OPERATOR_CLEAR,
-				CAIRO_COLOR_TRANSPARENT,
-				boxes);
+			status = compositor->fill_boxes(dst, CAIRO_OPERATOR_CLEAR, CAIRO_COLOR_TRANSPARENT, boxes);
 			if(UNLIKELY(status))
 				return status;
-
 			dst->is_clear = TRUE;
 		}
-
 		m = &source->matrix;
 		if(_cairo_surface_has_device_transform(dst)) {
-			cairo_matrix_multiply(&matrix,
-			    &source->matrix,
-			    &dst->device_transform);
+			cairo_matrix_multiply(&matrix, &source->matrix, &dst->device_transform);
 			m = &matrix;
 		}
-
 		recording_clip = _cairo_clip_from_boxes(boxes);
-		status = _cairo_recording_surface_replay_with_clip(unwrap_source(source),
-			m, dst, recording_clip);
+		status = _cairo_recording_surface_replay_with_clip(unwrap_source(source), m, dst, recording_clip);
 		_cairo_clip_destroy(recording_clip);
-
 		return status;
 	}
-
 	status = CAIRO_INT_STATUS_UNSUPPORTED;
 	if(!need_clip_mask && no_mask && source->type == CAIRO_PATTERN_TYPE_SOLID) {
-		const cairo_color_t * color;
-
-		color = &((cairo_solid_pattern_t*)source)->color;
+		const cairo_color_t * color = &((cairo_solid_pattern_t*)source)->color;
 		if(op_is_source)
 			op = CAIRO_OPERATOR_SOURCE;
 		status = compositor->fill_boxes(dst, op, color, boxes);
@@ -566,7 +537,6 @@ static cairo_int_status_t composite_aligned_boxes(const cairo_spans_compositor_t
 		cairo_surface_t * mask = NULL;
 		int src_x, src_y;
 		int mask_x = 0, mask_y = 0;
-
 		/* All typical cases will have been resolved before now... */
 		if(need_clip_mask) {
 			mask = get_clip_surface(compositor, dst, extents->clip, &extents->bounded);

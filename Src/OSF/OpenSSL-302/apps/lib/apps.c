@@ -2392,7 +2392,7 @@ static int WIN32_rename(const char * from, const char * to)
 		size_t i;
 		size_t flen = strlen(from) + 1;
 		size_t tlen = strlen(to) + 1;
-		tfrom = (TCHAR *)malloc(sizeof(*tfrom) * (flen + tlen));
+		tfrom = (TCHAR *)SAlloc::M(sizeof(*tfrom) * (flen + tlen));
 		if(tfrom == NULL)
 			goto err;
 		tto = tfrom + flen;

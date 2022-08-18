@@ -92,7 +92,7 @@ boolint CMSEXPORT cmsPipelineCheckAndRetreiveStages(const cmsPipeline * Lut, uin
 	mpe = Lut->Elements;
 	for(i = 0; i < n; i++) {
 		ElemPtr = va_arg(args, void **);
-		if(ElemPtr != NULL)
+		if(ElemPtr)
 			*ElemPtr = mpe;
 		mpe = mpe->Next;
 	}
@@ -131,7 +131,7 @@ static void CurveSetElemTypeFree(cmsStage * mpe)
 	assert(mpe != NULL);
 	Data = (_cmsStageToneCurvesData*)mpe->Data;
 	if(Data) {
-		if(Data->TheCurves != NULL) {
+		if(Data->TheCurves) {
 			for(i = 0; i < Data->nCurves; i++) {
 				cmsFreeToneCurve(Data->TheCurves[i]);
 			}
@@ -159,7 +159,7 @@ static void * CurveSetDup(cmsStage * mpe)
 	}
 	return (void *)NewElem;
 Error:
-	if(NewElem->TheCurves != NULL) {
+	if(NewElem->TheCurves) {
 		for(i = 0; i < NewElem->nCurves; i++) {
 			if(NewElem->TheCurves[i])
 				cmsFreeToneCurve(NewElem->TheCurves[i]);
@@ -228,7 +228,7 @@ static void EvaluateMatrix(const float In[], float Out[], const cmsStage * mpe)
 		for(j = 0; j < mpe->InputChannels; j++) {
 			Tmp += In[j] * Data->Double[i*mpe->InputChannels + j];
 		}
-		if(Data->Offset != NULL)
+		if(Data->Offset)
 			Tmp += Data->Offset[i];
 		Out[i] = (float)Tmp;
 	}
@@ -286,7 +286,7 @@ cmsStage * CMSEXPORT cmsStageAllocMatrix(cmsContext ContextID, uint32 Rows, uint
 	for(i = 0; i < n; i++) {
 		NewElem->Double[i] = Matrix[i];
 	}
-	if(Offset != NULL) {
+	if(Offset) {
 		NewElem->Offset = (double *)_cmsCalloc(ContextID, Rows, sizeof(double));
 		if(NewElem->Offset == NULL) 
 			goto Error;
@@ -359,7 +359,7 @@ static void * CLUTElemDup(cmsStage * mpe)
 		}
 	}
 	NewElem->Params   = _cmsComputeInterpParamsEx(mpe->ContextID, Data->Params->nSamples, Data->Params->nInputs, Data->Params->nOutputs, NewElem->Tab.T, Data->Params->dwFlags);
-	if(NewElem->Params != NULL)
+	if(NewElem->Params)
 		return (void *)NewElem;
 Error:
 	_cmsFree(mpe->ContextID, NewElem->Tab.T); // This works for both types
@@ -884,7 +884,7 @@ cmsStage * CMSEXPORT cmsStageDup(cmsStage * mpe)
 static boolint BlessLUT(cmsPipeline * lut)
 {
 	// We can set the input/output channels only if we have elements.
-	if(lut->Elements != NULL) {
+	if(lut->Elements) {
 		cmsStage * prev;
 		cmsStage * next;
 		cmsStage * First;
@@ -987,7 +987,7 @@ void /*CMSEXPORT*/FASTCALL cmsPipelineFree(cmsPipeline * lut)
 {
 	if(lut) {
 		cmsStage * Next;
-		for(cmsStage * mpe = lut->Elements; mpe != NULL; mpe = Next) {
+		for(cmsStage * mpe = lut->Elements; mpe; mpe = Next) {
 			Next = mpe->Next;
 			cmsStageFree(mpe);
 		}
@@ -1032,7 +1032,7 @@ cmsPipeline * CMSEXPORT cmsPipelineDup(const cmsPipeline * lut)
 			First = FALSE;
 		}
 		else {
-			if(Anterior != NULL)
+			if(Anterior)
 				Anterior->Next = NewMPE;
 		}
 		Anterior = NewMPE;
@@ -1041,7 +1041,7 @@ cmsPipeline * CMSEXPORT cmsPipelineDup(const cmsPipeline * lut)
 	NewLUT->EvalFloatFn = lut->EvalFloatFn;
 	NewLUT->DupDataFn   = lut->DupDataFn;
 	NewLUT->FreeDataFn  = lut->FreeDataFn;
-	if(NewLUT->DupDataFn != NULL)
+	if(NewLUT->DupDataFn)
 		NewLUT->Data = NewLUT->DupDataFn(lut->ContextID, lut->Data);
 	NewLUT->SaveAs8Bits    = lut->SaveAs8Bits;
 	if(!BlessLUT(NewLUT)) {
@@ -1065,7 +1065,7 @@ int CMSEXPORT cmsPipelineInsertStage(cmsPipeline * lut, cmsStageLoc loc, cmsStag
 		    if(lut->Elements == NULL)
 			    lut->Elements = mpe;
 		    else {
-			    for(pt = lut->Elements; pt != NULL; pt = pt->Next) 
+			    for(pt = lut->Elements; pt; pt = pt->Next) 
 					Anterior = pt;
 			    Anterior->Next = mpe;
 			    mpe->Next = NULL;
@@ -1099,7 +1099,7 @@ void CMSEXPORT cmsPipelineUnlinkStage(cmsPipeline * lut, cmsStageLoc loc, cmsSta
 	    break;
 		case cmsAT_END:
 		    Anterior = Last = NULL;
-		    for(pt = lut->Elements; pt != NULL; pt = pt->Next) {
+		    for(pt = lut->Elements; pt; pt = pt->Next) {
 			    Anterior = Last;
 			    Last = pt;
 		    }

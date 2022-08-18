@@ -6,7 +6,7 @@
 
 Node * Analyser::NewNode(int type) 
 {
-	Node * p = static_cast<Node *>(malloc(sizeof(Node)));
+	Node * p = static_cast<Node *>(SAlloc::M(sizeof(Node)));
 	p->P_Next = P_Nodes; 
 	P_Nodes = p;
 	p->P_Left = 0;
@@ -23,7 +23,7 @@ Node * Analyser::NewNode(int type)
 
 symbol * Analyser::NewLiteralString() 
 {
-	LiteralString * p = static_cast<LiteralString *>(malloc(sizeof(LiteralString)));
+	LiteralString * p = static_cast<LiteralString *>(SAlloc::M(sizeof(LiteralString)));
 	p->b = copy_b(P_Tokeniser->P_b);
 	p->next = literalstrings;
 	literalstrings = p;
@@ -304,7 +304,7 @@ handle_as_name:
 			    if(a->LookForName() != 0) 
 					error(a, e_redeclared); 
 				else {
-				    Name * p = static_cast<Name *>(malloc(sizeof(Name)));
+				    Name * p = static_cast<Name *>(SAlloc::M(sizeof(Name)));
 				    p->b = copy_b(t->P_b);
 				    p->type = type;
 				    p->mode = -1; /* routines, externals */
@@ -629,7 +629,7 @@ static int compare_node(const Node * p, const Node * q) {
 
 static void make_among(Analyser * a, Node * p, Node * substring) 
 {
-	Among * x = static_cast<Among *>(malloc(sizeof(Among)));
+	Among * x = static_cast<Among *>(SAlloc::M(sizeof(Among)));
 	NEWVEC(AmongVec, v, p->number);
 	Node * q = p->P_Left;
 	AmongVec * w0 = v;
@@ -1118,7 +1118,7 @@ static void read_define_grouping(Analyser * a, Name * q)
 	Tokeniser * t = a->P_Tokeniser;
 	int style = c_plus;
 	{
-		Grouping * p = static_cast<Grouping *>(malloc(sizeof(Grouping)));
+		Grouping * p = static_cast<Grouping *>(SAlloc::M(sizeof(Grouping)));
 		if(a->P_Groupings == 0) 
 			a->P_Groupings = p; 
 		else 

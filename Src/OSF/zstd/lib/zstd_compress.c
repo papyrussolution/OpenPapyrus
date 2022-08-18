@@ -156,7 +156,7 @@ static void ZSTD_clearAllDicts(ZSTD_CCtx* cctx)
 
 static size_t ZSTD_sizeof_localDict(ZSTD_localDict dict)
 {
-	const size_t bufferSize = dict.dictBuffer != NULL ? dict.dictSize : 0;
+	const size_t bufferSize = dict.dictBuffer ? dict.dictSize : 0;
 	const size_t cdictSize = ZSTD_sizeof_CDict(dict.cdict);
 	return bufferSize + cdictSize;
 }
@@ -1003,7 +1003,7 @@ static size_t ZSTD_initLocalDict(ZSTD_CCtx* cctx)
 		assert(dl->dictSize == 0);
 		return 0;
 	}
-	if(dl->cdict != NULL) {
+	if(dl->cdict) {
 		assert(cctx->cdict == dl->cdict);
 		/* Local dictionary already initialized. */
 		return 0;
@@ -1077,7 +1077,7 @@ size_t ZSTD_CCtx_refPrefix_advanced(ZSTD_CCtx* cctx, const void * prefix, size_t
 {
 	RETURN_ERROR_IF(cctx->streamStage != zcss_init, stage_wrong, "Can't ref a prefix when ctx not in init stage.");
 	ZSTD_clearAllDicts(cctx);
-	if(prefix != NULL && prefixSize > 0) {
+	if(prefix && prefixSize > 0) {
 		cctx->prefixDict.dict = prefix;
 		cctx->prefixDict.dictSize = prefixSize;
 		cctx->prefixDict.dictContentType = dictContentType;
@@ -4164,7 +4164,7 @@ static size_t ZSTD_compressBegin_internal(ZSTD_CCtx* cctx, const void * dict, si
 {
 	const size_t dictContentSize = cdict ? cdict->dictContentSize : dictSize;
 #if ZSTD_TRACE
-	cctx->traceCtx = (ZSTD_trace_compress_begin != NULL) ? ZSTD_trace_compress_begin(cctx) : 0;
+	cctx->traceCtx = (ZSTD_trace_compress_begin) ? ZSTD_trace_compress_begin(cctx) : 0;
 #endif
 	DEBUGLOG(4, "ZSTD_compressBegin_internal: wlog=%u", params->cParams.windowLog);
 	/* params are supposed to be fully validated at this point */
@@ -4263,7 +4263,7 @@ static size_t ZSTD_writeEpilogue(ZSTD_CCtx* cctx, void * dst, size_t dstCapacity
 void ZSTD_CCtx_trace(ZSTD_CCtx* cctx, size_t extraCSize)
 {
 #if ZSTD_TRACE
-	if(cctx->traceCtx && ZSTD_trace_compress_end != NULL) {
+	if(cctx->traceCtx && ZSTD_trace_compress_end) {
 		int const streaming = cctx->inBuffSize > 0 || cctx->outBuffSize > 0 || cctx->appliedParams.nbWorkers > 0;
 		ZSTD_Trace trace;
 		memzero(&trace, sizeof(trace));
@@ -4728,7 +4728,7 @@ size_t ZSTD_CStreamOutSize(void)
 
 static ZSTD_cParamMode_e ZSTD_getCParamMode(ZSTD_CDict const* cdict, ZSTD_CCtx_params const* params, uint64 pledgedSrcSize)
 {
-	if(cdict != NULL && ZSTD_shouldAttachDict(cdict, params, pledgedSrcSize))
+	if(cdict && ZSTD_shouldAttachDict(cdict, params, pledgedSrcSize))
 		return ZSTD_cpm_attachDict;
 	else
 		return ZSTD_cpm_noAttachDict;
@@ -4877,11 +4877,11 @@ static size_t ZSTD_compressStream_generic(ZSTD_CStream* zcs,
     ZSTD_EndDirective const flushMode)
 {
 	const char* const istart = (assert(input != NULL), (const char *)input->src);
-	const char* const iend = (istart != NULL) ? istart + input->size : istart;
-	const char* ip = (istart != NULL) ? istart + input->pos : istart;
+	const char* const iend = (istart) ? istart + input->size : istart;
+	const char* ip = (istart) ? istart + input->pos : istart;
 	char* const ostart = (assert(output != NULL), (char *)output->dst);
-	char* const oend = (ostart != NULL) ? ostart + output->size : ostart;
-	char* op = (ostart != NULL) ? ostart + output->pos : ostart;
+	char* const oend = (ostart) ? ostart + output->size : ostart;
+	char* op = (ostart) ? ostart + output->pos : ostart;
 	uint32 someMoreWork = 1;
 
 	/* check expectations */
@@ -5143,7 +5143,7 @@ static size_t ZSTD_CCtx_init_compressStream2(ZSTD_CCtx* cctx,
 	}
 	if(params.nbWorkers > 0) {
 #if ZSTD_TRACE
-		cctx->traceCtx = (ZSTD_trace_compress_begin != NULL) ? ZSTD_trace_compress_begin(cctx) : 0;
+		cctx->traceCtx = (ZSTD_trace_compress_begin) ? ZSTD_trace_compress_begin(cctx) : 0;
 #endif
 		/* mt context creation */
 		if(cctx->mtctx == NULL) {

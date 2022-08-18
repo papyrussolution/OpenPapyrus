@@ -2178,6 +2178,14 @@ class ppstr2 {
 	public static final int PPERR_SQPROT_SESSNFOUND = 12159;
 	public static final int PPERR_SQ_UNDEFSVCCFG = 12160;
 	public static final int PPERR_SQ_UNDEFINNERSTQIDBTBL = 12161;
+	public static final int PPERR_SQ_CMDFAULT_ORDERPREREQ = 12162;
+	public static final int PPERR_SQ_CMDFAULT_ATTENDANCEPREREQ = 12163;
+	public static final int PPERR_SQ_CMDFAULT_INDOORSVCPREREQ = 12164;
+	public static final int PPERR_SQ_CMDFAULT_INCOMINGLIST = 12165;
+	public static final int PPERR_INVCLIAGTDUEPERIODHR = 12166;
+	public static final int PPERR_INCOMINGBILLHASNTTI = 12167;
+	public static final int PPERR_QTTYMUSTBEGEZ = 12168;
+	public static final int PPERR_QTTYMUSTBEGTZ = 12169;
 	//
 	// .N.
 	//
@@ -4492,6 +4500,8 @@ class ppstr2 {
 	public static final int PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL = 12059;
 	public static final int PPTXT_GOODSRESTORDER = 12060;
 	public static final int PPTXT_STQ_HINT_FRIENDINVITATION = 12061;
+	public static final int PPTXT_LOG_STQPREPAREAHEAD_NTD = 12062;
+	public static final int PPTXT_LOG_STQPREPAREAHEAD_DONE = 12063;
 	//
 	// .N.
 	//

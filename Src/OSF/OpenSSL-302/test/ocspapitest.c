@@ -93,39 +93,27 @@ err:
 
 static int test_resp_signer(void)
 {
-	OCSP_BASICRESP * bs = NULL;
 	X509 * signer = NULL, * tmp;
 	EVP_PKEY * key = NULL;
-	STACK_OF(X509) *extra_certs = NULL;
 	int ret = 0;
-
 	/*
 	 * Test a response with no certs at all; get the signer from the
 	 * extra certs given to OCSP_resp_get0_signer().
 	 */
-	bs = make_dummy_resp();
-	extra_certs = sk_X509_new_null();
-	if(!TEST_ptr(bs)
-	    || !TEST_ptr(extra_certs)
-	    || !TEST_true(get_cert_and_key(&signer, &key))
-	    || !TEST_true(sk_X509_push(extra_certs, signer))
-	    || !TEST_true(OCSP_basic_sign(bs, signer, key, EVP_sha1(),
-	    NULL, OCSP_NOCERTS)))
+	OCSP_BASICRESP * bs = make_dummy_resp();
+	STACK_OF(X509) * extra_certs = sk_X509_new_null();
+	if(!TEST_ptr(bs) || !TEST_ptr(extra_certs) || !TEST_true(get_cert_and_key(&signer, &key)) || 
+		!TEST_true(sk_X509_push(extra_certs, signer)) || !TEST_true(OCSP_basic_sign(bs, signer, key, EVP_sha1(), NULL, OCSP_NOCERTS)))
 		goto err;
-	if(!TEST_true(OCSP_resp_get0_signer(bs, &tmp, extra_certs))
-	    || !TEST_int_eq(X509_cmp(tmp, signer), 0))
+	if(!TEST_true(OCSP_resp_get0_signer(bs, &tmp, extra_certs)) || !TEST_int_eq(X509_cmp(tmp, signer), 0))
 		goto err;
 	OCSP_BASICRESP_free(bs);
-
 	/* Do it again but include the signer cert */
 	bs = make_dummy_resp();
 	tmp = NULL;
-	if(!TEST_ptr(bs)
-	    || !TEST_true(OCSP_basic_sign(bs, signer, key, EVP_sha1(),
-	    NULL, 0)))
+	if(!TEST_ptr(bs) || !TEST_true(OCSP_basic_sign(bs, signer, key, EVP_sha1(), NULL, 0)))
 		goto err;
-	if(!TEST_true(OCSP_resp_get0_signer(bs, &tmp, NULL))
-	    || !TEST_int_eq(X509_cmp(tmp, signer), 0))
+	if(!TEST_true(OCSP_resp_get0_signer(bs, &tmp, NULL)) || !TEST_int_eq(X509_cmp(tmp, signer), 0))
 		goto err;
 	ret = 1;
 err:
@@ -142,7 +130,6 @@ static int test_access_description(int testcase)
 	int ret = 0;
 	if(!TEST_ptr(ad))
 		goto err;
-
 	switch(testcase) {
 		case 0: /* no change */
 		    break;

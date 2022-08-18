@@ -116,7 +116,7 @@ static int known_hosts_read_line(FILE * fp,
     size_t * buf_len,
     size_t * lineno)
 {
-	while(fgets(buf, buf_size, fp) != NULL) {
+	while(fgets(buf, buf_size, fp)) {
 		size_t len;
 		if(buf[0] == '\0') {
 			continue;
@@ -124,7 +124,7 @@ static int known_hosts_read_line(FILE * fp,
 
 		*lineno += 1;
 		len = strlen(buf);
-		if(buf_len != NULL) {
+		if(buf_len) {
 			*buf_len = len;
 		}
 		if(buf[len - 1] == '\n' || feof(fp)) {
@@ -226,7 +226,7 @@ static int ssh_known_hosts_read_entries(const char * match,
 			goto error;
 		}
 		/* Check for duplicates */
-		for(it = ssh_list_get_iterator(*entries); it != NULL; it = it->next) {
+		for(it = ssh_list_get_iterator(*entries); it; it = it->next) {
 			struct ssh_knownhosts_entry * entry2 = ssh_iterator_value(struct ssh_knownhosts_entry *, it);
 			int cmp = ssh_known_hosts_entries_compare(entry, entry2);
 			if(cmp == 0) {
@@ -336,7 +336,7 @@ struct ssh_list * ssh_known_hosts_get_algorithms(ssh_session session)
 		struct ssh_knownhosts_entry * entry = ssh_iterator_value(struct ssh_knownhosts_entry *, it);
 		const char * algo = entry->publickey->type_c;
 		/* Check for duplicates */
-		for(it2 = ssh_list_get_iterator(list); it2 != NULL; it2 = it2->next) {
+		for(it2 = ssh_list_get_iterator(list); it2; it2 = it2->next) {
 			char * alg2 = ssh_iterator_value(char *, it2);
 			int cmp = strcmp(alg2, algo);
 			if(cmp == 0) {
@@ -516,7 +516,7 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 		if(p[0] == '|') {
 			match = match_hashed_hostname(hostname, p);
 		}
-		for(q = strtok(p, ","); q != NULL; q = strtok(NULL, ",")) {
+		for(q = strtok(p, ","); q; q = strtok(NULL, ",")) {
 			int cmp;
 			if(q[0] == '[' && hostname[0] != '[') {
 				/* Corner case: We have standard port so we do not have
@@ -641,13 +641,13 @@ enum ssh_known_hosts_e ssh_session_has_known_hosts_entry(ssh_session session){
 		ssh_set_error(session, SSH_REQUEST_DENIED, "No path set for a known_hosts file");
 		return SSH_KNOWN_HOSTS_NOT_FOUND;
 	}
-	if(session->opts.knownhosts != NULL) {
+	if(session->opts.knownhosts) {
 		known_hosts_found = ssh_file_readaccess_ok(session->opts.knownhosts);
 		if(!known_hosts_found) {
 			SSH_LOG(SSH_LOG_WARN, "Cannot access file %s", session->opts.knownhosts);
 		}
 	}
-	if(session->opts.global_knownhosts != NULL) {
+	if(session->opts.global_knownhosts) {
 		global_known_hosts_found = ssh_file_readaccess_ok(session->opts.global_knownhosts);
 		if(!global_known_hosts_found) {
 			SSH_LOG(SSH_LOG_WARN, "Cannot access file %s", session->opts.global_knownhosts);
@@ -840,12 +840,12 @@ static enum ssh_known_hosts_e ssh_known_hosts_check_server_key(const char * host
 		ssh_list_free(entry_list);
 		return SSH_KNOWN_HOSTS_UNKNOWN;
 	}
-	for(; it != NULL; it = it->next) {
+	for(; it; it = it->next) {
 		struct ssh_knownhosts_entry * entry = ssh_iterator_value(struct ssh_knownhosts_entry *, it);
 		int cmp = ssh_key_cmp(server_key, entry->publickey, SSH_KEY_CMP_PUBLIC);
 		if(cmp == 0) {
 			found = SSH_KNOWN_HOSTS_OK;
-			if(pentry != NULL) {
+			if(pentry) {
 				*pentry = entry;
 				ssh_list_remove(entry_list, it);
 			}

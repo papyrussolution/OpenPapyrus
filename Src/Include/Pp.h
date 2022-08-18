@@ -9816,7 +9816,8 @@ struct PPClientAgreement { // @persistent
 	PPID   EdiPrvID;       // @v10.0.0 ->Ref(PPOBJ_EDIPROVIDER)
 	// @v10.0.0 uint8  Reserve2[4];    // @reserve
 	// @v11.2.0 char   Code2[24];      // @v10.2.9 Номер соглашения
-	uint8  Reserve3[24];   // @v11.2.0 Переведено в резерв. Номер соглашения - в поле Code_
+	uint8  Reserve3_[22];     // @v11.2.0 Переведено в резерв. Номер соглашения - в поле Code_ // @v11.4.8 [24]-->[22]
+	uint16 DefDuePeriodHour; // @v11.4.8 Номинальное количество часов от формирования заказа до отгрузки (срок доставки).
 	TSVector <DebtLimit> DebtLimList; // @anchor долговые ограничения по командам агентов
 	SString Code_;            // @v11.2.0 Номер соглашения //
 	BillMultiPrintParam Bmpp; // @v11.2.0 Параметры множественной печати документов. Позволит быстро установить эти параметры для документа
@@ -10001,7 +10002,7 @@ struct AmtEntry { // @persistent
 	explicit AmtEntry(PPID amtTypeID);
 	AmtEntry(PPID amtTypeID, PPID curID);
 	AmtEntry(PPID amtTypeID, PPID curID, double amt);
-	int    FASTCALL IsEq(const AmtEntry & rS) const;
+	bool   FASTCALL IsEq(const AmtEntry & rS) const;
 
 	PPID   AmtTypeID; // ->Ref(PPOBJ_AMOUNTTYPE)
 	PPID   CurID;     // ->Ref(PPOBJ_CURRENCY)
@@ -10013,9 +10014,9 @@ public:
 	AmtList();
 	AmtList & FASTCALL operator = (const AmtList &);
 	int    Search(PPID amtTypeID, PPID curID, uint * pPos) const;
-	int    FASTCALL HasAmtTypeID(PPID amtTypeID) const;
-	int    FASTCALL HasVatSum(const TaxAmountIDs * pTai) const;
-	int    FASTCALL IsEq(const AmtList *) const;
+	bool   FASTCALL HasAmtTypeID(PPID amtTypeID) const;
+	bool   FASTCALL HasVatSum(const TaxAmountIDs * pTai) const;
+	bool   FASTCALL IsEq(const AmtList *) const;
 	//
 	// Descr: возвращает список валют, для которых существует
 	//   сумма amtTypeID в списке сумм. Если amtTypeID < 0, то возвращаетс
@@ -10679,7 +10680,7 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	//   !0 - экземпляры this и pS одинаковы
 	//   0  - экземпляры this и pS не одинаковы
 	//
-	int    FASTCALL IsEq(const PPBillExt & rS) const;
+	bool   FASTCALL IsEq(const PPBillExt & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 	PPID   PayerID;            // ->Article.ID Плательщик
@@ -10901,7 +10902,7 @@ struct PPAdvanceRep {      // @persistent @store(PropertyTbl)
 class PayPlanArray : public TSVector <PayPlanTbl::Rec> {
 public:
 	PayPlanArray();
-	int    FASTCALL IsEq(const PayPlanArray & rS) const;
+	bool   FASTCALL IsEq(const PayPlanArray & rS) const;
 	int    GetLast(LDATE * pDt, double * pAmount, double * pInterest) const;
 	//
 	// Descr: Ищет запись с датой dt. Если запись найдена, то возвращает !0
@@ -11046,7 +11047,7 @@ public:
 		long   AddBox(long id, const char * pNum, int doVerify);
 		int    AddNum(long boxId, const char * pNum, int doVerify);
 		uint   GetCount() const;
-		int    GetByIdx(uint idx, Entry & rEntry) const;
+		bool   GetByIdx(uint idx, Entry & rEntry) const;
 		int    GetBoxNum(long boxId, SString & rNum) const;
 		int    GetByBoxID(long boxId, StringSet & rSs) const;
 		int    SearchCode(const char * pNum, uint * pIdx) const;
@@ -11178,6 +11179,7 @@ public:
 	PPLotExtCodeContainer XcL; // Контейнер, содержащий спецкоды (в частности, марки ЕГАИС) ассоциированные со строками.
 		// Особенность такой ассоциации заключается в том, что с одной строкой может быть связано от нуля до множества кодов.
 		// Кроме того, коды привязываются не к лотам, а именно к строкам документа.
+		// Списки кодов привязываются по индексу строки с базой 1 [1..]
 	PPLotExtCodeContainer _VXcL; // @v10.3.0 Валидирующий контейнер спецкодов. Применяется для проверки
 		// кодов, поступивших с документом в XcL
 	SVerT  Ver; // Версия системы, которая создала сериализованную копию объекта
@@ -46816,6 +46818,7 @@ public:
 		doctypGeneric         = 4, // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
 		doctypIndexingContent = 5, // @v11.3.4 Документ, содержащий данные для индексации медиатором
 		doctypIndoorSvcPrereq = 6, // @v11.4.5 Предопределенный формат данных, подготовленных для формирования данных для обслуживания внутри помещения сервиса (INDOOR)
+		doctypIncomingList    = 7  // @v11.4.8 
 	};
 	//
 	// Descr: Флаги записей реестра Stylo-Q
@@ -46859,7 +46862,21 @@ public:
 	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
 	int    GetPeerEntry(PPID id, StoragePacket * pPack);
 	int    SearchSession(const SBinaryChunk & rOtherPublic, StoragePacket * pPack);
-	int    PutDocument(PPID * pID, const SBinaryChunk & rContractorIdent, int direction, int docType, const SBinaryChunk & rIdent, SSecretTagPool & rPool, int use_ta);
+	int    PutDocument(PPID * pID, const SBinaryChunk & rContractorIdent, int direction, int docType, const SBinaryChunk & rIdent, const SSecretTagPool & rPool, int use_ta);
+	//
+	// Descr: Вариант PutDocument, возвращающий сохраненную запись по указателю pResultRec.
+	//   Применяется тогда, когда нужно получить атрибуты записи, автоматически сформированные функцией.
+	//
+	int    PutDocument(PPID * pID, StyloQSecTbl::Rec * pResultRec, const SBinaryChunk & rContractorIdent, int direction, int docType, const SBinaryChunk & rIdent, const SSecretTagPool & rPool, int use_ta);
+	//
+	// Descr: Ищет самый последний документ типа docType с направлением direction (-1 - входящие, +1 - исходящие).
+	//   Если pIdent != 0, то дополнительное условие - равенство StyloQSec::BI указанному значению.
+	// Returns:
+	//   >0 - искомый документ найден
+	//   <0 - искомый документ не найден
+	//    0 - error
+	//
+	int    GetDocByType(int direction, int docType, const SBinaryChunk * pIdent, StoragePacket * pPack);
 	int    GetDocIdListByType(int direction, int docType, const SBinaryChunk * pIdent, LongArray & rIdList);
 	//
 	// Descr: Возвращает список идентификаторов входящих документов с контентом для индексации, которые еще не были обработаны (Flags & fUnprocessedDoc).
@@ -46895,6 +46912,7 @@ public:
 	int    IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const char * pJsText);
 	int    GetMediatorList(TSCollection <StyloQCore::IgnitionServerEntry> & rList);
 private:
+	int    Helper_PutDocument(PPID * pID, StyloQSecTbl::Rec * pResultRec, const SBinaryChunk & rContractorIdent, int direction, int docType, const SBinaryChunk & rIdent, const SSecretTagPool & rPool, int use_ta);
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
 	static SvcDbSymbMap _SvcDbMap;
 };
@@ -46923,10 +46941,30 @@ public:
 	StyloQIncomingListParam();
 	StyloQIncomingListParam(const StyloQIncomingListParam & rS);
 	StyloQIncomingListParam & FASTCALL operator = (const StyloQIncomingListParam & rS);
+	//
+	// Descr: Действия над документами из входящего списка
+	//
+	enum {
+		actionDocStatus           = 0x0001, // Изменение статуса 
+		actionDocAcceptance       = 0x0002, // Приемка товара (приходные накладные)
+		actionDocAcceptanceMarks  = 0x0004, // Проверка марок в строках входящего документа (приходные накладные)
+		actionDocSettingMarks     = 0x0008, // Расстановка марок на строках исходящего документа (расходные накладные)
+		actionDocInventory        = 0x0010, // Ввод документа инвентаризации
+		actionGoodsItemCorrection = 0x0020, // Корректировка позиций (количество, цена, удаление позиции, замена товара)
+	};
+	enum {
+		fBillWithMarksOnly        = 0x0001, // Только документы, в которых есть марки честный знак или егаис
+		fBillWithMarkedGoodsOnly  = 0x0002  // Только документы, содержащие товары, подлежащие маркировке
+	};
 
-	uint8  ReserveStart[64];
+	uint8  ReserveStart[48];
+	DateRange Period;  // Это - отладочный критерий. В реальности должен использоваться LookbackDays, но так как тестовые 
+		// базы данных не меняются, то LookbackDays при разработке использовать затруднительно.
+	uint32 Flags;
+	uint32 ActionFlags;
 	int    StQBaseCmdId;
-	int    LookbackDays;
+	int    LookbackDays; // Количество дней с отсчетом назад от текущей системной даты. Данные захватываются за период,
+		// начиная от now-LookbackDays до бесконечности (данные будущими числами так же захватываются).
 	long   Reserve;
 	//
 	// Фильтры, представленные здесь не подлежать прямому интерактивному редактированию пользователем.
@@ -47253,6 +47291,7 @@ public:
 			int    UnitID;  // service-domain-id
 			int    Flags;
 			ValuSet Set;
+			ValuSet SetAccepted; // @v11.4.8 Набор величин, с которыми согласна принимающая сторона (например при инвентаризации, приемке приходного документа и т.д.)
 			TSVector <LotExtCode> XcL;
 		};
 		struct BookingItem {
@@ -47275,7 +47314,7 @@ public:
 		int    DlvrLocID; // service-domain-id
 		int    AgentID;   // @v11.4.6 service-domain-id
 		int    PosNodeID; // @v11.4.6 service-domain-id
-		double Amount;    // @v11.3.10
+		double Amount;    // @v11.3.10 Номинальная сумма документа
 		SString Code;
 		SString BaseCurrencySymb; // @v11.3.12
 		SBinaryChunk SvcIdent;
@@ -47477,6 +47516,13 @@ public:
 	//   от той базы данных, в которой авторизован текущий сеанс.
 	//
 	static int   ExecuteIndexingRequest(bool useCurrentSession);
+	//
+	// Descr: Вызывает функции предварительного построения данных для команд, у которых
+	//   задан признак StyloQCommandList::Item::fPrepareAhead.
+	// ARG(useCurrentSession IN): отладочный параметр. Если true, то запрос отправляется только
+	//   от той базы данных, в которой авторизован текущий сеанс.
+	//
+	static int   PrepareAhed(bool useCurrentSession);
 	static int   GetBlobStoragePath(SString & rBuf);
 	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, PPObjID oid, uint itemNumber, SString & rBuf);
 	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, const char * pResourceName, SString & rBuf);
@@ -47550,8 +47596,7 @@ private:
 	int    ProcessCommand_PersonEvent(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos);
 	int    ProcessCommand_Report(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
-	int    ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
-		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
+	int    ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	int    ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
 		SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	int    ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
@@ -47580,6 +47625,7 @@ private:
 	SJson * ProcessCommand_ReqBlobInfoList(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument);
 	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult, SString & rDocDeclaration);
 	SJson * ProcessCommand_GetGoodsInfo(const SBinaryChunk & rOwnIdent, const StyloQCore::StoragePacket & rCliPack, const StyloQCommandList::Item * pGiCmd, PPID goodsID, const char * pGoodsCode);
+	int    Helper_PrepareAhed(const StyloQCommandList & rFullCmdList);
 	bool   AmIMediator(const char * pCommand);
 	SJson * MakeQuery_StoreBlob(const void * pBlobBuf, size_t blobSize, const SString & rSignature);
 	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID, bool logResult);

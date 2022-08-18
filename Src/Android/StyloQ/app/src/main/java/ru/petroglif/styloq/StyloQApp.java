@@ -857,8 +857,11 @@ public class StyloQApp extends SLib.App {
 				subj_text = (String) reply;
 			StyloQCommand.Item original_cmd_item = subj.OriginalCmdItem;
 			SLib.SlActivity retr_activity = subj.RetrActivity;
-			MainActivity main_activity = FindMainActivity();
-			SLib.SlActivity activity_for_message = (retr_activity != null) ? retr_activity : main_activity;
+			SLib.SlActivity activity_for_message = null;
+			{
+				MainActivity main_activity = FindMainActivity();
+				activity_for_message = (retr_activity != null) ? retr_activity : main_activity;
+			}
 			if(subj.SvcIdent != null && original_cmd_item != null) {
 				StyloQCommand.StopPendingCommand(subj.SvcIdent, original_cmd_item);
 			}
@@ -955,6 +958,8 @@ public class StyloQApp extends SLib.App {
 								intent_cls = CmdROrderPrereqActivity.class;
 							else if(doc_decl.DisplayMethod.equalsIgnoreCase("attendanceprereq"))
 								intent_cls = CmdRAttendancePrereqActivity.class;
+							else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglistorder")) // @v11.4.8
+								intent_cls = CmdRIncomingListBillActivity.class;
 							if(intent_cls == null)
 								intent_cls = CmdRSimpleActivity.class;
 						}
@@ -983,7 +988,7 @@ public class StyloQApp extends SLib.App {
 						//gs_activity.SetQueryResult(svc_doc_json);
 					}*/
 					else if(intent_cls != null) {
-						intent = new Intent(main_activity, intent_cls);
+						intent = new Intent(/*main_activity != null ? main_activity : this*/this, intent_cls);
 						if(SLib.GetLen(subj.SvcIdent) > 0)
 							intent.putExtra("SvcIdent", subj.SvcIdent);
 						if(subj.OriginalCmdItem != null) {
@@ -1004,7 +1009,11 @@ public class StyloQApp extends SLib.App {
 							String svc_reply_text = new String(rawdata);
 							intent.putExtra("SvcReplyText", svc_reply_text);
 						}
-						main_activity.startActivity(intent);
+						{
+							MainActivity main_activity = FindMainActivity();
+							if(main_activity != null)
+								main_activity.startActivity(intent);
+						}
 					}
 					else {
 						/*
@@ -1020,22 +1029,27 @@ public class StyloQApp extends SLib.App {
 				}
 				else if(subj.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 					msg_text = "Success";
-					if(main_activity != null) {
-						if(subj_text.equalsIgnoreCase("UpdateCommandList")) {
-							if(reply instanceof byte[]) {
-								byte[] svc_ident = (byte[]) reply;
-								CommandListActivity cmdl_activity = FindCommandListActivityBySvcIdent(svc_ident);
-								if(cmdl_activity == null) {
-									Intent intent = new Intent(main_activity, CommandListActivity.class);
-									intent.putExtra("SvcIdent", svc_ident);
-									main_activity.startActivity(intent);
+					if(subj_text.equalsIgnoreCase("UpdateCommandList")) {
+						if(reply instanceof byte[]) {
+							byte[] svc_ident = (byte[]) reply;
+							CommandListActivity cmdl_activity = FindCommandListActivityBySvcIdent(svc_ident);
+							if(cmdl_activity == null) {
+								Intent intent = new Intent(/*main_activity*/this, CommandListActivity.class);
+								intent.putExtra("SvcIdent", svc_ident);
+								{
+									MainActivity main_activity = FindMainActivity();
+									if(main_activity != null)
+										main_activity.startActivity(intent);
 								}
 							}
 						}
-						else if(subj_text.equalsIgnoreCase("RegistrationClientRequest")) {
-							if(reply instanceof Long) {
-								long new_svc_id = (Long) reply;
-								if(new_svc_id > 0)
+					}
+					else if(subj_text.equalsIgnoreCase("RegistrationClientRequest")) {
+						if(reply instanceof Long) {
+							long new_svc_id = (Long)reply;
+							if(new_svc_id > 0) {
+								MainActivity main_activity = FindMainActivity();
+								if(main_activity != null)
 									main_activity.ReckonServiceEntryCreatedOrUpdated(new_svc_id);
 							}
 						}

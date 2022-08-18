@@ -67,7 +67,7 @@ int main(int argc, char ** argv)
 		while((filename = OPENSSL_DIR_read(&ctx, argv[n])) != NULL) {
 			wasdir = 1;
 			if(pathname == NULL) {
-				pathname = (char *)malloc(PATH_MAX);
+				pathname = (char *)SAlloc::M(PATH_MAX);
 				if(pathname == NULL)
 					break;
 				strcpy(pathname, argv[n]);

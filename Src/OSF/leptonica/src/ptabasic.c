@@ -685,7 +685,7 @@ PTA * ptaReadStream(FILE * fp)
 		return (PTA*)ERROR_PTR("too many pts", procName, NULL);
 	if(n == 0) L_INFO("the pta is empty\n", procName);
 
-	if(!strcmp(typestr, "float"))
+	if(sstreq(typestr, "float"))
 		type = 0;
 	else /* typestr is "integer" */
 		type = 1;

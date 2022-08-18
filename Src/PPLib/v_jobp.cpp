@@ -90,7 +90,7 @@ public:
 		GetClusterData(CTL_JOBITEM_FLAGS, &Data.Flags);
 		Data.ScheduleBeforeTime = getCtrlTime(CTL_JOBITEM_SCHDLBEFORE);
 		// @v11.3.5 {
-		if(job_id == PPJOB_STYLOQSENDINDEXINGCONTENT)
+		if(oneof2(job_id, PPJOB_STYLOQSENDINDEXINGCONTENT, PPJOB_STYLOQPREPAREAHEAD)) // @v11.4.8 PPJOB_STYLOQPREPAREAHEAD
 			Data.DbSymb.Z();
 		else
 			Data.DbSymb = PreserveDbSymb;
@@ -121,7 +121,7 @@ IMPL_HANDLE_EVENT(JobItemDialog)
 			const PPID job_id = getCtrlLong(CTLSEL_JOBITEM_CMD);
 			if(job_id && P_Mngr->LoadResource(job_id, &job_descr) > 0) {
 				// @v11.3.5 {
-				if(job_id == PPJOB_STYLOQSENDINDEXINGCONTENT)
+				if(oneof2(job_id, PPJOB_STYLOQSENDINDEXINGCONTENT, PPJOB_STYLOQPREPAREAHEAD)) // @v11.4.8 PPJOB_STYLOQPREPAREAHEAD
 					Data.DbSymb.Z();
 				else
 					Data.DbSymb = PreserveDbSymb;

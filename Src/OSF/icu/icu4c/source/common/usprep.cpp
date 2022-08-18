@@ -152,11 +152,11 @@ static int32_t usprep_internal_flushCache(bool noRefCount)
 			/* unload the data */
 			usprep_unload(profile);
 
-			if(key->name != NULL) {
+			if(key->name) {
 				uprv_free(key->name);
 				key->name = NULL;
 			}
-			if(key->path != NULL) {
+			if(key->path) {
 				uprv_free(key->path);
 				key->path = NULL;
 			}
@@ -177,9 +177,9 @@ static int32_t usprep_internal_flushCache(bool noRefCount)
  */
 
 static bool U_CALLCONV usprep_cleanup() {
-	if(SHARED_DATA_HASHTABLE != NULL) {
+	if(SHARED_DATA_HASHTABLE) {
 		usprep_internal_flushCache(TRUE);
-		if(SHARED_DATA_HASHTABLE != NULL && uhash_count(SHARED_DATA_HASHTABLE) == 0) {
+		if(SHARED_DATA_HASHTABLE && uhash_count(SHARED_DATA_HASHTABLE) == 0) {
 			uhash_close(SHARED_DATA_HASHTABLE);
 			SHARED_DATA_HASHTABLE = NULL;
 		}
@@ -294,7 +294,7 @@ static UStringPrepProfile* usprep_getProfile(const char * path, const char * nam
 	/* fetch the data from the cache */
 	umtx_lock(&usprepMutex);
 	profile = (UStringPrepProfile*)(uhash_get(SHARED_DATA_HASHTABLE, &stackKey));
-	if(profile != NULL) {
+	if(profile) {
 		profile->refCount++;
 	}
 	umtx_unlock(&usprepMutex);
@@ -318,7 +318,7 @@ static UStringPrepProfile* usprep_getProfile(const char * path, const char * nam
 		LocalMemory<char> keyName;
 		LocalMemory<char> keyPath;
 		if(key.allocateInsteadAndReset() == NULL || keyName.allocateInsteadAndCopy(static_cast<int32_t>(strlen(name)+1)) == NULL ||
-		    (path != NULL && keyPath.allocateInsteadAndCopy(static_cast<int32_t>(strlen(path)+1)) == NULL)) {
+		    (path && keyPath.allocateInsteadAndCopy(static_cast<int32_t>(strlen(path)+1)) == NULL)) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			usprep_unload(newProfile.getAlias());
 			return NULL;
@@ -326,7 +326,7 @@ static UStringPrepProfile* usprep_getProfile(const char * path, const char * nam
 		umtx_lock(&usprepMutex);
 		// If another thread already inserted the same key/value, refcount and cleanup our thread data
 		profile = (UStringPrepProfile*)(uhash_get(SHARED_DATA_HASHTABLE, &stackKey));
-		if(profile != NULL) {
+		if(profile) {
 			profile->refCount++;
 			usprep_unload(newProfile.getAlias());
 		}
@@ -334,7 +334,7 @@ static UStringPrepProfile* usprep_getProfile(const char * path, const char * nam
 			/* initialize the key members */
 			key->name = keyName.orphan();
 			strcpy(key->name, name);
-			if(path != NULL) {
+			if(path) {
 				key->path = keyPath.orphan();
 				strcpy(key->path, path);
 			}

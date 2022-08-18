@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/LAYOUT_ORDERPREPREQ_ORDR"
+    android:id="@+id/LAYOUT_INCOMINGLIST_BILL_SELECTED"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -112,13 +112,6 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:orientation="horizontal">
-                <ImageView
-                    android:id="@+id/CTL_DOCUMENT_BACK_CLI"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_arrowback">
-                </ImageView>
                 <LinearLayout
                     android:id="@+id/CTLGRP_DOCUMENT_CLI"
                     android:layout_height="wrap_content"
@@ -137,6 +130,11 @@
                         />
                 </LinearLayout>
             </LinearLayout>
+            <TextView style="@style/FormText"
+                android:id="@+id/CTL_DOCUMENT_AGENT"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                />
             <com.google.android.material.textfield.TextInputLayout style="@style/InputLine"
                 android:id="@+id/CTL_DOCUMENT_MEMO"
                 android:layout_width="match_parent"
@@ -159,7 +157,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1">
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/orderPrereqOrdrListView"
+                    android:id="@+id/CTL_DOCUMENT_TILIST"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"

@@ -884,10 +884,10 @@ void TSessionDialog::SetPlannedTiming(long sec)
 		r_temp_buf.Cat(tm, TIMF_HMS);
 	}
 	else {
-		const long nd = as_ / (3600 * 24);
+		const long nd = as_ / SSECSPERDAY;
 		if(nd)
 			r_temp_buf.Cat(nd).CatChar('d').Space();
-		tm.settotalsec(as_ % (3600 * 24));
+		tm.settotalsec(as_ % SSECSPERDAY);
 		r_temp_buf.Cat(tm, TIMF_HMS);
 	}
 	setCtrlString(CTL_TSESS_PLANTIMING, r_temp_buf);
@@ -918,7 +918,7 @@ long TSessionDialog::GetPlannedTiming()
 	LTIME tm;
 	if(nd >= 0) {
 		strtotime(scan, TIMF_HMS, &tm);
-		sec = tm.totalsec() + (nd * 3600 * 24);
+		sec = tm.totalsec() + (nd * SSECSPERDAY);
 	}
 	else {
 		strtotime(line_buf, TIMF_HMS, &tm);
@@ -1696,7 +1696,7 @@ public:
 		GetClusterData(CTL_TSESSLN_FLAG_REST, &Data.Flags);
 		GetClusterData(CTL_TSESSLN_PLANFLAGS, &Data.Flags);
 		getCtrlData(sel = CTL_TSESSLN_QTTY, &Data.Qtty);
-		THROW_PP(Data.Qtty > 0, PPERR_INVQTTY);
+		THROW_PP(Data.Qtty > 0, PPERR_QTTYMUSTBEGTZ);
 		if(Data.Flags & TSESLF_INDEPPHQTTY)
 			getCtrlData(sel = CTL_TSESSLN_INDEPPHQTTY, &Data.WtQtty); // float WtQtty
 		else

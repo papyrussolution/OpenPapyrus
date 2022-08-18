@@ -23,8 +23,8 @@ android {
         applicationId "ru.petroglif.styloq"
         minSdkVersion 28
         targetSdkVersion 30
-        versionCode 19
-        versionName '0.1.05'
+        versionCode 21
+        versionName '0.1.07'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }

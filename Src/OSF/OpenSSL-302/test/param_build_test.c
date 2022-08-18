@@ -145,8 +145,8 @@ static int template_private_test(int tstid)
 	const int data2_size = data2_num * sizeof(int);
 	OSSL_PARAM_BLD * bld = NULL;
 	OSSL_PARAM * params = NULL, * params_blt = NULL, * p1 = NULL, * p;
-	unsigned int i;
-	unsigned long int l;
+	uint  i;
+	ulong l;
 	uint32_t i32;
 	uint64_t i64;
 	size_t st;
@@ -224,7 +224,7 @@ static int template_private_test(int tstid)
 	    || !TEST_false(CRYPTO_secure_allocated(p->data))
 	    || !TEST_str_eq(p->key, "l")
 	    || !TEST_uint_eq(p->data_type, OSSL_PARAM_UNSIGNED_INTEGER)
-	    || !TEST_size_t_eq(p->data_size, sizeof(unsigned long int))
+	    || !TEST_size_t_eq(p->data_size, sizeof(ulong))
 	    || !TEST_true(OSSL_PARAM_get_ulong(p, &l))
 	    || !TEST_ulong_eq(l, 42)
 	    /* Check size_t */
@@ -317,12 +317,12 @@ err:
 static int builder_merge_test(void)
 {
 	static int data1[] = { 2, 3, 5, 7, 11, 15, 17 };
-	static unsigned char data2[] = { 2, 4, 6, 8, 10 };
+	static uchar data2[] = { 2, 4, 6, 8, 10 };
 	OSSL_PARAM_BLD * bld = OSSL_PARAM_BLD_new();
 	OSSL_PARAM_BLD * bld2 = OSSL_PARAM_BLD_new();
 	OSSL_PARAM * params = NULL, * params_blt = NULL, * params2_blt = NULL, * p;
-	unsigned int i;
-	unsigned long int l;
+	uint i;
+	ulong l;
 	uint32_t i32;
 	uint64_t i64;
 	size_t st;
@@ -381,7 +381,7 @@ static int builder_merge_test(void)
 	    || !TEST_ptr(p = OSSL_PARAM_locate(params, "l"))
 	    || !TEST_str_eq(p->key, "l")
 	    || !TEST_uint_eq(p->data_type, OSSL_PARAM_UNSIGNED_INTEGER)
-	    || !TEST_size_t_eq(p->data_size, sizeof(unsigned long int))
+	    || !TEST_size_t_eq(p->data_size, sizeof(ulong))
 	    || !TEST_true(OSSL_PARAM_get_ulong(p, &l))
 	    || !TEST_ulong_eq(l, 42)
 	    /* Check size_t */

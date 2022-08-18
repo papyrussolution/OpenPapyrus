@@ -50,6 +50,7 @@ int FASTCALL PPClientAgreement::IsEq(const PPClientAgreement & rS) const
 	CMP_FLD(PaymDateBase);
 	CMP_FLD(EdiPrvID); // @v10.0.0
 	CMP_FLD(Code_); // @v11.2.0
+	CMP_FLD(DefDuePeriodHour); // @v11.4.8
 #undef CMP_FLD
 	// @v11.2.0 (see above) if(!sstreq(Code2, rS.Code2)) // @v10.2.9 Code-->Code2
 	if(!Bmpp.IsEq(rS.Bmpp))
@@ -76,7 +77,7 @@ bool PPClientAgreement::IsEmpty() const
 	const long nempty_flags_mask = (AGTF_DONTCALCDEBTINBILL|AGTF_PRICEROUNDING);
 	return ((Flags & nempty_flags_mask) || BegDt || Expiry || MaxCredit || MaxDscnt || Dscnt || DefPayPeriod ||
 		DefAgentID || DefQuotKindID || ExtObjectID || LockPrcBefore || EdiPrvID || /*sstrlen(Code2) > 0*/Code_.Len() || DebtLimList.getCount() ||
-		(RetLimPrd && RetLimPart) || !Bmpp.IsEmpty()) ? 0 : 1; // @v10.2.9 Code-->Code2
+		(RetLimPrd && RetLimPart) || DefDuePeriodHour || !Bmpp.IsEmpty()) ? 0 : 1; // @v10.2.9 Code-->Code2 // @v11.4.8 DefDuePeriodHour
 }
 
 PPClientAgreement & FASTCALL PPClientAgreement::operator = (const PPClientAgreement & rS)
@@ -179,6 +180,7 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	long   PaymDateBase;   // @v8.4.2
 	long   EdiPrvID;       // @v10.0.0
 	char   Code2[24];      // @v10.2.9 Вместо Code[12]
+	uint16 DefDuePeriodHour; // @v11.4.8
 };
 
 #if 0 // @v11.2.0 {
@@ -846,67 +848,72 @@ int SetupPaymDateBaseCombo(TDialog * pDlg, uint ctlID, long initVal)
 int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 {
 	class CliAgtDialog : public AgtDialog {
+		DECL_DIALOG_DATA(PPClientAgreement);
 	public:
 		CliAgtDialog() : AgtDialog(DLG_CLIAGT)
 		{
+			// @todo @20220814 Что-то странное с этим диалогом - по нажатию Enter не отрабатывает [OK] как default-button
 			SetupCalDate(CTLCAL_CLIAGT_DATE, CTL_CLIAGT_DATE);
 			SetupCalDate(CTLCAL_CLIAGT_EXPIRY, CTL_CLIAGT_EXPIRY);
 			SetupCalDate(CTLCAL_CLIAGT_LOCKPRCBEFORE, CTL_CLIAGT_LOCKPRCBEFORE);
-			enableCommand(cmOK, ArObj.CheckRights(ARTRT_CLIAGT));
+			if(!ArObj.CheckRights(ARTRT_CLIAGT))
+				enableCommand(cmOK, false);
 		}
-		int  setDTS(const PPClientAgreement * pAgt)
+		DECL_DIALOG_SETDTS()
 		{
+			RVALUEPTR(Data, pData);
+			PPObjBill * p_bobj = BillObj;
 			SString ar_name;
 			double added_limit_val = 0.0;
 			int    added_limit_term = 0;
-			data = *pAgt;
-			ArID = data.ClientID;
-			GetArticleName(data.ClientID, ar_name);
+			ArID = Data.ClientID;
+			GetArticleName(Data.ClientID, ar_name);
 			setCtrlString(CTL_CLIAGT_CLIENT, ar_name);
 			setCtrlReadOnly(CTL_CLIAGT_CLIENT, 1);
 			setCtrlReadOnly(CTL_CLIAGT_CURDEBT, 1);
-			if(data.ClientID) {
+			if(Data.ClientID) {
 				DateRange cdp;
 				PPObjBill::DebtBlock blk;
-				BillObj->CalcClientDebt(data.ClientID, BillObj->GetDefaultClientDebtPeriod(cdp), 0, blk);
+				p_bobj->CalcClientDebt(Data.ClientID, p_bobj->GetDefaultClientDebtPeriod(cdp), 0, blk);
 				setCtrlReal(CTL_CLIAGT_CURDEBT, blk.Debt);
 			}
 			else
 				enableCommand(cmBills, 0);
 			// @v11.2.0 setCtrlData(CTL_CLIAGT_CODE, data.Code2); // @v10.2.9 Code-->Code2
-			setCtrlString(CTL_CLIAGT_CODE, data.Code_); // @v11.2.0
-			setCtrlDate(CTL_CLIAGT_DATE,      data.BegDt);
-			setCtrlDate(CTL_CLIAGT_EXPIRY,    data.Expiry);
-			setCtrlDate(CTL_CLIAGT_LOCKPRCBEFORE, data.LockPrcBefore);
-			setCtrlData(CTL_CLIAGT_MAXCREDIT, &data.MaxCredit);
-			setCtrlData(CTL_CLIAGT_MAXDSCNT,  &data.MaxDscnt);
-			setCtrlData(CTL_CLIAGT_DSCNT,     &data.Dscnt);
-			setCtrlData(CTL_CLIAGT_PAYPERIOD, &data.DefPayPeriod);
-			SetupPaymDateBaseCombo(this, CTLSEL_CLIAGT_PAYMDTBASE, data.PaymDateBase);
-			SetupArCombo(this, CTLSEL_CLIAGT_AGENT, data.DefAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet|sacfNonGeneric);
-			SetupPPObjCombo(this, CTLSEL_CLIAGT_QUOTKIND, PPOBJ_QUOTKIND, data.DefQuotKindID, 0, 0);
-			if(data.ClientID) {
+			setCtrlString(CTL_CLIAGT_CODE, Data.Code_); // @v11.2.0
+			setCtrlDate(CTL_CLIAGT_DATE,      Data.BegDt);
+			setCtrlDate(CTL_CLIAGT_EXPIRY,    Data.Expiry);
+			setCtrlDate(CTL_CLIAGT_LOCKPRCBEFORE, Data.LockPrcBefore);
+			setCtrlData(CTL_CLIAGT_MAXCREDIT, &Data.MaxCredit);
+			setCtrlData(CTL_CLIAGT_MAXDSCNT,  &Data.MaxDscnt);
+			setCtrlData(CTL_CLIAGT_DSCNT,     &Data.Dscnt);
+			setCtrlData(CTL_CLIAGT_PAYPERIOD, &Data.DefPayPeriod);
+			setCtrlData(CTL_CLIAGT_DUEPERIOD, &Data.DefDuePeriodHour); // @v11.4.8
+			SetupPaymDateBaseCombo(this, CTLSEL_CLIAGT_PAYMDTBASE, Data.PaymDateBase);
+			SetupArCombo(this, CTLSEL_CLIAGT_AGENT, Data.DefAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet|sacfNonGeneric);
+			SetupPPObjCombo(this, CTLSEL_CLIAGT_QUOTKIND, PPOBJ_QUOTKIND, Data.DefQuotKindID, 0, 0);
+			if(Data.ClientID) {
 				PPClientAgreement agt;
 				const PPID acs_id = (ArObj.GetClientAgreement(0, agt) > 0) ? agt.ExtObjectID : 0;
 				SString  ext_obj;
 				PPLoadString("bill_object2", ext_obj);
 				setLabelText(CTL_CLIAGT_EXTOBJECT, ext_obj);
-				SetupArCombo(this, CTLSEL_CLIAGT_EXTOBJECT, data.ExtObjectID, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
-				SetupPPObjCombo(this, CTLSEL_CLIAGT_EDIPRV, PPOBJ_EDIPROVIDER, data.EdiPrvID, OLW_CANINSERT, 0); // @v10.0.0
+				SetupArCombo(this, CTLSEL_CLIAGT_EXTOBJECT, Data.ExtObjectID, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
+				SetupPPObjCombo(this, CTLSEL_CLIAGT_EDIPRV, PPOBJ_EDIPROVIDER, Data.EdiPrvID, OLW_CANINSERT, 0); // @v10.0.0
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 0, AGTF_DONTCALCDEBTINBILL);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 1, AGTF_USEMARKEDGOODSONLY);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 2, AGTF_DONTUSEMINSHIPMQTTY);
-				SetClusterData(CTL_CLIAGT_FLAGS, data.Flags);
-				if(data.MaxCredit != 0.0) {
+				SetClusterData(CTL_CLIAGT_FLAGS, Data.Flags);
+				if(Data.MaxCredit != 0.0) {
 					PPDebtorStatConfig ds_cfg;
 					if(PPDebtorStatConfig::Read(&ds_cfg) > 0 && ds_cfg.LimitAddedTerm > 0 && ds_cfg.LimitTerm > 0) {
 						added_limit_term = ds_cfg.LimitAddedTerm;
-						added_limit_val = R0((data.MaxCredit / ds_cfg.LimitTerm) * added_limit_term);
+						added_limit_val = R0((Data.MaxCredit / ds_cfg.LimitTerm) * added_limit_term);
 					}
 				}
 			}
 			else
-				SetupPPObjCombo(this, CTLSEL_CLIAGT_EXTOBJECT, PPOBJ_ACCSHEET, data.ExtObjectID, 0, 0);
+				SetupPPObjCombo(this, CTLSEL_CLIAGT_EXTOBJECT, PPOBJ_ACCSHEET, Data.ExtObjectID, 0, 0);
 			if(added_limit_val != 0.0) {
 				showCtrl(CTL_CLIAGT_ADDEDLIMITVAL, 1);
 				SString fmt_buf, label_buf;
@@ -918,43 +925,45 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			else {
 				showCtrl(CTL_CLIAGT_ADDEDLIMITVAL, 0);
 			}
-			SetupStringCombo(this, CTLSEL_CLIAGT_RETLIMPRD, PPTXT_CYCLELIST, data.RetLimPrd);
-			setCtrlReal(CTL_CLIAGT_RETLIM, fdiv100i(data.RetLimPart));
+			SetupStringCombo(this, CTLSEL_CLIAGT_RETLIMPRD, PPTXT_CYCLELIST, Data.RetLimPrd);
+			setCtrlReal(CTL_CLIAGT_RETLIM, fdiv100i(Data.RetLimPart));
 			return 1;
 		}
-		int    getDTS(PPClientAgreement * pAgt)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			int    sel = 0;
 			// @v11.2.0 getCtrlData(CTL_CLIAGT_CODE, data.Code2); // @v10.2.9 Code-->Code2
-			getCtrlString(CTL_CLIAGT_CODE, data.Code_); // @v11.2.0
-			getCtrlData(sel = CTL_CLIAGT_DATE,      &data.BegDt);
-			THROW_SL(checkdate(data.BegDt, 1));
-			getCtrlData(sel = CTL_CLIAGT_EXPIRY,    &data.Expiry);
-			THROW_SL(checkdate(data.Expiry, 1));
-			getCtrlData(sel = CTL_CLIAGT_LOCKPRCBEFORE, &data.LockPrcBefore);
-			THROW_SL(checkdate(data.LockPrcBefore, 1));
-			getCtrlData(sel = CTL_CLIAGT_MAXCREDIT, &data.MaxCredit);
-			THROW_PP(data.MaxCredit >= 0L, PPERR_USERINPUT);
-			getCtrlData(sel = CTL_CLIAGT_MAXDSCNT,  &data.MaxDscnt);
-			THROW_PP(data.MaxDscnt >= 0L && data.MaxDscnt <= 100, PPERR_USERINPUT);
-			getCtrlData(sel = CTL_CLIAGT_DSCNT,     &data.Dscnt);
-			THROW_PP(data.Dscnt >= -100 && data.Dscnt <= 100 /*&&data.Dscnt <= data.MaxDscnt*/, PPERR_INVCLIAGTDIS);
-			getCtrlData(CTL_CLIAGT_PAYPERIOD, &data.DefPayPeriod);
-			getCtrlData(CTL_CLIAGT_PAYMDTBASE, &data.PaymDateBase);
-			getCtrlData(CTLSEL_CLIAGT_AGENT,  &data.DefAgentID);
-			getCtrlData(CTLSEL_CLIAGT_QUOTKIND, &data.DefQuotKindID);
-			getCtrlData(CTLSEL_CLIAGT_EXTOBJECT, &data.ExtObjectID);
-			getCtrlData(CTLSEL_CLIAGT_EDIPRV, &data.EdiPrvID); // @v10.0.0
-			GetClusterData(CTL_CLIAGT_FLAGS, &data.Flags);
-			data.RetLimPrd = (int16)getCtrlLong(CTLSEL_CLIAGT_RETLIMPRD);
-			if(data.RetLimPrd) {
+			getCtrlString(CTL_CLIAGT_CODE, Data.Code_); // @v11.2.0
+			getCtrlData(sel = CTL_CLIAGT_DATE,      &Data.BegDt);
+			THROW_SL(checkdate(Data.BegDt, 1));
+			getCtrlData(sel = CTL_CLIAGT_EXPIRY,    &Data.Expiry);
+			THROW_SL(checkdate(Data.Expiry, 1));
+			getCtrlData(sel = CTL_CLIAGT_LOCKPRCBEFORE, &Data.LockPrcBefore);
+			THROW_SL(checkdate(Data.LockPrcBefore, 1));
+			getCtrlData(sel = CTL_CLIAGT_MAXCREDIT, &Data.MaxCredit);
+			THROW_PP(Data.MaxCredit >= 0L, PPERR_USERINPUT);
+			getCtrlData(sel = CTL_CLIAGT_MAXDSCNT,  &Data.MaxDscnt);
+			THROW_PP(Data.MaxDscnt >= 0L && Data.MaxDscnt <= 100, PPERR_USERINPUT);
+			getCtrlData(sel = CTL_CLIAGT_DSCNT,     &Data.Dscnt);
+			THROW_PP(Data.Dscnt >= -100 && Data.Dscnt <= 100 /*&&data.Dscnt <= data.MaxDscnt*/, PPERR_INVCLIAGTDIS);
+			getCtrlData(CTL_CLIAGT_PAYPERIOD, &Data.DefPayPeriod);
+			getCtrlData(CTL_CLIAGT_DUEPERIOD, &Data.DefDuePeriodHour); // @v11.4.8
+			THROW_PP(Data.DefDuePeriodHour >= 0 && Data.DefDuePeriodHour <= 4320, PPERR_INVCLIAGTDUEPERIODHR); // @v11.4.8
+			getCtrlData(CTL_CLIAGT_PAYMDTBASE, &Data.PaymDateBase);
+			getCtrlData(CTLSEL_CLIAGT_AGENT,  &Data.DefAgentID);
+			getCtrlData(CTLSEL_CLIAGT_QUOTKIND, &Data.DefQuotKindID);
+			getCtrlData(CTLSEL_CLIAGT_EXTOBJECT, &Data.ExtObjectID);
+			getCtrlData(CTLSEL_CLIAGT_EDIPRV, &Data.EdiPrvID); // @v10.0.0
+			GetClusterData(CTL_CLIAGT_FLAGS, &Data.Flags);
+			Data.RetLimPrd = (int16)getCtrlLong(CTLSEL_CLIAGT_RETLIMPRD);
+			if(Data.RetLimPrd) {
 				double retlim = getCtrlReal(CTL_CLIAGT_RETLIM);
-				data.RetLimPart = (retlim > 0.0) ? static_cast<uint16>(retlim * 100.0) : 0;
+				Data.RetLimPart = (retlim > 0.0) ? static_cast<uint16>(retlim * 100.0) : 0;
 			}
 			else
-				data.RetLimPart = 0;
-			ASSIGN_PTR(pAgt, data);
+				Data.RetLimPart = 0;
+			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
@@ -965,9 +974,9 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			if(event.isCmd(cmRounding))
 				editRoundingParam();
 			else if(event.isCmd(cmDebtLimList))
-				EditDebtLimList(data);
+				EditDebtLimList(Data);
 			else if(event.isCmd(cmMultiPrintParam)) { // @v11.2.0
-				BillMultiPrintParam::EditDialog(0, &data.Bmpp);
+				BillMultiPrintParam::EditDialog(0, &Data.Bmpp);
 			}
 			else
 				return;
@@ -1023,10 +1032,9 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 						CTL_CLIAGTRND_PREC, CTL_CLIAGTRND_ROUND, CTL_CLIAGTRND_ROUNDVAT, 0);
 				}
 			};
-			DIALOG_PROC_BODY(CliAgtRndDialog, &data);
+			DIALOG_PROC_BODY(CliAgtRndDialog, &Data);
 		}
 		PPObjArticle ArObj;
-		PPClientAgreement data;
 	};
 	DIALOG_PROC_BODY(CliAgtDialog, agt);
 }

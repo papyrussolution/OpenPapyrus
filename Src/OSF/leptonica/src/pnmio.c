@@ -314,18 +314,15 @@ PIX * pixReadStreamPnm(FILE * fp)
 						for(j = 0; j < wpl; j++) {
 							if(fread(&rval8, 1, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&gval8, 1, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&bval8, 1, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							rval8 = rval8 & mask8;
 							gval8 = gval8 & mask8;
@@ -342,23 +339,19 @@ PIX * pixReadStreamPnm(FILE * fp)
 						for(j = 0; j < wpl; j++) {
 							if(fread(&rval8, 1, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&gval8, 1, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&bval8, 1, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&aval8, 1, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							rval8 = rval8 & mask8;
 							gval8 = gval8 & mask8;
@@ -384,8 +377,7 @@ PIX * pixReadStreamPnm(FILE * fp)
 						for(j = 0; j < w; j++) {
 							if(fread(&val16, 2, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							val8 = val16 & 0xff;
 							pixSetPixel(pix, j, i, val8);
@@ -398,13 +390,11 @@ PIX * pixReadStreamPnm(FILE * fp)
 						for(j = 0; j < w; j++) {
 							if(fread(&val16, 2, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&aval16, 2, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							val8 = val16 & 0xff;
 							aval8 = aval16 & 0xff;
@@ -421,18 +411,15 @@ PIX * pixReadStreamPnm(FILE * fp)
 						for(j = 0; j < wpl; j++) {
 							if(fread(&rval16, 2, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&gval16, 2, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&bval16, 2, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							rval8 = rval16 & 0xff;
 							gval8 = gval16 & 0xff;
@@ -449,23 +436,19 @@ PIX * pixReadStreamPnm(FILE * fp)
 						for(j = 0; j < wpl; j++) {
 							if(fread(&rval16, 2, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&gval16, 2, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&bval16, 2, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							if(fread(&aval16, 2, 1, fp) != 1) {
 								pixDestroy(&pix);
-								return (PIX *)ERROR_PTR("read error type 7",
-									   procName, NULL);
+								return (PIX *)ERROR_PTR("read error type 7", procName, NULL);
 							}
 							rval8 = rval16 & 0xff;
 							gval8 = gval16 & 0xff;
@@ -496,19 +479,11 @@ PIX * pixReadStreamPnm(FILE * fp)
  * \param[out]   pspp     [optional] samples/pixel
  * \return  0 if OK, 1 on error
  */
-l_ok readHeaderPnm(const char * filename,
-    int32 * pw,
-    int32 * ph,
-    int32 * pd,
-    int32 * ptype,
-    int32 * pbps,
-    int32 * pspp)
+l_ok readHeaderPnm(const char * filename, int32 * pw, int32 * ph, int32 * pd, int32 * ptype, int32 * pbps, int32 * pspp)
 {
 	int32 ret;
 	FILE * fp;
-
 	PROCNAME(__FUNCTION__);
-
 	if(pw) *pw = 0;
 	if(ph) *ph = 0;
 	if(pd) *pd = 0;
@@ -517,14 +492,12 @@ l_ok readHeaderPnm(const char * filename,
 	if(pspp) *pspp = 0;
 	if(!filename)
 		return ERROR_INT("filename not defined", procName, 1);
-
 	if((fp = fopenReadStream(filename)) == NULL)
 		return ERROR_INT("image file not found", procName, 1);
 	ret = freadHeaderPnm(fp, pw, ph, pd, ptype, pbps, pspp);
 	fclose(fp);
 	return ret;
 }
-
 /*!
  * \brief   freadHeaderPnm()
  *
@@ -537,69 +510,58 @@ l_ok readHeaderPnm(const char * filename,
  * \param[out]   pspp   [optional]  samples/pixel
  * \return  0 if OK, 1 on error
  */
-l_ok freadHeaderPnm(FILE * fp,
-    int32 * pw,
-    int32 * ph,
-    int32 * pd,
-    int32 * ptype,
-    int32 * pbps,
-    int32 * pspp)
+l_ok freadHeaderPnm(FILE * fp, int32 * pw, int32 * ph, int32 * pd, int32 * ptype, int32 * pbps, int32 * pspp)
 {
 	char tag[16], tupltype[32];
 	int32 i, w, h, d, bps, spp, type;
 	int32 maxval;
 	int32 ch;
-
 	PROCNAME(__FUNCTION__);
-
-	if(pw) *pw = 0;
-	if(ph) *ph = 0;
-	if(pd) *pd = 0;
-	if(ptype) *ptype = 0;
-	if(pbps) *pbps = 0;
-	if(pspp) *pspp = 0;
+	ASSIGN_PTR(pw, 0);
+	ASSIGN_PTR(ph, 0);
+	ASSIGN_PTR(pd, 0);
+	ASSIGN_PTR(ptype, 0);
+	ASSIGN_PTR(pbps, 0);
+	ASSIGN_PTR(pspp, 0);
 	if(!fp)
 		return ERROR_INT("fp not defined", procName, 1);
-
 	if(fscanf(fp, "P%d\n", &type) != 1)
 		return ERROR_INT("invalid read for type", procName, 1);
 	if(type < 1 || type > 7)
 		return ERROR_INT("invalid pnm file", procName, 1);
-
 	if(pnmSkipCommentLines(fp))
 		return ERROR_INT("no data in file", procName, 1);
-
 	if(type == 7) {
 		w = h = d = bps = spp = maxval = 0;
 		for(i = 0; i < 10; i++) { /* limit to 10 lines of this header */
 			if(pnmReadNextString(fp, tag, sizeof(tag)))
 				return ERROR_INT("found no next tag", procName, 1);
-			if(!strcmp(tag, "WIDTH")) {
+			if(sstreq(tag, "WIDTH")) {
 				if(pnmReadNextNumber(fp, &w))
 					return ERROR_INT("failed reading width", procName, 1);
 				continue;
 			}
-			if(!strcmp(tag, "HEIGHT")) {
+			if(sstreq(tag, "HEIGHT")) {
 				if(pnmReadNextNumber(fp, &h))
 					return ERROR_INT("failed reading height", procName, 1);
 				continue;
 			}
-			if(!strcmp(tag, "DEPTH")) {
+			if(sstreq(tag, "DEPTH")) {
 				if(pnmReadNextNumber(fp, &spp))
 					return ERROR_INT("failed reading depth", procName, 1);
 				continue;
 			}
-			if(!strcmp(tag, "MAXVAL")) {
+			if(sstreq(tag, "MAXVAL")) {
 				if(pnmReadNextNumber(fp, &maxval))
 					return ERROR_INT("failed reading maxval", procName, 1);
 				continue;
 			}
-			if(!strcmp(tag, "TUPLTYPE")) {
+			if(sstreq(tag, "TUPLTYPE")) {
 				if(pnmReadNextString(fp, tupltype, sizeof(tupltype)))
 					return ERROR_INT("failed reading tuple type", procName, 1);
 				continue;
 			}
-			if(!strcmp(tag, "ENDHDR")) {
+			if(sstreq(tag, "ENDHDR")) {
 				if('\n' != (ch = fgetc(fp)))
 					return ERROR_INT("missing LF after ENDHDR", procName, 1);
 				break;
@@ -699,12 +661,12 @@ l_ok freadHeaderPnm(FILE * fp,
 			spp = 3;
 		}
 	}
-	if(pw) *pw = w;
-	if(ph) *ph = h;
-	if(pd) *pd = d;
-	if(ptype) *ptype = type;
-	if(pbps) *pbps = bps;
-	if(pspp) *pspp = spp;
+	ASSIGN_PTR(pw, w);
+	ASSIGN_PTR(ph, h);
+	ASSIGN_PTR(pd, d);
+	ASSIGN_PTR(ptype, type);
+	ASSIGN_PTR(pbps, bps);
+	ASSIGN_PTR(pspp, spp);
 	return 0;
 }
 
@@ -1272,15 +1234,11 @@ l_ok pixWriteMemPnm(uint8  ** pdata,
  *          memory instead of to a file stream.
  * </pre>
  */
-l_ok pixWriteMemPam(uint8  ** pdata,
-    size_t * psize,
-    PIX * pix)
+l_ok pixWriteMemPam(uint8  ** pdata, size_t * psize, PIX * pix)
 {
 	int32 ret;
 	FILE * fp;
-
 	PROCNAME(__FUNCTION__);
-
 	if(pdata) *pdata = NULL;
 	if(psize) *psize = 0;
 	if(!pdata)
@@ -1289,7 +1247,6 @@ l_ok pixWriteMemPam(uint8  ** pdata,
 		return ERROR_INT("&size not defined", procName, 1);
 	if(!pix)
 		return ERROR_INT("&pix not defined", procName, 1);
-
 #if HAVE_FMEMOPEN
 	if((fp = open_memstream((char**)pdata, psize)) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);

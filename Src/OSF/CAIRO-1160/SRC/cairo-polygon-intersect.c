@@ -764,7 +764,7 @@ static cairo_bo_event_t * _cairo_bo_event_dequeue(cairo_bo_event_queue_t * event
 {
 	cairo_bo_event_t * event = event_queue->pqueue.elements[PQ_FIRST_ENTRY];
 	cairo_bo_event_t * cmp = *event_queue->start_events;
-	if(event == NULL || (cmp != NULL && cairo_bo_event_compare(cmp, event) < 0)) {
+	if(event == NULL || (cmp && cairo_bo_event_compare(cmp, event) < 0)) {
 		event = cmp;
 		event_queue->start_events++;
 	}
@@ -846,7 +846,7 @@ static cairo_status_t sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cair
 		else if(cmp > 0) {
 			next = sweep_line->current_edge;
 			prev = next->prev;
-			while(prev != NULL && _cairo_bo_sweep_line_compare_edges(sweep_line, prev, edge) > 0) {
+			while(prev && _cairo_bo_sweep_line_compare_edges(sweep_line, prev, edge) > 0) {
 				next = prev, prev = next->prev;
 			}
 			next->prev = edge;
@@ -861,7 +861,7 @@ static cairo_status_t sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cair
 			prev = sweep_line->current_edge;
 			edge->prev = prev;
 			edge->next = prev->next;
-			if(prev->next != NULL)
+			if(prev->next)
 				prev->next->prev = edge;
 			prev->next = edge;
 		}
@@ -875,11 +875,11 @@ static cairo_status_t sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cair
 
 static void _cairo_bo_sweep_line_delete(cairo_bo_sweep_line_t * sweep_line, cairo_bo_edge_t * edge)
 {
-	if(edge->prev != NULL)
+	if(edge->prev)
 		edge->prev->next = edge->next;
 	else
 		sweep_line->head = edge->next;
-	if(edge->next != NULL)
+	if(edge->next)
 		edge->next->prev = edge->prev;
 	if(sweep_line->current_edge == edge)
 		sweep_line->current_edge = edge->prev ? edge->prev : edge->next;
@@ -887,11 +887,11 @@ static void _cairo_bo_sweep_line_delete(cairo_bo_sweep_line_t * sweep_line, cair
 
 static void _cairo_bo_sweep_line_swap(cairo_bo_sweep_line_t * sweep_line, cairo_bo_edge_t * left, cairo_bo_edge_t * right)
 {
-	if(left->prev != NULL)
+	if(left->prev)
 		left->prev->next = right;
 	else
 		sweep_line->head = right;
-	if(right->next != NULL)
+	if(right->next)
 		right->next->prev = left;
 	left->next = right->next;
 	right->next = left;
@@ -937,7 +937,7 @@ static inline void edges_start_or_continue(cairo_bo_edge_t * left, cairo_bo_edge
 	assert(right->deferred.other == NULL);
 	if(left->deferred.other == right)
 		return;
-	if(left->deferred.other != NULL) {
+	if(left->deferred.other) {
 		if(edges_colinear(left->deferred.other, right)) {
 			cairo_bo_edge_t * old = left->deferred.other;
 			/* continuation on right, extend right to cover both */
@@ -1046,10 +1046,8 @@ static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events, int 
 
 			    left = e1->prev;
 			    right = e1->next;
-
 			    _cairo_bo_sweep_line_delete(&sweep_line, e1);
-
-			    if(left != NULL && right != NULL) {
+			    if(left && right) {
 				    status = event_queue_insert_if_intersect_below_current_y(&event_queue, left, right);
 				    if(UNLIKELY(status))
 					    goto unwind;

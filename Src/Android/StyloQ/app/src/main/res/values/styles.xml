@@ -151,8 +151,8 @@
         <item name="android:layout_margin">2dp</item>
         <item name="android:padding">2dp</item>
         <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:textColor">@color/TextPrimary</item>
     </style>
     <style name="TSessDurationText">

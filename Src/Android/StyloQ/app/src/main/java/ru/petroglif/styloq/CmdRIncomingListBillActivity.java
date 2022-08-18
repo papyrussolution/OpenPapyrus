@@ -12,6 +12,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -25,9 +26,13 @@ import java.util.ArrayList;
 
 public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	public CommonPrereqModule CPM;
+	private ArrayList <Document.EditAction> DocEditActionList;
+	private int ActionFlags;
 	public CmdRIncomingListBillActivity()
 	{
 		CPM = new CommonPrereqModule(this);
+		ActionFlags = 0;
+		DocEditActionList = null;
 	}
 	private void CreateTabList(boolean force)
 	{
@@ -38,11 +43,11 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			LayoutInflater inflater = LayoutInflater.from(this);
 			CmdROrderPrereqActivity.TabInitEntry[] tab_init_list = {
 					new CmdROrderPrereqActivity.TabInitEntry(CommonPrereqModule.Tab.tabIncomingList, R.layout.layout_incominglist_bill_main, "--MAIN--", true),
+					new CmdROrderPrereqActivity.TabInitEntry(CommonPrereqModule.Tab.tabCurrentOrder, R.layout.layout_incominglist_bill_selected, "@{selecteddocument}", true),
 					new CmdROrderPrereqActivity.TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_orderprereq_goodsgroups, "@{group_pl}", (CPM.GoodsGroupListData != null)),
 					new CmdROrderPrereqActivity.TabInitEntry(CommonPrereqModule.Tab.tabBrands, R.layout.layout_orderprereq_brands, "@{brand_pl}", (CPM.BrandListData != null)),
 					new CmdROrderPrereqActivity.TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_orderprereq_goods, "@{ware_pl}", (CPM.GoodsListData != null)),
 					new CmdROrderPrereqActivity.TabInitEntry(CommonPrereqModule.Tab.tabClients, R.layout.layout_orderprereq_clients, "@{client_pl}", (CPM.CliListData != null)),
-					new CmdROrderPrereqActivity.TabInitEntry(CommonPrereqModule.Tab.tabCurrentOrder, R.layout.layout_orderprereq_ordr, "@{orderdocument}", true),
 					new CmdROrderPrereqActivity.TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "[search]", true),
 			};
 			for(int i = 0; i < tab_init_list.length; i++) {
@@ -75,7 +80,6 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			}
 		}
 	}
-
 	private static class DetailTiListAdapter extends SLib.InternalArrayAdapter {
 		private Document Doc;
 		DetailTiListAdapter(Context ctx, int rcId, Document doc)
@@ -115,6 +119,42 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			return convertView; // Return the completed view to render on screen
 		}
 	}
+	private void GotoTab(CommonPrereqModule.Tab tab, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
+	{
+		CPM.GotoTab(tab, R.id.VIEWPAGER_INCOMINGLISTBILL, recyclerViewToUpdate, goToIndex, nestedIndex);
+	}
+	private void SetupCurrentDocument(boolean gotoTabIfNotEmpty, boolean removeTabIfEmpty)
+	{
+		//
+		// При попытке скрыть и потом показать табы они перерисовываются с искажениями.
+		// по этому не будем злоупотреблять такими фокусами.
+		//
+		if(!CPM.IsCurrentDocumentEmpty()) {
+			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+			if(Document.DoesStatusAllowModifications(CPM.GetCurrentDocument().GetDocStatus())) {
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.VISIBLE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.VISIBLE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.VISIBLE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.VISIBLE);
+			}
+			else {
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.GONE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.GONE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.GONE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
+			}
+			if(gotoTabIfNotEmpty)
+				GotoTab(CommonPrereqModule.Tab.tabCurrentOrder, R.id.CTL_DOCUMENT_TILIST, -1, -1);
+		}
+		else {
+			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.VISIBLE);
+			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.VISIBLE);
+			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.VISIBLE);
+			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.VISIBLE);
+			if(removeTabIfEmpty)
+				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+		}
+	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
 		Object result = null;
@@ -142,6 +182,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							if(SLib.GetLen(svc_reply_doc_json) > 0) {
 								JSONObject js_head = new JSONObject(svc_reply_doc_json);
 								CPM.GetCommonJsonFactors(js_head);
+								ActionFlags = Document.IncomingListActionsFromString(js_head.optString("actions", null)); // @v11.4.8
 								CPM.MakeUomListFromCommonJson(js_head);
 								CPM.MakeGoodsGroupListFromCommonJson(js_head);
 								CPM.MakeGoodsListFromCommonJson(js_head);
@@ -189,6 +230,34 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									//SetTabVisibility(Tab.tabSearch, View.GONE);
 								}
 							}
+							/*
+								CommonPrereqModule.Tab.tabCurrentOrder
+								CommonPrereqModule.Tab.tabGoodsGroups
+								CommonPrereqModule.Tab.tabBrands
+								CommonPrereqModule.Tab.tabGoods
+								CommonPrereqModule.Tab.tabClients
+							 */
+							if(ActionFlags == 0) {
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.GONE);
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.GONE);
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.GONE);
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
+							}
+							else {
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+								if((ActionFlags & Document.actionGoodsItemCorrection) != 0) {
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.VISIBLE);
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, (CPM.BrandListData != null && CPM.BrandListData.size() > 0) ? View.VISIBLE : View.GONE);
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.VISIBLE);
+								}
+								else {
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.GONE);
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.GONE);
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.GONE);
+								}
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
+							}
 							SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
 						}
 					} catch(StyloQException exn) {
@@ -207,6 +276,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
 					switch(a.GetListRcId()) {
 						case R.id.CTL_INCOMINGLIST_BILL_LIST: result = new Integer(CPM.IncomingDocListData != null ? CPM.IncomingDocListData.size() : 0); break;
+						case R.id.CTL_DOCUMENT_TILIST: result = new Integer(CPM.GetCurrentDocumentTransferListCount()); break;
 						/*
 						case R.id.orderPrereqGoodsListView: result = new Integer(CPM.GetGoodsListSize()); break;
 						case R.id.orderPrereqGoodsGroupListView: result = new Integer((CPM.GoodsGroupListData != null) ? CPM.GoodsGroupListData.size() : 0); break;
@@ -231,7 +301,26 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							// RecyclerView
 							if(srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) {
 								SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter) srcObj;
-								if(a.GetListRcId() == R.id.CTL_INCOMINGLIST_BILL_LIST) {
+								if(a.GetListRcId() == R.id.CTL_DOCUMENT_TILIST) {
+									final int cc = CPM.GetCurrentDocumentTransferListCount();
+									if(ev_subj.ItemIdx < cc) {
+										View iv = ev_subj.RvHolder.itemView;
+										final Document _doc = CPM.GetCurrentDocument();
+										final Document.TransferItem ti = _doc.TiList.get(ev_subj.ItemIdx);
+										if(ti != null) {
+											CommonPrereqModule.WareEntry goods_item = CPM.FindGoodsItemByGoodsID(ti.GoodsID);
+											int    uom_id = 0;
+											if(goods_item != null && goods_item.JsItem != null)
+												uom_id = goods_item.JsItem.optInt("uomid", 0);
+											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_GOODSNAME, (goods_item != null) ? goods_item.JsItem.optString("nm", "") : "");
+											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_PRICE, (ti.Set != null) ? CPM.FormatCurrency(ti.Set.Price) : "");
+											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_QTTY, (ti.Set != null) ? CPM.FormatQtty(ti.Set.Qtty, uom_id, false) : "");
+											double item_amont = (ti.Set != null) ? (ti.Set.Qtty * ti.Set.Price) : 0.0;
+											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_AMOUNT, " = " + CPM.FormatCurrency(item_amont));
+										}
+									}
+								}
+								else if(a.GetListRcId() == R.id.CTL_INCOMINGLIST_BILL_LIST) {
 									if(CPM.IncomingDocListData != null && ev_subj.ItemIdx < CPM.IncomingDocListData.size()) {
 										View iv = ev_subj.RvHolder.itemView;
 										Document cur_entry = (Document)CPM.IncomingDocListData.get(ev_subj.ItemIdx);
@@ -311,6 +400,139 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					}
 				}
 				break;
+			case SLib.EV_SETVIEWDATA:
+				if(srcObj != null && srcObj instanceof ViewGroup) {
+					StyloQApp app_ctx = GetAppCtx();
+					ViewGroup vg = (ViewGroup) srcObj;
+					int vg_id = vg.getId();
+					if(vg_id == R.id.LAYOUT_INCOMINGLIST_BILL_SELECTED) {
+						int status_image_rc_id = 0;
+						if(CPM.IsCurrentDocumentEmpty()) {
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, "");
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, "");
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CLI, "");
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DLVRLOC, "");
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, "");
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO, "");
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON1, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON2, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON3, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_NEXT, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_PREV, View.GONE);
+						}
+						else {
+							Document _doc = CPM.GetCurrentDocument();
+							if(SLib.GetLen(_doc.H.Code) > 0)
+								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, _doc.H.Code);
+							{
+								SLib.LDATE d = _doc.GetNominalDate();
+								if(d != null)
+									SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, d.Format(SLib.DATF_ISO8601 | SLib.DATF_CENTURY));
+							}
+							{
+								if(_doc.H.DueTime == null || !SLib.CheckDate(_doc.H.DueTime.d)) {
+									SLib.LDATETIME time_base = _doc.H.GetNominalTimestamp();
+									if(time_base != null) {
+										if(CPM.GetDefDuePeriodHour() > 0) {
+											_doc.H.DueTime = SLib.plusdatetimesec(time_base, CPM.GetDefDuePeriodHour() * 3600);
+										}
+									}
+								}
+								if(_doc.H.DueTime != null && SLib.CheckDate(_doc.H.DueTime.d)) {
+									SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DUEDATE, _doc.H.DueTime.d.Format(SLib.DATF_ISO8601 | SLib.DATF_CENTURY));
+								}
+								SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_NEXT, _doc.H.IncrementDueDate(true) ? View.VISIBLE : View.GONE);
+								SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_PREV, _doc.H.DecrementDueDate(true) ? View.VISIBLE : View.GONE);
+								{
+									View btn = vg.findViewById(R.id.CTL_DOCUMENT_DUEDATE_PREV);
+									if(btn != null) {
+										btn.setOnClickListener(new View.OnClickListener() {
+											@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }
+										});
+									}
+								}
+								{
+									View btn = vg.findViewById(R.id.CTL_DOCUMENT_DUEDATE_NEXT);
+									if(btn != null) {
+										btn.setOnClickListener(new View.OnClickListener() {
+											@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }
+										});
+									}
+								}
+							}
+							{
+								String cli_name = "";
+								String addr = "";
+								if(_doc.H.ClientID > 0) {
+									JSONObject cli_entry = CPM.FindClientEntry(_doc.H.ClientID);
+									if(cli_entry != null)
+										cli_name = cli_entry.optString("nm", "");
+								}
+								if(_doc.H.DlvrLocID > 0) {
+									JSONObject cli_entry = CPM.FindClientEntryByDlvrLocID(_doc.H.DlvrLocID);
+									if(cli_entry != null) {
+										JSONObject dlvrlov_entry = CPM.FindDlvrLocEntryInCliEntry(cli_entry, _doc.H.DlvrLocID);
+										if(dlvrlov_entry != null)
+											addr = dlvrlov_entry.optString("addr", "");
+									}
+								}
+								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CLI, cli_name);
+								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DLVRLOC, addr);
+							}
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO, _doc.H.Memo);
+							{
+								double amount = CPM.GetAmountOfCurrentDocument();
+								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, CPM.FormatCurrency(amount));
+							}
+							{
+								DocEditActionList = Document.GetEditActionsConnectedWithStatus(_doc.GetDocStatus());
+								if(DocEditActionList != null && DocEditActionList.size() > 0) {
+									int acn_idx = 0;
+									for(; acn_idx < DocEditActionList.size(); acn_idx++) {
+										Document.EditAction acn = DocEditActionList.get(acn_idx);
+										switch(acn_idx) {
+											case 0:
+												SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON1, View.VISIBLE);
+												SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON1, acn.GetTitle(app_ctx));
+												break;
+											case 1:
+												SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON2, View.VISIBLE);
+												SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON2, acn.GetTitle(app_ctx));
+												break;
+											case 2:
+												SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON3, View.VISIBLE);
+												SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON3, acn.GetTitle(app_ctx));
+												break;
+											case 3:
+												SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, View.VISIBLE);
+												SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, acn.GetTitle(app_ctx));
+												break;
+										}
+									}
+									for(; acn_idx < 4; acn_idx++) {
+										switch(acn_idx) {
+											case 0: SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON1, View.GONE); break;
+											case 1: SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON2, View.GONE); break;
+											case 2: SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON3, View.GONE); break;
+											case 3: SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, View.GONE); break;
+										}
+									}
+								}
+							}
+							{
+								View v = vg.findViewById(R.id.CTL_DOCUMENT_STATUSICON);
+								if(v != null && v instanceof ImageView) {
+									status_image_rc_id = Document.GetImageResourceByDocStatus(_doc.GetDocStatus());
+									if(status_image_rc_id == 0) {
+										v.setVisibility(View.GONE);
+									}
+								}
+							}
+						}
+					}
+				}
+				break;
 			case SLib.EV_GETVIEWDATA:
 				if(srcObj != null && srcObj instanceof ViewGroup)
 					GetFragmentData(srcObj);
@@ -352,6 +574,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
 							SetupRecyclerListView(fv, R.id.CTL_INCOMINGLIST_BILL_LIST, R.layout.li_incominglist_bill_main);
 						}
+						else {
+							lv = fv.findViewById(R.id.CTL_DOCUMENT_TILIST);
+							if(lv != null) {
+								((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
+								SetupRecyclerListView(fv, R.id.CTL_DOCUMENT_TILIST, R.layout.li_incominglist_bill_ti);
+							}
+						}
 					}
 				}
 				break;
@@ -383,6 +612,10 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 														cur_entry.DetailExpandStatus_Ti = 1;
 														a.notifyItemChanged(ev_subj.ItemIdx);
 													}
+												}
+												else {
+													CPM.SetIncomingDocument(cur_entry);
+													SetupCurrentDocument(true, false);
 												}
 											}
 										}

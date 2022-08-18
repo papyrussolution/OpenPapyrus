@@ -873,6 +873,16 @@ int ParseWinRcForNativeText()
 	return ok;
 }
 
+class GroovyConfig {
+public:
+	GroovyConfig() : ParamT(2048)
+	{
+	}
+private:
+	SymbHashTable ParamT; 
+	StrAssocArray NL; // Иерархический список узлов. Идентификаторы соответствуют параметрам (наименования которых хранятся в ParamT), а строки - значениям.
+};
+
 // @v11.4.5 @construction
 int ProcessStyloQGradle(const char * pPath, int buildSerial, const char * pVersion)
 {

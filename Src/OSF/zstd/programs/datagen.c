@@ -52,12 +52,12 @@ static void RDG_fillLiteralDistrib(BYTE* ldt, fixedPoint_24_8 ld)
 	BYTE const lastChar  = (ld<=0.0) ? 255 : '}';
 	BYTE character = (ld<=0.0) ? 0 : '0';
 	uint32 u;
-
 	if(ld<=0) ld = 0;
 	for(u = 0; u<LTSIZE;) {
 		const uint32 weight = (((LTSIZE - u) * ld) >> 8) + 1;
 		const uint32 end = MIN(u + weight, LTSIZE);
-		while(u < end) ldt[u++] = character;
+		while(u < end) 
+			ldt[u++] = character;
 		character++;
 		if(character > lastChar) character = firstChar;
 	}

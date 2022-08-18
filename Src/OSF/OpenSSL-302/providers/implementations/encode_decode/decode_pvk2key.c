@@ -148,14 +148,9 @@ static int pvk2key_export_object(void * vctx, const void * reference, size_t ref
 	return 0;
 }
 
-/* ---------------------------------------------------------------------- */
-
 #define dsa_private_key_bio     (b2i_PVK_of_bio_pw_fn*)b2i_DSA_PVK_bio_ex
 #define dsa_adjust              NULL
 #define dsa_free                (void (*)(void *))DSA_free
-
-/* ---------------------------------------------------------------------- */
-
 #define rsa_private_key_bio     (b2i_PVK_of_bio_pw_fn*)b2i_RSA_PVK_bio_ex
 
 static void rsa_adjust(void * key, struct pvk2key_ctx_st * ctx)
@@ -164,8 +159,6 @@ static void rsa_adjust(void * key, struct pvk2key_ctx_st * ctx)
 }
 
 #define rsa_free                (void (*)(void *))RSA_free
-
-/* ---------------------------------------------------------------------- */
 
 #define IMPLEMENT_MS(KEYTYPE, keytype)                                  \
 	static const struct keytype_desc_st                                 \

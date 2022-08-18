@@ -22,9 +22,9 @@ AmtEntry::AmtEntry(PPID amtTypeID, PPID curID, double amt) : AmtTypeID(amtTypeID
 {
 }
 
-int FASTCALL AmtEntry::IsEq(const AmtEntry & rS) const
+bool FASTCALL AmtEntry::IsEq(const AmtEntry & rS) const
 {
-	return BIN(AmtTypeID == rS.AmtTypeID && CurID == rS.CurID && Amt == rS.Amt);
+	return (AmtTypeID == rS.AmtTypeID && CurID == rS.CurID && Amt == rS.Amt);
 }
 
 AmtList::AmtList() : TSVector <AmtEntry> ()
@@ -37,27 +37,27 @@ AmtList & FASTCALL AmtList::operator = (const AmtList & s)
 	return *this;
 }
 
-int FASTCALL AmtList::HasAmtTypeID(PPID amtTypeID) const
+bool FASTCALL AmtList::HasAmtTypeID(PPID amtTypeID) const
 {
-	return BIN(lsearch(&amtTypeID, 0, CMPF_LONG));
+	return lsearch(&amtTypeID, 0, CMPF_LONG);
 }
 
-int FASTCALL AmtList::HasVatSum(const TaxAmountIDs * pTai) const
+bool FASTCALL AmtList::HasVatSum(const TaxAmountIDs * pTai) const
 {
-	int    yes = 0;
+	bool   yes = false;
 	if(pTai) {
 		AmtEntry * p_ae;
 		for(uint i = 0; !yes && enumItems(&i, (void **)&p_ae);)
 			if(p_ae->AmtTypeID && p_ae->Amt != 0.0 && oneof3(p_ae->AmtTypeID, pTai->VatAmtID[0], pTai->VatAmtID[1], pTai->VatAmtID[2]))
-				yes = 1;
+				yes = true;
 	}
 	return yes;
 }
 
-int FASTCALL AmtList::IsEq(const AmtList * pS) const
+bool FASTCALL AmtList::IsEq(const AmtList * pS) const
 {
-	int    ok = 1;
-	if(getCount() == pS->getCount()) {
+	bool   ok = (getCount() == pS->getCount());
+	if(ok) {
 		AmtEntry * p_e1, * p_e2;
 		LongArray saw_list;
 		for(uint i = 0; ok && enumItems(&i, (void **)&p_e1);) {
@@ -70,11 +70,9 @@ int FASTCALL AmtList::IsEq(const AmtList * pS) const
 				}
 			}
 			if(!found)
-				ok = 0;
+				ok = false;
 		}
 	}
-	else
-		ok = 0;
 	return ok;
 }
 
@@ -229,10 +227,10 @@ PayPlanArray::PayPlanArray() : TSVector <PayPlanTbl::Rec>()
 {
 }
 
-int FASTCALL PayPlanArray::IsEq(const PayPlanArray & rS) const
+bool FASTCALL PayPlanArray::IsEq(const PayPlanArray & rS) const
 {
-	int    ok = 1;
-	if(getCount() == rS.getCount()) {
+	bool   ok = (getCount() == rS.getCount());
+	if(ok) {
 		PayPlanTbl::Rec * p_e1, * p_e2;
 		LongArray saw_list;
 		for(uint i = 0; ok && enumItems(&i, reinterpret_cast<void**>(&p_e1));) {
@@ -245,11 +243,9 @@ int FASTCALL PayPlanArray::IsEq(const PayPlanArray & rS) const
 				}
 			}
 			if(!found)
-				ok = 0;
+				ok = false;
 		}
 	}
-	else
-		ok = 0;
 	return ok;
 }
 
@@ -1204,9 +1200,9 @@ uint PPLotExtCodeContainer::MarkSet::GetCount() const
 	return L.getCount();
 }
 
-int PPLotExtCodeContainer::MarkSet::GetByIdx(uint idx, Entry & rEntry) const
+bool PPLotExtCodeContainer::MarkSet::GetByIdx(uint idx, Entry & rEntry) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	if(idx < L.getCount()) {
 		const InnerEntry & r_entry = L.at(idx);
 		rEntry.BoxID = r_entry.BoxID;
@@ -1214,7 +1210,7 @@ int PPLotExtCodeContainer::MarkSet::GetByIdx(uint idx, Entry & rEntry) const
 		GetS(r_entry.NumP, rEntry.Num);
 	}
 	else
-		ok = 0;
+		ok = false;
 	return ok;
 }
 
@@ -2508,30 +2504,30 @@ bool PPBillExt::IsEmpty() const
 		ExtPriceQuotKindID || CcID || GoodsGroupID || CliPsnCategoryID) ? false : true; 
 }
 
-int FASTCALL PPBillExt::IsEq(const PPBillExt & rS) const
+bool FASTCALL PPBillExt::IsEq(const PPBillExt & rS) const
 {
 	if(AgentID != rS.AgentID)
-		return 0;
+		return false;
 	else if(PayerID != rS.PayerID)
-		return 0;
+		return false;
 	else if(CcID != rS.CcID) // @v10.9.7
-		return 0;
+		return false;
 	else if(GoodsGroupID != rS.GoodsGroupID) // @v11.0.11
-		return 0;
+		return false;
 	else if(CliPsnCategoryID != rS.CliPsnCategoryID) // @v11.1.9
-		return 0;
+		return false;
 	else if(stricmp866(InvoiceCode, rS.InvoiceCode) != 0)
-		return 0;
+		return false;
 	else if(InvoiceDate != rS.InvoiceDate)
-		return 0;
+		return false;
 	else if(stricmp866(PaymBillCode, rS.PaymBillCode) != 0)
-		return 0;
+		return false;
 	else if(PaymBillDate != rS.PaymBillDate)
-		return 0;
+		return false;
 	else if(ExtPriceQuotKindID != rS.ExtPriceQuotKindID)
-		return 0;
+		return false;
 	else
-		return 1;
+		return true;
 }
 
 int PPBillExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)

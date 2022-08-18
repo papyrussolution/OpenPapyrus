@@ -2617,24 +2617,18 @@ static int archive_read_format_zip_options(ArchiveRead * a, const char * key, co
 
 int archive_read_support_format_zip(Archive * a)
 {
-	int r;
-	r = archive_read_support_format_zip_streamable(a);
+	int r = archive_read_support_format_zip_streamable(a);
 	if(r != ARCHIVE_OK)
 		return r;
 	return (archive_read_support_format_zip_seekable(a));
 }
-
-/* ------------------------------------------------------------------------ */
-
 /*
  * Streaming-mode support
  */
-
 static int archive_read_support_format_zip_capabilities_streamable(ArchiveRead * a)
 {
 	CXX_UNUSED(a);
-	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA |
-	       ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
+	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA | ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
 }
 
 static int archive_read_format_zip_streamable_bid(ArchiveRead * a, int best_bid)
@@ -2875,20 +2869,14 @@ int archive_read_support_format_zip_streamable(Archive * _a)
 		SAlloc::F(zip);
 	return ARCHIVE_OK;
 }
-
-/* ------------------------------------------------------------------------ */
-
-/*
- * Seeking-mode support
- */
-
+// 
+// Seeking-mode support
+// 
 static int archive_read_support_format_zip_capabilities_seekable(ArchiveRead * a)
 {
 	CXX_UNUSED(a);
-	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA |
-	       ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
+	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA | ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
 }
-
 /*
  * TODO: This is a performance sink because it forces the read core to
  * drop buffered data from the start of file, which will then have to

@@ -2154,6 +2154,10 @@ public class StyloQInterchange {
 									else
 										SLib.LOG_d("Helper_DoInterchange2: doc_ident == null");
 								}
+								else if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcIncomingListOrder) { // @v11.4.8
+									byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
+									new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypIncomingList, 0, doc_ident, svc_id, rpool);
+								}
 								else {
 									SLib.LOG_d("Helper_DoInterchange2: unprocessed branch (param.OriginalCmdItem.BaseCmdId)");
 								}

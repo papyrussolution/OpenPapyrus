@@ -282,36 +282,53 @@ StringSet & StringSet::Z()
 
 void StringSet::sort()
 {
-	StrAssocArray temp_list;
-	SString str;
-	uint   i;
-	long   id = 0;
-	for(i = 0; get(&i, str);)
-		temp_list.AddFast(++id, str); // @v11.2.4 Add-->AddFast
-	temp_list.SortByText();
-	clear();
-	for(i = 0; i < temp_list.getCount(); i++)
-		add(temp_list.Get(i).Txt);
+	const uint org_count = getCount(); // @v11.4.8 see considerations at StringSet::sortAndUndup()
+	if(org_count > 1) { // @v11.4.8 
+		StrAssocArray temp_list;
+		SString str;
+		uint   i;
+		long   id = 0;
+		for(i = 0; get(&i, str);)
+			temp_list.AddFast(++id, str); // @v11.2.4 Add-->AddFast
+		temp_list.SortByText();
+		clear();
+		for(i = 0; i < temp_list.getCount(); i++)
+			add(temp_list.Get(i).Txt);
+	}
+	assert(getCount() == org_count); // @v11.4.8 дорогая проверка (из-за getCount()), но в релизе ее не будет 
 }
 
 void StringSet::sortAndUndup()
 {
-	StrAssocArray temp_list;
-	SString str;
-	uint   i;
-	long   id = 0;
-	for(i = 0; get(&i, str);)
-		temp_list.Add(++id, str);
-	temp_list.SortByText();
-	clear();
-	str.Z();
-	for(i = 0; i < temp_list.getCount(); i++) {
-		const char * p_item = temp_list.Get(i).Txt;
-		if(!i || str != p_item) {
-			add(p_item);
+	// @v11.4.8 Соображения о производительности: 
+	// Эта функция достаточно дорогая - она преобразует сет в строковый массив StrAssocArray, затем сортирует этот массив
+	// и результат сбрасывает в оригинальный сет.
+	// Для того чтобы не делать холостых действий сначала проверяем количество элементов в сете: если их 0 или 1 то просто
+	// ничего не делаем. Увы, функция getCount() тоже дорогая - она пробегает все элементы сета, то есть, если
+	// количество элементов значительное то мы общую производительность ухудшаем. Но в качестве утешения замечу, что 
+	// подсчитав предварительно количество элеметов мы заполнили кэш процессора данными из сета и последующий перебор 
+	// в цикле #ref01 будет значительно быстрее.
+	const uint org_count = getCount(); // @v11.4.8 
+	if(org_count > 1) { // @v11.4.8
+		StrAssocArray temp_list;
+		SString str;
+		uint   i;
+		long   id = 0;
+		for(i = 0; get(&i, str);) { // #ref01
+			temp_list.Add(++id, str);
 		}
-		str = p_item;
+		temp_list.SortByText();
+		clear();
+		str.Z();
+		for(i = 0; i < temp_list.getCount(); i++) {
+			const char * p_item = temp_list.Get(i).Txt;
+			if(!i || str != p_item) {
+				add(p_item);
+			}
+			str = p_item;
+		}
 	}
+	assert(getCount() == org_count); // @v11.4.8 дорогая проверка (из-за getCount()), но в релизе ее не будет 
 }
 
 int StringSet::reverse()

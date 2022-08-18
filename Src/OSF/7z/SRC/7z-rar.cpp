@@ -2889,7 +2889,7 @@ namespace NCompress {
 			rem = _bufLim - _buf;
 			_bufCheck = _buf;
 			if(rem < kSize)
-				memset(_bufLim, 0xFF, kSize - rem);
+				memset(_bufLim, 0xff, kSize - rem);
 			else
 				_bufCheck = _bufLim - kSize;
 			SetCheck2();

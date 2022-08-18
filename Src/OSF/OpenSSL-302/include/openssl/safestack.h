@@ -137,9 +137,7 @@ extern "C" {
 #define DEFINE_STACK_OF(t) SKM_DEFINE_STACK_OF(t, t, t)
 #define DEFINE_STACK_OF_CONST(t) SKM_DEFINE_STACK_OF(t, const t, t)
 #define DEFINE_SPECIAL_STACK_OF(t1, t2) SKM_DEFINE_STACK_OF(t1, t2, t2)
-#define DEFINE_SPECIAL_STACK_OF_CONST(t1, t2) \
-	SKM_DEFINE_STACK_OF(t1, const t2, t2)
-
+#define DEFINE_SPECIAL_STACK_OF_CONST(t1, t2) SKM_DEFINE_STACK_OF(t1, const t2, t2)
 /*-
  * Strings are special: normally an lhash entry will point to a single
  * (somewhat) mutable object. In the case of strings:

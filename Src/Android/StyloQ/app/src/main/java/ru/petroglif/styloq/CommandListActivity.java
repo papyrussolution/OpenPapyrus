@@ -345,21 +345,23 @@ public class CommandListActivity extends SLib.SlActivity {
 							boolean force_query = (ev == SLib.EV_LISTVIEWITEMLONGCLK) ? true : false;
 							StyloQCommand.Item cmd_item = ListData.GetViewItem(ev_subj.ItemIdx);
 							if(cmd_item != null) {
-								try {
-									if(cmd_item.BaseCmdId == StyloQCommand.sqbcPersonEvent) {
-										// @construction
-										PersonEvent pe = new PersonEvent();
-										pe.SrcCmdItem = cmd_item;
-										PersonEventDialog dialog = new PersonEventDialog(this, pe);
-										dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-										dialog.show();
-									}
-									else
-										app_ctx.RunSvcCommand(SvcIdent, cmd_item, null, force_query, null);
-								} catch(StyloQException exn) {
+								if(StyloQCommand.IsCommandPending(SvcIdent, cmd_item) == 0) { // @v11.4.8
+									try {
+										if(cmd_item.BaseCmdId == StyloQCommand.sqbcPersonEvent) {
+											// @construction
+											PersonEvent pe = new PersonEvent();
+											pe.SrcCmdItem = cmd_item;
+											PersonEventDialog dialog = new PersonEventDialog(this, pe);
+											dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+											dialog.show();
+										}
+										else
+											app_ctx.RunSvcCommand(SvcIdent, cmd_item, null, force_query, null);
+									} catch(StyloQException exn) {
 
+									}
+									RefreshStatus();
 								}
-								RefreshStatus();
 							}
 						}
 					}

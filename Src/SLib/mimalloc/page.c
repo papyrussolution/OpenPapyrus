@@ -4,32 +4,28 @@
    terms of the MIT license. A copy of the license can be found in the file
    "LICENSE" at the root of this distribution.
    -----------------------------------------------------------------------------*/
-
-/* -----------------------------------------------------------
-   The core of the allocator. Every segment contains
-   pages of a certain block size. The main function
-   exported is `mi_malloc_generic`.
-   ----------------------------------------------------------- */
+// 
+// The core of the allocator. Every segment contains
+// pages of a certain block size. The main function
+// exported is `mi_malloc_generic`.
+// 
 #include <slib-internal.h>
 #pragma hdrstop
 #include "mimalloc.h"
 #include "mimalloc-internal.h"
 #include "mimalloc-atomic.h"
-
-/* -----------------------------------------------------------
-   Definition of page queues for each block size
-   ----------------------------------------------------------- */
-
+// 
+// Definition of page queues for each block size
+// 
 #define MI_IN_PAGE_C
 #include "page-queue.c"
 #undef MI_IN_PAGE_C
-
-/* -----------------------------------------------------------
-   Page helpers
-   ----------------------------------------------------------- */
-
+// 
+// Page helpers
+// 
 // Index a block in a page
-static inline mi_block_t* mi_page_block_at(const mi_page_t* page, void* page_start, size_t block_size, size_t i) {
+static inline mi_block_t* mi_page_block_at(const mi_page_t* page, void* page_start, size_t block_size, size_t i) 
+{
 	MI_UNUSED(page);
 	mi_assert_internal(page != NULL);
 	mi_assert_internal(i <= page->reserved);
@@ -148,11 +144,9 @@ void _mi_page_use_delayed_free(mi_page_t* page, mi_delayed_t delay, bool overrid
 	} while((old_delay == MI_DELAYED_FREEING) ||
 	    !mi_atomic_cas_weak_release(&page->xthread_free, &tfree, tfreex));
 }
-
-/* -----------------------------------------------------------
-   Page collect the `local_free` and `thread_free` lists
-   ----------------------------------------------------------- */
-
+// 
+// Page collect the `local_free` and `thread_free` lists
+// 
 // Collect the local `thread_free` list using an atomic exchange.
 // Note: The exchange must be done atomically as this is used right after
 // moving to the full list in `mi_page_collect_ex` and we need to
@@ -226,11 +220,9 @@ void _mi_page_free_collect(mi_page_t* page, bool force) {
 
 	mi_assert_internal(!force || page->local_free == NULL);
 }
-
-/* -----------------------------------------------------------
-   Page fresh and retire
-   ----------------------------------------------------------- */
-
+// 
+// Page fresh and retire
+// 
 // called from segments when reclaiming abandoned pages
 void _mi_page_reclaim(mi_heap_t* heap, mi_page_t* page) {
 	mi_assert_expensive(mi_page_is_valid_init(page));
@@ -270,22 +262,17 @@ static mi_page_t* mi_page_fresh(mi_heap_t* heap, mi_page_queue_t* pq) {
 	mi_assert_internal(pq==mi_page_queue(heap, mi_page_block_size(page)));
 	return page;
 }
-
-/* -----------------------------------------------------------
-   Do any delayed frees
-   (put there by other threads if they deallocated in a full page)
-   ----------------------------------------------------------- */
-void _mi_heap_delayed_free(mi_heap_t* heap) {
+// 
+// Do any delayed frees (put there by other threads if they deallocated in a full page)
+// 
+void _mi_heap_delayed_free(mi_heap_t* heap) 
+{
 	// take over the list (note: no atomic exchange since it is often NULL)
 	mi_block_t* block = mi_atomic_load_ptr_relaxed(mi_block_t, &heap->thread_delayed_free);
-	while(block != NULL && !mi_atomic_cas_ptr_weak_acq_rel(mi_block_t, &heap->thread_delayed_free, &block, NULL)) { /*
-		                                                                                                           nothing
-		                                                                                                           */
-	}
-	;
-
+	while(block != NULL && !mi_atomic_cas_ptr_weak_acq_rel(mi_block_t, &heap->thread_delayed_free, &block, NULL)) { /* nothing */
+	};
 	// and free them all
-	while(block != NULL) {
+	while(block) {
 		mi_block_t* next = mi_block_nextx(heap, block, heap->keys);
 		// use internal free instead of regular one to keep stats etc correct
 		if(!_mi_free_delayed_block(block)) {
@@ -299,13 +286,12 @@ void _mi_heap_delayed_free(mi_heap_t* heap) {
 		block = next;
 	}
 }
-
-/* -----------------------------------------------------------
-   Unfull, abandon, free and retire
-   ----------------------------------------------------------- */
-
+// 
+// Unfull, abandon, free and retire
+// 
 // Move a page from the full list back to a regular list
-void _mi_page_unfull(mi_page_t* page) {
+void _mi_page_unfull(mi_page_t* page) 
+{
 	mi_assert_internal(page != NULL);
 	mi_assert_expensive(_mi_page_is_valid(page));
 	mi_assert_internal(mi_page_is_in_full(page));
@@ -454,22 +440,17 @@ void _mi_heap_collect_retired(mi_heap_t* heap, bool force) {
 	heap->page_retired_min = min;
 	heap->page_retired_max = max;
 }
-
-/* -----------------------------------------------------------
-   Initialize the initial free list in a page.
-   In secure mode we initialize a randomized list by
-   alternating between slices.
-   ----------------------------------------------------------- */
-
+// 
+// Initialize the initial free list in a page.
+// In secure mode we initialize a randomized list by
+// alternating between slices.
+// 
 #define MI_MAX_SLICE_SHIFT  (6)   // at most 64 slices
 #define MI_MAX_SLICES       (1UL << MI_MAX_SLICE_SHIFT)
 #define MI_MIN_SLICES       (2)
 
-static void mi_page_free_list_extend_secure(mi_heap_t* const heap,
-    mi_page_t* const page,
-    const size_t bsize,
-    const size_t extend,
-    mi_stats_t* const stats) {
+static void mi_page_free_list_extend_secure(mi_heap_t* const heap, mi_page_t* const page, const size_t bsize, const size_t extend, mi_stats_t* const stats) 
+{
 	MI_UNUSED(stats);
   #if (MI_SECURE<=2)
 	mi_assert_internal(page->free == NULL);
@@ -554,11 +535,9 @@ static mi_decl_noinline void mi_page_free_list_extend(mi_page_t* const page,
 	mi_block_set_next(page, last, page->free);
 	page->free = start;
 }
-
-/* -----------------------------------------------------------
-   Page initialize and extend the capacity
-   ----------------------------------------------------------- */
-
+// 
+// Page initialize and extend the capacity
+// 
 #define MI_MAX_EXTEND_SIZE    (4*1024)      // heuristic, one OS page seems to work well.
 #if (MI_SECURE>0)
 #define MI_MIN_EXTEND         (8*MI_SECURE) // extend at least by this many
@@ -665,16 +644,13 @@ static void mi_page_init(mi_heap_t* heap, mi_page_t* page, size_t block_size, mi
 	mi_assert_internal(page->keys[1] != 0);
   #endif
 	mi_assert_expensive(mi_page_is_valid_init(page));
-
 	// initialize an initial free list
 	mi_page_extend_free(heap, page, tld);
 	mi_assert(mi_page_immediate_available(page));
 }
-
-/* -----------------------------------------------------------
-   Find pages with free blocks
-   -------------------------------------------------------------*/
-
+// 
+// Find pages with free blocks
+// 
 // Find a page with free blocks of `page->block_size`.
 static mi_page_t* mi_page_queue_find_free_ex(mi_heap_t* heap, mi_page_queue_t* pq, bool first_try)
 {
@@ -741,7 +717,6 @@ static inline mi_page_t* mi_find_free_page(mi_heap_t* heap, size_t size) {
 		{
 			_mi_page_free_collect(page, false);
 		}
-
 		if(mi_page_immediate_available(page)) {
 			page->retire_expire = 0;
 			return page; // fast path
@@ -749,18 +724,17 @@ static inline mi_page_t* mi_find_free_page(mi_heap_t* heap, size_t size) {
 	}
 	return mi_page_queue_find_free_ex(heap, pq, true);
 }
-
-/* -----------------------------------------------------------
-   Users can register a deferred free function called
-   when the `free` list is empty. Since the `local_free`
-   is separate this is deterministically called after
-   a certain number of allocations.
-   ----------------------------------------------------------- */
-
+// 
+// Users can register a deferred free function called
+// when the `free` list is empty. Since the `local_free`
+// is separate this is deterministically called after
+// a certain number of allocations.
+// 
 static mi_deferred_free_fun* volatile deferred_free = NULL;
 static _Atomic(void*) deferred_arg; // = NULL
 
-void _mi_deferred_free(mi_heap_t* heap, bool force) {
+void _mi_deferred_free(mi_heap_t* heap, bool force) 
+{
 	heap->tld->heartbeat++;
 	if(deferred_free != NULL && !heap->tld->recurse) {
 		heap->tld->recurse = true;
@@ -769,15 +743,14 @@ void _mi_deferred_free(mi_heap_t* heap, bool force) {
 	}
 }
 
-void mi_register_deferred_free(mi_deferred_free_fun* fn, void* arg) mi_attr_noexcept {
+void mi_register_deferred_free(mi_deferred_free_fun* fn, void* arg) mi_attr_noexcept 
+{
 	deferred_free = fn;
 	mi_atomic_store_ptr_release(void, &deferred_arg, arg);
 }
-
-/* -----------------------------------------------------------
-   General allocation
-   ----------------------------------------------------------- */
-
+// 
+// General allocation
+// 
 // Large and huge page allocation.
 // Huge pages are allocated directly without being in a queue.
 // Because huge pages contain just one block, and the segment contains

@@ -214,17 +214,15 @@ static int test_param_uint(int n)
 	if(!TEST_mem_eq(cmp, sizeof(in), raw_values[n].value, sizeof(in)))
 		return 0;
 	param.data = &out;
-	return test_param_type_extra(&param, raw_values[n].value, sizeof(unsigned int));
+	return test_param_type_extra(&param, raw_values[n].value, sizeof(uint));
 }
 
 static int test_param_ulong(int n)
 {
-	unsigned long int in, out;
-	unsigned char buf[MAX_LEN], cmp[sizeof(unsigned long int)];
-	const size_t len = raw_values[n].len >= sizeof(unsigned long int)
-	    ? sizeof(unsigned long int) : raw_values[n].len;
+	ulong in, out;
+	uchar buf[MAX_LEN], cmp[sizeof(ulong)];
+	const size_t len = raw_values[n].len >= sizeof(ulong) ? sizeof(ulong) : raw_values[n].len;
 	OSSL_PARAM param = OSSL_PARAM_ulong("a", NULL);
-
 	memzero(buf, sizeof(buf));
 	le_copy(buf, raw_values[n].value, sizeof(in));
 	memcpy(&in, buf, sizeof(in));
@@ -241,17 +239,15 @@ static int test_param_ulong(int n)
 	if(!TEST_mem_eq(cmp, sizeof(in), raw_values[n].value, sizeof(in)))
 		return 0;
 	param.data = &out;
-	return test_param_type_extra(&param, raw_values[n].value, sizeof(unsigned long int));
+	return test_param_type_extra(&param, raw_values[n].value, sizeof(ulong));
 }
 
 static int test_param_int32(int n)
 {
 	int32_t in, out;
-	unsigned char buf[MAX_LEN], cmp[sizeof(int32_t)];
-	const size_t len = raw_values[n].len >= sizeof(int32_t)
-	    ? sizeof(int32_t) : raw_values[n].len;
+	uchar buf[MAX_LEN], cmp[sizeof(int32_t)];
+	const size_t len = raw_values[n].len >= sizeof(int32_t) ? sizeof(int32_t) : raw_values[n].len;
 	OSSL_PARAM param = OSSL_PARAM_int32("a", NULL);
-
 	memzero(buf, sizeof(buf));
 	le_copy(buf, raw_values[n].value, sizeof(in));
 	memcpy(&in, buf, sizeof(in));
@@ -465,13 +461,13 @@ static int test_param_construct(int tstid)
 	};
 	OSSL_PARAM params[20];
 	char buf[100], buf2[100], * bufp, * bufp2;
-	unsigned char ubuf[100];
+	uchar ubuf[100];
 	void * vp, * vpn = NULL, * vp2;
 	OSSL_PARAM * cp;
 	int i, n = 0, ret = 0;
-	unsigned int u;
+	uint u;
 	long int l;
-	unsigned long int ul;
+	ulong ul;
 	int32_t i32;
 	uint32_t u32;
 	int64_t i64;

@@ -104,11 +104,7 @@ URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt, const Loca
 	return registerInstance(objToAdopt, locale, kind, LocaleKeyFactory::VISIBLE, status);
 }
 
-URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt,
-    const Locale & locale,
-    int32_t kind,
-    int32_t coverage,
-    UErrorCode & status)
+URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt, const Locale & locale, int32_t kind, int32_t coverage, UErrorCode & status)
 {
 	ICUServiceFactory * factory = new SimpleLocaleKeyFactory(objToAdopt, locale, kind, coverage);
 	if(factory != NULL) {
@@ -131,11 +127,7 @@ URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt, const Unic
 		   status);
 }
 
-URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt,
-    const UnicodeString & locale,
-    int32_t kind,
-    int32_t coverage,
-    UErrorCode & status)
+URegistryKey ICULocaleService::registerInstance(UObject * objToAdopt, const UnicodeString & locale, int32_t kind, int32_t coverage, UErrorCode & status)
 {
 	ICUServiceFactory * factory = new SimpleLocaleKeyFactory(objToAdopt, locale, kind, coverage);
 	if(factory != NULL) {
@@ -153,26 +145,17 @@ private:
 	int32_t _timestamp;
 	UVector _ids;
 	int32_t _pos;
-
 private:
-	ServiceEnumeration(const ICULocaleService* service, UErrorCode & status)
-		: _service(service)
-		, _timestamp(service->getTimestamp())
-		, _ids(uprv_deleteUObject, NULL, status)
-		, _pos(0)
+	ServiceEnumeration(const ICULocaleService* service, UErrorCode & status) : _service(service), _timestamp(service->getTimestamp()), 
+		_ids(uprv_deleteUObject, NULL, status), _pos(0)
 	{
 		_service->getVisibleIDs(_ids, status);
 	}
-
-	ServiceEnumeration(const ServiceEnumeration &other, UErrorCode & status)
-		: _service(other._service)
-		, _timestamp(other._timestamp)
-		, _ids(uprv_deleteUObject, NULL, status)
-		, _pos(0)
+	ServiceEnumeration(const ServiceEnumeration &other, UErrorCode & status) : _service(other._service), _timestamp(other._timestamp), 
+		_ids(uprv_deleteUObject, NULL, status), _pos(0)
 	{
 		if(U_SUCCESS(status)) {
 			int32_t i, length;
-
 			length = other._ids.size();
 			for(i = 0; i < length; ++i) {
 				_ids.addElementX(((UnicodeString *)other._ids.elementAt(i))->clone(), status);

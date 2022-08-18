@@ -136,7 +136,7 @@ socket_t ssh_connect_host_nonblocking(ssh_session session, const char * host, co
 		ssh_set_error(session, SSH_FATAL, "Failed to resolve hostname %s (%s)", host, gai_strerror(rc));
 		return -1;
 	}
-	for(itr = ai; itr != NULL; itr = itr->ai_next) {
+	for(itr = ai; itr; itr = itr->ai_next) {
 		/* create socket */
 		s = socket(itr->ai_family, itr->ai_socktype, itr->ai_protocol);
 		if(s < 0) {
@@ -154,7 +154,7 @@ socket_t ssh_connect_host_nonblocking(ssh_session session, const char * host, co
 				s = -1;
 				break;
 			}
-			for(bind_itr = bind_ai; bind_itr != NULL; bind_itr = bind_itr->ai_next) {
+			for(bind_itr = bind_ai; bind_itr; bind_itr = bind_itr->ai_next) {
 				if(bind(s, bind_itr->ai_addr, bind_itr->ai_addrlen) < 0) {
 					ssh_set_error(session, SSH_FATAL, "Binding local address: %s", strerror(errno));
 					continue;
@@ -263,7 +263,7 @@ int ssh_select(ssh_channel * channels, ssh_channel * outchannels, socket_t maxfd
 	int firstround = 1;
 
 	base_tm = tm = (timeout->tv_sec * 1000) + (timeout->tv_usec / 1000);
-	for(i = 0; channels[i] != NULL; ++i) {
+	for(i = 0; channels[i]; ++i) {
 		ssh_event_add_session(event, channels[i]->session);
 	}
 

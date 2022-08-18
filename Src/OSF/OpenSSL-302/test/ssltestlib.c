@@ -526,7 +526,6 @@ static long mempacket_test_ctrl(BIO * bio, int cmd, long num, void * ptr)
 
 static int mempacket_test_gets(BIO * bio, char * buf, int size) { return -1; /* We don't support this - not needed anyway */ }
 static int mempacket_test_puts(BIO * bio, const char * str) { return mempacket_test_write(bio, str, strlen(str)); }
-
 static int always_retry_new(BIO * bi);
 static int always_retry_free(BIO * a);
 static int always_retry_read(BIO * b, char * out, int outl);
@@ -540,20 +539,13 @@ const BIO_METHOD * bio_s_always_retry(void)
 	if(meth_always_retry == NULL) {
 		if(!TEST_ptr(meth_always_retry = BIO_meth_new(BIO_TYPE_ALWAYS_RETRY,
 		    "Always Retry"))
-		    || !TEST_true(BIO_meth_set_write(meth_always_retry,
-		    always_retry_write))
-		    || !TEST_true(BIO_meth_set_read(meth_always_retry,
-		    always_retry_read))
-		    || !TEST_true(BIO_meth_set_puts(meth_always_retry,
-		    always_retry_puts))
-		    || !TEST_true(BIO_meth_set_gets(meth_always_retry,
-		    always_retry_gets))
-		    || !TEST_true(BIO_meth_set_ctrl(meth_always_retry,
-		    always_retry_ctrl))
-		    || !TEST_true(BIO_meth_set_create(meth_always_retry,
-		    always_retry_new))
-		    || !TEST_true(BIO_meth_set_destroy(meth_always_retry,
-		    always_retry_free)))
+		    || !TEST_true(BIO_meth_set_write(meth_always_retry, always_retry_write))
+		    || !TEST_true(BIO_meth_set_read(meth_always_retry, always_retry_read))
+		    || !TEST_true(BIO_meth_set_puts(meth_always_retry, always_retry_puts))
+		    || !TEST_true(BIO_meth_set_gets(meth_always_retry, always_retry_gets))
+		    || !TEST_true(BIO_meth_set_ctrl(meth_always_retry, always_retry_ctrl))
+		    || !TEST_true(BIO_meth_set_create(meth_always_retry, always_retry_new))
+		    || !TEST_true(BIO_meth_set_destroy(meth_always_retry, always_retry_free)))
 			return NULL;
 	}
 	return meth_always_retry;

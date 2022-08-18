@@ -1557,6 +1557,7 @@
 #define PPJOB_EXPORTPRJTASKS                          44
 #define PPJOB_FTSINDEXING                             45
 #define PPJOB_STYLOQSENDINDEXINGCONTENT               46
+#define PPJOB_STYLOQPREPAREAHEAD                      47
 //
 // PPVIEW definitions
 //

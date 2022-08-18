@@ -1446,7 +1446,7 @@ int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 			if(ti->Flags & PPTFR_CORRECTION) {
 				THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0);
 				THROW_PP(ti->Cost != ti->RevalCost || ti->Quantity_ != lot_rec.Quantity, PPERR_ZEROTICORRECTION);
-				THROW_PP(qtty >= 0.0, PPERR_INVQTTY);
+				THROW_PP(qtty >= 0.0, PPERR_QTTYMUSTBEGEZ);
 				qtty = ti->Quantity_ - lot_rec.Quantity;
 				ti->SetSignFlags(0, (qtty < 0.0) ? TISIGN_MINUS : TISIGN_PLUS);
 			}
@@ -2583,7 +2583,7 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 				if(ti->Flags & PPTFR_CORRECTION) {
 					THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0);
 					THROW_PP(ti->Cost != ti->RevalCost || ti->Quantity_ != lot_rec.Quantity, PPERR_ZEROTICORRECTION);
-					THROW_PP(qtty >= 0.0, PPERR_INVQTTY);
+					THROW_PP(qtty >= 0.0, PPERR_QTTYMUSTBEGEZ);
 					new_qtty = ti->Quantity_ - lot_rec.Quantity;
 					qtty     = new_qtty - rec.Quantity;
 					ti->SetSignFlags(0, (new_qtty < 0.0) ? TISIGN_MINUS : TISIGN_PLUS);

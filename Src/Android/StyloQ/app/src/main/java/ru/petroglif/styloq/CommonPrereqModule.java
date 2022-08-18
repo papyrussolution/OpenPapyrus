@@ -46,6 +46,7 @@ public class CommonPrereqModule {
 	public ArrayList <Document> IncomingDocListData;
 	public GoodsFilt Gf;
 	private String BaseCurrencySymb;
+	private int DefDuePeriodHour; // @v11.4.8 Срок исполнения заказа по умолчанию (в часах). Извлекается из заголока данных по тегу "dueperiodhr"
 	private int AgentID; // Если исходный документ для формирования заказов ассоциирован
 		// с агентом, то в этом поле устанавливается id этого агента (field agentid)
 	private int PosNodeID; // Если исходный документ сформирован для indoor-обслуживания,
@@ -166,6 +167,13 @@ public class CommonPrereqModule {
 				CurrentOrder = new Document(opID, SvcIdent, app_ctx);
 				CurrentOrder.H.BaseCurrencySymb = GetBaseCurrencySymb();
 				CurrentOrder.H.OrgCmdUuid = CmdUuid;
+				CurrentOrder.H.AgentID = GetAgentID(); // @v11.4.8
+				if(DefDuePeriodHour > 0) {
+					SLib.LDATETIME base_tm = CurrentOrder.H.GetNominalTimestamp();
+					if(base_tm != null) {
+						CurrentOrder.H.DueTime = SLib.plusdatetimesec(base_tm, DefDuePeriodHour * 3600);
+					}
+				}
 				if(PosNodeID > 0)
 					CurrentOrder.H.PosNodeID = PosNodeID;
 			}
@@ -174,6 +182,22 @@ public class CommonPrereqModule {
 	protected void ResetCurrentDocument()
 	{
 		CurrentOrder = null;
+	}
+	protected boolean SetIncomingDocument(Document doc)
+	{
+		boolean ok = false;
+		StyloQApp app_ctx = GetAppCtx();
+		if(doc != null) {
+			if(app_ctx != null) {
+				CurrentOrder = doc;
+				ok = true;
+			}
+		}
+		else {
+			ResetCurrentDocument();
+			ok = true;
+		}
+		return ok;
 	}
 	protected boolean LoadDocument(long id)
 	{
@@ -298,9 +322,10 @@ public class CommonPrereqModule {
 		}
 		return (turn_doc_result > 0) ? true : ((turn_doc_result == 0) ? false : result);
 	}
-	private boolean OnCurrentDocumentModification()
+	protected void OnCurrentDocumentModification()
 	{
-		return StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT, StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
+		if(!IsCurrentDocumentEmpty())
+			StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT, StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
 	}
 	protected boolean UpdateMemoInCurrentDocument(String memo)
 	{
@@ -310,7 +335,6 @@ public class CommonPrereqModule {
 			int len2 = SLib.GetLen(CurrentOrder.H.Memo);
 			if(len1 != len2 || (len1 > 0 && !memo.equals(CurrentOrder.H.Memo))) {
 				CurrentOrder.H.Memo = memo;
-				OnCurrentDocumentModification();
 				result = true;
 			}
 		}
@@ -1016,6 +1040,7 @@ public class CommonPrereqModule {
 		TabLayoutResourceId = 0;
 	}
 	String GetBaseCurrencySymb() { return BaseCurrencySymb; }
+	int   GetDefDuePeriodHour() { return DefDuePeriodHour; }
 	int   GetAgentID() { return AgentID; }
 	int   GetPosNodeID() { return PosNodeID; }
 	public void GetAttributesFromIntent(Intent intent)
@@ -1482,6 +1507,7 @@ public class CommonPrereqModule {
 	public void GetCommonJsonFactors(JSONObject jsHead) throws JSONException
 	{
 		BaseCurrencySymb = jsHead.optString("basecurrency", null);
+		DefDuePeriodHour = jsHead.optInt("dueperiodhr", 0); // @v112.4.8
 		AgentID = jsHead.optInt("agentid", 0);
 		PosNodeID = jsHead.optInt("posnodeid", 0);
 	}

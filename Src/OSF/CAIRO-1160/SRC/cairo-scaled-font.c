@@ -2116,12 +2116,11 @@ BAIL:
 
 cairo_status_t _cairo_scaled_font_glyph_path(cairo_scaled_font_t * scaled_font, const cairo_glyph_t * glyphs, int num_glyphs, cairo_path_fixed_t * path)
 {
-	int i;
 	cairo_int_status_t status = scaled_font->status;
 	if(UNLIKELY(status))
 		return status;
 	_cairo_scaled_font_freeze_cache(scaled_font);
-	for(i = 0; i < num_glyphs; i++) {
+	for(int i = 0; i < num_glyphs; i++) {
 		cairo_scaled_glyph_t * scaled_glyph;
 		status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[i].index, CAIRO_SCALED_GLYPH_INFO_PATH, &scaled_glyph);
 		if(status == CAIRO_INT_STATUS_SUCCESS) {
@@ -2224,10 +2223,7 @@ void _cairo_scaled_glyph_set_surface(cairo_scaled_glyph_t * scaled_glyph, cairo_
 	/* sanity check the backend glyph contents */
 	_cairo_debug_check_image_surface_is_defined(&surface->base);
 	scaled_glyph->surface = surface;
-	if(surface)
-		scaled_glyph->has_info |= CAIRO_SCALED_GLYPH_INFO_SURFACE;
-	else
-		scaled_glyph->has_info &= ~CAIRO_SCALED_GLYPH_INFO_SURFACE;
+	SETFLAG(scaled_glyph->has_info, CAIRO_SCALED_GLYPH_INFO_SURFACE, surface);
 }
 
 void _cairo_scaled_glyph_set_path(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, cairo_path_fixed_t * path)
@@ -2235,10 +2231,7 @@ void _cairo_scaled_glyph_set_path(cairo_scaled_glyph_t * scaled_glyph, cairo_sca
 	if(scaled_glyph->path)
 		_cairo_path_fixed_destroy(scaled_glyph->path);
 	scaled_glyph->path = path;
-	if(path)
-		scaled_glyph->has_info |= CAIRO_SCALED_GLYPH_INFO_PATH;
-	else
-		scaled_glyph->has_info &= ~CAIRO_SCALED_GLYPH_INFO_PATH;
+	SETFLAG(scaled_glyph->has_info, CAIRO_SCALED_GLYPH_INFO_PATH, path);
 }
 
 void _cairo_scaled_glyph_set_recording_surface(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, cairo_surface_t * recording_surface)
@@ -2248,23 +2241,17 @@ void _cairo_scaled_glyph_set_recording_surface(cairo_scaled_glyph_t * scaled_gly
 		cairo_surface_destroy(scaled_glyph->recording_surface);
 	}
 	scaled_glyph->recording_surface = recording_surface;
-	if(recording_surface)
-		scaled_glyph->has_info |= CAIRO_SCALED_GLYPH_INFO_RECORDING_SURFACE;
-	else
-		scaled_glyph->has_info &= ~CAIRO_SCALED_GLYPH_INFO_RECORDING_SURFACE;
+	SETFLAG(scaled_glyph->has_info, CAIRO_SCALED_GLYPH_INFO_RECORDING_SURFACE, recording_surface);
 }
 
 void _cairo_scaled_glyph_set_color_surface(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, cairo_image_surface_t * surface)
 {
 	if(scaled_glyph->color_surface)
 		cairo_surface_destroy(&scaled_glyph->color_surface->base);
-	/* sanity check the backend glyph contents */
+	// sanity check the backend glyph contents
 	_cairo_debug_check_image_surface_is_defined(&surface->base);
 	scaled_glyph->color_surface = surface;
-	if(surface)
-		scaled_glyph->has_info |= CAIRO_SCALED_GLYPH_INFO_COLOR_SURFACE;
-	else
-		scaled_glyph->has_info &= ~CAIRO_SCALED_GLYPH_INFO_COLOR_SURFACE;
+	SETFLAG(scaled_glyph->has_info, CAIRO_SCALED_GLYPH_INFO_COLOR_SURFACE, surface);
 }
 
 static boolint _cairo_scaled_glyph_page_can_remove(const void * closure)
@@ -2422,7 +2409,6 @@ cairo_int_status_t FASTCALL _cairo_scaled_glyph_lookup(cairo_scaled_font_t * sca
 	}
 	*scaled_glyph_ret = scaled_glyph;
 	return CAIRO_STATUS_SUCCESS;
-
 err:
 	/* It's not an error for the backend to not support the info we want. */
 	if(status != CAIRO_INT_STATUS_UNSUPPORTED)

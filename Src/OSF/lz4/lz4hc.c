@@ -70,7 +70,7 @@ typedef enum {
 static void LZ4HC_clearTables(LZ4HC_CCtx_internal* hc4)
 {
 	memzero(/*(void *)*/hc4->hashTable, sizeof(hc4->hashTable));
-	memset(hc4->chainTable, 0xFF, sizeof(hc4->chainTable));
+	memset(hc4->chainTable, 0xff, sizeof(hc4->chainTable));
 }
 
 static void LZ4HC_init(LZ4HC_CCtx_internal* hc4, const uint8 * start)

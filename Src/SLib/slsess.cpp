@@ -393,6 +393,16 @@ static void InitTest()
 		}
 	}
 	// } @v11.2.0 
+	// @v11.4.8 {
+	{
+		// Убеждаемся в том, что memset(mem, 0xff, size) заполнит весь отрезок битовыми единицами
+		// Сомнения существуют из-за того, что аргумент функции int а передаем только один байт (0xff).
+		uint8 chunk[379];
+		memset(chunk, 0xff, sizeof(chunk));
+		for(uint i = 0; i < sizeof(chunk); i++)
+			assert(chunk[i] == static_cast<uint8>(0xff));
+	}
+	// } @v11.4.8 
 	STATIC_ASSERT(MAX(3.1, 8.5) == 8.5);
 	assert(smax(3.1, 8.5) == 8.5);
 	assert(smax(3.1f, 8.5f) == 8.5f);

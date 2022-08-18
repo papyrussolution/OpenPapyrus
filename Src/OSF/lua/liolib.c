@@ -26,7 +26,7 @@
 
 /* Check whether 'mode' matches '[rwa]%+?[L_MODEEXT]*' */
 static int l_checkmode(const char * mode) {
-	return (*mode != '\0' && sstrchr("rwa", *(mode++)) != NULL &&
+	return (*mode != '\0' && sstrchr("rwa", *(mode++)) &&
 	       (*mode != '+' || (++mode, 1)) && /* skip if char is '+' */
 	       (strspn(mode, L_MODEEXT) == strlen(mode))); /* check extensions */
 }
@@ -196,7 +196,7 @@ static int io_close(lua_State * L) {
 
 static int f_gc(lua_State * L) {
 	LStream * p = tolstream(L);
-	if(!isclosed(p) && p->f != NULL)
+	if(!isclosed(p) && p->f)
 		aux_close(L); /* ignore closed and incompletely open files */
 	return 0;
 }
@@ -694,7 +694,7 @@ static void createstdfile(lua_State * L, FILE * f, const char * k,
 	LStream * p = newprefile(L);
 	p->f = f;
 	p->closef = &io_noclose;
-	if(k != NULL) {
+	if(k) {
 		lua_pushvalue(L, -1);
 		lua_setfield(L, LUA_REGISTRYINDEX, k); /* add file to registry */
 	}

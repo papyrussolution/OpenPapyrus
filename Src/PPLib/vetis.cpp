@@ -3,7 +3,6 @@
 // @codepage UTF-8
 // Модуль для взаимодействия с системой Меркурий (интерфейс ВЕТИС)
 //
-//
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
@@ -4213,6 +4212,22 @@ int PPVetisInterface::ParseProductItem(const xmlNode * pParentNode, VetisProduct
 				pResult->GlobalID = temp_buf;
 			}
 		}
+		else if(SXml::IsName(p_a, "packaging")) { // @v11.4.8
+			for(const xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
+				if(SXml::IsName(p_p, "packagingType")) {
+					ParsePackingType(p_p, pResult->Packaging.PackagingType);
+				}
+				else if(SXml::GetContentByName(p_p, "quantity", temp_buf)) {
+					pResult->Packaging.Quantity = temp_buf.ToLong();
+				}
+				else if(SXml::GetContentByName(p_p, "volume", temp_buf)) {
+					pResult->Packaging.Volume = temp_buf.ToReal_Plain();
+				}
+				else if(SXml::IsName(p_p, "unit")) {
+					THROW(ParseUnit(p_p, pResult->Packaging.Unit));
+				}
+			}
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -6022,6 +6037,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									{
 										SXml::WNode n_c(srb, _xmlnst_vd("consignment"));
 										n_c.PutAttrib("id",  temp_buf.Z().Cat("id").Cat(p_req->VdRec.LinkBillID));
+										// @v11.4.8 @todo Здесь, кажется, надо развернутый productItem вставлять!
 										n_c.PutInner(_xmlnst_vd("volume"), temp_buf.Z().Cat(p_req->VdRec.Volume, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 										{
 											SXml::WNode n_uom(srb, _xmlnst_vd("unit"));

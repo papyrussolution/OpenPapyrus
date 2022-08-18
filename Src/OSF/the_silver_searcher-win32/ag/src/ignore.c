@@ -286,7 +286,7 @@ int filename_filter(const char * path, const struct dirent * dir, void * baton)
 		return 0;
 	}
 	{
-		for(size_t i = 0; evil_hardcoded_ignore_files[i] != NULL; i++) {
+		for(size_t i = 0; evil_hardcoded_ignore_files[i]; i++) {
 			if(strcmp(filename, evil_hardcoded_ignore_files[i]) == 0) {
 				return 0;
 			}
@@ -329,7 +329,7 @@ int filename_filter(const char * path, const struct dirent * dir, void * baton)
 		filename_len--;
 	}
 	const ignores * ig = scandir_baton->ig;
-	while(ig != NULL) {
+	while(ig) {
 		if(extension) {
 			int match_pos = binary_search(extension, ig->extensions, 0, ig->extensions_len);
 			if(match_pos >= 0) {

@@ -80,7 +80,7 @@ struct PixOrCopyBlock {
 extern void VP8LClearBackwardRefs(VP8LBackwardRefs* const refs);
 void VP8LClearBackwardRefs(VP8LBackwardRefs* const refs) {
 	assert(refs != NULL);
-	if(refs->tail_ != NULL) {
+	if(refs->tail_) {
 		*refs->tail_ = refs->free_blocks_; // recycle all blocks at once
 	}
 	refs->free_blocks_ = refs->refs_;
@@ -92,7 +92,7 @@ void VP8LClearBackwardRefs(VP8LBackwardRefs* const refs) {
 void VP8LBackwardRefsClear(VP8LBackwardRefs* const refs) {
 	assert(refs != NULL);
 	VP8LClearBackwardRefs(refs);
-	while(refs->free_blocks_ != NULL) {
+	while(refs->free_blocks_) {
 		PixOrCopyBlock* const next = refs->free_blocks_->next_;
 		WebPSafeFree(refs->free_blocks_);
 		refs->free_blocks_ = next;
@@ -102,10 +102,8 @@ void VP8LBackwardRefsClear(VP8LBackwardRefs* const refs) {
 // Swaps the content of two VP8LBackwardRefs.
 static void BackwardRefsSwap(VP8LBackwardRefs* const refs1,
     VP8LBackwardRefs* const refs2) {
-	const int point_to_refs1 =
-	    (refs1->tail_ != NULL && refs1->tail_ == &refs1->refs_);
-	const int point_to_refs2 =
-	    (refs2->tail_ != NULL && refs2->tail_ == &refs2->refs_);
+	const int point_to_refs1 = (refs1->tail_ && refs1->tail_ == &refs1->refs_);
+	const int point_to_refs2 = (refs2->tail_ && refs2->tail_ == &refs2->refs_);
 	const VP8LBackwardRefs tmp = *refs1;
 	*refs1 = *refs2;
 	*refs2 = tmp;
@@ -124,7 +122,7 @@ void VP8LBackwardRefsInit(VP8LBackwardRefs* const refs, int block_size)
 VP8LRefsCursor VP8LRefsCursorInit(const VP8LBackwardRefs* const refs) {
 	VP8LRefsCursor c;
 	c.cur_block_ = refs->refs_;
-	if(refs->refs_ != NULL) {
+	if(refs->refs_) {
 		c.cur_pos = c.cur_block_->start_;
 		c.last_pos_ = c.cur_pos + c.cur_block_->size_;
 	}
@@ -171,7 +169,7 @@ static int BackwardRefsClone(const VP8LBackwardRefs* const from,
     VP8LBackwardRefs* const to) {
 	const PixOrCopyBlock* block_from = from->refs_;
 	VP8LClearBackwardRefs(to);
-	while(block_from != NULL) {
+	while(block_from) {
 		PixOrCopyBlock* const block_to = BackwardRefsNewBlock(to);
 		if(block_to == NULL) return 0;
 		memcpy(block_to->start_, block_from->start_,

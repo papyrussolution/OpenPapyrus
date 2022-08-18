@@ -1504,6 +1504,7 @@ int DoConstructionTest()
 #if(_MSC_VER >= 1900)
 	//Test_Fts();
 #endif
+	PPStyloQInterchange::PrepareAhed(true);
 	//PPStyloQInterchange::ExecuteIndexingRequest(true/*useCurrentSession*/);
 	//Test_ListSelectionDialog();
 	//SDecimalFraction::Test();

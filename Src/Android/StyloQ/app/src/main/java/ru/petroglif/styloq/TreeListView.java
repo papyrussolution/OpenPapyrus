@@ -215,7 +215,8 @@ public class TreeListView {
 			holder.itemView.setOnClickListener(new View.OnClickListener()
 			{
 				@Override
-				public void onClick(View v) {
+				public void onClick(View v)
+				{
 					TreeNode selectedNode = displayNodes.get(holder.getLayoutPosition());
 					// Prevent multi-click during the short interval.
 					try {

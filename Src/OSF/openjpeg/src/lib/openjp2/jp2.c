@@ -1610,9 +1610,9 @@ static boolint opj_jp2_write_jp(opj_jp2_t * jp2, opj_stream_private_t * cio, opj
 	}
 	return TRUE;
 }
-/* ----------------------------------------------------------------------- */
-/* JP2 decoder interface                                             */
-/* ----------------------------------------------------------------------- */
+// 
+// JP2 decoder interface
+// 
 void opj_jp2_setup_decoder(opj_jp2_t * jp2, opj_dparameters_t * parameters)
 {
 	/* setup the J2K codec */
@@ -1631,9 +1631,9 @@ boolint opj_jp2_set_threads(opj_jp2_t * jp2, uint32_t num_threads)
 {
 	return opj_j2k_set_threads(jp2->j2k, num_threads);
 }
-/* ----------------------------------------------------------------------- */
-/* JP2 encoder interface                                             */
-/* ----------------------------------------------------------------------- */
+// 
+// JP2 encoder interface
+// 
 boolint opj_jp2_setup_encoder(opj_jp2_t * jp2, opj_cparameters_t * parameters, opj_image_t * image, opj_event_mgr_t * p_manager)
 {
 	uint32_t i;
@@ -2575,9 +2575,9 @@ boolint opj_jp2_get_tile(opj_jp2_t * p_jp2, opj_stream_private_t * p_stream, opj
 	}
 	return TRUE;
 }
-/* ----------------------------------------------------------------------- */
-/* JP2 encoder interface                                             */
-/* ----------------------------------------------------------------------- */
+// 
+// JP2 encoder interface
+// 
 opj_jp2_t* opj_jp2_create(boolint p_is_decoder)
 {
 	opj_jp2_t * jp2 = (opj_jp2_t*)opj_calloc(1, sizeof(opj_jp2_t));

@@ -4,18 +4,17 @@
    terms of the MIT license. A copy of the license can be found in the file
    "LICENSE" at the root of this distribution.
    -----------------------------------------------------------------------------*/
-
-/* -----------------------------------------------------------
-   Definition of page queues for each block size
-   ----------------------------------------------------------- */
+// 
+// Definition of page queues for each block size
+// 
 #include <slib-internal.h>
 #pragma hdrstop
 #ifndef MI_IN_PAGE_C
 	#error "this file should be included from 'page.c'"
 #endif
-/* -----------------------------------------------------------
-   Minimal alignment in machine words (i.e. `sizeof(void*)`)
-   ----------------------------------------------------------- */
+// 
+// Minimal alignment in machine words (i.e. `sizeof(void*)`)
+// 
 #if (MI_MAX_ALIGN_SIZE > 4*MI_INTPTR_SIZE)
   #error "define alignment for more than 4x word size for this platform"
 #elif (MI_MAX_ALIGN_SIZE > 2*MI_INTPTR_SIZE)
@@ -25,27 +24,15 @@
 #else
 // ok, default alignment is 1 word
 #endif
-
-/* -----------------------------------------------------------
-   Queue query
-   ----------------------------------------------------------- */
-
-static inline bool mi_page_queue_is_huge(const mi_page_queue_t* pq) {
-	return (pq->block_size == (MI_MEDIUM_OBJ_SIZE_MAX+sizeof(uintptr_t)));
-}
-
-static inline bool mi_page_queue_is_full(const mi_page_queue_t* pq) {
-	return (pq->block_size == (MI_MEDIUM_OBJ_SIZE_MAX+(2*sizeof(uintptr_t))));
-}
-
-static inline bool mi_page_queue_is_special(const mi_page_queue_t* pq) {
-	return (pq->block_size > MI_MEDIUM_OBJ_SIZE_MAX);
-}
-
-/* -----------------------------------------------------------
-   Bins
-   ----------------------------------------------------------- */
-
+// 
+// Queue query
+// 
+static inline bool mi_page_queue_is_huge(const mi_page_queue_t* pq) { return (pq->block_size == (MI_MEDIUM_OBJ_SIZE_MAX+sizeof(uintptr_t))); }
+static inline bool mi_page_queue_is_full(const mi_page_queue_t* pq) { return (pq->block_size == (MI_MEDIUM_OBJ_SIZE_MAX+(2*sizeof(uintptr_t)))); }
+static inline bool mi_page_queue_is_special(const mi_page_queue_t* pq) { return (pq->block_size > MI_MEDIUM_OBJ_SIZE_MAX); }
+// 
+// Bins
+// 
 // Return the bin for a given field size.
 // Returns MI_BIN_HUGE if the size is too large.
 // We use `wsize` for the size in "machine word sizes",
@@ -90,21 +77,15 @@ static inline uint8_t mi_bin(size_t size) {
 	mi_assert_internal(bin > 0 && bin <= MI_BIN_HUGE);
 	return bin;
 }
-
-/* -----------------------------------------------------------
-   Queue of pages with free blocks
-   ----------------------------------------------------------- */
-
-uint8_t _mi_bin(size_t size) {
-	return mi_bin(size);
-}
-
-size_t _mi_bin_size(uint8_t bin) {
-	return _mi_heap_empty.pages[bin].block_size;
-}
+// 
+// Queue of pages with free blocks
+// 
+uint8_t _mi_bin(size_t size) { return mi_bin(size); }
+size_t _mi_bin_size(uint8_t bin) { return _mi_heap_empty.pages[bin].block_size; }
 
 // Good size for allocation
-size_t mi_good_size(size_t size) mi_attr_noexcept {
+size_t mi_good_size(size_t size) mi_attr_noexcept 
+{
 	if(size <= MI_MEDIUM_OBJ_SIZE_MAX) {
 		return _mi_bin_size(mi_bin(size));
 	}
@@ -132,7 +113,6 @@ static bool mi_page_queue_contains(mi_page_queue_t* queue, const mi_page_t* page
 static bool mi_heap_contains_queue(const mi_heap_t* heap, const mi_page_queue_t* pq) {
 	return (pq >= &heap->pages[0] && pq <= &heap->pages[MI_BIN_FULL]);
 }
-
 #endif
 
 static mi_page_queue_t* mi_page_queue_of(const mi_page_t* page) {

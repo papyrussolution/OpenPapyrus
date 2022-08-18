@@ -79,7 +79,7 @@ static struct ssh_bind_config_match_keyword_table_s ssh_bind_config_match_keywor
 
 static enum ssh_bind_config_opcode_e ssh_bind_config_get_opcode(char * keyword, uint32_t * parser_flags) 
 {
-	for(int i = 0; ssh_bind_config_keyword_table[i].name != NULL; i++) {
+	for(int i = 0; ssh_bind_config_keyword_table[i].name; i++) {
 		if(strcasecmp(keyword, ssh_bind_config_keyword_table[i].name) == 0) {
 			if((*parser_flags & IN_MATCH) && !(ssh_bind_config_keyword_table[i].allowed_in_match)) {
 				return BIND_CFG_NOT_ALLOWED_IN_MATCH;
@@ -139,7 +139,7 @@ static void local_parse_glob(ssh_bind bind, const char * fileglob, uint32_t * pa
 
 static enum ssh_bind_config_match_e ssh_bind_config_get_match_opcode(const char * keyword) 
 {
-	for(size_t i = 0; ssh_bind_config_match_keyword_table[i].name != NULL; i++) {
+	for(size_t i = 0; ssh_bind_config_match_keyword_table[i].name; i++) {
 		if(strcasecmp(keyword, ssh_bind_config_match_keyword_table[i].name) == 0) {
 			return ssh_bind_config_match_keyword_table[i].opcode;
 		}

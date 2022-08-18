@@ -552,7 +552,7 @@ int32 getImpliedFileFormat(const char * filename)
 
 	numext = sizeof(extension_map) / sizeof(extension_map[0]);
 	for(i = 0; i < numext; i++) {
-		if(!strcmp(extension, extension_map[i].extension)) {
+		if(sstreq(extension, extension_map[i].extension)) {
 			format = extension_map[i].format;
 			break;
 		}

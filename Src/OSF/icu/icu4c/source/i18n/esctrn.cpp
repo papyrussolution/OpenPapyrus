@@ -148,7 +148,7 @@ void EscapeTransliterator::handleTransliterate(Replaceable& text,
 		int32_t c = grokSupplementals ? text.char32At(start) : text.charAt(start);
 		int32_t charLen = grokSupplementals ? U16_LENGTH(c) : 1;
 
-		if((c & 0xFFFF0000) != 0 && supplementalHandler != NULL) {
+		if((c & 0xFFFF0000) != 0 && supplementalHandler) {
 			buf.truncate(0);
 			buf.append(supplementalHandler->prefix);
 			ICU_Utility::appendNumber(buf, c, supplementalHandler->radix,

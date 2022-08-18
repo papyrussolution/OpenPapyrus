@@ -218,9 +218,9 @@ static void CostManagerInitFreeList(CostManager* const manager) {
 	}
 }
 
-static void DeleteIntervalList(CostManager* const manager,
-    const CostInterval* interval) {
-	while(interval != NULL) {
+static void DeleteIntervalList(CostManager* const manager, const CostInterval* interval) 
+{
+	while(interval) {
 		const CostInterval* const next = interval->next_;
 		if(!CostIntervalIsInFreeList(manager, interval)) {
 			WebPSafeFree((void*)interval);
@@ -331,7 +331,7 @@ static FORCEINLINE void UpdateCostPerInterval(CostManager* const manager,
 static FORCEINLINE void ConnectIntervals(CostManager* const manager,
     CostInterval* const prev,
     CostInterval* const next) {
-	if(prev != NULL) {
+	if(prev) {
 		prev->next_ = next;
 	}
 	else {
@@ -362,11 +362,10 @@ static FORCEINLINE void PopInterval(CostManager* const manager,
 // overlap with i.
 // If 'do_clean_intervals' is set to something different than 0, intervals that
 // end before 'i' will be popped.
-static FORCEINLINE void UpdateCostAtIndex(CostManager* const manager, int i,
-    int do_clean_intervals) {
+static FORCEINLINE void UpdateCostAtIndex(CostManager* const manager, int i, int do_clean_intervals) 
+{
 	CostInterval* current = manager->head_;
-
-	while(current != NULL && current->start_ <= i) {
+	while(current && current->start_ <= i) {
 		CostInterval* const next = current->next_;
 		if(current->end_ <= i) {
 			if(do_clean_intervals) {
@@ -385,20 +384,18 @@ static FORCEINLINE void UpdateCostAtIndex(CostManager* const manager, int i,
 // it was orphaned (which can be NULL), set it at the right place in the list
 // of intervals using the start_ ordering and the previous interval as a hint.
 static FORCEINLINE void PositionOrphanInterval(CostManager* const manager,
-    CostInterval* const current,
-    CostInterval* previous) {
+    CostInterval* const current, CostInterval* previous) 
+{
 	assert(current != NULL);
-
 	if(previous == NULL) previous = manager->head_;
-	while(previous != NULL && current->start_ < previous->start_) {
+	while(previous && current->start_ < previous->start_) {
 		previous = previous->previous_;
 	}
-	while(previous != NULL && previous->next_ != NULL &&
-	    previous->next_->start_ < current->start_) {
+	while(previous && previous->next_ && previous->next_->start_ < current->start_) {
 		previous = previous->next_;
 	}
 
-	if(previous != NULL) {
+	if(previous) {
 		ConnectIntervals(manager, current, previous->next_);
 	}
 	else {
@@ -421,11 +418,11 @@ static FORCEINLINE void InsertInterval(CostManager* const manager,
 		UpdateCostPerInterval(manager, start, end, position, cost);
 		return;
 	}
-	if(manager->free_intervals_ != NULL) {
+	if(manager->free_intervals_) {
 		interval_new = manager->free_intervals_;
 		manager->free_intervals_ = interval_new->next_;
 	}
-	else if(manager->recycled_intervals_ != NULL) {
+	else if(manager->recycled_intervals_) {
 		interval_new = manager->recycled_intervals_;
 		manager->recycled_intervals_ = interval_new->next_;
 	}
@@ -489,7 +486,7 @@ static FORCEINLINE void PushInterval(CostManager* const manager,
 		    : cost_cache_intervals[i].end_);
 		const float cost = (float)(distance_cost + cost_cache_intervals[i].cost_);
 
-		for(; interval != NULL && interval->start_ < end;
+		for(; interval && interval->start_ < end;
 		    interval = interval_next) {
 			interval_next = interval->next_;
 

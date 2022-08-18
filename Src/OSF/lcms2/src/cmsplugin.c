@@ -107,7 +107,7 @@ boolint /*CMSEXPORT*/STDCALL _cmsReadUInt16Array(cmsIOHANDLER* io, uint32 n, uin
 {
 	assert(io);
 	for(uint32 i = 0; i < n; i++) {
-		if(Array != NULL) {
+		if(Array) {
 			if(!_cmsReadUInt16Number(io, Array + i)) 
 				return FALSE;
 		}
@@ -185,7 +185,7 @@ boolint CMSEXPORT  _cmsReadXYZNumber(cmsIOHANDLER* io, cmsCIEXYZ* XYZ)
 	assert(io);
 	if(io->Read(io, &xyz, sizeof(cmsEncodedXYZNumber), 1) != 1) 
 		return FALSE;
-	if(XYZ != NULL) {
+	if(XYZ) {
 		XYZ->X = _cms15Fixed16toDouble((cmsS15Fixed16Number)_cmsAdjustEndianess32((uint32)xyz.X));
 		XYZ->Y = _cms15Fixed16toDouble((cmsS15Fixed16Number)_cmsAdjustEndianess32((uint32)xyz.Y));
 		XYZ->Z = _cms15Fixed16toDouble((cmsS15Fixed16Number)_cmsAdjustEndianess32((uint32)xyz.Z));
@@ -436,7 +436,7 @@ boolint CMSEXPORT cmsPlugin(void * Plug_in)
 boolint CMSEXPORT cmsPluginTHR(cmsContext id, void * Plug_in)
 {
 	cmsPluginBase* Plugin;
-	for(Plugin = (cmsPluginBase*)Plug_in; Plugin != NULL; Plugin = Plugin->Next) {
+	for(Plugin = (cmsPluginBase*)Plug_in; Plugin; Plugin = Plugin->Next) {
 		if(Plugin->Magic != cmsPluginMagicNumber) {
 			cmsSignalError(id, cmsERROR_UNKNOWN_EXTENSION, "Unrecognized plugin");
 			return FALSE;
@@ -534,7 +534,7 @@ struct _cmsContext_struct * FASTCALL _cmsGetContext(cmsContext ContextID)
 		return &globalContext;
 	// Search
 	_cmsEnterCriticalSectionPrimitive(&_cmsContextPoolHeadMutex);
-	for(ctx = _cmsContextPoolHead; ctx != NULL; ctx = ctx->Next) {
+	for(ctx = _cmsContextPoolHead; ctx; ctx = ctx->Next) {
 		// Found it?
 		if(id == ctx) {
 			_cmsLeaveCriticalSectionPrimitive(&_cmsContextPoolHeadMutex);
@@ -590,7 +590,7 @@ void CMSEXPORT cmsUnregisterPluginsTHR(cmsContext ContextID)
 // Returns the memory manager plug-in, if any, from the Plug-in bundle
 static cmsPluginMemHandler* _cmsFindMemoryPlugin(void * PluginBundle)
 {
-	for(cmsPluginBase * Plugin = (cmsPluginBase*)PluginBundle; Plugin != NULL; Plugin = Plugin->Next) {
+	for(cmsPluginBase * Plugin = (cmsPluginBase*)PluginBundle; Plugin; Plugin = Plugin->Next) {
 		if(Plugin->Magic == cmsPluginMagicNumber && Plugin->ExpectedVersion <= LCMS_VERSION && Plugin->Type == cmsPluginMemHandlerSig) {
 			// Found!
 			return (cmsPluginMemHandler*)Plugin;
@@ -616,7 +616,7 @@ cmsContext CMSEXPORT cmsCreateContext(void * Plugin, void * UserData)
 		static volatile HANDLE* mutex = &_cmsWindowsInitMutex;
 		if(*mutex == NULL) {
 			HANDLE p = CreateMutex(NULL, FALSE, NULL);
-			if(p && InterlockedCompareExchangePointer((void **)mutex, (void *)p, NULL) != NULL)
+			if(p && InterlockedCompareExchangePointer((void **)mutex, (void *)p, NULL))
 				CloseHandle(p);
 		}
 		if(*mutex == NULL || WaitForSingleObject(*mutex, INFINITE) == WAIT_FAILED)
@@ -691,7 +691,7 @@ cmsContext CMSEXPORT cmsDupContext(cmsContext ContextID, void * NewUserData)
 {
 	int i;
 	const struct _cmsContext_struct* src = _cmsGetContext(ContextID);
-	void * userData = (NewUserData != NULL) ? NewUserData : src->chunks[UserPtr];
+	void * userData = (NewUserData) ? NewUserData : src->chunks[UserPtr];
 	struct _cmsContext_struct* ctx = (struct _cmsContext_struct*)_cmsMalloc(ContextID, sizeof(struct _cmsContext_struct));
 	if(!ctx)
 		return NULL; // Something very wrong happened
@@ -754,7 +754,7 @@ void CMSEXPORT cmsDeleteContext(cmsContext ContextID)
 		// Get rid of plugins
 		cmsUnregisterPluginsTHR(ContextID);
 		// Since all memory is allocated in the private pool, all what we need to do is destroy the pool
-		if(ctx->MemPool != NULL)
+		if(ctx->MemPool)
 			_cmsSubAllocDestroy(ctx->MemPool);
 		ctx->MemPool = NULL;
 		// Maintain list
@@ -764,7 +764,7 @@ void CMSEXPORT cmsDeleteContext(cmsContext ContextID)
 		}
 		else {
 			// Search for previous
-			for(prev = _cmsContextPoolHead; prev != NULL; prev = prev->Next) {
+			for(prev = _cmsContextPoolHead; prev; prev = prev->Next) {
 				if(prev->Next == ctx) {
 					prev->Next = ctx->Next;
 					break;

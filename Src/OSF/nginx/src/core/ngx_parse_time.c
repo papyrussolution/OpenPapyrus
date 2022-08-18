@@ -163,8 +163,7 @@ time_t FASTCALL ngx_parse_http_time(const u_char * value, size_t len)
 		year -= 1;
 	}
 	// Gauss' formula for Gregorian days since March 1, 1 BC 
-	time = (uint64_t)(
-	    365 * year + year / 4 - year / 100 + year / 400 // days in years including leap years since March 1, 1 BC 
+	time = (uint64_t)(365 * year + year / 4 - year / 100 + year / 400 // days in years including leap years since March 1, 1 BC 
 	    + 367 * month / 12 - 30 // days before the month 
 	    + day - 1 // days before the day 
 		// 

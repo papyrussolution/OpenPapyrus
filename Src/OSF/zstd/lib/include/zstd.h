@@ -76,9 +76,9 @@ extern "C" {
 ZSTDLIB_API uint ZSTD_versionNumber(void);
 
 #define ZSTD_LIB_VERSION ZSTD_VERSION_MAJOR.ZSTD_VERSION_MINOR.ZSTD_VERSION_RELEASE
-// @v11.4.4 #define ZSTD_QUOTE(str) #str // @todo replacewith(STRINGIZE)
-// @v11.4.4 #define ZSTD_EXPAND_AND_QUOTE(str) ZSTD_QUOTE(str)
-#define ZSTD_VERSION_STRING STRINGIZE(ZSTD_LIB_VERSION)
+#define ZSTD_QUOTE(str) #str // @todo replacewith(STRINGIZE)
+#define ZSTD_EXPAND_AND_QUOTE(str) ZSTD_QUOTE(str)
+#define ZSTD_VERSION_STRING ZSTD_EXPAND_AND_QUOTE(ZSTD_LIB_VERSION)
 
 /*! ZSTD_versionString() :
  *  Return runtime library version, like "1.4.5". Requires v1.3.0+. */

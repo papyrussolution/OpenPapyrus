@@ -96,7 +96,7 @@ static int process_glob(WCHAR * wstr, int wlen)
 		 * so that |uflen| covers even trailing '\0'.
 		 */
 		uflen = WideCharToMultiByte(CP_UTF8, 0, data.cFileName, -1, NULL, 0, NULL, NULL);
-		arg = (char*)malloc(udlen + uflen);
+		arg = (char *)SAlloc::M(udlen + uflen);
 		if(arg == NULL)
 			break;
 		if(udlen)
@@ -223,7 +223,7 @@ void win32_utf8argv(int * argc, char ** argv[])
 				if(ulen <= 0)
 					continue;
 			}
-			arg = (char *)malloc(ulen + 1);
+			arg = (char *)SAlloc::M(ulen + 1);
 			if(arg == NULL) {
 				valid = 0;
 				break;

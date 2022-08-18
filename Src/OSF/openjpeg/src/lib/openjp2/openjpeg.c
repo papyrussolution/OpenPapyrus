@@ -411,28 +411,20 @@ boolint OPJ_CALLCONV opj_get_decoded_tile(opj_codec_t * p_codec,
 	return FALSE;
 }
 
-boolint OPJ_CALLCONV opj_set_decoded_resolution_factor(opj_codec_t * p_codec,
-    uint32_t res_factor)
+boolint OPJ_CALLCONV opj_set_decoded_resolution_factor(opj_codec_t * p_codec, uint32_t res_factor)
 {
 	opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
-
 	if(!l_codec) {
 		return FALSE;
 	}
-
-	return l_codec->m_codec_data.m_decompression.opj_set_decoded_resolution_factor(
-		l_codec->m_codec,
-		res_factor,
-		&(l_codec->m_event_mgr));
+	return l_codec->m_codec_data.m_decompression.opj_set_decoded_resolution_factor(l_codec->m_codec, res_factor, &(l_codec->m_event_mgr));
 }
-
-/* ---------------------------------------------------------------------- */
-/* COMPRESSION FUNCTIONS*/
-
+// 
+// COMPRESSION FUNCTIONS
+// 
 opj_codec_t* OPJ_CALLCONV opj_create_compress(OPJ_CODEC_FORMAT p_format)
 {
 	opj_codec_private_t * l_codec = 0;
-
 	l_codec = (opj_codec_private_t*)opj_calloc(1, sizeof(opj_codec_private_t));
 	if(!l_codec) {
 		return 0;
@@ -755,13 +747,10 @@ boolint OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec,
 	return FALSE;
 }
 
-/* ---------------------------------------------------------------------- */
-
 void OPJ_CALLCONV opj_destroy_codec(opj_codec_t * p_codec)
 {
 	if(p_codec) {
 		opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
-
 		if(l_codec->is_decompressor) {
 			l_codec->m_codec_data.m_decompression.opj_destroy(l_codec->m_codec);
 		}
@@ -773,8 +762,6 @@ void OPJ_CALLCONV opj_destroy_codec(opj_codec_t * p_codec)
 		SAlloc::F(l_codec);
 	}
 }
-
-/* ---------------------------------------------------------------------- */
 
 void OPJ_CALLCONV opj_dump_codec(opj_codec_t * p_codec, int32_t info_flag, FILE* output_stream)
 {

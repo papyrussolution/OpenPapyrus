@@ -1466,7 +1466,7 @@ l_ok convertSegmentedFilesToPdf(const char * dirname,
 	pa_data = ptraCreate(npages);
 	for(i = 0; i < npages; i++) {
 		fname = sarrayGetString(sa, i, L_NOCOPY);
-		if(!strcmp(fname, "")) continue;
+		if(sstreq(fname, "")) continue;
 		boxa = NULL;
 		if(baa) {
 			boxa = boxaaGetBoxa(baa, i, L_CLONE);
@@ -1565,7 +1565,7 @@ BOXAA * convertNumberedMasksToBoxaa(const char * dirname,
 	boxaDestroy(&boxa);
 	for(i = 0; i < n; i++) {
 		fname = sarrayGetString(sa, i, L_NOCOPY);
-		if(!strcmp(fname, "")) continue;
+		if(sstreq(fname, "")) continue;
 		if((pix = pixRead(fname)) == NULL) {
 			L_WARNING("invalid image on page %d\n", procName, i);
 			continue;

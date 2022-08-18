@@ -15,10 +15,9 @@ static int write_files = 0;
 static int legacy = 0;
 static OSSL_LIB_CTX * test_ctx = NULL;
 static const char * test_propq = NULL;
-
-/* -------------------------------------------------------------------------
- * Local function declarations
- */
+// 
+// Local function declarations
+// 
 static int add_attributes(PKCS12_SAFEBAG * bag, const PKCS12_ATTR * attrs);
 static void generate_p12(PKCS12_BUILDER * pb, const PKCS12_ENC * mac);
 static int write_p12(PKCS12 * p12, const char * outfile);
@@ -27,35 +26,20 @@ static PKCS12 * read_p12(const char * infile, const PKCS12_ENC * mac);
 static int check_p12_mac(PKCS12 * p12, const PKCS12_ENC * mac);
 static int check_asn1_string(const ASN1_TYPE * av, const char * txt);
 static int check_attrs(const STACK_OF(X509_ATTRIBUTE) * bag_attrs, const PKCS12_ATTR * attrs);
-
-/* --------------------------------------------------------------------------
- * Global settings
- */
-
+// 
+// Global settings
+// 
 void PKCS12_helper_set_write_files(int enable)
 {
 	write_files = enable;
 }
 
-void PKCS12_helper_set_legacy(int enable)
-{
-	legacy = enable;
-}
-
-void PKCS12_helper_set_libctx(OSSL_LIB_CTX * libctx)
-{
-	test_ctx = libctx;
-}
-
-void PKCS12_helper_set_propq(const char * propq)
-{
-	test_propq = propq;
-}
-
-/* --------------------------------------------------------------------------
- * Test data load functions
- */
-
+void PKCS12_helper_set_legacy(int enable) { legacy = enable; }
+void PKCS12_helper_set_libctx(OSSL_LIB_CTX * libctx) { test_ctx = libctx; }
+void PKCS12_helper_set_propq(const char * propq) { test_propq = propq; }
+// 
+// Test data load functions
+// 
 static X509 * load_cert_asn1(const unsigned char * bytes, int len)
 {
 	X509 * cert = d2i_X509(NULL, &bytes, len);
@@ -73,11 +57,9 @@ static EVP_PKEY * load_pkey_asn1(const unsigned char * bytes, int len)
 err:
 	return pkey;
 }
-
-/* -------------------------------------------------------------------------
- * PKCS12 builder
- */
-
+// 
+// PKCS12 builder
+// 
 PKCS12_BUILDER * new_pkcs12_builder(const char * filename)
 {
 	PKCS12_BUILDER * pb = (PKCS12_BUILDER*)OPENSSL_malloc(sizeof(PKCS12_BUILDER));
@@ -223,11 +205,9 @@ static int check_p12_mac(PKCS12 * p12, const PKCS12_ENC * mac)
 {
 	return TEST_true(PKCS12_mac_present(p12)) && TEST_true(PKCS12_verify_mac(p12, mac->pass, strlen(mac->pass)));
 }
-
-/* -------------------------------------------------------------------------
- * PKCS7 content info builder
- */
-
+// 
+// PKCS7 content info builder
+// 
 void start_contentinfo(PKCS12_BUILDER * pb)
 {
 	pb->bags = NULL;
@@ -287,11 +267,9 @@ static STACK_OF(PKCS12_SAFEBAG) *decode_contentinfo(STACK_OF(PKCS7) *safes, int 
 err:
 	return NULL;
 }
-
-/* -------------------------------------------------------------------------
- * PKCS12 safeBag/attribute builder
- */
-
+// 
+// PKCS12 safeBag/attribute builder
+// 
 static int add_attributes(PKCS12_SAFEBAG * bag, const PKCS12_ATTR * attrs)
 {
 	int ret = 0;
@@ -391,16 +369,12 @@ err:
 	EVP_PKEY_free(pkey);
 }
 
-void add_secretbag(PKCS12_BUILDER * pb, int secret_nid, const char * secret,
-    const PKCS12_ATTR * attrs)
+void add_secretbag(PKCS12_BUILDER * pb, int secret_nid, const char * secret, const PKCS12_ATTR * attrs)
 {
 	PKCS12_SAFEBAG * bag = NULL;
-
 	if(!pb->success)
 		return;
-
 	TEST_info("Adding secret <%s>", secret);
-
 	bag = PKCS12_add_secret(&pb->bags, secret_nid, (const unsigned char*)secret, strlen(secret));
 	if(!TEST_ptr(bag)) {
 		pb->success = 0;
@@ -409,19 +383,15 @@ void add_secretbag(PKCS12_BUILDER * pb, int secret_nid, const char * secret,
 	if(!add_attributes(bag, attrs))
 		pb->success = 0;
 }
-
-/* -------------------------------------------------------------------------
- * PKCS12 structure checking
- */
-
+// 
+// PKCS12 structure checking
+// 
 static int check_asn1_string(const ASN1_TYPE * av, const char * txt)
 {
 	int ret = 0;
 	char * value = NULL;
-
 	if(!TEST_ptr(av))
 		goto err;
-
 	switch(av->type) {
 		case V_ASN1_BMPSTRING:
 		    value = OPENSSL_uni2asc(av->value.bmpstring->data,

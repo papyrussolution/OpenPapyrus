@@ -96,18 +96,18 @@ OSSL_PARAM_BLD * OSSL_PARAM_BLD_new(void)
 
 static void free_all_params(OSSL_PARAM_BLD * bld)
 {
-	int i, n = sk_OSSL_PARAM_BLD_DEF_num(bld->params);
-	for(i = 0; i < n; i++)
+	const int n = sk_OSSL_PARAM_BLD_DEF_num(bld->params);
+	for(int i = 0; i < n; i++)
 		OPENSSL_free(sk_OSSL_PARAM_BLD_DEF_pop(bld->params));
 }
 
 void OSSL_PARAM_BLD_free(OSSL_PARAM_BLD * bld)
 {
-	if(bld == NULL)
-		return;
-	free_all_params(bld);
-	sk_OSSL_PARAM_BLD_DEF_free(bld->params);
-	OPENSSL_free(bld);
+	if(bld) {
+		free_all_params(bld);
+		sk_OSSL_PARAM_BLD_DEF_free(bld->params);
+		OPENSSL_free(bld);
+	}
 }
 
 int OSSL_PARAM_BLD_push_int(OSSL_PARAM_BLD * bld, const char * key, int num)
@@ -115,92 +115,70 @@ int OSSL_PARAM_BLD_push_int(OSSL_PARAM_BLD * bld, const char * key, int num)
 	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_INTEGER);
 }
 
-int OSSL_PARAM_BLD_push_uint(OSSL_PARAM_BLD * bld, const char * key,
-    unsigned int num)
+int OSSL_PARAM_BLD_push_uint(OSSL_PARAM_BLD * bld, const char * key, unsigned int num)
 {
-	return param_push_num(bld, key, &num, sizeof(num),
-		   OSSL_PARAM_UNSIGNED_INTEGER);
+	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_UNSIGNED_INTEGER);
 }
 
-int OSSL_PARAM_BLD_push_long(OSSL_PARAM_BLD * bld, const char * key,
-    long int num)
+int OSSL_PARAM_BLD_push_long(OSSL_PARAM_BLD * bld, const char * key, long int num)
 {
 	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_INTEGER);
 }
 
-int OSSL_PARAM_BLD_push_ulong(OSSL_PARAM_BLD * bld, const char * key,
-    unsigned long int num)
+int OSSL_PARAM_BLD_push_ulong(OSSL_PARAM_BLD * bld, const char * key, unsigned long int num)
 {
-	return param_push_num(bld, key, &num, sizeof(num),
-		   OSSL_PARAM_UNSIGNED_INTEGER);
+	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_UNSIGNED_INTEGER);
 }
 
-int OSSL_PARAM_BLD_push_int32(OSSL_PARAM_BLD * bld, const char * key,
-    int32_t num)
+int OSSL_PARAM_BLD_push_int32(OSSL_PARAM_BLD * bld, const char * key, int32_t num)
 {
 	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_INTEGER);
 }
 
-int OSSL_PARAM_BLD_push_uint32(OSSL_PARAM_BLD * bld, const char * key,
-    uint32_t num)
+int OSSL_PARAM_BLD_push_uint32(OSSL_PARAM_BLD * bld, const char * key, uint32_t num)
 {
-	return param_push_num(bld, key, &num, sizeof(num),
-		   OSSL_PARAM_UNSIGNED_INTEGER);
+	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_UNSIGNED_INTEGER);
 }
 
-int OSSL_PARAM_BLD_push_int64(OSSL_PARAM_BLD * bld, const char * key,
-    int64_t num)
+int OSSL_PARAM_BLD_push_int64(OSSL_PARAM_BLD * bld, const char * key, int64_t num)
 {
 	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_INTEGER);
 }
 
-int OSSL_PARAM_BLD_push_uint64(OSSL_PARAM_BLD * bld, const char * key,
-    uint64_t num)
+int OSSL_PARAM_BLD_push_uint64(OSSL_PARAM_BLD * bld, const char * key, uint64_t num)
 {
-	return param_push_num(bld, key, &num, sizeof(num),
-		   OSSL_PARAM_UNSIGNED_INTEGER);
+	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_UNSIGNED_INTEGER);
 }
 
-int OSSL_PARAM_BLD_push_size_t(OSSL_PARAM_BLD * bld, const char * key,
-    size_t num)
+int OSSL_PARAM_BLD_push_size_t(OSSL_PARAM_BLD * bld, const char * key, size_t num)
 {
-	return param_push_num(bld, key, &num, sizeof(num),
-		   OSSL_PARAM_UNSIGNED_INTEGER);
+	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_UNSIGNED_INTEGER);
 }
 
-int OSSL_PARAM_BLD_push_time_t(OSSL_PARAM_BLD * bld, const char * key,
-    time_t num)
+int OSSL_PARAM_BLD_push_time_t(OSSL_PARAM_BLD * bld, const char * key, time_t num)
 {
-	return param_push_num(bld, key, &num, sizeof(num),
-		   OSSL_PARAM_INTEGER);
+	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_INTEGER);
 }
 
-int OSSL_PARAM_BLD_push_double(OSSL_PARAM_BLD * bld, const char * key,
-    double num)
+int OSSL_PARAM_BLD_push_double(OSSL_PARAM_BLD * bld, const char * key, double num)
 {
 	return param_push_num(bld, key, &num, sizeof(num), OSSL_PARAM_REAL);
 }
 
-int OSSL_PARAM_BLD_push_BN(OSSL_PARAM_BLD * bld, const char * key,
-    const BIGNUM * bn)
+int OSSL_PARAM_BLD_push_BN(OSSL_PARAM_BLD * bld, const char * key, const BIGNUM * bn)
 {
-	return OSSL_PARAM_BLD_push_BN_pad(bld, key, bn,
-		   bn == NULL ? 0 : BN_num_bytes(bn));
+	return OSSL_PARAM_BLD_push_BN_pad(bld, key, bn, bn == NULL ? 0 : BN_num_bytes(bn));
 }
 
-int OSSL_PARAM_BLD_push_BN_pad(OSSL_PARAM_BLD * bld, const char * key,
-    const BIGNUM * bn, size_t sz)
+int OSSL_PARAM_BLD_push_BN_pad(OSSL_PARAM_BLD * bld, const char * key, const BIGNUM * bn, size_t sz)
 {
 	int n, secure = 0;
 	OSSL_PARAM_BLD_DEF * pd;
-
 	if(bn != NULL) {
 		if(BN_is_negative(bn)) {
-			ERR_raise_data(ERR_LIB_CRYPTO, ERR_R_UNSUPPORTED,
-			    "Negative big numbers are unsupported for OSSL_PARAM");
+			ERR_raise_data(ERR_LIB_CRYPTO, ERR_R_UNSUPPORTED, "Negative big numbers are unsupported for OSSL_PARAM");
 			return 0;
 		}
-
 		n = BN_num_bytes(bn);
 		if(n < 0) {
 			ERR_raise(ERR_LIB_CRYPTO, CRYPTO_R_ZERO_LENGTH_NUMBER);
@@ -220,12 +198,10 @@ int OSSL_PARAM_BLD_push_BN_pad(OSSL_PARAM_BLD * bld, const char * key,
 	return 1;
 }
 
-int OSSL_PARAM_BLD_push_utf8_string(OSSL_PARAM_BLD * bld, const char * key,
-    const char * buf, size_t bsize)
+int OSSL_PARAM_BLD_push_utf8_string(OSSL_PARAM_BLD * bld, const char * key, const char * buf, size_t bsize)
 {
 	OSSL_PARAM_BLD_DEF * pd;
 	int secure;
-
 	if(bsize == 0) {
 		bsize = strlen(buf);
 	}
@@ -241,11 +217,9 @@ int OSSL_PARAM_BLD_push_utf8_string(OSSL_PARAM_BLD * bld, const char * key,
 	return 1;
 }
 
-int OSSL_PARAM_BLD_push_utf8_ptr(OSSL_PARAM_BLD * bld, const char * key,
-    char * buf, size_t bsize)
+int OSSL_PARAM_BLD_push_utf8_ptr(OSSL_PARAM_BLD * bld, const char * key, char * buf, size_t bsize)
 {
 	OSSL_PARAM_BLD_DEF * pd;
-
 	if(bsize == 0) {
 		bsize = strlen(buf);
 	}
@@ -260,12 +234,10 @@ int OSSL_PARAM_BLD_push_utf8_ptr(OSSL_PARAM_BLD * bld, const char * key,
 	return 1;
 }
 
-int OSSL_PARAM_BLD_push_octet_string(OSSL_PARAM_BLD * bld, const char * key,
-    const void * buf, size_t bsize)
+int OSSL_PARAM_BLD_push_octet_string(OSSL_PARAM_BLD * bld, const char * key, const void * buf, size_t bsize)
 {
 	OSSL_PARAM_BLD_DEF * pd;
 	int secure;
-
 	if(bsize > INT_MAX) {
 		ERR_raise(ERR_LIB_CRYPTO, CRYPTO_R_STRING_TOO_LONG);
 		return 0;
@@ -278,11 +250,9 @@ int OSSL_PARAM_BLD_push_octet_string(OSSL_PARAM_BLD * bld, const char * key,
 	return 1;
 }
 
-int OSSL_PARAM_BLD_push_octet_ptr(OSSL_PARAM_BLD * bld, const char * key,
-    void * buf, size_t bsize)
+int OSSL_PARAM_BLD_push_octet_ptr(OSSL_PARAM_BLD * bld, const char * key, void * buf, size_t bsize)
 {
 	OSSL_PARAM_BLD_DEF * pd;
-
 	if(bsize > INT_MAX) {
 		ERR_raise(ERR_LIB_CRYPTO, CRYPTO_R_STRING_TOO_LONG);
 		return 0;

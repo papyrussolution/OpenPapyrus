@@ -286,7 +286,7 @@ int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, bool readOnly)
 		THROW(Sync.CreateMutex_(session_id, PPCFGOBJ_JOBPOOL, 1, 0, 0));
 	}
 	if(readOnly || Sync.IsMyLock(session_id, PPCFGOBJ_JOBPOOL, 1) > 0) {
-		THROW(fileExists(XmlFilePath));
+		THROW_SL(fileExists(XmlFilePath));
 		THROW(p_xml_parser = xmlNewParserCtxt());
 		THROW_LXML(p_doc = xmlCtxtReadFile(p_xml_parser, XmlFilePath, 0, XML_PARSE_NOENT), p_xml_parser);
 		for(const xmlNode * p_root = p_doc->children; p_root; p_root = p_root->next) {
@@ -4060,10 +4060,7 @@ public:
 	JOB_HDL_CLS(PROCESSEDI)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int EditParam(SBuffer * pParam, void * extraPtr)
-	{
-		return -1;
-	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr) { return -1; }
 	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		return -1;
@@ -4281,10 +4278,7 @@ public:
 	JOB_HDL_CLS(FTSINDEXING)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int EditParam(SBuffer * pParam, void * extraPtr)
-	{
-		return -1;
-	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr) { return -1; }
 	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
@@ -4330,10 +4324,7 @@ public:
 	JOB_HDL_CLS(STYLOQSENDINDEXINGCONTENT)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int EditParam(SBuffer * pParam, void * extraPtr)
-	{
-		return -1;
-	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr) { return -1; }
 	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		return PPStyloQInterchange::ExecuteIndexingRequest(false);
@@ -4341,3 +4332,19 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(STYLOQSENDINDEXINGCONTENT);
+//
+//
+//
+class JOB_HDL_CLS(STYLOQPREPAREAHEAD) : public PPJobHandler {
+public:
+	JOB_HDL_CLS(STYLOQPREPAREAHEAD)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr) { return -1; }
+	virtual int Run(SBuffer * pParam, void * extraPtr)
+	{
+		return PPStyloQInterchange::PrepareAhed(false);
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(STYLOQPREPAREAHEAD);

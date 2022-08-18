@@ -171,13 +171,10 @@ static int check_rng(EVP_RAND_CTX * rng, const char * name)
 OSSL_PROVIDER * fake_rand_start(OSSL_LIB_CTX * libctx)
 {
 	OSSL_PROVIDER * p;
-
-	if(!TEST_true(OSSL_PROVIDER_add_builtin(libctx, "fake-rand",
-	    fake_rand_provider_init))
+	if(!TEST_true(OSSL_PROVIDER_add_builtin(libctx, "fake-rand", fake_rand_provider_init))
 	    || !TEST_true(RAND_set_DRBG_type(libctx, "fake", NULL, NULL, NULL))
 	    || !TEST_ptr(p = OSSL_PROVIDER_try_load(libctx, "fake-rand", 1)))
 		return NULL;
-
 	/* Ensure that the fake rand is initialized. */
 	if(!TEST_true(check_rng(RAND_get0_primary(libctx), "primary"))
 	    || !TEST_true(check_rng(RAND_get0_private(libctx), "private"))
@@ -185,7 +182,6 @@ OSSL_PROVIDER * fake_rand_start(OSSL_LIB_CTX * libctx)
 		OSSL_PROVIDER_unload(p);
 		return NULL;
 	}
-
 	return p;
 }
 

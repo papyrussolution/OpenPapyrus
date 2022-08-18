@@ -2536,9 +2536,9 @@ struct SUniTime_Inner {
 #define TICKSPERMIN        600000000
 #define TICKSPERSEC        10000000
 #define TICKSPERMSEC       10000
-#define SECSPERDAY         86400
-#define _YEAR_SEC          (365 * SECSPERDAY) // secs in a year
-#define SECSPERHOUR        3600
+//#define SECSPERDAY         86400
+#define _YEAR_SEC          (365 * SSECSPERDAY) // secs in a year
+//#define SECSPERHOUR        3600
 #define SECSPERMIN         60
 #define MINSPERHOUR        60
 #define HOURSPERDAY        24
@@ -2605,8 +2605,8 @@ static int FASTCALL DaysSinceEpoch(int year)
 
 #define ConvertMillisecondsTo100ns(MILLISECONDS) ((MILLISECONDS)*10000LL)
 #define Convert100nsToMilliseconds(v) ((v) / 10000LL)
-#define ConvertMillisecondsToDays(v)  ((v) / (SECSPERDAY * 1000))
-#define ConvertDaysToMilliseconds(DAYS) ((DAYS) * (SECSPERDAY * 1000))
+#define ConvertMillisecondsToDays(v)  ((v) / (SSECSPERDAY * 1000))
+#define ConvertDaysToMilliseconds(DAYS) ((DAYS) * (SSECSPERDAY * 1000))
 //
 // Descr: This routine converts an input 64-bit time value to the number
 //   of total elapsed days and the number of milliseconds in the partial day.

@@ -1735,7 +1735,7 @@ PIXA * recogAddDigitPadTemplates(L_RECOG  * recog, SARRAY * sa)
 		text = pixGetText(pix);
 		for(j = 0; j < nt; j++) {
 			str = sarrayGetString(sa, j, L_NOCOPY);
-			if(!strcmp(text, str)) {
+			if(sstreq(text, str)) {
 				pixaAddPix(pixa2, pix, L_COPY);
 				break;
 			}

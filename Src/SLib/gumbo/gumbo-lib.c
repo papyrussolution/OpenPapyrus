@@ -361,10 +361,7 @@ void FASTCALL gumbo_vector_init(size_t initial_capacity, GumboVector* vector)
 {
 	vector->length = 0;
 	vector->capacity = initial_capacity;
-	if(initial_capacity > 0)
-		vector->data = static_cast<void **>(SAlloc::M(sizeof(void *) * initial_capacity));
-	else
-		vector->data = NULL;
+	vector->data = (initial_capacity > 0) ? static_cast<void **>(SAlloc::M(sizeof(void *) * initial_capacity)) : 0;
 }
 
 void FASTCALL gumbo_vector_destroy(GumboVector* vector) 

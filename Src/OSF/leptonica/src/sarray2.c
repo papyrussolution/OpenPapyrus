@@ -598,7 +598,7 @@ l_ok sarrayLookupCSKV(SARRAY * sa, const char * keystring, char ** pvalstring)
 		}
 		key = sarrayGetString(sa1, 0, L_NOCOPY);
 		val = sarrayGetString(sa1, 1, L_NOCOPY);
-		if(!strcmp(key, keystring)) {
+		if(sstreq(key, keystring)) {
 			*pvalstring = stringNew(val);
 			sarrayDestroy(&sa1);
 			return 0;

@@ -67,21 +67,18 @@ typedef unsigned int uintptr_t;
     #define LEPT_DLL
   #endif  /* _WIN32 */
 #endif  /* LEPT_DLL */
-
 #ifndef _WIN32  /* non-Windows specifics */
-  #include <stdint.h>
+	#include <stdint.h>
 #endif  /* _WIN32 */
 
 typedef intptr_t l_intptr_t;
 typedef uintptr_t l_uintptr_t;
-
-/*--------------------------------------------------------------------*
-* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*
-*                          USER CONFIGURABLE                         *
-* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*
-*               Environment variables with I/O libraries             *
-*               Manual Configuration Only: NOT AUTO_CONF             *
-*--------------------------------------------------------------------*/
+// 
+// USER CONFIGURABLE
+// 
+// Environment variables with I/O libraries
+// Manual Configuration Only: NOT AUTO_CONF
+// 
 /*
  *  Leptonica provides interfaces to link to several external image
  *  I/O libraries, plus zlib.  Setting any of these to 0 here causes
@@ -116,22 +113,19 @@ typedef uintptr_t l_uintptr_t;
   #if !defined(HAVE_LIBJP2K)
 	#define  HAVE_LIBJP2K       1
   #endif
-
-/*-----------------------------------------------------------------------*
-* Leptonica supports OpenJPEG 2.0+.  If you have a version of openjpeg  *
-* (HAVE_LIBJP2K == 1) that is >= 2.0, set the path to the openjpeg.h    *
-* header in angle brackets here.                                        *
-*-----------------------------------------------------------------------*/
-  // @sobolev #define  LIBJP2K_HEADER   <lib/openjp2/openjpeg.h>
+// 
+// Leptonica supports OpenJPEG 2.0+.  If you have a version of openjpeg
+// (HAVE_LIBJP2K == 1) that is >= 2.0, set the path to the openjpeg.h
+// header in angle brackets here.
+// 
+// @sobolev #define  LIBJP2K_HEADER   <lib/openjp2/openjpeg.h>
 
 #endif  /* ! HAVE_CONFIG_H etc. */
-
-/*--------------------------------------------------------------------*
-* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*
-*                          USER CONFIGURABLE                         *
-* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*
-*     Environ variables for image I/O without external libraries     *
-*--------------------------------------------------------------------*/
+// 
+// USER CONFIGURABLE
+//
+// Environ variables for image I/O without external libraries
+// 
 /*
  *  Leptonica supplies I/O support without using external libraries for:
  *     * image read/write for bmp, pnm
@@ -509,12 +503,8 @@ LEPT_DLL extern int32 LeptMsgSeverity;
 #endif
 
 #endif  /* NO_CONSOLE_IO */
-
-/*------------------------------------------------------------------------*
-*              snprintf() renamed in MSVC (pre-VS2015)                   *
-*------------------------------------------------------------------------*/
+// snprintf() renamed in MSVC (pre-VS2015)
 #if defined _MSC_VER && _MSC_VER < 1900
-#define snprintf(buf, size, ...)  _snprintf_s(buf, size, _TRUNCATE, __VA_ARGS__)
+	#define snprintf(buf, size, ...)  _snprintf_s(buf, size, _TRUNCATE, __VA_ARGS__)
 #endif
-
 #endif /* LEPTONICA_ENVIRON_H */

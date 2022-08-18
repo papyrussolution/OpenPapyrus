@@ -128,7 +128,7 @@ l_ok regTestSetup(int32 argc,
 	lept_mkdir("lept/regout");
 
 	/* Only open a stream to a temp file for the 'compare' case */
-	if(argc == 1 || !strcmp(argv[1], "compare")) {
+	if(argc == 1 || sstreq(argv[1], "compare")) {
 		rp->mode = L_REG_COMPARE;
 		rp->tempfile = stringNew("/tmp/lept/regout/regtest_output.txt");
 		rp->fp = fopenWriteStream(rp->tempfile, "wb");
@@ -137,11 +137,11 @@ l_ok regTestSetup(int32 argc,
 			return ERROR_INT("stream not opened for tempfile", procName, 1);
 		}
 	}
-	else if(!strcmp(argv[1], "generate")) {
+	else if(sstreq(argv[1], "generate")) {
 		rp->mode = L_REG_GENERATE;
 		lept_mkdir("lept/golden");
 	}
-	else if(!strcmp(argv[1], "display")) {
+	else if(sstreq(argv[1], "display")) {
 		rp->mode = L_REG_DISPLAY;
 		rp->display = TRUE;
 	}

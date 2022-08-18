@@ -27,7 +27,7 @@ struct filter_prov_globals_st {
 
 	int num_dispatch;
 	int no_cache;
-	unsigned long int query_count;
+	ulong query_count;
 	int error;
 };
 

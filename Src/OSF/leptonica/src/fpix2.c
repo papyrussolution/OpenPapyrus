@@ -1917,10 +1917,9 @@ FPIX * fpixFlipTB(FPIX  * fpixd,
 	SAlloc::F(buffer);
 	return fpixd;
 }
-
-/*--------------------------------------------------------------------*
-*            Affine and projective interpolated transforms           *
-*--------------------------------------------------------------------*/
+// 
+// Affine and projective interpolated transforms
+// 
 /*!
  * \brief   fpixAffinePta()
  *
@@ -1943,25 +1942,18 @@ FPIX * fpixFlipTB(FPIX  * fpixd,
  *          case, set %border == 0.
  * </pre>
  */
-FPIX * fpixAffinePta(FPIX * fpixs,
-    PTA * ptad,
-    PTA * ptas,
-    int32 border,
-    float inval)
+FPIX * fpixAffinePta(FPIX * fpixs, PTA * ptad, PTA * ptas, int32 border, float inval)
 {
 	float * vc;
 	PTA * ptas2, * ptad2;
 	FPIX       * fpixs2, * fpixd, * fpixd2;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!fpixs)
 		return (FPIX*)ERROR_PTR("fpixs not defined", procName, NULL);
 	if(!ptas)
 		return (FPIX*)ERROR_PTR("ptas not defined", procName, NULL);
 	if(!ptad)
 		return (FPIX*)ERROR_PTR("ptad not defined", procName, NULL);
-
 	/* If a border is to be added, also translate the ptas */
 	if(border > 0) {
 		ptas2 = ptaTransform(ptas, border, border, 1.0, 1.0);
@@ -1973,7 +1965,6 @@ FPIX * fpixAffinePta(FPIX * fpixs,
 		ptad2 = ptaClone(ptad);
 		fpixs2 = fpixClone(fpixs);
 	}
-
 	/* Get backwards transform from dest to src, and apply it */
 	getAffineXformCoeffs(ptad2, ptas2, &vc);
 	fpixd2 = fpixAffine(fpixs2, vc, inval);
@@ -1981,16 +1972,13 @@ FPIX * fpixAffinePta(FPIX * fpixs,
 	ptaDestroy(&ptas2);
 	ptaDestroy(&ptad2);
 	SAlloc::F(vc);
-
 	if(border == 0)
 		return fpixd2;
-
 	/* Remove the added border */
 	fpixd = fpixRemoveBorder(fpixd2, border, border, border, border);
 	fpixDestroy(&fpixd2);
 	return fpixd;
 }
-
 /*!
  * \brief   fpixAffine()
  *
@@ -1999,30 +1987,24 @@ FPIX * fpixAffinePta(FPIX * fpixs,
  * \param[in]    inval    value brought in; typ. 0
  * \return  fpixd, or NULL on error
  */
-FPIX * fpixAffine(FPIX       * fpixs,
-    float * vc,
-    float inval)
+FPIX * fpixAffine(FPIX       * fpixs, float * vc, float inval)
 {
 	int32 i, j, w, h, wpld;
 	float val;
 	float * datas, * datad, * lined;
 	float x, y;
 	FPIX       * fpixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!fpixs)
 		return (FPIX*)ERROR_PTR("fpixs not defined", procName, NULL);
 	fpixGetDimensions(fpixs, &w, &h);
 	if(!vc)
 		return (FPIX*)ERROR_PTR("vc not defined", procName, NULL);
-
 	datas = fpixGetData(fpixs);
 	fpixd = fpixCreateTemplate(fpixs);
 	fpixSetAllArbitrary(fpixd, inval);
 	datad = fpixGetData(fpixd);
 	wpld = fpixGetWpl(fpixd);
-
 	/* Iterate over destination pixels */
 	for(i = 0; i < h; i++) {
 		lined = datad + i * wpld;
@@ -2033,10 +2015,8 @@ FPIX * fpixAffine(FPIX       * fpixs,
 			*(lined + j) = val;
 		}
 	}
-
 	return fpixd;
 }
-
 /*!
  * \brief   fpixProjectivePta()
  *
@@ -2059,25 +2039,18 @@ FPIX * fpixAffine(FPIX       * fpixs,
  *          case, set %border == 0.
  * </pre>
  */
-FPIX * fpixProjectivePta(FPIX * fpixs,
-    PTA * ptad,
-    PTA * ptas,
-    int32 border,
-    float inval)
+FPIX * fpixProjectivePta(FPIX * fpixs, PTA * ptad, PTA * ptas, int32 border, float inval)
 {
 	float * vc;
 	PTA * ptas2, * ptad2;
 	FPIX       * fpixs2, * fpixd, * fpixd2;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!fpixs)
 		return (FPIX*)ERROR_PTR("fpixs not defined", procName, NULL);
 	if(!ptas)
 		return (FPIX*)ERROR_PTR("ptas not defined", procName, NULL);
 	if(!ptad)
 		return (FPIX*)ERROR_PTR("ptad not defined", procName, NULL);
-
 	/* If a border is to be added, also translate the ptas */
 	if(border > 0) {
 		ptas2 = ptaTransform(ptas, border, border, 1.0, 1.0);
@@ -2089,7 +2062,6 @@ FPIX * fpixProjectivePta(FPIX * fpixs,
 		ptad2 = ptaClone(ptad);
 		fpixs2 = fpixClone(fpixs);
 	}
-
 	/* Get backwards transform from dest to src, and apply it */
 	getProjectiveXformCoeffs(ptad2, ptas2, &vc);
 	fpixd2 = fpixProjective(fpixs2, vc, inval);
@@ -2097,16 +2069,13 @@ FPIX * fpixProjectivePta(FPIX * fpixs,
 	ptaDestroy(&ptas2);
 	ptaDestroy(&ptad2);
 	SAlloc::F(vc);
-
 	if(border == 0)
 		return fpixd2;
-
 	/* Remove the added border */
 	fpixd = fpixRemoveBorder(fpixd2, border, border, border, border);
 	fpixDestroy(&fpixd2);
 	return fpixd;
 }
-
 /*!
  * \brief   fpixProjective()
  *
@@ -2115,30 +2084,24 @@ FPIX * fpixProjectivePta(FPIX * fpixs,
  * \param[in]    inval     value brought in; typ. 0
  * \return  fpixd, or NULL on error
  */
-FPIX * fpixProjective(FPIX       * fpixs,
-    float * vc,
-    float inval)
+FPIX * fpixProjective(FPIX       * fpixs, float * vc, float inval)
 {
 	int32 i, j, w, h, wpld;
 	float val;
 	float * datas, * datad, * lined;
 	float x, y;
 	FPIX       * fpixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!fpixs)
 		return (FPIX*)ERROR_PTR("fpixs not defined", procName, NULL);
 	fpixGetDimensions(fpixs, &w, &h);
 	if(!vc)
 		return (FPIX*)ERROR_PTR("vc not defined", procName, NULL);
-
 	datas = fpixGetData(fpixs);
 	fpixd = fpixCreateTemplate(fpixs);
 	fpixSetAllArbitrary(fpixd, inval);
 	datad = fpixGetData(fpixd);
 	wpld = fpixGetWpl(fpixd);
-
 	/* Iterate over destination pixels */
 	for(i = 0; i < h; i++) {
 		lined = datad + i * wpld;
@@ -2149,10 +2112,8 @@ FPIX * fpixProjective(FPIX       * fpixs,
 			*(lined + j) = val;
 		}
 	}
-
 	return fpixd;
 }
-
 /*!
  * \brief   linearInterpolatePixelFloat()
  *
@@ -2171,20 +2132,12 @@ FPIX * fpixProjective(FPIX       * fpixs,
  *          avoids "jaggies" when rendering sharp edges.
  * </pre>
  */
-l_ok linearInterpolatePixelFloat(float * datas,
-    int32 w,
-    int32 h,
-    float x,
-    float y,
-    float inval,
-    float * pval)
+l_ok linearInterpolatePixelFloat(float * datas, int32 w, int32 h, float x, float y, float inval, float * pval)
 {
 	int32 xpm, ypm, xp, yp, xf, yf;
 	float v00, v01, v10, v11;
 	float * lines;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
 	*pval = inval;
@@ -2194,19 +2147,16 @@ l_ok linearInterpolatePixelFloat(float * datas,
 	/* Skip if off the edge */
 	if(x < 0.0 || y < 0.0 || x > w - 2.0 || y > h - 2.0)
 		return 0;
-
 	xpm = (int32)(16.0 * x + 0.5);
 	ypm = (int32)(16.0 * y + 0.5);
 	xp = xpm >> 4;
 	yp = ypm >> 4;
 	xf = xpm & 0x0f;
 	yf = ypm & 0x0f;
-
 #if  DEBUG
 	if(xf < 0 || yf < 0)
 		lept_stderr("xp = %d, yp = %d, xf = %d, yf = %d\n", xp, yp, xf, yf);
 #endif  /* DEBUG */
-
 	/* Interpolate by area weighting. */
 	lines = datas + yp * w;
 	v00 = (16.0 - xf) * (16.0 - yf) * (*(lines + xp));
@@ -2216,10 +2166,9 @@ l_ok linearInterpolatePixelFloat(float * datas,
 	*pval = (v00 + v01 + v10 + v11) / 256.0;
 	return 0;
 }
-
-/*--------------------------------------------------------------------*
-*                      Thresholding to 1 bpp Pix                     *
-*--------------------------------------------------------------------*/
+// 
+// Thresholding to 1 bpp Pix
+// 
 /*!
  * \brief   fpixThresholdToPix()
  *
@@ -2233,19 +2182,15 @@ l_ok linearInterpolatePixelFloat(float * datas,
  *          in pixd to 1.
  * </pre>
  */
-PIX * fpixThresholdToPix(FPIX * fpix,
-    float thresh)
+PIX * fpixThresholdToPix(FPIX * fpix, float thresh)
 {
 	int32 i, j, w, h, wpls, wpld;
 	float * datas, * lines;
 	uint32   * datad, * lined;
 	PIX * pixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!fpix)
 		return (PIX *)ERROR_PTR("fpix not defined", procName, NULL);
-
 	fpixGetDimensions(fpix, &w, &h);
 	datas = fpixGetData(fpix);
 	wpls = fpixGetWpl(fpix);
@@ -2260,13 +2205,11 @@ PIX * fpixThresholdToPix(FPIX * fpix,
 				SET_DATA_BIT(lined, j);
 		}
 	}
-
 	return pixd;
 }
-
-/*--------------------------------------------------------------------*
-*                Generate function from components                   *
-*--------------------------------------------------------------------*/
+// 
+// Generate function from components
+// 
 /*!
  * \brief   pixComponentFunction()
  *
@@ -2289,25 +2232,16 @@ PIX * fpixThresholdToPix(FPIX * fpix,
  *
  * </pre>
  */
-FPIX * pixComponentFunction(PIX * pix,
-    float rnum,
-    float gnum,
-    float bnum,
-    float rdenom,
-    float gdenom,
-    float bdenom)
+FPIX * pixComponentFunction(PIX * pix, float rnum, float gnum, float bnum, float rdenom, float gdenom, float bdenom)
 {
 	int32 i, j, w, h, wpls, wpld, rval, gval, bval, zerodenom, onedenom;
 	float fnum, fdenom;
 	uint32   * datas, * lines;
 	float * datad, * lined, * recip;
 	FPIX       * fpixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pix || pixGetDepth(pix) != 32)
 		return (FPIX*)ERROR_PTR("pix undefined or not 32 bpp", procName, NULL);
-
 	pixGetDimensions(pix, &w, &h, NULL);
 	datas = pixGetData(pix);
 	wpls = pixGetWpl(pix);
@@ -2315,9 +2249,7 @@ FPIX * pixComponentFunction(PIX * pix,
 	datad = fpixGetData(fpixd);
 	wpld = fpixGetWpl(fpixd);
 	zerodenom = (rdenom == 0.0 && gdenom == 0.0 && bdenom == 0.0) ? 1 : 0;
-	onedenom = ((rdenom == 1.0 && gdenom == 0.0 && bdenom == 0.0) ||
-	    (rdenom == 0.0 && gdenom == 1.0 && bdenom == 0.0) ||
-	    (rdenom == 0.0 && gdenom == 0.0 && bdenom == 1.0)) ? 1 : 0;
+	onedenom = ((rdenom == 1.0 && gdenom == 0.0 && bdenom == 0.0) || (rdenom == 0.0 && gdenom == 1.0 && bdenom == 0.0) || (rdenom == 0.0 && gdenom == 0.0 && bdenom == 1.0)) ? 1 : 0;
 	recip = NULL;
 	if(onedenom) {
 		recip = (float *)SAlloc::C(256, sizeof(float));
@@ -2337,22 +2269,19 @@ FPIX * pixComponentFunction(PIX * pix,
 		else if(onedenom && rdenom == 1.0) {
 			for(j = 0; j < w; j++) {
 				extractRGBValues(lines[j], &rval, &gval, &bval);
-				lined[j]
-					= recip[rval] * (rnum * rval + gnum * gval + bnum * bval);
+				lined[j] = recip[rval] * (rnum * rval + gnum * gval + bnum * bval);
 			}
 		}
 		else if(onedenom && gdenom == 1.0) {
 			for(j = 0; j < w; j++) {
 				extractRGBValues(lines[j], &rval, &gval, &bval);
-				lined[j]
-					= recip[gval] * (rnum * rval + gnum * gval + bnum * bval);
+				lined[j] = recip[gval] * (rnum * rval + gnum * gval + bnum * bval);
 			}
 		}
 		else if(onedenom && bdenom == 1.0) {
 			for(j = 0; j < w; j++) {
 				extractRGBValues(lines[j], &rval, &gval, &bval);
-				lined[j]
-					= recip[bval] * (rnum * rval + gnum * gval + bnum * bval);
+				lined[j] = recip[bval] * (rnum * rval + gnum * gval + bnum * bval);
 			}
 		}
 		else { /* general case */
@@ -2364,7 +2293,6 @@ FPIX * pixComponentFunction(PIX * pix,
 			}
 		}
 	}
-
 	SAlloc::F(recip);
 	return fpixd;
 }

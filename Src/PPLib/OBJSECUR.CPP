@@ -702,8 +702,8 @@ int PPObjSecur::ProcessReservedItem(TVRez & rez)
 	SString name;
 	PPID   id = (PPID)rez.getUINT();
 	rez.getString(name, 2);
-	PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.4.4
-	if(stricmp(name, PPSession::P_JobLogin) == 0) {
+	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
+	if(sstreqi_ascii(name, PPSession::P_JobLogin)) {
 		PPID   temp_id = 0;
 		PPSecur temp_rec;
 		THROW(r = SearchByName(PPSession::P_JobLogin, &temp_id, &temp_rec));

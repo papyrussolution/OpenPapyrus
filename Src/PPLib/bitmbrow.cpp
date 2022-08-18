@@ -3053,8 +3053,7 @@ private:
 	{
 		if(TVKEYDOWN) {
 			uchar  c = TVCHR;
-			// @v10.9.8 if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || isdec(c)) {
-			if(isasciialnum(c)) { // @v10.9.8 
+			if(isasciialnum(c)) {
 				LotExtCodeTbl::Rec rec;
 				PPLotExtCodeContainer::MarkSet set;
 				if(EditItemDialog(rec, c, set) > 0) {

@@ -683,9 +683,9 @@ int GnuPlot::GGmTime(struct tm * pTm, double l_clock)
 		if(l_clock >= 0) {
 			for(;;) {
 				int days_in_year = gdysize(pTm->tm_year);
-				if(l_clock < days_in_year * DAY_SEC)
+				if(l_clock < days_in_year * SSECSPERDAYr)
 					break;
-				l_clock -= days_in_year * DAY_SEC;
+				l_clock -= days_in_year * SSECSPERDAYr;
 				pTm->tm_year++;
 				// only interested in result modulo 7, but %7 is expensive 
 				wday += (days_in_year - 364);
@@ -694,13 +694,13 @@ int GnuPlot::GGmTime(struct tm * pTm, double l_clock)
 		else {
 			while(l_clock < 0) {
 				int days_in_year = gdysize(--pTm->tm_year);
-				l_clock += days_in_year * DAY_SEC; // 24*3600 
+				l_clock += days_in_year * SSECSPERDAYr; // 24*3600 
 				// adding 371 is noop in modulo 7 arithmetic, but keeps wday +ve 
 				wday += 371 - days_in_year;
 			}
 		}
-		pTm->tm_yday = (int)(l_clock / DAY_SEC);
-		l_clock -= pTm->tm_yday * DAY_SEC;
+		pTm->tm_yday = (int)(l_clock / SSECSPERDAYr);
+		l_clock -= pTm->tm_yday * SSECSPERDAYr;
 		pTm->tm_hour = (int)l_clock / 3600;
 		l_clock -= pTm->tm_hour * 3600;
 		pTm->tm_min = (int)l_clock / 60;

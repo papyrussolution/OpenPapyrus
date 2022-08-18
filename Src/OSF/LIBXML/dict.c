@@ -252,7 +252,7 @@ static const xmlChar * xmlDictAddQString(xmlDict * dict, const xmlChar * prefix,
 	slfprintf_stderr("=");
 #endif
 	pool = dict->strings;
-	while(pool != NULL) {
+	while(pool) {
 		if((pool->end - pool->free) > (int)(namelen + plen + 1))
 			goto found_pool;
 		if(pool->size > size) 

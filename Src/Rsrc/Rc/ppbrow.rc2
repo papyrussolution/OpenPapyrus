@@ -7058,6 +7058,7 @@ job TimeSeriesSA         { "@{cmd_tsstrategyanalyze}" } // @v10.8.8
 job ExportPrjTasks       { "@{job_exportprjtasks}" }  // @v11.3.3
 job FtsIndexing          { "@{job_ftsindexing}" } // @v11.3.4
 job StyloQSendIndexingContent { "@{job_styloqsendindexingcontent}" nologin } // @v11.3.5
+job StyloQPrepareAhead        { "@{job_styloqprepareahead}" nologin } // @v11.4.8
 //
 // -------------- Описания объектов данных PPObject
 //

@@ -9,7 +9,6 @@
 #include "testutil.h"
 
 static char * configfile = NULL;
-
 /*
  * Test to make sure there are no leaks or failures from loading the config
  * file twice.
@@ -23,17 +22,14 @@ static int test_double_config(void)
 		return 0;
 	if(!TEST_ptr(ctx))
 		return 0;
-
 	if(!TEST_true(OSSL_LIB_CTX_load_config(ctx, configfile)))
 		return 0;
 	if(!TEST_true(OSSL_LIB_CTX_load_config(ctx, configfile)))
 		return 0;
-
 	/* Check we can actually fetch something */
 	sha256 = EVP_MD_fetch(ctx, "SHA2-256", NULL);
 	if(!TEST_ptr(sha256))
 		goto err;
-
 	testresult = 1;
 err:
 	EVP_MD_free(sha256);
@@ -49,10 +45,8 @@ int setup_tests()
 		TEST_error("Error parsing test options\n");
 		return 0;
 	}
-
 	if(!TEST_ptr(configfile = test_get_argument(0)))
 		return 0;
-
 	ADD_TEST(test_double_config);
 	return 1;
 }

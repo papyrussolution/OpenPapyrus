@@ -24,7 +24,7 @@ static long bio_call_callback(BIO * b, int oper, const char * argp, size_t len, 
 {
 	long ret;
 	int bareoper;
-	if(b->callback_ex != NULL)
+	if(b->callback_ex)
 		return b->callback_ex(b, oper, argp, len, argi, argl, inret, processed);
 	/* Strip off any BIO_CB_RETURN flag */
 	bareoper = oper & ~BIO_CB_RETURN;
@@ -68,7 +68,7 @@ BIO * FASTCALL BIO_new(const BIO_METHOD * method)
 		CRYPTO_free_ex_data(CRYPTO_EX_INDEX_BIO, bio, &bio->ex_data);
 		goto err;
 	}
-	if(method->create != NULL && !method->create(bio)) {
+	if(method->create && !method->create(bio)) {
 		BIOerr(BIO_F_BIO_NEW, ERR_R_INIT_FAIL);
 		CRYPTO_free_ex_data(CRYPTO_EX_INDEX_BIO, bio, &bio->ex_data);
 		CRYPTO_THREAD_lock_free(bio->lock);
@@ -93,12 +93,12 @@ int FASTCALL BIO_free(BIO * a)
 	if(ret > 0)
 		return 1;
 	REF_ASSERT_ISNT(ret < 0);
-	if(a->callback != NULL || a->callback_ex != NULL) {
+	if(a->callback || a->callback_ex) {
 		ret = (int)bio_call_callback(a, BIO_CB_FREE, NULL, 0, 0, 0L, 1L, NULL);
 		if(ret <= 0)
 			return ret;
 	}
-	if((a->method != NULL) && (a->method->destroy != NULL))
+	if((a->method) && (a->method->destroy))
 		a->method->destroy(a);
 	CRYPTO_free_ex_data(CRYPTO_EX_INDEX_BIO, a, &a->ex_data);
 	CRYPTO_THREAD_lock_free(a->lock);
@@ -221,7 +221,7 @@ static int bio_read_intern(BIO * b, void * data, size_t dlen, size_t * readbytes
 		BIOerr(BIO_F_BIO_READ_INTERN, BIO_R_UNSUPPORTED_METHOD);
 		return -2;
 	}
-	if((b->callback != NULL || b->callback_ex != NULL) && ((ret = (int)bio_call_callback(b, BIO_CB_READ, static_cast<const char *>(data), dlen, 0, 0L, 1L,
+	if((b->callback || b->callback_ex) && ((ret = (int)bio_call_callback(b, BIO_CB_READ, static_cast<const char *>(data), dlen, 0, 0L, 1L,
 	    NULL)) <= 0))
 		return ret;
 	if(!b->init) {
@@ -275,7 +275,7 @@ static int bio_write_intern(BIO * b, const void * data, size_t dlen, size_t * wr
 		BIOerr(BIO_F_BIO_WRITE_INTERN, BIO_R_UNSUPPORTED_METHOD);
 		return -2;
 	}
-	if((b->callback != NULL || b->callback_ex != NULL) &&
+	if((b->callback || b->callback_ex) &&
 	    ((ret = (int)bio_call_callback(b, BIO_CB_WRITE, static_cast<const char *>(data), dlen, 0, 0L, 1L,
 	    NULL)) <= 0))
 		return ret;
@@ -492,10 +492,10 @@ BIO * BIO_push(BIO * b, BIO * bio)
 	if(!b)
 		return bio;
 	lb = b;
-	while(lb->next_bio != NULL)
+	while(lb->next_bio)
 		lb = lb->next_bio;
 	lb->next_bio = bio;
-	if(bio != NULL)
+	if(bio)
 		bio->prev_bio = lb;
 	/* called to do internal processing */
 	BIO_ctrl(b, BIO_CTRL_PUSH, 0, lb);
@@ -513,9 +513,9 @@ BIO * BIO_pop(BIO * b)
 
 	BIO_ctrl(b, BIO_CTRL_POP, 0, b);
 
-	if(b->prev_bio != NULL)
+	if(b->prev_bio)
 		b->prev_bio->next_bio = b->next_bio;
-	if(b->next_bio != NULL)
+	if(b->next_bio)
 		b->next_bio->prev_bio = b->prev_bio;
 
 	b->next_bio = NULL;
@@ -536,7 +536,7 @@ BIO * BIO_get_retry_BIO(BIO * bio, int * reason)
 		if(!b)
 			break;
 	}
-	if(reason != NULL)
+	if(reason)
 		*reason = last->retry_reason;
 	return last;
 }
@@ -559,7 +559,7 @@ BIO * BIO_find_type(BIO * bio, int type)
 		return NULL;
 	mask = type & 0xff;
 	do {
-		if(bio->method != NULL) {
+		if(bio->method) {
 			mt = bio->method->type;
 
 			if(!mask) {
@@ -570,7 +570,7 @@ BIO * BIO_find_type(BIO * bio, int type)
 				return bio;
 		}
 		bio = bio->next_bio;
-	} while(bio != NULL);
+	} while(bio);
 	return NULL;
 }
 
@@ -591,7 +591,7 @@ void BIO_free_all(BIO * bio)
 	BIO * b;
 	int ref;
 
-	while(bio != NULL) {
+	while(bio) {
 		b = bio;
 		ref = b->references;
 		bio = bio->next_bio;
@@ -606,7 +606,7 @@ BIO * BIO_dup_chain(BIO * in)
 {
 	BIO * ret = NULL, * eoc = NULL, * bio, * new_bio;
 
-	for(bio = in; bio != NULL; bio = bio->next_bio) {
+	for(bio = in; bio; bio = bio->next_bio) {
 		if((new_bio = BIO_new(bio->method)) == NULL)
 			goto err;
 		new_bio->callback = bio->callback;

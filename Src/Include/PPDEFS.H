@@ -3999,6 +3999,7 @@
 	#define CTLSEL_CLIAGT_PAYMDTBASE     (27 + WINDOWS_ID_BIAS)
 	#define CTL_CLIAGT_EDIPRV            (28 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CLIAGT_EDIPRV         (29 + WINDOWS_ID_BIAS)
+	#define CTL_CLIAGT_DUEPERIOD         (30 + WINDOWS_ID_BIAS) // @v11.4.8
 #define DLG_RTART                 294 // Права доступа к аналитическим статьям
 	#define CTL_RTART_FLAGS              (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTART_SFLAGS             (2 + WINDOWS_ID_BIAS)
@@ -11272,7 +11273,7 @@
 	#define CTLSEL_STQCMD_VCMD               (12  + WINDOWS_ID_BIAS)
 	#define CTL_STQCMD_REXPRTM               (13  + WINDOWS_ID_BIAS) // Время истечения срока действия результата
 	#define CTL_STQCMD_OIR                   (14  + WINDOWS_ID_BIAS) // ObjIdRestriction
-	#define CTLSEL_STQCMD_OIR                (15  + WINDOWS_ID_BIAS) 
+	#define CTLSEL_STQCMD_OIR                (15  + WINDOWS_ID_BIAS)
 	#define CTL_STQCMD_FLAGS                 (16  + WINDOWS_ID_BIAS)
 #define DLG_STQFACE               1405
 	#define CTL_STQFACE_LANG                 (1  + WINDOWS_ID_BIAS)
@@ -11368,20 +11369,23 @@
 #define DLG_STQINLCPARAM          1420 // @v11.4.6 // cchecks
 #define DLG_STQINLSPARAM          1421 // @v11.4.6 // tsession
 #define DLG_STQINLTPARAM          1422 // @v11.4.6 // todo
-	#define CTL_STQINLPARAM_LBD              (1  + WINDOWS_ID_BIAS) 
-	#define CTL_STQINLPARAM_LOC              (2  + WINDOWS_ID_BIAS) 
-	#define CTLSEL_STQINLPARAM_LOC           (3  + WINDOWS_ID_BIAS) 
-	#define CTL_STQINLPARAM_OP               (4  + WINDOWS_ID_BIAS) 
-	#define CTLSEL_STQINLPARAM_OP            (5  + WINDOWS_ID_BIAS) 
-	#define CTL_STQINLPARAM_AGNT             (6  + WINDOWS_ID_BIAS) 
-	#define CTLSEL_STQINLPARAM_AGNT          (7  + WINDOWS_ID_BIAS) 
-	#define CTL_STQINLPARAM_CLI              (8  + WINDOWS_ID_BIAS) 
-	#define CTLSEL_STQINLPARAM_CLI           (9  + WINDOWS_ID_BIAS) 
-	#define CTL_STQINLPARAM_POS              (10 + WINDOWS_ID_BIAS) 
-	#define CTLSEL_STQINLPARAM_POS           (11 + WINDOWS_ID_BIAS) 
-	#define CTL_STQINLPARAM_PRC              (12 + WINDOWS_ID_BIAS) 
-	#define CTLSEL_STQINLPARAM_PRC           (13 + WINDOWS_ID_BIAS) 
-	#define CTL_STQINLPARAM_FLAGS            (14 + WINDOWS_ID_BIAS) 
+	#define CTL_STQINLPARAM_LBD              (1  + WINDOWS_ID_BIAS)
+	#define CTL_STQINLPARAM_LOC              (2  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQINLPARAM_LOC           (3  + WINDOWS_ID_BIAS)
+	#define CTL_STQINLPARAM_OP               (4  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQINLPARAM_OP            (5  + WINDOWS_ID_BIAS)
+	#define CTL_STQINLPARAM_AGNT             (6  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQINLPARAM_AGNT          (7  + WINDOWS_ID_BIAS)
+	#define CTL_STQINLPARAM_CLI              (8  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQINLPARAM_CLI           (9  + WINDOWS_ID_BIAS)
+	#define CTL_STQINLPARAM_POS              (10 + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQINLPARAM_POS           (11 + WINDOWS_ID_BIAS)
+	#define CTL_STQINLPARAM_PRC              (12 + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQINLPARAM_PRC           (13 + WINDOWS_ID_BIAS)
+	#define CTL_STQINLPARAM_FLAGS            (14 + WINDOWS_ID_BIAS)
+	#define CTL_STQINLPARAM_ACTIONS          (15 + WINDOWS_ID_BIAS)
+	#define CTL_STQINLPARAM_PERIOD           (16 + WINDOWS_ID_BIAS)
+	#define CTLCAL_STQINLPARAM_PERIOD        (17 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

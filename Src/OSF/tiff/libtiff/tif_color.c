@@ -195,13 +195,12 @@ int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB* ycbcr, float * luma, float * refBlackWhit
 	ycbcr->clamptab = (clamptab += 256);
 	for(i = 0; i < 256; i++)
 		clamptab[i] = (TIFFRGBValue)i;
-	memset(clamptab+256, 255, 2*256); /* v > 255 => 255 */
+	memset(clamptab+256, 0xff, 2*256); /* v > 255 => 255 */
 	ycbcr->Cr_r_tab = (int *)(clamptab + 3*256);
 	ycbcr->Cb_b_tab = ycbcr->Cr_r_tab + 256;
 	ycbcr->Cr_g_tab = (int32 *)(ycbcr->Cb_b_tab + 256);
 	ycbcr->Cb_g_tab = ycbcr->Cr_g_tab + 256;
 	ycbcr->Y_tab = ycbcr->Cb_g_tab + 256;
-
 	{
 		float f1 = 2-2*LumaRed;           int32 D1 = FIX(sclamp(f1, 0.0f, 2.0f));
 		float f2 = LumaRed*f1/LumaGreen;  int32 D2 = -FIX(sclamp(f2, 0.0f, 2.0f));
