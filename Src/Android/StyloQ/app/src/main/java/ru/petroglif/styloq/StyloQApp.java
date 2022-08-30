@@ -51,133 +51,12 @@ public class StyloQApp extends SLib.App {
 	private AppUpdateManager AppUpdMgr;
 	private InstallStateUpdatedListener InstallStateUpdatedListener;
 
-	private void StartupTest()
-	{
-		{
-			assert(SLib.satoi(null) == 0);
-			assert(SLib.satoi("") == 0);
-			assert(SLib.satoi("0") == 0);
-			assert(SLib.satoi("-") == 0);
-			assert(SLib.satoi("+") == 0);
-			assert(SLib.satoi("0x") == 0);
-			assert(SLib.satoi("0x0") == 0);
-			assert(SLib.satoi("-0x0") == 0);
-			assert(SLib.satoi("1") == 1);
-			assert(SLib.satoi("0x1") == 1);
-			assert(SLib.satoi("-1") == -1);
-			assert(SLib.satoi("+1") == 1);
-			assert(SLib.satoi("0x0ff") == 255);
-			assert(SLib.satoi(" -0x0ff") == -255);
-			assert(SLib.satoi("0xb") == 11);
-			assert(SLib.satoi("  1000") == 1000);
-			assert(SLib.satoi("  1000  ") == 1000);
-			assert(SLib.satoi("  1000nothing  ") == 1000);
-			assert(SLib.satoi(" \t 90001011  ") == 90001011);
-			assert(SLib.satoi(" abracadabra100  ") == 0);
-			assert(SLib.satoi("\t 0xabcdef0") == 0xabcdef0);
-			assert(SLib.satoi("\t\t \t 1234567890") == 1234567890);
-		}
-		SLib.LDATE d = SLib.GetCurDate();
-		assert(SLib.CheckDate(d.day(), d.month(), d.year()));
-		String ds = SLib.datefmt(d.day(), d.month(), d.year(), SLib.DATF_DMY|SLib.DATF_CENTURY);
-		SLib.LDATE d2 = SLib.strtodate(ds, SLib.DATF_DMY);
-		assert(d2.v == d.v);
-		ds = SLib.datefmt(d.day(), d.month(), d.year(), SLib.DATF_GERMAN);
-		d2 = SLib.strtodate(ds, SLib.DATF_DMY);
-		assert(d2.v == d.v);
-		ds = SLib.datefmt(d.day(), d.month(), d.year(), SLib.DATF_ISO8601);
-		d2 = SLib.strtodate(ds, SLib.DATF_ISO8601);
-		assert(d2.v == d.v);
-		ds = SLib.datefmt(d.day(), d.month(), d.year(), SLib.DATF_JAPAN|SLib.DATF_CENTURY);
-		d2 = SLib.strtodate(ds, SLib.DATF_JAPAN);
-		assert(d2.v == d.v);
-		//
-		d = new SLib.LDATE(1, 1, 2001);
-		assert(d.DayOfWeek(true) == 1);
-		for(int i = 1; i < 365; i++) {
-			d = SLib.LDATE.Plus(new SLib.LDATE(1, 1, 2001), i);
-			int expected_dow = (i+1) % 7;
-			if(expected_dow == 0)
-				expected_dow = 7;
-			int dow = d.DayOfWeek(true);
-			assert(dow == expected_dow);
-		}
-		//
-		{
-			SLib.LTIME t = new SLib.LTIME(7, 21, 57, 900);
-			int h = t.hour();
-			int m = t.minut();
-			int s = t.sec();
-			int hs = t.hs();
-			assert(h == 7);
-			assert(m == 21);
-			assert(s == 57);
-			assert(hs == 90);
-			t.settotalsec(50000);
-			s = t.totalsec();
-			assert(s == 50000);
-			int nd = t.settotalsec((24 * 3600) * 2 + 50000);
-			s = t.totalsec();
-			assert(nd == 2);
-			assert(s == (24 * 3600) * 2 + 50000);
-			//
-			//
-			t = new SLib.LTIME(7, 21, 57, 900);
-			String ts = SLib.timefmt(t, SLib.TIMF_HMS);
-			assert(ts.equals("07:21:57"));
-			ts = SLib.timefmt(t, SLib.TIMF_HM);
-			assert(ts.equals("07:21"));
-			ts = SLib.timefmt(t, SLib.TIMF_HMS|SLib.TIMF_NODIV);
-			assert(ts.equals("072157"));
-			ts = SLib.timefmt(t, SLib.TIMF_HMS|SLib.TIMF_MSEC);
-			assert(ts.equals("07:21:57.900"));
-			//ts = SLib.timefmt(t, SLib.TIMF_HMS|SLib.TIMF_TIMEZONE);
-			//assert(ts.equals("07:21:57"));
-			{
-				t = SLib.strtotime("07:21:57", SLib.TIMF_HMS);
-				assert(t.hour() == 7);
-				assert(t.minut() == 21);
-				assert(t.sec() == 57);
-				assert(t.hs() == 0);
-
-				t = SLib.strtotime("07:21:57.910", SLib.TIMF_HMS);
-				h = t.hour();
-				m = t.minut();
-				s = t.sec();
-				hs = t.hs();
-				assert(t.hour() == 7);
-				assert(t.minut() == 21);
-				assert(t.sec() == 57);
-				assert(t.hs() == 91);
-			}
-			/*{
-				for(h = 0; h < 24; h++) {
-					for(m = 0; m < 60; m++) {
-						for(s = 0; s < 60; s++) {
-							for(hs = 0; hs < 100; hs++) {
-								t = new SLib.LTIME(h, m, s, hs*10);
-								ts = SLib.timefmt(t, SLib.TIMF_HMS|SLib.TIMF_MSEC);
-								SLib.LTIME t2 = SLib.strtotime(ts, 0);
-								assert(t.v == t2.v);
-							}
-						}
-					}
-				}
-			}*/
-		}
-		{
-			byte [] long_buf = SLib.LongToBytes(SLib.Ssc_CompressionSignature);
-			long lv = SLib.BytesToLong(long_buf, 0);
-			assert(lv == SLib.Ssc_CompressionSignature);
-		}
-	}
 	public Object HandleEvent(int cmd, Object srcObj, Object subj)
 	{
 		Object result = null;
 		switch(cmd) {
 			case SLib.EV_CREATE:
 				{
-					StartupTest();
 					//
 					//String av = GetApplicationVersionText();
 					//
@@ -557,8 +436,12 @@ public class StyloQApp extends SLib.App {
 		long   DocID;
 		boolean PostResult;
 	}
-	@NotNull public PostDocumentResult RunSvcPostDocumentCommand(byte [] svcIdent, Document doc, SLib.SlActivity retrActivity)
+	//
+	// ARG(direction): -1 - incoming, +1 - outcoming
+	//
+	@NotNull public PostDocumentResult RunSvcPostDocumentCommand(byte [] svcIdent, int originalActionFlags, int direction, Document doc, SLib.SlActivity retrActivity)
 	{
+		assert(direction == -1 || direction == +1);
 		PostDocumentResult result = new PostDocumentResult();
 		if(doc != null && doc.H != null && (doc.TiList != null && doc.TiList.size() > 0) || (doc.BkList != null && doc.BkList.size() > 0)) {
 			try {
@@ -584,6 +467,21 @@ public class StyloQApp extends SLib.App {
 								js_doc_decl.put("type", "generic");
 								js_doc_decl.put("format", "json");
 								js_doc_decl.put("time", SLib.datetimefmt(new SLib.LDATETIME(System.currentTimeMillis()), SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
+								// @v11.4.9 {
+								{
+									//
+									// Передаем сервису оригинальный набор actionFlags для того, чтобы он мог сориентироваться
+									// каким образом ему следует менять исходный документ.
+									// Таким образом мы пытаемся минимизировать риски ошибок, возникающих из-за асинхронной модификации документов
+									// разными пользователями и уменьшить вероятность недопустимых модификаций.
+									// Например, если клиент мого лишь изменять верфицирующий набор марок, то трогать все остальные компоненты документа
+									// сервису нет смысла.
+									//
+									String afs = Document.IncomingListActionsToString(originalActionFlags);
+									if(SLib.GetLen(afs) > 0)
+										js_doc_decl.put("actionflags", afs);
+								}
+								// } @v11.4.9
 								js_query.put("declaration", js_doc_decl);
 								js_text_docdecl = js_doc_decl.toString();
 							}
@@ -603,7 +501,7 @@ public class StyloQApp extends SLib.App {
 								// Когда мы получим ответ от сервиса этот флаг надо будет снять.
 								//
 								int  doc_flags = ((doc.H.Flags & StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags) | StyloQDatabase.SecStoragePacket.styloqfDocTransmission);
-								result.DocID = Db.PutDocument(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, doc_flags, doc_ident, svc_id, doc_pool);
+								result.DocID = Db.PutDocument(direction, StyloQDatabase.SecStoragePacket.doctypGeneric, doc_flags, doc_ident, svc_id, doc_pool);
 								if(result.DocID > 0) {
 									StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, org_cmd_item);
 									blk.RetrActivity = retrActivity;

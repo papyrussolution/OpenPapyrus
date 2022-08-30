@@ -236,7 +236,7 @@ static const SIntToSymbTabEntry GtinPrefix[] = {
 	{ GtinStruc::fldCouponCode3,           "8102" },
 };
 
-int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen, SString & rPrefix) const
+int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen) const
 {
 	int    prefix_id = -1;
 	const  size_t src_len = sstrlen(pSrc);
@@ -410,10 +410,10 @@ int GtinStruc::GetSpecialNaturalToken() const
 uint GtinStruc::RecognizeFieldLen(const char * pSrc, int currentPrefixID) const
 {
 	uint   len = 0;
-	SString next_prefix_;
+	//SString next_prefix_;
 	while(*pSrc) {
 		uint  next_prefix_len = 0;
-		const int next_prefix_id = DetectPrefix(pSrc, 0, currentPrefixID, &next_prefix_len, next_prefix_);
+		const int next_prefix_id = DetectPrefix(pSrc, 0, currentPrefixID, &next_prefix_len/*, next_prefix_*/);
 		if(next_prefix_id > 0)
 			break;
 		else {
@@ -548,8 +548,8 @@ int GtinStruc::Parse(const char * pCode)
 	Z();
 	if(code_buf.NotEmptyS()) {
 		SString temp_buf;
-		SString prefix_;
-		SString next_prefix_;
+		//SString prefix_;
+		//SString next_prefix_;
 		StrAssocArray::Add(fldOriginalText, code_buf);
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
@@ -602,13 +602,32 @@ int GtinStruc::Parse(const char * pCode)
 					temp_buf.Z().CatN(code_buf, 7);
 					StrAssocArray::Add(fldSerial, temp_buf);
 					code_buf.ShiftLeft(7);
-					prefix_len = code_buf.HasPrefix("8005") ? 4 : (code_buf.HasPrefix("(8005)") ? 6 : 0);
+					// @v11.4.9 prefix_len = code_buf.HasPrefix("8005") ? 4 : (code_buf.HasPrefix("(8005)") ? 6 : 0);
+					// @v11.4.9 {
+					bool  spcchr_cigblock_prefix = false;
+					if(code_buf.HasPrefix("8005"))
+						prefix_len = 4;
+					else if(code_buf.HasPrefix("(8005)"))
+						prefix_len = 6;
+					else if(code_buf.HasPrefix("\x1D" "8005")) {
+						prefix_len = 5;
+						spcchr_cigblock_prefix = true;
+					}
+					else
+						prefix_len = 0;
+					// } @v11.4.9 
 					if(prefix_len) {
 						code_buf.ShiftLeft(prefix_len);
 						temp_buf.Z().CatN(code_buf, 6);
 						StrAssocArray::Add(fldPrice, temp_buf);
 						code_buf.ShiftLeft(6);
-						if(code_buf.HasPrefix("93")) {
+						if(spcchr_cigblock_prefix && code_buf.HasPrefix("\x1D" "93")) {
+							code_buf.ShiftLeft(3);
+							temp_buf.Z().Cat(code_buf);
+							StrAssocArray::Add(fldControlRuTobacco, temp_buf);
+							SpecialNaturalToken = SNTOK_CHZN_CIGBLOCK;
+						}
+						else if(code_buf.HasPrefix("93")) {
 							code_buf.ShiftLeft(2);
 							temp_buf.Z().Cat(code_buf);
 							StrAssocArray::Add(fldControlRuTobacco, temp_buf);
@@ -625,7 +644,7 @@ int GtinStruc::Parse(const char * pCode)
 				uint  prefix_len = 0;
 				if(IsSpecialStopChar(p)) // @v10.9.9
 					p++;
-				int   prefix_id = DetectPrefix(p, dpf, -1, &prefix_len, prefix_);
+				int   prefix_id = DetectPrefix(p, dpf, -1, &prefix_len/*, prefix_*/);
 				dpf = 0;
 				uint  fixed_len = 0;
 				uint  min_len = 0;
@@ -650,7 +669,7 @@ int GtinStruc::Parse(const char * pCode)
 								temp_buf.CatChar(*p++);
 							}
 							else {
-								next_prefix_id = DetectPrefix(p, dpf, prefix_id, &next_prefix_len, next_prefix_);
+								next_prefix_id = DetectPrefix(p, dpf, prefix_id, &next_prefix_len/*, next_prefix_*/);
 								if(next_prefix_id > 0) {
 									uint next_fld_len = RecognizeFieldLen(p+next_prefix_len, prefix_id);
 									if(next_fld_len == 0)

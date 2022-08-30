@@ -40,22 +40,24 @@ public class CommonPrereqModule {
 	public UUID CmdUuid;  // Получает через intent ("CmdUuid")
 	public ArrayList<SimpleSearchIndexEntry> SimpleSearchIndex;
 	public SimpleSearchResult SearchResult;
-	public ArrayList <CliEntry> CliListData;
+	public ArrayList<CliEntry> CliListData;
 	public ArrayList<JSONObject> GoodsGroupListData;
-	public ArrayList <BusinessEntity.Brand> BrandListData;
-	public ArrayList <Document> IncomingDocListData;
+	public ArrayList<BusinessEntity.Brand> BrandListData;
+	public ArrayList<Document> IncomingDocListData;
 	public GoodsFilt Gf;
 	private String BaseCurrencySymb;
 	private int DefDuePeriodHour; // @v11.4.8 Срок исполнения заказа по умолчанию (в часах). Извлекается из заголока данных по тегу "dueperiodhr"
 	private int AgentID; // Если исходный документ для формирования заказов ассоциирован
-		// с агентом, то в этом поле устанавливается id этого агента (field agentid)
+	// с агентом, то в этом поле устанавливается id этого агента (field agentid)
+	private int ActionFlags; // Document.actionXXX flags. Извлекается из заголока данных по тегу "actions"
+	private int SvcOpID; // @v11.4.9 Вид операции для новых документов, переданный сервисом в заголовке с тегом "svcopid"
 	private int PosNodeID; // Если исходный документ сформирован для indoor-обслуживания,
-		// то в этом поле устанавливается id кассового узла, переданный от сервиса
-	public ArrayList <WareEntry> GoodsListData;
-	public ArrayList <CommonPrereqModule.TabEntry> TabList;
+	// то в этом поле устанавливается id кассового узла, переданный от сервиса
+	public ArrayList<WareEntry> GoodsListData;
+	public ArrayList<CommonPrereqModule.TabEntry> TabList;
 	public ArrayList /*<Document.Head>*/<Document.DisplayEntry> OrderHList;
-	public ArrayList <ProcessorEntry> ProcessorListData;
-	public ArrayList <BusinessEntity.Uom> UomListData;
+	public ArrayList<ProcessorEntry> ProcessorListData;
+	public ArrayList<BusinessEntity.Uom> UomListData;
 	private Document CurrentOrder;
 	protected boolean CommitCurrentDocument_Locker;
 	protected long CommitCurrentDocument_StartTm;
@@ -92,9 +94,9 @@ public class CommonPrereqModule {
 					AddrExpandStatus = 1;
 			}
 		}
-		public ArrayList <JSONObject> GetDlvrLocListAsArray()
+		public ArrayList<JSONObject> GetDlvrLocListAsArray()
 		{
-			ArrayList <JSONObject> result = null;
+			ArrayList<JSONObject> result = null;
 			JSONArray dlvr_loc_list = JsItem.optJSONArray("dlvrloc_list");
 			if(dlvr_loc_list != null && dlvr_loc_list.length() > 0) {
 				result = new ArrayList<JSONObject>();
@@ -102,7 +104,7 @@ public class CommonPrereqModule {
 					for(int i = 0; i < dlvr_loc_list.length(); i++) {
 						Object dlvr_loc_list_item_obj = dlvr_loc_list.get(i);
 						if(dlvr_loc_list_item_obj != null && dlvr_loc_list_item_obj instanceof JSONObject)
-							result.add((JSONObject)dlvr_loc_list_item_obj);
+							result.add((JSONObject) dlvr_loc_list_item_obj);
 					}
 				} catch(JSONException exn) {
 					result = null;
@@ -110,9 +112,10 @@ public class CommonPrereqModule {
 			}
 			return result;
 		}
-		int   AddrExpandStatus; // 0 - no addressed, 1 - addresses collapsed, 2 - addresses expanded
+		int AddrExpandStatus; // 0 - no addressed, 1 - addresses collapsed, 2 - addresses expanded
 		JSONObject JsItem;
 	}
+
 	public enum Tab {
 		tabUndef,
 		tabGoodsGroups,
@@ -121,12 +124,15 @@ public class CommonPrereqModule {
 		tabClients,
 		tabProcessors,
 		tabAttendance,
-		tabCurrentOrder,
+		tabCurrentDocument,
 		tabBookingDocument,
 		tabOrders,
 		tabSearch,
-		tabIncomingList
+		tabIncomingList,
+		tabXclVerify,  // Вкладка для сканирования кодов маркировки товаров с целью проверки
+		tabXclSetting, // Вкладка для сканирования кодов маркировки товаров с целью сопоставления отгружаемых марок со строками документа
 	}
+
 	public static class TabEntry {
 		TabEntry(CommonPrereqModule.Tab id, String text, /*View*/SLib.SlFragmentStatic view)
 		{
@@ -136,13 +142,25 @@ public class CommonPrereqModule {
 		}
 		CommonPrereqModule.Tab TabId;
 		String TabText;
-		/*View*/SLib.SlFragmentStatic TabView;
+		/*View*/ SLib.SlFragmentStatic TabView;
+	}
+	public static class TabInitEntry {
+		TabInitEntry(final Tab tab, final int rc, final String title, boolean condition)
+		{
+			Tab = tab;
+			Rc = rc;
+			Title = title;
+			Condition = condition;
+		}
+		final Tab Tab;
+		final int Rc;
+		final String Title;
+		final boolean Condition;
 	}
 	private StyloQApp GetAppCtx()
 	{
 		return (ActivityInstance != null) ? ActivityInstance.GetAppCtx() : null;
 	}
-	// sqbdtSvcReq
 	protected final boolean IsCurrentDocumentEmpty()
 	{
 		return (CurrentOrder == null || CurrentOrder.H == null);
@@ -159,12 +177,12 @@ public class CommonPrereqModule {
 	{
 		return (CurrentOrder != null && CurrentOrder.BkList != null) ? CurrentOrder.BkList.size() : 0;
 	}
-	protected void InitCurrenDocument(int opID) throws StyloQException
+	protected void InitCurrenDocument(int intechangeOpID) throws StyloQException
 	{
 		if(CurrentOrder == null) {
 			StyloQApp app_ctx = GetAppCtx();
 			if(app_ctx != null) {
-				CurrentOrder = new Document(opID, SvcIdent, app_ctx);
+				CurrentOrder = new Document(intechangeOpID, SvcIdent, app_ctx);
 				CurrentOrder.H.BaseCurrencySymb = GetBaseCurrencySymb();
 				CurrentOrder.H.OrgCmdUuid = CmdUuid;
 				CurrentOrder.H.AgentID = GetAgentID(); // @v11.4.8
@@ -189,7 +207,12 @@ public class CommonPrereqModule {
 		StyloQApp app_ctx = GetAppCtx();
 		if(doc != null) {
 			if(app_ctx != null) {
-				CurrentOrder = doc;
+				CurrentOrder = Document.Copy(doc); // Важно: мы используем глубокую копию документа, а не его алиас,
+					// поскольку мы будем его менять не зная однозначно будут приняты эти изменения или нет.
+				CurrentOrder.H.OrgCmdUuid = CmdUuid;
+				int ex_status = CurrentOrder.GetDocStatus();
+				if(ex_status == 0)
+					CurrentOrder.SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD);
 				ok = true;
 			}
 		}
@@ -233,6 +256,37 @@ public class CommonPrereqModule {
 		}
 		return ok;
 	}
+	protected boolean RestoreRecentIncomingModDocumentAsCurrent(/*int opID*/ArrayList <UUID> possibleDocUuidList)
+	{
+		boolean result = false;
+		if(CurrentOrder == null) {
+			StyloQApp app_ctx = GetAppCtx();
+			if(app_ctx != null) {
+				try {
+					StyloQDatabase db = app_ctx.GetDB();
+					if(db != null) {
+						StyloQDatabase.SecStoragePacket rdd = db.FindRecentIncomingModDoc(StyloQDatabase.SecStoragePacket.doctypGeneric,0, null, CmdUuid, possibleDocUuidList);
+						JSONObject js_doc = (rdd != null && rdd.Pool != null) ? rdd.Pool.GetJsonObject(SecretTagPool.tagRawData) : null;
+						if(js_doc != null) {
+							Document rd = new Document();
+							if(rd.FromJsonObj(js_doc)) {
+								// На этапе разработки было множество проблем, по этому,
+								// вероятно расхождение между идентификаторами в json и в заголовке записи.
+								if(rd.H.ID != rdd.Rec.ID)
+									rd.H.ID = rdd.Rec.ID;
+								rd.H.Flags = rdd.Rec.Flags;
+								CurrentOrder = rd;
+								result = true;
+							}
+						}
+					}
+				} catch(StyloQException exn) {
+					;
+				}
+			}
+		}
+		return result;
+	}
 	protected void RestoreRecentDraftDocumentAsCurrent(/*int opID*/)
 	{
 		//public StyloQDatabase.SecStoragePacket FindRecentDraftDoc(int docType, long correspondId, byte [] ident, UUID orgCmdUuid)
@@ -261,6 +315,48 @@ public class CommonPrereqModule {
 				}
 			}
 		}
+	}
+	//
+	// Descr: Отмена редактирования текущего документа, являющегося копией входящего документа.
+	//   Суть операции в том, что копия документа удаляется из внутреннего хранилища, таким
+	//   образом мы теряем результаты редактирования и входящий документ у сервиса никак не сможет
+	//   быть нами изменен (кроме, конечно, повторного запуска цикла изменения).
+	//
+	protected boolean CancelCurrentIncomingDocument()
+	{
+		boolean result = false;
+		int    turn_doc_result = -1;
+		try {
+			StyloQApp app_ctx = GetAppCtx();
+			assert(CurrentOrder != null && CurrentOrder.H != null && CurrentOrder.H.Uuid != null);
+			if(app_ctx != null && CurrentOrder != null && CurrentOrder.H != null && CurrentOrder.H.Uuid != null) {
+				if(CurrentOrder.GetDocStatus() == 0)
+					CurrentOrder.SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
+				final int preserve_status = CurrentOrder.GetDocStatus();
+				if(preserve_status == StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD) {
+					turn_doc_result = 0;
+					StyloQDatabase db = app_ctx.GetDB();
+					if(db != null && SLib.GetLen(SvcIdent) > 0) {
+						StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
+						JSONObject jsobj = CurrentOrder.ToJsonObj();
+						if(svc_pack != null && jsobj != null) {
+							final long svc_id = svc_pack.Rec.ID;
+							final byte[] doc_ident = db.MakeDocumentStorageIdent(SvcIdent, CurrentOrder.H.Uuid);
+							final int  direction = -1; // Строго входящий документ
+							CurrentOrder.H.ID = 0;
+							long doc_id = db.PutDocument(direction, StyloQDatabase.SecStoragePacket.doctypGeneric, CurrentOrder.H.Flags, doc_ident, svc_id, null);
+							if(doc_id > 0) { // При успешном удалении документа PutDocument возвращает идентификатор последнего удаленного документа
+								ResetCurrentDocument();
+								turn_doc_result = 1;
+							}
+						}
+					}
+				}
+			}
+		} catch(StyloQException exn) {
+			turn_doc_result = 0;
+		}
+		return (turn_doc_result > 0) ? true : ((turn_doc_result == 0) ? false : result);
 	}
 	private boolean StoreCurrentDocument(int reqStatus, int newStatus)
 	{
@@ -303,7 +399,17 @@ public class CommonPrereqModule {
 							//
 							long svc_id = svc_pack.Rec.ID;
 							byte[] doc_ident = db.MakeDocumentStorageIdent(SvcIdent, CurrentOrder.H.Uuid);
-							long doc_id = db.PutDocument(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, CurrentOrder.H.Flags, doc_ident, svc_id, doc_pool);
+							int  direction = 0;
+							if(reqStatus == StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD) {
+								CurrentOrder.H.ID = 0; // Мы получили от сервиса документ с идентификатором, актуальным для сервиса.
+									// Сохраняя этот док у себя в БД мы присваиваем ему собственный идент, сопоставлять с сервисом будем
+									// по GUID'у (сервис на своей стороне обязан позабодиться о том, чтобы переданный нам документ
+									// имел GUID.
+								direction = -1;
+							}
+							else
+								direction = +1;
+							long doc_id = db.PutDocument(direction, StyloQDatabase.SecStoragePacket.doctypGeneric, CurrentOrder.H.Flags, doc_ident, svc_id, doc_pool);
 							if(doc_id > 0) {
 								assert(CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id);
 								if(CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id) {
@@ -324,8 +430,21 @@ public class CommonPrereqModule {
 	}
 	protected void OnCurrentDocumentModification()
 	{
+		if(!IsCurrentDocumentEmpty()) {
+			final int status = CurrentOrder.GetDocStatus();
+			int new_status = 0;
+			if(status == StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD)
+				new_status = StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD;
+			else if(status == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT)
+				new_status = StyloQDatabase.SecStoragePacket.styloqdocstDRAFT;
+			if(new_status != 0)
+				StoreCurrentDocument(status, new_status);
+		}
+	}
+	protected void OnCurrentDocumentModification_Incoming()
+	{
 		if(!IsCurrentDocumentEmpty())
-			StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT, StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
+			StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD, StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD);
 	}
 	protected boolean UpdateMemoInCurrentDocument(String memo)
 	{
@@ -366,14 +485,15 @@ public class CommonPrereqModule {
 		try {
 			if(item != null && item.GoodsID > 0 && item.Set != null && item.Set.Qtty > 0.0) {
 				CommonPrereqModule.WareEntry goods_item = FindGoodsItemByGoodsID(item.GoodsID);
-				double price = goods_item.JsItem.optDouble("price", 0.0);
-				int    op_id = 0;
+				//double price = goods_item.JsItem.optDouble("price", 0.0);
+				double price = goods_item.Item.Price;
+				int    interchange_op_id = 0;
 				int    posnode_id = GetPosNodeID();
 				if(posnode_id > 0)
-					op_id = SLib.sqbdtCCheck;
+					interchange_op_id = SLib.sqbdtCCheck;
 				else
-					op_id = SLib.PPEDIOP_ORDER;
-				InitCurrenDocument(op_id);
+					interchange_op_id = SLib.PPEDIOP_ORDER;
+				InitCurrenDocument(interchange_op_id);
 				Document.TransferItem ti = item;
 				ti.Set.Price = price;
 				int max_row_idx = 0;
@@ -392,7 +512,7 @@ public class CommonPrereqModule {
 						CurrentOrder.TiList = new ArrayList<Document.TransferItem>();
 					CurrentOrder.TiList.add(ti);
 				}
-				SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+				SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.VISIBLE);
 				//NotifyCurrentOrderChanged();
 				OnCurrentDocumentModification();
 				result = true;
@@ -430,7 +550,7 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	protected boolean SetClientToCurrentDocument(int opID, int cliID, int dlvrLocID, boolean forceUpdate)
+	protected boolean SetClientToCurrentDocument(int interchangeOpID, int cliID, int dlvrLocID, boolean forceUpdate)
 	{
 		boolean result = false;
 		try {
@@ -439,7 +559,7 @@ public class CommonPrereqModule {
 				JSONObject new_cli_entry = FindClientEntry(cliID);
 				if(new_cli_entry != null) {
 					if(CurrentOrder == null) {
-						InitCurrenDocument(opID);
+						InitCurrenDocument(interchangeOpID);
 						CurrentOrder.H.ClientID = cliID;
 						CurrentOrder.H.DlvrLocID = dlvrLocID;
 						CurrentOrder.H.BaseCurrencySymb = BaseCurrencySymb;
@@ -474,11 +594,10 @@ public class CommonPrereqModule {
 										String msg_addendum = prev_cli_name + " -> " + new_cli_name;
 										String text_fmt = app_ctx.GetString(ppstr2.PPSTR_CONFIRMATION, ppstr2.PPCFM_STQ_CHANGEORDCLI);
 										class OnResultListener implements SLib.ConfirmationListener {
-											@Override
-											public void OnResult(SLib.ConfirmationResult r)
+											@Override public void OnResult(SLib.ConfirmationResult r)
 											{
 												if(r == SLib.ConfirmationResult.YES) {
-													SetClientToCurrentDocument(opID, cliID, dlvrLocID, true);
+													SetClientToCurrentDocument(interchangeOpID, cliID, dlvrLocID, true);
 												}
 											}
 										}
@@ -562,10 +681,15 @@ public class CommonPrereqModule {
 					}
 					if(!is_err) {
 						final int s = CurrentOrder.GetDocStatus();
+						int   direction = +1; // outcoming
 						if(s == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT)
 							CurrentOrder.SetAfterTransmitStatus(StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
+						else if(s == StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD) { // @v11.4.9
+							CurrentOrder.SetAfterTransmitStatus(StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMODACCEPTED);
+							direction = -1; // incoming
+						}
 						// @todo Здесь еще долго со статусами разбираться придется!
-						StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(SvcIdent, CurrentOrder, ActivityInstance);
+						StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(SvcIdent, ActionFlags, direction, CurrentOrder, ActivityInstance);
 						ok = result.PostResult;
 						if(ok) {
 							;
@@ -743,11 +867,20 @@ public class CommonPrereqModule {
 	public static class WareEntry {
 		WareEntry(JSONObject jsItem)
 		{
-			JsItem = jsItem;
+			//JsItem = jsItem;
+			Item = new BusinessEntity.Goods();
+			Item.FromJsonObj(jsItem);
 			PrcExpandStatus = 0;
 			PrcPrice = 0.0;
 		}
-		JSONObject JsItem;
+		WareEntry(BusinessEntity.Goods srcItem)
+		{
+			Item = srcItem;
+			PrcExpandStatus = 0;
+			PrcPrice = 0.0;
+		}
+		//JSONObject JsItem;
+		BusinessEntity.Goods Item;
 		int   PrcExpandStatus; // 0 - no processors, 1 - processors collapsed, 2 - processors expanded
 		double PrcPrice; // Специфическая цена товара для конкретного процессора
 	}
@@ -877,10 +1010,7 @@ public class CommonPrereqModule {
 		{
 			return ObjTypeCount;
 		}
-		public final int GetObjTypeByIndex(int idx)
-		{
-			return (idx >= 0 && idx < ObjTypeCount) ? ObjTypeList[idx] : 0;
-		}
+		public final int GetObjTypeByIndex(int idx) { return (idx >= 0 && idx < ObjTypeCount) ? ObjTypeList[idx] : 0; }
 	}
 	public void InitSimpleIndex()
 	{
@@ -900,21 +1030,16 @@ public class CommonPrereqModule {
 		if(GoodsListData != null) {
 			for(int i = 0; i < GoodsListData.size(); i++) {
 				CommonPrereqModule.WareEntry ware_item = GoodsListData.get(i);
-				if(ware_item != null && ware_item.JsItem != null) {
-					int id = ware_item.JsItem.optInt("id", 0);
+				if(ware_item != null && ware_item.Item != null) {
+					int id = ware_item.Item.ID;
 					if(id > 0) {
-						String nm = ware_item.JsItem.optString("nm");
+						final String nm = ware_item.Item.Name;
 						AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_NAME, nm, null);
-						{
-							JSONArray js_code_list = ware_item.JsItem.optJSONArray("code_list");
-							if(js_code_list != null && js_code_list.length() > 0) {
-								for(int j = 0; j < js_code_list.length(); j++) {
-									JSONObject js_code = js_code_list.optJSONObject(j);
-									if(js_code != null) {
-										String code = js_code.optString("cod");
-										AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_CODE, code, nm);
-									}
-								}
+						if(ware_item.Item.CodeList != null && ware_item.Item.CodeList.size() > 0) {
+							for(int j = 0; j < ware_item.Item.CodeList.size(); j++) {
+								BusinessEntity.GoodsCode code_item = ware_item.Item.CodeList.get(j);
+								if(code_item != null && SLib.GetLen(code_item.Code) > 0)
+									AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_CODE, code_item.Code, nm);
 							}
 						}
 					}
@@ -1008,14 +1133,8 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	public String GetSimpleSearchResultPattern()
-	{
-		return (SearchResult != null) ? SearchResult.Pattern : null;
-	}
-	public final boolean IsObjInSearchResult(int objType, int objID)
-	{
-		return (SearchResult != null) ? SearchResult.IsThereObj(objType, objID) : false;
-	}
+	public String GetSimpleSearchResultPattern() { return (SearchResult != null) ? SearchResult.Pattern : null; }
+	public final boolean IsObjInSearchResult(int objType, int objID) { return (SearchResult != null) ? SearchResult.IsThereObj(objType, objID) : false; }
 	public CommonPrereqModule(SLib.SlActivity activityInstance)
 	{
 		SvcIdent = null;
@@ -1028,6 +1147,8 @@ public class CommonPrereqModule {
 		IncomingDocListData = null;
 		BaseCurrencySymb = null;
 		AgentID = 0;
+		SvcOpID = 0; // @v11.4.9
+		ActionFlags = 0;
 		PosNodeID = 0;
 		Gf = null;
 		CurrentOrder = null;
@@ -1043,6 +1164,7 @@ public class CommonPrereqModule {
 	int   GetDefDuePeriodHour() { return DefDuePeriodHour; }
 	int   GetAgentID() { return AgentID; }
 	int   GetPosNodeID() { return PosNodeID; }
+	int   GetActionFlags() { return ActionFlags; }
 	public void GetAttributesFromIntent(Intent intent)
 	{
 		if(intent != null) {
@@ -1267,7 +1389,7 @@ public class CommonPrereqModule {
 							for(int j = 0; !result && j < js_goods_list.length(); j++) {
 								JSONObject js_goods_item = js_goods_list.getJSONObject(j);
 								if(js_goods_item != null) {
-									int iter_id = js_goods_item.optInt("id", 0);
+									final int iter_id = js_goods_item.optInt("id", 0);
 									if(iter_id == goodsID)
 										result = true;
 								}
@@ -1339,8 +1461,8 @@ public class CommonPrereqModule {
 				}
 				if(result <= 0.0) {
 					WareEntry ware_entry = FindGoodsItemByGoodsID(goodsID);
-					if(ware_entry != null)
-						result = ware_entry.JsItem.optDouble("price", 0.0);
+					if(ware_entry != null && ware_entry.Item != null)
+						result = ware_entry.Item.Price;
 				}
 			} catch(JSONException exn) {
 				;
@@ -1426,7 +1548,7 @@ public class CommonPrereqModule {
 										double price = (js_goods_item != null) ? js_goods_item.optDouble("price", 0.0) : 0.0;
 										if(result == null)
 											result = new ArrayList<WareEntry>();
-										WareEntry new_ware_entry = new WareEntry(org_ware_entry.JsItem);
+										WareEntry new_ware_entry = new WareEntry(org_ware_entry.Item);
 										new_ware_entry.PrcPrice = price;
 										result.add(new_ware_entry);
 									}
@@ -1506,10 +1628,14 @@ public class CommonPrereqModule {
 	}
 	public void GetCommonJsonFactors(JSONObject jsHead) throws JSONException
 	{
-		BaseCurrencySymb = jsHead.optString("basecurrency", null);
-		DefDuePeriodHour = jsHead.optInt("dueperiodhr", 0); // @v112.4.8
-		AgentID = jsHead.optInt("agentid", 0);
-		PosNodeID = jsHead.optInt("posnodeid", 0);
+		if(jsHead != null) {
+			BaseCurrencySymb = jsHead.optString("basecurrency", null);
+			DefDuePeriodHour = jsHead.optInt("dueperiodhr", 0); // @v11.4.8
+			AgentID = jsHead.optInt("agentid", 0);
+			SvcOpID = jsHead.optInt("svcopid", 0); // @v11.4.9
+			PosNodeID = jsHead.optInt("posnodeid", 0);
+			ActionFlags = Document.IncomingListActionsFromString(jsHead.optString("actions", null)); // @v11.4.8
+		}
 	}
 	public void MakeGoodsListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
@@ -1531,8 +1657,8 @@ public class CommonPrereqModule {
 			Collections.sort(GoodsListData, new Comparator<WareEntry>() {
 				@Override public int compare(WareEntry lh, WareEntry rh)
 				{
-					String ls = lh.JsItem.optString("nm", "");
-					String rs = rh.JsItem.optString("nm", "");
+					String ls = (lh != null && lh.Item != null) ? lh.Item.Name : "";
+					String rs = (rh != null && rh.Item != null) ? rh.Item.Name : "";
 					return ls.toLowerCase().compareTo(rs.toLowerCase());
 				}
 			});
@@ -1697,7 +1823,7 @@ public class CommonPrereqModule {
 		WareEntry result = null;
 		if(GoodsListData != null && goodsID > 0) {
 			for(int i = 0; result == null && i < GoodsListData.size(); i++) {
-				final int goods_id = GoodsListData.get(i).JsItem.optInt("id", 0);
+				final int goods_id = GoodsListData.get(i).Item.ID;
 				if(goods_id == goodsID)
 					result = GoodsListData.get(i);
 			}
@@ -1709,7 +1835,7 @@ public class CommonPrereqModule {
 		int result = -1;
 		if(GoodsListData != null && id > 0) {
 			for(int i = 0; result < 0 && i < GoodsListData.size(); i++) {
-				final int iter_id = GoodsListData.get(i).JsItem.optInt("id", 0);
+				final int iter_id = GoodsListData.get(i).Item.ID;
 				if(iter_id == id)
 					result = i;
 			}
@@ -1754,14 +1880,14 @@ public class CommonPrereqModule {
 	public boolean CheckGoodsListItemForFilt(WareEntry item)
 	{
 		boolean result = false;
-		if(item == null || item.JsItem == null)
+		if(item == null || item.Item == null)
 			result = false;
 		else if(Gf == null)
 			result =  true;
 		else {
 			result = true;
 			if(Gf.GroupIdList != null && Gf.GroupIdList.size() > 0) {
-				int parid = item.JsItem.optInt("parid", 0);
+				int parid = item.Item.ParentID;
 				result = false;
 				if(parid > 0) {
 					for(int i = 0; !result && i < Gf.GroupIdList.size(); i++)
@@ -1770,7 +1896,7 @@ public class CommonPrereqModule {
 				}
 			}
 			if(result && Gf.BrandList != null && Gf.BrandList.size() > 0) {
-				int brand_id = item.JsItem.optInt("brandid", 0);
+				int brand_id = item.Item.BrandID;
 				result = false;
 				if(brand_id > 0) {
 					for(int i = 0; !result && i < Gf.BrandList.size(); i++)

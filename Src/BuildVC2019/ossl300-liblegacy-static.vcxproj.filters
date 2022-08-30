@@ -1,0 +1,214 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="asm">
+      <UniqueIdentifier>{c3212d5d-069b-4efc-9d2f-0352d6af6b31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asm\x86">
+      <UniqueIdentifier>{8b794fff-2637-4bbe-b28b-079604a410bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asm\x64">
+      <UniqueIdentifier>{8e982896-e7d1-407d-9259-39747aa513fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto">
+      <UniqueIdentifier>{94011921-4a30-4f91-b1b1-494bbe29748c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\bn">
+      <UniqueIdentifier>{13342afe-a85b-40c8-8974-0511e316d996}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\bn\x64">
+      <UniqueIdentifier>{c707ca5d-38c1-402f-9ac4-57dcacee09ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\des">
+      <UniqueIdentifier>{805ac66d-a014-4c91-81d8-43eb6df0c4b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\des\x64">
+      <UniqueIdentifier>{372e0bb6-8b1d-4045-a256-7adb88992593}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\property">
+      <UniqueIdentifier>{3da89b8b-9051-431a-a6b7-f7959106d9f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\md5">
+      <UniqueIdentifier>{61eb8363-daba-4c2e-ada4-60590ff6809b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="implementations">
+      <UniqueIdentifier>{d3f2c9d6-6f42-45a0-b0b9-4127d2398dc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="implementations\digests">
+      <UniqueIdentifier>{269ab067-dc72-4003-ae4e-3754fb90b31f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="implementations\ciphers">
+      <UniqueIdentifier>{25f37c82-74b7-48c6-8441-17690ff8e3be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="implementations\kdfs">
+      <UniqueIdentifier>{6d4e3871-e2d9-4a12-8bbb-b6e96decfbaa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\ripemd_prov.c">
+      <Filter>implementations\digests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\wp_prov.c">
+      <Filter>implementations\digests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\md4_prov.c">
+      <Filter>implementations\digests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\mdc2_prov.c">
+      <Filter>implementations\digests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_blowfish.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_blowfish_hw.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_cast5.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_cast5_hw.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_des.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_des_hw.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_desx.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_desx_hw.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_idea.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_idea_hw.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_rc2.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_rc2_hw.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_rc4.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_rc4_hmac_md5.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_rc4_hmac_md5_hw.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_rc4_hw.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_seed.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_seed_hw.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_tdes_common.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\ctype.c">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_asm.c">
+      <Filter>crypto\bn\x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\rsaz_exp.c">
+      <Filter>crypto\bn\x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\des_enc.c">
+      <Filter>crypto\des\x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\des\fcrypt_b.c">
+      <Filter>crypto\des\x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\md5\md5_dgst.c">
+      <Filter>crypto\md5</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\md5\md5_one.c">
+      <Filter>crypto\md5</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\md5\md5_sha1.c">
+      <Filter>crypto\md5</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\rsaz_exp_x2.c">
+      <Filter>crypto\bn\x64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\crypto\cpuid.c">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\pbkdf1.c">
+      <Filter>implementations\kdfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\prov_running.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\provider_util.c" />
+    <ClCompile Include="..\OSF\OpenSSL-302\crypto\openssl-crypto-pch.cpp" />
+    <ClCompile Include="..\OSF\OpenSSL-302\providers\implementations\ciphers\cipher_rc5.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-302\providers\implementations\ciphers\cipher_rc5_hw.c">
+      <Filter>implementations\ciphers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64cpuid.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-avx2.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-avx512.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-gf2m.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-mont.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-mont5.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86cpuid.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\bn-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\co-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86-gf2m.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86-mont.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\crypt586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\des-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\md5-x86_64.pl">
+      <Filter>asm\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\md5-586.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

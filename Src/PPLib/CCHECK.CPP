@@ -3437,7 +3437,7 @@ int CCheckCore::IsLostJunkCheck(PPID id, const S_GUID * pExtUuid, PPSession::Reg
 	ObjTagItem tag_item;
 	if(PPRef->Ot.GetTag(PPOBJ_CCHECK, id, PPTAG_CCHECK_JS_UUID, &tag_item) > 0) {
 		S_GUID sess_uuid;
-		if(tag_item.GetGuid(&sess_uuid) > 0) {
+		if(tag_item.GetGuid(&sess_uuid)) {
 			if(pExtUuid && !pExtUuid->IsZero()) {
 				if(sess_uuid == *pExtUuid) {
 					if(pSessData) {

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494587
+LastSignatureCode=2147494591
 LastAutoCodeList=1,12169;102,10177;103,10072;110,10000;111,12063;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10143;120,10005;1001,10000;121,10000;122,10000;123,10313;124,10240
 
 [SignatureList]
@@ -1387,6 +1387,7 @@ typeofdocument=2147484817
 typeofdocuments=2147484818
 document=2147484819
 selecteddocument=2147494585
+documentlist=2147494591
 documentcount=2147484820
 documentmemo=2147484821
 documentnew=2147484822
@@ -6719,6 +6720,8 @@ scardseries_fixedbonus=2147489701
 scardserrule=2147489702
 scardserrule_trnovrperiod=2147489703
 scardserrule_trnovrrngdislist=2147489704
+scardserrule_cancelprd=2147494589
+scardserrule_cancelprccount=2147494590
 trnovrrngdis=2147489705
 trnovrrngdisbonus=2147489706
 trnovrrngdis_range=2147489707
@@ -8652,6 +8655,7 @@ trfranlzval_dateanddocno=2147494306
 egaisexcisemark=2147491571
 chznmark=2147491572
 doscanmark=2147491573
+unmatchedmarks=2147494588
 priceanlzfilt=2147491574
 priceanlzfilt_costalg=2147491575
 priceanlzfilt_cabyfirstlot=2147491576

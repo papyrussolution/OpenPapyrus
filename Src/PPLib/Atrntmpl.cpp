@@ -704,7 +704,7 @@ int PPAccTurnTempl::CreateBaseProjectionAccturns(PPBillPacket * pPack)
 	pPack->Amounts.GetCurList(-1L, &cur_list);
 	uint   adv_item_idx = 0;
 	PPAccTurn pattern_at;
-	pPack->CreateAccTurn(&pattern_at);
+	pPack->CreateAccTurn(pattern_at);
 	if(Period.CheckDate(pattern_at.Date)) {
 		ExtLinesBlock elb;
 		int    r = EnumerateExtLines(pPack, &elb);
@@ -758,7 +758,7 @@ int PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 	for(uint j = 0; j < cur_list.getCount(); j++) {
 		const PPID cur_id = cur_list.at(j);
 		PPAccTurn pattern_at;
-		pPack->CreateAccTurn(&pattern_at);
+		pPack->CreateAccTurn(pattern_at);
 		if(Period.CheckDate(pattern_at.Date)) {
 			ExtLinesBlock elb;
 			r = EnumerateExtLines(pPack, &elb);

@@ -54,7 +54,7 @@ int FASTCALL PPGenCashNode::Copy(const PPGenCashNode & rS)
 	GoodsLocAssocID = rS.GoodsLocAssocID;
 	ParentID      = rS.ParentID;
 	P_DivGrpList  = rS.P_DivGrpList ? new SArray(*rS.P_DivGrpList) : 0;
-	TagL = rS.TagL; // @v9.6.5
+	TagL = rS.TagL;
 	return 1;
 }
 
@@ -92,14 +92,7 @@ int PPGenCashNode::SetRoundParam(const RoundParam * pParam)
 					ExtFlags |= CASHFX_ROUNDAMTDOWN;
 			}
 		}
-//@erik v10.6.13 {
-		if(pParam->IgnPennyFromBCardFlag) {
-			ExtFlags |= CASHFX_IGNPENNYFROMBCARD;
-		}
-		else {
-			ExtFlags &= (~CASHFX_IGNPENNYFROMBCARD);
-		}
-// } @erik
+		SETFLAG(ExtFlags, CASHFX_IGNPENNYFROMBCARD, pParam->IgnPennyFromBCardFlag); //@erik v10.6.13 
 	}
 	return ok;
 }
@@ -1621,7 +1614,76 @@ int SyncCashNodeCfgDialog::editRoundParam()
 int SyncCashNodeCfgDialog::editExt()
 {
 	int    ok = -1;
-	TDialog * dlg = new TDialog(DLG_CASHNSEXT);
+	class PosNodeExtDialog : public TDialog {
+		DECL_DIALOG_DATA(PPSyncCashNode);
+	public:
+		PosNodeExtDialog() : TDialog(DLG_CASHNSEXT)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			int    ok = 1;
+			SString ctbl_list_buf;
+			long   dlvr_items_show_tag = 0; //DlvrItemsShowTag
+			if(Data.Scf.DlvrItemsShowTag > 0)
+				dlvr_items_show_tag = 1;
+			else if(Data.Scf.DlvrItemsShowTag < 0)
+				dlvr_items_show_tag = -1;
+			setCtrlLong(CTL_CASHNSEXT_SCF_DAYS, static_cast<long>(Data.Scf.DaysPeriod));
+			AddClusterAssocDef(CTL_CASHNSEXT_SCF_DLVRT, 0, 0);
+			AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 1, +1);
+			AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 2, -1);
+			SetClusterData(CTL_CASHNSEXT_SCF_DLVRT, dlvr_items_show_tag);
+			AddClusterAssoc(CTL_CASHNSEXT_NOTSF, 0, Data.Scf.fNotSpFinished);
+			SetClusterData(CTL_CASHNSEXT_NOTSF, Data.Scf.Flags);
+			setCtrlReal(CTL_CASHNSEXT_BONUSMAX, fdivi(static_cast<long>(Data.BonusMaxPart), 10L));
+			AddClusterAssoc(CTL_CASHNSEXT_ZEROBONUS, 0, CASHFX_ZEROBONUS); // @v11.4.9
+			disableCtrl(CTL_CASHNSEXT_BONUSMAX, LOGIC(Data.ExtFlags & CASHFX_ZEROBONUS));
+			SetClusterData(CTL_CASHNSEXT_ZEROBONUS, Data.ExtFlags); // @v11.4.9
+			setCtrlString(CTL_CASHNSEXT_CTBLLIST, Data.CTblListToString(ctbl_list_buf));
+			AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 0, CASHFX_INPGUESTCFTBL);
+			AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 1, CASHFX_USEGOODSMATRIX); // @v11.2.8
+			SetClusterData(CTL_CASHNSEXT_FLAGS, Data.ExtFlags);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			SString ctbl_list_buf;
+			long   days_period = getCtrlLong(sel = CTL_CASHNSEXT_SCF_DAYS);
+			THROW_PP(days_period >= 0 && days_period <= 1000, PPERR_USERINPUT);
+			getCtrlString(sel = CTL_CASHNSEXT_CTBLLIST, ctbl_list_buf);
+			THROW_PP(Data.CTblListFromString(ctbl_list_buf), CTL_CASHNSEXT_CTBLLIST);
+			Data.BonusMaxPart = static_cast<uint16>(getCtrlReal(CTL_CASHNSEXT_BONUSMAX) * 10.0);
+			if(Data.BonusMaxPart < 0 || Data.BonusMaxPart > 1000)
+				Data.BonusMaxPart = 0;
+			// @v11.4.9 {
+			GetClusterData(CTL_CASHNSEXT_ZEROBONUS, &Data.ExtFlags); 
+			if(Data.ExtFlags & CASHFX_ZEROBONUS)
+				Data.BonusMaxPart = 0;
+			// } @v11.4.9 
+			Data.Scf.DaysPeriod = static_cast<uint16>(days_period);
+			Data.Scf.DlvrItemsShowTag = static_cast<int16>(GetClusterData(CTL_CASHNSEXT_SCF_DLVRT));
+			GetClusterData(CTL_CASHNSEXT_FLAGS, &Data.ExtFlags);
+			GetClusterData(CTL_CASHNSEXT_NOTSF, &Data.Scf.Flags);
+			ASSIGN_PTR(pData, Data);
+			CATCHZOKPPERRBYDLG
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_CASHNSEXT_ZEROBONUS)) {
+				GetClusterData(CTL_CASHNSEXT_ZEROBONUS, &Data.ExtFlags); 
+				disableCtrl(CTL_CASHNSEXT_BONUSMAX, LOGIC(Data.ExtFlags & CASHFX_ZEROBONUS));
+				clearEvent(event);
+			}
+		}
+	};
+	PosNodeExtDialog * dlg = new PosNodeExtDialog();
 	if(CheckDialogPtrErr(&dlg)) {
 		/*{
 			TRect this_rect = getRect();
@@ -1631,45 +1693,10 @@ int SyncCashNodeCfgDialog::editExt()
 			dlg_rect.move(shift);
 			::MoveWindow(dlg->H(), dlg_rect.a.x, dlg_rect.a.y, dlg_rect.width(), dlg_rect.height(), 0);
 		}*/
-		SString ctbl_list_buf;
-		long   dlvr_items_show_tag = 0; //DlvrItemsShowTag
-		if(Data.Scf.DlvrItemsShowTag > 0)
-			dlvr_items_show_tag = 1;
-		else if(Data.Scf.DlvrItemsShowTag < 0)
-			dlvr_items_show_tag = -1;
-		dlg->setCtrlLong(CTL_CASHNSEXT_SCF_DAYS, (long)Data.Scf.DaysPeriod);
-		dlg->AddClusterAssocDef(CTL_CASHNSEXT_SCF_DLVRT, 0, 0);
-		dlg->AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 1, +1);
-		dlg->AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 2, -1);
-		dlg->SetClusterData(CTL_CASHNSEXT_SCF_DLVRT, dlvr_items_show_tag);
-		dlg->AddClusterAssoc(CTL_CASHNSEXT_NOTSF, 0, Data.Scf.fNotSpFinished);
-		dlg->SetClusterData(CTL_CASHNSEXT_NOTSF, Data.Scf.Flags);
-		dlg->setCtrlReal(CTL_CASHNSEXT_BONUSMAX, fdivi(static_cast<long>(Data.BonusMaxPart), 10L));
-		dlg->setCtrlString(CTL_CASHNSEXT_CTBLLIST, Data.CTblListToString(ctbl_list_buf));
-		dlg->AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 0, CASHFX_INPGUESTCFTBL);
-		dlg->AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 1, CASHFX_USEGOODSMATRIX); // @v11.2.8
-		dlg->SetClusterData(CTL_CASHNSEXT_FLAGS, Data.ExtFlags);
+		dlg->setDTS(&Data);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
-			long   days_period = dlg->getCtrlLong(CTL_CASHNSEXT_SCF_DAYS);
-			if(days_period < 0 || days_period > 1000) {
-				PPErrorByDialog(dlg, CTL_CASHNSEXT_SCF_DAYS, PPERR_USERINPUT);
-			}
-			else {
-				dlg->getCtrlString(CTL_CASHNSEXT_CTBLLIST, ctbl_list_buf);
-				if(!Data.CTblListFromString(ctbl_list_buf)) {
-					PPErrorByDialog(dlg, CTL_CASHNSEXT_CTBLLIST);
-				}
-				else {
-					Data.BonusMaxPart = static_cast<uint16>(dlg->getCtrlReal(CTL_CASHNSEXT_BONUSMAX) * 10.0);
-					if(Data.BonusMaxPart < 0 || Data.BonusMaxPart > 1000)
-						Data.BonusMaxPart = 0;
-					Data.Scf.DaysPeriod = (uint16)days_period;
-					Data.Scf.DlvrItemsShowTag = (int16)dlg->GetClusterData(CTL_CASHNSEXT_SCF_DLVRT);
-					dlg->GetClusterData(CTL_CASHNSEXT_FLAGS, &Data.ExtFlags);
-					dlg->GetClusterData(CTL_CASHNSEXT_NOTSF, &Data.Scf.Flags);
-					ok = 1;
-				}
-			}
+			if(dlg->getDTS(&Data))
+				ok = 1;
 		}
 	}
 	delete dlg;

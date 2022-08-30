@@ -478,7 +478,7 @@ int PPCashMachine::SyncCloseSession()
 				ObjTagItem tag_item;
 				if(PPRef->Ot.GetTag(PPOBJ_CASHNODE, NodeRec.ID, PPTAG_POSNODE_HOSTUUID, &tag_item) > 0) {
 					PPPosProtocol::RouteBlock dest_rb;
-					if(tag_item.GetGuid(&dest_rb.Uuid) > 0) {
+					if(tag_item.GetGuid(&dest_rb.Uuid)) {
 						PPIDArray sess_list;
 						sess_list.add(sess_id);
 						PPPosProtocol pp;

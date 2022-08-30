@@ -6,7 +6,6 @@ package ru.petroglif.styloq;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.StringTokenizer;
@@ -33,7 +32,7 @@ public class Document {
 			for(int i = 0; i < _c; i++) {
 				String tok = toknzr.nextToken();
 				tok.trim();
-				if(tok.equalsIgnoreCase("docstatus"))
+				if(tok.equalsIgnoreCase("DocStatus"))
 					result |= actionDocStatus;
 				else if(tok.equalsIgnoreCase("DocAcceptance"))
 					result |= actionDocAcceptance;
@@ -49,16 +48,55 @@ public class Document {
 		}
 		return result;
 	}
+	public static String IncomingListActionsToString(final int actionFlags)
+	{
+		String result = "";
+		if(actionFlags != 0) {
+			if((actionFlags & actionDocStatus) != 0) {
+				if(SLib.GetLen(result) > 0)
+					result += ",";
+				result += "DocStatus";
+			}
+			if((actionFlags & actionDocAcceptance) != 0) {
+				if(SLib.GetLen(result) > 0)
+					result += ",";
+				result += "DocAcceptance";
+			}
+			if((actionFlags & actionDocAcceptanceMarks) != 0) {
+				if(SLib.GetLen(result) > 0)
+					result += ",";
+				result += "DocAcceptanceMarks";
+			}
+			if((actionFlags & actionDocSettingMarks) != 0) {
+				if(SLib.GetLen(result) > 0)
+					result += ",";
+				result += "DocSettingMarks";
+			}
+			if((actionFlags & actionDocInventory) != 0) {
+				if(SLib.GetLen(result) > 0)
+					result += ",";
+				result += "DocInventory";
+			}
+			if((actionFlags & actionGoodsItemCorrection) != 0) {
+				if(SLib.GetLen(result) > 0)
+					result += ",";
+				result += "GoodsItemCorrection";
+			}
+		}
+		return result;
+	}
 
 	Head H;
 	ArrayList <TransferItem> TiList;
 	ArrayList <BookingItem> BkList; // Список позиций повременных элементов, связанных с процессорами
 	ArrayList <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
+	ArrayList <LotExtCode> XcL_Unassigned; // Список марок, просканированных в режиме расстановки, для которых не нашлось сопоставления
+		// с товарными строками документа.
 	private int AfterTransmitStatus; // @transient Флаги статуса документа, которые должны быть установлены в БД после успешной отправки сервису
 	public int DetailExpandStatus_Ti; // @transient
 
 	public static class Head {
-		public static boolean ArEq(final Head a1, final Head a2)
+		public static boolean AreEq(final Head a1, final Head a2)
 		{
 			return (a1 != null) ? (a2 != null && a1.IsEq(a2)) : (a2 == null);
 		}
@@ -68,7 +106,8 @@ public class Document {
 			CreationTime = null;
 			Time = null;
 			DueTime = null;
-			OpID = 0;
+			SvcOpID = 0;
+			InterchangeOpID = 0;
 			AgentID = 0; // @v11.4.6
 			PosNodeID = 0; // @v11.4.6
 			ClientID = 0;
@@ -81,6 +120,32 @@ public class Document {
 			OrgCmdUuid = null;
 			BaseCurrencySymb = null;
 			Memo = null;
+		}
+		public static Head Copy(Head s)
+		{
+			Head copy = null;
+			if(s != null) {
+				copy = new Head();
+				copy.ID = s.ID;
+				copy.CreationTime = SLib.LDATETIME.Copy(s.CreationTime);
+				copy.Time = SLib.LDATETIME.Copy(s.Time);
+				copy.DueTime = SLib.LDATETIME.Copy(s.DueTime);
+				copy.SvcOpID = s.SvcOpID;
+				copy.InterchangeOpID = s.InterchangeOpID;
+				copy.AgentID = s.AgentID;
+				copy.PosNodeID = s.PosNodeID;
+				copy.ClientID = s.ClientID;
+				copy.DlvrLocID = s.DlvrLocID;
+				copy.Flags = s.Flags;
+				copy.Amount = s.Amount;
+				copy.Code = SLib.Copy(s.Code);
+				copy.SvcIdent = SLib.Copy(s.SvcIdent);
+				copy.Uuid = SLib.Copy(s.Uuid);
+				copy.OrgCmdUuid = SLib.Copy(s.OrgCmdUuid);
+				copy.BaseCurrencySymb = SLib.Copy(s.BaseCurrencySymb);
+				copy.Memo = SLib.Copy(s.Memo);
+			}
+			return copy;
 		}
 		boolean IsEq(final Head s)
 		{
@@ -177,7 +242,10 @@ public class Document {
 		SLib.LDATETIME CreationTime;
 		SLib.LDATETIME Time;
 		SLib.LDATETIME DueTime;
-		int    OpID;
+		int    InterchangeOpID; // @v11.4.9 OpID-->InterchangeOpID
+		int    SvcOpID;   // @v11.4.9 Ид вида операции, определенный на стороне сервиса.
+			// Если клиент создает новый документ (в смысле PPObjBill), но не знает точный ид вида операции на
+			// стороне сервиса, то определяет InterchangeOpID.
 		int    ClientID;  // service-domain-id
 		int    DlvrLocID; // service-domain-id
 		int    AgentID;   // @v11.4.6 Для документа агентского заказа - ид агента (фактически, он ассоциируется с владельцем нашего устройства)
@@ -252,6 +320,14 @@ public class Document {
 	{
 		ArrayList <EditAction> result = new ArrayList<>();
 		switch(status) {
+			case StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD:
+				result.add(new EditAction(editactionSubmitAndTransmit));
+				result.add(new EditAction(editactionCancelDocument));
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMODACCEPTED:
+				result.add(new EditAction(editactionClose));
+				break;
 			case StyloQDatabase.SecStoragePacket.styloqdocstUNDEF:
 				result.add(new EditAction(editactionClose));
 				break;
@@ -429,6 +505,33 @@ public class Document {
 			BoxRefN = 0;
 			Code = null;
 		}
+		LotExtCode(String mark)
+		{
+			Flags = 0;
+			BoxRefN = 0;
+			Code = mark;
+		}
+		public static LotExtCode Copy(final LotExtCode s)
+		{
+			LotExtCode copy = null;
+			if(s != null) {
+				copy = new LotExtCode();
+				copy.Flags = s.Flags;
+				copy.BoxRefN = s.BoxRefN;
+				copy.Code = SLib.Copy(s.Code);
+			}
+			return copy;
+		}
+		public static ArrayList <LotExtCode> Copy(final ArrayList <LotExtCode> s)
+		{
+			ArrayList <LotExtCode> copy = null;
+			if(s != null) {
+				copy = new ArrayList<LotExtCode>();
+				for(LotExtCode iter : s)
+					copy.add(Copy(iter));
+			}
+			return copy;
+		}
 		boolean IsEq(final LotExtCode s)
 		{
 			return (s != null && Flags == s.Flags && BoxRefN == s.BoxRefN && SLib.AreStringsEqual(Code, s.Code));
@@ -450,6 +553,18 @@ public class Document {
 			Cost = 0.0;
 			Price = 0.0;
 			Discount = 0.0;
+		}
+		public static ValuSet Copy(final ValuSet s)
+		{
+			ValuSet copy = null;
+			if(s != null) {
+				copy = new ValuSet();
+				copy.Qtty = s.Qtty;
+				copy.Cost = s.Cost;
+				copy.Price = s.Price;
+				copy.Discount = s.Discount;
+			}
+			return copy;
 		}
 		boolean IsEq(final ValuSet s)
 		{
@@ -510,6 +625,21 @@ public class Document {
 			SetAccepted = null; // @v11.4.8
 			XcL = null;
 		}
+		public static TransferItem Copy(final TransferItem s)
+		{
+			TransferItem copy = null;
+			if(s != null) {
+				copy = new TransferItem();
+				copy.RowIdx = s.RowIdx;
+				copy.GoodsID = s.GoodsID;
+				copy.UnitID = s.UnitID;
+				copy.Flags = s.Flags;
+				copy.Set = ValuSet.Copy(s.Set);
+				copy.SetAccepted = ValuSet.Copy(s.SetAccepted);
+				copy.XcL = LotExtCode.Copy(s.XcL);
+			}
+			return copy;
+		}
 		boolean IsEq(final TransferItem s)
 		{
 			boolean yes = true;
@@ -565,6 +695,22 @@ public class Document {
 			Set = new ValuSet();
 			Memo = null;
 		}
+		public static BookingItem Copy(final BookingItem s)
+		{
+			BookingItem copy = null;
+			if(s != null) {
+				copy = new BookingItem();
+				copy.RowIdx = s.RowIdx;
+				copy.PrcID = s.PrcID;
+				copy.GoodsID = s.GoodsID;
+				copy.Flags = s.Flags;
+				copy.ReqTime = SLib.LDATETIME.Copy(s.ReqTime);
+				copy.EstimatedDurationSec = s.EstimatedDurationSec;
+				copy.Set = ValuSet.Copy(s.Set);
+				copy.Memo = SLib.Copy(s.Memo);
+			}
+			return copy;
+		}
 		boolean IsEq(final BookingItem s)
 		{
 			boolean yes = true;
@@ -616,16 +762,21 @@ public class Document {
 		TiList = null;
 		BkList = null;
 		VXcL = null;
+		XcL_Unassigned = null;
 	}
-	Document(int opID, final byte [] svcIdent, StyloQApp appCtx) throws StyloQException
+	Document(int interchangeOpID, final byte [] svcIdent, StyloQApp appCtx) throws StyloQException
 	{
+		AfterTransmitStatus = 0;
+		DetailExpandStatus_Ti = 0;
+		H = null;
 		TiList = null;
 		BkList = null;
 		VXcL = null;
-		if(opID > 0) {
+		XcL_Unassigned = null;
+		if(interchangeOpID > 0) {
 			H = new Document.Head();
 			H.CreationTime = new SLib.LDATETIME(System.currentTimeMillis());
-			H.OpID = opID;
+			H.InterchangeOpID = interchangeOpID;
 			H.SvcIdent = svcIdent; // @v11.4.1 @fix
 			SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT); // Новый док автоматом является draft-документом
 			H.Uuid = UUID.randomUUID();
@@ -636,10 +787,41 @@ public class Document {
 			}
 		}
 	}
+	public static Document Copy(final Document s)
+	{
+		Document copy = null;
+		if(s != null) {
+			copy = new Document();
+			copy.H = Head.Copy(s.H);
+			{
+				if(s.TiList != null) {
+					copy.TiList = new ArrayList<TransferItem>();
+					for(TransferItem iter : s.TiList)
+						copy.TiList.add(TransferItem.Copy(iter));
+				}
+				else
+					copy.TiList = null;
+			}
+			{
+				if(s.BkList != null) {
+					copy.BkList = new ArrayList<BookingItem>();
+					for(BookingItem iter : s.BkList)
+						copy.BkList.add(BookingItem.Copy(iter));
+				}
+				else
+					copy.BkList = null;
+			}
+			copy.VXcL = LotExtCode.Copy(s.VXcL);
+			copy.XcL_Unassigned = LotExtCode.Copy(s.XcL_Unassigned);
+			copy.AfterTransmitStatus = s.AfterTransmitStatus;
+			copy.DetailExpandStatus_Ti = s.DetailExpandStatus_Ti;
+		}
+		return copy;
+	}
 	boolean IsEq(final Document s)
 	{
 		boolean yes = true;
-		if(!(s != null && Head.ArEq(H, s.H)))
+		if(!(s != null && Head.AreEq(H, s.H)))
 			yes = false;
 		else {
 			if(TiList != null) {
@@ -727,6 +909,7 @@ public class Document {
 		TiList = null;
 		BkList = null;
 		VXcL = null;
+		XcL_Unassigned = null;
 		return this;
 	}
 	public SLib.LDATE GetNominalDate() { return (H != null) ? H.GetNominalDate() : null; }
@@ -762,6 +945,175 @@ public class Document {
 			}
 		}
 		return amount;
+	}
+	//
+	// Следующие две функции (GetGoodsMarkSettingListCount и GetGoodsMarkSettingListItem)
+	// предназначены для управления отображением списка при присвоении марок позициям документа.
+	//
+	int GetGoodsMarkSettingListCount()
+	{
+		int result = 0;
+		if(XcL_Unassigned != null && XcL_Unassigned.size() > 0)
+			result++;
+		if(TiList != null) {
+			for(int i = 0; i < TiList.size(); i++) {
+				final TransferItem ti = TiList.get(i);
+				if(ti != null && ti.XcL != null && ti.XcL.size() > 0)
+					result++;
+			}
+		}
+		return result;
+	}
+	public static class GoodsMarkSettingEntry {
+		GoodsMarkSettingEntry(ArrayList<LotExtCode> xcl, TransferItem ti)
+		{
+			XcL = xcl;
+			Ti = ti;
+		}
+		final ArrayList<LotExtCode> XcL;
+		final TransferItem Ti;
+	}
+	GoodsMarkSettingEntry GetGoodsMarkSettingListItem(int idx)
+	{
+		GoodsMarkSettingEntry result = null;
+		int iter_idx = 0;
+		if(XcL_Unassigned != null && XcL_Unassigned.size() > 0) {
+			if(iter_idx == idx) {
+				result = new GoodsMarkSettingEntry(XcL_Unassigned, null);
+			}
+			iter_idx++;
+		}
+		if(result == null) {
+			if(TiList != null) {
+				for(int i = 0; result == null && i < TiList.size(); i++) {
+					final TransferItem ti = TiList.get(i);
+					if(ti != null && ti.XcL != null && ti.XcL.size() > 0) {
+						if(iter_idx == idx) {
+							result = new GoodsMarkSettingEntry(ti.XcL, ti);
+						}
+						iter_idx++;
+					}
+				}
+			}
+		}
+		return result;
+	}
+	int AssignGoodsMark(String mark, final ArrayList</*BusinessEntity.Goods*/CommonPrereqModule.WareEntry> goodsRefList)
+	{
+		int ok = -1;
+		GTIN m = GTIN.ParseChZnCode(mark, 0);
+		if(m != null && m.GetChZnParseResult() > 0) {
+			String gtin14 = m.GetToken(GTIN.fldGTIN14);
+			final int gtin14_len = SLib.GetLen(gtin14);
+			if(gtin14_len > 0) {
+				assert(gtin14_len == 14);
+				String pattern = gtin14.substring(1);
+				if(goodsRefList != null && goodsRefList.size() > 0 && TiList != null && TiList.size() > 0) {
+					for(int tiidx = 0; ok < 0 && tiidx < TiList.size(); tiidx++) {
+						TransferItem ti = TiList.get(tiidx);
+						if(ti != null && ti.GoodsID > 0) {
+							for(int gidx = 0; gidx < goodsRefList.size(); gidx++) {
+								CommonPrereqModule.WareEntry _we = goodsRefList.get(gidx);
+								BusinessEntity.Goods goods_item = (_we != null) ? goodsRefList.get(gidx).Item : null;
+								if(goods_item != null && goods_item.ID == ti.GoodsID) {
+									BusinessEntity.GoodsCode fc = goods_item.SearchCode(pattern);
+									if(fc != null) {
+										if(ti.XcL == null) {
+											ti.XcL = new ArrayList<LotExtCode>();
+											ti.XcL.add(new LotExtCode(mark));
+											ok = 1;
+										}
+										else {
+											final LotExtCode ex_lec = FindLotExtCode(ti.XcL, mark);
+											if(ex_lec == null) {
+												ti.XcL.add(new LotExtCode(mark));
+												ok = 1;
+											}
+											else {
+												ok = 0; // dup code
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if(ok < 0) {
+					if(XcL_Unassigned == null) {
+						XcL_Unassigned = new ArrayList<LotExtCode>();
+						XcL_Unassigned.add(new LotExtCode(mark));
+						ok = 2;
+					}
+					else {
+						final LotExtCode ex_lec = FindLotExtCode(XcL_Unassigned, mark);
+						if(ex_lec == null) {
+							XcL_Unassigned.add(new LotExtCode(mark));
+							ok = 2;
+						}
+						else {
+							ok = 0; // dup code
+						}
+					}
+				}
+			}
+			else
+				ok = 0;
+		}
+		else
+			ok = 0;
+		return ok;
+	}
+	static LotExtCode FindLotExtCode(final ArrayList<LotExtCode> list, final String mark)
+	{
+		LotExtCode result = null;
+		final int mark_len = SLib.GetLen(mark);
+		if(mark_len > 0 && list != null && list.size() > 0) {
+			String pattern = "";
+			{
+				for(int ci = 0; ci < mark_len; ci++) {
+					char c = mark.charAt(ci);
+					if(c != 29)
+						pattern = pattern + c;
+				}
+			}
+			for(int i = 0; result == null && i < list.size(); i++) {
+				final LotExtCode item = list.get(i);
+				if(item != null && item.Code != null && pattern.equalsIgnoreCase(item.Code))
+					result = item;
+			}
+		}
+		return result;
+	}
+	//
+	// Descr: Статусы кодов маркировки (в пуле проверки по отношению к существующим в пакете или
+	// существующих в пакете по отношению к пулу проверки)
+	//
+	public enum GoodsMarkStatus {
+		Unkn, // Неизвестный
+		Matched, // Проверяемая марка сопоставлена одной из марок в пакете, либо марка из пакета
+			// имеет соответствующую пару в пуле проверки.
+		Unmatched, // Проверяемая марка не может быть сопоставлена ни одной из марок в пакете
+		Absent // Марка из пакета отсутствует в пуле проверки
+	}
+	GoodsMarkStatus GetVerificationGoodsMarkStatus(String mark)
+	{
+		GoodsMarkStatus result = GoodsMarkStatus.Unmatched;
+		final int mark_len = SLib.GetLen(mark);
+		if(mark_len > 0 && TiList != null && TiList.size() > 0) {
+			for(int i = 0; result == GoodsMarkStatus.Unmatched && i < TiList.size(); i++) {
+				final TransferItem ti = TiList.get(i);
+				final LotExtCode lec = (ti != null) ? FindLotExtCode(ti.XcL, mark) : null;
+				if(lec != null)
+					result = GoodsMarkStatus.Matched;
+			}
+		}
+		return result;
+	}
+	GoodsMarkStatus GetInnerGoodsMarkStatus(String mark)
+	{
+		final LotExtCode lec = FindLotExtCode(VXcL, mark);
+		return (lec != null) ? GoodsMarkStatus.Matched : GoodsMarkStatus.Absent;
 	}
 	//
 	// Descr: Выполняет завершающие операции над документом, включающие
@@ -806,7 +1158,8 @@ public class Document {
 					result.put("tm", SLib.datetimefmt(H.Time, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
 				if(H.DueTime != null)
 					result.put("duetm", SLib.datetimefmt(H.DueTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
-				result.put("opid", H.OpID);
+				result.put("svcopid", H.SvcOpID);
+				result.put("icopid", H.InterchangeOpID);
 				if(H.PosNodeID > 0) { // @v11.4.6
 					result.put("posnodeid", H.PosNodeID);
 				}
@@ -975,7 +1328,8 @@ public class Document {
 				H.CreationTime = SLib.strtodatetime(jsObj.optString("crtm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
 				H.Time = SLib.strtodatetime(jsObj.optString("tm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
 				H.DueTime = SLib.strtodatetime(jsObj.optString("duetm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
-				H.OpID = jsObj.optInt("opid", 0);
+				H.SvcOpID = jsObj.optInt("svcopid", 0);
+				H.InterchangeOpID = jsObj.optInt("icopid", 0);
 				H.ClientID = jsObj.optInt("cliid", 0);
 				H.PosNodeID = jsObj.optInt("posnodeid", 0);
 				H.AgentID = jsObj.optInt("agentid", 0);

@@ -3741,7 +3741,7 @@ public:
 	int    FASTCALL GetReal(double *) const;
 	int    FASTCALL GetStr(SString &) const;
 	int    FASTCALL GetDate(LDATE *) const;
-	int    FASTCALL GetGuid(S_GUID *) const;
+	bool   FASTCALL GetGuid(S_GUID *) const;
 	int    FASTCALL GetTimestamp(LDATETIME *) const;
 	int    GetEnumData(long * pID, long * pParentID, SString * pTxt, SString * pSymb) const;
 	int    AddReal(double rVal);
@@ -10301,8 +10301,8 @@ private:
 //
 class PPTransferItem { // @size=128
 public:
-	static int FASTCALL IsRecomplete(long flags);
-	static int FASTCALL GetSign(PPID op, long flags);
+	static bool   FASTCALL IsRecomplete(long flags);
+	static int    FASTCALL GetSign(PPID op, long flags);
 
 	enum {
 		initfForceSign  = 0x0001,
@@ -10355,13 +10355,13 @@ public:
 	// Descr: Возвращает !0 если строка является корректировкой прихода.
 	// Note: Признаком такой корректировки является одновременно установленные флаги PPTFR_CORRECTION и PPTFR_REVAL.
 	//
-	int    IsCorrectionRcpt() const;
+	bool   IsCorrectionRcpt() const;
 	//
 	// Descr: Возвращает !0 если строка является корректировкой расхода.
 	// Note: Признаком такой корректировки является установленный флаг PPTFR_CORRECTION
 	//   при одновременной отключенным флагом PPTFR_REVAL.
 	//
-	int    IsCorrectionExp() const;
+	bool   IsCorrectionExp() const;
 	//
 	// Descr: Реализует установку параметров структуры в зависимости от идентификатора товара goodsID.
 	//
@@ -10400,9 +10400,9 @@ public:
 	//   Если же этот флаг установлен, то функция возвращает !0 если
 	//     (Flags & PPTFR_ACK) || (Flags & PPTFR_UNLIM && !(Flags & (PPTFR_ORDER|PPTFR_SHADOW)))
 	//
-	int    IsUnlimWoLot() const;
-	int    IsLotRet() const;
-	int    IsRecomplete() const;
+	bool   IsUnlimWoLot() const;
+	bool   IsLotRet() const;
+	bool   IsRecomplete() const;
 	double FASTCALL SQtty(PPID op) const;
 	//
 	// Descr: Возвращает номинальную сумму элемента.
@@ -10537,7 +10537,7 @@ public:
 	};
 };
 
-int FASTCALL IsUnlimWoLot(const TransferTbl::Rec & rRec);
+bool FASTCALL IsUnlimWoLot(const TransferTbl::Rec & rRec);
 //
 // Intermediate Level Transfer Item
 // Структура строки товарного документа промежуточного уровня //
@@ -11043,7 +11043,7 @@ public:
 			SString Num;
 		};
 		MarkSet();
-		void   Clear();
+		MarkSet & Z();
 		long   AddBox(long id, const char * pNum, int doVerify);
 		int    AddNum(long boxId, const char * pNum, int doVerify);
 		uint   GetCount() const;
@@ -11730,13 +11730,13 @@ public:
 	// ARG(pSerial IN): @#{vptr0} серийный номер, ассоциированный со строкой
 	// Returns:
 	//   !0 - элемент успешно добавлен в список
-	//   0  - ошибка при добавлении элемента. pPos - не определен.
+	//   0  - ошибка при добавлении элемента
 	//
 	int    LoadTItem(const PPTransferItem * pItem, const char * pClb, const char * pSerial);
 	int    FASTCALL AddShadowItem(const PPTransferItem *);
 	int    AddShadowItem(const PPTransferItem * pOrdItem, uint * pPos);
 	int    InitACPacket();
-	void   CreateAccTurn(PPAccTurn *) const;
+	void   CreateAccTurn(PPAccTurn & rAt) const;
 	int    UngetCounter();
 	void   FASTCALL SetQuantitySign(int minus /*= -1*/);
 	//
@@ -20240,6 +20240,9 @@ public:
 //
 class GtinStruc : public StrAssocArray {
 public:
+	// Attention! Перечисление ниже портировано в проект Stylo-Q (класс GTIN) с идентичными мнемониками и значениями,
+	// равными неявным значениям c-enum'а. Новые элементы добавлять строго в конец списка с одновременной
+	// поддержкой идентичности в Stylo-Q.
 	enum { // A.I. Описание Количество цифр и формат
 		fldOriginalText = 0,      // Оригинальный текст, поданый для разбора
 		fldSscc18,                // 00 Серийный код транспортной упаковки (SSCC-18): 18 цифр
@@ -20358,7 +20361,7 @@ private:
 	enum {
 		dpfBOL = 0x0001 // Мы находимся в начале строки (нужен для отсеивания префиксов, которые могут встречаться только в начале строки)
 	};
-	int    DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen, SString & rPrefix) const;
+	int    DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen) const;
 	int    GetPrefixSpec(int prefixId, uint * pFixedLen, uint * pMinLen) const;
 	::LAssocArray SpecialFixedTokens; // Значение длины 1000 означает 'до конца строки' (UNTIL EOL)
 	::LAssocArray SpecialMinLenTokens; // @v10.9.6 Специфицированные минимальные длины токенов
@@ -20740,6 +20743,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_USEGOODSMATRIX     0x10000000L // @v11.2.8 Применять ограничения товарной матрицы в кассовой панели
 #define CASHFX_SYNCOPENSESSSOFT   0x20000000L // @v11.4.7 (sync) Открывать кассовую сессию без подачи соответствующей команды устройству.
 	// Причина: на некоторых устройствах функция открытия сессии влечет проблемы.
+#define CASHFX_ZEROBONUS          0x40000000L // @v11.4.9 (sync) Использование бонусов не допускается.
 //
 // Идентификаторы строковых свойств кассовых узлов.
 // Attention: Ни в коем случае не менять значения идентификаторов - @persistent
@@ -23921,6 +23925,7 @@ private:
 #define GTCHZNPT_TEXTILE   6 // @v10.9.11 Текстиль
 #define GTCHZNPT_PERFUMERY 7 // @v10.9.11 Парфюмерия
 #define GTCHZNPT_MILK      8 // @v10.9.11 Молоко
+#define GTCHZNPT_JEWELRY   9 // @v11.4.9 Ювелирные изделия //
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -35742,7 +35747,9 @@ public:
 	// размер блока.
 	//
 	struct FlatBlock {
-		uint8  Reserve[52];    // @reserve
+		uint8  Reserve[48];    // @reserve // @v11.4.9 [52]-->[48]
+		int16  CancelPrd;      // @v11.4.9 Тип периода обнуления суммы бонусов 
+		uint16 CancelPrcCount; // @v11.4.9 Количество периодов типа CancelPrd после истечения которых сумма бонусов обнуляется.
 		uint32 Internal[2];    // @internal
 		long   Flags;          // @flags
 	} Fb;
@@ -46806,6 +46813,8 @@ public:
 		styloqdocstFINISHED_SUCC         = 15, // Финальное состояние документа: завершен как учтенный и отработанный.
 		styloqdocstFINISHED_FAIL         = 16, // Финальное состояние документа: завершен как отмененный.
 		styloqdocstCANCELLEDDRAFT        = 17, // @v11.4.1 Драфт отмененый эмитентом. Переход в это состояние возможен только после styloqdocstDRAFT || styloqdocstUNDEF.
+		styloqdocstINCOMINGMOD           = 18, // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация
+		styloqdocstINCOMINGMODACCEPTED   = 19, // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация, которая, в свою очередь, акцептирована сервисом.
 	};
 	//
 	// Descr: Типы документов, хранящихся в реестре Stylo-Q
@@ -47261,12 +47270,31 @@ public:
 		SString CommandJson;
 		SBinaryChunk Blob; // @v11.3.8
 	};
-	struct Document {
-		Document();
+	struct DocumentDeclaration {
+		DocumentDeclaration(const StyloQCommandList::Item * pCmdItem, const char * pDl600Symb);
+		DocumentDeclaration & Z();
 		int    FromJsonObject(const SJson * pJsObj);
 		int    FromJson(const char * pJson);
 		SJson * ToJsonObject() const;
 		int    ToJson(SString & rResult) const;
+		LDATETIME Dtm;
+		uint   ActionFlags;
+		int32  ResultExpiryTimeSec; // mirror of StyloQCommandList::Item::ResultExpiryTimeSec
+		SString Type;
+		SString Format;
+		SString DisplayMethSymb;
+		SString ViewSymb;
+		SString Dl600Symb;
+	};
+	struct Document {
+		Document();
+		Document & Z();
+		int    FromJsonObject(const SJson * pJsObj);
+		int    FromJson(const char * pJson);
+		SJson * ToJsonObject() const;
+		int    ToJson(SString & rResult) const;
+		static uint  IncomingListActionsFromString(const char * pStr);
+		static SString & IncomingListActionsToString(uint actionFlags, SString & rBuf);
 		struct LotExtCode {
 			LotExtCode();
 			int    Flags;
@@ -47309,7 +47337,10 @@ public:
 		LDATETIME CreationTime;
 		LDATETIME Time;
 		LDATETIME DueTime;
-		int    OpID;
+		int    InterchangeOpID; // @v11.4.9 OpID-->InterchangeOpID
+		int    SvcOpID;   // @v11.4.9 Ид вида операции, определенный на стороне сервиса.
+			// Если клиент создает новый документ (в смысле PPObjBill), но не знает точный ид вида операции на
+			// стороне сервиса, то определяет InterchangeOpID.
 		int    ClientID;  // service-domain-id
 		int    DlvrLocID; // service-domain-id
 		int    AgentID;   // @v11.4.6 service-domain-id
@@ -47643,6 +47674,11 @@ private:
 	int    IntermediateReply(int waitPeriodMs, int pollIntervalMs, const SBinaryChunk * pSessSecret, ProcessCmdCallbackProc intermediateReplyProc, void * pIntermediateReplyExtra);
 	SJson * ReplyGoodsInfo(const SBinaryChunk & rOwnIdent, const SBinaryChunk & rCliIdent, PPID goodsID, const char * pBarcode);
 	bool   GetOwnIdent(SBinaryChunk & rOwnIdent, StyloQCore::StoragePacket * pOwnPack);
+	//
+	// Descr: Определяет вид операции, используемый для формирования документов заказа.
+	//   Если параметр palmID != 0, то пытается извлечь вид операции из записи агентского устройства с этим идентификатором (PPObjStyloPalm)
+	//
+	int    GetContextualOpAndLocForOrder(PPID palmID, PPID * pOpID, PPIDArray * pLocList);
 	//
 	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
 	// ARG(flag IN): Уточняет о какой локальности идет речь. Если flag == smqbpfLocalMachine то дополнение
@@ -55333,7 +55369,7 @@ protected:
 		// Если (CnExtFlags & CASHFX_ABSTRGOODSALLOWED), то равно PPGoodsConfig::DefGoodsID, в противном случае - 0.
 	PPObjID OuterOi;         // Внешний объект, к которому привязывается чек.
 	LDATETIME LastGrpListUpdTime;     // Время последнего обновления списка групп товаров
-	PPGenCashNode::RoundParam R;      // Параметры округления //
+	PPGenCashNode::RoundParam R__;      // Параметры округления //
 	PPSyncCashNode::SuspCheckFilt Scf;
 	SString CnName;          // Наименование кассового узла
 	SString CnSymb;          // Символ кассового узла
@@ -56699,7 +56735,7 @@ int    FASTCALL GetGenericOpList(PPID opID, ObjRestrictArray * pList);
 // Descr: Редуцированный вариант предыдущей функции. Возвращает только список операций без флагов.
 //
 int    FASTCALL GetGenericOpList(PPID opID, PPIDArray * pList);
-int    FASTCALL IsOpBelongTo(PPID testOpID, PPID anotherOpID);
+bool   FASTCALL IsOpBelongTo(PPID testOpID, PPID anotherOpID);
 int    FASTCALL GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2ID);
 //
 // Descr: Утилитная функция. Определяет, является ли операция возвратом либо
@@ -56713,7 +56749,7 @@ PPID   FASTCALL IsOpPaymOrRetn(PPID opID);
 // Descr: Определяет, является ли операция оплатой.
 //   Отличается от IsOpPaymOrRetn только тем, что для операции возврата возвращает 0.
 //
-int    FASTCALL IsOpPaym(PPID opID);
+bool   FASTCALL IsOpPaym(PPID opID);
 //
 // Descr: Если операция товарная и оценивается в ценах реализации, то функция IsSellingOperation
 //   возвращает (> 0), если товарная и оценивается в ценах поступления, то 0, для нетоварных операций
@@ -56739,8 +56775,8 @@ int    FASTCALL IsExpendOp(PPID);
 //
 int    FASTCALL IsIntrOp(PPID opID);
 bool   FASTCALL IsIntrExpndOp(PPID opID); // {IsIntrOp(opID) == INTREXPND}
-int    FASTCALL IsDraftOp(PPID opID);
-int    FASTCALL IsGoodsDetailOp(PPID opID);
+bool   FASTCALL IsDraftOp(PPID opID);
+bool   FASTCALL IsGoodsDetailOp(PPID opID);
 int    FASTCALL EnumOperations(PPID oprType, PPID *, PPOprKind * = 0);
 PPID   GetCashOp();
 PPID   GetCashRetOp();

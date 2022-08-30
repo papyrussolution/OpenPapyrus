@@ -1119,10 +1119,11 @@ PPLotExtCodeContainer::MarkSet::MarkSet() : SStrGroup()
 {
 }
 
-void PPLotExtCodeContainer::MarkSet::Clear()
+PPLotExtCodeContainer::MarkSet & PPLotExtCodeContainer::MarkSet::Z()
 {
 	ClearS();
 	L.clear();
+	return *this;
 }
 
 long PPLotExtCodeContainer::MarkSet::AddBox(long id, const char * pNum, int doVerify)
@@ -1503,7 +1504,7 @@ int PPLotExtCodeContainer::Get(int rowIdx, LongArray * pIdxList, MarkSet & rS) c
 {
 	int    ok = -1;
 	CALLPTRMEMB(pIdxList, clear());
-	rS.Clear();
+	rS.Z();
 	SString temp_buf;
 	SString box_num;
 	LongArray seen_idx_list;
@@ -3100,19 +3101,19 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 	return ok;
 }
 
-void PPBillPacket::CreateAccTurn(PPAccTurn * pAT) const
+void PPBillPacket::CreateAccTurn(PPAccTurn & rAt) const
 {
-	memzero(pAT, sizeof(*pAT));
-	memcpy(pAT->BillCode, Rec.Code, sizeof(pAT->BillCode));
-	pAT->Date   = Rec.Dt;
-	pAT->BillID = Rec.ID;
-	pAT->Opr    = Rec.OpID;
+	memzero(&rAt, sizeof(rAt));
+	memcpy(rAt.BillCode, Rec.Code, sizeof(rAt.BillCode));
+	rAt.Date   = Rec.Dt;
+	rAt.BillID = Rec.ID;
+	rAt.Opr    = Rec.OpID;
 	PPOprKind op_rec;
 	if(GetOpData(Rec.OpID, &op_rec) > 0)
 		if(op_rec.SubType == OPSUBT_REGISTER)
-			pAT->Flags |= PPAF_REGISTER;
+			rAt.Flags |= PPAF_REGISTER;
 		else
-			SETFLAG(pAT->Flags, PPAF_OUTBAL, CheckOpFlags(Rec.OpID, OPKF_OUTBALACCTURN));
+			SETFLAG(rAt.Flags, PPAF_OUTBAL, CheckOpFlags(Rec.OpID, OPKF_OUTBALACCTURN));
 }
 
 int PPBillPacket::SetCurTransit(const PPCurTransit * pTrans)
@@ -3253,24 +3254,15 @@ static IMPL_CMPCFUNC(PPTransferItem_RByBill, p1, p2)
 	return CMPSIGN(p_ti1->RByBill, p_ti2->RByBill);
 }
 
-void PPBillPacket::SortTI()
-	{ Lots.sort(PTR_CMPCFUNC(PPTransferItem_RByBill)); }
-int FASTCALL PPBillPacket::EnumTItems(uint * pI, PPTransferItem ** ppTI) const
-	{ return Lots.enumItems(pI, (void **)ppTI); }
-uint PPBillPacket::GetTCount() const
-	{ return Lots.getCount(); }
-int PPBillPacket::GetTPointer() const
-	{ return (int)Lots.getPointer(); }
-PPTransferItem & FASTCALL PPBillPacket::TI(uint p) const
-	{ return Lots.at(p); }
-const  PPTransferItem & FASTCALL PPBillPacket::ConstTI(uint p) const
-	{ return Lots.at(p); }
-const PPTrfrArray & PPBillPacket::GetLots() const
-	{ return Lots; }
-void PPBillPacket::SetLots(const PPTrfrArray & rS)
-	{ Lots = rS; }
-int FASTCALL PPBillPacket::ChkTIdx(int idx) const
-	{ return (idx >= 0 && idx < (int)Lots.getCount()) ? 1 : PPSetError(PPERR_INVTIIDX); }
+void  PPBillPacket::SortTI() { Lots.sort(PTR_CMPCFUNC(PPTransferItem_RByBill)); }
+int   FASTCALL PPBillPacket::EnumTItems(uint * pI, PPTransferItem ** ppTI) const { return Lots.enumItems(pI, (void **)ppTI); }
+uint  PPBillPacket::GetTCount() const { return Lots.getCount(); }
+int   PPBillPacket::GetTPointer() const { return static_cast<int>(Lots.getPointer()); }
+PPTransferItem & FASTCALL PPBillPacket::TI(uint p) const { return Lots.at(p); }
+const PPTransferItem & FASTCALL PPBillPacket::ConstTI(uint p) const { return Lots.at(p); }
+const PPTrfrArray & PPBillPacket::GetLots() const { return Lots; }
+void  PPBillPacket::SetLots(const PPTrfrArray & rS) { Lots = rS; }
+int   FASTCALL PPBillPacket::ChkTIdx(int idx) const { return (idx >= 0 && idx < (int)Lots.getCount()) ? 1 : PPSetError(PPERR_INVTIIDX); }
 
 bool FASTCALL PPBillPacket::SearchTI(int rByBill, uint * pPos) const
 {

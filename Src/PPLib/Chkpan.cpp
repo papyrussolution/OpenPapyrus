@@ -1019,7 +1019,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	State_p(0), LastGrpListUpdTime(ZERODATETIME)
 {
 	OuterOi.Z();
-	MEMSZERO(R);
+	MEMSZERO(R__);
 	SETFLAG(Flags, fNoEdit, (P_ChkPack || !CashNodeID));
 	PPCashNode cn_rec;
 	CnObj.Search(CashNodeID, &cn_rec);
@@ -1466,7 +1466,7 @@ double CPosProcessor::GetUsableBonus() const
 }
 
 double CPosProcessor::GetBonusMaxPart() const { return BonusMaxPart; } // @v10.9.0
-double CPosProcessor::RoundDis(double d) const { return PPRound(d, R.DisRoundPrec, R.DisRoundDir); }
+double CPosProcessor::RoundDis(double d) const { return PPRound(d, R__.DisRoundPrec, R__.DisRoundDir); }
 
 int CPosProcessor::SetupCTable(int tableNo, int guestCount)
 {
@@ -2028,7 +2028,7 @@ void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
 {
 	Helper_SetupDiscount(0.0, distributeGiftDiscount);
 	const CcTotal cct = CalcTotal();
-	double new_amt = (R.AmtRoundPrec != 0.0) ? PPRound(cct.Amount, R.AmtRoundPrec, R.AmtRoundDir) : R2(cct.Amount);
+	double new_amt = (R__.AmtRoundPrec != 0.0) ? PPRound(cct.Amount, R__.AmtRoundPrec, R__.AmtRoundDir) : R2(cct.Amount);
 	double diff = R2(cct.Amount - new_amt);
 	if(!feqeps(diff, 0.0, 1E-6)) {
 		Helper_SetupDiscount(diff, 0);
@@ -3256,7 +3256,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				}
 				ScaleID = scn.ScaleID;
 				BonusMaxPart    = (scn.BonusMaxPart > 0 && scn.BonusMaxPart <= 1000) ? R3(((double)scn.BonusMaxPart) / 1000.0) : 1.0;
-				scn.GetRoundParam(&R);
+				scn.GetRoundParam(&R__);
 				SETFLAG(Flags, fSelSerial, scn.ExtFlags & CASHFX_SELSERIALBYGOODS);
 				SETFLAG(Flags, fForceDivision, scn.ExtFlags & CASHFX_FORCEDIVISION);
 				if(ExtCashNodeID) {

@@ -2380,7 +2380,7 @@ int PPObjBill::EditGenericAccTurn(PPBillPacket * pPack, long flags)
 	if(pPack->Turns.getCount())
 		at = pPack->Turns.at(0);
 	else
-		pPack->CreateAccTurn(&at);
+		pPack->CreateAccTurn(at);
 	if(GetOpSubType(pPack->Rec.OpID) == OPSUBT_REGISTER)
 		dlg_id = DLG_REGATURN;
 	else if(at.Flags & PPAF_OUTBAL)

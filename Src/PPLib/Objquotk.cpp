@@ -338,7 +338,7 @@ int PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 				// соответствие нашей операции этому виду.
 				//
 				if(p_item->OpID) {
-					if(IsOpBelongTo(opID, p_item->OpID) > 0)
+					if(IsOpBelongTo(opID, p_item->OpID))
 						pList->addUnique(id);
 				}
 				else {

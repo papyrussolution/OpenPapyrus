@@ -7,31 +7,27 @@
  * https://www.openssl.org/source/license.html
  * or in the file LICENSE in the source distribution.
  */
-
 /*
  * Given a list of files, run each of them through the fuzzer.  Note that
  * failure will be indicated by some kind of crash. Switching on things like
  * asan improves the test.
  */
 #include "fuzzer.h"
-
 #if defined(_WIN32) && defined(_MAX_PATH) && !defined(PATH_MAX)
-#define PATH_MAX _MAX_PATH
+	#define PATH_MAX _MAX_PATH
 #endif
-
 #ifndef PATH_MAX
-#define PATH_MAX 4096
+	#define PATH_MAX 4096
 #endif
-
 #if !defined(S_ISREG)
-#define S_ISREG(m) ((m) & S_IFREG)
+	#define S_ISREG(m) ((m) & S_IFREG)
 #endif
 
 static void testfile(const char * pathname)
 {
 	struct stat st;
 	FILE * f;
-	unsigned char * buf;
+	uchar * buf;
 	size_t s;
 	if(stat(pathname, &st) < 0 || !S_ISREG(st.st_mode))
 		return;
@@ -40,8 +36,8 @@ static void testfile(const char * pathname)
 	f = fopen(pathname, "rb");
 	if(f == NULL)
 		return;
-	buf = (unsigned char *)malloc(st.st_size);
-	if(buf != NULL) {
+	buf = (uchar *)malloc(st.st_size);
+	if(buf) {
 		s = fread(buf, 1, st.st_size, f);
 		OPENSSL_assert(s == (size_t)st.st_size);
 		FuzzerTestOneInput(buf, s);
@@ -52,15 +48,13 @@ static void testfile(const char * pathname)
 
 int main(int argc, char ** argv) 
 {
-	int n;
 	FuzzerInitialize(&argc, &argv);
-	for(n = 1; n < argc; ++n) {
+	for(int n = 1; n < argc; ++n) {
 		size_t dirname_len = strlen(argv[n]);
 		const char * filename = NULL;
 		char * pathname = NULL;
 		OPENSSL_DIR_CTX * ctx = NULL;
 		int wasdir = 0;
-
 		/*
 		 * We start with trying to read the given path as a directory.
 		 */

@@ -1504,14 +1504,14 @@ int DoConstructionTest()
 #if(_MSC_VER >= 1900)
 	//Test_Fts();
 #endif
-	PPStyloQInterchange::PrepareAhed(true);
-	//PPStyloQInterchange::ExecuteIndexingRequest(true/*useCurrentSession*/);
+	//TestGtinStruc();
+	//PPStyloQInterchange::PrepareAhed(true);
+	PPStyloQInterchange::ExecuteIndexingRequest(true/*useCurrentSession*/);
 	//Test_ListSelectionDialog();
 	//SDecimalFraction::Test();
 	//ImportSpecial("\\DEV\\RESOURCE\\DATA\\ETC");
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	//ImportYYE("/DEV/Resource/Data/yeda");
-	//TestGtinStruc();
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();

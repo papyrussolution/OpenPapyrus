@@ -46,7 +46,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			if(view_pager != null) {
 				int tidx = view_pager.getCurrentItem();
 				CommonPrereqModule.TabEntry tab_entry = CPM.TabList.get(tidx);
-				if(tab_entry != null && tab_entry.TabId == CommonPrereqModule.Tab.tabCurrentOrder) {
+				if(tab_entry != null && tab_entry.TabId == CommonPrereqModule.Tab.tabCurrentDocument) {
 					HandleEvent(SLib.EV_SETVIEWDATA, tab_entry.TabView.getView(), null);
 				}
 			}
@@ -116,11 +116,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				double _mult = 0.0;
 				double _min = 0.0;
 				int    uom_id = 0;
-				if(goods_item != null && goods_item.JsItem != null) {
-					uom_id = goods_item.JsItem.optInt("uomid", 0);
-					_upp = goods_item.JsItem.optDouble("upp", 0.0);
-					_mult = goods_item.JsItem.optDouble("ordqtymult", 0.0);
-					_min = goods_item.JsItem.optDouble("ordminqty", 0.0);
+				if(goods_item != null && goods_item.Item != null) {
+					uom_id = goods_item.Item.UomID;
+					_upp = goods_item.Item.UnitPerPack;
+					_mult = goods_item.Item.OrdQtyMult;
+					_min = goods_item.Item.OrdMinQty;
 				}
 				String qtty_text = SLib.GetCtrlString(this, R.id.CTL_ORDRTI_QTTY);
 				if(_data.Set == null)
@@ -217,11 +217,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								if(app_ctx != null) {
 									Document.TransferItem _data = (Document.TransferItem)Data;
 									if(_data != null && _data.Set != null) {
-										int uom_id = 0;
 										CommonPrereqModule.WareEntry goods_item = ActivityCtx.CPM.FindGoodsItemByGoodsID(_data.GoodsID);
-										if(goods_item != null && goods_item.JsItem != null) {
-											uom_id = goods_item.JsItem.optInt("uomid", 0);
-										}
+										final int uom_id = (goods_item != null && goods_item.Item != null) ? goods_item.Item.UomID : 0;
 										_data.Set.Qtty = 0.0;
 										SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, ActivityCtx.CPM.FormatQtty(_data.Set.Qtty, uom_id, true));
 										SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, ActivityCtx.CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price));
@@ -273,14 +270,14 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					int    uom_id = 0;
 					if(_data != null && _data.GoodsID > 0 && ActivityCtx != null) {
 						goods_item = ActivityCtx.CPM.FindGoodsItemByGoodsID(_data.GoodsID);
-						if(goods_item != null && goods_item.JsItem != null) {
-							uom_id = goods_item.JsItem.optInt("uomid", 0);
-							text = goods_item.JsItem.optString("nm", "");
-							blob_signature =  goods_item.JsItem.optString("imgblobs", null);
+						if(goods_item != null && goods_item.Item != null) {
+							uom_id = goods_item.Item.UomID;
+							text = goods_item.Item.Name;
+							blob_signature =  goods_item.Item.ImgBlob;
 							//
-							_upp = goods_item.JsItem.optDouble("upp", 0.0);
-							_mult = goods_item.JsItem.optDouble("ordqtymult", 0.0);
-							_min = goods_item.JsItem.optDouble("ordminqty", 0.0);
+							_upp = goods_item.Item.UnitPerPack;
+							_mult = goods_item.Item.OrdQtyMult;
+							_min = goods_item.Item.OrdMinQty;
 						}
 					}
 					if(_upp > 0.0) {
@@ -343,19 +340,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		}
 		return result;
 	}
-	static class TabInitEntry {
-		TabInitEntry(final CommonPrereqModule.Tab tab, final int rc, final String title, boolean condition)
-		{
-			Tab = tab;
-			Rc = rc;
-			Title = title;
-			Condition = condition;
-		}
-		final CommonPrereqModule.Tab Tab;
-		final int Rc;
-		final String Title;
-		final boolean Condition;
-	}
 	private void CreateTabList(boolean force)
 	{
 		final int tab_layout_rcid = R.id.TABLAYOUT_ORDERPREREQ;
@@ -363,17 +347,17 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		if(app_ctx != null && (CPM.TabList == null || force)) {
 			CPM.TabList = new ArrayList<CommonPrereqModule.TabEntry>();
 			LayoutInflater inflater = LayoutInflater.from(this);
-			TabInitEntry[] tab_init_list = {
-				new TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_orderprereq_goodsgroups, "@{group_pl}", (CPM.GoodsGroupListData != null)),
-				new TabInitEntry(CommonPrereqModule.Tab.tabBrands, R.layout.layout_orderprereq_brands, "@{brand_pl}", (CPM.BrandListData != null)),
-				new TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_orderprereq_goods, "@{ware_pl}", (CPM.GoodsListData != null)),
-				new TabInitEntry(CommonPrereqModule.Tab.tabClients, R.layout.layout_orderprereq_clients, "@{client_pl}", (CPM.CliListData != null)),
-				new TabInitEntry(CommonPrereqModule.Tab.tabCurrentOrder, R.layout.layout_orderprereq_ordr, "@{orderdocument}", true),
-				new TabInitEntry(CommonPrereqModule.Tab.tabOrders, R.layout.layout_orderprereq_orders, "@{booking_pl}", true),
-				new TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "[search]", true),
+			CommonPrereqModule.TabInitEntry[] tab_init_list = {
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_orderprereq_goodsgroups, "@{group_pl}", (CPM.GoodsGroupListData != null)),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabBrands, R.layout.layout_orderprereq_brands, "@{brand_pl}", (CPM.BrandListData != null)),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_orderprereq_goods, "@{ware_pl}", (CPM.GoodsListData != null)),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabClients, R.layout.layout_orderprereq_clients, "@{client_pl}", (CPM.CliListData != null)),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabCurrentDocument, R.layout.layout_orderprereq_ordr, "@{orderdocument}", true),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabOrders, R.layout.layout_orderprereq_orders, "@{booking_pl}", true),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "[search]", true),
 			};
 			for(int i = 0; i < tab_init_list.length; i++) {
-				final TabInitEntry _t = tab_init_list[i];
+				final CommonPrereqModule.TabInitEntry _t = tab_init_list[i];
 				if(_t != null && _t.Condition) {
 					SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_t.Tab.ordinal(), _t.Rc, tab_layout_rcid);
 					String title = SLib.ExpandString(app_ctx, _t.Title);
@@ -395,12 +379,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		CPM.NotifyTabContentChanged(R.id.VIEWPAGER_ORDERPREREQ, tabId, innerViewId);
 	}
 	private void NotifyDocListChanged() { NotifyTabContentChanged(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView); }
-	private void NotifyCurrentOrderChanged()
+	private void NotifyCurrentDocumentChanged()
 	{
-		NotifyTabContentChanged(CommonPrereqModule.Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView);
-		//NotifyTabContentChanged(CommonPrereqModule.Tab.tabCurrentOrder, R.id.CTL_DOCUMENT_AMOUNT);
+		NotifyTabContentChanged(CommonPrereqModule.Tab.tabCurrentDocument, R.id.orderPrereqOrdrListView);
 		NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
-		CommonPrereqModule.TabEntry tab_entry = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
+		CommonPrereqModule.TabEntry tab_entry = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentDocument);
 		if(tab_entry != null && tab_entry.TabView != null) {
 			CPM.OnCurrentDocumentModification(); // @v11.4.8
 			HandleEvent(SLib.EV_SETVIEWDATA, tab_entry.TabView.getView(), null);
@@ -427,8 +410,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				int dlvrloc_id = (dlvrLocItem != null) ? dlvrLocItem.optInt("id", 0) : 0;
 				result = CPM.SetClientToCurrentDocument(SLib.PPEDIOP_ORDER, cli_id, dlvrloc_id, false);
 				if(result) {
-					CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
-					NotifyCurrentOrderChanged();
+					CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.VISIBLE);
+					NotifyCurrentDocumentChanged();
 					NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
 				}
 			}
@@ -441,7 +424,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	{
 		boolean result = CPM.AddTransferItemToCurrentDocument(item);
 		if(result)
-			NotifyCurrentOrderChanged();
+			NotifyCurrentDocumentChanged();
 		return result;
 	}
 	private static class DlvrLocListAdapter extends SLib.InternalArrayAdapter {
@@ -536,7 +519,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		// по этому не будем злоупотреблять такими фокусами.
 		//
 		if(!CPM.IsCurrentDocumentEmpty()) {
-			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.VISIBLE);
 			if(Document.DoesStatusAllowModifications(CPM.GetCurrentDocument().GetDocStatus())) {
 				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.VISIBLE);
 				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.VISIBLE);
@@ -550,7 +533,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
 			}
 			if(gotoTabIfNotEmpty)
-				GotoTab(CommonPrereqModule.Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView, -1, -1);
+				GotoTab(CommonPrereqModule.Tab.tabCurrentDocument, R.id.orderPrereqOrdrListView, -1, -1);
 		}
 		else {
 			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.VISIBLE);
@@ -558,7 +541,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.VISIBLE);
 			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.VISIBLE);
 			if(removeTabIfEmpty)
-				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
 		}
 	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
@@ -616,7 +599,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									SLib.SetupTabLayoutStyle(lo_tab);
 									SLib.SetupTabLayoutListener(lo_tab, view_pager);
 									if(CPM.IsCurrentDocumentEmpty())
-										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
 									if(CPM.OrderHList == null || CPM.OrderHList.size() <= 0)
 										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.GONE);
 									//SetTabVisibility(Tab.tabSearch, View.GONE);
@@ -883,7 +866,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								}
 								else if(a.GetListRcId() == R.id.orderPrereqGoodsListView) {
 									CommonPrereqModule.WareEntry cur_entry = CPM.GetGoodsListItemByIdx(ev_subj.ItemIdx);
-									if(cur_entry != null && cur_entry.JsItem != null) {
+									if(cur_entry != null && cur_entry.Item != null) {
 										//
 										// @todo С этим элементом есть проблема: если пользователь на телефоне поставил слишком большое масштабирование
 										// экрана, то значок корзинки становится невидимым (уходит за правую грань экрана).
@@ -896,13 +879,13 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										//
 										// В общем, пока не ясно как с этим бороться.
 										//
-										final int cur_id = cur_entry.JsItem.optInt("id", 0);
+										final int cur_id = cur_entry.Item.ID;
 										View iv = ev_subj.RvHolder.itemView;
-										SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
+										SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.Item.Name);
 										double val = 0.0;
-										val = cur_entry.JsItem.optDouble("price", 0.0);
+										val = cur_entry.Item.Price;
 										SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
-										val = cur_entry.JsItem.optDouble("stock", 0.0);
+										val = cur_entry.Item.Stock;
 										SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? SLib.formatdouble(val, 0) : "");
 										val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
 										if(val > 0.0) {
@@ -912,8 +895,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										else {
 											SLib.SetCtrlVisibility(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, View.GONE);
 										}
-										String blob_signature = cur_entry.JsItem.optString("imgblobs", null);
-										SLib.SetupImage(this, iv.findViewById(R.id.ORDERPREREQ_GOODS_IMG), blob_signature, false);
+										SLib.SetupImage(this, iv.findViewById(R.id.ORDERPREREQ_GOODS_IMG), cur_entry.Item.ImgBlob, false);
 										SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODS, cur_id);
 									}
 								}
@@ -1009,10 +991,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										final Document.TransferItem ti = _doc.TiList.get(ev_subj.ItemIdx);
 										if(ti != null) {
 											CommonPrereqModule.WareEntry goods_item = CPM.FindGoodsItemByGoodsID(ti.GoodsID);
-											int    uom_id = 0;
-											if(goods_item != null && goods_item.JsItem != null)
-												uom_id = goods_item.JsItem.optInt("uomid", 0);
-											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, (goods_item != null) ? goods_item.JsItem.optString("nm", "") : "");
+											int    uom_id = (goods_item != null && goods_item.Item != null) ? goods_item.Item.UomID : 0;
+											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, (goods_item != null) ? goods_item.Item.Name : "");
 											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_TI_PRICE, (ti.Set != null) ? CPM.FormatCurrency(ti.Set.Price) : "");
 											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_TI_QTTY, (ti.Set != null) ? CPM.FormatQtty(ti.Set.Qtty, uom_id, false) : "");
 											double item_amont = (ti.Set != null) ? (ti.Set.Qtty * ti.Set.Price) : 0.0;
@@ -1347,7 +1327,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								else if(((ListView)srcObj).getId() == R.id.dlvrLocListView) {
 									if(ev_subj.ItemObj != null && ev_subj.ItemObj instanceof JSONObject) {
 										if(SetCurrentOrderClient(null, (JSONObject)ev_subj.ItemObj)) {
-											GotoTab(CommonPrereqModule.Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView, -1, -1);
+											GotoTab(CommonPrereqModule.Tab.tabCurrentDocument, R.id.orderPrereqOrdrListView, -1, -1);
 										}
 									}
 								}
@@ -1364,7 +1344,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										if(ev_subj.ItemIdx < CPM.GetGoodsListSize()) {
 											CommonPrereqModule.WareEntry item = CPM.GetGoodsListItemByIdx(ev_subj.ItemIdx);
 											if(item != null && ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.buttonOrder) {
-												final int goods_id = item.JsItem.optInt("id", 0);
+												final int goods_id = item.Item.ID;
 												Document.TransferItem ex_ti = CPM.SearchGoodsItemInCurrentOrderTi(goods_id);
 												if(ex_ti != null) {
 													TransferItemDialog dialog = new TransferItemDialog(this, ex_ti);
@@ -1374,7 +1354,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													Document.TransferItem ti = new Document.TransferItem();
 													if(ti != null) {
 														ti.GoodsID = goods_id;
-														ti.Set.Price = item.JsItem.optDouble("price", 0.0);
+														ti.Set.Price = item.Item.Price;
 														TransferItemDialog dialog = new TransferItemDialog(this, ti);
 														dialog.show();
 													}
@@ -1403,7 +1383,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													if(dlvr_loc_list == null || dlvr_loc_list.size() == 0) {
 														// У контрагента нет адресов доставки - можно выбрать просто заголовочную запись
 														if(SetCurrentOrderClient(item.JsItem, null)) {
-															GotoTab(CommonPrereqModule.Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView, -1, -1);
+															GotoTab(CommonPrereqModule.Tab.tabCurrentDocument, R.id.orderPrereqOrdrListView, -1, -1);
 														}
 													}
 													// } @v11.4.8
@@ -1462,73 +1442,81 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			case SLib.EV_COMMAND:
 				{
 					Document.EditAction acn = null;
-					final int view_id = View.class.isInstance(srcObj) ? ((View) srcObj).getId() : 0;
-					if(view_id == R.id.tbButtonSearch) {
-						GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
-					}
-					else if(view_id == R.id.tbButtonClearFiter) {
-						CPM.ResetGoodsFiter();
-						SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
-						GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
-					}
-					else if(view_id == R.id.CTL_DOCUMENT_DUEDATE_NEXT) {
-						CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
-						if(te != null) {
-							Document cd = CPM.GetCurrentDocument();
-							if(cd != null && cd.H != null && cd.H.IncrementDueDate(false)) {
-								GetFragmentData(te.TabView); // @v11.4.8
-								NotifyCurrentOrderChanged();
-							}
-						}
-					}
-					else if(view_id == R.id.CTL_DOCUMENT_DUEDATE_PREV) {
-						CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
-						if(te != null) {
-							Document cd = CPM.GetCurrentDocument();
-							if(cd != null && cd.H != null && cd.H.DecrementDueDate(false)) {
-								GetFragmentData(te.TabView); // @v11.4.8
-								NotifyCurrentOrderChanged();
-							}
-						}
-					}
-					else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON1) {
-						if(DocEditActionList != null && DocEditActionList.size() > 0)
-							acn = DocEditActionList.get(0);
-					}
-					else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON2) {
-						if(DocEditActionList != null && DocEditActionList.size() > 1)
-							acn = DocEditActionList.get(1);
-					}
-					else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON3) {
-						if(DocEditActionList != null && DocEditActionList.size() > 2)
-							acn = DocEditActionList.get(2);
-					}
-					else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON4) {
-						if(DocEditActionList != null && DocEditActionList.size() > 3)
-							acn = DocEditActionList.get(3);
-					}
-					else if(view_id == R.id.CTL_DOCUMENT_BACK_CLI) {
-						final Document cd = CPM.GetCurrentDocument();
-						if(cd != null && cd.H != null) {
-							if(Document.DoesStatusAllowModifications(cd.GetDocStatus())) {
-								//cd.H.ClientID > 0 &&
-								JSONObject cli_js_obj = CPM.FindClientEntry(cd.H.ClientID);
-								if(cli_js_obj != null) {
-									int _idx = FindClientItemIndexByID(cd.H.ClientID);
-									int _dlvr_loc_idx = (cd.H.DlvrLocID > 0) ? CPM.FindDlvrLocEntryIndexInCliEntry(cli_js_obj, cd.H.DlvrLocID) : 0;
-									GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
+					final int view_id = (srcObj != null && srcObj instanceof View) ? ((View)srcObj).getId() : 0;
+					switch(view_id) {
+						case R.id.tbButtonSearch:
+							GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
+							break;
+						case R.id.tbButtonClearFiter:
+							CPM.ResetGoodsFiter();
+							SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
+							GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
+							break;
+						case R.id.CTL_DOCUMENT_DUEDATE_NEXT:
+							{
+								CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentDocument);
+								if(te != null) {
+									Document cd = CPM.GetCurrentDocument();
+									if(cd != null && cd.H != null && cd.H.IncrementDueDate(false)) {
+										GetFragmentData(te.TabView); // @v11.4.8
+										NotifyCurrentDocumentChanged();
+									}
 								}
-								else
-									GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, -1, -1);
 							}
-						}
+							break;
+						case R.id.CTL_DOCUMENT_DUEDATE_PREV:
+							{
+								CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentDocument);
+								if(te != null) {
+									Document cd = CPM.GetCurrentDocument();
+									if(cd != null && cd.H != null && cd.H.DecrementDueDate(false)) {
+										GetFragmentData(te.TabView); // @v11.4.8
+										NotifyCurrentDocumentChanged();
+									}
+								}
+							}
+							break;
+						case R.id.CTL_DOCUMENT_ACTIONBUTTON1:
+							if(DocEditActionList != null && DocEditActionList.size() > 0)
+								acn = DocEditActionList.get(0);
+							break;
+						case R.id.CTL_DOCUMENT_ACTIONBUTTON2:
+							if(DocEditActionList != null && DocEditActionList.size() > 1)
+								acn = DocEditActionList.get(1);
+							break;
+						case R.id.CTL_DOCUMENT_ACTIONBUTTON3:
+							if(DocEditActionList != null && DocEditActionList.size() > 2)
+								acn = DocEditActionList.get(2);
+							break;
+						case R.id.CTL_DOCUMENT_ACTIONBUTTON4:
+							if(DocEditActionList != null && DocEditActionList.size() > 3)
+								acn = DocEditActionList.get(3);
+							break;
+						case R.id.CTL_DOCUMENT_BACK_CLI:
+							{
+								final Document cd = CPM.GetCurrentDocument();
+								if(cd != null && cd.H != null) {
+									if(Document.DoesStatusAllowModifications(cd.GetDocStatus())) {
+										//cd.H.ClientID > 0 &&
+										JSONObject cli_js_obj = CPM.FindClientEntry(cd.H.ClientID);
+										if(cli_js_obj != null) {
+											int _idx = FindClientItemIndexByID(cd.H.ClientID);
+											int _dlvr_loc_idx = (cd.H.DlvrLocID > 0) ? CPM.FindDlvrLocEntryIndexInCliEntry(cli_js_obj, cd.H.DlvrLocID) : 0;
+											GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
+										}
+										else
+											GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, -1, -1);
+									}
+								}
+							}
+							break;
 					}
 					if(acn != null) {
 						switch(acn.Action) {
 							case Document.editactionClose:
 								// Просто закрыть сеанс редактирования документа (изменения и передача сервису не предполагаются)
 								CPM.ResetCurrentDocument();
-								NotifyCurrentOrderChanged();
+								NotifyCurrentDocumentChanged();
 								GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
 								//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 								SetupCurrentDocument(false, true);
@@ -1539,7 +1527,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							case Document.editactionSubmitAndTransmit:
 								{
 									// Подтвердить изменения документа с передачей сервису
-									CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
+									CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentDocument);
 									if(te != null)
 										GetFragmentData(te.TabView);
 									ScheduleRTmr(new RefreshTimerTask(), 1000, 750);
@@ -1549,7 +1537,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							case Document.editactionCancelEdition:
 								// Отменить изменения документа (передача сервису не предполагается)
 								CPM.ResetCurrentDocument();
-								NotifyCurrentOrderChanged();
+								NotifyCurrentDocumentChanged();
 								GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
 								//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 								SetupCurrentDocument(false, true);
@@ -1557,7 +1545,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							case Document.editactionCancelDocument:
 								{
 									// Отменить документ с передачей сервису факта отмены
-									CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
+									CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentDocument);
 									if(te != null)
 										GetFragmentData(te.TabView);
 									ScheduleRTmr(new RefreshTimerTask(), 1000, 750);
@@ -1572,7 +1560,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				if(srcObj != null) {
 					if(srcObj instanceof TransferItemDialog) {
 						if(subj != null && subj instanceof Document.TransferItem) {
-							Document.TransferItem _data = (Document.TransferItem) subj;
+							Document.TransferItem _data = (Document.TransferItem)subj;
 							boolean do_notify_goods_list = false;
 							if(_data.RowIdx == 0) {
 								if(AddItemToCurrentOrder(_data))
@@ -1580,7 +1568,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							}
 							else {
 								if(CPM.UpdateTransferItemQttyInCurrentDocument(_data)) {
-									NotifyCurrentOrderChanged();
+									NotifyCurrentDocumentChanged();
 									do_notify_goods_list = true;
 								}
 							}
@@ -1616,13 +1604,13 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();
-								NotifyCurrentOrderChanged();
+								NotifyCurrentDocumentChanged();
 								if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
 									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.VISIBLE);
 									NotifyTabContentChanged(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView);
 									GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
 								}
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
 							}
 							else {
 								String err_msg = app_ctx.GetString(ppstr2.PPSTR_ERROR, ppstr2.PPERR_STQ_POSTDOCUMENTFAULT);
@@ -1645,13 +1633,13 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();
-								NotifyCurrentOrderChanged();
+								NotifyCurrentDocumentChanged();
 								if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
 									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.VISIBLE);
 									NotifyTabContentChanged(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView);
 									GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
 								}
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
 							}
 							else {
 								; // @todo

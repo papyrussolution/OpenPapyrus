@@ -497,6 +497,10 @@ int ACS_SETSTART::ExportData(int updOnly)
 										identified_type = 11;
 									else if(gds_info.ChZnProdType == GTCHZNPT_PERFUMERY)
 										identified_type = 9;
+									else if(gds_info.ChZnProdType == GTCHZNPT_MILK) // @v11.4.9
+										identified_type = 13;
+									else if(gds_info.ChZnProdType == GTCHZNPT_JEWELRY) // @v11.4.9
+										identified_type = 14;
 									// } @v11.1.10 
 								}
 								if(identified_type)

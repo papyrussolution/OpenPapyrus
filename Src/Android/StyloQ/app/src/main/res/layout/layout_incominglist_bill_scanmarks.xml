@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/LAYOUT_INCOMINGLIST_BILL_SCANMARKS"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="4dp"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <View style="@style/FakeView"/>
+            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonScan"
+                android:layout_gravity="center_vertical|right"
+                app:srcCompat="@drawable/ic_qrcode01scan"/>
+        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/CTL_INCOMINGLIST_BILL_SCANMARKS_LIST"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/shape_pageheader"
+            android:padding="2dp"
+            layoutManager="LinearLayoutManager" />
+    </LinearLayout>
+</LinearLayout>

@@ -381,6 +381,12 @@ bool FASTCALL PPSCardSerRule::IsEq(const PPSCardSerRule & rS) const
 		eq = false;
 	else if(Fb.Flags != rS.Fb.Flags)
 		eq = false;
+	// @v11.4.9 {
+	else if(Fb.CancelPrd != rS.Fb.CancelPrd)
+		eq = false;
+	else if(Fb.CancelPrcCount != rS.Fb.CancelPrcCount)
+		eq = false;
+	// } @v11.4.9 
 	else if(getCount() != rS.getCount())
 		eq = false;
 	else if(getCount()) {
@@ -585,6 +591,7 @@ public:
 				CALLPTRMEMB(p_lb, SetupColumns("@lbt_scardrule_bonus"));
 				break;
 		}
+		disableCtrls(RuleType != PPSCardSerRule::rultBonus, CTLSEL_SCARDRULE_CNCLPRD, CTL_SCARDRULE_CNCLPRDC, 0);
 		if(p_title_symb) {
 			SString title_buf;
 			setTitle(PPLoadStringS(p_title_symb, title_buf));
@@ -597,16 +604,40 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		SetupStringCombo(this, CTLSEL_SCARDRULE_PRD, PPTXT_CYCLELIST, Data.TrnovrPeriod);
+		if(RuleType == PPSCardSerRule::rultBonus) {
+			SetupStringCombo(this, CTLSEL_SCARDRULE_CNCLPRD, PPTXT_CYCLELIST, Data.Fb.CancelPrd);
+			setCtrlData(CTL_SCARDRULE_CNCLPRDC, &Data.Fb.CancelPrcCount);
+			disableCtrl(CTL_SCARDRULE_CNCLPRDC, !oneof6(Data.Fb.CancelPrd, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL));
+		}
 		updateList(-1);
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
 	{
 		getCtrlData(CTLSEL_SCARDRULE_PRD, &Data.TrnovrPeriod);
+		if(RuleType == PPSCardSerRule::rultBonus) {
+			getCtrlData(CTLSEL_SCARDRULE_CNCLPRD, &Data.Fb.CancelPrd);
+			getCtrlData(CTL_SCARDRULE_CNCLPRDC, &Data.Fb.CancelPrcCount);
+		}
+		else {
+			Data.Fb.CancelPrd = 0;
+			Data.Fb.CancelPrcCount = 0;
+		}
 		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
 private:
+	DECL_HANDLE_EVENT
+	{
+		PPListDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_SCARDRULE_CNCLPRD)) {
+			if(RuleType == PPSCardSerRule::rultBonus) {
+				getCtrlData(CTLSEL_SCARDRULE_CNCLPRD, &Data.Fb.CancelPrd);
+				disableCtrl(CTL_SCARDRULE_CNCLPRDC, !oneof6(Data.Fb.CancelPrd, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL));
+				clearEvent(event);
+			}
+		}
+	}
 	virtual int  setupList();
 	virtual int  addItem(long * pos, long * id);
 	virtual int  delItem(long pos, long id);
@@ -902,12 +933,14 @@ public:
 		const size_t item_size = pSrc->getItemSize();
 		size_t allocated_count = MAX(pSrc->getCount(), preallocCount);
 		size_t s = sz + item_size * allocated_count;
-		Storage_SCardRule * p = (Storage_SCardRule *)SAlloc::M(s);
+		Storage_SCardRule * p = static_cast<Storage_SCardRule *>(SAlloc::M(s));
 		if(p) {
 			memzero(p, s);
 			p->ObjType = PPOBJ_SCARDSERIES;
 			p->Prop = prop;
 			p->Ver = 1;
+			p->CancelPrd = pSrc->Fb.CancelPrd; // @v11.4.9
+			p->CancelPrcCount = pSrc->Fb.CancelPrcCount; // @v11.4.9
 			p->TrnovrPeriod = pSrc->TrnovrPeriod;
 			p->ItemSize = item_size;
 			p->AllocatedCount = allocated_count;
@@ -923,6 +956,8 @@ public:
 		pDest->Ver = Ver;
 		pDest->TrnovrPeriod = TrnovrPeriod;
 		MEMSZERO(pDest->Fb);
+		pDest->Fb.CancelPrd = CancelPrd; // @v11.4.9
+		pDest->Fb.CancelPrcCount = CancelPrcCount; // @v11.4.9
 		pDest->freeAll();
 		if(ItemSize == pDest->getItemSize()) {
 			for(uint i = 0; i < ItemsCount; i++) {
@@ -938,7 +973,9 @@ public:
 	PPID   ObjID;
 	PPID   Prop;
 	long   Ver;            //
-	char   Reserve[52];    //
+	uint8  Reserve[48];    // @reserve // @v11.4.9 [52]-->[48]
+	int16  CancelPrd;      // @v11.4.9 Тип периода обнуления суммы бонусов 
+	uint16 CancelPrcCount; // @v11.4.9 Количество периодов типа CancelPrd после истечения которых сумма бонусов обнуляется.
 	uint32 ItemSize;       // @internal Размер элемента.
 	uint32 AllocatedCount; // @internal в базе данных AllocatedCount == ItemsCount
 	uint32 ItemsCount;     //

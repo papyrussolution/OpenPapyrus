@@ -6090,9 +6090,9 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 					ext_codes_set.GetByBoxID(0, ss);
 					for(uint ecsp = 0; ss.get(&ecsp, temp_buf);) {
 						bool  is_mark_accepted = false;
+						GtinStruc gts;
+						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
 						if(Flags & fExpChZnMarksGTINSER) {
-							GtinStruc gts;
-							const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
 							if(pczcr) {
 								gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
 								gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
@@ -6104,7 +6104,17 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 							}
 						}
 						if(!is_mark_accepted) {
-							n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+							// @v11.4.9 n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+							// @v11.4.9 {
+							if(pczcr == SNTOK_CHZN_CIGBLOCK) {
+								n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+							}
+							else {
+								temp_buf = EncText(temp_buf);
+								SXml::WNode::CDATA(temp_buf);
+								n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
+							}
+							// } @v11.4.9 
 						}
 					}
 				}

@@ -27,8 +27,7 @@ bool ByteSinkUtil::appendChange(int32_t length, const char16_t * s16, int32_t s1
 		else {
 			desiredCapacity = INT32_MAX;
 		}
-		char * buffer = sink.GetAppendBuffer(U8_MAX_LENGTH, desiredCapacity,
-			scratch, SIZEOFARRAYi(scratch), &capacity);
+		char * buffer = sink.GetAppendBuffer(U8_MAX_LENGTH, desiredCapacity, scratch, SIZEOFARRAYi(scratch), &capacity);
 		capacity -= U8_MAX_LENGTH - 1;
 		int32_t j = 0;
 		for(; i < s16Length && j < capacity;) {
@@ -43,15 +42,12 @@ bool ByteSinkUtil::appendChange(int32_t length, const char16_t * s16, int32_t s1
 		sink.Append(buffer, j);
 		s8Length += j;
 	}
-	if(edits != nullptr) {
-		edits->addReplace(length, s8Length);
-	}
+	CALLPTRMEMB(edits, addReplace(length, s8Length));
 	return TRUE;
 }
 
-bool ByteSinkUtil::appendChange(const uint8 * s, const uint8 * limit,
-    const char16_t * s16, int32_t s16Length,
-    ByteSink &sink, Edits * edits, UErrorCode & errorCode) {
+bool ByteSinkUtil::appendChange(const uint8 * s, const uint8 * limit, const char16_t * s16, int32_t s16Length, ByteSink &sink, Edits * edits, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
@@ -67,9 +63,7 @@ void ByteSinkUtil::appendCodePoint(int32_t length, UChar32 c, ByteSink &sink, Ed
 	char s8[U8_MAX_LENGTH];
 	int32_t s8Length = 0;
 	U8_APPEND_UNSAFE(s8, s8Length, c);
-	if(edits != nullptr) {
-		edits->addReplace(length, s8Length);
-	}
+	CALLPTRMEMB(edits, addReplace(length, s8Length));
 	sink.Append(s8, s8Length);
 }
 
@@ -89,9 +83,7 @@ void ByteSinkUtil::appendTwoBytes(UChar32 c, ByteSink &sink)
 void ByteSinkUtil::appendNonEmptyUnchanged(const uint8 * s, int32_t length, ByteSink &sink, uint32_t options, Edits * edits) 
 {
 	U_ASSERT(length > 0);
-	if(edits != nullptr) {
-		edits->addUnchanged(length);
-	}
+	CALLPTRMEMB(edits, addUnchanged(length));
 	if((options & U_OMIT_UNCHANGED_TEXT) == 0) {
 		sink.Append(reinterpret_cast<const char *>(s), length);
 	}

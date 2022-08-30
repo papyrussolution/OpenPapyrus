@@ -7,9 +7,6 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-/*
- * Low level APIs are deprecated for public use, but still ok for internal use.
- */
 #include "internal/deprecated.h"
 #include <openssl/opensslconf.h> /* To see if OPENSSL_NO_EC is defined */
 #include "testutil.h"
@@ -17,9 +14,10 @@
 #ifndef OPENSSL_NO_EC
 
 #include "ecdsatest.h"
-
+//
+// Low level APIs are deprecated for public use, but still ok for internal use.
+//
 static fake_random_generate_cb fbytes;
-
 static const char * numbers[2];
 static size_t crv_len = 0;
 static EC_builtin_curve * curves = NULL;
@@ -74,7 +72,6 @@ static int x9_62_tests(int n)
 	BIGNUM * r = NULL, * s = NULL;
 	BIGNUM * kinv = NULL, * rp = NULL;
 	const BIGNUM * sig_r = NULL, * sig_s = NULL;
-
 	nid = ecdsa_cavs_kats[n].nid;
 	md_nid = ecdsa_cavs_kats[n].md_nid;
 	r_in = ecdsa_cavs_kats[n].r;
@@ -82,9 +79,7 @@ static int x9_62_tests(int n)
 	tbs = ecdsa_cavs_kats[n].msg;
 	numbers[0] = ecdsa_cavs_kats[n].d;
 	numbers[1] = ecdsa_cavs_kats[n].k;
-
 	TEST_info("ECDSA KATs for curve %s", OBJ_nid2sn(nid));
-
 #ifdef FIPS_MODULE
 	if(EC_curve_nid2nist(nid) == NULL)
 		return TEST_skip("skip non approved curves");
@@ -123,15 +118,11 @@ static int x9_62_tests(int n)
 	    /* verify the signature */
 	    || !TEST_int_eq(ECDSA_do_verify(digest, dgst_len, signature, key), 1))
 		goto err;
-
 	/* compare the created signature with the expected signature */
 	ECDSA_SIG_get0(signature, &sig_r, &sig_s);
-	if(!TEST_BN_eq(sig_r, r)
-	    || !TEST_BN_eq(sig_s, s))
+	if(!TEST_BN_eq(sig_r, r) || !TEST_BN_eq(sig_s, s))
 		goto err;
-
 	ret = 1;
-
 err:
 	OPENSSL_free(message);
 	OPENSSL_free(pbuf);
@@ -167,9 +158,7 @@ static int set_sm2_id(EVP_MD_CTX * mctx, EVP_PKEY * pkey)
 	/* With the SM2 key type, the SM2 ID is mandatory */
 	static const char sm2_id[] = { 1, 2, 3, 4, 'l', 'e', 't', 't', 'e', 'r' };
 	EVP_PKEY_CTX * pctx;
-
-	if(!TEST_ptr(pctx = EVP_MD_CTX_get_pkey_ctx(mctx))
-	    || !TEST_int_gt(EVP_PKEY_CTX_set1_id(pctx, sm2_id, sizeof(sm2_id)), 0))
+	if(!TEST_ptr(pctx = EVP_MD_CTX_get_pkey_ctx(mctx)) || !TEST_int_gt(EVP_PKEY_CTX_set1_id(pctx, sm2_id, sizeof(sm2_id)), 0))
 		return 0;
 	return 1;
 }
@@ -182,35 +171,27 @@ static int test_builtin(int n, int as)
 	EVP_PKEY * pkey_neg = NULL, * pkey = NULL, * dup_pk = NULL;
 	EVP_MD_CTX * mctx = NULL;
 	size_t sig_len;
-	int nid, ret = 0;
+	int ret = 0;
 	int temp;
-
-	nid = curves[n].nid;
-
+	int nid = curves[n].nid;
 	/* skip built-in curves where ord(G) is not prime */
 	if(nid == NID_ipsec4 || nid == NID_ipsec3) {
 		TEST_info("skipped: ECDSA unsupported for curve %s", OBJ_nid2sn(nid));
 		return 1;
 	}
-
 	/*
 	 * skip SM2 curve if 'as' is equal to EVP_PKEY_EC or, skip all curves
 	 * except SM2 curve if 'as' is equal to EVP_PKEY_SM2
 	 */
 	if(nid == NID_sm2 && as == EVP_PKEY_EC) {
-		TEST_info("skipped: EC key type unsupported for curve %s",
-		    OBJ_nid2sn(nid));
+		TEST_info("skipped: EC key type unsupported for curve %s", OBJ_nid2sn(nid));
 		return 1;
 	}
 	else if(nid != NID_sm2 && as == EVP_PKEY_SM2) {
-		TEST_info("skipped: SM2 key type unsupported for curve %s",
-		    OBJ_nid2sn(nid));
+		TEST_info("skipped: SM2 key type unsupported for curve %s", OBJ_nid2sn(nid));
 		return 1;
 	}
-
-	TEST_info("testing ECDSA for curve %s as %s key type", OBJ_nid2sn(nid),
-	    as == EVP_PKEY_EC ? "EC" : "SM2");
-
+	TEST_info("testing ECDSA for curve %s as %s key type", OBJ_nid2sn(nid), as == EVP_PKEY_EC ? "EC" : "SM2");
 	if(!TEST_ptr(mctx = EVP_MD_CTX_new())
 	    /* get some random message data */
 	    || !TEST_true(RAND_bytes(tbs, sizeof(tbs)))
@@ -314,7 +295,6 @@ static int test_builtin(int n, int as)
 	    || !TEST_int_eq(EVP_DigestVerify(mctx, sig, sig_len, tbs, sizeof(tbs)), 1)
 	    || !TEST_true(EVP_MD_CTX_reset(mctx)))
 		goto err;
-
 	ret = 1;
 err:
 	EVP_PKEY_free(pkey);
@@ -325,17 +305,10 @@ err:
 	return ret;
 }
 
-static int test_builtin_as_ec(int n)
-{
-	return test_builtin(n, EVP_PKEY_EC);
-}
+static int test_builtin_as_ec(int n) { return test_builtin(n, EVP_PKEY_EC); }
 
 #ifndef OPENSSL_NO_SM2
-static int test_builtin_as_sm2(int n)
-{
-	return test_builtin(n, EVP_PKEY_SM2);
-}
-
+	static int test_builtin_as_sm2(int n) { return test_builtin(n, EVP_PKEY_SM2); }
 #endif
 #endif /* OPENSSL_NO_EC */
 

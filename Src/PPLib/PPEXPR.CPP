@@ -641,7 +641,7 @@ int PPExprParser::GetToken()
 			do {
 				*p++ = Cur;
 				Next();
-			} while(isalnum(static_cast<uchar>(Cur)) || oneof2(Cur, '_', '.'));
+			} while(isasciialnum(static_cast<uchar>(Cur)) || oneof2(Cur, '_', '.')); // @v11.4.9 isalnum-->isasciialnum
 			*p = 0;
 			Func = 0;
 			if(sstreqi_ascii(buf, "abs")) { Func = funcAbs; }
@@ -1218,7 +1218,7 @@ int GoodsContext::IsRef(const char * pStr, size_t * pPos, SString & rRef)
 	SString temp_buf;
 	if(isalpha(pStr[pos]) || pStr[pos] == '_' || pStr[pos] == '@') do {
 		temp_buf.CatChar(pStr[pos++]);
-	} while(isalnum(pStr[pos]) || pStr[pos] == '_');
+	} while(isasciialnum(pStr[pos]) || pStr[pos] == '_'); // @v11.4.9 isalnum-->isasciialnum
 	if(pStr[pos] == '.') {
 		pos++;
 		ASSIGN_PTR(pPos, pos);

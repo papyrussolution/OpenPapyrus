@@ -41,24 +41,23 @@ end:
 	return testresult;
 }
 
-static int test_encrypt_decrypt_aes_cbc(void) { return test_encrypt_decrypt(EVP_aes_128_cbc()); }
-static int test_encrypt_decrypt_aes_128_gcm(void) { return test_encrypt_decrypt(EVP_aes_128_gcm()); }
-static int test_encrypt_decrypt_aes_192_gcm(void) { return test_encrypt_decrypt(EVP_aes_192_gcm()); }
-static int test_encrypt_decrypt_aes_256_gcm(void) { return test_encrypt_decrypt(EVP_aes_256_gcm()); }
+static int test_encrypt_decrypt_aes_cbc() { return test_encrypt_decrypt(EVP_aes_128_cbc()); }
+static int test_encrypt_decrypt_aes_128_gcm() { return test_encrypt_decrypt(EVP_aes_128_gcm()); }
+static int test_encrypt_decrypt_aes_192_gcm() { return test_encrypt_decrypt(EVP_aes_192_gcm()); }
+static int test_encrypt_decrypt_aes_256_gcm() { return test_encrypt_decrypt(EVP_aes_256_gcm()); }
 
-static int test_d2i_CMS_bio_NULL(void)
+static int test_d2i_CMS_bio_NULL()
 {
 	BIO * bio;
 	CMS_ContentInfo * cms = NULL;
 	int ret = 0;
-
 	/*
 	 * Test data generated using:
 	 * openssl cms -sign -md sha256 -signer ./test/certs/rootCA.pem -inkey \
 	 * ./test/certs/rootCA.key -nodetach -outform DER -in ./in.txt -out out.der \
 	 * -nosmimecap
 	 */
-	static const unsigned char cms_data[] = {
+	static const uchar cms_data[] = {
 		0x30, 0x82, 0x05, 0xc5, 0x06, 0x09, 0x2a, 0x86,
 		0x48, 0x86, 0xf7, 0x0d, 0x01, 0x07, 0x02, 0xa0,
 		0x82, 0x05, 0xb6, 0x30, 0x82, 0x05, 0xb2, 0x02,
@@ -246,10 +245,7 @@ static int test_d2i_CMS_bio_NULL(void)
 		0x07, 0xdf, 0xa8, 0xae, 0x57, 0xee, 0x7f, 0xe3,
 		0x6a
 	};
-	ret = TEST_ptr(bio = BIO_new_mem_buf(cms_data, sizeof(cms_data)))
-	    && TEST_ptr(cms = d2i_CMS_bio(bio, NULL))
-	    && TEST_true(CMS_verify(cms, NULL, NULL, NULL, NULL,
-		CMS_NO_SIGNER_CERT_VERIFY));
+	ret = TEST_ptr(bio = BIO_new_mem_buf(cms_data, sizeof(cms_data))) && TEST_ptr(cms = d2i_CMS_bio(bio, NULL)) && TEST_true(CMS_verify(cms, NULL, NULL, NULL, NULL, CMS_NO_SIGNER_CERT_VERIFY));
 	CMS_ContentInfo_free(cms);
 	BIO_free(bio);
 	return ret;
@@ -296,7 +292,7 @@ int setup_tests()
 	return 1;
 }
 
-void cleanup_tests(void)
+void cleanup_tests()
 {
 	X509_free(cert);
 	EVP_PKEY_free(privkey);

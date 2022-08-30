@@ -227,12 +227,12 @@ int FASTCALL ObjTagItem::GetStr(SString & rBuf) const
 	return ok;
 }
 
-int FASTCALL ObjTagItem::GetGuid(S_GUID * pGuid) const
+bool FASTCALL ObjTagItem::GetGuid(S_GUID * pGuid) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(oneof2(TagDataType, OTTYP_GUID, OTTYP_STRING)) { // @v9.0.0 OTTYP_STRING
 		CALLPTRMEMB(pGuid, FromStr(Val.PStr));
-		ok = 1;
+		ok = true;
 	}
 	else {
 		PPSetError(PPERR_INVOBJTAGTYPE, "GUID");
@@ -1067,9 +1067,8 @@ int ObjTagContainerHelper::GetGuid(S_GUID & rGuid)
 {
 	int    ok = 0;
 	const  ObjTagItem * p_tag_item = GuidTagID ? R_TagL.GetItem(GuidTagID) : 0;
-	if(p_tag_item && p_tag_item->GetGuid(&rGuid) > 0) {
+	if(p_tag_item && p_tag_item->GetGuid(&rGuid))
 		ok = 1;
-	}
 	else {
 		rGuid.Z();
 		ok = 0;

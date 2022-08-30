@@ -103,14 +103,11 @@ int BIO_sock_error(int sock)
 }
 
 #if OPENSSL_API_COMPAT < 0x10100000L
-struct hostent * BIO_gethostbyname(const char * name){
-	/*
-	 * Caching gethostbyname() results forever is wrong, so we have to let
-	 * the true gethostbyname() worry about this
-	 */
+struct hostent * BIO_gethostbyname(const char * name)
+{
+	// Caching gethostbyname() results forever is wrong, so we have to let the true gethostbyname() worry about this
 	return gethostbyname(name);
 }
-
 #endif
 
 int BIO_sock_init(void)

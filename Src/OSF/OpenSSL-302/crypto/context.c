@@ -23,19 +23,15 @@ struct ossl_lib_ctx_onfree_list_st {
 struct ossl_lib_ctx_st {
 	CRYPTO_RWLOCK * lock;
 	CRYPTO_EX_DATA data;
-
 	/*
 	 * For most data in the OSSL_LIB_CTX we just use ex_data to store it. But
 	 * that doesn't work for ex_data itself - so we store that directly.
 	 */
 	OSSL_EX_DATA_GLOBAL global;
-
 	/* Map internal static indexes to dynamically created indexes */
 	int dyn_indexes[OSSL_LIB_CTX_MAX_INDEXES];
-
 	/* Keep a separate lock for each index */
 	CRYPTO_RWLOCK * index_locks[OSSL_LIB_CTX_MAX_INDEXES];
-
 	CRYPTO_RWLOCK * oncelock;
 	int run_once_done[OSSL_LIB_CTX_MAX_RUN_ONCE];
 	int run_once_ret[OSSL_LIB_CTX_MAX_RUN_ONCE];
@@ -61,32 +57,25 @@ int ossl_lib_ctx_unlock(OSSL_LIB_CTX * ctx)
 int ossl_lib_ctx_is_child(OSSL_LIB_CTX * ctx)
 {
 	ctx = ossl_lib_ctx_get_concrete(ctx);
-
-	if(!ctx)
-		return 0;
-	return ctx->ischild;
+	return ctx ? ctx->ischild : 0;
 }
 
 static int context_init(OSSL_LIB_CTX * ctx)
 {
 	size_t i;
 	int exdata_done = 0;
-
 	ctx->lock = CRYPTO_THREAD_lock_new();
 	if(ctx->lock == NULL)
 		return 0;
-
 	ctx->oncelock = CRYPTO_THREAD_lock_new();
 	if(ctx->oncelock == NULL)
 		goto err;
-
 	for(i = 0; i < OSSL_LIB_CTX_MAX_INDEXES; i++) {
 		ctx->index_locks[i] = CRYPTO_THREAD_lock_new();
 		ctx->dyn_indexes[i] = -1;
 		if(ctx->index_locks[i] == NULL)
 			goto err;
 	}
-
 	/* OSSL_LIB_CTX is built on top of ex_data so we initialise that directly */
 	if(!ossl_do_ex_data_init(ctx))
 		goto err;
@@ -116,7 +105,7 @@ static int context_deinit(OSSL_LIB_CTX * ctx)
 		return 1;
 	ossl_ctx_thread_stop(ctx);
 	onfree = ctx->onfreelist;
-	while(onfree != NULL) {
+	while(onfree) {
 		onfree->fn(ctx);
 		tmp = onfree;
 		onfree = onfree->next;
@@ -126,7 +115,6 @@ static int context_deinit(OSSL_LIB_CTX * ctx)
 	ossl_crypto_cleanup_all_ex_data_int(ctx);
 	for(i = 0; i < OSSL_LIB_CTX_MAX_INDEXES; i++)
 		CRYPTO_THREAD_lock_free(ctx->index_locks[i]);
-
 	CRYPTO_THREAD_lock_free(ctx->oncelock);
 	CRYPTO_THREAD_lock_free(ctx->lock);
 	ctx->lock = NULL;
@@ -246,23 +234,19 @@ OSSL_LIB_CTX * OSSL_LIB_CTX_get0_global_default(void)
 {
 	if(!RUN_ONCE(&default_context_init, default_context_do_init))
 		return NULL;
-
 	return &default_context_int;
 }
 
 OSSL_LIB_CTX * OSSL_LIB_CTX_set0_default(OSSL_LIB_CTX * libctx)
 {
 	OSSL_LIB_CTX * current_defctx;
-
 	if((current_defctx = get_default_context()) != NULL) {
-		if(libctx != NULL)
+		if(libctx)
 			set_default_context(libctx);
 		return current_defctx;
 	}
-
 	return NULL;
 }
-
 #endif
 
 OSSL_LIB_CTX * ossl_lib_ctx_get_concrete(OSSL_LIB_CTX * ctx)
@@ -292,14 +276,11 @@ int ossl_lib_ctx_is_global_default(OSSL_LIB_CTX * ctx)
 	return 0;
 }
 
-static void ossl_lib_ctx_generic_new(void * parent_ign, void * ptr_ign,
-    CRYPTO_EX_DATA * ad, int index,
-    long argl_ign, void * argp)
+static void ossl_lib_ctx_generic_new(void * parent_ign, void * ptr_ign, CRYPTO_EX_DATA * ad, int index, long argl_ign, void * argp)
 {
 	const OSSL_LIB_CTX_METHOD * meth = (const OSSL_LIB_CTX_METHOD *)argp;
 	OSSL_LIB_CTX * ctx = ossl_crypto_ex_data_get_ossl_lib_ctx(ad);
 	void * ptr = meth->new_func(ctx);
-
 	if(ptr) {
 		if(!CRYPTO_THREAD_write_lock(ctx->lock))
 			/*
@@ -312,29 +293,21 @@ static void ossl_lib_ctx_generic_new(void * parent_ign, void * ptr_ign,
 	}
 }
 
-static void ossl_lib_ctx_generic_free(void * parent_ign, void * ptr,
-    CRYPTO_EX_DATA * ad, int index,
-    long argl_ign, void * argp)
+static void ossl_lib_ctx_generic_free(void * parent_ign, void * ptr, CRYPTO_EX_DATA * ad, int index, long argl_ign, void * argp)
 {
 	const OSSL_LIB_CTX_METHOD * meth = (const OSSL_LIB_CTX_METHOD *)argp;
 	meth->free_func(ptr);
 }
 
-static int ossl_lib_ctx_init_index(OSSL_LIB_CTX * ctx, int static_index,
-    const OSSL_LIB_CTX_METHOD * meth)
+static int ossl_lib_ctx_init_index(OSSL_LIB_CTX * ctx, int static_index, const OSSL_LIB_CTX_METHOD * meth)
 {
 	int idx;
 	ctx = ossl_lib_ctx_get_concrete(ctx);
 	if(!ctx)
 		return 0;
-	idx = ossl_crypto_get_ex_new_index_ex(ctx, CRYPTO_EX_INDEX_OSSL_LIB_CTX, 0,
-		(void*)meth,
-		ossl_lib_ctx_generic_new,
-		NULL, ossl_lib_ctx_generic_free,
-		meth->priority);
+	idx = ossl_crypto_get_ex_new_index_ex(ctx, CRYPTO_EX_INDEX_OSSL_LIB_CTX, 0, (void*)meth, ossl_lib_ctx_generic_new, NULL, ossl_lib_ctx_generic_free, meth->priority);
 	if(idx < 0)
 		return 0;
-
 	ctx->dyn_indexes[static_index] = idx;
 	return 1;
 }
@@ -362,14 +335,12 @@ void * ossl_lib_ctx_get_data(OSSL_LIB_CTX * ctx, int index, const OSSL_LIB_CTX_M
 		CRYPTO_THREAD_unlock(ctx->index_locks[index]);
 		return data;
 	}
-
 	if(!CRYPTO_THREAD_write_lock(ctx->index_locks[index]))
 		return NULL;
 	if(!CRYPTO_THREAD_write_lock(ctx->lock)) {
 		CRYPTO_THREAD_unlock(ctx->index_locks[index]);
 		return NULL;
 	}
-
 	dynidx = ctx->dyn_indexes[index];
 	if(dynidx != -1) {
 		data = CRYPTO_get_ex_data(&ctx->data, dynidx);
@@ -377,15 +348,12 @@ void * ossl_lib_ctx_get_data(OSSL_LIB_CTX * ctx, int index, const OSSL_LIB_CTX_M
 		CRYPTO_THREAD_unlock(ctx->index_locks[index]);
 		return data;
 	}
-
 	if(!ossl_lib_ctx_init_index(ctx, index, meth)) {
 		CRYPTO_THREAD_unlock(ctx->lock);
 		CRYPTO_THREAD_unlock(ctx->index_locks[index]);
 		return NULL;
 	}
-
 	CRYPTO_THREAD_unlock(ctx->lock);
-
 	/*
 	 * The alloc call ensures there's a value there. We release the ctx->lock
 	 * for this, because the allocation itself may recursively call
@@ -396,14 +364,12 @@ void * ossl_lib_ctx_get_data(OSSL_LIB_CTX * ctx, int index, const OSSL_LIB_CTX_M
 	 * They do the same thing except that the latter calls CRYPTO_get_ex_data()
 	 * as well - which we must not do without holding the ctx->lock.
 	 */
-	if(ossl_crypto_alloc_ex_data_intern(CRYPTO_EX_INDEX_OSSL_LIB_CTX, NULL,
-	    &ctx->data, ctx->dyn_indexes[index])) {
+	if(ossl_crypto_alloc_ex_data_intern(CRYPTO_EX_INDEX_OSSL_LIB_CTX, NULL, &ctx->data, ctx->dyn_indexes[index])) {
 		if(!CRYPTO_THREAD_read_lock(ctx->lock))
 			goto end;
 		data = CRYPTO_get_ex_data(&ctx->data, ctx->dyn_indexes[index]);
 		CRYPTO_THREAD_unlock(ctx->lock);
 	}
-
 end:
 	CRYPTO_THREAD_unlock(ctx->index_locks[index]);
 	return data;
@@ -417,22 +383,18 @@ OSSL_EX_DATA_GLOBAL * ossl_lib_ctx_get_ex_data_global(OSSL_LIB_CTX * ctx)
 	return &ctx->global;
 }
 
-int ossl_lib_ctx_run_once(OSSL_LIB_CTX * ctx, unsigned int idx,
-    ossl_lib_ctx_run_once_fn run_once_fn)
+int ossl_lib_ctx_run_once(OSSL_LIB_CTX * ctx, unsigned int idx, ossl_lib_ctx_run_once_fn run_once_fn)
 {
 	int done = 0, ret = 0;
-
 	ctx = ossl_lib_ctx_get_concrete(ctx);
 	if(!ctx)
 		return 0;
-
 	if(!CRYPTO_THREAD_read_lock(ctx->oncelock))
 		return 0;
 	done = ctx->run_once_done[idx];
 	if(done)
 		ret = ctx->run_once_ret[idx];
 	CRYPTO_THREAD_unlock(ctx->oncelock);
-
 	if(done)
 		return ret;
 
@@ -443,7 +405,6 @@ int ossl_lib_ctx_run_once(OSSL_LIB_CTX * ctx, unsigned int idx,
 		CRYPTO_THREAD_unlock(ctx->oncelock);
 		return ret;
 	}
-
 	ret = run_once_fn(ctx);
 	ctx->run_once_done[idx] = 1;
 	ctx->run_once_ret[idx] = ret;

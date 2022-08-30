@@ -237,7 +237,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		}
 		public int GetGoodsID()
 		{
-			return (Ware != null && Ware.JsItem != null) ? Ware.JsItem.optInt("id", 0) : 0;
+			return (Ware != null && Ware.Item != null) ? Ware.Item.ID : 0;
 		}
 		private CommonPrereqModule.ProcessorEntry GetPrcEntry()
 		{
@@ -286,7 +286,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	{
 		CPM.NotifyTabContentChanged(R.id.VIEWPAGER_ATTENDANCEPREREQ, tabId, innerViewId);
 	}
-	private void NotifyCurrentOrderChanged()
+	private void NotifyCurrentDocumentChanged()
 	{
 		NotifyTabContentChanged(CommonPrereqModule.Tab.tabBookingDocument, R.id.attendancePrereqBookingListView);
 		CommonPrereqModule.TabEntry tab_entry = SearchTabEntry(CommonPrereqModule.Tab.tabBookingDocument);
@@ -424,9 +424,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						if(goods_list != null && goods_list.size() > 0) {
 							for(int gidx = 0; !ware_belong_to_prc && gidx < goods_list.size(); gidx++) {
 								CommonPrereqModule.WareEntry inner_entry = goods_list.get(gidx);
-								if(inner_entry != null && inner_entry.JsItem != null) {
-									int inner_ware_id = inner_entry.JsItem.optInt("id", 0);
-									if(inner_ware_id == ware_id)
+								if(inner_entry != null && inner_entry.Item != null) {
+									if(inner_entry.Item.ID == ware_id)
 										ware_belong_to_prc = true;
 								}
 							}
@@ -531,7 +530,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					AttdcBlk.Ware = entry;
 				}
 				else {
-					final int entry_goods_id = entry.JsItem.optInt("id", 0);
+					final int entry_goods_id = entry.Item.ID;
 					final int prc_id = AttdcBlk.GetPrcID(true);
 					if(prc_id > 0) {
 						ArrayList<CommonPrereqModule.ProcessorEntry> entry_prc_list = CPM.GetProcessorListByGoods(entry_goods_id);
@@ -593,19 +592,6 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			result = false;
 		return result;
 	}
-	static class TabInitEntry {
-		TabInitEntry(final CommonPrereqModule.Tab tab, final int rc, final String title, boolean condition)
-		{
-			Tab = tab;
-			Rc = rc;
-			Title = title;
-			Condition = condition;
-		}
-		final CommonPrereqModule.Tab Tab;
-		final int Rc;
-		final String Title;
-		final boolean Condition;
-	}
 	private void CreateTabList(boolean force)
 	{
 		final int tab_layout_rcid = R.id.TABLAYOUT_ATTENDANCEPREREQ;
@@ -613,17 +599,17 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		if(app_ctx != null && (CPM.TabList == null || force)) {
 			CPM.TabList = new ArrayList<CommonPrereqModule.TabEntry>();
 			LayoutInflater inflater = LayoutInflater.from(this);
-			TabInitEntry [] tab_init_list = {
-				new TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_attendanceprereq_goodsgroups, "@{group_pl}", (CPM.GoodsGroupListData != null)),
-				new TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_attendanceprereq_goods, "@{ware_service_pl}", (CPM.GoodsListData != null)),
-				new TabInitEntry(CommonPrereqModule.Tab.tabProcessors, R.layout.layout_attendanceprereq_processors, "@{processor_pl}", (CPM.ProcessorListData != null)),
-				new TabInitEntry(CommonPrereqModule.Tab.tabAttendance, R.layout.layout_attendanceprereq_attendance, /*"@{booking}"*/"@{selection_time}", true),
-				new TabInitEntry(CommonPrereqModule.Tab.tabBookingDocument, R.layout.layout_attendanceprereq_booking, "@{orderdocument}", true),
-				new TabInitEntry(CommonPrereqModule.Tab.tabOrders, R.layout.layout_attendanceprereq_orders, "@{booking_pl}", true),
-				new TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "[search]", true),
+			CommonPrereqModule.TabInitEntry [] tab_init_list = {
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_attendanceprereq_goodsgroups, "@{group_pl}", (CPM.GoodsGroupListData != null)),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_attendanceprereq_goods, "@{ware_service_pl}", (CPM.GoodsListData != null)),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabProcessors, R.layout.layout_attendanceprereq_processors, "@{processor_pl}", (CPM.ProcessorListData != null)),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabAttendance, R.layout.layout_attendanceprereq_attendance, /*"@{booking}"*/"@{selection_time}", true),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabBookingDocument, R.layout.layout_attendanceprereq_booking, "@{orderdocument}", true),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabOrders, R.layout.layout_attendanceprereq_orders, "@{booking_pl}", true),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "[search]", true),
 			};
 			for(int i = 0; i < tab_init_list.length; i++) {
-				final TabInitEntry _t = tab_init_list[i];
+				final CommonPrereqModule.TabInitEntry _t = tab_init_list[i];
 				if(_t != null && _t.Condition) {
 					SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_t.Tab.ordinal(), _t.Rc, tab_layout_rcid);
 					String title = (_t.Tab == CommonPrereqModule.Tab.tabProcessors && SLib.GetLen(P.PrcTitle) > 0) ? P.PrcTitle : SLib.ExpandString(app_ctx, _t.Title);
@@ -768,9 +754,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					TextView v = convertView.findViewById(R.id.LVITEM_GENERICNAME);
 					if(v != null && item instanceof CommonPrereqModule.WareEntry) {
 						CommonPrereqModule.WareEntry ware_entry = (CommonPrereqModule.WareEntry)item;
-						if(ware_entry.JsItem != null) {
-							int goods_id = ware_entry.JsItem.optInt("id", 0);
-							v.setText(ware_entry.JsItem.optString("nm", ""));
+						if(ware_entry.Item != null) {
+							int goods_id = ware_entry.Item.ID;
+							v.setText(ware_entry.Item.Name);
 							if(_ctx instanceof CmdRAttendancePrereqActivity) {
 								StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(_ctx);
 								if(app_ctx != null) {
@@ -972,8 +958,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								SLib.SetCtrlVisibility(vg, R.id.CTL_PREV, View.GONE);
 								SLib.SetCtrlVisibility(vg, R.id.CTL_NEXT, View.GONE);
 							}
-							if(AttdcBlk.Ware != null && AttdcBlk.Ware.JsItem != null) {
-								String nm = AttdcBlk.Ware.JsItem.optString("nm", "");
+							if(AttdcBlk.Ware != null && AttdcBlk.Ware.Item != null) {
+								String nm = AttdcBlk.Ware.Item.Name;
 								SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_WARE, nm);
 								SLib.SetCtrlVisibility(vg, R.id.CTL_ATTENDANCE_BACK_WARE, View.VISIBLE);
 							}
@@ -1032,7 +1018,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								if(bk_item != null) {
 									CommonPrereqModule.WareEntry goods_entry = CPM.FindGoodsItemByGoodsID(bk_item.GoodsID);
 									if(goods_entry != null)
-										goods_name = goods_entry.JsItem.optString("nm", "");
+										goods_name = goods_entry.Item.Name;
 									CommonPrereqModule.ProcessorEntry prc_entry = CPM.FindProcessorItemByID(bk_item.PrcID);
 									if(prc_entry != null)
 										prc_name = prc_entry.JsItem.optString("nm", "");
@@ -1101,10 +1087,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								}
 								else if(a.GetListRcId() == R.id.attendancePrereqGoodsListView) {
 									CommonPrereqModule.WareEntry cur_entry = CPM.GetGoodsListItemByIdx(ev_subj.ItemIdx);
-									if(cur_entry != null && cur_entry.JsItem != null) {
-										final int cur_id = cur_entry.JsItem.optInt("id", 0);
+									if(cur_entry != null && cur_entry.Item != null) {
+										final int cur_id = cur_entry.Item.ID;
 										View iv = ev_subj.RvHolder.itemView;
-										SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
+										SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.Item.Name);
 										{
 											StyloQApp app_ctx = GetAppCtx();
 											int duration = CPM.GetServiceDurationForPrc(0, cur_id);
@@ -1112,7 +1098,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												SLib.SetCtrlString(iv, R.id.ATTENDANCEPREREQ_GOODS_DURATION, MakeDurationText(app_ctx, duration));
 										}
 										{
-											double val = cur_entry.JsItem.optDouble("price", 0.0);
+											double val = cur_entry.Item.Price;
 											SLib.SetCtrlString(iv, R.id.ATTENDANCEPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
 										}
 										{
@@ -1126,7 +1112,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 													btn.setText("order");
 											}
 										}
-										String blob_signature = cur_entry.JsItem.optString("imgblobs", null);
+										String blob_signature = cur_entry.Item.ImgBlob;
 										SLib.SetupImage(this, iv.findViewById(R.id.ATTENDANCEPREREQ_GOODS_IMG), blob_signature, false);
 										SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODS, cur_id);
 										{
@@ -1511,10 +1497,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										final Document.BookingItem cur_entry = _doc.BkList.get(ev_subj.ItemIdx);
 										if(cur_entry != null) {
 											CommonPrereqModule.WareEntry goods = CPM.FindGoodsItemByGoodsID(cur_entry.GoodsID);
-											String goods_name = "";
-											if(goods != null && goods.JsItem != null) {
-												goods_name = goods.JsItem.optString("nm", "");
-											}
+											String goods_name = (goods != null && goods.Item != null) ? goods.Item.Name : "";
 											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, goods_name);
 											if(cur_entry.Set != null && cur_entry.Set.Price > 0.0) {
 												SLib.SetCtrlString(iv, R.id.ATTENDANCEPREREQ_BI_PRICE, CPM.FormatCurrency(cur_entry.Set.Price));
@@ -2171,7 +2154,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								CPM.ResetCurrentDocument();
 								ResetAttendanceBlock();
 							}
-							NotifyCurrentOrderChanged();
+							NotifyCurrentDocumentChanged();
 							GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
 							//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 							SetupCurrentDocument(false, true);
@@ -2195,7 +2178,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								CPM.ResetCurrentDocument();
 								ResetAttendanceBlock();
 							}
-							NotifyCurrentOrderChanged();
+							NotifyCurrentDocumentChanged();
 							GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
 							//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 							SetupCurrentDocument(false, true);

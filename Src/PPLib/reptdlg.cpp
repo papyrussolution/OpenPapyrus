@@ -1,5 +1,5 @@
 // REPTDLG.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -63,7 +63,7 @@ public:
 		int    s = 0;
 		if(dir > 0) {
 			Data = *static_cast<const DateRepeating *>(pData);
-			long   weekdays = (long)Data.Dtl.W.Weekdays;
+			const long weekdays = static_cast<long>(Data.Dtl.W.Weekdays);
 			setCtrlData(CTL_REPEATING_NUMPRD, &Data.Dtl.W.NumPrd);
 			AddClusterAssoc(CTL_REPEATING_WEEKDAYS, 0, 0x0001);
 			AddClusterAssoc(CTL_REPEATING_WEEKDAYS, 1, 0x0002);
@@ -118,7 +118,7 @@ public:
 			Data = *static_cast<const DateRepeating *>(pData);
 			Data.Prd = PRD_MONTH;
 			Data.GetMonthlyPeriod(&MonthCount, &MonthNo);
-			Kind = (long)Data.RepeatKind;
+			Kind = static_cast<long>(Data.RepeatKind);
 			PrevKind = Kind;
 			{
 				__Lock = 1;
@@ -227,7 +227,7 @@ int RepMonthlyDialog::Helper_GetData()
 	getCtrlData(CTL_REPEATING_DTLNM,  &MonthNo);
 	GetClusterData(CTL_REPEATING_KIND, &Kind);
 	Data.Prd = PRD_MONTH;
-	Data.RepeatKind = (int16)Kind;
+	Data.RepeatKind = static_cast<int16>(Kind);
 	if(Kind == 1) {
 		getCtrlData(CTL_REPEATING_DTLMD, &DayOfMonth);
 		if(Data.SetMonthly(MonthCount, MonthNo, DayOfMonth) == 100)
@@ -239,8 +239,8 @@ int RepMonthlyDialog::Helper_GetData()
 		getCtrlData(CTLSEL_REPEATING_DTLWD, &DayOfWeek);
 		if(Data.SetMonthly(MonthCount, MonthNo, WeekNo, DayOfWeek) == 100)
 			ok = 100;
-		WeekNo = (int)Data.Dtl.MY.WeekNo;
-		DayOfWeek = (int)Data.Dtl.MY.DayOfWeek;
+		WeekNo = static_cast<int>(Data.Dtl.MY.WeekNo);
+		DayOfWeek = static_cast<int>(Data.Dtl.MY.DayOfWeek);
 	}
 	Data.GetMonthlyPeriod(&MonthCount, &MonthNo);
 	return ok;
@@ -305,19 +305,19 @@ public:
 		else if(dir < 0) {
 			long   kind = 0;
 			long   month = getCtrlLong(CTLSEL_REPEATING_DTLMON);
-			Data.Dtl.AY.Month = (int16)month;
+			Data.Dtl.AY.Month = static_cast<int16>(month);
 			GetClusterData(CTL_REPEATING_KIND, &kind);
 			Data.Prd = PRD_ANNUAL;
-			Data.RepeatKind = (int16)kind;
+			Data.RepeatKind = static_cast<int16>(kind);
 			if(kind == 1) {
 				getCtrlData(CTL_REPEATING_DTLMD, &Data.Dtl.AE.DayOfMonth);
 			}
 			else {
 				long   temp_id = 0;
 				if(getCtrlData(CTLSEL_REPEATING_DTLWN, &temp_id))
-					Data.Dtl.AY.WeekNo = (uint8)temp_id;
+					Data.Dtl.AY.WeekNo = static_cast<uint8>(temp_id);
 				if(getCtrlData(CTLSEL_REPEATING_DTLWD, &temp_id))
-					Data.Dtl.AY.DayOfWeek = (uint8)temp_id;
+					Data.Dtl.AY.DayOfWeek = static_cast<uint8>(temp_id);
 			}
 			if(pData)
 				*static_cast<DateRepeating *>(pData) = Data;
@@ -393,23 +393,23 @@ public:
 		if(dir > 0) {
 			Data = *static_cast<const DateRepeating *>(pData);
 			long   kind = static_cast<long>(Data.RepeatKind);
-			setCtrlLong(CTL_REPEATING_NUMPRD, (long)Data.Dtl.RA.NumPrd);
+			setCtrlLong(CTL_REPEATING_NUMPRD, static_cast<long>(Data.Dtl.RA.NumPrd));
 			AddClusterAssocDef(CTL_REPEATING_KIND,  0, PRD_DAY);
 			AddClusterAssoc(CTL_REPEATING_KIND,  1, PRD_WEEK);
 			AddClusterAssoc(CTL_REPEATING_KIND,  2, PRD_MONTH);
 			AddClusterAssoc(CTL_REPEATING_KIND,  3, PRD_ANNUAL);
-			SetClusterData(CTL_REPEATING_KIND, (long)Data.RepeatKind);
+			SetClusterData(CTL_REPEATING_KIND, static_cast<long>(Data.RepeatKind));
 			AddClusterAssocDef(CTL_REPEATING_DTLAS, 0, 1);
 			AddClusterAssoc(CTL_REPEATING_DTLAS, 1, 0);
 			SetClusterData(CTL_REPEATING_DTLAS, Data.Dtl.RA.AfterStart);
 		}
 		else if(dir < 0) {
 			long   v = 0;
-			Data.Dtl.RA.NumPrd = (int16)getCtrlLong(CTL_REPEATING_NUMPRD);
+			Data.Dtl.RA.NumPrd = static_cast<int16>(getCtrlLong(CTL_REPEATING_NUMPRD));
 			GetClusterData(CTL_REPEATING_KIND, &v);
-			Data.RepeatKind = (int16)v;
+			Data.RepeatKind = static_cast<int16>(v);
 			GetClusterData(CTL_REPEATING_DTLAS, &v);
-			Data.Dtl.RA.AfterStart = (int16)v;
+			Data.Dtl.RA.AfterStart = static_cast<int16>(v);
 			if(pData)
 				*static_cast<DateRepeating *>(pData) = Data;
 		}
@@ -439,7 +439,8 @@ int FASTCALL RepAfterPrdDialog::valid(ushort cmd)
 //
 static void LogTest(PPLogger & rLogger, LDATE dt)
 {
-	char   date_buf[32], log_buf[256];
+	char   date_buf[32];
+	char   log_buf[256];
 	datefmt(&dt, DATF_DMY|DATF_CENTURY, date_buf);
 	sprintf(log_buf, "%10s%20d", date_buf, dayofweek(&dt, 1));
 	rLogger.Log(log_buf);
@@ -586,9 +587,9 @@ int RepeatingDialog::getDuration(long * pSec)
 int RepeatingDialog::getDTS(DateRepeating * pData)
 {
 	int    ok = 1;
-	long   temp_long = (long)P_Data->Prd;
+	long   temp_long = static_cast<long>(P_Data->Prd);
 	GetClusterData(CTL_REPEATING_PRD, &temp_long);
-	P_Data->Prd = (int16)temp_long;
+	P_Data->Prd = static_cast<int16>(temp_long);
 	if(P_ChildDlg)
 		if(P_ChildDlg->valid(cmOK))
 			P_ChildDlg->TransmitData(-1, P_Data);

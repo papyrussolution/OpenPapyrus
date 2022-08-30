@@ -74,7 +74,7 @@ public class StrStore {
 						String inner_signature = buf.substring(ips+2, ipe);
 						String temp_buf = GetString(lang, inner_signature);
 						if(SLib.GetLen(temp_buf) > 0) {
-							buf = ((ips > 0) ? buf.substring(0, ips-1) : "") + temp_buf + buf.substring(ipe+1);
+							buf = ((ips > 0) ? buf.substring(0, ips) : "") + temp_buf + buf.substring(ipe+1);
 						}
 						else
 							ips += 2;

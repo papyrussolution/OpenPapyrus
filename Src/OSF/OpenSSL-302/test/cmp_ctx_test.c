@@ -44,7 +44,6 @@ static STACK_OF(X509) *sk_X509_new_1(void)
 {
 	STACK_OF(X509) *sk = sk_X509_new_null();
 	X509 * x = X509_dup(test_cert);
-
 	if(x == NULL || !sk_X509_push(sk, x)) {
 		sk_X509_free(sk);
 		X509_free(x);
@@ -79,27 +78,14 @@ static int execute_CTX_reinit_test(OSSL_CMP_CTX_TEST_FIXTURE * fixture)
 	    || !OSSL_CMP_CTX_set1_senderNonce(ctx, bytes)
 	    || !ossl_cmp_ctx_set1_recipNonce(ctx, bytes))
 		goto err;
-
 	if(!TEST_true(OSSL_CMP_CTX_reinit(ctx)))
 		goto err;
-
 	/* check whether values have been reset to default in all relevant fields */
-	if(!TEST_true(ctx->status == -1
-	    && ctx->failInfoCode == -1
-	    && ctx->statusString == NULL
-	    && ctx->newCert == NULL
-	    && ctx->newChain == NULL
-	    && ctx->caPubs == NULL
-	    && ctx->extraCertsIn == NULL
-	    && ctx->validatedSrvCert == NULL
-	    && ctx->transactionID == NULL
-	    && ctx->senderNonce == NULL
-	    && ctx->recipNonce == NULL))
+	if(!TEST_true(ctx->status == -1 && ctx->failInfoCode == -1 && !ctx->statusString && !ctx->newCert && 
+		!ctx->newChain && !ctx->caPubs && !ctx->extraCertsIn && !ctx->validatedSrvCert && !ctx->transactionID && !ctx->senderNonce && !ctx->recipNonce))
 		goto err;
-
 	/* this does not check that all remaining fields are untouched */
 	res = 1;
-
 err:
 	sk_X509_pop_X509_free(certs);
 	ASN1_OCTET_STRING_free(bytes);
@@ -125,8 +111,7 @@ static int msg_total_size_log_cb(const char * func, const char * file, int line,
 
 #define STR64 "This is a 64 bytes looooooooooooooooooooooooooooooooong string.\n"
 /* max string length ISO C90 compilers are required to support is 509. */
-#define STR509 STR64 STR64 STR64 STR64 STR64 STR64 STR64 \
-	"This is a 61 bytes loooooooooooooooooooooooooooooong string.\n"
+#define STR509 STR64 STR64 STR64 STR64 STR64 STR64 STR64 "This is a 61 bytes loooooooooooooooooooooooooooooong string.\n"
 static const char * const max_str_literal = STR509;
 #define STR_SEP "<SEP>"
 
@@ -135,7 +120,6 @@ static int execute_CTX_print_errors_test(OSSL_CMP_CTX_TEST_FIXTURE * fixture)
 	OSSL_CMP_CTX * ctx = fixture->ctx;
 	int base_err_msg_size, expected_size;
 	int res = 1;
-
 	if(!TEST_true(OSSL_CMP_CTX_set_log_cb(ctx, NULL)))
 		res = 0;
 	if(!TEST_true(ctx->log_cb == NULL))
@@ -145,7 +129,6 @@ static int execute_CTX_print_errors_test(OSSL_CMP_CTX_TEST_FIXTURE * fixture)
 	ERR_raise(ERR_LIB_CMP, CMP_R_MULTIPLE_SAN_SOURCES);
 	OSSL_CMP_CTX_print_errors(ctx); /* should print above error to STDERR */
 #endif
-
 	/* this should work regardless of OPENSSL_NO_STDIO and OPENSSL_NO_TRACE: */
 	if(!TEST_true(OSSL_CMP_CTX_set_log_cb(ctx, msg_total_size_log_cb)))
 		res = 0;
@@ -167,7 +150,6 @@ static int execute_CTX_print_errors_test(OSSL_CMP_CTX_TEST_FIXTURE * fixture)
 		OSSL_CMP_CTX_print_errors(ctx);
 		if(!TEST_int_eq(msg_total_size, expected_size))
 			res = 0;
-
 		ERR_raise(ERR_LIB_CMP, CMP_R_INVALID_ARGS);
 		base_err_msg_size = strlen("INVALID_ARGS") + strlen(":");
 		expected_size = base_err_msg_size;
@@ -203,10 +185,8 @@ static int execute_CTX_reqExtensions_have_SAN_test(OSSL_CMP_CTX_TEST_FIXTURE * f
 	X509_EXTENSION * ext = NULL;
 	X509_EXTENSIONS * exts = NULL;
 	int res = 0;
-
 	if(!TEST_false(OSSL_CMP_CTX_reqExtensions_have_SAN(ctx)))
 		return 0;
-
 	if(!TEST_int_eq(1, RAND_bytes(str, len))
 	    || !TEST_ptr(data = ASN1_OCTET_STRING_new())
 	    || !TEST_true(ASN1_OCTET_STRING_set(data, str, len)))
@@ -461,7 +441,6 @@ static X509_STORE * X509_STORE_new_1(void)
 }
 
 #define DEFAULT_STORE(x) ((x) == NULL || X509_VERIFY_PARAM_get_flags(X509_STORE_get0_param(x)) == 0)
-
 #define IS_NEG(x) ((x) < 0)
 #define IS_0(x) ((x) == 0) /* for any type */
 #define DROP(x) (void)(x) /* dummy SAlloc::F() for non-pointer and function types */
@@ -491,8 +470,7 @@ static X509_STORE * X509_STORE_new_1(void)
 		return (TYPE*)ctx->FIELD; \
 	} \
 	DEFINE_SET_GET_TEST_DEFAULT(OSSL_CMP, CTX, N, 0, DUP, FIELD, TYPE, DEFAULT)
-#define DEFINE_SET_TEST(OSSL_CMP, CTX, N, DUP, FIELD, TYPE) \
-	DEFINE_SET_TEST_DEFAULT(OSSL_CMP, CTX, N, DUP, FIELD, TYPE, IS_0)
+#define DEFINE_SET_TEST(OSSL_CMP, CTX, N, DUP, FIELD, TYPE) DEFINE_SET_TEST_DEFAULT(OSSL_CMP, CTX, N, DUP, FIELD, TYPE, IS_0)
 
 #define DEFINE_SET_SK_TEST(OSSL_CMP, CTX, N, FIELD, TYPE) \
 	static STACK_OF(TYPE) *OSSL_CMP_CTX_get0_ ## FIELD(const CMP_CTX *ctx) \
@@ -512,15 +490,9 @@ typedef OSSL_HTTP_bio_cb_t OSSL_CMP_http_cb_t;
 		return ctx->FIELD; \
 	} \
 	DEFINE_SET_GET_BASE_TEST(OSSL_CMP_CTX, set, get, 0, FIELD, OSSL_CMP_ ## FIELD ## _t, NULL, IS_0, test_ ## FIELD, DROP)
-#define DEFINE_SET_GET_P_VOID_TEST(FIELD) \
-	DEFINE_SET_GET_BASE_TEST(OSSL_CMP_CTX, set, get, 0, FIELD, void *, \
-	    NULL, IS_0, ((void*)1), DROP)
-
-#define DEFINE_SET_GET_INT_TEST_DEFAULT(OSSL_CMP, CTX, FIELD, DEFAULT) \
-	DEFINE_SET_GET_BASE_TEST(OSSL_CMP ## _ ## CTX, set, get, 0, FIELD, int, -1, \
-	    DEFAULT, 1, DROP)
-#define DEFINE_SET_GET_INT_TEST(OSSL_CMP, CTX, FIELD) \
-	DEFINE_SET_GET_INT_TEST_DEFAULT(OSSL_CMP, CTX, FIELD, IS_NEG)
+#define DEFINE_SET_GET_P_VOID_TEST(FIELD) DEFINE_SET_GET_BASE_TEST(OSSL_CMP_CTX, set, get, 0, FIELD, void *, NULL, IS_0, ((void*)1), DROP)
+#define DEFINE_SET_GET_INT_TEST_DEFAULT(OSSL_CMP, CTX, FIELD, DEFAULT) DEFINE_SET_GET_BASE_TEST(OSSL_CMP ## _ ## CTX, set, get, 0, FIELD, int, -1, DEFAULT, 1, DROP)
+#define DEFINE_SET_GET_INT_TEST(OSSL_CMP, CTX, FIELD) DEFINE_SET_GET_INT_TEST_DEFAULT(OSSL_CMP, CTX, FIELD, IS_NEG)
 #define DEFINE_SET_INT_TEST(FIELD) \
 	static int OSSL_CMP_CTX_get_ ## FIELD(const CMP_CTX *ctx) \
 	{ \
@@ -546,8 +518,7 @@ typedef OSSL_HTTP_bio_cb_t OSSL_CMP_http_cb_t;
 #define push 0
 #define push0 0
 #define push1 1
-#define DEFINE_PUSH_BASE_TEST(PUSHN, DUP, FIELD, ELEM, TYPE, T, \
-	    DEFAULT, NEW, FREE) \
+#define DEFINE_PUSH_BASE_TEST(PUSHN, DUP, FIELD, ELEM, TYPE, T, DEFAULT, NEW, FREE) \
 	static TYPE sk_top_ ## FIELD(const CMP_CTX *ctx) { return sk_ ## T ## _value(ctx->FIELD, sk_ ## T ## _num(ctx->FIELD) - 1); } \
 	static int execute_CTX_ ## PUSHN ## _ ## ELEM(OSSL_CMP_CTX_TEST_FIXTURE *fixture) \
 	{ \
@@ -565,7 +536,6 @@ typedef OSSL_HTTP_bio_cb_t OSSL_CMP_http_cb_t;
 		TYPE val2 = val2_to_free; \
 		TYPE val2_read = 0; \
 		int res = 1; \
-    \
 		if(!TEST_int_eq(ERR_peek_error(), 0)) \
 			res = 0; \
 		if((*push_fn)(NULL, val1) || ERR_peek_error() == 0) { \
@@ -573,7 +543,6 @@ typedef OSSL_HTTP_bio_cb_t OSSL_CMP_http_cb_t;
 			res = 0; \
 		} \
 		ERR_clear_error(); \
-    \
 		if(n_elem < 0) /* can happen for NULL stack */ \
 			n_elem = 0; \
 		field_read = ctx->FIELD; \
@@ -587,7 +556,6 @@ typedef OSSL_HTTP_bio_cb_t OSSL_CMP_http_cb_t;
 		} \
 		if(PUSHN == 0) \
 			val1_to_free = 0; /* 0 works for any type */ \
-    \
 		if(sk_ ## T ## _num(ctx->FIELD) != ++n_elem) { \
 			TEST_error("pushing first value did not increment number"); \
 			res = 0; \
@@ -604,7 +572,6 @@ typedef OSSL_HTTP_bio_cb_t OSSL_CMP_http_cb_t;
 				res = 0; \
 			} \
 		} \
-    \
 		if(!(*push_fn)(ctx, val2)) { \
 			TEST_error("pushting second value failed"); \
 			res = 0; \
@@ -633,10 +600,8 @@ typedef OSSL_HTTP_bio_cb_t OSSL_CMP_http_cb_t;
 			} \
 		} \
 		/* this does not check if all remaining fields and elems are untouched */ \
-    \
 		if(!TEST_int_eq(ERR_peek_error(), 0)) \
 			res = 0; \
-    \
 		FREE(val1_to_free); \
 		FREE(val2_to_free); \
 		return TEST_true(res); \

@@ -362,7 +362,6 @@ int main(int argc, char ** argv)
 			return 1;
 		}
 	}
-
 	for(i = 1; i < argc; i++) {
 		if(sstreq(argv[i], "-add") || sstreq(argv[i], "--add")) {
 			if(sgml)
@@ -437,12 +436,11 @@ int main(int argc, char ** argv)
 					}
 				}
 				if(noout) {
-					FILE * out;
 					if(xmlCatalogIsEmpty(catal)) {
 						remove(argv[i+1]);
 					}
 					else {
-						out = fopen(argv[i+1], "w");
+						FILE * out = fopen(argv[i+1], "w");
 						if(!out) {
 							slfprintf_stderr("could not open %s for saving\n", argv[i+1]);
 							exit_value = 2;
@@ -458,7 +456,7 @@ int main(int argc, char ** argv)
 							remove(XML_SGML_DEFAULT_CATALOG);
 						}
 						else {
-							out = fopen(XML_SGML_DEFAULT_CATALOG, "w");
+							FILE * out = fopen(XML_SGML_DEFAULT_CATALOG, "w");
 							if(!out) {
 								slfprintf_stderr("could not open %s for saving\n", XML_SGML_DEFAULT_CATALOG);
 								exit_value = 2;
@@ -547,13 +545,11 @@ int main(int argc, char ** argv)
 				exit_value = 2;
 				noout = 0;
 			}
-			else {
+			else
 				xmlCatalogDump(out);
-			}
 		}
-		else {
+		else
 			xmlCatalogDump(stdout);
-		}
 	}
 	/*
 	 * Cleanup and check for memory leaks

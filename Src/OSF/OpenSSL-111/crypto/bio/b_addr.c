@@ -745,7 +745,6 @@ retry:
 		}
 		else {
 			he = gethostbyname(host);
-
 			if(he == NULL) {
 #ifndef OPENSSL_SYS_WINDOWS
 				/*

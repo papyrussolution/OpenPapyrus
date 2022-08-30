@@ -16,47 +16,34 @@
 using namespace Scintilla;
 
 //XXX Identical to Perl, put in common area
-static inline bool isEOLChar(char ch) {
-	return (ch == '\r') || (ch == '\n');
-}
+static inline bool isEOLChar(char ch) { return (ch == '\r') || (ch == '\n'); }
 
 #define isSafeASCII(ch) ((unsigned int)(ch) <= 127)
 // This one's redundant, but makes for more readable code
 #define isHighBitChar(ch) ((unsigned int)(ch) > 127)
 
-static inline bool isSafeAlpha(char ch) {
-	return (isSafeASCII(ch) && isalpha(ch)) || ch == '_';
-}
+static inline bool isSafeAlpha(char ch) { return (isSafeASCII(ch) && isalpha(ch)) || ch == '_'; }
+static inline bool isSafeAlnum(char ch) { return (isSafeASCII(ch) && isalnum(ch)) || ch == '_'; }
+static inline bool isSafeAlnumOrHigh(char ch) { return isHighBitChar(ch) || isalnum(ch) || ch == '_'; }
+static inline bool isSafeDigit(char ch) { return isSafeASCII(ch) && isdigit(ch); }
 
-static inline bool isSafeAlnum(char ch) {
-	return (isSafeASCII(ch) && isalnum(ch)) || ch == '_';
-}
-
-static inline bool isSafeAlnumOrHigh(char ch) {
-	return isHighBitChar(ch) || isalnum(ch) || ch == '_';
-}
-
-static inline bool isSafeDigit(char ch) {
-	return isSafeASCII(ch) && isdigit(ch);
-}
-
-static inline bool isSafeWordcharOrHigh(char ch) {
+static inline bool isSafeWordcharOrHigh(char ch) 
+{
 	// Error: scintilla's KeyWords.h includes '.' as a word-char
 	// we want to separate things that can take methods from the
 	// methods.
 	return isHighBitChar(ch) || isalnum(ch) || ch == '_';
 }
 
-static bool inline iswhitespace(char ch) {
-	return ch == ' ' || ch == '\t';
-}
+static bool inline iswhitespace(char ch) { return ch == ' ' || ch == '\t'; }
 
 #define MAX_KEYWORD_LENGTH 200
 
 #define STYLE_MASK 63
 #define actual_style(style) (style & STYLE_MASK)
 
-static bool followsDot(Sci_PositionU pos, Accessor &styler) {
+static bool followsDot(Sci_PositionU pos, Accessor &styler) 
+{
 	styler.Flush();
 	for(; pos >= 1; --pos) {
 		int style = actual_style(styler.StyleAt(pos));

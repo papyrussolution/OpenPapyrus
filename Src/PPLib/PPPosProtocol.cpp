@@ -363,7 +363,7 @@ int PPPosProtocol::InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlock & r
 	if(posNodeID && CnObj.Search(posNodeID, &cn_rec) > 0) {
 		ObjTagItem tag_item;
 		S_GUID uuid;
-		if(PPRef->Ot.GetTag(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_UUID, &tag_item) > 0 && tag_item.GetGuid(&uuid) > 0) {
+		if(PPRef->Ot.GetTag(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_UUID, &tag_item) > 0 && tag_item.GetGuid(&uuid)) {
 			rInfo.Uuid = uuid;
 		}
 		if((temp_buf = cn_rec.Symb).Strip().IsDigit()) {
@@ -6070,7 +6070,7 @@ int RunInputProcessThread(PPID posNodeID)
 		{
 			ObjTagItem tag_item;
 			S_GUID host_uuid;
-			if(p_ref->Ot.GetTag(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_HOSTUUID, &tag_item) > 0 && tag_item.GetGuid(&host_uuid) > 0) {
+			if(p_ref->Ot.GetTag(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_HOSTUUID, &tag_item) > 0 && tag_item.GetGuid(&host_uuid)) {
 				const PPThreadLocalArea & r_tla = DS.GetConstTLA();
 				PosInputProcessThread::InitBlock ib(posNodeID);
 				ib.ForcePeriodMs = 15000;

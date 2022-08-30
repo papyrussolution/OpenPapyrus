@@ -31,7 +31,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -41,19 +40,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
-
 import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.Random;
@@ -1371,7 +1369,16 @@ public class SLib {
 	public static boolean isdec(char c) { return (c >= '0' && c <= '9'); }
 	public static boolean isdec(byte c) { return (c >= '0' && c <= '9'); }
 	public static int hex(byte c) { return (c >= '0' && c <= '9') ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0)); }
+	public static boolean isasciialpha(byte c) { return (((c | 32) - 97) < 26); }
 
+	public static boolean isletter866(byte c)
+	{
+		return (c < 0x80 || (c > 0xaf && (c < 0xe0 || c > 0xf1))) ? false : true;
+	}
+	public static boolean isletter1251(byte c)
+	{
+		return ((c >= 0xc0 && c <= 0xdf) || (c >= 0xe0 && c <= 0xff) || (c == 0xa8 || c == 0xb8));
+	}
 	public static void LOG_d(String msg)
 	{
 		Log.d("StyloQ", msg);
@@ -1444,7 +1451,46 @@ public class SLib {
 		}
 		return result;
 	}
-
+	public static class SIntToSymbTabEntry {
+		SIntToSymbTabEntry(int id, String symb)
+		{
+			Id = id;
+			Symb = symb;
+		}
+		int    Id;
+		String Symb;
+	};
+	public static final String SIntToSymbTab_GetSymb(final SIntToSymbTabEntry [] tab, int id)
+	{
+		if(tab != null) {
+			for(int i = 0; i < tab.length; i++) {
+				if(tab[i].Id == id)
+					return tab[i].Symb;
+			}
+		}
+		return null;
+	}
+	public static boolean SIntToSymbTab_HasId(final SIntToSymbTabEntry [] tab, int id)
+	{
+		boolean yes = false;
+		if(tab != null) {
+			for(int i = 0; !yes && i < tab.length; i++) {
+				if(tab[i].Id == id)
+					yes = true;
+			}
+		}
+		return yes;
+	}
+	public static int SIntToSymbTab_GetId(final SIntToSymbTabEntry [] tab, final String symb)
+	{
+		if(tab != null && GetLen(symb) > 0) {
+			for(int i = 0; i < tab.length; i++) {
+				if(tab[i].Symb.equalsIgnoreCase(symb))
+					return tab[i].Id;
+			}
+		}
+		return 0;
+	}
 	public static class PPObjID {
 		PPObjID()
 		{
@@ -1710,6 +1756,18 @@ public class SLib {
 	{
 		return (short)((buf[offs] & 0xff) | ((buf[offs+1] & 0xff) << 8));
 	}
+	public static String Copy(final String s)
+	{
+		return (s != null) ? ("" + s) : null;
+	}
+	public static byte [] Copy(final byte [] s)
+	{
+		return (s != null) ? s.clone() : null;
+	}
+	public static UUID Copy(final UUID s)
+	{
+		return (s != null) ? new UUID(s.getMostSignificantBits(), s.getLeastSignificantBits()) : null;
+	}
 	public static String ReadSString(InputStream stream) throws StyloQException
 	{
 		String result = null;
@@ -1868,6 +1926,30 @@ public class SLib {
 			Count++;
 			return result_idx;
 		}
+		public void Add(int key, int val)
+		{
+			insert(new LAssoc(key, val));
+		}
+		public int AddUnique(int key, int val)
+		{
+			if(Search(key) >= 0)
+				return -1;
+			else {
+				Add(key, val);
+				return 1;
+			}
+		}
+		public int  Remove(int key)
+		{
+			int idx = Search(key);
+			if(idx >= 0) {
+				assert(idx < Count);
+				atFree(idx);
+				return 1;
+			}
+			else
+				return -1;
+		}
 		public void atFree(int idx)
 		{
 			if(Count > 0 && idx < Count && idx >= 0) {
@@ -1945,6 +2027,26 @@ public class SLib {
 						return i;
 			}
 			return -1;
+		}
+		private static class _Comparator implements Comparator<LAssoc> {
+			public int compare(LAssoc a, LAssoc b)
+			{
+				if(a.Key < b.Key)
+					return -1;
+				else if(a.Key > b.Key)
+					return +1;
+				else if(a.Value < b.Value)
+					return -1;
+				else if(a.Value > b.Value)
+					return +1;
+				else
+					return 0;
+			}
+		}
+		public void Sort()
+		{
+			if(Count > 1)
+				Arrays.sort(D, 0, Count-1, new _Comparator());
 		}
 		SLib.LAssoc D[];
 		int   Count;
@@ -3691,6 +3793,10 @@ public class SLib {
 		{
 			return (a1 != null) ? (a2 != null && LDATE.ArEq(a1.d, a2.d) && LTIME.ArEq(a1.t, a2.t)) : (a2 == null);
 		}
+		public static LDATETIME Copy(LDATETIME s)
+		{
+			return (s != null) ? new LDATETIME(s) : null;
+		}
 		LDATETIME()
 		{
 			d = new LDATE();
@@ -4005,6 +4111,210 @@ public class SLib {
 			}
 		}
 		return result;
+	}
+	//
+
+	//
+	// Descr: Алгоритмы расчета контрольной цифры
+	//
+	public static final int SCHKDIGALG_BARCODE = 1; // Розничные штрихкоды (EAN, UPC)
+	public static final int SCHKDIGALG_LUHN    = 2; // Алгоритм Луна
+	public static final int SCHKDIGALG_RUINN   = 3; // Контрольная цифра ИНН (Россия)
+	public static final int SCHKDIGALG_RUOKATO = 4; // Контрольная цифра ОКАТО (Россия)
+	public static final int SCHKDIGALG_RUSNILS = 5; // Контрольная цифра СНИЛС (Россия)
+	public static final int SCHKDIGALG_TEST    = 0x80000000; // Флаг, предписывающий функции SCalcCheckDigit проверить последовательность на
+		// предмет соответствия контрольной цифре, содержащейся в ней.
+
+	public static int SCalcCheckDigit(int alg, final byte [] input, int inputLen)
+	{
+		int    cd = 0;
+		if(input != null && inputLen > 0) {
+			int     len = 0;
+			int     i;
+			byte [] code = new byte[128];
+			for(i = 0; i < inputLen; i++) {
+				final byte c = input[i];
+				if(isdec(c)) {
+					if(len >= code.length)
+						break;
+					code[len++] = c;
+				}
+				else if(c != '-' && c != ' ')
+					break;
+			}
+			if(len > 0) {
+				final int _alg = (alg & ~SCHKDIGALG_TEST);
+				final boolean _do_check = ((alg & SCHKDIGALG_TEST) != 0);
+				if(_alg == SCHKDIGALG_BARCODE) {
+					int    c = 0, c1 = 0, c2 = 0;
+					final  int _len = _do_check ? (len-1) : len;
+					for(i = 0; i < _len; i++) {
+						if((i % 2) == 0)
+							c1 += (code[_len-i-1] - '0');
+						else
+							c2 += (code[_len-i-1] - '0');
+					}
+					c = c1 * 3 + c2;
+					cd = '0' + ((c % 10) != 0 ? (10 - c % 10) : 0);
+					if(_do_check)
+						cd = (cd == code[len-1]) ? 1 : 0;
+				}
+				else if(_alg == SCHKDIGALG_LUHN) {
+					/*
+					// Num[1..N] — номер карты, Num[N] — контрольная цифра.
+					sum = 0
+					for i = 1 to N-1 do
+						p = Num[N-i]
+						if(i mod 2 <> 0) then
+							p = 2*p
+							if(p > 9) then
+								p = p - 9
+							end if
+						end if
+						sum = sum + p
+					next i
+					//дополнение до 10
+					sum = 10 - (sum mod 10)
+					if(sum == 10) then
+						sum = 0
+					end if
+					Num[N] = sum
+					*/
+					int    s = 0;
+					final int _len = _do_check ? (len-1) : len;
+					for(i = 0; i < _len; i++) {
+						int    p = (code[_len - i - 1] - '0');
+						if((i & 1) == 0) {
+							p <<= 1; // *2
+							if(p > 9)
+								p -= 9;
+						}
+						s += p;
+					}
+					s = 10 - (s % 10);
+					if(s == 10)
+						s = 0;
+					cd = '0' + s;
+					if(_do_check)
+						cd = (cd == code[len-1]) ? 1 : 0;
+				}
+				else if(_alg == SCHKDIGALG_RUINN) {
+					//int CheckINN(const char * pCode)
+					{
+						int    r = 1;
+						if((_do_check && len == 10) || (!_do_check && len == 9)) {
+							final int w[] = {2,4,10,3,5,9,4,6,8,0};
+							int   sum = 0;
+							for(i = 0; i < 9; i++) {
+								int   p = (code[i] - '0');
+								sum += (w[i] * p);
+							}
+							cd = '0' + (sum % 11) % 10;
+							if(_do_check) {
+								cd = (code[9] == cd) ? 1 : 0;
+							}
+						}
+						else if((_do_check && len == 12) || (!_do_check && len == 11)) {
+							if(_do_check) {
+								final int w1[] = {7,2,4,10, 3,5,9,4,6,8,0};
+								final int w2[] = {3,7,2, 4,10,3,5,9,4,6,8,0};
+								int   sum1 = 0;
+								int   sum2 = 0;
+								for(i = 0; i < 11; i++) {
+									int   p = (code[i] - '0');
+									sum1 += (w1[i] * p);
+								}
+								for(i = 0; i < 12; i++) {
+									int   p = (code[i] - '0');
+									sum2 += (w2[i] * p);
+								}
+								int    cd1 = (sum1 % 11) % 10;
+								int    cd2 = (sum2 % 11) % 10;
+								cd = ((code[10]-'0') == cd1 && (code[11]-'0') == cd2) ? 1 : 0;
+							}
+							else {
+								cd = -1;
+							}
+						}
+						else
+							cd = 0;
+					}
+				}
+				else if(_alg == SCHKDIGALG_RUOKATO) {
+				}
+				else if(_alg == SCHKDIGALG_RUSNILS) {
+				}
+			}
+		}
+		return cd;
+	}
+	public static byte [] SUpceToUpca(final byte [] upce)
+	{
+		byte [] upca = new byte [32];
+		//char   code[32];
+		//char   dest[32];
+		//STRNSCPY(code, pUpce);
+		int    last = upce[6] - '0';
+		for(int i = 0; i < 12; i++)
+			upca[i] = '0';
+		upca[11] = 0;
+		upca[0] = upce[0];
+		if(last == 0 || last == 1 || last == 2) {
+			upca[1] = upce[1];
+			upca[2] = upce[2];
+			upca[3] = upce[6];
+
+			upca[8] = upce[3];
+			upca[9] = upce[4];
+			upca[10] = upce[5];
+		}
+		else if(last == 3) {
+			upca[1] = upce[1];
+			upca[2] = upce[2];
+			upca[3] = upce[3];
+
+			upca[9] = upce[4];
+			upca[10] = upce[5];
+		}
+		else if(last == 4) {
+			upca[1] = upce[1];
+			upca[2] = upce[2];
+			upca[3] = upce[3];
+			upca[4] = upce[4];
+
+			upca[10] = upce[5];
+		}
+		else { // last = 5..9
+			upca[1] = upce[1];
+			upca[2] = upce[2];
+			upca[3] = upce[3];
+			upca[4] = upce[4];
+			upca[5] = upce[5];
+
+			upca[10] = upce[6];
+		}
+		return upca;
+	}
+	public static int SCalcBarcodeCheckDigitL(final byte [] barcode, int len)
+	{
+		int    cd = 0;
+		if(barcode != null && len > 0) {
+			if(len == 7 && barcode[0] == '0') {
+				byte [] code = new byte[64];
+				for(int i = 0; i < len; i++)
+					code[i] = barcode[i];
+				code[len] = 0;
+				code = SUpceToUpca(code);
+				len = (new String(code)).length();
+				cd = SCalcCheckDigit(SCHKDIGALG_BARCODE, code, len);
+				cd = isdec((byte)cd) ? (cd - '0') : 0;
+			}
+			else {
+				cd = SCalcCheckDigit(SCHKDIGALG_BARCODE, barcode, len);
+				cd = isdec((byte)cd) ? (cd - '0') : 0;
+			}
+		}
+		return cd;
 	}
 	//
 	public static class LAssoc {
@@ -4649,6 +4959,17 @@ public class SLib {
 			}
 		}
 		 */
+	}
+	public static boolean IsChildOf(View v, View supposedParentView)
+	{
+		boolean result = false;
+		if(v != null && supposedParentView != null) {
+			for(ViewParent p = v.getParent(); !result && p != null; p = p.getParent()) {
+				if(p instanceof View && ((View)p) == supposedParentView)
+					result = true;
+			}
+		}
+		return result;
 	}
 	public static View FindViewById(Object viewContaiter, int ctlId)
 	{

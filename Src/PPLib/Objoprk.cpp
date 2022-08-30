@@ -3141,6 +3141,8 @@ int FASTCALL GetReckonOpList(PPIDArray * pList)
 int FASTCALL GetOpData(PPID op, PPOprKind * pData)
 {
 	OpCache * p_cache = GetDbLocalCachePtr <OpCache> (PPOBJ_OPRKIND);
+	PPOprKind stub_data; // @v11.4.9
+	SETIFZQ(pData, &stub_data); // @v11.4.9
 	int    r = p_cache ? p_cache->Get(op, pData) : 0;
 	if(r < 0)
 		r = 0;
@@ -3291,7 +3293,7 @@ PPID FASTCALL IsOpPaymOrRetn(PPID opID)
 		return 0;
 }
 
-int FASTCALL IsOpPaym(PPID opID)
+bool FASTCALL IsOpPaym(PPID opID)
 {
 	if(opID) {
 		PPOprKind op_rec;
@@ -3299,7 +3301,7 @@ int FASTCALL IsOpPaym(PPID opID)
 		return ((t == PPOPT_PAYMENT) || (t == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM));
 	}
 	else
-		return 0;
+		return false;
 }
 
 int FASTCALL _IsSellingOp(PPID opID)
@@ -3340,17 +3342,17 @@ int FASTCALL IsIntrOp(PPID opID)
 bool FASTCALL IsIntrExpndOp(PPID opID) { return (IsIntrOp(opID) == INTREXPND); }
 int  FASTCALL IsGenericOp(PPID opID) { return opID ? BIN(GetOpType(opID) == PPOPT_GENERIC) : -1; }
 
-int FASTCALL IsDraftOp(PPID opID)
+bool FASTCALL IsDraftOp(PPID opID)
 {
 	const PPID op_type_id = GetOpType(opID);
-	return BIN(oneof4(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)); // @v10.5.7 PPOPT_DRAFTQUOTREQ
+	return oneof4(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 }
 
-int FASTCALL IsGoodsDetailOp(PPID opID)
+bool FASTCALL IsGoodsDetailOp(PPID opID)
 {
 	const PPID op_type_id = GetOpType(opID);
-	return BIN(oneof12(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
-		PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER, PPOPT_DRAFTQUOTREQ)); // @v10.5.7 PPOPT_DRAFTQUOTREQ
+	return oneof12(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
+		PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER, PPOPT_DRAFTQUOTREQ); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 }
 
 int FASTCALL IsSellingOp(PPID opID)
@@ -3405,16 +3407,16 @@ int FASTCALL GetGenericOpList(PPID opID, PPIDArray * pList)
 	return ok;
 }
 
-int FASTCALL IsOpBelongTo(PPID testOpID, PPID anotherOpID)
+bool FASTCALL IsOpBelongTo(PPID testOpID, PPID anotherOpID)
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(anotherOpID > 0) {
 		if(testOpID == anotherOpID)
-			ok = 1;
+			ok = true;
 		else {
 			PPIDArray op_list;
 			if(GetGenericOpList(anotherOpID, &op_list) > 0 && op_list.lsearch(testOpID))
-				ok = 1;
+				ok = true;
 		}
 	}
 	return ok;

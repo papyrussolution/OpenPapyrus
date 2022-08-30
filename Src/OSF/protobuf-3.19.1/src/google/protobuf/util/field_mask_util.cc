@@ -202,8 +202,8 @@ public:
 	// Returns true if the message is modified.
 	bool TrimMessage(Message* message) 
 	{
-		if(!root_.children.empty()) // Do nothing if the tree is empty.
-			return TrimMessage(&root_, message);
+		// Do nothing if the tree is empty.
+		return root_.children.empty() ? false : TrimMessage(&root_, message);
 	}
 private:
 	struct Node {

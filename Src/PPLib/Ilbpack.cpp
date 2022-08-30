@@ -1604,7 +1604,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 		}
 		else {
 			for(i = 0; Turns.enumItems(&i, (void **)&p_at);) {
-				rPack.CreateAccTurn(&at);
+				rPack.CreateAccTurn(at);
 				at.DbtID = p_at->DbtID;
 				at.CrdID = p_at->CrdID;
 				THROW(acc_obj.InitAccSheetForAcctID(&at.DbtID, &at.DbtSheet));

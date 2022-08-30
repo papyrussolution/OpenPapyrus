@@ -66,11 +66,9 @@
  * aligned well.  Put "#define ALIGN_TYPE long" in jconfig.h if you have
  * such a compiler.
  */
-
-#ifndef ALIGN_TYPE              /* so can override from jconfig.h */
-#define ALIGN_TYPE  double
+#ifndef ALIGN_TYPE /* so can override from jconfig.h */
+	#define ALIGN_TYPE  double
 #endif
-
 /*
  * We allocate objects from "pools", where each pool is gotten with a single
  * request to jpeg_get_small() or jpeg_get_large().  There is no per-object
@@ -912,25 +910,19 @@ void jinit_memory_mgr(j_common_ptr cinfo)
 	mem->pub.access_virt_barray = access_virt_barray;
 	mem->pub.free_pool = free_pool;
 	mem->pub.self_destruct = self_destruct;
-
 	/* Make MAX_ALLOC_CHUNK accessible to other modules */
 	mem->pub.max_alloc_chunk = MAX_ALLOC_CHUNK;
-
 	/* Initialize working state */
 	mem->pub.max_memory_to_use = max_to_use;
-
 	for(pool = JPOOL_NUMPOOLS-1; pool >= JPOOL_PERMANENT; pool--) {
 		mem->small_list[pool] = NULL;
 		mem->large_list[pool] = NULL;
 	}
 	mem->virt_sarray_list = NULL;
 	mem->virt_barray_list = NULL;
-
 	mem->total_space_allocated = SIZEOF(my_memory_mgr);
-
 	/* Declare ourselves open for business */
 	cinfo->mem = &mem->pub;
-
 	/* Check for an environment variable JPEGMEM; if found, override the
 	 * default max_memory setting from jpeg_mem_init.  Note that the
 	 * surrounding application may again override this value.
@@ -941,8 +933,8 @@ void jinit_memory_mgr(j_common_ptr cinfo)
 	{ 
 		char * memenv;
 		if((memenv = getenv("JPEGMEM")) != NULL) {
-		  char ch = 'x';
-		  if(sscanf(memenv, "%ld%c", &max_to_use, &ch) > 0) {
+			char ch = 'x';
+			if(sscanf(memenv, "%ld%c", &max_to_use, &ch) > 0) {
 			  if(ch == 'm' || ch == 'M')
 				  max_to_use *= 1000L;
 			  mem->pub.max_memory_to_use = max_to_use * 1000L;

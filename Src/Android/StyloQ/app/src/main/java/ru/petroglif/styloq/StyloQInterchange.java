@@ -6,19 +6,15 @@ package ru.petroglif.styloq;
 import static ru.petroglif.styloq.JobServerProtocol.PPSCMD_SQ_SESSION;
 import static ru.petroglif.styloq.SLib.PPOBJ_STYLOQBINDERY;
 import static ru.petroglif.styloq.SLib.THROW;
-
 import android.net.Uri;
-
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.GetResponse;
-
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -54,7 +50,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.crypto.KeyAgreement;
 
 public class StyloQInterchange {

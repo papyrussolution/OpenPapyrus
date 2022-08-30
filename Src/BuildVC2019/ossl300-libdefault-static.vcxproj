@@ -1,0 +1,305 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{9D0E9E97-378D-4D23-B5C7-0D77CD55EF23}</ProjectGuid>
+    <RootNamespace>libdefault-static</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\providers-static.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\providers-static.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\providers-static.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\providers-static.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\OpenSSL-302\crypto\openssl-crypto-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\bio_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\capabilities.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_rsa_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_sm2_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_sm2_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_sm2_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\digest_to_nid.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\provider_seeding.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\provider_util.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\securitycheck.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\securitycheck_default.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\asymciphers\rsa_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\asymciphers\sm2_enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_cbc_hmac_sha.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_cbc_hmac_sha1_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_cbc_hmac_sha256_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_ccm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_ccm_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_gcm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_gcm_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_ocb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_ocb_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_siv.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_siv_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_wrp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_xts.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_xts_fips.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aes_xts_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aria.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aria_ccm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aria_ccm_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aria_gcm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aria_gcm_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_aria_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_camellia.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_camellia_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_chacha20.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_chacha20_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_chacha20_poly1305.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_chacha20_poly1305_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_cts.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_null.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_sm4.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_sm4_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_tdes.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_tdes_common.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_tdes_default.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_tdes_default_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_tdes_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_tdes_wrap.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_tdes_wrap_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\blake2b_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\blake2s_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\blake2_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\md5_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\md5_sha1_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\null_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\sha2_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\sha3_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\sm3_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\decode_der2key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\decode_epki2pki.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\decode_msblob2key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\decode_pem2der.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\decode_pvk2key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\decode_spki2typespki.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\encode_key2any.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\encode_key2blob.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\encode_key2ms.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\encode_key2text.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\encode_decode\endecoder_common.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\exchange\dh_exch.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\exchange\ecdh_exch.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\exchange\ecx_exch.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\exchange\kdf_exch.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\hkdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\kbkdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\krb5kdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\pbkdf2.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\pbkdf2_fips.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\pkcs12kdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\scrypt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\sshkdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\sskdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\tls1_prf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kdfs\x942kdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\kem\rsa_kem.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\keymgmt\dh_kmgmt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\keymgmt\dsa_kmgmt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\keymgmt\ecx_kmgmt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\keymgmt\ec_kmgmt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\keymgmt\kdf_legacy_kmgmt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\keymgmt\mac_legacy_kmgmt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\keymgmt\rsa_kmgmt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\macs\blake2b_mac.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\macs\blake2s_mac.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\macs\cmac_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\macs\gmac_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\macs\hmac_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\macs\kmac_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\macs\poly1305_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\macs\siphash_prov.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\crngt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\drbg.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\drbg_ctr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\drbg_hash.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\drbg_hmac.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\seeding\rand_cpu_x86.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\seeding\rand_tsc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\seeding\rand_unix.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\seeding\rand_win.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\seed_src.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\rands\test_rng.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\signature\dsa_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\signature\ecdsa_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\signature\eddsa_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\signature\mac_legacy_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\signature\rsa_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\signature\sm2_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\storemgmt\file_store.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\storemgmt\file_store_any2obj.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\ssl\s3_cbc.c" />
+  </ItemGroup>
+</Project>

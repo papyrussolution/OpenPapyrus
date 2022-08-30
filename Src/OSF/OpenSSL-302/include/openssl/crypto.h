@@ -201,16 +201,10 @@ SKM_DEFINE_STACK_OF_INTERNAL(void, void, void)
 #define CRYPTO_EX_INDEX_EVP_PKEY        17
 #define CRYPTO_EX_INDEX__COUNT          18
 
-typedef void CRYPTO_EX_new (void * parent, void * ptr, CRYPTO_EX_DATA * ad,
-    int idx, long argl, void * argp);
-typedef void CRYPTO_EX_free (void * parent, void * ptr, CRYPTO_EX_DATA * ad,
-    int idx, long argl, void * argp);
-typedef int CRYPTO_EX_dup (CRYPTO_EX_DATA * to, const CRYPTO_EX_DATA * from,
-    void ** from_d, int idx, long argl, void * argp);
-__owur int CRYPTO_get_ex_new_index(int class_index, long argl, void * argp,
-    CRYPTO_EX_new * new_func,
-    CRYPTO_EX_dup * dup_func,
-    CRYPTO_EX_free * free_func);
+typedef void CRYPTO_EX_new (void * parent, void * ptr, CRYPTO_EX_DATA * ad, int idx, long argl, void * argp);
+typedef void CRYPTO_EX_free (void * parent, void * ptr, CRYPTO_EX_DATA * ad, int idx, long argl, void * argp);
+typedef int CRYPTO_EX_dup (CRYPTO_EX_DATA * to, const CRYPTO_EX_DATA * from, void ** from_d, int idx, long argl, void * argp);
+__owur int CRYPTO_get_ex_new_index(int class_index, long argl, void * argp, CRYPTO_EX_new * new_func, CRYPTO_EX_dup * dup_func, CRYPTO_EX_free * free_func);
 /* No longer use an index. */
 int CRYPTO_free_ex_index(int class_index, int idx);
 

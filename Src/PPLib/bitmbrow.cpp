@@ -2850,7 +2850,7 @@ public:
 		if(temp_buf.Tokenize("\xD\xA", ss)) {
 			temp_buf.Z();
 			SString mark_buf;
-			for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Clear()) {
+			for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Z()) {
 				if(temp_buf.NotEmptyS() && temp_buf.Len() < sizeof(static_cast<LotExtCodeTbl::Rec *>(0)->Code)) {
 					// @v11.0.0 {
 					bool   done = false;

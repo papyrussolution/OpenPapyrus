@@ -23,4 +23,7 @@
     <color name="PageHeader">#FCFFE7</color>
     <color name="BarcodeFg">#000000</color>
     <color name="BarcodeBg">#FFFFFF</color>
+    <color name="ItemMatched">#f7ede2</color>
+    <color name="ItemUnmatched">#f28482</color>
+    <color name="ItemAbsent">#f5cac3</color>
 </resources>

@@ -54,9 +54,13 @@
 #include <openssl/pkcs7.h>
 #include <openssl/pem.h>
 #include <openssl/modes.h>
+#include <openssl/err.h>
 #include "crypto/modes.h"
 //#include "apps_ui.h"
 //#include <openssl/ui.h>
+#ifndef OPENSSL_NO_SRP
+	#include <openssl/srp.h>
+#endif
 #ifndef OPENSSL_NO_BF
 	#include <openssl/blowfish.h>
 #endif
@@ -96,6 +100,8 @@
 #include "../providers/implementations/rands/drbg_local.h"
 #include "internal/crypto/evp_local.h"
 #include "internal/crypto/ec_local.h"
+#include "../ssl/ssl_local.h"
+#include "../ssl/ssl_cert_table.h"
 #if defined(__TANDEM)
 	#if defined(OPENSSL_TANDEM_FLOSS)
 		#include <floss.h(floss_fork)>
@@ -15887,29 +15893,22 @@ int setup_tests()
 					return 0;
 				return 1;
 			}
-			static int dummy_rand_enable_locking(void * vtest)
-				{ return 1; }
-			static int dummy_rand_lock(void * vtest)
-				{ return 1; }
-			static void dummy_rand_unlock(void * vtest)
-				{}
+			static int dummy_rand_enable_locking(void * vtest) { return 1; }
+			static int dummy_rand_lock(void * vtest) { return 1; }
+			static void dummy_rand_unlock(void * vtest) {}
 			static const OSSL_ALGORITHM * dummy_query(void * provctx, int operation_id, int * no_cache)
 			{
 				static const OSSL_DISPATCH dummy_decoder_functions[] = {
-					{ OSSL_FUNC_DECODER_DECODE, (void (*)())dummy_decoder_decode },
-					{ 0, NULL }
+					{ OSSL_FUNC_DECODER_DECODE, (void (*)())dummy_decoder_decode }, { 0, NULL }
 				};
 				static const OSSL_ALGORITHM dummy_decoders[] = {
-					{ "DUMMY", "provider=dummy,input=pem", dummy_decoder_functions },
-					{ NULL, NULL, NULL }
+					{ "DUMMY", "provider=dummy,input=pem", dummy_decoder_functions }, { NULL, NULL, NULL }
 				};
 				static const OSSL_DISPATCH dummy_encoder_functions[] = {
-					{ OSSL_FUNC_DECODER_DECODE, (void (*)())dummy_encoder_encode },
-					{ 0, NULL }
+					{ OSSL_FUNC_DECODER_DECODE, (void (*)())dummy_encoder_encode }, { 0, NULL }
 				};
 				static const OSSL_ALGORITHM dummy_encoders[] = {
-					{ "DUMMY", "provider=dummy,output=pem", dummy_encoder_functions },
-					{ NULL, NULL, NULL }
+					{ "DUMMY", "provider=dummy,output=pem", dummy_encoder_functions }, { NULL, NULL, NULL }
 				};
 				static const OSSL_DISPATCH dummy_store_functions[] = {
 					{ OSSL_FUNC_STORE_OPEN, (void (*)())dummy_store_open },
@@ -16380,16 +16379,7 @@ int setup_tests()
 		static struct {
 			int u;
 			int l;
-		} case_change[] = {
-			{ 'A', 'a' },
-			{ 'X', 'x' },
-			{ 'Z', 'z' },
-			{ '0', '0' },
-			{ '%', '%' },
-			{ '~', '~' },
-			{   0,   0 },
-			{ EOF, EOF }
-		};
+		} case_change[] = { { 'A', 'a' }, { 'X', 'x' }, { 'Z', 'z' }, { '0', '0' }, { '%', '%' }, { '~', '~' }, {   0,   0 }, { EOF, EOF } };
 		class TestInnerBlock_CTypeInternal {
 		public:
 			// 
@@ -25689,6 +25679,570 @@ int setup_tests()
 		};
 		ADD_TEST(TestInnerBlock_LHASH::test_int_lhash);
 		ADD_TEST(TestInnerBlock_LHASH::test_stress);
+	}
+	{
+		#define SRP_RANDOM_SIZE 32 // use 256 bits on each side
+
+		class TestInnerBlock_SRP {
+		public:
+			static int run_srp(const char * username, const char * client_pass, const char * server_pass)
+			{
+				int ret = 0;
+				BIGNUM * s = NULL;
+				BIGNUM * v = NULL;
+				BIGNUM * a = NULL;
+				BIGNUM * b = NULL;
+				BIGNUM * u = NULL;
+				BIGNUM * x = NULL;
+				BIGNUM * Apub = NULL;
+				BIGNUM * Bpub = NULL;
+				BIGNUM * Kclient = NULL;
+				BIGNUM * Kserver = NULL;
+				unsigned char rand_tmp[SRP_RANDOM_SIZE];
+				/* use builtin 1024-bit params */
+				const SRP_gN * GN;
+				if(!TEST_ptr(GN = SRP_get_default_gN("1024")))
+					return 0;
+				/* Set up server's password entry */
+				if(!TEST_true(SRP_create_verifier_BN(username, server_pass, &s, &v, GN->N, GN->g)))
+					goto end;
+				test_output_bignum("N", GN->N);
+				test_output_bignum("g", GN->g);
+				test_output_bignum("Salt", s);
+				test_output_bignum("Verifier", v);
+				/* Server random */
+				RAND_bytes(rand_tmp, sizeof(rand_tmp));
+				b = BN_bin2bn(rand_tmp, sizeof(rand_tmp), NULL);
+				if(!TEST_BN_ne_zero(b))
+					goto end;
+				test_output_bignum("b", b);
+				/* Server's first message */
+				Bpub = SRP_Calc_B(b, GN->N, GN->g, v);
+				test_output_bignum("B", Bpub);
+				if(!TEST_true(SRP_Verify_B_mod_N(Bpub, GN->N)))
+					goto end;
+				/* Client random */
+				RAND_bytes(rand_tmp, sizeof(rand_tmp));
+				a = BN_bin2bn(rand_tmp, sizeof(rand_tmp), NULL);
+				if(!TEST_BN_ne_zero(a))
+					goto end;
+				test_output_bignum("a", a);
+				/* Client's response */
+				Apub = SRP_Calc_A(a, GN->N, GN->g);
+				test_output_bignum("A", Apub);
+				if(!TEST_true(SRP_Verify_A_mod_N(Apub, GN->N)))
+					goto end;
+				/* Both sides calculate u */
+				u = SRP_Calc_u(Apub, Bpub, GN->N);
+				/* Client's key */
+				x = SRP_Calc_x(s, username, client_pass);
+				Kclient = SRP_Calc_client_key(GN->N, Bpub, GN->g, x, a, u);
+				test_output_bignum("Client's key", Kclient);
+				/* Server's key */
+				Kserver = SRP_Calc_server_key(Apub, v, u, b, GN->N);
+				test_output_bignum("Server's key", Kserver);
+				if(!TEST_BN_eq(Kclient, Kserver))
+					goto end;
+				ret = 1;
+			end:
+				BN_clear_free(Kclient);
+				BN_clear_free(Kserver);
+				BN_clear_free(x);
+				BN_free(u);
+				BN_free(Apub);
+				BN_clear_free(a);
+				BN_free(Bpub);
+				BN_clear_free(b);
+				BN_free(s);
+				BN_clear_free(v);
+				return ret;
+			}
+			static int check_bn(const char * name, const BIGNUM * bn, const char * hexbn)
+			{
+				BIGNUM * tmp = NULL;
+				int r;
+				if(!TEST_true(BN_hex2bn(&tmp, hexbn)))
+					return 0;
+				if(BN_cmp(bn, tmp) != 0)
+					TEST_error("unexpected %s value", name);
+				r = TEST_BN_eq(bn, tmp);
+				BN_free(tmp);
+				return r;
+			}
+			/* SRP test vectors from RFC5054 */
+			static int run_srp_kat(void)
+			{
+				int ret = 0;
+				BIGNUM * s = NULL;
+				BIGNUM * v = NULL;
+				BIGNUM * a = NULL;
+				BIGNUM * b = NULL;
+				BIGNUM * u = NULL;
+				BIGNUM * x = NULL;
+				BIGNUM * Apub = NULL;
+				BIGNUM * Bpub = NULL;
+				BIGNUM * Kclient = NULL;
+				BIGNUM * Kserver = NULL;
+				/* use builtin 1024-bit params */
+				const SRP_gN * GN;
+				if(!TEST_ptr(GN = SRP_get_default_gN("1024")))
+					goto err;
+				BN_hex2bn(&s, "BEB25379D1A8581EB5A727673A2441EE");
+				/* Set up server's password entry */
+				if(!TEST_true(SRP_create_verifier_BN("alice", "password123", &s, &v, GN->N, GN->g)))
+					goto err;
+				TEST_info("checking v");
+				if(!TEST_true(check_bn("v", v,
+					"7E273DE8696FFC4F4E337D05B4B375BEB0DDE1569E8FA00A9886D812"
+					"9BADA1F1822223CA1A605B530E379BA4729FDC59F105B4787E5186F5"
+					"C671085A1447B52A48CF1970B4FB6F8400BBF4CEBFBB168152E08AB5"
+					"EA53D15C1AFF87B2B9DA6E04E058AD51CC72BFC9033B564E26480D78"
+					"E955A5E29E7AB245DB2BE315E2099AFB")))
+					goto err;
+				TEST_note("    okay");
+
+				/* Server random */
+				BN_hex2bn(&b, "E487CB59D31AC550471E81F00F6928E01DDA08E974A004F49E61F5D105284D20");
+				/* Server's first message */
+				Bpub = SRP_Calc_B(b, GN->N, GN->g, v);
+				if(!TEST_true(SRP_Verify_B_mod_N(Bpub, GN->N)))
+					goto err;
+				TEST_info("checking B");
+				if(!TEST_true(check_bn("B", Bpub,
+					"BD0C61512C692C0CB6D041FA01BB152D4916A1E77AF46AE105393011"
+					"BAF38964DC46A0670DD125B95A981652236F99D9B681CBF87837EC99"
+					"6C6DA04453728610D0C6DDB58B318885D7D82C7F8DEB75CE7BD4FBAA"
+					"37089E6F9C6059F388838E7A00030B331EB76840910440B1B27AAEAE"
+					"EB4012B7D7665238A8E3FB004B117B58")))
+					goto err;
+				TEST_note("    okay");
+				/* Client random */
+				BN_hex2bn(&a, "60975527035CF2AD1989806F0407210BC81EDC04E2762A56AFD529DDDA2D4393");
+				/* Client's response */
+				Apub = SRP_Calc_A(a, GN->N, GN->g);
+				if(!TEST_true(SRP_Verify_A_mod_N(Apub, GN->N)))
+					goto err;
+				TEST_info("checking A");
+				if(!TEST_true(check_bn("A", Apub,
+					"61D5E490F6F1B79547B0704C436F523DD0E560F0C64115BB72557EC4"
+					"4352E8903211C04692272D8B2D1A5358A2CF1B6E0BFCF99F921530EC"
+					"8E39356179EAE45E42BA92AEACED825171E1E8B9AF6D9C03E1327F44"
+					"BE087EF06530E69F66615261EEF54073CA11CF5858F0EDFDFE15EFEA"
+					"B349EF5D76988A3672FAC47B0769447B")))
+					goto err;
+				TEST_note("    okay");
+				/* Both sides calculate u */
+				u = SRP_Calc_u(Apub, Bpub, GN->N);
+				if(!TEST_true(check_bn("u", u, "CE38B9593487DA98554ED47D70A7AE5F462EF019")))
+					goto err;
+				/* Client's key */
+				x = SRP_Calc_x(s, "alice", "password123");
+				Kclient = SRP_Calc_client_key(GN->N, Bpub, GN->g, x, a, u);
+				TEST_info("checking client's key");
+				if(!TEST_true(check_bn("Client's key", Kclient,
+					"B0DC82BABCF30674AE450C0287745E7990A3381F63B387AAF271A10D"
+					"233861E359B48220F7C4693C9AE12B0A6F67809F0876E2D013800D6C"
+					"41BB59B6D5979B5C00A172B4A2A5903A0BDCAF8A709585EB2AFAFA8F"
+					"3499B200210DCC1F10EB33943CD67FC88A2F39A4BE5BEC4EC0A3212D"
+					"C346D7E474B29EDE8A469FFECA686E5A")))
+					goto err;
+				TEST_note("    okay");
+				/* Server's key */
+				Kserver = SRP_Calc_server_key(Apub, v, u, b, GN->N);
+				TEST_info("checking server's key");
+				if(!TEST_true(check_bn("Server's key", Kserver,
+					"B0DC82BABCF30674AE450C0287745E7990A3381F63B387AAF271A10D"
+					"233861E359B48220F7C4693C9AE12B0A6F67809F0876E2D013800D6C"
+					"41BB59B6D5979B5C00A172B4A2A5903A0BDCAF8A709585EB2AFAFA8F"
+					"3499B200210DCC1F10EB33943CD67FC88A2F39A4BE5BEC4EC0A3212D"
+					"C346D7E474B29EDE8A469FFECA686E5A")))
+					goto err;
+				TEST_note("    okay");
+				ret = 1;
+			err:
+				BN_clear_free(Kclient);
+				BN_clear_free(Kserver);
+				BN_clear_free(x);
+				BN_free(u);
+				BN_free(Apub);
+				BN_clear_free(a);
+				BN_free(Bpub);
+				BN_clear_free(b);
+				BN_free(s);
+				BN_clear_free(v);
+				return ret;
+			}
+			static int run_srp_tests(void)
+			{
+				/* "Negative" test, expect a mismatch */
+				TEST_info("run_srp: expecting a mismatch");
+				if(!TEST_false(run_srp("alice", "password1", "password2")))
+					return 0;
+				/* "Positive" test, should pass */
+				TEST_info("run_srp: expecting a match");
+				if(!TEST_true(run_srp("alice", "password", "password")))
+					return 0;
+				return 1;
+			}
+		};
+		#ifdef OPENSSL_NO_SRP
+			printf("No SRP support\n");
+		#else
+			ADD_TEST(TestInnerBlock_SRP::run_srp_tests);
+			ADD_TEST(TestInnerBlock_SRP::run_srp_kat);
+		#endif
+		#undef SRP_RANDOM_SIZE
+	}
+	{
+		//
+		// Internal tests for the x509 and x509v3 modules 
+		//
+		#define test_cert_table(nid, amask, idx) do_test_cert_table(nid, amask, idx, #idx)
+
+		class TestInnerBlock_SSLCertTableInternal {
+		public:
+			static int do_test_cert_table(int nid, uint32_t amask, size_t idx, const char * idxname)
+			{
+				const SSL_CERT_LOOKUP * clu = &ssl_cert_info[idx];
+				if(clu->nid == nid && clu->amask == amask)
+					return 1;
+				TEST_error("Invalid table entry for certificate type %s, index %zu", idxname, idx);
+				if(clu->nid != nid)
+					TEST_note("Expected %s, got %s\n", OBJ_nid2sn(nid), OBJ_nid2sn(clu->nid));
+				if(clu->amask != amask)
+					TEST_note("Expected auth mask 0x%x, got 0x%x\n", amask, clu->amask);
+				return 0;
+			}
+			// Sanity check of ssl_cert_table
+			static int test_ssl_cert_table()
+			{
+				return TEST_size_t_eq(SIZEOFARRAY(ssl_cert_info), SSL_PKEY_NUM)
+					   && test_cert_table(EVP_PKEY_RSA, SSL_aRSA, SSL_PKEY_RSA)
+					   && test_cert_table(EVP_PKEY_DSA, SSL_aDSS, SSL_PKEY_DSA_SIGN)
+					   && test_cert_table(EVP_PKEY_EC, SSL_aECDSA, SSL_PKEY_ECC)
+					   && test_cert_table(NID_id_GostR3410_2001, SSL_aGOST01, SSL_PKEY_GOST01)
+					   && test_cert_table(NID_id_GostR3410_2012_256, SSL_aGOST12, SSL_PKEY_GOST12_256)
+					   && test_cert_table(NID_id_GostR3410_2012_512, SSL_aGOST12, SSL_PKEY_GOST12_512)
+					   && test_cert_table(EVP_PKEY_ED25519, SSL_aECDSA, SSL_PKEY_ED25519)
+					   && test_cert_table(EVP_PKEY_ED448, SSL_aECDSA, SSL_PKEY_ED448);
+			}
+		};
+		ADD_TEST(TestInnerBlock_SSLCertTableInternal::test_ssl_cert_table);
+
+		#undef test_cert_table
+	}
+	{
+		//
+		// time_t/offset (+/-XXXX) tests for ASN1 and X509 
+		//
+		typedef struct {
+			const char * data;
+			int time_result;
+			int type;
+		} TESTDATA;
+		// 
+		// Test driver
+		// 
+		static TESTDATA tests[] = {
+			{ "20001201000000Z",      0, V_ASN1_GENERALIZEDTIME },
+			{ "20001201010000+0100",  0, V_ASN1_GENERALIZEDTIME },
+			{ "20001201050000+0500",  0, V_ASN1_GENERALIZEDTIME },
+			{ "20001130230000-0100",  0, V_ASN1_GENERALIZEDTIME },
+			{ "20001130190000-0500",  0, V_ASN1_GENERALIZEDTIME },
+			{ "20001130190001-0500",  1, V_ASN1_GENERALIZEDTIME },/* +1 second */
+			{ "20001130185959-0500", -1, V_ASN1_GENERALIZEDTIME }, /* -1 second */
+			{ "001201000000Z",        0, V_ASN1_UTCTIME },
+			{ "001201010000+0100",    0, V_ASN1_UTCTIME },
+			{ "001201050000+0500",    0, V_ASN1_UTCTIME },
+			{ "001130230000-0100",    0, V_ASN1_UTCTIME },
+			{ "001130190000-0500",    0, V_ASN1_UTCTIME },
+			{ "001201000000-0000",    0, V_ASN1_UTCTIME },
+			{ "001201000001-0000",    1, V_ASN1_UTCTIME },/* +1 second */
+			{ "001130235959-0000",   -1, V_ASN1_UTCTIME },/* -1 second */
+			{ "20001201000000+0000",  0, V_ASN1_GENERALIZEDTIME },
+			{ "20001201000000+0100", -1, V_ASN1_GENERALIZEDTIME },
+			{ "001201000000+0100",   -1, V_ASN1_UTCTIME },
+			{ "20001201000000-0100",  1, V_ASN1_GENERALIZEDTIME },
+			{ "001201000000-0100",    1, V_ASN1_UTCTIME },
+			{ "20001201123400+1234",  0, V_ASN1_GENERALIZEDTIME },
+			{ "20001130112600-1234",  0, V_ASN1_GENERALIZEDTIME },
+		};
+
+		static time_t the_time = 975628800;
+		static ASN1_TIME the_asn1_time = { 15, V_ASN1_GENERALIZEDTIME, (unsigned char *)"20001201000000Z", 0 };
+
+		class TestInnerBlock_TimeOffset {
+		public:
+			static int test_offset(int idx)
+			{
+				ASN1_TIME at;
+				const TESTDATA * testdata = &tests[idx];
+				int ret = -2;
+				int day, sec;
+				at.data = (unsigned char *)testdata->data;
+				at.length = strlen(testdata->data);
+				at.type = testdata->type;
+				at.flags = 0;
+				if(!TEST_true(ASN1_TIME_diff(&day, &sec, &the_asn1_time, &at))) {
+					TEST_info("ASN1_TIME_diff() failed for %s\n", at.data);
+					return 0;
+				}
+				if(day > 0)
+					ret = 1;
+				else if(day < 0)
+					ret = -1;
+				else if(sec > 0)
+					ret = 1;
+				else if(sec < 0)
+					ret = -1;
+				else
+					ret = 0;
+				if(!TEST_int_eq(testdata->time_result, ret)) {
+					TEST_info("ASN1_TIME_diff() test failed for %s day=%d sec=%d\n", at.data, day, sec);
+					return 0;
+				}
+				ret = ASN1_TIME_cmp_time_t(&at, the_time);
+				if(!TEST_int_eq(testdata->time_result, ret)) {
+					TEST_info("ASN1_UTCTIME_cmp_time_t() test failed for %s\n", at.data);
+					return 0;
+				}
+				return 1;
+			}
+		};
+		ADD_ALL_TESTS(TestInnerBlock_TimeOffset::test_offset, SIZEOFARRAY(tests));
+	}
+	{
+		static long saved_argl;
+		static void * saved_argp;
+		static int saved_idx;
+		static int saved_idx2;
+		static int saved_idx3;
+		static int gbl_result;
+
+		typedef struct myobj_ex_data_st {
+			char * hello;
+			int IsNew;
+			int dup;
+		} MYOBJ_EX_DATA;
+		
+		typedef struct myobj_st {
+			CRYPTO_EX_DATA ex_data;
+			int id;
+			int st;
+		} MYOBJ;
+		// 
+		// SIMPLE EX_DATA IMPLEMENTATION
+		// Apps explicitly set/get ex_data as needed
+		// 
+		class TestInnerBlock_ExtData {
+		public:
+			static void exnew(void * parent, void * ptr, CRYPTO_EX_DATA * ad, int idx, long argl, void * argp)
+			{
+				if(!TEST_int_eq(idx, saved_idx) || !TEST_long_eq(argl, saved_argl) || !TEST_ptr_eq(argp, saved_argp) || !TEST_ptr_null(ptr))
+					gbl_result = 0;
+			}
+			static int exdup(CRYPTO_EX_DATA * to, const CRYPTO_EX_DATA * from, void ** from_d, int idx, long argl, void * argp)
+			{
+				if(!TEST_int_eq(idx, saved_idx) || !TEST_long_eq(argl, saved_argl) || !TEST_ptr_eq(argp, saved_argp) || !TEST_ptr(from_d))
+					gbl_result = 0;
+				return 1;
+			}
+			static void exfree(void * parent, void * ptr, CRYPTO_EX_DATA * ad, int idx, long argl, void * argp)
+			{
+				if(!TEST_int_eq(idx, saved_idx) || !TEST_long_eq(argl, saved_argl) || !TEST_ptr_eq(argp, saved_argp))
+					gbl_result = 0;
+			}
+			// 
+			// PRE-ALLOCATED EX_DATA IMPLEMENTATION
+			// Extended data structure is allocated in exnew2/freed in exfree2
+			// Data is stored inside extended data structure
+			// 
+			static void exnew2(void * parent, void * ptr, CRYPTO_EX_DATA * ad, int idx, long argl, void * argp)
+			{
+				MYOBJ_EX_DATA * ex_data = (MYOBJ_EX_DATA *)OPENSSL_zalloc(sizeof(*ex_data));
+				if(!TEST_true(idx == saved_idx2 || idx == saved_idx3) || !TEST_long_eq(argl, saved_argl) || 
+					!TEST_ptr_eq(argp, saved_argp) || !TEST_ptr_null(ptr) || !TEST_ptr(ex_data) || !TEST_true(CRYPTO_set_ex_data(ad, idx, ex_data))) {
+					gbl_result = 0;
+					OPENSSL_free(ex_data);
+				}
+				else {
+					ex_data->IsNew = 1;
+				}
+			}
+			static int exdup2(CRYPTO_EX_DATA * to, const CRYPTO_EX_DATA * from, void ** from_d, int idx, long argl, void * argp)
+			{
+				MYOBJ_EX_DATA ** update_ex_data = (MYOBJ_EX_DATA**)from_d;
+				MYOBJ_EX_DATA * ex_data = NULL;
+				if(!TEST_true(idx == saved_idx2 || idx == saved_idx3)
+					|| !TEST_long_eq(argl, saved_argl)
+					|| !TEST_ptr_eq(argp, saved_argp)
+					|| !TEST_ptr(from_d)
+					|| !TEST_ptr(*update_ex_data)
+					|| !TEST_ptr(ex_data = (MYOBJ_EX_DATA *)CRYPTO_get_ex_data(to, idx))
+					|| !TEST_true(ex_data->IsNew)) {
+					gbl_result = 0;
+				}
+				else {
+					ex_data->hello = (*update_ex_data)->hello; /* Copy hello over */
+					ex_data->dup = 1; /* indicate this is a dup */
+					*update_ex_data = ex_data; /* Keep my original ex_data */
+				}
+				return 1;
+			}
+			static void exfree2(void * parent, void * ptr, CRYPTO_EX_DATA * ad, int idx, long argl, void * argp)
+			{
+				MYOBJ_EX_DATA * ex_data = (MYOBJ_EX_DATA *)CRYPTO_get_ex_data(ad, idx);
+				if(!TEST_true(idx == saved_idx2 || idx == saved_idx3)
+					|| !TEST_long_eq(argl, saved_argl)
+					|| !TEST_ptr_eq(argp, saved_argp)
+					|| !TEST_true(CRYPTO_set_ex_data(ad, idx, NULL)))
+					gbl_result = 0;
+				OPENSSL_free(ex_data);
+			}
+			static MYOBJ * MYOBJ_new(void)
+			{
+				static int count = 0;
+				MYOBJ * obj = (MYOBJ *)OPENSSL_malloc(sizeof(*obj));
+				if(obj) {
+					obj->id = ++count;
+					obj->st = CRYPTO_new_ex_data(CRYPTO_EX_INDEX_APP, obj, &obj->ex_data);
+				}
+				return obj;
+			}
+			static void MYOBJ_sethello(MYOBJ * obj, char * cp)
+			{
+				obj->st = CRYPTO_set_ex_data(&obj->ex_data, saved_idx, cp);
+				if(!TEST_int_eq(obj->st, 1))
+					gbl_result = 0;
+			}
+			static char * MYOBJ_gethello(MYOBJ * obj)
+			{
+				return (char *)CRYPTO_get_ex_data(&obj->ex_data, saved_idx);
+			}
+			static void MYOBJ_sethello2(MYOBJ * obj, char * cp)
+			{
+				MYOBJ_EX_DATA* ex_data = (MYOBJ_EX_DATA *)CRYPTO_get_ex_data(&obj->ex_data, saved_idx2);
+				if(TEST_ptr(ex_data))
+					ex_data->hello = cp;
+				else
+					obj->st = gbl_result = 0;
+			}
+			static char * MYOBJ_gethello2(MYOBJ * obj)
+			{
+				MYOBJ_EX_DATA* ex_data = (MYOBJ_EX_DATA *)CRYPTO_get_ex_data(&obj->ex_data, saved_idx2);
+				if(TEST_ptr(ex_data))
+					return ex_data->hello;
+				obj->st = gbl_result = 0;
+				return NULL;
+			}
+			static void MYOBJ_allochello3(MYOBJ * obj, char * cp)
+			{
+				MYOBJ_EX_DATA * ex_data = NULL;
+				if(TEST_ptr_null(ex_data = (MYOBJ_EX_DATA *)CRYPTO_get_ex_data(&obj->ex_data, saved_idx3))
+					&& TEST_true(CRYPTO_alloc_ex_data(CRYPTO_EX_INDEX_APP, obj,
+					&obj->ex_data, saved_idx3))
+					&& TEST_ptr(ex_data = (MYOBJ_EX_DATA *)CRYPTO_get_ex_data(&obj->ex_data, saved_idx3)))
+					ex_data->hello = cp;
+				else
+					obj->st = gbl_result = 0;
+			}
+			static char * MYOBJ_gethello3(MYOBJ * obj)
+			{
+				MYOBJ_EX_DATA * ex_data = (MYOBJ_EX_DATA *)CRYPTO_get_ex_data(&obj->ex_data, saved_idx3);
+				if(TEST_ptr(ex_data))
+					return ex_data->hello;
+				obj->st = gbl_result = 0;
+				return NULL;
+			}
+			static void MYOBJ_free(MYOBJ * obj)
+			{
+				if(obj) {
+					CRYPTO_free_ex_data(CRYPTO_EX_INDEX_APP, obj, &obj->ex_data);
+					OPENSSL_free(obj);
+				}
+			}
+			static MYOBJ * MYOBJ_dup(MYOBJ * in)
+			{
+				MYOBJ * obj = MYOBJ_new();
+				if(obj)
+					obj->st |= CRYPTO_dup_ex_data(CRYPTO_EX_INDEX_APP, &obj->ex_data, &in->ex_data);
+				return obj;
+			}
+			static int test_exdata(void)
+			{
+				MYOBJ * t1 = NULL, * t2 = NULL, * t3 = NULL;
+				MYOBJ_EX_DATA * ex_data = NULL;
+				const char * cp;
+				char * p;
+				int res = 0;
+				gbl_result = 1;
+				if(!TEST_ptr(p = OPENSSL_strdup("hello world")))
+					return 0;
+				saved_argl = 21;
+				if(!TEST_ptr(saved_argp = OPENSSL_malloc(1)))
+					goto err;
+				saved_idx = CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_APP, saved_argl, saved_argp, exnew, exdup, exfree);
+				saved_idx2 = CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_APP, saved_argl, saved_argp, exnew2, exdup2, exfree2);
+				t1 = MYOBJ_new();
+				t2 = MYOBJ_new();
+				if(!TEST_int_eq(t1->st, 1) || !TEST_int_eq(t2->st, 1))
+					goto err;
+				if(!TEST_ptr(CRYPTO_get_ex_data(&t1->ex_data, saved_idx2)))
+					goto err;
+				//
+				// saved_idx3 differs from other indexes by being created after the exdata was initialized.
+				//
+				saved_idx3 = CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_APP, saved_argl, saved_argp, exnew2, exdup2, exfree2);
+				if(!TEST_ptr_null(CRYPTO_get_ex_data(&t1->ex_data, saved_idx3)))
+					goto err;
+				MYOBJ_sethello(t1, p);
+				cp = MYOBJ_gethello(t1);
+				if(!TEST_ptr_eq(cp, p))
+					goto err;
+				MYOBJ_sethello2(t1, p);
+				cp = MYOBJ_gethello2(t1);
+				if(!TEST_ptr_eq(cp, p))
+					goto err;
+				MYOBJ_allochello3(t1, p);
+				cp = MYOBJ_gethello3(t1);
+				if(!TEST_ptr_eq(cp, p))
+					goto err;
+				cp = MYOBJ_gethello(t2);
+				if(!TEST_ptr_null(cp))
+					goto err;
+				cp = MYOBJ_gethello2(t2);
+				if(!TEST_ptr_null(cp))
+					goto err;
+				t3 = MYOBJ_dup(t1);
+				if(!TEST_int_eq(t3->st, 1))
+					goto err;
+				ex_data = (MYOBJ_EX_DATA *)CRYPTO_get_ex_data(&t3->ex_data, saved_idx2);
+				if(!TEST_ptr(ex_data))
+					goto err;
+				if(!TEST_int_eq(ex_data->dup, 1))
+					goto err;
+				cp = MYOBJ_gethello(t3);
+				if(!TEST_ptr_eq(cp, p))
+					goto err;
+				cp = MYOBJ_gethello2(t3);
+				if(!TEST_ptr_eq(cp, p))
+					goto err;
+				cp = MYOBJ_gethello3(t3);
+				if(!TEST_ptr_eq(cp, p))
+					goto err;
+				if(gbl_result)
+					res = 1;
+			err:
+				MYOBJ_free(t1);
+				MYOBJ_free(t2);
+				MYOBJ_free(t3);
+				OPENSSL_free(saved_argp);
+				saved_argp = NULL;
+				OPENSSL_free(p);
+				return res;
+			}
+		};
+		ADD_TEST(TestInnerBlock_ExtData::test_exdata);
 	}
 	return 1;
 }

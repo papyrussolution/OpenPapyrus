@@ -3666,7 +3666,8 @@ ulong SCRC32::Calc(ulong crc, const void * pData, size_t dataLen)
 //
 char * FASTCALL SUpceToUpca(const char * pUpce, char * pUpca)
 {
-	char   code[32], dest[32];
+	char   code[32];
+	char   dest[32];
 	STRNSCPY(code, pUpce);
 	int    last = code[6] - '0';
 	memset(dest, '0', 12);

@@ -85,14 +85,14 @@ CurrencyPluralInfo&CurrencyPluralInfo::operator = (const CurrencyPluralInfo& inf
 	}
 	ZDELETE(fPluralRules);
 	ZDELETE(fLocale);
-	if(info.fPluralRules != nullptr) {
+	if(info.fPluralRules) {
 		fPluralRules = info.fPluralRules->clone();
 		if(fPluralRules == nullptr) {
 			fInternalStatus = U_MEMORY_ALLOCATION_ERROR;
 			return *this;
 		}
 	}
-	if(info.fLocale != nullptr) {
+	if(info.fLocale) {
 		fLocale = info.fLocale->clone();
 		if(fLocale == nullptr) {
 			// Note: If clone had an error parameter, then we could check/set that instead.

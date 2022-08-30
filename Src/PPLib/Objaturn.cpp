@@ -63,7 +63,7 @@ int PPObjAccTurn::CreateBlankAccTurn(PPID opID, PPBillPacket * pPack, long * pFl
 	PPAccTurnTemplArray att_list;
 	PPAccTurn at;
 	THROW(pPack->CreateBlank(opID, 0, 0, use_ta));
-	pPack->CreateAccTurn(&at);
+	pPack->CreateAccTurn(at);
 	THROW(PPObjOprKind::GetATTemplList(opID, &att_list));
 	if(att_list.getCount()) {
 		PPAccTurnTempl & r_tmpl = att_list.at(0);
@@ -87,7 +87,7 @@ int PPObjAccTurn::CreateBlankAccTurnBySample(PPBillPacket * pPack, const PPBillP
 	PPAccTurn at;
 	const PPAccTurn * p_sample_at = 0;
 	THROW(pPack->CreateBlankBySample(pSamplePack->Rec.ID, 1));
-	pPack->CreateAccTurn(&at);
+	pPack->CreateAccTurn(at);
 	if(pSamplePack->Turns.getCount() > 0)
 		p_sample_at = & pSamplePack->Turns.at(0);
 	THROW(PPObjOprKind::GetATTemplList(pSamplePack->Rec.OpID, &att_list));

@@ -946,7 +946,7 @@ int LotExtCodeCore::GetRecListByMark(const char * pCode, TSVector <LotExtCodeTbl
 int LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lotID, PPLotExtCodeContainer::MarkSet & rResult)
 {
 	int    ok = -1;
-	rResult.Clear();
+	rResult.Z();
 	if(!isempty(pCode)) {
 		PPObjBill * p_bobj = BillObj;
 		BillTbl::Rec bill_rec;

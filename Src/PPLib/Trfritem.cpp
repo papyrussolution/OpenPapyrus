@@ -6,12 +6,12 @@
 #include <pp.h>
 #pragma hdrstop
 
-static int FASTCALL Impl_IsUnlimWoLot(long flags)
+static bool FASTCALL Impl_IsUnlimWoLot(long flags)
 {
 	if(CConfig.Flags & CCFLG_GENLOTONUNLIMORDER)
-		return BIN((flags & PPTFR_ACK) || (flags & PPTFR_UNLIM && !(flags & (PPTFR_ORDER|PPTFR_SHADOW))));
+		return ((flags & PPTFR_ACK) || (flags & PPTFR_UNLIM && !(flags & (PPTFR_ORDER|PPTFR_SHADOW))));
 	else
-		return BIN(flags & (PPTFR_UNLIM|PPTFR_ACK));
+		return LOGIC(flags & (PPTFR_UNLIM|PPTFR_ACK));
 }
 
 PPTransferItem::FreightPackage::FreightPackage() : Ver(0), FreightPackageTypeID(0), Qtty(0.0)
@@ -77,15 +77,14 @@ PPTransferItem & FASTCALL PPTransferItem::operator = (const PPTransferItem & src
 	return *this;
 }
 
-int PPTransferItem::IsUnlimWoLot() const { return Impl_IsUnlimWoLot(Flags); }
-int FASTCALL IsUnlimWoLot(const TransferTbl::Rec & rRec) { return Impl_IsUnlimWoLot(rRec.Flags); }
-int PPTransferItem::IsLotRet() const { return (!(Flags & (PPTFR_UNLIM|PPTFR_ACK|PPTFR_REVAL|PPTFR_RECEIPT|PPTFR_DRAFT)) && (Flags & PPTFR_PLUS)); }
-
-/*static*/int FASTCALL PPTransferItem::IsRecomplete(long flags) { return BIN((flags & (PPTFR_MODIF|PPTFR_REVAL)) == (PPTFR_MODIF|PPTFR_REVAL)); }
-int PPTransferItem::IsRecomplete() const { return PPTransferItem::IsRecomplete(Flags); }
-int PPTransferItem::IsCorrectionRcpt() const { return BIN(Flags & PPTFR_CORRECTION && Flags & PPTFR_REVAL); }
-int PPTransferItem::IsCorrectionExp() const { return BIN(Flags & PPTFR_CORRECTION && !(Flags & PPTFR_REVAL)); }
-int FASTCALL PPTransferItem::GetSign(PPID op) const { return PPTransferItem::GetSign(op, Flags); }
+bool PPTransferItem::IsUnlimWoLot() const { return Impl_IsUnlimWoLot(Flags); }
+bool FASTCALL IsUnlimWoLot(const TransferTbl::Rec & rRec) { return Impl_IsUnlimWoLot(rRec.Flags); }
+bool PPTransferItem::IsLotRet() const { return (!(Flags & (PPTFR_UNLIM|PPTFR_ACK|PPTFR_REVAL|PPTFR_RECEIPT|PPTFR_DRAFT)) && (Flags & PPTFR_PLUS)); }
+/*static*/bool FASTCALL PPTransferItem::IsRecomplete(long flags) { return ((flags & (PPTFR_MODIF|PPTFR_REVAL)) == (PPTFR_MODIF|PPTFR_REVAL)); }
+bool PPTransferItem::IsRecomplete() const { return PPTransferItem::IsRecomplete(Flags); }
+bool PPTransferItem::IsCorrectionRcpt() const { return (Flags & PPTFR_CORRECTION && Flags & PPTFR_REVAL); }
+bool PPTransferItem::IsCorrectionExp() const { return (Flags & PPTFR_CORRECTION && !(Flags & PPTFR_REVAL)); }
+int  FASTCALL PPTransferItem::GetSign(PPID op) const { return PPTransferItem::GetSign(op, Flags); }
 
 void PPTransferItem::InitShadow(const BillTbl::Rec * pBillRec, const PPTransferItem * pOrder)
 {
@@ -354,7 +353,7 @@ int PPTransferItem::SetupGoods(PPID goodsID, uint flags)
 		PPObjGoods gobj;
 		Goods2Tbl::Rec goods_rec;
 		if((ok = gobj.Fetch(labs(goodsID), &goods_rec)) > 0) {
-			long   f = goods_rec.Flags;
+			const long   f = goods_rec.Flags;
 			SETFLAG(Flags, PPTFR_ODDGOODS,    f & GF_ODD);
 			SETFLAG(Flags, PPTFR_UNLIM,       f & GF_UNLIM);
 			SETFLAG(Flags, PPTFR_INDEPPHQTTY, f & GF_USEINDEPWT);

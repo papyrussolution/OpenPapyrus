@@ -6,21 +6,16 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
-/* Internal tests for the OpenSSL library context */
 #include "testutil.h"
 #include "internal/cryptlib.h"
-
-/*
- * Everything between BEGIN EXAMPLE and END EXAMPLE is copied from
- * doc/internal/man3/ossl_lib_ctx_get_data.pod
- */
-
-/*
- * ======================================================================
- * BEGIN EXAMPLE
- */
-
+//
+// Internal tests for the OpenSSL library context
+//
+// 
+// Everything between BEGIN EXAMPLE and END EXAMPLE is copied from doc/internal/man3/ossl_lib_ctx_get_data.pod
+// 
+// BEGIN EXAMPLE
+// 
 typedef struct foo_st {
 	int i;
 	void * data;
@@ -44,18 +39,13 @@ static const OSSL_LIB_CTX_METHOD foo_method = {
 	foo_new,
 	foo_free
 };
-
-/*
- * END EXAMPLE
- * ======================================================================
- */
-
+// 
+// END EXAMPLE
+// 
 static int test_context(OSSL_LIB_CTX * ctx)
 {
 	FOO * data = NULL;
-	return TEST_ptr(data = (FOO *)ossl_lib_ctx_get_data(ctx, 0, &foo_method))
-	       /* OPENSSL_zalloc in foo_new() initialized it to zero */
-	       && TEST_int_eq(data->i, 42);
+	return TEST_ptr(data = (FOO *)ossl_lib_ctx_get_data(ctx, 0, &foo_method)) /* OPENSSL_zalloc in foo_new() initialized it to zero */ && TEST_int_eq(data->i, 42);
 }
 
 static int test_app_context(void)
@@ -83,34 +73,28 @@ static int test_set0_default(void)
 	    || !TEST_ptr_eq(global, OSSL_LIB_CTX_set0_default(NULL))
 	    || !TEST_ptr(data = (FOO *)ossl_lib_ctx_get_data(local, 0, &foo_method)))
 		goto err;
-
 	/* Set local "i" value to 43. Global "i" should be 42 */
 	data->i++;
 	if(!TEST_int_eq(data->i, 43))
 		goto err;
-
 	/* The default context should still be the "global" default */
 	if(!TEST_ptr(data = (FOO *)ossl_lib_ctx_get_data(NULL, 0, &foo_method))
 	    || !TEST_int_eq(data->i, 42))
 		goto err;
-
 	/* Check we can change the local default context */
 	if(!TEST_ptr(prev = OSSL_LIB_CTX_set0_default(local))
 	    || !TEST_ptr_eq(global, prev)
 	    || !TEST_ptr(data = (FOO *)ossl_lib_ctx_get_data(NULL, 0, &foo_method))
 	    || !TEST_int_eq(data->i, 43))
 		goto err;
-
 	/* Calling OSSL_LIB_CTX_set0_default() with a NULL should be a no-op */
 	if(!TEST_ptr_eq(local, OSSL_LIB_CTX_set0_default(NULL))
 	    || !TEST_ptr(data = (FOO *)ossl_lib_ctx_get_data(NULL, 0, &foo_method))
 	    || !TEST_int_eq(data->i, 43))
 		goto err;
-
 	/* Global default should be unchanged */
 	if(!TEST_ptr_eq(global, OSSL_LIB_CTX_get0_global_default()))
 		goto err;
-
 	/* Check we can swap back to the global default */
 	if(!TEST_ptr(prev = OSSL_LIB_CTX_set0_default(global))
 	    || !TEST_ptr_eq(local, prev)

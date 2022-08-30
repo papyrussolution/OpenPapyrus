@@ -415,7 +415,7 @@ DecimalFormat* DecimalFormat::clone() const
 		return nullptr;
 	}
 	LocalPointer<DecimalFormat> df(new DecimalFormat(*this));
-	if(df.isValid() && df->fields != nullptr) {
+	if(df.isValid() && df->fields) {
 		return df.orphan();
 	}
 	return nullptr;
@@ -1746,20 +1746,18 @@ void DecimalFormat::setPropertiesFromPattern(const UnicodeString & pattern, int3
 	}
 }
 
-const numparse::impl::NumberParserImpl* DecimalFormat::getParser(UErrorCode & status) const {
+const numparse::impl::NumberParserImpl* DecimalFormat::getParser(UErrorCode & status) const 
+{
 	// TODO: Move this into umutex.h? (similar logic also in numrange_fluent.cpp)
 	// See ICU-20146
-
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}
-
 	// First try to get the pre-computed parser
-	auto* ptr = fields->atomicParser.load();
-	if(ptr != nullptr) {
+	auto * ptr = fields->atomicParser.load();
+	if(ptr) {
 		return ptr;
 	}
-
 	// Try computing the parser on our own
 	auto* temp = NumberParserImpl::createParserFromProperties(fields->properties, *getDecimalFormatSymbols(), false, status);
 	if(U_FAILURE(status)) {
@@ -1785,24 +1783,22 @@ const numparse::impl::NumberParserImpl* DecimalFormat::getParser(UErrorCode & st
 	}
 }
 
-const numparse::impl::NumberParserImpl* DecimalFormat::getCurrencyParser(UErrorCode & status) const {
+const numparse::impl::NumberParserImpl* DecimalFormat::getCurrencyParser(UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}
-
 	// First try to get the pre-computed parser
 	auto* ptr = fields->atomicCurrencyParser.load();
-	if(ptr != nullptr) {
+	if(ptr) {
 		return ptr;
 	}
-
 	// Try computing the parser on our own
 	auto* temp = NumberParserImpl::createParserFromProperties(fields->properties, *getDecimalFormatSymbols(), true, status);
 	if(temp == nullptr) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		// although we may still dereference, call sites should be guarded
 	}
-
 	// Note: ptr starts as nullptr; during compare_exchange, it is set to what is actually stored in the
 	// atomic if another thread beat us to computing the parser object.
 	auto* nonConstThis = const_cast<DecimalFormat*>(this);
@@ -1817,10 +1813,8 @@ const numparse::impl::NumberParserImpl* DecimalFormat::getCurrencyParser(UErrorC
 	}
 }
 
-void DecimalFormat::fieldPositionHelper(const UFormattedNumberData& formatted,
-    FieldPosition& fieldPosition,
-    int32_t offset,
-    UErrorCode & status) {
+void DecimalFormat::fieldPositionHelper(const UFormattedNumberData& formatted, FieldPosition& fieldPosition, int32_t offset, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -1834,11 +1828,9 @@ void DecimalFormat::fieldPositionHelper(const UFormattedNumberData& formatted,
 	}
 }
 
-void DecimalFormat::fieldPositionIteratorHelper(const UFormattedNumberData& formatted,
-    FieldPositionIterator* fpi,
-    int32_t offset,
-    UErrorCode & status) {
-	if(U_SUCCESS(status) && (fpi != nullptr)) {
+void DecimalFormat::fieldPositionIteratorHelper(const UFormattedNumberData& formatted, FieldPositionIterator* fpi, int32_t offset, UErrorCode & status) 
+{
+	if(U_SUCCESS(status) && fpi) {
 		FieldPositionIteratorHandler fpih(fpi, status);
 		fpih.setShift(offset);
 		formatted.getAllFieldPositions(fpih, status);
@@ -1848,7 +1840,8 @@ void DecimalFormat::fieldPositionIteratorHelper(const UFormattedNumberData& form
 // To debug fast-format, change void(x) to printf(x)
 #define trace(x) void(x)
 
-void DecimalFormat::setupFastFormat() {
+void DecimalFormat::setupFastFormat() 
+{
 	// Check the majority of properties:
 	if(!fields->properties.equalsDefaultExceptFastFormat()) {
 		trace("no fast format: equality\n");

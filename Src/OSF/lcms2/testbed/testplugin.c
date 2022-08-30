@@ -382,13 +382,10 @@ static double Rec709Math(int Type, const double Params[], double R)
 	double Fun = 0;
 	switch(Type) {
 		case 709:
-
 		    if(R <= (Params[3]*Params[4])) Fun = R / Params[3];
 		    else Fun = pow(((R - Params[2])/Params[1]), Params[0]);
 		    break;
-
 		case -709:
-
 		    if(R <= Params[4]) Fun = R * Params[3];
 		    else Fun = Params[1] * pow(R, (1/Params[0])) + Params[2];
 		    break;
@@ -399,24 +396,18 @@ static double Rec709Math(int Type, const double Params[], double R)
 // Add nonstandard TRC curves -> Rec709
 
 cmsPluginParametricCurves Rec709Plugin = {
-	{ cmsPluginMagicNumber, 2060, cmsPluginParametricCurveSig, NULL },
-
-	1, {TYPE_709}, {5}, Rec709Math
+	{ cmsPluginMagicNumber, 2060, cmsPluginParametricCurveSig, NULL }, 1, {TYPE_709}, {5}, Rec709Math
 };
 
 static cmsPluginParametricCurves CurvePluginSample = {
-	{ cmsPluginMagicNumber, 2060, cmsPluginParametricCurveSig, NULL },
-
-	2,                   // nFunctions
+	{ cmsPluginMagicNumber, 2060, cmsPluginParametricCurveSig, NULL }, 2, // nFunctions
 	{ TYPE_SIN, TYPE_COS }, // Function Types
 	{ 1, 1 },            // ParameterCount
 	my_fns               // Evaluator
 };
 
 static cmsPluginParametricCurves CurvePluginSample2 = {
-	{ cmsPluginMagicNumber, 2060, cmsPluginParametricCurveSig, NULL },
-
-	1,                   // nFunctions
+	{ cmsPluginMagicNumber, 2060, cmsPluginParametricCurveSig, NULL }, 1, // nFunctions
 	{ TYPE_TAN},         // Function Types
 	{ 1 },               // ParameterCount
 	my_fns2              // Evaluator
@@ -481,13 +472,10 @@ Error:
 	cmsDeleteContext(cpy2);
 	return 0;
 }
-
-// --------------------------------------------------------------------------------------------------
+//
 // formatters plugin check: 5-6-5 RGB format
-// --------------------------------------------------------------------------------------------------
-
+//
 // We define this special type as 0 bytes not float, and set the upper bit
-
 #define TYPE_RGB_565  (COLORSPACE_SH(PT_RGB)|CHANNELS_SH(3)|BYTES_SH(0) | (1 << 23))
 
 uint8 * my_Unroll565(struct _cmstransform_struct * /*nfo*/, uint16 wIn[], uint8 * accum, uint32 /*_stride*/)
@@ -557,19 +545,17 @@ int32 CheckFormattersPlugin(FILE * fOut)
 			return 0;
 	return 1;
 }
-
-// --------------------------------------------------------------------------------------------------
+//
 // TagTypePlugin plugin check
-// --------------------------------------------------------------------------------------------------
-
+//
 #define SigIntType      ((cmsTagTypeSignature)0x74747448)     //   'tttH'
 #define SigInt          ((cmsTagSignature)0x74747448)         //   'tttH'
 
 static void * Type_int_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 /*SizeOfTag*/)
 {
 	uint32 * Ptr = (uint32 *)_cmsMalloc(self->ContextID, sizeof(uint32));
-	if(Ptr == NULL) return NULL;
-	if(!_cmsReadUInt32Number(io, Ptr)) return NULL;
+	if(!Ptr || !_cmsReadUInt32Number(io, Ptr)) 
+		return NULL;
 	*nItems = 1;
 	return Ptr;
 }
@@ -601,7 +587,6 @@ static cmsPluginTagType TagTypePluginSample = {
 
 int32 CheckTagTypePlugin(FILE * fOut)
 {
-	cmsContext ctx = NULL;
 	cmsContext cpy = NULL;
 	cmsContext cpy2 = NULL;
 	cmsHPROFILE h = NULL;
@@ -610,7 +595,7 @@ int32 CheckTagTypePlugin(FILE * fOut)
 	char * data = NULL;
 	uint32 * ptr = NULL;
 	uint32 clen = 0;
-	ctx = WatchDogContext(fOut, NULL);
+	cmsContext ctx = WatchDogContext(fOut, NULL);
 	cmsPluginTHR(ctx, &TagTypePluginSample);
 	cpy = DupContext(ctx, NULL);
 	cpy2 = DupContext(cpy, NULL);
@@ -723,7 +708,7 @@ int32 CheckMPEPlugin(FILE * fOut)
 	cmsContext cpy = NULL;
 	cmsContext cpy2 = NULL;
 	cmsHPROFILE h = NULL;
-	uint32 myTag = 1234;
+	//uint32 myTag = 1234;
 	uint32 rc = 0;
 	char * data = NULL;
 	uint32 clen = 0;

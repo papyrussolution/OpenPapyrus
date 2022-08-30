@@ -466,7 +466,6 @@ XmlMatchedTagsHighlighter::FindResult XmlMatchedTagsHighlighter::findCloseTag(co
 		if(result.success) {
 			nextChar = static_cast<int32_t>(_pEditView->execute(SCI_GETCHARAT, result.end));
 			auto styleAt = _pEditView->execute(SCI_GETSTYLEAT, result.start);
-
 			// Setup the parameters for the next search, if there is one.
 			if(forwardSearch) {
 				searchStart = result.end + 1;
@@ -474,8 +473,7 @@ XmlMatchedTagsHighlighter::FindResult XmlMatchedTagsHighlighter::findCloseTag(co
 			else {
 				searchStart = result.start - 1;
 			}
-			if(styleAt != SCE_H_CDATA && styleAt != SCE_H_SINGLESTRING && styleAt != SCE_H_DOUBLESTRING &&
-			    styleAt != SCE_H_COMMENT) { // If what we found was in CDATA section, it's not a valid tag.
+			if(!oneof4(styleAt, SCE_H_CDATA, SCE_H_SINGLESTRING, SCE_H_DOUBLESTRING, SCE_H_COMMENT)) { // If what we found was in CDATA section, it's not a valid tag.
 				// Common case - '>' follows the tag name directly
 				if(nextChar == '>') {
 					validCloseTag = true;
@@ -489,7 +487,6 @@ XmlMatchedTagsHighlighter::FindResult XmlMatchedTagsHighlighter::findCloseTag(co
 						++whitespacePoint;
 						nextChar = static_cast<int32_t>(_pEditView->execute(SCI_GETCHARAT, whitespacePoint));
 					} while(isWhitespace(nextChar));
-
 					if(nextChar == '>') {
 						validCloseTag = true;
 						closeTagFound.start = result.start;

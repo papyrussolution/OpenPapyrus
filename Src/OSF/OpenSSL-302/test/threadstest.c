@@ -285,14 +285,10 @@ static void thread_downgrade_shared_evp_pkey(void)
 static void thread_provider_load_unload(void)
 {
 	OSSL_PROVIDER * deflt = OSSL_PROVIDER_load(multi_libctx, "default");
-
-	if(!TEST_ptr(deflt)
-	    || !TEST_true(OSSL_PROVIDER_available(multi_libctx, "default")))
+	if(!TEST_ptr(deflt) || !TEST_true(OSSL_PROVIDER_available(multi_libctx, "default")))
 		multi_success = 0;
-
 	OSSL_PROVIDER_unload(deflt);
 }
-
 /*
  * Do work in multiple worker threads at the same time.
  * Test 0: General worker, using the default provider
@@ -310,7 +306,6 @@ static int test_multi(int idx)
 	void (* worker)(void) = NULL;
 	void (* worker2)(void) = NULL;
 	EVP_MD * sha256 = NULL;
-
 	if(idx == 1 && !do_fips)
 		return TEST_skip("FIPS not supported");
 
@@ -318,16 +313,12 @@ static int test_multi(int idx)
 	if(idx == 3)
 		return TEST_skip("Skipping tests for deprected functions");
 #endif
-
 	multi_success = 1;
-	if(!TEST_true(test_get_libctx(&multi_libctx, NULL, config_file,
-	    NULL, NULL)))
+	if(!TEST_true(test_get_libctx(&multi_libctx, NULL, config_file, NULL, NULL)))
 		return 0;
-
 	prov = OSSL_PROVIDER_load(multi_libctx, (idx == 1) ? "fips" : "default");
 	if(!TEST_ptr(prov))
 		goto err;
-
 	switch(idx) {
 		case 0:
 		case 1:
@@ -341,11 +332,9 @@ static int test_multi(int idx)
 		/* fall through */
 		case 4:
 		    /*
-		     * If available we have both the default and fips providers for this
-		     * test
+		     * If available we have both the default and fips providers for this test
 		     */
-		    if(do_fips
-			&& !TEST_ptr(prov2 = OSSL_PROVIDER_load(multi_libctx, "fips")))
+		    if(do_fips && !TEST_ptr(prov2 = OSSL_PROVIDER_load(multi_libctx, "fips")))
 			    goto err;
 		    if(!TEST_ptr(shared_evp_pkey = load_pkey_pem(privkey, multi_libctx)))
 			    goto err;
@@ -368,13 +357,9 @@ static int test_multi(int idx)
 	}
 	if(worker2 == NULL)
 		worker2 = worker;
-
-	if(!TEST_true(run_thread(&thread1, worker))
-	    || !TEST_true(run_thread(&thread2, worker2)))
+	if(!TEST_true(run_thread(&thread1, worker)) || !TEST_true(run_thread(&thread2, worker2)))
 		goto err;
-
 	worker();
-
 	testresult = 1;
 	/*
 	 * Don't combine these into one if statement; must wait for both threads.
@@ -385,7 +370,6 @@ static int test_multi(int idx)
 		testresult = 0;
 	if(!TEST_true(multi_success))
 		testresult = 0;
-
 err:
 	EVP_MD_free(sha256);
 	OSSL_PROVIDER_unload(prov);
@@ -407,9 +391,7 @@ static char * multi_load_provider = "legacy";
 static void test_multi_load_worker(void)
 {
 	OSSL_PROVIDER * prov;
-
-	if(!TEST_ptr(prov = OSSL_PROVIDER_load(NULL, multi_load_provider))
-	    || !TEST_true(OSSL_PROVIDER_unload(prov)))
+	if(!TEST_ptr(prov = OSSL_PROVIDER_load(NULL, multi_load_provider)) || !TEST_true(OSSL_PROVIDER_unload(prov)))
 		multi_success = 0;
 }
 
@@ -429,20 +411,12 @@ static int test_multi_default(void)
 	prov = OSSL_PROVIDER_load(multi_libctx, "default");
 	if(!TEST_ptr(prov))
 		goto err;
-
-	if(!TEST_true(run_thread(&thread1, thread_multi_simple_fetch))
-	    || !TEST_true(run_thread(&thread2, thread_multi_simple_fetch)))
+	if(!TEST_true(run_thread(&thread1, thread_multi_simple_fetch)) || !TEST_true(run_thread(&thread2, thread_multi_simple_fetch)))
 		goto err;
-
 	thread_multi_simple_fetch();
-
-	if(!TEST_true(wait_for_thread(thread1))
-	    || !TEST_true(wait_for_thread(thread2))
-	    || !TEST_true(multi_success))
+	if(!TEST_true(wait_for_thread(thread1)) || !TEST_true(wait_for_thread(thread2)) || !TEST_true(multi_success))
 		goto err;
-
 	testresult = 1;
-
 err:
 	OSSL_PROVIDER_unload(prov);
 	return testresult;
@@ -519,10 +493,8 @@ int setup_tests()
 			    return 0;
 		}
 	}
-
 	if(!TEST_ptr(datadir = test_get_argument(0)))
 		return 0;
-
 	privkey = test_mk_file_path(datadir, "rsakey.pem");
 	if(!TEST_ptr(privkey))
 		return 0;

@@ -12002,9 +12002,18 @@ struct SJson {
 	//
 	int    InsertNz(const char * pTextLabel, SJson * pValue);
 	int    InsertString(const char * pTextLabel, const char * pStr);
+	//
+	// Descr: Вставляет в json-объект строку pStr с меткой pTextLabel при условии, что !isempty(pStr)
+	// Returns:
+	//   >0 - success
+	//   <0 - строка pStr пустая
+	//    0 - error
+	//
+	int    InsertStringNe(const char * pTextLabel, const char * pStr);
 	int    InsertNumber(const char * pTextLabel, const char * pStr);
 	int    InsertDouble(const char * pTextLabel, double val, long fmt);
 	int    InsertInt(const char * pTextLabel, int val);
+	int    InsertIntNz(const char * pTextLabel, int val);
 	int    InsertInt64(const char * pTextLabel, int64 val);
 	int    InsertBool(const char * pTextLabel, bool val);
 	int    FASTCALL InsertNull(const char * pTextLabel);

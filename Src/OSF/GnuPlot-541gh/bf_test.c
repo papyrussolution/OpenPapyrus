@@ -4,7 +4,6 @@
  * This code is not used by gnuplot itself.
  *
  * Copyright (c) 1992 Robert K. Cunningham, MIT Lincoln Laboratory
- *
  */
 /*
  * Ethan A Merritt July 2014
@@ -39,9 +38,9 @@ static float function(int p, double x, double y)
 		case 2:
 		    t = static_cast<float>(sin(x * x + y * y) / (x * x + y * y));
 		    // sinc modulated sinc 
-		    t *= sin(4.0 * (x * x + y * y)) / (4.0 * (x * x + y * y));
-		    if(t > 1.0)
-			    t = 1.0;
+		    t = t * static_cast<float>(sin(4.0 * (x * x + y * y)) / (4.0 * (x * x + y * y)));
+		    if(t > 1.0f)
+			    t = 1.0f;
 		    break;
 		default:
 		    fprintf(stderr, "Unknown function\n");
@@ -54,7 +53,7 @@ int fwrite_matrix(FILE * fout, float ** m, int xsize, int ysize, float * rt, flo
 {
 	int j;
 	int status;
-	float length = (float)ysize;
+	float length = static_cast<float>(ysize);
 	if((status = fwrite((char *)&length, sizeof(float), 1, fout)) != 1) {
 		fprintf(stderr, "fwrite 1 returned %d\n", status);
 		return 0;
@@ -64,7 +63,6 @@ int fwrite_matrix(FILE * fout, float ** m, int xsize, int ysize, float * rt, flo
 		fwrite((char *)&rt[j], sizeof(float), 1, fout);
 		fwrite((char *)(m[j]), sizeof(float), ysize, fout);
 	}
-
 	return 1;
 }
 

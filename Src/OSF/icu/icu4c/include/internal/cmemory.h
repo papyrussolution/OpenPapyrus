@@ -428,7 +428,8 @@ private:
 	int32_t capacity;
 	bool needToRelease;
 	T stackArray[stackCapacity];
-	void releaseArray() {
+	void releaseArray() 
+	{
 		if(needToRelease) {
 			uprv_free(ptr);
 		}

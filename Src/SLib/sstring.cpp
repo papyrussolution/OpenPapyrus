@@ -2419,13 +2419,15 @@ SString & SString::Strip(int dir)
 
 SString & SString::Strip()
 {
-	while(Last() == ' ')
-		TrimRight();
-	if(L > 1) {
-		size_t p = 0;
-		while(p < (L-1) && P_Buf[p] == ' ')
-			p++;
-		ShiftLeft(p);
+	if(L > 1) { // @v11.4.9
+		while(Last() == ' ')
+			TrimRight();
+		if(L > 1) {
+			size_t p = 0;
+			while(p < (L-1) && P_Buf[p] == ' ')
+				p++;
+			ShiftLeft(p);
+		}
 	}
 	return *this;
 }
@@ -6981,7 +6983,7 @@ int SNaturalTokenArray::Add(uint32 tok, float prob)
 				r_item.Prob = prob;
 		}
 	}
-	else if(prob >= 0.0f) {
+	else if(prob > 0.0f) { // @v11.4.9 @fix (prob >= 0.0f)-->(prob > 0.0f)
 		SNaturalToken item;
 		item.ID = tok;
 		item.Prob = prob;
@@ -7531,6 +7533,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 								rResultList.Add(SNTOK_RU_SNILS, 0.95f);
 							}
 						}
+						break; // @v11.4.9 @fix (break)
 					case 12:
 						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
 						if(static_cast<uchar>(cd) == (last-'0')) {
@@ -7675,6 +7678,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			// @v11.0.3 {
 			if(rIb.F & ImplementBlock::fPhoneSet) {
 				if(rIb.DecCount >= 5 && rIb.DecCount <= 14) {
+					// "^([+]?[\\s0-9]+)?(\\d{3}|[(]?[0-9]+[)])?([-]?[\\s]?[0-9])+"
 					if(InitRePhone()) {
 						SRegExp2::FindResult reresult;
 						if(P_RePhone->Find(reinterpret_cast<const char *>(pToken), toklen, 0, &reresult)) {
@@ -7720,7 +7724,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							rResultList.Add(SNTOK_CHZN_CIGITEM, 0.8f);
 					}
 				}
-				else if(oneof5(toklen, 25, 35, 41, 52, 55)) {
+				else if(oneof5(toklen, 25, 35, 41, 52, 55) || (toklen == 43 && rIb.ChrList.BSearch(static_cast<long>('\x1D'), &val, &pos) && val == 2)) {
 					int    sig_prefix = 0; // 0 - no, 1 - '0', 2 - '(01)'
 					size_t _offs = 0;
 					if(pToken[_offs] == '0') {

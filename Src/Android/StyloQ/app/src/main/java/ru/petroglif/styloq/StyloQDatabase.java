@@ -87,6 +87,8 @@ public class StyloQDatabase extends Database {
 		public static final int styloqdocstFINISHED_SUCC         = 15; // Финальное состояние документа: завершен как учтенный и отработанный.
 		public static final int styloqdocstFINISHED_FAIL         = 16; // Финальное состояние документа: завершен как отмененный.
 		public static final int styloqdocstCANCELLEDDRAFT        = 17; // @v11.4.1 Драфт отмененый эмитентом. Переход в это состояние возможен только после styloqdocstDRAFT || styloqdocstUNDEF.
+		public static final int styloqdocstINCOMINGMOD           = 18; // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация
+		public static final int styloqdocstINCOMINGMODACCEPTED   = 19; // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация, которая, в свою очередь, акцептирована сервисом.
 		//
 		public static final int doctypUndef       = 0;
 		public static final int doctypCommandList = 1;
@@ -821,143 +823,158 @@ public class StyloQDatabase extends Database {
 			// ее нет, то пытаемся получить метаданные прямо из документа (tagRawData)
 			//
 			String raw_doc_type = null;
-			long   doc_time = 0;
-			int    doc_expiry = 0;
-			JSONObject js_document = null; // generic document inserted into raw_doc
-			StyloQCommand.DocDeclaration doc_decl = null;
-			JSONObject js_raw_doc = pool.GetJsonObject(SecretTagPool.tagRawData);
-			byte [] raw_doc_decl = pool.Get(SecretTagPool.tagDocDeclaration);
+			long doc_time = 0;
+			int doc_expiry = 0;
 			if(correspondId > 0) {
 				SecStoragePacket corr_pack = GetPeerEntry(correspondId);
 				THROW(corr_pack != null, ppstr2.PPERR_SQ_CORRESPONDOBJNFOUND, Long.toString(correspondId));
 				THROW(corr_pack.Rec.Kind == SecStoragePacket.kClient || corr_pack.Rec.Kind == SecStoragePacket.kForeignService, ppstr2.PPERR_SQ_WRONGDBITEMKIND);
 			}
-			if(SLib.GetLen(raw_doc_decl) > 0) {
-				doc_decl = new StyloQCommand.DocDeclaration();
-				if(doc_decl.FromJson(new String(raw_doc_decl))) {
-					raw_doc_type = doc_decl.Type;
-					doc_time = doc_decl.Time;
-					doc_expiry = doc_decl.ResultExpiryTimeSec;
+			int pack_kind = 0;
+			if(direction > 0)
+				pack_kind = SecStoragePacket.kDocOutcoming;
+			else if(direction < 0)
+				pack_kind = SecStoragePacket.kDocIncoming;
+			if(pool == null) { // delete doc
+				Transaction tra = new Transaction(this, true);
+				ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, correspondId, ident);
+				if(ex_id_list != null && ex_id_list.size() > 0) {
+					for(int i = 0; i < ex_id_list.size(); i++) {
+						long local_id = ex_id_list.get(i);
+						result_id = PutPeerEntry(local_id, null, false); // @throw
+					}
 				}
+				else
+					result_id = -1;
+				tra.Commit();
 			}
-			if(js_raw_doc != null) {
-				if(doc_decl == null) {
-					raw_doc_type = js_raw_doc.optString("doctype", "");
-					doc_time = js_raw_doc.optLong("time", 0);
-					doc_expiry = js_raw_doc.optInt("expir_time_sec", 0);
+			else {
+				JSONObject js_document = null; // generic document inserted into raw_doc
+				StyloQCommand.DocDeclaration doc_decl = null;
+				JSONObject js_raw_doc = pool.GetJsonObject(SecretTagPool.tagRawData);
+				byte[] raw_doc_decl = pool.Get(SecretTagPool.tagDocDeclaration);
+				if(SLib.GetLen(raw_doc_decl) > 0) {
+					doc_decl = new StyloQCommand.DocDeclaration();
+					if(doc_decl.FromJson(new String(raw_doc_decl))) {
+						raw_doc_type = doc_decl.Type;
+						doc_time = doc_decl.Time;
+						doc_expiry = doc_decl.ResultExpiryTimeSec;
+					}
 				}
-				js_document = js_raw_doc.optJSONObject("document");
-				if(js_document == null)
-					js_document = js_raw_doc;
-				int pack_kind = 0;
-				if(direction > 0)
-					pack_kind = SecStoragePacket.kDocOutcoming;
-				else if(direction < 0)
-					pack_kind = SecStoragePacket.kDocIncoming;
-				if(raw_doc_type != null) {
-					if(docType == SecStoragePacket.doctypGeneric) {
-						if(js_document != null) {
-							long _ex_doc_id_from_json = (direction > 0) ? js_document.optLong("ID", 0) : 0;
-							long _ex_doc_id_from_db = 0;
+				if(js_raw_doc != null) {
+					if(doc_decl == null) {
+						raw_doc_type = js_raw_doc.optString("doctype", "");
+						doc_time = js_raw_doc.optLong("time", 0);
+						doc_expiry = js_raw_doc.optInt("expir_time_sec", 0);
+					}
+					js_document = js_raw_doc.optJSONObject("document");
+					if(js_document == null)
+						js_document = js_raw_doc;
+					if(raw_doc_type != null) {
+						if(docType == SecStoragePacket.doctypGeneric) {
+							if(js_document != null) {
+								long _ex_doc_id_from_json = (direction > 0) ? js_document.optLong("ID", 0) : 0;
+								long _ex_doc_id_from_db = 0;
+								pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+								pack.Rec.Flags |= (docFlags & (SecStoragePacket.styloqfDocStatusFlags | SecStoragePacket.styloqfDocTransmission));
+								{
+									Transaction tra = new Transaction(this, true);
+									// Документ такого типа может быть только один в комбинации {direction; rIdent}
+									ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, correspondId, ident);
+									if(ex_id_list != null) {
+										for(int i = 0; i < ex_id_list.size(); i++) {
+											long local_id = ex_id_list.get(i);
+											// Последний (из гипотетически нескольких) встретившийся документ считаем нашим, остальные - удаляем
+											if(i == ex_id_list.size() - 1)
+												_ex_doc_id_from_db = local_id;
+											else
+												PutPeerEntry(local_id, null, false); // @throw
+										}
+									}
+									result_id = PutPeerEntry(_ex_doc_id_from_db, pack, false);
+									tra.Commit();
+								}
+							}
+						}
+						else if(docType == SecStoragePacket.doctypCommandList && raw_doc_type.equalsIgnoreCase("commandlist")) {
 							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
-							pack.Rec.Flags |= (docFlags & (SecStoragePacket.styloqfDocStatusFlags|SecStoragePacket.styloqfDocTransmission));
 							{
 								Transaction tra = new Transaction(this, true);
 								// Документ такого типа может быть только один в комбинации {direction; rIdent}
-								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, correspondId, ident);
+								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
 								if(ex_id_list != null) {
 									for(int i = 0; i < ex_id_list.size(); i++) {
-										long local_id = ex_id_list.get(i);
-										// Последний (из гипотетически нескольких) встретившийся документ считаем нашим, остальные - удаляем
-										if(i == ex_id_list.size()-1)
-											_ex_doc_id_from_db = local_id;
-										else
-											PutPeerEntry(local_id, null, false); // @throw
+										long _id_to_remove = ex_id_list.get(i);
+										PutPeerEntry(_id_to_remove, null, false); // @throw
 									}
 								}
-								result_id = PutPeerEntry(_ex_doc_id_from_db, pack, false);
+								result_id = PutPeerEntry(0, pack, false);
 								tra.Commit();
 							}
 						}
-					}
-					else if(docType == SecStoragePacket.doctypCommandList && raw_doc_type.equalsIgnoreCase("commandlist")) {
-						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
-						{
-							Transaction tra = new Transaction(this, true);
-							// Документ такого типа может быть только один в комбинации {direction; rIdent}
-							ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
-							if(ex_id_list != null) {
-								for(int i = 0; i < ex_id_list.size(); i++) {
-									long _id_to_remove = ex_id_list.get(i);
-									PutPeerEntry(_id_to_remove, null, false); // @throw
+						else if(docType == SecStoragePacket.doctypReport && raw_doc_type.equalsIgnoreCase("view")) {
+							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+							{
+								Transaction tra = new Transaction(this, true);
+								// Документ такого типа может быть только один в комбинации {direction; rIdent}
+								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
+								if(ex_id_list != null) {
+									for(int i = 0; i < ex_id_list.size(); i++) {
+										long _id_to_remove = ex_id_list.get(i);
+										PutPeerEntry(_id_to_remove, null, false); // @throw
+									}
 								}
+								result_id = PutPeerEntry(0, pack, false);
+								tra.Commit();
 							}
-							result_id = PutPeerEntry(0, pack, false);
-							tra.Commit();
 						}
-					}
-					else if(docType == SecStoragePacket.doctypReport && raw_doc_type.equalsIgnoreCase("view")) {
-						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
-						{
-							Transaction tra = new Transaction(this, true);
-							// Документ такого типа может быть только один в комбинации {direction; rIdent}
-							ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
-							if(ex_id_list != null) {
-								for(int i = 0; i < ex_id_list.size(); i++) {
-									long _id_to_remove = ex_id_list.get(i);
-									PutPeerEntry(_id_to_remove, null, false); // @throw
+						else if(docType == SecStoragePacket.doctypOrderPrereq && raw_doc_type.equalsIgnoreCase("orderprereq")) {
+							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+							{
+								Transaction tra = new Transaction(this, true);
+								// Документ такого типа может быть только один в комбинации {direction; rIdent}
+								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
+								if(ex_id_list != null) {
+									for(int i = 0; i < ex_id_list.size(); i++) {
+										long _id_to_remove = ex_id_list.get(i);
+										PutPeerEntry(_id_to_remove, null, false); // @throw
+									}
 								}
+								result_id = PutPeerEntry(0, pack, false);
+								tra.Commit();
 							}
-							result_id = PutPeerEntry(0, pack, false);
-							tra.Commit();
 						}
-					}
-					else if(docType == SecStoragePacket.doctypOrderPrereq && raw_doc_type.equalsIgnoreCase("orderprereq")) {
-						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
-						{
-							Transaction tra = new Transaction(this, true);
-							// Документ такого типа может быть только один в комбинации {direction; rIdent}
-							ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
-							if(ex_id_list != null) {
-								for(int i = 0; i < ex_id_list.size(); i++) {
-									long _id_to_remove = ex_id_list.get(i);
-									PutPeerEntry(_id_to_remove, null, false); // @throw
+						else if(docType == SecStoragePacket.doctypIndoorSvcPrereq && raw_doc_type.equalsIgnoreCase("indoorsvcprereq")) { // @v11.4.5
+							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+							{
+								Transaction tra = new Transaction(this, true);
+								// Документ такого типа может быть только один в комбинации {direction; rIdent}
+								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
+								if(ex_id_list != null) {
+									for(int i = 0; i < ex_id_list.size(); i++) {
+										long _id_to_remove = ex_id_list.get(i);
+										PutPeerEntry(_id_to_remove, null, false); // @throw
+									}
 								}
+								result_id = PutPeerEntry(0, pack, false);
+								tra.Commit();
 							}
-							result_id = PutPeerEntry(0, pack, false);
-							tra.Commit();
 						}
-					}
-					else if(docType == SecStoragePacket.doctypIndoorSvcPrereq && raw_doc_type.equalsIgnoreCase("indoorsvcprereq")) { // @v11.4.5
-						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
-						{
-							Transaction tra = new Transaction(this, true);
-							// Документ такого типа может быть только один в комбинации {direction; rIdent}
-							ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
-							if(ex_id_list != null) {
-								for(int i = 0; i < ex_id_list.size(); i++) {
-									long _id_to_remove = ex_id_list.get(i);
-									PutPeerEntry(_id_to_remove, null, false); // @throw
+						else if(docType == SecStoragePacket.doctypIncomingList && raw_doc_type.equalsIgnoreCase("incominglistorder")) { // @v11.4.8
+							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+							{
+								Transaction tra = new Transaction(this, true);
+								// Документ такого типа может быть только один в комбинации {direction; rIdent}
+								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
+								if(ex_id_list != null) {
+									for(int i = 0; i < ex_id_list.size(); i++) {
+										long _id_to_remove = ex_id_list.get(i);
+										PutPeerEntry(_id_to_remove, null, false); // @throw
+									}
 								}
+								result_id = PutPeerEntry(0, pack, false);
+								tra.Commit();
 							}
-							result_id = PutPeerEntry(0, pack, false);
-							tra.Commit();
-						}
-					}
-					else if(docType == SecStoragePacket.doctypIncomingList && raw_doc_type.equalsIgnoreCase("incominglistorder")) { // @v11.4.8
-						pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
-						{
-							Transaction tra = new Transaction(this, true);
-							// Документ такого типа может быть только один в комбинации {direction; rIdent}
-							ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
-							if(ex_id_list != null) {
-								for(int i = 0; i < ex_id_list.size(); i++) {
-									long _id_to_remove = ex_id_list.get(i);
-									PutPeerEntry(_id_to_remove, null, false); // @throw
-								}
-							}
-							result_id = PutPeerEntry(0, pack, false);
-							tra.Commit();
 						}
 					}
 				}
@@ -965,8 +982,90 @@ public class StyloQDatabase extends Database {
 		}
 		return result_id;
 	}
+	public SecStoragePacket FindRecentIncomingModDoc(int docType, long correspondId, byte [] ident, UUID orgCmdUuid, ArrayList <UUID> possibleDocUuidList)
+	{
+		final int _direction =  SecStoragePacket.kDocIncoming;
+		SecStoragePacket result = null;
+		if(possibleDocUuidList != null && possibleDocUuidList.size() > 0) {
+			try {
+				Database.Table tbl = CreateTable("SecTable");
+				if(tbl != null) {
+					final String tn = tbl.GetName();
+					SecTable.Rec last_suitable_rec = null;
+					String query = "SELECT * FROM " + tn + " WHERE docType=" + docType;
+					if(SLib.GetLen(ident) > 0) {
+						query += " and BI=x'" + SLib.ByteArrayToHexString(ident) + "'";
+					}
+					query += " and kind=" + _direction;
+					if(correspondId > 0)
+						query += " and CorrespondID=" + correspondId;
+					query += " and Flags=" + (SecStoragePacket.styloqdocstINCOMINGMOD << 1); // @fixme Опасный критерий: пока закладываемся на то, что с этим флагом ничто более не комбинируется.
+					query += " order by Kind, BI, TimeStamp"; // #idx1
+					android.database.Cursor cur = GetHandle().rawQuery(query, null);
+					if(cur != null && cur.moveToFirst()) {
+						do {
+							SecStoragePacket current_pack = null;
+							SecTable.Rec rec = new SecTable.Rec();
+							rec.Init();
+							rec.Set(cur);
+							if(rec.Kind == _direction) {
+								boolean is_suitable = false;
+								JSONObject js_doc = null;
+
+								current_pack = new SecStoragePacket(rec);
+								if(current_pack.Pool != null) {
+									byte[] raw_data = current_pack.Pool.Get(SecretTagPool.tagRawData);
+									if(SLib.GetLen(raw_data) > 0) {
+										String txt_raw_data = new String(raw_data);
+										if(SLib.GetLen(txt_raw_data) > 0) {
+											try {
+												js_doc = new JSONObject(txt_raw_data);
+												if(js_doc != null) {
+													if(orgCmdUuid != null) {
+														UUID local_uuid = SLib.strtouuid(js_doc.optString("orgcmduuid", null));
+														if(local_uuid != null && local_uuid.compareTo(orgCmdUuid) == 0)
+															is_suitable = true;
+													}
+													else
+														is_suitable = true;
+													if(is_suitable && possibleDocUuidList != null) {
+														UUID local_uuid = SLib.strtouuid(js_doc.optString("uuid", null));
+														is_suitable = false;
+														if(local_uuid != null) {
+															for(int uididx = 0; !is_suitable && uididx < possibleDocUuidList.size(); uididx++) {
+																if(possibleDocUuidList.get(uididx).compareTo(local_uuid) == 0)
+																	is_suitable = true;
+															}
+														}
+													}
+												}
+											} catch(JSONException exn) {
+												;
+											}
+										}
+									}
+								}
+								if(is_suitable) {
+									if(result == null || result.Rec.TimeStamp < rec.TimeStamp) {
+										if(current_pack != null)
+											result = current_pack;
+										else
+											result = new SecStoragePacket(rec);
+									}
+								}
+							}
+						} while(cur.moveToNext());
+					}
+				}
+			} catch(StyloQException exn) {
+				result = null;
+			}
+		}
+		return result;
+	}
 	public SecStoragePacket FindRecentDraftDoc(int docType, long correspondId, byte [] ident, UUID orgCmdUuid)
 	{
+		final int _direction =  SecStoragePacket.kDocOutcoming;
 		SecStoragePacket result = null;
 		try {
 			Database.Table tbl = CreateTable("SecTable");
@@ -977,7 +1076,7 @@ public class StyloQDatabase extends Database {
 				if(SLib.GetLen(ident) > 0) {
 					query += " and BI=x'" + SLib.ByteArrayToHexString(ident) + "'";
 				}
-				query += " and kind=" + SecStoragePacket.kDocOutcoming;
+				query += " and kind=" + _direction;
 				if(correspondId > 0)
 					query += " and CorrespondID=" + correspondId;
 				query += " and Flags=" + (SecStoragePacket.styloqdocstDRAFT << 1); // @fixme Опасный критерий: пока закладываемся на то, что с этим флагом ничто более не комбинируется.
@@ -989,7 +1088,7 @@ public class StyloQDatabase extends Database {
 						SecTable.Rec rec = new SecTable.Rec();
 						rec.Init();
 						rec.Set(cur);
-						if(rec.Kind == SecStoragePacket.kDocOutcoming) {
+						if(rec.Kind == _direction) {
 							boolean is_suitable = false;
 							if(orgCmdUuid == null)
 								is_suitable = true;

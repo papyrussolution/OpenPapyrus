@@ -36,8 +36,7 @@ const OPTIONS ec_options[] = {
 	{"passin", OPT_PASSIN, 's', "Input file pass phrase source"},
 	{"check", OPT_CHECK, '-', "check key consistency"},
 	{"", OPT_CIPHER, '-', "Any supported cipher"},
-	{"param_enc", OPT_PARAM_ENC, 's',
-	 "Specifies the way the ec parameters are encoded"},
+	{"param_enc", OPT_PARAM_ENC, 's', "Specifies the way the ec parameters are encoded"},
 	{"conv_form", OPT_CONV_FORM, 's', "Specifies the point conversion form "},
 
 	OPT_SECTION("Output"),
@@ -152,7 +151,7 @@ opthelp:
 	argc = opt_num_rest();
 	if(argc != 0)
 		goto opthelp;
-	if(ciphername != NULL) {
+	if(ciphername) {
 		if(!opt_cipher(ciphername, &enc))
 			goto opthelp;
 	}
@@ -179,7 +178,7 @@ opthelp:
 		BIO_printf(bio_err, "unable to set point conversion format\n");
 		goto end;
 	}
-	if(asn1_encoding != NULL && !EVP_PKEY_set_utf8_string_param(eckey, OSSL_PKEY_PARAM_EC_ENCODING, asn1_encoding)) {
+	if(asn1_encoding && !EVP_PKEY_set_utf8_string_param(eckey, OSSL_PKEY_PARAM_EC_ENCODING, asn1_encoding)) {
 		BIO_printf(bio_err, "unable to set asn1 encoding format\n");
 		goto end;
 	}
@@ -195,7 +194,6 @@ opthelp:
 			goto end;
 		}
 	}
-
 	if(text) {
 		assert(pubin || _private);
 		if((pubin && EVP_PKEY_print_public(out, eckey, 0, NULL) <= 0) || (!pubin && EVP_PKEY_print_private(out, eckey, 0, NULL) <= 0)) {
@@ -232,11 +230,11 @@ opthelp:
 			assert(_private);
 		}
 		ectx = OSSL_ENCODER_CTX_new_for_pkey(eckey, selection, output_type, output_structure, NULL);
-		if(enc != NULL) {
+		if(enc) {
 			OSSL_ENCODER_CTX_set_cipher(ectx, EVP_CIPHER_get0_name(enc), NULL);
 			/* Default passphrase prompter */
 			OSSL_ENCODER_CTX_set_passphrase_ui(ectx, get_ui_method(), NULL);
-			if(passout != NULL)
+			if(passout)
 				/* When passout given, override the passphrase prompter */
 				OSSL_ENCODER_CTX_set_passphrase(ectx, (const unsigned char*)passout, strlen(passout));
 		}
@@ -256,9 +254,9 @@ end:
 	OSSL_DECODER_CTX_free(dctx);
 	EVP_PKEY_CTX_free(pctx);
 	release_engine(e);
-	if(passin != NULL)
+	if(passin)
 		OPENSSL_clear_free(passin, strlen(passin));
-	if(passout != NULL)
+	if(passout)
 		OPENSSL_clear_free(passout, strlen(passout));
 	return ret;
 }
