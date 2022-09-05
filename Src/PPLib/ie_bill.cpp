@@ -6102,7 +6102,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 					if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
 						assert(norm_code.Len() < 14);
 						if(norm_code.Len() < 14) {
-							(temp_buf = norm_code).PadLeft(14-norm_code.Len(), '0').Insert(0, "01").Cat(R0i(qtty_local));
+							(temp_buf = norm_code).PadLeft(14-norm_code.Len(), '0').Insert(0, "02").Cat("37").Cat(R0i(qtty_local));
 							break;
 						}
 					}
