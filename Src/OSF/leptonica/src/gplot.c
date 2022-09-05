@@ -438,32 +438,24 @@ l_ok gplotMakeOutput(GPLOT  * gplot)
 {
 	char buf[Bufsize];
 	char * cmdname;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!gplot)
 		return ERROR_INT("gplot not defined", procName, 1);
-
 	if(!LeptDebugOK) {
-		L_INFO("running gnuplot is disabled; "
-		    "use setLeptDebugOK(1) to enable\n", procName);
+		L_INFO("running gnuplot is disabled; use setLeptDebugOK(1) to enable\n", procName);
 		return 0;
 	}
-
 #ifdef OS_IOS /* iOS 11 does not support system() */
 	return ERROR_INT("iOS 11 does not support system()", procName, 0);
 #endif /* OS_IOS */
-
 	gplotGenCommandFile(gplot);
 	gplotGenDataFiles(gplot);
 	cmdname = genPathname(gplot->cmdname, NULL);
-
 #ifndef _WIN32
 	snprintf(buf, Bufsize, "gnuplot %s", cmdname);
 #else
 	snprintf(buf, Bufsize, "wgnuplot %s", cmdname);
 #endif  /* _WIN32 */
-
 	callSystemDebug(buf); /* gnuplot || wgnuplot */
 	SAlloc::F(cmdname);
 	return 0;

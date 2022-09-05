@@ -234,6 +234,7 @@ struct BdtTestItem {
     BdtTestItem::Buffer IKM;     // "IKM"
     BdtTestItem::Buffer XTS;     // "XTS"
     BdtTestItem::Buffer Nonce;   // "Nonce"
+	BdtTestItem::Buffer Aad;     // "AD" // @v11.4.10
 
 //Salt = 000102030405060708090A0B0C
 //Label = F0F1F2F3F4F5F6F7F8F9
@@ -269,7 +270,7 @@ int ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSCollection 
 						line_buf.Sub(1, cpos-1, set_name);
                     }
 				}
-				else if(isempty(pSetSymb) || set_name.CmpNC(pSetSymb) == 0) {
+				else if(isempty(pSetSymb) || set_name.IsEqiAscii(pSetSymb)) {
 					THROW(SETIFZ(p_current_item, rData.CreateNewItem()));
                     if(line_buf.Divide('=', hdr_buf, data_buf) > 0) {
                         hdr_buf.Strip();
@@ -336,7 +337,7 @@ int ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSCollection 
                         }
                         else if(hdr_buf.IsEqiAscii("AD")) { // @v10.5.11
 							if(!(p_current_item->Flags & BdtTestItem::fAD)) {
-								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Nonce, temp_data_buffer));
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Aad, temp_data_buffer));
 								p_current_item->Flags |= BdtTestItem::fAD;
 							}
                         }
@@ -3352,8 +3353,60 @@ SlHash::State::R::R()
 static int TestCrypto(const SString & rInFileName, const char * pSetName, int alg, int kbl, int algmod)
 {
 	int    ok = 1;
+	{
+		const char * p_password = "test_crypto_password";
+		const size_t pattern_buf_size = SKILOBYTE(4096);
+		const size_t pattern_work_size = pattern_buf_size /*- 13*/;
+		const size_t gcm_tag_size = 12;
+		uint8 gcm_tag[16]; // really 12 bytes
+		SlCrypto::Key key;
+		//size_t total_encr_size = 0;
+		//size_t work_offs = 0;
+		//size_t total_decr_size = 0;
+		//size_t actual_size = 0;
+		//STempBuffer dest_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
+		STempBuffer pattern_buf(pattern_buf_size);
+		//STempBuffer result_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
+		SBinaryChunk bc_result;
+		SBinaryChunk bc_dest; // 
+		SBinaryChunk bc_tag;
+		bc_tag.Set(0, 16);
+		bc_result.Randomize(pattern_buf_size + SKILOBYTE(512));
+		//SObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
+		SObfuscateBuffer(pattern_buf.vptr(), pattern_buf.GetSize());
+		{
+			SlCrypto cs(alg, kbl, algmod);
+			const int skr = cs.SetupKey(key, p_password);
+			assert(skr);
+			//work_offs = 0;
+			//actual_size = 0;
+			const int er = cs.Encrypt(key, pattern_buf.vptr(/*total_encr_size*/), pattern_work_size, bc_result, &bc_tag);
+			assert(er);
+			//work_offs += actual_size;
+			//total_encr_size += pattern_work_size;
+			//total_encr_size += actual_size;
+		}
+		{
+			SlCrypto cs(alg, kbl, algmod);
+			const int ckr = cs.SetupKey(key, p_password);
+			assert(ckr);
+			//work_offs = 0;
+			//actual_size = 0;
+			const int dr = cs.Decrypt(key, bc_result.PtrC(), bc_result.Len(), bc_dest, &bc_tag);
+			assert(dr);
+			//work_offs += actual_size;
+			//total_decr_size += total_encr_size;
+			//total_decr_size += actual_size;
+		}
+		assert(bc_dest.Len() == pattern_work_size);
+		int r = memcmp(bc_dest.PtrC(), pattern_buf.vcptr(), pattern_work_size);
+		assert(r == 0);
+	}
 	if(!isempty(pSetName)) {
-		STempBuffer result_buf(SKILOBYTE(512));
+		//STempBuffer result_buf(SKILOBYTE(512));
+		SBinaryChunk bc_result;
+		SBinaryChunk bc_tag;
+		
 		TSCollection <BdtTestItem> data_set;
 		ReadBdtTestData(rInFileName, pSetName, data_set);
 		SlCrypto cs(alg, kbl, algmod);
@@ -3363,52 +3416,21 @@ static int TestCrypto(const SString & rInFileName, const char * pSetName, int al
 			const void * p_src_buf = p_item->In.GetBufC();
 			const size_t pattern_size = p_item->Out.GetLen();
 			const void * p_pattern_buf = p_item->Out.GetBufC();
-			size_t total_size = 0;
+			//size_t total_size = 0;
 			SlCrypto::Key key;
-			assert(cs.SetupKey(key, p_item->Key.GetBufC(), p_item->Key.GetLen()));
+			bc_tag.Set(0, 16);
+			{
+				int skr = cs.SetupKey(key, p_item->Key.GetBufC(), p_item->Key.GetLen(), p_item->Nonce.GetBufC(), p_item->Nonce.GetLen(), p_item->Aad.GetBufC(), p_item->Aad.GetLen());
+				assert(skr);
+			}
 			size_t actual_size = 0;
-			assert(cs.Encrypt_(&key, p_src_buf, src_size, result_buf.vptr(total_size), result_buf.GetSize()-total_size, &actual_size));
-			total_size += actual_size;
-			assert(total_size >= pattern_size);
-			assert(memcmp(result_buf.vptr(), p_pattern_buf, pattern_size) == 0);
+			const int er = cs.Encrypt(key, p_src_buf, src_size, bc_result, &bc_tag);
+			assert(er);
+			//total_size += actual_size;
+			//assert(total_size >= pattern_size);
+			const int mcr = memcmp(bc_result.PtrC(), p_pattern_buf, pattern_size);
+			assert(mcr == 0);
 		}
-	}
-	{
-		const char * p_password = "test_crypto_password";
-		const size_t pattern_buf_size = SKILOBYTE(4096);
-		const size_t pattern_work_size = pattern_buf_size /*- 13*/;
-		SlCrypto::Key key;
-		size_t total_encr_size = 0;
-		size_t work_offs = 0;
-		size_t total_decr_size = 0;
-		size_t actual_size = 0;
-		STempBuffer dest_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
-		STempBuffer pattern_buf(pattern_buf_size);
-		STempBuffer result_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
-		SObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
-		SObfuscateBuffer(pattern_buf.vptr(), pattern_buf.GetSize());
-		{
-			SlCrypto cs(alg, kbl, algmod);
-			assert(cs.SetupKey(key, p_password));
-			work_offs = 0;
-			actual_size = 0;
-			assert(cs.Encrypt_(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
-			work_offs += actual_size;
-			//total_encr_size += pattern_work_size;
-			total_encr_size += actual_size;
-		}
-		{
-			SlCrypto cs(alg, kbl, algmod);
-			assert(cs.SetupKey(key, p_password));
-			work_offs = 0;
-			actual_size = 0;
-			assert(cs.Decrypt_(&key, result_buf.vptr(total_decr_size), total_encr_size, dest_buf.vptr(work_offs), dest_buf.GetSize()-work_offs, &actual_size));
-			work_offs += actual_size;
-			//total_decr_size += total_encr_size;
-			total_decr_size += actual_size;
-		}
-		int r = memcmp(dest_buf.vcptr(), pattern_buf.vcptr(), pattern_work_size);
-		assert(r == 0);
 	}
 	return ok;
 }
@@ -3420,6 +3442,22 @@ void TestCRC()
 	data_trasform_path.SetLastDSlash().Cat("data/DataTransform").SetLastDSlash();
 	SString in_file_name;
 	TSCollection <BdtTestItem> data_set;
+	{
+		(in_file_name = data_trasform_path).Cat("gcm.vec");
+		TestCrypto(in_file_name, "AES-128/GCM", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm); // nonce 
+		TestCrypto(in_file_name, "AES-128/GCM(12)", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm); // nonce ad
+		TestCrypto(in_file_name, "AES-192/GCM", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodGcm); // nonce ad
+		TestCrypto(in_file_name, "AES-192/GCM(12)", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodGcm); // nonce ad
+		TestCrypto(in_file_name, "AES-256/GCM", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm); // nonce ad
+		TestCrypto(in_file_name, "AES-256/GCM(12)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm); // nonce ad
+		TestCrypto(in_file_name, "AES-256/GCM(13)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm); // nonce ad
+		TestCrypto(in_file_name, "AES-256/GCM(14)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm); // nonce ad
+		TestCrypto(in_file_name, "AES-256/GCM(15)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm); // nonce ad
+		// Wycheproof GCM tests
+		TestCrypto(in_file_name, "AES-128/GCM(8)", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm); // nonce ad
+		// (will be processed above) TestCrypto(in_file_name, "AES-128/GCM(12)", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm); // nonce ad
+		// (will be processed above) TestCrypto(in_file_name, "AES-128/GCM", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm); // nonce ad
+	}
 	{
 		(in_file_name = data_trasform_path).Cat("aes.vec");
 		TestCrypto(in_file_name, "AES-128", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);

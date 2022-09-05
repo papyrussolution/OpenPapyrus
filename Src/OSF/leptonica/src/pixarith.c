@@ -789,15 +789,11 @@ PIX * pixFinalAccumulateThreshold(PIX * pixs,
  *      (3) The alignment is to the origin [UL corner] of pixs & pixd.
  * </pre>
  */
-l_ok pixAccumulate(PIX * pixd,
-    PIX * pixs,
-    int32 op)
+l_ok pixAccumulate(PIX * pixd, PIX * pixs, int32 op)
 {
 	int32 i, j, w, h, d, wd, hd, wpls, wpld;
 	uint32  * datas, * datad, * lines, * lined;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixd || (pixGetDepth(pixd) != 32))
 		return ERROR_INT("pixd not defined or not 32 bpp", procName, 1);
 	if(!pixs)
@@ -806,9 +802,7 @@ l_ok pixAccumulate(PIX * pixd,
 	if(d != 1 && d != 8 && d != 16 && d != 32)
 		return ERROR_INT("pixs not 1, 8, 16 or 32 bpp", procName, 1);
 	if(op != L_ARITH_ADD && op != L_ARITH_SUBTRACT)
-		return ERROR_INT("op must be in {L_ARITH_ADD, L_ARITH_SUBTRACT}",
-			   procName, 1);
-
+		return ERROR_INT("op must be in {L_ARITH_ADD, L_ARITH_SUBTRACT}", procName, 1);
 	datas = pixGetData(pixs);
 	datad = pixGetData(pixd);
 	wpls = pixGetWpl(pixs);

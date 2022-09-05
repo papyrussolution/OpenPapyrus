@@ -8,17 +8,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
-#include <openssl/err.h>
-#include <openssl/pem.h>
-#include <openssl/cms.h>
 #include "cms_lcl.h"
 
 int CMS_stream(uchar *** boundary, CMS_ContentInfo * cms)
 {
-	ASN1_OCTET_STRING ** pos;
-	pos = CMS_get0_content(cms);
+	ASN1_OCTET_STRING ** pos = CMS_get0_content(cms);
 	if(pos == NULL)
 		return 0;
 	if(*pos == NULL)

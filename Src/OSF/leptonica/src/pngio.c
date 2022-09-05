@@ -245,13 +245,10 @@ PIX * pixReadStreamPng(FILE * fp)
 
 	/* Remove if/when this is implemented for all bit_depths */
 	if(spp != 1 && bit_depth != 8) {
-		L_ERROR("spp = %d and bps = %d != 8\n"
-		    "turn on 16 --> 8 stripping\n", procName, spp, bit_depth);
+		L_ERROR("spp = %d and bps = %d != 8\nturn on 16 --> 8 stripping\n", procName, spp, bit_depth);
 		png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-		return (PIX *)ERROR_PTR("not implemented for this image",
-			   procName, NULL);
+		return (PIX *)ERROR_PTR("not implemented for this image", procName, NULL);
 	}
-
 	cmap = NULL;
 	if(color_type == PNG_COLOR_TYPE_PALETTE ||
 	    color_type == PNG_COLOR_MASK_PALETTE) { /* generate a colormap */
@@ -331,8 +328,7 @@ PIX * pixReadStreamPng(FILE * fp)
 	if(spp == 1 && tRNS) {
 		if(!cmap) {
 			/* Case 1: make fully transparent RGBA image */
-			L_INFO("transparency, 1 spp, no colormap, no transparency array: "
-			    "convention is fully transparent image\n", procName);
+			L_INFO("transparency, 1 spp, no colormap, no transparency array: convention is fully transparent image\n", procName);
 			L_INFO("converting (fully transparent 1 spp) ==> RGBA\n", procName);
 			pixDestroy(&pix);
 			pix = pixCreate(w, h, 32); /* init to alpha = 0 (transparent) */
@@ -340,14 +336,12 @@ PIX * pixReadStreamPng(FILE * fp)
 		}
 		else {
 			L_INFO("converting (cmap + alpha) ==> RGBA\n", procName);
-
 			/* Grab the transparency array */
 			png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, NULL);
 			if(!trans) { /* invalid png file */
 				pixDestroy(&pix);
 				png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-				return (PIX *)ERROR_PTR("cmap, tRNS, but no transparency array",
-					   procName, NULL);
+				return (PIX *)ERROR_PTR("cmap, tRNS, but no transparency array", procName, NULL);
 			}
 
 			/* Save the cmap and destroy the pix */
@@ -382,8 +376,7 @@ PIX * pixReadStreamPng(FILE * fp)
 				/* Case 2: 1 bpp with transparency (usually) behind white */
 				L_INFO("converting 1 bpp cmap with alpha ==> RGBA\n", procName);
 				if(num_trans == 1)
-					L_INFO("num_trans = 1; second color opaque by default\n",
-					    procName);
+					L_INFO("num_trans = 1; second color opaque by default\n", procName);
 				for(i = 0; i < h; i++) {
 					ppixel = data + i * wpl;
 					rowptr = row_pointers[i];
@@ -460,13 +453,11 @@ PIX * pixReadStreamPng(FILE * fp)
 				}
 			}
 			else {
-				L_ERROR("spp == 1, cmap, trans array, invalid depth: %d\n",
-				    procName, d);
+				L_ERROR("spp == 1, cmap, trans array, invalid depth: %d\n", procName, d);
 			}
 			pixcmapDestroy(&cmap);
 		}
 	}
-
 #if  DEBUG_READ
 	if(cmap) {
 		for(i = 0; i < 16; i++) {
@@ -1707,8 +1698,7 @@ PIX * pixReadMemPng(const uint8  * filedata, size_t filesize)
 	if(spp == 1 && tRNS) {
 		if(!cmap) {
 			/* Case 1: make fully transparent RGBA image */
-			L_INFO("transparency, 1 spp, no colormap, no transparency array: "
-			    "convention is fully transparent image\n", procName);
+			L_INFO("transparency, 1 spp, no colormap, no transparency array: convention is fully transparent image\n", procName);
 			L_INFO("converting (fully transparent 1 spp) ==> RGBA\n", procName);
 			pixDestroy(&pix);
 			pix = pixCreate(w, h, 32); /* init to alpha = 0 (transparent) */
@@ -1716,16 +1706,13 @@ PIX * pixReadMemPng(const uint8  * filedata, size_t filesize)
 		}
 		else {
 			L_INFO("converting (cmap + alpha) ==> RGBA\n", procName);
-
 			/* Grab the transparency array */
 			png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, NULL);
 			if(!trans) { /* invalid png file */
 				pixDestroy(&pix);
 				png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-				return (PIX *)ERROR_PTR("cmap, tRNS, but no transparency array",
-					   procName, NULL);
+				return (PIX *)ERROR_PTR("cmap, tRNS, but no transparency array", procName, NULL);
 			}
-
 			/* Save the cmap and destroy the pix */
 			cmap = pixcmapCopy(pixGetColormap(pix));
 			ncolors = pixcmapGetCount(cmap);
@@ -1758,8 +1745,7 @@ PIX * pixReadMemPng(const uint8  * filedata, size_t filesize)
 				/* Case 2: 1 bpp with transparency (usually) behind white */
 				L_INFO("converting 1 bpp cmap with alpha ==> RGBA\n", procName);
 				if(num_trans == 1)
-					L_INFO("num_trans = 1; second color opaque by default\n",
-					    procName);
+					L_INFO("num_trans = 1; second color opaque by default\n", procName);
 				for(i = 0; i < h; i++) {
 					ppixel = data + i * wpl;
 					rowptr = row_pointers[i];
@@ -1838,8 +1824,7 @@ PIX * pixReadMemPng(const uint8  * filedata, size_t filesize)
 				}
 			}
 			else {
-				L_ERROR("spp == 1, cmap, trans array, invalid depth: %d\n",
-				    procName, d);
+				L_ERROR("spp == 1, cmap, trans array, invalid depth: %d\n", procName, d);
 			}
 			pixcmapDestroy(&cmap);
 		}

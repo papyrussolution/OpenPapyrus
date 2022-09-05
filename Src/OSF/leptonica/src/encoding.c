@@ -69,15 +69,9 @@ static void byteConvert4to3(uint8 * in4, uint8 * out3);
 
 /* Ascii85 encoding */
 static const int32 MAX_ASCII85_LINE   = 64; /* max line length ascii85 */
-static const uint32 power85[5] = {1,
-				    85,
-				    85 * 85,
-				    85 * 85 * 85,
-				    85 * 85 * 85 * 85};
+static const uint32 power85[5] = {1, 85, 85 * 85, 85 * 85 * 85, 85 * 85 * 85 * 85};
 
-static int32 convertChunkToAscii85(const uint8 * inarray, size_t insize,
-    int32 * pindex, char * outbuf,
-    int32 * pnbout);
+static int32 convertChunkToAscii85(const uint8 * inarray, size_t insize, int32 * pindex, char * outbuf, int32 * pnbout);
 
 /*-------------------------------------------------------------*
 *      Utility for encoding and decoding data with base64     *

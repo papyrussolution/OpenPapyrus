@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-//#include <evp_int.h>
 #include "evp_locl.h"
 
 static int update(EVP_MD_CTX * ctx, const void * data, size_t datalen)

@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
 #include "pcy_int.h"
 
 /* Policy Node routines */

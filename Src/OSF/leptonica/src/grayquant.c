@@ -2115,11 +2115,9 @@ PIX * pixGenerateMaskByBand32(PIX * pixs,
 		bmax = bref + (int32)(fractp * (255 - bref));
 	}
 	else {
-		L_ERROR("bad input: either (delm, delp) or (fractm, fractp) "
-		    "must be 0\n", procName);
+		L_ERROR("bad input: either (delm, delp) or (fractm, fractp) must be 0\n", procName);
 		return NULL;
 	}
-
 	pixd = pixCreate(w, h, 1);
 	pixCopyResolution(pixd, pixs);
 	pixCopyInputFormat(pixd, pixs);

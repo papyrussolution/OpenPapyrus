@@ -2010,8 +2010,7 @@ static int32 generatePreXStringsPdf(L_PDF_DATA  * lpd)
 				else if(cid->spp == 3)
 					cstr = stringNew("/ColorSpace /DeviceRGB");
 				else
-					L_ERROR("unknown colorspace: spp = %d\n",
-					    procName, cid->spp);
+					L_ERROR("unknown colorspace: spp = %d\n", procName, cid->spp);
 			}
 			snprintf(buff, sizeof(buff), "/BitsPerComponent %d", cid->bps);
 			bstr = stringNew(buff);

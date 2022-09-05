@@ -204,45 +204,45 @@ typedef struct ERR_string_data_st {
 
 DEFINE_LHASH_OF(ERR_STRING_DATA);
 
-void  FASTCALL ERR_put_error(int lib, int func, int reason, const char *file, int line);
-void  ERR_set_error_data(char *data, int flags);
-ulong ERR_get_error(void);
-ulong ERR_get_error_line(const char **file, int *line);
-ulong ERR_get_error_line_data(const char **file, int *line, const char **data, int *flags);
-ulong ERR_peek_error(void);
-ulong ERR_peek_error_line(const char **file, int *line);
-ulong ERR_peek_error_line_data(const char **file, int *line, const char **data, int *flags);
-ulong ERR_peek_last_error(void);
-ulong ERR_peek_last_error_line(const char **file, int *line);
-ulong ERR_peek_last_error_line_data(const char **file, int *line, const char **data, int *flags);
-void ERR_clear_error(void);
-char *ERR_error_string(ulong e, char *buf);
-void ERR_error_string_n(ulong e, char *buf, size_t len);
-const char *ERR_lib_error_string(ulong e);
-const char *ERR_func_error_string(ulong e);
-const char *ERR_reason_error_string(ulong e);
-void ERR_print_errors_cb(int (*cb) (const char *str, size_t len, void *u), void *u);
+void   FASTCALL ERR_put_error(int lib, int func, int reason, const char *file, int line);
+void   ERR_set_error_data(char *data, int flags);
+ulong  ERR_get_error();
+ulong  ERR_get_error_line(const char **file, int *line);
+ulong  ERR_get_error_line_data(const char **file, int *line, const char **data, int *flags);
+ulong  ERR_peek_error();
+ulong  ERR_peek_error_line(const char **file, int *line);
+ulong  ERR_peek_error_line_data(const char **file, int *line, const char **data, int *flags);
+ulong  ERR_peek_last_error();
+ulong  ERR_peek_last_error_line(const char **file, int *line);
+ulong  ERR_peek_last_error_line_data(const char **file, int *line, const char **data, int *flags);
+void   ERR_clear_error();
+char * ERR_error_string(ulong e, char *buf);
+void   ERR_error_string_n(ulong e, char *buf, size_t len);
+const  char * ERR_lib_error_string(ulong e);
+const  char * ERR_func_error_string(ulong e);
+const  char * ERR_reason_error_string(ulong e);
+void   ERR_print_errors_cb(int (*cb) (const char *str, size_t len, void *u), void *u);
 #ifndef OPENSSL_NO_STDIO
 	void ERR_print_errors_fp(FILE *fp);
 #endif
 void ERR_print_errors(BIO *bp);
 void ERR_add_error_data(int num, ...);
 void ERR_add_error_vdata(int num, va_list args);
-int ERR_load_strings(int lib, ERR_STRING_DATA *str);
-int ERR_load_strings_const(const ERR_STRING_DATA *str);
-int ERR_unload_strings(int lib, ERR_STRING_DATA *str);
-int ERR_load_ERR_strings(void);
+int  ERR_load_strings(int lib, ERR_STRING_DATA *str);
+int  ERR_load_strings_const(const ERR_STRING_DATA *str);
+int  ERR_unload_strings(int lib, ERR_STRING_DATA *str);
+int  ERR_load_ERR_strings();
 #if OPENSSL_API_COMPAT < 0x10100000L
 	#define ERR_load_crypto_strings() OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)
 	#define ERR_free_strings() while(0) continue
 #endif
 DEPRECATEDIN_1_1_0(void ERR_remove_thread_state(void *))
 DEPRECATEDIN_1_0_0(void ERR_remove_state(ulong pid))
-ERR_STATE *ERR_get_state(void);
-int ERR_get_next_error_library(void);
-int ERR_set_mark(void);
-int ERR_pop_to_mark(void);
-int ERR_clear_last_mark(void);
+ERR_STATE * ERR_get_state();
+int ERR_get_next_error_library();
+int ERR_set_mark();
+int ERR_pop_to_mark();
+int ERR_clear_last_mark();
 
 #ifdef  __cplusplus
 }

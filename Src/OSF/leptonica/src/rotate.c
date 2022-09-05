@@ -496,24 +496,18 @@ PIX * pixRotateBinaryNice(PIX * pixs,
  *          dark regions.
  * </pre>
  */
-PIX * pixRotateWithAlpha(PIX * pixs,
-    float angle,
-    PIX * pixg,
-    float fract)
+PIX * pixRotateWithAlpha(PIX * pixs, float angle, PIX * pixg, float fract)
 {
 	int32 ws, hs, d, spp;
 	PIX * pixd, * pix32, * pixg2, * pixgr;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &ws, &hs, &d);
 	if(d != 32 && pixGetColormap(pixs) == NULL)
 		return (PIX *)ERROR_PTR("pixs not cmapped or 32 bpp", procName, NULL);
 	if(pixg && pixGetDepth(pixg) != 8) {
-		L_WARNING("pixg not 8 bpp; using 'fract' transparent alpha\n",
-		    procName);
+		L_WARNING("pixg not 8 bpp; using 'fract' transparent alpha\n", procName);
 		pixg = NULL;
 	}
 	if(!pixg && (fract < 0.0 || fract > 1.0)) {

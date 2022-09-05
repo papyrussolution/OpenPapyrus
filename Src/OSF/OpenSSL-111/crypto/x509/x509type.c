@@ -8,18 +8,13 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
 
 int X509_certificate_type(const X509 * x, const EVP_PKEY * pkey)
 {
 	const EVP_PKEY * pk;
 	int ret = 0, i;
-
 	if(!x)
 		return 0;
-
 	if(!pkey)
 		pk = X509_get0_pubkey(x);
 	else

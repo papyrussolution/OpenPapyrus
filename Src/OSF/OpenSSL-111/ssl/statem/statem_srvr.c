@@ -12,16 +12,6 @@
 #pragma hdrstop
 #include "statem_locl.h"
 #include "internal/constant_time_locl.h"
-//#include "internal/cryptlib.h"
-#include <openssl/buffer.h>
-#include <openssl/rand.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/hmac.h>
-#include <openssl/x509.h>
-#include <openssl/dh.h>
-#include <openssl/bn.h>
-#include <openssl/md5.h>
 
 #define TICKET_NONCE_SIZE       8
 

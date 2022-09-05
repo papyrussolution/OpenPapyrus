@@ -361,31 +361,23 @@ l_ok dewarpaSetValidModels(L_DEWARPA * dewa,
 					    procName, i, diffcurv);
 				if(dew->hsuccess) {
 					if(L_ABS(dew->leftslope) > dewa->max_edgeslope)
-						L_INFO("page %d: abs left slope %d > max_edgeslope\n",
-						    procName, i, dew->leftslope);
+						L_INFO("page %d: abs left slope %d > max_edgeslope\n", procName, i, dew->leftslope);
 					if(L_ABS(dew->rightslope) > dewa->max_edgeslope)
-						L_INFO("page %d: abs right slope %d > max_edgeslope\n",
-						    procName, i, dew->rightslope);
+						L_INFO("page %d: abs right slope %d > max_edgeslope\n", procName, i, dew->rightslope);
 					diffedge = L_ABS(dew->leftcurv - dew->rightcurv);
 					if(L_ABS(dew->leftcurv) > dewa->max_edgecurv)
-						L_INFO("page %d: left curvature %d > max_edgecurv\n",
-						    procName, i, dew->leftcurv);
+						L_INFO("page %d: left curvature %d > max_edgecurv\n", procName, i, dew->leftcurv);
 					if(L_ABS(dew->rightcurv) > dewa->max_edgecurv)
-						L_INFO("page %d: right curvature %d > max_edgecurv\n",
-						    procName, i, dew->rightcurv);
+						L_INFO("page %d: right curvature %d > max_edgecurv\n", procName, i, dew->rightcurv);
 					if(diffedge > dewa->max_diff_edgecurv)
-						L_INFO("page %d: abs diff left-right curv %d > "
-						    "max_diff_edgecurv\n", procName, i, diffedge);
+						L_INFO("page %d: abs diff left-right curv %d > max_diff_edgecurv\n", procName, i, diffedge);
 				}
 			}
 		}
-
 		dewarpaTestForValidModel(dewa, dew, notests);
 	}
-
 	return 0;
 }
-
 /*!
  * \brief   dewarpaInsertRefModels()
  *

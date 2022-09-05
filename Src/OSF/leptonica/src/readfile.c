@@ -1354,8 +1354,7 @@ l_ok ioFormatTest(const char * filename)
 	pix1 = pixRead(FILE_TIFF);
 	pixEqual(pixc, pix1, &equal);
 	if(!equal) {
-		L_INFO("   **** bad tiff uncompressed image: d = %d ****\n",
-		    procName, d);
+		L_INFO("   **** bad tiff uncompressed image: d = %d ****\n", procName, d);
 		problems = TRUE;
 	}
 	pixDestroy(&pix1);
@@ -1366,8 +1365,7 @@ l_ok ioFormatTest(const char * filename)
 	pix1 = pixRead(FILE_LZW);
 	pixEqual(pixc, pix1, &equal);
 	if(!equal) {
-		L_INFO("   **** bad tiff lzw compressed image: d = %d ****\n",
-		    procName, d);
+		L_INFO("   **** bad tiff lzw compressed image: d = %d ****\n", procName, d);
 		problems = TRUE;
 	}
 	pixDestroy(&pix1);
@@ -1378,8 +1376,7 @@ l_ok ioFormatTest(const char * filename)
 	pix1 = pixRead(FILE_ZIP);
 	pixEqual(pixc, pix1, &equal);
 	if(!equal) {
-		L_INFO("   **** bad tiff zip compressed image: d = %d ****\n",
-		    procName, d);
+		L_INFO("   **** bad tiff zip compressed image: d = %d ****\n", procName, d);
 		problems = TRUE;
 	}
 	pixDestroy(&pix1);
@@ -1401,22 +1398,18 @@ l_ok ioFormatTest(const char * filename)
 			pixWrite(FILE_TIFF_JPEG, pixc, IFF_TIFF_JPEG);
 			pix1 = pixRead(FILE_TIFF_JPEG);
 			if(d == 8) {
-				pixCompareGray(pix1, pixc, L_COMPARE_ABS_DIFF, 0, NULL, &diff,
-				    NULL, NULL);
+				pixCompareGray(pix1, pixc, L_COMPARE_ABS_DIFF, 0, NULL, &diff, NULL, NULL);
 			}
 			else {
-				pixCompareRGB(pix1, pixc, L_COMPARE_ABS_DIFF, 0, NULL, &diff,
-				    NULL, NULL);
+				pixCompareRGB(pix1, pixc, L_COMPARE_ABS_DIFF, 0, NULL, &diff, NULL, NULL);
 			}
 			if(diff > 8.0) {
-				L_INFO("   **** bad tiff jpeg compressed image: "
-				    "d = %d, diff = %5.2f ****\n", procName, d, diff);
+				L_INFO("   **** bad tiff jpeg compressed image: d = %d, diff = %5.2f ****\n", procName, d, diff);
 				problems = TRUE;
 			}
 		}
 		pixDestroy(&pix1);
 	}
-
 	/* tiff g4, g3, rle and packbits work for 1 bpp */
 	if(d == 1) {
 		L_INFO("write/read g4 compressed tiff\n", procName);
@@ -1448,14 +1441,12 @@ l_ok ioFormatTest(const char * filename)
 			problems = TRUE;
 		}
 		pixDestroy(&pix1);
-
 		L_INFO("write/read packbits compressed tiff\n", procName);
 		pixWrite(FILE_PB, pixc, IFF_TIFF_PACKBITS);
 		pix1 = pixRead(FILE_PB);
 		pixEqual(pixc, pix1, &equal);
 		if(!equal) {
-			L_INFO("   **** bad tiff packbits image: d = %d ****\n",
-			    procName, d);
+			L_INFO("   **** bad tiff packbits image: d = %d ****\n", procName, d);
 			problems = TRUE;
 		}
 		pixDestroy(&pix1);

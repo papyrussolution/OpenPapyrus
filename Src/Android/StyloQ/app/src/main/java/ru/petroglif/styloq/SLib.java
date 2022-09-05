@@ -41,6 +41,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 import org.jetbrains.annotations.NotNull;
@@ -1502,6 +1504,7 @@ public class SLib {
 			Type = type;
 			Id = id;
 		}
+		boolean IsEmpty() { return (Type == 0); }
 		//
 		// Descr: Идентифицирует тип и идентификатор объекта по строковым представлениям
 		//   objtype and objid.
@@ -5196,10 +5199,7 @@ public class SLib {
 				RTmr = null;
 			}
 		}
-		public void OnButtonClk(View view)
-		{
-			HandleEvent(EV_COMMAND, view, null);
-		}
+		public void OnButtonClk(View view) { HandleEvent(EV_COMMAND, view, null); }
 		public void SetupRecyclerListView(View parentView, int rcListView, int rcItemView)
 		{
 			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
@@ -5445,6 +5445,8 @@ public class SLib {
 		if(spinner_view != null) {
 			StrAssocSpinnerAdapter adapter = new StrAssocSpinnerAdapter(ctx, data);
 			spinner_view.setAdapter(adapter);
+			int sel_pos = (initValue != 0) ? adapter.GetIdxById(initValue) : AdapterView.INVALID_POSITION;
+			spinner_view.setSelection(sel_pos);
 			{
 				spinner_view.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 					public void onItemSelected(AdapterView<?> adapterView, View view, int idx, long id)
@@ -5468,8 +5470,6 @@ public class SLib {
 					}
 				});
 			}
-			int sel_pos = (initValue != 0) ? adapter.GetIdxById(initValue) : AdapterView.INVALID_POSITION;
-			spinner_view.setSelection(sel_pos);
 		}
 	}
 	public static boolean SetStrAssocComboData(Object parentView, int rcId, int value)
@@ -5537,7 +5537,8 @@ public class SLib {
 			if(SLib.GetLen(blobSignature) > 0) {
 				imgv.setVisibility(View.VISIBLE);
 				Glide.with(activity).load(GlideSupport.ModelPrefix + blobSignature)./*centerCrop().*/
-					/*signature(new ObjectKey(blobSignature)).*/into(imgv);
+					/*signature(new ObjectKey(blobSignature)).*/
+					apply(RequestOptions.bitmapTransform(new RoundedCorners(16/*R.dimen.outerimgroundedcorners*/))).into(imgv);
 			}
 			else if(!dontRemoveIfNoImg)
 				imgv.setVisibility(View.GONE);

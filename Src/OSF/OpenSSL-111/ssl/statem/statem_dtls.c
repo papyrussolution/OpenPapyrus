@@ -9,11 +9,6 @@
 #include "ssl_locl.h"
 #pragma hdrstop
 #include "statem_locl.h"
-//#include "internal/cryptlib.h"
-#include <openssl/buffer.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/x509.h>
 
 #define RSMBLY_BITMASK_SIZE(msg_len) (((msg_len) + 7) / 8)
 
@@ -35,19 +30,12 @@
 		if(is_complete) for(ii = (((msg_len) - 1) >> 3) - 1; ii >= 0; ii--) \
 				if(bitmask[ii] != 0xff) { is_complete = 0; break; }}
 
-static uchar bitmask_start_values[] =
-{ 0xff, 0xfe, 0xfc, 0xf8, 0xf0, 0xe0, 0xc0, 0x80 };
-static uchar bitmask_end_values[] =
-{ 0xff, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f };
+static uchar bitmask_start_values[] = { 0xff, 0xfe, 0xfc, 0xf8, 0xf0, 0xe0, 0xc0, 0x80 };
+static uchar bitmask_end_values[] = { 0xff, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f };
 
-static void dtls1_fix_message_header(SSL * s, size_t frag_off,
-    size_t frag_len);
+static void dtls1_fix_message_header(SSL * s, size_t frag_off, size_t frag_len);
 static uchar * dtls1_write_message_header(SSL * s, uchar * p);
-static void dtls1_set_message_header_int(SSL * s, uchar mt,
-    size_t len,
-    ushort seq_num,
-    size_t frag_off,
-    size_t frag_len);
+static void dtls1_set_message_header_int(SSL * s, uchar mt, size_t len, ushort seq_num, size_t frag_off, size_t frag_len);
 static int dtls_get_reassembled_message(SSL * s, int * errtype, size_t * len);
 
 static hm_fragment * dtls1_hm_fragment_new(size_t frag_len, int reassembly)
@@ -55,12 +43,10 @@ static hm_fragment * dtls1_hm_fragment_new(size_t frag_len, int reassembly)
 	hm_fragment * frag = NULL;
 	uchar * buf = NULL;
 	uchar * bitmask = NULL;
-
 	if((frag = static_cast<hm_fragment *>(OPENSSL_malloc(sizeof(*frag)))) == NULL) {
 		SSLerr(SSL_F_DTLS1_HM_FRAGMENT_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	if(frag_len) {
 		if((buf = static_cast<uchar *>(OPENSSL_malloc(frag_len))) == NULL) {
 			SSLerr(SSL_F_DTLS1_HM_FRAGMENT_NEW, ERR_R_MALLOC_FAILURE);

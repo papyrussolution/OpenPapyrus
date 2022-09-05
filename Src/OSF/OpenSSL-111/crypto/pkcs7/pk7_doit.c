@@ -8,22 +8,14 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/rand.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-#include <openssl/err.h>
 
-static int add_attribute(STACK_OF(X509_ATTRIBUTE) ** sk, int nid, int atrtype,
-    void * value);
+static int add_attribute(STACK_OF(X509_ATTRIBUTE) ** sk, int nid, int atrtype, void * value);
 static ASN1_TYPE * get_attribute(STACK_OF(X509_ATTRIBUTE) * sk, int nid);
 
 static int PKCS7_type_is_other(PKCS7 * p7)
 {
 	int isOther = 1;
-
 	int nid = OBJ_obj2nid(p7->type);
-
 	switch(nid) {
 		case NID_pkcs7_data:
 		case NID_pkcs7_signed:
@@ -36,7 +28,6 @@ static int PKCS7_type_is_other(PKCS7 * p7)
 		default:
 		    isOther = 1;
 	}
-
 	return isOther;
 }
 

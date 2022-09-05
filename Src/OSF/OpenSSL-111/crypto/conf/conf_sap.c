@@ -9,9 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "internal/conf.h"
-#include <openssl/x509.h>
-#include <openssl/asn1.h>
-#include <openssl/engine.h>
 #ifdef _WIN32
 	#define strdup _strdup
 #endif

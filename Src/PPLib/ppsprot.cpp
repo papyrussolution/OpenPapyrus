@@ -35,7 +35,7 @@ int FASTCALL PPJobSrvReply::FinishWriting(int hdrFlags)
 {
 	int    ok = 1;
 	if(State & stStructured) {
-		Header * p_hdr = static_cast<Header *>(Ptr(GetRdOffs()));
+		Header01 * p_hdr = static_cast<Header01 *>(Ptr(GetRdOffs()));
 		p_hdr->DataLen = static_cast<int32>(GetAvailableSize());
 		p_hdr->Type = DataType;
 		if(hdrFlags)
@@ -83,22 +83,22 @@ void PPJobSrvReply::SetAck()
 //
 /*static*/const uint8 PPJobSrvProtocol::CurrentProtocolVer = 1; // @v11.0.10 int16-->uint8
 
-PPJobSrvProtocol::Header::Header() : Zero(0), ProtocolVer(0), DataLen(0), Type(0), Flags(0), Padding(0)
+PPJobSrvProtocol::Header01::Header01() : Zero(0), ProtocolVer(0), DataLen(0), Type(0), Flags(0), Padding(0)
 {
 }
 
-PPJobSrvProtocol::Header & PPJobSrvProtocol::Header::Z()
+PPJobSrvProtocol::Header01 & PPJobSrvProtocol::Header01::Z()
 {
 	THISZERO();
 	return *this;
 }
 
-SString & FASTCALL PPJobSrvProtocol::Header::ToStr(SString & rBuf) const
+SString & FASTCALL PPJobSrvProtocol::Header01::ToStr(SString & rBuf) const
 {
 	rBuf.Z();
 	if(Zero == 0) {
-		rBuf.CatEq("ProtocolVer", (ulong)ProtocolVer).CatDiv(';', 2).
-			CatEq("Padding", (uint)Padding).CatEq("DataLen", DataLen).CatDiv(';', 2).CatEq("Type", Type).CatDiv(';', 2).Cat("Flags").Eq().CatHex(Flags);
+		rBuf.CatEq("ProtocolVer", static_cast<ulong>(ProtocolVer)).CatDiv(';', 2).
+			CatEq("Padding", static_cast<uint>(Padding)).CatEq("DataLen", DataLen).CatDiv(';', 2).CatEq("Type", Type).CatDiv(';', 2).Cat("Flags").Eq().CatHex(Flags);
 	}
 	else {
 		rBuf.CatChar(reinterpret_cast<const char *>(&Zero)[0]);
@@ -281,7 +281,7 @@ int PPJobSrvCmd::FinishWriting()
 {
 	int    ok = 1;
 	if(State & stStructured) {
-		static_cast<Header *>(Ptr(GetRdOffs()))->DataLen = static_cast<int32>(GetAvailableSize());
+		static_cast<Header01 *>(Ptr(GetRdOffs()))->DataLen = static_cast<int32>(GetAvailableSize());
 	}
 	else {
 		Write("\xD\xA", 2);
@@ -451,7 +451,7 @@ int PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvRep
 		if(rReply.GetH().Flags & PPJobSrvReply::hfInformer) {
 			TempBuf = 0;
 			if(rReply.GetH().Type == PPJobSrvReply::htGenericText) {
-				PPJobSrvReply::Header temp_hdr;
+				PPJobSrvReply::Header01 temp_hdr;
 				rReply.Read(&temp_hdr, sizeof(temp_hdr));
 				TempBuf.Cat(rReply);
 			}

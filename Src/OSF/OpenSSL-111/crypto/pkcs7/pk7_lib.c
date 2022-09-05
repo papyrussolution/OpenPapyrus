@@ -8,16 +8,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-//#include <asn1_int.h>
-//#include <evp_int.h>
 
 long PKCS7_ctrl(PKCS7 * p7, int cmd, long larg, char * parg)
 {
-	int nid;
 	long ret;
-	nid = OBJ_obj2nid(p7->type);
+	int nid = OBJ_obj2nid(p7->type);
 	switch(cmd) {
 		/* NOTE(emilia): does not support detached digested data. */
 		case PKCS7_OP_SET_DETACHED_SIGNATURE:

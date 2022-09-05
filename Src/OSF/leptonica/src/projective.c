@@ -613,27 +613,19 @@ PIX * pixProjectiveGray(PIX * pixs,
  *          Use l_setAlphaMaskBorder() to change these values.
  * </pre>
  */
-PIX * pixProjectivePtaWithAlpha(PIX * pixs,
-    PTA * ptad,
-    PTA * ptas,
-    PIX * pixg,
-    float fract,
-    int32 border)
+PIX * pixProjectivePtaWithAlpha(PIX * pixs, PTA * ptad, PTA * ptas, PIX * pixg, float fract, int32 border)
 {
 	int32 ws, hs, d;
 	PIX * pixd, * pixb1, * pixb2, * pixg2, * pixga;
 	PTA * ptad2, * ptas2;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &ws, &hs, &d);
 	if(d != 32 && pixGetColormap(pixs) == NULL)
 		return (PIX *)ERROR_PTR("pixs not cmapped or 32 bpp", procName, NULL);
 	if(pixg && pixGetDepth(pixg) != 8) {
-		L_WARNING("pixg not 8 bpp; using 'fract' transparent alpha\n",
-		    procName);
+		L_WARNING("pixg not 8 bpp; using 'fract' transparent alpha\n", procName);
 		pixg = NULL;
 	}
 	if(!pixg && (fract < 0.0 || fract > 1.0)) {

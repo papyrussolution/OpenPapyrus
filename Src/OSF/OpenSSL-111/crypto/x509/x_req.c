@@ -8,10 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
 #include <x509_int.h>
-
 /*-
  * X509_REQ_INFO is handled in an unusual way to get round
  * invalid encodings. Some broken certificate requests don't
@@ -30,12 +27,9 @@
  * 3. If it is not empty then some attributes are present.
  *
  */
-
-static int rinf_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it,
-    void * exarg)
+static int rinf_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it, void * exarg)
 {
 	X509_REQ_INFO * rinf = (X509_REQ_INFO*)*pval;
-
 	if(operation == ASN1_OP_NEW_POST) {
 		rinf->attributes = sk_X509_ATTRIBUTE_new_null();
 		if(!rinf->attributes)

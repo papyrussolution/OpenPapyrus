@@ -3913,7 +3913,7 @@ int StyloQProtocol::FinishWriting(const SBinaryChunk * pCryptoKey)
 		THROW_SL(P.Serialize(+1, *this, 0/*!*/));
 	}
 	{
-		Header * p_hdr = static_cast<Header *>(SBuffer::Ptr(SBuffer::GetRdOffs()));
+		Header01 * p_hdr = static_cast<Header01 *>(SBuffer::Ptr(SBuffer::GetRdOffs()));
 		p_hdr->DataLen = static_cast<int32>(SBuffer::GetAvailableSize());
 		SETFLAG(p_hdr->Flags, hfEncrypted, encrypted);
 		p_hdr->Padding = padding;

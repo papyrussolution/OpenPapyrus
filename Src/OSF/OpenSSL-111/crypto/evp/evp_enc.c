@@ -325,7 +325,6 @@ static int evp_EncryptDecryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * out
 			return 0;
 		*outl += inl;
 	}
-
 	if(i != 0)
 		memcpy(ctx->buf, &(in[inl]), i);
 	ctx->buf_len = i;
@@ -406,7 +405,6 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl, const uchar
 			EVPerr(EVP_F_EVP_DECRYPTUPDATE, EVP_R_PARTIALLY_OVERLAPPING);
 			return 0;
 		}
-
 		fix_len = ctx->cipher->do_cipher(ctx, out, in, inl);
 		if(fix_len < 0) {
 			*outl = 0;
@@ -416,17 +414,13 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl, const uchar
 			*outl = fix_len;
 		return 1;
 	}
-
 	if(inl <= 0) {
 		*outl = 0;
 		return inl == 0;
 	}
-
 	if(ctx->flags & EVP_CIPH_NO_PADDING)
 		return evp_EncryptDecryptUpdate(ctx, out, outl, in, inl);
-
 	OPENSSL_assert(b <= sizeof(ctx->final));
-
 	if(ctx->final_used) {
 		/* see comment about PTRDIFF_T comparison above */
 		if(((PTRDIFF_T)out == (PTRDIFF_T)in)
@@ -440,10 +434,8 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl, const uchar
 	}
 	else
 		fix_len = 0;
-
 	if(!evp_EncryptDecryptUpdate(ctx, out, outl, in, inl))
 		return 0;
-
 	/*
 	 * if we have 'decrypted' a multiple of block size, make sure we have a
 	 * copy of this last block
@@ -455,10 +447,8 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl, const uchar
 	}
 	else
 		ctx->final_used = 0;
-
 	if(fix_len)
 		*outl += b;
-
 	return 1;
 }
 

@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/evp.h>
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
 #include <x509_int.h>
 
 ASN1_SEQUENCE_enc(X509_CINF, enc, 0) = {
@@ -32,11 +28,9 @@ IMPLEMENT_ASN1_FUNCTIONS(X509_CINF)
 
 extern void policy_cache_free(X509_POLICY_CACHE * cache);
 
-static int x509_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it,
-    void * exarg)
+static int x509_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it, void * exarg)
 {
 	X509 * ret = (X509*)*pval;
-
 	switch(operation) {
 		case ASN1_OP_D2I_PRE:
 		    CRYPTO_free_ex_data(CRYPTO_EX_INDEX_X509, ret, &ret->ex_data);

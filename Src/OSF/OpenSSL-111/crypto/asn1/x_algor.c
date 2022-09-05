@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/x509.h>
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-//#include <evp_int.h>
 
 ASN1_SEQUENCE(X509_ALGOR) = {
 	ASN1_SIMPLE(X509_ALGOR, algorithm, ASN1_OBJECT),
@@ -30,14 +26,12 @@ ASN1_ITEM_TEMPLATE(X509_ALGORS) =
 {
 	if(alg == NULL)
 		return 0;
-
 	if(ptype != V_ASN1_UNDEF) {
 		if(alg->parameter == NULL)
 			alg->parameter = ASN1_TYPE_new();
 		if(alg->parameter == NULL)
 			return 0;
 	}
-
 	ASN1_OBJECT_free(alg->algorithm);
 	alg->algorithm = aobj;
 
@@ -74,19 +68,16 @@ void X509_ALGOR_get0(const ASN1_OBJECT ** paobj, int * pptype,
 void X509_ALGOR_set_md(X509_ALGOR * alg, const EVP_MD * md)
 {
 	int param_type;
-
 	if(md->flags & EVP_MD_FLAG_DIGALGID_ABSENT)
 		param_type = V_ASN1_UNDEF;
 	else
 		param_type = V_ASN1_NULL;
-
 	X509_ALGOR_set0(alg, OBJ_nid2obj(EVP_MD_type(md)), param_type, NULL);
 }
 
 int X509_ALGOR_cmp(const X509_ALGOR * a, const X509_ALGOR * b)
 {
-	int rv;
-	rv = OBJ_cmp(a->algorithm, b->algorithm);
+	int rv = OBJ_cmp(a->algorithm, b->algorithm);
 	if(rv)
 		return rv;
 	if(!a->parameter && !b->parameter)

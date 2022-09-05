@@ -8,10 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/bn.h>
 #include <openssl/rsa.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
 #include <x509_int.h>
 #include "rsa_locl.h"
 

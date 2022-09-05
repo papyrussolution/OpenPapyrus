@@ -826,26 +826,17 @@ l_ok pixcmapGetColor32(PIXCMAP   * cmap,
  * \param[out]   prval, pgval, pbval, paval    each color value
  * \return  0 if OK, 1 if not accessible caller should check
  */
-l_ok pixcmapGetRGBA(PIXCMAP  * cmap,
-    int32 index,
-    int32 * prval,
-    int32 * pgval,
-    int32 * pbval,
-    int32 * paval)
+l_ok pixcmapGetRGBA(PIXCMAP  * cmap, int32 index, int32 * prval, int32 * pgval, int32 * pbval, int32 * paval)
 {
 	RGBA_QUAD  * cta;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!prval || !pgval || !pbval || !paval)
-		return ERROR_INT("&rval, &gval, &bval, &aval not all defined",
-			   procName, 1);
+		return ERROR_INT("&rval, &gval, &bval, &aval not all defined", procName, 1);
 	*prval = *pgval = *pbval = *paval = 0;
 	if(!cmap)
 		return ERROR_INT("cmap not defined", procName, 1);
 	if(index < 0 || index >= cmap->n)
 		return ERROR_INT("index out of bounds", procName, 1);
-
 	cta = (RGBA_QUAD*)cmap->array;
 	*prval = cta[index].red;
 	*pgval = cta[index].green;

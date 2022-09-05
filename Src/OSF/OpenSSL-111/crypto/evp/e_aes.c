@@ -3107,24 +3107,20 @@ static int aes_gcm_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		}
 		rv = len;
 	}
-
 err:
 	gctx->iv_set = 0;
 	gctx->tls_aad_len = -1;
 	return rv;
 }
 
-static int aes_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t len)
+static int aes_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len)
 {
 	EVP_AES_GCM_CTX * gctx = EVP_C_DATA(EVP_AES_GCM_CTX, ctx);
 	/* If not set up, return error */
 	if(!gctx->key_set)
 		return -1;
-
 	if(gctx->tls_aad_len >= 0)
 		return aes_gcm_tls_cipher(ctx, out, in, len);
-
 	if(!gctx->iv_set)
 		return -1;
 	if(in) {
@@ -3138,22 +3134,14 @@ static int aes_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 #if defined(AES_GCM_ASM)
 				if(len >= 32 && AES_GCM_ASM(gctx)) {
 					size_t res = (16 - gctx->gcm.mres) % 16;
-
 					if(CRYPTO_gcm128_encrypt(&gctx->gcm, in, out, res))
 						return -1;
-
-					bulk = AES_gcm_encrypt(in + res,
-						out + res, len - res,
-						gctx->gcm.key, gctx->gcm.Yi.c,
-						gctx->gcm.Xi.u);
+					bulk = AES_gcm_encrypt(in + res, out + res, len - res, gctx->gcm.key, gctx->gcm.Yi.c, gctx->gcm.Xi.u);
 					gctx->gcm.len.u[1] += bulk;
 					bulk += res;
 				}
 #endif
-				if(CRYPTO_gcm128_encrypt_ctr32(&gctx->gcm,
-				    in + bulk,
-				    out + bulk,
-				    len - bulk, gctx->ctr))
+				if(CRYPTO_gcm128_encrypt_ctr32(&gctx->gcm, in + bulk, out + bulk, len - bulk, gctx->ctr))
 					return -1;
 			}
 			else {
@@ -3161,20 +3149,14 @@ static int aes_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 #if defined(AES_GCM_ASM2)
 				if(len >= 32 && AES_GCM_ASM2(gctx)) {
 					size_t res = (16 - gctx->gcm.mres) % 16;
-
 					if(CRYPTO_gcm128_encrypt(&gctx->gcm, in, out, res))
 						return -1;
-
-					bulk = AES_gcm_encrypt(in + res,
-						out + res, len - res,
-						gctx->gcm.key, gctx->gcm.Yi.c,
-						gctx->gcm.Xi.u);
+					bulk = AES_gcm_encrypt(in + res, out + res, len - res, gctx->gcm.key, gctx->gcm.Yi.c, gctx->gcm.Xi.u);
 					gctx->gcm.len.u[1] += bulk;
 					bulk += res;
 				}
 #endif
-				if(CRYPTO_gcm128_encrypt(&gctx->gcm,
-				    in + bulk, out + bulk, len - bulk))
+				if(CRYPTO_gcm128_encrypt(&gctx->gcm, in + bulk, out + bulk, len - bulk))
 					return -1;
 			}
 		}
@@ -3184,22 +3166,14 @@ static int aes_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 #if defined(AES_GCM_ASM)
 				if(len >= 16 && AES_GCM_ASM(gctx)) {
 					size_t res = (16 - gctx->gcm.mres) % 16;
-
 					if(CRYPTO_gcm128_decrypt(&gctx->gcm, in, out, res))
 						return -1;
-
-					bulk = AES_gcm_decrypt(in + res,
-						out + res, len - res,
-						gctx->gcm.key,
-						gctx->gcm.Yi.c, gctx->gcm.Xi.u);
+					bulk = AES_gcm_decrypt(in + res, out + res, len - res, gctx->gcm.key, gctx->gcm.Yi.c, gctx->gcm.Xi.u);
 					gctx->gcm.len.u[1] += bulk;
 					bulk += res;
 				}
 #endif
-				if(CRYPTO_gcm128_decrypt_ctr32(&gctx->gcm,
-				    in + bulk,
-				    out + bulk,
-				    len - bulk, gctx->ctr))
+				if(CRYPTO_gcm128_decrypt_ctr32(&gctx->gcm, in + bulk, out + bulk, len - bulk, gctx->ctr))
 					return -1;
 			}
 			else {
@@ -3207,20 +3181,14 @@ static int aes_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 #if defined(AES_GCM_ASM2)
 				if(len >= 16 && AES_GCM_ASM2(gctx)) {
 					size_t res = (16 - gctx->gcm.mres) % 16;
-
 					if(CRYPTO_gcm128_decrypt(&gctx->gcm, in, out, res))
 						return -1;
-
-					bulk = AES_gcm_decrypt(in + res,
-						out + res, len - res,
-						gctx->gcm.key,
-						gctx->gcm.Yi.c, gctx->gcm.Xi.u);
+					bulk = AES_gcm_decrypt(in + res, out + res, len - res, gctx->gcm.key, gctx->gcm.Yi.c, gctx->gcm.Xi.u);
 					gctx->gcm.len.u[1] += bulk;
 					bulk += res;
 				}
 #endif
-				if(CRYPTO_gcm128_decrypt(&gctx->gcm,
-				    in + bulk, out + bulk, len - bulk))
+				if(CRYPTO_gcm128_decrypt(&gctx->gcm, in + bulk, out + bulk, len - bulk))
 					return -1;
 			}
 		}
@@ -3243,22 +3211,14 @@ static int aes_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	}
 }
 
-#define CUSTOM_FLAGS    (EVP_CIPH_FLAG_DEFAULT_ASN1 \
-	| EVP_CIPH_CUSTOM_IV | EVP_CIPH_FLAG_CUSTOM_CIPHER \
-	| EVP_CIPH_ALWAYS_CALL_INIT | EVP_CIPH_CTRL_INIT \
-	| EVP_CIPH_CUSTOM_COPY | EVP_CIPH_CUSTOM_IV_LENGTH)
-
-BLOCK_CIPHER_custom(NID_aes, 128, 1, 12, gcm, GCM,
-    EVP_CIPH_FLAG_AEAD_CIPHER | CUSTOM_FLAGS)
-BLOCK_CIPHER_custom(NID_aes, 192, 1, 12, gcm, GCM,
-    EVP_CIPH_FLAG_AEAD_CIPHER | CUSTOM_FLAGS)
-BLOCK_CIPHER_custom(NID_aes, 256, 1, 12, gcm, GCM,
-    EVP_CIPH_FLAG_AEAD_CIPHER | CUSTOM_FLAGS)
+#define CUSTOM_FLAGS    (EVP_CIPH_FLAG_DEFAULT_ASN1 | EVP_CIPH_CUSTOM_IV | EVP_CIPH_FLAG_CUSTOM_CIPHER | EVP_CIPH_ALWAYS_CALL_INIT | EVP_CIPH_CTRL_INIT | EVP_CIPH_CUSTOM_COPY | EVP_CIPH_CUSTOM_IV_LENGTH)
+BLOCK_CIPHER_custom(NID_aes, 128, 1, 12, gcm, GCM, EVP_CIPH_FLAG_AEAD_CIPHER | CUSTOM_FLAGS)
+BLOCK_CIPHER_custom(NID_aes, 192, 1, 12, gcm, GCM, EVP_CIPH_FLAG_AEAD_CIPHER | CUSTOM_FLAGS)
+BLOCK_CIPHER_custom(NID_aes, 256, 1, 12, gcm, GCM, EVP_CIPH_FLAG_AEAD_CIPHER | CUSTOM_FLAGS)
 
 static int aes_xts_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 {
 	EVP_AES_XTS_CTX * xctx = EVP_C_DATA(EVP_AES_XTS_CTX, c);
-
 	if(type == EVP_CTRL_COPY) {
 		EVP_CIPHER_CTX * out = static_cast<EVP_CIPHER_CTX *>(ptr);
 		EVP_AES_XTS_CTX * xctx_out = EVP_C_DATA(EVP_AES_XTS_CTX, out);
@@ -3282,19 +3242,15 @@ static int aes_xts_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 	return 1;
 }
 
-static int aes_xts_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
-    const uchar * iv, int enc)
+static int aes_xts_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 	EVP_AES_XTS_CTX * xctx = EVP_C_DATA(EVP_AES_XTS_CTX, ctx);
-
 	if(!iv && !key)
 		return 1;
-
 	if(key)
 		do {
 			/* The key is two half length keys in reality */
 			const int bytes = EVP_CIPHER_CTX_key_length(ctx) / 2;
-
 			/*
 			 * Verify that the two keys are different.
 			 *

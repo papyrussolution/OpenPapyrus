@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Copyright (C) 2009/2010/2011 Ulrich Apel.
+This work is distributed under the conditions of the Creative Commons
+Attribution-Share Alike 3.0 Licence. This means you are free:
+* to Share - to copy, distribute and transmit the work
+* to Remix - to adapt the work
+
+Under the following conditions:
+* Attribution. You must attribute the work by stating your use of KanjiVG in
+  your own copyright header and linking to KanjiVG's website
+  (http://kanjivg.tagaini.net)
+* Share Alike. If you alter, transform, or build upon this work, you may
+  distribute the resulting work only under the same or similar license to this
+  one.
+
+See http://creativecommons.org/licenses/by-sa/3.0/ for more details.
+-->
+
+<svg
+   xmlns:kvg="http://kanjivg.tagaini.net"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="109"
+   height="109"
+   viewBox="0 0 109 109"
+   version="1.1"
+   id="svg849"
+   sodipodi:docname="obj_goodsgroup.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+  <metadata
+     id="metadata855">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs853" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     id="namedview851"
+     showgrid="false"
+     inkscape:zoom="5.3065445"
+     inkscape:cx="54.5"
+     inkscape:cy="50.655293"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg849" />
+  <g
+     id="kvg:StrokePaths_054c1"
+     style="fill:none;stroke:#000000;stroke-width:3.17386889;stroke-linecap:round;stroke-linejoin:round"
+     transform="matrix(0.95985861,0,0,0.93080204,-0.42659477,4.12256)">
+    <g
+       id="kvg:054c1"
+       kvg:element="品"
+       style="stroke-width:3.17386889">
+      <g
+         id="kvg:054c1-g1"
+         kvg:element="口"
+         kvg:position="top"
+         kvg:radical="general"
+         transform="translate(-0.26650367,5.7298288)"
+         style="stroke-width:3.17386889">
+        <path
+           id="kvg:054c1-s1"
+           kvg:type="㇑"
+           d="m 33.322912,12.59971 c 1.12,0.9 1.84,1.63 2.17,3.11 1.34,6.06 2.95,14.39 4.27,22.02 0.23,1.36 0.46,2.69 0.67,3.99"
+           inkscape:connector-curvature="0"
+           style="stroke-width:3.17386889" />
+        <path
+           id="kvg:054c1-s2"
+           kvg:type="㇕b"
+           d="m 36.382912,14.63971 c 11.36,-2.13 27.84,-3.97 36.21,-4.7599996 3.58,-0.34 6.48,0.8299996 5.44,4.8299996 -1.51,5.84 -2.91,12.77 -5.2,20.62"
+           inkscape:connector-curvature="0"
+           style="stroke-width:3.17386889" />
+        <path
+           id="kvg:054c1-s3"
+           kvg:type="㇐b"
+           d="m 41.242912,39.13971 c 7.95,-0.69 18.78,-1.62 29.71,-2.66 1.39,-0.13 2.78,-0.26 4.17,-0.4"
+           inkscape:connector-curvature="0"
+           style="stroke-width:3.17386889" />
+      </g>
+      <g
+         id="kvg:054c1-g2"
+         kvg:position="bottom"
+         transform="translate(0.56533965,-5.841843)"
+         style="stroke-width:3.17386889">
+        <g
+           id="kvg:054c1-g3"
+           kvg:element="口"
+           kvg:position="left"
+           transform="translate(3.5977995,-0.26650367)"
+           style="stroke-width:3.17386889">
+          <path
+             id="kvg:054c1-s4"
+             kvg:type="㇑"
+             d="m 14.25,63.88 c 0.92,1.02 1.24,1.7 1.57,3.08 1.25,5.11 2.39,15.01 3.33,23.15 0.18,1.54 0.35,3.02 0.52,4.4"
+             inkscape:connector-curvature="0"
+             style="stroke-width:3.17386889" />
+          <path
+             id="kvg:054c1-s5"
+             kvg:type="㇕b"
+             d="m 16.71,63.820978 c 10.62,-1.69 18.5,-2.68 24.05,-3.17 4.11,-0.37 5.36,1.01 4.85,3.73 -1.12,5.95 -2.51,13.41 -4.21,21.38"
+             inkscape:connector-curvature="0"
+             style="stroke-width:3.17386889" />
+          <path
+             id="kvg:054c1-s6"
+             kvg:type="㇐b"
+             d="m 19.9,90.92 c 5.67,-0.67 11.17,-1.43 20.47,-2.36 1.43,-0.14 2.95,-0.29 4.57,-0.44"
+             inkscape:connector-curvature="0"
+             style="stroke-width:3.17386889" />
+        </g>
+        <g
+           id="kvg:054c1-g4"
+           kvg:element="口"
+           kvg:position="right"
+           style="stroke-width:3.17386889">
+          <path
+             id="kvg:054c1-s7"
+             kvg:type="㇑"
+             d="m 58.75,61.88 c 1,1 1.54,1.84 1.77,3.12 1.11,6.25 2.07,14.89 2.93,22.87 0.15,1.42 0.31,2.81 0.47,4.13"
+             inkscape:connector-curvature="0"
+             style="stroke-width:3.17386889" />
+          <path
+             id="kvg:054c1-s8"
+             kvg:type="㇕b"
+             d="m 58.75,61.88 c 10.68,-1.7 20.56,-3.71 26.54,-4.63 3.5,-0.54 5.37,0.84 4.89,3.57 -1.09,6.13 -2.53,15.22 -4.23,23.25"
+             inkscape:connector-curvature="0"
+             style="stroke-width:3.17386889" />
+          <path
+             id="kvg:054c1-s9"
+             kvg:type="㇐b"
+             d="m 64.4,89.42 c 7.96,-0.58 12.59,-0.85 23.11,-1.5 1.51,-0.09 3.15,-0.2 4.93,-0.31"
+             inkscape:connector-curvature="0"
+             style="stroke-width:3.17386889" />
+        </g>
+      </g>
+    </g>
+  </g>
+  <g
+     id="kvg:StrokeNumbers_054c1"
+     style="font-size:8px;fill:#808080;stroke-width:1.05990553"
+     transform="matrix(0.95633115,0,0,0.93080204,0.73178553,2.3861248)">
+    <g
+       id="g1427"
+       transform="translate(61.320795,-22.161669)"
+       style="stroke-width:1.05990553">
+      <g
+         style="fill:none;stroke:#000000;stroke-width:1.70092416;stroke-linecap:round;stroke-linejoin:round"
+         id="kvg:StrokePaths_053e3"
+         transform="matrix(1.6878964,0,0,2.070433,-96.73089,-37.826351)">
+        <g
+           kvg:radical="general"
+           kvg:element="口"
+           id="kvg:053e3"
+           style="stroke-width:1.70092416">
+          <path
+             d="m 22.25,33.25 c 1.25,1.25 2,2.88 2.26,4.43 1.16,7.03 3.15,23.61 4.68,37.85 0.27,2.56 0.54,5.07 0.81,7.47"
+             kvg:type="㇑"
+             id="kvg:053e3-s1"
+             inkscape:connector-curvature="0"
+             style="stroke-width:1.70092416" />
+          <path
+             d="m 25.29,35.67 c 17.46,-2.17 41.59,-5.04 55.49,-5.93 3.94,-0.25 6.33,2.72 5.72,5.14 -2.25,8.87 -6.62,26.5 -9,38.87"
+             kvg:type="㇕b"
+             id="kvg:053e3-s2"
+             inkscape:connector-curvature="0"
+             style="stroke-width:1.70092416" />
+          <path
+             d="m 30.25,77.75 c 10.5,-0.5 30.53,-2.3 44.99,-3.04 2.05,-0.11 3.99,-0.18 5.76,-0.21"
+             kvg:type="㇐b"
+             id="kvg:053e3-s3"
+             inkscape:connector-curvature="0"
+             style="stroke-width:1.70092416" />
+        </g>
+      </g>
+      <g
+         style="font-size:8px;fill:#808080;stroke-width:1.05990553"
+         id="kvg:StrokeNumbers_053e3" />
+    </g>
+  </g>
+</svg>

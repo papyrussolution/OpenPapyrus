@@ -164,6 +164,8 @@ public class JobServerProtocol {
 	public static final int PPSCMD_SQ_COMMAND            = 10124; // @v11.0.11 Собственно команда в рамках протокола Stylo-Q
 	public static final int PPSCMD_TEST                  = 11000;
 
+	private static final String CipherAlg = "AES/ECB/PKCS5Padding";
+
 	public static class Header {
 		Header Z()
 		{
@@ -331,7 +333,7 @@ public class JobServerProtocol {
 					byte[] keydigest = digest.digest();
 					if(SLib.GetLen(keydigest) == 16) {
 						SecretKeySpec skeyspec = new SecretKeySpec(keydigest, "AES");
-						Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+						Cipher cipher = Cipher.getInstance(CipherAlg);
 						cipher.init(Cipher.ENCRYPT_MODE, skeyspec);
 						byte[] cipher_result = cipher.doFinal(plain_useful_data);
 						if(SLib.GetLen(cipher_result) > plain_useful_data.length) {
@@ -444,7 +446,7 @@ public class JobServerProtocol {
 						byte[] keydigest = digest.digest();
 						THROW(SLib.GetLen(keydigest) == 16, ppstr2.PPERR_SQPROT_DECRYPTFAULT);
 						SecretKeySpec skeyspec = new SecretKeySpec(keydigest, "AES");
-						Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+						Cipher cipher = Cipher.getInstance(CipherAlg);
 						cipher.init(Cipher.DECRYPT_MODE, skeyspec);
 						byte[] cipher_result = cipher.doFinal(temp_buf);
 						THROW(cipher_result.length > H.Padding, ppstr2.PPERR_SQPROT_DECRYPTFAULT);

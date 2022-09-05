@@ -4502,6 +4502,7 @@ class ppstr2 {
 	public static final int PPTXT_STQ_HINT_FRIENDINVITATION = 12061;
 	public static final int PPTXT_LOG_STQPREPAREAHEAD_NTD = 12062;
 	public static final int PPTXT_LOG_STQPREPAREAHEAD_DONE = 12063;
+	public static final int PPTXT_STQ_HINT_GOTOSVCORDFINISHING = 12064;
 	//
 	// .N.
 	//

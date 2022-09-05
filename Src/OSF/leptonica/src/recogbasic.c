@@ -404,13 +404,11 @@ L_RECOG * recogCreate(int32 scalew,
 		maxyshift = DefaultMaxYShift;
 	}
 	else if(maxyshift == 0) {
-		L_WARNING("Using maxyshift = 0; faster, worse correlation results\n",
-		    procName);
+		L_WARNING("Using maxyshift = 0; faster, worse correlation results\n", procName);
 	}
 	else if(maxyshift == 2) {
 		L_WARNING("Using maxyshift = 2; slower\n", procName);
 	}
-
 	recog = (L_RECOG*)SAlloc::C(1, sizeof(L_RECOG));
 	recog->templ_use = L_USE_ALL_TEMPLATES; /* default */
 	recog->threshold = threshold;

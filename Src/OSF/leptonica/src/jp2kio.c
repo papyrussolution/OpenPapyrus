@@ -557,16 +557,13 @@ l_ok pixWriteStreamJp2k(FILE * fp,
 		pixs = pixConvertTo8(pix, 0);
 	}
 	else { /* colormap */
-		L_INFO("removing colormap; may be better to compress losslessly\n",
-		    procName);
+		L_INFO("removing colormap; may be better to compress losslessly\n", procName);
 		pixs = pixRemoveColormap(pix, REMOVE_CMAP_BASED_ON_SRC);
 	}
-
 	/* Convert to opj image format. */
 	pixSetPadBits(pixs, 0);
 	image = pixConvertToOpjImage(pixs);
 	pixDestroy(&pixs);
-
 	/* Set encoding parameters to default values.
 	 * We use one layer with the input SNR. */
 	opj_set_default_encoder_parameters(&parameters);

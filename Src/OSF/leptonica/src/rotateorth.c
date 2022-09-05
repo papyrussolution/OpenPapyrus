@@ -48,16 +48,13 @@ static uint8 * makeReverseByteTab4(void);
  * \param[in]    quads      0-3; number of 90 degree cw rotations
  * \return  pixd, or NULL on error
  */
-PIX * pixRotateOrth(PIX * pixs,
-    int32 quads)
+PIX * pixRotateOrth(PIX * pixs, int32 quads)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(quads < 0 || quads > 3)
 		return (PIX *)ERROR_PTR("quads not in {0,1,2,3}", procName, NULL);
-
 	if(quads == 0)
 		return pixCopy(NULL, pixs);
 	else if(quads == 1)
@@ -95,24 +92,18 @@ PIX * pixRotateOrth(PIX * pixs,
  *          (c) pixRotate180(pixd, pixs);
  * </pre>
  */
-PIX * pixRotate180(PIX  * pixd,
-    PIX  * pixs)
+PIX * pixRotate180(PIX  * pixd, PIX  * pixs)
 {
 	int32 d;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	d = pixGetDepth(pixs);
 	if(d != 1 && d != 2 && d != 4 && d != 8 && d != 16 && d != 32)
-		return (PIX *)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
-			   procName, NULL);
-
+		return (PIX *)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp", procName, NULL);
 	/* Prepare pixd for in-place operation */
 	if((pixd = pixCopy(pixd, pixs)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
-
 	pixFlipLR(pixd, pixd);
 	pixFlipTB(pixd, pixd);
 	return pixd;
@@ -135,33 +126,27 @@ PIX * pixRotate180(PIX  * pixd,
  *      (2) The direction must be either 1 (cw) or -1 (ccw).
  * </pre>
  */
-PIX * pixRotate90(PIX * pixs,
-    int32 direction)
+PIX * pixRotate90(PIX * pixs, int32 direction)
 {
 	int32 wd, hd, d, wpls, wpld;
 	int32 i, j, k, m, iend, nswords;
 	uint32 val, word;
 	uint32  * lines, * datas, * lined, * datad;
 	PIX * pixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &hd, &wd, &d); /* note: reversed */
 	if(d != 1 && d != 2 && d != 4 && d != 8 && d != 16 && d != 32)
-		return (PIX *)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
-			   procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp", procName, NULL);
 	if(direction != 1 && direction != -1)
 		return (PIX *)ERROR_PTR("invalid direction", procName, NULL);
-
 	if((pixd = pixCreate(wd, hd, d)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	pixCopyColormap(pixd, pixs);
 	pixCopyResolution(pixd, pixs);
 	pixCopyInputFormat(pixd, pixs);
 	pixCopySpp(pixd, pixs);
-
 	datas = pixGetData(pixs);
 	wpls = pixGetWpl(pixs);
 	datad = pixGetData(pixd);
@@ -573,26 +558,20 @@ PIX * pixFlipLR(PIX  * pixd,
  *          depth.
  * </pre>
  */
-PIX * pixFlipTB(PIX  * pixd,
-    PIX  * pixs)
+PIX * pixFlipTB(PIX  * pixd, PIX  * pixs)
 {
 	int32 h, d, wpl, i, k, h2, bpl;
 	uint32  * linet, * lineb;
 	uint32  * data, * buffer;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, NULL, &h, &d);
 	if(d != 1 && d != 2 && d != 4 && d != 8 && d != 16 && d != 32)
-		return (PIX *)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
-			   procName, NULL);
-
+		return (PIX *)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp", procName, NULL);
 	/* Prepare pixd for in-place operation */
 	if((pixd = pixCopy(pixd, pixs)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
-
 	data = pixGetData(pixd);
 	wpl = pixGetWpl(pixd);
 	if((buffer = (uint32*)SAlloc::C(wpl, sizeof(uint32))) == NULL)
@@ -607,7 +586,6 @@ PIX * pixFlipTB(PIX  * pixd,
 		memcpy(linet, lineb, bpl);
 		memcpy(lineb, buffer, bpl);
 	}
-
 	SAlloc::F(buffer);
 	return pixd;
 }
@@ -624,22 +602,11 @@ PIX * pixFlipTB(PIX  * pixd,
  */
 static uint8 * makeReverseByteTab1(void)
 {
-	int32 i;
-	uint8  * tab;
-
-	tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
-	for(i = 0; i < 256; i++)
-		tab[i] = ((0x80 & i) >> 7) |
-		    ((0x40 & i) >> 5) |
-		    ((0x20 & i) >> 3) |
-		    ((0x10 & i) >> 1) |
-		    ((0x08 & i) << 1) |
-		    ((0x04 & i) << 3) |
-		    ((0x02 & i) << 5) |
-		    ((0x01 & i) << 7);
+	uint8  * tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
+	for(int32 i = 0; i < 256; i++)
+		tab[i] = ((0x80 & i) >> 7) | ((0x40 & i) >> 5) | ((0x20 & i) >> 3) | ((0x10 & i) >> 1) | ((0x08 & i) << 1) | ((0x04 & i) << 3) | ((0x02 & i) << 5) | ((0x01 & i) << 7);
 	return tab;
 }
-
 /*!
  * \brief   makeReverseByteTab2()
  *
@@ -649,18 +616,11 @@ static uint8 * makeReverseByteTab1(void)
  */
 static uint8 * makeReverseByteTab2(void)
 {
-	int32 i;
-	uint8  * tab;
-
-	tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
-	for(i = 0; i < 256; i++)
-		tab[i] = ((0xc0 & i) >> 6) |
-		    ((0x30 & i) >> 2) |
-		    ((0x0c & i) << 2) |
-		    ((0x03 & i) << 6);
+	uint8  * tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
+	for(int32 i = 0; i < 256; i++)
+		tab[i] = ((0xc0 & i) >> 6) | ((0x30 & i) >> 2) | ((0x0c & i) << 2) | ((0x03 & i) << 6);
 	return tab;
 }
-
 /*!
  * \brief   makeReverseByteTab4()
  *
@@ -670,11 +630,8 @@ static uint8 * makeReverseByteTab2(void)
  */
 static uint8 * makeReverseByteTab4(void)
 {
-	int32 i;
-	uint8  * tab;
-
-	tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
-	for(i = 0; i < 256; i++)
+	uint8  * tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
+	for(int32 i = 0; i < 256; i++)
 		tab[i] = ((0xf0 & i) >> 4) | ((0x0f & i) << 4);
 	return tab;
 }

@@ -891,30 +891,24 @@ l_ok pixPaintSelfThroughMask(PIX * pixd,
 		}
 		boxGetGeometry(box, &bx, &by, &bw, &bh);
 		minside = MIN(bw, bh);
-
 		boxh = boxv = NULL;
 		if(searchdir == L_HORIZ || searchdir == L_BOTH_DIRECTIONS) {
-			pixFindRepCloseTile(pixd, box, L_HORIZ, mindist,
-			    MIN(minside, tilesize), ntiles, &boxh, 0);
+			pixFindRepCloseTile(pixd, box, L_HORIZ, mindist, MIN(minside, tilesize), ntiles, &boxh, 0);
 		}
 		if(searchdir == L_VERT || searchdir == L_BOTH_DIRECTIONS) {
-			pixFindRepCloseTile(pixd, box, L_VERT, mindist,
-			    MIN(minside, tilesize), ntiles, &boxv, 0);
+			pixFindRepCloseTile(pixd, box, L_VERT, mindist, MIN(minside, tilesize), ntiles, &boxv, 0);
 		}
 		if(!boxh && !boxv) {
-			L_WARNING("tile region not selected; paint color near boundary\n",
-			    procName);
+			L_WARNING("tile region not selected; paint color near boundary\n", procName);
 			pixDestroy(&pix1);
 			pix1 = pixaGetPix(pixa, i, L_CLONE);
 			pixaGetBoxGeometry(pixa, i, &bx, &by, NULL, NULL);
-			retval = pixGetColorNearMaskBoundary(pixd, pixm, box, distblend,
-				&pixval, 0);
+			retval = pixGetColorNearMaskBoundary(pixd, pixm, box, distblend, &pixval, 0);
 			pixSetMaskedGeneral(pixd, pix1, pixval, bx, by);
 			pixDestroy(&pix1);
 			boxDestroy(&box);
 			continue;
 		}
-
 		/* Extract the selected squares from pixd */
 		pixh = (boxh) ? pixClipRectangle(pixd, boxh, NULL) : NULL;
 		pixv = (boxv) ? pixClipRectangle(pixd, boxv, NULL) : NULL;
@@ -3244,32 +3238,23 @@ l_ok pixAbsDiffOnLine(PIX * pix,
  *          If %factor > 1, multiply the count by %factor * %factor.
  * </pre>
  */
-int32 pixCountArbInRect(PIX * pixs,
-    BOX      * box,
-    int32 val,
-    int32 factor,
-    int32 * pcount)
+int32 pixCountArbInRect(PIX * pixs, BOX      * box, int32 val, int32 factor, int32 * pcount)
 {
 	int32 i, j, bx, by, bw, bh, w, h, wpl, pixval;
 	uint32  * data, * line;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pcount)
 		return ERROR_INT("&count not defined", procName, 1);
 	*pcount = 0;
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
 	if(pixGetDepth(pixs) != 8 && !pixGetColormap(pixs))
-		return ERROR_INT("pixs neither 8 bpp nor colormapped",
-			   procName, 1);
+		return ERROR_INT("pixs neither 8 bpp nor colormapped", procName, 1);
 	if(factor < 1)
 		return ERROR_INT("sampling factor < 1", procName, 1);
-
 	pixGetDimensions(pixs, &w, &h, NULL);
 	data = pixGetData(pixs);
 	wpl = pixGetWpl(pixs);
-
 	if(!box) {
 		for(i = 0; i < h; i += factor) {
 			line = data + i * wpl;
@@ -3482,9 +3467,7 @@ l_ok pixFindRepCloseTile(PIX * pixs,
 		if(delm < 1.01) {
 			if(dels < mindels) {
 				if(debug) {
-					lept_stderr("i = %d, mean = %7.3f, delm = %7.3f,"
-					    " stdev = %7.3f, dels = %7.3f\n",
-					    i, mean_val, delm, stdev_val, dels);
+					lept_stderr("i = %d, mean = %7.3f, delm = %7.3f, stdev = %7.3f, dels = %7.3f\n", i, mean_val, delm, stdev_val, dels);
 				}
 				mindels = dels;
 				bestdelm = delm;
@@ -3493,18 +3476,14 @@ l_ok pixFindRepCloseTile(PIX * pixs,
 		}
 	}
 	*pboxtile = boxaGetBox(boxa, bestindex, L_COPY);
-
 	if(debug) {
 		L_INFO("median of mean = %7.3f\n", procName, median_of_mean);
 		L_INFO("standard dev of mean = %7.3f\n", procName, sqrt(var_of_mean));
 		L_INFO("median of stdev = %7.3f\n", procName, median_of_stdev);
 		L_INFO("best tile: index = %d\n", procName, bestindex);
-		L_INFO("delta from median in units of stdev = %5.3f\n",
-		    procName, bestdelm);
-		L_INFO("stdev as fraction of median stdev = %5.3f\n",
-		    procName, mindels);
+		L_INFO("delta from median in units of stdev = %5.3f\n", procName, bestdelm);
+		L_INFO("stdev as fraction of median stdev = %5.3f\n", procName, mindels);
 	}
-
 	numaDestroy(&namean);
 	numaDestroy(&nastdev);
 	pixaDestroy(&pixa);

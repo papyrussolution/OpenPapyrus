@@ -202,15 +202,12 @@ l_ok pixEqualWithAlpha(PIX * pix1,
 			}
 		}
 	}
-
 	cmap1 = pixGetColormap(pix1);
 	cmap2 = pixGetColormap(pix2);
 	if(!cmap1 && !cmap2 && (d1 != d2) && (d1 == 32 || d2 == 32)) {
-		L_INFO("no colormaps, pix depths unequal, and one of them is RGB\n",
-		    procName);
+		L_INFO("no colormaps, pix depths unequal, and one of them is RGB\n", procName);
 		return 0;
 	}
-
 	if(cmap1 && cmap2 && (d1 == d2)) /* use special function */
 		return pixEqualWithCmap(pix1, pix2, psame);
 
@@ -1915,7 +1912,6 @@ l_ok pixaComparePhotoRegionsByHisto(PIXA        * pixa,
 	if(simthresh <= 0.0) simthresh = 0.25;
 	if(simthresh > 1.0)
 		return ERROR_INT("simthresh invalid; should be near 0.25", procName, 1);
-
 	/* Prepare the histograms */
 	nim = pixaGetCount(pixa);
 	if((n3a = (NUMAA**)SAlloc::C(nim, sizeof(NUMAA *))) == NULL)
@@ -1927,8 +1923,7 @@ l_ok pixaComparePhotoRegionsByHisto(PIXA        * pixa,
 		text = pixGetText(pix);
 		pixSetResolution(pix, 150, 150);
 		index = (debug) ? i : 0;
-		pixGenPhotoHistos(pix, NULL, factor, textthresh, n,
-		    &naa, &w, &h, index);
+		pixGenPhotoHistos(pix, NULL, factor, textthresh, n, &naa, &w, &h, index);
 		n3a[i] = naa;
 		numaAddNumber(naw, w);
 		numaAddNumber(nah, h);
@@ -1938,16 +1933,13 @@ l_ok pixaComparePhotoRegionsByHisto(PIXA        * pixa,
 			lept_stderr("Image %s is NOT photo\n", text);
 		pixDestroy(&pix);
 	}
-
 	/* Do the comparisons.  We are making a set of classes, where
 	 * all similar images are placed in the same class.  There are
 	 * 'nim' input images.  The classes are labeled by 'classid' (all
 	 * similar images get the same 'classid' value), and 'nai' maps
 	 * the classid of the image in the input array to the classid
 	 * of the similarity class.  */
-	if((scores =
-	    (float *)SAlloc::C((size_t)nim * nim, sizeof(float)))
-	    == NULL) {
+	if((scores = (float *)SAlloc::C((size_t)nim * nim, sizeof(float))) == NULL) {
 		L_ERROR("calloc fail for scores\n", procName);
 		goto cleanup;
 	}
@@ -2095,24 +2087,14 @@ cleanup:
  *          the images, histograms and score.
  * </pre>
  */
-l_ok pixComparePhotoRegionsByHisto(PIX * pix1,
-    PIX * pix2,
-    BOX        * box1,
-    BOX        * box2,
-    float minratio,
-    int32 factor,
-    int32 n,
-    float * pscore,
-    int32 debugflag)
+l_ok pixComparePhotoRegionsByHisto(PIX * pix1, PIX * pix2, BOX        * box1, BOX        * box2, float minratio, int32 factor, int32 n, float * pscore, int32 debugflag)
 {
 	int32 w1, h1, w2, h2, w1c, h1c, w2c, h2c, debugindex;
 	float wratio, hratio;
 	NUMAA     * naa1, * naa2;
 	PIX * pix3, * pix4;
 	PIXA      * pixa;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pscore)
 		return ERROR_INT("&score not defined", procName, 1);
 	*pscore = 0.0;
@@ -2561,11 +2543,9 @@ l_ok pixDecideIfPhotoImage(PIX * pix,
 	}
 	if(pixadebug) {
 		if(isphoto)
-			L_INFO("ratio %f > %f; isphoto is true\n",
-			    procName, ratio, thresh);
+			L_INFO("ratio %f > %f; isphoto is true\n", procName, ratio, thresh);
 		else
-			L_INFO("ratio %f < %f; isphoto is false\n",
-			    procName, ratio, thresh);
+			L_INFO("ratio %f < %f; isphoto is false\n", procName, ratio, thresh);
 	}
 	if(isphoto)
 		*pnaa = naa;
@@ -2602,19 +2582,12 @@ l_ok pixDecideIfPhotoImage(PIX * pix,
  *          to a 4x2 grid where each subimage has 150 x 100 pixels.
  * </pre>
  */
-static l_ok findHistoGridDimensions(int32 n,
-    int32 w,
-    int32 h,
-    int32 * pnx,
-    int32 * pny,
-    int32 debug)
+static l_ok findHistoGridDimensions(int32 n, int32 w, int32 h, int32 * pnx, int32 * pny, int32 debug)
 {
-	int32 nx, ny, max;
-	float ratio;
-
-	ratio = (float)w / (float)h;
-	max = n * n;
-	nx = ny = n;
+	float ratio = (float)w / (float)h;
+	int32 max = n * n;
+	int32 nx = n;
+	int32 ny = n;
 	while(nx > 1 && ny > 1) {
 		if(ratio > 2.0) { /* reduce ny */
 			ny--;
@@ -2665,15 +2638,7 @@ static l_ok findHistoGridDimensions(int32 n,
  *      (3) The input pixadebug is null unless debug output is requested.
  * </pre>
  */
-l_ok compareTilesByHisto(NUMAA      * naa1,
-    NUMAA      * naa2,
-    float minratio,
-    int32 w1,
-    int32 h1,
-    int32 w2,
-    int32 h2,
-    float * pscore,
-    PIXA       * pixadebug)
+l_ok compareTilesByHisto(NUMAA      * naa1, NUMAA      * naa2, float minratio, int32 w1, int32 h1, int32 w2, int32 h2, float * pscore, PIXA       * pixadebug)
 {
 	char buf1[128], buf2[128];
 	int32 i, n;
@@ -2840,25 +2805,14 @@ l_ok compareTilesByHisto(NUMAA      * naa1,
  *              to determine whether it is photo or line graphics.
  * </pre>
  */
-l_ok pixCompareGrayByHisto(PIX * pix1,
-    PIX * pix2,
-    BOX        * box1,
-    BOX        * box2,
-    float minratio,
-    int32 maxgray,
-    int32 factor,
-    int32 n,
-    float * pscore,
-    int32 debugflag)
+l_ok pixCompareGrayByHisto(PIX * pix1, PIX * pix2, BOX        * box1, BOX        * box2, float minratio, int32 maxgray, int32 factor, int32 n, float * pscore, int32 debugflag)
 {
 	int32 w1, h1, w2, h2;
 	float wratio, hratio;
 	BOX * box3, * box4;
 	PIX * pix3, * pix4, * pix5, * pix6, * pix7, * pix8;
 	PIXA      * pixa;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pscore)
 		return ERROR_INT("&score not defined", procName, 1);
 	*pscore = 0.0;
@@ -2875,7 +2829,6 @@ l_ok pixCompareGrayByHisto(PIX * pix1,
 		L_WARNING("n = %d is invalid; setting to 4\n", procName, n);
 		n = 4;
 	}
-
 	if(debugflag)
 		lept_mkdir("lept/comp");
 
@@ -2965,13 +2918,7 @@ l_ok pixCompareGrayByHisto(PIX * pix1,
  *      (3) See pixCompareGrayByHisto() for details.
  * </pre>
  */
-static l_ok pixCompareTilesByHisto(PIX * pix1,
-    PIX * pix2,
-    int32 maxgray,
-    int32 factor,
-    int32 n,
-    float * pscore,
-    PIXA       * pixadebug)
+static l_ok pixCompareTilesByHisto(PIX * pix1, PIX * pix2, int32 maxgray, int32 factor, int32 n, float * pscore, PIXA       * pixadebug)
 {
 	char buf[64];
 	int32 w, h, i, j, nx, ny, ngr;
@@ -2980,15 +2927,12 @@ static l_ok pixCompareTilesByHisto(PIX * pix1,
 	NUMA * na1, * na2, * na3, * na4, * na5, * na6, * na7;
 	PIX * pix3, * pix4;
 	PIXA      * pixa1, * pixa2;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pscore)
 		return ERROR_INT("&score not defined", procName, 1);
 	*pscore = 0.0;
 	if(!pix1 || !pix2)
 		return ERROR_INT("pix1 and pix2 not both defined", procName, 1);
-
 	/* Determine grid from n */
 	pixGetDimensions(pix1, &w, &h, NULL);
 	findHistoGridDimensions(n, w, h, &nx, &ny, 1);
@@ -3063,13 +3007,10 @@ static l_ok pixCompareTilesByHisto(PIX * pix1,
 		pixDestroy(&pix4);
 	}
 	*pscore = minscore;
-
 	if(pixadebug) {
-		pixaConvertToPdf(pixadebug, 300, 1.0, L_FLATE_ENCODE, 0, NULL,
-		    "/tmp/lept/comp/comparegray.pdf");
+		pixaConvertToPdf(pixadebug, 300, 1.0, L_FLATE_ENCODE, 0, NULL, "/tmp/lept/comp/comparegray.pdf");
 		numaWriteDebug("/tmp/lept/comp/tilescores.na", na7);
 	}
-
 	bmfDestroy(&bmf);
 	numaDestroy(&na7);
 	pixaDestroy(&pixa1);
@@ -3093,19 +3034,13 @@ static l_ok pixCompareTilesByHisto(PIX * pix1,
  *          Black pixels have weight 255; white pixels have weight 0.
  * </pre>
  */
-l_ok pixCropAlignedToCentroid(PIX * pix1,
-    PIX * pix2,
-    int32 factor,
-    BOX    ** pbox1,
-    BOX    ** pbox2)
+l_ok pixCropAlignedToCentroid(PIX * pix1, PIX * pix2, int32 factor, BOX    ** pbox1, BOX    ** pbox2)
 {
 	float cx1, cy1, cx2, cy2;
 	int32 w1, h1, w2, h2, icx1, icy1, icx2, icy2;
 	int32 xm, xm1, xm2, xp, xp1, xp2, ym, ym1, ym2, yp, yp1, yp2;
 	PIX * pix3, * pix4;
-
 	PROCNAME(__FUNCTION__);
-
 	if(pbox1) *pbox1 = NULL;
 	if(pbox2) *pbox2 = NULL;
 	if(!pix1 || !pix2)
@@ -3166,18 +3101,13 @@ l_ok pixCropAlignedToCentroid(PIX * pix1,
  *          details of these histograms.
  * </pre>
  */
-uint8 * l_compressGrayHistograms(NUMAA   * naa,
-    int32 w,
-    int32 h,
-    size_t  * psize)
+uint8 * l_compressGrayHistograms(NUMAA   * naa, int32 w, int32 h, size_t  * psize)
 {
 	uint8   * bytea;
 	int32 i, j, n, nn, ival;
 	float maxval;
 	NUMA * na1, * na2;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!psize)
 		return (uint8 *)ERROR_PTR("&size not defined", procName, NULL);
 	*psize = 0;
@@ -3191,7 +3121,6 @@ uint8 * l_compressGrayHistograms(NUMAA   * naa,
 			return NULL;
 		}
 	}
-
 	if((bytea = (uint8 *)SAlloc::C(8 + 256 * n, sizeof(uint8))) == NULL)
 		return (uint8 *)ERROR_PTR("bytea not made", procName, NULL);
 	*psize = 8 + 256 * n;
@@ -3208,10 +3137,8 @@ uint8 * l_compressGrayHistograms(NUMAA   * naa,
 		numaDestroy(&na1);
 		numaDestroy(&na2);
 	}
-
 	return bytea;
 }
-
 /*!
  * \brief   l_uncompressGrayHistograms()
  *
@@ -3232,17 +3159,12 @@ uint8 * l_compressGrayHistograms(NUMAA   * naa,
  *          Each gray histogram was computed from a tile of a grayscale image.
  * </pre>
  */
-NUMAA * l_uncompressGrayHistograms(uint8  * bytea,
-    size_t size,
-    int32 * pw,
-    int32 * ph)
+NUMAA * l_uncompressGrayHistograms(uint8  * bytea, size_t size, int32 * pw, int32 * ph)
 {
 	int32 i, j, n;
 	NUMA * na;
 	NUMAA   * naa;
-
 	PROCNAME(__FUNCTION__);
-
 	if(pw) *pw = 0;
 	if(ph) *ph = 0;
 	if(!pw || !ph)
@@ -3252,7 +3174,6 @@ NUMAA * l_uncompressGrayHistograms(uint8  * bytea,
 	n = (size - 8) / 256;
 	if((size - 8) % 256 != 0)
 		return (NUMAA*)ERROR_PTR("bytea size is invalid", procName, NULL);
-
 	*pw = l_getDataFourBytes(bytea, 0);
 	*ph = l_getDataFourBytes(bytea, 1);
 	naa = numaaCreate(n);
@@ -3299,13 +3220,7 @@ NUMAA * l_uncompressGrayHistograms(uint8  * bytea,
  *          has fg pixels.
  * </pre>
  */
-l_ok pixCompareWithTranslation(PIX * pix1,
-    PIX * pix2,
-    int32 thresh,
-    int32 * pdelx,
-    int32 * pdely,
-    float * pscore,
-    int32 debugflag)
+l_ok pixCompareWithTranslation(PIX * pix1, PIX * pix2, int32 thresh, int32 * pdelx, int32 * pdely, float * pscore, int32 debugflag)
 {
 	uint8   * subtab;
 	int32 i, level, area1, area2, delx, dely;
@@ -3314,9 +3229,7 @@ l_ok pixCompareWithTranslation(PIX * pix1,
 	float cx1, cx2, cy1, cy2, score;
 	PIX * pixb1, * pixb2, * pixt1, * pixt2, * pixt3, * pixt4;
 	PIXA      * pixa1, * pixa2, * pixadb;
-
 	PROCNAME(__FUNCTION__);
-
 	if(pdelx) *pdelx = 0;
 	if(pdely) *pdely = 0;
 	if(pscore) *pscore = 0.0;
@@ -3328,16 +3241,13 @@ l_ok pixCompareWithTranslation(PIX * pix1,
 		return ERROR_INT("pix1 not defined", procName, 1);
 	if(!pix2)
 		return ERROR_INT("pix2 not defined", procName, 1);
-
 	/* Make tables */
 	subtab = makeSubsampleTab2x();
 	stab = makePixelSumTab8();
 	ctab = makePixelCentroidTab8();
-
 	/* Binarize each image */
 	pixb1 = pixConvertTo1(pix1, thresh);
 	pixb2 = pixConvertTo1(pix2, thresh);
-
 	/* Make a cascade of 2x reduced images for each, thresholding
 	 * with level 2 (neutral), down to 8x reduction */
 	pixa1 = pixaCreate(4);
@@ -3354,7 +3264,6 @@ l_ok pixCompareWithTranslation(PIX * pix1,
 		pixb1 = pixt1;
 		pixb2 = pixt2;
 	}
-
 	/* At the lowest level, use the centroids with a maxshift of 6
 	 * to search for the best alignment.  Then at higher levels,
 	 * use the result from the level below as the initial approximation
@@ -3377,11 +3286,9 @@ l_ok pixCompareWithTranslation(PIX * pix1,
 			maxshift = 2;
 		}
 		dbint = (debugflag) ? level + 1 : 0;
-		pixBestCorrelation(pixt1, pixt2, area1, area2, etransx, etransy,
-		    maxshift, stab, &delx, &dely, &score, dbint);
+		pixBestCorrelation(pixt1, pixt2, area1, area2, etransx, etransy, maxshift, stab, &delx, &dely, &score, dbint);
 		if(debugflag) {
-			lept_stderr("Level %d: delx = %d, dely = %d, score = %7.4f\n",
-			    level, delx, dely, score);
+			lept_stderr("Level %d: delx = %d, dely = %d, score = %7.4f\n", level, delx, dely, score);
 			pixRasteropIP(pixt2, delx, dely, L_BRING_IN_WHITE);
 			pixt3 = pixDisplayDiffBinary(pixt1, pixt2);
 			pixt4 = pixExpandReplicate(pixt3, 8 / (1 << (3 - level)));
@@ -3391,16 +3298,11 @@ l_ok pixCompareWithTranslation(PIX * pix1,
 		pixDestroy(&pixt1);
 		pixDestroy(&pixt2);
 	}
-
 	if(debugflag) {
-		pixaConvertToPdf(pixadb, 300, 1.0, L_FLATE_ENCODE, 0, NULL,
-		    "/tmp/lept/comp/compare.pdf");
-		convertFilesToPdf("/tmp/lept/comp", "correl_", 30, 1.0, L_FLATE_ENCODE,
-		    0, "Correlation scores at levels 1 through 5",
-		    "/tmp/lept/comp/correl.pdf");
+		pixaConvertToPdf(pixadb, 300, 1.0, L_FLATE_ENCODE, 0, NULL, "/tmp/lept/comp/compare.pdf");
+		convertFilesToPdf("/tmp/lept/comp", "correl_", 30, 1.0, L_FLATE_ENCODE, 0, "Correlation scores at levels 1 through 5", "/tmp/lept/comp/correl.pdf");
 		pixaDestroy(&pixadb);
 	}
-
 	*pdelx = delx;
 	*pdely = dely;
 	*pscore = score;
@@ -3411,7 +3313,6 @@ l_ok pixCompareWithTranslation(PIX * pix1,
 	SAlloc::F(ctab);
 	return 0;
 }
-
 /*!
  * \brief   pixBestCorrelation()
  *
@@ -3452,27 +3353,15 @@ l_ok pixCompareWithTranslation(PIX * pix1,
  *          in pixCompareWithTranslation().
  * </pre>
  */
-l_ok pixBestCorrelation(PIX * pix1,
-    PIX * pix2,
-    int32 area1,
-    int32 area2,
-    int32 etransx,
-    int32 etransy,
-    int32 maxshift,
-    int32 * tab8,
-    int32 * pdelx,
-    int32 * pdely,
-    float * pscore,
-    int32 debugflag)
+l_ok pixBestCorrelation(PIX * pix1, PIX * pix2, int32 area1, int32 area2, int32 etransx, int32 etransy, int32 maxshift,
+    int32 * tab8, int32 * pdelx, int32 * pdely, float * pscore, int32 debugflag)
 {
 	int32 shiftx, shifty, delx, dely;
 	int32 * tab;
 	float maxscore, score;
 	FPIX * fpix;
 	PIX * pix3, * pix4;
-
 	PROCNAME(__FUNCTION__);
-
 	if(pdelx) *pdelx = 0;
 	if(pdely) *pdely = 0;
 	if(pscore) *pscore = 0.0;
@@ -3482,7 +3371,6 @@ l_ok pixBestCorrelation(PIX * pix1,
 		return ERROR_INT("pix2 not defined or not 1 bpp", procName, 1);
 	if(!area1 || !area2)
 		return ERROR_INT("areas must be > 0", procName, 1);
-
 	if(debugflag > 0)
 		fpix = fpixCreate(2 * maxshift + 1, 2 * maxshift + 1);
 

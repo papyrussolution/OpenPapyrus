@@ -23,32 +23,32 @@
     <ProjectGuid>{9FDABCB6-2FD5-44BB-B460-C98F19C4965D}</ProjectGuid>
     <RootNamespace>cms-test-static</RootNamespace>
     <ProjectName>cms-test</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -75,23 +75,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
-    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
-    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
-    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
-    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

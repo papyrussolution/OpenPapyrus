@@ -839,8 +839,7 @@ l_ok pixaConvertToPdfData(PIXA        * pixa,
 	if(type != L_DEFAULT_ENCODE && type != L_JPEG_ENCODE &&
 	    type != L_G4_ENCODE && type != L_FLATE_ENCODE &&
 	    type != L_JP2K_ENCODE) {
-		L_WARNING("invalid compression type; using per-page default\n",
-		    procName);
+		L_WARNING("invalid compression type; using per-page default\n", procName);
 		type = L_DEFAULT_ENCODE;
 	}
 

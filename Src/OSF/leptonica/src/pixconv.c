@@ -1481,11 +1481,9 @@ PIX * pixConvertRGBToColormap(PIX * pixs,
 	 * optionally with dithering. */
 	numaDestroy(&na);
 	if(ditherflag)
-		L_INFO("More than 256 colors; using octree quant with dithering\n",
-		    procName);
+		L_INFO("More than 256 colors; using octree quant with dithering\n", procName);
 	else
-		L_INFO("More than 256 colors; using octree quant; no dithering\n",
-		    procName);
+		L_INFO("More than 256 colors; using octree quant; no dithering\n", procName);
 	return pixOctreeColorQuant(pixs, 240, ditherflag);
 }
 

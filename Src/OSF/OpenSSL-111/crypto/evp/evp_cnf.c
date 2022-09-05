@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/conf.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
 
 /* Algorithm configuration module. */
 
@@ -20,7 +17,6 @@ static int alg_module_init(CONF_IMODULE * md, const CONF * cnf)
 	const char * oid_section;
 	STACK_OF(CONF_VALUE) *sktmp;
 	CONF_VALUE * oval;
-
 	oid_section = CONF_imodule_get_value(md);
 	if((sktmp = NCONF_get_section(cnf, oid_section)) == NULL) {
 		EVPerr(EVP_F_ALG_MODULE_INIT, EVP_R_ERROR_LOADING_SECTION);

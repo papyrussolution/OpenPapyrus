@@ -101,9 +101,11 @@ union bio_addr_st {
 	#define BIO_FLAGS_UPLINK 0x8000
 	#include "ms/uplink.h"
 #endif
+#include <openssl/conf.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 #include <openssl/err.h>
+#include <openssl/objects.h>
 #include <openssl/kdf.h>
 #include <openssl/evp.h>
 #include <openssl/cmac.h>
@@ -113,6 +115,7 @@ union bio_addr_st {
 #include <openssl/asn1t.h>
 #include <openssl/tls1.h>
 #include <openssl/x509.h>
+#include <openssl/x509v3.h>
 #include <openssl/engine.h>
 #include <openssl/ec.h>
 #include <openssl/cms.h>
@@ -124,7 +127,16 @@ union bio_addr_st {
 #include <openssl/modes.h>
 #include <openssl/ct.h>
 #include <openssl/asyncerr.h>
-////#include "internal/nelem.h"
+#include <openssl/rand.h>
+#include <openssl/ui.h>
+#include <openssl/bn.h>
+#include <openssl/pem.h>
+#include <openssl/ts.h>
+#include <openssl/pkcs7.h>
+#include <openssl/rsa.h>
+#include <openssl/dsa.h>
+#include <openssl/dh.h>
+//#include "internal/nelem.h"
 #include <asn1_int.h>
 #include <evp_int.h>
 #include <ssl-crypto-ctype.h>

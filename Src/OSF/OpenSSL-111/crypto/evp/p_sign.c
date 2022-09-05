@@ -8,13 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-//#include <evp_int.h>
 
-int EVP_SignFinal(EVP_MD_CTX * ctx, uchar * sigret,
-    uint * siglen, EVP_PKEY * pkey)
+int EVP_SignFinal(EVP_MD_CTX * ctx, uchar * sigret, uint * siglen, EVP_PKEY * pkey)
 {
 	uchar m[EVP_MAX_MD_SIZE];
 	uint m_len = 0;

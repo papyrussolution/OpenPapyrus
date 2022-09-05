@@ -531,17 +531,13 @@ NUMA * numaContrastTRC(float factor)
 	int32 i, val;
 	double x, ymax, ymin, dely, scale;
 	NUMA * na;
-
 	PROCNAME(__FUNCTION__);
-
 	if(factor < 0.0) {
-		L_WARNING("factor must be >= 0.0; using 0.0; no enhancement\n",
-		    procName);
+		L_WARNING("factor must be >= 0.0; using 0.0; no enhancement\n", procName);
 		factor = 0.0;
 	}
 	if(factor == 0.0)
 		return numaMakeSequence(0, 1, 256); /* linear map */
-
 	scale = EnhanceScaleFactor;
 	ymax = atan((double)(1.0 * factor * scale));
 	ymin = atan((double)(-127. * factor * scale / 128.));

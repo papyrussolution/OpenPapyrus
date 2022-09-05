@@ -406,8 +406,7 @@ int main(int argc, char ** argv)
 				xmlCatalogPtr super = NULL;
 				xmlCatalogPtr catal = xmlLoadSGMLSuperCatalog(argv[i+1]);
 				if(sstreq(argv[i], "-add") || sstreq(argv[i], "--add")) {
-					if(!catal)
-						catal = xmlNewCatalog(1);
+					SETIFZQ(catal, xmlNewCatalog(1));
 					xmlACatalogAdd(catal, reinterpret_cast<const xmlChar *>("CATALOG"), BAD_CAST argv[i+2], 0);
 					if(!no_super_update) {
 						super = xmlLoadSGMLSuperCatalog(XML_SGML_DEFAULT_CATALOG);

@@ -150,8 +150,7 @@ PIX * pixBilateral(PIX * pixs,
 		return (PIX *)ERROR_PTR("reduction invalid", procName, NULL);
 	filtersize = (int32)(2.0 * spatial_stdev + 1.0 + 0.5);
 	if(w < 2 * filtersize || h < 2 * filtersize) {
-		L_WARNING("w = %d, h = %d; w or h < 2 * filtersize = %d; "
-		    "returning copy\n", procName, w, h, 2 * filtersize);
+		L_WARNING("w = %d, h = %d; w or h < 2 * filtersize = %d; returning copy\n", procName, w, h, 2 * filtersize);
 		return pixCopy(NULL, pixs);
 	}
 	sstdev = spatial_stdev / (float)reduction; /* reduced spat. stdev */
@@ -163,14 +162,10 @@ PIX * pixBilateral(PIX * pixs,
 		return (PIX *)ERROR_PTR("ncomps not in [4 ... 30]", procName, NULL);
 	if(ncomps * range_stdev < 100.0)
 		return (PIX *)ERROR_PTR("ncomps * range_stdev < 100.0", procName, NULL);
-
 	if(d == 8)
-		return pixBilateralGray(pixs, spatial_stdev, range_stdev,
-			   ncomps, reduction);
-
+		return pixBilateralGray(pixs, spatial_stdev, range_stdev, ncomps, reduction);
 	pixt = pixGetRGBComponent(pixs, COLOR_RED);
-	pixr = pixBilateralGray(pixt, spatial_stdev, range_stdev, ncomps,
-		reduction);
+	pixr = pixBilateralGray(pixt, spatial_stdev, range_stdev, ncomps, reduction);
 	pixDestroy(&pixt);
 	pixt = pixGetRGBComponent(pixs, COLOR_GREEN);
 	pixg = pixBilateralGray(pixt, spatial_stdev, range_stdev, ncomps,
@@ -624,9 +619,7 @@ PIX * pixBilateralGrayExact(PIX * pixs,
 	float sum, weight_sum, weight;
 	L_KERNEL  * keli;
 	PIX * pixt, * pixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 8)
@@ -636,22 +629,19 @@ PIX * pixBilateralGrayExact(PIX * pixs,
 		return (PIX *)ERROR_PTR("spatial kel not defined", procName, NULL);
 	kernelGetParameters(spatial_kel, &sy, &sx, NULL, NULL);
 	if(w < 2 * sx + 1 || h < 2 * sy + 1) {
-		L_WARNING("w = %d < 2 * sx + 1 = %d, or h = %d < 2 * sy + 1 = %d; "
-		    "returning copy\n", procName, w, 2 * sx + 1, h, 2 * sy + 1);
+		L_WARNING("w = %d < 2 * sx + 1 = %d, or h = %d < 2 * sy + 1 = %d; returning copy\n", procName, w, 2 * sx + 1, h, 2 * sy + 1);
 		return pixCopy(NULL, pixs);
 	}
 	if(!range_kel)
 		return pixConvolve(pixs, spatial_kel, 8, 1);
 	if(range_kel->sx != 256 || range_kel->sy != 1)
 		return (PIX *)ERROR_PTR("range kel not {256 x 1", procName, NULL);
-
 	keli = kernelInvert(spatial_kel);
 	kernelGetParameters(keli, &sy, &sx, &cy, &cx);
 	if((pixt = pixAddMirroredBorder(pixs, cx, sx - cx, cy, sy - cy)) == NULL) {
 		kernelDestroy(&keli);
 		return (PIX *)ERROR_PTR("pixt not made", procName, NULL);
 	}
-
 	pixd = pixCreate(w, h, 8);
 	datat = pixGetData(pixt);
 	datad = pixGetData(pixd);

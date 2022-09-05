@@ -1506,7 +1506,8 @@ int DoConstructionTest()
 #endif
 	//TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);
-	PPStyloQInterchange::ExecuteIndexingRequest(true/*useCurrentSession*/);
+	TestCRC();
+	//PPStyloQInterchange::ExecuteIndexingRequest(true/*useCurrentSession*/);
 	//Test_ListSelectionDialog();
 	//SDecimalFraction::Test();
 	//ImportSpecial("\\DEV\\RESOURCE\\DATA\\ETC");
@@ -1514,7 +1515,6 @@ int DoConstructionTest()
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//DoTest_PThr4w();
 	//TestMqc();
-	//TestCRC();
 	/*{
 		SString _cmd;
 		SString _svcident;

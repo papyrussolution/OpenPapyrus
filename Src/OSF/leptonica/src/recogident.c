@@ -629,8 +629,7 @@ l_ok recogCorrelationBestChar(L_RECOG    * recog,
 		recogGetClassString(recog, bestindex, pcharstr);
 
 	if(ppixdb) {
-		L_INFO("Best match: class %d; shifts (%d, %d)\n",
-		    procName, bestindex, bestdelx, bestdely);
+		L_INFO("Best match: class %d; shifts (%d, %d)\n", procName, bestindex, bestdelx, bestdely);
 		pix2 = pixaGetPix(recog->pixa_u, bestindex, L_CLONE);
 		*ppixdb = recogShowMatch(recog, pix1, pix2, NULL, -1, 0.0);
 		pixDestroy(&pix2);
@@ -1037,23 +1036,19 @@ l_ok recogIdentifyPix(L_RECOG  * recog,
 
 	if(ppixdb) {
 		if(recog->templ_use == L_USE_AVERAGE_TEMPLATES) {
-			L_INFO("Best match: str %s; class %d; sh (%d, %d); score %5.3f\n",
-			    procName, text, bestindex, bestdelx, bestdely, maxscore);
+			L_INFO("Best match: str %s; class %d; sh (%d, %d); score %5.3f\n", procName, text, bestindex, bestdelx, bestdely, maxscore);
 			pix2 = pixaGetPix(recog->pixa, bestindex, L_CLONE);
 		}
 		else { /* L_USE_ALL_TEMPLATES */
-			L_INFO("Best match: str %s; sample %d in class %d; score %5.3f\n",
-			    procName, text, bestsample, bestindex, maxscore);
+			L_INFO("Best match: str %s; sample %d in class %d; score %5.3f\n", procName, text, bestsample, bestindex, maxscore);
 			if(maxyshift > 0 && (L_ABS(bestdelx) > 0 || L_ABS(bestdely) > 0)) {
-				L_INFO("  Best shift: (%d, %d)\n",
-				    procName, bestdelx, bestdely);
+				L_INFO("  Best shift: (%d, %d)\n", procName, bestdelx, bestdely);
 			}
 			pix2 = pixaaGetPix(recog->pixaa, bestindex, bestsample, L_CLONE);
 		}
 		*ppixdb = recogShowMatch(recog, pix1, pix2, NULL, -1, 0.0);
 		pixDestroy(&pix2);
 	}
-
 	pixDestroy(&pix1);
 	return 0;
 }

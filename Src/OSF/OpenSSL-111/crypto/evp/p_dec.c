@@ -8,16 +8,10 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/rsa.h>
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
 
-int EVP_PKEY_decrypt_old(uchar * key, const uchar * ek, int ekl,
-    EVP_PKEY * priv)
+int EVP_PKEY_decrypt_old(uchar * key, const uchar * ek, int ekl, EVP_PKEY * priv)
 {
 	int ret = -1;
-
 #ifndef OPENSSL_NO_RSA
 	if(EVP_PKEY_id(priv) != EVP_PKEY_RSA) {
 #endif
@@ -25,10 +19,7 @@ int EVP_PKEY_decrypt_old(uchar * key, const uchar * ek, int ekl,
 #ifndef OPENSSL_NO_RSA
 	goto err;
 }
-
-ret =
-    RSA_private_decrypt(ekl, ek, key, EVP_PKEY_get0_RSA(priv),
-	RSA_PKCS1_PADDING);
+ret = RSA_private_decrypt(ekl, ek, key, EVP_PKEY_get0_RSA(priv), RSA_PKCS1_PADDING);
 err:
 #endif
 	return ret;

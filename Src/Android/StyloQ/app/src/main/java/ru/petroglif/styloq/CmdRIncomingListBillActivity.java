@@ -360,7 +360,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
 							}
 							SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
-							if(possible_doc_uuid_list.size() > 0 && CPM.RestoreRecentIncomingModDocumentAsCurrent(possible_doc_uuid_list))
+							if(possible_doc_uuid_list != null && possible_doc_uuid_list.size() > 0 && CPM.RestoreRecentIncomingModDocumentAsCurrent(possible_doc_uuid_list))
 								SetupCurrentDocument(true, true);
 							else
 								SetupCurrentDocument(false, true);
@@ -405,7 +405,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							break;
 						case R.id.orderPrereqClientsListView: result = new Integer((CPM.CliListData != null) ? CPM.CliListData.size() : 0); break;
 						case R.id.searchPaneListView:
-							result = new Integer((CPM.SearchResult != null) ? CPM.SearchResult.GetObjTypeCount() : 0);
+							result = new Integer(CPM.SearchResult_GetObjTypeCount());
 						break;
 						 */
 					}
@@ -730,21 +730,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					}
 				}
 				break;
-			case SLib.EV_CREATEFRAGMENT:
-				if(subj instanceof Integer) {
-					int item_idx = (Integer)subj;
-					if(CPM.TabList != null && item_idx >= 0 && item_idx < CPM.TabList.size()) {
-						CommonPrereqModule.TabEntry cur_entry = (CommonPrereqModule.TabEntry)CPM.TabList.get(item_idx);
-						if(cur_entry.TabView != null)
-							result = cur_entry.TabView;
-					}
-				}
-				break;
+			case SLib.EV_CREATEFRAGMENT: result = CPM.OnEvent_CreateFragment(subj); break;
 			case SLib.EV_SETUPFRAGMENT:
 				if(subj != null && subj instanceof View) {
-					final int selected_search_idx = (CPM.SearchResult != null) ? CPM.SearchResult.GetSelectedItemIndex() : -1;
-					final int selected_search_objtype = (selected_search_idx >= 0) ? CPM.SearchResult.List.get(selected_search_idx).ObjType : 0;
-					final int selected_search_objid = (selected_search_idx >= 0) ? CPM.SearchResult.List.get(selected_search_idx).ObjID : 0;
+					//final int selected_search_idx = CPM.SearchResult_GetSelectedItmeIndex();
+					//final int selected_search_objtype = (selected_search_idx >= 0) ? CPM.SearchResult.List.get(selected_search_idx).ObjType : 0;
+					//final int selected_search_objid = (selected_search_idx >= 0) ? CPM.SearchResult.List.get(selected_search_idx).ObjID : 0;
+					final SLib.PPObjID selected_search_oid = CPM.SearchResult_GetSelectedOid();
 					if(srcObj != null && srcObj instanceof SLib.SlFragmentStatic) {
 						SLib.SlFragmentStatic fragment = (SLib.SlFragmentStatic) srcObj;
 						View fv = (View) subj;

@@ -340,17 +340,13 @@ NUMA * numaCreateFromString(const char * str)
 void numaDestroy(NUMA ** pna)
 {
 	NUMA * na;
-
 	PROCNAME(__FUNCTION__);
-
 	if(pna == NULL) {
 		L_WARNING("ptr address is NULL\n", procName);
 		return;
 	}
-
 	if((na = *pna) == NULL)
 		return;
-
 	/* Decrement the ref count.  If it is 0, destroy the numa. */
 	numaChangeRefcount(na, -1);
 	if(numaGetRefcount(na) <= 0) {
@@ -358,7 +354,6 @@ void numaDestroy(NUMA ** pna)
 			SAlloc::F(na->array);
 		SAlloc::F(na);
 	}
-
 	*pna = NULL;
 }
 
@@ -372,23 +367,17 @@ NUMA * numaCopy(NUMA * na)
 {
 	int32 i;
 	NUMA * cna;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!na)
 		return (NUMA*)ERROR_PTR("na not defined", procName, NULL);
-
 	if((cna = numaCreate(na->nalloc)) == NULL)
 		return (NUMA*)ERROR_PTR("cna not made", procName, NULL);
 	cna->startx = na->startx;
 	cna->delx = na->delx;
-
 	for(i = 0; i < na->n; i++)
 		numaAddNumber(cna, na->array[i]);
-
 	return cna;
 }
-
 /*!
  * \brief   numaClone()
  *
@@ -398,10 +387,8 @@ NUMA * numaCopy(NUMA * na)
 NUMA * numaClone(NUMA * na)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!na)
 		return (NUMA*)ERROR_PTR("na not defined", procName, NULL);
-
 	numaChangeRefcount(na, 1);
 	return na;
 }

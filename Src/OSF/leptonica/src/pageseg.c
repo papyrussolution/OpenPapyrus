@@ -1468,19 +1468,14 @@ l_ok pixDecideIfText(PIX * pixs,
 		*pistext = 1;
 	if(pixadb) {
 		if(*pistext == 1) {
-			L_INFO("This is text: \n  n1 = %d, n2 = %d, n3 = %d, "
-			    "minlines = %d\n  maxw = %d, ratio1 = %4.2f, h = %d, "
-			    "big_comp = %d\n", procName, n1, n2, n3, minlines,
+			L_INFO("This is text: \n  n1 = %d, n2 = %d, n3 = %d, minlines = %d\n  maxw = %d, ratio1 = %4.2f, h = %d, big_comp = %d\n", procName, n1, n2, n3, minlines,
 			    maxw, ratio1, h, big_comp);
 		}
 		else {
-			L_INFO("This is not text: \n  n1 = %d, n2 = %d, n3 = %d, "
-			    "minlines = %d\n  maxw = %d, ratio1 = %4.2f, h = %d, "
-			    "big_comp = %d\n", procName, n1, n2, n3, minlines,
+			L_INFO("This is not text: \n  n1 = %d, n2 = %d, n3 = %d, minlines = %d\n  maxw = %d, ratio1 = %4.2f, h = %d, big_comp = %d\n", procName, n1, n2, n3, minlines,
 			    maxw, ratio1, h, big_comp);
 		}
 	}
-
 	boxaDestroy(&boxa1);
 	boxaDestroy(&boxa2);
 	boxaDestroy(&boxa3);

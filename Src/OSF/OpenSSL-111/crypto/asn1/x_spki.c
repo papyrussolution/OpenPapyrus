@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/x509.h>
-#include <openssl/asn1t.h>
 
 ASN1_SEQUENCE(NETSCAPE_SPKAC) = {
 	ASN1_SIMPLE(NETSCAPE_SPKAC, pubkey, X509_PUBKEY),

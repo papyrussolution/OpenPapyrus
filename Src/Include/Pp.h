@@ -5845,9 +5845,9 @@ public:
 		hfComprZ     = 0x0080, // @v11.0.10 Данные пакета (не включая заголовок) сжаты методом ZLIB
 	};
 
-	struct Header { // @persistent @flat
-		Header();
-		Header & Z();
+	struct Header01 { // @persistent @flat
+		Header01();
+		Header01 & Z();
 		SString & FASTCALL ToStr(SString & rBuf) const;
 
 		int16  Zero;        // Два нулевых байта, позволяющие отличить структурированную бинарную команду от текстовой
@@ -5878,7 +5878,7 @@ public:
 	//
 	int    FASTCALL StartReading(SString * pRepString);
 	int    Helper_Recv(TcpSocket & rSo, const char * pTerminal, size_t * pActualSize);
-	const  Header & GetH() const { return H; }
+	const  Header01 & GetH() const { return H; }
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	int    CheckRepError();
 
@@ -5928,7 +5928,7 @@ protected:
 		stReading    = 0x0002
 	};
 	long   State;
-	Header H; // Заголовок, считанный функцией StartReading
+	Header01 H; // Заголовок, считанный функцией StartReading
 	SString ErrText;
 	const char * P_TokAck;
 	const char * P_TokErr;
@@ -20832,7 +20832,7 @@ struct PPCashNode2 {       // @persistent @store(Reference2Tbl+)
 
 class PPGenCashNode {        // @transient
 public:
-	struct DivGrpAssc { // @flat
+	struct DivGrpAssc {      // @flat
 		PPID   GrpID;        // ->Goods2.ID (GoodsGroup)
 		short  DivN;         // Номер отдела
 	};

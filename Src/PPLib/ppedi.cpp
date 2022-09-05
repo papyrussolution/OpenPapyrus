@@ -31,7 +31,7 @@ static const GtinFixedLengthToken GtinFixedLengthTokenList[] = {
 	//{ GtinStruc::fldSerial,                "21" }, // 1..20 num
 	//{ GtinStruc::fldHIBCC,                 "22" }, // 1..29 alnum
 	//{ GtinStruc::fldQtty,                  "30" }, // 1..8 num  
-	//{ GtinStruc::fldCount,                 "37" }, // 1..8 num  
+	//{ GtinStruc::fldCount,                 "37" }, // 1..8 num  // !
 	//{ GtinStruc::fldMutualCode,            "90" }, // 1..30 alnum
 	//{ GtinStruc::fldUSPS,                  "91" }, // 1..8 num   
 	//{ GtinStruc::fldInner1,                "92" }, // 1..30 alnum

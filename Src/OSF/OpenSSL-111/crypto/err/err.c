@@ -179,7 +179,7 @@ static ERR_STRING_DATA SYS_str_reasons[NUM_SYS_STR_REASONS + 1];
  * codes.
  */
 
-static void build_SYS_str_reasons(void)
+static void build_SYS_str_reasons()
 {
 	/* OPENSSL_malloc cannot be used here, use static storage instead */
 	static char strerror_pool[SPACE_SYS_STR_REASONS];
@@ -277,7 +277,7 @@ DEFINE_RUN_ONCE_STATIC(do_err_strings_init)
 	return 1;
 }
 
-void err_cleanup(void)
+void err_cleanup()
 {
 	if(set_err_thread_local != 0)
 		CRYPTO_THREAD_cleanup_local(&err_thread_local);
@@ -293,7 +293,6 @@ void err_cleanup(void)
 static void err_patch(int lib, ERR_STRING_DATA * str)
 {
 	ulong plib = ERR_PACK(lib, 0, 0);
-
 	for(; str->error != 0; str++)
 		str->error |= plib;
 }
@@ -305,18 +304,16 @@ static int err_load_strings(const ERR_STRING_DATA * str)
 {
 	CRYPTO_THREAD_write_lock(err_string_lock);
 	for(; str->error; str++)
-		(void)lh_ERR_STRING_DATA_insert(int_error_hash,
-		    (ERR_STRING_DATA*)str);
+		(void)lh_ERR_STRING_DATA_insert(int_error_hash, (ERR_STRING_DATA*)str);
 	CRYPTO_THREAD_unlock(err_string_lock);
 	return 1;
 }
 
-int ERR_load_ERR_strings(void)
+int ERR_load_ERR_strings()
 {
 #ifndef OPENSSL_NO_ERR
 	if(!RUN_ONCE(&err_string_init, do_err_strings_init))
 		return 0;
-
 	err_load_strings(ERR_str_libraries);
 	err_load_strings(ERR_str_reasons);
 	err_patch(ERR_LIB_SYS, ERR_str_functs);
@@ -330,7 +327,6 @@ int ERR_load_strings(int lib, ERR_STRING_DATA * str)
 {
 	if(ERR_load_ERR_strings() == 0)
 		return 0;
-
 	err_patch(lib, str);
 	err_load_strings(str);
 	return 1;
@@ -348,7 +344,6 @@ int ERR_unload_strings(int lib, ERR_STRING_DATA * str)
 {
 	if(!RUN_ONCE(&err_string_init, do_err_strings_init))
 		return 0;
-
 	CRYPTO_THREAD_write_lock(err_string_lock);
 	/*
 	 * We don't need to ERR_PACK the lib, since that was done (to
@@ -360,13 +355,11 @@ int ERR_unload_strings(int lib, ERR_STRING_DATA * str)
 	return 1;
 }
 
-void err_free_strings_int(void)
+void err_free_strings_int()
 {
 	if(!RUN_ONCE(&err_string_init, do_err_strings_init))
 		return;
 }
-
-/********************************************************/
 
 void FASTCALL ERR_put_error(int lib, int func, int reason, const char * file, int line)
 {
@@ -402,25 +395,24 @@ void FASTCALL ERR_put_error(int lib, int func, int reason, const char * file, in
 	}
 }
 
-void ERR_clear_error(void)
+void ERR_clear_error()
 {
-	int i;
 	ERR_STATE * es = ERR_get_state();
-	if(es == NULL)
-		return;
-	for(i = 0; i < ERR_NUM_ERRORS; i++) {
-		err_clear(es, i);
+	if(es) {
+		for(int i = 0; i < ERR_NUM_ERRORS; i++) {
+			err_clear(es, i);
+		}
+		es->top = es->bottom = 0;
 	}
-	es->top = es->bottom = 0;
 }
 
-ulong ERR_get_error(void) { return get_error_values(1, 0, NULL, NULL, NULL, NULL); }
+ulong ERR_get_error() { return get_error_values(1, 0, NULL, NULL, NULL, NULL); }
 ulong ERR_get_error_line(const char ** file, int * line) { return get_error_values(1, 0, file, line, NULL, NULL); }
 ulong ERR_get_error_line_data(const char ** file, int * line, const char ** data, int * flags) { return get_error_values(1, 0, file, line, data, flags); }
-ulong ERR_peek_error(void) { return get_error_values(0, 0, NULL, NULL, NULL, NULL); }
+ulong ERR_peek_error() { return get_error_values(0, 0, NULL, NULL, NULL, NULL); }
 ulong ERR_peek_error_line(const char ** file, int * line) { return get_error_values(0, 0, file, line, NULL, NULL); }
 ulong ERR_peek_error_line_data(const char ** file, int * line, const char ** data, int * flags) { return get_error_values(0, 0, file, line, data, flags); }
-ulong ERR_peek_last_error(void) { return get_error_values(0, 1, NULL, NULL, NULL, NULL); }
+ulong ERR_peek_last_error() { return get_error_values(0, 1, NULL, NULL, NULL, NULL); }
 ulong ERR_peek_last_error_line(const char ** file, int * line) { return get_error_values(0, 1, file, line, NULL, NULL); }
 ulong ERR_peek_last_error_line_data(const char ** file, int * line, const char ** data, int * flags) { return get_error_values(0, 1, file, line, data, flags); }
 
@@ -579,7 +571,7 @@ const char * ERR_reason_error_string(ulong e)
 	return ((p == NULL) ? NULL : p->string);
 }
 
-void err_delete_thread_state(void)
+void err_delete_thread_state()
 {
 	ERR_STATE * state = static_cast<ERR_STATE *>(CRYPTO_THREAD_get_local(&err_thread_local));
 	if(state) {
@@ -606,7 +598,7 @@ DEFINE_RUN_ONCE_STATIC(err_do_init)
 	return CRYPTO_THREAD_init_local(&err_thread_local, NULL);
 }
 
-ERR_STATE * ERR_get_state(void)
+ERR_STATE * ERR_get_state()
 {
 	ERR_STATE * state;
 	int saveerrno = get_last_sys_error();
@@ -677,7 +669,7 @@ void err_unshelve_state(void * state)
 		CRYPTO_THREAD_set_local(&err_thread_local, (ERR_STATE*)state);
 }
 
-int ERR_get_next_error_library(void)
+int ERR_get_next_error_library()
 {
 	int ret;
 	if(!RUN_ONCE(&err_string_init, do_err_strings_init))
@@ -749,7 +741,7 @@ void ERR_add_error_vdata(int num, va_list args)
 		OPENSSL_free(str);
 }
 
-int ERR_set_mark(void)
+int ERR_set_mark()
 {
 	ERR_STATE * es = ERR_get_state();
 	if(es == NULL)
@@ -760,7 +752,7 @@ int ERR_set_mark(void)
 	return 1;
 }
 
-int ERR_pop_to_mark(void)
+int ERR_pop_to_mark()
 {
 	ERR_STATE * es = ERR_get_state();
 	if(es == NULL)
@@ -775,7 +767,7 @@ int ERR_pop_to_mark(void)
 	return 1;
 }
 
-int ERR_clear_last_mark(void)
+int ERR_clear_last_mark()
 {
 	int top;
 	ERR_STATE * es = ERR_get_state();

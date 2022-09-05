@@ -4970,6 +4970,7 @@ PPTXT_TEXTHASBEENCOPIEDTOCLIPBOARD   "Текст был скопирован в 
 PPTXT_STQ_BLOBTRANSMTOMEDIATORSUCC   "Stylo-Q: blob объекта передан медиатору (%s)"
 PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL   "Stylo-Q: ошибка передачи медиатору blob'а объекта (%s): %s"
 PPTXT_STQ_HINT_FRIENDINVITATION      "Приглашение.\nДайте просканировать этот код другу с его телефона,\nчтобы присоединится к сервису '%s'"
+PPTXT_STQ_HINT_GOTOSVCORDFINISHING   "После выбора времени обслуживания перейдите на вкладку '@{orderdocument}' для отправки заказа сервису."
 //
 // LastText
 

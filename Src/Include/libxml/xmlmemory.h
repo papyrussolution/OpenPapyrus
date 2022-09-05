@@ -103,15 +103,15 @@ XMLPUBFUN void XMLCALL xmlCleanupMemory();
 /*
  * These are specific to the XML debug memory wrapper.
  */
-XMLPUBFUN int XMLCALL xmlMemUsed();
-XMLPUBFUN int XMLCALL xmlMemBlocks();
-XMLPUBFUN void XMLCALL xmlMemDisplay(FILE *fp);
-XMLPUBFUN void XMLCALL xmlMemDisplayLast(FILE *fp, long nbBytes);
-XMLPUBFUN void XMLCALL xmlMemShow(FILE *fp, int nr);
-XMLPUBFUN void XMLCALL xmlMemoryDump();
+XMLPUBFUN int    XMLCALL xmlMemUsed();
+XMLPUBFUN int    XMLCALL xmlMemBlocks();
+XMLPUBFUN void   XMLCALL xmlMemDisplay(FILE *fp);
+XMLPUBFUN void   XMLCALL xmlMemDisplayLast(FILE *fp, long nbBytes);
+XMLPUBFUN void   XMLCALL xmlMemShow(FILE *fp, int nr);
+XMLPUBFUN void   XMLCALL xmlMemoryDump();
 XMLPUBFUN void * XMLCALL xmlMemMalloc(size_t size) LIBXML_ATTR_ALLOC_SIZE(1);
 XMLPUBFUN void * XMLCALL xmlMemRealloc(void *ptr,size_t size);
-XMLPUBFUN void XMLCALL xmlMemFree(void *ptr);
+XMLPUBFUN void   XMLCALL xmlMemFree(void *ptr);
 XMLPUBFUN char * XMLCALL xmlMemoryStrdup(const char *str);
 XMLPUBFUN void * XMLCALL xmlMallocLoc(size_t size, const char *file, int line) LIBXML_ATTR_ALLOC_SIZE(1);
 XMLPUBFUN void * XMLCALL xmlReallocLoc(void *ptr, size_t size, const char *file, int line);

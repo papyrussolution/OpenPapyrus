@@ -273,8 +273,7 @@ PIX * pixBlendMask(PIX * pixd,
 	}
 	if(type != L_BLEND_WITH_INVERSE && type != L_BLEND_TO_WHITE &&
 	    type != L_BLEND_TO_BLACK) {
-		L_WARNING("invalid blend type; setting to L_BLEND_WITH_INVERSE\n",
-		    procName);
+		L_WARNING("invalid blend type; setting to L_BLEND_WITH_INVERSE\n", procName);
 		type = L_BLEND_WITH_INVERSE;
 	}
 
@@ -336,8 +335,7 @@ PIX * pixBlendMask(PIX * pixd,
 							pixSetPixel(pixd, x + j, y + i, pixval);
 							break;
 						    default:
-							L_WARNING("d neither 8 nor 32 bpp; no blend\n",
-							    procName);
+							L_WARNING("d neither 8 nor 32 bpp; no blend\n", procName);
 					    }
 				    }
 			    }
@@ -372,8 +370,7 @@ PIX * pixBlendMask(PIX * pixd,
 							pixSetPixel(pixd, x + j, y + i, pixval);
 							break;
 						    default:
-							L_WARNING("d neither 8 nor 32 bpp; no blend\n",
-							    procName);
+							L_WARNING("d neither 8 nor 32 bpp; no blend\n", procName);
 					    }
 				    }
 			    }
@@ -408,8 +405,7 @@ PIX * pixBlendMask(PIX * pixd,
 							pixSetPixel(pixd, x + j, y + i, pixval);
 							break;
 						    default:
-							L_WARNING("d neither 8 nor 32 bpp; no blend\n",
-							    procName);
+							L_WARNING("d neither 8 nor 32 bpp; no blend\n", procName);
 					    }
 				    }
 			    }

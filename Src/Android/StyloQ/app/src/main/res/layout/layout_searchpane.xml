@@ -19,7 +19,8 @@
                 style="@style/InputLine"
                 android:id="@+id/CTL_SEARCHPANE_INPUTLAYOUT"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 app:endIconMode="clear_text"
                 >
                 <com.google.android.material.textfield.TextInputEditText
@@ -29,6 +30,11 @@
                     />
             </com.google.android.material.textfield.TextInputLayout>
             <!-- Здесь еще будет кнопка commit -->
+            <ImageButton style="@style/ImagePushButton" android:id="@+id/CTLBUT_SEARCHPANE_OPTIONS"
+                android:layout_height="24dp"
+                android:layout_width="24dp"
+                android:layout_gravity="center_vertical|right"
+                app:srcCompat="@drawable/ic_asterisk01"/>
         </LinearLayout>
         <TextView
             android:id="@+id/CTL_SEARCHPANE_RESULTINFO"
@@ -36,6 +42,7 @@
             android:layout_height="wrap_content"
             android:textSize="10sp"
             />
+        <Spinner style="@style/ComboBox" android:id="@+id/CTLSEL_SEARCHPANE_OPTIONS"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/searchPaneListView"
             android:layout_width="match_parent"

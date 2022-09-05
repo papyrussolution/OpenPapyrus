@@ -10,35 +10,27 @@
 /* Simple PKCS#7 processing functions */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
 
 #define BUFFERSIZE 4096
 
 static int pkcs7_copy_existing_digest(PKCS7 * p7, PKCS7_SIGNER_INFO * si);
 
-PKCS7 * PKCS7_sign(X509 * signcert, EVP_PKEY * pkey, STACK_OF(X509) * certs,
-    BIO * data, int flags)
+PKCS7 * PKCS7_sign(X509 * signcert, EVP_PKEY * pkey, STACK_OF(X509) * certs, BIO * data, int flags)
 {
 	PKCS7 * p7;
 	int i;
-
 	if((p7 = PKCS7_new()) == NULL) {
 		PKCS7err(PKCS7_F_PKCS7_SIGN, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	if(!PKCS7_set_type(p7, NID_pkcs7_signed))
 		goto err;
-
 	if(!PKCS7_content_new(p7, NID_pkcs7_data))
 		goto err;
-
 	if(pkey && !PKCS7_sign_add_signer(p7, signcert, pkey, NULL, flags)) {
 		PKCS7err(PKCS7_F_PKCS7_SIGN, PKCS7_R_PKCS7_ADD_SIGNER_ERROR);
 		goto err;
 	}
-
 	if(!(flags & PKCS7_NOCERTS)) {
 		for(i = 0; i < sk_X509_num(certs); i++) {
 			if(!PKCS7_add_certificate(p7, sk_X509_value(certs, i)))

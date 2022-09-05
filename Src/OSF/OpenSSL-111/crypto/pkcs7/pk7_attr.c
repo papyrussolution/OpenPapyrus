@@ -9,40 +9,27 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/bio.h>
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/pem.h>
 #include <openssl/pkcs7.h>
-#include <openssl/x509.h>
-#include <openssl/err.h>
 
-int PKCS7_add_attrib_smimecap(PKCS7_SIGNER_INFO * si,
-    STACK_OF(X509_ALGOR) * cap)
+int PKCS7_add_attrib_smimecap(PKCS7_SIGNER_INFO * si, STACK_OF(X509_ALGOR) * cap)
 {
 	ASN1_STRING * seq;
-
 	if((seq = ASN1_STRING_new()) == NULL) {
 		PKCS7err(PKCS7_F_PKCS7_ADD_ATTRIB_SMIMECAP, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
-	seq->length = ASN1_item_i2d((ASN1_VALUE*)cap, &seq->data,
-		ASN1_ITEM_rptr(X509_ALGORS));
-	return PKCS7_add_signed_attribute(si, NID_SMIMECapabilities,
-		   V_ASN1_SEQUENCE, seq);
+	seq->length = ASN1_item_i2d((ASN1_VALUE*)cap, &seq->data, ASN1_ITEM_rptr(X509_ALGORS));
+	return PKCS7_add_signed_attribute(si, NID_SMIMECapabilities, V_ASN1_SEQUENCE, seq);
 }
 
 STACK_OF(X509_ALGOR) *PKCS7_get_smimecap(PKCS7_SIGNER_INFO *si)
 {
-	ASN1_TYPE * cap;
 	const uchar * p;
-
-	cap = PKCS7_get_signed_attribute(si, NID_SMIMECapabilities);
+	ASN1_TYPE * cap = PKCS7_get_signed_attribute(si, NID_SMIMECapabilities);
 	if(cap == NULL || (cap->type != V_ASN1_SEQUENCE))
 		return NULL;
 	p = cap->value.sequence->data;
-	return (STACK_OF(X509_ALGOR) *)
-	       ASN1_item_d2i(NULL, &p, cap->value.sequence->length,
-		   ASN1_ITEM_rptr(X509_ALGORS));
+	return (STACK_OF(X509_ALGOR) *)ASN1_item_d2i(NULL, &p, cap->value.sequence->length, ASN1_ITEM_rptr(X509_ALGORS));
 }
 
 /* Basic smime-capabilities OID and optional integer arg */

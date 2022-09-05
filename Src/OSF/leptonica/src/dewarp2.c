@@ -49,21 +49,14 @@
 #pragma hdrstop
 
 static PTA * dewarpGetMeanVerticals(PIX * pixs, int32 x, int32 y);
-static int32 dewarpGetLineEndPoints(int32 h, PTAA * ptaa, PTA ** pptal,
-    PTA ** pptar);
-static int32 dewarpFilterLineEndPoints(L_DEWARP * dew, PTA * ptal1, PTA * ptar1,
-    PTA ** pptal2, PTA ** pptar2);
+static int32 dewarpGetLineEndPoints(int32 h, PTAA * ptaa, PTA ** pptal, PTA ** pptar);
+static int32 dewarpFilterLineEndPoints(L_DEWARP * dew, PTA * ptal1, PTA * ptar1, PTA ** pptal2, PTA ** pptar2);
 static PTA * dewarpRemoveBadEndPoints(int32 w, PTA * ptas);
-static int32 dewarpIsLineCoverageValid(PTAA * ptaa2, int32 h,
-    int32 * pntop, int32 * pnbot,
-    int32 * pytop, int32 * pybot);
-static int32 dewarpLinearLSF(PTA * ptad, float * pa, float * pb,
-    float * pmederr);
-static int32 dewarpQuadraticLSF(PTA * ptad, float * pa, float * pb,
-    float * pc, float * pmederr);
+static int32 dewarpIsLineCoverageValid(PTAA * ptaa2, int32 h, int32 * pntop, int32 * pnbot, int32 * pytop, int32 * pybot);
+static int32 dewarpLinearLSF(PTA * ptad, float * pa, float * pb, float * pmederr);
+static int32 dewarpQuadraticLSF(PTA * ptad, float * pa, float * pb, float * pc, float * pmederr);
 static int32 pixRenderMidYs(PIX * pixs, NUMA * namidys, int32 linew);
-static int32 pixRenderHorizEndPoints(PIX * pixs, PTA * ptal, PTA * ptar,
-    uint32 color);
+static int32 pixRenderHorizEndPoints(PIX * pixs, PTA * ptal, PTA * ptar, uint32 color);
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_TEXTLINE_CENTERS    0   /* set this to 1 for debugging */
@@ -175,8 +168,7 @@ l_ok dewarpBuildPageModel(L_DEWARP * dew,
 
 	/* Remove all lines that are not at least 0.8 times the length
 	 * of the longest line. */
-	ptaa2 = dewarpRemoveShortLines(pixs, ptaa1, 0.8,
-		debugfile || DEBUG_SHORT_LINES);
+	ptaa2 = dewarpRemoveShortLines(pixs, ptaa1, 0.8f, debugfile || DEBUG_SHORT_LINES);
 	if(debugfile) {
 		pix1 = pixConvertTo32(pixs);
 		pta = generatePtaFilledCircle(1);
@@ -194,8 +186,7 @@ l_ok dewarpBuildPageModel(L_DEWARP * dew,
 	linecount = ptaaGetCount(ptaa2);
 	if(linecount < dew->minlines) {
 		ptaaDestroy(&ptaa2);
-		L_WARNING("linecount %d < min req'd number of lines (%d) for model\n",
-		    procName, linecount, dew->minlines);
+		L_WARNING("linecount %d < min req'd number of lines (%d) for model\n", procName, linecount, dew->minlines);
 		return 1;
 	}
 
@@ -204,12 +195,9 @@ l_ok dewarpBuildPageModel(L_DEWARP * dew,
 	if(dewarpIsLineCoverageValid(ptaa2, pixGetHeight(pixs),
 	    &ntop, &nbot, &ytop, &ybot) == FALSE) {
 		ptaaDestroy(&ptaa2);
-		L_WARNING("invalid line coverage: ntop = %d, nbot = %d;"
-		    " spanning [%d ... %d] in height %d\n", procName,
-		    ntop, nbot, ytop, ybot, pixGetHeight(pixs));
+		L_WARNING("invalid line coverage: ntop = %d, nbot = %d; spanning [%d ... %d] in height %d\n", procName, ntop, nbot, ytop, ybot, pixGetHeight(pixs));
 		return 1;
 	}
-
 	/* Get the sampled vertical disparity from the textline centers.
 	 * The disparity array will push pixels vertically so that each
 	 * textline is flat and centered at the y-position of the mid-point. */
@@ -230,21 +218,19 @@ l_ok dewarpBuildPageModel(L_DEWARP * dew,
 	/* Debug output */
 	if(debugfile) {
 		dewarpPopulateFullRes(dew, NULL, 0, 0);
-		pix1 = fpixRenderContours(dew->fullvdispar, 3.0, 0.15);
+		pix1 = fpixRenderContours(dew->fullvdispar, 3.0f, 0.15f);
 		pixWriteDebug("/tmp/lept/dewmod/0060.png", pix1, IFF_PNG);
 		pixDisplay(pix1, 1000, 0);
 		pixDestroy(&pix1);
 		if(ret == 0) {
-			pix1 = fpixRenderContours(dew->fullhdispar, 3.0, 0.15);
+			pix1 = fpixRenderContours(dew->fullhdispar, 3.0f, 0.15f);
 			pixWriteDebug("/tmp/lept/dewmod/0070.png", pix1, IFF_PNG);
 			pixDisplay(pix1, 1000, 0);
 			pixDestroy(&pix1);
 		}
-		convertFilesToPdf("/tmp/lept/dewmod", NULL, 135, 1.0, 0, 0,
-		    "Dewarp Build Model", debugfile);
+		convertFilesToPdf("/tmp/lept/dewmod", NULL, 135, 1.0, 0, 0, "Dewarp Build Model", debugfile);
 		lept_stderr("pdf file: %s\n", debugfile);
 	}
-
 	ptaaDestroy(&ptaa2);
 	return 0;
 }
@@ -1137,8 +1123,7 @@ static int32 dewarpFilterLineEndPoints(L_DEWARP * dew,
 	if(!ptal2 || !ptar2) {
 		ptaDestroy(&ptal2);
 		ptaDestroy(&ptar2);
-		L_INFO("Second filter: too few endpoints left after outliers removed\n",
-		    procName);
+		L_INFO("Second filter: too few endpoints left after outliers removed\n", procName);
 		return 1;
 	}
 	if(dew->debug) {
@@ -1197,8 +1182,7 @@ static PTA * dewarpRemoveBadEndPoints(int32 w,
 	ptaDestroy(&ptau1);
 	if(ptaGetCount(ptau2) < MinLinesForHoriz2) {
 		ptaDestroy(&ptau2);
-		L_INFO("Second filter: upper set is too small after outliers removed\n",
-		    procName);
+		L_INFO("Second filter: upper set is too small after outliers removed\n", procName);
 		return NULL;
 	}
 
@@ -1216,8 +1200,7 @@ static PTA * dewarpRemoveBadEndPoints(int32 w,
 	if(ptaGetCount(ptad2) < MinLinesForHoriz2) {
 		ptaDestroy(&ptau2);
 		ptaDestroy(&ptad2);
-		L_INFO("Second filter: lower set is too small after outliers removed\n",
-		    procName);
+		L_INFO("Second filter: lower set is too small after outliers removed\n", procName);
 		return NULL;
 	}
 
@@ -1544,28 +1527,25 @@ l_ok dewarpFindHorizSlopeDisparity(L_DEWARP * dew,
 	numaDestroy(&na1);
 	n2 = numaGetCount(na2);
 	delta = (parity == 0) ? last - first : first - last;
-	denom = MAX(1.0, (float)(MIN(first, last)));
+	denom = smax(1.0f, static_cast<float>(smin(first, last)));
 	fract = (float)delta / denom;
 	if(dew->debug) {
-		L_INFO("Slope-disparity: first = %d, last = %d, fract = %7.3f\n",
-		    procName, first, last, fract);
+		L_INFO("Slope-disparity: first = %d, last = %d, fract = %7.3f\n", procName, first, last, fract);
 		gplotSimple1(na2, GPLOT_PNG, "/tmp/lept/dew/0092", NULL);
 		lept_mv("/tmp/lept/dew/0092.png", "lept/dewmod", NULL, NULL);
 	}
 	if(fract < fractthresh) {
-		L_INFO("Small slope-disparity: first = %d, last = %d, fract = %7.3f\n",
-		    procName, first, last, fract);
+		L_INFO("Small slope-disparity: first = %d, last = %d, fract = %7.3f\n", procName, first, last, fract);
 		numaDestroy(&na2);
 		return 0;
 	}
-
 	/* Find the density far from the binding, and normalize to 1.  */
 	ne = n2 - n2 % 2;
 	if(parity == 0)
 		numaGetSumOnInterval(na2, 0, ne / 2 - 1, &sum);
 	else /* parity == 1 */
 		numaGetSumOnInterval(na2, ne / 2, ne - 1, &sum);
-	denom = MAX(1.0, (float)(ne / 2));
+	denom = smax(1.0f, static_cast<float>(ne / 2));
 	aveval = sum / denom;
 	na3 = numaMakeConstant(aveval, n2);
 	numaArithOp(na2, na2, na3, L_ARITH_DIVIDE);
@@ -1575,7 +1555,6 @@ l_ok dewarpFindHorizSlopeDisparity(L_DEWARP * dew,
 		gplotSimple1(na2, GPLOT_PNG, "/tmp/lept/dew/0093", NULL);
 		lept_mv("/tmp/lept/dew/0093.png", "lept/dewmod", NULL, NULL);
 	}
-
 	/* Fit the normalized density curve to a quartic */
 	pta1 = numaConvertToPta1(na2);
 	ptaWriteStream(stderr, pta1, 0);
@@ -1583,8 +1562,7 @@ l_ok dewarpFindHorizSlopeDisparity(L_DEWARP * dew,
 	ptaGetQuarticLSF(pta1, &ca, &cb, &cc, &cd, &ce, &na3);
 	ptaGetArrays(pta1, &na4, NULL);
 	if(dew->debug) {
-		gplot = gplotSimpleXY1(na4, na3, GPLOT_LINES, GPLOT_PNG,
-			"/tmp/lept/dew/0094", NULL);
+		gplot = gplotSimpleXY1(na4, na3, GPLOT_LINES, GPLOT_PNG, "/tmp/lept/dew/0094", NULL);
 		gplotDestroy(&gplot);
 		lept_mv("/tmp/lept/dew/0094.png", "lept/dewmod", NULL, NULL);
 	}
@@ -1642,7 +1620,6 @@ l_ok dewarpFindHorizSlopeDisparity(L_DEWARP * dew,
 	}
 	dew->sampydispar = fpix;
 	dew->ysuccess = 1;
-
 	numaDestroy(&na2);
 	numaDestroy(&na3);
 	numaDestroy(&na4);
@@ -1818,27 +1795,24 @@ l_ok dewarpBuildLineModel(L_DEWARP * dew, int32 opensize, const char * debugfile
 		pixDestroy(&pix);
 	}
 	pixaDestroy(&pixa1);
-
 	/* Debug output */
 	if(debugfile) {
 		if(dew->vsuccess == 1) {
 			dewarpPopulateFullRes(dew, NULL, 0, 0);
-			pix1 = fpixRenderContours(dew->fullvdispar, 3.0, 0.15);
+			pix1 = fpixRenderContours(dew->fullvdispar, 3.0f, 0.15f);
 			pixWriteDebug("/tmp/lept/dewline/006.png", pix1, IFF_PNG);
 			pixDisplay(pix1, 1000, 0);
 			pixDestroy(&pix1);
 		}
 		if(dew->hsuccess == 1) {
-			pix1 = fpixRenderContours(dew->fullhdispar, 3.0, 0.15);
+			pix1 = fpixRenderContours(dew->fullhdispar, 3.0f, 0.15f);
 			pixWriteDebug("/tmp/lept/dewline/007.png", pix1, IFF_PNG);
 			pixDisplay(pix1, 1000, 0);
 			pixDestroy(&pix1);
 		}
-		convertFilesToPdf("/tmp/lept/dewline", NULL, 135, 1.0, 0, 0,
-		    "Dewarp Build Line Model", debugfile);
+		convertFilesToPdf("/tmp/lept/dewline", NULL, 135, 1.0f, 0, 0, "Dewarp Build Line Model", debugfile);
 		lept_stderr("pdf file: %s\n", debugfile);
 	}
-
 	return 0;
 }
 

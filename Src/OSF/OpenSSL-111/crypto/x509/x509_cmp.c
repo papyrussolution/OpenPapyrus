@@ -8,19 +8,13 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/asn1.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
 #include <x509_int.h>
 
 int X509_issuer_and_serial_cmp(const X509 * a, const X509 * b)
 {
-	int i;
-	const X509_CINF * ai, * bi;
-	ai = &a->cert_info;
-	bi = &b->cert_info;
-	i = ASN1_INTEGER_cmp(&ai->serialNumber, &bi->serialNumber);
+	const X509_CINF * ai = &a->cert_info;
+	const X509_CINF * bi = &b->cert_info;
+	int i = ASN1_INTEGER_cmp(&ai->serialNumber, &bi->serialNumber);
 	if(i)
 		return i;
 	return X509_NAME_cmp(ai->issuer, bi->issuer);
@@ -33,7 +27,6 @@ ulong X509_issuer_and_serial_hash(X509 * a)
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	uchar md[16];
 	char * f;
-
 	if(!ctx)
 		goto err;
 	f = X509_NAME_oneline(a->cert_info.issuer, NULL, 0);

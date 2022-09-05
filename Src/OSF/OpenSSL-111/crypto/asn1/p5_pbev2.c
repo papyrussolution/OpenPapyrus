@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
-#include <openssl/rand.h>
 
 /* PKCS#5 v2.0 password based encryption structures */
 

@@ -17,10 +17,6 @@
 
 //#include "e_os.h"              /* struct timeval for DTLS */
 #include <openssl/e_os2.h>
-//#include <stdlib.h>
-//#include <time.h>
-//#include <string.h>
-//#include <errno.h>
 #include <openssl/opensslconf.h>
 #include <openssl/ossl_typ.h>
 #include <openssl/buffer.h>
@@ -29,11 +25,9 @@
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
 #include <openssl/err.h>
-
 #include <openssl/async.h>
 #include <openssl/symhacks.h>
 #include <openssl/ct.h>
-
 #include <openssl/safestack.h>
 #include <openssl/evp.h>
 #include <openssl/x509.h>
@@ -45,7 +39,6 @@
 #include <openssl/ec.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
-
 #include "record/record.h"
 #include "statem.h"
 #include "packet_locl.h"

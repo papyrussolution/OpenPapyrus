@@ -34,8 +34,7 @@ int EVP_PKEY_sign_init(EVP_PKEY_CTX * ctx)
 {
 	int ret;
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->sign) {
-		EVPerr(EVP_F_EVP_PKEY_SIGN_INIT,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_SIGN_INIT, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	ctx->operation = EVP_PKEY_OP_SIGN;
@@ -47,13 +46,10 @@ int EVP_PKEY_sign_init(EVP_PKEY_CTX * ctx)
 	return ret;
 }
 
-int EVP_PKEY_sign(EVP_PKEY_CTX * ctx,
-    uchar * sig, size_t * siglen,
-    const uchar * tbs, size_t tbslen)
+int EVP_PKEY_sign(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const uchar * tbs, size_t tbslen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->sign) {
-		EVPerr(EVP_F_EVP_PKEY_SIGN,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_SIGN, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	if(ctx->operation != EVP_PKEY_OP_SIGN) {
@@ -68,8 +64,7 @@ int EVP_PKEY_verify_init(EVP_PKEY_CTX * ctx)
 {
 	int ret;
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->verify) {
-		EVPerr(EVP_F_EVP_PKEY_VERIFY_INIT,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_VERIFY_INIT, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	ctx->operation = EVP_PKEY_OP_VERIFY;
@@ -81,13 +76,10 @@ int EVP_PKEY_verify_init(EVP_PKEY_CTX * ctx)
 	return ret;
 }
 
-int EVP_PKEY_verify(EVP_PKEY_CTX * ctx,
-    const uchar * sig, size_t siglen,
-    const uchar * tbs, size_t tbslen)
+int EVP_PKEY_verify(EVP_PKEY_CTX * ctx, const uchar * sig, size_t siglen, const uchar * tbs, size_t tbslen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->verify) {
-		EVPerr(EVP_F_EVP_PKEY_VERIFY,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_VERIFY, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	if(ctx->operation != EVP_PKEY_OP_VERIFY) {
@@ -101,8 +93,7 @@ int EVP_PKEY_verify_recover_init(EVP_PKEY_CTX * ctx)
 {
 	int ret;
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->verify_recover) {
-		EVPerr(EVP_F_EVP_PKEY_VERIFY_RECOVER_INIT,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_VERIFY_RECOVER_INIT, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	ctx->operation = EVP_PKEY_OP_VERIFYRECOVER;
@@ -114,13 +105,10 @@ int EVP_PKEY_verify_recover_init(EVP_PKEY_CTX * ctx)
 	return ret;
 }
 
-int EVP_PKEY_verify_recover(EVP_PKEY_CTX * ctx,
-    uchar * rout, size_t * routlen,
-    const uchar * sig, size_t siglen)
+int EVP_PKEY_verify_recover(EVP_PKEY_CTX * ctx, uchar * rout, size_t * routlen, const uchar * sig, size_t siglen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->verify_recover) {
-		EVPerr(EVP_F_EVP_PKEY_VERIFY_RECOVER,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_VERIFY_RECOVER, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	if(ctx->operation != EVP_PKEY_OP_VERIFYRECOVER) {
@@ -135,8 +123,7 @@ int EVP_PKEY_encrypt_init(EVP_PKEY_CTX * ctx)
 {
 	int ret;
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->encrypt) {
-		EVPerr(EVP_F_EVP_PKEY_ENCRYPT_INIT,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_ENCRYPT_INIT, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	ctx->operation = EVP_PKEY_OP_ENCRYPT;
@@ -148,13 +135,10 @@ int EVP_PKEY_encrypt_init(EVP_PKEY_CTX * ctx)
 	return ret;
 }
 
-int EVP_PKEY_encrypt(EVP_PKEY_CTX * ctx,
-    uchar * out, size_t * outlen,
-    const uchar * in, size_t inlen)
+int EVP_PKEY_encrypt(EVP_PKEY_CTX * ctx, uchar * out, size_t * outlen, const uchar * in, size_t inlen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->encrypt) {
-		EVPerr(EVP_F_EVP_PKEY_ENCRYPT,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_ENCRYPT, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	if(ctx->operation != EVP_PKEY_OP_ENCRYPT) {
@@ -169,8 +153,7 @@ int EVP_PKEY_decrypt_init(EVP_PKEY_CTX * ctx)
 {
 	int ret;
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->decrypt) {
-		EVPerr(EVP_F_EVP_PKEY_DECRYPT_INIT,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_DECRYPT_INIT, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	ctx->operation = EVP_PKEY_OP_DECRYPT;
@@ -182,13 +165,10 @@ int EVP_PKEY_decrypt_init(EVP_PKEY_CTX * ctx)
 	return ret;
 }
 
-int EVP_PKEY_decrypt(EVP_PKEY_CTX * ctx,
-    uchar * out, size_t * outlen,
-    const uchar * in, size_t inlen)
+int EVP_PKEY_decrypt(EVP_PKEY_CTX * ctx, uchar * out, size_t * outlen, const uchar * in, size_t inlen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->decrypt) {
-		EVPerr(EVP_F_EVP_PKEY_DECRYPT,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_DECRYPT, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	if(ctx->operation != EVP_PKEY_OP_DECRYPT) {
@@ -203,8 +183,7 @@ int EVP_PKEY_derive_init(EVP_PKEY_CTX * ctx)
 {
 	int ret;
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->derive) {
-		EVPerr(EVP_F_EVP_PKEY_DERIVE_INIT,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_DERIVE_INIT, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
 	ctx->operation = EVP_PKEY_OP_DERIVE;
@@ -219,39 +198,27 @@ int EVP_PKEY_derive_init(EVP_PKEY_CTX * ctx)
 int EVP_PKEY_derive_set_peer(EVP_PKEY_CTX * ctx, EVP_PKEY * peer)
 {
 	int ret;
-	if(!ctx || !ctx->pmeth
-	   || !(ctx->pmeth->derive || ctx->pmeth->encrypt || ctx->pmeth->decrypt)
-	   || !ctx->pmeth->ctrl) {
-		EVPerr(EVP_F_EVP_PKEY_DERIVE_SET_PEER,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+	if(!ctx || !ctx->pmeth || !(ctx->pmeth->derive || ctx->pmeth->encrypt || ctx->pmeth->decrypt) || !ctx->pmeth->ctrl) {
+		EVPerr(EVP_F_EVP_PKEY_DERIVE_SET_PEER, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;
 	}
-	if(ctx->operation != EVP_PKEY_OP_DERIVE
-	 && ctx->operation != EVP_PKEY_OP_ENCRYPT
-	 && ctx->operation != EVP_PKEY_OP_DECRYPT) {
-		EVPerr(EVP_F_EVP_PKEY_DERIVE_SET_PEER,
-		    EVP_R_OPERATON_NOT_INITIALIZED);
+	if(!oneof3(ctx->operation, EVP_PKEY_OP_DERIVE, EVP_PKEY_OP_ENCRYPT, EVP_PKEY_OP_DECRYPT)) {
+		EVPerr(EVP_F_EVP_PKEY_DERIVE_SET_PEER, EVP_R_OPERATON_NOT_INITIALIZED);
 		return -1;
 	}
-
 	ret = ctx->pmeth->ctrl(ctx, EVP_PKEY_CTRL_PEER_KEY, 0, peer);
-
 	if(ret <= 0)
 		return ret;
-
 	if(ret == 2)
 		return 1;
-
 	if(!ctx->pkey) {
 		EVPerr(EVP_F_EVP_PKEY_DERIVE_SET_PEER, EVP_R_NO_KEY_SET);
 		return -1;
 	}
-
 	if(ctx->pkey->type != peer->type) {
 		EVPerr(EVP_F_EVP_PKEY_DERIVE_SET_PEER, EVP_R_DIFFERENT_KEY_TYPES);
 		return -1;
 	}
-
 	/*
 	 * For clarity.  The error is if parameters in peer are
 	 * present (!missing) but don't match.  EVP_PKEY_cmp_parameters may return
@@ -259,22 +226,17 @@ int EVP_PKEY_derive_set_peer(EVP_PKEY_CTX * ctx, EVP_PKEY * peer)
 	 * (different key types) is impossible here because it is checked earlier.
 	 * -2 is OK for us here, as well as 1, so we can check for 0 only.
 	 */
-	if(!EVP_PKEY_missing_parameters(peer) &&
-	    !EVP_PKEY_cmp_parameters(ctx->pkey, peer)) {
+	if(!EVP_PKEY_missing_parameters(peer) && !EVP_PKEY_cmp_parameters(ctx->pkey, peer)) {
 		EVPerr(EVP_F_EVP_PKEY_DERIVE_SET_PEER, EVP_R_DIFFERENT_PARAMETERS);
 		return -1;
 	}
-
 	EVP_PKEY_free(ctx->peerkey);
 	ctx->peerkey = peer;
-
 	ret = ctx->pmeth->ctrl(ctx, EVP_PKEY_CTRL_PEER_KEY, 1, peer);
-
 	if(ret <= 0) {
 		ctx->peerkey = NULL;
 		return ret;
 	}
-
 	EVP_PKEY_up_ref(peer);
 	return 1;
 }

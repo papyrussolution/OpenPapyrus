@@ -9,12 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include "internal/refcount.h"
-#include <openssl/asn1.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-//#include <asn1_int.h>
 #include <x509_int.h>
 #include "x509_lcl.h"
 

@@ -238,25 +238,21 @@ l_ok pixColorGray(PIX * pixs,
 	/* rgb or 8 bpp gray image; check the thresh */
 	if(type == L_PAINT_LIGHT) { /* thresh should be low */
 		if(thresh >= 255)
-			return ERROR_INT("thresh must be < 255; else this is a no-op",
-				   procName, 1);
+			return ERROR_INT("thresh must be < 255; else this is a no-op", procName, 1);
 		if(thresh > 127)
 			L_WARNING("threshold set very high\n", procName);
 	}
 	else { /* type == L_PAINT_DARK; thresh should be high */
 		if(thresh <= 0)
-			return ERROR_INT("thresh must be > 0; else this is a no-op",
-				   procName, 1);
+			return ERROR_INT("thresh must be > 0; else this is a no-op", procName, 1);
 		if(thresh < 128)
 			L_WARNING("threshold set very low\n", procName);
 	}
-
 	/* In-place conversion to 32 bpp if necessary */
 	if(d == 8) {
 		pixt = pixConvertTo32(pixs);
 		pixTransferAllData(pixs, &pixt, 1, 0);
 	}
-
 	if(!box) {
 		x1 = y1 = 0;
 		x2 = w;
@@ -360,8 +356,7 @@ PIX * pixColorGrayMasked(PIX * pixs,
 	cmap = pixGetColormap(pixs);
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(!cmap && d != 8 && d != 32)
-		return (PIX *)ERROR_PTR("pixs not cmapped, 8 bpp gray or 32 bpp",
-			   procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not cmapped, 8 bpp gray or 32 bpp", procName, NULL);
 	if(cmap) {
 		pixd = pixCopy(NULL, pixs);
 		pixColorGrayMaskedCmap(pixd, pixm, type, rval, gval, bval);
@@ -371,19 +366,16 @@ PIX * pixColorGrayMasked(PIX * pixs,
 	/* rgb or 8 bpp gray image; check the thresh */
 	if(type == L_PAINT_LIGHT) { /* thresh should be low */
 		if(thresh >= 255)
-			return (PIX *)ERROR_PTR(
-				"thresh must be < 255; else this is a no-op", procName, NULL);
+			return (PIX *)ERROR_PTR("thresh must be < 255; else this is a no-op", procName, NULL);
 		if(thresh > 127)
 			L_WARNING("threshold set very high\n", procName);
 	}
 	else { /* type == L_PAINT_DARK; thresh should be high */
 		if(thresh <= 0)
-			return (PIX *)ERROR_PTR(
-				"thresh must be > 0; else this is a no-op", procName, NULL);
+			return (PIX *)ERROR_PTR("thresh must be > 0; else this is a no-op", procName, NULL);
 		if(thresh < 128)
 			L_WARNING("threshold set very low\n", procName);
 	}
-
 	pixGetDimensions(pixm, &wm, &hm, NULL);
 	if(wm != w)
 		L_WARNING("wm = %d differs from w = %d\n", procName, wm, w);

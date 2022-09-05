@@ -205,36 +205,20 @@ static const int32 FIXED_DIF_CAP = 0;
 static const int32 POP_DIF_CAP = 40;
 
 /* Static octree helper function */
-static int32 octreeFindColorCell(int32 octindex, CQCELL *** cqcaa,
-    int32 * pindex, int32 * prval,
-    int32 * pgval, int32 * pbval);
-
+static int32 octreeFindColorCell(int32 octindex, CQCELL *** cqcaa, int32 * pindex, int32 * prval, int32 * pgval, int32 * pbval);
 /* Static cqcell functions */
-static CQCELL *** octreeGenerateAndPrune(PIX * pixs, int32 colors,
-    int32 reservedcolors,
-    PIXCMAP ** pcmap);
-static PIX * pixOctreeQuantizePixels(PIX * pixs, CQCELL *** cqcaa,
-    int32 ditherflag);
+static CQCELL *** octreeGenerateAndPrune(PIX * pixs, int32 colors, int32 reservedcolors, PIXCMAP ** pcmap);
+static PIX * pixOctreeQuantizePixels(PIX * pixs, CQCELL *** cqcaa, int32 ditherflag);
 static CQCELL *** cqcellTreeCreate(void);
 static void cqcellTreeDestroy(CQCELL **** pcqcaa);
-
 /* Static helper octcube index functions */
-static void getRGBFromOctcube(int32 cubeindex, int32 level,
-    int32 * prval, int32 * pgval, int32 * pbval);
-static int32 getOctcubeIndices(int32 rgbindex, int32 level,
-    int32 * pbindex, int32 * psindex);
+static void getRGBFromOctcube(int32 cubeindex, int32 level, int32 * prval, int32 * pgval, int32 * pbval);
+static int32 getOctcubeIndices(int32 rgbindex, int32 level, int32 * pbindex, int32 * psindex);
 static int32 octcubeGetCount(int32 level, int32 * psize);
-
 /* Static function to perform octcube-indexed dithering */
-static int32 pixDitherOctindexWithCmap(PIX * pixs, PIX * pixd, uint32 * rtab,
-    uint32 * gtab, uint32 * btab,
-    int32 * carray, int32 difcap);
-
+static int32 pixDitherOctindexWithCmap(PIX * pixs, PIX * pixd, uint32 * rtab, uint32 * gtab, uint32 * btab, int32 * carray, int32 difcap);
 /* Static function to perform octcube-based quantizing from colormap */
-static PIX * pixOctcubeQuantFromCmapLUT(PIX * pixs, PIXCMAP * cmap,
-    int32 mindepth, int32 * cmaptab,
-    uint32 * rtab, uint32 * gtab,
-    uint32 * btab);
+static PIX * pixOctcubeQuantFromCmapLUT(PIX * pixs, PIXCMAP * cmap, int32 mindepth, int32 * cmaptab, uint32 * rtab, uint32 * gtab, uint32 * btab);
 
 #ifndef   NO_CONSOLE_IO
 #define   DEBUG_COLORQUANT      0
@@ -843,8 +827,7 @@ static CQCELL *** octreeGenerateAndPrune(PIX * pixs,
 #endif
 					}
 					else {
-						L_WARNING("possibly assigned pixels to wrong color\n",
-						    procName);
+						L_WARNING("possibly assigned pixels to wrong color\n", procName);
 						/* This is very bad.  It will only cause trouble
 						 * with dithering, and we try to avoid it with
 						 * ExtraReservedColors. */

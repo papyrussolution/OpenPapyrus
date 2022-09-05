@@ -8,21 +8,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/bn.h>
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/engine.h>
-#include <openssl/x509.h>
-#include <openssl/asn1.h>
-//#include <asn1_int.h>
-//#include <evp_int.h>
 
-EVP_PKEY * d2i_PrivateKey(int type, EVP_PKEY ** a, const uchar ** pp,
-    long length)
+EVP_PKEY * d2i_PrivateKey(int type, EVP_PKEY ** a, const uchar ** pp, long length)
 {
 	EVP_PKEY * ret;
 	const uchar * p = *pp;
-
 	if(!a || (*a == NULL)) {
 		if((ret = EVP_PKEY_new()) == NULL) {
 			ASN1err(ASN1_F_D2I_PRIVATEKEY, ERR_R_EVP_LIB);
@@ -36,18 +26,14 @@ EVP_PKEY * d2i_PrivateKey(int type, EVP_PKEY ** a, const uchar ** pp,
 		ret->engine = NULL;
 #endif
 	}
-
 	if(!EVP_PKEY_set_type(ret, type)) {
 		ASN1err(ASN1_F_D2I_PRIVATEKEY, ASN1_R_UNKNOWN_PUBLIC_KEY_TYPE);
 		goto err;
 	}
-
-	if(!ret->ameth->old_priv_decode ||
-	    !ret->ameth->old_priv_decode(ret, &p, length)) {
+	if(!ret->ameth->old_priv_decode || !ret->ameth->old_priv_decode(ret, &p, length)) {
 		if(ret->ameth->priv_decode) {
 			EVP_PKEY * tmp;
-			PKCS8_PRIV_KEY_INFO * p8 = NULL;
-			p8 = d2i_PKCS8_PRIV_KEY_INFO(NULL, &p, length);
+			PKCS8_PRIV_KEY_INFO * p8 = d2i_PKCS8_PRIV_KEY_INFO(NULL, &p, length);
 			if(!p8)
 				goto err;
 			tmp = EVP_PKCS82PKEY(p8);

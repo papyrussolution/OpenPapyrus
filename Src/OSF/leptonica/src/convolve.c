@@ -109,29 +109,23 @@ static void blocksumLow(uint32 * datad, int32 w, int32 h, int32 wpl,
  *          reduce the kernel size if necessary.
  * </pre>
  */
-PIX  * pixBlockconv(PIX * pix,
-    int32 wc,
-    int32 hc)
+PIX  * pixBlockconv(PIX * pix, int32 wc, int32 hc)
 {
 	int32 w, h, d;
 	PIX * pixs, * pixd, * pixr, * pixrc, * pixg, * pixgc, * pixb, * pixbc;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pix)
 		return (PIX *)ERROR_PTR("pix not defined", procName, NULL);
 	if(wc <= 0 || hc <= 0)
 		return pixCopy(NULL, pix);
 	pixGetDimensions(pix, &w, &h, &d);
 	if(w < 2 * wc + 1 || h < 2 * hc + 1) {
-		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; "
-		    "reducing!\n", procName, wc, hc, w, h);
+		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; reducing!\n", procName, wc, hc, w, h);
 		wc = MIN(wc, (w - 1) / 2);
 		hc = MIN(hc, (h - 1) / 2);
 	}
 	if(wc == 0 || hc == 0) /* no-op */
 		return pixCopy(NULL, pix);
-
 	/* Remove colormap if necessary */
 	if((d == 2 || d == 4 || d == 8) && pixGetColormap(pix)) {
 		L_WARNING("pix has colormap; removing\n", procName);
@@ -193,17 +187,12 @@ PIX  * pixBlockconv(PIX * pix,
  *          reduce the kernel size if necessary.
  * </pre>
  */
-PIX * pixBlockconvGray(PIX * pixs,
-    PIX * pixacc,
-    int32 wc,
-    int32 hc)
+PIX * pixBlockconvGray(PIX * pixs, PIX * pixacc, int32 wc, int32 hc)
 {
 	int32 w, h, d, wpl, wpla;
 	uint32 * datad, * dataa;
 	PIX * pixd, * pixt;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
@@ -212,14 +201,12 @@ PIX * pixBlockconvGray(PIX * pixs,
 	if(wc <= 0 || hc <= 0) /* no-op */
 		return pixCopy(NULL, pixs);
 	if(w < 2 * wc + 1 || h < 2 * hc + 1) {
-		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; "
-		    "reducing!\n", procName, wc, hc, w, h);
+		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; reducing!\n", procName, wc, hc, w, h);
 		wc = MIN(wc, (w - 1) / 2);
 		hc = MIN(hc, (h - 1) / 2);
 	}
 	if(wc == 0 || hc == 0)
 		return pixCopy(NULL, pixs);
-
 	if(pixacc) {
 		if(pixGetDepth(pixacc) == 32) {
 			pixt = pixClone(pixacc);
@@ -616,16 +603,12 @@ static void blockconvAccumLow(uint32 * datad,
  *          implementation very simple.
  * </pre>
  */
-PIX * pixBlockconvGrayUnnormalized(PIX * pixs,
-    int32 wc,
-    int32 hc)
+PIX * pixBlockconvGrayUnnormalized(PIX * pixs, int32 wc, int32 hc)
 {
 	int32 i, j, w, h, d, wpla, wpld, jmax;
 	uint32 * linemina, * linemaxa, * lined, * dataa, * datad;
 	PIX * pixsb, * pixacc, * pixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
@@ -634,8 +617,7 @@ PIX * pixBlockconvGrayUnnormalized(PIX * pixs,
 	if(wc <= 0 || hc <= 0) /* no-op */
 		return pixCopy(NULL, pixs);
 	if(w < 2 * wc + 1 || h < 2 * hc + 1) {
-		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; "
-		    "reducing!\n", procName, wc, hc, w, h);
+		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; reducing!\n", procName, wc, hc, w, h);
 		wc = MIN(wc, (w - 1) / 2);
 		hc = MIN(hc, (h - 1) / 2);
 	}
@@ -716,9 +698,7 @@ PIX * pixBlockconvTiled(PIX * pix,
 	PIX * pixs, * pixd, * pixc, * pixt;
 	PIX * pixr, * pixrc, * pixg, * pixgc, * pixb, * pixbc;
 	PIXTILING  * pt;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pix)
 		return (PIX *)ERROR_PTR("pix not defined", procName, NULL);
 	if(wc <= 0 || hc <= 0) /* no-op */
@@ -727,14 +707,12 @@ PIX * pixBlockconvTiled(PIX * pix,
 		return pixBlockconv(pix, wc, hc);
 	pixGetDimensions(pix, &w, &h, &d);
 	if(w < 2 * wc + 3 || h < 2 * hc + 3) {
-		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; "
-		    "reducing!\n", procName, wc, hc, w, h);
+		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; reducing!\n", procName, wc, hc, w, h);
 		wc = MIN(wc, (w - 1) / 2);
 		hc = MIN(hc, (h - 1) / 2);
 	}
 	if(wc == 0 || hc == 0)
 		return pixCopy(NULL, pix);
-
 	/* Test to see if the tiles are too small.  The required
 	 * condition is that the tile dimensions must be at least
 	 * (wc + 2) x (hc + 2). */
@@ -843,9 +821,7 @@ PIX * pixBlockconvGrayTile(PIX * pixs,
 	uint32 val;
 	uint32 * datat, * datad, * lined, * linemint, * linemaxt;
 	PIX * pixt, * pixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pix not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
@@ -854,8 +830,7 @@ PIX * pixBlockconvGrayTile(PIX * pixs,
 	if(wc <= 0 || hc <= 0) /* no-op */
 		return pixCopy(NULL, pixs);
 	if(w < 2 * wc + 3 || h < 2 * hc + 3) {
-		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; "
-		    "reducing!\n", procName, wc, hc, w, h);
+		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; reducing!\n", procName, wc, hc, w, h);
 		wc = MIN(wc, (w - 1) / 2);
 		hc = MIN(hc, (h - 1) / 2);
 	}
@@ -1439,27 +1414,22 @@ PIX * pixBlockrank(PIX * pixs,
 		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, NULL);
 	if(rank < 0.0 || rank > 1.0)
 		return (PIX *)ERROR_PTR("rank must be in [0.0, 1.0]", procName, NULL);
-
 	if(rank == 0.0) {
 		pixd = pixCreateTemplate(pixs);
 		pixSetAll(pixd);
 		return pixd;
 	}
-
 	if(wc <= 0 || hc <= 0)
 		return pixCopy(NULL, pixs);
 	if(w < 2 * wc + 1 || h < 2 * hc + 1) {
-		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; "
-		    "reducing!\n", procName, wc, hc, w, h);
+		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; reducing!\n", procName, wc, hc, w, h);
 		wc = MIN(wc, (w - 1) / 2);
 		hc = MIN(hc, (h - 1) / 2);
 	}
 	if(wc == 0 || hc == 0)
 		return pixCopy(NULL, pixs);
-
 	if((pixt = pixBlocksum(pixs, pixacc, wc, hc)) == NULL)
 		return (PIX *)ERROR_PTR("pixt not made", procName, NULL);
-
 	/* 1 bpp block rank filter output.
 	 * Must invert because threshold gives 1 for values < thresh,
 	 * but we need a 1 if the value is >= thresh. */
@@ -1502,17 +1472,12 @@ PIX * pixBlockrank(PIX * pixs,
  *          within the block.
  * </pre>
  */
-PIX * pixBlocksum(PIX * pixs,
-    PIX * pixacc,
-    int32 wc,
-    int32 hc)
+PIX * pixBlocksum(PIX * pixs, PIX * pixacc, int32 wc, int32 hc)
 {
 	int32 w, h, d, wplt, wpld;
 	uint32 * datat, * datad;
 	PIX * pixt, * pixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
@@ -1521,14 +1486,12 @@ PIX * pixBlocksum(PIX * pixs,
 	if(wc <= 0 || hc <= 0)
 		return pixCopy(NULL, pixs);
 	if(w < 2 * wc + 1 || h < 2 * hc + 1) {
-		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; "
-		    "reducing!\n", procName, wc, hc, w, h);
+		L_WARNING("kernel too large: wc = %d, hc = %d, w = %d, h = %d; reducing!\n", procName, wc, hc, w, h);
 		wc = MIN(wc, (w - 1) / 2);
 		hc = MIN(hc, (h - 1) / 2);
 	}
 	if(wc == 0 || hc == 0)
 		return pixCopy(NULL, pixs);
-
 	if(pixacc) {
 		if(pixGetDepth(pixacc) != 32)
 			return (PIX *)ERROR_PTR("pixacc not 32 bpp", procName, NULL);
@@ -1538,7 +1501,6 @@ PIX * pixBlocksum(PIX * pixs,
 		if((pixt = pixBlockconvAccum(pixs)) == NULL)
 			return (PIX *)ERROR_PTR("pixt not made", procName, NULL);
 	}
-
 	/* 8 bpp block sum output */
 	if((pixd = pixCreate(w, h, 8)) == NULL) {
 		pixDestroy(&pixt);

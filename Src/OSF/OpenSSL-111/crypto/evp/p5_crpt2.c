@@ -140,24 +140,18 @@ int PKCS5_v2_PBE_keyivgen(EVP_CIPHER_CTX * ctx, const char * pass, int passlen, 
 		goto err;
 	}
 	/* See if we recognise the key derivation function */
-	if(!EVP_PBE_find(EVP_PBE_TYPE_KDF, OBJ_obj2nid(pbe2->keyfunc->algorithm),
-	    NULL, NULL, &kdf)) {
-		EVPerr(EVP_F_PKCS5_V2_PBE_KEYIVGEN,
-		    EVP_R_UNSUPPORTED_KEY_DERIVATION_FUNCTION);
+	if(!EVP_PBE_find(EVP_PBE_TYPE_KDF, OBJ_obj2nid(pbe2->keyfunc->algorithm), NULL, NULL, &kdf)) {
+		EVPerr(EVP_F_PKCS5_V2_PBE_KEYIVGEN, EVP_R_UNSUPPORTED_KEY_DERIVATION_FUNCTION);
 		goto err;
 	}
-
 	/*
 	 * lets see if we recognise the encryption algorithm.
 	 */
-
 	cipher = EVP_get_cipherbyobj(pbe2->encryption->algorithm);
-
 	if(!cipher) {
 		EVPerr(EVP_F_PKCS5_V2_PBE_KEYIVGEN, EVP_R_UNSUPPORTED_CIPHER);
 		goto err;
 	}
-
 	/* Fixup cipher based on AlgorithmIdentifier */
 	if(!EVP_CipherInit_ex(ctx, cipher, NULL, NULL, NULL, en_de))
 		goto err;
@@ -171,9 +165,7 @@ err:
 	return rv;
 }
 
-int PKCS5_v2_PBKDF2_keyivgen(EVP_CIPHER_CTX * ctx, const char * pass,
-    int passlen, ASN1_TYPE * param,
-    const EVP_CIPHER * c, const EVP_MD * md, int en_de)
+int PKCS5_v2_PBKDF2_keyivgen(EVP_CIPHER_CTX * ctx, const char * pass, int passlen, ASN1_TYPE * param, const EVP_CIPHER * c, const EVP_MD * md, int en_de)
 {
 	uchar * salt, key[EVP_MAX_KEY_LENGTH];
 	int saltlen, iter;

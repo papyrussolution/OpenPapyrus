@@ -8,20 +8,13 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/objects.h>
-#include <openssl/bn.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-#include <openssl/ts.h>
 #include "ts_lcl.h"
 
 int TS_ASN1_INTEGER_print_bio(BIO * bio, const ASN1_INTEGER * num)
 {
-	BIGNUM * num_bn;
 	int result = 0;
 	char * hex;
-
-	num_bn = ASN1_INTEGER_to_BN(num, NULL);
+	BIGNUM * num_bn = ASN1_INTEGER_to_BN(num, NULL);
 	if(num_bn == NULL)
 		return -1;
 	if((hex = BN_bn2hex(num_bn))) {
@@ -30,17 +23,14 @@ int TS_ASN1_INTEGER_print_bio(BIO * bio, const ASN1_INTEGER * num)
 		OPENSSL_free(hex);
 	}
 	BN_free(num_bn);
-
 	return result;
 }
 
 int TS_OBJ_print_bio(BIO * bio, const ASN1_OBJECT * obj)
 {
 	char obj_txt[128];
-
 	OBJ_obj2txt(obj_txt, sizeof(obj_txt), obj, 0);
 	BIO_printf(bio, "%s\n", obj_txt);
-
 	return 1;
 }
 
@@ -49,7 +39,6 @@ int TS_ext_print_bio(BIO * bio, const STACK_OF(X509_EXTENSION) * extensions)
 	int i, critical, n;
 	X509_EXTENSION * ex;
 	ASN1_OBJECT * obj;
-
 	BIO_printf(bio, "Extensions:\n");
 	n = X509v3_get_ext_count(extensions);
 	for(i = 0; i < n; i++) {

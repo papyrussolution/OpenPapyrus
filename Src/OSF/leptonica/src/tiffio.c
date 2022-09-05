@@ -901,8 +901,7 @@ l_ok pixWriteStreamTiffWA(FILE        * fp,
 	if(pixGetDepth(pix) != 1 && comptype != IFF_TIFF &&
 	    comptype != IFF_TIFF_LZW && comptype != IFF_TIFF_ZIP &&
 	    comptype != IFF_TIFF_JPEG) {
-		L_WARNING("invalid compression type %d for bpp > 1; using TIFF_ZIP\n",
-		    procName, comptype);
+		L_WARNING("invalid compression type %d for bpp > 1; using TIFF_ZIP\n", procName, comptype);
 		comptype = IFF_TIFF_ZIP;
 	}
 
@@ -1037,8 +1036,7 @@ static int32 pixWriteToTiffStream(TIFF    * tif,
 		cmapsize = 1 << d;
 		cmapsize = MIN(256, cmapsize); /* power of 2; max 256 */
 		if(ncolors > cmapsize) {
-			L_WARNING("too many colors in cmap for tiff; truncating\n",
-			    procName);
+			L_WARNING("too many colors in cmap for tiff; truncating\n", procName);
 			ncolors = cmapsize;
 		}
 		for(i = 0; i < ncolors; i++) {
@@ -1213,15 +1211,13 @@ static int32 writeCustomTiffTags(TIFF    * tif,
 			type = sarrayGetString(satypes, i, L_NOCOPY);
 			numaGetIValue(nasizes, i, &size);
 			if(strcmp(type, "char*") && strcmp(type, "uint8*"))
-				L_WARNING("array type not char* or uint8*; ignore\n",
-				    procName);
+				L_WARNING("array type not char* or uint8*; ignore\n", procName);
 			TIFFSetField(tif, tagval, size, sval);
 		}
 	}
 	else {
 		ns = 0;
 	}
-
 	/* The typical tags (3 args to TIFFSetField) are now written */
 	for(i = ns; i < n; i++) {
 		numaGetIValue(natags, i, &tagval);

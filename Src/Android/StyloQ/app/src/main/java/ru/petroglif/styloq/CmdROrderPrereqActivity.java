@@ -630,12 +630,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							result = new Integer((CPM.OrderHList != null) ? CPM.OrderHList.size() : 0);
 							break;
 						case R.id.orderPrereqClientsListView: result = new Integer((CPM.CliListData != null) ? CPM.CliListData.size() : 0); break;
-						case R.id.searchPaneListView:
-							{
-								result = new Integer((CPM.SearchResult != null) ? CPM.SearchResult.GetObjTypeCount() : 0);
-								//result = new Integer((SearchResult != null && SearchResult.List != null) ? SearchResult.List.size() : 0);
-							}
-							break;
+						case R.id.searchPaneListView: result = new Integer(CPM.SearchResult_GetObjTypeCount()); break;
 					}
 				}
 				break;
@@ -1010,21 +1005,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					}
 				}
 				break;
-			case SLib.EV_CREATEFRAGMENT:
-				if(subj instanceof Integer) {
-					int item_idx = (Integer)subj;
-					if(CPM.TabList != null && item_idx >= 0 && item_idx < CPM.TabList.size()) {
-						CommonPrereqModule.TabEntry cur_entry = (CommonPrereqModule.TabEntry)CPM.TabList.get(item_idx);
-						if(cur_entry.TabView != null)
-							result = cur_entry.TabView;
-					}
-				}
-				break;
+			case SLib.EV_CREATEFRAGMENT: result = CPM.OnEvent_CreateFragment(subj); break;
 			case SLib.EV_SETUPFRAGMENT:
 				if(subj != null && subj instanceof View) {
-					final int selected_search_idx = (CPM.SearchResult != null) ? CPM.SearchResult.GetSelectedItemIndex() : -1;
-					final int selected_search_objtype = (selected_search_idx >= 0) ? CPM.SearchResult.List.get(selected_search_idx).ObjType : 0;
-					final int selected_search_objid = (selected_search_idx >= 0) ? CPM.SearchResult.List.get(selected_search_idx).ObjID : 0;
+					SLib.PPObjID selected_search_oid = CPM.SearchResult_GetSelectedOid();
+					assert(selected_search_oid != null);
 					if(srcObj != null && srcObj instanceof SLib.SlFragmentStatic) {
 						SLib.SlFragmentStatic fragment = (SLib.SlFragmentStatic)srcObj;
 						View fv = (View)subj;
@@ -1032,11 +1017,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						if(lv != null) {
 							((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
 							SetupRecyclerListView(fv, R.id.orderPrereqGoodsListView, R.layout.li_orderprereq_goods);
-							if(selected_search_objtype == SLib.PPOBJ_GOODS) {
-								final int foc_idx = CPM.FindGoodsItemIndexByID(selected_search_objid);
+							if(selected_search_oid.Type == SLib.PPOBJ_GOODS) {
+								final int foc_idx = CPM.FindGoodsItemIndexByID(selected_search_oid.Id);
 								SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
 								SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
-								CPM.SearchResult.ResetSelectedItemIndex();
+								CPM.SearchResult_ResetSelectedItemIndex();
 							}
 						}
 						else {
@@ -1168,11 +1153,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								if(lv != null) {
 									((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
 									SetupRecyclerListView(fv, R.id.orderPrereqGoodsGroupListView, R.layout.li_simple);
-									if(selected_search_objtype == SLib.PPOBJ_GOODSGROUP) {
-										final int foc_idx = CPM.FindGoodsGroupItemIndexByID(selected_search_objid);
+									if(selected_search_oid.Type == SLib.PPOBJ_GOODSGROUP) {
+										final int foc_idx = CPM.FindGoodsGroupItemIndexByID(selected_search_oid.Id);
 										SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
 										SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
-										CPM.SearchResult.ResetSelectedItemIndex();
+										CPM.SearchResult_ResetSelectedItemIndex();
 									}
 								}
 								else {
@@ -1180,11 +1165,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									if(lv != null) {
 										((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
 										SetupRecyclerListView(fv, R.id.orderPrereqBrandListView, R.layout.li_simple);
-										if(selected_search_objtype == SLib.PPOBJ_BRAND) {
-											final int foc_idx = CPM.FindBrandItemIndexByID(selected_search_objid);
+										if(selected_search_oid.Type == SLib.PPOBJ_BRAND) {
+											final int foc_idx = CPM.FindBrandItemIndexByID(selected_search_oid.Id);
 											SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
 											SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
-											CPM.SearchResult.ResetSelectedItemIndex();
+											CPM.SearchResult_ResetSelectedItemIndex();
 										}
 									}
 									else {
@@ -1204,51 +1189,18 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												if(lv != null) {
 													((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
 													SetupRecyclerListView(fv, R.id.orderPrereqClientsListView, R.layout.li_orderprereq_client);
-													if(selected_search_objtype == SLib.PPOBJ_PERSON) {
-														SLib.RequestRecyclerListViewPosition((RecyclerView) lv, FindClientItemIndexByID(selected_search_objid));
-														CPM.SearchResult.ResetSelectedItemIndex();
+													if(selected_search_oid.Type == SLib.PPOBJ_PERSON) {
+														SLib.RequestRecyclerListViewPosition((RecyclerView) lv, FindClientItemIndexByID(selected_search_oid.Id));
+														CPM.SearchResult_ResetSelectedItemIndex();
 													}
-													else if(selected_search_objtype == SLib.PPOBJ_LOCATION) {
+													else if(selected_search_oid.Type == SLib.PPOBJ_LOCATION) {
 														// @todo
 													}
 												}
 												else {
 													lv = fv.findViewById(R.id.searchPaneListView);
 													if(lv != null) {
-														((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-														SetupRecyclerListView(fv, R.id.searchPaneListView, R.layout.li_searchpane_result);
-														{
-															View iv = fv.findViewById(R.id.CTL_SEARCHPANE_INPUT);
-															if(iv != null && iv instanceof TextInputEditText) {
-																TextInputEditText tiv = (TextInputEditText) iv;
-																tiv.requestFocus();
-																tiv.addTextChangedListener(new TextWatcher() {
-																	public void afterTextChanged(Editable s)
-																	{
-																		//int cross_icon_id = (s.length() > 0) ? R.drawable.ic_cross01 : 0;
-																		//tiv.setCompoundDrawablesWithIntrinsicBounds(0, 0, cross_icon_id, 0);
-																	}
-																	public void beforeTextChanged(CharSequence s, int start, int count, int after)
-																	{
-																	}
-																	public void onTextChanged(CharSequence s, int start, int before, int count)
-																	{
-																		String pattern = s.toString();
-																		boolean sr = CPM.SearchInSimpleIndex(pattern);
-																		String srit = CPM.SearchResult.GetSearchResultInfoText();
-																		if(!sr && CPM.SearchResult != null)
-																			CPM.SearchResult.Clear();
-																		SLib.SetCtrlString(fv, R.id.CTL_SEARCHPANE_RESULTINFO, srit);
-																		View lv = findViewById(R.id.searchPaneListView);
-																		if(lv != null && lv instanceof RecyclerView) {
-																			RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
-																			if(gva != null)
-																				gva.notifyDataSetChanged();
-																		}
-																	}
-																});
-															}
-														}
+														CPM.SetupSearchPaneListView(fv, lv);
 													}
 												}
 											}
@@ -1289,38 +1241,38 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						if(ev_subj.RvHolder == null) {
 							if(srcObj instanceof ListView) {
 								if(((ListView)srcObj).getId() == R.id.searchPaneTerminalListView) {
-									if(ev_subj.ItemObj != null && ev_subj.ItemObj instanceof CommonPrereqModule.SimpleSearchIndexEntry) {
-										CommonPrereqModule.SimpleSearchIndexEntry se = (CommonPrereqModule.SimpleSearchIndexEntry)ev_subj.ItemObj;
-										// ! ev_subj.ItemIdx не согласуется простым образом с ev_subj.ItemObj из-за
-										// двухярусной структуры списка.
-										CPM.SearchResult.SetSelectedItemIndex(CPM.SearchResult.FindIndexOfItem(se));
-										if(se.ObjType == SLib.PPOBJ_GOODS) {
-											int _idx = CPM.FindGoodsItemIndexByID(se.ObjID);
-											GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, _idx, -1);
-										}
-										else if(se.ObjType == SLib.PPOBJ_PERSON) {
-											int _idx = FindClientItemIndexByID(se.ObjID);
-											GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, -1);
-										}
-										else if(se.ObjType == SLib.PPOBJ_LOCATION) {
-											JSONObject cli_js_obj = CPM.FindClientEntryByDlvrLocID(se.ObjID);
-											if(cli_js_obj != null) {
-												int cli_id = cli_js_obj.optInt("id", 0);
-												if(cli_id > 0) {
-													int _idx = FindClientItemIndexByID(cli_id);
-													int _dlvr_loc_idx = CPM.FindDlvrLocEntryIndexInCliEntry(cli_js_obj, se.ObjID);
-													GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
+									final SLib.PPObjID sr_oid = CPM.SearchResult_ProcessSelection(ev_subj.ItemObj);
+									if(sr_oid != null && !sr_oid.IsEmpty()) {
+										int _idx = -1;
+										switch(sr_oid.Type) {
+											case SLib.PPOBJ_GOODS:
+												_idx = CPM.FindGoodsItemIndexByID(sr_oid.Id);
+												GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, _idx, -1);
+												break;
+											case SLib.PPOBJ_PERSON:
+												_idx = FindClientItemIndexByID(sr_oid.Id);
+												GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, -1);
+												break;
+											case SLib.PPOBJ_LOCATION:
+												JSONObject cli_js_obj = CPM.FindClientEntryByDlvrLocID(sr_oid.Id);
+												if(cli_js_obj != null) {
+													int cli_id = cli_js_obj.optInt("id", 0);
+													if(cli_id > 0) {
+														_idx = FindClientItemIndexByID(cli_id);
+														int _dlvr_loc_idx = CPM.FindDlvrLocEntryIndexInCliEntry(cli_js_obj, sr_oid.Id);
+														GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
+													}
 												}
-											}
-											//tab_to_select = Tab.tabClients;
-										}
-										else if(se.ObjType == SLib.PPOBJ_GOODSGROUP) {
-											int _idx = CPM.FindGoodsGroupItemIndexByID(se.ObjID);
-											GotoTab(CommonPrereqModule.Tab.tabGoodsGroups, R.id.orderPrereqGoodsGroupListView, _idx, -1);
-										}
-										else if(se.ObjType == SLib.PPOBJ_BRAND) {
-											int _idx = CPM.FindBrandItemIndexByID(se.ObjID);
-											GotoTab(CommonPrereqModule.Tab.tabBrands, R.id.orderPrereqBrandListView, _idx, -1);
+												//tab_to_select = Tab.tabClients;
+												break;
+											case SLib.PPOBJ_GOODSGROUP:
+												_idx = CPM.FindGoodsGroupItemIndexByID(sr_oid.Id);
+												GotoTab(CommonPrereqModule.Tab.tabGoodsGroups, R.id.orderPrereqGoodsGroupListView, _idx, -1);
+												break;
+											case SLib.PPOBJ_BRAND:
+												_idx = CPM.FindBrandItemIndexByID(sr_oid.Id);
+												GotoTab(CommonPrereqModule.Tab.tabBrands, R.id.orderPrereqBrandListView, _idx, -1);
+												break;
 										}
 									}
 								}
@@ -1439,6 +1391,25 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					}
 				}
 				break;
+			case SLib.EV_CBSELECTED:
+				if(subj != null && subj instanceof SLib.ListViewEvent) {
+					SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
+					if(lve.ItemIdx >= 0 && lve.ItemId > 0) {
+						CommonPrereqModule.TabEntry te = null;
+						View v = findViewById(R.id.VIEWPAGER_ORDERPREREQ);
+						if(v != null && v instanceof ViewPager2) {
+							for(CommonPrereqModule.TabEntry iter : CPM.TabList) {
+								if(iter != null && iter.TabId == CommonPrereqModule.Tab.tabSearch) {
+									te = iter;
+									break;
+								}
+							}
+							if(te != null && te.TabView != null)
+								CPM.SelectSearchPaneObjRestriction(te.TabView.getView(), (int)lve.ItemId);
+						}
+					}
+				}
+				break;
 			case SLib.EV_COMMAND:
 				{
 					Document.EditAction acn = null;
@@ -1451,6 +1422,20 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							CPM.ResetGoodsFiter();
 							SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
 							GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
+							break;
+						case R.id.CTLBUT_SEARCHPANE_OPTIONS:
+							{
+								CommonPrereqModule.TabEntry te = null;
+								View v = findViewById(R.id.VIEWPAGER_ORDERPREREQ);
+								if(v != null && v instanceof ViewPager2) {
+									for(int tidx = 0; te == null && tidx < CPM.TabList.size(); tidx++) {
+										if(CPM.TabList.get(tidx).TabId == CommonPrereqModule.Tab.tabSearch)
+											te = CPM.TabList.get(tidx);
+									}
+									if(te != null && te.TabView != null)
+										CPM.OpenSearchPaneObjRestriction(te.TabView.getView());
+								}
+							}
 							break;
 						case R.id.CTL_DOCUMENT_DUEDATE_NEXT:
 							{

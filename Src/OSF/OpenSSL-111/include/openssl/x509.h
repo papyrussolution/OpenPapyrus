@@ -32,10 +32,8 @@ extern "C" {
 #endif
 
 /* Flags for X509_get_signature_info() */
-/* Signature info is valid */
-#define X509_SIG_INFO_VALID     0x1
-/* Signature is suitable for TLS use */
-#define X509_SIG_INFO_TLS       0x2
+#define X509_SIG_INFO_VALID     0x1 /* Signature info is valid */
+#define X509_SIG_INFO_TLS       0x2 /* Signature is suitable for TLS use */
 
 #define X509_FILETYPE_PEM       1
 #define X509_FILETYPE_ASN1      2
@@ -114,12 +112,9 @@ DEFINE_STACK_OF(X509_TRUST)
 /* trust_flags values */
 #define X509_TRUST_DYNAMIC      (1U << 0)
 #define X509_TRUST_DYNAMIC_NAME (1U << 1)
-/* No compat trust if self-signed, preempts "DO_SS" */
-#define X509_TRUST_NO_SS_COMPAT (1U << 2)
-/* Compat trust if no explicit accepted trust EKUs */
-#define X509_TRUST_DO_SS_COMPAT (1U << 3)
-/* Accept "anyEKU" as a wildcard trust OID */
-#define X509_TRUST_OK_ANY_EKU   (1U << 4)
+#define X509_TRUST_NO_SS_COMPAT (1U << 2) /* No compat trust if self-signed, preempts "DO_SS" */
+#define X509_TRUST_DO_SS_COMPAT (1U << 3) /* Compat trust if no explicit accepted trust EKUs */
+#define X509_TRUST_OK_ANY_EKU   (1U << 4) /* Accept "anyEKU" as a wildcard trust OID */
 
 /* check_trust return codes */
 
@@ -176,33 +171,15 @@ DEFINE_STACK_OF(X509_TRUST)
 
 #define XN_FLAG_DUMP_UNKNOWN_FIELDS (1 << 24)
 
-#define XN_FLAG_FN_ALIGN        (1 << 25)/* Align field names to 20
-                                           * characters */
+#define XN_FLAG_FN_ALIGN        (1 << 25)/* Align field names to 20 characters */
 
 /* Complete set of RFC2253 flags */
 
-#define XN_FLAG_RFC2253 (ASN1_STRFLGS_RFC2253 | \
-                        XN_FLAG_SEP_COMMA_PLUS | \
-                        XN_FLAG_DN_REV | \
-                        XN_FLAG_FN_SN | \
-                        XN_FLAG_DUMP_UNKNOWN_FIELDS)
-
+#define XN_FLAG_RFC2253 (ASN1_STRFLGS_RFC2253 | XN_FLAG_SEP_COMMA_PLUS | XN_FLAG_DN_REV | XN_FLAG_FN_SN | XN_FLAG_DUMP_UNKNOWN_FIELDS)
 /* readable oneline form */
-
-#define XN_FLAG_ONELINE (ASN1_STRFLGS_RFC2253 | \
-                        ASN1_STRFLGS_ESC_QUOTE | \
-                        XN_FLAG_SEP_CPLUS_SPC | \
-                        XN_FLAG_SPC_EQ | \
-                        XN_FLAG_FN_SN)
-
+#define XN_FLAG_ONELINE (ASN1_STRFLGS_RFC2253 | ASN1_STRFLGS_ESC_QUOTE | XN_FLAG_SEP_CPLUS_SPC | XN_FLAG_SPC_EQ | XN_FLAG_FN_SN)
 /* readable multiline form */
-
-#define XN_FLAG_MULTILINE (ASN1_STRFLGS_ESC_CTRL | \
-                        ASN1_STRFLGS_ESC_MSB | \
-                        XN_FLAG_SEP_MULTILINE | \
-                        XN_FLAG_SPC_EQ | \
-                        XN_FLAG_FN_LN | \
-                        XN_FLAG_FN_ALIGN)
+#define XN_FLAG_MULTILINE (ASN1_STRFLGS_ESC_CTRL | ASN1_STRFLGS_ESC_MSB | XN_FLAG_SEP_MULTILINE | XN_FLAG_SPC_EQ | XN_FLAG_FN_LN | XN_FLAG_FN_ALIGN)
 
 DEFINE_STACK_OF(X509_REVOKED)
 
@@ -443,17 +420,14 @@ int X509_cmp_current_time(const ASN1_TIME *s);
 ASN1_TIME *X509_time_adj(ASN1_TIME *s, long adj, time_t *t);
 ASN1_TIME *X509_time_adj_ex(ASN1_TIME *s, int offset_day, long offset_sec, time_t *t);
 ASN1_TIME *X509_gmtime_adj(ASN1_TIME *s, long adj);
-
-const char *X509_get_default_cert_area(void);
-const char *X509_get_default_cert_dir(void);
-const char *X509_get_default_cert_file(void);
-const char *X509_get_default_cert_dir_env(void);
-const char *X509_get_default_cert_file_env(void);
-const char *X509_get_default_private_dir(void);
-
+const char *X509_get_default_cert_area();
+const char *X509_get_default_cert_dir();
+const char *X509_get_default_cert_file();
+const char *X509_get_default_cert_dir_env();
+const char *X509_get_default_cert_file_env();
+const char *X509_get_default_private_dir();
 X509_REQ *X509_to_X509_REQ(X509 *x, EVP_PKEY *pkey, const EVP_MD *md);
 X509 *X509_REQ_to_X509(X509_REQ *r, int days, EVP_PKEY *pkey);
-
 DECLARE_ASN1_FUNCTIONS(X509_ALGOR)
 DECLARE_ASN1_ENCODE_FUNCTIONS(X509_ALGORS, X509_ALGORS, X509_ALGORS)
 DECLARE_ASN1_FUNCTIONS(X509_VAL)
@@ -529,14 +503,14 @@ int X509_CRL_add0_revoked(X509_CRL *crl, X509_REVOKED *rev);
 int X509_CRL_get0_by_serial(X509_CRL *crl, X509_REVOKED **ret, ASN1_INTEGER *serial);
 int X509_CRL_get0_by_cert(X509_CRL *crl, X509_REVOKED **ret, X509 *x);
 
-X509_PKEY *X509_PKEY_new(void);
+X509_PKEY *X509_PKEY_new();
 void X509_PKEY_free(X509_PKEY *a);
 
 DECLARE_ASN1_FUNCTIONS(NETSCAPE_SPKI)
 DECLARE_ASN1_FUNCTIONS(NETSCAPE_SPKAC)
 DECLARE_ASN1_FUNCTIONS(NETSCAPE_CERT_SEQUENCE)
 
-X509_INFO *X509_INFO_new(void);
+X509_INFO *X509_INFO_new();
 void X509_INFO_free(X509_INFO *a);
 char *X509_NAME_oneline(const X509_NAME *a, char *buf, int size);
 int ASN1_verify(i2d_of_void *i2d, X509_ALGOR *algor1, ASN1_BIT_STRING *signature, char *data, EVP_PKEY *pkey);
@@ -578,8 +552,7 @@ int X509_get_signature_type(const X509 *x);
  */
 X509_PUBKEY *X509_get_X509_PUBKEY(const X509 *x);
 const STACK_OF(X509_EXTENSION) *X509_get0_extensions(const X509 *x);
-void X509_get0_uids(const X509 *x, const ASN1_BIT_STRING **piuid,
-                    const ASN1_BIT_STRING **psuid);
+void X509_get0_uids(const X509 *x, const ASN1_BIT_STRING **piuid, const ASN1_BIT_STRING **psuid);
 const X509_ALGOR *X509_get0_tbs_sigalg(const X509 *x);
 
 EVP_PKEY *X509_get0_pubkey(const X509 *x);
@@ -600,7 +573,7 @@ EVP_PKEY *X509_REQ_get_pubkey(X509_REQ *req);
 EVP_PKEY *X509_REQ_get0_pubkey(X509_REQ *req);
 X509_PUBKEY *X509_REQ_get_X509_PUBKEY(X509_REQ *req);
 int X509_REQ_extension_nid(int nid);
-int *X509_REQ_get_extension_nids(void);
+int *X509_REQ_get_extension_nids();
 void X509_REQ_set_extension_nids(int *nids);
 STACK_OF(X509_EXTENSION) *X509_REQ_get_extensions(X509_REQ *req);
 int X509_REQ_add_extensions_nid(X509_REQ *req, STACK_OF(X509_EXTENSION) *exts, int nid);
@@ -815,11 +788,11 @@ int X509_PUBKEY_set0_param(X509_PUBKEY *pub, ASN1_OBJECT *aobj, int ptype, void 
 int X509_PUBKEY_get0_param(ASN1_OBJECT **ppkalg, const uchar **pk, int *ppklen, X509_ALGOR **pa, X509_PUBKEY *pub);
 
 int X509_check_trust(X509 *x, int id, int flags);
-int X509_TRUST_get_count(void);
+int X509_TRUST_get_count();
 X509_TRUST *X509_TRUST_get0(int idx);
 int X509_TRUST_get_by_id(int id);
 int X509_TRUST_add(int id, int flags, int (*ck) (X509_TRUST *, X509 *, int), const char *name, int arg1, void *arg2);
-void X509_TRUST_cleanup(void);
+void X509_TRUST_cleanup();
 int X509_TRUST_get_flags(const X509_TRUST *xp);
 char *X509_TRUST_get0_name(const X509_TRUST *xp);
 int X509_TRUST_get_trust(const X509_TRUST *xp);

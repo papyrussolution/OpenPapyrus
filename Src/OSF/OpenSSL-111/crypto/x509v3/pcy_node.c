@@ -8,14 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/asn1.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-#include <openssl/err.h>
 #include "pcy_int.h"
 
-static int node_cmp(const X509_POLICY_NODE * const * a,
-    const X509_POLICY_NODE * const * b)
+static int node_cmp(const X509_POLICY_NODE * const * a, const X509_POLICY_NODE * const * b)
 {
 	return OBJ_cmp((*a)->data->valid_policy, (*b)->data->valid_policy);
 }

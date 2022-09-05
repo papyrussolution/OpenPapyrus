@@ -8,29 +8,20 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/bn.h>
 #include <openssl/rsa.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
 
-int RSA_sign_ASN1_OCTET_STRING(int type,
-    const uchar * m, uint m_len,
-    uchar * sigret, uint * siglen,
-    RSA * rsa)
+int RSA_sign_ASN1_OCTET_STRING(int type, const uchar * m, uint m_len, uchar * sigret, uint * siglen, RSA * rsa)
 {
 	ASN1_OCTET_STRING sig;
 	int i, j, ret = 1;
 	uchar * p, * s;
-
 	sig.type = V_ASN1_OCTET_STRING;
 	sig.length = m_len;
 	sig.data = (uchar *)m;
-
 	i = i2d_ASN1_OCTET_STRING(&sig, NULL);
 	j = RSA_size(rsa);
 	if(i > (j - RSA_PKCS1_PADDING_SIZE)) {
-		RSAerr(RSA_F_RSA_SIGN_ASN1_OCTET_STRING,
-		    RSA_R_DIGEST_TOO_BIG_FOR_RSA_KEY);
+		RSAerr(RSA_F_RSA_SIGN_ASN1_OCTET_STRING, RSA_R_DIGEST_TOO_BIG_FOR_RSA_KEY);
 		return 0;
 	}
 	s = static_cast<uchar *>(OPENSSL_malloc((uint)j + 1));

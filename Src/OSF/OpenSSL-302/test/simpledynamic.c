@@ -6,6 +6,7 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
+#include "testutil.h"
 #include <openssl/macros.h>      /* For NON_EMPTY_TRANSLATION_UNIT */
 #include <openssl/e_os2.h>
 #include "simpledynamic.h"
@@ -61,10 +62,8 @@ int sd_close(SD lib)
 const char * sd_error(void)
 {
 	static char buffer[255];
-
 	buffer[0] = '\0';
-	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0,
-	    buffer, sizeof(buffer), NULL);
+	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, buffer, sizeof(buffer), NULL);
 	return buffer;
 }
 

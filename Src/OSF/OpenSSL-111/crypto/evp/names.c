@@ -8,10 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/evp.h>
 #include <objects.h>
-#include <openssl/x509.h>
-//#include <evp_int.h>
 
 int EVP_add_cipher(const EVP_CIPHER * c)
 {

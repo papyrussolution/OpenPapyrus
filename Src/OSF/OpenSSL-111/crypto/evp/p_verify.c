@@ -8,19 +8,13 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-//#include <evp_int.h>
 
-int EVP_VerifyFinal(EVP_MD_CTX * ctx, const uchar * sigbuf,
-    uint siglen, EVP_PKEY * pkey)
+int EVP_VerifyFinal(EVP_MD_CTX * ctx, const uchar * sigbuf, uint siglen, EVP_PKEY * pkey)
 {
 	uchar m[EVP_MAX_MD_SIZE];
 	uint m_len = 0;
 	int i = 0;
 	EVP_PKEY_CTX * pkctx = NULL;
-
 	if(EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_FINALISE)) {
 		if(!EVP_DigestFinal_ex(ctx, m, &m_len))
 			goto err;

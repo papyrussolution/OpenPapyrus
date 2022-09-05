@@ -8,11 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <ssl-crypto-ctype.h>
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
 #include <x509_int.h>
-//#include <asn1_int.h>
 #include "x509_lcl.h"
 /*
  * Maximum length of X509_NAME: much larger than anything we should
@@ -21,25 +17,15 @@
 
 #define X509_NAME_MAX (1024 * 1024)
 
-static int x509_name_ex_d2i(ASN1_VALUE ** val,
-    const uchar ** in, long len,
-    const ASN1_ITEM * it,
-    int tag, int aclass, char opt, ASN1_TLC * ctx);
-
-static int x509_name_ex_i2d(ASN1_VALUE ** val, uchar ** out,
-    const ASN1_ITEM * it, int tag, int aclass);
+static int x509_name_ex_d2i(ASN1_VALUE ** val, const uchar ** in, long len, const ASN1_ITEM * it, int tag, int aclass, char opt, ASN1_TLC * ctx);
+static int x509_name_ex_i2d(ASN1_VALUE ** val, uchar ** out, const ASN1_ITEM * it, int tag, int aclass);
 static int x509_name_ex_new(ASN1_VALUE ** val, const ASN1_ITEM * it);
 static void x509_name_ex_free(ASN1_VALUE ** val, const ASN1_ITEM * it);
-
 static int x509_name_encode(X509_NAME * a);
 static int x509_name_canon(X509_NAME * a);
 static int asn1_string_canon(ASN1_STRING * out, const ASN1_STRING * in);
-static int i2d_name_canon(STACK_OF(STACK_OF_X509_NAME_ENTRY) * intname,
-    uchar ** in);
-
-static int x509_name_ex_print(BIO * out, ASN1_VALUE ** pval,
-    int indent,
-    const char * fname, const ASN1_PCTX * pctx);
+static int i2d_name_canon(STACK_OF(STACK_OF_X509_NAME_ENTRY) * intname, uchar ** in);
+static int x509_name_ex_print(BIO * out, ASN1_VALUE ** pval, int indent, const char * fname, const ASN1_PCTX * pctx);
 
 ASN1_SEQUENCE(X509_NAME_ENTRY) = {
 	ASN1_SIMPLE(X509_NAME_ENTRY, object, ASN1_OBJECT),

@@ -8,19 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/refcount.h"
-#include <openssl/bn.h>
-#include <openssl/err.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/x509.h>
-#include <openssl/rsa.h>
-#include <openssl/dsa.h>
-#include <openssl/dh.h>
 #include <openssl/cmac.h>
 #include <openssl/engine.h>
-//#include <asn1_int.h>
-//#include <evp_int.h>
 
 static void EVP_PKEY_free_it(EVP_PKEY * x);
 

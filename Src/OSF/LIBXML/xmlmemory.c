@@ -595,16 +595,13 @@ void xmlMemDisplay(FILE * fp)
 	strftime(buf, sizeof(buf) - 1, "%I:%M:%S %p", tstruct);
 	fprintf(fp, "      %s\n\n", buf);
 #endif
-
-	fprintf(fp, "      MEMORY ALLOCATED : %lu, MAX was %lu\n",
-	    debugMemSize, debugMaxMemSize);
+	fprintf(fp, "      MEMORY ALLOCATED : %lu, MAX was %lu\n", debugMemSize, debugMaxMemSize);
 	fprintf(fp, "BLOCK  NUMBER   SIZE  TYPE\n");
 	idx = 0;
 	xmlMutexLock(xmlMemMutex);
 	p = memlist;
 	while(p) {
-		fprintf(fp, "%-5u  %6lu %6lu ", idx++, p->mh_number,
-		    (ulong)p->mh_size);
+		fprintf(fp, "%-5u  %6lu %6lu ", idx++, p->mh_number, (ulong)p->mh_size);
 		switch(p->mh_type) {
 			case STRDUP_TYPE: fprintf(fp, "strdup()  in "); break;
 			case MALLOC_TYPE: fprintf(fp, "malloc()  in "); break;

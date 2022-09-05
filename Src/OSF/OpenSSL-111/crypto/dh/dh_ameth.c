@@ -8,21 +8,13 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/x509.h>
-#include <openssl/asn1.h>
 #include "dh_locl.h"
-#include <openssl/bn.h>
-//#include <asn1_int.h>
-//#include <evp_int.h>
 #include <openssl/cms.h>
-
 /*
  * i2d/d2i like DH parameter functions which use the appropriate routine for
  * PKCS#3 DH or X9.42 DH.
  */
-
-static DH * d2i_dhp(const EVP_PKEY * pkey, const uchar ** pp,
-    long length)
+static DH * d2i_dhp(const EVP_PKEY * pkey, const uchar ** pp, long length)
 {
 	if(pkey->ameth == &dhx_asn1_meth)
 		return d2i_DHxparams(NULL, pp, length);

@@ -8,15 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/bn.h>
-#include <openssl/evp.h>
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
 #include <x509_int.h>
-#include <openssl/objects.h>
-#include <openssl/buffer.h>
-#include <openssl/pem.h>
 
 X509_REQ * X509_to_X509_REQ(X509 * x, EVP_PKEY * pkey, const EVP_MD * md)
 {
@@ -29,18 +21,14 @@ X509_REQ * X509_to_X509_REQ(X509 * x, EVP_PKEY * pkey, const EVP_MD * md)
 		X509err(X509_F_X509_TO_X509_REQ, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	ri = &ret->req_info;
-
 	ri->version->length = 1;
 	ri->version->data = static_cast<uchar *>(OPENSSL_malloc(1));
 	if(ri->version->data == NULL)
 		goto err;
 	ri->version->data[0] = 0; /* version == 0 */
-
 	if(!X509_REQ_set_subject_name(ret, X509_get_subject_name(x)))
 		goto err;
-
 	pktmp = X509_get0_pubkey(x);
 	if(pktmp == NULL)
 		goto err;

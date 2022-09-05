@@ -8,11 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
-#include <openssl/evp.h>
-#include <openssl/bn.h>
-//#include <evp_int.h>
 #include "dsa_locl.h"
 
 /* DSA pkey context structure */

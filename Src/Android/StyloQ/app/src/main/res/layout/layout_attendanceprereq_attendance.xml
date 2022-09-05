@@ -119,9 +119,29 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/attendancePrereqAttendanceView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/shape_pageheader"
             android:padding="2dp"
             layoutManager="LinearLayoutManager" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/shape_viewframe">>
+            <TextView style="@style/HintText"
+                android:id="@+id/CTL_ATTENDANCE_HINT_GOTOORDER"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                />
+            <ImageView
+                android:id="@+id/CTL_ATTENDANCE_HINT_GOTOORDER_ARROW"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_arrowforward">
+            </ImageView>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

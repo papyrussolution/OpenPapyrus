@@ -498,8 +498,7 @@ static int32 pixToGif(PIX * pix, GifFileType  * gif)
 			if(pixcmapGetColor(cmap, i, &rval, &gval, &bval) != 0) {
 				pixDestroy(&pixd);
 				GifFreeMapObject(gif_cmap);
-				return ERROR_INT("failed to get color from color map",
-					   procName, 1);
+				return ERROR_INT("failed to get color from color map", procName, 1);
 			}
 			ncolor--;
 		}

@@ -418,11 +418,11 @@ int SlCrypto::SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen,
 		THROW_S(keyByteLen == Cp.KeySize, SLERR_CRYPTO_INVKEYSIZE); // SLERR_CRYPTO_INVKEYSIZE Ошибка SLCRYPTO - недопустимая длина ключа шифрования
 		THROW(rK.SetKey(pKey, keyByteLen));
 	}
-	if(pIv) {
+	if(pIv && ivLen) {
 		THROW_S(ivLen == Cp.IvSize, SLERR_CRYPTO_INVIVSIZE); // SLERR_CRYPTO_INVIVSIZE  Ошибка SLCRYPTO - недопустимая длина IV
 		THROW(rK.SetIV(pIv, ivLen));
 	}
-	if(pAad) {
+	if(pAad && aadLen) {
 		THROW(rK.SetAAD(pAad, aadLen));
 	}
 	CATCHZOK
@@ -563,6 +563,111 @@ int SlCrypto::SetupKey(SlCrypto::Key & rK, const char * pPassword)
 	}
 #endif // } 0
 
+int SlCrypto::Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag)
+{
+	rResult.Z();
+	int    ok = 1;
+	int    outl = 0;
+	int    final_outl = 0;
+	EVP_CIPHER_CTX * p_ctx = static_cast<EVP_CIPHER_CTX *>(P_Ctx);
+	const SBaseBuffer & r_key = rKey.GetKey();
+	const SBaseBuffer & r_iv = rKey.GetIV();
+	const SBaseBuffer & r_aad = rKey.GetAAD();
+	THROW_S(p_ctx && P_Cphr, SLERR_CRYPTO_INVPARAM);
+	//THROW(EVP_EncryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
+	THROW_S(!Cp.KeySize || !r_key.Size || r_key.Size == Cp.KeySize, SLERR_CRYPTO_INVKEYSIZE);
+	THROW_S(!r_iv.Size || r_iv.Size == Cp.IvSize, SLERR_CRYPTO_INVIVSIZE);
+	THROW_S(EVP_EncryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), 0, PTR8C(r_key.P_Buf), PTR8C(r_iv.P_Buf)), SLERR_CRYPTO_OPENSSL); // Initialise key and IV 
+	//EVP_CIPHER_CTX_
+	EVP_CIPHER_CTX_set_padding(p_ctx, 1); // @v11.1.11
+	State &= ~stInitDecr;
+	State |= stInitEncr;
+	{
+		//THROW(State & stInitEncr);
+		uint8 zero_buf[16];
+		size_t estimated_result_size = ((dataLen + Cp.BlockSize) / Cp.BlockSize) * Cp.BlockSize;
+		THROW(rResult.Ensure(estimated_result_size));
+		MEMSZERO(zero_buf);
+		if(dataLen == 0) {
+			pData = zero_buf;
+		}
+		/*if(pData && dataLen)*/{
+			if(AlgModif == algmodGcm) {
+				THROW(pTag && pTag->Len() >= 12); // @todo @err
+				EVP_CIPHER_CTX_ctrl(p_ctx, EVP_CTRL_CCM_SET_TAG, pTag->Len(), NULL);
+			}
+			if(r_aad.Size) {
+				THROW_S(EVP_EncryptUpdate(p_ctx, 0, &outl, PTR8C(r_aad.P_Buf), static_cast<int>(r_aad.Size)), SLERR_CRYPTO_OPENSSL);
+			}
+			THROW_S(EVP_EncryptUpdate(p_ctx, PTR8(rResult.Ptr()), &outl, PTR8C(pData), static_cast<int>(dataLen)), SLERR_CRYPTO_OPENSSL);
+			THROW_S(EVP_EncryptFinal_ex(p_ctx, PTR8(rResult.Ptr())+outl, &final_outl), SLERR_CRYPTO_OPENSSL);
+			outl += final_outl;
+			assert(outl <= rResult.Len()); // Если условие не выполняется, то мы ошиблись с первоначальной оценкой максимального размера результата
+			THROW(rResult.Ensure(outl));
+			if(pTag && pTag->Len()) {
+				THROW(EVP_CIPHER_CTX_ctrl(p_ctx, EVP_CTRL_CCM_GET_TAG, pTag->Len(), pTag->Ptr()));
+			}
+		}
+		//else {
+			//THROW_S(EVP_EncryptFinal_ex(p_ctx, static_cast<uchar *>(pResult), &outl), SLERR_CRYPTO_OPENSSL);
+		//}
+	}
+	CATCHZOK
+	//ASSIGN_PTR(pActualResultLen, outl);
+	return ok;
+}
+
+int SlCrypto::Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag)
+{
+	rResult.Z();
+	int    ok = 1;
+	int    outl = 0;
+	EVP_CIPHER_CTX * p_ctx = static_cast<EVP_CIPHER_CTX *>(P_Ctx);
+	THROW(p_ctx && P_Cphr);
+	{
+		int    final_outl = 0;
+		const SBaseBuffer & r_key = rKey.GetKey();
+		const SBaseBuffer & r_iv = rKey.GetIV();
+		const SBaseBuffer & r_aad = rKey.GetAAD();
+		size_t estimated_result_size = ((dataLen + Cp.BlockSize) / Cp.BlockSize) * Cp.BlockSize;
+		//THROW(EVP_DecryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
+		THROW(!r_key.Size || !r_key.Size || r_key.Size == Cp.KeySize);
+		THROW(r_iv.Size == Cp.IvSize);
+		THROW(EVP_DecryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), 0, PTR8C(r_key.P_Buf), PTR8C(r_iv.P_Buf))); // Initialise key and IV 
+		EVP_CIPHER_CTX_set_padding(p_ctx, 1); // @v11.1.11
+		State |= stInitDecr;
+		State &= ~stInitEncr;
+		{
+			THROW(State & stInitDecr);
+			if(pData && dataLen) {
+				if(AlgModif == algmodGcm) {
+					THROW(pTag && pTag->Len() > 0); // @todo @err
+				}
+				size_t estimated_result_size = ((dataLen + Cp.BlockSize) / Cp.BlockSize) * Cp.BlockSize;
+				THROW(rResult.Ensure(estimated_result_size));
+				if(r_aad.Size) {
+					THROW(EVP_DecryptUpdate(p_ctx, 0, &outl, reinterpret_cast<const uchar *>(r_aad.P_Buf), static_cast<int>(r_aad.Size)));
+				}
+				THROW(EVP_DecryptUpdate(p_ctx, PTR8(rResult.Ptr()), &outl, PTR8C(pData), static_cast<int>(dataLen)));
+				if(pTag) {
+					// Set expected tag value. Works in OpenSSL 1.0.1d and later 
+					THROW(EVP_CIPHER_CTX_ctrl(p_ctx, EVP_CTRL_GCM_SET_TAG, pTag->Len(), pTag->Ptr()));
+				}
+				THROW(EVP_DecryptFinal/*_ex*/(p_ctx, PTR8(rResult.Ptr())+outl, &final_outl));
+				outl += final_outl; // ?
+				assert(outl <= rResult.Len()); // Если условие не выполняется, то мы ошиблись с первоначальной оценкой максимального размера результата
+				THROW(rResult.Ensure(outl));
+			}
+			else {
+				//THROW(EVP_DecryptFinal_ex(p_ctx, static_cast<uchar *>(pResult), &outl));
+			}
+		}
+	}
+	CATCHZOK
+	//ASSIGN_PTR(pActualResultLen, outl);
+	return ok;
+}
+
 int SlCrypto::Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen)
 {
 	assert(pKey);
@@ -585,17 +690,22 @@ int SlCrypto::Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t da
 		State |= stInitEncr;
 		if(pResult) {
 			//THROW(State & stInitEncr);
-			if(pData && dataLen) {
+			uint8 zero_buf[16];
+			MEMSZERO(zero_buf);
+			if(dataLen == 0) {
+				pData = zero_buf;
+			}
+			//if(pData && dataLen) {
 				if(r_aad.Size) {
 					THROW_S(EVP_EncryptUpdate(p_ctx, 0, &outl, reinterpret_cast<const uchar *>(r_aad.P_Buf), static_cast<int>(r_aad.Size)), SLERR_CRYPTO_OPENSSL);
 				}
 				THROW_S(EVP_EncryptUpdate(p_ctx, static_cast<uchar *>(pResult), &outl, static_cast<const uchar *>(pData), static_cast<int>(dataLen)), SLERR_CRYPTO_OPENSSL);
 				THROW_S(EVP_EncryptFinal_ex(p_ctx, static_cast<uchar *>(pResult)+outl, &final_outl), SLERR_CRYPTO_OPENSSL);
 				outl += final_outl;
-			}
-			else {
+			//}
+			//else {
 				//THROW_S(EVP_EncryptFinal_ex(p_ctx, static_cast<uchar *>(pResult), &outl), SLERR_CRYPTO_OPENSSL);
-			}
+			//}
 		}
 	}
 	else

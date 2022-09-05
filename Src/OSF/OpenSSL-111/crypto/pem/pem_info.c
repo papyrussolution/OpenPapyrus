@@ -8,13 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/buffer.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/x509.h>
-#include <openssl/pem.h>
-#include <openssl/rsa.h>
-#include <openssl/dsa.h>
 
 #ifndef OPENSSL_NO_STDIO
 STACK_OF(X509_INFO) *PEM_X509_INFO_read(FILE *fp, STACK_OF(X509_INFO) *sk,
@@ -22,7 +15,6 @@ STACK_OF(X509_INFO) *PEM_X509_INFO_read(FILE *fp, STACK_OF(X509_INFO) *sk,
 {
 	BIO * b;
 	STACK_OF(X509_INFO) *ret;
-
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		PEMerr(PEM_F_PEM_X509_INFO_READ, ERR_R_BUF_LIB);
 		return 0;

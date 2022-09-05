@@ -6917,6 +6917,11 @@ public:
 	//int    Decrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
 	int    Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
 	int    Decrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
+	int    Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag);
+	//
+	// Note: параметр pTag - фактически константный, однако из-за обращения к интерфейсной функции пришлось сделать ее non-const.
+	//
+	int    Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag);
 private:
 	enum {
 		stError    = 0x0001,

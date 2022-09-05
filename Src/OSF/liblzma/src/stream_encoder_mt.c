@@ -737,15 +737,12 @@ static lzma_ret get_options(const lzma_mt * options, lzma_options_easy * opt_eas
 		// Use a preset.
 		if(lzma_easy_preset(opt_easy, options->preset))
 			return LZMA_OPTIONS_ERROR;
-
 		*filters = opt_easy->filters;
 	}
-
 	// Block size
 	if(options->block_size > 0) {
 		if(options->block_size > BLOCK_SIZE_MAX)
 			return LZMA_OPTIONS_ERROR;
-
 		*block_size = options->block_size;
 	}
 	else {
@@ -753,10 +750,8 @@ static lzma_ret get_options(const lzma_mt * options, lzma_options_easy * opt_eas
 		*block_size = lzma_mt_block_size(*filters);
 		if(*block_size == 0)
 			return LZMA_OPTIONS_ERROR;
-
 		assert(*block_size <= BLOCK_SIZE_MAX);
 	}
-
 	// Calculate the maximum amount output that a single output buffer
 	// may need to hold. This is the same as the maximum total size of
 	// a Block.

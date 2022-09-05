@@ -8,13 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-#include <openssl/err.h>
-#include <openssl/cms.h>
 #include "cms_lcl.h"
-//#include <asn1_int.h>
 
 static BIO * cms_get_text_bio(BIO * out, uint flags)
 {
@@ -34,15 +28,11 @@ static int cms_copy_content(BIO * out, BIO * in, uint flags)
 {
 	uchar buf[4096];
 	int r = 0, i;
-	BIO * tmpout;
-
-	tmpout = cms_get_text_bio(out, flags);
-
+	BIO * tmpout = cms_get_text_bio(out, flags);
 	if(tmpout == NULL) {
 		CMSerr(CMS_F_CMS_COPY_CONTENT, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	/* Read all content through chain to process digest, decrypt etc */
 	for(;;) {
 		i = BIO_read(in, buf, sizeof(buf));

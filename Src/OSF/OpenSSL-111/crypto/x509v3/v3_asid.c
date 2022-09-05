@@ -6,20 +6,12 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 /*
  * Implementation of RFC 3779 section 3.2.
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/conf.h>
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/x509.h>
 #include <x509_int.h>
-#include <openssl/bn.h>
-//#include "ext_dat.h"
 
 #ifndef OPENSSL_NO_RFC3779
 

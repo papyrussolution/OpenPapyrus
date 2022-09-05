@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/x509.h>
-#include <openssl/rand.h>
 #include "ec_lcl.h"
 #include <curve448_lcl.h>
 

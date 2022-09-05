@@ -351,25 +351,21 @@ l_ok recogAddSample(L_RECOG  * recog,
 			return 1;
 		}
 		if(index == npa) { /* paa needs to be extended */
-			L_INFO("Adding new class and pixa: index = %d, text = %s\n",
-			    procName, index, text);
+			L_INFO("Adding new class and pixa: index = %d, text = %s\n", procName, index, text);
 			pixa1 = pixaCreate(10);
 			pixaaAddPixa(paa, pixa1, L_INSERT);
 		}
 	}
 	if(debug) {
 		L_INFO("Identified text label: %s\n", procName, text);
-		L_INFO("Identified: charint = %d, index = %d\n",
-		    procName, charint, index);
+		L_INFO("Identified: charint = %d, index = %d\n", procName, charint, index);
 	}
-
 	/* Insert the unscaled character image into the right pixa.
 	 * (Unscaled images are required to split touching characters.) */
 	recog->num_samples++;
 	pixaaAddPix(paa, index, pix, NULL, L_COPY);
 	return 0;
 }
-
 /*!
  * \brief   recogModifyTemplate()
  *
@@ -378,23 +374,18 @@ l_ok recogAddSample(L_RECOG  * recog,
  *                      strokes of fixed width
  * \return  pixd   modified pix if OK, NULL on error
  */
-PIX * recogModifyTemplate(L_RECOG  * recog,
-    PIX * pixs)
+PIX * recogModifyTemplate(L_RECOG  * recog, PIX * pixs)
 {
 	int32 w, h, empty;
 	PIX * pix1, * pix2;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!recog)
 		return (PIX *)ERROR_PTR("recog not defined", procName, NULL);
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
-
 	/* Scale first */
 	pixGetDimensions(pixs, &w, &h, NULL);
-	if((recog->scalew == 0 || recog->scalew == w) &&
-	    (recog->scaleh == 0 || recog->scaleh == h)) { /* no scaling */
+	if((recog->scalew == 0 || recog->scalew == w) && (recog->scaleh == 0 || recog->scaleh == h)) { /* no scaling */
 		pix1 = pixCopy(NULL, pixs);
 	}
 	else {
@@ -549,8 +540,7 @@ int32 recogAverageSamples(L_RECOG  ** precog,
 	    &recog->maxwidth_u, &recog->maxheight_u);
 	hratio = (float)recog->maxheight_u / (float)recog->minheight_u;
 	if(hratio > recog->max_ht_ratio) {
-		L_ERROR("ratio of max/min height of average templates = %4.1f;"
-		    " destroying recog\n", procName, hratio);
+		L_ERROR("ratio of max/min height of average templates = %4.1f; destroying recog\n", procName, hratio);
 		recogDestroy(precog);
 		return 1;
 	}
@@ -1036,43 +1026,29 @@ PIXAA * recogSortPixaByClass(PIXA    * pixa,
  *          if it fails, the input recog is destroyed.
  * </pre>
  */
-l_ok recogRemoveOutliers1(L_RECOG  ** precog,
-    float minscore,
-    int32 mintarget,
-    int32 minsize,
-    PIX ** ppixsave,
-    PIX ** ppixrem)
+l_ok recogRemoveOutliers1(L_RECOG  ** precog, float minscore, int32 mintarget, int32 minsize, PIX ** ppixsave, PIX ** ppixrem)
 {
 	PIXA * pixa1, * pixa2;
 	L_RECOG  * recog;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!precog)
 		return ERROR_INT("&recog not defined", procName, 1);
 	if(*precog == NULL)
 		return ERROR_INT("recog not defined", procName, 1);
-
 	/* Extract the unscaled templates */
 	pixa1 = recogExtractPixa(*precog);
 	recogDestroy(precog);
-
-	pixa2 = pixaRemoveOutliers1(pixa1, minscore, mintarget, minsize,
-		ppixsave, ppixrem);
+	pixa2 = pixaRemoveOutliers1(pixa1, minscore, mintarget, minsize, ppixsave, ppixrem);
 	pixaDestroy(&pixa1);
 	if(!pixa2)
 		return ERROR_INT("failure to remove outliers", procName, 1);
-
 	recog = recogCreateFromPixa(pixa2, 0, 0, 0, 150, 1);
 	pixaDestroy(&pixa2);
 	if(!recog)
-		return ERROR_INT("failure to make recog from pixa sans outliers",
-			   procName, 1);
-
+		return ERROR_INT("failure to make recog from pixa sans outliers", procName, 1);
 	*precog = recog;
 	return 0;
 }
-
 /*!
  * \brief   pixaRemoveOutliers1()
  *
@@ -1252,41 +1228,29 @@ PIXA * pixaRemoveOutliers1(PIXA      * pixas,
  *          if it fails, the input recog is destroyed.
  * </pre>
  */
-l_ok recogRemoveOutliers2(L_RECOG  ** precog,
-    float minscore,
-    int32 minsize,
-    PIX ** ppixsave,
-    PIX ** ppixrem)
+l_ok recogRemoveOutliers2(L_RECOG  ** precog, float minscore, int32 minsize, PIX ** ppixsave, PIX ** ppixrem)
 {
 	PIXA * pixa1, * pixa2;
 	L_RECOG  * recog;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!precog)
 		return ERROR_INT("&recog not defined", procName, 1);
 	if(*precog == NULL)
 		return ERROR_INT("recog not defined", procName, 1);
-
 	/* Extract the unscaled templates */
 	pixa1 = recogExtractPixa(*precog);
 	recogDestroy(precog);
-
 	pixa2 = pixaRemoveOutliers2(pixa1, minscore, minsize, ppixsave, ppixrem);
 	pixaDestroy(&pixa1);
 	if(!pixa2)
 		return ERROR_INT("failure to remove outliers", procName, 1);
-
 	recog = recogCreateFromPixa(pixa2, 0, 0, 0, 150, 1);
 	pixaDestroy(&pixa2);
 	if(!recog)
-		return ERROR_INT("failure to make recog from pixa sans outliers",
-			   procName, 1);
-
+		return ERROR_INT("failure to make recog from pixa sans outliers", procName, 1);
 	*precog = recog;
 	return 0;
 }
-
 /*!
  * \brief   pixaRemoveOutliers2()
  *
@@ -1542,23 +1506,17 @@ PIXA * recogTrainFromBoot(L_RECOG   * recogboot,
  *          %scaleh and %linew.
  * </pre>
  */
-l_ok recogPadDigitTrainingSet(L_RECOG  ** precog,
-    int32 scaleh,
-    int32 linew)
+l_ok recogPadDigitTrainingSet(L_RECOG  ** precog, int32 scaleh, int32 linew)
 {
 	PIXA * pixa;
 	L_RECOG  * recog1, * recog2;
 	SARRAY * sa;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!precog)
 		return ERROR_INT("&recog not defined", procName, 1);
 	recog1 = *precog;
-
 	recogIsPaddingNeeded(recog1, &sa);
 	if(!sa) return 0;
-
 	/* Get a new pixa with the padding templates added */
 	pixa = recogAddDigitPadTemplates(recog1, sa);
 	sarrayDestroy(&sa);
@@ -1567,15 +1525,12 @@ l_ok recogPadDigitTrainingSet(L_RECOG  ** precog,
 
 	/* Need to use templates that are scaled to a fixed height. */
 	if(scaleh <= 0) {
-		L_WARNING("templates must be scaled to fixed height; using %d\n",
-		    procName, 40);
+		L_WARNING("templates must be scaled to fixed height; using %d\n", procName, 40);
 		scaleh = 40;
 	}
-
 	/* Create a hybrid recog, composed of templates from both
 	 * the original and bootstrap sources. */
-	recog2 = recogCreateFromPixa(pixa, 0, scaleh, linew, recog1->threshold,
-		recog1->maxyshift);
+	recog2 = recogCreateFromPixa(pixa, 0, scaleh, linew, recog1->threshold, recog1->maxyshift);
 	pixaDestroy(&pixa);
 	recogDestroy(precog);
 	*precog = recog2;

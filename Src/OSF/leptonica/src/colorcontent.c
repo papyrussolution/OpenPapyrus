@@ -485,11 +485,9 @@ l_ok pixColorFraction(PIX * pixs,
 	if(ppixfract) *ppixfract = 0.0;
 	if(pcolorfract) *pcolorfract = 0.0;
 	if(!ppixfract || !pcolorfract)
-		return ERROR_INT("&pixfract and &colorfract not defined",
-			   procName, 1);
+		return ERROR_INT("&pixfract and &colorfract not defined", procName, 1);
 	if(!pixs || pixGetDepth(pixs) != 32)
 		return ERROR_INT("pixs not defined or not 32 bpp", procName, 1);
-
 	pixGetDimensions(pixs, &w, &h, NULL);
 	data = pixGetData(pixs);
 	wpl = pixGetWpl(pixs);
@@ -1436,12 +1434,10 @@ l_ok pixNumColors(PIX * pixs,
 		if(cmap && factor == 1) {
 			count = pixcmapGetCount(cmap);
 			if(sum != count)
-				L_WARNING("colormap size %d differs from actual colors\n",
-				    procName, count);
+				L_WARNING("colormap size %d differs from actual colors\n", procName, count);
 		}
 		return 0;
 	}
-
 	/* 32 bpp rgb; quit if we get above 256 colors */
 	hashsize = 5507; /* big and prime; collisions are not likely */
 	inta = (int32*)SAlloc::C(hashsize, sizeof(int32));

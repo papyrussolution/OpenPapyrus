@@ -41,15 +41,10 @@ void ssh_reseed()
 
 /**
  * @brief Get random bytes
- *
  * Make sure to always check the return code of this function!
- *
  * @param[in]  where    The buffer to fill with random bytes
- *
  * @param[in]  len      The size of the buffer to fill.
- *
  * @param[in]  strong   Use a strong or private RNG source.
- *
  * @return 1 on success, 0 on error.
  */
 int ssh_get_random(void * where, int len, int strong)
@@ -477,9 +472,8 @@ static void evp_cipher_decrypt(struct ssh_cipher_struct * cipher, void * in, voi
 
 static void evp_cipher_cleanup(struct ssh_cipher_struct * cipher) 
 {
-	if(cipher->ctx != NULL) {
+	if(cipher->ctx)
 		EVP_CIPHER_CTX_free(cipher->ctx);
-	}
 }
 
 #ifndef HAVE_OPENSSL_EVP_AES_CTR
@@ -529,8 +523,8 @@ static void aes_ctr_encrypt(struct ssh_cipher_struct * cipher, void * in, void *
 
 static void aes_ctr_cleanup(struct ssh_cipher_struct * cipher)
 {
-	if(cipher != NULL) {
-		if(cipher->aes_key != NULL) {
+	if(cipher) {
+		if(cipher->aes_key) {
 			memzero(cipher->aes_key, sizeof(*cipher->aes_key));
 		}
 		ZFREE(cipher->aes_key);
@@ -551,16 +545,14 @@ static int evp_cipher_aead_get_length(struct ssh_cipher_struct * cipher, void * 
 
 static void evp_cipher_aead_encrypt(struct ssh_cipher_struct * cipher, void * in, void * out, size_t len, uint8 * tag, uint64_t seq)
 {
-	size_t authlen, aadlen;
+	(void)seq;
 	uint8 lastiv[1];
 	int tmplen = 0;
 	size_t outlen;
-	int rc;
-	(void)seq;
-	aadlen = cipher->lenfield_blocksize;
-	authlen = cipher->tag_size;
+	size_t aadlen = cipher->lenfield_blocksize;
+	size_t authlen = cipher->tag_size;
 	/* increment IV */
-	rc = EVP_CIPHER_CTX_ctrl(cipher->ctx, EVP_CTRL_GCM_IV_GEN, 1, lastiv);
+	int rc = EVP_CIPHER_CTX_ctrl(cipher->ctx, EVP_CTRL_GCM_IV_GEN, 1, lastiv);
 	if(rc == 0) {
 		SSH_LOG(SSH_LOG_WARNING, "EVP_CTRL_GCM_IV_GEN failed");
 		return;
@@ -595,15 +587,13 @@ static void evp_cipher_aead_encrypt(struct ssh_cipher_struct * cipher, void * in
 
 static int evp_cipher_aead_decrypt(struct ssh_cipher_struct * cipher, void * complete_packet, uint8 * out, size_t encrypted_size, uint64_t seq)
 {
-	size_t authlen, aadlen;
+	(void)seq;
 	uint8 lastiv[1];
 	int outlen = 0;
-	int rc = 0;
-	(void)seq;
-	aadlen = cipher->lenfield_blocksize;
-	authlen = cipher->tag_size;
+	size_t aadlen = cipher->lenfield_blocksize;
+	size_t authlen = cipher->tag_size;
 	/* increment IV */
-	rc = EVP_CIPHER_CTX_ctrl(cipher->ctx, EVP_CTRL_GCM_IV_GEN, 1, lastiv);
+	int rc = EVP_CIPHER_CTX_ctrl(cipher->ctx, EVP_CTRL_GCM_IV_GEN, 1, lastiv);
 	if(rc == 0) {
 		SSH_LOG(SSH_LOG_WARNING, "EVP_CTRL_GCM_IV_GEN failed");
 		return SSH_ERROR;
@@ -1043,7 +1033,7 @@ int ssh_crypto_init()
 #endif
 	{
 		struct ssh_cipher_struct * p_tab = ssh_get_ciphertab();
-		for(i = 0; p_tab[i].name != NULL; i++) {
+		for(i = 0; p_tab[i].name; i++) {
 			int cmp = strcmp(p_tab[i].name, "chacha20-poly1305@openssh.com");
 			if(cmp == 0) {
 				memcpy(&p_tab[i], ssh_get_chacha20poly1305_cipher(), sizeof(struct ssh_cipher_struct));

@@ -3824,7 +3824,8 @@ int CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, 
 {
 	PPIDArray cc_list;
 	CCheckTbl::Key4 k, k_;
-	double dbt = 0.0, crd = 0.0;
+	double dbt = 0.0;
+	double crd = 0.0;
 	MEMSZERO(k);
 	k.SCardID = cardID;
 	if(pPeriod)
@@ -3879,6 +3880,7 @@ int CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, 
 	}
 	{
 		RAssocArray cc_amt_list;
+		CCheckTbl::Rec cc_rec;
 		CCheckPaymTbl::Key1 pk1;
 		BExtQuery q(&PaymT, 1);
 		q.selectAll().where(PaymT.SCardID == cardID);
@@ -3887,16 +3889,18 @@ int CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, 
 		for(q.initIteration(false, &pk1, spGe); q.nextIteration() > 0;) {
 			const long p = PaymT.data.Amount;
 			const double amt = intmnytodbl(p);
-			if(restrGoodsGrpID) {
-				const PPID cc_id = PaymT.data.CheckID;
-				cc_amt_list.Add(cc_id, amt);
-				cc_list.add(cc_id);
-			}
-			else {
-				if(p > 0)
-					dbt += amt;
-				else if(p < 0)
-					crd -= amt;
+			const PPID cc_id = PaymT.data.CheckID;
+			if(Search(cc_id, &cc_rec) > 0 && (!pPeriod || pPeriod->CheckDate(cc_rec.Dt))) { // @v11.4.10 @fix
+				if(restrGoodsGrpID) {
+					cc_amt_list.Add(cc_id, amt);
+					cc_list.add(cc_id);
+				}
+				else {
+					if(p > 0)
+						dbt += amt;
+					else if(p < 0)
+						crd -= amt;
+				}
 			}
 		}
 		if(restrGoodsGrpID && cc_amt_list.getCount()) {

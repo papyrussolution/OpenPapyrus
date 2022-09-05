@@ -801,8 +801,7 @@ l_ok pixWriteStreamJpeg(FILE * fp,
 	pixGetDimensions(pixs, &w, &h, &d);
 	pix = NULL;
 	if(pixGetColormap(pixs) != NULL) {
-		L_INFO("removing colormap; may be better to compress losslessly\n",
-		    procName);
+		L_INFO("removing colormap; may be better to compress losslessly\n", procName);
 		pix = pixRemoveColormap(pixs, REMOVE_CMAP_BASED_ON_SRC);
 	}
 	else if(d >= 8 && d != 16) { /* normal case; no rewrite */

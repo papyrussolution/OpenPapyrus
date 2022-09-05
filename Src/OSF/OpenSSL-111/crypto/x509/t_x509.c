@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/buffer.h>
-#include <openssl/bn.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-//#include <asn1_int.h>
 
 #ifndef OPENSSL_NO_STDIO
 int X509_print_fp(FILE * fp, X509 * x)
@@ -21,12 +15,10 @@ int X509_print_fp(FILE * fp, X509 * x)
 	return X509_print_ex_fp(fp, x, XN_FLAG_COMPAT, X509_FLAG_COMPAT);
 }
 
-int X509_print_ex_fp(FILE * fp, X509 * x, ulong nmflag,
-    ulong cflag)
+int X509_print_ex_fp(FILE * fp, X509 * x, ulong nmflag, ulong cflag)
 {
 	BIO * b;
 	int ret;
-
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		X509err(X509_F_X509_PRINT_EX_FP, ERR_R_BUF_LIB);
 		return 0;

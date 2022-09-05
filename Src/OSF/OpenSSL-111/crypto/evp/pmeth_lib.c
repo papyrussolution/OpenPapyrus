@@ -97,8 +97,8 @@ static EVP_PKEY_CTX * int_ctx_new(EVP_PKEY * pkey, ENGINE * e, int id)
 		id = pkey->type;
 	}
 #ifndef OPENSSL_NO_ENGINE
-	if(e == NULL && pkey != NULL)
-		e = pkey->pmeth_engine != NULL ? pkey->pmeth_engine : pkey->engine;
+	if(e == NULL && pkey)
+		e = pkey->pmeth_engine ? pkey->pmeth_engine : pkey->engine;
 	/* Try to find an ENGINE which implements this method */
 	if(e) {
 		if(!ENGINE_init(e)) {
@@ -261,7 +261,7 @@ int EVP_PKEY_meth_add0(const EVP_PKEY_METHOD * pmeth)
 
 void evp_app_cleanup_int(void)
 {
-	if(app_pkey_methods != NULL)
+	if(app_pkey_methods)
 		sk_EVP_PKEY_METHOD_pop_free(app_pkey_methods, EVP_PKEY_meth_free);
 }
 
@@ -315,7 +315,7 @@ int EVP_PKEY_CTX_ctrl(EVP_PKEY_CTX * ctx, int keytype, int optype, int cmd, int 
 	if((keytype != -1) && (ctx->pmeth->pkey_id != keytype))
 		return -1;
 	/* Skip the operation checks since this is called in a very early stage */
-	if(ctx->pmeth->digest_custom != NULL)
+	if(ctx->pmeth->digest_custom)
 		goto doit;
 	if(ctx->operation == EVP_PKEY_OP_UNDEFINED) {
 		EVPerr(EVP_F_EVP_PKEY_CTX_CTRL, EVP_R_NO_OPERATION_SET);
@@ -393,60 +393,23 @@ void EVP_PKEY_CTX_set0_keygen_info(EVP_PKEY_CTX * ctx, int * dat, int datlen)
 	ctx->keygen_info_count = datlen;
 }
 
-void EVP_PKEY_CTX_set_data(EVP_PKEY_CTX * ctx, void * data)
-{
-	ctx->data = data;
-}
+void EVP_PKEY_CTX_set_data(EVP_PKEY_CTX * ctx, void * data) { ctx->data = data; }
+void * EVP_PKEY_CTX_get_data(EVP_PKEY_CTX * ctx) { return ctx->data; }
+EVP_PKEY * EVP_PKEY_CTX_get0_pkey(EVP_PKEY_CTX * ctx) { return ctx->pkey; }
+EVP_PKEY * EVP_PKEY_CTX_get0_peerkey(EVP_PKEY_CTX * ctx) { return ctx->peerkey; }
+void EVP_PKEY_CTX_set_app_data(EVP_PKEY_CTX * ctx, void * data) { ctx->app_data = data; }
+void * EVP_PKEY_CTX_get_app_data(EVP_PKEY_CTX * ctx) { return ctx->app_data; }
+void EVP_PKEY_meth_set_init(EVP_PKEY_METHOD * pmeth, int (*init)(EVP_PKEY_CTX * ctx)) { pmeth->init = init; }
+void EVP_PKEY_meth_set_copy(EVP_PKEY_METHOD * pmeth, int (*copy)(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src)) { pmeth->copy = copy; }
+void EVP_PKEY_meth_set_cleanup(EVP_PKEY_METHOD * pmeth, void (*cleanup)(EVP_PKEY_CTX * ctx)) { pmeth->cleanup = cleanup; }
 
-void * EVP_PKEY_CTX_get_data(EVP_PKEY_CTX * ctx)
-{
-	return ctx->data;
-}
-
-EVP_PKEY * EVP_PKEY_CTX_get0_pkey(EVP_PKEY_CTX * ctx)
-{
-	return ctx->pkey;
-}
-
-EVP_PKEY * EVP_PKEY_CTX_get0_peerkey(EVP_PKEY_CTX * ctx)
-{
-	return ctx->peerkey;
-}
-
-void EVP_PKEY_CTX_set_app_data(EVP_PKEY_CTX * ctx, void * data)
-{
-	ctx->app_data = data;
-}
-
-void * EVP_PKEY_CTX_get_app_data(EVP_PKEY_CTX * ctx)
-{
-	return ctx->app_data;
-}
-
-void EVP_PKEY_meth_set_init(EVP_PKEY_METHOD * pmeth, int (*init)(EVP_PKEY_CTX * ctx))
-{
-	pmeth->init = init;
-}
-
-void EVP_PKEY_meth_set_copy(EVP_PKEY_METHOD * pmeth, int (*copy)(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src))
-{
-	pmeth->copy = copy;
-}
-
-void EVP_PKEY_meth_set_cleanup(EVP_PKEY_METHOD * pmeth, void (*cleanup)(EVP_PKEY_CTX * ctx))
-{
-	pmeth->cleanup = cleanup;
-}
-
-void EVP_PKEY_meth_set_paramgen(EVP_PKEY_METHOD * pmeth, int (*paramgen_init)(EVP_PKEY_CTX * ctx),
-    int (*paramgen)(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey))
+void EVP_PKEY_meth_set_paramgen(EVP_PKEY_METHOD * pmeth, int (*paramgen_init)(EVP_PKEY_CTX * ctx), int (*paramgen)(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey))
 {
 	pmeth->paramgen_init = paramgen_init;
 	pmeth->paramgen = paramgen;
 }
 
-void EVP_PKEY_meth_set_keygen(EVP_PKEY_METHOD * pmeth, int (*keygen_init)(EVP_PKEY_CTX * ctx),
-    int (*keygen)(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey))
+void EVP_PKEY_meth_set_keygen(EVP_PKEY_METHOD * pmeth, int (*keygen_init)(EVP_PKEY_CTX * ctx), int (*keygen)(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey))
 {
 	pmeth->keygen_init = keygen_init;
 	pmeth->keygen = keygen;
@@ -515,57 +478,27 @@ void EVP_PKEY_meth_set_ctrl(EVP_PKEY_METHOD * pmeth, int (*ctrl)(EVP_PKEY_CTX * 
 	pmeth->ctrl_str = ctrl_str;
 }
 
-void EVP_PKEY_meth_set_check(EVP_PKEY_METHOD * pmeth, int (*check)(EVP_PKEY * pkey))
-{
-	pmeth->check = check;
-}
+void EVP_PKEY_meth_set_check(EVP_PKEY_METHOD * pmeth, int (*check)(EVP_PKEY * pkey)) { pmeth->check = check; }
+void EVP_PKEY_meth_set_public_check(EVP_PKEY_METHOD * pmeth, int (*check)(EVP_PKEY * pkey)) { pmeth->public_check = check; }
+void EVP_PKEY_meth_set_param_check(EVP_PKEY_METHOD * pmeth, int (*check)(EVP_PKEY * pkey)) { pmeth->param_check = check; }
+void EVP_PKEY_meth_set_digest_custom(EVP_PKEY_METHOD * pmeth, int (*digest_custom)(EVP_PKEY_CTX * ctx, EVP_MD_CTX * mctx)) { pmeth->digest_custom = digest_custom; }
+void EVP_PKEY_meth_get_init(const EVP_PKEY_METHOD * pmeth, int (**pinit)(EVP_PKEY_CTX * ctx)) { *pinit = pmeth->init; }
+void EVP_PKEY_meth_get_copy(const EVP_PKEY_METHOD * pmeth, int (**pcopy)(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src)) { *pcopy = pmeth->copy; }
+void EVP_PKEY_meth_get_cleanup(const EVP_PKEY_METHOD * pmeth, void (**pcleanup)(EVP_PKEY_CTX * ctx)) { *pcleanup = pmeth->cleanup; }
 
-void EVP_PKEY_meth_set_public_check(EVP_PKEY_METHOD * pmeth, int (*check)(EVP_PKEY * pkey))
-{
-	pmeth->public_check = check;
-}
-
-void EVP_PKEY_meth_set_param_check(EVP_PKEY_METHOD * pmeth, int (*check)(EVP_PKEY * pkey))
-{
-	pmeth->param_check = check;
-}
-
-void EVP_PKEY_meth_set_digest_custom(EVP_PKEY_METHOD * pmeth, int (*digest_custom)(EVP_PKEY_CTX * ctx, EVP_MD_CTX * mctx))
-{
-	pmeth->digest_custom = digest_custom;
-}
-
-void EVP_PKEY_meth_get_init(const EVP_PKEY_METHOD * pmeth, int (**pinit)(EVP_PKEY_CTX * ctx))
-{
-	*pinit = pmeth->init;
-}
-
-void EVP_PKEY_meth_get_copy(const EVP_PKEY_METHOD * pmeth, int (**pcopy)(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src))
-{
-	*pcopy = pmeth->copy;
-}
-
-void EVP_PKEY_meth_get_cleanup(const EVP_PKEY_METHOD * pmeth, void (**pcleanup)(EVP_PKEY_CTX * ctx))
-{
-	*pcleanup = pmeth->cleanup;
-}
-
-void EVP_PKEY_meth_get_paramgen(const EVP_PKEY_METHOD * pmeth, int(**pparamgen_init) (EVP_PKEY_CTX * ctx),
-    int(**pparamgen) (EVP_PKEY_CTX * ctx, EVP_PKEY * pkey))
+void EVP_PKEY_meth_get_paramgen(const EVP_PKEY_METHOD * pmeth, int(**pparamgen_init) (EVP_PKEY_CTX * ctx), int(**pparamgen) (EVP_PKEY_CTX * ctx, EVP_PKEY * pkey))
 {
 	ASSIGN_PTR(pparamgen_init, pmeth->paramgen_init);
 	ASSIGN_PTR(pparamgen, pmeth->paramgen);
 }
 
-void EVP_PKEY_meth_get_keygen(const EVP_PKEY_METHOD * pmeth, int(**pkeygen_init) (EVP_PKEY_CTX * ctx),
-    int(**pkeygen) (EVP_PKEY_CTX * ctx, EVP_PKEY * pkey))
+void EVP_PKEY_meth_get_keygen(const EVP_PKEY_METHOD * pmeth, int(**pkeygen_init) (EVP_PKEY_CTX * ctx), int(**pkeygen) (EVP_PKEY_CTX * ctx, EVP_PKEY * pkey))
 {
 	ASSIGN_PTR(pkeygen_init, pmeth->keygen_init);
 	ASSIGN_PTR(pkeygen, pmeth->keygen);
 }
 
-void EVP_PKEY_meth_get_sign(const EVP_PKEY_METHOD * pmeth, int(**psign_init) (EVP_PKEY_CTX * ctx),
-    int(**psign) (EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const uchar * tbs, size_t tbslen))
+void EVP_PKEY_meth_get_sign(const EVP_PKEY_METHOD * pmeth, int(**psign_init) (EVP_PKEY_CTX * ctx), int(**psign) (EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const uchar * tbs, size_t tbslen))
 {
 	ASSIGN_PTR(psign_init, pmeth->sign_init);
 	ASSIGN_PTR(psign, pmeth->sign);

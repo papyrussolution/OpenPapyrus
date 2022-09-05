@@ -756,18 +756,12 @@ l_ok pixWriteMem(uint8  ** pdata,
  *      (3) This downscales 1 bpp to gray.
  * </pre>
  */
-l_ok l_fileDisplay(const char * fname,
-    int32 x,
-    int32 y,
-    float scale)
+l_ok l_fileDisplay(const char * fname, int32 x, int32 y, float scale)
 {
 	PIX  * pixs, * pixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!LeptDebugOK) {
-		L_INFO("displaying files is disabled; "
-		    "use setLeptDebugOK(1) to enable\n", procName);
+		L_INFO("displaying files is disabled; use setLeptDebugOK(1) to enable\n", procName);
 		return 0;
 	}
 	if(scale == 0.0)
@@ -776,7 +770,6 @@ l_ok l_fileDisplay(const char * fname,
 		return ERROR_INT("invalid scale factor", procName, 1);
 	if((pixs = pixRead(fname)) == NULL)
 		return ERROR_INT("pixs not read", procName, 1);
-
 	if(scale == 1.0) {
 		pixd = pixClone(pixs);
 	}
@@ -872,30 +865,22 @@ l_ok pixDisplayWithTitle(PIX         * pixs,
 	char           * pathname;
 	char fullpath[_MAX_PATH];
 #endif  /* _WIN32 */
-
 	PROCNAME(__FUNCTION__);
-
 	if(!LeptDebugOK) {
-		L_INFO("displaying images is disabled;\n      "
-		    "use setLeptDebugOK(1) to enable\n", procName);
+		L_INFO("displaying images is disabled;\n      use setLeptDebugOK(1) to enable\n", procName);
 		return 0;
 	}
-
 #ifdef OS_IOS /* iOS 11 does not support system() */
 	return ERROR_INT("iOS 11 does not support system()", procName, 1);
 #endif /* OS_IOS */
-
-	if(dispflag != 1) return 0;
+	if(dispflag != 1) 
+		return 0;
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
-	if(var_DISPLAY_PROG != L_DISPLAY_WITH_XZGV &&
-	    var_DISPLAY_PROG != L_DISPLAY_WITH_XLI &&
-	    var_DISPLAY_PROG != L_DISPLAY_WITH_XV &&
-	    var_DISPLAY_PROG != L_DISPLAY_WITH_IV &&
-	    var_DISPLAY_PROG != L_DISPLAY_WITH_OPEN) {
+	if(var_DISPLAY_PROG != L_DISPLAY_WITH_XZGV && var_DISPLAY_PROG != L_DISPLAY_WITH_XLI && 
+		var_DISPLAY_PROG != L_DISPLAY_WITH_XV && var_DISPLAY_PROG != L_DISPLAY_WITH_IV && var_DISPLAY_PROG != L_DISPLAY_WITH_OPEN) {
 		return ERROR_INT("no program chosen for display", procName, 1);
 	}
-
 	/* Display with three views if either spp = 4 or if colormapped
 	 * and the alpha component is not fully opaque */
 	opaque = TRUE;

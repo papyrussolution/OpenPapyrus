@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/x509.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/ui.h>
 
 /* should be init to zeros. */
 static char prompt_string[80];
@@ -28,12 +24,8 @@ void EVP_set_pw_prompt(const char * prompt)
 
 char * EVP_get_pw_prompt(void)
 {
-	if(prompt_string[0] == '\0')
-		return NULL;
-	else
-		return prompt_string;
+	return (prompt_string[0] == '\0') ? NULL : prompt_string;
 }
-
 /*
  * For historical reasons, the standard function for reading passwords is in
  * the DES library -- if someone ever wants to disable DES, this function
@@ -44,13 +36,11 @@ int EVP_read_pw_string(char * buf, int len, const char * prompt, int verify)
 	return EVP_read_pw_string_min(buf, 0, len, prompt, verify);
 }
 
-int EVP_read_pw_string_min(char * buf, int min, int len, const char * prompt,
-    int verify)
+int EVP_read_pw_string_min(char * buf, int min, int len, const char * prompt, int verify)
 {
 	int ret = -1;
 	char buff[BUFSIZ];
 	UI * ui;
-
 	if((prompt == NULL) && (prompt_string[0] != '\0'))
 		prompt = prompt_string;
 	ui = UI_new();
@@ -70,24 +60,19 @@ end:
 	return ret;
 }
 
-int EVP_BytesToKey(const EVP_CIPHER * type, const EVP_MD * md,
-    const uchar * salt, const uchar * data,
-    int datal, int count, uchar * key,
-    uchar * iv)
+int EVP_BytesToKey(const EVP_CIPHER * type, const EVP_MD * md, const uchar * salt, const uchar * data, int datal, int count, uchar * key, uchar * iv)
 {
 	EVP_MD_CTX * c;
 	uchar md_buf[EVP_MAX_MD_SIZE];
-	int niv, nkey, addmd = 0;
+	int addmd = 0;
 	uint mds = 0, i;
 	int rv = 0;
-	nkey = EVP_CIPHER_key_length(type);
-	niv = EVP_CIPHER_iv_length(type);
+	int nkey = EVP_CIPHER_key_length(type);
+	int niv = EVP_CIPHER_iv_length(type);
 	OPENSSL_assert(nkey <= EVP_MAX_KEY_LENGTH);
 	OPENSSL_assert(niv <= EVP_MAX_IV_LENGTH);
-
 	if(!data)
 		return nkey;
-
 	c = EVP_MD_CTX_new();
 	if(!c)
 		goto err;

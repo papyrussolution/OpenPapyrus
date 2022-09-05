@@ -10,7 +10,6 @@
 #pragma hdrstop
 #include "internal/conf.h"
 #include "internal/dso.h"
-#include <openssl/x509.h>
 
 #define DSO_mod_init_name "OPENSSL_init"
 #define DSO_mod_finish_name "OPENSSL_finish"
@@ -19,16 +18,11 @@
  * table correspond to either dynamic or static modules.
  */
 struct conf_module_st {
-	/* DSO of this module or NULL if static */
-	DSO * dso;
-	/* Name of the module */
-	char * name;
-	/* Init function */
-	conf_init_func * init;
-	/* Finish function */
-	conf_finish_func * finish;
-	/* Number of successfully initialized modules */
-	int links;
+	DSO * dso; /* DSO of this module or NULL if static */
+	char * name; /* Name of the module */
+	conf_init_func * init; /* Init function */
+	conf_finish_func * finish; /* Finish function */
+	int links; /* Number of successfully initialized modules */
 	void * usr_data;
 };
 /*

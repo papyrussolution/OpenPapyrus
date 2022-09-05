@@ -12,11 +12,6 @@
 #ifdef OPENSSL_NO_RSA
 NON_EMPTY_TRANSLATION_UNIT
 #else
-#include <openssl/rsa.h>
-#include <openssl/objects.h>
-#include <openssl/asn1t.h>
-#include <openssl/evp.h>
-#include <openssl/x509.h>
 
 #ifndef OPENSSL_NO_RC4
 

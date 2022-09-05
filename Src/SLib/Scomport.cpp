@@ -207,11 +207,11 @@ int SCommPort::InitPort(int portNo, int ctsControl, int rtsControl)
 	//dcb.fDsrSensitivity = (CPP.Flags & CPP.fDsrSensitivity) ? 1 : 0;
 	// } @v10.1.2 
 	THROW(SetCommState(H_Port, &dcb));
-	cto.ReadIntervalTimeout = MAXDWORD;
-	cto.ReadTotalTimeoutMultiplier = MAXDWORD;
-	cto.ReadTotalTimeoutConstant = CPT.W_Get_Delay;
-	cto.WriteTotalTimeoutConstant = 0;
-	cto.WriteTotalTimeoutMultiplier = 0;
+	cto.ReadIntervalTimeout = 10000; // @v11.4.10 MAXDWORD-->10000
+	cto.ReadTotalTimeoutMultiplier = 20; // @v11.4.10 MAXDWORD-->20
+	cto.ReadTotalTimeoutConstant = 1000; // @v11.4.10 CPT.W_Get_Delay-->1000
+	cto.WriteTotalTimeoutConstant = 20; // @v11.4.10 0-->20
+	cto.WriteTotalTimeoutMultiplier = 1000; // @v11.4.10 0-->1000
 	THROW(SetCommTimeouts(H_Port, &cto));
 	CATCH
 		ok = (SLibError = SLERR_COMMINIT, 0);

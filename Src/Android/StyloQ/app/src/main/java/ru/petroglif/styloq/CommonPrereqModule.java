@@ -5,8 +5,10 @@ package ru.petroglif.styloq;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.Editable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,18 +17,16 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.annotation.IdRes;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
-
+import com.google.android.material.textfield.TextInputEditText;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,12 +34,183 @@ import java.util.Comparator;
 import java.util.UUID;
 
 public class CommonPrereqModule {
+	private static class SimpleSearchBlock {
+		public static class IndexEntry {
+			IndexEntry(int objType, int objID, int attr, final String text, final String displayText)
+			{
+				ObjType = objType;
+				ObjID = objID;
+				Attr = attr;
+				Text = text;
+				DisplayText = displayText;
+			}
+			int ObjType; // PPOBJ_XXX
+			int ObjID;
+			int Attr; // PPOBJATTR_XXX
+			final String Text;
+			final String DisplayText;
+		}
+		public static class Result {
+			String Pattern;
+			public ArrayList<IndexEntry> List;
+			private int[] ObjTypeList;
+			private int ObjTypeCount;
+			private int SelectedItemIdx;
+			private String SearchResultInfoText;
+
+			Result()
+			{
+				ObjTypeCount = 0;
+				ObjTypeList = new int[64];
+				SelectedItemIdx = -1;
+				SearchResultInfoText = null;
+			}
+			void Clear()
+			{
+				List = null;
+				ObjTypeCount = 0;
+				SelectedItemIdx = -1;
+				SearchResultInfoText = null;
+			}
+			String GetSearchResultInfoText()
+			{
+				return SearchResultInfoText;
+			}
+			void SetSelectedItemIndex(int idx) { SelectedItemIdx = (List != null && idx >= 0 && idx < List.size()) ? idx : -1; }
+			void ResetSelectedItemIndex() { SelectedItemIdx = -1; }
+			int  GetSelectedItemIndex()
+			{
+				return SelectedItemIdx;
+			}
+			int  FindIndexOfItem(final IndexEntry item)
+			{
+				int result = -1;
+				if(List != null && List.size() > 0) {
+					for(int i = 0; result < 0 && i < List.size(); i++) {
+						final IndexEntry se = List.get(i);
+						if(se != null && se.ObjType == item.ObjType && se.ObjID == item.ObjID)
+							result = i;
+					}
+				}
+				return result;
+			}
+			void Add(IndexEntry entry)
+			{
+				if(entry != null) {
+					boolean obj_type_found = false;
+					for(int j = 0; !obj_type_found && j < ObjTypeCount; j++) {
+						if(ObjTypeList[j] == entry.ObjType)
+							obj_type_found = true;
+					}
+					if(!obj_type_found) {
+						ObjTypeList[ObjTypeCount] = entry.ObjType;
+						ObjTypeCount++;
+					}
+					if(List == null)
+						List = new ArrayList<IndexEntry>();
+					List.add(entry);
+				}
+			}
+			ArrayList<IndexEntry> GetListByObjType(int objType)
+			{
+				ArrayList<IndexEntry> result = null;
+				if(List != null) {
+					for(IndexEntry iter : List) {
+						if(iter != null && iter.ObjType == objType) {
+							if(result == null)
+								result = new ArrayList<IndexEntry>();
+							result.add(iter);
+						}
+					}
+				}
+				return result;
+			}
+			final boolean IsThereObj(int objType, int objID)
+			{
+				boolean result = false;
+				if(objType > 0 && objID > 0 && List != null) {
+					for(int i = 0; !result && i < List.size(); i++) {
+						IndexEntry se = List.get(i);
+						if(se != null && se.ObjType == objType && se.ObjID == objID)
+							result = true;
+					}
+				}
+				return result;
+			}
+			public final int GetObjTypeCount()
+			{
+				return ObjTypeCount;
+			}
+			public final int GetObjTypeByIndex(int idx) { return (idx >= 0 && idx < ObjTypeCount) ? ObjTypeList[idx] : 0; }
+		}
+		SimpleSearchBlock()
+		{
+			Index = null;
+			ObjTypeList = null;
+			SearchResult = null;
+			RestrictionObjType = 0;
+			RestrictionObjTypeCombonJustInited = false;
+		}
+		ArrayList<IndexEntry> Index;
+		ArrayList<Integer> ObjTypeList; // @v11.4.10
+		Result SearchResult;
+		int   RestrictionObjType; // @v11.4.10
+		boolean RestrictionObjTypeCombonJustInited; // @v11.4.10 Специальный флаг, препятствующий обработке
+			// выбора ограничивающего типа объекта непосредственно после инициализации комбо-бокса.
+			// Так как после выбора ограничения комбик исчезает, то это - критично.
+			// Я не придумал пока более изящного решения :(
+	}
+
+	public void SearchResult_ResetSelectedItemIndex()
+	{
+		if(SsB.SearchResult != null)
+			SsB.SearchResult.ResetSelectedItemIndex();
+	}
+	public int SearchResult_GetSelectedItmeIndex()
+	{
+		return (SsB.SearchResult != null) ? SsB.SearchResult.GetSelectedItemIndex() : -1;
+	}
+	public int SearchResult_GetObjTypeCount()
+	{
+		return (SsB.SearchResult != null) ? SsB.SearchResult.GetObjTypeCount() : 0;
+	}
+	//
+	// Descr: Функция вызывается в ответ на касание пользователем элемента списка результатов поиска
+	//
+	public SLib.PPObjID SearchResult_ProcessSelection(Object itemObj)
+	{
+		SLib.PPObjID result = null;
+		if(itemObj != null && itemObj instanceof SimpleSearchBlock.IndexEntry) {
+			SimpleSearchBlock.IndexEntry se = (SimpleSearchBlock.IndexEntry)itemObj;
+			// ! ev_subj.ItemIdx не согласуется простым образом с ev_subj.ItemObj из-за
+			// двухярусной структуры списка.
+			SsB.SearchResult.SetSelectedItemIndex(SsB.SearchResult.FindIndexOfItem(se));
+			result = new SLib.PPObjID(se.ObjType, se.ObjID);
+		}
+		return result;
+	}
+	@NotNull public SLib.PPObjID SearchResult_GetSelectedOid()
+	{
+		SLib.PPObjID result = null;
+		if(SsB.SearchResult != null) {
+			final int idx = SsB.SearchResult.GetSelectedItemIndex();
+			if(idx >= 0) {
+				final int objtype = SsB.SearchResult.List.get(idx).ObjType;
+				final int objid = SsB.SearchResult.List.get(idx).ObjID;
+				if(objtype > 0 && objid > 0)
+					result = new SLib.PPObjID(objtype, objid);
+			}
+		}
+		if(result == null)
+			result = new SLib.PPObjID();
+		return result;
+	}
+
+	private SimpleSearchBlock SsB;
 	public byte[] SvcIdent; // Получает через intent ("SvcIdent")
 	public String CmdName; // Получает через intent ("CmdName")
 	public String CmdDescr; // Получает через intent ("CmdDescr")
 	public UUID CmdUuid;  // Получает через intent ("CmdUuid")
-	public ArrayList<SimpleSearchIndexEntry> SimpleSearchIndex;
-	public SimpleSearchResult SearchResult;
 	public ArrayList<CliEntry> CliListData;
 	public ArrayList<JSONObject> GoodsGroupListData;
 	public ArrayList<BusinessEntity.Brand> BrandListData;
@@ -134,13 +305,13 @@ public class CommonPrereqModule {
 	}
 
 	public static class TabEntry {
-		TabEntry(CommonPrereqModule.Tab id, String text, /*View*/SLib.SlFragmentStatic view)
+		TabEntry(Tab id, String text, /*View*/SLib.SlFragmentStatic view)
 		{
 			TabId = id;
 			TabText = text;
 			TabView = view;
 		}
-		CommonPrereqModule.Tab TabId;
+		Tab TabId;
 		String TabText;
 		/*View*/ SLib.SlFragmentStatic TabView;
 	}
@@ -157,26 +328,14 @@ public class CommonPrereqModule {
 		final String Title;
 		final boolean Condition;
 	}
-	private StyloQApp GetAppCtx()
-	{
-		return (ActivityInstance != null) ? ActivityInstance.GetAppCtx() : null;
-	}
-	protected final boolean IsCurrentDocumentEmpty()
-	{
-		return (CurrentOrder == null || CurrentOrder.H == null);
-	}
-	protected final int GetCurrentDocumentTransferListCount()
-	{
-		return (CurrentOrder != null && CurrentOrder.TiList != null) ? CurrentOrder.TiList.size() : 0;
-	}
-	protected final Document GetCurrentDocument()
+	private StyloQApp GetAppCtx() { return (ActivityInstance != null) ? ActivityInstance.GetAppCtx() : null; }
+	protected boolean IsCurrentDocumentEmpty() { return (CurrentOrder == null || CurrentOrder.H == null); }
+	protected int  GetCurrentDocumentTransferListCount() { return (CurrentOrder != null && CurrentOrder.TiList != null) ? CurrentOrder.TiList.size() : 0; }
+	protected Document GetCurrentDocument()
 	{
 		return CurrentOrder;
 	}
-	protected final int GetCurrentDocumentBookingListCount()
-	{
-		return (CurrentOrder != null && CurrentOrder.BkList != null) ? CurrentOrder.BkList.size() : 0;
-	}
+	protected int  GetCurrentDocumentBookingListCount() { return (CurrentOrder != null && CurrentOrder.BkList != null) ? CurrentOrder.BkList.size() : 0; }
 	protected void InitCurrenDocument(int intechangeOpID) throws StyloQException
 	{
 		if(CurrentOrder == null) {
@@ -484,7 +643,7 @@ public class CommonPrereqModule {
 		boolean result = false;
 		try {
 			if(item != null && item.GoodsID > 0 && item.Set != null && item.Set.Qtty > 0.0) {
-				CommonPrereqModule.WareEntry goods_item = FindGoodsItemByGoodsID(item.GoodsID);
+				WareEntry goods_item = FindGoodsItemByGoodsID(item.GoodsID);
 				//double price = goods_item.JsItem.optDouble("price", 0.0);
 				double price = goods_item.Item.Price;
 				int    interchange_op_id = 0;
@@ -512,7 +671,7 @@ public class CommonPrereqModule {
 						CurrentOrder.TiList = new ArrayList<Document.TransferItem>();
 					CurrentOrder.TiList.add(ti);
 				}
-				SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.VISIBLE);
+				SetTabVisibility(Tab.tabCurrentDocument, View.VISIBLE);
 				//NotifyCurrentOrderChanged();
 				OnCurrentDocumentModification();
 				result = true;
@@ -844,10 +1003,11 @@ public class CommonPrereqModule {
 	{
 		Document.TransferItem result = null;
 		if(CurrentOrder != null && CurrentOrder.TiList != null) {
-			for(int i = 0; result == null && i < CurrentOrder.TiList.size(); i++) {
-				Document.TransferItem ti = CurrentOrder.TiList.get(i);
-				if(ti != null && ti.GoodsID == goodsID)
-					result = ti;
+			for(Document.TransferItem iter : CurrentOrder.TiList) {
+				if(iter != null && iter.GoodsID == goodsID) {
+					result = iter;
+					break;
+				}
 			}
 		}
 		return result;
@@ -856,10 +1016,9 @@ public class CommonPrereqModule {
 	{
 		double result = 0.0;
 		if(CurrentOrder != null && CurrentOrder.TiList != null) {
-			for(int i = 0; i < CurrentOrder.TiList.size(); i++) {
-				Document.TransferItem ti = CurrentOrder.TiList.get(i);
-				if(ti != null && ti.GoodsID == goodsID)
-					result += Math.abs(ti.Set.Qtty);
+			for(Document.TransferItem iter : CurrentOrder.TiList) {
+				if(iter != null && iter.GoodsID == goodsID)
+					result += Math.abs(iter.Set.Qtty);
 			}
 		}
 		return result;
@@ -893,143 +1052,43 @@ public class CommonPrereqModule {
 		JSONObject JsItem;
 		int   GoodsExpandStatus; // 0 - no goods, 1 - goods collapsed, 2 - goods expanded
 	}
-	public static class SimpleSearchIndexEntry {
-		SimpleSearchIndexEntry(int objType, int objID, int attr, final String text, final String displayText)
-		{
-			ObjType = objType;
-			ObjID = objID;
-			Attr = attr;
-			Text = text;
-			DisplayText = displayText;
-		}
-		int ObjType; // PPOBJ_XXX
-		int ObjID;
-		int Attr; // PPOBJATTR_XXX
-		final String Text;
-		final String DisplayText;
-	}
-
-	public static class SimpleSearchResult {
-		String Pattern;
-		public ArrayList<SimpleSearchIndexEntry> List;
-		private int[] ObjTypeList;
-		private int ObjTypeCount;
-		private int SelectedItemIdx;
-		private String SearchResultInfoText;
-
-		SimpleSearchResult()
-		{
-			ObjTypeCount = 0;
-			ObjTypeList = new int[64];
-			SelectedItemIdx = -1;
-			SearchResultInfoText = null;
-		}
-		void Clear()
-		{
-			List = null;
-			ObjTypeCount = 0;
-			SelectedItemIdx = -1;
-			SearchResultInfoText = null;
-		}
-		String GetSearchResultInfoText()
-		{
-			return SearchResultInfoText;
-		}
-		void SetSelectedItemIndex(int idx)
-		{
-			if(List != null && idx >= 0 && idx < List.size())
-				SelectedItemIdx = idx;
-			else
-				SelectedItemIdx = -1;
-		}
-		void ResetSelectedItemIndex()
-		{
-			SelectedItemIdx = -1;
-		}
-		int GetSelectedItemIndex()
-		{
-			return SelectedItemIdx;
-		}
-		int FindIndexOfItem(final SimpleSearchIndexEntry item)
-		{
-			int result = -1;
-			if(List != null && List.size() > 0) {
-				for(int i = 0; result < 0 && i < List.size(); i++) {
-					final SimpleSearchIndexEntry se = List.get(i);
-					if(se != null && se.ObjType == item.ObjType && se.ObjID == item.ObjID)
-						result = i;
-				}
-			}
-			return result;
-		}
-		void Add(SimpleSearchIndexEntry entry)
-		{
-			if(entry != null) {
-				boolean obj_type_found = false;
-				for(int j = 0; !obj_type_found && j < ObjTypeCount; j++) {
-					if(ObjTypeList[j] == entry.ObjType)
-						obj_type_found = true;
-				}
-				if(!obj_type_found) {
-					ObjTypeList[ObjTypeCount] = entry.ObjType;
-					ObjTypeCount++;
-				}
-				if(List == null)
-					List = new ArrayList<SimpleSearchIndexEntry>();
-				List.add(entry);
-			}
-		}
-		ArrayList<SimpleSearchIndexEntry> GetListByObjType(int objType)
-		{
-			ArrayList<SimpleSearchIndexEntry> result = null;
-			if(List != null) {
-				for(int i = 0; i < List.size(); i++) {
-					SimpleSearchIndexEntry se = List.get(i);
-					if(se != null && se.ObjType == objType) {
-						if(result == null)
-							result = new ArrayList<SimpleSearchIndexEntry>();
-						result.add(se);
-					}
-				}
-			}
-			return result;
-		}
-		final boolean IsThereObj(int objType, int objID)
-		{
-			boolean result = false;
-			if(objType > 0 && objID > 0 && List != null) {
-				for(int i = 0; !result && i < List.size(); i++) {
-					SimpleSearchIndexEntry se = List.get(i);
-					if(se != null && se.ObjType == objType && se.ObjID == objID)
-						result = true;
-				}
-			}
-			return result;
-		}
-		public final int GetObjTypeCount()
-		{
-			return ObjTypeCount;
-		}
-		public final int GetObjTypeByIndex(int idx) { return (idx >= 0 && idx < ObjTypeCount) ? ObjTypeList[idx] : 0; }
-	}
 	public void InitSimpleIndex()
 	{
-		if(SimpleSearchIndex == null)
-			SimpleSearchIndex = new ArrayList<SimpleSearchIndexEntry>();
+		if(SsB.Index == null)
+			SsB.Index = new ArrayList<SimpleSearchBlock.IndexEntry>();
 		else
-			SimpleSearchIndex.clear();
+			SsB.Index.clear();
+		SsB.ObjTypeList = null;
 	}
 	public void AddSimpleIndexEntry(int objType, int objID, int attr, final String text, final String displayText)
 	{
 		//SimpleSearchIndexEntry(int objType, int objID, int attr, final String text, final String displayText)
-		if(SLib.GetLen(text) > 0)
-			SimpleSearchIndex.add(new SimpleSearchIndexEntry(objType, objID, attr, text.toLowerCase(), displayText));
+		if(SLib.GetLen(text) > 0) {
+			SsB.Index.add(new SimpleSearchBlock.IndexEntry(objType, objID, attr, text.toLowerCase(), displayText));
+			if(objType > 0) {
+				if(SsB.ObjTypeList == null) {
+					SsB.ObjTypeList = new ArrayList<Integer>();
+					SsB.ObjTypeList.add(objType);
+				}
+				else {
+					boolean found = false;
+					for(Integer iter : SsB.ObjTypeList) {
+						if(iter != null && iter.intValue() == objType) {
+							found = true;
+							break;
+						}
+					}
+					if(!found)
+						SsB.ObjTypeList.add(objType);
+				}
+			}
+		}
 	}
 	public void AddGoodsToSimpleIndex()
 	{
 		if(GoodsListData != null) {
 			for(int i = 0; i < GoodsListData.size(); i++) {
-				CommonPrereqModule.WareEntry ware_item = GoodsListData.get(i);
+				WareEntry ware_item = GoodsListData.get(i);
 				if(ware_item != null && ware_item.Item != null) {
 					int id = ware_item.Item.ID;
 					if(id > 0) {
@@ -1085,15 +1144,15 @@ public class CommonPrereqModule {
 		boolean result = false;
 		StyloQApp app_ctx = GetAppCtx();
 		if(app_ctx != null) {
-			if(SearchResult == null)
-				SearchResult = new CommonPrereqModule.SimpleSearchResult();
-			SearchResult.Clear();
-			SearchResult.Pattern = pattern;
-			if(SimpleSearchIndex != null && SLib.GetLen(pattern) >= min_pattern_len) {
+			if(SsB.SearchResult == null)
+				SsB.SearchResult = new SimpleSearchBlock.Result();
+			SsB.SearchResult.Clear();
+			SsB.SearchResult.Pattern = pattern;
+			if(SsB.Index != null && SLib.GetLen(pattern) >= min_pattern_len) {
 				pattern = pattern.toLowerCase();
-				for(int i = 0; i < SimpleSearchIndex.size(); i++) {
-					CommonPrereqModule.SimpleSearchIndexEntry entry = SimpleSearchIndex.get(i);
-					if(entry != null && SLib.GetLen(entry.Text) > 0 && entry.Text.indexOf(pattern) >= 0) {
+				for(int i = 0; i < SsB.Index.size(); i++) {
+					SimpleSearchBlock.IndexEntry entry = SsB.Index.get(i);
+					if(entry != null && (SsB.RestrictionObjType == 0 || SsB.RestrictionObjType == entry.ObjType) && SLib.GetLen(entry.Text) > 0 && entry.Text.indexOf(pattern) >= 0) {
 						boolean skip = false;
 						if(entry.Attr == SLib.PPOBJATTR_CODE && pattern.length() < min_pattern_len_code)
 							skip = true;
@@ -1102,18 +1161,18 @@ public class CommonPrereqModule {
 						else if(entry.Attr == SLib.PPOBJATTR_RUKPP && pattern.length() < min_pattern_len_rukpp)
 							skip = true;
 						if(!skip) {
-							if(SearchResult.List != null && SearchResult.List.size() >= max_result_count) {
+							if(SsB.SearchResult.List != null && SsB.SearchResult.List.size() >= max_result_count) {
 								// Если количество результатов превышает некий порог, то считаем поиск безуспешным - пусть
 								// клиент вводит что-то более длинное для релевантности результата
-								SearchResult.Clear();
+								SsB.SearchResult.Clear();
 								String fmt_buf = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_TOOMANYRESULTS);
 								if(SLib.GetLen(fmt_buf) > 0)
-									SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(max_result_count));
+									SsB.SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(max_result_count));
 								result = false;
 								break;
 							}
 							else {
-								SearchResult.Add(entry);
+								SsB.SearchResult.Add(entry);
 								result = true;
 							}
 						}
@@ -1122,19 +1181,19 @@ public class CommonPrereqModule {
 				if(result) {
 					String fmt_buf = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_SUCCESS);
 					if(SLib.GetLen(fmt_buf) > 0)
-						SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(SearchResult.List.size()));
+						SsB.SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(SsB.SearchResult.List.size()));
 				}
 			}
 			else {
 				String fmt_buf = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_TOOSHRTPATTERN);
 				if(SLib.GetLen(fmt_buf) > 0)
-					SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(min_pattern_len_code));
+					SsB.SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(min_pattern_len_code));
 			}
 		}
 		return result;
 	}
-	public String GetSimpleSearchResultPattern() { return (SearchResult != null) ? SearchResult.Pattern : null; }
-	public final boolean IsObjInSearchResult(int objType, int objID) { return (SearchResult != null) ? SearchResult.IsThereObj(objType, objID) : false; }
+	public String GetSimpleSearchResultPattern() { return (SsB.SearchResult != null) ? SsB.SearchResult.Pattern : null; }
+	public final boolean IsObjInSearchResult(int objType, int objID) { return (SsB.SearchResult != null) ? SsB.SearchResult.IsThereObj(objType, objID) : false; }
 	public CommonPrereqModule(SLib.SlActivity activityInstance)
 	{
 		SvcIdent = null;
@@ -1159,6 +1218,7 @@ public class CommonPrereqModule {
 		ActivityInstance = activityInstance;
 		ViewPagerResourceId = 0;
 		TabLayoutResourceId = 0;
+		SsB = new SimpleSearchBlock();
 	}
 	String GetBaseCurrencySymb() { return BaseCurrencySymb; }
 	int   GetDefDuePeriodHour() { return DefDuePeriodHour; }
@@ -1202,6 +1262,19 @@ public class CommonPrereqModule {
 				SLib.SetCtrlString(ActivityInstance, R.id.CTL_PAGEHEADER_TOPIC, title_text);
 			SLib.SetupImage(ActivityInstance, ActivityInstance.findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature, false);
 		}
+	}
+	protected Object OnEvent_CreateFragment(Object subj)
+	{
+		Object result = null;
+		if(subj instanceof Integer) {
+			int item_idx = (Integer)subj;
+			if(TabList != null && item_idx >= 0 && item_idx < TabList.size()) {
+				TabEntry cur_entry = (TabEntry)TabList.get(item_idx);
+				if(cur_entry.TabView != null)
+					result = cur_entry.TabView;
+			}
+		}
+		return result;
 	}
 	public TabEntry SearchTabEntry(@IdRes int viewPagerRcId, Tab tab)
 	{
@@ -2005,8 +2078,8 @@ public class CommonPrereqModule {
 					convertView = LayoutInflater.from(_ctx).inflate(RcId, parent, false);
 				}
 				if(convertView != null) {
-					if(item instanceof CommonPrereqModule.SimpleSearchIndexEntry) {
-						CommonPrereqModule.SimpleSearchIndexEntry se = (CommonPrereqModule.SimpleSearchIndexEntry)item;
+					if(item instanceof SimpleSearchBlock.IndexEntry) {
+						SimpleSearchBlock.IndexEntry se = (SimpleSearchBlock.IndexEntry)item;
 						String pattern = null;
 						if(_ctx instanceof CmdROrderPrereqActivity)
 							pattern = ((CmdROrderPrereqActivity)_ctx).CPM.GetSimpleSearchResultPattern();
@@ -2063,16 +2136,95 @@ public class CommonPrereqModule {
 			return convertView; // Return the completed view to render on screen
 		}
 	}
+	protected boolean OpenSearchPaneObjRestriction(View fragmentView)
+	{
+		boolean result = false;
+		StyloQApp app_ctx = GetAppCtx();
+		if(app_ctx != null && fragmentView != null) {
+			if(SsB.ObjTypeList != null && SsB.ObjTypeList.size() > 0) {
+				SLib.StrAssocArray obj_title_list = new SLib.StrAssocArray();
+				obj_title_list.Set(0, "anything");
+				for(Integer iter : SsB.ObjTypeList) {
+					if(iter != null) {
+						String obj_title = SLib.GetObjectTitle(app_ctx, iter);
+						if(SLib.GetLen(obj_title) > 0) {
+							obj_title_list.Set(iter, obj_title);
+						}
+					}
+				}
+				SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.VISIBLE);
+				SsB.RestrictionObjTypeCombonJustInited = true;
+				SLib.SetupStrAssocCombo(app_ctx, fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, obj_title_list, SsB.RestrictionObjType);
+			}
+			else
+				SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.GONE);
+		}
+		return result;
+	}
+	protected boolean SelectSearchPaneObjRestriction(View fragmentView, int objType)
+	{
+		boolean result = false;
+		if(SsB.RestrictionObjTypeCombonJustInited)
+			SsB.RestrictionObjTypeCombonJustInited = false;
+		else {
+			if(objType >= 0) {
+				SsB.RestrictionObjType = objType;
+				SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.GONE);
+				result = true;
+			}
+		}
+		return result;
+	}
+	protected void SetupSearchPaneListView(View fragmentView, View listView)
+	{
+		if(fragmentView != null && listView != null && listView instanceof RecyclerView) {
+			((RecyclerView)listView).setLayoutManager(new LinearLayoutManager(ActivityInstance));
+			ActivityInstance.SetupRecyclerListView(fragmentView, R.id.searchPaneListView, R.layout.li_searchpane_result);
+			{
+				View iv = fragmentView.findViewById(R.id.CTL_SEARCHPANE_INPUT);
+				if(iv != null && iv instanceof TextInputEditText) {
+					SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.GONE);
+					TextInputEditText tiv = (TextInputEditText) iv;
+					tiv.requestFocus();
+					tiv.addTextChangedListener(new TextWatcher() {
+						public void afterTextChanged(Editable s)
+						{
+							//int cross_icon_id = (s.length() > 0) ? R.drawable.ic_cross01 : 0;
+							//tiv.setCompoundDrawablesWithIntrinsicBounds(0, 0, cross_icon_id, 0);
+						}
+						public void beforeTextChanged(CharSequence s, int start, int count, int after)
+						{
+						}
+						public void onTextChanged(CharSequence s, int start, int before, int count)
+						{
+							String pattern = s.toString();
+							boolean sr = SearchInSimpleIndex(pattern);
+							String srit = SsB.SearchResult.GetSearchResultInfoText();
+							if(!sr && SsB.SearchResult != null)
+								SsB.SearchResult.Clear();
+							SLib.SetCtrlString(fragmentView, R.id.CTL_SEARCHPANE_RESULTINFO, srit);
+							View lv = ActivityInstance.findViewById(R.id.searchPaneListView);
+							if(lv != null && lv instanceof RecyclerView) {
+								RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
+								if(gva != null)
+									gva.notifyDataSetChanged();
+							}
+						}
+					});
+				}
+			}
+		}
+	}
 	public void GetSearchPaneListViewItem(View itemView, int itemIdx)
 	{
 		StyloQApp app_ctx = GetAppCtx();
-		if(app_ctx != null && SearchResult != null && itemView != null && itemIdx < SearchResult.GetObjTypeCount()) {
-			int obj_type = SearchResult.GetObjTypeByIndex(itemIdx);
+		if(app_ctx != null && SsB.SearchResult != null && itemView != null && itemIdx < SsB.SearchResult.GetObjTypeCount()) {
+			int obj_type = SsB.SearchResult.GetObjTypeByIndex(itemIdx);
 			String obj_type_title = SLib.GetObjectTitle(app_ctx, obj_type);
 			SLib.SetCtrlString(itemView, R.id.LVITEM_GENERICNAME, (obj_type_title != null) ? obj_type_title : "");
 			{
 				ListView detail_lv = (ListView)itemView.findViewById(R.id.searchPaneTerminalListView);
-				ArrayList <CommonPrereqModule.SimpleSearchIndexEntry> detail_list = SearchResult.GetListByObjType(obj_type);
+				ArrayList <SimpleSearchBlock.IndexEntry> detail_list = SsB.SearchResult.GetListByObjType(obj_type);
 				if(detail_lv != null && detail_list != null) {
 					SearchDetailListAdapter adapter = new SearchDetailListAdapter(/*this*/itemView.getContext(), R.layout.li_searchpane_resultdetail, detail_list);
 					detail_lv.setAdapter(adapter);

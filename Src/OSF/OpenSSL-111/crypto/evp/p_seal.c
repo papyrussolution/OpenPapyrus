@@ -8,20 +8,12 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/rand.h>
-#include <openssl/rsa.h>
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
 
-int EVP_SealInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * type,
-    uchar ** ek, int * ekl, uchar * iv,
-    EVP_PKEY ** pubk, int npubk)
+int EVP_SealInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * type, uchar ** ek, int * ekl, uchar * iv, EVP_PKEY ** pubk, int npubk)
 {
 	uchar key[EVP_MAX_KEY_LENGTH];
 	int i;
 	int rv = 0;
-
 	if(type) {
 		EVP_CIPHER_CTX_reset(ctx);
 		if(!EVP_EncryptInit_ex(ctx, type, NULL, NULL, NULL))

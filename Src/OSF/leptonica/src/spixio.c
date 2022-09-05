@@ -435,12 +435,9 @@ PIX * pixDeserializeFromMemory(const uint32  * data,
 	imdata_size = data[6 + ncolors];
 	pixDestroy(&pix1);
 	if(pixdata_size != memdata_size || pixdata_size != imdata_size) {
-		L_ERROR("pixdata_size = %d, memdata_size = %d, imdata_size = %d "
-		    "not all equal!\n", procName, pixdata_size, memdata_size,
-		    imdata_size);
+		L_ERROR("pixdata_size = %d, memdata_size = %d, imdata_size = %d not all equal!\n", procName, pixdata_size, memdata_size, imdata_size);
 		return NULL;
 	}
-
 	if((pixd = pixCreate(w, h, d)) == NULL)
 		return (PIX *)ERROR_PTR("pix not made", procName, NULL);
 	if(ncolors > 0) {
