@@ -998,70 +998,58 @@ public class Document {
 		}
 		return result;
 	}
-	int AssignGoodsMark(String mark, final ArrayList</*BusinessEntity.Goods*/CommonPrereqModule.WareEntry> goodsRefList)
+	int AssignGoodsMark(String mark, final ArrayList</*BusinessEntity.Goods*/CommonPrereqModule.WareEntry> goodsRefList) throws StyloQException
 	{
 		int ok = -1;
 		GTIN m = GTIN.ParseChZnCode(mark, 0);
-		if(m != null && m.GetChZnParseResult() > 0) {
-			String gtin14 = m.GetToken(GTIN.fldGTIN14);
-			final int gtin14_len = SLib.GetLen(gtin14);
-			if(gtin14_len > 0) {
-				assert(gtin14_len == 14);
-				String pattern = gtin14.substring(1);
-				if(goodsRefList != null && goodsRefList.size() > 0 && TiList != null && TiList.size() > 0) {
-					for(int tiidx = 0; ok < 0 && tiidx < TiList.size(); tiidx++) {
-						TransferItem ti = TiList.get(tiidx);
-						if(ti != null && ti.GoodsID > 0) {
-							for(int gidx = 0; gidx < goodsRefList.size(); gidx++) {
-								CommonPrereqModule.WareEntry _we = goodsRefList.get(gidx);
-								BusinessEntity.Goods goods_item = (_we != null) ? goodsRefList.get(gidx).Item : null;
-								if(goods_item != null && goods_item.ID == ti.GoodsID) {
-									BusinessEntity.GoodsCode fc = goods_item.SearchCode(pattern);
-									if(fc != null) {
-										if(ti.XcL == null) {
-											ti.XcL = new ArrayList<LotExtCode>();
-											ti.XcL.add(new LotExtCode(mark));
-											ok = 1;
-										}
-										else {
-											final LotExtCode ex_lec = FindLotExtCode(ti.XcL, mark);
-											if(ex_lec == null) {
-												ti.XcL.add(new LotExtCode(mark));
-												ok = 1;
-											}
-											else {
-												ok = 0; // dup code
-											}
-										}
-									}
+		SLib.THROW(m != null && m.GetChZnParseResult() > 0, ppstr2.PPERR_TEXTISNTCHZNMARK, mark);
+		String gtin14 = m.GetToken(GTIN.fldGTIN14);
+		final int gtin14_len = SLib.GetLen(gtin14);
+		SLib.THROW(gtin14_len > 0, ppstr2.PPERR_TEXTISNTCHZNMARK, mark);
+		assert(gtin14_len == 14);
+		final int fmr = FindMark(mark);
+		SLib.THROW(fmr < 0 || fmr == 10000/*верифицирующий пул*/, ppstr2.PPERR_DUPEXTLOTCODEINBILL, mark);
+		String pattern = gtin14.substring(1);
+		if(goodsRefList != null && goodsRefList.size() > 0 && TiList != null && TiList.size() > 0) {
+			for(int tiidx = 0; ok < 0 && tiidx < TiList.size(); tiidx++) {
+				TransferItem ti = TiList.get(tiidx);
+				if(ti != null && ti.GoodsID > 0) {
+					for(int gidx = 0; gidx < goodsRefList.size(); gidx++) {
+						CommonPrereqModule.WareEntry _we = goodsRefList.get(gidx);
+						BusinessEntity.Goods goods_item = (_we != null) ? goodsRefList.get(gidx).Item : null;
+						if(goods_item != null && goods_item.ID == ti.GoodsID) {
+							BusinessEntity.GoodsCode fc = goods_item.SearchCode(pattern);
+							if(fc != null) {
+								if(ti.XcL == null) {
+									ti.XcL = new ArrayList<LotExtCode>();
+									ti.XcL.add(new LotExtCode(mark));
+									ok = 1;
+								}
+								else {
+									final LotExtCode ex_lec = FindLotExtCode(ti.XcL, mark);
+									SLib.THROW(ex_lec == null, ppstr2.PPERR_DUPEXTLOTCODEINBILL, mark);
+									ti.XcL.add(new LotExtCode(mark));
+									ok = 1;
 								}
 							}
 						}
 					}
 				}
-				if(ok < 0) {
-					if(XcL_Unassigned == null) {
-						XcL_Unassigned = new ArrayList<LotExtCode>();
-						XcL_Unassigned.add(new LotExtCode(mark));
-						ok = 2;
-					}
-					else {
-						final LotExtCode ex_lec = FindLotExtCode(XcL_Unassigned, mark);
-						if(ex_lec == null) {
-							XcL_Unassigned.add(new LotExtCode(mark));
-							ok = 2;
-						}
-						else {
-							ok = 0; // dup code
-						}
-					}
-				}
 			}
-			else
-				ok = 0;
 		}
-		else
-			ok = 0;
+		if(ok < 0) {
+			if(XcL_Unassigned == null) {
+				XcL_Unassigned = new ArrayList<LotExtCode>();
+				XcL_Unassigned.add(new LotExtCode(mark));
+				ok = 2;
+			}
+			else {
+				final LotExtCode ex_lec = FindLotExtCode(XcL_Unassigned, mark);
+				SLib.THROW(ex_lec == null, ppstr2.PPERR_DUPEXTLOTCODEINBILL, mark);
+				XcL_Unassigned.add(new LotExtCode(mark));
+				ok = 2;
+			}
+		}
 		return ok;
 	}
 	static LotExtCode FindLotExtCode(final ArrayList<LotExtCode> list, final String mark)
@@ -1082,6 +1070,31 @@ public class Document {
 				if(item != null && item.Code != null && pattern.equalsIgnoreCase(item.Code))
 					result = item;
 			}
+		}
+		return result;
+	}
+	//
+	// Descr: Ищет марку среди всех контейнеров документа.
+	//   Если марка найдена, то возвращает значение >= 0, иначе -1.
+	//
+	int FindMark(String mark)
+	{
+		int    result = -1;
+		if(SLib.GetLen(mark) > 0) {
+			{
+				final int _c = SLib.GetCount(TiList);
+				for(int i = 0; result < 0 && i < _c; i++) {
+					final TransferItem ti = TiList.get(i);
+					if(ti != null) {
+						if(FindLotExtCode(ti.XcL, mark) != null)
+							result = i;
+					}
+				}
+			}
+			if(result < 0 && FindLotExtCode(VXcL, mark) != null)
+				result = 10000;
+			else if(result < 0 && FindLotExtCode(XcL_Unassigned, mark) != null)
+				result = 20000;
 		}
 		return result;
 	}

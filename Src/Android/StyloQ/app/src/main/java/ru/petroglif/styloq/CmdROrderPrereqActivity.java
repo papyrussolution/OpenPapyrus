@@ -643,7 +643,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					StyloQApp app_ctx = GetAppCtx();
 					ViewGroup vg = (ViewGroup)srcObj;
 					int vg_id = vg.getId();
-					if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR) {
+					if(vg_id == R.id.LAYOUT_SEARCHPANE) {
+
+					}
+					else if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR) {
 						int status_image_rc_id = 0;
 						if(CPM.IsCurrentDocumentEmpty()) {
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, "");
@@ -798,7 +801,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									CPM.GetSearchPaneListViewItem(ev_subj.RvHolder.itemView, ev_subj.ItemIdx);
 								}
 								else if(a.GetListRcId() == R.id.orderPrereqClientsListView) {
-									if(CPM.CliListData != null && ev_subj.ItemIdx < CPM.CliListData.size()) {
+									if(SLib.IsInRange(ev_subj.ItemIdx, CPM.CliListData)) {
 										View iv = ev_subj.RvHolder.itemView;
 										CommonPrereqModule.CliEntry cur_entry = null;
 										cur_entry = (CommonPrereqModule.CliEntry)CPM.CliListData.get(ev_subj.ItemIdx);
@@ -895,7 +898,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 								}
 								else if(a.GetListRcId() == R.id.orderPrereqGoodsGroupListView) {
-									if(CPM.GoodsGroupListData != null && ev_subj.ItemIdx < CPM.GoodsGroupListData.size()) {
+									if(SLib.IsInRange(ev_subj.ItemIdx, CPM.GoodsGroupListData)) {
 										View iv = ev_subj.RvHolder.itemView;
 										JSONObject cur_entry = (JSONObject)CPM.GoodsGroupListData.get(ev_subj.ItemIdx);
 										SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.optString("nm", ""));
@@ -903,7 +906,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 								}
 								else if(a.GetListRcId() == R.id.orderPrereqBrandListView) {
-									if(CPM.BrandListData != null && ev_subj.ItemIdx < CPM.BrandListData.size()) {
+									if(SLib.IsInRange(ev_subj.ItemIdx, CPM.BrandListData)) {
 										View iv = ev_subj.RvHolder.itemView;
 										BusinessEntity.Brand cur_entry = CPM.BrandListData.get(ev_subj.ItemIdx);
 										if(cur_entry != null) {
@@ -913,7 +916,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 								}
 								else if(a.GetListRcId() == R.id.orderPrereqOrderListView) { // Список зафиксированных заказов
-									if(CPM.OrderHList != null && ev_subj.ItemIdx < CPM.OrderHList.size()) {
+									if(SLib.IsInRange(ev_subj.ItemIdx, CPM.OrderHList)) {
 										View iv = ev_subj.RvHolder.itemView;
 										Document.DisplayEntry cur_entry = CPM.OrderHList.get(ev_subj.ItemIdx);
 										if(cur_entry != null && cur_entry.H != null) {
@@ -1315,7 +1318,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.orderPrereqClientsListView:
-										if(CPM.CliListData != null && ev_subj.ItemIdx < CPM.CliListData.size()) {
+										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.CliListData)) {
 											CommonPrereqModule.CliEntry item = CPM.CliListData.get(ev_subj.ItemIdx);
 											if(item != null && ev_subj.ItemView != null) {
 												if(ev_subj.ItemView.getId() == R.id.ORDERPREREQ_CLI_EXPANDSTATUS) {
@@ -1344,7 +1347,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.orderPrereqBrandListView:
-										if(CPM.BrandListData != null && ev_subj.ItemIdx < CPM.BrandListData.size()) {
+										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.BrandListData)) {
 											final int brand_id = CPM.BrandListData.get(ev_subj.ItemIdx).ID;
 											if(CPM.SetGoodsFilterByBrand(brand_id)) {
 												SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
@@ -1353,7 +1356,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.orderPrereqGoodsGroupListView:
-										if(CPM.GoodsGroupListData != null && ev_subj.ItemIdx < CPM.GoodsGroupListData.size()) {
+										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.GoodsGroupListData)) {
 											final int group_id = CPM.GoodsGroupListData.get(ev_subj.ItemIdx).optInt("id", 0);
 											if(CPM.SetGoodsFilterByGroup(group_id)) {
 												SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
@@ -1373,7 +1376,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.orderPrereqOrderListView:
-										if(CPM.OrderHList != null && ev_subj.ItemIdx < CPM.OrderHList.size()) {
+										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.OrderHList)) {
 											Document.DisplayEntry entry = CPM.OrderHList.get(ev_subj.ItemIdx);
 											if(entry != null) {
 												if(CPM.LoadDocument(entry.H.ID)) {
@@ -1394,7 +1397,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			case SLib.EV_CBSELECTED:
 				if(subj != null && subj instanceof SLib.ListViewEvent) {
 					SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
-					if(lve.ItemIdx >= 0 && lve.ItemId > 0) {
+					if(lve.ItemIdx >= 0 && lve.ItemId >= 0) {
 						CommonPrereqModule.TabEntry te = null;
 						View v = findViewById(R.id.VIEWPAGER_ORDERPREREQ);
 						if(v != null && v instanceof ViewPager2) {

@@ -2970,7 +2970,7 @@ struct PngSupport {
 			const uint32 pix = *PTR32(b);
 			const uint8  alpha = (uint8)((pix&0xff000000)>>24);
 			if(alpha == 0) {
-				PTR32(b)[0] = 0;
+				b[0] = 0;
 			}
 			else {
 				const uint8 a2 = alpha/2;

@@ -1310,8 +1310,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 									lotxcode_set.GetByBoxID(0, ss);
 									const double _one = 1.0;
 									for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, temp_buf);) {
-										const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-										if(pczcr > 0) {
+										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 											THROW(cp.InsertItem(r_ti.GoodsID, _one, n_pr, 0.0, param.DivisionN));
 											const int cp_idx = static_cast<int>(cp.GetCount());
 											cc_amount += R2(n_pr * _one);

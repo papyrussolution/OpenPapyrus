@@ -7999,9 +7999,14 @@ SJson * PPStyloQInterchange::MakeRsrvAttendancePrereqResponse_Prc(const SBinaryC
 //
 //
 //
+StyloQIncomingListParam::DocStatus::DocStatus()
+{
+	THISZERO();
+}
+
 IMPLEMENT_PPFILT_FACTORY_CLS(StyloQIncomingListParam);
 
-StyloQIncomingListParam::StyloQIncomingListParam() : PPBaseFilt(PPFILT_STYLOQINCOMINGLISTPARAM, 0, 0)
+StyloQIncomingListParam::StyloQIncomingListParam() : PPBaseFilt(PPFILT_STYLOQINCOMINGLISTPARAM, 0, 1)
 {
 	InitInstance();
 }
@@ -8010,6 +8015,69 @@ StyloQIncomingListParam::StyloQIncomingListParam(const StyloQIncomingListParam &
 {
 	InitInstance();
 	Copy(&rS, 1);
+}
+
+/*virtual*/int StyloQIncomingListParam::ReadPreviousVer(SBuffer & rBuf, int ver)
+{
+	int    ok = -1;
+	if(ver == 0) {
+		class StyloQIncomingListParam_v0 : public PPBaseFilt {
+			int InitInstance()
+			{
+				P_BF = 0;
+				P_TdF = 0;
+				P_TsF = 0;
+				P_CcF = 0;
+				SetFlatChunk(offsetof(StyloQIncomingListParam, ReserveStart), offsetof(StyloQIncomingListParam, Reserve)+sizeof(Reserve)-offsetof(StyloQIncomingListParam, ReserveStart));
+				SetBranchBaseFiltPtr(PPFILT_BILL, offsetof(StyloQIncomingListParam, P_BF));
+				SetBranchBaseFiltPtr(PPFILT_PRJTASK, offsetof(StyloQIncomingListParam, P_TdF));
+				SetBranchBaseFiltPtr(PPFILT_TSESSION, offsetof(StyloQIncomingListParam, P_TsF));
+				SetBranchBaseFiltPtr(PPFILT_CCHECK, offsetof(StyloQIncomingListParam, P_CcF));
+				return Init(1, 0);
+			}
+		public:
+			StyloQIncomingListParam_v0() : PPBaseFilt(PPFILT_STYLOQINCOMINGLISTPARAM, 0, 0)
+			{
+				InitInstance();
+			}
+			uint8  ReserveStart[48];
+			DateRange Period;  // Это - отладочный критерий. В реальности должен использоваться LookbackDays, но так как тестовые 
+				// базы данных не меняются, то LookbackDays при разработке использовать затруднительно.
+			uint32 Flags;
+			uint32 ActionFlags;
+			int    StQBaseCmdId;
+			int    LookbackDays; // Количество дней с отсчетом назад от текущей системной даты. Данные захватываются за период,
+				// начиная от now-LookbackDays до бесконечности (данные будущими числами так же захватываются).
+			long   Reserve;
+			//
+			// Фильтры, представленные здесь не подлежать прямому интерактивному редактированию пользователем.
+			// Наружу выводится лишь часть критериев этих фильтров, остальные параметры будут задаваться автоматически.
+			//
+			BillFilt * P_BF;
+			PrjTaskFilt * P_TdF;
+			TSessionFilt * P_TsF;
+			CCheckFilt * P_CcF;
+		};
+		StyloQIncomingListParam_v0 fv0;
+		THROW(fv0.Read(rBuf, 0));
+		MEMSZERO(ReserveStart);
+		Reserve = 0;
+		#define CPYFLD(f) f = fv0.f
+		CPYFLD(Period);
+		CPYFLD(Flags);
+		CPYFLD(ActionFlags);
+		CPYFLD(StQBaseCmdId);
+		CPYFLD(LookbackDays);
+		#undef CPYFLD
+		AssignPtr2Ptr(&P_BF, fv0.P_BF);
+		AssignPtr2Ptr(&P_TdF, fv0.P_TdF);
+		AssignPtr2Ptr(&P_TsF, fv0.P_TsF);
+		AssignPtr2Ptr(&P_CcF, fv0.P_CcF);
+		StatusList.clear();
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
 }
 
 StyloQIncomingListParam & FASTCALL StyloQIncomingListParam::operator = (const StyloQIncomingListParam & rS)
@@ -8029,6 +8097,7 @@ int StyloQIncomingListParam::InitInstance()
 	SetBranchBaseFiltPtr(PPFILT_PRJTASK, offsetof(StyloQIncomingListParam, P_TdF));
 	SetBranchBaseFiltPtr(PPFILT_TSESSION, offsetof(StyloQIncomingListParam, P_TsF));
 	SetBranchBaseFiltPtr(PPFILT_CCHECK, offsetof(StyloQIncomingListParam, P_CcF));
+	SetBranchSVector(offsetof(StyloQIncomingListParam, StatusList)); // @v11.4.12
 	return Init(1, 0);
 }
 
@@ -8040,6 +8109,130 @@ protected:
 		ctlgroupAgent     = 4
 	};
 	DECL_DIALOG_DATA(StyloQIncomingListParam);
+	//
+	int    EditStatusList()
+	{
+		// @todo
+		class StatusListDialog : public PPListDialog {
+			DECL_DIALOG_DATA(TSVector <StyloQIncomingListParam::DocStatus>);
+		public:
+			StatusListDialog() : PPListDialog(DLG_STQSTATUSL, CTL_STQSTATUSL_LIST)
+			{
+			}
+			DECL_DIALOG_SETDTS()
+			{
+				int    ok = 1;
+				RVALUEPTR(Data, pData);
+				updateList(-1);
+				//
+				return ok;
+			}
+			DECL_DIALOG_GETDTS()
+			{
+				int    ok = 1;
+				//
+				ASSIGN_PTR(pData, Data);
+				return ok;
+			}
+		private:
+			int    EditStatusEntry(StyloQIncomingListParam::DocStatus & rData)
+			{
+				int    ok = -1;
+				TDialog * dlg = new TDialog(DLG_STQSTATUSE);
+				if(CheckDialogPtr(&dlg)) {
+					SString temp_buf;
+					SetupPPObjCombo(dlg, CTLSEL_STQSTATUSE_STATUS, PPOBJ_BILLSTATUS, rData.StatusID, 0);
+					dlg->AddClusterAssocDef(CTL_STQSTATUSE_RSRVST, 0, StyloQIncomingListParam::DocStatus::rUndef);
+					dlg->AddClusterAssoc(CTL_STQSTATUSE_RSRVST, 1, StyloQIncomingListParam::DocStatus::rAccepted);
+					dlg->AddClusterAssoc(CTL_STQSTATUSE_RSRVST, 2, StyloQIncomingListParam::DocStatus::rRejected);
+					dlg->SetClusterData(CTL_STQSTATUSE_RSRVST, rData.ReservedCase);
+					dlg->AddClusterAssoc(CTL_STQSTATUSE_FLAGS, 0, StyloQIncomingListParam::DocStatus::fBillFlagDeclined);
+					dlg->SetClusterData(CTL_STQSTATUSE_FLAGS, rData.Flags);
+					dlg->setCtrlString(CTL_STQSTATUSE_NAME, (temp_buf = rData.NameUtf8).Transf(CTRANSF_UTF8_TO_INNER));
+					while(ok < 0 && ExecView(dlg) == cmOK) {
+						rData.StatusID = dlg->getCtrlLong(CTLSEL_STQSTATUSE_STATUS);
+						dlg->GetClusterData(CTL_STQSTATUSE_RSRVST, &rData.ReservedCase);
+						dlg->GetClusterData(CTL_STQSTATUSE_FLAGS, &rData.Flags);
+						dlg->getCtrlString(CTL_STQSTATUSE_NAME, temp_buf);
+						STRNSCPY(rData.NameUtf8, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+						// @todo Проверить на ошибки
+						ok = 1;
+					}
+				}
+				delete dlg;
+				return ok;
+			}
+			virtual int  setupList()
+			{
+				int    ok = 1;
+				StringSet ss(SLBColumnDelim);
+				SString temp_buf;
+				PPObjBillStatus bs_obj;
+				PPBillStatus bs_rec;
+				for(uint i = 0; i < Data.getCount(); i++) {
+					const StyloQIncomingListParam::DocStatus & r_item = Data.at(i);
+					ss.Z();
+					if(r_item.StatusID) {
+						if(bs_obj.Fetch(r_item.StatusID, &bs_rec) > 0) {
+							temp_buf = bs_rec.Name;
+						}
+						else {
+							temp_buf.Z().CatChar('#').Cat(r_item.StatusID);
+						}
+					}
+					else {
+						temp_buf = "none";
+					}
+					ss.add(temp_buf);
+					temp_buf.Z();
+					if(r_item.ReservedCase == StyloQIncomingListParam::DocStatus::rAccepted)
+						temp_buf = "accepted";
+					else if(r_item.ReservedCase == StyloQIncomingListParam::DocStatus::rRejected)
+						temp_buf = "rejected";
+					ss.add(temp_buf);
+					temp_buf.Z();
+					if(r_item.Flags & StyloQIncomingListParam::DocStatus::fBillFlagDeclined)
+						temp_buf = "set bill declined flag";
+					ss.add(temp_buf);
+					(temp_buf = r_item.NameUtf8).Transf(CTRANSF_UTF8_TO_INNER);
+					ss.add(temp_buf);
+					addStringToList(i+1, ss.getBuf());
+				}
+				return ok;
+			}
+			virtual int  addItem(long * pPos, long * pID)
+			{
+				int    ok = -1;
+				StyloQIncomingListParam::DocStatus item;
+				if(EditStatusEntry(item) > 0) {
+					Data.insert(&item);
+					ASSIGN_PTR(pPos, Data.getCount()-1);
+					ASSIGN_PTR(pID, Data.getCount());
+					ok = 1;
+				}
+				return ok;
+			}
+			virtual int  editItem(long pos, long id)
+			{
+				int    ok = -1;
+				if(pos >= 0 && pos < Data.getCountI()) {
+					if(EditStatusEntry(Data.at(pos)) > 0)
+						ok = 1;
+				}
+				return ok;
+			}
+			virtual int  delItem(long pos, long id)
+			{
+				int    ok = -1;
+				if(pos >= 0 && pos < Data.getCountI()) {
+					Data.atFree(pos);
+					ok = 1;
+				}
+				return ok;
+			}
+		};
+		DIALOG_PROC_BODY(StatusListDialog, &Data.StatusList);
+	}
 public:
 	IncomingListParam_Base_Dialog(uint dlgId) : TDialog(dlgId)
 	{
@@ -8148,9 +8341,15 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		IncomingListParam_Base_Dialog::handleEvent(event);
-		if(event.isCbSelected(CTLSEL_STQINLPARAM_OP)) {
+		if(event.isCmd(cmStatusList)) {
+			EditStatusList();
+		}
+		else if(event.isCbSelected(CTLSEL_STQINLPARAM_OP)) {
 			SetupOp();
 		}
+		else
+			return;
+		clearEvent(event);
 	}
 	void    SetupOp()
 	{
@@ -8407,9 +8606,11 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 		SString temp_buf;
 		PPOprKind op_rec;
 		PPID   local_person_id = 0;
+		SString cmd_name;
+		(cmd_name = rCmdItem.Name).Transf(CTRANSF_UTF8_TO_INNER);
 		THROW(param.StQBaseCmdId == StyloQCommandList::sqbcIncomingListOrder);
-		THROW(param.P_BF);
-		THROW(param.P_BF->OpID);
+		THROW(param.P_BF); // @err
+		THROW_PP_S(param.P_BF->OpID, PPERR_STQ_UNDEFOPFORINCOMINGLIST, cmd_name); // @err
 		if(FetchPersonFromClientPacket(rCliPack, &local_person_id, true/*logResult*/) > 0) {
 			// ??? agent_psn_id = local_person_id;
 		}
@@ -10134,6 +10335,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 	//PPID   result_tses_id = 0;
 	SBinaryChunk cli_ident;
 	Document doc;
+	DocumentDeclaration ddecl(0, 0);
 	DbProvider * p_dict = CurDict;
 	THROW_PP(p_dict && p_dict->GetDbSymb(db_symb), PPERR_SESSNAUTH);
 	{
@@ -10150,7 +10352,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 		}
 		THROW(checkdate(doc.CreationTime.d) || checkdate(doc.Time.d));
 		if(pDeclaration) {
-					
+			ddecl.FromJsonObject(pDeclaration);
 		}
 		if(doc.InterchangeOpID == StyloQCommandList::sqbdtCCheck) { // Кассовые чеки
 			PPID   pos_node_id = 0;
@@ -10424,72 +10626,80 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 						assert(op_rec.ID > 0);
 						assert(p_bpack);
 						assert(p_bpack->Rec.OpID == _op_id);
-						p_bpack->Rec.Dt = nominal_doc_date;
-						p_bpack->Rec.DueDate = due_date;
-						(p_bpack->SMemo = doc.Memo).Strip().Transf(CTRANSF_UTF8_TO_INNER);
+						if(is_new_pack || !ddecl.ActionFlags)
+							p_bpack->Rec.Dt = nominal_doc_date;
+						if(is_new_pack || !ddecl.ActionFlags)
+							p_bpack->Rec.DueDate = due_date;
+						if(is_new_pack || !ddecl.ActionFlags || (ddecl.ActionFlags & (StyloQIncomingListParam::actionDocAcceptance|StyloQIncomingListParam::actionDocStatus)))
+							(p_bpack->SMemo = doc.Memo).Strip().Transf(CTRANSF_UTF8_TO_INNER);
 						{
 							const PPID agent_acs_id = GetAgentAccSheet();
 							PPID  person_id = 0;
 							ArticleTbl::Rec ar_rec;
-							if(agent_acs_id) {
-								if(doc.AgentID > 0 && ar_obj.Search(doc.AgentID, &ar_rec) > 0 && ar_rec.AccSheetID == agent_acs_id) { // @v11.4.8
-									p_bpack->Ext.AgentID = doc.AgentID;
+							if(is_new_pack || !ddecl.ActionFlags) {
+								if(agent_acs_id) {
+									if(doc.AgentID > 0 && ar_obj.Search(doc.AgentID, &ar_rec) > 0 && ar_rec.AccSheetID == agent_acs_id) { // @v11.4.8
+										p_bpack->Ext.AgentID = doc.AgentID;
+									}
+									else if(acs_obj.Fetch(agent_acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
+										if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
+											PPID ar_id = 0;
+											if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0)
+												p_bpack->Ext.AgentID = ar_id;
+										}
+									}
 								}
-								else if(acs_obj.Fetch(agent_acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
+							}
+							if(is_new_pack || !ddecl.ActionFlags) {
+								if(doc.ClientID) {
+									THROW(ar_obj.Search(doc.ClientID, &ar_rec) > 0); // @err
+									THROW(ar_rec.AccSheetID == op_rec.AccSheetID); // @err
+									p_bpack->Rec.Object = ar_rec.ID;
+									if(doc.DlvrLocID) {
+										PPID cli_psn_id = ObjectToPerson(ar_rec.ID, 0);
+										if(cli_psn_id) {
+											PPIDArray dlvr_loc_list;
+											psn_obj.GetDlvrLocList(cli_psn_id, &dlvr_loc_list);
+											if(dlvr_loc_list.lsearch(doc.DlvrLocID))
+												p_bpack->SetFreight_DlvrAddrOnly(doc.DlvrLocID);
+										}
+									}
+								}
+								else if(op_rec.AccSheetID && acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 									if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
 										PPID ar_id = 0;
 										if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0)
-											p_bpack->Ext.AgentID = ar_id;
-									}
-								}
-							}
-							if(doc.ClientID) {
-								THROW(ar_obj.Search(doc.ClientID, &ar_rec) > 0);
-								THROW(ar_rec.AccSheetID == op_rec.AccSheetID);
-								p_bpack->Rec.Object = ar_rec.ID;
-								if(doc.DlvrLocID) {
-									PPID cli_psn_id = ObjectToPerson(ar_rec.ID, 0);
-									if(cli_psn_id) {
-										PPIDArray dlvr_loc_list;
-										psn_obj.GetDlvrLocList(cli_psn_id, &dlvr_loc_list);
-										if(dlvr_loc_list.lsearch(doc.DlvrLocID))
-											p_bpack->SetFreight_DlvrAddrOnly(doc.DlvrLocID);
-									}
-								}
-							}
-							else if(op_rec.AccSheetID && acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
-								if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
-									PPID ar_id = 0;
-									if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0) {
-										p_bpack->Rec.Object = ar_id;
+											p_bpack->Rec.Object = ar_id;
 									}
 								}
 							}
 						}
 						// @v11.4.8 {
 						if(!is_new_pack) {
-							LongArray ti_idx_list_to_remove;
-							for(uint j = 0; j < p_bpack->GetTCount(); j++) {
-								const PPTransferItem & r_ti = p_bpack->ConstTI(j);
-								bool   ti_found = false;
-								for(uint i = 0; !ti_found && i < doc.TiList.getCount(); i++) {
-									const Document::TransferItem * p_item = doc.TiList.at(i);
-									if(p_item->RowIdx > 0 && r_ti.RByBill == p_item->RowIdx)
-										ti_found = true;
-								}
-								if(!ti_found)
-									ti_idx_list_to_remove.add(j+1);
-							}
-							if(ti_idx_list_to_remove.getCount()) {
-								ti_idx_list_to_remove.sortAndUndup();
-								uint i = ti_idx_list_to_remove.getCount();
-								do {
-									uint ti_idx = ti_idx_list_to_remove.get(--i);
-									assert(ti_idx > 0 && ti_idx <= p_bpack->GetTCount()); // @paranoic
-									if(ti_idx > 0 && ti_idx <= p_bpack->GetTCount()) { // @paranoic
-										p_bpack->RemoveRow(ti_idx-1);
+							if(!ddecl.ActionFlags) {
+								LongArray ti_idx_list_to_remove;
+								for(uint j = 0; j < p_bpack->GetTCount(); j++) {
+									const PPTransferItem & r_ti = p_bpack->ConstTI(j);
+									bool   ti_found = false;
+									for(uint i = 0; !ti_found && i < doc.TiList.getCount(); i++) {
+										const Document::TransferItem * p_item = doc.TiList.at(i);
+										if(p_item->RowIdx > 0 && r_ti.RByBill == p_item->RowIdx)
+											ti_found = true;
 									}
-								} while(i);
+									if(!ti_found)
+										ti_idx_list_to_remove.add(j+1);
+								}
+								if(ti_idx_list_to_remove.getCount()) {
+									ti_idx_list_to_remove.sortAndUndup();
+									uint i = ti_idx_list_to_remove.getCount();
+									do {
+										uint ti_idx = ti_idx_list_to_remove.get(--i);
+										assert(ti_idx > 0 && ti_idx <= p_bpack->GetTCount()); // @paranoic
+										if(ti_idx > 0 && ti_idx <= p_bpack->GetTCount()) { // @paranoic
+											p_bpack->RemoveRow(ti_idx-1);
+										}
+									} while(i);
+								}
 							}
 						}
 						// } @v11.4.8 
@@ -10503,60 +10713,68 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 								// Выше мы уже проверили количество THROW(p_item->Set.Qtty > 0.0);
 								if(p_item->RowIdx > 0 && p_bpack->SearchTI(p_item->RowIdx, &ex_row_pos)) {
 									PPTransferItem & r_ti = p_bpack->TI(ex_row_pos);
-									if(p_item->GoodsID != r_ti.GoodsID)
-										r_ti.SetupGoods(p_item->GoodsID);
-									r_ti.Cost  = p_item->Set.Cost;
-									r_ti.Price = p_item->Set.Price;
-									r_ti.Discount = p_item->Set.Discount;
-									r_ti.Quantity_ = fabs(p_item->Set.Qtty);
-									r_ti.SetupSign(p_bpack->Rec.OpID);
-									if(p_item->XcL.getCount()) {
-										p_bpack->XcL.Get(i+1, 0, ms);
-										for(uint xci = 0; xci < p_item->XcL.getCount(); xci++) {
-											Document::LotExtCode & r_lec = p_item->XcL.at(xci);
-											if(!isempty(r_lec.Code))
-												ms.AddNum(0, r_lec.Code, 1);
+									if(is_new_pack || !ddecl.ActionFlags) {
+										if(p_item->GoodsID != r_ti.GoodsID)
+											r_ti.SetupGoods(p_item->GoodsID);
+										r_ti.Cost  = p_item->Set.Cost;
+										r_ti.Price = p_item->Set.Price;
+										r_ti.Discount = p_item->Set.Discount;
+										r_ti.Quantity_ = fabs(p_item->Set.Qtty);
+										r_ti.SetupSign(p_bpack->Rec.OpID);
+									}
+									if(is_new_pack || !ddecl.ActionFlags || (ddecl.ActionFlags & StyloQIncomingListParam::actionDocSettingMarks)) {
+										if(p_item->XcL.getCount()) {
+											p_bpack->XcL.Get(i+1, 0, ms);
+											for(uint xci = 0; xci < p_item->XcL.getCount(); xci++) {
+												Document::LotExtCode & r_lec = p_item->XcL.at(xci);
+												if(!isempty(r_lec.Code))
+													ms.AddNum(0, r_lec.Code, 1);
+											}
+											if(ms.GetCount())
+												p_bpack->XcL.Add(i+1, ms);
 										}
-										if(ms.GetCount())
-											p_bpack->XcL.Add(i+1, ms);
 									}
 								}
 								else {
-									PPTransferItem ti(&p_bpack->Rec, TISIGN_UNDEF);
-									if(p_item->RowIdx >= 0) {
-										ti.RByBill = p_item->RowIdx;
-										ti.TFlags |= PPTransferItem::tfForceNew;
-									}
-									ti.SetupGoods(p_item->GoodsID);
-									ti.Cost  = p_item->Set.Cost;
-									ti.Price = p_item->Set.Price;
-									ti.Discount = p_item->Set.Discount;
-									ti.Quantity_ = fabs(p_item->Set.Qtty);
-									ti.SetupSign(p_bpack->Rec.OpID);
-									const uint new_item_idx = p_bpack->GetTCount();
-									THROW(p_bpack->LoadTItem(&ti, 0, 0));
-									assert(p_bpack->GetTCount() == new_item_idx+1);
-									if(p_item->XcL.getCount()) {
-										ms.Z();
-										for(uint xci = 0; xci < p_item->XcL.getCount(); xci++) {
-											Document::LotExtCode & r_lec = p_item->XcL.at(xci);
-											if(!isempty(r_lec.Code))
-												ms.AddNum(0, r_lec.Code, 1);
+									if(is_new_pack || !ddecl.ActionFlags) {
+										PPTransferItem ti(&p_bpack->Rec, TISIGN_UNDEF);
+										if(p_item->RowIdx >= 0) {
+											ti.RByBill = p_item->RowIdx;
+											ti.TFlags |= PPTransferItem::tfForceNew;
 										}
-										if(ms.GetCount())
-											p_bpack->XcL.Add(new_item_idx+1, ms);
+										ti.SetupGoods(p_item->GoodsID);
+										ti.Cost  = p_item->Set.Cost;
+										ti.Price = p_item->Set.Price;
+										ti.Discount = p_item->Set.Discount;
+										ti.Quantity_ = fabs(p_item->Set.Qtty);
+										ti.SetupSign(p_bpack->Rec.OpID);
+										const uint new_item_idx = p_bpack->GetTCount();
+										THROW(p_bpack->LoadTItem(&ti, 0, 0));
+										assert(p_bpack->GetTCount() == new_item_idx+1);
+										if(p_item->XcL.getCount()) {
+											ms.Z();
+											for(uint xci = 0; xci < p_item->XcL.getCount(); xci++) {
+												Document::LotExtCode & r_lec = p_item->XcL.at(xci);
+												if(!isempty(r_lec.Code))
+													ms.AddNum(0, r_lec.Code, 1);
+											}
+											if(ms.GetCount())
+												p_bpack->XcL.Add(new_item_idx+1, ms);
+										}
 									}
 								}
 							}
-							if(doc.VXcL.getCount()) {
-								p_bpack->_VXcL.Get(-1, 0, ms);
-								for(uint xci = 0; xci < doc.VXcL.getCount(); xci++) {
-									Document::LotExtCode & r_lec = doc.VXcL.at(xci);
-									if(!isempty(r_lec.Code)) {
-										ms.AddNum(0, r_lec.Code, 1);
+							if(is_new_pack || !ddecl.ActionFlags || (ddecl.ActionFlags & StyloQIncomingListParam::actionDocAcceptanceMarks)) {
+								if(doc.VXcL.getCount()) {
+									p_bpack->_VXcL.Get(-1, 0, ms);
+									for(uint xci = 0; xci < doc.VXcL.getCount(); xci++) {
+										Document::LotExtCode & r_lec = doc.VXcL.at(xci);
+										if(!isempty(r_lec.Code)) {
+											ms.AddNum(0, r_lec.Code, 1);
+										}
 									}
+									p_bpack->_VXcL.AddValidation(ms);
 								}
-								p_bpack->_VXcL.AddValidation(ms);
 							}
 							if(p_bpack->Rec.ID) {
 								THROW(p_bpack->InitAmounts(0));

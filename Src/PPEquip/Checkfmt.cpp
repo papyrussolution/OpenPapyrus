@@ -1569,7 +1569,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnMark, temp_buf); 
 							if(temp_buf.NotEmptyS()) {
 								GtinStruc gts;
-								if(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0) > 0) {
+								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 									// @v11.1.11 SString result_chzn_code;
 									SString reconstructed_org; // @v11.2.0
 									PPChZnPrcssr::ReconstructOriginalChZnCode(gts, reconstructed_org); // @v11.2.0

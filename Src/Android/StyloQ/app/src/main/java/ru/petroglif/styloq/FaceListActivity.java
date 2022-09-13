@@ -141,7 +141,7 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				break;
 			case SLib.EV_LISTVIEWITEMCLK:
 				{
-					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
+					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent)subj : null;
 					if(ev_subj != null) {
 						StyloQFace item = (ev_subj.ItemObj != null && ev_subj.ItemObj instanceof StyloQFace) ? (StyloQFace) ev_subj.ItemObj : null;
 						if(item != null) {

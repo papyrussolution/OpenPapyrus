@@ -1870,6 +1870,7 @@ PPERR_EGAIS_NOLIC                   "Отсутствует лицензия н�
 PPERR_TSESSCIPOP_PLACESTATUS        "Невозможно зарегистрировать место '%s' из-за того, что оно занято или имеет не определенный статус"
 PPERR_EGAIS_INVACTOP                "Не верно определен вид операции постановки лотов на баланс @{brand_egais}"
 PPERR_DUPEXTLOTCODE                 "Расширенный код лота уже существует: %s"
+PPERR_DUPEXTLOTCODEINBILL           "Код марки '%s' уже есть в документе"
 PPERR_TEXTISNTEGAISMARK             "Текст '%s' не является кодом марки @{brand_egais}"
 PPERR_TEXTISNTCHZNMARK              "Текст '%s' не является кодом марки @{brand_chzn}"
 PPERR_NORTTOLOC                     "Нет прав доступа для склада '%s'"
@@ -2264,6 +2265,7 @@ PPERR_STQ_PRCNOTBELONGTOGOODS       "Выбранный ранее процес�
 PPERR_LTDDBOPEN_INVFLAGS            "@{err_internal}: неверные флаги вызова функции PPSession::LimitedOpenDatabase"
 PPERR_STQ_UNDEFPOSFORINDOORSVC      "Не удалось идентифицировать кассовый узел для команды типа INDOORSVCPREREQ"
 PPERR_STQ_POSFORINDOORSVCMUSTBESYNC "Кассовый узел для команды типа INDOORSVCPREREQ должен быть синхронным"
+PPERR_STQ_UNDEFOPFORINCOMINGLIST    "Не определен вид операции в параметрах команды '%s'"
 // LastError
 
 [102] // confirmation
@@ -3573,6 +3575,7 @@ PPTXT_SELGOODSBYPRICE               "@{selection_goodsbyprice}"
 PPTXT_SELECTINGGOODSBYGROUP         "Отбор товаров по группе"
 PPTXT_SELECTINGGOODSBYTRFR          "Отбор товаров по операциям"
 PPTXT_SELECTOBJECT                  "Выберите объект"
+PPTXT_SELECTTIROWFORMARKSUBST       "Выберите строку документа, в которую следует включить марку"
 // Типы счетов
 PPTXT_ACCTITLES                           "@{account_accounting};@{account_balance};@{balancelessaccount};Агрегирующий счет;@{account_register};\
 	Персональный счет;@{accountalias};@{budgetaccount}"
@@ -5887,6 +5890,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_billvataxlist                   "17,L,@vatrate;22,R,@intermcost;22,R,@intermprice"
 @lbt_desktopcmdassoc                 "40,L,@desktopassoccmd_code;50,L,@cmd"
 @lbt_dblist                          "30,L,@appellation;20,L,@symbol;50,L,@dbloginentry_dbpath;25,L,@dbloginentry_dictpath"
+@lbt_stqstatuslist                   "30,L,@styloqdocstatus_status;20,L,@styloqdocstatus_reservedcase;20,L, ;30,L,@appellation"
 
 @entmanagementsys                    "Система управления предприятием"
 @pgmcopylic_owner                    "Владелец лицензии"
@@ -6343,6 +6347,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @accsheet_pl                         "Таблицы аналитических статей"
 @accsheet_extobj                     "Таблица статей дополнительного объекта"
 @status                              "Статус"
+@status_pl                           "Статусы"
 @undefstatus                         "Статус не определен"
 @statusname                          "Наименование статуса"
 @statusabbr                          "Сокращение статуса"
@@ -11881,7 +11886,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lot_seqqrack                             "Ответ от поставщика"
 @lot_seqqrack_none                        "Нет ответа"
 @lot_seqqrack_ack                         "Подтвержден"
-@lot_seqqrack_reject                      "Отклонен"
+@lot_seqqrack_reject                      "@{rejected}"
 @lot_operestbeg                           "Остаток на начало операционного периода" // synthetic attr
 @lot_operestend                           "Остаток на конец операционного периода"  // synthetic attr
 @lotinfo                                  "Информация по лоту"
@@ -15343,7 +15348,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @vetisvetdoc_ack                          "Опция акцепта"
 @vetisvetdoc_ack_accepted                 "Безусловно принят"
 @vetisvetdoc_ack_partialyaccepted         "Частично принят"
-@vetisvetdoc_ack_rejected                 "Отклонен"
+@vetisvetdoc_ack_rejected                 "@{rejected}"
 @vetisvetdoc_ackvolume                    "Принятое количество"
 
 @deletetmpfiles                           "Удаление временных файлов"
@@ -17435,6 +17440,17 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqface_expiryperiodsec                   "Период актуальности, сек"
 
 @styloqsvc_assignedface                       "Ассоциированный лик" // see slib.h SSecretTagPool::tagAssignedFaceRef
+
+@styloqdocstatus                              "Клиентский статус документа"
+@styloqdocstatus_pl                           "Клиентские статусы документа"
+@styloqdocstatus_status                       "@{bill_status}"
+@styloqdocstatus_reservedcase                 "Зарезервированный статус"
+@styloqdocstatus_reservedcase_rundef          "Неопределен"
+@styloqdocstatus_reservedcase_raccepted       "@{accepted}"
+@styloqdocstatus_reservedcase_rrejected       "@{rejected}"
+@styloqdocstatus_flags                        "@{flags}"
+@styloqdocstatus_fbillflagdeclined            "Использовать признак документа '@{rejected}'"
+@styloqdocstatus_name                         "@{appellation}"
 
 @serverstat_startmoment                       "Время запуска"
 @serverstat_elapsedtime                       "Время работы"

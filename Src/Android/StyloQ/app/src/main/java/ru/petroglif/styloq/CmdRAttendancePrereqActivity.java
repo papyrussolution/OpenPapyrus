@@ -2107,6 +2107,25 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				if(srcObj != null && srcObj instanceof ViewGroup)
 					GetFragmentData(srcObj);
 				break;
+			case SLib.EV_CBSELECTED:
+				if(subj != null && subj instanceof SLib.ListViewEvent) {
+					SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
+					if(lve.ItemIdx >= 0 && lve.ItemId >= 0) {
+						CommonPrereqModule.TabEntry te = null;
+						View v = findViewById(R.id.VIEWPAGER_ATTENDANCEPREREQ);
+						if(v != null && v instanceof ViewPager2) {
+							for(CommonPrereqModule.TabEntry iter : CPM.TabList) {
+								if(iter != null && iter.TabId == CommonPrereqModule.Tab.tabSearch) {
+									te = iter;
+									break;
+								}
+							}
+							if(te != null && te.TabView != null)
+								CPM.SelectSearchPaneObjRestriction(te.TabView.getView(), (int)lve.ItemId);
+						}
+					}
+				}
+				break;
 			case SLib.EV_COMMAND:
 				Document.EditAction acn = null;
 				int minuts = -1;
@@ -2119,6 +2138,20 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						CPM.ResetGoodsFiter();
 						SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
 						GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView, -1, -1);
+						break;
+					case R.id.CTLBUT_SEARCHPANE_OPTIONS:
+						{
+							CommonPrereqModule.TabEntry te = null;
+							View v = findViewById(R.id.VIEWPAGER_ATTENDANCEPREREQ);
+							if(v != null && v instanceof ViewPager2) {
+								for(int tidx = 0; te == null && tidx < CPM.TabList.size(); tidx++) {
+									if(CPM.TabList.get(tidx).TabId == CommonPrereqModule.Tab.tabSearch)
+										te = CPM.TabList.get(tidx);
+								}
+								if(te != null && te.TabView != null)
+									CPM.OpenSearchPaneObjRestriction(te.TabView.getView());
+							}
+						}
 						break;
 					case R.id.CTL_PREV:
 						if(AttdcBlk != null && AttdcBlk.DecrementSelectedDate(false)) {

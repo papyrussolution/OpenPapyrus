@@ -345,7 +345,7 @@ static void LogError(PPLogger & rLogger, long err, const BankStmntItem * pItem)
 		rLogger.Log(log_buf);
 }
 
-struct Assoc {
+struct Assoc { // @flat
 	Assoc(const BankStmntAssocItem * pItem, PPID arID, PPID psnID) : P_Item(pItem), ArticleID(arID), PersonID(psnID)
 	{
 	}
@@ -354,75 +354,73 @@ struct Assoc {
 	PPID   PersonID;
 };
 
-class ResolveAssocCollisionDialog : public TDialog {
-public:
-	ResolveAssocCollisionDialog() : TDialog(DLG_ASC_RESOLVE), P_A(0)
-	{
-	}
-	int    setDTS(const SArray * pA)
-	{
-		P_A = pA;
-		PPIDArray op_list;
-		const uint _c = SVectorBase::GetCount(P_A);
-		PPID   op_id = 0;
-		if(_c) {
-			for(uint i = 0; i < pA->getCount(); i++) {
-				op_list.add(static_cast<const Assoc *>(pA->at(i))->P_Item->OpID);
-			}
-			op_id = static_cast<Assoc *>(pA->at(0))->P_Item->OpID;
-		}
-		SetupOprKindCombo(this, CTLSEL_ASCRES_OPRKIND, op_id, 0, &op_list, OPKLF_OPLIST);
-		SetupPersonsListByOprKind(op_id);
-		return 1;
-	}
-	int    getDTS(SArray * pA)
-	{
-		int    ok = 1;
-		Assoc  a(0, 0, 0);
-		PPID   op_id = 0;
-		getCtrlData(CTLSEL_ASCRES_OPRKIND, &op_id);
-		getCtrlData(CTLSEL_ASCRES_PERSON, &a.PersonID);
-		for(uint i = 0; i < pA->getCount(); i++) {
-			const Assoc * p_assoc = static_cast<const Assoc *>(pA->at(i));
-			if(p_assoc->P_Item->OpID == op_id && p_assoc->PersonID == a.PersonID)
-				a = *p_assoc;
-		}
-		if(a.P_Item) {
-			pA->freeAll();
-			pA->insert(&a);
-		}
-		else
-			ok = 0;
-		return ok;
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(event.isCbSelected(CTLSEL_ASCRES_OPRKIND)) {
-			SetupPersonsListByOprKind(getCtrlLong(CTLSEL_ASCRES_OPRKIND));
-			clearEvent(event);
-		}
-	}
-	void SetupPersonsListByOprKind(PPID opID)
-	{
-		Assoc * p_a;
-		StrAssocArray persons;
-		PPObjPerson psn_obj;
-		PersonTbl::Rec r;
-		for(uint i = 0; P_A->enumItems(&i, (void **)&p_a);) {
-			if(p_a->P_Item->OpID == opID && psn_obj.Fetch(p_a->PersonID, &r) > 0) { // @v10.3.12 Search-->Fetch
-				persons.Add(p_a->PersonID, r.Name);
-			}
-		}
-		PPID   s = persons.getCount() ? persons.Get(0).Id : 0;
-		SetupStrAssocCombo(this, CTLSEL_ASCRES_PERSON, persons, s, 0);
-	}
-	const  SArray * P_A;
-};
-
-static int ResolveAssocCollision(SArray *pA, const BankStmntItem * pItem)
+static int ResolveAssocCollision(SVector * pA, const BankStmntItem * pItem)
 {
+	class ResolveAssocCollisionDialog : public TDialog {
+	public:
+		ResolveAssocCollisionDialog() : TDialog(DLG_ASC_RESOLVE), P_A(0)
+		{
+		}
+		int    setDTS(const SVector * pA)
+		{
+			P_A = pA;
+			PPIDArray op_list;
+			const uint _c = SVectorBase::GetCount(P_A);
+			PPID   op_id = 0;
+			if(_c) {
+				for(uint i = 0; i < pA->getCount(); i++) {
+					op_list.add(static_cast<const Assoc *>(pA->at(i))->P_Item->OpID);
+				}
+				op_id = static_cast<Assoc *>(pA->at(0))->P_Item->OpID;
+			}
+			SetupOprKindCombo(this, CTLSEL_ASCRES_OPRKIND, op_id, 0, &op_list, OPKLF_OPLIST);
+			SetupPersonsListByOprKind(op_id);
+			return 1;
+		}
+		int    getDTS(SVector * pA)
+		{
+			int    ok = 1;
+			Assoc  a(0, 0, 0);
+			PPID   op_id = 0;
+			getCtrlData(CTLSEL_ASCRES_OPRKIND, &op_id);
+			getCtrlData(CTLSEL_ASCRES_PERSON, &a.PersonID);
+			for(uint i = 0; i < pA->getCount(); i++) {
+				const Assoc * p_assoc = static_cast<const Assoc *>(pA->at(i));
+				if(p_assoc->P_Item->OpID == op_id && p_assoc->PersonID == a.PersonID)
+					a = *p_assoc;
+			}
+			if(a.P_Item) {
+				pA->freeAll();
+				pA->insert(&a);
+			}
+			else
+				ok = 0;
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_ASCRES_OPRKIND)) {
+				SetupPersonsListByOprKind(getCtrlLong(CTLSEL_ASCRES_OPRKIND));
+				clearEvent(event);
+			}
+		}
+		void SetupPersonsListByOprKind(PPID opID)
+		{
+			Assoc * p_a;
+			StrAssocArray persons;
+			PPObjPerson psn_obj;
+			PersonTbl::Rec r;
+			for(uint i = 0; P_A->enumItems(&i, (void **)&p_a);) {
+				if(p_a->P_Item->OpID == opID && psn_obj.Fetch(p_a->PersonID, &r) > 0) // @v10.3.12 Search-->Fetch
+					persons.Add(p_a->PersonID, r.Name);
+			}
+			PPID   s = persons.getCount() ? persons.Get(0).Id : 0;
+			SetupStrAssocCombo(this, CTLSEL_ASCRES_PERSON, persons, s, 0);
+		}
+		const SVector * P_A;
+	};
 	int    ok = 1;
 	SString temp_buf;
 	SString msg_buf;
@@ -615,7 +613,7 @@ int ClientBankImportDef::ImportAll()
 				}
 			}
 			uint   i, j;
-			SArray best_assoc(sizeof(Assoc));
+			SVector best_assoc(sizeof(Assoc)); // @v11.4.12 SArray-->SVector
 			PPIDArray psn_list, ar_list;
 			PPID * p_psn_id;
 			PPWaitMsg(item.MakeDescrText(wait_msg));

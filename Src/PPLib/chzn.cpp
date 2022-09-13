@@ -60,11 +60,19 @@ Data Matrix для табачной продукции и фармацевтик
 			SString _21;
 			SString _91;
 			SString _92;
-			if(rS.GetToken(GtinStruc::fldGTIN14, &_01) && rS.GetToken(GtinStruc::fldSerial, &_21) &&
-				rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
-				if(_01.Len() == 14 && _21.Len() == 13 && _91.Len() == 4/*&& _92.Len() == 44*/) {
-					rBuf./*CatChar(232).*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("91").Cat(_91).CatChar('\x1D').Cat("92").Cat(_92);
-					ok = 2;
+			SString _93;
+			if(rS.GetToken(GtinStruc::fldGTIN14, &_01) && rS.GetToken(GtinStruc::fldSerial, &_21) && _01.Len() == 14) {
+				if(rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
+					if(_21.Len() == 13 && _91.Len() == 4/*&& _92.Len() == 44*/) {
+						rBuf./*CatChar(232).*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("91").Cat(_91).CatChar('\x1D').Cat("92").Cat(_92);
+						ok = 2;
+					}
+				}
+				else if(rS.GetToken(GtinStruc::fldInner2, &_93)) { // @v11.4.11 молочная продукция //
+					if(_21.Len() == 8 || _21.Len() == 6) {
+						rBuf.CatChar('\x1D').Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
+						ok = 2;
+					}
 				}
 			}
 		}
@@ -113,95 +121,134 @@ Data Matrix для табачной продукции и фармацевтик
 	// 01 04603182002518 21 0100007852382 91 EE06 92 uy1H5DQr89ewuV4W/ssuZKTxmcX7r0A8/1KZU3tMLSY=
 	// 
 	int    ok = 0;
+	static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 };
+	const size_t code_len = sstrlen(pCode);
 	rS.Z();
-	rS.AddSpecialStopChar(0x1D); // @v10.9.9
-	rS.AddSpecialStopChar(0xE8); // @v10.9.9
-	rS.AddOnlyToken(GtinStruc::fldGTIN14);
-	rS.AddOnlyToken(GtinStruc::fldSerial);
-	rS.SetSpecialFixedToken(GtinStruc::fldSerial, 13);
-	rS.AddOnlyToken(GtinStruc::fldPart);
-	rS.AddOnlyToken(GtinStruc::fldAddendumId);
-	rS.AddOnlyToken(GtinStruc::fldUSPS); //
-	rS.SetSpecialFixedToken(GtinStruc::fldUSPS, 4); // @v10.9.10
-	rS.AddOnlyToken(GtinStruc::fldInner1);
-	rS.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/); // @v10.9.0
-	rS.AddOnlyToken(GtinStruc::fldInner2);
-	rS.AddOnlyToken(GtinStruc::fldSscc18);
-	rS.AddOnlyToken(GtinStruc::fldExpiryDate);
-	rS.AddOnlyToken(GtinStruc::fldManufDate); // @v10.8.2
-	rS.AddOnlyToken(GtinStruc::fldVariant);
-	//rS.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
-	//rS.AddOnlyToken(GtinStruc::fldPrice);
-	int   pr = 0;
-	{
-		SString raw_buf;
+	if(code_len >= 16) {
 		SString temp_buf;
-		{
-			temp_buf = pCode;
-			temp_buf.ShiftLeftChr('\xE8'); // @v10.9.9 Специальный символ. Может присутствовать в начале кода 
-			// "]C1"
-			// @v11.0.1 {
-			if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
-				temp_buf.ShiftLeft(3);
-				temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
-			}
-			// } @v11.0.1 
-			// @v11.2.5 {
-			TranslateLocaleKeyboardTextToLatin(temp_buf, raw_buf);
-			pCode = raw_buf;
-			// } @v11.2.5 
-			/* @v11.2.5 if(!temp_buf.IsAscii()) {
-				// Попытка транслировать латинский символ из локальной раскладки клавиатуры
-				SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
-				r_temp_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
-				for(size_t i = 0; i < r_temp_buf_u.Len(); i++) {
-					const wchar_t c = r_temp_buf_u.C(i);
-					KeyDownCommand kd;
-					uint   tc = kd.SetCharU(c) ? kd.GetChar() : 0; 
-					raw_buf.CatChar(static_cast<char>(tc));
+		SString sub_buf;
+		temp_buf = pCode;
+		if(temp_buf.HasPrefix("02") && temp_buf.Len() >/*strictly GT*/ (2+14+2)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN 37 QTY
+			temp_buf.Sub(2, 14, sub_buf);
+			if(sub_buf.IsDigit()) {
+				rS.Add(GtinStruc::fldGTIN14, sub_buf);
+				temp_buf.Sub((2+14), 2, sub_buf);
+				if(sub_buf == "37") {
+					temp_buf.Sub((2+14+2), temp_buf.Len()/*up to end*/, sub_buf);
+					if(sub_buf.IsDigit()) {
+						rS.Add(GtinStruc::fldCount, sub_buf);
+						ok = SNTOK_CHZN_SURROGATE_GTINCOUNT;
+					}
 				}
-				pCode = raw_buf.cptr();
-			}*/
+			}
 		}
-		pr = rS.Parse(pCode);
-		if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
-			rS.SetSpecialFixedToken(GtinStruc::fldSerial, 12);
-			pr = rS.Parse(pCode);
-			if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
-				rS.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
+		if(temp_buf.HasPrefix("02") && temp_buf.Len() == (2+14)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN
+			temp_buf.Sub(2, 14, sub_buf);
+			if(sub_buf.IsDigit()) {
+				rS.Add(GtinStruc::fldGTIN14, sub_buf);
+				ok = SNTOK_CHZN_SURROGATE_GTIN;
+			}
+		}
+		else if(temp_buf.HasPrefix("01") || temp_buf.HasPrefix("(01)") || temp_buf.HasPrefix("\x1D" "01")) {
+			size_t serial_len_variant_idx = 0;
+			rS.AddSpecialStopChar(0x1D); // @v10.9.9
+			rS.AddSpecialStopChar(0xE8); // @v10.9.9
+			rS.AddOnlyToken(GtinStruc::fldGTIN14);
+			rS.AddOnlyToken(GtinStruc::fldSerial);
+			rS.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx++]);
+			rS.AddOnlyToken(GtinStruc::fldPart);
+			rS.AddOnlyToken(GtinStruc::fldAddendumId);
+			rS.AddOnlyToken(GtinStruc::fldUSPS); //
+			rS.SetSpecialFixedToken(GtinStruc::fldUSPS, 4); // @v10.9.10
+			rS.AddOnlyToken(GtinStruc::fldInner1);
+			rS.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/); // @v10.9.0
+			rS.AddOnlyToken(GtinStruc::fldInner2);
+			rS.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/); // @v11.4.11
+			rS.AddOnlyToken(GtinStruc::fldSscc18);
+			rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+			rS.AddOnlyToken(GtinStruc::fldManufDate); // @v10.8.2
+			rS.AddOnlyToken(GtinStruc::fldVariant);
+			//rS.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
+			//rS.AddOnlyToken(GtinStruc::fldPrice);
+			int   pr = 0;
+			{
+				SString raw_buf;
+				{
+					temp_buf = pCode;
+					temp_buf.ShiftLeftChr('\xE8'); // @v10.9.9 Специальный символ. Может присутствовать в начале кода 
+					// "]C1"
+					// @v11.0.1 {
+					if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
+						temp_buf.ShiftLeft(3);
+						temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
+					}
+					// } @v11.0.1 
+					// @v11.2.5 {
+					TranslateLocaleKeyboardTextToLatin(temp_buf, raw_buf);
+					pCode = raw_buf;
+					// } @v11.2.5 
+					/* @v11.2.5 if(!temp_buf.IsAscii()) {
+						// Попытка транслировать латинский символ из локальной раскладки клавиатуры
+						SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+						r_temp_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
+						for(size_t i = 0; i < r_temp_buf_u.Len(); i++) {
+							const wchar_t c = r_temp_buf_u.C(i);
+							KeyDownCommand kd;
+							uint   tc = kd.SetCharU(c) ? kd.GetChar() : 0; 
+							raw_buf.CatChar(static_cast<char>(tc));
+						}
+						pCode = raw_buf.cptr();
+					}*/
+				}
 				pr = rS.Parse(pCode);
-				// @v10.8.2 {
-				/*if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
-					rS.SetSpecialFixedToken(GtinStruc::fldSerial, 8);
-					pr = rS.Parse(temp_buf);
-				}*/
-				// } @v10.8.2 
+				if(rS.GetToken(GtinStruc::fldGTIN14, 0)) {
+					while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list)) {
+						rS.SetSpecialFixedToken(GtinStruc::fldSerial, serial_len_variant_list[serial_len_variant_idx++]);
+						pr = rS.Parse(pCode);					
+					}
+				}
+				#if 0 // {
+				if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, 12);
+					pr = rS.Parse(pCode);
+					if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
+						rS.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
+						pr = rS.Parse(pCode);
+						// @v10.8.2 {
+						/*if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
+							rS.SetSpecialFixedToken(GtinStruc::fldSerial, 8);
+							pr = rS.Parse(temp_buf);
+						}*/
+						// } @v10.8.2 
+					}
+				}
+				#endif // } 0
+				if(pr == 1) {
+					if(rS.GetToken(GtinStruc::fldGTIN14, 0) && rS.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+						if(rS.GetSpecialNaturalToken() == SNTOK_CHZN_CIGITEM)
+							ok = SNTOK_CHZN_CIGITEM;
+						else if(rS.GetSpecialNaturalToken() == SNTOK_CHZN_CIGBLOCK)
+							ok = SNTOK_CHZN_CIGBLOCK;
+						else if(temp_buf.Len() == 13)
+							ok = SNTOK_CHZN_SIGN_SGTIN;
+						else
+							ok = SNTOK_CHZN_GS1_GTIN;
+					}
+				}
 			}
-		}
-		if(pr == 1) {
-			if(rS.GetToken(GtinStruc::fldGTIN14, 0) && rS.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-				if(rS.GetSpecialNaturalToken() == SNTOK_CHZN_CIGITEM)
-					ok = SNTOK_CHZN_CIGITEM;
-				else if(rS.GetSpecialNaturalToken() == SNTOK_CHZN_CIGBLOCK)
-					ok = SNTOK_CHZN_CIGBLOCK;
-				else if(temp_buf.Len() == 13)
-					ok = SNTOK_CHZN_SIGN_SGTIN;
-				else
-					ok = SNTOK_CHZN_GS1_GTIN;
+			// @v10.8.2 {
+			if(!ok && flags & pchzncfPretendEverythingIsOk) {
+				STokenRecognizer tr;
+				SNaturalTokenArray nta;
+				SNaturalTokenStat nts;
+				uint tokn = 0;
+				tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
+				if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 25)
+					ok = 100000;
 			}
+			// } @v10.8.2
 		}
 	}
-	// @v10.8.2 {
-	if(!ok && flags & pchzncfPretendEverythingIsOk) {
-		STokenRecognizer tr;
-		SNaturalTokenArray nta;
-		SNaturalTokenStat nts;
-		uint tokn = 0;
-		tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
-		if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 25)
-			ok = 100000;
-	}
-	// } @v10.8.2
 	return ok;
 }
 
@@ -264,55 +311,6 @@ Data Matrix для табачной продукции и фармацевтик
 		{
 		}
 	private:
-		DECL_HANDLE_EVENT
-		{
-			TDialog::handleEvent(event);
-			/* @v10.8.0
-			if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_CHZNMARK_INPUT)) {
-				static int __lock = 0;
-				if(!__lock) {
-					__lock = 1;
-					int   is_auto_input = 0;
-					getCtrlString(CTL_CHZNMARK_INPUT, CodeBuf.Z());
-					TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CHZNMARK_INPUT));
-					if(p_il) {
-						TInputLine::Statistics stat;
-						p_il->GetStatistics(&stat);
-						if(stat.Flags & stat.fSerialized && !(stat.Flags & stat.fPaste) && stat.SymbCount && stat.IntervalMean <= 100.0) // @v10.7.2 (<=5.0)-->(<=50.0) // @v10.7.12 (<=50.0)-->(<=100.0)
-							is_auto_input = 1;
-					}
-					if(!is_auto_input) {
-						SString msg_buf;
-						SString temp_buf;
-						GtinStruc gts;
-						const int pczcr = PPChZnPrcssr::ParseChZnCode(CodeBuf, gts);
-						if(pczcr) {
-							if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf))
-								msg_buf.Space().CatEq("GTIN14", temp_buf);
-							if(gts.GetToken(GtinStruc::fldSerial, &temp_buf))
-								msg_buf.Space().CatEq("SER", temp_buf);
-							if(gts.GetToken(GtinStruc::fldPart, &temp_buf))
-								msg_buf.Space().CatEq("PART", temp_buf);
-							if(gts.GetToken(GtinStruc::fldSscc18, &temp_buf))
-								msg_buf.Space().CatEq("SSCC18", temp_buf);
-							if(gts.GetToken(GtinStruc::fldPriceRuTobacco, &temp_buf))
-								msg_buf.Space().CatEq("PRICE", temp_buf);
-							//PPLoadTextS(PPTXT_CHZNMARKVALID, msg_buf).CR().Cat(CodeBuf);
-							// @v10.7.1 {
-							if(gts.GetToken(GtinStruc::fldOriginalText, &temp_buf)) {
-								CodeBuf = temp_buf;
-								setCtrlString(CTL_CHZNMARK_INPUT, temp_buf);
-							}
-							// } @v10.7.1 
-						}
-						else
-							PPLoadError(PPERR_TEXTISNTCHZNMARK, msg_buf, CodeBuf);
-						setStaticText(CTL_CHZNMARK_INFO, msg_buf);
-					}
-					__lock = 0;
-				}
-			}*/
-		}
 		SString CodeBuf;
 	};
 
@@ -329,8 +327,7 @@ Data Matrix для табачной продукции и фармацевтик
     while(ok < 0 && ExecView(dlg) == cmOK) {
 		dlg->getCtrlString(CTL_CHZNMARK_INPUT, temp_buf);
 		GtinStruc gts;
-		const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-		if(pczcr) {
+		if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 			gts.GetToken(GtinStruc::fldOriginalText, &rMark);
 			if(pReconstructedOriginal) {
 				ReconstructOriginalChZnCode(gts, *pReconstructedOriginal);
@@ -1045,8 +1042,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					p_bp->XcL.Get(i+1, 0, lotxcode_set);
 					lotxcode_set.GetByBoxID(0, ss);
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-						if(pczcr > 0) {
+						if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 							mark_buf.Z();
 							if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 								mark_buf.Cat("01").Cat(temp_buf);
@@ -1139,8 +1135,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					p_bp->XcL.Get(i+1, 0, lotxcode_set);
 					lotxcode_set.GetByBoxID(0, ss);
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-						if(pczcr > 0) {
+						if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 							mark_buf.Z();
 							if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 								mark_buf.Cat("01").Cat(temp_buf);
@@ -1190,8 +1185,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 							p_bp->XcL.Get(i+1, 0, lotxcode_set);
 							lotxcode_set.GetByBoxID(0, ss);
 							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-								const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-								if(pczcr > 0) {
+								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 									mark_buf.Z();
 									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 										mark_buf.Cat(temp_buf);
@@ -1247,8 +1241,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 							for(uint i = 0; p_ccp->EnumLines(&i, &ccitem) > 0;) {
 								p_ccp->GetLineTextExt(i, CCheckPacket::lnextChZnMark, temp_buf);
 								if(temp_buf.NotEmptyS()) {
-									const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-									if(pczcr > 0) {
+									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 										mark_buf.Z();
 										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 											mark_buf.Cat(temp_buf);
@@ -1318,8 +1311,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 							{
 								lotxcode_set.GetByBoxID(0, ss);
 								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-									const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-									if(pczcr > 0) {
+									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 										mark_buf.Z();
 										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 											mark_buf.Cat(temp_buf);
@@ -1385,8 +1377,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 							{
 								lotxcode_set.GetByBoxID(0, ss);
 								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-									const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-									if(pczcr > 0) {
+									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 										mark_buf.Z();
 										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 											mark_buf.Cat(temp_buf);
@@ -1434,8 +1425,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 							{
 								lotxcode_set.GetByBoxID(0, ss);
 								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-									const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-									if(pczcr > 0) {
+									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 										mark_buf.Z();
 										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 											mark_buf.Cat(temp_buf);
@@ -1463,8 +1453,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					wd.PutInnerSkipEmpty("subject_id", subj_ident);
 					//int codetype = PPChZnPrcssr::IsChZnCode(p_bp->Code);
 					GtinStruc gts;
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(p_bp->Code, gts, 0);
-					if(pczcr > 0) {
+					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(p_bp->Code, gts, 0)) > 0) {
 						wd.PutInner("sgtin", p_bp->Code);
 					}
 					//SETIFZ(codetype, p_bp->CodeType);
@@ -3075,8 +3064,7 @@ int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 			for(uint j = 0; !suited && j < lotxcode_set.GetCount(); j++) {
 				if(lotxcode_set.GetByIdx(j, msentry) /*&& !(msentry.Flags & PPLotExtCodeContainer::fBox)*/) {
 					GtinStruc gts;
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(msentry.Num, gts, 0);
-					if(pczcr > 0)
+					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(msentry.Num, gts, 0)) > 0)
 						suited = 1;
 				}
 			}

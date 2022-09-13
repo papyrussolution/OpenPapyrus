@@ -709,49 +709,75 @@ int TestGtinStruc()
 		PPGetPath(PPPATH_TESTROOT, temp_buf);
 		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("chzn-marks-result.txt");
 		SFile f_out(temp_buf, SFile::mWrite);
-		if(f_out.IsValid()) {
+		PPGetPath(PPPATH_TESTROOT, temp_buf);
+		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("chzn-marks-result-2.txt");
+		SFile f_out2(temp_buf, SFile::mWrite);
+		if(f_out.IsValid() && f_out2.IsValid()) {
+			static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 }; 
 			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-				GtinStruc gts;
-				gts.AddOnlyToken(GtinStruc::fldGTIN14);
-				gts.AddOnlyToken(GtinStruc::fldSerial);
-				gts.SetSpecialFixedToken(GtinStruc::fldSerial, 13);
-				gts.AddOnlyToken(GtinStruc::fldPart);
-				// gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v10.9.6
-				gts.AddOnlyToken(GtinStruc::fldAddendumId);
-				gts.AddOnlyToken(GtinStruc::fldUSPS);
-				gts.SetSpecialFixedToken(GtinStruc::fldUSPS, 4); // @v10.9.10
-				gts.AddOnlyToken(GtinStruc::fldInner1);
-				gts.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/); // @v10.9.0
-				gts.AddOnlyToken(GtinStruc::fldInner2);
-				gts.AddOnlyToken(GtinStruc::fldSscc18);
-				gts.AddOnlyToken(GtinStruc::fldExpiryDate);
-				gts.AddOnlyToken(GtinStruc::fldManufDate);
-				gts.AddOnlyToken(GtinStruc::fldVariant);
-				gts.AddOnlyToken(GtinStruc::fldMutualCode);
-				//gts.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
-				//gts.AddOnlyToken(GtinStruc::fldPrice);
-				gts.AddSpecialStopChar(0x1D); // @v10.9.9
-				gts.AddSpecialStopChar(0xE8); // @v10.9.9
-				int pr = gts.Parse(temp_buf);
-				if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
-					gts.SetSpecialFixedToken(GtinStruc::fldSerial, 12);
-					pr = gts.Parse(temp_buf);
-					if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
-						gts.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
-						pr = gts.Parse(temp_buf);
-						// @v10.8.2 {
-						/*if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
-							gts.SetSpecialFixedToken(GtinStruc::fldSerial, 8);
-							pr = gts.Parse(temp_buf);
-						}*/
-						// } @v10.8.2 
+				const SString original_text(temp_buf);
+				{
+					uint   serial_len_variant_idx = 0;
+					GtinStruc gts;
+					gts.AddOnlyToken(GtinStruc::fldGTIN14);
+					gts.AddOnlyToken(GtinStruc::fldSerial);
+					gts.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx++]);
+					gts.AddOnlyToken(GtinStruc::fldPart);
+					// gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v10.9.6
+					gts.AddOnlyToken(GtinStruc::fldAddendumId);
+					gts.AddOnlyToken(GtinStruc::fldUSPS);
+					gts.SetSpecialFixedToken(GtinStruc::fldUSPS, 4); // @v10.9.10
+					gts.AddOnlyToken(GtinStruc::fldInner1);
+					gts.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/); // @v10.9.0
+					gts.AddOnlyToken(GtinStruc::fldInner2);
+					gts.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/); // @v11.4.11
+					gts.AddOnlyToken(GtinStruc::fldSscc18);
+					gts.AddOnlyToken(GtinStruc::fldExpiryDate);
+					gts.AddOnlyToken(GtinStruc::fldManufDate);
+					gts.AddOnlyToken(GtinStruc::fldVariant);
+					gts.AddOnlyToken(GtinStruc::fldMutualCode);
+					//gts.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
+					//gts.AddOnlyToken(GtinStruc::fldPrice);
+					gts.AddSpecialStopChar(0x1D); // @v10.9.9
+					gts.AddSpecialStopChar(0xE8); // @v10.9.9
+					int pr = gts.Parse(original_text);
+					if(gts.GetToken(GtinStruc::fldGTIN14, 0)) {
+						while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list)) {
+							gts.SetSpecialFixedToken(GtinStruc::fldSerial, serial_len_variant_list[serial_len_variant_idx++]);
+							pr = gts.Parse(original_text);					
+						}
 					}
+					#if 0 // {
+					if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
+						gts.SetSpecialFixedToken(GtinStruc::fldSerial, 12);
+						pr = gts.Parse(temp_buf);
+						if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
+							gts.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
+							pr = gts.Parse(temp_buf);
+							// @v10.8.2 {
+							/*if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
+								gts.SetSpecialFixedToken(GtinStruc::fldSerial, 8);
+								pr = gts.Parse(temp_buf);
+							}*/
+							// } @v10.8.2 
+						}
+					}
+					#endif // } 0
+					out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pr);
+					gts.Debug_Output(temp_buf);
+					out_buf.CR().Cat(temp_buf);
+					f_out.WriteLine(out_buf);
+					logger.Log(out_buf);
 				}
-				out_buf.Z().CR().Cat(temp_buf).Space().CatEq("parse-result", pr);
-				gts.Debug_Output(temp_buf);
-				out_buf.CR().Cat(temp_buf);
-				f_out.WriteLine(out_buf);
-				logger.Log(out_buf);
+				{
+					GtinStruc gts;
+					int pczcr = PPChZnPrcssr::ParseChZnCode(original_text, gts, 0);
+					out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pczcr);
+					gts.Debug_Output(temp_buf);
+					out_buf.CR().Cat(temp_buf);
+					f_out2.WriteLine(out_buf);
+					logger.Log(out_buf);
+				}
 			}
 		}
 	}

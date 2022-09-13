@@ -2446,6 +2446,7 @@ public class SLib {
 	public static boolean IsInstanceOf(Object obj, Class cls) { return (obj != null && cls.isInstance(obj)); }
 	public static int GetLen(final String s) { return (s != null) ? s.length() : 0; }
 	public static int GetLen(final CharSequence s) { return (s != null) ? s.length() : 0; }
+	public static int GetCount(final ArrayList<?> list) { return (list != null) ? list.size() : 0; }
 	public static <T> int GetLen(final T [] s)
 	{
 		return (s != null) ? s.length : 0;
@@ -2454,6 +2455,7 @@ public class SLib {
 	{
 		return (s != null) ? s.length : 0;
 	}
+	public static boolean IsInRange(int idx, ArrayList<?> list) { return (list != null && idx >= 0 && idx < list.size()); }
 	public static boolean AreUUIDsEqual(final UUID a1, final UUID a2)
 	{
 		if(a1 == null)
@@ -4437,7 +4439,6 @@ public class SLib {
 		}
 		return result;
 	}
-
 	static interface EventHandler {
 		public Object HandleEvent(int cmd, Object srcObj, Object subj);
 	}
@@ -4495,8 +4496,7 @@ public class SLib {
 				exn.printStackTrace();
 			}
 		}
-		@Override
-		public void onTerminate()
+		@Override public void onTerminate()
 		{
 			HandleEvent(EV_TERMINTATE, this, null);
 			super.onTerminate();
@@ -4626,12 +4626,13 @@ public class SLib {
 				else
 					iter_view = iter_view.getParent();
 			}
-			if(activity != null) {
+			EventHandler eh = Adapter.GetEventHandler(activity);
+			if(eh != null) {
 				ListViewEvent ev_subj = new ListViewEvent();
 				ev_subj.RvHolder = this;
 				ev_subj.ItemIdx = this.getLayoutPosition();
 				ev_subj.ItemView = view;
-				activity.HandleEvent(EV_LISTVIEWITEMCLK, Adapter, ev_subj);
+				eh.HandleEvent(EV_LISTVIEWITEMCLK, Adapter, ev_subj);
 			}
 		}
 	}
@@ -4657,27 +4658,25 @@ public class SLib {
 		}
 		@Override public void onClick(View v)
 		{
-			Context ctx = Inflater.getContext();
-			if(ctx instanceof SlActivity) {
-				SlActivity activity = (SlActivity)ctx;
+			EventHandler eh = Adapter.GetEventHandler(Inflater.getContext());
+			if(eh != null) {
 				ListViewEvent ev_subj = new ListViewEvent();
 				ev_subj.RvHolder = Holder;
 				ev_subj.ItemIdx = Index;
 				ev_subj.ItemView = v;
-				activity.HandleEvent(EV_LISTVIEWITEMCLK, Adapter, ev_subj);
+				eh.HandleEvent(EV_LISTVIEWITEMCLK, Adapter, ev_subj);
 			}
 		}
 		@Override public boolean onLongClick(View v)
 		{
 			boolean result = false;
-			Context ctx = Inflater.getContext();
-			if(ctx instanceof SlActivity) {
-				SlActivity activity = (SlActivity)ctx;
+			EventHandler eh = Adapter.GetEventHandler(Inflater.getContext());
+			if(eh != null) {
 				ListViewEvent ev_subj = new ListViewEvent();
 				ev_subj.RvHolder = Holder;
 				ev_subj.ItemIdx = Index;
 				ev_subj.ItemView = v;
-				activity.HandleEvent(EV_LISTVIEWITEMLONGCLK, null, ev_subj);
+				eh.HandleEvent(EV_LISTVIEWITEMLONGCLK, null, ev_subj);
 				result = true;
 			}
 			return result;
@@ -4689,22 +4688,31 @@ public class SLib {
 		private int FocusedIdx; // Если (>= 0 && < getCount()), то управляющий класс может отобразать специальным образом
 		private LinearLayout _Lo;
 		private final LayoutInflater Inflater;
-		RecyclerListAdapter(Context ctx, int listRcId, int rcId)
+		private EventHandler EventReceiver; // Если !null, то методы класса проверяют, чтобы объект был
+			// адекватным получателем сообщений (SlActivity, SlDialog etc) и отправляет сообщения ему.
+			// Если null, то сообщения отправляются в контекст (если он является SlActivity)
+		RecyclerListAdapter(Context ctx, EventHandler eventReceiver, int listRcId, int rcId)
 		{
 			super();
+			EventReceiver = eventReceiver;
 			RcId = rcId;
 			ListRcId = listRcId;
 			FocusedIdx = -1;
 			Inflater = LayoutInflater.from(ctx);
 		}
-		RecyclerListAdapter(Context ctx, int listRcId, LinearLayout lo)
+		RecyclerListAdapter(Context ctx, EventHandler eventReceiver, int listRcId, LinearLayout lo)
 		{
 			super();
+			EventReceiver = eventReceiver;
 			RcId = 0;
 			ListRcId = listRcId;
 			FocusedIdx = -1;
 			_Lo = lo;
 			Inflater = LayoutInflater.from(ctx);
+		}
+		public EventHandler GetEventHandler(Context ctx)
+		{
+			return (EventReceiver != null) ? EventReceiver : ((ctx instanceof SlActivity) ? (SlActivity)ctx : null);
 		}
 		public int GetRcId()
 		{
@@ -4717,46 +4725,48 @@ public class SLib {
 		public final LayoutInflater GetLayoutInflater() { return Inflater; }
 		@Override @NonNull public RecyclerListViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
 		{
+			RecyclerListViewHolder holder = null;
 			View view = null;
-			if(RcId > 0) {
-				View root_view = parent;//parent.getRootView();
-				RecyclerListViewHolder holder = null;
-				if(root_view != null && root_view instanceof ViewGroup) {
-					view = Inflater.inflate(RcId, (ViewGroup)root_view, false);
-					holder = new RecyclerListViewHolder(view, this);
-					//
-					Context ctx = Inflater.getContext();
-					SlActivity activity = (SlActivity) ctx;
-					ListViewEvent ev_subj = new ListViewEvent();
-					ev_subj.RvHolder = holder;
-					ev_subj.ItemView = view;
-					ev_subj.ItemIdx = viewType;
-					Object ev_result = activity.HandleEvent(EV_CREATEVIEWHOLDER, this, ev_subj);
-					//
+			Context ctx = Inflater.getContext();
+			if(ctx != null) {
+				EventHandler eh = GetEventHandler(ctx);
+				if(RcId > 0) {
+					View root_view = parent;//parent.getRootView();
+					if(root_view != null && root_view instanceof ViewGroup) {
+						view = Inflater.inflate(RcId, (ViewGroup) root_view, false);
+						holder = new RecyclerListViewHolder(view, this);
+						if(eh != null) {
+							ListViewEvent ev_subj = new ListViewEvent();
+							ev_subj.RvHolder = holder;
+							ev_subj.ItemView = view;
+							ev_subj.ItemIdx = viewType;
+							Object ev_result = eh.HandleEvent(EV_CREATEVIEWHOLDER, this, ev_subj);
+						}
+					}
 				}
-				return holder;
+				else if(eh != null) {
+					ListViewEvent ev_subj = new ListViewEvent();
+					ev_subj.RvHolder = null;
+					ev_subj.ItemView = parent;
+					ev_subj.ItemIdx = viewType;
+					Object ev_result = eh.HandleEvent(EV_CREATEVIEWHOLDER, this, ev_subj);
+					holder = (ev_result != null && ev_result instanceof RecyclerListViewHolder) ? (RecyclerListViewHolder)ev_result : null;
+				}
 			}
-			else {
-				Context ctx = Inflater.getContext();
-				SlActivity activity = (SlActivity)ctx;
-				ListViewEvent ev_subj = new ListViewEvent();
-				ev_subj.RvHolder = null;
-				ev_subj.ItemView = parent;
-				ev_subj.ItemIdx = viewType;
-				Object ev_result = activity.HandleEvent(EV_CREATEVIEWHOLDER, this, ev_subj);
-				return (ev_result != null && ev_result instanceof RecyclerListViewHolder) ? (RecyclerListViewHolder)ev_result : null;
-			}
+			return holder;
 		}
 		@Override
 		public void onBindViewHolder(@NonNull RecyclerListViewHolder holder, @SuppressLint("RecyclerView") int position)
 		{
 			Context ctx = (_Lo != null) ? _Lo.getContext() : Inflater.getContext();
-			if(ctx != null && ctx instanceof SlActivity) {
-				SlActivity activity = (SlActivity)ctx;
-				ListViewEvent ev_subj = new ListViewEvent();
-				ev_subj.RvHolder = holder;
-				ev_subj.ItemIdx = position;
-				activity.HandleEvent(EV_GETLISTITEMVIEW, this, ev_subj);
+			if(ctx != null) {
+				EventHandler eh = GetEventHandler(ctx);
+				if(eh != null) {
+					ListViewEvent ev_subj = new ListViewEvent();
+					ev_subj.RvHolder = holder;
+					ev_subj.ItemIdx = position;
+					eh.HandleEvent(EV_GETLISTITEMVIEW, this, ev_subj);
+				}
 				//
 				if(_Lo == null) { // @debug
 					RecyclerListViewClickListener listener = new RecyclerListViewClickListener(Inflater, this, holder, position);
@@ -4769,13 +4779,16 @@ public class SLib {
 		{
 			int    result = 0;
 			Context ctx = (_Lo != null) ? _Lo.getContext() : Inflater.getContext();
-			if(ctx != null && ctx instanceof SlActivity) {
-				Object ret_obj = ((SlActivity) ctx).HandleEvent(EV_LISTVIEWCOUNT, this, null);
-				if(ret_obj != null)
-					if(ret_obj instanceof Integer)
-						result = (Integer)ret_obj;
-					else if(ret_obj instanceof Long)
-						result = ((Long)ret_obj).intValue();
+			if(ctx != null) {
+				EventHandler eh = GetEventHandler(ctx);
+				if(eh != null) {
+					Object ret_obj = eh.HandleEvent(EV_LISTVIEWCOUNT, this, null);
+					if(ret_obj != null)
+						if(ret_obj instanceof Integer)
+							result = (Integer)ret_obj;
+						else if(ret_obj instanceof Long)
+							result = ((Long)ret_obj).intValue();
+				}
 			}
 			return result;
 		}
@@ -5204,7 +5217,7 @@ public class SLib {
 		{
 			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
 			if(view != null && view instanceof RecyclerView) {
-				RecyclerListAdapter adapter = new RecyclerListAdapter(this, rcListView, rcItemView);
+				RecyclerListAdapter adapter = new RecyclerListAdapter(this, null, rcListView, rcItemView);
 				((RecyclerView)view).setAdapter(adapter);
 				//view.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 			}
@@ -5213,7 +5226,7 @@ public class SLib {
 		{
 			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
 			if(view != null && view instanceof RecyclerView) {
-				RecyclerListAdapter adapter = new RecyclerListAdapter(this, rcListView, itemLayout);
+				RecyclerListAdapter adapter = new RecyclerListAdapter(this, null, rcListView, itemLayout);
 				((RecyclerView)view).setAdapter(adapter);
 				//view.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 			}

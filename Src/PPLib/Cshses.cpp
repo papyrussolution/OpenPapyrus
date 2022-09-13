@@ -107,8 +107,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 			pPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, chzn_code);
 			if(chzn_code.NotEmptyS()) {
 				GtinStruc gts;
-				int pczcr = PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0);
-				if(pczcr > 0) {
+				if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0)) > 0) {
 					ok = 1;
 					CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
 					PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_code);
@@ -120,7 +119,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 						if(u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
 							uom_fragm = u_rec.Fragmentation;
 					}
-					pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
+					int pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
 					PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
 					// @debug {
 					//pczcr = 0;

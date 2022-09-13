@@ -209,6 +209,10 @@ public class StyloQ_UnitTest {
 	@Test public void ChZnMarkParsing()
 	{
 		String test_code_list[] = {
+			"0104810319016458212nFgzLex93u0bp",
+			"01048103190149422123ogfX8793f1KQ",
+			"0104810108007438212nKRgov893My3u",
+			"0104810065006079212n2nWLbt93JDxc",
 			"010464009192045821,RH>nog\u001D8005120000\u001D93hH2L",
 			//"010475023200591017240630101210620112006302102003Z2NXSH2191EE0692FmNVSg3koMVPdHEUDNyx/Z9n5XLEWrU1OBTUTIpNjvs=",
 			"(01)04640091920533(21)gSHwSiZ(8005)112000",
@@ -547,6 +551,9 @@ public class StyloQ_UnitTest {
 			if(is_valid_grade01) {
 				String gtin14 = result.GetToken(GTIN.fldGTIN14);
 				Assert.assertTrue(gtin14 != null && gtin14.length() == 14);
+				//
+				String serial = result.GetToken(GTIN.fldSerial);
+				Assert.assertTrue(serial != null && serial.length() > 6);
 			}
 		}
 	}

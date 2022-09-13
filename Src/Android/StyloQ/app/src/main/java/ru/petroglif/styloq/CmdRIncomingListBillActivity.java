@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -19,12 +20,15 @@ import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -231,6 +235,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			super(ctx, rcId, (data != null) ? data.XcL : null);
 			Data = data;
 		}
+		Document.GoodsMarkSettingEntry GetData() { return Data; }
 		@Override public View getView(int position, View convertView, ViewGroup parent)
 		{
 			// Get the data item for this position
@@ -247,9 +252,197 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						Document.LotExtCode entry = (Document.LotExtCode)item;
 						v.setText(entry.Code);
 					}
+					//SLib.SetCtrlVisibility(convertView, R.id.CTL_BUTTON_MATCH, (Data == null || Data.Ti != null) ? View.GONE : View.VISIBLE);
+					//SLib.SetCtrlVisibility(convertView, R.id.STDCTL_DELETEBUTTON, (Data == null || Data.Ti != null) ? View.GONE : View.VISIBLE);
+					{
+						{
+							View btn = convertView.findViewById(R.id.CTL_BUTTON_MATCH);
+							if(btn != null) {
+								if(_ctx instanceof SLib.SlActivity && Data != null && Data.Ti == null) {
+									btn.setVisibility(View.VISIBLE);
+									btn.setOnClickListener(new View.OnClickListener() {
+										@Override public void onClick(View v)
+										{
+											SLib.ListViewEvent ev_subj = new SLib.ListViewEvent();
+											ev_subj.RvHolder = null;
+											ev_subj.ItemIdx = position;
+											ev_subj.ItemView = v;
+											ev_subj.ItemObj = Data;
+											((SLib.SlActivity)_ctx).HandleEvent(SLib.EV_COMMAND, v, ev_subj);
+										}
+									});
+								}
+								else
+									btn.setVisibility(View.GONE);
+							}
+						}
+						{
+							View btn = convertView.findViewById(R.id.STDCTL_DELETEBUTTON);
+							if(btn != null) {
+								if(_ctx instanceof SLib.SlActivity && Data != null && Data.Ti == null) {
+									btn.setVisibility(View.VISIBLE);
+									btn.setOnClickListener(new View.OnClickListener() {
+										@Override public void onClick(View v)
+										{
+											SLib.ListViewEvent ev_subj = new SLib.ListViewEvent();
+											ev_subj.RvHolder = null;
+											ev_subj.ItemIdx = position;
+											ev_subj.ItemView = v;
+											ev_subj.ItemObj = Data;
+											((SLib.SlActivity)_ctx).HandleEvent(SLib.EV_COMMAND, v, ev_subj);
+										}
+									});
+								}
+								else
+									btn.setVisibility(View.GONE);
+							}
+						}
+					}
 				}
 			}
 			return convertView; // Return the completed view to render on screen
+		}
+	}
+	static class SubstTiForUnassignedMarkDialog extends SLib.SlDialog {
+		CmdRIncomingListBillActivity ActivityParent;
+		public static class DataBlock {
+			DataBlock()
+			{
+				Doc = null;
+				GmsEntry = null;
+				CurEntry = null;
+				SelectedIdx = -1;
+			}
+			Document Doc;
+			Document.GoodsMarkSettingEntry GmsEntry;
+			Document.LotExtCode CurEntry; // alias of one of GmsEntry.XcL
+			int   SelectedIdx; // -1 - undefined or [0..Doc.TiList.size()-1]
+		}
+		public SubstTiForUnassignedMarkDialog(Context ctx, DataBlock data)
+		{
+			super(ctx, R.id.DLG_SUBSTTIFORUNASSIGNEDMARK, data);
+			if(ctx != null && ctx instanceof CmdRIncomingListBillActivity)
+				ActivityParent = (CmdRIncomingListBillActivity)ctx;
+		}
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
+		{
+			Object result = null;
+			switch(ev) {
+				case SLib.EV_CREATE:
+					requestWindowFeature(Window.FEATURE_NO_TITLE);
+					setContentView(R.layout.dialog_substtiforunassignedmark);
+					SetDTS(Data);
+					break;
+				case SLib.EV_LISTVIEWCOUNT:
+					{
+						SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter) srcObj;
+						if(a.GetListRcId() == R.id.CTL_SUBSTTIFORUNASSIGNEDMARK_TILIST) {
+							DataBlock _data = (Data != null && Data instanceof DataBlock) ? (DataBlock)Data : null;
+							if(_data != null && _data.Doc != null && _data.Doc.TiList != null)
+								result = new Integer(_data.Doc.TiList.size());
+						}
+					}
+					break;
+				case SLib.EV_GETLISTITEMVIEW:
+					{
+						SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
+						if(ev_subj != null && ev_subj.ItemIdx >= 0) {
+							if(ev_subj.RvHolder != null) {
+								// RecyclerView
+								if(srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) {
+									SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
+									if(a.GetListRcId() == R.id.CTL_SUBSTTIFORUNASSIGNEDMARK_TILIST) {
+										DataBlock _data = (Data != null && Data instanceof DataBlock) ? (DataBlock)Data : null;
+										if(_data != null && _data.Doc != null && _data.Doc.TiList != null && ev_subj.ItemIdx < _data.Doc.TiList.size()) {
+											//CPM.FindGoodsItemByGoodsID()
+											Document.TransferItem cur_entry = _data.Doc.TiList.get(ev_subj.ItemIdx);
+											View iv = ev_subj.RvHolder.itemView;
+											String goods_name = null;
+											String qtty_text = null;
+											if(ActivityParent != null) {
+												CommonPrereqModule.WareEntry ware_entry = ActivityParent.CPM.FindGoodsItemByGoodsID(cur_entry.GoodsID);
+												if(ware_entry != null && ware_entry.Item != null)
+													goods_name = ware_entry.Item.Name;
+											}
+											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_GOODSNAME, goods_name);
+											int mark_qtty = 0;
+											int item_qtty = (cur_entry.Set != null) ? (int)cur_entry.Set.Qtty : 0;
+											if(cur_entry.XcL != null) {
+												for(Document.LotExtCode iter : cur_entry.XcL) {
+													mark_qtty++;
+												}
+											}
+											qtty_text = Integer.toString(mark_qtty) + "/" + Integer.toString(Math.abs(item_qtty));
+											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_QTTYTEXT, qtty_text);
+											if(_data.SelectedIdx == ev_subj.ItemIdx)
+												iv.setBackgroundResource(R.drawable.shape_listitem_focused);
+											else
+												iv.setBackgroundResource(R.drawable.shape_listitem);
+										}
+									}
+								}
+							}
+						}
+					}
+					break;
+				case SLib.EV_LISTVIEWITEMCLK:
+					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent)subj : null;
+					if(ev_subj != null) {
+						DataBlock _data = (Data != null && Data instanceof DataBlock) ? (DataBlock)Data : null;
+						if(_data != null && _data.Doc != null && _data.Doc.TiList != null) {
+							if(ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < _data.Doc.TiList.size()) {
+								_data.SelectedIdx = ev_subj.ItemIdx;
+								if(srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) {
+									((SLib.RecyclerListAdapter)srcObj).notifyDataSetChanged();
+								}
+							}
+						}
+					}
+					break;
+				case SLib.EV_COMMAND:
+					int view_id = View.class.isInstance(srcObj) ? ((View)srcObj).getId() : 0;
+					if(view_id == R.id.STDCTL_OKBUTTON) {
+						Object data = GetDTS();
+						if(data != null) {
+							StyloQApp app_ctx = (ActivityParent != null) ? ActivityParent.GetAppCtx() : null;
+							if(app_ctx != null)
+								app_ctx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, data);
+						}
+						this.dismiss(); // Close Dialog
+					}
+					else if(view_id == R.id.STDCTL_CANCELBUTTON) {
+						this.dismiss();
+					}
+					break;
+			}
+			return result;
+		}
+		boolean SetDTS(Object objData)
+		{
+			boolean ok = true;
+			StyloQApp app_ctx = (ActivityParent != null) ? ActivityParent.GetAppCtx() : null;
+			if(app_ctx != null) {
+				//Context ctx = getContext();
+				DataBlock _data = (Data != null && Data instanceof DataBlock) ? (DataBlock) Data : null;
+				String hint_text = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SELECTTIROWFORMARKSUBST);
+				SLib.SetCtrlString(this, R.id.CTL_SUBSTTIFORUNASSIGNEDMARK_HINT, hint_text);
+				if(_data != null) {
+					String mark = (_data.CurEntry != null) ? _data.CurEntry.Code : null;
+					SLib.SetCtrlString(this, R.id.CTL_SUBSTTIFORUNASSIGNEDMARK_MARK, mark);
+					View lv = findViewById(R.id.CTL_SUBSTTIFORUNASSIGNEDMARK_TILIST);
+					if(lv != null && lv instanceof RecyclerView) {
+						((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(/*getContext()*/ActivityParent));
+						SLib.RecyclerListAdapter adapter = new SLib.RecyclerListAdapter(ActivityParent, this, R.id.CTL_SUBSTTIFORUNASSIGNEDMARK_TILIST, R.layout.li_substtiforunassignedmark);
+						((RecyclerView) lv).setAdapter(adapter);
+					}
+				}
+			}
+			return ok;
+		}
+		Object GetDTS()
+		{
+			Object result = Data;
+			return result;
 		}
 	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
@@ -440,7 +633,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									Document _doc = CPM.GetCurrentDocument();
 									if(_doc != null) {
 										if(ScanSource == ScanType.Veriy) {
-											if(_doc.VXcL != null && ev_subj.ItemIdx < _doc.VXcL.size()) {
+											if(SLib.IsInRange(ev_subj.ItemIdx, _doc.VXcL)) {
 												View iv = ev_subj.RvHolder.itemView;
 												Document.LotExtCode cur_entry = _doc.VXcL.get(ev_subj.ItemIdx);
 												if(cur_entry != null) {
@@ -493,6 +686,23 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 															}
 														}
 														adapter.setNotifyOnChange(true);
+														mark_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+															@Override public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+															{
+																Object item = (Object)parent.getItemAtPosition(position);
+																Context ctx = parent.getContext();
+																if(item != null && ctx != null && ctx instanceof SLib.SlActivity) {
+																	SLib.SlActivity activity = (SLib.SlActivity)ctx;
+																	SLib.ListViewEvent ev_subj = new SLib.ListViewEvent();
+																	ev_subj.ItemIdx = position;
+																	ev_subj.ItemId = id;
+																	ev_subj.ItemObj = item;
+																	ev_subj.ItemView = view;
+																	//ev_subj.ParentView = parent;
+																	activity.HandleEvent(SLib.EV_LISTVIEWITEMCLK, parent, ev_subj);
+																}
+															}
+														});
 													}
 												}
 											}
@@ -771,8 +981,33 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null && srcObj != null) {
+						boolean debug_mark = false;
 						if(ev_subj.RvHolder == null) {
-
+							if(ev_subj.ItemView != null) {
+								if(srcObj instanceof ListView && ev_subj.ItemObj != null) {
+									ListView lv = (ListView)srcObj;
+									/*
+									switch(lv.getId()) {
+										case R.id.CTL_INCOMINGLIST_BILL_MARKSBYTI:
+											debug_mark = true;
+											//MarksByTiListAdapter
+											Adapter a = lv.getAdapter();
+											if(a != null && a instanceof MarksByTiListAdapter) {
+												Document.GoodsMarkSettingEntry gms_entry = ((MarksByTiListAdapter)a).GetData();
+												if(gms_entry != null && CPM.GetCurrentDocument() != null) {
+													SubstTiForUnassignedMarkDialog.DataBlock _data = new SubstTiForUnassignedMarkDialog.DataBlock();
+													_data.Doc = CPM.GetCurrentDocument();
+													_data.GmsEntry = gms_entry;
+													_data.CurEntry = (gms_entry.XcL != null) ? gms_entry.XcL.get(ev_subj.ItemIdx) : null;
+													Document.GoodsMarkSettingEntry gse = (_data.Doc != null) ? _data.Doc.GetGoodsMarkSettingListItem(ev_subj.ItemIdx) : null;
+													SubstTiForUnassignedMarkDialog dlg = new SubstTiForUnassignedMarkDialog(this, _data);
+													dlg.show();
+												}
+											}
+											break;
+									}*/
+								}
+							}
 						}
 						else if(srcObj instanceof SLib.RecyclerListAdapter) {
 							SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
@@ -867,6 +1102,44 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								}
 							}
 							break;
+						case R.id.CTL_BUTTON_MATCH:
+							if(subj != null && subj instanceof SLib.ListViewEvent) {
+								SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
+								int code_idx = lve.ItemIdx;
+								if(lve.ItemObj != null && lve.ItemObj instanceof Document.GoodsMarkSettingEntry && CPM.GetCurrentDocument() != null) {
+									Document.GoodsMarkSettingEntry gmse = (Document.GoodsMarkSettingEntry)lve.ItemObj;
+									if(SLib.IsInRange(code_idx, gmse.XcL)) {
+										SubstTiForUnassignedMarkDialog.DataBlock _data = new SubstTiForUnassignedMarkDialog.DataBlock();
+										_data.Doc = CPM.GetCurrentDocument();
+										_data.GmsEntry = gmse;
+										_data.CurEntry = (gmse.XcL != null) ? gmse.XcL.get(code_idx) : null;
+										Document.GoodsMarkSettingEntry gse = (_data.Doc != null) ? _data.Doc.GetGoodsMarkSettingListItem(code_idx) : null;
+										SubstTiForUnassignedMarkDialog dlg = new SubstTiForUnassignedMarkDialog(this, _data);
+										dlg.show();
+									}
+								}
+							}
+							break;
+						case R.id.STDCTL_DELETEBUTTON:
+							if(subj != null && subj instanceof SLib.ListViewEvent) {
+								SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
+								int code_idx = lve.ItemIdx;
+								if(lve.ItemObj != null && lve.ItemObj instanceof Document.GoodsMarkSettingEntry && CPM.GetCurrentDocument() != null) {
+									Document.GoodsMarkSettingEntry gmse = (Document.GoodsMarkSettingEntry)lve.ItemObj;
+									if(gmse.XcL != null && code_idx >= 0 && code_idx < gmse.XcL.size()) {
+										gmse.XcL.remove(code_idx);
+										CPM.OnCurrentDocumentModification();
+										CommonPrereqModule.Tab tab = CommonPrereqModule.Tab.tabUndef;
+										if(ScanSource == ScanType.Setting)
+											tab = CommonPrereqModule.Tab.tabXclSetting;
+										else if(ScanSource == ScanType.Veriy)
+											tab = CommonPrereqModule.Tab.tabXclVerify;
+										if(tab != CommonPrereqModule.Tab.tabUndef)
+											NotifyTabContentChanged(tab, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
+									}
+								}
+							}
+							break;
 						case R.id.CTL_DOCUMENT_ACTIONBUTTON1:
 							if(DocEditActionList != null && DocEditActionList.size() > 0)
 								acn = DocEditActionList.get(0);
@@ -935,6 +1208,32 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					}
 				}
 				break;
+			case SLib.EV_IADATAEDITCOMMIT:
+				if(srcObj != null && srcObj instanceof SubstTiForUnassignedMarkDialog && subj != null && subj instanceof SubstTiForUnassignedMarkDialog.DataBlock) {
+					StyloQApp app_ctx = GetAppCtx();
+					if(app_ctx != null) {
+						SubstTiForUnassignedMarkDialog.DataBlock _data = (SubstTiForUnassignedMarkDialog.DataBlock)subj;
+						if(_data.CurEntry != null && _data.Doc != null && SLib.IsInRange(_data.SelectedIdx, _data.Doc.TiList)) {
+							Document.TransferItem ti = _data.Doc.TiList.get(_data.SelectedIdx);
+							if(ti.XcL == null)
+								ti.XcL = new ArrayList<Document.LotExtCode>();
+							ti.XcL.add(_data.CurEntry);
+							if(_data.GmsEntry.XcL != null) {
+								//for(Document.LotExtCode iter : _data.GmsEntry.XcL) {
+								for(int i = 0; i < _data.GmsEntry.XcL.size(); i++) {
+									Document.LotExtCode iter = _data.GmsEntry.XcL.get(i);
+									if(iter != null && (iter == _data.CurEntry || iter.Code.equals(_data.CurEntry.Code))) {
+										_data.GmsEntry.XcL.remove(i);
+										break;
+									}
+								}
+							}
+							CPM.OnCurrentDocumentModification();
+							NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclSetting, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
+						}
+					}
+				}
+				break;
 			case SLib.EV_SVCQUERYRESULT:
 				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
@@ -990,6 +1289,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	private final ActivityResultLauncher<ScanOptions> BarcodeLauncher = registerForActivityResult(new ScanContract(),
 		activity_result -> {
 			String contents = activity_result.getContents();
+			byte [] bytes_contents = contents.getBytes();
 			Intent original_intent = activity_result.getOriginalIntent();
 			Intent _intent = this.getIntent();
 			boolean is_processed = false;
@@ -1024,10 +1324,14 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								is_processed = true;
 							}
 							else if(ScanSource == ScanType.Setting) {
-								int amr = _doc.AssignGoodsMark(contents, CPM.GoodsListData);
-								if(amr > 0) {
-									CPM.OnCurrentDocumentModification();
-									NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclSetting, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
+								try {
+									int amr = _doc.AssignGoodsMark(contents, CPM.GoodsListData);
+									if(amr > 0) {
+										CPM.OnCurrentDocumentModification();
+										NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclSetting, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
+									}
+								} catch(StyloQException exn) {
+									app_ctx.DisplayError(this, exn, 0);
 								}
 							}
 						}

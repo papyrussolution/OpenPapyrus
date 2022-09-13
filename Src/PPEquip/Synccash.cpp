@@ -462,7 +462,7 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, ui
 		rResult.Status = 0;
 		if(!isempty(pCode)) {
 			GtinStruc gts;
-			if(PPChZnPrcssr::ParseChZnCode(pCode, gts, 0) > 0) {
+			if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(pCode, gts, 0)) == PPChZnPrcssr::chznciReal) {
 				SString temp_buf;
 				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 					SString serial;

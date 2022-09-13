@@ -104,7 +104,7 @@ public class StyloQCommand {
 		public Item GetViewItem(int idx)
 		{
 			Item result = null;
-			if(Items != null && idx >= 0 && idx < Items.size()) {
+			if(SLib.IsInRange(idx, Items)) {
 				int counter = 0;
 				for(int i = 0; result == null && i < Items.size(); i++) {
 					final Item item = Items.get(i);

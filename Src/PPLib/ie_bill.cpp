@@ -4631,8 +4631,7 @@ int PPBillImporter::Run()
 								if(!goods_id) {
 									GtinStruc gts;
 									for(uint markssp = 0; p_item->MarkList.get(&markssp, temp_buf);) {
-										const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-										if(pczcr > 0 && gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0 && gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 											if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec, 1) > 0) {
 												goods_id = goods_rec.ID;
 											}
@@ -6088,6 +6087,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 			// !!! <ДопСведТов ПрТовРаб="3" КодТов="00000000027" НаимЕдИзм="шт"/>
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WARECODE), goods_code);
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_UNITNAME), unit_name);
+			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WARETYPE), "1"); // @v11.4.11 ПрТовРаб="1"
 			// @v11.4.10 {
 			if(chzn_prod_type == GTCHZNPT_MILK) {
 				BarcodeArray bc_list;
@@ -6124,7 +6124,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 						GtinStruc gts;
 						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
 						if(Flags & fExpChZnMarksGTINSER) {
-							if(pczcr) {
+							if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) > 0) {
 								gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
 								gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
 								if(chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty()) {
@@ -6148,7 +6148,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 							if(pczcr == SNTOK_CHZN_CIGBLOCK) {
 								n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 							}
-							else {
+							else if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) > 0) {
 								// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
 								SXml::WNode::CDATA(temp_buf);
 								n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
@@ -6178,7 +6178,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 	return ok;
 }
 
-int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID)
+int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID, PPID dlvrLocID)
 {
 	int    ok = 1;
 	PPPersonPacket psn_pack;
@@ -6466,7 +6466,7 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 		}
 		{
 			// @v10.1.5 поменял местами MainLoc и RLoc (приоритет у MainLoc)
-			if(loc_pack.ID && loc_pack.ID == addrLocID)
+			if(!(flags & woifAddrLoc_KppOnly) && loc_pack.ID && loc_pack.ID == addrLocID)
 				WriteAddress(loc_pack, region_code, PPHSC_RU_ADDRESS);
 			else if(psn_pack.Rec.MainLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0)
 				WriteAddress(loc_pack, region_code, PPHSC_RU_ADDRESS);
@@ -6573,8 +6573,8 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 						SXml::WNode n_4(g.P_X, g.GetToken_Ansi(PPHSC_RU_TRANSACTIONCONTENT1));
 						{
 							//SXml::WNode n_41(g.P_X, "ЗагСодОпер"); // @optional
-                            g.WriteParticipant(g.GetToken_Ansi(PPHSC_RU_EXECUTOR), main_org_id);
-                            g.WriteParticipant(g.GetToken_Ansi(PPHSC_RU_CUSTOMER),  ObjectToPerson(rBp.Rec.Object));
+                            g.WriteParticipant(g.GetToken_Ansi(PPHSC_RU_EXECUTOR), main_org_id, 0);
+                            g.WriteParticipant(g.GetToken_Ansi(PPHSC_RU_CUSTOMER),  ObjectToPerson(rBp.Rec.Object), 0);
 							SXml::WNode n_44(g.P_X, g.GetToken_Ansi(PPHSC_RU_FOUNDATION));
 							if(rBp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)
 								SXml::WNode n_45(g.P_X, g.GetToken_Ansi(PPHSC_RU_STATECONTRID), g.EncText(temp_buf));
@@ -6818,9 +6818,20 @@ int WriteBill_NalogRu2_Invoice2(const PPBillPacket & rBp, const char * pHeaderSy
 					SXml::WNode n_1(g.P_X, g.GetToken_Ansi(PPHSC_RU_CONSIGNORINFO));
 					g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_CONSIGNORINFO2), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
 				}
-				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_CONSIGNEEINFO), buyer_psn_id, consignee_loc_id, rBp.Rec.Dt, 0);
+				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_CONSIGNEEINFO), buyer_psn_id, consignee_loc_id, rBp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
 				// } @v10.8.2
-				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
+				{
+					// @v11.4.12 {
+					PPID   _buyer_person_id = 0;
+					PPIDArray rel_list;
+					if(buyer_psn_id && g.PsnObj.GetRelPersonList(buyer_psn_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
+						_buyer_person_id = rel_list.at(0);
+					}
+					else
+						_buyer_person_id = buyer_psn_id;
+					// } @v11.4.12 
+					g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), _buyer_person_id, /*consignee_loc_id*/0, rBp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+				}
 				// @v11.3.1 {
 				{
 					//<ДокПодтвОтгр НаимДокОтгр="Накладная" НомДокОтгр="21-00491132391" ДатаДокОтгр="08.07.2021"/>
@@ -6974,7 +6985,18 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 					}
 				}
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, rBp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
-				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
+				{
+					// @v11.4.12 {
+					PPID   _buyer_person_id = 0;
+					PPIDArray rel_list;
+					if(buyer_psn_id && g.PsnObj.GetRelPersonList(buyer_psn_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
+						_buyer_person_id = rel_list.at(0);
+					}
+					else
+						_buyer_person_id = buyer_psn_id;
+					// } @v11.4.12 
+					g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), _buyer_person_id, /*consignee_loc_id*/0, rBp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+				}
 				// @v11.3.0 {
 				{
 					//<ДокПодтвОтгр НаимДокОтгр="Накладная" НомДокОтгр="21-00491132391" ДатаДокОтгр="08.07.2021"/>
@@ -7112,7 +7134,18 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 					}
 				}
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, rBp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
-				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
+				{
+					// @v11.4.12 {
+					PPID   _buyer_person_id = 0;
+					PPIDArray rel_list;
+					if(buyer_psn_id && g.PsnObj.GetRelPersonList(buyer_psn_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
+						_buyer_person_id = rel_list.at(0);
+					}
+					else
+						_buyer_person_id = buyer_psn_id;
+					// } @v11.4.12 
+					g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), _buyer_person_id, /*consignee_loc_id*/0, rBp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+				}
 				{
 					SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_TRANSACTIONCONTENTEX1));
 					if(rBp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)

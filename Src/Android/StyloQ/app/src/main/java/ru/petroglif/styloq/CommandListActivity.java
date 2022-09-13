@@ -373,7 +373,7 @@ public class CommandListActivity extends SLib.SlActivity {
 					if(ev_subj != null) {
 						if(ev_subj.RvHolder != null) {
 							// RecyclerView
-							if(ListData != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.Items.size()) {
+							if(ListData != null && SLib.IsInRange(ev_subj.ItemIdx, ListData.Items)) {
 								View iv = ev_subj.RvHolder.itemView;
 								StyloQCommand.Item cur_entry = ListData.GetViewItem(ev_subj.ItemIdx);
 								SLib.SetCtrlString(iv, R.id.LVITEM_CMDNAME, cur_entry.Name);

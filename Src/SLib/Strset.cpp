@@ -360,7 +360,7 @@ int StringSet::reverse()
 
 void FASTCALL StringSet::setDelim(const char * pDelim)
 {
-	PTR32(Delim)[0] = 0;
+	Delim[0] = 0;
 	if(pDelim) {
 		const size_t dl = sstrlen(pDelim);
 		assert(dl < sizeof(Delim));

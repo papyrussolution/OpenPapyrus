@@ -1220,6 +1220,21 @@ public:
 };
 
 extern const SlConstParam _SlConst;
+
+template <class T> T * AssignPtr2Ptr(T ** ppDest, const T * pSrc) // @v11.4.12
+{
+	assert(ppDest);
+	if(pSrc) {
+		if(*ppDest)
+			delete *ppDest;
+		*ppDest = new T;
+		**ppDest = *pSrc;
+	}
+	else if(*ppDest) {
+		ZDELETE(*ppDest);
+	}
+	return *ppDest;
+}
 //
 // Прототип функций сравнения и макросы для использования этих функций
 //
@@ -11788,47 +11803,49 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 //   @persistent
 //   Символьные обозначения токенов находятся в строке PPTXT_NATURALTOKENID
 //
-#define SNTOK_UNKN              0
-#define SNTOK_NATURALWORD       1
-#define SNTOK_DIGITCODE         2
-#define SNTOK_EAN13             3
-#define SNTOK_EAN8              4
-#define SNTOK_UPCA              5
-#define SNTOK_UPCE              6
-#define SNTOK_RU_INN            7
-#define SNTOK_EGAISWARECODE     8 // Код алкогольной продукции ЕГАИС
-#define SNTOK_EGAISMARKCODE     9 // Код акцизной марки алкогольной продукции ЕГАИС
-#define SNTOK_LUHN             10 // Цифровая последовательность с контрольной цифрой по алгоритму LUHN в конце
-#define SNTOK_DIGLAT           11 // Алфавитно-цифровая последовательность (содержащая только цифры и латинские символы)
-#define SNTOK_GUID             12 // Общепринятое текстовое представление GUID
-#define SNTOK_EMAIL            13 // Адрес электронной почты
-#define SNTOK_PHONE            14 // Номер телефона
-#define SNTOK_IMEI             15 // Код IMEI (с контрольной цифрой по алгоритму LUHN в конце)
-#define SNTOK_IP4              16 // ip4-address xx.xx.xx.xx
-#define SNTOK_IP6              17 // @todo ip6-address
-#define SNTOK_MACADDR48        18 // @todo MAC-address(48) xx-xx-xx-xx-xx-xx or xx:xx:xx:xx:xx:xx
-#define SNTOK_DATE             19 // date
-#define SNTOK_TIME             20 // time
-#define SNTOK_SOFTWAREVER      21 // 9.9.9
-#define SNTOK_COLORHEX         22 // #hhhhhh
-#define SNTOK_REALNUMBER       23 // 9.9 || .9 || 9. || 9,9
-#define SNTOK_INTNUMBER        24 // 9 || -9
-#define SNTOK_PECENTAGE        25 //
-#define SNTOK_NUMERIC_DOT      26 // Десятичное число с десятичным разделителем точка и опциональными разделителями триад [,'`\x20]
+#define SNTOK_UNKN                       0
+#define SNTOK_NATURALWORD                1
+#define SNTOK_DIGITCODE                  2
+#define SNTOK_EAN13                      3
+#define SNTOK_EAN8                       4
+#define SNTOK_UPCA                       5
+#define SNTOK_UPCE                       6
+#define SNTOK_RU_INN                     7
+#define SNTOK_EGAISWARECODE              8 // Код алкогольной продукции ЕГАИС
+#define SNTOK_EGAISMARKCODE              9 // Код акцизной марки алкогольной продукции ЕГАИС
+#define SNTOK_LUHN                      10 // Цифровая последовательность с контрольной цифрой по алгоритму LUHN в конце
+#define SNTOK_DIGLAT                    11 // Алфавитно-цифровая последовательность (содержащая только цифры и латинские символы)
+#define SNTOK_GUID                      12 // Общепринятое текстовое представление GUID
+#define SNTOK_EMAIL                     13 // Адрес электронной почты
+#define SNTOK_PHONE                     14 // Номер телефона
+#define SNTOK_IMEI                      15 // Код IMEI (с контрольной цифрой по алгоритму LUHN в конце)
+#define SNTOK_IP4                       16 // ip4-address xx.xx.xx.xx
+#define SNTOK_IP6                       17 // @todo ip6-address
+#define SNTOK_MACADDR48                 18 // @todo MAC-address(48) xx-xx-xx-xx-xx-xx or xx:xx:xx:xx:xx:xx
+#define SNTOK_DATE                      19 // date
+#define SNTOK_TIME                      20 // time
+#define SNTOK_SOFTWAREVER               21 // 9.9.9
+#define SNTOK_COLORHEX                  22 // #hhhhhh
+#define SNTOK_REALNUMBER                23 // 9.9 || .9 || 9. || 9,9
+#define SNTOK_INTNUMBER                 24 // 9 || -9
+#define SNTOK_PECENTAGE                 25 //
+#define SNTOK_NUMERIC_DOT               26 // Десятичное число с десятичным разделителем точка и опциональными разделителями триад [,'`\x20]
 	// Допускается лидирующий + или -. Экспоненциальная запись не допускается.
-#define SNTOK_NUMERIC_COM      27 // Десятичное число с десятичным разделителем запятая и опциональными разделителями триад ['`\x20]
+#define SNTOK_NUMERIC_COM               27 // Десятичное число с десятичным разделителем запятая и опциональными разделителями триад ['`\x20]
 	// Допускается лидирующий + или -. Экспоненциальная запись не допускается.
 	// Если число не имеет дробной части, то применяется SNTOK_NUMERIC_DOT
-#define SNTOK_CHZN_GS1_GTIN    28 // честный знак Идентификационный номер GS1 для идентификации товаров regexp: "[0-9]{14}"
-#define SNTOK_CHZN_SIGN_SGTIN  29 // честный знак Индивидуальный серийный номер вторичной упаковки regexp: "[0-9]{14}[&#x21;-&#x22;&#x25;-&#x2F;&#x30;-&#x39;&#x41;-&#x5A;&#x5F;&#x61;-&#x7A;]{13}"
-#define SNTOK_CHZN_SSCC        30 // честный знак Индивидуальный серийный номер третичной/транспортной упаковки regexp: "[0-9]{18}"
-#define SNTOK_CHZN_CIGITEM     31 // честный знак Маркировка пачки сигарет
-#define SNTOK_CHZN_CIGBLOCK    32 // честный знак Маркировка блока сигарет
-#define SNTOK_RU_OKPO          33 // @v10.8.1 Российский код ОКПО
-#define SNTOK_RU_SNILS         34 // @v10.8.1 Российский код СНИЛС
-#define SNTOK_RU_BIC           35 // @v10.8.1 Российский банковский идентификационный код (БИК)
-#define SNTOK_RU_KPP           36 // @v10.8.2 Российский код причины постановки на налоговый учет (КПП)
-#define SNTOK_LINGUACODE       37 // @v11.3.12 Код естественного языка
+#define SNTOK_CHZN_GS1_GTIN             28 // честный знак Идентификационный номер GS1 для идентификации товаров regexp: "[0-9]{14}"
+#define SNTOK_CHZN_SIGN_SGTIN           29 // честный знак Индивидуальный серийный номер вторичной упаковки regexp: "[0-9]{14}[&#x21;-&#x22;&#x25;-&#x2F;&#x30;-&#x39;&#x41;-&#x5A;&#x5F;&#x61;-&#x7A;]{13}"
+#define SNTOK_CHZN_SSCC                 30 // честный знак Индивидуальный серийный номер третичной/транспортной упаковки regexp: "[0-9]{18}"
+#define SNTOK_CHZN_CIGITEM              31 // честный знак Маркировка пачки сигарет
+#define SNTOK_CHZN_CIGBLOCK             32 // честный знак Маркировка блока сигарет
+#define SNTOK_RU_OKPO                   33 // @v10.8.1 Российский код ОКПО
+#define SNTOK_RU_SNILS                  34 // @v10.8.1 Российский код СНИЛС
+#define SNTOK_RU_BIC                    35 // @v10.8.1 Российский банковский идентификационный код (БИК)
+#define SNTOK_RU_KPP                    36 // @v10.8.2 Российский код причины постановки на налоговый учет (КПП)
+#define SNTOK_LINGUACODE                37 // @v11.3.12 Код естественного языка
+#define SNTOK_CHZN_SURROGATE_GTIN       38 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14)
+#define SNTOK_CHZN_SURROGATE_GTINCOUNT  39 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14 37 COUNT)
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z

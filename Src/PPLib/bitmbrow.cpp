@@ -2687,12 +2687,12 @@ int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeConta
 									mark_buf.Z();
 									ean_buf.Z();
 									const int iemr = PrcssrAlcReport::IsEgaisMark(entry.Code, &mark_buf);
-									const int pczcr = PPChZnPrcssr::ParseChZnCode(entry.Code, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-									if(iemr || pczcr) {
-										if(pczcr)
+									const int ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(entry.Code, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+									if(iemr || ipczcr > 0) {
+										if(ipczcr > 0)
 											gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 										if(mode == issebpmodeLotExtCodes) {
-											if(pczcr) {
+											if(ipczcr > 0) {
 												int   found_row_idx = 0;
 												if(pLxc->Search(mark_buf, &found_row_idx, 0)) {
 													//PPTXT_STYLOSCRIMP_MARKYETINDOC      "Импорт StyloScanner: марка %s уже есть в документе %s"
@@ -2882,10 +2882,10 @@ public:
 					if(!done) {
 						GtinStruc gts;
 						const int iemr  = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-						if(pczcr)
+						const int ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+						if(ipczcr > 0)
 							gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
-						if(!iemr && !pczcr) {
+						if(!iemr && (ipczcr <= 0)) {
 							if(P_LotXcT) {
 								if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) // @v10.8.2 
 									ok = 1;
@@ -2907,7 +2907,7 @@ public:
 							else {
 								/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
 									rSet.AddBox(0, mark_buf, 1);*/
-								if(oneof5(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
+								if(ipczcr > 0) {
 									long last_box_id = set.SearchLastBox(-1);
 									set.AddNum(last_box_id, mark_buf, 1);
 								}
@@ -2951,8 +2951,8 @@ protected:
 			if(getCurItem(&cur_pos, &cur_id) && getText(cur_pos, text_buf)) {
 				GtinStruc gts;
 				const int iemr = PrcssrAlcReport::IsEgaisMark(text_buf, 0);
-				const int pczcr = PPChZnPrcssr::ParseChZnCode(text_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-				if(!iemr && pczcr) {
+				const int ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(text_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+				if(!iemr && ipczcr > 0) {
 					SString serial_buf;
 					gts.GetToken(GtinStruc::fldGTIN14, &text_buf);
 					gts.GetToken(GtinStruc::fldSerial, &serial_buf);
@@ -3353,10 +3353,10 @@ private:
 				if(!done) {
 					GtinStruc gts;
 					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-					if(pczcr)
+					const int ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+					if(ipczcr > 0)
 						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
-					if(!iemr && !pczcr) {
+					if(!iemr && ipczcr <= 0) {
 						if(P_LotXcT) {
 							//if(P_LotXcT->FindMarkToTransfer(temp_buf, goods_id, lot_id, rSet) > 0)
 								ok = 1;
@@ -3561,10 +3561,10 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 					SString mark_buf;
 					GtinStruc gts;
 					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-					if(pczcr)
+					const int ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+					if(ipczcr > 0)
 						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
-					if(!iemr && !pczcr) {
+					if(!iemr && ipczcr <= 0) {
 						if(P_LotXcT) {
 							if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0) // @v10.8.2 
 								ok = 1;
@@ -3588,8 +3588,8 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 						else {
 							/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
 								rSet.AddBox(0, mark_buf, 1);*/
-							if(oneof5(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
-								long last_box_id = rSet.SearchLastBox(-1);
+							if(ipczcr > 0) {
+								const long last_box_id = rSet.SearchLastBox(-1);
 								rSet.AddNum(last_box_id, mark_buf, 1);
 							}
 							else

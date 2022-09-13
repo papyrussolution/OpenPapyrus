@@ -178,7 +178,7 @@ public class FaceActivity extends SLib.SlActivity {
 			case SLib.EV_CREATEFRAGMENT:
 				if(subj instanceof Integer) {
 					int item_idx = (Integer)subj;
-					if(TabList != null && item_idx >= 0 && item_idx < TabList.size()) {
+					if(SLib.IsInRange(item_idx, TabList)) {
 						TabEntry cur_entry = (TabEntry)TabList.get(item_idx);
 						result = cur_entry.TabView;
 					}

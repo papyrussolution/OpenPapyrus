@@ -11373,6 +11373,7 @@
 #define DLG_STQINLCPARAM          1420 // @v11.4.6 // cchecks
 #define DLG_STQINLSPARAM          1421 // @v11.4.6 // tsession
 #define DLG_STQINLTPARAM          1422 // @v11.4.6 // todo
+	#define cmStatusList                     101 // Команда редактирования списка статусов, которые может устанавливать клиент 
 	#define CTL_STQINLPARAM_LBD              (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQINLPARAM_LOC              (2  + WINDOWS_ID_BIAS)
 	#define CTLSEL_STQINLPARAM_LOC           (3  + WINDOWS_ID_BIAS)
@@ -11390,6 +11391,14 @@
 	#define CTL_STQINLPARAM_ACTIONS          (15 + WINDOWS_ID_BIAS)
 	#define CTL_STQINLPARAM_PERIOD           (16 + WINDOWS_ID_BIAS)
 	#define CTLCAL_STQINLPARAM_PERIOD        (17 + WINDOWS_ID_BIAS)
+#define DLG_STQSTATUSL            1423
+	#define CTL_STQSTATUSL_LIST              (1  + WINDOWS_ID_BIAS)
+#define DLG_STQSTATUSE            1424
+	#define CTL_STQSTATUSE_NAME              (1  + WINDOWS_ID_BIAS) 
+	#define CTL_STQSTATUSE_STATUS            (2  + WINDOWS_ID_BIAS) 
+	#define CTLSEL_STQSTATUSE_STATUS         (3  + WINDOWS_ID_BIAS) 
+	#define CTL_STQSTATUSE_FLAGS             (4  + WINDOWS_ID_BIAS) 
+	#define CTL_STQSTATUSE_RSRVST            (5  + WINDOWS_ID_BIAS) 
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

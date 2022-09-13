@@ -3423,8 +3423,7 @@ int PPViewCCheck::ExportToChZn() // @v11.0.1
 			for(uint i = 0; !suitable && p_temp_cc_pack->EnumLines(&i, &ccitem) > 0;) {
 				if(p_temp_cc_pack->GetLineTextExt(i, CCheckPacket::lnextChZnMark, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 					GtinStruc gts;
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-					if(pczcr > 0)
+					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0)
 						suitable = true;
 				}
 			}

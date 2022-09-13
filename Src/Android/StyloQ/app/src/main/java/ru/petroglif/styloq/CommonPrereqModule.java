@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -147,12 +148,14 @@ public class CommonPrereqModule {
 		{
 			Index = null;
 			ObjTypeList = null;
+			SearchPattern = null;
 			SearchResult = null;
 			RestrictionObjType = 0;
 			RestrictionObjTypeCombonJustInited = false;
 		}
 		ArrayList<IndexEntry> Index;
 		ArrayList<Integer> ObjTypeList; // @v11.4.10
+		String SearchPattern; // @v11.4.11
 		Result SearchResult;
 		int   RestrictionObjType; // @v11.4.10
 		boolean RestrictionObjTypeCombonJustInited; // @v11.4.10 Специальный флаг, препятствующий обработке
@@ -950,7 +953,7 @@ public class CommonPrereqModule {
 					if(tv_ind_img != null && tv_ind_img instanceof ImageView) {
 						if(tv_ind_img.getVisibility() != View.VISIBLE)
 							tv_ind_img.setVisibility(View.VISIBLE);
-						((ImageView) tv_ind_img).setImageResource(R.drawable.ic_stopwatch);
+						((ImageView)tv_ind_img).setImageResource(R.drawable.ic_stopwatch);
 					}
 				}
 			}
@@ -1140,7 +1143,7 @@ public class CommonPrereqModule {
 		final int min_pattern_len_code = 5;
 		final int min_pattern_len_ruinn = 8;
 		final int min_pattern_len_rukpp = 6;
-		final int max_result_count = 100;
+		final int max_result_count = 1000;
 		boolean result = false;
 		StyloQApp app_ctx = GetAppCtx();
 		if(app_ctx != null) {
@@ -2136,6 +2139,25 @@ public class CommonPrereqModule {
 			return convertView; // Return the completed view to render on screen
 		}
 	}
+	private void SetupSearchPaneObjRestrictionIcon(View fragmentView)
+	{
+		if(fragmentView != null) {
+			View v = fragmentView.findViewById(R.id.CTLBUT_SEARCHPANE_OPTIONS);
+			if(v != null && v instanceof ImageButton) {
+				int rc_id = R.drawable.ic_asterisk01;
+				switch(SsB.RestrictionObjType) {
+					case SLib.PPOBJ_GOODS: rc_id = R.drawable.ic_obj_goods_kanji_054c1; break;
+					case SLib.PPOBJ_GOODSGROUP: rc_id = R.drawable.ic_obj_goodsgroup; break;
+					case SLib.PPOBJ_BRAND: rc_id = R.drawable.ic_obj_brand01; break;
+					case SLib.PPOBJ_PERSON: rc_id = R.drawable.ic_client01; break;
+					case SLib.PPOBJ_LOCATION: rc_id = R.drawable.ic_dlvrloc01; break;
+					case SLib.PPOBJ_PROCESSOR: rc_id = R.drawable.ic_worker_stylist01; break;
+					default: rc_id = R.drawable.ic_asterisk01; break;
+				}
+				((ImageButton)v).setImageResource(rc_id);
+			}
+		}
+	}
 	protected boolean OpenSearchPaneObjRestriction(View fragmentView)
 	{
 		boolean result = false;
@@ -2158,6 +2180,7 @@ public class CommonPrereqModule {
 			}
 			else
 				SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.GONE);
+			SetupSearchPaneObjRestrictionIcon(fragmentView);
 		}
 		return result;
 	}
@@ -2170,10 +2193,28 @@ public class CommonPrereqModule {
 			if(objType >= 0) {
 				SsB.RestrictionObjType = objType;
 				SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.GONE);
+				SearchPaneRunSearch(fragmentView);
 				result = true;
 			}
 		}
+		SetupSearchPaneObjRestrictionIcon(fragmentView);
 		return result;
+	}
+	private void SearchPaneRunSearch(View fragmentView)
+	{
+		if(ActivityInstance != null) {
+			boolean sr = SearchInSimpleIndex(SsB.SearchPattern);
+			String srit = SsB.SearchResult.GetSearchResultInfoText();
+			if(!sr && SsB.SearchResult != null)
+				SsB.SearchResult.Clear();
+			SLib.SetCtrlString(fragmentView, R.id.CTL_SEARCHPANE_RESULTINFO, srit);
+			View lv = ActivityInstance.findViewById(R.id.searchPaneListView);
+			if(lv != null && lv instanceof RecyclerView) {
+				RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
+				if(gva != null)
+					gva.notifyDataSetChanged();
+			}
+		}
 	}
 	protected void SetupSearchPaneListView(View fragmentView, View listView)
 	{
@@ -2181,10 +2222,12 @@ public class CommonPrereqModule {
 			((RecyclerView)listView).setLayoutManager(new LinearLayoutManager(ActivityInstance));
 			ActivityInstance.SetupRecyclerListView(fragmentView, R.id.searchPaneListView, R.layout.li_searchpane_result);
 			{
+				SetupSearchPaneObjRestrictionIcon(fragmentView);
 				View iv = fragmentView.findViewById(R.id.CTL_SEARCHPANE_INPUT);
 				if(iv != null && iv instanceof TextInputEditText) {
+					((TextInputEditText)iv).setText(SsB.SearchPattern);
 					SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.GONE);
-					TextInputEditText tiv = (TextInputEditText) iv;
+					TextInputEditText tiv = (TextInputEditText)iv;
 					tiv.requestFocus();
 					tiv.addTextChangedListener(new TextWatcher() {
 						public void afterTextChanged(Editable s)
@@ -2197,18 +2240,8 @@ public class CommonPrereqModule {
 						}
 						public void onTextChanged(CharSequence s, int start, int before, int count)
 						{
-							String pattern = s.toString();
-							boolean sr = SearchInSimpleIndex(pattern);
-							String srit = SsB.SearchResult.GetSearchResultInfoText();
-							if(!sr && SsB.SearchResult != null)
-								SsB.SearchResult.Clear();
-							SLib.SetCtrlString(fragmentView, R.id.CTL_SEARCHPANE_RESULTINFO, srit);
-							View lv = ActivityInstance.findViewById(R.id.searchPaneListView);
-							if(lv != null && lv instanceof RecyclerView) {
-								RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
-								if(gva != null)
-									gva.notifyDataSetChanged();
-							}
+							SsB.SearchPattern = s.toString();
+							SearchPaneRunSearch(fragmentView);
 						}
 					});
 				}

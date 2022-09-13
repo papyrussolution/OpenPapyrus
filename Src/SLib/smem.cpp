@@ -610,55 +610,51 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 		bm = 2;
 	else if(sstreqi_ascii(pBenchmark, "A_memmove"))
 		bm = 3;
+	else if(sstreqi_ascii(pBenchmark, "char[0]=0")) // @v11.4.11
+		bm = 4;
+	else if(sstreqi_ascii(pBenchmark, "PTR32(char)[0]=0")) // @v11.4.11
+		bm = 5;
+	else if(sstreqi_ascii(pBenchmark, "PTR64(char)[0]=0")) // @v11.4.11
+		bm = 6;
 	else
 		SetInfo("invalid benchmark");
 	if(bm >= 0) {
-		size_t s;
-		for(s = 1; s <= bs/4; s++) {
-			const size_t start = bs/4;
-			const size_t zone  = bs/2;
-			for(size_t offs = start; offs < (start+zone-s); offs++) {
-				const size_t src  = offs;
-				const size_t dest = bs-offs-s;
-				assert(src >= start && src < start+zone);
-				assert(dest >= start && dest < start+zone);
-				if(bm == 0) {
-					//
-					// Тестируем A_memmove
-					// Она должна скопировать блок длиной s из одной части F.P_Bytes в другую не задев
-					// сопредельные участки памяти. Результат копирования сравниваем с F.P_Pattern
-					//
-					//memmovo(F.P_Bytes+dest, F.P_Bytes+src, s);
-					A_memmove(F.P_Bytes+dest, F.P_Bytes+src, s);
-					THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest, F.P_Pattern+src, s)));
-					THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes, F.P_Pattern, dest)));
-					THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest+s, F.P_Pattern+dest+s, BYTES_SIZE-dest-s)));
-					//
-					// Стандартная процедура копирования для восстановления эквивалентности P_Bytes и P_Pattern
-					// Закладываемся на то, что memmove работает правильно.
-					// В случае бенчмарка этот вызов "разбавляет" кэш за счет обращения к отличному от F.P_Bytes
-					// блоку памяти.
-					//
-					memmove(F.P_Pattern+dest, F.P_Pattern+src, s);
+		if(oneof3(bm, 4, 5, 6)) {
+			const uint iter_count = 4000000;
+			STempBuffer zbuf(iter_count*8);
+			LongArray idx_list;
+			{
+				SRandGenerator & r_rg = SLS.GetTLA().Rg;
+				for(uint i = 0; i < iter_count; i++) {
+					long idx = static_cast<long>(r_rg.GetUniformInt(iter_count-8));
+					assert(idx >= 0 && idx < (iter_count-8));
+					idx_list.add(idx);
 				}
-				else if(bm == 1) {
-					memmovo(F.P_Bytes+dest, F.P_Bytes+src, s);
-					memmovo(F.P_Pattern+dest, F.P_Pattern+src, s);
+			}
+			if(bm == 4) {
+				assert(idx_list.getCount() == iter_count);
+				for(uint i = 0; i < iter_count; i++) {
+					const long idx = idx_list.get(i);
+					static_cast<char *>(zbuf.vptr())[idx] = 0;
 				}
-				else if(bm == 2) {
-					memmove(F.P_Bytes+dest, F.P_Bytes+src, s);
-					memmove(F.P_Pattern+dest, F.P_Pattern+src, s);
+			}
+			else if(bm == 5) {
+				assert(idx_list.getCount() == iter_count);
+				for(uint i = 0; i < iter_count; i++) {
+					const long idx = idx_list.get(i);
+					PTR32(zbuf.vptr())[idx] = 0;
 				}
-				else if(bm == 3) {
-					A_memmove(F.P_Bytes+dest, F.P_Bytes+src, s);
-					A_memmove(F.P_Pattern+dest, F.P_Pattern+src, s);
+			}
+			else if(bm == 6) {
+				assert(idx_list.getCount() == iter_count);
+				for(uint i = 0; i < iter_count; i++) {
+					const long idx = idx_list.get(i);
+					PTR64(zbuf.vptr())[idx] = 0;
 				}
 			}
 		}
-		//
-		// Тестирование A_memset и ismemzero
-		//
-		if(bm == 0) {
+		else {
+			size_t s;
 			for(s = 1; s <= bs/4; s++) {
 				const size_t start = bs/4;
 				const size_t zone  = bs/2;
@@ -667,18 +663,64 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 					const size_t dest = bs-offs-s;
 					assert(src >= start && src < start+zone);
 					assert(dest >= start && dest < start+zone);
-					//
-					// Тестируем A_memset
-					// Она должна обнулить заданный участок памяти не задев сопредельные участки.
-					//
-					A_memset(F.P_Bytes+dest, 0, s);
-					THROW(SLTEST_CHECK_NZ(ismemzero(F.P_Bytes+dest, s)));
-					THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes, F.P_Pattern, dest)));
-					THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest+s, F.P_Pattern+dest+s, BYTES_SIZE-dest-s)));
-					//
-					// Возвращаем назад содержимое F.P_Bytes[dest..s-1]
-					//
-					memmove(F.P_Bytes+dest, F.P_Pattern+dest, s);
+					if(bm == 0) {
+						//
+						// Тестируем A_memmove
+						// Она должна скопировать блок длиной s из одной части F.P_Bytes в другую не задев
+						// сопредельные участки памяти. Результат копирования сравниваем с F.P_Pattern
+						//
+						//memmovo(F.P_Bytes+dest, F.P_Bytes+src, s);
+						A_memmove(F.P_Bytes+dest, F.P_Bytes+src, s);
+						THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest, F.P_Pattern+src, s)));
+						THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes, F.P_Pattern, dest)));
+						THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest+s, F.P_Pattern+dest+s, BYTES_SIZE-dest-s)));
+						//
+						// Стандартная процедура копирования для восстановления эквивалентности P_Bytes и P_Pattern
+						// Закладываемся на то, что memmove работает правильно.
+						// В случае бенчмарка этот вызов "разбавляет" кэш за счет обращения к отличному от F.P_Bytes
+						// блоку памяти.
+						//
+						memmove(F.P_Pattern+dest, F.P_Pattern+src, s);
+					}
+					else if(bm == 1) {
+						memmovo(F.P_Bytes+dest, F.P_Bytes+src, s);
+						memmovo(F.P_Pattern+dest, F.P_Pattern+src, s);
+					}
+					else if(bm == 2) {
+						memmove(F.P_Bytes+dest, F.P_Bytes+src, s);
+						memmove(F.P_Pattern+dest, F.P_Pattern+src, s);
+					}
+					else if(bm == 3) {
+						A_memmove(F.P_Bytes+dest, F.P_Bytes+src, s);
+						A_memmove(F.P_Pattern+dest, F.P_Pattern+src, s);
+					}
+				}
+			}
+			//
+			// Тестирование A_memset и ismemzero
+			//
+			if(bm == 0) {
+				for(s = 1; s <= bs/4; s++) {
+					const size_t start = bs/4;
+					const size_t zone  = bs/2;
+					for(size_t offs = start; offs < (start+zone-s); offs++) {
+						const size_t src  = offs;
+						const size_t dest = bs-offs-s;
+						assert(src >= start && src < start+zone);
+						assert(dest >= start && dest < start+zone);
+						//
+						// Тестируем A_memset
+						// Она должна обнулить заданный участок памяти не задев сопредельные участки.
+						//
+						A_memset(F.P_Bytes+dest, 0, s);
+						THROW(SLTEST_CHECK_NZ(ismemzero(F.P_Bytes+dest, s)));
+						THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes, F.P_Pattern, dest)));
+						THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest+s, F.P_Pattern+dest+s, BYTES_SIZE-dest-s)));
+						//
+						// Возвращаем назад содержимое F.P_Bytes[dest..s-1]
+						//
+						memmove(F.P_Bytes+dest, F.P_Pattern+dest, s);
+					}
 				}
 			}
 		}

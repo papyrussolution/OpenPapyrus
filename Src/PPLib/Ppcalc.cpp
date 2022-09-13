@@ -626,8 +626,7 @@ int PPCalculator(void * hParentWnd, const char * pInitData)
 				// @v11.0.2 {
 				{
 					GtinStruc gts;
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(input, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-					if(pczcr) {
+					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(input, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk)) > 0) {
 						SString temp_buf;
 						SString serial_buf;
 						gts.GetToken(GtinStruc::fldGTIN14, &temp_buf);

@@ -326,6 +326,12 @@ public class GTIN {
 			};
 		}
 	}
+	public GTIN Z()
+	{
+		L = null;
+		SpecialNaturalToken = 0;
+		return this;
+	}
 	void AddOnlyToken(int token)
 	{
 		if(SLib.SIntToSymbTab_HasId(GtinPrefix, token)) {
@@ -569,6 +575,7 @@ public class GTIN {
 	int Parse(String _Code)
 	{
 		int    ok = 1;
+		Z();
 		try {
 			if(SLib.GetLen(_Code) > 0) {
 				String code_buf = null;
@@ -775,12 +782,14 @@ public class GTIN {
 	public static GTIN ParseChZnCode(String code, int flags)
 	{
 		GTIN result = new GTIN();
+		final int serial_len_variant_list[] = { 13, 12, 11, 8, 6 };
+		int serial_len_variant_idx = 0;
 		result.ChZnParseResult = 0;
 		result.AddSpecialStopChar('\u001D');
 		result.AddSpecialStopChar('\u00E8');
 		result.AddOnlyToken(fldGTIN14);
 		result.AddOnlyToken(fldSerial);
-		result.SetSpecialFixedToken(fldSerial, 13);
+		result.SetSpecialFixedToken(fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx]); serial_len_variant_idx++;
 		result.AddOnlyToken(fldPart);
 		result.AddOnlyToken(fldAddendumId);
 		result.AddOnlyToken(fldUSPS); //
@@ -817,14 +826,20 @@ public class GTIN {
 				code = temp_buf;
 			}
 			pr = result.Parse(code);
-			if(pr != 1 && result.GetToken(fldGTIN14) != null) {
+			if(result.GetToken(fldGTIN14) != null) {
+				while(pr != 1 && serial_len_variant_idx < serial_len_variant_list.length) {
+					result.SetSpecialFixedToken(fldSerial, serial_len_variant_list[serial_len_variant_idx]); serial_len_variant_idx++;
+					pr = result.Parse(code);
+				}
+			}
+			/*if(pr != 1 && result.GetToken(fldGTIN14) != null) {
 				result.SetSpecialFixedToken(fldSerial, 12);
 				pr = result.Parse(code);
 				if(pr != 1 && result.GetToken(fldGTIN14) != null) {
 					result.SetSpecialFixedToken(fldSerial, 11);
 					pr = result.Parse(code);
 				}
-			}
+			}*/
 			if(pr == 1) {
 				if(result.GetToken(fldGTIN14) != null && (temp_buf = result.GetToken(fldSerial)) != null) {
 					if(result.GetSpecialNaturalToken() == STokenRecognizer.SNTOK_CHZN_CIGITEM)

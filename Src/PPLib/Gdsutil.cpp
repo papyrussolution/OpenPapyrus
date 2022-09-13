@@ -531,7 +531,8 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 		}
 		else {
 			GtinStruc gts;
-			if(PPChZnPrcssr::ParseChZnCode(pBlk->Code, gts, 0) > 0) {
+			const int pczcr = PPChZnPrcssr::ParseChZnCode(pBlk->Code, gts, 0);
+			if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) != PPChZnPrcssr::chznciNone) {
 				SString temp_buf;
 				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 					assert(temp_buf.Len() == 14);
@@ -558,6 +559,7 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 						// @v10.9.0 STRNSCPY(pBlk->ChZnCode, pBlk->Code); // @v10.6.9
 						gts.GetToken(GtinStruc::fldOriginalText, &temp_buf);
 						STRNSCPY(pBlk->ChZnCode, temp_buf); // @v10.9.0
+						STRNSCPY(pBlk->Code, temp_buf); // @v11.4.12
 						ok = 1;
 					}
 				}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/DLG_SUBSTTIFORUNASSIGNEDMARK"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minHeight="240dp"
+    android:minWidth="180dp"
+    android:padding="4dp"
+    >
+    <TextView
+        android:id="@+id/CTL_SUBSTTIFORUNASSIGNEDMARK_HINT"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_margin="4dp"
+        android:padding="4dp"
+        android:maxLines="2"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="12sp"
+        android:textColor="@color/TextPrimary"
+        android:background="@drawable/shape_viewframe"
+        />
+    <TextView
+        android:id="@+id/CTL_SUBSTTIFORUNASSIGNEDMARK_MARK"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_margin="4dp"
+        android:padding="4dp"
+        android:maxLines="1"
+        android:fontFamily="sans-serif-condensed"
+        android:textSize="11sp"
+        android:textColor="@color/TextPrimary"
+        android:background="@drawable/shape_viewframe"
+        />
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/CTL_SUBSTTIFORUNASSIGNEDMARK_TILIST"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            layoutManager="LinearLayoutManager" />
+    </ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:gravity="right">
+        <Button style="@style/PushButton" android:id="@+id/STDCTL_OKBUTTON"
+            android:text="@{but_ok}" />
+        <Button style="@style/PushButton" android:id="@+id/STDCTL_CANCELBUTTON"
+            android:text="@{but_cancel}" />
+    </LinearLayout>
+</LinearLayout>

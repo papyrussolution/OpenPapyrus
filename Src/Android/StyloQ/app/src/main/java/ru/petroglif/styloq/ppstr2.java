@@ -2186,6 +2186,8 @@ class ppstr2 {
 	public static final int PPERR_INCOMINGBILLHASNTTI = 12167;
 	public static final int PPERR_QTTYMUSTBEGEZ = 12168;
 	public static final int PPERR_QTTYMUSTBEGTZ = 12169;
+	public static final int PPERR_STQ_UNDEFOPFORINCOMINGLIST = 12170;
+	public static final int PPERR_DUPEXTLOTCODEINBILL = 12171;
 	//
 	// .N.
 	//
@@ -4503,6 +4505,7 @@ class ppstr2 {
 	public static final int PPTXT_LOG_STQPREPAREAHEAD_NTD = 12062;
 	public static final int PPTXT_LOG_STQPREPAREAHEAD_DONE = 12063;
 	public static final int PPTXT_STQ_HINT_GOTOSVCORDFINISHING = 12064;
+	public static final int PPTXT_SELECTTIROWFORMARKSUBST = 12065;
 	//
 	// .N.
 	//

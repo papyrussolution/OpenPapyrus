@@ -534,7 +534,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					StyloQApp app_ctx = (StyloQApp)getApplication();
-					if(ev_subj != null && app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.size()) {
+					if(ev_subj != null && app_ctx != null && SLib.IsInRange(ev_subj.ItemIdx, ListData)) {
 						ListEntry cur_entry = ListData.get(ev_subj.ItemIdx);
 						if(cur_entry != null) {
 							if(ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.buttonInfo) {
@@ -558,7 +558,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					StyloQApp app_ctx = (StyloQApp)getApplication();
-					if(ev_subj != null && app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.size()) {
+					if(ev_subj != null && app_ctx != null && SLib.IsInRange(ev_subj.ItemIdx, ListData)) {
 						SetTouchedItemIndex(ev_subj.ItemIdx);
 						ListEntry cur_entry = ListData.get(ev_subj.ItemIdx);
 						if(cur_entry != null) {
@@ -574,7 +574,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					if(ev_subj != null) {
 						if(ev_subj.RvHolder != null) {
 							// RecyclerView
-							if(ListData != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.size()) {
+							if(SLib.IsInRange(ev_subj.ItemIdx, ListData)) {
 								final ListEntry cur_entry = ListData.get(ev_subj.ItemIdx);
 								if(cur_entry != null) {
 									View iv = ev_subj.RvHolder.itemView;

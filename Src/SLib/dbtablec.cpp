@@ -332,7 +332,7 @@ int DBTable::Init(DbProvider * pDbP)
 	flags   = 0;
 	tableID = 0;
 	ownrLvl = 0;
-	PTR32(tableName)[0] = 0;
+	tableName[0] = 0;
 	fileName.Z();
 	indexes.setTableRef(offsetof(DBTable, indexes));
 	PageSize = 0;

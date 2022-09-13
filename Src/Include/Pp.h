@@ -33315,12 +33315,18 @@ public:
 	void   EndDocument();
 	int    WriteInvoiceItems(const FileInfo & rHi, const PPBillPacket & rBp);
 	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
+	// 
+	// Descr: Флаги функции WriteOrgInfo
+	//
+	enum {
+		woifAddrLoc_KppOnly = 0x0001 // Адрес addrLocID использовать только для извлечения КПП
+	};
 	int    WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
 	int    WriteOrgInfo_VatLedger(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
 	//
 	// Descr: Записывает тип "УчастникТип"
 	//
-	int    WriteParticipant(const char * pHeaderTag, PPID psnID);
+	int    WriteParticipant(const char * pHeaderTag, PPID psnID, PPID dlvrLocID);
 	//
 	// Descr: Разбивает строку pName на фамилию/имя/отчество и записывает их тегами либо атрибутами
 	//   в зависимости от параметра asTags внутри тега с именем, определямемым идентификатором parentTokId.
@@ -46965,7 +46971,24 @@ public:
 		fBillWithMarksOnly        = 0x0001, // Только документы, в которых есть марки честный знак или егаис
 		fBillWithMarkedGoodsOnly  = 0x0002  // Только документы, содержащие товары, подлежащие маркировке
 	};
-
+	struct DocStatus {
+		DocStatus();
+		//
+		// Descr: Зарезервированные варианты статусов, проецируемые на клиента
+		//
+		enum {
+			rUndef = 0,
+			rAccepted = 1,
+			rRejected = 2
+		};
+		enum {
+			fBillFlagDeclined = 0x0001 // Вместо (или одновременно) указания статуса, документу присваивается флаг BILLF2_DECLINED
+		};
+		PPID   StatusID;
+		long   ReservedCase; // DocStatus::rXXX
+		long   Flags;
+		char   NameUtf8[128]; // utf8 Наименование для клиента 
+	};
 	uint8  ReserveStart[48];
 	DateRange Period;  // Это - отладочный критерий. В реальности должен использоваться LookbackDays, но так как тестовые 
 		// базы данных не меняются, то LookbackDays при разработке использовать затруднительно.
@@ -46983,7 +47006,9 @@ public:
 	PrjTaskFilt * P_TdF;
 	TSessionFilt * P_TsF;
 	CCheckFilt * P_CcF;
+	TSVector <DocStatus> StatusList; // @v11.4.12 Список правил установки статуса
 private:
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	int    InitInstance();
 };
 
@@ -50189,6 +50214,27 @@ public:
 		ptMedicine = GTCHZNPT_MEDICINE //
 	};
 	static int FASTCALL IsChZnCode(const char * pCode);
+	//
+	// Descr: Варианты интерпретации результата функции ParseChZnCode
+	// Note: Значение больше нуля трактуется как марка, пригодная к обработке честным знаком
+	//
+	enum {
+		chznciNone = 0, // Код ни на что не похож. 
+		chznciReal = 1, // Валидный код марки честный знак
+		chznciSurrogate = -1, // Суррогатный код (не является кодом марки, но из кода можно извлечь полезную информацию: GTIN и, возможно, количество)
+		chznciPretend   = 1000 // Разбор кода закончился ошибкой, но тем не менее в нем есть GTIN и серия.
+	};
+	static int InterpretChZnCodeResult(int r)
+	{
+		if(r == 1000)
+			return chznciPretend;
+		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
+			return chznciSurrogate;
+		else if(oneof5(r, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN, SNTOK_CHZN_SSCC))
+			return chznciReal;
+		else
+			return chznciNone;
+	}
 	enum {
 		pchzncfPretendEverythingIsOk = 0x0001
 	};
