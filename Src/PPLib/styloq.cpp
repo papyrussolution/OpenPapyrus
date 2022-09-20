@@ -10975,7 +10975,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 													ms.AddNum(0, r_lec.Code, 1);
 											}
 											if(ms.GetCount())
-												p_bpack->XcL.Add(i+1, ms);
+												p_bpack->XcL.Set_2(i+1, &ms);
 										}
 									}
 								}
@@ -11003,7 +11003,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 													ms.AddNum(0, r_lec.Code, 1);
 											}
 											if(ms.GetCount())
-												p_bpack->XcL.Add(new_item_idx+1, ms);
+												p_bpack->XcL.Set_2(new_item_idx+1, &ms);
 										}
 									}
 								}
@@ -11042,6 +11042,23 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 									temp_buf.Z().Cat(_uuid, S_GUID::fmtIDL);
 									p_js_reply->InsertString("document-uuid", temp_buf);
 								}
+								// @v11.5.1 {
+								{
+									//
+									// Возвращаем клиенту новый документ, чтобы он мог обновить его в своем хранилище
+									//
+									PPBillPacket new_bpack;
+									if(p_bobj->ExtractPacket(result_obj_id, &new_bpack) > 0) {
+										PPStyloQInterchange::Document new_doc;
+										if(new_doc.FromBillPacket(new_bpack, 0)) {
+											SJson * p_js_doc = new_doc.ToJsonObject();
+											THROW(p_js_doc);
+											p_js_reply->Insert("doc", p_js_doc);
+											p_js_doc = 0;
+										}
+									}
+								}
+								// } @v11.5.1 
 								p_js_reply->InsertString("result", "ok");
 							}
 							do_store_original_doc = true;

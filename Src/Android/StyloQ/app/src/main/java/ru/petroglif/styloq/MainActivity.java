@@ -5,6 +5,8 @@ package ru.petroglif.styloq;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -488,7 +490,14 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									db.SetupPeerInstance();
 									MakeListData(db);
 								}
-							} catch(StyloQException e) {
+								{
+									//View v = findViewById(R.id.CTL_MAIN_VERSION);
+									//if(v != null && v instanceof TextView) {
+									PackageInfo pInfo = app_ctx.getPackageManager().getPackageInfo(app_ctx.getPackageName(), 0);
+									String version = pInfo.versionName;
+									SLib.SetCtrlString(this, R.id.CTL_MAIN_VERSION, version);
+								}
+							} catch(StyloQException | PackageManager.NameNotFoundException e) {
 								;
 							}
 						}

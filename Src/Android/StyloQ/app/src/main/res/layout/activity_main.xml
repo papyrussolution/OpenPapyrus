@@ -21,11 +21,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
-            <ImageView
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_styloq_logo">
-            </ImageView>
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_margin="8dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_styloq_logo">
+                </ImageView>
+                <TextView style="@style/PageHeaderTitleText"
+                    android:id="@+id/CTL_MAIN_VERSION"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="2dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textSize="10sp"/>
+            </LinearLayout>
             <View style="@style/FakeView"/>
             <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
                 android:layout_gravity="center_vertical|right"

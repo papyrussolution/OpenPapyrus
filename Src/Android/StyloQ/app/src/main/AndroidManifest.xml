@@ -71,7 +71,8 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:label="@string/title_activity_face_list" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
