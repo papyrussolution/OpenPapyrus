@@ -223,6 +223,31 @@ static void InitTest()
 	}
 	{
 		//
+		// Проверяем работоспособность *& для присваивания указателя по ссылке.
+		//
+		static struct LocalData {
+			LocalData(int a, double b) : A(a), B(b)
+			{
+			}
+			int    A;
+			double B;
+		};
+
+		static class LocalBlock {
+		public:
+			static void Func1(LocalData *& prData)
+			{
+				prData = new LocalData(1, 10.0);
+			}
+		};
+		LocalData * p_data = 0;
+		LocalBlock::Func1(p_data);
+		assert(p_data != 0 && p_data->A == 1 && p_data->B == 10.0);
+		ZDELETE(p_data);
+		assert(p_data == 0);
+	}
+	{
+		//
 		// Проверка компилятора не предмет однозначного равенства результатов сравнения 0 или 1.
 		//
 		int    ix;

@@ -493,7 +493,7 @@ PPELink::PPELink() : KindID(0)
 {
 	int    ok = 1;
 	rEntry.KindID = 0;
-	PTR32(rEntry.Addr)[0] = 0;
+	rEntry.Addr[0] = 0;
 	if(!isempty(pValue)) {
 		PPObjELinkKind elk_obj;
 		PPELinkKind elk_rec;

@@ -2869,7 +2869,7 @@ int PPObjTSession::GetRgi(PPID goodsID, double qtty, const TSessionTbl::Rec & rT
 				}
 			}
 		}
-		ok = GObj.GetRetailGoodsInfo(goodsID, prc_rec.LocID, p_eqb, agent_ar_id, actual_dtm, fabs(qtty), &rRgi, rgi_flags|extRgiFlags);
+		ok = GObj.GetRetailGoodsInfo(goodsID, prc_rec.LocID, p_eqb, 0, agent_ar_id, actual_dtm, fabs(qtty), &rRgi, rgi_flags|extRgiFlags);
 		SETFLAG(rRgi.Flags, RetailGoodsInfo::fNoDiscount, nodis);
 	}
 	delete p_eqb;

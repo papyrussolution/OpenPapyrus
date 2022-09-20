@@ -88,7 +88,7 @@ char   FS = 0x1C;
 #define CHECKCLOSED				0x10	// Чек закрыт
 
 struct Config {
-	Config() : CashID(0), Name(0), LogNum(0), Port(0), BaudRate(0), DateTm(MAXDATETIME), Flags(0), ConnPass("PIRI"), ReadCycleCount(10), ReadCycleDelay(10)
+	Config() : CashID(0), Name(0), LogNum(0), Port(0), BaudRate(0), DateTm(MAXDATETIME), Flags(0), LocalFlags(lfDoLog), ConnPass("PIRI"), ReadCycleCount(10), ReadCycleDelay(10)
 	{
 	}
 	struct LogoStruct {
@@ -101,6 +101,9 @@ struct Config {
 		size_t Size;
 		int Print;
 	};
+	enum {
+		lfDoLog = 0x0001 // @v11.5.0 Вести файл журнала операций
+	};
 	int    CashID;
 	char * Name;
 	uint   LogNum;
@@ -108,6 +111,7 @@ struct Config {
 	int    BaudRate;
 	LDATETIME DateTm;
 	long   Flags;
+	long   LocalFlags;
 	const  char * ConnPass; // Пароль для связи
 	int    ReadCycleCount;
 	int    ReadCycleDelay;
@@ -697,12 +701,20 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(StartWork());
 			if(pb.Get("LOGNUM", param_val) > 0)
 				Cfg.LogNum = param_val.ToLong();
+			/* @v11.5.0
 			if(pb.Get("FLAGS", param_val) > 0)
 				Cfg.Flags = param_val.ToLong();
+			*/
 			if(pb.Get("CSHRNAME", param_val) > 0)
 				CshrName = param_val;
 			if(pb.Get("PRINTLOGO", param_val) > 0)
 				Cfg.Logo.Print = param_val.ToLong();
+			// @v11.5.0 {
+			if(pb.Get("LOGGING", param_val) > 0) {
+				if(param_val.IsEqiAscii("false") || param_val.IsEqiAscii("no") || param_val == "0" )
+					Cfg.LocalFlags &= ~Config::lfDoLog;
+			}
+			// } @v11.5.0 
 			THROW(SetCfg());
 		}
 		else if(cmd.IsEqiAscii("SETLOGOTYPE")) {
@@ -1924,7 +1936,12 @@ int PiritEquip::SetCfg()
 	CreateStr((int)Cfg.LogNum, in_data);
 	THROW(ExecCmd("12", in_data, out_data, r_error));
 	*/
-	THROW(WriteConfigTab(10, 0, (int)Cfg.LogNum, out_data, r_error));
+	// @v11.5.0 {
+	if(!(Cfg.LocalFlags & Config::lfDoLog)) {
+		LogFileName.Z();
+	}
+	// } @v11.5.0 
+	THROW(WriteConfigTab(10, 0, static_cast<int>(Cfg.LogNum), out_data, r_error));
 	{
 #if 0 // @v10.0.0 {
 		int    flag = 0;

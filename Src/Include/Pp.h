@@ -425,6 +425,7 @@ class  PPFtsDatabase;
 class  PPTextAnalyzer;
 struct ResolveGoodsItem;
 struct StyloQBlobInfo;
+class  PPBillImpExpParam;
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -3861,7 +3862,7 @@ public:
 	// Descr: Извлекает GUID объекта из пакета. Если пакет не содержит GUID, то
 	//   возвращает 0 и присваевает rGuid пустое значение.
 	//
-	int    GetGuid(S_GUID & rGuid);
+	int    GetGuid(S_GUID & rGuid) const;
 protected:
 	ObjTagContainerHelper(ObjTagList & rTagL, PPID objType, PPID guidTagID);
 
@@ -23916,6 +23917,7 @@ private:
 	// сигнализировать при учете, что оплата такого товара является авансом, но не собственно покупкой).
 #define GTF_GMARKED        0x00008000L // @v10.4.11 Товары этого типа имеют государственную маркировку
 
+#define GTCHZNPT_UNKN     -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
 #define GTCHZNPT_UNDEF     0
 #define GTCHZNPT_FUR       1
 #define GTCHZNPT_TOBACCO   2
@@ -28937,7 +28939,8 @@ struct RetailGoodsInfo {   // @transient
 		fDisabledQuot    = 0x0001, // Котировка QuotKindUsedForPrice является блокирующей - продажа товара запрещена.
 		fDisabledExtQuot = 0x0002, // Котировка
 		//
-		fNoDiscount      = 0x0004  // OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
+		fNoDiscount      = 0x0004, // OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
+		fEgais           = 0x0008  // @v11.5.0 Товар является алкогольным, попадающим под маркировку егаис
 	};
 	PPID   ID;             // ->Goods.ID
 	char   Name[128];      // =Goods(ID).Name
@@ -28968,6 +28971,7 @@ struct RetailGoodsInfo {   // @transient
 	char   Serial[32];     // Серийный номер лота
 	int16  LabelCount;     // Количество этикеток, которое требуется напечатать. [1..999], default=1
 	int16  Reserve;        // @alignment
+	int    ChZnMarkCat;    // @v11.5.0 GTCHZNPT_XXX Категория маркировки честный знак
 	LDATETIME ManufDtm;    // Дата/время производства
 	long   Flags;          //
 	double Qtty;           // Количество торговых единиц
@@ -29711,7 +29715,7 @@ public:
 	//        LotID, BillDate, BillCode, Serial, Qtty, PhQtty, UnitPerPack не заполнены)
 	//
 	int    GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPID arID, double qtty, RetailGoodsInfo * pInfo, long flags);
-	int    GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags);
+	int    GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPEgaisProcessor * pEp, PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags);
 	//
 	// Descr: Упрощенная версия GetRetailGoodsInfo с нулевыми значениями параметров: pEqBlk, arID, qtty, flags.
 	//
@@ -30088,7 +30092,7 @@ private:
 	int    AddDefaultBarcode(PPGoodsPacket * pPack);
 	int    Helper_SearchMaxLikeByBarcode(const char * pCode, PPID * pID);
 	int    Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache);
-	int    Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk,
+	int    Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPEgaisProcessor * pEp, 
 		PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags);
 	int    Helper_SearchByBarcodeAdopt(const char * pCode, int mode, StringSet & rProcessedList, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec);
 
@@ -33313,7 +33317,7 @@ public:
 	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
 	int    StartDocument(const char * pFileName);
 	void   EndDocument();
-	int    WriteInvoiceItems(const FileInfo & rHi, const PPBillPacket & rBp);
+	int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp);
 	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
 	// 
 	// Descr: Флаги функции WriteOrgInfo
@@ -33359,9 +33363,11 @@ public:
 		fImpExpRowsOnly       = 0x0002, // Импортировать/экспортировать только файл строк
 		//fSignBill = 0x0002
 		fRestrictByMatrix     = 0x0004, //
-		fExpOneByOne  = 0x0008, // Экспортировать документы по-одному в каждом файле
+		fExpOneByOne          = 0x0008, // Экспортировать документы по-одному в каждом файле
 		fCreateAbsenceGoods   = 0x0010, // @v10.4.12 Создавать отсутствующие товары (если возможно)
-		fDontIdentGoodsByName = 0x0020  // @v10.5.0  При идентификации товаров
+		fDontIdentGoodsByName = 0x0020, // @v10.5.0  При идентификации товаров
+		fChZnMarkAsCDATA      = 0x0040, // @v11.5.0 Для xml-форматов при экспорте марок чезнак обрамлять значения в конструкцию CDATA
+		fChZnMarkGTINSER      = 0x0080  // @v11.5.0 Марки чезнак экспортировать в виде GTIN-SERIAL, в противном случае - полную марку
 	};
 	//
 	// Descr: Предопределенный форматы импорт/экспорта документов
@@ -39812,6 +39818,17 @@ private:
 //
 class LotFilt : public PPBaseFilt {
 public:
+	struct FiltExtraParam { // @v11.5.0
+		enum {
+			kRegular = 0,
+			kOrders  = 1
+		};
+		FiltExtraParam(int kind) : Kind(kind)
+		{
+			assert(oneof2(Kind, kRegular, kOrders));
+		}
+		int    Kind;
+	};
 	LotFilt();
 	LotFilt(const LotFilt & rS);
 	LotFilt & FASTCALL operator = (const LotFilt & rS);
@@ -46794,7 +46811,16 @@ public:
 		//styloqfDocStatusFlagsMask = (styloqfDocDraft|styloqfDocTransmission|styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
 		styloqfDocTransmission     = 0x0080, // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как 
 			// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
-		styloqfPassive             = 0x0100  // @v11.4.6 Флаг для kForeignService. Означает, что сервис пассивен (относительно клиента) и не должен отображаться в регулярном списке у клиента.
+		styloqfPassive             = 0x0100, // @v11.4.6 Флаг для kForeignService. Означает, что сервис пассивен (относительно клиента) и не должен отображаться в регулярном списке у клиента.
+		styloqfUnprocessedDoc_     = 0x0200  // @v11.5.0 
+	};
+	//
+	// Descr: Флаги записей реестра Stylo-Q
+	// @attention - этот флаг введен и используется по ошибке. Вместо него следует использовать styloqfUnprocessedDoc_
+	// Для этого необходимо конвертировать таблицу базы данных.
+	enum {
+		fUnprocessedDoc_Misplaced = 0x0001, // Необработанный документ. Изначально введен для идентификации документов поискового контента (doctypIndexingContent), 
+			// которые не были проиндексированы. В дальнейшем возможны дополнительные применения.
 	};
 	// 
 	// Статусы документов заказа клиент-->сервис
@@ -46834,13 +46860,6 @@ public:
 		doctypIndexingContent = 5, // @v11.3.4 Документ, содержащий данные для индексации медиатором
 		doctypIndoorSvcPrereq = 6, // @v11.4.5 Предопределенный формат данных, подготовленных для формирования данных для обслуживания внутри помещения сервиса (INDOOR)
 		doctypIncomingList    = 7  // @v11.4.8 
-	};
-	//
-	// Descr: Флаги записей реестра Stylo-Q
-	//
-	enum {
-		fUnprocessedDoc       = 0x0001 // Необработанный документ. Изначально введен для идентификации документов поискового контента (doctypIndexingContent), 
-			// которые не были проиндексированы. В дальнейшем возможны дополнительные применения.
 	};
 	struct StoragePacket {
 		bool   FASTCALL IsEq(const StoragePacket & rS) const;
@@ -46930,6 +46949,29 @@ private:
 	int    Helper_PutDocument(PPID * pID, StyloQSecTbl::Rec * pResultRec, const SBinaryChunk & rContractorIdent, int direction, int docType, const SBinaryChunk & rIdent, const SSecretTagPool & rPool, int use_ta);
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
 	static SvcDbSymbMap _SvcDbMap;
+};
+
+class StyloQDocumentPrereqParam : public PPBaseFilt {
+public:
+	static StyloQDocumentPrereqParam * Read(SBuffer & rBuf);
+	StyloQDocumentPrereqParam();
+	StyloQDocumentPrereqParam(const StyloQDocumentPrereqParam & rS);
+	StyloQDocumentPrereqParam & FASTCALL operator = (const StyloQDocumentPrereqParam & rS);
+
+	enum {
+		fUseBarcodeSearch = 0x0001, // На клиенте будет доступна функция поиска по штрихкоду
+		fUseBrands        = 0x0002  // Отправлять клиенту список брендов. Флаг действителен только если PalmID == 0, в противном случае этим управляют опции записи StyloPalm
+	};
+
+	uint8    ReserveStart[64]; // @anchor
+	PPID     PalmID;
+	long     Flags;
+	PPID     OpID;
+	PPID     LocID;
+	PPID     QuotKindID;
+	long     Reserve;           // @anchor  
+private:
+	int    InitInstance();
 };
 //
 // Descr: Параметры подготовки данных для заказа услуг в рамках проекта Stylo-Q
@@ -47314,6 +47356,7 @@ public:
 	struct Document {
 		Document();
 		Document & Z();
+		int    FromBillPacket(const PPBillPacket & rS, PPIDArray * pGoodsIdList);
 		int    FromJsonObject(const SJson * pJsObj);
 		int    FromJson(const char * pJson);
 		SJson * ToJsonObject() const;
@@ -47565,6 +47608,7 @@ public:
 	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
 	static int   Edit_GoodsInfoParam(StyloQGoodsInfoParam & rParam);
 	static int   Edit_IncomingListParam(StyloQIncomingListParam & rParam);
+	static int   Edit_RsrvDocumentPrereqParam(StyloQDocumentPrereqParam & rParam);
 	//
 	// Descr: Отправляет одному из медиаторов Stylo-Q запрос на индексацию данных из всех
 	//   баз данных, которые содержат сервисы Stylo-Q.
@@ -47610,10 +47654,12 @@ private:
 			fDisabledQuot    = 0x0001, // Котировка QuotKindUsedForPrice является блокирующей - продажа товара запрещена.
 			fDisabledExtQuot = 0x0002, // Котировка
 			//
-			fNoDiscount      = 0x0004  // OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
+			fNoDiscount      = 0x0004, // OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
+			fEgais           = 0x0008  // @v11.5.0 Товар является алкогольным, попадающим под маркировку егаис
 		};
 		PPID   GoodsID;
 		long   Flags;
+		int    ChZnMarkCat;          // @v11.5.0 GTCHZNPT_XXX Категория маркировки честный знак
 		LDATE  Expiry;               // Copy of RetailGoodsInfo
 		LDATETIME ManufDtm;
 		PPID   QuotKindUsedForPrice; // Вид котировки, использованной для получения цены Price.
@@ -47692,8 +47738,8 @@ private:
 	int    Helper_ExecuteIndexingRequest(const StyloQCore::StoragePacket & rOwnPack, const TSCollection <StyloQCore::IgnitionServerEntry> & rMediatorList, const StyloQCommandList::Item * pCmdItem);
 	int    StoreOidListWithBlob(const PPObjIDArray & rList);
 	int    GetOidListWithBlob(PPObjIDArray & rList);
-	int    MakeRsrvPriceListResponse_ExportClients(const SBinaryChunk & rOwnIdent, const PPStyloPalmPacket * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
-	int    MakeRsrvPriceListResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPStyloPalmPacket * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
+	int    MakeRsrvPriceListResponse_ExportClients(const SBinaryChunk & rOwnIdent, const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
+	int    MakeRsrvPriceListResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPSyncCashNode * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    GetAndStoreClientsFace(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent);
 	int    IntermediateReply(int waitPeriodMs, int pollIntervalMs, const SBinaryChunk * pSessSecret, ProcessCmdCallbackProc intermediateReplyProc, void * pIntermediateReplyExtra);
@@ -47703,7 +47749,7 @@ private:
 	// Descr: Определяет вид операции, используемый для формирования документов заказа.
 	//   Если параметр palmID != 0, то пытается извлечь вид операции из записи агентского устройства с этим идентификатором (PPObjStyloPalm)
 	//
-	int    GetContextualOpAndLocForOrder(PPID palmID, PPID * pOpID, PPIDArray * pLocList);
+	int    GetContextualOpAndLocForOrder(const StyloQDocumentPrereqParam & rParam, PPID * pOpID, PPIDArray * pLocList);
 	//
 	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
 	// ARG(flag IN): Уточняет о какой локальности идет речь. Если flag == smqbpfLocalMachine то дополнение

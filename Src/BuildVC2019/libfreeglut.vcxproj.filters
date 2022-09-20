@@ -10,6 +10,9 @@
     <Filter Include="util">
       <UniqueIdentifier>{28b9357a-85f8-456a-a301-8d97e53ac197}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{21598009-0bde-430a-a162-7830a33021d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\OSF\mupdf\thirdparty\freeglut\src\mswin\fg_cursor_mswin.c">
@@ -128,26 +131,26 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\mupdf\thirdparty\freeglut\src\mswin\fg_internal_mswin.h">
-      <Filter>mswin</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\mupdf\thirdparty\freeglut\src\fg_gl2.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\freeglut\src\util\xparsegeometry_repl.h">
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\mupdf\thirdparty\freeglut\src\fg_init.h">
-      <Filter>src</Filter>
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\freeglut\src\fg_gl2.h">
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\mupdf\thirdparty\freeglut\src\fg_internal.h">
-      <Filter>src</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\mupdf\thirdparty\freeglut\src\fg_teapot_data.h">
-      <Filter>src</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\mupdf\thirdparty\freeglut\src\fg_version.h">
-      <Filter>src</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\mupdf\thirdparty\freeglut\src\util\xparsegeometry_repl.h">
-      <Filter>util</Filter>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\freeglut\src\mswin\fg_internal_mswin.h">
+      <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

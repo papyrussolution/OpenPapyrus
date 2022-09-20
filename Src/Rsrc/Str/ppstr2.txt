@@ -2980,6 +2980,7 @@ PPINIPARAM_NGINX                         "nginx" // [server]
 PPINIPARAM_WORKSPACE                     "workspace" // [path]
 PPINIPARAM_POSREGISTERKEEPALIVE          "PosRegisterKeepAlive" // [config]
 PPINIPARAM_POSREGISTERSKIPAFVERIF        "PosRegisterSkipAfVerif" // [config]
+PPINIPARAM_POSREGISTERLOGGING            "PosRegisterLogging" // [config] // @v11.5.0
 PPINIPARAM_SARTREDB_CACHESIZE            "sartredb_cachesize"
 PPINIPARAM_SARTREDB_CACHESIZE_RO         "sartredb_cachesize_ro"
 PPINIPARAM_SARTREDB_MAXLOCKERS           "sartredb_maxlockers"
@@ -5749,6 +5750,7 @@ DVCPARAM_VATAMOUNT10	       "VATAMOUNT10"    // @v10.0.0
 DVCPARAM_VATAMOUNT00	       "VATAMOUNT00"    // @v10.0.0
 DVCPARAM_VATAMOUNT20           "VATAMOUNT20"    // @v10.4.8
 DVCPARAM_VATFREEAMOUNT	       "VATFREEAMOUNT"  // @v10.0.0
+DVCPARAM_LOGGING               "LOGGING"        // @v11.5.0
 DVCPARAM_CHZNCODE              "CHZNCODE"       // @v10.6.8 Маркировка товара маркой честный знак
 DVCPARAM_CHZNGTIN              "CHZNGTIN"       // @v10.7.2 GTIN марки честный знак
 DVCPARAM_CHZNSERIAL            "CHZNSERIAL"     // @v10.7.2 Серия марки честный знак
@@ -7629,6 +7631,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @doexportstocks                      "Экспортировать остатки"
 @doexportsales                       "Экспортировать продажи"
 @doexportprices                      "Экспортировать цены"
+@doexportbrands                      "Экспортировать бренды"
 @doexportreceivables                 "Экспортировать долги клиентов"
 @doputtobasket                       "Положить в корзину"
 @doputtobasket_goods                 "Положить товар в корзину" // По смыслу тоже самое, что и doputtobasket но в окружении, в котором могут быть и иные объекты кроме товаров
@@ -8591,6 +8594,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_styloqgoodsinfoparam_flags              "@{flags}"
 @filter_styloqgoodsinfoparam_loc                "@{warehouse}"
 @filter_styloqgoodsinfoparam_posnode            "@{posnode}"
+@filter_styloqdocumentparam                     "Параметры создания исходящих документов для Stylo-Q" // generic
+@filter_styloqdocumentparam_fusebarcodesearch   "Выбор по штрихкоду"
 @filter_styloqincominglistparam                 "Параметры входящих списков для Stylo-Q" // generic
 @filter_styloqincominglistorderparam            "Параметры входящих заказов для Stylo-Q"
 @filter_styloqincominglistccheckparam           "Параметры входящих кассовых чеков для Stylo-Q"
@@ -12959,6 +12964,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @staff_amounts                            "@{but_amounts}"
 
 @stylopalm_agent                              "@{agent}"
+@stylodevice                                  "Устройство Stylo"
 @stylodevicegroup                             "Группа устройств Stylo"
 @stylopalm_devicever                          "Версия системы на устройстве при последнем обмене"
 @stylopalm_flags                              "@{flags}"
@@ -12972,7 +12978,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @stylopalm_name                               "@{appellation}"
 @stylopalm_plmf_android                       "Экспорт/импорт в виде xml файла"
 @stylopalm_plmf_disablcediscount              "Запрет общей скидки на заказы"
-@stylopalm_plmf_expbrand                      "Экспортировать бренды"
+@stylopalm_plmf_expbrand                      "@{doexportbrands}"
 @stylopalm_plmf_exploc                        "Экспортировать склады"
 @stylopalm_plmf_expstopflag                   "Экспортировать признак 'стоп' для клиентов"
 @stylopalm_plmf_inhflags                      "Наследовать флаги от группы"
@@ -15588,6 +15594,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @impexpparambillh_fexponebyone            "Экспортировать документы по-одному"
 @impexpparambillh_fcreateabsencegoods     "Создавать отсутствующие товары"
 @impexpparambillh_fdontidentgoodsbyname   "Не идентифицировать товары по имени"
+@impexpparambillh_fchznmarkascdata        "Марки честный знак экспортировать как CDATA"
+@impexpparambillh_fchznmarkgtinser        "Марки честный знак экспортировать в виде GTIN-SERIAL"
 @impexpparambillh_impop                   "Вид операции импорта"
 @impexpparambillh_predefformat            "Предопределенный формат"
 @impexpparambillh_pfundef                 ""

@@ -121,7 +121,8 @@ Data Matrix для табачной продукции и фармацевтик
 	// 01 04603182002518 21 0100007852382 91 EE06 92 uy1H5DQr89ewuV4W/ssuZKTxmcX7r0A8/1KZU3tMLSY=
 	// 
 	int    ok = 0;
-	static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 };
+	//static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 };
+	static const int8 serial_len_variant_list[] = { 6, 8, 11, 12, 13 }; 
 	const size_t code_len = sstrlen(pCode);
 	rS.Z();
 	if(code_len >= 16) {

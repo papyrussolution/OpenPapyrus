@@ -713,7 +713,8 @@ int TestGtinStruc()
 		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("chzn-marks-result-2.txt");
 		SFile f_out2(temp_buf, SFile::mWrite);
 		if(f_out.IsValid() && f_out2.IsValid()) {
-			static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 }; 
+			//static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 }; 
+			static const int8 serial_len_variant_list[] = { 6, 8, 11, 12, 13 }; 
 			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				const SString original_text(temp_buf);
 				{
@@ -771,7 +772,8 @@ int TestGtinStruc()
 				}
 				{
 					GtinStruc gts;
-					int pczcr = PPChZnPrcssr::ParseChZnCode(original_text, gts, 0);
+					(temp_buf = original_text).Transf(CTRANSF_UTF8_TO_INNER);
+					int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
 					out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pczcr);
 					gts.Debug_Output(temp_buf);
 					out_buf.CR().Cat(temp_buf);

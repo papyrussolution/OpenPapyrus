@@ -3164,8 +3164,10 @@ int PPWhatmanWindow::FileOpen()
 	HWND   w_preserve_capt  = ::GetCapture();
 	MemLeakTracer mlt;
 	PPWhatmanWindow * p_win = new PPWhatmanWindow(PPWhatmanWindow::modeView);
+	const int sx = GetSystemMetrics(SM_CXSCREEN); // @v11.5.0
+	const int sy = GetSystemMetrics(SM_CYSCREEN); // @v11.5.0
 	THROW_MEM(p_win);
-	p_win->setBounds(TRect(0, 0, 200, 200));
+	p_win->setBounds(TRect(0, 0, static_cast<int>(sx * 0.8f), static_cast<int>(sy * 0.8f)));
 	THROW(p_win->W.Load(pWtmFileName));
 	{
 		TWhatman::Param p = p_win->W.GetParam();

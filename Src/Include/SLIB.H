@@ -1221,19 +1221,18 @@ public:
 
 extern const SlConstParam _SlConst;
 
-template <class T> T * AssignPtr2Ptr(T ** ppDest, const T * pSrc) // @v11.4.12
+template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc) // @v11.4.12
 {
-	assert(ppDest);
 	if(pSrc) {
-		if(*ppDest)
-			delete *ppDest;
-		*ppDest = new T;
-		**ppDest = *pSrc;
+		if(prDest)
+			delete prDest;
+		prDest = new T;
+		*prDest = *pSrc;
 	}
-	else if(*ppDest) {
-		ZDELETE(*ppDest);
+	else if(prDest) {
+		ZDELETE(prDest);
 	}
-	return *ppDest;
+	return prDest;
 }
 //
 // Прототип функций сравнения и макросы для использования этих функций

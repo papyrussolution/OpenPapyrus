@@ -1063,7 +1063,7 @@ int ObjTagContainerHelper::GenerateGuid(S_GUID * pGuid)
 	return ok;
 }
 
-int ObjTagContainerHelper::GetGuid(S_GUID & rGuid)
+int ObjTagContainerHelper::GetGuid(S_GUID & rGuid) const
 {
 	int    ok = 0;
 	const  ObjTagItem * p_tag_item = GuidTagID ? R_TagL.GetItem(GuidTagID) : 0;

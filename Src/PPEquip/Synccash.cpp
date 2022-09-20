@@ -145,7 +145,8 @@ private:
 		sfDontUseCutter = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040, // использовать весовой датчик
 		sfKeepAlive     = 0x0080, // @v10.0.12 Держать установленное соединение с аппаратом
-		sfSkipAfVerif   = 0x0100  // @v10.8.0 (skip after func verification) Пропускать проверку аппарата после исполнения функций при печати чеков
+		sfSkipAfVerif   = 0x0100, // @v10.8.0 (skip after func verification) Пропускать проверку аппарата после исполнения функций при печати чеков
+		sfLogging       = 0x0200  // @v11.5.0 Вести системный файл журнала операций с кассовым регистратором
 	};
 	static int RefToIntrf;
 	int	   Port;            // Номер порта
@@ -286,6 +287,14 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))
 				Flags |= sfSkipAfVerif;
 		}
+		// @v11.5.0 {
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERLOGGING, temp_buf.Z()) > 0) {
+			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
+				Flags &= ~sfLogging;
+			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))
+				Flags |= sfLogging;
+		}
+		// } @v11.5.0
 		if(Flags & sfConnected) {
 			THROW(ExecOper(DVCCMD_DISCONNECT, Arr_In.Z(), Arr_Out));
 			Flags &= ~sfConnected;
@@ -387,6 +396,7 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 				}
 				THROW(ArrAdd(Arr_In, DVCPARAM_ADMINNAME, AdmName.NotEmpty() ? AdmName : operator_name)); // Имя администратора
 				THROW(ArrAdd(Arr_In, DVCPARAM_SESSIONID, /*pIn->*/SCn.CurSessID)); // Текущая кассовая сесси
+				THROW(ArrAdd(Arr_In, DVCPARAM_LOGGING, (Flags & sfLogging) ? 1 : 0)); // @v11.5.0
 			}
 			THROW(ExecOper(DVCCMD_SETCFG, Arr_In, Arr_Out));
 			// Загружаем логотип

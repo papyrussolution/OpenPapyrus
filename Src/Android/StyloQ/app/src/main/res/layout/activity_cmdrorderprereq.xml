@@ -62,10 +62,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
+                        <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonBack"
+                            android:layout_gravity="center_vertical|right"
+                            app:srcCompat="@drawable/ic_arrow_bold_left"/>
                         <View style="@style/FakeView"/>
                         <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
                             android:layout_gravity="center_vertical|right"
                             app:srcCompat="@drawable/ic_search"/>
+                        <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonScan"
+                            android:layout_gravity="center_vertical|right"
+                            app:srcCompat="@drawable/ic_barcode01"/>
                         <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonClearFiter"
                             android:layout_gravity="center_vertical|right"
                             app:srcCompat="@drawable/ic_filterrmv01"/>

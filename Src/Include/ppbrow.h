@@ -1910,6 +1910,7 @@
 #define PPFILT_STYLOQINDEXINGPARAM                   1291
 #define PPFILT_STYLOQGOODSINFOPARAM                  1301
 #define PPFILT_STYLOQINCOMINGLISTPARAM               1311
+#define PPFILT_STYLOQDOCUMENTPREREQPARAM             1321
 //
 // RECORD definitions
 //

@@ -169,6 +169,8 @@ public class BusinessEntity {
 			UomID = 0;
 			BrandID = 0;
 			ManufID = 0;
+			ChZnCat = 0; // @v11.5.0
+			Egais = false; // @v11.5.0
 			UnitPerPack = 0.0;
 			OrdQtyMult = 0.0;
 			OrdMinQty = 0.0;
@@ -195,6 +197,8 @@ public class BusinessEntity {
 					UomID = jsObj.optInt("uomid", 0);
 					BrandID = jsObj.optInt("brandid", 0);
 					ManufID = jsObj.optInt("manufid", 0);
+					ChZnCat = jsObj.optInt("chzncat", 0); // @v11.5.0
+					Egais = jsObj.optBoolean("egais", false); // @v11.5.0
 					UnitPerPack = jsObj.optDouble("upp", 0.0);
 					OrdMinQty = jsObj.optDouble("ordminqty", 0.0);
 					OrdQtyMult = jsObj.optDouble("ordqtymult", 0.0);
@@ -285,6 +289,8 @@ public class BusinessEntity {
 		int    UomID;
 		int    BrandID;
 		int    ManufID;
+		int    ChZnCat;    // @v11.5.0 GTCHZNPT_XXX Категория маркировки честный знак
+		boolean Egais;     // @v11.5.0 Если true, то товар маркируется EGAI-кодами
 		double UnitPerPack;
 		double OrdQtyMult; // Кратность заказа (<=0 - не определено)
 		double OrdMinQty;  // Минимальный заказ (<=0 - не определено)

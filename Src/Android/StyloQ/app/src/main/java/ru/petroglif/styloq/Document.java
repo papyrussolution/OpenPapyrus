@@ -1057,17 +1057,10 @@ public class Document {
 		LotExtCode result = null;
 		final int mark_len = SLib.GetLen(mark);
 		if(mark_len > 0 && list != null && list.size() > 0) {
-			String pattern = "";
-			{
-				for(int ci = 0; ci < mark_len; ci++) {
-					char c = mark.charAt(ci);
-					if(c != 29)
-						pattern = pattern + c;
-				}
-			}
+			String pattern = GTIN.PreprocessChZnCode(mark);
 			for(int i = 0; result == null && i < list.size(); i++) {
 				final LotExtCode item = list.get(i);
-				if(item != null && item.Code != null && pattern.equalsIgnoreCase(item.Code))
+				if(item != null && item.Code != null && pattern.equalsIgnoreCase(GTIN.PreprocessChZnCode(item.Code)))
 					result = item;
 			}
 		}

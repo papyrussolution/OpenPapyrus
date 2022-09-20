@@ -1592,6 +1592,7 @@ public class SLib {
 	public static final int EV_ACTIVITYRESUME       = 19; // Посылается в SlActivity функцией onResume
 	public static final int EV_SVCQUERYRESULT       = 20; // @v11.3.10 Посылается в SlActivity после выполнения запроса к сервису по заданию этой activity
 	public static final int EV_CBSELECTED           = 21; // @v11.4.0 Посылается в ответ на выбор элемента в combo-box'е (spinner)
+	public static final int EV_TABSELECTED          = 22; // @v11.5.0 Посылается в ответ на выбор табулятора (ViewPager2) srcObj: ViewPager2; subj: Integer(tabIndex)
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -4755,8 +4756,7 @@ public class SLib {
 			}
 			return holder;
 		}
-		@Override
-		public void onBindViewHolder(@NonNull RecyclerListViewHolder holder, @SuppressLint("RecyclerView") int position)
+		@Override public void onBindViewHolder(@NonNull RecyclerListViewHolder holder, @SuppressLint("RecyclerView") int position)
 		{
 			Context ctx = (_Lo != null) ? _Lo.getContext() : Inflater.getContext();
 			if(ctx != null) {
@@ -5119,22 +5119,19 @@ public class SLib {
 			}
 		}
 	}
-	public static void SetupTabLayoutListener(TabLayout loTab, ViewPager2 viewPager)
+	public static void SetupTabLayoutListener(EventHandler eh, TabLayout loTab, ViewPager2 viewPager)
 	{
 		if(loTab != null && viewPager != null) {
 			loTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-				@Override
-				public void onTabSelected(TabLayout.Tab tab)
+				@Override public void onTabSelected(TabLayout.Tab tab)
 				{
 					int pos = tab.getPosition();
-					viewPager.setCurrentItem(pos);
+					viewPager.setCurrentItem(pos, false);
 				}
-				@Override
-				public void onTabUnselected(TabLayout.Tab tab)
+				@Override public void onTabUnselected(TabLayout.Tab tab)
 				{
 				}
-				@Override
-				public void onTabReselected(TabLayout.Tab tab)
+				@Override public void onTabReselected(TabLayout.Tab tab)
 				{
 				}
 			});
@@ -5143,6 +5140,9 @@ public class SLib {
 				@Override public void onPageSelected(int position)
 				{
 					loTab.selectTab(loTab.getTabAt(position));
+					if(eh != null) {
+						eh.HandleEvent(EV_TABSELECTED, viewPager, new Integer(position));
+					}
 				}
 			});
 		}

@@ -1148,13 +1148,14 @@ void RetailGoodsInfo::Init()
 }
 
 int PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, RetailGoodsInfo * pInfo)
-	{ return Helper_GetRetailGoodsInfo(goodsID, locID, 0, 0, ZERODATETIME, 0.0, pInfo, 0); }
-int PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags)
-	{ return Helper_GetRetailGoodsInfo(goodsID, locID, pEqBlk, arID, actualDtm, qtty, pInfo, flags); }
+	{ return Helper_GetRetailGoodsInfo(goodsID, locID, 0, 0, 0, ZERODATETIME, 0.0, pInfo, 0); }
+int PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPEgaisProcessor * pEp, 
+	PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags)
+	{ return Helper_GetRetailGoodsInfo(goodsID, locID, pEqBlk, 0, arID, actualDtm, qtty, pInfo, flags); }
 int PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPID arID, double qtty, RetailGoodsInfo * pInfo, long flags)
-	{ return Helper_GetRetailGoodsInfo(goodsID, locID, pEqBlk, arID, ZERODATETIME, qtty, pInfo, flags); }
+	{ return Helper_GetRetailGoodsInfo(goodsID, locID, pEqBlk, 0, arID, ZERODATETIME, qtty, pInfo, flags); }
 
-int PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk,
+int PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPEgaisProcessor * pEp, 
 	PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags)
 {
 	int    ok = 1;
@@ -1197,6 +1198,22 @@ int PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const Retail
 			if(FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
 				STRNSCPY(pInfo->UnitName, unit_rec.Name);
 			pInfo->PhUPerU = goods_rec.PhUPerU;
+			//
+			// @v11.5.0 {
+			if(goods_rec.GoodsTypeID) {
+				PPGoodsType2 gt_rec;
+				if(FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+					if(gt_rec.Flags & GTF_GMARKED)
+						pInfo->ChZnMarkCat = gt_rec.ChZnProdType ? gt_rec.ChZnProdType : GTCHZNPT_UNKN;
+				}
+			}
+			if(pEp && pEp->IsAlcGoods(goods_rec.ID)) {
+				PrcssrAlcReport::GoodsItem agi;
+				if(pEp->PreprocessGoodsItem(goods_rec.ID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
+					pInfo->Flags |= RetailGoodsInfo::fEgais;
+				}
+			}
+			// } @v11.5.0 
 		}
 		{
 			//

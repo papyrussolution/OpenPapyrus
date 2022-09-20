@@ -18,20 +18,26 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Stack;
 import java.util.UUID;
 
 public class CommonPrereqModule {
@@ -219,17 +225,58 @@ public class CommonPrereqModule {
 	public ArrayList<BusinessEntity.Brand> BrandListData;
 	public ArrayList<Document> IncomingDocListData;
 	public GoodsFilt Gf;
-	private String BaseCurrencySymb;
-	private int DefDuePeriodHour; // @v11.4.8 Срок исполнения заказа по умолчанию (в часах). Извлекается из заголока данных по тегу "dueperiodhr"
-	private int AgentID; // Если исходный документ для формирования заказов ассоциирован
-	// с агентом, то в этом поле устанавливается id этого агента (field agentid)
-	private int ActionFlags; // Document.actionXXX flags. Извлекается из заголока данных по тегу "actions"
-	private int SvcOpID; // @v11.4.9 Вид операции для новых документов, переданный сервисом в заголовке с тегом "svcopid"
-	private int PosNodeID; // Если исходный документ сформирован для indoor-обслуживания,
-	// то в этом поле устанавливается id кассового узла, переданный от сервиса
+	//
+	// Descr: Структура инкапсулирующая общие параметры, передаваемые сервисом
+	//
+	public static class CommonSvcParam {
+		CommonSvcParam()
+		{
+			BaseCurrencySymb = null;
+			DefDuePeriodHour = 0;
+			AgentID = 0;
+			ActionFlags = 0;
+			SvcOpID = 0;
+			PosNodeID = 0;
+			UseBarcodeSearch = false;
+			BarcodeWeightPrefix = null;
+			BarcodeCountPrefix = null;
+		}
+		void FromJson(JSONObject jsHead)
+		{
+			if(jsHead != null) {
+				BaseCurrencySymb = jsHead.optString("basecurrency", null);
+				DefDuePeriodHour = jsHead.optInt("dueperiodhr", 0); // @v11.4.8
+				AgentID = jsHead.optInt("agentid", 0);
+				SvcOpID = jsHead.optInt("svcopid", 0); // @v11.4.9
+				PosNodeID = jsHead.optInt("posnodeid", 0);
+				ActionFlags = Document.IncomingListActionsFromString(jsHead.optString("actions", null)); // @v11.4.8
+				UseBarcodeSearch = jsHead.optBoolean("searchbarcode"); // @v11.5.0
+				BarcodeWeightPrefix = jsHead.optString("barcodeweightprefix", null); // @v11.5.0
+				BarcodeCountPrefix = jsHead.optString("barcodecountprefix", null); // @v11.5.0
+			}
+		}
+		public String BaseCurrencySymb;
+		public int DefDuePeriodHour; // @v11.4.8 Срок исполнения заказа по умолчанию (в часах). Извлекается из заголока данных по тегу "dueperiodhr"
+		public int AgentID; // Если исходный документ для формирования заказов ассоциирован
+			// с агентом, то в этом поле устанавливается id этого агента (field agentid)
+		public int ActionFlags; // Document.actionXXX flags. Извлекается из заголока данных по тегу "actions"
+		public int SvcOpID; // @v11.4.9 Вид операции для новых документов, переданный сервисом в заголовке с тегом "svcopid"
+		public int PosNodeID; // Если исходный документ сформирован для indoor-обслуживания,
+			// то в этом поле устанавливается id кассового узла, переданный от сервиса
+		public boolean UseBarcodeSearch; // @v11.5.0 Если true, то в панели инструментов появляется иконка поиска по штрихкоду.
+			// Передается сервисом с тегом "searchbarcode"
+		public String BarcodeWeightPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс весового штрихкода.
+			// Передается сервисом с тегом "barcodeweightprefix". Обязанность проверки валидности префикса лежит на сервисе.
+		public String BarcodeCountPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс счетного штрихкода.
+			// Передается сервисом с тегом "barcodecountprefix". Обязанность проверки валидности префикса лежит на сервисе.
+	}
+	private CommonSvcParam CSVCP;
+	//
 	public ArrayList<WareEntry> GoodsListData;
 	public ArrayList<CommonPrereqModule.TabEntry> TabList;
-	public ArrayList /*<Document.Head>*/<Document.DisplayEntry> OrderHList;
+	private Stack<Tab> TabNavStack; // @v11.5.0
+	protected OnBackPressedCallback Callback_BackButton; // @v11.5.0
+	public ArrayList <Document.DisplayEntry> OrderHList;
 	public ArrayList<ProcessorEntry> ProcessorListData;
 	public ArrayList<BusinessEntity.Uom> UomListData;
 	private Document CurrentOrder;
@@ -348,14 +395,15 @@ public class CommonPrereqModule {
 				CurrentOrder.H.BaseCurrencySymb = GetBaseCurrencySymb();
 				CurrentOrder.H.OrgCmdUuid = CmdUuid;
 				CurrentOrder.H.AgentID = GetAgentID(); // @v11.4.8
-				if(DefDuePeriodHour > 0) {
+				CurrentOrder.H.SvcOpID = CSVCP.SvcOpID; // @v11.5.0
+				if(CSVCP.DefDuePeriodHour > 0) {
 					SLib.LDATETIME base_tm = CurrentOrder.H.GetNominalTimestamp();
 					if(base_tm != null) {
-						CurrentOrder.H.DueTime = SLib.plusdatetimesec(base_tm, DefDuePeriodHour * 3600);
+						CurrentOrder.H.DueTime = SLib.plusdatetimesec(base_tm, CSVCP.DefDuePeriodHour * 3600);
 					}
 				}
-				if(PosNodeID > 0)
-					CurrentOrder.H.PosNodeID = PosNodeID;
+				if(CSVCP.PosNodeID > 0)
+					CurrentOrder.H.PosNodeID = CSVCP.PosNodeID;
 			}
 		}
 	}
@@ -724,7 +772,7 @@ public class CommonPrereqModule {
 						InitCurrenDocument(interchangeOpID);
 						CurrentOrder.H.ClientID = cliID;
 						CurrentOrder.H.DlvrLocID = dlvrLocID;
-						CurrentOrder.H.BaseCurrencySymb = BaseCurrencySymb;
+						CurrentOrder.H.BaseCurrencySymb = CSVCP.BaseCurrencySymb;
 						result = true;
 					}
 					else {
@@ -833,28 +881,34 @@ public class CommonPrereqModule {
 		StyloQApp app_ctx = GetAppCtx();
 		if(app_ctx != null) {
 			if(CurrentDocument_RemoteOp_Start()) {
-				if(CurrentOrder != null && CurrentOrder.Finalize()) {
-					boolean is_err = false;
-					if(GetAgentID() > 0) {
-						if(CurrentOrder.H.ClientID == 0) {
-							app_ctx.DisplayError(ActivityInstance, ppstr2.PPERR_STQ_BUYERNEEDED, 0);
-							is_err = true;
+				if(CurrentOrder != null) {
+					if(CurrentOrder.Finalize()) {
+						// @v11.5.0 {
+						if(CurrentOrder.H.SvcOpID == 0)
+							CurrentOrder.H.SvcOpID = CSVCP.SvcOpID;
+						// } @v11.5.0
+						boolean is_err = false;
+						if(GetAgentID() > 0) {
+							if(CurrentOrder.H.ClientID == 0) {
+								app_ctx.DisplayError(ActivityInstance, ppstr2.PPERR_STQ_BUYERNEEDED, 0);
+								is_err = true;
+							}
 						}
-					}
-					if(!is_err) {
-						final int s = CurrentOrder.GetDocStatus();
-						int   direction = +1; // outcoming
-						if(s == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT)
-							CurrentOrder.SetAfterTransmitStatus(StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
-						else if(s == StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD) { // @v11.4.9
-							CurrentOrder.SetAfterTransmitStatus(StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMODACCEPTED);
-							direction = -1; // incoming
-						}
-						// @todo Здесь еще долго со статусами разбираться придется!
-						StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(SvcIdent, ActionFlags, direction, CurrentOrder, ActivityInstance);
-						ok = result.PostResult;
-						if(ok) {
-							;
+						if(!is_err) {
+							final int s = CurrentOrder.GetDocStatus();
+							int direction = +1; // outcoming
+							if(s == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT)
+								CurrentOrder.SetAfterTransmitStatus(StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
+							else if(s == StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD) { // @v11.4.9
+								CurrentOrder.SetAfterTransmitStatus(StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMODACCEPTED);
+								direction = -1; // incoming
+							}
+							// @todo Здесь еще долго со статусами разбираться придется!
+							StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(SvcIdent, CSVCP.ActionFlags, direction, CurrentOrder, ActivityInstance);
+							ok = result.PostResult;
+							if(ok) {
+								;
+							}
 						}
 					}
 				}
@@ -879,56 +933,63 @@ public class CommonPrereqModule {
 		boolean ok = true;
 		StyloQApp app_ctx = GetAppCtx();
 		if(app_ctx != null) {
-			if(CurrentOrder != null && CurrentOrder.Finalize()) {
-				final int st = CurrentOrder.GetDocStatus();
-				if(st == 0 || st == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT) {
-					// Такой документ просто удаляем
-					if(!force) {
-						class OnResultListener implements SLib.ConfirmationListener {
-							@Override public void OnResult(SLib.ConfirmationResult r)
-							{
-								if(r == SLib.ConfirmationResult.YES)
-									Helper_CancelCurrentDocument(true);
-								else
-									CurrentDocument_RemoteOp_Finish();
+			if(CurrentOrder != null) {
+				if(CurrentOrder.Finalize()) {
+					// @v11.5.0 {
+					if(CurrentOrder.H.SvcOpID == 0)
+						CurrentOrder.H.SvcOpID = CSVCP.SvcOpID;
+					// } @v11.5.0
+					final int st = CurrentOrder.GetDocStatus();
+					if(st == 0 || st == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT) {
+						// Такой документ просто удаляем
+						if(!force) {
+							class OnResultListener implements SLib.ConfirmationListener {
+								@Override
+								public void OnResult(SLib.ConfirmationResult r)
+								{
+									if(r == SLib.ConfirmationResult.YES)
+										Helper_CancelCurrentDocument(true);
+									else
+										CurrentDocument_RemoteOp_Finish();
+								}
+							}
+							String text = app_ctx.GetString(ppstr2.PPSTR_CONFIRMATION, ppstr2.PPCFM_STQ_RMVORD_DRAFT);
+							SLib.Confirm_YesNo(ActivityInstance, text, new OnResultListener());
+						}
+						else {
+							boolean local_err = false;
+							if(CurrentOrder.H.ID > 0) {
+								//SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT); // Новый док автоматом является draft-документом
+								boolean r = StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT, StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT);
+								//
+								// Далее эмулируем ответ от сервиса, ибо в данном случае никакого обращения не было (драфт-документ у сервиса не бывал)
+								//
+								StyloQApp.InterchangeResult subj = null;
+								if(r) {
+									subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, SvcIdent, "", null);
+								}
+								else {
+									subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, SvcIdent, "", null);
+								}
+								subj.OriginalCmdItem = new StyloQCommand.Item();
+								subj.OriginalCmdItem.Name = "CancelDocument";
+								ActivityInstance.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
 							}
 						}
-						String text = app_ctx.GetString(ppstr2.PPSTR_CONFIRMATION, ppstr2.PPCFM_STQ_RMVORD_DRAFT);
-						SLib.Confirm_YesNo(ActivityInstance, text, new OnResultListener());
 					}
-					else {
-						boolean local_err = false;
-						if(CurrentOrder.H.ID > 0) {
-							//SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT); // Новый док автоматом является draft-документом
-							boolean r = StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT, StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT);
-							//
-							// Далее эмулируем ответ от сервиса, ибо в данном случае никакого обращения не было (драфт-документ у сервиса не бывал)
-							//
-							StyloQApp.InterchangeResult subj = null;
-							if(r) {
-								subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, SvcIdent, "", null);
-							}
-							else {
-								subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, SvcIdent, "", null);
-							}
-							subj.OriginalCmdItem = new StyloQCommand.Item();
-							subj.OriginalCmdItem.Name = "CancelDocument";
-							ActivityInstance.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
-						}
+					else if(st == StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC) {
+						StyloQApp.InterchangeResult subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, SvcIdent, "Function isn't supported", null);
+						subj.OriginalCmdItem = new StyloQCommand.Item();
+						subj.OriginalCmdItem.Name = "CancelDocument";
+						ActivityInstance.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
 					}
-				}
-				else if(st == StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC) {
-					StyloQApp.InterchangeResult subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, SvcIdent, "Function isn't supported", null);
-					subj.OriginalCmdItem = new StyloQCommand.Item();
-					subj.OriginalCmdItem.Name = "CancelDocument";
-					ActivityInstance.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
-				}
-				else if(st == StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED) {
-					// Надо отправить уведомление об отмене сервису
-					StyloQApp.InterchangeResult subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, SvcIdent, "Function isn't supported", null);
-					subj.OriginalCmdItem = new StyloQCommand.Item();
-					subj.OriginalCmdItem.Name = "CancelDocument";
-					ActivityInstance.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
+					else if(st == StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED) {
+						// Надо отправить уведомление об отмене сервису
+						StyloQApp.InterchangeResult subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, SvcIdent, "Function isn't supported", null);
+						subj.OriginalCmdItem = new StyloQCommand.Item();
+						subj.OriginalCmdItem.Name = "CancelDocument";
+						ActivityInstance.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
+					}
 				}
 			}
 		}
@@ -1207,11 +1268,7 @@ public class CommonPrereqModule {
 		BrandListData = null;
 		GoodsListData = null;
 		IncomingDocListData = null;
-		BaseCurrencySymb = null;
-		AgentID = 0;
-		SvcOpID = 0; // @v11.4.9
-		ActionFlags = 0;
-		PosNodeID = 0;
+		CSVCP = new CommonSvcParam();
 		Gf = null;
 		CurrentOrder = null;
 		OrderHList = null;
@@ -1222,12 +1279,14 @@ public class CommonPrereqModule {
 		ViewPagerResourceId = 0;
 		TabLayoutResourceId = 0;
 		SsB = new SimpleSearchBlock();
+		TabNavStack = new Stack<Tab>();
+		Callback_BackButton = null;
 	}
-	String GetBaseCurrencySymb() { return BaseCurrencySymb; }
-	int   GetDefDuePeriodHour() { return DefDuePeriodHour; }
-	int   GetAgentID() { return AgentID; }
-	int   GetPosNodeID() { return PosNodeID; }
-	int   GetActionFlags() { return ActionFlags; }
+	String GetBaseCurrencySymb() { return CSVCP.BaseCurrencySymb; }
+	int   GetDefDuePeriodHour() { return CSVCP.DefDuePeriodHour; }
+	int   GetAgentID() { return CSVCP.AgentID; }
+	int   GetPosNodeID() { return CSVCP.PosNodeID; }
+	int   GetActionFlags() { return CSVCP.ActionFlags; }
 	public void GetAttributesFromIntent(Intent intent)
 	{
 		if(intent != null) {
@@ -1293,6 +1352,62 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
+	public void OnTabSelection(Object subj /*must be Integer*/)
+	{
+		if(subj != null && subj instanceof Integer) {
+			int tab_idx = (Integer)subj;
+			if(TabList != null && tab_idx >= 0 && tab_idx < TabList.size()) {
+				TabEntry te = TabList.get(tab_idx);
+				if(te != null) {
+					final boolean was_empty = TabNavStack.empty();
+					if(!was_empty) {
+						Tab last = TabNavStack.peek();
+						if(last != te.TabId)
+							TabNavStack.push(te.TabId);
+					}
+					else
+						TabNavStack.push(te.TabId);
+					if(Callback_BackButton != null) {
+						Callback_BackButton.setEnabled(!was_empty);
+					}
+				}
+			}
+		}
+	}
+	//
+	// Descr: Обрабатывает команду "назад" в локальном контексте. А именно, переключает вкладку
+	//   табулятора назад по стеку TabNavStack
+	//
+	public boolean BackTab(@IdRes int viewPagerRcId)
+	{
+		boolean result = false;
+		if(!TabNavStack.empty()) {
+			//
+			// Некоторые страницы viewPager'а могут быть невидимыми к моменту нажатия back-button
+			// Из-за этого мы должны исполнить цикл дабы найти первую видимую страницу в стеке TabNavStack
+			//
+			final Tab current_tab_id = TabNavStack.pop(); // Это - табулятор, на котором мы сейчас находимся. Просто удаляем его из стека.
+			while(!result && !TabNavStack.empty()) {
+				Tab tab_id = TabNavStack.pop(); // Это - табулятор, на котором бы были перед текущим табулятором. Он нам и нужен!
+				if(IsTabVisible(tab_id)) {
+					if(Callback_BackButton != null && TabNavStack.empty()) {
+						Callback_BackButton.setEnabled(false);
+					}
+					GotoTab(tab_id, viewPagerRcId, 0, -1, -1);
+					result = true;
+				}
+			}
+			if(!result) {
+				TabNavStack.push(current_tab_id); // Если после извлечения текущего табулятора стек пустой, то
+					// значит нам некуда возвращаться - заталкиваем текущий табулятор назад и уходим.
+			}
+		}
+		return result;
+	}
+	public boolean IsLocalBackTabNeeded()
+	{
+		return (!TabNavStack.empty() && TabNavStack.size() > 1);
+	}
 	public void GotoTab(CommonPrereqModule.Tab tab, @IdRes int viewPagerRcId, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
 	{
 		if(ActivityInstance != null && tab != CommonPrereqModule.Tab.tabUndef) {
@@ -1303,7 +1418,8 @@ public class CommonPrereqModule {
 					if(te.TabId == tab) {
 						SLib.SlFragmentStatic f = te.TabView;
 						if(f != null) {
-							view_pager.setCurrentItem(tidx);
+							view_pager.setCurrentItem(tidx, false);
+							//TabNavStack.push(tab); // @v11.5.0
 							if(recyclerViewToUpdate != 0) {
 								View fv2 = view_pager.getChildAt(tidx);
 								//f.requireView();
@@ -1356,6 +1472,28 @@ public class CommonPrereqModule {
 				}
 			}
 		}
+	}
+	public boolean IsTabVisible(CommonPrereqModule.Tab tabId)
+	{
+		boolean result = false;
+		if(ActivityInstance != null && ViewPagerResourceId != 0 && TabLayoutResourceId != 0) {
+			ViewPager2 view_pager = (ViewPager2)ActivityInstance.findViewById(ViewPagerResourceId);
+			if(view_pager != null && TabList != null) {
+				for(int tidx = 0; tidx < TabList.size(); tidx++) {
+					if(TabList.get(tidx).TabId == tabId) {
+						View v_lo_tab = ActivityInstance.findViewById(TabLayoutResourceId);
+						if(v_lo_tab != null && v_lo_tab instanceof TabLayout) {
+							TabLayout lo_tab = (TabLayout)v_lo_tab;
+							int v = ((ViewGroup)lo_tab.getChildAt(0)).getChildAt(tidx).getVisibility();
+							if(v == View.VISIBLE)
+								result = true;
+						}
+						break;
+					}
+				}
+			}
+		}
+		return result;
 	}
 	public void SetTabVisibility(CommonPrereqModule.Tab tabId, int visibilityMode)
 	{
@@ -1676,10 +1814,7 @@ public class CommonPrereqModule {
 			ok = false;
 		return ok;
 	}
-	public @NotNull String FormatCurrency(double val)
-	{
-		return SLib.FormatCurrency(val, BaseCurrencySymb);
-	}
+	public @NotNull String FormatCurrency(double val) { return SLib.FormatCurrency(val, CSVCP.BaseCurrencySymb); }
 	public String FormatQtty(double val, int uomID, boolean emptyOnZero)
 	{
 		String result = null;
@@ -1702,17 +1837,7 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	public void GetCommonJsonFactors(JSONObject jsHead) throws JSONException
-	{
-		if(jsHead != null) {
-			BaseCurrencySymb = jsHead.optString("basecurrency", null);
-			DefDuePeriodHour = jsHead.optInt("dueperiodhr", 0); // @v11.4.8
-			AgentID = jsHead.optInt("agentid", 0);
-			SvcOpID = jsHead.optInt("svcopid", 0); // @v11.4.9
-			PosNodeID = jsHead.optInt("posnodeid", 0);
-			ActionFlags = Document.IncomingListActionsFromString(jsHead.optString("actions", null)); // @v11.4.8
-		}
-	}
+	public void GetCommonJsonFactors(JSONObject jsHead) { CSVCP.FromJson(jsHead); }
 	public void MakeGoodsListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		JSONArray temp_array = jsHead.optJSONArray("goods_list");
@@ -1902,6 +2027,46 @@ public class CommonPrereqModule {
 				final int goods_id = GoodsListData.get(i).Item.ID;
 				if(goods_id == goodsID)
 					result = GoodsListData.get(i);
+			}
+		}
+		return result;
+	}
+	public ArrayList <WareEntry> SearchGoodsItemsByBarcode(String code)
+	{
+		ArrayList <WareEntry> result = null;
+		if(SLib.GetLen(code) > 0) {
+			if(GoodsListData != null && GoodsListData.size() > 0) {
+				STokenRecognizer tr = new STokenRecognizer();
+				int tokn = 0;
+				STokenRecognizer.TokenArray nta = tr.Run(code);
+				String preprocessed_code = null;
+				if(nta.Has(STokenRecognizer.SNTOK_EAN13) > 0.0f || nta.Has(STokenRecognizer.SNTOK_EAN8) > 0.0f ||
+						nta.Has(STokenRecognizer.SNTOK_UPCA) > 0.0f || nta.Has(STokenRecognizer.SNTOK_UPCE) > 0.0f) {
+					preprocessed_code = code;
+				}
+				else {
+					GTIN gtin_chzn = GTIN.ParseChZnCode(code, 0);
+					if(gtin_chzn != null && gtin_chzn.GetChZnParseResult() > 0) {
+						preprocessed_code = gtin_chzn.GetToken(GTIN.fldGTIN14);
+						if(SLib.GetLen(preprocessed_code) == 14)
+							preprocessed_code = preprocessed_code.substring(1);
+						else
+							preprocessed_code = null;
+					}
+				}
+				if(SLib.GetLen(preprocessed_code) > 0) {
+					for(int i = 0; i < GoodsListData.size(); i++) {
+						final WareEntry entry = GoodsListData.get(i);
+						if(entry != null && entry.Item != null) {
+							BusinessEntity.GoodsCode ce = entry.Item.SearchCode(preprocessed_code);
+							if(ce != null) {
+								if(result == null)
+									result = new ArrayList<WareEntry>();
+								result.add(entry);
+							}
+						}
+					}
+				}
 			}
 		}
 		return result;

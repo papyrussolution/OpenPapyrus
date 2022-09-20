@@ -1526,7 +1526,8 @@ static int EditExtDevices(PPSyncCashNode * pData)
 	DIALOG_PROC_BODY(ExtDevicesDialog, pData);
 }
 
-#define GRP_TBLDGMPATH 1
+#define GRP_TBLDGMPATH  1
+#define GRP_SLIPFMTPATH 2
 
 class SyncCashNodeCfgDialog : public TDialog {
 public:
@@ -1535,7 +1536,7 @@ public:
 		SetupCalDate(CTLCAL_CASHN_CURDATE, CTL_CASHN_CURDATE);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_TBLDGMPATH, CTL_CASHN_TBLDGMPATH, GRP_TBLDGMPATH, 0, PPTXT_FILPAT_WTM,
 			FileBrowseCtrlGroup::fbcgfFile);
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_SLIPFMTPATH, CTL_CASHN_SLIPFMTPATH, GRP_TBLDGMPATH, 0, PPTXT_FILPAT_FMT,
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_SLIPFMTPATH, CTL_CASHN_SLIPFMTPATH, GRP_SLIPFMTPATH, 0, PPTXT_FILPAT_FMT,
 			FileBrowseCtrlGroup::fbcgfFile);
 	}
 	int    setDTS(const PPSyncCashNode *);

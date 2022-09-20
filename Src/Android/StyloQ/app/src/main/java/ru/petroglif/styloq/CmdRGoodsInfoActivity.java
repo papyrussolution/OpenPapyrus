@@ -137,7 +137,7 @@ public class CmdRGoodsInfoActivity extends SLib.SlActivity {
 										//TabLayout.TabView;
 									}
 									SLib.SetupTabLayoutStyle(lo_tab);
-									SLib.SetupTabLayoutListener(lo_tab, view_pager);
+									SLib.SetupTabLayoutListener(this, lo_tab, view_pager);
 								}
 							}
 							{

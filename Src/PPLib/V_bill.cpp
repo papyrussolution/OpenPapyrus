@@ -4639,12 +4639,12 @@ struct PrvdrDllLink {
 	ImpExpParamDllStruct ParamDll;
 };
 
-int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
+int WriteBill_NalogRu2_Invoice(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
 // pHeaderSymb: "ON_NSCHFDOPPRMARK" || "ON_NSCHFDOPPR"
-int WriteBill_NalogRu2_Invoice2(const PPBillPacket & rBp, const char * pHeaderSymb, const SString & rFileName, SString & rResultFileName); // @prototype 
-int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
-int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
-int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
+int WriteBill_NalogRu2_Invoice2(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const char * pHeaderSymb, const SString & rFileName, SString & rResultFileName); // @prototype 
+int WriteBill_NalogRu2_DP_REZRUISP(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
+int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
+int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
 
 static bool IsByEmailAddrByContext(const SString & rBuf)
 {
@@ -4744,16 +4744,16 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 										}
 									}
 									const char * p_header_symb = pack_has_marks ? "ON_NSCHFDOPPRMARK" : "ON_NSCHFDOPPR";
-									r = WriteBill_NalogRu2_Invoice2(pack, p_header_symb, nominal_file_name, result_file_name_);
+									r = WriteBill_NalogRu2_Invoice2(b_e.BillParam, pack, p_header_symb, nominal_file_name, result_file_name_);
 								}
 								else { // } @v11.2.2 
 									switch(b_e.BillParam.PredefFormat) {
-										case piefNalogR_Invoice:  r = WriteBill_NalogRu2_Invoice(pack, nominal_file_name, result_file_name_); break;
-										case piefNalogR_REZRUISP: r = WriteBill_NalogRu2_DP_REZRUISP(pack, nominal_file_name, result_file_name_); break;
-										case piefNalogR_SCHFDOPPR: r = WriteBill_NalogRu2_UPD(pack, nominal_file_name, result_file_name_); break;
-										//case piefNalogR_ON_NSCHFDOPPRMARK: r = WriteBill_NalogRu2_Invoice2(pack, "ON_NSCHFDOPPRMARK", nominal_file_name, result_file_name_); break;
-										//case piefNalogR_ON_NSCHFDOPPR: r = WriteBill_NalogRu2_Invoice2(pack, "ON_NSCHFDOPPR", nominal_file_name, result_file_name_); break; // @v11.2.1
-										case piefExport_Marks: r = WriteBill_ExportMarks(pack, nominal_file_name, result_file_name_); break; // @erik 
+										case piefNalogR_Invoice:  r = WriteBill_NalogRu2_Invoice(b_e.BillParam, pack, nominal_file_name, result_file_name_); break;
+										case piefNalogR_REZRUISP: r = WriteBill_NalogRu2_DP_REZRUISP(b_e.BillParam, pack, nominal_file_name, result_file_name_); break;
+										case piefNalogR_SCHFDOPPR: r = WriteBill_NalogRu2_UPD(b_e.BillParam, pack, nominal_file_name, result_file_name_); break;
+										//case piefNalogR_ON_NSCHFDOPPRMARK: r = WriteBill_NalogRu2_Invoice2(b_e.BillParam, pack, "ON_NSCHFDOPPRMARK", nominal_file_name, result_file_name_); break;
+										//case piefNalogR_ON_NSCHFDOPPR: r = WriteBill_NalogRu2_Invoice2(b_e.BillParam, pack, "ON_NSCHFDOPPR", nominal_file_name, result_file_name_); break; // @v11.2.1
+										case piefExport_Marks: r = WriteBill_ExportMarks(b_e.BillParam, pack, nominal_file_name, result_file_name_); break; // @erik 
 									}
 								}
 								if(r > 0)

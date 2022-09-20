@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -514,7 +515,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 										lo_tab.addTab(tab);
 									}
 									SLib.SetupTabLayoutStyle(lo_tab);
-									SLib.SetupTabLayoutListener(lo_tab, view_pager);
+									SLib.SetupTabLayoutListener(this, lo_tab, view_pager);
 									/*
 									if(CPM.IsCurrentDocumentEmpty())
 										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
@@ -557,6 +558,12 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								SetupCurrentDocument(true, true);
 							else
 								SetupCurrentDocument(false, true);
+							{
+								CPM.Callback_BackButton = new OnBackPressedCallback(true /* enabled by default */) {
+									@Override public void handleOnBackPressed() { CPM.BackTab(R.id.VIEWPAGER_INCOMINGLISTBILL); }
+								};
+								getOnBackPressedDispatcher().addCallback(this, CPM.Callback_BackButton);
+							}
 						}
 					} catch(StyloQException exn) {
 						;
@@ -565,6 +572,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					}
 				}
 				break;
+			case SLib.EV_TABSELECTED: CPM.OnTabSelection(subj); break;
 			case SLib.EV_LISTVIEWCOUNT:
 				if(srcObj instanceof SLib.FragmentAdapter) {
 					CreateTabList(false);
@@ -1061,6 +1069,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					Document.EditAction acn = null;
 					final int view_id = (srcObj != null && srcObj instanceof View) ? ((View)srcObj).getId() : 0;
 					switch(view_id) {
+						case R.id.tbButtonBack: finish(); break;
 						case R.id.tbButtonSearch:
 							GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
 							break;
@@ -1286,63 +1295,64 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		}
 		return result;
 	}
-	private final ActivityResultLauncher<ScanOptions> BarcodeLauncher = registerForActivityResult(new ScanContract(),
-		activity_result -> {
-			String contents = activity_result.getContents();
+	private final ActivityResultLauncher<ScanOptions> BarcodeLauncher = registerForActivityResult(new ScanContract(), activity_result ->
+	{
+		String contents = activity_result.getContents();
+		Intent original_intent = activity_result.getOriginalIntent();
+		if(SLib.GetLen(contents) > 0) {
 			byte [] bytes_contents = contents.getBytes();
-			Intent original_intent = activity_result.getOriginalIntent();
 			Intent _intent = this.getIntent();
 			boolean is_processed = false;
 			StyloQApp app_ctx = (StyloQApp)getApplicationContext();
 			if(app_ctx != null) {
-				if(contents == null) {
-					if(original_intent == null) {
-						//Log.d("MainActivity", "Cancelled scan");
-						//Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_LONG).show();
-					}
-					else if(original_intent.hasExtra(Intents.Scan.MISSING_CAMERA_PERMISSION)) {
-						//Log.d("MainActivity", "Cancelled scan due to missing camera permission");
-						//Toast.makeText(MainActivity.this, "Cancelled due to missing camera permission", Toast.LENGTH_LONG).show();
-					}
-				}
-				else {
-					//String _action = original_intent.getStringExtra("action");
-					Document _doc = CPM.GetCurrentDocument();
-					if(_doc != null) {
-						GTIN gtin_chzn = GTIN.ParseChZnCode(contents, 0);
-						if(gtin_chzn != null && gtin_chzn.GetChZnParseResult() > 0) {
-							if(ScanSource == ScanType.Veriy) {
-								if(_doc.VXcL == null)
-									_doc.VXcL = new ArrayList<Document.LotExtCode>();
-								Document.LotExtCode lec = new Document.LotExtCode();
-								lec.Flags = 0;
-								lec.BoxRefN = 0;
-								lec.Code = contents;
-								_doc.VXcL.add(lec);
-								CPM.OnCurrentDocumentModification();
-								NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclVerify, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
-								is_processed = true;
-							}
-							else if(ScanSource == ScanType.Setting) {
-								try {
-									int amr = _doc.AssignGoodsMark(contents, CPM.GoodsListData);
-									if(amr > 0) {
-										CPM.OnCurrentDocumentModification();
-										NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclSetting, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
-									}
-								} catch(StyloQException exn) {
-									app_ctx.DisplayError(this, exn, 0);
+				//String _action = original_intent.getStringExtra("action");
+				Document _doc = CPM.GetCurrentDocument();
+				if(_doc != null) {
+					GTIN gtin_chzn = GTIN.ParseChZnCode(contents, 0);
+					if(gtin_chzn != null && gtin_chzn.GetChZnParseResult() > 0) {
+						String mark = GTIN.PreprocessChZnCode(contents);
+						if(ScanSource == ScanType.Veriy) {
+							if(_doc.VXcL == null)
+								_doc.VXcL = new ArrayList<Document.LotExtCode>();
+							Document.LotExtCode lec = new Document.LotExtCode();
+							lec.Flags = 0;
+							lec.BoxRefN = 0;
+							lec.Code = mark;
+							_doc.VXcL.add(lec);
+							CPM.OnCurrentDocumentModification();
+							NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclVerify, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
+							is_processed = true;
+						}
+						else if(ScanSource == ScanType.Setting) {
+							try {
+								int amr = _doc.AssignGoodsMark(mark, CPM.GoodsListData);
+								if(amr > 0) {
+									CPM.OnCurrentDocumentModification();
+									NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclSetting, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
 								}
+							} catch(StyloQException exn) {
+								app_ctx.DisplayError(this, exn, 0);
 							}
 						}
-						else {
-							app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_TEXTISNTCHZNMARK, contents), 0);
-						}
 					}
-					//Log.d("MainActivity", "Scanned");
-					//Toast.makeText(MainActivity.this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+					else {
+						app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_TEXTISNTCHZNMARK, contents), 0);
+					}
 				}
+				//Log.d("MainActivity", "Scanned");
+				//Toast.makeText(MainActivity.this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
 			}
 			//ScanSource = ScanType.Undef; // ? Не уверен что при continuous сканировании это будет правильно
-		});
+		}
+		else {
+			if(original_intent == null) {
+				//Log.d("MainActivity", "Cancelled scan");
+				//Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_LONG).show();
+			}
+			else if(original_intent.hasExtra(Intents.Scan.MISSING_CAMERA_PERMISSION)) {
+				//Log.d("MainActivity", "Cancelled scan due to missing camera permission");
+				//Toast.makeText(MainActivity.this, "Cancelled due to missing camera permission", Toast.LENGTH_LONG).show();
+			}
+		}
+	});
 }

@@ -11398,7 +11398,17 @@
 	#define CTL_STQSTATUSE_STATUS            (2  + WINDOWS_ID_BIAS) 
 	#define CTLSEL_STQSTATUSE_STATUS         (3  + WINDOWS_ID_BIAS) 
 	#define CTL_STQSTATUSE_FLAGS             (4  + WINDOWS_ID_BIAS) 
-	#define CTL_STQSTATUSE_RSRVST            (5  + WINDOWS_ID_BIAS) 
+	#define CTL_STQSTATUSE_RSRVST            (5  + WINDOWS_ID_BIAS)
+#define DLG_STQDOCPARAM           1425 // @v11.5.0
+	#define CTL_STQDOCPARAM_PALM            (1  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQDOCPARAM_PALM         (2  + WINDOWS_ID_BIAS)
+	#define CTL_STQDOCPARAM_OP              (3  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQDOCPARAM_OP           (4  + WINDOWS_ID_BIAS)
+	#define CTL_STQDOCPARAM_LOC             (5  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQDOCPARAM_LOC          (6  + WINDOWS_ID_BIAS)
+	#define CTL_STQDOCPARAM_QK              (7  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQDOCPARAM_QK           (8  + WINDOWS_ID_BIAS)
+	#define CTL_STQDOCPARAM_FLAGS           (9  + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

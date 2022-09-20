@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -1018,7 +1019,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									lo_tab.addTab(tab);
 								}
 								SLib.SetupTabLayoutStyle(lo_tab);
-								SLib.SetupTabLayoutListener(lo_tab, view_pager);
+								SLib.SetupTabLayoutListener(this, lo_tab, view_pager);
 								if(CPM.IsCurrentDocumentEmpty())
 									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, (CPM.OrderHList == null || CPM.OrderHList.size() <= 0) ? View.GONE : View.VISIBLE);
@@ -1026,11 +1027,18 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						}
 						SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
 						CPM.SetTabVisibility(CommonPrereqModule.Tab.tabAttendance, AttdcBlk.IsEmpty() ? View.GONE : View.VISIBLE);
+						{
+							CPM.Callback_BackButton = new OnBackPressedCallback(true /* enabled by default */) {
+								@Override public void handleOnBackPressed() { CPM.BackTab(R.id.VIEWPAGER_ATTENDANCEPREREQ); }
+							};
+							getOnBackPressedDispatcher().addCallback(this, CPM.Callback_BackButton);
+						}
 					}
 				} catch(StyloQException | JSONException exn) {
 					;//
 				}
 				break;
+			case SLib.EV_TABSELECTED: CPM.OnTabSelection(subj); break;
 			case SLib.EV_LISTVIEWCOUNT:
 				if(srcObj instanceof SLib.FragmentAdapter) {
 					CreateTabList(false);
@@ -2131,6 +2139,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				int minuts = -1;
 				final int view_id = (srcObj != null && srcObj instanceof View) ? ((View)srcObj).getId() : 0;
 				switch(view_id) {
+					case R.id.tbButtonBack: finish(); break;
 					case R.id.tbButtonSearch:
 						GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
 						break;

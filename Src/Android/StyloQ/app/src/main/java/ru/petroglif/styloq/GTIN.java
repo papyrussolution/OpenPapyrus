@@ -778,7 +778,25 @@ public class GTIN {
 	public int GetChZnParseResult() { return ChZnParseResult; }
 
 	public static final int pchzncfPretendEverythingIsOk = 0x0001;
-
+	//
+	// Descr: Удаляет из марки code специальные символы
+	//
+	public static String PreprocessChZnCode(String code)
+	{
+		String result = null;
+		if(code != null) {
+			final int len = code.length();
+			result = "";
+			if(len > 0) {
+				for(int ci = 0; ci < len; ci++) {
+					char c = code.charAt(ci);
+					if(c != 29)
+						result = result + c;
+				}
+			}
+		}
+		return result;
+	}
 	public static GTIN ParseChZnCode(String code, int flags)
 	{
 		GTIN result = new GTIN();

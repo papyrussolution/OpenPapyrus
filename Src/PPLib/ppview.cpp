@@ -111,6 +111,30 @@ PPView::DescriptionList::DescriptionList(int kind) : Kind(kind), Fail(0)
 					THROW_SL(L.insert(&ie));
 				}
 			}
+			{
+				//
+				// @v11.5.0 {
+				// Специальные элементы для различный категорий лотов
+				//
+				struct RSVD {
+					const void * P_ExtraParam;
+					const char * P_Symb;
+					const char * P_Name;
+				};
+				static const RSVD ep[] = {
+					{ 0, "Lot_Regular", "@{lots}" },
+					{ reinterpret_cast<const void *>(1), "Lot_Order", "@{orderlots}" },
+				};
+				for(uint i = 0; i < SIZEOFARRAY(ep); i++) {
+					InnerEntry ie;
+					ie.Id = (PPVIEW_LOT | (i << 16));
+					AddS(ep[i].P_Symb, &ie.SymbP);
+					AddS(ep[i].P_Name, &ie.DescrP);
+					ie.P_ExtraParam = ep[i].P_ExtraParam; // @attention not address (&ep[i].P_ExtraParam) - strictrly value (ep[i].P_ExtraParam)
+					THROW_SL(L.insert(&ie));
+				}
+				// } @v11.5.0 
+			}
 		}
 		L.sort2(CMPF_LONG, 0);
 	}

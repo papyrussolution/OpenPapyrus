@@ -2065,7 +2065,7 @@ int CPosProcessor::GetRgi(PPID goodsID, double qtty, long extRgiFlags, RetailGoo
 		rgi_flags |= PPObjGoods::rgifUseBaseQuotAsPrice;
 	bool   nodis = false;
 	const  LDATETIME actual_dtm = P.Eccd.InitDtm;
-	int    r = GObj.GetRetailGoodsInfo(goodsID, GetCnLocID(goodsID), GetCStEqb(goodsID, &nodis),
+	int    r = GObj.GetRetailGoodsInfo(goodsID, GetCnLocID(goodsID), GetCStEqb(goodsID, &nodis), P_EgPrc,
 		P.GetAgentID(), actual_dtm, fabs(qtty), &rRgi, rgi_flags|extRgiFlags);
 	SETFLAG(rRgi.Flags, RetailGoodsInfo::fNoDiscount, nodis);
 	return r;
