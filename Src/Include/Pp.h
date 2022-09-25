@@ -426,6 +426,12 @@ class  PPTextAnalyzer;
 struct ResolveGoodsItem;
 struct StyloQBlobInfo;
 class  PPBillImpExpParam;
+class StyloQAttendancePrereqParam;
+class StyloQIndexingParam;
+class StyloQGoodsInfoParam;
+class StyloQIncomingListParam;
+class StyloQDocumentPrereqParam;
+
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -46951,153 +46957,6 @@ private:
 	static SvcDbSymbMap _SvcDbMap;
 };
 
-class StyloQDocumentPrereqParam : public PPBaseFilt {
-public:
-	static StyloQDocumentPrereqParam * Read(SBuffer & rBuf);
-	StyloQDocumentPrereqParam();
-	StyloQDocumentPrereqParam(const StyloQDocumentPrereqParam & rS);
-	StyloQDocumentPrereqParam & FASTCALL operator = (const StyloQDocumentPrereqParam & rS);
-
-	enum {
-		fUseBarcodeSearch = 0x0001, // На клиенте будет доступна функция поиска по штрихкоду
-		fUseBrands        = 0x0002  // Отправлять клиенту список брендов. Флаг действителен только если PalmID == 0, в противном случае этим управляют опции записи StyloPalm
-	};
-
-	uint8    ReserveStart[64]; // @anchor
-	PPID     PalmID;
-	long     Flags;
-	PPID     OpID;
-	PPID     LocID;
-	PPID     QuotKindID;
-	long     Reserve;           // @anchor  
-private:
-	int    InitInstance();
-};
-//
-// Descr: Параметры подготовки данных для заказа услуг в рамках проекта Stylo-Q
-//
-class StyloQAttendancePrereqParam : public PPBaseFilt {
-public:
-	StyloQAttendancePrereqParam();
-	StyloQAttendancePrereqParam(const StyloQAttendancePrereqParam & rS);
-	StyloQAttendancePrereqParam & FASTCALL operator = (const StyloQAttendancePrereqParam & rS);
-
-	uint8  ReserveStart[50]; // @reserve
-	uint16 TimeSheetDiscreteness; // @v11.4.3 Дискретность таблицы для выбора времени в минутах. Пока допустимы только: 15, 10, 5мин
-	int32  LocID;            // @v11.3.12 Склад (для идентификации процессоров и котировок)
-	int32  QuotKindID;       // @v11.3.12 Вид котировки для определения цены услуги     
-	int32  MaxScheduleDays;  // @v11.3.10 Максимальное количество дней от текущего, доступные для заказа услуги
-	ObjIdListFilt PrcList;   // @anchor 
-	SString PrcTitle;        // Строка, используемая для именования процессоров (мастера, врачи и т.д.)
-private:
-	int    InitInstance();
-};
-
-class StyloQIncomingListParam : public PPBaseFilt {
-public:
-	StyloQIncomingListParam();
-	StyloQIncomingListParam(const StyloQIncomingListParam & rS);
-	StyloQIncomingListParam & FASTCALL operator = (const StyloQIncomingListParam & rS);
-	//
-	// Descr: Действия над документами из входящего списка
-	//
-	enum {
-		actionDocStatus           = 0x0001, // Изменение статуса 
-		actionDocAcceptance       = 0x0002, // Приемка товара (приходные накладные)
-		actionDocAcceptanceMarks  = 0x0004, // Проверка марок в строках входящего документа (приходные накладные)
-		actionDocSettingMarks     = 0x0008, // Расстановка марок на строках исходящего документа (расходные накладные)
-		actionDocInventory        = 0x0010, // Ввод документа инвентаризации
-		actionGoodsItemCorrection = 0x0020, // Корректировка позиций (количество, цена, удаление позиции, замена товара)
-	};
-	enum {
-		fBillWithMarksOnly        = 0x0001, // Только документы, в которых есть марки честный знак или егаис
-		fBillWithMarkedGoodsOnly  = 0x0002  // Только документы, содержащие товары, подлежащие маркировке
-	};
-	struct DocStatus {
-		DocStatus();
-		//
-		// Descr: Зарезервированные варианты статусов, проецируемые на клиента
-		//
-		enum {
-			rUndef = 0,
-			rAccepted = 1,
-			rRejected = 2
-		};
-		enum {
-			fBillFlagDeclined = 0x0001 // Вместо (или одновременно) указания статуса, документу присваивается флаг BILLF2_DECLINED
-		};
-		PPID   StatusID;
-		long   ReservedCase; // DocStatus::rXXX
-		long   Flags;
-		char   NameUtf8[128]; // utf8 Наименование для клиента 
-	};
-	uint8  ReserveStart[48];
-	DateRange Period;  // Это - отладочный критерий. В реальности должен использоваться LookbackDays, но так как тестовые 
-		// базы данных не меняются, то LookbackDays при разработке использовать затруднительно.
-	uint32 Flags;
-	uint32 ActionFlags;
-	int    StQBaseCmdId;
-	int    LookbackDays; // Количество дней с отсчетом назад от текущей системной даты. Данные захватываются за период,
-		// начиная от now-LookbackDays до бесконечности (данные будущими числами так же захватываются).
-	long   Reserve;
-	//
-	// Фильтры, представленные здесь не подлежать прямому интерактивному редактированию пользователем.
-	// Наружу выводится лишь часть критериев этих фильтров, остальные параметры будут задаваться автоматически.
-	//
-	BillFilt * P_BF;
-	PrjTaskFilt * P_TdF;
-	TSessionFilt * P_TsF;
-	CCheckFilt * P_CcF;
-	TSVector <DocStatus> StatusList; // @v11.4.12 Список правил установки статуса
-private:
-	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
-	int    InitInstance();
-};
-
-class StyloQIndexingParam : public PPBaseFilt {
-public:
-	StyloQIndexingParam();
-	StyloQIndexingParam(const StyloQIndexingParam & rS);
-	StyloQIndexingParam & FASTCALL operator = (const StyloQIndexingParam & rS);
-
-	enum {
-		fGoods       = 0x0001,
-		fGoodsGroups = 0x0002,
-		fBrands      = 0x0004,
-		fProcessors  = 0x0008
-	};
-
-	uint8  ReserveStart[64]; // @reserve
-	long   Flags;
-	PPID   GoodsGroupID;
-	PPID   PersonKindID;
-	ObjIdListFilt PrcList;   // @anchor 
-private:
-	int    InitInstance();
-};
-
-class StyloQGoodsInfoParam : public PPBaseFilt {
-public:
-	StyloQGoodsInfoParam();
-	StyloQGoodsInfoParam(const StyloQGoodsInfoParam & rS);
-	StyloQGoodsInfoParam & FASTCALL operator = (const StyloQGoodsInfoParam & rS);
-
-	enum {
-		fShowRest         = 0x0001,
-		fShowCost         = 0x0002,
-		fShowPrice        = 0x0004,
-		fShowDescriptions = 0x0008,
-		fShowCodes        = 0x0010 
-	};
-	uint8  ReserveStart[64]; // @reserve
-	PPID   LocID;
-	PPID   PosNodeID;
-	long   Flags;
-	uint32 Reserve;          // @anchor  
-private:
-	int    InitInstance();
-};
-
 class StyloQCommandList { // @construction
 public:
 	//
@@ -47354,9 +47213,37 @@ public:
 		SString Dl600Symb;
 	};
 	struct Document {
+		struct CliStatus {
+			static int GetFromBill(const TSVector <CliStatus> & rList, const PPBillPacket & rBp);
+			static int SetToBill(const TSVector <CliStatus> & rList, int surrId, PPBillPacket & rBp);
+
+			CliStatus();
+			bool   IsValuable() const { return ((StatusID || (Flags & fBillFlagDeclined)) && !isempty(NameUtf8)); }
+			CliStatus & Z();
+			SJson * ToJsonObj() const;
+			bool   FromJsonObj(const SJson * pJs);
+			//
+			// Descr: Зарезервированные варианты статусов, проецируемые на клиента
+			//
+			enum {
+				rUndef    = 0,
+				rAccepted = 1,
+				rRejected = 2
+			};
+			enum {
+				fBillFlagDeclined = 0x0001 // Вместо (или одновременно) указания статуса, документу присваивается флаг BILLF2_DECLINED
+			};
+			long   SurrogateId;  // Суррогатный идентификатор элемента в списке, передаваемом клиенту. Если на клиенте устанавливается 
+				// соответствующее значение, то сервису передается информация для смены статуса.
+			PPID   StatusID;
+			long   ReservedCase; // DocStatus::rXXX
+			long   Flags;
+			uint8  Reserve[32];
+			char   NameUtf8[128]; // utf8 Наименование для клиента 
+		};
 		Document();
 		Document & Z();
-		int    FromBillPacket(const PPBillPacket & rS, PPIDArray * pGoodsIdList);
+		int    FromBillPacket(const PPBillPacket & rS, const TSVector <CliStatus> * pCliStatusList, PPIDArray * pGoodsIdList);
 		int    FromJsonObject(const SJson * pJsObj);
 		int    FromJson(const char * pJson);
 		SJson * ToJsonObject() const;
@@ -47413,6 +47300,8 @@ public:
 		int    DlvrLocID; // service-domain-id
 		int    AgentID;   // @v11.4.6 service-domain-id
 		int    PosNodeID; // @v11.4.6 service-domain-id
+		int    StatusSurrId; // @v11.5.1 Специальное суррогатное значение, идентифицирующее клиентский статус документа.
+			// Значение ссылается на поле BusinessEntity.DocStatus.SurrId.
 		double Amount;    // @v11.3.10 Номинальная сумма документа
 		SString Code;
 		SString BaseCurrencySymb; // @v11.3.12
@@ -47784,6 +47673,138 @@ private:
 	uint   State;
 	StrAssocArray ViewSymbList;  // Список ассоциация {ViewID->ViewSymb}
 	StrAssocArray ViewDescrList; // Список ассоциация {ViewID->ViewDescription}
+};
+//
+//
+//
+class StyloQDocumentPrereqParam : public PPBaseFilt {
+public:
+	static StyloQDocumentPrereqParam * Read(SBuffer & rBuf);
+	StyloQDocumentPrereqParam();
+	StyloQDocumentPrereqParam(const StyloQDocumentPrereqParam & rS);
+	StyloQDocumentPrereqParam & FASTCALL operator = (const StyloQDocumentPrereqParam & rS);
+
+	enum {
+		fUseBarcodeSearch = 0x0001, // На клиенте будет доступна функция поиска по штрихкоду
+		fUseBrands        = 0x0002  // Отправлять клиенту список брендов. Флаг действителен только если PalmID == 0, в противном случае этим управляют опции записи StyloPalm
+	};
+
+	uint8    ReserveStart[64]; // @anchor
+	PPID     PalmID;
+	long     Flags;
+	PPID     OpID;
+	PPID     LocID;
+	PPID     QuotKindID;
+	long     Reserve;           // @anchor  
+private:
+	int    InitInstance();
+};
+//
+// Descr: Параметры подготовки данных для заказа услуг в рамках проекта Stylo-Q
+//
+class StyloQAttendancePrereqParam : public PPBaseFilt {
+public:
+	StyloQAttendancePrereqParam();
+	StyloQAttendancePrereqParam(const StyloQAttendancePrereqParam & rS);
+	StyloQAttendancePrereqParam & FASTCALL operator = (const StyloQAttendancePrereqParam & rS);
+
+	uint8  ReserveStart[50]; // @reserve
+	uint16 TimeSheetDiscreteness; // @v11.4.3 Дискретность таблицы для выбора времени в минутах. Пока допустимы только: 15, 10, 5мин
+	int32  LocID;            // @v11.3.12 Склад (для идентификации процессоров и котировок)
+	int32  QuotKindID;       // @v11.3.12 Вид котировки для определения цены услуги     
+	int32  MaxScheduleDays;  // @v11.3.10 Максимальное количество дней от текущего, доступные для заказа услуги
+	ObjIdListFilt PrcList;   // @anchor 
+	SString PrcTitle;        // Строка, используемая для именования процессоров (мастера, врачи и т.д.)
+private:
+	int    InitInstance();
+};
+
+class StyloQIncomingListParam : public PPBaseFilt {
+public:
+	StyloQIncomingListParam();
+	StyloQIncomingListParam(const StyloQIncomingListParam & rS);
+	StyloQIncomingListParam & FASTCALL operator = (const StyloQIncomingListParam & rS);
+	void   NormalizeStatusList();
+	//
+	// Descr: Действия над документами из входящего списка
+	//
+	enum {
+		actionDocStatus           = 0x0001, // Изменение статуса 
+		actionDocAcceptance       = 0x0002, // Приемка товара (приходные накладные)
+		actionDocAcceptanceMarks  = 0x0004, // Проверка марок в строках входящего документа (приходные накладные)
+		actionDocSettingMarks     = 0x0008, // Расстановка марок на строках исходящего документа (расходные накладные)
+		actionDocInventory        = 0x0010, // Ввод документа инвентаризации
+		actionGoodsItemCorrection = 0x0020, // Корректировка позиций (количество, цена, удаление позиции, замена товара)
+	};
+	enum {
+		fBillWithMarksOnly        = 0x0001, // Только документы, в которых есть марки честный знак или егаис
+		fBillWithMarkedGoodsOnly  = 0x0002  // Только документы, содержащие товары, подлежащие маркировке
+	};
+	uint8  ReserveStart[48];
+	DateRange Period;  // Это - отладочный критерий. В реальности должен использоваться LookbackDays, но так как тестовые 
+		// базы данных не меняются, то LookbackDays при разработке использовать затруднительно.
+	uint32 Flags;
+	uint32 ActionFlags;
+	int    StQBaseCmdId;
+	int    LookbackDays; // Количество дней с отсчетом назад от текущей системной даты. Данные захватываются за период,
+		// начиная от now-LookbackDays до бесконечности (данные будущими числами так же захватываются).
+	long   Reserve;
+	//
+	// Фильтры, представленные здесь не подлежать прямому интерактивному редактированию пользователем.
+	// Наружу выводится лишь часть критериев этих фильтров, остальные параметры будут задаваться автоматически.
+	//
+	BillFilt * P_BF;
+	PrjTaskFilt * P_TdF;
+	TSessionFilt * P_TsF;
+	CCheckFilt * P_CcF;
+	TSVector <PPStyloQInterchange::Document::CliStatus> StatusList; // @v11.4.12 Список правил установки статуса
+private:
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
+	int    InitInstance();
+};
+
+class StyloQIndexingParam : public PPBaseFilt {
+public:
+	StyloQIndexingParam();
+	StyloQIndexingParam(const StyloQIndexingParam & rS);
+	StyloQIndexingParam & FASTCALL operator = (const StyloQIndexingParam & rS);
+
+	enum {
+		fGoods       = 0x0001,
+		fGoodsGroups = 0x0002,
+		fBrands      = 0x0004,
+		fProcessors  = 0x0008
+	};
+
+	uint8  ReserveStart[64]; // @reserve
+	long   Flags;
+	PPID   GoodsGroupID;
+	PPID   PersonKindID;
+	ObjIdListFilt PrcList;   // @anchor 
+private:
+	int    InitInstance();
+};
+
+class StyloQGoodsInfoParam : public PPBaseFilt {
+public:
+	StyloQGoodsInfoParam();
+	StyloQGoodsInfoParam(const StyloQGoodsInfoParam & rS);
+	StyloQGoodsInfoParam & FASTCALL operator = (const StyloQGoodsInfoParam & rS);
+
+	enum {
+		fShowRest         = 0x0001,
+		fShowCost         = 0x0002,
+		fShowPrice        = 0x0004,
+		fShowDescriptions = 0x0008,
+		fShowCodes        = 0x0010 
+	};
+	uint8  ReserveStart[64]; // @reserve
+	PPID   LocID;
+	PPID   PosNodeID;
+	long   Flags;
+	uint32 Reserve;          // @anchor  
+private:
+	int    InitInstance();
 };
 //
 //

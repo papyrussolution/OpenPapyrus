@@ -266,6 +266,9 @@ public:
 															else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_KIZ), temp_buf) > 0) { // @v10.8.7
 																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
 															}
+															else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_TPACKCODE), temp_buf) > 0) { // @v11.5.1
+																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
+															}
 														}
 													}
 												}

@@ -348,7 +348,7 @@ int AmtTypeDialog::getDTS(PPAmountTypePacket * pData)
 	if(Data.Rec.Flags & PPAmountType::fFormula)
 		getCtrlString(CTL_AMOUNTTYPE_FORMULA, Data.Formula);
 	else
-		Data.Formula = 0;
+		Data.Formula.Z();
 	ASSIGN_PTR(pData, Data);
 	CATCHZOKPPERRBYDLG
 	return ok;

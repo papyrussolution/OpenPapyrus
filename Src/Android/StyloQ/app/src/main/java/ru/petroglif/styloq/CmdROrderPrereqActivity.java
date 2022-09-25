@@ -378,7 +378,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	}
 	private void GotoTab(CommonPrereqModule.Tab tab, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
 	{
-		CPM.GotoTab(tab, R.id.VIEWPAGER_ORDERPREREQ, recyclerViewToUpdate, goToIndex, nestedIndex);
+		CPM.Implement_GotoTab(tab, R.id.VIEWPAGER_ORDERPREREQ, recyclerViewToUpdate, goToIndex, nestedIndex, -1);
 	}
 	private void NotifyTabContentChanged(CommonPrereqModule.Tab tabId, int innerViewId)
 	{
@@ -550,7 +550,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
 		}
 	}
-	private void OpenTransferItemDialog(CommonPrereqModule.WareEntry item)
+	private void OpenTransferItemDialog(CommonPrereqModule.WareEntry item, double qtty)
 	{
 		if(item != null) {
 			final int goods_id = item.Item.ID;
@@ -564,6 +564,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				if(ti != null) {
 					ti.GoodsID = goods_id;
 					ti.Set.Price = item.Item.Price;
+					ti.Set.Qtty = (qtty > 0.0) ? qtty : 0.0;
 					TransferItemDialog dialog = new TransferItemDialog(this, ti);
 					dialog.show();
 				}
@@ -1347,7 +1348,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										if(ev_subj.ItemIdx < CPM.GetGoodsListSize()) {
 											if(ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.buttonOrder) {
 												CommonPrereqModule.WareEntry item = CPM.GetGoodsListItemByIdx(ev_subj.ItemIdx);
-												OpenTransferItemDialog(item);
+												OpenTransferItemDialog(item, 0.0);
 											}
 										}
 										break;
@@ -1454,7 +1455,19 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					switch(view_id) {
 						case R.id.tbButtonBack: finish(); break;
 						case R.id.tbButtonSearch:
-							GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
+							{
+								final CommonPrereqModule.Tab current_tab_id = CPM.GetCurrentTabId();
+								int   obj_to_search = -1;
+								if(current_tab_id == CommonPrereqModule.Tab.tabClients)
+									obj_to_search = SLib.PPOBJ_PERSON;
+								else if(current_tab_id == CommonPrereqModule.Tab.tabGoods)
+									obj_to_search = SLib.PPOBJ_GOODS;
+								else if(current_tab_id == CommonPrereqModule.Tab.tabGoodsGroups)
+									obj_to_search = SLib.PPOBJ_GOODSGROUP;
+								else if(current_tab_id == CommonPrereqModule.Tab.tabBrands)
+									obj_to_search = SLib.PPOBJ_BRAND;
+								CPM.GotoSearchTab(R.id.VIEWPAGER_ORDERPREREQ, obj_to_search);
+							}
 							break;
 						case R.id.tbButtonScan:
 							{
@@ -1704,20 +1717,21 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	{
 		String contents = activity_result.getContents();
 		Intent original_intent = activity_result.getOriginalIntent();
-		if(SLib.GetLen(contents) > 0) {
-			byte[] bytes_contents = contents.getBytes();
-			Intent _intent = this.getIntent();
-			boolean is_processed = false;
+		BusinessEntity.PreprocessBarcodeResult pbcr = CPM.PreprocessBarcode(contents);
+		if(pbcr != null) {
+			//byte[] bytes_contents = contents.getBytes();
+			//Intent _intent = this.getIntent();
+			//boolean is_processed = false;
 			StyloQApp app_ctx = (StyloQApp)getApplicationContext();
 			if(app_ctx != null) {
 				//String _action = original_intent.getStringExtra("action");
-				ArrayList<CommonPrereqModule.WareEntry> goods_list = CPM.SearchGoodsItemsByBarcode(contents);
+				ArrayList<CommonPrereqModule.WareEntry> goods_list = CPM.SearchGoodsItemsByBarcode(pbcr.FinalCode);
 				if(goods_list != null) {
 					assert(goods_list.size() > 0);
 					CommonPrereqModule.WareEntry goods_entry = goods_list.get(0);
 					final int _idx = CPM.FindGoodsItemIndexByID(goods_entry.Item.ID);
 					GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, _idx, -1);
-					OpenTransferItemDialog(goods_entry);
+					OpenTransferItemDialog(goods_entry, pbcr.Qtty);
 				}
 				else {
 					app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_GDSBYBARCODENFOUND, contents), 0);

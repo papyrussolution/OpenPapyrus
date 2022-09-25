@@ -113,6 +113,7 @@ public class Document {
 			ClientID = 0;
 			DlvrLocID = 0;
 			Flags = 0;
+			StatusSurrId = 0; // @v11.5.1
 			Amount = 0;
 			Code = null;
 			SvcIdent = null;
@@ -137,6 +138,7 @@ public class Document {
 				copy.ClientID = s.ClientID;
 				copy.DlvrLocID = s.DlvrLocID;
 				copy.Flags = s.Flags;
+				copy.StatusSurrId = s.StatusSurrId; // @v11.5.1
 				copy.Amount = s.Amount;
 				copy.Code = SLib.Copy(s.Code);
 				copy.SvcIdent = SLib.Copy(s.SvcIdent);
@@ -167,6 +169,8 @@ public class Document {
 			else if(DlvrLocID != s.DlvrLocID)
 				yes = false;
 			else if(Flags != s.Flags)
+				yes = false;
+			else if(StatusSurrId != s.StatusSurrId)
 				yes = false;
 			else if(Amount != s.Amount)
 				yes = false;
@@ -251,6 +255,8 @@ public class Document {
 		int    AgentID;   // @v11.4.6 Для документа агентского заказа - ид агента (фактически, он ассоциируется с владельцем нашего устройства)
 		int    PosNodeID; // @v11.4.6 Для кассового чека - кассовый узел, к которому он привязывается //
 		int    Flags;     // Проекция поля SecTable.Rec.Flags styloqfDocXXX
+		int    StatusSurrId; // @v11.5.1 Специальное суррогатное значение, идентифицирующее клиентский статус документа.
+			// Значение ссылается на поле BusinessEntity.DocStatus.SurrId.
 		double Amount;    // Номинальная сумма документа
 		String Code;
 		byte [] SvcIdent; // Идентификатор сервиса, с которым связан документ
@@ -1178,6 +1184,9 @@ public class Document {
 				if(H.DlvrLocID > 0) {
 					result.put("dlvrlocid", H.DlvrLocID);
 				}
+				if(H.StatusSurrId > 0) { // @v11.5.1
+					result.put("statussurrid", H.StatusSurrId);
+				}
 				// @v11.4.7 {
 				if(H.Amount > 0)
 					result.put("amount", H.Amount);
@@ -1340,6 +1349,7 @@ public class Document {
 				H.PosNodeID = jsObj.optInt("posnodeid", 0);
 				H.AgentID = jsObj.optInt("agentid", 0);
 				H.DlvrLocID = jsObj.optInt("dlvrlocid", 0);
+				H.StatusSurrId = jsObj.optInt("statussurrid", 0); // @v11.5.1
 				{
 					String svc_ident_hex = jsObj.optString("svcident", null);
 					if(SLib.GetLen(svc_ident_hex) > 0)

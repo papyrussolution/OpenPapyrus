@@ -1393,7 +1393,7 @@ public class CommonPrereqModule {
 					if(Callback_BackButton != null && TabNavStack.empty()) {
 						Callback_BackButton.setEnabled(false);
 					}
-					GotoTab(tab_id, viewPagerRcId, 0, -1, -1);
+					Implement_GotoTab(tab_id, viewPagerRcId, 0, -1, -1, -1);
 					result = true;
 				}
 			}
@@ -1408,7 +1408,11 @@ public class CommonPrereqModule {
 	{
 		return (!TabNavStack.empty() && TabNavStack.size() > 1);
 	}
-	public void GotoTab(CommonPrereqModule.Tab tab, @IdRes int viewPagerRcId, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
+	public void GotoSearchTab(@IdRes int viewPagerRcId, int objToSearch)
+	{
+		Implement_GotoTab(Tab.tabSearch, viewPagerRcId, 0, -1, -1, objToSearch);
+	}
+	public void Implement_GotoTab(CommonPrereqModule.Tab tab, @IdRes int viewPagerRcId, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex, int objToSearch)
 	{
 		if(ActivityInstance != null && tab != CommonPrereqModule.Tab.tabUndef) {
 			ViewPager2 view_pager = (ViewPager2)ActivityInstance.findViewById(viewPagerRcId);
@@ -1438,6 +1442,9 @@ public class CommonPrereqModule {
 										}
 									}
 								}
+							}
+							if(objToSearch > 0 && tab == Tab.tabSearch) {
+								SelectSearchPaneObjRestriction(f.getView(), objToSearch);
 							}
 						}
 						break;
@@ -1473,7 +1480,23 @@ public class CommonPrereqModule {
 			}
 		}
 	}
-	public boolean IsTabVisible(CommonPrereqModule.Tab tabId)
+	public Tab GetCurrentTabId()
+	{
+		Tab result = Tab.tabUndef;
+		if(ActivityInstance != null && ViewPagerResourceId != 0 && TabLayoutResourceId != 0) {
+			ViewPager2 view_pager = (ViewPager2)ActivityInstance.findViewById(ViewPagerResourceId);
+			if(view_pager != null && TabList != null) {
+				int tab_idx = view_pager.getCurrentItem();
+				if(tab_idx >= 0 && tab_idx < TabList.size()) {
+					final TabEntry te = TabList.get(tab_idx);
+					if(te != null)
+						result = te.TabId;
+				}
+			}
+		}
+		return result;
+	}
+	public boolean IsTabVisible(Tab tabId)
 	{
 		boolean result = false;
 		if(ActivityInstance != null && ViewPagerResourceId != 0 && TabLayoutResourceId != 0) {
@@ -2031,6 +2054,10 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
+	public BusinessEntity.PreprocessBarcodeResult PreprocessBarcode(String code)
+	{
+		return BusinessEntity.PreprocessBarcode(code, CSVCP.BarcodeWeightPrefix, CSVCP.BarcodeCountPrefix);
+	}
 	public ArrayList <WareEntry> SearchGoodsItemsByBarcode(String code)
 	{
 		ArrayList <WareEntry> result = null;
@@ -2357,8 +2384,10 @@ public class CommonPrereqModule {
 		else {
 			if(objType >= 0) {
 				SsB.RestrictionObjType = objType;
-				SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.GONE);
-				SearchPaneRunSearch(fragmentView);
+				if(fragmentView != null && fragmentView instanceof ViewGroup) {
+					SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.GONE);
+					SearchPaneRunSearch(fragmentView);
+				}
 				result = true;
 			}
 		}
@@ -2392,6 +2421,7 @@ public class CommonPrereqModule {
 				if(iv != null && iv instanceof TextInputEditText) {
 					((TextInputEditText)iv).setText(SsB.SearchPattern);
 					SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.GONE);
+					SelectSearchPaneObjRestriction(fragmentView, SsB.RestrictionObjType); // @v11.5.1
 					TextInputEditText tiv = (TextInputEditText)iv;
 					tiv.requestFocus();
 					tiv.addTextChangedListener(new TextWatcher() {

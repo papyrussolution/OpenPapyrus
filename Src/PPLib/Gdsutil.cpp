@@ -1181,7 +1181,7 @@ int PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const Retail
 			if(flags & rgifConcatQttyToCode) {
 				const int wp = GetConfig().IsWghtPrefix(temp_buf);
 				if(wp && temp_buf.Len() == 7) {
-					long   i_code_qtty = (wp == 2) ? (long)R0(fabs(code_qtty)) : (long)R0(fabs(code_qtty) * 1000.0);
+					long   i_code_qtty = (wp == 2) ? R0i(fabs(code_qtty)) : R0i(fabs(code_qtty) * 1000.0);
 					temp_buf.CatLongZ(i_code_qtty, 5);
 					AddBarcodeCheckDigit(temp_buf);
 				}

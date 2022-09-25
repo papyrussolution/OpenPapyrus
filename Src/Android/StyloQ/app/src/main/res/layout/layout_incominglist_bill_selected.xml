@@ -109,6 +109,23 @@
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
+                android:id="@+id/CTLGRP_DOCUMENT_STATUS"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                >
+                <TextView style="@style/FormText"
+                    android:id="@+id/CTLLBL_DOCUMENT_STATUS"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:text="@{status}"
+                    />
+                <Spinner style="@style/ComboBox" android:id="@+id/CTLSEL_DOCUMENT_STATUS"/>
+            </LinearLayout>
+            <LinearLayout
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:orientation="horizontal">

@@ -4,6 +4,7 @@
 package ru.petroglif.styloq;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class BusinessEntity {
@@ -306,5 +307,116 @@ public class BusinessEntity {
 		ArrayList <Quot> QuotList;
 		ArrayList <ExtText> ExtTextList;
 		String ImgBlob;
+	}
+	public static class PreprocessBarcodeResult {
+		String FinalCode;
+		String ChZnMark;
+		double Qtty;
+	}
+	public static PreprocessBarcodeResult PreprocessBarcode(String code, String wghtPrefix, String cntPrefix)
+	{
+		PreprocessBarcodeResult result = null;
+		final int code_len = SLib.GetLen(code);
+		if(code_len > 1) {
+			GTIN gtin_chzn = GTIN.ParseChZnCode(code, 0);
+			if(gtin_chzn != null && gtin_chzn.GetChZnParseResult() > 0) {
+				String gtin14 = gtin_chzn.GetToken(GTIN.fldGTIN14);
+				if(SLib.GetLen(gtin14) == 14) {
+					if(result == null)
+						result = new PreprocessBarcodeResult();
+					result.ChZnMark = GTIN.PreprocessChZnCode(code);
+					result.FinalCode = gtin14.substring(1);
+					result.Qtty = 1.0;
+				}
+			}
+			else if(SLib.IsDecimal(code)) {
+				if(result == null)
+					result = new PreprocessBarcodeResult();
+				if(code_len == 13 || code_len == 12) {
+					final int wght_pfx_len = SLib.GetLen(wghtPrefix);
+					final int cnt_pfx_len = SLib.GetLen(cntPrefix);
+					if(wght_pfx_len == 2 && code.startsWith(wghtPrefix)) {
+						result.FinalCode = code.substring(0, 7);
+						String wght_text = code.substring(7, 12);
+						result.Qtty = Double.parseDouble(wght_text) / 1000.0;
+					}
+					else if(cnt_pfx_len == 2 && code.startsWith(cntPrefix)) {
+						result.FinalCode = code.substring(0, 7);
+						String count_text = code.substring(7, 12);
+						result.Qtty = Double.parseDouble(count_text);
+					}
+					else {
+						result.FinalCode = code;
+						result.Qtty = 1.0;
+					}
+				}
+				else {
+					result.FinalCode = code;
+					result.Qtty = 1.0;
+				}
+			}
+		}
+		return result;
+	}
+	//
+	// Descr: Специализированная структура, проецирующая статусы документов сервиса на клиентские варинаты.
+	//   Является отображением структуры Papyrus PPStyloQInterchange::Document::CliStatus
+	//
+	public static class CliDocStatus {
+		public CliDocStatus()
+		{
+			SurrogateId = 0;
+			StatusID = 0;
+			ReservedCase = rUndef;
+			Flags = 0;
+			Name = null;
+		}
+		boolean IsValuable()
+		{
+			return ((StatusID != 0 || (Flags & fBillFlagDeclined) != 0) && SLib.GetLen(Name) > 0);
+		}
+		public static ArrayList <CliDocStatus> FromJson(JSONArray jsArr)
+		{
+			ArrayList <CliDocStatus> result = null;
+			if(jsArr != null && jsArr.length() > 0) {
+				for(int i = 0; i < jsArr.length(); i++) {
+					CliDocStatus new_entry = new CliDocStatus();
+					if(new_entry.FromJson(jsArr.optJSONObject(i))) {
+						if(result == null)
+							result = new ArrayList<CliDocStatus>();
+						result.add(new_entry);
+					}
+				}
+			}
+			return result;
+		}
+		public boolean FromJson(JSONObject jsObj)
+		{
+			boolean ok = false;
+			if(jsObj != null) {
+				SurrogateId = jsObj.optInt("surrid", 0);
+				StatusID = jsObj.optInt("statusid", 0);
+				ReservedCase = jsObj.optInt("rsrvdcase", 0);
+				Flags = jsObj.optInt("flags", 0);
+				Name = jsObj.optString("nm", null);
+				if(IsValuable())
+					ok = true;
+			}
+			return ok;
+		}
+		//
+		// Descr: Зарезервированные варианты статусов, проецируемые на клиента
+		//
+		public static final int rUndef    = 0;
+		public static final int rAccepted = 1;
+		public static final int rRejected = 2;
+
+		public static final int fBillFlagDeclined = 0x0001; // Вместо (или одновременно) указания статуса, документу присваивается флаг BILLF2_DECLINED
+		int    SurrogateId;  // Суррогатный идентификатор элемента в списке, передаваемом клиенту. Если на клиенте устанавливается
+			// соответствующее значение, то сервису передается информация для смены статуса.
+		int    StatusID;
+		int    ReservedCase; // DocStatus::rXXX
+		int    Flags;
+		String Name;
 	}
 }

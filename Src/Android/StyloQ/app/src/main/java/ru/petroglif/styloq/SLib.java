@@ -2445,6 +2445,20 @@ public class SLib {
 
 	public static boolean IsEmpty(final String s) { return (s == null || s.length() == 0); }
 	public static boolean IsInstanceOf(Object obj, Class cls) { return (obj != null && cls.isInstance(obj)); }
+	public static boolean IsDecimal(final String s)
+	{
+		boolean yes = false;
+		final int len = GetLen(s);
+		if(len > 0) {
+			yes = true;
+			for(int i = 0; yes && i < len; i++) {
+				final char c = s.charAt(i);
+				if(c < '0' || c > '9')
+					yes = false;
+			}
+		}
+		return yes;
+	}
 	public static int GetLen(final String s) { return (s != null) ? s.length() : 0; }
 	public static int GetLen(final CharSequence s) { return (s != null) ? s.length() : 0; }
 	public static int GetCount(final ArrayList<?> list) { return (list != null) ? list.size() : 0; }

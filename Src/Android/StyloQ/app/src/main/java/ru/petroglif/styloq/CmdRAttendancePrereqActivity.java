@@ -763,7 +763,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	}
 	private void GotoTab(CommonPrereqModule.Tab tab, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
 	{
-		CPM.GotoTab(tab, R.id.VIEWPAGER_ATTENDANCEPREREQ, recyclerViewToUpdate, goToIndex, nestedIndex);
+		CPM.Implement_GotoTab(tab, R.id.VIEWPAGER_ATTENDANCEPREREQ, recyclerViewToUpdate, goToIndex, nestedIndex, -1);
 	}
 	private void SetListBackground(View iv, Object adapter, int itemIdxToDraw, int objType, int objID)
 	{
@@ -2141,7 +2141,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				switch(view_id) {
 					case R.id.tbButtonBack: finish(); break;
 					case R.id.tbButtonSearch:
-						GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
+						CPM.GotoSearchTab(R.id.VIEWPAGER_ATTENDANCEPREREQ, 0);
 						break;
 					case R.id.tbButtonClearFiter:
 						CPM.ResetGoodsFiter();

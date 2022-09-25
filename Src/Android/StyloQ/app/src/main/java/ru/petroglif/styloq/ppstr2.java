@@ -4506,6 +4506,7 @@ class ppstr2 {
 	public static final int PPTXT_LOG_STQPREPAREAHEAD_DONE = 12063;
 	public static final int PPTXT_STQ_HINT_GOTOSVCORDFINISHING = 12064;
 	public static final int PPTXT_SELECTTIROWFORMARKSUBST = 12065;
+	public static final int PPINIPARAM_POSREGISTERLOGGING = 12066;
 	//
 	// .N.
 	//
@@ -4658,6 +4659,7 @@ class ppstr2 {
 	public static final int DVCPARAM_BUYERSEMAIL = 10141;
 	public static final int DVCPARAM_PAPERLESS = 10142;
 	public static final int DVCCMD_OPENSESSION = 10143;
+	public static final int DVCPARAM_LOGGING = 10144;
 	//
 	// .N.
 	//
@@ -5223,4 +5225,5 @@ class ppstr2 {
 	public static final int PPHSC_VETIS_LOSSES = 10238;
 	public static final int PPHSC_VETIS_UNRECORDEDBALANCE = 10239;
 	public static final int PPHSC_VETIS_FILLINGOUTERROR = 10240;
+	public static final int PPHSC_RU_WAREIDENT_TPACKCODE = 10241;
 }

@@ -37,6 +37,7 @@ import java.util.UUID;
 public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	public CommonPrereqModule CPM;
 	private ArrayList <Document.EditAction> DocEditActionList;
+	private ArrayList <BusinessEntity.CliDocStatus> DocStatusList;
 	enum ScanType {
 		Undef,
 		Veriy,
@@ -64,6 +65,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	{
 		CPM = new CommonPrereqModule(this);
 		DocEditActionList = null;
+		DocStatusList = null;
 		ScanSource = ScanType.Undef;
 	}
 	private void CreateTabList(boolean force)
@@ -157,7 +159,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	}
 	private void GotoTab(CommonPrereqModule.Tab tab, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
 	{
-		CPM.GotoTab(tab, R.id.VIEWPAGER_INCOMINGLISTBILL, recyclerViewToUpdate, goToIndex, nestedIndex);
+		CPM.Implement_GotoTab(tab, R.id.VIEWPAGER_INCOMINGLISTBILL, recyclerViewToUpdate, goToIndex, nestedIndex, -1);
 	}
 	private CommonPrereqModule.TabEntry SearchTabEntry(CommonPrereqModule.Tab tab)
 	{
@@ -474,6 +476,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							if(SLib.GetLen(svc_reply_doc_json) > 0) {
 								JSONObject js_head = new JSONObject(svc_reply_doc_json);
 								CPM.GetCommonJsonFactors(js_head);
+								DocStatusList = BusinessEntity.CliDocStatus.FromJson(js_head.optJSONArray("status_list"));
 								CPM.MakeUomListFromCommonJson(js_head);
 								CPM.MakeGoodsGroupListFromCommonJson(js_head);
 								CPM.MakeGoodsListFromCommonJson(js_head);
@@ -719,9 +722,10 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								}
 								else if(a.GetListRcId() == R.id.CTL_INCOMINGLIST_BILL_LIST) {
 									if(CPM.IncomingDocListData != null && ev_subj.ItemIdx < CPM.IncomingDocListData.size()) {
+										StyloQApp app_ctx = GetAppCtx();
 										View iv = ev_subj.RvHolder.itemView;
 										Document cur_entry = (Document)CPM.IncomingDocListData.get(ev_subj.ItemIdx);
-										if(cur_entry.H != null) {
+										if(app_ctx != null && cur_entry.H != null) {
 											if(SLib.GetLen(cur_entry.H.Code) > 0)
 												SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_CODE, cur_entry.H.Code);
 											SLib.LDATE d = cur_entry.GetNominalDate();
@@ -797,6 +801,26 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					}
 				}
 				break;
+			case SLib.EV_CBSELECTED:
+				if(subj != null && subj instanceof SLib.ListViewEvent) {
+					SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
+					if(lve.ItemIdx >= 0 && lve.ItemId >= 0) {
+						View v = findViewById(R.id.VIEWPAGER_INCOMINGLISTBILL);
+						if(v != null && v instanceof ViewPager2) {
+							for(CommonPrereqModule.TabEntry iter : CPM.TabList) {
+								if(iter != null && iter.TabId == CommonPrereqModule.Tab.tabCurrentDocument) {
+									//te = iter;
+									Document _doc = CPM.GetCurrentDocument();
+									if(_doc != null && _doc.H != null) {
+										_doc.H.StatusSurrId = (int)lve.ItemId;
+									}
+									break;
+								}
+							}
+						}
+					}
+				}
+				break;
 			case SLib.EV_SETVIEWDATA:
 				if(srcObj != null && srcObj instanceof ViewGroup) {
 					StyloQApp app_ctx = GetAppCtx();
@@ -857,6 +881,29 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 										});
 									}
 								}
+							}
+							// Комбо-бокс выбора статуса документа
+							if((CPM.GetActionFlags() & Document.actionDocStatus) != 0 && DocStatusList != null && DocStatusList.size() > 0) {
+								SLib.SetCtrlVisibility(vg, R.id.CTLGRP_DOCUMENT_STATUS, View.VISIBLE);
+								SLib.StrAssocArray str_list = new SLib.StrAssocArray();
+								str_list.Set(1000, app_ctx.GetString("unchanged"));
+								int iter_surr_id = 0;
+								for(int i = 0; i < DocStatusList.size(); i++) {
+									final BusinessEntity.CliDocStatus item = DocStatusList.get(i);
+									if(item != null && SLib.GetLen(item.Name) > 0) {
+										int surr_id = 0;
+										if(item.SurrogateId > 0)
+											surr_id = item.SurrogateId;
+										else
+											surr_id = iter_surr_id+1;
+										iter_surr_id = surr_id;
+										str_list.Set(surr_id, item.Name);
+									}
+								}
+								SLib.SetupStrAssocCombo(app_ctx, vg, R.id.CTLSEL_DOCUMENT_STATUS, str_list, _doc.H.StatusSurrId);
+							}
+							else {
+								SLib.SetCtrlVisibility(vg, R.id.CTLGRP_DOCUMENT_STATUS, View.GONE);
 							}
 							{
 								String cli_name = "";
@@ -1071,7 +1118,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					switch(view_id) {
 						case R.id.tbButtonBack: finish(); break;
 						case R.id.tbButtonSearch:
-							GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
+							CPM.GotoSearchTab(R.id.VIEWPAGER_INCOMINGLISTBILL, 0);
 							break;
 						case R.id.tbButtonScan:
 							{

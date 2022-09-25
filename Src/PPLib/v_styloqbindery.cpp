@@ -914,9 +914,8 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				const StyloQIncomingListParam pattern_filt;
 				sav_offs = Data.Param.GetRdOffs();
 				{
-					if(Data.Param.GetAvailableSize()) {
-						PPBaseFilt * p_base_filt = 0;
-						THROW(PPView::ReadFiltPtr(Data.Param, &p_base_filt));
+					PPBaseFilt * p_base_filt = 0;
+					if(Data.Param.GetAvailableSize() && PPView::ReadFiltPtr(Data.Param, &p_base_filt)) {
 						if(p_base_filt) {
 							if(p_base_filt->GetSignature() == pattern_filt.GetSignature()) {
 								p_filt = static_cast<StyloQIncomingListParam *>(p_base_filt);
