@@ -9433,6 +9433,8 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 		assert(p_filt);
 		if(p_filt->Flags & StyloQDocumentPrereqParam::fUseBarcodeSearch) {
 			js.InsertBool("searchbarcode", true);
+		}
+		{
 			const PPGoodsConfig & r_gcfg = goods_obj.GetConfig();
 			{
 				temp_buf = r_gcfg.WghtPrefix;

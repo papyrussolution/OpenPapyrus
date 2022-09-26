@@ -360,7 +360,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabClients, R.layout.layout_orderprereq_clients, "@{client_pl}", (CPM.CliListData != null)),
 				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabCurrentDocument, R.layout.layout_orderprereq_ordr, "@{orderdocument}", true),
 				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabOrders, R.layout.layout_orderprereq_orders, "@{booking_pl}", true),
-				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "[search]", true),
+				new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "@{dosearch}", true),
 			};
 			for(int i = 0; i < tab_init_list.length; i++) {
 				final CommonPrereqModule.TabInitEntry _t = tab_init_list[i];

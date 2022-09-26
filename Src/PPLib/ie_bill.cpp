@@ -4635,7 +4635,8 @@ int PPBillImporter::Run()
 								if(!goods_id) {
 									GtinStruc gts;
 									for(uint markssp = 0; p_item->MarkList.get(&markssp, temp_buf);) {
-										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0 && gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+										const int iczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
+										if(iczcr != PPChZnPrcssr::chznciNone && gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 											if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec, 1) > 0) {
 												goods_id = goods_rec.ID;
 											}

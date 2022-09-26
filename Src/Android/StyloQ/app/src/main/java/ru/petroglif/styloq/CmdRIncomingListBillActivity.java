@@ -86,7 +86,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							"@{filter_styloqincominglistparam_actiondocacceptancemarks}", (CPM.GetActionFlags() & Document.actionDocAcceptanceMarks) != 0),
 					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabXclSetting, R.layout.layout_incominglist_bill_scanmarks,
 							"@{filter_styloqincominglistparam_actiondocsettingmarks}", (CPM.GetActionFlags() & Document.actionDocSettingMarks) != 0),
-					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "[search]", true),
+					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "@{dosearch}", true),
 			};
 			for(int i = 0; i < tab_init_list.length; i++) {
 				final CommonPrereqModule.TabInitEntry _t = tab_init_list[i];

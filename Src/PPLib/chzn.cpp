@@ -143,14 +143,14 @@ Data Matrix для табачной продукции и фармацевтик
 				}
 			}
 		}
-		if(temp_buf.HasPrefix("02") && temp_buf.Len() == (2+14)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN
+		else if(temp_buf.HasPrefix("02") && temp_buf.Len() == (2+14)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN
 			temp_buf.Sub(2, 14, sub_buf);
 			if(sub_buf.IsDigit()) {
 				rS.Add(GtinStruc::fldGTIN14, sub_buf);
 				ok = SNTOK_CHZN_SURROGATE_GTIN;
 			}
 		}
-		else if(temp_buf.HasPrefix("01") || temp_buf.HasPrefix("(01)") || temp_buf.HasPrefix("\x1D" "01")) {
+		else /*if(temp_buf.HasPrefix("01") || temp_buf.HasPrefix("(01)") || temp_buf.HasPrefix("\x1D" "01"))*/ {
 			size_t serial_len_variant_idx = 0;
 			rS.AddSpecialStopChar(0x1D); // @v10.9.9
 			rS.AddSpecialStopChar(0xE8); // @v10.9.9

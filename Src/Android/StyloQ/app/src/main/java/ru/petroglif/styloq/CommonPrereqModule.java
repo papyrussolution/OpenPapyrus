@@ -2077,9 +2077,13 @@ public class CommonPrereqModule {
 						preprocessed_code = gtin_chzn.GetToken(GTIN.fldGTIN14);
 						if(SLib.GetLen(preprocessed_code) == 14)
 							preprocessed_code = preprocessed_code.substring(1);
-						else
+						else {
+							// Это - не правильная марка, стало быть даже пытаться искать по коду не станем
 							preprocessed_code = null;
+						}
 					}
+					else
+						preprocessed_code = code;
 				}
 				if(SLib.GetLen(preprocessed_code) > 0) {
 					for(int i = 0; i < GoodsListData.size(); i++) {
