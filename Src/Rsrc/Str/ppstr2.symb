@@ -1,8 +1,8 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494610
-LastAutoCodeList=1,12171;102,10177;103,10072;110,10000;111,12066;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10313;124,10241
+LastSignatureCode=2147494613
+LastAutoCodeList=1,12171;102,10177;103,10072;110,10000;111,12067;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10313;124,10241
 
 [SignatureList]
 testsign1=2147483649
@@ -2710,6 +2710,9 @@ filter_styloqincominglistparam_actiondocacceptancemarks=2147494579
 filter_styloqincominglistparam_actiondocsettingmarks=2147494580
 filter_styloqincominglistparam_actiondocinventory=2147494581
 filter_styloqincominglistparam_actiongoodsitemcorrection=2147494584
+filter_styloqincominglistparam_actionccheckcreat=2147494611
+filter_styloqincominglistparam_actionccheckmod=2147494612
+filter_styloqincominglistparam_actionccheckregprint=2147494613
 filter_styloqincominglistparam_fbillwithmarksonly=2147494586
 filter_styloqincominglistparam_fbillwithmarkedgoodsonly=2147494587
 cmd_window=2147485847
@@ -13962,6 +13965,7 @@ PPFILNAM_CHZNTALK_LOG=7285070
 PPFILNAM_MENUDESKLOCK=7285071
 PPFILNAM_ATOLDRV_LOG=7285072
 PPFILNAM_UDSTALK_LOG=7285073
+PPFILNAM_MERCAPP_LOG=7286563
 PPFILNAM_NOIMAGE=7285074
 PPFILNAM_VKTALK_LOG=7285075
 PPWORD_TOTAL=7285076

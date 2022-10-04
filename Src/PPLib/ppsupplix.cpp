@@ -7113,6 +7113,317 @@ int SfaHeineken::SendStocks()
 	return ok;
 }
 //
+// @v11.5.2 
+// »нтеграци€ с сервисом √азпром-нефть
+//
+class GazpromNeft : public PrcssrSupplInterchange::ExecuteBlock {
+	enum {
+		stInited     = 0x0001,
+		stEpDefined  = 0x0002
+	};
+public:
+	// https://gateways.suds.gazpromneft-sm.ru
+	GazpromNeft(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), State(0), AcsTokExpirySec(0),
+		Lth(PPFILNAM_MERCAPP_LOG)
+	{
+		PPGetFilePath(PPPATH_LOG, "gazpromneft.log", LogFileName);
+	}
+	~GazpromNeft()
+	{
+	}
+	int    Init()
+	{
+		int    ok = 1;
+		State = 0;
+		SvcUrl.Z();
+		UserName.Z();
+		Password.Z();
+		{
+			Ep.GetExtStrData(Ep.extssRemoteAddr, SvcUrl);
+			Ep.GetExtStrData(Ep.extssAccsName, UserName);
+			Ep.GetExtStrData(Ep.extssAccsPassw, Password);
+			State |= stEpDefined;
+		}
+		State |= stInited;
+		return ok;
+	}
+	int    Test()
+	{
+		int    ok = -1;
+		Auth();
+		return ok;
+	}
+private:
+	enum {
+		qUndef = 0,
+		qAuthLogin,
+		qAuthExtTok,
+		qGetWarehouses,
+		qGetProducts,
+		qGetClients,
+		qSendSellout,
+		qSendSellin,
+		qSendRest
+	};
+	SString & MakeTargetUrl_(int query, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const
+	{
+		(rResult = "https").Cat("://").Cat("gateways").DotCat("suds").DotCat("gazpromneft-sm").DotCat("ru");
+		int    req = SHttpProtocol::reqUnkn;
+		const char * p_path = 0;
+		switch(query) {
+			case qAuthLogin: 
+				req = SHttpProtocol::reqPost;
+				p_path = "login-api/api/v1/Auth/login";
+				break;
+			case qAuthExtTok: 
+				req = SHttpProtocol::reqPost;
+				p_path = "login-api/api/v1/Auth/extended-token";
+				break;
+			case qGetWarehouses: 
+				req = SHttpProtocol::reqGet;
+				p_path = "distribution-api/api/v1/Distributions/warehouses"; 
+				break;
+			case qGetProducts: 
+				req = SHttpProtocol::reqGet;
+				p_path = "product-api/api/v1/Products/integration";
+				break;
+			case qGetClients: 
+				req = SHttpProtocol::reqPost;
+				p_path = "client-api/api/v1/Clients/GetFilteredList";
+				break;
+			case qSendSellout:
+				req = SHttpProtocol::reqPost;
+				p_path = "sales-api/api/v2/Sales/sellout";
+				break;
+			case qSendSellin:
+				req = SHttpProtocol::reqPost;
+				p_path = "sales-api/api/v2/Sales/sellin";
+				break;
+			case qSendRest:
+				req = SHttpProtocol::reqPost;
+				p_path = "sales-api/api/v1/Sales/warehousebalances";
+				break;
+		}
+		if(!isempty(p_path)) {
+			rResult.SetLastDSlash().Cat(p_path);
+		}
+		ASSIGN_PTR(pReq, req);
+		return rResult;
+	}
+	SString & MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf)
+	{
+		StrStrAssocArray hdr_flds;
+		SETIFZ(pHdrFlds, &hdr_flds);
+		{
+			SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+			SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrCacheControl, "no-cache");
+			//SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAcceptLang, "ru");
+			SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAccept, "application/json");
+		}
+		if(!isempty(pToken)) {
+			SString temp_buf;
+			(temp_buf = "Bearer").Space().Cat(pToken);
+			SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAuthorization, temp_buf);
+		}
+		SHttpProtocol::PutHeaderFieldsIntoString(*pHdrFlds, rBuf);
+		return rBuf;
+	}
+	int    Auth()
+	{
+		int    ok = -1;
+		// 1.	јвторизаци€                    POST /login-api/api/v1/Auth/login
+		// 2.	ѕолучение расширенного токена  POST /login-api/api/v1/Auth/extended-token
+		SString temp_buf;
+		SString url_buf;
+		SString req_buf;
+		SString hdr_buf;
+		SBuffer ack_buf;
+		SString token_type;
+		int   req = SHttpProtocol::reqUnkn;
+		bool   is_error = false;
+		{
+			InetUrl url(MakeTargetUrl_(qAuthLogin, &req, url_buf));
+			ScURL c;
+			StrStrAssocArray hdr_flds;
+			//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+			//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, "application/json");
+			MakeHeaderFields(0, &hdr_flds, hdr_buf);
+			{
+				/*
+					{
+						"userName": "string", -- логин
+						"password": "string" -- пароль
+					}
+				*/
+				// extssAccsName
+				SJson json_req(SJson::tOBJECT);
+				json_req.InsertString("userName", UserName);
+				json_req.InsertString("password", Password);
+				THROW_SL(json_req.ToStr(req_buf));
+			}
+			{
+			
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				Lth.Log("req", url_buf, req_buf);
+				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						Lth.Log("rep", 0, temp_buf);
+						SJson * p_js_reply = SJson::Parse(temp_buf);
+						if(p_js_reply) {
+							if(p_js_reply->IsObject()) {
+								for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
+									if(p_itm->Text.IsEqiAscii("accessToken")) {
+										if(p_itm->P_Child) {
+											(AccessToken = p_itm->P_Child->Text).Unescape();
+										}
+									}
+									else if(p_itm->Text.IsEqiAscii("tokenType")) {
+										if(p_itm->P_Child) {
+											(token_type = p_itm->P_Child->Text).Unescape();
+										}
+									}
+									else if(p_itm->Text.IsEqiAscii("expiresIn")) {
+										if(p_itm->P_Child) {
+											AcsTokExpirySec = p_itm->P_Child->Text.ToLong();
+										}
+									}
+									else if(p_itm->Text.IsEqiAscii("refeshToken")) {
+										// ???
+									}
+								}							
+							}
+							ZDELETE(p_js_reply);
+						}
+						
+						//Lth.Log("rep", 0, temp_buf);
+						//if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
+							//ok = 1;
+					}
+				}
+			}
+		}
+		if(!is_error) {
+			InetUrl url(MakeTargetUrl_(qAuthExtTok, &req, url_buf));
+			ScURL c;
+			StrStrAssocArray hdr_flds;
+			//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+			//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, "application/json");
+			MakeHeaderFields(AccessToken, &hdr_flds, hdr_buf);
+			{
+				/*
+					{
+					  "accessToken":"eyJhЕ", -- токен дл€ дальнейшей работы с API
+					  "tokenType": "Bearer",
+					  "expiresIn": "14400",
+					  "refeshToken": " eyJhЕ"
+					}
+				*/
+				// extssAccsName
+				SJson json_req(SJson::tOBJECT);
+				json_req.InsertString("accessToken", (temp_buf = AccessToken).Escape());
+				json_req.InsertString("tokenType", token_type);
+				json_req.InsertInt("expiresIn", AcsTokExpirySec);
+				json_req.InsertString("refeshToken", /*(temp_buf = AccessToken).Escape()*/"");
+				THROW_SL(json_req.ToStr(req_buf));
+			}
+			{
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				Lth.Log("req", url_buf, req_buf);
+				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						Lth.Log("rep", 0, temp_buf);
+						/*
+						SJson * p_js_reply = SJson::Parse(temp_buf);
+						if(p_js_reply) {
+							if(p_js_reply->IsObject()) {
+								for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
+									if(p_itm->Text.IsEqiAscii("accessToken")) {
+										if(p_itm->P_Child) {
+											(AccessToken = p_itm->P_Child->Text).Unescape();
+										}
+									}
+									else if(p_itm->Text.IsEqiAscii("tokenType")) {
+										if(p_itm->P_Child) {
+											//(temp_buf = p_itm->P_Child->Text).Unescape();
+											//opaque_data = temp_buf;
+											//ib_.Tokenize(pTa, temp_buf, ss);
+										}
+									}
+									else if(p_itm->Text.IsEqiAscii("expiresIn")) {
+										if(p_itm->P_Child) {
+											AcsTokExpirySec = p_itm->P_Child->Text.ToLong();
+										}
+									}
+									else if(p_itm->Text.IsEqiAscii("refeshToken")) {
+										// ???
+									}
+								}							
+							}
+							ZDELETE(p_js_reply);
+						}
+						*/
+						//Lth.Log("rep", 0, temp_buf);
+						//if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
+							//ok = 1;
+					}
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    GetWarehouses()
+	{
+		int    ok = -1;
+		// GET /distribution-api/api/v1/Distributions/warehouses
+		return ok;
+	}
+	int    GetProducts()
+	{
+		int    ok = -1;
+		// GET /product-api/api/v1/Products/integration
+		return ok;
+	}
+	int    GetClients()
+	{
+		int    ok = -1;
+		// POST /client-api/api/v1/Clients/GetFilteredList
+		return ok;
+	}
+	int    SendSellout()
+	{
+		int    ok = -1;
+		// POST /sales-api/api/v2/Sales/sellout
+		return ok;
+	}
+	int    SendSellin()
+	{
+		int    ok = -1;
+		// POST /sales-api/api/v2/Sales/sellin
+		return ok;
+	}
+	int    SendRest()
+	{
+		int    ok = -1;
+		// POST /sales-api/api/v1/Sales/warehousebalances
+		return ok;
+	}
+
+	uint   State;
+	SString SvcUrl;
+	SString UserName;
+	SString Password;
+	SString AccessToken;
+	long   AcsTokExpirySec;
+	PPGlobalServiceLogTalkingHelper Lth;
+};
+//
 //
 //
 IMPLEMENT_PPFILT_FACTORY(SupplInterchange); SupplInterchangeFilt::SupplInterchangeFilt() : PPBaseFilt(PPFILT_SUPPLINTERCHANGE, 0, 0)
@@ -7396,7 +7707,14 @@ int PrcssrSupplInterchange::Run()
 	{
 		ExecuteBlock & r_eb = *P_Eb;
 		r_eb.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
-		if(temp_buf.IsEqiAscii("MONOLIT-BALTIKA")) {
+		if(temp_buf.IsEqiAscii("MERCAPP-GAZPROMNEFT")) { // @v11.5.2
+			// @construction {
+			GazpromNeft cli(r_eb, logger);
+			THROW(cli.Init());
+			cli.Test();
+			// } @construction 
+		}
+		else if(temp_buf.IsEqiAscii("MONOLIT-BALTIKA")) {
 			int    max_size_kb = 0;
 			PPIniFile ini_file;
 			if(ini_file.IsValid()) {

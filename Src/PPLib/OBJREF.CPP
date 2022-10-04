@@ -748,7 +748,7 @@ PPUnit2::PPUnit2()
 int PPUnit2::ValidateQuantityFraction(double qtty) const
 {
 	int    ok = 1;
-	const  double frac_tolerance = 1E-5;
+	const  double frac_tolerance = 1.1E-5; // @v11.5.2 1E-5-->1.1E-5
 	if(Fragmentation > 0 && Fragmentation <= 100000) {
 		if(!fsplitintofractions(qtty, Fragmentation, frac_tolerance, 0, 0, 0))
 			ok = PPSetError(PPERR_QTTYMUSTMATCHUFRAG, SLS.AcquireRvlStr().Cat(Fragmentation));

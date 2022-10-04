@@ -1610,7 +1610,6 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 		P_G2DAssoc = new GoodsToObjAssoc(PPASS_GOODS2CASHNODE, PPOBJ_CASHNODE);
 		CALLPTRMEMB(P_G2DAssoc, Load());
 	}
-	// @v10.0.04 {
 	if(Flags & ACGIF_ENSUREUUID) {
 		PPObjTag tag_obj;
 		PPObjectTag tag_rec;
@@ -1622,14 +1621,11 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 			PPLogMessage(PPFILNAM_ERR_LOG, PPSTR_TEXT, PPTXT_ACGIFENSUREUUID_IGNORED, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 	}
-	// } @v10.0.04
 	{
 		RetailPriceExtractor::ExtQuotBlock eqb(AcnPack.ExtQuotID);
-		// @v10.0.03 {
 		long   rtlpf = 0;
 		if(AcnPack.ExtFlags & CASHFX_IGNCONDQUOTS)
 			rtlpf |= RTLPF_IGNCONDQUOTS;
-		// } @v10.0.03
 		RetailExtr.Init(LocID, &eqb, 0, ZERODATETIME, rtlpf); // @v10.0.01 flags 0-->RTLPF_IGNCONDQUOTS // @v10.0.03 flags RTLPF_IGNCONDQUOTS-->rtlpf
 	}
 	Rec.Init();

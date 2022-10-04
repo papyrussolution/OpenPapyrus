@@ -4,13 +4,20 @@
 //
 #include <pp.h>
 #pragma hdrstop
+
+IMPL_CMPFUNC(CCheckViewItem_Dtm_Desc, i1, i2)
+{
+	const CCheckViewItem * p1 = static_cast<const CCheckViewItem *>(i1);
+	const CCheckViewItem * p2 = static_cast<const CCheckViewItem *>(i2);
+	RET_CMPCASCADE2(p2, p1, Dt, Tm); // Порядок обратный: стало быть p2 идет первым аргументом, p1 - вторым
+}
 //
 //
 //
 IMPLEMENT_PPFILT_FACTORY(CCheck); CCheckFilt::CCheckFilt() : PPBaseFilt(PPFILT_CCHECK, 0, 4)
 {
 	SetFlatChunk(offsetof(CCheckFilt, ReserveStart), offsetof(CCheckFilt, SessIDList)-offsetof(CCheckFilt, ReserveStart));
-	SetBranchSVector(offsetof(CCheckFilt, SessIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+	SetBranchSVector(offsetof(CCheckFilt, SessIDList));
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, NodeList));
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, CorrGoodsList));
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, CtValList));

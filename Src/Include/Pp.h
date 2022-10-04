@@ -5211,6 +5211,10 @@ public:
 	int    SetQuot(const PPQuot & rQ, int use_ta);
 	int    GetQuotList(PPID goodsID, PPID locID, PPQuotArray & rList);
 	//
+	// Descr: Формирует список товаров, имеющих значения для вида котировки qkID по складу locID
+	//
+	int    GetListByQuotKind(PPID qkID, PPID locID, PPIDArray & rList);
+	//
 	// Descr: Удаляет все котировки имеющие вид qkID.
 	// Note: Сервисная функция, используемая при удалении вида котировки. Прямое использование опасно и нежелательно.
 	//
@@ -15000,7 +15004,7 @@ public:
 		LineExt();
 		bool   IsEmpty() const;
 
-		uint   ItemIdx;    // Индекс позиции (+1) в Items_
+		uint32 ItemIdx;    // Индекс позиции (+1) в Items_
 		int8   Queue;
 		uint8  Flags;      // @flags
 		uint8  Reserve[2]; // @alignment
@@ -15024,41 +15028,42 @@ public:
 
 	//@erik v10.4.12{
 	enum SubjTermTag {
-		sttUndef           = 0,  // STT_UNDEF
-		sttGood            = 1,  // STT_GOOD    о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
-		sttExcisableGood   = 2,  // STT_EXCISABLEGOOD    о реализуемом подакцизном товаре(наименование и иные сведения, описывающие товар)
-		sttExecutableWork  = 3,  // STT_EXECUTABLEWORK   о выполняемой работе(наименование и иные сведения, описывающие работу)
-		sttService         = 4,  // STT_SERVICE   об оказываемой услуге(наименование и иные сведения, описывающие услугу)
-		sttBetting         = 5,  // STT_BETTING   о приеме ставок при осуществлении деятельности по проведению азартных игр
-		sttPaymentGambling = 6,	 // STT_PAYMENTGAMBLING   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению азартных игр
-		sttBettingLottery  = 7,	 // STT_BETTINGLOTTERY   о приеме денежных средств при реализации лотерейных билетов, электронных лотерейных билетов, приеме лотерейных ставок при осуществлении деятельности по проведению лотерей
-		sttPaymentLottery  = 8,	 // STT_PAYMENTLOTTERY   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению лотерей
+		sttUndef                  = 0, // STT_UNDEF
+		sttGood                   = 1, // STT_GOOD    о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
+		sttExcisableGood          = 2, // STT_EXCISABLEGOOD    о реализуемом подакцизном товаре(наименование и иные сведения, описывающие товар)
+		sttExecutableWork         = 3, // STT_EXECUTABLEWORK   о выполняемой работе(наименование и иные сведения, описывающие работу)
+		sttService                = 4, // STT_SERVICE   об оказываемой услуге(наименование и иные сведения, описывающие услугу)
+		sttBetting                = 5, // STT_BETTING   о приеме ставок при осуществлении деятельности по проведению азартных игр
+		sttPaymentGambling        = 6, // STT_PAYMENTGAMBLING   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению азартных игр
+		sttBettingLottery         = 7, // STT_BETTINGLOTTERY   о приеме денежных средств при реализации лотерейных билетов, электронных лотерейных билетов, приеме лотерейных ставок при осуществлении деятельности по проведению лотерей
+		sttPaymentLottery         = 8, // STT_PAYMENTLOTTERY   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению лотерей
 		sttGrantRightsUseIntellectualActivity = 9,	// STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY   о предоставлении прав на использование результатов интеллектуальной деятельности или средств индивидуализации
-		sttAdvance        = 10,	// STT_ADVANCE   об авансе, задатке, предоплате, кредите, взносе в счет оплаты, пени, штрафе, вознаграждении, бонусе и ином аналогичном предмете расчета
-		sttPaymentsPayingAgent    = 11,	// STT_PAYMENTSPAYINGAGENT   о вознаграждении пользователя, являющегося платежным агентом(субагентом), банковским платежным агентом(субагентом), комиссионером, поверенным или иным агентом
-		sttSubjTerm       = 12,	// STT_SUBJTERM   о предмете расчета, состоящем из предметов, каждому из которых может быть присвоено значение от «0» до «11»
-		sttNotSubjTerm    = 13,	// STT_NOTSUBJTERM   о предмете расчета, не относящемуся к предметам расчета, которым может быть присвоено значение от «0» до «12»
-		sttTransferPropertyRights = 14,	// STT_TRANSFERPROPERTYRIGHTS   о передаче имущественных прав
-		sttNonOperatingIncome     = 15,	// STT_NONOPERATINGINCOME    о внереализационном доходе(Название товара может принимать значения 1 - 25)
-		sttExpensesReduceTax      = 16,	// STT_EXPENSESREDUCETAX    о суммах расходов, уменьшающих сумму налога(авансовых платежей) в соответствии с пунктом 3.1 статьи 346.21 Налогового кодекса Российской Федерации(Название товара может принимать значения 26 - 31)
-		sttAmountMerchantFee      = 17,	// STT_AMOUNTMERCHANTFEE   о суммах уплаченного торгового сбора
-		sttResortFee      = 18,	// STT_RESORTFEE       о курортном сборе
-		sttDeposit        = 19,	// STT_DEPOSIT  Залог
+		sttAdvance                = 10, // STT_ADVANCE   об авансе, задатке, предоплате, кредите, взносе в счет оплаты, пени, штрафе, вознаграждении, бонусе и ином аналогичном предмете расчета
+		sttPaymentsPayingAgent    = 11, // STT_PAYMENTSPAYINGAGENT   о вознаграждении пользователя, являющегося платежным агентом(субагентом), банковским платежным агентом(субагентом), комиссионером, поверенным или иным агентом
+		sttSubjTerm               = 12, // STT_SUBJTERM   о предмете расчета, состоящем из предметов, каждому из которых может быть присвоено значение от «0» до «11»
+		sttNotSubjTerm            = 13, // STT_NOTSUBJTERM   о предмете расчета, не относящемуся к предметам расчета, которым может быть присвоено значение от «0» до «12»
+		sttTransferPropertyRights = 14, // STT_TRANSFERPROPERTYRIGHTS   о передаче имущественных прав
+		sttNonOperatingIncome     = 15, // STT_NONOPERATINGINCOME    о внереализационном доходе(Название товара может принимать значения 1 - 25)
+		sttExpensesReduceTax      = 16, // STT_EXPENSESREDUCETAX    о суммах расходов, уменьшающих сумму налога(авансовых платежей) в соответствии с пунктом 3.1 статьи 346.21 Налогового кодекса Российской Федерации(Название товара может принимать значения 26 - 31)
+		sttAmountMerchantFee      = 17, // STT_AMOUNTMERCHANTFEE   о суммах уплаченного торгового сбора
+		sttResortFee              = 18, // STT_RESORTFEE       о курортном сборе
+		sttDeposit                = 19, // STT_DEPOSIT  Залог
 	};
     //  } @erik v10.4.12
 	//
 	//
 	//
 	enum {
-		extssMemo               = 1, // @reserved Примечание
-		extssSign               = 2, // Строка подписи чека (ЕГАИС)
-		extssEgaisUrl           = 3, // Текст URL информации о чеке ЕГАИС
-		extssRemoteProcessingTa = 4, // @v10.9.0 Символ транзакции удаленной обработки чека
-		extssChZnProcessingTag  = 5, // @v11.0.1 Символ признака передачи чека на сервер честный знак
-		extssBuyerINN           = 6, // @v11.0.4 ИНН покупателя (при формировании чека по документу)
-		extssBuyerName          = 7, // @v11.0.4 Наименование покупателя (при формировании чека по документу)
-		extssBuyerPhone         = 8, // @v11.0.4 Телефон покупателя //
-		extssBuyerEMail         = 9, // @v11.3.6 Адрес электронной почты покупателя //
+		extssMemo               =  1, // @reserved Примечание
+		extssSign               =  2, // Строка подписи чека (ЕГАИС)
+		extssEgaisUrl           =  3, // Текст URL информации о чеке ЕГАИС
+		extssRemoteProcessingTa =  4, // @v10.9.0 Символ транзакции удаленной обработки чека
+		extssChZnProcessingTag  =  5, // @v11.0.1 Символ признака передачи чека на сервер честный знак
+		extssBuyerINN           =  6, // @v11.0.4 ИНН покупателя (при формировании чека по документу)
+		extssBuyerName          =  7, // @v11.0.4 Наименование покупателя (при формировании чека по документу)
+		extssBuyerPhone         =  8, // @v11.0.4 Телефон покупателя //
+		extssBuyerEMail         =  9, // @v11.3.6 Адрес электронной почты покупателя //
+		extssUuid               = 10, // @v11.5.2 UUID чека. Применяется в органиченном наборе сценариев. Введен ради взаимодействия со Stylo-Q.
 		// @attention: После вставки очередного элемента в этот enum добавьте этот элемент в ccpack_textext_ident_list (ccheck.cpp). 
 		//   Иначе этот атрибут не будет сохраняться в чеке.
 	};
@@ -15145,6 +15150,9 @@ public:
 	//
 	int    HasExt() const;
 	uint   GetCount() const;
+	int    GetGuid(S_GUID & rUuid) const; 
+	int    SetGuid(const S_GUID * pUuid);
+	int    GenerateGuid(S_GUID & rUuid);
 	//
 	// Descr: Упаковывает все строки расширения чека и его строк в общую строку для сохранения в базе данных.
 	//
@@ -43589,6 +43597,8 @@ struct CCheckViewItem : public CCheckTbl::Rec { // @transient // @flat
 	char   Serial[32];     // @v10.2.6 Серийный номер (при итерации по строкам)
 };
 
+DECL_CMPFUNC(CCheckViewItem_Dtm_Desc);
+
 class PPViewCCheck : public PPView {
 public:
 	static int EditCCheckSystemInfo(CCheckPacket & rPack);
@@ -47244,6 +47254,7 @@ public:
 		Document();
 		Document & Z();
 		int    FromBillPacket(const PPBillPacket & rS, const TSVector <CliStatus> * pCliStatusList, PPIDArray * pGoodsIdList);
+		int    FromCCheckPacket(const CCheckPacket & rS, PPIDArray * pGoodsIdList);
 		int    FromJsonObject(const SJson * pJsObj);
 		int    FromJson(const char * pJson);
 		SJson * ToJsonObject() const;
@@ -47267,12 +47278,26 @@ public:
 			double Price;
 			double Discount;
 		};
-		struct TransferItem {
-			TransferItem();
+		struct __TransferItem {
+			//
+			// Descr: Битовые флаги, выставляемые в поле Flags
+			//
+			enum {
+				// Следующие 5 флагов - проекция флагов CCheckPacket::LineExt::fXXX
+				// Хотя их значения совпадают с прототипами, это - не существенно и для других флагов может быть не так.
+				fCcGroup         = 0x0001,
+				fCcModifier      = 0x0002,
+				fCcPartOfComplex = 0x0004,
+				fCcQuotedByGift  = 0x0008,
+				fCcFixedPrice    = 0x0010
+			};
+			__TransferItem();
 			int    RowIdx;  // [1..], 0 - undefined
 			int    GoodsID; // service-domain-id
 			int    UnitID;  // service-domain-id
 			int    Flags;
+			int    CcQueue; // @v11.5.2 Проекция поля CCheckPacket::LineExt::Queue
+			SString Serial; // @v11.5.2
 			ValuSet Set;
 			ValuSet SetAccepted; // @v11.4.8 Набор величин, с которыми согласна принимающая сторона (например при инвентаризации, приемке приходного документа и т.д.)
 			TSVector <LotExtCode> XcL;
@@ -47310,7 +47335,7 @@ public:
 		S_GUID OrgCmdUuid; // @v11.4.0 Идентификатор команды сервиса, на основании данных которой сформирован документ.
 			// Поле нужно для сопоставления сохраненных документов с данными сервиса.
 		SString Memo;
-		TSCollection <TransferItem> TiList;
+		TSCollection <__TransferItem> TiList;
 		TSCollection <BookingItem> BkList; // @v11.3.6
 		TSVector <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
 	};
@@ -47538,6 +47563,11 @@ private:
 	};
 	struct InnerGoodsEntry { // @flat
 		explicit InnerGoodsEntry(PPID goodsID);
+		InnerGoodsEntry & Z()
+		{
+			THISZERO();
+			return *this;
+		}
 
 		enum { // Copy of RetailGoodsInfo
 			fDisabledQuot    = 0x0001, // Котировка QuotKindUsedForPrice является блокирующей - продажа товара запрещена.
@@ -47592,6 +47622,7 @@ private:
 		SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	int    ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	int    ProcessCommand_IncomingListOrder(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
+	int    ProcessCommand_IncomingListCCheck(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
 	// Returns:
@@ -47619,6 +47650,18 @@ private:
 	int    Helper_PrepareAhed(const StyloQCommandList & rFullCmdList);
 	bool   AmIMediator(const char * pCommand);
 	SJson * MakeQuery_StoreBlob(const void * pBlobBuf, size_t blobSize, const SString & rSignature);
+
+	struct MakeInnerGoodsEntryBlock {
+		MakeInnerGoodsEntryBlock();
+		~MakeInnerGoodsEntryBlock();
+		int    Make(PPID goodsID, double cost, double price, double rest, double unitPerPack, InnerGoodsEntry & rItem);
+		PPIDArray  GrpIdList;
+		PPIDArray  BrandIdList;
+		PPIDArray  UnitIdList;		
+		PPObjGoods GObj;
+		PPEgaisProcessor * P_Ep;
+	};
+
 	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID, bool logResult);
 	int    AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKind, PPID * pPersonID, int use_ta);
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
@@ -47735,6 +47778,9 @@ public:
 		actionDocSettingMarks     = 0x0008, // Расстановка марок на строках исходящего документа (расходные накладные)
 		actionDocInventory        = 0x0010, // Ввод документа инвентаризации
 		actionGoodsItemCorrection = 0x0020, // Корректировка позиций (количество, цена, удаление позиции, замена товара)
+		actionCCheckCreat         = 0x0040, // @v11.5.2 Создание чека
+		actionCCheckMod           = 0x0080, // @v11.5.2 Модификация чека
+		actionCCheckRegPrint      = 0x0100  // @v11.5.2 Печать чека на регистраторе
 	};
 	enum {
 		fBillWithMarksOnly        = 0x0001, // Только документы, в которых есть марки честный знак или егаис
@@ -55153,7 +55199,14 @@ public:
 	//   объекта при использовании вне кассовой панели.
 	//
 	int    Backend_Release();
-	int    Backend_GetCCheckList(long ctblId, TSVector <CCheckViewItem> & rList);
+	//
+	// Descr: Возвращает список чеков. 
+	// ARG(pPeriod IN): Если pPeriod != 0, то чеки извлекаются за заданный период. В противном случае чеки извлекаются за период от
+	//   даты, начиная с (сегодняшней минус PPSyncCashNode::SuspCheckFilt::DaysPeriod). Эти параметры извлекаются из записи кассового узла.
+	// ARG(ctblId IN): Номер стола, к которому должны быть привязаны чеки. Если ctblId == 0, то номер стола в чеках не принимается во внимание.
+	// ARG(rList OUT): Результатный список чеков.
+	//
+	int    Backend_GetCCheckList(const DateRange * pPeriod, long ctblId, TSVector <CCheckViewItem> & rList);
 	int    Backend_GetGoodsList(PPIDArray & rList); // @v11.4.5
 	int    ExportCurrentState(SString & rBuf) const;
 	int    ExportCTblList(SString & rBuf);

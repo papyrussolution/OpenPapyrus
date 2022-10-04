@@ -3567,6 +3567,37 @@ int GoodsCore::ReplaceArticleRefs(PPID replacedID, PPID newID, int use_ta)
 	return ok;
 }
 
+int GoodsCore::GetListByQuotKind(PPID qkID, PPID locID, PPIDArray & rList)
+{
+	rList.Z();
+	int    ok = -1;
+	if(qkID) { 
+		InitQc();
+		if(P_Qc2) {
+			//P_Qc2->Get
+			PPIDArray temp_list;
+			PPIDArray rel_list;
+			QuotFilt qfilt;
+			qfilt.QuotKindID = qkID;
+			if(locID)
+				qfilt.LocID = locID;
+			else
+				qfilt.Flags |= QuotFilt::fAllLocations;
+			P_Qc2->GetRelListByFilt(&qfilt, rel_list);
+			for(uint i = 0; i < rel_list.getCount(); i++) {
+				const PPID rel_id = rel_list.get(i);
+				P_Qc2->GetGoodsList(rel_id, 1, temp_list.Z());
+				rList.add(&temp_list);
+			}
+			if(rList.getCount()) {
+				rList.sortAndUndup();
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 int GoodsCore::GetQuot(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pVal, int useCache)
 {
 	int    ok = 0;

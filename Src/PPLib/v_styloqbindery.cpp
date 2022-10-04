@@ -658,7 +658,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				base_cmd_id_list.add(StyloQCommandList::sqbcGoodsInfo); // @v11.4.4
 				base_cmd_id_list.add(StyloQCommandList::sqbcLocalBarcodeSearch); // @v11.4.5
 				base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListOrder); // @v11.4.6
-				// @construction base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListCCheck); // @v11.4.7
+				base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListCCheck); // @v11.5.2
 				// @construction base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListTSess); // @v11.4.7
 				// @construction base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListTodo); // @v11.4.7
 				StrAssocArray basecmd_list;

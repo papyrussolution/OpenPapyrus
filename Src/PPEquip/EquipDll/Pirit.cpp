@@ -1099,13 +1099,13 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			str.Z();
 			CreateStr(2, str);
 			CreateStr(1, str);
-			THROW(ExecCmd("79", str, out_data, r_error));
+			THROW(ExecCmd("79", str, out_data, r_error)); // query=2
 		}
 		else if(cmd.IsEqiAscii("REJECTCHZNCODE")) { // @v11.1.11
 			str.Z();
 			CreateStr(2, str);
 			CreateStr(static_cast<int>(0), str);
-			THROW(ExecCmd("79", str, out_data, r_error));
+			THROW(ExecCmd("79", str, out_data, r_error)); // query=2
 		}
 		else if(cmd.IsEqiAscii("PREPROCESSCHZNCODE")) { // @v11.1.10
 			double qtty = 1.0;
@@ -2182,7 +2182,7 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, uint uom
 		}
 		CreateStr(0, in_data); // uom
 		CreateStr(0, in_data); // Режим работы (Если = 1 - все равно проверять КМ в ИСМ, даже если ФН проверил код с отрицательным результатом)
-		THROW(ExecCmd("79", in_data, out_data, r_error));
+		THROW(ExecCmd("79", in_data, out_data, r_error)); // query=1
 		if(pResult) {
 			StringSet fl_pack(FS, out_data);
 			int    fc = 0; // Считанное количество значений
@@ -2465,7 +2465,7 @@ int PiritEquip::RunCheck(int opertype)
 							CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (ofdtag-2106)
 							// @v11.2.3 CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (ofdtag-2108)
 							CreateStr(0L, in_data); // (Целое число) Мера количества [единица измерения то есть; 0 - штуки] (ofdtag-2108) // @v11.2.3
-							THROW(ExecCmd("79", in_data, out_data, r_error));
+							THROW(ExecCmd("79", in_data, out_data, r_error)); // query=15
 							//set_chzn_mark = false;
 							//
 							{

@@ -365,7 +365,6 @@ int ACS_SETSTART::ExportData(int updOnly)
 					rmv_goods_list.addUnique(gds_info.ID);
 				}
 				else {
-					size_t bclen;
 	   				if(gds_info.ID != prev_goods_id) {
 						long   level = 0;
 						PPID   dscnt_scheme_id = 0;
@@ -484,24 +483,18 @@ int ACS_SETSTART::ExportData(int updOnly)
 								*/
 								int    identified_type = 0;
 								if(gds_info.Flags_ & gds_info.fGMarkedType) {
-									if(gds_info.ChZnProdType == GTCHZNPT_TOBACCO)
-										identified_type = 4; // табак : 4
-									// @v11.1.10 {
-									else if(gds_info.ChZnProdType == GTCHZNPT_SHOE)
-										identified_type = 5; 
-									else if(gds_info.ChZnProdType == GTCHZNPT_MEDICINE)
-										identified_type = 3;
-									else if(gds_info.ChZnProdType == GTCHZNPT_CARTIRE)
-										identified_type = 10;
-									else if(gds_info.ChZnProdType == GTCHZNPT_TEXTILE)
-										identified_type = 11;
-									else if(gds_info.ChZnProdType == GTCHZNPT_PERFUMERY)
-										identified_type = 9;
-									else if(gds_info.ChZnProdType == GTCHZNPT_MILK) // @v11.4.9
-										identified_type = 13;
-									else if(gds_info.ChZnProdType == GTCHZNPT_JEWELRY) // @v11.4.9
-										identified_type = 14;
-									// } @v11.1.10 
+									switch(gds_info.ChZnProdType) {
+										case GTCHZNPT_TOBACCO: identified_type = 4; break; // табак : 4
+										// @v11.1.10 {
+										case GTCHZNPT_SHOE: identified_type = 5; break;
+										case GTCHZNPT_MEDICINE: identified_type = 3; break;
+										case GTCHZNPT_CARTIRE: identified_type = 10; break;
+										case GTCHZNPT_TEXTILE: identified_type = 11; break;
+										case GTCHZNPT_PERFUMERY: identified_type = 9; break;
+										case GTCHZNPT_MILK: identified_type = 13; break; // @v11.4.9
+										case GTCHZNPT_JEWELRY: identified_type = 14; break; // @v11.4.9
+										// } @v11.1.10 
+									}
 								}
 								if(identified_type)
 									tail.Cat(identified_type); // #55 Тип маркированной продукции
@@ -512,7 +505,8 @@ int ACS_SETSTART::ExportData(int updOnly)
 							tail.Semicol();         // #57 Крепость алкогольной продукции
 						}
 					}
-					if((bclen = sstrlen(gds_info.BarCode)) != 0) {
+					const size_t bclen = sstrlen(gds_info.BarCode);
+					if(bclen != 0) {
 						gds_info.AdjustBarcode(check_dig);
 						int    wp = GetGoodsCfg().IsWghtPrefix(gds_info.BarCode);
 						if(wp == 1) {

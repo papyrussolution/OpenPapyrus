@@ -5538,7 +5538,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 {
 	int    ok = 1;
 	const  PPID loc_id = pCurrentRestPack ? pCurrentRestPack->Rec.LocID : 0;
-	const  int use_lotxcode = BIN(CConfig.Flags2 & CCFLG2_USELOTXCODE);
+	const  bool use_lotxcode = LOGIC(CConfig.Flags2 & CCFLG2_USELOTXCODE);
 	PPID   op_id = 0;
 	SString temp_buf;
 	SString fmt_buf;
@@ -5781,7 +5781,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 																THROW(ti.Init(&p_wroff_bp->Rec, 1));
 																THROW(ti.SetupGoods(goods_id, 0));
 																ti.Quantity_ = -wroff_qtty;
-																ti.Cost = ref_cost; // @v10.3.11
+																ti.Cost  = ref_cost; // @v10.3.11
 																ti.Price = ref_price; // @v10.3.11
 																THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
 																{

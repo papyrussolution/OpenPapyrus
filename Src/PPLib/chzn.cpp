@@ -70,7 +70,7 @@ Data Matrix для табачной продукции и фармацевтик
 				}
 				else if(rS.GetToken(GtinStruc::fldInner2, &_93)) { // @v11.4.11 молочная продукция //
 					if(_21.Len() == 8 || _21.Len() == 6) {
-						rBuf.CatChar('\x1D').Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
+						rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
 						ok = 2;
 					}
 				}

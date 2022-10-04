@@ -677,7 +677,7 @@ int CPosProcessor::Backend_GetGoodsList(PPIDArray & rList) // @v11.4.5
 	return ok;
 }
 
-int CPosProcessor::Backend_GetCCheckList(long ctblId, TSVector <CCheckViewItem> & rList)
+int CPosProcessor::Backend_GetCCheckList(const DateRange * pPeriod, long ctblId, TSVector <CCheckViewItem> & rList)
 {
 	rList.clear();
 
@@ -693,8 +693,12 @@ int CPosProcessor::Backend_GetCCheckList(long ctblId, TSVector <CCheckViewItem> 
 	flt.TableCode = ctblId;
 	flt.AgentID = P.GetAgentID();
 	flt.NodeList.Add(GetPosNodeID());
-	flt.Period.upp = getcurdate_();
-	flt.Period.low = plusdate(flt.Period.upp, -Scf.DaysPeriod);
+	if(pPeriod)
+		flt.Period = *pPeriod;
+	else {
+		flt.Period.upp = getcurdate_();
+		flt.Period.low = plusdate(flt.Period.upp, -Scf.DaysPeriod);
+	}
 	P_CcView->Init_(&flt);
 	for(P_CcView->InitIteration(0); P_CcView->NextIteration(&item) > 0;) {
 		THROW_SL(rList.insert(&item));
@@ -720,7 +724,7 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 		ctbl_list.add(PPObjCashNode::SubstCTblID);
 		use_def_ctbl = 1;
 	}
-	THROW(Backend_GetCCheckList(0, cc_list));
+	THROW(Backend_GetCCheckList(0, 0, cc_list));
 	//
 	THROW(p_xml_buf = xmlBufferCreate());
 	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
@@ -781,7 +785,7 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 	TSVector <CCheckViewItem> cc_list;
-	THROW(Backend_GetCCheckList(ctblId, cc_list));
+	THROW(Backend_GetCCheckList(0, ctblId, cc_list));
 	THROW(p_xml_buf = xmlBufferCreate());
 	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 	{

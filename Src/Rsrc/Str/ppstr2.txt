@@ -3269,6 +3269,7 @@ PPFILNAM_CHZNTALK_LOG          "chzn-talk.log"
 PPFILNAM_MENUDESKLOCK          "menudesklock.lck"
 PPFILNAM_ATOLDRV_LOG           "atoldrv.log" // @v10.7.12
 PPFILNAM_UDSTALK_LOG           "uds-talk.log" // @v10.8.11
+PPFILNAM_MERCAPP_LOG           "mercapp.log" // @v11.5.2
 PPFILNAM_NOIMAGE               "nophoto.png" // @v10.9.4
 PPFILNAM_VKTALK_LOG            "vk-talk.log" // @v10.9.6
 
@@ -4745,7 +4746,7 @@ PPTXT_EGAIS_QS_CCHECK               "Серверу @{brand_egais} отправ�
 PPTXT_EGAIS_MARKQTYNEQLOTQTY        "Замечание: количество марок не равно остатку по лоту - передается количество марок (%s)"
 PPTXT_NATURALTOKENID           /!/  "0,UNKNOW;1,NATURALWORD;2,DIGITALCODE;3,EAN13;4,EAN8;5,UPCA;6,UPCE;7,RU_INN;8,EAGAISWARECODE;9,EGAISMARKCODE;\
 	10,LUHN;11,ALPHADIGITALCODE;12,GUID;13,EMAIL;14,PHONE;15,IMEI;16,IP4;17,IP6;18,MACADDR48;19,DATE;20,TIME;21,SOFTWAREVERSION"
-PPTXT_SUPPLIXTECH              /!/  "MONOLIT-BALTIKA;ISALES-PEPSI;SAP-EFES;SFA-HEINEKEN"
+PPTXT_SUPPLIXTECH              /!/  "MONOLIT-BALTIKA;ISALES-PEPSI;SAP-EFES;SFA-HEINEKEN;MERCAPP-GAZPROMNEFT"
 PPTXT_EGAIS_TESTSEDNING             "Тестовый режим отправки. Файл"
 PPTXT_EGAIS_SELFTRANSFBILL          "Документ '%s' перемещает товар межу идентичиными КПП - не передается в @{brand_egais}"
 PPTXT_EGAIS_NOEGAISCODE             "Не определен @{egaiscode} для товара или лота (%s)"
@@ -8610,6 +8611,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_styloqincominglistparam_actiondocsettingmarks     "Расстановка марок"
 @filter_styloqincominglistparam_actiondocinventory        "Инвентаризация"
 @filter_styloqincominglistparam_actiongoodsitemcorrection "Корректировка товарных позиций"
+@filter_styloqincominglistparam_actionccheckcreat         "Создание чека"
+@filter_styloqincominglistparam_actionccheckmod           "Модификация чека"
+@filter_styloqincominglistparam_actionccheckregprint      "Печать чека на регистраторе"
 @filter_styloqincominglistparam_fbillwithmarksonly        "Только документы с маркировкой"
 @filter_styloqincominglistparam_fbillwithmarkedgoodsonly  "Только документы, содержащие товары, требующие маркировки"
 //

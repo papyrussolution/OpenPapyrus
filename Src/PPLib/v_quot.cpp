@@ -523,8 +523,8 @@ int PPViewQuot::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	HasPeriodVal = 0;
 	QList_.freeAll();
-	StrPool.ClearS(); // @v9.8.6
-	Gsl.Init(1, 0); // @v10.1.3
+	StrPool.ClearS();
+	Gsl.Init(1, 0);
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
 	{

@@ -22,6 +22,9 @@ public class Document {
 	public static final int actionDocSettingMarks     = 0x0008; // Расстановка марок на строках исходящего документа (расходные накладные)
 	public static final int actionDocInventory        = 0x0010; // Ввод документа инвентаризации
 	public static final int actionGoodsItemCorrection = 0x0020; // Корректировка позиций (количество, цена, удаление позиции, замена товара)
+	public static final int actionCCheckCreat         = 0x0040; // @v11.5.2 Создание чека
+	public static final int actionCCheckMod           = 0x0080; // @v11.5.2 Модификация чека
+	public static final int actionCCheckRegPrint      = 0x0100; // @v11.5.2 Печать чека на регистраторе
 
 	public static int IncomingListActionsFromString(final String input)
 	{
@@ -44,6 +47,14 @@ public class Document {
 					result |= actionDocInventory;
 				else if(tok.equalsIgnoreCase("GoodsItemCorrection"))
 					result |= actionGoodsItemCorrection;
+				// @v11.5.2 {
+				else if(tok.equalsIgnoreCase("CCheckCreat"))
+					result |= actionCCheckCreat;
+				else if(tok.equalsIgnoreCase("CCheckMod"))
+					result |= actionCCheckMod;
+				else if(tok.equalsIgnoreCase("CCheckRegPrint"))
+					result |= actionCCheckRegPrint;
+				// } @v11.5.2
 			}
 		}
 		return result;
@@ -82,6 +93,23 @@ public class Document {
 					result += ",";
 				result += "GoodsItemCorrection";
 			}
+			// @v11.5.2 {
+			if((actionFlags & actionCCheckCreat) != 0) {
+				if(SLib.GetLen(result) > 0)
+					result += ",";
+				result += "CCheckCreat";
+			}
+			if((actionFlags & actionCCheckMod) != 0) {
+				if(SLib.GetLen(result) > 0)
+					result += ",";
+				result += "CCheckMod";
+			}
+			if((actionFlags & actionCCheckRegPrint) != 0) {
+				if(SLib.GetLen(result) > 0)
+					result += ",";
+				result += "CCheckRegPrint";
+			}
+			// } @v11.5.2
 		}
 		return result;
 	}
@@ -627,6 +655,8 @@ public class Document {
 			GoodsID = 0;
 			UnitID = 0;
 			Flags = 0;
+			CcQueue = 0; // @v11.5.2
+			Serial = null; // @v11.5.2
 			Set = new ValuSet();
 			SetAccepted = null; // @v11.4.8
 			XcL = null;
@@ -640,6 +670,8 @@ public class Document {
 				copy.GoodsID = s.GoodsID;
 				copy.UnitID = s.UnitID;
 				copy.Flags = s.Flags;
+				copy.CcQueue = s.CcQueue; // @v11.5.2
+				copy.Serial = s.Serial; // @v11.5.2
 				copy.Set = ValuSet.Copy(s.Set);
 				copy.SetAccepted = ValuSet.Copy(s.SetAccepted);
 				copy.XcL = LotExtCode.Copy(s.XcL);
@@ -649,7 +681,9 @@ public class Document {
 		boolean IsEq(final TransferItem s)
 		{
 			boolean yes = true;
-			if(!(s != null && RowIdx == s.RowIdx && GoodsID == s.GoodsID && UnitID == s.UnitID && Flags == s.Flags && ValuSet.ArEq(Set, s.Set)))
+			if(!(s != null && RowIdx == s.RowIdx && GoodsID == s.GoodsID && UnitID == s.UnitID && Flags == s.Flags && CcQueue == s.CcQueue && ValuSet.ArEq(Set, s.Set)))
+				yes = false;
+			else if(!SLib.AreStringsEqual(Serial, s.Serial)) // @v11.5.2
 				yes = false;
 			else {
 				if(XcL != null) {
@@ -681,10 +715,24 @@ public class Document {
 		}
 		double GetAmount_Cost() { return (Set != null) ? Set.GetAmount_Cost() : 0.0; }
 		double GetAmount_Price() { return (Set != null) ? Set.GetAmount_Price() : 0.0; }
+		//
+		// Descr: Битовые флаги, выставляемые в поле Flags {
+		//
+		// Следующие 5 флагов - проекция флагов CCheckPacket::LineExt::fXXX
+		// Хотя их значения совпадают с прототипами, это - не существенно и для других флагов может быть не так.
+		//
+		public static int fCcGroup         = 0x0001;
+		public static int fCcModifier      = 0x0002;
+		public static int fCcPartOfComplex = 0x0004;
+		public static int fCcQuotedByGift  = 0x0008;
+		public static int fCcFixedPrice    = 0x0010;
+		// }
 		int    RowIdx;  // [1..]
 		int    GoodsID; // service-domain-id
 		int    UnitID;  // service-domain-id
 		int    Flags;
+		int    CcQueue; // @v11.5.2 Проекция поля CCheckPacket::LineExt::Queue
+		String Serial; // @v11.5.2
 		ValuSet Set;
 		ValuSet SetAccepted; // @v11.4.8 Набор величин, с которыми согласна принимающая сторона (например при инвентаризации, приемке приходного документа и т.д.)
 		ArrayList <LotExtCode> XcL;

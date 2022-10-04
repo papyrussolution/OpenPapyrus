@@ -796,6 +796,41 @@ int CCheckPacket::HasExt() const
 		!!Ext.StartOrdDtm || !!Ext.EndOrdDtm || !!Ext.CreationDtm || Ext.CreationUserID || Ext.Memo[0] || Ext.AddrID);
 }
 
+int CCheckPacket::GetGuid(S_GUID & rUuid) const
+{
+	rUuid.Z();
+	int    ok = 0;
+	SString temp_buf;
+	if(GetExtStrData(extssUuid, temp_buf) > 0) {
+		ok = rUuid.FromStr(temp_buf);
+	}
+	return ok;
+}
+
+int CCheckPacket::SetGuid(const S_GUID * pUuid)
+{
+	int    ok = 1;
+	SString temp_buf;
+	S_GUID org_uuid;
+	if(pUuid && !pUuid->IsZero()) {
+		pUuid->ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf);
+		PutExtStrData(extssUuid, temp_buf);
+	}
+	else {
+		PutExtStrData(extssUuid, temp_buf.Z());
+	}
+	return ok;
+}
+
+int CCheckPacket::GenerateGuid(S_GUID & rUuid)
+{
+	int    ok = 1;
+	THROW_SL(rUuid.Generate());
+	THROW(SetGuid(&rUuid));
+	CATCHZOK
+	return ok;
+}
+
 uint  CCheckPacket::GetCount() const { return Items_.getCount(); }
 const CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLine(uint pos) const { return Items_.at(pos); }
 
@@ -905,7 +940,8 @@ static const int ccpack_textext_ident_list[] = {
 	CCheckPacket::extssBuyerINN,          // @v11.0.4 ИНН покупателя (при формировании чека по документу)
 	CCheckPacket::extssBuyerName,         // @v11.0.4 Наименование покупателя (при формировании чека по документу)
 	CCheckPacket::extssBuyerPhone,        // @v11.0.4 Телефон покупателя //
-	CCheckPacket::extssBuyerEMail         // @v11.3.6 
+	CCheckPacket::extssBuyerEMail,        // @v11.3.6 
+	CCheckPacket::extssUuid               // @v11.5.2
 };
 
 int CCheckPacket::PackTextExt(SString & rResult) const

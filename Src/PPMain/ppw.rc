@@ -13685,13 +13685,27 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,134,130,50,13
 END
 
-DLG_STQINLCPARAM DIALOGEX 57, 32, 375, 151
+DLG_STQINLCPARAM DIALOGEX 57, 32, 581, 142
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@filter_styloqincominglistccheckparam"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,245,130,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,315,130,50,13
+    LTEXT           "@filter_styloqincominglistparam_lookbackdays",4001,10,15,165,8
+    EDITTEXT        CTL_STQINLPARAM_LBD,10,25,40,13,ES_AUTOHSCROLL
+    LTEXT           "@{daterange} (debug)",4002,265,15,180,8
+    EDITTEXT        CTL_STQINLPARAM_PERIOD,265,25,115,13,ES_AUTOHSCROLL
+    EDITTEXT        CTL_STQINLPARAM_POS,10,55,210,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Кассовый узел",4003,10,45,190,8
+    PUSHBUTTON      "",CTLSEL_STQINLPARAM_POS,220,55,12,13,BS_BITMAP | NOT WS_TABSTOP
+    GROUPBOX        "@filter_styloqincominglistparam_actions",CTL_STQINLPARAM_ACTIONS,10,75,215,60,WS_GROUP
+    CONTROL         "@filter_styloqincominglistparam_actionccheckcreat",5311,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,90,200,10
+    CONTROL         "@filter_styloqincominglistparam_actionccheckmod",9407,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,100,200,10
+    CONTROL         "@filter_styloqincominglistparam_actionccheckregprint",13503,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,110,200,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,265,120,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,330,120,50,13
 END
 
 DLG_STQINLOPARAM DIALOGEX 57, 32, 581, 222
@@ -32799,6 +32813,7 @@ BEGIN
     DLG_STQINLCPARAM, DIALOG
     BEGIN
         RIGHTMARGIN, 301
+        BOTTOMMARGIN, 32
     END
 
     DLG_STQINLOPARAM, DIALOG
