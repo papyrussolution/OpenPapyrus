@@ -391,6 +391,7 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\ppdrv-ie-kontur.dll"        ; @v8.2.7 
 	File "${SRC_TARGET}\ppdrv-ie-leradata.dll"      ; @v8.3.0
 	; @v11.0.6 File "${SRC_TARGET}\ppdrv-ie-alcodeclbill.dll"  ; @v7.6.7
+	File "${SRC_TARGET}\ppdrv-ie-alcodeclbill.dll"  ; @v7.6.7 ; @v11.5.3 Вернули назад
 	File "${SRC_TARGET}\ppdrv-ctrl-reversk2.dll"    ; @v7.8.1
 	File "${SRC_TARGET}\ppdrv-crdr-emmarine.dll"    ; @v7.9.6
 	File "${SRC_TARGET}\ppdrv-bnkt-sberbank.dll"    ; @v8.1.8

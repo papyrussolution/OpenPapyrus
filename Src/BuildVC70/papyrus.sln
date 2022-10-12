@@ -404,6 +404,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "onig", "onig.vcproj", "{6DF
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AlcoDeclBill", "AlcoDeclBill.vcproj", "{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
+		{0796C89C-07E1-4BDA-BDAE-F023AEB5366C} = {0796C89C-07E1-4BDA-BDAE-F023AEB5366C}
+		{26070AD0-2D76-41A2-AB8B-864EA198CC6F} = {26070AD0-2D76-41A2-AB8B-864EA198CC6F}
+		{6DF114F3-4C83-4F5E-AA2C-2CB451949336} = {6DF114F3-4C83-4F5E-AA2C-2CB451949336}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -1068,6 +1076,20 @@ Global
 		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.ServerRelease.Build.0 = Release|Win32
 		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.Universe-HTT.ActiveCfg = Release|Win32
 		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.Universe-HTT.Build.0 = Release|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.Debug.ActiveCfg = Debug|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.Debug.Build.0 = Debug|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.MtDllDebug.Build.0 = MtDllDebug|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.MtDllRelease.Build.0 = MtDllRelease|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.Release.ActiveCfg = Release|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.Release.Build.0 = Release|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.ServerDebug.ActiveCfg = ServerDebug|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.ServerDebug.Build.0 = ServerDebug|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.ServerRelease.ActiveCfg = ServerRelease|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.ServerRelease.Build.0 = ServerRelease|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.Universe-HTT.ActiveCfg = MtDllDebug|Win32
+		{65D5A00C-A0F0-414D-8B1B-D1F524069FD5}.Universe-HTT.Build.0 = MtDllDebug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		optimization.txt = optimization.txt

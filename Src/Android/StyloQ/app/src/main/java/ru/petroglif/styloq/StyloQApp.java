@@ -825,6 +825,8 @@ public class StyloQApp extends SLib.App {
 											intent_cls = CmdRAttendancePrereqActivity.class;
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglistorder")) // @v11.4.7
 											intent_cls = CmdRIncomingListBillActivity.class;
+										else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglistccheck")) // @v11.5.3
+											intent_cls = CmdRIncomingListBillActivity.class; // ???
 										/* @v11.4.5
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("search")) {
 											if(current_activity_list != null) {

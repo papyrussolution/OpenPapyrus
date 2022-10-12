@@ -123,6 +123,7 @@ Data Matrix для табачной продукции и фармацевтик
 	int    ok = 0;
 	//static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 };
 	static const int8 serial_len_variant_list[] = { 6, 8, 11, 12, 13 }; 
+	static const int8 serial_len_variant_list_83[] = { 13 }; // @v11.5.3 Длины серии [21] для марок с длиной 83 байта
 	const size_t code_len = sstrlen(pCode);
 	rS.Z();
 	if(code_len >= 16) {
@@ -156,7 +157,12 @@ Data Matrix для табачной продукции и фармацевтик
 			rS.AddSpecialStopChar(0xE8); // @v10.9.9
 			rS.AddOnlyToken(GtinStruc::fldGTIN14);
 			rS.AddOnlyToken(GtinStruc::fldSerial);
-			rS.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx++]);
+			if(code_len == 83) {
+				rS.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list_83[serial_len_variant_idx++]);
+			}
+			else {
+				rS.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx++]);
+			}
 			rS.AddOnlyToken(GtinStruc::fldPart);
 			rS.AddOnlyToken(GtinStruc::fldAddendumId);
 			rS.AddOnlyToken(GtinStruc::fldUSPS); //
@@ -203,9 +209,18 @@ Data Matrix для табачной продукции и фармацевтик
 				}
 				pr = rS.Parse(pCode);
 				if(rS.GetToken(GtinStruc::fldGTIN14, 0)) {
-					while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list)) {
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, serial_len_variant_list[serial_len_variant_idx++]);
-						pr = rS.Parse(pCode);					
+					// @v11.5.3 {
+					if(code_len == 83) {
+						while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list_83)) {
+							rS.SetSpecialFixedToken(GtinStruc::fldSerial, serial_len_variant_list_83[serial_len_variant_idx++]);
+							pr = rS.Parse(pCode);					
+						}
+					}
+					else /* } @v11.5.3 */ {
+						while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list)) {
+							rS.SetSpecialFixedToken(GtinStruc::fldSerial, serial_len_variant_list[serial_len_variant_idx++]);
+							pr = rS.Parse(pCode);					
+						}
 					}
 				}
 				#if 0 // {

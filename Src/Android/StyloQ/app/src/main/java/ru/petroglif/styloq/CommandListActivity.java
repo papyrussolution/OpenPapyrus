@@ -326,7 +326,7 @@ public class CommandListActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_LISTVIEWCOUNT:
 				{
-					SLib.RecyclerListAdapter adapter = (srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
+					SLib.RecyclerListAdapter adapter = SLib.IsRecyclerListAdapter(srcObj) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
 					if(adapter != null) {
 						if(adapter.GetRcId() == R.layout.li_command && ListData != null)

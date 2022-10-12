@@ -170,20 +170,14 @@ public class CmdRGridActivity extends SLib.SlActivity {
 							}
 							{
 								LinearLayout header_layout = (LinearLayout) findViewById(R.id.gridCommandViewHeader);
-								if(header_layout != null) {
-									LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(Vdl, this, 1);
-									if(_lo_ != null)
-										header_layout.addView(_lo_);
-								}
+								if(header_layout != null)
+									ViewDescriptionList.SetupItemLayout(Vdl, this, header_layout, 1);
 							}
 							{
 								if(Vdl != null && Vdl.IsThereTotals()) {
 									LinearLayout bottom_layout = (LinearLayout) findViewById(R.id.gridCommandViewBottom);
-									if(bottom_layout != null) {
-										LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(Vdl, this, 2);
-										if(_lo_ != null)
-											bottom_layout.addView(_lo_);
-									}
+									if(bottom_layout != null)
+										ViewDescriptionList.SetupItemLayout(Vdl, this, bottom_layout, 2);
 								}
 							}
 							SetupRecyclerListView(null, R.id.gridCommandView, null);
@@ -197,7 +191,7 @@ public class CmdRGridActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_LISTVIEWCOUNT:
 				{
-					SLib.RecyclerListAdapter adapter = (srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter) srcObj : null;
+					SLib.RecyclerListAdapter adapter = SLib.IsRecyclerListAdapter(srcObj) ? (SLib.RecyclerListAdapter)srcObj : null;
 					result = new Integer((adapter != null && ListData != null) ? ListData.length() : 0);
 				}
 				break;
@@ -206,10 +200,10 @@ public class CmdRGridActivity extends SLib.SlActivity {
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null) {
 						SLib.RecyclerListViewHolder holder = null;
-						SLib.RecyclerListAdapter adapter = (srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
+						SLib.RecyclerListAdapter adapter = SLib.IsRecyclerListAdapter(srcObj) ? (SLib.RecyclerListAdapter)srcObj : null;
 						if(ev_subj.RvHolder == null) {
 							if(ev_subj.ItemView != null) {
-								LinearLayout _lo = ViewDescriptionList.CreateItemLayout(Vdl, this,0);
+								LinearLayout _lo = ViewDescriptionList.SetupItemLayout(Vdl, this, null, 0);
 								if(_lo != null) {
 									holder = new SLib.RecyclerListViewHolder(_lo, adapter);
 									//
@@ -237,7 +231,7 @@ public class CmdRGridActivity extends SLib.SlActivity {
 						LinearLayout _lo = ViewDescriptionList.CreateItemLayout(Vdl, this,0);
 						if(_lo != null) {
 							//((ViewGroup)ev_subj.ItemView).addView(_lo);
-							SLib.RecyclerListAdapter adapter = (srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
+							SLib.RecyclerListAdapter adapter = SLib.IsRecyclerListAdapter(srcObj) ? (SLib.RecyclerListAdapter)srcObj : null;
 							holder = new SLib.RecyclerListViewHolder(_lo, adapter);
 							View iv = holder.itemView;
 							if(iv != null) {

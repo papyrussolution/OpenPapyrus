@@ -2221,7 +2221,7 @@ public:
 	//   !0 - дата dt доступна (если forRead, то на чтение).
 	//   0  - дата dt не доступна.
 	//
-	int    CheckBillDate(LDATE dt, int forRead = 0) const;
+	int    CheckBillDate(/*LDATE dt*/const BillTbl::Rec & rRec, int forRead = 0) const;
 	int    AdjustBillPeriod(DateRange & rPeriod, int checkOnly) const;
 	int    AdjustCSessPeriod(DateRange & rPeriod, int checkOnly) const;
 	int    IsOpRights() const;
@@ -33267,6 +33267,7 @@ public:
 		int   RowN;
 		SString GoodsName;
 		SString GTIN; // Штрихкод товара (EAN/UPC)
+		SString NonEAN_Code; // @v11.5.3 Код товара, не являющийся EAN или UPC-кодом. Пытаемся идентифицировать товар по нему как коду по статье
 		SString OKEI;
 		SString UOM;
 		double Qtty;
@@ -47595,6 +47596,7 @@ private:
 	};	
 	int    AddImgBlobToReqBlobInfoList(const SBinaryChunk & rOwnIdent, PPObjID oid, Stq_ReqBlobInfoList & rList);
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
+	int    StqInsertIntoJs_BaseCurrency(SJson * pJs); // @v11.3.12
 	//
 	// Descr: Флаги семейства функция MakeObjJson_XXX
 	//
@@ -47613,6 +47615,7 @@ private:
 	SJson * MakeObjJson_Brand(const SBinaryChunk & rOwnIdent, const PPBrandPacket & rPack, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjArrayJson_Brand(const SBinaryChunk & rOwnIdent, PPIDArray & rIdList, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjJson_Prc(const SBinaryChunk & rOwnIdent, const ProcessorTbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
+	int    MakeInnerGoodsList(const PPIDArray & rGoodsIdList);
 	int    MakeDocDeclareJs(const StyloQCommandList::Item & rCmdItem, const char * pDl600Symb, SString & rDocDeclaration);
 	int    ProcessCommand_PersonEvent(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos);
 	int    ProcessCommand_Report(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,

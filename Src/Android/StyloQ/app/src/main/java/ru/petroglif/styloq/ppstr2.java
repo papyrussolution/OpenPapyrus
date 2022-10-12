@@ -4507,6 +4507,7 @@ class ppstr2 {
 	public static final int PPTXT_STQ_HINT_GOTOSVCORDFINISHING = 12064;
 	public static final int PPTXT_SELECTTIROWFORMARKSUBST = 12065;
 	public static final int PPINIPARAM_POSREGISTERLOGGING = 12066;
+	public static final int PPFILNAM_MERCAPP_LOG = 12067;
 	//
 	// .N.
 	//

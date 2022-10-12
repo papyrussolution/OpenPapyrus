@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextPaint;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -37,6 +38,27 @@ public class ViewDescriptionList {
 			DataTypeBTS = 0;
 			SlFormat = 0;
 			SlFormat2 = 0;
+			Title = null;
+		}
+		Item(int id, String title, int styleRcId)
+		{
+			Id = id;
+			TotalFunc = 0;
+			RTotalResult = 0.0;
+			ITotalResult = 0;
+			FixedWidth = 0;
+			FixedHeight = 0;
+			LayoutWeight = 0.0f;
+			LayoutWidth = 0.0f;
+			//AllNumeric = false;
+			Flags = 0;
+			ForceAlignment = 0;
+			Mrgn = null;
+			StyleRcId = styleRcId;
+			DataTypeBTS = 0;
+			SlFormat = 0;
+			SlFormat2 = 0;
+			Title = title;
 		}
 		int    Id; // @v11.4.3 optional anchor id
 		String Zone;
@@ -184,7 +206,7 @@ public class ViewDescriptionList {
 	// ARG(phase IN): 0 - preprocess, 1 - running
 	// ARG(level IN): 0 - detail, 1 - header, 2 - footer
 	//
-	public View CreateBaseEntryView(Context ctx, int phase, int level, int columnIdx/*0..*/)
+	public View SetupBaseEntryView(Context ctx, View view, int phase, int level, int columnIdx/*0..*/)
 	{
 		View result = null;
 		if(L != null && columnIdx >= 0 && columnIdx < L.size()) {
@@ -192,31 +214,42 @@ public class ViewDescriptionList {
 			TextView tv = null;
 			ImageView iv = null;
 			if(level == 0 && (di.Flags & Item.fImage) != 0) {
-				if(di.StyleRcId != 0)
-					iv = new ImageView(new ContextThemeWrapper(ctx, di.StyleRcId));
-				else
-					iv = new ImageView(ctx);
+				if(view == null) {
+					if(di.StyleRcId != 0)
+						iv = new ImageView(new ContextThemeWrapper(ctx, di.StyleRcId));
+					else
+						iv = new ImageView(ctx);
+				}
+				else if(view instanceof ImageView)
+					iv = (ImageView)view;
 				result = iv;
 			}
 			else {
-				if(di.StyleRcId != 0)
-					tv = new TextView(new ContextThemeWrapper(ctx, di.StyleRcId));
-				else
-					tv = new TextView(ctx);
-				tv.setSingleLine();
-				int alignment = View.TEXT_ALIGNMENT_TEXT_START;
-				if(phase == 1 && level == 0) {
-					if(di.ForceAlignment > 0)
-						alignment = View.TEXT_ALIGNMENT_TEXT_START;
-					else if(di.ForceAlignment < 0)
-						alignment = View.TEXT_ALIGNMENT_TEXT_END;
-					else if(di.DataTypeBTS == DataType.BTS_INT || di.DataTypeBTS == DataType.BTS_REAL)
-						alignment = View.TEXT_ALIGNMENT_TEXT_END;
-					else if((di.Flags & Item.fAllNumeric) != 0)
-						alignment = View.TEXT_ALIGNMENT_TEXT_END;
+				if(view == null) {
+					if(di.StyleRcId != 0)
+						tv = new TextView(new ContextThemeWrapper(ctx, di.StyleRcId));
+					else
+						tv = new TextView(ctx);
+					view = tv;
 				}
-				tv.setTextAlignment(alignment);
-				result = tv;
+				else if(view instanceof TextView)
+					tv = (TextView)view;
+				if(tv != null) {
+					tv.setSingleLine();
+					int alignment = View.TEXT_ALIGNMENT_TEXT_START;
+					if(phase == 1 && level == 0) {
+						if(di.ForceAlignment > 0)
+							alignment = View.TEXT_ALIGNMENT_TEXT_START;
+						else if(di.ForceAlignment < 0)
+							alignment = View.TEXT_ALIGNMENT_TEXT_END;
+						else if(di.DataTypeBTS == DataType.BTS_INT || di.DataTypeBTS == DataType.BTS_REAL)
+							alignment = View.TEXT_ALIGNMENT_TEXT_END;
+						else if((di.Flags & Item.fAllNumeric) != 0)
+							alignment = View.TEXT_ALIGNMENT_TEXT_END;
+					}
+					tv.setTextAlignment(alignment);
+					result = tv;
+				}
 			}
 			/*
 			if(phase == 1)
@@ -270,19 +303,37 @@ public class ViewDescriptionList {
 	//   Функция статическая так как должна создать layout даже в том случае, когда this == 0.
 	// ARG(level IN): 0 - detail, 1 - header, 2 - footer
 	//
-	public static LinearLayout CreateItemLayout(ViewDescriptionList self, Context ctx, int level)
+	public static LinearLayout SetupItemLayout(ViewDescriptionList self, Context ctx, ViewGroup parentView, int level)
 	{
 		LinearLayout result = null;
-		if(self != null) {
-			if(level == 0 && self.ItemStyleRcId != 0)
-				result = new LinearLayout(new ContextThemeWrapper(ctx, self.ItemStyleRcId));
-			else if(level == 1 && self.HeaderStyleRcId != 0)
-				result = new LinearLayout(new ContextThemeWrapper(ctx, self.HeaderStyleRcId));
-			else if(level == 2 && self.BottomStyleRcId != 0)
-				result = new LinearLayout(new ContextThemeWrapper(ctx, self.BottomStyleRcId));
+		LinearLayout prev_layout = null;
+		int layout_view_id = 0;
+		if(parentView != null) {
+			if(level == 2) // footer
+				layout_view_id = (level * 1000);
 		}
-		if(result == null)
-			result = new LinearLayout(ctx);
+		if(layout_view_id != 0) {
+			assert(parentView != null);
+			prev_layout = parentView.findViewById(layout_view_id);
+			if(prev_layout != null && prev_layout instanceof LinearLayout)
+				result = (LinearLayout)prev_layout;
+		}
+		if(result == null) {
+			if(self != null) {
+				if(level == 0 && self.ItemStyleRcId != 0)
+					result = new LinearLayout(new ContextThemeWrapper(ctx, self.ItemStyleRcId));
+				else if(level == 1 && self.HeaderStyleRcId != 0)
+					result = new LinearLayout(new ContextThemeWrapper(ctx, self.HeaderStyleRcId));
+				else if(level == 2 && self.BottomStyleRcId != 0)
+					result = new LinearLayout(new ContextThemeWrapper(ctx, self.BottomStyleRcId));
+			}
+			if(result == null)
+				result = new LinearLayout(ctx);
+			// @v11.5.3 {
+			if(layout_view_id > 0)
+				result.setId(layout_view_id);
+			// } @v11.5.3
+		}
 		result.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 		result.setOrientation(LinearLayout.HORIZONTAL);
 		if(self != null) {
@@ -290,12 +341,29 @@ public class ViewDescriptionList {
 			for(int i = 0; i < cc; i++) {
 				Item di = self.L.get(i);
 				if(di != null) {
-					View view = self.CreateBaseEntryView(ctx, 1, level, i);
-					if(view != null)
+					// @v11.5.3 {
+					View prev_view = null;
+					int item_view_id = 0;
+					if(level == 2) { // footer
+						item_view_id = (level * 1000 + 1 + i);
+					}
+					if(item_view_id != 0) {
+						prev_view = result.findViewById(item_view_id);
+					}
+					// } @v11.5.3
+					View view = self.SetupBaseEntryView(ctx, prev_view, 1, level, i);
+					if(view != null && prev_view == null) {
+						if(item_view_id > 0)
+							view.setId(item_view_id);
 						result.addView(view);
+					}
 				}
 			}
 		}
+		// @v11.5.3 {
+		if(parentView != null && prev_layout == null)
+			parentView.addView(result);
+		// } @v11.5.3
 		return result;
 	}
 	DataPreprocessBlock StartDataPreprocessing(Context ctx, int columnIdx)
@@ -304,7 +372,7 @@ public class ViewDescriptionList {
 		if(L != null && columnIdx >= 0 && columnIdx < L.size()) {
 			Item _item = L.get(columnIdx);
 			result = new DataPreprocessBlock(_item);
-			result.V = CreateBaseEntryView(ctx, 0, 0, columnIdx);
+			result.V = SetupBaseEntryView(ctx,null, 0, 0, columnIdx);
 			if(result.V != null && result.V instanceof TextView) {
 				result.Tp = ((TextView)result.V).getPaint();
 			}

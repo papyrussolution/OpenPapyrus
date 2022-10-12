@@ -249,11 +249,12 @@ public:
 													int   bc_diag = 0;
 													int   bc_std = 0;
 													int   dbcr = PPObjGoods::DiagBarcode(temp_buf, &bc_diag, &bc_std, &norm_barcode);
-													if(oneof4(bc_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
-														// Валидные коды с '2' в префиксе принимаем
-														if(dbcr > 0 || (dbcr < 0 && bc_diag == PPObjGoods::cddFreePrefixEan13)) {
-															p_item->GTIN = temp_buf;
-														}
+													// Валидные коды с '2' в префиксе принимаем
+													if(oneof4(bc_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE) && (dbcr > 0 || (dbcr < 0 && bc_diag == PPObjGoods::cddFreePrefixEan13))) {
+														p_item->GTIN = temp_buf;
+													}
+													else if(temp_buf.Len() >= 5) { // @v11.5.3
+														p_item->NonEAN_Code = temp_buf;
 													}
 													// } @v11.4.2 
 												}
@@ -4625,9 +4626,10 @@ int PPBillImporter::Run()
 								DocNalogRu_Reader::GoodsItem * p_item = p_doc->GoodsItemList.at(rowidx);
 								PPID   goods_id = 0;
 								SString barcode;
+								SString ar_code;
 								Goods2Tbl::Rec goods_rec;
 								BarcodeTbl::Rec bc_rec;
-								if(p_item->GTIN) {
+								if(p_item->GTIN.NotEmpty()) {
 									if(GObj.SearchByBarcode(p_item->GTIN, &bc_rec, &goods_rec, 1) > 0)
 										goods_id = goods_rec.ID;
 									barcode = p_item->GTIN;
@@ -4649,6 +4651,24 @@ int PPBillImporter::Run()
 										}
 									}
 								}
+								// @v11.5.3 {
+								if(!goods_id) {
+									if(p_item->NonEAN_Code.NotEmpty()) {
+										if(seller_ar_id) {
+											ArGoodsCodeTbl::Rec ar_code_rec;
+											if(GObj.P_Tbl->SearchByArCode(seller_ar_id, p_item->NonEAN_Code, &ar_code_rec, &goods_rec) > 0) {
+												goods_id = goods_rec.ID;
+											}
+											ar_code = p_item->NonEAN_Code;
+										}
+										if(!goods_id) {
+											if(GObj.SearchByBarcode(p_item->NonEAN_Code, &bc_rec, &goods_rec, 0/* disable adopt mode*/) > 0) {
+												goods_id = goods_rec.ID;
+											}
+										}
+									}
+								}
+								// } @v11.5.3 
 								if(!goods_id) {
 									// @v10.8.8 {
 									if(p_item->GoodsName.NotEmpty() && GObj.SearchByName(p_item->GoodsName, &goods_id, &goods_rec) > 0) {
@@ -4661,6 +4681,12 @@ int PPBillImporter::Run()
 									else {
 										assert(goods_id == 0); // } @v10.8.8
 										ResolveGoodsItem rgi;
+										// @v11.5.3 {
+										if(ar_code.NotEmpty()) {
+											rgi.ArID = seller_ar_id;
+											STRNSCPY(rgi.ArCode, ar_code);
+										}
+										// } @v11.5.3 
 										STRNSCPY(rgi.Barcode, barcode);
 										STRNSCPY(rgi.GoodsName, p_item->GoodsName);
 										rgi.VatRate = p_item->VatRate;

@@ -75,6 +75,9 @@
                         <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonClearFiter"
                             android:layout_gravity="center_vertical|right"
                             app:srcCompat="@drawable/ic_filterrmv01"/>
+                        <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonLocalTabConfig"
+                            android:layout_gravity="center_vertical|right"
+                            app:srcCompat="@drawable/ic_gear01"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

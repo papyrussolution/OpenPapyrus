@@ -253,7 +253,16 @@ int CurTransBillDialog::getDTS()
 	getCtrlData(CTL_BILL_DOC,  Data.BillCode);
 	getCtrlData(CTL_BILL_DATE, &Data.Date);
 	THROW_SL(checkdate(&Data.Date));
-	THROW(ObjRts.CheckBillDate(Data.Date, 0));
+	{
+		BillTbl::Rec temp_brec;
+		temp_brec.ID = Data.BillID;
+		temp_brec.Dt = Data.Date;
+		temp_brec.OpID = Data.OpID;
+		temp_brec.Object = Data.ObjectID;
+		temp_brec.Amount = Data.OutCurAmount; // ?
+		STRNSCPY(temp_brec.Code, Data.BillCode);
+		THROW(ObjRts.CheckBillDate(/*Data.Date*/temp_brec, 0));
+	}
 	getCtrlData(CTLSEL_BILL_OBJECT, &Data.ObjectID);
 	getCtrlData(CTL_BILL_MEMO, Data.Memo);
 	THROW(P_Pack->SetCurTransit(&Data));
@@ -263,7 +272,8 @@ int CurTransBillDialog::getDTS()
 
 int EditCurTransitBill(PPBillPacket * pPack)
 {
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	CurTransBillDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new CurTransBillDialog())));
 	THROW(dlg->setDTS(pPack));

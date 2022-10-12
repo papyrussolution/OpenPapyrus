@@ -581,7 +581,7 @@ int ClientBankImportDef::ImportAll()
 	SString contragent_inn;
 	Helper_ClientBank2 * p_helper = static_cast<Helper_ClientBank2 *>(P_Helper);
 	const  PPCliBnkImpExpParam & r_params = p_helper->GetParam();
-	int    payer_by_sign = BIN(r_params.DefPayerByAmtSign);
+	const  bool payer_by_sign = LOGIC(r_params.DefPayerByAmtSign);
 	PPObjArticle ar_obj;
 	PPObjPerson psn_obj;
 	PPObjAccSheet acc_sheet_obj;

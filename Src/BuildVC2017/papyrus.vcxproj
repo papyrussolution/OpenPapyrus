@@ -1292,6 +1292,7 @@
     <ClCompile Include="..\PPLib\alcodecl-ru.cpp" />
     <ClCompile Include="..\PPLib\ppfts.cpp" />
     <ClCompile Include="..\PPLib\styloq.cpp" />
+    <ClCompile Include="..\PPLib\styloq_prccmd.cpp" />
     <ClCompile Include="..\PPLib\v_styloqbindery.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200prs.cpp" />

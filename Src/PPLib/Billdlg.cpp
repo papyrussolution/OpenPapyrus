@@ -765,7 +765,7 @@ int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 			dlg->Flags |= BillDialog::fModified;
 		if(egbFlags & PPObjBill::efEdit/*options >= 1*/) {
 			// @v10.2.3 if(!p_bobj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec.Dt) || !r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)) {
-			if(!p_bobj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec.Dt) || !p_bobj->CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD)) { // @v10.2.3
+			if(!p_bobj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec) || !p_bobj->CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD)) { // @v10.2.3
 				dlg->enableCommand(cmOK, 0);
 				//options = 3;
 				egbFlags |= PPObjBill::efNoUpdNotif;
@@ -3801,7 +3801,7 @@ int PPObjBill::EditBillExtData(PPID billID)
 		PPBillExt ext_data;
 		PayPlanArray payplan;
 		ObjTagList tag_list;
-		THROW(r_rt.CheckBillDate(bill_rec.Dt, 1));
+		THROW(r_rt.CheckBillDate(bill_rec, 1));
 		THROW(P_Tbl->GetExtraData(billID, &ext_data));
 		THROW(P_Tbl->GetPayPlan(billID, &payplan));
 		THROW(GetTagList(billID, &tag_list));
@@ -3819,10 +3819,10 @@ int PPObjBill::EditBillExtData(PPID billID)
 		dlg->SetupCalDate(CTLCAL_BILLEXT_INVCDATE, CTL_BILLEXT_INVCDATE);
 		dlg->setCtrlData(CTL_BILLEXT_INVCCODE, ext_data.InvoiceCode);
 		dlg->setCtrlData(CTL_BILLEXT_INVCDATE, &ext_data.InvoiceDate);
-		if(!CheckRights(PPR_MOD) || !r_rt.CheckBillDate(bill_rec.Dt))
+		if(!CheckRights(PPR_MOD) || !r_rt.CheckBillDate(bill_rec))
 			dlg->enableCommand(cmOK, 0);
 		while(!valid_data && ExecView(dlg) == cmOK) {
-			THROW(CheckRights(PPR_MOD) && r_rt.CheckBillDate(bill_rec.Dt));
+			THROW(CheckRights(PPR_MOD) && r_rt.CheckBillDate(bill_rec));
 			if(is_need_paym)
 				dlg->getCtrlData(CTL_BILLEXT_PAYDATE, &last_pay_date);
 			else

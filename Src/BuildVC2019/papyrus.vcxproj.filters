@@ -336,6 +336,7 @@
     <ClCompile Include="..\PPLib\styloq.cpp" />
     <ClCompile Include="..\PPLib\v_styloqbindery.cpp" />
     <ClCompile Include="..\PPLib\ppfts.cpp" />
+    <ClCompile Include="..\PPLib\styloq_prccmd.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

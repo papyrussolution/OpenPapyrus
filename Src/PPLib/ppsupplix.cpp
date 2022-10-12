@@ -7151,6 +7151,8 @@ public:
 	{
 		int    ok = -1;
 		Auth();
+		GetWarehouses();
+		GetProducts();
 		return ok;
 	}
 private:
@@ -7382,12 +7384,240 @@ private:
 	{
 		int    ok = -1;
 		// GET /distribution-api/api/v1/Distributions/warehouses
+		SString temp_buf;
+		SString url_buf;
+		SString req_buf;
+		SString hdr_buf;
+		SBuffer ack_buf;
+		int   req = SHttpProtocol::reqUnkn;
+		THROW(AccessToken.NotEmpty()); // @err
+		{
+			InetUrl url(MakeTargetUrl_(qGetWarehouses, &req, url_buf));
+			ScURL c;
+			PPGetFilePath(PPPATH_OUT, "gazpromneft-warehouse.txt", temp_buf);
+			SFile f_out(temp_buf, SFile::mWrite);
+			bool   more = false;
+			StrStrAssocArray hdr_flds;
+			MakeHeaderFields(AccessToken, &hdr_flds, hdr_buf);
+			{
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				Lth.Log("req", url_buf, req_buf);
+				THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, /*req_buf,*/&wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						Lth.Log("rep", 0, temp_buf);
+						SJson * p_js_reply = SJson::Parse(temp_buf);
+						if(p_js_reply) {
+							if(p_js_reply->IsObject()) {
+								for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
+									if(p_itm->Text.IsEqiAscii("hasNext")) {
+										if(SJson::IsTrue(p_itm->P_Child))
+											more = true;
+									}
+									else if(p_itm->Text.IsEqiAscii("items")) {
+										if(p_itm->P_Child && SJson::IsArray(p_itm->P_Child)) {
+											for(const SJson * p_js_ware = p_itm->P_Child->P_Child; p_js_ware; p_js_ware = p_js_ware->P_Next) {
+												if(SJson::IsObject(p_js_ware)) {
+													struct WarehouseEntry {
+														S_GUID Uuid;
+														char   Number[16];
+														char   Name[256];
+														S_GUID DistributorUuid;
+													};
+													WarehouseEntry entry;
+													MEMSZERO(entry);
+													for(const SJson * p_js_fld = p_js_ware->P_Child; p_js_fld; p_js_fld = p_js_fld->P_Next) {
+														if(p_js_fld->P_Child) {
+															if(p_js_fld->Text.IsEqiAscii("id")) {
+																entry.Uuid.FromStr(p_js_fld->P_Child->Text);
+															}
+															else if(p_js_fld->Text.IsEqiAscii("name")) {
+																STRNSCPY(entry.Name, p_js_fld->P_Child->Text);
+															}
+															else if(p_js_fld->Text.IsEqiAscii("distributorId")) {
+																entry.DistributorUuid.FromStr(p_js_fld->P_Child->Text);
+															}
+															else if(p_js_fld->Text.IsEqiAscii("number")) {
+																STRNSCPY(entry.Number, p_js_fld->P_Child->Text);
+															}
+														}
+													}
+													if(!entry.Uuid.IsZero() && entry.Name[0]) {
+														temp_buf.Z();
+														temp_buf.Cat(entry.Uuid, S_GUID::fmtIDL).Tab().Cat(entry.Name).Tab().Cat(entry.Number).Tab().
+															Cat(entry.DistributorUuid, S_GUID::fmtIDL);
+														f_out.WriteLine(temp_buf.CR());
+													}
+												}
+											}
+										}
+									}
+								}							
+							}
+							ZDELETE(p_js_reply);
+						}
+						//Lth.Log("rep", 0, temp_buf);
+						//if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
+							//ok = 1;
+					}
+				}
+			}
+		}
+		CATCHZOK
 		return ok;
 	}
 	int    GetProducts()
 	{
 		int    ok = -1;
 		// GET /product-api/api/v1/Products/integration
+		SString temp_buf;
+		SString url_buf;
+		SString req_buf;
+		SString hdr_buf;
+		SBuffer ack_buf;
+		int   req = SHttpProtocol::reqUnkn;
+		bool   is_error = false;
+		THROW(AccessToken.NotEmpty()); // @err
+		{
+			InetUrl url(MakeTargetUrl_(qGetProducts, &req, url_buf));
+			ScURL c;
+			PPGetFilePath(PPPATH_OUT, "gazpromneft-goods.txt", temp_buf);
+			SFile f_out(temp_buf, SFile::mWrite);
+			bool  more = false; // Если true, то надо сделать новую итерацию для извлечения очередной порции данных
+			int   page_no = 1;
+			do {
+				more = false;
+				StrStrAssocArray hdr_flds;
+				//url.SetQueryParam("Enabled", "true");
+				//url.SetQueryParam("IsActive", "true");
+				//url.SetQueryParam("OFFSET", "21");
+				url.SetQueryParam("PAGE", temp_buf.Z().Cat(page_no));
+				page_no++;
+				url.SetQueryParam("SIZE", "1000");
+				//url.SetQueryParam("Size", "100");
+				MakeHeaderFields(AccessToken, &hdr_flds, hdr_buf);
+				{
+					/*
+						Параметр	Тип данных	Описание
+						--------------------------------
+						Enabled	Boolean	Фильтр по признаку «Enabled»
+						IsActive	Boolean	Фильтр по признаку «Активный»
+						CapacityFrom	number	Емкость от
+						CapacityTo	Number	Емкость до
+						Search	String	Фильтр по названию
+						SegmentIds	Array[integer]	Фильтр по сегменту
+						TypeIds	array[string]	Фильтр по типу
+						BrandIds	array[string]	Фильтр по бренду
+						SegmentConsumerIds	array[string]	Фильтр по потребительскому сегменту
+						BrandLineIds	array[string]	Фильтр по линейке
+						Sort	String	Сортировка по названию поля
+						Direction	integer	Сортировка по возрастанию/убыванию
+						Page	Integer	Номер страницы
+						Size	Integer	Количество элементов на странице
+
+					*/
+					/*
+					SJson json_req(SJson::tOBJECT);
+					json_req.InsertBool("Enabled", true);
+					json_req.InsertBool("IsActive", true);
+					json_req.InsertInt("Page", 0);
+					json_req.InsertInt("Size", 10000);
+					THROW_SL(json_req.ToStr(req_buf));
+					*/
+				}
+				{
+					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+					Lth.Log("req", url_buf, req_buf);
+					THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, /*req_buf,*/&wr_stream));
+					{
+						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+						if(p_ack_buf) {
+							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+							Lth.Log("rep", 0, temp_buf);
+							SJson * p_js_reply = SJson::Parse(temp_buf);
+							if(p_js_reply) {
+								if(p_js_reply->IsObject()) {
+									for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
+										if(p_itm->Text.IsEqiAscii("hasNext")) {
+											if(SJson::IsTrue(p_itm->P_Child))
+												more = true;
+										}
+										else if(p_itm->Text.IsEqiAscii("items")) {
+											if(p_itm->P_Child && SJson::IsArray(p_itm->P_Child)) {
+												for(const SJson * p_js_ware = p_itm->P_Child->P_Child; p_js_ware; p_js_ware = p_js_ware->P_Next) {
+													if(SJson::IsObject(p_js_ware)) {
+														struct WareEntry {
+															char   Ident[16];
+															char   Name[256];
+															double Weight;
+															double Capacity;
+															bool   IsActive;
+															uint8  Reserve[3]; // @alignment
+														};
+														WareEntry entry;
+														MEMSZERO(entry);
+														for(const SJson * p_js_fld = p_js_ware->P_Child; p_js_fld; p_js_fld = p_js_fld->P_Next) {
+															if(p_js_fld->P_Child) {
+																if(p_js_fld->Text.IsEqiAscii("id")) {
+																	STRNSCPY(entry.Ident, p_js_fld->P_Child->Text);
+																}
+																else if(p_js_fld->Text.IsEqiAscii("name")) {
+																	STRNSCPY(entry.Name, p_js_fld->P_Child->Text);
+																}
+																else if(p_js_fld->Text.IsEqiAscii("segmentId")) {
+																}
+																else if(p_js_fld->Text.IsEqiAscii("weight")) {
+																	entry.Weight = p_js_fld->P_Child->Text.ToReal();
+																}
+																else if(p_js_fld->Text.IsEqiAscii("capacity")) {
+																	entry.Capacity = p_js_fld->P_Child->Text.ToReal();
+																}
+																else if(p_js_fld->Text.IsEqiAscii("isActive")) {
+																	entry.IsActive = SJson::GetBoolean(p_js_fld);
+																}
+																else if(p_js_fld->Text.IsEqiAscii("unitMeasurement")) { // object
+																}
+																else if(p_js_fld->Text.IsEqiAscii("brand")) { // object
+																}
+																else if(p_js_fld->Text.IsEqiAscii("segmentConsumer")) { // object
+																}
+																else if(p_js_fld->Text.IsEqiAscii("packingType")) { // object
+																}
+																else if(p_js_fld->Text.IsEqiAscii("packagingType")) { // object
+																}
+																else if(p_js_fld->Text.IsEqiAscii("status")) { // object
+																}
+																else if(p_js_fld->Text.IsEqiAscii("viscosity")) { // object
+																}
+																else if(p_js_fld->Text.IsEqiAscii("viscositySAE")) { // object
+																}
+															}
+														}
+														if(entry.Ident[0] && entry.Name[0]) {
+															temp_buf.Z();
+															temp_buf.Cat(entry.Ident).Tab().Cat(entry.Name).Tab().Cat(entry.Weight, MKSFMTD(0, 6, 0)).Tab().
+																Cat(entry.Capacity, MKSFMTD(0, 6, 0)).Tab().Cat(entry.IsActive ? "true" : "false");
+															f_out.WriteLine(temp_buf.CR());
+														}
+													}
+												}
+											}
+										}
+									}							
+								}
+								ZDELETE(p_js_reply);
+							}
+							//Lth.Log("rep", 0, temp_buf);
+							//if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
+								//ok = 1;
+						}
+					}
+				}
+			} while(more);
+		}
+		CATCHZOK
 		return ok;
 	}
 	int    GetClients()

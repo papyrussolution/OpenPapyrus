@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/LAYOUT_ATTENDANCEPREREQ_ORDERS"
+    android:id="@+id/LAYOUT_ORDERPREPREQ_REGISTRY"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center_vertical|center_horizontal"
     android:orientation="vertical">
     <HorizontalScrollView
         android:layout_width="wrap_content"
@@ -14,13 +15,13 @@
             android:padding="4dp"
             >
             <LinearLayout
-                android:id="@+id/attendancePrereqOrderListHeader"
+                android:id="@+id/orderPrereqRegistryListHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
             </LinearLayout>
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/attendancePrereqOrderListView"
+                android:id="@+id/orderPrereqRegistryListView"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -29,7 +30,7 @@
                 android:padding="2dp"
                 layoutManager="LinearLayoutManager" />
             <LinearLayout
-                android:id="@+id/attendancePrereqOrderListBottom"
+                android:id="@+id/orderPrereqRegistryListBottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">

@@ -192,6 +192,7 @@
         <item name="android:layout_gravity">center_horizontal|center_vertical</item>
     </style>
     <style name="OrderListItemText">
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textSize">13sp</item>
         <item name="android:textColor">@color/TextPrimary</item>
         <item name="android:layout_marginLeft">4dp</item>

@@ -57,6 +57,7 @@ import java.util.Comparator;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.Random;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.UUID;
@@ -2880,6 +2881,47 @@ public class SLib {
 				y_ = year;
 			v = MakeInt((m_ << 8) | d_, y_);
 		}
+		int HasAnyCmponent() // java-implementation of SLIB's LDATE::hasanycomponent()
+		{
+			final int _d = (int)(v & 0x00ff);
+			final int _m = (int)((v & 0xff00) >> 8);
+			final int _y = (int)(v >> 16);
+			int   result = 0;
+			if(_y == ANY_YEARITEM_VALUE)
+				result |= 0x01;
+			if(_m == ANY_MONITEM_VALUE)
+				result |= 0x02;
+			if(_d == ANY_DAYITEM_VALUE)
+				result |= 0x04;
+			return result;
+		}
+		public boolean SetDay(int d)
+		{
+			if((d >= 1 && d <= 31) || d == ANY_DAYITEM_VALUE) {
+				v = ((v & ~0xff) | d);
+				return true;
+			}
+			else
+				return false;
+		}
+		public boolean SetMonth(int m)
+		{
+			if((m >= 1 && m <= 12) || m == ANY_MONITEM_VALUE) {
+				v = ((v & ~0x0000ff00) | (m << 8));
+				return true;
+			}
+			else
+				return false;
+		}
+		public boolean SetYear(int y)
+		{
+			if((y >= 1 && y <= 6000) || y == ANY_YEARITEM_VALUE) {
+				v = ((v & ~0xffff0000) | (y << 16));
+				return true;
+			}
+			else
+				return false;
+		}
 		public int day()  { return LoByte(LoWord(v)); }
 		public int month()  { return HiByte(LoWord(v)); }
 		public int year()   { return HiWord(v); }
@@ -3894,6 +3936,93 @@ public class SLib {
 		}
 		return result;
 	}
+	public static class DateRange {
+		public static boolean ArEq(final DateRange a1, final DateRange a2)
+		{
+			return (a1 != null) ? (a2 != null && LDATE.ArEq(a1.Low, a2.Low) && LDATE.ArEq(a1.Upp, a2.Upp)) : (a2 == null);
+		}
+		DateRange()
+		{
+			Low = new LDATE();
+			Upp = new LDATE();
+		}
+		DateRange Z()
+		{
+			Low.v = 0;
+			Upp.v = 0;
+			return this;
+		}
+		boolean IsZero() { return (Low.v == 0 && Upp.v == 0); }
+		boolean CheckDate(final LDATE dt)
+		{
+			boolean r = (dt.v >= Low.v && (Upp.v == 0 || dt.v <= Upp.v));
+			if(!r) {
+				final int lf = Low.HasAnyCmponent();
+				final int uf = Upp.HasAnyCmponent();
+				if(lf != 0 || uf != 0) {
+					LDATE temp_low = new LDATE(Low);
+					LDATE temp_upp = new LDATE(Upp);
+					if((lf & 0x01) != 0)
+						temp_low.SetYear(dt.year());
+					if((lf & 0x02) != 0)
+						temp_low.SetMonth(dt.month());
+					if((lf & 0x04) != 0)
+						temp_low.SetDay(dt.day());
+					if((uf & 0x01) != 0)
+						temp_upp.SetYear(dt.year());
+					if((uf & 0x02) != 0)
+						temp_upp.SetMonth(dt.month());
+					if((uf & 0x04) != 0)
+						temp_upp.SetDay(dt.day());
+					r = (dt.v >= temp_low.v && (temp_upp.v == 0 || dt.v <= temp_upp.v));
+				}
+			}
+			return r;
+		}
+		String Format()
+		{
+			String result = "";
+			if(Low.v != 0) {
+				result = Low.Format(DATF_DMY|DATF_CENTURY);
+			}
+			if(!Upp.IsEq(Low)) {
+				result = result + "..";
+				if(Upp.v != 0) {
+					result = result + Upp.Format(DATF_DMY|DATF_CENTURY);
+				}
+			}
+			return result;
+		}
+		boolean FromString(String txt)
+		{
+			Z();
+			boolean ok = false;
+			if(GetLen(txt) > 0) {
+				if(txt.contains("..")) {
+					StringTokenizer toknzr = new StringTokenizer(txt, "..");
+					int _c = toknzr.countTokens();
+					assert(_c >= 2);
+					{
+						String tok = toknzr.nextToken();
+						tok.trim();
+						Low = strtodate(tok, DATF_DMY);
+					}
+					{
+						String tok = toknzr.nextToken();
+						tok.trim();
+						Upp = strtodate(tok, DATF_DMY);
+					}
+				}
+				else {
+					Low = strtodate(txt, DATF_DMY);
+					Upp = Low;
+				}
+			}
+			return ok;
+		}
+		LDATE Low;
+		LDATE Upp;
+	}
 	public static class STimeChunk {
 		STimeChunk()
 		{
@@ -4809,6 +4938,10 @@ public class SLib {
 		public void SetFocusedIndex(int idx) { FocusedIdx = idx; }
 		public int  GetFocusedIndex() { return FocusedIdx; }
 	}
+	public static boolean IsRecyclerListAdapter(Object obj)
+	{
+		return (obj != null && obj instanceof RecyclerListAdapter);
+	}
 	public static class FragmentAdapter extends FragmentStateAdapter {
 		private SlActivity _Activity;
 		public FragmentAdapter(SlActivity activity)
@@ -5546,7 +5679,7 @@ public class SLib {
 							result += _ih1;
 						}
 					}
-					int total_dividers_height = 0;// lv.getDividerHeight() * (_count_a - 1);
+					int total_dividers_height = /*0;//*/(lv.getDividerHeight()+1) * (_count_a - 1);
 					result += total_dividers_height;
 					//ViewGroup.LayoutParams params = listView.getLayoutParams();
 					//params.height = total_items_height + total_dividers_height;

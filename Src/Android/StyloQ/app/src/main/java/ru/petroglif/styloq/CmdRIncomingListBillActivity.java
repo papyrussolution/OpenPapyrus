@@ -352,7 +352,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						if(ev_subj != null && ev_subj.ItemIdx >= 0) {
 							if(ev_subj.RvHolder != null) {
 								// RecyclerView
-								if(srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) {
+								if(SLib.IsRecyclerListAdapter(srcObj)) {
 									SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
 									if(a.GetListRcId() == R.id.CTL_SUBSTTIFORUNASSIGNEDMARK_TILIST) {
 										DataBlock _data = (Data != null && Data instanceof DataBlock) ? (DataBlock)Data : null;
@@ -395,9 +395,8 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						if(_data != null && _data.Doc != null && _data.Doc.TiList != null) {
 							if(ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < _data.Doc.TiList.size()) {
 								_data.SelectedIdx = ev_subj.ItemIdx;
-								if(srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) {
+								if(SLib.IsRecyclerListAdapter(srcObj))
 									((SLib.RecyclerListAdapter)srcObj).notifyDataSetChanged();
-								}
 							}
 						}
 					}
@@ -581,7 +580,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					CreateTabList(false);
 					result = new Integer(CPM.TabList.size());
 				}
-				else if(srcObj instanceof SLib.RecyclerListAdapter) {
+				else if(SLib.IsRecyclerListAdapter(srcObj)) {
 					SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
 					switch(a.GetListRcId()) {
 						case R.id.CTL_INCOMINGLIST_BILL_LIST: result = new Integer(CPM.IncomingDocListData != null ? CPM.IncomingDocListData.size() : 0); break;
@@ -621,7 +620,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					if(ev_subj != null && ev_subj.ItemIdx >= 0) {
 						if(ev_subj.RvHolder != null) {
 							// RecyclerView
-							if(srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) {
+							if(SLib.IsRecyclerListAdapter(srcObj)) {
 								SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter) srcObj;
 								if(a.GetListRcId() == R.id.CTL_DOCUMENT_TILIST) {
 									final int cc = CPM.GetCurrentDocumentTransferListCount();
@@ -1064,7 +1063,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								}
 							}
 						}
-						else if(srcObj instanceof SLib.RecyclerListAdapter) {
+						else if(SLib.IsRecyclerListAdapter(srcObj)) {
 							SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
 							StyloQApp app_ctx = GetAppCtx();
 							//boolean do_update_goods_list_and_toggle_to_it = false;

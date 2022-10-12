@@ -8624,13 +8624,13 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 									SString egais_mark;
 									rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
 									if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
-										int    dup_mark = 0;
+										bool   dup_mark = false;
 										for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
 											if(egais_mark.IsEq(P.at(i).EgaisMark))
-												dup_mark = 1;
+												dup_mark = true;
 										}
 										if(!dup_mark && egais_mark.IsEq(P.GetCur().EgaisMark))
-											dup_mark = 1;
+											dup_mark = true;
 										if(!dup_mark) {
 											if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
 												PPIDArray cc_list;

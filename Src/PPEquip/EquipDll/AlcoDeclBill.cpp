@@ -187,7 +187,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 }
 
 struct GoodInfoSt {
-	GoodInfoSt() : Quantity(0.0), ReceiptDate(ZERODATE), GoodsKind(0)
+	GoodInfoSt() : Quantity(0.0), ReceiptDate(ZERODATE), GoodKind(0)
 	{
 	}
 	void Clear()

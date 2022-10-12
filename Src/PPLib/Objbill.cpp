@@ -403,7 +403,7 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 			THROW_SL(checkdate(pPack->Rec.DueDate, 1));
 		}
 		if(pPack->Rec.OpID) // Для теневого документа не проверяем период доступа
-			THROW(ObjRts.CheckBillDate(pPack->Rec.Dt));
+			THROW(ObjRts.CheckBillDate(pPack->Rec));
 		if(pPack->Rec.StatusID) {
 			PPObjBillStatus bs_obj;
 			PPBillStatus bs_rec;
@@ -7587,7 +7587,7 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 	const PPTrfrArray preserve_lots(pPack->GetLots()); // Сохраняем строки на случай аварии в проведении документа
 	pPack->ErrCause = pPack->ErrLine = 0;
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
-		THROW(ObjRts.CheckBillDate(pPack->Rec.Dt));
+		THROW(ObjRts.CheckBillDate(pPack->Rec));
 		// @v10.2.3 THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_INS));
 		THROW(CheckRightsWithOp(pPack->Rec.OpID, PPR_INS)); // @v10.2.3
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
@@ -7861,13 +7861,12 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	}
 	THROW(CheckParentStatus(pPack->Rec.ID));
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
-		THROW(r_rt.CheckBillDate(pPack->Rec.Dt));
-		if(!(pPack->ProcessFlags & PPBillPacket::pfIgnoreOpRtList)) { // @v9.8.3
-			// @v10.2.3 THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)); // @v9.6.1
-			THROW(CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD)); // @v10.2.3
+		THROW(r_rt.CheckBillDate(pPack->Rec));
+		if(!(pPack->ProcessFlags & PPBillPacket::pfIgnoreOpRtList)) {
+			THROW(CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD));
 		}
 		else {
-			THROW(CheckRights(PPR_MOD)); // @v10.2.3
+			THROW(CheckRights(PPR_MOD));
 		}
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
@@ -7913,7 +7912,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		// а затем приводим строки документа в соответствие изменениям
 		//
 		THROW(P_Tbl->Search(id, &org) > 0);
-		THROW(r_rt.CheckBillDate(org.Dt));
+		THROW(r_rt.CheckBillDate(org));
 		THROW_PP(pPack->OpTypeID != PPOPT_GOODSREVAL || pPack->Rec.Dt == org.Dt, PPERR_REVALDTUPD);
 		THROW(ProcessLink(pPack->Rec, pPack->PaymBillID, &org));
 		diter.Init();
@@ -8274,15 +8273,8 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 		PPUserFuncProfiler ufp(GetBillOpUserProfileFunc(brec.OpID, PPACN_RMVBILL));
 		const int is_shadow = BIN(brec.OpID == 0);
 		if(!is_shadow) { // Для теневого документа не проверяем период доступа и права на удаление
-			// @v10.1.12 THROW(CheckRights(PPR_DEL));
-			// @v10.1.12 {
-			// @v10.2.3 const int cor = r_rt.CheckOpID(brec.OpID, PPR_DEL);
-			// @v10.2.3 THROW(cor);
-			// @v10.2.3 THROW((cor > 0) || CheckRights(PPR_DEL));
-			// } @v10.1.12
-			THROW(CheckRightsWithOp(brec.OpID, PPR_DEL)); // @v10.2.3
-			THROW(r_rt.CheckBillDate(brec.Dt));
-			// @v10.1.12 THROW(r_rt.CheckOpID(brec.OpID, PPR_DEL)); // @v9.6.1
+			THROW(CheckRightsWithOp(brec.OpID, PPR_DEL));
+			THROW(r_rt.CheckBillDate(brec));
 			if(State2 & stDoObjVer) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
 					SSerializeContext & r_sctx = p_ovc->GetSCtx();

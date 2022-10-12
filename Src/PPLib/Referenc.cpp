@@ -1605,23 +1605,29 @@ PPAccessRestriction & PPRights::GetAccessRestriction(PPAccessRestriction & rAcsr
 	return rAcsr;
 }
 
-int PPRights::CheckBillDate(LDATE dt, int forRead) const
+int PPRights::CheckBillDate(/*LDATE dt*/const BillTbl::Rec & rRec, int forRead) const
 {
 	int    ok = 1;
 	if(!IsEmpty()) {
+		SString added_msg;
 		DateRange  bill_period;
 		PPAccessRestriction accsr;
 		GetAccessRestriction(accsr);
 		if(forRead) {
 			accsr.GetRBillPeriod(&bill_period);
-			ok = bill_period.CheckDate(dt) ? 1 : PPSetError(PPERR_BILLDATERANGE);
+			if(!bill_period.CheckDate(rRec.Dt)) {
+				PPObjBill::MakeCodeString(&rRec, PPObjBill::mcsAddOpName, added_msg);
+				ok = PPSetError(PPERR_BILLDATERANGE, added_msg); // @v11.5.3
+			}
 		}
 		else {
 			accsr.GetWBillPeriod(&bill_period);
 			if(!AdjustBillPeriod(bill_period, 1))
 				ok = 0;
-			else if(dt < bill_period.low || (bill_period.upp && dt > bill_period.upp))
-				ok = PPSetError(PPERR_BILLDATERANGE);
+			else if(rRec.Dt < bill_period.low || (bill_period.upp && rRec.Dt > bill_period.upp)) {
+				PPObjBill::MakeCodeString(&rRec, PPObjBill::mcsAddOpName, added_msg);
+				ok = PPSetError(PPERR_BILLDATERANGE, added_msg); // @v11.5.3
+			}
 		}
 	}
 	return ok;

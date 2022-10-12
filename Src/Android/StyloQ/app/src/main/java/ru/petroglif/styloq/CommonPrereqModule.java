@@ -13,6 +13,7 @@ import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -225,6 +226,7 @@ public class CommonPrereqModule {
 	public ArrayList<BusinessEntity.Brand> BrandListData;
 	public ArrayList<Document> IncomingDocListData;
 	public GoodsFilt Gf;
+	public RegistryFilt Rf; // @v11.5.3
 	//
 	// Descr: Структура инкапсулирующая общие параметры, передаваемые сервисом
 	//
@@ -270,13 +272,29 @@ public class CommonPrereqModule {
 		public String BarcodeCountPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс счетного штрихкода.
 			// Передается сервисом с тегом "barcodecountprefix". Обязанность проверки валидности префикса лежит на сервисе.
 	}
-	private CommonSvcParam CSVCP;
 	//
+	// Descr: Фильтр списка документов, отображаемых на вкладке Tab.tabRegistry
+	//
+	public static class RegistryFilt {
+		RegistryFilt()
+		{
+			Period = null;
+			Flags = 0;
+		}
+		boolean IsEmpty()
+		{
+			return ((Period == null || Period.IsZero()) && Flags == 0);
+		}
+		public static final int fHideRejected = 0x00001;
+		SLib.DateRange Period;
+		int    Flags;
+	}
+	private CommonSvcParam CSVCP;
 	public ArrayList<WareEntry> GoodsListData;
 	public ArrayList<CommonPrereqModule.TabEntry> TabList;
 	private Stack<Tab> TabNavStack; // @v11.5.0
 	protected OnBackPressedCallback Callback_BackButton; // @v11.5.0
-	public ArrayList <Document.DisplayEntry> OrderHList;
+	public ArrayList <Document.DisplayEntry> RegistryHList;
 	public ArrayList<ProcessorEntry> ProcessorListData;
 	public ArrayList<BusinessEntity.Uom> UomListData;
 	private Document CurrentOrder;
@@ -347,7 +365,7 @@ public class CommonPrereqModule {
 		tabAttendance,
 		tabCurrentDocument,
 		tabBookingDocument,
-		tabOrders,
+		tabRegistry,
 		tabSearch,
 		tabIncomingList,
 		tabXclVerify,  // Вкладка для сканирования кодов маркировки товаров с целью проверки
@@ -1270,8 +1288,9 @@ public class CommonPrereqModule {
 		IncomingDocListData = null;
 		CSVCP = new CommonSvcParam();
 		Gf = null;
+		Rf = null; // @v11.5.3
 		CurrentOrder = null;
-		OrderHList = null;
+		RegistryHList = null;
 		ProcessorListData = null;
 		UomListData = null;
 		CommitCurrentDocument_Locker = false;
@@ -1352,13 +1371,22 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	public void OnTabSelection(Object subj /*must be Integer*/)
+	//
+	// Descr: Предпринимает необходимые общие действия в ответ на зименение текущей закладки ViewPager2
+	// ARG(subj IN): Integer-индекс новой текущей закладки
+	// Returns:
+	//   В случае, если параметр является допустимым индексом закладки, возвращает ее идентификатор (Tab),
+	//   в противном случае возвращает Tab.tabUndef
+	//
+	public Tab OnTabSelection(Object subj /*must be Integer*/)
 	{
+		Tab result = Tab.tabUndef;
 		if(subj != null && subj instanceof Integer) {
 			int tab_idx = (Integer)subj;
 			if(TabList != null && tab_idx >= 0 && tab_idx < TabList.size()) {
 				TabEntry te = TabList.get(tab_idx);
 				if(te != null) {
+					result = te.TabId;
 					final boolean was_empty = TabNavStack.empty();
 					if(!was_empty) {
 						Tab last = TabNavStack.peek();
@@ -1373,6 +1401,7 @@ public class CommonPrereqModule {
 				}
 			}
 		}
+		return result;
 	}
 	//
 	// Descr: Обрабатывает команду "назад" в локальном контексте. А именно, переключает вкладку
@@ -1538,8 +1567,8 @@ public class CommonPrereqModule {
 	}
 	public void MakeCurrentDocList()
 	{
-		if(OrderHList != null)
-			OrderHList.clear();
+		if(RegistryHList != null)
+			RegistryHList.clear();
 		try {
 			if(SvcIdent != null) {
 				StyloQApp app_ctx = GetAppCtx();
@@ -1553,21 +1582,38 @@ public class CommonPrereqModule {
 							for(int i = 0; i < doc_id_list.size(); i++) {
 								long local_doc_id = doc_id_list.get(i);
 								StyloQDatabase.SecStoragePacket local_doc_pack = db.GetPeerEntry(local_doc_id);
-								JSONObject js_doc = (local_doc_pack != null) ? local_doc_pack.Pool.GetJsonObject(SecretTagPool.tagRawData) : null;
-								if(js_doc != null) {
-									Document local_doc = new Document();
-									if(local_doc.FromJsonObj(js_doc)) {
-										if(local_doc.H != null)
-											local_doc.H.Flags = local_doc_pack.Rec.Flags;
-										if(OrderHList == null)
-											OrderHList = new ArrayList<Document.DisplayEntry>();
-										// Эти операторы нужны на начальном этапе разработки поскольку
-										// финализация пакета документа появилась не сразу {
-										if(local_doc.GetNominalAmount() == 0.0)
-											local_doc.H.Amount = local_doc.CalcNominalAmount();
-										// }
-										OrderHList.add(new Document.DisplayEntry(local_doc));
-										local_doc.H = null;
+								final int st = StyloQDatabase.SecTable.Rec.GetDocStatus(local_doc_pack.Rec.Flags);
+								boolean do_skip = false;
+								if(Rf != null && (Rf.Flags & RegistryFilt.fHideRejected) != 0) {
+									if(st == StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT || st == StyloQDatabase.SecStoragePacket.styloqdocstREJECTED ||
+										st == StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED) {
+										do_skip = true;
+									}
+								}
+								if(!do_skip) {
+									JSONObject js_doc = (local_doc_pack != null) ? local_doc_pack.Pool.GetJsonObject(SecretTagPool.tagRawData) : null;
+									if(js_doc != null) {
+										Document local_doc = new Document();
+										if(local_doc.FromJsonObj(js_doc)) {
+											final SLib.LDATE dt = local_doc.GetNominalDate();
+											if(Rf != null && !Rf.Period.IsZero()) {
+												if(!Rf.Period.CheckDate(dt))
+													do_skip = true;
+											}
+											if(!do_skip) {
+												if(local_doc.H != null)
+													local_doc.H.Flags = local_doc_pack.Rec.Flags;
+												if(RegistryHList == null)
+													RegistryHList = new ArrayList<Document.DisplayEntry>();
+												// Эти операторы нужны на начальном этапе разработки поскольку
+												// финализация пакета документа появилась не сразу {
+												if(local_doc.GetNominalAmount() == 0.0)
+													local_doc.H.Amount = local_doc.CalcNominalAmount();
+												// }
+												RegistryHList.add(new Document.DisplayEntry(local_doc));
+												local_doc.H = null;
+											}
+										}
 									}
 								}
 							}
@@ -2489,6 +2535,127 @@ public class CommonPrereqModule {
 					});
 				}
 			}
+		}
+	}
+	//
+	//
+	//
+	static class RegistryFiltDialog extends SLib.SlDialog {
+		RegistryFiltDialog(Context ctx, Object data)
+		{
+			super(ctx, R.id.DLG_REGISTRYFILT, data);
+			if(data instanceof RegistryFilt)
+				Data = data;
+		}
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
+		{
+			Object result = null;
+			switch(ev) {
+				case SLib.EV_CREATE:
+					requestWindowFeature(Window.FEATURE_NO_TITLE);
+					setContentView(R.layout.dialog_registry_filt);
+					SetDTS(Data);
+					break;
+				case SLib.EV_COMMAND:
+					int view_id = View.class.isInstance(srcObj) ? ((View)srcObj).getId() : 0;
+					if(view_id == R.id.STDCTL_OKBUTTON || view_id == R.id.STDCTL_CLOSEBUTTON) {
+						Object data = GetDTS();
+						if(data != null) {
+							Context ctx = getContext();
+							StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
+							if(app_ctx != null)
+								app_ctx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, data);
+						}
+						this.dismiss(); // Close Dialog
+					}
+					else if(view_id == R.id.STDCTL_CANCELBUTTON) {
+						this.dismiss(); // Close Dialog
+					}
+					else if(view_id == R.id.CTLSEL_REGISTRYFILT_MACROPERIOD) {
+
+					}
+					else if(view_id == R.id.tbButtonPeriod) {
+						if(Data != null && Data instanceof StyloQDatabase.SecStoragePacket) {
+							Context ctx = getContext();
+							StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+							if(app_ctx != null) {
+								/*
+								try {
+									StyloQDatabase db = app_ctx.GetDB();
+									db.DeleteForeignSvc(((StyloQDatabase.SecStoragePacket)Data).Rec.ID);
+									app_ctx.HandleEvent(SLib.EV_IADATADELETECOMMIT, this, Data);
+									this.dismiss(); // Close Dialog
+								} catch(StyloQException exn) {
+									;
+								}
+								 */
+							}
+						}
+					}
+					/*else if(view_id == R.id.STDCTL_CLOSEBUTTON) {
+						this.dismiss();
+					}*/
+					break;
+			}
+			return result;
+		}
+		boolean SetDTS(Object objData)
+		{
+			boolean ok = true;
+			Context ctx = getContext();
+			StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+			if(app_ctx != null) {
+				{
+					// 1 - сегодня, 2 - вчера, 3 - текущая неделя, 4 - предыдущая неделя, 5 - текущий месяц, 6 - предыдущий месяц, 1000 - picker
+					SLib.StrAssocArray selection_list = new SLib.StrAssocArray();
+					{
+						selection_list.Set(1, app_ctx.GetString("today"));
+						selection_list.Set(2, app_ctx.GetString("yesterday"));
+						selection_list.Set(3, app_ctx.GetString("currentweek"));
+						selection_list.Set(4, app_ctx.GetString("lastweek"));
+						selection_list.Set(5, app_ctx.GetString("currentmonth"));
+						selection_list.Set(5, app_ctx.GetString("lastmonth"));
+					}
+					SLib.SetupStrAssocCombo(app_ctx, this, R.id.CTLSEL_REGISTRYFILT_MACROPERIOD, selection_list, 0);
+				}
+				if(objData != null && objData.getClass() == Data.getClass()) {
+					RegistryFilt _data = null;
+					if(Data != null && Data.getClass().getSimpleName().equals("RegistryFilt"))
+						_data = (RegistryFilt)Data;
+					else {
+						_data = new RegistryFilt();
+						Data = _data;
+					}
+					String period_text = null;
+					if(_data.Period != null)
+						period_text = _data.Period.Format();
+					SLib.SetCtrlString(this, R.id.CTL_REGISTRYFILT_PERIOD, period_text);
+					SLib.SetCheckboxState(this, R.id.CTL_REGISTRYFILT_FLAG01, (_data.Flags & RegistryFilt.fHideRejected) != 0);
+
+				}
+			}
+			return ok;
+		}
+		Object GetDTS()
+		{
+			Object result = null;
+			RegistryFilt _data = null;
+			if(Data != null && Data.getClass().getSimpleName().equals("RegistryFilt"))
+				_data = (RegistryFilt)Data;
+			else {
+				_data = new RegistryFilt();
+				Data = _data;
+			}
+			String period_text = SLib.GetCtrlString(this, R.id.CTL_REGISTRYFILT_PERIOD);
+			if(_data.Period == null)
+				_data.Period = new SLib.DateRange();
+			_data.Period.FromString(period_text);
+			if(SLib.GetCheckboxState(this, R.id.CTL_REGISTRYFILT_FLAG01))
+				_data.Flags |= RegistryFilt.fHideRejected;
+			else
+				_data.Flags &= ~RegistryFilt.fHideRejected;
+			result = _data;
+			return result;
 		}
 	}
 }

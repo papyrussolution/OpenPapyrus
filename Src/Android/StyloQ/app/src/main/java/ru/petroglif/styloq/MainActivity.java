@@ -531,7 +531,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				break;
 			case SLib.EV_LISTVIEWCOUNT:
 				{
-					SLib.RecyclerListAdapter adapter = (srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
+					SLib.RecyclerListAdapter adapter = SLib.IsRecyclerListAdapter(srcObj) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
 					if(adapter != null && adapter.GetRcId() == R.layout.li_service && ListData != null) {
 						_count = ListData.size();

@@ -3932,7 +3932,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 							msg.Init();
 							const int topr = curl.Pop3Top(url_src, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, msg_idx, Pop3TopMaxLines, msg);
 							if(topr) {
-								int   do_get = 1;
+								bool   do_get = true;
 								do_get = do_get && (!filt_from.NotEmptyS() || msg.IsFrom(filt_from));
 								do_get = do_get && (!filt_subj.NotEmptyS() || msg.IsSubj(filt_subj, 0));
 								do_get = do_get && (!filt_subjsub.NotEmptyS() || msg.IsSubj(filt_subjsub, 1));
