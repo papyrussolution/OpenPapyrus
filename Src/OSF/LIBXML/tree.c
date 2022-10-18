@@ -449,11 +449,11 @@ int xmlValidateName(const xmlChar * value, int space)
 	 */
 	if(space)
 		while(IS_BLANK_CH(*cur)) cur++;
-	if(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || (*cur == '_') || (*cur == ':'))
+	if(isasciialpha(*cur) || (*cur == '_') || (*cur == ':'))
 		cur++;
 	else
 		goto try_complex;
-	while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.') || (*cur == ':'))
+	while(isasciialnum(*cur) || (*cur == '_') || (*cur == '-') || (*cur == '.') || (*cur == ':'))
 		cur++;
 	if(space)
 		while(IS_BLANK_CH(*cur)) 

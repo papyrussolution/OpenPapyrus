@@ -528,19 +528,90 @@ public class StyloQApp extends SLib.App {
 		}
 		return result;
 	}
+	public long StoreDebtList(byte [] svcIdent, BusinessEntity.DebtList list) throws StyloQException
+	{
+		long result = 0;
+		if(Db != null) {
+			StyloQDatabase.SecStoragePacket svc_pack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svcIdent);
+			if(svc_pack != null) {
+				final long svc_id = svc_pack.Rec.ID;
+				byte[] doc_ident = Db.MakeDocumentStorageIdent(svcIdent, null);
+				if(list != null) {
+					JSONObject js_obj = list.ToJsonObj();
+					String js_text_doc = js_obj.toString();
+					String js_text_docdecl = null;
+					SecretTagPool doc_pool = new SecretTagPool();
+					SecretTagPool.DeflateStrategy ds = new SecretTagPool.DeflateStrategy(256);
+					doc_pool.Put(SecretTagPool.tagRawData, js_text_doc.getBytes(StandardCharsets.UTF_8), ds);
+					doc_pool.Put(SecretTagPool.tagDocDeclaration, js_text_docdecl.getBytes(StandardCharsets.UTF_8));
+					result = Db.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypDebtList, 0, doc_ident, svc_id, doc_pool);
+				}
+				else {
+					result = Db.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypDebtList, 0, doc_ident, svc_id, null);
+				}
+			}
+		}
+		return result;
+	}
+	public BusinessEntity.DebtList LoadDebtList(byte [] svcIdent) throws StyloQException
+	{
+		//
+		// Реестр долгов единый для всего сервиса. В этом реестре могут быть как поставщики, так и
+		// покупатели. Реестр заполняется частями: по запросу клиента сервис возвращает реестр для
+		// одного контрагента, который встраивается в общий список.
+		//
+		BusinessEntity.DebtList result = null;
+		if(Db != null && SLib.GetLen(svcIdent) > 0) {
+			result = new BusinessEntity.DebtList();
+			final int doc_type = StyloQDatabase.SecStoragePacket.doctypDebtList;
+			byte[] doc_ident = Db.MakeDocumentStorageIdent(svcIdent, /*cmdItem.Uuid*/null);
+			ArrayList<Long> doc_id_list = Db.GetDocIdListByType(-1, doc_type, 0, /*svcIdent*/doc_ident);
+			if(doc_id_list != null && doc_id_list.size() > 0) {
+				StyloQDatabase.SecStoragePacket recent_pack = null;
+				if(doc_id_list.size() == 1) {
+					recent_pack = Db.GetPeerEntry(doc_id_list.get(0));
+				}
+				else {
+					// Теоретически, более одного элемента в doc_id_list быть не может
+					// Практически же, выберем тот, у которого самый поздний timestamp
+					long max_timestamp = 0;
+					for(int i = 0; i < doc_id_list.size(); i++) {
+						StyloQDatabase.SecStoragePacket p = Db.GetPeerEntry(doc_id_list.get(i));
+						if(p != null && p.Rec.TimeStamp > max_timestamp) {
+							max_timestamp = p.Rec.TimeStamp;
+							recent_pack = p;
+						}
+					}
+				}
+				if(recent_pack != null/*&& !StyloQInterchange.IsExpired(recent_pack.Rec.Expiration)*/) {
+					byte[] raw_data = recent_pack.Pool.Get(SecretTagPool.tagRawData);
+					if(SLib.GetLen(raw_data) > 0) {
+						String txt_raw_data = new String(raw_data);
+						if(SLib.GetLen(txt_raw_data) > 0) {
+							try {
+								JSONObject js = new JSONObject(txt_raw_data);
+								if(js != null) {
+									result.FromJson(js);
+								}
+							} catch(JSONException exn) {
+								result = null;
+							}
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
 	public StyloQDatabase.SecStoragePacket LoadCommandSavedResult(byte [] svcIdent, StyloQCommand.Item cmdItem) throws StyloQException
 	{
 		StyloQDatabase.SecStoragePacket result = null;
 		if(cmdItem != null) {
 			int doc_type = 0;
-			if(cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvOrderPrereq) {
-				doc_type = StyloQDatabase.SecStoragePacket.doctypOrderPrereq;
-			}
-			else if(cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvIndoorSvcPrereq) { // @v11.4.5
-				doc_type = StyloQDatabase.SecStoragePacket.doctypIndoorSvcPrereq;
-			}
-			else if(cmdItem.BaseCmdId == StyloQCommand.sqbcReport) {
-				doc_type = StyloQDatabase.SecStoragePacket.doctypReport;
+			switch(cmdItem.BaseCmdId) {
+				case StyloQCommand.sqbcRsrvOrderPrereq: doc_type = StyloQDatabase.SecStoragePacket.doctypOrderPrereq; break;
+				case StyloQCommand.sqbcRsrvIndoorSvcPrereq: doc_type = StyloQDatabase.SecStoragePacket.doctypIndoorSvcPrereq; break; // @v11.4.5
+				case StyloQCommand.sqbcReport: doc_type = StyloQDatabase.SecStoragePacket.doctypReport; break;
 			}
 			if(doc_type > 0) {
 				byte[] doc_ident = Db.MakeDocumentStorageIdent(svcIdent, cmdItem.Uuid);
@@ -827,18 +898,6 @@ public class StyloQApp extends SLib.App {
 											intent_cls = CmdRIncomingListBillActivity.class;
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglistccheck")) // @v11.5.3
 											intent_cls = CmdRIncomingListBillActivity.class; // ???
-										/* @v11.4.5
-										else if(doc_decl.DisplayMethod.equalsIgnoreCase("search")) {
-											if(current_activity_list != null) {
-												for(int i = 0; gs_activity == null && i < current_activity_list.size(); i++) {
-													Activity a = current_activity_list.get(i);
-													if(a != null && a instanceof GlobalSearchActivity)
-														gs_activity = (GlobalSearchActivity) a;
-												}
-											}
-											if(gs_activity == null)
-												intent_cls = GlobalSearchActivity.class;
-										}*/
 										if(doc_decl.Format.equalsIgnoreCase("json"))
 											svc_doc_json = new String(stp_reply.Get(SecretTagPool.tagRawData));
 									}
@@ -866,27 +925,6 @@ public class StyloQApp extends SLib.App {
 					}
 					if(retr_activity != null)
 						retr_activity.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
-					/* @v11.4.5 else if(gs_activity != null) {
-						class SendSearchResultToActivity implements Runnable {
-							private GlobalSearchActivity A;
-							private String Result;
-							SendSearchResultToActivity(GlobalSearchActivity ctx, String result)
-							{
-								A = ctx;
-								Result = result;
-							}
-							@Override
-							public void run()
-							{
-								A.SetQueryResult(Result);
-							}
-						}
-						Looper lpr = gs_activity.getMainLooper();
-						if(lpr != null) {
-							new Handler(lpr).post(new SendSearchResultToActivity(gs_activity, svc_doc_json));
-						}
-						//gs_activity.SetQueryResult(svc_doc_json);
-					}*/
 					else if(intent_cls != null) {
 						intent = new Intent(/*main_activity != null ? main_activity : this*/this, intent_cls);
 						if(SLib.GetLen(subj.SvcIdent) > 0)

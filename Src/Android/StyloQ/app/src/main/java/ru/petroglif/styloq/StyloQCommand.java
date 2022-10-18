@@ -44,6 +44,9 @@ public class StyloQCommand {
 	public static final int sqbcIncomingListCCheck   = 108;  // @v11.4.7 Список входящих кассовых чеков (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
 	public static final int sqbcIncomingListTSess    = 109;  // @v11.4.7 Список входящих технологических сессий (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
 	public static final int sqbcIncomingListTodo     = 110;  // @v11.4.7 Список входящих задач (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
+	public static final int sqbcDebtList             = 111;  // @v11.5.4 Список долговых документов по контрагенту. В общем случае, это могут быть как долги и покупателей, так и наша
+		// задолженность перед поставщиками. Пока предполагается использовать как вспомогательную команду для получения долговой ведомости по клиенту в рамках
+		// работы с более высокоуровневыми командами (eg sqbcRsrvOrderPrereq)
 
 	public static class ViewDefinitionEntry {
 		String Zone;
@@ -84,6 +87,10 @@ public class StyloQCommand {
 			ExpirTimeSec = 0;
 			Items = null;
 		}
+		private static boolean IsHidden(final Item item)
+		{
+			return (item == null || item.BaseCmdId == sqbcLocalBarcodeSearch || item.BaseCmdId == sqbcDebtList); // @v11.5.4 !sqbcDebtList
+		}
 		//
 		// Descr: Возвращает количество элементов, которые должны быть отображены
 		//   в списке команд. В это число не включаются команды со специальным
@@ -94,8 +101,7 @@ public class StyloQCommand {
 			int    result = 0;
 			if(Items != null) {
 				for(int i = 0; i < Items.size(); i++) {
-					final Item item = Items.get(i);
-					if(item != null && item.BaseCmdId != sqbcLocalBarcodeSearch)
+					if(!IsHidden(Items.get(i)))
 						result++;
 				}
 			}
@@ -108,7 +114,7 @@ public class StyloQCommand {
 				int counter = 0;
 				for(int i = 0; result == null && i < Items.size(); i++) {
 					final Item item = Items.get(i);
-					if(item != null && item.BaseCmdId != sqbcLocalBarcodeSearch) {
+					if(!IsHidden(item)) {
 						if(counter == idx)
 							result = item;
 						counter++;
@@ -123,7 +129,7 @@ public class StyloQCommand {
 			if(Items != null) {
 				for(int i = 0; result == null && i < Items.size(); i++) {
 					final Item item = Items.get(i);
-					if(item != null && item.BaseCmdId == sqbcLocalBarcodeSearch)
+					if(item != null && item.BaseCmdId == baseCmdId) // @v11.5.4 !sqbcDebtList
 						result = item;
 				}
 			}

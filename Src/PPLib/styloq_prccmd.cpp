@@ -1759,6 +1759,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 	PPObjStyloPalm stp_obj;
 	PPStyloPalmPacket stp_pack;
 	SBinaryChunk bc_own_ident;
+	bool   use_clidebt = false; // Если true, то для агентских заказов пользователь может видеть долги клиентов
 	PPID   agent_psn_id = 0;
 	StyloQDocumentPrereqParam * p_filt = 0;
 	SBuffer param_buf(rCmdItem.Param);
@@ -1786,6 +1787,9 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 			agent_psn_id = ObjectToPerson(stp_pack.Rec.AgentID, &acs_id);
 			if(acs_id != GetAgentAccSheet()) {
 				agent_psn_id = 0;
+			}
+			if(stp_pack.Rec.Flags & PLMF_EXPCLIDEBT) { // @v11.5.4
+				use_clidebt = true;
 			}
 		}
 		// } @v11.5.2 
@@ -1820,6 +1824,11 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 		if(p_filt->Flags & StyloQDocumentPrereqParam::fUseBarcodeSearch) {
 			js.InsertBool("searchbarcode", true);
 		}
+		// @v11.5.4 {
+		if(use_clidebt) { 
+			js.InsertBool("useclidebt", true);
+		}
+		// } @v11.5.4 
 		{
 			const PPGoodsConfig & r_gcfg = goods_obj.GetConfig();
 			{
@@ -2330,6 +2339,98 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 			// } @debug
 			THROW(MakeDocDeclareJs(rCmdItem, 0, rDocDeclaration));
 		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPStyloQInterchange::ProcessCommand_DebtList(const StyloQCommandList::Item & rCmdItem, const SJson * pJsCmd, const StyloQCore::StoragePacket & rCliPack, 
+	SString & rResult, SString & rDocDeclaration, bool debugOutput)
+{
+	int    ok = -1;
+	const  LDATETIME dtm_now = getcurdatetime_();
+	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+	PPID   ar_id = 0;
+	SString temp_buf;
+	PPObjBill * p_bobj = BillObj;
+	PPObjArticle ar_obj;
+	ArticleTbl::Rec ar_rec;
+	SBinaryChunk bc_own_ident;
+	THROW(GetOwnIdent(bc_own_ident, 0));
+	{
+		for(const SJson * p_cur = pJsCmd; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Type == SJson::tOBJECT) {								
+				for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+					if(p_obj->Text.IsEqiAscii("arid")) {
+						ar_id = p_obj->P_Child->Text.ToLong();
+					}
+				}
+			}
+		}
+	}
+	THROW(ar_id > 0 && ar_obj.Search(ar_id, &ar_rec) > 0);
+	{
+		SJson js(SJson::tOBJECT);
+		PayableBillList pb_list;
+		double total_debt = 0.0;
+		uint   total_bill_count = 0;
+		//PayableBillListItem * p_pb_item;
+		DebtTrnovrFilt debt_filt;
+		debt_filt.AccSheetID = ar_rec.AccSheetID;
+		debt_filt.Flags |= (DebtTrnovrFilt::fDebtOnly|DebtTrnovrFilt::fNoTempTable);
+		PPViewDebtTrnovr debt_view;
+		THROW(debt_view.Init_(&debt_filt));
+		{
+			SJson * p_js_list = new SJson(SJson::tARRAY);
+			debt_view.GetPayableBillList(ar_id, 0L, &pb_list);
+			for(uint i = 0; i < pb_list.getCount(); i++) {
+				const PayableBillListItem & r_pb_item = pb_list.at(i);
+				BillTbl::Rec bill_rec;
+				if(p_bobj->Search(r_pb_item.ID, &bill_rec) > 0) {
+					const double amt = BR2(bill_rec.Amount);
+					double paym = 0.0;				
+					if(use_omt_paym_amt)
+						paym = bill_rec.PaymAmount;
+					else
+						p_bobj->P_Tbl->CalcPayment(r_pb_item.ID, 0, 0, r_pb_item.CurID, &paym);
+					const double debt = R2(amt - paym);
+					if(debt > 0.0) {
+						PPBillExt bill_ext;
+						p_bobj->FetchExt(bill_rec.ID, &bill_ext);
+						total_debt += debt;
+						total_bill_count++;
+						SJson * p_js_list_item = new SJson(SJson::tOBJECT);
+						p_js_list_item->InsertInt("billid", bill_rec.ID);
+						(temp_buf = bill_rec.Code).Transf(CTRANSF_INNER_TO_UTF8).Escape();
+						p_js_list_item->InsertString("billcode", temp_buf);
+						temp_buf.Z().Cat(bill_rec.Dt, DATF_ISO8601CENT).Transf(CTRANSF_INNER_TO_UTF8).Escape();
+						p_js_list_item->InsertString("billdate", temp_buf);
+						p_js_list_item->InsertDouble("amt", amt, MKSFMTD(0, 2, NMBF_OMITEPS));
+						p_js_list_item->InsertDouble("debt", debt, MKSFMTD(0, 2, NMBF_OMITEPS));
+						p_js_list_item->InsertInt("agentid", bill_ext.AgentID);
+						p_js_list->InsertChild(p_js_list_item);
+						p_js_list_item = 0;
+					}
+				}
+			}
+			js.InsertString("time", temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0));
+			js.InsertInt("arid", ar_id);
+			(temp_buf = ar_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape();
+			js.InsertString("arname", temp_buf);
+			js.InsertInt("count", total_bill_count);
+			js.InsertDouble("debt", total_debt, MKSFMTD(0, 2, NMBF_OMITEPS));
+			js.Insert("debt_list", p_js_list);
+		}
+		THROW(js.ToStr(rResult));
+		// @debug {
+		if(debugOutput) {
+			SString out_file_name;
+			PPGetFilePath(PPPATH_OUT, "stq-debtlist.json", out_file_name);
+			SFile f_out(out_file_name, SFile::mWrite);
+			f_out.WriteLine(rResult);
+		}
+		// } @debug
+		THROW(MakeDocDeclareJs(rCmdItem, 0, rDocDeclaration));
 	}
 	CATCHZOK
 	return ok;

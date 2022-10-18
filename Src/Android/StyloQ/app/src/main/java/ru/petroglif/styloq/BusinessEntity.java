@@ -3,6 +3,7 @@
 //
 package ru.petroglif.styloq;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -418,5 +419,247 @@ public class BusinessEntity {
 		int    ReservedCase; // DocStatus::rXXX
 		int    Flags;
 		String Name;
+	}
+	//
+	// Descr: Структура, представляющая элемент списка долговых документов.
+	//   Используется для предоставления справки о долгах контрагента, в частности, в агентских заказах.
+	//
+	public static class DebtEntry {
+		DebtEntry()
+		{
+			BillID = 0;
+			BillDate = null;
+			BillCode = null;
+			AgentID = 0;
+			Amount = 0.0;
+			Debt = 0.0;
+		}
+		public boolean FromJson(JSONObject jsObj)
+		{
+			boolean ok = false;
+			if(jsObj != null) {
+				BillID = jsObj.optInt("billid", 0);
+				{
+					String date_text = jsObj.optString("billdate", null);
+					if(SLib.GetLen(date_text) > 0)
+						BillDate = SLib.strtodate(date_text, SLib.DATF_ISO8601);
+					else
+						BillDate = null;
+				}
+				BillCode = jsObj.optString("billcode", null);
+				AgentID = jsObj.optInt("agentid", 0);
+				Amount = jsObj.optDouble("amt", 0.0);
+				Debt = jsObj.optDouble("debt", 0.0);
+				ok = true;
+			}
+			return ok;
+		}
+		public JSONObject ToJsonObj()
+		{
+			JSONObject result = null;
+			try {
+				if(BillID > 0) {
+					result = new JSONObject();
+					result.put("billid", BillID);
+					if(BillDate != null) {
+						String date_text = BillDate.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY);
+						if(SLib.GetLen(date_text) > 0)
+							result.put("billdate", date_text);
+					}
+					if(SLib.GetLen(BillCode) > 0) {
+						result.put("billcode", BillCode);
+					}
+					if(AgentID > 0)
+						result.put("agentid", AgentID);
+					result.put("amt", Amount);
+					result.put("debt", Debt);
+				}
+			} catch(JSONException exn) {
+				result = null;
+			}
+			return result;
+		}
+		int    BillID;
+		SLib.LDATE  BillDate;
+		String BillCode;
+		int    AgentID;
+		double Amount;
+		double Debt;
+	}
+	//
+	// Descr: Долговая выписка по одному контрагенту.
+	//
+	public static class ArDebtList {
+		ArDebtList()
+		{
+			ArID = 0;
+			ArName = null;
+			SvcTime = null;
+			CliTime = null;
+			Debt = 0.0;
+			List = null;
+		}
+		public boolean FromJson(JSONObject jsObj)
+		{
+			boolean ok = false;
+			int    items_count = 0;
+			if(jsObj != null) {
+				{
+					String time_text = jsObj.optString("time", null);
+					// SvcTime
+				}
+				ArID = jsObj.optInt("arid", 0);
+				ArName = jsObj.optString("arname", null);
+				items_count = jsObj.optInt("count", 0);
+				Debt = jsObj.optDouble("debt", 0.0);
+				JSONArray js_list = jsObj.optJSONArray("debt_list");
+				if(js_list != null && js_list.length() > 0) {
+					List = new ArrayList<DebtEntry>();
+					for(int i = 0; i < js_list.length(); i++) {
+						final JSONObject js_item = js_list.optJSONObject(i);
+						if(js_item != null) {
+							DebtEntry entry = new DebtEntry();
+							if(entry.FromJson(js_item))
+								List.add(entry);
+						}
+					}
+				}
+				else
+					List = null;
+				ok = true;
+			}
+			return ok;
+		}
+		public JSONObject ToJsonObj()
+		{
+			JSONObject result = null;
+			final int items_count = SLib.GetCount(List);
+			int real_items_count = 0;
+			try {
+				result = new JSONObject();
+				result.put("arid", ArID);
+				if(SLib.GetLen(ArName) > 0)
+					result.put("arname", ArName);
+				if(SvcTime != null) {
+					String dtm_text = SLib.datetimefmt(SvcTime, SLib.DATF_ISO8601 | SLib.DATF_CENTURY, 0);
+					if(SLib.GetLen(dtm_text) > 0)
+						result.put("time", dtm_text);
+				}
+				if(CliTime != null) {
+					String dtm_text = SLib.datetimefmt(CliTime, SLib.DATF_ISO8601 | SLib.DATF_CENTURY, 0);
+					if(SLib.GetLen(dtm_text) > 0)
+						result.put("clitime", dtm_text);
+				}
+				result.put("count", items_count);
+				result.put("debt", Debt);
+				JSONArray js_list = new JSONArray();
+				for(int i = 0; i < items_count; i++) {
+					final DebtEntry entry = List.get(i);
+					if(entry != null) {
+						JSONObject js_entry = entry.ToJsonObj();
+						if(js_entry != null) {
+							js_list.put(js_entry);
+							real_items_count++;
+						}
+					}
+				}
+				result.put("debt_list", js_list);
+			} catch(JSONException exn) {
+				result = null;
+			}
+			return result;
+		}
+		int    ArID;
+		String ArName;
+		// Предусматриваем время сервиса и время клиента из-за того, что часы на них могут быть
+		// рассинхронизированы.
+		SLib.LDATETIME SvcTime; // Время формирования выписки сервисом
+		SLib.LDATETIME CliTime; // Время получения выписки клиентом
+		double Debt;   // Итоговых долг по контрагенту
+		ArrayList <DebtEntry> List;
+	}
+	//
+	// Descr: Общий список долговых выписок по контрагентам.
+	//   Сохраняется в реестре StyloQ с типом документа StyloQDatabase.doctypDebtList
+	//
+	public static class DebtList {
+		public static class ShortReplyEntry {
+			ShortReplyEntry()
+			{
+				ArID = 0;
+				Debt = 0.0;
+				IsExpired = false;
+			}
+			int    ArID;
+			double Debt;
+			boolean IsExpired;
+		}
+		DebtList()
+		{
+			List = null;
+		}
+		ShortReplyEntry GetDebt(int arID)
+		{
+			ShortReplyEntry result = null;
+			if(arID > 0) {
+				final int _c = SLib.GetCount(List);
+				for(int i = 0; result == null && i < _c; i++) {
+					final ArDebtList entry = List.get(i);
+					if(entry != null && entry.ArID == arID) {
+						result = new ShortReplyEntry();
+						result.ArID = entry.ArID;
+						result.Debt = entry.Debt;
+						result.IsExpired = false; // @todo
+					}
+				}
+			}
+			return result;
+		}
+		boolean FromJson(JSONObject jsObj)
+		{
+			boolean ok = false;
+			List = null;
+			if(jsObj != null) {
+				try {
+					JSONArray js_list = jsObj.optJSONArray("list");
+					if(js_list != null) {
+						for(int i = 0; i < js_list.length(); i++) {
+							ArDebtList entry = new ArDebtList();
+							if(entry.FromJson(js_list.getJSONObject(i))) {
+								if(List == null)
+									List = new ArrayList<ArDebtList>();
+								List.add(entry);
+								ok = true;
+							}
+						}
+					}
+				} catch(JSONException exn) {
+					ok = false;
+				}
+			}
+			return ok;
+		}
+		JSONObject ToJsonObj()
+		{
+			JSONObject result = null;
+			try {
+				result = new JSONObject();
+				JSONArray js_list = new JSONArray();
+				final int _c = SLib.GetCount(List);
+				for(int i = 0; i < _c; i++) {
+					final ArDebtList entry = List.get(i);
+					if(entry != null) {
+						JSONObject js_entry = entry.ToJsonObj();
+						if(js_entry != null)
+							js_list.put(js_entry);
+					}
+				}
+				result.put("list", js_list);
+			} catch(JSONException exn) {
+				result = null;
+			}
+			return result;
+		}
+		ArrayList <ArDebtList> List;
 	}
 }

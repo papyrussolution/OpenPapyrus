@@ -661,6 +661,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListCCheck); // @v11.5.2
 				// @construction base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListTSess); // @v11.4.7
 				// @construction base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListTodo); // @v11.4.7
+				base_cmd_id_list.add(StyloQCommandList::sqbcDebtList); // @v11.5.4
 				StrAssocArray basecmd_list;
 				for(uint i = 0; i < base_cmd_id_list.getCount(); i++) {
 					const long base_cmd_id = base_cmd_id_list.get(i);
@@ -744,6 +745,8 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					case StyloQCommandList::sqbcIncomingListTSess: // @todo // @v11.4.7
 					case StyloQCommandList::sqbcIncomingListTodo: // @todo // @v11.4.7
 						EditIncomingListFilter(Data.BaseCmdId);
+						break;
+					case StyloQCommandList::sqbcDebtList: // @todo // @v11.5.4
 						break;
 					default: return;
 				}
@@ -1138,6 +1141,8 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 						enable_viewcmd = false;
 						enable_viewcombo = false;
 					}
+					break;
+				case StyloQCommandList::sqbcDebtList: // @v11.5.4 // @todo
 					break;
 			}
 			enableCommand(cmCmdParam, enable_cmd_param);

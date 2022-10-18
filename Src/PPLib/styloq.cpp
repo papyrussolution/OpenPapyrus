@@ -1016,6 +1016,7 @@ int StyloQFace::GetRepresentation(int lang, SString & rBuf) const
 		case sqbcIncomingListCCheck: p_sign = "styloqbasecmd_incominglistccheck"; break; // @v11.4.7
 		case sqbcIncomingListTSess: p_sign = "styloqbasecmd_incominglisttsess"; break; // @v11.4.7
 		case sqbcIncomingListTodo: p_sign = "styloqbasecmd_incominglisttodo"; break; // @v11.4.7
+		case sqbcDebtList: p_sign = "styloqbasecmd_debtlist"; break; // @v11.5.4
 	}
 	if(p_sign)
 		PPLoadString(p_sign, rBuf);
@@ -1822,6 +1823,9 @@ int StyloQCore::StoragePacket::GetFace(int tag, StyloQFace & rF) const
 			break;
 		case doctypIncomingList: // @v11.4.8
 			rBuf = "IncomingList";
+			break;
+		case doctypDebtList: // @v11.5.4
+			rBuf = "DebtList";
 			break;
 	}
 }
@@ -3254,6 +3258,10 @@ PPStyloQInterchange::DocumentDeclaration::DocumentDeclaration(const StyloQComman
 				Type = "incominglisttodo";
  				DisplayMethSymb = "incominglisttodo";
 				break;			
+			case StyloQCommandList::sqbcDebtList: // @v11.5.4
+				Type = "debtlist";
+ 				DisplayMethSymb = "debtlist";
+				break;
 		}	
 		assert(Type.NotEmpty());
 		assert(DisplayMethSymb.NotEmpty());
@@ -7124,6 +7132,12 @@ PPStyloQInterchange::InnerGoodsEntry::InnerGoodsEntry(PPID goodsID) : GoodsID(go
 {
 }
 
+PPStyloQInterchange::InnerGoodsEntry & PPStyloQInterchange::InnerGoodsEntry::Z()
+{
+	THISZERO();
+	return *this;
+}
+
 int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryChunk & rOwnIdent, const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat)
 {
 	int    ok = 1;
@@ -8793,6 +8807,9 @@ int PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) // 
 			case StyloQCommandList::sqbcIncomingListTodo: // @v11.4.7
 				// @todo
 				break;
+			case StyloQCommandList::sqbcDebtList: // @v11.5.4
+				// @todo
+				break;
 		}
 	}
 	CATCHZOKPPERR
@@ -10188,6 +10205,20 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 						case StyloQCommandList::sqbcIncomingListTodo: // @v11.4.7
 							{
 								// @todo
+							}
+							break;
+						case StyloQCommandList::sqbcDebtList: // @v11.5.4
+							{
+								if(ProcessCommand_DebtList(StyloQCommandList::Item(*p_targeted_item), p_js_cmd, cli_pack, reply_text_buf, temp_buf.Z(), false)) {
+									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
+									if(temp_buf.Len())
+										reply_doc_declaration.Put(temp_buf, temp_buf.Len());
+									cmd_reply_ok = true;									
+								}
+								else {
+									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+									PPSetError(PPERR_SQ_CMDFAULT_DEBTLIST);
+								}
 							}
 							break;
 						default:

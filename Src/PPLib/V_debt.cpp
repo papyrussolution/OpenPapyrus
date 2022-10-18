@@ -562,7 +562,8 @@ protected:
 
 int PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 {
-	int    ok = 1, use_ta = 1;
+	int    ok = 1;
+	int    use_ta = 1;
 	uint   i;
 	BExtQuery * p_q = 0;
 	PPObjOprKind op_obj;
@@ -572,12 +573,12 @@ int PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_IterBillList);
-	ZDELETE(P_DebtDimAgentList); // @v9.1.4
+	ZDELETE(P_DebtDimAgentList);
 	IterBillCounter = 0;
 	Total.Init();
 	Bsp.Init(Filt.Sgb);
 	RcknBsp.Init(Filt.Sgb);
-	GoodsList.clear(); // @v9.5.1
+	GoodsList.clear();
 	//
 	DlvrAddrList.freeAll();
 	IsDlvrAddrListInited = 0;
@@ -618,12 +619,10 @@ int PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 	{
 		PPUserFuncProfiler ufp(PPUPRF_VIEW_DEBT);
 		double ufp_factor = 0.0;
-		// @v9.5.1 {
 		if(Filt.GoodsGrpID) {
 			GoodsIterator::GetListByGroup(Filt.GoodsGrpID, &GoodsList);
 			GoodsList.sortAndUndup();
 		}
-		// } @v9.5.1
 		PayableOpList.clear();
 		THROW(op_obj.GetPayableOpList(Filt.AccSheetID, &PayableOpList));
 		if(Filt.OpID) {
@@ -639,190 +638,192 @@ int PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 					PayableOpList.atFree(c);
 			} while(c);
 		}
-		THROW(P_TempTbl = CreateTempFile());
-		{
-			uint   j;
-			SString  msg_buf, name_buf;
-			BillTbl::Rec bill_rec;
-			UintHashTable finished_bill_tab;
-			const int by_obj_subst = (Filt.Sgb.S == SubstGrpBill::sgbObject) ? ((Filt.Sgb.S2.Sgp == sgpNone) ? 1 : 2) : 0;
-			PPLoadText(PPTXT_WAIT_DEBTTRNOVR, msg_buf);
-			ProcessBlock bblk(Filt);
-			if(Filt.BillList.IsExists()) {
-				uint   bc = Filt.BillList.GetCount();
-				bblk.IterPath = ProcessBlock::ipBillList;
-				for(j = 0; j < bc; j++) {
-					if(P_BObj->Search(Filt.BillList.Get(j), &bill_rec) > 0) {
-						THROW(ProcessBill(bill_rec, bblk));
-						ufp_factor += 1.0;
-					}
-					PPWaitPercent(j+1, bc);
-				}
-				if(Filt.RcknBillList.IsExists()) {
-					uint   rbc = Filt.RcknBillList.GetCount();
-					bblk.IterPath = ProcessBlock::ipReckonBillList;
-					for(j = 0; j < rbc; j++) {
-						if(P_BObj->Search(Filt.RcknBillList.Get(j), &bill_rec) > 0) {
+		if(!(Filt.Flags & DebtTrnovrFilt::fNoTempTable)) {
+			THROW(P_TempTbl = CreateTempFile());
+			{
+				uint   j;
+				SString  msg_buf, name_buf;
+				BillTbl::Rec bill_rec;
+				UintHashTable finished_bill_tab;
+				const int by_obj_subst = (Filt.Sgb.S == SubstGrpBill::sgbObject) ? ((Filt.Sgb.S2.Sgp == sgpNone) ? 1 : 2) : 0;
+				PPLoadText(PPTXT_WAIT_DEBTTRNOVR, msg_buf);
+				ProcessBlock bblk(Filt);
+				if(Filt.BillList.IsExists()) {
+					uint   bc = Filt.BillList.GetCount();
+					bblk.IterPath = ProcessBlock::ipBillList;
+					for(j = 0; j < bc; j++) {
+						if(P_BObj->Search(Filt.BillList.Get(j), &bill_rec) > 0) {
 							THROW(ProcessBill(bill_rec, bblk));
 							ufp_factor += 1.0;
 						}
-						PPWaitPercent(j+1, rbc);
+						PPWaitPercent(j+1, bc);
 					}
-				}
-			}
-			else {
-				long   _c = 0;
-				PPIDArray processed_ar_list;
-				while(NextProcessIteration(0, bblk) > 0) {
-					LDATE  last_date = ZERODATE;
-					while(NextProcessStep(bill_rec, bblk) > 0) {
-						int r;
-						if(bblk.IterPath == ProcessBlock::ipOp) {
-							if(last_date)
-								PPWaitPercent(bblk.Cntr.Add(diffdate(bill_rec.Dt, last_date)), bblk.IterMsgPrefix);
-							last_date = bill_rec.Dt;
-						}
-						THROW(PPCheckUserBreak());
-						THROW(r = ProcessBill(bill_rec, bblk));
-						ufp_factor += 1.0;
-						if(r > 0 && by_obj_subst && Filt.Flags & DebtTrnovrFilt::fExtended)
-							processed_ar_list.addUnique(bill_rec.Object);
-					}
-					if(bblk.IterPath == ProcessBlock::ipArticle)
-						PPWaitPercent(bblk.Cntr.Increment(), bblk.IterMsgPrefix);
-				}
-				BExtQuery::ZDelete(&bblk.P_Q);
-				if(by_obj_subst && Filt.Flags & DebtTrnovrFilt::fExtended) {
-					ReckonOpArList roa_list;
-					PPIDArray tmp_op_list;
-					for(j = 0; j < PayableOpList.getCount(); j++) {
-						roa_list.clear();
-						THROW(P_BObj->GetPaymentOpListByDebtOp(PayableOpList.get(j), 0, &roa_list));
-						for(uint k = 0; k < roa_list.getCount(); k++)
-							tmp_op_list.addUnique(roa_list.at(k).PayableOpID);
-					}
-					if(by_obj_subst == 1 && fdivnz(processed_ar_list.getCount(), bblk.FullArListCount) < 0.1) {
-						PPIDArray bill_list, temp_list;
-						for(j = 0; j < processed_ar_list.getCount(); j++) {
-							PayableBillList pbill_list;
-							THROW(GetReceivableBillList(processed_ar_list.get(j), &pbill_list));
-							temp_list.clear();
-							pbill_list.GetIdList(temp_list);
-							bill_list.addUnique(&temp_list);
-						}
-						bblk.IterPath = ProcessBlock::ipReckonOp;
-						for(j = 0; j < bill_list.getCount(); j++) {
-							if(P_BObj->Search(bill_list.get(j), &bill_rec) > 0) {
+					if(Filt.RcknBillList.IsExists()) {
+						uint   rbc = Filt.RcknBillList.GetCount();
+						bblk.IterPath = ProcessBlock::ipReckonBillList;
+						for(j = 0; j < rbc; j++) {
+							if(P_BObj->Search(Filt.RcknBillList.Get(j), &bill_rec) > 0) {
 								THROW(ProcessBill(bill_rec, bblk));
 								ufp_factor += 1.0;
 							}
+							PPWaitPercent(j+1, rbc);
 						}
 					}
-					else {
-						bblk.ResetIter();
-						for(j = 0; j < tmp_op_list.getCount(); j++) {
-							const PPID op_id = tmp_op_list.get(j);
-							if(op_id && NextProcessIteration(op_id, bblk) > 0) {
-								while(NextProcessStep(bill_rec, bblk) > 0) {
-									THROW(PPCheckUserBreak());
+				}
+				else {
+					long   _c = 0;
+					PPIDArray processed_ar_list;
+					while(NextProcessIteration(0, bblk) > 0) {
+						LDATE  last_date = ZERODATE;
+						while(NextProcessStep(bill_rec, bblk) > 0) {
+							int r;
+							if(bblk.IterPath == ProcessBlock::ipOp) {
+								if(last_date)
+									PPWaitPercent(bblk.Cntr.Add(diffdate(bill_rec.Dt, last_date)), bblk.IterMsgPrefix);
+								last_date = bill_rec.Dt;
+							}
+							THROW(PPCheckUserBreak());
+							THROW(r = ProcessBill(bill_rec, bblk));
+							ufp_factor += 1.0;
+							if(r > 0 && by_obj_subst && Filt.Flags & DebtTrnovrFilt::fExtended)
+								processed_ar_list.addUnique(bill_rec.Object);
+						}
+						if(bblk.IterPath == ProcessBlock::ipArticle)
+							PPWaitPercent(bblk.Cntr.Increment(), bblk.IterMsgPrefix);
+					}
+					BExtQuery::ZDelete(&bblk.P_Q);
+					if(by_obj_subst && Filt.Flags & DebtTrnovrFilt::fExtended) {
+						ReckonOpArList roa_list;
+						PPIDArray tmp_op_list;
+						for(j = 0; j < PayableOpList.getCount(); j++) {
+							roa_list.clear();
+							THROW(P_BObj->GetPaymentOpListByDebtOp(PayableOpList.get(j), 0, &roa_list));
+							for(uint k = 0; k < roa_list.getCount(); k++)
+								tmp_op_list.addUnique(roa_list.at(k).PayableOpID);
+						}
+						if(by_obj_subst == 1 && fdivnz(processed_ar_list.getCount(), bblk.FullArListCount) < 0.1) {
+							PPIDArray bill_list, temp_list;
+							for(j = 0; j < processed_ar_list.getCount(); j++) {
+								PayableBillList pbill_list;
+								THROW(GetReceivableBillList(processed_ar_list.get(j), &pbill_list));
+								temp_list.clear();
+								pbill_list.GetIdList(temp_list);
+								bill_list.addUnique(&temp_list);
+							}
+							bblk.IterPath = ProcessBlock::ipReckonOp;
+							for(j = 0; j < bill_list.getCount(); j++) {
+								if(P_BObj->Search(bill_list.get(j), &bill_rec) > 0) {
 									THROW(ProcessBill(bill_rec, bblk));
 									ufp_factor += 1.0;
 								}
 							}
-							BExtQuery::ZDelete(&bblk.P_Q);
+						}
+						else {
+							bblk.ResetIter();
+							for(j = 0; j < tmp_op_list.getCount(); j++) {
+								const PPID op_id = tmp_op_list.get(j);
+								if(op_id && NextProcessIteration(op_id, bblk) > 0) {
+									while(NextProcessStep(bill_rec, bblk) > 0) {
+										THROW(PPCheckUserBreak());
+										THROW(ProcessBill(bill_rec, bblk));
+										ufp_factor += 1.0;
+									}
+								}
+								BExtQuery::ZDelete(&bblk.P_Q);
+							}
 						}
 					}
 				}
-			}
-			{
-				PPTransaction tra(ppDbDependTransaction, use_ta);
-				THROW(tra);
-				for(i = 0; i < bblk.getCount(); i++) {
-					int    count_this_client = 0;
-					int    stop = 0;
-					long   ar_no = 0;
-					cur_list.clear();
-					tab_list.clear();
-					DebtEntry & r_entry = *bblk.at(i);
-					if(by_obj_subst == 1) {
-						ArticleTbl::Rec ar_rec;
-						if(ArObj.Fetch(r_entry.ID, &ar_rec) > 0) {
-							ar_no = ar_rec.Article;
-							stop = BIN(ar_rec.Flags & ARTRF_STOPBILL);
+				{
+					PPTransaction tra(ppDbDependTransaction, use_ta);
+					THROW(tra);
+					for(i = 0; i < bblk.getCount(); i++) {
+						int    count_this_client = 0;
+						int    stop = 0;
+						long   ar_no = 0;
+						cur_list.clear();
+						tab_list.clear();
+						DebtEntry & r_entry = *bblk.at(i);
+						if(by_obj_subst == 1) {
+							ArticleTbl::Rec ar_rec;
+							if(ArObj.Fetch(r_entry.ID, &ar_rec) > 0) {
+								ar_no = ar_rec.Article;
+								stop = BIN(ar_rec.Flags & ARTRF_STOPBILL);
+							}
 						}
-					}
-					P_BObj->GetSubstText(r_entry.ID, &Bsp, name_buf);
-					r_entry.DbtList.GetCurList(-1L, &cur_list);
-					r_entry.DbtList.GetAmtTypeList(&tab_list);
-					r_entry.PaymList.GetCurList(-1L, &cur_list);
-					r_entry.PaymList.GetAmtTypeList(&tab_list);
-					r_entry.RDbtList.GetCurList(-1L, &cur_list);
-					r_entry.RDbtList.GetAmtTypeList(&tab_list);
-					r_entry.ExpiryDebtList.GetCurList(-1L, &cur_list);
-					r_entry.ExpiryDebtList.GetAmtTypeList(&tab_list);
-					const uint cc = cur_list.getCount();
-					const uint tc = tab_list.getCount();
-					for(uint ci = 0; ci < cc; ci++) {
-						const  PPID cur_id = cur_list.at(ci);
-						{
-							double paym_sum = 0.0;
-							uint   num_val = 0;
-							uint   num_nz_val = 0;
+						P_BObj->GetSubstText(r_entry.ID, &Bsp, name_buf);
+						r_entry.DbtList.GetCurList(-1L, &cur_list);
+						r_entry.DbtList.GetAmtTypeList(&tab_list);
+						r_entry.PaymList.GetCurList(-1L, &cur_list);
+						r_entry.PaymList.GetAmtTypeList(&tab_list);
+						r_entry.RDbtList.GetCurList(-1L, &cur_list);
+						r_entry.RDbtList.GetAmtTypeList(&tab_list);
+						r_entry.ExpiryDebtList.GetCurList(-1L, &cur_list);
+						r_entry.ExpiryDebtList.GetAmtTypeList(&tab_list);
+						const uint cc = cur_list.getCount();
+						const uint tc = tab_list.getCount();
+						for(uint ci = 0; ci < cc; ci++) {
+							const  PPID cur_id = cur_list.at(ci);
+							{
+								double paym_sum = 0.0;
+								uint   num_val = 0;
+								uint   num_nz_val = 0;
+								for(j = 0; j < tc; j++) {
+									double paym = r_entry.PaymList.Get(tab_list.get(j), cur_id);
+									num_val++;
+									if(paym != 0.0)
+										num_nz_val++;
+									paym_sum += paym;
+								}
+								if(num_nz_val)
+									r_entry._AvgPaym = R2(paym_sum / num_nz_val);
+							}
 							for(j = 0; j < tc; j++) {
-								double paym = r_entry.PaymList.Get(tab_list.get(j), cur_id);
-								num_val++;
-								if(paym != 0.0)
-									num_nz_val++;
-								paym_sum += paym;
-							}
-							if(num_nz_val)
-								r_entry._AvgPaym = R2(paym_sum / num_nz_val);
-						}
-						for(j = 0; j < tc; j++) {
-							int    r;
-							const  long tab_id = tab_list.get(j);
-							TempSellTrnovrTbl::Rec rec;
-							// @v10.6.4 MEMSZERO(rec);
-							rec.ID    = r_entry.ID;
-							rec.TabID = tab_id;
-							rec.NotStop = stop ? 0 : 1;
-							rec.Ar = ar_no;
-							name_buf.CopyTo(rec.Name, sizeof(rec.Name));
-							THROW(r = SetupRecVals(cur_id, tab_id, &r_entry, &rec));
-							if(r > 0) {
-								THROW_DB(P_TempTbl->insertRecBuf(&rec));
-								count_this_client = 1;
+								int    r;
+								const  long tab_id = tab_list.get(j);
+								TempSellTrnovrTbl::Rec rec;
+								// @v10.6.4 MEMSZERO(rec);
+								rec.ID    = r_entry.ID;
+								rec.TabID = tab_id;
+								rec.NotStop = stop ? 0 : 1;
+								rec.Ar = ar_no;
+								name_buf.CopyTo(rec.Name, sizeof(rec.Name));
+								THROW(r = SetupRecVals(cur_id, tab_id, &r_entry, &rec));
+								if(r > 0) {
+									THROW_DB(P_TempTbl->insertRecBuf(&rec));
+									count_this_client = 1;
+								}
 							}
 						}
+						if(count_this_client)
+							Total.Count++;
 					}
-					if(count_this_client)
-						Total.Count++;
+					THROW(tra.Commit());
 				}
-				THROW(tra.Commit());
 			}
-		}
-		ZDELETE(P_Ct);
-		if(Filt.CycleKind && P_TempTbl) {
-			SString temp_buf;
-			DBFieldList total_list;
-			THROW_MEM(P_Ct = new DebtTrnovrCrosstab(this));
-			P_Ct->SetTable(P_TempTbl, P_TempTbl->TabID);
-			P_Ct->AddIdxField(P_TempTbl->ID);
-			P_Ct->AddIdxField(P_TempTbl->CurID);
-			P_Ct->AddInheritedFixField(P_TempTbl->Name);
-			P_Ct->AddInheritedFixField(P_TempTbl->Ar);
-			P_Ct->AddAggrField(P_TempTbl->Sell);
-			const DBField * p_aggr_fld = 0;
-			if(Filt.CycleKind == DebtTrnovrFilt::ckPayments)
-				p_aggr_fld = &P_TempTbl->Payment;
-			else
-				p_aggr_fld = &P_TempTbl->Debt;
-			P_Ct->AddAggrField(*p_aggr_fld);
-			total_list.Add(*p_aggr_fld);
-			P_Ct->AddTotalRow(total_list, 0, PPGetWord(PPWORD_TOTAL, 0, temp_buf));
-			P_Ct->AddTotalColumn(*p_aggr_fld, 0, temp_buf);
-			THROW(P_Ct->Create(use_ta));
-			ufp_factor *= 1.1;
+			ZDELETE(P_Ct);
+			if(Filt.CycleKind && P_TempTbl) {
+				SString temp_buf;
+				DBFieldList total_list;
+				THROW_MEM(P_Ct = new DebtTrnovrCrosstab(this));
+				P_Ct->SetTable(P_TempTbl, P_TempTbl->TabID);
+				P_Ct->AddIdxField(P_TempTbl->ID);
+				P_Ct->AddIdxField(P_TempTbl->CurID);
+				P_Ct->AddInheritedFixField(P_TempTbl->Name);
+				P_Ct->AddInheritedFixField(P_TempTbl->Ar);
+				P_Ct->AddAggrField(P_TempTbl->Sell);
+				const DBField * p_aggr_fld = 0;
+				if(Filt.CycleKind == DebtTrnovrFilt::ckPayments)
+					p_aggr_fld = &P_TempTbl->Payment;
+				else
+					p_aggr_fld = &P_TempTbl->Debt;
+				P_Ct->AddAggrField(*p_aggr_fld);
+				total_list.Add(*p_aggr_fld);
+				P_Ct->AddTotalRow(total_list, 0, PPGetWord(PPWORD_TOTAL, 0, temp_buf));
+				P_Ct->AddTotalColumn(*p_aggr_fld, 0, temp_buf);
+				THROW(P_Ct->Create(use_ta));
+				ufp_factor *= 1.1;
+			}
 		}
 		if(Filt.GoodsGrpID)
 			ufp_factor *= 1.2;

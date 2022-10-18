@@ -176,14 +176,8 @@ public class CommonPrereqModule {
 		if(SsB.SearchResult != null)
 			SsB.SearchResult.ResetSelectedItemIndex();
 	}
-	public int SearchResult_GetSelectedItmeIndex()
-	{
-		return (SsB.SearchResult != null) ? SsB.SearchResult.GetSelectedItemIndex() : -1;
-	}
-	public int SearchResult_GetObjTypeCount()
-	{
-		return (SsB.SearchResult != null) ? SsB.SearchResult.GetObjTypeCount() : 0;
-	}
+	public int SearchResult_GetSelectedItmeIndex() { return (SsB.SearchResult != null) ? SsB.SearchResult.GetSelectedItemIndex() : -1; }
+	public int SearchResult_GetObjTypeCount() { return (SsB.SearchResult != null) ? SsB.SearchResult.GetObjTypeCount() : 0; }
 	//
 	// Descr: Функция вызывается в ответ на касание пользователем элемента списка результатов поиска
 	//
@@ -240,6 +234,7 @@ public class CommonPrereqModule {
 			SvcOpID = 0;
 			PosNodeID = 0;
 			UseBarcodeSearch = false;
+			UseCliDebt = false;
 			BarcodeWeightPrefix = null;
 			BarcodeCountPrefix = null;
 		}
@@ -253,6 +248,7 @@ public class CommonPrereqModule {
 				PosNodeID = jsHead.optInt("posnodeid", 0);
 				ActionFlags = Document.IncomingListActionsFromString(jsHead.optString("actions", null)); // @v11.4.8
 				UseBarcodeSearch = jsHead.optBoolean("searchbarcode"); // @v11.5.0
+				UseCliDebt = jsHead.optBoolean("useclidebt"); // @v11.5.4
 				BarcodeWeightPrefix = jsHead.optString("barcodeweightprefix", null); // @v11.5.0
 				BarcodeCountPrefix = jsHead.optString("barcodecountprefix", null); // @v11.5.0
 			}
@@ -267,6 +263,7 @@ public class CommonPrereqModule {
 			// то в этом поле устанавливается id кассового узла, переданный от сервиса
 		public boolean UseBarcodeSearch; // @v11.5.0 Если true, то в панели инструментов появляется иконка поиска по штрихкоду.
 			// Передается сервисом с тегом "searchbarcode"
+		public boolean UseCliDebt; // @v11.5.4 Если true, то для агентских заказов можно просматривать долги по клиентам
 		public String BarcodeWeightPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс весового штрихкода.
 			// Передается сервисом с тегом "barcodeweightprefix". Обязанность проверки валидности префикса лежит на сервисе.
 		public String BarcodeCountPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс счетного штрихкода.
@@ -280,6 +277,7 @@ public class CommonPrereqModule {
 		{
 			Period = null;
 			Flags = 0;
+			PredefPeriod = SLib.PREDEFPRD_NONE;
 		}
 		boolean IsEmpty()
 		{
@@ -288,6 +286,7 @@ public class CommonPrereqModule {
 		public static final int fHideRejected = 0x00001;
 		SLib.DateRange Period;
 		int    Flags;
+		int    PredefPeriod; // SLib.PREDEFPRD_XXX Только для диалога редактирования: при фильтрации не используется
 	}
 	private CommonSvcParam CSVCP;
 	public ArrayList<WareEntry> GoodsListData;
@@ -295,8 +294,8 @@ public class CommonPrereqModule {
 	private Stack<Tab> TabNavStack; // @v11.5.0
 	protected OnBackPressedCallback Callback_BackButton; // @v11.5.0
 	public ArrayList <Document.DisplayEntry> RegistryHList;
-	public ArrayList<ProcessorEntry> ProcessorListData;
-	public ArrayList<BusinessEntity.Uom> UomListData;
+	public ArrayList <ProcessorEntry> ProcessorListData;
+	public ArrayList <BusinessEntity.Uom> UomListData;
 	private Document CurrentOrder;
 	protected boolean CommitCurrentDocument_Locker;
 	protected long CommitCurrentDocument_StartTm;
@@ -1306,6 +1305,7 @@ public class CommonPrereqModule {
 	int   GetAgentID() { return CSVCP.AgentID; }
 	int   GetPosNodeID() { return CSVCP.PosNodeID; }
 	int   GetActionFlags() { return CSVCP.ActionFlags; }
+	boolean GetOption_UseCliDebt() { return CSVCP.UseCliDebt; }
 	public void GetAttributesFromIntent(Intent intent)
 	{
 		if(intent != null) {
@@ -2556,6 +2556,21 @@ public class CommonPrereqModule {
 					setContentView(R.layout.dialog_registry_filt);
 					SetDTS(Data);
 					break;
+				case SLib.EV_CBSELECTED:
+					if(subj != null && subj instanceof SLib.ListViewEvent) {
+						SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
+						if(lve.ItemIdx >= 0 && lve.ItemId >= 0) {
+							if(srcObj != null) {
+								RegistryFilt _data = GetDataInstance();
+								if(_data.Period == null)
+									_data.Period = new SLib.DateRange();
+								_data.PredefPeriod = (int)lve.ItemId;
+								_data.Period.SetPredefined(_data.PredefPeriod, null);
+								SetupPeriod();
+							}
+						}
+					}
+					break;
 				case SLib.EV_COMMAND:
 					int view_id = View.class.isInstance(srcObj) ? ((View)srcObj).getId() : 0;
 					if(view_id == R.id.STDCTL_OKBUTTON || view_id == R.id.STDCTL_CLOSEBUTTON) {
@@ -2570,9 +2585,6 @@ public class CommonPrereqModule {
 					}
 					else if(view_id == R.id.STDCTL_CANCELBUTTON) {
 						this.dismiss(); // Close Dialog
-					}
-					else if(view_id == R.id.CTLSEL_REGISTRYFILT_MACROPERIOD) {
-
 					}
 					else if(view_id == R.id.tbButtonPeriod) {
 						if(Data != null && Data instanceof StyloQDatabase.SecStoragePacket) {
@@ -2599,40 +2611,48 @@ public class CommonPrereqModule {
 			}
 			return result;
 		}
+		private RegistryFilt GetDataInstance()
+		{
+			RegistryFilt _data = null;
+			if(Data != null && Data.getClass().getSimpleName().equals("RegistryFilt"))
+				_data = (RegistryFilt)Data;
+			else {
+				_data = new RegistryFilt();
+				Data = _data;
+			}
+			return _data;
+		}
+		private void SetupPeriod()
+		{
+			RegistryFilt _data = GetDataInstance();
+			String period_text = null;
+			if(_data.Period != null)
+				period_text = _data.Period.Format();
+			SLib.SetCtrlString(this, R.id.CTL_REGISTRYFILT_PERIOD, period_text);
+		}
 		boolean SetDTS(Object objData)
 		{
 			boolean ok = true;
 			Context ctx = getContext();
 			StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
 			if(app_ctx != null) {
+				RegistryFilt _data = GetDataInstance();
 				{
 					// 1 - сегодня, 2 - вчера, 3 - текущая неделя, 4 - предыдущая неделя, 5 - текущий месяц, 6 - предыдущий месяц, 1000 - picker
 					SLib.StrAssocArray selection_list = new SLib.StrAssocArray();
 					{
-						selection_list.Set(1, app_ctx.GetString("today"));
-						selection_list.Set(2, app_ctx.GetString("yesterday"));
-						selection_list.Set(3, app_ctx.GetString("currentweek"));
-						selection_list.Set(4, app_ctx.GetString("lastweek"));
-						selection_list.Set(5, app_ctx.GetString("currentmonth"));
-						selection_list.Set(5, app_ctx.GetString("lastmonth"));
+						selection_list.Set(SLib.PREDEFPRD_NONE, "");
+						selection_list.Set(SLib.PREDEFPRD_TODAY, app_ctx.GetString("today"));
+						selection_list.Set(SLib.PREDEFPRD_YESTERDAY, app_ctx.GetString("yesterday"));
+						selection_list.Set(SLib.PREDEFPRD_THISWEEK, app_ctx.GetString("currentweek"));
+						selection_list.Set(SLib.PREDEFPRD_LASTWEEK, app_ctx.GetString("lastweek"));
+						selection_list.Set(SLib.PREDEFPRD_THISMONTH, app_ctx.GetString("currentmonth"));
+						selection_list.Set(SLib.PREDEFPRD_LASTMONTH, app_ctx.GetString("lastmonth"));
 					}
-					SLib.SetupStrAssocCombo(app_ctx, this, R.id.CTLSEL_REGISTRYFILT_MACROPERIOD, selection_list, 0);
+					SLib.SetupStrAssocCombo(app_ctx, this, R.id.CTLSEL_REGISTRYFILT_MACROPERIOD, selection_list, (_data != null) ? _data.PredefPeriod : SLib.PREDEFPRD_NONE);
 				}
-				if(objData != null && objData.getClass() == Data.getClass()) {
-					RegistryFilt _data = null;
-					if(Data != null && Data.getClass().getSimpleName().equals("RegistryFilt"))
-						_data = (RegistryFilt)Data;
-					else {
-						_data = new RegistryFilt();
-						Data = _data;
-					}
-					String period_text = null;
-					if(_data.Period != null)
-						period_text = _data.Period.Format();
-					SLib.SetCtrlString(this, R.id.CTL_REGISTRYFILT_PERIOD, period_text);
-					SLib.SetCheckboxState(this, R.id.CTL_REGISTRYFILT_FLAG01, (_data.Flags & RegistryFilt.fHideRejected) != 0);
-
-				}
+				SetupPeriod();
+				SLib.SetCheckboxState(this, R.id.CTL_REGISTRYFILT_FLAG01, (_data.Flags & RegistryFilt.fHideRejected) != 0);
 			}
 			return ok;
 		}

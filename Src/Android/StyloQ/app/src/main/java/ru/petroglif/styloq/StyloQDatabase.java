@@ -98,6 +98,8 @@ public class StyloQDatabase extends Database {
 		public static final int doctypIndexingContent = 5; // @v11.3.4 Документ, содержащий данные для индексации медиатором
 		public static final int doctypIndoorSvcPrereq = 6; // @v11.4.5 Предопределенный формат данных, подготовленных для формирования данных для обслуживания внутри помещения сервиса (INDOOR)
 		public static final int doctypIncomingList    = 7; // @v11.4.8
+		public static final int doctypDebtList        = 8; // @v11.5.4 Реестр долговых документов по контрагентам. Специфичный документ: на клиентской стороне хранится единый реестр по всем
+			// контрагентам. При этом запрос сервису отправляется по одному контрагенту, а ответ (корректный) встраивается в общий реестр.
 		//
 		SecTable.Rec Rec;
 		SecretTagPool Pool;

@@ -3622,7 +3622,7 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
-	const  int use_omt_paym_amt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 	DbfTable * p_client_tbl = 0, * p_debt_tbl = 0, * p_addr_tbl = 0;
 	DebtTrnovrViewItem debt_item;
 
@@ -3686,7 +3686,8 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 					for(uint i = 0; pb_list.enumItems(&i, (void **)&p_pb_item);) {
 						BillTbl::Rec bill_rec;
 						if(p_bobj->Search(p_pb_item->ID, &bill_rec) > 0) {
-							double amt = BR2(bill_rec.Amount), paym = 0.0;
+							const double amt = BR2(bill_rec.Amount);
+							double paym = 0.0;
 							//
 							// Извлечение примечания к долговому документу
 							//
@@ -3707,7 +3708,7 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 								paym = bill_rec.PaymAmount;
 							else
 								p_bobj->P_Tbl->CalcPayment(p_pb_item->ID, 0, 0, p_pb_item->CurID, &paym);
-							double debt = R2(amt - paym);
+							const double debt = R2(amt - paym);
 							if(debt > 0.0) {
 								PPBillExt bill_ext;
 								PPFreight freight;

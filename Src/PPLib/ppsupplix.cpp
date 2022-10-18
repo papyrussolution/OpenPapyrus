@@ -2735,7 +2735,7 @@ struct iSalesGoodsStorageHeader {
 
 int iSalesPepsi::GetGoodsStoreFileName(SString & rBuf) const
 {
-	return PPGetFilePath(PPPATH_OUT, "isalesgoodsstorage", rBuf = 0);
+	return PPGetFilePath(PPPATH_OUT, "isalesgoodsstorage", rBuf.Z());
 }
 
 int iSalesPepsi::StoreGoods(TSCollection <iSalesGoodsPacket> & rList)
@@ -2879,12 +2879,12 @@ int iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 		{
 			for(uint nidx = 0; nidx < p_result->getCount(); nidx++) {
 				const iSalesGoodsPacket * p_np = p_result->at(nidx);
-				int _found = 0;
+				bool _found = false;
 				for(uint pidx = 0; pidx < GoodsMapping.getCount(); pidx++) {
 					iSalesGoodsPacket * p_pp = GoodsMapping.at(pidx);
 					if(p_pp && p_pp->OuterCode == p_np->OuterCode) {
                         *p_pp = *p_np;
-                        _found = 1;
+                        _found = true;
 					}
 				}
 				if(!_found) {
@@ -2899,7 +2899,7 @@ int iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 				StoreGoods(GoodsMapping);
 			}
 			{
-				PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_E, &msg_buf, (long)p_result->getCount(), tech_buf.cptr(), P.SupplID);
+				PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_E, &msg_buf, p_result->getCountI(), tech_buf.cptr(), P.SupplID);
 				PPWaitMsg(msg_buf);
 			}
 		}
@@ -7116,6 +7116,64 @@ int SfaHeineken::SendStocks()
 // @v11.5.2 
 // Интеграция с сервисом Газпром-нефть
 //
+struct GazpromNeftGoodsPacket {
+	GazpromNeftGoodsPacket() : Ident(0), Weight(0.0), Capacity(0.0), IsActive(true), PackingTypeId(0)
+	{
+		Name[0] = 0;
+		memzero(Reserve, sizeof(Reserve));
+		PackingTypeName[0] = 0;
+		PackagingTypeName[0] = 0;
+	}
+	GazpromNeftGoodsPacket(const GazpromNeftGoodsPacket & rS)
+	{
+		Copy(rS);
+	}
+	GazpromNeftGoodsPacket & FASTCALL Copy(const GazpromNeftGoodsPacket & rS)
+	{
+		Ident = rS.Ident;
+		Weight = rS.Weight;
+		Capacity = rS.Capacity;
+		IsActive = rS.IsActive;
+		STRNSCPY(Name, rS.Name);
+		STRNSCPY(PackingTypeName, rS.PackingTypeName);
+		PackingTypeId = rS.PackingTypeId;
+		STRNSCPY(PackagingTypeName, rS.PackagingTypeName);
+		PackagingTypeUuid = rS.PackagingTypeUuid;
+		return *this;
+	}
+	GazpromNeftGoodsPacket & FASTCALL operator = (const GazpromNeftGoodsPacket & rS)
+	{
+		return Copy(rS);
+	}
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+	{
+		int    ok = 1;
+		THROW(pSCtx->Serialize(dir, Ident, rBuf));
+		THROW(pSCtx->Serialize(dir, Weight, rBuf));
+		THROW(pSCtx->Serialize(dir, Capacity, rBuf));
+		THROW(pSCtx->Serialize(dir, IsActive, rBuf));
+		THROW(pSCtx->Serialize(dir, Name, sizeof(Name), rBuf));
+		THROW(pSCtx->Serialize(dir, PackingTypeName, sizeof(PackingTypeName), rBuf));
+		THROW(pSCtx->Serialize(dir, PackingTypeId, rBuf));
+		THROW(pSCtx->Serialize(dir, PackagingTypeName, sizeof(PackagingTypeName), rBuf));
+		THROW(pSCtx->Serialize(dir, PackagingTypeUuid, rBuf));
+		CATCHZOK
+		return ok;
+	}
+
+	int64  Ident;
+	char   Name[256];
+	double Weight;
+	double Capacity;
+	bool   IsActive;
+	uint8  Reserve[3]; // @alignment
+	//
+	char   PackingTypeName[48];
+	int    PackingTypeId;
+	char   PackagingTypeName[48];
+	S_GUID PackagingTypeUuid;
+};
+
 class GazpromNeft : public PrcssrSupplInterchange::ExecuteBlock {
 	enum {
 		stInited     = 0x0001,
@@ -7151,8 +7209,10 @@ public:
 	{
 		int    ok = -1;
 		Auth();
+		//GetClients();
+		GetProducts(true);
+		SendRest();
 		GetWarehouses();
-		GetProducts();
 		return ok;
 	}
 private:
@@ -7264,7 +7324,6 @@ private:
 				THROW_SL(json_req.ToStr(req_buf));
 			}
 			{
-			
 				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 				Lth.Log("req", url_buf, req_buf);
 				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
@@ -7338,16 +7397,17 @@ private:
 				{
 					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 					if(p_ack_buf) {
+						SString access_token2;
+						SString refresh_token;
 						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 						Lth.Log("rep", 0, temp_buf);
-						/*
 						SJson * p_js_reply = SJson::Parse(temp_buf);
 						if(p_js_reply) {
 							if(p_js_reply->IsObject()) {
 								for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
 									if(p_itm->Text.IsEqiAscii("accessToken")) {
 										if(p_itm->P_Child) {
-											(AccessToken = p_itm->P_Child->Text).Unescape();
+											(access_token2 = p_itm->P_Child->Text).Unescape();
 										}
 									}
 									else if(p_itm->Text.IsEqiAscii("tokenType")) {
@@ -7363,13 +7423,18 @@ private:
 										}
 									}
 									else if(p_itm->Text.IsEqiAscii("refeshToken")) {
-										// ???
+										if(p_itm->P_Child) {
+											(refresh_token = p_itm->P_Child->Text).Unescape();
+										}
 									}
 								}							
 							}
 							ZDELETE(p_js_reply);
 						}
-						*/
+						if(access_token2.NotEmpty()) {
+							AccessToken = access_token2;
+							ok = 1;
+						}
 						//Lth.Log("rep", 0, temp_buf);
 						//if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
 							//ok = 1;
@@ -7468,8 +7533,9 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int    GetProducts()
+	int    GetProducts(bool useStorage)
 	{
+		GoodsList.freeAll();
 		int    ok = -1;
 		// GET /product-api/api/v1/Products/integration
 		SString temp_buf;
@@ -7477,13 +7543,215 @@ private:
 		SString req_buf;
 		SString hdr_buf;
 		SBuffer ack_buf;
-		int   req = SHttpProtocol::reqUnkn;
+		int    req = SHttpProtocol::reqUnkn;
+		bool   is_error = false;
+		//
+		SString strg_file_name;
+		GetGoodsStoreFileName(strg_file_name);
+		int     storage_exists = 0;
+		DateRange goods_query_period;
+		goods_query_period.Z();
+		if(useStorage && fileExists(strg_file_name)) {
+			storage_exists = 1;
+			LDATETIME mt;
+			if(SFile::GetTime(strg_file_name, 0, 0, &mt) && diffdate(getcurdate_(), mt.d) <= 2) {
+				if(RestoreGoods(GoodsList)) {
+					goods_query_period.low = mt.d;
+					State |= stGoodsListInited;
+					ok = 2;
+				}
+			}
+		}
+		if(ok < 0) {
+			THROW(AccessToken.NotEmpty()); // @err
+			{
+				InetUrl url(MakeTargetUrl_(qGetProducts, &req, url_buf));
+				ScURL c;
+				PPGetFilePath(PPPATH_OUT, "gazpromneft-goods.txt", temp_buf);
+				SFile f_out(temp_buf, SFile::mWrite);
+				bool  more = false; // Если true, то надо сделать новую итерацию для извлечения очередной порции данных
+				int   page_no = 1;
+				do {
+					more = false;
+					StrStrAssocArray hdr_flds;
+					//url.SetQueryParam("Enabled", "true");
+					//url.SetQueryParam("IsActive", "true");
+					//url.SetQueryParam("OFFSET", "21");
+					url.SetQueryParam("PAGE", temp_buf.Z().Cat(page_no));
+					page_no++;
+					url.SetQueryParam("SIZE", "1000");
+					//url.SetQueryParam("Size", "100");
+					MakeHeaderFields(AccessToken, &hdr_flds, hdr_buf);
+					{
+						/*
+							Параметр	Тип данных	Описание
+							--------------------------------
+							Enabled	Boolean	Фильтр по признаку «Enabled»
+							IsActive	Boolean	Фильтр по признаку «Активный»
+							CapacityFrom	number	Емкость от
+							CapacityTo	Number	Емкость до
+							Search	String	Фильтр по названию
+							SegmentIds	Array[integer]	Фильтр по сегменту
+							TypeIds	array[string]	Фильтр по типу
+							BrandIds	array[string]	Фильтр по бренду
+							SegmentConsumerIds	array[string]	Фильтр по потребительскому сегменту
+							BrandLineIds	array[string]	Фильтр по линейке
+							Sort	String	Сортировка по названию поля
+							Direction	integer	Сортировка по возрастанию/убыванию
+							Page	Integer	Номер страницы
+							Size	Integer	Количество элементов на странице
+
+						*/
+						/*
+						SJson json_req(SJson::tOBJECT);
+						json_req.InsertBool("Enabled", true);
+						json_req.InsertBool("IsActive", true);
+						json_req.InsertInt("Page", 0);
+						json_req.InsertInt("Size", 10000);
+						THROW_SL(json_req.ToStr(req_buf));
+						*/
+					}
+					{
+						SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+						Lth.Log("req", url_buf, req_buf);
+						THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, /*req_buf,*/&wr_stream));
+						{
+							SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+							if(p_ack_buf) {
+								temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+								Lth.Log("rep", 0, temp_buf);
+								SJson * p_js_reply = SJson::Parse(temp_buf);
+								if(p_js_reply) {
+									if(p_js_reply->IsObject()) {
+										{
+											temp_buf.Z();
+											temp_buf.Cat("id").Tab().Cat("name").Tab().Cat("weight").Tab().
+												Cat("capacity").Tab().Cat("isactive").Tab().
+												Cat("PackingTypeName").Tab().Cat("PackingTypeId").Tab().
+												Cat("PackagingTypeName").Tab().Cat("PackagingTypeUuid");
+											f_out.WriteLine(temp_buf.CR());
+										}
+										for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
+											if(p_itm->Text.IsEqiAscii("hasNext")) {
+												if(SJson::IsTrue(p_itm->P_Child))
+													more = true;
+											}
+											else if(p_itm->Text.IsEqiAscii("items")) {
+												if(p_itm->P_Child && SJson::IsArray(p_itm->P_Child)) {
+													for(const SJson * p_js_ware = p_itm->P_Child->P_Child; p_js_ware; p_js_ware = p_js_ware->P_Next) {
+														if(SJson::IsObject(p_js_ware)) {
+															uint entry_idx = 0;
+															GazpromNeftGoodsPacket * p_entry = GoodsList.CreateNewItem(&entry_idx);
+															THROW_SL(p_entry);
+															for(const SJson * p_js_fld = p_js_ware->P_Child; p_js_fld; p_js_fld = p_js_fld->P_Next) {
+																if(p_js_fld->P_Child) {
+																	if(p_js_fld->Text.IsEqiAscii("id")) {
+																		p_entry->Ident = p_js_fld->P_Child->Text.ToInt64();
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("name")) {
+																		STRNSCPY(p_entry->Name, p_js_fld->P_Child->Text);
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("segmentId")) {
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("weight")) {
+																		p_entry->Weight = p_js_fld->P_Child->Text.ToReal();
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("capacity")) {
+																		p_entry->Capacity = p_js_fld->P_Child->Text.ToReal();
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("isActive")) {
+																		p_entry->IsActive = SJson::GetBoolean(p_js_fld);
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("unitMeasurement")) { // object
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("brand")) { // object
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("segmentConsumer")) { // object
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("packingType")) { // object
+																		for(const SJson * p_js_pt = p_js_fld->P_Child->P_Child; p_js_pt; p_js_pt = p_js_pt->P_Next) {
+																			if(p_js_pt->P_Child) {
+																				if(p_js_pt->Text.IsEqiAscii("value")) {
+																					STRNSCPY(p_entry->PackingTypeName, p_js_pt->P_Child->Text);
+																				}
+																				else if(p_js_pt->Text.IsEqiAscii("id")) {
+																					p_entry->PackingTypeId = p_js_pt->P_Child->Text.ToLong();
+																				}
+																			}
+																		}
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("packagingType")) { // object
+																		for(const SJson * p_js_pt = p_js_fld->P_Child->P_Child; p_js_pt; p_js_pt = p_js_pt->P_Next) {
+																			if(p_js_pt->P_Child) {
+																				if(p_js_pt->Text.IsEqiAscii("value")) {
+																					STRNSCPY(p_entry->PackagingTypeName, p_js_pt->P_Child->Text);
+																				}
+																				else if(p_js_pt->Text.IsEqiAscii("id")) {
+																					p_entry->PackagingTypeUuid.FromStr(p_js_pt->P_Child->Text);
+																				}
+																			}
+																		}
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("status")) { // object
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("viscosity")) { // object
+																	}
+																	else if(p_js_fld->Text.IsEqiAscii("viscositySAE")) { // object
+																	}
+																}
+															}
+															if(p_entry->Ident != 0 && p_entry->Name[0]) {
+																temp_buf.Z();
+																temp_buf.Cat(p_entry->Ident).Tab().Cat(p_entry->Name).Tab().Cat(p_entry->Weight, MKSFMTD(0, 6, 0)).Tab().
+																	Cat(p_entry->Capacity, MKSFMTD(0, 6, 0)).Tab().Cat(p_entry->IsActive ? "true" : "false").Tab().
+																	Cat(p_entry->PackingTypeName).Tab().Cat(p_entry->PackingTypeId).Tab().
+																	Cat(p_entry->PackagingTypeName).Tab().Cat(p_entry->PackagingTypeUuid, S_GUID::fmtIDL);
+																f_out.WriteLine(temp_buf.CR());
+															}
+															else {
+																GoodsList.atFree(entry_idx);
+															}
+														}
+													}
+												}
+											}
+										}							
+									}
+									ZDELETE(p_js_reply);
+								}
+								//Lth.Log("rep", 0, temp_buf);
+								//if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
+									//ok = 1;
+							}
+						}
+					}
+				} while(more);
+			}
+			State |= stGoodsListInited;
+			ok = 1;
+			if(useStorage) {
+				StoreGoods(GoodsList);
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    GetClients()
+	{
+		int    ok = -1;
+		// POST /client-api/api/v1/Clients/GetFilteredList
+		SString temp_buf;
+		SString url_buf;
+		SString req_buf;
+		SString hdr_buf;
+		SBuffer ack_buf;
+		int    req = SHttpProtocol::reqUnkn;
 		bool   is_error = false;
 		THROW(AccessToken.NotEmpty()); // @err
 		{
-			InetUrl url(MakeTargetUrl_(qGetProducts, &req, url_buf));
+			InetUrl url(MakeTargetUrl_(qGetClients, &req, url_buf));
 			ScURL c;
-			PPGetFilePath(PPPATH_OUT, "gazpromneft-goods.txt", temp_buf);
+			PPGetFilePath(PPPATH_OUT, "gazpromneft-clients.txt", temp_buf);
 			SFile f_out(temp_buf, SFile::mWrite);
 			bool  more = false; // Если true, то надо сделать новую итерацию для извлечения очередной порции данных
 			int   page_no = 1;
@@ -7493,44 +7761,21 @@ private:
 				//url.SetQueryParam("Enabled", "true");
 				//url.SetQueryParam("IsActive", "true");
 				//url.SetQueryParam("OFFSET", "21");
-				url.SetQueryParam("PAGE", temp_buf.Z().Cat(page_no));
+				{
+					SJson js_query(SJson::tOBJECT);
+					js_query.InsertInt("page", page_no);
+					js_query.InsertInt("size", 1000);
+					js_query.ToStr(req_buf);
+				}
+				//url.SetQueryParam("PAGE", temp_buf.Z().Cat(page_no));
 				page_no++;
-				url.SetQueryParam("SIZE", "1000");
+				//url.SetQueryParam("SIZE", "1000");
 				//url.SetQueryParam("Size", "100");
 				MakeHeaderFields(AccessToken, &hdr_flds, hdr_buf);
 				{
-					/*
-						Параметр	Тип данных	Описание
-						--------------------------------
-						Enabled	Boolean	Фильтр по признаку «Enabled»
-						IsActive	Boolean	Фильтр по признаку «Активный»
-						CapacityFrom	number	Емкость от
-						CapacityTo	Number	Емкость до
-						Search	String	Фильтр по названию
-						SegmentIds	Array[integer]	Фильтр по сегменту
-						TypeIds	array[string]	Фильтр по типу
-						BrandIds	array[string]	Фильтр по бренду
-						SegmentConsumerIds	array[string]	Фильтр по потребительскому сегменту
-						BrandLineIds	array[string]	Фильтр по линейке
-						Sort	String	Сортировка по названию поля
-						Direction	integer	Сортировка по возрастанию/убыванию
-						Page	Integer	Номер страницы
-						Size	Integer	Количество элементов на странице
-
-					*/
-					/*
-					SJson json_req(SJson::tOBJECT);
-					json_req.InsertBool("Enabled", true);
-					json_req.InsertBool("IsActive", true);
-					json_req.InsertInt("Page", 0);
-					json_req.InsertInt("Size", 10000);
-					THROW_SL(json_req.ToStr(req_buf));
-					*/
-				}
-				{
 					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 					Lth.Log("req", url_buf, req_buf);
-					THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, /*req_buf,*/&wr_stream));
+					THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
 					{
 						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 						if(p_ack_buf) {
@@ -7539,6 +7784,14 @@ private:
 							SJson * p_js_reply = SJson::Parse(temp_buf);
 							if(p_js_reply) {
 								if(p_js_reply->IsObject()) {
+									{
+										temp_buf.Z();
+										temp_buf.Cat("id").Tab().Cat("name").Tab().Cat("weight").Tab().
+											Cat("capacity").Tab().Cat("isactive").Tab().
+											Cat("PackingTypeName").Tab().Cat("PackingTypeId").Tab().
+											Cat("PackagingTypeName").Tab().Cat("PackagingTypeUuid");
+										f_out.WriteLine(temp_buf.CR());
+									}
 									for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
 										if(p_itm->Text.IsEqiAscii("hasNext")) {
 											if(SJson::IsTrue(p_itm->P_Child))
@@ -7548,34 +7801,27 @@ private:
 											if(p_itm->P_Child && SJson::IsArray(p_itm->P_Child)) {
 												for(const SJson * p_js_ware = p_itm->P_Child->P_Child; p_js_ware; p_js_ware = p_js_ware->P_Next) {
 													if(SJson::IsObject(p_js_ware)) {
-														struct WareEntry {
-															char   Ident[16];
-															char   Name[256];
-															double Weight;
-															double Capacity;
-															bool   IsActive;
-															uint8  Reserve[3]; // @alignment
-														};
-														WareEntry entry;
-														MEMSZERO(entry);
+														uint entry_idx = 0;
+														GazpromNeftGoodsPacket * p_entry = GoodsList.CreateNewItem(&entry_idx);
+														THROW_SL(p_entry);
 														for(const SJson * p_js_fld = p_js_ware->P_Child; p_js_fld; p_js_fld = p_js_fld->P_Next) {
 															if(p_js_fld->P_Child) {
 																if(p_js_fld->Text.IsEqiAscii("id")) {
-																	STRNSCPY(entry.Ident, p_js_fld->P_Child->Text);
+																	p_entry->Ident = p_js_fld->P_Child->Text.ToInt64();
 																}
 																else if(p_js_fld->Text.IsEqiAscii("name")) {
-																	STRNSCPY(entry.Name, p_js_fld->P_Child->Text);
+																	STRNSCPY(p_entry->Name, p_js_fld->P_Child->Text);
 																}
 																else if(p_js_fld->Text.IsEqiAscii("segmentId")) {
 																}
 																else if(p_js_fld->Text.IsEqiAscii("weight")) {
-																	entry.Weight = p_js_fld->P_Child->Text.ToReal();
+																	p_entry->Weight = p_js_fld->P_Child->Text.ToReal();
 																}
 																else if(p_js_fld->Text.IsEqiAscii("capacity")) {
-																	entry.Capacity = p_js_fld->P_Child->Text.ToReal();
+																	p_entry->Capacity = p_js_fld->P_Child->Text.ToReal();
 																}
 																else if(p_js_fld->Text.IsEqiAscii("isActive")) {
-																	entry.IsActive = SJson::GetBoolean(p_js_fld);
+																	p_entry->IsActive = SJson::GetBoolean(p_js_fld);
 																}
 																else if(p_js_fld->Text.IsEqiAscii("unitMeasurement")) { // object
 																}
@@ -7584,8 +7830,28 @@ private:
 																else if(p_js_fld->Text.IsEqiAscii("segmentConsumer")) { // object
 																}
 																else if(p_js_fld->Text.IsEqiAscii("packingType")) { // object
+																	for(const SJson * p_js_pt = p_js_fld->P_Child->P_Child; p_js_pt; p_js_pt = p_js_pt->P_Next) {
+																		if(p_js_pt->P_Child) {
+																			if(p_js_pt->Text.IsEqiAscii("value")) {
+																				STRNSCPY(p_entry->PackingTypeName, p_js_pt->P_Child->Text);
+																			}
+																			else if(p_js_pt->Text.IsEqiAscii("id")) {
+																				p_entry->PackingTypeId = p_js_pt->P_Child->Text.ToLong();
+																			}
+																		}
+																	}
 																}
 																else if(p_js_fld->Text.IsEqiAscii("packagingType")) { // object
+																	for(const SJson * p_js_pt = p_js_fld->P_Child->P_Child; p_js_pt; p_js_pt = p_js_pt->P_Next) {
+																		if(p_js_pt->P_Child) {
+																			if(p_js_pt->Text.IsEqiAscii("value")) {
+																				STRNSCPY(p_entry->PackagingTypeName, p_js_pt->P_Child->Text);
+																			}
+																			else if(p_js_pt->Text.IsEqiAscii("id")) {
+																				p_entry->PackagingTypeUuid.FromStr(p_js_pt->P_Child->Text);
+																			}
+																		}
+																	}
 																}
 																else if(p_js_fld->Text.IsEqiAscii("status")) { // object
 																}
@@ -7595,11 +7861,16 @@ private:
 																}
 															}
 														}
-														if(entry.Ident[0] && entry.Name[0]) {
+														if(p_entry->Ident != 0 && p_entry->Name[0]) {
 															temp_buf.Z();
-															temp_buf.Cat(entry.Ident).Tab().Cat(entry.Name).Tab().Cat(entry.Weight, MKSFMTD(0, 6, 0)).Tab().
-																Cat(entry.Capacity, MKSFMTD(0, 6, 0)).Tab().Cat(entry.IsActive ? "true" : "false");
+															temp_buf.Cat(p_entry->Ident).Tab().Cat(p_entry->Name).Tab().Cat(p_entry->Weight, MKSFMTD(0, 6, 0)).Tab().
+																Cat(p_entry->Capacity, MKSFMTD(0, 6, 0)).Tab().Cat(p_entry->IsActive ? "true" : "false").Tab().
+																Cat(p_entry->PackingTypeName).Tab().Cat(p_entry->PackingTypeId).Tab().
+																Cat(p_entry->PackagingTypeName).Tab().Cat(p_entry->PackagingTypeUuid, S_GUID::fmtIDL);
 															f_out.WriteLine(temp_buf.CR());
+														}
+														else {
+															GoodsList.atFree(entry_idx);
 														}
 													}
 												}
@@ -7617,13 +7888,8 @@ private:
 				}
 			} while(more);
 		}
+		ok = 1;
 		CATCHZOK
-		return ok;
-	}
-	int    GetClients()
-	{
-		int    ok = -1;
-		// POST /client-api/api/v1/Clients/GetFilteredList
 		return ok;
 	}
 	int    SendSellout()
@@ -7638,13 +7904,210 @@ private:
 		// POST /sales-api/api/v2/Sales/sellin
 		return ok;
 	}
+	int    GetGoodsList(PPIDArray & rList)
+	{
+		rList.Z();
+		int    ok = -1;
+		GoodsFilt filt;
+		filt.Flags |= GoodsFilt::fShowArCode;
+		filt.CodeArID = P.SupplID;
+		GoodsIterator iter(&filt, 0);
+		Goods2Tbl::Rec goods_rec;
+		while(iter.Next(&goods_rec) > 0) {
+			rList.add(goods_rec.ID);
+		}
+		return ok;
+	}
+	int    GetWarehouseUuid(PPID locID, S_GUID & rUuid)
+	{
+		int    ok = 0;
+		PPObjTag tag_obj;
+		PPID   tag_id = 0;
+		if(tag_obj.FetchBySymb("GAZPROMNEFT-WHUUID", &tag_id) > 0) {
+			if(PPRef->Ot.GetTagGuid(PPOBJ_LOCATION, locID, tag_id, rUuid) > 0)
+				ok = 1;
+		}
+		return ok;
+	}
 	int    SendRest()
 	{
 		int    ok = -1;
 		// POST /sales-api/api/v1/Sales/warehousebalances
+		SString temp_buf;
+		SString unit_name;
+		SString req_buf;
+		uint   result_loc_count = 0; // Счетчик, по нулевому значению которого мы поймем, что результат пустой и стало быть надо сообщить об ошибке
+		const LDATETIME dtm_now = getcurdatetime_();
+		SJson js_result(SJson::tARRAY);
+		PPIDArray goods_list;
+		PPIDArray loc_list;
+		P.LocList.Get(loc_list);
+		THROW(loc_list.getCount());
+		GetGoodsList(goods_list);
+		THROW(goods_list.getCount());
+		THROW(AccessToken.NotEmpty()); // @err // ***
+		for(uint locidx = 0; locidx < loc_list.getCount(); locidx++) {
+			const PPID loc_id = loc_list.get(locidx);
+			S_GUID loc_uuid;
+			if(GetWarehouseUuid(loc_id, loc_uuid) > 0) {
+				PPViewGoodsRest view;
+				GoodsRestFilt filt;
+				GoodsRestViewItem view_item;
+			
+				filt.Date = plusdate(getcurdate_(), -1);
+				filt.GoodsList.Set(&goods_list);
+				THROW(view.Init_(&filt));
+				{
+					SJson * p_js_single_obj = new SJson(SJson::tOBJECT);
+					SJson * p_js_positions = new SJson(SJson::tARRAY);
+					temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0).CatChar('Z');
+					p_js_single_obj->InsertString("dateTime", temp_buf);
+					p_js_single_obj->InsertString("warehouseId", temp_buf.Z().Cat(loc_uuid, S_GUID::fmtIDL));
+					for(view.InitIteration(); view.NextIteration(&view_item) > 0;) {
+						if(view_item.Rest > 0.0) {
+							GObj.P_Tbl->GetArCode(P.SupplID, view_item.GoodsID, temp_buf, 0);
+							const int64 ware_ident = temp_buf.ToInt64();
+							if(ware_ident) {
+								SJson * p_js_item = new SJson(SJson::tOBJECT);
+								const GazpromNeftGoodsPacket * p_goods_entry = SearchGoodsEntry(ware_ident);
+								double weight = 0.0;
+								double volume = 0.0;
+								unit_name.Z();
+								if(p_goods_entry) {
+									weight = view_item.Rest * p_goods_entry->Weight;
+									volume = view_item.Rest * p_goods_entry->Capacity;
+									unit_name = p_goods_entry->PackagingTypeName;
+								}
+								p_js_item->InsertInt64("productId", ware_ident);
+								p_js_item->InsertDouble("quantity", view_item.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+								p_js_item->InsertString("weight", temp_buf.Z().Cat(weight, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+								p_js_item->InsertString("volume", temp_buf.Z().Cat(volume, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+								p_js_item->InsertString("unit", unit_name);
+								//
+								p_js_positions->InsertChild(p_js_item);
+								p_js_item = 0;
+							}
+						}
+					}
+					p_js_single_obj->Insert("positions", p_js_positions);
+					p_js_positions = 0;
+					js_result.InsertChild(p_js_single_obj);
+					p_js_single_obj = 0;
+					result_loc_count++;
+				}
+			}
+		}
+		js_result.ToStr(req_buf);
+		{
+			SString url_buf;
+			SString hdr_buf;
+			SBuffer ack_buf;
+			int   req = SHttpProtocol::reqUnkn;
+			InetUrl url(MakeTargetUrl_(qSendRest, &req, url_buf));
+			ScURL c;
+			StrStrAssocArray hdr_flds;
+			MakeHeaderFields(AccessToken, &hdr_flds, hdr_buf);
+			{
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				Lth.Log("req", url_buf, req_buf);
+				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						Lth.Log("rep", 0, temp_buf);
+						SJson * p_js_reply = SJson::Parse(temp_buf);
+						if(p_js_reply) {
+							//
+							// ...
+							//
+							ZDELETE(p_js_reply);
+						}
+					}
+				}
+			}
+		}
+		CATCHZOK
 		return ok;
 	}
-
+	int GetGoodsStoreFileName(SString & rBuf) const
+	{
+		return PPGetFilePath(PPPATH_OUT, "gazpromneftgoodsstorage", rBuf.Z());
+	}
+	struct GoodsStorageHeader {
+		GoodsStorageHeader() : CRC(0)
+		{
+			memcpy(Signature, "GNGS", 4);
+			MEMSZERO(Reserve);
+		}
+		char   Signature[4]; // "GNGS"
+		uint32 CRC;
+		uint8  Reserve[24];
+	};
+	int StoreGoods(TSCollection <GazpromNeftGoodsPacket> & rList)
+	{
+		int    ok = 1;
+		SString file_name;
+		SSerializeContext sctx;
+		SBuffer buffer;
+		THROW_SL(TSCollection_Serialize(rList, +1, buffer, &sctx));
+		{
+    		const  size_t bsize = buffer.GetAvailableSize();
+    		GoodsStorageHeader hdr;
+			// @v10.8.2 @ctr MEMSZERO(hdr);
+			// @v10.8.2 @ctr memcpy(hdr.Signature, "GNGS", 4);
+			SCRC32 cc;
+			hdr.CRC = cc.Calc(0, buffer.GetBuf(0), bsize);
+			//
+			GetGoodsStoreFileName(file_name);
+			SFile f_out(file_name, SFile::mWrite|SFile::mBinary);
+			THROW_SL(f_out.IsValid());
+			THROW_SL(f_out.Write(&hdr, sizeof(hdr)));
+			THROW_SL(f_out.Write(buffer));
+		}
+		CATCHZOK
+		return ok;
+	}
+	int RestoreGoods(TSCollection <GazpromNeftGoodsPacket> & rList)
+	{
+		int    ok = 1;
+		SString file_name;
+		SSerializeContext sctx;
+		SBuffer buffer;
+		{
+    		GoodsStorageHeader hdr;
+    		GetGoodsStoreFileName(file_name);
+    		SFile f_in(file_name, SFile::mRead|SFile::mBinary);
+    		THROW_SL(f_in.IsValid());
+			THROW_SL(f_in.Read(&hdr, sizeof(hdr)));
+			THROW(memcmp(hdr.Signature, "GNGS", 4) == 0);
+			THROW_SL(f_in.Read(buffer));
+			{
+				SCRC32 cc;
+				uint32 _crc = cc.Calc(0, buffer.GetBuf(0), buffer.GetAvailableSize());
+				THROW(_crc == hdr.CRC);
+			}
+			THROW_SL(TSCollection_Serialize(rList, -1, buffer, &sctx));
+		}
+		CATCHZOK
+		return ok;
+	}
+	const GazpromNeftGoodsPacket * SearchGoodsEntry(int64 ident) const
+	{
+		const GazpromNeftGoodsPacket * p_result = 0;
+		if(ident) {
+			for(uint i = 0; !p_result && i < GoodsList.getCount(); i++) {
+				const GazpromNeftGoodsPacket * p_entry = GoodsList.at(i);
+				if(p_entry && p_entry->Ident == ident) {
+					p_result = p_entry;
+				}
+			}
+		}
+		return p_result;
+	}
+	enum {
+		stGoodsListInited = 0x0001
+	};
 	uint   State;
 	SString SvcUrl;
 	SString UserName;
@@ -7652,6 +8115,7 @@ private:
 	SString AccessToken;
 	long   AcsTokExpirySec;
 	PPGlobalServiceLogTalkingHelper Lth;
+	TSCollection <GazpromNeftGoodsPacket> GoodsList;
 };
 //
 //

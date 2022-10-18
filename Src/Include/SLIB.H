@@ -5186,6 +5186,7 @@ inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; 
 #define PREDEFPRD_LASTWORKWEEK 5 // Прошедшая рабочая неделя (понедельник-пятница)
 #define PREDEFPRD_THISMONTH    6 // Текущий месяц
 #define PREDEFPRD_LASTMONTH    7 // Прошедший месяц
+#define PREDEFPRD_THISWEEK     8 // @v11.5.4 Текущая неделя //
 
 #define PRD_PRECDAYSMASK  0x7000
 #define NUM_MONTHES        12
@@ -13949,6 +13950,7 @@ public:
 	int    Serialize(int dir, int16 & rV, SBuffer & rBuf);
 	int    Serialize(int dir, int8 & rV, SBuffer & rBuf);
 	int    Serialize(int dir, int & rV, SBuffer & rBuf);
+	int    Serialize(int dir, bool & rV, SBuffer & rBuf);
 	int    Serialize(int dir, uint & rV, SBuffer & rBuf);
 	int    Serialize(int dir, uint64 & rV, SBuffer & rBuf);
 	int    Serialize(int dir, uint32 & rV, SBuffer & rBuf);

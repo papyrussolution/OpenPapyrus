@@ -2704,17 +2704,24 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 			ReceiptTbl::Rec ord_lot_rec;
 			BillTbl::Rec ord_bill_rec;
 			SString edi_channel;
-			if(quot > 0.0 && Item.OrdLotID && P_BObj->trfr->Rcpt.Search(Item.OrdLotID, &ord_lot_rec) > 0) {
+			if(Item.OrdLotID && P_BObj->trfr->Rcpt.Search(Item.OrdLotID, &ord_lot_rec) > 0) {
 				if(P_BObj->Fetch(ord_lot_rec.BillID, &ord_bill_rec) > 0 && ord_bill_rec.EdiOp == PPEDIOP_SALESORDER) {
-					if(PPRef->Ot.GetTagStr(PPOBJ_BILL, ord_bill_rec.ID, PPTAG_BILL_EDICHANNEL, edi_channel) > 0 && edi_channel.CmpNC("ISALES-PEPSI") == 0) {
-						DateIter di;
-						if(P_BObj->trfr->EnumByLot(ord_lot_rec.ID, &di, &ord_item) > 0 && ord_item.Flags & PPTFR_RECEIPT) {
-							const double ord_qtty = fabs(ord_item.Quantity);
-							const double ord_price = fabs(ord_item.Price) * ord_qtty;
-							const double ord_dis   = ord_item.Discount * ord_qtty;
-							ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
-							if(ord_pct_dis > 0.0)
-								quot = R5(quot * (1 - ord_pct_dis));
+					if(PPRef->Ot.GetTagStr(PPOBJ_BILL, ord_bill_rec.ID, PPTAG_BILL_EDICHANNEL, edi_channel) > 0) {
+						if(edi_channel.IsEqiAscii("ISALES-PEPSI")) {
+							if(quot > 0.0) {
+								DateIter di;
+								if(P_BObj->trfr->EnumByLot(ord_lot_rec.ID, &di, &ord_item) > 0 && ord_item.Flags & PPTFR_RECEIPT) {
+									const double ord_qtty = fabs(ord_item.Quantity);
+									const double ord_price = fabs(ord_item.Price) * ord_qtty;
+									const double ord_dis   = ord_item.Discount * ord_qtty;
+									ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
+									if(ord_pct_dis > 0.0)
+										quot = R5(quot * (1 - ord_pct_dis));
+								}
+							}
+						}
+						else if(edi_channel.IsEqiAscii("COKE")) {
+							
 						}
 					}
 				}

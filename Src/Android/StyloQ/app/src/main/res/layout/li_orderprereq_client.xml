@@ -23,6 +23,23 @@
             android:src="@drawable/ic_triangleleft03">
         </ImageView>
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/LAYOUT_ORDERPREREQ_CLI_DEBT"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <View style="@style/FakeView"/>
+        <TextView style="@style/FormText"
+            android:id="@+id/CTL_ORDERPREREQ_CLI_DEBT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_viewframe"
+            />
+        <View
+            android:layout_width="24dp"
+            android:layout_height="24dp"/>
+    </LinearLayout>
     <ListView
         android:id="@+id/dlvrLocListView"
         android:layout_width="match_parent"

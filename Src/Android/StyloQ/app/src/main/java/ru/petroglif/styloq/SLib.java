@@ -2777,7 +2777,10 @@ public class SLib {
 		private static final int ANY_DAYITEM_VALUE  = 0x7d;
 		private static final int ANY_MONITEM_VALUE  = 0x7d;
 		private static final int ANY_YEARITEM_VALUE = 0x7d0a;
-
+		public static LDATE Copy(final LDATE s)
+		{
+			return (s != null) ? new LDATE(s) : null;
+		}
 		public static boolean ArEq(final LDATE a1, final LDATE a2)
 		{
 			return (a1 != null) ? (a2 != null && a1.v == a2.v) : (a2 == null);
@@ -2796,10 +2799,62 @@ public class SLib {
 			int nd2 = DateToDaysSinceChristmas(d2.year(), d2.month(), d2.day());
 			return (nd1 - nd2);
 		}
-		public static LDATE Plus(LDATE d, int days)
+		public static LDATE Plus(LDATE dt, int days)
 		{
-			int nd = DateToDaysSinceChristmas(d.year(), d.month(), d.day());
+			int nd = DateToDaysSinceChristmas(dt.year(), dt.month(), dt.day());
 			return DaysSinceChristmasToDate(nd + days);
+		}
+		public static LDATE PlusPeriod(LDATE dt, int prd, int numperiods)
+		{
+			LDATE result = null;
+			int d = 0;
+			int m = 0;
+			int y = 0;
+			if(numperiods != 0) {
+				if((prd & PRD_PRECDAYSMASK) == PRD_PRECDAYSMASK) {
+					int   t = (int)(prd & ~PRD_PRECDAYSMASK);
+					if(t <= 0)
+						t = 1;
+					numperiods *= t;
+					prd = PRD_DAY;
+				}
+				else if(prd == PRD_QUART) {
+					prd = PRD_MONTH;
+					numperiods *= 3;
+				}
+				else if(prd == PRD_SEMIAN) {
+					prd = PRD_MONTH;
+					numperiods *= 6;
+				}
+				else if(prd == PRD_WEEK || (prd > 0 && prd != PRD_MONTH && prd != PRD_ANNUAL)) {
+					numperiods *= prd;
+					prd = PRD_DAY;
+				}
+				if(prd == PRD_DAY) {
+					result = LDATE.Plus(dt, numperiods);
+				}
+				else {
+					d = dt.day();
+					m = dt.month();
+					y = dt.year();
+					if(prd == PRD_MONTH) {
+						y += (numperiods+=m) / 12;
+						if((m = numperiods % 12) <= 0) {
+							m += 12;
+							y--;
+						}
+					}
+					else if(prd == PRD_ANNUAL)
+						y += numperiods;
+					final int dpm = DaysPerMonth(y,m);
+					if(d > dpm)
+						d = dpm;
+					result = new LDATE(d, m, y);
+				}
+			}
+			else
+				result = new LDATE(dt);
+			return result;
 		}
 		public boolean IsEq(LDATE other)
 		{
@@ -3936,6 +3991,34 @@ public class SLib {
 		}
 		return result;
 	}
+	//
+	// Periods
+	//
+	public static final int PRD_UNDEF          =  -1;
+	public static final int PRD_BEGIN          =  -3;
+	public static final int PRD_END            =  -2;
+	public static final int PRD_REPEATAFTERPRD =  -4;
+	public static final int PRD_DAY            =   1;
+	public static final int PRD_WEEK           =   7;
+	public static final int PRD_MONTH          =  30;
+	public static final int PRD_QUART          =  90;
+	public static final int PRD_SEMIAN         = 180;
+	public static final int PRD_ANNUAL         = 360;
+	//
+	//
+	//
+	public static final int PREDEFPRD_NONE         = 0; //
+	public static final int PREDEFPRD_TODAY        = 1; // Сегодня
+	public static final int PREDEFPRD_YESTERDAY    = 2; // Вчера
+	public static final int PREDEFPRD_LAST7DAYS    = 3; // Последние семь дней
+	public static final int PREDEFPRD_LASTWEEK     = 4; // Прошедшая неделя
+	public static final int PREDEFPRD_LASTWORKWEEK = 5; // Прошедшая рабочая неделя (понедельник-пятница)
+	public static final int PREDEFPRD_THISMONTH    = 6; // Текущий месяц
+	public static final int PREDEFPRD_LASTMONTH    = 7; // Прошедший месяц
+	public static final int PREDEFPRD_THISWEEK     = 8; // @v11.5.4 Текущая неделя //
+	//
+	public static final int PRD_PRECDAYSMASK = 0x7000;
+
 	public static class DateRange {
 		public static boolean ArEq(final DateRange a1, final DateRange a2)
 		{
@@ -3993,7 +4076,7 @@ public class SLib {
 			}
 			return result;
 		}
-		boolean FromString(String txt)
+		public boolean FromString(String txt)
 		{
 			Z();
 			boolean ok = false;
@@ -4016,6 +4099,56 @@ public class SLib {
 				else {
 					Low = strtodate(txt, DATF_DMY);
 					Upp = Low;
+				}
+			}
+			return ok;
+		}
+		public boolean SetPredefined(int predefPrdId, LDATE rel)
+		{
+			boolean ok = false;
+			if(rel == null || rel.v == 0) {
+				rel = GetCurDate();
+			}
+			{
+				switch(predefPrdId) {
+					case PREDEFPRD_NONE:
+						break;
+					case PREDEFPRD_TODAY:
+						Low = LDATE.Copy(rel);
+						Upp = LDATE.Copy(rel);
+						break;
+					case PREDEFPRD_YESTERDAY:
+						Low = LDATE.Plus(rel, -1);
+						Upp = Low;
+						break;
+					case PREDEFPRD_LAST7DAYS:
+						Low = LDATE.Plus(rel, -7);
+						Upp = LDATE.Plus(rel, -1);
+						break;
+					case PREDEFPRD_LASTWEEK:
+						Low = LDATE.Plus(rel, 1 - (7 + rel.DayOfWeek(true)));
+						Upp = LDATE.Plus(Low, 6);
+						break;
+					case PREDEFPRD_LASTWORKWEEK:
+						Low = LDATE.Plus(rel, 1 - (7 + rel.DayOfWeek(true)));
+						Upp = LDATE.Plus(Low, 4);
+						break;
+					case PREDEFPRD_THISMONTH:
+						Low = LDATE.Copy(rel);
+						Low.SetDay(1);
+						Upp = LDATE.Copy(rel);
+						Upp.SetDay(DaysPerMonth(Upp.month(), Upp.year()));
+						break;
+					case PREDEFPRD_LASTMONTH:
+						Low = LDATE.PlusPeriod(rel, PRD_MONTH, -1);
+						Upp = new LDATE(Low);
+						Low.SetDay(1);
+						Upp.SetDay(DaysPerMonth(Upp.month(), Upp.year()));
+						break;
+					case PREDEFPRD_THISWEEK:
+						Low = LDATE.Plus(rel, 1 - (7 + rel.DayOfWeek(true)));
+						Upp = LDATE.Plus(Low, 6);
+						break;
 				}
 			}
 			return ok;
@@ -5613,15 +5746,26 @@ public class SLib {
 					{
 						Object item = view;
 						Context ctx = adapterView.getContext();
-						if(item != null && ctx != null && ctx instanceof SLib.SlActivity) {
-							SLib.SlActivity activity = (SLib.SlActivity)ctx;
-							SLib.ListViewEvent ev_subj = new SLib.ListViewEvent();
-							ev_subj.ItemIdx = idx;
-							ev_subj.ItemId = id;
-							ev_subj.ItemObj = item;
-							ev_subj.ItemView = view;
-							//ev_subj.ParentView = adapterView;
-							activity.HandleEvent(SLib.EV_CBSELECTED, adapterView, ev_subj);
+						if(item != null) {
+							if(ctx != null && ctx instanceof SLib.SlActivity) {
+								SLib.SlActivity activity = (SLib.SlActivity)ctx;
+								SLib.ListViewEvent ev_subj = new SLib.ListViewEvent();
+								ev_subj.ItemIdx = idx;
+								ev_subj.ItemId = id;
+								ev_subj.ItemObj = item;
+								ev_subj.ItemView = view;
+								//ev_subj.ParentView = adapterView;
+								activity.HandleEvent(SLib.EV_CBSELECTED, adapterView, ev_subj);
+							}
+							else if(parentView != null && parentView instanceof EventHandler) {
+								SLib.ListViewEvent ev_subj = new SLib.ListViewEvent();
+								ev_subj.ItemIdx = idx;
+								ev_subj.ItemId = id;
+								ev_subj.ItemObj = item;
+								ev_subj.ItemView = view;
+								//ev_subj.ParentView = adapterView;
+								((EventHandler)parentView).HandleEvent(SLib.EV_CBSELECTED, adapterView, ev_subj);
+							}
 						}
 					}
 					public void onNothingSelected(AdapterView<?> adapterView)

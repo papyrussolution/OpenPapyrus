@@ -342,7 +342,7 @@ public class CommandListActivity extends SLib.SlActivity {
 					if(ev_subj != null) {
 						StyloQApp app_ctx = GetAppCtx();
 						if(app_ctx != null) {
-							boolean force_query = (ev == SLib.EV_LISTVIEWITEMLONGCLK) ? true : false;
+							final boolean force_query = (ev == SLib.EV_LISTVIEWITEMLONGCLK) ? true : false;
 							StyloQCommand.Item cmd_item = ListData.GetViewItem(ev_subj.ItemIdx);
 							if(cmd_item != null) {
 								if(StyloQCommand.IsCommandPending(SvcIdent, cmd_item) == 0) { // @v11.4.8

@@ -260,6 +260,9 @@ public:
 												}
 												for(const xmlNode * p_n5 = p_n4->children; p_n5; p_n5 = p_n5->next) {
 													if(SXml::IsName(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENTBLOCK))) {
+														if(SXml::GetAttrib(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENT_TPACKCODE), temp_buf)) { // @v11.5.4 Бывает и такое: единственная марка в атрибуте!
+															p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
+														}
 														for(const xmlNode * p_n6 = p_n5->children; p_n6; p_n6 = p_n6->next) {
 															if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_PACKCODE), temp_buf) > 0) {
 																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки

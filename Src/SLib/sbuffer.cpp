@@ -1577,6 +1577,23 @@ int SSerializeContext::Serialize(int dir, TYPEID typ, void * pData, uint8 * pInd
 	return ok;
 }
 
+int SSerializeContext::Serialize(int dir, bool & rV, SBuffer & rBuf)
+{
+	assert(dir != 0);
+	int    ok = 1;
+	if(dir > 0) {
+		uint8 v = BIN(rV);
+		THROW(rBuf.Write(&v, 1));
+	}
+	else if(dir < 0) {
+		uint8 v = rV;
+		THROW(rBuf.ReadV(&v, 1));
+		rV = (v != 0);
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SSerializeContext::Serialize(int dir, int64  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, int32  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, int16  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }

@@ -23942,6 +23942,7 @@ private:
 #define GTCHZNPT_PERFUMERY 7 // @v10.9.11 Парфюмерия
 #define GTCHZNPT_MILK      8 // @v10.9.11 Молоко
 #define GTCHZNPT_JEWELRY   9 // @v11.4.9 Ювелирные изделия //
+#define GTCHZNPT_WATER    10 // @v11.5.4 Вода питьевая //
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -41706,7 +41707,7 @@ public:
 		fLabelOnly      = 0x0008, // Только по WL-документам
 		fByReckoning    = 0x0010, //
 		fAllCurrencies  = 0x0020, //
-		fByCost = 0x0040, // В ценах поступления (COST)
+		fByCost         = 0x0040, // В ценах поступления (COST)
 		fExtended       = 0x0080, // Расширенный отчет с зачетными операциями
 		fInclZeroDebt   = 0x0100, // Включать контрагентов с нулевыми долгами
 		fDeliveryAddr   = 0x0200, // Использовать адрес доставки
@@ -41714,7 +41715,8 @@ public:
 			// периода оплаты (независимо от периода отгрузки и периода срока оплаты)
 			// Этот флаг несколько увеличивает время обработки
 		fSkipPassive    = 0x0800, // Пропускать пассивные аналитические статьи
-		fShowExpiryDebt = 0x1000  // Показывать сумму просроченного долга
+		fShowExpiryDebt = 0x1000, // Показывать сумму просроченного долга
+		fNoTempTable    = 0x2000, // @v11.5.4 @internal
 	};
 	//
 	// Виды цикличности отчета
@@ -46876,7 +46878,9 @@ public:
 		doctypGeneric         = 4, // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
 		doctypIndexingContent = 5, // @v11.3.4 Документ, содержащий данные для индексации медиатором
 		doctypIndoorSvcPrereq = 6, // @v11.4.5 Предопределенный формат данных, подготовленных для формирования данных для обслуживания внутри помещения сервиса (INDOOR)
-		doctypIncomingList    = 7  // @v11.4.8 
+		doctypIncomingList    = 7, // @v11.4.8 
+		doctypDebtList        = 8, // @v11.5.4 Реестр долговых документов по контрагентам. Специфичный документ: на клиентской стороне хранится единый реестр по всем
+			// контрагентам. При этом запрос сервису отправляется по одному контрагенту, а ответ (корректный) встраивается в общий реестр.
 	};
 	struct StoragePacket {
 		bool   FASTCALL IsEq(const StoragePacket & rS) const;
@@ -47006,6 +47010,9 @@ public:
 		sqbcIncomingListCCheck   = 108, // @v11.4.7 Список входящих кассовых чеков (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
 		sqbcIncomingListTSess    = 109, // @v11.4.7 Список входящих технологических сессий (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
 		sqbcIncomingListTodo     = 110, // @v11.4.7 Список входящих задач (команда обязательно ассоциируется с внутренним объектом данных: персоналией, пользователем etc)
+		sqbcDebtList             = 111, // @v11.5.4 Список долговых документов по контрагенту. В общем случае, это могут быть как долги и покупателей, так и наша 
+			// задолженность перед поставщиками. Пока предполагается использовать как вспомогательную команду для получения долговой ведомости по клиенту в рамках
+			// работы с более высокоуровневыми командами (eg sqbcRsrvOrderPrereq)
 	};
 	//
 	// Descr: Идентификаторы типов документов обмена
@@ -47564,11 +47571,7 @@ private:
 	};
 	struct InnerGoodsEntry { // @flat
 		explicit InnerGoodsEntry(PPID goodsID);
-		InnerGoodsEntry & Z()
-		{
-			THISZERO();
-			return *this;
-		}
+		InnerGoodsEntry & Z();
 
 		enum { // Copy of RetailGoodsInfo
 			fDisabledQuot    = 0x0001, // Котировка QuotKindUsedForPrice является блокирующей - продажа товара запрещена.
@@ -47650,6 +47653,7 @@ private:
 	SJson * ProcessCommand_ReqBlobInfoList(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument);
 	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult, SString & rDocDeclaration);
 	SJson * ProcessCommand_GetGoodsInfo(const SBinaryChunk & rOwnIdent, const StyloQCore::StoragePacket & rCliPack, const StyloQCommandList::Item * pGiCmd, PPID goodsID, const char * pGoodsCode);
+	int    ProcessCommand_DebtList(const StyloQCommandList::Item & rCmdItem, const SJson * pJsCmd, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	int    Helper_PrepareAhed(const StyloQCommandList & rFullCmdList);
 	bool   AmIMediator(const char * pCommand);
 	SJson * MakeQuery_StoreBlob(const void * pBlobBuf, size_t blobSize, const SString & rSignature);

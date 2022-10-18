@@ -45,6 +45,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	private JSONArray QuotKindListData;
 	private ViewDescriptionList VdlDocs; // Описание таблицы просмотра существующих заказов
 	private ArrayList <Document.EditAction> DocEditActionList;
+	private BusinessEntity.DebtList DbtL; // @v11.5.4
+	private StyloQCommand.Item CmdQueryDebt; // @v11.5.4 Команда сервиса, используемая для запроса долгового реестра
 	private void RefreshCurrentDocStatus()
 	{
 		if(CPM.TabList != null) {
@@ -65,6 +67,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	{
 		CPM = new CommonPrereqModule(this);
 		DocEditActionList = null;
+		DbtL = null;
+		CmdQueryDebt = null;
 	}
 	private void MakeSimpleSearchIndex()
 	{
@@ -625,6 +629,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				{
 					Intent intent = getIntent();
 					try {
+						CmdQueryDebt = null;
+						DbtL = null;
 						CPM.GetAttributesFromIntent(intent);
 						long doc_id = intent.getLongExtra("SvcReplyDocID", 0);
 						String svc_reply_doc_json = null;
@@ -651,6 +657,13 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								WharehouseListData = js_head.optJSONArray("warehouse_list");
 								QuotKindListData = js_head.optJSONArray("quotkind_list");
 								CPM.MakeClientListFromCommonJson(js_head);
+								if(CPM.GetOption_UseCliDebt()) {
+									StyloQDatabase.SecStoragePacket cmdl_pack = db.GetForeignSvcCommandList(CPM.SvcIdent);
+									StyloQCommand.List cmd_list = cmdl_pack.GetCommandList();
+									CmdQueryDebt = cmd_list.GetItemWithParticularBaseId(StyloQCommand.sqbcDebtList);
+									if(CmdQueryDebt != null)
+										DbtL = app_ctx.LoadDebtList(CPM.SvcIdent);
+								}
 								CPM.RestoreRecentDraftDocumentAsCurrent(); // @v11.4.0
 								CPM.MakeCurrentDocList();
 								MakeSimpleSearchIndex();
@@ -891,10 +904,24 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									case R.id.orderPrereqClientsListView:
 										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.CliListData)) {
 											View iv = ev_subj.RvHolder.itemView;
-											CommonPrereqModule.CliEntry cur_entry = null;
-											cur_entry = (CommonPrereqModule.CliEntry)CPM.CliListData.get(ev_subj.ItemIdx);
+											CommonPrereqModule.CliEntry cur_entry = (CommonPrereqModule.CliEntry)CPM.CliListData.get(ev_subj.ItemIdx);
 											final int cur_cli_id = cur_entry.JsItem.optInt("id", 0);
 											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
+											if(DbtL != null) {
+												SLib.SetCtrlVisibility(iv, R.id.LAYOUT_ORDERPREREQ_CLI_DEBT, View.VISIBLE);
+												BusinessEntity.DebtList.ShortReplyEntry de = DbtL.GetDebt(cur_cli_id);
+												String text;
+												if(de != null) {
+													text = "debt" + ": " + SLib.formatdouble(de.Debt, 2);
+												}
+												else {
+													text = "???";
+												}
+												SLib.SetCtrlString(iv, R.id.CTL_ORDERPREREQ_CLI_DEBT, text);
+											}
+											else {
+												SLib.SetCtrlVisibility(iv, R.id.LAYOUT_ORDERPREREQ_CLI_DEBT, View.GONE);
+											}
 											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_PERSON, cur_cli_id);
 											{
 												ImageView ctl = (ImageView)iv.findViewById(R.id.ORDERPREREQ_CLI_EXPANDSTATUS);
@@ -1263,6 +1290,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						else {
 							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.buttonOrder);
 							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.ORDERPREREQ_CLI_EXPANDSTATUS);
+							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.CTL_ORDERPREREQ_CLI_DEBT); // @v11.5.4
 							result = ev_subj.RvHolder;
 						}
 					}
@@ -1348,6 +1376,33 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													else if(item.AddrExpandStatus == 2) {
 														item.AddrExpandStatus = 1;
 														a.notifyItemChanged(ev_subj.ItemIdx);
+													}
+												}
+												else if(ev_subj.ItemView.getId() == R.id.CTL_ORDERPREREQ_CLI_DEBT) {
+													if(DbtL != null) {
+														final int cur_cli_id = item.JsItem.optInt("id", 0);
+														if(cur_cli_id > 0) {
+															BusinessEntity.DebtList.ShortReplyEntry de = DbtL.GetDebt(cur_cli_id);
+															if(de == null) {
+																if(CmdQueryDebt != null) {
+																	// query
+																	boolean force_query = true;
+																	try {
+																		JSONObject js_query = new JSONObject();
+																		String cmd_text = CmdQueryDebt.Uuid.toString();
+																		js_query.put("cmd", cmd_text);
+																		js_query.put("time", System.currentTimeMillis());
+																		js_query.put("arid", cur_cli_id);
+																		app_ctx.RunSvcCommand(CPM.SvcIdent, CmdQueryDebt, js_query, force_query, this);
+																	} catch(StyloQException | JSONException exn) {
+																		;
+																	}
+																}
+															}
+															else {
+																// detail
+															}
+														}
 													}
 												}
 												else {

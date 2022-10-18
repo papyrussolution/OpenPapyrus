@@ -730,10 +730,14 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 				rest = MIN(rest, qtty);
 				if(rest > 0.0) {
 					SString temp_buf;
-					const int ord_price_low_prior = BIN(GetConfig().Flags & BCF_ORDPRICELOWPRIORITY);
-					const int is_isales_order = BIN(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER &&
-						pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.IsEqiAscii("ISALES-PEPSI"));
-					const double ord_qtty = fabs(p_ord_item->Quantity_);
+					SString edi_channel;
+					if(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER) {
+						pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, edi_channel);
+					}
+					const bool   ord_price_low_prior = LOGIC(GetConfig().Flags & BCF_ORDPRICELOWPRIORITY);
+					const bool   is_isales_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("ISALES-PEPSI"));
+					const bool   is_coke_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("COKE")); // @v11.5.4
+					const double ord_qtty  = fabs(p_ord_item->Quantity_);
 					const double ord_price = fabs(p_ord_item->Price) * ord_qtty;
 					const double ord_dis   = p_ord_item->Discount * ord_qtty;
 					const double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
@@ -777,6 +781,10 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 						const double quot = R5(sq * (1 - ord_pct_dis));
 						ti.Discount = sq - quot;
 						ti.SetupQuot(quot, 1);
+					}
+					else if(is_coke_order && ord_dis > 0.0 && p_ord_item->Discount <= ti.Price) { // @v11.5.4
+						// Для заказов кока-кола (COKE) скидка в заказе трактуется как абсолютная скидка предоставляемая к той цене, которую выставляет дистрибьютор
+						ti.Discount = p_ord_item->Discount;
 					}
 					else if(p_ord_item->NetPrice() > 0.0)
 						ti.Discount = ti.Price - p_ord_item->NetPrice();
