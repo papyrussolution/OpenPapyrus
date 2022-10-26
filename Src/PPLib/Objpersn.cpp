@@ -3568,6 +3568,30 @@ int PPObjPerson::ValidatePacket(const PPPersonPacket * pPack, long flags)
 	CATCHZOK
 	return ok;
 }
+
+int PPObjPerson::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
+{
+	const  PPID tag_id = PPTAG_PERSON_UUID;
+	const  int  abs_err_msg_id = PPERR_PERSONTAGUUIDABS;
+	int    ok = 1;
+	ObjTagItem tag;
+	PersonTbl::Rec _rec;
+	PPObjTag tagobj;
+	PPObjectTag tag_rec;
+	THROW_PP(tagobj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
+	if(pUuid && !pUuid->IsZero()) {
+		THROW(Search(id, &_rec) > 0);
+	}
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(tag.SetGuid(tag_id, pUuid));
+		THROW(PPRef->Ot.PutTag(Obj, id, &tag, 0));
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
 //
 //
 //
@@ -7300,16 +7324,17 @@ struct UhttPersonBlock {
 	};
 	UhttPersonBlock()
 	{
-		Clear();
+		Z();
 	}
-	void Clear()
+	UhttPersonBlock & Z()
 	{
-		Pack.destroy();
+		Pack.Z();
 		LocPos = 0;
 		PhPos = 0;
 		EmlPos = 0;
 		UrlPos = 0;
 		State = stFetch;
+		return *this;
 	}
 	PPObjPerson PObj;
 	PPObjLocation LObj;
@@ -7346,7 +7371,7 @@ int PPALDD_UhttPerson::InitData(PPFilt & rFilt, long rsrv)
 {
 	int   ok = -1;
 	UhttPersonBlock & r_blk = *static_cast<UhttPersonBlock *>(Extra[0].Ptr);
-	r_blk.Clear();
+	r_blk.Z();
 	MEMSZERO(H);
 	if(r_blk.PObj.GetPacket(rFilt.ID, &r_blk.Pack, 0) > 0) {
 		SString temp_buf;
@@ -7524,7 +7549,7 @@ int PPALDD_UhttPerson::Set(long iterId, int commit)
 	int    ok = 1;
 	UhttPersonBlock & r_blk = *static_cast<UhttPersonBlock *>(Extra[0].Ptr);
 	if(r_blk.State != UhttPersonBlock::stSet) {
-		r_blk.Clear();
+		r_blk.Z();
 		r_blk.State = UhttPersonBlock::stSet;
 	}
 	if(commit == 0) {
@@ -7605,9 +7630,11 @@ int PPALDD_UhttPerson::Set(long iterId, int commit)
 		if(id > 0) {
 			PPPersonPacket  tmp_pckt;
 			THROW(r_blk.PObj.GetPacket(id, &tmp_pckt, 0));
-			LAssocArray rel_list = tmp_pckt.GetRelList();
-			for(uint i = 0, n = rel_list.getCount(); i < n; i++) {
-				r_blk.Pack.AddRelation(rel_list.at(i).Key, rel_list.at(i).Val, 0);
+			{
+				const LAssocArray rel_list(tmp_pckt.GetRelList());
+				for(uint i = 0, n = rel_list.getCount(); i < n; i++) {
+					r_blk.Pack.AddRelation(rel_list.at(i).Key, rel_list.at(i).Val, 0);
+				}
 			}
 		}
 		if(r_blk.Pack.Kinds.getCount() == 0) {
@@ -7618,7 +7645,7 @@ int PPALDD_UhttPerson::Set(long iterId, int commit)
 	}
 	CATCHZOK
 	if(commit || !ok)
-		r_blk.Clear();
+		r_blk.Z();
 	return ok;
 }
 // } @Muxa

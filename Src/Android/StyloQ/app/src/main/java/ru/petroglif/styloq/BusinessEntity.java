@@ -434,6 +434,20 @@ public class BusinessEntity {
 			Amount = 0.0;
 			Debt = 0.0;
 		}
+		public static DebtEntry Copy(final DebtEntry s)
+		{
+			DebtEntry result = null;
+			if(s != null) {
+				result = new DebtEntry();
+				result.BillID = s.BillID;
+				result.BillDate = SLib.LDATE.Copy(s.BillDate);
+				result.BillCode = SLib.Copy(s.BillCode);
+				result.AgentID = s.AgentID;
+				result.Amount = s.Amount;
+				result.Debt = s.Debt;
+			}
+			return result;
+		}
 		public boolean FromJson(JSONObject jsObj)
 		{
 			boolean ok = false;
@@ -499,6 +513,24 @@ public class BusinessEntity {
 			Debt = 0.0;
 			List = null;
 		}
+		public static ArDebtList Copy(final ArDebtList s)
+		{
+			ArDebtList result = null;
+			if(s != null) {
+				result = new ArDebtList();
+				result.ArID = s.ArID;
+				result.ArName = SLib.Copy(s.ArName);
+				result.SvcTime = SLib.LDATETIME.Copy(s.SvcTime);
+				result.CliTime = SLib.LDATETIME.Copy(s.CliTime);
+				result.Debt = s.Debt;
+				if(s.List != null) {
+					result.List = new ArrayList<DebtEntry>();
+					for(DebtEntry iter : s.List)
+						result.List.add(DebtEntry.Copy(iter));
+				}
+			}
+			return result;
+		}
 		public boolean FromJson(JSONObject jsObj)
 		{
 			boolean ok = false;
@@ -506,7 +538,14 @@ public class BusinessEntity {
 			if(jsObj != null) {
 				{
 					String time_text = jsObj.optString("time", null);
-					// SvcTime
+					SvcTime = SLib.strtodatetime(time_text, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
+				}
+				{
+					String time_text = jsObj.optString("clitime", null);
+					if(SLib.GetLen(time_text) > 0)
+						CliTime = SLib.strtodatetime(time_text, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
+					if(CliTime == null)
+						CliTime = new SLib.LDATETIME(System.currentTimeMillis());
 				}
 				ArID = jsObj.optInt("arid", 0);
 				ArName = jsObj.optString("arname", null);
@@ -588,11 +627,36 @@ public class BusinessEntity {
 			{
 				ArID = 0;
 				Debt = 0.0;
-				IsExpired = false;
+				Timestamp = null;
+			}
+			public boolean IsExpired(final StyloQCommand.Item cmdQueryDebt)
+			{
+				boolean result = false;
+				final int expiry_time_sec = (cmdQueryDebt != null && cmdQueryDebt.BaseCmdId == StyloQCommand.sqbcDebtList && cmdQueryDebt.ResultExpiryTimeSec > 0) ?
+					cmdQueryDebt.ResultExpiryTimeSec : (3600 * 24);
+				if(Timestamp != null) {
+					SLib.LDATETIME expiry_time = SLib.plusdatetimesec(Timestamp, expiry_time_sec);
+					if(expiry_time != null && SLib.Cmp(expiry_time, new SLib.LDATETIME(System.currentTimeMillis())) < 0)
+						result = true;
+				}
+				return result;
 			}
 			int    ArID;
 			double Debt;
-			boolean IsExpired;
+			SLib.LDATETIME Timestamp;
+		}
+		public static DebtList Copy(final DebtList s)
+		{
+			DebtList result = null;
+			if(s != null) {
+				result = new DebtList();
+				if(s.List != null) {
+					result.List = new ArrayList<ArDebtList>();
+					for(ArDebtList iter : s.List)
+						result.List.add(ArDebtList.Copy(iter));
+				}
+			}
+			return result;
 		}
 		DebtList()
 		{
@@ -609,11 +673,47 @@ public class BusinessEntity {
 						result = new ShortReplyEntry();
 						result.ArID = entry.ArID;
 						result.Debt = entry.Debt;
-						result.IsExpired = false; // @todo
+						result.Timestamp = (entry.CliTime != null) ? entry.CliTime : entry.SvcTime;
 					}
 				}
 			}
 			return result;
+		}
+		ArDebtList GetDebtDetail(int arID)
+		{
+			ArDebtList result = null;
+			if(arID > 0) {
+				final int _c = SLib.GetCount(List);
+				for(int i = 0; result == null && i < _c; i++) {
+					ArDebtList entry = List.get(i);
+					if(entry != null && entry.ArID == arID)
+						result = entry;
+				}
+			}
+			return result;
+		}
+		int Include(ArDebtList newEntry)
+		{
+			int    result_idx = -1;
+			if(newEntry != null && newEntry.ArID > 0) {
+				if(List != null) {
+					int i = List.size();
+					if(i > 0) do {
+						i--;
+						ArDebtList entry = List.get(i);
+						if(entry == null || entry.ArID <= 0 || entry.ArID == newEntry.ArID) {
+							List.remove(i);
+						}
+					} while(i > 0);
+				}
+				else
+					List = new ArrayList<ArDebtList>();
+				if(List.add(newEntry)) {
+					assert(List.size() > 0);
+					result_idx = List.size()-1;
+				}
+			}
+			return result_idx;
 		}
 		boolean FromJson(JSONObject jsObj)
 		{

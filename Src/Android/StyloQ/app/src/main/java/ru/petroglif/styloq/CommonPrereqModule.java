@@ -1174,7 +1174,7 @@ public class CommonPrereqModule {
 					int id = ware_item.Item.ID;
 					if(id > 0) {
 						final String nm = ware_item.Item.Name;
-						AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_NAME, nm, null);
+						AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_NAME, nm, nm);
 						if(ware_item.Item.CodeList != null && ware_item.Item.CodeList.size() > 0) {
 							for(int j = 0; j < ware_item.Item.CodeList.size(); j++) {
 								BusinessEntity.GoodsCode code_item = ware_item.Item.CodeList.get(j);
@@ -1196,7 +1196,7 @@ public class CommonPrereqModule {
 					final int id = js_item.optInt("id", 0);
 					if(id > 0) {
 						String nm = js_item.optString("nm");
-						AddSimpleIndexEntry(SLib.PPOBJ_GOODSGROUP, id, SLib.PPOBJATTR_NAME, nm, null);
+						AddSimpleIndexEntry(SLib.PPOBJ_GOODSGROUP, id, SLib.PPOBJATTR_NAME, nm, nm);
 					}
 				}
 			}
@@ -1210,7 +1210,7 @@ public class CommonPrereqModule {
 				if(item != null) {
 					int id = item.ID;
 					if(id > 0 && SLib.GetLen(item.Name) > 0)
-						AddSimpleIndexEntry(SLib.PPOBJ_BRAND, id, SLib.PPOBJATTR_NAME, item.Name, null);
+						AddSimpleIndexEntry(SLib.PPOBJ_BRAND, id, SLib.PPOBJATTR_NAME, item.Name, item.Name);
 				}
 			}
 		}
@@ -2326,54 +2326,83 @@ public class CommonPrereqModule {
 					if(item instanceof SimpleSearchBlock.IndexEntry) {
 						SimpleSearchBlock.IndexEntry se = (SimpleSearchBlock.IndexEntry)item;
 						String pattern = null;
+						// if se.Attr == SLib.PPOBJATTR_NAME
 						if(_ctx instanceof CmdROrderPrereqActivity)
 							pattern = ((CmdROrderPrereqActivity)_ctx).CPM.GetSimpleSearchResultPattern();
 						else if(_ctx instanceof CmdRAttendancePrereqActivity)
 							pattern = ((CmdRAttendancePrereqActivity)_ctx).CPM.GetSimpleSearchResultPattern();
+						TextView detail_view = convertView.findViewById(R.id.CTL_SEARCHPANE_FOUNDDETAIL);
+						final boolean hide_found_text = detail_view != null && SLib.AreStringsEqualNoCase(se.DisplayText, se.Text);
+						final int text_len = SLib.GetLen(se.Text);
+						final int pat_len = SLib.GetLen(pattern);
+						final int fp_start = (pat_len > 0) ? se.Text.indexOf(pattern) : -1;
 						{
 							//SLib.SetCtrlString(convertView, R.id.CTL_SEARCHPANE_FOUNDTEXT, se.Text);
 							TextView v = convertView.findViewById(R.id.CTL_SEARCHPANE_FOUNDTEXT);
 							if(v != null) {
-								final int text_len = SLib.GetLen(se.Text);
-								final int pat_len = SLib.GetLen(pattern);
-								final int fp_start = (pat_len > 0) ? se.Text.indexOf(pattern) : -1;
-								if(fp_start >= 0) {
-									int fp_end = fp_start+pat_len;
+								if(hide_found_text)
+									v.setVisibility(View.GONE);
+								else {
+									v.setVisibility(View.VISIBLE);
+									if(fp_start >= 0) {
+										int fp_end = fp_start + pat_len;
+										SpannableStringBuilder spbldr = new SpannableStringBuilder();
+										int color_reg = _ctx.getResources().getColor(R.color.ListItemRegular, _ctx.getTheme());
+										int color_found = _ctx.getResources().getColor(R.color.ListItemFound, _ctx.getTheme());
+										{
+											SpannableString ss = new SpannableString(se.Text.substring(0, fp_start));
+											ss.setSpan(new BackgroundColorSpan(color_reg), 0, ss.length(), 0);
+											spbldr.append(ss);
+										}
+										{
+											SpannableString ss = new SpannableString(se.Text.substring(fp_start, fp_end));
+											ss.setSpan(new BackgroundColorSpan(color_found), 0, ss.length(), 0);
+											spbldr.append(ss);
+										}
+										if(fp_end < (text_len - 1)) {
+											SpannableString ss = new SpannableString(se.Text.substring(fp_end, text_len - 1));
+											ss.setSpan(new BackgroundColorSpan(color_reg), 0, ss.length(), 0);
+											spbldr.append(ss);
+										}
+										//v.setText(se.Text);
+										v.setText(spbldr, TextView.BufferType.SPANNABLE);
+									}
+									else
+										v.setText(se.Text);
+								}
+							}
+						}
+						if(detail_view != null) {
+							if(SLib.GetLen(se.DisplayText) > 0) {
+								detail_view.setVisibility(View.VISIBLE);
+								if(hide_found_text && fp_start >= 0) {
+									int fp_end = fp_start + pat_len;
 									SpannableStringBuilder spbldr = new SpannableStringBuilder();
 									int color_reg = _ctx.getResources().getColor(R.color.ListItemRegular, _ctx.getTheme());
 									int color_found = _ctx.getResources().getColor(R.color.ListItemFound, _ctx.getTheme());
 									{
-										SpannableString ss = new SpannableString(se.Text.substring(0, fp_start));
+										SpannableString ss = new SpannableString(se.DisplayText.substring(0, fp_start));
 										ss.setSpan(new BackgroundColorSpan(color_reg), 0, ss.length(), 0);
 										spbldr.append(ss);
 									}
 									{
-										SpannableString ss = new SpannableString(se.Text.substring(fp_start, fp_end));
+										SpannableString ss = new SpannableString(se.DisplayText.substring(fp_start, fp_end));
 										ss.setSpan(new BackgroundColorSpan(color_found), 0, ss.length(), 0);
 										spbldr.append(ss);
 									}
-									if(fp_end < (text_len-1)) {
-										SpannableString ss = new SpannableString(se.Text.substring(fp_end, text_len-1));
+									if(fp_end < (text_len - 1)) {
+										SpannableString ss = new SpannableString(se.DisplayText.substring(fp_end, text_len - 1));
 										ss.setSpan(new BackgroundColorSpan(color_reg), 0, ss.length(), 0);
 										spbldr.append(ss);
 									}
 									//v.setText(se.Text);
-									v.setText(spbldr, TextView.BufferType.SPANNABLE);
+									detail_view.setText(spbldr, TextView.BufferType.SPANNABLE);
 								}
 								else
-									v.setText(se.Text);
+									detail_view.setText(se.DisplayText);
 							}
-						}
-						{
-							TextView v = convertView.findViewById(R.id.CTL_SEARCHPANE_FOUNDDETAIL);
-							if(v != null) {
-								if(SLib.GetLen(se.DisplayText) > 0) {
-									v.setVisibility(View.VISIBLE);
-									v.setText(se.DisplayText);
-								}
-								else
-									v.setVisibility(View.GONE);
-							}
+							else
+								detail_view.setVisibility(View.GONE);
 						}
 					}
 				}

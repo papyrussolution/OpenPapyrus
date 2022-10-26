@@ -338,6 +338,97 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			return result;
 		}
 	}
+	static class DebtDetailDialog extends SLib.SlDialog {
+		CmdROrderPrereqActivity ActivityCtx;
+		public DebtDetailDialog(Context ctx, Object data)
+		{
+			super(ctx, R.id.DLG_DEBTDETAILLIST, data);
+			if(ctx instanceof CmdROrderPrereqActivity)
+				ActivityCtx = (CmdROrderPrereqActivity)ctx;
+			if(data instanceof BusinessEntity.ArDebtList)
+				Data = data;
+		}
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
+		{
+			Object result = null;
+			switch(ev) {
+				case SLib.EV_CREATE:
+					requestWindowFeature(Window.FEATURE_NO_TITLE);
+					setContentView(R.layout.dialog_debtdetaillist);
+					SetDTS(Data);
+					break;
+				case SLib.EV_COMMAND:
+					if(srcObj != null && srcObj instanceof View) {
+						final int view_id = ((View) srcObj).getId();
+						if(view_id == R.id.STDCTL_CLOSEBUTTON) {
+							this.dismiss();
+						}
+					}
+					break;
+				case SLib.EV_LISTVIEWCOUNT:
+					{
+						SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
+						if(a.GetListRcId() == R.id.CTL_DEBTDETAILLIST_LIST) {
+							BusinessEntity.ArDebtList _data = (Data != null && Data instanceof BusinessEntity.ArDebtList) ? (BusinessEntity.ArDebtList)Data : null;
+							result = new Integer((_data != null && _data.List != null) ? _data.List.size() : 0);
+						}
+					}
+					break;
+				case SLib.EV_GETLISTITEMVIEW:
+				{
+					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
+					if(ev_subj != null && ev_subj.ItemIdx >= 0) {
+						if(ev_subj.RvHolder != null) {
+							// RecyclerView
+							if(SLib.IsRecyclerListAdapter(srcObj)) {
+								SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
+								if(a.GetListRcId() == R.id.CTL_DEBTDETAILLIST_LIST) {
+									BusinessEntity.ArDebtList _data = (Data != null && Data instanceof BusinessEntity.ArDebtList) ? (BusinessEntity.ArDebtList)Data : null;
+									if(_data != null && _data.List != null && ev_subj.ItemIdx < _data.List.size()) {
+										//CPM.FindGoodsItemByGoodsID()
+										BusinessEntity.DebtEntry cur_entry = _data.List.get(ev_subj.ItemIdx);
+										View iv = ev_subj.RvHolder.itemView;
+										SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_CODE, cur_entry.BillCode);
+										SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_DATE, cur_entry.BillDate.Format(SLib.DATF_DMY));
+										SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_AMOUNT, SLib.formatdouble(cur_entry.Amount, 2));
+										SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_DEBT, SLib.formatdouble(cur_entry.Debt, 2));
+									}
+								}
+							}
+						}
+					}
+				}
+				break;
+
+			}
+			return result;
+		}
+		boolean SetDTS(Object objData)
+		{
+			boolean ok = true;
+			StyloQApp app_ctx = (ActivityCtx != null) ? ActivityCtx.GetAppCtx() : null;
+			if(app_ctx != null) {
+				//Context ctx = getContext();
+				BusinessEntity.ArDebtList _data = (Data != null && Data instanceof BusinessEntity.ArDebtList) ? (BusinessEntity.ArDebtList)Data : null;
+				if(_data != null) {
+					String hint_text = _data.ArName; // @todo
+					SLib.SetCtrlString(this, R.id.CTL_DEBTDETAILLIST_HEADER, hint_text);
+					View lv = findViewById(R.id.CTL_DEBTDETAILLIST_LIST);
+					if(lv != null && lv instanceof RecyclerView) {
+						((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityCtx));
+						SLib.RecyclerListAdapter adapter = new SLib.RecyclerListAdapter(ActivityCtx, this, R.id.CTL_DEBTDETAILLIST_LIST, R.layout.li_debtdetaillist);
+						((RecyclerView) lv).setAdapter(adapter);
+					}
+				}
+			}
+			return ok;
+		}
+		Object GetDTS()
+		{
+			Object result = Data;
+			return result;
+		}
+	}
 	int FindClientItemIndexByID(int id)
 	{
 		int result = -1;
@@ -907,20 +998,36 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 											CommonPrereqModule.CliEntry cur_entry = (CommonPrereqModule.CliEntry)CPM.CliListData.get(ev_subj.ItemIdx);
 											final int cur_cli_id = cur_entry.JsItem.optInt("id", 0);
 											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
-											if(DbtL != null) {
-												SLib.SetCtrlVisibility(iv, R.id.LAYOUT_ORDERPREREQ_CLI_DEBT, View.VISIBLE);
-												BusinessEntity.DebtList.ShortReplyEntry de = DbtL.GetDebt(cur_cli_id);
-												String text;
-												if(de != null) {
-													text = "debt" + ": " + SLib.formatdouble(de.Debt, 2);
+											{
+												View v_debt_text = iv.findViewById(R.id.CTL_ORDERPREREQ_CLI_DEBT);
+												if(DbtL != null) {
+													SLib.SetCtrlVisibility(iv, R.id.LAYOUT_ORDERPREREQ_CLI_DEBT, View.VISIBLE);
+													BusinessEntity.DebtList.ShortReplyEntry de = DbtL.GetDebt(cur_cli_id);
+													if(v_debt_text != null) {
+														String text;
+														int shaperc = 0;
+														if(de != null) {
+															final boolean is_expired = de.IsExpired(CmdQueryDebt);
+															if(de.Debt > 0) {
+																shaperc = is_expired ? R.drawable.shape_debtvalue_undef : R.drawable.shape_debtvalue_positive;
+																text = SLib.formatdouble(de.Debt, 2);
+															}
+															else {
+																shaperc = is_expired ? R.drawable.shape_debtvalue_undef : R.drawable.shape_debtvalue_zero;
+																text = is_expired ? "0" : "";
+															}
+														}
+														else {
+															shaperc = R.drawable.shape_debtvalue_undef;
+															text = "";
+														}
+														v_debt_text.setBackground(getResources().getDrawable(shaperc, getTheme()));
+														SLib.SetCtrlString(iv, R.id.CTL_ORDERPREREQ_CLI_DEBT, text);
+													}
 												}
 												else {
-													text = "???";
+													SLib.SetCtrlVisibility(iv, R.id.LAYOUT_ORDERPREREQ_CLI_DEBT, View.GONE);
 												}
-												SLib.SetCtrlString(iv, R.id.CTL_ORDERPREREQ_CLI_DEBT, text);
-											}
-											else {
-												SLib.SetCtrlVisibility(iv, R.id.LAYOUT_ORDERPREREQ_CLI_DEBT, View.GONE);
 											}
 											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_PERSON, cur_cli_id);
 											{
@@ -1383,7 +1490,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 														final int cur_cli_id = item.JsItem.optInt("id", 0);
 														if(cur_cli_id > 0) {
 															BusinessEntity.DebtList.ShortReplyEntry de = DbtL.GetDebt(cur_cli_id);
-															if(de == null) {
+															if(de == null || de.IsExpired(CmdQueryDebt)) {
 																if(CmdQueryDebt != null) {
 																	// query
 																	boolean force_query = true;
@@ -1401,6 +1508,13 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 															}
 															else {
 																// detail
+																if(de.Debt > 0.0) {
+																	BusinessEntity.ArDebtList debt_detail = DbtL.GetDebtDetail(cur_cli_id);
+																	if(debt_detail != null) {
+																		DebtDetailDialog dialog = new DebtDetailDialog(this, debt_detail);
+																		dialog.show();
+																	}
+																}
 															}
 														}
 													}
@@ -1724,7 +1838,25 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
 					StyloQApp app_ctx = GetAppCtx();
 					if(ir.OriginalCmdItem != null) {
-						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
+						if(ir.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcDebtList) {
+							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+								if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+									JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+									BusinessEntity.ArDebtList ard_list = new BusinessEntity.ArDebtList();
+									if(ard_list.FromJson(js_reply)) {
+										if(DbtL.Include(ard_list) >= 0) {
+											app_ctx.StoreDebtList(CPM.SvcIdent, DbtL);
+											// @todo Здесь достаточно обновить только одну позицию списка, а не весь список!
+											NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
+										}
+									}
+								}
+							}
+							else {
+								// @todo
+							}
+						}
+						else if(ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
 							CPM.CurrentDocument_RemoteOp_Finish();
 							ScheduleRTmr(null, 0, 0);
 							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {

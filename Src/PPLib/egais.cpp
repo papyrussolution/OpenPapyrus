@@ -4110,7 +4110,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 				}
 			}
 			else {
-				pPack->destroy();
+				pPack->Z();
 				pPack->Rec.Status = PPPRS_LEGAL;
 				pPack->Kinds.addUnique(personKindID);
 				AssignManufTypeToPersonPacket(*pPack, roleFlag);

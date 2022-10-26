@@ -898,6 +898,22 @@ public class StyloQDatabase extends Database {
 								}
 							}
 						}
+						if(docType == SecStoragePacket.doctypDebtList) { // @v11.5.5
+							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+							{
+								Transaction tra = new Transaction(this, true);
+								// Документ такого типа может быть только один в комбинации {direction; rIdent}
+								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
+								if(ex_id_list != null) {
+									for(int i = 0; i < ex_id_list.size(); i++) {
+										long _id_to_remove = ex_id_list.get(i);
+										PutPeerEntry(_id_to_remove, null, false); // @throw
+									}
+								}
+								result_id = PutPeerEntry(0, pack, false);
+								tra.Commit();
+							}
+						}
 						else if(docType == SecStoragePacket.doctypCommandList && raw_doc_type.equalsIgnoreCase("commandlist")) {
 							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
 							{

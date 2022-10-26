@@ -751,7 +751,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					int id = entry.JsItem.optInt("id", 0);
 					if(id > 0) {
 						String nm = entry.JsItem.optString("nm");
-						CPM.AddSimpleIndexEntry(SLib.PPOBJ_PROCESSOR, id, SLib.PPOBJATTR_NAME, nm, null);
+						CPM.AddSimpleIndexEntry(SLib.PPOBJ_PROCESSOR, id, SLib.PPOBJATTR_NAME, nm, nm);
 					}
 				}
 			}

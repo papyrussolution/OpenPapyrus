@@ -1544,6 +1544,8 @@ PPERR_GTAOVERDRAFT                 "Превышен максимальный к
 PPERR_LOCSYMBUNDEF                 "Не определен символ склада '%s'"
 PPERR_BILLTAGUUIDABS               "Не определен зарезервированный тег документов UUID. Выполните функцию '@{cmd_createreservedobjs}'"
 PPERR_TSESSTAGUUIDABS              "Не определен зарезервированный тег технологических сессий UUID. Выполните функцию '@{cmd_createreservedobjs}'"
+PPERR_PERSONTAGUUIDABS             "Не определен зарезервированный тег персоналий UUID. Выполните функцию '@{cmd_createreservedobjs}'"
+PPERR_LOCATIONTAGUUIDABS           "Не определен зарезервированный тег локации UUID. Выполните функцию '@{cmd_createreservedobjs}'"
 PPERR_OBJTAGUUIDABS                "Не определен тег UUID для объекта данных"
 PPERR_INVOBJTAGTYPE                "Недопустимый тип тега объекта. Ожидается '%s'"
 PPERR_UNDEFPRMRPSN                 "Не определена первичная персоналия"

@@ -4718,7 +4718,7 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 								}
 							}
 							if(!sc_pack.Rec.PersonID) {
-								psn_pack.destroy();
+								psn_pack.Z();
 								psn_pack.Rec.Status = owner_status_id;
 								RdB.GetS(p_psn_blk->CodeP, code_buf);
 								code_buf.Transf(CTRANSF_UTF8_TO_INNER);

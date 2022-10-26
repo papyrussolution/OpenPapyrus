@@ -220,20 +220,22 @@ int PPObjBill::SearchByGuid(const S_GUID & rUuid, BillTbl::Rec * pRec)
 //
 int PPObjBill::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
 {
+	const  PPID tag_id = PPTAG_BILL_UUID;
+	const  int  abs_err_msg_id = PPERR_BILLTAGUUIDABS;
 	int    ok = 1;
 	ObjTagItem tag;
-	BillTbl::Rec bill_rec;
+	BillTbl::Rec _rec;
 	PPObjTag tagobj;
 	PPObjectTag tag_rec;
-	THROW_PP(tagobj.Fetch(PPTAG_BILL_UUID, &tag_rec) > 0, PPERR_BILLTAGUUIDABS);
+	THROW_PP(tagobj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
 	if(pUuid && !pUuid->IsZero()) {
-		THROW(Search(id, &bill_rec) > 0);
+		THROW(Search(id, &_rec) > 0);
 	}
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(tag.SetGuid(PPTAG_BILL_UUID, pUuid));
-		THROW(PPRef->Ot.PutTag(PPOBJ_BILL, id, &tag, 0));
+		THROW(tag.SetGuid(tag_id, pUuid));
+		THROW(PPRef->Ot.PutTag(Obj, id, &tag, 0));
 		THROW(tra.Commit());
 	}
 	CATCHZOK

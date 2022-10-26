@@ -2188,6 +2188,9 @@ class ppstr2 {
 	public static final int PPERR_QTTYMUSTBEGTZ = 12169;
 	public static final int PPERR_STQ_UNDEFOPFORINCOMINGLIST = 12170;
 	public static final int PPERR_DUPEXTLOTCODEINBILL = 12171;
+	public static final int PPERR_SQ_CMDFAULT_DEBTLIST = 12172;
+	public static final int PPERR_PERSONTAGUUIDABS = 12173;
+	public static final int PPERR_LOCATIONTAGUUIDABS = 12174;
 	//
 	// .N.
 	//

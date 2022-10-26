@@ -1146,6 +1146,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					//Log.d("MainActivity", "Scanned");
 					//Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
 					//TextView v_info = (TextView) findViewById(R.id.info_text);
+					//byte [] bin_code = contents.getBytes();
 					try {
 						StyloQInterchange.Invitation inv = StyloQInterchange.AcceptInvitation(contents);
 						if(inv != null) {

@@ -1697,7 +1697,15 @@ int PPGoodsImporter::PutTax(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack)
 	int    ok = -1;
 	if(UseTaxes && pPack) {
 		PPID   tax_grp_id = 0;
-		GObj.GTxObj.GetByScheme(&pPack->Rec.TaxGrpID, rRec.Vat, 0, rRec.SalesTax, 0, 0/*use_ta*/);
+		double vat_rate = rRec.Vat;
+		// @v11.5.5 {
+		// Иногда бывает ставка НДС указана в долях от единицы. Так как ставки НДС меньше 1%, по-моему, не бывает, то 
+		// именно так и трактуем это значение.
+		if(vat_rate > 0.0 && vat_rate <= 0.4) {
+			vat_rate *= 100.0;
+		}
+		// } @v11.5.5 
+		GObj.GTxObj.GetByScheme(&pPack->Rec.TaxGrpID, vat_rate, 0, rRec.SalesTax, 0, 0/*use_ta*/);
 		ok = 1;
 	}
 	return ok;
@@ -2334,7 +2342,8 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 						PPID   goods_id = 0, parent_id = 0;
 						PPID   nm_goods_id = 0; // Идентификатор товара, найденный по имени импортировуемой записи.
 						PPID   suppl_id = Param.SupplID;
-						char   barcode[32], subc[32];
+						char   barcode[32];
+						char   subc[32];
 						double rest = 0.0;
 						Sdr_Goods2 sdr_rec;
 						Goods2Tbl::Rec par_rec;
@@ -2659,7 +2668,6 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										pack.Stock.GseFlags |= GoodsStockExt::fMultMinShipm;
 									do_update = 1;
 								}
-								// @v10.9.8 {
 								{
 									static const uint8 ext_id_list[] = { GDSEXSTR_A, GDSEXSTR_B, GDSEXSTR_C, GDSEXSTR_D, GDSEXSTR_E };
 									for(uint eilidx = 0; eilidx < SIZEOFARRAY(ext_id_list); eilidx++) {
@@ -2672,7 +2680,6 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										}
 									}
 								}
-								// } @v10.9.8 
 								if(tag_list.GetCount()) {
 									pack.TagL.Merge(tag_list, ObjTagList::mumUpdate|ObjTagList::mumAdd);
 									do_update = 1;

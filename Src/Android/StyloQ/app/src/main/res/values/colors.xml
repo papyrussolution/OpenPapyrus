@@ -3,6 +3,9 @@
     <color name="White">#FFFFFF</color>
     <color name="Black">#000000</color>
     <color name="Red">#FF0000</color>
+    <color name="UndefValue">#ffd60a</color> <!-- Используется для индикации неопределенного значения (требующего запроса или иной активации) -->
+    <color name="ZeroValue">#4cc9f0</color> <!-- Используется для индикации определенного нулевого -->
+    <color name="DebtValue">#fb8500</color> <!-- Используется для индикации положительного значения долга -->
     <color name="Primary">#03A9F4</color>
     <color name="PrimaryDark">#0288D1</color>
     <color name="PrimaryLight">#98c1d9</color>

@@ -14,6 +14,10 @@ PPPerson::PPPerson()
 	// @v10.6.4 MEMSZERO(Rec);
 }
 
+PPPerson::PPPerson(const PPPerson & rS) : Rec(rS.Rec), SMemo(rS.SMemo), Kinds(rS.Kinds), RelList(rS.RelList)
+{
+}
+
 PPPerson & FASTCALL PPPerson::operator = (const PPPerson & rS)
 {
 	Rec = rS.Rec;
@@ -23,12 +27,13 @@ PPPerson & FASTCALL PPPerson::operator = (const PPPerson & rS)
 	return *this;
 }
 
-void PPPerson::destroy()
+PPPerson & PPPerson::Z()
 {
 	MEMSZERO(Rec);
 	SMemo.Z(); // @v11.1.12
 	Kinds.clear(); // @v10.6.12 freeAll()-->clear()
 	RelList.clear(); // @v10.6.12 freeAll()-->clear()
+	return *this;
 }
 
 int PPPerson::AddRelation(PPID personID, PPID relTypeID, uint * pPos)
@@ -696,21 +701,30 @@ int FASTCALL CashierInfo::IsEq(const CashierInfo & rS) const
 //
 // PPPersonPacket
 //
-PPPersonPacket::PPPersonPacket() : PPPerson(), P_SCardPack(0)
+PPPersonPacket::PPPersonPacket() : PPPerson(), ObjTagContainerHelper(TagL, PPOBJ_PERSON, PPTAG_PERSON_UUID), P_SCardPack(0)
 {
-	destroy();
+	// @v11.5.5 destroy();
+}
+
+PPPersonPacket::PPPersonPacket(const PPPersonPacket & rS) : PPPerson(rS), ObjTagContainerHelper(rS), P_SCardPack(0), Regs(rS.Regs), ELA(rS.ELA),
+	Loc(rS.Loc), RLoc(rS.RLoc), CshrInfo(rS.CshrInfo), ExtString(rS.ExtString), LinkFiles(rS.LinkFiles), TagL(rS.TagL), UpdFlags(rS.UpdFlags), SelectedLocPos(rS.SelectedLocPos)
+{
+	TSCollection_Copy(DlvrLocList, rS.DlvrLocList);
+	if(rS.P_SCardPack)
+		P_SCardPack = new PPSCardPacket(*rS.P_SCardPack);
 }
 
 PPPersonPacket::~PPPersonPacket()
 {
-	destroy();
+	// @v11.5.5 destroy();
+	ZDELETE(P_SCardPack); // @v11.5.5
 }
 
-void PPPersonPacket::destroy()
+PPPersonPacket & PPPersonPacket::Z()
 {
-	PPPerson::destroy();
-	Regs.freeAll();
-	ELA.freeAll();
+	PPPerson::Z();
+	Regs.clear();
+	ELA.clear();
 	Loc.destroy();
 	RLoc.destroy();
 	ExtString.Z();
@@ -720,11 +734,12 @@ void PPPersonPacket::destroy()
 	TagL.Destroy();
 	UpdFlags = 0;
 	SelectedLocPos = 0;
+	return *this;
 }
 
 PPPersonPacket & FASTCALL PPPersonPacket::operator = (const PPPersonPacket & s)
 {
-	destroy();
+	Z();
 	PPPerson::operator = (s);
 	Regs.copy(s.Regs);
 	ELA.copy(s.ELA);
@@ -750,14 +765,14 @@ int PPPersonPacket::GetRAddress(uint f, SString & rBuf)
 	return LocationCore::GetAddress(rloc, f, rBuf);
 }
 
-int PPPersonPacket::GetAddress(uint f, SString & rBuf)
-	{ return LocationCore::GetAddress(Loc, f, rBuf); }
-int PPPersonPacket::GetPhones(uint maxCount, SString & rBuf)
-	{ return ELA.GetPhones(maxCount, rBuf); }
-int PPPersonPacket::GetRegister(PPID regTyp, uint * pos) const
-	{ return Regs.GetRegister(regTyp, pos, 0); }
-int PPPersonPacket::GetRegNumber(PPID regTyp, SString & rBuf) const
-	{ return Regs.GetRegNumber(regTyp, rBuf); }
+int    PPPersonPacket::GetAddress(uint f, SString & rBuf) { return LocationCore::GetAddress(Loc, f, rBuf); }
+int    PPPersonPacket::GetPhones(uint maxCount, SString & rBuf) { return ELA.GetPhones(maxCount, rBuf); }
+int    PPPersonPacket::GetRegister(PPID regTyp, uint * pos) const { return Regs.GetRegister(regTyp, pos, 0); }
+int    PPPersonPacket::GetRegNumber(PPID regTyp, SString & rBuf) const { return Regs.GetRegNumber(regTyp, rBuf); }
+uint   PPPersonPacket::GetDlvrLocCount() const { return DlvrLocList.getCount(); }
+void   FASTCALL PPPersonPacket::SetExtName(const char * pName) { ExtString = pName; }
+void   PPPersonPacket::ClearDlvrLocList() { DlvrLocList.freeAll(); }
+const  PPSCardPacket * PPPersonPacket::GetSCard() const { return P_SCardPack; }
 
 int PPPersonPacket::GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const
 {
@@ -821,11 +836,6 @@ int FASTCALL PPPersonPacket::GetExtName(SString & rBuf) const
 	return rBuf.NotEmptyS() ? 1 : -1;
 }
 
-void FASTCALL PPPersonPacket::SetExtName(const char * pName)
-{
-	ExtString = pName;
-}
-
 int PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int checkUnique /* = 1 */)
 {
 	int    ok = -1;
@@ -859,11 +869,6 @@ int PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int checkU
 	}
 	CATCHZOK
 	return ok;
-}
-
-uint PPPersonPacket::GetDlvrLocCount() const
-{
-	return DlvrLocList.getCount();
 }
 
 int PPPersonPacket::ReplaceDlvrLoc(PPID locID, PPID replacementID)
@@ -946,11 +951,6 @@ int PPPersonPacket::PutDlvrLoc(uint pos, const PPLocationPacket * pItem)
 	return ok;
 }
 
-void PPPersonPacket::ClearDlvrLocList()
-{
-	DlvrLocList.freeAll();
-}
-
 int PPPersonPacket::SetSCard(const PPSCardPacket * pScPack, int autoCreate)
 {
 	int    ok = 1;
@@ -965,11 +965,6 @@ int PPPersonPacket::SetSCard(const PPSCardPacket * pScPack, int autoCreate)
 			ok = PPSetErrorNoMem();
 	}
 	return ok;
-}
-
-const PPSCardPacket * PPPersonPacket::GetSCard() const
-{
-	return P_SCardPack;
 }
 //
 // PersonCore

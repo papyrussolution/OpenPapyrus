@@ -179,13 +179,13 @@ PPCountryBlock & PPCountryBlock::Z()
 //
 //
 //
-PPLocationPacket::PPLocationPacket()
+PPLocationPacket::PPLocationPacket() : ObjTagContainerHelper(TagL, PPOBJ_LOCATION, PPTAG_LOC_UUID)
 {
 	memzero(static_cast<LocationTbl::Rec *>(this), sizeof(LocationTbl::Rec));
 	TagL.ObjType = PPOBJ_LOCATION;
 }
 
-PPLocationPacket::PPLocationPacket(const PPLocationPacket & rS)
+PPLocationPacket::PPLocationPacket(const PPLocationPacket & rS) : ObjTagContainerHelper(rS)
 {
 	Copy(rS);
 }
@@ -2331,6 +2331,30 @@ int PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta)
 			else
 				ok = -1;
 		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPObjLocation::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
+{
+	const  PPID tag_id = PPTAG_LOC_UUID;
+	const  int  abs_err_msg_id = PPERR_LOCATIONTAGUUIDABS;
+	int    ok = 1;
+	ObjTagItem tag;
+	LocationTbl::Rec _rec;
+	PPObjTag tagobj;
+	PPObjectTag tag_rec;
+	THROW_PP(tagobj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
+	if(pUuid && !pUuid->IsZero()) {
+		THROW(Search(id, &_rec) > 0);
+	}
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(tag.SetGuid(tag_id, pUuid));
+		THROW(PPRef->Ot.PutTag(Obj, id, &tag, 0));
 		THROW(tra.Commit());
 	}
 	CATCHZOK

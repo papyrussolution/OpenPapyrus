@@ -570,8 +570,6 @@ PPERR_LOTRESTBOUND "The remainder of the goods is too small %s"
 PPERR_INVCODETEMPLATE "Invalid document code template"
 	//#org Шаблон с выражением для суммы должен иметь зафиксированные балансовые счета
 PPERR_ATTMUSTBEFIX "The template with the expression for the amount must have fixed balance accounts"
-	//#org Количество единиц товара должно быть больше нуля
-PPERR_INVQTTY "The number of units of goods must be greater than zero"
 	//#org Требуемая выражением сумма для документа не установлена
 PPERR_AMTNOTPRESENT "The amount required by the expression for the document is not set"
 	//#org Неизвестная переменная '%s' в выражении
@@ -608,6 +606,8 @@ PPERR_LOSTTRFRRVRS "Hanging product line %s"
 PPERR_MAINORGNFOUND "There is no information about the main organization"
 	//#org Документ не содержит ни одной бухгалтерской проводки
 PPERR_BILLHASNTAT "the document does not contain any accounting entries"
+	//#org Входящий документ '%s' не содержит ни одной товарной строки
+PPERR_INCOMINGBILLHASNTTI "Incoming document '%s' does not contain any product lines"
 	//#org Не найден идентификатор склада
 PPERR_LOCNFOUND "Warehouse ID not found"
 	//#org Переплата не допускается
@@ -684,8 +684,8 @@ PPERR_INVLOGINDAY "You are not eligible to log in today"
 PPERR_INVLOGINTM "Your working day in the system has not yet begun (or has already ended)"
 	//#org Минимальная длина пароля %s символов
 PPERR_PASSMINLEN "Minimum password length %s characters"
-	//#org Дата документа выходит за определенные администратором границы
-PPERR_BILLDATERANGE "The document date goes beyond the boundaries defined by the administrator"
+	//#org Дата документа (%s) выходит за определенные администратором границы
+PPERR_BILLDATERANGE "Document date (%s) exceeds the boundaries defined by the administrator"
 	//#org Недостаточно прав для открытия кассовой сессии
 PPERR_NORTOPENCASH "Insufficient rights to open a cash session"
 	//#org Недостаточно прав для закрытия кассовой сессии
@@ -1387,6 +1387,8 @@ PPERR_BHTLDPGMNOTSUPPR "Downloading a program for this type of terminal is not s
 PPERR_ASSETGOODSNEEDED "Only fixed assets are allowed"
 	//#org Скидка в соглашении должна быть в диапазоне [-100..+100]
 PPERR_INVCLIAGTDIS "The discount in the agreement must be in the range [-100..+100]"
+	//#org Период исполнения заказов в соглашении должен быть в диапазоне [0..4320]
+PPERR_INVCLIAGTDUEPERIODHR "The period of execution of orders in the agreement should be in the range [0..4320]"
 	//#org Операция отгрузки не задана либо задана неверно
 PPERR_INVEXPOP "the shipment operation is not specified or is not set correctly"
 	//#org Ошибка разбора формата экспорта в систему клиент-банк '%s'
@@ -2590,6 +2592,12 @@ PPERR_GOODSNOTSEL "Product not specified"
 PPERR_INVDEVQUOT "No price for device %s"
 	//#org Количество срабатываний реле должно лежать в диапазоне 1-255
 PPERR_INVRELECOUNT "The number of relays should be in the range of 1-255"
+	//#org Недопустимое значение количества
+PPERR_INVQTTY "Invalid quantity value"
+	//#org Количество должно быть не меньше нуля
+PPERR_QTTYMUSTBEGEZ "The quantity must be at least zero"
+	//#org Количество должно быть больше нуля
+PPERR_QTTYMUSTBEGTZ "Quantity must be greater than zero"
 	//#org Количество должно быть целым
 PPERR_QTTYMUSTBEINT "The quantity must be an integer"
 	//#org Количество должно иметь точность %s
@@ -2954,6 +2962,10 @@ PPERR_LOCSYMBUNDEF "Warehouse symbol '%s' not defined"
 PPERR_BILLTAGUUIDABS "The reserved document tag UUID is not defined. Execute the '@{cmd_createreservedobjs}' function"
 	//#org Не определен зарезервированный тег технологических сессий UUID. Выполните функцию '@{cmd_createreservedobjs}'
 PPERR_TSESSTAGUUIDABS "The reserved technology session UIID tag is not defined. Execute the '@{cmd_createreservedobjs}' function"
+	//#org Не определен зарезервированный тег персоналий UUID. Выполните функцию '@{cmd_createreservedobjs}'
+PPERR_PERSONTAGUUIDABS "The reserved personality tag UUID is not defined. Execute the '@{cmd_createreservedobjs}' function"
+	//#org Не определен зарезервированный тег локации UUID. Выполните функцию '@{cmd_createreservedobjs}'
+PPERR_LOCATIONTAGUUIDABS "The reserved UUID location tag is not defined. Execute the '@{cmd_createreservedobjs}' function"
 	//#org Не определен тег UUID для объекта данных
 PPERR_OBJTAGUUIDABS "No UUID tag is defined for the data object"
 	//#org Недопустимый тип тега объекта. Ожидается '%s'
@@ -3604,6 +3616,8 @@ PPERR_TSESSCIPOP_PLACESTATUS "Unable to register seat '%s' because it is occupie
 PPERR_EGAIS_INVACTOP "The type of operation of placing lots on the balance @{brand_egais} is not correct"
 	//#org Расширенный код лота уже существует: %s
 PPERR_DUPEXTLOTCODE "Extended lot code already exists: %s"
+	//#org Код марки '%s' уже есть в документе
+PPERR_DUPEXTLOTCODEINBILL "The brand code '%s' is already in the document"
 	//#org Текст '%s' не является кодом марки @{brand_egais}
 PPERR_TEXTISNTEGAISMARK "Text '%s' is not stamp code @{brand_egais}"
 	//#org Текст '%s' не является кодом марки @{brand_chzn}
@@ -4111,6 +4125,14 @@ PPERR_SQ_CMDFAULT_PSNEV "StyloQ: Error executing the command to create a persona
 PPERR_SQ_CMDFAULT_DTLOGIN "StyloQ: Papyrus Session Authorization Request Execution Failed"
 	//#org StyloQ: ошибка исполнения команды формирования отчета
 PPERR_SQ_CMDFAULT_REPORT "StyloQ: Report Generation Command Execution Error"
+	//#org StyloQ: ошибка исполнения команды формирования данных для заказа
+PPERR_SQ_CMDFAULT_ORDERPREREQ "StyloQ: Execution Failed to Generate Order Data"
+	//#org StyloQ: ошибка исполнения команды формирования данных для резервирования обслуживания
+PPERR_SQ_CMDFAULT_ATTENDANCEPREREQ "StyloQ: Failed to execute data generation command to back up service"
+	//#org StyloQ: ошибка исполнения команды формирования данных для indoor-обслуживания
+PPERR_SQ_CMDFAULT_INDOORSVCPREREQ "StyloQ: An error in the execution of the data generation command for indoor-service"
+	//#org StyloQ: ошибка исполнения команды формирования входящих списков
+PPERR_SQ_CMDFAULT_INCOMINGLIST "StyloQ: Error executing incoming list generation command"
 	//#org StyloQ: команда '%s' может быть обработана только медиатором
 PPERR_SQ_CMDFAULT_IMNOTMEDIATOR "StyloQ: Command '%s' can only be processed by a mediator"
 	//#org StyloQ: в команде advert не определена конфигурация сервиса
@@ -4121,6 +4143,8 @@ PPERR_SQ_CMDFAULT_ADVHASNTIDENT "StyloQ: No service ID defined in advert command
 PPERR_SQ_CMDFAULT_GFCHASNTIDENT "StyloQ: the getforeignconfig command does not define the ID of the requested service"
 	//#org StyloQ: отсутствует информация о конфигурации сервиса для ответа на getforeignconfig
 PPERR_SQ_CMDFAULT_GFCNOCONFIG "StyloQ: Missing service configuration information to respond to getforeignconfig"
+	//#org StyloQ: ошибка исполнения команды формирования списка долговых документов
+PPERR_SQ_CMDFAULT_DEBTLIST "StyloQ: Error in the execution of the command to generate a list of debt documents"
 	//#org StyloQ: ошибка преобразования конфигурации в JSON
 PPERR_SQ_JSONTOCFGFAULT "StyloQ: Error converting configuration to JSON"
 	//#org StyloQ: ошибка преобразования лика в JSON
@@ -4279,6 +4303,8 @@ PPERR_LTDDBOPEN_INVFLAGS "@{err_internal}: неверные PPSession::LimitedOp
 PPERR_STQ_UNDEFPOSFORINDOORSVC "The cash register node for a command of type INDOORSVCPREREQ could not be identified"
 	//#org Кассовый узел для команды типа INDOORSVCPREREQ должен быть синхронным
 PPERR_STQ_POSFORINDOORSVCMUSTBESYNC "the cash register node for a command of type INDOORSVCPREREQ must be synchronous"
+	//#org Не определен вид операции в параметрах команды '%s'
+PPERR_STQ_UNDEFOPFORINCOMINGLIST "The type of operation in the parameters of the '%s' command is not defined"
 // LastError
 
 [102] // confirmation
@@ -4778,7 +4804,7 @@ PPINF_PPINIUPDATED "the pp.ini configuration file was successfully updated"
 	//#org Файл конфигурации pp.ini не был изменен либо из-за отсутствия исходного файла '%s' либо из-за того, что исходный файл пуст
 PPINF_PPININOTUPDATED "the pp.ini configuration file has not been modified either because the original '%s' file is missing or because the source file is empty"
 	//#org Строка расширения документа @int. Вид: @zstr; сумма: @real; счет: @zstr
-PPINF_BILLADVLINE "The document extension string @int. Species: @zstr; amount: @real; Invoice: @zstr"
+PPINF_BILLADVLINE "Document extension string @int. View: @zstr; amount: @real; Invoice: @zstr"
 	//#org Создан документ постановки на баланс @{brand_egais}: %s
 PPINF_ACTCHARGEONCR "@{brand_egais}: %s balance sheet document created"
 	//#org Не создано ни одного документа постановки на баланс @{brand_egais}
@@ -5073,14 +5099,15 @@ PPWORD_AVGSKUCOUNT "SKU (wed)"
 446 "1,Errors,pperror.log;2,Errors displayed on the screen,pperrmsg.log;3,Information,ppinfo.log;4,Create/restore a backup.log;5,Formation of a sales table, psales.log;6,Loading scale.log;7,Receiving Mail,dbxrecv.log;8,Balance adjustment.log;9,Lot adjustment, loterr.log;10,Adjustment of lot suppliers,lotsuppl.err;11,@{ccrecover},cchkerr.log;12,Database repair,dbrepair.log;13,Repair of wiring,accturn.log;14,@{cmd_correctabsencelots},abslots.log;15,@{cmd_correctabsencegoods},absgoods.log;16,Loading the asynchronous cash register, acs.log;17,Correction of broken links of payment documents, paymlink.log;18,Profiling,profile.log;19,Stroke printing,shtrih.log;20,Verhist version history.log;21,Debug, debug.log;22,CBadReck,cbadreck.log;23,@{csession},ccheck.log"
 // @v10.9.2 515 /!/ "ppyggrps;ppygoods;ppybcods;ppyqknds;ppyquots;ppycards;ppycsess;ppycchks;ppycclns"
 // @v9.4.3 564 "@{objtype}"
-	//#org @{today};@{yesterday};Последние 7 дней;Прошлая неделя (@{monday_s}-@{sunday_s});Прошлая рабочая неделя (@{monday_s}-@{friday_s});Текущий месяц;Прошедший месяц
-632 "@{today};@{yesterday};Last 7 days;Last week (@{monday_s}-@{sunday_s});Last working week (@{monday_s}-@{friday_s});Current month;Past month"
+
+	//#org @{today};@{yesterday};Последние 7 дней;@{lastweek} (@{monday_s}-@{sunday_s});Прошлая рабочая неделя (@{monday_s}-@{friday_s});@{currentmonth};@{lastmonth}
+632 "@{today};@{yesterday};Last 7 days;@{lastweek} (@{monday_s}-@{sunday_s});Last working week (@{monday_s}-@{friday_s});@{currentmonth};@{lastmonth}"
 	//#org Метапеременная;@{documents};Оплаты по документам;@{poscheck_pl};Товарные остатки;@{personevent_pl};Долги;@{bizscore_pl}
 657 "Metachangear;@{documents};Payments by documents;@{poscheck_pl};Commodity balances;@{personevent_pl};Debts;@{bizscore_pl}"
 
 // @v11.2.4
-	//#org 1,@{today};2,@{yesterday};3,Последние 7 дней;4,Прошлая неделя (@{monday_s}-@{sunday_s});5,Прошлая рабочая неделя (@{monday_s}-@{friday_s});6,Текущий месяц;7,Прошедший месяц
-PPTXT_FASTPRD2 "1,@{today};2,@{yesterday};3,Last 7 days;4,Last week (@{monday_s}-@{sunday_s});5,Last working week (@{monday_s}-@{friday_s});6,Current month;7,Past month"
+	//#org 1,@{today};2,@{yesterday};3,Последние 7 дней;4,Прошлая неделя (@{monday_s}-@{sunday_s});5,Прошлая рабочая неделя (@{monday_s}-@{friday_s});6,@{currentmonth};7,@{lastmonth}
+PPTXT_FASTPRD2 "1,@{today};2,@{yesterday};3,Last 7 days;4,Last week (@{monday_s}-@{sunday_s});5,Last working week (@{monday_s}-@{friday_s});6,@{currentmonth};7,@{lastmonth}"
 	//#org Введите почтовый адрес
 PPTXT_INPUTEMAIL "Enter your mailing address"
 	//#org 1,@{oprkind};2,@{date};3,@{warehouse};4,@{article};5,@{addarticle};6,@{status};7,@{agent};8,@{payer};9,Долговая размерность;10,@{storageplace} (@{freight});11,@{daddress}
@@ -5231,6 +5258,8 @@ PPTXT_SELECTINGGOODSBYGROUP "Selection of goods by group"
 PPTXT_SELECTINGGOODSBYTRFR "Selection of goods by operations"
 	//#org Выберите объект
 PPTXT_SELECTOBJECT "Select an object"
+	//#org Выберите строку документа, в которую следует включить марку
+PPTXT_SELECTTIROWFORMARKSUBST "Select the document line in which you want to include the stamp"
 // Типы счетов
 	//#org @{account_accounting};@{account_balance};@{balancelessaccount};Агрегирующий счет;@{account_register};Персональный счет;@{accountalias};@{budgetaccount}
 PPTXT_ACCTITLES "@{account_accounting};@{account_balance};@{balancelessaccount};Aggregate account;@{account_register};Personal Account;@{accountalias};@{budgetaccount}"
@@ -5304,8 +5333,6 @@ PPTXT_ACTIVESESSION "Active session"
 PPTXT_LOCRECRESTORED "Warehouse '%s' restored"
 	//#org @{card}: %s, @{owner}: %s, @{discount}: %0.2lf%%
 PPTXT_SCARDINFO "@{card}: %s, @{owner}: %s, @{discount}: %0.2lf%%"
-	//#org @{discard};@{selection_goodsbyprice};@{enterinput};@{goodsgroup}...;@{groupdefault};Печать этикетки;@{selection_goodsbyname}
-PPTXT_INFKIOSK_TOOLTIPS "@{discard};@{selection_goodsbyprice};@{enterinput};@{goodsgroup}...;@{groupdefault};Label printing;@{selection_goodsbyname}"
 	//#org Импорт чеков из кассового модуля %s
 PPTXT_IMPORTCHECKS "Import receipts from cash register module %s"
 	//#org Ожидание файла '%s'
@@ -6072,7 +6099,7 @@ PPTXT_WAIT_SEARCHUNLINKEDPAYMS "Search for payments with hanging links"
 	//#org Списание сессий по процессору '%s' заблокировано
 PPTXT_PRCWROFFLOCKED "Write-off sessions by processor '%s' is blocked"
 	//#org Все поддерживаемые файлы:*.doc;*.rtf;*.txt;*.pdf;*.xls;*.xlsm;*.xlsx;*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif;*.webp,Текстовые (txt):*.txt,Microsoft Word:*.doc;*.rtf,Adobe Acrobat:*.pdf,Microsoft Excel:*.xls;*.xlsm;*.xlsx,Изображения:*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif;*.webp
-PPTXT_LNKFILESEXTS "All supported files:*.doc;*.rtf;*.txt;*.pdf;*.xls;*.xlsm;*.xlsx;*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif;*.webp,Text (txt):*.txt,Microsoft Word:*.doc;*.rtf,Adobe Acrobat:*.pdf,Microsoft Excel:*.xls;*.xlsm;*.xlsx,Images:*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif;*.webp"
+PPTXT_LNKFILESEXTS "All supported files:*.doc;*..rtf;*..txt;*..pdf;*..xls;*.xlsm;*..xlsx;*..bmp;*..jpg;*..jpeg;*..gif;*..png;*..tiff;*..tif;*.webp,Text (txt):*.txt,Microsoft Word:*.doc;*.rtf,Adobe Acrobat:*.pdf,Microsoft Excel:*.xls;*.xlsm;*.xlsx,Images:*.bmp;*..jpg;*..jpeg;*..gif;*..png;*..tiff;*..tif;*..webp"
 	//#org Введите описание файла
 PPTXT_INPUTDESCR "Enter a description of the file"
 	//#org @{qtty};Чек возврата;@{scard};@{selection_goodsbyprice};@{enterinput};@{cancelinput};Наличный расчет по чеку;Безналичный расчет по чеку;@{goodsgroup}...;@{groupdefault};Отложенный чек;Печать заказа на изготовление;Печать счета клиенту;Выбор стола;Операции по кассе;Выбор отдела
@@ -6321,15 +6348,15 @@ PPTXT_SCARD_TIMEPERIOD "Duration of action"
 	//#org Внесение объектов в очередь передачи
 PPTXT_DBDE_POSTOBJECTS "Putting Objects in the Submission Queue"
 	//#org Файлы изображений:*.jpg;*.jpeg;*.bmp;*.gif;*.png;*.svg,*.jpg:*.jpg;*.jpeg,*.bmp:*.bmp,*.gif:*.gif,*.png:*.png,*.svg:*.svg
-PPTXT_PICFILESEXTS "Image files:*.jpg;*.jpeg;*.bmp;*.gif;*.png;*.svg,*.jpg:*.jpg;*.jpeg,*.bmp:*.bmp,*.gif:*.gif,*.png:*.png,*.svg:*.svg"
+PPTXT_PICFILESEXTS "Image files:*.jpg;*..jpeg;*..bmp;*..gif;*..png;*.svg,*.jpg:*.jpg;*.jpeg,*.bmp:*.bmp,*.gif:*.gif,*.png:*.png,*.svg:*.svg"
 	//#org Все файлы:*.*
 PPTXT_FILPAT_ALL "All files:*.*"
 	//#org Файлы дампа базы данных Papyrus:*.ppdump
 PPTXT_FILPAT_DBDUMP "Papyrus database dump files:*.ppdump"
 	//#org Изображения:*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif;*.webp
-PPTXT_FILPAT_PICT "Images:*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif;*.webp"
+PPTXT_FILPAT_PICT "Images:*.bmp;*..jpg;*..jpeg;*..gif;*..png;*..tiff;*..tif;*..webp"
 	//#org Изображения, поддерживаемые Papyrus:*.svg;*.jpg;*.jpeg;*.png;*.bmp;*.ico;*.cur;*.gif;*.webp
-PPTXT_FILPAT_SPIC "Images supported by Papyrus:*.svg;*.jpg;*.jpeg;*.png;*.bmp;*.ico;*.cur;*.gif;*.webp"
+PPTXT_FILPAT_SPIC "Images supported by Papyrus:*.svg;*..jpg;*..jpeg;*..png;*..bmp;*..ico;*..cur;*..gif;*..webp"
 	//#org Файлы данных:*.ddf;*.btr
 PPTXT_FILPAT_DDFBTR "Data files:*.ddf;*.btr"
 	//#org Файлы отчетов:*.rpt
@@ -6341,7 +6368,7 @@ PPTXT_FILPAT_XSD "Schema of XML XSD files:*.xsd"
 	//#org @{picicon_pl}:*.ico
 PPTXT_FILPAT_ICONS "@{picicon_pl}:*.ico"
 	//#org Все поддерживаемые файлы:*.doc;*.rtf;*.txt;*.pdf;*.xls;*.xlsm;*.xlsx;*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif;*.webp
-PPTXT_FILPAT_ALLLINKFILES "All supported files:*.doc;*.rtf;*.txt;*.pdf;*.xls;*.xlsm;*.xlsx;*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif;*.webp"
+PPTXT_FILPAT_ALLLINKFILES "All supported files:*.doc;*..rtf;*..txt;*..pdf;*..xls;*.xlsm;*..xlsx;*..bmp;*..jpg;*..jpeg;*..gif;*..png;*..tiff;*..tif;*..webp"
 	//#org Текстовые (txt):*.txt
 PPTXT_FILPAT_TEXT "Text (txt):*.txt"
 	//#org Adobe Acrobat:*.pdf
@@ -6353,13 +6380,13 @@ PPTXT_FILPAT_WTM "Canvas files:*.wtm"
 	//#org Файлы описания форматов:*.fmt
 PPTXT_FILPAT_FMT "Format definition files:*.fmt"
 	//#org Текстовые файлы Papyrus:*.txt;*.ini;*.xml;*.fmt;*.lbl;*.log;*.dl6;*.dl2;*.gravity
-PPTXT_FILPAT_PPYTEXT "Papyrus text files:*.txt;*.ini;*.xml;*.fmt;*.lbl;*.log;*.dl6;*.dl2;*.gravity"
+PPTXT_FILPAT_PPYTEXT "Papyrus text files:*.txt;*..ini;*..xml;*.fmt;*.lbl;*..log;*.dl6;*.dl2;*.gravity"
 	//#org Файлы правил обработки текстовых объектов (sr):*.sr
 PPTXT_FILPAT_SARTRRULE "Text Object Processing Rule Files (sr):*.sr"
 	//#org Файлы @{brand_openstreetmap} (osm):*.osm
 PPTXT_FILPAT_OSM "Files @{brand_openstreetmap} (osm):*.osm"
 	//#org Содержание рабочих книг:*.html;*.txt;*.vm;*.jpg;*.png;*.gif
-PPTXT_FILPAT_WORKBOOKATTACH "Contents of workbooks:*.html;*.txt;*.vm;*.jpg;*.png;*.gif"
+PPTXT_FILPAT_WORKBOOKATTACH "Contents of workbooks:*.html;*..txt;*.vm;*..jpg;*..png;*..gif"
 	//#org Файлы TeX:*.tex
 PPTXT_FILPAT_LATEX "TeX Files:*.tex"
 	//#org Почтовые учетные записи (*.acc):*.acc
@@ -6377,7 +6404,7 @@ PPTXT_FILPAT_DAT "Data files (*.dat):*.dat"
 	//#org Файлы TDDO (*.tddp):*.tddo
 PPTXT_FILPAT_TDDO "TDDO Files (*.tddp):*.tddo"
 	//#org Файлы StyloScanner:*.csv;*.tsv;*.txt
-PPTXT_FILPAT_STYLOSCANNER "StyloScanner Files:*.csv;*.tsv;*.txt"
+PPTXT_FILPAT_STYLOSCANNER "StyloScanner Files:*.csv;*.tsv;*..txt"
 	//#org 82:Номера кончились;84:Заголовок, хвост структуры или проверочная сумма введены неверно;88:Не хватает места для посылки прямого сообщения Прямое сообщение;89:Память полностью заполнена;95:Неизвестный тип данных;97:Структура данных повреждена;98:Данные не существуют;99:Конец данных
 PPTXT_CASCL5000J_ERRCODES "82:Numbers are over;84: Header, tail structure or check amount entered incorrectly;88:Not enough space to send a direct message Direct message;89:Memory is fully populated;95:Unknown data type;97: Data structure is corrupted;98:Data does not exist;99:End of data"
 	//#org 1,@{average};2,@{minimum};3,@{maximum};4,Тренд;5,Тренд (база);6,Тренд (отношение к базе)
@@ -6688,8 +6715,8 @@ PPTXT_DLVRADDRMODIFIED "The original address has been changed"
 PPTXT_PERSON_CREATED "A personality entry named ='%s', @{inn}=%s was created."
 	//#org Данные о производителе/импортере %s успешно записаны в тег лота (товар=%s, номер документа=%s, дата документа=%s).
 PPTXT_QCERT_CONVERTED "Data about the manufacturer/importer %s was successfully recorded in the lot tag (product=%s, document number=%s, document date=%s)."
-	//#org 1,@{sortby_name};2,По сокращению;3,По группе и наименованию;4,По группе и сокращению;5,По штрихкоду;6,По брэнду и наименованию;7,По штрихкоду и наименованию
-PPTXT_GOODSORDER "1,@{sortby_name};2,By abbreviation;3,By group and name;4,By group and abbreviation;5,By barcode;6,By brand and name;7,By barcode and name"
+	//#org 1,@{sortby_name};2,@{sortby_abbr};3,@{sortby_groupandname};4,@{sortby_groupandabbr};5,@{sortby_barcode};6,По брэнду и наименованию;7,@{sortby_barcodeandname}
+PPTXT_GOODSORDER "1,@{sortby_name};2,@{sortby_abbr};3,@{sortby_groupandname};4,@{sortby_groupandabbr};5,@{sortby_barcode};6,By brand and name;7,@{sortby_barcodeandname}"
 	//#org Доступный бонус
 PPTXT_BONUSAVAILABLE "Available Bonus"
 	//#org Не определено имя импортируемого товара
@@ -6785,7 +6812,7 @@ PPTXT_NORIGHTS_PERSON_UPD "No rights to change personality"
 	//#org Карта принадлежит другому
 PPTXT_SCARDOTHEROWNER "The card belongs to another"
 	//#org Все поддерживаемые файлы:*.txt;*.ini
-PPTXT_TEXTBROWSER_FILETYPES "All supported files:*.txt;*.ini"
+PPTXT_TEXTBROWSER_FILETYPES "All supported files:*.txt;*..ini"
 	//#org 1,@{generalization};2,@{group};3,@{manufacturer};4,@{goodsclass_fusedimx};5,@{goodsclass_fusedimy};6,@{goodsclass_fusedimz};7,@{kind};8,@{sort};9,@{classifier};10,@{kind}/@{sort};11,@{supplier};12,@{brand};13,@{kind}/@{sort}/@{classifier};14,@{kind}/@{classifier}/@{sort};15,@{supplagent};16,@{warehouse};17,Владелец торговой марки;18,@{vatrate};19,Ставка НДС в ценах поступления;20,Категория алкогольной продукции;21,@{goodsclass_fusedimw};22,Место хранения, ассоциированное с товаром;23,@{goods_type}
 PPTXT_SUBSTGOODSLIST "1,@{generalization};2,@{group};3,@{manufacturer};4,@{goodsclass_fusedimx};5,@{goodsclass_fusedimy};6,@{goodsclass_fusedimz};7,@{kind};8,@{sort};9,@{classifier};10,@{kind}/@{sort};11,@{supplier};12,@{brand};13,@{kind}/@{sort}/@{classifier};14,@{kind}/@{classifier}/@{sort};15,@{supplagent};16,@{warehouse};17,Trademark owner;18,@{vatrate};19,VAT rate in receipt prices;20,Category of alcoholic beverages;21,@{goodsclass_fusedimw};22,Storage area associated with the goods;23,@{goods_type}"
 	//#org Карта '%s' будет активирована автоматически после проведения чека
@@ -6809,7 +6836,7 @@ PPTXT_ORDACCEPTED "Order @{number}=%s, @{date}=%s, PDA=%s successfully accepted 
 	//#org 1,Переключатель;2,@{scales};3,Кассовый аппарат;4,@{customerdisplay};5,@{bankingterminal};6,Считыватель
 PPTXT_ABSTRACTDEVICETYPENAMES "1,Switch;2,@{scales};3,Cash register;4,@{customerdisplay};5,@{bankingterminal};6,Reader"
 	//#org 1,Выбрать внешний файл;2,HTML;3,Текстовый;4,VM - Velocity макро-файл
-PPTXT_WBATTACHFILETYPES "1,Select external file;2,HTML;3,Textual;4,VM - Velocity macro file"
+PPTXT_WBATTACHFILETYPES "1,Select external file;2,.HTML;3,Textual;4,VM - Velocity macro file"
 	//#org @{conversion} SysJournal 7.7.8: значение Action (%d) превышает MAXSHORT
 PPTXT_CVT7708_SJACTIONEXCSHRT "@{conversion} SysJournal 7.7.8: Action (%d) exceeds MAXSHORT"
 	//#org @{conversion} SysJournal 7.7.8: значение ObjType (%d) превышает MAXSHORT
@@ -7362,7 +7389,7 @@ PPTXT_CCFMT_DISCOUNT "DISCOUNT"
 	//#org НАЛОГ С ПРОДАЖ
 PPTXT_CCFMT_STAX "SALES TAX"
 	//#org НСП
-PPTXT_CCFMT_STAX_S "NSP"
+PPTXT_CCFMT_STAX_S "Nsp"
 	//#org СУММА ПО СТАВКЕ НДС
 PPTXT_CCFMT_AMTBYVATRATE "AMOUNT AT VAT RATE"
 	//#org ПОЛУЧАТЕЛЬ
@@ -7478,8 +7505,8 @@ PPTXT_CANTCREATEWAREWONAME "when you import a document you cannot automatically 
 //PPTXT_EGAIS_GOODSCREATED            "Создан товар '%s'"
 	//#org Создан товар '%s'
 PPTXT_WAREAUTOCREATED "Created product '%s'"
-	//#org 1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;8,Молочная продукция
-PPTXT_CHZNPRODUCTTYPES "1,Fur products;2,Tobacco;3,Footwear;4,Medicines;5,Car Tires;6,Textile;7,Perfumery;8,Dairy products"
+	//#org 1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая
+PPTXT_CHZNPRODUCTTYPES "1,Fur products;2,Tobacco;3,Footwear;4,Medicines;5,Car Tires;6,Textile;7,Perfumery;8,Dairy products;9,Jewellery;10,Drinking water"
 	//#org @{attention} Время на регистраторе @datetime отличается от времени на компьютере
 PPTXT_DEVICETIMEDIFFROMSYS "@{attention} The time on the registrar is @datetime different from the time on the computer"
 	//#org Изображение по-умолчанию не найдено!
@@ -7555,7 +7582,7 @@ PPTXT_ADJALCOGOODS_PROOF "The alcohol content of the goods differs from the inte
 PPTXT_ADJALCOGOODS_VOLUME "The volume of the unit of goods differs from the internal database of the USAIS: %s"
 	//#org Серверная задача '%s' успешно запущена
 PPTXT_EXECJOBIMM_SUCCESS "Server task '%s' started successfully"
-	//#org Сервер отчетался об ошибке запуска задачи: %s
+	//#org Сервер отчитался об ошибке запуска задачи: %s
 PPTXT_EXECJOBIMM_ERROR "The server reported an error starting the task: %s"
 // Следующие три строки - для поиска в StyloQ
 	//#org Слишком короткая строка для поиска. Введите не менее %s символов
@@ -7574,6 +7601,10 @@ PPTXT_TEXTHASBEENCOPIEDTOCLIPBOARD "the text was copied to a buffer"
 PPTXT_STQ_BLOBTRANSMTOMEDIATORSUCC "Stylo-Q: Object blob transmitted to mediator (%s)"
 	//#org Stylo-Q: ошибка передачи медиатору blob'а объекта (%s): %s
 PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to the blob mediator"
+	//#org Приглашение. Дайте просканировать этот код другу с его телефона, чтобы присоединится к сервису '%s'
+PPTXT_STQ_HINT_FRIENDINVITATION "Invitation. Let a friend scan this code from his phone to join the service '%s'"
+	//#org После выбора времени обслуживания перейдите на вкладку '@{orderdocument}' для отправки заказа сервису.
+PPTXT_STQ_HINT_GOTOSVCORDFINISHING "After selecting the service time, go to the '@{orderdocument}' tab to send the order to the service."
 //
 // LastText
 
@@ -8948,6 +8979,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @lbt_desktopcmdassoc "40,L,@desktopassoccmd_code;50,L,@cmd"
 	//#org 30,L,@appellation;20,L,@symbol;50,L,@dbloginentry_dbpath;25,L,@dbloginentry_dictpath
 @lbt_dblist "30,L,@appellation;20,L,@symbol;50,L,@dbloginentry_dbpath;25,L,@dbloginentry_dictpath"
+	//#org 30,L,@styloqdocstatus_status;20,L,@styloqdocstatus_reservedcase;20,L, ;30,L,@appellation
+@lbt_stqstatuslist "30,L,@styloqdocstatus_status;20,L,@styloqdocstatus_reservedcase;20,L, ;30,L,@appellation"
 
 	//#org Система управления предприятием
 @entmanagementsys "Enterprise Management System"
@@ -9098,6 +9131,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @undefined "Uncertain"
 	//#org Неопределено
 @undefined_neut "Undefined"
+	//#org Без изменений
+@unchanged "No change"
 	//#org Справочник
 @reference "Handbook"
 	//#org Справочники
@@ -9273,7 +9308,7 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 	//#org Грузовая таможенная декларация
 @cargocustomsdeclaration "Cargo Customs Declaration"
 	//#org ГТД
-@cargocustomsdeclaration_s "GTD"
+@cargocustomsdeclaration_s "Gtd"
 	//#org Номер грузовой таможенной декларации
 @cargocustomsdeclarationno "Cargo Customs Declaration Number"
 	//#org Модификатор
@@ -9695,7 +9730,7 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 	//#org GUID базы данных
 @dbguid "Database GUID"
 	//#org БД
-@db "DATABASE"
+@db "Database"
 	//#org Таблица синхронизации
 @dbsynctable "Synchronization table"
 	//#org Раздел базы данных
@@ -9826,6 +9861,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @accsheet_extobj "Table of additional object articles"
 	//#org Статус
 @status "Status"
+	//#org Статусы
+@status_pl "Statuses"
 	//#org Статус не определен
 @undefstatus "Status not defined"
 	//#org Наименование статуса
@@ -10107,6 +10144,14 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @hour "Hour"
 	//#org Часы
 @hour_pl "Clock"
+	//#org Текущая неделя
+@currentweek "Current week"
+	//#org Прошедшая неделя
+@lastweek "Last week"
+	//#org Текущий месяц
+@currentmonth "Current month"
+	//#org Прошедший месяц
+@lastmonth "Past month"
 	//#org Предыдущий месяц
 @previousmonth "Previous month"
 	//#org Предыдущий год
@@ -10713,9 +10758,9 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 	//#org Адресная книга
 @addressbook "Address book"
 	//#org ИНН
-@inn "INN"
+@inn "Inn"
 	//#org КПП
-@kpp "PPC"
+@kpp "Ppc"
 	//#org СНИЛС
 @snils "SNILS"
 	//#org КПП плательщика
@@ -10727,7 +10772,7 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 	//#org КПП получателя бюджетного платежа
 @fiscalreceiverskpp "KPP of the recipient of the budget payment"
 	//#org БИК
-@bic "BICK"
+@bic "Bick"
 	//#org ИНН контрагента
 @contractorinn "Counterparty TIN"
 	//#org ИНН плательщика
@@ -11504,6 +11549,10 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @typeofdocuments "Document Type"
 	//#org Документ
 @document "Document"
+	//#org Выбранный документ
+@selecteddocument "Selected document"
+	//#org Список документов
+@documentlist "List of documents"
 	//#org Количество документов
 @documentcount "Number of documents"
 	//#org Примечание к документу
@@ -11534,7 +11583,6 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @paymentdocumentdate "Date of payment document"
 	//#org Номер платежного документа
 @paymentdocumentno "Payment document number"
-
 	//#org Счет-фактура
 @invoice "Invoice"
 	//#org Корректировочная счет-фактура
@@ -11753,10 +11801,14 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @sortby_date "By date"
 	//#org По наименованию
 @sortby_name "By name"
+	//#org По идентификатору товара
+@sortby_goodsid "By Product ID"
 	//#org По наименованию товара
 @sortby_goodsname "By product name"
 	//#org По количеству
 @sortby_quantity "By quantity"
+	//#org По цене
+@sortby_price "By price"
 	//#org По сумме отгрузки
 @sortby_shipmamount "By amount of shipment"
 	//#org По сумме долга
@@ -11773,8 +11825,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @sortby_expenceamount "By amount of expenses"
 	//#org По прибыли
 @sortby_profit "By profit"
-	//#org По остатку
-@sortby_rest "By balance"
+	//#org По величине остатка
+@sortby_rest "By size of the balance"
 	//#org По времени начала
 @sortby_timestart "By start time"
 	//#org По времени завершения
@@ -11803,6 +11855,10 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @sortby_groupandname "By group and name"
 	//#org По группе и сокращению
 @sortby_groupandabbr "By group and abbreviation"
+	//#org По группе и штрихкоду
+@sortby_groupandcode "By group and barcode"
+	//#org По группе и цене
+@sortby_groupandprice "By group and price"
 	//#org По бренду и наименованию
 @sortby_brandandname "By brand and name"
 	//#org По штрихкоду и наименованию
@@ -11827,9 +11883,9 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 	//#org Код территориального участка ИФНС
 @ru_iftsterrareacode "The code of the territorial site of the Federal Tax Service"
 	//#org ФЛ
-@civillawsubj_individual_ss "FL"
+@civillawsubj_individual_ss "Fl"
 	//#org ЮЛ
-@civillawsubj_legal_ss "YUL"
+@civillawsubj_legal_ss "Yul"
 
 	//#org Поиск по штрихкоду
 @searchbybarcode "Search by barcode"
@@ -12311,6 +12367,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @doexportsales "Export Sales"
 	//#org Экспортировать цены
 @doexportprices "Export prices"
+	//#org Экспортировать бренды
+@doexportbrands "Export Brands"
 	//#org Экспортировать долги клиентов
 @doexportreceivables "Export customer debts"
 	//#org Положить в корзину
@@ -12473,6 +12531,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @doeditsrvjob "Edit server task"
 	//#org Печать списка задач
 @doprintsrvjoblist "Print a task list"
+	//#org Распечатать этикетку
+@doprintlabel "Print label"
 	//#org Отправить команду серверу для исполнения задачи
 @doexecjobimm "Send a command to the server to execute the task"
 	//#org Редактировать информации о документе
@@ -13862,6 +13922,46 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @filter_styloqgoodsinfoparam_fshowdescriptions "Show additional description fields"
 	//#org Показывать коды
 @filter_styloqgoodsinfoparam_fshowcodes "Show codes"
+	//#org Параметры создания исходящих документов для Stylo-Q
+@filter_styloqdocumentparam "Options for creating outgoing documents for Stylo-Q"
+	//#org Выбор по штрихкоду
+@filter_styloqdocumentparam_fusebarcodesearch "Barcode selection"
+	//#org Параметры входящих списков для Stylo-Q
+@filter_styloqincominglistparam "Inbox parameters for Stylo-Q"
+	//#org Параметры входящих заказов для Stylo-Q
+@filter_styloqincominglistorderparam "Incoming order parameters for Stylo-Q"
+	//#org Параметры входящих кассовых чеков для Stylo-Q
+@filter_styloqincominglistccheckparam "Parameters of incoming cash receipts for Stylo-Q"
+	//#org Параметры входящих технологических сессий для Stylo-Q
+@filter_styloqincominglisttsessparam "Parameters of incoming technological sessions for Stylo-Q"
+	//#org Параметры входящих задач для Stylo-Q
+@filter_styloqincominglisttodoparam "Incoming task parameters for Stylo-Q"
+	//#org Количество дней с отсчетом назад
+@filter_styloqincominglistparam_lookbackdays "Number of days counted back"
+	//#org Доступные действия
+@filter_styloqincominglistparam_actions "Available actions"
+	//#org Изменение статуса
+@filter_styloqincominglistparam_actiondocstatus "Status change"
+	//#org Приемка товаров
+@filter_styloqincominglistparam_actiondocacceptance "Acceptance of goods"
+	//#org Приемка маркировки
+@filter_styloqincominglistparam_actiondocacceptancemarks "Acceptance of marking"
+	//#org Расстановка марок
+@filter_styloqincominglistparam_actiondocsettingmarks "Stamp arrangement"
+	//#org Инвентаризация
+@filter_styloqincominglistparam_actiondocinventory "Inventory"
+	//#org Корректировка товарных позиций
+@filter_styloqincominglistparam_actiongoodsitemcorrection "Adjustment of commodity items"
+	//#org Создание чека
+@filter_styloqincominglistparam_actionccheckcreat "Create a check"
+	//#org Модификация чека
+@filter_styloqincominglistparam_actionccheckmod "Modification of the check"
+	//#org Печать чека на регистраторе
+@filter_styloqincominglistparam_actionccheckregprint "Printing a receipt on the registrar"
+	//#org Только документы с маркировкой
+@filter_styloqincominglistparam_fbillwithmarksonly "Marked documents only"
+	//#org Только документы, содержащие товары, требующие маркировки
+@filter_styloqincominglistparam_fbillwithmarkedgoodsonly "Only documents containing products that require labeling"
 //
 // Команды и popup-меню
 //
@@ -14319,7 +14419,7 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 	//#org Изменить пароль
 @cmd_updatepassword "Change password"
 	//#org Обновление файла PP.INI
-@cmd_updateppini "Update the PP file. INI"
+@cmd_updateppini "Update the PP file. .INI"
 	//#org Изменение котировок
 @cmd_updatequots "Change of quotes"
 	//#org Конфигурация интерфейса
@@ -14537,6 +14637,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @job_ftsindexing "Indexing search data"
 	//#org StyloQ: Отправка медиаторам данных для индексации
 @job_styloqsendindexingcontent "StyloQ: Sending indexing data to mediators"
+	//#org StyloQ: Предварительная подготовка данных
+@job_styloqprepareahead "StyloQ: Preliminary data preparation"
 
 	//#org Задание Job-сервера
 @jobitem "Job Server Job Setting"
@@ -15343,6 +15445,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @cashnode_cashfx_notifyeqptimemism "Report a time error on the recorder"
 	//#org Банковский слип печатать после чека
 @cashnode_cashfx_bnkslipafterrcpt "Bank slip print after check"
+	//#org Не передавать регистратору команду открытия сессии
+@cashnode_cashfx_syncopensesssoft "Do not send the session opening command to the registrar"
 	//#org Тип ККМ
 @cashnode_cashtype "Cash register type"
 	//#org ИД текущей сессии
@@ -15885,6 +15989,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @cfgclientdeal_addedlimitval "Credit limit for %d days"
 	//#org Параметры множественной печати документов
 @cfgclientdeal_bmpp "Multiple document printing options"
+	//#org Срок исполнения, часов
+@cfgclientdeal_defdueperiodhour "Term of execution, hours"
 
 	//#org Общие настройки
 @cfgcomm "General Settings"
@@ -17842,8 +17948,6 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @lot_seqqrack_none "No answer"
 	//#org Подтвержден
 @lot_seqqrack_ack "Confirmed"
-	//#org Отклонен
-@lot_seqqrack_reject "Rejected"
 	//#org Остаток на начало операционного периода
 @lot_operestbeg "Balance at the beginning of the operating period"
 	//#org Остаток на конец операционного периода
@@ -19005,6 +19109,10 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 
 	//#org Правило расчета скидок и бонусов по картам
 @scardserrule "The rule for calculating discounts and bonuses on cards"
+	//#org Тип периода обнуления бонусов
+@scardserrule_cancelprd "Type of bonus zeroing period"
+	//#org Количество периодов обнуления бонусов
+@scardserrule_cancelprccount "Number of bonus reset periods"
 
 	//#org Правило для диапазона оборотов карты
 @trnovrrngdis "Rule for card speed range"
@@ -19102,6 +19210,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 	//#org Фиксированная должность
 @staff_fixedstaff "Fixed position"
 
+	//#org Устройство Stylo
+@stylodevice "Stylo Device"
 	//#org Группа устройств Stylo
 @stylodevicegroup "Stylo Device Group"
 	//#org Версия системы на устройстве при последнем обмене
@@ -19116,8 +19226,6 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @stylopalm_plmf_android "Export/import as an xml file"
 	//#org Запрет общей скидки на заказы
 @stylopalm_plmf_disablcediscount "Prohibition of general discount on orders"
-	//#org Экспортировать бренды
-@stylopalm_plmf_expbrand "Export Brands"
 	//#org Экспортировать склады
 @stylopalm_plmf_exploc "Export warehouses"
 	//#org Экспортировать признак 'стоп' для клиентов
@@ -19805,7 +19913,7 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 	//#org Средняя
 @cchecktotal_avrgchecksum "Average"
 	//#org MAX
-@cchecktotal_maxchecksum "MAX"
+@cchecktotal_maxchecksum ".MAX"
 
 	//#org Фильтр по кассовым сессиям
 @csessfilt "Filter by cash sessions"
@@ -20178,8 +20286,6 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @goodsopanlzfilt_abcgrp_byincome "Yield"
 	//#org Котировка вместо цены реализации
 @goodsopanlzfilt_quotkind "Quote instead of selling price"
-	//#org Список документов
-@goodsopanlzfilt_billlist "List of documents"
 	//#org Товарный отчет по операции (сравнительный период)
 @goodsopanlzfilt_compareitems "Commodity report on the transaction (comparative period)"
 	//#org Сравнение
@@ -21212,8 +21318,6 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @trfranlzfilt_g_goodssuppl "By product/supplier"
 	//#org Подстановка при группировке
 @trfranlzfilt_subst "Grouping substitution"
-	//#org Список документов
-@trfranlzfilt_billlist "List of documents"
 	//#org Список приходных документов
 @trfranlzfilt_rcptbilllist "List of receipt documents"
 	//#org Список складов
@@ -21257,6 +21361,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @chznmark "Stamp @{brand_chzn}"
 	//#org Считайте марку сканером
 @doscanmark "Consider the brand as a scanner"
+	//#org Несопоставленные марки
+@unmatchedmarks "Unmapped stamps"
 
 	//#org Сравнительный анализ цен
 @priceanlzfilt "Comparative analysis of prices"
@@ -21822,8 +21928,6 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @vetisvetdoc_ack_accepted "Unconditionally accepted"
 	//#org Частично принят
 @vetisvetdoc_ack_partialyaccepted "Partially accepted"
-	//#org Отклонен
-@vetisvetdoc_ack_rejected "Rejected"
 	//#org Принятое количество
 @vetisvetdoc_ackvolume "Accepted quantity"
 
@@ -22132,6 +22236,10 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @impexpparambillh_fcreateabsencegoods "Create missing products"
 	//#org Не идентифицировать товары по имени
 @impexpparambillh_fdontidentgoodsbyname "Do not identify products by name"
+	//#org Марки честный знак экспортировать как CDATA
+@impexpparambillh_fchznmarkascdata "Stamps honest mark export as CDATA"
+	//#org Марки честный знак экспортировать в виде GTIN-SERIAL
+@impexpparambillh_fchznmarkgtinser "Stamps honest sign export in the form of GTIN-SERIAL"
 	//#org Вид операции импорта
 @impexpparambillh_impop "Type of import operation"
 	//#org Предопределенный формат
@@ -23325,7 +23433,7 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 	//#org Тип платежа
 @bankingorder_taxmarkers_paymtype "Payment type"
 	//#org УИН
-@bankingorder_taxmarkers_uin "WEEN"
+@bankingorder_taxmarkers_uin "Ween"
 
 	//#org Выход по 'escape'
 @stylobhtiiconfig_fexitbyesc "Exit by 'escape'"
@@ -23785,7 +23893,7 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 	//#org Исходная строка адреса
 @addrstruc_taddress "Original address bar"
 	//#org ZIP
-@addrstruc_tzip "ZIP"
+@addrstruc_tzip ".ZIP"
 	//#org Локальный регион
 @addrstruc_tlocalarea "Local region"
 	//#org Дом
@@ -24159,6 +24267,16 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @styloqbasecmd_goodsinfo "Product information parameters"
 	//#org Локальный поиск по штрихкоду
 @styloqbasecmd_localbarcodesearch "Local barcode search"
+	//#org Список входящих документов
+@styloqbasecmd_incominglistorder "List of incoming documents"
+	//#org Список входящих кассовых чеков
+@styloqbasecmd_incominglistccheck "List of incoming cash receipts"
+	//#org Список входящих технологических сессий
+@styloqbasecmd_incominglisttsess "List of incoming technology sessions"
+	//#org Список входящих задач
+@styloqbasecmd_incominglisttodo "Incoming Task List"
+	//#org Долговые документы
+@styloqbasecmd_debtlist "Debt documents"
 
 	//#org Команда сервиса Stylo-Q
 @styloqcommand "Stylo-Q Service Team"
@@ -24174,6 +24292,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 @styloqcommand_remoteorderparam "Parameters of remote order collection"
 	//#org Параметры indoor-обслуживания
 @styloqcommand_indoorsvcparam "Indoor-service parameters"
+	//#org Заранее готовить данные
+@styloqcommand_fprepareahead "Prepare data in advance"
 
 	//#org Конфигурация сервиса Stylo-Q
 @styloqsvcconfig "Stylo-Q Service Configuration"
@@ -24234,6 +24354,20 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Error passing object (%s): %s to th
 
 	//#org Ассоциированный лик
 @styloqsvc_assignedface "Associated Face"
+
+	//#org Клиентский статус документа
+@styloqdocstatus "Client status of the document"
+	//#org Клиентские статусы документа
+@styloqdocstatus_pl "Client document statuses"
+	//#org Зарезервированный статус
+@styloqdocstatus_reservedcase "Reserved Status"
+	//#org Неопределен
+@styloqdocstatus_reservedcase_rundef "Uncertain"
+	//#org Использовать признак документа '@{rejected}'
+@styloqdocstatus_fbillflagdeclined "Use document feature '@{rejected}'"
+
+	//#org Не показывать отмененные документы
+@styloqregistryfilt_dontshowcancelled "Do not show canceled documents"
 
 	//#org Время запуска
 @serverstat_startmoment "Startup time"

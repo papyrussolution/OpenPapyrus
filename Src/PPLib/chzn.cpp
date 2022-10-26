@@ -73,6 +73,10 @@ Data Matrix для табачной продукции и фармацевтик
 						rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
 						ok = 2;
 					}
+					if(_21.Len() == 13) { // @v11.5.5 Вода
+						rBuf.CatChar('\x1D').Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
+						ok = 2;
+					}
 				}
 			}
 		}

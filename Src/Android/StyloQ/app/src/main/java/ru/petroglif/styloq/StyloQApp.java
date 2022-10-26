@@ -46,7 +46,7 @@ import java.util.UUID;
 
 public class StyloQApp extends SLib.App {
 	protected StyloQDatabase Db;
-	private ArrayList <IgnitionServerEntry> ISL;
+	private ArrayList<IgnitionServerEntry> ISL;
 	private Timer SvcPollTmr;
 	private AppUpdateManager AppUpdMgr;
 	private InstallStateUpdatedListener InstallStateUpdatedListener;
@@ -55,91 +55,91 @@ public class StyloQApp extends SLib.App {
 	{
 		Object result = null;
 		switch(cmd) {
-			case SLib.EV_CREATE:
-				{
-					//
-					//String av = GetApplicationVersionText();
-					//
-					SetCurrentLang(0);
-					try {
-						Db = new StyloQDatabase(this);
-						Db.Open();
-						{
-							int prev_ver = 0;
-							int cur_ver = GetApplicationVersionCode();
-							if(cur_ver <= 2) {
-								Db.CreateTableInDb(null, StyloQDatabase.SysJournalTable.TBL_NAME, false);
-							}
-							StyloQDatabase.SysJournalTable.Rec sjrec = Db.GetLastEvent(SLib.PPACN_RECENTVERSIONLAUNCHED, 0);
-							if(sjrec != null)
-								prev_ver = (int)sjrec.Extra;
-							if(prev_ver < cur_ver || cur_ver == 2) {
-								Db.Upgrade(cur_ver, prev_ver);
-							}
-							if(sjrec == null || (int)sjrec.Extra < cur_ver) {
-								Db.LogEvent(SLib.PPACN_RECENTVERSIONLAUNCHED, 0, 0, cur_ver, true);
-							}
+			case SLib.EV_CREATE: {
+				//
+				//String av = GetApplicationVersionText();
+				//
+				SetCurrentLang(0);
+				try {
+					Db = new StyloQDatabase(this);
+					Db.Open();
+					{
+						int prev_ver = 0;
+						int cur_ver = GetApplicationVersionCode();
+						if(cur_ver <= 2) {
+							Db.CreateTableInDb(null, StyloQDatabase.SysJournalTable.TBL_NAME, false);
 						}
-						//
-						StyloQConfig cfg_data = new StyloQConfig();
-						StyloQDatabase.SecStoragePacket pack = Db.GetOwnPeerEntry();
-						if(pack != null) {
-							byte[] cfg_bytes = pack.Pool.Get(SecretTagPool.tagPrivateConfig);
-							if(SLib.GetLen(cfg_bytes) > 0) {
-								String cfg_json = new String(cfg_bytes);
-								cfg_data.FromJson(cfg_json);
-								String pref_lang_ref = cfg_data.Get(StyloQConfig.tagPrefLanguage);
-								SetCurrentLang(SLib.GetLinguaIdent(pref_lang_ref));
-							}
-							// @construction StyloQJobService.ScheduleTask(this);
-							// @construction {
-							{
-								class TimerTask_DocStatusPoll extends TimerTask {
-									private StyloQApp AppCtx;
-									TimerTask_DocStatusPoll(StyloQApp appCtx)
-									{
-										AppCtx = appCtx;
-									}
-									@Override public void run()
-									{
-										Thread thr = new Thread(new StyloQInterchange.ThreadEngine_DocStatusPoll(AppCtx));
-										thr.start();
-										//runOnUiThread(new Runnable() { @Override public void run() { DocStatusPoll(AppCtx); }});
-									}
-								}
-								SvcPollTmr = new Timer();
-								SvcPollTmr.schedule(new TimerTask_DocStatusPoll(this), 30 * 1000, 300 * 1000);
-							}
-							// } @construction
+						StyloQDatabase.SysJournalTable.Rec sjrec = Db.GetLastEvent(SLib.PPACN_RECENTVERSIONLAUNCHED, 0);
+						if(sjrec != null)
+							prev_ver = (int) sjrec.Extra;
+						if(prev_ver < cur_ver || cur_ver == 2) {
+							Db.Upgrade(cur_ver, prev_ver);
 						}
+						if(sjrec == null || (int) sjrec.Extra < cur_ver) {
+							Db.LogEvent(SLib.PPACN_RECENTVERSIONLAUNCHED, 0, 0, cur_ver, true);
+						}
+					}
+					//
+					StyloQConfig cfg_data = new StyloQConfig();
+					StyloQDatabase.SecStoragePacket pack = Db.GetOwnPeerEntry();
+					if(pack != null) {
+						byte[] cfg_bytes = pack.Pool.Get(SecretTagPool.tagPrivateConfig);
+						if(SLib.GetLen(cfg_bytes) > 0) {
+							String cfg_json = new String(cfg_bytes);
+							cfg_data.FromJson(cfg_json);
+							String pref_lang_ref = cfg_data.Get(StyloQConfig.tagPrefLanguage);
+							SetCurrentLang(SLib.GetLinguaIdent(pref_lang_ref));
+						}
+						// @construction StyloQJobService.ScheduleTask(this);
+						// @construction {
 						{
-							AppUpdMgr = AppUpdateManagerFactory.create(this);
-							InstallStateUpdatedListener = new InstallStateUpdatedListener() {
-								@Override public void onStateUpdate(InstallState state)
+							class TimerTask_DocStatusPoll extends TimerTask {
+								private StyloQApp AppCtx;
+								TimerTask_DocStatusPoll(StyloQApp appCtx)
 								{
-									if(state.installStatus() == InstallStatus.DOWNLOADED) {
-										;
-										//CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
-										//popupSnackbarForCompleteUpdate();
-									}
-									else if(state.installStatus() == InstallStatus.INSTALLED) {
-										if(AppUpdMgr != null) {
-											//app_upd_mgr.unregisterListener(install_state_updated_listener);
-										}
-									}
-									else {
-										//Log.i(TAG, "InstallStateUpdatedListener: state: " + state.installStatus());
+									AppCtx = appCtx;
+								}
+								@Override
+								public void run()
+								{
+									Thread thr = new Thread(new StyloQInterchange.ThreadEngine_DocStatusPoll(AppCtx));
+									thr.start();
+									//runOnUiThread(new Runnable() { @Override public void run() { DocStatusPoll(AppCtx); }});
+								}
+							}
+							SvcPollTmr = new Timer();
+							SvcPollTmr.schedule(new TimerTask_DocStatusPoll(this), 30 * 1000, 300 * 1000);
+						}
+						// } @construction
+					}
+					{
+						AppUpdMgr = AppUpdateManagerFactory.create(this);
+						InstallStateUpdatedListener = new InstallStateUpdatedListener() {
+							@Override
+							public void onStateUpdate(InstallState state)
+							{
+								if(state.installStatus() == InstallStatus.DOWNLOADED) {
+									;
+									//CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
+									//popupSnackbarForCompleteUpdate();
+								}
+								else if(state.installStatus() == InstallStatus.INSTALLED) {
+									if(AppUpdMgr != null) {
+										//app_upd_mgr.unregisterListener(install_state_updated_listener);
 									}
 								}
-							};
-							AppUpdMgr.registerListener(InstallStateUpdatedListener);
-						}
+								else {
+									//Log.i(TAG, "InstallStateUpdatedListener: state: " + state.installStatus());
+								}
+							}
+						};
+						AppUpdMgr.registerListener(InstallStateUpdatedListener);
 					}
-					catch(StyloQException e) {
-						throw new SQLiteException(GetLastErrMessage(null));
-					}
+				} catch(StyloQException e) {
+					throw new SQLiteException(GetLastErrMessage(null));
 				}
-				break;
+			}
+			break;
 			case SLib.EV_TERMINTATE:
 				if(Db != null)
 					Db.Close();
@@ -158,7 +158,7 @@ public class StyloQApp extends SLib.App {
 					for(int i = 0; i < al.size(); i++) {
 						Activity a = al.get(i);
 						if(a != null && a instanceof SLib.SlActivity) {
-							((SLib.SlActivity)a).HandleEvent(SLib.EV_IADATAEDITCOMMIT, srcObj, subj);
+							((SLib.SlActivity) a).HandleEvent(SLib.EV_IADATAEDITCOMMIT, srcObj, subj);
 						}
 					}
 				}
@@ -183,7 +183,7 @@ public class StyloQApp extends SLib.App {
 	{
 		Toast result = null;
 		if(anchorView != null && anchorView instanceof SLib.SlActivity && SLib.GetLen(text) > 0) {
-			SLib.SlActivity activity = (SLib.SlActivity)anchorView;
+			SLib.SlActivity activity = (SLib.SlActivity) anchorView;
 			LayoutInflater inflater = activity.getLayoutInflater();
 			View layout = inflater.inflate(R.layout.layout_toast, activity.findViewById(R.id.TOAST_CONTAINER));
 			if(layout != null) {
@@ -254,31 +254,34 @@ public class StyloQApp extends SLib.App {
 	{
 		//return Db;
 		//try {
-			if(Db == null)
-				Db = new StyloQDatabase(this);
-			if(Db != null && Db.IsOpen() == false)
-				Db.Open();
+		if(Db == null)
+			Db = new StyloQDatabase(this);
+		if(Db != null && Db.IsOpen() == false)
+			Db.Open();
 		//}
 		/*catch(StyloQException e) {
 		}*/
-		return (StyloQDatabase)Db;
+		return (StyloQDatabase) Db;
 	}
-	public SQLiteDatabase GetDBHandle() { return (Db != null) ? Db.GetHandle() : null; }
+	public SQLiteDatabase GetDBHandle()
+	{
+		return (Db != null) ? Db.GetHandle() : null;
+	}
 	public static StyloQDatabase GetDB(Context ctx) throws StyloQException
 	{
-		StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
+		StyloQApp app_ctx = (StyloQApp) ctx.getApplicationContext();
 		return (app_ctx != null) ? app_ctx.GetDB() : null;
 	}
 	public static SQLiteDatabase GetDBHandle(Context ctx)
 	{
-		StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
+		StyloQApp app_ctx = (StyloQApp) ctx.getApplicationContext();
 		return (app_ctx != null) ? app_ctx.GetDBHandle() : null;
 	}
 	static class IgnitionServerEntry {
-		byte [] SvcIdent;
+		byte[] SvcIdent;
 		String Url;
 	}
-	public final ArrayList <IgnitionServerEntry> GetIgnitionServerList() throws StyloQException
+	public final ArrayList<IgnitionServerEntry> GetIgnitionServerList() throws StyloQException
 	{
 		if(ISL == null) {
 			ISL = new ArrayList<IgnitionServerEntry>();
@@ -305,10 +308,10 @@ public class StyloQApp extends SLib.App {
 		}
 		return ISL;
 	}
-	public final ArrayList <IgnitionServerEntry> GetMediatorList()
+	public final ArrayList<IgnitionServerEntry> GetMediatorList()
 	{
-		ArrayList <IgnitionServerEntry> result = null;
-		ArrayList <Long> mediator_id_list = null;
+		ArrayList<IgnitionServerEntry> result = null;
+		ArrayList<Long> mediator_id_list = null;
 		try {
 			result = GetIgnitionServerList();
 			StyloQDatabase db = GetDB();
@@ -319,8 +322,8 @@ public class StyloQApp extends SLib.App {
 						long mediator_id = mediator_id_list.get(i);
 						StyloQDatabase.SecStoragePacket mediator_pack = db.GetPeerEntry(i);
 						if(mediator_pack != null && (mediator_pack.Rec.Flags & StyloQDatabase.SecStoragePacket.styloqfMediator) != 0) {
-							byte [] cfg_bytes = mediator_pack.Pool.Get(SecretTagPool.tagConfig);
-							byte [] svc_ident_from_pool = mediator_pack.Pool.Get(SecretTagPool.tagSvcIdent);
+							byte[] cfg_bytes = mediator_pack.Pool.Get(SecretTagPool.tagConfig);
+							byte[] svc_ident_from_pool = mediator_pack.Pool.Get(SecretTagPool.tagSvcIdent);
 							if(SLib.GetLen(cfg_bytes) > 0 && SLib.GetLen(svc_ident_from_pool) > 0) {
 								if(!SLib.AreByteArraysEqual(svc_ident_from_pool, mediator_pack.Rec.BI)) {
 									; // @error
@@ -367,7 +370,7 @@ public class StyloQApp extends SLib.App {
 		return result;
 	}
 	public static class InterchangeResult {
-		InterchangeResult(SvcQueryResult tag, byte [] svcIdent, String textSubj, Object reply)
+		InterchangeResult(SvcQueryResult tag, byte[] svcIdent, String textSubj, Object reply)
 		{
 			SvcIdent = svcIdent;
 			SvcReply = null;
@@ -391,16 +394,16 @@ public class StyloQApp extends SLib.App {
 		}
 		String GetErrMsg()
 		{
-			return (InfoReply != null && InfoReply instanceof String) ? (String)InfoReply : null;
+			return (InfoReply != null && InfoReply instanceof String) ? (String) InfoReply : null;
 		}
-		byte [] SvcIdent;
+		byte[] SvcIdent;
 		SecretTagPool SvcReply;
 		SvcQueryResult ResultTag;
 		Object InfoReply;
 		StyloQCommand.Item OriginalCmdItem;
 		SLib.SlActivity RetrActivity; // @v11.3.10 activity в которую необходимо вернуть результат исполнения команды
-		ArrayList <StyloQInterchange.DocumentRequestEntry> DocReqList; // @v11.3.12 Массив структур для синхронизации состояний документов с сервисом.
-			// Ссылка на список, переданный асинхронной процедуре обращения к сервису с, возможно, измененными в результате получения ответа от сервиса, атрибутами.
+		ArrayList<StyloQInterchange.DocumentRequestEntry> DocReqList; // @v11.3.12 Массив структур для синхронизации состояний документов с сервисом.
+		// Ссылка на список, переданный асинхронной процедуре обращения к сервису с, возможно, измененными в результате получения ответа от сервиса, атрибутами.
 		String TextSubj;
 	}
 	void SendSvcReplyToMainThread(@NotNull InterchangeResult subj, Object reply)
@@ -411,7 +414,11 @@ public class StyloQApp extends SLib.App {
 			{
 				Ctx = ctx;
 			}
-			@Override public void run() { Ctx.OnSvcQueryResult(subj, reply); }
+			@Override
+			public void run()
+			{
+				Ctx.OnSvcQueryResult(subj, reply);
+			}
 		}
 		Looper lpr = Looper.getMainLooper();
 		if(lpr != null) {
@@ -433,15 +440,16 @@ public class StyloQApp extends SLib.App {
 			DocID = 0;
 			PostResult = false;
 		}
-		long   DocID;
+		long DocID;
 		boolean PostResult;
 	}
 	//
 	// ARG(direction): -1 - incoming, +1 - outcoming
 	//
-	@NotNull public PostDocumentResult RunSvcPostDocumentCommand(byte [] svcIdent, int originalActionFlags, int direction, Document doc, SLib.SlActivity retrActivity)
+	@NotNull
+	public PostDocumentResult RunSvcPostDocumentCommand(byte[] svcIdent, int originalActionFlags, int direction, Document doc, SLib.SlActivity retrActivity)
 	{
-		assert(direction == -1 || direction == +1);
+		assert (direction == -1 || direction == +1);
 		PostDocumentResult result = new PostDocumentResult();
 		if(doc != null && doc.H != null && (doc.TiList != null && doc.TiList.size() > 0) || (doc.BkList != null && doc.BkList.size() > 0)) {
 			try {
@@ -466,7 +474,7 @@ public class StyloQApp extends SLib.App {
 								JSONObject js_doc_decl = new JSONObject();
 								js_doc_decl.put("type", "generic");
 								js_doc_decl.put("format", "json");
-								js_doc_decl.put("time", SLib.datetimefmt(new SLib.LDATETIME(System.currentTimeMillis()), SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
+								js_doc_decl.put("time", SLib.datetimefmt(new SLib.LDATETIME(System.currentTimeMillis()), SLib.DATF_ISO8601 | SLib.DATF_CENTURY, 0));
 								// @v11.4.9 {
 								{
 									//
@@ -494,13 +502,13 @@ public class StyloQApp extends SLib.App {
 							doc_pool.Put(SecretTagPool.tagRawData, js_text_doc.getBytes(StandardCharsets.UTF_8), ds);
 							doc_pool.Put(SecretTagPool.tagDocDeclaration, js_text_docdecl.getBytes(StandardCharsets.UTF_8));
 							{
-								byte [] doc_ident = Db.MakeDocumentStorageIdent(svcIdent, doc_uuid);
+								byte[] doc_ident = Db.MakeDocumentStorageIdent(svcIdent, doc_uuid);
 								//
 								// Мы сейчас будем отправлять документ в "дальнее путешествие" до сервиса. По-этому, кроме прочих, устанавливаем
 								// флаг styloqfDocTransmission в сохраняемую у нас копию документа.
 								// Когда мы получим ответ от сервиса этот флаг надо будет снять.
 								//
-								int  doc_flags = ((doc.H.Flags & StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags) | StyloQDatabase.SecStoragePacket.styloqfDocTransmission);
+								int doc_flags = ((doc.H.Flags & StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags) | StyloQDatabase.SecStoragePacket.styloqfDocTransmission);
 								result.DocID = Db.PutDocument(direction, StyloQDatabase.SecStoragePacket.doctypGeneric, doc_flags, doc_ident, svc_id, doc_pool);
 								if(result.DocID > 0) {
 									StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, org_cmd_item);
@@ -528,30 +536,55 @@ public class StyloQApp extends SLib.App {
 		}
 		return result;
 	}
-	public long StoreDebtList(byte [] svcIdent, BusinessEntity.DebtList list) throws StyloQException
+	public synchronized long Helper_StoreDebtList(final byte[] svcIdent, final BusinessEntity.DebtList list)
 	{
 		long result = 0;
-		if(Db != null) {
-			StyloQDatabase.SecStoragePacket svc_pack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svcIdent);
-			if(svc_pack != null) {
-				final long svc_id = svc_pack.Rec.ID;
-				byte[] doc_ident = Db.MakeDocumentStorageIdent(svcIdent, null);
-				if(list != null) {
-					JSONObject js_obj = list.ToJsonObj();
-					String js_text_doc = js_obj.toString();
-					String js_text_docdecl = null;
-					SecretTagPool doc_pool = new SecretTagPool();
-					SecretTagPool.DeflateStrategy ds = new SecretTagPool.DeflateStrategy(256);
-					doc_pool.Put(SecretTagPool.tagRawData, js_text_doc.getBytes(StandardCharsets.UTF_8), ds);
-					doc_pool.Put(SecretTagPool.tagDocDeclaration, js_text_docdecl.getBytes(StandardCharsets.UTF_8));
-					result = Db.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypDebtList, 0, doc_ident, svc_id, doc_pool);
-				}
-				else {
-					result = Db.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypDebtList, 0, doc_ident, svc_id, null);
+		try {
+			if(Db != null) {
+				StyloQDatabase.SecStoragePacket svc_pack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svcIdent);
+				if(svc_pack != null) {
+					final long svc_id = svc_pack.Rec.ID;
+					byte[] doc_ident = Db.MakeDocumentStorageIdent(svcIdent, null);
+					if(list != null) {
+						JSONObject js_obj = list.ToJsonObj();
+						String js_text_doc = js_obj.toString();
+						String js_text_docdecl = null;
+						SecretTagPool doc_pool = new SecretTagPool();
+						SecretTagPool.DeflateStrategy ds = new SecretTagPool.DeflateStrategy(256);
+						doc_pool.Put(SecretTagPool.tagRawData, js_text_doc.getBytes(StandardCharsets.UTF_8), ds);
+						if(js_text_docdecl != null)
+							doc_pool.Put(SecretTagPool.tagDocDeclaration, js_text_docdecl.getBytes(StandardCharsets.UTF_8));
+						result = Db.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypDebtList, 0, doc_ident, svc_id, doc_pool);
+					}
+					else {
+						result = Db.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypDebtList, 0, doc_ident, svc_id, null);
+					}
 				}
 			}
+		} catch(StyloQException exn) {
+			result = 0;
 		}
 		return result;
+	}
+	private static class ThreadEngine_StoreDebtList implements Runnable {
+		private StyloQApp AppCtx;
+		final byte[] SvcIden;
+		BusinessEntity.DebtList List;
+		ThreadEngine_StoreDebtList(StyloQApp appCtx, final byte[] svcIdent, final BusinessEntity.DebtList list)
+		{
+			AppCtx = appCtx;
+			SvcIden = svcIdent;
+			List = BusinessEntity.DebtList.Copy(list);
+		}
+		@Override public void run()
+		{
+			AppCtx.Helper_StoreDebtList(SvcIden, List);
+		}
+	}
+	public void StoreDebtList(final byte[] svcIdent, final BusinessEntity.DebtList list)
+	{
+		Thread thr = new Thread(new ThreadEngine_StoreDebtList(this, svcIdent, list));
+		thr.start();
 	}
 	public BusinessEntity.DebtList LoadDebtList(byte [] svcIdent) throws StyloQException
 	{

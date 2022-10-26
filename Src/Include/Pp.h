@@ -9338,8 +9338,9 @@ public:
 	friend class PersonCore; // function PersonCore::Get need to have access to RelList
 
 	PPPerson();
-	PPPerson & FASTCALL operator = (const PPPerson &);
-	void   destroy();
+	PPPerson(const PPPerson & rS);
+	PPPerson & FASTCALL operator = (const PPPerson & rS);
+	PPPerson & Z();
 	int    AddRelation(PPID personID, PPID relTypeID, uint * pPos);
 	int    AddRelations(const PPIDArray * pPersonList, PPID relTypeID, uint * pPos);
 	int    RemoveRelation(PPID personID, PPID relTypeID);
@@ -25725,7 +25726,7 @@ struct PPCountryBlock {
 	SString Abbr;
 };
 
-class PPLocationPacket : public LocationTbl::Rec {
+class PPLocationPacket : public LocationTbl::Rec, public ObjTagContainerHelper {
 public:
 	PPLocationPacket();
 	PPLocationPacket(const PPLocationPacket & rS);
@@ -25810,6 +25811,7 @@ public:
 	int    GetPacket(PPID id, PPLocationPacket * pPack);
 	int    PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta);
 	int    PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta);
+	int    PutGuid(PPID id, const S_GUID * pUuid, int use_ta);
 	//
 	// Descr: возвращает список складов, доступных текущему пользователю
 	//   Функция не очищает список pList перед добавлением в него новых элементов,
@@ -26295,12 +26297,13 @@ struct CashierInfo {
 	long   Flags;		 // CIF_XXX
 };
 
-class PPPersonPacket : public PPPerson { // Managed by class PPObjPerson
+class PPPersonPacket : public PPPerson, public ObjTagContainerHelper { // Managed by class PPObjPerson
 public:
 	PPPersonPacket();
+	PPPersonPacket(const PPPersonPacket & rS);
 	~PPPersonPacket();
 	PPPersonPacket & FASTCALL operator = (const PPPersonPacket &);
-	void   destroy();
+	PPPersonPacket & Z();
 	int    GetRegister(PPID regTyp, uint * pos) const;
 	int    GetRegNumber(PPID regTyp, SString & rBuf) const;
 	int    GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const;
@@ -26534,6 +26537,7 @@ public:
 	int    GetPacket(PPID, PPPersonPacket *, uint flags /* PGETPCKF_XXX */);
 	int    PutPacket(PPID * pID, PPPersonPacket *, int use_ta);
 	int    ValidatePacket(const PPPersonPacket * pPack, long flags);
+	int    PutGuid(PPID id, const S_GUID * pUuid, int use_ta);
 	int    GetBankData(PPID, PPBank *);
 	//
 	// Descr: Извлекает предпочтительный банковский счет для персоналии personID.

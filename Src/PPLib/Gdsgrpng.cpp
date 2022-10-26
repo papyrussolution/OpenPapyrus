@@ -514,9 +514,9 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 	const  double qtty = pEntry->Quantity;
 	if(flags & GGEF_CALCBYPRICE) {
 		const int cfg_price_wo_excise = BIN(CConfig.Flags & CCFLG_PRICEWOEXCISE);
-		pEntry->Cost     *= qtty;
-		pEntry->Price    *= qtty;
-		pEntry->Discount *= qtty;
+		// @v11.5.5 pEntry->Cost     *= qtty;
+		// @v11.5.5 pEntry->Price    *= qtty;
+		// @v11.5.5 pEntry->Discount *= qtty;
 		if(flags & GGEF_COSTWOVAT)
 			GObj.AdjCostToVat(lot_tax_grp_id, goods_tax_grp_id, pEntry->LotDate, pEntry->TaxFactor, &pEntry->Cost, 1);
 		if(flags & GGEF_SETCOSTWOTAXES)
@@ -549,6 +549,9 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 			}
 		}
 		// } @v10.6.6
+		pEntry->Cost     *= qtty; // @v11.5.5 
+		pEntry->Price    *= qtty; // @v11.5.5 
+		pEntry->Discount *= qtty; // @v11.5.5 
 	}
 	if(Search(pEntry, &pos)) {
 		GoodsGrpngEntry & e = at(pos);

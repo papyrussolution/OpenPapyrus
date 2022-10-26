@@ -230,7 +230,7 @@ int FASTCALL ObjTagItem::GetStr(SString & rBuf) const
 bool FASTCALL ObjTagItem::GetGuid(S_GUID * pGuid) const
 {
 	bool   ok = false;
-	if(oneof2(TagDataType, OTTYP_GUID, OTTYP_STRING)) { // @v9.0.0 OTTYP_STRING
+	if(oneof2(TagDataType, OTTYP_GUID, OTTYP_STRING)) {
 		CALLPTRMEMB(pGuid, FromStr(Val.PStr));
 		ok = true;
 	}

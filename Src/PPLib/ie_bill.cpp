@@ -1606,7 +1606,7 @@ int PPBillImporter::RunUhttImport()
 									// Не нашли аналога персоналии в БД.
 									// Создаем новую персоналию.
 									//
-									psn_pack.destroy();
+									psn_pack.Z();
 									if(uhtt_cli.ConvertPersonPacket(p_uhtt_pack->Contractor, psn_kind_id, psn_pack) > 0) {
 										THROW(PsnObj.PutPacket(&psn_id, &psn_pack, 0));
 										THROW(Helper_EnsurePersonArticle(psn_id, op_rec.AccSheetID, psn_kind_id, &ar_id));
@@ -1626,7 +1626,7 @@ int PPBillImporter::RunUhttImport()
 										PersonTbl::Rec temp_psn_rec;
 										temp_buf = "Anonymous client Universe-HTT";
 										kind_list.clear();
-										psn_pack.destroy();
+										psn_pack.Z();
 										kind_list.add(psn_kind_id);
 										if(PsnObj.SearchFirstByName(temp_buf, &kind_list, 0, &temp_psn_rec) > 0) {
 											psn_id = temp_psn_rec.ID;
@@ -1656,7 +1656,7 @@ int PPBillImporter::RunUhttImport()
 								//
 								uint   dlvr_loc_idx = 0;
 								PPLocationPacket _loc_pack;
-								psn_pack.destroy();
+								psn_pack.Z();
 								THROW(PsnObj.GetPacket(psn_id, &psn_pack, 0) > 0);
 								for(uint j = 0; !dlvr_loc_idx && psn_pack.EnumDlvrLoc(&j, &_loc_pack);) {
 									if(strcmp(_loc_pack.Code, dlvr_loc_pack.Code) == 0) {
@@ -6132,7 +6132,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 					const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
 					int    diag = 0;
 					int    std = 0;
-					int   dbcr = PPObjGoods::DiagBarcode(r_bc_rec.Code, &diag, &std, &norm_code);
+					const  int dbcr = PPObjGoods::DiagBarcode(r_bc_rec.Code, &diag, &std, &norm_code);
 					if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
 						assert(norm_code.Len() < 14);
 						if(norm_code.Len() < 14) {
