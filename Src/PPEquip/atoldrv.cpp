@@ -377,8 +377,17 @@ private:
 			void * h = P_Fptr10->Handler;
 			STempBuffer ret_buf(SKILOBYTE(1));
 			SStringU temp_buf_u;
+			SString temp_buf;
+			SString log_buf;
 			THROW_SL(ret_buf.IsValid());
 			THROW_SL(pJs->ToStr(temp_buf_u));
+			// @v11.5.6 {
+			if(Flags & sfLogging) {
+				temp_buf.CopyUtf8FromUnicode(temp_buf_u, temp_buf_u.Len(), 0);
+				log_buf.Z().Cat("json-req").CatDiv(':', 2).Cat(temp_buf);
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+			}
+			// } @v11.5.6 
 			P_Fptr10->SetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, temp_buf_u.ucptr());
 			if(P_Fptr10->ProcessJsonProc(h) != 0) {
 				SetErrorMessage();
@@ -392,6 +401,12 @@ private:
 			if(ret_size > 0) {
 				temp_buf_u.CopyFromN(static_cast<wchar_t *>(ret_buf.vptr()), ret_size);
 				temp_buf_u.CopyToUtf8(rResultJsonBuf, 0);
+				// @v11.5.6 {
+				if(Flags & sfLogging) {
+					log_buf.Z().Cat("json-rep").CatDiv(':', 2).Cat(rResultJsonBuf);
+					PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+				}
+				// } @v11.5.6 
 			}
 		}
 		CATCHZOK
@@ -410,6 +425,14 @@ private:
 		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, param_buf) > 0, PPERR_SHTRIHFRADMPASSW);
 		param_buf.Divide(',', CashierPassword, temp_buf);
 		AdmPassword = CashierPassword;
+		// @v11.5.6 {
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERLOGGING, temp_buf.Z()) > 0) {
+			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
+				Flags &= ~sfLogging;
+			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))
+				Flags |= sfLogging;
+		}
+		// } @v11.5.6
 		if(P_Fptr10) {
 			void * h = P_Fptr10->Handler;
 			SStringU temp_buf_u;
@@ -536,7 +559,7 @@ private:
 		return ok;
 	}
 	enum {
-		ptfWrap = 0x0001,
+		ptfWrap         = 0x0001,
 		ptfDoubleWidth  = 0x0002,
 		ptfDoubleHeight = 0x0004
 	};
@@ -748,7 +771,8 @@ private:
 		sfCancelled     = 0x0004,     // операция печати чека прервана пользователем
 		sfPrintSlip     = 0x0008,     // печать подкладного документа
 		sfDontUseCutter = 0x0010,     // не использовать отрезчик чеков
-		sfUseWghtSensor = 0x0020      // использовать весовой датчик
+		sfUseWghtSensor = 0x0020,     // использовать весовой датчик
+		sfLogging       = 0x0040,     // @v11.5.6 Вести отладочный журнал операций
 	};
 
 	static ComDispInterface * P_Disp;
@@ -2078,6 +2102,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 											case GTCHZNPT_TEXTILE: marking_type = 0x444D; break; // @v11.0.0
 											case GTCHZNPT_PERFUMERY: marking_type = 0x444D; break; // @v11.3.12 Парфюмерия
 											case GTCHZNPT_MILK: marking_type = 0x444D; break; // @v11.3.12 Молоко
+											case GTCHZNPT_WATER: marking_type = 0x444D; break; // @v11.3.12 Вода
 										}
 										if(marking_type >= 0) {
 											P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_NOMENCLATURE_TYPE, marking_type);

@@ -1484,7 +1484,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandL
 		SJson js(SJson::tOBJECT);
 		StqInsertIntoJs_BaseCurrency(&js);
 		js.InsertInt("posnodeid", posnode_id);
-		THROW(MakeRsrvIndoorSvcPrereqResponse_ExportGoods(bc_own_ident, &cn_sync_pack, &js, &stat));
+		THROW(MakeRsrvIndoorSvcPrereqResponse_ExportGoods(bc_own_ident, &cn_sync_pack, 0, 0, &js, &stat));
 		THROW(js.ToStr(rResult));
 		// @debug {
 		if(debugOutput) {
@@ -1960,6 +1960,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 	PPIDArray goods_id_list;
 	SBinaryChunk bc_own_ident;
 	StyloQIncomingListParam param;
+	Stq_CmdStat_MakeRsrv_Response stat;
 	THROW(GetOwnIdent(bc_own_ident, 0));
 	THROW(rCmdItem.GetSpecialParam<StyloQIncomingListParam>(param));
 	{
@@ -1973,9 +1974,8 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 				// ??? agent_psn_id = local_person_id;
 			}
 			if(posnode_id == ROBJID_CONTEXT) {
-				if(!local_person_id && rCliPack.Rec.LinkObjType == PPOBJ_CASHNODE) {
+				if(!local_person_id && rCliPack.Rec.LinkObjType == PPOBJ_CASHNODE)
 					posnode_id = rCliPack.Rec.LinkObjID;
-				}
 				else
 					posnode_id = 0;
 			}
@@ -1995,17 +1995,12 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 			DateRange period;
 			TSVector <CCheckViewItem> cclist;
 			CCheckCore & r_cc = cpp.GetCc();
-			if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero()) {
+			if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero())
 				period = param.Period;
-			}
-			else if(param.LookbackDays > 0) {
-				period.low = plusdate(getcurdate_(), -param.LookbackDays);
-				period.upp = ZERODATE;
-			}
-			else {
-				period.low = getcurdate_();
-				period.upp = ZERODATE;
-			}
+			else if(param.LookbackDays > 0)
+				period.Set(plusdate(getcurdate_(), -param.LookbackDays), ZERODATE);
+			else
+				period.Set(getcurdate_(), ZERODATE);
 			cpp.Backend_GetCCheckList(&period, 0, cclist);
 			{
 				StqInsertIntoJs_BaseCurrency(&js);
@@ -2035,6 +2030,8 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 			assert(p_js_doc_list);
 			js.Insert("doc_list", p_js_doc_list);
 			p_js_doc_list = 0;
+			THROW(MakeRsrvIndoorSvcPrereqResponse_ExportGoods(bc_own_ident, &cn_sync_pack, &goods_id_list, 0, &js, &stat)); // @v11.5.6
+			/* @v11.5.6
 			if(goods_id_list.getCount()) {
 				goods_id_list.sortAndUndup();
 				SVector goods_list(sizeof(InnerGoodsEntry)); // ###
@@ -2076,6 +2073,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 					p_js_goods_list = 0;
 				}
 			}
+			*/
 			THROW(js.ToStr(rResult));
 			// @debug {
 			if(debugOutput) {

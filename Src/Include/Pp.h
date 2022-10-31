@@ -33412,6 +33412,7 @@ public:
 	long   Flags;             // @persistent
 	PPID   ImpOpID;           // @persistent
 	long   PredefFormat;      // @persistent
+	PPID   FixTagID;          // @v11.5.6 @persistent Тег, фиксирующий факт экспорта документа. Если в документе такой тег установлен, то документ снова не экспортируется.
 	SString Object1SrchCode;  // @persistent
 	SString Object2SrchCode;  // @persistent
 };
@@ -45735,13 +45736,13 @@ private:
 struct MrpLineFilt : public PPBaseFilt {
 	MrpLineFilt();
 	enum {
-		fShowTotalReq     = 0x0001, // Показывать только итоговые потребности
-			// (MrpLine.SrcGoodsID == MRPSRCV_TOTAL)
+		fShowTotalReq     = 0x0001, // Показывать только итоговые потребности (MrpLine.SrcGoodsID == MRPSRCV_TOTAL)
 		fShowDeficitOnly  = 0x0002, // Показывать только дефицитные позиции
-		fShowTerminalOnly = 0x0004, // Показывать только терминальные строки
+		fShowTerminalOnly_Obsolete1156 = 0x0004, // Показывать только терминальные строки
 		fShowSubst        = 0x0008  // @v4.8.6 Показывать замещения по товару DestGoodsID
 	};
-	uint8  ReserveStart[32]; // @anchor
+	uint8  ReserveStart[30]; // @anchor
+	int16  Ft_Terminal;      // @v11.5.6 (0 - ignored, <0 - только нетерминальные, >0 - только терминальные)
 	PPID   TabID;            // ->MrpTab.ID
 	PPID   DestGoodsID;      // ->Goods2.ID
 	PPID   SrcGoodsID;       // ->Goods2.ID || MRPSRCV_XXX
@@ -46835,7 +46836,10 @@ public:
 		styloqfDocTransmission     = 0x0080, // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как 
 			// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
 		styloqfPassive             = 0x0100, // @v11.4.6 Флаг для kForeignService. Означает, что сервис пассивен (относительно клиента) и не должен отображаться в регулярном списке у клиента.
-		styloqfUnprocessedDoc_     = 0x0200  // @v11.5.0 
+		styloqfUnprocessedDoc_     = 0x0200, // @v11.5.0 
+		styloqfAutoObjMatching     = 0x0400, // @v11.5.6 Объект (обычно, персоналия), соответствующий клиентской записи, был создан автоматически.
+			// Флаг необходим для дифференцированного изменения записи объекта в зависимости от того, пришел он изначально от клиента или же существует
+			// в базе данных серсиса самостоятельно (матчинг с клиентом был осуществлен вручную).
 	};
 	//
 	// Descr: Флаги записей реестра Stylo-Q
@@ -47683,7 +47687,14 @@ private:
 	int    GetOidListWithBlob(PPObjIDArray & rList);
 	int    MakeRsrvPriceListResponse_ExportClients(const SBinaryChunk & rOwnIdent, const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    MakeRsrvPriceListResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
-	int    MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPSyncCashNode * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
+	//
+	// Descr: Флаги функции MakeRsrvIndoorSvcPrereqResponse_ExportGoods
+	//
+	enum {
+		egpnfAdditionalIdListOnly = 0x0001 // Список товаров формировать только по набору идентификаторов pAdditionalIdList
+	};
+	int    MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPSyncCashNode * pPack, 
+		const PPIDArray * pAdditionalIdList, uint flags, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    GetAndStoreClientsFace(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent);
 	int    IntermediateReply(int waitPeriodMs, int pollIntervalMs, const SBinaryChunk * pSessSecret, ProcessCmdCallbackProc intermediateReplyProc, void * pIntermediateReplyExtra);
 	SJson * ReplyGoodsInfo(const SBinaryChunk & rOwnIdent, const SBinaryChunk & rCliIdent, PPID goodsID, const char * pBarcode);

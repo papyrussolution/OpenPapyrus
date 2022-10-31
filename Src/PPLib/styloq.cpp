@@ -7335,7 +7335,8 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 	return ok;
 }
 
-int PPStyloQInterchange::MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPSyncCashNode * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat)
+int PPStyloQInterchange::MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPSyncCashNode * pPack, 
+	const PPIDArray * pAdditionalIdList, uint flags, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat)
 {
 	/*
 		quotkind_list [ { id; nm } ]

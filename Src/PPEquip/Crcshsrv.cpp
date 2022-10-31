@@ -731,6 +731,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 										case GTCHZNPT_CARTIRE: p_mark_type = "TYRES"; break;
 										case GTCHZNPT_PERFUMERY: p_mark_type = "PERFUMES"; break;
 										case GTCHZNPT_MILK: p_mark_type = "MILK"; break;
+										case GTCHZNPT_WATER: p_mark_type = "WATER"; break; // @v11.5.6
 									}
 									if(p_mark_type)
 										p_writer->PutElement("mark-type", p_mark_type);

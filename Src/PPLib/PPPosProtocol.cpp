@@ -1841,6 +1841,8 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 					w_s.PutInner("chznprodtype", "perfumery");
 				else if(gt_rec.ChZnProdType == GTCHZNPT_MILK) // @v11.3.1
 					w_s.PutInner("chznprodtype", "milk");
+				else if(gt_rec.ChZnProdType == GTCHZNPT_WATER) // @v11.5.6
+					w_s.PutInner("chznprodtype", "water");
 				// } @v10.7.3 
 			}
 		}
@@ -3199,6 +3201,8 @@ int PPPosProtocol::EndElement(const char * pName)
 						chznprodtype = GTCHZNPT_PERFUMERY;
 					else if(RdB.TagValue.IsEqiAscii("milk")) // @v11.3.1
 						chznprodtype = GTCHZNPT_MILK;
+					else if(RdB.TagValue.IsEqiAscii("water")) // @v11.5.6
+						chznprodtype = GTCHZNPT_WATER;
 					if(chznprodtype)
 						static_cast<GoodsBlock *>(p_item)->ChZnProdType = chznprodtype;
 				}

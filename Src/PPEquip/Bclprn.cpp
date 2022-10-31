@@ -10,9 +10,9 @@
 PPBarcodePrinter2::PPBarcodePrinter2() : Tag(PPOBJ_BCODEPRINTER), ID(0), BcNarrowPt(0), BcWidePt(0), Cp(0), Flags(0), 
 	PrinterType(0), Reserve3(0)
 {
-	PTR32(Name)[0] = 0;
-	PTR32(LabelName)[0] = 0;
-	PTR32(Port)[0] = 0;
+	Name[0] = 0;
+	LabelName[0] = 0;
+	Port[0] = 0;
 	MEMSZERO(Reserve);
 }
 
@@ -394,18 +394,9 @@ public:
 	WindowsLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
 	{
 	}
-	virtual int StartLabel(const BarcodeLabelParam *, int numCopies)
-	{
-		return -1;
-	}
-	virtual int EndLabel()
-	{
-		return -1;
-	}
-	virtual int PutDataEntry(const BarcodeLabelEntry *)
-	{
-		return -1;
-	}
+	virtual int StartLabel(const BarcodeLabelParam *, int numCopies) { return -1; }
+	virtual int EndLabel() { return -1; }
+	virtual int PutDataEntry(const BarcodeLabelEntry *) { return -1; }
 private:
 };
 //
@@ -489,15 +480,8 @@ BarcodeLabel::~BarcodeLabel()
 	delete P_GcPack;
 }
 
-const BarcodeLabelParam * BarcodeLabel::GetParam() const
-{
-	return &BLP;
-}
-
-uint BarcodeLabel::GetEntryCount() const
-{
-	return getCount();
-}
+const BarcodeLabelParam * BarcodeLabel::GetParam() const { return &BLP; }
+uint  BarcodeLabel::GetEntryCount() const { return getCount(); }
 
 const BarcodeLabelEntry * BarcodeLabel::GetEntry(uint pos)
 {

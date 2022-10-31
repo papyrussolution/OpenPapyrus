@@ -8168,17 +8168,16 @@ int GazpromNeft::SendSellout()
 	// POST /sales-api/api/v2/Sales/sellout
 	PPIDArray loc_list;
 	P.LocList.Get(loc_list);
-	TSCollection <GazpromNeftBillPacket> list;
 	THROW(loc_list.getCount());
-	list.sort(PTR_CMPFUNC(GazpromNeftBillPacket_ByClientUuid));
 	{
 		for(uint locidx = 0; locidx < loc_list.getCount(); locidx++) {
 			const PPID loc_id = loc_list.get(locidx);
 			S_GUID loc_uuid;
 			if(GetWarehouseUuid(loc_id, loc_uuid) > 0) {
 				SJson js_result(SJson::tOBJECT);
-
+				TSCollection <GazpromNeftBillPacket> list;
 				THROW(Helper_MakeBillList(Ep.ExpendOp, 0, loc_id, list));
+				list.sort(PTR_CMPFUNC(GazpromNeftBillPacket_ByClientUuid));
 				js_result.InsertString("warehouseId", temp_buf.Z().Cat(loc_uuid, S_GUID::fmtIDL));
 				temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0).CatChar('Z');
 				js_result.InsertString("uploadDate", temp_buf);

@@ -1416,11 +1416,11 @@ int Factorize(ulong val, UlongArray * pList)
 //
 //
 //
-SDecimalFraction::SDecimalFraction() : Num(0), DenomDecPwr(0), Flags(0)
+SDecimalFraction::SDecimalFraction() : Mant(0), Exp(0), Flags(0)
 {
 }
 
-SDecimalFraction::SDecimalFraction(double v) : Num(0), DenomDecPwr(0), Flags(0)
+SDecimalFraction::SDecimalFraction(double v) : Mant(0), Exp(0), Flags(0)
 {
 	// @construction 
 	uint64 mantissa = 0;
@@ -1436,43 +1436,43 @@ SDecimalFraction::SDecimalFraction(double v) : Num(0), DenomDecPwr(0), Flags(0)
 		if(!(Flags & (SIEEE754::fINF|SIEEE754::fNAN))) {
 			if(mantissa != 0) { // В противном случае все число - 0 (мантисса, экспонента, знак)
 				if(exp > 0) {
-					Num = mantissa * fpow10i(exp);
-					DenomDecPwr = 0;
+					Mant = mantissa * fpow10i(exp);
+					Exp = 0;
 				}
 				else {
-					Num = mantissa;
+					Mant = mantissa;
 					if(exp < 0)
-						DenomDecPwr = static_cast<uint16>(-exp);
+						Exp = static_cast<uint16>(-exp);
 				}
 				if(f & SIEEE754::fSIGN)
-					Num = -Num;
+					Mant = -Mant;
 			}
 		}
 	}
 }
 	
-SDecimalFraction::SDecimalFraction(int64 n, uint16 denomDecPwr) : Num(n), DenomDecPwr(denomDecPwr), Flags(0)
+SDecimalFraction::SDecimalFraction(int64 n, int16 denomDecPwr) : Mant(n), Exp(denomDecPwr), Flags(0)
 {
 }
 	
 double SDecimalFraction::GetReal() const
 {
-	assert(DenomDecPwr < 8);
-	return static_cast<double>(Num) / fpow10i(DenomDecPwr);
+	assert(Exp > -8 && Exp < 8);
+	return static_cast<double>(Mant) * fpow10i(Exp);
 }
 	
 bool SDecimalFraction::Normalize()
 {
 	bool ok = false;
-	if(Num == 0) {
-		DenomDecPwr = 0;
+	if(Mant == 0) {
+		Exp = 0;
 		ok = true;
 	}
-	else if(DenomDecPwr > 0 && (Num % 10) == 0) {
+	else if(Exp > 0 && (Mant % 10) == 0) {
 		do {
-			Num /= 10;
-			DenomDecPwr--;
-		} while(DenomDecPwr > 0 && (Num % 10) == 0);
+			Mant /= 10;
+			Exp--;
+		} while(Exp > 0 && (Mant % 10) == 0);
 		ok = true;
 	}
 	return ok;
@@ -1480,15 +1480,15 @@ bool SDecimalFraction::Normalize()
 
 SDecimalFraction & SDecimalFraction::Z()
 {
-	Num = 0;
-	DenomDecPwr = 0;
+	Mant = 0;
+	Exp = 0;
 	Flags = 0;
 	return *this;
 }
 	
 bool SDecimalFraction::IsZero() const
 {
-	return (Num == 0);
+	return (Mant == 0);
 }
 
 /*static*/SDecimalFraction SDecimalFraction::Neg(const SDecimalFraction & rV)
@@ -1496,24 +1496,24 @@ bool SDecimalFraction::IsZero() const
 	if(rV.IsZero())
 		return rV;
 	else
-		return SDecimalFraction(-rV.Num, rV.DenomDecPwr);
+		return SDecimalFraction(-rV.Mant, rV.Exp);
 }
 
 int SDecimalFraction::Add(const SDecimalFraction & rA, const SDecimalFraction & rB)
 {
 	int ok = 1;
-	if(rA.DenomDecPwr == rB.DenomDecPwr) {
-		Num = rA.Num + rB.Num;
-		DenomDecPwr = rA.DenomDecPwr;
+	if(rA.Exp == rB.Exp) {
+		Mant = rA.Mant + rB.Mant;
+		Exp = rA.Exp;
 	}
-	else if(rA.DenomDecPwr < rB.DenomDecPwr) {
-		Num = rA.Num * ui64pow10(rB.DenomDecPwr - rA.DenomDecPwr) + rB.Num;
-		DenomDecPwr = rB.DenomDecPwr;
+	else if(rA.Exp < rB.Exp) {
+		Mant = rA.Mant * ui64pow10(rB.Exp - rA.Exp) + rB.Mant;
+		Exp = rB.Exp;
 	}
 	else {
-		assert(rB.DenomDecPwr < rA.DenomDecPwr);
-		Num = rB.Num * ui64pow10(rA.DenomDecPwr - rB.DenomDecPwr) + rA.Num;
-		DenomDecPwr = rA.DenomDecPwr;
+		assert(rB.Exp < rA.Exp);
+		Mant = rB.Mant * ui64pow10(rA.Exp - rB.Exp) + rA.Mant;
+		Exp = rA.Exp;
 	}
 	Normalize();
 	return ok;
@@ -1530,8 +1530,8 @@ int SDecimalFraction::Mul(const SDecimalFraction & rA, const SDecimalFraction & 
 	if(rA.IsZero() || rB.IsZero())
 		Z();
 	else {
-		Num = rA.Num * rB.Num;
-		DenomDecPwr = rA.DenomDecPwr + rB.DenomDecPwr;
+		Mant = rA.Mant * rB.Mant;
+		Exp = rA.Exp + rB.Exp;
 		Normalize();
 	}
 	return ok;
@@ -1546,14 +1546,14 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 		Z();
 	else {
 		// !
-		Num = rA.Num / rB.Num;
-		int denom_dec_pwr = static_cast<int>(rA.DenomDecPwr) - static_cast<int>(rB.DenomDecPwr);
+		Mant = rA.Mant / rB.Mant;
+		int denom_dec_pwr = static_cast<int>(rA.Exp) - static_cast<int>(rB.Exp);
 		if(denom_dec_pwr < 0) {
-			Num *= ui64pow10(static_cast<uint>(-denom_dec_pwr));
-			DenomDecPwr = 0;
+			Mant *= ui64pow10(static_cast<uint>(-denom_dec_pwr));
+			Exp = 0;
 		}
 		else {
-			DenomDecPwr = static_cast<uint16>(denom_dec_pwr);
+			Exp = static_cast<uint16>(denom_dec_pwr);
 			Normalize();
 		}
 	}

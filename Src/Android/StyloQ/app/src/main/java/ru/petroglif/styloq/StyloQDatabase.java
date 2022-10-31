@@ -978,7 +978,8 @@ public class StyloQDatabase extends Database {
 								tra.Commit();
 							}
 						}
-						else if(docType == SecStoragePacket.doctypIncomingList && raw_doc_type.equalsIgnoreCase("incominglistorder")) { // @v11.4.8
+						else if(docType == SecStoragePacket.doctypIncomingList &&
+								raw_doc_type.equalsIgnoreCase("incominglistorder") || raw_doc_type.equalsIgnoreCase("incominglistccheck")) { // @v11.4.8
 							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
 							{
 								Transaction tra = new Transaction(this, true);

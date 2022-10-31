@@ -983,12 +983,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null && ev_subj.ItemIdx >= 0) {
-						if(ev_subj.RvHolder != null) {
-							// RecyclerView
+						if(ev_subj.RvHolder != null) { // RecyclerView
 							if(SLib.IsRecyclerListAdapter(srcObj)) {
 								SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
-								final int rc_id = a.GetListRcId();
-								switch(rc_id) {
+								switch(a.GetListRcId()) {
 									case R.id.searchPaneListView:
 										CPM.GetSearchPaneListViewItem(ev_subj.RvHolder.itemView, ev_subj.ItemIdx);
 										break;
@@ -1245,19 +1243,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					assert(selected_search_oid != null);
 					if(srcObj != null && srcObj instanceof SLib.SlFragmentStatic) {
 						SLib.SlFragmentStatic fragment = (SLib.SlFragmentStatic)srcObj;
+						View lv = null;
 						View fv = (View)subj;
-						View lv = fv.findViewById(R.id.orderPrereqGoodsListView);
-						if(lv != null) {
-							((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-							SetupRecyclerListView(fv, R.id.orderPrereqGoodsListView, R.layout.li_orderprereq_goods);
-							if(selected_search_oid.Type == SLib.PPOBJ_GOODS) {
-								final int foc_idx = CPM.FindGoodsItemIndexByID(selected_search_oid.Id);
-								SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
-								SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
-								CPM.SearchResult_ResetSelectedItemIndex();
-							}
-						}
-						else {
+						boolean settled = CPM.OnSetupFragment_SetupObjListView(SLib.PPOBJ_GOODS, fv, R.id.orderPrereqGoodsListView, R.layout.li_orderprereq_goods);
+						if(!settled) {
 							lv = fv.findViewById(R.id.orderPrereqRegistryListView);
 							if(lv != null) {
 								StyloQApp app_ctx = GetAppCtx();
@@ -1318,42 +1307,14 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								}
 							}
 							else {
-								lv = fv.findViewById(R.id.orderPrereqGoodsGroupListView);
-								if(lv != null) {
-									((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
-									SetupRecyclerListView(fv, R.id.orderPrereqGoodsGroupListView, R.layout.li_simple);
-									if(selected_search_oid.Type == SLib.PPOBJ_GOODSGROUP) {
-										final int foc_idx = CPM.FindGoodsGroupItemIndexByID(selected_search_oid.Id);
-										SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
-										SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
-										CPM.SearchResult_ResetSelectedItemIndex();
-									}
-								}
-								else {
-									lv = fv.findViewById(R.id.orderPrereqBrandListView);
-									if(lv != null) {
-										((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-										SetupRecyclerListView(fv, R.id.orderPrereqBrandListView, R.layout.li_simple);
-										if(selected_search_oid.Type == SLib.PPOBJ_BRAND) {
-											final int foc_idx = CPM.FindBrandItemIndexByID(selected_search_oid.Id);
-											SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
-											SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
-											CPM.SearchResult_ResetSelectedItemIndex();
-										}
-									}
-									else {
-										lv = fv.findViewById(R.id.orderPrereqOrdrListView);
-										if(lv != null) {
-											((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-											SetupRecyclerListView(fv, R.id.orderPrereqOrdrListView, R.layout.li_orderprereq_ordrti);
-										}
-										else {
-											lv = fv.findViewById(R.id.orderPrereqRegistryListView);
-											if(lv != null) {
-												((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-												SetupRecyclerListView(fv, R.id.orderPrereqRegistryListView, R.layout.li_orderprereq_order);
-											}
-											else {
+								settled = CPM.OnSetupFragment_SetupObjListView(SLib.PPOBJ_GOODSGROUP, fv, R.id.orderPrereqGoodsGroupListView, R.layout.li_simple);
+								if(!settled) {
+									settled = CPM.OnSetupFragment_SetupObjListView(SLib.PPOBJ_BRAND, fv, R.id.orderPrereqBrandListView, R.layout.li_simple);
+									if(!settled) {
+										settled = CPM.OnSetupFragment_SetupObjListView(0, fv, R.id.orderPrereqOrdrListView, R.layout.li_orderprereq_ordrti);
+										if(!settled) {
+											settled = CPM.OnSetupFragment_SetupObjListView(0, fv, R.id.orderPrereqRegistryListView, R.layout.li_orderprereq_order);
+											if(!settled) {
 												lv = fv.findViewById(R.id.orderPrereqClientsListView);
 												if(lv != null) {
 													((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
@@ -1684,20 +1645,16 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							}
 							break;
 						case R.id.CTL_DOCUMENT_ACTIONBUTTON1:
-							if(DocEditActionList != null && DocEditActionList.size() > 0)
-								acn = DocEditActionList.get(0);
+							acn = (DocEditActionList != null && DocEditActionList.size() > 0) ? DocEditActionList.get(0) : null;
 							break;
 						case R.id.CTL_DOCUMENT_ACTIONBUTTON2:
-							if(DocEditActionList != null && DocEditActionList.size() > 1)
-								acn = DocEditActionList.get(1);
+							acn = (DocEditActionList != null && DocEditActionList.size() > 1) ? DocEditActionList.get(1) : null;
 							break;
 						case R.id.CTL_DOCUMENT_ACTIONBUTTON3:
-							if(DocEditActionList != null && DocEditActionList.size() > 2)
-								acn = DocEditActionList.get(2);
+							acn = (DocEditActionList != null && DocEditActionList.size() > 2) ? DocEditActionList.get(2) : null;
 							break;
 						case R.id.CTL_DOCUMENT_ACTIONBUTTON4:
-							if(DocEditActionList != null && DocEditActionList.size() > 3)
-								acn = DocEditActionList.get(3);
+							acn = (DocEditActionList != null && DocEditActionList.size() > 3) ? DocEditActionList.get(3) : null;
 							break;
 						case R.id.CTL_DOCUMENT_BACK_CLI:
 							{

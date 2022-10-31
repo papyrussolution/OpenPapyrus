@@ -1,5 +1,5 @@
 // V_MRP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -343,30 +343,61 @@ int PPViewMrpLine::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		ok = 0;
 	else if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_MRPLINEFLT)))) {
 		MrpLineFilt * p_filt = static_cast<MrpLineFilt *>(pBaseFilt);
-		ushort v = 0;
-		if(p_filt->SrcGoodsID == MRPSRCV_TOTAL && p_filt->Flags & MrpLineFilt::fShowTotalReq)
-			v = 0;
-		else if(p_filt->SrcGoodsID == MRPSRCV_DEP)
-			v = 1;
-		else if(p_filt->SrcGoodsID == MRPSRCV_INDEP)
-			v = 2;
-		else
-			v = 0;
-		dlg->setCtrlData(CTL_MRPLINEFLT_KIND, &v);
+		{
+			ushort v = 0;
+			if(p_filt->SrcGoodsID == MRPSRCV_TOTAL && p_filt->Flags & MrpLineFilt::fShowTotalReq)
+				v = 0;
+			else if(p_filt->SrcGoodsID == MRPSRCV_DEP)
+				v = 1;
+			else if(p_filt->SrcGoodsID == MRPSRCV_INDEP)
+				v = 2;
+			else
+				v = 0;
+			dlg->setCtrlData(CTL_MRPLINEFLT_KIND, &v);
+		}
+		// @v11.5.6 {
+		{
+			ushort v = 0;
+			if(p_filt->Ft_Terminal == 0)
+				v = 0;
+			else if(p_filt->Ft_Terminal > 0)
+				v = 1;
+			else if(p_filt->Ft_Terminal < 0)
+				v = 2;
+			dlg->setCtrlData(CTL_MRPLINEFLT_TERM, &v);
+		}
+		// } @v11.5.6 
 		dlg->AddClusterAssoc(CTL_MRPLINEFLT_FLAGS, 0, MrpLineFilt::fShowDeficitOnly);
-		dlg->AddClusterAssoc(CTL_MRPLINEFLT_FLAGS, 1, MrpLineFilt::fShowTerminalOnly);
+		// @v11.5.6 dlg->AddClusterAssoc(CTL_MRPLINEFLT_FLAGS, 1, MrpLineFilt::fShowTerminalOnly);
 		dlg->SetClusterData(CTL_MRPLINEFLT_FLAGS, p_filt->Flags);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-			dlg->getCtrlData(CTL_MRPLINEFLT_KIND, &(v = 0));
-			p_filt->Flags &= ~MrpLineFilt::fShowTotalReq;
-			if(v == 0) {
-				p_filt->SrcGoodsID = MRPSRCV_TOTAL;
-				p_filt->Flags |= MrpLineFilt::fShowTotalReq;
+			{
+				ushort v = 0;
+				dlg->getCtrlData(CTL_MRPLINEFLT_KIND, &v);
+				p_filt->Flags &= ~MrpLineFilt::fShowTotalReq;
+				if(v == 0) {
+					p_filt->SrcGoodsID = MRPSRCV_TOTAL;
+					p_filt->Flags |= MrpLineFilt::fShowTotalReq;
+				}
+				else if(v == 1)
+					p_filt->SrcGoodsID = MRPSRCV_DEP;
+				else if(v == 2)
+					p_filt->SrcGoodsID = MRPSRCV_INDEP;
 			}
-			else if(v == 1)
-				p_filt->SrcGoodsID = MRPSRCV_DEP;
-			else if(v == 2)
-				p_filt->SrcGoodsID = MRPSRCV_INDEP;
+			// @v11.5.6 {
+			{
+				ushort v = 0;
+				dlg->getCtrlData(CTL_MRPLINEFLT_TERM, &v);
+				if(v == 0)
+					p_filt->Ft_Terminal = 0;
+				else if(v == 1)
+					p_filt->Ft_Terminal = +1;
+				else if(v == 2)
+					p_filt->Ft_Terminal = -1;
+				else
+					p_filt->Ft_Terminal = 0;
+			}
+			// } @v11.5.6 
 			dlg->GetClusterData(CTL_MRPLINEFLT_FLAGS, &p_filt->Flags);
 			ok = valid_data = 1;
 		}
@@ -463,19 +494,21 @@ int FASTCALL PPViewMrpLine::NextIteration(MrpLineViewItem * pItem)
 {
 	MrpLineTbl & r_lt = MrpObj.P_Tbl->Lines;
 	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		if((!(Filt.Flags & MrpLineFilt::fShowSubst) || r_lt.data.Flags & MRPLF_SUBST) &&
-			(!(Filt.Flags & MrpLineFilt::fShowTerminalOnly) || r_lt.data.Flags & MRPLF_TERMINAL)) {
-			MrpLineTbl::Rec rec;
-			MrpLineTbl::Rec total;
-			r_lt.copyBufTo(&rec);
-			// @v10.7.0 @ctr MEMSZERO(total);
-			MrpObj.P_Tbl->GetTotalLine(Filt.TabID, Filt.DestGoodsID ? rec.SrcID : rec.DestID, &total);
-			rec.DestRest = total.DestRest;
-			rec.DestDfct = total.DestDfct;
-			if(Filt.Flags & MrpLineFilt::fShowDeficitOnly && total.DestDfct <= 0)
-				continue;
-			ASSIGN_PTR(pItem, rec);
-			return 1;
+		// @v11.5.6 if((!(Filt.Flags & MrpLineFilt::fShowSubst) || r_lt.data.Flags & MRPLF_SUBST) && (!(Filt.Flags & MrpLineFilt::fShowTerminalOnly) || r_lt.data.Flags & MRPLF_TERMINAL)) {
+		if(!(Filt.Flags & MrpLineFilt::fShowSubst) || r_lt.data.Flags & MRPLF_SUBST) { // @v11.5.6
+			if(Filt.Ft_Terminal == 0 || (Filt.Ft_Terminal > 0 && r_lt.data.Flags & MRPLF_TERMINAL) || (Filt.Ft_Terminal < 0 && !(r_lt.data.Flags & MRPLF_TERMINAL))) { // @v11.5.6
+				MrpLineTbl::Rec rec;
+				MrpLineTbl::Rec total;
+				r_lt.copyBufTo(&rec);
+				// @v10.7.0 @ctr MEMSZERO(total);
+				MrpObj.P_Tbl->GetTotalLine(Filt.TabID, Filt.DestGoodsID ? rec.SrcID : rec.DestID, &total);
+				rec.DestRest = total.DestRest;
+				rec.DestDfct = total.DestDfct;
+				if(Filt.Flags & MrpLineFilt::fShowDeficitOnly && total.DestDfct <= 0)
+					continue;
+				ASSIGN_PTR(pItem, rec);
+				return 1;
+			}
 		}
 	}
 	return -1;
@@ -721,7 +754,8 @@ DBQuery * PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbq = &(*dbq && t->SrcID == Filt.SrcGoodsID);
 		}
 	}
-	dbq = ppcheckflag(dbq, t->Flags, MRPLF_TERMINAL, (Filt.Flags & MrpLineFilt::fShowTerminalOnly) ? 1 : 0);
+	// @v11.5.6 dbq = ppcheckflag(dbq, t->Flags, MRPLF_TERMINAL, (Filt.Flags & MrpLineFilt::fShowTerminalOnly) ? 1 : 0);
+	dbq = ppcheckflag(dbq, t->Flags, MRPLF_TERMINAL, Filt.Ft_Terminal); // @v11.5.6
 	dbq = ppcheckflag(dbq, t->Flags, MRPLF_SUBST, (Filt.Flags & MrpLineFilt::fShowSubst) ? 1 : 0);
 	if(Filt.Flags & MrpLineFilt::fShowSubst) {
 		dbq = &(*dbq && gt->ID == t->SrcID);
@@ -851,7 +885,8 @@ int PPALDD_MrpLines::InitData(PPFilt & rFilt, long rsrv)
 	H.TabID  = p_filt->TabID;
 	H.FltRowKind = (int16)p_filt->SrcGoodsID;
 	H.FltShowDfctOnly = BIN(p_filt->Flags & MrpLineFilt::fShowDeficitOnly);
-	H.FltShowTermOnly = BIN(p_filt->Flags & MrpLineFilt::fShowTerminalOnly);
+	// @v11.5.6 H.FltShowTermOnly = BIN(p_filt->Flags & MrpLineFilt::fShowTerminalOnly);
+	H.FltShowTermOnly = (p_filt->Ft_Terminal > 0); // @v11.5.6 @todo необходимо выровнять структуру MrpLine для отражения новой семантики фильтрации по критерию терминальности
 	return DlRtm::InitData(rFilt, rsrv);
 }
 

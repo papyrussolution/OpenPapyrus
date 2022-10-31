@@ -6622,6 +6622,7 @@
 #define DLG_MRPLINEFLT            651 // @v4.6.6 Фильтр по строкам MRP-таблицы
 	#define CTL_MRPLINEFLT_KIND          (1 + WINDOWS_ID_BIAS)
 	#define CTL_MRPLINEFLT_FLAGS         (2 + WINDOWS_ID_BIAS)
+	#define CTL_MRPLINEFLT_TERM          (3 + WINDOWS_ID_BIAS)
 #define DLG_MRPTAB                652 // @v4.6.6 MRP-таблица
 	#define CTL_MRPTAB_NAME              (1 + WINDOWS_ID_BIAS)
 	#define CTL_MRPTAB_ID                (2 + WINDOWS_ID_BIAS)
@@ -9241,6 +9242,8 @@
 	#define CTL_IMPEXPBILH_SRCHCODE2   (IMPEXP_CTL_BIAS+5)
 	#define CTL_IMPEXPBILH_PDFMT       (IMPEXP_CTL_BIAS+6)
 	#define CTLSEL_IMPEXPBILH_PDFMT    (IMPEXP_CTL_BIAS+7)
+	#define CTL_IMPEXPBILH_REGTAG      (IMPEXP_CTL_BIAS+8) // @v11.5.6
+	#define CTLSEL_IMPEXPBILH_REGTAG   (IMPEXP_CTL_BIAS+9) // @v11.5.6
 #define DLG_IMPEXPCFGS              1086
 	#define CTL_IMPEXPCFGS_CFGS        (1 + WINDOWS_ID_BIAS)
 	#define CTL_IMPEXPCFGS_CFGNAME     (2 + WINDOWS_ID_BIAS)
@@ -11913,6 +11916,7 @@
 	#define IMPEXPPARAM_BILH_SRCHCODE1   2
 	#define IMPEXPPARAM_BILH_SRCHCODE2   3
 	#define IMPEXPPARAM_BILH_PREDEFFMT   4 // @v9.7.8
+	#define IMPEXPPARAM_BILH_FIXTAG      5 // @v11.5.6
 #define PPTXT_BALTIKA_DOCTYPES                  636
 	#define BALTIKA_DOCTYPES_EXPEND      0
 	#define BALTIKA_DOCTYPES_RECEIPT     1

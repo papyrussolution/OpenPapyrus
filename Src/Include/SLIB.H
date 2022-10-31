@@ -12250,7 +12250,7 @@ class SDecimalFraction {
 public:
 	SDecimalFraction();
 	explicit SDecimalFraction(double v);
-	SDecimalFraction(int64 n, uint16 denomDecPwr);
+	SDecimalFraction(int64 n, int16 exp);
 	double GetReal() const;
 	bool   Normalize();
 	SDecimalFraction & Z();
@@ -12262,8 +12262,8 @@ public:
 	int    Div(const SDecimalFraction & rA, const SDecimalFraction & rB);
 	static int Test();
 private:
-	int64  Num;
-	uint16 DenomDecPwr;
+	int64  Mant;
+	int16  Exp;
 	uint16 Flags; // SIEEE754::fXXX
 };
 

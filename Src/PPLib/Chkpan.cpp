@@ -685,8 +685,10 @@ int CPosProcessor::Backend_GetCCheckList(const DateRange * pPeriod, long ctblId,
 	CCheckViewItem item;
 	CCheckFilt flt;
 	THROW(InitCcView());
-	flt.Flags = CCheckFilt::fShowSuspended|CCheckFilt::fSuspendedOnly|CCheckFilt::fCTableStatus;
+	flt.Flags = CCheckFilt::fShowSuspended|CCheckFilt::fSuspendedOnly;
 	flt.Flags |= CCheckFilt::fLostJunkAsSusp;
+	if(ctblId)
+		flt.Flags |= CCheckFilt::fCTableStatus;
     if(!SessUUID.IsZero()) {
         flt.LostJunkUUID = SessUUID;
     }

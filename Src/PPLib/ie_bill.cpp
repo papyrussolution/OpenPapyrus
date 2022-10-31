@@ -649,6 +649,8 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	StrAssocArray param_list;
 	PPObjOprKind op_obj;
 	PPOprKind op_rec;
+	PPObjTag tag_obj;
+	PPObjectTag tag_rec;
 	THROW(PPImpExpParam::SerializeConfig(dir, rHdr, rTail, pSCtx));
 	if(dir > 0) {
 		if(ImpOpID && op_obj.Search(ImpOpID, &op_rec) > 0) {
@@ -669,6 +671,14 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 			param_list.Add(IMPEXPPARAM_BILH_SRCHCODE2, (temp_buf = Object2SrchCode).Strip());
 		if(PredefFormat)
 			param_list.Add(IMPEXPPARAM_BILH_PREDEFFMT, temp_buf.Z().Cat(PredefFormat));
+		// @v11.5.6 {
+		if(FixTagID && tag_obj.Search(FixTagID, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_BILL) {
+			if(tag_rec.Symb[0])
+				param_list.Add(IMPEXPPARAM_BILH_FIXTAG, temp_buf.Z().Cat(tag_rec.Symb));
+			else
+				param_list.Add(IMPEXPPARAM_BILH_FIXTAG, temp_buf.Z().Cat(tag_rec.ID));
+		}
+		// } @v11.5.6 
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
@@ -690,6 +700,14 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 							ImpOpID = op_rec.ID;
 					}
 					break;
+				case IMPEXPPARAM_BILH_FIXTAG: // @v11.5.6
+					{
+						PPID   reg_tag_id = 0;
+						if(tag_obj.SearchBySymb(temp_buf, &reg_tag_id) > 0)
+							FixTagID = reg_tag_id;
+						else if(tag_obj.Search(temp_buf.ToLong(), &tag_rec) > 0)
+							FixTagID = tag_rec.ID;
+					}
 				case IMPEXPPARAM_BILH_FLAGS: Flags = temp_buf.ToLong(); break;
 				case IMPEXPPARAM_BILH_SRCHCODE1: Object1SrchCode = temp_buf; break;
 				case IMPEXPPARAM_BILH_SRCHCODE2: Object2SrchCode = temp_buf; break;
@@ -709,7 +727,7 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	SString param_val;
 	THROW(PPImpExpParam::WriteIni(pFile, pSect));
 	THROW(PPLoadText(PPTXT_IMPEXPPARAM_BILH, params));
-	if(Direction != 0) {
+	if(Direction != 0) { // import
 		PPObjOprKind op_obj;
 		PPOprKind op_rec;
 		PPGetSubStr(params, IMPEXPPARAM_BILH_IMPOPSYMB, fld_name);
@@ -720,12 +738,28 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 				param_val.Z().Cat(ImpOpID);
 		}
 		else
-			param_val = 0;
+			param_val.Z();
 		pFile->AppendParam(pSect, fld_name, param_val, 1);
 		PPGetSubStr(params, IMPEXPPARAM_BILH_SRCHCODE1, fld_name);
 		pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Object1SrchCode), 1);
 		PPGetSubStr(params, IMPEXPPARAM_BILH_SRCHCODE2, fld_name);
 		pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Object2SrchCode), 1);
+	}
+	else { // export
+		// @v11.5.6 {
+		PPObjTag tag_obj;
+		PPObjectTag tag_rec;
+		PPGetSubStr(params, IMPEXPPARAM_BILH_FIXTAG, fld_name);
+		if(FixTagID && tag_obj.Search(FixTagID, &tag_rec) > 0) {
+			if(tag_rec.Symb[0])
+				param_val = tag_rec.Symb;
+			else
+				param_val.Z().Cat(FixTagID);
+		}
+		else
+			param_val.Z();
+		pFile->AppendParam(pSect, fld_name, param_val, 1);
+		// } @v11.5.6 
 	}
 	PPGetSubStr(params, IMPEXPPARAM_BILH_FLAGS, fld_name);
 	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Flags), 1);
@@ -757,6 +791,20 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 				ImpOpID = op_rec.ID;
 		}
 	}
+	// @v11.5.6 {
+	if(PPGetSubStr(params, IMPEXPPARAM_BILH_FIXTAG, fld_name)) {
+		excl.add(fld_name);
+		if(pFile->GetParam(pSect, fld_name, param_val) > 0) {
+			PPObjTag tag_obj;
+			PPObjectTag tag_rec;
+			PPID   tag_id = 0;
+			if(tag_obj.SearchBySymb(param_val, &tag_id) > 0)
+				FixTagID = tag_id;
+			else if(tag_obj.Search(param_val.ToLong(), &tag_rec) > 0) 
+				FixTagID = tag_rec.ID;
+		}
+	}
+	// } @v11.5.6 
 	if(PPGetSubStr(params, IMPEXPPARAM_BILH_FLAGS, fld_name)) {
 		excl.add(fld_name);
 		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
@@ -844,6 +892,14 @@ int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
 	SetupOprKindCombo(this, CTLSEL_IMPEXPBILH_IMPOP, Data.ImpOpID, 0, &op_types, 0);
 	setCtrlString(CTL_IMPEXPBILH_SRCHCODE1, Data.Object1SrchCode);
 	setCtrlString(CTL_IMPEXPBILH_SRCHCODE2, Data.Object2SrchCode);
+	// @v11.5.6 {
+	{
+		ObjTagFilt ot_filt;
+		ot_filt.ObjTypeID = PPOBJ_BILL;
+		ot_filt.Flags |= ObjTagFilt::fOnlyTags;
+		SetupObjTagCombo(this, CTLSEL_IMPEXPBILH_REGTAG, Data.FixTagID, 0, &ot_filt);
+	}
+	// } @v11.5.6
 	SetupCtrls(Data.Direction);
 	return 1;
 }
@@ -857,6 +913,7 @@ int BillHdrImpExpDialog::getDTS(PPBillImpExpParam * pData)
 	getCtrlData(CTLSEL_IMPEXPBILH_IMPOP, &Data.ImpOpID);
 	getCtrlString(CTL_IMPEXPBILH_SRCHCODE1, Data.Object1SrchCode);
 	getCtrlString(CTL_IMPEXPBILH_SRCHCODE2, Data.Object2SrchCode);
+	getCtrlData(CTLSEL_IMPEXPBILH_REGTAG, &Data.FixTagID); // @v11.5.6
 	ASSIGN_PTR(pData, Data);
 	CATCH
 		ok = PPErrorByDialog(this, 0);

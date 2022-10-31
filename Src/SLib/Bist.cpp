@@ -1,5 +1,5 @@
 // BIST.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @threadsafe
 // Реализация стандартных типов данных семейства SType
@@ -86,9 +86,9 @@ public:
 	virtual int    Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
-class SDecimal : public DataType {
+class SDec : public DataType {
 public:
-	SDecimal(size_t sz = 8, size_t prec = 2);
+	SDec(size_t sz = 8, size_t prec = 2);
 	virtual uint32 size() const; // @v10.2.1 size_t-->uint32
 	virtual int    comp(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
@@ -100,9 +100,9 @@ public:
 	virtual void   maxval(void *) const;
 };
 
-class SMoney : public SDecimal {
+class SMoney : public SDec {
 public:
-	explicit SMoney(size_t sz = 8) : SDecimal(sz, 2) {}
+	explicit SMoney(size_t sz = 8) : SDec(sz, 2) {}
 };
 
 class SDate : public DataType {
@@ -292,7 +292,7 @@ void RegisterBIST()
 	RegisterSType(S_UINT,     	 &SUInt());
 	RegisterSType(S_LOGICAL,  	 &SBool());
 	RegisterSType(S_FLOAT,    	 &SFloat());
-	RegisterSType(S_DEC,      	 &SDecimal());
+	RegisterSType(S_DEC,      	 &SDec());
 	RegisterSType(S_MONEY,    	 &SMoney());
 	RegisterSType(S_DATE,     	 &SDate());
 	RegisterSType(S_DATETIME, 	 &SDateTime());
@@ -1292,26 +1292,26 @@ int SFloat::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSeri
 	return ok;
 }
 //
-// SDecimal
+// SDec
 //
 //#define _L (S & 0x00ff)
 //#define _D (S >> 8)
 
-SDecimal::SDecimal(size_t sz, size_t prec) : DataType(GETSSIZE(MKSTYPED(S_DEC, sz, prec)))
+SDec::SDec(size_t sz, size_t prec) : DataType(GETSSIZE(MKSTYPED(S_DEC, sz, prec)))
 {
 }
 
-uint32 SDecimal::size() const // @v10.2.1
+uint32 SDec::size() const // @v10.2.1
 {
 	return (S & 0x00ff);
 }
 
-int SDecimal::comp(const void * i1, const void * i2) const
+int SDec::comp(const void * i1, const void * i2) const
 {
 	return deccmp(static_cast<const char *>(i1), static_cast<const char *>(i2), (int16)(S & 0x00ff));
 }
 
-char * SDecimal::tostr(const void * d, long fmt, char * buf) const
+char * SDec::tostr(const void * d, long fmt, char * buf) const
 {
 	long f;
 	if(SFMTFLAG(fmt) & COMF_SQL)
@@ -1323,7 +1323,7 @@ char * SDecimal::tostr(const void * d, long fmt, char * buf) const
 	return realfmt(dectobin(static_cast<const char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8)), f, buf); // @v9.8.4 @fix fmt-->f
 }
 
-int SDecimal::fromstr(void * d, long, const char * buf) const
+int SDec::fromstr(void * d, long, const char * buf) const
 {
 	double v;
 	int    r = strtodoub(buf, &v);
@@ -1331,12 +1331,12 @@ int SDecimal::fromstr(void * d, long, const char * buf) const
 	return r;
 }
 
-void SDecimal::tobase(const void * d, void * baseData) const
+void SDec::tobase(const void * d, void * baseData) const
 {
 	*static_cast<double *>(baseData) = dectobin(static_cast<const char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8));
 }
 
-int SDecimal::baseto(void * d, const void * baseData) const
+int SDec::baseto(void * d, const void * baseData) const
 {
 	return (dectodec(*static_cast<const double *>(baseData), static_cast<char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8)), 1);
 }
@@ -1349,8 +1349,8 @@ static void FASTCALL _bound(void * d, int s, int sign)
 	dectodec(sign ? -v : v, static_cast<char *>(d), sz, dec);
 }
 
-void SDecimal::minval(void * d) const { _bound(d, S, 1); }
-void SDecimal::maxval(void * d) const { _bound(d, S, 0); }
+void SDec::minval(void * d) const { _bound(d, S, 1); }
+void SDec::maxval(void * d) const { _bound(d, S, 0); }
 //
 // SDate
 //

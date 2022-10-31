@@ -1704,84 +1704,41 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			case SLib.EV_CREATEFRAGMENT: result = CPM.OnEvent_CreateFragment(subj); break;
 			case SLib.EV_SETUPFRAGMENT:
 				if(subj != null && subj instanceof View) {
-					//final int selected_search_idx = CPM.SearchResult_GetSelectedItmeIndex();
-					//final int selected_search_objtype = (selected_search_idx >= 0) ? CPM.SearchResult.List.get(selected_search_idx).ObjType : 0;
-					//final int selected_search_objid = (selected_search_idx >= 0) ? CPM.SearchResult.List.get(selected_search_idx).ObjID : 0;
 					final SLib.PPObjID selected_search_oid = CPM.SearchResult_GetSelectedOid();
 					assert(selected_search_oid != null);
 					if(srcObj != null && srcObj instanceof SLib.SlFragmentStatic) {
-						SLib.SlFragmentStatic fragment = (SLib.SlFragmentStatic)srcObj;
+						//SLib.SlFragmentStatic fragment = (SLib.SlFragmentStatic)srcObj;
+						View lv = null;
 						View fv = (View)subj;
-						View lv = fv.findViewById(R.id.attendancePrereqGoodsListView);
-						if(lv != null) {
-							((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-							SetupRecyclerListView(fv, R.id.attendancePrereqGoodsListView, R.layout.li_attendanceprereq_goods);
-							if(selected_search_oid.Type == SLib.PPOBJ_GOODS) {
-								final int foc_idx = CPM.FindGoodsItemIndexByID(selected_search_oid.Id);
-								SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
-								SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
-								CPM.SearchResult_ResetSelectedItemIndex();
-							}
-						}
-						else {
-							lv = fv.findViewById(R.id.attendancePrereqGoodsGroupListView);
-							if(lv != null) {
-								((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
-								SetupRecyclerListView(fv, R.id.attendancePrereqGoodsGroupListView, R.layout.li_simple);
-								if(selected_search_oid.Type == SLib.PPOBJ_GOODSGROUP) {
-									final int foc_idx = CPM.FindGoodsGroupItemIndexByID(selected_search_oid.Id);
-									SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
-									SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
-									CPM.SearchResult_ResetSelectedItemIndex();
-								}
-							}
-							else {
-								lv = fv.findViewById(R.id.attendancePrereqProcessorListView);
-								if(lv != null) {
-									((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
-									SetupRecyclerListView(fv, R.id.attendancePrereqProcessorListView, R.layout.li_attendanceprereq_processor);
-									if(selected_search_oid.Type == SLib.PPOBJ_PROCESSOR) {
-										final int foc_idx = CPM.FindGoodsGroupItemIndexByID(selected_search_oid.Id);
-										SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
-										SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
-										CPM.SearchResult_ResetSelectedItemIndex();
-									}
-								}
-								else {
-									lv = fv.findViewById(R.id.attendancePrereqAttendanceView);
-									if(lv != null) {
-										((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-										int  rc_line = 0;
-										if(P.TimeSheetDiscreteness == 15) {
-											rc_line = R.layout.li_attendanceprereq_attendance_15min;
-										}
-										else if(P.TimeSheetDiscreteness == 10) {
-											rc_line = R.layout.li_attendanceprereq_attendance_10min;
-										}
-										else {
-											rc_line = R.layout.li_attendanceprereq_attendance_05min;
-										}
-										SetupRecyclerListView(fv, R.id.attendancePrereqAttendanceView, rc_line);
-										{
-											final int btn_id_list[] = {R.id.CTL_PREV, R.id.CTL_NEXT, R.id.CTL_ATTENDANCE_BACK_WARE,
-												R.id.CTL_ATTENDANCE_BACK_PRC, R.id.CTL_ATTENDANCE_HINT_GOTOORDER_ARROW};
-											for(int btnidx = 0; btnidx < btn_id_list.length; btnidx++) {
-												View btn = fv.findViewById(btn_id_list[btnidx]);
-												if(btn != null) {
-													btn.setOnClickListener(new View.OnClickListener() {
-														@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }
-													});
-												}
+						boolean settled = CPM.OnSetupFragment_SetupObjListView(SLib.PPOBJ_GOODS, fv, R.id.attendancePrereqGoodsListView, R.layout.li_attendanceprereq_goods);
+						if(!settled) {
+							settled = CPM.OnSetupFragment_SetupObjListView(SLib.PPOBJ_GOODSGROUP, fv, R.id.attendancePrereqGoodsGroupListView, R.layout.li_simple);
+							if(!settled) {
+								settled = CPM.OnSetupFragment_SetupObjListView(SLib.PPOBJ_PROCESSOR, fv, R.id.attendancePrereqProcessorListView, R.layout.li_attendanceprereq_processor);
+								if(!settled) {
+									int  rc_line = 0;
+									if(P.TimeSheetDiscreteness == 15)
+										rc_line = R.layout.li_attendanceprereq_attendance_15min;
+									else if(P.TimeSheetDiscreteness == 10)
+										rc_line = R.layout.li_attendanceprereq_attendance_10min;
+									else
+										rc_line = R.layout.li_attendanceprereq_attendance_05min;
+									settled = CPM.OnSetupFragment_SetupObjListView(0, fv, R.id.attendancePrereqAttendanceView, rc_line);
+									if(settled) {
+										final int btn_id_list[] = {R.id.CTL_PREV, R.id.CTL_NEXT, R.id.CTL_ATTENDANCE_BACK_WARE,
+											R.id.CTL_ATTENDANCE_BACK_PRC, R.id.CTL_ATTENDANCE_HINT_GOTOORDER_ARROW};
+										for(int btnidx = 0; btnidx < btn_id_list.length; btnidx++) {
+											View btn = fv.findViewById(btn_id_list[btnidx]);
+											if(btn != null) {
+												btn.setOnClickListener(new View.OnClickListener() {
+													@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }
+												});
 											}
 										}
 									}
 									else {
-										lv = fv.findViewById(R.id.attendancePrereqBookingListView);
-										if(lv != null) {
-											((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
-											SetupRecyclerListView(fv, R.id.attendancePrereqBookingListView, R.layout.li_attendanceprereq_booking);
-										}
-										else {
+										settled = CPM.OnSetupFragment_SetupObjListView(0, fv, R.id.attendancePrereqBookingListView, R.layout.li_attendanceprereq_booking);
+										if(!settled) {
 											lv = fv.findViewById(R.id.searchPaneListView);
 											if(lv != null) {
 												CPM.SetupSearchPaneListView(fv, lv);
@@ -2193,20 +2150,16 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						}
 						break;
 					case R.id.CTL_DOCUMENT_ACTIONBUTTON1:
-						if(DocEditActionList != null && DocEditActionList.size() > 0)
-							acn = DocEditActionList.get(0);
+						acn = (DocEditActionList != null && DocEditActionList.size() > 0) ? DocEditActionList.get(0) : null;
 						break;
 					case R.id.CTL_DOCUMENT_ACTIONBUTTON2:
-						if(DocEditActionList != null && DocEditActionList.size() > 1)
-							acn = DocEditActionList.get(1);
+						acn = (DocEditActionList != null && DocEditActionList.size() > 1) ? DocEditActionList.get(1) : null;
 						break;
 					case R.id.CTL_DOCUMENT_ACTIONBUTTON3:
-						if(DocEditActionList != null && DocEditActionList.size() > 2)
-							acn = DocEditActionList.get(2);
+						acn = (DocEditActionList != null && DocEditActionList.size() > 2) ? DocEditActionList.get(2) : null;
 						break;
 					case R.id.CTL_DOCUMENT_ACTIONBUTTON4:
-						if(DocEditActionList != null && DocEditActionList.size() > 3)
-							acn = DocEditActionList.get(3);
+						acn = (DocEditActionList != null && DocEditActionList.size() > 3) ? DocEditActionList.get(3) : null;
 						break;
 					case R.id.LVITEM_MIN00: minuts = 0; break;
 					case R.id.LVITEM_MIN05: minuts = 5; break;

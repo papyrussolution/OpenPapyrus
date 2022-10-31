@@ -3439,7 +3439,7 @@ PPWORD_AVGSKUCOUNT         "SKU (ср)"
 #!}
 
 632 "@{today};@{yesterday};Последние 7 дней;@{lastweek} (@{monday_s}-@{sunday_s});Прошлая рабочая неделя (@{monday_s}-@{friday_s});@{currentmonth};@{lastmonth}"
-633 /!/ "ImpOpSymb;Flags;SrchCode1;SrchCode2;PredefFormat"
+633 /!/ "ImpOpSymb;Flags;SrchCode1;SrchCode2;PredefFormat;FixTag"
 636 /!/ "Despatch;VendReceipt;VendReturn;CustReturn;ProdReceipt;ProdReturn;MovingNoteFrom;MovingNoteTo"
 644 /!/ "DefSeriesSymb;OwnerRegTypeSymb"
 645 /!/ "Flags;UhttGoodsCodeAr"
@@ -14241,6 +14241,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @mrplinefilt_mrpsrcv_dep                  "Только зависимые потребности"
 @mrplinefilt_mrpsrcv_indep                "Только независимые потребности"
 @mrplinefilt_mrpsrcv_total                "Итоговые потребности"
+@mrplinefilt_ftterminal                   "По критерию терминальности"
+@mrplinefilt_ftterminal_nomatter          "@{nomatter}"
+@mrplinefilt_ftterminal_termonly          "Только терминальные"
+@mrplinefilt_ftterminal_nontermonly       "Только нетерминальные"
 
 @mrplinetotal                             "Итоги по выборке строк MRP-таблицы"
 @mrplinetotal_count                       "Общее количество позиций"
@@ -15618,6 +15622,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @impexpparambillh_objsrchcode             "Поисковый код для контрагента" // generic
 @impexpparambillh_obj1srchcode            "@{impexpparambillh_objsrchcode} 1"
 @impexpparambillh_obj2srchcode            "@{impexpparambillh_objsrchcode} 2"
+@impexpparambillh_regtag                  "Фиксирующий тег документа"
 
 @impexpparamgoods                         "Параметры импорта/экспорта товаров"
 @impexpparamgoods_flags                   "@{flags}"

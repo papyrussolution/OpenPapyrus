@@ -86,10 +86,7 @@ public class CommonPrereqModule {
 			}
 			void SetSelectedItemIndex(int idx) { SelectedItemIdx = (List != null && idx >= 0 && idx < List.size()) ? idx : -1; }
 			void ResetSelectedItemIndex() { SelectedItemIdx = -1; }
-			int  GetSelectedItemIndex()
-			{
-				return SelectedItemIdx;
-			}
+			int  GetSelectedItemIndex() { return SelectedItemIdx; }
 			int  FindIndexOfItem(final IndexEntry item)
 			{
 				int result = -1;
@@ -1564,6 +1561,33 @@ public class CommonPrereqModule {
 				}
 			}
 		}
+	}
+	public boolean OnSetupFragment_SetupObjListView(int objType, View fragmentView, int listViewRcId, int itemViewRcId)
+	{
+		boolean result = false;
+		SLib.PPObjID selected_search_oid = SearchResult_GetSelectedOid();
+		assert(selected_search_oid != null);
+		if(ActivityInstance != null && fragmentView != null) {
+			View lv = fragmentView.findViewById(listViewRcId);
+			if(lv != null && lv instanceof RecyclerView) {
+				((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityInstance));
+				ActivityInstance.SetupRecyclerListView(fragmentView, listViewRcId, itemViewRcId);
+				if(objType > 0 && selected_search_oid.Type == objType) {
+					int foc_idx = -1;
+					switch(objType) {
+						case SLib.PPOBJ_GOODS: foc_idx = FindGoodsItemIndexByID(selected_search_oid.Id); break;
+						case SLib.PPOBJ_GOODSGROUP: foc_idx = FindGoodsGroupItemIndexByID(selected_search_oid.Id); break;
+						case SLib.PPOBJ_BRAND: foc_idx = FindBrandItemIndexByID(selected_search_oid.Id); break;
+						case SLib.PPOBJ_PROCESSOR: foc_idx = FindProcessorItemIndexByID(selected_search_oid.Id); break;
+					}
+					ActivityInstance.SetRecyclerListFocusedIndex(((RecyclerView)lv).getAdapter(), foc_idx);
+					SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
+					SearchResult_ResetSelectedItemIndex();
+				}
+				result = true;
+			}
+		}
+		return result;
 	}
 	public void MakeCurrentDocList()
 	{

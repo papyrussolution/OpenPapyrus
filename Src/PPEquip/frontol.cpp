@@ -642,6 +642,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									case GTCHZNPT_MEDICINE: mark_type = 3; break;
 									case GTCHZNPT_FUR: mark_type = 2; break;
 									case GTCHZNPT_MILK: mark_type = 13; break; // @v11.3.5
+									case GTCHZNPT_WATER: mark_type = 15; break; // @v11.5.6
 									default:
 										if(gds_info.ChZnProdType)
 											mark_type = 7; // 7–иная маркированная продукция
