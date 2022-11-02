@@ -811,10 +811,7 @@ static int decoder_process(const OSSL_PARAM params[], void * arg)
 
 		/* Recurse */
 		OSSL_TRACE_BEGIN(DECODER) {
-			BIO_printf(trc_out,
-			    "(ctx %p) %s [%u] Running decoder instance %p\n",
-			    (void*)new_data.ctx, LEVEL, (unsigned int)i,
-			    (void*)new_decoder_inst);
+			BIO_printf(trc_out, "(ctx %p) %s [%u] Running decoder instance %p\n", (void*)new_data.ctx, LEVEL, (unsigned int)i, (void*)new_decoder_inst);
 		} OSSL_TRACE_END(DECODER);
 
 		/*
@@ -824,14 +821,8 @@ static int decoder_process(const OSSL_PARAM params[], void * arg)
 		ERR_set_mark();
 
 		new_data.current_decoder_inst_index = i;
-		new_data.flag_input_structure_checked
-			= data->flag_input_structure_checked;
-		ok = new_decoder->decode(new_decoderctx, cbio,
-			new_data.ctx->selection,
-			decoder_process, &new_data,
-			ossl_pw_passphrase_callback_dec,
-			&new_data.ctx->pwdata);
-
+		new_data.flag_input_structure_checked = data->flag_input_structure_checked;
+		ok = new_decoder->decode(new_decoderctx, cbio, new_data.ctx->selection, decoder_process, &new_data, ossl_pw_passphrase_callback_dec, &new_data.ctx->pwdata);
 		OSSL_TRACE_BEGIN(DECODER) {
 			BIO_printf(trc_out,
 			    "(ctx %p) %s [%u] Running decoder instance %p => %d"
@@ -843,14 +834,12 @@ static int decoder_process(const OSSL_PARAM params[], void * arg)
 		} OSSL_TRACE_END(DECODER);
 
 		data->flag_construct_called = new_data.flag_construct_called;
-
 		/* Break on error or if we tried to construct an object already */
 		if(!ok || data->flag_construct_called) {
 			ERR_clear_last_mark();
 			break;
 		}
 		ERR_pop_to_mark();
-
 		/*
 		 * Break if the decoder implementation that we called recursed, since
 		 * that indicates that it successfully decoded something.
@@ -858,7 +847,6 @@ static int decoder_process(const OSSL_PARAM params[], void * arg)
 		if(new_data.flag_next_level_called)
 			break;
 	}
-
 end:
 	ossl_core_bio_free(cbio);
 	BIO_free(new_data.bio);

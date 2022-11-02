@@ -304,13 +304,10 @@ ASN1_TIME * ASN1_TIME_set(ASN1_TIME * s, time_t t)
 	return ASN1_TIME_adj(s, t, 0, 0);
 }
 
-ASN1_TIME * ASN1_TIME_adj(ASN1_TIME * s, time_t t,
-    int offset_day, long offset_sec)
+ASN1_TIME * ASN1_TIME_adj(ASN1_TIME * s, time_t t, int offset_day, long offset_sec)
 {
-	struct tm * ts;
 	struct tm data;
-
-	ts = OPENSSL_gmtime(&t, &data);
+	struct tm * ts = OPENSSL_gmtime(&t, &data);
 	if(ts == NULL) {
 		ASN1err(ASN1_F_ASN1_TIME_ADJ, ASN1_R_ERROR_GETTING_TIME);
 		return NULL;
@@ -332,23 +329,17 @@ int ASN1_TIME_check(const ASN1_TIME * t)
 }
 
 /* Convert an ASN1_TIME structure to GeneralizedTime */
-ASN1_GENERALIZEDTIME * ASN1_TIME_to_generalizedtime(const ASN1_TIME * t,
-    ASN1_GENERALIZEDTIME ** out)
+ASN1_GENERALIZEDTIME * ASN1_TIME_to_generalizedtime(const ASN1_TIME * t, ASN1_GENERALIZEDTIME ** out)
 {
 	ASN1_GENERALIZEDTIME * ret = NULL;
 	struct tm tm;
-
 	if(!ASN1_TIME_to_tm(t, &tm))
 		return NULL;
-
 	if(out)
 		ret = *out;
-
 	ret = asn1_time_from_tm(ret, &tm, V_ASN1_GENERALIZEDTIME);
-
 	if(out != NULL && ret != NULL)
 		*out = ret;
-
 	return ret;
 }
 
@@ -365,7 +356,6 @@ int ASN1_TIME_set_string_X509(ASN1_TIME * s, const char * str)
 	ASN1_TIME t;
 	struct tm tm;
 	int rv = 0;
-
 	t.length = strlen(str);
 	t.data = (uchar *)str;
 	t.flags = ASN1_STRING_FLAG_X509_TIME;

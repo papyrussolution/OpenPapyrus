@@ -308,16 +308,12 @@ err:
 	return NULL;
 }
 
-ASN1_TIME * ASN1_TIME_set(ASN1_TIME * s, time_t t)
-{
-	return ASN1_TIME_adj(s, t, 0, 0);
-}
+ASN1_TIME * ASN1_TIME_set(ASN1_TIME * s, time_t t) { return ASN1_TIME_adj(s, t, 0, 0); }
 
 ASN1_TIME * ASN1_TIME_adj(ASN1_TIME * s, time_t t, int offset_day, long offset_sec)
 {
-	struct tm * ts;
 	struct tm data;
-	ts = OPENSSL_gmtime(&t, &data);
+	struct tm * ts = OPENSSL_gmtime(&t, &data);
 	if(ts == NULL) {
 		ERR_raise(ERR_LIB_ASN1, ASN1_R_ERROR_GETTING_TIME);
 		return NULL;
@@ -339,23 +335,17 @@ int ASN1_TIME_check(const ASN1_TIME * t)
 }
 
 /* Convert an ASN1_TIME structure to GeneralizedTime */
-ASN1_GENERALIZEDTIME * ASN1_TIME_to_generalizedtime(const ASN1_TIME * t,
-    ASN1_GENERALIZEDTIME ** out)
+ASN1_GENERALIZEDTIME * ASN1_TIME_to_generalizedtime(const ASN1_TIME * t, ASN1_GENERALIZEDTIME ** out)
 {
 	ASN1_GENERALIZEDTIME * ret = NULL;
 	struct tm tm;
-
 	if(!ASN1_TIME_to_tm(t, &tm))
 		return NULL;
-
 	if(out != NULL)
 		ret = *out;
-
 	ret = ossl_asn1_time_from_tm(ret, &tm, V_ASN1_GENERALIZEDTIME);
-
 	if(out != NULL && ret != NULL)
 		*out = ret;
-
 	return ret;
 }
 
@@ -372,13 +362,10 @@ int ASN1_TIME_set_string_X509(ASN1_TIME * s, const char * str)
 	ASN1_TIME t;
 	struct tm tm;
 	int rv = 0;
-
 	t.length = strlen(str);
 	t.data = (uchar *)str;
 	t.flags = ASN1_STRING_FLAG_X509_TIME;
-
 	t.type = V_ASN1_UTCTIME;
-
 	if(!ASN1_TIME_check(&t)) {
 		t.type = V_ASN1_GENERALIZEDTIME;
 		if(!ASN1_TIME_check(&t))
@@ -451,22 +438,12 @@ int ASN1_TIME_diff(int * pday, int * psec, const ASN1_TIME * from, const ASN1_TI
 	return OPENSSL_gmtime_diff(pday, psec, &tm_from, &tm_to);
 }
 
-static const char _asn1_mon[12][4] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
+static const char _asn1_mon[12][4] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-/* prints the time with the default date format (RFC 822) */
-int ASN1_TIME_print(BIO * bp, const ASN1_TIME * tm)
-{
-	return ASN1_TIME_print_ex(bp, tm, ASN1_DTFLGS_RFC822);
-}
-
-/* returns 1 on success, 0 on BIO write error or parse failure */
-int ASN1_TIME_print_ex(BIO * bp, const ASN1_TIME * tm, unsigned long flags)
-{
-	return ossl_asn1_time_print_ex(bp, tm, flags) > 0;
-}
+// prints the time with the default date format (RFC 822) 
+int ASN1_TIME_print(BIO * bp, const ASN1_TIME * tm) { return ASN1_TIME_print_ex(bp, tm, ASN1_DTFLGS_RFC822); }
+// returns 1 on success, 0 on BIO write error or parse failure 
+int ASN1_TIME_print_ex(BIO * bp, const ASN1_TIME * tm, unsigned long flags) { return ossl_asn1_time_print_ex(bp, tm, flags) > 0; }
 
 /* prints the time with the date format of ISO 8601 */
 /* returns 0 on BIO write error, else -1 in case of parse failure, else 1 */
@@ -476,11 +453,9 @@ int ossl_asn1_time_print_ex(BIO * bp, const ASN1_TIME * tm, unsigned long flags)
 	int gmt = 0, l;
 	struct tm stm;
 	const char upper_z = 0x5A, period = 0x2E;
-
 	/* ossl_asn1_time_to_tm will check the time type */
 	if(!ossl_asn1_time_to_tm(&stm, tm))
 		return BIO_write(bp, "Bad time value", 14) ? -1 : 0;
-
 	l = tm->length;
 	v = (char*)tm->data;
 	if(v[l - 1] == upper_z)
@@ -503,31 +478,21 @@ int ossl_asn1_time_print_ex(BIO * bp, const ASN1_TIME * tm, unsigned long flags)
 
 		if((flags & ASN1_DTFLGS_TYPE_MASK) == ASN1_DTFLGS_ISO8601) {
 			return BIO_printf(bp, "%4d-%02d-%02d %02d:%02d:%02d%.*s%s",
-				   stm.tm_year + 1900, stm.tm_mon + 1,
-				   stm.tm_mday, stm.tm_hour,
-				   stm.tm_min, stm.tm_sec, f_len, f,
-				   (gmt ? "Z" : "")) > 0;
+				   stm.tm_year + 1900, stm.tm_mon + 1, stm.tm_mday, stm.tm_hour, stm.tm_min, stm.tm_sec, f_len, f, (gmt ? "Z" : "")) > 0;
 		}
 		else {
 			return BIO_printf(bp, "%s %2d %02d:%02d:%02d%.*s %d%s",
-				   _asn1_mon[stm.tm_mon], stm.tm_mday, stm.tm_hour,
-				   stm.tm_min, stm.tm_sec, f_len, f, stm.tm_year + 1900,
-				   (gmt ? " GMT" : "")) > 0;
+				   _asn1_mon[stm.tm_mon], stm.tm_mday, stm.tm_hour, stm.tm_min, stm.tm_sec, f_len, f, stm.tm_year + 1900, (gmt ? " GMT" : "")) > 0;
 		}
 	}
 	else {
 		if((flags & ASN1_DTFLGS_TYPE_MASK) == ASN1_DTFLGS_ISO8601) {
 			return BIO_printf(bp, "%4d-%02d-%02d %02d:%02d:%02d%s",
-				   stm.tm_year + 1900, stm.tm_mon + 1,
-				   stm.tm_mday, stm.tm_hour,
-				   stm.tm_min, stm.tm_sec,
-				   (gmt ? "Z" : "")) > 0;
+				   stm.tm_year + 1900, stm.tm_mon + 1, stm.tm_mday, stm.tm_hour, stm.tm_min, stm.tm_sec, (gmt ? "Z" : "")) > 0;
 		}
 		else {
-			return BIO_printf(bp, "%s %2d %02d:%02d:%02d %d%s",
-				   _asn1_mon[stm.tm_mon], stm.tm_mday, stm.tm_hour,
-				   stm.tm_min, stm.tm_sec, stm.tm_year + 1900,
-				   (gmt ? " GMT" : "")) > 0;
+			return BIO_printf(bp, "%s %2d %02d:%02d:%02d %d%s", _asn1_mon[stm.tm_mon], stm.tm_mday, stm.tm_hour,
+				   stm.tm_min, stm.tm_sec, stm.tm_year + 1900, (gmt ? " GMT" : "")) > 0;
 		}
 	}
 }
@@ -536,16 +501,12 @@ int ASN1_TIME_cmp_time_t(const ASN1_TIME * s, time_t t)
 {
 	struct tm stm, ttm;
 	int day, sec;
-
 	if(!ASN1_TIME_to_tm(s, &stm))
 		return -2;
-
 	if(!OPENSSL_gmtime(&t, &ttm))
 		return -2;
-
 	if(!OPENSSL_gmtime_diff(&day, &sec, &ttm, &stm))
 		return -2;
-
 	if(day > 0 || sec > 0)
 		return 1;
 	if(day < 0 || sec < 0)
@@ -556,17 +517,14 @@ int ASN1_TIME_cmp_time_t(const ASN1_TIME * s, time_t t)
 int ASN1_TIME_normalize(ASN1_TIME * t)
 {
 	struct tm tm;
-
 	if(!ASN1_TIME_to_tm(t, &tm))
 		return 0;
-
 	return ossl_asn1_time_from_tm(t, &tm, V_ASN1_UNDEF) != NULL;
 }
 
 int ASN1_TIME_compare(const ASN1_TIME * a, const ASN1_TIME * b)
 {
 	int day, sec;
-
 	if(!ASN1_TIME_diff(&day, &sec, b, a))
 		return -2;
 	if(day > 0 || sec > 0)

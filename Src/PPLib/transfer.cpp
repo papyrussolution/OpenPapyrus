@@ -1099,10 +1099,10 @@ int Transfer::GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRange & 
 	LotArray lot_list;
 	THROW(Rcpt.GetListOfOpenedLots(1, goodsID, locID, rPeriod.upp, &lot_list));
 	for(uint i = 0; i < lot_list.getCount(); i++) {
-		const ReceiptTbl::Rec & r_rec = lot_list.at(i);
-		if(r_rec.Dt >= rPeriod.low) {
-			THROW(GetBounds(r_rec.ID, rPeriod.upp, -1, &lot_rest, 0));
-			if(lot_rest > _epsilon) // @v9.4.8
+		const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+		if(r_lot_rec.Dt >= rPeriod.low) {
+			THROW(GetBounds(r_lot_rec.ID, rPeriod.upp, -1, &lot_rest, 0));
+			if(lot_rest > _epsilon)
 				rest += lot_rest;
 		}
 	}

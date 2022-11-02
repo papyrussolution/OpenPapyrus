@@ -49,22 +49,16 @@ ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_set(ASN1_GENERALIZEDTIME * s, time_t
 	return ASN1_GENERALIZEDTIME_adj(s, t, 0, 0);
 }
 
-ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_adj(ASN1_GENERALIZEDTIME * s,
-    time_t t, int offset_day,
-    long offset_sec)
+ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_adj(ASN1_GENERALIZEDTIME * s, time_t t, int offset_day, long offset_sec)
 {
-	struct tm * ts;
 	struct tm data;
-
-	ts = OPENSSL_gmtime(&t, &data);
+	struct tm * ts = OPENSSL_gmtime(&t, &data);
 	if(ts == NULL)
 		return NULL;
-
 	if(offset_day || offset_sec) {
 		if(!OPENSSL_gmtime_adj(ts, offset_day, offset_sec))
 			return NULL;
 	}
-
 	return asn1_time_from_tm(s, ts, V_ASN1_GENERALIZEDTIME);
 }
 

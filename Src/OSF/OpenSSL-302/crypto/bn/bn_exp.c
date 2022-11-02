@@ -608,20 +608,16 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, c
 	uchar * powerbuf = NULL;
 	BIGNUM tmp, am;
 #if defined(SPARC_T4_MONT)
-	unsigned int t4 = 0;
+	uint t4 = 0;
 #endif
-
 	bn_check_top(a);
 	bn_check_top(p);
 	bn_check_top(m);
-
 	if(!BN_is_odd(m)) {
 		ERR_raise(ERR_LIB_BN, BN_R_CALLED_WITH_EVEN_MODULUS);
 		return 0;
 	}
-
 	top = m->top;
-
 	/*
 	 * Use all bits stored in |p|, rather than |BN_num_bits|, so we do not leak
 	 * whether the top bits are zero.

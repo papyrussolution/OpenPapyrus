@@ -32,43 +32,32 @@ int ASN1_GENERALIZEDTIME_check(const ASN1_GENERALIZEDTIME * d)
 int ASN1_GENERALIZEDTIME_set_string(ASN1_GENERALIZEDTIME * s, const char * str)
 {
 	ASN1_GENERALIZEDTIME t;
-
 	t.type = V_ASN1_GENERALIZEDTIME;
 	t.length = strlen(str);
 	t.data = (uchar *)str;
 	t.flags = 0;
-
 	if(!ASN1_GENERALIZEDTIME_check(&t))
 		return 0;
-
 	if(s != NULL && !ASN1_STRING_copy(s, &t))
 		return 0;
-
 	return 1;
 }
 
-ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_set(ASN1_GENERALIZEDTIME * s,
-    time_t t)
+ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_set(ASN1_GENERALIZEDTIME * s, time_t t)
 {
 	return ASN1_GENERALIZEDTIME_adj(s, t, 0, 0);
 }
 
-ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_adj(ASN1_GENERALIZEDTIME * s,
-    time_t t, int offset_day,
-    long offset_sec)
+ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_adj(ASN1_GENERALIZEDTIME * s, time_t t, int offset_day, long offset_sec)
 {
-	struct tm * ts;
 	struct tm data;
-
-	ts = OPENSSL_gmtime(&t, &data);
+	struct tm * ts = OPENSSL_gmtime(&t, &data);
 	if(ts == NULL)
 		return NULL;
-
 	if(offset_day || offset_sec) {
 		if(!OPENSSL_gmtime_adj(ts, offset_day, offset_sec))
 			return NULL;
 	}
-
 	return ossl_asn1_time_from_tm(s, ts, V_ASN1_GENERALIZEDTIME);
 }
 

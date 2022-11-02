@@ -27,9 +27,7 @@ int ASN1_INTEGER_cmp(const ASN1_INTEGER * x, const ASN1_INTEGER * y)
 		else
 			return 1;
 	}
-
 	ret = ASN1_STRING_cmp(x, y);
-
 	if(neg)
 		return -ret;
 	else
@@ -69,11 +67,9 @@ int ASN1_INTEGER_cmp(const ASN1_INTEGER * x, const ASN1_INTEGER * y)
  * does 0x80 followed by any number of zeros. These properties are
  * used elsewhere below...
  */
-static void twos_complement(uchar * dst, const uchar * src,
-    size_t len, unsigned char pad)
+static void twos_complement(uchar * dst, const uchar * src, size_t len, unsigned char pad)
 {
-	unsigned int carry = pad & 1;
-
+	uint carry = pad & 1;
 	/* Begin at the end of the encoding */
 	if(len != 0) {
 		/*
@@ -90,13 +86,11 @@ static void twos_complement(uchar * dst, const uchar * src,
 	}
 }
 
-static size_t i2c_ibuf(const uchar * b, size_t blen, int neg,
-    uchar ** pp)
+static size_t i2c_ibuf(const uchar * b, size_t blen, int neg, uchar ** pp)
 {
 	unsigned int pad = 0;
 	size_t ret, i;
 	uchar * p, pb = 0;
-
 	if(b != NULL && blen) {
 		ret = blen;
 		i = b[0];

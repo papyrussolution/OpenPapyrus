@@ -2796,7 +2796,7 @@ IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2)
 		entry.Rest  = rest;
 		entry.GoodsID = labs(lot_rec.GoodsID);
 		entry.Expiry  = lot_rec.Expiry;
-		entry.SupplID = lot_rec.SupplID; // @v9.3.7
+		entry.SupplID = lot_rec.SupplID;
 		sr = p_bobj->GetSerialNumberByLot(lot_rec.ID, temp_buf, 1);
 		temp_buf.CopyTo(entry.Serial, sizeof(entry.Serial));
 		{

@@ -494,8 +494,10 @@ int ReceiptCore::GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * pLotRec
 	}
 	else {
 		// Closed, GoodsID, LocID, Dt, OprNo (unique mod);   // #3
-		ReceiptTbl::Rec rec_o, rec_c;
-		int    s_o = 0, s_c = 0;
+		ReceiptTbl::Rec rec_o;
+		ReceiptTbl::Rec rec_c;
+		int    s_o = 0;
+		int    s_c = 0;
 		ReceiptTbl::Key3 k3;
 		MEMSZERO(k3);
 		k3.Closed = 0;

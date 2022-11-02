@@ -8821,6 +8821,7 @@ int PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) // 
 int PPStyloQInterchange::FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID, bool logResult)
 {
 	int    ok = -1;
+	bool   auto_matching = false;
 	PPID   person_id = 0;
 	SString fmt_buf;
 	SString msg_buf;
@@ -8828,6 +8829,10 @@ int PPStyloQInterchange::FetchPersonFromClientPacket(const StyloQCore::StoragePa
 	PersonTbl::Rec psn_rec;
 	if(rCliPack.Rec.LinkObjType == PPOBJ_PERSON) {
 		person_id = rCliPack.Rec.LinkObjID;
+		// @v11.5.7 {
+		if(rCliPack.Rec.Flags & StyloQCore::styloqfAutoObjMatching)
+			auto_matching = true;
+		// } @v11.5.7 
 		if(logResult) {
 			//PPTXT_STQ_MAPCLI2PSN_DIRECT          "Идентифицирована персоналия, непосредственно ассоциированная с клиентом Stylo-Q: %s"
 			PPLoadText(PPTXT_STQ_MAPCLI2PSN_DIRECT, fmt_buf);
@@ -8872,7 +8877,7 @@ int PPStyloQInterchange::FetchPersonFromClientPacket(const StyloQCore::StoragePa
 	}
 	ASSIGN_PTR(pPersonID, person_id);
 	if(person_id)
-		ok = 1;
+		ok = auto_matching ? 2 : 1;
 	return ok;
 }
 

@@ -936,6 +936,8 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 									case GTCHZNPT_SHOE: marking_type = 0x444D; break;
 									case GTCHZNPT_MEDICINE: marking_type = 0x444D; break;
 									case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
+									case GTCHZNPT_MILK: marking_type = 0x444D; break; // @v11.5.7
+									case GTCHZNPT_WATER: marking_type = 0x444D; break; // @v11.5.7
 									// } @v10.8.11
 								}
 								if(marking_type) {

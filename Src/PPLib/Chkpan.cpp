@@ -12844,16 +12844,16 @@ int InfoKioskDialog::SetupLots(PPID goodsID)
 				uint   i = 0, lots_count = 5;
 				long   lots = 0;
 				long   oprno = MAXLONG;
-				ReceiptTbl::Rec lot;
+				ReceiptTbl::Rec lot_rec;
 				// @v10.8.10 LConfig.OperDate-->getcurdate_()
-				for(LDATE dt = getcurdate_(); i < (uint)lots_count && BillObj->trfr->Rcpt.EnumLastLots(goodsID, Rec.LocID, &dt, &oprno, &lot) > 0; i++) {
+				for(LDATE dt = getcurdate_(); i < (uint)lots_count && BillObj->trfr->Rcpt.EnumLastLots(goodsID, Rec.LocID, &dt, &oprno, &lot_rec) > 0; i++) {
 					char sub[64];
 					QualityCertTbl::Rec qc_rec;
 					StringSet ss(SLBColumnDelim);
 					// @v10.6.4 MEMSZERO(qc_rec);
-					ss.add(datefmt(&lot.Dt, DATF_DMY, sub));
-					ss.add(datefmt(&lot.Expiry, DATF_DMY, sub));
-					QCObj.Search(lot.QCertID, &qc_rec);
+					ss.add(datefmt(&lot_rec.Dt, DATF_DMY, sub));
+					ss.add(datefmt(&lot_rec.Expiry, DATF_DMY, sub));
+					QCObj.Search(lot_rec.QCertID, &qc_rec);
 					ss.add(qc_rec.Code);
 					if(!p_list->addItem(i + 1, ss.getBuf())) {
 						PPError(PPERR_SLIB, 0);

@@ -385,7 +385,7 @@ private:
 			if(Flags & sfLogging) {
 				temp_buf.CopyUtf8FromUnicode(temp_buf_u, temp_buf_u.Len(), 0);
 				log_buf.Z().Cat("json-req").CatDiv(':', 2).Cat(temp_buf);
-				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 			}
 			// } @v11.5.6 
 			P_Fptr10->SetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, temp_buf_u.ucptr());
@@ -404,7 +404,7 @@ private:
 				// @v11.5.6 {
 				if(Flags & sfLogging) {
 					log_buf.Z().Cat("json-rep").CatDiv(':', 2).Cat(rResultJsonBuf);
-					PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+					PPLogMessage(PPFILNAM_ATOLDRV_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 				}
 				// } @v11.5.6 
 			}
@@ -433,6 +433,14 @@ private:
 				Flags |= sfLogging;
 		}
 		// } @v11.5.6
+		// @v11.5.7 {
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ATOLDRIVER_JSON, temp_buf.Z()) > 0) {
+			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
+				Flags &= ~sfUseJson;
+			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))
+				Flags |= sfUseJson;
+		}
+		// } @v11.5.7
 		if(P_Fptr10) {
 			void * h = P_Fptr10->Handler;
 			SStringU temp_buf_u;
@@ -773,6 +781,7 @@ private:
 		sfDontUseCutter = 0x0010,     // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0020,     // использовать весовой датчик
 		sfLogging       = 0x0040,     // @v11.5.6 Вести отладочный журнал операций
+		sfUseJson       = 0x0080,     // @v11.5.7 Применять команды в json-формате (устанавливается в ответ на параметр pp.ini [config] PPINIPARAM_ATOLDRIVER_JSON (AtolDriverJson)
 	};
 
 	static ComDispInterface * P_Disp;
@@ -1909,14 +1918,14 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
-/* @v11.5.2 
-#ifdef  NDEBUG
-	bool   use_json_cmd = false; // @v11.3.5 @debug
-#else
-	bool   use_json_cmd = true; // @v11.3.5 @debug
-#endif // ! NDEBUG
-*/
-	bool   use_json_cmd = true; // @v11.5.2
+	/* @v11.5.2 
+	#ifdef  NDEBUG
+		bool   use_json_cmd = false; // @v11.3.5 @debug
+	#else
+		bool   use_json_cmd = true; // @v11.3.5 @debug
+	#endif // ! NDEBUG
+	*/
+	const  bool   use_json_cmd = LOGIC(Flags & sfUseJson); // @v11.5.2
 	bool   is_format = false;
 	bool   enabled = true;
 	int    jsproc_result = 0;

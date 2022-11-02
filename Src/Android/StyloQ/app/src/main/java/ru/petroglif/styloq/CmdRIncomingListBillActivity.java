@@ -171,7 +171,6 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	private void NotifyCurrentDocumentChanged()
 	{
 		NotifyTabContentChanged(CommonPrereqModule.Tab.tabCurrentDocument, R.id.CTL_DOCUMENT_TILIST);
-		//NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
 		CommonPrereqModule.TabEntry tab_entry = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentDocument);
 		if(tab_entry != null && tab_entry.TabView != null) {
 			CPM.OnCurrentDocumentModification();
@@ -475,7 +474,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		}
 		iv.setBackground(getResources().getDrawable(shaperc, getTheme()));
 	}
-
+	private boolean AddItemToCurrentOrder(Document.TransferItem item)
+	{
+		boolean result = CPM.AddTransferItemToCurrentDocument(item);
+		if(result)
+			NotifyCurrentDocumentChanged();
+		return result;
+	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
 		Object result = null;
@@ -1075,6 +1080,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						}
 						else {
 							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.CTL_DOCUMENT_EXPANDSTATUS);
+							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.buttonOrder);
 							result = ev_subj.RvHolder;
 						}
 					}
@@ -1166,6 +1172,14 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							final int rc_id = a.GetListRcId();
 							if(app_ctx != null && ev_subj.ItemIdx >= 0) {
 								switch(rc_id) {
+									case R.id.orderPrereqGoodsListView:
+										if(ev_subj.ItemIdx < CPM.GetGoodsListSize()) {
+											if(ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.buttonOrder) {
+												CommonPrereqModule.WareEntry item = CPM.GetGoodsListItemByIdx(ev_subj.ItemIdx);
+												CPM.OpenTransferItemDialog(item, 0.0);
+											}
+										}
+										break;
 									case R.id.CTL_INCOMINGLIST_BILL_LIST:
 										if(ev_subj.ItemIdx < CPM.IncomingDocListData.size()) {
 											Document cur_entry = (Document)CPM.IncomingDocListData.get(ev_subj.ItemIdx);
@@ -1356,27 +1370,59 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				}
 				break;
 			case SLib.EV_IADATAEDITCOMMIT:
-				if(srcObj != null && srcObj instanceof SubstTiForUnassignedMarkDialog && subj != null && subj instanceof SubstTiForUnassignedMarkDialog.DataBlock) {
-					StyloQApp app_ctx = GetAppCtx();
-					if(app_ctx != null) {
-						SubstTiForUnassignedMarkDialog.DataBlock _data = (SubstTiForUnassignedMarkDialog.DataBlock)subj;
-						if(_data.CurEntry != null && _data.Doc != null && SLib.IsInRange(_data.SelectedIdx, _data.Doc.TiList)) {
-							Document.TransferItem ti = _data.Doc.TiList.get(_data.SelectedIdx);
-							if(ti.XcL == null)
-								ti.XcL = new ArrayList<Document.LotExtCode>();
-							ti.XcL.add(_data.CurEntry);
-							if(_data.GmsEntry.XcL != null) {
-								//for(Document.LotExtCode iter : _data.GmsEntry.XcL) {
-								for(int i = 0; i < _data.GmsEntry.XcL.size(); i++) {
-									Document.LotExtCode iter = _data.GmsEntry.XcL.get(i);
-									if(iter != null && (iter == _data.CurEntry || iter.Code.equals(_data.CurEntry.Code))) {
-										_data.GmsEntry.XcL.remove(i);
-										break;
+				if(srcObj != null) {
+					if(srcObj instanceof CommonPrereqModule.TransferItemDialog) {
+						if(subj != null && subj instanceof Document.TransferItem) {
+							Document.TransferItem _data = (Document.TransferItem)subj;
+							boolean do_notify_goods_list = false;
+							if(_data.RowIdx == 0) {
+								if(AddItemToCurrentOrder(_data))
+									do_notify_goods_list = true;
+							}
+							else {
+								if(CPM.UpdateTransferItemQttyInCurrentDocument(_data)) {
+									NotifyCurrentDocumentChanged();
+									do_notify_goods_list = true;
+								}
+							}
+							if(do_notify_goods_list) {
+								CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabGoods);
+								if(te != null && te.TabView != null) {
+									View v = te.TabView.getView();
+									if(v != null && v instanceof ViewGroup) {
+										View lv = ((ViewGroup) v).findViewById(R.id.orderPrereqGoodsListView);
+										if(lv != null && lv instanceof RecyclerView) {
+											RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
+											if(gva != null)
+												gva.notifyDataSetChanged(); // @todo Здесь надо обновлять только одну строку списка товаров
+										}
 									}
 								}
 							}
-							CPM.OnCurrentDocumentModification();
-							NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclSetting, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
+						}
+					}
+					else if(srcObj instanceof SubstTiForUnassignedMarkDialog && subj != null && subj instanceof SubstTiForUnassignedMarkDialog.DataBlock) {
+						StyloQApp app_ctx = GetAppCtx();
+						if(app_ctx != null) {
+							SubstTiForUnassignedMarkDialog.DataBlock _data = (SubstTiForUnassignedMarkDialog.DataBlock) subj;
+							if(_data.CurEntry != null && _data.Doc != null && SLib.IsInRange(_data.SelectedIdx, _data.Doc.TiList)) {
+								Document.TransferItem ti = _data.Doc.TiList.get(_data.SelectedIdx);
+								if(ti.XcL == null)
+									ti.XcL = new ArrayList<Document.LotExtCode>();
+								ti.XcL.add(_data.CurEntry);
+								if(_data.GmsEntry.XcL != null) {
+									//for(Document.LotExtCode iter : _data.GmsEntry.XcL) {
+									for(int i = 0; i < _data.GmsEntry.XcL.size(); i++) {
+										Document.LotExtCode iter = _data.GmsEntry.XcL.get(i);
+										if(iter != null && (iter == _data.CurEntry || iter.Code.equals(_data.CurEntry.Code))) {
+											_data.GmsEntry.XcL.remove(i);
+											break;
+										}
+									}
+								}
+								CPM.OnCurrentDocumentModification();
+								NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclSetting, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
+							}
 						}
 					}
 				}

@@ -689,7 +689,8 @@ void PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, const PPTransferItem * pT
 	LDATE  crt_dt = ZERODATE;
 	LDATE  expiry = pTi ? pTi->Expiry : ZERODATE;
 	SString serial;
-	ReceiptTbl::Rec lot, org_lot;
+	ReceiptTbl::Rec lot;
+	ReceiptTbl::Rec org_lot;
 	// @v10.6.4 MEMSZERO(lot);
 	if(P_BObj->trfr->Rcpt.SearchOrigin(lotID, &org_lot_id, &lot, &org_lot) > 0) {
 		ObjTagItem tag;

@@ -2380,9 +2380,9 @@ int PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 				//
 				const uint lc = lot_list.getCount();
 				for(uint i = 0; i < lc; i++) {
-					const ReceiptTbl::Rec * p_rec = static_cast<const ReceiptTbl::Rec *>(lot_list.at(i));
-					const PPID goods_id = p_rec->GoodsID;
-					if(goods_id > 0 && p_rec->Rest > 0.0)
+					const ReceiptTbl::Rec * p_lot_rec = static_cast<const ReceiptTbl::Rec *>(lot_list.at(i));
+					const PPID goods_id = p_lot_rec->GoodsID;
+					if(goods_id > 0 && p_lot_rec->Rest > 0.0)
 						full_goods_list.Remove(static_cast<ulong>(goods_id));
 				}
 			}
@@ -2405,17 +2405,17 @@ int PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 				blk.Cntr.Init(lc);
 				if(Filt.CalcMethod == GoodsRestParam::pcmLastLot) {
 					do {
-						ReceiptTbl::Rec & r_rec = *static_cast<ReceiptTbl::Rec *>(lot_list.at(--lc));
-						if(r_rec.Rest > 0.0) {
-							THROW(Helper_ProcessLot(blk, r_rec));
+						ReceiptTbl::Rec & r_lot_rec = *static_cast<ReceiptTbl::Rec *>(lot_list.at(--lc));
+						if(r_lot_rec.Rest > 0.0) {
+							THROW(Helper_ProcessLot(blk, r_lot_rec));
 						}
 					} while(lc);
 				}
 				else {
 					for(uint i = 0; i < lc; i++) {
-						ReceiptTbl::Rec & r_rec = *static_cast<ReceiptTbl::Rec *>(lot_list.at(i));
-						if(r_rec.Rest > 0.0) {
-							THROW(Helper_ProcessLot(blk, r_rec));
+						ReceiptTbl::Rec & r_lot_rec = *static_cast<ReceiptTbl::Rec *>(lot_list.at(i));
+						if(r_lot_rec.Rest > 0.0) {
+							THROW(Helper_ProcessLot(blk, r_lot_rec));
 						}
 					}
 				}

@@ -6180,7 +6180,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_UNITNAME), unit_name);
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WARETYPE), "1"); // @v11.4.11 ПрТовРаб="1"
 			// @v11.4.10 {
-			if(chzn_prod_type == GTCHZNPT_MILK) {
+			if(oneof2(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER)) {
 				BarcodeArray bc_list;
 				GObj.P_Tbl->ReadBarcodes(goods_id, bc_list);
 				SString norm_code;

@@ -87,29 +87,24 @@ static int bn_from_montgomery_word(BIGNUM * ret, BIGNUM * r, BN_MONT_CTX * mont)
 	BIGNUM * n;
 	BN_ULONG * ap, * np, * rp, n0, v, carry;
 	int nl, max, i;
-	unsigned int rtop;
-
+	uint rtop;
 	n = &(mont->N);
 	nl = n->top;
 	if(nl == 0) {
 		ret->top = 0;
 		return 1;
 	}
-
 	max = (2 * nl);         /* carry is stored separately */
 	if(bn_wexpand(r, max) == NULL)
 		return 0;
-
 	r->neg ^= n->neg;
 	np = n->d;
 	rp = r->d;
-
 	/* clear the top words of T */
 	for(rtop = r->top, i = 0; i < max; i++) {
 		v = (BN_ULONG)0 - ((i - rtop) >> (8 * sizeof(rtop) - 1));
 		rp[i] &= v;
 	}
-
 	r->top = max;
 	r->flags |= BN_FLG_FIXED_TOP;
 	n0 = mont->n0[0];
@@ -157,25 +152,19 @@ static int bn_from_montgomery_word(BIGNUM * ret, BIGNUM * r, BN_MONT_CTX * mont)
 
 #endif /* MONT_WORD */
 
-int BN_from_montgomery(BIGNUM * ret, const BIGNUM * a, BN_MONT_CTX * mont,
-    BN_CTX * ctx)
+int BN_from_montgomery(BIGNUM * ret, const BIGNUM * a, BN_MONT_CTX * mont, BN_CTX * ctx)
 {
-	int retn;
-
-	retn = bn_from_mont_fixed_top(ret, a, mont, ctx);
+	int retn = bn_from_mont_fixed_top(ret, a, mont, ctx);
 	bn_correct_top(ret);
 	bn_check_top(ret);
-
 	return retn;
 }
 
-int bn_from_mont_fixed_top(BIGNUM * ret, const BIGNUM * a, BN_MONT_CTX * mont,
-    BN_CTX * ctx)
+int bn_from_mont_fixed_top(BIGNUM * ret, const BIGNUM * a, BN_MONT_CTX * mont, BN_CTX * ctx)
 {
 	int retn = 0;
 #ifdef MONT_WORD
 	BIGNUM * t;
-
 	BN_CTX_start(ctx);
 	if((t = BN_CTX_get(ctx)) && BN_copy(t, a)) {
 		retn = bn_from_montgomery_word(ret, t, mont);
@@ -183,7 +172,6 @@ int bn_from_mont_fixed_top(BIGNUM * ret, const BIGNUM * a, BN_MONT_CTX * mont,
 	BN_CTX_end(ctx);
 #else /* !MONT_WORD */
 	BIGNUM * t1, * t2;
-
 	BN_CTX_start(ctx);
 	t1 = BN_CTX_get(ctx);
 	t2 = BN_CTX_get(ctx);
@@ -246,23 +234,21 @@ void BN_MONT_CTX_init(BN_MONT_CTX * ctx)
 
 void BN_MONT_CTX_free(BN_MONT_CTX * mont)
 {
-	if(mont == NULL)
-		return;
-	BN_clear_free(&mont->RR);
-	BN_clear_free(&mont->N);
-	BN_clear_free(&mont->Ni);
-	if(mont->flags & BN_FLG_MALLOCED)
-		OPENSSL_free(mont);
+	if(mont) {
+		BN_clear_free(&mont->RR);
+		BN_clear_free(&mont->N);
+		BN_clear_free(&mont->Ni);
+		if(mont->flags & BN_FLG_MALLOCED)
+			OPENSSL_free(mont);
+	}
 }
 
 int BN_MONT_CTX_set(BN_MONT_CTX * mont, const BIGNUM * mod, BN_CTX * ctx)
 {
 	int i, ret = 0;
 	BIGNUM * Ri, * R;
-
 	if(BN_is_zero(mod))
 		return 0;
-
 	BN_CTX_start(ctx);
 	if((Ri = BN_CTX_get(ctx)) == NULL)
 		goto err;
@@ -277,17 +263,13 @@ int BN_MONT_CTX_set(BN_MONT_CTX * mont, const BIGNUM * mod, BN_CTX * ctx)
 	{
 		BIGNUM tmod;
 		BN_ULONG buf[2];
-
 		bn_init(&tmod);
 		tmod.d = buf;
 		tmod.dmax = 2;
 		tmod.neg = 0;
-
 		if(BN_get_flags(mod, BN_FLG_CONSTTIME) != 0)
 			BN_set_flags(&tmod, BN_FLG_CONSTTIME);
-
 		mont->ri = (BN_num_bits(mod) + (BN_BITS2 - 1)) / BN_BITS2 * BN_BITS2;
-
 #if defined(OPENSSL_BN_ASM_MONT) && (BN_BITS2<=32)
 		/*
 		 * Only certain BN_BITS2<=32 platforms actually make use of n0[1],

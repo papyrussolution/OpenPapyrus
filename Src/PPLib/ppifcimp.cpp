@@ -5751,8 +5751,6 @@ int32 DL6ICLS_PPLotList::SearchById(int32 id, SPpyO_Lot * pLot, int32 bSearch)
 	const  SArray * p_data = static_cast<const SArray *>(ExtraPtr);
 	if(p_data) {
 		uint pos = 0;
-		ReceiptTbl::Rec lot;
-		// @v10.6.4 MEMSZERO(lot);
 		ok = bSearch ? p_data->bsearch(&id, &pos, CMPF_LONG) : p_data->lsearch(&id, &pos, CMPF_LONG);
 		if(ok)
 			FillLotRec(static_cast<const ReceiptTbl::Rec *>(p_data->at(static_cast<uint>(pos))), pLot);
@@ -5803,10 +5801,10 @@ void DL6ICLS_PPLotList::Clear()
 
 void DL6ICLS_PPLotList::Add(SPpyO_Lot * pLot)
 {
-	ReceiptTbl::Rec lot;
+	ReceiptTbl::Rec lot_rec;
 	SArray * p_data = static_cast<SArray *>(ExtraPtr);
-	FillLotRec(pLot, &lot);
-	if(!p_data || !p_data->insert(&lot))
+	FillLotRec(pLot, &lot_rec);
+	if(!p_data || !p_data->insert(&lot_rec))
 		AppError = 1;
 }
 
@@ -6100,7 +6098,8 @@ int32 DL6ICLS_PPObjBill::GetOriginalLot(int32 lotID, int32 * pOrgLotID, SPpyO_Lo
 	PPID   org_lot_id = 0L;
 	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e && p_e->P_BObj) {
-		ReceiptTbl::Rec lot, org_lot;
+		ReceiptTbl::Rec lot;
+		ReceiptTbl::Rec org_lot;
 		// @v10.6.4 MEMSZERO(lot);
 		// @v10.6.4 MEMSZERO(org_lot);
 		if(p_e->P_BObj->trfr->Rcpt.SearchOrigin(lotID, &org_lot_id, &lot, &org_lot) > 0) {

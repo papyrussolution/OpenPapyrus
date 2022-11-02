@@ -2706,13 +2706,13 @@ IMPL_HANDLE_EVENT(CSessExcAltGoodsDialog)
 void CSessExcAltGoodsDialog::SetupLastLotCtrs(PPID goodsID, int isDfctGoods)
 {
 	LDATE  dt = ZERODATE;
-	double cost = 0.0, price = 0.0;
+	double cost = 0.0;
+	double price = 0.0;
 	if(goodsID) {
-		ReceiptTbl::Rec lot;
-		// @v10.6.4 MEMSZERO(lot);
-		BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goodsID, 0, GPRET_INDEF, &price, &lot);
-		cost = lot.Cost;
-		dt   = lot.Dt;
+		ReceiptTbl::Rec lot_rec;
+		BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goodsID, 0, GPRET_INDEF, &price, &lot_rec);
+		cost = lot_rec.Cost;
+		dt   = lot_rec.Dt;
 	}
 	if(isDfctGoods) {
 		setCtrlData(CTL_CSEXCAG_DFCTDT,    &dt);

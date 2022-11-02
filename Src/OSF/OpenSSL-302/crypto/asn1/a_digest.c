@@ -38,16 +38,15 @@ int ASN1_digest(i2d_of_void * i2d, const EVP_MD * type, char * data, uchar * md,
 
 int ossl_asn1_item_digest_ex(const ASN1_ITEM * it, const EVP_MD * md, void * asn, uchar * data, unsigned int * len, OSSL_LIB_CTX * libctx, const char * propq)
 {
-	int i, ret = 0;
+	int ret = 0;
 	uchar * str = NULL;
 	EVP_MD * fetched_md = (EVP_MD*)md;
-	i = ASN1_item_i2d((ASN1_VALUE *)asn, &str, it);
+	int i = ASN1_item_i2d((ASN1_VALUE *)asn, &str, it);
 	if(i < 0 || str == NULL)
 		return 0;
 	if(EVP_MD_get0_provider(md) == NULL) {
 #if !defined(OPENSSL_NO_ENGINE)
 		ENGINE * tmpeng = ENGINE_get_digest_engine(EVP_MD_get_type(md));
-
 		if(tmpeng != NULL)
 			ENGINE_finish(tmpeng);
 		else
@@ -56,7 +55,6 @@ int ossl_asn1_item_digest_ex(const ASN1_ITEM * it, const EVP_MD * md, void * asn
 	}
 	if(fetched_md == NULL)
 		goto err;
-
 	ret = EVP_Digest(str, i, data, len, fetched_md, NULL);
 err:
 	OPENSSL_free(str);
@@ -65,8 +63,7 @@ err:
 	return ret;
 }
 
-int ASN1_item_digest(const ASN1_ITEM * it, const EVP_MD * md, void * asn,
-    uchar * data, unsigned int * len)
+int ASN1_item_digest(const ASN1_ITEM * it, const EVP_MD * md, void * asn, uchar * data, unsigned int * len)
 {
 	return ossl_asn1_item_digest_ex(it, md, asn, data, len, NULL, NULL);
 }

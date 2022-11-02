@@ -12,33 +12,33 @@
 struct lhash_node_st {
 	void * data;
 	struct lhash_node_st * next;
-	unsigned long hash;
+	ulong hash;
 };
 
 struct lhash_st {
 	OPENSSL_LH_NODE ** b;
 	OPENSSL_LH_COMPFUNC comp;
 	OPENSSL_LH_HASHFUNC hash;
-	unsigned int num_nodes;
-	unsigned int num_alloc_nodes;
-	unsigned int p;
-	unsigned int pmax;
-	unsigned long up_load;  /* load times 256 */
-	unsigned long down_load; /* load times 256 */
-	unsigned long num_items;
-	unsigned long num_expands;
-	unsigned long num_expand_reallocs;
-	unsigned long num_contracts;
-	unsigned long num_contract_reallocs;
-	TSAN_QUALIFIER unsigned long num_hash_calls;
-	TSAN_QUALIFIER unsigned long num_comp_calls;
-	unsigned long num_insert;
-	unsigned long num_replace;
-	unsigned long num_delete;
-	unsigned long num_no_delete;
-	TSAN_QUALIFIER unsigned long num_retrieve;
-	TSAN_QUALIFIER unsigned long num_retrieve_miss;
-	TSAN_QUALIFIER unsigned long num_hash_comps;
+	uint num_nodes;
+	uint num_alloc_nodes;
+	uint p;
+	uint pmax;
+	ulong up_load;  /* load times 256 */
+	ulong down_load; /* load times 256 */
+	ulong num_items;
+	ulong num_expands;
+	ulong num_expand_reallocs;
+	ulong num_contracts;
+	ulong num_contract_reallocs;
+	TSAN_QUALIFIER ulong num_hash_calls;
+	TSAN_QUALIFIER ulong num_comp_calls;
+	ulong num_insert;
+	ulong num_replace;
+	ulong num_delete;
+	ulong num_no_delete;
+	TSAN_QUALIFIER ulong num_retrieve;
+	TSAN_QUALIFIER ulong num_retrieve_miss;
+	TSAN_QUALIFIER ulong num_hash_comps;
 	int error;
 #ifdef TSAN_REQUIRES_LOCKING
 	CRYPTO_RWLOCK * tsan_lock;

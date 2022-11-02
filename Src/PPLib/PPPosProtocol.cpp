@@ -1825,24 +1825,20 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 				// @v10.7.3 {
 				if(gt_rec.Flags & GTF_GMARKED)
 					w_s.PutInner("marked", 0);
-				if(gt_rec.ChZnProdType == GTCHZNPT_FUR)
-					w_s.PutInner("chznprodtype", "fur");
-				else if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO)
-					w_s.PutInner("chznprodtype", "tobacco");
-				else if(gt_rec.ChZnProdType == GTCHZNPT_SHOE)
-					w_s.PutInner("chznprodtype", "shoe");
-				else if(gt_rec.ChZnProdType == GTCHZNPT_MEDICINE)
-					w_s.PutInner("chznprodtype", "medicine");
-				else if(gt_rec.ChZnProdType == GTCHZNPT_CARTIRE) // @v10.9.7
-					w_s.PutInner("chznprodtype", "cartire");
-				else if(gt_rec.ChZnProdType == GTCHZNPT_TEXTILE) // @v11.3.1
-					w_s.PutInner("chznprodtype", "textile");
-				else if(gt_rec.ChZnProdType == GTCHZNPT_PERFUMERY) // @v11.3.1
-					w_s.PutInner("chznprodtype", "perfumery");
-				else if(gt_rec.ChZnProdType == GTCHZNPT_MILK) // @v11.3.1
-					w_s.PutInner("chznprodtype", "milk");
-				else if(gt_rec.ChZnProdType == GTCHZNPT_WATER) // @v11.5.6
-					w_s.PutInner("chznprodtype", "water");
+				const char * p_chzn_type = 0;
+				switch(gt_rec.ChZnProdType) {
+					case GTCHZNPT_FUR: p_chzn_type = "fur"; break;
+					case GTCHZNPT_TOBACCO: p_chzn_type = "tobacco"; break;
+					case GTCHZNPT_SHOE: p_chzn_type = "shoe"; break;
+					case GTCHZNPT_MEDICINE: p_chzn_type = "medicine"; break;
+					case GTCHZNPT_CARTIRE: p_chzn_type = "cartire"; break; // @v10.9.7
+					case GTCHZNPT_TEXTILE: p_chzn_type = "textile"; break; // @v11.3.1
+					case GTCHZNPT_PERFUMERY: p_chzn_type = "perfumery"; break; // @v11.3.1
+					case GTCHZNPT_MILK: p_chzn_type = "milk"; break; // @v11.3.1
+					case GTCHZNPT_WATER: p_chzn_type = "water"; break; // @v11.5.6
+				}
+				if(p_chzn_type)
+					w_s.PutInner("chznprodtype", p_chzn_type);
 				// } @v10.7.3 
 			}
 		}

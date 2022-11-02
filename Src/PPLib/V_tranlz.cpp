@@ -3880,9 +3880,10 @@ int PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 	TrfrAnlzViewItem item;
 	// @v10.4.3 Модификация if-->while с целья воспрепятствовать прерыванию процесса из-за ошибки в одной строке отчета
 	while(ok < 0 && NextIteration(&item) > 0) {
-		PPID   psn_id = 0, org_lot_id = 0;
+		PPID   psn_id = 0;
+		PPID   org_lot_id = 0;
 		SString temp_buf;
-		ReceiptTbl::Rec lot;
+		ReceiptTbl::Rec lot_rec;
 		if(GObj.Fetch(item.GoodsID, &pItem->GoodsRec) > 0) {
 			if(pItem->GoodsRec.GdsClsID)
 				THROW(GdsClsObj.Fetch(pItem->GoodsRec.GdsClsID, &pItem->GCPack));
@@ -3891,7 +3892,7 @@ int PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 			pItem->Item = item;
 			// не будем извлекать пока что, так как billrec = bill packet pItem->BillRec;
 			// @v10.4.3 THROW(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec));
-			if(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec)) { // @v10.4.3 
+			if(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot_rec, &pItem->OrgLotRec)) { // @v10.4.3 
 				if(item.LotID == org_lot_id && GetOpType(item.OpID) == PPOPT_GOODSRECEIPT) {
 					BillTbl::Rec cor_bill_rec;
 					PPIDArray cor_bill_list;

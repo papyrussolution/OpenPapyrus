@@ -493,6 +493,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 										case GTCHZNPT_PERFUMERY: identified_type = 9; break;
 										case GTCHZNPT_MILK: identified_type = 13; break; // @v11.4.9
 										case GTCHZNPT_JEWELRY: identified_type = 14; break; // @v11.4.9
+										case GTCHZNPT_WATER: identified_type = 15; break; // @v11.5.6
 										// } @v11.1.10 
 									}
 								}

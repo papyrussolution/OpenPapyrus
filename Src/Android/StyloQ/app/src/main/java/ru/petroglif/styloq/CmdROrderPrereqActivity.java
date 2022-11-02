@@ -6,14 +6,11 @@ package ru.petroglif.styloq;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -27,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
@@ -104,238 +100,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					}
 				}
 			}
-		}
-	}
-	static class TransferItemDialog extends SLib.SlDialog {
-		CmdROrderPrereqActivity ActivityCtx;
-		public TransferItemDialog(Context ctx, Object data)
-		{
-			super(ctx, R.id.DLG_ORDRTI, data);
-			if(ctx instanceof CmdROrderPrereqActivity)
-				ActivityCtx = (CmdROrderPrereqActivity)ctx;
-			if(data instanceof Document.TransferItem)
-				Data = data;
-		}
-		private void StepQuantity(int direction) // direction < 0 - decrement; > 0 - increment
-		{
-			boolean do_update = false;
-			if(Data != null && Data instanceof Document.TransferItem) {
-				Document.TransferItem _data = (Document.TransferItem)Data;
-				CommonPrereqModule.WareEntry goods_item = ActivityCtx.CPM.FindGoodsItemByGoodsID(_data.GoodsID);
-				double _upp = 0.0;
-				double _mult = 0.0;
-				double _min = 0.0;
-				int    uom_id = 0;
-				if(goods_item != null && goods_item.Item != null) {
-					uom_id = goods_item.Item.UomID;
-					_upp = goods_item.Item.UnitPerPack;
-					_mult = goods_item.Item.OrdQtyMult;
-					_min = goods_item.Item.OrdMinQty;
-				}
-				String qtty_text = SLib.GetCtrlString(this, R.id.CTL_ORDRTI_QTTY);
-				if(_data.Set == null)
-					_data.Set = new Document.ValuSet();
-				if(SLib.GetLen(qtty_text) > 0)
-					_data.Set.Qtty = SLib.strtodouble(qtty_text);
-				if(direction > 0) {
-					if(_mult > 0.0)
-						_data.Set.Qtty += _mult;
-					else if(_upp > 0.0)
-						_data.Set.Qtty += _upp;
-					else
-						_data.Set.Qtty += 1.0;
-					do_update = true;
-				}
-				else if(direction < 0) {
-					double decrement = 0.0;
-					if(_mult > 0.0)
-						decrement = _mult;
-					else if(_upp > 0.0)
-						decrement = _upp;
-					else
-						decrement = 1.0;
-					if(_data.Set.Qtty >= decrement) {
-						_data.Set.Qtty -= decrement;
-						do_update = true;
-					}
-				}
-				if(do_update) {
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, ActivityCtx.CPM.FormatQtty(_data.Set.Qtty, uom_id, true));
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, ActivityCtx.CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price));
-				}
-			}
-		}
-		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
-		{
-			Object result = null;
-			switch(ev) {
-				case SLib.EV_CREATE:
-					requestWindowFeature(Window.FEATURE_NO_TITLE);
-					setContentView(R.layout.dialog_ordrti);
-					SetDTS(Data);
-					{
-						EditText vqty = SLib.FindEditTextById(this, R.id.CTL_ORDRTI_QTTY);
-						if(vqty != null && vqty instanceof TextInputEditText) {
-							((TextInputEditText)vqty).addTextChangedListener(new TextWatcher() {
-								public void afterTextChanged(Editable s)
-								{
-								}
-								public void beforeTextChanged(CharSequence s, int start, int count, int after)
-								{
-								}
-								public void onTextChanged(CharSequence s, int start, int before, int count)
-								{
-									String text = s.toString();
-									if(Data != null && SLib.GetLen(text) > 0) {
-										Document.TransferItem _data = (Document.TransferItem)Data;
-										double qtty = Double.parseDouble(text);
-										if(qtty < 0.0)
-											qtty = 0.0;
-										if(_data.Set == null)
-											_data.Set = new Document.ValuSet();
-										_data.Set.Qtty = qtty;
-										View vamt = findViewById(R.id.CTL_ORDRTI_AMOUNT);
-										if(vamt != null && vamt instanceof TextView) {
-											String amt_text = ActivityCtx.CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price);
-											((TextView)vamt).setText(amt_text);
-										}
-									}
-								}
-							});
-						}
-					}
-					break;
-				case SLib.EV_COMMAND:
-					if(srcObj != null && srcObj instanceof View) {
-						final int view_id = ((View)srcObj).getId();
-						if(view_id == R.id.STDCTL_OKBUTTON) {
-							Object data = GetDTS();
-							if(data != null) {
-								//Context ctx = getContext();
-								//StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
-								//if(app_ctx != null)
-								ActivityCtx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, data);
-							}
-							this.dismiss();
-						}
-						else if(view_id == R.id.STDCTL_CANCELBUTTON) {
-							this.dismiss();
-						}
-						else if(view_id == R.id.STDCTL_DELETEBUTTON) {
-							if(Data != null && Data instanceof Document.TransferItem) {
-								StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(ActivityCtx);
-								if(app_ctx != null) {
-									Document.TransferItem _data = (Document.TransferItem)Data;
-									if(_data != null && _data.Set != null) {
-										CommonPrereqModule.WareEntry goods_item = ActivityCtx.CPM.FindGoodsItemByGoodsID(_data.GoodsID);
-										final int uom_id = (goods_item != null && goods_item.Item != null) ? goods_item.Item.UomID : 0;
-										_data.Set.Qtty = 0.0;
-										SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, ActivityCtx.CPM.FormatQtty(_data.Set.Qtty, uom_id, true));
-										SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, ActivityCtx.CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price));
-									}
-									/*
-									try {
-										StyloQDatabase db = app_ctx.GetDB();
-										db.DeleteForeignSvc(((StyloQDatabase.SecStoragePacket)Data).Rec.ID);
-										app_ctx.HandleEvent(SLib.EV_IADATADELETECOMMIT, this, Data);
-										this.dismiss(); // Close Dialog
-									} catch(StyloQException exn) {
-										;
-									}
-									 */
-								}
-							}
-						}
-						else if(view_id == R.id.CTL_QTTY_UP) {
-							StepQuantity(+1);
-						}
-						else if(view_id == R.id.CTL_QTTY_DN) {
-							StepQuantity(-1);
-						}
-					}
-					break;
-			}
-			return result;
-		}
-		boolean SetDTS(Object objData)
-		{
-			boolean ok = true;
-			if(objData != null && objData.getClass() == Data.getClass()) {
-				Context ctx = getContext();
-				StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
-				if(app_ctx != null) {
-					Document.TransferItem _data = null;
-					CommonPrereqModule.WareEntry goods_item = null;
-					if(Data != null && Data instanceof Document.TransferItem)
-						_data = (Document.TransferItem)Data;
-					else {
-						Data = new Document.TransferItem();
-						_data = (Document.TransferItem)Data;
-					}
-					double _upp = 0.0; // Емкость упаковки
-					double _mult = 0.0; // Кратность количества в заказе
-					double _min = 0.0;	// Минимальный заказ
-					String text = "";
-					String blob_signature = null;
-					int    uom_id = 0;
-					if(_data != null && _data.GoodsID > 0 && ActivityCtx != null) {
-						goods_item = ActivityCtx.CPM.FindGoodsItemByGoodsID(_data.GoodsID);
-						if(goods_item != null && goods_item.Item != null) {
-							uom_id = goods_item.Item.UomID;
-							text = goods_item.Item.Name;
-							blob_signature =  goods_item.Item.ImgBlob;
-							//
-							_upp = goods_item.Item.UnitPerPack;
-							_mult = goods_item.Item.OrdQtyMult;
-							_min = goods_item.Item.OrdMinQty;
-						}
-					}
-					if(_upp > 0.0) {
-						String upp_text = app_ctx.GetString("unitperpack_ss") + " " + SLib.formatdouble(_upp, 0);
-						SLib.SetCtrlString(this, R.id.CTL_ORDRTI_PACK, upp_text);
-					}
-					else {
-						SLib.SetCtrlVisibility(this, R.id.CTL_ORDRTI_PACK, View.GONE);
-					}
-					if(_mult > 0.0) {
-						String upp_text = app_ctx.GetString("goods_fmultminshipm_ss") + " " + SLib.formatdouble(_mult, 0);
-						SLib.SetCtrlString(this, R.id.CTL_ORDRTI_MINORMULT, upp_text);
-					}
-					else if(_min > 0.0) {
-						String upp_text = app_ctx.GetString("goods_minshippmqtty_ss") + " " + SLib.formatdouble(_min, 0);
-						SLib.SetCtrlString(this, R.id.CTL_ORDRTI_MINORMULT, upp_text);
-					}
-					else {
-						SLib.SetCtrlVisibility(this, R.id.CTL_ORDRTI_MINORMULT, View.GONE);
-					}
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_GOODSNAME, text);
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_PRICE, ActivityCtx.CPM.FormatCurrency(_data.Set.Price));
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, ActivityCtx.CPM.FormatQtty(_data.Set.Qtty,  uom_id, true));
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, ActivityCtx.CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price));
-					//
-					SLib.SetupImage(ActivityCtx, this.findViewById(R.id.CTL_ORDRTI_IMG), blob_signature, false);
-				}
-			}
-			return ok;
-		}
-		Object GetDTS()
-		{
-			Object result = null;
-			StyloQApp app_ctx = ActivityCtx.GetAppCtx();
-			if(app_ctx != null) {
-				Document.TransferItem _data = null;
-				if(Data != null && Data instanceof Document.TransferItem)
-					_data = (Document.TransferItem)Data;
-				else {
-					_data = new Document.TransferItem();
-					Data = _data;
-				}
-				String qtty_text = SLib.GetCtrlString(this, R.id.CTL_ORDRTI_QTTY);
-				if(SLib.GetLen(qtty_text) > 0)
-					_data.Set.Qtty = Double.parseDouble(qtty_text);
-				result = Data;
-			}
-			return result;
 		}
 	}
 	static class DebtDetailDialog extends SLib.SlDialog {
@@ -643,27 +407,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.VISIBLE);
 			if(removeTabIfEmpty)
 				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
-		}
-	}
-	private void OpenTransferItemDialog(CommonPrereqModule.WareEntry item, double qtty)
-	{
-		if(item != null) {
-			final int goods_id = item.Item.ID;
-			Document.TransferItem ex_ti = CPM.SearchGoodsItemInCurrentOrderTi(goods_id);
-			if(ex_ti != null) {
-				TransferItemDialog dialog = new TransferItemDialog(this, ex_ti);
-				dialog.show();
-			}
-			else {
-				Document.TransferItem ti = new Document.TransferItem();
-				if(ti != null) {
-					ti.GoodsID = goods_id;
-					ti.Set.Price = item.Item.Price;
-					ti.Set.Qtty = (qtty > 0.0) ? qtty : 0.0;
-					TransferItemDialog dialog = new TransferItemDialog(this, ti);
-					dialog.show();
-				}
-			}
 		}
 	}
 	private void PreprocessRegistryData()
@@ -1427,7 +1170,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										if(ev_subj.ItemIdx < CPM.GetGoodsListSize()) {
 											if(ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.buttonOrder) {
 												CommonPrereqModule.WareEntry item = CPM.GetGoodsListItemByIdx(ev_subj.ItemIdx);
-												OpenTransferItemDialog(item, 0.0);
+												CPM.OpenTransferItemDialog(item, 0.0);
 											}
 										}
 										break;
@@ -1518,7 +1261,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 											final Document _doc = CPM.GetCurrentDocument();
 											final Document.TransferItem ti = _doc.TiList.get(ev_subj.ItemIdx);
 											if(ti != null) {
-												TransferItemDialog dialog = new TransferItemDialog(this, ti);
+												CommonPrereqModule.TransferItemDialog dialog = new CommonPrereqModule.TransferItemDialog(this, CPM, ti);
 												dialog.show();
 											}
 										}
@@ -1736,7 +1479,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_IADATAEDITCOMMIT:
 				if(srcObj != null) {
-					if(srcObj instanceof TransferItemDialog) {
+					if(srcObj instanceof CommonPrereqModule.TransferItemDialog) {
 						if(subj != null && subj instanceof Document.TransferItem) {
 							Document.TransferItem _data = (Document.TransferItem)subj;
 							boolean do_notify_goods_list = false;
@@ -1884,7 +1627,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					CommonPrereqModule.WareEntry goods_entry = goods_list.get(0);
 					final int _idx = CPM.FindGoodsItemIndexByID(goods_entry.Item.ID);
 					GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, _idx, -1);
-					OpenTransferItemDialog(goods_entry, pbcr.Qtty);
+					CPM.OpenTransferItemDialog(goods_entry, pbcr.Qtty);
 				}
 				else {
 					app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_GDSBYBARCODENFOUND, contents), 0);

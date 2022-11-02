@@ -31,7 +31,6 @@ int UTF8_getc(const uchar * str, int len, unsigned long * val)
 	if(len <= 0)
 		return 0;
 	p = str;
-
 	/* Check syntax and work out the encoded value (if correct) */
 	if((*p & 0x80) == 0) {
 		value = *p++ & 0x7f;
