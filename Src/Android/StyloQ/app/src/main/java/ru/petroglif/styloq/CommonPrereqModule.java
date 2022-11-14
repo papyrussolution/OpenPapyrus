@@ -2523,11 +2523,12 @@ public class CommonPrereqModule {
 				SetupSearchPaneObjRestrictionIcon(fragmentView);
 				View iv = fragmentView.findViewById(R.id.CTL_SEARCHPANE_INPUT);
 				if(iv != null && iv instanceof TextInputEditText) {
-					((TextInputEditText)iv).setText(SsB.SearchPattern);
+					TextInputEditText tiv = (TextInputEditText)iv;
+					tiv.setText(SsB.SearchPattern);
 					SLib.SetCtrlVisibility(fragmentView, R.id.CTLSEL_SEARCHPANE_OPTIONS, View.GONE);
 					SelectSearchPaneObjRestriction(fragmentView, SsB.RestrictionObjType); // @v11.5.1
-					TextInputEditText tiv = (TextInputEditText)iv;
 					tiv.requestFocus();
+					tiv.setActivated(true); // @v11.5.8
 					tiv.addTextChangedListener(new TextWatcher() {
 						public void afterTextChanged(Editable s)
 						{

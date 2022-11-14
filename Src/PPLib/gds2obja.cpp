@@ -122,7 +122,7 @@ int GoodsToObjAssoc::Remove(PPID goodsID, PPID objID)
 	return ok;
 }
 
-int GoodsToObjAssoc::GetListByGoods(PPID goodsID, PPIDArray & rObjList)
+int GoodsToObjAssoc::GetListByGoods(PPID goodsID, PPIDArray & rObjList) const
 {
 	Goods2Tbl::Rec goods_rec;
 	PPIDArray temp_list;
@@ -136,7 +136,7 @@ int GoodsToObjAssoc::GetListByGoods(PPID goodsID, PPIDArray & rObjList)
 	return temp_list.getCount() ? 1 : -1;
 }
 
-int GoodsToObjAssoc::Get(PPID goodsID, PPID * pObjID)
+int GoodsToObjAssoc::Get(PPID goodsID, PPID * pObjID) const
 {
 	int    ok = -1;
 	PPID   obj_id = 0;

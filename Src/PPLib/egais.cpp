@@ -617,7 +617,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 	SString url;
 	{
 		for(uint i = 0; i < rPack.GetCount(); i++) {
-			const CCheckLineTbl::Rec & r_item = rPack.GetLine(i);
+			const CCheckLineTbl::Rec & r_item = rPack.GetLineC(i);
 			if(IsAlcGoods(r_item.GoodsID) && PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
 				if(agi.StatusFlags & agi.stMarkWanted) {
 					marked_pos_list.add(static_cast<long>(i+1));
@@ -730,7 +730,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 										const uint _pos = static_cast<uint>(marked_pos_list.get(i) - 1);
 										assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
 										if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
-											const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
+											const CCheckLineTbl::Rec & r_item = rPack.GetLineC(_pos);
 											if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
 												assert(agi.StatusFlags & agi.stMarkWanted); // @paranoic
 												rPack.GetLineTextExt(_pos+1, CCheckPacket::lnextEgaisMark, mark_buf);
@@ -766,7 +766,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 											const uint _pos = static_cast<uint>(nonmarked_pos_list.get(i) - 1);
 											assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
 											if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
-												const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
+												const CCheckLineTbl::Rec & r_item = rPack.GetLineC(_pos);
 												if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
 													assert((agi.StatusFlags & agi.stMarkWanted) == 0); // @paranoic
 													//
@@ -834,7 +834,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 						const uint _pos = static_cast<uint>(marked_pos_list.get(i) - 1);
 						assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
 						if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
-							const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
+							const CCheckLineTbl::Rec & r_item = rPack.GetLineC(_pos);
 							if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
 								assert(agi.StatusFlags & agi.stMarkWanted); // @paranoic
 								rPack.GetLineTextExt(_pos+1, CCheckPacket::lnextEgaisMark, mark_buf);
@@ -870,7 +870,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 						const uint _pos = static_cast<uint>(nonmarked_pos_list.get(i) - 1);
 						assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
 						if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
-							const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
+							const CCheckLineTbl::Rec & r_item = rPack.GetLineC(_pos);
 							if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
 								assert((agi.StatusFlags & agi.stMarkWanted) == 0); // @paranoic
 								SXml::WNode n_item(_doc, "nopdf");
@@ -5678,7 +5678,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 								// @v10.8.7 (LoadPacket) cc_pack.Z();
 								p_cc->LoadPacket(cc_id, 0, &cc_pack);
 								for(uint clidx = 0; clidx < cc_pack.GetCount(); clidx++) {
-									const CCheckLineTbl::Rec & r_ccl = cc_pack.GetLine(clidx);
+									const CCheckLineTbl::Rec & r_ccl = cc_pack.GetLineC(clidx);
 									const PPID goods_id = labs(r_ccl.GoodsID);
 									if(alco_goods_list.bsearch(goods_id)) {
 										cc_pack.GetLineTextExt(clidx+1, CCheckPacket::lnextEgaisMark, /*temp_buf*/egais_mark);

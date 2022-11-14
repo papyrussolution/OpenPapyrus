@@ -10536,7 +10536,7 @@ public:
 		AddClusterAssoc(CTL_VETDOCFLT_STATUS, 5, (1<<vetisdocstOUTGOING_PREPARING));
 		AddClusterAssoc(CTL_VETDOCFLT_STATUS, 6, (1<<vetisdocstSTOCK));
 		SetClusterData(CTL_VETDOCFLT_STATUS, Data.VDStatusFlags);
-		SetupLocationCombo(this, CTLSEL_VETDOCFLT_WH, Data.LocID, 0, LOCTYP_WAREHOUSE, 0);
+		SetupLocationCombo(this, CTLSEL_VETDOCFLT_WH, Data.LocID__, 0, LOCTYP_WAREHOUSE, 0);
 		{
 			const PPID acs_from_id = GetSupplAccSheet();
 			const PPID acs_to_id = GetSellAccSheet();
@@ -10559,7 +10559,7 @@ public:
 		GetPeriodInput(this, CTL_VETDOCFLT_PRD,   &Data.Period);
 		GetPeriodInput(this, CTL_VETDOCFLT_WBPRD, &Data.WayBillPeriod);
 		GetClusterData(CTL_VETDOCFLT_STATUS, &Data.VDStatusFlags);
-		getCtrlData(CTLSEL_VETDOCFLT_WH, &Data.LocID);
+		getCtrlData(CTLSEL_VETDOCFLT_WH, &Data.LocID__);
 		getCtrlData(CTLSEL_VETDOCFLT_FROMP, &Data.FromPersonID);
 		Data.FromLocID = 0;
 		getCtrlData(CTLSEL_VETDOCFLT_TOP, &Data.ToPersonID);
@@ -10594,7 +10594,7 @@ public:
 			RVALUEPTR(Data, pData);
 			SetPeriodInput(this, CTL_VETDOCFLT_PRD,   &Data.Period);
 			SetupPersonCombo(this, CTLSEL_VETDOCFLT_MAINORG, 0, Data.MainOrgID, PPPRK_MAIN, 1);
-			SetupLocationCombo(this, CTLSEL_VETDOCFLT_WH, Data.LocID, 0, LOCTYP_WAREHOUSE, 0);
+			SetupLocationCombo(this, CTLSEL_VETDOCFLT_WH, Data.LocID__, 0, LOCTYP_WAREHOUSE, 0);
 			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 0, VetisDocumentFilt::icacnLoadUpdated);
 			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 1, VetisDocumentFilt::icacnLoadStock);
 			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 2, VetisDocumentFilt::icacnLoadAllDocs);
@@ -10622,7 +10622,7 @@ public:
 			int    ok = 1;
 			GetPeriodInput(this, CTL_VETDOCFLT_PRD,   &Data.Period);
 			getCtrlData(CTLSEL_VETDOCFLT_MAINORG, &Data.MainOrgID);
-			getCtrlData(CTLSEL_VETDOCFLT_WH, &Data.LocID);
+			getCtrlData(CTLSEL_VETDOCFLT_WH, &Data.LocID__);
 			GetClusterData(CTL_VETDOCFLT_ACTIONS, &Data.Actions);
 			GetClusterData(CTL_VETDOCFLT_RFIMPF, &Data.RefsImpFlags); // @v11.0.10
 			ASSIGN_PTR(pData, Data);
@@ -10682,7 +10682,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 		filt = *pFilt__;
 		filt.Period.Actualize(ZERODATE);
 		filt.WayBillPeriod.Actualize(ZERODATE);
-		PPVetisInterface::Param param(filt.MainOrgID, filt.LocID, 0);
+		PPVetisInterface::Param param(filt.MainOrgID, filt.LocID__, 0);
 		THROW(PPVetisInterface::SetupParam(param));
 		{
 			SString fmt_buf, msg_buf;
@@ -10969,7 +10969,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 				if(!checkdate(period.upp)) {
 					period.upp = getcurdate_();
 				}
-				if(ifc.SetupOutgoingEntries(filt.LocID, period) > 0)
+				if(ifc.SetupOutgoingEntries(filt.LocID__, period) > 0)
 					ok = 1;
 			}
 			if(filt.Actions & VetisDocumentFilt::icacnSendOutgoing) {
@@ -11016,13 +11016,26 @@ int PPViewVetisDocument::Init_(const PPBaseFilt * pBaseFilt)
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	Filt.Period.Actualize(ZERODATE);
 	Filt.WayBillPeriod.Actualize(ZERODATE);
-	FromEntityIdList.clear();
+	FromEntityIdList.Z();
+	LocEntityID = 0; // @v11.5.8
 	FromEnterpriseID = 0;
 	ToEntityID = 0;
 	ToEnterpriseID = 0;
 	{
 		S_GUID guid;
 		VetisEntityCore::Entity ent;
+		// @v11.5.8 {
+		if(Filt.LocID__) {
+			TSCollection <VetisEntityCore::Entity> ent_list;
+			if(p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, Filt.LocID__, PPTAG_LOC_VETIS_GUID, guid) > 0 && EC.GetEntityListByGuid(guid, ent_list) > 0) {
+				for(uint i = 0; !LocEntityID && i < ent_list.getCount(); i++) {
+					const VetisEntityCore::Entity * p_ent = ent_list.at(i);
+					if(p_ent && p_ent->Kind == VetisEntityCore::kEnterprise)
+						LocEntityID = p_ent->ID;
+				}				
+			}
+		}
+		// } @v11.5.8 
 		if(Filt.FromPersonID) {
 			// @v10.9.10 {
 			TSCollection <VetisEntityCore::Entity> ent_list;
@@ -11299,15 +11312,24 @@ static IMPL_DBE_PROC(dbqf_vetis_vet_checkexpiry_ii)
 	result->init(static_cast<long>(VetisEntityCore::CheckExpiryDate(params[0].i64val, params[1].i64val)));
 }
 
+static IMPL_DBE_PROC(dbqf_vetis_vet_checklocation_iii)
+{
+	PPID loc_enterprise_id = static_cast<long>(params[0].lval);
+	PPID from_enterprise_id = static_cast<long>(params[1].lval);
+	PPID to_enterprise_id = static_cast<long>(params[2].lval);
+	result->init(static_cast<long>(!loc_enterprise_id || loc_enterprise_id == from_enterprise_id || loc_enterprise_id == to_enterprise_id));
+}
+
 int PPViewVetisDocument::DynFuncEntityTextFld      = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_entitytextfld_ip, 2, BTS_INT, BTS_PTR);
 int PPViewVetisDocument::DynFuncBMembTextFld       = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_businessmembtextfld_iip, 3, BTS_INT, BTS_INT, BTS_PTR);
 int PPViewVetisDocument::DynFuncProductItemTextFld = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_productitemtextfld_iiiiip, 6, BTS_INT, BTS_INT, BTS_INT, BTS_INT, BTS_INT, BTS_PTR);
-int PPViewVetisDocument::DynFuncVetDStatus = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdstatus_i, 1, BTS_INT);
-int PPViewVetisDocument::DynFuncVetDForm   = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdform_i, 1, BTS_INT);
-int PPViewVetisDocument::DynFuncVetDType   = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdtype_i, 1, BTS_INT);
+int PPViewVetisDocument::DynFuncVetDStatus         = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdstatus_i, 1, BTS_INT);
+int PPViewVetisDocument::DynFuncVetDForm           = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdform_i, 1, BTS_INT);
+int PPViewVetisDocument::DynFuncVetDType           = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdtype_i, 1, BTS_INT);
 int PPViewVetisDocument::DynFuncVetStockByDoc      = DbqFuncTab::RegisterDynR(BTS_REAL,   dbqf_vetis_vetstockbydoc_i, 2, BTS_INT, BTS_PTR);
-int PPViewVetisDocument::DynFuncVetUUID    = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vet_uuid_i, 2, BTS_INT, BTS_PTR);  //@erik v10.4.11
+int PPViewVetisDocument::DynFuncVetUUID            = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vet_uuid_i, 2, BTS_INT, BTS_PTR);  // @erik v10.4.11
 int PPViewVetisDocument::DynFuncCheckExpiry        = DbqFuncTab::RegisterDynR(BTS_INT,    dbqf_vetis_vet_checkexpiry_ii, 2, BTS_INT64_, BTS_INT64_);  // @v10.6.3
+int PPViewVetisDocument::DynFuncCheckLocation      = DbqFuncTab::RegisterDynR(BTS_INT,    dbqf_vetis_vet_checklocation_iii, 3, BTS_INT, BTS_INT, BTS_INT);  // @v11.5.8
 
 DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
@@ -11325,6 +11347,7 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	DBE    dbe_stock;
 	DBE    dbe_uuid; //@erik v10.4.11
 	DBE    dbe_checkexpiry; // @v10.6.3
+	DBE    dbe_checkloc; // @v11.5.8
 	THROW(CheckTblPtr(t = new VetisDocumentTbl(EC.DT.GetName())));
 	{
 		dbe_product_name.init();
@@ -11402,6 +11425,16 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbq = (Filt.Ft_Expiry > 0) ? &(*dbq && dbe_checkexpiry == 0L) : &(*dbq && dbe_checkexpiry > 0L);
 	}
 	// } @v10.6.3
+	// @v11.5.8 {
+	if(LocEntityID) {
+		dbe_checkloc.init();
+		dbe_checkloc.push(dbconst(LocEntityID));
+		dbe_checkloc.push(t->FromEnterpriseID);
+		dbe_checkloc.push(t->ToEnterpriseID);
+		dbe_checkloc.push(static_cast<DBFunc>(DynFuncCheckLocation));
+		dbq = &(*dbq && dbe_checkloc > 0L);
+	}
+	// } @v11.5.8 
 	q = &select(
 		t->EntityID,          // #0
 		t->Flags,             // #1
@@ -11453,6 +11486,8 @@ int FASTCALL PPViewVetisDocument::CheckForFilt(const VetisDocumentViewItem * pIt
 		ok = 0;
 	// } @v10.9.10 
 	else if(ToEntityID && pItem->ToEntityID != ToEntityID)
+		ok = 0;
+	else if(LocEntityID && (pItem->FromEnterpriseID != LocEntityID && pItem->ToEnterpriseID != LocEntityID)) // @v11.5.8
 		ok = 0;
 	else {
 		const long ff = Filt.VDStatusFlags;
@@ -11704,7 +11739,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	VetisApplicationBlock _regionalization_ent_reply;
 	_VetisRegionRoutArray regroute_list; // Список уникальных ассоциация откуда->куда. Откуда - предприятие-отправитель (чаще всего, главная организация).
 	PPVetisInterface ifc(&logger);
-	PPVetisInterface::Param param(0, Filt.LocID, 0);
+	PPVetisInterface::Param param(0, Filt.LocID__, 0);
 	PPVetisInterface::OutcomingList work_list; // @v10.5.9
 	VetisApplicationBlock pi_reply;
 	BillTbl::Rec link_bill_rec;
@@ -11966,7 +12001,7 @@ int PPViewVetisDocument::RerequestDocument(PPID entityID)
 	VetisVetDocument item;
 	if(EC.Get(entityID, item) > 0) {
 		if(!item.Uuid.IsZero()) {
-			PPVetisInterface::Param param(0, Filt.LocID, 0);
+			PPVetisInterface::Param param(0, Filt.LocID__, 0);
 			THROW(PPVetisInterface::SetupParam(param));
 			{
 				PPLogger logger;
@@ -12040,7 +12075,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 			VetisVetDocument item;
 			if(EC.Get(entityID, item) > 0) {
 				if(!item.Uuid.IsZero()) {
-					PPVetisInterface::Param param(0, Filt.LocID, 0);
+					PPVetisInterface::Param param(0, Filt.LocID__, 0);
 					THROW(PPVetisInterface::SetupParam(param));
 					{
 						PPLogger logger;
@@ -12056,7 +12091,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 			}
 		}
 		else if(v == 1) { // Погасить все сопоставленные с документами
-			PPVetisInterface::Param param(0, Filt.LocID, 0);
+			PPVetisInterface::Param param(0, Filt.LocID__, 0);
 			THROW(PPVetisInterface::SetupParam(param));
 			{
 				PPLogger logger;
@@ -12084,7 +12119,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 			}
 		}
 		else if(v == 2) { // Безусловно погасить всю выборку
-			PPVetisInterface::Param param(0, Filt.LocID, 0);
+			PPVetisInterface::Param param(0, Filt.LocID__, 0);
 			THROW(PPVetisInterface::SetupParam(param));
 			{
 				PPLogger logger;
@@ -12113,7 +12148,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 			VetisVetDocument item;
 			if(EC.Get(entityID, item) > 0) {
 				if(!item.Uuid.IsZero()) {
-					PPVetisInterface::Param param(0, Filt.LocID, 0);
+					PPVetisInterface::Param param(0, Filt.LocID__, 0);
 					THROW(PPVetisInterface::SetupParam(param));
 					{
 						PPLogger logger;
@@ -12131,7 +12166,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 		}
 		else if(v == 4) { // @v10.6.4 Списать всю выборку документов
 			if(CONFIRMCRIT(PPCFM_WROFFALLVETISCERTS)) {
-				PPVetisInterface::Param param(0, Filt.LocID, 0);
+				PPVetisInterface::Param param(0, Filt.LocID__, 0);
 				THROW(PPVetisInterface::SetupParam(param));
 				{
 					PPLogger logger;
@@ -12191,7 +12226,7 @@ int PPViewVetisDocument::LoadDocuments()
 	DateRange period;
 	STimeChunk tc;
 	PPLogger logger;
-	PPVetisInterface::Param param(0, Filt.LocID, 0);
+	PPVetisInterface::Param param(0, Filt.LocID__, 0);
 	THROW(PPVetisInterface::SetupParam(param));
 	period.Z();
 	if(checkdate(Filt.Period.low)) {
@@ -12491,7 +12526,7 @@ int PPViewVetisDocument::ForceResolveObject(const VetisDocumentTbl::Rec & rRec, 
 			}
 		}
 		if(urel.getCount()) {
-			PPVetisInterface::Param param(0, Filt.LocID, 0);
+			PPVetisInterface::Param param(0, Filt.LocID__, 0);
 			if(PPVetisInterface::SetupParam(param)) {
 				PPLogger logger;
 				PPVetisInterface ifc(&logger);
@@ -12688,7 +12723,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 					if(ar_id) {
 						LotFilt lot_filt;
 						lot_filt.SupplID = ar_id;
-						lot_filt.LocList.Add(Filt.LocID);
+						lot_filt.LocList.Add(Filt.LocID__);
 						if(SetupSurveyPeriod(rRec, lot_filt.Period)) {
 							lot_filt.Flags |= (LotFilt::fCheckOriginLotDate|LotFilt::fNoTempTable|LotFilt::fInitOrgLot);
 							PPViewLot lot_view;
@@ -12755,7 +12790,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 			else if(rRec.Flags & VetisVetDocument::fFromMainOrg)
 				i_am_side = 1;
 			if(i_am_side == 0) {
-				PPID   acs_id = GetSupplAccSheet();
+				const  PPID acs_id = GetSupplAccSheet();
 				PPID   ar_id = 0;
 				PPID   rcvr_ar_id = 0;
 				PPID   loc_id = 0;
@@ -12856,7 +12891,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 								for(uint i = 0; i < op_list_intrrcpt.getCount(); i++) {
 									const PPID op_id = op_list_intrrcpt.get(i);
 									for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
-										if(bill_rec.OpID == op_id && (!Filt.LocID || bill_rec.LocID == Filt.LocID)) {
+										if(bill_rec.OpID == op_id && (!Filt.LocID__ || bill_rec.LocID == Filt.LocID__)) {
 											temp_id_list.add(bill_rec.ID);
 											// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
 											temp_buf = bill_rec.Code; // @v11.1.12 
@@ -12868,7 +12903,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 						}
 						else {
 							for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
-								if((!Filt.LocID || bill_rec.LocID == Filt.LocID) && GetOpType(bill_rec.OpID) == PPOPT_GOODSRECEIPT) {
+								if((!Filt.LocID__ || bill_rec.LocID == Filt.LocID__) && GetOpType(bill_rec.OpID) == PPOPT_GOODSRECEIPT) {
 									temp_id_list.add(bill_rec.ID);
 									// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
 									temp_buf = bill_rec.Code; // @v11.1.12 
@@ -12939,7 +12974,7 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 							pBrw->endModal(Filt.Sel ? cmOK : cmCancel);
 						}
 						else {
-							if(EditVetisVetDocument(item, Filt.MainOrgID, Filt.LocID) > 0) {
+							if(EditVetisVetDocument(item, Filt.MainOrgID, Filt.LocID__) > 0) {
 								// @v10.5.8 {
 								if(!EC.Put(&id, item, EC.putvdfForceUpdateOuterFields|EC.putvdfEnableClearNativeBillLink, 0, 1)) // @v11.1.8 putvdfEnableClearNativeBillLink
 									PPError();
@@ -12964,7 +12999,7 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 						else if(rec.VetisDocStatus == vetisdocstCONFIRMED && rec.Flags & VetisVetDocument::fFromMainOrg) {
 							VetisVetDocument item;
 							if(EC.Get(rec.EntityID, item) > 0 && !!item.Uuid && CONFIRM(PPCFM_VETISWITHDRAWDOC)) {
-								PPVetisInterface::Param param(0, Filt.LocID, 0);
+								PPVetisInterface::Param param(0, Filt.LocID__, 0);
 								if(PPVetisInterface::SetupParam(param)) {
 									PPLogger logger;
 									PPVetisInterface ifc(&logger);
@@ -13020,7 +13055,7 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 			case PPVCMD_SETUPOUTGOING:
 				ok = -1;
 				{
-					PPVetisInterface::Param param(0, Filt.LocID, 0);
+					PPVetisInterface::Param param(0, Filt.LocID__, 0);
 					if(PPVetisInterface::SetupParam(param)) {
 						DateRange period;
 						if(checkdate(Filt.Period.low))
@@ -13038,7 +13073,7 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 						PPLogger logger;
 						PPVetisInterface ifc(&logger);
 						if(ifc.Init(param)) {
-							if(ifc.SetupOutgoingEntries(Filt.LocID, period) > 0)
+							if(ifc.SetupOutgoingEntries(Filt.LocID__, period) > 0)
 								ok = 1;
 						}
 						logger.Save(PPFILNAM_VETISINFO_LOG, 0);

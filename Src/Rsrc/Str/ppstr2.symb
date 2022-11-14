@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494624
+LastSignatureCode=2147494625
 LastAutoCodeList=1,12174;102,10177;103,10072;110,10000;111,12068;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10313;124,10241
 
 [SignatureList]
@@ -7621,6 +7621,7 @@ goodsfilt_fgengoodsonly=2147490543
 goodsfilt_fwotaxgdsonly=2147490544
 goodsfilt_fnodisonly=2147490545
 goodsfilt_fwobrand=2147490546
+goodsfilt_f2showwhplace=2147494625
 goodsfilt_goodstype=2147490547
 goodsfilt_grp=2147490548
 goodsfilt_manuf=2147490549

@@ -808,7 +808,7 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 						uint   c = check_pack.GetCount();
 						if(c)
 							do {
-								const CCheckLineTbl::Rec & r_line = check_pack.GetLine(--c);
+								const CCheckLineTbl::Rec & r_line = check_pack.GetLineC(--c);
 								if(r_line.GoodsID == labs(goods_id) && fabs(r_line.Quantity) == fabs(qtty)) {
 									check_pack.RemoveLine_(c);
 									break;

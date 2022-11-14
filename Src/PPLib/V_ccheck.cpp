@@ -3390,7 +3390,7 @@ int PPViewCCheck::Recover()
 								if(P_CC->LoadPacket(cc_id, 0, &cc_pack) > 0) {
 									int   do_update = 0;
 									for(uint clidx = 0; clidx < cc_pack.GetCount(); clidx++) {
-										const CCheckLineTbl::Rec & r_cc_item = cc_pack.GetLine(clidx);
+										const CCheckLineTbl::Rec & r_cc_item = cc_pack.GetLineC(clidx);
 										PPID   replace_id = 0;
 										if(hanged_goods_replace_list.Search(r_cc_item.GoodsID, &replace_id, 0)) {
 											cc_pack._SetLineGoodsID(clidx, replace_id);
@@ -3831,6 +3831,12 @@ public:
 			setCtrlString(CTL_CCHECKINFO_RPRCTAID, temp_buf);
 		}
 		// } @v10.9.0 
+		// @v11.5.8 {
+		{
+			Data.GetExtStrData(CCheckPacket::extssUuid, temp_buf);
+			setCtrlString(CTL_CCHECKINFO_UUID, temp_buf);
+		}
+		// } @v11.5.8 
 		// @v11.3.6 {
 		{
 			SString email;

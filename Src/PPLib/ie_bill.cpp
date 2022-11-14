@@ -4139,6 +4139,7 @@ public:
 		DTC.Z();
 		SalesRepIdent.Z();
 		INN.Z();
+		Memo.Z(); // @v11.5.8
 		return *this;
 	}
 	bool   Read(const xmlNode * pParentNode)
@@ -4221,6 +4222,9 @@ public:
 			else if(SXml::GetContentByName(p_c, "INPUT_CHANNEL", temp_buf)) {
 				InputChannel = temp_buf;
 			}
+			else if(SXml::GetContentByName(p_c, "DELIVERY_NOTE_MSG_1", temp_buf)) { // @v11.5.8
+				Memo = temp_buf;
+			}
 		}
 		return (OrderIdent.NotEmpty() && ProductCode.NotEmpty() && (QtyBottle > 0.0 || QtyCase > 0.0));
 	}
@@ -4249,6 +4253,7 @@ public:
 	SString DTC;
 	SString SalesRepIdent;
 	SString INN/*FiscalNumber*/;
+	SString Memo; // @v11.5.8
 };
 
 int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opID, PPID supplArID)
@@ -4336,6 +4341,7 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 							}
 						}
 					}
+					(pack.SMemo = p_item->Memo).Transf(CTRANSF_UTF8_TO_INNER); // @v11.5.8
 					bool skip_this_doc = false;
 					if(!Period.IsZero() && !Period.CheckDate(pack.Rec.Dt)) {
 						skip_this_doc = true;
@@ -4512,6 +4518,9 @@ int PPBillImporter::Run()
 	}
 	else if(Flags & PPBillImporter::fEdiImpExp && Flags & PPBillImporter::fFullEdiProcess) {
 		THROW(DoFullEdiProcess());
+	}
+	else if(BillParam.PredefFormat == piefChicago) { // @v11.5.8 @construction
+		
 	}
 	else if(BillParam.PredefFormat == piefCokeOrder) { // @v11.3.8
 		xmlParserCtxt * p_ctx = 0;
@@ -6578,18 +6587,31 @@ const SString & FASTCALL DocNalogRu_Generator::EncText(const SString & rS)
 	return EncBuf.Transf(CTRANSF_INNER_TO_OUTER);
 }
 
-int DocNalogRu_Generator::GetAgreementParams(PPID arID, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry)
+int DocNalogRu_Generator::GetAgreementParams(/*PPID arID*/const PPBillPacket & rBillPack, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry)
 {
 	rAgtCode.Z();
 	rAgtDate = ZERODATE;
 	rAgtExpiry = ZERODATE;
 	int    ok = -1;
 	ArticleTbl::Rec ar_rec;
-	if(ArObj.Fetch(arID, &ar_rec) > 0) {
+	const PPID ar_id = rBillPack.Rec.Object;
+	// @v11.5.8 {
+	BillTbl::Rec agt_bill_rec;
+	if(rBillPack.Rec.AgtBillID && BillObj->Search(rBillPack.Rec.AgtBillID, &agt_bill_rec) > 0) {
+		PPBill::Agreement agt;
+		if(PPRef->GetProperty(PPOBJ_BILL, agt_bill_rec.ID, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0 && !agt.IsEmpty()) {
+			rAgtCode = agt_bill_rec.Code;
+			rAgtDate= agt_bill_rec.Dt;
+			rAgtExpiry = agt.Expiry;
+			ok = 1;
+		}		
+	}
+	// } @v11.5.8 
+	if(ok < 0 && ArObj.Fetch(ar_id, &ar_rec) > 0) {
 		const int agt_kind = ArObj.GetAgreementKind(&ar_rec);
 		if(agt_kind == 1) {
 			PPClientAgreement cli_agt;
-			if(ArObj.GetClientAgreement(arID, cli_agt, 0) > 0) {
+			if(ArObj.GetClientAgreement(ar_id, cli_agt, 0) > 0) {
 				// @v11.2.0 if(!isempty(cli_agt.Code2)) { // @v10.2.9 Code-->Code2
 				if(cli_agt.Code_.NotEmpty()) { // @v11.2.0 // @v11.2.1 @fix IsEmpty-->NotEmpty
 					// @v11.2.0 rAgtCode = cli_agt.Code2; // @v10.2.9 Code-->Code2
@@ -6757,7 +6779,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillImpExpParam & rParam, const PPBil
 								SString agt_code;
 								LDATE  agt_date;
 								LDATE  agt_expiry;
-								if(g.GetAgreementParams(rBp.Rec.Object, agt_code, agt_date, agt_expiry) > 0) {
+								if(g.GetAgreementParams(rBp/*.Rec.Object*/, agt_code, agt_date, agt_expiry) > 0) {
 									{
 										SXml::WNode n_481(g.P_X, g.GetToken_Ansi(PPHSC_RU_TEXTINF)); // [0..20]
 										temp_buf = g.GetToken_Ansi(PPHSC_RU_CONTRACT);
@@ -6830,7 +6852,7 @@ int WriteBill_NalogRu2_Invoice2(const PPBillImpExpParam & rParam, const PPBillPa
 		SString agt_code;
 		LDATE  agt_date;
 		LDATE  agt_expiry;
-		g.GetAgreementParams(rBp.Rec.Object, agt_code, agt_date, agt_expiry);
+		g.GetAgreementParams(rBp/*.Rec.Object*/, agt_code, agt_date, agt_expiry);
 		THROW(g.CreateHeaderInfo(pHeaderSymb/*"ON_NSCHFDOPPRMARK"*/, main_org_id, contragent_id, dto_id, rFileName, _hi));
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {
@@ -7133,7 +7155,7 @@ int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket 
 		SString agt_code;
 		LDATE  agt_date = ZERODATE;
 		LDATE  agt_expiry = ZERODATE;
-		g.GetAgreementParams(rBp.Rec.Object, agt_code, agt_date, agt_expiry);
+		g.GetAgreementParams(rBp/*.Rec.Object*/, agt_code, agt_date, agt_expiry);
 		THROW(g.CreateHeaderInfo("ON_NSCHFDOPR", main_org_id, contragent_id, dto_id, rFileName, _hi)); // @v10.6.10 ON_SCHFDOPPR-->ON_NSCHFDOPR
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {

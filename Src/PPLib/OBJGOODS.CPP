@@ -1238,7 +1238,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				THROW(p_ref->PutPropVlrString(PPOBJ_GOODSGROUP, *pID, GGPRP_EXSTRTITLES, pPack->ExTitles));
 			}
 			if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
-				PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
+				PPObjGoods goods_obj(SConstructorLite);
 				THROW_PP(goods_obj.CheckRights(GOODSRT_UPDIMAGE), PPERR_NRT_UPDIMAGE);
 				pPack->LinkFiles.Save(*pID, 0L);
 			}

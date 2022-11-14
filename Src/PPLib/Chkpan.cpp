@@ -302,6 +302,7 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 		pPack->Ext.LinkCheckID = (pPack->Rec.Flags & CCHKF_SKIP) ? 0 : OrderCheckID;
 		pPack->Ext.CreationDtm = Eccd.InitDtm;
 		pPack->Ext.CreationUserID = Eccd.InitUserID; // @v10.6.8
+		pPack->SetGuid(&Eccd.Uuid); // @v11.5.8
 		Eccd.Memo.CopyTo(pPack->Ext.Memo, sizeof(pPack->Ext.Memo));
 		SETFLAG(pPack->Rec.Flags, CCHKF_DELIVERY,   Eccd.Flags & Eccd.fDelivery);
 		SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, Eccd.Flags & Eccd.fFixedPrice);
@@ -483,6 +484,7 @@ CPosProcessor::ExtCcData & CPosProcessor::ExtCcData::Z()
 	InitUserID = 0;
 	DlvrDtm.Z();
 	InitDtm.Z();
+	Uuid.Z(); // @v11.5.8
 	MEMSZERO(Addr_);
 	Memo.Z();
 	return *this;
@@ -1304,6 +1306,7 @@ void CPosProcessor::SetupExt(const CCheckPacket * pPack)
 		}
 		P.Eccd.InitDtm = pPack->Ext.CreationDtm;
 		P.Eccd.InitUserID = pPack->Ext.CreationUserID; // @v10.6.8
+		pPack->GetGuid(P.Eccd.Uuid); // @v11.5.8
 		if(P.Eccd.Flags & P.Eccd.fDelivery)
 			P.Eccd.DlvrDtm = pPack->Ext.StartOrdDtm;
 		P.AmL = pPack->AL_Const();
@@ -1476,16 +1479,25 @@ double CPosProcessor::RoundDis(double d) const { return PPRound(d, R__.DisRoundP
 
 int CPosProcessor::SetupCTable(int tableNo, int guestCount)
 {
+	int    ok = -1;
 	if(tableNo >= 0 && (P.TableCode != tableNo || (guestCount && P.GuestCount != guestCount))) {
 		P.TableCode  = tableNo;
 		P.GuestCount = guestCount;
 		SetupInfo(0);
-		return 1;
+		ok = 1;
 	}
-	else
-		return -1;
+	return ok;
 }
 
+int CPosProcessor::SetupUuid(const S_GUID & rUuid)
+{
+	int    ok = -1;
+	if(!!rUuid) {
+		P.Eccd.Uuid = rUuid;
+		ok = 1;
+	}
+	return ok;
+}
 /*
 // @test
 int CPosProcessor::SetupItem(PPID goodsID, double qtty, double price)
@@ -1772,11 +1784,11 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 					rgi.OuterPrice = price_by_serial;
 				}
 				const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
-				if(rgi.Flags & RetailGoodsInfo::fNoDiscount)
-					no_discount = 1;
-				//
 				if(_gpr > 0)
 					item_price = rgi.Price;
+				if(rgi.Flags & RetailGoodsInfo::fNoDiscount || item_price == 0.0) // @v11.5.8 (|| item_price == 0.0)
+					no_discount = 1;
+				//
 				if(_gpr > 0 && (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)) {
 					if(rgi.Flags & rgi.fDisabledQuot) { // Исключительная ситуация: ExtPrice перебивает по приоритету блокированную котировку
 						item_price = rgi.ExtPrice;
@@ -2220,15 +2232,15 @@ double CPosProcessor::CalcCreditCharge(const CCheckPacket * pPack, const CCheckP
 						const PPID bonus_charge_grp_id = scs_rec.BonusChrgGrpID;
 						if(pPack) {
 							for(i = 0; i < pPack->GetCount(); i++) {
-								charge += CalcSCardOpBonusAmount(pPack->GetLine(i), bonus_goods_grp_id, &nca);
+								charge += CalcSCardOpBonusAmount(pPack->GetLineC(i), bonus_goods_grp_id, &nca);
 								non_crd_amt += nca;
-								bonus_charge_amt += CalcSCardOpBonusAmount(pPack->GetLine(i), bonus_charge_grp_id, 0);
+								bonus_charge_amt += CalcSCardOpBonusAmount(pPack->GetLineC(i), bonus_charge_grp_id, 0);
 							}
 							if(pExtPack)
 								for(i = 0; i < pExtPack->GetCount(); i++) {
-									charge += CalcSCardOpBonusAmount(pExtPack->GetLine(i), bonus_goods_grp_id, &nca);
+									charge += CalcSCardOpBonusAmount(pExtPack->GetLineC(i), bonus_goods_grp_id, &nca);
 									non_crd_amt += nca;
-									bonus_charge_amt += CalcSCardOpBonusAmount(pExtPack->GetLine(i), bonus_charge_grp_id, 0);
+									bonus_charge_amt += CalcSCardOpBonusAmount(pExtPack->GetLineC(i), bonus_charge_grp_id, 0);
 								}
 						}
 						else {
@@ -2254,12 +2266,12 @@ double CPosProcessor::CalcCreditCharge(const CCheckPacket * pPack, const CCheckP
 				if(charge_goods_id != UNDEF_CHARGEGOODSID || crd_goods_grp_id) {
 					if(pPack) {
 						for(i = 0; i < pPack->GetCount(); i++) {
-							charge += CalcSCardOpAmount(pPack->GetLine(i), charge_goods_id, crd_goods_grp_id, &nca);
+							charge += CalcSCardOpAmount(pPack->GetLineC(i), charge_goods_id, crd_goods_grp_id, &nca);
 							non_crd_amt += nca;
 						}
 						if(pExtPack) {
 							for(i = 0; i < pExtPack->GetCount(); i++) {
-								charge += CalcSCardOpAmount(pExtPack->GetLine(i), charge_goods_id, crd_goods_grp_id, &nca);
+								charge += CalcSCardOpAmount(pExtPack->GetLineC(i), charge_goods_id, crd_goods_grp_id, &nca);
 								non_crd_amt += nca;
 							}
 						}
@@ -2733,7 +2745,7 @@ int CPosProcessor::IsOnlyChargeGoodsInPacket(PPID scID, const CCheckPacket * pPa
 	const  PPID charge_goods_id = GetChargeGoodsID(scID);
 	if(pPack) {
 		for(uint i = 0; only_charge_goods && i < pPack->GetCount(); i++) {
-			const CCheckLineTbl::Rec & r_line = pPack->GetLine(i);
+			const CCheckLineTbl::Rec & r_line = pPack->GetLineC(i);
 			if(r_line.GoodsID != charge_goods_id)
 				only_charge_goods = 0;
 		}
@@ -4014,7 +4026,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									assert(candid_count > 0);
 									if(candid_count > 1) {
 									}
-									if(!RestoreSuspendedCheck(cc_list.at(_pos-1).ID, 0/*unfinishedForReprinting*/)) {
+									if(!RestoreSuspendedCheck(cc_list.at(_pos-1).ID, 0/*pPack*/, 0/*unfinishedForReprinting*/)) {
 										MessageError(-1, 0, eomBeep|eomStatusLine);
 									}
                                 }
@@ -4993,7 +5005,7 @@ private:
 					if(P_Srv->GetCc().LoadPacket(r_chk_rec.ID, 0, &chk_pack) > 0) {
 						StringSet ss(SLBColumnDelim);
 						if(chk_pack.GetCount()) {
-							const CCheckLineTbl::Rec & cclr = chk_pack.GetLine(0);
+							const CCheckLineTbl::Rec & cclr = chk_pack.GetLineC(0);
 							temp_buf.Cat(intmnytodbl(cclr.Price));
 						}
 					}
@@ -5044,7 +5056,7 @@ int SelCheckListDialog::SetupItemList()
 					StringSet ss(SLBColumnDelim);
 					for(uint i = 0; i < pack.GetCount(); i++) {
 						ss.clear();
-						const  CCheckLineTbl::Rec & cclr = pack.GetLine(i);
+						const  CCheckLineTbl::Rec & cclr = pack.GetLineC(i);
 						double price = intmnytodbl(cclr.Price);
 						double sum = R2(cclr.Quantity * (price - cclr.Dscnt));
 						GetGoodsName(cclr.GoodsID, sub);
@@ -6364,7 +6376,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					if(SmartListBox::IsValidS(p_list)) {
 						const long cur = p_list->P_Def->_curItem();
 						if(cur >= 0 && cur < static_cast<long>(P_ChkPack->GetCount())) {
-							chk_line = P_ChkPack->GetLine(static_cast<uint>(cur));
+							chk_line = P_ChkPack->GetLineC(static_cast<uint>(cur));
 							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextSerial, serial);
 							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextEgaisMark, egais_mark);
 							p_line   = &chk_line;
@@ -7472,7 +7484,7 @@ int CheckPaneDialog::SelectCheck(PPID * pChkID, SString * pSelFormat, const char
 	return ok;
 }
 
-int CPosProcessor::RestoreSuspendedCheck(PPID ccID, int unfinishedForReprinting)
+int CPosProcessor::RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int unfinishedForReprinting)
 {
 	int    ok = 1;
 	CCheckCore & r_cc = GetCc();
@@ -7530,6 +7542,7 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, int unfinishedForReprinting)
 		ProcessGift(); // Добавляем в чек подарочные позиции (если не репринт)
 	}
 	GetCc().WriteCCheckLogFile(&cc_pack, 0, CCheckCore::logRestored, 1);
+	ASSIGN_PTR(pPack, cc_pack); // @v11.5.8
 	CATCHZOK
 	return ok;
 }
@@ -7624,7 +7637,7 @@ int CheckPaneDialog::SelectSuspendedCheck()
 							// ReprintCheck
 							PPID   cc_id = 0;
 							Flags |= fReprinting;
-							int r1 = RestoreSuspendedCheck(sel_chk.CheckID, 1/*unfinishedForReprinting*/);
+							int r1 = RestoreSuspendedCheck(sel_chk.CheckID, 0/*pPack*/, 1/*unfinishedForReprinting*/);
 							if(r1)
 								r1 = AcceptCheck(&cc_id, &SelPack.AL_Const(), 0, 0.0, CPosProcessor::accmAveragePrinting); // @v10.7.3 0-->&SelPack.AL_Const()
 							Flags &= ~fReprinting;
@@ -7665,7 +7678,7 @@ int CheckPaneDialog::SelectSuspendedCheck()
 		} while(ok == 2);
 		Flags &= ~fSuspSleepTimeout;
 		if(ok == 1) {
-			THROW(RestoreSuspendedCheck(chk_id, 0/*unfinishedForReprinting*/));
+			THROW(RestoreSuspendedCheck(chk_id, 0/*pPack*/, 0/*unfinishedForReprinting*/));
 		}
 	}
 	CATCHZOKPPERR
@@ -7765,7 +7778,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 						}
 						else if(r == cmOK) {
 							Goods2Tbl::Rec goods_rec;
-							const CCheckLineTbl::Rec & cclr = chk_pack.GetLine(0);
+							const CCheckLineTbl::Rec & cclr = chk_pack.GetLineC(0);
 							CCheckItem & r_cur_item = P.GetCur();
 							r_cur_item.GoodsID = cclr.GoodsID;
 							if(GObj.Fetch(r_cur_item.GoodsID, &goods_rec) > 0) {
@@ -8091,6 +8104,33 @@ int CPosProcessor::ResetCurrentLine()
 	}
 	else
 		ok = -1;
+	return ok;
+}
+
+const CCheckItem * CPosProcessor::FindLine(int rbycheck) const
+{
+	const CCheckItem * p_result = 0;
+	if(rbycheck > 0) {
+		for(uint i = 0; !p_result && i < P.getCount(); i++) {
+			if(P.at(i).RByCheck == rbycheck)
+				p_result = &P.at(i);
+		}
+	}
+	return p_result;
+}
+
+int CPosProcessor::UpdateLine(const CCheckItem * pItem)
+{
+	int    ok = 0;
+	if(pItem && pItem->RByCheck > 0) {
+		for(uint i = 0; i < P.getCount(); i++) {
+			CCheckItem & r_item = P.at(i);
+			if(r_item.RByCheck == pItem->RByCheck) {
+				r_item.Quantity = pItem->Quantity;
+				ok = 1;
+			}
+		}		
+	}
 	return ok;
 }
 

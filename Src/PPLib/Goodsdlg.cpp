@@ -3382,12 +3382,7 @@ public:
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.Init(1, 0);
-		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 0, GoodsFilt::fShowBarcode);
-		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 1, GoodsFilt::fShowCargo);
-		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 2, GoodsFilt::fShowStrucType);
-		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 3, GoodsFilt::fShowGoodsWOStruc);
-		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 4, GoodsFilt::fShowArCode);
-		SetClusterData(CTL_GDSFVOPT_FLAGS, Data.Flags);
+		SetShowFlags();
 		if(!(CConfig.Flags & CCFLG_USEARGOODSCODE)) {
 			DisableClusterItem(CTL_GDSFVOPT_FLAGS, 4, 1);
 			disableCtrls(1, CTL_GDSFVOPT_OWNCODES, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
@@ -3412,7 +3407,7 @@ public:
 	}
 	DECL_DIALOG_GETDTS()
 	{
-		GetClusterData(CTL_GDSFVOPT_FLAGS, &Data.Flags);
+		GetShowFlags();
 		if(Data.Flags & GoodsFilt::fShowArCode)
 			GetClusterData(CTL_GDSFVOPT_OWNCODES, &Data.Flags);
 		else
@@ -3449,36 +3444,63 @@ private:
 			return;
 		clearEvent(event);
 	}
-	int    SetupCtrls();
+	void   SetShowFlags()
+	{
+		// В кластер CTL_GDSFVOPT_FLAGS начиная с релиза @v11.5.8 передаются флаги из полей Flags и Flags2
+		// В связи с этим управление кластером чуть усложняется.
+		long   f_ = 0;
+		SETFLAG(f_, 0x0001, Data.Flags & GoodsFilt::fShowBarcode);
+		SETFLAG(f_, 0x0002, Data.Flags & GoodsFilt::fShowCargo);
+		SETFLAG(f_, 0x0004, Data.Flags & GoodsFilt::fShowStrucType);
+		SETFLAG(f_, 0x0008, Data.Flags & GoodsFilt::fShowGoodsWOStruc);
+		SETFLAG(f_, 0x0010, Data.Flags & GoodsFilt::fShowArCode);
+		SETFLAG(f_, 0x0020, Data.Flags2 & GoodsFilt::f2ShowWhPlace);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 0, /*GoodsFilt::fShowBarcode*/0x0001);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 1, /*GoodsFilt::fShowCargo*/0x0002);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 2, /*GoodsFilt::fShowStrucType*/0x0004);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 3, /*GoodsFilt::fShowGoodsWOStruc*/0x0008);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 4, /*GoodsFilt::fShowArCode*/0x0010);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 5, /*GoodsFilt::f2ShowWhPlace*/0x0020);
+		SetClusterData(CTL_GDSFVOPT_FLAGS, /*Data.Flags*/f_);
+	}
+	void   GetShowFlags()
+	{
+		long   f_ = GetClusterData(CTL_GDSFVOPT_FLAGS);
+		SETFLAG(Data.Flags, GoodsFilt::fShowBarcode, f_ & 0x0001);
+		SETFLAG(Data.Flags, GoodsFilt::fShowCargo, f_ & 0x0002);
+		SETFLAG(Data.Flags, GoodsFilt::fShowStrucType, f_ & 0x0004);
+		SETFLAG(Data.Flags, GoodsFilt::fShowGoodsWOStruc, f_ & 0x0008);
+		SETFLAG(Data.Flags, GoodsFilt::fShowArCode, f_ & 0x0010);
+		SETFLAG(Data.Flags2, GoodsFilt::f2ShowWhPlace, f_ & 0x0020);
+	}
+	void   SetupCtrls()
+	{
+		int    disable_struc = 0;
+		int    disable_cargo = 0;
+		GetShowFlags();
+		if(!(Data.Flags & GoodsFilt::fShowStrucType))
+			Data.Flags &= ~(GoodsFilt::fShowGoodsWOStruc);
+		SetShowFlags();
+		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 1, disable_cargo);
+		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 2, disable_struc);
+		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 3, /*!disable_cargo ||*/ disable_struc);
+		if(Data.Flags & GoodsFilt::fShowArCode) {
+			disableCtrl(CTL_GDSFVOPT_OWNCODES, 0);
+			disableCtrl(CTLSEL_GDSFVOPT_AR, 0);
+			disableCtrl(CTLSEL_GDSFVOPT_ACS, BIN(getCtrlLong(CTLSEL_GDSFVOPT_AR)));
+			if(getCtrlUInt16(CTL_GDSFVOPT_OWNCODES) & 0x01) {
+				setCtrlLong(CTLSEL_GDSFVOPT_AR, 0);
+				disableCtrls(1, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
+			}
+			else
+				disableCtrls(0, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
+		}
+		else
+			disableCtrls(1, CTL_GDSFVOPT_OWNCODES, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
+	}
 	PPID   AcsID;        // PPOBJ_ACCSHEET
 	PPObjArticle ArObj;
 };
-
-int GoodsAdvOptDialog::SetupCtrls()
-{
-	int    disable_struc = 0, disable_cargo = 0;
-	GetClusterData(CTL_GDSFVOPT_FLAGS, &Data.Flags);
-	if(!(Data.Flags & GoodsFilt::fShowStrucType))
-		Data.Flags &= ~(GoodsFilt::fShowGoodsWOStruc);
-	SetClusterData(CTL_GDSFVOPT_FLAGS, Data.Flags);
-	DisableClusterItem(CTL_GDSFVOPT_FLAGS, 1, disable_cargo);
-	DisableClusterItem(CTL_GDSFVOPT_FLAGS, 2, disable_struc);
-	DisableClusterItem(CTL_GDSFVOPT_FLAGS, 3, /*!disable_cargo ||*/ disable_struc);
-	if(Data.Flags & GoodsFilt::fShowArCode) {
-		disableCtrl(CTL_GDSFVOPT_OWNCODES, 0);
-		disableCtrl(CTLSEL_GDSFVOPT_AR, 0);
-		disableCtrl(CTLSEL_GDSFVOPT_ACS, BIN(getCtrlLong(CTLSEL_GDSFVOPT_AR)));
-		if(getCtrlUInt16(CTL_GDSFVOPT_OWNCODES) & 0x01) {
-			setCtrlLong(CTLSEL_GDSFVOPT_AR, 0);
-			disableCtrls(1, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
-		}
-		else
-			disableCtrls(0, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
-	}
-	else
-		disableCtrls(1, CTL_GDSFVOPT_OWNCODES, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
-	return 1;
-}
 
 int GoodsFiltDialog::editGoodsViewOptions() { DIALOG_PROC_BODY(GoodsAdvOptDialog, &Data); }
 

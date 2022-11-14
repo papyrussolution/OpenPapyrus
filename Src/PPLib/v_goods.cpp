@@ -29,13 +29,14 @@ int GoodsFilt::InitInstance()
 	return Init(1, 0);
 }
 
-#define GOODSFILT_VERSION -25
+#define GOODSFILT_VERSION -26
 	// @v6.0.2 -14-->-19
 	// @v6.4.2 -19-->-21
 	// @v7.2.0 -21-->-22
 	// @v7.7.9 -22-->-23
 	// @v8.6.4 -23-->-24
 	// @v10.0.12 -24-->-25
+	// @v11.5.8 -25-->-26
 
 IMPLEMENT_PPFILT_FACTORY(Goods); GoodsFilt::GoodsFilt(PPID goodsGroupID) : PPBaseFilt(PPFILT_GOODS, 0, GOODSFILT_VERSION)
 {
@@ -72,7 +73,100 @@ struct ExtParams_Before24 {
 /*virtual*/int GoodsFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
-	if(ver == -24) {
+	if(ver == -25) { // @v11.5.8 @construction
+		class GoodsFilt_v25 : public PPBaseFilt { // @persistent
+		public:
+			explicit GoodsFilt_v25() : PPBaseFilt(PPFILT_GOODS, 0, -25), P_SjF(0), P_TagF(0)
+			{
+				SetFlatChunk(offsetof(GoodsFilt_v25, ReserveStart), offsetof(GoodsFilt_v25, Ep) + offsetof(ClsdGoodsFilt, KindList) - offsetof(GoodsFilt_v25, ReserveStart));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v25, Ep) + offsetof(ClsdGoodsFilt, KindList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v25, Ep) + offsetof(ClsdGoodsFilt, GradeList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v25, Ep) + offsetof(ClsdGoodsFilt, AddObjList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v25, Ep) + offsetof(ClsdGoodsFilt, AddObj2List));
+				SetBranchSString(offsetof(GoodsFilt_v25, SrchStr_));
+				SetBranchSString(offsetof(GoodsFilt_v25, BarcodeLen));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v25, GrpIDList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v25, ManufList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v25, LocList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v25, BrandList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v25, BrandOwnerList));
+				SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(GoodsFilt_v25, P_SjF));
+				SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(GoodsFilt_v25, P_TagF));
+				Init(1, 0);
+			}
+			char   ReserveStart[4];
+			PPID   UhttStoreID;
+			PPID   RestrictQuotKindID;
+			int32  InitOrder;
+			PPID   MtxLocID;
+			PPID   BrandOwnerID;
+			PPID   CodeArID;
+			PPID   GrpID;
+			PPID   ManufID;
+			PPID   ManufCountryID;
+			PPID   UnitID;
+			PPID   PhUnitID;
+			PPID   SupplID;
+			PPID   GoodsTypeID;
+			PPID   TaxGrpID;
+			PPID   LocID_Obsolete;
+			DateRange LotPeriod;
+			long   Flags;
+			long   VatRate;
+			LDATE  VatDate;
+			PPID   BrandID_Obsolete;
+			PPID   GoodsStrucID;
+			ClsdGoodsFilt Ep;
+			SString SrchStr_;
+			SString BarcodeLen;
+			ObjIdListFilt GrpIDList;
+			ObjIdListFilt ManufList;
+			ObjIdListFilt LocList;
+			ObjIdListFilt BrandList;
+			ObjIdListFilt BrandOwnerList;
+			SysJournalFilt * P_SjF;
+			TagFilt * P_TagF;
+		};
+		GoodsFilt_v25 fv25;
+		THROW(fv25.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));
+#define CPYFLD(f) f = fv25.f
+		CPYFLD(UhttStoreID);
+		CPYFLD(RestrictQuotKindID);
+		CPYFLD(InitOrder);
+		CPYFLD(MtxLocID);
+		CPYFLD(BrandOwnerID);
+		CPYFLD(CodeArID);
+		CPYFLD(GrpID);
+		CPYFLD(ManufID);
+		CPYFLD(ManufCountryID);
+		CPYFLD(UnitID);
+		CPYFLD(PhUnitID);
+		CPYFLD(SupplID);
+		CPYFLD(GoodsTypeID);
+		CPYFLD(TaxGrpID);
+		CPYFLD(LocID_Obsolete);
+		CPYFLD(LotPeriod);
+		CPYFLD(Flags);
+		CPYFLD(VatRate);
+		CPYFLD(VatDate);
+		CPYFLD(BrandID_Obsolete);
+		CPYFLD(GoodsStrucID);
+		CPYFLD(Ep);
+		CPYFLD(SrchStr_);
+		CPYFLD(BarcodeLen);
+		CPYFLD(GrpIDList);
+		CPYFLD(ManufList);
+		CPYFLD(LocList);
+		CPYFLD(BrandList);
+		CPYFLD(BrandOwnerList);
+#undef CPYFLD
+		THROW_SL(TSDupPtr <SysJournalFilt> (&P_SjF, fv25.P_SjF));
+		THROW_SL(TSDupPtr <TagFilt> (&P_TagF, fv25.P_TagF));
+		Flags2 = 0;
+		ok = 1;
+	}
+	else if(ver == -24) {
 		class GoodsFilt_v24 : public PPBaseFilt {
 		public:
 			GoodsFilt_v24() : PPBaseFilt(PPFILT_GOODS, 0, -24), P_SjF(0), P_TagF(0)
@@ -108,12 +202,12 @@ struct ExtParams_Before24 {
 			PPID   SupplID;
 			PPID   GoodsTypeID;
 			PPID   TaxGrpID;
-			PPID   LocID_;
+			PPID   LocID_Obsolete;
 			DateRange LotPeriod;
 			long   Flags;
 			long   VatRate;
 			LDATE  VatDate;
-			PPID   BrandID_;
+			PPID   BrandID_Obsolete;
 			ClsdGoodsFilt Ep;          // @anchor
 			SString SrchStr_;
 			SString BarcodeLen;
@@ -141,12 +235,12 @@ struct ExtParams_Before24 {
 		CPYFLD(SupplID);
 		CPYFLD(GoodsTypeID);
 		CPYFLD(TaxGrpID);
-		CPYFLD(LocID_);
+		CPYFLD(LocID_Obsolete);
 		CPYFLD(LotPeriod);
 		CPYFLD(Flags);
 		CPYFLD(VatRate);
 		CPYFLD(VatDate);
-		CPYFLD(BrandID_);
+		CPYFLD(BrandID_Obsolete);
 		CPYFLD(Ep);
 		CPYFLD(SrchStr_);
 		CPYFLD(BarcodeLen);
@@ -160,7 +254,7 @@ struct ExtParams_Before24 {
 		GoodsStrucID = 0;
 		ok = 1;
 	}
-	if(ver == -23) {
+	else if(ver == -23) {
 		class GoodsFilt_v23 : public PPBaseFilt {
 		public:
 			GoodsFilt_v23() : PPBaseFilt(PPFILT_GOODS, 0, -23), P_SjF(0), P_TagF(0)
@@ -192,12 +286,12 @@ struct ExtParams_Before24 {
 			PPID   SupplID;
 			PPID   GoodsTypeID;
 			PPID   TaxGrpID;
-			PPID   LocID_;
+			PPID   LocID_Obsolete;
 			DateRange LotPeriod;
 			long   Flags;
 			long   VatRate;
 			LDATE  VatDate;
-			PPID   BrandID_;
+			PPID   BrandID_Obsolete;
 			ExtParams_Before24 Ep;
 			SString SrchStr_;
 			SString BarcodeLen;
@@ -225,12 +319,12 @@ struct ExtParams_Before24 {
 		CPYFLD(SupplID);
 		CPYFLD(GoodsTypeID);
 		CPYFLD(TaxGrpID);
-		CPYFLD(LocID_);
+		CPYFLD(LocID_Obsolete);
 		CPYFLD(LotPeriod);
 		CPYFLD(Flags);
 		CPYFLD(VatRate);
 		CPYFLD(VatDate);
-		CPYFLD(BrandID_);
+		CPYFLD(BrandID_Obsolete);
 		CPYFLD(SrchStr_);
 		CPYFLD(BarcodeLen);
 		CPYFLD(GrpIDList);
@@ -282,12 +376,12 @@ struct ExtParams_Before24 {
 			PPID   SupplID;
 			PPID   GoodsTypeID;
 			PPID   TaxGrpID;
-			PPID   LocID_;
+			PPID   LocID_Obsolete;
 			DateRange LotPeriod;
 			long   Flags;
 			long   VatRate;
 			LDATE  VatDate;
-			PPID   BrandID_;
+			PPID   BrandID_Obsolete;
 			ExtParams_Before24 Ep;
 			SString SrchStr_;
 			SString BarcodeLen;
@@ -314,12 +408,12 @@ struct ExtParams_Before24 {
 		CPYFLD(SupplID);
 		CPYFLD(GoodsTypeID);
 		CPYFLD(TaxGrpID);
-		CPYFLD(LocID_);
+		CPYFLD(LocID_Obsolete);
 		CPYFLD(LotPeriod);
 		CPYFLD(Flags);
 		CPYFLD(VatRate);
 		CPYFLD(VatDate);
-		CPYFLD(BrandID_);
+		CPYFLD(BrandID_Obsolete);
 		// @v8.6.4 CPYFLD(Ep);
 		CPYFLD(SrchStr_);
 		CPYFLD(BarcodeLen);
@@ -423,18 +517,17 @@ int GoodsFilt::Setup()
 		Flags &= ~(fIntUnitOnly | fFloatUnitOnly);
 	else if(Flags & (fIntUnitOnly | fFloatUnitOnly))
 		UnitID = 0;
-	if(LocID_) {
-		LocList.Add(LocID_);
-		LocID_ = 0;
+	if(LocID_Obsolete) {
+		LocList.Add(LocID_Obsolete);
+		LocID_Obsolete = 0;
 	}
-	// @v10.6.8 {
 	if(Flags & fWoBrand) {
 		ResultBrandList.Set(0);
 	}
-	else { // } @v10.6.8
-		if(BrandID_) {
-			BrandList.Add(BrandID_);
-			BrandID_ = 0;
+	else {
+		if(BrandID_Obsolete) {
+			BrandList.Add(BrandID_Obsolete);
+			BrandID_Obsolete = 0;
 		}
 		BrandList.Sort();
 		if(BrandOwnerID) {
@@ -472,9 +565,9 @@ bool GoodsFilt::IsEmpty() const
 		return false;
 	else if(GoodsTypeID)
 		return false;
-	else if(BrandID_)
+	else if(BrandID_Obsolete)
 		return false;
-	else if(GoodsStrucID) // @v10.0.12
+	else if(GoodsStrucID)
 		return false;
 	else if(BrandOwnerID)
 		return false;
@@ -488,7 +581,7 @@ bool GoodsFilt::IsEmpty() const
 		return false;
 	else if(!LotPeriod.IsZero())
 		return false;
-	else if(LocID_)
+	else if(LocID_Obsolete)
 		return false;
 	else if(UhttStoreID)
 		return false;
@@ -562,19 +655,19 @@ int GoodsFilt::CalcResultBrandList(ObjIdListFilt & rResult) const
 	return rResult.GetCount() ? 1 : -1;
 }
 //
-// Storing format for GoodsFilt
+// Storage format for GoodsFilt
 //
 struct __GoodsFilt {
 	int32  ObjType;
 	int32  ObjID;
 	int32  PropID;
-	/*
-		Номер версии записи. Предназначен для идентификации формата
-		записи при чтении ее из БД.
-		При добавлении новых полей в структуру следует уменьшать номер
-		версии (-11, -12, -13, -14 и т.д.) и в функции GoodsFilt::ReadFromProp
-		следить за номером версии считываемой записи и соответственно ее обрабатывать.
-	*/
+	// 
+	// Номер версии записи. Предназначен для идентификации формата
+	// записи при чтении ее из БД.
+	// При добавлении новых полей в структуру следует уменьшать номер
+	// версии (-11, -12, -13, -14 и т.д.) и в функции GoodsFilt::ReadFromProp
+	// следить за номером версии считываемой записи и соответственно ее обрабатывать.
+	// 
 	int32  VerTag; // -14 // @v3.11.3
 	PPID   GrpID;
 	PPID   ManufID;
@@ -847,11 +940,11 @@ int GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				ManufCountryID = p_buf->ManufCountryID;
 				if(p_buf->VerTag <= -13) {
 					LotPeriod = p_buf->LotPeriod;
-					LocID_ = p_buf->LocID;
+					LocID_Obsolete = p_buf->LocID;
 					if(p_buf->VerTag <= -15) {
 						VatRate  = p_buf->VatRate;
 						VatDate  = p_buf->VatDate;
-						BrandID_ = p_buf->BrandID;
+						BrandID_Obsolete = p_buf->BrandID;
 						if(p_buf->VerTag <= -18)
 							CodeArID = p_buf->CodeArID;
 						if(p_buf->VerTag <= -20)
@@ -1167,7 +1260,7 @@ void GoodsListDialog::updateList()
 //
 //
 //
-PPViewGoods::PPViewGoods() : PPView(&GObj, &Filt, PPVIEW_GOODS, implUseQuickTagEditFunc, 0), P_TempTbl(0), P_Iter(0) // @v11.2.8 0-->&GObj; implUseQuickTagEditFunc
+PPViewGoods::PPViewGoods() : PPView(&GObj, &Filt, PPVIEW_GOODS, implUseQuickTagEditFunc, 0), P_G2OAssoc(0), P_TempTbl(0), P_Iter(0) // @v11.2.8 0-->&GObj; implUseQuickTagEditFunc
 {
 	Filt.GrpID = 0;
 	//CurrentViewOrder = OrdByDefault;
@@ -1176,6 +1269,7 @@ PPViewGoods::PPViewGoods() : PPView(&GObj, &Filt, PPVIEW_GOODS, implUseQuickTagE
 PPViewGoods::~PPViewGoods()
 {
 	RemoveTempAltGroup();
+	delete P_G2OAssoc; // @v11.5.8
 	delete P_TempTbl;
 	delete P_Iter;
 	DBRemoveTempFiles();
@@ -1303,7 +1397,7 @@ void PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMICALTGRP) && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0 && !(Filt.Flags & GoodsFilt::fNegation)) {
 		// @v10.6.4 pBrw->InsColumnWord(-1, PPWORD_PLU, 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
-		pBrw->InsColumn(-1, "@plu", 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0); // @v10.6.4
+		pBrw->InsColumn(-1, "@plu", 18, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0); // @v10.6.4 // @v11.5.8 17-->18
 	}
 	if(Filt.Flags & GoodsFilt::fShowBarcode) {
 		pBrw->InsColumn(-1, "@barcode", 7, 0, 0, 0);
@@ -1318,6 +1412,11 @@ void PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 		pBrw->InsColumn(-1, "@article", 8, 0, 0, 0);
 		pBrw->InsColumn(-1, "@code", 9, 0, 0, 0);
 	}
+	// @v11.5.8 {
+	if(Filt.Flags2 & GoodsFilt::f2ShowWhPlace) {
+		pBrw->InsColumn(-1, "@storageplace", 17, 0, 0, 0);
+	}
+	// } @v11.5.8 
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, pBrw));
 }
 
@@ -1385,11 +1484,35 @@ static IMPL_DBE_PROC(dbqf_goodsstructype_i)
 	}
 }
 
-int PPViewGoods::DynFuncStrucType = 0; // static
+static IMPL_DBE_PROC(dbqf_goodsassocloc_pi)
+{
+	char   text_buf[256];
+	if(!DbeInitSize(option, result, sizeof(text_buf))) {
+		const GoodsToObjAssoc * p_goa = static_cast<const GoodsToObjAssoc *>(params[0].ptrval);
+		const PPID goods_id = params[1].lval;
+		if(p_goa && goods_id) {
+			PPID loc_id = 0;
+			if(p_goa->Get(goods_id, &loc_id) > 0) {
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				GetLocationName(loc_id, r_temp_buf);
+				STRNSCPY(text_buf, r_temp_buf);
+			}
+			else
+				text_buf[0] = 0;
+		}
+		else
+			text_buf[0] = 0;
+		result->init(text_buf);
+	}
+}
+
+/*static*/int PPViewGoods::DynFuncStrucType = 0;
+/*static*/int PPViewGoods::DynFuncAssocLoc = 0;  // @v11.5.8
 
 DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncStrucType, BTS_STRING, dbqf_goodsstructype_i, 1, BTS_INT);
+	DbqFuncTab::RegisterDyn(&DynFuncAssocLoc, BTS_STRING, dbqf_goodsassocloc_pi, 2, BTS_PTR, BTS_INT);
 
 	DBQuery * q = 0;
 	DBE    dbe_unit;
@@ -1403,6 +1526,7 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_structype;
 	DBE    dbe_brand;
 	DBE    dbe_group;
+	DBE    dbe_assocloc; // @v11.5.8
 	DBQ  * dbq = 0;
 	ObjAssocTbl * oa = 0;
 	Goods2Tbl   * g  = 0;
@@ -1465,7 +1589,18 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(dbe_structype);                        // #14
 	q->addField(dbe_brand);                            // #15
 	q->addField(dbe_group);                            // #16
-
+	// @v11.5.8 {
+	if(Filt.Flags2 & GoodsFilt::f2ShowWhPlace) {
+		dbe_assocloc.init();
+		dbe_assocloc.push(dbconst(static_cast<const void *>(P_G2OAssoc)));
+		dbe_assocloc.push(g->ID);
+		dbe_assocloc.push(static_cast<DBFunc>(DynFuncAssocLoc));
+		q->addField(dbe_assocloc);                     // #17
+	}
+	else {
+		q->addField(g->ID); // stub                    // #17
+	}
+	// } @v11.5.8 
 	if(Filt.Flags & GoodsFilt::fShowStrucType)
 		brw_id = BROWSER_GOODSWITHSTRUC;
 	else
@@ -1499,7 +1634,7 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		if(!dyn && alt && !(Filt.Flags & GoodsFilt::fNegation)) {
 			THROW(CheckTblPtr(oa = new ObjAssocTbl));
 			if(alt)
-				q->addField(oa->InnerNum);             // #17
+				q->addField(oa->InnerNum);             // #18 // @v11.5.8 #17-->#18
 			dbq = & (*dbq && (tmp_t->ID == oa->ScndObjID &&
 				oa->PrmrObjID == grp_id && oa->AsscType == (alt ? PPASS_ALTGOODSGRP : PPASS_GENGOODS)));
 		}
@@ -1516,7 +1651,7 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		if(alt || gen) {
 			THROW(CheckTblPtr(oa = new ObjAssocTbl));
 			if(alt)
-				q->addField(oa->InnerNum);             // #17
+				q->addField(oa->InnerNum);             // #18 // @v11.5.8 #17-->#18
 			dbq = & (oa->AsscType == (alt ? PPASS_ALTGOODSGRP : PPASS_GENGOODS) && (oa->PrmrObjID == grp_id && g->ID == oa->ScndObjID));
 		}
 		else {
@@ -1778,6 +1913,12 @@ int PPViewGoods::Init_(const PPBaseFilt * pFilt)
 	Filt.Setup();
 	if(Filt.P_SjF)
 		Filt.P_SjF->Period.Actualize(ZERODATE);
+	if(Filt.Flags2 & GoodsFilt::f2ShowWhPlace) {
+		delete P_G2OAssoc;
+		P_G2OAssoc = new GoodsToObjAssoc(/*PPASS_GOODS2LOC*/PPASS_GOODS2WAREPLACE, PPOBJ_LOCATION);
+		if(P_G2OAssoc)
+			P_G2OAssoc->Load();
+	}
 	THROW(CreateTempTable(static_cast<IterOrder>(Filt.InitOrder), &P_TempTbl));
 	CATCH
 		ZDELETE(P_TempTbl);

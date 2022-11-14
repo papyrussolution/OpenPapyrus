@@ -2471,9 +2471,11 @@ public class StyloQInterchange {
 					}
 					if(uriprot == SLib.uripprotHttp || uriprot == SLib.uripprotHttps || uriprot == SLib.uripprotAMQP || uriprot == SLib.uripprotAMQPS) {
 						DoInterchangeParam param = new DoInterchangeParam(svc_ident);
+						/* @v11.5.8 Механизм запроса сам идентифицирует точку доступа
 						param.AccsPoint = acspt_url;
 						param.MqbAuth = acspt_mqbauth;
 						param.MqbSecret = acspt_mqbsecr;
+						 */
 						param.OriginalCmdItem = blk.OrgCmdItem;
 						if(blk.JsCmd != null)
 							param.CommandJson = blk.JsCmd.toString();

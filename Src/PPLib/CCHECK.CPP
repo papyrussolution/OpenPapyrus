@@ -467,6 +467,7 @@ CCheckItem & FASTCALL CCheckItem::operator = (const CCheckLineTbl::Rec & rS)
 	Discount = rS.Dscnt;
 	Flags    = (rS.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? cifIsPrinted : 0;
 	Division = (rS.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? rS.DivID - CHECK_LINE_IS_PRINTED_BIAS : rS.DivID;
+	RByCheck = rS.RByCheck; // @v11.5.8
 	return *this;
 }
 
@@ -485,6 +486,7 @@ CCheckItem & FASTCALL CCheckItem::operator = (const CCheckLineExtTbl::Rec & rS)
 void CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, int ret) const
 {
 	MEMSZERO(rRec);
+	rRec.RByCheck = RByCheck; // @v11.5.8
 	rRec.DivID = Division;
 	if(Flags & cifIsPrinted)
 		rRec.DivID += CHECK_LINE_IS_PRINTED_BIAS;
@@ -527,28 +529,28 @@ double CCheckItem::GetAmount() const { return R2((Price - Discount) * Quantity);
 
 int CCheckItem::SetupGiftQuot(double quot, int forceZero)
 {
+	int    ok = 0;
 	if(quot > 0.0 || (quot == 0.0 && forceZero)) {
 		BeforeGiftPrice = Price;
 		Price = quot;
 		Discount = 0.0;
 		Flags |= cifQuotedByGift;
-		return 1;
+		ok = 1;
 	}
-	else
-		return 0;
+	return ok;
 }
 
 int CCheckItem::ResetGiftQuot()
 {
+	int    ok = -1;
 	if(Flags & cifQuotedByGift) {
 		Price = BeforeGiftPrice;
 		BeforeGiftPrice = 0.0;
 		Discount = 0.0;
 		Flags &= ~cifQuotedByGift;
-		return 1;
+		ok = 1;
 	}
-	else
-		return -1;
+	return ok;
 }
 
 int CCheckItem::CanMerge(const CCheckPacket * pPack, const CCheckItem & rItem) const
@@ -566,6 +568,7 @@ int CCheckItem::SplitByQtty(double restQtty, CCheckItem & rNewItem)
 	if(Quantity > restQtty && restQtty > 0.0 && !(Flags & cifGift)) {
 		rNewItem.Z();
 		rNewItem = *this;
+		rNewItem.RByCheck = 0; // @v11.5.8
 		rNewItem.GiftID = 0;
 		rNewItem.BeforeGiftPrice = 0.0;
 		rNewItem.Flags &= ~(cifModifier | cifGrouped);
@@ -638,6 +641,22 @@ IMPL_INVARIANT_C(CCheckPacket)
 		S_ASSERT_P(HasNonFiscalAmount(&fiscal, &nonfiscal) || nonfiscal == 0.0, pInvP);
 		S_ASSERT_P(R6(amt) == R6(fiscal+nonfiscal), pInvP);
 	}
+	// @v11.5.8 {
+	{
+		const uint _c = GetCount();
+		for(uint i = 0; i < _c; i++) {
+			int   rbycheck = GetLineC(i).RByCheck;
+			if(rbycheck > 0) {
+				for(uint j = i+1; j < _c; j++) {
+					S_ASSERT_P(GetLineC(j).RByCheck != rbycheck, pInvP);
+				}
+			}
+			else {
+				S_ASSERT_P(rbycheck == 0, pInvP);
+			}
+		}
+	}
+	// } @v11.5.8 
 	S_ASSERT_P(!HasExt() || Rec.Flags & CCHKF_EXT, pInvP);
 	//
 	// Чек заказа стола обязательно должен содержать номер заказываемого стола
@@ -832,7 +851,8 @@ int CCheckPacket::GenerateGuid(S_GUID & rUuid)
 }
 
 uint  CCheckPacket::GetCount() const { return Items_.getCount(); }
-const CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLine(uint pos) const { return Items_.at(pos); }
+const CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLineC(uint pos) const { return Items_.at(pos); }
+CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLine(uint pos) { return Items_.at(pos); }
 
 int CCheckPacket::EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial) const
 {
@@ -925,7 +945,7 @@ int CCheckPacket::CopyLines(const CCheckPacket & rS)
 	return ok;
 }
 
-int CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
+bool CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
 {
 	int16  rbc = static_cast<int16>(rByCheck);
 	return Items_.lsearch(&rbc, pPos, PTR_CMPFUNC(int16), offsetof(CCheckLineTbl::Rec, RByCheck));
@@ -3387,6 +3407,30 @@ int CCheckCore::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitA
 int CCheckCore::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
 {
 	return Helper_GetListByMark(pText, CCheckPacket::lnextChZnMark, 0, rCcList, 0);
+}
+
+int CCheckCore::GetListByUuid(S_GUID & rUuid, PPIDArray & rCcList)
+{
+	int    ok = -1;
+	rCcList.clear();
+	if(!!rUuid) {
+		SString temp_buf;
+		UnxTextRefCore & r_utrc = PPRef->UtrC;
+		TextRefEnumItem iter_item;
+		PPExtStrContainer sc;
+		for(SEnum en = r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT); en.Next(&iter_item) > 0;) {
+			CCheckPacket::Helper_UnpackTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), &sc, 0);
+			sc.GetExtStrData(CCheckPacket::extssUuid, temp_buf);
+			if(temp_buf.NotEmptyS()) {
+				S_GUID iter_uuid;
+				if(iter_uuid.FromStr(temp_buf) && iter_uuid == rUuid) {
+					rCcList.add(iter_item.O.Id);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
 }
 
 int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * pSerial, double * pResult)

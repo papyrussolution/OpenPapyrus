@@ -57,7 +57,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 			DateRange Operation;
 			DateRange ExpiryPrd;
 			DateRange QcExpiryPrd;
-			PPID   LocID__;
+			PPID   LocID_Obsolete;
 			PPID   SupplID;
 			PPID   GoodsGrpID;
 			PPID   GoodsID;
@@ -80,7 +80,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 		CPYFLD(Operation);
 		CPYFLD(ExpiryPrd);
 		CPYFLD(QcExpiryPrd);
-		CPYFLD(LocID__);
+		CPYFLD(LocID_Obsolete);
 		CPYFLD(SupplID);
 		CPYFLD(GoodsGrpID);
 		CPYFLD(GoodsID);
@@ -111,7 +111,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 			DateRange Operation;
 			DateRange ExpiryPrd;
 			DateRange QcExpiryPrd;
-			PPID   LocID__;
+			PPID   LocID_Obsolete;
 			PPID   SupplID;
 			PPID   GoodsGrpID;
 			PPID   GoodsID;
@@ -135,7 +135,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 		CPYFLD(Operation);
 		CPYFLD(ExpiryPrd);
 		CPYFLD(QcExpiryPrd);
-		CPYFLD(LocID__);
+		CPYFLD(LocID_Obsolete);
 		CPYFLD(SupplID);
 		CPYFLD(GoodsGrpID);
 		CPYFLD(GoodsID);
@@ -176,7 +176,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 			DateRange Operation;     // Операционный период (показывает остаток на начало, приход, расход, остаток на конец этого периода)
 			DateRange ExpiryPrd;     // Период истечения срока годности по лотам
 			DateRange QcExpiryPrd;   // Период истечения срока действия сертификатов
-			PPID   LocID__;          // ->Location.ID // @v10.6.8 obsolete(replaced with LocList)
+			PPID   LocID_Obsolete;   // ->Location.ID // @v10.6.8 obsolete(replaced with LocList)
 			PPID   SupplID;          // ->Article.ID
 			PPID   GoodsGrpID;       // ->Goods2.ID
 			PPID   GoodsID;          // ->Goods2.ID
@@ -202,7 +202,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 		CPYFLD(Operation);
 		CPYFLD(ExpiryPrd);
 		CPYFLD(QcExpiryPrd);
-		CPYFLD(LocID__);
+		CPYFLD(LocID_Obsolete);
 		CPYFLD(SupplID);
 		CPYFLD(GoodsGrpID);
 		CPYFLD(GoodsID);
@@ -220,7 +220,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 			*P_TagF = *fv2.P_TagF;
 		}
 		memzero(Reserve2, sizeof(Reserve2));
-		LocList.Add(LocID__);
+		LocList.Add(LocID_Obsolete);
 	}
 	CATCHZOK
 	return ok;
@@ -1187,8 +1187,8 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 	//
 	LocList.freeAll();
 	// @v10.6.8 {
-	if(Filt.LocID__ && Filt.LocList.IsEmpty())
-		Filt.LocList.Add(Filt.LocID__);
+	if(Filt.LocID_Obsolete && Filt.LocList.IsEmpty())
+		Filt.LocList.Add(Filt.LocID_Obsolete);
 	if(Filt.LocList.IsEmpty()) {
 		PPObjLocation loc_obj;
 		loc_obj.GetWarehouseList(&LocList, 0);

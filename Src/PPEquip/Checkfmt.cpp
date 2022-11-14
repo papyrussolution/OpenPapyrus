@@ -411,7 +411,7 @@ int PPSlipFormat::GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec,
 		const int zone_kind = pIter->GetOuterZoneKind();
 		if(zone_kind == PPSlipFormat::Zone::kDetail) {
 			if(pIter->SrcItemNo < static_cast<long>(P_CcPack->GetCount())) {
-				ASSIGN_PTR(pRec, P_CcPack->GetLine(pIter->SrcItemNo));
+				ASSIGN_PTR(pRec, P_CcPack->GetLineC(pIter->SrcItemNo));
 				if(pExtItem)
 					P_CcPack->GetLineExt(pIter->SrcItemNo+1, *pExtItem);
 				ok = 1;

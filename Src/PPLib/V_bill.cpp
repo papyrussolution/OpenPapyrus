@@ -5139,12 +5139,12 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 							ObjTagItem tag_item;
 							switch(fix_tag_rec.TagDataType) {
-								case OTTYP_BOOL: tag_item.Val.IntVal = 1; break;
-								case OTTYP_NUMBER: tag_item.Val.RealVal = 1.0; break;
-								case OTTYP_INT:  tag_item.Val.IntVal = 1; break;
-								case OTTYP_DATE: tag_item.Val.DtVal = getcurdate_(); break;
-								case OTTYP_TIMESTAMP: tag_item.Val.DtmVal = getcurdatetime_(); break;
-								case OTTYP_STRING: tag_item.Val.PStr = "done"; break;
+								case OTTYP_BOOL: tag_item.SetInt(fix_tag_id, 1); break;
+								case OTTYP_NUMBER: tag_item.SetReal(fix_tag_id, 1.0); break;
+								case OTTYP_INT:  tag_item.SetInt(fix_tag_id, 1); break;
+								case OTTYP_DATE: tag_item.SetDate(fix_tag_id, getcurdate_()); break;
+								case OTTYP_TIMESTAMP: tag_item.SetTimestamp(fix_tag_id, getcurdatetime_()); break;
+								case OTTYP_STRING: tag_item.SetStr(fix_tag_id, "done"); break;
 							}
 							THROW(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 0));
 						}

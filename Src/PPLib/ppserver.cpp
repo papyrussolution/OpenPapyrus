@@ -1921,7 +1921,7 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 			case PPSCMD_POS_SELECTCCHECK:
 				{
 					THROW(P_Prcssr->GetAuthAgentID());
-					THROW(P_Prcssr->RestoreSuspendedCheck(CmdBlk.U.CheckId, 0/*unfinishedForReprinting*/));
+					THROW(P_Prcssr->RestoreSuspendedCheck(CmdBlk.U.CheckId, 0/*pPack*/, 0/*unfinishedForReprinting*/));
 					THROW(P_Prcssr->SetupAgent(P_Prcssr->GetAuthAgentID(), 0));
 					(temp_buf = "Check selected. ID=[").Cat(CmdBlk.U.CheckId).Cat("]");
 					PPLogMessage(PPFILNAM_STYLOWAITER_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_THREADID);

@@ -822,15 +822,48 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					{
 						PPID   cc_id = 0;
 						CPosProcessor cpp(pos_node_id, 0, 0, 0, 0);
-						for(uint i = 0; i < doc.TiList.getCount(); i++) {
-							const Document::__TransferItem * p_item = doc.TiList.at(i);
-							if(gobj.Search(p_item->GoodsID, &goods_rec) > 0 && p_item->Set.Qtty > 0.0) {
-								CPosProcessor::PgsBlock pgsb(p_item->Set.Qtty);
-								THROW(cpp.SetupNewRow(goods_rec.ID, /*fabs(CmdBlk.U.AL.Qtty), 0, 0*/pgsb) > 0);
-								//THROW(cpp.Backend_SetModifList(CmdBlk.ModifList));
-								THROW(cpp.AcceptRow() > 0);
+						PPIDArray ex_cc_list;
+						CCheckCore & r_cc = cpp.GetCc();
+						if(r_cc.GetListByUuid(doc.Uuid, ex_cc_list) > 0) {
+							assert(ex_cc_list.getCount());
+							if(ex_cc_list.getCount()) {
+								ex_cc_list.sort();
+								cc_id = ex_cc_list.getLast();
 							}
 						}
+						if(cc_id) {
+							CCheckPacket org_pack;
+							THROW(cpp.RestoreSuspendedCheck(cc_id, &org_pack, 0));
+							for(uint i = 0; i < doc.TiList.getCount(); i++) {
+								const Document::__TransferItem * p_item = doc.TiList.at(i);
+								if(gobj.Search(p_item->GoodsID, &goods_rec) > 0 && p_item->Set.Qtty > 0.0) {
+									const CCheckItem * p_ex_line = cpp.FindLine(p_item->RowIdx);
+									if(p_ex_line) {
+										CCheckItem line_to_update(*p_ex_line);
+										line_to_update.Quantity = p_item->Set.Qtty;
+										cpp.UpdateLine(&line_to_update);
+									}
+									else {
+										CPosProcessor::PgsBlock pgsb(p_item->Set.Qtty);
+										THROW(cpp.SetupNewRow(goods_rec.ID, /*fabs(CmdBlk.U.AL.Qtty), 0, 0*/pgsb) > 0);
+										//THROW(cpp.Backend_SetModifList(CmdBlk.ModifList));
+										THROW(cpp.AcceptRow() > 0);
+									}
+								}
+							}
+						}
+						else {
+							for(uint i = 0; i < doc.TiList.getCount(); i++) {
+								const Document::__TransferItem * p_item = doc.TiList.at(i);
+								if(gobj.Search(p_item->GoodsID, &goods_rec) > 0 && p_item->Set.Qtty > 0.0) {
+									CPosProcessor::PgsBlock pgsb(p_item->Set.Qtty);
+									THROW(cpp.SetupNewRow(goods_rec.ID, /*fabs(CmdBlk.U.AL.Qtty), 0, 0*/pgsb) > 0);
+									//THROW(cpp.Backend_SetModifList(CmdBlk.ModifList));
+									THROW(cpp.AcceptRow() > 0);
+								}
+							}
+						}
+						cpp.SetupUuid(doc.Uuid);
 						THROW(cpp.AcceptCheck(&cc_id, 0, 0, 0, CPosProcessor::accmSuspended) > 0);
 						{
 							result_obj_type = PPOBJ_CCHECK;
@@ -2002,6 +2035,8 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 			else
 				period.Set(getcurdate_(), ZERODATE);
 			cpp.Backend_GetCCheckList(&period, 0, cclist);
+			StqInsertIntoJs_BaseCurrency(&js); // @v11.5.8
+			js.InsertInt("posnodeid", posnode_id); // @v11.5.8
 			{
 				StqInsertIntoJs_BaseCurrency(&js);
 				if(param.ActionFlags) {
@@ -2017,7 +2052,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 				CCheckPacket cc_pack;
 				if(r_cc.LoadPacket(r_item.ID, 0, &cc_pack) > 0) {
 					PPStyloQInterchange::Document doc;
-					THROW(doc.FromCCheckPacket(cc_pack, &goods_id_list));
+					THROW(doc.FromCCheckPacket(cc_pack, posnode_id, &goods_id_list));
 					{
 						SJson * p_js_doc = doc.ToJsonObject();
 						THROW(p_js_doc);

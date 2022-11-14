@@ -6549,6 +6549,7 @@
 	#define CTL_CCHECKINFO_SESSUUID      (19 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_RPRCTAID      (20 + WINDOWS_ID_BIAS) // remote-processing-transation-id
 	#define CTL_CCHECKINFO_EADDR         (21 + WINDOWS_ID_BIAS) // @v11.3.6 Электронный адрес покупателя //
+	#define CTL_CCHECKINFO_UUID          (22 + WINDOWS_ID_BIAS) // @v11.5.8
 #define DLG_PSNRELTYPE            638 // Тип связи между персоналиями
 	#define CTL_PSNRELTYPE_NAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSNRELTYPE_ID            (2 + WINDOWS_ID_BIAS)

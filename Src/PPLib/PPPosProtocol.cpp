@@ -1604,7 +1604,7 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 						}
 						// } @v10.7.5 
 						for(uint ln_idx = 0; ln_idx < cc_pack.GetCount(); ln_idx++) {
-							const CCheckLineTbl::Rec & r_item = cc_pack.GetLine(ln_idx);
+							const CCheckLineTbl::Rec & r_item = cc_pack.GetLineC(ln_idx);
 							const double item_qtty  = fabs(r_item.Quantity);
 							const double item_price = intmnytodbl(r_item.Price);
 							const double item_discount = r_item.Dscnt;

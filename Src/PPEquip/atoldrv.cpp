@@ -898,7 +898,7 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 	StateBlock stb;
 	THROW(Connect(&stb));
 	if(P_Fptr10 && P_Fptr10->IsValid() && P_Fptr10->ProcessJsonProc) {
-		if(op == 0) { // Проверка марки
+		if(op == 100) { // 100 - предварителные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
 			{
 				SJson  js(SJson::tOBJECT);
 				js.InsertString("type", "cancelMarkingCodeValidation");
@@ -909,6 +909,8 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 				js.InsertString("type", "clearMarkingCodeValidationResult");
 				THROW(CallJsonProc(&js, temp_buf));
 			}
+		}
+		else if(op == 0) { // Проверка марки
 			{
 				SJson  js(SJson::tOBJECT);
 				js.InsertString("type", "beginMarkingCodeValidation");

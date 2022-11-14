@@ -71,15 +71,16 @@ public:
 	const  StrAssocArray & GetProblemsList() const;
 
 	struct ColumnPosBlock {
-		ColumnPosBlock() : QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), 
+		ColumnPosBlock() : GoodsPos(-2), QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), 
 			OrdQttyPos(-2), ShippedQttyPos(-2), VetisCertPos(-2)
 		{
 		}
 		bool   IsEmpty() const
 		{
-			return (QttyPos < 0 && CostPos < 0 && PricePos < 0 && SerialPos < 0 &&
+			return (GoodsPos < 0 && QttyPos < 0 && CostPos < 0 && PricePos < 0 && SerialPos < 0 &&
 				QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0 && ShippedQttyPos < 0 && VetisCertPos < 0);
 		}
+		long   GoodsPos; // @v11.5.8
 		long   QttyPos;
 		long   CostPos;
 		long   PricePos;
@@ -441,6 +442,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 			for(uint i = 0; i < p_def->getCount(); i++) {
 				const BroColumn & r_col = p_def->at(i);
 				switch(r_col.Offs) {
+					case  1: rBlk.GoodsPos = static_cast<long>(i);  break; // @v11.5.8
 					case  2: rBlk.QttyPos = static_cast<long>(i);  break;
 					case  3: rBlk.CostPos = static_cast<long>(i);  break;
 					case  4: rBlk.PricePos = static_cast<long>(i); break;
@@ -495,17 +497,25 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 				}
 			}
 			if(p_brw->GetColPos(posblk) > 0) {
-				if(col == posblk.QttyPos && pos >= 0) {
-					if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
+				if(p_pack && pos >= 0 && pos < static_cast<int>(p_pack->GetTCount())) {
+					if(col == posblk.GoodsPos) { // @v11.5.8
+						const TagFilt & r_tag_filt = p_brw->GObj.GetConfig().TagIndFilt;
+						if(!r_tag_filt.IsEmpty()) {
+							const PPTransferItem & r_ti = p_pack->ConstTI(pos);
+							const PPID goods_id = labs(r_ti.GoodsID);
+							SColor clr;
+							if(r_tag_filt.SelectIndicator(goods_id, clr) > 0)
+								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+						}
+					}
+					else if(col == posblk.QttyPos) {
 						const PPTransferItem & r_ti = p_pack->ConstTI(pos);
 						if(r_ti.Flags & PPTFR_LOTSYNC)
 							ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrIndigo));
 						else if(r_ti.Quantity_ < 0.0 && oneof2(p_pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON))
 							ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
 					}
-				}
-				else if(col == posblk.OrdQttyPos && pos >= 0) {
-					if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
+					else if(col == posblk.OrdQttyPos) {
 						const PPTransferItem & r_ti = p_pack->ConstTI(pos);
 						double ord_qtty = p_brw->GetOrderedQtty(r_ti);
 						if((ord_qtty - fabs(r_ti.Qtty())) > 1E-6) {
@@ -513,9 +523,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 							ok = 1;
 						}
 					}
-				}
-				else if(col == posblk.ShippedQttyPos && pos >= 0) { // @v10.1.5
-					if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
+					else if(col == posblk.ShippedQttyPos) { // @v10.1.5
 						const PPTransferItem & r_ti = p_pack->ConstTI(pos);
 						const AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(p_brw->getDef());
 						const BillGoodsBrwItemArray * p_list = p_def ? static_cast<const BillGoodsBrwItemArray *>(p_def->getArray()) : 0;
@@ -526,9 +534,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 							ok = 1;
 						}
 					}
-				}
-				else if(col == posblk.VetisCertPos && pos >= 0) { // @v10.5.11
-					if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
+					else if(col == posblk.VetisCertPos) { // @v10.5.11
 						long   expiry_val = 0;
 						if(p_brw->VetisExpiryList.Search(p_item->Pos, &expiry_val, 0)) {
 							LDATE expiry_dt;
@@ -539,35 +545,35 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 							}
 						}
 					}
-				}
-				/* @construction
-				else if(col == link_qtty_pos && pos >= 0) {
-					if(p_brw->HasLinkPack()) {
-						if(p_pack && pos < (int)p_pack->GetTCount()) {
-							const PPTransferItem & r_ti = p_pack->ConstTI(pos);
-							double link_qtty = p_brw->GetLinkQtty(r_ti);
-							if(!feqeps(link_qtty, fabs(r_ti.Qtty()), 1E-3)) {
-								pStyle->Color = GetColorRef(SClrOrchid);
-								ok = 1;
+					/* @construction
+					else if(col == link_qtty_pos) {
+						if(p_brw->HasLinkPack()) {
+							if(p_pack && pos < (int)p_pack->GetTCount()) {
+								const PPTransferItem & r_ti = p_pack->ConstTI(pos);
+								double link_qtty = p_brw->GetLinkQtty(r_ti);
+								if(!feqeps(link_qtty, fabs(r_ti.Qtty()), 1E-3)) {
+									pStyle->Color = GetColorRef(SClrOrchid);
+									ok = 1;
+								}
 							}
 						}
 					}
-				}
-				*/
-				else if(col == posblk.QuotInfoPos && pos >= 0) {
-					uint   qsip = 0;
-					if(p_pack->P_QuotSetupInfoList && p_pack->P_QuotSetupInfoList->lsearch(&pos, &qsip, CMPF_LONG)) {
-						const PPBillPacket::QuotSetupInfoItem & r_qsi = p_pack->P_QuotSetupInfoList->at(qsip);
-						if(r_qsi.Flags & r_qsi.fInvalidQuot)
-							pStyle->Color = GetColorRef(SClrRed);
-						else if(r_qsi.Flags & r_qsi.fMissingQuot)
-							pStyle->Color = GetColorRef(SClrOrange);
+					*/
+					else if(col == posblk.QuotInfoPos) {
+						uint   qsip = 0;
+						if(p_pack->P_QuotSetupInfoList && p_pack->P_QuotSetupInfoList->lsearch(&pos, &qsip, CMPF_LONG)) {
+							const PPBillPacket::QuotSetupInfoItem & r_qsi = p_pack->P_QuotSetupInfoList->at(qsip);
+							if(r_qsi.Flags & r_qsi.fInvalidQuot)
+								pStyle->Color = GetColorRef(SClrRed);
+							else if(r_qsi.Flags & r_qsi.fMissingQuot)
+								pStyle->Color = GetColorRef(SClrOrange);
+							else
+								pStyle->Color = GetColorRef(SClrGreen);
+						}
 						else
-							pStyle->Color = GetColorRef(SClrGreen);
+							pStyle->Color = GetColorRef(SClrYellow);
+						ok = 1;
 					}
-					else
-						pStyle->Color = GetColorRef(SClrYellow);
-					ok = 1;
 				}
 				if(pos >= 0 && pos < static_cast<long>(r_price_dev_list.getCount())) {
 					long   price_flags = r_price_dev_list.at(pos);

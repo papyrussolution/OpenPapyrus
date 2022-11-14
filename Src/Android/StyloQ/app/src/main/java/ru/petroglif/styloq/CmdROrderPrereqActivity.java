@@ -1105,7 +1105,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							result = ev_subj.RvHolder;
 						}
 					}
-					//
 				}
 				break;
 			case SLib.EV_LISTVIEWITEMCLK:
@@ -1277,9 +1276,9 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										}
 										break;
 								}
-							}
-							if(do_update_goods_list_and_toggle_to_it) {
-								GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
+								if(do_update_goods_list_and_toggle_to_it) {
+									GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
+								}
 							}
 						}
 					}

@@ -8602,7 +8602,7 @@ int PPStyloQInterchange::MakeDocDeclareJs(const StyloQCommandList::Item & rCmdIt
 	return DocumentDeclaration(&rCmdItem, pDl600Symb).ToJson(rDocDeclaration);  // @v11.4.9
 }
 
-int PPStyloQInterchange::Document::FromCCheckPacket(const CCheckPacket & rS, PPIDArray * pGoodsIdList)
+int PPStyloQInterchange::Document::FromCCheckPacket(const CCheckPacket & rS, PPID posNodeID, PPIDArray * pGoodsIdList)
 {
 	Z();
 	int    ok = 1;
@@ -8614,6 +8614,8 @@ int PPStyloQInterchange::Document::FromCCheckPacket(const CCheckPacket & rS, PPI
 	CreationTime = rS.Ext.CreationDtm;
 	Time.Set(rS.Rec.Dt, rS.Rec.Tm);
 	SvcOpID = 0; // Это - не документ. Вида операции нет.
+	InterchangeOpID = StyloQCommandList::sqbdtCCheck; // @v11.5.8
+	PosNodeID = posNodeID; // @v11.5.8
 	AgentID = rS.Ext.SalerID;
 	ClientID = 0; // ???
 	DlvrLocID = 0; // ???
@@ -8623,7 +8625,7 @@ int PPStyloQInterchange::Document::FromCCheckPacket(const CCheckPacket & rS, PPI
 	rS.GetExtStrData(CCheckPacket::extssMemo, temp_buf);
 	Memo = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 	for(uint i = 0; i < rS.GetCount(); i++) {
-		const CCheckLineTbl::Rec & r_line = rS.GetLine(i);
+		const CCheckLineTbl::Rec & r_line = rS.GetLineC(i);
 		const PPID goods_id = labs(r_line.GoodsID);
 		CCheckPacket::LineExt le;
 		PPStyloQInterchange::Document::__TransferItem * p_doc_ti = TiList.CreateNewItem();

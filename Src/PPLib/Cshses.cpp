@@ -103,45 +103,66 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 		PPObjGoods goods_obj;
 		CCheckLineTbl::Rec ccl;
 		SString chzn_code;
-		for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
-			pPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, chzn_code);
-			if(chzn_code.NotEmptyS()) {
-				GtinStruc gts;
-				if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0)) > 0) {
-					ok = 1;
-					CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
-					PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_code);
-					const double chzn_qtty = fabs(ccl.Quantity);
-					uint  uom_fragm = 0;
-					Goods2Tbl::Rec goods_rec;
-					PPUnit u_rec;
-					if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0 && goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
-						if(u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
-							uom_fragm = u_rec.Fragmentation;
+		bool is_there_chzn_marks = false;
+		{
+			for(uint pos = 0; !is_there_chzn_marks && pPack->EnumLines(&pos, &ccl) > 0;) {
+				pPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, chzn_code);
+				if(chzn_code.NotEmptyS()) {
+					GtinStruc gts;
+					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0)) > 0) {
+						is_there_chzn_marks = true;
 					}
-					int pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
-					PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
-					// @debug {
-					//pczcr = 0;
-					//chzn_pp_result.Z();
-					// } @debug
-					if(pczcr > 0) {
-						if(chzn_pp_result.Status == 1) {
-							chzn_pp_result.LineIdx = pos;
-							int accept_op = 1; // 1 - accept, 2 - reject
-							pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
-							PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-							if(pczcr > 0)
-								pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
-						}
-						else {
-							ok = 2;
-							chzn_pp_result.LineIdx = pos;
-							int accept_op = 2; // 1 - accept, 2 - reject
-							pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
-							PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-							if(pczcr > 0)
-								pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+				}
+			}
+		}
+		if(is_there_chzn_marks) {
+			int pczcr_pre = 0;
+			{
+				CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
+				pczcr_pre = PreprocessChZnCode(100, chzn_code, 1.0, 0, chzn_pp_result);
+			}
+			if(pczcr_pre != 0) {
+				for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
+					pPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, chzn_code);
+					if(chzn_code.NotEmptyS()) {
+						GtinStruc gts;
+						if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0)) > 0) {
+							ok = 1;
+							CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
+							PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_code);
+							const double chzn_qtty = fabs(ccl.Quantity);
+							uint  uom_fragm = 0;
+							Goods2Tbl::Rec goods_rec;
+							PPUnit u_rec;
+							if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0 && goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
+								if(u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
+									uom_fragm = u_rec.Fragmentation;
+							}
+							int pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
+							PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
+							// @debug {
+							//pczcr = 0;
+							//chzn_pp_result.Z();
+							// } @debug
+							if(pczcr > 0) {
+								if(chzn_pp_result.Status == 1) {
+									chzn_pp_result.LineIdx = pos;
+									int accept_op = 1; // 1 - accept, 2 - reject
+									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
+									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+									if(pczcr > 0)
+										pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+								}
+								else {
+									ok = 2;
+									chzn_pp_result.LineIdx = pos;
+									int accept_op = 2; // 1 - accept, 2 - reject
+									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
+									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+									if(pczcr > 0)
+										pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+								}
+							}
 						}
 					}
 				}

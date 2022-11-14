@@ -287,7 +287,7 @@ int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, con
 	int    is_cc_suitable = 0;
 	{
 		for(uint lp = 0; !is_cc_suitable && lp < pCcPack->GetCount(); lp++) {
-			const CCheckLineTbl::Rec & r_line = pCcPack->GetLine(lp);
+			const CCheckLineTbl::Rec & r_line = pCcPack->GetLineC(lp);
 			pCcPack->GetLineTextExt(lp+1, CCheckPacket::lnextRemoteProcessingTa, ta_ident);
 			if(ta_ident.NotEmpty())
 				is_cc_suitable = 1;
@@ -320,7 +320,7 @@ int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, con
 				SJson * p_array = SJson::CreateArr();
 				THROW_SL(p_array);
 				for(uint lp = 0; lp < pCcPack->GetCount(); lp++) {
-					const CCheckLineTbl::Rec & r_line = pCcPack->GetLine(lp);
+					const CCheckLineTbl::Rec & r_line = pCcPack->GetLineC(lp);
 					pCcPack->GetLineTextExt(lp+1, CCheckPacket::lnextRemoteProcessingTa, ta_ident);
 					if(ta_ident.NotEmpty()) {
 						SJson * p_item = new SJson(SJson::tSTRING);

@@ -626,7 +626,7 @@ int PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int paintActi
 	}
 }
 
-/*static*/int PPViewSysJournal::DynFuncObjNameFromList = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_objnamefromlist_ppvsj_iip, 3, BTS_INT, BTS_INT, BTS_PTR);;
+/*static*/int PPViewSysJournal::DynFuncObjNameFromList = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_objnamefromlist_ppvsj_iip, 3, BTS_INT, BTS_INT, BTS_PTR);
 /*static*/int PPViewSysJournal::DynFuncEvVerTextFromList = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_evvertextfromlist_ppvsj_iidtp, 5, BTS_INT, BTS_INT, BTS_DATE, BTS_TIME, BTS_PTR);
 
 DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)

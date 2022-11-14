@@ -150,7 +150,10 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 						//
 						View inpv = findViewById(R.id.CTL_GLOBALSEARCH_INPUT);
 						if(inpv != null && inpv instanceof SearchView) {
-							((SearchView)inpv).setOnQueryTextListener(this);
+							SearchView sv = (SearchView)inpv;
+							sv.setIconified(false);
+							sv.setActivated(true);
+							sv.setOnQueryTextListener(this);
 						}
 						//
 						String svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");

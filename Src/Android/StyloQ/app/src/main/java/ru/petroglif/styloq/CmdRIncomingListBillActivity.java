@@ -1168,15 +1168,46 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						else if(SLib.IsRecyclerListAdapter(srcObj)) {
 							SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
 							StyloQApp app_ctx = GetAppCtx();
-							//boolean do_update_goods_list_and_toggle_to_it = false;
+							boolean do_update_goods_list_and_toggle_to_it = false;
 							final int rc_id = a.GetListRcId();
 							if(app_ctx != null && ev_subj.ItemIdx >= 0) {
 								switch(rc_id) {
+									case R.id.CTL_DOCUMENT_TILIST:
+										if((CPM.GetActionFlags() & (Document.actionCCheckMod|Document.actionCCheckCreat)) != 0) {
+											final int cc = CPM.GetCurrentDocumentTransferListCount();
+											if(ev_subj.ItemIdx < cc) {
+												final Document _doc = CPM.GetCurrentDocument();
+												final Document.TransferItem ti = _doc.TiList.get(ev_subj.ItemIdx);
+												if(ti != null) {
+													CommonPrereqModule.TransferItemDialog dialog = new CommonPrereqModule.TransferItemDialog(this, CPM, ti);
+													dialog.show();
+												}
+											}
+										}
+										break;
 									case R.id.orderPrereqGoodsListView:
 										if(ev_subj.ItemIdx < CPM.GetGoodsListSize()) {
 											if(ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.buttonOrder) {
 												CommonPrereqModule.WareEntry item = CPM.GetGoodsListItemByIdx(ev_subj.ItemIdx);
 												CPM.OpenTransferItemDialog(item, 0.0);
+											}
+										}
+										break;
+									case R.id.orderPrereqBrandListView:
+										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.BrandListData)) {
+											final int brand_id = CPM.BrandListData.get(ev_subj.ItemIdx).ID;
+											if(CPM.SetGoodsFilterByBrand(brand_id)) {
+												SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
+												do_update_goods_list_and_toggle_to_it = true;
+											}
+										}
+										break;
+									case R.id.orderPrereqGoodsGroupListView:
+										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.GoodsGroupListData)) {
+											final int group_id = CPM.GoodsGroupListData.get(ev_subj.ItemIdx).optInt("id", 0);
+											if(CPM.SetGoodsFilterByGroup(group_id)) {
+												SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
+												do_update_goods_list_and_toggle_to_it = true;
 											}
 										}
 										break;
@@ -1214,6 +1245,9 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 											}
 										}
 										break;
+								}
+								if(do_update_goods_list_and_toggle_to_it) {
+									GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
 								}
 							}
 						}

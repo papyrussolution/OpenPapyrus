@@ -2521,8 +2521,6 @@ void BillDialog::SetupInfoText()
 	setStaticText(CTL_BILL_ST_SCARD, info_buf);
 }
 
-
-
 int BillDialog::setDTS(PPBillPacket * pPack)
 {
 	int    ok = 1;

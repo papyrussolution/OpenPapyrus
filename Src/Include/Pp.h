@@ -637,6 +637,7 @@ enum PredefinedImpExpFormat { // @persistent
 	piefICalendar                = 7, // @v11.0.1 iCalendar
 	piefNalogR_ON_NSCHFDOPPR     = 8, // @v11.2.1 Счет-фактура
 	piefCokeOrder                = 9, // @v11.3.8 xml-заказы кока-кола
+	piefChicago                  = 10, // @v11.5.8 xml-заказы системы чикаго (системные технологии, калининград)
 };
 //
 // Descr: Габаритные размеры (mm).
@@ -14897,7 +14898,8 @@ struct CCheckItem { // @transient
 	int16  Division;        // Номер отдела
 	int16  LineGrpN;        // Номер группы строк (используется только для печати и инициируется функцией CheckPaneDialog::InitIteration
 	int8   Queue;           // Очередность подачи
-	int8   Reserve[3];      // @alignment
+	int8   Reserve[1];      // @alignment // @v11.5.8 [3]-->[1]
+	int16  RByCheck;        // @v11.5.8 Проекция поля CCheckLineTbl::Rec::RByCheck
 	char   BarCode[24];     //
 	char   GoodsName[128];  //
 	char   Serial[32];      // @v10.2.10 [24]-->[32]
@@ -15158,14 +15160,15 @@ public:
 	// Descr: Упаковывает все строки расширения чека и его строк в общую строку для сохранения в базе данных.
 	//
 	int    PackTextExt(SString & rResult) const;
-	const  CCheckLineTbl::Rec & FASTCALL GetLine(uint pos) const;
+	CCheckLineTbl::Rec & FASTCALL GetLine(uint pos);
+	const  CCheckLineTbl::Rec & FASTCALL GetLineC(uint pos) const;
 	int    EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial = 0) const;
 	int    EnumLines(uint * pPos, CCheckItem * pItem) const;
 	void   InitLineIteration();
 	int    NextLineIteration(CCheckLineTbl::Rec * pItem, SString * pSerial = 0);
 	int    RemoveLine_(uint pos);
 	int    CopyLines(const CCheckPacket & rS);
-	int    SearchLine(int rByCheck, uint * pPos) const;
+	bool   SearchLine(int rByCheck, uint * pPos) const;
 	int    SetLineTextExt(int pos /*[1..]*/, int lnextId, const char *);
 	int    GetLineTextExt(int pos /*[1..]*/, int lnextId, SString & rBuf) const;
 	int    SetLineExt(int pos /*[1..]*/, const LineExt & pExt);
@@ -15401,6 +15404,7 @@ public:
 	//
 	int    GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList);
 	int    GetListByChZnMark(const char * pText, PPIDArray & rCcList);
+	int    GetListByUuid(S_GUID & rUuid, PPIDArray & rCcList);
 	//
 	// Descr: Возвращает список идентификаторов чеков, обслуживающих чек заказа orderCheckID.
 	// Note: В подавляющем большинстве случаев список  будет либо пустым, либо будет содержать
@@ -22005,6 +22009,7 @@ public:
 	//   0 - проверка марки
 	//   1 - акцепт марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
 	//   2 - отказ от акцепта марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
+	//   100 - предварителные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
 	// Returns:
 	//  <0 - функция не поддерживается либо pCode не является валидным кодом честный знак
 	//  >0 - функция выполнена (не обязательно успешно - это определяется результатом rResult)
@@ -28846,6 +28851,9 @@ public:
 		fHasImages         = 0x40000000L, // Только с картинками
 		fUseIndepWtOnly    = 0x80000000L  // Только с флагом GF_USEINDEPWT
 	};
+	enum {
+		f2ShowWhPlace      = 0x00000001L, // @v11.5.8 Показывать место хранения // 
+	};
 	enum { // @persistent
 		bcrLength = 1,
 		bcrPrefix
@@ -28880,7 +28888,7 @@ public:
 	//
 	int    CalcResultBrandList(ObjIdListFilt & rResult) const;
 	//
-	// Descr: Возвращает результирующий списко брендов (по спискам BrandList и BrandOwnerList),
+	// Descr: Возвращает результирующий список брендов (по спискам BrandList и BrandOwnerList),
 	//   сформированный функцией GoodsFilt::Setup
 	//
 	const  ObjIdListFilt & GetResultBrandList() const;
@@ -28893,7 +28901,8 @@ public:
 	int    ReadFromProp(PPID obj, PPID id, PPID prop, PPID propBefore8604);
 	int    WriteToProp(PPID obj, PPID id, PPID prop, PPID propBefore8604);
 
-	char   ReserveStart[4];    // @anchor Проецируется на __GoodsFilt::Reserve
+	char   ReserveStart[28];   // @anchor Проецируется на __GoodsFilt::Reserve // @v11.5.8 [4]-->[28]
+	PPID   GoodsLocAssocID;    // @v11.5.8 Если установлен флаг Flags2 & f2ShowWhPlace то в этом поле может быть определен id именованной ассоциации.
 	PPID   UhttStoreID;        // Магазин Universe-HTT в контексте которого извлекаются товары.
 	PPID   RestrictQuotKindID; // Вид ограничивающей котировки (извлекаются только те товары, которые имеют котировку этого вида)
 	int32  InitOrder;          //
@@ -28911,13 +28920,14 @@ public:
 	PPID   SupplID;            //
 	PPID   GoodsTypeID;        //
 	PPID   TaxGrpID;           //
-	PPID   LocID_;             //
 	DateRange LotPeriod;       //
 	long   Flags;              //
+	long   Flags2;             // @v11.5.8
 	long   VatRate;            // Ставка НДС, которой облагается товар. Ненулевое значение этого поля исключает фильтрацию по полю TaxGrpID.
 	LDATE  VatDate;            // Дата, на которую следует брать ставку НДС. Используется только если VatRate != 0
-	PPID   BrandID_;           // Товарный брэнд
 	PPID   GoodsStrucID;       // @v10.0.12 Товарная структура, на которую ссылаются товары
+	PPID   LocID_Obsolete;     //
+	PPID   BrandID_Obsolete;   // Товарный брэнд
 	ClsdGoodsFilt Ep;          // @anchor
 	//
 	// @v8.2.12
@@ -30244,10 +30254,10 @@ public:
 	bool   IsValid() const;
 	uint   GetCount() const;
 	const  LAssoc & FASTCALL at(uint pos) const;
-	int    Get(PPID goodsID, PPID * pObjID);
+	int    Get(PPID goodsID, PPID * pObjID) const;
 	int    Search(PPID goodsID, PPID * pObjID, uint * pPos) const;
 	int    SearchPair(PPID goodsID, PPID objID, uint * pPos) const;
-	int    GetListByGoods(PPID goodsID, PPIDArray & rObjList); // @recursion
+	int    GetListByGoods(PPID goodsID, PPIDArray & rObjList) const; // @recursion
 	int    GetListByObj(PPID objID, PPIDArray & rGoodsList) const;
 	int    Add(PPID goodsID, PPID objID, uint * pPos = 0);
 	int    UpdateByPos(uint pos, PPID goodsID, PPID objID);
@@ -30265,7 +30275,7 @@ private:
 	};
 	long   Flags;
 	PPNamedObjAssoc NoaRec;
-	PPObjGoods GObj;
+	mutable PPObjGoods GObj;
 	LAssocArray List;
 };
 
@@ -31394,6 +31404,7 @@ struct GoodsViewItem : public Goods2Tbl::Rec {
 	double Package;
 	double MinShippmQtty;  // Минимальное количество, которое можно отгрузить в одном документе
 	char   StrucType[16];
+	PPID   AssocLocID;     // @v11.5.8 Ассоциированная с товаром локация (если GoodsFilt::Flags2 & GoodsFilt::f2ShowWhPlace)
 };
 
 class PPViewGoods : public PPView {
@@ -31498,6 +31509,7 @@ private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;    // Используется неявно для извлечения имени производителя в броузере
 	GoodsFilt  Filt;
+	GoodsToObjAssoc * P_G2OAssoc; // @v11.5.8
 	TempOrderTbl  * P_TempTbl;
 	GoodsIterator * P_Iter;
 	BarcodeArray BarcodeAry;
@@ -31506,6 +31518,7 @@ private:
 	SString IterGrpName;
 	GoodsMoveParam GmParam;
 	static int DynFuncStrucType;
+	static int DynFuncAssocLoc; // @v11.5.8
 };
 //
 // @ModuleDecl(PPViewGoodsStruc)
@@ -33358,7 +33371,7 @@ public:
 	//
 	int    WriteFIO(const char * pName, long parentTokId, bool asTags);
 	int    Underwriter(PPID psnID);
-	int    GetAgreementParams(PPID arID, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
+	int    GetAgreementParams(/*PPID arID*/const PPBillPacket & rBillPack, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
 	const  SString & FASTCALL EncText(const SString & rS);
 //private:
 	PPObjGoods GObj;
@@ -39912,7 +39925,7 @@ public:
 	DateRange Operation;     // Операционный период (показывает остаток на начало, приход, расход, остаток на конец этого периода)
 	DateRange ExpiryPrd;     // Период истечения срока годности по лотам
 	DateRange QcExpiryPrd;   // Период истечения срока действия сертификатов
-	PPID   LocID__;          // ->Location.ID // @v10.6.8 obsolete(replaced with LocList)
+	PPID   LocID_Obsolete;   // ->Location.ID // @v10.6.8 obsolete(replaced with LocList)
 	PPID   SupplID;          // ->Article.ID
 	PPID   GoodsGrpID;       // ->Goods2.ID
 	PPID   GoodsID;          // ->Goods2.ID
@@ -47270,7 +47283,7 @@ public:
 		Document();
 		Document & Z();
 		int    FromBillPacket(const PPBillPacket & rS, const TSVector <CliStatus> * pCliStatusList, PPIDArray * pGoodsIdList);
-		int    FromCCheckPacket(const CCheckPacket & rS, PPIDArray * pGoodsIdList);
+		int    FromCCheckPacket(const CCheckPacket & rS, PPID posNodeID, PPIDArray * pGoodsIdList);
 		int    FromJsonObject(const SJson * pJsObj);
 		int    FromJson(const char * pJson);
 		SJson * ToJsonObject() const;
@@ -50578,7 +50591,7 @@ public:
 	long   Flags;
 	long   Actions;
 	PPID   MainOrgID;
-	PPID   LocID;
+	PPID   LocID__;
 	DateRange Period;
 	DateRange WayBillPeriod;
 	long    VDStatusFlags;
@@ -50645,6 +50658,7 @@ private:
 	static int DynFuncVetStockByDoc;
 	static int DynFuncVetUUID;  //@erik v10.4.11
 	static int DynFuncCheckExpiry; // @v10.6.3
+	static int DynFuncCheckLocation; // @v11.5.8
 
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -50673,6 +50687,7 @@ private:
 	PPID   FromEnterpriseID;
 	PPID   ToEntityID;
 	PPID   ToEnterpriseID;
+	PPID   LocEntityID; // @v11.5.8
 };
 //
 //
@@ -55056,10 +55071,10 @@ public:
 	};
 	struct ExtCcData {
 		enum {
-			fDelivery   = 0x0001,
-			fFixedPrice = 0x0002, // Проекция флага CCHKF_FIXEDPRICE
+			fDelivery           = 0x0001,
+			fFixedPrice         = 0x0002, // Проекция флага CCHKF_FIXEDPRICE
 			fAttachPhoneToSCard = 0x0004, // @transient Привязать номер телефона к выбранной карте
-			fSpFinished = 0x0008, // CCHKF_SPFINISHED
+			fSpFinished         = 0x0008, // CCHKF_SPFINISHED
 			fCreateCardByPhone  = 0x0010  // @v10.2.7 @transient Создать новую карту, привязанную к телефону
 		};
 		ExtCcData();
@@ -55072,6 +55087,7 @@ public:
 		PPID   InitUserID; // @v10.6.8 Пользователь, создавший чек
 		LDATETIME DlvrDtm;
 		LDATETIME InitDtm; // Время создания чека.
+		S_GUID Uuid; // @v11.5.8 Uuid чека
 		LocationTbl::Rec Addr_;
 		SString Memo;
 	};
@@ -55174,10 +55190,11 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(CCheckItem * pItem);
 	int    SetupCTable(int tableNo, int guestCount);
+	int    SetupUuid(const S_GUID & rUuid);
 	int    SetupAgent(PPID agentID, int asAuthAgent);
 	void   SetupSessUuid(const S_GUID_Base & rUuid);
 	int    OpenSession(LDATE * pDt, int ifClosed);
-	int    RestoreSuspendedCheck(PPID ccID, int unfinishedForReprinting); // private->public
+	int    RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int unfinishedForReprinting); // private->public
 	int    Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId);
 	//
 	// Descr: selPrnType ==  1 - предварительно вызывается диалог выбора принтера (локальные или по умолчанию)
@@ -55216,6 +55233,8 @@ public:
 	int    Backend_SetRowQueue(int rowNo, int queue);
 	int    Backend_SetModifList(const SaModif & rList);
 	int    ResetCurrentLine();
+	const CCheckItem * FindLine(int rbycheck) const;
+	int    UpdateLine(const CCheckItem * pItem);
 	//
 	// Descr: Очищает процессор. Функция должна быть вызвана перед разрушением
 	//   объекта при использовании вне кассовой панели.

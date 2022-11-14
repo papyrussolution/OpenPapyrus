@@ -1165,9 +1165,11 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 {
 	class GStrucListWindow : public ListWindow {
 	public:
-		GStrucListWindow(GoodsStrucTreeListViewBlock * pBlk, void * hMainBrwWindow) : P_Blk(pBlk), H_MainBrwWindow(hMainBrwWindow), FfeRing(64),
+		GStrucListWindow(PPViewGoodsStruc * pOwner, GoodsStrucTreeListViewBlock * pBlk, void * hMainBrwWindow) : 
+			P_Owner(pOwner), P_Blk(pBlk), H_MainBrwWindow(hMainBrwWindow), FfeRing(64),
 			ListWindow(new StdTreeListBoxDef2_(pBlk ? pBlk->MakeTree() : 0, lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtFocNotify, 0), "", 0)
 		{
+			assert(P_Owner);
 		}
 		~GStrucListWindow()
 		{
@@ -1219,7 +1221,7 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 									if(r > 0) {
 										P_Blk->Cb.AddItem(p_struc_entry->PrmrGoodsID, struc_id, 0/*Filt.ScndGoodsGrpID*/, /*Filt.ScndGoodsID*/0, 
 											GoodsStrucProcessingBlock::addifCheckExistance);
-										P_Blk->Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
+										P_Blk->Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), P_Owner); // @v11.5.8 @fix this-->P_Owner
 										//ok = 1;
 									}
 									else if(!r) {
@@ -1238,6 +1240,7 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 				}
 			}
 		}
+		PPViewGoodsStruc * P_Owner; // @v11.5.8
 		TSRingStack <ForeignFocusEvent> FfeRing;
 		GoodsStrucTreeListViewBlock * P_Blk;
 		void * H_MainBrwWindow;
@@ -1246,7 +1249,7 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 	int    ok = 1;
 	{
 		GoodsStrucTreeListViewBlock * p_blk = new GoodsStrucTreeListViewBlock(Cb);
-		GStrucListWindow * p_lw = new GStrucListWindow(p_blk, pBrw ? pBrw->H() : 0);
+		GStrucListWindow * p_lw = new GStrucListWindow(this, p_blk, pBrw ? pBrw->H() : 0);
 		if(p_lw) {
 			SString temp_buf;
 			p_lw->SetToolbar(TOOLBAR_LIST_GOODSSTRUC);
