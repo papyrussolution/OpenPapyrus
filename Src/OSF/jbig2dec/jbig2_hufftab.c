@@ -249,8 +249,8 @@ static const Jbig2HuffmanLine jbig2_huffman_lines_L[] = {
     {7, 4, 25},
     {8, 5, 41},
     {8, 32, 73},
-    {0, 32, -1},                /* low */
-    {0, 32, 0}                  /* high */
+    {0, 32, -1}, /* low */
+    {0, 32, 0}   /* high */
 };
 
 const Jbig2HuffmanParams jbig2_huffman_params_L = { FALSE, JBIG2_COUNTOF(jbig2_huffman_lines_L), jbig2_huffman_lines_L };

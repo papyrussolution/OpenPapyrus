@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.UUID;
 
 public class StyloQCommand {
@@ -59,11 +60,23 @@ public class StyloQCommand {
 	// Полный вариант определен в Papyrus class StyloQCommandList
 	//
 	public static class Item {
+		//
+		// Descr: Флаги команды. Некоторые из этих флагов применимы только на стороне сервиса,
+		//   тем не менее, для полноты соответствия они здесь перечислены.
+		//
+		public static final int fResultPersistent = 0x0001;
+		public static final int fPrepareAhead     = 0x0002; // @v11.4.6 Данные команды готовятся заранее чтобы при запросе от клиента отдать их максимально быстро.
+			// Эта опция не может быть применена в случае, если параметры команды содержат ссылку на контекстные данные!
+			// Поскольку не ясно какой именно результат должен быть подготовлен заранее.
+		public static final int fNotify_ObjNew    = 0x0004; // @v11.5.9 Опция извещения: извещать о новых объектах
+		public static final int fNotify_ObjUpd    = 0x0008; // @v11.5.9 Опция извещения: извещать об измененных объектах
+		public static final int fNotify_ObjStatus = 0x0010; // @v11.5.9 Опция извещения: извещать об изменении статусов объектов
 		Item()
 		{
 			Uuid = null;
 			ResultExpiryTimeSec = 0;
 			BaseCmdId = 0;
+			Flags = 0;
 			Name = null;
 			Description = null;
 			Image = null;
@@ -75,6 +88,7 @@ public class StyloQCommand {
 			// повторного обращения к сервису.
 		int   BaseCmdId;           // @v11.2.9 Идентификатор базовой команды. Нужен для автоматического
 			// определения ряда параметров команды.
+		int   Flags;               // @v11.5.9
 		String Name;               // Наименование команды
 		String Description;        // Подробное описание команды
 		String Image;              // Ссылка на изображение, ассоциированное с командой
@@ -178,6 +192,25 @@ public class StyloQCommand {
 							item.ResultExpiryTimeSec = jsitem.optInt("result_expir_time_sec", 0); // @v11.2.5
 							item.Name = jsitem.getString("name");
 							item.Description = jsitem.optString("descr", "");
+							// @v11.5.9 {
+							{
+								String notify_options = jsitem.optString("notify", null);
+								if(SLib.GetLen(notify_options) > 0) {
+									StringTokenizer toknzr = new StringTokenizer(notify_options, ",");
+									final int _c = toknzr.countTokens();
+									for(int j = 0; j < _c; i++) {
+										String tok = toknzr.nextToken();
+										tok.trim();
+										if(tok.equalsIgnoreCase("objnew"))
+											item.Flags |= Item.fNotify_ObjNew;
+										else if(tok.equalsIgnoreCase("objupd"))
+											item.Flags |= Item.fNotify_ObjUpd;
+										else if(tok.equalsIgnoreCase("objstatus"))
+											item.Flags |= Item.fNotify_ObjStatus;
+									}
+								}
+							}
+							// } @v11.5.9
 							if(result.Items == null)
 								result.Items = new ArrayList<Item>();
 							result.Items.add(item);

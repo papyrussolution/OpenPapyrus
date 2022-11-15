@@ -11426,6 +11426,7 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	}
 	// } @v10.6.3
 	// @v11.5.8 {
+	/* @v11.5.9 плохо работает - пока отключаем 
 	if(LocEntityID) {
 		dbe_checkloc.init();
 		dbe_checkloc.push(dbconst(LocEntityID));
@@ -11433,7 +11434,7 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_checkloc.push(t->ToEnterpriseID);
 		dbe_checkloc.push(static_cast<DBFunc>(DynFuncCheckLocation));
 		dbq = &(*dbq && dbe_checkloc > 0L);
-	}
+	}*/
 	// } @v11.5.8 
 	q = &select(
 		t->EntityID,          // #0
@@ -11487,8 +11488,10 @@ int FASTCALL PPViewVetisDocument::CheckForFilt(const VetisDocumentViewItem * pIt
 	// } @v10.9.10 
 	else if(ToEntityID && pItem->ToEntityID != ToEntityID)
 		ok = 0;
+	/* @v11.5.9 плохо работает - пока отключаем
 	else if(LocEntityID && (pItem->FromEnterpriseID != LocEntityID && pItem->ToEnterpriseID != LocEntityID)) // @v11.5.8
 		ok = 0;
+	*/
 	else {
 		const long ff = Filt.VDStatusFlags;
 		const long rf = pItem->VetisDocStatus;

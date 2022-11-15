@@ -3685,7 +3685,7 @@ file:
 table StyloQSec {
 	autolong ID;
 	long   Kind;             // 1 - native service (only record), 2 - foreign service, 3 - client, 4 - session, 5 - face
-		// 6 - kDocIncoming, 7 - kDocOutcominig
+		// 6 - kDocIncoming, 7 - kDocOutcominig, 8 - kCounter, 9 - kNotification
 	long   CorrespondID;     // ->StyloQSec.ID (для сессии - клиент или сервис, для клиента или сервиса - текущая сессия, для документа - эмитент (client || foreign_service))
 	raw    BI[20];           // Уникальный идентификатор стороны обмена, относительно данной инсталляции.
 		// Для сессии (4) - sha1(публичный идентификатор сессии контрагента). При этом CorrespondID указывает на запись контрагента.

@@ -6999,6 +6999,8 @@
 	#define CTLSEL_G2OA_GOODS            (4 + WINDOWS_ID_BIAS)
 	#define CTL_G2OA_OBJ                 (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_G2OA_OBJ              (6 + WINDOWS_ID_BIAS)
+	#define CTL_G2OA_ASSOC               (7 + WINDOWS_ID_BIAS)
+	#define CTLSEL_G2OA_ASSOC            (8 + WINDOWS_ID_BIAS)
 //                                681 // Occupied(DLG_OPKMORE_MDF)
 //                                682 // Occupied(DLG_GQUOTSC)
 #define DLG_TSESSWROFFORD         683 // Порядок списания техн сессий
@@ -11283,6 +11285,7 @@
 	#define CTL_STQCMD_OIR                   (14  + WINDOWS_ID_BIAS) // ObjIdRestriction
 	#define CTLSEL_STQCMD_OIR                (15  + WINDOWS_ID_BIAS)
 	#define CTL_STQCMD_FLAGS                 (16  + WINDOWS_ID_BIAS)
+	#define CTL_STQCMD_NOTIFYF               (17  + WINDOWS_ID_BIAS) // @v11.5.9 Флаги уведомлений
 #define DLG_STQFACE               1405
 	#define CTL_STQFACE_LANG                 (1  + WINDOWS_ID_BIAS)
 	#define CTLSEL_STQFACE_LANG              (2  + WINDOWS_ID_BIAS)

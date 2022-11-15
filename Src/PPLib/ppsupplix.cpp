@@ -7171,7 +7171,7 @@ struct GazpromNeftGoodsPacket {
 };
 
 struct GazpromNeftClientPacket {
-	GazpromNeftClientPacket() : PersonID(0), DlvrLocID(0)
+	GazpromNeftClientPacket() : PersonID(0), DlvrLocID(0), IsBlocked(false)
 	{
 		INN[0] = 0;
 		KPP[0] = 0;
@@ -7179,6 +7179,9 @@ struct GazpromNeftClientPacket {
 	PPID   PersonID;
 	PPID   DlvrLocID;
 	S_GUID Uuid;
+	bool   IsBlocked;  // @v11.5.9
+	uint8  Reserve[3]; // @v11.5.9 @alignment
+	SString Status;    // @v11.5.9
 	SString Name;
 	SString Address;
 	SString ManagerName;
@@ -8212,6 +8215,15 @@ int GazpromNeft::SendSellout()
 								p_js_client->InsertString("inn", p_item->Client.INN);
 								p_js_client->InsertStringNe("kpp", p_item->Client.KPP);
 								p_js_client->InsertString("managerName", "none");
+								// @v11.5.9 {
+								p_js_client->InsertBool("isBlocked", p_item->Client.IsBlocked); 
+								temp_buf = p_item->Client.Status;
+								if(temp_buf.IsEmpty()) {
+									PPLoadString("inaction_fem", temp_buf);
+									temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+								}
+								p_js_client->InsertString("status", temp_buf.Escape());
+								// } @v11.5.9 
 								p_js_clilist->Insert("client", p_js_client);
 								p_js_client = 0;
 							}

@@ -46,6 +46,8 @@ public class StyloQDatabase extends Database {
 		public static final int kDocIncoming    = 6; // Входящие документы
 		public static final int kDocOutcoming   = 7; // Исходящие документы
 		public static final int kCounter        = 8; // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
+		public static final int kNotification   = 9; // @v11.5.9  Документ извещения. Главным образом, предполагаются извещения от сервисов к клиентам. Но, вероятно,
+			// будут возможны и извещения в обратном направлении (клиент о чем-то информирует сервис).
 		//
 		// Descr: Флаги записи таблицы данных StyloQ bindery (StyloQSec::Flags)
 		//

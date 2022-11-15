@@ -1458,6 +1458,18 @@ bool StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 					p_jitem->InsertString("uuid", temp_buf.Z().Cat(p_item->Uuid));
 					p_jitem->InsertString("basecmdid", temp_buf.Z().Cat(p_item->BaseCmdId)); // @v11.2.9
 					p_jitem->InsertString("name", (temp_buf = p_item->Name).Escape());
+					// @v11.5.9 {
+					{
+						temp_buf.Z();
+						if(p_item->Flags & Item::fNotify_ObjNew)
+							temp_buf.CatDivIfNotEmpty(',', 0).Cat("objnew");
+						if(p_item->Flags & Item::fNotify_ObjUpd)
+							temp_buf.CatDivIfNotEmpty(',', 0).Cat("objupd");
+						if(p_item->Flags & Item::fNotify_ObjStatus)
+							temp_buf.CatDivIfNotEmpty(',', 0).Cat("objstatus");
+						p_jitem->InsertStringNe("notify", temp_buf.Escape());
+					}
+					// } @v11.5.9 
 					if(p_item->Description.NotEmpty()) {
 						p_jitem->InsertString("descr", (temp_buf = p_item->Description).Escape());
 					}
@@ -1476,6 +1488,13 @@ bool StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 		pParent->InsertNz(pName, p_result);
 	}
 	return p_result;
+}
+
+bool StyloQCommandList::Item::CanApplyNotifyFlag(long f) const
+{
+	bool   result = false;
+	// @todo
+	return result;
 }
 
 bool StyloQCommandList::Item::CanApplyPrepareAheadOption() const

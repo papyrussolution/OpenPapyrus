@@ -678,6 +678,12 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 			AddClusterAssoc(CTL_STQCMD_FLAGS, 0, Data.fPrepareAhead);
 			SetClusterData(CTL_STQCMD_FLAGS, Data.Flags);
 			// } @v11.4.6 
+			// @v11.5.9 {
+			AddClusterAssoc(CTL_STQCMD_NOTIFYF, 0, Data.fNotify_ObjNew);
+			AddClusterAssoc(CTL_STQCMD_NOTIFYF, 1, Data.fNotify_ObjUpd);
+			AddClusterAssoc(CTL_STQCMD_NOTIFYF, 2, Data.fNotify_ObjStatus);
+			SetClusterData(CTL_STQCMD_NOTIFYF, Data.Flags);
+			// } @v11.5.9 
 			SetupBaseCommand(Data.BaseCmdId);
 			return ok;
 		}
@@ -715,6 +721,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				Data.Param.Z().Write(&posnode_id, sizeof(posnode_id));
 			}
 			GetClusterData(CTL_STQCMD_FLAGS, &Data.Flags);
+			GetClusterData(CTL_STQCMD_NOTIFYF, &Data.Flags); // @v11.5.9
 			ASSIGN_PTR(pData, Data);
 			if(!R_WholeList.Validate(pData)) {
 				ASSIGN_PTR(pData, preserve_data);
@@ -1149,6 +1156,9 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 			enableCommand(cmOutFields, enable_viewcmd); // @v11.2.6
 			disableCtrl(CTLSEL_STQCMD_VCMD, !enable_viewcombo);
 			DisableClusterItem(CTL_STQCMD_FLAGS, 0, !Data.CanApplyPrepareAheadOption()); // @v11.4.6
+			DisableClusterItem(CTL_STQCMD_NOTIFYF, 0, !Data.CanApplyNotifyFlag(Data.fNotify_ObjNew)); // @v11.5.9
+			DisableClusterItem(CTL_STQCMD_NOTIFYF, 1, !Data.CanApplyNotifyFlag(Data.fNotify_ObjUpd)); // @v11.5.9
+			DisableClusterItem(CTL_STQCMD_NOTIFYF, 2, !Data.CanApplyNotifyFlag(Data.fNotify_ObjStatus)); // @v11.5.9
 		}
 		void   SetupObjGroupCombo(PPID objType)
 		{

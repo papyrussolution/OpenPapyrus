@@ -3655,11 +3655,12 @@ public:
 	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
-		InfoKioskPaneFilt filt, * p_filt = 0;
-		if(pParam) {
+		InfoKioskPaneFilt filt;
+		InfoKioskPaneFilt * p_filt = 0;
+		if(pParam && pParam->GetAvailableSize() > 0) { // @v11.5.9 @fix (&& pParam->GetAvailableSize() > 0)
 			if(filt.Read(*pParam, 0))
 				p_filt = &filt;
-			else
+			else 
 				PPError();
 		}
 		return ViewGoodsInfo(p_filt);

@@ -7577,6 +7577,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @template                            "Шаблон"
 @template_pl                         "Шаблоны"
 @codetemplate                        "Шаблон номера"
+@inaction                            "Действующий" // Под вопросом. Фактически, здесь первично русское слово "Действующий" в смысле АКТИВНЫЙ, В ИСПОЛЬЗОВАНИИ
+@inaction_fem                        "Действующая" // see comment to @inaction
 @active                              "Активный"
 @passive                             "Пассивный"
 @passive_fem                         "Пассивная"
@@ -17421,6 +17423,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqcommand_description                    "@{description}"
 @styloqcommand_indoorsvcparam                 "Параметры indoor-обслуживания"
 @styloqcommand_fprepareahead                  "Заранее готовить данные"
+@styloqcommand_fnotify_objnew                 "Уведомлять о новых объектах"
+@styloqcommand_fnotify_objupd                 "Уведомлять об изменении объектов"
+@styloqcommand_fnotify_objstatus              "Уведомлять об изменении статуса объектов"
 
 @styloqsvcconfig                              "Конфигурация сервиса Stylo-Q"
 @styloqsvcconfig_url                          "@{serverurl}"

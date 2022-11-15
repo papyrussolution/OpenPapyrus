@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494625
+LastSignatureCode=2147494630
 LastAutoCodeList=1,12174;102,10177;103,10072;110,10000;111,12068;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10313;124,10241
 
 [SignatureList]
@@ -1749,6 +1749,8 @@ packagetypedefault=2147485101
 template=2147485102
 template_pl=2147485103
 codetemplate=2147485104
+inaction=2147494629
+inaction_fem=2147494630
 active=2147485105
 passive=2147485106
 passive_fem=2147485107
@@ -10904,6 +10906,9 @@ styloqcommand_remoteorderparam=2147494463
 styloqcommand_description=2147494445
 styloqcommand_indoorsvcparam=2147494542
 styloqcommand_fprepareahead=2147494562
+styloqcommand_fnotify_objnew=2147494626
+styloqcommand_fnotify_objupd=2147494627
+styloqcommand_fnotify_objstatus=2147494628
 styloqsvcconfig=2147494196
 styloqsvcconfig_url=2147494197
 styloqsvcconfig_mqbauth=2147494198

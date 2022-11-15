@@ -118,8 +118,7 @@ U_CAPI decContext *  U_EXPORT2 uprv_decContextDefault(decContext * context, Int 
 	}
 
 	return context;
-}                  /* decContextDefault  */
-
+}
 /* ------------------------------------------------------------------ */
 /* decContextGetRounding -- return current rounding mode     */
 /* */
@@ -128,9 +127,7 @@ U_CAPI decContext *  U_EXPORT2 uprv_decContextDefault(decContext * context, Int 
 /* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
-U_CAPI enum rounding U_EXPORT2 uprv_decContextGetRounding(decContext * context) {
-	return context->round;
-}   /* decContextGetRounding  */
+U_CAPI enum rounding U_EXPORT2 uprv_decContextGetRounding(decContext * context) { return context->round; }
 
 /* ------------------------------------------------------------------ */
 /* decContextGetStatus -- return current status     */
@@ -140,9 +137,7 @@ U_CAPI enum rounding U_EXPORT2 uprv_decContextGetRounding(decContext * context) 
 /* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
-U_CAPI uInt U_EXPORT2 uprv_decContextGetStatus(decContext * context) {
-	return context->status;
-}   /* decContextGetStatus  */
+U_CAPI uInt U_EXPORT2 uprv_decContextGetStatus(decContext * context) { return context->status; }
 
 /* ------------------------------------------------------------------ */
 /* decContextRestoreStatus -- restore bits in current status */
@@ -202,13 +197,14 @@ U_CAPI decContext * U_EXPORT2 uprv_decContextSetRounding(decContext * context,
 /* Control may never return from this routine, if there is a signal   */
 /* handler and it takes a long jump.       */
 /* ------------------------------------------------------------------ */
-U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatus(decContext * context, uInt status) {
+U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatus(decContext * context, uInt status) 
+{
 	context->status |= status;
 #if 0  /* ICU: Do not raise signals. */
 	if(status & context->traps) raise(SIGFPE);
 #endif
 	return context;
-}                  /* decContextSetStatus  */
+}
 
 /* ------------------------------------------------------------------ */
 /* decContextSetStatusFromString -- set status from a string + trap   */
@@ -321,11 +317,11 @@ U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusFromStringQuiet(decContex
 /* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
-U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusQuiet(decContext * context, uInt status) {
+U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusQuiet(decContext * context, uInt status) 
+{
 	context->status |= status;
 	return context;
-}                  /* decContextSetStatusQuiet  */
-
+}
 /* ------------------------------------------------------------------ */
 /* decContextStatusToString -- convert status flags to a string       */
 /* */
@@ -334,9 +330,9 @@ U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusQuiet(decContext * contex
 /* returns a constant string describing the condition.  If multiple  */
 /* (or no) flags are set, a generic constant message is returned.  */
 /* ------------------------------------------------------------------ */
-U_CAPI const char * U_EXPORT2 uprv_decContextStatusToString(const decContext * context) {
+U_CAPI const char * U_EXPORT2 uprv_decContextStatusToString(const decContext * context) 
+{
 	Int status = context->status;
-
 	/* test the five IEEE first, as some of the others are ambiguous when  */
 	/* DECEXTFLAG=0  */
 	if(status==DEC_Invalid_operation) return DEC_Condition_IO;
@@ -358,7 +354,7 @@ U_CAPI const char * U_EXPORT2 uprv_decContextStatusToString(const decContext * c
   #endif
 	if(status==0) return DEC_Condition_ZE;
 	return DEC_Condition_MU; /* Multiple errors  */
-}   /* decContextStatusToString  */
+}
 
 /* ------------------------------------------------------------------ */
 /* decContextTestEndian -- test whether DECLITEND is set correctly    */
@@ -373,11 +369,12 @@ U_CAPI const char * U_EXPORT2 uprv_decContextStatusToString(const decContext * c
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 #if 0  /* ICU: Unused function. Anyway, do not call printf(). */
-U_CAPI Int U_EXPORT2 uprv_decContextTestEndian(Flag quiet) {
+U_CAPI Int U_EXPORT2 uprv_decContextTestEndian(Flag quiet) 
+{
 	Int res = 0; /* optimist  */
 	uInt dle = (uInt)DECLITEND; /* unsign  */
-	if(dle>1) dle = 1; /* ensure 0 or 1  */
-
+	if(dle>1) 
+		dle = 1; /* ensure 0 or 1  */
 	if(LITEND!=DECLITEND) {
 		const char * adj;
 		if(!quiet) {
