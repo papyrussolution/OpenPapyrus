@@ -3731,7 +3731,7 @@ public:
 //
 class ObjTagItem {         // @persistent(DBX)
 public:
-	static SString & FASTCALL GetTypeString(int tagType, PPID enumId, SString & rBuf);
+	static SString & STDCALL GetTypeString(int tagType, PPID enumId, SString & rBuf);
 
 	ObjTagItem();
 	ObjTagItem(const ObjTagItem & rS);
@@ -6308,7 +6308,7 @@ public:
 		// Descr: Сравнивает this с rS только по параметрам подключения (Host && Port)
 		//
 		int    FASTCALL IsEqualConnection(const InitParam & rS) const;
-		int    FASTCALL SearchRoutingEntry(const RoutingParamEntry & rPattern, uint * pPos) const;
+		int    STDCALL  SearchRoutingEntry(const RoutingParamEntry & rPattern, uint * pPos) const;
 
 		SString Host;
 		int    Port;
@@ -6700,7 +6700,7 @@ public:
 		int    Hide();
 		int    Show();
 		void   FASTCALL SetMessage(const char *);
-		void   FASTCALL SetPercent(ulong p, ulong t, const char * msg);
+		void   STDCALL  SetPercent(ulong p, ulong t, const char * msg);
 	private:
 		enum {
 			stValid = 0x0001,
@@ -7057,8 +7057,8 @@ protected:
 	//        по указателю pPos.
 	//
 	virtual int AddItem(const ObjCacheEntry * pEntry, uint * pPos);
-	int    FASTCALL PutName(const char * pName, ObjCacheEntry *);              // @<<(X:ObjCache)::FetchEntry
-	void   FASTCALL GetName(const ObjCacheEntry *, char * buf, size_t buflen) const; // @<<(X:ObjCache)::EntryToData
+	int    STDCALL  PutName(const char * pName, ObjCacheEntry *);              // @<<(X:ObjCache)::FetchEntry
+	void   STDCALL  GetName(const ObjCacheEntry *, char * buf, size_t buflen) const; // @<<(X:ObjCache)::EntryToData
 	//
 	// Descr: реализация удаления элемента кэша с идентификатором id.
 	//   Если порожденный класс самостоятельно реализует
@@ -7075,7 +7075,7 @@ protected:
 		MultTextBlock();
 		MultTextBlock(const ObjCache * pCache, const ObjCacheEntry * pEntry);
 		int    FASTCALL Add(const char *);
-		int    FASTCALL Get(char * pBuf, size_t bufLen);
+		int    STDCALL  Get(char * pBuf, size_t bufLen);
 		int    FASTCALL Get(SString & rBuf);
 	private:
 		const  int RdMode;
@@ -7083,7 +7083,7 @@ protected:
 		StringSet & R_Ss; // Инициализируется DS().AcquireRvlSsSCD()
 	};
 
-	int    FASTCALL PutTextBlock(const MultTextBlock & rBlk, ObjCacheEntry * pEntry);
+	int    STDCALL  PutTextBlock(const MultTextBlock & rBlk, ObjCacheEntry * pEntry);
 
 	struct ExtTextBlock {
 		void   FASTCALL Dirty(PPID id);
@@ -7923,10 +7923,10 @@ private:
 		//   1 - устанавливает PPThread::LastMsg
 		// ARG(pMsg IN): @#{vptr0} Указатель на текст сообщения.
 		//
-		int    FASTCALL SetMessage(ThreadID id, int kind, const char * pMsg);
+		int    STDCALL  SetMessage(ThreadID id, int kind, const char * pMsg);
 		uint   GetCount();
-		int    FASTCALL GetInfoList(int type, TSCollection <PPThread::Info> & rList);
-		int    FASTCALL GetInfo(ThreadID tId, PPThread::Info & rInfo);
+		int    STDCALL  GetInfoList(int type, TSCollection <PPThread::Info> & rList);
+		int    STDCALL  GetInfo(ThreadID tId, PPThread::Info & rInfo);
 		void   FASTCALL LocStkToStr(SString & rBuf);
 		int    FASTCALL StopThread(ThreadID tId);
 		PPThread * FASTCALL SearchById(ThreadID tId);
@@ -7941,7 +7941,7 @@ private:
 		//   !0 - указатель на поток, отвечающий перечисленным выше критериям
 		//    0 - поток по заданаым критериям не найден.
 		//
-		PPThread * FASTCALL SearchByOuterSignature(int kind, const char * pSignature);
+		PPThread * STDCALL  SearchByOuterSignature(int kind, const char * pSignature);
 		//
 		// Descr: Находит первый попавшийся поток вида kind, имеющий статус SlThread::stIdle.
 		//
@@ -7950,7 +7950,7 @@ private:
 		// Descr: Возвращает количество потоков вида kind
 		//
 		uint   FASTCALL GetCount(int kind);
-		int    FASTCALL GetListByKind(int kind, LongArray & rList);
+		int    STDCALL  GetListByKind(int kind, LongArray & rList);
 	private:
 		ReadWriteLock RwL;
 	};
@@ -8096,17 +8096,17 @@ private:
 //   >0 - запись найдена
 //   0  - ошибка
 //
-int    FASTCALL SearchByID(DBTable * pTbl, PPID objType, PPID id, void * pBuf);
-int    FASTCALL SearchByID_ForUpdate(DBTable * pTbl, PPID objType, PPID id, void * pBuf);
-int    FASTCALL SearchByKey(DBTable * pTbl, int idx, void * pKey, void * pData);
-int    FASTCALL SearchByKey_ForUpdate(DBTable * pTbl, int idx, void * pKey, void * pData);
+int    STDCALL  SearchByID(DBTable * pTbl, PPID objType, PPID id, void * pBuf);
+int    STDCALL  SearchByID_ForUpdate(DBTable * pTbl, PPID objType, PPID id, void * pBuf);
+int    STDCALL  SearchByKey(DBTable * pTbl, int idx, void * pKey, void * pData);
+int    STDCALL  SearchByKey_ForUpdate(DBTable * pTbl, int idx, void * pKey, void * pData);
 int    PPSetDbRecordByKey(DBTable * pTbl, int idx, void * pKey, const void * pData, int use_ta);
 //
 // Descr: Функцию следует использовать только в очень редких случаях.
 //
-int    FASTCALL AdjustNewObjID(DBTable * pTbl, PPID objType, void * b);
-int    FASTCALL AddByID(DBTable *, PPID *, void *, int use_ta);
-int    FASTCALL AddObjRecByID(DBTable * pTbl, PPID objType, PPID * pID, void * b, int use_ta);
+int    STDCALL  AdjustNewObjID(DBTable * pTbl, PPID objType, void * b);
+int    STDCALL  AddByID(DBTable *, PPID *, void *, int use_ta);
+int    STDCALL  AddObjRecByID(DBTable * pTbl, PPID objType, PPID * pID, void * b, int use_ta);
 //
 // Descr: Изменяет запись таблицы pTbl, найдя ее по идентификатору objID.
 // ARG(pTbl    IN): @#{vptr} Указатель на экземпляр таблицы, в которой неободимо изменить запись.
@@ -8120,7 +8120,7 @@ int    FASTCALL AddObjRecByID(DBTable * pTbl, PPID objType, PPID * pID, void * b
 //   >0 - запись изменена успешно
 //   0  - ошибка.
 //
-int    FASTCALL UpdateByID(DBTable * pTbl, PPID objType, PPID objID, const void * pRec, int use_ta);
+int    STDCALL  UpdateByID(DBTable * pTbl, PPID objType, PPID objID, const void * pRec, int use_ta);
 //
 // Descr: Изменяет запись таблицы pTbl, найдя ее по идентификатору objID. Отличается от
 //   функции UpdateByID тем, что перед изменением сравнивает найденную запись в базе данных
@@ -8138,22 +8138,22 @@ int    FASTCALL UpdateByID(DBTable * pTbl, PPID objType, PPID objID, const void 
 //   <0 - запись не была изменена поскольку pRec не отличается от записи в базе данных.
 //   0  - ошибка.
 //
-int    FASTCALL UpdateByID_Cmp(DBTable * pTbl, PPID objType, PPID id, void * pRec, int use_ta);
-int    FASTCALL RemoveByID(DBTable *, PPID objID, int use_ta);
+int    STDCALL  UpdateByID_Cmp(DBTable * pTbl, PPID objType, PPID id, void * pRec, int use_ta);
+int    STDCALL  RemoveByID(DBTable *, PPID objID, int use_ta);
 //
 // Descr: находит первый доступный номер для члена oprno ключа вида
 //   { LDATE date; long oprno; } за дату date. Параметр idx указывает номер индекса
 //   в таблице pTbl. Используется функция DBTable::searchKey, поэтому на установку
 //   позиции и заполнение буфера данных расчитывать нельзя.
 //
-int    FASTCALL IncDateKey(DBTable * pTbl, int idx, LDATE, long * pOprno);
+int    STDCALL  IncDateKey(DBTable * pTbl, int idx, LDATE, long * pOprno);
 int    FASTCALL CheckTblPtr(const DBTable *);
 int    FASTCALL CheckQueryPtr(const DBQuery *);
 TempOrderTbl * CreateTempOrderFile();
 
 DBQ  & FASTCALL ppidlist(DBItem &, const PPIDArray *);
-DBQ  * FASTCALL ppcheckfiltid(DBQ *, DBItem &, PPID);
-DBQ  * FASTCALL ppcheckfiltidlist(DBQ *, DBItem &, const PPIDArray *);
+DBQ  * STDCALL  ppcheckfiltid(DBQ *, DBItem &, PPID);
+DBQ  * STDCALL  ppcheckfiltidlist(DBQ *, DBItem &, const PPIDArray *);
 //
 // Descr: Добавляет к ограничению pDbq терм запроса, содержащий утверждение относительно
 //   значения флага rItem. Если терм добавляется, то в конец выражения со связкой AND.
@@ -8167,8 +8167,8 @@ DBQ  * FASTCALL ppcheckfiltidlist(DBQ *, DBItem &, const PPIDArray *);
 // Returns:
 //   Возможно модифицированное значение pDbq.
 //
-DBQ  * FASTCALL ppcheckflag(DBQ * pDbq, DBItem & rItem, long mask, int test);
-DBQ  * FASTCALL ppcheckweekday(DBQ * pDbq, DBItem & rItem, int dayOfWeek);
+DBQ  * STDCALL  ppcheckflag(DBQ * pDbq, DBItem & rItem, long mask, int test);
+DBQ  * STDCALL  ppcheckweekday(DBQ * pDbq, DBItem & rItem, int dayOfWeek);
 
 SString & FASTCALL GetMainOrgName(SString &);
 //
@@ -8722,7 +8722,7 @@ public:
 	//   Если в параметре rt задано более одного флага, то функция возвращает
 	//   положительный ответ только если все эти права у пользователя есть.
 	//
-	int    FASTCALL CheckRights(long rt, int oprRights);
+	int    CheckRights(long rt, int oprRights);
 	//
 	// Descr: == CheckRight(rt, 0)
 	//
@@ -8918,8 +8918,8 @@ public:
 	//   -2 - Caller must skip receiving object
 	//
 	virtual int    ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	static  int    FASTCALL ProcessObjRefInArray(PPID, PPID *, PPObjIDArray *, int replace);
-	static  int    FASTCALL ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace);
+	static  int    STDCALL ProcessObjRefInArray(PPID, PPID *, PPObjIDArray *, int replace);
+	static  int    STDCALL ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace);
 	static  int    ProcessObjListRefInArray(PPID, PPIDArray &, PPObjIDArray * pArray, int replace);
 	// Возвращает PPObjListWindow
 	virtual void * CreateObjListWin(uint aFlags, void * extraPtr);
@@ -8949,8 +8949,8 @@ protected:
 	//   DBRPL_ERROR
 	//
 	static int  FASTCALL RetRefsExistsErr(PPID objType, PPID objID);
-	static int  FASTCALL ReadBlk(void * pBlk, size_t blkSize, void * stream);
-	static int  FASTCALL WriteBlk(const void * pBlk, size_t blkSize, void * stream);
+	static int  STDCALL  ReadBlk(void * pBlk, size_t blkSize, void * stream);
+	static int  STDCALL  WriteBlk(const void * pBlk, size_t blkSize, void * stream);
 	static int  FASTCALL ReadSBuffer(SBuffer & rBuf, void * stream);
 	static int  FASTCALL WriteSBuffer(SBuffer & rBuf, void * stream);
 	virtual const char * GetNamePtr();
@@ -10364,17 +10364,19 @@ public:
 	//
 	int    InitAccturnInvoice(const PPBillPacket * pPack);
 	bool   FASTCALL IsEq(const PPTransferItem & rS) const;
+	static bool IsCorrectionRcpt(long trfrFlags) { return (trfrFlags & PPTFR_CORRECTION && trfrFlags & PPTFR_REVAL); }
+	static bool IsCorrectionExp(long trfrFlags) { return (trfrFlags & PPTFR_CORRECTION && !(trfrFlags & PPTFR_REVAL)); }
 	//
 	// Descr: Возвращает !0 если строка является корректировкой прихода.
 	// Note: Признаком такой корректировки является одновременно установленные флаги PPTFR_CORRECTION и PPTFR_REVAL.
 	//
-	bool   IsCorrectionRcpt() const;
+	bool   IsCorrectionRcpt() const { return IsCorrectionRcpt(Flags); }
 	//
 	// Descr: Возвращает !0 если строка является корректировкой расхода.
 	// Note: Признаком такой корректировки является установленный флаг PPTFR_CORRECTION
 	//   при одновременной отключенным флагом PPTFR_REVAL.
 	//
-	bool   IsCorrectionExp() const;
+	bool   IsCorrectionExp() const { return IsCorrectionExp(Flags); }
 	//
 	// Descr: Реализует установку параметров структуры в зависимости от идентификатора товара goodsID.
 	//
@@ -13480,6 +13482,11 @@ public:
 	//      одна или более строк, принадлежащих другим документам коррекции.
 	//
 	int    GetOriginalValuesForCorrection(const PPTransferItem & rTi, const PPIDArray & rBillChain, long options, double * pOrgQtty, double * pOrgPrice);
+	//
+	// Descr: Аналог функции GetOriginalValuesForCorrection(const PPTransferItem &, const PPIDArray &, long, double *, double *) но в качестве
+	//   первого аргумента принимает TransferTbl::Rec (то есть, сырую запись базы данных, а не внутренний объект PPTransferItem).
+	//
+	int    GetOriginalValuesForCorrection(const TransferTbl::Rec & rRec, const PPIDArray & rBillChain, long options, double * pOrgQtty, double * pOrgPrice); // @v11.5.9
 	int    AddLotItem(PPTransferItem * pTi, PPID forceID = 0);
 	int    AddItem(PPTransferItem * pTi, int16 & rByBill, int use_ta);
 	enum {
@@ -13766,7 +13773,7 @@ public:
 	//   0  - ошибка
 	//
 	int    GetNextObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, const LDATETIME & rSince, SysJournalTbl::Rec * pRec);
-	int    GetObjListByEventSince(PPID objType, const PPIDArray * pActList, const LDATETIME & rSince, PPIDArray & rObjList);
+	int    GetObjListByEventSince(PPID objType, const PPIDArray * pActList, const LDATETIME & rSince, PPIDArray & rObjList, TSVector <SysJournalTbl::Rec> * pRecList);
 	int    GetObjListByEventPeriod(PPID objType, PPID userID, const PPIDArray * pActList, const DateRange * pPeriod, PPIDArray & rObjList);
 	int    GetObjRemovingEventListByPeriod(PPID objType, PPID userID, const DateRange * pPeriod, TSVector <SysJournalTbl::Rec> & rList);
 	int    GetUpdatedConfigListSince(PPID cfgType, const LDATETIME & rSince, PPIDArray & rCfgIdList);
@@ -17365,6 +17372,9 @@ struct PPNamedObjAssoc2 {  // @persistent @store(Reference2Tbl+)
 
 class PPObjNamedObjAssoc : public PPObjReference {
 public:
+	static int MakeGoodsToWarehouseAssocList(StrAssocArray & rList);
+	static int EditGoodsToObjAssoc(PPID assocID, PPID objType, LAssoc * pData, const LocationFilt * pLocF, void * extraPtr, bool isNewItem);
+
 	explicit PPObjNamedObjAssoc(void * extraPtr = 0);
 	virtual int Edit(PPID * pID, void * extraPtr);
 	virtual int Browse(void * extraPtr);
@@ -23126,6 +23136,7 @@ private:
 #define MAEXSTR_RCVNAME          7 // Имя для доступа к серверу входящей почты (POP3)
 #define MAEXSTR_RCVPASSWORD      8 // Пароль для доступа к серверу входящей почты (POP3)
 #define MAEXSTR_FROMADDRESS      9 // Обратный почтовый адрес
+#define MAEXSTR_RCVPASSWORD2    10 // @v11.5.9 (новый тег для хранения более длинных паролей) Пароль для доступа к серверу входящей почты (POP3)
 #define FTPAEXSTR_HOST           MAEXSTR_SENDSERVER     // Ftp сервер
 #define FTPAEXSTR_PORT           MAEXSTR_SENDPORT       // Порт ftp сервера
 #define FTPAEXSTR_PROXY          MAEXSTR_RSRVSENDSERVER // Proxy сервер
@@ -23148,10 +23159,10 @@ struct PPInternetAccount2 { // @persistent @store(Reference2Tbl+)
 	//int    GetExtField(int fldID, char * pBuf, size_t bufLen);
 	int    GetExtField(int fldID, SString & rBuf) const;
 	int    SetExtField(int fldID, const char * pBuf);
-	int    SetPassword(const char *, int fldID = MAEXSTR_RCVPASSWORD);
-	int    GetPassword(char * pBuf, size_t bufLen, int fldID = MAEXSTR_RCVPASSWORD) const;
-	int    SetMimedPassword(const char * pPassword, int fldID  = MAEXSTR_RCVPASSWORD);
-	int    GetMimedPassword(char * pBuf, size_t bufLen, int fldID = MAEXSTR_RCVPASSWORD);
+	int    SetPassword_(const char *, int fldID/*= MAEXSTR_RCVPASSWORD*/);
+	int    GetPassword_(char * pBuf, size_t bufLen, int fldID/*= MAEXSTR_RCVPASSWORD*/) const;
+	int    SetMimedPassword_(const char * pPassword, int fldID/*= MAEXSTR_RCVPASSWORD*/);
+	int    GetMimedPassword_(char * pBuf, size_t bufLen, int fldID/*= MAEXSTR_RCVPASSWORD*/);
 	int    GetSendPort() const;
 	int    GetRcvPort();
 	//
@@ -30254,6 +30265,12 @@ public:
 	bool   IsValid() const;
 	uint   GetCount() const;
 	const  LAssoc & FASTCALL at(uint pos) const;
+	//
+	// Returns:
+	//   0 - ассоциация для товара goodsID не определена
+	//   1 - найдена прямая ассоциация товара goodsID
+	//   2 - найдена унаследованная от родительской группы ассоциация товара goodsID
+	//
 	int    Get(PPID goodsID, PPID * pObjID) const;
 	int    Search(PPID goodsID, PPID * pObjID, uint * pPos) const;
 	int    SearchPair(PPID goodsID, PPID objID, uint * pPos) const;
@@ -31660,7 +31677,7 @@ private:
 	int    AddItem(PPViewBrowser * pBrw);
 	int    EditItem(PPViewBrowser * pBrw, const BrwHdr *);
 	int    DeleteItem(const BrwHdr *);
-	int    EditGoodsToObjAssoc(LAssoc * pData, PPID objType, void * extraPtr, int newItem);
+	int    EditGoodsToObjAssoc(LAssoc * pData, PPID objType, void * extraPtr, bool newItem);
 	void   UpdateOnEdit(PPViewBrowser * pBrw);
 
 	GoodsToObjAssocFilt Filt;
@@ -47392,6 +47409,23 @@ public:
 		PPObjIDArray OidList; // @v11.4.7 Список объектов, обработанных при подготовке данных
 		PPObjIDArray BlobOidList; // @v11.3.8 Список объектов, имеющих blob'ы, обработанных при подготовке данных
 	};
+	//
+	// Descr: intermediate-структура для представления уведомления от сервиса к клиенту.
+	//
+	class SvcNotification {
+	public:
+		SvcNotification();
+		int    GenerateIdent();
+		SJson * ToJson() const;
+		
+		binary128 Ident;
+		LDATETIME EventOrgTime;
+		LDATETIME EventIssueTime;
+		int    EventId;
+		PPObjID Oid;
+		SString Message;
+		int    MessageId;
+	};
 
 	PPStyloQInterchange();
 	explicit PPStyloQInterchange(StyloQCore * pStQC);
@@ -47647,15 +47681,21 @@ private:
 	SJson * MakeObjJson_Prc(const SBinaryChunk & rOwnIdent, const ProcessorTbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    MakeInnerGoodsList(const PPIDArray & rGoodsIdList);
 	int    MakeDocDeclareJs(const StyloQCommandList::Item & rCmdItem, const char * pDl600Symb, SString & rDocDeclaration);
+	//
+	// Descr: Флаги функций ProcessCommand_XXX
+	//
+	enum {
+		prccmdfDebugOutput     = 0x0001, // Команда выполняется в отладочном режиме для тестирования вывода
+		prccmdfReqNotification = 0x0002  // Запрос извещений, связанных с командой
+	};
+
 	int    ProcessCommand_PersonEvent(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos);
-	int    ProcessCommand_Report(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
-		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
-	int    ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
-	int    ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
-		SString & rResult, SString & rDocDeclaration, bool debugOutput);
-	int    ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
-	int    ProcessCommand_IncomingListOrder(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
-	int    ProcessCommand_IncomingListCCheck(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
+	int    ProcessCommand_Report(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
+	int    ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
+	int    ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
+	int    ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
+	int    ProcessCommand_IncomingListOrder(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
+	int    ProcessCommand_IncomingListCCheck(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
 	// Returns:
@@ -47680,7 +47720,7 @@ private:
 	SJson * ProcessCommand_ReqBlobInfoList(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument);
 	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult, SString & rDocDeclaration);
 	SJson * ProcessCommand_GetGoodsInfo(const SBinaryChunk & rOwnIdent, const StyloQCore::StoragePacket & rCliPack, const StyloQCommandList::Item * pGiCmd, PPID goodsID, const char * pGoodsCode);
-	int    ProcessCommand_DebtList(const StyloQCommandList::Item & rCmdItem, const SJson * pJsCmd, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, bool debugOutput);
+	int    ProcessCommand_DebtList(const StyloQCommandList::Item & rCmdItem, const SJson * pJsCmd, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	int    Helper_PrepareAhed(const StyloQCommandList & rFullCmdList);
 	bool   AmIMediator(const char * pCommand);
 	SJson * MakeQuery_StoreBlob(const void * pBlobBuf, size_t blobSize, const SString & rSignature);

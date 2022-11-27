@@ -2297,78 +2297,77 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			case SLib.EV_SVCQUERYRESULT:
 				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
-					if(ir.OriginalCmdItem != null) {
-						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
-							CPM.CurrentDocument_RemoteOp_Finish();
-							ScheduleRTmr(null, 0, 0);
-							if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
-								SecretTagPool svc_reply_pool = (SecretTagPool)ir.InfoReply;
-								JSONObject sv_reply_js = svc_reply_pool.GetJsonObject(SecretTagPool.tagRawData);
-								JSONObject js_prc = (sv_reply_js != null) ? sv_reply_js.optJSONObject("prc") : null;
-								if(js_prc != null) {
-									int prc_id = js_prc.optInt("id", 0);
-									if(prc_id > 0) {
-										if(CPM.ProcessorListData != null) {
-											boolean found = false;
-											for(int i = 0; !found && i < CPM.ProcessorListData.size(); i++) {
-												CommonPrereqModule.ProcessorEntry prc_entry = CPM.ProcessorListData.get(i);
-												if(prc_entry != null && prc_entry.JsItem != null) {
-													int local_prc_id = prc_entry.JsItem.optInt("id", 0);
-													if(local_prc_id == prc_id) {
-														prc_entry.JsItem = js_prc;
-														found = true;
-													}
+					final String org_cmd_name = (ir.OriginalCmdItem != null) ? ir.OriginalCmdItem.Name : null;
+					if(SLib.AreStringsEqualNoCase(org_cmd_name, "PostDocument")) {
+						CPM.CurrentDocument_RemoteOp_Finish();
+						ScheduleRTmr(null, 0, 0);
+						if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+							SecretTagPool svc_reply_pool = (SecretTagPool)ir.InfoReply;
+							JSONObject sv_reply_js = svc_reply_pool.GetJsonObject(SecretTagPool.tagRawData);
+							JSONObject js_prc = (sv_reply_js != null) ? sv_reply_js.optJSONObject("prc") : null;
+							if(js_prc != null) {
+								int prc_id = js_prc.optInt("id", 0);
+								if(prc_id > 0) {
+									if(CPM.ProcessorListData != null) {
+										boolean found = false;
+										for(int i = 0; !found && i < CPM.ProcessorListData.size(); i++) {
+											CommonPrereqModule.ProcessorEntry prc_entry = CPM.ProcessorListData.get(i);
+											if(prc_entry != null && prc_entry.JsItem != null) {
+												int local_prc_id = prc_entry.JsItem.optInt("id", 0);
+												if(local_prc_id == prc_id) {
+													prc_entry.JsItem = js_prc;
+													found = true;
 												}
 											}
-											if(!found) {
-												CommonPrereqModule.ProcessorEntry new_prc_entry = new CommonPrereqModule.ProcessorEntry(js_prc);
-												CPM.ProcessorListData.add(new_prc_entry);
-											}
-											NotifyTabContentChanged(CommonPrereqModule.Tab.tabAttendance, 0);
 										}
+										if(!found) {
+											CommonPrereqModule.ProcessorEntry new_prc_entry = new CommonPrereqModule.ProcessorEntry(js_prc);
+											CPM.ProcessorListData.add(new_prc_entry);
+										}
+										NotifyTabContentChanged(CommonPrereqModule.Tab.tabAttendance, 0);
 									}
 								}
 							}
-							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-								CPM.MakeCurrentDocList();
-								{
-									CPM.ResetCurrentDocument();
-									ResetAttendanceBlock();
-								}
-								//NotifyCurrentOrderChanged();
-								if(SLib.GetCount(CPM.RegistryHList) > 0) {
-									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.VISIBLE);
-									NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView);
-									GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView, -1, -1);
-								}
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
-							}
-							else {
-								; // @todo
-								SLib.LOG_e("CmdRAttendancePrereqActivity " + "EV_SVCQUERYRESULT ir.ResultTag != StyloQApp.SvcQueryResult.SUCCESS");
-							}
 						}
-						else if(ir.OriginalCmdItem.Name.equalsIgnoreCase("CancelDocument")) {
-							CPM.CurrentDocument_RemoteOp_Finish();
-							ScheduleRTmr(null, 0, 0);
-							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-								CPM.MakeCurrentDocList();
-								{
-									CPM.ResetCurrentDocument();
-									ResetAttendanceBlock();
-								}
-								//NotifyCurrentOrderChanged();
-								if(SLib.GetCount(CPM.RegistryHList) > 0) {
-									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.VISIBLE);
-									NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView);
-									GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView, -1, -1);
-								}
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
+						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+							CPM.MakeCurrentDocList();
+							{
+								CPM.ResetCurrentDocument();
+								ResetAttendanceBlock();
 							}
-							else {
-								; // @todo
-								SLib.LOG_e("CmdRAttendancePrereqActivity " + "EV_SVCQUERYRESULT ir.ResultTag != StyloQApp.SvcQueryResult.SUCCESS");
+							//NotifyCurrentOrderChanged();
+							if(SLib.GetCount(CPM.RegistryHList) > 0) {
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.VISIBLE);
+								NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView);
+								GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView, -1, -1);
 							}
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
+						}
+						else {
+							; // @todo
+							SLib.LOG_e("CmdRAttendancePrereqActivity " + "EV_SVCQUERYRESULT ir.ResultTag != StyloQApp.SvcQueryResult.SUCCESS");
+						}
+					}
+					else if(SLib.AreStringsEqualNoCase(org_cmd_name, "CancelDocument")) {
+						CPM.CurrentDocument_RemoteOp_Finish();
+						ScheduleRTmr(null, 0, 0);
+						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+							CPM.MakeCurrentDocList();
+							{
+								CPM.ResetCurrentDocument();
+								ResetAttendanceBlock();
+							}
+							//NotifyCurrentOrderChanged();
+							if(SLib.GetCount(CPM.RegistryHList) > 0) {
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.VISIBLE);
+								NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView);
+								GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView, -1, -1);
+							}
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
+						}
+						else {
+							; // @todo
+							SLib.LOG_e("CmdRAttendancePrereqActivity " + "EV_SVCQUERYRESULT ir.ResultTag != StyloQApp.SvcQueryResult.SUCCESS");
 						}
 					}
 				}

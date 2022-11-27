@@ -3376,8 +3376,7 @@ void TrfrAnlzFiltDialog::SetSaldoInfo()
 	GoodsFiltCtrlGroup::Rec  rec;
 	getCtrlData(CTLSEL_GTO_OBJECT, &ar_id);
 	if(getGroupData(ctlgroupGoodsFilt, &rec) && rec.GoodsGrpID &&
-		((Data.Grp == TrfrAnlzFilt::gGoods && ar_id) || (Data.Grp == TrfrAnlzFilt::gCntragent && rec.GoodsID))
-		&& Data.Sgg == sggNone && Data.Sgp == sgpNone) {
+		((Data.Grp == TrfrAnlzFilt::gGoods && ar_id) || (Data.Grp == TrfrAnlzFilt::gCntragent && rec.GoodsID)) && Data.Sgg == sggNone && Data.Sgp == sgpNone) {
 		SString temp_buf, txt_buf;
 		LDATE  dt = ZERODATE;
 		GoodsSaldoCore GSCore;

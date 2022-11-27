@@ -71,6 +71,8 @@ public class StyloQCommand {
 		public static final int fNotify_ObjNew    = 0x0004; // @v11.5.9 Опция извещения: извещать о новых объектах
 		public static final int fNotify_ObjUpd    = 0x0008; // @v11.5.9 Опция извещения: извещать об измененных объектах
 		public static final int fNotify_ObjStatus = 0x0010; // @v11.5.9 Опция извещения: извещать об изменении статусов объектов
+
+		public static final int fNotify_MASK = (fNotify_ObjNew|fNotify_ObjUpd|fNotify_ObjStatus);
 		Item()
 		{
 			Uuid = null;
@@ -170,6 +172,34 @@ public class StyloQCommand {
 		}
 		int   S; // prestatusXXX
 		int   WaitingTimeMs; // Текущее время ожидания в миллисекундах (для S==prestatusPending)
+	}
+	public static String MakeNotifyList(int flags)
+	{
+		String result = null;
+		if((flags & Item.fNotify_MASK) != 0) {
+			if((flags & Item.fNotify_ObjNew) != 0) {
+				final String flag_mnem = "objnew";
+				if(result == null)
+					result = flag_mnem;
+				else
+					result += ("," + flag_mnem);
+			}
+			if((flags & Item.fNotify_ObjUpd) != 0) {
+				final String flag_mnem = "objupd";
+				if(result == null)
+					result = flag_mnem;
+				else
+					result += ("," + flag_mnem);
+			}
+			if((flags & Item.fNotify_ObjStatus) != 0) {
+				final String flag_mnem = "objstatus";
+				if(result == null)
+					result = flag_mnem;
+				else
+					result += ("," + flag_mnem);
+			}
+		}
+		return result;
 	}
 	static List FromJson(String jsonText)
 	{

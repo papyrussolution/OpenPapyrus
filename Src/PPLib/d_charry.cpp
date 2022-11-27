@@ -2840,8 +2840,8 @@ int PPDS_CrrMailAccount::InitData(Ido op, void * dataPtr, long addedParam)
 						case DSF_CRRMAILACCOUNT_RCVPASSWORD:
 							{
 								char cbuf[512];
-								Data.GetMimedPassword(cbuf, sizeof(cbuf));
-								rec.SetMimedPassword(cbuf);
+								Data.GetMimedPassword_(cbuf, sizeof(cbuf), MAEXSTR_RCVPASSWORD);
+								rec.SetMimedPassword_(cbuf, MAEXSTR_RCVPASSWORD);
 							}
 							break;
 						case DSF_CRRMAILACCOUNT_FROMADDRESS:
@@ -2946,11 +2946,11 @@ int PPDS_CrrMailAccount::TransferField(long fldID, Tfd dir, uint * pIter, SStrin
 				if(dir == tfdDataToBuf) {
 					char buf[512];
 					memzero(buf, sizeof(buf));
-					Data.GetMimedPassword(buf, sizeof(buf));
+					Data.GetMimedPassword_(buf, sizeof(buf), MAEXSTR_RCVPASSWORD);
 					ok = TransferData(buf, sizeof(buf), dir, rBuf);
 				}
 				else
-					ok = Data.SetMimedPassword(rBuf);
+					ok = Data.SetMimedPassword_(rBuf, MAEXSTR_RCVPASSWORD);
 			}
 			break;
 		case DSF_CRRMAILACCOUNT_FROMADDRESS:

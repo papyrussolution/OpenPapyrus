@@ -1535,16 +1535,18 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	TempOrderTbl   * tmp_t  = 0;
 	uint   brw_id = 0;
 	PPID   grp_id = Filt.GrpID;
-	int    alt = 0, gen = 0, dyn = GObj.CheckFlag(grp_id, GF_DYNAMICALTGRP);
+	int    is_alt = 0;
+	bool   is_gen = false;
+	const  bool is_dyn = GObj.CheckFlag(grp_id, GF_DYNAMICALTGRP);
 	if(grp_id == 0)
-		alt = 0;
+		is_alt = 0;
 	else if(grp_id < 0)
-		alt = 1;
+		is_alt = 1;
 	else if(Filt.Flags & GoodsFilt::fGenGoods)
-		gen = 1;
-	else if((alt = PPObjGoodsGroup::IsAlt(grp_id)) < 0) {
+		is_gen = true;
+	else if((is_alt = PPObjGoodsGroup::IsAlt(grp_id)) < 0) {
 		grp_id = 0;
-		alt = 0;
+		is_alt = 0;
 	}
 	THROW(CheckTblPtr(g  = new Goods2Tbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_unit,   PPDbqFuncPool::IdObjNameUnit,       g->UnitID);
@@ -1605,14 +1607,12 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		brw_id = BROWSER_GOODSWITHSTRUC;
 	else
 		brw_id = BROWSER_GOODS;
-	/*
-	if(Filt.Flags & GoodsFilt::fShowCargo)
-		brw_id = (Filt.Flags & GoodsFilt::fShowBarcode) ? BROWSER_GOODSCARGOBARCODE : BROWSER_GOODSCARGO;
-	else if(Filt.Flags & GoodsFilt::fShowStrucType)
-		brw_id = BROWSER_GOODSWITHSTRUC;
-	else
-		brw_id = (Filt.Flags & GoodsFilt::fShowBarcode) ? BROWSER_GOODSBARCODE : BROWSER_GOODS;
-	*/
+	//if(Filt.Flags & GoodsFilt::fShowCargo)
+		//brw_id = (Filt.Flags & GoodsFilt::fShowBarcode) ? BROWSER_GOODSCARGOBARCODE : BROWSER_GOODSCARGO;
+	//else if(Filt.Flags & GoodsFilt::fShowStrucType)
+		//brw_id = BROWSER_GOODSWITHSTRUC;
+	//else
+		//brw_id = (Filt.Flags & GoodsFilt::fShowBarcode) ? BROWSER_GOODSBARCODE : BROWSER_GOODS;
 	if(tmp_t) {
 		dbq = & (g->ID == tmp_t->ID);
 		if(p_bc_t)
@@ -1631,12 +1631,12 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					dbq = & (*dbq && (p_ac_t->GoodsID == g->ID));
 			}
 		}
-		if(!dyn && alt && !(Filt.Flags & GoodsFilt::fNegation)) {
+		if(!is_dyn && is_alt && !(Filt.Flags & GoodsFilt::fNegation)) {
 			THROW(CheckTblPtr(oa = new ObjAssocTbl));
-			if(alt)
+			if(is_alt)
 				q->addField(oa->InnerNum);             // #18 // @v11.5.8 #17-->#18
 			dbq = & (*dbq && (tmp_t->ID == oa->ScndObjID &&
-				oa->PrmrObjID == grp_id && oa->AsscType == (alt ? PPASS_ALTGOODSGRP : PPASS_GENGOODS)));
+				oa->PrmrObjID == grp_id && oa->AsscType == (is_alt ? PPASS_ALTGOODSGRP : PPASS_GENGOODS)));
 		}
 		if(Filt.Flags & GoodsFilt::fShowStrucType && !(Filt.Flags & GoodsFilt::fShowGoodsWOStruc))
 			dbq = &(*dbq && g->StrucID > 0L);
@@ -1648,11 +1648,11 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		q->where(*dbq).orderBy(tmp_t->Name, 0L);
 	}
 	else {
-		if(alt || gen) {
+		if(is_alt || is_gen) {
 			THROW(CheckTblPtr(oa = new ObjAssocTbl));
-			if(alt)
+			if(is_alt)
 				q->addField(oa->InnerNum);             // #18 // @v11.5.8 #17-->#18
-			dbq = & (oa->AsscType == (alt ? PPASS_ALTGOODSGRP : PPASS_GENGOODS) && (oa->PrmrObjID == grp_id && g->ID == oa->ScndObjID));
+			dbq = & (oa->AsscType == (is_alt ? PPASS_ALTGOODSGRP : PPASS_GENGOODS) && (oa->PrmrObjID == grp_id && g->ID == oa->ScndObjID));
 		}
 		else {
 			dbq = & (g->Kind == PPGDSK_GOODS);
@@ -1914,8 +1914,9 @@ int PPViewGoods::Init_(const PPBaseFilt * pFilt)
 	if(Filt.P_SjF)
 		Filt.P_SjF->Period.Actualize(ZERODATE);
 	if(Filt.Flags2 & GoodsFilt::f2ShowWhPlace) {
+		const PPID assoc_type = NZOR(Filt.GoodsLocAssocID, PPASS_GOODS2WAREPLACE);
 		delete P_G2OAssoc;
-		P_G2OAssoc = new GoodsToObjAssoc(/*PPASS_GOODS2LOC*/PPASS_GOODS2WAREPLACE, PPOBJ_LOCATION);
+		P_G2OAssoc = new GoodsToObjAssoc(assoc_type, PPOBJ_LOCATION);
 		if(P_G2OAssoc)
 			P_G2OAssoc->Load();
 	}
@@ -4215,6 +4216,103 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 			// } @v10.6.8
 			case PPVCMD_ADDEDFIELDS:
 				ok = GObj.EditVad(id);
+				break;
+			case PPVCMD_EDITWHPLACE: // @v11.5.9
+				if(id && Filt.Flags2 & GoodsFilt::f2ShowWhPlace && P_G2OAssoc) {
+					PPID   obj_type = 0;
+					LocationFilt * p_locf = 0;
+					void * p_extra_ptr = 0;
+					const PPID assoc_type = NZOR(Filt.GoodsLocAssocID, PPASS_GOODS2WAREPLACE);
+					switch(assoc_type) {
+						case PPASS_GOODS2WAREPLACE:
+							obj_type = PPOBJ_LOCATION;
+							p_locf = new LocationFilt(LOCTYP_WAREPLACE);
+							break;
+						case PPASS_GOODS2LOC:
+							obj_type = PPOBJ_LOCATION;
+							break;
+						case PPASS_GOODS2SUPPL:
+							obj_type = PPOBJ_ARTICLE;
+							p_extra_ptr = reinterpret_cast<void *>(GetSupplAccSheet());
+							break;
+						case PPASS_GOODS2CASHNODE:
+							obj_type = PPOBJ_CASHNODE;
+							break;
+						default:
+							{
+								PPObjNamedObjAssoc noa_obj;
+								PPNamedObjAssoc noa_rec;
+								if(noa_obj.Search(assoc_type, &noa_rec) > 0) {
+									if(noa_rec.PrmrObjType == PPOBJ_GOODS) {
+										obj_type = noa_rec.ScndObjType;
+										if(obj_type == PPOBJ_LOCATION && noa_rec.ScndObjGrp)
+											p_locf = new LocationFilt(noa_rec.ScndObjGrp);
+										else
+											p_extra_ptr = reinterpret_cast<void *>(noa_rec.ScndObjGrp);
+									}
+									else
+										PPSetError(PPERR_NAMEDOBJASSCNGOODS);
+								}
+								else {
+									SString msg_buf;
+									msg_buf.Cat(assoc_type);
+									PPSetError(PPERR_UNKGOODSTOOBJASSOC, msg_buf);
+								}
+							}
+							break;
+					}
+					if(obj_type == PPOBJ_LOCATION) {
+						LAssoc assc;
+						bool   is_new_item = true;
+						PPID   obj_id = 0;
+						int    r = P_G2OAssoc->Get(id, &obj_id);
+						if(r == 1) {
+							assc.Key = id;
+							assc.Val = obj_id;
+							is_new_item = false;
+						}
+						else if(r == 2) { // Существует унаследованная ассоциация //
+							assc.Key = id;
+							assc.Val = 0;
+						}
+						else {
+							assc.Key = id;
+							assc.Val = 0;
+						}
+						if(assc.Key) {
+							if(PPObjNamedObjAssoc::EditGoodsToObjAssoc(assoc_type, obj_type, &assc, p_locf, p_extra_ptr, is_new_item) > 0) {
+								if(assc.Key == id && assc.Val) {
+									uint   pos = 0;
+									if(P_G2OAssoc->SearchPair(assc.Key, assc.Val, &pos)) {
+										if(!P_G2OAssoc->UpdateByPos(pos, assc.Key, assc.Val) || !P_G2OAssoc->Save())
+											PPError();
+										else
+											ok = 1;
+									}
+									else {
+										long   ex_val = 0;
+										pos = 0;
+										if(P_G2OAssoc->Search(assc.Key, &ex_val, &pos)) {
+											if(ex_val != assc.Val) {
+												if(!P_G2OAssoc->UpdateByPos(pos, assc.Key, assc.Val) || !P_G2OAssoc->Save())
+													PPError();
+												else
+													ok = 1;
+											}
+										}
+										else {
+											if(!P_G2OAssoc->Add(assc.Key, assc.Val, &pos) || !P_G2OAssoc->Save())
+												PPError();
+											else
+												ok = 1;
+										}
+									}
+								}
+							}
+						}
+					}
+					delete p_locf;
+				}
 				break;
 			case PPVCMD_EDITARCODES:
 				ok = GObj.EditArCode(id, Filt.CodeArID, BIN(Filt.Flags & GoodsFilt::fShowOwnArCode));

@@ -369,10 +369,8 @@ void FASTCALL StringSet::setDelim(const char * pDelim)
 	}
 }
 
-uint StringSet::getDelimLen() const
-{
-	return Delim[0] ? sstrlen(Delim) : 1;
-}
+uint StringSet::getDelimLen() const { return Delim[0] ? sstrlen(Delim) : 1; }
+bool StringSet::isZeroDelim() const { return Delim[0] == 0; }
 
 int FASTCALL StringSet::add(const StringSet & rS)
 {

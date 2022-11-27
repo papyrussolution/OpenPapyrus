@@ -1049,7 +1049,7 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 				param.Flags = 0;
 				param.Format = SFileFormat::Unkn;
 				ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
-				ia_pack.GetPassword(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
+				ia_pack.GetPassword_(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
 				param.AccsName.EncodeUrl(accs_name, 0);
 				param.AccsPassword.EncodeUrl(pwd, 0);
 				memzero(pwd, sizeof(pwd));

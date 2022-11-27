@@ -145,13 +145,9 @@ static bool RoundWeed(Vector<char> buffer, int length, uint64_t distance_too_hig
 	// We have approached w+ as much as possible. We now test if approaching w-
 	// would require changing the buffer. If yes, then we have two possible
 	// representations close to w, but we cannot decide which one is closer.
-	if(rest < big_distance &&
-	    unsafe_interval - rest >= ten_kappa &&
-	    (rest + ten_kappa < big_distance ||
-	    big_distance - rest > rest + ten_kappa - big_distance)) {
+	if(rest < big_distance && unsafe_interval - rest >= ten_kappa && (rest + ten_kappa < big_distance || big_distance - rest > rest + ten_kappa - big_distance)) {
 		return false;
 	}
-
 	// Weeding test.
 	//   The safe interval is [too_low + 2 ulp; too_high - 2 ulp]
 	//   Since too_low = too_high - unsafe_interval this is equivalent to
@@ -486,11 +482,8 @@ static bool DigitGenCounted(DiyFp w, int requested_digits, Vector<char> buffer, 
 // The last digit will be closest to the actual v. That is, even if several
 // digits might correctly yield 'v' when read again, the closest will be
 // computed.
-static bool Grisu3(double v,
-    FastDtoaMode mode,
-    Vector<char> buffer,
-    int* length,
-    int* decimal_exponent) {
+static bool Grisu3(double v, FastDtoaMode mode, Vector<char> buffer, int* length, int* decimal_exponent) 
+{
 	DiyFp w = Double(v).AsNormalizedDiyFp();
 	// boundary_minus and boundary_plus are the boundaries between v and its
 	// closest floating-point neighbors. Any number strictly between

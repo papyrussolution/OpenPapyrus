@@ -320,72 +320,71 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 			case SLib.EV_SVCQUERYRESULT:
 				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
 					StyloQApp app_ctx = GetAppCtx();
-					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult) subj;
-					if(app_ctx != null && ir.OriginalCmdItem != null) {
-						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("search")) {
-							CalledIndexFinished = -1;
-							CalledIndex = -1;
-							CallingStartTm = 0;
-							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-								if(ir.InfoReply != null) {
-									if(ir.InfoReply instanceof SecretTagPool) {
-										JsSearchResult = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
-										if(JsSearchResult != null) {
-											JsScopeList = JsSearchResult.optJSONArray("scope_list");
-											JsResultList = JsSearchResult.optJSONArray("result_list");
-											View v = findViewById(R.id.CTL_GLOBALSEARCH_RESULTLIST);
-											if(v != null && v instanceof RecyclerView) {
-												RecyclerView rv = (RecyclerView)v;
-												RecyclerView.Adapter a = rv.getAdapter();
-												if(a != null)
-													a.notifyDataSetChanged();
-											}
-										}
-									}
-								}
-							}
-							else {
-								;
-							}
-						}
-						else if(ir.OriginalCmdItem.Name.equalsIgnoreCase("onsrchr")) {
-							CalledIndexFinished = CalledIndex;
-							CalledIndex = -1;
-							CallingStartTm = 0;
-							ScheduleRTmr(null, 0, 0);
-							RefreshStatus();
+					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
+					final String org_cmd_name = (app_ctx != null && ir.OriginalCmdItem != null) ? ir.OriginalCmdItem.Name : null;
+					if(SLib.AreStringsEqualNoCase(org_cmd_name, "search")) {
+						CalledIndexFinished = -1;
+						CalledIndex = -1;
+						CallingStartTm = 0;
+						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 							if(ir.InfoReply != null) {
 								if(ir.InfoReply instanceof SecretTagPool) {
-									JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
-									if(js_reply != null) {
-										StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(js_reply);
-										if(crr.Status > 0) {
-											String disp_meth = js_reply.optString("displaymethod", "");
-											Class intent_cls = null;
-											if(disp_meth.equalsIgnoreCase("goodsinfo"))
-												intent_cls = CmdRGoodsInfoActivity.class;
-											else
-												intent_cls = DetailActivity.class;
-											Intent intent = new Intent(this, intent_cls);
-											intent.putExtra("SvcIdent", ir.SvcIdent);
-											intent.putExtra("SvcReplyDocJson", js_reply.toString());
-											LaunchOtherActivity(intent);
-										}
-										else if(crr.Status == 0) {
-
+									JsSearchResult = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+									if(JsSearchResult != null) {
+										JsScopeList = JsSearchResult.optJSONArray("scope_list");
+										JsResultList = JsSearchResult.optJSONArray("result_list");
+										View v = findViewById(R.id.CTL_GLOBALSEARCH_RESULTLIST);
+										if(v != null && v instanceof RecyclerView) {
+											RecyclerView rv = (RecyclerView)v;
+											RecyclerView.Adapter a = rv.getAdapter();
+											if(a != null)
+												a.notifyDataSetChanged();
 										}
 									}
 								}
-								else if(ir.InfoReply instanceof String) {
-									if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-										app_ctx.DisplayMessage(this, (String)ir.InfoReply, 0);
+							}
+						}
+						else {
+							;
+						}
+					}
+					else if(SLib.AreStringsEqualNoCase(org_cmd_name, "onsrchr")) {
+						CalledIndexFinished = CalledIndex;
+						CalledIndex = -1;
+						CallingStartTm = 0;
+						ScheduleRTmr(null, 0, 0);
+						RefreshStatus();
+						if(ir.InfoReply != null) {
+							if(ir.InfoReply instanceof SecretTagPool) {
+								JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+								if(js_reply != null) {
+									StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(js_reply);
+									if(crr.Status > 0) {
+										String disp_meth = js_reply.optString("displaymethod", "");
+										Class intent_cls = null;
+										if(disp_meth.equalsIgnoreCase("goodsinfo"))
+											intent_cls = CmdRGoodsInfoActivity.class;
+										else
+											intent_cls = DetailActivity.class;
+										Intent intent = new Intent(this, intent_cls);
+										intent.putExtra("SvcIdent", ir.SvcIdent);
+										intent.putExtra("SvcReplyDocJson", js_reply.toString());
+										LaunchOtherActivity(intent);
 									}
-									else if(ir.ResultTag == StyloQApp.SvcQueryResult.ERROR) {
-										app_ctx.DisplayError(this, (String)ir.InfoReply, 0);
+									else if(crr.Status == 0) {
+
 									}
-									else if(ir.ResultTag == StyloQApp.SvcQueryResult.EXCEPTION) {
-										app_ctx.DisplayError(this, (String)ir.InfoReply, 0);
-									}
+								}
+							}
+							else if(ir.InfoReply instanceof String) {
+								if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+									app_ctx.DisplayMessage(this, (String)ir.InfoReply, 0);
+								}
+								else if(ir.ResultTag == StyloQApp.SvcQueryResult.ERROR) {
+									app_ctx.DisplayError(this, (String)ir.InfoReply, 0);
+								}
+								else if(ir.ResultTag == StyloQApp.SvcQueryResult.EXCEPTION) {
+									app_ctx.DisplayError(this, (String)ir.InfoReply, 0);
 								}
 							}
 						}

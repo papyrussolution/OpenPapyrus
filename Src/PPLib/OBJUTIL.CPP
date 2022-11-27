@@ -336,7 +336,7 @@ int PPObject::SerializeSignature::Write(SBuffer & rBuf) const
 	return ok;
 }
 
-/*static*/int FASTCALL PPObject::ReadBlk(void * pBlk, size_t blkSize, void * stream)
+/*static*/int STDCALL PPObject::ReadBlk(void * pBlk, size_t blkSize, void * stream)
 {
 	int    ok = 0;
 	if(stream)
@@ -344,7 +344,7 @@ int PPObject::SerializeSignature::Write(SBuffer & rBuf) const
 	return ok;
 }
 
-/*static*/int FASTCALL PPObject::WriteBlk(const void * pBlk, size_t blkSize, void * stream)
+/*static*/int STDCALL PPObject::WriteBlk(const void * pBlk, size_t blkSize, void * stream)
 {
 	int    ok = 0;
 	if(stream)
@@ -885,7 +885,7 @@ int FASTCALL PPObject::Dirty(PPID id)
 	return ok;
 }
 
-int FASTCALL PPObject::CheckRights(long rt, int oprRights)
+int PPObject::CheckRights(long rt, int oprRights)
 {
 	Helper_GetRights(0);
 	return (((oprRights ? ORt_ : Rt_) & rt) == rt) ? 1 : PPSetError(PPERR_NORIGHTS);
@@ -1099,7 +1099,7 @@ int PPObject::RemoveSync(PPID id)
 
 IMPL_CMPFUNC(PPObjID, i1, i2) { return memcmp(i1, i2, sizeof(PPObjID)); }
 
-/*static*/int FASTCALL PPObject::ProcessObjRefInArray(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace)
+/*static*/int STDCALL PPObject::ProcessObjRefInArray(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace)
 {
 	int    ok = -1;
 	if(objTypeID) {
@@ -1119,7 +1119,7 @@ IMPL_CMPFUNC(PPObjID, i1, i2) { return memcmp(i1, i2, sizeof(PPObjID)); }
 	return ok;
 }
 
-int FASTCALL PPObject::ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace)
+int STDCALL PPObject::ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace)
 {
 	int    ok = -1;
 	if(objTypeID) {

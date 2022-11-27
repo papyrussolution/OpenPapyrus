@@ -332,7 +332,7 @@ int SysJournal::GetUpdatedConfigListSince(PPID cfgType, const LDATETIME & rSince
 	return ok;
 }
 
-int SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pActList, const LDATETIME & rSince, PPIDArray & rObjList)
+int SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pActList, const LDATETIME & rSince, PPIDArray & rObjList, TSVector <SysJournalTbl::Rec> * pRecList)
 {
 	int    ok = -1;
 	SysJournalTbl::Key0 k;
@@ -342,11 +342,19 @@ int SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pActList,
 	BExtQuery q(this, 0, 128);
 	dbq = &(*dbq && this->Dt >= rSince.d);
 	dbq = ppcheckfiltid(dbq, this->ObjType, objType);
-	q.select(this->Dt, this->Tm, this->ObjID, this->Action, 0L);
+	if(pRecList) {
+		pRecList->clear();
+		q.selectAll();
+	}
+	else
+		q.select(this->Dt, this->Tm, this->ObjID, this->Action, 0L);
 	q.where(*dbq);
 	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		if(cmp(rSince, data.Dt, data.Tm) < 0 && (!pActList || pActList->lsearch(data.Action))) {
 			THROW(rObjList.add(data.ObjID));
+			if(pRecList) {
+				pRecList->insert(&data);
+			}
 			ok = 1;
 		}
 	}

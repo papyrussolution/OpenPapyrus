@@ -99,8 +99,7 @@ public class StyloQApp extends SLib.App {
 								{
 									AppCtx = appCtx;
 								}
-								@Override
-								public void run()
+								@Override public void run()
 								{
 									Thread thr = new Thread(new StyloQInterchange.ThreadEngine_DocStatusPoll(AppCtx));
 									thr.start();
@@ -115,8 +114,7 @@ public class StyloQApp extends SLib.App {
 					{
 						AppUpdMgr = AppUpdateManagerFactory.create(this);
 						InstallStateUpdatedListener = new InstallStateUpdatedListener() {
-							@Override
-							public void onStateUpdate(InstallState state)
+							@Override public void onStateUpdate(InstallState state)
 							{
 								if(state.installStatus() == InstallStatus.DOWNLOADED) {
 									;

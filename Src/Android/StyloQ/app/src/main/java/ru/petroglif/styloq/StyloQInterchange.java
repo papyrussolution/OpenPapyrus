@@ -217,6 +217,63 @@ public class StyloQInterchange {
 		}
 		@Override public void run() { DocStatusPoll(AppCtx); }
 	}
+	public static void SvcNotificationPoll(StyloQApp appCtx)
+	{
+		final String cmd_symb = "requestnotificationlist";
+		try {
+			if(appCtx != null) {
+				StyloQDatabase db = appCtx.GetDB();
+				ArrayList<Long> svc_id_list = (db != null) ? db.GetForeignSvcIdList(true, true) : null;
+				if(svc_id_list != null) {
+					for(int svcidx = 0; svcidx < svc_id_list.size(); svcidx++) {
+						final long svc_id = svc_id_list.get(svcidx);
+						StyloQDatabase.SecStoragePacket svc_pack = db.GetPeerEntry(svc_id);
+						final byte [] svc_ident = (svc_pack != null) ? svc_pack.Pool.Get(SecretTagPool.tagSvcIdent) : null;
+						if(SLib.GetLen(svc_ident) > 0) {
+							StyloQDatabase.SecStoragePacket cmdl_pack = db.GetForeignSvcCommandList(svc_ident);
+							StyloQCommand.List cmd_list = cmdl_pack.GetCommandList();
+							if(cmd_list != null && SLib.GetCount(cmd_list.Items) > 0) {
+								JSONArray js_svc_qlist = null;
+								for(int cmdi = 0; cmdi < cmd_list.Items.size(); cmdi++) {
+									StyloQCommand.Item cmd_item = cmd_list.Items.get(cmdi);
+									if(cmd_item != null && cmd_item.Uuid != null && (cmd_item.Flags & StyloQCommand.Item.fNotify_MASK) != 0) {
+										String nl = StyloQCommand.MakeNotifyList(cmd_item.Flags);
+										if(SLib.GetLen(nl) > 0) {
+											JSONObject js_svc_qitem = new JSONObject();
+											js_svc_qitem.put("orgcmduuid", cmd_item.Uuid.toString());
+											js_svc_qitem.put("notify", nl);
+											if(js_svc_qlist == null)
+												js_svc_qlist = new JSONArray();
+											js_svc_qlist.put(js_svc_qitem);
+										}
+									}
+								}
+								if(js_svc_qlist != null) {
+									JSONObject js_req = new JSONObject();
+									js_req.put("cmd", cmd_symb);
+									js_req.put("list", js_svc_qlist);
+									//
+									// Для этой командны нам нужен фейковый экземпляр orgCmdItem
+									// ради того, чтобы при получении ответа от сервиса
+									// результат не передавался бы в основной поток, но обрабатывался бы 'on the spot'
+									// в потоке обмена данными.
+									//
+									StyloQCommand.Item fake_org_cmd = new StyloQCommand.Item();
+									fake_org_cmd.Name = cmd_symb;
+									RequestBlock rblk = new RequestBlock(svc_pack, js_req, fake_org_cmd);
+									DoSvcRequest(appCtx, rblk);
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch(StyloQException exn) {
+			;
+		} catch(JSONException exn) {
+			;
+		}
+	}
 	//
 	// Descr: Функция опроса сервисов о статусах документов.
 	//   Находит все документы по всем сервисам, для которых необходима информация о
@@ -230,68 +287,65 @@ public class StyloQInterchange {
 		try {
 			if(appCtx != null) {
 				StyloQDatabase db = appCtx.GetDB();
-				if(db != null) {
-					ArrayList<Long> svc_id_list = db.GetForeignSvcIdList(true, true);
-					if(svc_id_list != null) {
-						for(int svcidx = 0; svcidx < svc_id_list.size(); svcidx++) {
-							final long svc_id = svc_id_list.get(svcidx);
-							StyloQDatabase.SecStoragePacket svc_pack = db.GetPeerEntry(svc_id);
-							final byte [] svc_ident = (svc_pack != null) ? svc_pack.Pool.Get(SecretTagPool.tagSvcIdent) : null;
-							if(SLib.GetLen(svc_ident) > 0) {
-								ArrayList <Integer> doc_status_list = new ArrayList<>();
-								doc_status_list.add(StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
-								ArrayList<Long> doc_id_list = db.GetDocIdListByType(+1, StyloQDatabase.SecStoragePacket.doctypGeneric,
-										svc_id, doc_status_list, null);
-								if(doc_id_list != null && doc_id_list.size() > 0) {
-									JSONObject js_req = new JSONObject();
-									try {
-										js_req.put("cmd", cmd_symb);
-										JSONArray js_list = null;
-										for(int docidx = 0; docidx < doc_id_list.size(); docidx++) {
-											final long doc_id = doc_id_list.get(docidx);
-											StyloQDatabase.SecStoragePacket doc_pack = db.GetPeerEntry(doc_id);
-											if(doc_pack != null) {
-												final  int doc_status = doc_pack.Rec.GetDocStatus();
-												JSONObject js_doc = doc_pack.Pool.GetJsonObject(SecretTagPool.tagRawData);
-												if(js_doc != null) {
-													Document local_doc = new Document();
-													if(local_doc.FromJsonObj(js_doc) && local_doc.H != null) {
-														// Теоретически, в json-теле документа должен быть svcident и его надо сравнить с svc_ident
-														// сервиса, с которым мы на этой итерации работаем, но, кажется, не всегда в теле есть svcident :(
-														//byte [] doc_svc_ident = local_doc.H.SvcIdent;
-														// if(SLib.AreByteArraysEqual(local_doc.H.SvcIdent, svc_ident)) {
-															if(local_doc.H.Uuid != null) {
-																JSONObject js_doc_item = new JSONObject();
-																if(local_doc.H.OrgCmdUuid != null)
-																	js_doc_item.put("orgcmduuid", local_doc.H.OrgCmdUuid.toString());
-																js_doc_item.put("uuid", local_doc.H.Uuid.toString());
-																js_doc_item.put("cid", local_doc.H.ID);
-																js_doc_item.put("cst", doc_status);
-																if(js_list == null)
-																	js_list = new JSONArray();
-																js_list.put(js_doc_item);
-															}
-														//}
-													}
+				ArrayList<Long> svc_id_list = (db != null) ? db.GetForeignSvcIdList(true, true) : null;
+				if(svc_id_list != null) {
+					for(int svcidx = 0; svcidx < svc_id_list.size(); svcidx++) {
+						final long svc_id = svc_id_list.get(svcidx);
+						StyloQDatabase.SecStoragePacket svc_pack = db.GetPeerEntry(svc_id);
+						final byte [] svc_ident = (svc_pack != null) ? svc_pack.Pool.Get(SecretTagPool.tagSvcIdent) : null;
+						if(SLib.GetLen(svc_ident) > 0) {
+							ArrayList <Integer> doc_status_list = new ArrayList<>();
+							doc_status_list.add(StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
+							ArrayList<Long> doc_id_list = db.GetDocIdListByType(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, svc_id, doc_status_list, null);
+							if(doc_id_list != null && doc_id_list.size() > 0) {
+								try {
+									JSONArray js_list = null;
+									for(int docidx = 0; docidx < doc_id_list.size(); docidx++) {
+										final long doc_id = doc_id_list.get(docidx);
+										StyloQDatabase.SecStoragePacket doc_pack = db.GetPeerEntry(doc_id);
+										if(doc_pack != null) {
+											final  int doc_status = doc_pack.Rec.GetDocStatus();
+											JSONObject js_doc = doc_pack.Pool.GetJsonObject(SecretTagPool.tagRawData);
+											if(js_doc != null) {
+												Document local_doc = new Document();
+												if(local_doc.FromJsonObj(js_doc) && local_doc.H != null) {
+													// Теоретически, в json-теле документа должен быть svcident и его надо сравнить с svc_ident
+													// сервиса, с которым мы на этой итерации работаем, но, кажется, не всегда в теле есть svcident :(
+													//byte [] doc_svc_ident = local_doc.H.SvcIdent;
+													// if(SLib.AreByteArraysEqual(local_doc.H.SvcIdent, svc_ident)) {
+														if(local_doc.H.Uuid != null) {
+															JSONObject js_doc_item = new JSONObject();
+															if(local_doc.H.OrgCmdUuid != null)
+																js_doc_item.put("orgcmduuid", local_doc.H.OrgCmdUuid.toString());
+															js_doc_item.put("uuid", local_doc.H.Uuid.toString());
+															js_doc_item.put("cid", local_doc.H.ID);
+															js_doc_item.put("cst", doc_status);
+															if(js_list == null)
+																js_list = new JSONArray();
+															js_list.put(js_doc_item);
+														}
+													//}
 												}
 											}
 										}
-										if(js_list != null) {
-											js_req.put("list", js_list);
-											//
-											// Для этой командны нам нужен фейковый экземпляр orgCmdItem
-											// ради того, чтобы при получении ответа от сервиса
-											// результат не передавался бы в основной поток, но обрабатывался бы 'on the spot'
-											// в потоке обмена данными.
-											//
-											StyloQCommand.Item fake_org_cmd = new StyloQCommand.Item();
-											fake_org_cmd.Name = cmd_symb;
-											RequestBlock rblk = new RequestBlock(svc_pack, js_req, fake_org_cmd);
-											DoSvcRequest(appCtx, rblk);
-										}
-									} catch(JSONException exn) {
-										;
 									}
+									if(js_list != null) {
+										JSONObject js_req = new JSONObject();
+										js_req.put("cmd", cmd_symb);
+										js_req.put("list", js_list);
+										//
+										// Для этой командны нам нужен фейковый экземпляр orgCmdItem
+										// ради того, чтобы при получении ответа от сервиса
+										// результат не передавался бы в основной поток, но обрабатывался бы 'on the spot'
+										// в потоке обмена данными.
+										//
+										StyloQCommand.Item fake_org_cmd = new StyloQCommand.Item();
+										fake_org_cmd.Name = cmd_symb;
+										RequestBlock rblk = new RequestBlock(svc_pack, js_req, fake_org_cmd);
+										DoSvcRequest(appCtx, rblk);
+									}
+								} catch(JSONException exn) {
+									;
 								}
 							}
 						}
@@ -301,6 +355,76 @@ public class StyloQInterchange {
 		} catch(StyloQException exn) {
 			;
 		}
+	}
+	private static class SvcNotification {
+		public SvcNotification()
+		{
+			Ident = null;
+			EventOrgTime = null;
+			EventIssueTime = null;
+			EventId = 0;
+			Oid = null;
+			Message = null;
+			MessageId = 0;
+		}
+		public boolean FromJsonObj(JSONObject jsObj)
+		{
+			boolean result = false;
+			if(jsObj != null) {
+				EventOrgTime = SLib.strtodatetime(jsObj.optString("evnt_org_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
+				EventIssueTime = SLib.strtodatetime(jsObj.optString("evnt_iss_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
+				EventId = jsObj.optInt("evnt");
+				SLib.PPObjID oid;
+				Oid = SLib.PPObjID.Identify(jsObj.optString("objtype", null), jsObj.optInt("objid", 0));
+				Message = jsObj.optString("msg", null);
+				MessageId = jsObj.optInt("msgid");
+				if(EventId > 0 || MessageId > 0 || SLib.GetLen(Message) > 0) {
+					result = true;
+				}
+			}
+			return result;
+		}
+		byte [] Ident;
+		SLib.LDATETIME EventOrgTime;
+		SLib.LDATETIME EventIssueTime;
+		int    EventId;
+		SLib.PPObjID Oid;
+		String Message;
+		int    MessageId;
+	}
+	private static boolean AcceptSvcNotification(StyloQApp appCtx, SvcNotification item)
+	{
+		boolean ok = false;
+		if(item != null && appCtx != null) {
+
+		}
+		return ok;
+	}
+	private static boolean AcceptSvcNotificationPoll(StyloQApp appCtx, JSONObject jsReply)
+	{
+		boolean ok = false;
+		if(jsReply != null) {
+			JSONArray js_evnt_list = jsReply.optJSONArray("evnt_list");
+			if(js_evnt_list != null) {
+				ArrayList <SvcNotification> evnt_list = null;
+				{
+					for(int i = 0; i < js_evnt_list.length(); i++) {
+						SvcNotification new_entry = new SvcNotification();
+						if(new_entry.FromJsonObj(js_evnt_list.optJSONObject(i))) {
+							if(evnt_list == null)
+								evnt_list = new ArrayList<SvcNotification>();
+							evnt_list.add(new_entry);
+						}
+					}
+				}
+				if(evnt_list != null) {
+					for(int i = 0; i < evnt_list.size(); i++) {
+						AcceptSvcNotification(appCtx, evnt_list.get(i));
+					}
+				}
+			}
+		}
+		return ok;
 	}
 	private static boolean AcceptDocStatusPollResult(StyloQApp appCtx, JSONObject jsReply) throws StyloQException
 	{
@@ -2134,32 +2258,39 @@ public class StyloQInterchange {
 								}
 							}
 							else if(SLib.GetLen(raw_doc_decl) > 0) {
-								if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcRsrvOrderPrereq) {
-									byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
-									new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypOrderPrereq, 0, doc_ident, svc_id, rpool);
+								final byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
+								if(doc_ident != null) {
+									switch(param.OriginalCmdItem.BaseCmdId) {
+										case StyloQCommand.sqbcRsrvOrderPrereq:
+											new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypOrderPrereq, 0, doc_ident, svc_id, rpool);
+											break;
+										case StyloQCommand.sqbcRsrvIndoorSvcPrereq: // @v11.4.5
+											new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypIndoorSvcPrereq, 0, doc_ident, svc_id, rpool);
+											break;
+										case StyloQCommand.sqbcReport:
+											new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypReport, 0, doc_ident, svc_id, rpool);
+											break;
+										case StyloQCommand.sqbcIncomingListOrder: // @v11.4.8
+											new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypIncomingList, 0, doc_ident, svc_id, rpool);
+											break;
+										case StyloQCommand.sqbcIncomingListCCheck: // @v11.5.6
+											new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypIncomingList, 0, doc_ident, svc_id, rpool);
+											break;
+										default:
+											SLib.LOG_d("Helper_DoInterchange2: unprocessed branch (param.OriginalCmdItem.BaseCmdId)");
+											break;
+									}
+									// @v11.5.9 {
+									if(new_doc_id > 0) {
+										if((param.OriginalCmdItem.Flags & (StyloQCommand.Item.fNotify_ObjNew|StyloQCommand.Item.fNotify_ObjUpd|
+												StyloQCommand.Item.fNotify_ObjStatus)) != 0) {
+
+										}
+									}
+									// } @v11.5.9
 								}
-								else if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcRsrvIndoorSvcPrereq) { // @v11.4.5
-									byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
-									new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypIndoorSvcPrereq, 0, doc_ident, svc_id, rpool);
-								}
-								else if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcReport) {
-									byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
-									if(doc_ident != null)
-										new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypReport, 0, doc_ident, svc_id, rpool);
-									else
-										SLib.LOG_d("Helper_DoInterchange2: doc_ident == null");
-								}
-								else if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcIncomingListOrder) { // @v11.4.8
-									byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
-									new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypIncomingList, 0, doc_ident, svc_id, rpool);
-								}
-								else if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcIncomingListCCheck) { // @v11.5.6
-									byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
-									new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypIncomingList, 0, doc_ident, svc_id, rpool);
-								}
-								else {
-									SLib.LOG_d("Helper_DoInterchange2: unprocessed branch (param.OriginalCmdItem.BaseCmdId)");
-								}
+								else
+									SLib.LOG_d("Helper_DoInterchange2: doc_ident == null");
 							}
 							else {
 								SLib.LOG_d("Helper_DoInterchange2: SLib.GetLen(raw_doc_decl) <= 0");
@@ -2321,12 +2452,20 @@ public class StyloQInterchange {
 			THROW(param != null, 0);
 			THROW(SLib.GetLen(param.SvcIdent) > 0, 0);
 			if(param.OriginalCmdItem != null) {
-				if(param.OriginalCmdItem.Uuid == null && param.OriginalCmdItem.Name.equalsIgnoreCase("requestdocumentstatuslist")) {
-					//
-					// Это - вариант неинтерактивной команды, результат которой должен быть обработан
-					// непосредственно здесь (в этой функции) без передачи в основной поток приложения.
-					//
-					treat_result_on_the_spot = true;
+				if(param.OriginalCmdItem.Uuid == null) {
+					if(param.OriginalCmdItem.Name.equalsIgnoreCase("requestdocumentstatuslist")) {
+						//
+						// Это - вариант неинтерактивной команды, результат которой должен быть обработан
+						// непосредственно здесь (в этой функции) без передачи в основной поток приложения.
+						//
+						treat_result_on_the_spot = true;
+					}
+					// @v11.5.9 {
+					else if(param.OriginalCmdItem.Name.equalsIgnoreCase("requestnotificationlist")) {
+						// Это - тоже, что и вариант выше.
+						treat_result_on_the_spot = true;
+					}
+					// } @v11.5.9
 				}
 			}
 			StyloQDatabase dbs = appCtx.GetDB();
@@ -2381,6 +2520,17 @@ public class StyloQInterchange {
 									}
 								}
 							}
+							// @v11.5.9 {
+							else if(param.OriginalCmdItem.Uuid == null && param.OriginalCmdItem.Name.equalsIgnoreCase("requestnotificationlist")) {
+								if(inner_result.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+									if(inner_result.InfoReply != null && inner_result.InfoReply instanceof SecretTagPool) {
+										JSONObject js_reply = ((SecretTagPool)inner_result.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+										if(js_reply != null)
+											AcceptSvcNotificationPoll(appCtx, js_reply);
+									}
+								}
+							}
+							// } @v11.5.9
 						}
 						else {
 							if(inner_result.ResultTag != StyloQApp.SvcQueryResult.UNDEF && inner_result.InfoReply == null)
@@ -2420,10 +2570,7 @@ public class StyloQInterchange {
 			ThreadEngine_ClientInterchange()
 			{
 			}
-			@Override public void run()
-			{
-				Helper_DoInterchange(appCtx, param);
-			}
+			@Override public void run() { Helper_DoInterchange(appCtx, param); }
 		}
 		boolean ok = true;
 		Thread thr = new Thread(new ThreadEngine_ClientInterchange());

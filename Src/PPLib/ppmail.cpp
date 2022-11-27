@@ -215,58 +215,53 @@ int PPInternetAccount::NotEmpty()
 int PPInternetAccount::GetExtField(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtStr, rBuf); }
 int PPInternetAccount::SetExtField(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtStr, pBuf); }
 
-#define POP3_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
+#define POP3_PW_SIZE_BEFORE11509 20 // @attention изменение значения требует конвертации хранимого пароля
+#define POP3_PW_SIZE_2           32 // @attention изменение значения требует конвертации хранимого пароля
 
-int PPInternetAccount::SetPassword(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
+int PPInternetAccount::SetPassword_(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
-	/*
-	char   temp_pw[POP3_PW_SIZE], temp_buf[POP3_PW_SIZE*3+8];
-	STRNSCPY(temp_pw, pPassword);
-	IdeaEncrypt(0, temp_pw, sizeof(temp_pw));
-	size_t i = 0, p = 0;
-	for(; i < POP3_PW_SIZE; i++) {
-		sprintf(temp_buf+p, "%03u", (uint8)temp_pw[i]);
-		p += 3;
-	}
-	temp_buf[p] = 0;
-	*/
 	SString temp_buf;
-	Reference::Helper_EncodeOtherPw(0, pPassword, POP3_PW_SIZE, temp_buf);
+	// @v11.5.9 {
+	if(fldID == MAEXSTR_RCVPASSWORD)
+		fldID = MAEXSTR_RCVPASSWORD2;
+	// } @v11.5.9 
+	Reference::Helper_EncodeOtherPw(0, pPassword, POP3_PW_SIZE_2, temp_buf);
 	return SetExtField(fldID, temp_buf);
 }
 
-int PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */) const
+int PPInternetAccount::GetPassword_(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */) const
 {
 	SString temp_buf, pw_buf;
-	GetExtField(fldID, temp_buf);
-	Reference::Helper_DecodeOtherPw(0, temp_buf, POP3_PW_SIZE, pw_buf);
-	pw_buf.CopyTo(pBuf, bufLen);
-	/*
-	char   temp_pw[POP3_PW_SIZE]; // , temp_buf[POP3_PW_SIZE*3+8];
-	if(temp_buf.Len() == (POP3_PW_SIZE*3)) {
-		for(size_t i = 0, p = 0; i < POP3_PW_SIZE; i++) {
-			char   nmb[16];
-			nmb[0] = temp_buf[p];
-			nmb[1] = temp_buf[p+1];
-			nmb[2] = temp_buf[p+2];
-			nmb[3] = 0;
-			temp_pw[i] = satoi(nmb);
-			p += 3;
+	// @v11.5.9 {
+	size_t pw_buf_size = 0;
+	if(oneof2(fldID, MAEXSTR_RCVPASSWORD, MAEXSTR_RCVPASSWORD2)) {
+		GetExtField(MAEXSTR_RCVPASSWORD2, temp_buf);
+		if(temp_buf.NotEmpty()) {
+			pw_buf_size = POP3_PW_SIZE_2;
 		}
-		IdeaDecrypt(0, temp_pw, sizeof(temp_pw));
+		else {
+			GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
+			pw_buf_size = POP3_PW_SIZE_BEFORE11509;
+		}
 	}
-	else
-		temp_pw[0] = 0;
-	strnzcpy(pBuf, temp_pw, bufLen);
-	// @v11.1.1 IdeaRandMem(temp_pw, sizeof(temp_pw));
-	SObfuscateBuffer(temp_pw, sizeof(temp_pw)); // @v11.1.1 
-	*/
+	else {
+		GetExtField(fldID, temp_buf);
+		pw_buf_size = POP3_PW_SIZE_BEFORE11509;
+	}
+	// } @v11.5.9 
+	GetExtField(fldID, temp_buf);
+	Reference::Helper_DecodeOtherPw(0, temp_buf, pw_buf_size, pw_buf);
+	pw_buf.CopyTo(pBuf, bufLen);
 	return 1;
 }
 
-int PPInternetAccount::SetMimedPassword(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
+int PPInternetAccount::SetMimedPassword_(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
 	int    ok = -1;
+	// @v11.5.9 {
+	if(fldID == MAEXSTR_RCVPASSWORD)
+		fldID = MAEXSTR_RCVPASSWORD2;
+	// } @v11.5.9 
 	const  size_t pwd_len = sstrlen(pPassword);
 	if(pwd_len) {
 		size_t len = 0;
@@ -279,18 +274,35 @@ int PPInternetAccount::SetMimedPassword(const char * pPassword, int fldID /* = M
 	return ok;
 }
 
-int PPInternetAccount::GetMimedPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */)
+int PPInternetAccount::GetMimedPassword_(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
 	if(pBuf && bufLen) {
-		char   /*buf[POP3_PW_SIZE*3+8],*/ out_buf[512];
-		SString buf;
+		char   out_buf[512];
+		SString temp_buf;
 		size_t len = 0;
 		memzero(out_buf, sizeof(out_buf));
-		GetExtField(fldID, buf);
-		if(buf.Len() == (POP3_PW_SIZE * 3)) {
+		// @v11.5.9 GetExtField(fldID, buf);
+		// @v11.5.9 {
+		size_t pw_buf_size = 0;
+		if(oneof2(fldID, MAEXSTR_RCVPASSWORD, MAEXSTR_RCVPASSWORD2)) {
+			GetExtField(MAEXSTR_RCVPASSWORD2, temp_buf);
+			if(temp_buf.NotEmpty()) {
+				pw_buf_size = POP3_PW_SIZE_2;
+			}
+			else {
+				GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
+				pw_buf_size = POP3_PW_SIZE_BEFORE11509;
+			}
+		}
+		else {
+			GetExtField(fldID, temp_buf);
+			pw_buf_size = POP3_PW_SIZE_BEFORE11509;
+		}
+		// } @v11.5.9 
+		if(temp_buf.Len() == (pw_buf_size * 3)) {
 			size_t out_len = 0;
 			MIME64 m64;
-			m64.Encode(buf, buf.Len(), out_buf, sizeof(out_buf), &out_len);
+			m64.Encode(temp_buf, temp_buf.Len(), out_buf, sizeof(out_buf), &out_len);
 		}
 		strnzcpy(pBuf, out_buf, bufLen);
 	}
@@ -374,7 +386,7 @@ public:
 		SetExtStrData(this, Data, CTL_MAILACC_RCVSRV,   MAEXSTR_RCVSERVER);
 		SetExtIntData(this, Data, CTL_MAILACC_RCVPORT,  MAEXSTR_RCVPORT);
 		SetExtStrData(this, Data, CTL_MAILACC_RCVNAME,  MAEXSTR_RCVNAME);
-		Data.GetPassword(temp_buf, sizeof(temp_buf));
+		Data.GetPassword_(temp_buf, sizeof(temp_buf), MAEXSTR_RCVPASSWORD);
 		setCtrlData(CTL_MAILACC_RCVPASSWORD, temp_buf);
 		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
 		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
@@ -400,7 +412,7 @@ public:
 		GetExtStrData(this, &Data, CTL_MAILACC_RCVNAME,  MAEXSTR_RCVNAME);
 		getCtrlString(CTL_MAILACC_RCVPASSWORD, temp_buf);
 		getCtrlData(CTLSEL_MAILACC_AUTHTYPE, &Data.SmtpAuthType);
-		Data.SetPassword(temp_buf);
+		Data.SetPassword_(temp_buf, MAEXSTR_RCVPASSWORD);
 		temp_buf.Obfuscate();
 		getCtrlData(selctl = CTL_MAILACC_TIMEOUT, &Data.Timeout);
 		THROW_PP(Data.Timeout >= 0 && Data.Timeout <= 600, PPERR_USERINPUT);
@@ -433,11 +445,11 @@ public:
 		SetExtStrData(this, Data, CTL_FTPACCT_PROXY,     FTPAEXSTR_PROXY);
 		SetExtIntData(this, Data, CTL_FTPACCT_PROXYPORT, FTPAEXSTR_PROXYPORT);
 		SetExtStrData(this, Data, CTL_FTPACCT_PROXYUSER, FTPAEXSTR_PROXYUSER);
-		Data.GetPassword(temp_buf, sizeof(temp_buf), FTPAEXSTR_PASSWORD);
+		Data.GetPassword_(temp_buf, sizeof(temp_buf), FTPAEXSTR_PASSWORD);
 		setCtrlData(CTL_FTPACCT_PWD, temp_buf);
 		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
 		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
-		Data.GetPassword(temp_buf, sizeof(temp_buf), FTPAEXSTR_PROXYPASSWORD);
+		Data.GetPassword_(temp_buf, sizeof(temp_buf), FTPAEXSTR_PROXYPASSWORD);
 		setCtrlData(CTL_FTPACCT_PROXYPWD, temp_buf);
 		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
 		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
@@ -461,9 +473,9 @@ public:
 		GetExtIntData(this, &Data, CTL_FTPACCT_PROXYPORT, FTPAEXSTR_PROXYPORT);
 		GetExtStrData(this, &Data, CTL_FTPACCT_PROXYUSER, FTPAEXSTR_PROXYUSER);
 		getCtrlData(CTL_FTPACCT_PWD, temp_buf);
-		Data.SetPassword(temp_buf, FTPAEXSTR_PASSWORD);
+		Data.SetPassword_(temp_buf, FTPAEXSTR_PASSWORD);
 		getCtrlData(CTL_FTPACCT_PROXYPWD, temp_buf);
-		Data.SetPassword(temp_buf, FTPAEXSTR_PROXYPASSWORD);
+		Data.SetPassword_(temp_buf, FTPAEXSTR_PROXYPASSWORD);
 		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
 		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
 		getCtrlData(selctl = CTL_FTPACCT_TIMEOUT, &Data.Timeout);
@@ -1207,7 +1219,7 @@ int PPMailPop3::Login()
 	SString reply_buf, user_name;
 	char   psw[64];
 	MailAcc.GetExtField(MAEXSTR_RCVNAME, user_name);
-	MailAcc.GetPassword(psw, sizeof(psw));
+	MailAcc.GetPassword_(psw, sizeof(psw), MAEXSTR_RCVPASSWORD);
 	THROW_SL(Sess.Auth(0, user_name, psw));
 	CATCHZOK
 	// @v11.1.1 IdeaRandMem(psw, sizeof(psw));
@@ -1833,9 +1845,9 @@ int PPEmailAcctsImporter::Import(PPLogger * pLogger, int useTa)
 			buf.Z().Cat((long)account_rec.Pop3Port);
 			account.SetExtField(MAEXSTR_RCVPORT, buf);
 			account.SetExtField(MAEXSTR_RCVNAME, account_rec.RcvName);
-			account.SetPassword(account_rec.RcvPassword);
+			account.SetPassword_(account_rec.RcvPassword, MAEXSTR_RCVPASSWORD);
 			account.SetExtField(MAEXSTR_FROMADDRESS, account_rec.FromAddress);
-			account.SetMimedPassword(account_rec.RcvPassword);
+			account.SetMimedPassword_(account_rec.RcvPassword, MAEXSTR_RCVPASSWORD);
 			if(Check(&account, pLogger) > 0) {
 				PPID id = 0;
 				THROW(MAcctObj.Put(&id, &account, 0));
@@ -1982,7 +1994,7 @@ int ExportEmailAccts(const PPIDArray * pMailAcctsList)
 			account_rec.Pop3Port = (int16)pop3_port.ToLong();
 			user.CopyTo(account_rec.RcvName, sizeof(account_rec.RcvName));
 			from.CopyTo(account_rec.FromAddress, sizeof(account_rec.FromAddress));
-			account.GetMimedPassword(account_rec.RcvPassword, sizeof(account_rec.RcvPassword));
+			account.GetMimedPassword_(account_rec.RcvPassword, sizeof(account_rec.RcvPassword), MAEXSTR_RCVPASSWORD);
 			THROW(p_ie->AppendRecord(&account_rec, sizeof(account_rec)));
 			exported++;
 		}

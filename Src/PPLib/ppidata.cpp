@@ -483,7 +483,7 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 	if(Account.GetExtField(FTPAEXSTR_PORT, temp_buf) > 0)
 		port = temp_buf.ToLong();
 	Account.GetExtField(FTPAEXSTR_USER, user);
-	Account.GetPassword(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
+	Account.GetPassword_(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
 	{
 		SString pw_buf;
 		Account.GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);

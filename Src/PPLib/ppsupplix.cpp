@@ -3287,7 +3287,7 @@ int iSalesPepsi::GetOrderFilesFromMailServer(PPID mailAccID, const char * pDestP
 			url.SetComponent(url.cUserName, enc_buf);
 			{
 				char pw[128];
-				mac_rec.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
+				mac_rec.GetPassword_(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
 				enc_buf.EncodeUrl(temp_buf = pw, 0);
 				url.SetComponent(url.cPassword, enc_buf);
 				memzero(pw, sizeof(pw));
@@ -5750,7 +5750,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 			LDATETIME since;
 			since.Set(b_filt.Period.low, ZEROTIME);
 			PPIDArray upd_bill_list;
-			p_sj->GetObjListByEventSince(PPOBJ_BILL, &acn_list, since, upd_bill_list);
+			p_sj->GetObjListByEventSince(PPOBJ_BILL, &acn_list, since, upd_bill_list, 0);
 			for(uint i = 0; i < upd_bill_list.getCount(); i++) {
 				const PPID upd_bill_id = upd_bill_list.get(i);
 				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, temp_buf) > 0) {

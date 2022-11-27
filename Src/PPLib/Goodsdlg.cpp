@@ -3402,6 +3402,13 @@ public:
 			AddClusterAssoc(CTL_GDSFVOPT_OWNCODES, 1, GoodsFilt::fShowWoArCode);
 			SetClusterData(CTL_GDSFVOPT_OWNCODES, Data.Flags);
 		}
+		// @v11.5.9 {
+		{
+			StrAssocArray assc_list;
+			PPObjNamedObjAssoc::MakeGoodsToWarehouseAssocList(assc_list);
+			SetupStrAssocCombo(this, CTLSEL_GDSFVOPT_ASSOC, assc_list, Data.GoodsLocAssocID, 0);
+		}
+		// } @v11.5.9 
 		SetupCtrls();
 		return 1;
 	}
@@ -3413,6 +3420,7 @@ public:
 		else
 			Data.Flags &= ~GoodsFilt::fShowOwnArCode;
 		Data.CodeArID = (Data.Flags & GoodsFilt::fShowArCode) ? getCtrlLong(CTLSEL_GDSFVOPT_AR) : 0;
+		Data.GoodsLocAssocID = (Data.Flags2 & GoodsFilt::f2ShowWhPlace) ? getCtrlLong(CTLSEL_GDSFVOPT_ASSOC) : 0; // @v11.5.9
 		if(Data.Flags & GoodsFilt::fShowOwnArCode)
 			Data.CodeArID = 0;
 		ASSIGN_PTR(pData, Data);
@@ -3423,6 +3431,8 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isClusterClk(CTL_GDSFVOPT_FLAGS))
+			SetupCtrls();
+		else if(event.isClusterClk(CTL_GDSFVOPT_FASSOC))
 			SetupCtrls();
 		else if(event.isClusterClk(CTL_GDSFVOPT_OWNCODES)) {
 			if(getCtrlUInt16(CTL_GDSFVOPT_OWNCODES) & 0x01) {
@@ -3454,14 +3464,18 @@ private:
 		SETFLAG(f_, 0x0004, Data.Flags & GoodsFilt::fShowStrucType);
 		SETFLAG(f_, 0x0008, Data.Flags & GoodsFilt::fShowGoodsWOStruc);
 		SETFLAG(f_, 0x0010, Data.Flags & GoodsFilt::fShowArCode);
-		SETFLAG(f_, 0x0020, Data.Flags2 & GoodsFilt::f2ShowWhPlace);
+		// @v11.5.9 SETFLAG(f_, 0x0020, Data.Flags2 & GoodsFilt::f2ShowWhPlace);
 		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 0, /*GoodsFilt::fShowBarcode*/0x0001);
 		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 1, /*GoodsFilt::fShowCargo*/0x0002);
 		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 2, /*GoodsFilt::fShowStrucType*/0x0004);
 		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 3, /*GoodsFilt::fShowGoodsWOStruc*/0x0008);
 		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 4, /*GoodsFilt::fShowArCode*/0x0010);
-		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 5, /*GoodsFilt::f2ShowWhPlace*/0x0020);
+		// @v11.5.9 AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 5, /*GoodsFilt::f2ShowWhPlace*/0x0020);
 		SetClusterData(CTL_GDSFVOPT_FLAGS, /*Data.Flags*/f_);
+		// @v11.5.9  {
+		AddClusterAssoc(CTL_GDSFVOPT_FASSOC, 0, GoodsFilt::f2ShowWhPlace);
+		SetClusterData(CTL_GDSFVOPT_FASSOC, Data.Flags2);
+		// } @v11.5.9 
 	}
 	void   GetShowFlags()
 	{
@@ -3471,7 +3485,8 @@ private:
 		SETFLAG(Data.Flags, GoodsFilt::fShowStrucType, f_ & 0x0004);
 		SETFLAG(Data.Flags, GoodsFilt::fShowGoodsWOStruc, f_ & 0x0008);
 		SETFLAG(Data.Flags, GoodsFilt::fShowArCode, f_ & 0x0010);
-		SETFLAG(Data.Flags2, GoodsFilt::f2ShowWhPlace, f_ & 0x0020);
+		// @v11.5.9 SETFLAG(Data.Flags2, GoodsFilt::f2ShowWhPlace, f_ & 0x0020);
+		GetClusterData(CTL_GDSFVOPT_FASSOC, &Data.Flags2); // @v11.5.9
 	}
 	void   SetupCtrls()
 	{
@@ -3481,6 +3496,7 @@ private:
 		if(!(Data.Flags & GoodsFilt::fShowStrucType))
 			Data.Flags &= ~(GoodsFilt::fShowGoodsWOStruc);
 		SetShowFlags();
+		disableCtrl(CTLSEL_GDSFVOPT_ASSOC, LOGIC(!(Data.Flags2 & GoodsFilt::f2ShowWhPlace))); // @v11.5.9 
 		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 1, disable_cargo);
 		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 2, disable_struc);
 		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 3, /*!disable_cargo ||*/ disable_struc);

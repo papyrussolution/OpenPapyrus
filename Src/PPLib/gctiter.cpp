@@ -747,13 +747,13 @@ int GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 			}
 		}
 		if(ok > 0) {
+			PPObjBill * p_bobj = BillObj;
 			ok = (BCache && BCache->Get(bill_id, pBillRec) > 0) ? 1 : -1;
 			if(ok > 0) {
 				Trfr->copyBufTo(pTrfrRec);
 				SETMAX(SurrOprNo, pTrfrRec->OprNo);
 			}
 			if(soft_restr) {
-				PPObjBill * p_bobj = BillObj;
 				PPBillExt ext_rec;
 				int    article_notvalid = !ArList.CheckID(pBillRec->Object);
 				int    goods_notvalid = BIN(Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found);
@@ -1016,12 +1016,12 @@ int GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec,
 	if(q == 0)
 		return PPSetErrorNoMem();
 	if(opt_for_psales) {
-		q->select(p_tfr->Dt, p_tfr->BillID, p_tfr->GoodsID, p_tfr->LocID, p_tfr->Flags,
-			p_tfr->Quantity, p_tfr->Price, p_tfr->Discount, 0L).where(*dbq);
+		q->select(p_tfr->Dt, p_tfr->BillID, p_tfr->RByBill, p_tfr->GoodsID, p_tfr->LocID, p_tfr->Flags,
+			p_tfr->Quantity, p_tfr->Price, p_tfr->Discount, 0L).where(*dbq); // @v11.5.9 p_tfr->RByBill
 	}
 	else {
-		q->select(p_tfr->Dt, p_tfr->OprNo, p_tfr->BillID, p_tfr->GoodsID, p_tfr->LocID, p_tfr->LotID, p_tfr->Flags,
-			p_tfr->Quantity, p_tfr->Rest, p_tfr->Cost, p_tfr->Price, p_tfr->Discount, 0L).where(*dbq);
+		q->select(p_tfr->Dt, p_tfr->OprNo, p_tfr->BillID, p_tfr->RByBill, p_tfr->GoodsID, p_tfr->LocID, p_tfr->LotID, p_tfr->Flags,
+			p_tfr->Quantity, p_tfr->Rest, p_tfr->Cost, p_tfr->Price, p_tfr->Discount, 0L).where(*dbq); // @v11.5.9 p_tfr->RByBill
 	}
 	delete trfr_q;
 	trfr_q  = q;
@@ -1120,8 +1120,8 @@ int GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRe
 		dbq = ppcheckfiltidlist(dbq, p_cpt->LocID, &Filt.LocList.Get());
 		BExtQuery * q = new BExtQuery(p_cpt, idx, 256);
 		THROW_MEM(q);
-		q->select(p_cpt->BillID, p_cpt->GoodsID, p_cpt->LocID, p_cpt->Flags,
-			p_cpt->Qtty, p_cpt->Rest, p_cpt->Cost, p_cpt->Price, p_cpt->Discount, 0L).where(*dbq);
+		q->select(p_cpt->BillID, p_cpt->RByBill, p_cpt->GoodsID, p_cpt->LocID, p_cpt->Flags,
+			p_cpt->Qtty, p_cpt->Rest, p_cpt->Cost, p_cpt->Price, p_cpt->Discount, 0L).where(*dbq); // @v11.5.9 p_cpt->RByBill
 		delete cptrfr_q;
 		cptrfr_q  = q;
 		cptrfr_q->initIteration(false, &cpk, spGt);

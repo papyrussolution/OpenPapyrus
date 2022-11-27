@@ -82,8 +82,6 @@ bool FASTCALL IsUnlimWoLot(const TransferTbl::Rec & rRec) { return Impl_IsUnlimW
 bool PPTransferItem::IsLotRet() const { return (!(Flags & (PPTFR_UNLIM|PPTFR_ACK|PPTFR_REVAL|PPTFR_RECEIPT|PPTFR_DRAFT)) && (Flags & PPTFR_PLUS)); }
 /*static*/bool FASTCALL PPTransferItem::IsRecomplete(long flags) { return ((flags & (PPTFR_MODIF|PPTFR_REVAL)) == (PPTFR_MODIF|PPTFR_REVAL)); }
 bool PPTransferItem::IsRecomplete() const { return PPTransferItem::IsRecomplete(Flags); }
-bool PPTransferItem::IsCorrectionRcpt() const { return (Flags & PPTFR_CORRECTION && Flags & PPTFR_REVAL); }
-bool PPTransferItem::IsCorrectionExp() const { return (Flags & PPTFR_CORRECTION && !(Flags & PPTFR_REVAL)); }
 int  FASTCALL PPTransferItem::GetSign(PPID op) const { return PPTransferItem::GetSign(op, Flags); }
 
 void PPTransferItem::InitShadow(const BillTbl::Rec * pBillRec, const PPTransferItem * pOrder)
@@ -119,10 +117,7 @@ int PPTransferItem::PreprocessCorrectionExp()
 	if(IsCorrectionExp()) {
 		const double qtty = fabs(QuotPrice) - fabs(Quantity_);
 		Flags &= ~(PPTFR_PLUS|PPTFR_MINUS);
-		if(qtty <= 0.0)
-			Flags |= PPTFR_MINUS;
-		else
-			Flags |= PPTFR_PLUS;
+		Flags |= ((qtty <= 0.0) ? PPTFR_MINUS : PPTFR_PLUS);
 		Quantity_ = qtty;
 	}
 	else

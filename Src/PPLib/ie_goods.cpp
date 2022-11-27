@@ -3249,3 +3249,357 @@ int ReformatIceCat(const char * pFileName)
 	}
 	return ok;
 }
+
+class IntermediateImportedGoodsCollection : private SStrGroup {
+private:
+	struct InnerEntry {
+		InnerEntry()
+		{
+			THISZERO();
+		}
+		char   Code[32];
+		uint   NameP;
+		uint   GrpNameP;
+		uint   BrandNameP;
+	};
+	
+	static IMPL_CMPFUNC(Entry_ByName, i1, i2)
+	{
+		int    r = 0;
+		if(pExtraData) {
+			IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
+			const InnerEntry * p1 = static_cast<const InnerEntry *>(i1);
+			const InnerEntry * p2 = static_cast<const InnerEntry *>(i2);
+			SStringU & r_textu1 = SLS.AcquireRvlStrU();
+			SStringU & r_textu2 = SLS.AcquireRvlStrU();
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			p_this->GetS(p1->NameP, r_temp_buf);
+			r_textu1.CopyFromUtf8(r_temp_buf);
+			p_this->GetS(p2->NameP, r_temp_buf);
+			r_textu2.CopyFromUtf8(r_temp_buf);
+			r = r_textu1.Cmp(r_textu2);
+		}
+		return r;
+	}
+	static IMPL_CMPFUNC(Entry_ByGroup, i1, i2)
+	{
+		int    r = 0;
+		if(pExtraData) {
+			IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
+			const InnerEntry * p1 = static_cast<const InnerEntry *>(i1);
+			const InnerEntry * p2 = static_cast<const InnerEntry *>(i2);
+			SStringU & r_textu1 = SLS.AcquireRvlStrU();
+			SStringU & r_textu2 = SLS.AcquireRvlStrU();
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			p_this->Ht.Get(p1->GrpNameP, r_temp_buf);
+			r_textu1.CopyFromUtf8(r_temp_buf);
+			p_this->Ht.Get(p2->GrpNameP, r_temp_buf);
+			r_textu2.CopyFromUtf8(r_temp_buf);
+			r = r_textu1.Cmp(r_textu2);
+			if(r == 0) {
+				p_this->GetS(p1->NameP, r_temp_buf);
+				r_textu1.CopyFromUtf8(r_temp_buf);
+				p_this->GetS(p2->NameP, r_temp_buf);
+				r_textu2.CopyFromUtf8(r_temp_buf);
+				r = r_textu1.Cmp(r_textu2);
+			}
+		}
+		return r;
+	}
+	static IMPL_CMPFUNC(Entry_ByBrand, i1, i2)
+	{
+		int    r = 0;
+		if(pExtraData) {
+			IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
+			const InnerEntry * p1 = static_cast<const InnerEntry *>(i1);
+			const InnerEntry * p2 = static_cast<const InnerEntry *>(i2);
+			SStringU & r_textu1 = SLS.AcquireRvlStrU();
+			SStringU & r_textu2 = SLS.AcquireRvlStrU();
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			p_this->Ht.Get(p1->BrandNameP, r_temp_buf);
+			r_textu1.CopyFromUtf8(r_temp_buf);
+			p_this->Ht.Get(p2->BrandNameP, r_temp_buf);
+			r_textu2.CopyFromUtf8(r_temp_buf);
+			r = r_textu1.Cmp(r_textu2);
+			if(r == 0) {
+				p_this->GetS(p1->NameP, r_temp_buf);
+				r_textu1.CopyFromUtf8(r_temp_buf);
+				p_this->GetS(p2->NameP, r_temp_buf);
+				r_textu2.CopyFromUtf8(r_temp_buf);
+				r = r_textu1.Cmp(r_textu2);
+			}
+		}
+		return r;
+	}
+	static IMPL_CMPFUNC(Entry_ByCode, i1, i2)
+	{
+		int    r = 0;
+		if(pExtraData) {
+			IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
+			const InnerEntry * p1 = static_cast<const InnerEntry *>(i1);
+			const InnerEntry * p2 = static_cast<const InnerEntry *>(i2);
+			r = strcmp(p1->Code, p2->Code);
+			if(r == 0) {
+				SStringU & r_textu1 = SLS.AcquireRvlStrU();
+				SStringU & r_textu2 = SLS.AcquireRvlStrU();
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				p_this->GetS(p1->NameP, r_temp_buf);
+				r_textu1.CopyFromUtf8(r_temp_buf);
+				p_this->GetS(p2->NameP, r_temp_buf);
+				r_textu2.CopyFromUtf8(r_temp_buf);
+				r = r_textu1.Cmp(r_textu2);
+			}
+		}
+		return r;
+	}
+public:
+	struct Entry {
+		Entry & Z()
+		{
+			Name.Z();
+			Code.Z();
+			GrpName.Z();
+			BrandName.Z();
+			return *this;
+		}
+		SString Name;
+		SString Code;
+		SString GrpName;
+		SString BrandName;
+	};
+	IntermediateImportedGoodsCollection() : Ht(20 * 1024, 0)
+	{
+	}
+	uint   GetCount() const { return L.getCount(); }
+	int    Get(uint idx, Entry & rEntry) const
+	{
+		rEntry.Z();
+		int    ok = 1;
+		if(idx < L.getCount()) {
+			const InnerEntry & r_entry = L.at(idx);
+			SStrGroup::GetS(r_entry.NameP, rEntry.Name);
+			rEntry.Code = r_entry.Code;
+			if(r_entry.GrpNameP)
+				Ht.Get(r_entry.GrpNameP, rEntry.GrpName);
+			if(r_entry.BrandNameP)
+				Ht.Get(r_entry.BrandNameP, rEntry.BrandName);
+		}
+		else
+			ok = 0;
+		return ok;
+	}
+	int    Add(const Entry & rEntry)
+	{
+		int    ok = 1;
+		if(rEntry.Name.NotEmpty() && rEntry.Code.NotEmpty()) {
+			SString temp_buf;
+			(temp_buf = rEntry.Name).Utf8ToLower();
+			temp_buf.ReplaceStr("  ", " ", 0);
+			InnerEntry new_entry;
+			SStrGroup::AddS(temp_buf, &new_entry.NameP);
+			//
+			temp_buf = rEntry.GrpName;
+			temp_buf.ReplaceStr("  ", " ", 0);
+			if(temp_buf.NotEmptyS()) {
+				temp_buf.Utf8ToLower();
+				uint   v = 0;
+				uint   p = 0;
+				if(Ht.Search(temp_buf, &v, &p)) {
+					new_entry.GrpNameP = p;
+				}
+				else {
+					LastId++;
+					THROW_SL(Ht.Add(temp_buf, LastId, &p));
+					GroupList.add(LastId);
+					new_entry.GrpNameP = p;
+				}
+			}
+			//
+			temp_buf = rEntry.BrandName;
+			temp_buf.ReplaceStr("  ", " ", 0);
+			if(temp_buf.NotEmptyS()) {
+				temp_buf.Utf8ToLower();
+				uint   v = 0;
+				uint   p = 0;
+				if(Ht.Search(temp_buf, &v, &p)) {
+					new_entry.BrandNameP = p;
+				}
+				else {
+					LastId++;
+					THROW_SL(Ht.Add(temp_buf, LastId, &p));
+					BrandList.add(LastId);
+					new_entry.BrandNameP = p;
+				}
+			}
+			STRNSCPY(new_entry.Code, rEntry.Code);
+			THROW_SL(L.insert(&new_entry));
+		}
+		else
+			ok = -1;
+		CATCHZOK
+		return ok;
+	}
+	void FinalizeImport()
+	{
+		GroupList.sortAndUndup();
+		BrandList.sortAndUndup();
+		Ht.BuildAssoc();
+	}
+	const LongArray & GetGroupList() { return GroupList; }
+	const LongArray & GetBrandList() { return BrandList; }
+	int    GetTextById(long id, SString & rBuf) const { return Ht.GetByAssoc(id, rBuf); }
+
+	enum {
+		ordByName = 0,
+		ordByGroup,
+		ordByBrand,
+		ordByCode
+	};
+	void Sort(int ord)
+	{
+		switch(ord) {
+			case ordByName: L.sort(PTR_CMPFUNC(Entry_ByName), this); break;
+			case ordByGroup: L.sort(PTR_CMPFUNC(Entry_ByGroup), this); break;
+			case ordByBrand: L.sort(PTR_CMPFUNC(Entry_ByBrand), this); break;
+			case ordByCode: L.sort(PTR_CMPFUNC(Entry_ByCode), this); break;
+		}
+	}
+
+private:
+	TSVector <InnerEntry> L;
+	SymbHashTable Ht;
+	uint    LastId;
+	LongArray GroupList;
+	LongArray BrandList;
+};
+
+int ReformatRazoomnick(const char * pFileName)
+{
+	int    ok = 1;
+	SString line_buf;
+	SString temp_buf;
+	SFile f_in(pFileName, SFile::mRead);
+	uint   bad_lines_count = 0;
+	if(f_in.IsValid()) {
+		PPTextAnalyzerWrapper ta_category;
+		StringSet ss;
+		StringSet ean_ss(",");
+		SString final_barcode;
+		StringSet final_barcode_list;
+		SString ident;
+		SString brand;
+		SString category;
+		SString name;
+		SString ean_list;
+		SString article_text;
+		SString compose_buf;
+		IntermediateImportedGoodsCollection::Entry entry;
+		uint   line_no = 0;
+		IntermediateImportedGoodsCollection list;
+		SFile::ReadLineCsvContext csv_ctx(';');
+		PPGetFilePath(PPPATH_DD, "replacer-rule-goodsgroup.sr", temp_buf);
+		THROW(ta_category.Init(temp_buf, 0));
+		while(f_in.ReadLineCsv(csv_ctx, ss)) {
+			line_no++;
+			if(line_no > 1) {
+				// Id;Category;Vendor;Name;Article;Barcode
+				const uint _fc = ss.getCount();
+				if(_fc != 6) {
+					bad_lines_count++;
+				}
+				else {
+					for(uint ssp = 0, fld_no = 0; ss.get(&ssp, temp_buf); fld_no++) {
+						temp_buf.Strip();
+						switch(fld_no) {
+							case 0:	ident = temp_buf; break;
+							case 1:	category = temp_buf; break;
+							case 2:	brand = temp_buf; break;
+							case 3:	name = temp_buf; break;
+							case 4:	article_text = temp_buf; break;
+							case 5:	ean_list = temp_buf; break;
+						}
+					}
+					if(name.NotEmptyS() && ean_list.NotEmpty()) {
+						{
+							category.Transf(CTRANSF_UTF8_TO_OUTER);
+							ta_category.ReplaceString(category, temp_buf);
+							(category = temp_buf).Transf(CTRANSF_OUTER_TO_UTF8);
+						}
+						name.StripQuotes();
+						final_barcode_list.Z();
+						ean_ss.setBuf(ean_list);
+						for(uint ep = 0; ean_ss.get(&ep, temp_buf);) {
+							if(temp_buf.NotEmptyS()) {
+								int    diag = 0, std = 0;
+								int    r = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &final_barcode);
+								if(r > 0) {
+									entry.Z();
+									entry.Name = name.ReplaceChar(';', ',');
+									entry.GrpName = category.ReplaceChar(';', ',');
+									entry.BrandName = brand.ReplaceChar(';', ',');
+									entry.Code = final_barcode;
+									list.Add(entry);
+
+									final_barcode_list.add(final_barcode);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		list.FinalizeImport();
+		{
+			{
+				SPathStruc ps(pFileName);
+				ps.Nam.CatChar('-').Cat("out-01");
+				ps.Merge(temp_buf);
+			}
+			SFile f_out_01(temp_buf, SFile::mWrite);
+			{
+				SPathStruc ps(pFileName);
+				ps.Nam.CatChar('-').Cat("out-02");
+				ps.Merge(temp_buf);
+			}
+			SFile f_out_02(temp_buf, SFile::mWrite);
+			list.Sort(list.ordByGroup);
+			for(uint i = 0; i < list.GetCount(); i++) {
+				if(list.Get(i, entry)) {
+					line_buf.Z().Cat(entry.GrpName).Semicol().Cat(entry.BrandName).Semicol().Cat(entry.Name).Semicol().Cat(entry.Code).CR();
+					if(entry.GrpName.NotEmpty()) {
+						f_out_01.WriteLine(line_buf);
+					}
+					else {
+						f_out_02.WriteLine(line_buf);
+					}
+				}
+			}
+		}
+		{
+			SPathStruc ps(pFileName);
+			ps.Nam.CatChar('-').Cat("category");
+			ps.Merge(temp_buf);
+			SFile f_out(temp_buf, SFile::mWrite);			
+			const LongArray & r_id_list = list.GetGroupList();
+			for(uint i = 0; i < r_id_list.getCount(); i++) {
+				if(list.GetTextById(r_id_list.get(i), temp_buf)) {
+					f_out.WriteLine(temp_buf.CR());
+				}
+			}
+		}
+		{
+			SPathStruc ps(pFileName);
+			ps.Nam.CatChar('-').Cat("brand");
+			ps.Merge(temp_buf);
+			SFile f_out(temp_buf, SFile::mWrite);			
+			const LongArray & r_id_list = list.GetBrandList();
+			for(uint i = 0; i < r_id_list.getCount(); i++) {
+				if(list.GetTextById(r_id_list.get(i), temp_buf)) {
+					f_out.WriteLine(temp_buf.CR());
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}

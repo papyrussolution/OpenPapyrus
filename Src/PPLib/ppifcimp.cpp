@@ -1776,7 +1776,7 @@ static ILongList * FASTCALL Impement_GetObjectListBySjSince(SCoClass * pCoCls, P
 	THROW(p_sj);
 	THROW(pCoCls->CreateInnerInstance("LongList", "ILongList", reinterpret_cast<void **>(&p)));
 	THROW(p_id_list = static_cast<LongArray *>(SCoClass::GetExtraPtrByInterface(p)));
-	p_sj->GetObjListByEventSince(objType, &rAcnList, dtm, *p_id_list);
+	p_sj->GetObjListByEventSince(objType, &rAcnList, dtm, *p_id_list, 0);
 	CATCH
 		ReleaseUnknObj(&p);
 		pCoCls->AppError = 1;

@@ -4287,7 +4287,7 @@ int PPObjBill::GetGoodsListByUpdatedBills(PPID locID, const LDATETIME & rDtm, PP
 	if(p_sj) {
 		PPIDArray acn_list, bill_list;
 		acn_list.addzlist(PPACN_OBJADD, PPACN_OBJUPD, PPACN_TURNBILL, PPACN_UPDBILL, 0L);
-		THROW(p_sj->GetObjListByEventSince(PPOBJ_BILL, &acn_list, rDtm, bill_list));
+		THROW(p_sj->GetObjListByEventSince(PPOBJ_BILL, &acn_list, rDtm, bill_list, 0));
 		{
 			PPIDArray goods_list;
 			for(uint i = 0; i < bill_list.getCount(); i++) {

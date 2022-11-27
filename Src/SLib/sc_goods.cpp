@@ -1,5 +1,5 @@
 // SC_GOODS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2016, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2016, 2019, 2020, 2022
 // Part of StyloConduit project
 // Экспорт/Импорт товаров
 //
@@ -305,7 +305,7 @@ int SCDBObjGoods::SendQuotKindList()
 int SCDBObjGoods::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 {
 	int    ok = 1;
-	uint32 ver = P_Ctx->PalmCfg.Ver;
+	const  uint32 ver = P_Ctx->PalmCfg.Ver;
 	long   numrecs = 0, recno = 0;
 	union {
 		PalmRec * p_out_buf;
@@ -543,9 +543,8 @@ int SCDBObjGoods::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 //
 // Export brands and brands owners
 //
-SCDBObjBrand::SCDBObjBrand(SpiiExchgContext * pCtx) : SCDBObject(pCtx)
+SCDBObjBrand::SCDBObjBrand(SpiiExchgContext * pCtx) : SCDBObject(pCtx), P_Tbl(0)
 {
-	P_Tbl = 0;
 }
 
 SCDBObjBrand::~SCDBObjBrand()

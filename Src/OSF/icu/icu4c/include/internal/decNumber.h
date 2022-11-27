@@ -56,8 +56,7 @@
 /* For ICU, use one digit per byte, to make it easier to emulate the
  * old DigitList interface on top of a decNumber
  */
-  #define DECDPUN 1           /* DECimal Digits Per UNit [must be >0  */
-                              /* and <10; 3 or powers of 2 are best]. */
+  #define DECDPUN 1 // DECimal Digits Per UNit [must be >0 and <10; 3 or powers of 2 are best].
 
 /* DECNUMDIGITS is the default number of digits that can be held in */
 /* the structure.  If undefined, 1 is assumed and it is assumed     */
@@ -67,8 +66,7 @@
     #define DECNUMDIGITS 1
   #endif
 
-/* The size (integer data type) of each unit is determined by the   */
-/* number of digits it will hold.        */
+// The size (integer data type) of each unit is determined by the number of digits it will hold.
   #if   DECDPUN<=2
     #define decNumberUnit uint8
   #elif DECDPUN<=4
@@ -81,11 +79,10 @@
 
 /* The data structure... */
 typedef struct {
-	int32_t digits; /* Count of digits in the coefficient; >0    */
-	int32_t exponent; /* Unadjusted exponent, unbiased, in range: -1999999997 through 999999999      */
-	uint8 bits; /* Indicator bits (see above)       */
-	/* Coefficient, from least significant unit  */
-	decNumberUnit lsu[DECNUMUNITS];
+	int32_t digits; // Count of digits in the coefficient; >0
+	int32_t exponent; // Unadjusted exponent, unbiased, in range: -1999999997 through 999999999
+	uint8  bits; // Indicator bits (see above)
+	decNumberUnit lsu[DECNUMUNITS]; // Coefficient, from least significant unit
 } decNumber;
 
 /* Notes:     */

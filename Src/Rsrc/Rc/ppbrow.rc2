@@ -855,6 +855,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	VIEWTECH       : kbCtrlT,     TBBM_TECH,              "@{view_tech}\tCtrl-T"
 	VIEWTSESS      : kbCtrlS,     TBBM_TSESS,             "@{view_tsession}\tCtrl-S"
 	separator
+	EDITWHPLACE    : kbCtrlP,     PPDV_NOICON,            "@{doeditwhplaceassoc}\tCtrl-P"
 	SORT           : kbCtrlO,     TBBM_SORT,              "@{sorting}\tCtrl-O"
 	PRINT          : kbF7,        PPDV_PRINTER01,         "@{printlist}\tF7"
 	POSPRINT       : kbCtrlF7,    TBBM_POSPRINT,          "Печать ценника\tCtrl-F7"
@@ -1364,57 +1365,57 @@ browser GOODS north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
 	toolbar GOODS
 }
 
-browser GOODSBARCODE north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
-{
-	"@id",           0, notype, ALIGN_RIGHT,  6
-	"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
-	"@manufacturer", 3, notype, 0, 20
-	"@brand",       15, notype, 0, 20
-	group "@munits" {
-		"@munit_trade_sl",  4, notype, 0, 6
-		"@munit_ph_sl",     5, notype, 0, 6
-		"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
-	}
-	"@barcode",     7, notype, 0, 14
-	toolbar GOODS
-}
+//browser GOODSBARCODE north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
+//{
+	//"@id",           0, notype, ALIGN_RIGHT,  6
+	//"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
+	//"@manufacturer", 3, notype, 0, 20
+	//"@brand",       15, notype, 0, 20
+	//group "@munits" {
+		//"@munit_trade_sl",  4, notype, 0, 6
+		//"@munit_ph_sl",     5, notype, 0, 6
+		//"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
+	//}
+	//"@barcode",     7, notype, 0, 14
+	//toolbar GOODS
+//}
 
-browser GOODSCARGO north(100), 3, 0, "@{view_goodscargo} {%s}", OWNER|GRID, 0
-{
-	"@id",           0, notype, ALIGN_RIGHT,  6
-	"@appellation",  2, notype, 0, 30
-	"@manufacturer", 3, notype, 0, 15
-	"@brand",       15, notype, 0, 15
-	group "@munits" {
-		"@munit_trade_sl",  4, notype, 0, 6
-		"@munit_ph_sl",     5, notype, 0, 6
-		"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
-	}
-	"@cargobrutto",    10, notype, NMBF_NOZERO, 8
-	"@cargodim",       11, notype, NMBF_NOZERO, 8
-	"@stockths",       12, notype, NMBF_NOZERO, 8
-	"@cargopckg",      13, notype, NMBF_NOZERO, 8
-	toolbar GOODS
-}
+//browser GOODSCARGO north(100), 3, 0, "@{view_goodscargo} {%s}", OWNER|GRID, 0
+//{
+	//"@id",           0, notype, ALIGN_RIGHT,  6
+	//"@appellation",  2, notype, 0, 30
+	//"@manufacturer", 3, notype, 0, 15
+	//"@brand",       15, notype, 0, 15
+	//group "@munits" {
+		//"@munit_trade_sl",  4, notype, 0, 6
+		//"@munit_ph_sl",     5, notype, 0, 6
+		//"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
+	//}
+	//"@cargobrutto",    10, notype, NMBF_NOZERO, 8
+	//"@cargodim",       11, notype, NMBF_NOZERO, 8
+	//"@stockths",       12, notype, NMBF_NOZERO, 8
+	//"@cargopckg",      13, notype, NMBF_NOZERO, 8
+	//toolbar GOODS
+//}
 
-browser GOODSCARGOBARCODE north(100), 3, 0, "@{view_goodscargo} {%s}", OWNER|GRID, 0
-{
-	"@id",           0, notype, ALIGN_RIGHT,  6
-	"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
-	"@manufacturer", 3, notype, 0, 15
-	"@brand",       15, notype, 0, 15
-	group "@munits" {
-		"@munit_trade_sl",  4, notype, 0, 6
-		"@munit_ph_sl",     5, notype, 0, 6
-		"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
-	}
-	"@barcode",      7, notype, 0, 14
-	"@cargobrutto", 10, notype, NMBF_NOZERO, 8
-	"@cargodim",    11, notype, NMBF_NOZERO, 8
-	"@stockths",    12, notype, NMBF_NOZERO, 8
-	"@cargopckg",   13, notype, NMBF_NOZERO, 8
-	toolbar GOODS
-}
+//browser GOODSCARGOBARCODE north(100), 3, 0, "@{view_goodscargo} {%s}", OWNER|GRID, 0
+//{
+	//"@id",           0, notype, ALIGN_RIGHT,  6
+	//"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
+	//"@manufacturer", 3, notype, 0, 15
+	//"@brand",       15, notype, 0, 15
+	//group "@munits" {
+		//"@munit_trade_sl",  4, notype, 0, 6
+		//"@munit_ph_sl",     5, notype, 0, 6
+		//"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
+	//}
+	//"@barcode",      7, notype, 0, 14
+	//"@cargobrutto", 10, notype, NMBF_NOZERO, 8
+	//"@cargodim",    11, notype, NMBF_NOZERO, 8
+	//"@stockths",    12, notype, NMBF_NOZERO, 8
+	//"@cargopckg",   13, notype, NMBF_NOZERO, 8
+	//toolbar GOODS
+//}
 
 browser GOODSWITHSTRUC north(100), 3, 1, "@{view_goodswithstruc} {%s}", OWNER|GRID, 0
 {
@@ -5738,14 +5739,14 @@ browser SCALE north(100), 1, 1, "@{scales}", OWNER|GRID, 0
 		separator
 		VIEWGOODS     : kbF3,     PPDV_WARESINGLE01, "@{cmd_goods}\tF3"
 		separator
-		PREPAREDATA   : kbCtrlP,  PPDV_NOICON,       "Подготовить данные\tCtrl-P"
+		PREPAREDATA   : kbCtrlP,  PPDV_NOICON,       "@{scaledatapreparation}\tCtrl-P"
 		LOADDATA      : kbCtrlL,  PPDV_EXPORT01,     "@{douploaddata}\tCtrl-L"
 		LOADSTAT      : kbCtrlS,  TBBM_STAT,         "@{view_dvcloadingstat}\tCtrl-S"
 		TRANSMIT      :  kbCtrlH, PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
 		separator
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
 		SYSJ          : kbCtrlJ,  PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
-		CHECKSTATUS   : kbCtrlT,  TBBM_TEST2,        "Проверка готовности весов\tCtrl-T"
+		CHECKSTATUS   : kbCtrlT,  TBBM_TEST2,        "@{scalereadinesschecking}\tCtrl-T"
 	}
 }
 

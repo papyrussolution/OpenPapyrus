@@ -1,5 +1,5 @@
 // GDS2OBJA.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 // Список соответствий Товар(Группа товаров) - Объект
@@ -146,8 +146,12 @@ int GoodsToObjAssoc::Get(PPID goodsID, PPID * pObjID) const
 		if(GObj.Fetch(temp_id, &goods_rec) > 0) {
 			if(cycle_list.lsearch(temp_id))
 				ok = PPSetError(PPERR_CYCLELINKGOODSGRP, goods_rec.Name);
-			else if(List.BSearch(temp_id, &obj_id, 0))
-				ok = 1;
+			else if(List.BSearch(temp_id, &obj_id, 0)) {
+				if(temp_id == goodsID)
+					ok = 1;
+				else
+					ok = 2;
+			}
 			else {
 				cycle_list.add(temp_id);
 				temp_id = goods_rec.ParentID;
@@ -196,43 +200,46 @@ PPBaseFilt * PPViewGoodsToObjAssoc::CreateFilt(const void * extraPtr) const
 		GoodsToObjAssocFilt * p_filt = static_cast<GoodsToObjAssocFilt *>(p_base_filt);
 		if(extraPtr) {
 			p_filt->AsscType = reinterpret_cast<long>(extraPtr);
-			if(p_filt->AsscType == PPASS_GOODS2WAREPLACE) {
-				p_filt->ObjType = PPOBJ_LOCATION;
-				p_filt->P_LocF = new LocationFilt(LOCTYP_WAREPLACE);
-			}
-			else if(p_filt->AsscType == PPASS_GOODS2LOC) {
-				p_filt->ObjType = PPOBJ_LOCATION;
-			}
-			else if(p_filt->AsscType == PPASS_GOODS2SUPPL) {
-				p_filt->ObjType = PPOBJ_ARTICLE;
-				p_filt->ExtraPtr = reinterpret_cast<void *>(GetSupplAccSheet());
-			}
-			else if(p_filt->AsscType == PPASS_GOODS2CASHNODE) {
-				p_filt->ObjType = PPOBJ_CASHNODE;
-			}
-			else {
-				PPObjNamedObjAssoc noa_obj;
-				PPNamedObjAssoc noa_rec;
-				if(noa_obj.Search(p_filt->AsscType, &noa_rec) > 0) {
-					if(noa_rec.PrmrObjType == PPOBJ_GOODS) {
-						p_filt->ObjType = noa_rec.ScndObjType;
-						if(p_filt->ObjType == PPOBJ_LOCATION && noa_rec.ScndObjGrp) {
-							p_filt->P_LocF = new LocationFilt(noa_rec.ScndObjGrp);
+			switch(p_filt->AsscType) {
+				case PPASS_GOODS2WAREPLACE:
+					p_filt->ObjType = PPOBJ_LOCATION;
+					p_filt->P_LocF = new LocationFilt(LOCTYP_WAREPLACE);
+					break;
+				case PPASS_GOODS2LOC:
+					p_filt->ObjType = PPOBJ_LOCATION;
+					break;
+				case PPASS_GOODS2SUPPL:
+					p_filt->ObjType = PPOBJ_ARTICLE;
+					p_filt->ExtraPtr = reinterpret_cast<void *>(GetSupplAccSheet());
+					break;
+				case PPASS_GOODS2CASHNODE:
+					p_filt->ObjType = PPOBJ_CASHNODE;
+					break;
+				default:
+					{
+						PPObjNamedObjAssoc noa_obj;
+						PPNamedObjAssoc noa_rec;
+						if(noa_obj.Search(p_filt->AsscType, &noa_rec) > 0) {
+							if(noa_rec.PrmrObjType == PPOBJ_GOODS) {
+								p_filt->ObjType = noa_rec.ScndObjType;
+								if(p_filt->ObjType == PPOBJ_LOCATION && noa_rec.ScndObjGrp)
+									p_filt->P_LocF = new LocationFilt(noa_rec.ScndObjGrp);
+								else
+									p_filt->ExtraPtr = reinterpret_cast<void *>(noa_rec.ScndObjGrp);
+							}
+							else {
+								ZDELETE(p_base_filt);
+								PPSetError(PPERR_NAMEDOBJASSCNGOODS);
+							}
 						}
-						else
-							p_filt->ExtraPtr = reinterpret_cast<void *>(noa_rec.ScndObjGrp);
+						else {
+							ZDELETE(p_base_filt);
+							SString msg_buf;
+							msg_buf.Cat(p_filt->AsscType);
+							PPSetError(PPERR_UNKGOODSTOOBJASSOC, msg_buf);
+						}
 					}
-					else {
-						ZDELETE(p_base_filt);
-						PPSetError(PPERR_NAMEDOBJASSCNGOODS);
-					}
-				}
-				else {
-					ZDELETE(p_base_filt);
-					SString msg_buf;
-					msg_buf.Cat(p_filt->AsscType);
-					PPSetError(PPERR_UNKGOODSTOOBJASSOC, msg_buf);
-				}
+					break;
 			}
 		}
 	}
@@ -333,8 +340,10 @@ SArray * PPViewGoodsToObjAssoc::CreateBrowserArray(uint * pBrwId, SString * pSub
 	return p_array;
 }
 
-int PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objType, void * extraPtr, int newItem)
+int PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objType, void * extraPtr, bool isNewItem)
 {
+	return PPObjNamedObjAssoc::EditGoodsToObjAssoc(Filt.AsscType, objType, pData, Filt.P_LocF, extraPtr, isNewItem);
+#if 0 // {
 	int    ok = -1;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
@@ -345,6 +354,14 @@ int PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objType, voi
 		dlg->setLabelText(CTL_G2OA_OBJ, obj_title);
 		dlg->addGroup(1, new GoodsCtrlGroup(CTLSEL_G2OA_GOODSGRP, CTLSEL_G2OA_GOODS));
 		GoodsCtrlGroup::Rec rec;
+		// @v11.5.9 {
+		{
+			StrAssocArray assc_list;
+			PPObjNamedObjAssoc::MakeGoodsToWarehouseAssocList(assc_list);
+			SetupStrAssocCombo(dlg, CTLSEL_G2OA_ASSOC, assc_list, Filt.AsscType, 0);
+			dlg->disableCtrl(CTLSEL_G2OA_ASSOC, true);
+		}
+		// } @v11.5.9 
 		if(pData->Key && goods_obj.Fetch(pData->Key, &goods_rec) > 0)
 			if(goods_rec.Kind == PPGDSK_GROUP)
 				rec.GrpID = goods_rec.ID;
@@ -377,13 +394,14 @@ int PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objType, voi
 	}
 	delete dlg;
 	return ok;
+#endif // } 0
 }
 
 int PPViewGoodsToObjAssoc::AddItem(PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	LAssoc assc;
-	while(EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraPtr, 1) > 0) {
+	while(EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraPtr, true) > 0) {
 		uint pos = 0;
 		if(!P_Assoc->Add(assc.Key, assc.Val, &pos) || !P_Assoc->Save())
 			PPError();
@@ -405,7 +423,7 @@ int PPViewGoodsToObjAssoc::EditItem(PPViewBrowser * pBrw, const BrwHdr * pHdr)
 		PPID   obj_id = 0;
 		if(P_Assoc->Get(pHdr->GoodsID, &obj_id) > 0) {
 			LAssoc assc(pHdr->GoodsID, pHdr->ObjID);
-			while(ok < 0 && EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraPtr, 0) > 0) {
+			while(ok < 0 && EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraPtr, false) > 0) {
 				uint   pos = 0;
 				if(P_Assoc->SearchPair(assc.Key, assc.Val, &pos)) {
 					if(!P_Assoc->UpdateByPos(pos, assc.Key, assc.Val) || !P_Assoc->Save())
@@ -518,6 +536,83 @@ int ViewGoodsToObjAssoc(long extraParam) { return PPView::Execute(PPVIEW_GOODSTO
 PPNamedObjAssoc2::PPNamedObjAssoc2()
 {
 	THISZERO();
+}
+
+/*static*/int PPObjNamedObjAssoc::MakeGoodsToWarehouseAssocList(StrAssocArray & rList)
+{
+	rList.Z();
+	int    ok = 1;
+	PPNamedObjAssoc noa_rec;
+	PPObjNamedObjAssoc noa_obj;
+	SString temp_buf;
+	{
+		PPLoadString("rsrv_assoc_goodstoloc", temp_buf);
+		rList.AddFast(PPASS_GOODS2LOC, temp_buf);
+	}
+	{
+		PPLoadString("rsrv_assoc_goodstowareplace", temp_buf);
+		rList.AddFast(PPASS_GOODS2WAREPLACE, temp_buf);
+	}
+	for(SEnum en = noa_obj.Enum(0); en.Next(&noa_rec) > 0;) {
+		if(noa_rec.PrmrObjType == PPOBJ_GOODS && noa_rec.ScndObjType == PPOBJ_LOCATION) {
+			rList.AddFast(noa_rec.ID, noa_rec.Name);
+		}
+	}
+	return ok;
+}
+
+/*static*/int PPObjNamedObjAssoc::EditGoodsToObjAssoc(PPID assocID, PPID objType, LAssoc * pData, const LocationFilt * pLocF, void * extraPtr, bool isNewItem)
+{
+	int    ok = -1;
+	PPObjGoods goods_obj;
+	Goods2Tbl::Rec goods_rec;
+	TDialog * dlg = new TDialog(DLG_G2OA);
+	if(CheckDialogPtrErr(&dlg)) {
+		SString obj_title;
+		dlg->setSubTitle(GetObjectTitle(objType, obj_title));
+		dlg->setLabelText(CTL_G2OA_OBJ, obj_title);
+		dlg->addGroup(1, new GoodsCtrlGroup(CTLSEL_G2OA_GOODSGRP, CTLSEL_G2OA_GOODS));
+		GoodsCtrlGroup::Rec rec;
+		// @v11.5.9 {
+		{
+			StrAssocArray assc_list;
+			PPObjNamedObjAssoc::MakeGoodsToWarehouseAssocList(assc_list);
+			SetupStrAssocCombo(dlg, CTLSEL_G2OA_ASSOC, assc_list, assocID, 0);
+			dlg->disableCtrl(CTLSEL_G2OA_ASSOC, true);
+		}
+		// } @v11.5.9 
+		if(pData->Key && goods_obj.Fetch(pData->Key, &goods_rec) > 0)
+			if(goods_rec.Kind == PPGDSK_GROUP)
+				rec.GrpID = goods_rec.ID;
+			else
+				rec.GoodsID = goods_rec.ID;
+		rec.Flags |= GoodsCtrlGroup::enableSelUpLevel;
+		dlg->setGroupData(1, &rec);
+		if(objType == PPOBJ_LOCATION && pLocF)
+			SetupLocationCombo(dlg, CTLSEL_G2OA_OBJ, pData->Val, OLW_CANSELUPLEVEL, pLocF);
+		else
+			SetupPPObjCombo(dlg, CTLSEL_G2OA_OBJ, objType, pData->Val, OLW_CANSELUPLEVEL, extraPtr);
+		if(!isNewItem)
+			dlg->disableCtrls(1, CTLSEL_G2OA_GOODSGRP, CTLSEL_G2OA_GOODS, 0);
+		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
+			if(dlg->getGroupData(1, &rec)) {
+				if(!rec.GoodsID && !rec.GrpID)
+					PPErrorByDialog(dlg, CTLSEL_G2OA_GOODSGRP, PPERR_GOODSNEEDED);
+				else {
+					pData->Key = NZOR(rec.GoodsID, rec.GrpID);
+					pData->Val = dlg->getCtrlLong(CTLSEL_G2OA_OBJ);
+					if(pData->Val)
+						ok = valid_data = 1;
+					else
+						PPErrorByDialog(dlg, CTLSEL_G2OA_OBJ, PPERR_USERINPUT);
+				}
+			}
+			else
+				PPError();
+		}
+	}
+	delete dlg;
+	return ok;
 }
 
 PPObjNamedObjAssoc::PPObjNamedObjAssoc(void * extraPtr) : PPObjReference(PPOBJ_NAMEDOBJASSOC, extraPtr)

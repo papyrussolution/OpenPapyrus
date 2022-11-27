@@ -153,6 +153,37 @@ int Transfer::EnumItems(PPID billID, int * pRByBill, PPTransferItem * pTI)
 	return ok;
 }
 
+int Transfer::GetOriginalValuesForCorrection(const TransferTbl::Rec & rRec, const PPIDArray & rBillChain, long options, double * pOrgQtty, double * pOrgPrice)
+{
+	int    ok = -1;
+	double org_qtty = 0.0;
+	double org_price = 0.0;
+	if(PPTransferItem::IsCorrectionExp(rRec.Flags)) {
+		if(rBillChain.getCount()) {
+			const PPID org_corr_bill_id = rBillChain.get(0);
+			TransferTbl::Rec _rec;
+			if(SearchByBill(org_corr_bill_id, 0, rRec.RByBill, &_rec) > 0) {
+				if(!(options & govcoVerifyGoods) || _rec.GoodsID == rRec.GoodsID) {
+					org_qtty = _rec.Quantity;
+					org_price = _rec.Price - _rec.Discount;
+					ok = 1;
+				}
+				for(uint j = 1; j < rBillChain.getCount(); j++) {
+					const PPID chain_bill_id = rBillChain.get(j);
+					if(SearchByBill(chain_bill_id, 0, rRec.RByBill, &_rec) > 0) {
+						org_qtty += _rec.Quantity;
+						org_price = _rec.Price - _rec.Discount;
+						ok = 2;
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pOrgQtty, org_qtty);
+	ASSIGN_PTR(pOrgPrice, org_price);
+	return ok;
+}
+
 int Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, const PPIDArray & rBillChain, long options, double * pOrgQtty, double * pOrgPrice)
 {
 	int    ok = -1;

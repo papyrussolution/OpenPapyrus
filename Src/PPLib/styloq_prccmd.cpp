@@ -1333,7 +1333,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 }
 
 int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
-	SString & rResult, SString & rDocDeclaration, bool debugOutput)
+	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
 	/*
@@ -1462,7 +1462,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	}
 	THROW(js.ToStr(rResult));
 	// @debug {
-	if(debugOutput) {
+	if(prccmdFlags & prccmdfDebugOutput) {
 		SString out_file_name;
 		PPGetFilePath(PPPATH_OUT, "stq-rsrvattendanceprereq.json", out_file_name);
 		SFile f_out(out_file_name, SFile::mWrite);
@@ -1479,7 +1479,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 }
 
 int PPStyloQInterchange::ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
-	SString & rResult, SString & rDocDeclaration, bool debugOutput)
+	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
 	PPObjIDArray bloboid_list;
@@ -1520,7 +1520,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandL
 		THROW(MakeRsrvIndoorSvcPrereqResponse_ExportGoods(bc_own_ident, &cn_sync_pack, 0, 0, &js, &stat));
 		THROW(js.ToStr(rResult));
 		// @debug {
-		if(debugOutput) {
+		if(prccmdFlags & prccmdfDebugOutput) {
 			SString out_file_name;
 			PPGetFilePath(PPPATH_OUT, "stq-rsrvindoorsvcprereq.json", out_file_name);
 			SFile f_out(out_file_name, SFile::mWrite);
@@ -1778,7 +1778,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 }
 
 int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
-	SString & rResult, SString & rDocDeclaration, bool debugOutput)
+	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	//StoreOidListWithBlob
 	int    ok = 1;
@@ -1882,7 +1882,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 		}
 		THROW(js.ToStr(rResult));
 		// @debug {
-		if(debugOutput) {
+		if(prccmdFlags & prccmdfDebugOutput) {
 			SString out_file_name;
 			PPGetFilePath(PPPATH_OUT, "stq-rsrvorderprereq.json", out_file_name);
 			SFile f_out(out_file_name, SFile::mWrite);
@@ -1901,7 +1901,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 }
 
 int PPStyloQInterchange::ProcessCommand_Report(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, 
-	SString & rResult, SString & rDocDeclaration, bool debugOutput)
+	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1965,7 +1965,7 @@ int PPStyloQInterchange::ProcessCommand_Report(const StyloQCommandList::Item & r
 					THROW_SL(p_js->ToStr(rResult));
 				}
 				// @debug {
-				if(debugOutput) {
+				if(prccmdFlags & prccmdfDebugOutput) {
 					SString out_file_name;
 					PPGetFilePath(PPPATH_OUT, "stq-report.json", out_file_name);
 					SFile f_out(out_file_name, SFile::mWrite);
@@ -1985,7 +1985,7 @@ int PPStyloQInterchange::ProcessCommand_Report(const StyloQCommandList::Item & r
 }
 
 int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
-	SString & rResult, SString & rDocDeclaration, bool debugOutput)
+	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
 	SJson * p_js_doc_list = 0;
@@ -2111,7 +2111,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 			*/
 			THROW(js.ToStr(rResult));
 			// @debug {
-			if(debugOutput) {
+			if(prccmdFlags & prccmdfDebugOutput) {
 				SString out_file_name;
 				PPGetFilePath(PPPATH_OUT, "stq-incominglistccheck.json", out_file_name);
 				SFile f_out(out_file_name, SFile::mWrite);
@@ -2126,7 +2126,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 }
 
 int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
-	SString & rResult, SString & rDocDeclaration, bool debugOutput)
+	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
 	SJson * p_js_doc_list = 0;
@@ -2135,6 +2135,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 	THROW(GetOwnIdent(bc_own_ident, 0));
 	THROW(rCmdItem.GetSpecialParam<StyloQIncomingListParam>(param));
 	{
+		PPObjBill * p_bobj = BillObj;
 		//PPID   op_id = 0;
 		//PPID   loc_id = 0;
 		//int    lookback_days = 365; // @debug value 365
@@ -2150,7 +2151,53 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 			// ??? agent_psn_id = local_person_id;
 		}
 		THROW(GetOpData(param.P_BF->OpID, &op_rec) > 0);
-		{
+		if(prccmdFlags & prccmdfReqNotification) {
+			SJson js(SJson::tOBJECT);
+			PPIDArray obj_id_list;
+			SysJournal * p_sj = DS.GetTLA().P_SysJ;
+			if(p_sj) {
+				LDATETIME since;
+				if(param.LookbackDays > 0) {
+					since.Set(plusdate(getcurdate_(), -param.LookbackDays), ZEROTIME);
+				}
+				else {
+					since.Set(getcurdate_(), ZEROTIME);
+				}
+				PPIDArray act_list;
+				TSVector <SysJournalTbl::Rec> rec_list;
+				act_list.addzlist(PPACN_TURNBILL, 0L); // @?
+				p_sj->GetObjListByEventSince(PPOBJ_BILL, &act_list, since, obj_id_list, &rec_list);
+				/* evnt_list
+					{
+						id - суррогатный 128bit-идентификатор, формируемый по набору полей. 
+							используется на стороне клиента для избежания дубликатов
+						evnt_org_time
+						evnt_iss_time
+						evnt
+						objtype
+						objid
+						msgsign|msgid
+						msg
+					}
+				*/
+				SJson * p_js_list = SJson::CreateArr();
+				const LDATETIME dtm_now = getcurdatetime_();
+				for(uint i = 0; i < rec_list.getCount(); i++) {
+					const SysJournalTbl::Rec & r_rec = rec_list.at(i);
+					SvcNotification item;
+					item.EventOrgTime.Set(r_rec.Dt, r_rec.Tm);
+					item.EventIssueTime = dtm_now;
+					item.EventId = r_rec.Action;
+					item.Oid.Set(r_rec.ObjType, r_rec.ObjID);
+					item.GenerateIdent();
+					SJson * p_js_item = item.ToJson();
+					if(p_js_item)
+						p_js_list->InsertChild(p_js_item);
+				}
+				js.Insert("evnt_list", p_js_list);
+			}
+		}
+		else {
 			struct ListEntry {
 				ListEntry(const BillViewItem & rS)
 				{
@@ -2161,7 +2208,6 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 				PPID   ID;
 			};
 			SJson js(SJson::tOBJECT);
-			PPObjBill * p_bobj = BillObj;
 			MakeInnerGoodsEntryBlock mige_blk;
 			Goods2Tbl::Rec goods_rec;
 			SVector temp_entry_list(sizeof(ListEntry));
@@ -2363,7 +2409,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 			}
 			THROW(js.ToStr(rResult));
 			// @debug {
-			if(debugOutput) {
+			if(prccmdFlags & prccmdfDebugOutput) {
 				SString out_file_name;
 				PPGetFilePath(PPPATH_OUT, "stq-incominglistorder.json", out_file_name);
 				SFile f_out(out_file_name, SFile::mWrite);
@@ -2378,7 +2424,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 }
 
 int PPStyloQInterchange::ProcessCommand_DebtList(const StyloQCommandList::Item & rCmdItem, const SJson * pJsCmd, const StyloQCore::StoragePacket & rCliPack, 
-	SString & rResult, SString & rDocDeclaration, bool debugOutput)
+	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = -1;
 	const  LDATETIME dtm_now = getcurdatetime_();
@@ -2456,7 +2502,7 @@ int PPStyloQInterchange::ProcessCommand_DebtList(const StyloQCommandList::Item &
 		}
 		THROW(js.ToStr(rResult));
 		// @debug {
-		if(debugOutput) {
+		if(prccmdFlags & prccmdfDebugOutput) {
 			SString out_file_name;
 			PPGetFilePath(PPPATH_OUT, "stq-debtlist.json", out_file_name);
 			SFile f_out(out_file_name, SFile::mWrite);

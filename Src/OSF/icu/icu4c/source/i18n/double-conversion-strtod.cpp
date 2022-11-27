@@ -90,7 +90,8 @@ static const int kExactPowersOfTenSize = DOUBLE_CONVERSION_ARRAY_SIZE(exact_powe
 // we round up to 780.
 static const int kMaxSignificantDecimalDigits = 780;
 
-static Vector<const char> TrimLeadingZeros(Vector<const char> buffer) {
+static Vector<const char> TrimLeadingZeros(Vector<const char> buffer) 
+{
 	for(int i = 0; i < buffer.length(); i++) {
 		if(buffer[i] != '0') {
 			return buffer.SubVector(i, buffer.length());
@@ -99,10 +100,8 @@ static Vector<const char> TrimLeadingZeros(Vector<const char> buffer) {
 	return Vector<const char>(buffer.start(), 0);
 }
 
-static void CutToMaxSignificantDigits(Vector<const char> buffer,
-    int exponent,
-    char * significant_buffer,
-    int* significant_exponent) {
+static void CutToMaxSignificantDigits(Vector<const char> buffer, int exponent, char * significant_buffer, int* significant_exponent) 
+{
 	for(int i = 0; i < kMaxSignificantDecimalDigits - 1; ++i) {
 		significant_buffer[i] = buffer[i];
 	}
@@ -112,8 +111,7 @@ static void CutToMaxSignificantDigits(Vector<const char> buffer,
 	// Set the last digit to be non-zero. This is sufficient to guarantee
 	// correct rounding.
 	significant_buffer[kMaxSignificantDecimalDigits - 1] = '1';
-	*significant_exponent =
-	    exponent + (buffer.length() - kMaxSignificantDecimalDigits);
+	*significant_exponent = exponent + (buffer.length() - kMaxSignificantDecimalDigits);
 }
 
 // Trims the buffer and cuts it to at most kMaxSignificantDecimalDigits.
@@ -145,8 +143,8 @@ static void TrimAndCut(Vector<const char> buffer, int exponent,
 // When the string starts with "1844674407370955161" no further digit is read.
 // Since 2^64 = 18446744073709551616 it would still be possible read another
 // digit if it was less or equal than 6, but this would complicate the code.
-static uint64_t ReadUint64(Vector<const char> buffer,
-    int* number_of_read_digits) {
+static uint64_t ReadUint64(Vector<const char> buffer, int* number_of_read_digits) 
+{
 	uint64_t result = 0;
 	int i = 0;
 	while(i < buffer.length() && result <= (kMaxUint64 / 10 - 1)) {
@@ -162,9 +160,8 @@ static uint64_t ReadUint64(Vector<const char> buffer,
 // The returned DiyFp is not necessarily normalized.
 // If remaining_decimals is zero then the returned DiyFp is accurate.
 // Otherwise it has been rounded and has error of at most 1/2 ulp.
-static void ReadDiyFp(Vector<const char> buffer,
-    DiyFp* result,
-    int* remaining_decimals) {
+static void ReadDiyFp(Vector<const char> buffer, DiyFp* result, int* remaining_decimals) 
+{
 	int read_digits;
 	uint64_t significand = ReadUint64(buffer, &read_digits);
 	if(buffer.length() == read_digits) {
@@ -183,9 +180,8 @@ static void ReadDiyFp(Vector<const char> buffer,
 	}
 }
 
-static bool DoubleStrtod(Vector<const char> trimmed,
-    int exponent,
-    double* result) {
+static bool DoubleStrtod(Vector<const char> trimmed, int exponent, double* result) 
+{
 #if !defined(DOUBLE_CONVERSION_CORRECT_DOUBLE_OPERATIONS)
 	// Avoid "unused parameter" warnings
 	(void)trimmed;
@@ -239,11 +235,11 @@ static bool DoubleStrtod(Vector<const char> trimmed,
 
 // Returns 10^exponent as an exact DiyFp.
 // The given exponent must be in the range [1; kDecimalExponentDistance[.
-static DiyFp AdjustmentPowerOfTen(int exponent) {
+static DiyFp AdjustmentPowerOfTen(int exponent) 
+{
 	DOUBLE_CONVERSION_ASSERT(0 < exponent);
 	DOUBLE_CONVERSION_ASSERT(exponent < PowersOfTenCache::kDecimalExponentDistance);
-	// Simply hardcode the remaining powers for the given decimal exponent
-	// distance.
+	// Simply hardcode the remaining powers for the given decimal exponent distance.
 	DOUBLE_CONVERSION_ASSERT(PowersOfTenCache::kDecimalExponentDistance == 8);
 	switch(exponent) {
 		case 1: return DiyFp(DOUBLE_CONVERSION_UINT64_2PART_C(0xa0000000, 00000000), -60);
@@ -261,9 +257,8 @@ static DiyFp AdjustmentPowerOfTen(int exponent) {
 // If the function returns true then the result is the correct double.
 // Otherwise it is either the correct double or the double that is just below
 // the correct double.
-static bool DiyFpStrtod(Vector<const char> buffer,
-    int exponent,
-    double* result) {
+static bool DiyFpStrtod(Vector<const char> buffer, int exponent, double* result) 
+{
 	DiyFp input;
 	int remaining_decimals;
 	ReadDiyFp(buffer, &input, &remaining_decimals);
@@ -289,10 +284,7 @@ static bool DiyFpStrtod(Vector<const char> buffer,
 	}
 	DiyFp cached_power;
 	int cached_decimal_exponent;
-	PowersOfTenCache::GetCachedPowerForDecimalExponent(exponent,
-	    &cached_power,
-	    &cached_decimal_exponent);
-
+	PowersOfTenCache::GetCachedPowerForDecimalExponent(exponent, &cached_power, &cached_decimal_exponent);
 	if(cached_decimal_exponent != exponent) {
 		int adjustment_exponent = exponent - cached_decimal_exponent;
 		DiyFp adjustment_power = AdjustmentPowerOfTen(adjustment_exponent);
@@ -380,9 +372,8 @@ static bool DiyFpStrtod(Vector<const char> buffer,
 //   buffer.length() + exponent <= kMaxDecimalPower + 1
 //   buffer.length() + exponent > kMinDecimalPower
 //   buffer.length() <= kMaxDecimalSignificantDigits
-static int CompareBufferWithDiyFp(Vector<const char> buffer,
-    int exponent,
-    DiyFp diy_fp) {
+static int CompareBufferWithDiyFp(Vector<const char> buffer, int exponent, DiyFp diy_fp) 
+{
 	DOUBLE_CONVERSION_ASSERT(buffer.length() + exponent <= kMaxDecimalPower + 1);
 	DOUBLE_CONVERSION_ASSERT(buffer.length() + exponent > kMinDecimalPower);
 	DOUBLE_CONVERSION_ASSERT(buffer.length() <= kMaxSignificantDecimalDigits);
@@ -412,8 +403,8 @@ static int CompareBufferWithDiyFp(Vector<const char> buffer,
 
 // Returns true if the guess is the correct double.
 // Returns false, when guess is either correct or the next-lower double.
-static bool ComputeGuess(Vector<const char> trimmed, int exponent,
-    double* guess) {
+static bool ComputeGuess(Vector<const char> trimmed, int exponent, double* guess) 
+{
 	if(trimmed.length() == 0) {
 		*guess = 0.0;
 		return true;
@@ -426,9 +417,7 @@ static bool ComputeGuess(Vector<const char> trimmed, int exponent,
 		*guess = 0.0;
 		return true;
 	}
-
-	if(DoubleStrtod(trimmed, exponent, guess) ||
-	    DiyFpStrtod(trimmed, exponent, guess)) {
+	if(DoubleStrtod(trimmed, exponent, guess) || DiyFpStrtod(trimmed, exponent, guess)) {
 		return true;
 	}
 	if(*guess == Double::Infinity()) {
@@ -438,20 +427,16 @@ static bool ComputeGuess(Vector<const char> trimmed, int exponent,
 }
 
 #if U_DEBUG // needed for ICU only in debug mode
-static bool IsDigit(const char d) {
-	return ('0' <= d) && (d <= '9');
-}
-
-static bool IsNonZeroDigit(const char d) {
-	return ('1' <= d) && (d <= '9');
-}
+static bool IsDigit(const char d) { return ('0' <= d) && (d <= '9'); }
+static bool IsNonZeroDigit(const char d) { return ('1' <= d) && (d <= '9'); }
 
 #ifdef __has_cpp_attribute
 #if __has_cpp_attribute(maybe_unused)
 [[maybe_unused]]
 #endif
 #endif
-static bool AssertTrimmedDigits(const Vector<const char>& buffer) {
+static bool AssertTrimmedDigits(const Vector<const char>& buffer) 
+{
 	for(int i = 0; i < buffer.length(); ++i) {
 		if(!IsDigit(buffer[i])) {
 			return false;
@@ -462,7 +447,8 @@ static bool AssertTrimmedDigits(const Vector<const char>& buffer) {
 
 #endif // needed for ICU only in debug mode
 
-double StrtodTrimmed(Vector<const char> trimmed, int exponent) {
+double StrtodTrimmed(Vector<const char> trimmed, int exponent) 
+{
 	DOUBLE_CONVERSION_ASSERT(trimmed.length() <= kMaxSignificantDecimalDigits);
 	DOUBLE_CONVERSION_ASSERT(AssertTrimmedDigits(trimmed));
 	double guess;
@@ -487,7 +473,8 @@ double StrtodTrimmed(Vector<const char> trimmed, int exponent) {
 	}
 }
 
-double Strtod(Vector<const char> buffer, int exponent) {
+double Strtod(Vector<const char> buffer, int exponent) 
+{
 	char copy_buffer[kMaxSignificantDecimalDigits];
 	Vector<const char> trimmed;
 	int updated_exponent;
@@ -496,7 +483,8 @@ double Strtod(Vector<const char> buffer, int exponent) {
 	return StrtodTrimmed(trimmed, updated_exponent);
 }
 
-static float SanitizedDoubletof(double d) {
+static float SanitizedDoubletof(double d) 
+{
 	DOUBLE_CONVERSION_ASSERT(d >= 0.0);
 	// ASAN has a sanitize check that disallows casting doubles to floats if
 	// they are too big.
@@ -522,7 +510,8 @@ static float SanitizedDoubletof(double d) {
 	}
 }
 
-float Strtof(Vector<const char> buffer, int exponent) {
+float Strtof(Vector<const char> buffer, int exponent) 
+{
 	char copy_buffer[kMaxSignificantDecimalDigits];
 	Vector<const char> trimmed;
 	int updated_exponent;
@@ -532,13 +521,12 @@ float Strtof(Vector<const char> buffer, int exponent) {
 	return StrtofTrimmed(trimmed, exponent);
 }
 
-float StrtofTrimmed(Vector<const char> trimmed, int exponent) {
+float StrtofTrimmed(Vector<const char> trimmed, int exponent) 
+{
 	DOUBLE_CONVERSION_ASSERT(trimmed.length() <= kMaxSignificantDecimalDigits);
 	DOUBLE_CONVERSION_ASSERT(AssertTrimmedDigits(trimmed));
-
 	double double_guess;
 	bool is_correct = ComputeGuess(trimmed, exponent, &double_guess);
-
 	float float_guess = SanitizedDoubletof(double_guess);
 	if(float_guess == double_guess) {
 		// This shortcut triggers for integer values.

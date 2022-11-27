@@ -20,8 +20,7 @@
 /* ------------------------------------------------------------------ */
 
 /* Modified version, for use from within ICU.
- *    Renamed public functions, to avoid an unwanted export of the
- *    standard names from the ICU library.
+ *    Renamed public functions, to avoid an unwanted export of the standard names from the ICU library.
  *
  *    Use ICU's uprv_malloc() and uprv_free()
  *
@@ -182,8 +181,7 @@
 #include "decNumberLocal.h"        /* decNumber local types, etc.  */
 
 /* Constants */
-/* Public lookup table used by the D2U macro  */
-static const uByte d2utable[DECMAXD2U+1] = D2UTABLE;
+static const uByte d2utable[DECMAXD2U+1] = D2UTABLE; // Public lookup table used by the D2U macro
 
 #define DECVERB     1              /* set to 1 for verbose DECCHECK  */
 #define powers      DECPOWERS      /* old internal name  */
@@ -209,19 +207,16 @@ static const uByte d2utable[DECMAXD2U+1] = D2UTABLE;
 #define BIGODD  (Int)0x80000003
 
 static const Unit uarrone[1] = {1}; /* Unit array of 1, used for incrementing  */
-
-/* ------------------------------------------------------------------ */
-/* round-for-reround digits       */
-/* ------------------------------------------------------------------ */
+// 
+// round-for-reround digits
+// 
 #if 0
-static const uByte DECSTICKYTAB[10] = {1, 1, 2, 3, 4, 6, 6, 7, 8, 9}; /* used if sticky */
+	static const uByte DECSTICKYTAB[10] = {1, 1, 2, 3, 4, 6, 6, 7, 8, 9}; /* used if sticky */
 #endif
-
-/* ------------------------------------------------------------------ */
-/* Powers of ten (powers[n]==10**n, 0<=n<=9)        */
-/* ------------------------------------------------------------------ */
-static const uInt DECPOWERS[10] = {1, 10, 100, 1000, 10000, 100000, 1000000,
-				   10000000, 100000000, 1000000000};
+// 
+// Powers of ten (powers[n]==10**n, 0<=n<=9)
+// 
+static const uInt DECPOWERS[10] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
 
 /* Granularity-dependent code */
 #if DECDPUN<=4
@@ -331,11 +326,9 @@ static void decCheckInexact(const decNumber *, decContext *);
 void decNumberShow(const decNumber *); /* displays the components of a number  */
 static void decDumpAr(char, const Unit *, Int);
 #endif
-
-/* ================================================================== */
-/* Conversions  */
-/* ================================================================== */
-
+// 
+// Conversions
+// 
 /* ------------------------------------------------------------------ */
 /* from-int32 -- conversion from Int or uInt        */
 /* */
@@ -348,16 +341,20 @@ static void decDumpAr(char, const Unit *, Int);
 U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromInt32(decNumber * dn, Int in) 
 {
 	uInt unsig;
-	if(in>=0) unsig = in;
-	else {                          /* negative (possibly BADINT)  */
-		if(in==BADINT) unsig = (uInt)1073741824*2; /* special case  */
-		else unsig = -in; /* invert  */
+	if(in>=0) 
+		unsig = in;
+	else { // negative (possibly BADINT)
+		if(in==BADINT) 
+			unsig = (uInt)1073741824*2; /* special case  */
+		else 
+			unsig = -in; /* invert  */
 	}
 	/* in is now positive  */
 	uprv_decNumberFromUInt32(dn, unsig);
-	if(in<0) dn->bits = DECNEG; /* sign needed  */
+	if(in<0) 
+		dn->bits = DECNEG; /* sign needed  */
 	return dn;
-}   /* decNumberFromInt32  */
+}
 
 U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromUInt32(decNumber * dn, uInt uin) 
 {
@@ -370,25 +367,26 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromUInt32(decNumber * dn, uInt uin)
 	}
 	dn->digits = decGetDigits(dn->lsu, static_cast<int32_t>(up - dn->lsu));
 	return dn;
-}   /* decNumberFromUInt32  */
-
-/* ------------------------------------------------------------------ */
-/* to-int32 -- conversion to Int or uInt   */
-/* */
-/* dn is the decNumber to convert         */
-/* set is the context for reporting errors         */
-/* returns the converted decNumber, or 0 if Invalid is set  */
-/* */
-/* Invalid is set if the decNumber does not have exponent==0 or if    */
-/* it is a NaN, Infinite, or out-of-range. */
-/* ------------------------------------------------------------------ */
-U_CAPI Int U_EXPORT2 uprv_decNumberToInt32(const decNumber * dn, decContext * set) {
+}
+// 
+// to-int32 -- conversion to Int or uInt
+// 
+// dn is the decNumber to convert
+// set is the context for reporting errors
+// returns the converted decNumber, or 0 if Invalid is set
+// 
+// Invalid is set if the decNumber does not have exponent==0 or if
+// it is a NaN, Infinite, or out-of-range.
+// 
+U_CAPI Int U_EXPORT2 uprv_decNumberToInt32(const decNumber * dn, decContext * set) 
+{
   #if DECCHECK
-	if(decCheckOperands(DECUNRESU, DECUNUSED, dn, set)) return 0;
+	if(decCheckOperands(DECUNRESU, DECUNUSED, dn, set)) 
+		return 0;
   #endif
-
 	/* special or too many digits, or bad exponent  */
-	if(dn->bits&DECSPECIAL || dn->digits>10 || dn->exponent!=0); /* bad  */
+	if(dn->bits&DECSPECIAL || dn->digits>10 || dn->exponent!=0)
+		; /* bad  */
 	else { /* is a finite integer with 10 or fewer digits  */
 		Int d; /* work  */
 		const Unit * up; /* ..  */
@@ -401,30 +399,34 @@ U_CAPI Int U_EXPORT2 uprv_decNumberToInt32(const decNumber * dn, decContext * se
     #endif
 		up++;
 		/* collect remaining Units, if any, into hi  */
-		for(d = DECDPUN; d<dn->digits; up++, d += DECDPUN) hi += *up*powers[d-1];
+		for(d = DECDPUN; d<dn->digits; up++, d += DECDPUN) 
+			hi += *up*powers[d-1];
 		/* now low has the lsd, hi the remainder  */
 		if(hi>214748364 || (hi==214748364 && lo>7)) { /* out of range?  */
 			/* most-negative is a reprieve  */
-			if(dn->bits&DECNEG && hi==214748364 && lo==8) return 0x80000000;
+			if(dn->bits&DECNEG && hi==214748364 && lo==8) 
+				return 0x80000000;
 			/* bad -- drop through  */
 		}
 		else { /* in-range always  */
 			Int i = X10(hi)+lo;
-			if(dn->bits&DECNEG) return -i;
+			if(dn->bits&DECNEG) 
+				return -i;
 			return i;
 		}
 	} /* integer  */
 	uprv_decContextSetStatus(set, DEC_Invalid_operation); /* [may not return]  */
 	return 0;
-}   /* decNumberToInt32  */
+}
 
-U_CAPI uInt U_EXPORT2 uprv_decNumberToUInt32(const decNumber * dn, decContext * set) {
+U_CAPI uInt U_EXPORT2 uprv_decNumberToUInt32(const decNumber * dn, decContext * set) 
+{
   #if DECCHECK
 	if(decCheckOperands(DECUNRESU, DECUNUSED, dn, set)) return 0;
   #endif
 	/* special or too many digits, or bad exponent, or negative (<0)  */
-	if(dn->bits&DECSPECIAL || dn->digits>10 || dn->exponent!=0
-	 || (dn->bits&DECNEG && !ISZERO(dn))); /* bad  */
+	if(dn->bits&DECSPECIAL || dn->digits>10 || dn->exponent!=0 || (dn->bits&DECNEG && !ISZERO(dn)))
+		; /* bad  */
 	else { /* is a finite integer with 10 or fewer digits  */
 		Int d; /* work  */
 		const Unit * up; /* ..  */
@@ -461,15 +463,17 @@ U_CAPI uInt U_EXPORT2 uprv_decNumberToUInt32(const decNumber * dn, decContext * 
 /* */
 /* No error is possible, and no status can be set. */
 /* ------------------------------------------------------------------ */
-U_CAPI char * U_EXPORT2 uprv_decNumberToString(const decNumber * dn, char * string) {
+U_CAPI char * U_EXPORT2 uprv_decNumberToString(const decNumber * dn, char * string) 
+{
 	decToString(dn, string, 0);
 	return string;
-}   /* DecNumberToString  */
+}
 
-U_CAPI char * U_EXPORT2 uprv_decNumberToEngString(const decNumber * dn, char * string) {
+U_CAPI char * U_EXPORT2 uprv_decNumberToEngString(const decNumber * dn, char * string) 
+{
 	decToString(dn, string, 1);
 	return string;
-}   /* DecNumberToEngString  */
+}
 
 /* ------------------------------------------------------------------ */
 /* to-number -- conversion from numeric string      */
@@ -491,13 +495,12 @@ U_CAPI char * U_EXPORT2 uprv_decNumberToEngString(const decNumber * dn, char * s
 /* */
 /* If bad syntax is detected, the result will be a quiet NaN.         */
 /* ------------------------------------------------------------------ */
-U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromString(decNumber * dn, const char chars[],
-    decContext * set) {
+U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromString(decNumber * dn, const char chars[], decContext * set) 
+{
 	Int exponent = 0; /* working exponent [assume 0]  */
 	uByte bits = 0; /* working flags [assume +ve]  */
 	Unit  * res; /* where result will be built  */
-	Unit resbuff[SD2U(DECBUFFER+9)]; /* local buffer in case need temporary  */
-	                                /* [+9 allows for ln() constants]  */
+	Unit resbuff[SD2U(DECBUFFER+9)]; /* local buffer in case need temporary [+9 allows for ln() constants]  */
 	Unit  * allocres = NULL; /* -> allocated result, iff allocated  */
 	Int d = 0; /* count of digits found in decimal part  */
 	const char * dotchar = NULL; /* where dot was found  */
@@ -515,8 +518,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromString(decNumber * dn, const char
 	if(decCheckOperands(DECUNRESU, DECUNUSED, DECUNUSED, set))
 		return uprv_decNumberZero(dn);
   #endif
-
-	do {                       /* status & malloc protection  */
+	do { // status & malloc protection
 		for(c = chars;; c++) { /* -> input character  */
 			if(*c>='0' && *c<='9') { /* test for Arabic digit  */
 				last = c;
@@ -2062,28 +2064,27 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberPower(decNumber * res, const decNumbe
 			if(n!=BIGEVEN && n!=BIGODD) /* can use integer path?  */
 				useint = 1; /* looks good  */
 		}
-
-		if(decNumberIsNegative(lhs) /* -x ..  */
-		 && isoddint) bits = DECNEG; /* .. to an odd power  */
-
+		if(decNumberIsNegative(lhs) /* -x ..  */ && isoddint) 
+			bits = DECNEG; /* .. to an odd power  */
 		/* handle LHS infinity  */
 		if(decNumberIsInfinite(lhs)) { /* [NaNs already handled]  */
 			uByte rbits = rhs->bits; /* save  */
 			uprv_decNumberZero(res); /* prepare  */
-			if(n==0) *res->lsu = 1; /* [-]Inf**0 => 1  */
+			if(n==0) 
+				*res->lsu = 1; /* [-]Inf**0 => 1  */
 			else {
 				/* -Inf**nonint -> error  */
 				if(!rhsint && decNumberIsNegative(lhs)) {
 					status |= DEC_Invalid_operation; /* -Inf**nonint is error  */
 					break;
 				}
-				if(!(rbits & DECNEG)) bits |= DECINF; /* was not a **-n  */
+				if(!(rbits & DECNEG)) 
+					bits |= DECINF; /* was not a **-n  */
 				/* [otherwise will be 0 or -0]  */
 				res->bits = bits;
 			}
 			break;
 		}
-
 		/* similarly handle LHS zero  */
 		if(decNumberIsZero(lhs)) {
 			if(n==0) {           /* 0**0 => Error  */

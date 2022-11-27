@@ -525,7 +525,7 @@ int PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg)
 				mac.SetExtField(MAEXSTR_RCVSERVER,   old_cfg.MailServer);
 				mac.SetExtField(MAEXSTR_RCVNAME,     old_cfg.Login);
 				IdeaDecrypt(0, old_cfg.Password, sizeof(old_cfg.Password));
-				mac.SetPassword(old_cfg.Password);
+				mac.SetPassword_(old_cfg.Password, MAEXSTR_RCVPASSWORD);
 				mac.SetExtField(MAEXSTR_FROMADDRESS, old_cfg.MailAddr);
 
 				THROW(mac_obj.Put(&mac_id, &mac, 0));
@@ -591,7 +591,7 @@ int PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg)
 				mac.SetExtField(MAEXSTR_RCVSERVER,   old_cfg.MailServer);
 				mac.SetExtField(MAEXSTR_RCVNAME,     old_cfg.Login);
 				IdeaDecrypt(0, old_cfg.Password, sizeof(old_cfg.Password));
-				mac.SetPassword(old_cfg.Password);
+				mac.SetPassword_(old_cfg.Password, MAEXSTR_RCVPASSWORD);
 				mac.SetExtField(MAEXSTR_FROMADDRESS, old_cfg.MailAddr);
 
 				THROW(mac_obj.Put(&mac_id, &mac, 0));

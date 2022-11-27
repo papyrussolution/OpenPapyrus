@@ -7546,6 +7546,9 @@
 	#define CTL_GDSFVOPT_AR        (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSFVOPT_AR     (5 + WINDOWS_ID_BIAS)
 	#define CTL_GDSFVOPT_OWNCODES  (6 + WINDOWS_ID_BIAS)
+	#define CTL_GDSFVOPT_FASSOC    (7 + WINDOWS_ID_BIAS) // Флаг предписывающий показывать ассоциации товар-склад
+	#define CTL_GDSFVOPT_ASSOC     (8 + WINDOWS_ID_BIAS)
+	#define CTLSEL_GDSFVOPT_ASSOC  (9 + WINDOWS_ID_BIAS)
 #define DLG_WARRANT               815 // Доверенность
 	// CTL_BILL_XXX
 #define DLG_WARRITEM              816

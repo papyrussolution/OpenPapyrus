@@ -766,7 +766,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 			full_sync = 1;
 		}
 		else if(pPack->OpTypeID == PPOPT_CORRECTION) {
-			const int is_corr_exp = BIN(ilti->Flags & PPTFR_CORRECTION && !(ilti->Flags & PPTFR_REVAL));
+			// @v11.5.9 const bool is_corr_exp = LOGIC(ilti->Flags & PPTFR_CORRECTION && !(ilti->Flags & PPTFR_REVAL));
 			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name);
 			THROW(trfr->Rcpt.Search(sync_lot_id, &lot_rec) > 0);
 			THROW(ti.Init(&pPack->Rec, 1, -1));

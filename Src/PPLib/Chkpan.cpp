@@ -7253,7 +7253,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			PPIDArray act_list, obj_list;
 			act_list.addzlist(PPACN_OBJADD, PPACN_OBJUPD, PPACN_OBJRMV, PPACN_OBJUNIFY, 0);
-			if(!LastGrpListUpdTime || p_sj->GetObjListByEventSince(PPOBJ_GOODSGROUP, &act_list, LastGrpListUpdTime, obj_list) > 0) // @v11.4.5 (!LastGrpListUpdTime ||)
+			if(!LastGrpListUpdTime || p_sj->GetObjListByEventSince(PPOBJ_GOODSGROUP, &act_list, LastGrpListUpdTime, obj_list, 0) > 0) // @v11.4.5 (!LastGrpListUpdTime ||)
 				if(TouchScreenID) {
 					PPTouchScreenPacket ts_pack;
 					PPObjTouchScreen    ts_obj;

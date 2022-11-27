@@ -305,10 +305,9 @@ private:
 		}
 	}
 
-	// Divide this in place by a constant divisor.  Returns the remainder of the
-	// division.
-	template <uint32_t divisor>
-	uint32_t DivMod() {
+	// Divide this in place by a constant divisor.  Returns the remainder of the division.
+	template <uint32_t divisor> uint32_t DivMod() 
+	{
 		uint64_t accumulator = 0;
 		for(int i = size_ - 1; i >= 0; --i) {
 			accumulator <<= 32;
@@ -364,36 +363,13 @@ template <int N, int M> bool operator == (const BigUnsigned<N>& lhs, const BigUn
 	return true;
 }
 
-template <int N, int M> bool operator != (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
-{
-	return !(lhs == rhs);
-}
-
-template <int N, int M> bool operator < (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
-{
-	return Compare(lhs, rhs) == -1;
-}
-
-template <int N, int M> bool operator > (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
-{
-	return rhs < lhs;
-}
-
-template <int N, int M> bool operator <= (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
-{
-	return !(rhs < lhs);
-}
-
-template <int N, int M> bool operator >= (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
-{
-	return !(lhs < rhs);
-}
-
+template <int N, int M> bool operator != (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) { return !(lhs == rhs); }
+template <int N, int M> bool operator < (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) { return Compare(lhs, rhs) == -1; }
+template <int N, int M> bool operator > (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) { return rhs < lhs; }
+template <int N, int M> bool operator <= (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) { return !(rhs < lhs); }
+template <int N, int M> bool operator >= (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) { return !(lhs < rhs); }
 // Output operator for BigUnsigned, for testing purposes only.
-template <int N> std::ostream & operator<<(std::ostream & os, const BigUnsigned<N>& num) 
-{
-	return os << num.ToString();
-}
+template <int N> std::ostream & operator<<(std::ostream & os, const BigUnsigned<N>& num) { return os << num.ToString(); }
 
 // Explicit instantiation declarations for the sizes of BigUnsigned that we
 // are using.

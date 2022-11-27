@@ -1,5 +1,5 @@
 // OBJCACHE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -31,7 +31,7 @@ int FASTCALL ObjCache::MultTextBlock::Add(const char * pStr)
 	return RdMode ? 0 : R_Ss.add(pStr);
 }
 
-int FASTCALL ObjCache::MultTextBlock::Get(char * pBuf, size_t bufLen)
+int STDCALL ObjCache::MultTextBlock::Get(char * pBuf, size_t bufLen)
 {
 	assert(RdMode);
 	return RdMode ? R_Ss.get(&CurPos, pBuf, bufLen) : 0;
@@ -43,7 +43,7 @@ int FASTCALL ObjCache::MultTextBlock::Get(SString & rBuf)
 	return RdMode ? R_Ss.get(&CurPos, rBuf) : 0;
 }
 
-int FASTCALL ObjCache::PutTextBlock(const MultTextBlock & rBlk, ObjCacheEntry * pEntry)
+int STDCALL ObjCache::PutTextBlock(const MultTextBlock & rBlk, ObjCacheEntry * pEntry)
 {
 	assert(rBlk.RdMode == 0);
 	return rBlk.RdMode ? 0 : PutName(rBlk.R_Ss.getBuf(), pEntry);
@@ -120,13 +120,13 @@ int ObjCache::LogStat() const
 }
 */
 
-int FASTCALL ObjCache::PutName(const char * pName, ObjCacheEntry * pEntry)
+int STDCALL ObjCache::PutName(const char * pName, ObjCacheEntry * pEntry)
 {
 	int ok = Ss.add(pName, &pEntry->NameIdx) ? 1 : PPSetErrorSLib();
 	return ok;
 }
 
-void FASTCALL ObjCache::GetName(const ObjCacheEntry * pEntry, char * pBuf, size_t bufLen) const
+void STDCALL ObjCache::GetName(const ObjCacheEntry * pEntry, char * pBuf, size_t bufLen) const
 {
 	if(pBuf && pEntry) { // @v10.4.3
 		uint   sp = pEntry->NameIdx;

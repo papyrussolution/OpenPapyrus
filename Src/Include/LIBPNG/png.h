@@ -2366,8 +2366,7 @@ PNG_EXPORT(216, uint32, png_get_io_chunk_type,
 
 #define png_composite(composite, fg, alpha, bg)         \
 	{ png_uint_16 temp = \
-	      (png_uint_16)((png_uint_16)(fg) * (png_uint_16)(alpha) + (png_uint_16)(bg)*(png_uint_16)(255 - (png_uint_16)(alpha)) + \
-	      128); \
+	      (png_uint_16)((png_uint_16)(fg) * (png_uint_16)(alpha) + (png_uint_16)(bg)*(png_uint_16)(255 - (png_uint_16)(alpha)) + 128); \
 	  (composite) = (uint8)(((temp + (temp >> 8)) >> 8) & 0xff); }
 
 #define png_composite_16(composite, fg, alpha, bg)       \

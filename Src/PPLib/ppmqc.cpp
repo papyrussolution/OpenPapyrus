@@ -313,7 +313,7 @@ int FASTCALL PPMqbClient::InitParam::IsEqualConnection(const InitParam & rS) con
 	return eq;
 }
 
-int FASTCALL PPMqbClient::InitParam::SearchRoutingEntry(const RoutingParamEntry & rPattern, uint * pPos) const
+int STDCALL PPMqbClient::InitParam::SearchRoutingEntry(const RoutingParamEntry & rPattern, uint * pPos) const
 {
 	for(uint i = 0; i < ConsumeParamList.getCount(); i++) {
 		const RoutingParamEntry * p_item = ConsumeParamList.at(i);

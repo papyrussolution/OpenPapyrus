@@ -37,14 +37,10 @@ U_NAMESPACE_BEGIN
 
 namespace double_conversion {
 #if 0  // not needed for ICU
-const DoubleToStringConverter& DoubleToStringConverter::EcmaScriptConverter() {
+const DoubleToStringConverter& DoubleToStringConverter::EcmaScriptConverter() 
+{
 	int flags = UNIQUE_ZERO | EMIT_POSITIVE_EXPONENT_SIGN;
-	static DoubleToStringConverter converter(flags,
-	    "Infinity",
-	    "NaN",
-	    'e',
-	    -6, 21,
-	    6, 0);
+	static DoubleToStringConverter converter(flags, "Infinity", "NaN", 'e', -6, 21, 6, 0);
 	return converter;
 }
 

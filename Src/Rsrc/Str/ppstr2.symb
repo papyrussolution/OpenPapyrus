@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494630
+LastSignatureCode=2147494636
 LastAutoCodeList=1,12174;102,10177;103,10072;110,10000;111,12068;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10313;124,10241
 
 [SignatureList]
@@ -230,6 +230,8 @@ association=2147483850
 association_pl=2147483851
 goodsassociation_pl=2147483852
 goodsaggregation_pl=2147483853
+rsrv_assoc_goodstoloc=2147494631
+rsrv_assoc_goodstowareplace=2147494632
 desktop=2147483854
 desktopnew=2147483855
 menu=2147483856
@@ -1902,6 +1904,7 @@ doprintlabel=2147494574
 doexecjobimm=2147494524
 doeditbillinfo=2147494451
 doeditackbill=2147494452
+doeditwhplaceassoc=2147494636
 dodeleteackbill=2147494453
 doconvertgenaturntoextaturn=2147494454
 doremoverow=2147485217
@@ -6607,6 +6610,9 @@ scale_sysparams_put_delay=2147489578
 scale_extsspaths=2147489579
 scale_fontsize=2147493892
 scaledatapreparation=2147489580
+scalereadinesschecking=2147494633
+scaleisready=2147494634
+scaleisnotready=2147494635
 scaleloading=2147489581
 scaleloading_onlychanges=2147493897
 phnsvc=2147489582

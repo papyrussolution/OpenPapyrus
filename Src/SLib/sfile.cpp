@@ -1671,6 +1671,64 @@ int FASTCALL SFile::WriteLine(const char * pBuf)
 	return ok;
 }
 
+SFile::ReadLineCsvContext::ReadLineCsvContext(char fieldDivider) : FieldDivider(fieldDivider)
+{
+}
+
+int SFile::ReadLineCsv(ReadLineCsvContext & rCtx, StringSet & rSs)
+{
+	assert(InvariantC(0));
+	rSs.Z();
+	int    ok = 0;
+	if(rCtx.FieldDivider) {
+		rCtx.LineBuf.Z();
+		SString fld_buf;
+		if(ReadLine(rCtx.LineBuf, rlfChomp|rlfStrip)) {
+			rCtx.Scan.Set(rCtx.LineBuf, 0);
+			bool   last_divider = false;
+			while(!rCtx.Scan.IsEnd()) {
+				fld_buf.Z();
+				if(rCtx.Scan[0] == rCtx.FieldDivider) {
+					rCtx.Scan.Incr();
+					last_divider = true;
+				}
+				else {
+					last_divider = false;
+					if(rCtx.Scan[0] == '\"') {
+						THROW(rCtx.Scan.GetQuotedString(SFileFormat::Csv, fld_buf));
+						if(rCtx.Scan.Skip(1)[0] == rCtx.FieldDivider) {
+							rCtx.Scan.Incr();
+							last_divider = true;
+						}
+					}
+					else {
+						rCtx.Scan.GetUntil(rCtx.FieldDivider, fld_buf);
+						if(rCtx.Scan[0] == rCtx.FieldDivider) {
+							rCtx.Scan.Incr();
+							last_divider = true;
+						}
+					}
+				}
+				// Если StringSet не имеет явного разделителя, то придется вместо пустых полей вставлять пробелы, иначе вызывающая сторона не
+				// сможет правильно обработать результат.
+				if(rSs.isZeroDelim() && fld_buf.IsEmpty()) 
+					fld_buf.Space();
+				rSs.add(fld_buf);
+			}
+			// Если в конце строки стоял разделитель, то мы имеем пустое поле в конце записи. Учтем это.
+			if(last_divider) {
+				fld_buf.Z();
+				if(rSs.isZeroDelim()) 
+					fld_buf.Space();
+				rSs.add(fld_buf);
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SFile::ReadLine(SString & rBuf) { return ReadLine(rBuf, 0); }
 
 int SFile::ReadLine(SString & rBuf, uint flags)
@@ -3427,6 +3485,47 @@ SLTEST_R(SFile)
 	int    ok = 1;
 	SFile file;
 	SString file_name(MakeOutputFilePath("open_for_write_test.txt"));
+	{ // @v11.5.9
+		// Тестирование функции ReadLineCsv()
+		/*
+			field01;поле02;field03;поле 04
+			;текст;3.1415926;
+			"строка с кавычками"" еще что-то";;7000;false
+			1;female;"string with ;";true
+			some text ;male;"string with ""quotes"" and semicolon;";last field
+		*/
+		SString temp_buf;
+		SString file_path;
+		(file_path = GetSuiteEntry()->OutPath).SetLastSlash().Cat("test-input-csv-semicol-utf8.csv");
+		StringSet original_line_collection;
+		original_line_collection.add("field01;поле02;field03;поле 04");
+		original_line_collection.add(";текст;3.1415926;");
+		original_line_collection.add("\"строка с кавычками\"\" еще что-то\";;7000;false");
+		original_line_collection.add("1;female;\"string with ;\";true");
+		original_line_collection.add("some text ;male;\"string with \"\"quotes\"\" and semicolon;\";last field");
+		{
+			// Сначала создадим файл
+			SFile f_out(file_path, SFile::mWrite);
+			THROW(SLTEST_CHECK_NZ(f_out.IsValid()));
+			for(uint ssp = 0; original_line_collection.get(&ssp, temp_buf);) {
+				f_out.WriteLine(temp_buf.CR());
+			}
+		}
+		{
+			uint    line_count = 0;
+			uint    field_count = 0;
+			StringSet ss;
+			SFile::ReadLineCsvContext ctx(';');
+			SFile f_in(file_path, SFile::mRead);
+			THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
+			while(f_in.ReadLineCsv(ctx, ss)) {
+				line_count++;
+				field_count = ss.getCount();
+				SLTEST_CHECK_EQ(field_count, 4);
+			}
+			SLTEST_CHECK_EQ(line_count, original_line_collection.getCount());
+		}
+	}
 	//
 	// Тестирование функции IsOpenedForWriting()
 	//

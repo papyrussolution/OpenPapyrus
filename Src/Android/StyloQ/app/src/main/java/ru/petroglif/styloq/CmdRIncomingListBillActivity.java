@@ -1465,29 +1465,28 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
 					StyloQApp app_ctx = GetAppCtx();
-					if(ir.OriginalCmdItem != null) {
-						if(ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
-							CPM.CurrentDocument_RemoteOp_Finish();
-							ScheduleRTmr(null, 0, 0);
-							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-								CPM.ResetCurrentDocument();
-								// @v11.5.1 {
-								int     new_doclist_view_idx = -1;
-								{
-									if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
-										JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
-										if(js_reply != null) {
-											JSONObject js_new_doc = js_reply.optJSONObject("doc");
-											if(js_new_doc != null) {
-												Document new_doc = new Document();
-												if(new_doc.FromJsonObj(js_new_doc) && new_doc.H != null && new_doc.H.Uuid != null) {
-													if(CPM.IncomingDocListData != null) {
-														for(int i = 0; i < CPM.IncomingDocListData.size(); i++) {
-															Document iter = CPM.IncomingDocListData.get(i);
-															if(iter != null && iter.H != null && SLib.AreUUIDsEqual(iter.H.Uuid, new_doc.H.Uuid)) {
-																CPM.IncomingDocListData.set(i, new_doc);
-																new_doclist_view_idx = i;
-															}
+					final String org_cmd_name = (ir.OriginalCmdItem != null) ? ir.OriginalCmdItem.Name : null;
+					if(SLib.AreStringsEqualNoCase(org_cmd_name, "PostDocument")) {
+						CPM.CurrentDocument_RemoteOp_Finish();
+						ScheduleRTmr(null, 0, 0);
+						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+							CPM.ResetCurrentDocument();
+							// @v11.5.1 {
+							int     new_doclist_view_idx = -1;
+							{
+								if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+									JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+									if(js_reply != null) {
+										JSONObject js_new_doc = js_reply.optJSONObject("doc");
+										if(js_new_doc != null) {
+											Document new_doc = new Document();
+											if(new_doc.FromJsonObj(js_new_doc) && new_doc.H != null && new_doc.H.Uuid != null) {
+												if(CPM.IncomingDocListData != null) {
+													for(int i = 0; i < CPM.IncomingDocListData.size(); i++) {
+														Document iter = CPM.IncomingDocListData.get(i);
+														if(iter != null && iter.H != null && SLib.AreUUIDsEqual(iter.H.Uuid, new_doc.H.Uuid)) {
+															CPM.IncomingDocListData.set(i, new_doc);
+															new_doclist_view_idx = i;
 														}
 													}
 												}
@@ -1495,47 +1494,47 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 										}
 									}
 								}
-								// } @v11.5.1
-								NotifyCurrentDocumentChanged();
-								// @v11.5.1 {
-								if(new_doclist_view_idx >= 0) {
-									NotifyTabContentChanged(CommonPrereqModule.Tab.tabIncomingList, R.id.CTL_INCOMINGLIST_BILL_LIST);
-								}
-								// } @v11.5.1
-								GotoTab(CommonPrereqModule.Tab.tabIncomingList, R.id.CTL_INCOMINGLIST_BILL_LIST, -1, -1);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclSetting, View.GONE);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclVerify, View.GONE);
 							}
-							else {
-								String err_msg = app_ctx.GetString(ppstr2.PPSTR_ERROR, ppstr2.PPERR_STQ_POSTDOCUMENTFAULT);
-								String reply_err_msg = null;
-								if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
-									JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
-									if(js_reply != null) {
-										StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(js_reply);
-										reply_err_msg = crr.ErrMsg;
-									}
-								}
-								if(SLib.GetLen(reply_err_msg) > 0)
-									err_msg += ": " + reply_err_msg;
-								app_ctx.DisplayError(this, err_msg, 0);
+							// } @v11.5.1
+							NotifyCurrentDocumentChanged();
+							// @v11.5.1 {
+							if(new_doclist_view_idx >= 0) {
+								NotifyTabContentChanged(CommonPrereqModule.Tab.tabIncomingList, R.id.CTL_INCOMINGLIST_BILL_LIST);
 							}
+							// } @v11.5.1
+							GotoTab(CommonPrereqModule.Tab.tabIncomingList, R.id.CTL_INCOMINGLIST_BILL_LIST, -1, -1);
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclSetting, View.GONE);
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclVerify, View.GONE);
 						}
-						else if(ir.OriginalCmdItem.Name.equalsIgnoreCase("CancelDocument")) {
-							CPM.CurrentDocument_RemoteOp_Finish();
-							ScheduleRTmr(null, 0, 0);
-							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-								CPM.ResetCurrentDocument();
-								NotifyCurrentDocumentChanged();
-								GotoTab(CommonPrereqModule.Tab.tabIncomingList, R.id.CTL_INCOMINGLIST_BILL_LIST, -1, -1);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclSetting, View.GONE);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclVerify, View.GONE);
+						else {
+							String err_msg = app_ctx.GetString(ppstr2.PPSTR_ERROR, ppstr2.PPERR_STQ_POSTDOCUMENTFAULT);
+							String reply_err_msg = null;
+							if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+								JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+								if(js_reply != null) {
+									StyloQInterchange.CommonReplyResult crr = StyloQInterchange.GetReplyResult(js_reply);
+									reply_err_msg = crr.ErrMsg;
+								}
 							}
-							else {
-								; // @todo
-							}
+							if(SLib.GetLen(reply_err_msg) > 0)
+								err_msg += ": " + reply_err_msg;
+							app_ctx.DisplayError(this, err_msg, 0);
+						}
+					}
+					else if(SLib.AreStringsEqualNoCase(org_cmd_name, "CancelDocument")) {
+						CPM.CurrentDocument_RemoteOp_Finish();
+						ScheduleRTmr(null, 0, 0);
+						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+							CPM.ResetCurrentDocument();
+							NotifyCurrentDocumentChanged();
+							GotoTab(CommonPrereqModule.Tab.tabIncomingList, R.id.CTL_INCOMINGLIST_BILL_LIST, -1, -1);
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclSetting, View.GONE);
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclVerify, View.GONE);
+						}
+						else {
+							; // @todo
 						}
 					}
 				}

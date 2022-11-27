@@ -232,7 +232,7 @@ int GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFla
 			url.SetComponent(url.cUserName, enc_buf);
 			{
 				char pw[128];
-				mac_rec.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
+				mac_rec.GetPassword_(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
 				enc_buf.EncodeUrl(temp_buf = pw, 0);
 				url.SetComponent(url.cPassword, enc_buf);
 				memzero(pw, sizeof(pw));
@@ -381,7 +381,7 @@ int PPSendEmail(const PPInternetAccount & rAcc, const SMailMessage & rMsg, MailC
 		url.SetComponent(url.cUserName, enc_buf);
 		{
 			char pw[128];
-			rAcc.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
+			rAcc.GetPassword_(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
 			enc_buf.EncodeUrl(temp_buf = pw, 0);
 			url.SetComponent(url.cPassword, enc_buf);
 			memzero(pw, sizeof(pw));
@@ -438,7 +438,7 @@ int PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const char * p
 					url.SetComponent(url.cUserName, enc_buf);
 					{
 						char pw[128];
-						mac_rec.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
+						mac_rec.GetPassword_(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
 						enc_buf.EncodeUrl(temp_buf = pw, 0);
 						url.SetComponent(url.cPassword, enc_buf);
 						memzero(pw, sizeof(pw));

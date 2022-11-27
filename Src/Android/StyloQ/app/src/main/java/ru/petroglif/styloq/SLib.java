@@ -1512,12 +1512,11 @@ public class SLib {
 		// Note: Сейчас функция может идентифицировать не все типы объектов Papyrus,
 		//   но лишь те, которые важны в рамках проекта Stylo-Q.
 		//
-		public static PPObjID Identify(String objtype, String objid)
+		public static PPObjID Identify(String objtype, int objid)
 		{
 			PPObjID result = null;
 			if(GetLen(objtype) > 0) {
 				int type = satoi(objtype);
-				int id = satoi(objid);
 				if(type <= 0) {
 					if(objtype.equalsIgnoreCase("unit"))
 						type = PPOBJ_UNIT;
@@ -1541,12 +1540,16 @@ public class SLib {
 						type = PPOBJ_BRAND;
 					else if(objtype.equalsIgnoreCase("currency"))
 						type = PPOBJ_CURRENCY;
+					else if(objtype.equalsIgnoreCase("ccheck"))
+						type = PPOBJ_CCHECK;
 				}
 				if(type > 0)
-					result = new PPObjID(type, id);
+					result = new PPObjID(type, objid);
 			}
 			return result;
 		}
+		//
+		public static PPObjID Identify(String objtype, String objid) { return Identify(objtype, satoi(objid)); }
 		int    Type;
 		int    Id;
 	}

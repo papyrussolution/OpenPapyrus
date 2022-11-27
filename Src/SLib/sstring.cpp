@@ -261,6 +261,40 @@ SString & FASTCALL SStrScan::Get(SString & rBuf) const
 	return rBuf.CopyFromN(P_Buf+Offs, Len);
 }
 
+int SStrScan::GetQuotedString(SFileFormat format, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	size_t _ofs = Offs;
+	char   c = P_Buf[_ofs];
+	if(c == '\"') {
+		_ofs++;
+		do {
+			c = P_Buf[_ofs];
+			if(c != 0) {
+				_ofs++;
+				if(c == '\"') {
+					char c2 = P_Buf[_ofs];
+					if(format == SFileFormat::Csv && c2 == '\"') {
+						_ofs++;
+						rBuf.CatChar(c);
+					}
+					else {
+						Offs = _ofs;
+						ok = 1;
+						break;
+					}
+				}
+				else
+					rBuf.CatChar(c);
+			}
+			else
+				break;
+		} while(true);
+	}
+	return ok;
+}
+
 int FASTCALL SStrScan::GetQuotedString(SString & rBuf)
 {
 	SETIFZ(P_ReQuotedStr, new SRegExp2("^\"[^\"]*\"", cp1251, SRegExp2::syntaxDefault, 0));
@@ -1453,14 +1487,14 @@ int SString::ReplaceStrR(const char * pPattern, const char * pReplacer, int once
 {
 	int    count = 0;
 	const size_t patt_len = sstrlen(pPattern);
-	if(patt_len) {
+	if(patt_len && !sstreq(pPattern, pReplacer)) {
 		const size_t rep_len = sstrlen(pReplacer);
 		size_t pos = 0;
 		while(Search(pPattern, pos, 0, &pos) > 0) {
 			Excise(pos, patt_len);
 			if(rep_len) {
 				Insert(pos, pReplacer);
-				pos += rep_len;
+				// @v11.5.9 pos += rep_len;
 				count++;
 			}
 			if(once)
@@ -8249,6 +8283,47 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 						SLTEST_CHECK_Z(sstreqi_ascii(str, out_buf));
 					}
 				}
+			}
+			{
+				//
+				// Тестирование различных функций класса SStrScan
+				//
+				SStrScan scan;
+				//
+				scan.Set("", 0);
+				SLTEST_CHECK_Z(scan.GetQuotedString(SFileFormat::Csv, str));
+				SLTEST_CHECK_EQ(scan.Offs, 0U);
+				SLTEST_CHECK_NZ(str.IsEmpty());
+				//
+				scan.Set("abc", 0);
+				SLTEST_CHECK_Z(scan.GetQuotedString(SFileFormat::Csv, str));
+				SLTEST_CHECK_EQ(scan.Offs, 0U);
+				SLTEST_CHECK_NZ(str.IsEmpty());
+				//
+				scan.Set("\"abc\"0123", 0);
+				SLTEST_CHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
+				SLTEST_CHECK_EQ(scan.Offs, 5U);
+				SLTEST_CHECK_EQ(str, "abc");
+				//
+				scan.Set("\"ab\"\"c\"0123", 0);
+				SLTEST_CHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
+				SLTEST_CHECK_EQ(scan.Offs, 7U);
+				SLTEST_CHECK_EQ(str, "ab\"c");
+				//
+				scan.Set("\"abc\"", 0);
+				SLTEST_CHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
+				SLTEST_CHECK_EQ(scan.Offs, 5U);
+				SLTEST_CHECK_EQ(str, "abc");
+				//
+				scan.Set("\"ab\"\"c\"", 0);
+				SLTEST_CHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
+				SLTEST_CHECK_EQ(scan.Offs, 7U);
+				SLTEST_CHECK_EQ(str, "ab\"c");
+				//
+				scan.Set("\"ab\"\"c\"", 0);
+				SLTEST_CHECK_NZ(scan.GetQuotedString(SFileFormat::Unkn, str));
+				SLTEST_CHECK_EQ(scan.Offs, 4U);
+				SLTEST_CHECK_EQ(str, "ab");
 			}
 			{
 				//

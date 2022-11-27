@@ -211,13 +211,7 @@ public class BusinessEntity {
 					ParentName = jsObj.optString("parnm", null);
 					BrandName = jsObj.optString("brandnm", null);
 					ManufName = jsObj.optString("manufnm", null);
-					{
-						String manuf_dtm_text = jsObj.optString("manuftm", null);
-						if(SLib.GetLen(manuf_dtm_text) > 0)
-							ManufDtm = SLib.strtodatetime(manuf_dtm_text, SLib.DATF_ISO8601, SLib.TIMF_HMS);
-						else
-							ManufDtm = null;
-					}
+					ManufDtm = SLib.strtodatetime(jsObj.optString("manuftm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
 					ImgBlob = jsObj.optString("imgblobs", null);
 					{
 						JSONArray js_list = jsObj.optJSONArray("code_list");
@@ -536,14 +530,9 @@ public class BusinessEntity {
 			boolean ok = false;
 			int    items_count = 0;
 			if(jsObj != null) {
+				SvcTime = SLib.strtodatetime(jsObj.optString("time", null), SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
 				{
-					String time_text = jsObj.optString("time", null);
-					SvcTime = SLib.strtodatetime(time_text, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
-				}
-				{
-					String time_text = jsObj.optString("clitime", null);
-					if(SLib.GetLen(time_text) > 0)
-						CliTime = SLib.strtodatetime(time_text, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
+					CliTime = SLib.strtodatetime(jsObj.optString("clitime", null), SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
 					if(CliTime == null)
 						CliTime = new SLib.LDATETIME(System.currentTimeMillis());
 				}

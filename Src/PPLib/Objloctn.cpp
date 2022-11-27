@@ -4336,6 +4336,7 @@ static const AddrItemDescr Aidl[] = {
 	{ 69, "ш-се",     AddrItemDescr::fOptSfx|AddrItemDescr::fOptDot, PPLocAddrStruc::tStreet, 29 },
 	{ 70, "пгт",      AddrItemDescr::fOptSfx, PPLocAddrStruc::tCity, 3 },
 	{ 71, "б",        AddrItemDescr::fOptSfx, PPLocAddrStruc::tStreet, 55 },
+	{ 72, "этаж",     AddrItemDescr::fOptSfx, PPLocAddrStruc::tFloor, 0 }, // @v11.5.9
 };
 
 PPLocAddrStruc::AddrTok::AddrTok() : T(0), P(0), Flags(0), P_SplitL(0)
@@ -4840,10 +4841,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 			delete p_tok;
 		}
 		{
-			//
-			//
-			//
-			uint c = TokList.getCount();
+			uint c = TokList.getCount(); // not constant!
 			for(uint i = 0; i < c; i++) {
 				AddrTok * p_tok = TokList.at(i);
 				AddrTok * p_next_tok = (i < (c-1)) ? TokList.at(i+1) : 0;
@@ -4854,7 +4852,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 						int   merge_type = AddrTok::tText;
 						int   prev_ann_number = 0; // Если !0 то предыдущий токен - круглое число (встречается в названиях улиц)
 						temp_buf = p_prev_tok->S;
-						temp_buf2 = 0;
+						temp_buf2.Z();
 						if(p_prev_tok->T == AddrTok::tNumber) {
 							const long v = temp_buf.ToLong();
 							const ushort an_list[] = { 10, 20, 25, 30, 40, 50, 60, 75, 80, 100, 125, 150, 200 };
@@ -4862,17 +4860,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 								if(v == (long)an_list[j])
 									prev_ann_number = 1;
 						}
-
-						/*
-						if(p_prev_tok->T == AddrTok::tNumber) {
-							if(p_tok->S.Len() == 1) {
-								(temp_buf = p_tok->S).ToLower1251();
-								const uchar _c = temp_buf.C(0);
-								if(oneof5(_c, 'а', 'б', 'в', 'г', 'д'))
-									do_merge = 1;
-							}
-						}
-						else*/ if(oneof2(p_prev_tok->T, AddrTok::tText, AddrTok::tDescr) || prev_ann_number) {
+						if(oneof2(p_prev_tok->T, AddrTok::tText, AddrTok::tDescr) || prev_ann_number) {
 							if(!p_next_tok || oneof3(p_next_tok->T, AddrTok::tText, AddrTok::tDiv, AddrTok::tDescr)) {
 								if(p_prev_tok->Flags & AddrTok::fDot)
 									temp_buf.Dot();

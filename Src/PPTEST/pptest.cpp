@@ -1413,6 +1413,7 @@ int  Test_ReadUed(const char * pFileName);
 int  Test_ListSelectionDialog();
 int  ImportYYE(const char * pSrcPath);
 int  ImportSpecial(const char * pPath);
+int  ReformatRazoomnick(const char * pFileName);
 
 extern int OnigTestSyntax_main(FILE * fOut);
 extern int OnigTestOptions_main(FILE * fOut);
@@ -1504,6 +1505,7 @@ int DoConstructionTest()
 #if(_MSC_VER >= 1900)
 	//Test_Fts();
 #endif
+	ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
 	TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);
 	//TestCRC();

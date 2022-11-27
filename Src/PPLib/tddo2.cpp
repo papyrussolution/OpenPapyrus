@@ -1,5 +1,6 @@
 // TDDO2.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2022
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,7 +20,7 @@ int TestTddo2() // @stub
 
 ## #start{__StrAssocArray}
 
-## Это - примечание
+## Р­С‚Рѕ - РїСЂРёРјРµС‡Р°РЅРёРµ
 #start{UhttPerson}
 	<table>
 
@@ -27,17 +28,17 @@ int TestTddo2() // @stub
 		#end
 
 		<tr>
-			<td>ИД:</td><td>${ID}</td>
+			<td>РР”:</td><td>${ID}</td>
 		</tr>
 		<tr>
-			<td>Наименование:</td><td>${Name}</td>
+			<td>РќР°РёРјРµРЅРѕРІР°РЅРёРµ:</td><td>${Name}</td>
 		</tr>
 		<tr>
-			<td>Код:</td><td>${Code}</td>
+			<td>РљРѕРґ:</td><td>${Code}</td>
 		</tr>
 	</table>
 	<table>
-		<caption>Относится к видам:</caption>
+		<caption>РћС‚РЅРѕСЃРёС‚СЃСЏ Рє РІРёРґР°Рј:</caption>
 		#iter{KindList}
 			<tr><td>${Name}</td><td>${Code}</td></tr>
 		#end{}
@@ -244,10 +245,10 @@ int Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, 
 			THROW(p_rtm);
 			THROW(r = p_rtm->InitData(pf));
 			//
-			// Если порожденный класс не смог инициализировать данные, то
-			// мы инициализируем их сами. Это - наследие прошлого: слишком
-			// большой объем кода работает так, что DlRtm::InitData не вызывается //
-			// в случае неудачи с поиском требуемой записи и т.д.
+			// Р•СЃР»Рё РїРѕСЂРѕР¶РґРµРЅРЅС‹Р№ РєР»Р°СЃСЃ РЅРµ СЃРјРѕРі РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ РґР°РЅРЅС‹Рµ, С‚Рѕ
+			// РјС‹ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РёС… СЃР°РјРё. Р­С‚Рѕ - РЅР°СЃР»РµРґРёРµ РїСЂРѕС€Р»РѕРіРѕ: СЃР»РёС€РєРѕРј
+			// Р±РѕР»СЊС€РѕР№ РѕР±СЉРµРј РєРѕРґР° СЂР°Р±РѕС‚Р°РµС‚ С‚Р°Рє, С‡С‚Рѕ DlRtm::InitData РЅРµ РІС‹Р·С‹РІР°РµС‚СЃСЏ //
+			// РІ СЃР»СѓС‡Р°Рµ РЅРµСѓРґР°С‡Рё СЃ РїРѕРёСЃРєРѕРј С‚СЂРµР±СѓРµРјРѕР№ Р·Р°РїРёСЃРё Рё С‚.Рґ.
 			if(r < 0) {
 				PPFilt empty_filt;
 				p_rtm->DlRtm::InitData(empty_filt, 0);
@@ -287,10 +288,10 @@ int Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, 
 			THROW(p_rtm);
 			THROW(r = p_rtm->InitData(pf));
 			//
-			// Если порожденный класс не смог инициализировать данные, то
-			// мы инициализируем их сами. Это - наследие прошлого: слишком
-			// большой объем кода работает так, что DlRtm::InitData не вызывается //
-			// в случае неудачи с поиском требуемой записи и т.д.
+			// Р•СЃР»Рё РїРѕСЂРѕР¶РґРµРЅРЅС‹Р№ РєР»Р°СЃСЃ РЅРµ СЃРјРѕРі РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ РґР°РЅРЅС‹Рµ, С‚Рѕ
+			// РјС‹ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РёС… СЃР°РјРё. Р­С‚Рѕ - РЅР°СЃР»РµРґРёРµ РїСЂРѕС€Р»РѕРіРѕ: СЃР»РёС€РєРѕРј
+			// Р±РѕР»СЊС€РѕР№ РѕР±СЉРµРј РєРѕРґР° СЂР°Р±РѕС‚Р°РµС‚ С‚Р°Рє, С‡С‚Рѕ DlRtm::InitData РЅРµ РІС‹Р·С‹РІР°РµС‚СЃСЏ //
+			// РІ СЃР»СѓС‡Р°Рµ РЅРµСѓРґР°С‡Рё СЃ РїРѕРёСЃРєРѕРј С‚СЂРµР±СѓРµРјРѕР№ Р·Р°РїРёСЃРё Рё С‚.Рґ.
 			if(r < 0) {
 				PPFilt empty_filt;
 				p_rtm->DlRtm::InitData(empty_filt, 0);
@@ -534,7 +535,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 			uint   pos = 0;
 			uint   prev_scope_kind = p_scope->GetKind();
 			DlFunc func;
-			int    ambig[3]; // Признаки неоднозначности разрешения функции
+			int    ambig[3]; // РџСЂРёР·РЅР°РєРё РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚Рё СЂР°Р·СЂРµС€РµРЅРёСЏ С„СѓРЅРєС†РёРё
 			int    s_[3];
 			memzero(ambig, sizeof(ambig));
 			s_[0] = s_[1] = s_[2] = -1;
@@ -554,11 +555,11 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 					for(j = 0; j < 3; j++) {
 						if(s == (j+1)) {
 							//
-							// Так как неоднозначность может встретиться на менее
-							// предпочтительном уровне преобразования аргументов,
-							// сохраним информацию о неоднозначности для того, чтобы
-							// иметь возможность подобрать более предпочтительную
-							// однозначную функцию с точки зрения преобразования аргументов.
+							// РўР°Рє РєР°Рє РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ РјРѕР¶РµС‚ РІСЃС‚СЂРµС‚РёС‚СЊСЃСЏ РЅР° РјРµРЅРµРµ
+							// РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅРѕРј СѓСЂРѕРІРЅРµ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ Р°СЂРіСѓРјРµРЅС‚РѕРІ,
+							// СЃРѕС…СЂР°РЅРёРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚Рё РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹
+							// РёРјРµС‚СЊ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїРѕРґРѕР±СЂР°С‚СЊ Р±РѕР»РµРµ РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅСѓСЋ
+							// РѕРґРЅРѕР·РЅР°С‡РЅСѓСЋ С„СѓРЅРєС†РёСЋ СЃ С‚РѕС‡РєРё Р·СЂРµРЅРёСЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ Р°СЂРіСѓРјРµРЅС‚РѕРІ.
 							//
 							if(s_[j] >= 0)
 								ambig[j] = 1;
@@ -630,9 +631,9 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 			else {
 				if(p_scope->GetKind() == DlScope::kExpData) {
 					//
-					// Обращение к функции может быть связано с заголовочной областью kExpData
-					// в то время как физически функция определена в одной из внутренних областей
-					// вида kExpDataHdr.
+					// РћР±СЂР°С‰РµРЅРёРµ Рє С„СѓРЅРєС†РёРё РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРІСЏР·Р°РЅРѕ СЃ Р·Р°РіРѕР»РѕРІРѕС‡РЅРѕР№ РѕР±Р»Р°СЃС‚СЊСЋ kExpData
+					// РІ С‚Рѕ РІСЂРµРјСЏ РєР°Рє С„РёР·РёС‡РµСЃРєРё С„СѓРЅРєС†РёСЏ РѕРїСЂРµРґРµР»РµРЅР° РІ РѕРґРЅРѕР№ РёР· РІРЅСѓС‚СЂРµРЅРЅРёС… РѕР±Р»Р°СЃС‚РµР№
+					// РІРёРґР° kExpDataHdr.
 					//
 					uint   pos = 0;
 					DlScope * p_child = 0;
@@ -736,7 +737,7 @@ int Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int langI
 			c = Scan[++sp];
 			if(isdec(c)) {
 				//
-				// ? Номер внешнего аргумента вида ${1}
+				// ? РќРѕРјРµСЂ РІРЅРµС€РЅРµРіРѕ Р°СЂРіСѓРјРµРЅС‚Р° РІРёРґР° ${1}
 				//
 				do {
 					text[tp++] = c;
@@ -751,7 +752,7 @@ int Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int langI
 			}
 			else if(c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
 				//
-				// ? Простая переменная вида ${var}
+				// ? РџСЂРѕСЃС‚Р°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ РІРёРґР° ${var}
 				//
 				do {
 					text[tp++] = c;
@@ -766,10 +767,10 @@ int Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int langI
 			}
 			if(!t) {
 				//
-				// Скорее всего (но не обязательно) начало сложного выражения.
-				// Например: ${util.Goods.getSingleBarcode()}
-				// Функция разбора выражения должны быть вызвана рекурсивно для разбора содержимого
-				// с сигналом финаша '}'
+				// РЎРєРѕСЂРµРµ РІСЃРµРіРѕ (РЅРѕ РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ) РЅР°С‡Р°Р»Рѕ СЃР»РѕР¶РЅРѕРіРѕ РІС‹СЂР°Р¶РµРЅРёСЏ.
+				// РќР°РїСЂРёРјРµСЂ: ${util.Goods.getSingleBarcode()}
+				// Р¤СѓРЅРєС†РёСЏ СЂР°Р·Р±РѕСЂР° РІС‹СЂР°Р¶РµРЅРёСЏ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІС‹Р·РІР°РЅР° СЂРµРєСѓСЂСЃРёРІРЅРѕ РґР»СЏ СЂР°Р·Р±РѕСЂР° СЃРѕРґРµСЂР¶РёРјРѕРіРѕ
+				// СЃ СЃРёРіРЅР°Р»РѕРј С„РёРЅРёС€Р° '}'
 				//
 				t = tDollarBrace;
 			}
@@ -895,7 +896,7 @@ int Tddo::Helper_RecognizeMetaKeyword()
 	char   c;
 	if(Scan[0] == '#') {
 		c = Scan[++sp];
-		if(c == '#') { // Пропускаем строчные комментарии
+		if(c == '#') { // РџСЂРѕРїСѓСЃРєР°РµРј СЃС‚СЂРѕС‡РЅС‹Рµ РєРѕРјРјРµРЅС‚Р°СЂРёРё
 			Scan.Incr(2);
 			while(Scan[0] && !Scan.IsEol(eolUndef))
 				Scan.Incr();
@@ -903,7 +904,7 @@ int Tddo::Helper_RecognizeMetaKeyword()
 				LineNo++;
 			m = Helper_RecognizeMetaKeyword(); // @recusion
 		}
-		else if(c == '*') { // Пропускаем многострочные комментарии
+		else if(c == '*') { // РџСЂРѕРїСѓСЃРєР°РµРј РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Рµ РєРѕРјРјРµРЅС‚Р°СЂРёРё
 			Scan.Incr(2);
 			while(Scan[0] && !Scan.Is("*#")) {
 				if(Scan.GetEol(eolUndef))
@@ -992,7 +993,7 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 	rM.Clear();
 	int    ok = 1;
 	const  char fc = Scan[0];
-	if(fc != '#' && fc != '$') { // Так как все мета-символы начинаются с # или $ оптимизируем функцию предварительной проверкой.
+	if(fc != '#' && fc != '$') { // РўР°Рє РєР°Рє РІСЃРµ РјРµС‚Р°-СЃРёРјРІРѕР»С‹ РЅР°С‡РёРЅР°СЋС‚СЃСЏ СЃ # РёР»Рё $ РѕРїС‚РёРјРёР·РёСЂСѓРµРј С„СѓРЅРєС†РёСЋ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕР№ РїСЂРѕРІРµСЂРєРѕР№.
 		ok = -1;
 	}
 	else {
@@ -1260,8 +1261,8 @@ struct Tddo2_OpInfo {
 };
 
 static const Tddo2_OpInfo Tddo2_OpInfoList[] = {
-	// Список отсортирован по длине текста символа чтобы не допустить перекрытия
-	// распознавания более длинных команд более короткими (например < вместо <=)
+	// РЎРїРёСЃРѕРє РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ РїРѕ РґР»РёРЅРµ С‚РµРєСЃС‚Р° СЃРёРјРІРѕР»Р° С‡С‚РѕР±С‹ РЅРµ РґРѕРїСѓСЃС‚РёС‚СЊ РїРµСЂРµРєСЂС‹С‚РёСЏ
+	// СЂР°СЃРїРѕР·РЅР°РІР°РЅРёСЏ Р±РѕР»РµРµ РґР»РёРЅРЅС‹С… РєРѕРјР°РЅРґ Р±РѕР»РµРµ РєРѕСЂРѕС‚РєРёРјРё (РЅР°РїСЂРёРјРµСЂ < РІРјРµСЃС‚Рѕ <=)
 	{ dlopAnd,  7, 2, 0, "and" },
 	{ dlopLe,     5, 2, 0, "<=" },
 	{ dlopGe,     5, 2, 0, ">=" },
@@ -1286,21 +1287,21 @@ static const Tddo2_OpInfo Tddo2_OpInfoList[] = {
 class TddoContentGraph : public SStrGroup {
 public:
 	//
-	// Descr: Виды блоков разобранного исходного текста
+	// Descr: Р’РёРґС‹ Р±Р»РѕРєРѕРІ СЂР°Р·РѕР±СЂР°РЅРЅРѕРіРѕ РёСЃС…РѕРґРЅРѕРіРѕ С‚РµРєСЃС‚Р°
 	//
 	enum {
-		kStart = 1, // Стартовый фиктивный блок
-		kFinish,    // Финишный фиктивный блок
-		kText,      // Просто текст
-		kExpr,      // Выражение
+		kStart = 1, // РЎС‚Р°СЂС‚РѕРІС‹Р№ С„РёРєС‚РёРІРЅС‹Р№ Р±Р»РѕРє
+		kFinish,    // Р¤РёРЅРёС€РЅС‹Р№ С„РёРєС‚РёРІРЅС‹Р№ Р±Р»РѕРє
+		kText,      // РџСЂРѕСЃС‚Рѕ С‚РµРєСЃС‚
+		kExpr,      // Р’С‹СЂР°Р¶РµРЅРёРµ
 		kForEach,   // branch
 		kIf,        // branch
 		kElse,      // branch
 		kElseIf,    // branch
 		kIter,      // branch #iter
-		kMacro,     // branch Определение макроса #macro(macro_name, $arg1, $arg2)
-		kMacroCall, // Вызов макроса #macro_name($arg1, $arg2)
-		kSet,       // Установка значения переменной #set($a = 10)
+		kMacro,     // branch РћРїСЂРµРґРµР»РµРЅРёРµ РјР°РєСЂРѕСЃР° #macro(macro_name, $arg1, $arg2)
+		kMacroCall, // Р’С‹Р·РѕРІ РјР°РєСЂРѕСЃР° #macro_name($arg1, $arg2)
+		kSet,       // РЈСЃС‚Р°РЅРѕРІРєР° Р·РЅР°С‡РµРЅРёСЏ РїРµСЂРµРјРµРЅРЅРѕР№ #set($a = 10)
 		kStop,      // stop execution
 		kBreak,     // break loop
 		kInclude    //
@@ -1349,11 +1350,11 @@ private:
 			TYPEID GetNumberType() const;
 
 			uint16 K;
-			uint16 ArgCount; // Количество аргументов (для oneof(K, kOp, kFunc))
+			uint16 ArgCount; // РљРѕР»РёС‡РµСЃС‚РІРѕ Р°СЂРіСѓРјРµРЅС‚РѕРІ (РґР»СЏ oneof(K, kOp, kFunc))
 			union {
-				uint   SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kString, kVar, kFunc))
-				uint32 Op;    // Ид операции (для K == kOp)
-				double R;     // Значение числа (K == kNumber)
+				uint   SymbP; // РџРѕР·РёС†РёСЏ СЃРёРјРІРѕР»Р° РІ R_Set.Pool (РґР»СЏ oneof(K, kString, kVar, kFunc))
+				uint32 Op;    // РРґ РѕРїРµСЂР°С†РёРё (РґР»СЏ K == kOp)
+				double R;     // Р—РЅР°С‡РµРЅРёРµ С‡РёСЃР»Р° (K == kNumber)
 				uint64 Stub;
 			};
 		};
@@ -1374,9 +1375,9 @@ private:
 			{
 			}
 
-			uint   Next;  // Позиция следующего выражения списка (например, для цепочки аргументов функции или макроса)
+			uint   Next;  // РџРѕР·РёС†РёСЏ СЃР»РµРґСѓСЋС‰РµРіРѕ РІС‹СЂР°Р¶РµРЅРёСЏ СЃРїРёСЃРєР° (РЅР°РїСЂРёРјРµСЂ, РґР»СЏ С†РµРїРѕС‡РєРё Р°СЂРіСѓРјРµРЅС‚РѕРІ С„СѓРЅРєС†РёРё РёР»Рё РјР°РєСЂРѕСЃР°)
 			long   Flags;
-			TddoContentGraph::ExprSet::Stack ES; // Стэк выражения //
+			TddoContentGraph::ExprSet::Stack ES; // РЎС‚СЌРє РІС‹СЂР°Р¶РµРЅРёСЏ //
 		};
 
 		explicit ExprSet(TddoContentGraph & rG);
@@ -1394,8 +1395,8 @@ private:
 		static int FASTCALL CmpOpPrior(int op1, int op2);
 		int    Helper_Parse(uint untilToken, TddoContentGraph::ExprSet::Stack & rStack);
 		//
-		// Descr: Ранжирует список выражений rExprList в порядке приоритета операций.
-		//   Результирующий стек rStack содержит готовое выражение, где все операции исполняются в правильном порядке.
+		// Descr: Р Р°РЅР¶РёСЂСѓРµС‚ СЃРїРёСЃРѕРє РІС‹СЂР°Р¶РµРЅРёР№ rExprList РІ РїРѕСЂСЏРґРєРµ РїСЂРёРѕСЂРёС‚РµС‚Р° РѕРїРµСЂР°С†РёР№.
+		//   Р РµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ СЃС‚РµРє rStack СЃРѕРґРµСЂР¶РёС‚ РіРѕС‚РѕРІРѕРµ РІС‹СЂР°Р¶РµРЅРёРµ, РіРґРµ РІСЃРµ РѕРїРµСЂР°С†РёРё РёСЃРїРѕР»РЅСЏСЋС‚СЃСЏ РІ РїСЂР°РІРёР»СЊРЅРѕРј РїРѕСЂСЏРґРєРµ.
 		//
 		int    ArrangeLocalExprList(const TSCollection <Stack> & rExprList, Stack & rStack); // @recursion
 
@@ -1405,22 +1406,22 @@ private:
 	struct Var {
 		uint   IdentP;
 		STypEx T;
-		uint   ValueP; // Позиция значения переменной в буфере VvBuf
+		uint   ValueP; // РџРѕР·РёС†РёСЏ Р·РЅР°С‡РµРЅРёСЏ РїРµСЂРµРјРµРЅРЅРѕР№ РІ Р±СѓС„РµСЂРµ VvBuf
 	};
 	struct ChunkInner {
-		int    Kind;    // Вид блока (TddoContentGraph::kXXX)
-		uint   NextP;   // Следующий блок
-		uint   BranchP; // Ответвление (if | else | iter)
-		uint   HeadP;   // Головной блок (для ответвления - узел ветвления)
-		uint   TextP;   // Текст
-		uint   ExprP;   // Выражение
+		int    Kind;    // Р’РёРґ Р±Р»РѕРєР° (TddoContentGraph::kXXX)
+		uint   NextP;   // РЎР»РµРґСѓСЋС‰РёР№ Р±Р»РѕРє
+		uint   BranchP; // РћС‚РІРµС‚РІР»РµРЅРёРµ (if | else | iter)
+		uint   HeadP;   // Р“РѕР»РѕРІРЅРѕР№ Р±Р»РѕРє (РґР»СЏ РѕС‚РІРµС‚РІР»РµРЅРёСЏ - СѓР·РµР» РІРµС‚РІР»РµРЅРёСЏ)
+		uint   TextP;   // РўРµРєСЃС‚
+		uint   ExprP;   // Р’С‹СЂР°Р¶РµРЅРёРµ
 	};
 	struct Current {
 		Current() : LineNo(0), SourceNameP(0), ScanOffs(0), P_Src(0)
 		{
 		}
 		uint   LineNo;
-		uint   SourceNameP; // @*(SetSourceName) Позиция имени текущего источника данных
+		uint   SourceNameP; // @*(SetSourceName) РџРѕР·РёС†РёСЏ РёРјРµРЅРё С‚РµРєСѓС‰РµРіРѕ РёСЃС‚РѕС‡РЅРёРєР° РґР°РЅРЅС‹С…
 		uint   ScanOffs;
 		const char * P_Src;
 	};
@@ -1486,16 +1487,16 @@ private:
 	int    Helper_Execute(uint chunkP, TddoProcessBlock & rBlk, SString & rBuf);
 
 	TSVector <ChunkInner> L;
-	// Блок по индексу 0 всегда стартовый (фиктивный блок)
-	uint   EndChunkP;   // Позиция завершающего (фиктивного) блока
-	ExprSet ES; // Коллекция выражений. На них ссылаются ChunkInner::ExprP
+	// Р‘Р»РѕРє РїРѕ РёРЅРґРµРєСЃСѓ 0 РІСЃРµРіРґР° СЃС‚Р°СЂС‚РѕРІС‹Р№ (С„РёРєС‚РёРІРЅС‹Р№ Р±Р»РѕРє)
+	uint   EndChunkP;   // РџРѕР·РёС†РёСЏ Р·Р°РІРµСЂС€Р°СЋС‰РµРіРѕ (С„РёРєС‚РёРІРЅРѕРіРѕ) Р±Р»РѕРєР°
+	ExprSet ES; // РљРѕР»Р»РµРєС†РёСЏ РІС‹СЂР°Р¶РµРЅРёР№. РќР° РЅРёС… СЃСЃС‹Р»Р°СЋС‚СЃСЏ ChunkInner::ExprP
 	//Tddo & R_T;
 	SStrScan Scan;
 	Current C;
 	TSStack <Current> ScStk;
 	TSVector <Error>  ErrL;
 	TSVector <Var>    VarL;
-	const  SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
+	const  SymbHashTable * P_ShT; // РўР°Р±Р»РёС†Р° СЃРёРјРІРѕР»РѕРІ, РїРѕР»СѓС‡РµРЅРЅР°СЏ РІС‹Р·РѕРІРѕРј PPGetStringHash(int)
 	DlContext * P_Ctx;
 };
 
@@ -1503,7 +1504,7 @@ int TddoContentGraph::Helper_Execute(uint chunkP, TddoProcessBlock & rBlk, SStri
 {
 	int    ok = 1;
 	int    done = 0;
-	uint   _cc = 0; // Счетчик блоков
+	uint   _cc = 0; // РЎС‡РµС‚С‡РёРє Р±Р»РѕРєРѕРІ
 	SString temp_buf;
 	for(uint cp = chunkP; !done;) {
 		THROW(cp < L.getCount());
@@ -1911,7 +1912,7 @@ int TddoContentGraph::ResolveExpression(const ExprSet::Expression & rExpr, uint 
 				if(rLs.GetVar(temp_buf, rResult)) {
 				}
 				else {
-					; // Здесь надо попытаться взять переменную из контекста DL600
+					; // Р—РґРµСЃСЊ РЅР°РґРѕ РїРѕРїС‹С‚Р°С‚СЊСЃСЏ РІР·СЏС‚СЊ РїРµСЂРµРјРµРЅРЅСѓСЋ РёР· РєРѕРЅС‚РµРєСЃС‚Р° DL600
 				}
 				*/
 			}
@@ -1975,8 +1976,8 @@ TddoContentGraph::ExprSet::Expression::Expression() : Next(0), Flags(0)
 TddoContentGraph::ExprSet::ExprSet(TddoContentGraph & rG) : R_G(rG)
 {
 	//
-	// Для того, чтобы 0-позиция считалась инвалидной, необходимо
-	// вставить фиктивный элемент по 0-й позиции.
+	// Р”Р»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ 0-РїРѕР·РёС†РёСЏ СЃС‡РёС‚Р°Р»Р°СЃСЊ РёРЅРІР°Р»РёРґРЅРѕР№, РЅРµРѕР±С…РѕРґРёРјРѕ
+	// РІСЃС‚Р°РІРёС‚СЊ С„РёРєС‚РёРІРЅС‹Р№ СЌР»РµРјРµРЅС‚ РїРѕ 0-Р№ РїРѕР·РёС†РёРё.
 	//
 	uint   zerop = 0;
 	assert(EL.CreateNewItem(&zerop));
@@ -2045,10 +2046,10 @@ int TddoContentGraph::ExprSet::Helper_Parse(uint untilToken, TddoContentGraph::E
 	SString temp_buf;
 	SStrScan & r_scan = R_G.Scan;
 	//
-	// Локальный список выражений.
-	// Для учета приоритета операторов все операнды, разделенные линейными операторами (+ - . etc)
-	// вносятся в local_expr_list вместе с соответствующими операторами.
-	// Операторы вносятся в список как Stack содержащий единственный элемент - собственно оператор
+	// Р›РѕРєР°Р»СЊРЅС‹Р№ СЃРїРёСЃРѕРє РІС‹СЂР°Р¶РµРЅРёР№.
+	// Р”Р»СЏ СѓС‡РµС‚Р° РїСЂРёРѕСЂРёС‚РµС‚Р° РѕРїРµСЂР°С‚РѕСЂРѕРІ РІСЃРµ РѕРїРµСЂР°РЅРґС‹, СЂР°Р·РґРµР»РµРЅРЅС‹Рµ Р»РёРЅРµР№РЅС‹РјРё РѕРїРµСЂР°С‚РѕСЂР°РјРё (+ - . etc)
+	// РІРЅРѕСЃСЏС‚СЃСЏ РІ local_expr_list РІРјРµСЃС‚Рµ СЃ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРјРё РѕРїРµСЂР°С‚РѕСЂР°РјРё.
+	// РћРїРµСЂР°С‚РѕСЂС‹ РІРЅРѕСЃСЏС‚СЃСЏ РІ СЃРїРёСЃРѕРє РєР°Рє Stack СЃРѕРґРµСЂР¶Р°С‰РёР№ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚ - СЃРѕР±СЃС‚РІРµРЅРЅРѕ РѕРїРµСЂР°С‚РѕСЂ
 	//
 	TSCollection <Stack> local_expr_list;
 	for(int done = 0; !done;) {
@@ -2455,7 +2456,7 @@ int TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int stopEven
 		int    regular_text = 1;
 		int    m = Helper_RecognizeMetaKeyword(temp_buf);
 		if(m > 0) {
-			_cb.AppendToList(this); // Завершаем текущий блок
+			_cb.AppendToList(this); // Р—Р°РІРµСЂС€Р°РµРј С‚РµРєСѓС‰РёР№ Р±Р»РѕРє
 			regular_text = 0;
 			switch(m) {
 				case Tddo::tMacro:
@@ -2503,7 +2504,7 @@ int TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int stopEven
 								if(macro_arg_list.getCount()) {
 									_cb.ExprP = macro_arg_list.at(0);
 									assert(_cb.ExprP);
-									// Устанавливаем связь в цепи выражений-аргументов
+									// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃРІСЏР·СЊ РІ С†РµРїРё РІС‹СЂР°Р¶РµРЅРёР№-Р°СЂРіСѓРјРµРЅС‚РѕРІ
 									for(uint i = 1; i < macro_arg_list.getCount(); i++) {
 										uint   expr_p = (uint)macro_arg_list.get(i);
 										uint   prev_expr_p = (uint)macro_arg_list.get(i-1);
@@ -2556,7 +2557,7 @@ int TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int stopEven
 									if(macro_arg_list.getCount()) {
 										_cb.ExprP = macro_arg_list.at(0);
 										assert(_cb.ExprP);
-										// Устанавливаем связь в цепи выражений-аргументов
+										// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃРІСЏР·СЊ РІ С†РµРїРё РІС‹СЂР°Р¶РµРЅРёР№-Р°СЂРіСѓРјРµРЅС‚РѕРІ
 										for(uint i = 1; i < macro_arg_list.getCount(); i++) {
 											uint   expr_p = (uint)macro_arg_list.get(i);
 											uint   prev_expr_p = (uint)macro_arg_list.get(i-1);
@@ -2745,7 +2746,7 @@ int TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int stopEven
 			}
 		}
 	}
-	_cb.AppendToList(this); // Завершаем последний блок
+	_cb.AppendToList(this); // Р—Р°РІРµСЂС€Р°РµРј РїРѕСЃР»РµРґРЅРёР№ Р±Р»РѕРє
 	CATCHZOK
 	return ok;
 }
@@ -2773,7 +2774,7 @@ int TddoContentGraph::Helper_RecognizeExprToken(long flags, SString & rText)
 			c = Scan[++sp];
 			if(isdec(c)) {
 				//
-				// ? Номер внешнего аргумента вида ${1}
+				// ? РќРѕРјРµСЂ РІРЅРµС€РЅРµРіРѕ Р°СЂРіСѓРјРµРЅС‚Р° РІРёРґР° ${1}
 				//
 				do {
 					text[tp++] = c;
@@ -2788,7 +2789,7 @@ int TddoContentGraph::Helper_RecognizeExprToken(long flags, SString & rText)
 			}
 			else if(IsFirstCharOfIdent(c)) {
 				//
-				// ? Простая переменная вида ${var}
+				// ? РџСЂРѕСЃС‚Р°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ РІРёРґР° ${var}
 				//
 				do {
 					text[tp++] = c;
@@ -2803,10 +2804,10 @@ int TddoContentGraph::Helper_RecognizeExprToken(long flags, SString & rText)
 			}
 			if(!t) {
 				//
-				// Скорее всего (но не обязательно) начало сложного выражения.
-				// Например: ${util.Goods.getSingleBarcode()}
-				// Функция разбора выражения должны быть вызвана рекурсивно для разбора содержимого
-				// с сигналом финиша '}'
+				// РЎРєРѕСЂРµРµ РІСЃРµРіРѕ (РЅРѕ РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ) РЅР°С‡Р°Р»Рѕ СЃР»РѕР¶РЅРѕРіРѕ РІС‹СЂР°Р¶РµРЅРёСЏ.
+				// РќР°РїСЂРёРјРµСЂ: ${util.Goods.getSingleBarcode()}
+				// Р¤СѓРЅРєС†РёСЏ СЂР°Р·Р±РѕСЂР° РІС‹СЂР°Р¶РµРЅРёСЏ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІС‹Р·РІР°РЅР° СЂРµРєСѓСЂСЃРёРІРЅРѕ РґР»СЏ СЂР°Р·Р±РѕСЂР° СЃРѕРґРµСЂР¶РёРјРѕРіРѕ
+				// СЃ СЃРёРіРЅР°Р»РѕРј С„РёРЅРёС€Р° '}'
 				//
 				t = Tddo::tDollarBrace;
 			}
@@ -2909,7 +2910,7 @@ int FASTCALL TddoContentGraph::Helper_RecognizeMetaKeyword(SString & rAddendum)
 	char   c;
 	if(Scan[0] == '#') {
 		c = Scan[++sp];
-		if(c == '#') { // Пропускаем строчные комментарии
+		if(c == '#') { // РџСЂРѕРїСѓСЃРєР°РµРј СЃС‚СЂРѕС‡РЅС‹Рµ РєРѕРјРјРµРЅС‚Р°СЂРёРё
 			Scan.Incr(2);
 			while(Scan[0] && !Scan.IsEol(eolUndef))
 				Scan.Incr();
@@ -2917,7 +2918,7 @@ int FASTCALL TddoContentGraph::Helper_RecognizeMetaKeyword(SString & rAddendum)
 				C.LineNo++;
 			m = Helper_RecognizeMetaKeyword(rAddendum); // @recusion
 		}
-		else if(c == '*') { // Пропускаем многострочные комментарии
+		else if(c == '*') { // РџСЂРѕРїСѓСЃРєР°РµРј РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Рµ РєРѕРјРјРµРЅС‚Р°СЂРёРё
 			Scan.Incr(2);
 			while(Scan[0] && !Scan.Is("*#")) {
 				if(Scan.GetEol(eolUndef))

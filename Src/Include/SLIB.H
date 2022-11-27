@@ -2985,7 +2985,7 @@ public:
 	SUniTime();
 	explicit SUniTime(LDATE d);
 	explicit SUniTime(const LDATETIME & rD);
-	int    operator !() const;
+	bool   operator !() const;
 	SUniTime & Z();
 	//
 	// Descr: Возвращает сигнатуру, идентифицирующую вариант представления времени.
@@ -4649,6 +4649,10 @@ public:
 	//
 	void   FASTCALL setDelim(const char * pDelim);
 	uint   getDelimLen() const;
+	//
+	// Descr: Возвращает true если разделителем строк является бинарный ноль ('\0').
+	//
+	bool   isZeroDelim() const;
 	uint   getCount() const;
 	int    add(const char * pStr, uint * pPos);
 	int    add(const char * pStr, uint32 * pPos) { return add(pStr, reinterpret_cast<uint *>(pPos)); }
@@ -5924,7 +5928,7 @@ int    memdword(void * p, size_t size, uint32 k, size_t * pOffs);
 //   безопасность кода.
 //
 void * FASTCALL memzero(void * p, size_t s);
-int    FASTCALL ismemzero(const void * p, size_t s);
+bool   FASTCALL ismemzero(const void * p, size_t s);
 //
 // Descr: Обнуляет память по указателю &p размером sizeof(p).
 // Attention! Не применять для классов с виртуальными функциями и динамически распределенных объектов.
@@ -6546,6 +6550,7 @@ public:
 	{
 		memcpy(D, rS.D, sizeof(D));
 	}
+	bool   IsZero() const { return ismemzero(D, sizeof(D)); }
 	TSBinary <BYTESIZE> & FASTCALL operator = (const TSBinary <BYTESIZE> & rS)
 	{
 		memcpy(D, rS.D, sizeof(D));
@@ -10073,550 +10078,6 @@ public:
 	uint32 PageSize; // @v10.9.11
 };
 //
-// Descr: Класс реализующий абстрактные методы для доступа к средствам ввода/вывода операционной системы
-//
-class SIo {
-public:
-	enum {
-		tDefault = 0,
-		tFile,
-		tPipe,
-		tSerial
-	};
-
-	enum {
-		crmCrAllways      = (1 << 6),
-		crmCrNew  = (2 << 6),
-		crmOpenAllways    = (3 << 6),
-		crmOpenExist      = (4 << 6),
-		crmTrancateExist  = (5 << 6)
-	};
-
-	enum {
-		mAccsRead = 0x00000001,
-		mAccsWrite        = 0x00000002,
-		mAccsExec = 0x00000004,
-		mShrRead  = 0x00000008,
-		mShrWrite = 0x00000010,
-		mShrDelete        = 0x00000020,
-		mCreationMask     = 0x00000040|0x00000080|0x00000100,
-		mAttrArch = 0x00000200,
-		mAttrEncrypt      = 0x00000400,
-		mAttrHidden       = 0x00000800,
-		mAttrNormal       = 0x00001000,
-		mAttrNoIndex      = 0x00002000,
-		mAttrOffline      = 0x00004000,
-		mAttrRO   = 0x00008000,
-		mAttrSys  = 0x00010000,
-		mAttrTemp = 0x00020000,
-		mFBackupSemantics = 0x00040000,
-		mFPosixSemantics  = 0x00080000,
-		mFDelOnClose      = 0x00100000,
-		mFNoBuff  = 0x00200000,
-		mFOpenNoRecall    = 0x00400000,
-		mFOpenReparsePt   = 0x00800000,
-		mFOverlapped      = 0x01000000,
-		mFRandomAccs      = 0x02000000,
-		mFSeqScan = 0x04000000,
-		mFWriteThrough    = 0x08000000
-	};
-	enum {
-		mSecAnonym        = 0x00000001,
-		mSecCtxTracking   = 0x00000002,
-		mSecDelegation    = 0x00000004,
-		mSecEffOnly       = 0x00000008,
-		mSecIdent = 0x00000010,
-		mSecImpersonation = 0x00000020
-	};
-
-	static void * SCreateFile(int ioType, const char * pName, uint32 mode, uint32 secMode = 0);
-};
-//
-//
-//
-struct SFileSortProgressData {
-	SFileSortProgressData();
-	const  char * P_SrcFileName;
-	int64  TotalFileSize;
-	int    Phase;            // 1 - splitting, 2 - merging
-	int64  SplitBytesRead;   // Количество байт считанных на фазе сплиттинга
-	int    SplitThreadCount; // Количество потоков, осуществляющих сплиттинг
-	uint   MergeChunkCount;  // Начальное количество блоков для слияния
-	uint   MergeChunkLeft;   // Оставшееся число не слитых блоков
-	const void * ExtraPtr;
-};
-
-typedef int (*SFileSortProgressCbProc)(const SFileSortProgressData *);
-
-class SFile {
-public:
-	DECL_INVARIANT_C();
-
-	static int FASTCALL Remove(const char * pFileName);
-	static int Rename(const char * pFileName, const char * pNewFileName);
-	static int Compare(const char * pFileName1, const char * pFileName2, long flags);
-	static int FASTCALL WildcardMatch(const char * pPattern, const char * pStr);
-	//
-	// Descr: Структура дополнительных параметров сортировки файла
-	//
-	struct SortParam {
-		SortParam();
-
-        size_t MaxChunkSize;  // @def=(8*1024*1024)
-        uint   MaxChunkCount; // @def=8
-		uint   MaxThread;     // @def=0
-        SFileSortProgressCbProc ProgressCbProc; // @def=0
-		const void * ProgressCbExtraPtr; // @def=0
-	};
-
-	static int Sort(const char * pSrcFileName, const char * pOutFileName, CompFunc fcmp, SortParam * pExtraParam);
-	//
-	// Descr: возвращает меточные даты файла с именем pFileName
-	// ARG(pFileName    IN): полное имя файла
-	// ARG(pCreation   OUT): дата и время создания файла
-	// ARG(pLastAccess OUT): дата и время последнего обращения к файлу
-	// ARG(pLastModif  OUT): дата и время последней модификации файла
-	// Returns:
-	//   1 - функция успешно выполнена
-	//   0 - ошибка
-	//
-	static int GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
-	//
-	// Descr: возвращает меточные даты файла, открытого с дескриптором fd
-	// ARG(fh           IN): дескриптор файла. В WIN32 этот дескриптор должен быть получен вызовом
-	//   функции CreateFile. В DOS - как fileno(FILE *).
-	// ARG(pCreation   OUT): дата и время создания файла
-	// ARG(pLastAccess OUT): дата и время последнего обращения к файлу
-	// ARG(pLastModif  OUT): дата и время последней модификации файла
-	// Returns:
-	//   1 - функция успешно выполнена
-	//   0 - ошибка
-	//
-	static int GetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
-	static int SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif);
-	static int IdentifyFormat(const char * pFileName);
-	static int IsOpenedForWriting(const char * pFileName);
-	//
-	// Descr: Ожидает момента, когда файл не открыт для записи.
-	// Returns:
-	//   <0 - файл не открыт для записи
-	//   >0 - время в миллисекундах, в течении которого пришлось ждать освобождения файла
-	//    0 - истек предельный timeout ожидания //
-	//
-	static int WaitForWriteSharingRelease(const char * pFileName, long timeout);
-	//
-	// Descr: Утилитная функция, вызывающая fclose(*ppF) если *ppF != 0 и обнуляющая после этого *ppF.
-	//
-	static void FASTCALL ZClose(FILE ** ppF);
-
-	enum {
-		mRead = 1,       // "r"
-		mWrite,          // "w"
-		mAppend,         // "a"
-		mReadWrite,      // "r+"
-		mReadWriteTrunc, // "w+"
-		mAppendRead,     // "a+"
-		mBinary    = 0x0100, // "..b"
-		mDenyRead  = 0x0200,
-		mDenyWrite = 0x0400,
-		mNoStd     = 0x0800, // Файл открывается в низкоуровневом (небуферизованном) режиме (open).
-			// Если размер файла может превышать 2G, то использовать этот флаг обязательно!
-		mNullWrite = 0x1000, // Файл открывается в режиме нулевого вывода - то есть запись в него ничего не делает, а чтение возвращает ошибку
-		mBuffRd    = 0x2000  // При установленном mNoStd чтение из файла буферизуется.
-	};
-	SFile();
-	SFile(const char * pName, long mode);
-	SFile(SBuffer & rBuf, long mode);
-	~SFile();
-	bool   IsValid() const;
-	operator FILE * ();
-	operator SBuffer * ();
-	//
-	// Descr: Если экземпляр класса работает как SBuffer (T == tSBuffer), то данное преобразование
-	//   присвоит буферу rBuf указатель на область памяти буфера и доступный размер (SBuffer::GetAvailableSize()).
-	//   В противном случае rBuf.P_Buf = 0 и rBuf.Size = 0.
-	// Note:
-	//   Пользоваться функцией следует с осторожностью так как память по указателю rBuf.P_Buf
-	//   принадлежит и данному экземпляру класса.
-	//   Ни в коем случае нельзя вызывать rBuf.Destroy() для переданной ссылке после вызова данной функции.
-	// Returns:
-	//   1 - экземпляр использует SBuffer и переданный объект rBuf успешно инициализирован.
-	//   0 - экземпляр либо не инициализирован, либо связан с файлом.
-	//
-	int    GetBuffer(SBaseBuffer & rBuf) const;
-	int    FileNo() const;
-	const  SString & GetName() const;
-	long   GetMode() const;
-	int    Open(const char * pName, long mode);
-	int    Open(SBuffer & rBuf, long mode);
-	int    OpenNullOutput();
-	int    Close();
-	//
-	// Descr: Устанавливает 32-битное значение текущей позиции в файле.
-	// Note: При буферизованном чтении вызов функции сбрасывает буфер.
-	// Returns:
-	//   true - success
-	//   false - error
-	//
-	bool   Seek(long offs, int origin = SEEK_SET);
-	//
-	// Descr: Устанавливает 64-битное значение текущей позиции в файле.
-	// Attention: Если файл открыт в стандартном режиме (без флага fNoStd) то
-	//   фактически применяется 32-битное значение позиции (младшие четыре байта offs).
-	// Note: При буферизованном чтении вызов функции сбрасывает буфер.
-	// Returns:
-	//   true - success
-	//   false - error
-	//
-	bool   Seek64(int64 offs, int origin = SEEK_SET);
-	//
-	// Descr: Возвращает значение текущей позиции в файле.
-	//
-	long   Tell();
-	//
-	// Descr: Возвращает 64-битное значение текущей позиции в файле.
-	// Attention: В версии VC 7.1 если файл открыт в стандартном режиме (без флага fNoStd) то
-	//   фактически возвращается 32-битное значение позиции. Это связано с отсутствием в той версии 
-	//   Visual C функции _ftelli64().
-	//
-	int64  Tell64();
-	int    Flush();
-	int    Write(const void * pBuf, size_t size);
-	//
-	// Descr: Пытается считать size байт в буфер pBuf.
-	//   Действительное количество считанных байт присваивается по адресу pActualSize
-	//   (если pActualSize != 0).
-	//
-	int    Read(void * pBuf, size_t size, size_t * pActualSize = 0);
-	//
-	// Descr: То же, что и SFile::Read() но с проверкой равенства запрошенного
-	//   размера считанному. Если считанное количество байт не равно запрошенному,
-	//   то возвращает 0 и устанавливает код ошибки SLERR_SFILRDSIZE.
-	//
-	int    ReadV(void * pBuf, size_t size);
-	int    FASTCALL WriteLine(const char *);
-	int    WriteBlancLine();
-	//
-	// Descr: Флаги функции ReadLine
-	//
-	enum {
-		rlfChomp = 0x0001, // Удалять завершающий строку перевод каретки (если присутствует)
-		rlfStrip = 0x0002  // Удалять ведущие и завершающие пробелы если таковые присутствуют.
-			// Если задан флаг rlfChomp, то вызов rBuf.Strip() осуществляется после rBuf.Chomp().
-	};
-
-	int    ReadLine(SString & rBuf, uint flags);
-	int    FASTCALL ReadLine(SString & rBuf);
-	//
-	// Descr: Считывает все доступное содержание файла, начиная с текущей позиции, в буфер rBuf.
-	//   Если maxSize != 0, то считывает не более maxSize. В случае успеха по указателю pActualSize
-	//   возвращает количество считанных байт.
-	// Returns:
-	//   >0 - функция завершилась успешно
-	//    0 - ошибка
-	//   <0 - функция ничего не считала (*pActualSize == 0). Например из-за того, что файл пустой или текущая позиция файла уже в самом конце его.
-	//
-	int    ReadAll(STempBuffer & rBuf, size_t maxSize, size_t * pActualSize);
-	//
-	// Descr: Высокоуровневая функция записи буфера rBuf в поток.
-	//   Сначала записывает размер буфера, затем - данные.
-	// Returns:
-	//   >0 - буфер записан успешно
-	//   0  - ошибка
-	//
-	int    Write(const SBuffer & rBuf);
-	//
-	// Descr: Высокоуровневая функция чтения буфера rBuf из потока.
-	//   Сначала считывает размер буфера, распределяет необходимый размер в буфере и считывает данные.
-	// Returns:
-	//   >0 - буфер считан успешно
-	//   0  - ошибка
-	//
-	int    Read(SBuffer & rBuf);
-	//
-	// Descr: Устанавливает либо снимает блокировку участка файла размером size со смещением offs.
-	//   При успешном выполнении функция возвращает дескриптор блокировки (>0) который
-	//   может быть использован при снятии блокировки функцией Unlock().
-	//   При разрушении экземпляра класса все блокировки автоматически снимаются.
-	//
-	//   При снятии блокировки функция проверяет, чтобы во внутренней таблице блокировок присутствовал заданный
-	//   участок и, если это так, то разблокирует участок и возвращает его дескриптор (уже недействительный) вызывающей
-	//   функции. В противном случае завершается с ошибкой (return 0).
-	//
-	// ARG(offs IN): @#{>0} смещение в файле, по которому должна быть установлена блокировка
-	// ARG(size IN): @#{>0} размер блокируемого участка в файле
-	// ARG(mode IN): если mode != 0, то функция устанавливает блокировку, в противном случае - снимает.
-	// Returns:
-	//   0 - ошибка
-	//   >0 - при mode != 0 дескриптор блокировки. При mode == 0 просто означает успешное завершение операции.
-	//
-	int    _Lock(int64 offs, int32 size, int mode);
-	//
-	// Descr: Блокирует участок файла размером size со смещением offs.
-	//   При успешном выполнении функция возвращает дескриптор блокировки (>0) который
-	//   должен быть использован при снятии блокировки функцией Unlock().
-	//   При разрушении экземпляра класса все блокировки автоматически снимаются.
-	// ARG(offs IN): @#{>0} смещение в файле, по которому должна быть установлена блокировка
-	// ARG(size IN): @#{>0} размер блокируемого участка в файле
-	// Returns:
-	//   0  - ошибка
-	//   >0 - значение дескриптора блокировки
-	//
-	int    Lock(int64 offs, int32 size);
-	//
-	// Descr: Снимает блокировку, установленную перед этим функцией Lock(int64, int)
-	//
-	int    Unlock(int lckHandle);
-	//
-	// Descr: Рассчитывает размер файла. Размер определяется перемещением текущей позиции в конец файла
-	//   и определением после этого текущей позиции, которая и является размером.
-	//   После подсчета восстанавливает исходную текущую позицию файла.
-	// Returns:
-	//   true  - размер файла успешно вычислен
-	//   false - ошибка
-	//
-	bool   CalcSize(int64 * pSize);
-	//
-	// Descr: Рассчитывает хэш-функцию, заданную алгоритмом hashFunc по файлу, начиная со смещения offs.
-	//
-	bool   CalcHash(int64 offs, int hashFunc/* SHASHF_XXX */, SBinaryChunk & rHash);
-	int    GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif);
-	//
-	// Descr: Рассчитывает CRC32 файла, начиная со смещения offs.
-	//   После подсчета восстанавливает исходную текущую позицию файла.
-	// Returns:
-	//   >0 - CRC32 успешно рассчитан
-	//   <0 - размер файла меньше offs
-	//   0  - ошибка
-	//
-	int    CalcCRC(long offs, uint32 * pCrc);
-private:
-	struct LckChunk {
-		int32  Size;
-		int64  Offs;
-	};
-	int    AcquireLckDescriptor(int64 offs, int32 size);
-	const  SFile::LckChunk * FASTCALL GetLckDescriptor(int h) const;
-	int    FASTCALL ReleaseLckDescriptor(int h);
-
-	enum {
-		tNone = 0,
-		tStdFile,
-		tFile,
-		tSBuffer,
-		tNullOutput
-	};
-	void   Init();
-
-	int    T;
-	long   Mode;
-	union {
-		FILE * F;
-		SBuffer * P_Sb;
-	};
-	int    IH;
-	SString Name;
-	SBuffer BufR; // Буфер чтения ((Mode&mNoStd)&&(Mode&mBuffRd))
-	STempBuffer LB; // Временный буфер для чтения строк и т.д.
-	//
-	// Таблица дескрипторов блокировок. Таблица в течении жизни объекта никогда не уменьшается в размере.
-	// Дескриптором блокировки является индекс позиции блока LckChunk в массиве, увеличенный на 1.
-	// При снятии блокировки обнуляется значение Size что свидетельствует о том, что элемент свободен
-	// для использования другой блокировкой.
-	//
-	TSVector <SFile::LckChunk> LckList;
-};
-//
-// Descr: Незамысловатый класс, управляющий хранением большого числа файлов с жестко определенными наименованиями.
-//   Файлы храняться в подкаталогах базовой директории BasePath. Директория разбивается на BucketCount подкаталогов,
-//   место нахождение файла в конкретном подкаталоге определяется хэш-функцией от наименования файла.
-//
-class SFileStorage {
-public:
-	explicit SFileStorage(const char * pBasePath);
-	~SFileStorage();
-	bool   IsValid() const { return !(State & stError); }
-	bool   operator !() const { return !IsValid(); }
-	bool   Init(const char * pBasePath);
-	SHandle Write_Start(const char * pName);
-	bool   Write(SHandle handle, const void * pBuf, size_t size);
-	bool   Write_End(SHandle handle, uint64 * pWrittenSize);
-	int    PutFile(const char * pName, const void * pBuf, size_t size);
-	int    PutFile(const char * pName, const char * pSourceFilePath);
-	SHandle GetFile(const char * pName, int64 * pFileSize);
-	bool   Read(SHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize);
-	//
-	// Descr: Возвращает общий размер считанных с помощью манипулятора handle байт.
-	//   Если манипулятор открыт для записи, то возвращает 0.
-	//
-	uint64 GetTotalRdSize(SHandle handle) const;
-	//
-	// Descr: Возвращает общий размер записанных с помощью манипулятора handle байт.
-	//   Если манипулятор открыт для чтения, то возвращает 0.
-	//
-	uint64 GetTotalWrSize(SHandle handle) const;
-	//
-	// Descr: Закрывает файл, открытый либо функцией Write_Start() либо GetFile()
-	//
-	bool   CloseFile(SHandle handle);
-private:
-	bool   ValidateName(const char * pName) const;
-	int    MakeFileEntry(const char * pName, SString & rEntryName, bool writing);
-
-	enum {
-		stError  = 0x0001,
-		stInited = 0x0002
-	};
-
-	const  uint BucketCount;
-	const  uint HashSeed;
-	uint   State;
-	SString BasePath;
-	struct InnerWritingBlock {
-		InnerWritingBlock();
-		SFile  F;
-		uint64 TotalWrSize;
-	};
-	struct InnerReadingBlock {
-		InnerReadingBlock();
-		SFile  F;
-		int64  FileSize;
-		uint64 TotalRdSize;
-	};
-	TSCollection <InnerWritingBlock> WrBlkList;
-	TSCollection <InnerReadingBlock> RdBlkList;
-};
-//
-//
-//
-class SCompressor {
-public:
-	enum {
-		tUnkn = 0,
-		tZLib = 1,
-		tLz4  = 2
-	};
-	explicit SCompressor(int type);
-	~SCompressor();
-	int    SetMaxTempBufSize(size_t sz);
-	size_t GetMaxTempBufSize() const { return MaxTempBufSize; }
-	//
-	// Descr: Сжимает данные из буфера pSrc размером srcSize в буфер rDest.
-	// ARG(pSrc    IN): Указатель на исходные данные для сжатия
-	// ARG(srcSize IN): Размер исходных данных для сжатия в байтах
-	// ARG(rDest  OUT): Буфер, в который записывается результат сжатия. Буфер не сбрасывается и запись ведется начиная с текущей позиции.
-	// ARG(rate    IN): Синтетический фактор плотности сжатия [1..100]. 0 - по умолчанию, 1 - минимальное сжатие, 100 - максимальное сжатие.
-	// ARG(pExt    IN): Дополнительный блок данных, специфичный для конкретного алгоритма. Спецификация функции гарантирует,
-	//   что любой алгоритм будет адекватно работать при передаче нулевого указателя данным аргументом.
-	// Returns:
-	//   >0 - успех. Значение показывает количество байт, записанных в буфер rDest этим вызовом.
-	//    0 - ошибка
-	//
-	int    CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest, int rate, const void * pExt);
-	int    DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest);
-	//void * CompressIterStart(void * pDest, size_t destSize, const void * pExt);
-	//int    CompressIterNext(void * pCtx, const void * pSrc, size_t srcSize, void * pDest, size_t * destSize);
-	//int    CompressIterEnd(void * pDest, size_t destSize, const void * pExt);
-
-	enum {
-		estszMax = 0x01, // Функция GetEstimatedXXXSize определила максимальный размер результата
-		estszNr  = 0x02, // Функция GetEstimatedXXXSize определила ближайший размер результата
-	};
-private:
-	const  int Type;
-	size_t MaxTempBufSize; // @construction Максимальный размер внутреннего временного буфера для упаковки/распаковки.
-	// @construction STempBuffer TBuf;
-	void * P_Ctx;
-};
-
-class SArchive {
-public:
-	//
-	// Descr: Базовые форматы архивов
-	//
-	enum {
-		afCPIO = 1,
-		afSHAR,
-		afTAR,
-		afISO9660,
-		afZIP,
-		afAR,
-		afAR_GNU,
-		afMTREE,
-		afRAW,
-		afXAR,
-		afLHA,
-		afCAB,
-		afRAR,
-		af7ZIP,
-		afWARC
-	};
-	enum {
-		tUnkn = 0,
-		tZip  = 1, // LibZIP
-		tBz2  = 2,
-		tLA   = 3  // @v10.4.4 LibArchive
-		//t7Z // @construction
-	};
-	//
-	// Descr: Дескриптор формата архива
-	//
-	struct Format {
-		int    BaseAf; // SArchive::afXXX
-		int    Sis;    // ssisXXX
-		int    Var;    // Вариация
-	};
-	explicit SArchive(int type);
-	~SArchive();
-	int    Open(const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
-	int    Close();
-	bool   IsValid() const;
-	//
-	// Descr: Возвращает количество файлов в архиве
-	//
-	int64  GetEntriesCount() const;
-	//
-	// Descr: Возвращает имя файла в архиве с индексом idx
-	//
-    int    FASTCALL GetEntryName(int64 idx, SString & rName);
-    //
-    // Descr: Извлекает из архива файл с индексом idx и копирует его в pDestName
-    //
-    int    ExtractEntry(int64 idx, const char * pDestName);
-
-    enum {
-    	aefRecursive = 0x0001, // Для AddEntries: рекурсивно добавлять файлы из подкаталогов
-    	aefDirectory = 0x0002  // Для AddEntry: добавляемый элемент является каталогом
-    };
-	//
-	// Descr: Добавляет в архив новый элемент, соответствующий файлу pSrcFileName с именем pName.
-	//   Если pName == 0 || pName[0] == 0, то имя нового элемента соответствует имени файла без пути
-	//   в строчном регистре.
-	//
-    int    AddEntry(const char * pSrcFileName, const char * pName, int flags);
-    int    AddEntries(const char * pMask, int flags);
-private:
-	// @v10.4.4
-#if 1 // @construction {
-	struct LaCbBlock {
-		LaCbBlock(SArchive * pMaster, size_t bufSize);
-		SArchive * P_Master;
-		SFile F;
-		STempBuffer Buf;
-	};
-	static SSIZE_T cdecl LaCbRead(Archive * pA, void * pClientData, const void ** ppBuf);
-	static int64   cdecl LaCbSkip(Archive * pA, void * pClientData, int64 request);
-	static int     cdecl LaCbOpen(Archive * pA, void * pClientData);
-	static int     cdecl LaCbClose(Archive * pA, void * pClientData);
-#endif // } 0 @construction
-	// } @v10.4.4
-	int    Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
-
-	const  int Type;
-	void * H;
-	LaCbBlock * P_Cb_Blk; // @v10.4.4
-};
-//
 // Descr: Тип функции, используемый для регистрации форматов файлов.
 //
 typedef int (*FileFormatSignatureFunc)(FILE * pF, long extraParam);
@@ -11598,6 +11059,11 @@ struct SStrScan : public SRegExpSet {
 	//
 	SString & FASTCALL Get(SString & rBuf) const;
 	int    FASTCALL GetQuotedString(SString & rBuf);
+	//
+	// ARG(format IN): Формат данных, в соответствии с которым следует обрабатывать данные внутри кавычек.
+	//   Принимаются следующие значения: SFileFormat::Json, SFileFormat::Csv, SFileFormat::Tsv, SFileFormat::Xml
+	//
+	int    GetQuotedString(SFileFormat format, SString & rBuf);
 	int    FASTCALL GetIdent(SString & rBuf);
 	int    FASTCALL GetNumber(SString & rBuf);
 	//
@@ -11940,6 +11406,567 @@ private:
 	void * P; // processor
 };
 //
+// Descr: Класс реализующий абстрактные методы для доступа к средствам ввода/вывода операционной системы
+//
+class SIo {
+public:
+	enum {
+		tDefault = 0,
+		tFile,
+		tPipe,
+		tSerial
+	};
+
+	enum {
+		crmCrAllways      = (1 << 6),
+		crmCrNew  = (2 << 6),
+		crmOpenAllways    = (3 << 6),
+		crmOpenExist      = (4 << 6),
+		crmTrancateExist  = (5 << 6)
+	};
+
+	enum {
+		mAccsRead = 0x00000001,
+		mAccsWrite        = 0x00000002,
+		mAccsExec = 0x00000004,
+		mShrRead  = 0x00000008,
+		mShrWrite = 0x00000010,
+		mShrDelete        = 0x00000020,
+		mCreationMask     = 0x00000040|0x00000080|0x00000100,
+		mAttrArch = 0x00000200,
+		mAttrEncrypt      = 0x00000400,
+		mAttrHidden       = 0x00000800,
+		mAttrNormal       = 0x00001000,
+		mAttrNoIndex      = 0x00002000,
+		mAttrOffline      = 0x00004000,
+		mAttrRO   = 0x00008000,
+		mAttrSys  = 0x00010000,
+		mAttrTemp = 0x00020000,
+		mFBackupSemantics = 0x00040000,
+		mFPosixSemantics  = 0x00080000,
+		mFDelOnClose      = 0x00100000,
+		mFNoBuff  = 0x00200000,
+		mFOpenNoRecall    = 0x00400000,
+		mFOpenReparsePt   = 0x00800000,
+		mFOverlapped      = 0x01000000,
+		mFRandomAccs      = 0x02000000,
+		mFSeqScan = 0x04000000,
+		mFWriteThrough    = 0x08000000
+	};
+	enum {
+		mSecAnonym        = 0x00000001,
+		mSecCtxTracking   = 0x00000002,
+		mSecDelegation    = 0x00000004,
+		mSecEffOnly       = 0x00000008,
+		mSecIdent = 0x00000010,
+		mSecImpersonation = 0x00000020
+	};
+
+	static void * SCreateFile(int ioType, const char * pName, uint32 mode, uint32 secMode = 0);
+};
+//
+//
+//
+struct SFileSortProgressData {
+	SFileSortProgressData();
+	const  char * P_SrcFileName;
+	int64  TotalFileSize;
+	int    Phase;            // 1 - splitting, 2 - merging
+	int64  SplitBytesRead;   // Количество байт считанных на фазе сплиттинга
+	int    SplitThreadCount; // Количество потоков, осуществляющих сплиттинг
+	uint   MergeChunkCount;  // Начальное количество блоков для слияния
+	uint   MergeChunkLeft;   // Оставшееся число не слитых блоков
+	const void * ExtraPtr;
+};
+
+typedef int (*SFileSortProgressCbProc)(const SFileSortProgressData *);
+
+class SFile {
+public:
+	DECL_INVARIANT_C();
+
+	static int FASTCALL Remove(const char * pFileName);
+	static int Rename(const char * pFileName, const char * pNewFileName);
+	static int Compare(const char * pFileName1, const char * pFileName2, long flags);
+	static int FASTCALL WildcardMatch(const char * pPattern, const char * pStr);
+	//
+	// Descr: Структура дополнительных параметров сортировки файла
+	//
+	struct SortParam {
+		SortParam();
+
+        size_t MaxChunkSize;  // @def=(8*1024*1024)
+        uint   MaxChunkCount; // @def=8
+		uint   MaxThread;     // @def=0
+        SFileSortProgressCbProc ProgressCbProc; // @def=0
+		const void * ProgressCbExtraPtr; // @def=0
+	};
+
+	static int Sort(const char * pSrcFileName, const char * pOutFileName, CompFunc fcmp, SortParam * pExtraParam);
+	//
+	// Descr: возвращает меточные даты файла с именем pFileName
+	// ARG(pFileName    IN): полное имя файла
+	// ARG(pCreation   OUT): дата и время создания файла
+	// ARG(pLastAccess OUT): дата и время последнего обращения к файлу
+	// ARG(pLastModif  OUT): дата и время последней модификации файла
+	// Returns:
+	//   1 - функция успешно выполнена
+	//   0 - ошибка
+	//
+	static int GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
+	//
+	// Descr: возвращает меточные даты файла, открытого с дескриптором fd
+	// ARG(fh           IN): дескриптор файла. В WIN32 этот дескриптор должен быть получен вызовом
+	//   функции CreateFile. В DOS - как fileno(FILE *).
+	// ARG(pCreation   OUT): дата и время создания файла
+	// ARG(pLastAccess OUT): дата и время последнего обращения к файлу
+	// ARG(pLastModif  OUT): дата и время последней модификации файла
+	// Returns:
+	//   1 - функция успешно выполнена
+	//   0 - ошибка
+	//
+	static int GetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
+	static int SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif);
+	static int IdentifyFormat(const char * pFileName);
+	static int IsOpenedForWriting(const char * pFileName);
+	//
+	// Descr: Ожидает момента, когда файл не открыт для записи.
+	// Returns:
+	//   <0 - файл не открыт для записи
+	//   >0 - время в миллисекундах, в течении которого пришлось ждать освобождения файла
+	//    0 - истек предельный timeout ожидания //
+	//
+	static int WaitForWriteSharingRelease(const char * pFileName, long timeout);
+	//
+	// Descr: Утилитная функция, вызывающая fclose(*ppF) если *ppF != 0 и обнуляющая после этого *ppF.
+	//
+	static void FASTCALL ZClose(FILE ** ppF);
+
+	enum {
+		mRead = 1,       // "r"
+		mWrite,          // "w"
+		mAppend,         // "a"
+		mReadWrite,      // "r+"
+		mReadWriteTrunc, // "w+"
+		mAppendRead,     // "a+"
+		mBinary    = 0x0100, // "..b"
+		mDenyRead  = 0x0200,
+		mDenyWrite = 0x0400,
+		mNoStd     = 0x0800, // Файл открывается в низкоуровневом (небуферизованном) режиме (open).
+			// Если размер файла может превышать 2G, то использовать этот флаг обязательно!
+		mNullWrite = 0x1000, // Файл открывается в режиме нулевого вывода - то есть запись в него ничего не делает, а чтение возвращает ошибку
+		mBuffRd    = 0x2000  // При установленном mNoStd чтение из файла буферизуется.
+	};
+	SFile();
+	SFile(const char * pName, long mode);
+	SFile(SBuffer & rBuf, long mode);
+	~SFile();
+	bool   IsValid() const;
+	operator FILE * ();
+	operator SBuffer * ();
+	//
+	// Descr: Если экземпляр класса работает как SBuffer (T == tSBuffer), то данное преобразование
+	//   присвоит буферу rBuf указатель на область памяти буфера и доступный размер (SBuffer::GetAvailableSize()).
+	//   В противном случае rBuf.P_Buf = 0 и rBuf.Size = 0.
+	// Note:
+	//   Пользоваться функцией следует с осторожностью так как память по указателю rBuf.P_Buf
+	//   принадлежит и данному экземпляру класса.
+	//   Ни в коем случае нельзя вызывать rBuf.Destroy() для переданной ссылке после вызова данной функции.
+	// Returns:
+	//   1 - экземпляр использует SBuffer и переданный объект rBuf успешно инициализирован.
+	//   0 - экземпляр либо не инициализирован, либо связан с файлом.
+	//
+	int    GetBuffer(SBaseBuffer & rBuf) const;
+	int    FileNo() const;
+	const  SString & GetName() const;
+	long   GetMode() const;
+	int    Open(const char * pName, long mode);
+	int    Open(SBuffer & rBuf, long mode);
+	int    OpenNullOutput();
+	int    Close();
+	//
+	// Descr: Устанавливает 32-битное значение текущей позиции в файле.
+	// Note: При буферизованном чтении вызов функции сбрасывает буфер.
+	// Returns:
+	//   true - success
+	//   false - error
+	//
+	bool   Seek(long offs, int origin = SEEK_SET);
+	//
+	// Descr: Устанавливает 64-битное значение текущей позиции в файле.
+	// Attention: Если файл открыт в стандартном режиме (без флага fNoStd) то
+	//   фактически применяется 32-битное значение позиции (младшие четыре байта offs).
+	// Note: При буферизованном чтении вызов функции сбрасывает буфер.
+	// Returns:
+	//   true - success
+	//   false - error
+	//
+	bool   Seek64(int64 offs, int origin = SEEK_SET);
+	//
+	// Descr: Возвращает значение текущей позиции в файле.
+	//
+	long   Tell();
+	//
+	// Descr: Возвращает 64-битное значение текущей позиции в файле.
+	// Attention: В версии VC 7.1 если файл открыт в стандартном режиме (без флага fNoStd) то
+	//   фактически возвращается 32-битное значение позиции. Это связано с отсутствием в той версии 
+	//   Visual C функции _ftelli64().
+	//
+	int64  Tell64();
+	int    Flush();
+	int    Write(const void * pBuf, size_t size);
+	//
+	// Descr: Пытается считать size байт в буфер pBuf.
+	//   Действительное количество считанных байт присваивается по адресу pActualSize
+	//   (если pActualSize != 0).
+	//
+	int    Read(void * pBuf, size_t size, size_t * pActualSize = 0);
+	//
+	// Descr: То же, что и SFile::Read() но с проверкой равенства запрошенного
+	//   размера считанному. Если считанное количество байт не равно запрошенному,
+	//   то возвращает 0 и устанавливает код ошибки SLERR_SFILRDSIZE.
+	//
+	int    ReadV(void * pBuf, size_t size);
+	int    FASTCALL WriteLine(const char *);
+	int    WriteBlancLine();
+	//
+	// Descr: Флаги функции ReadLine
+	//
+	enum {
+		rlfChomp = 0x0001, // Удалять завершающий строку перевод каретки (если присутствует)
+		rlfStrip = 0x0002  // Удалять ведущие и завершающие пробелы если таковые присутствуют.
+			// Если задан флаг rlfChomp, то вызов rBuf.Strip() осуществляется после rBuf.Chomp().
+	};
+
+	int    ReadLine(SString & rBuf, uint flags);
+	int    FASTCALL ReadLine(SString & rBuf);
+
+	class ReadLineCsvContext {
+	public:
+		friend class SFile;
+
+		ReadLineCsvContext(char fieldDivider);
+	private:
+		const  char FieldDivider;
+		uint8  Reserve[3]; // @alignment
+		SString LineBuf;
+		SStrScan Scan;
+	};
+	//
+	// Descr: Высокоуровневая функция, считывающая строку текстового файла в предположении, что этот файл имеет csv-формат.
+	//   Результат чтения заносится в экземляр StringSet.
+	//
+	int    ReadLineCsv(ReadLineCsvContext & rCtx, StringSet & rSs);
+	//
+	// Descr: Считывает все доступное содержание файла, начиная с текущей позиции, в буфер rBuf.
+	//   Если maxSize != 0, то считывает не более maxSize. В случае успеха по указателю pActualSize
+	//   возвращает количество считанных байт.
+	// Returns:
+	//   >0 - функция завершилась успешно
+	//    0 - ошибка
+	//   <0 - функция ничего не считала (*pActualSize == 0). Например из-за того, что файл пустой или текущая позиция файла уже в самом конце его.
+	//
+	int    ReadAll(STempBuffer & rBuf, size_t maxSize, size_t * pActualSize);
+	//
+	// Descr: Высокоуровневая функция записи буфера rBuf в поток.
+	//   Сначала записывает размер буфера, затем - данные.
+	// Returns:
+	//   >0 - буфер записан успешно
+	//   0  - ошибка
+	//
+	int    Write(const SBuffer & rBuf);
+	//
+	// Descr: Высокоуровневая функция чтения буфера rBuf из потока.
+	//   Сначала считывает размер буфера, распределяет необходимый размер в буфере и считывает данные.
+	// Returns:
+	//   >0 - буфер считан успешно
+	//   0  - ошибка
+	//
+	int    Read(SBuffer & rBuf);
+	//
+	// Descr: Устанавливает либо снимает блокировку участка файла размером size со смещением offs.
+	//   При успешном выполнении функция возвращает дескриптор блокировки (>0) который
+	//   может быть использован при снятии блокировки функцией Unlock().
+	//   При разрушении экземпляра класса все блокировки автоматически снимаются.
+	//
+	//   При снятии блокировки функция проверяет, чтобы во внутренней таблице блокировок присутствовал заданный
+	//   участок и, если это так, то разблокирует участок и возвращает его дескриптор (уже недействительный) вызывающей
+	//   функции. В противном случае завершается с ошибкой (return 0).
+	//
+	// ARG(offs IN): @#{>0} смещение в файле, по которому должна быть установлена блокировка
+	// ARG(size IN): @#{>0} размер блокируемого участка в файле
+	// ARG(mode IN): если mode != 0, то функция устанавливает блокировку, в противном случае - снимает.
+	// Returns:
+	//   0 - ошибка
+	//   >0 - при mode != 0 дескриптор блокировки. При mode == 0 просто означает успешное завершение операции.
+	//
+	int    _Lock(int64 offs, int32 size, int mode);
+	//
+	// Descr: Блокирует участок файла размером size со смещением offs.
+	//   При успешном выполнении функция возвращает дескриптор блокировки (>0) который
+	//   должен быть использован при снятии блокировки функцией Unlock().
+	//   При разрушении экземпляра класса все блокировки автоматически снимаются.
+	// ARG(offs IN): @#{>0} смещение в файле, по которому должна быть установлена блокировка
+	// ARG(size IN): @#{>0} размер блокируемого участка в файле
+	// Returns:
+	//   0  - ошибка
+	//   >0 - значение дескриптора блокировки
+	//
+	int    Lock(int64 offs, int32 size);
+	//
+	// Descr: Снимает блокировку, установленную перед этим функцией Lock(int64, int)
+	//
+	int    Unlock(int lckHandle);
+	//
+	// Descr: Рассчитывает размер файла. Размер определяется перемещением текущей позиции в конец файла
+	//   и определением после этого текущей позиции, которая и является размером.
+	//   После подсчета восстанавливает исходную текущую позицию файла.
+	// Returns:
+	//   true  - размер файла успешно вычислен
+	//   false - ошибка
+	//
+	bool   CalcSize(int64 * pSize);
+	//
+	// Descr: Рассчитывает хэш-функцию, заданную алгоритмом hashFunc по файлу, начиная со смещения offs.
+	//
+	bool   CalcHash(int64 offs, int hashFunc/* SHASHF_XXX */, SBinaryChunk & rHash);
+	int    GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif);
+	//
+	// Descr: Рассчитывает CRC32 файла, начиная со смещения offs.
+	//   После подсчета восстанавливает исходную текущую позицию файла.
+	// Returns:
+	//   >0 - CRC32 успешно рассчитан
+	//   <0 - размер файла меньше offs
+	//   0  - ошибка
+	//
+	int    CalcCRC(long offs, uint32 * pCrc);
+private:
+	struct LckChunk {
+		int32  Size;
+		int64  Offs;
+	};
+	int    AcquireLckDescriptor(int64 offs, int32 size);
+	const  SFile::LckChunk * FASTCALL GetLckDescriptor(int h) const;
+	int    FASTCALL ReleaseLckDescriptor(int h);
+
+	enum {
+		tNone = 0,
+		tStdFile,
+		tFile,
+		tSBuffer,
+		tNullOutput
+	};
+	void   Init();
+
+	int    T;
+	long   Mode;
+	union {
+		FILE * F;
+		SBuffer * P_Sb;
+	};
+	int    IH;
+	SString Name;
+	SBuffer BufR; // Буфер чтения ((Mode&mNoStd)&&(Mode&mBuffRd))
+	STempBuffer LB; // Временный буфер для чтения строк и т.д.
+	//
+	// Таблица дескрипторов блокировок. Таблица в течении жизни объекта никогда не уменьшается в размере.
+	// Дескриптором блокировки является индекс позиции блока LckChunk в массиве, увеличенный на 1.
+	// При снятии блокировки обнуляется значение Size что свидетельствует о том, что элемент свободен
+	// для использования другой блокировкой.
+	//
+	TSVector <SFile::LckChunk> LckList;
+};
+//
+// Descr: Незамысловатый класс, управляющий хранением большого числа файлов с жестко определенными наименованиями.
+//   Файлы храняться в подкаталогах базовой директории BasePath. Директория разбивается на BucketCount подкаталогов,
+//   место нахождение файла в конкретном подкаталоге определяется хэш-функцией от наименования файла.
+//
+class SFileStorage {
+public:
+	explicit SFileStorage(const char * pBasePath);
+	~SFileStorage();
+	bool   IsValid() const { return !(State & stError); }
+	bool   operator !() const { return !IsValid(); }
+	bool   Init(const char * pBasePath);
+	SHandle Write_Start(const char * pName);
+	bool   Write(SHandle handle, const void * pBuf, size_t size);
+	bool   Write_End(SHandle handle, uint64 * pWrittenSize);
+	int    PutFile(const char * pName, const void * pBuf, size_t size);
+	int    PutFile(const char * pName, const char * pSourceFilePath);
+	SHandle GetFile(const char * pName, int64 * pFileSize);
+	bool   Read(SHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize);
+	//
+	// Descr: Возвращает общий размер считанных с помощью манипулятора handle байт.
+	//   Если манипулятор открыт для записи, то возвращает 0.
+	//
+	uint64 GetTotalRdSize(SHandle handle) const;
+	//
+	// Descr: Возвращает общий размер записанных с помощью манипулятора handle байт.
+	//   Если манипулятор открыт для чтения, то возвращает 0.
+	//
+	uint64 GetTotalWrSize(SHandle handle) const;
+	//
+	// Descr: Закрывает файл, открытый либо функцией Write_Start() либо GetFile()
+	//
+	bool   CloseFile(SHandle handle);
+private:
+	bool   ValidateName(const char * pName) const;
+	int    MakeFileEntry(const char * pName, SString & rEntryName, bool writing);
+
+	enum {
+		stError  = 0x0001,
+		stInited = 0x0002
+	};
+
+	const  uint BucketCount;
+	const  uint HashSeed;
+	uint   State;
+	SString BasePath;
+	struct InnerWritingBlock {
+		InnerWritingBlock();
+		SFile  F;
+		uint64 TotalWrSize;
+	};
+	struct InnerReadingBlock {
+		InnerReadingBlock();
+		SFile  F;
+		int64  FileSize;
+		uint64 TotalRdSize;
+	};
+	TSCollection <InnerWritingBlock> WrBlkList;
+	TSCollection <InnerReadingBlock> RdBlkList;
+};
+//
+//
+//
+class SCompressor {
+public:
+	enum {
+		tUnkn = 0,
+		tZLib = 1,
+		tLz4  = 2
+	};
+	explicit SCompressor(int type);
+	~SCompressor();
+	int    SetMaxTempBufSize(size_t sz);
+	size_t GetMaxTempBufSize() const { return MaxTempBufSize; }
+	//
+	// Descr: Сжимает данные из буфера pSrc размером srcSize в буфер rDest.
+	// ARG(pSrc    IN): Указатель на исходные данные для сжатия
+	// ARG(srcSize IN): Размер исходных данных для сжатия в байтах
+	// ARG(rDest  OUT): Буфер, в который записывается результат сжатия. Буфер не сбрасывается и запись ведется начиная с текущей позиции.
+	// ARG(rate    IN): Синтетический фактор плотности сжатия [1..100]. 0 - по умолчанию, 1 - минимальное сжатие, 100 - максимальное сжатие.
+	// ARG(pExt    IN): Дополнительный блок данных, специфичный для конкретного алгоритма. Спецификация функции гарантирует,
+	//   что любой алгоритм будет адекватно работать при передаче нулевого указателя данным аргументом.
+	// Returns:
+	//   >0 - успех. Значение показывает количество байт, записанных в буфер rDest этим вызовом.
+	//    0 - ошибка
+	//
+	int    CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest, int rate, const void * pExt);
+	int    DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest);
+	//void * CompressIterStart(void * pDest, size_t destSize, const void * pExt);
+	//int    CompressIterNext(void * pCtx, const void * pSrc, size_t srcSize, void * pDest, size_t * destSize);
+	//int    CompressIterEnd(void * pDest, size_t destSize, const void * pExt);
+
+	enum {
+		estszMax = 0x01, // Функция GetEstimatedXXXSize определила максимальный размер результата
+		estszNr  = 0x02, // Функция GetEstimatedXXXSize определила ближайший размер результата
+	};
+private:
+	const  int Type;
+	size_t MaxTempBufSize; // @construction Максимальный размер внутреннего временного буфера для упаковки/распаковки.
+	// @construction STempBuffer TBuf;
+	void * P_Ctx;
+};
+
+class SArchive {
+public:
+	//
+	// Descr: Базовые форматы архивов
+	//
+	enum {
+		afCPIO = 1,
+		afSHAR,
+		afTAR,
+		afISO9660,
+		afZIP,
+		afAR,
+		afAR_GNU,
+		afMTREE,
+		afRAW,
+		afXAR,
+		afLHA,
+		afCAB,
+		afRAR,
+		af7ZIP,
+		afWARC
+	};
+	enum {
+		tUnkn = 0,
+		tZip  = 1, // LibZIP
+		tBz2  = 2,
+		tLA   = 3  // @v10.4.4 LibArchive
+		//t7Z // @construction
+	};
+	//
+	// Descr: Дескриптор формата архива
+	//
+	struct Format {
+		int    BaseAf; // SArchive::afXXX
+		int    Sis;    // ssisXXX
+		int    Var;    // Вариация
+	};
+	explicit SArchive(int type);
+	~SArchive();
+	int    Open(const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
+	int    Close();
+	bool   IsValid() const;
+	//
+	// Descr: Возвращает количество файлов в архиве
+	//
+	int64  GetEntriesCount() const;
+	//
+	// Descr: Возвращает имя файла в архиве с индексом idx
+	//
+    int    FASTCALL GetEntryName(int64 idx, SString & rName);
+    //
+    // Descr: Извлекает из архива файл с индексом idx и копирует его в pDestName
+    //
+    int    ExtractEntry(int64 idx, const char * pDestName);
+
+    enum {
+    	aefRecursive = 0x0001, // Для AddEntries: рекурсивно добавлять файлы из подкаталогов
+    	aefDirectory = 0x0002  // Для AddEntry: добавляемый элемент является каталогом
+    };
+	//
+	// Descr: Добавляет в архив новый элемент, соответствующий файлу pSrcFileName с именем pName.
+	//   Если pName == 0 || pName[0] == 0, то имя нового элемента соответствует имени файла без пути
+	//   в строчном регистре.
+	//
+    int    AddEntry(const char * pSrcFileName, const char * pName, int flags);
+    int    AddEntries(const char * pMask, int flags);
+private:
+	// @v10.4.4
+#if 1 // @construction {
+	struct LaCbBlock {
+		LaCbBlock(SArchive * pMaster, size_t bufSize);
+		SArchive * P_Master;
+		SFile F;
+		STempBuffer Buf;
+	};
+	static SSIZE_T cdecl LaCbRead(Archive * pA, void * pClientData, const void ** ppBuf);
+	static int64   cdecl LaCbSkip(Archive * pA, void * pClientData, int64 request);
+	static int     cdecl LaCbOpen(Archive * pA, void * pClientData);
+	static int     cdecl LaCbClose(Archive * pA, void * pClientData);
+#endif // } 0 @construction
+	// } @v10.4.4
+	int    Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
+
+	const  int Type;
+	void * H;
+	LaCbBlock * P_Cb_Blk; // @v10.4.4
+};
+//
 // JSON (Rui Maciel rui.maciel@gmail.com)
 //
 struct RcString;
@@ -12245,6 +12272,17 @@ long   GetTranspositionNumber(const long list[], long count);
 int    GetNthTransposition(long list[], long count, long n);
 //
 //
+// bits: 
+//   64 = 16+48 (16 - descriptor, 48 - value)
+//   48:
+//       1 - fractional or floating decimal 
+//       floating decimal:
+//          5 - signed exponent
+//         42 - signed mantissa
+//       ??? fractional:
+//          1 - sign
+//         24 - nominator
+//         23 - denominator  
 //
 class SDecimalFraction {
 public:

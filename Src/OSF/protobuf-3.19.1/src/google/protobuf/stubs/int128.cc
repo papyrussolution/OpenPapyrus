@@ -22,8 +22,7 @@
 
 namespace google {
 namespace protobuf {
-const uint128_pod kuint128max = {uint64_t{0xFFFFFFFFFFFFFFFFu},
-				 uint64_t{0xFFFFFFFFFFFFFFFFu}};
+const uint128_pod kuint128max = {uint64_t{0xFFFFFFFFFFFFFFFFu}, uint64_t{0xFFFFFFFFFFFFFFFFu}};
 
 // Returns the 0-based position of the last set bit (i.e., most significant bit)
 // in the given uint64. The argument may not be 0.
@@ -38,7 +37,8 @@ const uint128_pod kuint128max = {uint64_t{0xFFFFFFFFFFFFFFFFu},
 			(pos) |= (sh);                          \
 		}                                         \
 	} while(0)
-static inline int Fls64(uint64 n) {
+static inline int Fls64(uint64 n) 
+{
 	GOOGLE_DCHECK_NE(0, n);
 	int pos = 0;
 	STEP(uint64, n, pos, 0x20);
@@ -53,18 +53,18 @@ static inline int Fls64(uint64 n) {
 
 // Like Fls64() above, but returns the 0-based position of the last set bit
 // (i.e., most significant bit) in the given uint128. The argument may not be 0.
-static inline int Fls128(uint128 n) {
+static inline int Fls128(uint128 n) 
+{
 	if(uint64 hi = Uint128High64(n)) {
 		return Fls64(hi) + 64;
 	}
 	return Fls64(Uint128Low64(n));
 }
 
-void uint128::DivModImpl(uint128 dividend, uint128 divisor,
-    uint128* quotient_ret, uint128* remainder_ret) {
+void uint128::DivModImpl(uint128 dividend, uint128 divisor, uint128* quotient_ret, uint128* remainder_ret) 
+{
 	if(divisor == 0) {
-		GOOGLE_LOG(FATAL) << "Division or mod by zero: dividend.hi=" << dividend.hi_
-				  << ", lo=" << dividend.lo_;
+		GOOGLE_LOG(FATAL) << "Division or mod by zero: dividend.hi=" << dividend.hi_ << ", lo=" << dividend.lo_;
 	}
 	else if(dividend < divisor) {
 		*quotient_ret = 0;
@@ -91,7 +91,8 @@ void uint128::DivModImpl(uint128 dividend, uint128 divisor,
 	}
 }
 
-uint128 & uint128::operator/=(const uint128 & divisor) {
+uint128 & uint128::operator/=(const uint128 & divisor) 
+{
 	uint128 quotient = 0;
 	uint128 remainder = 0;
 	DivModImpl(*this, divisor, &quotient, &remainder);
@@ -108,26 +109,23 @@ uint128 & uint128::operator%=(const uint128 & divisor)
 	return *this;
 }
 
-std::ostream & operator<<(std::ostream & o, const uint128 & b) {
+std::ostream & operator<<(std::ostream & o, const uint128 & b) 
+{
 	std::ios_base::fmtflags flags = o.flags();
-
 	// Select a divisor which is the largest power of the base < 2^64.
 	uint128 div;
 	std::streamsize div_base_log;
 	switch(flags & std::ios::basefield) {
 		case std::ios::hex:
-		    div =
-			static_cast<uint64>(uint64_t{0x1000000000000000u}); // 16^15
+		    div = static_cast<uint64>(uint64_t{0x1000000000000000u}); // 16^15
 		    div_base_log = 15;
 		    break;
 		case std::ios::oct:
-		    div = static_cast<uint64>(
-			    uint64_t{01000000000000000000000u}); // 8^21
+		    div = static_cast<uint64>(uint64_t{01000000000000000000000u}); // 8^21
 		    div_base_log = 21;
 		    break;
 		default: // std::ios::dec
-		    div = static_cast<uint64>(
-			    uint64_t{10000000000000000000u}); // 10^19
+		    div = static_cast<uint64>(uint64_t{10000000000000000000u}); // 10^19
 		    div_base_log = 19;
 		    break;
 	}
@@ -136,8 +134,7 @@ std::ostream & operator<<(std::ostream & o, const uint128 & b) {
 	// the original value, each less than "div" and therefore representable
 	// as a uint64.
 	std::ostringstream os;
-	std::ios_base::fmtflags copy_mask =
-	    std::ios::basefield | std::ios::showbase | std::ios::uppercase;
+	std::ios_base::fmtflags copy_mask = std::ios::basefield | std::ios::showbase | std::ios::uppercase;
 	os.setf(flags & copy_mask, copy_mask);
 	uint128 high = b;
 	uint128 low;
@@ -164,8 +161,7 @@ std::ostream & operator<<(std::ostream & o, const uint128 & b) {
 			rep.append(width - rep.size(), o.fill());
 		}
 		else {
-			rep.insert(static_cast<std::string::size_type>(0),
-			    width - rep.size(), o.fill());
+			rep.insert(static_cast<std::string::size_type>(0), width - rep.size(), o.fill());
 		}
 	}
 

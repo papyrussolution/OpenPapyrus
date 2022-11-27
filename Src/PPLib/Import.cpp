@@ -4312,12 +4312,10 @@ int FiasImporter::ProcessState::SetItem(const char * pPath, int phase, uint * pP
 	return ok;
 }
 
-//static {
-void FiasImporter::Scb_StartDocument(void * ptr) { CALLTYPEPTRMEMB(FiasImporter, ptr, StartDocument()); }
-void FiasImporter::Scb_EndDocument(void * ptr) { CALLTYPEPTRMEMB(FiasImporter, ptr, EndDocument()); }
-void FiasImporter::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) { CALLTYPEPTRMEMB(FiasImporter, ptr, StartElement((const char *)pName, (const char **)ppAttrList)); }
-void FiasImporter::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEPTRMEMB(FiasImporter, ptr, EndElement((const char *)pName)); }
-//} static
+/*static*/void FiasImporter::Scb_StartDocument(void * ptr) { CALLTYPEPTRMEMB(FiasImporter, ptr, StartDocument()); }
+/*static*/void FiasImporter::Scb_EndDocument(void * ptr) { CALLTYPEPTRMEMB(FiasImporter, ptr, EndDocument()); }
+/*static*/void FiasImporter::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) { CALLTYPEPTRMEMB(FiasImporter, ptr, StartElement((const char *)pName, (const char **)ppAttrList)); }
+/*static*/void FiasImporter::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEPTRMEMB(FiasImporter, ptr, EndElement((const char *)pName)); }
 
 FiasImporter::FiasImporter() : Tra(0), TextCache(4 * 1024 * 1024),
 	P_Sdr(0), P_DebugOutput(0), InputObject(0), RawRecN(0), P_SaxCtx(0), State(0), CurPsPos(-1), P_SrDb(0), P_SrStoreFiasAddrBlock(0)
@@ -4328,12 +4326,10 @@ FiasImporter::~FiasImporter()
 {
 	delete P_Sdr;
 	delete P_DebugOutput;
-	// @v9.9.0 {
 	if(P_SrDb) {
 		P_SrDb->DestroyStoreFiasAddrBlock(P_SrStoreFiasAddrBlock);
 		delete P_SrDb;
 	}
-	// } @v9.9.0
 }
 
 int FiasImporter::SaxParseFile(xmlSAXHandler *sax, const char * pFileName)
@@ -5047,16 +5043,14 @@ int FiasImporter::EditParam(Param & rP)
     DIALOG_PROC_BODY(FiasImpParamDialog, &rP);
 }
 
-/*
-int ImportFias()
+/*int ImportFias()
 {
 	int    ok = 1;
 	FiasImporter prcssr("D:\\Papyrus\\Universe-HTT\\DATA\\KLADR\\FIAS");
 	prcssr.Import(FiasImporter::inpAddrObj, 0);
 	prcssr.Import(FiasImporter::inpHouse, 0);
 	return ok;
-}
-*/
+}*/
 
 int FiasImporter::Run(const FiasImporter::Param & rP)
 {
@@ -5163,15 +5157,8 @@ PrcssrOsmFilt & FASTCALL PrcssrOsmFilt::operator = (const PrcssrOsmFilt & rS)
 	return *this;
 }
 
-bool PrcssrOsmFilt::IsEmpty() const
-{
-	return (!Flags && SrcFileName.IsEmpty());
-}
-
-PrcssrOsm::CommonAttrSet::CommonAttrSet()
-{
-	Reset();
-}
+bool PrcssrOsmFilt::IsEmpty() const { return (!Flags && SrcFileName.IsEmpty()); }
+PrcssrOsm::CommonAttrSet::CommonAttrSet() { Reset(); }
 
 void PrcssrOsm::CommonAttrSet::Reset()
 {
@@ -5997,29 +5984,10 @@ int PrcssrOsm::EndElement(const char * pName)
 	return ok;
 }
 
-//static
-void PrcssrOsm::Scb_StartDocument(void * ptr)
-{
-	CALLTYPEPTRMEMB(PrcssrOsm, ptr, StartDocument());
-}
-
-//static
-void PrcssrOsm::Scb_EndDocument(void * ptr)
-{
-	CALLTYPEPTRMEMB(PrcssrOsm, ptr, EndDocument());
-}
-
-//static
-void PrcssrOsm::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList)
-{
-	CALLTYPEPTRMEMB(PrcssrOsm, ptr, StartElement((const char *)pName, (const char **)ppAttrList));
-}
-
-//static
-void PrcssrOsm::Scb_EndElement(void * ptr, const xmlChar * pName)
-{
-	CALLTYPEPTRMEMB(PrcssrOsm, ptr, EndElement((const char *)pName));
-}
+/*static*/void PrcssrOsm::Scb_StartDocument(void * ptr) { CALLTYPEPTRMEMB(PrcssrOsm, ptr, StartDocument()); }
+/*static*/void PrcssrOsm::Scb_EndDocument(void * ptr) { CALLTYPEPTRMEMB(PrcssrOsm, ptr, EndDocument()); }
+/*static*/void PrcssrOsm::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) { CALLTYPEPTRMEMB(PrcssrOsm, ptr, StartElement((const char *)pName, (const char **)ppAttrList)); }
+/*static*/void PrcssrOsm::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEPTRMEMB(PrcssrOsm, ptr, EndElement((const char *)pName)); }
 
 IMPL_CMPCFUNC(STRINT64, p1, p2)
 {

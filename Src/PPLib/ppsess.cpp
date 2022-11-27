@@ -662,7 +662,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 					IdList.clear();
 					if(!p_queue) {
 						SysJournal * p_sj = r_tla.P_SysJ;
-						CALLPTRMEMB(p_sj, GetObjListByEventSince((ObjTypeID == -1) ? 0 : ObjTypeID, 0, rPrevRunTime, IdList));
+						CALLPTRMEMB(p_sj, GetObjListByEventSince((ObjTypeID == -1) ? 0 : ObjTypeID, 0, rPrevRunTime, IdList, 0));
 					}
 					else if(evqc) {
 						for(uint i = 0; i < evqc; i++) {
@@ -1457,7 +1457,7 @@ int FASTCALL PPSession::ThreadCollection::Remove(ThreadID id)
 	return ok;
 }
 
-int FASTCALL PPSession::ThreadCollection::SetMessage(ThreadID id, int kind, const char * pMsg)
+int STDCALL PPSession::ThreadCollection::SetMessage(ThreadID id, int kind, const char * pMsg)
 {
 	int    ok = -1;
 	if(oneof2(kind, 0, 1)) {
@@ -1483,7 +1483,7 @@ uint PPSession::ThreadCollection::GetCount()
 	return c;
 }
 
-int FASTCALL PPSession::ThreadCollection::GetInfoList(int type, TSCollection <PPThread::Info> & rList)
+int STDCALL PPSession::ThreadCollection::GetInfoList(int type, TSCollection <PPThread::Info> & rList)
 {
 	int    ok = 1;
 	{
@@ -1519,7 +1519,7 @@ void FASTCALL PPSession::ThreadCollection::LocStkToStr(SString & rBuf)
 	}
 }
 
-int FASTCALL PPSession::ThreadCollection::GetInfo(ThreadID tId, PPThread::Info & rInfo)
+int STDCALL PPSession::ThreadCollection::GetInfo(ThreadID tId, PPThread::Info & rInfo)
 {
 	PPThread * p_target = SearchById(tId);
 	if(p_target) {
@@ -1576,7 +1576,7 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchBySessId(int32 sessId)
 	return p_ret;
 }
 
-PPThread * FASTCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind, const char * pSignature)
+PPThread * STDCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind, const char * pSignature)
 {
 	PPThread * p_ret = 0;
 	{
@@ -1624,7 +1624,7 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchIdle(int kind)
 	return p_ret;
 }
 
-int FASTCALL PPSession::ThreadCollection::GetListByKind(int kind, LongArray & rList)
+int STDCALL PPSession::ThreadCollection::GetListByKind(int kind, LongArray & rList)
 {
 	rList.Z();
 	{

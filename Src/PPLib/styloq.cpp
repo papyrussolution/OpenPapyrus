@@ -5728,6 +5728,41 @@ StyloQBlobInfo & StyloQBlobInfo::Z()
 	return *this;
 }
 
+PPStyloQInterchange::SvcNotification::SvcNotification() : EventOrgTime(ZERODATETIME), EventIssueTime(ZERODATETIME), EventId(0), MessageId(0)
+{
+}
+		
+int PPStyloQInterchange::SvcNotification::GenerateIdent()
+{
+	int    ok = 1;
+	SBinaryChunk buf;
+	buf.Cat(&EventOrgTime, sizeof(EventOrgTime));
+	buf.Cat(&EventId, sizeof(EventId));
+	buf.Cat(&Oid, sizeof(Oid));
+	Ident = SlHash::Md5(0, buf.PtrC(), buf.Len());
+	return ok;
+}
+
+SJson * PPStyloQInterchange::SvcNotification::ToJson() const
+{
+	SJson * p_result = new SJson(SJson::tOBJECT);
+	if(p_result) {
+		SString temp_buf;
+		if(!Ident.IsZero())
+			temp_buf.EncodeMime64(&Ident, sizeof(Ident));
+		p_result->InsertString("evnt_org_time", temp_buf.Z().Cat(EventOrgTime, DATF_ISO8601CENT, 0).Escape());
+		p_result->InsertString("evnt_iss_time", temp_buf.Z().Cat(EventIssueTime, DATF_ISO8601CENT, 0).Escape());
+		p_result->InsertIntNz("evnt", EventId);
+		if(Oid.Obj) {
+			p_result->InsertInt("objtype", Oid.Obj);
+			p_result->InsertIntNz("objid", Oid.Id);
+		}
+		p_result->InsertStringNe("msg", (temp_buf = Message).Escape());
+		p_result->InsertIntNz("msgid", MessageId);
+	}
+	return p_result;
+}
+
 PPStyloQInterchange::PPStyloQInterchange() : State(0), P_T(new StyloQCore)
 {
 }
@@ -8792,11 +8827,11 @@ int PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) // 
 		switch(pCmd->BaseCmdId) {
 			case StyloQCommandList::sqbcRsrvOrderPrereq:
 				PPWait(1);
-				THROW(ProcessCommand_RsrvOrderPrereq(*pCmd, fake_cli_pack, result, decl, true));
+				THROW(ProcessCommand_RsrvOrderPrereq(*pCmd, fake_cli_pack, result, decl, prccmdfDebugOutput));
 				break;
 			case StyloQCommandList::sqbcRsrvAttendancePrereq:
 				PPWait(1);
-				THROW(ProcessCommand_RsrvAttendancePrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true));
+				THROW(ProcessCommand_RsrvAttendancePrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, prccmdfDebugOutput));
 				break;
 			case StyloQCommandList::sqbcRsrvPushIndexContent:
 				{
@@ -8809,19 +8844,19 @@ int PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) // 
 				break;
 			case StyloQCommandList::sqbcReport:
 				PPWait(1);
-				THROW(ProcessCommand_Report(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true));
+				THROW(ProcessCommand_Report(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, prccmdfDebugOutput));
 				break;
 			case StyloQCommandList::sqbcRsrvIndoorSvcPrereq: // @v11.4.4
-				THROW(ProcessCommand_RsrvIndoorSvcPrereq(*pCmd, fake_cli_pack, result, decl, true));
+				THROW(ProcessCommand_RsrvIndoorSvcPrereq(*pCmd, fake_cli_pack, result, decl, prccmdfDebugOutput));
 				break;
 			case StyloQCommandList::sqbcGoodsInfo: // @v11.4.4
 				// @todo
 				break;
 			case StyloQCommandList::sqbcIncomingListOrder: // @v11.4.7
-				THROW(ProcessCommand_IncomingListOrder(*pCmd, fake_cli_pack, result, decl, true));
+				THROW(ProcessCommand_IncomingListOrder(*pCmd, fake_cli_pack, result, decl, prccmdfDebugOutput));
 				break;
 			case StyloQCommandList::sqbcIncomingListCCheck: // @v11.4.7
-				THROW(ProcessCommand_IncomingListCCheck(*pCmd, fake_cli_pack, result, decl, true));
+				THROW(ProcessCommand_IncomingListCCheck(*pCmd, fake_cli_pack, result, decl, prccmdfDebugOutput));
 				break;
 			case StyloQCommandList::sqbcIncomingListTSess: // @v11.4.7
 				// @todo
@@ -9572,6 +9607,9 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 	if(command.NotEmptyS()) {
 		SBinaryChunk own_ident;
 		StyloQCore::StoragePacket own_pack;
+		StyloQCore::StoragePacket cli_pack;
+		StyloQCommandList full_cmd_list;
+		DbProvider * p_dict = CurDict;
 		THROW(GetOwnIdent(own_ident, &own_pack));
 		if(command.IsEqiAscii("register")) {
 			// Регистрация //
@@ -9585,7 +9623,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			// Запрос содержит массив пар {blob-ident; block-hash} в ответ на который сервис-медиатор возвращает подмножество этого списка, содержащее набор
 			// blob'ов, которые у него отсутствуют либо отличаются по хэшу.
 			if(AmIMediator(command)) {
-				StyloQCore::StoragePacket cli_pack;
 				if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
 					p_js_reply = ProcessCommand_ReqBlobInfoList(cli_pack, p_js_cmd);
 					if(p_js_reply)
@@ -9596,7 +9633,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 		else if(command.IsEqiAscii("storeblob")) { // @v11.3.3
 			// Команда отправляется от сервиса к сервису-медиатору для того, чтобы медиатор сохранил произвольный бинарный объект для доступа к нему клиентов
 			if(AmIMediator(command)) {
-				StyloQCore::StoragePacket cli_pack;
 				if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
 					SBinaryChunk blob;
 					THROW(rRcvPack.P.Get(SSecretTagPool::tagBlob, &blob)); // @err
@@ -9608,7 +9644,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 		else if(command.IsEqiAscii("getblob")) { // @v11.3.3
 			// Команда отправляется от клиента к сервису-медиатору для того, чтобы получить произвольный бинарный объект по идентификатору, предоставленному другим сервисом
 			if(AmIMediator(command)) {
-				StyloQCore::StoragePacket cli_pack;
 				if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
 					p_js_reply = ProcessCommand_GetBlob(cli_pack, p_js_cmd, reply_blob);
 					if(p_js_reply) {
@@ -9620,7 +9655,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 		else if(command.IsEqiAscii("pushindexingcontent")) { // @v11.3.4
 			// Команда передачи сервису-медиатору данных для поисковой индексации
 			if(AmIMediator(command)) {
-				StyloQCore::StoragePacket cli_pack;
 				if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
 					if(ProcessCommand_IndexingContent(cli_pack, p_js_cmd, reply_text_buf) > 0) {
 						cmd_reply_ok = true;
@@ -9630,7 +9664,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 		}
 		else if(command.IsEqiAscii("search")) { // @v11.3.4
 			// Команда поискового запроса
-			StyloQCore::StoragePacket cli_pack;
 			if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
 				if(ProcessCommand_Search(cli_pack, p_js_cmd, reply_text_buf, temp_buf.Z()) > 0) {
 					reply_doc.Z().Put(reply_text_buf.cptr(), reply_text_buf.Len());
@@ -9806,8 +9839,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 		else if(command.IsEqiAscii("getcommandlist")) {
 			// Клиент запрашивает список доступных для него команд
 			//SBinaryChunk cli_ident;
-			StyloQCore::StoragePacket cli_pack;
-			DbProvider * p_dict = CurDict;
 			SString db_symb;
 			if(!p_dict || !p_dict->GetDbSymb(db_symb)) {
 				PPSetError(PPERR_SESSNAUTH);
@@ -9815,7 +9846,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				PPSetError(PPERR_SQ_CMDSETLOADINGFAULT);
 			}
 			else {
-				StyloQCommandList full_cmd_list;
 				StyloQCommandList * p_target_cmd_list = 0;
 				THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
 				if(StyloQCommandList::GetFullList(db_symb, full_cmd_list)) {
@@ -9829,7 +9859,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 		}
 		else if(command.IsEqiAscii("dtlogin")) {
 			// Десктоп-логин (экспериментальная функция)
-			StyloQCore::StoragePacket cli_pack;
 			THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
 			if(cli_pack.Rec.Kind == StyloQCore::kClient && cli_pack.Rec.LinkObjType == PPOBJ_USR && cli_pack.Rec.LinkObjID) {
 				PPObjSecur sec_obj(PPOBJ_USR, 0);
@@ -9867,6 +9896,61 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			p_js_reply->InsertString("result", "ok");
 			cmd_reply_ok = true;
 		}
+		else if(command.IsEqiAscii("requestnotificationlist")) { // @v11.5.9 Запрос извещений по командам, для которых определены флаги извещений.
+			S_GUID org_cmd_uuid;
+			for(const SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Type == SJson::tOBJECT) {								
+					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						if(p_obj->Text.IsEqiAscii("orgcmduuid")) {
+							org_cmd_uuid.FromStr(p_obj->P_Child->Text);
+						}
+						else if(p_obj->Text.IsEqiAscii("notify")) {
+							// @todo
+						}
+					}
+				}
+			}
+			if(!!org_cmd_uuid) {
+				SString db_symb;
+				if(!p_dict || !p_dict->GetDbSymb(db_symb)) {
+					PPSetError(PPERR_SESSNAUTH);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+					PPSetError(PPERR_SQ_CMDSETLOADINGFAULT);
+				}
+				else if(StyloQCommandList::GetFullList(db_symb, full_cmd_list)) {
+					const StyloQCommandList::Item * p_item = full_cmd_list.GetByUuid(org_cmd_uuid);
+					THROW(p_item);
+					THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
+					const PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
+					StyloQCommandList * p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid, 0, false);
+					const StyloQCommandList::Item * p_targeted_item = p_target_cmd_list ? p_target_cmd_list->GetByUuid(org_cmd_uuid) : 0;
+					THROW_PP(p_targeted_item, PPERR_SQ_UNTARGETEDCMD);
+					switch(p_targeted_item->BaseCmdId) {
+						case StyloQCommandList::sqbcIncomingListOrder:
+							{
+								/* Копия прямого исполнения команды sqbcIncomingListOrder
+								IntermediateReply(3*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra);
+								if(ProcessCommand_IncomingListOrder(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), prccmdfReqNotification)) {
+									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
+									if(temp_buf.Len())
+										reply_doc_declaration.Put(temp_buf, temp_buf.Len());
+									cmd_reply_ok = true;									
+								}
+								else {
+									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+									PPSetError(PPERR_SQ_CMDFAULT_INCOMINGLIST);
+								}
+								*/
+							}
+							break;
+						case StyloQCommandList::sqbcIncomingListCCheck:
+							break;
+						case StyloQCommandList::sqbcIncomingListTodo:
+							break;
+					}
+				}
+			}
+		}
 		else if(command.IsEqiAscii("requestdocumentstatuslist")) { // Запрос статусов документов. Отправляется от клиента сервису для взаимной синхронизации статусов
 			// В ответ сервис может прислать как статус, так и собственную версию документа. Например, с корректировками или согасованиями.
 			//UUID   DocUUID;
@@ -9884,7 +9968,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				sst        // Статус документа у сервиса
 			}
 			*/
-			StyloQCore::StoragePacket cli_pack;
 			THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
 			p_js_reply = ProcessCommand_RequestDocumentStatusList(own_ident, cli_pack, p_js_cmd);
 			if(p_js_reply) {
@@ -9898,7 +9981,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			// В ответ отправляется сигнал о успешной либо безуспешной обработке команды
 			//
 			PPID   result_obj_id = 0;
-			StyloQCore::StoragePacket cli_pack;
 			THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
 			p_js_reply = ProcessCommand_PostDocument(own_ident, cli_pack, p_in_declaration, p_in_doc, &result_obj_id);
 			if(p_js_reply) {
@@ -9920,7 +10002,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				}
 			}
 			if(goods_id || goods_code.NotEmptyS()) {
-				DbProvider * p_dict = CurDict;
 				SString db_symb;
 				if(!p_dict || !p_dict->GetDbSymb(db_symb)) {
 					PPSetError(PPERR_SESSNAUTH);
@@ -9928,8 +10009,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 					PPSetError(PPERR_SQ_CMDSETLOADINGFAULT);
 				}
 				else {
-					StyloQCommandList full_cmd_list;
-					StyloQCore::StoragePacket cli_pack;
 					StyloQCommandList * p_target_cmd_list = 0;
 					THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
 					if(StyloQCommandList::GetFullList(db_symb, full_cmd_list)) {
@@ -10037,10 +10116,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 		}
 		else {
 			S_GUID cmd_uuid;
-			StyloQCore::StoragePacket cli_pack;
 			if(cmd_uuid.FromStr(command) && SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
-				StyloQCommandList full_cmd_list;
-				DbProvider * p_dict = CurDict;
 				SString db_symb;
 				if(!p_dict || !p_dict->GetDbSymb(db_symb)) {
 					PPSetError(PPERR_SESSNAUTH);
@@ -10120,7 +10196,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 						case StyloQCommandList::sqbcRsrvAttendancePrereq: // v11.3.2
 							{
 								IntermediateReply(5*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra);
-								if(ProcessCommand_RsrvAttendancePrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, geopos, reply_text_buf, temp_buf.Z(), false)) {
+								if(ProcessCommand_RsrvAttendancePrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, geopos, reply_text_buf, temp_buf.Z(), 0)) {
 									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 									if(temp_buf.Len())
 										reply_doc_declaration.Put(temp_buf, temp_buf.Len());
@@ -10157,7 +10233,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 								// } @v11.4.8 
 								if(!local_done) {
 									IntermediateReply(3*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra);
-									if(ProcessCommand_RsrvIndoorSvcPrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), false)) {
+									if(ProcessCommand_RsrvIndoorSvcPrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), 0)) {
 										reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 										if(temp_buf.Len())
 											reply_doc_declaration.Put(temp_buf, temp_buf.Len());
@@ -10197,7 +10273,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 						case StyloQCommandList::sqbcIncomingListOrder: // @v11.4.6
 							{
 								IntermediateReply(3*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra);
-								if(ProcessCommand_IncomingListOrder(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), false)) {
+								if(ProcessCommand_IncomingListOrder(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), 0)) {
 									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 									if(temp_buf.Len())
 										reply_doc_declaration.Put(temp_buf, temp_buf.Len());
@@ -10212,7 +10288,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 						case StyloQCommandList::sqbcIncomingListCCheck: // @v11.4.7
 							{
 								IntermediateReply(3*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra);
-								if(ProcessCommand_IncomingListCCheck(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), false)) {
+								if(ProcessCommand_IncomingListCCheck(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), 0)) {
 									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 									if(temp_buf.Len())
 										reply_doc_declaration.Put(temp_buf, temp_buf.Len());
@@ -10236,7 +10312,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 							break;
 						case StyloQCommandList::sqbcDebtList: // @v11.5.4
 							{
-								if(ProcessCommand_DebtList(StyloQCommandList::Item(*p_targeted_item), p_js_cmd, cli_pack, reply_text_buf, temp_buf.Z(), false)) {
+								if(ProcessCommand_DebtList(StyloQCommandList::Item(*p_targeted_item), p_js_cmd, cli_pack, reply_text_buf, temp_buf.Z(), 0)) {
 									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 									if(temp_buf.Len())
 										reply_doc_declaration.Put(temp_buf, temp_buf.Len());

@@ -779,7 +779,7 @@ void FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 	}
 }
 
-void FASTCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const char * msg)
+void STDCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const char * msg)
 {
 	const  ulong  promille = static_cast<ulong>(t ? (1000.0 * fdivui(p, t)) : 1000.0);
 	const  ulong  percent = promille / 10;//static_cast<ulong>(t ? (100.0 * fdivui(p, t)) : 100.0);

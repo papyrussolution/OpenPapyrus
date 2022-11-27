@@ -3340,7 +3340,7 @@ SUniTime::SUniTime(const LDATETIME & rD)
 	Set(rD);
 }
 
-int SUniTime::operator !() const
+bool SUniTime::operator !() const
 {
 	return ismemzero(D, sizeof(D));
 }

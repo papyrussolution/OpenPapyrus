@@ -6043,7 +6043,6 @@ void DocNalogRu_Generator::EndDocument()
 int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp)
 {
 	int    ok = 1;
-	int    tiamt = 0;
 	double total_amt = 0.0;
 	double total_amt_wovat = 0.0;
 	double total_vat = 0.0;
@@ -6052,14 +6051,11 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 	SString unit_name;
 	SString unit_code;
 	SString goods_code;
+	SString barcode_for_marking;  // @v11.5.9 Валидный штрихкод для формирования суррогатной chzn-марки для некоторых категорий товаров
+	SString barcode_for_exchange; // @v11.5.9 Валидный штрихкод для передачи контрагенту с целью идентификации товара
 	PPLotExtCodeContainer::MarkSet::Entry msentry;
 	PPLotExtCodeContainer::MarkSet ext_codes_set;
-	if(rBp.OutAmtType == TIAMT_COST)
-		tiamt = TIAMT_COST;
-	else if(rBp.OutAmtType == TIAMT_PRICE)
-		tiamt = TIAMT_PRICE;
-	else
-		tiamt = TIAMT_AMOUNT;
+	const int tiamt = (rBp.OutAmtType == TIAMT_COST) ? TIAMT_COST : ((rBp.OutAmtType == TIAMT_PRICE) ? TIAMT_PRICE : TIAMT_AMOUNT);
 	SXml::WNode n_t(P_X, GetToken_Ansi(PPHSC_RU_INVOICETAB));
 	for(uint item_idx = 0; item_idx < rBp.GetTCount(); item_idx++) {
 	// <СведТов НалСт="18%" НомСтр="1" НаимТов="Товар" ОКЕИ_Тов="796" КолТов="5" ЦенаТов="1.00" СтТовБезНДС="5.00" СтТовУчНал="5.90">
@@ -6072,6 +6068,8 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 		unit_name.Z();
 		unit_code.Z();
 		goods_code.Z();
+		barcode_for_marking.Z();  // @v11.5.9
+		barcode_for_exchange.Z(); // @v11.5.9
 		// my -- {
 		// <СведТов КолТов="1.00" НаимТов="ТО системы защиты от краж ООО "Лента" ТК-180 Петрозаводск, пр. Комсомольский, 27"
 			// НалСт="без НДС" НомСтр="1" ОКЕИ_Тов="796" СтТовБезНДС="9000.00" СтТовУчНал="9000.00" ЦенаТов="9000.00"></СведТов>
@@ -6087,6 +6085,29 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			// СтТовУчНал="9000.00">
 		// </СведТов>
 		// !!! <ДопСведТов ПрТовРаб="3" КодТов="00000000027" НаимЕдИзм="шт"/>
+		// @v11.5.9 {
+		{
+			BarcodeArray bc_list;
+			GObj.P_Tbl->ReadBarcodes(goods_id, bc_list);
+			SString norm_code;
+			temp_buf.Z();
+			for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
+				const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
+				int    diag = 0;
+				int    std = 0;
+				const  int dbcr = PPObjGoods::DiagBarcode(r_bc_rec.Code, &diag, &std, &norm_code);
+				if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
+					assert(norm_code.Len() < 14);
+					if(norm_code.Len() < 14) {
+						if(barcode_for_marking.IsEmpty())
+							barcode_for_marking = norm_code;
+						if(barcode_for_exchange.IsEmpty())
+							barcode_for_exchange  = norm_code;
+					}
+				}
+			}
+		}
+		// } @v11.5.9
 		SXml::WNode n_item(P_X, GetToken_Ansi(PPHSC_RU_WAREINFO));
 		temp_buf.Z().Cat(r_ti.RByBill);
 		n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_LINENUMBER), temp_buf);
@@ -6140,7 +6161,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 					temp_buf.Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
 				}
 				else {
-					double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
+					const double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
 					temp_buf.Cat(vat_rate, MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 				}
 				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_TAXRATE), temp_buf);
@@ -6181,6 +6202,13 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			}
 			total_vat += vat_sum;
 		}
+		// @v11.5.9 {
+		if(barcode_for_exchange.NotEmpty()) {
+			SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
+			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), GetToken_Ansi(PPHSC_RU_EXTRA_BARCODE));
+			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), barcode_for_exchange);
+		}
+		// } @v11.5.9
 		// @v10.6.11 {
 		{
 			SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_WAREEXTRAINFO));
@@ -6190,24 +6218,9 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WARETYPE), "1"); // @v11.4.11 ПрТовРаб="1"
 			// @v11.4.10 {
 			if(oneof2(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER)) {
-				BarcodeArray bc_list;
-				GObj.P_Tbl->ReadBarcodes(goods_id, bc_list);
-				SString norm_code;
-				temp_buf.Z();
-				for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
-					const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
-					int    diag = 0;
-					int    std = 0;
-					const  int dbcr = PPObjGoods::DiagBarcode(r_bc_rec.Code, &diag, &std, &norm_code);
-					if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
-						assert(norm_code.Len() < 14);
-						if(norm_code.Len() < 14) {
-							(temp_buf = norm_code).PadLeft(14-norm_code.Len(), '0').Insert(0, "02").Cat("37").Cat(R0i(qtty_local));
-							break;
-						}
-					}
-				}
-				if(temp_buf.NotEmpty()) {
+				if(barcode_for_marking.NotEmpty()) {
+					assert(barcode_for_marking.Len() < 14);
+					(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37").Cat(R0i(qtty_local));
 					SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
 					n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 				}
@@ -6287,7 +6300,17 @@ int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID, 
 	{
 		SString temp_buf;
 		SString inn;
+		SString kpp;
+		PPLocationPacket * p_addr_pack = 0;
+		if(!LocationCore::IsEmptyAddressRec(psn_pack.RLoc))
+			p_addr_pack = &psn_pack.RLoc;
+		else if(!LocationCore::IsEmptyAddressRec(psn_pack.Loc))
+			p_addr_pack = &psn_pack.Loc;
 		psn_pack.GetRegNumber(PPREGT_TPID, inn);
+		if(p_addr_pack)
+			p_addr_pack->Regs.GetRegNumber(PPHSC_RU_KPP, kpp);
+		if(kpp.IsEmpty())
+			psn_pack.GetRegNumber(PPREGT_KPP, kpp);
 		SXml::WNode n_h(P_X, pHeaderTag);
 		{
 			SXml::WNode n_id(P_X, GetToken_Ansi(PPHSC_RU_IDPARTICIPANT));
@@ -6302,17 +6325,13 @@ int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID, 
 					temp_buf = psn_pack.Rec.Name;
 				n__.PutAttrib(GetToken_Ansi(PPHSC_RU_NAMEOFORG), EncText(temp_buf));
 				n__.PutAttrib(GetToken_Ansi(PPHSC_RU_INNJUR), EncText(inn));
-				psn_pack.GetRegNumber(PPREGT_KPP, temp_buf);
-				n__.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_KPP), EncText(temp_buf));
+				n__.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_KPP), EncText(kpp));
 			}
 			else { // Вероятно, иностранец. Хотя, может быть просто не вбит ИНН
 
 			}
-			if(!LocationCore::IsEmptyAddressRec(psn_pack.RLoc)) {
-				THROW(WriteAddress(psn_pack.RLoc, 0, PPHSC_RU_ADDRESS));
-			}
-			else if(!LocationCore::IsEmptyAddressRec(psn_pack.Loc)) {
-				THROW(WriteAddress(psn_pack.Loc, 0, PPHSC_RU_ADDRESS));
+			if(p_addr_pack) {
+				THROW(WriteAddress(*p_addr_pack, 0, PPHSC_RU_ADDRESS));
 			}
 		}
 	}
@@ -6840,6 +6859,7 @@ int WriteBill_NalogRu2_Invoice2(const PPBillImpExpParam & rParam, const PPBillPa
 	DocNalogRu_Generator g;
 	THROW(!isempty(pHeaderSymb)); // @v11.2.1
 	{
+		PPObjPerson psn_obj;
 		PPObjAccSheet acs_obj;
 		PPOprKind op_rec;
 		PPOprKind link_op_rec;
@@ -6861,7 +6881,18 @@ int WriteBill_NalogRu2_Invoice2(const PPBillImpExpParam & rParam, const PPBillPa
 		THROW(g.StartDocument(_hi.FileName));
         {
 			DocNalogRu_Generator::File f(g, _hi);
-			GetMainOrgName(temp_buf);
+			// @v11.5.9 {
+			PPPersonPacket psn_pack;
+			temp_buf.Z();
+			if(psn_obj.GetPacket(main_org_id, &psn_pack, 0) > 0) {
+				if(psn_pack.GetExtName(temp_buf) > 0) {
+					;
+				}
+				else
+					temp_buf = psn_pack.Rec.Name;
+			}
+			// } @v11.5.9 
+			// @v11.5.9 GetMainOrgName(temp_buf);
 			DocNalogRu_Generator::DocumentInfo docinfo;
 			docinfo.KND = "1115131";
 			docinfo.Subj = temp_buf;

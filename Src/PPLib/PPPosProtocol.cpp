@@ -873,7 +873,7 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 						url.SetComponent(InetUrl::cUserName, temp_buf);
 					{
 						char    pw[128];
-						if(ina_rec.GetPassword(pw, sizeof(pw), FTPAEXSTR_PASSWORD))
+						if(ina_rec.GetPassword_(pw, sizeof(pw), FTPAEXSTR_PASSWORD))
 							url.SetComponent(InetUrl::cPassword, pw);
 					}
 					//url.Composite(InetUrl::stAll, url_buf);
@@ -5162,7 +5162,7 @@ int PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet
 			url.SetComponent(InetUrl::cUserName, temp_buf);
 		{
 			char    pw[128];
-			if(ina_rec.GetPassword(pw, sizeof(pw), FTPAEXSTR_PASSWORD))
+			if(ina_rec.GetPassword_(pw, sizeof(pw), FTPAEXSTR_PASSWORD))
 				url.SetComponent(InetUrl::cPassword, pw);
 		}
 		url.Composite(InetUrl::stAll, url_buf);

@@ -5582,13 +5582,19 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 			r = -1;
 	}
 	if(r > 0) {
-		int    oddgoods = 0, exclamount = 0, is_asset = 0;
+		int    oddgoods = 0;
+		int    exclamount = 0;
+		int    is_asset = 0;
 		int    sign = 1;
 		int    in_out = 0; // < 0 - input on modif; > 0 - output on modif; 0 - no modif
 		PPID   cvat_amt_id = 0;
 		double qtty;
-		double cq, pq, dq, curamtq;
-		double tax_rate, tax_sum;
+		double cq;
+		double pq;
+		double dq;
+		double curamtq;
+		double tax_rate;
+		double tax_sum;
 		double asset_expl = 0.0;
 		GTaxVect vect;
 		SETFLAG(pTI->Flags, PPTFR_SELLING, (State & stSelling));
@@ -5640,13 +5646,13 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				const double q_pre = fabs(pTI->QuotPrice);
 				cq = R2(pTI->Cost * q - pTI->RevalCost * q_pre);
 				pq = R2(pTI->Price * q - pTI->Discount * q_pre);
-				dq = 0;
+				dq = 0.0;
 			}
 			else {
 				qtty = fabs(pTI->Rest_);
 				cq = R2((pTI->Cost  - pTI->RevalCost) * qtty);
 				pq = R2((pTI->Price - pTI->Discount) * qtty);
-				dq = 0;
+				dq = 0.0;
 			}
 		}
 		else {
@@ -5656,7 +5662,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				const double q_pre = fabs(pTI->QuotPrice);
 				cq = R2(pTI->Cost * (q - q_pre));
 				pq = R2(pTI->NetPrice() * q - pTI->RevalCost * q_pre);
-				dq = 0;
+				dq = 0.0;
 			}
 			else {
 				if(OpID && GetOpType(OpID) == PPOPT_GOODSMODIF) {

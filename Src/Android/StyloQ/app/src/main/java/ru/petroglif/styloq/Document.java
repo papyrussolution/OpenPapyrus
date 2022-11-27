@@ -1490,9 +1490,7 @@ public class Document {
 							// @todo Не все поля считаны!
 							{
 								String req_time = js_item.optString("reqtime", null);
-								if(SLib.GetLen(req_time) > 0) {
-									bi.ReqTime = SLib.strtodatetime(req_time, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
-								}
+								bi.ReqTime = SLib.strtodatetime(req_time, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
 								bi.EstimatedDurationSec = js_item.optInt("estimateddurationsec", 0);
 								JSONObject js_set = js_item.optJSONObject("set");
 								if(js_set != null) {

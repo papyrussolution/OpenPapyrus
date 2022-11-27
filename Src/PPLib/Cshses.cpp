@@ -25,8 +25,8 @@
 
 PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) : State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
 {
-	PTR32(Name)[0] = 0;
-	PTR32(Port)[0] = 0;
+	Name[0] = 0;
+	Port[0] = 0;
 	if(CnObj.GetSync(NodeID, &SCn) > 0)
 		P_SlipFmt = new PPSlipFormatter(SCn.SlipFmtPath);
 	else
@@ -1806,7 +1806,7 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 		}
 		PPIDArray acn_goodsnodisrmvd;
 		acn_goodsnodisrmvd.add(PPACN_GOODSNODISRMVD);
-		SJ.GetObjListByEventSince(PPOBJ_GOODS, &acn_goodsnodisrmvd, since, NoDisToggleGoodsList);
+		SJ.GetObjListByEventSince(PPOBJ_GOODS, &acn_goodsnodisrmvd, since, NoDisToggleGoodsList, 0);
 	}
 	if(Algorithm != algUpdBills || !(Flags & ACGIF_UPDATEDONLY)) {
 		if(AcnPack.GoodsGrpID) {
@@ -2312,7 +2312,7 @@ AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, D
 				//
 				PPIDArray acn_list;
 				acn_list.addzlist(PPACN_OBJADD, PPACN_OBJUPD, PPACN_SCARDDISUPD, PPACN_SCARDOWNERUPDATED, 0L); // @v11.4.0 PPACN_SCARDOWNERUPDATED
-				p_sj->GetObjListByEventSince(PPOBJ_SCARD, &acn_list, Since, UpdSCardList);
+				p_sj->GetObjListByEventSince(PPOBJ_SCARD, &acn_list, Since, UpdSCardList, 0);
 			}
 			else {
 				Since.Z();

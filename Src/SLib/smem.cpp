@@ -87,7 +87,7 @@ void FASTCALL memmovo(void * pDest, const void * pSrc, size_t sz)
 	}
 }
 
-int FASTCALL ismemzero(const void * p, size_t s)
+bool FASTCALL ismemzero(const void * p, size_t s)
 {
 	switch(s) {
 		case  1: return BIN(PTR8C(p)[0] == 0);
@@ -102,12 +102,12 @@ int FASTCALL ismemzero(const void * p, size_t s)
 	size_t i;
 	for(i = 0; i < v; i++) {
 		if(PTR32C(p)[i] != 0)
-			return 0;
+			return false;
 	}
 	for(i = 0; i < m; i++)
 		if(PTR8C(p)[(v*4)+i] != 0)
-			return 0;
-	return 1;
+			return false;
+	return true;
 }
 
 void * FASTCALL memzero(void * p, size_t s)

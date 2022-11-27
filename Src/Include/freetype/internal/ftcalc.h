@@ -247,10 +247,7 @@ static __inline__ FT_Int32 FT_MulFix_x86_64(FT_Int32 a,
  *   divide by zero; it simply returns 'MaxInt' or 'MinInt' depending on
  *   the signs of 'a' and 'b'.
  */
-FT_BASE(FT_Long)
-FT_MulDiv_No_Round(FT_Long a,
-    FT_Long b,
-    FT_Long c);
+FT_BASE(FT_Long) FT_MulDiv_No_Round(FT_Long a, FT_Long b, FT_Long c);
 
 /*
  * A variant of FT_Matrix_Multiply which scales its result afterwards.  The
@@ -259,11 +256,7 @@ FT_MulDiv_No_Round(FT_Long a,
  * 64bit multiplication.  Let `sa' and `sb' be the scaling factors of `a'
  * and `b', respectively, then the scaling factor of the result is `sa*sb'.
  */
-FT_BASE(void)
-FT_Matrix_Multiply_Scaled(const FT_Matrix*  a,
-    FT_Matrix        *b,
-    FT_Long scaling);
-
+FT_BASE(void) FT_Matrix_Multiply_Scaled(const FT_Matrix*  a, FT_Matrix        *b, FT_Long scaling);
 /*
  * Check a matrix.  If the transformation would lead to extreme shear or
  * extreme scaling, for example, return 0.  If everything is OK, return 1.

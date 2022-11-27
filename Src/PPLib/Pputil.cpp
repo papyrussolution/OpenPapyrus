@@ -442,7 +442,7 @@ int PPTransaction::Rollback()
 //
 // Helper database functions
 //
-int FASTCALL SearchByKey(DBTable * pTbl, int idx, void * pKey, void * pData)
+int STDCALL SearchByKey(DBTable * pTbl, int idx, void * pKey, void * pData)
 {
 	int    ok = 1;
 	if(pTbl->search(idx, pKey, spEq))
@@ -452,7 +452,7 @@ int FASTCALL SearchByKey(DBTable * pTbl, int idx, void * pKey, void * pData)
 	return ok;
 }
 
-int FASTCALL SearchByKey_ForUpdate(DBTable * pTbl, int idx, void * pKey, void * pData)
+int STDCALL SearchByKey_ForUpdate(DBTable * pTbl, int idx, void * pKey, void * pData)
 {
 	int    ok = 1;
 	if(pTbl->searchForUpdate(idx, pKey, spEq))
@@ -491,7 +491,7 @@ int PPSetDbRecordByKey(DBTable * pTbl, int idx, void * pKey, const void * pData,
 	return ok;
 }
 
-int FASTCALL SearchByID(DBTable * pTbl, PPID objType, PPID id, void * b)
+int STDCALL SearchByID(DBTable * pTbl, PPID objType, PPID id, void * b)
 {
 	int    ok = -1;
 	if(pTbl) {
@@ -507,7 +507,7 @@ int FASTCALL SearchByID(DBTable * pTbl, PPID objType, PPID id, void * b)
 	return ok;
 }
 
-int FASTCALL SearchByID_ForUpdate(DBTable * pTbl, PPID objType, PPID id, void * b)
+int STDCALL SearchByID_ForUpdate(DBTable * pTbl, PPID objType, PPID id, void * b)
 {
 	int    ok = -1;
 	if(pTbl) {
@@ -523,7 +523,7 @@ int FASTCALL SearchByID_ForUpdate(DBTable * pTbl, PPID objType, PPID id, void * 
 	return ok;
 }
 
-int FASTCALL AddByID(DBTable * tbl, PPID * pID, void * b, int use_ta)
+int STDCALL AddByID(DBTable * tbl, PPID * pID, void * b, int use_ta)
 {
 	int    ok = 1;
 	PPID   tmp_id = DEREFPTRORZ(pID);
@@ -539,7 +539,7 @@ int FASTCALL AddByID(DBTable * tbl, PPID * pID, void * b, int use_ta)
 	return ok;
 }
 
-int FASTCALL AdjustNewObjID(DBTable * tbl, PPID objType, void * b)
+int STDCALL AdjustNewObjID(DBTable * tbl, PPID objType, void * b)
 {
 	int    ok = 1;
 	if(objType) {
@@ -580,7 +580,7 @@ int FASTCALL AdjustNewObjID(DBTable * tbl, PPID objType, void * b)
 	return ok;
 }
 
-int FASTCALL AddObjRecByID(DBTable * tbl, PPID objType, PPID * pID, void * b, int use_ta)
+int STDCALL AddObjRecByID(DBTable * tbl, PPID objType, PPID * pID, void * b, int use_ta)
 {
 	int    ok = 1;
 	PPID   tmp_id = DEREFPTRORZ(pID);
@@ -605,7 +605,7 @@ int FASTCALL AddObjRecByID(DBTable * tbl, PPID objType, PPID * pID, void * b, in
 	return ok;
 }
 
-int FASTCALL UpdateByID(DBTable * pTbl, PPID objType, PPID id, const void * b, int use_ta)
+int STDCALL UpdateByID(DBTable * pTbl, PPID objType, PPID id, const void * b, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -619,7 +619,7 @@ int FASTCALL UpdateByID(DBTable * pTbl, PPID objType, PPID id, const void * b, i
 	return ok;
 }
 
-int FASTCALL UpdateByID_Cmp(DBTable * pTbl, PPID objType, PPID id, void * b, int use_ta)
+int STDCALL UpdateByID_Cmp(DBTable * pTbl, PPID objType, PPID id, void * b, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -637,7 +637,7 @@ int FASTCALL UpdateByID_Cmp(DBTable * pTbl, PPID objType, PPID id, void * b, int
 	return ok;
 }
 
-int FASTCALL RemoveByID(DBTable * tbl, PPID id, int use_ta)
+int STDCALL RemoveByID(DBTable * tbl, PPID id, int use_ta)
 {
 	int    ok = 1;
 	if(tbl) {
@@ -653,7 +653,7 @@ int FASTCALL RemoveByID(DBTable * tbl, PPID id, int use_ta)
 	return ok;
 }
 
-int FASTCALL IncDateKey(DBTable * tbl, int idx, LDATE date, long * pOprNo)
+int STDCALL IncDateKey(DBTable * tbl, int idx, LDATE date, long * pOprNo)
 {
 	int    ok = 1;
 	struct {
@@ -692,14 +692,14 @@ DBQ & FASTCALL ppidlist(DBItem & dbi, const PPIDArray * pList)
 	return *p_dbq;
 }
 
-DBQ * FASTCALL ppcheckfiltid(DBQ * pDbq, DBItem & rDbi, PPID fltID)
+DBQ * STDCALL ppcheckfiltid(DBQ * pDbq, DBItem & rDbi, PPID fltID)
 {
 	if(fltID)
 		pDbq = &(*pDbq && rDbi == fltID);
 	return pDbq;
 }
 
-DBQ * FASTCALL ppcheckfiltidlist(DBQ * pDbq, DBItem & rDbi, const PPIDArray * pList)
+DBQ * STDCALL ppcheckfiltidlist(DBQ * pDbq, DBItem & rDbi, const PPIDArray * pList)
 {
 	if(pList)
 		if(pList->isList())
@@ -710,7 +710,7 @@ DBQ * FASTCALL ppcheckfiltidlist(DBQ * pDbq, DBItem & rDbi, const PPIDArray * pL
 		return pDbq;
 }
 
-DBQ * FASTCALL ppcheckflag(DBQ * pDbq, DBItem & rDbi, long mask, int test)
+DBQ * STDCALL ppcheckflag(DBQ * pDbq, DBItem & rDbi, long mask, int test)
 {
 	if(test > 0 || test < 0) {
 		DBE * p_dbe = &(rDbi & mask);
@@ -726,7 +726,7 @@ DBQ * FASTCALL ppcheckflag(DBQ * pDbq, DBItem & rDbi, long mask, int test)
 	return pDbq;
 }
 
-DBQ * FASTCALL ppcheckweekday(DBQ * pDbq, DBItem & rDbi, int dayOfWeek)
+DBQ * STDCALL ppcheckweekday(DBQ * pDbq, DBItem & rDbi, int dayOfWeek)
 {
 	if(dayOfWeek) {
 		assert(rDbi.baseType() == BTS_DATE);

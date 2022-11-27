@@ -2269,7 +2269,7 @@ int PPObjSCard::NotifyAboutRecentOps(const LDATETIME & rSince)
 		PPIDArray sc_id_list;
 		PPIDArray acn_list;
 		acn_list.addzlist(PPACN_OBJUPD, PPACN_SCARDBONUSCHARGE, 0);
-		p_sj->GetObjListByEventSince(PPOBJ_SCARD, &acn_list, rSince, sc_id_list);
+		p_sj->GetObjListByEventSince(PPOBJ_SCARD, &acn_list, rSince, sc_id_list, 0);
 		if(sc_id_list.getCount()) {
 			TSVector <SCardCore::UpdateRestNotifyEntry> urne_list;
 			sc_id_list.sortAndUndup();
