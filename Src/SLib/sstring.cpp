@@ -1494,7 +1494,7 @@ int SString::ReplaceStrR(const char * pPattern, const char * pReplacer, int once
 			Excise(pos, patt_len);
 			if(rep_len) {
 				Insert(pos, pReplacer);
-				// @v11.5.9 pos += rep_len;
+				pos += rep_len; // @todo Здесь требуется достаточно сложный инкремент с анализом паттерна и замещающей строки дабы избежать рекурсии.
 				count++;
 			}
 			if(once)

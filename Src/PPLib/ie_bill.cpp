@@ -6202,13 +6202,6 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			}
 			total_vat += vat_sum;
 		}
-		// @v11.5.9 {
-		if(barcode_for_exchange.NotEmpty()) {
-			SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
-			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), GetToken_Ansi(PPHSC_RU_EXTRA_BARCODE));
-			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), barcode_for_exchange);
-		}
-		// } @v11.5.9
 		// @v10.6.11 {
 		{
 			SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_WAREEXTRAINFO));
@@ -6274,6 +6267,14 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			}
 		}
 		// } @v10.6.11
+		// @v11.5.9 {
+		if(barcode_for_exchange.NotEmpty()) {
+			SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
+			temp_buf = GetToken_Ansi(PPHSC_RU_EXTRA_BARCODE);
+			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
+			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), barcode_for_exchange);
+		}
+		// } @v11.5.9
 	}
 	{
 		SXml::WNode n_t(P_X, GetToken_Ansi(PPHSC_RU_TOTALTOPAYM)/*"ВсегоОпл"*/);

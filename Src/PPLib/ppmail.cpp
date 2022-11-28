@@ -249,7 +249,7 @@ int PPInternetAccount::GetPassword_(char * pBuf, size_t bufLen, int fldID /* = M
 		pw_buf_size = POP3_PW_SIZE_BEFORE11509;
 	}
 	// } @v11.5.9 
-	GetExtField(fldID, temp_buf);
+	//GetExtField(fldID, temp_buf);
 	Reference::Helper_DecodeOtherPw(0, temp_buf, pw_buf_size, pw_buf);
 	pw_buf.CopyTo(pBuf, bufLen);
 	return 1;
@@ -495,7 +495,8 @@ int PPObjInternetAccount::Edit(PPID * pID, void * extraPtr)
 {
 	long   extra_param = reinterpret_cast<long>(extraPtr);
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	PPInternetAccount rec;
 	InetAcctDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
