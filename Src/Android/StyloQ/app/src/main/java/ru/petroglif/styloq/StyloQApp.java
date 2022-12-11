@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.blankj.utilcode.util.ActivityUtils;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateManager;
@@ -24,11 +23,9 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.InstallState;
 import com.google.android.play.core.install.InstallStateUpdatedListener;
 import com.google.android.play.core.install.model.InstallStatus;
-
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,12 +42,30 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 public class StyloQApp extends SLib.App {
+
+	// @debug private static final int SvcPollPeriodMs = 300000; // Периодичность отправки запросов на уведомления к сервисам (в ms)
+	private static final int SvcPollPeriodMs = 120000; // @debug Периодичность отправки запросов на уведомления к сервисам (в ms)
+	private static final int SeenNotificationListProcessingPeriodMs = 20000;
+
 	protected StyloQDatabase Db;
 	private ArrayList<IgnitionServerEntry> ISL;
+	private ArrayList <Long> SeenNotificationList; // Список идентификаторов извещений, которые необходимо пометить как прочитанные
 	private Timer SvcPollTmr;
+	private Timer SeenNotificationListProcessingTmr;
 	private AppUpdateManager AppUpdMgr;
 	private InstallStateUpdatedListener InstallStateUpdatedListener;
 
+	public StyloQApp()
+	{
+		super();
+		Db = null;
+		ISL = null;
+		SeenNotificationList = null;
+		SvcPollTmr = null;
+		SeenNotificationListProcessingTmr = null;
+		AppUpdMgr = null;
+		InstallStateUpdatedListener = null;
+	}
 	public Object HandleEvent(int cmd, Object srcObj, Object subj)
 	{
 		Object result = null;
@@ -93,23 +108,44 @@ public class StyloQApp extends SLib.App {
 						// @construction StyloQJobService.ScheduleTask(this);
 						// @construction {
 						{
-							class TimerTask_DocStatusPoll extends TimerTask {
+							class TimerTask_SvcPoll extends TimerTask {
 								private StyloQApp AppCtx;
-								TimerTask_DocStatusPoll(StyloQApp appCtx)
+								TimerTask_SvcPoll(StyloQApp appCtx)
 								{
 									AppCtx = appCtx;
 								}
 								@Override public void run()
 								{
-									Thread thr = new Thread(new StyloQInterchange.ThreadEngine_DocStatusPoll(AppCtx));
+									Thread thr = new Thread(new StyloQInterchange.ThreadEngine_SvcPoll(AppCtx));
 									thr.start();
 									//runOnUiThread(new Runnable() { @Override public void run() { DocStatusPoll(AppCtx); }});
 								}
 							}
 							SvcPollTmr = new Timer();
-							SvcPollTmr.schedule(new TimerTask_DocStatusPoll(this), 30 * 1000, 300 * 1000);
+							SvcPollTmr.schedule(new TimerTask_SvcPoll(this), 30 * 1000, SvcPollPeriodMs);
 						}
 						// } @construction
+						{
+							class ThreadEngine_SeenNotificationListProcessing implements Runnable {
+								private StyloQApp AppCtx;
+								ThreadEngine_SeenNotificationListProcessing(StyloQApp appCtx)
+								{
+									AppCtx = appCtx;
+								}
+								@Override public void run() { AppCtx.ProcessSeenNotifications(); }
+							}
+							class TimerTask_SeenNotificationListProcessing extends TimerTask {
+								private StyloQApp AppCtx;
+								TimerTask_SeenNotificationListProcessing(StyloQApp appCtx) { AppCtx = appCtx; }
+								@Override public void run()
+								{
+									Thread thr = new Thread(new ThreadEngine_SeenNotificationListProcessing(AppCtx));
+									thr.start();
+								}
+							}
+							SeenNotificationListProcessingTmr = new Timer();
+							SeenNotificationListProcessingTmr.schedule(new TimerTask_SeenNotificationListProcessing(this), 10 * 1000, SeenNotificationListProcessingPeriodMs);
+						}
 					}
 					{
 						AppUpdMgr = AppUpdateManagerFactory.create(this);
@@ -164,14 +200,8 @@ public class StyloQApp extends SLib.App {
 		}
 		return result;
 	}
-	public String GetString(String signature)
-	{
-		return _StrStor.GetString(GetCurrentLang(), signature);
-	}
-	public String GetString(int strGroup, int strIdent)
-	{
-		return _StrStor.GetString(GetCurrentLang(), strGroup, strIdent);
-	}
+	public String GetString(String signature) { return _StrStor.GetString(GetCurrentLang(), signature); }
+	public String GetString(int strGroup, int strIdent) { return _StrStor.GetString(GetCurrentLang(), strGroup, strIdent); }
 	enum DisplayMessageKind {
 		Notification,
 		Error,
@@ -1033,6 +1063,45 @@ public class StyloQApp extends SLib.App {
 					}
 					else
 						DisplayError(activity_for_message, "Unknown error", 0);
+				}
+			}
+		}
+	}
+	private static Object SeenNotificationList_Mutex;
+	private void InitSeenNotificationListMutex()
+	{
+		if(SeenNotificationList_Mutex == null)
+			SeenNotificationList_Mutex = new Object();
+	}
+	public void RegisterSeenNotification(long id)
+	{
+		InitSeenNotificationListMutex();
+		synchronized(SeenNotificationList_Mutex) {
+			if(SeenNotificationList == null) {
+				SeenNotificationList = new ArrayList<Long>();
+				SeenNotificationList.add(id);
+			}
+			else if(!SeenNotificationList.contains(id))
+				SeenNotificationList.add(id);
+		}
+	}
+	private void ProcessSeenNotifications()
+	{
+		InitSeenNotificationListMutex();
+		synchronized(SeenNotificationList_Mutex) {
+			if(SeenNotificationList != null && SeenNotificationList.size() > 0) {
+				try {
+					StyloQDatabase db = GetDB();
+					if(db != null) {
+						Database.Transaction tra = new Database.Transaction(db, true);
+						for(Long id : SeenNotificationList) {
+							db.RegisterNotificationAsSeen(id, false);
+						}
+						tra.Commit();
+						SeenNotificationList = null;
+					}
+				} catch(StyloQException exn) {
+					;
 				}
 			}
 		}

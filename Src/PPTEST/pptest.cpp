@@ -1505,7 +1505,8 @@ int DoConstructionTest()
 #if(_MSC_VER >= 1900)
 	//Test_Fts();
 #endif
-	ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
+	Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
+	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
 	TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);
 	//TestCRC();
@@ -1513,7 +1514,6 @@ int DoConstructionTest()
 	//Test_ListSelectionDialog();
 	//SDecimalFraction::Test();
 	//ImportSpecial("\\DEV\\RESOURCE\\DATA\\ETC");
-	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//DoTest_PThr4w();
 	//TestMqc();

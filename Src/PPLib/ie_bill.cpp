@@ -5313,8 +5313,14 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 							}
 							else
 								city_name.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.ManufCityName, sizeof(brow.ManufCityName));
-							if(loc_addr_st.GetText(PPLocAddrStruc::tStreet, temp_buf))
-								temp_buf.CopyTo(brow.ManufStreet, sizeof(brow.ManufStreet));
+							if(loc_addr_st.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
+								SString street_buf;
+								if(loc_addr_st.GetText(PPLocAddrStruc::tStreetKind, street_buf) > 0) // @v11.5.10
+									street_buf.Space().Cat(temp_buf);
+								else
+									street_buf = temp_buf;
+								street_buf.CopyTo(brow.ManufStreet, sizeof(brow.ManufStreet));
+							}
 							if(loc_addr_st.GetText(PPLocAddrStruc::tHouse, temp_buf))
 								brow.ManufHouse = temp_buf.ToLong();
 							if(loc_addr_st.GetText(PPLocAddrStruc::tCorp, temp_buf))
@@ -6210,6 +6216,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_UNITNAME), unit_name);
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WARETYPE), "1"); // @v11.4.11 ПрТовРаб="1"
 			// @v11.4.10 {
+			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREARTICLE), temp_buf.Z().Cat(goods_id)); // @v11.5.10 Собственный идентификатор (по специальной просьбе)
 			if(oneof2(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER)) {
 				if(barcode_for_marking.NotEmpty()) {
 					assert(barcode_for_marking.Len() < 14);
@@ -6450,7 +6457,12 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 		}
 		//n__.PutInner(GetToken_Ansi(PPHSC_RU_TOWN), "");
 		if(las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
-			n__.PutInner(GetToken_Ansi(PPHSC_RU_STREET), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			SString street_buf;
+			if(las.GetText(PPLocAddrStruc::tStreetKind, street_buf) > 0) // @v11.5.10
+				street_buf.Space().Cat(temp_buf);
+			else
+				street_buf = temp_buf;
+			n__.PutInner(GetToken_Ansi(PPHSC_RU_STREET), EncText(street_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 		}
 		if(las.GetText(PPLocAddrStruc::tHouse, temp_buf)) {
 			n__.PutInner(GetToken_Ansi(PPHSC_RU_HOUSE), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
@@ -6486,7 +6498,12 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 			}
 			if(las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
-				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_STREET), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+				SString street_buf;
+				if(las.GetText(PPLocAddrStruc::tStreetKind, street_buf) > 0) // @v11.5.10
+					street_buf.Space().Cat(temp_buf);
+				else
+					street_buf = temp_buf;
+				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_STREET), EncText(street_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 			}
 			if(las.GetText(PPLocAddrStruc::tHouse, temp_buf)) {
 				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_HOUSE), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));

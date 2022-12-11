@@ -2125,6 +2125,120 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 	return ok;
 }
 
+static IMPL_CMPFUNC(SvcNotification_ObjNominalTime, i1, i2)
+{
+	const PPStyloQInterchange::SvcNotification * p1 = static_cast<const PPStyloQInterchange::SvcNotification *>(i1);
+	const PPStyloQInterchange::SvcNotification * p2 = static_cast<const PPStyloQInterchange::SvcNotification *>(i2);
+	return cmp(p1->ObjNominalTime, p2->ObjNominalTime);
+}
+
+int PPStyloQInterchange::ProcessCommand_RequestNotificationList(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SJson * pJsArray)
+{
+	assert(pJsArray != 0);
+	int    ok = -1;
+	SString temp_buf;
+	if(pJsArray) {
+		PPObjBill * p_bobj = BillObj;
+		switch(rCmdItem.BaseCmdId) {
+			case StyloQCommandList::sqbcIncomingListOrder:
+				{
+					// Копия прямого исполнения команды sqbcIncomingListOrder
+					//IntermediateReply(3*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra);
+					/*if(ProcessCommand_IncomingListOrder(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), prccmdfReqNotification)) {
+						reply_doc.Put(reply_text_buf, reply_text_buf.Len());
+						if(temp_buf.Len())
+							reply_doc_declaration.Put(temp_buf, temp_buf.Len());
+						cmd_reply_ok = true;									
+					}
+					else {
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+						PPSetError(PPERR_SQ_CMDFAULT_INCOMINGLIST);
+					}*/
+
+					PPIDArray obj_id_list;
+					SysJournal * p_sj = DS.GetTLA().P_SysJ;
+					if(p_sj) {
+						LDATETIME since;
+						StyloQIncomingListParam param;
+						THROW(rCmdItem.GetSpecialParam<StyloQIncomingListParam>(param));
+						if(param.LookbackDays > 0) {
+							since.Set(plusdate(getcurdate_(), -param.LookbackDays), ZEROTIME);
+						}
+						else {
+							since.Set(getcurdate_(), ZEROTIME);
+						}
+						PPIDArray act_list;
+						TSVector <SysJournalTbl::Rec> rec_list;
+						act_list.addzlist(PPACN_TURNBILL, 0L); // @?
+						p_sj->GetObjListByEventSince(PPOBJ_BILL, &act_list, since, obj_id_list, &rec_list);
+						/* evnt_list
+							{
+								id - суррогатный 128bit-идентификатор, формируемый по набору полей. 
+									используется на стороне клиента для избежания дубликатов
+								evnt_org_time
+								evnt_iss_time
+								evnt
+								objtype
+								objid
+								msgsign|msgid
+								msg
+							}
+						*/
+						const LDATETIME dtm_now = getcurdatetime_();
+						TSCollection <SvcNotification> nlist;
+						{
+							SString obj_text;
+							for(uint i = 0; i < rec_list.getCount(); i++) {
+								const SysJournalTbl::Rec & r_rec = rec_list.at(i);
+								BillTbl::Rec bill_rec;
+								if(r_rec.ObjType && r_rec.ObjID && p_bobj->Search(r_rec.ObjID, &bill_rec) > 0) {
+									SvcNotification * p_item = nlist.CreateNewItem();
+									p_item->EventOrgTime.Set(r_rec.Dt, r_rec.Tm);
+									p_item->EventIssueTime = dtm_now;
+									p_item->ObjNominalTime.Set(bill_rec.Dt, ZEROTIME);
+									p_item->Oid.Set(r_rec.ObjType, r_rec.ObjID);
+									if(r_rec.Action == PPACN_TURNBILL) {
+										p_item->EventId = PPEVENTTYPE_ORDERCREATED;
+										PPLoadString("eventtype_ordercreated", temp_buf);
+										PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddObjName, obj_text);
+										temp_buf.CatDiv(':', 2).Cat(obj_text);
+										temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+										p_item->Message = temp_buf;
+									}
+									else {
+										p_item->EventId = r_rec.Action; // @?
+									}
+									p_item->GenerateIdent();
+								}
+							}
+						}
+						{
+							nlist.sort(PTR_CMPFUNC(SvcNotification_ObjNominalTime));
+							for(uint i = 0; i < nlist.getCount(); i++) {
+								const SvcNotification * p_item = nlist.at(i);
+								if(p_item) {
+									SJson * p_js_item = p_item->ToJson();
+									if(p_js_item) {
+										pJsArray->InsertChild(p_js_item);
+										ok = 1;
+									}
+								}
+							}
+						}
+						//js.Insert("evnt_list", p_js_list);
+					}
+				}
+				break;
+			case StyloQCommandList::sqbcIncomingListCCheck:
+				break;
+			case StyloQCommandList::sqbcIncomingListTodo:
+				break;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
 	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
@@ -2151,53 +2265,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 			// ??? agent_psn_id = local_person_id;
 		}
 		THROW(GetOpData(param.P_BF->OpID, &op_rec) > 0);
-		if(prccmdFlags & prccmdfReqNotification) {
-			SJson js(SJson::tOBJECT);
-			PPIDArray obj_id_list;
-			SysJournal * p_sj = DS.GetTLA().P_SysJ;
-			if(p_sj) {
-				LDATETIME since;
-				if(param.LookbackDays > 0) {
-					since.Set(plusdate(getcurdate_(), -param.LookbackDays), ZEROTIME);
-				}
-				else {
-					since.Set(getcurdate_(), ZEROTIME);
-				}
-				PPIDArray act_list;
-				TSVector <SysJournalTbl::Rec> rec_list;
-				act_list.addzlist(PPACN_TURNBILL, 0L); // @?
-				p_sj->GetObjListByEventSince(PPOBJ_BILL, &act_list, since, obj_id_list, &rec_list);
-				/* evnt_list
-					{
-						id - суррогатный 128bit-идентификатор, формируемый по набору полей. 
-							используется на стороне клиента для избежания дубликатов
-						evnt_org_time
-						evnt_iss_time
-						evnt
-						objtype
-						objid
-						msgsign|msgid
-						msg
-					}
-				*/
-				SJson * p_js_list = SJson::CreateArr();
-				const LDATETIME dtm_now = getcurdatetime_();
-				for(uint i = 0; i < rec_list.getCount(); i++) {
-					const SysJournalTbl::Rec & r_rec = rec_list.at(i);
-					SvcNotification item;
-					item.EventOrgTime.Set(r_rec.Dt, r_rec.Tm);
-					item.EventIssueTime = dtm_now;
-					item.EventId = r_rec.Action;
-					item.Oid.Set(r_rec.ObjType, r_rec.ObjID);
-					item.GenerateIdent();
-					SJson * p_js_item = item.ToJson();
-					if(p_js_item)
-						p_js_list->InsertChild(p_js_item);
-				}
-				js.Insert("evnt_list", p_js_list);
-			}
-		}
-		else {
+		{
 			struct ListEntry {
 				ListEntry(const BillViewItem & rS)
 				{

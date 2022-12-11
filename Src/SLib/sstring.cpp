@@ -1489,12 +1489,25 @@ int SString::ReplaceStrR(const char * pPattern, const char * pReplacer, int once
 	const size_t patt_len = sstrlen(pPattern);
 	if(patt_len && !sstreq(pPattern, pReplacer)) {
 		const size_t rep_len = sstrlen(pReplacer);
+		size_t next_offset = 0;
+		if(rep_len > patt_len) {
+			const char * p_last = 0;
+			const char * p = strstr(pReplacer, pPattern);
+			if(p) {
+				do {
+					p_last = p;
+					p = strstr(p+1, pPattern);
+				} while(p);
+				next_offset = (p_last - pReplacer + 1);
+			}
+		}
 		size_t pos = 0;
 		while(Search(pPattern, pos, 0, &pos) > 0) {
 			Excise(pos, patt_len);
 			if(rep_len) {
 				Insert(pos, pReplacer);
-				pos += rep_len; // @todo Здесь требуется достаточно сложный инкремент с анализом паттерна и замещающей строки дабы избежать рекурсии.
+				//pos += rep_len; // @todo Здесь требуется достаточно сложный инкремент с анализом паттерна и замещающей строки дабы избежать рекурсии.
+				pos += next_offset; // @v11.5.10
 				count++;
 			}
 			if(once)
@@ -8141,6 +8154,17 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SLTEST_CHECK_Z((str = "городовой").IsEqiUtf8("городОвой-"));
 			SLTEST_CHECK_Z((str = "городовой").IsEqiUtf8("городoвой")); // во втором слове русская 'о' заменена на латинскую 'o'
 			SLTEST_CHECK_Z((str = "").IsEqiUtf8(" "));
+		}
+		{
+			//
+			// Тестирование функции ReplaceStr
+			//
+			(str = "abcabc").ReplaceStr("abc", "abcd", 0);
+			SLTEST_CHECK_EQ(str, "abcdabcd");
+			(str = "  ab  cab  c  ").ReplaceStr("  ", " ", 0);
+			SLTEST_CHECK_EQ(str, " ab cab c ");
+			(str = "$ab$$cab$c$").ReplaceStr("$", "$$", 0);
+			SLTEST_CHECK_EQ(str, "$$ab$$$$cab$$c$$");
 		}
 		//
 		// Тестирование функций EncodeMime64 и DecodeMime64

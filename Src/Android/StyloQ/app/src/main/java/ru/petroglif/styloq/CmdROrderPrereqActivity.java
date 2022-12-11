@@ -139,31 +139,30 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					}
 					break;
 				case SLib.EV_GETLISTITEMVIEW:
-				{
-					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
-					if(ev_subj != null && ev_subj.ItemIdx >= 0) {
-						if(ev_subj.RvHolder != null) {
-							// RecyclerView
-							if(SLib.IsRecyclerListAdapter(srcObj)) {
-								SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
-								if(a.GetListRcId() == R.id.CTL_DEBTDETAILLIST_LIST) {
-									BusinessEntity.ArDebtList _data = (Data != null && Data instanceof BusinessEntity.ArDebtList) ? (BusinessEntity.ArDebtList)Data : null;
-									if(_data != null && _data.List != null && ev_subj.ItemIdx < _data.List.size()) {
-										//CPM.FindGoodsItemByGoodsID()
-										BusinessEntity.DebtEntry cur_entry = _data.List.get(ev_subj.ItemIdx);
-										View iv = ev_subj.RvHolder.itemView;
-										SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_CODE, cur_entry.BillCode);
-										SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_DATE, cur_entry.BillDate.Format(SLib.DATF_DMY));
-										SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_AMOUNT, SLib.formatdouble(cur_entry.Amount, 2));
-										SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_DEBT, SLib.formatdouble(cur_entry.Debt, 2));
+					{
+						SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
+						if(ev_subj != null && ev_subj.ItemIdx >= 0) {
+							if(ev_subj.RvHolder != null) {
+								// RecyclerView
+								if(SLib.IsRecyclerListAdapter(srcObj)) {
+									SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
+									if(a.GetListRcId() == R.id.CTL_DEBTDETAILLIST_LIST) {
+										BusinessEntity.ArDebtList _data = (Data != null && Data instanceof BusinessEntity.ArDebtList) ? (BusinessEntity.ArDebtList)Data : null;
+										if(_data != null && _data.List != null && ev_subj.ItemIdx < _data.List.size()) {
+											//CPM.FindGoodsItemByGoodsID()
+											BusinessEntity.DebtEntry cur_entry = _data.List.get(ev_subj.ItemIdx);
+											View iv = ev_subj.RvHolder.itemView;
+											SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_CODE, cur_entry.BillCode);
+											SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_DATE, cur_entry.BillDate.Format(SLib.DATF_DMY));
+											SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_AMOUNT, SLib.formatdouble(cur_entry.Amount, 2));
+											SLib.SetCtrlString(iv, R.id.CTL_DEBTDETAILLISTITEM_DEBT, SLib.formatdouble(cur_entry.Debt, 2));
+										}
 									}
 								}
 							}
 						}
 					}
-				}
-				break;
-
+					break;
 			}
 			return result;
 		}

@@ -14,7 +14,7 @@
         <ImageView style="@style/StatusIndicator" android:id="@+id/LVITEM_SEARCH_IND_STATUS"/>
         <TextView style="@style/ExecuteTimeText" android:id="@+id/LVITEM_SEARCH_IND_EXECUTETIME"/>
         <!--<View style="@style/FakeView"/>-->
-        <TextView style="@style/SearchResultTopicText"
+        <TextView style="@style/TopicText2"
             android:id="@+id/LVITEM_SEARCH_SCOPE"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"

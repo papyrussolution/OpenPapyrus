@@ -912,6 +912,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				url.Composite(0, uni_url_buf);
 			}
 			else if(oneof2(url_prot, InetUrl::protPOP3, InetUrl::protPOP3S)) {
+				char   plain_pw_buf[128];
 				THROW(ia_obj.Get(InetAccID, &ia_pack) > 0);
 				THROW_PP_S(!(ia_pack.Flags & PPInternetAccount::fFtpAccount), PPERR_ACCISNTEMAIL, ia_pack.Name);
 				ia_pack.GetExtField(MAEXSTR_RCVSERVER, temp_buf);
@@ -921,13 +922,16 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				ia_pack.GetExtField(MAEXSTR_RCVNAME, pw_buf);
 				uftp.AccsName = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
 				url.SetComponent(InetUrl::cUserName, temp_buf.EncodeUrl(pw_buf, 0));
-				ia_pack.GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
-				Reference::Helper_DecodeOtherPw(0, temp_buf, /*POP3_PW_SIZE*/20, pw_buf);
-				uftp.AccsPassword = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				//ia_pack.GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
+				//Reference::Helper_DecodeOtherPw(0, temp_buf, /*POP3_PW_SIZE_2*/32, pw_buf); // @v11.5.10 20--32
+				ia_pack.GetPassword_(plain_pw_buf, sizeof(plain_pw_buf), MAEXSTR_RCVPASSWORD);
+				uftp.AccsPassword = (pw_buf = plain_pw_buf).Transf(CTRANSF_INNER_TO_UTF8);
 				url.SetComponent(InetUrl::cPassword, temp_buf.EncodeUrl(pw_buf, 0));
 				url.Composite(0, uni_url_buf);
+				memzero(plain_pw_buf, sizeof(plain_pw_buf));
 			}
 			else if(url_prot == InetUrl::protMailFrom) {
+				char   plain_pw_buf[128];
 				THROW(ia_obj.Get(InetAccID, &ia_pack) > 0);
 				THROW_PP_S(!(ia_pack.Flags & PPInternetAccount::fFtpAccount), PPERR_ACCISNTEMAIL, ia_pack.Name);
 				url.GetComponent(InetUrl::cPath, 0, temp_buf);
@@ -939,11 +943,11 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				ia_pack.GetExtField(MAEXSTR_RCVNAME, pw_buf);
 				uftp.AccsName = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
 				url.SetComponent(InetUrl::cUserName, temp_buf.EncodeUrl(pw_buf, 0));
-				ia_pack.GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
-				Reference::Helper_DecodeOtherPw(0, temp_buf, /*POP3_PW_SIZE*/20, pw_buf);
-				uftp.AccsPassword = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				ia_pack.GetPassword_(plain_pw_buf, sizeof(plain_pw_buf), MAEXSTR_RCVPASSWORD);
+				uftp.AccsPassword = (pw_buf = plain_pw_buf).Transf(CTRANSF_INNER_TO_UTF8);
 				url.SetComponent(InetUrl::cPassword, temp_buf.EncodeUrl(pw_buf, 0));
 				url.Composite(0, uni_url_buf);
+				memzero(plain_pw_buf, sizeof(plain_pw_buf));
 			}
 			else if(oneof2(url_prot, InetUrl::protHttp, InetUrl::protHttps)) {
 				url.Composite(0, uni_url_buf);

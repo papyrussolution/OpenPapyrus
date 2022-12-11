@@ -606,10 +606,7 @@ public class Document {
 		}
 		public double GetAmount_Cost() { return (Qtty * Cost); }
 		public double GetAmount_Price() { return (Qtty * (Price-Discount)); }
-		public final boolean IsEmpty()
-		{
-			return !(Qtty > 0.0 || Cost > 0.0 || Price > 0.0);
-		}
+		public boolean IsEmpty() { return !(Qtty > 0.0 || Cost > 0.0 || Price > 0.0); }
 		double Qtty;
 		double Cost;
 		double Price;

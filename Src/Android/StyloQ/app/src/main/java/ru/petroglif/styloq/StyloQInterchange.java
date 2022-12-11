@@ -209,13 +209,17 @@ public class StyloQInterchange {
 			SvcAccsLocker = new SvcAccsLockList();
 	}
 
-	public static class ThreadEngine_DocStatusPoll implements Runnable {
+	public static class ThreadEngine_SvcPoll implements Runnable {
 		private StyloQApp AppCtx;
-		ThreadEngine_DocStatusPoll(StyloQApp appCtx)
+		ThreadEngine_SvcPoll(StyloQApp appCtx)
 		{
 			AppCtx = appCtx;
 		}
-		@Override public void run() { DocStatusPoll(AppCtx); }
+		@Override public void run()
+		{
+			SvcNotificationPoll(AppCtx); // @v11.5.10
+			DocStatusPoll(AppCtx);
+		}
 	}
 	public static void SvcNotificationPoll(StyloQApp appCtx)
 	{
@@ -231,7 +235,7 @@ public class StyloQInterchange {
 						final byte [] svc_ident = (svc_pack != null) ? svc_pack.Pool.Get(SecretTagPool.tagSvcIdent) : null;
 						if(SLib.GetLen(svc_ident) > 0) {
 							StyloQDatabase.SecStoragePacket cmdl_pack = db.GetForeignSvcCommandList(svc_ident);
-							StyloQCommand.List cmd_list = cmdl_pack.GetCommandList();
+							StyloQCommand.List cmd_list = (cmdl_pack != null) ? cmdl_pack.GetCommandList() : null;
 							if(cmd_list != null && SLib.GetCount(cmd_list.Items) > 0) {
 								JSONArray js_svc_qlist = null;
 								for(int cmdi = 0; cmdi < cmd_list.Items.size(); cmdi++) {
@@ -356,23 +360,78 @@ public class StyloQInterchange {
 			;
 		}
 	}
-	private static class SvcNotification {
+	public static class SvcNotification {
 		public SvcNotification()
 		{
+			InternalID = 0;
+			SvcID = 0;
+			CmdUuid = null;
 			Ident = null;
 			EventOrgTime = null;
 			EventIssueTime = null;
+			ObjNominalTime = null;
 			EventId = 0;
 			Oid = null;
 			Message = null;
 			MessageId = 0;
+			Processed = false;
 		}
+		//
+		// ARG(internal): Указывает функции на необходимость сохранения в json-версии объекта внутренние поля, которые не
+		//   передаются от сервиса клиенту.
+		//
+		JSONObject ToJsonObj(boolean internal)
+		{
+			JSONObject result = null;
+			try {
+				result = new JSONObject();
+				if(SLib.GetLen(Ident) > 0) {
+					String ident_text = Base64.getEncoder().encodeToString(Ident);
+					if(SLib.GetLen(ident_text) > 0)
+						result.put("ident", ident_text);
+				}
+				if(!SLib.LDATETIME.IsEmpty(EventOrgTime)) {
+					result.put("evnt_org_time", SLib.datetimefmt(EventOrgTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
+				}
+				if(!SLib.LDATETIME.IsEmpty(EventIssueTime)) {
+					result.put("evnt_iss_time", SLib.datetimefmt(EventIssueTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
+				}
+				if(!SLib.LDATETIME.IsEmpty(ObjNominalTime)) {
+					result.put("obj_nominal_time", SLib.datetimefmt(ObjNominalTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
+				}
+				result.put("evnt", EventId);
+				if(Oid.Type > 0) {
+					result.put("objtype", Oid.Type);
+					result.put("objid", Oid.Id);
+				}
+				if(SLib.GetLen(Message) > 0)
+				result.put("msg", Message);
+				if(MessageId > 0)
+					result.put("msgid", MessageId);
+				if(internal)
+					result.put("processed", Processed);
+			} catch(JSONException exn) {
+				result = null;
+			}
+			return result;
+		}
+		//
+		// Note: Поле Processed инициализируется только в том случае, если в js-объекте присутствует тег "processed".
+		//   В противном случае Processed остается таким же, каким был до вызова функции.
+		//
 		public boolean FromJsonObj(JSONObject jsObj)
 		{
 			boolean result = false;
 			if(jsObj != null) {
+				String ident_text = jsObj.optString("ident", null);
+				if(SLib.GetLen(ident_text) > 0) {
+					Ident = Base64.getDecoder().decode(ident_text);
+				}
+				else
+					Ident = null;
 				EventOrgTime = SLib.strtodatetime(jsObj.optString("evnt_org_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
 				EventIssueTime = SLib.strtodatetime(jsObj.optString("evnt_iss_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
+				ObjNominalTime = SLib.strtodatetime(jsObj.optString("obj_nominal_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
 				EventId = jsObj.optInt("evnt");
 				SLib.PPObjID oid;
 				Oid = SLib.PPObjID.Identify(jsObj.optString("objtype", null), jsObj.optInt("objid", 0));
@@ -381,29 +440,31 @@ public class StyloQInterchange {
 				if(EventId > 0 || MessageId > 0 || SLib.GetLen(Message) > 0) {
 					result = true;
 				}
+				if(jsObj.has("processed")) {
+					Processed = jsObj.optBoolean("processed", false);
+				}
 			}
 			return result;
 		}
+		long   InternalID; // Внутренний идентификатор, с которым объект сохранен во внутренней базе данных
+		long   SvcID;      // Идентификатор сервиса, с которым ассоциировано событие
+		UUID   CmdUuid;    // Идентификатор команды, с которой ассоциировано событие
 		byte [] Ident;
 		SLib.LDATETIME EventOrgTime;
 		SLib.LDATETIME EventIssueTime;
+		SLib.LDATETIME ObjNominalTime; // Номинальная метка времени объекта. Необходима для адекватной сортировки. Для документа это - номинальная дата документа.
 		int    EventId;
 		SLib.PPObjID Oid;
 		String Message;
 		int    MessageId;
+		boolean Processed; // Внутреннее поле, используемое как индикатор того, что сообщение было просмотрено клиентом.
+			// Проецируется на флаг styloqfProcessed записи таблицы SecTable. В json-версии так же сохраняется, но не передается
+			// от сервиса к клиенту.
 	}
-	private static boolean AcceptSvcNotification(StyloQApp appCtx, SvcNotification item)
+	private static boolean AcceptSvcNotificationPoll(StyloQApp appCtx, byte [] svcIdent, JSONObject jsReply) throws StyloQException
 	{
 		boolean ok = false;
-		if(item != null && appCtx != null) {
-
-		}
-		return ok;
-	}
-	private static boolean AcceptSvcNotificationPoll(StyloQApp appCtx, JSONObject jsReply)
-	{
-		boolean ok = false;
-		if(jsReply != null) {
+		if(jsReply != null && SLib.GetLen(svcIdent) > 0) {
 			JSONArray js_evnt_list = jsReply.optJSONArray("evnt_list");
 			if(js_evnt_list != null) {
 				ArrayList <SvcNotification> evnt_list = null;
@@ -418,9 +479,18 @@ public class StyloQInterchange {
 					}
 				}
 				if(evnt_list != null) {
+					StyloQDatabase db = appCtx.GetDB();
+					Database.Transaction tra = new Database.Transaction(db, true);
 					for(int i = 0; i < evnt_list.size(); i++) {
-						AcceptSvcNotification(appCtx, evnt_list.get(i));
+						final SvcNotification item = evnt_list.get(i);
+						if(item != null) {
+							if(SLib.GetLen(item.Ident) > 0) {
+								long id = db.StoreNotification(svcIdent, item, false);
+							}
+						}
+						//AcceptSvcNotification(appCtx, evnt_list.get(i));
 					}
+					tra.Commit();
 				}
 			}
 		}
@@ -2526,7 +2596,7 @@ public class StyloQInterchange {
 									if(inner_result.InfoReply != null && inner_result.InfoReply instanceof SecretTagPool) {
 										JSONObject js_reply = ((SecretTagPool)inner_result.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
 										if(js_reply != null)
-											AcceptSvcNotificationPoll(appCtx, js_reply);
+											AcceptSvcNotificationPoll(appCtx, inner_result.SvcIdent, js_reply);
 									}
 								}
 							}

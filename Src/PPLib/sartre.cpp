@@ -1334,7 +1334,7 @@ SrImportParam::SrImportParam() : InputKind(0), LangID(0), CpID(0), Flags(0)
 }
 
 void SrImportParam::SetField(int fld, const char * pVal) { StrItems.Add(fld, pVal); }
-int SrImportParam::GetField(int fld, SString & rVal) const { return StrItems.GetText(fld, rVal); }
+int  SrImportParam::GetField(int fld, SString & rVal) const { return StrItems.GetText(fld, rVal); }
 //
 //
 #if(_MSC_VER >= 1900) // {

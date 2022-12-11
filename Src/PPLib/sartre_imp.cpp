@@ -5722,6 +5722,12 @@ int PrcssrSartre::UED_Import_PackageTypes()
 	CATCHZOK
 	return ok;
 }
+
+int PrcssrSartre::UED_ImportAtoms()
+{
+	int    ok = 1;
+	return ok;
+}
 //
 // @v11.2.9 @construction Модуль разбора и обработки po-файлов (для массового анализа вариантов перевода на основе opensource-репозиториев)
 //

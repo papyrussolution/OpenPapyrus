@@ -1493,7 +1493,12 @@ bool StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 bool StyloQCommandList::Item::CanApplyNotifyFlag(long f) const
 {
 	bool   result = false;
-	// @todo
+	if(BaseCmdId == StyloQCommandList::sqbcIncomingListOrder) {
+		result = oneof3(f, fNotify_ObjNew, fNotify_ObjUpd, fNotify_ObjStatus);
+	}
+	else if(BaseCmdId == StyloQCommandList::sqbcIncomingListCCheck) {
+		result = oneof3(f, fNotify_ObjNew, fNotify_ObjUpd, fNotify_ObjStatus);
+	}
 	return result;
 }
 
@@ -2610,11 +2615,13 @@ int PPObjStyloQBindery::EditConfig(PPID id)
 //
 //
 struct StyloQAssignObjParam {
-	StyloQAssignObjParam() : StqID(0)
+	StyloQAssignObjParam() : StqID(0), AutoMatched(false)
 	{
 	}
 	PPID   StqID;
 	PPObjID Oid;
+	bool   AutoMatched;
+	uint8  Reserve[3]; // @alignment
 	SString EntryInfo;
 };
 
@@ -2628,10 +2635,20 @@ public:
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
+		SString temp_buf;
 		PPIDArray obj_type_list;
 		SetupObjListCombo(this, CTLSEL_STQCLIMATCH_OT, Data.Oid.Obj, &StyloQCore::MakeLinkObjTypeList(false, obj_type_list));
 		SetupObjGroupCombo(Data.Oid.Obj);
 		setCtrlString(CTL_STQCLIMATCH_INFO, Data.EntryInfo);
+		// @v11.5.10 {
+		{
+			if(Data.AutoMatched)
+				PPLoadText(PPTXT_STQ_AUTOMATCHED, temp_buf);
+			else
+				temp_buf.Z();
+			setCtrlString(CTL_STQCLIMATCH_AUTO, temp_buf);
+		}
+		// } @v11.5.10 
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -2967,6 +2984,7 @@ int PPObjStyloQBindery::AssignObjToClientEntry(PPID id)
 			param.StqID = pack.Rec.ID;
 			param.Oid.Set(pack.Rec.LinkObjType, pack.Rec.LinkObjID);
 			param.EntryInfo.EncodeMime64(pack.Rec.BI, sizeof(pack.Rec.BI));
+			param.AutoMatched = LOGIC(pack.Rec.Flags & StyloQCore::styloqfAutoObjMatching); // @v11.5.10
 			if(PPDialogProcBody <StyloQAssignObjDialog, StyloQAssignObjParam> (&param) > 0) {
 				pack.Rec.LinkObjType = param.Oid.Obj;
 				pack.Rec.LinkObjID = param.Oid.Id;
@@ -5728,7 +5746,7 @@ StyloQBlobInfo & StyloQBlobInfo::Z()
 	return *this;
 }
 
-PPStyloQInterchange::SvcNotification::SvcNotification() : EventOrgTime(ZERODATETIME), EventIssueTime(ZERODATETIME), EventId(0), MessageId(0)
+PPStyloQInterchange::SvcNotification::SvcNotification() : EventOrgTime(ZERODATETIME), EventIssueTime(ZERODATETIME), ObjNominalTime(ZERODATETIME), EventId(0), MessageId(0)
 {
 }
 		
@@ -5737,9 +5755,10 @@ int PPStyloQInterchange::SvcNotification::GenerateIdent()
 	int    ok = 1;
 	SBinaryChunk buf;
 	buf.Cat(&EventOrgTime, sizeof(EventOrgTime));
+	buf.Cat(&ObjNominalTime, sizeof(ObjNominalTime));
 	buf.Cat(&EventId, sizeof(EventId));
 	buf.Cat(&Oid, sizeof(Oid));
-	Ident = SlHash::Md5(0, buf.PtrC(), buf.Len());
+	Ident = SlHash::Sha1(0, buf.PtrC(), buf.Len());
 	return ok;
 }
 
@@ -5748,10 +5767,13 @@ SJson * PPStyloQInterchange::SvcNotification::ToJson() const
 	SJson * p_result = new SJson(SJson::tOBJECT);
 	if(p_result) {
 		SString temp_buf;
-		if(!Ident.IsZero())
+		if(!Ident.IsZero()) {
 			temp_buf.EncodeMime64(&Ident, sizeof(Ident));
+			p_result->InsertString("ident", temp_buf);
+		}
 		p_result->InsertString("evnt_org_time", temp_buf.Z().Cat(EventOrgTime, DATF_ISO8601CENT, 0).Escape());
 		p_result->InsertString("evnt_iss_time", temp_buf.Z().Cat(EventIssueTime, DATF_ISO8601CENT, 0).Escape());
+		p_result->InsertString("obj_nominal_time", temp_buf.Z().Cat(ObjNominalTime, DATF_ISO8601CENT, 0).Escape());
 		p_result->InsertIntNz("evnt", EventId);
 		if(Oid.Obj) {
 			p_result->InsertInt("objtype", Oid.Obj);
@@ -9065,23 +9087,26 @@ int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePac
 				//assert(person_id == 0);
 				//person_id = 0;
 				{
+					const bool is_new = (person_id == 0);
 					PPTransaction tra(use_ta);
 					THROW(tra);
-					THROW(psn_obj.PutPacket(&person_id, &psn_pack, 0));
-					if(!is_person_associated_with_cli) {
-						if(rCliPack.Rec.LinkObjType == 0 && rCliPack.Rec.LinkObjID == 0) {
-							PPID   temp_id = rCliPack.Rec.ID;
-							assert(temp_id); // Если rCliPack.Rec.ID нулевой, то что-то выше по стеку пошло не так - нам подсунули пакет клиента, не из базы данных!
-							if(temp_id) {
-								StyloQCore::StoragePacket cli_pack_to_update;
-								THROW(P_T->GetPeerEntry(rCliPack.Rec.ID, &cli_pack_to_update) > 0);
-								cli_pack_to_update.Rec.LinkObjType = PPOBJ_PERSON;
-								cli_pack_to_update.Rec.LinkObjID = person_id;
-								THROW(P_T->PutPeerEntry(&temp_id, &cli_pack_to_update, 0));
+					{
+						PPID   temp_id = rCliPack.Rec.ID;
+						assert(temp_id); // Если rCliPack.Rec.ID нулевой, то что-то выше по стеку пошло не так - нам подсунули пакет клиента не из базы данных!
+						if(temp_id) {
+							StyloQCore::StoragePacket cli_pack_to_update;
+							THROW(P_T->GetPeerEntry(rCliPack.Rec.ID, &cli_pack_to_update) > 0);
+							THROW(psn_obj.PutPacket(&person_id, &psn_pack, 0));
+							if(!is_person_associated_with_cli) {
+								if(rCliPack.Rec.LinkObjType == 0 && rCliPack.Rec.LinkObjID == 0) {
+									cli_pack_to_update.Rec.LinkObjType = PPOBJ_PERSON;
+									cli_pack_to_update.Rec.LinkObjID = person_id;
+									THROW(P_T->PutPeerEntry(&temp_id, &cli_pack_to_update, 0));
+								}
+								else {
+									; // @todo Здесь надо что-то в лог написать!
+								}
 							}
-						}
-						else {
-							; // @todo Здесь надо что-то в лог написать!
 						}
 					}
 					THROW(tra.Commit())
@@ -9897,56 +9922,72 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			cmd_reply_ok = true;
 		}
 		else if(command.IsEqiAscii("requestnotificationlist")) { // @v11.5.9 Запрос извещений по командам, для которых определены флаги извещений.
-			S_GUID org_cmd_uuid;
+			//S_GUID org_cmd_uuid;
+			struct RequestNotificationEntry {
+				S_GUID OrgCmdUUID;
+				char   NotifyList[256];
+			};
+			TSVector <RequestNotificationEntry> req_list;
 			for(const SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
 				if(p_cur->Type == SJson::tOBJECT) {								
 					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-						if(p_obj->Text.IsEqiAscii("orgcmduuid")) {
-							org_cmd_uuid.FromStr(p_obj->P_Child->Text);
+						if(p_obj->Text.IsEqiAscii("cmd")) {
 						}
-						else if(p_obj->Text.IsEqiAscii("notify")) {
-							// @todo
+						else if(p_obj->Text.IsEqiAscii("list")) {
+							const SJson * p_js_list = p_obj->P_Child;
+							if(p_js_list && p_js_list->Type == SJson::tARRAY) {
+								for(const SJson * p_js_entry = p_js_list->P_Child; p_js_entry; p_js_entry = p_js_entry->P_Next) {
+									if(p_js_entry->Type == SJson::tOBJECT) {
+										RequestNotificationEntry req_entry;
+										for(const SJson * p_js_fld = p_js_entry->P_Child; p_js_fld; p_js_fld = p_js_fld->P_Next) {
+											if(p_js_fld->Text.IsEqiAscii("notify")) {
+												STRNSCPY(req_entry.NotifyList, p_js_fld->P_Child->Text);
+											}
+											else if(p_js_fld->Text.IsEqiAscii("orgcmduuid")) {
+												req_entry.OrgCmdUUID.FromStr(p_js_fld->P_Child->Text);
+											}
+										}
+										if(!!req_entry.OrgCmdUUID) {
+											req_list.insert(&req_entry);
+										}
+									}
+								}
+							}							
 						}
 					}
 				}
 			}
-			if(!!org_cmd_uuid) {
+			if(req_list.getCount()) {
 				SString db_symb;
 				if(!p_dict || !p_dict->GetDbSymb(db_symb)) {
 					PPSetError(PPERR_SESSNAUTH);
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
 					PPSetError(PPERR_SQ_CMDSETLOADINGFAULT);
 				}
-				else if(StyloQCommandList::GetFullList(db_symb, full_cmd_list)) {
-					const StyloQCommandList::Item * p_item = full_cmd_list.GetByUuid(org_cmd_uuid);
-					THROW(p_item);
-					THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
-					const PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
-					StyloQCommandList * p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid, 0, false);
-					const StyloQCommandList::Item * p_targeted_item = p_target_cmd_list ? p_target_cmd_list->GetByUuid(org_cmd_uuid) : 0;
-					THROW_PP(p_targeted_item, PPERR_SQ_UNTARGETEDCMD);
-					switch(p_targeted_item->BaseCmdId) {
-						case StyloQCommandList::sqbcIncomingListOrder:
-							{
-								/* Копия прямого исполнения команды sqbcIncomingListOrder
-								IntermediateReply(3*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra);
-								if(ProcessCommand_IncomingListOrder(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), prccmdfReqNotification)) {
-									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
-									if(temp_buf.Len())
-										reply_doc_declaration.Put(temp_buf, temp_buf.Len());
-									cmd_reply_ok = true;									
+				else {
+					if(StyloQCommandList::GetFullList(db_symb, full_cmd_list)) {
+						THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
+						{
+							SJson * p_js_evnt_list = new SJson(SJson::tARRAY);
+							for(uint reqlistidx = 0; reqlistidx < req_list.getCount(); reqlistidx++) {
+								const RequestNotificationEntry & r_req_entry = req_list.at(reqlistidx);
+								if(!!r_req_entry.OrgCmdUUID) {
+									const StyloQCommandList::Item * p_item = full_cmd_list.GetByUuid(r_req_entry.OrgCmdUUID);
+									THROW(p_item);
+									const PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
+									StyloQCommandList * p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid, 0, false);
+									const StyloQCommandList::Item * p_targeted_item = p_target_cmd_list ? p_target_cmd_list->GetByUuid(r_req_entry.OrgCmdUUID) : 0;
+									THROW_PP(p_targeted_item, PPERR_SQ_UNTARGETEDCMD);
+									ProcessCommand_RequestNotificationList(*p_targeted_item, cli_pack, p_js_evnt_list);
 								}
-								else {
-									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
-									PPSetError(PPERR_SQ_CMDFAULT_INCOMINGLIST);
-								}
-								*/
 							}
-							break;
-						case StyloQCommandList::sqbcIncomingListCCheck:
-							break;
-						case StyloQCommandList::sqbcIncomingListTodo:
-							break;
+							{
+								assert(p_js_evnt_list != 0);
+								p_js_reply = new SJson(SJson::tOBJECT);
+								p_js_reply->Insert("evnt_list", p_js_evnt_list);
+								cmd_reply_ok = true;
+							}
+						}
 					}
 				}
 			}

@@ -8609,6 +8609,35 @@ const GazpromNeftGoodsPacket * GazpromNeft::SearchGoodsEntry(int64 ident) const
 //
 //
 //
+class VladimirskiyStandard : public PrcssrSupplInterchange::ExecuteBlock { // @v11.5.10 @construction
+public:
+	VladimirskiyStandard(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger)
+	{
+	}
+	~VladimirskiyStandard()
+	{
+	}
+	int    Init()
+	{
+		int    ok = 1;
+		return ok;
+	}
+	int    SendRest()
+	{
+		int    ok = 1;
+		return ok;
+	}
+	int    SendSales()
+	{
+		int    ok = 1;
+		return ok;
+	}
+private:
+	PPLogger & R_Logger;
+};
+//
+//
+//
 IMPLEMENT_PPFILT_FACTORY(SupplInterchange); SupplInterchangeFilt::SupplInterchangeFilt() : PPBaseFilt(PPFILT_SUPPLINTERCHANGE, 0, 0)
 {
 	SetFlatChunk(offsetof(SupplInterchangeFilt, ReserveStart),
@@ -8890,12 +8919,12 @@ int PrcssrSupplInterchange::Run()
 	{
 		ExecuteBlock & r_eb = *P_Eb;
 		r_eb.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
-		if(temp_buf.IsEqiAscii("MERCAPP-GAZPROMNEFT")) { // @v11.5.2
-			// @construction {
+		if(temp_buf.IsEqiAscii("VLADIMIRSKIY_STANDARD")) { // @v11.5.10
+			
+		}
+		else if(temp_buf.IsEqiAscii("MERCAPP-GAZPROMNEFT")) { // @v11.5.2
 			GazpromNeft cli(r_eb, logger);
 			THROW(cli.Init());
-			//cli.Test();
-			// } @construction 
 			if(r_eb.P.Actions & (SupplInterchangeFilt::opExportBills|SupplInterchangeFilt::opExportStocks|SupplInterchangeFilt::opExportSales))
 				r_eb.P.Actions |= SupplInterchangeFilt::opImportGoods;
 			const long actions = r_eb.P.Actions;

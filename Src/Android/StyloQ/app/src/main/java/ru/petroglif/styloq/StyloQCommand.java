@@ -228,7 +228,7 @@ public class StyloQCommand {
 								if(SLib.GetLen(notify_options) > 0) {
 									StringTokenizer toknzr = new StringTokenizer(notify_options, ",");
 									final int _c = toknzr.countTokens();
-									for(int j = 0; j < _c; i++) {
+									for(int j = 0; j < _c; j++) {
 										String tok = toknzr.nextToken();
 										tok.trim();
 										if(tok.equalsIgnoreCase("objnew"))

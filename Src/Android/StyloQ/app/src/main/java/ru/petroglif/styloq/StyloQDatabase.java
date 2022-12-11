@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -37,71 +38,77 @@ public class StyloQDatabase extends Database {
 	static class SecStoragePacket {
 		//
 		//
-		public static final int kUndef          = 0;
-		public static final int kNativeService  = 1; // Собственная идентификация. Используется для любого узла, включая клиентские, которые никогда не будут сервисами //
+		public static final int kUndef = 0;
+		public static final int kNativeService = 1; // Собственная идентификация. Используется для любого узла, включая клиентские, которые никогда не будут сервисами //
 		public static final int kForeignService = 2;
-		public static final int kClient         = 3;
-		public static final int kSession        = 4;
-		public static final int kFace           = 5; // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
-		public static final int kDocIncoming    = 6; // Входящие документы
-		public static final int kDocOutcoming   = 7; // Исходящие документы
-		public static final int kCounter        = 8; // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
-		public static final int kNotification   = 9; // @v11.5.9  Документ извещения. Главным образом, предполагаются извещения от сервисов к клиентам. Но, вероятно,
-			// будут возможны и извещения в обратном направлении (клиент о чем-то информирует сервис).
+		public static final int kClient = 3;
+		public static final int kSession = 4;
+		public static final int kFace = 5; // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
+		public static final int kDocIncoming = 6; // Входящие документы
+		public static final int kDocOutcoming = 7; // Исходящие документы
+		public static final int kCounter = 8; // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
+		public static final int kNotification = 9; // @v11.5.9  Документ извещения. Главным образом, предполагаются извещения от сервисов к клиентам. Но, вероятно,
+		// будут возможны и извещения в обратном направлении (клиент о чем-то информирует сервис).
 		//
 		// Descr: Флаги записи таблицы данных StyloQ bindery (StyloQSec::Flags)
 		//
-		public static final int styloqfMediator           = 0x0001; // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
-			// записи после получения соответствующей информации от сервиса-медиатора
+		public static final int styloqfMediator = 0x0001; // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
+		// записи после получения соответствующей информации от сервиса-медиатора
 		//public static final int styloqfDocFinished        = 0x0002; // @v11.3.12 Для документа: цикл обработки для документа завершен. Не может содержать флаги (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft)
 		//public static final int styloqfDocWaitForOrdrsp   = 0x0004; // @v11.3.12 Для документа заказа: ожидает подтверждения заказа. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
 		//public static final int styloqfDocWaitForDesadv   = 0x0008; // @v11.3.12 Для документа заказа: ожидает документа отгрузки. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
 		//public static final int styloqfDocDraft           = 0x0010; // @v11.3.12 Для документа: драфт-версия. Не может содержать флаги (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
 		//public static final int styloqfDocTransmission    = 0x0020; // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как
-			// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
+		// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
 		//public static final int styloqfDocCancelledByCli  = 0x0040; // @v11.4.0 Для документа: документ отменен клиентом
 		//public static final int styloqfDocCancelledBySvc  = 0x0080; // @v11.4.0 Для документа: документ отменен сервисом
 		//public static final int styloqfDocStatusFlagsMask = (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft|styloqfDocTransmission);
-		public static final int styloqfDocStatusFlags    = (0x02|0x04|0x08|0x10|0x20|0x40); // 6 bits используются для кодирования статуса документа
-		public static final int styloqfDocTransmission   = 0x0080; // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как
-			// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
-		public static final int styloqfPassive           = 0x0100; // @v11.4.6 Флаг для kForeignService. Означает, что сервис пассивен (относительно клиента) и не должен отображаться в регулярном списке у клиента.
+		public static final int styloqfDocStatusFlags = (0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40); // 6 bits используются для кодирования статуса документа
+		public static final int styloqfDocTransmission = 0x0080; // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как
+		// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
+		public static final int styloqfPassive = 0x0100; // @v11.4.6 Флаг для kForeignService. Означает, что сервис пассивен (относительно клиента) и не должен отображаться в регулярном списке у клиента.
+		public static final int styloqfUnprocessedDoc_ = 0x0200; // @v11.5.0
+		public static final int styloqfAutoObjMatching = 0x0400; // @v11.5.6 Объект (обычно, персоналия), соответствующий клиентской записи, был создан автоматически.
+		// Флаг необходим для дифференцированного изменения записи объекта в зависимости от того, пришел он изначально от клиента или же существует
+		// в базе данных серсиса самостоятельно (матчинг с клиентом был осуществлен вручную).
+		public static final int styloqfProcessed = 0x0800; // @v11.5.10 Запись обработана. Флаг изначально введен для пометки записей типа kNotification как прочитанных.
+		// В дальнейшем будет, вероятно, применяться и для других типов записей.
 		//
 		//
 		// Статусы документов заказа клиент-->сервис
 		//
-		public static final int styloqdocstUNDEF                 =  0; // неопределенный статус. Фактически, недопустимое состояние.
-		public static final int styloqdocstDRAFT               	 =  1; // драфт. Находится на стадии формирования на стороне эмитента
-		public static final int styloqdocstWAITFORAPPROREXEC   	 =  2; // ждет одобрения или исполнения от акцептора
-		public static final int styloqdocstAPPROVED            	 =  3; // одобрен акцептором
-		public static final int styloqdocstCORRECTED           	 =  4; // скорректирован акцептором (от акцептора поступает корректирующий документ, который привязывается к оригиналу)
-		public static final int styloqdocstCORRECTIONACCEPTED  	 =  5; // корректировка акцептора принята эмитентом
-		public static final int styloqdocstCORRECTIONREJECTED  	 =  6; // корректировка акцептора отклонена эмитентом (документ полностью отменяется и цикл документа завершается)
-		public static final int styloqdocstREJECTED            	 =  7; // отклонен акцептором (цикл документа завершается)
-		public static final int styloqdocstMODIFIED            	 =  8; // изменен эмитентом (от эмитента поступает измененная версия документа, которая привязывается к оригиналу)
-		public static final int styloqdocstCANCELLED           	 =  9; // отменен эмитентом (цикл документа завершается). Переход в это состояние возможен с ограничениями.
-		public static final int styloqdocstEXECUTED            	 = 10; // исполнен акцептором
-		public static final int styloqdocstEXECUTIONACCEPTED   	 = 11; // подтверждение от эмитента исполнения документа акцептором (цикл документа завершается)
-		public static final int styloqdocstEXECUTIONCORRECTED    = 12; // корректировка от эмитента исполнения документа акцептором (от эмитента поступает документ согласования)
+		public static final int styloqdocstUNDEF = 0; // неопределенный статус. Фактически, недопустимое состояние.
+		public static final int styloqdocstDRAFT = 1; // драфт. Находится на стадии формирования на стороне эмитента
+		public static final int styloqdocstWAITFORAPPROREXEC = 2; // ждет одобрения или исполнения от акцептора
+		public static final int styloqdocstAPPROVED = 3; // одобрен акцептором
+		public static final int styloqdocstCORRECTED = 4; // скорректирован акцептором (от акцептора поступает корректирующий документ, который привязывается к оригиналу)
+		public static final int styloqdocstCORRECTIONACCEPTED = 5; // корректировка акцептора принята эмитентом
+		public static final int styloqdocstCORRECTIONREJECTED = 6; // корректировка акцептора отклонена эмитентом (документ полностью отменяется и цикл документа завершается)
+		public static final int styloqdocstREJECTED = 7; // отклонен акцептором (цикл документа завершается)
+		public static final int styloqdocstMODIFIED = 8; // изменен эмитентом (от эмитента поступает измененная версия документа, которая привязывается к оригиналу)
+		public static final int styloqdocstCANCELLED = 9; // отменен эмитентом (цикл документа завершается). Переход в это состояние возможен с ограничениями.
+		public static final int styloqdocstEXECUTED = 10; // исполнен акцептором
+		public static final int styloqdocstEXECUTIONACCEPTED = 11; // подтверждение от эмитента исполнения документа акцептором (цикл документа завершается)
+		public static final int styloqdocstEXECUTIONCORRECTED = 12; // корректировка от эмитента исполнения документа акцептором (от эмитента поступает документ согласования)
 		public static final int styloqdocstEXECORRECTIONACCEPTED = 13; // согласие акцептора с документом согласования эмитента
 		public static final int styloqdocstEXECORRECTIONREJECTED = 14; // отказ акцептора от документа согласования эмитента - тупиковая ситуация, которая должна быть
-			// разрешена посредством дополнительных механизмов (escrow счета, полный возврат с отменой платежей и т.д.)
-		public static final int styloqdocstFINISHED_SUCC         = 15; // Финальное состояние документа: завершен как учтенный и отработанный.
-		public static final int styloqdocstFINISHED_FAIL         = 16; // Финальное состояние документа: завершен как отмененный.
-		public static final int styloqdocstCANCELLEDDRAFT        = 17; // @v11.4.1 Драфт отмененый эмитентом. Переход в это состояние возможен только после styloqdocstDRAFT || styloqdocstUNDEF.
-		public static final int styloqdocstINCOMINGMOD           = 18; // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация
-		public static final int styloqdocstINCOMINGMODACCEPTED   = 19; // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация, которая, в свою очередь, акцептирована сервисом.
+		// разрешена посредством дополнительных механизмов (escrow счета, полный возврат с отменой платежей и т.д.)
+		public static final int styloqdocstFINISHED_SUCC = 15; // Финальное состояние документа: завершен как учтенный и отработанный.
+		public static final int styloqdocstFINISHED_FAIL = 16; // Финальное состояние документа: завершен как отмененный.
+		public static final int styloqdocstCANCELLEDDRAFT = 17; // @v11.4.1 Драфт отмененый эмитентом. Переход в это состояние возможен только после styloqdocstDRAFT || styloqdocstUNDEF.
+		public static final int styloqdocstINCOMINGMOD = 18; // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация
+		public static final int styloqdocstINCOMINGMODACCEPTED = 19; // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация, которая, в свою очередь, акцептирована сервисом.
 		//
-		public static final int doctypUndef       = 0;
+		public static final int doctypUndef = 0;
 		public static final int doctypCommandList = 1;
 		public static final int doctypOrderPrereq = 2; // Предопределенный формат данных, подготовленных для формирования заказа на клиентской стороне
-		public static final int doctypReport      = 3; // @v11.2.10 Отчеты в формате DL600 export
-		public static final int doctypGeneric     = 4; // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
+		public static final int doctypReport = 3; // @v11.2.10 Отчеты в формате DL600 export
+		public static final int doctypGeneric = 4; // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
 		public static final int doctypIndexingContent = 5; // @v11.3.4 Документ, содержащий данные для индексации медиатором
 		public static final int doctypIndoorSvcPrereq = 6; // @v11.4.5 Предопределенный формат данных, подготовленных для формирования данных для обслуживания внутри помещения сервиса (INDOOR)
-		public static final int doctypIncomingList    = 7; // @v11.4.8
-		public static final int doctypDebtList        = 8; // @v11.5.4 Реестр долговых документов по контрагентам. Специфичный документ: на клиентской стороне хранится единый реестр по всем
-			// контрагентам. При этом запрос сервису отправляется по одному контрагенту, а ответ (корректный) встраивается в общий реестр.
+		public static final int doctypIncomingList = 7; // @v11.4.8
+		public static final int doctypDebtList = 8; // @v11.5.4 Реестр долговых документов по контрагентам. Специфичный документ: на клиентской стороне хранится единый реестр по всем
+		// контрагентам. При этом запрос сервису отправляется по одному контрагенту, а ответ (корректный) встраивается в общий реестр.
 		//
 		SecTable.Rec Rec;
 		SecretTagPool Pool;
@@ -190,7 +197,7 @@ public class StyloQDatabase extends Database {
 		{
 			StyloQCommand.List result = null;
 			if(Rec.DocType == doctypCommandList) {
-				byte [] rawdata = Pool.Get(SecretTagPool.tagRawData);
+				byte[] rawdata = Pool.Get(SecretTagPool.tagRawData);
 				if(SLib.GetLen(rawdata) > 0) {
 					String json_tex = new String(rawdata);
 					if(SLib.GetLen(json_tex) > 0)
@@ -203,7 +210,7 @@ public class StyloQDatabase extends Database {
 	@RequiresApi(api = Build.VERSION_CODES.O)
 	long SetupPeerInstance() throws StyloQException
 	{
-		long  id = 0;
+		long id = 0;
 		boolean test_result = false;
 		SecStoragePacket pack = GetOwnPeerEntry();
 		if(pack == null) {
@@ -361,6 +368,39 @@ public class StyloQDatabase extends Database {
 						result = new SysJournalTable.Rec();
 						result.Init();
 						result.Set(cur);
+					}
+				}
+			} catch(StyloQException exn) {
+				result = null;
+			}
+		}
+		return result;
+	}
+	ArrayList <Integer> GetObjListByEventSince(int objType, ArrayList <Integer> actList, SLib.LDATETIME since)
+	{
+		ArrayList <Integer> result = null;
+		if(objType > 0 && !SLib.LDATETIME.IsEmpty(since)) {
+			long since_ms = since.ToEpochMilliseconds();
+			try {
+				Database.Table tbl = CreateTable(SysJournalTable.TBL_NAME);
+				if(tbl != null) {
+					final String tn = tbl.GetName();
+					String query = "SELECT * FROM " + tn + " WHERE TimeStamp>" + since_ms + " AND ObjType=" + objType;
+					android.database.Cursor cur = GetHandle().rawQuery(query, null);
+					if(cur != null && cur.moveToFirst()) {
+						do {
+							SysJournalTable.Rec rec = new SysJournalTable.Rec();
+							rec.Init();
+							rec.Set(cur);
+							if(SLib.GetCount(actList) == 0 || actList.contains(rec.Action)) {
+								if(result == null) {
+									result = new ArrayList<Integer>();
+									result.add((int)rec.ObjID);
+								}
+								else if(!result.contains((int)rec.ObjID))
+									result.add((int)rec.ObjID);
+							}
+						} while(cur.moveToNext());
 					}
 				}
 			} catch(StyloQException exn) {
@@ -1369,11 +1409,133 @@ public class StyloQDatabase extends Database {
 		}
 		return result;
 	}
+	public ArrayList <StyloQInterchange.SvcNotification> GetNotifivationList(long svcID, SLib.LDATETIME since, boolean unprocessedOnly)
+	{
+		return Helper_GetNotifivationList(svcID, since, unprocessedOnly, false);
+	}
+	public boolean IsThereUnprocessedNotifications(long svcID, SLib.LDATETIME since)
+	{
+		ArrayList <StyloQInterchange.SvcNotification> list = Helper_GetNotifivationList(svcID, since, true, true);
+		return (list != null && list.size() > 0);
+	}
+	public boolean IsThereAnyNotifications(long svcID, SLib.LDATETIME since)
+	{
+		ArrayList <StyloQInterchange.SvcNotification> list = Helper_GetNotifivationList(svcID, since, false, true);
+		return (list != null && list.size() > 0);
+	}
+	private ArrayList <StyloQInterchange.SvcNotification> Helper_GetNotifivationList(long svcID, SLib.LDATETIME since, boolean unprocessedOnly, boolean single)
+	{
+		ArrayList <StyloQInterchange.SvcNotification> result = null;
+		try {
+			Database.Table tbl = CreateTable("SecTable");
+			if(tbl != null) {
+				final String tn = tbl.GetName();
+				long since_epoch_ms = SLib.LDATETIME.IsEmpty(since) ? 0 : since.ToEpochMilliseconds();
+				String query = "SELECT * FROM " + tn + " WHERE kind=" + SecStoragePacket.kNotification;
+				if(svcID > 0) {
+					query += " " + "and CorrespondID=" + svcID;
+				}
+				if(since_epoch_ms > 0) {
+					query += " " + "and TimeStamp>" + since_epoch_ms;
+				}
+				android.database.Cursor cur = GetHandle().rawQuery(query, null);
+				if(cur != null && cur.moveToFirst()) {
+					do {
+						SecTable.Rec rec = new SecTable.Rec();
+						rec.Init();
+						rec.Set(cur);
+						if(!unprocessedOnly || (rec.Flags & SecStoragePacket.styloqfProcessed) == 0) {
+							SecStoragePacket pack = new SecStoragePacket(rec);
+							JSONObject js_obj = (pack.Pool != null) ? pack.Pool.GetJsonObject(SecretTagPool.tagRawData) : null;
+							if(js_obj != null) {
+								StyloQInterchange.SvcNotification item = new StyloQInterchange.SvcNotification();
+								if(item.FromJsonObj(js_obj)) {
+									if(result == null)
+										result = new ArrayList<StyloQInterchange.SvcNotification>();
+									item.InternalID = rec.ID;
+									item.SvcID = rec.CorrespondID;
+									item.Processed = ((rec.Flags & SecStoragePacket.styloqfProcessed) != 0);
+									result.add(item);
+									if(single)
+										break;
+								}
+							}
+						}
+					} while(cur.moveToNext());
+				}
+			}
+		} catch(StyloQException exn) {
+			result = null;
+		}
+		return result;
+	}
+	public boolean RegisterNotificationAsSeen(long id, boolean useTa)
+	{
+		boolean result = false;
+		if(id > 0) {
+			try {
+				SecStoragePacket pack = GetPeerEntry(id);
+				if(pack != null && pack.Rec.Kind == SecStoragePacket.kNotification && (pack.Rec.Flags & SecStoragePacket.styloqfProcessed) == 0) {
+					pack.Rec.Flags |= SecStoragePacket.styloqfProcessed;
+					long result_id = PutPeerEntry(id, pack, useTa);
+					if(result_id == id)
+						result = true;
+				}
+			} catch(StyloQException exn) {
+				;
+			}
+		}
+		return result;
+	}
+	public long StoreNotification(final byte [] svcIdent, StyloQInterchange.SvcNotification item, boolean useTa) throws StyloQException
+	{
+		long    result_id = 0;
+		final int svcidlen = SLib.GetLen(svcIdent);
+		if(item != null && SLib.GetLen(item.Ident) > 0 && svcidlen > 0) {
+			long correspind_id = 0;
+			Transaction tra = new Transaction(this, useTa);
+			SecStoragePacket correspond_pack = null;
+			correspond_pack = SearchGlobalIdentEntry(SecStoragePacket.kForeignService, svcIdent);
+			if(correspond_pack != null && correspond_pack.Rec.Kind == SecStoragePacket.kForeignService) {
+				final long correspond_id = correspond_pack.Rec.ID;
+				SecStoragePacket ex_pack = SearchGlobalIdentEntry(SecStoragePacket.kNotification, item.Ident);
+				if(ex_pack != null) {
+					result_id = ex_pack.Rec.ID;
+				}
+				else {
+					JSONObject js_obj = item.ToJsonObj(false);
+					if(js_obj != null) {
+						SecStoragePacket pack = new SecStoragePacket(SecStoragePacket.kNotification);
+						pack.Rec.ID = 0;
+						pack.Rec.BI = item.Ident;
+						pack.Rec.TimeStamp = item.EventOrgTime.ToEpochMilliseconds();
+						pack.Rec.CorrespondID = correspond_id;
+						pack.Rec.Expiration = 0;
+						{
+							String js_obj_text = js_obj.toString();
+							if(SLib.GetLen(js_obj_text) > 0) {
+								pack.Pool.Put(SecretTagPool.tagRawData, js_obj_text.getBytes(StandardCharsets.UTF_8));
+								result_id = PutPeerEntry(0, pack, false);
+							}
+							else {
+								; // @todo @err
+							}
+						}
+					}
+					else {
+						; // @todo @err
+					}
+				}
+			}
+			tra.Commit();
+		}
+		return result_id;
+	}
 	public long StoreSession(long id, SecStoragePacket pack, boolean useTa) throws StyloQException
 	{
 		long result_id = 0;
 		try {
-			long correspind_id = 0;
+			long correspond_id = 0;
 			SecStoragePacket org_pack;
 			SecStoragePacket correspond_pack = null;
 			Transaction tra = new Transaction(this, useTa);
@@ -1402,7 +1564,7 @@ public class StyloQDatabase extends Database {
 						// @error Не должно быть так, что заданы одновременно и клиентский и сервисных идентификаторы
 					}
 					if(correspond_pack != null) {
-						correspind_id = correspond_pack.Rec.ID;
+						correspond_id = correspond_pack.Rec.ID;
 						if(correspond_pack.Rec.Kind == correspond_type) { // Корреспондирующий пакет определенного вида должен быть обязательно
 							byte[] other_sess_public = pack.Pool.Get(SecretTagPool.tagSessionPublicKeyOther);
 							if(other_sess_public != null) {
@@ -1429,8 +1591,8 @@ public class StyloQDatabase extends Database {
 									}
 									new_id = PutPeerEntry(new_id, pack, false);
 									correspond_pack.Rec.CorrespondID = new_id;
-									assert (correspind_id > 0);
-									correspind_id = PutPeerEntry(correspind_id, correspond_pack, false);
+									assert (correspond_id > 0);
+									correspond_id = PutPeerEntry(correspond_id, correspond_pack, false);
 									result_id = new_id;
 								}
 								else {
@@ -1439,7 +1601,7 @@ public class StyloQDatabase extends Database {
 									//
 									// Проверка идентичности некоторых параметров изменяемой записи
 									//
-									if(org_pack.Rec.Kind == pack.Rec.Kind && org_pack.Rec.CorrespondID == correspind_id) {
+									if(org_pack.Rec.Kind == pack.Rec.Kind && org_pack.Rec.CorrespondID == correspond_id) {
 										byte[] temp_chunk = null;
 										if(cliidlen > 0) {
 											temp_chunk = org_pack.Pool.Get(SecretTagPool.tagClientIdent);
@@ -1473,14 +1635,14 @@ public class StyloQDatabase extends Database {
 				if(id > 0) { // @error invalid arguments
 					// remove session by id
 					org_pack = GetPeerEntry(id);
-					correspind_id = org_pack.Rec.CorrespondID;
-					if(correspind_id > 0) {
-						correspond_pack = GetPeerEntry(correspind_id);
+					correspond_id = org_pack.Rec.CorrespondID;
+					if(correspond_id > 0) {
+						correspond_pack = GetPeerEntry(correspond_id);
 						if(correspond_pack != null) {
 							if(correspond_pack.Rec.CorrespondID == id) {
 								// Обнуляем ссылку на удаляемую запись в коррерспондирующем пакете
 								correspond_pack.Rec.CorrespondID = 0;
-								PutPeerEntry(correspind_id, correspond_pack, false);
+								PutPeerEntry(correspond_id, correspond_pack, false);
 							}
 							else {
 								// @problem (логическая целостность таблицы нарушена, но прерывать исполнение нельзя - мы все равно удаляем запись)

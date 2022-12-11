@@ -2780,6 +2780,7 @@ public class SLib {
 		private static final int ANY_DAYITEM_VALUE  = 0x7d;
 		private static final int ANY_MONITEM_VALUE  = 0x7d;
 		private static final int ANY_YEARITEM_VALUE = 0x7d0a;
+		public static boolean IsEmpty(LDATE s) { return (s == null || s.v == 0); }
 		public static LDATE Copy(final LDATE s)
 		{
 			return (s != null) ? new LDATE(s) : null;
@@ -3755,6 +3756,7 @@ public class SLib {
 	// Descr: Представление времени. Бинарно совместимо с LTIME из slib.h
 	//
 	public static class LTIME {
+		public static boolean IsEmpty(LDATE s) { return (s == null || s.v == 0); }
 		public static boolean ArEq(final LTIME a1, final LTIME a2)
 		{
 			return (a1 != null) ? (a2 != null && a1.v == a2.v) : (a2 == null);
@@ -3909,6 +3911,7 @@ public class SLib {
 		return result;
 	}
 	public static class LDATETIME {
+		public static boolean IsEmpty(LDATETIME s) { return (s == null || LDATE.IsEmpty(s.d)); }
 		public static boolean ArEq(final LDATETIME a1, final LDATETIME a2)
 		{
 			return (a1 != null) ? (a2 != null && LDATE.ArEq(a1.d, a2.d) && LTIME.ArEq(a1.t, a2.t)) : (a2 == null);
@@ -3944,6 +3947,24 @@ public class SLib {
 			c.setTimeInMillis(epochMilliseconds);
 			d = new LDATE(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH)+1, c.get(Calendar.YEAR));
 			t = new LTIME(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND), c.get(Calendar.MILLISECOND));
+		}
+		long ToEpochMilliseconds()
+		{
+			long result = 0;
+			if(d != null) {
+				Calendar c = Calendar.getInstance();
+				int h = 0;
+				int m = 0;
+				int s = 0;
+				if(t != null) {
+					h = t.hour();
+					m = t.minut();
+					s = t.sec();
+				}
+				c.set(d.year(), d.month(), d.day(), h, m, s);
+				result = c.getTimeInMillis();
+			}
+			return result;
 		}
 		LDATE d;
 		LTIME t;

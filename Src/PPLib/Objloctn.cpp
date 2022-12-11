@@ -5018,7 +5018,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 										for(uint j = 0; j < p_prev_tok->Dl.getCount(); j++) {
 											const AddrItemDescr & r_aid = Aidl[p_prev_tok->Dl.get(j)];
 											int r = ProcessDescr(r_aid, ds);
-											if(oneof4(ds.T, tHouse, tHouseAddendum, tPostBox, tApart)) {
+											if(oneof5(ds.T, tHouse, tHouseAddendum, tPostBox, tApart, tFloor)) { // @v11.5.10 tFloor
 												temp_buf = p_tok->S;
 												if(ds.T == tHouse && alpha) {
 													temp_buf.CatChar(alpha);

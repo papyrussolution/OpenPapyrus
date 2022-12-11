@@ -9,18 +9,15 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -334,11 +331,13 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	}
 	public static final int CUSTOMIZED_REQUEST_CODE = 0x0000ffff;
 	private ArrayList <ListEntry> ListData;
+	private Timer RefreshNotificationIcon_Tmr;
 	//private int TouchedListItemIdx; // Элемент, на который нажали пальцем. Для временного изменения окраски.
 	public MainActivity()
 	{
 		super();
 		ListData = null;
+		RefreshNotificationIcon_Tmr = null;
 		//TouchedListItemIdx = -1;
 	}
 	private void MakeListData(StyloQDatabase db)
@@ -372,6 +371,33 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		if(ListData != null) {
 			UpdateSvcListView();
 		}
+	}
+	private void SetupNotificationIcon(StyloQDatabase db)
+	{
+		try {
+			if(db == null) {
+				StyloQApp app_ctx = (StyloQApp) getApplication();
+				if(app_ctx != null)
+					db = app_ctx.GetDB();
+			}
+			if(db != null) {
+				View v = SLib.FindViewById(this, R.id.tbButtonNotifications);
+				if(v != null && v instanceof ImageButton) {
+					ImageButton button = (ImageButton) v;
+					if(db.IsThereUnprocessedNotifications(0, null))
+						button.setImageResource(R.drawable.ic_bell_accent01);
+					else if(db.IsThereAnyNotifications(0, null))
+						button.setImageResource(R.drawable.ic_bell01);
+					else
+						button.setVisibility(View.GONE);
+				}
+			}
+		} catch(StyloQException exn) {
+			;
+		}
+	}
+	private class RefreshNotificationIcon_TimerTask extends TimerTask {
+		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { SetupNotificationIcon(null); }}); }
 	}
 	private class ResetTouchedListItemIdx_TimerTask extends TimerTask {
 		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { SetTouchedItemIndex(-1); }}); }
@@ -478,28 +504,33 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		Object result = null;
 		switch(ev) {
 			case SLib.EV_CREATE:
+				setContentView(R.layout.activity_main);
+				SetupRecyclerListView(null, R.id.serviceListView, R.layout.li_service);
 				{
-					setContentView(R.layout.activity_main);
-					SetupRecyclerListView(null, R.id.serviceListView, R.layout.li_service);
-					{
-						StyloQApp app_ctx = (StyloQApp)getApplication();
-						if(app_ctx != null) {
-							try {
-								StyloQDatabase db = app_ctx.GetDB();
-								if(db != null) {
-									db.SetupPeerInstance();
-									MakeListData(db);
-								}
-								{
-									//View v = findViewById(R.id.CTL_MAIN_VERSION);
-									//if(v != null && v instanceof TextView) {
-									PackageInfo pInfo = app_ctx.getPackageManager().getPackageInfo(app_ctx.getPackageName(), 0);
-									String version = pInfo.versionName;
-									SLib.SetCtrlString(this, R.id.CTL_MAIN_VERSION, version);
-								}
-							} catch(StyloQException | PackageManager.NameNotFoundException e) {
-								;
+					StyloQApp app_ctx = (StyloQApp)getApplication();
+					if(app_ctx != null) {
+						try {
+							StyloQDatabase db = app_ctx.GetDB();
+							if(db != null) {
+								db.SetupPeerInstance();
+								MakeListData(db);
+								SetupNotificationIcon(db);
 							}
+							{
+								//View v = findViewById(R.id.CTL_MAIN_VERSION);
+								//if(v != null && v instanceof TextView) {
+								PackageInfo pInfo = app_ctx.getPackageManager().getPackageInfo(app_ctx.getPackageName(), 0);
+								String version = pInfo.versionName;
+								SLib.SetCtrlString(this, R.id.CTL_MAIN_VERSION, version);
+								{
+									if(RefreshNotificationIcon_Tmr == null) {
+										RefreshNotificationIcon_Tmr = new Timer();
+										RefreshNotificationIcon_Tmr.schedule(new RefreshNotificationIcon_TimerTask(), 2000, 30000);
+									}
+								}
+							}
+						} catch(StyloQException | PackageManager.NameNotFoundException e) {
+							;
 						}
 					}
 				}
@@ -674,6 +705,10 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				}
 				else if(view_id == R.id.tbButtonSearch) {
 					Intent intent = new Intent(this, GlobalSearchActivity.class);
+					startActivity(intent);
+				}
+				else if(view_id == R.id.tbButtonNotifications) { // @v11.5.10
+					Intent intent = new Intent(this, NotificationActivity.class);
 					startActivity(intent);
 				}
 				/*else if(view_id == R.id.tbButtonTest) {

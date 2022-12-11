@@ -1,5 +1,5 @@
 // BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2007, 2008, 2009, 2012, 2014, 2015, 2016, 2018, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2007, 2008, 2009, 2012, 2014, 2015, 2016, 2018, 2020, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -46,9 +46,11 @@ int Balance::Search(PPID * pAccID, LDATE * pDt, int spMode)
 int Balance::_Turn(PPID bal, LDATE date, AccTurnParam * param, uint flags)
 {
 	int    ok = 1;
-	int    r, rollback = BIN(flags & TURN_ROLLBACK);
+	int    r;
+	int    rollback = BIN(flags & TURN_ROLLBACK);
+	const  long lcflags = LConfig.Flags;
 	// Получаем оригинальную сумму проводки
-	double abs_amt = (param->Side == PPCREDIT) ? -param->Amt : param->Amt;
+	const  double abs_amt = (param->Side == PPCREDIT) ? -param->Amt : param->Amt;
 	double new_rest;
 	BalanceTbl::Key1 k1;
 	{
@@ -59,13 +61,11 @@ int Balance::_Turn(PPID bal, LDATE date, AccTurnParam * param, uint flags)
 		THROW(r = search(1, &k1, spEq) ? 1 : PPDbSearchError()); // @v8.1.4 searchForUpdate-->search
 		if(r > 0) {
 			if(abs_amt != 0.0) {
-				// @v8.1.4 {
 				DBRowId _dbpos;
 				THROW_DB(getPosition(&_dbpos));
 				THROW_DB(getDirectForUpdate(1, &k1, _dbpos));
-				// } @v8.1.4
 				new_rest = _Rest()+param->Amt;
-				if(LConfig.Flags & CFGFLG_CHECKTURNREST) {
+				if(lcflags & CFGFLG_CHECKTURNREST) {
 					THROW_PP(new_rest >= param->Low, PPERR_BALLOWBOUND);
 					THROW_PP(new_rest <= param->Upp, PPERR_BALUPPBOUND);
 					if(rollback) {
@@ -95,15 +95,15 @@ int Balance::_Turn(PPID bal, LDATE date, AccTurnParam * param, uint flags)
 		if(!BillObj->atobj->P_Tbl->IsFRRLocked() && abs_amt != 0.0) {
 			k1.AccID = bal;
 			k1.Dt = date;
-			while((r = search(1, &k1, spGt)) != 0 && k1.AccID == bal) { // @v8.2.0 searchForUpdate-->search
+			while((r = search(1, &k1, spGt)) != 0 && k1.AccID == bal) {
 				new_rest = _Rest()+param->Amt;
-				if(LConfig.Flags & CFGFLG_CHECKTURNREST) {
+				if(lcflags & CFGFLG_CHECKTURNREST) {
 					THROW_PP(new_rest >= param->Low, PPERR_FWBALLOWBOUND);
 					THROW_PP(new_rest <= param->Upp, PPERR_FWBALUPPBOUND);
 					if(rollback)
 						THROW_PP((_Rest(param->Side) + abs_amt) >= 0, PPERR_BALROLLBACKBOUND);
 				}
-				THROW_DB(rereadForUpdate(1, &k1)); // @v8.2.0
+				THROW_DB(rereadForUpdate(1, &k1));
 				_SetRest(param->Side, _Rest(param->Side) + abs_amt);
 				THROW_DB(updateRec()); // @sfu
 			}

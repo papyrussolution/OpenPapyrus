@@ -46872,6 +46872,8 @@ public:
 		styloqfAutoObjMatching     = 0x0400, // @v11.5.6 Объект (обычно, персоналия), соответствующий клиентской записи, был создан автоматически.
 			// Флаг необходим для дифференцированного изменения записи объекта в зависимости от того, пришел он изначально от клиента или же существует
 			// в базе данных серсиса самостоятельно (матчинг с клиентом был осуществлен вручную).
+		styloqfProcessed           = 0x0800, // @v11.5.10 Запись обработана. Флаг изначально введен для пометки записей типа kNotification как прочитанных. 
+			// В дальнейшем будет, вероятно, применяться и для других типов записей.
 	};
 	//
 	// Descr: Флаги записей реестра Stylo-Q
@@ -47418,9 +47420,10 @@ public:
 		int    GenerateIdent();
 		SJson * ToJson() const;
 		
-		binary128 Ident;
+		binary160 Ident;
 		LDATETIME EventOrgTime;
 		LDATETIME EventIssueTime;
+		LDATETIME ObjNominalTime; // Номинальная метка времени объекта. Необходима для адекватной сортировки. Для документа это - номинальная дата документа.
 		int    EventId;
 		PPObjID Oid;
 		SString Message;
@@ -47696,6 +47699,7 @@ private:
 	int    ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	int    ProcessCommand_IncomingListOrder(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	int    ProcessCommand_IncomingListCCheck(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
+	int    ProcessCommand_RequestNotificationList(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SJson * pJsArray);
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
 	// Returns:
@@ -52834,6 +52838,7 @@ private:
 	};
 	int    UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags);
 	int    UED_Import_PackageTypes();
+	int    UED_ImportAtoms();
 
 	PrcssrSartreFilt P;
 };

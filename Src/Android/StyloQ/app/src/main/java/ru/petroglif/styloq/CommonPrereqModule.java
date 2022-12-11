@@ -277,10 +277,7 @@ public class CommonPrereqModule {
 			Flags = 0;
 			PredefPeriod = SLib.PREDEFPRD_NONE;
 		}
-		boolean IsEmpty()
-		{
-			return ((Period == null || Period.IsZero()) && Flags == 0);
-		}
+		boolean IsEmpty() { return ((Period == null || Period.IsZero()) && Flags == 0); }
 		public static final int fHideRejected = 0x00001;
 		SLib.DateRange Period;
 		int    Flags;
@@ -1641,6 +1638,18 @@ public class CommonPrereqModule {
 										}
 									}
 								}
+							}
+							if(SLib.GetCount(RegistryHList) > 1) {
+								RegistryHList.sort(new Comparator<Document.DisplayEntry>() {
+									@Override public int compare(Document.DisplayEntry lh, Document.DisplayEntry rh)
+									{
+										final SLib.LDATE lh_d = lh.GetNominalDate();
+										final SLib.LDATE rh_d = rh.GetNominalDate();
+										int si = SLib.Cmp(lh_d, rh_d);
+										return si;
+										//return (lh_d < rh_d) ? +1 : ((lh > rh) ? -1 : 0);
+									}
+								});
 							}
 						}
 					}

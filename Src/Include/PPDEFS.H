@@ -1201,11 +1201,12 @@
 #define PPOBJ_GEOTRACKING   1075L  // @v10.1.5 !PPObject Специализированный объект для представления гео-треков.
 	// Значение фактически применяется только для идентификации запроса к JobServer'у.
 #define PPOBJ_EVENT         1076L  // @v10.8.9 События
-	#define PPEVENTTYPE_OBJCREATED     1L // Создан новый объект
-	#define PPEVENTTYPE_OUTER          2L // Внешнее по отношению к системе событие. Например, уведомление от какого-либо сервиса
-	#define PPEVENTTYPE_SPCBILLCHANGE  3L // Изменение документа каким-либо специфическим образом
-	#define PPEVENTTYPE_SYSJOURNAL     4L // Событие в системном журнале по фильтру
-	#define PPEVENTTYPE_LOTEXPIRATION  5L // Истечение срока годности лота
+	#define PPEVENTTYPE_OBJCREATED        1L // Создан новый объект
+	#define PPEVENTTYPE_OUTER             2L // Внешнее по отношению к системе событие. Например, уведомление от какого-либо сервиса
+	#define PPEVENTTYPE_SPCBILLCHANGE     3L // Изменение документа каким-либо специфическим образом
+	#define PPEVENTTYPE_SYSJOURNAL        4L // Событие в системном журнале по фильтру
+	#define PPEVENTTYPE_LOTEXPIRATION     5L // Истечение срока годности лота
+	#define PPEVENTTYPE_ORDERCREATED      6L // @v11.5.10 Stylo-Q Создан новый документ заказа
 #define PPOBJ_STYLOQBINDERY 1077L  // @v11.1.7 Подшивка объектов Stylo-Q
 #define PPOBJ_VETISIC       1078L  // @v11.3.2 !PPObject Используется для блокировки функций обмена с сервисами ВЕТИС
 	#define PPVETISICFUNC_SETUPOUTGOINGENTRIES 1
@@ -11271,6 +11272,7 @@
 	#define CTL_STQCLIMATCH_OBJ              (5  + WINDOWS_ID_BIAS)
 	#define CTLSEL_STQCLIMATCH_OBJ           (6  + WINDOWS_ID_BIAS)
 	#define CTL_STQCLIMATCH_INFO             (7  + WINDOWS_ID_BIAS)
+	#define CTL_STQCLIMATCH_AUTO             (8  + WINDOWS_ID_BIAS)
 #define DLG_STQCMD                1404
 	#define CTL_STQCMD_UUID                  (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQCMD_NAME                  (2  + WINDOWS_ID_BIAS)

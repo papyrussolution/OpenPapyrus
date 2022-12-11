@@ -123,8 +123,8 @@ PPObjGoods::ExportToGlbSvcItem::ExportToGlbSvcItem() : GoodsID(0), LocID(0), Cos
 	int    cd = 0;
 	int    cdstd = 0;
 	int    diag = 0;
-	SString temp_buf, norm_code;
-	norm_code = pBarcode;
+	SString temp_buf;
+	SString norm_code(pBarcode);
 	if(bclen == 0) {
 		diag = cddEmpty; // Empty barcode
 	}

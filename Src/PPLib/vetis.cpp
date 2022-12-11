@@ -1038,7 +1038,7 @@ struct VetisCargoReloadingPoint {
 };
 
 struct VetisCertifiedConsignment {
-	VetisCertifiedConsignment() : TransportStorageType(0)
+	VetisCertifiedConsignment() : TransportStorageType_id(0)
 	{
 	}
 	VetisCertifiedConsignment & operator = (const VetisCertifiedConsignment & rS)
@@ -1047,7 +1047,7 @@ struct VetisCertifiedConsignment {
 		Consignee = rS.Consignee;
 		Broker = rS.Broker;
 		TransportInfo = rS.TransportInfo;
-		TransportStorageType = rS.TransportStorageType;
+		TransportStorageType_id = rS.TransportStorageType_id;
 		TSCollection_Copy(RoutePointList, rS.RoutePointList);
 		TSCollection_Copy(CargoReloadingPointList, rS.CargoReloadingPointList); // @v10.5.4
 		Batch = rS.Batch;
@@ -1059,7 +1059,7 @@ struct VetisCertifiedConsignment {
 		Consignee.Z();
 		Broker.Z();
 		TransportInfo.Z();
-		TransportStorageType = 0;
+		TransportStorageType_id = 0;
 		RoutePointList.freeAll();
 		CargoReloadingPointList.freeAll(); // @v10.5.4
 		Batch.Z();
@@ -1069,7 +1069,7 @@ struct VetisCertifiedConsignment {
 	VetisBusinessMember Consignee;
 	VetisBusinessEntity Broker;
 	VetisTransportInfo TransportInfo;
-	int    TransportStorageType; // TransportationStorageType
+	int    TransportStorageType_id; // TransportationStorageType
 	TSCollection <VetisShipmentRoutePoint> RoutePointList;
 	TSCollection <VetisCargoReloadingPoint> CargoReloadingPointList; // @v10.5.4
 	VetisBatch Batch;
@@ -2471,7 +2471,7 @@ int VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 			r_crtc.Batch.PackingAmount = rec.PackingAmount;
 			r_crtc.Batch.ProductType = rec.ProductType;
 			r_crtc.TransportInfo.TransportType = rec.TranspType;
-			r_crtc.TransportStorageType = rec.TranspStrgType;
+			r_crtc.TransportStorageType_id = rec.TranspStrgType;
 			if(rec.FromEntityID) {
 				GetEntity(rec.FromEntityID, sub_entity);
 				sub_entity.Get(r_crtc.Consignor.BusinessEntity);
@@ -2850,7 +2850,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 			THROW(SetEntity(Entity(kCountry, r_bat.Origin.Country), pUreList, &rec.OrgCountryID, 0));
 			THROW(SetEntity(Entity(kUOM, r_bat.Unit), pUreList, &rec.UOMID, 0));
 			rec.ProductType    = static_cast<int16>(r_bat.ProductType);
-			rec.TranspStrgType = static_cast<int16>(r_crtc.TransportStorageType);
+			rec.TranspStrgType = static_cast<int16>(r_crtc.TransportStorageType_id);
 			rec.TranspType     = static_cast<int16>(r_crtc.TransportInfo.TransportType);
 			{
 				VetisDocumentTbl::Key0 k0;
@@ -4470,7 +4470,7 @@ int PPVetisInterface::ParseCertifiedConsignment(const xmlNode * pParentNode, Vet
 		else if(SXml::IsName(p_a, "transportInfo"))
 			r = ParseTransportInfo(p_a, rResult.TransportInfo);
 		else if(SXml::GetContentByName(p_a, "transportStorageType", temp_buf))
-			rResult.TransportStorageType = SIntToSymbTab_GetId(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), temp_buf);
+			rResult.TransportStorageType_id = SIntToSymbTab_GetId(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), temp_buf);
 		// @v10.5.4 {
 		else if(SXml::IsName(p_a, "cargoReloadingPointList")) {
 			for(const xmlNode * p_b = p_a ? p_a->children : 0; p_b; p_b = p_b->next) {
@@ -6113,7 +6113,13 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 											PutNonEmptyText(n_tn, "vd", "flightNumber", p_req->Transp.TransportNumber.FlightNumber);
 										}
 									}
-									n_n2.PutInner(_xmlnst_vd("transportStorageType"), (temp_buf = p_req->TranspStorageType).SetIfEmpty("FROZEN"));
+									// @v11.5.10 {
+									if(p_req->OrgDoc.CertifiedConsignment.TransportStorageType_id && SIntToSymbTab_GetSymb(
+										VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), p_req->OrgDoc.CertifiedConsignment.TransportStorageType_id, temp_buf)) {
+										n_n2.PutInner(_xmlnst_vd("transportStorageType"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+									}
+									else // } @v11.5.10
+										n_n2.PutInner(_xmlnst_vd("transportStorageType"), (temp_buf = p_req->TranspStorageType).SetIfEmpty("FROZEN"));
 									{
 										SXml::WNode n_af(srb, _xmlnst_vd("accompanyingForms"));
 										{
@@ -6454,9 +6460,9 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 											PutNonEmptyText(n_tn, "vd", "flightNumber", p_trinfo->TransportNumber.FlightNumber);
 										}
 									}
-									if(r_doc.CertifiedConsignment.TransportStorageType) {
+									if(r_doc.CertifiedConsignment.TransportStorageType_id) {
 										if(SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab),
-											r_doc.CertifiedConsignment.TransportStorageType, temp_buf)) {
+											r_doc.CertifiedConsignment.TransportStorageType_id, temp_buf)) {
 											n_n2.PutInner(_xmlnst_vd("transportStorageType"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 										}
 									}

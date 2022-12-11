@@ -13,7 +13,7 @@ public class StyloQJobService extends JobService {
 	{
 		Context _ctx = getApplication();
 		if(_ctx != null && _ctx instanceof StyloQApp) {
-			Thread thr = new Thread(new StyloQInterchange.ThreadEngine_DocStatusPoll((StyloQApp)_ctx));
+			Thread thr = new Thread(new StyloQInterchange.ThreadEngine_SvcPoll((StyloQApp)_ctx));
 			thr.start();
 			return true;
 		}

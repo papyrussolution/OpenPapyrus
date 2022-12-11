@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/ListItemRegular" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/CTL_DEBTDETAILLISTITEM"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    >
+    <TextView style="@style/FormText"
+        android:id="@+id/CTL_DEBTDETAILLISTITEM_DATE"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/TextPrimary"
+        />
+    <TextView style="@style/FormText"
+        android:id="@+id/CTL_DEBTDETAILLISTITEM_CODE"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/TextPrimary"
+        />
+    <TextView style="@style/FormText"
+        android:id="@+id/CTL_DEBTDETAILLISTITEM_AMOUNT"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/TextPrimary"
+        android:textAlignment="textEnd"
+        />
+    <TextView style="@style/FormText"
+        android:id="@+id/CTL_DEBTDETAILLISTITEM_DEBT"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/TextPrimary"
+        android:textAlignment="textEnd"
+        />
+</LinearLayout>

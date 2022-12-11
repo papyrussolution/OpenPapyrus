@@ -104,16 +104,29 @@
         <item name="android:textColor">@color/TextPrimary</item>
         <item name="android:layout_margin">4dp</item>
     </style>
-    <style name="PageHeaderTopicText">
+    <style name="PageHeaderTopicText">Re
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/TextPrimaryLight</item>
         <item name="android:layout_margin">4dp</item>
     </style>
-    <style name="SearchResultTopicText">
+    <style name="TopicText">
         <item name="android:textSize">12sp</item>
         <item name="android:textFontWeight">600</item>
         <item name="android:textColor">@color/TextPrimaryLight</item>
+    </style>
+    <style name="TopicText2"> <!-- Наименование сервиса в элементе списка -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:background">@drawable/shape_svcname</item>
+
+        <item name="android:textSize">12sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textColor">@color/White</item>
     </style>
     <style name="PageBodyRegular">
         <item name="android:background">@drawable/shape_viewframe</item>

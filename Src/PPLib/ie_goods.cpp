@@ -3473,6 +3473,48 @@ private:
 	LongArray BrandList;
 };
 
+class UhttGoodsProcessor { // @v11.5.10 @construction
+public:
+	UhttGoodsProcessor()
+	{
+	}
+	int    AddEntry(const char * pCode, const char * pName, const char * pCategory, const char * pBrand)
+	{
+		int    ok = -1;
+		if(!isempty(pCode) && !isempty(pName)) {
+			IntermediateImportedGoodsCollection::Entry entry;
+			entry.Code = pCode;
+			entry.Name = pName;
+			if(entry.Code.NotEmptyS() && entry.Name.NotEmptyS()) {
+				(entry.GrpName = pCategory).Strip();
+				(entry.BrandName = pBrand).Strip();
+				ok = L.Add(entry);
+			}
+		}
+		return ok;
+	}
+	int    Run()
+	{
+		int    ok = 1;
+		L.FinalizeImport();
+		if(L.GetCount()) {
+			L.Sort(IntermediateImportedGoodsCollection::ordByCode);
+			LongArray dup_code_idx_list;
+			SString prev_code;
+			IntermediateImportedGoodsCollection::Entry entry;
+			for(uint i = 0; i < L.GetCount(); i++) {
+				L.Get(i, entry);
+				if(entry.Code == prev_code) {
+					dup_code_idx_list.add(i+1);
+				}
+			}
+		}
+		return ok;
+	}
+private:
+	IntermediateImportedGoodsCollection L;
+};
+
 int ReformatRazoomnick(const char * pFileName)
 {
 	int    ok = 1;
