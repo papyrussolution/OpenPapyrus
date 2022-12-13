@@ -3257,6 +3257,8 @@ private:
 		{
 			THISZERO();
 		}
+		long   Ident;
+		uint   ProcessFlags;
 		char   Code[32];
 		uint   NameP;
 		uint   GrpNameP;
@@ -3354,14 +3356,27 @@ private:
 	}
 public:
 	struct Entry {
+		enum {
+			fRemove      = 0x0001,
+			fUpdName     = 0x0002,
+			fUpdCategory = 0x0004,
+			fUpdBrand    = 0x0008
+		};
+		Entry() : Ident(0), ProcessFlags(0)
+		{
+		}
 		Entry & Z()
 		{
+			Ident = 0;
+			ProcessFlags = 0;
 			Name.Z();
 			Code.Z();
 			GrpName.Z();
 			BrandName.Z();
 			return *this;
 		}
+		long   Ident;        // @v11.5.11
+		uint   ProcessFlags; // @v11.5.11
 		SString Name;
 		SString Code;
 		SString GrpName;
@@ -3378,6 +3393,8 @@ public:
 		if(idx < L.getCount()) {
 			const InnerEntry & r_entry = L.at(idx);
 			SStrGroup::GetS(r_entry.NameP, rEntry.Name);
+			rEntry.Ident = r_entry.Ident; // @v11.5.11
+			rEntry.ProcessFlags = r_entry.ProcessFlags; // @v11.5.11
 			rEntry.Code = r_entry.Code;
 			if(r_entry.GrpNameP)
 				Ht.Get(r_entry.GrpNameP, rEntry.GrpName);
@@ -3432,10 +3449,58 @@ public:
 				}
 			}
 			STRNSCPY(new_entry.Code, rEntry.Code);
+			new_entry.Ident = rEntry.Ident;
 			THROW_SL(L.insert(&new_entry));
 		}
 		else
 			ok = -1;
+		CATCHZOK
+		return ok;
+	}
+	void UpdateProcessFlags(uint idx, uint flags)
+	{
+		if(idx < L.getCount()) {
+			InnerEntry & r_entry = L.at(idx);
+			r_entry.ProcessFlags = flags;
+		}
+	}
+	int  UpdateCategory(uint idx, const SString & rText)
+	{
+		int    ok = 1;
+		if(idx < L.getCount() && rText.NotEmpty()) {
+			InnerEntry & r_entry = L.at(idx);
+			uint   v = 0;
+			uint   p = 0;
+			if(Ht.Search(rText, &v, &p)) {
+				r_entry.GrpNameP = p;
+			}
+			else {
+				LastId++;
+				THROW_SL(Ht.Add(rText, LastId, &p));
+				GroupList.add(LastId);
+				r_entry.GrpNameP = p;
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    UpdateBrand(uint idx, const SString & rText)
+	{
+		int    ok = 1;
+		if(idx < L.getCount() && rText.NotEmpty()) {
+			InnerEntry & r_entry = L.at(idx);
+			uint   v = 0;
+			uint   p = 0;
+			if(Ht.Search(rText, &v, &p)) {
+				r_entry.BrandNameP = p;
+			}
+			else {
+				LastId++;
+				THROW_SL(Ht.Add(rText, LastId, &p));
+				BrandList.add(LastId);
+				r_entry.BrandNameP = p;
+			}
+		}
 		CATCHZOK
 		return ok;
 	}
@@ -3501,17 +3566,100 @@ public:
 			L.Sort(IntermediateImportedGoodsCollection::ordByCode);
 			LongArray dup_code_idx_list;
 			SString prev_code;
+			TSCollection <IntermediateImportedGoodsCollection::Entry> dup_code_entry_list;
 			IntermediateImportedGoodsCollection::Entry entry;
 			for(uint i = 0; i < L.GetCount(); i++) {
 				L.Get(i, entry);
-				if(entry.Code == prev_code) {
-					dup_code_idx_list.add(i+1);
+				if(i > 0) {
+					if(entry.Code == prev_code) {
+						if(dup_code_idx_list.getCount() == 0)
+							dup_code_idx_list.add((i-1)+1);
+						dup_code_idx_list.add(i+1);
+					}
+					else {
+						if(dup_code_idx_list.getCount()) {
+							assert(dup_code_idx_list.getCount() > 1);
+							ProcessDupCodeList(dup_code_idx_list);
+						}
+					}
 				}
+				//
+				prev_code = entry.Code;
+			}
+			if(dup_code_idx_list.getCount()) {
+				assert(dup_code_idx_list.getCount() > 1);
+				ProcessDupCodeList(dup_code_idx_list);
 			}
 		}
 		return ok;
 	}
 private:
+	void   ProcessDupCodeList(const LongArray & rDupCodeIdxList)
+	{
+		IntermediateImportedGoodsCollection::Entry entry;
+		IntermediateImportedGoodsCollection::Entry entry2;
+		SString name;
+		SString name2;
+		SString temp_buf;
+		const uint _c = rDupCodeIdxList.getCount();
+		StringSet ss_groups;
+		StringSet ss_brands;
+		{
+			for(uint i = 0; i < _c; i++) {
+				const uint idx = rDupCodeIdxList.get(i)-1;
+				assert(idx < L.GetCount());
+				L.Get(idx, entry);
+				if(entry.GrpName.NotEmpty())
+					ss_groups.add(entry.GrpName);
+				if(entry.BrandName.NotEmpty())
+					ss_brands.add(entry.BrandName);
+			}
+			ss_groups.sortAndUndup();
+			ss_brands.sortAndUndup();
+		}
+		{
+			SString upd_grp_name;
+			SString upd_brand_name;
+			for(uint i = 0; i < _c; i++) {
+				const uint idx = rDupCodeIdxList.get(i)-1;
+				assert(idx < L.GetCount());
+				L.Get(idx, entry);
+				upd_grp_name.Z();
+				upd_brand_name.Z();
+				(name = entry.Name).Utf8ToLower();
+				uint   process_flags = entry.ProcessFlags;
+				if(entry.GrpName.IsEmpty()) {
+					if(ss_groups.getCount()) {
+						ss_groups.get(0U, upd_grp_name);
+						process_flags |= IntermediateImportedGoodsCollection::Entry::fUpdCategory;
+					}
+				}
+				if(entry.BrandName.IsEmpty()) {
+					if(ss_brands.getCount()) {
+						ss_brands.get(0U, upd_brand_name);
+						process_flags |= IntermediateImportedGoodsCollection::Entry::fUpdBrand;
+					}
+				}
+				for(uint j = 0; j < _c; j++) {
+					if(j != i) {
+						const uint idx2 = rDupCodeIdxList.get(j)-1;
+						assert(idx2 < L.GetCount());
+						L.Get(idx2, entry2);
+						if(!(entry2.ProcessFlags & IntermediateImportedGoodsCollection::Entry::fRemove)) {
+							(name2 = entry2.Name).Utf8ToLower();
+							if(name2.Search(name, 0, 0, 0)) {
+								// Имя элемента idx полностью содержится в имени другого элемента: стало быть элемент[idx] удаляем
+								process_flags |= IntermediateImportedGoodsCollection::Entry::fRemove;
+							}
+						}
+					}
+				}
+				if(process_flags != entry.ProcessFlags) {
+					L.UpdateProcessFlags(idx, process_flags);
+				}
+			}
+		}
+	}
 	IntermediateImportedGoodsCollection L;
 };
 

@@ -2583,7 +2583,15 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 						scop_rec.LinkObjType = PPOBJ_CCHECK;
 						scop_rec.LinkObjID   = pPack->Rec.ID;
 						scop_rec.UserID  = pPack->Rec.UserID;
-						scop_rec.Amount  = -r_entry.Amount;
+						// @v11.5.11 scop_rec.Amount  = -r_entry.Amount;
+						// @v11.5.11 {
+						if(scst == scstCredit)
+							scop_rec.Amount  = r_entry.Amount;
+						else {
+							assert(scst == scstBonus);
+							scop_rec.Amount  = -r_entry.Amount;
+						}
+						// } @v11.5.11 
 						THROW(Cards.PutOpRec(&scop_rec, 0, 0));
 						ufp_factor += 1.0;
 						if(scs_rec.Flags & SCRDSF_UHTTSYNC && fabs(r_entry.Amount) > 0.01) {

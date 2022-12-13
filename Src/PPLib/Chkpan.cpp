@@ -3727,7 +3727,8 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 		rBlk.DisabledKinds |= (1 << cpmBank);
 	// } @v10.0.10
 	if(Flags & fSCardCredit && !(Flags & fSCardBonus) && CSt.GetID() && addpaym_r2 <= add_paym_epsilon) {
-		if(unified_paym_interface && !feqeps(credit_charge, 0.0, add_paym_epsilon)) // @v11.1.10 (credit_charge > 0.0)-->(feqeps(credit_charge, 0.0, add_paym_epsilon))
+		if(unified_paym_interface && (!feqeps(credit_charge, 0.0, add_paym_epsilon) || non_crd_amt >= rBlk.GetTotal())) // @v11.1.10 (credit_charge > 0.0)-->(feqeps(credit_charge, 0.0, add_paym_epsilon))
+			// @v11.5.11 (non_crd_amt >= rBlk.GetTotal())
 			rBlk.Kind = cpmUndef;
 		else
 			rBlk.Kind = cpmIncorpCrd;
@@ -11324,33 +11325,36 @@ int CPosProcessor::AcceptRow(PPID giftID)
 			if(qtty > 0.0)
 				ok = (PPError(PPERR_TIMAXQTTY), 0);
 		}
-		if(ok && (ok = CalcRestByCrdCard_(1)) != 0) { // @01
-			const CCheckItem & r_cur = P.GetCurC();
-			P.insert(&r_cur);
-			SString temp_buf;
-			for(uint i = 0; i < P.CurModifList.getCount(); i++) {
-				const SaModifEntry & r_entry = P.CurModifList.at(i);
-				CCheckItem item;
-				item.GoodsID = r_entry.GoodsID;
-				item.Quantity = (r_entry.Qtty != 0.0) ? fabs(r_entry.Qtty * r_cur.Quantity) : 1.0;
-				item.Price = r_entry.Price;
-				item.Division = r_cur.Division;
-				item.Queue = r_cur.Queue;
-				item.Flags |= cifModifier;
-				GetGoodsName(item.GoodsID, temp_buf);
-				temp_buf.CopyTo(item.GoodsName, sizeof(item.GoodsName));
-				P.insert(&item);
+		if(ok) {
+			ok = CalcRestByCrdCard_(1); // @01
+			if(ok) {
+				const CCheckItem & r_cur = P.GetCurC();
+				P.insert(&r_cur);
+				SString temp_buf;
+				for(uint i = 0; i < P.CurModifList.getCount(); i++) {
+					const SaModifEntry & r_entry = P.CurModifList.at(i);
+					CCheckItem item;
+					item.GoodsID = r_entry.GoodsID;
+					item.Quantity = (r_entry.Qtty != 0.0) ? fabs(r_entry.Qtty * r_cur.Quantity) : 1.0;
+					item.Price = r_entry.Price;
+					item.Division = r_cur.Division;
+					item.Queue = r_cur.Queue;
+					item.Flags |= cifModifier;
+					GetGoodsName(item.GoodsID, temp_buf);
+					temp_buf.CopyTo(item.GoodsName, sizeof(item.GoodsName));
+					P.insert(&item);
+				}
+				if(!SuspCheckID) {
+					SETIFZ(P.Eccd.InitDtm, getcurdatetime_());
+					SETIFZ(P.Eccd.InitUserID, LConfig.UserID); // @v10.6.8
+				}
+				if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
+					SetupDiscount(0);
+				CalcRestByCrdCard_(0); // Предыдущий вызов (@01) не учел скидку при расчете суммы доплаты
+				AutosaveCheck();
+				OnUpdateList(1);
+				SelLines = sl_ary;
 			}
-			if(!SuspCheckID) {
-				SETIFZ(P.Eccd.InitDtm, getcurdatetime_());
-				SETIFZ(P.Eccd.InitUserID, LConfig.UserID); // @v10.6.8
-			}
-			if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
-				SetupDiscount(0);
-			CalcRestByCrdCard_(0); // Предыдущий вызов (@01) не учел скидку при расчете суммы доплаты
-			AutosaveCheck();
-			OnUpdateList(1);
-			SelLines = sl_ary;
 		}
 	}
 	// Это условие никогда не выполняется //

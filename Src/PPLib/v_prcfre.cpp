@@ -919,9 +919,17 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 				}
 			}
 			{ // @v11.0.4 GetItemMemo instead ses_rec.Memo
-				P_View->TSesObj.GetItemMemo(id, temp_buf);
+				// @v11.5.11 {
+				PPProcessorPacket::ExtBlock ses_ext;
+				if(P_View->TSesObj.GetExtention(id, &ses_ext) > 0) {
+					ses_ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf.Z());
+					if(temp_buf.NotEmptyS())
+						rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
+				}
+				// } @v11.5.11 
+				/* @v11.5.11 P_View->TSesObj.GetItemMemo(id, temp_buf);
 				if(temp_buf.NotEmptyS())
-					rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
+					rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf); */
 			}
 			if(rBuf.NotEmptyS())
 				ok = 1;
@@ -1069,6 +1077,7 @@ int PPViewPrcBusy::TimeChunkBrowser()
 		SString temp_buf;
 		SString title_buf(GetDescr());
 		ProcessorTbl::Rec prc_rec;
+		PPExpandString(title_buf, CTRANSF_UTF8_TO_OUTER); // @v11.5.11
 		if(Filt.PrcID && TSesObj.GetPrc(Filt.PrcID, &prc_rec, 0, 1) > 0)
 			(title_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 		p_brw->setTitle(title_buf.Transf(CTRANSF_OUTER_TO_INNER));
