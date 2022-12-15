@@ -3478,7 +3478,7 @@ int PPBillImporter::Import(int useTa)
 							int    is_valuation_modif = 0;
 							P_BObj->AutoCalcPrices(&pack, 0, &is_valuation_modif);
 						}
-						THROW(P_BObj->__TurnPacket(&pack, 0, 0, 0));
+						THROW(P_BObj->__TurnPacket(&pack, 0, 0, 0)); // @todo init qcert
 						Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 					}
 				}
@@ -4824,6 +4824,15 @@ int PPBillImporter::Run()
 									{
 										// @v10.9.7 @todo Автоматом установить цену реализации (например, по расценке)
 									}
+									// @v11.5.11 {
+									if(GetOpType(pack.Rec.OpID) == PPOPT_GOODSRECEIPT) {
+										PPID   last_qcert_id = 0;
+										PPID   last_qcert_lot_id = 0;
+										if(P_BObj->trfr->Rcpt.GetLastQCert(goods_id, pack.Rec.Dt, &last_qcert_id, &last_qcert_lot_id) > 0) {
+											ti.QCert = last_qcert_id;
+										}
+									}
+									// } @v11.5.11 
 									LongArray pos_list;
 									pack.InsertRow(&ti, &pos_list);
 									if(pos_list.getCount()) {

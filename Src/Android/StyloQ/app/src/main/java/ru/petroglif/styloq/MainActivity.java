@@ -513,6 +513,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							StyloQDatabase db = app_ctx.GetDB();
 							if(db != null) {
 								db.SetupPeerInstance();
+								db.GetDefaultFace(null, true); // Если первый запуск, то создаем defaul-лик
 								MakeListData(db);
 								SetupNotificationIcon(db);
 							}

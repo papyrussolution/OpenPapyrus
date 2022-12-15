@@ -11658,6 +11658,7 @@
 #define PPSTR_CURLERR             122 // Текстовые описания ошибок libcurl
 #define PPSTR_HASHTOKEN           123 // Специальный мета-символы, используемые системой для обработки данных и команд.
 #define PPSTR_HASHTOKEN_C         124 // Специальный мета-символы, используемые системой для обработки данных и команд (case seinsitive!).
+#define PPSTR_HASHTOKEN_AGENTPLUS 125 // @v11.5.11 Специальный мета-символы, используемые системой для экспорта данных Agent+ (в частности, VladimirskiyStandard).
 #define PPSTR_CRYSTAL_REPORT      342 // Ошибки Crystal Report
 //
 // PPSTR_TEXT   Просто текст

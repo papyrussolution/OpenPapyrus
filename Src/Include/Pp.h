@@ -56711,8 +56711,12 @@ void   PPReleaseStrings();
 //   !0 - строка успешно загружена
 //   0  - ошибка (PPSetErrorSLib())
 //
-int    FASTCALL PPLoadString(int group, int code, SString & s); // @cs
-SString & FASTCALL PPLoadStringS(int group, int code, SString & s); // @cs
+int    STDCALL PPLoadString(int group, int code, SString & s); // @cs
+SString & STDCALL PPLoadStringS(int group, int code, SString & s); // @cs
+//
+// Descr: То же, что и PPLoadString но строка извлекается в utf8-кодировке (это - оригинальная кодировка хранения строк)
+//
+int    STDCALL  PPLoadStringUtf8(int group, int code, SString & s); // @cs
 int    FASTCALL PPLoadString(const char * pSignature, SString & s);
 SString & FASTCALL PPLoadStringS(const char * pSignature, SString & s);
 int    FASTCALL PPLoadStringDescription(const char * pSignature, SString & rBuf);
@@ -56744,7 +56748,7 @@ SString & FASTCALL PPLoadTextS(int code, SString & rS);
 //
 // Descr: Загружает строку с ошибкой в буфер s
 //
-int    FASTCALL PPLoadError(int code, SString & s, const char * pAddInfo);
+int    STDCALL PPLoadError(int code, SString & s, const char * pAddInfo);
 //
 // Descr: Загружает строку категории PPSTR_TEXT в буфер s и перекодирует ее функцией s.Transf(CTRANSF_INNER_TO_OUTER)
 //
@@ -56771,7 +56775,7 @@ int    PPGetSubStrById(int strId, int subId, SString & rBuf);
 // Функция ideqvalstr прописывает в буфер pBuf текст "ID=id"
 //
 SString & FASTCALL ideqvalstr(long id, SString & rBuf);
-char * FASTCALL ideqvalstr(long id, char * pBuf, size_t bufLen); // @obsolete
+char * STDCALL ideqvalstr(long id, char * pBuf, size_t bufLen); // @obsolete
 //
 // Descr: Специализированная функция, используемая в стереотипных методах семейства PPObject GetPacket()
 //   для диагностики вызова с нулевым идентификатором.

@@ -665,6 +665,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					ZDELETE(P_StqRtb);
 					THROW_SL(P_StqRtb = new PPStyloQInterchange::RoundTripBlock());
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
+					//THROW(P_Ic->GetOwnPeerEntry(&P_StqRtb->StP) > 0); // @v11.5.11
 					P_StqRtb->Other.Put(SSecretTagPool::tagClientIdent, cli_ident);
 					P_StqRtb->Other.Put(SSecretTagPool::tagSessionPublicKey, other_public);
 					const int fsks = P_Ic->KexServiceReply(P_StqRtb->Sess, sp.P, /*p_debug_pub_ecp_x*/0, /*p_debug_pub_ecp_y*/0);
@@ -701,7 +702,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					ZDELETE(P_StqRtb);
 					THROW_SL(P_StqRtb = new PPStyloQInterchange::RoundTripBlock());
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
-
+					//THROW(P_Ic->GetOwnPeerEntry(&P_StqRtb->StP) > 0); // @v11.5.11
 					THROW_PP(pack.Pool.Get(SSecretTagPool::tagSessionPublicKey, &my_public), PPERR_SQ_INRSESSHASNTPUBKEY); // PPERR_SQ_INRSESSHASNTPUBKEY      Сохраненная сессия не содержит публичного ключа
 					THROW_PP(pack.Pool.Get(SSecretTagPool::tagSessionPublicKeyOther, &temp_chunk), PPERR_SQ_INRSESSHASNTOTHERPUBKEY); // PPERR_SQ_INRSESSHASNTOTHERPUBKEY Сохраненная сессия не содержит публичного ключа контрагента
 					THROW_PP(temp_chunk == other_public, PPERR_SQ_INRSESPUBKEYNEQTOOTR); // PPERR_SQ_INRSESPUBKEYNEQTOOTR   Публичный ключ сохраненной сессии не равен полученному от контрагента
@@ -736,6 +737,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					ZDELETE(P_StqRtb);
 					THROW_SL(P_StqRtb = new PPStyloQInterchange::RoundTripBlock());
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
+					//THROW(P_Ic->GetOwnPeerEntry(&P_StqRtb->StP) > 0); // @v11.5.11
 					P_StqRtb->Other.Put(SSecretTagPool::tagClientIdent, cli_ident);
 					P_StqRtb->Other.Put(SSecretTagPool::tagSessionPublicKey, other_public);
 					THROW(P_Ic->KexServiceReply(P_StqRtb->Sess, sp.P, 0, 0));
@@ -844,6 +846,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					THROW(P_StqRtb);
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
 					THROW(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret));
+					THROW(P_Ic->GetOwnPeerEntry(&P_StqRtb->StP) > 0); // @v11.5.11
 					THROW(P_Ic->Registration_ServiceReply(*P_StqRtb, sp));
 					reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyOk);
 					//

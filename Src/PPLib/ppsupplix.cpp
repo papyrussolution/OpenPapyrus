@@ -8611,7 +8611,7 @@ const GazpromNeftGoodsPacket * GazpromNeft::SearchGoodsEntry(int64 ident) const
 //
 class VladimirskiyStandard : public PrcssrSupplInterchange::ExecuteBlock { // @v11.5.10 @construction
 public:
-	VladimirskiyStandard(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger)
+	VladimirskiyStandard(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096)
 	{
 	}
 	~VladimirskiyStandard()
@@ -8620,20 +8620,185 @@ public:
 	int    Init()
 	{
 		int    ok = 1;
+		MakeGoodsList();
 		return ok;
 	}
 	int    SendRest()
 	{
+		const  char * p_cli_code = "99999";
+		const  LDATETIME now_dtm = getcurdatetime_();
 		int    ok = 1;
+		SString temp_buf;
+		SString out_file_name;
+		PPObjUnit u_obj;
+		{
+			//GoodsInStock_54644_23092021_230003.xml
+			SString date_buf;
+			SString time_buf;
+			(temp_buf = "GoodsInStock").CatChar('_').Cat(p_cli_code).CatChar('_').Cat(date_buf.Z().Cat(now_dtm.d, DATF_DMY|DATF_CENTURY|DATF_NODIV)).
+				CatChar('_').Cat(time_buf.Z().Cat(now_dtm.t, TIMF_HMS|TIMF_NODIV)).Dot().Cat("xml");
+			PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+		}
+	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
+	    THROW(p_x);
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			{
+				SXml::WNode n_h(p_x, "Exchange.Data");
+				{
+					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_WAREHOUSE_PL));
+					SXml::WNode n_h(p_x, temp_buf);
+					for(uint i = 0; i < P.LocList.GetCount(); i++) {
+						const PPID loc_id = P.LocList.Get(i);
+						LocationTbl::Rec loc_rec;
+						if(loc_id && LocObj.Search(loc_id, &loc_rec) > 0) {
+							S_GUID uuid;
+							THROW(LocObj.PutGuid(loc_id, &uuid, 1));
+							uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);
+							(temp_buf = loc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
+						}
+					}
+				}
+				{
+					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_GOODS));
+					SXml::WNode n_h(p_x, temp_buf);
+					for(uint i = 0; i < GoodsList.getCount(); i++) {
+						const PPID goods_id = GoodsList.get(i);
+						Goods2Tbl::Rec goods_rec;
+						PPUnit unit_rec;
+						if(goods_id && GObj.Search(goods_id, &goods_rec) > 0) {
+							S_GUID uuid;
+							THROW(GObj.GetUuid(goods_id, uuid, true, 1));
+							uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);
+							GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf, 0);
+							if(temp_buf.NotEmptyS()) {
+								n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+							}
+							else {
+								GObj.GetSingleBarcode(goods_id, temp_buf);
+								if(temp_buf.NotEmpty()) {
+									n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+								}
+							}
+							(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_AR), temp_buf.Z().Cat(goods_id));
+							if(goods_rec.UnitID && u_obj.Search(goods_rec.UnitID, &unit_rec) > 0) {
+								(temp_buf = unit_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+								n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOMBASE), temp_buf);
+							}
+							(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_FULLNAME), temp_buf);
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
+						}
+					}
+				}
+				{
+					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_STOCK_PL));
+					SXml::WNode n_h(p_x, temp_buf);
+					{
+						//PPViewGoodsOpAnalyze view;
+						//GoodsGrpngEntry
+						SXml::WNode n_o(p_x, "Object");
+						temp_buf.Z(); // Здесь дата остатков в формате 2021-09-16T00:00:00
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_PERIOD), "");
+					}
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
 		return ok;
 	}
 	int    SendSales()
 	{
+		const  char * p_cli_code = "99999";
+		const  LDATETIME now_dtm = getcurdatetime_();
 		int    ok = 1;
+		SString temp_buf;
+		SString out_file_name;
+		{
+			//Sales_54644_23092021_230003.xml
+			SString date_buf;
+			SString time_buf;
+			(temp_buf = "Sales").CatChar('_').Cat(p_cli_code).CatChar('_').Cat(date_buf.Z().Cat(now_dtm.d, DATF_DMY|DATF_CENTURY|DATF_NODIV)).
+				CatChar('_').Cat(time_buf.Z().Cat(now_dtm.t, TIMF_HMS|TIMF_NODIV)).Dot().Cat("xml");
+			PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+		}
+	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
+	    THROW(p_x);
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			{
+				SXml::WNode n_h(p_x, "Exchange.Data");
+				{
+					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_PL));
+					SXml::WNode n_h(p_x, temp_buf);
+				}
+				{
+					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_CONTRACTOR_PL));
+					SXml::WNode n_h(p_x, temp_buf);
+				}
+				{
+					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_MANAGER_PL));
+					SXml::WNode n_h(p_x, temp_buf);
+				}
+				{
+					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_WAREHOUSE_PL));
+					SXml::WNode n_h(p_x, temp_buf);
+				}
+				{
+					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_GOODS));
+					SXml::WNode n_h(p_x, temp_buf);
+				}
+				{
+					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_SALE_PL));
+					SXml::WNode n_h(p_x, temp_buf);
+					{
+						SXml::WNode n_o(p_x, "Object");
+					}
+				}
+			}
+		}
+		CATCHZOK
 		return ok;
 	}
 private:
+	SString & FASTCALL Helper_GetToken(long tokId)
+	{
+		TokBuf.Z();
+		if(!TsHt.Get(tokId, &TokBuf)) {
+			PPLoadStringUtf8(PPSTR_HASHTOKEN_AGENTPLUS, tokId, TokBuf);
+			TsHt.Put(tokId, TokBuf);
+		}
+		return TokBuf;
+	}
+	int    MakeGoodsList()
+	{
+		GoodsList.Z();
+		int    ok = -1;
+		GoodsFilt filt;
+		//filt.Flags |= GoodsFilt::fShowArCode;
+		//filt.CodeArID = P.SupplID;
+		if(Ep.GoodsGrpID)
+			filt.GrpIDList.Add(Ep.GoodsGrpID);
+		else
+			filt.SupplID = P.SupplID;
+		GoodsIterator iter(&filt, 0);
+		Goods2Tbl::Rec goods_rec;
+		while(iter.Next(&goods_rec) > 0) {
+			GoodsList.add(goods_rec.ID);
+		}
+		return ok;
+	}
 	PPLogger & R_Logger;
+	SString TokBuf;
+	TokenSymbHashTable TsHt;
+	PPIDArray GoodsList;
 };
 //
 //

@@ -17992,7 +17992,6 @@ PPHS_ZIP                         "zip" // @v10.7.5
 PPHS_PREFERRED                   "preferred" // @v11.0.0
 PPHS_TIMEZONES                   "timezones" // @v11.3.6
 PPHS_EXECJOBIMM                  "execjobimmediately" // @v11.3.9
-
 #!}
 
 [124:hash] // PPSTR_HASHTOKEN_C
@@ -18245,4 +18244,53 @@ PPHSC_VETIS_LOSSES             "Потери"              // @v11.4.0
 PPHSC_VETIS_UNRECORDEDBALANCE  "Неучтенный остаток"  // @v11.4.0
 PPHSC_VETIS_FILLINGOUTERROR    "Ошибка в оформлении" // @v11.4.0
 //
+#!}
+
+[125:hash] // PPSTR_HASHTOKEN_AGENTPLUS
+#!{
+PPHSC_AGPLUS_WAREHOUSE_PL  "Склады"
+PPHSC_AGPLUS_DLVRLOC_PL    "ТорговыеТочки"
+PPHSC_AGPLUS_CONTRACTOR_PL "Контрагенты"
+PPHSC_AGPLUS_MANAGER_PL    "Менеджеры"
+PPHSC_AGPLUS_GOODS         "Номенклатура"
+PPHSC_AGPLUS_STOCK_PL      "ОстаткиТоваров"
+PPHSC_AGPLUS_SALE_PL       "Продажи"
+PPHSC_AGPLUS_UID           "УникальныйИдентификатор"
+PPHSC_AGPLUS_CODE          "Код"
+PPHSC_AGPLUS_NAME          "Наименование"
+PPHSC_AGPLUS_FULLNAME      "НаименованиеПолное"
+PPHSC_AGPLUS_DLVRLOC_ADR   "АдресДоставкиТТ"
+PPHSC_AGPLUS_DLVRLOC_RADR  "ФактАдресТТ"
+PPHSC_AGPLUS_DLVRLOC_EMAIL "АдресЭлектроннойПочтыТТ"
+PPHSC_AGPLUS_DLVRLOC_PHONE "ТелефонТТ"
+PPHSC_AGPLUS_LEVEL         "Уровень"
+PPHSC_AGPLUS_DELEMARK      "ПометкаУдаления"
+PPHSC_AGPLUS_MANAGER       "Менеджер"
+PPHSC_AGPLUS_INN           "ИНН"
+PPHSC_AGPLUS_KPP           "КПП"
+PPHSC_AGPLUS_LEGAL_PRIV    "ЮридическоеФизическоеЛицо"
+PPHSC_AGPLUS_AR            "Артикул"
+PPHSC_AGPLUS_UOMBASE       "БазоваяЕдиницаИзмерения"
+PPHSC_AGPLUS_DOCREF        "СсылкаДокумента"
+PPHSC_AGPLUS_DOCTYPE       "ТипДокумента"
+PPHSC_AGPLUS_DATE          "Дата"
+PPHSC_AGPLUS_NUMBER        "Номер"
+PPHSC_AGPLUS_DLVRLOC       "ТорговаяТочка"
+PPHSC_AGPLUS_CONTRACTOR    "Контрагент"
+PPHSC_AGPLUS_DLVRADDR      "АдресДоставки"
+PPHSC_AGPLUS_AGENT         "Агент"
+PPHSC_AGPLUS_AGTDOC        "ДокументОснование"
+PPHSC_AGPLUS_GOODSITEMS    "Товары"
+PPHSC_AGPLUS_QTTY          "Количество"
+PPHSC_AGPLUS_UOM           "ЕдиницаИзмерения"
+PPHSC_AGPLUS_COEFF         "Коэффициент"
+PPHSC_AGPLUS_WEIGHT        "Вес"
+PPHSC_AGPLUS_AMOUNT        "Сумма"
+PPHSC_AGPLUS_PRICE         "Цена"
+PPHSC_AGPLUS_PERIOD        "Период"
+PPHSC_AGPLUS_OPNAME        "ИмяВидаОперации"
+PPHSC_AGPLUS_STOCK_BEG     "НачальныйОстаток"
+PPHSC_AGPLUS_MOVIN         "Приход"
+PPHSC_AGPLUS_MOVOUT        "Расход"
+PPHSC_AGPLUS_STOCK_END     "КонечныйОстаток"
 #!}

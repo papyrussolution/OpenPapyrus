@@ -1296,6 +1296,41 @@ public class StyloQDatabase extends Database {
 		}
 		return result;
 	}
+	public  StyloQFace GetDefaultFace(ArrayList<StyloQFace> outerFaceList, boolean useTa)
+	{
+		StyloQFace result = null;
+		try {
+			ArrayList<StyloQFace> face_list = (outerFaceList != null) ? outerFaceList : GetFaceList();
+			if(SLib.GetCount(face_list) > 0) {
+				final int vtypes[] = { StyloQFace.vAnonymous, StyloQFace.vArbitrary, StyloQFace.vVerifiable };
+				for(int i = 0; result == null && i < vtypes.length; i++) {
+					for(StyloQFace iter : face_list) {
+						int v = iter.GetVerifiability();
+						if(v == vtypes[i]) {
+							result = iter;
+							break;
+						}
+					}
+				}
+			}
+			if(result == null) { // Если не удалось найти ни одного лика, то создаем анонимный лик по умолчанию
+				StyloQFace default_face = new StyloQFace();
+				default_face.Set(StyloQFace.tagCommonName, 0, "Anonym-" + UUID.randomUUID().toString());
+				default_face.SetVerifiability(StyloQFace.vAnonymous);
+				String jstext = default_face.ToJson();
+				if(SLib.GetLen(jstext) > 0) {
+					SecStoragePacket sp = new SecStoragePacket(SecStoragePacket.kFace);
+					sp.Pool.Put(SecretTagPool.tagSelfyFace, jstext.getBytes(StandardCharsets.UTF_8));
+					long new_id = PutPeerEntry(sp.Rec.ID, sp, useTa);
+					if(new_id > 0)
+						result = GetFace(new_id, SecretTagPool.tagSelfyFace, null);
+				}
+			}
+		} catch(StyloQException exn) {
+			result = null;
+		}
+		return result;
+	}
 	private StyloQFace Implement_GetFace(SecStoragePacket pack, int tag, StyloQFace exItem)
 	{
 		StyloQFace result = null;

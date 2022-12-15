@@ -4924,10 +4924,11 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 						}
 						else if(o == ordByQCert) {
 							if(p_qcert_obj) {
+								PPObjBill * p_bobj = BillObj;
 								ReceiptTbl::Rec lot_rec;
 								PPIDArray qcert_list;
 								QualityCertTbl::Rec qcert_rec;
-								for(DateIter di; BillObj->trfr->Rcpt.EnumByGoods(goods_rec.ID, &di, &lot_rec) > 0;) {
+								for(DateIter di; p_bobj->trfr->Rcpt.EnumByGoods(goods_rec.ID, &di, &lot_rec) > 0;) {
 									if(lot_rec.QCertID && p_qcert_obj->Search(lot_rec.QCertID, &qcert_rec) > 0) {
 										if(!qcert_rec.Passive && !qcert_list.lsearch(qcert_rec.ID)) {
 											ord_list.Add(++uniq_counter, temp_buf.Z().Cat(qcert_rec.Code).Cat(goods_name), 1);

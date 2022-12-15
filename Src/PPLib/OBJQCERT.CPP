@@ -528,7 +528,7 @@ void QCertCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 
 void QCertCtrlGroup::setupQcNumber(TDialog * pDlg)
 {
-	char   code[32];
+	char   code[64];
 	if(QcObj.Search(Data.QCertID) > 0)
 		STRNSCPY(code, QcObj.P_Tbl->data.Code);
 	else

@@ -754,18 +754,7 @@ public class StyloQInterchange {
 						selected_face = default_result;
 				}
 				if(selected_face == null) {
-					StyloQFace default_face = new StyloQFace();
-					String anonym_name = db.MakeTextHashForForeignService(svc_pack, 8);
-					//String anonym_name_before1139 = "Anonym-" + UUID.randomUUID().toString();
-					default_face.Set(StyloQFace.tagCommonName, 0, anonym_name);
-					String jstext = default_face.ToJson();
-					if(SLib.GetLen(jstext) > 0) {
-						StyloQDatabase.SecStoragePacket sp = new StyloQDatabase.SecStoragePacket(StyloQDatabase.SecStoragePacket.kFace);
-						sp.Pool.Put(SecretTagPool.tagSelfyFace, jstext.getBytes(StandardCharsets.UTF_8));
-						long new_id = db.PutPeerEntry(sp.Rec.ID, sp, true);
-						if(new_id > 0)
-							selected_face = db.GetFace(new_id, SecretTagPool.tagSelfyFace, null);
-					}
+					selected_face = db.GetDefaultFace(face_list, true);
 				}
 				if(selected_face != null) {
 					if(force) {
@@ -834,19 +823,7 @@ public class StyloQInterchange {
 			else if(default_result != null)
 				result = default_result;
 		}
-		if(result == null) {
-			StyloQFace default_face = new StyloQFace();
-			default_face.Set(StyloQFace.tagCommonName, 0, "Anonym-" + UUID.randomUUID().toString());
-			String jstext = default_face.ToJson();
-			if(SLib.GetLen(jstext) > 0) {
-				StyloQDatabase.SecStoragePacket sp = new StyloQDatabase.SecStoragePacket(StyloQDatabase.SecStoragePacket.kFace);
-				sp.Pool.Put(SecretTagPool.tagSelfyFace, jstext.getBytes(StandardCharsets.UTF_8));
-				long new_id = db.PutPeerEntry(sp.Rec.ID, sp, true);
-				if(new_id > 0)
-					result = db.GetFace(new_id, SecretTagPool.tagSelfyFace, null);
-			}
-		}
-		return result;
+		return (result != null) ? result : db.GetDefaultFace(face_list, true);
 	}
 	public void InitRoundTripBlock(StyloQDatabase db, RoundTripBlock rtb) throws StyloQException
 	{

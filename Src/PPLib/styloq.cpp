@@ -9101,6 +9101,10 @@ int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePac
 								if(rCliPack.Rec.LinkObjType == 0 && rCliPack.Rec.LinkObjID == 0) {
 									cli_pack_to_update.Rec.LinkObjType = PPOBJ_PERSON;
 									cli_pack_to_update.Rec.LinkObjID = person_id;
+									// @v11.5.11 {
+									if(is_new)
+										cli_pack_to_update.Rec.Flags |= StyloQCore::styloqfAutoObjMatching;
+									// } @v11.5.11 
 									THROW(P_T->PutPeerEntry(&temp_id, &cli_pack_to_update, 0));
 								}
 								else {

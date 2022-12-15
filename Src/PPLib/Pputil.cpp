@@ -209,7 +209,7 @@ SString & FASTCALL ideqvalstr(long id, SString & rBuf)
 	return rBuf.CatEq("ID", id);
 }
 
-char * FASTCALL ideqvalstr(long id, char * pBuf, size_t bufLen)
+char * STDCALL ideqvalstr(long id, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	ideqvalstr(id, temp_buf).CopyTo(pBuf, bufLen);

@@ -94,7 +94,7 @@ const SymbHashTable * FASTCALL PPGetStringHash(int group)
 	return _PPStrStore ? _PPStrStore->GetStringHash(group) : 0;
 }
 
-int FASTCALL PPLoadString(int group, int code, SString & s)
+int STDCALL PPLoadStringUtf8(int group, int code, SString & s) // @cs
 {
 	//
 	// Эта функция @threadsafe поскольку StrStore2::GetString является const-функцией
@@ -104,8 +104,6 @@ int FASTCALL PPLoadString(int group, int code, SString & s)
 	if(group && code) {
 		PROFILE_START
 		ok = _PPStrStore ? _PPStrStore->GetString(group, code, s) : 0;
-		if(s.Len() && !sisascii(s.cptr(), s.Len()))
-			s.Transf(CTRANSF_UTF8_TO_INNER);
 		PROFILE_END
 		if(!ok)
 			PPSetErrorSLib();
@@ -113,7 +111,15 @@ int FASTCALL PPLoadString(int group, int code, SString & s)
 	return ok;
 }
 
-SString & FASTCALL PPLoadStringS(int group, int code, SString & s)
+int STDCALL PPLoadString(int group, int code, SString & s)
+{
+	int    ok = PPLoadStringUtf8(group, code, s);
+	if(s.Len() && !sisascii(s.cptr(), s.Len()))
+		s.Transf(CTRANSF_UTF8_TO_INNER);
+	return ok;
+}
+
+SString & STDCALL PPLoadStringS(int group, int code, SString & s)
 {
 	PPLoadString(group, code, s);
 	return s;
@@ -188,7 +194,7 @@ int FASTCALL PPLoadTextWin(int code, SString & s)
 	return ok;
 }
 
-int FASTCALL PPLoadError(int code, SString & s, const char * pAddInfo)
+int STDCALL PPLoadError(int code, SString & s, const char * pAddInfo)
 {
 	return PPGetMessage(mfError, code, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), s);
 }
