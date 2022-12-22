@@ -1568,7 +1568,20 @@ public class CommonPrereqModule {
 		if(ActivityInstance != null && fragmentView != null) {
 			View lv = fragmentView.findViewById(listViewRcId);
 			if(lv != null && lv instanceof RecyclerView) {
-				((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityInstance));
+				// @construction {
+				RecyclerView.LayoutManager lo_mgr = null;
+				/*
+				if(objType == SLib.PPOBJ_GOODS) {
+					//((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityInstance));
+					lo_mgr = new GridLayoutManager(ActivityInstance, 2);
+				}
+				else
+					lo_mgr = new LinearLayoutManager(ActivityInstance);
+				*/
+				lo_mgr = new LinearLayoutManager(ActivityInstance);
+				((RecyclerView)lv).setLayoutManager(lo_mgr);
+				// } @construction
+				// @construction ((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityInstance));
 				ActivityInstance.SetupRecyclerListView(fragmentView, listViewRcId, itemViewRcId);
 				if(objType > 0 && selected_search_oid.Type == objType) {
 					int foc_idx = -1;

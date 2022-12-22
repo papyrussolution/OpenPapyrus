@@ -24,11 +24,12 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".NotificationActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".CmdRIncomingListBillActivity"
             android:exported="true"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".CmdRGoodsInfoActivity"
             android:exported="true"

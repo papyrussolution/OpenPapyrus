@@ -399,6 +399,11 @@ public class StyloQInterchange {
 				if(!SLib.LDATETIME.IsEmpty(ObjNominalTime)) {
 					result.put("obj_nominal_time", SLib.datetimefmt(ObjNominalTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
 				}
+				// @v11.5.11 {
+				if(CmdUuid != null) {
+					result.put("orgcmduuid", CmdUuid.toString());
+				}
+				// } @v11.5.11
 				result.put("evnt", EventId);
 				if(Oid.Type > 0) {
 					result.put("objtype", Oid.Type);
@@ -432,6 +437,7 @@ public class StyloQInterchange {
 				EventOrgTime = SLib.strtodatetime(jsObj.optString("evnt_org_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
 				EventIssueTime = SLib.strtodatetime(jsObj.optString("evnt_iss_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
 				ObjNominalTime = SLib.strtodatetime(jsObj.optString("obj_nominal_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
+				CmdUuid = SLib.strtouuid(jsObj.optString("orgcmduuid", null)); // @v11.5.11
 				EventId = jsObj.optInt("evnt");
 				SLib.PPObjID oid;
 				Oid = SLib.PPObjID.Identify(jsObj.optString("objtype", null), jsObj.optInt("objid", 0));

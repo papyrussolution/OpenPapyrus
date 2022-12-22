@@ -2193,6 +2193,7 @@ int PPStyloQInterchange::ProcessCommand_RequestNotificationList(const StyloQComm
 								BillTbl::Rec bill_rec;
 								if(r_rec.ObjType && r_rec.ObjID && p_bobj->Search(r_rec.ObjID, &bill_rec) > 0) {
 									SvcNotification * p_item = nlist.CreateNewItem();
+									p_item->CmdUuid = rCmdItem.Uuid; // @v11.5.11
 									p_item->EventOrgTime.Set(r_rec.Dt, r_rec.Tm);
 									p_item->EventIssueTime = dtm_now;
 									p_item->ObjNominalTime.Set(bill_rec.Dt, ZEROTIME);

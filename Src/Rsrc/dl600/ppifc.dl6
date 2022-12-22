@@ -5537,6 +5537,26 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		ICCheckPacket * CreatePacket();
         int    GetPacket(in long id, ICCheckPacket * pPack);
     }
+    //
+    // @v11.5.11 {
+    //
+    struct UhttGoodsProcessorEntry {
+		long   Ident;
+		string Code;
+		string Name;
+		string Category;
+		string Brand;
+		int    ResultFlags;
+    }
+
+    interface IUnttGoodsProcessor {
+		int    Init();
+		int    Put(in UhttGoodsProcessorEntry * pEntry);
+		int    Run();
+		int    GetResultCount();
+		int    GetResult(int idx, out UhttGoodsProcessorEntry * pEntry);
+    }
+    // } @v11.5.11
 	//
 	// coclass declarations
 	//

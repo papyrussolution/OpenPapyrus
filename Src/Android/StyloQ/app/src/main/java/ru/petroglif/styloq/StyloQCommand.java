@@ -151,6 +151,18 @@ public class StyloQCommand {
 			}
 			return result;
 		}
+		public Item GetByUuid(UUID cmdUuid)
+		{
+			Item result = null;
+			if(Items != null && cmdUuid != null) {
+				for(int i = 0; result == null && i < Items.size(); i++) {
+					final Item item = Items.get(i);
+					if(item != null && SLib.AreUUIDsEqual(item.Uuid, cmdUuid))
+						result = item;
+				}
+			}
+			return result;
+		}
 		long TimeStamp;
 		long ExpirTimeSec;
 		public ArrayList <Item> Items;

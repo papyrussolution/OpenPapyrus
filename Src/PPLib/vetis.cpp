@@ -3491,7 +3491,7 @@ private:
 	};
 	int    PrepareApplicationBlockForReq(VetisApplicationBlock & rBlk);
 	int    SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplicationBlock & rResult);
-	int    ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult, int once);
+	int    ReceiveResult(const S_GUID & rAppId, OutcomingEntry * pOcEntry, VetisApplicationBlock & rResult, int once);
 	int    SendSOAP(const char * pUrl, const char * pAction, const SString & rPack, SString & rReply);
 	int    MakeAuthField(SString & rBuf);
 	int    ParseReply(const SString & rReply, VetisApplicationBlock & rResult);
@@ -3554,7 +3554,7 @@ private:
 	int    PutBillRow(const PPBillPacket & rBp, uint rowIdx, long flags, PutBillRowBlock & rPbrBlk, int use_ta);
 	double CalcVolumeByGoodsQtty(PPID goodsID, double quantity);
 	int    LogMessage(const char * pPrefix, const SString & rMsg);
-	int    LogFaults(const VetisApplicationBlock & rAb);
+	int    LogFaults(const VetisApplicationBlock & rAb, const OutcomingEntry * pOcEntry);
 
 	long   State;
 	PPID   DlvrLocToTranspTagID; // @v10.8.12 Тег сопоставляющий адрес транспортному стредству
@@ -6452,12 +6452,18 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 										if(!p_trinfo->TransportNumber.IsEmpty()) {
 											SXml::WNode n_tn(srb, _xmlnst_vd("transportNumber"));
 											// @v10.3.2 PutNonEmptyText(n_tn, "d9p1", "containerNumber", r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ContainerNumber);
-											PutNonEmptyText(n_tn, "vd", "containerNumber", p_trinfo->TransportNumber.ContainerNumber); // @v10.5.8
-											PutNonEmptyText(n_tn, "vd", "vehicleNumber", p_trinfo->TransportNumber.VehicleNumber);
-											PutNonEmptyText(n_tn, "vd", "trailerNumber", p_trinfo->TransportNumber.TrailerNumber);
-											PutNonEmptyText(n_tn, "vd", "wagonNumber", p_trinfo->TransportNumber.WagonNumber);
-											PutNonEmptyText(n_tn, "vd", "shipName", p_trinfo->TransportNumber.ShipName);
-											PutNonEmptyText(n_tn, "vd", "flightNumber", p_trinfo->TransportNumber.FlightNumber);
+											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.ContainerNumber), "<>&/");
+											PutNonEmptyText(n_tn, "vd", "containerNumber", temp_buf); // @v10.5.8
+											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.VehicleNumber), "<>&/");
+											PutNonEmptyText(n_tn, "vd", "vehicleNumber", temp_buf);
+											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.TrailerNumber), "<>&/");
+											PutNonEmptyText(n_tn, "vd", "trailerNumber", temp_buf);
+											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.WagonNumber), "<>&/");
+											PutNonEmptyText(n_tn, "vd", "wagonNumber", temp_buf);
+											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.ShipName), "<>&/");
+											PutNonEmptyText(n_tn, "vd", "shipName", temp_buf);
+											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.FlightNumber), "<>&/");
+											PutNonEmptyText(n_tn, "vd", "flightNumber", temp_buf);
 										}
 									}
 									if(r_doc.CertifiedConsignment.TransportStorageType_id) {
@@ -6843,19 +6849,21 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 			THROW(SendSOAP(p_url, "submitApplicationRequest", rAppBlk.AppData, temp_buf));
 		}
 		THROW(ParseReply(temp_buf, rResult));
-		LogFaults(rResult);
+		LogFaults(rResult, 0);
 	}
     CATCHZOK
 	return ok;
 }
 
-int PPVetisInterface::LogFaults(const VetisApplicationBlock & rAb)
+int PPVetisInterface::LogFaults(const VetisApplicationBlock & rAb, const OutcomingEntry * pOcEntry)
 {
 	int    ok = -1;
 	if(rAb.FaultList.getCount() || rAb.ErrList.getCount()) {
 		ok = 1;
 		if(P_Logger) {
 			SString temp_buf;
+			SString link_bill_text;
+			PPObjBill * p_bobj = BillObj;
 			for(uint fi = 0; fi < rAb.FaultList.getCount(); fi++) {
 				const VetisFault * p_f = rAb.FaultList.at(fi);
 				if(p_f) {
@@ -6878,6 +6886,16 @@ int PPVetisInterface::LogFaults(const VetisApplicationBlock & rAb)
 				const VetisErrorEntry * p_e = rAb.ErrList.at(ei);
 				if(p_e) {
 					temp_buf.Z().Cat("error").CatDiv(':', 0);
+					// @v11.5.11 {
+					if(pOcEntry) {
+						BillTbl::Rec bill_rec;
+						if(pOcEntry->LinkBillID && p_bobj->Search(pOcEntry->LinkBillID, &bill_rec) > 0) {
+							PPObjBill::MakeCodeString(&bill_rec, 0, link_bill_text);
+						}
+					}
+					if(link_bill_text.NotEmpty())
+						temp_buf.Space().Cat(link_bill_text);
+					// } @v11.5.11 
 					if(p_e->Code.NotEmpty())
 						temp_buf.Space().Cat(p_e->Code);
 					if(p_e->Item.NotEmpty())
@@ -6890,7 +6908,7 @@ int PPVetisInterface::LogFaults(const VetisApplicationBlock & rAb)
 	return ok;
 }
 
-int PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult, int once)
+int PPVetisInterface::ReceiveResult(const S_GUID & rAppId, OutcomingEntry * pOcEntry, VetisApplicationBlock & rResult, int once)
 {
 	int    ok = -1;
 	uint   try_count = 0;
@@ -6948,7 +6966,7 @@ int PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock
 		}
 		THROW(ParseReply(temp_buf, rResult));
 		if(rResult.ApplicationStatus == rResult.appstRejected) {
-			LogFaults(rResult);
+			LogFaults(rResult, pOcEntry);
 		}
 	} while(!once && rResult.ApplicationStatus == rResult.appstInProcess);
     CATCHZOK
@@ -7549,7 +7567,7 @@ int PPVetisInterface::GetStockEntryByUuid(const S_GUID & rUuid, VetisApplication
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			rReply.VetisSvcVer = 2;
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			ok = 1;
 		}
 	}
@@ -7569,7 +7587,7 @@ int PPVetisInterface::GetVetDocumentByUuid(const S_GUID & rUuid, VetisApplicatio
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			rReply.VetisSvcVer = 2; // @v10.5.4
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			ok = 1;
 		}
 	}
@@ -7596,7 +7614,7 @@ int PPVetisInterface::GetStockEntryChangesList(const STimeChunk & rPeriod, uint 
 		VetisApplicationBlock blk(2, &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			if(rReply.ErrList.getCount() == 1) {
 				const VetisErrorEntry * p_err_entry = rReply.ErrList.at(0);
 				if(p_err_entry && p_err_entry->Code.IsEqiAscii("APLM0012")) {
@@ -7637,7 +7655,7 @@ int PPVetisInterface::GetStockEntryList(uint startOffset, uint count, VetisAppli
 		VetisApplicationBlock blk(2, &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			if(rReply.ErrList.getCount() == 1) {
 				const VetisErrorEntry * p_err_entry = rReply.ErrList.at(0);
 				if(p_err_entry && p_err_entry->Code.IsEqiAscii("APLM0012")) {
@@ -7679,7 +7697,7 @@ int PPVetisInterface::GetVetDocumentChangesList(const STimeChunk & rPeriod, uint
 		VetisApplicationBlock blk(2, &app_data); // @v10.8.10 ver 1-->2
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			if(rReply.ErrList.getCount() == 1) {
 				const VetisErrorEntry * p_err_entry = rReply.ErrList.at(0);
 				if(p_err_entry && p_err_entry->Code.IsEqiAscii("APLM0012")) {
@@ -7714,7 +7732,7 @@ int PPVetisInterface::GetVetDocumentList(const STimeChunk & rPeriod, uint startO
 		VetisApplicationBlock blk(2, &app_data); // @v10.6.4
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			ok = 1;
 		}
 	}
@@ -7737,7 +7755,7 @@ int PPVetisInterface::ProcessIncomingConsignment(const S_GUID & rDocUuid, VetisA
 				VetisApplicationBlock blk(2, &app_data); // @v10.5.4 ver 1-->2
 				THROW(SubmitRequest(blk, submit_result));
 				if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-					THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+					THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 					ok = 1;
 				}
 			}
@@ -7758,7 +7776,7 @@ int PPVetisInterface::ModifyEnterprise(VetisRegisterModificationType modType, co
 		VetisApplicationBlock blk(2, &app_data); // @problem-vetis-ver1 // @v10.9.3 ver 1-->2
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			ok = 1;
 		}
 	}
@@ -7778,7 +7796,7 @@ int PPVetisInterface::ModifyActivityLocations(VetisRegisterModificationType modT
 		VetisApplicationBlock blk(2, &app_data); // @problem-vetis-ver1 // @v10.9.3 ver 1-->2
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			ok = 1;
 		}
 	}
@@ -7797,7 +7815,7 @@ int PPVetisInterface::ModifyProducerStockListOperation(VetisRegisterModification
 		VetisApplicationBlock blk(2, &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			ok = 1;
 		}
 	}
@@ -7817,7 +7835,7 @@ int PPVetisInterface::CheckShipmentRegionalizationOperation(const UuidArray & rS
 		VetisApplicationBlock blk(2, &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			ok = 1;
 		}
 	}
@@ -7838,7 +7856,7 @@ int PPVetisInterface::WithdrawVetDocument(const S_GUID & rDocUuid, VetisApplicat
 			VetisApplicationBlock blk(1, &app_data); // @problem-vetis-ver1
 			THROW(SubmitRequest(blk, submit_result));
 			if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-				THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+				THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 				ok = 1;
 			}
 		}
@@ -7888,7 +7906,7 @@ int PPVetisInterface::WriteOffIncomeCert(PPID docEntityID, TSVector <VetisEntity
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			rReply.VetisSvcVer = 2;
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			if(rReply.ApplicationStatus == VetisApplicationBlock::appstCompleted) {
 				if(rReply.VetDocList.getCount() || rReply.VetStockList.getCount()) {
 					PPTransaction tra(1);
@@ -7990,7 +8008,7 @@ int PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray & rEx
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			rReply.VetisSvcVer = 2;
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			if(rReply.ApplicationStatus == VetisApplicationBlock::appstCompleted) {
 				if(rReply.VetDocList.getCount() || rReply.VetStockList.getCount()) {
 					PPTransaction tra(1);
@@ -8080,7 +8098,7 @@ int PPVetisInterface::ResolveDiscrepancy(PPID docEntityID, TSVector <VetisEntity
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			rReply.VetisSvcVer = 2;
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			if(rReply.ApplicationStatus == VetisApplicationBlock::appstCompleted) {
 				if(rReply.VetDocList.getCount() || rReply.VetStockList.getCount()) {
 					PPTransaction tra(1);
@@ -8179,7 +8197,7 @@ int PPVetisInterface::InitOutgoingEntry(PPID docEntityID, const TSCollection <Ve
 int PPVetisInterface::QueryOutgoingConsignmentResult(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
-	THROW(ReceiveResult(rEntry.AppId, rReply, 1/*once*/));
+	THROW(ReceiveResult(rEntry.AppId, &rEntry, rReply, 1/*once*/));
 	if(rReply.ApplicationStatus == VetisApplicationBlock::appstCompleted) {
 		if(rReply.VetDocList.getCount() == 1) {
 			S_GUID stock_entry_uuid;
@@ -8538,7 +8556,7 @@ int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, const TSColle
 		// } @v11.0.11
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
+			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			if(rReply.ApplicationStatus == VetisApplicationBlock::appstCompleted) {
 				if(rReply.VetDocList.getCount() == 1) {
 					VetisVetDocument * p_item = rReply.VetDocList.at(0);

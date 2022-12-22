@@ -509,6 +509,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				{
 					StyloQApp app_ctx = (StyloQApp)getApplication();
 					if(app_ctx != null) {
+						//app_ctx.DisplayMetrics(); // @test
 						try {
 							StyloQDatabase db = app_ctx.GetDB();
 							if(db != null) {

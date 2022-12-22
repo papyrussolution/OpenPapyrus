@@ -2673,12 +2673,18 @@ int UserInterfaceSettings::Serialize(int dir, SBuffer & rBuf, SSerializeContext 
 	if(dir < 0) {
 		if(Ver >= (9 | (1 << 16))) {
 			THROW(pCtx->Serialize(dir, SpecialInputDeviceSymb, rBuf));
+			// @v11.5.11 {
+			if(Ver >= (10 | (1 << 16))) {
+				THROW(pCtx->Serialize(dir, BillItemTableFlags, rBuf));
+			}
+			// } @v11.5.11 
 		}
 		else
-			SpecialInputDeviceSymb = 0;
+			SpecialInputDeviceSymb.Z();
 	}
 	else if(dir > 0) {
 		THROW(pCtx->Serialize(dir, SpecialInputDeviceSymb, rBuf));
+		THROW(pCtx->Serialize(dir, BillItemTableFlags, rBuf)); // @v11.5.11
 	}
 	CATCHZOK
 	return ok;

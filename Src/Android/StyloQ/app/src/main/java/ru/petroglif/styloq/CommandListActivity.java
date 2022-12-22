@@ -22,7 +22,6 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -231,39 +230,6 @@ public class CommandListActivity extends SLib.SlActivity {
 			}
 		}
 	}
-	@NotNull private StyloQCommand.CommandPrestatus GetCommandStatus(final StyloQCommand.Item cmdItem)
-	{
-		StyloQCommand.CommandPrestatus result = new StyloQCommand.CommandPrestatus();
-		try {
-			if(cmdItem != null && SLib.GetLen(SvcIdent) > 0) {
-				int pending = StyloQCommand.IsCommandPending(SvcIdent, cmdItem);
-				if(pending != 0) {
-					result.S = StyloQCommand.prestatusPending;
-					if(pending > 0)
-						result.WaitingTimeMs = pending;
-				}
-				else {
-					StyloQApp app_ctx = GetAppCtx();
-					if(app_ctx != null) {
-						StyloQDatabase.SecStoragePacket pack = ((StyloQApp) app_ctx).LoadCommandSavedResult(SvcIdent, cmdItem);
-						if(pack != null) {
-							result.S = StyloQCommand.prestatusActualResultStored;
-						}
-					}
-					if(result.S == StyloQCommand.prestatusUnkn) {
-						if(cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvOrderPrereq ||
-							cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvIndoorSvcPrereq || cmdItem.BaseCmdId == StyloQCommand.sqbcReport)
-							result.S = StyloQCommand.prestatusQueryNeeded;
-						else
-							result.S = StyloQCommand.prestatusInstant;
-					}
-				}
-			}
-		} catch(StyloQException exn) {
-			result.S = StyloQCommand.prestatusUnkn;
-		}
-		return result;
-	}
 	public final byte [] GetSvcIdent()
 	{
 		return SvcIdent;
@@ -374,31 +340,34 @@ public class CommandListActivity extends SLib.SlActivity {
 						if(ev_subj.RvHolder != null) {
 							// RecyclerView
 							if(ListData != null && SLib.IsInRange(ev_subj.ItemIdx, ListData.Items)) {
-								View iv = ev_subj.RvHolder.itemView;
-								StyloQCommand.Item cur_entry = ListData.GetViewItem(ev_subj.ItemIdx);
-								SLib.SetCtrlString(iv, R.id.LVITEM_CMDNAME, cur_entry.Name);
-								{
-									StyloQCommand.CommandPrestatus prestatus = GetCommandStatus(cur_entry);
+								StyloQApp app_ctx = GetAppCtx();
+								if(app_ctx != null) {
+									View iv = ev_subj.RvHolder.itemView;
+									StyloQCommand.Item cur_entry = ListData.GetViewItem(ev_subj.ItemIdx);
+									SLib.SetCtrlString(iv, R.id.LVITEM_CMDNAME, cur_entry.Name);
 									{
-										String timewatch_text = "";
-										if(prestatus.WaitingTimeMs > 0) {
-											final int totalsec = prestatus.WaitingTimeMs / 1000;
-											final int h = totalsec / 3600;
-											timewatch_text = ((h > 0) ? Integer.toString(h) + ":" : "") + String.format("%02d:%02d", (totalsec % 3600) / 60, (totalsec % 60));
-										}
-										SLib.SetCtrlString(iv, R.id.CTL_IND_EXECUTETIME, timewatch_text);
-									}
-									{
-										ImageView ctl = (ImageView)iv.findViewById(R.id.CTL_IND_STATUS);
-										if(ctl != null) {
-											int rcid = 0;
-											switch(prestatus.S) {
-												case StyloQCommand.prestatusQueryNeeded: rcid = R.drawable.ic_generic_server; break;
-												case StyloQCommand.prestatusActualResultStored: rcid = R.drawable.ic_generic_document; break;
-												case StyloQCommand.prestatusPending: rcid = R.drawable.ic_stopwatch; break;
-												default: rcid = R.drawable.ic_generic_command; break;
+										StyloQCommand.CommandPrestatus prestatus = app_ctx.GetCommandStatus(SvcIdent, cur_entry);
+										{
+											String timewatch_text = "";
+											if(prestatus.WaitingTimeMs > 0) {
+												final int totalsec = prestatus.WaitingTimeMs / 1000;
+												final int h = totalsec / 3600;
+												timewatch_text = ((h > 0) ? Integer.toString(h) + ":" : "") + String.format("%02d:%02d", (totalsec % 3600) / 60, (totalsec % 60));
 											}
-											ctl.setImageResource(rcid);
+											SLib.SetCtrlString(iv, R.id.CTL_IND_EXECUTETIME, timewatch_text);
+										}
+										{
+											ImageView ctl = (ImageView) iv.findViewById(R.id.CTL_IND_STATUS);
+											if(ctl != null) {
+												int rcid = 0;
+												switch(prestatus.S) {
+													case StyloQCommand.prestatusQueryNeeded: rcid = R.drawable.ic_generic_server; break;
+													case StyloQCommand.prestatusActualResultStored: rcid = R.drawable.ic_generic_document; break;
+													case StyloQCommand.prestatusPending: rcid = R.drawable.ic_stopwatch; break;
+													default: rcid = R.drawable.ic_generic_command; break;
+												}
+												ctl.setImageResource(rcid);
+											}
 										}
 									}
 								}

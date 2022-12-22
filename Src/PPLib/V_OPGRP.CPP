@@ -1,5 +1,5 @@
 // V_OPGRP.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -338,37 +338,7 @@ void PPViewOpGrouping::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 
 int PPViewOpGrouping::GetRecSign(const TempOpGrpngTbl::Rec * pRec, int * pSign) const
 {
-	int    ok = -1;
-	int    sign = 0;
-	const  PPID op_id = pRec->OpID;
-	if(op_id == -1)
-		sign = 1;
-	else if(op_id == 10000)
-		sign = -1;
-	else {
-		PPOprKind op_rec;
-		int    op_type = GetOpType(op_id, &op_rec);
-		if(op_type == PPOPT_GOODSMODIF)
-			sign = NZOR(pRec->Sign, +1);
-		else {
-			// @v10.7.12 {
-			if(op_type == PPOPT_CORRECTION) {
-				if(op_rec.LinkOpID && GetOpType(op_rec.LinkOpID) == PPOPT_GOODSEXPEND)
-					sign = 1; // Корректировка расхода
-				else 
-					sign = -1; // Корректировка прихода
-			}
-			else { // } @v10.7.12 
-				const int intr = IsIntrOp(op_id);
-				if(oneof4(op_type, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL) || intr) {
-					sign = (IsExpendOp(op_id) > 0 || intr == INTREXPND) ? -1 : 1;
-					ok = 1;
-				}
-			}
-		}
-	}
-	ASSIGN_PTR(pSign, sign);
-	return ok;
+	return GoodsGrpngEntry::GetSign(pRec->OpID, pRec->Sign, pSign);
 }
 
 void PPViewOpGrouping::RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec)

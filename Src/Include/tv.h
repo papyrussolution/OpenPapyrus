@@ -4493,38 +4493,38 @@ struct BrowserColorsSchema {   // size=42
 #define NUMBRWCOLORSCHEMA        3
 extern const BrowserColorsSchema BrwColorsSchemas[NUMBRWCOLORSCHEMA]; // @global
 
-#define UISETTINGS_VERSION_MAJOR 1
-#define UISETTINGS_VERSION_MINOR 9
+#define UISETTINGS_VERSION_MAJOR  1
+#define UISETTINGS_VERSION_MINOR 10 // @v11.5.11 9-->10
 #define TOOLBAR_OFFS 100000L
 
 class UserInterfaceSettings { // @persistent @store(WinReg[HKCU\Software\Papyrus\UI]) @size=256
 public:
 	static const char * SubKey;  // "Software\\Papyrus\\UI";
 	enum {
-		fDontExitBrowserByEsc    = 0x00000001,
-		fShowShortcuts           = 0x00000002,
+		fDontExitBrowserByEsc     = 0x00000001,
+		fShowShortcuts            = 0x00000002,
 		fAddToBasketItemCurBrwItemAsQtty = 0x00000004, // При добавлении в корзину новой позиции из отчета в качестве начального количества использовать текущую ячейку в активном броузере
-		fShowBizScoreOnDesktop   = 0x00000008, // Отображать бизнес показатели на рабочем столе
-		fDisableNotFoundWindow   = 0x00000010, // Не отображать окно "Не найдено" при поиске в таблицах
-		fUpdateReminder          = 0x00000020, // Отображать напоминание об имеющихся обновлениях программы
-		fTcbInterlaced           = 0x00000040, // Горизонтальные полосы временной диаграммы отображать с черезстрочным изменением цвета. В противном случае = отделять строки линиями.
-		fShowLeftTree            = 0x00000080, // Показывать древовидную навигацию в левой части окна
+		fShowBizScoreOnDesktop    = 0x00000008, // Отображать бизнес показатели на рабочем столе
+		fDisableNotFoundWindow    = 0x00000010, // Не отображать окно "Не найдено" при поиске в таблицах
+		fUpdateReminder           = 0x00000020, // Отображать напоминание об имеющихся обновлениях программы
+		fTcbInterlaced            = 0x00000040, // Горизонтальные полосы временной диаграммы отображать с черезстрочным изменением цвета. В противном случае = отделять строки линиями.
+		fShowLeftTree             = 0x00000080, // Показывать древовидную навигацию в левой части окна
 		// @v10.9.3 fShowObjectsInLeftWindow = 0x00000100, // @unused @v8.x.x Показывать диалоги редактирования списка объектов в левой части окна
-		fDisableBeep             = 0x00000200, // Запретить звуковые сигналы (ограниченная реализация)
-		fBasketItemFocusPckg     = 0x00000400, // При вводе нового элемента товарной корзины фокус ввода устанавливать на
+		fDisableBeep              = 0x00000200, // Запретить звуковые сигналы (ограниченная реализация)
+		fBasketItemFocusPckg      = 0x00000400, // При вводе нового элемента товарной корзины фокус ввода устанавливать на
 			// количество упаковок (а не единиц, как по умолчанию).
-		fOldModifSignSelection   = 0x00000800, // Использовать технику выбора знака для строки документа модификации
+		fOldModifSignSelection    = 0x00000800, // Использовать технику выбора знака для строки документа модификации
 			// товара, применявшуюся до v8.4.12 (выбор товара - выбор знака)
-		fPollVoipService         = 0x00001000, // Опрашивать VoIP сервис для обработки событий вызовов и звонков
-		fExtGoodsSelMainName     = 0x00002000, // В списке расширенного выбора товара всегда показывать полные наименования товаров
+		fPollVoipService          = 0x00001000, // Опрашивать VoIP сервис для обработки событий вызовов и звонков
+		fExtGoodsSelMainName      = 0x00002000, // В списке расширенного выбора товара всегда показывать полные наименования товаров
 			// Эта опция потенциально способно ускорить выборку поскольку не будет вынуждать программу лишний раз обращаться к записи товара
 			// когда сокращенное наименование не совпадает с полным (see PPObjGoods::_Selector2()).
-		fEnalbeBillMultiPrint    = 0x00004000, // @v10.3.0 Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
-		fDisableBillMultiPrint   = 0x00008000, // @v10.3.0 Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
+		fEnalbeBillMultiPrint     = 0x00004000, // @v10.3.0 Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
+		fDisableBillMultiPrint    = 0x00008000, // @v10.3.0 Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
 			// If (fEnalbeBillMultiPrint ^ fDisableBillMultiPrint), то применяется общая конфигурация PPBillConfig
-		fExtGoodsSelHideGenerics = 0x00010000, // @v10.7.7 В списке расширенного выбора товара не показывать обобщенные товары
-		fStringHistoryDisabled   = 0x00020000, // @v10.7.9 Запрет на использоватеня StringHistory (может быть проигнорирова при настройке более высокого уровня)
-		fDateTimePickerBefore1124        = 0x00040000  // @v11.2.6 Использовать старые (до v11.2.4) виджеты подбора даты/периода/времени 
+		fExtGoodsSelHideGenerics  = 0x00010000, // @v10.7.7 В списке расширенного выбора товара не показывать обобщенные товары
+		fStringHistoryDisabled    = 0x00020000, // @v10.7.9 Запрет на использоватеня StringHistory (может быть проигнорирова при настройке более высокого уровня)
+		fDateTimePickerBefore1124 = 0x00040000  // @v11.2.6 Использовать старые (до v11.2.4) виджеты подбора даты/периода/времени 
 	};
 	enum {
 		wndVKDefault = 0,
@@ -4532,6 +4532,15 @@ public:
 		wndVKVector  = 2, //
 		wndVKFancy   = 3  // Схема, ранее именовавшаяся как wndVKKind2 теперь обозначается wndVKFancy. Ее номер меняется,
 			// вместо нее теперь будет использоваться схема wndVKVector
+	};
+	//
+	// Descr: Флаги поля BillItemTableFlags
+	//
+	enum {
+		bitfUseCommCfgForBarcodeSerialOptions = 0x0001,
+		bitfShowBarcode                       = 0x0002,
+		bitfShowSerial                        = 0x0004,
+		bitfShowMargin                        = 0x0008,
 	};
 	UserInterfaceSettings();
 	void   Init();
@@ -4543,6 +4552,7 @@ public:
 
 	int32  Ver;
 	int32  Flags;
+	int32  BillItemTableFlags; // @v11.5.11 bitfXXX flags
 	int    WindowViewStyle;
 	int    TableViewStyle;
 	int    ListElemCount;

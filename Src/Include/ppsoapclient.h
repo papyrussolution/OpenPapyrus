@@ -1083,7 +1083,7 @@ struct SfaHeinekenOrderStatusEntry {
 	SString Comments;
 };
 
-struct SfaHeinekenDeliveryPosition {
+/*struct SfaHeinekenDeliveryPosition {
 	int    SkuID;
 	double Volume;
 	double Count;
@@ -1110,14 +1110,39 @@ struct SfaHeinekenSalePointDelivery {
 	SString DlvrLocName;
 	SString DlvrLocAddr;
 	TSCollection <SfaHeinekenDeliveryPosition> DeliveryList;
-};
+};*/
 
 struct SfaHeinekenInvoice {
+	struct DeliveryPosition {
+		int    SkuID;
+		double Volume;
+		double Count;
+		double Amount;
+		SString Comments;
+	};
+	struct OrderDelivery {
+		S_GUID OrderUuid;
+		TSCollection <DeliveryPosition> DeliveryList;
+	};
+	struct DistributorDelivery {
+		SString InnerOrderCode;
+		int    SalePointID;
+		TSCollection <DeliveryPosition> DeliveryList;
+	};
+	struct SalePointDelivery {
+		SString InnerOrderCode;
+		SString DistributorOrderID; // @v10.4.4 Для отправки приходных документов
+		int    InnerDlvrLocID;
+		int    ForeignLocID; // Склад @v10.0.08
+		SString DlvrLocName;
+		SString DlvrLocAddr;
+		TSCollection <DeliveryPosition> DeliveryList;
+	};
 	SString Code;
 	LDATE  Dt;
-	TSCollection <SfaHeinekenOrderDelivery> OrderList; // Если доставка по заказу из системы Jeans
-	TSCollection <SfaHeinekenDistributorDelivery> DistributorDeliveryList; // Если доставка вне заказа из системы Jeans, по ТТ из системы Jeans
-	TSCollection <SfaHeinekenSalePointDelivery> DistributorSalePointDeliveryList; // Если доставка вне заказа из системы Jeans, по торговой точке, остсутствующей в системе Jeans
+	TSCollection <OrderDelivery> OrderList; // Если доставка по заказу из системы Jeans
+	TSCollection <DistributorDelivery> DistributorDeliveryList; // Если доставка вне заказа из системы Jeans, по ТТ из системы Jeans
+	TSCollection <SalePointDelivery> DistributorSalePointDeliveryList; // Если доставка вне заказа из системы Jeans, по торговой точке, остсутствующей в системе Jeans
 };
 
 struct SfaHeinekenDebetEntry {

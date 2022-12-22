@@ -233,18 +233,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64cpuid.pl">
       <FileType>Document</FileType>
@@ -267,18 +267,18 @@ $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\co-586.pl">
       <FileType>Document</FileType>
@@ -286,18 +286,18 @@ $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/cryp
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86-gf2m.pl">
       <FileType>Document</FileType>
@@ -305,18 +305,18 @@ $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/cryp
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86-mont.pl">
       <FileType>Document</FileType>
@@ -324,18 +324,18 @@ $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/cryp
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\crypt586.pl">
       <FileType>Document</FileType>
@@ -343,18 +343,18 @@ $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/cryp
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\des-586.pl">
       <FileType>Document</FileType>
@@ -362,18 +362,18 @@ $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/cryp
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-avx2.pl">
       <FileType>Document</FileType>
@@ -486,18 +486,18 @@ $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\static 2&gt;nul
-set ASM=nasm
-$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm
-$(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(PERL) %(FullPath) win32n $(PERLASM_FLAGS_X86) d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm | $(NASM) -f win32 -o $(IntDir)%(Filename).obj d:/papyrus/src/osf/OpenSSL-302/crypto/generated/%(Filename).asm</Message>
+..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

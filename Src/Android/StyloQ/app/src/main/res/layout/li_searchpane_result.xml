@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout style="@style/ListItemRegular" xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout style="@style/ListItemWithTitle" xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/searchPaneResultItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     >
-    <TextView style="@style/TopicText2"
-        android:id="@+id/LVITEM_GENERICNAME"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        />
+    <TextView style="@style/TopicText2" android:id="@+id/LVITEM_GENERICNAME"/>
     <ListView
         android:id="@+id/searchPaneTerminalListView"
         android:layout_width="match_parent"

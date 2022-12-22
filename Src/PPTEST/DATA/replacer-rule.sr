@@ -118,6 +118,8 @@ cott%(%D02%)%%%%%>cott%1%%
 %(%d%)%zмкм%.%>%1мкм
 %(%d%)%zмк%.%>%1мкм
 %(%d%)%zсм%.%>%1см
+%(%d%)%zсантиметров%.%>%1см
+%(%d%)%zсантиметра%.%>%1см
 %(%d%)%sinch%>%1inch
 %(%d%)%s mbit/s%>%1mbit/s
 %(%d%)%s%zмбит/с%.%>%1mbit/s
@@ -1865,7 +1867,8 @@ shower%<shwr%|showr
 shower gel%<showergel%|douchegel%|douche gel%|shwr gl%|shwr gel%|shower gl
 sugar free%<sgrfree%|sgrfr%|sgrfre%|sgr free%|sgr fr%|sugrfr%|sugarfree%|sugar-free
 lynx shower gel%<lynx s/gel
-dental floss%<dental fls
+dental floss%<dental fls%|dntl floss%|dntl fls
+interdental%<intrdntl%|intrdnt
 aloedent toothpaste%<aloedent tp
 hapee toothpaste%<hapee tpaste%|hapee tp
 sensodyne toothpaste%<sensodyne tp%|sensodyne t/p

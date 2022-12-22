@@ -866,9 +866,6 @@
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aes-586.pl">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-x86.pl">
-      <Filter>asm\x86</Filter>
-    </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\bf-586.pl">
       <Filter>asm\x86</Filter>
     </CustomBuild>
@@ -996,6 +993,9 @@
       <Filter>asm\x86</Filter>
     </CustomBuild>
     <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86cpuid.pl">
+      <Filter>asm\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-x86.pl">
       <Filter>asm\x86</Filter>
     </CustomBuild>
   </ItemGroup>

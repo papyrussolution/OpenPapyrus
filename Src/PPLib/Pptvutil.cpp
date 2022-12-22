@@ -3402,7 +3402,58 @@ public:
 		return 1;
 	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmSelBrowserFont))
+			SelectFont(Data.TableFont, CTL_UICFG_ST_TABLEFONT);
+		else if(event.isCmd(cmSelListFont))
+			SelectFont(Data.ListFont, CTL_UICFG_ST_LISTFONT);
+		else if(event.isCmd(cmUiCfgBITF)) 
+			EditBillItemBrowserOptions();
+		else
+			return;
+		clearEvent(event);
+	}
+	void   EditBillItemBrowserOptions()
+	{
+		class BillItemBrowserOptions : public TDialog {
+		public:
+			BillItemBrowserOptions() : TDialog(DLG_UICFG_BITF)
+			{
+			}
+		private:
+			DECL_HANDLE_EVENT
+			{
+				TDialog::handleEvent(event);
+				if(event.isClusterClk(CTL_UICFG_BITF_FLAGS)) {
+					
+				}
+			}
+		};
+		BillItemBrowserOptions * dlg = new BillItemBrowserOptions();
+		if(CheckDialogPtr(&dlg)) {
+			dlg->AddClusterAssoc(CTL_UICFG_BITF_FLAGS, 0, UserInterfaceSettings::bitfUseCommCfgForBarcodeSerialOptions);
+			dlg->AddClusterAssoc(CTL_UICFG_BITF_FLAGS, 1, UserInterfaceSettings::bitfShowBarcode);
+			dlg->AddClusterAssoc(CTL_UICFG_BITF_FLAGS, 2, UserInterfaceSettings::bitfShowSerial);
+			dlg->AddClusterAssoc(CTL_UICFG_BITF_FLAGS, 3, UserInterfaceSettings::bitfShowMargin);
+			dlg->SetClusterData(CTL_UICFG_BITF_FLAGS, Data.BillItemTableFlags);
+			if(ExecView(dlg) == cmOK) {
+				long   temp_value = 0;
+				dlg->GetClusterData(CTL_UICFG_BITF_FLAGS, &temp_value);
+				SETFLAGBYSAMPLE(Data.BillItemTableFlags, temp_value, UserInterfaceSettings::bitfUseCommCfgForBarcodeSerialOptions);
+				if(!(Data.BillItemTableFlags & UserInterfaceSettings::bitfUseCommCfgForBarcodeSerialOptions)) {
+					SETFLAGBYSAMPLE(Data.BillItemTableFlags, temp_value, UserInterfaceSettings::bitfShowBarcode);
+					SETFLAGBYSAMPLE(Data.BillItemTableFlags, temp_value, UserInterfaceSettings::bitfShowSerial);
+				}
+				else {
+					Data.BillItemTableFlags &= ~(UserInterfaceSettings::bitfShowBarcode|UserInterfaceSettings::bitfShowSerial);
+				}
+				SETFLAGBYSAMPLE(Data.BillItemTableFlags, temp_value, UserInterfaceSettings::bitfShowMargin);
+			}
+		}
+		delete dlg;
+	}
 	void   SelectFont(SFontDescr & rFd, uint indCtlId);
 };
 
@@ -3427,18 +3478,6 @@ void UICfgDialog::SelectFont(SFontDescr & rFd, uint indCtlId)
 	}
 	else if(CommDlgExtendedError() != 0)
 		PPError(PPERR_DLGLOADFAULT);
-}
-
-IMPL_HANDLE_EVENT(UICfgDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmSelBrowserFont))
-		SelectFont(Data.TableFont, CTL_UICFG_ST_TABLEFONT);
-	else if(event.isCmd(cmSelListFont))
-		SelectFont(Data.ListFont, CTL_UICFG_ST_LISTFONT);
-	else
-		return;
-	clearEvent(event);
 }
 
 int UISettingsDialog()

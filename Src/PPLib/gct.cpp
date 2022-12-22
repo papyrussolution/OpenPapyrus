@@ -1,5 +1,5 @@
 // GCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Построение перекрестной отчетности по товарным операциям
 //
@@ -173,12 +173,14 @@ int PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 {
 	int    ok = 1;
-	LDATE dt = ZERODATE;
-	GoodsTrnovrViewItem entry, total;
+	LDATE  dt = ZERODATE;
+	GoodsTrnovrViewItem entry;
+	GoodsTrnovrViewItem total;
 	SString wait_msg;
 	IterCounter cntr;
 	GoodsGrpngEntry * e;
-	PPOprKind opk, lopk;
+	PPOprKind opk;
+	PPOprKind lopk;
 	GCTFilt f;
 	AdjGdsGrpng agg;
 	int    zero;
@@ -188,7 +190,7 @@ int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 	if(P_Items)
 		P_Items->freeAll();
 	else {
-		THROW_MEM(P_Items = new SArray(sizeof(entry)));
+		THROW_MEM(P_Items = new SArray(sizeof(GoodsTrnovrViewItem)));
 	}
 	f = Filt; // AHTOXA
 	cntr.Init(diffdate(&Filt.Period.upp, &Filt.Period.low, 0) + 1);
@@ -334,115 +336,6 @@ int PPViewGoodsTrnovr::ViewGrouping(LDATE dt)
 	ViewOpGrouping(&op_grpng_flt);
 	return ok;
 }
-
-#if 0 // @v9.3.6 {
-SArray * PPViewGoodsTrnovr::MakeGoodsTurnover()
-{
-	GoodsTrnovrViewItem entry, total;
-	uint   i;
-	SString wait_msg;
-	long   iter_count = 0, num_iters = 0;
-	GoodsGrpngEntry * e;
-	PPOprKind opk, lopk;
-	GCTFilt f;
-	AdjGdsGrpng agg;
-	int    zero;
-	SArray * ary = new SArray(sizeof(entry));
-	GoodsGrpngArray gga;
-	f = Filt; // AHTOXA
-	num_iters = diffdate(&Filt.Period.upp, &Filt.Period.low, 0) + 1;
-	LDATE dt = f.Period.low;
-	THROW_MEM(ary);
-	if(!dt)
-		THROW(BillObj->tbl->GetFirstDate(0, &dt) > 0);
-	SETIFZ(f.Period.upp, LConfig.OperDate);
-	MEMSZERO(total);
-	if(Filt.Flags & OPG_DONTSHOWPRGRSBAR)
-		PPLoadText(PPTXT_CALCOPGRPNG, wait_msg);
-	while(dt <= Filt.Period.upp) {
-		zero = 1;
-		MEMSZERO(entry);
-		f.Period.SetDate(dt);
-		f.Flags |= OPG_PROCESSRECKONING;
-		entry.Dt = dt;
-		datefmt(&dt, DATF_DMY, entry.Title);
-		gga.freeAll();
-		THROW(BeginGoodsGroupingProcess(f, &agg));
-		THROW(gga.ProcessGoodsGrouping(f, &agg));
-		for(i = 0; gga.enumItems(&i, (void **)&e);) {
-			if(oneof3(e->OpID, -1, 10000, 0))
-				continue;
-			if(IsIntrExpndOp(e->OpID))
-				entry.XpndIntr += e->Cost;
-			else if(IsIntrOp(e->OpID) == INTRRCPT)
-				entry.RcptIntr += e->Cost;
-			else {
-				THROW(GetOpData(e->OpID, &opk));
-				if(e->OpTypeID == PPOPT_GOODSRECEIPT)
-					entry.RcptSuppl += e->Cost;
-				else if(e->Link == 0) {
-					if(CheckOpFlags(e->OpID, OPKF_PROFITABLE))
-						if(opk.AccSheetID)
-							entry.XpndClient += e->Price;
-						else
-							entry.XpndRetail += e->Price;
-				}
-				else {
-					THROW(GetOpData(e->Link, &lopk));
-					if(e->OpTypeID == PPOPT_GOODSRETURN) {
-						if(lopk.OpTypeID == PPOPT_GOODSRECEIPT)
-							entry.RetSuppl += e->Cost;
-						else if(lopk.Flags & OPKF_PROFITABLE)
-							if(lopk.AccSheetID)
-								entry.RetClient += e->Price;
-							else
-								entry.RetRetail += e->Price;
-					}
-					else if(e->OpTypeID == PPOPT_PAYMENT) {
-						if(CheckOpFlags(e->Link, OPKF_PROFITABLE))
-							entry.PayClient += e->Price;
-					}
-				}
-			}
-			entry.Income += e->Income();
-		}
-		if(entry.RcptSuppl)
-			zero = 0, total.RcptSuppl += entry.RcptSuppl;
-		// @todo 01/05/2005 Внутренняя передача на списке складов
-		if(f.LocList.GetCount() && entry.RcptIntr)
-			zero = 0, total.RcptIntr += entry.RcptIntr;
-		if(entry.RetRetail)
-			zero = 0, total.RetRetail += entry.RetRetail;
-		if(entry.RetClient)
-			zero = 0, total.RetClient += entry.RetClient;
-		if(entry.RetSuppl)
-			zero = 0, total.RetSuppl += entry.RetSuppl;
-		if(entry.XpndRetail)
-			zero = 0, total.XpndRetail += entry.XpndRetail;
-		if(entry.XpndClient)
-			zero = 0, total.XpndClient += entry.XpndClient;
-		// @todo 01/05/2005 Внутренняя передача на списке складов
-		if(f.LocList.GetCount() && entry.XpndIntr)
-			zero = 0, total.XpndIntr += entry.XpndIntr;
-		if(entry.PayClient)
-			zero = 0, total.PayClient += entry.PayClient;
-		if(entry.Income)
-			zero = 0, total.Income += entry.Income;
-		if(!zero || !(f.Flags & OPG_IGNOREZERO))
-			THROW_SL(ary->insert(&entry));
-		plusdate(&dt, 1, 0);
-		EndGoodsGroupingProcess(&agg);
-		PPWaitPercent(iter_count++, num_iters, wait_msg);
-	}
-	PPGetWord(PPWORD_TOTAL, 0, total.Title, sizeof(total.Title));
-	THROW_SL(ary->insert(&total));
-	CATCH
-		ZDELETE(ary);
-	ENDCATCH
-	EndGoodsGroupingProcess(&agg);
-	return ary;
-}
-#endif // } 0 @v9.3.6
 
 SArray * PPViewGoodsTrnovr::CreateBrowserQuery()
 {

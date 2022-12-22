@@ -7214,7 +7214,7 @@ int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket 
 		LDATE  agt_date = ZERODATE;
 		LDATE  agt_expiry = ZERODATE;
 		g.GetAgreementParams(rBp/*.Rec.Object*/, agt_code, agt_date, agt_expiry);
-		THROW(g.CreateHeaderInfo("ON_NSCHFDOPR", main_org_id, contragent_id, dto_id, rFileName, _hi)); // @v10.6.10 ON_SCHFDOPPR-->ON_NSCHFDOPR
+		THROW(g.CreateHeaderInfo("ON_NSCHFDOPPR", main_org_id, contragent_id, dto_id, rFileName, _hi)); // @v10.6.10 ON_SCHFDOPPR-->ON_NSCHFDOPR // @v11.5.11 ON_NSCHFDOPR-->ON_NSCHFDOPPR
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {
 			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);

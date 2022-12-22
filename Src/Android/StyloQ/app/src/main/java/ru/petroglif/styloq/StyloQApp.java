@@ -12,10 +12,13 @@ import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.blankj.utilcode.util.ActivityUtils;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateManager;
@@ -23,9 +26,11 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.InstallState;
 import com.google.android.play.core.install.InstallStateUpdatedListener;
 import com.google.android.play.core.install.model.InstallStatus;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -702,6 +707,35 @@ public class StyloQApp extends SLib.App {
 		}
 		return result;
 	}
+	@NotNull public StyloQCommand.CommandPrestatus GetCommandStatus(final byte [] svcIdent, final StyloQCommand.Item cmdItem)
+	{
+		StyloQCommand.CommandPrestatus result = new StyloQCommand.CommandPrestatus();
+		try {
+			if(cmdItem != null && SLib.GetLen(svcIdent) > 0) {
+				int pending = StyloQCommand.IsCommandPending(svcIdent, cmdItem);
+				if(pending != 0) {
+					result.S = StyloQCommand.prestatusPending;
+					if(pending > 0)
+						result.WaitingTimeMs = pending;
+				}
+				else {
+					StyloQDatabase.SecStoragePacket pack = LoadCommandSavedResult(svcIdent, cmdItem);
+					if(pack != null)
+						result.S = StyloQCommand.prestatusActualResultStored;
+					if(result.S == StyloQCommand.prestatusUnkn) {
+						if(cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvOrderPrereq ||
+								cmdItem.BaseCmdId == StyloQCommand.sqbcRsrvIndoorSvcPrereq || cmdItem.BaseCmdId == StyloQCommand.sqbcReport)
+							result.S = StyloQCommand.prestatusQueryNeeded;
+						else
+							result.S = StyloQCommand.prestatusInstant;
+					}
+				}
+			}
+		} catch(StyloQException exn) {
+			result.S = StyloQCommand.prestatusUnkn;
+		}
+		return result;
+	}
 	//
 	// Descr: Реализует обращение к команде cmdItem сервиса svcIdent.
 	// ARG(svcIdent): Бинарный идентификатор сервиса
@@ -1104,6 +1138,16 @@ public class StyloQApp extends SLib.App {
 					;
 				}
 			}
+		}
+	}
+	public void DisplayMetrics() // @costruction
+	{
+		WindowManager window_mgr = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+		if(window_mgr != null) {
+			DisplayMetrics display_metrics = new DisplayMetrics();
+			window_mgr.getDefaultDisplay().getMetrics(display_metrics);
+			int height = display_metrics.heightPixels;
+			int width = display_metrics.widthPixels;
 		}
 	}
 }

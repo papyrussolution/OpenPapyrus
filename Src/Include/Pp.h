@@ -19708,6 +19708,7 @@ private:
 #define BILCHECKF_OBJECT2         0x00001000 //
 #define BILCHECKF_DUEDATE         0x00002000 //
 #define BILCHECKF_CODE            0x00004000 // Проверка на не пустой номер документа
+#define BILCHECKF_CONTRACT        0x00008000 // @v11.5.11 Проверка на валидный договор (номер и дата в соглашении или привязка к документу договора)
 #define BILCHECKF_FREIGHT         (BILCHECKF_DLVRADDR|BILCHECKF_PORTOFLOADING|BILCHECKF_PORTOFDISCHARGE|\
 	BILCHECKF_ARRIVALDT|BILCHECKF_SHIP|BILCHECKF_FREIGHTCOST|BILCHECKF_CAPTAIN|BILCHECKF_TRBROKER)
 
@@ -35298,10 +35299,20 @@ private:
 #define GGEF_SETPRICEWOTAXES_  0x8000L // @internal
 
 struct GoodsGrpngEntry { // @flat
+	//
+	// Descr: Базовая имплементация идентификации знака операции (расход или приход).
+	//   Используется в GoodsGrpngEntry::GetSign(int *) и в PPViewOpGrouping::GetRecSign(const TempOpGrpngTbl::Rec *, int *).
+	//
+	static int GetSign(PPID opID, int16 sign, int * pSign);
+	
 	GoodsGrpngEntry();
 	PPID   FASTCALL IsProfitable(int incomeCalcMethod = -1) const;
 	double FASTCALL Income(int incomeCalcMethod = -1) const;
 	void   FASTCALL SetOp(const PPOprKind & rOpRec);
+	int    FASTCALL GetSign(int * pSign) const;
+	bool   IsInRest() const { return OpID == -1; }
+	bool   IsOutRest() const { return OpID == 10000; }
+	int    Compose(const GoodsGrpngEntry & rAddendum);
 
 	PPID   OpID;           // -1 input rest, 10000 - output rest
 	PPID   LotID;          //
@@ -35357,6 +35368,7 @@ public:
 	~GoodsGrpngArray();
 	void   Reset();
 	GoodsGrpngEntry & FASTCALL at(uint);
+	const  GoodsGrpngEntry & FASTCALL Get(uint idx) const;
 	int    Search(const GoodsGrpngEntry *, uint *);
 	int    Insert(const GoodsGrpngEntry *, uint * p);
 	//
@@ -35366,6 +35378,22 @@ public:
 	int    ProcessGoodsGrouping(const GCTFilt &, const AdjGdsGrpng * pAgg);
 	void   InitOpNames();
 	int    WasErrDetected() const;
+	//
+	// Descr: Возвращает элемент, соответствующий входящему остатку. Если массив рассчитан без остатков, то гарантированно вернет 0
+	//
+	const GoodsGrpngEntry * GetInRest() const;
+	//
+	// Descr: Возвращает элемент, соответствующий исходящему остатку. Если массив рассчитан без остатков, то гарантированно вернет 0
+	//
+	const GoodsGrpngEntry * GetOutRest() const;
+	//
+	// Descr: Рассчитывает агрегатный элемент, содержащий итоги по приходам товаров.
+	//
+	int    GetInput(GoodsGrpngEntry & rEntry) const;
+	//
+	// Descr: Рассчитывает агрегатный элемент, содержащий итоги по расходам товаров.
+	//
+	int    GetOutput(GoodsGrpngEntry & rEntry) const;
 protected:
 	struct AddEntryBlock {
 		AddEntryBlock();
@@ -35387,7 +35415,7 @@ private:
 	PPID   ExtPriceAmtID;
 	PPID   ExtDisAmtID;
 	int    ErrDetected;
-	ObjIdListFilt LockPaymStatusList; // Список идентификаторов статусов докумена,
+	ObjIdListFilt LockPaymStatusList; // Список идентификаторов статусов документа,
 		// которые имеют признак "не учитывать как оплату" (BILSTF_LOCK_PAYMENT)
 	PPObjBill::PplBlock * P_PplBlk;
 	PPLogger * P_Logger; // @notowned
@@ -45079,7 +45107,7 @@ private:
 //
 typedef GCTFilt GoodsTrnovrFilt;
 
-struct GoodsTrnovrViewItem {
+struct GoodsTrnovrViewItem { // @flat
 	union {
 		LDATE  Dt;
 		char   Title[12];
@@ -47424,6 +47452,8 @@ public:
 		LDATETIME EventOrgTime;
 		LDATETIME EventIssueTime;
 		LDATETIME ObjNominalTime; // Номинальная метка времени объекта. Необходима для адекватной сортировки. Для документа это - номинальная дата документа.
+		S_GUID CmdUuid; // @v11.5.11 Этот uuid возвращается клиенту (он запрашивает извещения в привязке к команде) для того, чтобы он мог правильно обрабатывать
+			// клики по извещениям.
 		int    EventId;
 		PPObjID Oid;
 		SString Message;
@@ -52838,7 +52868,7 @@ private:
 	};
 	int    UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags);
 	int    UED_Import_PackageTypes();
-	int    UED_ImportAtoms();
+	int    UED_Import_Atoms();
 
 	PrcssrSartreFilt P;
 };

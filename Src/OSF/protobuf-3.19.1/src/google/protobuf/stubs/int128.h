@@ -104,10 +104,9 @@ inline uint64 Uint128Low64(const uint128& v) { return v.lo_; }
 inline uint64 Uint128High64(const uint128& v) { return v.hi_; }
 
 // TODO: perhaps it would be nice to have int128, a signed 128-bit type?
-
-// --------------------------------------------------------------------------
-//                      Implementation details follow
-// --------------------------------------------------------------------------
+//
+// Implementation details follow
+//
 inline bool operator==(const uint128& lhs, const uint128& rhs) 
 {
 	return (Uint128Low64(lhs) == Uint128Low64(rhs) && Uint128High64(lhs) == Uint128High64(rhs));
@@ -184,8 +183,7 @@ inline uint128 operator~(const uint128& val) { return uint128(~Uint128High64(val
 
 #define LOGIC128(op)                                                 \
 	inline uint128 operator op(const uint128 &lhs, const uint128 &rhs) { \
-		return uint128(Uint128High64(lhs) op Uint128High64(rhs),           \
-			   Uint128Low64(lhs) op Uint128Low64(rhs));            \
+		return uint128(Uint128High64(lhs) op Uint128High64(rhs), Uint128Low64(lhs) op Uint128Low64(rhs)); \
 	}
 
 LOGIC128(|)
@@ -248,7 +246,8 @@ inline uint128 operator>>(const uint128& val, int amount)
 	}
 }
 
-inline uint128& uint128::operator<<=(int amount) {
+inline uint128& uint128::operator<<=(int amount) 
+{
 	// uint64 shifts of >= 64 are undefined, so we will need some special-casing.
 	if(amount < 64) {
 		if(amount != 0) {
@@ -267,7 +266,8 @@ inline uint128& uint128::operator<<=(int amount) {
 	return *this;
 }
 
-inline uint128& uint128::operator>>=(int amount) {
+inline uint128& uint128::operator>>=(int amount) 
+{
 	// uint64 shifts of >= 64 are undefined, so we will need some special-casing.
 	if(amount < 64) {
 		if(amount != 0) {
@@ -286,27 +286,14 @@ inline uint128& uint128::operator>>=(int amount) {
 	return *this;
 }
 
-inline uint128 operator+(const uint128& lhs, const uint128& rhs) {
-	return uint128(lhs) += rhs;
-}
+inline uint128 operator+(const uint128& lhs, const uint128& rhs) { return uint128(lhs) += rhs; }
+inline uint128 operator-(const uint128& lhs, const uint128& rhs) { return uint128(lhs) -= rhs; }
+inline uint128 operator*(const uint128& lhs, const uint128& rhs) { return uint128(lhs) *= rhs; }
+inline uint128 operator/(const uint128& lhs, const uint128& rhs) { return uint128(lhs) /= rhs; }
+inline uint128 operator%(const uint128& lhs, const uint128& rhs) { return uint128(lhs) %= rhs; }
 
-inline uint128 operator-(const uint128& lhs, const uint128& rhs) {
-	return uint128(lhs) -= rhs;
-}
-
-inline uint128 operator*(const uint128& lhs, const uint128& rhs) {
-	return uint128(lhs) *= rhs;
-}
-
-inline uint128 operator/(const uint128& lhs, const uint128& rhs) {
-	return uint128(lhs) /= rhs;
-}
-
-inline uint128 operator%(const uint128& lhs, const uint128& rhs) {
-	return uint128(lhs) %= rhs;
-}
-
-inline uint128& uint128::operator+=(const uint128& b) {
+inline uint128& uint128::operator+=(const uint128& b) 
+{
 	hi_ += b.hi_;
 	uint64 lolo = lo_ + b.lo_;
 	if(lolo < lo_)
@@ -315,7 +302,8 @@ inline uint128& uint128::operator+=(const uint128& b) {
 	return *this;
 }
 
-inline uint128& uint128::operator-=(const uint128& b) {
+inline uint128& uint128::operator-=(const uint128& b) 
+{
 	hi_ -= b.hi_;
 	if(b.lo_ > lo_)
 		--hi_;
@@ -323,7 +311,8 @@ inline uint128& uint128::operator-=(const uint128& b) {
 	return *this;
 }
 
-inline uint128& uint128::operator*=(const uint128& b) {
+inline uint128& uint128::operator*=(const uint128& b) 
+{
 	uint64 a96 = hi_ >> 32;
 	uint64 a64 = hi_ & 0xffffffffu;
 	uint64 a32 = lo_ >> 32;
@@ -346,24 +335,28 @@ inline uint128& uint128::operator*=(const uint128& b) {
 	return *this;
 }
 
-inline uint128 uint128::operator++(int) {
+inline uint128 uint128::operator++(int) 
+{
 	uint128 tmp(*this);
 	*this += 1;
 	return tmp;
 }
 
-inline uint128 uint128::operator--(int) {
+inline uint128 uint128::operator--(int) 
+{
 	uint128 tmp(*this);
 	*this -= 1;
 	return tmp;
 }
 
-inline uint128& uint128::operator++() {
+inline uint128& uint128::operator++() 
+{
 	*this += 1;
 	return *this;
 }
 
-inline uint128& uint128::operator--() {
+inline uint128& uint128::operator--() 
+{
 	*this -= 1;
 	return *this;
 }

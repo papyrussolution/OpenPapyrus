@@ -70,6 +70,65 @@ double FASTCALL GoodsGrpngEntry::Income(int incomeCalcMethod /*=-1*/) const
 	return op_id ? IncomeByOpr(op_id) : 0L;
 }
 
+/*static*/int GoodsGrpngEntry::GetSign(PPID opID, int16 rawSign, int * pSign)
+{
+	int    ok = -1;
+	int    sign = 0;
+	const  PPID op_id = opID;
+	if(op_id == -1)
+		sign = 1;
+	else if(op_id == 10000)
+		sign = -1;
+	else {
+		PPOprKind op_rec;
+		int    op_type = GetOpType(op_id, &op_rec);
+		if(op_type == PPOPT_GOODSMODIF)
+			sign = NZOR(rawSign, +1);
+		else {
+			if(op_type == PPOPT_CORRECTION) {
+				if(op_rec.LinkOpID && GetOpType(op_rec.LinkOpID) == PPOPT_GOODSEXPEND)
+					sign = 1; // Корректировка расхода
+				else 
+					sign = -1; // Корректировка прихода
+			}
+			else {
+				const int intr = IsIntrOp(op_id);
+				if(oneof4(op_type, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL) || intr) {
+					sign = (IsExpendOp(op_id) > 0 || intr == INTREXPND) ? -1 : 1;
+					ok = 1;
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pSign, sign);
+	return ok;
+}
+
+int FASTCALL GoodsGrpngEntry::GetSign(int * pSign) const
+{
+	return GoodsGrpngEntry::GetSign(OpID, Sign, pSign);
+}
+
+int GoodsGrpngEntry::Compose(const GoodsGrpngEntry & rAddendum)
+{
+	int    ok = 1;
+	//int    this_sign = 0;
+	//int    other_sign = 0;
+	//GetSign(&this_sign);
+	//rAddendum.GetSign(&other_sign);
+	//const double qtty_sum = Quantity + rAddendum.Quantity;
+	Quantity += rAddendum.Quantity;
+	Cost += rAddendum.Cost;
+	Price += rAddendum.Price;
+	Discount += rAddendum.Discount;
+	Amount += rAddendum.Amount;
+	ExtCost += rAddendum.ExtCost;
+	ExtPrice += rAddendum.ExtPrice;
+	ExtDis += rAddendum.ExtDis;
+	//CostPaymPart += rAddendum.CostPaymPart;
+	return ok;
+}
+
 IMPL_CMPFUNC(GGAKey, i1, i2)
 {
 	const GoodsGrpngEntry * k1 = static_cast<const GoodsGrpngEntry *>(i1);
@@ -119,9 +178,14 @@ int GoodsGrpngArray::WasErrDetected() const
 	return ErrDetected;
 }
 
-GoodsGrpngEntry & FASTCALL GoodsGrpngArray::at(uint p)
+GoodsGrpngEntry & FASTCALL GoodsGrpngArray::at(uint idx)
 {
-	return *static_cast<GoodsGrpngEntry *>(SVector::at(p));
+	return *static_cast<GoodsGrpngEntry *>(SVector::at(idx));
+}
+
+const GoodsGrpngEntry & FASTCALL GoodsGrpngArray::Get(uint idx) const
+{
+	return *static_cast<const GoodsGrpngEntry *>(SVector::at(idx));
 }
 
 int GoodsGrpngArray::Search(const GoodsGrpngEntry * pGGE, uint * p)
@@ -139,6 +203,63 @@ int GoodsGrpngArray::Search(const GoodsGrpngEntry * pGGE, uint * p)
 int GoodsGrpngArray::Insert(const GoodsGrpngEntry * pEntry, uint * p)
 {
 	return ordInsert(pEntry, p, PTR_CMPFUNC(GGAKey)) ? 1 : PPSetErrorSLib();
+}
+
+const GoodsGrpngEntry * GoodsGrpngArray::GetInRest() const // @v11.5.11
+{
+	const GoodsGrpngEntry * p_result = 0;
+	for(uint i = 0; !p_result && i < getCount(); i++) {
+		const GoodsGrpngEntry & r_entry = Get(i);
+		if(r_entry.IsInRest())
+			p_result = &r_entry;
+	}
+	return p_result;
+}
+
+const GoodsGrpngEntry * GoodsGrpngArray::GetOutRest() const // @v11.5.11
+{
+	const GoodsGrpngEntry * p_result = 0;
+	for(uint i = 0; !p_result && i < getCount(); i++) {
+		const GoodsGrpngEntry & r_entry = Get(i);
+		if(r_entry.IsOutRest())
+			p_result = &r_entry;
+	}
+	return p_result;
+}
+int GoodsGrpngArray::GetInput(GoodsGrpngEntry & rEntry) const // @v11.5.11
+{
+	int    ok = -1;
+	GoodsGrpngEntry result;
+	for(uint i = 0; i < getCount(); i++) {
+		const GoodsGrpngEntry & r_entry = Get(i);
+		if(!r_entry.IsInRest() && !r_entry.IsOutRest()) {
+			int   sign = 0;
+			r_entry.GetSign(&sign);
+			if(sign > 0) {
+				result.Compose(r_entry);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int GoodsGrpngArray::GetOutput(GoodsGrpngEntry & rEntry) const // @v11.5.11
+{
+	int    ok = -1;
+	GoodsGrpngEntry result;
+	for(uint i = 0; i < getCount(); i++) {
+		const GoodsGrpngEntry & r_entry = Get(i);
+		if(!r_entry.IsInRest() && !r_entry.IsOutRest()) {
+			int   sign = 0;
+			r_entry.GetSign(&sign);
+			if(sign < 0) {
+				result.Compose(r_entry);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
 }
 
 int AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpList, int byReckon)

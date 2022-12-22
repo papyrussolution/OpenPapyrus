@@ -12288,7 +12288,7 @@ class SDecimalFraction {
 public:
 	SDecimalFraction();
 	explicit SDecimalFraction(double v);
-	SDecimalFraction(int64 n, int16 exp);
+	SDecimalFraction(int64 mantissa, int16 exp);
 	double GetReal() const;
 	bool   Normalize();
 	SDecimalFraction & Z();

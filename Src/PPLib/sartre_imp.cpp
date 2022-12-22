@@ -3665,6 +3665,7 @@ int PrcssrSartre::Run()
 		}
 		// @v10.9.5 {
 		if(P.Flags & P.fImport_UED_Llcc) {
+			UED_Import_Atoms(); // @v11.5.11
 			UED_Import_PackageTypes(); // @v11.4.3
 			UED_Import_Lingua_LinguaLocus_Country_Currency(/*llccBaseListOnly*/0);
 		}
@@ -5723,9 +5724,143 @@ int PrcssrSartre::UED_Import_PackageTypes()
 	return ok;
 }
 
-int PrcssrSartre::UED_ImportAtoms()
+class UED_Atom_Block : public SStrGroup {
+public:
+	struct Entry {
+		uint64 ID;
+		uint   AtomicNumber;
+		uint   NameP;
+		uint   SymbP;
+	};
+	UED_Atom_Block()
+	{
+	}
+	TSVector <Entry> L;
+};
+
+int PrcssrSartre::UED_Import_Atoms()
 {
+	/*
+	{
+    "elements": [{
+        "atomic_number": 1,
+        "name": "Hydrogen",
+        "symbol": "H",
+        "atomic_weight": 1,
+        "period": 1,
+        "group": 1,
+        "phase": "gas",
+        "most_stable_crystal": "",
+        "type": "Nonmetal",
+        "ionic_radius": 0.012,
+        "atomic_radius": 0.79,
+        "electronegativity": 2.2,
+        "first_ionization_potential": 13.5984,
+        "density": 0.00008988,
+        "melting_point": 14.175,
+        "boiling_point": 20.28,
+        "isotopes": 3,
+        "discoverer": "Cavendish",
+        "year_of_discovery": "1766",
+        "specific_heat_capacity": 14.304,
+        "electron_configuration": "1s1",
+        "display_row": 1,
+        "display_column": 1
+    }, {
+	*/
 	int    ok = 1;
+	const  char * p_base_path = "/papyrus/src/rsrc/data";
+	const  uint64 meta = 0x0000000100000029ULL;
+	SJson * p_js = 0;
+	SString file_name;
+	(file_name = p_base_path).SetLastSlash().Cat("sartre").SetLastSlash().Cat("ued").SetLastSlash().Cat("atom.json");
+	SFile f_in(file_name, SFile::mRead);
+	STempBuffer raw_buf(SMEGABYTE(8));
+	size_t actual_size = 0;
+	if(f_in.ReadAll(raw_buf, 0, &actual_size)) {
+		UED_Atom_Block blk;
+		SString in_buf;
+		in_buf.CatN(raw_buf, actual_size);
+		p_js = SJson::Parse(in_buf);
+		if(p_js && p_js->IsObject()) {
+			SString name;
+			SString symb;
+			for(const SJson * p_itm = p_js->P_Child; p_itm; p_itm = p_itm->P_Next) {
+				if(p_itm->Text.IsEqiAscii("elements") && SJson::IsArray(p_itm->P_Child)) {
+					for(const SJson * p_js_elem = p_itm->P_Child->P_Child; p_js_elem; p_js_elem = p_js_elem->P_Next) {
+						if(SJson::IsObject(p_js_elem)) {
+							int    atomic_number = 0;
+							double atomic_weight = 0.0;
+							name.Z();
+							symb.Z();
+							for(const SJson * p_js_f = p_js_elem->P_Child; p_js_f; p_js_f = p_js_f->P_Next) {
+								if(p_js_f->Text.IsEqiAscii("atomic_number")) {
+									if(p_js_f->P_Child)
+										atomic_number = p_js_f->P_Child->Text.ToLong();
+								}
+								else if(p_js_f->Text.IsEqiAscii("name")) {
+									if(p_js_f->P_Child)
+										name = p_js_f->P_Child->Text.Unescape().Strip();
+								}
+								else if(p_js_f->Text.IsEqiAscii("symbol")) {
+									if(p_js_f->P_Child)
+										symb = p_js_f->P_Child->Text.Unescape().Strip();
+								}
+								else if(p_js_f->Text.IsEqiAscii("atomic_weight")) {
+									if(p_js_f->P_Child)
+										atomic_weight = p_js_f->P_Child->Text.ToReal();
+								}
+							}
+							if(name.NotEmpty() && symb.NotEmpty() && atomic_number > 0) {
+								UED_Atom_Block::Entry new_entry;
+								MEMSZERO(new_entry);
+								new_entry.ID = UED::MakeCanonical(atomic_number, meta);
+								new_entry.AtomicNumber = atomic_number;
+								name.Utf8ToLower();
+								symb.Utf8ToLower();
+								blk.AddS(name, &new_entry.NameP);
+								blk.AddS(symb, &new_entry.SymbP);
+								blk.L.insert(&new_entry);
+							}
+						}
+					}
+				}
+			}
+			if(blk.L.getCount()) {
+				SString line_buf;
+				(file_name = p_base_path).SetLastSlash().Cat("atom.ued.txt"); // utf-8
+				SFile f_out(file_name, SFile::mWrite);
+				{
+					for(uint i = 0; i < blk.L.getCount(); i++) {
+						const UED_Atom_Block::Entry & r_entry = blk.L.at(i);
+						assert(r_entry.NameP && r_entry.SymbP);
+						assert(r_entry.ID != 0);
+						assert(UED::BelongToMeta(r_entry.ID, meta));
+						blk.GetS(r_entry.SymbP, symb);
+						line_buf.Z().CatHex(r_entry.ID).Space().CatQStr(symb);
+						f_out.WriteLine(line_buf.CR());
+					}
+				}
+				f_out.WriteBlancLine();
+				{
+					// en
+					for(uint i = 0; i < blk.L.getCount(); i++) {
+						const UED_Atom_Block::Entry & r_entry = blk.L.at(i);
+						assert(r_entry.NameP && r_entry.SymbP);
+						assert(r_entry.ID != 0);
+						assert(UED::BelongToMeta(r_entry.ID, meta));
+						blk.GetS(r_entry.NameP, name);
+						if(name.NotEmptyS()) {
+							line_buf.Z().CatHex(r_entry.ID).Space().Cat("en").Space().CatQStr(name);
+							f_out.WriteLine(line_buf.CR());
+						}
+					}
+				}
+				f_out.WriteBlancLine();
+			}
+		}
+	}
+	delete p_js;
 	return ok;
 }
 //

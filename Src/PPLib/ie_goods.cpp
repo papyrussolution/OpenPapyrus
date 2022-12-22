@@ -3566,29 +3566,51 @@ public:
 			L.Sort(IntermediateImportedGoodsCollection::ordByCode);
 			LongArray dup_code_idx_list;
 			SString prev_code;
+			SString code_pattern_buf;
+			SString new_name_buf;
 			TSCollection <IntermediateImportedGoodsCollection::Entry> dup_code_entry_list;
 			IntermediateImportedGoodsCollection::Entry entry;
-			for(uint i = 0; i < L.GetCount(); i++) {
-				L.Get(i, entry);
-				if(i > 0) {
-					if(entry.Code == prev_code) {
-						if(dup_code_idx_list.getCount() == 0)
-							dup_code_idx_list.add((i-1)+1);
-						dup_code_idx_list.add(i+1);
+			{
+				for(uint i = 0; i < L.GetCount(); i++) {
+					L.Get(i, entry);
+					//
+					// Если в конце имени содержится '{штрихкод}' или '({штрихкод})' при этом имя не эквивалентно {штрихкод} (то есть, там еще что-то есть кроме кода),
+					// то убираем {штрихкод} из наименования.
+					//
+					uint   code_pos = 0;
+					code_pattern_buf = entry.Code;
+					if(entry.Name.CmpSuffix(code_pattern_buf, 0)) {
+						(new_name_buf = entry.Name).Trim(code_pattern_buf.Len()).Strip();
 					}
 					else {
-						if(dup_code_idx_list.getCount()) {
-							assert(dup_code_idx_list.getCount() > 1);
-							ProcessDupCodeList(dup_code_idx_list);
+						code_pattern_buf.Z().CatParStr(entry.Code);
+						if(entry.Name.CmpSuffix(code_pattern_buf, 0)) {
+							(new_name_buf = entry.Name).Trim(code_pattern_buf.Len()).Strip();
 						}
 					}
+					if(new_name_buf.NotEmpty()) {
+
+					}
+					if(i > 0) {
+						if(entry.Code == prev_code) {
+							if(dup_code_idx_list.getCount() == 0)
+								dup_code_idx_list.add((i-1)+1);
+							dup_code_idx_list.add(i+1);
+						}
+						else {
+							if(dup_code_idx_list.getCount()) {
+								assert(dup_code_idx_list.getCount() > 1);
+								ProcessDupCodeList(dup_code_idx_list);
+							}
+						}
+					}
+					//
+					prev_code = entry.Code;
 				}
-				//
-				prev_code = entry.Code;
-			}
-			if(dup_code_idx_list.getCount()) {
-				assert(dup_code_idx_list.getCount() > 1);
-				ProcessDupCodeList(dup_code_idx_list);
+				if(dup_code_idx_list.getCount()) {
+					assert(dup_code_idx_list.getCount() > 1);
+					ProcessDupCodeList(dup_code_idx_list);
+				}
 			}
 		}
 		return ok;

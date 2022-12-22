@@ -92,6 +92,12 @@
         <item name="android:layout_marginTop">1dp</item>
         <item name="android:layout_marginBottom">1dp</item>
     </style>
+    <style name="ListItemWithTitle">
+        <item name="android:background">@drawable/shape_listitem_withtitle</item>
+        <item name="android:colorBackground">@color/ListItemRegular</item>
+        <item name="android:layout_marginTop">1dp</item>
+        <item name="android:layout_marginBottom">1dp</item>
+    </style>
     <style name="PageHeaderRegular">
         <item name="android:background">@drawable/shape_pageheader</item>
         <item name="android:padding">2dp</item>
@@ -118,12 +124,14 @@
     <style name="TopicText2"> <!-- Наименование сервиса в элементе списка -->
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginLeft">1dp</item>
+        <item name="android:layout_marginRight">1dp</item>
+        <item name="android:layout_marginTop">1dp</item>
         <item name="android:layout_marginBottom">2dp</item>
         <item name="android:background">@drawable/shape_svcname</item>
 
-        <item name="android:textSize">12sp</item>
-        <item name="android:textFontWeight">600</item>
+        <item name="android:textSize">10sp</item>
+        <!-- <item name="android:textFontWeight">600</item> -->
         <item name="android:padding">2dp</item>
         <item name="android:textAlignment">viewStart</item>
         <item name="android:textColor">@color/White</item>

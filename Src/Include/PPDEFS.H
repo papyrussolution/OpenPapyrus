@@ -7310,6 +7310,7 @@
 #define DLG_UICFG                 725
 	#define cmSelBrowserFont             101
 	#define cmSelListFont                102
+	#define cmUiCfgBITF                  103 // @v11.5.11 Опции отображения строк документа 
 	#define CTL_UICFG_SELBCLRSHM         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_UICFG_SELBCLRSHM      (2 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_FLAGS              (3 + WINDOWS_ID_BIAS)
@@ -11421,6 +11422,8 @@
 	#define CTL_STQDOCPARAM_QK              (7  + WINDOWS_ID_BIAS)
 	#define CTLSEL_STQDOCPARAM_QK           (8  + WINDOWS_ID_BIAS)
 	#define CTL_STQDOCPARAM_FLAGS           (9  + WINDOWS_ID_BIAS)
+#define DLG_UICFG_BITF            1426 // @v11.5.11
+	#define CTL_UICFG_BITF_FLAGS            (1  + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

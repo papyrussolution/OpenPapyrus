@@ -188,22 +188,22 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)..\_work 2&gt;nul
 mkdir $(OutDir)..\_work\static 2&gt;nul
 pushd ..\osf\OpenSSL-302
-$(PERL) -Ims\x86\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
+..\..\tools\perl\perl -Ims\x86\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
 popd</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir $(OutDir)..\_work 2&gt;nul
 mkdir $(OutDir)..\_work\static 2&gt;nul
 pushd ..\osf\OpenSSL-302
-$(PERL) -Ims\x64\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
+..\..\perl\perl -Ims\x64\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
 popd</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)..\_work 2&gt;nul
 mkdir $(OutDir)..\_work\static 2&gt;nul
 pushd ..\osf\OpenSSL-302
-$(PERL) -Ims\x86\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
+..\..\tools\perl\perl -Ims\x86\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
 popd</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mkdir $(OutDir)..\_work 2&gt;nul
 mkdir $(OutDir)..\_work\static 2&gt;nul
 pushd ..\osf\OpenSSL-302
-$(PERL) -Ims\x64\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
+..\..\perl\perl -Ims\x64\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
 popd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)..\_work\static\legacy.def</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)..\_work\static\legacy.def</Outputs>
@@ -213,6 +213,8 @@ popd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\util\providers.num</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\util\providers.num</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\util\providers.num</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl -Ims\x86\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl -Ims\x86\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def</Message>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

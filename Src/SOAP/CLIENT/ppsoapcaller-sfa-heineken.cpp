@@ -96,14 +96,14 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendWarehousesBalance(PPS
 	return p_result;
 }
 
-static ns1__ArrayOfDeliveryPosition * FASTCALL CreateDeliveryPositions(const TSCollection <SfaHeinekenDeliveryPosition> & rSrcList, TSCollection <InParamString> & rArgStrPool)
+static ns1__ArrayOfDeliveryPosition * FASTCALL CreateDeliveryPositions(const TSCollection <SfaHeinekenInvoice::DeliveryPosition> & rSrcList, TSCollection <InParamString> & rArgStrPool)
 {
 	ns1__ArrayOfDeliveryPosition * p_result = 0;
 	SString temp_buf;
 	THROW(p_result = new ns1__ArrayOfDeliveryPosition);
 	THROW(p_result->DeliveryPosition = reinterpret_cast<ns1__DeliveryPosition **>(PPSoapCreateArray(rSrcList.getCount(), p_result->__sizeDeliveryPosition)));
 	for(uint i = 0; i < rSrcList.getCount(); i++) {
-		const SfaHeinekenDeliveryPosition * p_src_item = rSrcList.at(i);
+		const SfaHeinekenInvoice::DeliveryPosition * p_src_item = rSrcList.at(i);
 		ns1__DeliveryPosition * p_item = new ns1__DeliveryPosition;
 		THROW(p_item);
 		p_result->DeliveryPosition[i] = p_item;
@@ -204,7 +204,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellin(PPSoapClientSe
 				THROW(p_inv->DistributorSalePointDeliveries->DistributorSalePointDelivery = reinterpret_cast<ns1__DistributorSalePointDelivery **>(PPSoapCreateArray(
 					p_entry->DistributorSalePointDeliveryList.getCount(), p_inv->DistributorSalePointDeliveries->__sizeDistributorSalePointDelivery)));
 				for(uint j = 0; j < p_entry->DistributorSalePointDeliveryList.getCount(); j++) {
-					const SfaHeinekenSalePointDelivery * p_src_item = p_entry->DistributorSalePointDeliveryList.at(j);
+					const SfaHeinekenInvoice::SalePointDelivery * p_src_item = p_entry->DistributorSalePointDeliveryList.at(j);
 					ns1__DistributorSalePointDelivery * p_item = new ns1__DistributorSalePointDelivery;
 					THROW(p_item);
 					p_inv->DistributorSalePointDeliveries->DistributorSalePointDelivery[j] = p_item;
@@ -250,7 +250,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellout(PPSoapClientS
 				THROW(p_inv->OrderDeliveries = new ns1__ArrayOfOrderDelivery);
 				THROW(p_inv->OrderDeliveries->OrderDelivery = reinterpret_cast<ns1__OrderDelivery **>(PPSoapCreateArray(p_entry->OrderList.getCount(), p_inv->OrderDeliveries->__sizeOrderDelivery)));
 				for(uint j = 0; j < p_entry->OrderList.getCount(); j++) {
-					const SfaHeinekenOrderDelivery * p_src_item = p_entry->OrderList.at(j);
+					const SfaHeinekenInvoice::OrderDelivery * p_src_item = p_entry->OrderList.at(j);
 					ns1__OrderDelivery * p_item = new ns1__OrderDelivery;
 					THROW(p_item);
 					p_inv->OrderDeliveries->OrderDelivery[j] = p_item;
@@ -263,7 +263,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellout(PPSoapClientS
 				THROW(p_inv->DistributorDeliveries = new ns1__ArrayOfDistributorDelivery);
 				THROW(p_inv->DistributorDeliveries->DistributorDelivery = reinterpret_cast<ns1__DistributorDelivery **>(PPSoapCreateArray(p_entry->DistributorDeliveryList.getCount(), p_inv->DistributorDeliveries->__sizeDistributorDelivery)));
 				for(uint j = 0; j < p_entry->DistributorDeliveryList.getCount(); j++) {
-					const SfaHeinekenDistributorDelivery * p_src_item = p_entry->DistributorDeliveryList.at(j);
+					const SfaHeinekenInvoice::DistributorDelivery * p_src_item = p_entry->DistributorDeliveryList.at(j);
 					ns1__DistributorDelivery * p_item = new ns1__DistributorDelivery;
 					THROW(p_item);
 					p_inv->DistributorDeliveries->DistributorDelivery[j] = p_item;
@@ -277,7 +277,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellout(PPSoapClientS
 				THROW(p_inv->DistributorSalePointDeliveries->DistributorSalePointDelivery = reinterpret_cast<ns1__DistributorSalePointDelivery **>(PPSoapCreateArray(
 					p_entry->DistributorSalePointDeliveryList.getCount(), p_inv->DistributorSalePointDeliveries->__sizeDistributorSalePointDelivery)));
 				for(uint j = 0; j < p_entry->DistributorSalePointDeliveryList.getCount(); j++) {
-					const SfaHeinekenSalePointDelivery * p_src_item = p_entry->DistributorSalePointDeliveryList.at(j);
+					const SfaHeinekenInvoice::SalePointDelivery * p_src_item = p_entry->DistributorSalePointDeliveryList.at(j);
 					ns1__DistributorSalePointDelivery * p_item = new ns1__DistributorSalePointDelivery;
 					THROW(p_item);
 					p_inv->DistributorSalePointDeliveries->DistributorSalePointDelivery[j] = p_item;

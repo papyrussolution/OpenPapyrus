@@ -1435,15 +1435,8 @@ SDecimalFraction::SDecimalFraction(double v) : Mant(0), Exp(0), Flags(0)
 		Flags = (static_cast<uint16>(f & ~SIEEE754::fSIGN)); // Флаг знака внутри класса не храним - знак числа определяется величиной Num
 		if(!(Flags & (SIEEE754::fINF|SIEEE754::fNAN))) {
 			if(mantissa != 0) { // В противном случае все число - 0 (мантисса, экспонента, знак)
-				if(exp > 0) {
-					Mant = mantissa * fpow10i(exp);
-					Exp = 0;
-				}
-				else {
-					Mant = mantissa;
-					if(exp < 0)
-						Exp = static_cast<uint16>(-exp);
-				}
+				Mant = mantissa;
+				Exp = exp;
 				if(f & SIEEE754::fSIGN)
 					Mant = -Mant;
 			}
@@ -1451,7 +1444,7 @@ SDecimalFraction::SDecimalFraction(double v) : Mant(0), Exp(0), Flags(0)
 	}
 }
 	
-SDecimalFraction::SDecimalFraction(int64 n, int16 denomDecPwr) : Mant(n), Exp(denomDecPwr), Flags(0)
+SDecimalFraction::SDecimalFraction(int64 mantissa, int16 exp) : Mant(mantissa), Exp(exp), Flags(0)
 {
 }
 	
@@ -1468,11 +1461,11 @@ bool SDecimalFraction::Normalize()
 		Exp = 0;
 		ok = true;
 	}
-	else if(Exp > 0 && (Mant % 10) == 0) {
-		do {
+	else {
+		while(Exp < 0 && (Mant % 10) == 0) {
 			Mant /= 10;
-			Exp--;
-		} while(Exp > 0 && (Mant % 10) == 0);
+			Exp++;
+		}
 		ok = true;
 	}
 	return ok;
@@ -1502,17 +1495,25 @@ bool SDecimalFraction::IsZero() const
 int SDecimalFraction::Add(const SDecimalFraction & rA, const SDecimalFraction & rB)
 {
 	int ok = 1;
-	if(rA.Exp == rB.Exp) {
+	if(rA.IsZero()) {
+		Mant = rB.Mant;
+		Exp = rB.Exp;
+	}
+	else if(rB.IsZero()) {
+		Mant = rA.Mant;
+		Exp = rA.Exp;
+	}
+	else if(rA.Exp == rB.Exp) {
 		Mant = rA.Mant + rB.Mant;
 		Exp = rA.Exp;
 	}
-	else if(rA.Exp < rB.Exp) {
-		Mant = rA.Mant * ui64pow10(rB.Exp - rA.Exp) + rB.Mant;
+	else if(rA.Exp > rB.Exp) {
+		Mant = rA.Mant * ui64pow10(rA.Exp - rB.Exp) + rB.Mant;
 		Exp = rB.Exp;
 	}
 	else {
-		assert(rB.Exp < rA.Exp);
-		Mant = rB.Mant * ui64pow10(rA.Exp - rB.Exp) + rA.Mant;
+		assert(rB.Exp > rA.Exp);
+		Mant = rB.Mant * ui64pow10(rB.Exp - rA.Exp) + rA.Mant;
 		Exp = rA.Exp;
 	}
 	Normalize();
@@ -1574,16 +1575,19 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 	{
 		struct TestEntry {
 			int64  N;
-			uint16 Dp;
+			int16  Dp;
 			double Rv;
 		};
 		const TestEntry entries[] = {
-			{ 17171717171717LL, 7, 1717171.7171717 },
+			{ 17171717171717LL, -7, 1717171.7171717 },
 			{ 1LL, 0, 1.0 },
 			{ 3LL, 0, 3.0 },
-			{ 1LL, 1, 0.1 },
-			{ 1LL, 2, 0.01 },
-			{ 5LL, 1, 0.5 },
+			{ 1LL, -1, 0.1 },
+			{ 1LL, -2, 0.01 },
+			{ 5LL, -1, 0.5 },
+			{ 1LL, +1, 10.0 },
+			{ 1LL, +2, 100.0 },
+			{ 5LL, +1, 50.0 },
 			{ 0LL, 0, 0.0 },
 		};
 		assert(SDecimalFraction().IsZero());
@@ -1604,14 +1608,38 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 			assert(r2.GetReal() == 0.0);
 			assert(r2.IsZero());
 			//
-			r.Add(SDecimalFraction(0, 0), SDecimalFraction(1, 5));
+			r.Add(SDecimalFraction(0, 0), SDecimalFraction(1, -5));
 			assert(r.GetReal() == 0.00001);
-			r2.Sub(r, SDecimalFraction(1, 5));
+			r2.Sub(r, SDecimalFraction(1, -5));
 			assert(r2.GetReal() == 0.0);
 			assert(r2.IsZero());
 			//
-			r.Mul(SDecimalFraction(1, 0), SDecimalFraction(17, 3));
+			r.Add(SDecimalFraction(1, 0), SDecimalFraction(1, -1));
+			assert(r.GetReal() == 1.1);
+			r2.Sub(r, SDecimalFraction(1, -1));
+			assert(r2.GetReal() == 1.0);
+			//
+			r.Add(SDecimalFraction(703, 6), SDecimalFraction(1, -1));
+			assert(r.GetReal() == 703000000.1);
+			r2.Sub(r, SDecimalFraction(1, -1));
+			assert(r2.GetReal() == 703000000.0);
+			//
+			r.Mul(SDecimalFraction(1, 0), SDecimalFraction(17, -3));
 			assert(r.GetReal() == 0.017);
+			//
+			r.Mul(SDecimalFraction(2, 0), SDecimalFraction(17, -3));
+			assert(r.GetReal() == 0.034);
+			//
+			r.Mul(SDecimalFraction(1, 1), SDecimalFraction(17, -3));
+			assert(r.GetReal() == 0.17);
+			//
+			{
+				r.Z();
+				for(uint i = 0; i < 1000; i++) {
+					r.Add(r, SDecimalFraction(1, -6));
+				}
+				assert(r.GetReal() == 0.001);
+			}
 		}
 	}
 	return ok;

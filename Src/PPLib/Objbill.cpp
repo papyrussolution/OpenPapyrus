@@ -428,6 +428,22 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_AGENT) || pPack->Ext.AgentID, PPERR_BILLSTCHECKFLD_AGENT);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PAYER) || pPack->Ext.PayerID, PPERR_BILLSTCHECKFLD_PAYER);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_DUEDATE) || checkdate(pPack->Rec.DueDate), PPERR_BILLSTCHECKFLD_DUEDATE);
+					// @v11.5.11 {
+					if(bs_rec.CheckFields & BILCHECKF_CONTRACT) {
+						bool contract_is_ok = false;
+						BillTbl::Rec agt_bill_rec;
+						if(pPack->Rec.AgtBillID && Search(pPack->Rec.AgtBillID, &agt_bill_rec) > 0 && GetOpType(agt_bill_rec.OpID) == PPOPT_AGREEMENT) {
+							contract_is_ok = true;
+						}
+						else if(pPack->Rec.Object) {
+							PPClientAgreement agt;
+							if(ArObj.GetClientAgreement(pPack->Rec.Object, agt, 0) > 0 && agt.Code_[0] && checkdate(agt.BegDt)) {
+								contract_is_ok = true;
+							}
+						}
+						THROW_PP(contract_is_ok, PPERR_BILLSTCHECKFLD_CONTRACT);
+					}
+					// } @v11.5.11 
 				}
 				if(CheckOpFlags(pPack->Rec.OpID, OPKF_FREIGHT)) {
 					const PPFreight * p_fr = pPack->P_Freight;

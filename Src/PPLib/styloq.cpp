@@ -5774,6 +5774,11 @@ SJson * PPStyloQInterchange::SvcNotification::ToJson() const
 		p_result->InsertString("evnt_org_time", temp_buf.Z().Cat(EventOrgTime, DATF_ISO8601CENT, 0).Escape());
 		p_result->InsertString("evnt_iss_time", temp_buf.Z().Cat(EventIssueTime, DATF_ISO8601CENT, 0).Escape());
 		p_result->InsertString("obj_nominal_time", temp_buf.Z().Cat(ObjNominalTime, DATF_ISO8601CENT, 0).Escape());
+		// @v11.5.11 {
+		if(!!CmdUuid) {
+			p_result->InsertString("orgcmduuid", temp_buf.Z().Cat(CmdUuid, S_GUID::fmtIDL).Escape());
+		}
+		// } @v11.5.11 
 		p_result->InsertIntNz("evnt", EventId);
 		if(Oid.Obj) {
 			p_result->InsertInt("objtype", Oid.Obj);
