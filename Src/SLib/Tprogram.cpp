@@ -2562,6 +2562,7 @@ void UserInterfaceSettings::Init()
 {
 	SetVersion();
 	Flags = fShowShortcuts;
+	BillItemTableFlags = bitfUseCommCfgForBarcodeSerialOptions; // @v11.5.11
 	WindowViewStyle = wndVKVector;
 	TableViewStyle = 1;
 	ListElemCount = 0;
@@ -2677,6 +2678,8 @@ int UserInterfaceSettings::Serialize(int dir, SBuffer & rBuf, SSerializeContext 
 			if(Ver >= (10 | (1 << 16))) {
 				THROW(pCtx->Serialize(dir, BillItemTableFlags, rBuf));
 			}
+			else
+				BillItemTableFlags = bitfUseCommCfgForBarcodeSerialOptions;
 			// } @v11.5.11 
 		}
 		else

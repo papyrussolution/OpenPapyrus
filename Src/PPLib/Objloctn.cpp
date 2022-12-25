@@ -168,6 +168,10 @@ TLP_IMPL(PPObjLocation, LocationCore, P_Tbl);
 //
 //
 //
+PPCountryBlock::PPCountryBlock() : IsNative(0)
+{
+}
+
 PPCountryBlock & PPCountryBlock::Z()
 {
 	IsNative = 0;

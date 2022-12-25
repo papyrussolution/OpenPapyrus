@@ -755,7 +755,25 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		AlcoGoodsClsID = (PrcssrAlcReport::ReadConfig(&parc) > 0) ? parc.E.AlcGoodsClsID : 0;
 	}
 	SString temp_buf;
-	uint   show_barcode_or_serial = 0;
+	enum {
+		cfgshowfBarcode = 0x0001,
+		cfgshowfSerial  = 0x0002,
+		cfgshowfMargin  = 0x0004
+	};
+	uint   cfgshowflags = 0;
+	/* @construction
+	const  UserInterfaceSettings uis = APPL->GetUiSettings();
+	if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowMargin)
+		cfgshowflags |= cfgshowfMargin;
+	if(uis.BillItemTableFlags & UserInterfaceSettings::bitfUseCommCfgForBarcodeSerialOptions) {
+	}
+	else {
+		if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowBarcode)
+			cfgshowflags |= cfgshowfBarcode;
+		if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowSerial)
+			cfgshowflags |= cfgshowfSerial;
+	}
+	*/
 	if((!(State & stAltView) || ((P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) && (CConfig.Flags & CCFLG_USEARGOODSCODE)))) {
 		uint   _brw_pos = 2;
 		if(P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) {
@@ -764,11 +782,11 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 			else
 				PPLoadString("barcode", temp_buf);
 			insertColumn(_brw_pos++, temp_buf, 27, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
-			show_barcode_or_serial |= 0x01;
+			cfgshowflags |= cfgshowfBarcode;
 		}
 		if(P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES) {
 			insertColumn(_brw_pos++, PPLoadStringS("serial", temp_buf), 28, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
-			show_barcode_or_serial |= 0x02;
+			cfgshowflags |= cfgshowfSerial;
 		}
 	}
 	uint   i, pos;
@@ -874,9 +892,9 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 					State |= stShowLinkQtty;
 					{
 						int    at_pos = 1;
-						if(show_barcode_or_serial & 0x01)
+						if(cfgshowflags & cfgshowfBarcode)
 							at_pos++;
-						if(show_barcode_or_serial & 0x02)
+						if(cfgshowflags & cfgshowfSerial)
 							at_pos++;
 						// @v10.5.8 PPGetWord(PPWORD_LINKQTTY, 0, temp_buf);
 						PPLoadString("linkedqtty", temp_buf); // @v10.5.8
@@ -1199,6 +1217,7 @@ int BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillG
 // 33 - ЕГАИС RefB         @v10.8.4
 // 34 - ЕГАИС Код товара   @v10.8.4
 // 35 - Количество марок   @v10.9.2
+// 36 - Процент наценки ((price-cost)/cost) @v11.5.11
 //
 int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
@@ -1553,6 +1572,20 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						long  ecs_count = (P_Pack->XcL.Get(p_item->Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
 						pBlk->Set(ecs_count);
 					}
+					break;
+				case 36: // @v11.5.11 Процент наценки ((price-cost)/cost) @v11.5.11
+					if(State & stAccsCost) {
+						double margin = 0.0;
+						if(is_total) {
+							margin = fdivnz(Total.Price - Total.Discount - Total.Cost, Total.Cost);
+						}
+						else {
+							margin = fdivnz(p_ti->Price - p_ti->Discount - p_ti->Cost, p_ti->Cost);
+						}
+						pBlk->Set(margin);
+					}
+					else
+						ok = 0;
 					break;
 				default:
 					ok = 0;

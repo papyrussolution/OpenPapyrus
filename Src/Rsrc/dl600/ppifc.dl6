@@ -5540,6 +5540,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
     //
     // @v11.5.11 {
     //
+    /*
     struct UhttGoodsProcessorEntry {
 		long   Ident;
 		string Code;
@@ -5556,6 +5557,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		int    GetResultCount();
 		int    GetResult(int idx, out UhttGoodsProcessorEntry * pEntry);
     }
+    */
     // } @v11.5.11
 	//
 	// coclass declarations

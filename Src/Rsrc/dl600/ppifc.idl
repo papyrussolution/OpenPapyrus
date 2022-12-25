@@ -60,7 +60,6 @@ interface IPpyFilt_LotOp;
 interface IPrcssrAlcReport;
 interface ICCheckPacket;
 interface IPapyrusObjCCheck;
-interface IUnttGoodsProcessor;
 
 typedef struct sUUID {
 	unsigned long d[4];
@@ -4650,27 +4649,6 @@ library PapyrusInterfaceLib {
 		HRESULT __stdcall Search([in] long id, [out] SPpyO_CCheck * pRec, [out,retval] long * pRet);
 		HRESULT __stdcall CreatePacket([out,retval] ICCheckPacket ** pRet);
 		HRESULT __stdcall GetPacket([in] long id, ICCheckPacket * pPack, [out,retval] long * pRet);
-	};
-
-	typedef struct UhttGoodsProcessorEntry {
-		long Ident;
-		BSTR Code;
-		BSTR Name;
-		BSTR Category;
-		BSTR Brand;
-		long ResultFlags;
-	} UhttGoodsProcessorEntry;
-
-	[
-		object,
-		uuid(3A30C78B-9FB6-41DD-9653-31DE57ABB104)
-	]
-	interface IUnttGoodsProcessor : IUnknown {
-		HRESULT __stdcall Init([out,retval] long * pRet);
-		HRESULT __stdcall Put([in] UhttGoodsProcessorEntry * pEntry, [out,retval] long * pRet);
-		HRESULT __stdcall Run([out,retval] long * pRet);
-		HRESULT __stdcall GetResultCount([out,retval] long * pRet);
-		HRESULT __stdcall GetResult(long idx, [out] UhttGoodsProcessorEntry * pEntry, [out,retval] long * pRet);
 	};
 
 	[

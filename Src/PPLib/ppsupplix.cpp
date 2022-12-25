@@ -8623,8 +8623,15 @@ public:
 		//MakeGoodsList();
 		return ok;
 	}
+	struct ObjEntry {
+		explicit ObjEntry(PPID id = 0) : ID(id)
+		{
+		}
+		PPID   ID;
+		S_GUID Uuid;
+	};
 	struct BillPacket {
-		BillPacket() : ID(0), Dtm(ZERODATETIME)
+		BillPacket() : ID(0), Dtm(ZERODATETIME), ContractorID(0), DlvrLocID(0), AgentID(0)
 		{
 			Code[0] = 0;
 		}
@@ -8643,9 +8650,124 @@ public:
 		};
 		PPID   ID;
 		S_GUID Uuid;
-		char   Code[32];
+		char   Code[48];
 		LDATETIME Dtm;
+		PPID   ContractorID;
+		S_GUID ContractorUuid;
+		PPID   DlvrLocID;
+		S_GUID DlvrLocUuid;
+		PPID   AgentID;
+		S_GUID AgentUuid;
 		TSVector <Position> ItemList;
+	};
+	class BillPacketCollection : public TSCollection <BillPacket> {
+	public:
+		BillPacketCollection(PrcssrSupplInterchange::ExecuteBlock & rEb) : TSCollection <BillPacket>(), R_Eb(rEb)
+		{
+		}
+		int    SetupEntry(uint idx, int use_ta)
+		{
+			int   ok = 1;
+			if(idx < getCount()) {
+				BillPacket * p_item = at(idx);
+				if(p_item) {
+					PPTransaction tra(use_ta);
+					THROW(tra);
+					if(p_item->ContractorID) {
+						PPPersonPacket psn_pack;
+						if(R_Eb.PsnObj.GetPacket(p_item->ContractorID, &psn_pack, 0) > 0) {
+							uint   psn_idx = 0;
+							if(ContractorList.lsearch(&p_item->ContractorID, &psn_idx, CMPF_LONG)) {
+								if(!p_item->ContractorUuid) {
+									p_item->ContractorUuid = ContractorList.at(psn_idx).Uuid;
+									assert(p_item->ContractorUuid);
+								}
+								else {
+									assert(p_item->ContractorUuid == ContractorList.at(psn_idx).Uuid);
+								}
+							}
+							else {
+								ObjEntry oe(p_item->ContractorID);
+								if(!p_item->ContractorUuid) {
+									if(psn_pack.GetGuid(oe.Uuid) <= 0 || oe.Uuid.IsZero()) {
+										oe.Uuid.Generate();
+										THROW(R_Eb.PsnObj.PutGuid(p_item->ContractorID, &oe.Uuid, 0));
+									}
+									p_item->ContractorUuid = oe.Uuid;
+								}
+								else
+									oe.Uuid = p_item->ContractorUuid;
+								ContractorList.insert(&oe);
+							}
+						}
+					}
+					if(p_item->DlvrLocID) {
+						PPLocationPacket loc_pack;
+						if(R_Eb.LocObj.GetPacket(p_item->DlvrLocID, &loc_pack) > 0) {
+							uint   loc_idx = 0;
+							if(DlvrLocList.lsearch(&p_item->DlvrLocID, &loc_idx, CMPF_LONG)) {
+								if(!p_item->DlvrLocUuid) {
+									p_item->DlvrLocUuid = DlvrLocList.at(loc_idx).Uuid;
+									assert(p_item->DlvrLocUuid);
+								}
+								else {
+									assert(p_item->DlvrLocUuid == DlvrLocList.at(loc_idx).Uuid);
+								}
+							}
+							else {
+								ObjEntry oe(p_item->DlvrLocID);
+								if(!p_item->DlvrLocUuid) {
+									if(loc_pack.GetGuid(oe.Uuid) <= 0 || oe.Uuid.IsZero()) {
+										oe.Uuid.Generate();
+										THROW(R_Eb.LocObj.PutGuid(loc_pack.ID, &oe.Uuid, 0));
+									}
+									p_item->DlvrLocUuid = oe.Uuid;
+								}
+								else
+									oe.Uuid = p_item->DlvrLocUuid;
+								DlvrLocList.insert(&oe);
+							}
+						}
+					}
+					if(p_item->AgentID) {
+						PPPersonPacket psn_pack;
+						if(R_Eb.PsnObj.GetPacket(p_item->AgentID, &psn_pack, 0) > 0) {
+							uint   psn_idx = 0;
+							if(AgentList.lsearch(&p_item->AgentID, &psn_idx, CMPF_LONG)) {
+								if(!p_item->AgentUuid) {
+									p_item->AgentUuid = AgentList.at(psn_idx).Uuid;
+									assert(p_item->AgentUuid);
+								}
+								else {
+									assert(p_item->AgentUuid == AgentList.at(psn_idx).Uuid);
+								}
+							}
+							else {
+								ObjEntry oe(p_item->AgentID);
+								if(!p_item->AgentUuid) {
+									if(psn_pack.GetGuid(oe.Uuid) <= 0 || oe.Uuid.IsZero()) {
+										oe.Uuid.Generate();
+										THROW(R_Eb.PsnObj.PutGuid(p_item->AgentID, &oe.Uuid, 0));
+									}
+									p_item->AgentUuid = oe.Uuid;
+								}
+								else
+									oe.Uuid = p_item->AgentUuid;
+								AgentList.insert(&oe);
+							}
+						}
+					}
+					THROW(tra.Commit());
+				}
+			}
+			CATCHZOK
+			return ok;
+		}
+		TSVector <ObjEntry> ContractorList;
+		TSVector <ObjEntry> DlvrLocList;
+		TSVector <ObjEntry> AgentList;
+	private:
+		PrcssrSupplInterchange::ExecuteBlock & R_Eb;
 	};
 	struct StockEntry {
 		StockEntry()
@@ -8668,10 +8790,61 @@ public:
 		const StockEntry * p2 = static_cast<const StockEntry *>(i2);
 		RET_CMPCASCADE3(p1, p2, Dt, LocID, GoodsID);
 	}
-	struct ObjEntry {
-		PPID   ID;
-		S_GUID Uuid;
-	};
+	void   WriteWarehouses(xmlTextWriter * pX, const TSVector <ObjEntry> & rLocList)
+	{
+		SString temp_buf;
+		(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_WAREHOUSE_PL));
+		SXml::WNode n_h(pX, temp_buf);
+		for(uint i = 0; i < rLocList.getCount(); i++) {
+			const ObjEntry & r_loc_entry = rLocList.at(i);
+			LocationTbl::Rec loc_rec;
+			if(r_loc_entry.ID && LocObj.Search(r_loc_entry.ID, &loc_rec) > 0) {
+				SXml::WNode n_o(pX, "Object");
+				r_loc_entry.Uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+				n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);
+				(temp_buf = loc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+				n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
+				n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
+			}
+		}
+	}
+	void   WriteGoods(xmlTextWriter * pX, const TSVector <ObjEntry> & rGoodsList)
+	{
+		SString temp_buf;
+		PPObjUnit u_obj;
+		(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_GOODS));
+		SXml::WNode n_h(pX, temp_buf);
+		for(uint i = 0; i < rGoodsList.getCount(); i++) {
+			const ObjEntry & r_goods_entry = rGoodsList.at(i);
+			Goods2Tbl::Rec goods_rec;
+			PPUnit unit_rec;
+			if(r_goods_entry.ID && GObj.Search(r_goods_entry.ID, &goods_rec) > 0) {
+				SXml::WNode n_o(pX, "Object");
+				r_goods_entry.Uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+				n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);
+				GObj.P_Tbl->GetArCode(P.SupplID, r_goods_entry.ID, temp_buf, 0);
+				if(temp_buf.NotEmptyS()) {
+					n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+				}
+				else {
+					GObj.GetSingleBarcode(r_goods_entry.ID, temp_buf);
+					if(temp_buf.NotEmpty()) {
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+					}
+				}
+				(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+				n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
+				n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_AR), temp_buf.Z().Cat(r_goods_entry.ID));
+				if(goods_rec.UnitID && u_obj.Search(goods_rec.UnitID, &unit_rec) > 0) {
+					(temp_buf = unit_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+					n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOMBASE), temp_buf);
+				}
+				(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+				n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_FULLNAME), temp_buf);
+				n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
+			}
+		}
+	}
 	int    SendRest()
 	{
 		const  char * p_cli_code = "99999";
@@ -8749,59 +8922,11 @@ public:
 			SXml::WDoc _doc(p_x, cpUTF8);
 			{
 				SXml::WNode n_h(p_x, "Exchange.Data");
-				{
-					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_WAREHOUSE_PL));
-					SXml::WNode n_h(p_x, temp_buf);
-					for(uint i = 0; i < loc_list.getCount(); i++) {
-						const ObjEntry & r_loc_entry = loc_list.at(i);
-						LocationTbl::Rec loc_rec;
-						if(r_loc_entry.ID && LocObj.Search(r_loc_entry.ID, &loc_rec) > 0) {
-							SXml::WNode n_o(p_x, "Object");
-							r_loc_entry.Uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);
-							(temp_buf = loc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
-						}
-					}
-				}
-				{
-					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_GOODS));
-					SXml::WNode n_h(p_x, temp_buf);
-					for(uint i = 0; i < goods_list.getCount(); i++) {
-						const ObjEntry & r_goods_entry = goods_list.at(i);
-						Goods2Tbl::Rec goods_rec;
-						PPUnit unit_rec;
-						if(r_goods_entry.ID && GObj.Search(r_goods_entry.ID, &goods_rec) > 0) {
-							SXml::WNode n_o(p_x, "Object");
-							r_goods_entry.Uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);
-							GObj.P_Tbl->GetArCode(P.SupplID, r_goods_entry.ID, temp_buf, 0);
-							if(temp_buf.NotEmptyS()) {
-								n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
-							}
-							else {
-								GObj.GetSingleBarcode(r_goods_entry.ID, temp_buf);
-								if(temp_buf.NotEmpty()) {
-									n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
-								}
-							}
-							(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_AR), temp_buf.Z().Cat(r_goods_entry.ID));
-							if(goods_rec.UnitID && u_obj.Search(goods_rec.UnitID, &unit_rec) > 0) {
-								(temp_buf = unit_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
-								n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOMBASE), temp_buf);
-							}
-							(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_FULLNAME), temp_buf);
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
-						}
-					}
-				}
+				WriteWarehouses(p_x, loc_list);
+				WriteGoods(p_x, goods_list);
 				{
 					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_STOCK_PL));
-					SXml::WNode n_h(p_x, temp_buf);
+					SXml::WNode n_list(p_x, temp_buf);
 					stock_list.sort(PTR_CMPFUNC(StockEntry));
 					{
 						for(uint date_idx = 0; date_idx < date_list.getCount(); date_idx++) {
@@ -8848,7 +8973,8 @@ public:
 		SString out_file_name;
 		TSVector <ObjEntry> loc_list;
 		TSVector <ObjEntry> goods_list;
-		TSCollection <BillPacket> bill_list;
+		BillPacketCollection bill_list(*this);
+		xmlTextWriter * p_x = 0;
 		{
 			//Sales_54644_23092021_230003.xml
 			SString date_buf;
@@ -8866,42 +8992,103 @@ public:
 			}
 		}
 		//
-	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
-	    THROW(p_x);
+	    THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
 			{
 				SXml::WNode n_h(p_x, "Exchange.Data");
 				{
 					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_PL));
-					SXml::WNode n_h(p_x, temp_buf);
+					SXml::WNode n_list(p_x, temp_buf);
+					for(uint i = 0; i < bill_list.DlvrLocList.getCount(); i++) {
+						const ObjEntry & r_loc_entry = bill_list.DlvrLocList.at(i);
+						LocationTbl::Rec loc_rec;
+						if(r_loc_entry.ID && LocObj.Search(r_loc_entry.ID, &loc_rec) > 0) {
+							SXml::WNode n_o(p_x, "Object");
+							r_loc_entry.Uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Z().Cat(r_loc_entry.ID));
+							(temp_buf = loc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_FULLNAME), temp_buf);
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_ADR), ""); // АдресДоставкиТТ
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_EMAIL), ""); // АдресЭлектроннойПочтыТТ
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_PHONE), ""); // ТелефонТТ
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_RADR), ""); // ФактАдресТТ
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_LEVEL), "0"); // Уровень
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_MANAGER), ""); // Менеджер
+						}						
+					}
 				}
 				{
 					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_CONTRACTOR_PL));
-					SXml::WNode n_h(p_x, temp_buf);
+					SXml::WNode n_list(p_x, temp_buf);
+					for(uint i = 0; i < bill_list.ContractorList.getCount(); i++) {
+						const ObjEntry & r_psn_entry = bill_list.ContractorList.at(i);
+						SXml::WNode n_o(p_x, "Object");
+						r_psn_entry.Uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);						
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Z().Cat(r_psn_entry.ID));
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), "");
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_INN), "");
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_FULLNAME), "");
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_LEVEL), "0");
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_KPP), "");
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_LEGAL_PRIV), ""); // Как вариант "Юр. лицо"
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
+					}
 				}
 				{
 					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_MANAGER_PL));
-					SXml::WNode n_h(p_x, temp_buf);
+					SXml::WNode n_list(p_x, temp_buf);
+					for(uint i = 0; i < bill_list.AgentList.getCount(); i++) {
+						const ObjEntry & r_psn_entry = bill_list.AgentList.at(i);
+						SXml::WNode n_o(p_x, "Object");
+						r_psn_entry.Uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), "");
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
+					}
 				}
-				{
-					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_WAREHOUSE_PL));
-					SXml::WNode n_h(p_x, temp_buf);
-				}
-				{
-					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_GOODS));
-					SXml::WNode n_h(p_x, temp_buf);
-				}
+				WriteWarehouses(p_x, loc_list);
+				WriteGoods(p_x, goods_list);
 				{
 					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_SALE_PL));
-					SXml::WNode n_h(p_x, temp_buf);
-					{
-						SXml::WNode n_o(p_x, "Object");
+					SXml::WNode n_list(p_x, temp_buf);
+					for(uint docidx = 0; docidx < bill_list.getCount(); docidx++) {
+						const BillPacket * p_pack = bill_list.at(docidx);
+						if(p_pack) {
+							SXml::WNode n_o(p_x, "Object");
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DOCREF), temp_buf.Z().Cat(p_pack->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // СсылкаДокумента
+							temp_buf = Helper_GetToken(PPHSC_AGPLUS_DOCTYP_SALE);
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DOCTYPE), temp_buf); // ТипДокумента
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DATE), temp_buf.Z().Cat(p_pack->Dtm, DATF_ISO8601CENT, 0)); // 
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NUMBER), temp_buf.Z().Cat(p_pack->Code).Transf(CTRANSF_INNER_TO_UTF8)); // 
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC), temp_buf.Z().Cat(p_pack->DlvrLocUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // ТорговаяТочка
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTOR), temp_buf.Z().Cat(p_pack->ContractorUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // Контрагент
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRADDR), ""); // АдресДоставки
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_AGENT), temp_buf.Z().Cat(p_pack->AgentUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // Агент
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_AGTDOC), ""); // ДокументОснование
+							for(uint itmidx = 0; itmidx < p_pack->ItemList.getCount(); itmidx++) {
+								const BillPacket::Position & r_item = p_pack->ItemList.at(itmidx);
+								SXml::WNode n_goods(p_x, Helper_GetToken(PPHSC_AGPLUS_GOODSITEMS));
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_GOODS), temp_buf.Z().Cat(r_item.GoodsUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // Номенклатура
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // Количество
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), ""); // ЕдиницаИзмерения
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_COEFF), ""); // Коэффициент
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_WEIGHT), ""); // Вес
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AMOUNT), temp_buf.Z().Cat(r_item.Cost * r_item.Qtty, MKSFMTD(0, 2, 0))); // Сумма
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_PRICE), temp_buf.Z().Cat(r_item.Cost, MKSFMTD(0, 2, 0))); // Цена
+							}
+							//
+						}
 					}
 				}
 			}
 		}
 		CATCHZOK
+		xmlFreeTextWriter(p_x);
 		return ok;
 	}
 private:
@@ -8980,7 +9167,7 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int    Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, const TSVector <ObjEntry> & rGoodsList, TSCollection <BillPacket> & rList)
+	int    Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, const TSVector <ObjEntry> & rGoodsList, BillPacketCollection & rList)
 	{
 		int    ok = -1;
 #if 1 // @construction {
@@ -9014,90 +9201,116 @@ private:
 				if(ti_pos_list.getCount()) {
 					BillPacket * p_new_pack = rList.CreateNewItem(&new_pack_idx);
 					THROW_SL(p_new_pack);
-					p_new_pack->ID = pBp->Rec.ID;
-					(temp_buf = pBp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
-					STRNSCPY(p_new_pack->Code, temp_buf);
-					p_new_pack->Dtm.Set(pBp->Rec.Dt, ZEROTIME);
 					{
-						S_GUID uuid;
-						if(pBp->GetGuid(uuid) <= 0 || uuid.IsZero()) {
-							uuid.Generate();
-							THROW(P_BObj->PutGuid(pBp->Rec.ID, &uuid, 1));
-						}
-						p_new_pack->Uuid = uuid;
-					}
-					/*{
-						PPLocationPacket loc_pack;
-						RegisterTbl::Rec reg_rec;
-						p_new_pack->Client.PersonID = psn_id;
-						p_new_pack->Client.DlvrLocID = pBp->GetDlvrAddrID();
-						if(PsnObj.GetRegister(psn_id, PPREGT_TPID, pBp->Rec.Dt, &reg_rec) > 0) {
-							STRNSCPY(p_new_pack->Client.INN, reg_rec.Num);
-						}
-						if(PsnObj.GetRegister(psn_id, PPREGT_KPP, pBp->Rec.Dt, &reg_rec) > 0) {
-							STRNSCPY(p_new_pack->Client.KPP, reg_rec.Num);
-						}
-						(p_new_pack->Client.Name = psn_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
-						if(p_new_pack->Client.DlvrLocID && LocObj.GetPacket(p_new_pack->Client.DlvrLocID, &loc_pack) > 0) {
+						PPTransaction tra(1);
+						THROW(tra);
+						p_new_pack->ID = pBp->Rec.ID;
+						STRNSCPY(p_new_pack->Code, pBp->Rec.Code);
+						p_new_pack->Dtm.Set(pBp->Rec.Dt, ZEROTIME);
+						{
 							S_GUID uuid;
-							if(loc_pack.GetGuid(uuid) <= 0 || uuid.IsZero()) {
+							if(pBp->GetGuid(uuid) <= 0 || uuid.IsZero()) {
 								uuid.Generate();
-								THROW(LocObj.PutGuid(loc_pack.ID, &uuid, 1));
+								THROW(P_BObj->PutGuid(pBp->Rec.ID, &uuid, 0));
 							}
-							p_new_pack->Client.Uuid = uuid;
-							LocationCore::GetAddress(loc_pack, 0, temp_buf);
-							p_new_pack->Client.Address = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+							p_new_pack->Uuid = uuid;
 						}
-						else {
-							p_new_pack->Client.DlvrLocID = 0;
-							S_GUID uuid;
-							if(psn_pack.GetGuid(uuid) <= 0 || uuid.IsZero()) {
-								uuid.Generate();
-								THROW(PsnObj.PutGuid(psn_id, &uuid, 1));
+						p_new_pack->ContractorID = psn_pack.Rec.ID;
+						{
+							PPID dlvr_loc_id = pBp->GetDlvrAddrID();
+							LocationTbl::Rec loc_rec;
+							if(dlvr_loc_id && LocObj.Search(dlvr_loc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS) {
+								p_new_pack->DlvrLocID = dlvr_loc_id;
 							}
-							p_new_pack->Client.Uuid = uuid;
-							if(psn_pack.Rec.RLoc && LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0) {
+							else {
+								if(psn_pack.Rec.RLoc && LocObj.Search(psn_pack.Rec.RLoc, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS) {
+									p_new_pack->DlvrLocID = psn_pack.Rec.RLoc;
+								}
+								else if(psn_pack.Rec.MainLoc && LocObj.Search(psn_pack.Rec.MainLoc, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS) {
+									p_new_pack->DlvrLocID = psn_pack.Rec.MainLoc;
+								}
+							}
+						}
+						/*{
+							PPLocationPacket loc_pack;
+							RegisterTbl::Rec reg_rec;
+							p_new_pack->Client.PersonID = psn_id;
+							p_new_pack->Client.DlvrLocID = pBp->GetDlvrAddrID();
+							if(PsnObj.GetRegister(psn_id, PPREGT_TPID, pBp->Rec.Dt, &reg_rec) > 0) {
+								STRNSCPY(p_new_pack->Client.INN, reg_rec.Num);
+							}
+							if(PsnObj.GetRegister(psn_id, PPREGT_KPP, pBp->Rec.Dt, &reg_rec) > 0) {
+								STRNSCPY(p_new_pack->Client.KPP, reg_rec.Num);
+							}
+							(p_new_pack->Client.Name = psn_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+							if(p_new_pack->Client.DlvrLocID && LocObj.GetPacket(p_new_pack->Client.DlvrLocID, &loc_pack) > 0) {
+								S_GUID uuid;
+								if(loc_pack.GetGuid(uuid) <= 0 || uuid.IsZero()) {
+									uuid.Generate();
+									THROW(LocObj.PutGuid(loc_pack.ID, &uuid, 1));
+								}
+								p_new_pack->Client.Uuid = uuid;
 								LocationCore::GetAddress(loc_pack, 0, temp_buf);
 								p_new_pack->Client.Address = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 							}
-							if(p_new_pack->Client.Address.IsEmpty()) {
-								if(psn_pack.Rec.MainLoc && LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0) {
+							else {
+								p_new_pack->Client.DlvrLocID = 0;
+								S_GUID uuid;
+								if(psn_pack.GetGuid(uuid) <= 0 || uuid.IsZero()) {
+									uuid.Generate();
+									THROW(PsnObj.PutGuid(psn_id, &uuid, 1));
+								}
+								p_new_pack->Client.Uuid = uuid;
+								if(psn_pack.Rec.RLoc && LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0) {
 									LocationCore::GetAddress(loc_pack, 0, temp_buf);
 									p_new_pack->Client.Address = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 								}
+								if(p_new_pack->Client.Address.IsEmpty()) {
+									if(psn_pack.Rec.MainLoc && LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0) {
+										LocationCore::GetAddress(loc_pack, 0, temp_buf);
+										p_new_pack->Client.Address = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+									}
+								}
 							}
-						}
-					}*/
-					tiiterpos = 0;
-					for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
-						tiiterpos++;
-						uint   pos_list_item_pos = 0;
-						if(ti_pos_list.GetText(tiiterpos, temp_buf) > 0) {
-							const long ware_ident = temp_buf.ToLong();
-							Goods2Tbl::Rec goods_rec;
-							if(ware_ident > 0 && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
-								GazpromNeftBillPacket::Position item;
-								double vat_sum_in_full_price = 0.0;
-								item.GoodsID = goods_rec.ID;
-								item.ProductId = temp_buf.ToInt64();
-								item.Qtty = fabs(ti.Quantity_);
-								item.Cost = fabs(ti.NetPrice());
-								GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, item.Cost, &vat_sum_in_full_price, 0, 0, 16);
-								item.CostWoVat = (item.Cost - vat_sum_in_full_price);
-								const ObjEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ware_ident);
-								if(p_goods_entry) {
-									//double volume = 0.0;
-									//item.Volume = item.Qtty * p_goods_entry->Capacity;
-									//STRNSCPY(item.UnitName, p_goods_entry->PackagingTypeName);
-									THROW_SL(p_new_pack->ItemList.insert(&item));
-									ok = 1;
+						}*/
+						tiiterpos = 0;
+						for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
+							tiiterpos++;
+							uint   pos_list_item_pos = 0;
+							if(ti_pos_list.GetText(tiiterpos, temp_buf) > 0) {
+								const long ware_ident = temp_buf.ToLong();
+								Goods2Tbl::Rec goods_rec;
+								if(ware_ident > 0 && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
+									GazpromNeftBillPacket::Position item;
+									double vat_sum_in_full_price = 0.0;
+									item.GoodsID = goods_rec.ID;
+									item.ProductId = temp_buf.ToInt64();
+									item.Qtty = fabs(ti.Quantity_);
+									item.Cost = fabs(ti.NetPrice());
+									GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, item.Cost, &vat_sum_in_full_price, 0, 0, 16);
+									item.CostWoVat = (item.Cost - vat_sum_in_full_price);
+									const ObjEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ware_ident);
+									if(p_goods_entry) {
+										//double volume = 0.0;
+										//item.Volume = item.Qtty * p_goods_entry->Capacity;
+										//STRNSCPY(item.UnitName, p_goods_entry->PackagingTypeName);
+										THROW_SL(p_new_pack->ItemList.insert(&item));
+										ok = 1;
+									}
 								}
 							}
 						}
-					}
-					if(ok <= 0 && p_new_pack) {
-						rList.atFree(new_pack_idx);
-						p_new_pack = 0;
+						assert(p_new_pack);
+						if(p_new_pack) {
+							if(ok > 0) {
+								rList.SetupEntry(new_pack_idx, 0);
+							}
+							else {
+								rList.atFree(new_pack_idx);
+								p_new_pack = 0;
+							}
+						}
+						THROW(tra.Commit());
 					}
 				}
 			}
@@ -9106,7 +9319,7 @@ private:
 #endif // } 0 @construction
 		return ok;
 	}
-	int    Helper_MakeBillList(PPID opID, PPID locID, const TSVector <ObjEntry> & rGoodsList, TSCollection <BillPacket> & rList)
+	int    Helper_MakeBillList(PPID opID, PPID locID, const TSVector <ObjEntry> & rGoodsList, BillPacketCollection & rList)
 	{
 		int    ok = -1;
 		BillFilt b_filt;

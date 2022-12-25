@@ -25734,6 +25734,7 @@ struct PPLocationConfig {  // @transient @store(PropertyTbl)
 //   -- В таблице Person (специальный метод, иногда используемый для обозначения страны происхождения товаров)
 //
 struct PPCountryBlock {
+	PPCountryBlock();
 	PPCountryBlock & Z();
 
 	int    IsNative; // Если код страны совпадает с кодом страны фактического (или юридического,
@@ -33399,7 +33400,8 @@ public:
 	xmlTextWriter * P_X;
 private:
 	enum {
-		fExpChZnMarksGTINSER = 0x0001
+		fExpChZnMarksGTINSER = 0x0001,
+		fExpPlainAddr        = 0x0002 // @v11.5.11 see pp.ini [config] ExpNalogRuPlainAddr
 	};
 	uint   Flags;
 	SString EncBuf;
@@ -40771,7 +40773,7 @@ public:
 		PPSupplAgreement::ExchangeParam Ep;
 		SupplInterchangeFilt P;
 		SString ArName;    // Наименование поставщика
-	protected:
+	public: // @v11.5.11 protected-->public
 		enum {
 			iglfWithArCodesOnly = 0x0001
 		};

@@ -3029,6 +3029,7 @@ PPINIPARAM_PATH_CRYPTOPRO                "cryptopro" // @v10.6.3 [path] путь
 PPINIPARAM_VERIFYARTOLOCMETHODS          "verifyartolocmethods" // @v10.7.3 [config] Отладочный параметр для верификации функций преобразования статей в склады и наоборот
 PPINIPARAM_STRINGHISTORYUSAGE            "stringhistoryusage"   // @v10.7.9 [config] Использование истории ввода строк (0 - disabled, 1 - enabled, -1 - by UI config)
 PPINIPARAM_EXPCHZNGTINSER                "expchzngtinser"       // @v10.9.9 [config] Экспортировать марку честный знак как GTIN+SERIAL без остальной части
+PPINIPARAM_EXPNALOGRUPLAINADDR           "expnalogruplainaddr"  // @v11.5.11 [config] Экспортировать в форматах nalog.ru простой адрес без разбивки по элементам
 PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION "inventorystockviewrestriction" // @v10.9.12 [config] Список пользователей (по именам), которым недоступен просмотр учетного остатка в строках инвентаризации
 PPINIPARAM_PAPERLESSCHEQUE               "paperlesscheque" // @v11.3.7 [config] Разрешение на использование функции безбумажной печати чеков
 PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR     "paperlesscheque_fakeeaddr" // @v11.3.7 [config] Фейковый электронный адрес для отправки безбумажного чека.
@@ -18303,4 +18304,5 @@ PPHSC_AGPLUS_STOCK_BEG     "НачальныйОстаток"
 PPHSC_AGPLUS_MOVIN         "Приход"
 PPHSC_AGPLUS_MOVOUT        "Расход"
 PPHSC_AGPLUS_STOCK_END     "КонечныйОстаток"
+PPHSC_AGPLUS_DOCTYP_SALE   "РеализацияТоваровУслуг"
 #!}

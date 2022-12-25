@@ -1224,45 +1224,43 @@ int xmlTextWriterWriteVFormatString(xmlTextWriter * writer, const char * format,
  */
 int FASTCALL xmlTextWriterWriteString(xmlTextWriter * writer, const xmlChar * content)
 {
-	int count;
 	int sum = 0;
-	xmlLink * lk;
-	xmlTextWriterStackEntry * p;
-	xmlChar * buf;
 	if(!writer || !content)
 		return -1;
-	buf = (xmlChar *)content;
-	lk = xmlListFront(writer->nodes);
-	if(lk != 0) {
-		p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
-		if(p) {
-			switch(p->state) {
-				case XML_TEXTWRITER_NAME:
-				case XML_TEXTWRITER_TEXT:
-#if 0
-				    buf = NULL;
-				    xmlOutputBufferWriteEscape(writer->out, content, 0);
-#endif
-				    // AHTOXA buf = xmlEncodeSpecialChars(NULL, content);
-				    break;
-				case XML_TEXTWRITER_ATTRIBUTE:
-				    buf = NULL;
-				    xmlBufAttrSerializeTxtContent(writer->out->buffer, writer->doc, NULL, content);
-				    break;
-				default:
-				    break;
+	else {
+		xmlChar * buf = (xmlChar *)content;
+		xmlLink * lk = xmlListFront(writer->nodes);
+		if(lk != 0) {
+			xmlTextWriterStackEntry * p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
+			if(p) {
+				switch(p->state) {
+					case XML_TEXTWRITER_NAME:
+					case XML_TEXTWRITER_TEXT:
+	#if 0
+						buf = NULL;
+						xmlOutputBufferWriteEscape(writer->out, content, 0);
+	#endif
+						// AHTOXA buf = xmlEncodeSpecialChars(NULL, content);
+						break;
+					case XML_TEXTWRITER_ATTRIBUTE:
+						buf = NULL;
+						xmlBufAttrSerializeTxtContent(writer->out->buffer, writer->doc, NULL, content);
+						break;
+					default:
+						break;
+				}
 			}
 		}
+		if(buf) {
+			int count = xmlTextWriterWriteRaw(writer, buf);
+			if(buf != content) // buf was allocated by us, so free it 
+				SAlloc::F(buf);
+			if(count < 0)
+				return -1;
+			sum += count;
+		}
+		return sum;
 	}
-	if(buf) {
-		count = xmlTextWriterWriteRaw(writer, buf);
-		if(buf != content) // buf was allocated by us, so free it 
-			SAlloc::F(buf);
-		if(count < 0)
-			return -1;
-		sum += count;
-	}
-	return sum;
 }
 /**
  * xmlOutputBufferWriteBase64:

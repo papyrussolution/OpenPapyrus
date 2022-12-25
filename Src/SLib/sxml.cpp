@@ -207,7 +207,7 @@ int SXml::WNode::PutInner(const char * pInnerName, const char * pInnerValue)
 {
 	int    ok = 1;
 	if(State & stStarted && Lx) {
-		WNode inner(Lx, pInnerName, isempty(pInnerValue) ? 0 : pInnerValue);
+		WNode inner(Lx, pInnerName, isempty(pInnerValue) ? "" : pInnerValue); // @v11.5.11 0-->""
 	}
 	else
 		ok = 0;

@@ -6020,12 +6020,13 @@ DocNalogRu_Generator::Invoice::Invoice(DocNalogRu_Generator & rG, const PPBillPa
 
 DocNalogRu_Generator::DocNalogRu_Generator() : P_X(0), P_Doc(0), Flags(0)
 {
-	// @v10.9.9 {
+	
 	PPIniFile ini_file;
 	int    iv = 0;
-	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPCHZNGTINSER, &iv) > 0 && iv == 1)
+	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPCHZNGTINSER, &iv) > 0 && iv == 1) // @v10.9.9
 		Flags |= fExpChZnMarksGTINSER;
-	// } @v10.9.9
+	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPNALOGRUPLAINADDR, &iv) > 0 && iv == 1) // @v11.5.11
+		Flags |= fExpPlainAddr;
 }
 
 DocNalogRu_Generator::~DocNalogRu_Generator()
@@ -6438,7 +6439,6 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 {
 	int    ok = 1;
 	PPID   country_id = 0;
-	PPCountryBlock cb;
 	SString temp_buf;
 	SString addr_text;
 	LocationCore::GetAddress(rP, 0, addr_text);
@@ -6481,6 +6481,7 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 			n__.PutInner(GetToken_Ansi(PPHSC_RU_APARTM), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 	}
 	else {
+		PPCountryBlock cb;
 		if(PsnObj.LocObj.GetCountry(&rP, &country_id, &cb) > 0 && !cb.IsNative) {
 			// Иностранец
 			SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_OFFSHR));
@@ -6488,38 +6489,46 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_TEXT), EncText(addr_text));
 		}
 		else {
-			// Резидент
-			SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_RF));
-			{
-				las.GetText(PPLocAddrStruc::tZip, temp_buf);
-				if(temp_buf.IsEmpty())
-					LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
-				n_i.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_INDEX), EncText(temp_buf));
+			if(Flags & fExpPlainAddr) { // @v11.5.11
+				const char * p_country_code = cb.Code.NotEmpty() ? cb.Code.cptr() : "643";
+				SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_OFFSHR));
+				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE), p_country_code);
+				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_TEXT), EncText(addr_text));
 			}
-			temp_buf.Z().CatLongZ(regionCode, 2);
-			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_REGIONCODE), temp_buf); // req
-			//n_i.PutAttrib("Район", "");
-			if(rP.CityID && GetObjectName(PPOBJ_WORLD, rP.CityID, temp_buf) > 0 && temp_buf.NotEmpty()) {
-				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf));
-				//n_i.PutAttrib("НаселПункт", "");
+			else {
+				// Резидент
+				SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_RF));
+				{
+					las.GetText(PPLocAddrStruc::tZip, temp_buf);
+					if(temp_buf.IsEmpty())
+						LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
+					n_i.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_INDEX), EncText(temp_buf));
+				}
+				temp_buf.Z().CatLongZ(regionCode, 2);
+				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_REGIONCODE), temp_buf); // req
+				//n_i.PutAttrib("Район", "");
+				if(rP.CityID && GetObjectName(PPOBJ_WORLD, rP.CityID, temp_buf) > 0 && temp_buf.NotEmpty()) {
+					n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf));
+					//n_i.PutAttrib("НаселПункт", "");
+				}
+				else if(las.GetText(PPLocAddrStruc::tCity, temp_buf)) {
+					n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+				}
+				if(las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
+					SString street_buf;
+					if(las.GetText(PPLocAddrStruc::tStreetKind, street_buf) > 0) // @v11.5.10
+						street_buf.Space().Cat(temp_buf);
+					else
+						street_buf = temp_buf;
+					n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_STREET), EncText(street_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+				}
+				if(las.GetText(PPLocAddrStruc::tHouse, temp_buf)) {
+					n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_HOUSE), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+				}
+				//n_i.PutAttrib("Корпус", "");
+				if(las.GetText(PPLocAddrStruc::tApart, temp_buf))
+					n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_APARTM), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 			}
-			else if(las.GetText(PPLocAddrStruc::tCity, temp_buf)) {
-				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
-			}
-			if(las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
-				SString street_buf;
-				if(las.GetText(PPLocAddrStruc::tStreetKind, street_buf) > 0) // @v11.5.10
-					street_buf.Space().Cat(temp_buf);
-				else
-					street_buf = temp_buf;
-				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_STREET), EncText(street_buf.Transf(CTRANSF_OUTER_TO_INNER)));
-			}
-			if(las.GetText(PPLocAddrStruc::tHouse, temp_buf)) {
-				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_HOUSE), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
-			}
-			//n_i.PutAttrib("Корпус", "");
-			if(las.GetText(PPLocAddrStruc::tApart, temp_buf))
-				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_APARTM), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 		}
 	}
 	return ok;
