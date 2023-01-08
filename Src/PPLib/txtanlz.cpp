@@ -1,5 +1,5 @@
 // TXTANLZ.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1452,7 +1452,7 @@ int PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyzer::Rep
 					ZDELETE(p_target);
 				}
 				if(or_list.getCount()) {
-					assert(or_list.getCount() > 1); // Случай единственного терма в or_list должен быть обработан как ошибка выше
+					// @v11.6.0 assert(or_list.getCount() > 1); // Случай единственного терма в or_list должен быть обработан как ошибка выше
 					for(uint i = 0; i < or_list.getCount(); i++) {
 						assert(p_src == 0);
 						THROW(p_src = rReplacer.MakeSrcItem(p_src, Replacer::stOpTo, target_idx, or_list.at(i)->List, or_list.at(i)->GL));
@@ -3845,12 +3845,12 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 	for(SDirec sd(wildcard); sd.Next(&de) > 0;) {
 		if(de.IsFolder()) {
 			if(!de.IsSelf() && !de.IsUpFolder()) {
-				(temp_buf = src_path).SetLastSlash().Cat(de.FileName);
+				de.GetNameA(src_path, temp_buf);
 				THROW(Helper_CollectLldFileStat(temp_buf, pOutFile, pDetectTypeOutFile, pFileTypeToFreqOrderOutFile)); // @recursion
 			}
 		}
 		else {
-			(temp_buf = src_path).SetLastSlash().Cat(de.FileName);
+			de.GetNameA(src_path, temp_buf);
 			SPathStruc::NormalizePath(temp_buf, 0, dest_path);
 			SFileFormat ff;
 			int ffr = 0;
@@ -3977,7 +3977,6 @@ int PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, S
 	{
 		SString base_path, path;
 		SString temp_buf;
-		//SString outp_lines[8];
 		int    cp_sis = 0;
 		SString cp_symb;
 		SString cp_version;
@@ -3988,7 +3987,7 @@ int PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, S
 		PPWaitStart();
 		for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 			THROW(SETIFZ(p_ctx, xmlNewParserCtxt()));
-			(temp_buf = base_path).SetLastSlash().Cat(de.FileName);
+			de.GetNameA(base_path, temp_buf);
 			THROW(rBlk.Cpmp.ParseXmlSingle(p_ctx, temp_buf, &rBlk.Ut));
 			PPWaitMsg(temp_buf);
 		}
@@ -4022,7 +4021,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		PPWaitStart();
 		for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 			THROW(SETIFZ(p_ctx, xmlNewParserCtxt()));
-			(temp_buf = base_path).SetLastSlash().Cat(de.FileName);
+			de.GetNameA(base_path, temp_buf);
 			THROW(cpmp.ParseXmlSingle(p_ctx, temp_buf, pUt));
 			PPWaitMsg(temp_buf);
 		}

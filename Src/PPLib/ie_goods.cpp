@@ -1,5 +1,5 @@
 // IE_GOODS.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1974,25 +1974,28 @@ int PPGoodsImporter::ImageFileBlock::SetFile(const char * pFileName, PPID goodsI
 int PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageFileBlock & rBlk)
 {
 	int    ok = 1;
-	SString temp_buf, code_buf;
+	SString temp_buf;
+	SString code_buf;
+	SString file_name;
 	SPathStruc ps;
 	(temp_buf = pPath).SetLastSlash().Cat("*.*");
 	SDirEntry de;
 	for(SDirec direc(temp_buf); direc.Next(&de) > 0;) {
+		de.GetNameA(file_name);
 		if(de.IsFolder()) {
-			if(!de.IsSelf() && !de.IsUpFolder() && !sstreqi_ascii(de.FileName, "__SET__")) {
-				(temp_buf = pPath).SetLastSlash().Cat(de.FileName);
+			if(!de.IsSelf() && !de.IsUpFolder() && !sstreqi_ascii(file_name, "__SET__")) {
+				(temp_buf = pPath).SetLastSlash().Cat(file_name);
 				THROW(Helper_ProcessDirForImages(temp_buf, rBlk)); // @recursion
 			}
 		}
 		else {
-			(temp_buf = pPath).SetLastSlash().Cat(de.FileName);
+			(temp_buf = pPath).SetLastSlash().Cat(file_name);
 			PPWaitMsg(temp_buf);
 			SFileFormat ff;
-			const int fir = ff.Identify((temp_buf = pPath).SetLastSlash().Cat(de.FileName));
+			const int fir = ff.Identify((temp_buf = pPath).SetLastSlash().Cat(file_name));
 			if(oneof2(fir, 2, 3) && SImageBuffer::IsSupportedFormat(ff)) { // Принимаем только идентификацию по сигнатуре // @v11.3.7 SFileFormat::Webp
 				BarcodeTbl::Rec bc_rec;
-				ps.Split(de.FileName);
+				ps.Split(file_name);
 				code_buf = ps.Nam;
 				if(code_buf.Len() > 6) {
 					//
@@ -3249,29 +3252,109 @@ int ReformatIceCat(const char * pFileName)
 	}
 	return ok;
 }
+//
+//
+//
+IntermediateImportedGoodsCollection::InnerEntry::InnerEntry()
+{
+	THISZERO();
+}
 
-class IntermediateImportedGoodsCollection : private SStrGroup {
-private:
-	struct InnerEntry {
-		InnerEntry()
-		{
-			THISZERO();
-		}
-		long   Ident;
-		uint   ProcessFlags;
-		char   Code[32];
-		uint   NameP;
-		uint   GrpNameP;
-		uint   BrandNameP;
-	};
+IntermediateImportedGoodsCollection::Entry::Entry() : Ident(0), ProcessFlags(0)
+{
+}
+		
+IntermediateImportedGoodsCollection::Entry & IntermediateImportedGoodsCollection::Entry::Z()
+{
+	Ident = 0;
+	ProcessFlags = 0;
+	Name.Z();
+	Code.Z();
+	GrpName.Z();
+	BrandName.Z();
+	return *this;
+}
+
+static IMPL_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByName, i1, i2)
+{
+	int    r = 0;
+	if(pExtraData) {
+		IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
+		const IntermediateImportedGoodsCollection::InnerEntry * p1 = static_cast<const IntermediateImportedGoodsCollection::InnerEntry *>(i1);
+		const IntermediateImportedGoodsCollection::InnerEntry * p2 = static_cast<const IntermediateImportedGoodsCollection::InnerEntry *>(i2);
+		SStringU & r_textu1 = SLS.AcquireRvlStrU();
+		SStringU & r_textu2 = SLS.AcquireRvlStrU();
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		p_this->GetS(p1->NameP, r_temp_buf);
+		r_textu1.CopyFromUtf8(r_temp_buf);
+		p_this->GetS(p2->NameP, r_temp_buf);
+		r_textu2.CopyFromUtf8(r_temp_buf);
+		r = r_textu1.Cmp(r_textu2);
+	}
+	return r;
+}
 	
-	static IMPL_CMPFUNC(Entry_ByName, i1, i2)
-	{
-		int    r = 0;
-		if(pExtraData) {
-			IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
-			const InnerEntry * p1 = static_cast<const InnerEntry *>(i1);
-			const InnerEntry * p2 = static_cast<const InnerEntry *>(i2);
+static IMPL_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByGroup, i1, i2)
+{
+	int    r = 0;
+	if(pExtraData) {
+		IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
+		const IntermediateImportedGoodsCollection::InnerEntry * p1 = static_cast<const IntermediateImportedGoodsCollection::InnerEntry *>(i1);
+		const IntermediateImportedGoodsCollection::InnerEntry * p2 = static_cast<const IntermediateImportedGoodsCollection::InnerEntry *>(i2);
+		SStringU & r_textu1 = SLS.AcquireRvlStrU();
+		SStringU & r_textu2 = SLS.AcquireRvlStrU();
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		p_this->Ht.Get(p1->GrpNameP, r_temp_buf);
+		r_textu1.CopyFromUtf8(r_temp_buf);
+		p_this->Ht.Get(p2->GrpNameP, r_temp_buf);
+		r_textu2.CopyFromUtf8(r_temp_buf);
+		r = r_textu1.Cmp(r_textu2);
+		if(r == 0) {
+			p_this->GetS(p1->NameP, r_temp_buf);
+			r_textu1.CopyFromUtf8(r_temp_buf);
+			p_this->GetS(p2->NameP, r_temp_buf);
+			r_textu2.CopyFromUtf8(r_temp_buf);
+			r = r_textu1.Cmp(r_textu2);
+		}
+	}
+	return r;
+}
+	
+static IMPL_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByBrand, i1, i2)
+{
+	int    r = 0;
+	if(pExtraData) {
+		IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
+		const IntermediateImportedGoodsCollection::InnerEntry * p1 = static_cast<const IntermediateImportedGoodsCollection::InnerEntry *>(i1);
+		const IntermediateImportedGoodsCollection::InnerEntry * p2 = static_cast<const IntermediateImportedGoodsCollection::InnerEntry *>(i2);
+		SStringU & r_textu1 = SLS.AcquireRvlStrU();
+		SStringU & r_textu2 = SLS.AcquireRvlStrU();
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		p_this->Ht.Get(p1->BrandNameP, r_temp_buf);
+		r_textu1.CopyFromUtf8(r_temp_buf);
+		p_this->Ht.Get(p2->BrandNameP, r_temp_buf);
+		r_textu2.CopyFromUtf8(r_temp_buf);
+		r = r_textu1.Cmp(r_textu2);
+		if(r == 0) {
+			p_this->GetS(p1->NameP, r_temp_buf);
+			r_textu1.CopyFromUtf8(r_temp_buf);
+			p_this->GetS(p2->NameP, r_temp_buf);
+			r_textu2.CopyFromUtf8(r_temp_buf);
+			r = r_textu1.Cmp(r_textu2);
+		}
+	}
+	return r;
+}
+	
+static IMPL_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByCode, i1, i2)
+{
+	int    r = 0;
+	if(pExtraData) {
+		IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
+		const IntermediateImportedGoodsCollection::InnerEntry * p1 = static_cast<const IntermediateImportedGoodsCollection::InnerEntry *>(i1);
+		const IntermediateImportedGoodsCollection::InnerEntry * p2 = static_cast<const IntermediateImportedGoodsCollection::InnerEntry *>(i2);
+		r = strcmp(p1->Code, p2->Code);
+		if(r == 0) {
 			SStringU & r_textu1 = SLS.AcquireRvlStrU();
 			SStringU & r_textu2 = SLS.AcquireRvlStrU();
 			SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -3281,409 +3364,310 @@ private:
 			r_textu2.CopyFromUtf8(r_temp_buf);
 			r = r_textu1.Cmp(r_textu2);
 		}
-		return r;
 	}
-	static IMPL_CMPFUNC(Entry_ByGroup, i1, i2)
-	{
-		int    r = 0;
-		if(pExtraData) {
-			IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
-			const InnerEntry * p1 = static_cast<const InnerEntry *>(i1);
-			const InnerEntry * p2 = static_cast<const InnerEntry *>(i2);
-			SStringU & r_textu1 = SLS.AcquireRvlStrU();
-			SStringU & r_textu2 = SLS.AcquireRvlStrU();
-			SString & r_temp_buf = SLS.AcquireRvlStr();
-			p_this->Ht.Get(p1->GrpNameP, r_temp_buf);
-			r_textu1.CopyFromUtf8(r_temp_buf);
-			p_this->Ht.Get(p2->GrpNameP, r_temp_buf);
-			r_textu2.CopyFromUtf8(r_temp_buf);
-			r = r_textu1.Cmp(r_textu2);
-			if(r == 0) {
-				p_this->GetS(p1->NameP, r_temp_buf);
-				r_textu1.CopyFromUtf8(r_temp_buf);
-				p_this->GetS(p2->NameP, r_temp_buf);
-				r_textu2.CopyFromUtf8(r_temp_buf);
-				r = r_textu1.Cmp(r_textu2);
-			}
-		}
-		return r;
+	return r;
+}
+
+IntermediateImportedGoodsCollection::IntermediateImportedGoodsCollection() : Ht(20 * 1024, 0)
+{
+}
+	
+uint  IntermediateImportedGoodsCollection::GetCount() const { return L.getCount(); }
+const LongArray & IntermediateImportedGoodsCollection::GetGroupList() { return GroupList; }
+const LongArray & IntermediateImportedGoodsCollection::GetBrandList() { return BrandList; }
+int   IntermediateImportedGoodsCollection::GetTextById(long id, SString & rBuf) const { return Ht.GetByAssoc(id, rBuf); }
+
+int  IntermediateImportedGoodsCollection::Get(uint idx, Entry & rEntry) const
+{
+	rEntry.Z();
+	int    ok = 1;
+	if(idx < L.getCount()) {
+		const InnerEntry & r_entry = L.at(idx);
+		SStrGroup::GetS(r_entry.NameP, rEntry.Name);
+		rEntry.Ident = r_entry.Ident; // @v11.5.11
+		rEntry.ProcessFlags = r_entry.ProcessFlags; // @v11.5.11
+		rEntry.Code = r_entry.Code;
+		if(r_entry.GrpNameP)
+			Ht.Get(r_entry.GrpNameP, rEntry.GrpName);
+		if(r_entry.BrandNameP)
+			Ht.Get(r_entry.BrandNameP, rEntry.BrandName);
 	}
-	static IMPL_CMPFUNC(Entry_ByBrand, i1, i2)
-	{
-		int    r = 0;
-		if(pExtraData) {
-			IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
-			const InnerEntry * p1 = static_cast<const InnerEntry *>(i1);
-			const InnerEntry * p2 = static_cast<const InnerEntry *>(i2);
-			SStringU & r_textu1 = SLS.AcquireRvlStrU();
-			SStringU & r_textu2 = SLS.AcquireRvlStrU();
-			SString & r_temp_buf = SLS.AcquireRvlStr();
-			p_this->Ht.Get(p1->BrandNameP, r_temp_buf);
-			r_textu1.CopyFromUtf8(r_temp_buf);
-			p_this->Ht.Get(p2->BrandNameP, r_temp_buf);
-			r_textu2.CopyFromUtf8(r_temp_buf);
-			r = r_textu1.Cmp(r_textu2);
-			if(r == 0) {
-				p_this->GetS(p1->NameP, r_temp_buf);
-				r_textu1.CopyFromUtf8(r_temp_buf);
-				p_this->GetS(p2->NameP, r_temp_buf);
-				r_textu2.CopyFromUtf8(r_temp_buf);
-				r = r_textu1.Cmp(r_textu2);
-			}
-		}
-		return r;
-	}
-	static IMPL_CMPFUNC(Entry_ByCode, i1, i2)
-	{
-		int    r = 0;
-		if(pExtraData) {
-			IntermediateImportedGoodsCollection * p_this = static_cast<IntermediateImportedGoodsCollection *>(pExtraData);
-			const InnerEntry * p1 = static_cast<const InnerEntry *>(i1);
-			const InnerEntry * p2 = static_cast<const InnerEntry *>(i2);
-			r = strcmp(p1->Code, p2->Code);
-			if(r == 0) {
-				SStringU & r_textu1 = SLS.AcquireRvlStrU();
-				SStringU & r_textu2 = SLS.AcquireRvlStrU();
-				SString & r_temp_buf = SLS.AcquireRvlStr();
-				p_this->GetS(p1->NameP, r_temp_buf);
-				r_textu1.CopyFromUtf8(r_temp_buf);
-				p_this->GetS(p2->NameP, r_temp_buf);
-				r_textu2.CopyFromUtf8(r_temp_buf);
-				r = r_textu1.Cmp(r_textu2);
-			}
-		}
-		return r;
-	}
-public:
-	struct Entry {
-		enum {
-			fRemove      = 0x0001,
-			fUpdName     = 0x0002,
-			fUpdCategory = 0x0004,
-			fUpdBrand    = 0x0008
-		};
-		Entry() : Ident(0), ProcessFlags(0)
-		{
-		}
-		Entry & Z()
-		{
-			Ident = 0;
-			ProcessFlags = 0;
-			Name.Z();
-			Code.Z();
-			GrpName.Z();
-			BrandName.Z();
-			return *this;
-		}
-		long   Ident;        // @v11.5.11
-		uint   ProcessFlags; // @v11.5.11
-		SString Name;
-		SString Code;
-		SString GrpName;
-		SString BrandName;
-	};
-	IntermediateImportedGoodsCollection() : Ht(20 * 1024, 0)
-	{
-	}
-	uint   GetCount() const { return L.getCount(); }
-	int    Get(uint idx, Entry & rEntry) const
-	{
-		rEntry.Z();
-		int    ok = 1;
-		if(idx < L.getCount()) {
-			const InnerEntry & r_entry = L.at(idx);
-			SStrGroup::GetS(r_entry.NameP, rEntry.Name);
-			rEntry.Ident = r_entry.Ident; // @v11.5.11
-			rEntry.ProcessFlags = r_entry.ProcessFlags; // @v11.5.11
-			rEntry.Code = r_entry.Code;
-			if(r_entry.GrpNameP)
-				Ht.Get(r_entry.GrpNameP, rEntry.GrpName);
-			if(r_entry.BrandNameP)
-				Ht.Get(r_entry.BrandNameP, rEntry.BrandName);
-		}
-		else
-			ok = 0;
-		return ok;
-	}
-	int    Add(const Entry & rEntry)
-	{
-		int    ok = 1;
-		if(rEntry.Name.NotEmpty() && rEntry.Code.NotEmpty()) {
-			SString temp_buf;
-			(temp_buf = rEntry.Name).Utf8ToLower();
-			temp_buf.ReplaceStr("  ", " ", 0);
-			InnerEntry new_entry;
-			SStrGroup::AddS(temp_buf, &new_entry.NameP);
-			//
-			temp_buf = rEntry.GrpName;
-			temp_buf.ReplaceStr("  ", " ", 0);
-			if(temp_buf.NotEmptyS()) {
-				temp_buf.Utf8ToLower();
-				uint   v = 0;
-				uint   p = 0;
-				if(Ht.Search(temp_buf, &v, &p)) {
-					new_entry.GrpNameP = p;
-				}
-				else {
-					LastId++;
-					THROW_SL(Ht.Add(temp_buf, LastId, &p));
-					GroupList.add(LastId);
-					new_entry.GrpNameP = p;
-				}
-			}
-			//
-			temp_buf = rEntry.BrandName;
-			temp_buf.ReplaceStr("  ", " ", 0);
-			if(temp_buf.NotEmptyS()) {
-				temp_buf.Utf8ToLower();
-				uint   v = 0;
-				uint   p = 0;
-				if(Ht.Search(temp_buf, &v, &p)) {
-					new_entry.BrandNameP = p;
-				}
-				else {
-					LastId++;
-					THROW_SL(Ht.Add(temp_buf, LastId, &p));
-					BrandList.add(LastId);
-					new_entry.BrandNameP = p;
-				}
-			}
-			STRNSCPY(new_entry.Code, rEntry.Code);
-			new_entry.Ident = rEntry.Ident;
-			THROW_SL(L.insert(&new_entry));
-		}
-		else
-			ok = -1;
-		CATCHZOK
-		return ok;
-	}
-	void UpdateProcessFlags(uint idx, uint flags)
-	{
-		if(idx < L.getCount()) {
-			InnerEntry & r_entry = L.at(idx);
-			r_entry.ProcessFlags = flags;
-		}
-	}
-	int  UpdateCategory(uint idx, const SString & rText)
-	{
-		int    ok = 1;
-		if(idx < L.getCount() && rText.NotEmpty()) {
-			InnerEntry & r_entry = L.at(idx);
+	else
+		ok = 0;
+	return ok;
+}
+
+int IntermediateImportedGoodsCollection::Add(const Entry & rEntry)
+{
+	int    ok = 1;
+	if(rEntry.Name.NotEmpty() && rEntry.Code.NotEmpty()) {
+		SString temp_buf;
+		(temp_buf = rEntry.Name).Utf8ToLower();
+		temp_buf.ReplaceStr("  ", " ", 0);
+		InnerEntry new_entry;
+		SStrGroup::AddS(temp_buf, &new_entry.NameP);
+		//
+		temp_buf = rEntry.GrpName;
+		temp_buf.ReplaceStr("  ", " ", 0);
+		if(temp_buf.NotEmptyS()) {
+			temp_buf.Utf8ToLower();
 			uint   v = 0;
 			uint   p = 0;
-			if(Ht.Search(rText, &v, &p)) {
-				r_entry.GrpNameP = p;
+			if(Ht.Search(temp_buf, &v, &p)) {
+				new_entry.GrpNameP = p;
 			}
 			else {
 				LastId++;
-				THROW_SL(Ht.Add(rText, LastId, &p));
+				THROW_SL(Ht.Add(temp_buf, LastId, &p));
 				GroupList.add(LastId);
-				r_entry.GrpNameP = p;
+				new_entry.GrpNameP = p;
 			}
 		}
-		CATCHZOK
-		return ok;
-	}
-	int    UpdateBrand(uint idx, const SString & rText)
-	{
-		int    ok = 1;
-		if(idx < L.getCount() && rText.NotEmpty()) {
-			InnerEntry & r_entry = L.at(idx);
+		//
+		temp_buf = rEntry.BrandName;
+		temp_buf.ReplaceStr("  ", " ", 0);
+		if(temp_buf.NotEmptyS()) {
+			temp_buf.Utf8ToLower();
 			uint   v = 0;
 			uint   p = 0;
-			if(Ht.Search(rText, &v, &p)) {
-				r_entry.BrandNameP = p;
+			if(Ht.Search(temp_buf, &v, &p)) {
+				new_entry.BrandNameP = p;
 			}
 			else {
 				LastId++;
-				THROW_SL(Ht.Add(rText, LastId, &p));
+				THROW_SL(Ht.Add(temp_buf, LastId, &p));
 				BrandList.add(LastId);
-				r_entry.BrandNameP = p;
+				new_entry.BrandNameP = p;
 			}
 		}
-		CATCHZOK
-		return ok;
+		STRNSCPY(new_entry.Code, rEntry.Code);
+		new_entry.Ident = rEntry.Ident;
+		THROW_SL(L.insert(&new_entry));
 	}
-	void FinalizeImport()
-	{
-		GroupList.sortAndUndup();
-		BrandList.sortAndUndup();
-		Ht.BuildAssoc();
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+	
+void IntermediateImportedGoodsCollection::UpdateProcessFlags(uint idx, uint flags)
+{
+	if(idx < L.getCount()) {
+		InnerEntry & r_entry = L.at(idx);
+		r_entry.ProcessFlags = flags;
 	}
-	const LongArray & GetGroupList() { return GroupList; }
-	const LongArray & GetBrandList() { return BrandList; }
-	int    GetTextById(long id, SString & rBuf) const { return Ht.GetByAssoc(id, rBuf); }
-
-	enum {
-		ordByName = 0,
-		ordByGroup,
-		ordByBrand,
-		ordByCode
-	};
-	void Sort(int ord)
-	{
-		switch(ord) {
-			case ordByName: L.sort(PTR_CMPFUNC(Entry_ByName), this); break;
-			case ordByGroup: L.sort(PTR_CMPFUNC(Entry_ByGroup), this); break;
-			case ordByBrand: L.sort(PTR_CMPFUNC(Entry_ByBrand), this); break;
-			case ordByCode: L.sort(PTR_CMPFUNC(Entry_ByCode), this); break;
+}
+	
+int IntermediateImportedGoodsCollection::UpdateCategory(uint idx, const SString & rText)
+{
+	int    ok = 1;
+	if(idx < L.getCount() && rText.NotEmpty()) {
+		InnerEntry & r_entry = L.at(idx);
+		uint   v = 0;
+		uint   p = 0;
+		if(Ht.Search(rText, &v, &p)) {
+			r_entry.GrpNameP = p;
+		}
+		else {
+			LastId++;
+			THROW_SL(Ht.Add(rText, LastId, &p));
+			GroupList.add(LastId);
+			r_entry.GrpNameP = p;
 		}
 	}
+	CATCHZOK
+	return ok;
+}
 
-private:
-	TSVector <InnerEntry> L;
-	SymbHashTable Ht;
-	uint    LastId;
-	LongArray GroupList;
-	LongArray BrandList;
-};
-
-class UhttGoodsProcessor { // @v11.5.10 @construction
-public:
-	UhttGoodsProcessor()
-	{
+int IntermediateImportedGoodsCollection::UpdateBrand(uint idx, const SString & rText)
+{
+	int    ok = 1;
+	if(idx < L.getCount() && rText.NotEmpty()) {
+		InnerEntry & r_entry = L.at(idx);
+		uint   v = 0;
+		uint   p = 0;
+		if(Ht.Search(rText, &v, &p)) {
+			r_entry.BrandNameP = p;
+		}
+		else {
+			LastId++;
+			THROW_SL(Ht.Add(rText, LastId, &p));
+			BrandList.add(LastId);
+			r_entry.BrandNameP = p;
+		}
 	}
-	int    AddEntry(const char * pCode, const char * pName, const char * pCategory, const char * pBrand)
+	CATCHZOK
+	return ok;
+}
+	
+void IntermediateImportedGoodsCollection::FinalizeImport()
+{
+	GroupList.sortAndUndup();
+	BrandList.sortAndUndup();
+	Ht.BuildAssoc();
+}
+
+void IntermediateImportedGoodsCollection::Sort(int ord)
+{
+	switch(ord) {
+		case ordByName: L.sort(PTR_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByName), this); break;
+		case ordByGroup: L.sort(PTR_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByGroup), this); break;
+		case ordByBrand: L.sort(PTR_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByBrand), this); break;
+		case ordByCode: L.sort(PTR_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByCode), this); break;
+	}
+}
+//
+//
+//
+UhttGoodsProcessor::UhttGoodsProcessor()
+{
+}
+
+int UhttGoodsProcessor::Init()
+{
+	return 0; // @construction
+}
+	
+int UhttGoodsProcessor::AddEntry(const char * pCode, const char * pName, const char * pCategory, const char * pBrand)
+{
+	int    ok = -1;
+	if(!isempty(pCode) && !isempty(pName)) {
+		IntermediateImportedGoodsCollection::Entry entry;
+		entry.Code = pCode;
+		entry.Name = pName;
+		if(entry.Code.NotEmptyS() && entry.Name.NotEmptyS()) {
+			(entry.GrpName = pCategory).Strip();
+			(entry.BrandName = pBrand).Strip();
+			ok = L.Add(entry);
+		}
+	}
+	return ok;
+}
+
+void UhttGoodsProcessor::ProcessDupCodeList(const LongArray & rDupCodeIdxList)
+{
+	IntermediateImportedGoodsCollection::Entry entry;
+	IntermediateImportedGoodsCollection::Entry entry2;
+	SString name;
+	SString name2;
+	SString temp_buf;
+	const uint _c = rDupCodeIdxList.getCount();
+	StringSet ss_groups;
+	StringSet ss_brands;
 	{
-		int    ok = -1;
-		if(!isempty(pCode) && !isempty(pName)) {
-			IntermediateImportedGoodsCollection::Entry entry;
-			entry.Code = pCode;
-			entry.Name = pName;
-			if(entry.Code.NotEmptyS() && entry.Name.NotEmptyS()) {
-				(entry.GrpName = pCategory).Strip();
-				(entry.BrandName = pBrand).Strip();
-				ok = L.Add(entry);
+		for(uint i = 0; i < _c; i++) {
+			const uint idx = rDupCodeIdxList.get(i)-1;
+			assert(idx < L.GetCount());
+			L.Get(idx, entry);
+			if(entry.GrpName.NotEmpty())
+				ss_groups.add(entry.GrpName);
+			if(entry.BrandName.NotEmpty())
+				ss_brands.add(entry.BrandName);
+		}
+		ss_groups.sortAndUndup();
+		ss_brands.sortAndUndup();
+	}
+	{
+		SString upd_grp_name;
+		SString upd_brand_name;
+		for(uint i = 0; i < _c; i++) {
+			const uint idx = rDupCodeIdxList.get(i)-1;
+			assert(idx < L.GetCount());
+			L.Get(idx, entry);
+			upd_grp_name.Z();
+			upd_brand_name.Z();
+			(name = entry.Name).Utf8ToLower();
+			uint   process_flags = entry.ProcessFlags;
+			if(entry.GrpName.IsEmpty()) {
+				if(ss_groups.getCount()) {
+					ss_groups.get(0U, upd_grp_name);
+					process_flags |= IntermediateImportedGoodsCollection::Entry::fUpdCategory;
+				}
+			}
+			if(entry.BrandName.IsEmpty()) {
+				if(ss_brands.getCount()) {
+					ss_brands.get(0U, upd_brand_name);
+					process_flags |= IntermediateImportedGoodsCollection::Entry::fUpdBrand;
+				}
+			}
+			for(uint j = 0; j < _c; j++) {
+				if(j != i) {
+					const uint idx2 = rDupCodeIdxList.get(j)-1;
+					assert(idx2 < L.GetCount());
+					L.Get(idx2, entry2);
+					if(!(entry2.ProcessFlags & IntermediateImportedGoodsCollection::Entry::fRemove)) {
+						(name2 = entry2.Name).Utf8ToLower();
+						if(name2.Search(name, 0, 0, 0)) {
+							// Имя элемента idx полностью содержится в имени другого элемента: стало быть элемент[idx] удаляем
+							process_flags |= IntermediateImportedGoodsCollection::Entry::fRemove;
+						}
+					}
+				}
+			}
+			if(process_flags != entry.ProcessFlags) {
+				L.UpdateProcessFlags(idx, process_flags);
 			}
 		}
-		return ok;
 	}
-	int    Run()
-	{
-		int    ok = 1;
-		L.FinalizeImport();
-		if(L.GetCount()) {
-			L.Sort(IntermediateImportedGoodsCollection::ordByCode);
-			LongArray dup_code_idx_list;
-			SString prev_code;
-			SString code_pattern_buf;
-			SString new_name_buf;
-			TSCollection <IntermediateImportedGoodsCollection::Entry> dup_code_entry_list;
-			IntermediateImportedGoodsCollection::Entry entry;
-			{
-				for(uint i = 0; i < L.GetCount(); i++) {
-					L.Get(i, entry);
-					//
-					// Если в конце имени содержится '{штрихкод}' или '({штрихкод})' при этом имя не эквивалентно {штрихкод} (то есть, там еще что-то есть кроме кода),
-					// то убираем {штрихкод} из наименования.
-					//
-					uint   code_pos = 0;
-					code_pattern_buf = entry.Code;
+}
+	
+int UhttGoodsProcessor::Run()
+{
+	int    ok = 1;
+	L.FinalizeImport();
+	if(L.GetCount()) {
+		L.Sort(IntermediateImportedGoodsCollection::ordByCode);
+		LongArray dup_code_idx_list;
+		SString prev_code;
+		SString code_pattern_buf;
+		SString new_name_buf;
+		TSCollection <IntermediateImportedGoodsCollection::Entry> dup_code_entry_list;
+		IntermediateImportedGoodsCollection::Entry entry;
+		{
+			for(uint i = 0; i < L.GetCount(); i++) {
+				L.Get(i, entry);
+				//
+				// Если в конце имени содержится '{штрихкод}' или '({штрихкод})' при этом имя не эквивалентно {штрихкод} (то есть, там еще что-то есть кроме кода),
+				// то убираем {штрихкод} из наименования.
+				//
+				uint   code_pos = 0;
+				code_pattern_buf = entry.Code;
+				if(entry.Name.CmpSuffix(code_pattern_buf, 0)) {
+					(new_name_buf = entry.Name).Trim(code_pattern_buf.Len()).Strip();
+				}
+				else {
+					code_pattern_buf.Z().CatParStr(entry.Code);
 					if(entry.Name.CmpSuffix(code_pattern_buf, 0)) {
 						(new_name_buf = entry.Name).Trim(code_pattern_buf.Len()).Strip();
 					}
-					else {
-						code_pattern_buf.Z().CatParStr(entry.Code);
-						if(entry.Name.CmpSuffix(code_pattern_buf, 0)) {
-							(new_name_buf = entry.Name).Trim(code_pattern_buf.Len()).Strip();
-						}
-					}
-					if(new_name_buf.NotEmpty()) {
+				}
+				if(new_name_buf.NotEmpty()) {
 
-					}
-					if(i > 0) {
-						if(entry.Code == prev_code) {
-							if(dup_code_idx_list.getCount() == 0)
-								dup_code_idx_list.add((i-1)+1);
-							dup_code_idx_list.add(i+1);
-						}
-						else {
-							if(dup_code_idx_list.getCount()) {
-								assert(dup_code_idx_list.getCount() > 1);
-								ProcessDupCodeList(dup_code_idx_list);
-							}
-						}
-					}
-					//
-					prev_code = entry.Code;
 				}
-				if(dup_code_idx_list.getCount()) {
-					assert(dup_code_idx_list.getCount() > 1);
-					ProcessDupCodeList(dup_code_idx_list);
+				if(i > 0) {
+					if(entry.Code == prev_code) {
+						if(dup_code_idx_list.getCount() == 0)
+							dup_code_idx_list.add((i-1)+1);
+						dup_code_idx_list.add(i+1);
+					}
+					else {
+						if(dup_code_idx_list.getCount()) {
+							assert(dup_code_idx_list.getCount() > 1);
+							ProcessDupCodeList(dup_code_idx_list);
+						}
+					}
 				}
+				//
+				prev_code = entry.Code;
 			}
-		}
-		return ok;
-	}
-private:
-	void   ProcessDupCodeList(const LongArray & rDupCodeIdxList)
-	{
-		IntermediateImportedGoodsCollection::Entry entry;
-		IntermediateImportedGoodsCollection::Entry entry2;
-		SString name;
-		SString name2;
-		SString temp_buf;
-		const uint _c = rDupCodeIdxList.getCount();
-		StringSet ss_groups;
-		StringSet ss_brands;
-		{
-			for(uint i = 0; i < _c; i++) {
-				const uint idx = rDupCodeIdxList.get(i)-1;
-				assert(idx < L.GetCount());
-				L.Get(idx, entry);
-				if(entry.GrpName.NotEmpty())
-					ss_groups.add(entry.GrpName);
-				if(entry.BrandName.NotEmpty())
-					ss_brands.add(entry.BrandName);
-			}
-			ss_groups.sortAndUndup();
-			ss_brands.sortAndUndup();
-		}
-		{
-			SString upd_grp_name;
-			SString upd_brand_name;
-			for(uint i = 0; i < _c; i++) {
-				const uint idx = rDupCodeIdxList.get(i)-1;
-				assert(idx < L.GetCount());
-				L.Get(idx, entry);
-				upd_grp_name.Z();
-				upd_brand_name.Z();
-				(name = entry.Name).Utf8ToLower();
-				uint   process_flags = entry.ProcessFlags;
-				if(entry.GrpName.IsEmpty()) {
-					if(ss_groups.getCount()) {
-						ss_groups.get(0U, upd_grp_name);
-						process_flags |= IntermediateImportedGoodsCollection::Entry::fUpdCategory;
-					}
-				}
-				if(entry.BrandName.IsEmpty()) {
-					if(ss_brands.getCount()) {
-						ss_brands.get(0U, upd_brand_name);
-						process_flags |= IntermediateImportedGoodsCollection::Entry::fUpdBrand;
-					}
-				}
-				for(uint j = 0; j < _c; j++) {
-					if(j != i) {
-						const uint idx2 = rDupCodeIdxList.get(j)-1;
-						assert(idx2 < L.GetCount());
-						L.Get(idx2, entry2);
-						if(!(entry2.ProcessFlags & IntermediateImportedGoodsCollection::Entry::fRemove)) {
-							(name2 = entry2.Name).Utf8ToLower();
-							if(name2.Search(name, 0, 0, 0)) {
-								// Имя элемента idx полностью содержится в имени другого элемента: стало быть элемент[idx] удаляем
-								process_flags |= IntermediateImportedGoodsCollection::Entry::fRemove;
-							}
-						}
-					}
-				}
-				if(process_flags != entry.ProcessFlags) {
-					L.UpdateProcessFlags(idx, process_flags);
-				}
+			if(dup_code_idx_list.getCount()) {
+				assert(dup_code_idx_list.getCount() > 1);
+				ProcessDupCodeList(dup_code_idx_list);
 			}
 		}
 	}
-	IntermediateImportedGoodsCollection L;
-};
+	return ok;
+}
 
 int ReformatRazoomnick(const char * pFileName)
 {

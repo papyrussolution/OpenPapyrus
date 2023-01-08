@@ -1,5 +1,5 @@
 // SARC.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -537,7 +537,7 @@ int SArchive::Helper_AddEntries(const SString & rRoot, const SString & rSub, con
 		SDirEntry de;
 		for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {
 			if(!de.IsSelf() && !de.IsUpFolder()) {
-				de_name = de.FileName;
+				de.GetNameA(de_name);
 				if(de.IsFolder()) {
 					if(flags & aefRecursive) {
 						(file_name = local_path).Cat(de_name);

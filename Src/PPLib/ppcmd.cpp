@@ -1,5 +1,5 @@
 // PPCMD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -1890,7 +1890,7 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 				if(de.IsFile()) {
 					// @v11.0.0 PPCommandGroup * p_temp_command_group = new PPCommandGroup();
 					PPCommandGroup temp_command_group;
-					src_file_name.Z().Cat(XmlDirPath).SetLastSlash().Cat(de.FileName);
+					de.GetNameA(XmlDirPath, src_file_name);
 					if(fileExists(src_file_name)) {
 						// @v11.0.0 THROW(p_xml_parser = xmlNewParserCtxt());
 						p_doc = xmlCtxtReadFile(p_xml_parser, src_file_name, 0, XML_PARSE_NOENT);

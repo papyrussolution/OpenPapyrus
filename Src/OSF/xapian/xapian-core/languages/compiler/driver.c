@@ -588,7 +588,7 @@ extern int main(int argc, char * argv[])
 			base_dir.SetLastSlash();
 			for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {
 				if(!de.IsFolder()) {
-					(file_name_to_process = base_dir).Cat(de.FileName);
+					de.GetNameA(base_dir, file_name_to_process);
 					if(fileExists(file_name_to_process)) {
 						{
 							SPathStruc ps2(file_name_to_process);

@@ -3441,15 +3441,15 @@ private:
 			if(ExecView(dlg) == cmOK) {
 				long   temp_value = 0;
 				dlg->GetClusterData(CTL_UICFG_BITF_FLAGS, &temp_value);
-				SETFLAGBYSAMPLE(Data.BillItemTableFlags, temp_value, UserInterfaceSettings::bitfUseCommCfgForBarcodeSerialOptions);
+				SETFLAGBYSAMPLE(Data.BillItemTableFlags, UserInterfaceSettings::bitfUseCommCfgForBarcodeSerialOptions, temp_value);
 				if(!(Data.BillItemTableFlags & UserInterfaceSettings::bitfUseCommCfgForBarcodeSerialOptions)) {
-					SETFLAGBYSAMPLE(Data.BillItemTableFlags, temp_value, UserInterfaceSettings::bitfShowBarcode);
-					SETFLAGBYSAMPLE(Data.BillItemTableFlags, temp_value, UserInterfaceSettings::bitfShowSerial);
+					SETFLAGBYSAMPLE(Data.BillItemTableFlags, UserInterfaceSettings::bitfShowBarcode, temp_value);
+					SETFLAGBYSAMPLE(Data.BillItemTableFlags, UserInterfaceSettings::bitfShowSerial, temp_value);
 				}
 				else {
 					Data.BillItemTableFlags &= ~(UserInterfaceSettings::bitfShowBarcode|UserInterfaceSettings::bitfShowSerial);
 				}
-				SETFLAGBYSAMPLE(Data.BillItemTableFlags, temp_value, UserInterfaceSettings::bitfShowMargin);
+				SETFLAGBYSAMPLE(Data.BillItemTableFlags, UserInterfaceSettings::bitfShowMargin, temp_value);
 			}
 		}
 		delete dlg;

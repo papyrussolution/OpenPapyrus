@@ -35,6 +35,17 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        >
+        <ImageButton style="@style/ToolbarButton" android:id="@+id/CTL_BUTTON_GEOLOCMARK"
+            app:srcCompat="@drawable/ic_gpsloc01_pin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"></ImageButton>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="right">
         <!--

@@ -1,5 +1,5 @@
 // PPSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Модуль управления системным процессом и потоками Papyrus
 //
@@ -1701,7 +1701,7 @@ PPSession::~PPSession()
 	delete P_ObjIdentBlk;
 	delete P_DbCtx;
 	delete P_AlbatrosCfg;
-	delete P_SrStxSet; // @v9.8.10
+	delete P_SrStxSet;
 	delete P_ExtCfgDb; // @v10.6.7
 	// Don't destroy P_LogQueue (на объект может ссылаться поток PPLogMsgSession потому удалять его нельзя)
 }
@@ -2348,7 +2348,7 @@ int PPSession::Init(long flags, HINSTANCE hInst)
             epb.F_QueryPath = PPQueryPathFunc;
             SLS.SetExtraProcBlock(&epb);
 			//SLS.SetLoadStringFunc(PPLoadStringFunc);
-			//SLS.SetExpandStringFunc(PPExpandStringFunc); // @v9.0.11
+			//SLS.SetExpandStringFunc(PPExpandStringFunc);
 			//SLS.SetCallHelpFunc(PPCallHelp);
 			//SLS.SetGlobalSecureConfigFunc(PPGetGlobalSecureConfig);
 		}
@@ -2981,7 +2981,7 @@ int PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 	TCHAR  domain_user[64];
 	DWORD  duser_len = sizeof(domain_user);
 	memzero(domain_user, sizeof(domain_user));
-	THROW(OpenDictionary2(pDlb, odfDontInitSync)); // @v9.4.9 odfDontInitSync
+	THROW(OpenDictionary2(pDlb, odfDontInitSync));
 	if(::GetUserName(domain_user, &duser_len)) { // @unicodeproblem
 		PPID   user_id = 0;
 		Reference ref;
@@ -3533,7 +3533,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 	};
 	int    ok = 1, r;
 	int    debug_r = 0;
-	uint   db_state = 0; // @v9.9.0 Флаги состояния базы данных
+	uint   db_state = 0; // Флаги состояния базы данных
 	SString dict_path;
 	SString data_path;
 	SString db_symb;
@@ -4232,7 +4232,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				}
 			}
 			r_tla.SetupEventResponder(r_tla.eventresponderSysMaintenance); // @v10.6.1
-			r_tla.SetupEventResponder(r_tla.eventresponderPhoneService); // @v9.8.12
+			r_tla.SetupEventResponder(r_tla.eventresponderPhoneService);
 			r_tla.SetupEventResponder(r_tla.eventresponderMqb); // @v10.5.7
 			if(CConfig.Flags & CCFLG_DEBUG) { // @v10.4.0 (ранее информация о системном аккаунте выводилась всегда)
 				TCHAR  domain_user[128];
@@ -5428,8 +5428,8 @@ int PPAdviseEvent::SetupAndAppendToVector(const PhnSvcChannelStatus & rS, int32 
 		rAev.AddS(rS.Channel, &ChannelP);
 		rAev.AddS(rS.CallerId, &CallerIdP);
 		rAev.AddS(rS.ConnectedLineNum, &ConnectedLineNumP);
-		rAev.AddS(rS.Context, &ContextP); // @v9.9.12
-		rAev.AddS(rS.Exten, &ExtenP); // @v9.9.12
+		rAev.AddS(rS.Context, &ContextP);
+		rAev.AddS(rS.Exten, &ExtenP);
 		rAev.AddS(rS.BridgeId, &BridgeP); // @v10.0.02
 		//rAev.AddS(outer_caller_id, &ev.OuterCallerIdP); // @v10.2.3
 		rAev.insert(this);

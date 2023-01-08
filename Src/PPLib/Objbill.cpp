@@ -749,9 +749,8 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 				if(rest > 0.0) {
 					SString temp_buf;
 					SString edi_channel;
-					if(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER) {
+					if(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER)
 						pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, edi_channel);
-					}
 					const bool   ord_price_low_prior = LOGIC(GetConfig().Flags & BCF_ORDPRICELOWPRIORITY);
 					const bool   is_isales_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("ISALES-PEPSI"));
 					const bool   is_coke_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("COKE")); // @v11.5.4
@@ -1937,7 +1936,13 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 			loc_id = LConfig.Location;
 	}
 	if(loc_id) {
-		const int is_src_draft = IsDraftOp(sample_pack.Rec.OpID);
+		// @v11.6.0 {
+		SString edi_channel;
+		if(sample_pack.Rec.EdiOp == PPEDIOP_SALESORDER)
+			sample_pack.BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, edi_channel);
+		const bool is_coke_order = (sample_pack.Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("COKE"));
+		// } @v11.6.0 
+		const bool is_src_draft = IsDraftOp(sample_pack.Rec.OpID);
 		PPBillPacket::SetupObjectBlock sob;
 		if(pParam->Flags & SelAddBySampleParam::fCopyBillCode) {
 			THROW(pack.CreateBlank_WithoutCode(pParam->OpID, 0, loc_id, 1));
@@ -1946,8 +1951,14 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 		else {
 			THROW(pack.CreateBlank(pParam->OpID, 0, loc_id, 1));
 		}
+		// @v11.6.0 {
+		if(is_coke_order) {
+			// При преобразовании заказ->драфт для coca-cola передаем тег edi-канала по эстафете
+			pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, edi_channel);
+		}
+		// } @v11.6.0 
 		if(checkdate(pParam->Dt)) {
-			LDATE new_bill_dt = pParam->Dt.getactual(sample_pack.Rec.Dt);
+			const LDATE new_bill_dt = pParam->Dt.getactual(sample_pack.Rec.Dt);
 			pack.Rec.Dt = (new_bill_dt > sample_pack.Rec.Dt) ? new_bill_dt : sample_pack.Rec.Dt;
 		}
 		THROW(pack.SetupObject(sample_pack.Rec.Object, sob));
@@ -1978,11 +1989,18 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 					qtty = p_ti->Quantity_;
 				if(qtty > 0.0) {
 					new_ti.Quantity_ = qtty;
-					new_ti.Price = p_ti->NetPrice();
-					if(GetCurGoodsPrice(labs(p_ti->GoodsID), pack.Rec.LocID, GPRET_INDEF, &price, &lot_rec) > 0) {
-						if(new_ti.Price == 0.0)
-							new_ti.Price = price;
-						new_ti.Cost = lot_rec.Cost;
+					if(is_coke_order) { // @v11.6.0 Когда заказы coka-cola превращаются в драфт-документы скидку и номинальную цену транслируем один-в-один
+						new_ti.Price = p_ti->Price;
+						new_ti.Discount = p_ti->Discount;
+					}
+					else {
+						new_ti.Price = p_ti->NetPrice();
+						new_ti.Discount = 0.0;
+						if(GetCurGoodsPrice(labs(p_ti->GoodsID), pack.Rec.LocID, GPRET_INDEF, &price, &lot_rec) > 0) {
+							if(new_ti.Price == 0.0)
+								new_ti.Price = price;
+							new_ti.Cost = lot_rec.Cost;
+						}
 					}
 					new_ti.SetupSign(pack.Rec.OpID); // @v10.0.08
 					// @v11.0.2 {
@@ -5166,6 +5184,10 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 				BillTbl::Rec ord_bill_rec;
 				SString edi_channel;
 				PPID   isales_support_discount_qk = -1; // @v11.1.3 Опорная котировка для расчета скидки по заказам iSales
+				// @v11.6.0 {
+				pPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, edi_channel);
+				const bool is_coke_draft = (pPack->OpTypeID == PPOPT_DRAFTEXPEND && edi_channel.IsEqiAscii("COKE"));
+				// } @v11.6.0 
 				for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
 					double quot = 0.0;
 					QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, qk_id, pPack->Rec.CurID, pPack->Rec.Object);
@@ -5216,13 +5238,20 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 								quot = p_ti->RoundPrice(quot, cliagt.PriceRoundPrec, cliagt.PriceRoundDir,
 									(cliagt.Flags & AGTF_PRICEROUNDVAT) ? PPTransferItem::valfRoundVat : 0);
 							}
-							// @v10.5.1 {
-							if(oneof2(pPack->OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && p_ti->Price <= 0.0) {
+							if(is_coke_draft) { // @v11.6.0 {
+								const double ord_dis = p_ti->Discount;
 								p_ti->Price = R2(quot);
-								p_ti->Discount = 0.0;
+								p_ti->Discount = ord_dis;
 							}
-							else // } @v10.5.1 
-								p_ti->Discount = R2(p_ti->Price - quot);
+							else { // } @v11.6.0
+								// @v10.5.1 {
+								if(oneof2(pPack->OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && p_ti->Price <= 0.0) {
+									p_ti->Price = R2(quot);
+									p_ti->Discount = 0.0;
+								}
+								else // } @v10.5.1 
+									p_ti->Discount = R2(p_ti->Price - quot);
+							}
 							p_ti->SetupQuot(quot, 1);
 							pPack->SetupItemQuotInfo(i-1, qk_id, quot, 0);
 							ok = 1;

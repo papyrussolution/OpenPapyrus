@@ -1,5 +1,5 @@
 // PROFILE.CPP
-// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1293,7 +1293,8 @@ int PPUserProfileCore::Load(const char * pPath)
 		SDirec sd;
 		for(sd.Init((temp_buf = path).Cat("up_*.log")); sd.Next(&sde) > 0;) {
 			S_GUID db_uuid;
-			int kind = ParseUfpFileName(sde.FileName, db_uuid, dbsymb);
+			sde.GetNameA(file_name);
+			int kind = ParseUfpFileName(file_name, db_uuid, dbsymb);
 			if(kind) {
 				uint   fp = 0;
 				for(uint i = 0; i < file_set_list.getCount(); i++) {
@@ -1306,14 +1307,14 @@ int PPUserProfileCore::Load(const char * pPath)
 							if(is_dup) {
 								temp_buf = p_set->Set.Get(dup_pos).Txt;
 								unite_fileset_ss.setBuf(temp_buf);
-								unite_fileset_ss.add(sde.FileName);
+								unite_fileset_ss.add(file_name);
 								const int rr = p_set->Set.Remove(kind);
 								assert(rr > 0); // не может такого быть, чтоб элемента не было - мы только что его там видели!
 								p_set->Set.AddFast(kind, unite_fileset_ss.getBuf());
 								unite_fileset_ss.Z();
 							}
 							else {
-								p_set->Set.AddFast(kind, sde.FileName);
+								p_set->Set.AddFast(kind, file_name);
 							}
 							ok = 1;
 							fp = i+1;
@@ -1325,7 +1326,7 @@ int PPUserProfileCore::Load(const char * pPath)
 					THROW_SL(p_new_set);
 					p_new_set->DbUuid = db_uuid;
 					p_new_set->DbSymb = dbsymb;
-					p_new_set->Set.AddFast(kind, sde.FileName);
+					p_new_set->Set.AddFast(kind, file_name);
 					ok = 1;
 				}
 			}

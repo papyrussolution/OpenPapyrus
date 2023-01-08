@@ -5007,9 +5007,13 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_BARCODE01                       32988
 #define PPDV_ARROWBACK                       32989
 #define PPDV_ARROWFORWARD                    32990
-#define PPDV_LOGOPAPYRUS                     32991
-#define PPDV_LOGOUDS                         32992
-#define PPDV_LOGOVK                          32993
-#define PPDV_LOGOVETIS                       32994
-#define PPDV_LOGOCHZN                        32995
+#define PPDV_GPSLOC01_FAV                    32991
+#define PPDV_GPSLOC01_HUMAN                  32992
+#define PPDV_GPSLOC01_PIN                    32993
+#define PPDV_GPSLOC01_TARGET                 32994
+#define PPDV_LOGOPAPYRUS                     32995
+#define PPDV_LOGOUDS                         32996
+#define PPDV_LOGOVK                          32997
+#define PPDV_LOGOVETIS                       32998
+#define PPDV_LOGOCHZN                        32999
 

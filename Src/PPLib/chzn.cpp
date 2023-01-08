@@ -1,5 +1,5 @@
 // CHZN.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Реализация интерфейса к сервисам честный знак
 //
@@ -1985,14 +1985,15 @@ int ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * pDocIde
 int ChZnInterface::GetPendingIdentList(const InitBlock & rIb, StringSet & rResult)
 {
 	int    ok = -1;
-	SString path;
-	THROW(GetDebugPath(rIb, path));
-	path.SetLastSlash().Cat("pending").SetLastSlash().Cat("*");
+	SString temp_buf;
+	THROW(GetDebugPath(rIb, temp_buf));
+	temp_buf.SetLastSlash().Cat("pending").SetLastSlash().Cat("*");
 	{
 		SDirEntry de;
-		for(SDirec sd(path, 0); sd.Next(&de) > 0;) {
+		for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 			if(de.IsFile()) {
-				rResult.add(de.FileName);
+				de.GetNameA(temp_buf);
+				rResult.add(temp_buf);
 				ok = 1;
 			}
 		}

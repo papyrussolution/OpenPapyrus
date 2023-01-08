@@ -5232,9 +5232,8 @@ int PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemExt * p
 					if(!p_i->IsAccsCost())
 						pTI->Cost = 0.0;
 					if(pExt) {
-						// @v9.8.11 ClbL.GetNumber(_idx, &pExt->Clb);
-						LTagL.GetTagStr(_idx, PPTAG_LOT_CLB, pExt->Clb); // @v9.8.12
-						if(p_i->Flags & ETIEF_DISPOSE && p_p->DisposePos >= 0 && p_p->DisposePos < (int)p_i->DispList.getCount())
+						LTagL.GetTagStr(_idx, PPTAG_LOT_CLB, pExt->Clb);
+						if(p_i->Flags & ETIEF_DISPOSE && p_p->DisposePos >= 0 && p_p->DisposePos < p_i->DispList.getCountI())
 							pExt->LctRec = p_i->DispList.at(p_p->DisposePos);
 					}
 					return 1;

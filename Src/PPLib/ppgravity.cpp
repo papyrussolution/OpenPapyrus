@@ -1,5 +1,5 @@
 // PPGRAVITY.CPP
-// Copyright (c) A.Sobolev 2020
+// Copyright (c) A.Sobolev 2020, 2023
 // @codepage UTF-8
 // @experimental
 // Модуль интерфейса с языком gravity
@@ -360,7 +360,7 @@ void TestGravity()
 	SDirEntry de;
 	for(SDirec direc(temp_buf); direc.Next(&de) > 0;) {
 		if(de.IsFile()) {
-			(temp_buf = p_path).SetLastDSlash().Cat(de.FileName);
+			de.GetNameA(p_path, temp_buf);
 			GravityValue result;
 			gm.RunFile(temp_buf, &logger, &result);
 		}

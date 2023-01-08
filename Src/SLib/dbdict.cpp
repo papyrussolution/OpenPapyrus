@@ -1,5 +1,5 @@
 // DBDICT.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -540,9 +540,12 @@ int TablePartsEnum::Init(const char * pPath)
 		List.Z().setPointer(0);
 		List.Add(++i, MainPart);
 		SDirEntry fb;
-		while(direc.Next(&fb) > 0)
-			if(!(fb.Attr & 0x10))
-				List.Add(++i, (path = Dir).SetLastSlash().Cat(fb.FileName));
+		while(direc.Next(&fb) > 0) {
+			if(!(fb.Attr & 0x10)) {
+				fb.GetNameA(Dir, path);
+				List.Add(++i, path);
+			}
+		}
 		//
 		ok = 1;
 	}
@@ -617,12 +620,12 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 			sp_p.Nam = name;
 			sp_p.Ext = "*";
 			sp_p.Merge(temp_buf);
-
 			SDirEntry fb;
 			long   counter = 0;
 			for(SDirec direc(temp_buf); direc.Next(&fb) > 0;) {
 				if(!(fb.Attr & 0x10)) {
-					sp_n.Split((temp_buf = path).SetLastSlash().Cat(fb.FileName).Strip());
+					fb.GetNameA(path, temp_buf);
+					sp_n.Split(temp_buf.Strip());
 					_InnerEntry entry;
 					// @v10.7.3 @ctr MEMSZERO(entry);
 					if(sp_n.Ext == "^^^") {

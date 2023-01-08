@@ -1,5 +1,5 @@
 // V_STYLOQBINDERY.CPP
-// Copyright (c) A.Sobolev 2021, 2022
+// Copyright (c) A.Sobolev 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>

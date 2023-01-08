@@ -1,5 +1,5 @@
 // PPPOSPROTOCOL.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1407,7 +1407,9 @@ int FASTCALL PPPosProtocol::ProcessInputBlock::CheckFileForProcessedFileList(con
 	int    ok = -1;
 	if(P_ProcessedFiles) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
-		ok = P_ProcessedFiles->Search(MakeProcessedFileEntryHashString(rDe.FileName, rDe.WriteTime, rDe.Size, r_temp_buf), 0, 0);
+		SString & r_file_name = SLS.AcquireRvlStr();;
+		rDe.GetNameA(r_file_name);
+		ok = P_ProcessedFiles->Search(MakeProcessedFileEntryHashString(r_file_name, rDe.WriteTime, rDe.Size, r_temp_buf), 0, 0);
 	}
 	return ok;
 }
@@ -5272,6 +5274,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		}
 		{
 			SDirEntry de;
+			SString file_name;
 			SString done_plus_xml_suffix;
 			(done_plus_xml_suffix = p_done_suffix).DotCat("ppyp");
 			uint   prev_ssp_pos = 0;
@@ -5281,8 +5284,9 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 					(temp_buf = in_path).SetLastSlash().Cat(p_base_name).CatChar('*').DotCat("ppyp");
 					for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 						if(de.IsFile()) {
-							const size_t fnl = sstrlen(de.FileName);
-							if(fnl <= done_plus_xml_suffix.Len() || !sstreqi_ascii(de.FileName+fnl-done_plus_xml_suffix.Len(), done_plus_xml_suffix)) {
+							de.GetNameA(file_name);
+							const size_t fnl = sstrlen(file_name);
+							if(fnl <= done_plus_xml_suffix.Len() || !sstreqi_ascii(file_name.cptr()+fnl-done_plus_xml_suffix.Len(), done_plus_xml_suffix)) {
 								if(rPib.CheckFileForProcessedFileList(de) <= 0)
 									fep.Add(in_path, de);
 							}

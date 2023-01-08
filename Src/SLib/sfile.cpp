@@ -1252,6 +1252,7 @@ int SFile::Open(const char * pName, long mode)
 	int    ok = 1;
 	bool   err_inited = false; // @v11.3.3
 	SString mode_buf;
+	SString _file_name(pName);
 	// @v10.6.0 const  long   m = (mode & ~(mBinary | mDenyRead | mDenyWrite | mNoStd | mNullWrite));
 	int    oflag = 0;
 	int    pflag = S_IREAD | S_IWRITE;
@@ -1300,7 +1301,24 @@ int SFile::Open(const char * pName, long mode)
 	else
 		shflag = SH_DENYNO;
 	Close();
-	IH = sopen(pName, oflag, shflag, pflag);
+	//
+	// @v11.6.0 Добавлена предварительная обработка имени файла на предмет кодировки:
+	//   - если имя файла состоит только из ascii-символов, то все как обычно (sopen)
+	//   - если имя файла состоит из валидных utf8-символов, то преобразуем его в unicode и используем _wsopen
+	//   - в противном случае уповаем на провидение и используем sopen как есть.
+	//
+	if(_file_name.IsAscii()) {
+		IH = sopen(pName, oflag, shflag, pflag);
+	}
+	else if(_file_name.IsLegalUtf8()) {
+		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+		r_temp_buf_u.CopyFromUtf8(_file_name);
+		IH = _wsopen(r_temp_buf_u.ucptr(), oflag, shflag, pflag);
+	}
+	else {
+		IH = sopen(pName, oflag, shflag, pflag);
+	}
+	//_wsopen(
 	if(IH >= 0) {
 		if(!(mode & mNoStd)) {
 			F = fdopen(IH, mode_buf);
@@ -3484,6 +3502,7 @@ SLTEST_R(SFile)
 {
 	int    ok = 1;
 	SFile file;
+	SString file_path;
 	SString file_name(MakeOutputFilePath("open_for_write_test.txt"));
 	{ // @v11.5.9
 		// Тестирование функции ReadLineCsv()
@@ -3495,7 +3514,6 @@ SLTEST_R(SFile)
 			some text ;male;"string with ""quotes"" and semicolon;";last field
 		*/
 		SString temp_buf;
-		SString file_path;
 		(file_path = GetSuiteEntry()->OutPath).SetLastSlash().Cat("test-input-csv-semicol-utf8.csv");
 		StringSet original_line_collection;
 		original_line_collection.add("field01;поле02;field03;поле 04");
@@ -3569,7 +3587,6 @@ SLTEST_R(SFile)
 	{
 		bool   debug_mark = false;
 		const SString root_path(GetSuiteEntry()->InPath);
-		SString file_path;
 		THROW(SLTEST_CHECK_NZ(IsDirectory(root_path)));
 		{
 			// Тестирование функций распознавания типов файлов

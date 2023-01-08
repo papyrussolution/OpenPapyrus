@@ -1,5 +1,5 @@
 // STYLOQ.CPP
-// Copyright (c) A.Sobolev 2021, 2022
+// Copyright (c) A.Sobolev 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -204,11 +204,13 @@ static const SIntToSymbTabEntry StyloQConfigTagNameList[] = {
 	{ StyloQConfig::tagPrefLanguage,    "preflang" }, // @v11.2.5 (private config) Предпочтительный язык
 	{ StyloQConfig::tagDefFace,         "defface"  }, // @v11.2.5 (private config) Лик, используемый клиентом по умолчанию
 	{ StyloQConfig::tagRole,            "role"  }, // @v11.2.8 
+	{ StyloQConfig::tagCliFlags,        "cliflags" }, // @v11.6.0
 };
 
-/*static*/SJson * StyloQConfig::MakeTransmissionJson(const char * pSrcJson)
+/*static*/SJson * StyloQConfig::MakeTransmissionJson_(const char * pSrcJson, const void * pClientPacket)
 {
 	SJson * p_result = 0;
+	const StyloQCore::StoragePacket * p_cli_pack = static_cast<const StyloQCore::StoragePacket *>(pClientPacket); // @v11.6.0
 	SString temp_buf(pSrcJson);
 	THROW(temp_buf.NotEmptyS());
 	{
@@ -228,6 +230,21 @@ static const SIntToSymbTabEntry StyloQConfigTagNameList[] = {
 				cfg_pack.Set(StyloQConfig::tagExpiryPeriodSec, temp_buf.Z().Cat(ep));
 			}
 		}
+		// @v11.6.0 {
+		if(p_cli_pack && p_cli_pack->IsValid()) {
+			SBinaryChunk bch_cli_cfg;
+			if(p_cli_pack->Pool.Get(SSecretTagPool::tagPrivateConfig, &bch_cli_cfg) > 0) {
+				StyloQConfig cli_cfg_pack;
+				if(cli_cfg_pack.FromJson(bch_cli_cfg.ToRawStr(temp_buf)) && cli_cfg_pack.Get(StyloQConfig::tagCliFlags, temp_buf)) {
+					const long cli_flags = temp_buf.ToLong();
+					if(cli_flags & (clifSvcGPS|clifPsnAdrGPS)) {
+						temp_buf.Z().Cat(cli_flags & (clifSvcGPS|clifPsnAdrGPS));
+						cfg_pack.Set(StyloQConfig::tagCliFlags, temp_buf);
+					}
+				}
+			}
+		}
+		// } @v11.6.0 
 		p_result = cfg_pack.ToJson();
 	}
 	CATCH
@@ -236,10 +253,10 @@ static const SIntToSymbTabEntry StyloQConfigTagNameList[] = {
 	return p_result;
 }
 
-/*static*/int StyloQConfig::MakeTransmissionJson(const char * pSrcJson, SString & rTransmissionJson)
+/*static*/int StyloQConfig::MakeTransmissionJson(const char * pSrcJson, const void * pClientPacket, SString & rTransmissionJson)
 {
 	int    ok = 0;
-	SJson * p_js = MakeTransmissionJson(pSrcJson);
+	SJson * p_js = StyloQConfig::MakeTransmissionJson_(pSrcJson, pClientPacket);
 	if(p_js) {
 		p_js->ToStr(rTransmissionJson);
 		ZDELETE(p_js);
@@ -578,7 +595,7 @@ int StyloQFace::ToJson(bool forTransmission, SString & rResult) const
 /*static*/int StyloQFace::MakeTransmissionJson(PPID id, const SBinaryChunk & rOwnIdent, const char * pSrcJson, SString & rTransmissionJson)
 {
 	int    ok = 0;
-	SJson * p_js = MakeTransmissionJson(id, rOwnIdent, pSrcJson);
+	SJson * p_js = StyloQFace::MakeTransmissionJson(id, rOwnIdent, pSrcJson);
 	if(p_js) {
 		p_js->ToStr(rTransmissionJson);
 		ZDELETE(p_js);
@@ -1667,6 +1684,21 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid, int b
 	return p_result;
 }
 
+StyloQCore::StoragePacket::StoragePacket() : Signature(_PPConst.Signature_StyloQStoragePacket)
+{
+}
+
+StyloQCore::StoragePacket::StoragePacket(const StoragePacket & rS) : Signature(_PPConst.Signature_StyloQStoragePacket), Rec(rS.Rec), Pool(rS.Pool)
+{
+}
+
+StyloQCore::StoragePacket & FASTCALL StyloQCore::StoragePacket::operator = (const StoragePacket & rS)
+{
+	Rec = rS.Rec;
+	Pool = rS.Pool;
+	return *this;
+}
+
 bool FASTCALL StyloQCore::StoragePacket::IsEq(const StyloQCore::StoragePacket & rS) const
 {
 	#define FE(f) if(Rec.f != rS.Rec.f) return false;
@@ -1687,6 +1719,7 @@ bool FASTCALL StyloQCore::StoragePacket::IsEq(const StyloQCore::StoragePacket & 
 bool StyloQCore::StoragePacket::IsValid() const
 {
 	bool   ok = true;
+	THROW(Signature == _PPConst.Signature_StyloQStoragePacket); // @v11.6.0
 	THROW(oneof8(Rec.Kind, kNativeService, kForeignService, kDocIncoming, kDocOutcoming, kClient, kSession, kFace, kCounter))
 	THROW(oneof2(Rec.Kind, kNativeService, kForeignService) || !(Rec.Flags & styloqfMediator));
 	THROW(oneof2(Rec.Kind, kDocIncoming, kDocOutcoming) || !(Rec.Flags & styloqfDocStatusFlags));
@@ -2615,13 +2648,14 @@ int PPObjStyloQBindery::EditConfig(PPID id)
 //
 //
 struct StyloQAssignObjParam {
-	StyloQAssignObjParam() : StqID(0), AutoMatched(false)
+	StyloQAssignObjParam() : StqID(0), AutoMatched(false), CliFlags(0)
 	{
 	}
 	PPID   StqID;
 	PPObjID Oid;
 	bool   AutoMatched;
 	uint8  Reserve[3]; // @alignment
+	long   CliFlags;
 	SString EntryInfo;
 };
 
@@ -2640,6 +2674,11 @@ public:
 		SetupObjListCombo(this, CTLSEL_STQCLIMATCH_OT, Data.Oid.Obj, &StyloQCore::MakeLinkObjTypeList(false, obj_type_list));
 		SetupObjGroupCombo(Data.Oid.Obj);
 		setCtrlString(CTL_STQCLIMATCH_INFO, Data.EntryInfo);
+		// @v11.6.0 {
+		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 0, StyloQConfig::clifSvcGPS);
+		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 1, StyloQConfig::clifPsnAdrGPS);
+		SetClusterData(CTL_STQCLIMATCH_CFLAGS, Data.CliFlags);
+		// } @v11.6.0 
 		// @v11.5.10 {
 		{
 			if(Data.AutoMatched)
@@ -2656,6 +2695,7 @@ public:
 		int    ok = 1;
 		getCtrlData(CTLSEL_STQCLIMATCH_OT, &Data.Oid.Obj);
 		getCtrlData(CTLSEL_STQCLIMATCH_OBJ, &Data.Oid.Id);
+		GetClusterData(CTL_STQCLIMATCH_CFLAGS, &Data.CliFlags); // @v11.6.0
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
@@ -2977,17 +3017,38 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 int PPObjStyloQBindery::AssignObjToClientEntry(PPID id)
 {
 	int    ok = -1;
+	SString temp_buf;
 	StyloQAssignObjParam param;
 	StyloQCore::StoragePacket pack;
 	if(id && P_Tbl->GetPeerEntry(id, &pack) > 0) {
 		if(pack.Rec.Kind == StyloQCore::kClient) {
+			const uint cfg_tag = SSecretTagPool::tagPrivateConfig;
 			param.StqID = pack.Rec.ID;
 			param.Oid.Set(pack.Rec.LinkObjType, pack.Rec.LinkObjID);
 			param.EntryInfo.EncodeMime64(pack.Rec.BI, sizeof(pack.Rec.BI));
 			param.AutoMatched = LOGIC(pack.Rec.Flags & StyloQCore::styloqfAutoObjMatching); // @v11.5.10
+
+			StyloQConfig cfg_pack;
+			SBinaryChunk bin_chunk;
+			if(pack.Pool.Get(cfg_tag, &bin_chunk)) {
+				if(cfg_pack.FromJson(bin_chunk.ToRawStr(temp_buf))) {
+					if(cfg_pack.Get(StyloQConfig::tagCliFlags, temp_buf))
+						param.CliFlags = temp_buf.ToLong();
+				}
+			}
 			if(PPDialogProcBody <StyloQAssignObjDialog, StyloQAssignObjParam> (&param) > 0) {
 				pack.Rec.LinkObjType = param.Oid.Obj;
 				pack.Rec.LinkObjID = param.Oid.Id;
+				{
+					temp_buf.Z();
+					if(param.CliFlags)
+						temp_buf.Cat(param.CliFlags);
+					cfg_pack.Set(StyloQConfig::tagCliFlags, temp_buf);
+					if(cfg_pack.ToJson(temp_buf)) {
+						bin_chunk.Put(temp_buf, temp_buf.Len());
+						pack.Pool.Put(cfg_tag, bin_chunk);
+					}
+				}
 				if(P_Tbl->PutPeerEntry(&id, &pack, 1))
 					ok = 1;
 				else
@@ -4299,7 +4360,7 @@ int PPStyloQInterchange::ServiceSelfregisterInMediator(const StyloQCore::Storage
 		assert(own_ident.Len() > 0);
 		own_ident.Mime64(own_ident_hex);
 		THROW_PP(rOwnPack.Pool.Get(SSecretTagPool::tagConfig, &temp_bch), PPERR_SQ_UNDEFOWNCFG);
-		THROW(StyloQConfig::MakeTransmissionJson(temp_bch.ToRawStr(temp_buf), my_transmission_cfg_json_buf)); // @todo @err
+		THROW(StyloQConfig::MakeTransmissionJson(temp_bch.ToRawStr(temp_buf), 0, my_transmission_cfg_json_buf)); // @todo @err
 		//p_js_adv_cfg = StyloQConfig::MakeTransmissionJson(temp_buf);
 		THROW(my_transmission_cfg.FromJson(my_transmission_cfg_json_buf)); // @todo @err
 		if(rOwnPack.Pool.Get(SSecretTagPool::tagSelfyFace, &temp_bch)) {
@@ -4547,7 +4608,7 @@ int PPStyloQInterchange::Registration_ClientRequest(RoundTripBlock & rB)
 	return ok;
 }
 
-int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, const StyloQProtocol & rPack)
+int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, const StyloQProtocol & rPack, StyloQCore::StoragePacket * pCliPack)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -4591,6 +4652,7 @@ int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, co
 			}*/
 			// } @debug do remove after debugging!
 			THROW(P_T->PutPeerEntry(&id, &new_storage_pack, 1));
+			ASSIGN_PTR(pCliPack, new_storage_pack); // @v11.6.0
 		}
 		else {
 			// Попытка клиента повторно зарегистрироваться c другими параметрами авторизации: в общем случае это - ошибка. Клиент не может менять свои регистрационные данные.
@@ -4599,6 +4661,7 @@ int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, co
 			// Attention! Логическая ошибка: клиент сейча генерирует пару {s, v} каждый раз новую, потому сравнение с существующими значениями неверно!
 			//
 			SBinaryChunk temp_bc;
+			ASSIGN_PTR(pCliPack, ex_storage_pack); // @v11.6.0
 			if(!ex_storage_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_bc) || !(temp_bc == cli_ident))
 				ok = 0;
 			else if(!ex_storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifier, &temp_bc) || !(temp_bc == srp_v))
@@ -4629,6 +4692,7 @@ int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, co
 		}*/
 		// } @debug do remove after debugging!
 		THROW(P_T->PutPeerEntry(&id, &new_storage_pack, 1));
+		ASSIGN_PTR(pCliPack, new_storage_pack); // @v11.6.0
 	}
 	CATCHZOK
 	return ok;
@@ -9837,10 +9901,11 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			}
 		}
 		else if(command.IsEqiAscii("getconfig") || command.IsEqiAscii("getface")) {
+			THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0); // @v11.6.0
 			if(own_pack.Pool.Get(SSecretTagPool::tagConfig, &reply_config)) {
 				assert(reply_config.Len());
 				SString transmission_cfg_json;
-				if(StyloQConfig::MakeTransmissionJson(reply_config.ToRawStr(temp_buf), transmission_cfg_json)) {
+				if(StyloQConfig::MakeTransmissionJson(reply_config.ToRawStr(temp_buf), &cli_pack, transmission_cfg_json)) {
 					reply_config.Z().Put(transmission_cfg_json.cptr(), transmission_cfg_json.Len());
 					cmd_reply_ok = true;
 				}
@@ -10832,10 +10897,11 @@ public:
 							B.P_Mqbc->Ack(env.DeliveryTag, 0);
 							if(tp.Read(env.Msg, &sess_secret)) {
 								if(tp.GetH().Type == PPSCMD_SQ_SRPREGISTER) {
+									StyloQCore::StoragePacket cli_pack; // @v11.6.0
 									int32 reply_status = 0;
 									reply_status_text.Z();
 									reply_tp.Z();
-									if(P_Ic->Registration_ServiceReply(B, tp)) {
+									if(P_Ic->Registration_ServiceReply(B, tp, &cli_pack)) {
 										SBinaryChunk bc;
 										SBinaryChunk own_ident;
 										B.StP.Pool.Get(SSecretTagPool::tagSvcIdent, &own_ident); // @v11.3.8
@@ -10860,7 +10926,7 @@ public:
 										if(B.StP.Pool.Get(SSecretTagPool::tagConfig, &bc)) {
 											assert(bc.Len());
 											SString transmission_cfg_json;
-											if(StyloQConfig::MakeTransmissionJson(bc.ToRawStr(temp_buf), transmission_cfg_json)) {
+											if(StyloQConfig::MakeTransmissionJson(bc.ToRawStr(temp_buf), &cli_pack, transmission_cfg_json)) {
 												bc.Z().Put(transmission_cfg_json.cptr(), transmission_cfg_json.Len());
 												reply_tp.P.Put(SSecretTagPool::tagConfig, bc);
 											}
@@ -12979,4 +13045,3 @@ index:
 }
 
 #endif // } 0
-

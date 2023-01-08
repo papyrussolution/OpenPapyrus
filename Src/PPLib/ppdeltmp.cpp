@@ -1,5 +1,5 @@
 // PPDELTMP.CPP
-// Copyright (c) A.Osolotkin, A.Sobolev 2001-2003, 2005, 2007, 2013, 2015, 2016, 2017, 2018, 2020, 2022
+// Copyright (c) A.Osolotkin, A.Sobolev 2001-2003, 2005, 2007, 2013, 2015, 2016, 2017, 2018, 2020, 2022, 2023
 // @codepage UTF-8
 // Удаление временных файлов
 //
@@ -12,13 +12,15 @@ DeleteTmpFilesParam::DeleteTmpFilesParam() : Flags(0), InDays(0), OutDays(0)
 
 static void FASTCALL RemoveTempDataFiles(PPID pathID)
 {
-	SString src_path, src_file_name;
+	SString src_path;
+	SString src_file_name;
 	PPGetPath(pathID, src_path);
 	src_path.SetLastSlash();
 	(src_file_name = src_path).Cat("tmp?????.btr");
 	SDirEntry sde;
 	for(SDirec sd(src_file_name); sd.Next(&sde) > 0;) {
-		SFile::Remove((src_file_name = src_path).Cat(sde.FileName));
+		sde.GetNameA(src_path, src_file_name);
+		SFile::Remove(src_file_name);
 	}
 }
 
@@ -33,7 +35,8 @@ static void _RemoveTempFiles(PPID pathID, const char * pExt, const char * pFileP
 		src_file_name.Cat("*.").Cat(pExt);
 		SDirEntry sde;
 		for(SDirec sd(src_file_name); sd.Next(&sde) > 0;) {
-			SFile::Remove((src_file_name = src_path).Cat(sde.FileName));
+			sde.GetNameA(src_path, src_file_name);
+			SFile::Remove(src_file_name);
 		}
 	}
 }
@@ -51,8 +54,10 @@ static void FASTCALL RemoveInOutFiles(long diff_dt, PPID pathID)
 		(src_path = base_path).SetLastSlash();
 		(src_file_name = src_path).Cat("*.pps");
 		for(SDirec sd(src_file_name); sd.Next(&sde) > 0;)
-			if(diffdate(cur_dt, sde.WriteTime.d) >= diff_dt)
-				SFile::Remove((src_file_name = src_path).Cat(sde.FileName));
+			if(diffdate(cur_dt, sde.WriteTime.d) >= diff_dt) {
+				sde.GetNameA(src_path, src_file_name);
+				SFile::Remove(src_file_name);
+			}
 	}
 	// @v11.2.12 {
 	// Удаляем старые файлы из backup-каталога
@@ -60,8 +65,10 @@ static void FASTCALL RemoveInOutFiles(long diff_dt, PPID pathID)
 		(src_path = base_path).SetLastSlash().Cat("ppos-backup").SetLastSlash();
 		(src_file_name = src_path).Cat("*.pps");
 		for(SDirec sd(src_file_name); sd.Next(&sde) > 0;)
-			if(diffdate(cur_dt, sde.WriteTime.d) >= diff_dt)
-				SFile::Remove((src_file_name = src_path).Cat(sde.FileName));
+			if(diffdate(cur_dt, sde.WriteTime.d) >= diff_dt) {
+				sde.GetNameA(src_path, src_file_name);
+				SFile::Remove(src_file_name);
+			}
 	}
 	// } @v11.2.12
 }
@@ -70,8 +77,10 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 {
 	int    ok = 1;
 	SString _temp_path;
-	SString tmp_dir, tmp_sub_dir;
-	SString tmp_path, tmp_file;
+	SString tmp_dir;
+	SString tmp_sub_dir;
+	SString tmp_path;
+	SString tmp_file;
 	SDirEntry sde;
 	PPGetPath(PPPATH_TEMP, _temp_path);
 	if(_temp_path.NotEmptyS())
@@ -84,16 +93,22 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 		if(_temp_path.NotEmpty()) {
 			tmp_dir = _temp_path;
 			(tmp_sub_dir = tmp_dir).Cat("*.*");
+			SString file_name;
 			for(SDirec sd(tmp_sub_dir, 1); sd.Next(&sde) > 0;) {
 				if(sde.IsFolder() && !sde.IsSelf() && !sde.IsUpFolder()) {
-					int    need_remove = 1;
-					for(const char * p = sde.FileName; *p; p++)
-						if(!isdec(*p)) {
-							need_remove = 0;
-							break;
+					sde.GetNameA(file_name);
+					if(file_name.NotEmpty()) {
+						bool need_remove = true;
+						for(const char * p = file_name; *p; p++) {
+							if(!isdec(*p)) {
+								need_remove = false;
+								break;
+							}
 						}
-					if(need_remove) {
-						::RemoveDir((tmp_path = tmp_dir).Cat(sde.FileName).SetLastSlash());
+						if(need_remove) {
+							sde.GetNameA(tmp_dir, tmp_path);
+							::RemoveDir(tmp_path.SetLastSlash());
+						}
 					}
 				}
 			}
@@ -132,8 +147,10 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				//
 				(tmp_sub_dir = _temp_path).Cat("oimg????.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3))
-						etc_to_rmv_files.add((tmp_path = _temp_path).Cat(sde.FileName));
+					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3)) {
+						sde.GetNameA(_temp_path, tmp_path);
+						etc_to_rmv_files.add(tmp_path);
+					}
 				}
 			}
 			{
@@ -143,8 +160,10 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				(tmp_dir = _temp_path).Cat("img").SetLastSlash();
 				(tmp_sub_dir = tmp_dir).Cat("pst?????.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3))
-						etc_to_rmv_files.add((tmp_path = tmp_dir).Cat(sde.FileName));
+					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3)) {
+						sde.GetNameA(tmp_dir, tmp_path);
+						etc_to_rmv_files.add(tmp_path);
+					}
 				}
 			}
 			{
@@ -153,8 +172,10 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				//
 				(tmp_sub_dir = _temp_path).Cat("*.xml");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3))
-						etc_to_rmv_files.add((tmp_path = _temp_path).Cat(sde.FileName));
+					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3)) {
+						sde.GetNameA(_temp_path, tmp_path);
+						etc_to_rmv_files.add(tmp_path);
+					}
 				}
 			}
 			{
@@ -163,8 +184,10 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				//
 				(tmp_sub_dir = _temp_path).Cat("wb*.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3))
-						etc_to_rmv_files.add((tmp_path = _temp_path).Cat(sde.FileName));
+					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3)) {
+						sde.GetNameA(_temp_path, tmp_path);
+						etc_to_rmv_files.add(tmp_path);
+					}
 				}
 			}
 			for(uint sp = 0; etc_to_rmv_files.get(&sp, tmp_path);) {

@@ -145,12 +145,9 @@ void net_get_error(char * buf, size_t buf_len, char * error, size_t error_len, u
 		memcpy(sqlstate, SQLSTATE_UNKNOWN, SQLSTATE_LENGTH);
 	}
 }
-
-/*****************************************************************************
-** read a packet from server. Give error message if socket was down
-** or packet is an error message
-*****************************************************************************/
-
+// 
+// read a packet from server. Give error message if socket was down or packet is an error message
+// 
 ulong FASTCALL ma_net_safe_read(MYSQL * mysql)
 {
 	NET * net = &mysql->net;
@@ -196,7 +193,6 @@ restart:
 	}
 	return len;
 }
-
 /*
    Report progress to the client
 
@@ -249,9 +245,9 @@ ulong FASTCALL net_field_length(uchar ** packet)
 	(*packet) += 9; /* Must be 254 when here */
 	return (ulong)uint4korr(pos+1);
 }
-
-/* Same as above, but returns ulonglong values */
-
+// 
+// Same as above, but returns ulonglong values
+// 
 static uint64 net_field_length_ll(uchar ** packet)
 {
 	reg1 uchar * pos = *packet;

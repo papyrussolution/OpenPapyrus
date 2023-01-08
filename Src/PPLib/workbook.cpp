@@ -1,5 +1,5 @@
 // WORKBOOK.CPP
-// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Модуль управления рабочими книгами (произвольный контент, как правило, предназначенный для отображения в web-browser'е
 //
@@ -2000,7 +2000,7 @@ int PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpParam &
 		for(SDirec direc(wildcard, 0); direc.Next(&de) > 0;) {
 			if(de.IsFile()) {
 				PPWorkbookPacket pack;
-				name_buf = de.FileName;
+				de.GetNameA(name_buf);
 				PPWaitMsg(name_buf);
 				ps.Split(name_buf);
 				name_buf = ps.Nam;
@@ -2036,7 +2036,7 @@ int PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpParam &
 						else {
 							pack.Rec.Type = PPWBTYP_PAGE;
 						}
-						(file_name = rBasePath).SetLastSlash().Cat(de.FileName);
+						de.GetNameA(rBasePath, file_name);
 						pack.F.Init(Obj);
 						if(id)
 							pack.F.Load(id, 0L);
@@ -2058,11 +2058,11 @@ int PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpParam &
 	if(rParam.Flags & rParam.fRecursive) {
 		(wildcard = rBasePath).SetLastSlash().Cat("*.*");
 		for(SDirec direc(wildcard, 1); direc.Next(&de) > 0;) {
-			if(de.Attr & 0x10 && !sstreq(de.FileName, ".") && !sstreq(de.FileName, "..")) {
+			de.GetNameA(name_buf);
+			if(de.Attr & 0x10 && name_buf != "." && name_buf != "..") {
 				PPID   root_id = rootID;
 				if(rParam.Flags & rParam.fDirAsFolder && !(rParam.Flags & rParam.fMedia)) {
 					PPWorkbookPacket pack;
-					name_buf = de.FileName;
 					PPWaitMsg(name_buf);
 					ps.Split(name_buf);
 					name_buf = ps.Nam;
@@ -2094,7 +2094,7 @@ int PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpParam &
 						if(id >= 0) {
 							pack.Rec.ParentID = rootID;
 							pack.Rec.Type = PPWBTYP_PAGE;
-							(file_name = rBasePath).SetLastSlash().Cat(de.FileName);
+							de.GetNameA(rBasePath, file_name);
 							pack.F.Init(Obj);
 							if(id)
 								pack.F.Load(id, 0L);
@@ -2114,7 +2114,7 @@ int PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpParam &
 						}
 					}
 				}
-				(wildcard = rBasePath).SetLastSlash().Cat(de.FileName);
+				de.GetNameA(rBasePath, wildcard);
 				THROW(Helper_Import(root_id, rParam, wildcard, rNakedWc)); // @recursion
 			}
 		}

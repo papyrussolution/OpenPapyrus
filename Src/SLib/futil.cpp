@@ -1,5 +1,5 @@
 // FUTIL.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -633,7 +633,7 @@ int RemoveDir(const char * pDir)
 		SDirEntry de;
 		for(SDirec dir((wildcard = pDir).SetLastSlash().Cat("*.*")); ok && dir.Next(&de) > 0;) {
 			if(!de.IsSelf() && !de.IsUpFolder()) {
-				(path = pDir).SetLastSlash().Cat(de.FileName);
+				de.GetNameA(pDir, path);
 				ok = de.IsFolder() ? RemoveDir(path) /* @recursion */ : SFile::Remove(path);
 			}
 		}
@@ -789,7 +789,7 @@ SLTEST_R(Directory)
 		for(SDirec dir(temp_buf, 0); dir.Next(&de) > 0;) {
 			if(!de.IsFolder()) {
 				sz += de.Size;
-				(temp_buf = test_dir_with_files).SetLastSlash().Cat(de.FileName);
+				de.GetNameA(test_dir_with_files, temp_buf);
 				THROW(SLTEST_CHECK_Z(::access(temp_buf, 0)));
 				THROW(SLTEST_CHECK_NZ(Win_IsFileExists(temp_buf)));
 				file_list.insert(newStr(temp_buf));

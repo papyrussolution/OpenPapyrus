@@ -217,6 +217,7 @@ int Use001()
 #define USE_IMPL_DL6ICLS_PPObjSCard
 #define USE_IMPL_DL6ICLS_NaturalTokenArray
 #define USE_IMPL_DL6ICLS_NaturalTokenRecognizer
+#define USE_IMPL_DL6ICLS_UnttGoodsProcessor // @v11.5.12
 
 #include "..\rsrc\dl600\ppifc_auto.cpp"
 //
@@ -300,7 +301,7 @@ int32 DL6ICLS_PapyrusTextAnalyzer::Init(SString & ruleFileName)
 {
 	int    ok = 1;
 	//__ITextAnalyzerBlock * p_obj = (__ITextAnalyzerBlock *)ExtraPtr;
-	PPTextAnalyzerWrapper * p_obj = (PPTextAnalyzerWrapper *)ExtraPtr;
+	PPTextAnalyzerWrapper * p_obj = static_cast<PPTextAnalyzerWrapper *>(ExtraPtr);
 	if(p_obj) {
 		if(!p_obj->Init(ruleFileName, PPTextAnalyzerWrapper::fEncInner))
 			ok = RaiseAppError();
@@ -337,6 +338,63 @@ SString & DL6ICLS_PapyrusTextAnalyzer::ReplaceString(SString & rInputText)
 		*/
 	}
 	return RetStrBuf;
+}
+//
+//
+//
+DL6_IC_CONSTRUCTOR(UnttGoodsProcessor, DL6ICLS_UnttGoodsProcessor_VTab)
+{
+	ExtraPtr = new UhttGoodsProcessor;
+}
+
+DL6_IC_DESTRUCTOR(UnttGoodsProcessor)
+{
+	delete static_cast<UhttGoodsProcessor *>(ExtraPtr);
+}
+//
+// Interface IUnttGoodsProcessor implementation
+//
+int32 DL6ICLS_UnttGoodsProcessor::Init()
+{
+	int32   ok = 0;
+	if(ExtraPtr) {
+		ok = static_cast<UhttGoodsProcessor *>(ExtraPtr)->Init();
+	}
+	return ok;
+}
+
+int32 DL6ICLS_UnttGoodsProcessor::Put(UhttGoodsProcessorEntry* pEntry)
+{
+	int32   ok = 0;
+	if(ExtraPtr && pEntry) {
+		SString utf8_code;
+		SString utf8_name;
+		SString utf8_category;
+		SString utf8_brand;
+		utf8_code.CopyUtf8FromUnicode(pEntry->Code, sstrlen(pEntry->Code), 0);
+		utf8_name.CopyUtf8FromUnicode(pEntry->Name, sstrlen(pEntry->Name), 0);
+		utf8_category.CopyUtf8FromUnicode(pEntry->Category, sstrlen(pEntry->Category), 0);
+		utf8_brand.CopyUtf8FromUnicode(pEntry->Brand, sstrlen(pEntry->Brand), 0);
+		ok = static_cast<UhttGoodsProcessor *>(ExtraPtr)->AddEntry(utf8_code, utf8_name, utf8_category, utf8_brand);
+	}
+	return ok;
+}
+
+int32 DL6ICLS_UnttGoodsProcessor::Run()
+{
+	return ExtraPtr ? static_cast<UhttGoodsProcessor *>(ExtraPtr)->Run() : 0;
+}
+
+int32 DL6ICLS_UnttGoodsProcessor::GetResultCount()
+{
+	// Your code here...
+	return 0;
+}
+
+int32 DL6ICLS_UnttGoodsProcessor::GetResult(int32 idx, UhttGoodsProcessorEntry* pEntry)
+{
+	// Your code here...
+	return 0;
 }
 //
 //

@@ -1632,15 +1632,17 @@ int ImportCls::GetMessageList(const char * pLocalPath)
 	}
 	{
 		int   gfr = 0;
+		SString file_name;
 		SString dest_path, src_path;
 		if(pLocalPath) {
 			SDirEntry de;
 			(wildcard = pLocalPath).SetLastSlash().Cat(box_name).SetLastSlash().Cat(file_type).Cat("*.xml");
             for(SDirec dir(wildcard, 0); dir.Next(&de) > 0;) {
 				PPEdiMessageEntry eme;
-				if(ParseFileName(de.FileName, &eme) && (!MessageType || MessageType == eme.EdiOp)) {
-					(src_path = pLocalPath).SetLastSlash().Cat(box_name).SetLastSlash().Cat(de.FileName);
-					(dest_path = TempPath).SetLastSlash().Cat(de.FileName);
+				de.GetNameA(file_name);
+				if(ParseFileName(file_name, &eme) && (!MessageType || MessageType == eme.EdiOp)) {
+					(src_path = pLocalPath).SetLastSlash().Cat(box_name).SetLastSlash().Cat(file_name);
+					(dest_path = TempPath).SetLastSlash().Cat(file_name);
 					gfr = SCopyFile(src_path, dest_path, 0, FILE_SHARE_READ, 0);
 					if(gfr) {
 						eme.Dtm = de.WriteTime;
@@ -1665,9 +1667,10 @@ int ImportCls::GetMessageList(const char * pLocalPath)
 				(wildcard = box_name).SetLastSlash().Cat(file_type).Cat("*.xml");
 				for(SEnum en = P_FtpCli->Enum(wildcard); en.Next(&de) > 0;) {
 					PPEdiMessageEntry eme;
-					if(ParseFileName(de.FileName, &eme) && (!MessageType || MessageType == eme.EdiOp)) {
-						(src_path = box_name).SetLastSlash().Cat(de.FileName);
-						(dest_path = TempPath).SetLastSlash().Cat(de.FileName);
+					de.GetNameA(file_name);
+					if(ParseFileName(file_name, &eme) && (!MessageType || MessageType == eme.EdiOp)) {
+						(src_path = box_name).SetLastSlash().Cat(file_name);
+						(dest_path = TempPath).SetLastSlash().Cat(file_name);
 						gfr = P_FtpCli->GetFile(src_path, dest_path);
 						if(gfr) {
 							eme.Dtm = de.WriteTime;

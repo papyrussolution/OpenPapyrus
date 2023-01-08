@@ -1,5 +1,5 @@
 // SETSTART.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
 //
@@ -905,7 +905,7 @@ int ACS_SETSTART::ImportFiles()
 					for(SDirec sd(temp_path); sd.Next(&sde) > 0;) {
 						if(dtm.IsFar() || cmp(sde.WriteTime, dtm) < 0) {
 							dtm = sde.WriteTime;
-							(firstf_path = temp_dir).Cat(sde.FileName);
+							sde.GetNameA(temp_dir, firstf_path);
 						}
 						files_count++;
 					}

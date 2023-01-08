@@ -843,11 +843,12 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					SString reply_status_text;
 					StyloQProtocol reply_tp;
 					SBinaryChunk bc;
+					StyloQCore::StoragePacket cli_pack; // @v11.6.0
 					THROW(P_StqRtb);
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
 					THROW(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret));
 					THROW(P_Ic->GetOwnPeerEntry(&P_StqRtb->StP) > 0); // @v11.5.11
-					THROW(P_Ic->Registration_ServiceReply(*P_StqRtb, sp));
+					THROW(P_Ic->Registration_ServiceReply(*P_StqRtb, sp, &cli_pack));
 					reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyOk);
 					//
 					// В случае успешной регистрации передаем клиенту наш лик и конфигурацию
@@ -862,7 +863,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					if(P_StqRtb->StP.Pool.Get(SSecretTagPool::tagConfig, &bc)) {
 						assert(bc.Len());
 						SString transmission_cfg_json;
-						if(StyloQConfig::MakeTransmissionJson(bc.ToRawStr(temp_buf), transmission_cfg_json)) {
+						if(StyloQConfig::MakeTransmissionJson(bc.ToRawStr(temp_buf), &cli_pack, transmission_cfg_json)) {
 							bc.Z().Put(transmission_cfg_json.cptr(), transmission_cfg_json.Len());
 							reply_tp.P.Put(SSecretTagPool::tagConfig, bc);
 						}

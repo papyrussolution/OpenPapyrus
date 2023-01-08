@@ -1,5 +1,5 @@
 // PPUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -2409,7 +2409,7 @@ int WaitNewFile(const char * pDir, SString & rFile, int notifyTimeout /* =5000 *
 				SDirec sdir(path);
 				while(sdir.Next(&entry) > 0) {
 					if(!entry.IsFolder() && cmp(entry.AccessTime, beg_dtm) > 0) {
-						(rFile = pDir).SetLastSlash().Cat(entry.FileName);
+						entry.GetNameA(pDir, rFile);
 						stop = ok = 1;
 					}
 				}

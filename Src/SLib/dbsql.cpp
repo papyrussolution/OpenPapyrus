@@ -1816,7 +1816,12 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 					// Аналогичная конструкция применяется при генерации скрипта создания индекса
 					// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
 					//
-					SqlGen.Func(Generator_SQL::tokNlsLower, fld.Name);
+					int   _func_tok = 0;
+					if(SqlGen.GetServerType() == sqlstORA)
+						_func_tok = Generator_SQL::tokNlsLower;
+					else
+						_func_tok = Generator_SQL::tokLower;
+					SqlGen.Func(_func_tok, fld.Name);
 				}
 				else
 					SqlGen.Text(fld.Name);
@@ -1852,8 +1857,14 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 						const BNField fld2 = pTbl->indexes.field(idx, j);
 						if(j > 0)
 							SqlGen.Tok(Generator_SQL::tokAnd).Sp();
-						if(key.getFlags(j) & XIF_ACS)
-							SqlGen.Func(Generator_SQL::tokNlsLower, fld2.Name);
+						if(key.getFlags(j) & XIF_ACS) {
+							int   _func_tok = 0;
+							if(SqlGen.GetServerType() == sqlstORA)
+								_func_tok = Generator_SQL::tokNlsLower;
+							else
+								_func_tok = Generator_SQL::tokLower;
+							SqlGen.Func(_func_tok, fld2.Name);
+						}
 						else
 							SqlGen.Text(fld2.Name);
 						SqlGen._Symb(_NE_);

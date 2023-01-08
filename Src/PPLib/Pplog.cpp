@@ -1,5 +1,5 @@
 // PPLOG.CPP
-// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -613,9 +613,11 @@ long PPMsgLog::GetVisibleMessage(long nrow)
 	src_path.SetLastSlash();
 	(src_file_name = src_path).Cat("log?????.");
 	SDirEntry sde;
-	for(SDirec sd(src_file_name); sd.Next(&sde) > 0;)
-		if(SFile::Remove((src_file_name = src_path).Cat(sde.FileName)) == 0)
+	for(SDirec sd(src_file_name); sd.Next(&sde) > 0;) {
+		sde.GetNameA(src_path, src_file_name);
+		if(SFile::Remove(src_file_name) == 0)
 			ok++;
+	}
 	return ok;
 }
 

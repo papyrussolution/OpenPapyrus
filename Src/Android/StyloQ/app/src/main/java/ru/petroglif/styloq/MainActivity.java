@@ -3,21 +3,31 @@
 //
 package ru.petroglif.styloq;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -210,6 +220,9 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							}
 						}
 					}
+					else if(view_id == R.id.CTL_BUTTON_GEOLOCMARK) { // @v11.6.0
+						// @todo
+					}
 					/*else if(view_id == R.id.STDCTL_CLOSEBUTTON) {
 						this.dismiss();
 					}*/
@@ -232,6 +245,23 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							_data = new StyloQDatabase.SecStoragePacket(StyloQDatabase.SecStoragePacket.kForeignService);
 							Data = _data;
 						}
+						// @v11.6.0 {
+						{
+							boolean svc_gpsloc_setting_allowed = false;
+							byte[] cfg_bytes = _data.Pool.Get(SecretTagPool.tagConfig);
+							if(SLib.GetLen(cfg_bytes) > 0) {
+								StyloQConfig svc_cfg = new StyloQConfig();
+								if(svc_cfg.FromJson(new String(cfg_bytes))) {
+									final int cli_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagCliFlags));
+									if((cli_flags & StyloQConfig.clifSvcGPS) != 0) {
+										if(ContextCompat.checkSelfPermission(app_ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+											svc_gpsloc_setting_allowed = true;
+									}
+								}
+							}
+							SLib.SetCtrlVisibility(this, R.id.CTL_BUTTON_GEOLOCMARK, svc_gpsloc_setting_allowed ? View.VISIBLE : View.GONE);
+						}
+						// } @v11.6.0
 						String text;
 						SLib.SetCtrlString(this, R.id.CTL_STQSERVICE_CN, _data.GetSvcName(null));
 						byte [] face_ref = _data.Pool.Get(SecretTagPool.tagAssignedFaceRef);
@@ -333,6 +363,41 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	private ArrayList <ListEntry> ListData;
 	private Timer RefreshNotificationIcon_Tmr;
 	//private int TouchedListItemIdx; // Элемент, на который нажали пальцем. Для временного изменения окраски.
+
+	private ActivityResultContracts.RequestMultiplePermissions MultiplePermissionsContract;
+	private ActivityResultLauncher <String[]> MultiplePermissionLauncher;
+
+	private boolean HasSystemPermissions(final String[] permissions)
+	{
+		boolean result = false;
+		if(permissions != null) {
+			result = true;
+			for(int pidx = 0; pidx < permissions.length; pidx++) {
+				final String permission = permissions[pidx];
+				int r = ActivityCompat.checkSelfPermission(this, permission);
+				if(r != PackageManager.PERMISSION_GRANTED) {
+					Log.d("StyloQ.Permissions", "Permission is not granted: " + permission);
+					result = false;
+				}
+				else
+					Log.d("StyloQ.Permissions", "Permission already granted: " + permission);
+			}
+		}
+		return result;
+	}
+	private void AskSystemPermissions(final String[] permissions, ActivityResultLauncher<String[]> multiplePermissionLauncher)
+	{
+		if(permissions != null && permissions.length > 0) {
+			if(!HasSystemPermissions(permissions/*PermissionList*/)) {
+				Log.d("StyloQ.Permissions", "Launching multiple contract permission launcher for ALL required permissions");
+				multiplePermissionLauncher.launch(permissions);
+			}
+			else {
+				Log.d("StyloQ.Permissions", "All permissions are already granted");
+			}
+		}
+	}
+
 	public MainActivity()
 	{
 		super();
@@ -516,6 +581,23 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 								db.SetupPeerInstance();
 								db.GetDefaultFace(null, true); // Если первый запуск, то создаем defaul-лик
 								MakeListData(db);
+								// @v11.6.0 {
+								{
+									final String [] permission_list = {
+											Manifest.permission.ACCESS_FINE_LOCATION,
+											//Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+											Manifest.permission.ACCESS_COARSE_LOCATION
+									};
+
+									MultiplePermissionsContract = new ActivityResultContracts.RequestMultiplePermissions();
+									MultiplePermissionLauncher = registerForActivityResult(MultiplePermissionsContract, isGranted ->
+									{
+										Log.d("StyloQ.Permissions", "Launcher result: " + isGranted.toString());
+									});
+
+									AskSystemPermissions(permission_list, MultiplePermissionLauncher);
+								}
+								// } @v11.6.0
 								SetupNotificationIcon(db);
 							}
 							{

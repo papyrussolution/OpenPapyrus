@@ -2225,6 +2225,7 @@ int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 	temp_buf = tag.Name;
 	if(TagNameCtl)
 		dlg->setCtrlString(TagNameCtl, temp_buf);
+	dlg->setCtrlLong(CTL_TAGV_TAGID, pItem->TagID); // @v11.5.12
 	switch(pItem->TagDataType) {
 		case OTTYP_BOOL:
 			dlg->setCtrlData(ValBoolCtl, &(val.b = BIN(pItem->Val.IntVal)));

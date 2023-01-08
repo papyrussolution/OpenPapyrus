@@ -1,5 +1,5 @@
 // STEXT.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 // Преобразование символов и строк, и другие текстовые функции
 //
@@ -3246,7 +3246,7 @@ static int Make_STextEncodingStat_FilePool(const SString & rPath, SFileEntryPool
 				THROW(rFep.Add(rPath, de));
 			}
 			else if(de.IsFolder()) {
-				(temp_buf = rPath).SetLastSlash().Cat(de.FileName);
+				de.GetNameA(rPath, temp_buf);
 				THROW(Make_STextEncodingStat_FilePool(temp_buf, rFep)); // @recursion
 			}
 		}

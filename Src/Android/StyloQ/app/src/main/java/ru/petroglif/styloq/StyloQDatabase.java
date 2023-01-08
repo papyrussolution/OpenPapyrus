@@ -1522,6 +1522,12 @@ public class StyloQDatabase extends Database {
 		}
 		return result;
 	}
+	//
+	// Returns:
+	//   0 - error
+	//   >0 - идентификатор созданной записи уведомления
+	//   <0 - отрицательное значение идентификатор уже существующей записи уведомления
+	//
 	public long StoreNotification(final byte [] svcIdent, StyloQInterchange.SvcNotification item, boolean useTa) throws StyloQException
 	{
 		long    result_id = 0;
@@ -1535,7 +1541,7 @@ public class StyloQDatabase extends Database {
 				final long correspond_id = correspond_pack.Rec.ID;
 				SecStoragePacket ex_pack = SearchGlobalIdentEntry(SecStoragePacket.kNotification, item.Ident);
 				if(ex_pack != null) {
-					result_id = ex_pack.Rec.ID;
+					result_id = -ex_pack.Rec.ID; // Запись найдена: возвращает отрицательное значение идентификатора
 				}
 				else {
 					JSONObject js_obj = item.ToJsonObj(false);

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494643
+LastSignatureCode=2147494647
 LastAutoCodeList=1,12175;102,10177;103,10072;110,10000;111,12070;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10313;124,10242;125,10047
 
 [SignatureList]
@@ -239,6 +239,7 @@ menunew=2147483857
 accesslevel=2147483858
 tag=2147483859
 tags=2147483860
+tagid=2147494644
 listoftags=2147483861
 objtags=2147483862
 persontag_pl=2147493881
@@ -10935,6 +10936,9 @@ styloqsvcconfig_expiryperiodsec=2147494405
 styloqprivconfig=2147494446
 styloqprivconfig_preflang=2147494447
 styloqprivconfig_defface=2147494448
+styloqconfig_cliffaceselfmodifying=2147494645
+styloqconfig_clifsvcgps=2147494646
+styloqconfig_clifpsnadrgps=2147494647
 styloqface=2147494385
 styloqface_lang=2147494386
 styloqface_fverifiable=2147494387

@@ -1,5 +1,5 @@
 // IMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage windows-1251
 // Функции импорта справочников
 //
@@ -4974,10 +4974,11 @@ int FiasImporter::Import(int inpObject)
 		LDATE  file_dt;
 		S_GUID file_uuid;
 		for(SDirec dir(wildcard, 0); dir.Next(&de) > 0;) {
-			int pr = ParseFiasFileName(de.FileName, file_obj_name, file_dt, file_uuid);
+			de.GetNameA(file_name);
+			int pr = ParseFiasFileName(file_name, file_obj_name, file_dt, file_uuid);
 			if(pr == 1) {
 				if(file_obj_name.CmpNC(dest_file_obj_name) == 0 && file_dt > max_date) {
-					(file_name = P.Path).SetLastSlash().Cat(de.FileName);
+					de.GetNameA(P.Path, file_name);
 					max_date = file_dt;
 				}
 			}
@@ -7010,6 +7011,77 @@ int ImportSpecial(const char * pPath_)
 		THROW(f_out.IsValid());
 		(out_buf = "nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src").CR(); // id!
 		f_out.WriteLine(out_buf);
+		// @v11.6.0 {
+		{
+			// CHILEANPEOPLE 
+			// 0      1   2  3       4    5    6          7      8         9      10         11         12    
+			// Nombre;Rut;DV;Circuns;Mesa;Sexo;Dir_Servel;Region;Provincia;Comuna;Apellido_P;Apellido_M;N_Pila
+			//ABALLAY ABALLAY ALEJANDRINA DEL CARMEN;8450965;5;VALLENAR;14 M;MUJ;REIRE 2136 POB. TORREBLANCA;3;HUASCO;VALLENAR;ABALLAY;ABALLAY;ALEJANDRINA DEL CARMEN			
+			SString local_path;
+			(local_path = _path).SetLastSlash().Cat("CHILEANPEOPLE");
+			SDirEntry de;
+
+			SString nm;
+			SString rut; // chile idenify number
+			SString city;
+			SString addr;
+			SString sex;
+			StringSet ss(";");
+			(temp_buf = local_path).SetLastSlash().Cat("*.csv");
+			for(SDirec dir(temp_buf, 0); dir.Next(&de) > 0;) {
+				if(!de.IsSelf() && !de.IsUpFolder()) {
+					de.GetNameUtf8(local_path, filename);
+					SPathStruc ps(filename);
+					if(ps.Ext.IsEqiAscii("csv")) {
+						SFile f_in(filename, SFile::mRead);
+						for(uint line_no = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); line_no++) {
+							if(line_no > 0 && line_buf.NotEmpty()) {
+								nm.Z();
+								rut.Z(); // chile idenify number
+								city.Z();
+								addr.Z();
+								sex.Z();
+								uint fldno = 0;
+								ss.setBuf(line_buf);
+								for(uint ssp = 0; ss.get(&ssp, temp_buf); fldno++) {
+									temp_buf.StripQuotes().Strip();
+									switch(fldno) {
+										case 0: // name
+											(nm = temp_buf).Utf8ToLower();
+											break;
+										case 1: // rut
+											(rut = temp_buf).Utf8ToLower();
+											break;
+										case 5: // sex
+											if(temp_buf.IsEqiAscii("MUJ")) // female
+												sex = "femme";
+											else if(temp_buf.IsEqiAscii("VAR")) // male
+												sex = "homme";
+											break;
+										case 6: // addr
+											(addr = temp_buf).Utf8ToLower();
+											break;
+										case 9: // city
+											(city = temp_buf).Utf8ToLower();
+											break;
+									}
+								}
+								if(nm.NotEmpty() && rut.NotEmpty()) {
+									// nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src
+									out_buf.Z().Cat("cn:").Cat(nm).Semicol().Cat(""/*eml*/).Semicol().Cat(""/*pwd*/).Semicol().Cat(""/*phn*/).
+										Semicol().Cat(sex/*gender*/).Semicol().Cat(""/*dob, DATF_ISO8601CENT*/).Semicol().
+										Cat("rut:").Cat(rut).Semicol().
+										Cat("chile").Semicol().Cat(city).
+										Semicol().Cat(addr).Semicol().Cat("chileanpeople").CR();
+									f_out.WriteLine(out_buf);																		
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		// } @v11.6.0 
 		{
 			// postru01.tsv
 			StringSet ss("\t");

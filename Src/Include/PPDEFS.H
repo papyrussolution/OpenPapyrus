@@ -4610,6 +4610,7 @@
 	#define CTL_TAGV_IMAGE               (10 + WINDOWS_ID_BIAS)
 	#define CTL_TAGV_TIME                (11 + WINDOWS_ID_BIAS)
 	#define CTLTM_TAGV_TIME              (12 + WINDOWS_ID_BIAS)
+	#define CTL_TAGV_TAGID               (13 + WINDOWS_ID_BIAS) // @v11.5.12
 #define DLG_TAGVALVIEW            351
 	#define CTL_TAGVALVIEW_LIST          (1 + WINDOWS_ID_BIAS)
 	#define CTL_TAGVALVIEW_OBJ           (2 + WINDOWS_ID_BIAS)
@@ -11274,6 +11275,7 @@
 	#define CTLSEL_STQCLIMATCH_OBJ           (6  + WINDOWS_ID_BIAS)
 	#define CTL_STQCLIMATCH_INFO             (7  + WINDOWS_ID_BIAS)
 	#define CTL_STQCLIMATCH_AUTO             (8  + WINDOWS_ID_BIAS)
+	#define CTL_STQCLIMATCH_CFLAGS           (9  + WINDOWS_ID_BIAS)
 #define DLG_STQCMD                1404
 	#define CTL_STQCMD_UUID                  (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQCMD_NAME                  (2  + WINDOWS_ID_BIAS)

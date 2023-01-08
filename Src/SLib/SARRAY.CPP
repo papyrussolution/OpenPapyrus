@@ -1,5 +1,5 @@
 // SARRAY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -3452,7 +3452,7 @@ int Test_StrAssocTree()
 			(temp_buf = pDir).SetLastSlash().Cat("*.*");
 			for(SDirec dir(temp_buf, 0); dir.Next(&de) > 0;) {
 				if(!de.IsSelf() && !de.IsUpFolder() && (de.IsFolder() || de.IsFile())) {
-					(temp_buf = pDir).SetLastSlash().Cat(de.FileName);
+					de.GetNameA(pDir, temp_buf);
 					SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot, norm_text);
 					LastId++;
 					THROW(Saa.Add(LastId, parentId, norm_text, 0));
@@ -4900,16 +4900,18 @@ static int Helper_TestSTree(const char * pPath, StrAssocArray & rSaList, STree &
 {
 	int    ok = 1;
 	SDirEntry de;
+	SString temp_buf;
 	SString path;
 	(path = pPath).SetLastSlash().Cat("*.*");
 	for(SDirec direc(path, 0); direc.Next(&de) > 0;) {
 		if(!de.IsSelf() && !de.IsUpFolder()) {
 			long   id = ++(*pCntr);
 			uint32 pos = 0;
-			rSaList.Add(id, parentId, de.FileName);
+			de.GetNameA(temp_buf);
+			rSaList.Add(id, parentId, temp_buf);
 			THROW(rTree.Insert(&id, parentP, &pos));
 			if(de.IsFolder()) {
-				(path = pPath).SetLastSlash().Cat(de.FileName);
+				(path = pPath).SetLastSlash().Cat(temp_buf);
 				THROW(Helper_TestSTree(path, rSaList, rTree, id, pos, pCntr)); // @recursion
 			}
 		}

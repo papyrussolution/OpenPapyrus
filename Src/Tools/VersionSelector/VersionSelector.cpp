@@ -109,10 +109,12 @@ int FindVers::CallbackProc(const char* pPath, SDirEntry * pEntry)
 			::TranslateMessage(&msg);
 			::DispatchMessage(&msg);
 		}
-		if(pEntry && !isempty(pEntry->FileName)) {
-			strcpy(buf, pPath);
-			GetVersBuf(buf, buf, sizeof(buf));
-			::SendMessage(List, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(SUcSwitch(buf)));
+		if(pEntry) {
+			if(!isempty(pEntry->Name)) {
+				strcpy(buf, pPath);
+				GetVersBuf(buf, buf, sizeof(buf));
+				::SendMessage(List, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(SUcSwitch(buf)));
+			}
 		}
 	}
 	return __Semaph;

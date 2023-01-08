@@ -126,7 +126,12 @@ int BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pIni
 				// Аналогичная конструкция применяется при генерации скрипта создания индекса
 				// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
 				//
-				pSg->Func(Generator_SQL::tokNlsLower, fld.Name);
+				int   _func_tok = 0;
+				if(pSg->GetServerType() == sqlstORA)
+					_func_tok = Generator_SQL::tokNlsLower;
+				else
+					_func_tok = Generator_SQL::tokLower;
+				pSg->Func(_func_tok, fld.Name);
 			}
 			else
 				pSg->Text(fld.Name);
@@ -162,8 +167,14 @@ int BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pIni
 					const BNField fld2 = P_Tbl->GetIndices().field(Index_, j);
 					if(j > 0)
 						pSg->Tok(Generator_SQL::tokAnd).Sp();
-					if(key.getFlags(j) & XIF_ACS)
-						pSg->Func(Generator_SQL::tokNlsLower, fld2.Name);
+					if(key.getFlags(j) & XIF_ACS) {
+						int   _func_tok = 0;
+						if(pSg->GetServerType() == sqlstORA)
+							_func_tok = Generator_SQL::tokNlsLower;
+						else
+							_func_tok = Generator_SQL::tokLower;
+						pSg->Func(_func_tok, fld2.Name);
+					}
 					else
 						pSg->Text(fld2.Name);
 					pSg->_Symb(_NE_);

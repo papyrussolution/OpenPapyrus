@@ -5791,9 +5791,14 @@ int ExecVDos(const ExecVDosParam & rParam);
 //
 //
 struct SDirEntry { // @flat
-	SDirEntry & FASTCALL operator = (const _finddatai64_t & rS);
+	SDirEntry();
+	SDirEntry & FASTCALL operator = (const _wfinddatai64_t & rS);
 	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAA & rS);
 	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAW & rS);
+	SString & GetNameUtf8(SString & rBuf) const;
+	SString & GetNameA(SString & rBuf) const;
+	SString & GetNameUtf8(const char * pPath, SString & rBuf) const;
+	SString & GetNameA(const char * pPath, SString & rBuf) const;
 	//
 	// Descr: Возвращает !0 если является каталогом
 	//
@@ -5836,7 +5841,8 @@ struct SDirEntry { // @flat
 	LDATETIME AccessTime;
 	LDATETIME WriteTime;
 	int64  Size;
-	char   FileName[1024];
+	//char   FileName[1024];
+	wchar_t Name[1024]; // @v11.6.0 char-->wchar_t
 };
 
 class SDirec {
@@ -5852,7 +5858,7 @@ private:
 	int    FindNext();
 	int    FindClose();
 
-	char   InitPath[ALIGNSIZE(MAXPATH, 2)]; // @v10.8.0 MAXPATH-->ALIGNSIZE(MAXPATH, 2)
+	wchar_t InitPath[ALIGNSIZE(MAXPATH, 2)]; // @v10.8.0 MAXPATH-->ALIGNSIZE(MAXPATH, 2) // @v11.6.0 char-->wchar_t
 	int    InitFlag;
 	int    EnumDir;
 	long   lPosData;
@@ -8878,7 +8884,8 @@ private:
 	bool   FASTCALL ValidateEntryHandle(const SHandle h) const;
 };
 //
-//
+// Descr: Пул элементов файлового каталога.
+// Note: since v11.6.0 наименования файлов хранятся в кодировке utf8
 //
 class SFileEntryPool : public SStrGroup {
 public:

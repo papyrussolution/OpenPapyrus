@@ -1,5 +1,5 @@
 // EGAIS.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Интеграция с системой EGAIS
 //
@@ -7043,19 +7043,22 @@ int PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor::Ticke
 int PPEgaisProcessor::Helper_ReadFilesOffline(const char * pPath, TSCollection <PPEgaisProcessor::Reply> & rList)
 {
     int    ok = 1;
-	SString temp_buf, code_buf;
+	SString temp_buf;
+	SString code_buf;
+	SString file_name;
 	SPathStruc ps;
 	(temp_buf = pPath).SetLastSlash().Cat("*.*");
 	SDirEntry de;
 	for(SDirec direc(temp_buf); direc.Next(&de) > 0;) {
 		if(de.IsFolder()) {
-			if(!de.IsSelf() && !de.IsUpFolder() && !sstreqi_ascii(de.FileName, P_TempOutputDirName)) {
-				(temp_buf = pPath).SetLastSlash().Cat(de.FileName);
+			de.GetNameA(file_name);
+			if(!de.IsSelf() && !de.IsUpFolder() && !sstreqi_ascii(file_name, P_TempOutputDirName)) {
+				de.GetNameA(pPath, temp_buf);
 				THROW(Helper_ReadFilesOffline(temp_buf, rList)); // @recursion
 			}
 		}
 		else {
-			(temp_buf = pPath).SetLastSlash().Cat(de.FileName);
+			de.GetNameA(pPath, temp_buf);
 			ps.Split(temp_buf);
 			if(ps.Ext.IsEqiAscii("xml")) {
 				PPEgaisProcessor::Reply * p_new_reply = rList.CreateNewItem();
@@ -7156,9 +7159,9 @@ int PPEgaisProcessor::CollectRefs()
 		(temp_buf = temp_path).SetLastSlash().Cat("*.*");
 		SDirEntry de;
 		for(SDirec direc(temp_buf, 1); direc.Next(&de) > 0;) {
-			temp_buf = de.FileName;
+			de.GetNameA(temp_buf);
 			if(temp_buf.Len() == 18 && temp_buf.HasPrefixIAscii("EGAIS-")) {
-				(temp_buf = temp_path).SetLastSlash().Cat(de.FileName);
+				de.GetNameA(temp_path, temp_buf);
 				ss_egais_paths.add(temp_buf);
 			}
 		}

@@ -4825,11 +4825,13 @@ int PPBillImporter::Run()
 										// @v10.9.7 @todo Автоматом установить цену реализации (например, по расценке)
 									}
 									// @v11.5.11 {
-									if(GetOpType(pack.Rec.OpID) == PPOPT_GOODSRECEIPT) {
-										PPID   last_qcert_id = 0;
-										PPID   last_qcert_lot_id = 0;
-										if(P_BObj->trfr->Rcpt.GetLastQCert(goods_id, pack.Rec.Dt, &last_qcert_id, &last_qcert_lot_id) > 0) {
-											ti.QCert = last_qcert_id;
+									{
+										const PPID op_type_id = GetOpType(pack.Rec.OpID);
+										if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) { // @v11.6.0 PPOPT_DRAFTRECEIPT
+											PPID   last_qcert_id = 0;
+											PPID   last_qcert_lot_id = 0;
+											if(P_BObj->trfr->Rcpt.GetLastQCert(goods_id, pack.Rec.Dt, &last_qcert_id, &last_qcert_lot_id) > 0)
+												ti.QCert = last_qcert_id;
 										}
 									}
 									// } @v11.5.11 

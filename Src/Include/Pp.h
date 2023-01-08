@@ -1,5 +1,5 @@
 // PP.H
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 // Спасибо за проделанную работу (Thanks for the work you've done):
@@ -457,6 +457,7 @@ public:
 		Signature_PPThreadLocalArea(0x7D08E311UL), // @v10.9.12
 		Signature_StqDbSymbToSvcIdMap(0xBCA10DD9UL), // @v11.1.12
 		Signature_BillMultiPrintParam(0xA4183530UL), // @v11.2.0 Сигнатура класса BillMultiPrintParam
+		Signature_StyloQStoragePacket(0x11A52FB6UL), // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
 		EgaisInRowIdentDivider(27277), // @v10.8.3
 		ReserveU16(0), // @v10.8.3
 		CommonCmdAssocDesktopID(100000L), // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
@@ -508,6 +509,7 @@ public:
 	const uint32 Signature_PPThreadLocalArea;            // @v10.9.12 Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
 	const uint32 Signature_StqDbSymbToSvcIdMap;          // @v11.1.12 Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
 	const uint32 Signature_BillMultiPrintParam;          // @v11.2.0  Сигнатура класса BillMultiPrintParam
+	const uint32 Signature_StyloQStoragePacket;          // @v11.6.0  Сигнатура класса StyloQCore::StoragePacket
 	const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
 	const uint16 ReserveU16;                 // @alignment @v10.8.3
@@ -18445,6 +18447,31 @@ public:
 			float  MainTrendMaxErrRel;    // @v10.7.2 IN Максимальная относительная ошибка магистрального тренда при выставлении ставки
 			const  Index1 & R_Index;      // IN
 			LongArray AllSuitedPosList;   // OUT
+			//
+			// @v11.5.12
+			// Descr: Накопительная структура, задача которой набирать потенциальные стратегии за небольшой 
+			//   период времени. Идея заключается в том, чтобы применять стратегию только в том случае, если
+			//   она подкреплена одной или несколькими иными стратегиями, действующими в том же направлении 
+			//   и актуальными в течении заданного промежутка времени (скажем, 5-10 минут).
+			//
+			struct Bucket {
+				Bucket(uint timeQuantMin) : TimeQuantMin(timeQuantMin)
+				{
+				}
+				const uint TimeQuantMin;
+				struct Entry { // @flat
+					Entry() : ID(0), Dtm(ZERODATETIME), Flags(0)
+					{
+					}
+					enum {
+						fShort = 0x0001
+					};
+					long   ID;     // Ид стратегии 
+					LDATETIME Dtm; // Время возникновения //
+					uint   Flags;
+				};
+				TSVector <Entry> Q;
+			};
 		};
 		int    SelectS2(SelectBlock & rBlk) const;
 		int    AddStrategyToOrderIndex(uint pos, long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
@@ -40787,6 +40814,7 @@ public:
 			bstAnyGoods        = 0x0002  // Нет ограничений на товары, по которым ведется обмен с поставщиком
 		};
 		PPObjGoods GObj;
+		PPObjUnit  UObj;
 		PPObjArticle ArObj;
 		PPObjLocation LocObj;
 		PPObjPerson   PsnObj;
@@ -46641,6 +46669,8 @@ public:
 		tagPrefLanguage    = 10, // @v11.2.5 (private config) Предпочтительный язык
 		tagDefFace         = 11, // @v11.2.5 (private config) Лик, используемый клиентом по умолчанию
 		tagRole            = 12, // @v11.2.8 StyloQConfig::roleXXX Роль записи 
+		tagCliFlags        = 13  // @v11.6.0 StyloQConfig::clifXXX Флаги клиента на стороне сервиса. То есть, после сопоставления клиента, сервис может
+			// присвоить ему какие-либо флаги, например, с целью наделить его какими-то полномочиями
 	};
 	enum { // @persistent
 		featrfMediator = 0x0001 // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)
@@ -46652,8 +46682,22 @@ public:
 		rolePrivateService    = 3, // Приватный сервис. Может иметь флаг featrfMediator
 		roleDedicatedMediator = 4  // @v11.2.12 Выделенный медиатор. Обязательно имеет флаг featrfMediator, но не обрабатывает "потребительские" запросы.
 	};
-	static int MakeTransmissionJson(const char * pSrcJson, SString & rTransmissionJson);
-	static SJson * MakeTransmissionJson(const char * pSrcJson);
+	//
+	// Descr: Флаги для тега tagCliFlags
+	//
+	enum { // @persistent
+		clifFaceSelfModifying = 0x0001, // Явное разрешение на автоматическое изменение лика клиентом. Это флаг избыточен, так как
+			// вопрос изменения лика клиента решается автоматически на остновании признака StyloQCore::styloqfAutoObjMatching. 
+			// Но в том, случае, если сервис "хочет" явно разрешить клиенту обновлять свой лик, то может установить этот флаг.
+		clifSvcGPS            = 0x0002, // Клиенту разрешается установить GPS-координаты сервиса
+		clifPsnAdrGPS         = 0x0004, // Клиенту разрешается устанавливать GPS-координаты адресов доставки перосналий (контакты, покупатели etc)
+	};
+	static int MakeTransmissionJson(const char * pSrcJson, const void * pClientPacket, SString & rTransmissionJson);
+	//
+	// ARG(pClientPacket IN): Если !0 то функция извлекает из этого пакета конфигурацию ассоциации клиента с сервисом
+	//   с целью дополнить передаваемую конфигурацию параметрами из клиентской конфигурации (а именно, на первых порах, полем флагов tagCliFlags).
+	//
+	static SJson * MakeTransmissionJson_(const char * pSrcJson, const void * pClientPacket);
 	StyloQConfig();
 	bool   FASTCALL IsEq(const StyloQConfig & rS) const;
 	StyloQConfig & Z();
@@ -46955,11 +46999,15 @@ public:
 			// контрагентам. При этом запрос сервису отправляется по одному контрагенту, а ответ (корректный) встраивается в общий реестр.
 	};
 	struct StoragePacket {
+		StoragePacket();
+		StoragePacket(const StoragePacket & rS);
+		StoragePacket & FASTCALL operator = (const StoragePacket & rS);
 		bool   FASTCALL IsEq(const StoragePacket & rS) const;
 		bool   IsValid() const;
 		bool   SetDocStatus(int styloqDocStatus);
 		int    GetDocStatus() const;
 		int    GetFace(int tag, StyloQFace & rF) const;
+		const  uint32 Signature; // @v11.6.0 @transient сигнатура экземпляра для верификации корректности указателя, передаваемого как (void *)
 		StyloQSecTbl::Rec Rec;
 		SSecretTagPool Pool;
 	};
@@ -47568,7 +47616,10 @@ public:
 	//
 	int    AcceptInvitation(const char * pInvitationData, InterchangeParam & rInv);
 	int    Registration_ClientRequest(RoundTripBlock & rB);
-	int    Registration_ServiceReply(const RoundTripBlock & rB, const StyloQProtocol & rPack);
+	//
+	// ARG(pCliPack OUT): Если pCliPack != 0, то по этому адресу присваивается пакет клиента.
+	//
+	int    Registration_ServiceReply(const RoundTripBlock & rB, const StyloQProtocol & rPack, StyloQCore::StoragePacket * pCliPack);
 	int    KexClientRequest(RoundTripBlock & rB);
 	int    Session_ClientRequest(RoundTripBlock & rB);
 	int    Verification_ClientRequest(RoundTripBlock & rB);
@@ -52245,6 +52296,80 @@ private:
 	PPTextAnalyzer::FindBlock Fb;
 	long   Flags;
 	SString TempBuf; // @allocreuse
+};
+//
+//
+//
+class IntermediateImportedGoodsCollection : private SStrGroup {
+private:
+	friend DECL_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByName);
+	friend DECL_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByGroup);
+	friend DECL_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByBrand);
+	friend DECL_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByCode);
+
+	struct InnerEntry {
+		InnerEntry();
+		long   Ident;
+		uint   ProcessFlags;
+		char   Code[32];
+		uint   NameP;
+		uint   GrpNameP;
+		uint   BrandNameP;
+	};
+public:
+	struct Entry {
+		enum {
+			fRemove      = 0x0001,
+			fUpdName     = 0x0002,
+			fUpdCategory = 0x0004,
+			fUpdBrand    = 0x0008
+		};
+		Entry();
+		Entry & Z();
+
+		long   Ident;        // @v11.5.11
+		uint   ProcessFlags; // @v11.5.11
+		SString Name;
+		SString Code;
+		SString GrpName;
+		SString BrandName;
+	};
+	IntermediateImportedGoodsCollection();
+	uint   GetCount() const;
+	int    Get(uint idx, Entry & rEntry) const;
+	int    Add(const Entry & rEntry);
+	void   UpdateProcessFlags(uint idx, uint flags);
+	int    UpdateCategory(uint idx, const SString & rText);
+	int    UpdateBrand(uint idx, const SString & rText);
+	void   FinalizeImport();
+	const  LongArray & GetGroupList();
+	const  LongArray & GetBrandList();
+	int    GetTextById(long id, SString & rBuf) const;
+
+	enum {
+		ordByName = 0,
+		ordByGroup,
+		ordByBrand,
+		ordByCode
+	};
+	void Sort(int ord);
+private:
+	TSVector <InnerEntry> L;
+	SymbHashTable Ht;
+	uint    LastId;
+	LongArray GroupList;
+	LongArray BrandList;
+};
+
+class UhttGoodsProcessor { // @v11.5.10 @construction
+public:
+	UhttGoodsProcessor();
+	int    Init();
+	int    AddEntry(const char * pCode, const char * pName, const char * pCategory, const char * pBrand);
+	int    Run();
+private:
+	void   ProcessDupCodeList(const LongArray & rDupCodeIdxList);
+	IntermediateImportedGoodsCollection L;
 };
 //
 //

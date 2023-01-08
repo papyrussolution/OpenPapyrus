@@ -36,7 +36,13 @@ Generator_SQL & FASTCALL Generator_SQL::QText(const char * pName)
 
 Generator_SQL & FASTCALL Generator_SQL::Param(const char * pParam)
 {
-	Buf.Colon().Cat(pParam);
+	if(Sqlst == sqlstORA)
+		Buf.Colon();
+	else if(Sqlst == sqlstMySQL)
+		Buf.CatChar('@');
+	else
+		Buf.Colon(); // @?
+	Buf.Cat(pParam);
 	return *this;
 }
 
@@ -440,7 +446,8 @@ const char * Generator_SQL::P_Tokens[] = {
 	"SET",
 	"RETURNING",
 	"MAX",
-	"NLS_LOWER"
+	"NLS_LOWER",
+	"LOWER",
 };
 
 Generator_SQL & Generator_SQL::HintBegin()

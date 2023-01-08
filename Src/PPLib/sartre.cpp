@@ -1,5 +1,5 @@
 // SARTR.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1630,7 +1630,8 @@ int SrUedContainer::ReadSource(const char * pFileName)
 	for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 		if(de.IsFile()) {
 			ss.Z();
-			ps.Split(de.FileName);
+			de.GetNameA(temp_buf);
+			ps.Split(temp_buf);
 			ps.Nam.Tokenize("-", ss);
 			if(ss.getCount() == 3 && ss.getByIdx(2, temp_buf)) { // ued;id;version ("ued-id-0004")
 				long iter_ver = temp_buf.ToLong();
@@ -1638,13 +1639,13 @@ int SrUedContainer::ReadSource(const char * pFileName)
 					//
 					// Необходимо убедиться что рядом с основным файлом присутствует файл с контрольной суммой (ext .sha256)
 					//
-					(temp_buf = pPath).Strip().SetLastSlash().Cat(de.FileName);
+					de.GetNameA(pPath, temp_buf);
 					ps.Split(temp_buf);
 					ps.Ext = "sha256";
 					ps.Merge(temp_buf);
 					if(fileExists(temp_buf)) {
 						max_ver = iter_ver;
-						(max_ver_filename = pPath).Strip().SetLastSlash().Cat(de.FileName);
+						de.GetNameA(pPath, max_ver_filename);
 					}
 				}
 			}

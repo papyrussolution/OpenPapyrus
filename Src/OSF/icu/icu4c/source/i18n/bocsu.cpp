@@ -92,7 +92,7 @@ U_CFUNC UChar32 u_writeIdenticalLevelRun(UChar32 prev, const UChar * s, int32_t 
 	char scratch[64];
 	int32_t capacity;
 	int32_t i = 0;
-	while(i<length) {
+	while(i < length) {
 		char * buffer = sink.GetAppendBuffer(1, length*2, scratch, (int32_t)sizeof(scratch), &capacity);
 		uint8 * p;
 		// We must have capacity>=SLOPE_MAX_BYTES in case u_writeDiff() writes that much,
@@ -109,13 +109,9 @@ U_CFUNC UChar32 u_writeIdenticalLevelRun(UChar32 prev, const UChar * s, int32_t 
 				prev = (prev&~0x7f)-SLOPE_REACH_NEG_1;
 			}
 			else {
-				/*
-				 * Unihan U+4e00..U+9fa5:
-				 * double-bytes down from the upper end
-				 */
+				// Unihan U+4e00..U+9fa5: double-bytes down from the upper end
 				prev = 0x9fff-SLOPE_REACH_POS_2;
 			}
-
 			UChar32 c;
 			U16_NEXT(s, i, length, c);
 			if(c==0xfffe) {

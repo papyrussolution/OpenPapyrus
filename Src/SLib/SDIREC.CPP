@@ -1,5 +1,5 @@
 // SDIREC.CPP
-// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -19,11 +19,48 @@ SDirec::SDirec(const char * pPath, int enumDir) : InitFlag(0), lPosData(-1), vPo
 	Init(pPath, enumDir);
 }
 
-#define FFIND_DATA struct _finddatai64_t
+#define FFIND_DATA struct _wfinddatai64_t // @v11.6.0 _finddatai64_t-->_wfinddatai64_t
+
+SDirEntry::SDirEntry()
+{
+	THISZERO();
+}
+
+SString & SDirEntry::GetNameUtf8(SString & rBuf) const
+{
+	rBuf.CopyUtf8FromUnicode(Name, sstrlen(Name), 1);
+	return rBuf;
+}
+
+SString & SDirEntry::GetNameA(SString & rBuf) const
+{
+	rBuf.CopyUtf8FromUnicode(Name, sstrlen(Name), 1);
+	return rBuf.Utf8ToChar();
+}
+
+SString & SDirEntry::GetNameUtf8(const char * pPath, SString & rBuf) const
+{
+	rBuf.Z();
+	SString temp_buf;
+	if(!isempty(pPath))
+		rBuf.Cat(pPath).SetLastSlash();
+	temp_buf.CopyUtf8FromUnicode(Name, sstrlen(Name), 1);
+	return rBuf.Cat(temp_buf);
+}
+
+SString & SDirEntry::GetNameA(const char * pPath, SString & rBuf) const
+{
+	rBuf.Z();
+	SString temp_buf;
+	if(!isempty(pPath))
+		rBuf.Cat(pPath).SetLastSlash();
+	temp_buf.CopyUtf8FromUnicode(Name, sstrlen(Name), 1);
+	return rBuf.Cat(temp_buf);
+}
 
 bool   SDirEntry::IsFolder() const { return LOGIC(Attr & 0x10); }
-bool   SDirEntry::IsUpFolder() const { return (FileName[0] == '.' && FileName[1] == '.' && FileName[2] == 0); }
-bool   SDirEntry::IsSelf() const { return (FileName[0] == '.' && FileName[1] == 0); }
+bool   SDirEntry::IsUpFolder() const { return (Name[0] == L'.' && Name[1] == L'.' && Name[2] == 0); }
+bool   SDirEntry::IsSelf() const { return (Name[0] == L'.' && Name[1] == 0); }
 bool   SDirEntry::IsFile() const { return !(IsSelf() || IsUpFolder() || IsFolder()); }
 
 static LDATETIME _tm_to_ldatetime(const struct tm * pTm)
@@ -32,12 +69,12 @@ static LDATETIME _tm_to_ldatetime(const struct tm * pTm)
 	return dtm.Set(encodedate(pTm->tm_mday, pTm->tm_mon+1, pTm->tm_year+1900), encodetime(pTm->tm_hour, pTm->tm_min, pTm->tm_sec, 0));
 }
 
-SDirEntry & FASTCALL SDirEntry::operator = (const _finddatai64_t & rS)
+SDirEntry & FASTCALL SDirEntry::operator = (const _wfinddatai64_t & rS)
 {
 	THISZERO();
 	struct tm * p_modify_tb = 0;
 	struct tm tb;
-	STRNSCPY(FileName, rS.name);
+	STRNSCPY(Name, rS.name);
 	Attr = rS.attrib;
 	Size = rS.size;
 	{
@@ -92,7 +129,7 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _finddatai64_t & rS)
 SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAA & rS)
 {
 	THISZERO();
-	STRNSCPY(FileName, rS.cFileName);
+	STRNSCPY(Name, SUcSwitchW(rS.cFileName));
 	Attr = rS.dwFileAttributes;
 	{
 		const int64 _mult = static_cast<int64>(MAXDWORD)+1;
@@ -107,7 +144,7 @@ SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAA & rS)
 SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAW & rS)
 {
 	THISZERO();
-	STRNSCPY(FileName, SUcSwitchW(rS.cFileName)); // @unicodeproblem
+	STRNSCPY(Name, rS.cFileName);
 	Attr = rS.dwFileAttributes;
 	{
 		const int64 _mult = static_cast<int64>(MAXDWORD)+1;
@@ -121,13 +158,13 @@ SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAW & rS)
 
 int SDirec::FindFirst()
 {
-	lPosData = _findfirsti64(InitPath, static_cast<FFIND_DATA *>(vPosData));
+	lPosData = _wfindfirsti64(InitPath, static_cast<FFIND_DATA *>(vPosData));
 	return (lPosData >= 0) ? 1 : -1;
 }
 
 int SDirec::FindNext()
 {
-	return (_findnexti64(lPosData, static_cast<FFIND_DATA *>(vPosData)) == 0) ? 1 : -1;
+	return (_wfindnexti64(lPosData, static_cast<FFIND_DATA *>(vPosData)) == 0) ? 1 : -1;
 }
 
 /*static*/int SDirec::GetSingle(const char * pPath, SDirEntry * pEntry)
@@ -135,7 +172,7 @@ int SDirec::FindNext()
 	int    ok = 0;
 	if(!isempty(pPath)) {
 		FFIND_DATA ff;
-		intptr_t ffr = _findfirsti64(pPath, &ff);
+		intptr_t ffr = _wfindfirsti64(SUcSwitchW(pPath), &ff);
 		if(ffr >= 0) {
 			ASSIGN_PTR(pEntry, ff);
 			_findclose(ffr);
@@ -162,7 +199,7 @@ SDirec::~SDirec()
 int SDirec::Init(const char * pPathName, int enumDir)
 {
 	FindClose();
-	STRNSCPY(InitPath, pPathName);
+	STRNSCPY(InitPath, SUcSwitchW(pPathName));
 	InitFlag = 1;
 	EnumDir = enumDir;
 	SAlloc::F(vPosData);
@@ -296,7 +333,8 @@ int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long
 			ok = 1;
 		}
 		else if(do_recursive && fb.IsFolder() && !fb.IsSelf() && !fb.IsUpFolder()) {
-			const int r = Helper_Scan((temp_buf = pPath).SetLastSlash().Cat(fb.FileName), pWildcard, flags);
+			fb.GetNameUtf8(pPath, temp_buf);
+			const int r = Helper_Scan(temp_buf, pWildcard, flags);
 			THROW(r);
 			if(r > 0)
 				ok = 1;
@@ -408,7 +446,11 @@ int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, con
 	if(!isempty(pRemoteUrl)) {
 		THROW(AddS(pRemoteUrl, &new_entry.RemoteUrlP));
 	}
-    THROW(AddS(rDe.FileName, &new_entry.NameP));
+	{
+		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v11.6.0
+		r_temp_buf.CopyUtf8FromUnicode(rDe.Name, sstrlen(rDe.Name), 1); // @v11.6.0
+		THROW(AddS(/*rDe.Name*/r_temp_buf, &new_entry.NameP));
+	}
     THROW(L.insert(&new_entry));
     CATCHZOK
     return ok;

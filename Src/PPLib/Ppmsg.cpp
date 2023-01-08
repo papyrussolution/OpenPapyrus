@@ -1,5 +1,5 @@
 // PPMSG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -32,13 +32,14 @@ int PPInitStrings(const char * pFileName)
 					SPathStruc ps_lang;
 					for(SDirec direc(temp_buf, 0); direc.Next(&de) > 0;) {
 						if(!de.IsFolder()) {
-							temp_buf = de.FileName;
+							de.GetNameA(temp_buf);
 							size_t hyphen_pos = 0;
 							if(temp_buf.SearchChar('-', &hyphen_pos)) {
 								temp_buf.Sub(hyphen_pos+1, temp_buf.Len(), lang_symb.Z());
 								const int slang = RecognizeLinguaSymb(lang_symb, 0);
 								if(slang > 0) {
-									ps_lang.Split(de.FileName);
+									de.GetNameA(temp_buf);
+									ps_lang.Split(temp_buf);
 									ps.Nam = ps_lang.Nam;
 									ps.Ext = ps_lang.Ext;
 									ps.Merge(temp_buf);

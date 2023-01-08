@@ -1,5 +1,5 @@
 // PALM.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1295,8 +1295,10 @@ static int GetImportFileList(int isAndr, const char * pPath, WinInetFTP * pFtp, 
 				{
 					SDirEntry de;
 					SDirec sd(path);
-					for(long id = 1; sd.Next(&de) > 0; id++)
-						pList->Add(id, de.FileName);
+					for(long id = 1; sd.Next(&de) > 0; id++) {
+						de.GetNameA(fname);
+						pList->Add(id, fname);
+					}
 					pList->SortByText();
 				}
 				ok = 1;

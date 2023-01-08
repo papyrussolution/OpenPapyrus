@@ -9168,6 +9168,10 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_BARCODE01
 	PPDV_ARROWBACK
 	PPDV_ARROWFORWARD
+	PPDV_GPSLOC01_FAV
+	PPDV_GPSLOC01_HUMAN
+	PPDV_GPSLOC01_PIN
+	PPDV_GPSLOC01_TARGET
 }
 //
 // Следующие изображения используются без замещения цвета

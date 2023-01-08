@@ -1,5 +1,5 @@
 // CRCSHSRV.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) V.Nasonov, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
 //
@@ -4437,7 +4437,7 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 				sp.Nam.Cat("*");
 				sp.Merge(data_path);
 				for(sd.Init(data_path); sd.Next(&sd_entry) > 0;) {
-					(data_path = data_dir).Cat(sd_entry.FileName);
+					sd_entry.GetNameA(data_dir, data_path);
 					// @v10.1.1 Backup("zrep", data_path);
 					DrfL.Add("zrep", data_path); // @v10.1.1
 					{
@@ -4600,7 +4600,7 @@ int ACS_CRCSHSRV::ImportSession(int)
 				sp.Nam.Cat("*");
 				sp.Merge(data_path);
 				for(SDirec sd(data_path); sd.Next(&sd_entry) > 0;) {
-					(data_path = data_dir).Cat(sd_entry.FileName);
+					sd_entry.GetNameA(data_dir, data_path);
 					// @v10.1.1 Backup("chks", data_path);
 					DrfL.Add("chks", data_path); // @v10.1.1
 					THROW(ConvertWareListV10(&zrep_list, data_path, wait_msg));

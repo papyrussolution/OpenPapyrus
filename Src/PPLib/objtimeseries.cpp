@@ -1,5 +1,5 @@
 // OBJTIMESERIES.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Модуль, управляющий объектом данных PPObjTimeSeries
 //
@@ -1828,10 +1828,11 @@ int TimeSeries_OptEntryList_Graph(TimeSeries_OptEntryList_Graph_Param * pParam)
 	SDirEntry sde;
 	long fid = 0;
 	for(SDirec sd(temp_buf); sd.Next(&sde) > 0;) {
-		(temp_buf = path).SetLastSlash().Cat(sde.FileName);
+		sde.GetNameA(path, temp_buf);
 		if(fileExists(temp_buf)) {
-			file_list.Add(++fid, sde.FileName, 0);
-			if(selected_file_name.IsEqiAscii(sde.FileName))
+			sde.GetNameA(temp_buf);
+			file_list.Add(++fid, temp_buf, 0);
+			if(selected_file_name.IsEqiAscii(temp_buf))
 				selected_file_id = fid;
 		}
 	}
@@ -4253,7 +4254,6 @@ int PPObjTimeSeries::StrategyContainer::SelectS2(SelectBlock & rBlk) const
 							}
 						}
 						const double trend_err_limit = (r_s.TrendErrLim * r_s.TrendErrAvg);
-						//const double trend_err_low_limit = (r_s.OptDeltaRange.TrendErrLowLim > 0.0f) ? (r_s.OptDeltaRange.TrendErrLowLim * r_s.TrendErrAvg) : 0.0; // @v10.8.9
 						if(!do_skip && (trend_err_limit <= 0.0 || (trend_err > 0.0 && trend_err <= trend_err_limit))) {
 							if(r_s.BaseFlags & r_s.bfShort) {
 								potential_short_count++;
@@ -4343,99 +4343,45 @@ int PPObjTimeSeries::StrategyContainer::SelectS2(SelectBlock & rBlk) const
 						case selcritStakeCount: local_result = r_s.StakeCount; break;
 					}
 					if(local_result > 0.0 || (is_single && local_result == 0.0)) {
-						{
-							const TrendEntry * p_te = SearchTrendEntry(rBlk.R_TrendList, r_s.InputFrameSize);
-							const TrendEntry * p_main_te = r_s.MainFrameSize ? SearchTrendEntry(rBlk.R_TrendList, r_s.MainFrameSize) : 0;
-							const uint tlc = p_te ? p_te->TL.getCount() : 0;
-							const uint trend_idx = (last_trend_idx < 0) ? (tlc-1) : static_cast<uint>(last_trend_idx);
-							const double trend_err = p_te->ErrL.at(trend_idx);
-							const double tv = p_te ? p_te->TL.at(trend_idx) : 0.0;
-							const double tv2 = p_main_te ? p_main_te->TL.at(trend_idx) : 0.0;
-							// @v10.7.1 {
-							const double main_trend_err = p_main_te ? p_main_te->ErrL.at(trend_idx) : 0.0;
-							const double main_trend_err_rel = fdivnz(main_trend_err, r_s.MainTrendErrAvg);
-							const double trend_err_rel = fdivnz(trend_err, r_s.TrendErrAvg);
-							double local_std_dev = 0.0;
-							// @v10.8.9 double local_deviation = 0.0;
-							// @v10.8.9 double local_deviation2 = 0.0;
-							if(rBlk.MainTrendMaxErrRel <= 0.0f || main_trend_err_rel <= static_cast<double>(rBlk.MainTrendMaxErrRel)) { // @v10.7.1
-#if 0 // @v10.8.9 {
-								if(rBlk.DevPtCount > 0 && tlc) {
-									if(rBlk.P_VList) {
-										if(rBlk.P_VList->getCount() == tlc) {
-											if(static_cast<long>(trend_idx) >= (rBlk.DevPtCount + 1)) {
-												StatBase sb(0);
-												for(uint vi = (trend_idx - rBlk.DevPtCount + 1); vi <= trend_idx; vi++) {
-													sb.Step(rBlk.P_VList->at(vi));
-												}
-												sb.Finish();
-												{
-													local_std_dev = sb.GetStdDev();
-													local_deviation = (local_std_dev / sb.GetExp()) * 1000.0;
-													if(Fb.AvgLocalDeviation > 0.0) 
-														local_deviation2 = local_std_dev / Fb.AvgLocalDeviation;
-												}
-											}
-										}
-									}
-									else if(rBlk.P_Ts) {
-										//
-										// Особый случай, обрабатываемый в run-time: размерность вектора тренда очень короткая,
-										// индекс позиции в векторе исходных значений можно отсчитать только с конца (last_trend_idx < 0).
-										//
-										const uint tsc = rBlk.P_Ts->GetCount();
-										if(tsc >= tlc && (last_trend_idx < 0)) {
-											const uint ts_idx = (tsc-1);
-											if(static_cast<long>(ts_idx) >= (rBlk.DevPtCount + 1)) {
-												uint vec_idx = 0;
-												if(rBlk.P_Ts->GetValueVecIndex("close", &vec_idx)) {
-													RealArray vl;
-													if(rBlk.P_Ts->GetRealArray(vec_idx, (ts_idx - rBlk.DevPtCount + 1), rBlk.DevPtCount, vl)) {
-														StatBase sb(0);
-														sb.Step(vl);
-														sb.Finish();
-														{
-															local_std_dev = sb.GetStdDev();
-															local_deviation = (local_std_dev / sb.GetExp()) * 1000.0;
-															if(Fb.AvgLocalDeviation > 0.0)
-																local_deviation2 = local_std_dev / Fb.AvgLocalDeviation;
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-#endif // } 0 @v10.8.9
-								const double ldmt_limit = (rBlk.LDMT_Factor > 0) ? static_cast<double>(rBlk.LDMT_Factor) / 1000.0 : 3000.0 /*large unreachable value*/;
-								// if((main_trend_err_rel * local_deviation) <= ldmt_limit/*0.055*/) {
-								// 
-								// Проверка на условие непревышения локальной девиацией предельного значения, заданного в конфигурации.
-								// Кроме того, если количество точек для замера локальной девиации задано, но она тем не менее 0, то 
-								// в этом случае ставку делать нельзя (плоский участок без движения - есть основания полагать что это очень
-								// рискованная позиция для ставки).
-								// 
-								//if(local_deviation2 <= ldmt_limit && ((rBlk.DevPtCount <= 0 || local_deviation2 > 0.0))) {
-								// @v10.8.9 if((main_trend_err_rel * local_deviation) <= ldmt_limit/*0.055*/) {
+						const TrendEntry * p_te = SearchTrendEntry(rBlk.R_TrendList, r_s.InputFrameSize);
+						const TrendEntry * p_main_te = r_s.MainFrameSize ? SearchTrendEntry(rBlk.R_TrendList, r_s.MainFrameSize) : 0;
+						const uint tlc = p_te ? p_te->TL.getCount() : 0;
+						const uint trend_idx = (last_trend_idx < 0) ? (tlc-1) : static_cast<uint>(last_trend_idx);
+						const double trend_err = p_te->ErrL.at(trend_idx);
+						const double tv = p_te ? p_te->TL.at(trend_idx) : 0.0;
+						const double tv2 = p_main_te ? p_main_te->TL.at(trend_idx) : 0.0;
+						// @v10.7.1 {
+						const double main_trend_err = p_main_te ? p_main_te->ErrL.at(trend_idx) : 0.0;
+						const double main_trend_err_rel = fdivnz(main_trend_err, r_s.MainTrendErrAvg);
+						const double trend_err_rel = fdivnz(trend_err, r_s.TrendErrAvg);
+						double local_std_dev = 0.0;
+						if(rBlk.MainTrendMaxErrRel <= 0.0f || main_trend_err_rel <= static_cast<double>(rBlk.MainTrendMaxErrRel)) { // @v10.7.1
+							const double ldmt_limit = (rBlk.LDMT_Factor > 0) ? static_cast<double>(rBlk.LDMT_Factor) / 1000.0 : 3000.0 /*large unreachable value*/;
+							// if((main_trend_err_rel * local_deviation) <= ldmt_limit/*0.055*/) {
+							// 
+							// Проверка на условие непревышения локальной девиацией предельного значения, заданного в конфигурации.
+							// Кроме того, если количество точек для замера локальной девиации задано, но она тем не менее 0, то 
+							// в этом случае ставку делать нельзя (плоский участок без движения - есть основания полагать что это очень
+							// рискованная позиция для ставки).
+							// 
+							//if(local_deviation2 <= ldmt_limit && ((rBlk.DevPtCount <= 0 || local_deviation2 > 0.0))) {
+							// @v10.8.9 if((main_trend_err_rel * local_deviation) <= ldmt_limit/*0.055*/) {
+							{
+								// } @v10.7.1 
+								//rBlk.SetResult(local_result, sidx, tv, tv2);
+								//void PPObjTimeSeries::BestStrategyBlock::SetResult(double localResult, uint strategyIdx, double tv, double tv2)
 								{
-									// } @v10.7.1 
-									//rBlk.SetResult(local_result, sidx, tv, tv2);
-									//void PPObjTimeSeries::BestStrategyBlock::SetResult(double localResult, uint strategyIdx, double tv, double tv2)
-									{
-										/*if(rBlk.MaxResult < local_result)*/ {
-											rBlk.MaxResult = local_result;
-											rBlk.MaxResultIdx = static_cast<int>(sidx);
-											rBlk.TvForMaxResult = tv;
-											rBlk.Tv2ForMaxResult = tv2;
-										}
-									}
-									rBlk.TrendErr = trend_err;
-									rBlk.TrendErrRel = trend_err_rel;
-									rBlk.MainTrendErr = main_trend_err;
-									rBlk.MainTrendErrRel = main_trend_err_rel;
-									// @v10.8.9 rBlk.LocalDeviation = local_deviation;
-									// @v10.8.9 rBlk.LocalDeviation2 = local_deviation2;
+									rBlk.MaxResult = local_result;
+									rBlk.MaxResultIdx = static_cast<int>(sidx);
+									rBlk.TvForMaxResult = tv;
+									rBlk.Tv2ForMaxResult = tv2;
 								}
+								rBlk.TrendErr = trend_err;
+								rBlk.TrendErrRel = trend_err_rel;
+								rBlk.MainTrendErr = main_trend_err;
+								rBlk.MainTrendErrRel = main_trend_err_rel;
+								// @v10.8.9 rBlk.LocalDeviation = local_deviation;
+								// @v10.8.9 rBlk.LocalDeviation2 = local_deviation2;
 							}
 						}
 					}

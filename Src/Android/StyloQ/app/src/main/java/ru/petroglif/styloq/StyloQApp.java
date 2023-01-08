@@ -4,12 +4,15 @@
 package ru.petroglif.styloq;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
@@ -51,6 +54,7 @@ public class StyloQApp extends SLib.App {
 	// @debug private static final int SvcPollPeriodMs = 300000; // Периодичность отправки запросов на уведомления к сервисам (в ms)
 	private static final int SvcPollPeriodMs = 120000; // @debug Периодичность отправки запросов на уведомления к сервисам (в ms)
 	private static final int SeenNotificationListProcessingPeriodMs = 20000;
+	public static final String NotificationChannelIdent = "StyloQ_NtfctnChnl"; // @v11.5.12
 
 	protected StyloQDatabase Db;
 	private ArrayList<IgnitionServerEntry> ISL;
@@ -110,6 +114,24 @@ public class StyloQApp extends SLib.App {
 							String pref_lang_ref = cfg_data.Get(StyloQConfig.tagPrefLanguage);
 							SetCurrentLang(SLib.GetLinguaIdent(pref_lang_ref));
 						}
+						// @v11.5.12 {
+						{
+							//
+							// Создаем NotificationChannel
+							//
+							if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+								CharSequence name = "StyloQ_NotificationChannel";
+								String description = "StyloQ_NotificationChannel";
+								NotificationChannel channel = new NotificationChannel(NotificationChannelIdent, name, NotificationManager.IMPORTANCE_DEFAULT);
+								channel.setDescription(description);
+								// Register the channel with the system; you can't change the importance
+								// or other notification behaviors after this
+								NotificationManager mgr = getSystemService(NotificationManager.class);
+								if(mgr != null)
+									mgr.createNotificationChannel(channel);
+							}
+						}
+						// } @v11.5.12
 						// @construction StyloQJobService.ScheduleTask(this);
 						// @construction {
 						{

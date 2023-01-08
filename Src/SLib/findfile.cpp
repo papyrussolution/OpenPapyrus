@@ -1,5 +1,5 @@
 // FINDFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2010, 2016, 2017, 2020
+// Copyright (c) A.Sobolev 2005, 2010, 2016, 2017, 2020, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -27,7 +27,7 @@ static int Helper_SFindFile(const SString * pPath, SFindFile * pParam)
 	SDirEntry dir_entry;
 	while(ok && dir.Next(&dir_entry) > 0) {
 		if(!dir_entry.IsSelf() && !dir_entry.IsUpFolder()) {
-			(inner_path = path).Cat(dir_entry.FileName);
+			dir_entry.GetNameA(path, inner_path);
 			pParam->DirCount++;
 			//
 			MEMSZERO(dir_entry);

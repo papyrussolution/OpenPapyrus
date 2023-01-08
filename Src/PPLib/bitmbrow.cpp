@@ -755,29 +755,92 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		AlcoGoodsClsID = (PrcssrAlcReport::ReadConfig(&parc) > 0) ? parc.E.AlcGoodsClsID : 0;
 	}
 	SString temp_buf;
+	// @v11.5.12 {
 	enum {
 		cfgshowfBarcode = 0x0001,
 		cfgshowfSerial  = 0x0002,
-		cfgshowfMargin  = 0x0004
+		cfgshowfMargin  = 0x0004,
+		cfgshowfArCode  = 0x0008
 	};
 	uint   cfgshowflags = 0;
-	/* @construction
+	const  bool use_argoods_code = LOGIC(CConfig.Flags & CCFLG_USEARGOODSCODE);
 	const  UserInterfaceSettings uis = APPL->GetUiSettings();
 	if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowMargin)
 		cfgshowflags |= cfgshowfMargin;
 	if(uis.BillItemTableFlags & UserInterfaceSettings::bitfUseCommCfgForBarcodeSerialOptions) {
+		if(P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) {
+			if(State & stAltView && use_argoods_code)
+				cfgshowflags |= cfgshowfArCode;
+			else
+				cfgshowflags |= cfgshowfBarcode;
+		}
+		if(P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES)
+			cfgshowflags |= cfgshowfSerial;
 	}
 	else {
-		if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowBarcode)
-			cfgshowflags |= cfgshowfBarcode;
+		if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowBarcode) {
+			if(State & stAltView && use_argoods_code)
+				cfgshowflags |= cfgshowfArCode;
+			else
+				cfgshowflags |= cfgshowfBarcode;
+		}
 		if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowSerial)
 			cfgshowflags |= cfgshowfSerial;
 	}
-	*/
-	if((!(State & stAltView) || ((P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) && (CConfig.Flags & CCFLG_USEARGOODSCODE)))) {
+	{
+		uint   _brw_pos = 2;
+		if(cfgshowflags & cfgshowfArCode) {
+			PPGetWord(PPWORD_ARGOODSCODE, 0, temp_buf);
+			insertColumn(_brw_pos++, temp_buf, 27, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC); // @conflict #27
+		}
+		if(cfgshowflags & cfgshowfBarcode) {
+			PPLoadString("barcode", temp_buf);
+			insertColumn(_brw_pos++, temp_buf, 27, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC); // @conflict #27
+		}
+		if(cfgshowflags & cfgshowfSerial) {
+			insertColumn(_brw_pos++, PPLoadStringS("serial", temp_buf), 28, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
+		}
+		if(cfgshowflags & cfgshowfMargin) {
+			BrowserDef * p_def = getDef();
+			if(p_def) {
+				/*
+					//  3 - Цена поступления //                            *
+					//  4 - Цена реализации  //                            *
+					//  5 - Скидка                                         *
+				*/
+				uint _c = p_def->getCount();
+				uint  _colidx_discount = 0;
+				uint  _colidx_cost = 0;
+				uint  _colidx_price = 0;
+				for(uint ci = 0; ci < _c; ci++) {
+					BroColumn & r_col = p_def->at(ci);
+					if(r_col.OrgOffs == 5)
+						_colidx_discount = ci;
+					else if(r_col.OrgOffs == 4)
+						_colidx_price = ci;
+					else if(r_col.OrgOffs == 3)
+						_colidx_cost = ci;
+				}
+				if(_colidx_cost && _colidx_price) {
+					uint  _target_idx = 0;
+					if(_colidx_discount) {
+						_target_idx = _colidx_discount+1;
+					}
+					else if(_colidx_price) {
+						_target_idx = _colidx_discount+1;
+					}
+					if(_target_idx)
+						insertColumn(_target_idx, PPLoadStringS("extrachargepct", temp_buf), 36, MKSTYPE(S_FLOAT, 8), MKSFMTD(0, 2, 0), BCO_USERPROC);
+				}
+			}
+		}
+	}
+	// } @v11.5.12 
+	/*
+	if(!(State & stAltView) || ((P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) && use_argoods_code)) {
 		uint   _brw_pos = 2;
 		if(P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) {
-			if((State & stAltView) && (CConfig.Flags & CCFLG_USEARGOODSCODE))
+			if((State & stAltView) && use_argoods_code)
 				PPGetWord(PPWORD_ARGOODSCODE, 0, temp_buf);
 			else
 				PPLoadString("barcode", temp_buf);
@@ -789,6 +852,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 			cfgshowflags |= cfgshowfSerial;
 		}
 	}
+	*/
 	uint   i, pos;
 	temp_buf.Z();
 	if(pckgPos >= 0) {
@@ -1576,12 +1640,10 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 36: // @v11.5.11 Процент наценки ((price-cost)/cost) @v11.5.11
 					if(State & stAccsCost) {
 						double margin = 0.0;
-						if(is_total) {
-							margin = fdivnz(Total.Price - Total.Discount - Total.Cost, Total.Cost);
-						}
-						else {
-							margin = fdivnz(p_ti->Price - p_ti->Discount - p_ti->Cost, p_ti->Cost);
-						}
+						if(is_total)
+							margin = fdivnz(Total.Price - Total.Discount - Total.Cost, Total.Cost) * 100.0;
+						else
+							margin = fdivnz(p_ti->Price - p_ti->Discount - p_ti->Cost, p_ti->Cost) * 100.0;
 						pBlk->Set(margin);
 					}
 					else

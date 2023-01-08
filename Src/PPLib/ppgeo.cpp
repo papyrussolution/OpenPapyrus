@@ -1,5 +1,5 @@
 // PPGEO.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1201,7 +1201,7 @@ int PPOsm::LoadGeoGrid()
 		SDirEntry de;
 		for(SDirec dir(filename, 0); dir.Next(&de) > 0;) {
 			if(de.IsFile()) {
-				(filename = path).Cat(de.FileName);
+				de.GetNameA(path, filename);
 				THROW_SL(Grid.Load(filename));
 				Status |= stGridLoaded;
 			}

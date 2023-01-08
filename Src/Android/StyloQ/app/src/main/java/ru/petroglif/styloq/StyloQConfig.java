@@ -31,6 +31,8 @@ public class StyloQConfig {
 	public static int tagPrefLanguage    = 10; // @v11.2.5 (private config) Предпочтительный язык
 	public static int tagDefFace         = 11; // @v11.2.5 (private config) Лик, используемый клиентом по умолчанию
 	public static int tagRole            = 12; // @v11.2.8 StyloQConfig::roleXXX Роль записи
+	public static int tagCliFlags        = 13; // @v11.6.0 StyloQConfig::clifXXX Флаги клиента на стороне сервиса. То есть, после сопоставления клиента, сервис может
+		// присвоить ему какие-либо флаги, например, с целью наделить его какими-то полномочиями
 	// } @persistent
 	// Роли записи
 	public static int roleUndef          = 0;
@@ -40,6 +42,14 @@ public class StyloQConfig {
 	public static int roleMediator       = 4;
 
 	public static int featrfMediator = 0x0001; // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)
+	//
+	// Descr: Флаги для тега tagCliFlags
+	//
+	public static int clifFaceSelfModifying = 0x0001; // Явное разрешение на автоматическое изменение лика клиентом. Это флаг избыточен, так как
+				// вопрос изменения лика клиента решается автоматически на остновании признака StyloQCore::styloqfAutoObjMatching.
+				// Но в том, случае, если сервис "хочет" явно разрешить клиенту обновлять свой лик, то может установить этот флаг.
+	public static int clifSvcGPS            = 0x0002; // Клиенту разрешается установить GPS-координаты сервиса
+	public static int clifPsnAdrGPS         = 0x0004; // Клиенту разрешается устанавливать GPS-координаты адресов доставки перосналий (контакты, покупатели etc)
 
 	private Map<Integer, String> L;
 
@@ -80,6 +90,7 @@ public class StyloQConfig {
 			TagList.add(new SLib.IntToStrAssoc(tagPrefLanguage,  "preflang")); // @v11.2.5
 			TagList.add(new SLib.IntToStrAssoc(tagDefFace,  "defface")); // @v11.2.5
 			TagList.add(new SLib.IntToStrAssoc(tagRole,  "role")); // @v11.2.8
+			TagList.add(new SLib.IntToStrAssoc(tagCliFlags,  "cliflags")); // @v11.6.0
 		}
 		return TagList;
 	}

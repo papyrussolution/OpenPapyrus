@@ -1,5 +1,5 @@
 // DBSQL-MYSQL.CPP
-// Copyright (c) A.Sobolev 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -388,8 +388,10 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 			HintEnd();
 		}
 		SqlGen.Sp();
-		if(!(sf & DBTable::sfForUpdate))
-			SqlGen.Text(p_alias).Dot().Aster().Com().Text(p_alias).Dot().Tok(Generator_SQL::tokRowId);
+		if(!(sf & DBTable::sfForUpdate)) {
+			// @v11.6.0 mysql не позволяет извлекать rowid как в oracle!
+			SqlGen.Text(p_alias).Dot().Aster()/* @v11.6.0.Com().Text(p_alias).Dot().Tok(Generator_SQL::tokRowId)*/;
+		}
 		else
 			SqlGen.Aster();
 		SqlGen.Sp().From(pTbl->fileName, p_alias);
@@ -421,7 +423,12 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 					// Аналогичная конструкция применяется при генерации скрипта создания индекса
 					// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
 					//
-					SqlGen.Func(Generator_SQL::tokNlsLower, fld.Name);
+					int   _func_tok = 0;
+					if(SqlGen.GetServerType() == sqlstORA)
+						_func_tok = Generator_SQL::tokNlsLower;
+					else
+						_func_tok = Generator_SQL::tokLower;
+					SqlGen.Func(_func_tok, fld.Name);
 				}
 				else
 					SqlGen.Text(fld.Name);
@@ -457,8 +464,14 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 						const BNField fld2 = pTbl->indexes.field(idx, j);
 						if(j > 0)
 							SqlGen.Tok(Generator_SQL::tokAnd).Sp();
-						if(key.getFlags(j) & XIF_ACS)
-							SqlGen.Func(Generator_SQL::tokNlsLower, fld2.Name);
+						if(key.getFlags(j) & XIF_ACS) {
+							int   _func_tok = 0;
+							if(SqlGen.GetServerType() == sqlstORA)
+								_func_tok = Generator_SQL::tokNlsLower;
+							else
+								_func_tok = Generator_SQL::tokLower;
+							SqlGen.Func(_func_tok, fld2.Name);
+						}
 						else
 							SqlGen.Text(fld2.Name);
 						SqlGen._Symb(_NE_);
@@ -503,10 +516,11 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 				THROW(p_stmt->SetData(0));
 			}
 			THROW(p_stmt->Exec(0, OCI_DEFAULT));
-			if(!(sf & DBTable::sfForUpdate)) {
+			// @v11.6.0 mysql не позволяет извлекать rowid как в oracle!
+			/* @v11.6.0 if(!(sf & DBTable::sfForUpdate)) {
 				int rowid_pos = pTbl->fields.getCount()+1;
 				THROW(p_stmt->BindRowId(rowid_pos, 1, pTbl->getCurRowIdPtr()));
-			}
+			}*/
 			THROW(p_stmt->BindData(+1, 1, pTbl->fields, pTbl->getDataBufConst(), pTbl->getLobBlock()));
 			THROW(ok = Helper_Fetch(pTbl, p_stmt, &actual));
 			if(ok > 0)
@@ -1139,7 +1153,7 @@ enum enum_field_types {
 			ok = 1;
 		}
 		else if(_status == MYSQL_NO_DATA) {
-			;
+			ok = -1;
 		}
 		/*if(oneof2(err, OCI_SUCCESS, OCI_SUCCESS_WITH_INFO)) {
 			actual = count;

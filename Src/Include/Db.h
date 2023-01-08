@@ -2546,6 +2546,7 @@ public:
 		tokReturning,
 		tokMax,      // function max
 		tokNlsLower, // function nls_lower
+		tokLower,    // @v11.6.0 function lower
 		tokCountOfTokens
 	};
 	enum {

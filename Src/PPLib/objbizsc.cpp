@@ -1,5 +1,5 @@
 // OBJBIZSC.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1144,7 +1144,7 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 			for(direc.Init(wildcard); direc.Next(&entry) > 0;) {
 				if(!entry.IsFolder()) {
 					SFile file;
-					(path = bizsc_path).Cat(entry.FileName);
+					entry.GetNameA(bizsc_path, path);
 					if(file.Open(path, SFile::mRead) && file.IsValid()) {
 						uint i = 0;
 						ulong crc = 0, check_crc = 0;
