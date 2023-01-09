@@ -17509,6 +17509,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqdocstatus_fbillflagdeclined            "Использовать признак документа '@{rejected}'"
 @styloqdocstatus_name                         "@{appellation}"
 
+@styloq_hlp_registrylist_order                "На этой вкладке отображаются документы заказов для сервиса, которые вы сформировали за все время \
+	работы с ним.\nНиже показаны значения иконок-индикаторов, отображающих статусы документов."
+
 @styloqregistryfilt_dontshowcancelled         "Не показывать отмененные документы"
 
 @serverstat_startmoment                       "Время запуска"

@@ -1,5 +1,5 @@
 // SSTRING.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -7152,6 +7152,10 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		if(toklen >= 5)
 			rIb.F |= ImplementBlock::fPhoneSet;
 		// } @v11.3.6 
+		// @v11.6.0 {
+		if(toklen >= 8)
+			rIb.F |= ImplementBlock::fClRut;
+		// } @v11.6.0 
 		for(i = 0; i < toklen; i++) {
             const uchar c = pToken[i];
 			const int   ul = IsUtf8(pToken+i, toklen-i);
@@ -7256,6 +7260,18 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						else if(oneof3(c, '+', '(', ')') && ccnt > 1)
 							rIb.F &= ~ImplementBlock::fPhoneSet;
 					}
+					// @v11.6.0 {
+					if(rIb.F & ImplementBlock::fClRut) {
+						if(!(h & SNTOKSEQ_ASCII))
+							rIb.F &= ~ImplementBlock::fClRut;
+						else if(!is_dec_c && !oneof4(c, 'k', 'K', '-', '.'))
+							rIb.F &= ~ImplementBlock::fClRut;
+						else if(oneof2(c, 'k', 'K') && ccnt > 1)  {
+							rIb.F &= ~ImplementBlock::fClRut;
+						}
+						// @todo Надо еще проверить на отсутствие дубликатов 'k'-'K'; 'K'-'k'
+					}
+					// } @v11.6.0 
 				}
 				if(h & SNTOKSEQ_866 && !IsLetter866(c))
 					h &= ~SNTOKSEQ_866;
@@ -7738,7 +7754,14 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					}
 				}
 			}
-			// } @v11.0.3 
+			// } @v11.0.3
+			// @v11.6.0 {
+			if(rIb.F & ImplementBlock::fClRut) {
+				if(rIb.DecCount >= 7) {
+					
+				}
+			}
+			// } @v11.6.0 
 			if(h & SNTOKSEQ_ASCII) {
 				uint   pos = 0;
 				long   val = 0;

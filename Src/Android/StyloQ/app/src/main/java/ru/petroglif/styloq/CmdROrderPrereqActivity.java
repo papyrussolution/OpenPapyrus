@@ -543,6 +543,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				{
 					final CommonPrereqModule.Tab tab_id = CPM.OnTabSelection(subj);
 					SLib.SetCtrlVisibility(this, R.id.tbButtonLocalTabConfig, (tab_id == CommonPrereqModule.Tab.tabRegistry) ? View.VISIBLE : View.GONE);
+					SLib.SetCtrlVisibility(this, R.id.tbButtonHelp, (tab_id == CommonPrereqModule.Tab.tabRegistry) ? View.VISIBLE : View.GONE);
 				}
 				break;
 			case SLib.EV_LISTVIEWCOUNT:
