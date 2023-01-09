@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/DLG_HELP_ICONLEGEND"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minHeight="240dp"
+    android:minWidth="180dp"
+    android:layout_margin="8dp"
+    android:orientation="vertical">
+    <TextView android:id="@+id/CTL_HELP_TEXT" style="@style/FormText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/CTL_HELP_ICONLEGENDLIST"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            layoutManager="LinearLayoutManager" />
+    </ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:gravity="right">
+        <Button style="@style/PushButton" android:id="@+id/STDCTL_CLOSEBUTTON"
+            android:text="@{but_close}" />
+    </LinearLayout>
+</LinearLayout>
