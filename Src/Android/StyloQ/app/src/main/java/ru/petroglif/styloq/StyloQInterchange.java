@@ -512,7 +512,7 @@ public class StyloQInterchange {
 										Notification notification = builder.build();
 										NotificationManager mgr = (NotificationManager)appCtx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
 										if(mgr != null) {
-											mgr.notify((int) id, notification);
+											mgr.notify((int)id, notification);
 										}
 									}
 								}

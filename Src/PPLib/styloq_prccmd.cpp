@@ -1,5 +1,5 @@
 // STYLOQ_PRCCMD.CPP
-// Copyright (c) A.Sobolev 2022
+// Copyright (c) A.Sobolev 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1002,8 +1002,6 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			PPID   _op_id = 0; // Финальный вид операции создаваемого или модифицируемого документа 
 			PPID   loc_id = 0;
 			PPID   stylopalm_id = 0;
-			const LDATE nominal_doc_date = checkdate(doc.Time.d) ? doc.Time.d : (checkdate(doc.CreationTime.d) ? doc.CreationTime.d : getcurdate_());
-			const LDATE due_date = checkdate(doc.DueTime.d) ? doc.DueTime.d : ZERODATE;
 			PPOprKind op_rec;
 			StyloQIncomingListParam incl_param;
 			const TSVector <PPStyloQInterchange::Document::CliStatus> * p_cli_status_list = 0;
@@ -1029,6 +1027,9 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					loc_id = loc_list.getSingle(); // @v11.4.9
 				}
 			}
+			const LDATE due_date = checkdate(doc.DueTime.d) ? doc.DueTime.d : ZERODATE;
+			const LDATE nominal_doc_date = (p_cmd_doc_filt && p_cmd_doc_filt->Flags & StyloQDocumentPrereqParam::fDlvrDateAsNominal && checkdate(due_date)) ? due_date : 
+				(checkdate(doc.Time.d) ? doc.Time.d : (checkdate(doc.CreationTime.d) ? doc.CreationTime.d : getcurdate_()));
 			THROW(GetOpData(_op_id, &op_rec) > 0);
 			temp_buf.Z().Cat(doc.Code).CatDiv('-', 1).Cat(nominal_doc_date, DATF_DMY);
 			THROW_PP_S(doc.TiList.getCount(), PPERR_INCOMINGBILLHASNTTI, temp_buf);

@@ -8616,6 +8616,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_styloqgoodsinfoparam_posnode            "@{posnode}"
 @filter_styloqdocumentparam                     "Параметры создания исходящих документов для Stylo-Q" // generic
 @filter_styloqdocumentparam_fusebarcodesearch   "Выбор по штрихкоду"
+@filter_styloqdocumentparam_fdlvrdateasnominal  "Дату доставки трактовать как номинальную дату документа"
 @filter_styloqincominglistparam                 "Параметры входящих списков для Stylo-Q" // generic
 @filter_styloqincominglistorderparam            "Параметры входящих заказов для Stylo-Q"
 @filter_styloqincominglistccheckparam           "Параметры входящих кассовых чеков для Stylo-Q"
@@ -17509,8 +17510,16 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqdocstatus_fbillflagdeclined            "Использовать признак документа '@{rejected}'"
 @styloqdocstatus_name                         "@{appellation}"
 
+@styloqdocstatus_finished_succ                 "Полностью завершен"
+@styloqdocstatus_waitforapprorexec             "Ожидает одобрения или отгрузки"
+@styloqdocstatus_draft                         "Драфт-документ (в режиме редактирования)"
+@styloqdocstatus_approved                      "Одобрен"
+@styloqdocstatus_rejected                      "Отклонен"
+@styloqdocstatus_cancelled                     "Отменен"
+@styloqdocstatus_cancelleddraft                "Драфт-документ отменен"
+
 @styloq_hlp_registrylist_order                "На этой вкладке отображаются документы заказов для сервиса, которые вы сформировали за все время \
-	работы с ним.\nНиже показаны значения иконок-индикаторов, отображающих статусы документов."
+	работы с ним. Ниже показаны значения иконок-индикаторов, отображающих статусы документов."
 
 @styloqregistryfilt_dontshowcancelled         "Не показывать отмененные документы"
 

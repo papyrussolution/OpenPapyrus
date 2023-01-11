@@ -7758,7 +7758,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			// @v11.6.0 {
 			if(rIb.F & ImplementBlock::fClRut) {
 				if(rIb.DecCount >= 7) {
-					
+					static const int8 cl_rut_w[] = {2,3,4,5,6,7,2,3,4,5,6,7};
 				}
 			}
 			// } @v11.6.0 

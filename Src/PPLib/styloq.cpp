@@ -7905,6 +7905,7 @@ int StyloQAttendancePrereqParam::InitInstance()
 			SetupPPObjCombo(this, CTLSEL_STQDOCPARAM_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0);
 			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 0, StyloQDocumentPrereqParam::fUseBarcodeSearch);
 			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 1, StyloQDocumentPrereqParam::fUseBrands);
+			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 2, StyloQDocumentPrereqParam::fDlvrDateAsNominal); // @v11.6.1
 			SetClusterData(CTL_STQDOCPARAM_FLAGS, Data.Flags);
 			SetupCtrls();
 			return ok;
@@ -9994,6 +9995,10 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			}
 			p_js_reply->InsertString("result", "ok");
 			cmd_reply_ok = true;
+		}
+		else if(command.IsEqiAscii("setgeoloc")) { // @v11.6.1
+			// @todo
+			// svc || location
 		}
 		else if(command.IsEqiAscii("requestnotificationlist")) { // @v11.5.9 Запрос извещений по командам, для которых определены флаги извещений.
 			//S_GUID org_cmd_uuid;

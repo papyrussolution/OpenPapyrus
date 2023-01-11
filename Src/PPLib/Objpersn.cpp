@@ -1,5 +1,5 @@
 // OBJPERSN.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4015,6 +4015,7 @@ public:
 		Ptb.SetBrush(brushHumanName,    SPaintObj::bsSolid, LightenColor(GetColorRef(SClrYellow), 0.8f), 0);
 		Ptb.SetBrush(brushHumanNameFem, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrRed), 0.8f), 0);
 		Ptb.SetBrush(brushHumanNameMus, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrBlue), 0.8f), 0);
+		SetupInputLine(CTL_PERSON_EXTNAME, MKSTYPE(S_ZSTRING, 512), MKSFMT(512, 0)); // @v11.6.1
 	}
 	DECL_DIALOG_SETDTS()
 	{

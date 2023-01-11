@@ -47896,8 +47896,9 @@ public:
 	StyloQDocumentPrereqParam & FASTCALL operator = (const StyloQDocumentPrereqParam & rS);
 
 	enum {
-		fUseBarcodeSearch = 0x0001, // На клиенте будет доступна функция поиска по штрихкоду
-		fUseBrands        = 0x0002  // Отправлять клиенту список брендов. Флаг действителен только если PalmID == 0, в противном случае этим управляют опции записи StyloPalm
+		fUseBarcodeSearch  = 0x0001, // На клиенте будет доступна функция поиска по штрихкоду
+		fUseBrands         = 0x0002, // Отправлять клиенту список брендов. Флаг действителен только если PalmID == 0, в противном случае этим управляют опции записи StyloPalm
+		fDlvrDateAsNominal = 0x0004  // @v11.6.1 Трактовать дату исполнения заказа как номинальную дату документа
 	};
 
 	uint8    ReserveStart[64]; // @anchor

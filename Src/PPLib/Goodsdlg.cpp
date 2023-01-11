@@ -1,5 +1,5 @@
 // GOODSDLG.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Диалог редактирования товара
 //
@@ -1746,7 +1746,7 @@ public:
 		setCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
 		setCtrlReal(CTL_GOODSVAD_MINSHQTTY,  Data.Stock.MinShippmQtty);
 		setCtrlUInt16(CTL_GOODSVAD_MULTMINSH, BIN(Data.Stock.GseFlags & GoodsStockExt::fMultMinShipm));
-		setCtrlData(CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff); // @v9.8.12
+		setCtrlData(CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff);
 		SetPalletData(-1);
 		updateList(-1);
 		return 1;
@@ -1775,10 +1775,8 @@ public:
 		getCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
 		getCtrlData(CTL_GOODSVAD_MINSHQTTY, &Data.Stock.MinShippmQtty);
 		SETFLAG(Data.Stock.GseFlags, GoodsStockExt::fMultMinShipm, getCtrlUInt16(CTL_GOODSVAD_MULTMINSH));
-		// @v9.8.12 {
 		getCtrlData(sel = CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff);
 		THROW_PP(Data.Stock.NettBruttCoeff >= 0.0f && Data.Stock.NettBruttCoeff <= 1.0f, PPERR_INVNETTOBRUTTOCOEF);
-		// } @v9.8.12
 		GetPalletData(-1);
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -1867,8 +1865,7 @@ private:
 	if(id >= 0) {
 		double qtty = 0.0;
 		SString title, input_title;
-		// @v9.1.4 PPGetWord(PPWORD_QTTY, 0, input_title);
-		PPLoadString("qtty", input_title); // @v9.1.4
+		PPLoadString("qtty", input_title);
 		// @v10.5.9 PPGetWord(PPWORD_MINSTOCK, 0, title);
 		PPLoadString("minstock", title); // @v10.5.9
 		qtty = Data.Stock.GetMinStock(id, 0);
@@ -2475,7 +2472,7 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 	gobj.GetParentID(grp_id, &prev_grp_level);
 	if(Flags & enableInsertGoods)
 		fl |= OLW_CANINSERT;
-	fl |= OLW_WORDSELECTOR; // @v9.4.0
+	fl |= OLW_WORDSELECTOR;
 	SetupPPObjCombo(dlg, CtlselGrp, PPOBJ_GOODSGROUP, p_rec->GrpID, ((Flags & enableSelUpLevel) ? (fl|OLW_CANSELUPLEVEL) : fl), reinterpret_cast<void *>(prev_grp_level));
 	if(disable_group_selection)
 		dlg->disableCtrl(CtlselGrp, 1);
@@ -3231,14 +3228,11 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 			else {
 				if(!CtlDisableSuppl)
 					getCtrlData(CTLSEL_GFLTADVOPT_SUPPL, &Data.SupplID);
-				// @v9.6.8 Data.LocList.SetSingle(getCtrlLong(CTLSEL_GFLTADVOPT_LOC));
-				// @v9.6.8 {
 				{
 					LocationCtrlGroup::Rec l_rec;
 					getGroupData(ctlgroupLoc, &l_rec);
 					Data.LocList = l_rec.LocList;
 				}
-				// } @v9.6.8
 				getCtrlData(CTL_GFLTADVOPT_EXTFLT, &(v = 0));
 				SETFLAG(Data.Flags, GoodsFilt::fPassiveOnly,  v == 1);
 				SETFLAG(Data.Flags, GoodsFilt::fGenGoodsOnly, v == 2);

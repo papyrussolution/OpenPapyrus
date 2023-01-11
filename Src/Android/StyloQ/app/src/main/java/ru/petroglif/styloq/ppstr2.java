@@ -2191,6 +2191,7 @@ class ppstr2 {
 	public static final int PPERR_SQ_CMDFAULT_DEBTLIST = 12172;
 	public static final int PPERR_PERSONTAGUUIDABS = 12173;
 	public static final int PPERR_LOCATIONTAGUUIDABS = 12174;
+	public static final int PPERR_BILLSTCHECKFLD_CONTRACT = 12175;
 	//
 	// .N.
 	//
@@ -4511,6 +4512,9 @@ class ppstr2 {
 	public static final int PPTXT_SELECTTIROWFORMARKSUBST = 12065;
 	public static final int PPINIPARAM_POSREGISTERLOGGING = 12066;
 	public static final int PPFILNAM_MERCAPP_LOG = 12067;
+	public static final int PPINIPARAM_ATOLDRIVER_JSON = 12068;
+	public static final int PPTXT_STQ_AUTOMATCHED = 12069;
+	public static final int PPINIPARAM_EXPNALOGRUPLAINADDR = 12070;
 	//
 	// .N.
 	//
@@ -5230,4 +5234,55 @@ class ppstr2 {
 	public static final int PPHSC_VETIS_UNRECORDEDBALANCE = 10239;
 	public static final int PPHSC_VETIS_FILLINGOUTERROR = 10240;
 	public static final int PPHSC_RU_WAREIDENT_TPACKCODE = 10241;
+	public static final int PPHSC_RU_WAREARTICLE = 10242;
+	//
+	// .N.
+	//
+	public static final int PPHSC_AGPLUS_WAREHOUSE_PL = 10001;
+	public static final int PPHSC_AGPLUS_DLVRLOC_PL = 10002;
+	public static final int PPHSC_AGPLUS_CONTRACTOR_PL = 10003;
+	public static final int PPHSC_AGPLUS_MANAGER_PL = 10004;
+	public static final int PPHSC_AGPLUS_GOODS = 10005;
+	public static final int PPHSC_AGPLUS_STOCK_PL = 10006;
+	public static final int PPHSC_AGPLUS_SALE_PL = 10007;
+	public static final int PPHSC_AGPLUS_UID = 10008;
+	public static final int PPHSC_AGPLUS_CODE = 10009;
+	public static final int PPHSC_AGPLUS_NAME = 10010;
+	public static final int PPHSC_AGPLUS_FULLNAME = 10011;
+	public static final int PPHSC_AGPLUS_DLVRLOC_ADR = 10012;
+	public static final int PPHSC_AGPLUS_DLVRLOC_RADR = 10013;
+	public static final int PPHSC_AGPLUS_DLVRLOC_EMAIL = 10014;
+	public static final int PPHSC_AGPLUS_DLVRLOC_PHONE = 10015;
+	public static final int PPHSC_AGPLUS_LEVEL = 10016;
+	public static final int PPHSC_AGPLUS_DELEMARK = 10017;
+	public static final int PPHSC_AGPLUS_MANAGER = 10018;
+	public static final int PPHSC_AGPLUS_INN = 10019;
+	public static final int PPHSC_AGPLUS_KPP = 10020;
+	public static final int PPHSC_AGPLUS_LEGAL_PRIV = 10021;
+	public static final int PPHSC_AGPLUS_AR = 10022;
+	public static final int PPHSC_AGPLUS_UOMBASE = 10023;
+	public static final int PPHSC_AGPLUS_DOCREF = 10024;
+	public static final int PPHSC_AGPLUS_DOCTYPE = 10025;
+	public static final int PPHSC_AGPLUS_DATE = 10026;
+	public static final int PPHSC_AGPLUS_NUMBER = 10027;
+	public static final int PPHSC_AGPLUS_DLVRLOC = 10028;
+	public static final int PPHSC_AGPLUS_CONTRACTOR = 10029;
+	public static final int PPHSC_AGPLUS_DLVRADDR = 10030;
+	public static final int PPHSC_AGPLUS_AGENT = 10031;
+	public static final int PPHSC_AGPLUS_AGTDOC = 10032;
+	public static final int PPHSC_AGPLUS_GOODSITEMS = 10033;
+	public static final int PPHSC_AGPLUS_QTTY = 10034;
+	public static final int PPHSC_AGPLUS_UOM = 10035;
+	public static final int PPHSC_AGPLUS_COEFF = 10036;
+	public static final int PPHSC_AGPLUS_WEIGHT = 10037;
+	public static final int PPHSC_AGPLUS_AMOUNT = 10038;
+	public static final int PPHSC_AGPLUS_PRICE = 10039;
+	public static final int PPHSC_AGPLUS_PERIOD = 10040;
+	public static final int PPHSC_AGPLUS_OPNAME = 10041;
+	public static final int PPHSC_AGPLUS_STOCK_BEG = 10042;
+	public static final int PPHSC_AGPLUS_MOVIN = 10043;
+	public static final int PPHSC_AGPLUS_MOVOUT = 10044;
+	public static final int PPHSC_AGPLUS_STOCK_END = 10045;
+	public static final int PPHSC_AGPLUS_WAREHOUSE = 10046;
+	public static final int PPHSC_AGPLUS_DOCTYP_SALE = 10047;
 }

@@ -449,7 +449,7 @@ public class StyloQApp extends SLib.App {
 		}
 		String GetErrMsg()
 		{
-			return (InfoReply != null && InfoReply instanceof String) ? (String) InfoReply : null;
+			return (InfoReply != null && InfoReply instanceof String) ? (String)InfoReply : null;
 		}
 		byte[] SvcIdent;
 		SecretTagPool SvcReply;
@@ -1149,9 +1149,16 @@ public class StyloQApp extends SLib.App {
 				try {
 					StyloQDatabase db = GetDB();
 					if(db != null) {
+						NotificationManager notify_mgr = (NotificationManager)getSystemService(android.content.Context.NOTIFICATION_SERVICE); // @v11.6.1
 						Database.Transaction tra = new Database.Transaction(db, true);
 						for(Long id : SeenNotificationList) {
-							db.RegisterNotificationAsSeen(id, false);
+							if(db.RegisterNotificationAsSeen(id, false)) {
+								// @v11.6.1 {
+								if(notify_mgr != null)
+									notify_mgr.cancel(id.intValue());
+								// } @v11.6.1
+							}
+
 						}
 						tra.Commit();
 						SeenNotificationList = null;

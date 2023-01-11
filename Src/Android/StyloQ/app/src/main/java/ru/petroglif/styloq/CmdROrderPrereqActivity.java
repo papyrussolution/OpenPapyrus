@@ -1309,6 +1309,28 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					final int view_id = (srcObj != null && srcObj instanceof View) ? ((View)srcObj).getId() : 0;
 					switch(view_id) {
 						case R.id.tbButtonBack: finish(); break;
+						case R.id.tbButtonHelp:
+							{
+								final CommonPrereqModule.Tab current_tab_id = CPM.GetCurrentTabId();
+								if(current_tab_id == CommonPrereqModule.Tab.tabRegistry) {
+									StyloQApp app_ctx = GetAppCtx();
+									if(app_ctx != null) {
+										HelpPane.DialogData help_data = new HelpPane.DialogData();
+										help_data.Text = SLib.ExpandString(app_ctx, "@{styloq_hlp_registrylist_order}");
+										help_data.Legend = new ArrayList<HelpPane.LegendEntry>();
+										help_data.Legend.add(new HelpPane.LegendEntry(R.drawable.ic_styloq_document_finished, "@{styloqdocstatus_finished_succ}"));
+										help_data.Legend.add(new HelpPane.LegendEntry(R.drawable.ic_styloq_document_itrm, "@{styloqdocstatus_waitforapprorexec}"));
+										help_data.Legend.add(new HelpPane.LegendEntry(R.drawable.ic_styloq_document_draft, "@{styloqdocstatus_draft}"));
+										help_data.Legend.add(new HelpPane.LegendEntry(R.drawable.ic_styloqdocstatus_approved, "@{styloqdocstatus_approved}"));
+										help_data.Legend.add(new HelpPane.LegendEntry(R.drawable.ic_styloqdocstatus_rejected, "@{styloqdocstatus_rejected}"));
+										help_data.Legend.add(new HelpPane.LegendEntry(R.drawable.ic_styloqdocstatus_cancelled, "@{styloqdocstatus_cancelled}"));
+										help_data.Legend.add(new HelpPane.LegendEntry(R.drawable.ic_styloqdocstatus_cancelled, "@{styloqdocstatus_cancelleddraft}")); // @todo change icon
+										HelpPane dialog = new HelpPane(this, help_data);
+										dialog.show();
+									}
+								}
+							}
+							break;
 						case R.id.tbButtonSearch:
 							{
 								final CommonPrereqModule.Tab current_tab_id = CPM.GetCurrentTabId();
