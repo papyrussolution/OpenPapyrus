@@ -214,8 +214,7 @@ public class StyloQLocationListener implements LocationListener {
 			if(L != null) {
 				loc_mgr.requestLocationUpdates(L.GetProviderName(), cycle, 0, L);
 			}
-		}
-		 */
+		}*/
 		return ok;
 	}
 	public static StyloQLocationListener Get() { return L; }

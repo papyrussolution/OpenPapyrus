@@ -7757,8 +7757,44 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			// } @v11.0.3
 			// @v11.6.0 {
 			if(rIb.F & ImplementBlock::fClRut) {
-				if(rIb.DecCount >= 7) {
-					static const int8 cl_rut_w[] = {2,3,4,5,6,7,2,3,4,5,6,7};
+				if(rIb.DecCount >= 7 && rIb.DecCount <= 13) {
+					const char control = toupper(pToken[toklen-1]);
+					if(isdec(control) || control == 'K') {
+						char cctrl = 0;
+						static const uint8 cl_rut_w[] = {2,3,4,5,6,7,2,3,4,5,6,7};
+						char   raw_code[32];
+						size_t raw_code_len = 0;
+						for(uint i = 0; i < toklen-1; i++) {
+							if(isdec(pToken[i]))
+								raw_code[raw_code_len++] = pToken[i];
+						}
+						assert(raw_code_len == (isdec(control) ? (rIb.DecCount-1) : rIb.DecCount));
+						uint ri = raw_code_len;
+						uint idx = 0;
+						uint sum = 0;
+						if(ri) do {
+							const uint d = raw_code[--ri]-'0';
+							assert(idx < SIZEOFARRAY(cl_rut_w));
+							sum += d * cl_rut_w[idx++];
+						} while(ri);
+						const uint cv = 11 - (sum % 11);
+						if(cv == 11)
+							cctrl = '0';
+						else if(cv == 10)
+							cctrl = 'K';
+						else
+							cctrl = '0' + cv;
+						if(cctrl == control) {
+							rResultList.Add(SNTOK_CL_RUT, 0.95f);
+						}
+						/*
+						{"9007920-4", "21620312-7", "13621690-2", "9329827-6", 
+						"5946647-k", "7425273-7", "17694763-2", "23212441-5", "21485432-5", 
+						"15459172-9", "10218932-9", "11316657-6", "24130358-6", 
+						"11377848-2", "18609823-4", "18004377-2", "8784472-2", "12357399-4",
+						"12391279-9", "8304218-4"}
+						*/
+					}
 				}
 			}
 			// } @v11.6.0 
@@ -8700,6 +8736,37 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SLTEST_CHECK_EQ(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
 			tr.Run((const uchar *)"00000%46209443x-8xfgOACZAYGfv", -1, nta.Z(), 0); // !SNTOK_CHZN_CIGITEM
 			SLTEST_CHECK_EQ(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
+			{
+				static const char * p_cl_rut_data_list[] = {
+					"9007920-4", 
+					"21620312-7", 
+					"13621690-2", 
+					"9329827-6", 
+					"5946647-k", 
+					"5946647-K", // upper K
+					"7425273-7", 
+					"17694763-2", 
+					"23212441-5", 
+					"21485432-5", 
+					"15459172-9",
+					"154591729", // no hyphen
+					"10218932-9", 
+					"11316657-6", 
+					"24130358-6", 
+					"11377848-2", 
+					"18609823-4", 
+					"18004377-2",
+					"180.043.77-2",
+					"8784472-2", 
+					"12357399-4",
+					"12391279-9", 
+					"8304218-4"
+				};
+				for(size_t clrutidx = 0; clrutidx < SIZEOFARRAY(p_cl_rut_data_list); clrutidx++) {
+					tr.Run((const uchar *)p_cl_rut_data_list[clrutidx], -1, nta.Z(), 0); // !SNTOK_CHZN_CIGITEM
+					SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_CL_RUT));
+				}
+			}
 		}
 	}
 	else {

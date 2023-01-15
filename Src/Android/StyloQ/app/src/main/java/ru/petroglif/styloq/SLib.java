@@ -3,6 +3,7 @@
 //
 package ru.petroglif.styloq;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
@@ -12,6 +13,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,21 +33,29 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
+
 import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -1597,6 +1607,7 @@ public class SLib {
 	public static final int EV_SVCQUERYRESULT       = 20; // @v11.3.10 Посылается в SlActivity после выполнения запроса к сервису по заданию этой activity
 	public static final int EV_CBSELECTED           = 21; // @v11.4.0 Посылается в ответ на выбор элемента в combo-box'е (spinner)
 	public static final int EV_TABSELECTED          = 22; // @v11.5.0 Посылается в ответ на выбор табулятора (ViewPager2) srcObj: ViewPager2; subj: Integer(tabIndex)
+	public static final int EV_GEOLOCDETECTED       = 23; // @v11.6.1 Посылается в ответ на регистрацию геолокации. srcObj: none, subj: Location
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -6054,5 +6065,31 @@ public class SLib {
 	{
 		ConfirmDialog dlg = new ConfirmDialog(ctx, R.id.DLG_CONFIRM_YESNO, R.layout.dialog_confirm_yesno, text, result);
 		dlg.show();
+	}
+	//
+	// Descr: Запрашивает точное местоположение устройства
+	//
+	//
+	public static int QueryCurrentGeoLoc(SlActivity activityCtx, EventHandler retrHandler)
+	{
+		int    result = 0;
+		if(activityCtx != null && retrHandler != null) {
+			if(ContextCompat.checkSelfPermission(activityCtx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+				FusedLocationProviderClient fused_loc_cient = new FusedLocationProviderClient(activityCtx);
+				fused_loc_cient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null).
+					addOnSuccessListener(activityCtx, new OnSuccessListener<Location>() {
+						@Override public void onSuccess(Location location)
+						{
+							if(location != null) {
+								//app_ctx.RunSvcCommand(_data.Rec.BI, cmd_item, null, force_query, null);
+								//appCtx.RunSvcCommand_SetGeoLoc(_data.Rec.BI, 0, location, null);
+								retrHandler.HandleEvent(EV_GEOLOCDETECTED, null, location);
+							}
+						}
+					});
+				result = 1;
+			}
+		}
+		return result;
 	}
 }

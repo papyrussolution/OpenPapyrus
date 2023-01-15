@@ -11319,6 +11319,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_LINGUACODE                37 // @v11.3.12 Код естественного языка
 #define SNTOK_CHZN_SURROGATE_GTIN       38 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14)
 #define SNTOK_CHZN_SURROGATE_GTINCOUNT  39 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14 37 COUNT)
+#define SNTOK_CL_RUT                    40 // @v11.6.1 Чилийский налоговый код RUT
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -16659,6 +16660,7 @@ struct SGeoPosLL { // @persistent
 	int    FASTCALL operator == (const SGeoPosLL & rS) const;
 	int    FASTCALL operator != (const SGeoPosLL & rS) const;
 	int    FASTCALL Cmp(const SGeoPosLL & rS) const;
+	bool   IsZero() const;
 	bool   IsValid() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL FromStr(const char * pStr);

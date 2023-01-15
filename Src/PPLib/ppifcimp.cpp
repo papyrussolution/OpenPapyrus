@@ -217,7 +217,7 @@ int Use001()
 #define USE_IMPL_DL6ICLS_PPObjSCard
 #define USE_IMPL_DL6ICLS_NaturalTokenArray
 #define USE_IMPL_DL6ICLS_NaturalTokenRecognizer
-#define USE_IMPL_DL6ICLS_UnttGoodsProcessor // @v11.5.12
+#define USE_IMPL_DL6ICLS_UhttGoodsProcessor // @v11.5.12
 
 #include "..\rsrc\dl600\ppifc_auto.cpp"
 //
@@ -342,19 +342,19 @@ SString & DL6ICLS_PapyrusTextAnalyzer::ReplaceString(SString & rInputText)
 //
 //
 //
-DL6_IC_CONSTRUCTOR(UnttGoodsProcessor, DL6ICLS_UnttGoodsProcessor_VTab)
+DL6_IC_CONSTRUCTOR(UhttGoodsProcessor, DL6ICLS_UhttGoodsProcessor_VTab)
 {
 	ExtraPtr = new UhttGoodsProcessor;
 }
 
-DL6_IC_DESTRUCTOR(UnttGoodsProcessor)
+DL6_IC_DESTRUCTOR(UhttGoodsProcessor)
 {
 	delete static_cast<UhttGoodsProcessor *>(ExtraPtr);
 }
 //
-// Interface IUnttGoodsProcessor implementation
+// Interface IUhttGoodsProcessor implementation
 //
-int32 DL6ICLS_UnttGoodsProcessor::Init()
+int32 DL6ICLS_UhttGoodsProcessor::Init()
 {
 	int32   ok = 0;
 	if(ExtraPtr) {
@@ -363,7 +363,7 @@ int32 DL6ICLS_UnttGoodsProcessor::Init()
 	return ok;
 }
 
-int32 DL6ICLS_UnttGoodsProcessor::Put(UhttGoodsProcessorEntry* pEntry)
+int32 DL6ICLS_UhttGoodsProcessor::Put(UhttGoodsProcessorEntry* pEntry)
 {
 	int32   ok = 0;
 	if(ExtraPtr && pEntry) {
@@ -380,18 +380,18 @@ int32 DL6ICLS_UnttGoodsProcessor::Put(UhttGoodsProcessorEntry* pEntry)
 	return ok;
 }
 
-int32 DL6ICLS_UnttGoodsProcessor::Run()
+int32 DL6ICLS_UhttGoodsProcessor::Run()
 {
 	return ExtraPtr ? static_cast<UhttGoodsProcessor *>(ExtraPtr)->Run() : 0;
 }
 
-int32 DL6ICLS_UnttGoodsProcessor::GetResultCount()
+int32 DL6ICLS_UhttGoodsProcessor::GetResultCount()
 {
 	// Your code here...
 	return 0;
 }
 
-int32 DL6ICLS_UnttGoodsProcessor::GetResult(int32 idx, UhttGoodsProcessorEntry* pEntry)
+int32 DL6ICLS_UhttGoodsProcessor::GetResult(int32 idx, UhttGoodsProcessorEntry* pEntry)
 {
 	// Your code here...
 	return 0;

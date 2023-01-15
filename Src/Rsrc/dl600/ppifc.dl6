@@ -5549,7 +5549,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		int    ResultFlags;
     }
 
-    interface IUnttGoodsProcessor {
+    interface IUhttGoodsProcessor {
 		int    Init();
 		int    Put(in UhttGoodsProcessorEntry * pEntry);
 		int    Run();
@@ -5563,7 +5563,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 	// iclass PPTaggedStringList : IEnumTaggedString {}
 	//
 	iclass PapyrusTextAnalyzer version(1.0) : IPapyrusTextAnalyzer (default) {}
-	iclass UnttGoodsProcessor version(1.0) : IUnttGoodsProcessor (default) {} // @v11.5.12
+	iclass UhttGoodsProcessor version(1.0) : IUhttGoodsProcessor (default) {} // @v11.5.12
 	//
 	// Descr: Класс, представляющий интерфейс IStrAssocList
 	//

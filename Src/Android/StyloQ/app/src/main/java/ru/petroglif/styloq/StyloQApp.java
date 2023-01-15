@@ -12,6 +12,7 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -433,14 +434,14 @@ public class StyloQApp extends SLib.App {
 			InfoReply = reply;
 			OriginalCmdItem = null;
 			TextSubj = textSubj;
-			RetrActivity = null;
+			RetrHandler = null;
 			DocReqList = null;
 		}
 		InterchangeResult(SvcQueryResult tag, @NotNull StyloQInterchange.DoInterchangeParam param, Object reply)
 		{
 			ResultTag = tag;
 			SvcIdent = param.SvcIdent;
-			RetrActivity = param.RetrActivity_;
+			RetrHandler = param.RetrHandler_;
 			OriginalCmdItem = param.OriginalCmdItem;
 			DocReqList = param.DocReqList;
 			SvcReply = null;
@@ -456,7 +457,7 @@ public class StyloQApp extends SLib.App {
 		SvcQueryResult ResultTag;
 		Object InfoReply;
 		StyloQCommand.Item OriginalCmdItem;
-		SLib.SlActivity RetrActivity; // @v11.3.10 activity в которую необходимо вернуть результат исполнения команды
+		/*SLib.SlActivity*/SLib.EventHandler RetrHandler; // @v11.3.10 activity в которую необходимо вернуть результат исполнения команды
 		ArrayList<StyloQInterchange.DocumentRequestEntry> DocReqList; // @v11.3.12 Массив структур для синхронизации состояний документов с сервисом.
 		// Ссылка на список, переданный асинхронной процедуре обращения к сервису с, возможно, измененными в результате получения ответа от сервиса, атрибутами.
 		String TextSubj;
@@ -502,7 +503,7 @@ public class StyloQApp extends SLib.App {
 	// ARG(direction): -1 - incoming, +1 - outcoming
 	//
 	@NotNull
-	public PostDocumentResult RunSvcPostDocumentCommand(byte[] svcIdent, int originalActionFlags, int direction, Document doc, SLib.SlActivity retrActivity)
+	public PostDocumentResult RunSvcPostDocumentCommand(byte[] svcIdent, int originalActionFlags, int direction, Document doc, SLib.EventHandler retrHandler)
 	{
 		assert (direction == -1 || direction == +1);
 		PostDocumentResult result = new PostDocumentResult();
@@ -567,7 +568,7 @@ public class StyloQApp extends SLib.App {
 								result.DocID = Db.PutDocument(direction, StyloQDatabase.SecStoragePacket.doctypGeneric, doc_flags, doc_ident, svc_id, doc_pool);
 								if(result.DocID > 0) {
 									StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, org_cmd_item);
-									blk.RetrActivity = retrActivity;
+									blk.RetrHandler = retrHandler;
 									{
 										StyloQInterchange.DocumentRequestEntry dre = new StyloQInterchange.DocumentRequestEntry();
 										dre.DocUUID = doc.H.Uuid;
@@ -759,6 +760,49 @@ public class StyloQApp extends SLib.App {
 		return result;
 	}
 	//
+	// Descr: Отправляет сервису команду установки гео-координат локации либо сервиса, которому отправляется команда.
+	// ARG(svcIdent IN): Идент сервиса, которому отправляется команда
+	// ARG(locationID IN): Ид локации, для которой следует установить гео-координаты. Если locationID == 0,
+	//   то предполагается установка координат содственно сервиса svcIdent.
+	//
+	public boolean RunSvcCommand_SetGeoLoc(byte [] svcIdent, int locationID, final Location geoLoc, SLib.EventHandler retrHandler)
+	{
+		boolean ok = false;
+		try {
+			StyloQDatabase.SecStoragePacket svc_pack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svcIdent);
+			if(svc_pack != null && geoLoc != null && geoLoc.getLatitude() != 0.0 && geoLoc.getLongitude() != 0.0) {
+				JSONObject js_query = new JSONObject();
+				js_query.put("cmd", "setgeoloc");
+				js_query.put("time", System.currentTimeMillis());
+				if(locationID == 0) {
+					String svc_ident_text = Base64.getEncoder().encodeToString(svcIdent);
+					js_query.put("svcident", svc_ident_text);
+				}
+				else {
+					js_query.put("locid", Integer.toString(locationID));
+				}
+				js_query.put("lat", geoLoc.getLatitude());
+				js_query.put("lon", geoLoc.getLongitude());
+
+				StyloQCommand.Item fake_org_cmd = new StyloQCommand.Item();
+				fake_org_cmd.Name = "setgeoloc";
+				fake_org_cmd.BaseCmdId = 0;
+
+				StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, fake_org_cmd);
+				blk.RetrHandler = retrHandler;
+				if(StyloQInterchange.DoSvcRequest(this, blk)) {
+					//StyloQCommand.StartPendingCommand(svcIdent, cmdItem);
+					ok = true;
+				}
+			}
+		} catch(JSONException exn) {
+			ok = false;
+		} catch(StyloQException exn) {
+			ok = false;
+		}
+		return ok;
+	}
+	//
 	// Descr: Реализует обращение к команде cmdItem сервиса svcIdent.
 	// ARG(svcIdent): Бинарный идентификатор сервиса
 	// ARG(cmdItem): Дескриптор команды
@@ -771,7 +815,7 @@ public class StyloQApp extends SLib.App {
 	//   true - функция завершилась успешно
 	//   false - ошибка
 	//
-	public boolean RunSvcCommand(byte [] svcIdent, StyloQCommand.Item cmdItem, JSONObject jsReq, boolean forceSvcQuery, SLib.SlActivity retrActivity) throws StyloQException
+	public boolean RunSvcCommand(byte [] svcIdent, StyloQCommand.Item cmdItem, JSONObject jsReq, boolean forceSvcQuery, SLib.EventHandler retrHandler) throws StyloQException
 	{
 		boolean ok = false;
 		if(Db != null && cmdItem != null && cmdItem.Uuid != null && SLib.GetLen(svcIdent) > 0) {
@@ -814,7 +858,7 @@ public class StyloQApp extends SLib.App {
 							js_query.put("time", System.currentTimeMillis());
 						}
 						StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, cmdItem);
-						blk.RetrActivity = retrActivity;
+						blk.RetrHandler = retrHandler;
 						if(StyloQInterchange.DoSvcRequest(this, blk)) {
 							StyloQCommand.StartPendingCommand(svcIdent, cmdItem);
 							ok = true;
@@ -942,18 +986,18 @@ public class StyloQApp extends SLib.App {
 			if(SLib.GetLen(subj_text) == 0 && reply != null && reply instanceof String)
 				subj_text = (String) reply;
 			StyloQCommand.Item original_cmd_item = subj.OriginalCmdItem;
-			SLib.SlActivity retr_activity = subj.RetrActivity;
+			SLib.EventHandler retr_handler = subj.RetrHandler;
 			SLib.SlActivity activity_for_message = null;
 			{
 				MainActivity main_activity = FindMainActivity();
-				activity_for_message = (retr_activity != null) ? retr_activity : main_activity;
+				activity_for_message = (retr_handler != null && retr_handler instanceof SLib.SlActivity) ? (SLib.SlActivity)retr_handler : main_activity;
 			}
 			if(subj.SvcIdent != null && original_cmd_item != null) {
 				StyloQCommand.StopPendingCommand(subj.SvcIdent, original_cmd_item);
 			}
 			if(subj.ResultTag == StyloQApp.SvcQueryResult.EXCEPTION) {
-				if(retr_activity != null)
-					retr_activity.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
+				if(retr_handler != null)
+					retr_handler.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
 				else if(SLib.GetLen(subj_text) > 0) {
 					msg_text = "Exception: " + subj_text;
 					DisplayError(activity_for_message, msg_text, 0);
@@ -962,8 +1006,8 @@ public class StyloQApp extends SLib.App {
 					DisplayError(activity_for_message, "Unknown exception", 0);
 			}
 			else if(subj.ResultTag != StyloQApp.SvcQueryResult.ERROR && subj.ResultTag != SvcQueryResult.SUCCESS) {
-				if(retr_activity != null)
-					retr_activity.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
+				if(retr_handler != null)
+					retr_handler.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
 				else if(SLib.GetLen(subj_text) > 0) {
 					msg_text = "UNKN result tag: " + subj_text;
 					DisplayError(activity_for_message, msg_text, 0);
@@ -973,7 +1017,7 @@ public class StyloQApp extends SLib.App {
 			}
 			else {
 				byte[] rawdata = null;
-				if(original_cmd_item != null || retr_activity != null || subj_text.equalsIgnoreCase("Command")) {
+				if(original_cmd_item != null || retr_handler != null || subj_text.equalsIgnoreCase("Command")) {
 					Class intent_cls = null;
 					String svc_doc_json = null;
 					// @v11.4.5 GlobalSearchActivity gs_activity = null; // Если мы получили ответ на поисковый запрос, то результат надо будет передать в
@@ -987,19 +1031,21 @@ public class StyloQApp extends SLib.App {
 							rawdata = stp_reply.Get(SecretTagPool.tagRawData);
 							byte[] raw_doc_decl = stp_reply.Get(SecretTagPool.tagDocDeclaration);
 							List<Activity> current_activity_list = ActivityUtils.getActivityList();
-							if(retr_activity != null) {
+							/* @v11.6.1 В связи с тем, что retrHandler теперь не обязательно activity следующий блок более не нужен
+							if(retr_handler != null) {
 								boolean ra_found = false;
 								if(current_activity_list != null) {
 									for(int i = 0; !ra_found && i < current_activity_list.size(); i++) {
 										Activity a = current_activity_list.get(i);
-										if(a != null && a instanceof SLib.SlActivity && a == retr_activity)
+										if(a != null && a instanceof SLib.SlActivity && a == retr_handler)
 											ra_found = true;
 									}
 								}
 								if(!ra_found)
-									retr_activity = null;
+									retr_handler = null;
 							}
-							if(retr_activity == null) { // Если было изначально указано в какую Activity отправлять результат, то не надо создавать что-то еще
+							 */
+							if(retr_handler == null) { // Если было изначально указано в какую Activity отправлять результат, то не надо создавать что-то еще
 								if(SLib.GetLen(raw_doc_decl) > 0) {
 									doc_decl = new StyloQCommand.DocDeclaration();
 									if(doc_decl.FromJson(new String(raw_doc_decl))) {
@@ -1042,8 +1088,8 @@ public class StyloQApp extends SLib.App {
 								intent_cls = CmdRSimpleActivity.class;
 						}
 					}
-					if(retr_activity != null)
-						retr_activity.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
+					if(retr_handler != null)
+						retr_handler.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
 					else if(intent_cls != null) {
 						intent = new Intent(/*main_activity != null ? main_activity : this*/this, intent_cls);
 						if(SLib.GetLen(subj.SvcIdent) > 0)

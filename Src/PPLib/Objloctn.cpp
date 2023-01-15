@@ -3106,8 +3106,7 @@ public:
 	struct LocationData : public ObjCacheEntry {
 		PPID   ParentID; // Родительская локация //
 		int16  Type;     //
-		int16  Access;   // 0 - пользователь не имеет прав доступа к этому складу;
-			// 1 - пользователь имеет права доступа к этому складу.
+		int16  Access;   // 0 - пользователь не имеет прав доступа к этому складу; 1 - пользователь имеет права доступа к этому складу.
 		PPID   OwnerID;
 		PPID   CityID;
 		PPID   RspnsPersonID;
@@ -3116,6 +3115,8 @@ public:
 		int16  NumRows;
 		int16  NumLayers;
 		int16  Depth;
+		double Latitude;  // @v11.6.1
+		double Longitude; // @v11.6.1
 		long   Counter;
 	};
 };
@@ -3478,6 +3479,8 @@ int LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->NumRows   = rec.NumRows;
 		p_cache_rec->NumLayers = rec.NumLayers;
 		p_cache_rec->Depth     = rec.Depth;
+		p_cache_rec->Latitude  = rec.Latitude;  // @v11.6.1
+		p_cache_rec->Longitude = rec.Longitude; // @v11.6.1
 		p_cache_rec->Counter   = rec.Counter;
 		if(rec.Type == LOCTYP_WAREHOUSE) {
 			ArticleCore & r_arc = BillObj->atobj->P_Tbl->Art;
@@ -3510,6 +3513,8 @@ void LocationCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	p_data_rec->NumRows   = p_cache_rec->NumRows;
 	p_data_rec->NumLayers = p_cache_rec->NumLayers;
 	p_data_rec->Depth     = p_cache_rec->Depth;
+	p_data_rec->Latitude  = p_cache_rec->Latitude;  // @v11.6.1
+	p_data_rec->Longitude = p_cache_rec->Longitude; // @v11.6.1
 	p_data_rec->Counter   = p_cache_rec->Counter;
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));

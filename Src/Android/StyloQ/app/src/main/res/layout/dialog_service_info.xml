@@ -5,7 +5,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="4dp"
+    android:minWidth="240dp"
+    android:padding="8dp"
     >
     <com.google.android.material.textfield.TextInputLayout
         style="@style/InputLine"
@@ -35,7 +36,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:paddingTop="16dp"
         >
         <ImageButton style="@style/ToolbarButton" android:id="@+id/CTL_BUTTON_GEOLOCMARK"

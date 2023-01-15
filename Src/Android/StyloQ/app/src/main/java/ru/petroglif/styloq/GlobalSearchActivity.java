@@ -83,7 +83,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 					Collections.shuffle(isl);
 					StyloQApp.IgnitionServerEntry ise = isl.get(0);
 					StyloQInterchange.DoInterchangeParam inner_param = new StyloQInterchange.DoInterchangeParam(ise.SvcIdent);
-					inner_param.RetrActivity_ = this;
+					inner_param.RetrHandler_ = this;
 					inner_param.AccsPoint = ise.Url;
 					JSONObject js_query = new JSONObject();
 					{
@@ -301,7 +301,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 											//if(obj_id > 0)
 												js_query.put("objid", obj_id);
 											inner_param.CommandJson = js_query.toString();
-											inner_param.RetrActivity_ = this;
+											inner_param.RetrHandler_ = this;
 											StyloQInterchange.RunClientInterchange(app_ctx, inner_param);
 											CalledIndex = ev_subj.ItemIdx;
 											CallingStartTm = System.currentTimeMillis();

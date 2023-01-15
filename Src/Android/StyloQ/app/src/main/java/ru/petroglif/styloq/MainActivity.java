@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -29,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
@@ -176,9 +178,15 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		}
 	}
 	static class SvcInfoDialog extends SLib.SlDialog {
+		SLib.SlActivity ActivityCtx;
+		//private FusedLocationProviderClient FusedLocClient;
+		private boolean SvcGpslocSettingAllowed;
 		SvcInfoDialog(Context ctx, Object data)
 		{
 			super(ctx, R.id.DLG_STQSERVICE, data);
+			SvcGpslocSettingAllowed = false;
+			if(ctx != null && ctx instanceof SLib.SlActivity)
+				ActivityCtx = (SLib.SlActivity)ctx;
 			if(data instanceof StyloQDatabase.SecStoragePacket)
 				Data = data;
 			//ResultListener = resultListener;
@@ -191,6 +199,58 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					requestWindowFeature(Window.FEATURE_NO_TITLE);
 					setContentView(R.layout.dialog_service_info);
 					SetDTS(Data);
+					break;
+				case SLib.EV_GEOLOCDETECTED:
+					if(subj != null && subj instanceof Location) {
+						Context ctx = getContext();
+						StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+						StyloQDatabase.SecStoragePacket _data = (Data != null && Data instanceof StyloQDatabase.SecStoragePacket) ? (StyloQDatabase.SecStoragePacket)Data : null;
+						if(app_ctx != null && _data != null) {
+							app_ctx.RunSvcCommand_SetGeoLoc(_data.Rec.BI, 0, (Location) subj, this);
+						}
+					}
+					break;
+				case SLib.EV_SVCQUERYRESULT:
+					if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
+						Context ctx = getContext();
+						StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+						if(app_ctx != null) {
+							StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult) subj;
+							if(ir.OriginalCmdItem != null && SLib.GetLen(ir.OriginalCmdItem.Name) > 0 && ir.OriginalCmdItem.Name.equalsIgnoreCase("setgeoloc")) {
+								//
+								// Если пришел результат успешной передачи геокоординат сервиса, то сервис
+								// нам прислал новое представление своего лика, которое мы сохраним в базе данных.
+								//
+								StyloQDatabase.SecStoragePacket _data = (Data != null && Data instanceof StyloQDatabase.SecStoragePacket) ? (StyloQDatabase.SecStoragePacket)Data : null;
+								if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+									if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+										SecretTagPool svc_reply_pool = (SecretTagPool)ir.InfoReply;
+										JSONObject sv_reply_js = svc_reply_pool.GetJsonObject(SecretTagPool.tagRawData);
+										String reply_result = sv_reply_js.optString("result");
+										if(reply_result != null && reply_result.equalsIgnoreCase("ok") && _data != null) {
+											JSONObject js_face = (sv_reply_js != null) ? sv_reply_js.optJSONObject("svcface") : null;
+											if(js_face != null) {
+												try {
+													StyloQDatabase db = app_ctx.GetDB();
+													StyloQDatabase.SecStoragePacket svc_pack = db.GetPeerEntry(_data.Rec.ID);
+													if(svc_pack != null && svc_pack.Rec.Kind == StyloQDatabase.SecStoragePacket.kForeignService) {
+														byte [] face_bytes = js_face.toString().getBytes(StandardCharsets.UTF_8);
+														svc_pack.Pool.Put(SecretTagPool.tagFace, face_bytes);
+														final long id = db.PutPeerEntry(svc_pack.Rec.ID, svc_pack, true);
+													}
+												} catch(StyloQException exn) {
+													;
+												}
+
+											}
+										}
+									}
+									String reply_msg = null;
+									String reply_errmsg = null;
+								}
+							}
+						}
+					}
 					break;
 				case SLib.EV_COMMAND:
 					int view_id = View.class.isInstance(srcObj) ? ((View)srcObj).getId() : 0;
@@ -221,7 +281,10 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						}
 					}
 					else if(view_id == R.id.CTL_BUTTON_GEOLOCMARK) { // @v11.6.0
-						// @todo
+						Context ctx = getContext();
+						StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+						if(SvcGpslocSettingAllowed)
+							SLib.QueryCurrentGeoLoc(ActivityCtx, this);
 					}
 					/*else if(view_id == R.id.STDCTL_CLOSEBUTTON) {
 						this.dismiss();
@@ -247,19 +310,23 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						}
 						// @v11.6.0 {
 						{
-							boolean svc_gpsloc_setting_allowed = false;
+							//boolean svc_gpsloc_setting_allowed = false;
+							SvcGpslocSettingAllowed = false;
 							byte[] cfg_bytes = _data.Pool.Get(SecretTagPool.tagConfig);
 							if(SLib.GetLen(cfg_bytes) > 0) {
 								StyloQConfig svc_cfg = new StyloQConfig();
 								if(svc_cfg.FromJson(new String(cfg_bytes))) {
 									final int cli_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagCliFlags));
 									if((cli_flags & StyloQConfig.clifSvcGPS) != 0) {
-										if(ContextCompat.checkSelfPermission(app_ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-											svc_gpsloc_setting_allowed = true;
+										if(ContextCompat.checkSelfPermission(app_ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+											//if(ActivityCtx != null)
+												//FusedLocClient = new FusedLocationProviderClient(ActivityCtx);
+											SvcGpslocSettingAllowed = true;
+										}
 									}
 								}
 							}
-							SLib.SetCtrlVisibility(this, R.id.CTL_BUTTON_GEOLOCMARK, svc_gpsloc_setting_allowed ? View.VISIBLE : View.GONE);
+							SLib.SetCtrlVisibility(this, R.id.CTL_BUTTON_GEOLOCMARK, SvcGpslocSettingAllowed ? View.VISIBLE : View.GONE);
 						}
 						// } @v11.6.0
 						String text;
@@ -1289,7 +1356,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									fake_org_cmd.BaseCmdId = StyloQCommand.sqbcDtLogin;
 									param.OriginalCmdItem = fake_org_cmd;
 								}
-								param.RetrActivity_ = this;
+								param.RetrHandler_ = this;
 								StyloQInterchange.RunClientInterchange(app_ctx, param);
 							}
 						}

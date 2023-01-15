@@ -164,6 +164,7 @@ int FASTCALL SGeoPosLL::Cmp(const SGeoPosLL & s) const
 }
 
 bool SGeoPosLL::IsValid() const { return IsGeoPosValid(Lat, Lon); }
+bool SGeoPosLL::IsZero() const { return (Lat == 0.0 && Lon == 0.0); }
 SString & FASTCALL SGeoPosLL::ToStr(SString & rBuf) const { return GeoPosToStr(Lat, Lon, rBuf); }
 int FASTCALL SGeoPosLL::FromStr(const char * pStr) { return GeoPosFromStr(pStr, Lat, Lon); }
 //

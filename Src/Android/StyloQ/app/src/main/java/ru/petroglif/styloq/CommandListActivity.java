@@ -546,7 +546,7 @@ public class CommandListActivity extends SLib.SlActivity {
 									param.CommandJson = js_query.toString();
 									param.SvcCapabilities = 0;
 									param.OriginalCmdItem = scan_barcode_cmd_item;
-									param.RetrActivity_ = this;
+									param.RetrHandler_ = this;
 									StyloQInterchange.RunClientInterchange(app_ctx, param);
 								}
 							/*} catch(StyloQException exn) {

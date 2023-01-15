@@ -1960,14 +1960,14 @@ public class StyloQInterchange {
 			Doc = null;
 			JsCmd = jsQuery;
 			OrgCmdItem = orgCmdItem;
-			RetrActivity = null;
+			RetrHandler = null;
 			DocReqList = null;
 		}
 		StyloQDatabase.SecStoragePacket SvcPack;
 		Document Doc;
 		JSONObject JsCmd;
 		StyloQCommand.Item OrgCmdItem;
-		SLib.SlActivity RetrActivity;
+		SLib.EventHandler RetrHandler;
 		ArrayList <DocumentRequestEntry> DocReqList; // Массив структур для синхронизации состояний документов с сервисом
 	}
 	static class DoInterchangeParam {
@@ -1977,7 +1977,7 @@ public class StyloQInterchange {
 			LoclAddendum = null;
 			SvcCapabilities = 0;
 			OriginalCmdItem = null;
-			RetrActivity_ = null;
+			RetrHandler_ = null;
 			AccsPoint = null;
 			MqbAuth = null;
 			MqbSecret = null;
@@ -1991,7 +1991,7 @@ public class StyloQInterchange {
 			// предоставленной сервисом, то это поле содержи ссылку на элемент команды.
 			// После выполнения команды ссылка попадет в блок отображения результатов для
 			// того, чтобы тот мог обработать результат каким-либо специфическим образом.
-		SLib.SlActivity RetrActivity_; // activity в которую необходимо вернуть результат исполнения //
+		SLib.EventHandler RetrHandler_; // activity в которую необходимо вернуть результат исполнения //
 		String AccsPoint;
 		String MqbAuth;
 		String MqbSecret;
@@ -2389,7 +2389,7 @@ public class StyloQInterchange {
 					}
 					else {
 						SLib.LOG_d("Helper_DoInterchange2: default processing on rpool != null");
-						if(param.RetrActivity_ != null)
+						if(param.RetrHandler_ != null)
 							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param, /*doc_ref*/rpool);
 						else
 							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "Command", /*doc_ref*/rpool);
@@ -2397,7 +2397,7 @@ public class StyloQInterchange {
 				}
 				else {
 					SLib.LOG_e("Helper_DoInterchange2: rpool == null");
-					if(param.OriginalCmdItem != null || param.RetrActivity_ != null)
+					if(param.OriginalCmdItem != null || param.RetrHandler_ != null)
 						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param, /*reply_pool*/null);
 					else
 						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent, "Command", /*reply_pool*/null);
@@ -2628,7 +2628,7 @@ public class StyloQInterchange {
 			}
 			else {
 				StyloQApp.InterchangeResult inner_result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn.GetMessage(appCtx));
-				inner_result.RetrActivity = param.RetrActivity_;
+				inner_result.RetrHandler = param.RetrHandler_;
 				//StyloQApp.SvcReplySubject srsub = new StyloQApp.SvcReplySubject(param.SvcIdent, null,
 				//	param.OriginalCmdItem, param.RetrActivity_, exn.GetMessage(appCtx));
 				appCtx.SendSvcReplyToMainThread(/*StyloQApp.SvcQueryResult.EXCEPTION,*/inner_result, null);
@@ -2703,7 +2703,7 @@ public class StyloQInterchange {
 						param.OriginalCmdItem = blk.OrgCmdItem;
 						if(blk.JsCmd != null)
 							param.CommandJson = blk.JsCmd.toString();
-						param.RetrActivity_ = blk.RetrActivity; // @v11.3.10
+						param.RetrHandler_ = blk.RetrHandler; // @v11.3.10
 						param.DocReqList = blk.DocReqList; // @v11.3.12
 						RunClientInterchange(appCtx, param);
 						ok = true;

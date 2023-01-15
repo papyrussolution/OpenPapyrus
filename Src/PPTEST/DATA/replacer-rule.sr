@@ -214,33 +214,59 @@ spf-%(%D02%)%>spf%1
 0.1kg%>100g
 0.05kg%>50g
 0.25kg%>250g
-0.750л%>750ml
-0.75л%>750ml
-0.75l%>750ml
+
+0.050л%>50ml
+0.05л%>50ml
+0.075l%>75ml
+0.25л%>250ml
+0.250л%>250ml
+0.2л%>200ml
+0.3л%>300ml
+0.30л%>300ml
+0.300л%>300ml
+300мл%>300ml
+0.33л%>330ml
+0.330л%>330ml
+0.35л%>350ml
+0.350л%>350ml
+350мл%>350ml
+0.375л%>375ml
+0.29л%>290ml
+0.42л%>420ml
+0.42%zl%>420ml
+0.420л%>420ml
+420мл%>420ml
+0.45л%>450ml
+0.450л%>450ml
+450мл%>450ml
+0.47л%>470ml
+0.47%zl%>470ml
+0.470л%>470ml
+470мл%>470ml
+0.48л%>480ml
+0.48%zl%>480ml
+0.480л%>480ml
+480мл%>480ml
+0.500л%>500ml
+0.50л%>500ml
+0.5л%>500ml
+0.5l%>500ml
+500мл%>500ml
+0.6л%>600ml
+600мл%>600ml
+0.65л%>650ml
 0.7л%>700ml
 0.70л%>700ml
 0.700л%>700ml
 0.7l%>700ml
 0.70l%>700ml
-0.250л%>250ml
-0.2л%>200ml
-0.33л%>330ml
-0.330л%>330ml
-0.35л%>350ml
-0.350л%>350ml
-0.375л%>375ml
-0.25л%>250ml
-0.250л%>250ml
-0.29л%>290ml
-0.500л%>500ml
-0.50л%>500ml
-0.5л%>500ml
-0.5l%>500ml
-0.6л%>600ml
-0.65л%>650ml
-0.050л%>50ml
-0.05л%>50ml
-0.075l%>75ml
+0.750л%>750ml
+0.75л%>750ml
+0.75l%>750ml
+750мл%>750ml
+0.8л%>800ml
+0.80л%>800ml
+800мл%>800ml
 12/750ml%>750ml /12
 12-750ml%>750ml /12
 12/750%_%>750ml /12%_
@@ -2617,6 +2643,61 @@ philips%<филипс
 binatone%<бинатон
 vitesse%<витесс
 bekker%<беккер
+
+bosch bgc%z%(%d%)%>bosch bgc-%1
+bosch bgs%z%(%d%)%>bosch bgs-%1
+bosch bsg%z%(%d%)%>bosch bsg-%1
+bosch bsgl%z%(%d%)%>bosch bsgl-%1
+bosch cmg%z%(%d%)%>bosch cmg-%1
+bosch hba%z%(%d%)%>bosch hba-%1
+bosch hbf%z%(%d%)%>bosch hbf-%1
+bosch hbg%z%(%d%)%>bosch hbg-%1
+bosch hbn%z%(%d%)%>bosch hbn-%1
+bosch hmt%z%(%d%)%>bosch hmt-%1
+bosch gbh%z%(%d%)%>bosch gbh-%1
+bosch gsn%z%(%d%)%>bosch gsn-%1
+bosch gsv%z%(%d%)%>bosch gsv-%1
+bosch smv%z%(%d%)%>bosch smv-%1
+bosch sps%z%(%d%)%>bosch sps-%1
+bosch spv%z%(%d%)%>bosch spv-%1
+bosch tds%z%(%d%)%>bosch tds-%1
+bosch mfw%z%(%d%)%>bosch mfw-%1
+bosch mfq%z%(%d%)%>bosch mfq-%1
+bosch mcm%z%(%d%)%>bosch mcm-%1
+bosch mum%z%(%d%)%>bosch mum-%1
+bosch mums%z%(%d%)%>bosch mums-%1
+bosch tka%z%(%d%)%>bosch tka-%1
+bosch tas%z%(%d%)%>bosch tas-%1
+bosch н%z%(%d%)%>bosch h%1
+philips gc%z%(%d%)%>philips gc-%1
+philips hp%z%(%d%)%>philips hp-%1
+philips hr%z%(%d%)%>philips hr-%1
+philips hu%z%(%d%)%>philips hu-%1
+polaris pir%z%(%d%)%>polaris pir-%1
+polaris phs%z%(%d%)%>polaris phs-%1
+tefal fv%z%(%d%)%>tefal fv-%1
+tefal rk%z%(%d%)%>tefal rk-%1
+braun hd%z%(%d%)%>braun hd-%1
+galaxy gl%z%(%d%)%>galaxy gl-%1
+rowenta cv%z%(%d%)%>rowenta cv-%1
+rowenta cf%z%(%d%)%>rowenta cf-%1
+rowenta dw%z%(%d%)%>rowenta dw-%1
+rowenta da%z%(%d%)%>rowenta da-%1
+rowenta dz%z%(%d%)%>rowenta dz-%1
+sencor sbl%z%(%d%)%>sencor sbl-%1
+sencor shb%z%(%d%)%>sencor shb-%1
+sencor ssi%z%(%d%)%>sencor ssi-%1
+siemens sn%z%(%d%)%>siemens sn-%1
+siemens sr%z%(%d%)%>siemens sr-%1
+gorenje gv%z%(%d%)%>gorenje gv-%1
+neff b%z%(%d%)%>neff b-%1
+neff c%z%(%d%)%>neff c-%1
+neff d%z%(%d%)%>neff d-%1
+neff n%z%(%d%)%>neff n-%1
+neff s%z%(%d%)%>neff s-%1
+neff t%z%(%d%)%>neff t-%1
+neff z%z%(%d%)%>neff z-%1
+
 opi nail polish%<opi n/plsh%|opi n/p
 livingston cellars%<livingston cell%|%^liv cellars
 сто рецептов красоты%<100рк%|сто рецепт%.%zкрасоты

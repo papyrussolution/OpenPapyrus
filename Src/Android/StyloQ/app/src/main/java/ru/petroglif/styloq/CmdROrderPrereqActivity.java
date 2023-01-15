@@ -3,8 +3,10 @@
 //
 package ru.petroglif.styloq;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +21,7 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.IdRes;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -43,6 +46,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	private ArrayList <Document.EditAction> DocEditActionList;
 	private BusinessEntity.DebtList DbtL; // @v11.5.4
 	private StyloQCommand.Item CmdQueryDebt; // @v11.5.4 Команда сервиса, используемая для запроса долгового реестра
+	private boolean DlvrLocGpslocSettingAllowed; // @v11.6.1 0
 	private void RefreshCurrentDocStatus()
 	{
 		if(CPM.TabList != null) {
@@ -65,6 +69,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		DocEditActionList = null;
 		DbtL = null;
 		CmdQueryDebt = null;
+		DlvrLocGpslocSettingAllowed = false;
 	}
 	private void MakeSimpleSearchIndex()
 	{
@@ -293,9 +298,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	}
 	private static class DlvrLocListAdapter extends SLib.InternalArrayAdapter {
 		//private int RcId;
-		DlvrLocListAdapter(Context ctx, int rcId, ArrayList data)
+		private boolean DlvrLocGpslocSettingAllowed;
+		DlvrLocListAdapter(Context ctx, int rcId, ArrayList data, boolean isDlvrLocGpslocSettingAllowed)
 		{
 			super(ctx, rcId, data);
+			DlvrLocGpslocSettingAllowed = isDlvrLocGpslocSettingAllowed;
 			//RcId = rcId;
 		}
 		@Override public View getView(int position, View convertView, ViewGroup parent)
@@ -320,6 +327,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						}
 						if(_ctx instanceof CmdROrderPrereqActivity)
 							((CmdROrderPrereqActivity)_ctx).SetListBackground(convertView, this, position, SLib.PPOBJ_LOCATION, loc_id);
+						SLib.SetCtrlVisibility(convertView, R.id.CTL_BUTTON_GEOLOCMARK, DlvrLocGpslocSettingAllowed ? View.VISIBLE : View.GONE); // @v11.6.1
 					}
 				}
 			}
@@ -500,6 +508,24 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								CPM.RestoreRecentDraftDocumentAsCurrent(); // @v11.4.0
 								CPM.MakeCurrentDocList();
 								MakeSimpleSearchIndex();
+							}
+							{
+								DlvrLocGpslocSettingAllowed = false;
+								StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, CPM.SvcIdent);
+								if(svc_pack != null) {
+									byte[] cfg_bytes = svc_pack.Pool.Get(SecretTagPool.tagConfig);
+									if(SLib.GetLen(cfg_bytes) > 0) {
+										StyloQConfig svc_cfg = new StyloQConfig();
+										if(svc_cfg.FromJson(new String(cfg_bytes))) {
+											final int cli_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagCliFlags));
+											if((cli_flags & StyloQConfig.clifPsnAdrGPS) != 0) {
+												if(ContextCompat.checkSelfPermission(app_ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+													DlvrLocGpslocSettingAllowed = true;
+												}
+											}
+										}
+									}
+								}
 							}
 							requestWindowFeature(Window.FEATURE_NO_TITLE);
 							setContentView(R.layout.activity_cmdrorderprereq);
@@ -790,7 +816,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 														ctl.setImageResource(R.drawable.ic_triangledown03);
 														if(dlvrloc_lv != null) {
 															dlvrloc_lv.setVisibility(View.VISIBLE);
-															DlvrLocListAdapter adapter = new DlvrLocListAdapter(/*this*/iv.getContext(), R.layout.li_simple_sublist, dlvr_loc_list);
+															DlvrLocListAdapter adapter = new DlvrLocListAdapter(
+																/*this*/iv.getContext(), R.layout.li_dlvrloc_by_client_sublist, dlvr_loc_list, DlvrLocGpslocSettingAllowed);
 															dlvrloc_lv.setAdapter(adapter);
 															{
 																int total_items_height = SLib.CalcListViewHeight(dlvrloc_lv);

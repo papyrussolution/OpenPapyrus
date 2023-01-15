@@ -7404,14 +7404,23 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 					}
 					SJson * p_js_dlvrloc_list = 0;
 					dlvr_loc_list.clear();
+					LocationTbl::Rec loc_rec;
 					THROW(psn_obj.GetDlvrLocList(ar_item.ObjID, &dlvr_loc_list));
 					for(uint i = 0; i < dlvr_loc_list.getCount(); i++) {
 						const PPID dlvr_loc_id = dlvr_loc_list.at(i);
-						loc_obj.GetAddress(dlvr_loc_id, 0, addr);
-						if(addr.NotEmptyS()) {
+						if(loc_obj.Fetch(dlvr_loc_id, &loc_rec) > 0 && LocationCore::GetAddress(loc_rec, 0, addr) && addr.NotEmptyS()) {
 							SJson * p_js_adr = SJson::CreateObj();
 							p_js_adr->InsertInt("id", dlvr_loc_id);
 							p_js_adr->InsertString("addr", (temp_buf = addr).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+							// @v11.6.1 {
+							{
+								SGeoPosLL geopos(loc_rec.Latitude, loc_rec.Longitude);
+								if(geopos.IsValid() && !geopos.IsZero()) {
+									p_js_adr->InsertDouble("lat", geopos.Lat, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+									p_js_adr->InsertDouble("lon", geopos.Lon, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+								}
+							}
+							// } @v11.6.1 
 							SETIFZ(p_js_dlvrloc_list, SJson::CreateArr());
 							p_js_dlvrloc_list->InsertChild(p_js_adr);
 							if(pStat)
@@ -9998,7 +10007,62 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 		}
 		else if(command.IsEqiAscii("setgeoloc")) { // @v11.6.1
 			// @todo
-			// svc || location
+			// svcident || locid
+			SString svcident;
+			SString locident;
+			SGeoPosLL geoloc;
+			for(const SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Type == SJson::tOBJECT) {								
+					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						if(p_obj->Text.IsEqiAscii("svcident"))
+							svcident = p_obj->P_Child->Text;
+						else if(p_obj->Text.IsEqiAscii("locid"))
+							locident = p_obj->P_Child->Text;
+						else if(p_obj->Text.IsEqiAscii("lat"))
+							geoloc.Lat = p_obj->P_Child->Text.ToReal();
+						else if(p_obj->Text.IsEqiAscii("lon"))
+							geoloc.Lon = p_obj->P_Child->Text.ToReal();
+					}
+				}
+			}
+			THROW(geoloc.IsValid() && !geoloc.IsZero()); // @todo @err
+			if(svcident.NotEmpty()) {
+				SBinaryChunk bc_own_ident;
+				THROW(locident.IsEmpty()); // @todo @err
+				if(bc_own_ident.FromMime64(svcident)) {
+					PPID   own_id = own_pack.Rec.ID;
+					StyloQFace own_face;
+					const int tag_id = SSecretTagPool::tagSelfyFace;
+					THROW(own_id); // @todo @err
+					THROW(bc_own_ident.IsEq(own_pack.Rec.BI, sizeof(own_pack.Rec.BI))); // @todo @err
+					own_pack.GetFace(tag_id, own_face);
+					THROW(own_face.SetGeoLoc(geoloc));
+					{
+						SJson * p_js_face = 0;
+						SString js_face;
+						SBinaryChunk face_chunk;
+						SBinarySet::DeflateStrategy ds(512);
+						THROW(own_face.ToJson(false, js_face));
+						face_chunk.Put(js_face, js_face.Len());
+						own_pack.Pool.Put(tag_id, face_chunk, &ds);
+						THROW(P_T->PutPeerEntry(&own_id, &own_pack, 1));
+						//
+						THROW(p_js_face = own_face.ToJsonObject(true/*for_transmission*/)); // @todo @err
+						//
+						p_js_reply = SJson::CreateObj();
+						p_js_reply->InsertString("result", "ok");
+						p_js_reply->Insert("svcface", p_js_face);	
+						p_js_face = 0;
+						cmd_reply_ok = true;
+					}
+				}
+			}
+			else if(locident.NotEmpty()) {
+				THROW(svcident.IsEmpty()); // @todo @err
+			}
+			else {
+				CALLEXCEPT(); // @todo @err
+			}
 		}
 		else if(command.IsEqiAscii("requestnotificationlist")) { // @v11.5.9 Запрос извещений по командам, для которых определены флаги извещений.
 			//S_GUID org_cmd_uuid;
