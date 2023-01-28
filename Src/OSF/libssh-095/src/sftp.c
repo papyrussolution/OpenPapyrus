@@ -1619,13 +1619,11 @@ ssize_t sftp_read(sftp_file handle, void * buf, size_t count)
 	while(!msg) {
 		if(handle->nonblocking) {
 			if(ssh_channel_poll(handle->sftp->channel, 0) == 0) {
-				/* we cannot block */
-				return 0;
+				return 0; // we cannot block 
 			}
 		}
 		if(sftp_read_and_dispatch(handle->sftp) < 0) {
-			/* something nasty has happened */
-			return -1;
+			return -1; // something nasty has happened 
 		}
 		msg = sftp_dequeue(handle->sftp, id);
 	}
@@ -1639,11 +1637,11 @@ ssize_t sftp_read(sftp_file handle, void * buf, size_t count)
 		    sftp_set_error(sftp, status->status);
 		    switch(status->status) {
 			    case SSH_FX_EOF:
-				handle->eof = 1;
-				status_msg_free(status);
-				return 0;
+					handle->eof = 1;
+					status_msg_free(status);
+					return 0;
 			    default:
-				break;
+					break;
 		    }
 		    ssh_set_error(sftp->session, SSH_REQUEST_DENIED, "SFTP server: %s", status->errormsg);
 		    status_msg_free(status);
@@ -1655,7 +1653,6 @@ ssize_t sftp_read(sftp_file handle, void * buf, size_t count)
 			    ssh_set_error(sftp->session, SSH_FATAL, "Received invalid DATA packet from sftp server");
 			    return -1;
 		    }
-
 		    datalen = ssh_string_len(datastring);
 		    if(datalen > count) {
 			    ssh_set_error(sftp->session, SSH_FATAL, "Received a too big DATA packet from sftp server: %" PRIdS " and asked for %" PRIdS, datalen, count);
@@ -1672,7 +1669,6 @@ ssize_t sftp_read(sftp_file handle, void * buf, size_t count)
 		    sftp_set_error(sftp, SSH_FX_BAD_MESSAGE);
 		    return -1;
 	}
-
 	return -1; /* not reached */
 }
 
@@ -1725,13 +1721,11 @@ int sftp_async_read(sftp_file file, void * data, uint32_t size, uint32_t id)
 	while(!msg) {
 		if(file->nonblocking) {
 			if(ssh_channel_poll(sftp->channel, 0) == 0) {
-				/* we cannot block */
-				return SSH_AGAIN;
+				return SSH_AGAIN; /* we cannot block */
 			}
 		}
 		if(sftp_read_and_dispatch(sftp) < 0) {
-			/* something nasty has happened */
-			return SSH_ERROR;
+			return SSH_ERROR; /* something nasty has happened */
 		}
 		msg = sftp_dequeue(sftp, id);
 	}

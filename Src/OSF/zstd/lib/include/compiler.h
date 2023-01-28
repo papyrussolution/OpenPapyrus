@@ -52,8 +52,7 @@
  * used for "templates", so it can be tweaked based on the compilers
  * performance.
  *
- * gcc-4.8 and gcc-4.9 have been shown to benefit from leaving off the
- * always_inline attribute.
+ * gcc-4.8 and gcc-4.9 have been shown to benefit from leaving off the always_inline attribute.
  *
  * clang up to 5.0.0 (trunk) benefit tremendously from the always_inline attribute.
  */

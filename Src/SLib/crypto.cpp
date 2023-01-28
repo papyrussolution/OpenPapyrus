@@ -1,5 +1,5 @@
 // CRYPTO.CPP
-// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019, 2020, 2021, 2022, 2023
 // @threadsafe
 //
 #include <slib-internal.h>
@@ -21,10 +21,10 @@ static int getkey(int key[], ulong * addendum)
 
 static ulong mix(ulong v)
 {
-	int i;
-	int key[16];
-	ulong addendum;
-	int c = getkey(key, &addendum);
+	int    i;
+	int    key[16];
+	ulong  addendum;
+	const  int c = getkey(key, &addendum);
 	v += addendum;
 	for(i = 0; i < c; i++)
 		if(key[i] % 3)
@@ -36,10 +36,10 @@ static ulong mix(ulong v)
 
 static ulong unmix(ulong v)
 {
-	int i;
-	int key[16];
-	ulong addendum;
-	int c = getkey(key, &addendum);
+	int    i;
+	int    key[16];
+	ulong  addendum;
+	const  int c = getkey(key, &addendum);
 	for(i = c-1; i >= 0; i--)
 		if(key[i] % 3)
 			v = /*_lrotl*/slrotl32(v, key[i]);

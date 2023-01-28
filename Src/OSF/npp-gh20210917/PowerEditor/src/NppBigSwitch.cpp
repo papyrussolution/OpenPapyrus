@@ -273,21 +273,15 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    const int strSize = FINDREPLACE_MAXLENGTH;
 		    TCHAR str[strSize];
 		    Finder * launcher = reinterpret_cast<Finder *>(wParam);
-
 		    bool isFirstTime = !_findInFinderDlg.isCreated();
-
 		    _findInFinderDlg.doDialog(launcher, _nativeLangSpeaker.isRTL());
-
 		    _pEditView->getGenericSelectedText(str, strSize);
 		    _findReplaceDlg.setSearchText(str);
 		    setFindReplaceFolderFilter(NULL, NULL);
-
 		    if(isFirstTime)
 			    _nativeLangSpeaker.changeFindReplaceDlgLang(_findReplaceDlg);
-
 		    return TRUE;
 	    }
-
 		case NPPM_DOOPEN:
 		case WM_DOOPEN:
 	    {
@@ -296,7 +290,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    return switchToFile(id);
 		    break;
 	    }
-
 		case NPPM_INTERNAL_SETFILENAME:
 	    {
 		    if(!lParam && !wParam)
@@ -309,7 +302,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    }
 		    return FALSE;
 	    }
-
 		case NPPM_GETBUFFERLANGTYPE:
 	    {
 		    if(!wParam)
@@ -318,20 +310,17 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    Buffer * b = MainFileManager.getBufferByID(id);
 		    return b->getLangType();
 	    }
-
 		case NPPM_SETBUFFERLANGTYPE:
 	    {
 		    if(!wParam)
 			    return FALSE;
 		    if(lParam < L_TEXT || lParam >= L_EXTERNAL || lParam == L_USER)
 			    return FALSE;
-
 		    BufferID id = (BufferID)wParam;
 		    Buffer * b = MainFileManager.getBufferByID(id);
 		    b->setLangType((LangType)lParam);
 		    return TRUE;
 	    }
-
 		case NPPM_GETBUFFERENCODING:
 	    {
 		    if(!wParam)
@@ -340,23 +329,19 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    Buffer * b = MainFileManager.getBufferByID(id);
 		    return b->getUnicodeMode();
 	    }
-
 		case NPPM_SETBUFFERENCODING:
 	    {
 		    if(!wParam)
 			    return FALSE;
 		    if(lParam < uni8Bit || lParam >= uniEnd)
 			    return FALSE;
-
 		    BufferID id = (BufferID)wParam;
 		    Buffer * b = MainFileManager.getBufferByID(id);
-		    if(b->getStatus() != DOC_UNNAMED || b->isDirty())           //do not allow to change the encoding if
-				                                                // the file has any content
+		    if(b->getStatus() != DOC_UNNAMED || b->isDirty()) // do not allow to change the encoding if the file has any content
 			    return FALSE;
 		    b->setUnicodeMode((UniMode)lParam);
 		    return TRUE;
 	    }
-
 		case NPPM_GETBUFFERFORMAT:
 	    {
 		    if(!wParam)
@@ -365,24 +350,20 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    Buffer * b = MainFileManager.getBufferByID(id);
 		    return static_cast<LRESULT>(b->getEolFormat());
 	    }
-
 		case NPPM_SETBUFFERFORMAT:
 	    {
 		    if(!wParam)
 			    return FALSE;
-
 		    EolType newFormat = convertIntToFormatType(static_cast<int>(lParam), EolType::unknown);
 		    if(EolType::unknown == newFormat) {
 			    assert(false and "invalid buffer format message");
 			    return FALSE;
 		    }
-
 		    BufferID id = (BufferID)wParam;
 		    Buffer * b = MainFileManager.getBufferByID(id);
 		    b->setEolFormat(newFormat);
 		    return TRUE;
 	    }
-
 		case NPPM_GETBUFFERIDFROMPOS:
 	    {
 		    DocTabView* pView = nullptr;
@@ -392,33 +373,23 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    pView = &_subDocTab;
 		    else
 			    return reinterpret_cast<LRESULT>(BUFFER_INVALID);
-
 		    if((size_t)wParam < pView->nbItem())
 			    return reinterpret_cast<LRESULT>(pView->getBufferByIndex(wParam));
-
 		    return reinterpret_cast<LRESULT>(BUFFER_INVALID);
 	    }
-
 		case NPPM_GETCURRENTBUFFERID:
-	    {
 		    return reinterpret_cast<LRESULT>(_pEditView->getCurrentBufferID());
-	    }
-
 		case NPPM_RELOADBUFFERID:
-	    {
 		    if(!wParam)
 			    return FALSE;
 		    return doReload(reinterpret_cast<BufferID>(wParam), lParam != 0);
-	    }
-
 		case NPPM_RELOADFILE:
-	    {
-		    BufferID id = MainFileManager.getBufferFromName(reinterpret_cast<const TCHAR *>(lParam));
-		    if(id != BUFFER_INVALID)
-			    doReload(id, wParam != 0);
-		    break;
-	    }
-
+			{
+				BufferID id = MainFileManager.getBufferFromName(reinterpret_cast<const TCHAR *>(lParam));
+				if(id != BUFFER_INVALID)
+					doReload(id, wParam != 0);
+				break;
+			}
 		case NPPM_SWITCHTOFILE:
 	    {
 		    BufferID id = MainFileManager.getBufferFromName(reinterpret_cast<const TCHAR *>(lParam));
@@ -426,44 +397,29 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    return switchToFile(id);
 		    return false;
 	    }
-
 		case NPPM_SAVECURRENTFILE:
-	    {
 		    return fileSave();
-	    }
-
 		case NPPM_SAVECURRENTFILEAS:
 	    {
 		    BufferID currentBufferID = _pEditView->getCurrentBufferID();
 		    bool asCopy = wParam == TRUE;
 		    const TCHAR * filename = reinterpret_cast<const TCHAR *>(lParam);
-		    if(!filename) return FALSE;
+		    if(!filename) 
+				return FALSE;
 		    return doSave(currentBufferID, filename, asCopy);
 	    }
-
 		case NPPM_SAVEALLFILES:
-	    {
 		    return fileSaveAll();
-	    }
-
 		case NPPM_SAVEFILE:
-	    {
 		    return fileSaveSpecific(reinterpret_cast<const TCHAR *>(lParam));
-	    }
-
 		case NPPM_GETCURRENTNATIVELANGENCODING:
-	    {
 		    return _nativeLangSpeaker.getLangEncoding();
-	    }
-
 		case NPPM_INTERNAL_DOCORDERCHANGED:
 	    {
 		    if(_pDocumentListPanel) {
 			    _pDocumentListPanel->updateTabOrder();
 		    }
-
 		    BufferID id = _pEditView->getCurrentBufferID();
-
 		    // Notify plugins that current file is about to be closed
 		    SCNotification scnN;
 		    scnN.nmhdr.code = NPPN_DOCORDERCHANGED;
@@ -498,7 +454,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    _pPublicInterface->getClientRect(rc);
 		    if(lParam == 0)
 			    lParam = MAKELPARAM(rc.right - rc.left, rc.bottom - rc.top);
-
 		    ::MoveWindow(_rebarTop.getHSelf(), 0, 0, rc.right, _rebarTop.getHeight(), TRUE);
 		    _statusBar.adjustParts(rc.right);
 		    ::SendMessage(_statusBar.getHSelf(), WM_SIZE, wParam, lParam);
@@ -507,7 +462,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    ::MoveWindow(_rebarBottom.getHSelf(), 0, rc.bottom - rebarBottomHeight - statusBarHeight, rc.right, rebarBottomHeight, TRUE);
 		    getMainClientRect(rc);
 		    _dockingManager.reSizeTo(rc);
-
 		    if(_pDocMap) {
 			    _pDocMap->doMove();
 			    _pDocMap->reloadMap();

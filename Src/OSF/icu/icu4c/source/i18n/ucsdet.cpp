@@ -1,12 +1,9 @@
+// UCSDET.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ********************************************************************************
- *   Copyright (C) 2005-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ********************************************************************************
- */
-
+// Copyright (C) 2005-2016, International Business Machines
+// Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -33,81 +30,44 @@ U_CAPI UCharsetDetector * U_EXPORT2 ucsdet_open(UErrorCode * status)
 	}
 	CharsetDetector* csd = new CharsetDetector(*status);
 	if(U_FAILURE(*status)) {
-		delete csd;
-		csd = NULL;
+		ZDELETE(csd);
 	}
 	return (UCharsetDetector*)csd;
 }
 
 U_CAPI void U_EXPORT2 ucsdet_close(UCharsetDetector * ucsd)
 {
-	CharsetDetector * csd = (CharsetDetector*)ucsd;
+	CharsetDetector * csd = (CharsetDetector *)ucsd;
 	delete csd;
 }
 
 U_CAPI void U_EXPORT2 ucsdet_setText(UCharsetDetector * ucsd, const char * textIn, int32_t len, UErrorCode * status)
 {
-	if(U_FAILURE(*status)) {
-		return;
-	}
-
-	((CharsetDetector*)ucsd)->setText(textIn, len);
+	if(U_SUCCESS(*status))
+		((CharsetDetector*)ucsd)->setText(textIn, len);
 }
 
 U_CAPI const char * U_EXPORT2 ucsdet_getName(const UCharsetMatch * ucsm, UErrorCode * status)
-{
-	if(U_FAILURE(*status)) {
-		return NULL;
-	}
-
-	return ((CharsetMatch*)ucsm)->getName();
-}
-
+	{ return U_SUCCESS(*status) ? ((CharsetMatch*)ucsm)->getName() : NULL; }
 U_CAPI int32_t U_EXPORT2 ucsdet_getConfidence(const UCharsetMatch * ucsm, UErrorCode * status)
-{
-	if(U_FAILURE(*status)) {
-		return 0;
-	}
-
-	return ((CharsetMatch*)ucsm)->getConfidence();
-}
-
+	{ return U_SUCCESS(*status) ? ((CharsetMatch*)ucsm)->getConfidence() : 0; }
 U_CAPI const char * U_EXPORT2 ucsdet_getLanguage(const UCharsetMatch * ucsm, UErrorCode * status)
-{
-	if(U_FAILURE(*status)) {
-		return NULL;
-	}
-
-	return ((CharsetMatch*)ucsm)->getLanguage();
-}
-
+	{ return U_SUCCESS(*status) ? ((CharsetMatch*)ucsm)->getLanguage() : NULL; }
 U_CAPI const UCharsetMatch * U_EXPORT2 ucsdet_detect(UCharsetDetector * ucsd, UErrorCode * status)
-{
-	if(U_FAILURE(*status)) {
-		return NULL;
-	}
-
-	return (const UCharsetMatch*)((CharsetDetector*)ucsd)->detect(*status);
-}
+	{ return U_SUCCESS(*status) ? (const UCharsetMatch*)((CharsetDetector*)ucsd)->detect(*status) : NULL; }
 
 U_CAPI void U_EXPORT2 ucsdet_setDeclaredEncoding(UCharsetDetector * ucsd, const char * encoding, int32_t length, UErrorCode * status)
 {
-	if(U_FAILURE(*status)) {
-		return;
-	}
-
-	((CharsetDetector*)ucsd)->setDeclaredEncoding(encoding, length);
+	if(U_SUCCESS(*status))
+		((CharsetDetector*)ucsd)->setDeclaredEncoding(encoding, length);
 }
 
-U_CAPI const UCharsetMatch** ucsdet_detectAll(UCharsetDetector * ucsd,
-    int32_t * maxMatchesFound, UErrorCode * status)
+U_CAPI const UCharsetMatch** ucsdet_detectAll(UCharsetDetector * ucsd, int32_t * maxMatchesFound, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-
 	CharsetDetector * csd = (CharsetDetector*)ucsd;
-
 	return (const UCharsetMatch**)csd->detectAll(*maxMatchesFound, *status);
 }
 
@@ -132,11 +92,7 @@ U_CAPI const UCharsetMatch** ucsdet_detectAll(UCharsetDetector * ucsd,
 U_CAPI bool U_EXPORT2 ucsdet_isInputFilterEnabled(const UCharsetDetector * ucsd)
 {
 	// todo: could use an error return...
-	if(ucsd == NULL) {
-		return FALSE;
-	}
-
-	return ((CharsetDetector*)ucsd)->getStripTagsFlag();
+	return ucsd ? ((CharsetDetector*)ucsd)->getStripTagsFlag() : FALSE;
 }
 
 U_CAPI bool U_EXPORT2 ucsdet_enableInputFilter(UCharsetDetector * ucsd, bool filter)
@@ -145,39 +101,20 @@ U_CAPI bool U_EXPORT2 ucsdet_enableInputFilter(UCharsetDetector * ucsd, bool fil
 	if(ucsd == NULL) {
 		return FALSE;
 	}
-
 	CharsetDetector * csd = (CharsetDetector*)ucsd;
 	bool prev = csd->getStripTagsFlag();
-
 	csd->setStripTagsFlag(filter);
-
 	return prev;
 }
 
-U_CAPI int32_t U_EXPORT2 ucsdet_getUChars(const UCharsetMatch * ucsm,
-    UChar * buf, int32_t cap, UErrorCode * status)
-{
-	if(U_FAILURE(*status)) {
-		return 0;
-	}
-
-	return ((CharsetMatch*)ucsm)->getUChars(buf, cap, status);
-}
-
+U_CAPI int32_t U_EXPORT2 ucsdet_getUChars(const UCharsetMatch * ucsm, UChar * buf, int32_t cap, UErrorCode * status)
+	{ return U_SUCCESS(*status) ? ((CharsetMatch*)ucsm)->getUChars(buf, cap, status) : 0; }
 U_CAPI void U_EXPORT2 ucsdet_setDetectableCharset(UCharsetDetector * ucsd, const char * encoding, bool enabled, UErrorCode * status)
-{
-	((CharsetDetector*)ucsd)->setDetectableCharset(encoding, enabled, *status);
-}
-
+	{ ((CharsetDetector*)ucsd)->setDetectableCharset(encoding, enabled, *status); }
 U_CAPI UEnumeration * U_EXPORT2 ucsdet_getAllDetectableCharsets(const UCharsetDetector * /*ucsd*/, UErrorCode * status)
-{
-	return CharsetDetector::getAllDetectableCharsets(*status);
-}
-
+	{ return CharsetDetector::getAllDetectableCharsets(*status); }
 U_CAPI UEnumeration * U_EXPORT2 ucsdet_getDetectableCharsets(const UCharsetDetector * ucsd,  UErrorCode * status)
-{
-	return ((CharsetDetector*)ucsd)->getDetectableCharsets(*status);
-}
+	{ return ((CharsetDetector*)ucsd)->getDetectableCharsets(*status); }
 
 U_CDECL_END
 

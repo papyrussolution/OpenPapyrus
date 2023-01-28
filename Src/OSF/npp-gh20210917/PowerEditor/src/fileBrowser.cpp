@@ -633,114 +633,100 @@ void FileBrowser::popupMenuCmd(int cmdID)
 {
 	// get selected item handle
 	HTREEITEM selectedNode = _treeView.getSelection();
-
-	switch(cmdID)
-	{
+	switch(cmdID) {
 		//
 		// FileBrowser menu commands
 		//
 		case IDM_FILEBROWSER_REMOVEROOTFOLDER:
-	    {
-		    if(!selectedNode) return;
+			{
+				if(!selectedNode) return;
+				generic_string * rootPath = (generic_string*)_treeView.getItemParam(selectedNode);
+				if(_treeView.getParent(selectedNode) != nullptr || rootPath == nullptr)
+					return;
 
-		    generic_string * rootPath = (generic_string*)_treeView.getItemParam(selectedNode);
-		    if(_treeView.getParent(selectedNode) != nullptr || rootPath == nullptr)
-			    return;
-
-		    size_t nbFolderUpdaters = _folderUpdaters.size();
-		    for(size_t i = 0; i < nbFolderUpdaters; ++i) {
-			    if(_folderUpdaters[i]->_rootFolder._rootPath == *rootPath) {
-				    _folderUpdaters[i]->stopWatcher();
-				    _folderUpdaters.erase(_folderUpdaters.begin() + i);
-				    _treeView.removeItem(selectedNode);
-				    break;
-			    }
-		    }
-	    }
-	    break;
-
+				size_t nbFolderUpdaters = _folderUpdaters.size();
+				for(size_t i = 0; i < nbFolderUpdaters; ++i) {
+					if(_folderUpdaters[i]->_rootFolder._rootPath == *rootPath) {
+						_folderUpdaters[i]->stopWatcher();
+						_folderUpdaters.erase(_folderUpdaters.begin() + i);
+						_treeView.removeItem(selectedNode);
+						break;
+					}
+				}
+			}
+			break;
 		case IDM_FILEBROWSER_EXPLORERHERE:
-	    {
-		    if(!selectedNode) return;
-
-		    generic_string path = getNodePath(selectedNode);
-		    if(::PathFileExists(path.c_str())) {
-			    TCHAR cmdStr[1024] = {};
-			    if(getNodeType(selectedNode) == browserNodeType_file)
-				    wsprintf(cmdStr, TEXT("explorer /select,\"%s\""), path.c_str());
-			    else
-				    wsprintf(cmdStr, TEXT("explorer \"%s\""), path.c_str());
-			    Command cmd(cmdStr);
-			    cmd.run(nullptr);
-		    }
-	    }
-	    break;
-
+			{
+				if(!selectedNode) 
+					return;
+				generic_string path = getNodePath(selectedNode);
+				if(::PathFileExists(path.c_str())) {
+					TCHAR cmdStr[1024] = {};
+					if(getNodeType(selectedNode) == browserNodeType_file)
+						wsprintf(cmdStr, TEXT("explorer /select,\"%s\""), path.c_str());
+					else
+						wsprintf(cmdStr, TEXT("explorer \"%s\""), path.c_str());
+					Command cmd(cmdStr);
+					cmd.run(nullptr);
+				}
+			}
+			break;
 		case IDM_FILEBROWSER_CMDHERE:
-	    {
-		    if(!selectedNode) return;
-
-		    if(getNodeType(selectedNode) == browserNodeType_file)
-			    selectedNode = _treeView.getParent(selectedNode);
-
-		    generic_string path = getNodePath(selectedNode);
-		    if(::PathFileExists(path.c_str())) {
-			    Command cmd(NppParameters::getInstance().getNppGUI()._commandLineInterpreter.c_str());
-			    cmd.run(nullptr, path.c_str());
-		    }
-	    }
-	    break;
-
+			{
+				if(!selectedNode) 
+					return;
+				if(getNodeType(selectedNode) == browserNodeType_file)
+					selectedNode = _treeView.getParent(selectedNode);
+				generic_string path = getNodePath(selectedNode);
+				if(::PathFileExists(path.c_str())) {
+					Command cmd(NppParameters::getInstance().getNppGUI()._commandLineInterpreter.c_str());
+					cmd.run(nullptr, path.c_str());
+				}
+			}
+			break;
 		case IDM_FILEBROWSER_COPYPATH:
-	    {
-		    if(!selectedNode) return;
-		    generic_string path = getNodePath(selectedNode);
-		    str2Clipboard(path, _hParent);
-	    }
-	    break;
-
+			{
+				if(!selectedNode) 
+					return;
+				generic_string path = getNodePath(selectedNode);
+				str2Clipboard(path, _hParent);
+			}
+			break;
 		case IDM_FILEBROWSER_COPYFILENAME:
-	    {
-		    if(!selectedNode) return;
-		    generic_string fileName = getNodeName(selectedNode);
-		    str2Clipboard(fileName, _hParent);
-	    }
-	    break;
-
+			{
+				if(!selectedNode) 
+					return;
+				generic_string fileName = getNodeName(selectedNode);
+				str2Clipboard(fileName, _hParent);
+			}
+			break;
 		case IDM_FILEBROWSER_FINDINFILES:
 	    {
-		    if(!selectedNode) return;
+		    if(!selectedNode) 
+				return;
 		    generic_string path = getNodePath(selectedNode);
 		    ::SendMessage(_hParent, NPPM_LAUNCHFINDINFILESDLG, reinterpret_cast<WPARAM>(path.c_str()), 0);
 	    }
 	    break;
-
 		case IDM_FILEBROWSER_OPENINNPP:
-	    {
 		    openSelectFile();
-	    }
-	    break;
-
+		    break;
 		case IDM_FILEBROWSER_REMOVEALLROOTS:
 	    {
 		    for(int i = static_cast<int>(_folderUpdaters.size()) - 1; i >= 0; --i) {
 			    _folderUpdaters[i]->stopWatcher();
-
 			    HTREEITEM root =  getRootFromFullPath(_folderUpdaters[i]->_rootFolder._rootPath);
 			    if(root)
 				    _treeView.removeItem(root);
-
 			    _folderUpdaters.erase(_folderUpdaters.begin() + i);
 		    }
 	    }
 	    break;
-
 		case IDM_FILEBROWSER_ADDROOT:
 	    {
 		    NativeLangSpeaker * pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
 		    generic_string openWorkspaceStr =
-			pNativeSpeaker->getAttrNameStr(TEXT("Select a folder to add in Folder as Workspace panel"),
-			    FOLDERASWORKSPACE_NODE,
+			pNativeSpeaker->getAttrNameStr(TEXT("Select a folder to add in Folder as Workspace panel"), FOLDERASWORKSPACE_NODE,
 			    "SelectFolderFromBrowserString");
 		    generic_string folderPath = folderBrowser(_hParent, openWorkspaceStr.c_str());
 		    if(!folderPath.empty()) {
@@ -748,12 +734,11 @@ void FileBrowser::popupMenuCmd(int cmdID)
 		    }
 	    }
 	    break;
-
 		case IDM_FILEBROWSER_SHELLEXECUTE:
 	    {
-		    if(!selectedNode) return;
+		    if(!selectedNode) 
+				return;
 		    generic_string path = getNodePath(selectedNode);
-
 		    if(::PathFileExists(path.c_str()))
 			    ::ShellExecute(NULL, TEXT("open"), path.c_str(), NULL, NULL, SW_SHOWNORMAL);
 	    }

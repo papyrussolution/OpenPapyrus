@@ -1774,7 +1774,6 @@ void Notepad_plus::command(int id)
 			    distractionFreeToggle();
 	    }
 	    break;
-
 		case IDM_VIEW_IN_FIREFOX:
 		case IDM_VIEW_IN_CHROME:
 		case IDM_VIEW_IN_EDGE:
@@ -1795,7 +1794,6 @@ void Notepad_plus::command(int id)
 			    else {    // if(id == IDM_VIEW_IN_IE)
 				    appName = TEXT("IEXPLORE.EXE");
 			    }
-
 			    TCHAR valData[MAX_PATH] = {'\0'};
 			    DWORD valDataLen = MAX_PATH * sizeof(TCHAR);
 			    DWORD valType;
@@ -1804,35 +1802,24 @@ void Notepad_plus::command(int id)
 			    appEntry += appName;
 			    ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, appEntry.c_str(), 0, KEY_READ, &hKey2Check);
 			    ::RegQueryValueEx(hKey2Check, TEXT(""), nullptr, &valType, reinterpret_cast<LPBYTE>(valData), &valDataLen);
-
 			    generic_string fullCurrentPath = TEXT("\"");
 			    fullCurrentPath += currentBuf->getFullPathName();
 			    fullCurrentPath += TEXT("\"");
-
 			    if(hKey2Check && valData[0] != '\0') {
 				    ::ShellExecute(NULL, TEXT("open"), valData, fullCurrentPath.c_str(), NULL, SW_SHOWNORMAL);
 			    }
 			    else if(id == IDM_VIEW_IN_EDGE) {
 				    // Try the Legacy version
-
 				    // Don't put the quots for Edge, otherwise it doesn't work
 				    //fullCurrentPath = TEXT("\"");
 				    generic_string fullCurrentPath = currentBuf->getFullPathName();
 				    //fullCurrentPath += TEXT("\"");
-
-				    ::ShellExecute(NULL,
-					TEXT("open"),
-					TEXT("shell:Appsfolder\\Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge"),
-					fullCurrentPath.c_str(),
+				    ::ShellExecute(NULL, TEXT("open"), TEXT("shell:Appsfolder\\Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge"), fullCurrentPath.c_str(),
 					NULL,
 					SW_SHOW);
 			    }
 			    else {
-				    _nativeLangSpeaker.messageBox("ViewInBrowser",
-					_pPublicInterface->getHSelf(),
-					TEXT("Application cannot be found in your system."),
-					TEXT("View Current File in Browser"),
-					MB_OK);
+				    _nativeLangSpeaker.messageBox("ViewInBrowser", _pPublicInterface->getHSelf(), TEXT("Application cannot be found in your system."), TEXT("View Current File in Browser"), MB_OK);
 			    }
 			    ::RegCloseKey(hKey2Check);
 		    }
@@ -2698,10 +2685,8 @@ void Notepad_plus::command(int id)
 		    // secured with SSL on notepad_plus_plus.org
 		    winVer ver = NppParameters::getInstance().getWinVersion();
 		    if(ver <= WV_XP) {
-			    long res = _nativeLangSpeaker.messageBox("XpUpdaterProblem",
-				    _pPublicInterface->getHSelf(),
-				    TEXT(
-					    "Notepad++ updater is not compatible with XP due to the obsolete security layer under XP.\rDo you want to go to Notepad++ page to download the latest version?"),
+			    long res = _nativeLangSpeaker.messageBox("XpUpdaterProblem", _pPublicInterface->getHSelf(),
+				    TEXT("Notepad++ updater is not compatible with XP due to the obsolete security layer under XP.\rDo you want to go to Notepad++ page to download the latest version?"),
 				    TEXT("Notepad++ Updater"),
 				    MB_YESNO);
 			    if(res == IDYES) {
@@ -2711,10 +2696,8 @@ void Notepad_plus::command(int id)
 		    else {
 			    generic_string updaterDir = (NppParameters::getInstance()).getNppPath();
 			    PathAppend(updaterDir, TEXT("updater"));
-
 			    generic_string updaterFullPath = updaterDir;
 			    PathAppend(updaterFullPath, TEXT("gup.exe"));
-
 #ifdef DEBUG // if not debug, then it's release
 			    bool isCertifVerified = true;
 #else //RELEASE
@@ -2726,11 +2709,8 @@ void Notepad_plus::command(int id)
 				    generic_string param;
 				    if(id == IDM_CONFUPDATERPROXY) {
 					    if(!_isAdministrator) {
-						    _nativeLangSpeaker.messageBox("GUpProxyConfNeedAdminMode",
-							_pPublicInterface->getHSelf(),
-							TEXT("Please relaunch Notepad++ in Admin mode to configure proxy."),
-							TEXT("Proxy Settings"),
-							MB_OK | MB_APPLMODAL);
+						    _nativeLangSpeaker.messageBox("GUpProxyConfNeedAdminMode", _pPublicInterface->getHSelf(),
+							TEXT("Please relaunch Notepad++ in Admin mode to configure proxy."), TEXT("Proxy Settings"), MB_OK | MB_APPLMODAL);
 						    return;
 					    }
 					    param = TEXT("-options");

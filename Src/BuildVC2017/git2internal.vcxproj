@@ -79,7 +79,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;src;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libssh2\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;src;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libssh2\include;..\OSF\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <CallingConvention>Cdecl</CallingConvention>
@@ -121,7 +121,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;src;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libssh2\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;src;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libssh2\include;..\OSF\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <CallingConvention>Cdecl</CallingConvention>
@@ -163,7 +163,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;src;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libssh2\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;src;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libssh2\include;..\OSF\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <CallingConvention>Cdecl</CallingConvention>
       <ControlFlowGuard>false</ControlFlowGuard>
@@ -208,7 +208,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;src;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libssh2\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;src;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libssh2\include;..\OSF\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <CallingConvention>Cdecl</CallingConvention>
       <ControlFlowGuard>false</ControlFlowGuard>

@@ -1607,7 +1607,12 @@ public class SLib {
 	public static final int EV_SVCQUERYRESULT       = 20; // @v11.3.10 Посылается в SlActivity после выполнения запроса к сервису по заданию этой activity
 	public static final int EV_CBSELECTED           = 21; // @v11.4.0 Посылается в ответ на выбор элемента в combo-box'е (spinner)
 	public static final int EV_TABSELECTED          = 22; // @v11.5.0 Посылается в ответ на выбор табулятора (ViewPager2) srcObj: ViewPager2; subj: Integer(tabIndex)
-	public static final int EV_GEOLOCDETECTED       = 23; // @v11.6.1 Посылается в ответ на регистрацию геолокации. srcObj: none, subj: Location
+	public static final int EV_GEOLOCDETECTED       = 23; // @v11.6.1 Посылается в ответ на регистрацию геолокации. srcObj: SLib.PPObjID, subj: Location
+	public static final int EV_QUERY                = 24; // @v11.6.2 Посылается иным потоком либо функцией, не имеющей прямого доступа ко всему объекту,
+		// реализующему интерфейс, с целью получения каких-то данных. srcObj: объект-источник запроса (maybe null), subj: String (текстовый запрос).
+		// Интерфейс возвращает в ответ либо какой-то объект (инициатор должен знать что это за объект), либо null.
+		// Варианты строки запроса:
+		// "GetSvcDataTime" - запрос на метку времени данных, полученных от сервиса и с которыми работает объект.
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -5527,7 +5532,10 @@ public class SLib {
 				RTmr = null;
 			}
 		}
-		public void OnButtonClk(View view) { HandleEvent(EV_COMMAND, view, null); }
+		public void OnButtonClk(View view)
+		{
+			HandleEvent(EV_COMMAND, view, null);
+		}
 		public void SetupRecyclerListView(View parentView, int rcListView, int rcItemView)
 		{
 			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
@@ -6070,7 +6078,7 @@ public class SLib {
 	// Descr: Запрашивает точное местоположение устройства
 	//
 	//
-	public static int QueryCurrentGeoLoc(SlActivity activityCtx, EventHandler retrHandler)
+	public static int QueryCurrentGeoLoc(SlActivity activityCtx, SLib.PPObjID oid, EventHandler retrHandler)
 	{
 		int    result = 0;
 		if(activityCtx != null && retrHandler != null) {
@@ -6083,7 +6091,7 @@ public class SLib {
 							if(location != null) {
 								//app_ctx.RunSvcCommand(_data.Rec.BI, cmd_item, null, force_query, null);
 								//appCtx.RunSvcCommand_SetGeoLoc(_data.Rec.BI, 0, location, null);
-								retrHandler.HandleEvent(EV_GEOLOCDETECTED, null, location);
+								retrHandler.HandleEvent(EV_GEOLOCDETECTED, oid, location);
 							}
 						}
 					});

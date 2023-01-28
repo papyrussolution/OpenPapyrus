@@ -16,7 +16,7 @@
 void AES_ecb_encrypt(const uchar * in, uchar * out, const AES_KEY * key, const int enc)
 {
 	assert(in && out && key);
-	assert((AES_ENCRYPT == enc) || (AES_DECRYPT == enc));
+	assert(oneof2(enc, AES_ENCRYPT, AES_DECRYPT));
 	if(AES_ENCRYPT == enc)
 		AES_encrypt(in, out, key);
 	else

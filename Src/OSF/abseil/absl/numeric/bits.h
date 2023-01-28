@@ -1,10 +1,9 @@
+// bits.h
 // Copyright 2020 The Abseil Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,37 +11,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// -----------------------------------------------------------------------------
-// File: bits.h
-// -----------------------------------------------------------------------------
-//
 // This file contains implementations of C++20's bitwise math functions, as
 // defined by:
 //
-// P0553R4:
-//  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0553r4.html
-// P0556R3:
-//  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0556r3.html
-// P1355R2:
-//  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1355r2.html
-// P1956R1:
-//  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p1956r1.pdf
+// P0553R4: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0553r4.html
+// P0556R3: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0556r3.html
+// P1355R2: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1355r2.html
+// P1956R1: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p1956r1.pdf
 //
 // When using a standard library that implements these functions, we use the
 // standard library's implementation.
-
+//
 #ifndef ABSL_NUMERIC_BITS_H_
 #define ABSL_NUMERIC_BITS_H_
 
 #include <cstdint>
 #include <limits>
 #include <type_traits>
-
-#if (defined(__cpp_lib_int_pow2) && __cpp_lib_int_pow2 >= 202002L) || \
-	(defined(__cpp_lib_bitops) && __cpp_lib_bitops >= 201907L)
-#include <bit>
+#if (defined(__cpp_lib_int_pow2) && __cpp_lib_int_pow2 >= 202002L) || (defined(__cpp_lib_bitops) && __cpp_lib_bitops >= 201907L)
+	#include <bit>
 #endif
-
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/numeric/internal/bits.h"

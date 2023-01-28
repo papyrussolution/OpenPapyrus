@@ -215,6 +215,10 @@ popd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\util\providers.num</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl -Ims\x86\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl -Ims\x86\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def</Message>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -229,9 +233,6 @@ popd</Command>
     </ProjectReference>
     <ProjectReference Include="onig.vcxproj">
       <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
-    </ProjectReference>
-    <ProjectReference Include="slib-ossl302.vcxproj">
-      <Project>{eace3436-83ef-42ee-a927-fef18343dcf4}</Project>
     </ProjectReference>
     <ProjectReference Include="ossl300-libcommon-static.vcxproj">
       <Project>{faa6635c-9dec-4a36-8e2f-70bb38318f00}</Project>

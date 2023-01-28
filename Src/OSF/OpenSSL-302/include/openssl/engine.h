@@ -92,9 +92,7 @@ extern "C" {
  * part of ENGINE_register_all_complete() for example if the methods are not
  * usable as default methods.
  */
-
 #define ENGINE_FLAGS_NO_REGISTER_ALL    (int)0x0008
-
 /*
  * ENGINEs can support their own command types, and these flags are used in
  * ENGINE_CTRL_GET_CMD_FLAGS to indicate to the caller what kind of input
@@ -125,7 +123,6 @@ extern "C" {
  * function.
  */
 #define ENGINE_CMD_FLAG_INTERNAL        (unsigned int)0x0008
-
 /*
  * NB: These 3 control commands are deprecated and should not be used.
  * ENGINEs relying on these commands should compile conditional support for
@@ -136,7 +133,6 @@ extern "C" {
  * doesn't change the fact that application code can find and use them
  * without requiring per-ENGINE hacking.
  */
-
 /*
  * These flags are used to tell the ctrl function what should be done. All
  * command numbers are shared between all engines, even if some don't make
@@ -145,22 +141,13 @@ extern "C" {
  */
 #define ENGINE_CTRL_SET_LOGSTREAM               1
 #define ENGINE_CTRL_SET_PASSWORD_CALLBACK       2
-#define ENGINE_CTRL_HUP                         3/* Close and reinitialise
-	                                            * any handles/connections
-	                                            * etc. */
+#define ENGINE_CTRL_HUP                         3/* Close and reinitialise any handles/connections etc. */
 #define ENGINE_CTRL_SET_USER_INTERFACE          4/* Alternative to callback */
-#define ENGINE_CTRL_SET_CALLBACK_DATA           5/* User-specific data, used
-	                                            * when calling the password
-	                                            * callback and the user
-	                                            * interface */
-#define ENGINE_CTRL_LOAD_CONFIGURATION          6/* Load a configuration,
-	                                            * given a string that
-	                                            * represents a file name
-	                                            * or so */
-#define ENGINE_CTRL_LOAD_SECTION                7/* Load data from a given
-	                                           * section in the already
-	                                           * loaded configuration */
-
+#define ENGINE_CTRL_SET_CALLBACK_DATA           5/* User-specific data, used when calling the password
+	                                            * callback and the user interface */
+#define ENGINE_CTRL_LOAD_CONFIGURATION          6/* Load a configuration, given a string that
+	                                            * represents a file name or so */
+#define ENGINE_CTRL_LOAD_SECTION                7/* Load data from a given section in the already loaded configuration */
 /*
  * These control commands allow an application to deal with an arbitrary
  * engine in a dynamic way. Warn: Negative return values indicate errors FOR
@@ -326,27 +313,19 @@ OSSL_DEPRECATEDIN_3_0 ENGINE * ENGINE_by_id(const char * id);
 #endif
 
 #ifndef OPENSSL_NO_DEPRECATED_1_1_0
-#define ENGINE_load_openssl() \
-	OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_OPENSSL, NULL)
-#define ENGINE_load_dynamic() \
-	OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_DYNAMIC, NULL)
+#define ENGINE_load_openssl() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_OPENSSL, NULL)
+#define ENGINE_load_dynamic() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_DYNAMIC, NULL)
 #   ifndef OPENSSL_NO_STATIC_ENGINE
-#define ENGINE_load_padlock() \
-	OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_PADLOCK, NULL)
-#define ENGINE_load_capi() \
-	OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_CAPI, NULL)
-#define ENGINE_load_afalg() \
-	OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_AFALG, NULL)
+#define ENGINE_load_padlock() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_PADLOCK, NULL)
+#define ENGINE_load_capi() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_CAPI, NULL)
+#define ENGINE_load_afalg() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_AFALG, NULL)
 #endif
-#define ENGINE_load_cryptodev() \
-	OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_CRYPTODEV, NULL)
-#define ENGINE_load_rdrand() \
-	OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_RDRAND, NULL)
+#define ENGINE_load_cryptodev() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_CRYPTODEV, NULL)
+#define ENGINE_load_rdrand() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_RDRAND, NULL)
 #endif
 #ifndef OPENSSL_NO_DEPRECATED_3_0
 OSSL_DEPRECATEDIN_3_0 void ENGINE_load_builtin_engines(void);
 #endif
-
 /*
  * Get and set global flags (ENGINE_TABLE_FLAG_***) for the implementation
  * "registry" handling.
@@ -734,17 +713,13 @@ typedef unsigned long (* dynamic_v_check_fn) (unsigned long ossl_version);
  * returns an int value (zero for failure). 'fn' should have prototype;
  * [static] int fn(ENGINE *e, const char *id);
  */
-typedef int (* dynamic_bind_engine) (ENGINE * e, const char * id,
-    const dynamic_fns * fns);
+typedef int (* dynamic_bind_engine) (ENGINE * e, const char * id, const dynamic_fns * fns);
 #define IMPLEMENT_DYNAMIC_BIND_FN(fn) \
-	OPENSSL_EXPORT \
-	int bind_engine(ENGINE * e, const char * id, const dynamic_fns * fns); \
-	OPENSSL_EXPORT \
-	int bind_engine(ENGINE * e, const char * id, const dynamic_fns * fns) { \
+	OPENSSL_EXPORT int bind_engine(ENGINE * e, const char * id, const dynamic_fns * fns); \
+	OPENSSL_EXPORT int bind_engine(ENGINE * e, const char * id, const dynamic_fns * fns) { \
 		if(ENGINE_get_static_state() == fns->static_state) goto skip_cbs; \
 		CRYPTO_set_mem_functions(fns->mem_fns.malloc_fn, \
-		    fns->mem_fns.realloc_fn, \
-		    fns->mem_fns.free_fn); \
+		    fns->mem_fns.realloc_fn, fns->mem_fns.free_fn); \
 		OPENSSL_init_crypto(OPENSSL_INIT_NO_ATEXIT, NULL); \
 		skip_cbs : \
 		if(!fn(e, id)) return 0; \

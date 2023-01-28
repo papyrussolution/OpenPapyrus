@@ -1506,7 +1506,7 @@ int DoConstructionTest()
 	//Test_Fts();
 #endif
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
-	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
+	Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
 	TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);

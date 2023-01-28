@@ -79,10 +79,7 @@
 // Conversions
 void CMSEXPORT cmsXYZ2xyY(cmsCIExyY* Dest, const cmsCIEXYZ* Source)
 {
-	double ISum;
-
-	ISum = 1./(Source->X + Source->Y + Source->Z);
-
+	double ISum = 1.0/(Source->X + Source->Y + Source->Z);
 	Dest->x = (Source->X) * ISum;
 	Dest->y = (Source->Y) * ISum;
 	Dest->Y = Source->Y;
@@ -107,19 +104,13 @@ void CMSEXPORT cmsxyY2XYZ(cmsCIEXYZ* Dest, const cmsCIExyY* Source)
 static double f(double t)
 {
 	const double Limit = (24.0/116.0) * (24.0/116.0) * (24.0/116.0);
-	if(t <= Limit)
-		return (841.0/108.0) * t + (16.0/116.0);
-	else
-		return pow(t, 1.0/3.0);
+	return (t <= Limit) ? ((841.0/108.0) * t + (16.0/116.0)) : pow(t, 1.0/3.0);
 }
 
 static double f_1(double t)
 {
 	const double Limit = (24.0/116.0);
-	if(t <= Limit) {
-		return (108.0/841.0) * (t - (16.0/116.0));
-	}
-	return t * t * t;
+	return (t <= Limit) ? ((108.0/841.0) * (t - (16.0/116.0))) : (t * t * t);
 }
 
 // Standard XYZ to Lab. it can handle negative XZY numbers in some cases
@@ -151,37 +142,14 @@ void CMSEXPORT cmsLab2XYZ(const cmsCIEXYZ* WhitePoint, cmsCIEXYZ* xyz,  const cm
 	xyz->Z = f_1(z) * WhitePoint->Z;
 }
 
-static double L2float2(uint16 v)
-{
-	return (double)v / 652.800;
-}
-
+static double L2float2(uint16 v) { return (double)v / 652.800; }
 // the a/b part
-static double ab2float2(uint16 v)
-{
-	return ((double)v / 256.0) - 128.0;
-}
-
-static uint16 L2Fix2(double L)
-{
-	return _cmsQuickSaturateWord(L *  652.8);
-}
-
-static uint16 ab2Fix2(double ab)
-{
-	return _cmsQuickSaturateWord((ab + 128.0) * 256.0);
-}
-
-static double L2float4(uint16 v)
-{
-	return (double)v / 655.35;
-}
-
+static double ab2float2(uint16 v) { return ((double)v / 256.0) - 128.0; }
+static uint16 L2Fix2(double L) { return _cmsQuickSaturateWord(L *  652.8); }
+static uint16 ab2Fix2(double ab) { return _cmsQuickSaturateWord((ab + 128.0) * 256.0); }
+static double L2float4(uint16 v) { return (double)v / 655.35; }
 // the a/b part
-static double ab2float4(uint16 v)
-{
-	return ((double)v / 257.0) - 128.0;
-}
+static double ab2float4(uint16 v) { return ((double)v / 257.0) - 128.0; }
 
 void CMSEXPORT cmsLabEncoded2FloatV2(cmsCIELab* Lab, const uint16 wLab[3])
 {

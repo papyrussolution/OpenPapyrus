@@ -1,5 +1,5 @@
 // V_GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -590,6 +590,8 @@ bool GoodsFilt::IsEmpty() const
 	else if(Flags & nemp_fl)
 		return false;
 	else if(Flags & fShowArCode && !(Flags & fShowWoArCode))
+		return false;
+	else if(Flags2 & f2SoonExpiredOnly) // @v11.6.2
 		return false;
 	else if(SrchStr_.NotEmpty())
 		return false;
@@ -1852,6 +1854,8 @@ int PPViewGoods::UpdateTempTable(PPID goodsID, PPViewBrowser * pBrw)
 int PPViewGoods::IsTempTblNeeded()
 {
 	if(Filt.GrpIDList.IsExists())
+		return 1;
+	else if(Filt.Flags2 & GoodsFilt::f2SoonExpiredOnly) // @v11.6.2
 		return 1;
 	else {
 		SString temp_buf;

@@ -1,5 +1,5 @@
 // V_GREST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1500,6 +1500,7 @@ int PPViewGoodsRest::AddGoodsThruCache(PPID goodsID, PPID locID, int isSubst,
 	grci.Price    = pGRV->Price;
 	grci.Deficit  = pGRV->Deficit;
 	grci.DraftRcpt = pGRV->DraftRcpt;
+	grci.Expiry   = pGRV->Expiry; // @v11.6.2 @fix
 	CacheBuf.SetupCacheItemSerial(grci, pGRV->Serial);
 	CacheBuf.SetupCacheItemLotTag(grci, pGRV->LotTagText);
 	if(Filt.CalcMethod == GoodsRestParam::pcmMostRecent)
@@ -2261,8 +2262,7 @@ int PPViewGoodsRest::MakeLotQuery(LotQueryBlock & rBlk, int lcr, long lowId, lon
 /*static*/BExtQuery & FASTCALL PPViewGoodsRest::MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTbl & rT)
 {
 	return rQ.select(rT.ID, rT.BillID, rT.Dt, rT.OprNo, rT.GoodsID, rT.LocID, rT.SupplID,
-		rT.InTaxGrpID, rT.Flags, rT.UnitPerPack, rT.PrevLotID, rT.Cost, rT.Price,
-		rT.Rest, rT.Closed, rT.Expiry, 0L);
+		rT.InTaxGrpID, rT.Flags, rT.UnitPerPack, rT.PrevLotID, rT.Cost, rT.Price, rT.Rest, rT.Closed, rT.Expiry, 0L);
 }
 
 int PPViewGoodsRest::SelectLcrLots(const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList)
@@ -4308,22 +4308,12 @@ int PPViewGoodsRest::Print(const void * pExtra)
 			rpt_id = REPORT_SPCGOODSREST;
 			price_type = 2;
 		}
-		if(flags & GoodsRestReport::fSortByPrice) {
-			if(flags & GoodsRestReport::fDisableGrpng)
-				ord = PPViewGoodsRest::OrdByPrice;
-			else
-				ord = PPViewGoodsRest::OrdByGrp_Price;
-		}
-		else if(flags & GoodsRestReport::fSortByBarCode) {
-			if(flags & GoodsRestReport::fDisableGrpng)
-				ord = PPViewGoodsRest::OrdByBarCode;
-			else
-				ord = PPViewGoodsRest::OrdByGrp_BarCode;
-		}
-		else if(flags & GoodsRestReport::fDisableGrpng)
-			ord = PPViewGoodsRest::OrdByGoodsName;
-		else
-			ord = PPViewGoodsRest::OrdByGrp_GoodsName;
+		if(flags & GoodsRestReport::fSortByPrice)
+			ord = (flags & GoodsRestReport::fDisableGrpng) ? PPViewGoodsRest::OrdByPrice : PPViewGoodsRest::OrdByGrp_Price;
+		else if(flags & GoodsRestReport::fSortByBarCode)
+			ord = (flags & GoodsRestReport::fDisableGrpng) ? PPViewGoodsRest::OrdByBarCode : PPViewGoodsRest::OrdByGrp_BarCode;
+		else 
+			ord = (flags & GoodsRestReport::fDisableGrpng) ? PPViewGoodsRest::OrdByGoodsName : PPViewGoodsRest::OrdByGrp_GoodsName;
 	}
 	if(rpt_id) {
 		PPReportEnv env;
@@ -4366,7 +4356,7 @@ int PPViewGoodsRest::SerializeState(int dir, SBuffer & rBuf, SSerializeContext *
 	THROW(SerializeDbTableByFileName <TempOrderTbl>     (dir, &P_TempOrd, rBuf, pCtx));
 	THROW(SerializeDbTableByFileName <TempGoodsRestTbl> (dir, &P_Tbl,     rBuf, pCtx));
 	if(dir > 0) {
-		uint8 ind = P_Ct ? 0 : 1;
+		const uint8 ind = P_Ct ? 0 : 1;
 		THROW_SL(rBuf.Write(ind));
 		if(P_Ct) {
 			THROW(P_Ct->Write(rBuf, pCtx));
@@ -4538,7 +4528,7 @@ int PPALDD_GoodsRestTotal::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	GoodsRestTotalPrintData * p_data = static_cast<GoodsRestTotalPrintData *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	AmtEntry * p_item;
-	uint n = (uint)I.LineNo;
+	uint n = static_cast<uint>(I.LineNo);
 	if(p_data->P_Total->Amounts.enumItems(&n, (void **)&p_item) > 0) {
 		I.LineNo = n;
 		I.AmtTypeID = p_item->AmtTypeID;

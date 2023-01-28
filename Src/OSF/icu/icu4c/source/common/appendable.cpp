@@ -17,12 +17,7 @@ Appendable::~Appendable()
 
 bool Appendable::appendCodePoint(UChar32 c) 
 {
-	if(c<=0xffff) {
-		return appendCodeUnit((UChar)c);
-	}
-	else {
-		return appendCodeUnit(U16_LEAD(c)) && appendCodeUnit(U16_TRAIL(c));
-	}
+	return (c<=0xffff) ? appendCodeUnit((UChar)c) : (appendCodeUnit(U16_LEAD(c)) && appendCodeUnit(U16_TRAIL(c)));
 }
 
 bool Appendable::appendString(const UChar * s, int32_t length) 

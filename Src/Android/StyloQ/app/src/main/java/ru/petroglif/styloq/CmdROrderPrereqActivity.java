@@ -8,11 +8,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -296,7 +298,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			NotifyCurrentDocumentChanged();
 		return result;
 	}
-	private static class DlvrLocListAdapter extends SLib.InternalArrayAdapter {
+	private static class DlvrLocListAdapter extends SLib.InternalArrayAdapter implements SLib.EventHandler {
 		//private int RcId;
 		private boolean DlvrLocGpslocSettingAllowed;
 		DlvrLocListAdapter(Context ctx, int rcId, ArrayList data, boolean isDlvrLocGpslocSettingAllowed)
@@ -320,18 +322,121 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					TextView v = convertView.findViewById(R.id.LVITEM_GENERICNAME);
 					if(v != null) {
 						int loc_id = 0;
+						double geoloc_lat = 0.0;
+						double geoloc_lon = 0.0;
 						if(item instanceof JSONObject) {
-							JSONObject js_item = (JSONObject) item;
+							JSONObject js_item = (JSONObject)item;
 							loc_id = js_item.optInt("id", 0);
+							geoloc_lat = js_item.optDouble("lat", 0.0);
+							geoloc_lon = js_item.optDouble("lon", 0.0);
 							v.setText(js_item.optString("addr", ""));
 						}
 						if(_ctx instanceof CmdROrderPrereqActivity)
 							((CmdROrderPrereqActivity)_ctx).SetListBackground(convertView, this, position, SLib.PPOBJ_LOCATION, loc_id);
-						SLib.SetCtrlVisibility(convertView, R.id.CTL_BUTTON_GEOLOCMARK, DlvrLocGpslocSettingAllowed ? View.VISIBLE : View.GONE); // @v11.6.1
+						{
+							View grpv = convertView.findViewById(R.id.CTLGRP_LOCATION_GEOLOC);
+							View bv = convertView.findViewById(R.id.CTL_BUTTON_GEOLOCMARK);
+							if(bv != null && bv instanceof ImageButton) {
+								if(DlvrLocGpslocSettingAllowed) {
+									if(grpv != null)
+										grpv.setVisibility(View.VISIBLE);
+									else
+										bv.setVisibility(View.VISIBLE);
+									{
+										if(geoloc_lat != 0.0 && geoloc_lon != 0.0) {
+											String geo_loc_text = String.format("%.6f, %.6f", geoloc_lat, geoloc_lon);
+											SLib.SetCtrlString(convertView, R.id.CTL_LOCATION_GEOLOC, geo_loc_text);
+										}
+									}
+									bv.setOnClickListener(new View.OnClickListener() {
+										@Override public void onClick(View v)
+										{
+											Context ctx = getContext();
+											if(ctx != null && ctx instanceof CmdROrderPrereqActivity) {
+												HandleEvent(SLib.EV_COMMAND, v, new Integer(position));
+											}
+										}});
+								}
+								else {
+									if(grpv != null)
+										grpv.setVisibility(View.GONE);
+									else
+										bv.setVisibility(View.GONE);
+								}
+							}
+						}
 					}
 				}
 			}
 			return convertView; // Return the completed view to render on screen
+		}
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
+		{
+			switch(ev) {
+				case SLib.EV_COMMAND:
+					if(srcObj != null && srcObj instanceof View) {
+						final int view_id = ((View)srcObj).getId();
+						if(view_id == R.id.CTL_BUTTON_GEOLOCMARK) {
+							Context ctx = getContext();
+							if(ctx != null && ctx instanceof CmdROrderPrereqActivity) {
+								StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
+								if(DlvrLocGpslocSettingAllowed) {
+									int position = (subj != null && subj instanceof Integer) ? (Integer)subj : 0;
+									if(position >= 0 && position < getCount()) {
+										int loc_id = 0;
+										Object item = getItem(position);
+										if(item != null && item instanceof JSONObject) {
+											JSONObject js_item = (JSONObject) item;
+											loc_id = js_item.optInt("id", 0);
+											if(loc_id > 0) {
+												SLib.QueryCurrentGeoLoc((CmdROrderPrereqActivity) ctx, new SLib.PPObjID(SLib.PPOBJ_LOCATION, loc_id), this);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					break;
+				case SLib.EV_GEOLOCDETECTED:
+					if(subj != null && subj instanceof Location) {
+						Context ctx = getContext();
+						StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+						SLib.PPObjID oid = (srcObj != null && srcObj instanceof SLib.PPObjID) ? (SLib.PPObjID)srcObj : null;
+						if(app_ctx != null && oid != null && oid.Type == SLib.PPOBJ_LOCATION && oid.Id > 0) {
+							//StyloQDatabase.SecStoragePacket _data = (Data != null && Data instanceof StyloQDatabase.SecStoragePacket) ? (StyloQDatabase.SecStoragePacket)Data : null;
+							if(ctx instanceof CmdROrderPrereqActivity) {
+								app_ctx.RunSvcCommand_SetGeoLoc(((CmdROrderPrereqActivity)ctx).CPM.SvcIdent, oid.Id, (Location) subj, this);
+							}
+						}
+					}
+					break;
+				case SLib.EV_SVCQUERYRESULT:
+					if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
+						StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
+						Context ctx = getContext();
+						StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+						if(app_ctx != null) {
+							if(ir.OriginalCmdItem != null && SLib.GetLen(ir.OriginalCmdItem.Name) > 0 && ir.OriginalCmdItem.Name.equalsIgnoreCase("setgeoloc")) {
+								if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+									if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+										SecretTagPool svc_reply_pool = (SecretTagPool) ir.InfoReply;
+										JSONObject sv_reply_js = svc_reply_pool.GetJsonObject(SecretTagPool.tagRawData);
+										String reply_result = sv_reply_js.optString("result");
+										if(reply_result != null && reply_result.equalsIgnoreCase("ok")) {
+											JSONObject reply_loc_js = sv_reply_js.optJSONObject("dlvrloc");
+											if(reply_loc_js != null) {
+
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					break;
+			}
+			return null;
 		}
 	}
 	private void SetListBackground(View iv, Object adapter, int itemIdxToDraw, int objType, int objID)

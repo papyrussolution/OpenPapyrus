@@ -1020,12 +1020,6 @@
     <ProjectReference Include="lcms2.vcxproj">
       <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
     </ProjectReference>
-    <ProjectReference Include="openssl-111-crypto.vcxproj">
-      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="openssl-111.vcxproj">
-      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
-    </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>

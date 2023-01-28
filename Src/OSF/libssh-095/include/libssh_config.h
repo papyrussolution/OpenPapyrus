@@ -54,7 +54,7 @@
 #define HAVE_OPENSSL_CRYPTO_CTR128_ENCRYPT 1 /* Define to 1 if you have the `CRYPTO_ctr128_encrypt' function. */
 #define HAVE_OPENSSL_EVP_CIPHER_CTX_NEW 1 /* Define to 1 if you have the `EVP_CIPHER_CTX_new' function. */
 // (since openssl 3.0) #define HAVE_OPENSSL_EVP_KDF_CTX_NEW_ID 1 // Define to 1 if you have the `EVP_KDF_CTX_new_id' function. 
-#define HAVE_OPENSSL_FIPS_MODE 1 /* Define to 1 if you have the `FIPS_mode' function. */
+// @v11.6.2 #define HAVE_OPENSSL_FIPS_MODE 1 // Define to 1 if you have the `FIPS_mode' function
 #define HAVE_OPENSSL_EVP_DIGESTSIGN 1 /* Define to 1 if you have the `EVP_DigestSign' function. */
 #define HAVE_OPENSSL_EVP_DIGESTVERIFY 1 /* Define to 1 if you have the `EVP_DigestVerify' function. */
 #define HAVE_OPENSSL_IA32CAP_LOC 1 /* Define to 1 if you have the `OPENSSL_ia32cap_loc' function. */

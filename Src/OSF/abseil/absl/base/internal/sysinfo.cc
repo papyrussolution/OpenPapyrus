@@ -113,14 +113,11 @@ static int GetNumCPUs() {
 		HKEY key;
 		// Use the Reg* functions rather than the SH functions because shlwapi.dll
 		// pulls in gdi32.dll which makes process destruction much more costly.
-		if(RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-			"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0,
-			KEY_READ, &key) == ERROR_SUCCESS) {
+		if(RegOpenKeyExA(HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_READ, &key) == ERROR_SUCCESS) {
 			DWORD type = 0;
 			DWORD data = 0;
 			DWORD data_size = sizeof(data);
-			auto result = RegQueryValueExA(key, "~MHz", 0, &type,
-				reinterpret_cast<LPBYTE>(&data), &data_size);
+			auto result = RegQueryValueExA(key, "~MHz", 0, &type, reinterpret_cast<LPBYTE>(&data), &data_size);
 			RegCloseKey(key);
 			if(result == ERROR_SUCCESS && type == REG_DWORD &&
 				data_size == sizeof(data)) {

@@ -186,7 +186,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;Crypt32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -238,7 +238,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;Crypt32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -292,7 +292,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;Crypt32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -346,7 +346,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;Crypt32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -398,7 +398,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;Crypt32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -450,7 +450,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;Crypt32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -501,7 +501,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;Crypt32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -552,7 +552,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;Crypt32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -583,12 +583,6 @@
   <ItemGroup>
     <ProjectReference Include="onig.vcxproj">
       <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
-    </ProjectReference>
-    <ProjectReference Include="openssl-111-crypto.vcxproj">
-      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="openssl-111.vcxproj">
-      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
     </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>

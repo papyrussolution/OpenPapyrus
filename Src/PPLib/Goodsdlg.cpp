@@ -211,9 +211,9 @@ static int MergeUhttRestList(TSCollection <UhttGoodsRestListItem> & rDest, const
 
 int PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
 {
-	class SelectDialog : public PPListDialog {
+	class UhttGoodsRestListDialog : public PPListDialog {
 	public:
-		SelectDialog(TSCollection <UhttGoodsRestListItem> & rList) : PPListDialog(DLG_UHTTGRLIST, CTL_UHTTGRLIST_LIST), R_List(rList)
+		UhttGoodsRestListDialog(TSCollection <UhttGoodsRestListItem> & rList) : PPListDialog(DLG_UHTTGRLIST, CTL_UHTTGRLIST_LIST), R_List(rList)
 		{
 			updateList(-1);
 		}
@@ -262,7 +262,7 @@ int PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
 		}
 		{
 			SString goods_info_buf;
-			SelectDialog * dlg = new SelectDialog(uhtt_list);
+			UhttGoodsRestListDialog * dlg = new UhttGoodsRestListDialog(uhtt_list);
 			THROW(CheckDialogPtr(&dlg));
 			goods_info_buf = goods_rec.Name;
 			dlg->setStaticText(CTL_UHTTGRLIST_ST_GOODS, goods_info_buf);
@@ -270,6 +270,80 @@ int PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
 		}
 	}
 	CATCHZOKPPERR
+	return ok;
+}
+
+int PPObjGoods::ViewGoodsRestByLocList(PPID goodsID)
+{
+	struct GoodsRestByLocEntry {
+		PPID   LocID;
+		double Rest;
+		double Cost;
+		double Price;
+	};
+	class GoodsRestByLocListDialog : public PPListDialog {
+	public:
+		GoodsRestByLocListDialog(const TSVector <GoodsRestByLocEntry> & rList) : PPListDialog(DLG_GRESTBYLOCLIST, CTL_GRESTBYLOCLIST_LIST), R_List(rList)
+		{
+			updateList(-1);
+		}
+	private:
+		virtual int setupList()
+		{
+			int     ok = -1;
+			SString temp_buf;
+			LocationTbl::Rec loc_rec;
+			StringSet ss(SLBColumnDelim);
+			for(uint i = 0; i < R_List.getCount(); i++) {
+				const GoodsRestByLocEntry & r_item = R_List.at(i);
+				ss.clear();
+				temp_buf.Z();
+				if(LocObj.Fetch(r_item.LocID, &loc_rec) > 0) {
+					temp_buf = loc_rec.Name;
+				}
+				ss.add(temp_buf);
+				ss.add(temp_buf.Z().Cat(r_item.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+				ss.add(temp_buf.Z().Cat(r_item.Cost, MKSFMTD(0, 2, NMBF_NOZERO)));
+				ss.add(temp_buf.Z().Cat(r_item.Price, MKSFMTD(0, 2, NMBF_NOZERO)));
+				THROW(addStringToList(i+1, ss.getBuf()));
+			}
+			CATCHZOK
+			return ok;
+		}
+		const TSVector <GoodsRestByLocEntry> & R_List;
+		PPObjLocation LocObj;
+	};
+	int    ok = -1;
+	GoodsRestByLocListDialog * dlg = 0;
+	Goods2Tbl::Rec goods_rec;
+	if(goodsID && Search(goodsID, &goods_rec) > 0) {
+		TSVector <GoodsRestByLocEntry> list;
+		PPObjBill * p_bobj = BillObj;
+		GoodsRestParam gp;
+		gp.GoodsID = goodsID;
+		gp.DiffParam |= GoodsRestParam::_diffLoc;
+		p_bobj->trfr->GetRest(gp);
+		for(uint i = 0; i < gp.getCount(); i++) {
+			const GoodsRestVal & r_v = gp.at(i);
+			GoodsRestByLocEntry new_entry;
+			MEMSZERO(new_entry);
+			new_entry.LocID = r_v.LocID;
+			new_entry.Rest = r_v.Rest;
+			new_entry.Cost = r_v.Cost;
+			new_entry.Price = r_v.Price;
+			list.insert(&new_entry);
+			
+		}
+		if(list.getCount()) {
+			dlg = new GoodsRestByLocListDialog(list);
+			if(CheckDialogPtrErr(&dlg)) {
+				dlg->setStaticText(CTL_GRESTBYLOCLIST_GOODS, goods_rec.Name);
+				ExecView(dlg);
+				ok = 1;
+			}
+		}
+	}
+	delete dlg;
 	return ok;
 }
 
@@ -3179,7 +3253,7 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 		enum {
 			ctlgroupLoc = 3
 		};
-		GoodsFiltAdvDialog(uint rezID, GoodsFilt * pF, int doDisable) : TDialog(rezID), CtlDisableSuppl(doDisable)
+		GoodsFiltAdvDialog(GoodsFilt * pF, int doDisable) : TDialog(DLG_GFLTADVOPT), CtlDisableSuppl(doDisable)
 		{
 			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GFLTADVOPT_LOC, 0, 0, cmLocList, 0, 0, 0));
 			setDTS(pF);
@@ -3213,6 +3287,11 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 			else
 				v = 0;
 			setCtrlData(CTL_GFLTADVOPT_EXTFLT, &v);
+			// @v11.6.2 {
+			AddClusterAssoc(CTL_GFLTADVOPT_SNEXP, 0, GoodsFilt::f2SoonExpiredOnly); 
+			SetClusterData(CTL_GFLTADVOPT_SNEXP, Data.Flags2);
+			setCtrlData(CTL_GFLTADVOPT_AHEXPD, &Data.AheadExpiryDays);
+			// } @v11.6.2 
 			SetupCtrls();
 			return 1;
 		}
@@ -3244,6 +3323,10 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 				if(Data.Flags & GoodsFilt::fGenGoodsOnly)
 					Data.Flags &= ~GoodsFilt::fHideGeneric;
 				// } @v10.7.7 
+				// @v11.6.2 {
+				GetClusterData(CTL_GFLTADVOPT_SNEXP, &Data.Flags2);
+				getCtrlData(CTL_GFLTADVOPT_AHEXPD, &Data.AheadExpiryDays);
+				// } @v11.6.2 
 				ASSIGN_PTR(pData, Data);
 				ok = 1;
 			}
@@ -3253,7 +3336,7 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(event.isClusterClk(CTL_GFLTADVOPT_PLISTFNEW) || event.isClusterClk(CTL_GFLTADVOPT_PLUSNREST)) {
+			if(event.isClusterClk(CTL_GFLTADVOPT_PLISTFNEW) || event.isClusterClk(CTL_GFLTADVOPT_PLUSNREST) || event.isClusterClk(CTL_GFLTADVOPT_SNEXP)) {
 				SetupCtrls();
 				clearEvent(event);
 			}
@@ -3263,11 +3346,15 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 			GetClusterData(CTL_GFLTADVOPT_FLAGS, &Data.Flags);
 			DisableClusterItem(CTL_GFLTADVOPT_FLAGS, 1, Data.Flags & GoodsFilt::fNewLots);
 			DisableClusterItem(CTL_GFLTADVOPT_FLAGS, 0, Data.Flags & GoodsFilt::fNoZeroRestOnLotPeriod);
+			// @v11.6.2 {
+			GetClusterData(CTL_GFLTADVOPT_SNEXP, &Data.Flags2);
+			disableCtrl(CTL_GFLTADVOPT_AHEXPD, !(Data.Flags2 & GoodsFilt::f2SoonExpiredOnly)); 
+			// } @v11.6.2 
 		}
 		int	   CtlDisableSuppl;
 	};
 	int    ok = -1;
-	GoodsFiltAdvDialog * dlg = new GoodsFiltAdvDialog(DLG_GFLTADVOPT, pFilt, disable);
+	GoodsFiltAdvDialog * dlg = new GoodsFiltAdvDialog(pFilt, disable);
 	if(CheckDialogPtrErr(&dlg)) {
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 			if(dlg->getDTS(pFilt))

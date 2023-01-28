@@ -1798,6 +1798,79 @@ bool SrUedContainer::GenerateSourceDecl_C(const char * pFileName)
 bool SrUedContainer::GenerateSourceDecl_Java(const char * pFileName)
 {
 	bool   ok = true;
+	SString temp_buf;
+	SString def_symb;
+	SString def_value;
+	SString meta_symb;
+	SString h_sentinel_def;
+	SFile  genf(pFileName, SFile::mWrite);
+	const  SPathStruc ps(pFileName);
+	uint   max_symb_len = 0;
+	{
+		for(uint i = 0; i < BL.getCount(); i++) {
+			const BaseEntry & r_be = BL.at(i);
+			if(UED::IsMetaId(r_be.Id)) {
+				Ht.GetByAssoc(r_be.SymbHashId, meta_symb);
+				assert(meta_symb.NotEmpty());
+				meta_symb.ToUpper();
+				(def_symb = "UED").CatChar('_').Cat("META").CatChar('_').Cat(meta_symb);
+				SETMAX(max_symb_len, def_symb.Len());
+				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
+					for(uint j = 0; j < BL.getCount(); j++) {
+						const BaseEntry & r_be_inner = BL.at(j);
+						if(UED::BelongToMeta(r_be_inner.Id, r_be.Id)) {
+							Ht.GetByAssoc(r_be_inner.SymbHashId, temp_buf);
+							assert(temp_buf.NotEmpty());
+							temp_buf.ToUpper();
+							(def_symb = "UED").CatChar('_').Cat(meta_symb).CatChar('_').Cat(temp_buf);
+							SETMAX(max_symb_len, def_symb.Len());
+						}
+					}
+				}
+			}
+		}
+	}
+	genf.WriteBlancLine();
+	temp_buf.Z().Cat("class").Space().Cat("UED_ID").Space().CatChar('{').CR();
+	genf.WriteLine(temp_buf);
+	{
+		for(uint i = 0; i < BL.getCount(); i++) {
+			const BaseEntry & r_be = BL.at(i);
+			if(UED::IsMetaId(r_be.Id)) {
+				Ht.GetByAssoc(r_be.SymbHashId, meta_symb);
+				assert(meta_symb.NotEmpty());
+				meta_symb.ToUpper();
+				(def_symb = "UED").CatChar('_').Cat("META").CatChar('_').Cat(meta_symb);
+				assert(max_symb_len >= def_symb.Len());
+				def_symb.CatCharN(' ', (max_symb_len+1)-def_symb.Len());
+				def_value.Z().Cat("0x").CatHex(r_be.Id).Cat("L");
+				temp_buf.Z().Tab().Cat("public static final long").Space().Cat(def_symb).CatChar('=').Space().Cat(def_value).Semicol().CR();
+				genf.WriteLine(temp_buf);
+				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
+					//gen.IndentInc();
+					for(uint j = 0; j < BL.getCount(); j++) {
+						const BaseEntry & r_be_inner = BL.at(j);
+						if(UED::BelongToMeta(r_be_inner.Id, r_be.Id)) {
+							Ht.GetByAssoc(r_be_inner.SymbHashId, temp_buf);
+							assert(temp_buf.NotEmpty());
+							temp_buf.ToUpper();
+							(def_symb = "UED").CatChar('_').Cat(meta_symb).CatChar('_').Cat(temp_buf);
+							assert(max_symb_len >= def_symb.Len());
+							def_symb.CatCharN(' ', (max_symb_len+1)-def_symb.Len());
+							def_value.Z().Cat("0x").CatHex(r_be_inner.Id).Cat("L");
+							temp_buf.Z().Tab(2).Cat("public static final long").Space().Cat(def_symb).CatChar('=').Space().Cat(def_value).Semicol().CR();
+							genf.WriteLine(temp_buf);
+						}
+					}
+					//gen.IndentDec();
+				}
+			}
+		}
+	}
+	temp_buf.Z().CatChar('}').CR();
+	genf.WriteLine(temp_buf);
+	genf.WriteBlancLine();
+	//gen.Wr_EndIf(h_sentinel_def);
 	return ok;
 }
 	
@@ -1875,8 +1948,13 @@ int Test_ReadUed(const char * pFileName)
 	}
 #endif
 	SrUedContainer uedc;
+	SString last_file_name;
 	long   new_version = 0;
 	SPathStruc ps(pFileName);
+	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+	long   prev_version = SrUedContainer::SearchLastCanonicalFile(temp_buf.RmvLastSlash(), last_file_name);
+	if(prev_version > 0)
+		new_version = prev_version+1;
 	THROW(uedc.ReadSource(pFileName));
 	{
 		SETIFZQ(new_version, 1);
@@ -1893,6 +1971,12 @@ int Test_ReadUed(const char * pFileName)
 		ps.Ext = "h";
 		ps.Merge(temp_buf);
 		THROW(uedc.GenerateSourceDecl_C(temp_buf));
+	}
+	{
+		SrUedContainer::MakeUedCanonicalName(ps.Nam, -1);
+		ps.Ext = "java";
+		ps.Merge(temp_buf);
+		THROW(uedc.GenerateSourceDecl_Java(temp_buf));
 	}
 	CATCHZOK
 	return ok;

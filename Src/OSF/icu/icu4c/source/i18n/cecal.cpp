@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2003 - 2009, International Business Machines Corporation and others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2003 - 2009, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -81,10 +78,8 @@ bool CECalendar::inDaylightTime(UErrorCode & status) const
 	if(U_FAILURE(status) || !getTimeZone().useDaylightTime()) {
 		return FALSE;
 	}
-
 	// Force an update of the state of the Calendar.
 	((CECalendar*)this)->complete(status); // cast away const
-
 	return (bool)(U_SUCCESS(status) ? (internalGet(UCAL_DST_OFFSET) != 0) : FALSE);
 }
 
@@ -120,13 +115,9 @@ void CECalendar::jdToCE(int32_t julianDay, int32_t jdEpochOffset, int32_t& year,
 {
 	int32_t c4; // number of 4 year cycle (1461 days)
 	int32_t r4; // remainder of 4 year cycle, always positive
-
 	c4 = ClockMath::floorDivide(julianDay - jdEpochOffset, 1461, r4);
-
 	year = 4 * c4 + (r4/365 - r4/1460); // 4 * <number of 4year cycle> + <years within the last cycle>
-
 	int32_t doy = (r4 == 1460) ? 365 : (r4 % 365); // days in present year
-
 	month = doy / 30;   // 30 -> Coptic/Ethiopic month length up to 12th month
 	day = (doy % 30) + 1; // 1-based days in a month
 }

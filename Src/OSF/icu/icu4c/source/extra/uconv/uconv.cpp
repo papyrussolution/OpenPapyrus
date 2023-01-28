@@ -2,16 +2,12 @@
 // License & terms of use: http://www.unicode.org/copyright.html
 // Copyright (C) 1999-2016, International Business Machines Corporation and others.  All Rights Reserved.
 //
-/*
- * uconv(1): an iconv(1)-like converter using ICU.
- *
- * Original code by Jonas Utterstr&#x00F6;m <jonas.utterstrom@vittran.norrnod.se> contributed in 1999.
- *
- * Conversion to the C conversion API and many improvements by Yves Arrouye <yves@realnames.com>, current maintainer.
- *
- * Markus Scherer maintainer from 2003.
- * See source code repository history for changes.
- */
+// uconv(1): an iconv(1)-like converter using ICU.
+// Original code by Jonas Utterstr&#x00F6;m <jonas.utterstrom@vittran.norrnod.se> contributed in 1999.
+// Conversion to the C conversion API and many improvements by Yves Arrouye <yves@realnames.com>, current maintainer.
+// Markus Scherer maintainer from 2003.
+// See source code repository history for changes.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include <unicode/ucnv.h>
@@ -22,21 +18,21 @@
 U_NAMESPACE_USE
 
 #if U_PLATFORM_USES_ONLY_WIN32_API && !defined(__STRICT_ANSI__)
-#include <io.h>
-#include <fcntl.h>
-#if U_PLATFORM_USES_ONLY_WIN32_API
-#define USE_FILENO_BINARY_MODE 1
-/* Windows likes to rename Unix-like functions */
-#ifndef fileno
-#define fileno _fileno
-#endif
-#ifndef setmode
-#define setmode _setmode
-#endif
-#ifndef O_BINARY
-#define O_BINARY _O_BINARY
-#endif
-#endif
+	#include <io.h>
+	#include <fcntl.h>
+	#if U_PLATFORM_USES_ONLY_WIN32_API
+		#define USE_FILENO_BINARY_MODE 1
+		// Windows likes to rename Unix-like functions 
+		#ifndef fileno
+			#define fileno _fileno
+		#endif
+		#ifndef setmode
+			#define setmode _setmode
+		#endif
+		#ifndef O_BINARY
+			#define O_BINARY _O_BINARY
+		#endif
+	#endif
 #endif
 #ifdef UCONVMSG_LINK
 	// below from the README 
@@ -669,7 +665,6 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 			if(t) {
 				UnicodeString out;
 				int32_t chunkLimit;
-
 				do {
 					chunkLimit = getChunkLimit(chunk, u);
 					if(chunkLimit < 0 && flush && fromSawEndOfBytes) {
@@ -692,55 +687,42 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 						break;
 					}
 				} while(!u.isEmpty());
-
 				u = out;
 				ulen = u.length();
 			}
 #endif
-
 			// add a U+FEFF Unicode signature character if requested
 			// and possible/necessary
 			if(sig > 0) {
 				if(u.charAt(0) != uSig && cnvSigType(convto) == CNV_WITH_FEFF) {
 					u.insert(0, (UChar)uSig);
-
 					if(useOffsets) {
 						// insert a pseudo-offset into fromoffsets[] as well
 						// to keep the array parallel with the UChars
 						memmove(fromoffsets + 1, fromoffsets, ulen * 4);
 						fromoffsets[0] = -1;
 					}
-
 					// account for the additional UChar and offset
 					++ulen;
 				}
 				sig = 0;
 			}
-
 			// Convert the Unicode buffer into the destination codepage
 			// Again 'bufp' will be placed behind the last converted character
 			// And 'unibufp' will be placed behind the last converted unicode character
 			// At the last conversion flush should be set to true to ensure that
 			// all characters left get converted
-
 			unibuf = unibufbp = u.getBuffer();
-
 			do {
 				bufp = outbuf;
-
 				// Use fromSawEndOfBytes in addition to the flush flag -
 				// it indicates whether the intermediate Unicode string
 				// contains the very last UChars for the very last input bytes.
-				ucnv_fromUnicode(convto, &bufp, outbuf + bufsz,
-				    &unibufbp,
-				    unibuf + ulen,
-				    NULL, (bool)(flush && fromSawEndOfBytes), &err);
-
+				ucnv_fromUnicode(convto, &bufp, outbuf + bufsz, &unibufbp, unibuf + ulen, NULL, (bool)(flush && fromSawEndOfBytes), &err);
 				// toSawEndOfUnicode indicates that ucnv_fromUnicode() is done
 				// converting all of the intermediate UChars.
 				// See comment for fromSawEndOfBytes.
 				toSawEndOfUnicode = (bool)U_SUCCESS(err);
-
 				if(err == U_BUFFER_OVERFLOW_ERROR) {
 					err = U_ZERO_ERROR;
 				}
@@ -750,7 +732,6 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 					char pos[32];
 					UChar32 c;
 					int8_t i, length, errorLength;
-
 					UErrorCode localError = U_ZERO_ERROR;
 					errorLength = SIZEOFARRAYi(errorUChars);
 					ucnv_getInvalidUChars(convto, errorUChars, &errorLength, &localError);
@@ -759,9 +740,7 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 						// fromoffsets[]
 						errorLength = 1;
 					}
-
 					int32_t ferroffset;
-
 					if(useOffsets) {
 						// Unicode buffer offset of the start of the error UChars
 						ferroffset = (int32_t)((unibufbp - unibuf) - errorLength);
@@ -770,7 +749,6 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 							// buffer
 							ferroffset = 0;
 						}
-
 						// get the corresponding byte offset out of fromoffsets[]
 						// go back if the offset is not known for some of the UChars
 						int32_t fromoffset;
@@ -849,9 +827,8 @@ normal_exit:
 #if !UCONFIG_NO_TRANSLITERATION
 	delete t;
 #endif
-	if(closeFile) {
+	if(closeFile)
 		fclose(infile);
-	}
 	return ret;
 }
 
@@ -896,20 +873,14 @@ extern int main(int argc, char ** argv)
 	const void * fromuctxt = 0;
 	UConverterToUCallback toucallback = UCNV_TO_U_CALLBACK_STOP;
 	const void * touctxt = 0;
-
 	char ** iter, ** remainArgv, ** remainArgvLimit;
 	char ** end = argv + argc;
-
 	const char * pname;
-
 	bool printConvs = false, printCanon = false, printTranslits = false;
 	const char * printName = 0;
-
 	bool verbose = false;
 	UErrorCode status = U_ZERO_ERROR;
-
 	ConvertFile cf;
-
 	/* Initialize ICU */
 	u_init(&status);
 	if(U_FAILURE(status)) {
@@ -917,7 +888,6 @@ extern int main(int argc, char ** argv)
 		    argv[0], u_errorName(status));
 		exit(1);
 	}
-
 	// Get and prettify pname.
 	pname = uprv_strrchr(*argv, U_FILE_SEP_CHAR);
 #if U_PLATFORM_USES_ONLY_WIN32_API
@@ -931,10 +901,8 @@ extern int main(int argc, char ** argv)
 	else {
 		++pname;
 	}
-
 	// First, get the arguments from command-line
 	// to know the codepages to convert between
-
 	remainArgv = remainArgvLimit = argv + 1;
 	for(iter = argv + 1; iter != end; iter++) {
 		// Check for from charset
@@ -1124,7 +1092,6 @@ extern int main(int argc, char ** argv)
 			*remainArgvLimit++ = *iter;
 		}
 	}
-
 	if(printConvs || printName) {
 		return printConverters(pname, printName, printCanon) ? 2 : 0;
 	}

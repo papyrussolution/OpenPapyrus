@@ -18,48 +18,39 @@
 #include <cstdint>
 #include <limits>
 #include <type_traits>
-
 // Clang on Windows has __builtin_clzll; otherwise we need to use the
 // windows intrinsic functions.
 #if defined(_MSC_VER) && !defined(__clang__)
-#include <intrin.h>
+	#include <intrin.h>
 #endif
-
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 
 #if defined(__GNUC__) && !defined(__clang__)
-// GCC
-#define ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(x) 1
+	#define ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(x) 1 // GCC
 #else
-#define ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(x) ABSL_HAVE_BUILTIN(x)
+	#define ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(x) ABSL_HAVE_BUILTIN(x)
 #endif
-
-#if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_popcountl) && \
-	ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_popcountll)
-#define ABSL_INTERNAL_CONSTEXPR_POPCOUNT constexpr
-#define ABSL_INTERNAL_HAS_CONSTEXPR_POPCOUNT 1
+#if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_popcountl) && ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_popcountll)
+	#define ABSL_INTERNAL_CONSTEXPR_POPCOUNT constexpr
+	#define ABSL_INTERNAL_HAS_CONSTEXPR_POPCOUNT 1
 #else
-#define ABSL_INTERNAL_CONSTEXPR_POPCOUNT
-#define ABSL_INTERNAL_HAS_CONSTEXPR_POPCOUNT 0
+	#define ABSL_INTERNAL_CONSTEXPR_POPCOUNT
+	#define ABSL_INTERNAL_HAS_CONSTEXPR_POPCOUNT 0
 #endif
-
-#if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_clz) && \
-	ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_clzll)
-#define ABSL_INTERNAL_CONSTEXPR_CLZ constexpr
-#define ABSL_INTERNAL_HAS_CONSTEXPR_CLZ 1
+#if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_clz) && ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_clzll)
+	#define ABSL_INTERNAL_CONSTEXPR_CLZ constexpr
+	#define ABSL_INTERNAL_HAS_CONSTEXPR_CLZ 1
 #else
-#define ABSL_INTERNAL_CONSTEXPR_CLZ
-#define ABSL_INTERNAL_HAS_CONSTEXPR_CLZ 0
+	#define ABSL_INTERNAL_CONSTEXPR_CLZ
+	#define ABSL_INTERNAL_HAS_CONSTEXPR_CLZ 0
 #endif
-
-#if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_ctz) && \
-	ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_ctzll)
-#define ABSL_INTERNAL_CONSTEXPR_CTZ constexpr
-#define ABSL_INTERNAL_HAS_CONSTEXPR_CTZ 1
+#if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_ctz) && ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_ctzll)
+	#define ABSL_INTERNAL_CONSTEXPR_CTZ constexpr
+	#define ABSL_INTERNAL_HAS_CONSTEXPR_CTZ 1
 #else
-#define ABSL_INTERNAL_CONSTEXPR_CTZ
-#define ABSL_INTERNAL_HAS_CONSTEXPR_CTZ 0
+	#define ABSL_INTERNAL_CONSTEXPR_CTZ
+	#define ABSL_INTERNAL_HAS_CONSTEXPR_CTZ 0
 #endif
 
 namespace absl {
@@ -71,22 +62,19 @@ template <class T> ABSL_MUST_USE_RESULT ABSL_ATTRIBUTE_ALWAYS_INLINE constexpr T
 {
 	static_assert(std::is_unsigned<T>::value, "T must be unsigned");
 	static_assert(IsPowerOf2(std::numeric_limits<T>::digits), "T must have a power-of-2 size");
-	return static_cast<T>(x >> (s & (std::numeric_limits<T>::digits - 1))) |
-	       static_cast<T>(x << ((-s) & (std::numeric_limits<T>::digits - 1)));
+	return static_cast<T>(x >> (s & (std::numeric_limits<T>::digits - 1))) | static_cast<T>(x << ((-s) & (std::numeric_limits<T>::digits - 1)));
 }
 
 template <class T> ABSL_MUST_USE_RESULT ABSL_ATTRIBUTE_ALWAYS_INLINE constexpr T RotateLeft(T x, int s) noexcept 
 {
 	static_assert(std::is_unsigned<T>::value, "T must be unsigned");
 	static_assert(IsPowerOf2(std::numeric_limits<T>::digits), "T must have a power-of-2 size");
-	return static_cast<T>(x << (s & (std::numeric_limits<T>::digits - 1))) |
-	       static_cast<T>(x >> ((-s) & (std::numeric_limits<T>::digits - 1)));
+	return static_cast<T>(x << (s & (std::numeric_limits<T>::digits - 1))) | static_cast<T>(x >> ((-s) & (std::numeric_limits<T>::digits - 1)));
 }
 
 ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_POPCOUNT inline int Popcount32(uint32_t x) noexcept {
 #if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_popcount)
-	static_assert(sizeof(unsigned int) == sizeof(x),
-	    "__builtin_popcount does not take 32-bit arg");
+	static_assert(sizeof(unsigned int) == sizeof(x), "__builtin_popcount does not take 32-bit arg");
 	return __builtin_popcount(x);
 #else
 	x -= ((x >> 1) & 0x55555555);
@@ -109,8 +97,7 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_POPCOUNT inline int Popcoun
 template <class T>
 ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_POPCOUNT inline int Popcount(T x) noexcept {
 	static_assert(std::is_unsigned<T>::value, "T must be unsigned");
-	static_assert(IsPowerOf2(std::numeric_limits<T>::digits),
-	    "T must have a power-of-2 size");
+	static_assert(IsPowerOf2(std::numeric_limits<T>::digits), "T must have a power-of-2 size");
 	static_assert(sizeof(x) <= sizeof(uint64_t), "T is too large");
 	return sizeof(x) <= sizeof(uint32_t) ? Popcount32(x) : Popcount64(x);
 }
@@ -121,9 +108,7 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeading
 	//  x86: bsr, lzcnt
 	//  ARM64: clz
 	//  PPC: cntlzd
-
-	static_assert(sizeof(unsigned int) == sizeof(x),
-	    "__builtin_clz does not take 32-bit arg");
+	static_assert(sizeof(unsigned int) == sizeof(x), "__builtin_clz does not take 32-bit arg");
 	// Handle 0 as a special case because __builtin_clz(0) is undefined.
 	return x == 0 ? 32 : __builtin_clz(x);
 #elif defined(_MSC_VER) && !defined(__clang__)

@@ -348,7 +348,12 @@ public:
 	int    Flash();
 	int    FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, const TsStakeEnvironment::Stake & rStk, 
 		PotentialStakeEntry * pPse, TsStakeEnvironment::StakeRequestBlock & rResult) const;
-	int    FindOptimalStrategyForStake(const double evaluatedUsedMargin, PotentialStakeEntry & rPse) const;
+	//
+	// ARG(rDtm IN): Время последнего значения, по которому выбирается стратегия.
+	// ARG(evaluatedUsedMargin IN):
+	// ARG(rPse IN):
+	//
+	int    FindOptimalStrategyForStake(const LDATETIME & rDtm, const double evaluatedUsedMargin, PotentialStakeEntry & rPse) const;
 	enum {
 		ecfTrickChf = 0x0001 // Специальный флаг, предписывающий увеличивать плечо для CHF-пар на форексе
 	};
@@ -1235,7 +1240,7 @@ int TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, co
 	return ok;
 }
 
-int TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUsedMargin, PotentialStakeEntry & rPse) const
+int TimeSeriesCache::FindOptimalStrategyForStake(const LDATETIME & rDtm, const double evaluatedUsedMargin, PotentialStakeEntry & rPse) const
 {
 	int    ok = -1;
 	const TimeSeriesBlock & r_blk = rPse.R_Blk;
@@ -1270,8 +1275,9 @@ int TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUsedMargi
 		*/
 		/* @v10.4.2 (если !there_is_enough_margin, то в блоке rPse будет установлен флаг rLackOfMargin) if(there_is_enough_margin)*/ 
 		{
-			PPObjTimeSeries::StrategyContainer::SelectBlock scsb(r_blk.TrendList, r_blk.StratIndex);
+			PPObjTimeSeries::StrategyContainer::SelectBlock scsb(r_blk.TrendList, r_blk.StratIndex, 0/*5*//*bucketQuantMin*/);
 			scsb.LastTrendIdx = -1;
+			scsb.LastDtm = rDtm; // @v11.6.1
 			// @v10.7.10 scsb.ChaosFactor = 0;
 			scsb.DevPtCount = Cfg.E.LocalDevPtCount; // @v10.7.1
 			scsb.LDMT_Factor = Cfg.E.LDMT_Factor; // @v10.7.1
@@ -1304,7 +1310,8 @@ int TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUsedMargi
 				// при наличии реверсивного алгоритма, сходного по потенциальному результату.
 				// Пока только вывод в журнал.
 				//
-				PPObjTimeSeries::StrategyContainer::SelectBlock scsb_reverse(r_blk.TrendList, r_blk.StratIndex);
+#if 0 // @v11.6.1 {
+				PPObjTimeSeries::StrategyContainer::SelectBlock scsb_reverse(r_blk.TrendList, r_blk.StratIndex, 0/*5*//*bucketQuantMin*/);
 				scsb_reverse.Criterion = scsb.Criterion & ~(PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous|PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous);
 				if(is_sell) {
 					scsb_reverse.Criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
@@ -1321,7 +1328,7 @@ int TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUsedMargi
 				scsb_reverse.P_Ts = &r_blk.T_; // @v10.7.1
 				scsb_reverse.LastTrendIdx = scsb.LastTrendIdx;
 				r_blk.Strategies.SelectS2(scsb_reverse);
-
+#endif // } 0 @v11.6.1
 				/*PPObjTimeSeries::BestStrategyBlock _best_result_reverse; // Лучший результат для реверсивной ставки
 				long sel_criterion_reverse = scsb.Criterion & ~(PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous|PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous);
 				if(is_sell) {
@@ -1395,12 +1402,14 @@ int TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUsedMargi
 					// } @v10.7.1 
 					Cat(PPObjTimeSeries::StrategyToString(r_s, &r_blk.Strategies, &scsb.TvForMaxResult, &scsb.Tv2ForMaxResult, temp_buf));
 				PPLogMessage(PPFILNAM_TSSTAKEPOTENTIAL_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
+#if 0 // @v11.6.1 {
 				if(scsb_reverse.MaxResultIdx >= 0) {
 					const PPObjTimeSeries::Strategy & r_s_reverse = r_blk.Strategies.at(scsb_reverse.MaxResultIdx);
 					log_msg.Z().Cat("Best-Reverse").CatDiv(':', 2).Cat(r_blk.PPTS.GetSymb()).Space().Cat(
 						PPObjTimeSeries::StrategyToString(r_s_reverse, &r_blk.Strategies, &scsb_reverse.TvForMaxResult, &scsb.Tv2ForMaxResult, temp_buf));
 					PPLogMessage(PPFILNAM_TSSTAKEPOTENTIAL_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
 				}
+#endif // } 0 @v11.6.1
 			}
 		}
 	}
@@ -1589,7 +1598,7 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 					// } @v10.4.10 
 					int   is_there_stake = 0;
 					PotentialStakeEntry pse(*p_blk);
-					const int fosfsr = FindOptimalStrategyForStake(evaluated_used_margin, pse);
+					const int fosfsr = FindOptimalStrategyForStake(tktime, evaluated_used_margin, pse);
 					for(uint si = 0; si < current_stake_count; si++) {
 						const TsStakeEnvironment::Stake & r_stk = StkEnv.SL.at(si);
 						StkEnv.GetS(r_stk.SymbP, stk_symb);

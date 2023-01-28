@@ -233,7 +233,7 @@ static const SIntToSymbTabEntry StyloQConfigTagNameList[] = {
 		// @v11.6.0 {
 		if(p_cli_pack && p_cli_pack->IsValid()) {
 			SBinaryChunk bch_cli_cfg;
-			if(p_cli_pack->Pool.Get(SSecretTagPool::tagPrivateConfig, &bch_cli_cfg) > 0) {
+			if(p_cli_pack->Pool.Get(SSecretTagPool::tagPrivateConfig, &bch_cli_cfg)) {
 				StyloQConfig cli_cfg_pack;
 				if(cli_cfg_pack.FromJson(bch_cli_cfg.ToRawStr(temp_buf)) && cli_cfg_pack.Get(StyloQConfig::tagCliFlags, temp_buf)) {
 					const long cli_flags = temp_buf.ToLong();
@@ -7801,6 +7801,77 @@ int StyloQIndexingParam::InitInstance()
 //
 //
 //
+StyloQPersonEventParam::StyloQPersonEventParam() : Signature(_PPConst.Signature_StyloQPersonEventParam), Flags(0), MaxGeoDistance(0.0)
+{
+	MEMSZERO(Fb);
+}
+
+StyloQPersonEventParam::StyloQPersonEventParam(const StyloQPersonEventParam & rS) : Signature(rS.Signature), Flags(rS.Flags), 
+	MaxGeoDistance(rS.MaxGeoDistance), PePack(rS.PePack)
+{
+	assert(Signature == _PPConst.Signature_StyloQPersonEventParam);
+	memcpy(&Fb, &rS.Fb, sizeof(Fb));
+}
+	
+StyloQPersonEventParam & FASTCALL StyloQPersonEventParam::operator = (const StyloQPersonEventParam & rS)
+{
+	assert(Signature == _PPConst.Signature_StyloQPersonEventParam);
+	assert(rS.Signature == _PPConst.Signature_StyloQPersonEventParam);
+	Flags = rS.Flags;
+	MaxGeoDistance = rS.MaxGeoDistance;
+	PePack = rS.PePack;
+	memcpy(&Fb, &rS.Fb, sizeof(Fb));
+	return *this;
+}
+
+StyloQPersonEventParam & StyloQPersonEventParam::Z()
+{
+	assert(Signature == _PPConst.Signature_StyloQPersonEventParam);
+	Flags = 0;
+	MaxGeoDistance = 0.0;
+	PePack.Destroy();
+	MEMSZERO(Fb);
+	return *this;
+}
+	
+int StyloQPersonEventParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	bool   done = false;
+	const size_t preserve_offs = rBuf.GetRdOffs();
+	assert(Signature == _PPConst.Signature_StyloQPersonEventParam);
+	PPObjPersonEvent pe_obj;
+	PPObject::SerializeSignature pre_1162_signature(pe_obj.Obj);
+	uint32 _signature = Signature;
+	/*if(dir < 0 && pre_1162_signature.Read(rBuf)) { // Версия параметра до v11.6.2
+		rBuf.SetRdOffs(preserve_offs);
+		Z();
+		THROW(pe_obj.SerializePacket(dir, &PePack, rBuf, pSCtx));
+	}*/
+	if(dir < 0) {
+		if(pe_obj.SerializePacket(dir, &PePack, rBuf, pSCtx)) {
+			Flags = 0;
+			MaxGeoDistance = 0.0;
+			MEMSZERO(Fb);
+			done = true;
+		}
+		else
+			rBuf.SetRdOffs(preserve_offs);
+	}
+	if(!done) {
+		THROW(pSCtx->Serialize(dir, _signature, rBuf));
+		THROW(dir > 0 || _signature == _PPConst.Signature_StyloQPersonEventParam); // @todo @err
+		THROW(pSCtx->Serialize(dir, Flags, rBuf));
+		THROW(pSCtx->Serialize(dir, MaxGeoDistance, rBuf));
+		THROW(pe_obj.SerializePacket(dir, &PePack, rBuf, pSCtx));
+		THROW(pSCtx->SerializeBlock(dir, sizeof(Fb), &Fb, rBuf, 1));
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
 IMPLEMENT_PPFILT_FACTORY_CLS(StyloQDocumentPrereqParam);
 
 StyloQDocumentPrereqParam::StyloQDocumentPrereqParam() : PPBaseFilt(PPFILT_STYLOQDOCUMENTPREREQPARAM, 0, 0)
@@ -7888,6 +7959,53 @@ int StyloQAttendancePrereqParam::InitInstance()
 	SetBranchObjIdListFilt(offsetof(StyloQAttendancePrereqParam, PrcList));
 	SetBranchSString(offsetof(StyloQAttendancePrereqParam, PrcTitle));
 	return Init(1, 0);
+}
+
+/*static*/int PPStyloQInterchange::Edit_PersonEventParam(StyloQPersonEventParam & rParam)
+{
+	class StyloQPersonEventParamDialog : public TDialog {
+		DECL_DIALOG_DATA(StyloQPersonEventParam);
+	public:
+		StyloQPersonEventParamDialog() : TDialog(DLG_STQPEVPARAM)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			setCtrlReal(CTL_STQPEVPARAM_MAXDIST, Data.MaxGeoDistance);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			Data.MaxGeoDistance = getCtrlReal(sel = CTL_STQPEVPARAM_MAXDIST);
+			if(Data.MaxGeoDistance < 0.0 || Data.MaxGeoDistance > 100*1000) {
+				ok = PPErrorByDialog(this, sel, PPERR_USERINPUT);
+			}
+			else {
+				ASSIGN_PTR(pData, Data);
+			}
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmPersonEventPacket)) {
+				if(PeObj.EditPacket(&Data.PePack, true) > 0) {
+					;
+				}
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		PPObjPersonEvent PeObj;
+	};
+
+	DIALOG_PROC_BODY(StyloQPersonEventParamDialog, &rParam);
 }
 
 /*static*/int PPStyloQInterchange::Edit_RsrvDocumentPrereqParam(StyloQDocumentPrereqParam & rParam)
@@ -8954,10 +9072,10 @@ int PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) // 
 				// @todo
 				break;
 			case StyloQCommandList::sqbcIncomingListOrder: // @v11.4.7
-				THROW(ProcessCommand_IncomingListOrder(*pCmd, fake_cli_pack, result, decl, prccmdfDebugOutput));
+				THROW(ProcessCommand_IncomingListOrder(*pCmd, fake_cli_pack, 0, result, decl, prccmdfDebugOutput));
 				break;
 			case StyloQCommandList::sqbcIncomingListCCheck: // @v11.4.7
-				THROW(ProcessCommand_IncomingListCCheck(*pCmd, fake_cli_pack, result, decl, prccmdfDebugOutput));
+				THROW(ProcessCommand_IncomingListCCheck(*pCmd, fake_cli_pack, 0, result, decl, prccmdfDebugOutput));
 				break;
 			case StyloQCommandList::sqbcIncomingListTSess: // @v11.4.7
 				// @todo
@@ -9673,6 +9791,8 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 	SJson * p_js_cmd = 0;
 	const SJson * p_in_doc = 0;
 	const SJson * p_in_declaration = 0;
+	LDATETIME _ifchangedsince = ZERODATETIME; // @v11.6.2 Если команда содержит критерий "ifchangedsince" с валидным значением LDATETIME,
+		// то эта переменная получит это значение для дальнейшей передачи функциям, непосредственно готовящим данные.
 	THROW_PP(rCliIdent.Len(), PPERR_SQ_UNDEFCLIID);
 	do_reply = true;
 	THROW_PP(rRcvPack.P.Get(SSecretTagPool::tagRawData, &cmd_bch), PPERR_SQ_UNDEFCMDBODY);
@@ -9702,6 +9822,11 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 					}
 					else if(p_obj->Text.IsEqiAscii("longitude")) {
 						geopos.Lon = p_obj->P_Child->Text.ToReal();
+					}
+					else if(p_obj->Text.IsEqiAscii("ifchangedsince")) { // @v11.6.2
+						LDATETIME dtm;
+						if(strtodatetime(p_obj->P_Child->Text, &dtm, DATF_ISO8601, TIMF_HMS) && checkdate(dtm.d))
+							_ifchangedsince = dtm;
 					}
 					else {
 						if(p_obj->Text.NotEmpty() && p_obj->P_Child && p_obj->P_Child->Text.NotEmpty()) {
@@ -10058,7 +10183,37 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				}
 			}
 			else if(locident.NotEmpty()) {
+				const PPID loc_id = locident.ToLong();
+				PPObjLocation loc_obj;
+				PPLocationPacket loc_pack;
 				THROW(svcident.IsEmpty()); // @todo @err
+				THROW(loc_id > 0);
+				THROW(loc_obj.GetPacket(loc_id, &loc_pack) > 0);
+				loc_pack.Latitude = geoloc.Lat;
+				loc_pack.Longitude = geoloc.Lon;
+				{
+					PPID temp_loc_id = loc_id;
+					THROW(loc_obj.PutPacket(&temp_loc_id, &loc_pack, 1));
+					//
+					p_js_reply = SJson::CreateObj();
+					p_js_reply->InsertString("result", "ok");
+					{
+						SString addr;
+						LocationCore::GetAddress(loc_pack, 0, addr);
+						SJson * p_js_adr = SJson::CreateObj();
+						p_js_adr->InsertInt("id", loc_id);
+						p_js_adr->InsertString("addr", (temp_buf = addr).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						{
+							const SGeoPosLL geopos(loc_pack.Latitude, loc_pack.Longitude);
+							if(geopos.IsValid() && !geopos.IsZero()) {
+								p_js_adr->InsertDouble("lat", geopos.Lat, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+								p_js_adr->InsertDouble("lon", geopos.Lon, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+							}
+						}
+						p_js_reply->InsertNz("dlvrloc", p_js_adr);
+					}
+					cmd_reply_ok = true;
+				}
 			}
 			else {
 				CALLEXCEPT(); // @todo @err
@@ -10457,7 +10612,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 						case StyloQCommandList::sqbcIncomingListOrder: // @v11.4.6
 							{
 								IntermediateReply(3*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra);
-								if(ProcessCommand_IncomingListOrder(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), 0)) {
+								if(ProcessCommand_IncomingListOrder(StyloQCommandList::Item(*p_targeted_item), cli_pack, &_ifchangedsince, reply_text_buf, temp_buf.Z(), 0)) {
 									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 									if(temp_buf.Len())
 										reply_doc_declaration.Put(temp_buf, temp_buf.Len());
@@ -10472,7 +10627,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 						case StyloQCommandList::sqbcIncomingListCCheck: // @v11.4.7
 							{
 								IntermediateReply(3*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra);
-								if(ProcessCommand_IncomingListCCheck(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), 0)) {
+								if(ProcessCommand_IncomingListCCheck(StyloQCommandList::Item(*p_targeted_item), cli_pack, &_ifchangedsince, reply_text_buf, temp_buf.Z(), 0)) {
 									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 									if(temp_buf.Len())
 										reply_doc_declaration.Put(temp_buf, temp_buf.Len());

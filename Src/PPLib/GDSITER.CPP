@@ -1,5 +1,5 @@
 // GDSITER.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -35,8 +35,9 @@ GoodsIterator::Ext & GoodsIterator::Ext::Z()
 		else {
 			PPIDArray tmp_ary;
 			Goods2Tbl::Rec grec;
-			while(giter.Next(&grec) > 0)
+			while(giter.Next(&grec) > 0) {
 				THROW(tmp_ary.add(grec.ID));
+			}
 			pList->copy(tmp_ary);
 		}
 		ok = 1;
@@ -334,27 +335,20 @@ IMPL_CMPFUNC(GoodsIdListByName, p1, p2)
 	const PPID id2 = *static_cast<const PPID *>(p2);
 	if(p_goods_obj) {
 		Goods2Tbl::Rec rec1, rec2;
-		int    r1 = p_goods_obj->Fetch(id1, &rec1);
-		int    r2 = p_goods_obj->Fetch(id2, &rec2);
-		if(r1 > 0) {
-			if(r2 > 0)
-				cm = stricmp866(rec1.Name, rec2.Name);
-			else
-				cm = 1;
-		}
-		else {
-			if(r2 > 0)
-				cm = -1;
-			else
-				cm = 0;
-		}
+		const int r1 = p_goods_obj->Fetch(id1, &rec1);
+		const int r2 = p_goods_obj->Fetch(id2, &rec2);
+		if(r1 > 0)
+			cm = (r2 > 0) ? stricmp866(rec1.Name, rec2.Name) : 1;
+		else
+			cm = (r2 > 0) ? -1 : 0;
 	}
 	return cm;
 }
 
 int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
 	Goods2Tbl::Rec goods_rec;
@@ -397,6 +391,11 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 	else {
 		int    do_intersect = 0;
 		THROW_MEM(P_List = new PPIDArray);
+		if(Filt.Flags2 & GoodsFilt::f2SoonExpiredOnly) { // @v11.6.2
+			const LDATE expired_since = (Filt.AheadExpiryDays > 0) ? plusdate(getcurdate_(), -Filt.AheadExpiryDays) : getcurdate_();
+			p_bobj->trfr->Rcpt.GetListOfLotsExpiredSince(expired_since, true/*openedOnly*/, ZERODATE/*enumSince*/, 0, &temp_list);
+			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
+		}
 		if(Filt.RestrictQuotKindID) {
 			temp_list.clear();
 

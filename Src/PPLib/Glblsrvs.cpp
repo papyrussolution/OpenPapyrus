@@ -121,7 +121,7 @@ void VkInterface::GetVKAccessToken()
 		CatChar('&').CatEq("v", "5.126"); // @v10.9.5 5.52-->5.126
 	//url_buf.SetLastDSlash();
 	//SString url("https://oauth.vk.com/authorize?client_id=7402217&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=134225924&response_type=token&v=5.52/");
-	ShellExecute(0, _T("open"), SUcSwitch(url_buf), NULL, NULL, SW_SHOWNORMAL);
+	::ShellExecute(0, _T("open"), SUcSwitch(url_buf), NULL, NULL, SW_SHOWNORMAL);
 }
 
 VkInterface::SimpleRef::SimpleRef() : Id(0)

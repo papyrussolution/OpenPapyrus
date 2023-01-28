@@ -3456,7 +3456,7 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 			switch(pktype) {
 				case EVP_PKEY_RSA:
 			    {
-				    RSA * rsa;
+				    const RSA * rsa;
 #ifdef HAVE_OPAQUE_EVP_PKEY
 				    rsa = EVP_PKEY_get0_RSA(pubkey);
 #else
@@ -3467,7 +3467,6 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 				    {
 					    const BIGNUM * n;
 					    const BIGNUM * e;
-
 					    RSA_get0_key(rsa, &n, &e, NULL);
 					    BIO_printf(mem, "%d", BN_num_bits(n));
 					    push_certinfo("RSA Public Key", i);
@@ -3486,7 +3485,7 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 				case EVP_PKEY_DSA:
 			    {
 #ifndef OPENSSL_NO_DSA
-				    DSA * dsa;
+				    const DSA * dsa;
 #ifdef HAVE_OPAQUE_EVP_PKEY
 				    dsa = EVP_PKEY_get0_DSA(pubkey);
 #else
@@ -3498,10 +3497,8 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 					    const BIGNUM * q;
 					    const BIGNUM * g;
 					    const BIGNUM * pub_key;
-
 					    DSA_get0_pqg(dsa, &p, &q, &g);
 					    DSA_get0_key(dsa, &pub_key, NULL);
-
 					    print_pubkey_BN(dsa, p, i);
 					    print_pubkey_BN(dsa, q, i);
 					    print_pubkey_BN(dsa, g, i);
@@ -3518,7 +3515,7 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 			    }
 				case EVP_PKEY_DH:
 			    {
-				    DH * dh;
+				    const DH * dh;
 #ifdef HAVE_OPAQUE_EVP_PKEY
 				    dh = EVP_PKEY_get0_DH(pubkey);
 #else

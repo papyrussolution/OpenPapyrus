@@ -28,10 +28,9 @@
 #include "warnless.h"
 
 #ifdef USE_OPENSSL
-	#include <slib-ossl.h>
+	// @v11.6.2 #include <slib-ossl.h>
 	#if defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
-		/* OpenSSL 3.0.0 marks the MD4 functions as deprecated */
-		#define OPENSSL_NO_MD4
+		#define OPENSSL_NO_MD4 // OpenSSL 3.0.0 marks the MD4 functions as deprecated
 	#endif
 #endif /* USE_OPENSSL */
 
@@ -47,28 +46,14 @@
 #if defined(USE_GNUTLS_NETTLE)
 
 #include <nettle/md4.h>
-
 #include "curl_memory.h"
-
-/* The last #include file should be: */
-#include "memdebug.h"
+#include "memdebug.h" // The last #include file should be
 
 typedef struct md4_ctx MD4_CTX;
 
-static void MD4_Init(MD4_CTX * ctx)
-{
-	md4_init(ctx);
-}
-
-static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
-{
-	md4_update(ctx, size, data);
-}
-
-static void MD4_Final(uchar * result, MD4_CTX * ctx)
-{
-	md4_digest(ctx, MD4_DIGEST_SIZE, result);
-}
+static void MD4_Init(MD4_CTX * ctx) { md4_init(ctx); }
+static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size) { md4_update(ctx, size, data); }
+static void MD4_Final(uchar * result, MD4_CTX * ctx) { md4_digest(ctx, MD4_DIGEST_SIZE, result); }
 
 #elif defined(USE_GNUTLS)
 
@@ -81,15 +66,8 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx)
 
 typedef gcry_md_hd_t MD4_CTX;
 
-static void MD4_Init(MD4_CTX * ctx)
-{
-	gcry_md_open(ctx, GCRY_MD_MD4, 0);
-}
-
-static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
-{
-	gcry_md_write(*ctx, data, size);
-}
+static void MD4_Init(MD4_CTX * ctx) { gcry_md_open(ctx, GCRY_MD_MD4, 0); }
+static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size) { gcry_md_write(*ctx, data, size); }
 
 static void MD4_Final(uchar * result, MD4_CTX * ctx)
 {
@@ -98,8 +76,7 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx)
 }
 
 #elif defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
-/* When OpenSSL is available we use the MD4-functions from OpenSSL */
-#include <slib-ossl.h>
+#include <slib-ossl.h> // When OpenSSL is available we use the MD4-functions from OpenSSL
 
 #elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && (__MAC_OS_X_VERSION_MAX_ALLOWED >= 1040) && defined(__MAC_OS_X_VERSION_MIN_ALLOWED) && \
 	(__MAC_OS_X_VERSION_MIN_ALLOWED < 101500)) || (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 20000))
@@ -110,29 +87,15 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx)
 
 typedef CC_MD4_CTX MD4_CTX;
 
-static void MD4_Init(MD4_CTX * ctx)
-{
-	(void)CC_MD4_Init(ctx);
-}
-
-static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
-{
-	(void)CC_MD4_Update(ctx, data, (CC_LONG)size);
-}
-
-static void MD4_Final(uchar * result, MD4_CTX * ctx)
-{
-	(void)CC_MD4_Final(result, ctx);
-}
+static void MD4_Init(MD4_CTX * ctx) { (void)CC_MD4_Init(ctx); }
+static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size) { (void)CC_MD4_Update(ctx, data, (CC_LONG)size); }
+static void MD4_Final(uchar * result, MD4_CTX * ctx) { (void)CC_MD4_Final(result, ctx); }
 
 #elif defined(USE_WIN32_CRYPTO)
 
 #include <wincrypt.h>
-
 #include "curl_memory.h"
-
-/* The last #include file should be: */
-#include "memdebug.h"
+#include "memdebug.h" // The last #include file should be
 
 struct md4_ctx {
 	HCRYPTPROV hCryptProv;
@@ -145,7 +108,6 @@ static void MD4_Init(MD4_CTX * ctx)
 {
 	ctx->hCryptProv = 0;
 	ctx->hHash = 0;
-
 	if(CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
 	    CRYPT_VERIFYCONTEXT | CRYPT_SILENT)) {
 		CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash);
@@ -209,7 +171,6 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx)
 #else
 		(void)mbedtls_md4_ret(ctx->data, ctx->size, result);
 #endif
-
 		ZFREE(ctx->data);
 		ctx->size = 0;
 	}
@@ -375,20 +336,16 @@ static const void * body(MD4_CTX * ctx, const void * data, ulong size)
 		STEP(H, d, a, b, c, GET(11) + 0x6ed9eba1, 9)
 		STEP(H, c, d, a, b, GET(7) + 0x6ed9eba1, 11)
 		STEP(H, b, c, d, a, GET(15) + 0x6ed9eba1, 15)
-
 		a += saved_a;
 		b += saved_b;
 		c += saved_c;
 		d += saved_d;
-
 		ptr += 64;
 	} while(size -= 64);
-
 	ctx->a = a;
 	ctx->b = b;
 	ctx->c = c;
 	ctx->d = d;
-
 	return ptr;
 }
 
@@ -398,7 +355,6 @@ static void MD4_Init(MD4_CTX * ctx)
 	ctx->b = 0xefcdab89;
 	ctx->c = 0x98badcfe;
 	ctx->d = 0x10325476;
-
 	ctx->lo = 0;
 	ctx->hi = 0;
 }
@@ -418,18 +374,15 @@ static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
 			memcpy(&ctx->buffer[used], data, size);
 			return;
 		}
-
 		memcpy(&ctx->buffer[used], data, available);
 		data = (const uchar *)data + available;
 		size -= available;
 		body(ctx, ctx->buffer, 64);
 	}
-
 	if(size >= 64) {
 		data = body(ctx, data, size & ~(ulong)0x3f);
 		size &= 0x3f;
 	}
-
 	memcpy(ctx->buffer, data, size);
 }
 

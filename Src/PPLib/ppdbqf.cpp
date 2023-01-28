@@ -1,5 +1,5 @@
 // PPDBQF.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1177,9 +1177,9 @@ static IMPL_DBE_PROC(dbqf_yeswordbyflag_i)
 
 static IMPL_DBE_PROC(dbqf_budgplanorfact_rii)
 {
-	double amt     = params[0].rval;
-	long   kind    = params[1].lval;
-	long   is_fact = params[2].lval;
+	double amt = params[0].rval;
+	const long kind    = params[1].lval;
+	const long is_fact = params[2].lval;
 	if(kind != is_fact)
 		amt = 0.0;
 	result->init(amt);
@@ -1201,7 +1201,7 @@ static IMPL_DBE_PROC(dbqf_addr_city_name_i)
 	char   buf[48];
 	if(!DbeInitSize(option, result, sizeof(buf))) {
 		buf[0] = 0;
-		PPID   id = params[0].lval;
+		const PPID   id = params[0].lval;
 		if(id) {
 			PPObjLocation loc_obj;
 			SString city_name;

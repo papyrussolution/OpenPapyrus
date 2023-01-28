@@ -5902,6 +5902,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_desktopcmdassoc                 "40,L,@desktopassoccmd_code;50,L,@cmd"
 @lbt_dblist                          "30,L,@appellation;20,L,@symbol;50,L,@dbloginentry_dbpath;25,L,@dbloginentry_dictpath"
 @lbt_stqstatuslist                   "30,L,@styloqdocstatus_status;20,L,@styloqdocstatus_reservedcase;20,L, ;30,L,@appellation"
+@lbt_goodsrestbyloclist              "30,L,@warehouse;10,R,@rest;10,R,@cost;10,R,@price"
 
 @entmanagementsys                    "Система управления предприятием"
 @pgmcopylic_owner                    "Владелец лицензии"
@@ -8635,6 +8636,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_styloqincominglistparam_actionccheckregprint      "Печать чека на регистраторе"
 @filter_styloqincominglistparam_fbillwithmarksonly        "Только документы с маркировкой"
 @filter_styloqincominglistparam_fbillwithmarkedgoodsonly  "Только документы, содержащие товары, требующие маркировки"
+@filter_styloqpersoneventparam                  "Параметры создания персональной операции для Stylo-Q"
+@filter_styloqpersoneventparam_maxgeodist                 "Максимальная дистанция до офиса, метров"
+@filter_styloqpersoneventparam_packet                     "Параметры события"
 //
 // Команды и popup-меню
 //
@@ -11622,6 +11626,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsstruc_gsf_posmodifier               "POS-модификатор"
 @goodsstruc_gsf_present                   "@{gift}"
 @goodsstruc_gsf_subst                     "@{repsubst}"
+@goodsstruc_gsf_autodecompl               "Допускается автоматическая декомплектация"
 @goodsstruc_id                            "@{id}"
 @goodsstruc_name                          "Наименование структуры"
 @goodsstruc_period                        "@{period}"
@@ -13819,6 +13824,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsfilt_fnodisonly                     "Только без скидки"
 @goodsfilt_fwobrand                       "Без бренда"
 @goodsfilt_f2showwhplace                  "Показывать место размещения"
+@goodsfilt_f2soonexpiredonly              "Только товары с истекающим сроком годности"
 @goodsfilt_goodstype                      "@{goods_type}"
 @goodsfilt_grp                            "@{group}"
 @goodsfilt_manuf                          "@{manufacturer}"
@@ -13833,6 +13839,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsfilt_suppl                          "@{supplier}"
 @goodsfilt_viewoptions                    "Опции просмотра товаров" // generic
 @goodsfilt_viewoptions_ar                 "Опции просмотра артикулов" // generic
+@goodsfilt_aheadexpirydays                "Сколько дней до истечения срока годности?"
 @goodssorting                             "Сортировка товаров"
 
 @brandfilt                                "Фильтр по брендам"
@@ -14058,6 +14065,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @inventorytotal_dfctamount                "@{deficit}"
 @inventorytotal_result_qtty               "@{qtty}" // generic
 @inventorytotal_result_amt                "@{amount}" // generic
+
+@goodsrestbyloclist                       "Остатки товаров на складах"
 
 @goodsrestfilt                            "Фильтр товарных остатков"
 @goodsrestfiltext                         "Расширение фильтра товарных остатков" // Наименование для дополнительного диалога

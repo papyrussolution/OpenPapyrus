@@ -48,8 +48,7 @@ err:
 
 #endif
 
-void * ASN1_item_d2i_bio_ex(const ASN1_ITEM * it, BIO * in, void * x,
-    OSSL_LIB_CTX * libctx, const char * propq)
+void * ASN1_item_d2i_bio_ex(const ASN1_ITEM * it, BIO * in, void * x, OSSL_LIB_CTX * libctx, const char * propq)
 {
 	BUF_MEM * b = NULL;
 	const uchar * p;
@@ -229,12 +228,10 @@ int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 				want = HEADER_SIZE;
 		}
 	}
-
 	if(off > INT_MAX) {
 		ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
 		goto err;
 	}
-
 	*pb = b;
 	return off;
 err:

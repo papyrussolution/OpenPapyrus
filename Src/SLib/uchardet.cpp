@@ -236,14 +236,8 @@ public:
 	{
 		mCurrentState = eStart;
 	}
-	const  char * GetCodingStateMachine() const
-	{
-		return mModel->name;
-	}
-	uint32 GetCurrentCharLen() const
-	{
-		return mCurrentCharLen;
-	}
+	const  char * GetCodingStateMachine() const { return mModel->name; }
+	uint32 GetCurrentCharLen() const { return mCurrentCharLen; }
 protected:
 	nsSMState mCurrentState;
 	uint32 mCurrentCharLen;
@@ -301,13 +295,11 @@ public:
 	virtual const char * GetCharSetName();
 	virtual void Reset();
 	virtual nsProbingState GetState() const;
-	virtual float GetConfidence() const 
-	{
-		return 0.0f;
-	}
+	virtual float GetConfidence() const { return 0.0f; }
 	void SetModelProbers(nsCharSetProber * logicalPrb, nsCharSetProber * visualPrb)
 	{
-		mLogicalProb = logicalPrb; mVisualProb = visualPrb;
+		mLogicalProb = logicalPrb; 
+		mVisualProb = visualPrb;
 	}
 #ifdef DEBUG_chardet
 	virtual void  DumpStatus();
@@ -315,10 +307,12 @@ public:
 protected:
 	static bool FASTCALL isFinal(char c);
 	static bool FASTCALL isNonFinal(char c);
-	int32  mFinalCharLogicalScore, mFinalCharVisualScore;
+	int32  mFinalCharLogicalScore;
+	int32  mFinalCharVisualScore;
 	// The two last characters seen in the previous buffer.
 	char   mPrev;
 	char   mBeforePrev; 
+	uint8  Reserve[2]; // @alignment
 	// These probers are owned by the group prober.
 	nsCharSetProber * mLogicalProb;
 	nsCharSetProber * mVisualProb; 
@@ -5409,41 +5403,20 @@ public:
 		SAlloc::F(m_charset);
 		m_charset = sstrdup("");
 	}
-	const char * GetCharset() const
-	{
-		return m_charset ? m_charset : "";
-	}
+	const char * GetCharset() const { return NZOR(m_charset, ""); }
 protected:
 	char * m_charset;
 };
 
-uchardet_t uchardet_new()
-{
-	return reinterpret_cast<uchardet_t>(new HandleUniversalDetector());
-}
+uchardet_t uchardet_new() { return reinterpret_cast<uchardet_t>(new HandleUniversalDetector()); }
+void uchardet_delete(uchardet_t ud) { delete reinterpret_cast<HandleUniversalDetector*>(ud); }
 
-void uchardet_delete(uchardet_t ud)
-{
-	delete reinterpret_cast<HandleUniversalDetector*>(ud);
-}
-
-int uchardet_handle_data(uchardet_t ud, const char * data, size_t len)
+int uchardet_handle_data(uchardet_t ud, const char * data, size_t len) 
 {
 	nsresult ret = reinterpret_cast<HandleUniversalDetector*>(ud)->HandleData(data, (uint32)len);
 	return (ret != NS_OK);
 }
 
-void uchardet_data_end(uchardet_t ud)
-{
-	reinterpret_cast<HandleUniversalDetector*>(ud)->DataEnd();
-}
-
-void uchardet_reset(uchardet_t ud)
-{
-	reinterpret_cast<HandleUniversalDetector*>(ud)->Reset();
-}
-
-const char * uchardet_get_charset(uchardet_t ud)
-{
-	return reinterpret_cast<HandleUniversalDetector*>(ud)->GetCharset();
-}
+void uchardet_data_end(uchardet_t ud) { reinterpret_cast<HandleUniversalDetector*>(ud)->DataEnd(); }
+void uchardet_reset(uchardet_t ud) { reinterpret_cast<HandleUniversalDetector*>(ud)->Reset(); }
+const char * uchardet_get_charset(uchardet_t ud) { return reinterpret_cast<HandleUniversalDetector*>(ud)->GetCharset(); }

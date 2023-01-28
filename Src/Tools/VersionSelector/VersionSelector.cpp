@@ -27,9 +27,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
 	switch (ul_reason_for_call) {
 		case DLL_PROCESS_ATTACH:
 			{
-				SString product_name;
-				(product_name = "Papyrus Version Selector");
-				SLS.Init(product_name, (HINSTANCE)hModule);
+				SLS.Init("Papyrus Version Selector", (HINSTANCE)hModule);
 				SLS.LogMessage(0, "versel.dll -> DLL_PROCESS_ATTACH", 0); // @debug
 			}
 			break;

@@ -1,5 +1,5 @@
 // OBJGS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1130,6 +1130,7 @@ int GSDialog::setDTS(const PPGoodsStruc * pData)
 	AddClusterAssoc(CTL_GSTRUC_FLAGS, 3, GSF_GIFTPOTENTIAL);
 	AddClusterAssoc(CTL_GSTRUC_FLAGS, 4, GSF_OVRLAPGIFT);
 	AddClusterAssoc(CTL_GSTRUC_FLAGS, 5, GSF_POSMODIFIER);
+	AddClusterAssoc(CTL_GSTRUC_FLAGS, 6, GSF_AUTODECOMPL); // @v11.6.2
 	SetClusterData(CTL_GSTRUC_FLAGS, Data.Rec.Flags);
 	SetupCtrls();
 	setCtrlReal(CTL_GSTRUC_GIFTAMTRESTR, Data.Rec.GiftAmtRestrict);
@@ -1237,6 +1238,7 @@ void GSDialog::SetupCtrls()
 	DisableClusterItem(CTL_GSTRUC_FLAGS, 3, !(Data.Rec.Flags & GSF_PRESENT));
 	DisableClusterItem(CTL_GSTRUC_FLAGS, 4, !(Data.Rec.Flags & GSF_PRESENT));
 	DisableClusterItem(CTL_GSTRUC_FLAGS, 5, !(Data.Rec.Flags & GSF_PARTITIAL));
+	DisableClusterItem(CTL_GSTRUC_FLAGS, 6, !(Data.Rec.Flags & GSF_DECOMPL)); // @v11.6.2
 	showCtrl(CTL_GSTRUC_GIFTAMTRESTR, (Data.Rec.Flags & GSF_PRESENT));
 	showCtrl(CTLSEL_GSTRUC_GIFTQK,    (Data.Rec.Flags & GSF_PRESENT));
 	showCtrl(CTL_GSTRUC_GIFTLIMIT,    (Data.Rec.Flags & GSF_PRESENT));
@@ -3083,7 +3085,8 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 	PPIDArray antirecur_trace; // След извлечения родительских структур, хранимый во избежании зацикливания //
 	SaGiftItem * p_item = 0;
 	SaGiftItem::Entry * p_entry = 0;
-	PPGoodsStrucHeader rec, org_rec;
+	PPGoodsStrucHeader rec;
+	PPGoodsStrucHeader org_rec;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	pList->freeAll();
@@ -3167,9 +3170,8 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 			for(uint j = 0; j < temp_goods_list.getCount(); j++) {
 				owner_goods_list.addUnique(temp_goods_list.get(j));
 			}
-			if(owner_goods_list.getCount()) {
+			if(owner_goods_list.getCount())
 				p_item->GiftList = owner_goods_list;
-			}
 			else
 				pList->atFree(i);
 		}
@@ -3179,6 +3181,72 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 		ok = 1;
 	}
 	CATCHZOK
+	return ok;
+}
+
+int PPObjGoodsStruc::LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList) // @v11.6.2
+{
+	rList.clear();
+	int    ok = -1;
+	PPGoodsStrucHeader2 rec;
+	PPIDArray struc_id_list;
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		const int gs_kind = PPGoodsStruc::GetStrucKind(rec.Flags);
+		if(!(rec.Flags & GSF_FOLDER) && gs_kind == PPGoodsStruc::kBOM && (rec.Flags & GSF_DECOMPL) && (rec.Flags & GSF_AUTODECOMPL)) {
+			rec.Period.Actualize(ZERODATE);
+			if(rec.Period.CheckDate(getcurdate_())) {
+				struc_id_list.add(rec.ID);
+			}
+		}
+	}
+	if(struc_id_list.getCount()) {
+		PPObjGoods goods_obj;
+		Goods2Tbl::Rec owner_rec;
+		PPGoodsStruc gs;
+		PPIDArray owner_list; // Номинальный (без учета обобщений) список идентификаторов товаров-владельцев структуры
+		PPIDArray final_owner_list; // Список идентификаторов товаров-владельцев структуры с учетом обобщенных товаров
+		for(uint i = 0; i < struc_id_list.getCount(); i++) {
+			const PPID struc_id = struc_id_list.get(i);
+			if(Get(struc_id, &gs) > 0) {
+				goods_obj.P_Tbl->SearchGListByStruc(struc_id, &owner_list);
+				if(owner_list.getCount()) {
+					final_owner_list.Z();
+					{
+						for(uint j = 0; j < owner_list.getCount(); j++) {
+							const PPID owner_id = owner_list.get(j);
+							if(goods_obj.Fetch(owner_id, &owner_rec) > 0) {
+								if(owner_rec.Flags & GF_GENERIC)
+									goods_obj.GetGenericList(owner_id, &final_owner_list);
+								else
+									final_owner_list.add(owner_id);
+							}
+						}
+						final_owner_list.sortAndUndup();
+					}
+					{
+						for(uint j = 0; j < final_owner_list.getCount(); j++) {
+							const PPID owner_id = final_owner_list.get(j);
+							PPGoodsStrucItem gs_item;
+							double gsi_qtty = 0.0;
+							for(uint cidx = 0; gs.EnumItemsExt(&cidx, &gs_item, owner_id, 1.0, &gsi_qtty) > 0;) {
+								if(gsi_qtty > 0.0) {
+									SaAutoDecomplItem new_entry;
+									new_entry.GoodsID = gs_item.GoodsID;
+									new_entry.StrucID = gs.Rec.ID;
+									new_entry.Qtty = fabs(gsi_qtty);
+									rList.insert(&new_entry);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if(rList.getCount()) {
+		rList.sort(PTR_CMPFUNC(_2long));
+		ok = 1;
+	}
 	return ok;
 }
 //

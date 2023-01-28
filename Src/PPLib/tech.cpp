@@ -1,5 +1,5 @@
 // TECH.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -151,7 +151,7 @@ int PPObjTech::SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID)
 	MEMSZERO(k2);
 	k2.PrcID = prcID;
 	BExtQuery q(P_Tbl, 2);
-	q.selectAll().where(P_Tbl->PrcID == prcID && P_Tbl->Kind == 2L);
+	q.selectAll().where(P_Tbl->PrcID == prcID && P_Tbl->Kind == static_cast<long>(TECK_AUTO));
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		if(goodsID == P_Tbl->data.GoodsID || goods_obj.BelongToGroup(goodsID, P_Tbl->data.GoodsID, 0) > 0) {
 			tech_id = P_Tbl->data.ID;
@@ -177,7 +177,7 @@ int PPObjTech::SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID)
 			MEMSZERO(k2);
 			k2.PrcID = prc_id;
 			BExtQuery q(P_Tbl, 2);
-			q.selectAll().where(P_Tbl->PrcID == prc_id && P_Tbl->Kind == 2L);
+			q.selectAll().where(P_Tbl->PrcID == prc_id && P_Tbl->Kind == static_cast<long>(TECK_AUTO));
 			for(q.initIteration(false, &k2, spGe); ok < 0 && q.nextIteration() > 0;) {
 				goods_id = P_Tbl->data.GoodsID;
 				ok = 1;
@@ -209,7 +209,7 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 				THROW(tra);
 				THROW(GetPacket(auto_tech_id, &pack) > 0);
 				THROW(InitPacket(&new_pack, 0, 0));
-				new_pack.Rec.Kind = 0;
+				new_pack.Rec.Kind  = TECK_GENERAL;
 				new_pack.Rec.PrcID = pack.Rec.PrcID;
 				new_pack.Rec.GoodsID = goodsID;
 				new_pack.Rec.Sign = pack.Rec.Sign;
@@ -889,13 +889,12 @@ int TechDialog::setDTS(const PPTechPacket * pData)
 	setCtrlData(CTL_TECH_CODE, Data.Rec.Code);
 	setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
 	disableCtrl(CTL_TECH_ID, 1);
-	if(Data.Rec.Kind == 0) {
-		GoodsCtrlGroup::Rec rec(0, Data.Rec.GoodsID, 0,
-			GoodsCtrlGroup::enableInsertGoods | GoodsCtrlGroup::disableEmptyGoods);
+	if(Data.Rec.Kind == TECK_GENERAL) {
+		GoodsCtrlGroup::Rec rec(0, Data.Rec.GoodsID, 0, GoodsCtrlGroup::enableInsertGoods | GoodsCtrlGroup::disableEmptyGoods);
 		setGroupData(GRP_GOODS, &rec);
 		setCapacity();
 	}
-	else if(Data.Rec.Kind == 2) {
+	else if(Data.Rec.Kind == TECK_AUTO) {
 		SString form;
 		GoodsCtrlGroup::Rec rec(Data.Rec.GoodsID, 0, 0, GoodsCtrlGroup::enableInsertGoods);
 		setGroupData(GRP_GOODS, &rec);
@@ -949,14 +948,14 @@ int TechDialog::getDTS(PPTechPacket * pData)
 	THROW_PP(!Data.Rec.ID || Data.Rec.ParentID != Data.Rec.ID, PPERR_TECHCANTBESELFPARENTED); // @v11.3.9
 	sel = CTLSEL_TECH_GOODS;
 	THROW(getGroupData(GRP_GOODS, &rec));
-	if(Data.Rec.Kind == 0)
+	if(Data.Rec.Kind == TECK_GENERAL)
 		Data.Rec.GoodsID = rec.GoodsID;
-	else if(Data.Rec.Kind == 2)
+	else if(Data.Rec.Kind == TECK_AUTO)
 		Data.Rec.GoodsID = rec.GrpID;
 	getCtrlData(CTLSEL_TECH_GSTRUC, &Data.Rec.GStrucID);
-	if(Data.Rec.Kind == 0)
+	if(Data.Rec.Kind == TECK_GENERAL)
 		getCapacity();
-	else if(Data.Rec.Kind == 2) {
+	else if(Data.Rec.Kind == TECK_AUTO) {
 		SString form;
 		getCtrlString(CTL_TECH_CAPACITYFORM, form);
 		PPPutExtStrData(TECEXSTR_CAPACITY, Data.ExtString, form.Strip());
@@ -979,10 +978,10 @@ int TechDialog::getDTS(PPTechPacket * pData)
 int PPObjTech::EditDialog(PPTechPacket * pData)
 {
 	if(pData) {
-		if(oneof2(pData->Rec.Kind, 0, 2)) {
-			DIALOG_PROC_BODY_P1(TechDialog, ((pData->Rec.Kind == 0) ? DLG_TECH : DLG_TECHAUTO), pData);
+		if(oneof2(pData->Rec.Kind, TECK_GENERAL, TECK_AUTO)) {
+			DIALOG_PROC_BODY_P1(TechDialog, ((pData->Rec.Kind == TECK_GENERAL) ? DLG_TECH : DLG_TECHAUTO), pData);
 		}
-		else if(pData->Rec.Kind == 1) {
+		else if(pData->Rec.Kind == TECK_TOOLING) {
 			class ToolingDialog : public TDialog {
 				DECL_DIALOG_DATA(PPTechPacket);
 			public:
@@ -1125,15 +1124,15 @@ int PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta)
 	THROW(GenerateCode(BIN(extraData & TECEXDF_TOOLING), temp_buf, use_ta));
 	temp_buf.CopyTo(rec.Code, sizeof(rec.Code));
 	if(extraData & TECEXDF_TOOLING) {
-		rec.Kind = 1;
+		rec.Kind = TECK_TOOLING;
 		rec.Sign = 0;
 	}
 	else if(extraData & TECEXDF_AUTO) {
-		rec.Kind = 2;
+		rec.Kind = TECK_AUTO;
 		rec.Sign = 0;
 	}
 	else {
-		rec.Kind = 0;
+		rec.Kind = TECK_GENERAL;
 		rec.Sign = 1; // По умолчанию - выход
 	}
 	if(extraData & TECEXDF_GOODS)
@@ -1152,7 +1151,8 @@ int PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta)
 
 int PPObjTech::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	PPTechPacket pack;
 	if(*pID) {
 		THROW(GetPacket(*pID, &pack) > 0);
@@ -1404,9 +1404,9 @@ int PPObjTech::Browse(void * extraPtr)
 		else
 			filt.PrcID = (extra_param & TECEXDF_MASK);
 		if(extra_param & TECEXDF_TOOLING)
-			filt.Kind = 1;
+			filt.Kind = TECK_TOOLING;
 		else if(extra_param & TECEXDF_AUTO)
-			filt.Kind = 2;
+			filt.Kind = TECK_AUTO;
 		ViewTech(&filt);
 	}
 	else
@@ -1751,7 +1751,7 @@ void * PPViewTech::GetEditExtraParam()
 		v = (Filt.GoodsID | TECEXDF_GOODS);
 	else if(Filt.ParentID)
 		v = (Filt.ParentID | TECEXDF_PARENT);
-	if(Filt.Kind == 1)
+	if(Filt.Kind == TECK_TOOLING)
 		v |= TECEXDF_TOOLING;
 	else if(Filt.Kind == 2)
 		v |= TECEXDF_AUTO;
@@ -1760,7 +1760,7 @@ void * PPViewTech::GetEditExtraParam()
 
 DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = (Filt.Kind == 1) ? BROWSER_TECHTOOLING : BROWSER_TECH;
+	const uint   brw_id = (Filt.Kind == TECK_TOOLING) ? BROWSER_TECHTOOLING : BROWSER_TECH;
 	TechTbl * p_tect = 0;
 	ReferenceTbl * p_reft = 0;
 	DBQuery * q  = 0;
@@ -2181,9 +2181,8 @@ int ToolingSelector::LoadList(PPID prcID)
 	TechTbl::Key2 k2;
 	TechTbl * p_t = TecObj.P_Tbl;
 	BExtQuery q(p_t, 2, 64);
-	q.select(p_t->ID, p_t->PrcID, p_t->GoodsID, p_t->PrevGoodsID,
-		p_t->TransClsID, p_t->TransMask, p_t->Flags, 0L).
-		where(p_t->PrcID == prcID && p_t->Kind == 1L);
+	q.select(p_t->ID, p_t->PrcID, p_t->GoodsID, p_t->PrevGoodsID, p_t->TransClsID, p_t->TransMask, p_t->Flags, 0L).
+		where(p_t->PrcID == prcID && p_t->Kind == static_cast<long>(TECK_TOOLING));
 	MEMSZERO(k2);
 	k2.PrcID = prcID;
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {

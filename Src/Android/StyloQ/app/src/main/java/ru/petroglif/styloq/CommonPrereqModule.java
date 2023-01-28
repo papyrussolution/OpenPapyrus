@@ -235,6 +235,7 @@ public class CommonPrereqModule {
 			UseCliDebt = false;
 			BarcodeWeightPrefix = null;
 			BarcodeCountPrefix = null;
+			SvcDtm = null;
 		}
 		void FromJson(JSONObject jsHead)
 		{
@@ -249,6 +250,8 @@ public class CommonPrereqModule {
 				UseCliDebt = jsHead.optBoolean("useclidebt"); // @v11.5.4
 				BarcodeWeightPrefix = jsHead.optString("barcodeweightprefix", null); // @v11.5.0
 				BarcodeCountPrefix = jsHead.optString("barcodecountprefix", null); // @v11.5.0
+				OrgCmdUuid = SLib.strtouuid(jsHead.optString("orgcmduuid", null)); // @v11.6.2
+				SvcDtm = SLib.strtodatetime(jsHead.optString("time", null), SLib.DATF_ISO8601, SLib.TIMF_HMS); // @v11.6.2
 			}
 		}
 		public String BaseCurrencySymb;
@@ -266,6 +269,10 @@ public class CommonPrereqModule {
 			// Передается сервисом с тегом "barcodeweightprefix". Обязанность проверки валидности префикса лежит на сервисе.
 		public String BarcodeCountPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс счетного штрихкода.
 			// Передается сервисом с тегом "barcodecountprefix". Обязанность проверки валидности префикса лежит на сервисе.
+		public UUID OrgCmdUuid; // @v11.6.2 UUID команды, в ответ на которую получены данные. Необходим для обновления данных
+			// из activity (ибо activity, которая работает с данными не знает изначально какой командой было инициировано получение данных).
+		public SLib.LDATETIME SvcDtm; // @v11.6.2 Метка времени формирования данных сервисом. Attention: это время в интерпретации сервиса
+			// и оно может расходится со временем клиента.
 	}
 	//
 	// Descr: Фильтр списка документов, отображаемых на вкладке Tab.tabRegistry
@@ -1296,6 +1303,7 @@ public class CommonPrereqModule {
 		Callback_BackButton = null;
 	}
 	String GetBaseCurrencySymb() { return CSVCP.BaseCurrencySymb; }
+	SLib.LDATETIME GetSvcDataDtm() { return CSVCP.SvcDtm; }
 	int   GetDefDuePeriodHour() { return CSVCP.DefDuePeriodHour; }
 	int   GetAgentID() { return CSVCP.AgentID; }
 	int   GetPosNodeID() { return CSVCP.PosNodeID; }
@@ -1487,15 +1495,26 @@ public class CommonPrereqModule {
 						SLib.SlFragmentStatic f = TabList.get(tidx).TabView;
 						if(f != null) {
 							View fv = f.getView();
-							View lv = (fv != null && innerViewId != 0) ? fv.findViewById(innerViewId) : null;
-							if(lv != null) {
-								if(lv instanceof RecyclerView) {
-									RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
+							if(fv != null) {
+								if(fv instanceof RecyclerView) {
+									RecyclerView.Adapter gva = ((RecyclerView) fv).getAdapter();
 									if(gva != null)
 										gva.notifyDataSetChanged();
 								}
 								else
-									lv.refreshDrawableState();
+									fv.refreshDrawableState();
+								if(fv != null) {
+									View lv = (fv != null && innerViewId != 0) ? fv.findViewById(innerViewId) : null;
+									if(lv != null) {
+										if(lv instanceof RecyclerView) {
+											RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
+											if(gva != null)
+												gva.notifyDataSetChanged();
+										}
+										else
+											lv.refreshDrawableState();
+									}
+								}
 							}
 						}
 						break;
@@ -1957,8 +1976,11 @@ public class CommonPrereqModule {
 	public void MakeGoodsListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		JSONArray temp_array = jsHead.optJSONArray("goods_list");
+		if(GoodsListData != null)
+			GoodsListData.clear();
 		if(temp_array != null) {
-			GoodsListData = new ArrayList<WareEntry>();
+			if(GoodsListData == null)
+				GoodsListData = new ArrayList<WareEntry>();
 			for(int i = 0; i < temp_array.length(); i++) {
 				Object temp_obj = temp_array.get(i);
 				if(temp_obj != null && temp_obj instanceof JSONObject) {
@@ -1985,8 +2007,11 @@ public class CommonPrereqModule {
 	{
 		//ProcessorListData = jsHead.optJSONArray("processor_list");
 		JSONArray temp_array = (jsHead != null) ? jsHead.optJSONArray("processor_list") : null;
+		if(ProcessorListData != null)
+			ProcessorListData.clear();
 		if(temp_array != null) {
-			ProcessorListData = new ArrayList<ProcessorEntry>();
+			if(ProcessorListData == null)
+				ProcessorListData = new ArrayList<ProcessorEntry>();
 			for(int i = 0; i < temp_array.length(); i++) {
 				Object temp_obj = temp_array.get(i);
 				if(temp_obj != null && temp_obj instanceof JSONObject) {
@@ -2013,8 +2038,11 @@ public class CommonPrereqModule {
 	public void MakeUomListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		JSONArray js_uom_list = (jsHead != null) ? jsHead.optJSONArray("uom_list") : null;
+		if(UomListData != null)
+			UomListData.clear();
 		if(js_uom_list != null && js_uom_list.length() > 0) {
-			UomListData = new ArrayList<BusinessEntity.Uom>();
+			if(UomListData == null)
+				UomListData = new ArrayList<BusinessEntity.Uom>();
 			for(int i = 0; i < js_uom_list.length(); i++) {
 				final JSONObject js_uom = js_uom_list.optJSONObject(i);
 				if(js_uom != null) {
@@ -2026,14 +2054,15 @@ public class CommonPrereqModule {
 				}
 			}
 		}
-		else
-			UomListData = null;
 	}
 	public void MakeGoodsGroupListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		JSONArray temp_array = (jsHead != null) ? jsHead.optJSONArray("goodsgroup_list") : null;
+		if(GoodsGroupListData != null)
+			GoodsGroupListData.clear();
 		if(temp_array != null) {
-			GoodsGroupListData = new ArrayList<JSONObject>();
+			if(GoodsGroupListData == null)
+				GoodsGroupListData = new ArrayList<JSONObject>();
 			for(int i = 0; i < temp_array.length(); i++) {
 				Object temp_obj = temp_array.get(i);
 				if(temp_obj != null && temp_obj instanceof JSONObject)
@@ -2052,8 +2081,11 @@ public class CommonPrereqModule {
 	public void MakeBrandListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		JSONArray temp_array = (jsHead != null) ? jsHead.optJSONArray("brand_list") : null;
+		if(BrandListData != null)
+			BrandListData.clear();
 		if(temp_array != null) {
-			BrandListData = new ArrayList<BusinessEntity.Brand>();
+			if(BrandListData == null)
+				BrandListData = new ArrayList<BusinessEntity.Brand>();
 			for(int i = 0; i < temp_array.length(); i++) {
 				Object temp_obj = temp_array.get(i);
 				if(temp_obj != null && temp_obj instanceof JSONObject) {
@@ -2075,8 +2107,11 @@ public class CommonPrereqModule {
 	public void MakeClientListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		JSONArray temp_array = jsHead.optJSONArray("client_list");
+		if(CliListData != null)
+			CliListData.clear();
 		if(temp_array != null) {
-			CliListData = new ArrayList<CommonPrereqModule.CliEntry>();
+			if(CliListData == null)
+				CliListData = new ArrayList<CommonPrereqModule.CliEntry>();
 			for(int i = 0; i < temp_array.length(); i++) {
 				Object temp_obj = temp_array.get(i);
 				if(temp_obj != null && temp_obj instanceof JSONObject)
@@ -2094,11 +2129,14 @@ public class CommonPrereqModule {
 	}
 	public void MakeIncomingDocFromCommonJson(JSONObject jsHead) throws JSONException
 	{
-		JSONArray js_uom_list = (jsHead != null) ? jsHead.optJSONArray("doc_list") : null;
-		if(js_uom_list != null && js_uom_list.length() > 0) {
-			IncomingDocListData = new ArrayList<Document>();
-			for(int i = 0; i < js_uom_list.length(); i++) {
-				final JSONObject js_uom = js_uom_list.optJSONObject(i);
+		JSONArray js_list = (jsHead != null) ? jsHead.optJSONArray("doc_list") : null;
+		if(IncomingDocListData != null)
+			IncomingDocListData.clear();
+		if(js_list != null && js_list.length() > 0) {
+			if(IncomingDocListData == null)
+				IncomingDocListData = new ArrayList<Document>();
+			for(int i = 0; i < js_list.length(); i++) {
+				final JSONObject js_uom = js_list.optJSONObject(i);
 				if(js_uom != null) {
 					Document doc = new Document();
 					if(doc.FromJsonObj(js_uom))
@@ -2108,8 +2146,6 @@ public class CommonPrereqModule {
 				}
 			}
 		}
-		else
-			IncomingDocListData = null;
 	}
 	public int FindGoodsGroupItemIndexByID(int id)
 	{

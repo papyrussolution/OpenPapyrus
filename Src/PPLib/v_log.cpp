@@ -1,5 +1,5 @@
 // V_LOG.CPP
-// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021, 2022
+// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021, 2022, 2023
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -8,8 +8,8 @@
 
 LogFileEntry::LogFileEntry() : ID(0)
 {
-	PTR32(LogName)[0] = 0;
-	PTR32(FileName)[0] = 0;
+	LogName[0] = 0;
+	FileName[0] = 0;
 }
 
 class LogsDialog : public PPListDialog {
@@ -94,7 +94,7 @@ IMPL_HANDLE_EVENT(LogsDialog)
 		SLibError = SLERR_FILENOTFOUND;
 		THROW_PP_S(fileExists(path), PPERR_SLIB, path);
 		SFile::WaitForWriteSharingRelease(path, 2000);
-		ok = (int)::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL);
+		ok = reinterpret_cast<int>(::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL));
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -103,7 +103,8 @@ IMPL_HANDLE_EVENT(LogsDialog)
 int LogsDialog::SendByEmail()
 {
 	int    ok = -1;
-	long   pos = 0, id = 0;
+	long   pos = 0;
+	long   id = 0;
 	if(getCurItem(&pos, &id) > 0) {
 		PPID   acct_id = 0;
 		SString path, support, subj, temp_buf, fmt_buf;

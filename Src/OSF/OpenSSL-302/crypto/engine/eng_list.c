@@ -372,12 +372,10 @@ ENGINE * ENGINE_by_id(const char * id)
 		return NULL;
 	}
 	ENGINE_load_builtin_engines();
-
 	if(!RUN_ONCE(&engine_lock_init, do_engine_lock_init)) {
 		ERR_raise(ERR_LIB_ENGINE, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	if(!CRYPTO_THREAD_write_lock(global_engine_lock))
 		return NULL;
 	iterator = engine_list_head;
@@ -415,8 +413,7 @@ ENGINE * ENGINE_by_id(const char * id)
 		iterator = ENGINE_by_id("dynamic");
 		if(!iterator || !ENGINE_ctrl_cmd_string(iterator, "ID", id, 0) ||
 		    !ENGINE_ctrl_cmd_string(iterator, "DIR_LOAD", "2", 0) ||
-		    !ENGINE_ctrl_cmd_string(iterator, "DIR_ADD",
-		    load_dir, 0) ||
+		    !ENGINE_ctrl_cmd_string(iterator, "DIR_ADD", load_dir, 0) ||
 		    !ENGINE_ctrl_cmd_string(iterator, "LIST_ADD", "1", 0) ||
 		    !ENGINE_ctrl_cmd_string(iterator, "LOAD", NULL, 0))
 			goto notfound;

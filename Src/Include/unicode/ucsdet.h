@@ -1,23 +1,14 @@
+// ucsdet.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2005-2013, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  ucsdet.h
- *   encoding:   UTF-8
- *   indentation:4
- *
- *   created on: 2005Aug04
- *   created by: Andy Heninger
- *
- *   ICU Character Set Detection, API for C
- *
- *   Draft version 18 Oct 2005
- *
- */
-
+// Copyright (C) 2005-2013, International Business Machines
+// Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2005Aug04
+// created by: Andy Heninger
+// ICU Character Set Detection, API for C
+// Draft version 18 Oct 2005
+//
 #ifndef __UCSDET_H
 #define __UCSDET_H
 

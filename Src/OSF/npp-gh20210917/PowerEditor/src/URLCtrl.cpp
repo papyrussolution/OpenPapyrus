@@ -90,23 +90,17 @@ void URLCtrl::create(HWND itemHandle, const TCHAR * link, COLORREF linkColor)
 {
 	// turn on notify style
 	::SetWindowLongPtr(itemHandle, GWL_STYLE, ::GetWindowLongPtr(itemHandle, GWL_STYLE) | SS_NOTIFY);
-
 	// set the URL text (not the display text)
 	if(link)
 		_URL = link;
-
 	// set the hyperlink colour
 	_linkColor = linkColor;
-
 	// set the visited colour
 	_visitedColor = RGB(128, 0, 128);
-
 	// subclass the static control
 	_oldproc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(itemHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(URLCtrlProc)));
-
 	// associate the URL structure with the static control
 	::SetWindowLongPtr(itemHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-
 	// save hwnd
 	_hSelf = itemHandle;
 }
@@ -115,19 +109,14 @@ void URLCtrl::create(HWND itemHandle, int cmd, HWND msgDest)
 {
 	// turn on notify style
 	::SetWindowLongPtr(itemHandle, GWL_STYLE, ::GetWindowLongPtr(itemHandle, GWL_STYLE) | SS_NOTIFY);
-
 	_cmdID = cmd;
 	_msgDest = msgDest;
-
 	// set the hyperlink colour
 	_linkColor = RGB(0, 0, 255);
-
 	// subclass the static control
 	_oldproc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(itemHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(URLCtrlProc)));
-
 	// associate the URL structure with the static control
 	::SetWindowLongPtr(itemHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-
 	// save hwnd
 	_hSelf = itemHandle;
 }
@@ -147,10 +136,8 @@ void URLCtrl::action()
 	}
 	else {
 		_linkColor = _visitedColor;
-
 		::InvalidateRect(_hSelf, 0, 0);
 		::UpdateWindow(_hSelf);
-
 		// Open a browser
 		if(_URL != TEXT("")) {
 			::ShellExecute(NULL, TEXT("open"), _URL.c_str(), NULL, NULL, SW_SHOWNORMAL);
@@ -165,31 +152,25 @@ void URLCtrl::action()
 
 LRESULT URLCtrl::runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	switch(Message)
-	{
+	switch(Message) {
 		// Free up the structure we allocated
 		case WM_NCDESTROY:
 		    //HeapFree(GetProcessHeap(), 0, url);
 		    break;
-
 		// Paint the static control using our custom
 		// colours, and with an underline text style
 		case WM_PAINT:
 	    {
 		    DWORD dwStyle = static_cast<DWORD>(::GetWindowLongPtr(hwnd, GWL_STYLE));
 		    DWORD dwDTStyle = DT_SINGLELINE;
-
 		    //Test if centered horizontally or vertically
 		    if(dwStyle & SS_CENTER) dwDTStyle |= DT_CENTER;
 		    if(dwStyle & SS_RIGHT) dwDTStyle |= DT_RIGHT;
 		    if(dwStyle & SS_CENTERIMAGE) dwDTStyle |= DT_VCENTER;
-
 		    RECT rect;
 		    ::GetClientRect(hwnd, &rect);
-
 		    PAINTSTRUCT ps;
 		    HDC hdc = ::BeginPaint(hwnd, &ps);
-
 		    if((_linkColor == _visitedColor) || (_linkColor == NppDarkMode::getDarkerTextColor())) {
 			    _linkColor = NppDarkMode::isEnabled() ? NppDarkMode::getDarkerTextColor() : _visitedColor;
 			    ::SetTextColor(hdc, _linkColor);
@@ -200,37 +181,27 @@ LRESULT URLCtrl::runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 		    else {
 			    ::SetTextColor(hdc, _linkColor);
 		    }
-
 		    ::SetBkColor(hdc, getCtrlBgColor(GetParent(hwnd))); ///*::GetSysColor(COLOR_3DFACE)*/);
-
 		    // Create an underline font
 		    if(_hfUnderlined == 0) {
 			    // Get the default GUI font
 			    LOGFONT lf;
 			    HFONT hf = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
-
 			    // Add UNDERLINE attribute
 			    GetObject(hf, sizeof lf, &lf);
 			    lf.lfUnderline = TRUE;
-
 			    // Create a new font
 			    _hfUnderlined = ::CreateFontIndirect(&lf);
 		    }
-
 		    HANDLE hOld = SelectObject(hdc, _hfUnderlined);
-
 		    // Draw the text!
 		    TCHAR szWinText[MAX_PATH];
 		    ::GetWindowText(hwnd, szWinText, MAX_PATH);
 		    ::DrawText(hdc, szWinText, -1, &rect, dwDTStyle);
-
 		    ::SelectObject(hdc, hOld);
-
 		    ::EndPaint(hwnd, &ps);
-
 		    return 0;
 	    }
-
 		case WM_SETTEXT:
 	    {
 		    LRESULT ret = ::CallWindowProc(_oldproc, hwnd, Message, wParam, lParam);
@@ -243,38 +214,29 @@ LRESULT URLCtrl::runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 	    {
 		    if(_hCursor == 0)
 			    _hCursor = ::CreateCursor(::GetModuleHandle(0), 5, 2, 32, 32, XORMask, ANDMask);
-
 		    SetCursor(_hCursor);
 		    return TRUE;
 	    }
-
 		case WM_LBUTTONDOWN:
 		    _clicking = true;
 		    break;
-
 		case WM_LBUTTONUP:
 		    if(_clicking) {
 			    _clicking = false;
-
 			    action();
 		    }
-
 		    break;
-
 		//Support using space to activate this object
 		case WM_KEYDOWN:
 		    if(wParam == VK_SPACE)
 			    _clicking = true;
 		    break;
-
 		case WM_KEYUP:
 		    if(wParam == VK_SPACE && _clicking) {
 			    _clicking = false;
-
 			    action();
 		    }
 		    break;
-
 		// A standard static control returns HTTRANSPARENT here, which
 		// prevents us from receiving any mouse messages. So, return
 		// HTCLIENT instead.

@@ -97,37 +97,32 @@
 // ABSL_ATTRIBUTE_NOINLINE
 //
 // Forces functions to either inline or not inline. Introduced in gcc 3.1.
-#if ABSL_HAVE_ATTRIBUTE(always_inline) || \
-    (defined(__GNUC__) && !defined(__clang__))
-#define ABSL_ATTRIBUTE_ALWAYS_INLINE __attribute__((always_inline))
-#define ABSL_HAVE_ATTRIBUTE_ALWAYS_INLINE 1
+#if ABSL_HAVE_ATTRIBUTE(always_inline) || (defined(__GNUC__) && !defined(__clang__))
+	#define ABSL_ATTRIBUTE_ALWAYS_INLINE __attribute__((always_inline))
+	#define ABSL_HAVE_ATTRIBUTE_ALWAYS_INLINE 1
 #else
-#define ABSL_ATTRIBUTE_ALWAYS_INLINE
+	#define ABSL_ATTRIBUTE_ALWAYS_INLINE
 #endif
-
 #if ABSL_HAVE_ATTRIBUTE(noinline) || (defined(__GNUC__) && !defined(__clang__))
-#define ABSL_ATTRIBUTE_NOINLINE __attribute__((noinline))
-#define ABSL_HAVE_ATTRIBUTE_NOINLINE 1
+	#define ABSL_ATTRIBUTE_NOINLINE __attribute__((noinline))
+	#define ABSL_HAVE_ATTRIBUTE_NOINLINE 1
 #else
-#define ABSL_ATTRIBUTE_NOINLINE
+	#define ABSL_ATTRIBUTE_NOINLINE
 #endif
-
 // ABSL_ATTRIBUTE_NO_TAIL_CALL
 //
 // Prevents the compiler from optimizing away stack frames for functions which
 // end in a call to another function.
 #if ABSL_HAVE_ATTRIBUTE(disable_tail_calls)
-#define ABSL_HAVE_ATTRIBUTE_NO_TAIL_CALL 1
-#define ABSL_ATTRIBUTE_NO_TAIL_CALL __attribute__((disable_tail_calls))
+	#define ABSL_HAVE_ATTRIBUTE_NO_TAIL_CALL 1
+	#define ABSL_ATTRIBUTE_NO_TAIL_CALL __attribute__((disable_tail_calls))
 #elif defined(__GNUC__) && !defined(__clang__) && !defined(__e2k__)
-#define ABSL_HAVE_ATTRIBUTE_NO_TAIL_CALL 1
-#define ABSL_ATTRIBUTE_NO_TAIL_CALL \
-  __attribute__((optimize("no-optimize-sibling-calls")))
+	#define ABSL_HAVE_ATTRIBUTE_NO_TAIL_CALL 1
+	#define ABSL_ATTRIBUTE_NO_TAIL_CALL __attribute__((optimize("no-optimize-sibling-calls")))
 #else
-#define ABSL_ATTRIBUTE_NO_TAIL_CALL
-#define ABSL_HAVE_ATTRIBUTE_NO_TAIL_CALL 0
+	#define ABSL_ATTRIBUTE_NO_TAIL_CALL
+	#define ABSL_HAVE_ATTRIBUTE_NO_TAIL_CALL 0
 #endif
-
 // ABSL_ATTRIBUTE_WEAK
 //
 // Tags a function as weak for the purposes of compilation and linking.
@@ -136,16 +131,13 @@
 // for further information.
 // The MinGW compiler doesn't complain about the weak attribute until the link
 // step, presumably because Windows doesn't use ELF binaries.
-#if (ABSL_HAVE_ATTRIBUTE(weak) ||                                        \
-     (defined(__GNUC__) && !defined(__clang__))) &&                      \
-    (!defined(_WIN32) || (defined(__clang__) && __clang_major__ < 9)) && \
-    !defined(__MINGW32__)
-#undef ABSL_ATTRIBUTE_WEAK
-#define ABSL_ATTRIBUTE_WEAK __attribute__((weak))
-#define ABSL_HAVE_ATTRIBUTE_WEAK 1
+#if (ABSL_HAVE_ATTRIBUTE(weak) || (defined(__GNUC__) && !defined(__clang__))) && (!defined(_WIN32) || (defined(__clang__) && __clang_major__ < 9)) && !defined(__MINGW32__)
+	#undef ABSL_ATTRIBUTE_WEAK
+	#define ABSL_ATTRIBUTE_WEAK __attribute__((weak))
+	#define ABSL_HAVE_ATTRIBUTE_WEAK 1
 #else
-#define ABSL_ATTRIBUTE_WEAK
-#define ABSL_HAVE_ATTRIBUTE_WEAK 0
+	#define ABSL_ATTRIBUTE_WEAK
+	#define ABSL_HAVE_ATTRIBUTE_WEAK 0
 #endif
 
 // ABSL_ATTRIBUTE_NONNULL
@@ -187,22 +179,21 @@
 // NOTE: The GCC nonnull attribute actually accepts a list of arguments, but
 // ABSL_ATTRIBUTE_NONNULL does not.
 #if ABSL_HAVE_ATTRIBUTE(nonnull) || (defined(__GNUC__) && !defined(__clang__))
-#define ABSL_ATTRIBUTE_NONNULL(arg_index) __attribute__((nonnull(arg_index)))
+	#define ABSL_ATTRIBUTE_NONNULL(arg_index) __attribute__((nonnull(arg_index)))
 #else
-#define ABSL_ATTRIBUTE_NONNULL(...)
+	#define ABSL_ATTRIBUTE_NONNULL(...)
 #endif
 
 // ABSL_ATTRIBUTE_NORETURN
 //
 // Tells the compiler that a given function never returns.
 #if ABSL_HAVE_ATTRIBUTE(noreturn) || (defined(__GNUC__) && !defined(__clang__))
-#define ABSL_ATTRIBUTE_NORETURN __attribute__((noreturn))
+	#define ABSL_ATTRIBUTE_NORETURN __attribute__((noreturn))
 #elif defined(_MSC_VER)
-#define ABSL_ATTRIBUTE_NORETURN __declspec(noreturn)
+	#define ABSL_ATTRIBUTE_NORETURN __declspec(noreturn)
 #else
-#define ABSL_ATTRIBUTE_NORETURN
+	#define ABSL_ATTRIBUTE_NORETURN
 #endif
-
 // ABSL_ATTRIBUTE_NO_SANITIZE_ADDRESS
 //
 // Tells the AddressSanitizer (or other memory testing tools) to ignore a given
@@ -212,11 +203,10 @@
 // NOTE: GCC supports AddressSanitizer(asan) since 4.8.
 // https://gcc.gnu.org/gcc-4.8/changes.html
 #if ABSL_HAVE_ATTRIBUTE(no_sanitize_address)
-#define ABSL_ATTRIBUTE_NO_SANITIZE_ADDRESS __attribute__((no_sanitize_address))
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_ADDRESS __attribute__((no_sanitize_address))
 #else
-#define ABSL_ATTRIBUTE_NO_SANITIZE_ADDRESS
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_ADDRESS
 #endif
-
 // ABSL_ATTRIBUTE_NO_SANITIZE_MEMORY
 //
 // Tells the MemorySanitizer to relax the handling of a given function. All "Use
@@ -226,9 +216,9 @@
 // above, but deals with initialized-ness rather than addressability issues.
 // NOTE: MemorySanitizer(msan) is supported by Clang but not GCC.
 #if ABSL_HAVE_ATTRIBUTE(no_sanitize_memory)
-#define ABSL_ATTRIBUTE_NO_SANITIZE_MEMORY __attribute__((no_sanitize_memory))
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_MEMORY __attribute__((no_sanitize_memory))
 #else
-#define ABSL_ATTRIBUTE_NO_SANITIZE_MEMORY
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_MEMORY
 #endif
 
 // ABSL_ATTRIBUTE_NO_SANITIZE_THREAD
@@ -237,9 +227,9 @@
 // NOTE: GCC supports ThreadSanitizer(tsan) since 4.8.
 // https://gcc.gnu.org/gcc-4.8/changes.html
 #if ABSL_HAVE_ATTRIBUTE(no_sanitize_thread)
-#define ABSL_ATTRIBUTE_NO_SANITIZE_THREAD __attribute__((no_sanitize_thread))
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_THREAD __attribute__((no_sanitize_thread))
 #else
-#define ABSL_ATTRIBUTE_NO_SANITIZE_THREAD
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_THREAD
 #endif
 
 // ABSL_ATTRIBUTE_NO_SANITIZE_UNDEFINED
@@ -249,13 +239,11 @@
 // NOTE: GCC supports UndefinedBehaviorSanitizer(ubsan) since 4.9.
 // https://gcc.gnu.org/gcc-4.9/changes.html
 #if ABSL_HAVE_ATTRIBUTE(no_sanitize_undefined)
-#define ABSL_ATTRIBUTE_NO_SANITIZE_UNDEFINED \
-  __attribute__((no_sanitize_undefined))
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_UNDEFINED __attribute__((no_sanitize_undefined))
 #elif ABSL_HAVE_ATTRIBUTE(no_sanitize)
-#define ABSL_ATTRIBUTE_NO_SANITIZE_UNDEFINED \
-  __attribute__((no_sanitize("undefined")))
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_UNDEFINED __attribute__((no_sanitize("undefined")))
 #else
-#define ABSL_ATTRIBUTE_NO_SANITIZE_UNDEFINED
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_UNDEFINED
 #endif
 
 // ABSL_ATTRIBUTE_NO_SANITIZE_CFI
@@ -263,11 +251,10 @@
 // Tells the ControlFlowIntegrity sanitizer to not instrument a given function.
 // See https://clang.llvm.org/docs/ControlFlowIntegrity.html for details.
 #if ABSL_HAVE_ATTRIBUTE(no_sanitize)
-#define ABSL_ATTRIBUTE_NO_SANITIZE_CFI __attribute__((no_sanitize("cfi")))
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_CFI __attribute__((no_sanitize("cfi")))
 #else
-#define ABSL_ATTRIBUTE_NO_SANITIZE_CFI
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_CFI
 #endif
-
 // ABSL_ATTRIBUTE_NO_SANITIZE_SAFESTACK
 //
 // Tells the SafeStack to not instrument a given function.
@@ -276,27 +263,23 @@
 #define ABSL_ATTRIBUTE_NO_SANITIZE_SAFESTACK \
   __attribute__((no_sanitize("safe-stack")))
 #else
-#define ABSL_ATTRIBUTE_NO_SANITIZE_SAFESTACK
+	#define ABSL_ATTRIBUTE_NO_SANITIZE_SAFESTACK
 #endif
-
 // ABSL_ATTRIBUTE_RETURNS_NONNULL
 //
 // Tells the compiler that a particular function never returns a null pointer.
 #if ABSL_HAVE_ATTRIBUTE(returns_nonnull)
-#define ABSL_ATTRIBUTE_RETURNS_NONNULL __attribute__((returns_nonnull))
+	#define ABSL_ATTRIBUTE_RETURNS_NONNULL __attribute__((returns_nonnull))
 #else
-#define ABSL_ATTRIBUTE_RETURNS_NONNULL
+	#define ABSL_ATTRIBUTE_RETURNS_NONNULL
 #endif
-
 // ABSL_HAVE_ATTRIBUTE_SECTION
 //
 // Indicates whether labeled sections are supported. Weak symbol support is
 // a prerequisite. Labeled sections are not supported on Darwin/iOS.
 #ifdef ABSL_HAVE_ATTRIBUTE_SECTION
 #error ABSL_HAVE_ATTRIBUTE_SECTION cannot be directly set
-#elif (ABSL_HAVE_ATTRIBUTE(section) ||                \
-       (defined(__GNUC__) && !defined(__clang__))) && \
-    !defined(__APPLE__) && ABSL_HAVE_ATTRIBUTE_WEAK
+#elif (ABSL_HAVE_ATTRIBUTE(section) || (defined(__GNUC__) && !defined(__clang__))) && !defined(__APPLE__) && ABSL_HAVE_ATTRIBUTE_WEAK
 #define ABSL_HAVE_ATTRIBUTE_SECTION 1
 
 // ABSL_ATTRIBUTE_SECTION
@@ -308,10 +291,8 @@
 // whatever section its caller is placed into.
 //
 #ifndef ABSL_ATTRIBUTE_SECTION
-#define ABSL_ATTRIBUTE_SECTION(name) \
-  __attribute__((section(#name))) __attribute__((noinline))
+	#define ABSL_ATTRIBUTE_SECTION(name) __attribute__((section(#name))) __attribute__((noinline))
 #endif
-
 
 // ABSL_ATTRIBUTE_SECTION_VARIABLE
 //
@@ -450,15 +431,14 @@
 //
 //   int foo() ABSL_ATTRIBUTE_HOT;
 #if ABSL_HAVE_ATTRIBUTE(hot) || (defined(__GNUC__) && !defined(__clang__))
-#define ABSL_ATTRIBUTE_HOT __attribute__((hot))
+	#define ABSL_ATTRIBUTE_HOT __attribute__((hot))
 #else
-#define ABSL_ATTRIBUTE_HOT
+	#define ABSL_ATTRIBUTE_HOT
 #endif
-
 #if ABSL_HAVE_ATTRIBUTE(cold) || (defined(__GNUC__) && !defined(__clang__))
-#define ABSL_ATTRIBUTE_COLD __attribute__((cold))
+	#define ABSL_ATTRIBUTE_COLD __attribute__((cold))
 #else
-#define ABSL_ATTRIBUTE_COLD
+	#define ABSL_ATTRIBUTE_COLD
 #endif
 
 // ABSL_XRAY_ALWAYS_INSTRUMENT, ABSL_XRAY_NEVER_INSTRUMENT, ABSL_XRAY_LOG_ARGS
@@ -497,20 +477,18 @@
 //
 // XRay isn't currently supported on Android:
 // https://github.com/android/ndk/issues/368
-#if ABSL_HAVE_CPP_ATTRIBUTE(clang::xray_always_instrument) && \
-    !defined(ABSL_NO_XRAY_ATTRIBUTES) && !defined(__ANDROID__)
-#define ABSL_XRAY_ALWAYS_INSTRUMENT [[clang::xray_always_instrument]]
-#define ABSL_XRAY_NEVER_INSTRUMENT [[clang::xray_never_instrument]]
-#if ABSL_HAVE_CPP_ATTRIBUTE(clang::xray_log_args)
-#define ABSL_XRAY_LOG_ARGS(N) \
-    [[clang::xray_always_instrument, clang::xray_log_args(N)]]
+#if ABSL_HAVE_CPP_ATTRIBUTE(clang::xray_always_instrument) && !defined(ABSL_NO_XRAY_ATTRIBUTES) && !defined(__ANDROID__)
+	#define ABSL_XRAY_ALWAYS_INSTRUMENT [[clang::xray_always_instrument]]
+	#define ABSL_XRAY_NEVER_INSTRUMENT [[clang::xray_never_instrument]]
+	#if ABSL_HAVE_CPP_ATTRIBUTE(clang::xray_log_args)
+		#define ABSL_XRAY_LOG_ARGS(N) [[clang::xray_always_instrument, clang::xray_log_args(N)]]
+	#else
+		#define ABSL_XRAY_LOG_ARGS(N) [[clang::xray_always_instrument]]
+	#endif
 #else
-#define ABSL_XRAY_LOG_ARGS(N) [[clang::xray_always_instrument]]
-#endif
-#else
-#define ABSL_XRAY_ALWAYS_INSTRUMENT
-#define ABSL_XRAY_NEVER_INSTRUMENT
-#define ABSL_XRAY_LOG_ARGS(N)
+	#define ABSL_XRAY_ALWAYS_INSTRUMENT
+	#define ABSL_XRAY_NEVER_INSTRUMENT
+	#define ABSL_XRAY_LOG_ARGS(N)
 #endif
 
 // ABSL_ATTRIBUTE_REINITIALIZES

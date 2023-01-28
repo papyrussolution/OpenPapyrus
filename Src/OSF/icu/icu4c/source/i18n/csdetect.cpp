@@ -199,12 +199,7 @@ const CharsetMatch * CharsetDetector::detect(UErrorCode & status)
 {
 	int32_t maxMatchesFound = 0;
 	detectAll(maxMatchesFound, status);
-	if(maxMatchesFound > 0) {
-		return resultArray[0];
-	}
-	else {
-		return NULL;
-	}
+	return (maxMatchesFound > 0) ? resultArray[0] : NULL;
 }
 
 const CharsetMatch * const * CharsetDetector::detectAll(int32_t &maxMatchesFound, UErrorCode & status)

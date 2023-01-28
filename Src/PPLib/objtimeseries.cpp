@@ -3489,7 +3489,7 @@ int PPObjTimeSeries::StrategyContainer::Simulate(const CommonTsParamBlock & rCts
 		const uint _start_offset = max_ifs+max_delta2_stride;
 		const uint _max_test_count = NZOR(rCfg.E.TestCount, 1);
 		const uint _offs_inc_list[] = { 173, 269, 313, 401, 439 };
-		SelectBlock scsb(rCtspb.TrendList, sc_index1);
+		SelectBlock scsb(rCtspb.TrendList, sc_index1, 0/*getCount() >= 10 ? 5 : 0*//*bucketQuantMin*/);
 		scsb.P_VList = &rCtspb.ValList;
 		scsb.DevPtCount = rCfg.E.LocalDevPtCount;
 		scsb.LDMT_Factor = rCfg.E.LDMT_Factor;
@@ -3500,7 +3500,7 @@ int PPObjTimeSeries::StrategyContainer::Simulate(const CommonTsParamBlock & rCts
 			const LDATETIME start_tm = rCtspb.TmList.at(init_offset);
 			LDATETIME finish_tm = ZERODATETIME;
 			for(uint i = init_offset; i < tsc; i++) {
-				if(SelectS2(scsb.Init(static_cast<int>(i))) > 0) {
+				if(SelectS2(scsb.Init(static_cast<int>(i), start_tm)) > 0) {
 					assert(scsb.MaxResultIdx >= 0 && scsb.MaxResultIdx < getCountI());
 					PPObjTimeSeries::StrategyResultValueEx rv_ex;
 					int csr = 0;
@@ -4144,16 +4144,81 @@ int PPObjTimeSeries::StrategyContainer::CreateIndex1(PPObjTimeSeries::StrategyCo
 	return ok;
 }
 
-PPObjTimeSeries::StrategyContainer::SelectBlock::SelectBlock(const TSCollection <TrendEntry> & rTrendList, const Index1 & rIndex) : 
-	R_TrendList(rTrendList), LastTrendIdx(0), Criterion(0),
-	R_Index(rIndex), P_Ts(0), P_VList(0), DevPtCount(0), LDMT_Factor(0), MainTrendMaxErrRel(0.0f), Reserve(0)
+PPObjTimeSeries::StrategyContainer::SelectBlock::Bucket::Bucket(uint timeQuantMin) : TimeQuantMin(timeQuantMin)
 {
 }
 
-PPObjTimeSeries::StrategyContainer::SelectBlock & FASTCALL PPObjTimeSeries::StrategyContainer::SelectBlock::Init(int lastTrendIdx)
+int PPObjTimeSeries::StrategyContainer::SelectBlock::Bucket::PutStrategy(const PPObjTimeSeries::Strategy * pS, const LDATETIME & rDtm)
+{
+	int    ok = -1;
+	if(TimeQuantMin > 0 && checkdate(rDtm.d)) {
+		uint i = Q.getCount();
+		if(i) do {
+			const Entry & r_entry = Q.at(--i);
+			if(!checkdate(r_entry.Dtm.d)) 
+				Q.atFree(i);
+			else if(pS && r_entry.ID == pS->ID)
+				Q.atFree(i);
+			else {
+				const long sdiff = diffdatetimesec(rDtm, r_entry.Dtm);
+				assert(sdiff >= 0);
+				if(sdiff > static_cast<long>(TimeQuantMin*60)) {
+					Q.atFree(i);
+				}
+			}
+		} while(i);
+		if(pS) {
+			Entry new_entry;
+			new_entry.Dtm = rDtm;
+			new_entry.ID = pS->ID;
+			SETFLAG(new_entry.Flags, Entry::fShort, (pS->BaseFlags & Strategy::bfShort));
+			Q.insert(&new_entry);
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
+PPID PPObjTimeSeries::StrategyContainer::SelectBlock::Bucket::GetFinalStrategyID(uint minCount) const
+{
+	PPID   result_id = 0;
+	if(Q.getCount() >= minCount) {
+		//bool is_there_ambiguity = false;
+		bool is_there_short = false;
+		bool is_there_long = false;
+		LDATETIME recent_dtm = ZERODATETIME;
+		for(uint i = 0; i < Q.getCount(); i++) {
+			const Entry & r_entry = Q.at(i);
+			if(r_entry.Flags & Entry::fShort)
+				is_there_short = true;
+			else
+				is_there_long = true;
+			if(cmp(r_entry.Dtm, recent_dtm) > 0) {
+				recent_dtm = r_entry.Dtm;
+				result_id = r_entry.ID;
+			}
+		}
+		if(is_there_short && is_there_long)
+			result_id = 0; // ambiguity
+	}
+	return result_id;
+}
+
+PPObjTimeSeries::StrategyContainer::SelectBlock::Bucket::Entry::Entry() : ID(0), Dtm(ZERODATETIME), Flags(0)
+{
+}
+
+PPObjTimeSeries::StrategyContainer::SelectBlock::SelectBlock(const TSCollection <TrendEntry> & rTrendList, const Index1 & rIndex, uint bucketQuantMin) : 
+	R_TrendList(rTrendList), LastTrendIdx(0), LastDtm(ZERODATETIME), Criterion(0),
+	R_Index(rIndex), P_Ts(0), P_VList(0), DevPtCount(0), LDMT_Factor(0), MainTrendMaxErrRel(0.0f), Reserve(0), Bckt(bucketQuantMin)
+{
+}
+
+PPObjTimeSeries::StrategyContainer::SelectBlock & FASTCALL PPObjTimeSeries::StrategyContainer::SelectBlock::Init(int lastTrendIdx, const LDATETIME & rLastDtm)
 {
 	BestStrategyBlock::Z();
 	LastTrendIdx = lastTrendIdx;
+	LastDtm = rLastDtm; // @v11.6.2
 	return *this;
 }
 
@@ -4175,6 +4240,65 @@ int PPObjTimeSeries::StrategyContainer::IsThereSimilStrategy(uint thisIdx, const
 		}
 	}
 	return yes;
+}
+
+int PPObjTimeSeries::StrategyContainer::FinalizeStrategySelection(SelectBlock & rBlk, uint strategyIdx, int lastTrendIdx) const
+{
+	int    ok = 0;
+	const  bool is_single = (getCount() == 1); //(rBlk.R_Index.getCount() == 1);
+	double local_result = 0.0;
+	const Strategy & r_s = at(strategyIdx);
+	switch(rBlk.Criterion & 0xffL) {
+		case selcritVelocity: local_result = r_s.V.GetResultPerDay(); break;
+		case selcritWinRatio: local_result = r_s.GetWinCountRate(); break;
+		case selcritResult: local_result = r_s.V.Result; break;
+		case selcritStakeCount: local_result = r_s.StakeCount; break;
+	}
+	if(local_result > 0.0 || (is_single && local_result == 0.0)) {
+		const TrendEntry * p_te = SearchTrendEntry(rBlk.R_TrendList, r_s.InputFrameSize);
+		const TrendEntry * p_main_te = r_s.MainFrameSize ? SearchTrendEntry(rBlk.R_TrendList, r_s.MainFrameSize) : 0;
+		const uint tlc = p_te ? p_te->TL.getCount() : 0;
+		const uint trend_idx = (lastTrendIdx < 0) ? (tlc-1) : static_cast<uint>(lastTrendIdx);
+		const double trend_err = p_te->ErrL.at(trend_idx);
+		const double tv = p_te ? p_te->TL.at(trend_idx) : 0.0;
+		const double tv2 = p_main_te ? p_main_te->TL.at(trend_idx) : 0.0;
+		// @v10.7.1 {
+		const double main_trend_err = p_main_te ? p_main_te->ErrL.at(trend_idx) : 0.0;
+		const double main_trend_err_rel = fdivnz(main_trend_err, r_s.MainTrendErrAvg);
+		const double trend_err_rel = fdivnz(trend_err, r_s.TrendErrAvg);
+		double local_std_dev = 0.0;
+		if(rBlk.MainTrendMaxErrRel <= 0.0f || main_trend_err_rel <= static_cast<double>(rBlk.MainTrendMaxErrRel)) { // @v10.7.1
+			const double ldmt_limit = (rBlk.LDMT_Factor > 0) ? static_cast<double>(rBlk.LDMT_Factor) / 1000.0 : 3000.0 /*large unreachable value*/;
+			// if((main_trend_err_rel * local_deviation) <= ldmt_limit/*0.055*/) {
+			// 
+			// Проверка на условие непревышения локальной девиацией предельного значения, заданного в конфигурации.
+			// Кроме того, если количество точек для замера локальной девиации задано, но она тем не менее 0, то 
+			// в этом случае ставку делать нельзя (плоский участок без движения - есть основания полагать что это очень
+			// рискованная позиция для ставки).
+			// 
+			//if(local_deviation2 <= ldmt_limit && ((rBlk.DevPtCount <= 0 || local_deviation2 > 0.0))) {
+			// @v10.8.9 if((main_trend_err_rel * local_deviation) <= ldmt_limit/*0.055*/) {
+			{
+				// } @v10.7.1 
+				//rBlk.SetResult(local_result, sidx, tv, tv2);
+				//void PPObjTimeSeries::BestStrategyBlock::SetResult(double localResult, uint strategyIdx, double tv, double tv2)
+				{
+					rBlk.MaxResult = local_result;
+					rBlk.MaxResultIdx = static_cast<int>(strategyIdx);
+					rBlk.TvForMaxResult = tv;
+					rBlk.Tv2ForMaxResult = tv2;
+				}
+				rBlk.TrendErr = trend_err;
+				rBlk.TrendErrRel = trend_err_rel;
+				rBlk.MainTrendErr = main_trend_err;
+				rBlk.MainTrendErrRel = main_trend_err_rel;
+				// @v10.8.9 rBlk.LocalDeviation = local_deviation;
+				// @v10.8.9 rBlk.LocalDeviation2 = local_deviation2;
+			}
+			ok = 1;
+		}
+	}
+	return ok;
 }
 
 int PPObjTimeSeries::StrategyContainer::SelectS2(SelectBlock & rBlk) const
@@ -4330,65 +4454,41 @@ int PPObjTimeSeries::StrategyContainer::SelectS2(SelectBlock & rBlk) const
 			}
 		}
 		if(!skip_long || !skip_short) {
+			const bool use_bucket = (rBlk.Bckt.TimeQuantMin > 0 && getCount() >= 10);
 			LongArray simil_idx_list;
-			for(uint clidx = 0; clidx < rc; clidx++) {
-				const uint sidx = static_cast<uint>(rBlk.AllSuitedPosList.get(clidx));
-				const Strategy & r_s = at(sidx);
-				if((r_s.BaseFlags & r_s.bfShort && !skip_short) || (!(r_s.BaseFlags & r_s.bfShort) && !skip_long)) {
-					double local_result = 0.0;
-					switch(rBlk.Criterion & 0xffL) {
-						case selcritVelocity: local_result = r_s.V.GetResultPerDay(); break;
-						case selcritWinRatio: local_result = r_s.GetWinCountRate(); break;
-						case selcritResult: local_result = r_s.V.Result; break;
-						case selcritStakeCount: local_result = r_s.StakeCount; break;
+			if(use_bucket) { // @v11.6.2
+				rBlk.Bckt.PutStrategy(0, rBlk.LastDtm); // Убираем все устаревшие выбранные стратегии
+				for(uint clidx = 0; clidx < rc; clidx++) {
+					const uint sidx = static_cast<uint>(rBlk.AllSuitedPosList.get(clidx));
+					const Strategy & r_s = at(sidx);
+					if((r_s.BaseFlags & r_s.bfShort && !skip_short) || (!(r_s.BaseFlags & r_s.bfShort) && !skip_long)) {
+						rBlk.Bckt.PutStrategy(&r_s, rBlk.LastDtm);
 					}
-					if(local_result > 0.0 || (is_single && local_result == 0.0)) {
-						const TrendEntry * p_te = SearchTrendEntry(rBlk.R_TrendList, r_s.InputFrameSize);
-						const TrendEntry * p_main_te = r_s.MainFrameSize ? SearchTrendEntry(rBlk.R_TrendList, r_s.MainFrameSize) : 0;
-						const uint tlc = p_te ? p_te->TL.getCount() : 0;
-						const uint trend_idx = (last_trend_idx < 0) ? (tlc-1) : static_cast<uint>(last_trend_idx);
-						const double trend_err = p_te->ErrL.at(trend_idx);
-						const double tv = p_te ? p_te->TL.at(trend_idx) : 0.0;
-						const double tv2 = p_main_te ? p_main_te->TL.at(trend_idx) : 0.0;
-						// @v10.7.1 {
-						const double main_trend_err = p_main_te ? p_main_te->ErrL.at(trend_idx) : 0.0;
-						const double main_trend_err_rel = fdivnz(main_trend_err, r_s.MainTrendErrAvg);
-						const double trend_err_rel = fdivnz(trend_err, r_s.TrendErrAvg);
-						double local_std_dev = 0.0;
-						if(rBlk.MainTrendMaxErrRel <= 0.0f || main_trend_err_rel <= static_cast<double>(rBlk.MainTrendMaxErrRel)) { // @v10.7.1
-							const double ldmt_limit = (rBlk.LDMT_Factor > 0) ? static_cast<double>(rBlk.LDMT_Factor) / 1000.0 : 3000.0 /*large unreachable value*/;
-							// if((main_trend_err_rel * local_deviation) <= ldmt_limit/*0.055*/) {
-							// 
-							// Проверка на условие непревышения локальной девиацией предельного значения, заданного в конфигурации.
-							// Кроме того, если количество точек для замера локальной девиации задано, но она тем не менее 0, то 
-							// в этом случае ставку делать нельзя (плоский участок без движения - есть основания полагать что это очень
-							// рискованная позиция для ставки).
-							// 
-							//if(local_deviation2 <= ldmt_limit && ((rBlk.DevPtCount <= 0 || local_deviation2 > 0.0))) {
-							// @v10.8.9 if((main_trend_err_rel * local_deviation) <= ldmt_limit/*0.055*/) {
-							{
-								// } @v10.7.1 
-								//rBlk.SetResult(local_result, sidx, tv, tv2);
-								//void PPObjTimeSeries::BestStrategyBlock::SetResult(double localResult, uint strategyIdx, double tv, double tv2)
-								{
-									rBlk.MaxResult = local_result;
-									rBlk.MaxResultIdx = static_cast<int>(sidx);
-									rBlk.TvForMaxResult = tv;
-									rBlk.Tv2ForMaxResult = tv2;
-								}
-								rBlk.TrendErr = trend_err;
-								rBlk.TrendErrRel = trend_err_rel;
-								rBlk.MainTrendErr = main_trend_err;
-								rBlk.MainTrendErrRel = main_trend_err_rel;
-								// @v10.8.9 rBlk.LocalDeviation = local_deviation;
-								// @v10.8.9 rBlk.LocalDeviation2 = local_deviation2;
-							}
+				}
+				PPID final_strategy_id = rBlk.Bckt.GetFinalStrategyID(2);
+				if(final_strategy_id) {
+					uint   sidx = 0;
+					const  Strategy * p_s = SearchByID(final_strategy_id, &sidx);
+					if(p_s) {
+						assert(at(sidx).ID == final_strategy_id);
+						const Strategy & r_s = *p_s;
+						if(FinalizeStrategySelection(rBlk, sidx, last_trend_idx) > 0) {
+							ok = 1;
 						}
 					}
 				}
 			}
-			if(rBlk.MaxResult > 0.0 || (is_single && rBlk.MaxResultIdx >= 0)) // @20200720 || (is_single && rBlk.MaxResultIdx >= 0)
-				ok = 1;
+			else {
+				for(uint clidx = 0; clidx < rc; clidx++) {
+					const uint sidx = static_cast<uint>(rBlk.AllSuitedPosList.get(clidx));
+					const Strategy & r_s = at(sidx);
+					if((r_s.BaseFlags & r_s.bfShort && !skip_short) || (!(r_s.BaseFlags & r_s.bfShort) && !skip_long)) {
+						FinalizeStrategySelection(rBlk, sidx, last_trend_idx);
+					}
+				}
+				if(rBlk.MaxResult > 0.0 || (is_single && rBlk.MaxResultIdx >= 0)) // @20200720 || (is_single && rBlk.MaxResultIdx >= 0)
+					ok = 1;
+			}
 		}
 	}
 	return ok;
@@ -4709,13 +4809,16 @@ int PPObjTimeSeries::StrategyContainer::GetBestSubset2(const PPTssModelPacket & 
 	return ok;
 }
 
-const PPObjTimeSeries::Strategy * FASTCALL PPObjTimeSeries::StrategyContainer::SearchByID(uint32 id) const
+const PPObjTimeSeries::Strategy * PPObjTimeSeries::StrategyContainer::SearchByID(uint32 id, uint * pIdx) const
 {
 	const PPObjTimeSeries::Strategy * p_result = 0;
 	if(id) {
-		for(uint i = 0; !p_result && i < getCount(); i++)
-			if(at(i).ID == id)
+		for(uint i = 0; !p_result && i < getCount(); i++) {
+			if(at(i).ID == id) {
 				p_result = &at(i);
+				ASSIGN_PTR(pIdx, i);
+			}
+		}
 	}
 	return p_result;
 }

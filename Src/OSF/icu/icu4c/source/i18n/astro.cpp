@@ -52,20 +52,15 @@ static const char * debug_astro_date(UDate d)
 #define U_DEBUG_ASTRO_MSG(x)
 #endif
 
-static inline bool isINVALID(double d) {
-	return(uprv_isNaN(d));
-}
+static inline bool isINVALID(double d) { return(uprv_isNaN(d)); }
 
 static icu::UMutex ccLock;
 
 U_CDECL_BEGIN
-static bool calendar_astro_cleanup() {
-	return TRUE;
-}
-
+	static bool calendar_astro_cleanup() { return TRUE; }
 U_CDECL_END
 
-    U_NAMESPACE_BEGIN
+U_NAMESPACE_BEGIN
 
 /**
  * The number of standard hours in one sidereal day.
@@ -95,7 +90,6 @@ U_CDECL_END
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
 const double CalendarAstronomer::SYNODIC_MONTH  = 29.530588853;
-
 /**
  * The average number of days it takes
  * for the moon to return to the same ecliptic longitude relative to the
@@ -198,25 +192,17 @@ const double CalendarAstronomer::PI = 3.14159265358979323846;
  * Given 'value', add or subtract 'range' until 0 <= 'value' < range.
  * The modulus operator.
  */
-inline static double normalize(double value, double range) {
-	return value - range * ClockMath::floorDivide(value, range);
-}
-
+inline static double normalize(double value, double range) { return value - range * ClockMath::floorDivide(value, range); }
 /**
  * Normalize an angle so that it's in the range 0 - 2pi.
  * For positive angles this is just (angle % 2pi), but the Java
  * mod operator doesn't work that way for negative numbers....
  */
-inline static double norm2PI(double angle) {
-	return normalize(angle, CalendarAstronomer::PI * 2.0);
-}
-
+inline static double norm2PI(double angle) { return normalize(angle, CalendarAstronomer::PI * 2.0); }
 /**
  * Normalize an angle into the range -PI - PI
  */
-inline static double normPI(double angle) {
-	return normalize(angle + CalendarAstronomer::PI, CalendarAstronomer::PI * 2.0) - CalendarAstronomer::PI;
-}
+inline static double normPI(double angle) { return normalize(angle + CalendarAstronomer::PI, CalendarAstronomer::PI * 2.0) - CalendarAstronomer::PI; }
 //
 // Constructors
 //
@@ -226,8 +212,8 @@ inline static double normPI(double angle) {
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-CalendarAstronomer::CalendarAstronomer() :
-	fTime(Calendar::getNow()), fLongitude(0.0), fLatitude(0.0), fGmtOffset(0.0), moonPosition(0, 0), moonPositionSet(FALSE) {
+CalendarAstronomer::CalendarAstronomer() : fTime(Calendar::getNow()), fLongitude(0.0), fLatitude(0.0), fGmtOffset(0.0), moonPosition(0, 0), moonPositionSet(FALSE) 
+{
 	clearCache();
 }
 
@@ -320,10 +306,7 @@ void CalendarAstronomer::setJulianDay(double jdn) {
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-UDate CalendarAstronomer::getTime() {
-	return fTime;
-}
-
+UDate CalendarAstronomer::getTime() { return fTime; }
 /**
  * Get the current time of this <code>CalendarAstronomer</code> object,
  * expressed as a "julian day number", which is the number of elapsed
@@ -334,7 +317,8 @@ UDate CalendarAstronomer::getTime() {
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-double CalendarAstronomer::getJulianDay() {
+double CalendarAstronomer::getJulianDay() 
+{
 	if(isINVALID(julianDay)) {
 		julianDay = (fTime - (double)JULIAN_EPOCH_MS) / (double)DAY_MS;
 	}
@@ -349,7 +333,8 @@ double CalendarAstronomer::getJulianDay() {
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-double CalendarAstronomer::getJulianCentury() {
+double CalendarAstronomer::getJulianCentury() 
+{
 	if(isINVALID(julianCentury)) {
 		julianCentury = (getJulianDay() - 2415020.0) / 36525.0;
 	}
@@ -373,7 +358,8 @@ double CalendarAstronomer::getGreenwichSidereal() {
 	return siderealTime;
 }
 
-double CalendarAstronomer::getSiderealOffset() {
+double CalendarAstronomer::getSiderealOffset() 
+{
 	if(isINVALID(siderealT0)) {
 		double JD  = uprv_floor(getJulianDay() - 0.5) + 0.5;
 		double S   = JD - 2451545.0;
@@ -388,10 +374,10 @@ double CalendarAstronomer::getSiderealOffset() {
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-double CalendarAstronomer::getLocalSidereal() {
+double CalendarAstronomer::getLocalSidereal() 
+{
 	return normalize(getGreenwichSidereal() + (fGmtOffset/(double)HOUR_MS), 24.);
 }
-
 /**
  * Converts local sidereal time to Universal Time.
  *
@@ -401,16 +387,14 @@ double CalendarAstronomer::getLocalSidereal() {
  * @return      The corresponding Universal Time, in milliseconds since
  *              1 Jan 1970, GMT.
  */
-double CalendarAstronomer::lstToUT(double lst) {
+double CalendarAstronomer::lstToUT(double lst) 
+{
 	// Convert to local mean time
 	double lt = normalize((lst - getSiderealOffset()) * 0.9972695663, 24);
-
 	// Then find local midnight on this day
 	double base = (DAY_MS * ClockMath::floorDivide(fTime + fGmtOffset, (double)DAY_MS)) - fGmtOffset;
-
 	//out("    lt  =" + lt + " hours");
 	//out("    base=" + new Date(base));
-
 	return base + (long)(lt * HOUR_MS);
 }
 //
@@ -440,26 +424,19 @@ CalendarAstronomer::Equatorial& CalendarAstronomer::eclipticToEquatorial(Calenda
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-CalendarAstronomer::Equatorial& CalendarAstronomer::eclipticToEquatorial(CalendarAstronomer::Equatorial& result,
-    double eclipLong,
-    double eclipLat)
+CalendarAstronomer::Equatorial& CalendarAstronomer::eclipticToEquatorial(CalendarAstronomer::Equatorial& result, double eclipLong, double eclipLat)
 {
 	// See page 42 of "Practical Astronomy with your Calculator",
 	// by Peter Duffet-Smith, for details on the algorithm.
-
 	double obliq = eclipticObliquity();
 	double sinE = ::sin(obliq);
 	double cosE = cos(obliq);
-
 	double sinL = ::sin(eclipLong);
 	double cosL = cos(eclipLong);
-
 	double sinB = ::sin(eclipLat);
 	double cosB = cos(eclipLat);
 	double tanB = tan(eclipLat);
-
-	result.set(atan2(sinL*cosE - tanB*sinE, cosL),
-	    asin(sinB*cosE + cosB*sinE*sinL));
+	result.set(atan2(sinL*cosE - tanB*sinE, cosL), asin(sinB*cosE + cosB*sinE*sinL));
 	return result;
 }
 
@@ -476,7 +453,6 @@ CalendarAstronomer::Equatorial& CalendarAstronomer::eclipticToEquatorial(Calenda
 {
 	return eclipticToEquatorial(result, eclipLong, 0); // TODO: optimize
 }
-
 /**
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
@@ -485,19 +461,15 @@ CalendarAstronomer::Horizon& CalendarAstronomer::eclipticToHorizon(CalendarAstro
 {
 	Equatorial equatorial;
 	eclipticToEquatorial(equatorial, eclipLong);
-
 	double H = getLocalSidereal()*CalendarAstronomer::PI/12 - equatorial.ascension; // Hour-angle
-
 	double sinH = ::sin(H);
 	double cosH = cos(H);
 	double sinD = ::sin(equatorial.declination);
 	double cosD = cos(equatorial.declination);
 	double sinL = ::sin(fLatitude);
 	double cosL = cos(fLatitude);
-
 	double altitude = asin(sinD*sinL + cosD*cosL*cosH);
 	double azimuth  = atan2(-cosD*cosL*sinH, sinD - sinL * ::sin(altitude));
-
 	result.set(azimuth, altitude);
 	return result;
 }
@@ -583,11 +555,8 @@ static double trueAnomaly(double meanAnomaly, double eccentricity)
 	do {
 		delta = E - eccentricity * ::sin(E) - meanAnomaly;
 		E = E - delta / (1 - eccentricity * ::cos(E));
-	}
-	while(uprv_fabs(delta) > 1e-5); // epsilon = 1e-5 rad
-
-	return 2.0 * ::atan(::tan(E/2) * ::sqrt( (1+eccentricity)
-		   /(1-eccentricity) ));
+	} while(uprv_fabs(delta) > 1e-5); // epsilon = 1e-5 rad
+	return 2.0 * ::atan(::tan(E/2) * ::sqrt( (1+eccentricity) / (1-eccentricity) ));
 }
 
 /**
@@ -1063,20 +1032,16 @@ const CalendarAstronomer::Equatorial& CalendarAstronomer::getMoonPosition()
 		// a circular orbit.  Similar to the corresponding solar calculation.
 		double meanLongitude = norm2PI(13.1763966*PI/180*day + moonL0);
 		meanAnomalyMoon = norm2PI(meanLongitude - 0.1114041*PI/180 * day - moonP0);
-
 		//
 		// Calculate the following corrections:
 		//  Evection:   the sun's gravity affects the moon's eccentricity
 		//  Annual Eqn: variation in the effect due to earth-sun distance
 		//  A3:         correction factor (for ???)
 		//
-		double evection = 1.2739*PI/180 * ::sin(2 * (meanLongitude - sunLongitude)
-			- meanAnomalyMoon);
+		double evection = 1.2739*PI/180 * ::sin(2 * (meanLongitude - sunLongitude) - meanAnomalyMoon);
 		double annual   = 0.1858*PI/180 * ::sin(meanAnomalySun);
 		double a3       = 0.3700*PI/180 * ::sin(meanAnomalySun);
-
 		meanAnomalyMoon += evection - annual - a3;
-
 		//
 		// More correction factors:
 		//  center  equation of the center correction
@@ -1159,7 +1124,8 @@ double CalendarAstronomer::getMoonAge() {
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-double CalendarAstronomer::getMoonPhase() {
+double CalendarAstronomer::getMoonPhase() 
+{
 	// See page 147 of "Practical Astronomy with your Calculator",
 	// by Peter Duffet-Smith, for details on the algorithm.
 	return 0.5 * (1 - cos(getMoonAge()));
@@ -1224,13 +1190,8 @@ MoonTimeAngleFunc::~MoonTimeAngleFunc() {
 UDate CalendarAstronomer::getMoonTime(double desired, bool next)
 {
 	MoonTimeAngleFunc func;
-	return timeOfAngle(func,
-		   desired,
-		   SYNODIC_MONTH,
-		   MINUTE_MS,
-		   next);
+	return timeOfAngle(func, desired, SYNODIC_MONTH, MINUTE_MS, next);
 }
-
 /**
  * Find the next or previous time at which the moon will be in the
  * desired phase.
@@ -1253,7 +1214,8 @@ public:
 	}
 };
 
-MoonRiseSetCoordFunc::~MoonRiseSetCoordFunc() {
+MoonRiseSetCoordFunc::~MoonRiseSetCoordFunc() 
+{
 }
 
 /**
@@ -1334,30 +1296,24 @@ UDate CalendarAstronomer::riseOrSet(CoordFunc& func, bool rise, double diameter,
 	double tanL   = ::tan(fLatitude);
 	double deltaT = 0;
 	int32_t count = 0;
-
 	//
 	// Calculate the object's position at the current time, then use that
 	// position to calculate the time of rising or setting.  The position
 	// will be different at that time, so iterate until the error is allowable.
 	//
-	U_DEBUG_ASTRO_MSG(("setup rise=%s, dia=%.3lf, ref=%.3lf, eps=%.3lf\n",
-	    rise ? "T" : "F", diameter, refraction, epsilon));
+	U_DEBUG_ASTRO_MSG(("setup rise=%s, dia=%.3lf, ref=%.3lf, eps=%.3lf\n", rise ? "T" : "F", diameter, refraction, epsilon));
 	do {
 		// See "Practical Astronomy With Your Calculator, section 33.
 		func.eval(pos, *this);
 		double angle = ::acos(-tanL * ::tan(pos.declination));
 		double lst = ((rise ? CalendarAstronomer_PI2-angle : angle) + pos.ascension ) * 24 / CalendarAstronomer_PI2;
-
 		// Convert from LST to Universal Time.
 		UDate newTime = lstToUT(lst);
-
 		deltaT = newTime - fTime;
 		setTime(newTime);
 		U_DEBUG_ASTRO_MSG(("%d] dT=%.3lf, angle=%.3lf, lst=%.3lf,   A=%.3lf/D=%.3lf\n",
 		    count, deltaT, angle, lst, pos.ascension, pos.declination));
-	}
-	while(++count < 5 && uprv_fabs(deltaT) > epsilon);
-
+	} while(++count < 5 && uprv_fabs(deltaT) > epsilon);
 	// Calculate the correction due to refraction and the object's angular diameter
 	double cosD  = ::cos(pos.declination);
 	double psi   = ::acos(sin(fLatitude) / cosD);
@@ -1501,40 +1457,38 @@ void CalendarCache::createCache(CalendarCache** cache, UErrorCode & status)
 
 int32_t CalendarCache::get(CalendarCache** cache, int32_t key, UErrorCode & status) 
 {
-	int32_t res;
-	if(U_FAILURE(status)) {
-		return 0;
-	}
-	umtx_lock(&ccLock);
-	if(*cache == NULL) {
-		createCache(cache, status);
-		if(U_FAILURE(status)) {
-			umtx_unlock(&ccLock);
-			return 0;
+	int32_t res = 0;
+	if(U_SUCCESS(status)) {
+		umtx_lock(&ccLock);
+		if(*cache == NULL) {
+			createCache(cache, status);
+			if(U_FAILURE(status)) {
+				umtx_unlock(&ccLock);
+				return 0;
+			}
 		}
+		res = uhash_igeti((*cache)->fTable, key);
+		U_DEBUG_ASTRO_MSG(("%p: GET: [%d] == %d\n", (*cache)->fTable, key, res));
+		umtx_unlock(&ccLock);
 	}
-	res = uhash_igeti((*cache)->fTable, key);
-	U_DEBUG_ASTRO_MSG(("%p: GET: [%d] == %d\n", (*cache)->fTable, key, res));
-	umtx_unlock(&ccLock);
 	return res;
 }
 
 void CalendarCache::put(CalendarCache** cache, int32_t key, int32_t value, UErrorCode & status) 
 {
-	if(U_FAILURE(status)) {
-		return;
-	}
-	umtx_lock(&ccLock);
-	if(*cache == NULL) {
-		createCache(cache, status);
-		if(U_FAILURE(status)) {
-			umtx_unlock(&ccLock);
-			return;
+	if(U_SUCCESS(status)) {
+		umtx_lock(&ccLock);
+		if(*cache == NULL) {
+			createCache(cache, status);
+			if(U_FAILURE(status)) {
+				umtx_unlock(&ccLock);
+				return;
+			}
 		}
+		uhash_iputi((*cache)->fTable, key, value, &status);
+		U_DEBUG_ASTRO_MSG(("%p: PUT: [%d] := %d\n", (*cache)->fTable, key, value));
+		umtx_unlock(&ccLock);
 	}
-	uhash_iputi((*cache)->fTable, key, value, &status);
-	U_DEBUG_ASTRO_MSG(("%p: PUT: [%d] := %d\n", (*cache)->fTable, key, value));
-	umtx_unlock(&ccLock);
 }
 
 CalendarCache::CalendarCache(int32_t size, UErrorCode & status) 

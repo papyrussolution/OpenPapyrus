@@ -6,6 +6,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <uchardet.h>
+#include <unicode/ucsdet.h>
 
 const char * SlTxtOutOfMem = "Out of memory"; // @v11.3.12
 
@@ -3039,40 +3040,26 @@ SEOLFormat FASTCALL SDetermineEOLFormat(const void * pBuf, size_t bufLen)
 //
 //
 //
-STextEncodingStat::STextEncodingStat(long options) : P_UcdHandle(0)
+STextEncodingStat::STextEncodingStat(long options) : LangID(0)
 {
 	Init(options);
 }
 
 STextEncodingStat::~STextEncodingStat()
 {
-	if(P_UcdHandle) {
-		uchardet_delete(static_cast<uchardet_t>(P_UcdHandle));
-		P_UcdHandle = 0;
-	}
 }
 
 STextEncodingStat & STextEncodingStat::Init(long options)
 {
 	Flags = fEmpty;
-	if(options & fUseUCharDet)
+	EncDetectionBuf.Z(); // @v11.6.2
+	LangID = 0; // @v11.6.2
+	if(options & fUseIcuCharDet)
+		Flags |= fUseIcuCharDet;
+	else if(options & fUseUCharDet)
 		Flags |= fUseUCharDet;
-	if(Flags & fUseUCharDet) {
-		if(P_UcdHandle) {
-			uchardet_reset(static_cast<uchardet_t>(P_UcdHandle));
-		}
-		else {
-			P_UcdHandle = uchardet_new();
-		}
-	}
-	else {
-		if(P_UcdHandle) {
-			uchardet_delete(static_cast<uchardet_t>(P_UcdHandle));
-			P_UcdHandle = 0;
-		}
-	}
 	Cp = cpUndef;
-	PTR32(CpName)[0] = 0;
+	CpName[0] = 0;
 	Eolf = eolUndef;
 	MEMSZERO(ChrFreq);
 	memzero(Utf8Prefix, sizeof(Utf8Prefix));
@@ -3088,9 +3075,18 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 			Flags &= ~fEmpty;
 			Flags |= (fAsciiOnly|fLegalUtf8Only);
 		}
-		if(P_UcdHandle) {
-			uchardet_handle_data(static_cast<uchardet_t>(P_UcdHandle), static_cast<const char *>(pData), size);
+		// @v11.6.2 {
+		if(Flags & (fUseIcuCharDet|fUseUCharDet)) {
+			const size_t enc_det_buf_maxlen = SKILOBYTE(8);
+			if(EncDetectionBuf.Len() < enc_det_buf_maxlen) {
+				if((size+EncDetectionBuf.Len()) > enc_det_buf_maxlen)
+					EncDetectionBuf.CatN(static_cast<const char *>(pData), enc_det_buf_maxlen-EncDetectionBuf.Len());
+				else
+					EncDetectionBuf.CatN(static_cast<const char *>(pData), size);
+			}
+			assert(EncDetectionBuf.Len() <= enc_det_buf_maxlen);
 		}
+		// } @v11.6.2 
 		size_t skip_eolf_pos = 0;
 		size_t next_utf8_pos = 0;
 		const uint8 * p = static_cast<const uint8 *>(pData);
@@ -3160,12 +3156,41 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 
 void STextEncodingStat::Finish()
 {
-	if(P_UcdHandle) {
-		uchardet_data_end(static_cast<uchardet_t>(P_UcdHandle));
-		const char * p_cp_symb = uchardet_get_charset(static_cast<uchardet_t>(P_UcdHandle));
-		if(p_cp_symb) {
-			STRNSCPY(CpName, p_cp_symb);
-			Flags |= fUCharDetWorked;
+	if(EncDetectionBuf.Len()) {
+		if(Flags & fUseIcuCharDet) { // @v11.6.2
+			UErrorCode icu_status = U_ZERO_ERROR;
+			UCharsetDetector * p_provider = ucsdet_open(&icu_status);
+			if(p_provider) {
+				UErrorCode icu_status = U_ZERO_ERROR;
+				ucsdet_setText(p_provider, EncDetectionBuf.cptr(), EncDetectionBuf.Len(), &icu_status);
+				if(!icu_status) {
+					const UCharsetMatch * p_ucm = ucsdet_detect(p_provider, &icu_status);
+					if(p_ucm) {
+						const char * p_cp_symb = ucsdet_getName(p_ucm, &icu_status);
+						int32 conf = ucsdet_getConfidence(p_ucm, &icu_status);
+						const char * p_lang = ucsdet_getLanguage(p_ucm, &icu_status);
+						if(!isempty(p_cp_symb)) {
+							STRNSCPY(CpName, p_cp_symb);
+							LangID = RecognizeLinguaSymb(p_lang, 0);
+							Flags |= fUCharDetWorked;
+						}
+					}
+				}
+				ucsdet_close(p_provider);
+			}
+		}
+		else if(Flags & fUseUCharDet) {
+			uchardet_t p_provider = uchardet_new();
+			if(p_provider) {
+				uchardet_handle_data(p_provider, EncDetectionBuf, EncDetectionBuf.Len());
+				uchardet_data_end(p_provider);
+				const char * p_cp_symb = uchardet_get_charset(p_provider);
+				if(p_cp_symb) {
+					STRNSCPY(CpName, p_cp_symb);
+					Flags |= fUCharDetWorked;
+				}
+			}
+			uchardet_delete(p_provider);
 		}
 	}
 }
@@ -3264,24 +3289,49 @@ SLTEST_R(STextEncodingStat)
 	SFileEntryPool fep;
 	//SFileEntryPool::Entry fep_entry;
 	SPathStruc ps;
-	STextEncodingStat tes(STextEncodingStat::fUseUCharDet);
-	THROW(Make_STextEncodingStat_FilePool(test_data_path, fep));
 	{
-		SFile f_out(out_file_name, SFile::mWrite);
-		for(uint i = 0; i < fep.GetCount(); i++) {
-			if(fep.Get(i, /*fep_entry*/0, &in_file_name)) {
-				//(in_file_name = fep_entry.Path).SetLastSlash().Cat(fep_entry.Name);
-				SFile f_in(in_file_name, SFile::mRead);
-				tes.Init(STextEncodingStat::fUseUCharDet);
-				while(f_in.ReadLine(temp_buf)) {
-					tes.Add(temp_buf, temp_buf.Len());
+		STextEncodingStat tes_icu(STextEncodingStat::fUseIcuCharDet);
+		THROW(Make_STextEncodingStat_FilePool(test_data_path, fep));
+		{
+			SFile f_out(out_file_name, SFile::mWrite);
+			for(uint i = 0; i < fep.GetCount(); i++) {
+				if(fep.Get(i, /*fep_entry*/0, &in_file_name)) {
+					//(in_file_name = fep_entry.Path).SetLastSlash().Cat(fep_entry.Name);
+					SFile f_in(in_file_name, SFile::mRead);
+					tes_icu.Init(STextEncodingStat::fUseIcuCharDet);
+					while(f_in.ReadLine(temp_buf)) {
+						tes_icu.Add(temp_buf, temp_buf.Len());
+					}
+					tes_icu.Finish();
+					ps.Split(in_file_name);
+					SLTEST_CHECK_NZ(tes_icu.CheckFlag(STextEncodingStat::fUCharDetWorked));
+					SLTEST_CHECK_Z(ps.Nam.CmpNC(tes_icu.GetCpName()));
+					temp_buf.Z().Cat(in_file_name).Tab().Cat(tes_icu.GetCpName()).CR();
+					f_out.WriteLine(temp_buf);
 				}
-				tes.Finish();
-				ps.Split(in_file_name);
-				SLTEST_CHECK_NZ(tes.CheckFlag(tes.fUCharDetWorked));
-				SLTEST_CHECK_Z(ps.Nam.CmpNC(tes.GetCpName()));
-				temp_buf.Z().Cat(in_file_name).Tab().Cat(tes.GetCpName()).CR();
-				f_out.WriteLine(temp_buf);
+			}
+		}
+	}
+	{
+		STextEncodingStat tes_(STextEncodingStat::fUseUCharDet);
+		THROW(Make_STextEncodingStat_FilePool(test_data_path, fep));
+		{
+			SFile f_out(out_file_name, SFile::mWrite);
+			for(uint i = 0; i < fep.GetCount(); i++) {
+				if(fep.Get(i, /*fep_entry*/0, &in_file_name)) {
+					//(in_file_name = fep_entry.Path).SetLastSlash().Cat(fep_entry.Name);
+					SFile f_in(in_file_name, SFile::mRead);
+					tes_.Init(STextEncodingStat::fUseUCharDet);
+					while(f_in.ReadLine(temp_buf)) {
+						tes_.Add(temp_buf, temp_buf.Len());
+					}
+					tes_.Finish();
+					ps.Split(in_file_name);
+					SLTEST_CHECK_NZ(tes_.CheckFlag(STextEncodingStat::fUCharDetWorked));
+					SLTEST_CHECK_Z(ps.Nam.CmpNC(tes_.GetCpName()));
+					temp_buf.Z().Cat(in_file_name).Tab().Cat(tes_.GetCpName()).CR();
+					f_out.WriteLine(temp_buf);
+				}
 			}
 		}
 	}

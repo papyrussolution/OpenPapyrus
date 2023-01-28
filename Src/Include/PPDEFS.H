@@ -1,5 +1,5 @@
 // PPDEFS.H
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 // Файл содержит только define-определения. Используется для включения в исходные файлы ресурсов
@@ -1837,6 +1837,7 @@
 #define STDCTL_TRANSMITBUTTON     162 // @v10.5.3 Кнопка "Передать"
 #define STDCTL_DIAGNOSTICS        163 // @v10.5.6 Кнопка "Диагностика"
 #define STDCTL_REPEATINGBUTTON    164 // @v11.0.4 Кнопка "Повторение"
+#define STDCTL_MAPONGEOLOCBUTTON  165 // @v11.6.2 Кнопка запуска функции открытия карты с координатами (cmExecMapOnGeoLoc)
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -1931,6 +1932,7 @@
 #define cmTree                   1190 // @v11.2.11 Кнопка для просмотра древовидной структуры объекта (пока для товарных структур)
 #define cmSelectProcessors       1191 // @v11.3.4  Кнопка выбора списка процессоров
 #define cmToggleAllOrOwnOnly     1192 // @v11.4.1  Переключение отображения все/только свои (пока для товарных корзин)
+#define cmExecMapOnGeoLoc        1193 // @v11.6.2  Кнопка запускает функцию открытия карты с координатами, введенными в прикрепленном поле
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -5696,6 +5698,8 @@
 	#define CTL_GFLTADVOPT_EXTFLT        (8 + WINDOWS_ID_BIAS)
 	#define CTL_GFLTADVOPT_PLUSNREST     (9 + WINDOWS_ID_BIAS) // Товар не попадает в период поступления, но есть на остатке
 	#define CTL_GFLTADVOPT_FLAGS         (10 + WINDOWS_ID_BIAS)
+	#define CTL_GFLTADVOPT_SNEXP         (11 + WINDOWS_ID_BIAS) // @v11.6.2 f2SoonExpiredOnly 
+	#define CTL_GFLTADVOPT_AHEXPD        (12 + WINDOWS_ID_BIAS) // @v11.6.2 AheadExpiryDays
 //                                516 // Occupied (DLG_BILLEXTFLT)
 #define DLG_OPRDRAFT              517 // Вид драфт-операции
 	// CTL[SEL]_OPRKIND_XXX
@@ -7311,7 +7315,7 @@
 #define DLG_UICFG                 725
 	#define cmSelBrowserFont             101
 	#define cmSelListFont                102
-	#define cmUiCfgBITF                  103 // @v11.5.11 Опции отображения строк документа 
+	#define cmUiCfgBITF                  103 // @v11.5.11 Опции отображения строк документа
 	#define CTL_UICFG_SELBCLRSHM         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_UICFG_SELBCLRSHM      (2 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_FLAGS              (3 + WINDOWS_ID_BIAS)
@@ -11388,7 +11392,7 @@
 #define DLG_STQINLCPARAM          1420 // @v11.4.6 // cchecks
 #define DLG_STQINLSPARAM          1421 // @v11.4.6 // tsession
 #define DLG_STQINLTPARAM          1422 // @v11.4.6 // todo
-	#define cmStatusList                     101 // Команда редактирования списка статусов, которые может устанавливать клиент 
+	#define cmStatusList                     101 // Команда редактирования списка статусов, которые может устанавливать клиент
 	#define CTL_STQINLPARAM_LBD              (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQINLPARAM_LOC              (2  + WINDOWS_ID_BIAS)
 	#define CTLSEL_STQINLPARAM_LOC           (3  + WINDOWS_ID_BIAS)
@@ -11409,10 +11413,10 @@
 #define DLG_STQSTATUSL            1423
 	#define CTL_STQSTATUSL_LIST              (1  + WINDOWS_ID_BIAS)
 #define DLG_STQSTATUSE            1424
-	#define CTL_STQSTATUSE_NAME              (1  + WINDOWS_ID_BIAS) 
-	#define CTL_STQSTATUSE_STATUS            (2  + WINDOWS_ID_BIAS) 
-	#define CTLSEL_STQSTATUSE_STATUS         (3  + WINDOWS_ID_BIAS) 
-	#define CTL_STQSTATUSE_FLAGS             (4  + WINDOWS_ID_BIAS) 
+	#define CTL_STQSTATUSE_NAME              (1  + WINDOWS_ID_BIAS)
+	#define CTL_STQSTATUSE_STATUS            (2  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQSTATUSE_STATUS         (3  + WINDOWS_ID_BIAS)
+	#define CTL_STQSTATUSE_FLAGS             (4  + WINDOWS_ID_BIAS)
 	#define CTL_STQSTATUSE_RSRVST            (5  + WINDOWS_ID_BIAS)
 #define DLG_STQDOCPARAM           1425 // @v11.5.0
 	#define CTL_STQDOCPARAM_PALM            (1  + WINDOWS_ID_BIAS)
@@ -11426,6 +11430,14 @@
 	#define CTL_STQDOCPARAM_FLAGS           (9  + WINDOWS_ID_BIAS)
 #define DLG_UICFG_BITF            1426 // @v11.5.11
 	#define CTL_UICFG_BITF_FLAGS            (1  + WINDOWS_ID_BIAS)
+#define DLG_GRESTBYLOCLIST        1427 // @v11.6.2 Список остаток товара на разных складах
+	#define CTL_GRESTBYLOCLIST_GOODS        (1  + WINDOWS_ID_BIAS)
+	#define CTL_GRESTBYLOCLIST_LIST         (2  + WINDOWS_ID_BIAS)
+	#define CTL_GRESTBYLOCLIST_TOTAL        (3  + WINDOWS_ID_BIAS)
+#define DLG_STQPEVPARAM           1428 // @v11.6.2 Параметры команды создания персональной операции
+	#define cmPersonEventPacket             101
+	#define CTL_STQPEVPARAM_MAXDIST         (1  + WINDOWS_ID_BIAS)
+	#define CTLBUT_STQPEVPARAM_PACK         (2  + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

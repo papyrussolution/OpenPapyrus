@@ -1,5 +1,5 @@
 // BITMBROW.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 // Модуль, отвечающий за броузер строк товарных документов.
@@ -3740,7 +3740,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 				State &= ~stCtrlX;
 		}
 	}
-	if(TVKEYDOWN && (TVKEY == kbF3 || isalnum(c = TVCHR) || c == '*') && !AsSelector && EditMode < 2) {
+	if(TVKEYDOWN && ((TVKEY == kbF3 || isalnum(c = TVCHR) || c == '*') && !AsSelector && EditMode < 2)) {
 		PPID   pckg_id = 0;
 		SString code;
 		Goods2Tbl::Rec grec;
@@ -3829,6 +3829,13 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						endModal(cmOK);
 						return; // После endModal не следует обращаться к this
 					}
+					break;
+				case kbSpace: // @v11.6.2
+					c = getCurItemPos();
+					if(c >= 0 && c < static_cast<int>(P_Pack->GetTCount())) {
+						PPID   goods_id = labs(P_Pack->ConstTI(static_cast<uint>(c)).GoodsID);
+						GObj.ViewGoodsRestByLocList(goods_id);
+					}			
 					break;
 				case kbF2:
 					if(EditMode < 2) {

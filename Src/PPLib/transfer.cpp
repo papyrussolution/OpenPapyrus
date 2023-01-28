@@ -1,5 +1,5 @@
 // TRANSFER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -414,7 +414,7 @@ void GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
 	if(pLotRec) {
 		LotID = pLotRec->ID;
 		LocID = pLotRec->LocID;
-		Expiry = pLotRec->Expiry; // @v9.7.11
+		Expiry = pLotRec->Expiry;
 		UnitsPerPack = pLotRec->UnitPerPack;
 		Cost  = pLotRec->Cost;
 		Price = pLotRec->Price;
@@ -422,13 +422,13 @@ void GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
 	else {
 		LotID = 0;
 		LocID = 0;
-		Expiry = ZERODATE; // @v9.7.11
+		Expiry = ZERODATE;
 		UnitsPerPack = 0.0;
 		Cost = 0.0;
 		Price = 0.0;
 	}
 	Deficit = 0.0;
-	DraftRcpt = 0.0; // @v9.5.8 @fix
+	DraftRcpt = 0.0;
 	Rest = r;
 	Serial[0] = 0;
 	LotTagText[0] = 0;
@@ -559,25 +559,25 @@ double FASTCALL GoodsRestParam::GetRestByLoc(PPID locID) const
 
 PPID GoodsRestParam::DiffByTag() const { return (DiffParam == _diffLotTag && DiffLotTagID) ? DiffLotTagID : 0; }
 
-int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal * a) const
+bool GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal * a) const
 {
-	int    yes = 1;
+	bool   yes = true;
 	if(DiffParam & _diffLotID && a->LotID != v->LotID) // @v11.0.5
-		yes = 0;
+		yes = false;
 	else if(DiffParam & _diffLoc && a->LocID != v->LocID)
-		yes = 0;
+		yes = false;
 	else if(DiffParam & _diffCost && a->Cost != v->Cost)
-		yes = 0;
+		yes = false;
 	else if(DiffParam & _diffPrice && a->Price != v->Price)
-		yes = 0;
+		yes = false;
 	else if(DiffParam & _diffPack && a->UnitsPerPack != v->UnitsPerPack)
-		yes = 0;
+		yes = false;
 	else if(DiffParam & _diffExpiry && a->Expiry != v->Expiry)
-		yes = 0;
+		yes = false;
 	else if(DiffParam & _diffSerial && strcmp(a->Serial, v->Serial) != 0)
-		yes = 0;
+		yes = false;
 	else if(DiffByTag() && strcmp(a->LotTagText, v->LotTagText) != 0)
-		yes = 0;
+		yes = false;
 	return yes;
 }
 
@@ -715,7 +715,7 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 			}
 		}
 	}
-	if(DiffParam & (_diffPrice|_diffCost|_diffPack|_diffLoc|_diffSerial|_diffExpiry|_diffLotID) || DiffByTag()) { // @v9.7.11 _diffExpiry // @v11.0.5 _diffLotID
+	if(DiffParam & (_diffPrice|_diffCost|_diffPack|_diffLoc|_diffSerial|_diffExpiry|_diffLotID) || DiffByTag()) { // @v11.0.5 _diffLotID
 		SString temp_buf;
 		if(DiffParam & _diffSerial) {
 			PPObjBill * p_bobj = BillObj;
@@ -1171,7 +1171,7 @@ int Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, double 
 			if(!check) {
 				THROW_DB(updateRec());
 				if(!dont_recalc_reval)
-					THROW(!(data.Flags & PPTFR_REVAL) || p_bobj->RecalcTurns(data.BillID, BORTF_IGNOREOPRTLIST, 0)); // @v9.8.3 BORTF_IGNOREOPRTLIST
+					THROW(!(data.Flags & PPTFR_REVAL) || p_bobj->RecalcTurns(data.BillID, BORTF_IGNOREOPRTLIST, 0));
 			}
 			ok = 2;
 		}
@@ -1184,7 +1184,7 @@ int Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, double 
 			data.Dt = dt;
 	}
 	if(!valid) {
-		PPSetError(PPERR_FWLOTRESTBOUND); // @v9.4.3
+		PPSetError(PPERR_FWLOTRESTBOUND);
 		ok = -1;
 	}
 	CATCHZOK
@@ -1442,7 +1442,7 @@ int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 			const LDATE dt = plusdate(ti->Date, 1);
 			if(!ti->IsRecomplete())
 				THROW_PP((ti->Flags & (PPTFR_ASSETEXPL|PPTFR_CORRECTION) || ti->Price != ti->Discount || ti->Cost != ti->RevalCost), PPERR_ZEROREVAL);
-			THROW(UpdateFwRevalCostAndPrice2(ti->LotID, dt, 0, ti->Cost, ti->Price, 0)); // @v9.5.10 UpdateFwRevalCostAndPrice-->UpdateFwRevalCostAndPrice2
+			THROW(UpdateFwRevalCostAndPrice2(ti->LotID, dt, 0, ti->Cost, ti->Price, 0));
 			if(ti->Flags & PPTFR_CORRECTION) {
 				THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0);
 				THROW_PP(ti->Cost != ti->RevalCost || ti->Quantity_ != lot_rec.Quantity, PPERR_ZEROTICORRECTION);
@@ -2272,7 +2272,7 @@ int Transfer::UpdateCascadeLot(PPID lotID, PPID ownBillID, TrUCL_Param * p, uint
 			TransferTbl::Rec en_trfr_rec;
 			for(dt = ZERODATE, oprno = 0; EnumByLot(lotID, &dt, &oprno, &en_trfr_rec) > 0;) {
 				const  PPID bill_id = en_trfr_rec.BillID;
-				if(bill_id != ownBillID) { // @v9.0.10
+				if(bill_id != ownBillID) {
 					int    is_const_c_reval = 1; // Cost was not modified
 					int    is_const_p_reval = 1; // Price was not modified
 					double new_cost;  // Undefined if is_const_c_reval;
@@ -2324,15 +2324,13 @@ int Transfer::UpdateCascadeLot(PPID lotID, PPID ownBillID, TrUCL_Param * p, uint
 					// косвенные (но вполне надежные) признаки: предыдущий лот равен
 					// нулю и товарная проводка порождает лот.
 					//
-					// @v9.0.10 if((flags & TRUCLF_UPDCP) && (!prev_lot_id || !(en_trfr_rec.Flags & PPTFR_RECEIPT))) { // @fix prev_lot_id-->!prev_lot_id
-					if(flags & TRUCLF_UPDCP) { // @v9.0.10
-						// @v9.0.10 assert(bill_id != ownBillID);
+					if(flags & TRUCLF_UPDCP) {
 						PPObjBill * p_bobj = BillObj;
 						DateIter diter;
 						BillTbl::Rec bill_rec;
 						THROW(p_bobj->RecalcTurns(bill_id, 0, 0));
 						while(p_bobj->P_Tbl->EnumLinks(bill_id, &diter, BLNK_PAYMENT, &bill_rec) > 0) {
-							THROW(p_bobj->RecalcTurns(bill_rec.ID, BORTF_IGNOREOPRTLIST, 0)); // @v9.8.3 BORTF_IGNOREOPRTLIST
+							THROW(p_bobj->RecalcTurns(bill_rec.ID, BORTF_IGNOREOPRTLIST, 0));
 						}
 					}
 					if(!is_const_c_reval && flags & TRUCLF_UPDCOST) {
@@ -2488,7 +2486,7 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 		THROW(tra);
 		if(reverse == 0) {
 			THROW(SearchByBill(ti->BillID, 0, _rbb, &rec) > 0);
-			const PPID   org_lot_id  = rec.LotID; // @v9.0.0
+			const PPID   org_lot_id  = rec.LotID;
 			const LDATE  org_dt      = rec.Dt;
 			const long   org_oprno   = rec.OprNo;
 			const double org_qtty    = rec.Quantity;
@@ -2511,13 +2509,10 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 							long  temp_oprno = rec.OprNo;
 							TransferTbl::Rec temp_trfr_rec;
 							if(EnumByLot(ti->LotID, &temp_dt, &temp_oprno, &temp_trfr_rec) > 0) {
-								// @v9.8.11 THROW_PP(ti->Date < temp_dt, PPERR_INVLOTDTUPD);
-								// @v9.8.11 {
 								if(ti->Date >= temp_dt) {
 									Rcpt.Search(ti->LotID, &lot_rec);
 									CALLEXCEPT_PP_S(PPERR_INVLOTDTUPD, BillObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf));
 								}
-								// } @v9.8.11
 							}
 							THROW(GetOprNo(ti->Date, &upd_oprno));
 							rec.OprNo = upd_oprno;
@@ -2529,13 +2524,11 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 							}
 							else {
 								// } @v10.1.5
-								// @v9.0.0 {
 								if(P_LcrT) {
 									LcrBlock lcr(LcrBlockBase::opUpdate, P_LcrT, 0);
 									THROW(lcr.Update(org_lot_id, org_dt, -org_qtty));
 									THROW(lcr.Update(org_lot_id, ti->Date, new_qtty));
 								}
-								// } @v9.0.0
 							}
 						}
 						THROW(UpdateReceipt(rec.LotID, ti, 0, flags));
@@ -2572,7 +2565,7 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 				uint   uf = 0;
 				THROW_PP(ti->Date == rec.Dt, PPERR_REVALDTUPD);
 				THROW_PP(ti->Flags & (PPTFR_ASSETEXPL|PPTFR_CORRECTION) || ti->Price != ti->Discount || ti->Cost != ti->RevalCost, PPERR_ZEROREVAL);
-				THROW(UpdateFwRevalCostAndPrice2(rec.LotID, plusdate(rec.Dt, 1), 0, ti->Cost, ti->Price, &uf)); // @v9.5.10 UpdateFwRevalCostAndPrice-->UpdateFwRevalCostAndPrice2
+				THROW(UpdateFwRevalCostAndPrice2(rec.LotID, plusdate(rec.Dt, 1), 0, ti->Cost, ti->Price, &uf));
 				if(ti->Flags & PPTFR_INDEPPHQTTY && ti->IsRecomplete()) {
 					//
 					// При рекомплектации количество измениться не может, однако может измениться //
@@ -2597,9 +2590,8 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 			//
 			// @v9.0.12 Из-за изменения техники каскадной модификации лотов это присвоение необходимо
 			//
-			if(rec.Flags & PPTFR_RECEIPT) {
+			if(rec.Flags & PPTFR_RECEIPT)
 				data.GoodsID = ti->GoodsID;
-			}
 			//
 			data.Dt    = ti->Date;
 			if(upd_oprno)
@@ -2645,13 +2637,10 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 					LDATE  temp_dt = rec.Dt;
 					long   temp_oprno = rec.OprNo;
 					if(EnumByLot(rec.LotID, &temp_dt, &temp_oprno, 0) > 0) {
-						// @v9.8.11 THROW_PP(ti->Date < temp_dt, PPERR_INVLOTDTUPD);
-						// @v9.8.11 {
 						if(ti->Date >= temp_dt) {
 							Rcpt.Search(rec.LotID, &lot_rec);
 							CALLEXCEPT_PP_S(PPERR_INVLOTDTUPD, BillObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf));
 						}
-						// } @v9.8.11
 					}
 					THROW(GetOprNo(ti->Date, &upd_oprno));
 					rec.Dt    = ti->Date;
@@ -2797,7 +2786,7 @@ int Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force, int u
 		else if(rec.Flags & PPTFR_REVAL) {
 			if(!force) {
 				uint uf = 0;
-				THROW(UpdateFwRevalCostAndPrice2(rec.LotID, rec.Dt, rec.OprNo, TR5(rec.Cost), TR5(rec.Price), &uf)); // @v9.5.10 UpdateFwRevalCostAndPrice-->UpdateFwRevalCostAndPrice2
+				THROW(UpdateFwRevalCostAndPrice2(rec.LotID, rec.Dt, rec.OprNo, TR5(rec.Cost), TR5(rec.Price), &uf));
 			}
 		}
 		if(!force) {

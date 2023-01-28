@@ -6,7 +6,7 @@
 #define __SLIB_H
 #define SLIBINCLUDED
 // Специальное определение, необходимое на начальной фазе сборки openssl 3.0. Для этого сделан отдельный проект SLIB, в котором SLIB_OSSL_VER_30 определен.
-//#define SLIB_OSSL_VER_30
+#define SLIB_OSSL_VER_30 // @v11.6.2 turned-on
 
 #ifndef __SLCONFIG_H
 	#include <slconfig.h>
@@ -10328,7 +10328,8 @@ public:
 		fLegalUtf8Only  = 0x0004,
 		fMiscEolf       = 0x0008,
 		fUseUCharDet    = 0x0010, // Декларативный флаг: предписывает использовать библиотеку uchardet для идентификации кодировки
-		fUCharDetWorked = 0x0020  // Признак того, что модуль uchardet смог идентифицировать кодовую страницу текста
+		fUCharDetWorked = 0x0020, // Признак того, что модуль uchardet смог идентифицировать кодовую страницу текста
+		fUseIcuCharDet  = 0x0040  // @v11.6.2 Использовать инструментарий ICU
 	};
 	//
 	// Descr: @ctr
@@ -10357,10 +10358,13 @@ private:
 	char   CpName[32]; // Наименование кодировки, идентифицированное модулем uchardet.
 		// Поле временное - будет существовать до тех пор, пока не адаптируем преобразование
 		// этих наименований в SCodepageIdent
+	int    LangID;
 
+	SString EncDetectionBuf; // @v11.6.2
 	uint8  Utf8Prefix[8];
 	size_t Utf8PrefixLen;
-	void * P_UcdHandle; // uchardet handler
+	//void * P_UcdHandle; // uchardet handler
+	//void * P_IcuUcdHandle; // @v11.6.2 ICU uchardetector handler
 };
 //
 //

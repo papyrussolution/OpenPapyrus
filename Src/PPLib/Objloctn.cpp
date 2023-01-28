@@ -1,5 +1,5 @@
 // OBJLOCTN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage Windows-1251
 //
 #include <pp.h>
@@ -1658,6 +1658,7 @@ public:
 		setTitle(Ltd.Name);
 		SetupStrListBox(getCtrlView(CTL_LOCATION_WHLIST)); // @v11.0.6
 		enableCommand(cmExtFields, BIN(locTyp == LOCTYP_ADDRESS));
+		SetupGeoLocButton(this, CTL_LOCATION_COORD, cmExecMapOnGeoLoc); // @v11.6.2 @construction
 	}
 	int    setDTS(const PPLocationPacket * pData);
 	int    getDTS(PPLocationPacket * pData);
@@ -1695,7 +1696,7 @@ int LocationDialog::GetGeoCoord()
 		if(pos.FromStr(temp_buf)) {
 			Data.Latitude = pos.Lat;
 			Data.Longitude = pos.Lon;
-			ok = 1;
+			ok = pos.IsZero() ? -1 : 1;
 		}
 		else
 			ok = PPErrorByDialog(this, sel, PPERR_SLIB);
@@ -1855,6 +1856,15 @@ IMPL_HANDLE_EVENT(LocationDialog)
 	}
 	else if(event.isCmd(cmExtFields))
 		EditDlvrAddrExtFields(&Data);
+	else if(event.isCmd(cmExecMapOnGeoLoc)) { // @v11.6.2
+		if(GetGeoCoord() > 0) {
+			//https://www.google.com/maps?q=61.7697198,34.2983906
+			SString cmd_line;
+			(temp_buf = "maps").CatChar('?').CatChar('q').CatChar('=').Cat(Data.Latitude, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Comma().Cat(Data.Longitude, MKSFMTD(0, 7, NMBF_NOTRAILZ));
+			cmd_line = InetUrl::MkHttps("www.google.com", temp_buf);
+			::ShellExecute(0, _T("open"), SUcSwitch(cmd_line), NULL, NULL, SW_SHOW);
+		}
+	}
 	else if(event.isCbSelected(CTLSEL_LOCATION_CITY))
 		SetupCtrls();
 	else if(event.isCbSelected(CTLSEL_LOCATION_PARENT)) {

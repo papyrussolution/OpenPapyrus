@@ -87,7 +87,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <CallingConvention>Cdecl</CallingConvention>
@@ -143,7 +143,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <CallingConvention>Cdecl</CallingConvention>
@@ -199,7 +199,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <CallingConvention>Cdecl</CallingConvention>
       <ControlFlowGuard>Guard</ControlFlowGuard>
@@ -261,7 +261,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <CallingConvention>Cdecl</CallingConvention>
       <ControlFlowGuard>Guard</ControlFlowGuard>
@@ -1093,12 +1093,6 @@
     </ProjectReference>
     <ProjectReference Include="libssh2.vcxproj">
       <Project>{15bc6de1-d1c2-4f47-a7a5-43d1a73d9b94}</Project>
-    </ProjectReference>
-    <ProjectReference Include="openssl-111-crypto.vcxproj">
-      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="openssl-111.vcxproj">
-      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
     </ProjectReference>
     <ProjectReference Include="pcre.vcxproj">
       <Project>{d4b6d08a-d79e-428e-85ea-f9929c6aa367}</Project>

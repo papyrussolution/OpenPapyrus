@@ -1,21 +1,15 @@
-//
+// config.h
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: config.h
-// -----------------------------------------------------------------------------
 //
 // This header file defines a set of macros for checking the presence of
 // important compiler and platform features. Such macros can be used to
@@ -48,21 +42,15 @@
 #ifndef ABSL_BASE_CONFIG_H_
 #define ABSL_BASE_CONFIG_H_
 
-// Included for the __GLIBC__ macro (or similar macros on other systems).
-#include <limits.h>
-
+#include <limits.h> // Included for the __GLIBC__ macro (or similar macros on other systems).
 #ifdef __cplusplus
-// Included for __GLIBCXX__, _LIBCPP_VERSION
-#include <cstddef>
+	#include <cstddef> // Included for __GLIBCXX__, _LIBCPP_VERSION
 #endif  // __cplusplus
-
 #if defined(__APPLE__)
-// Included for TARGET_OS_IPHONE, __IPHONE_OS_VERSION_MIN_REQUIRED,
-// __IPHONE_8_0.
-#include <Availability.h>
-#include <TargetConditionals.h>
+	// Included for TARGET_OS_IPHONE, __IPHONE_OS_VERSION_MIN_REQUIRED, __IPHONE_8_0.
+	#include <Availability.h>
+	#include <TargetConditionals.h>
 #endif
-
 #include "absl/base/options.h"
 #include "absl/base/policy_checks.h"
 

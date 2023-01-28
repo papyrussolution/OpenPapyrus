@@ -2427,7 +2427,7 @@ int PPSupplExchange_Baltika::Import(const char * pPath)
 				} while(read_bytes > 0);
 				ok = 1;
 				InternetCloseHandle(h);
-				ShellExecute(0, "open", "c:\\temp\\1\\answer.html", NULL, NULL, SW_SHOWNORMAL);
+				::ShellExecute(0, "open", "c:\\temp\\1\\answer.html", NULL, NULL, SW_SHOWNORMAL);
 			}
 			return ok;
 		}
@@ -8230,7 +8230,8 @@ int GazpromNeft::SendSellout()
 								SJson * p_js_doc = new SJson(SJson::tOBJECT);
 								p_js_doc->InsertString("externalId", temp_buf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL));
 								p_js_doc->InsertString("number", (temp_buf = p_item->Code).Escape());
-								temp_buf.Z().Cat(/*p_item->Dtm*/dtm_now, DATF_ISO8601CENT, 0).CatChar('Z'); // Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
+								// @v11.6.2 temp_buf.Z().Cat(/*p_item->Dtm*/dtm_now, DATF_ISO8601CENT, 0).CatChar('Z'); // Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
+								temp_buf.Z().Cat(p_item->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); // @v11.6.2 Они снова передумали! Теперь здесь будет дата документа.
 								p_js_doc->InsertString("dateTime", temp_buf);
 								//p_js_doc->InsertString("requestNumber", "");
 								p_js_doc->InsertBool("isMainDocument", true);

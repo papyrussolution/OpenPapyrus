@@ -133,8 +133,6 @@ public class StyloQApp extends SLib.App {
 							}
 						}
 						// } @v11.5.12
-						// @construction StyloQJobService.ScheduleTask(this);
-						// @construction {
 						{
 							class TimerTask_SvcPoll extends TimerTask {
 								private StyloQApp AppCtx;
@@ -152,7 +150,6 @@ public class StyloQApp extends SLib.App {
 							SvcPollTmr = new Timer();
 							SvcPollTmr.schedule(new TimerTask_SvcPoll(this), 30 * 1000, SvcPollPeriodMs);
 						}
-						// } @construction
 						{
 							class ThreadEngine_SeenNotificationListProcessing implements Runnable {
 								private StyloQApp AppCtx;

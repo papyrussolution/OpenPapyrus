@@ -137,6 +137,9 @@ cott%(%D02%)%%%%%>cott%1%%
 %(%f%)%zounces%>%1oz
 %(%f%)%zliquid ounces%>%1floz
 
+%(%d%)стр%.%>%1стр
+(%(%d%)стр)%>%1стр
+
 %^%(%f%)z%_%>%1oz%_
 %(%f%)z%$%>%1oz
 
@@ -175,6 +178,7 @@ spf-%(%D02%)%>spf%1
 (%(%d%)%zшт%.)%>%1шт
 (%(%D01%))%$%>%1шт
 (%(%D02%))%$%>%1шт
+%(%d%)%zштуки%>%1шт
 (упак%_%<(уп-%|(уп%.%|(упак.%|(упак%z-%|(упак%zх%|(упак%zx
 (%(%d%)шт/упак)%>(упак %1шт)
 (%(%d%)шт/уп)%>(упак %1шт)
@@ -352,6 +356,7 @@ wd-40%<wd40%|вд40||вд-40||wd 40
 празник%>праздник
 празники%>праздники
 празников%>праздников
+прямогольных%>прямоугольных
 степплер%>степлер
 степплера%>степлера
 расчестка%>расческа
@@ -2650,6 +2655,8 @@ bosch bsg%z%(%d%)%>bosch bsg-%1
 bosch bsgl%z%(%d%)%>bosch bsgl-%1
 bosch cmg%z%(%d%)%>bosch cmg-%1
 bosch hba%z%(%d%)%>bosch hba-%1
+bosch hbb%z%(%d%)%>bosch hbb-%1
+bosch hbc%z%(%d%)%>bosch hbc-%1
 bosch hbf%z%(%d%)%>bosch hbf-%1
 bosch hbg%z%(%d%)%>bosch hbg-%1
 bosch hbn%z%(%d%)%>bosch hbn-%1
@@ -2669,6 +2676,7 @@ bosch mums%z%(%d%)%>bosch mums-%1
 bosch tka%z%(%d%)%>bosch tka-%1
 bosch tas%z%(%d%)%>bosch tas-%1
 bosch н%z%(%d%)%>bosch h%1
+philips fc%z%(%d%)%>philips fc-%1
 philips gc%z%(%d%)%>philips gc-%1
 philips hp%z%(%d%)%>philips hp-%1
 philips hr%z%(%d%)%>philips hr-%1
@@ -2677,6 +2685,7 @@ polaris pir%z%(%d%)%>polaris pir-%1
 polaris phs%z%(%d%)%>polaris phs-%1
 tefal fv%z%(%d%)%>tefal fv-%1
 tefal rk%z%(%d%)%>tefal rk-%1
+tefal tw%z%(%d%)%>tefal tw-%1
 braun hd%z%(%d%)%>braun hd-%1
 galaxy gl%z%(%d%)%>galaxy gl-%1
 rowenta cv%z%(%d%)%>rowenta cv-%1
@@ -2684,12 +2693,16 @@ rowenta cf%z%(%d%)%>rowenta cf-%1
 rowenta dw%z%(%d%)%>rowenta dw-%1
 rowenta da%z%(%d%)%>rowenta da-%1
 rowenta dz%z%(%d%)%>rowenta dz-%1
+rowenta ro%z%(%d%)%>rowenta ro-%1
 sencor sbl%z%(%d%)%>sencor sbl-%1
 sencor shb%z%(%d%)%>sencor shb-%1
 sencor ssi%z%(%d%)%>sencor ssi-%1
+sencor svc%z%(%d%)%>sencor svc-%1
+samsung sc%z%(%d%)%>samsung sc-%1
 siemens sn%z%(%d%)%>siemens sn-%1
 siemens sr%z%(%d%)%>siemens sr-%1
 gorenje gv%z%(%d%)%>gorenje gv-%1
+gorenje vc%z%(%d%)%>gorenje vc-%1
 neff b%z%(%d%)%>neff b-%1
 neff c%z%(%d%)%>neff c-%1
 neff d%z%(%d%)%>neff d-%1

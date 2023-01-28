@@ -6377,12 +6377,14 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 					SString egais_mark;
 					SString serial;
+					SString chzn_mark; // @v11.6.2
 					if(SmartListBox::IsValidS(p_list)) {
 						const long cur = p_list->P_Def->_curItem();
 						if(cur >= 0 && cur < static_cast<long>(P_ChkPack->GetCount())) {
 							chk_line = P_ChkPack->GetLineC(static_cast<uint>(cur));
 							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextSerial, serial);
 							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextEgaisMark, egais_mark);
+							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextChZnMark, egais_mark);
 							p_line   = &chk_line;
 						}
 					}
@@ -6397,6 +6399,10 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 							if(egais_mark.NotEmpty())
 								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextEgaisMark, egais_mark);
 							// } @v10.2.6
+							// @v11.6.2 {
+							if(chzn_mark.NotEmpty())
+								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextChZnMark, chzn_mark);
+							// } @v11.6.2 
 							P_ChkPack->Discount = p_line->Dscnt;
 						}
 					}

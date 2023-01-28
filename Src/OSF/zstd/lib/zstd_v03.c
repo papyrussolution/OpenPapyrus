@@ -840,10 +840,9 @@ typedef struct ZSTD_DCtx_s ZSTD_DCtx;
 //
 #define FSE_FUNCTION_TYPE BYTE
 #define FSE_FUNCTION_EXTENSION
-
-/****************************************************************
-*  Byte symbol type
-****************************************************************/
+// 
+// Byte symbol type
+// 
 #endif   /* !FSE_COMMONDEFS_ONLY */
 //
 // Compiler specifics
@@ -853,15 +852,15 @@ typedef struct ZSTD_DCtx_s ZSTD_DCtx;
 	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
 	#pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
 #else
-#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
-#ifdef __GNUC__
-#define FORCE_INLINE static inline __attribute__((always_inline))
-#else
-#define FORCE_INLINE static inline
-#endif
-#else
-#define FORCE_INLINE static
-#endif /* __STDC_VERSION__ */
+	#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
+		#ifdef __GNUC__
+			#define FORCE_INLINE static inline __attribute__((always_inline))
+		#else
+			#define FORCE_INLINE static inline
+		#endif
+	#else
+		#define FORCE_INLINE static
+	#endif /* __STDC_VERSION__ */
 #endif
 // 
 // Constants

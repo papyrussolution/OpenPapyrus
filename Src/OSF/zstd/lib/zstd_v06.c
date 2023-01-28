@@ -1215,15 +1215,15 @@ size_t FSEv06_readNCount(short* normalizedCounter, uint * maxSVPtr, uint32 * tab
 	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
 	#pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
 #else
-#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
-#ifdef __GNUC__
-#define FORCE_INLINE static inline __attribute__((always_inline))
-#else
-#define FORCE_INLINE static inline
-#endif
-#else
-#define FORCE_INLINE static
-#endif /* __STDC_VERSION__ */
+	#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
+		#ifdef __GNUC__
+			#define FORCE_INLINE static inline __attribute__((always_inline))
+		#else
+			#define FORCE_INLINE static inline
+		#endif
+	#else
+		#define FORCE_INLINE static
+	#endif /* __STDC_VERSION__ */
 #endif
 //
 // Error Management

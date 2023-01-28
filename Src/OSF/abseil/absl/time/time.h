@@ -87,26 +87,21 @@ class Time;      // Defined below
 class TimeZone;  // Defined below
 
 namespace time_internal {
-int64_t IDivDuration(bool satq, Duration num, Duration den, Duration* rem);
-constexpr Time FromUnixDuration(Duration d);
-constexpr Duration ToUnixDuration(Time t);
-constexpr int64_t GetRepHi(Duration d);
-constexpr uint32_t GetRepLo(Duration d);
-constexpr Duration MakeDuration(int64_t hi, uint32_t lo);
-constexpr Duration MakeDuration(int64_t hi, int64_t lo);
-inline Duration MakePosDoubleDuration(double n);
-constexpr int64_t kTicksPerNanosecond = 4;
-constexpr int64_t kTicksPerSecond = 1000 * 1000 * 1000 * kTicksPerNanosecond;
-template <std::intmax_t N>
-constexpr Duration FromInt64(int64_t v, std::ratio<1, N>);
-constexpr Duration FromInt64(int64_t v, std::ratio<60>);
-constexpr Duration FromInt64(int64_t v, std::ratio<3600>);
-template <typename T>
-using EnableIfIntegral = typename std::enable_if<
-	std::is_integral<T>::value || std::is_enum<T>::value, int>::type;
-template <typename T>
-using EnableIfFloat =
-    typename std::enable_if<std::is_floating_point<T>::value, int>::type;
+	int64_t IDivDuration(bool satq, Duration num, Duration den, Duration* rem);
+	constexpr Time FromUnixDuration(Duration d);
+	constexpr Duration ToUnixDuration(Time t);
+	constexpr int64_t GetRepHi(Duration d);
+	constexpr uint32_t GetRepLo(Duration d);
+	constexpr Duration MakeDuration(int64_t hi, uint32_t lo);
+	constexpr Duration MakeDuration(int64_t hi, int64_t lo);
+	inline Duration MakePosDoubleDuration(double n);
+	constexpr int64_t kTicksPerNanosecond = 4;
+	constexpr int64_t kTicksPerSecond = 1000 * 1000 * 1000 * kTicksPerNanosecond;
+	template <std::intmax_t N> constexpr Duration FromInt64(int64_t v, std::ratio<1, N>);
+	constexpr Duration FromInt64(int64_t v, std::ratio<60>);
+	constexpr Duration FromInt64(int64_t v, std::ratio<3600>);
+	template <typename T> using EnableIfIntegral = typename std::enable_if<std::is_integral<T>::value || std::is_enum<T>::value, int>::type;
+	template <typename T> using EnableIfFloat = typename std::enable_if<std::is_floating_point<T>::value, int>::type;
 }  // namespace time_internal
 
 // Duration
@@ -372,35 +367,18 @@ constexpr Duration InfiniteDuration();
 //
 //   absl::Duration a = absl::Seconds(60);
 //   absl::Duration b = absl::Minutes(1);  // b == a
-template <typename T, time_internal::EnableIfIntegral<T> = 0>
-constexpr Duration Nanoseconds(T n) {
-	return time_internal::FromInt64(n, std::nano{});
-}
-
-template <typename T, time_internal::EnableIfIntegral<T> = 0>
-constexpr Duration Microseconds(T n) {
-	return time_internal::FromInt64(n, std::micro{});
-}
-
-template <typename T, time_internal::EnableIfIntegral<T> = 0>
-constexpr Duration Milliseconds(T n) {
-	return time_internal::FromInt64(n, std::milli{});
-}
-
-template <typename T, time_internal::EnableIfIntegral<T> = 0>
-constexpr Duration Seconds(T n) {
-	return time_internal::FromInt64(n, std::ratio<1>{});
-}
-
-template <typename T, time_internal::EnableIfIntegral<T> = 0>
-constexpr Duration Minutes(T n) {
-	return time_internal::FromInt64(n, std::ratio<60>{});
-}
-
-template <typename T, time_internal::EnableIfIntegral<T> = 0>
-constexpr Duration Hours(T n) {
-	return time_internal::FromInt64(n, std::ratio<3600>{});
-}
+template <typename T, time_internal::EnableIfIntegral<T> = 0> constexpr Duration Nanoseconds(T n) 
+	{ return time_internal::FromInt64(n, std::nano{}); }
+template <typename T, time_internal::EnableIfIntegral<T> = 0> constexpr Duration Microseconds(T n) 
+	{ return time_internal::FromInt64(n, std::micro{}); }
+template <typename T, time_internal::EnableIfIntegral<T> = 0> constexpr Duration Milliseconds(T n) 
+	{ return time_internal::FromInt64(n, std::milli{}); }
+template <typename T, time_internal::EnableIfIntegral<T> = 0> constexpr Duration Seconds(T n) 
+	{ return time_internal::FromInt64(n, std::ratio<1>{}); }
+template <typename T, time_internal::EnableIfIntegral<T> = 0> constexpr Duration Minutes(T n) 
+	{ return time_internal::FromInt64(n, std::ratio<60>{}); }
+template <typename T, time_internal::EnableIfIntegral<T> = 0> constexpr Duration Hours(T n) 
+	{ return time_internal::FromInt64(n, std::ratio<3600>{}); }
 
 // Factory overloads for constructing `Duration` values from a floating-point
 // number of the unit indicated by the factory function's name. These functions
@@ -411,8 +389,7 @@ constexpr Duration Hours(T n) {
 //
 //   auto a = absl::Seconds(1.5);        // OK
 //   auto b = absl::Milliseconds(1500);  // BETTER
-template <typename T, time_internal::EnableIfFloat<T> = 0>
-Duration Nanoseconds(T n) {
+template <typename T, time_internal::EnableIfFloat<T> = 0> Duration Nanoseconds(T n) {
 	return n * Nanoseconds(1);
 }
 
@@ -700,66 +677,35 @@ private:
 	friend constexpr Time UniversalEpoch();
 	friend constexpr Time InfiniteFuture();
 	friend constexpr Time InfinitePast();
-	constexpr explicit Time(Duration rep) : rep_(rep) {
+	constexpr explicit Time(Duration rep) : rep_(rep) 
+	{
 	}
 
 	Duration rep_;
 };
 
 // Relational Operators
-constexpr bool operator < (Time lhs, Time rhs) {
-	return lhs.rep_ < rhs.rep_;
-}
-
-constexpr bool operator > (Time lhs, Time rhs) {
-	return rhs < lhs;
-}
-
-constexpr bool operator >= (Time lhs, Time rhs) {
-	return !(lhs < rhs);
-}
-
-constexpr bool operator <= (Time lhs, Time rhs) {
-	return !(rhs < lhs);
-}
-
-constexpr bool operator == (Time lhs, Time rhs) {
-	return lhs.rep_ == rhs.rep_;
-}
-
-constexpr bool operator != (Time lhs, Time rhs) {
-	return !(lhs == rhs);
-}
-
+constexpr bool operator < (Time lhs, Time rhs) { return lhs.rep_ < rhs.rep_; }
+constexpr bool operator > (Time lhs, Time rhs) { return rhs < lhs; }
+constexpr bool operator >= (Time lhs, Time rhs) { return !(lhs < rhs); }
+constexpr bool operator <= (Time lhs, Time rhs) { return !(rhs < lhs); }
+constexpr bool operator == (Time lhs, Time rhs) { return lhs.rep_ == rhs.rep_; }
+constexpr bool operator != (Time lhs, Time rhs) { return !(lhs == rhs); }
 // Additive Operators
-inline Time operator+(Time lhs, Duration rhs) {
-	return lhs += rhs;
-}
-
-inline Time operator+(Duration lhs, Time rhs) {
-	return rhs += lhs;
-}
-
-inline Time operator-(Time lhs, Duration rhs) {
-	return lhs -= rhs;
-}
-
-inline Duration operator-(Time lhs, Time rhs) {
-	return lhs.rep_ - rhs.rep_;
-}
-
+inline Time operator+(Time lhs, Duration rhs) { return lhs += rhs; }
+inline Time operator+(Duration lhs, Time rhs) { return rhs += lhs; }
+inline Time operator-(Time lhs, Duration rhs) { return lhs -= rhs; }
+inline Duration operator-(Time lhs, Time rhs) { return lhs.rep_ - rhs.rep_; }
 // UnixEpoch()
 //
 // Returns the `absl::Time` representing "1970-01-01 00:00:00.0 +0000".
-constexpr Time UnixEpoch() {
-	return Time();
-}
-
+constexpr Time UnixEpoch() { return Time(); }
 // UniversalEpoch()
 //
 // Returns the `absl::Time` representing "0001-01-01 00:00:00.0 +0000", the
 // epoch of the ICU Universal Time Scale.
-constexpr Time UniversalEpoch() {
+constexpr Time UniversalEpoch() 
+{
 	// 719162 is the number of days from 0001-01-01 to 1970-01-01,
 	// assuming the Gregorian calendar.
 	return Time(time_internal::MakeDuration(-24 * 719162 * int64_t{3600}, 0U));
@@ -887,10 +833,8 @@ bool AbslParseFlag(absl::string_view text, Time* t, std::string* error);
 // the format specified by `absl::ParseTime()`.
 std::string AbslUnparseFlag(Time t);
 
-ABSL_DEPRECATED("Use AbslParseFlag() instead.")
-bool ParseFlag(const std::string & text, Time* t, std::string* error);
-ABSL_DEPRECATED("Use AbslUnparseFlag() instead.")
-std::string UnparseFlag(Time t);
+ABSL_DEPRECATED("Use AbslParseFlag() instead.") bool ParseFlag(const std::string & text, Time* t, std::string* error);
+ABSL_DEPRECATED("Use AbslUnparseFlag() instead.") std::string UnparseFlag(Time t);
 
 // TimeZone
 //

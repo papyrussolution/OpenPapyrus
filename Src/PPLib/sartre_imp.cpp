@@ -1,5 +1,5 @@
 // SARTRE_IMP.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>

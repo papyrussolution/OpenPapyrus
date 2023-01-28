@@ -983,20 +983,19 @@ MEM_STATIC uint FSEv05_endOfDState(const FSEv05_DState_t* DStatePtr)
 	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
 	#pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
 #else
-#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
-#ifdef __GNUC__
-#define FORCE_INLINE static inline __attribute__((always_inline))
-#else
-#define FORCE_INLINE static inline
+	#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
+		#ifdef __GNUC__
+			#define FORCE_INLINE static inline __attribute__((always_inline))
+		#else
+			#define FORCE_INLINE static inline
+		#endif
+	#else
+		#define FORCE_INLINE static
+	#endif /* __STDC_VERSION__ */
 #endif
-#else
-#define FORCE_INLINE static
-#endif /* __STDC_VERSION__ */
-#endif
-
-/* ***************************************************************
-*  Constants
-*****************************************************************/
+// 
+// Constants
+// 
 #define FSEv05_MAX_TABLELOG  (FSEv05_MAX_MEMORY_USAGE-2)
 #define FSEv05_MAX_TABLESIZE (1U<<FSEv05_MAX_TABLELOG)
 #define FSEv05_MAXTABLESIZE_MASK (FSEv05_MAX_TABLESIZE-1)

@@ -9,9 +9,9 @@
 #pragma hdrstop
 
 #if !UCONFIG_NO_TRANSLITERATION
-//------------------------------------------------------------
+//
 // Constants
-
+//
 static const UChar TARGET_SEP = 45; // '-'
 static const UChar VARIANT_SEP = 47; // '/'
 static const UChar ANY[] = {0x41, 0x6E, 0x79, 0}; // "Any"
@@ -21,27 +21,23 @@ static const UChar LATIN_PIVOT[] = {0x2D, 0x4C, 0x61, 0x74, 0x6E, 0x3B, 0x4C, 0x
 // initial size for an Any-XXXX transform's cache of script-XXXX transforms
 // (will grow as necessary, but we don't expect to have source text with more than 7 scripts)
 #define ANY_TRANS_CACHE_INIT_SIZE 7
-
-//------------------------------------------------------------
-
+//
+//
+//
 U_CDECL_BEGIN
-/**
- * Deleter function for Transliterator*.
- */
-static void U_CALLCONV _deleteTransliterator(void * obj) 
-{
-	delete (icu::Transliterator*)obj;
-}
-
+	/**
+	 * Deleter function for Transliterator*.
+	 */
+	static void U_CALLCONV _deleteTransliterator(void * obj) 
+	{
+		delete (icu::Transliterator*)obj;
+	}
 U_CDECL_END
 
-//------------------------------------------------------------
-
-    U_NAMESPACE_BEGIN
-
-//------------------------------------------------------------
+U_NAMESPACE_BEGIN
+//
 // ScriptRunIterator
-
+//
 /**
  * Returns a series of ranges corresponding to scripts. They will be
  * of the form:
@@ -97,9 +93,7 @@ private:
 	ScriptRunIterator & operator = (const ScriptRunIterator &other); // forbid copying of this class
 };
 
-ScriptRunIterator::ScriptRunIterator(const Replaceable& theText,
-    int32_t myStart, int32_t myLimit) :
-	text(theText)
+ScriptRunIterator::ScriptRunIterator(const Replaceable& theText, int32_t myStart, int32_t myLimit) : text(theText)
 {
 	textStart = myStart;
 	textLimit = myLimit;

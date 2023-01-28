@@ -33,8 +33,7 @@
 /* Define if you have the <arpa/inet.h> header file. */
 /* #define HAVE_ARPA_INET_H 1 */
 
-/* Define if you have the <assert.h> header file. */
-#define HAVE_ASSERT_H 1
+#define HAVE_ASSERT_H 1 // Define if you have the <assert.h> header file
 
 /* #define HAVE_CRYPTO_H 1 */ /* Define if you have the <crypto.h> header file. */
 #define HAVE_ERRNO_H /* Define if you have the <errno.h> header file. */

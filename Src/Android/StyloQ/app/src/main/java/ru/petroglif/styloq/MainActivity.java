@@ -212,10 +212,10 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					break;
 				case SLib.EV_SVCQUERYRESULT:
 					if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
+						StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult) subj;
 						Context ctx = getContext();
 						StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
 						if(app_ctx != null) {
-							StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult) subj;
 							if(ir.OriginalCmdItem != null && SLib.GetLen(ir.OriginalCmdItem.Name) > 0 && ir.OriginalCmdItem.Name.equalsIgnoreCase("setgeoloc")) {
 								//
 								// Если пришел результат успешной передачи геокоординат сервиса, то сервис
@@ -283,8 +283,11 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					else if(view_id == R.id.CTL_BUTTON_GEOLOCMARK) { // @v11.6.0
 						Context ctx = getContext();
 						StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
-						if(SvcGpslocSettingAllowed)
-							SLib.QueryCurrentGeoLoc(ActivityCtx, this);
+						if(SvcGpslocSettingAllowed) {
+							StyloQDatabase.SecStoragePacket _data = (Data != null && Data instanceof StyloQDatabase.SecStoragePacket) ? (StyloQDatabase.SecStoragePacket)Data : null;
+							if(_data != null)
+								SLib.QueryCurrentGeoLoc(ActivityCtx, new SLib.PPObjID(SLib.PPOBJ_STYLOQBINDERY, (int)_data.Rec.ID), this);
+						}
 					}
 					/*else if(view_id == R.id.STDCTL_CLOSEBUTTON) {
 						this.dismiss();

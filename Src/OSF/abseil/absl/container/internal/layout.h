@@ -2,9 +2,7 @@
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 //                           MOTIVATION AND TUTORIAL
 //
@@ -168,7 +166,6 @@
 #include "absl/strings/str_cat.h"
 #include "absl/types/span.h"
 #include "absl/utility/utility.h"
-
 #ifdef ABSL_HAVE_ADDRESS_SANITIZER
 	#include <sanitizer/asan_interface.h>
 #endif
@@ -346,16 +343,12 @@ public:
 	//
 	// Requires: `N <= NumSizes && N < sizeof...(Ts)`.
 	template <size_t N, EnableIf<N == 0> = 0>
-	constexpr size_t Offset() const {
-		return 0;
-	}
+	constexpr size_t Offset() const { return 0; }
 
 	template <size_t N, EnableIf<N != 0> = 0>
 	constexpr size_t Offset() const {
 		static_assert(N < NumOffsets, "Index out of bounds");
-		return adl_barrier::Align(
-			Offset<N - 1>() + SizeOf<ElementType<N - 1> >::value * size_[N - 1],
-			ElementAlignment<N>::value);
+		return adl_barrier::Align(Offset<N - 1>() + SizeOf<ElementType<N - 1> >::value * size_[N - 1], ElementAlignment<N>::value);
 	}
 
 	// Offset in bytes of the array with the specified element type. There must
@@ -366,16 +359,9 @@ public:
 	//   Layout<int, double> x(3, 4);
 	//   assert(x.Offset<int>() == 0);      // The ints starts from 0.
 	//   assert(x.Offset<double>() == 16);  // The doubles starts from 16.
-	template <class T>
-	constexpr size_t Offset() const {
-		return Offset<ElementIndex<T>()>();
-	}
-
+	template <class T> constexpr size_t Offset() const { return Offset<ElementIndex<T>()>(); }
 	// Offsets in bytes of all arrays for which the offsets are known.
-	constexpr std::array<size_t, NumOffsets> Offsets() const {
-		return {{Offset<OffsetSeq>() ...}};
-	}
-
+	constexpr std::array<size_t, NumOffsets> Offsets() const { return {{Offset<OffsetSeq>() ...}}; }
 	// The number of elements in the Nth array. This is the Nth argument of
 	// `Layout::Partial()` or `Layout::Layout()` (zero-based).
 	//
@@ -385,12 +371,11 @@ public:
 	//   assert(x.Size<1>() == 4);
 	//
 	// Requires: `N < NumSizes`.
-	template <size_t N>
-	constexpr size_t Size() const {
+	template <size_t N> constexpr size_t Size() const 
+	{
 		static_assert(N < NumSizes, "Index out of bounds");
 		return size_[N];
 	}
-
 	// The number of elements in the array with the specified element type.
 	// There must be exactly one such array and its zero-based index must be
 	// at most `NumSizes`.
@@ -399,15 +384,9 @@ public:
 	//   Layout<int, double> x(3, 4);
 	//   assert(x.Size<int>() == 3);
 	//   assert(x.Size<double>() == 4);
-	template <class T>
-	constexpr size_t Size() const {
-		return Size<ElementIndex<T>()>();
-	}
-
+	template <class T> constexpr size_t Size() const { return Size<ElementIndex<T>()>(); }
 	// The number of elements of all arrays for which they are known.
-	constexpr std::array<size_t, NumSizes> Sizes() const {
-		return {{Size<SizeSeq>() ...}};
-	}
+	constexpr std::array<size_t, NumSizes> Sizes() const { return {{Size<SizeSeq>() ...}}; }
 
 	// Pointer to the beginning of the Nth array.
 	//
@@ -421,11 +400,10 @@ public:
 	//
 	// Requires: `N <= NumSizes && N < sizeof...(Ts)`.
 	// Requires: `p` is aligned to `Alignment()`.
-	template <size_t N, class Char>
-	CopyConst<Char, ElementType<N> >* Pointer(Char* p) const {
+	template <size_t N, class Char> CopyConst<Char, ElementType<N> >* Pointer(Char* p) const 
+	{
 		using C = typename std::remove_const<Char>::type;
-		static_assert(
-			std::is_same<C, char>() || std::is_same<C, unsigned char>() ||
+		static_assert(std::is_same<C, char>() || std::is_same<C, unsigned char>() ||
 			std::is_same<C, signed char>(),
 			"The argument must be a pointer to [const] [signed|unsigned] char");
 		constexpr size_t alignment = Alignment();
@@ -447,11 +425,7 @@ public:
 	//   double* doubles = x.Pointer<double>(p);
 	//
 	// Requires: `p` is aligned to `Alignment()`.
-	template <class T, class Char>
-	CopyConst<Char, T>* Pointer(Char* p) const {
-		return Pointer<ElementIndex<T>()>(p);
-	}
-
+	template <class T, class Char> CopyConst<Char, T>* Pointer(Char* p) const { return Pointer<ElementIndex<T>()>(p); }
 	// Pointers to all arrays for which pointers are known.
 	//
 	// `Char` must be `[const] [signed|unsigned] char`.
@@ -468,13 +442,10 @@ public:
 	//
 	// Note: We're not using ElementType alias here because it does not compile
 	// under MSVC.
-	template <class Char>
-	std::tuple<CopyConst<
-		    Char, typename std::tuple_element<OffsetSeq, ElementTypes>::type>*...>Pointers(Char* p) const {
-		return std::tuple<CopyConst<Char, ElementType<OffsetSeq> >*...>(
-			Pointer<OffsetSeq>(p) ...);
+	template <class Char> std::tuple<CopyConst<Char, typename std::tuple_element<OffsetSeq, ElementTypes>::type>*...>Pointers(Char* p) const 
+	{
+		return std::tuple<CopyConst<Char, ElementType<OffsetSeq> >*...>(Pointer<OffsetSeq>(p) ...);
 	}
-
 	// The Nth array.
 	//
 	// `Char` must be `[const] [signed|unsigned] char`.
@@ -487,11 +458,10 @@ public:
 	//
 	// Requires: `N < NumSizes`.
 	// Requires: `p` is aligned to `Alignment()`.
-	template <size_t N, class Char>
-	SliceType<CopyConst<Char, ElementType<N> > > Slice(Char* p) const {
+	template <size_t N, class Char> SliceType<CopyConst<Char, ElementType<N> > > Slice(Char* p) const 
+	{
 		return SliceType<CopyConst<Char, ElementType<N> > >(Pointer<N>(p), Size<N>());
 	}
-
 	// The array with the specified element type. There must be exactly one
 	// such array and its zero-based index must be less than `NumSizes`.
 	//

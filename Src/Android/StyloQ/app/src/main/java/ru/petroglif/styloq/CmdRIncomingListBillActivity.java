@@ -14,23 +14,20 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
@@ -45,6 +42,8 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		Search
 	}
 	private ScanType ScanSource;
+	private Timer RefreshSvcDataPollTmr; // @v11.6.2
+	private static final int RefreshSvcDataPollPeriodMs = 1 * 60 * 1000; // @v11.6.2
 	private void RefreshCurrentDocStatus()
 	{
 		if(CPM.TabList != null) {
@@ -60,12 +59,63 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	private class RefreshTimerTask extends TimerTask {
 		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { RefreshCurrentDocStatus(); }}); }
 	}
+	private static class ThreadEngine_RefreshDataSvcPoll implements Runnable { // @v11.6.2
+		private StyloQApp AppCtx;
+		private byte [] SvcIdent;
+		private UUID OrgCmdUuid;
+		private SLib.EventHandler Handler;
+		ThreadEngine_RefreshDataSvcPoll(StyloQApp appCtx, byte [] svcIdent, UUID orgCmdUuid, SLib.EventHandler handler)
+		{
+			AppCtx = appCtx;
+			SvcIdent = svcIdent;
+			OrgCmdUuid = orgCmdUuid;
+			Handler = handler;
+		}
+		@Override public void run()
+		{
+			if(SLib.GetLen(SvcIdent) > 0 && Handler != null && OrgCmdUuid != null) {
+				try {
+					StyloQCommand.Item cmd_item = null;
+					StyloQDatabase db = AppCtx.GetDB();
+					if(db != null) {
+						StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
+						StyloQDatabase.SecStoragePacket cmdl_pack = db.GetForeignSvcCommandList(SvcIdent);
+						StyloQCommand.List cmd_list = (cmdl_pack != null) ? cmdl_pack.GetCommandList() : null;
+						if(cmd_list != null && SLib.GetCount(cmd_list.Items) > 0) {
+							for(int cmdi = 0; cmd_item == null && cmdi < cmd_list.Items.size(); cmdi++) {
+								StyloQCommand.Item iter_cmd_item = cmd_list.Items.get(cmdi);
+								if(iter_cmd_item != null && SLib.AreUUIDsEqual(iter_cmd_item.Uuid, OrgCmdUuid))
+									cmd_item = iter_cmd_item;
+							}
+						}
+						if(cmd_item != null) {
+							JSONObject js_query = new JSONObject();
+							String cmd_text = cmd_item.Uuid.toString();
+							js_query.put("cmd", cmd_text);
+							js_query.put("time", System.currentTimeMillis());
+							Object qr = Handler.HandleEvent(SLib.EV_QUERY, null, "GetSvcDataTime");
+							if(qr != null && qr instanceof SLib.LDATETIME) {
+								SLib.LDATETIME svc_dtm = (SLib.LDATETIME)qr;
+								js_query.put("ifchangedsince", SLib.datetimefmt(svc_dtm, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
+							}
+							AppCtx.RunSvcCommand(SvcIdent, cmd_item, js_query, true, Handler);
+						}
+					}
+				} catch(StyloQException exn) {
+					;
+				} catch(JSONException exn) {
+					;
+				}
+			}
+		}
+	}
 	public CmdRIncomingListBillActivity()
 	{
 		CPM = new CommonPrereqModule(this);
 		DocEditActionList = null;
 		DocStatusList = null;
 		ScanSource = ScanType.Undef;
+		RefreshSvcDataPollTmr = null; // @v11.6.2
 	}
 	private void CreateTabList(boolean force)
 	{
@@ -481,6 +531,101 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			NotifyCurrentDocumentChanged();
 		return result;
 	}
+	private int ProcessSvcData(final JSONObject jsSvcReplyDoc)
+	{
+		int result = 0;
+		if(jsSvcReplyDoc != null) {
+			try {
+				boolean nothing_to_do = jsSvcReplyDoc.optBoolean("nochanges", false);
+				if(nothing_to_do)
+					result = -1;
+				else {
+					CPM.GetCommonJsonFactors(jsSvcReplyDoc);
+					DocStatusList = BusinessEntity.CliDocStatus.FromJson(jsSvcReplyDoc.optJSONArray("status_list"));
+					CPM.MakeUomListFromCommonJson(jsSvcReplyDoc);
+					CPM.MakeGoodsGroupListFromCommonJson(jsSvcReplyDoc);
+					CPM.MakeGoodsListFromCommonJson(jsSvcReplyDoc);
+					CPM.MakeBrandListFromCommonJson(jsSvcReplyDoc);
+					CPM.MakeClientListFromCommonJson(jsSvcReplyDoc);
+					CPM.MakeIncomingDocFromCommonJson(jsSvcReplyDoc);
+					if(CPM.IncomingDocListData != null) {
+						for(int i = 0; i < CPM.IncomingDocListData.size(); i++) {
+							Document doc_entry = CPM.IncomingDocListData.get(i);
+							if(doc_entry != null)
+								doc_entry.DetailExpandStatus_Ti = (doc_entry.TiList != null && doc_entry.TiList.size() > 0) ? 1 : 0;
+						}
+					}
+					result = 1;
+				}
+			} catch(JSONException exn) {
+				result = 0;
+			}
+		}
+		return result;
+	}
+	private int ProcessSvcData(final String svcReplyDocJson)
+	{
+		int result = 0;
+		if(SLib.GetLen(svcReplyDocJson) > 0) {
+			try {
+				result = ProcessSvcData(new JSONObject(svcReplyDocJson));
+			} catch(JSONException exn) {
+				result = 0;
+			}
+		}
+		return result;
+	}
+	private void SetupTabVisibility(boolean refreshView)
+	{
+		final int action_flags = CPM.GetActionFlags();
+		if(action_flags == 0) {
+			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
+			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.GONE);
+			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.GONE);
+			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.GONE);
+			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
+		}
+		else {
+			{
+				CommonPrereqModule.Tab tab = CommonPrereqModule.Tab.tabCurrentDocument;
+				CPM.SetTabVisibility(tab, View.VISIBLE);
+				if(refreshView)
+					NotifyTabContentChanged(tab, R.id.CTL_DOCUMENT_TILIST);
+			}
+			if((action_flags & (Document.actionGoodsItemCorrection|Document.actionCCheckCreat|Document.actionCCheckMod)) != 0) {
+				{
+					CommonPrereqModule.Tab tab = CommonPrereqModule.Tab.tabGoodsGroups;
+					CPM.SetTabVisibility(tab, View.VISIBLE);
+					if(refreshView)
+						NotifyTabContentChanged(tab, R.id.orderPrereqGoodsGroupListView);
+				}
+				{
+					CommonPrereqModule.Tab tab = CommonPrereqModule.Tab.tabBrands;
+					if(CPM.BrandListData != null && CPM.BrandListData.size() > 0) {
+						CPM.SetTabVisibility(tab, View.VISIBLE);
+						NotifyTabContentChanged(tab, R.id.orderPrereqBrandListView);
+					}
+					else
+						CPM.SetTabVisibility(tab, View.GONE);
+				}
+				{
+					CommonPrereqModule.Tab tab = CommonPrereqModule.Tab.tabGoods;
+					CPM.SetTabVisibility(tab, View.VISIBLE);
+					NotifyTabContentChanged(tab, R.id.orderPrereqGoodsListView);
+				}
+			}
+			else {
+				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.GONE);
+				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.GONE);
+				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.GONE);
+			}
+			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
+		}
+		if(refreshView) {
+			CommonPrereqModule.Tab tab = CommonPrereqModule.Tab.tabIncomingList;
+			NotifyTabContentChanged(tab, R.id.CTL_INCOMINGLIST_BILL_LIST);
+		}
+	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
 		Object result = null;
@@ -506,16 +651,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							}
 							else
 								svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
-							if(SLib.GetLen(svc_reply_doc_json) > 0) {
-								JSONObject js_head = new JSONObject(svc_reply_doc_json);
-								CPM.GetCommonJsonFactors(js_head);
-								DocStatusList = BusinessEntity.CliDocStatus.FromJson(js_head.optJSONArray("status_list"));
-								CPM.MakeUomListFromCommonJson(js_head);
-								CPM.MakeGoodsGroupListFromCommonJson(js_head);
-								CPM.MakeGoodsListFromCommonJson(js_head);
-								CPM.MakeBrandListFromCommonJson(js_head);
-								CPM.MakeClientListFromCommonJson(js_head);
-								CPM.MakeIncomingDocFromCommonJson(js_head);
+							if(ProcessSvcData(svc_reply_doc_json) > 0) {
 								if(CPM.IncomingDocListData != null) {
 									if(possible_doc_uuid_list == null)
 										possible_doc_uuid_list = new ArrayList<UUID>();
@@ -524,15 +660,10 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 										if(doc_entry != null) {
 											if(doc_entry.H != null && doc_entry.H.Uuid != null)
 												possible_doc_uuid_list.add(doc_entry.H.Uuid);
-											if(doc_entry.TiList != null && doc_entry.TiList.size() > 0)
-												doc_entry.DetailExpandStatus_Ti = 1;
-											else
-												doc_entry.DetailExpandStatus_Ti = 0;
+											doc_entry.DetailExpandStatus_Ti = (doc_entry.TiList != null && doc_entry.TiList.size() > 0) ? 1 : 0;
 										}
 									}
 								}
-								//
-								//MakeSimpleSearchIndex();
 							}
 							//
 							requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -552,44 +683,9 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									}
 									SLib.SetupTabLayoutStyle(lo_tab);
 									SLib.SetupTabLayoutListener(this, lo_tab, view_pager);
-									/*
-									if(CPM.IsCurrentDocumentEmpty())
-										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
-									if(CPM.OrderHList == null || CPM.OrderHList.size() <= 0)
-										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabOrders, View.GONE);
-									 */
-									//SetTabVisibility(Tab.tabSearch, View.GONE);
 								}
 							}
-							/*
-								CommonPrereqModule.Tab.tabCurrentOrder
-								CommonPrereqModule.Tab.tabGoodsGroups
-								CommonPrereqModule.Tab.tabBrands
-								CommonPrereqModule.Tab.tabGoods
-								CommonPrereqModule.Tab.tabClients
-							 */
-							final int action_flags = CPM.GetActionFlags();
-							if(action_flags == 0) {
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.GONE);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.GONE);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.GONE);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
-							}
-							else {
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.VISIBLE);
-								if((action_flags & (Document.actionGoodsItemCorrection|Document.actionCCheckCreat|Document.actionCCheckMod)) != 0) {
-									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.VISIBLE);
-									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, (CPM.BrandListData != null && CPM.BrandListData.size() > 0) ? View.VISIBLE : View.GONE);
-									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.VISIBLE);
-								}
-								else {
-									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.GONE);
-									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.GONE);
-									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.GONE);
-								}
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
-							}
+							SetupTabVisibility(false);
 							SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
 							if(possible_doc_uuid_list != null && possible_doc_uuid_list.size() > 0 && CPM.RestoreRecentIncomingModDocumentAsCurrent(possible_doc_uuid_list))
 								SetupCurrentDocument(true, true);
@@ -601,10 +697,34 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								};
 								getOnBackPressedDispatcher().addCallback(this, CPM.Callback_BackButton);
 							}
+							// @v11.6.2 {
+							{
+								//
+								// Задача для регулярного обновления данных
+								//
+								class TimerTask_RefreshSvcDataPoll extends TimerTask {
+									private StyloQApp AppCtx;
+									private SLib.EventHandler Handler;
+									TimerTask_RefreshSvcDataPoll(StyloQApp appCtx, SLib.EventHandler handler)
+									{
+										AppCtx = appCtx;
+										Handler = handler;
+									}
+									@Override public void run()
+									{
+										if(CPM.CmdUuid != null && Handler != null) {
+											Thread thr = new Thread(new ThreadEngine_RefreshDataSvcPoll(AppCtx, CPM.SvcIdent, CPM.CmdUuid, Handler));
+											thr.start();
+											//runOnUiThread(new Runnable() { @Override public void run() { DocStatusPoll(AppCtx); }});
+										}
+									}
+								}
+								RefreshSvcDataPollTmr = new Timer();
+								RefreshSvcDataPollTmr.schedule(new TimerTask_RefreshSvcDataPoll(app_ctx, this), 1 * 60 * 1000, RefreshSvcDataPollPeriodMs);
+							}
+							// } @v11.6.2
 						}
 					} catch(StyloQException exn) {
-						;
-					} catch(JSONException exn) {
 						;
 					}
 				}
@@ -1466,7 +1586,44 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
 					StyloQApp app_ctx = GetAppCtx();
 					final String org_cmd_name = (ir.OriginalCmdItem != null) ? ir.OriginalCmdItem.Name : null;
-					if(SLib.AreStringsEqualNoCase(org_cmd_name, "PostDocument")) {
+					final UUID org_cmd_uuid = (ir.OriginalCmdItem != null) ? ir.OriginalCmdItem.Uuid : null;
+					if(SLib.AreUUIDsEqual(CPM.CmdUuid, org_cmd_uuid)) { // @v11.6.2
+						// Обработка обновления данных по внутреннему запросу
+						if(app_ctx != null && ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS && ir.InfoReply != null) {
+							String svc_reply_doc_json = null;
+							if(ir.InfoReply instanceof StyloQCommand.DocReference) {
+								long doc_id = ((StyloQCommand.DocReference) ir.InfoReply).ID;
+								try {
+									StyloQDatabase db = app_ctx.GetDB();
+									ArrayList<UUID> possible_doc_uuid_list = null;
+									if(doc_id > 0) {
+										StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
+										if(doc_packet != null) {
+											byte[] raw_doc = doc_packet.Pool.Get(SecretTagPool.tagRawData);
+											if(SLib.GetLen(raw_doc) > 0)
+												svc_reply_doc_json = new String(raw_doc);
+										}
+									}
+									if(ProcessSvcData(svc_reply_doc_json) > 0) {
+										SetupTabVisibility(true);
+										SetupCurrentDocument(false, true);
+									}
+								} catch(StyloQException exn) {
+									;
+								}
+							}
+							else if(ir.InfoReply instanceof SecretTagPool) {
+								JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+								if(js_reply != null) {
+									if(ProcessSvcData(js_reply) > 0) {
+										SetupTabVisibility(true);
+										SetupCurrentDocument(false, true);
+									}
+								}
+							}
+						}
+					}
+					else if(SLib.AreStringsEqualNoCase(org_cmd_name, "PostDocument")) {
 						CPM.CurrentDocument_RemoteOp_Finish();
 						ScheduleRTmr(null, 0, 0);
 						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
@@ -1536,6 +1693,15 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						else {
 							; // @todo
 						}
+					}
+				}
+				break;
+			case SLib.EV_QUERY:
+				if(subj != null && subj instanceof String) {
+					String q = (String)subj;
+					if(q.equalsIgnoreCase("GetSvcDataTime")) {
+						SLib.LDATETIME svc_dtm = CPM.GetSvcDataDtm();
+						result = svc_dtm;
 					}
 				}
 				break;

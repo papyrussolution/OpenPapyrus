@@ -92,7 +92,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\Mailspring-Sync\libetpan\build-windows\include;..\OSF\Mailspring-Sync\libetpan\third-party\include;..\OSF\Mailspring-Sync\libetpan\include;..\include;..\OSF\cyrus-sasl\include;..\osf\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\Mailspring-Sync\libetpan\build-windows\include;..\OSF\Mailspring-Sync\libetpan\third-party\include;..\OSF\Mailspring-Sync\libetpan\include;..\include;..\OSF\cyrus-sasl\include;..\osf\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_ZLIB;HAVE_ICONV;USE_SASL;USE_SSL;WIN32;_WINDOWS;__PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -128,7 +128,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\Mailspring-Sync\libetpan\build-windows\include;..\OSF\Mailspring-Sync\libetpan\third-party\include;..\OSF\Mailspring-Sync\libetpan\include;..\include;..\OSF\cyrus-sasl\include;..\osf\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\Mailspring-Sync\libetpan\build-windows\include;..\OSF\Mailspring-Sync\libetpan\third-party\include;..\OSF\Mailspring-Sync\libetpan\include;..\include;..\OSF\cyrus-sasl\include;..\osf\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_ZLIB;USE_SASL;USE_SSL;WIN32;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -162,7 +162,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\OSF\Mailspring-Sync\libetpan\build-windows\include;..\OSF\Mailspring-Sync\libetpan\third-party\include;..\OSF\Mailspring-Sync\libetpan\include;..\include;..\OSF\cyrus-sasl\include;..\osf\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\Mailspring-Sync\libetpan\build-windows\include;..\OSF\Mailspring-Sync\libetpan\third-party\include;..\OSF\Mailspring-Sync\libetpan\include;..\include;..\OSF\cyrus-sasl\include;..\osf\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_ZLIB;HAVE_ICONV;USE_SASL;USE_SSL;WIN32;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -194,7 +194,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\OSF\Mailspring-Sync\libetpan\build-windows\include;..\OSF\Mailspring-Sync\libetpan\third-party\include;..\OSF\Mailspring-Sync\libetpan\include;..\include;..\OSF\cyrus-sasl\include;..\osf\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\Mailspring-Sync\libetpan\build-windows\include;..\OSF\Mailspring-Sync\libetpan\third-party\include;..\OSF\Mailspring-Sync\libetpan\include;..\include;..\OSF\cyrus-sasl\include;..\osf\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_ZLIB;USE_SASL;USE_SSL;WIN32;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>

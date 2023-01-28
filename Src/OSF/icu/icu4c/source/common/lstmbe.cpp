@@ -64,32 +64,28 @@ ReadArray2D::~ReadArray2D()
  */
 class ConstArray1D : public ReadArray1D {
 public:
-	ConstArray1D() : data_(nullptr), d1_(0) {
+	ConstArray1D() : data_(nullptr), d1_(0) 
+	{
 	}
-
-	ConstArray1D(const float* data, int32_t d1) : data_(data), d1_(d1) {
+	ConstArray1D(const float* data, int32_t d1) : data_(data), d1_(d1) 
+	{
 	}
-
 	virtual ~ConstArray1D();
-
 	// Init the object, the object does not own the data nor copy.
 	// It is designed to directly use data from memory mapped resources.
-	void init(const int32_t* data, int32_t d1) {
+	void init(const int32_t* data, int32_t d1) 
+	{
 		U_ASSERT(IEEE_754 == 1);
 		data_ = reinterpret_cast<const float*>(data);
 		d1_ = d1;
 	}
-
 	// ReadArray1D methods.
-	virtual int32_t d1() const override {
-		return d1_;
-	}
-
-	virtual float get(int32_t i) const override {
+	virtual int32_t d1() const override { return d1_; }
+	virtual float get(int32_t i) const override 
+	{
 		U_ASSERT(i < d1_);
 		return data_[i];
 	}
-
 private:
 	const float* data_;
 	int32_t d1_;
@@ -105,45 +101,37 @@ ConstArray1D::~ConstArray1D()
  */
 class ConstArray2D : public ReadArray2D {
 public:
-	ConstArray2D() : data_(nullptr), d1_(0), d2_(0) {
+	ConstArray2D() : data_(nullptr), d1_(0), d2_(0) 
+	{
 	}
-
-	ConstArray2D(const float* data, int32_t d1, int32_t d2)
-		: data_(data), d1_(d1), d2_(d2) {
+	ConstArray2D(const float* data, int32_t d1, int32_t d2) : data_(data), d1_(d1), d2_(d2) 
+	{
 	}
-
 	virtual ~ConstArray2D();
-
 	// Init the object, the object does not own the data nor copy.
 	// It is designed to directly use data from memory mapped resources.
-	void init(const int32_t* data, int32_t d1, int32_t d2) {
+	void init(const int32_t* data, int32_t d1, int32_t d2) 
+	{
 		U_ASSERT(IEEE_754 == 1);
 		data_ = reinterpret_cast<const float*>(data);
 		d1_ = d1;
 		d2_ = d2;
 	}
-
 	// ReadArray2D methods.
-	inline int32_t d1() const override {
-		return d1_;
-	}
-
-	inline int32_t d2() const override {
-		return d2_;
-	}
-
-	float get(int32_t i, int32_t j) const override {
+	inline int32_t d1() const override { return d1_; }
+	inline int32_t d2() const override { return d2_; }
+	float get(int32_t i, int32_t j) const override 
+	{
 		U_ASSERT(i < d1_);
 		U_ASSERT(j < d2_);
 		return data_[i * d2_ + j];
 	}
-
 	// Expose the ith row as a ConstArray1D
-	inline ConstArray1D row(int32_t i) const {
+	inline ConstArray1D row(int32_t i) const 
+	{
 		U_ASSERT(i < d1_);
 		return ConstArray1D(data_ + i * d2_, d2_);
 	}
-
 private:
 	const float* data_;
 	int32_t d1_;

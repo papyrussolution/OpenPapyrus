@@ -1,5 +1,5 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -657,11 +657,13 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbBuyerINN: // @v11.0.4 BUYERINN
 					if(Src == srcCCheck) {
 						p_ccp->GetExtStrData(CCheckPacket::extssBuyerINN, temp_buf);
+						rResult.Cat(temp_buf); // @v11.6.2 @fix
 					}
 					break;
 				case symbBuyerName: // @v11.0.4 BUYERNAME       
 					if(Src == srcCCheck) {
 						p_ccp->GetExtStrData(CCheckPacket::extssBuyerName, temp_buf);
+						rResult.Cat(temp_buf); // @v11.6.2 @fix
 					}
 					break;
 				case symbAgent:

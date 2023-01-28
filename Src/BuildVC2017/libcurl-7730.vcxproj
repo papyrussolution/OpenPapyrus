@@ -227,7 +227,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -274,7 +274,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -323,7 +323,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -366,7 +366,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -412,7 +412,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -460,7 +460,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -510,7 +510,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -554,7 +554,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -599,7 +599,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -642,7 +642,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -688,7 +688,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -732,7 +732,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-302\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>

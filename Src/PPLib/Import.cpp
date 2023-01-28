@@ -7021,8 +7021,12 @@ int ImportSpecial(const char * pPath_)
 			(local_path = _path).SetLastSlash().Cat("CHILEANPEOPLE");
 			SDirEntry de;
 
+			STokenRecognizer tr;
+			SNaturalTokenArray nta;
+
 			SString nm;
 			SString rut; // chile idenify number
+			SString rut_control; // Circuns
 			SString city;
 			SString addr;
 			SString sex;
@@ -7038,6 +7042,7 @@ int ImportSpecial(const char * pPath_)
 							if(line_no > 0 && line_buf.NotEmpty()) {
 								nm.Z();
 								rut.Z(); // chile idenify number
+								rut_control.Z();
 								city.Z();
 								addr.Z();
 								sex.Z();
@@ -7051,6 +7056,9 @@ int ImportSpecial(const char * pPath_)
 											break;
 										case 1: // rut
 											(rut = temp_buf).Utf8ToLower();
+											break;
+										case 2: // rut control
+											(rut_control = temp_buf).Utf8ToLower();
 											break;
 										case 5: // sex
 											if(temp_buf.IsEqiAscii("MUJ")) // female
@@ -7068,10 +7076,22 @@ int ImportSpecial(const char * pPath_)
 								}
 								if(nm.NotEmpty() && rut.NotEmpty()) {
 									// nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src
+									if(rut.NotEmpty() && rut_control.Len() == 1) {
+										(temp_buf = rut).Cat(rut_control);
+										tr.Run(temp_buf.ucptr(), -1, nta, 0);
+										if(nta.Has(SNTOK_CL_RUT) > 0.0f)
+											rut = temp_buf;
+										else
+											rut.Z();
+									}
+									else
+										rut.Z();
 									out_buf.Z().Cat("cn:").Cat(nm).Semicol().Cat(""/*eml*/).Semicol().Cat(""/*pwd*/).Semicol().Cat(""/*phn*/).
-										Semicol().Cat(sex/*gender*/).Semicol().Cat(""/*dob, DATF_ISO8601CENT*/).Semicol().
-										Cat("rut:").Cat(rut).Semicol().
-										Cat("chile").Semicol().Cat(city).
+										Semicol().Cat(sex/*gender*/).Semicol().Cat(""/*dob, DATF_ISO8601CENT*/).Semicol();
+									if(rut.NotEmpty())
+										out_buf.Cat("rut:").Cat(rut);
+									out_buf.Semicol();
+									out_buf.Cat("chile").Semicol().Cat(city).
 										Semicol().Cat(addr).Semicol().Cat("chileanpeople").CR();
 									f_out.WriteLine(out_buf);																		
 								}

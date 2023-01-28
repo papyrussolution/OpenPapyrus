@@ -295,9 +295,6 @@ copy $(TargetPath) $(OutDir)static\openssl.exe 2&gt;nul</Command>
     <ProjectReference Include="ossl300-legacy-static.vcxproj">
       <Project>{044042fc-53a9-4b9f-ac59-20fc09223695}</Project>
     </ProjectReference>
-    <ProjectReference Include="slib-ossl302.vcxproj">
-      <Project>{eace3436-83ef-42ee-a927-fef18343dcf4}</Project>
-    </ProjectReference>
     <ProjectReference Include="ossl300-libapps-static.vcxproj">
       <Project>{6b53b941-33a6-469d-883b-3d533ea2f64c}</Project>
     </ProjectReference>
@@ -315,6 +312,9 @@ copy $(TargetPath) $(OutDir)static\openssl.exe 2&gt;nul</Command>
     </ProjectReference>
     <ProjectReference Include="ossl300-libssl-3-static.vcxproj">
       <Project>{6c2bc411-3453-4e33-8245-ed2a51a140bb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

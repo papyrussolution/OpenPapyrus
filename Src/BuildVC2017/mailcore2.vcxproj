@@ -180,7 +180,7 @@ build_headers.bat
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>__PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\mailcore2\src\include\minizip;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\include;..\osf\OpenSSL-111\include;..\osf\pthreads4w;..\osf\icu\icu4c\include;..\osf\tidy-5917\include;..\osf\ctemplate\src\windows;$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\mailcore2\src\include\minizip;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\include;..\osf\OpenSSL-302\include;..\osf\pthreads4w;..\osf\icu\icu4c\include;..\osf\tidy-5917\include;..\osf\ctemplate\src\windows;$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -205,7 +205,7 @@ build_headers.bat
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MAILCORE_DLL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\mailcore2\src\include\minizip;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\include;..\osf\OpenSSL-111\include;..\osf\pthreads4w;..\osf\icu\icu4c\include;..\osf\tidy-5917\include;..\osf\ctemplate\src\windows;$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\mailcore2\src\include\minizip;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\include;..\osf\OpenSSL-302\include;..\osf\pthreads4w;..\osf\icu\icu4c\include;..\osf\tidy-5917\include;..\osf\ctemplate\src\windows;$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile />
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -232,7 +232,7 @@ build_headers.bat
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MAILCORE_DLL;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\mailcore2\src\include\minizip;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\include;..\osf\OpenSSL-111\include;..\osf\pthreads4w;..\osf\icu\icu4c\include;..\osf\tidy-5917\include;..\osf\ctemplate\src\windows;$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\mailcore2\src\include\minizip;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\include;..\osf\OpenSSL-302\include;..\osf\pthreads4w;..\osf\icu\icu4c\include;..\osf\tidy-5917\include;..\osf\ctemplate\src\windows;$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile />
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -259,7 +259,7 @@ build_headers.bat
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MAILCORE_DLL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\mailcore2\src\include\minizip;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\include;..\osf\OpenSSL-111\include;..\osf\pthreads4w;..\osf\icu\icu4c\include;..\osf\tidy-5917\include;..\osf\ctemplate\src\windows;$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\mailcore2\src\include\minizip;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\include;..\osf\OpenSSL-302\include;..\osf\pthreads4w;..\osf\icu\icu4c\include;..\osf\tidy-5917\include;..\osf\ctemplate\src\windows;$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile />
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>

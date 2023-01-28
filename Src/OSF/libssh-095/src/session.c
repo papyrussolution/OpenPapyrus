@@ -124,19 +124,15 @@ ssh_session ssh_new()
 		goto err;
 	}
 #endif
-
 	/* Explicitly initialize states */
 	session->session_state = SSH_SESSION_STATE_NONE;
 	session->pending_call_state = SSH_PENDING_CALL_NONE;
 	session->packet_state = PACKET_STATE_INIT;
 	session->dh_handshake_state = DH_STATE_INIT;
 	session->global_req_state = SSH_CHANNEL_REQ_STATE_NONE;
-
 	session->auth.state = SSH_AUTH_STATE_NONE;
 	session->auth.service_state = SSH_AUTH_SERVICE_NONE;
-
 	return session;
-
 err:
 	SAlloc::F(id);
 	ssh_free(session);
@@ -197,7 +193,6 @@ void ssh_free(ssh_session session)
 #ifndef _WIN32
 	ssh_agent_free(session->agent);
 #endif /* _WIN32 */
-
 	ssh_key_free(session->srv.dsa_key);
 	session->srv.dsa_key = NULL;
 	ssh_key_free(session->srv.rsa_key);
@@ -206,7 +201,6 @@ void ssh_free(ssh_session session)
 	session->srv.ecdsa_key = NULL;
 	ssh_key_free(session->srv.ed25519_key);
 	session->srv.ed25519_key = NULL;
-
 	if(session->ssh_message_list) {
 		ssh_message msg;
 		for(msg = ssh_list_pop_head(ssh_message, session->ssh_message_list); msg != NULL; msg = ssh_list_pop_head(ssh_message, session->ssh_message_list)) {
@@ -214,15 +208,12 @@ void ssh_free(ssh_session session)
 		}
 		ssh_list_free(session->ssh_message_list);
 	}
-
 	if(session->kbdint != NULL) {
 		ssh_kbdint_free(session->kbdint);
 	}
-
 	if(session->packet_callbacks) {
 		ssh_list_free(session->packet_callbacks);
 	}
-
 	/* options */
 	if(session->opts.identity) {
 		char * id;
@@ -231,23 +222,18 @@ void ssh_free(ssh_session session)
 		}
 		ssh_list_free(session->opts.identity);
 	}
-
-	while((b = ssh_list_pop_head(struct ssh_buffer_struct *,
-	    session->out_queue)) != NULL) {
+	while((b = ssh_list_pop_head(struct ssh_buffer_struct *, session->out_queue)) != NULL) {
 		SSH_BUFFER_FREE(b);
 	}
 	ssh_list_free(session->out_queue);
-
 #ifndef _WIN32
 	ssh_agent_state_free(session->agent_state);
 #endif
 	session->agent_state = NULL;
-
 	ZFREE(session->auth.auto_state);
 	ZFREE(session->serverbanner);
 	ZFREE(session->clientbanner);
 	ZFREE(session->banner);
-
 	ZFREE(session->opts.bindaddr);
 	ZFREE(session->opts.custombanner);
 	ZFREE(session->opts.username);
@@ -259,7 +245,6 @@ void ssh_free(ssh_session session)
 	ZFREE(session->opts.gss_server_identity);
 	ZFREE(session->opts.gss_client_identity);
 	ZFREE(session->opts.pubkey_accepted_types);
-
 	for(i = 0; i < SSH_KEX_METHODS; i++) {
 		if(session->opts.wanted_methods[i]) {
 			ZFREE(session->opts.wanted_methods[i]);
@@ -269,7 +254,6 @@ void ssh_free(ssh_session session)
 	memzero(session, sizeof(struct ssh_session_struct));
 	ZFREE(session);
 }
-
 /**
  * @brief get the client banner
  *
@@ -277,14 +261,7 @@ void ssh_free(ssh_session session)
  *
  * @return Returns the client banner string or NULL.
  */
-const char * ssh_get_clientbanner(ssh_session session) 
-{
-	if(!session) {
-		return NULL;
-	}
-	return session->clientbanner;
-}
-
+const char * ssh_get_clientbanner(ssh_session session) { return session ? session->clientbanner : NULL; }
 /**
  * @brief get the server banner
  *
@@ -292,13 +269,7 @@ const char * ssh_get_clientbanner(ssh_session session)
  *
  * @return Returns the server banner string or NULL.
  */
-const char * ssh_get_serverbanner(ssh_session session) {
-	if(!session) {
-		return NULL;
-	}
-	return session->serverbanner;
-}
-
+const char * ssh_get_serverbanner(ssh_session session) { return session ? session->serverbanner : NULL; }
 /**
  * @brief get the name of the current key exchange algorithm.
  *
@@ -306,40 +277,26 @@ const char * ssh_get_serverbanner(ssh_session session) {
  *
  * @return Returns the key exchange algorithm string or NULL.
  */
-const char * ssh_get_kex_algo(ssh_session session) {
-	if((session == NULL) ||
-	    (session->current_crypto == NULL)) {
+const char * ssh_get_kex_algo(ssh_session session) 
+{
+	if((session == NULL) || (session->current_crypto == NULL)) {
 		return NULL;
 	}
-
 	switch(session->current_crypto->kex_type) {
-		case SSH_KEX_DH_GROUP1_SHA1:
-		    return "diffie-hellman-group1-sha1";
-		case SSH_KEX_DH_GROUP14_SHA1:
-		    return "diffie-hellman-group14-sha1";
-		case SSH_KEX_DH_GROUP14_SHA256:
-		    return "diffie-hellman-group14-sha256";
-		case SSH_KEX_DH_GROUP16_SHA512:
-		    return "diffie-hellman-group16-sha512";
-		case SSH_KEX_DH_GROUP18_SHA512:
-		    return "diffie-hellman-group18-sha512";
-		case SSH_KEX_ECDH_SHA2_NISTP256:
-		    return "ecdh-sha2-nistp256";
-		case SSH_KEX_ECDH_SHA2_NISTP384:
-		    return "ecdh-sha2-nistp384";
-		case SSH_KEX_ECDH_SHA2_NISTP521:
-		    return "ecdh-sha2-nistp521";
-		case SSH_KEX_CURVE25519_SHA256:
-		    return "curve25519-sha256";
-		case SSH_KEX_CURVE25519_SHA256_LIBSSH_ORG:
-		    return "curve25519-sha256@libssh.org";
-		default:
-		    break;
+		case SSH_KEX_DH_GROUP1_SHA1: return "diffie-hellman-group1-sha1";
+		case SSH_KEX_DH_GROUP14_SHA1: return "diffie-hellman-group14-sha1";
+		case SSH_KEX_DH_GROUP14_SHA256: return "diffie-hellman-group14-sha256";
+		case SSH_KEX_DH_GROUP16_SHA512: return "diffie-hellman-group16-sha512";
+		case SSH_KEX_DH_GROUP18_SHA512: return "diffie-hellman-group18-sha512";
+		case SSH_KEX_ECDH_SHA2_NISTP256: return "ecdh-sha2-nistp256";
+		case SSH_KEX_ECDH_SHA2_NISTP384: return "ecdh-sha2-nistp384";
+		case SSH_KEX_ECDH_SHA2_NISTP521: return "ecdh-sha2-nistp521";
+		case SSH_KEX_CURVE25519_SHA256: return "curve25519-sha256";
+		case SSH_KEX_CURVE25519_SHA256_LIBSSH_ORG: return "curve25519-sha256@libssh.org";
+		default: break;
 	}
-
 	return NULL;
 }
-
 /**
  * @brief get the name of the input cipher for the given session.
  *
@@ -406,14 +363,13 @@ const char * ssh_get_hmac_out(ssh_session session) {
  *
  * @param[in]  session  The SSH session to disconnect.
  */
-void ssh_silent_disconnect(ssh_session session) {
-	if(!session) {
-		return;
+void ssh_silent_disconnect(ssh_session session) 
+{
+	if(session) {
+		ssh_socket_close(session->socket);
+		session->alive = 0;
+		ssh_disconnect(session);
 	}
-
-	ssh_socket_close(session->socket);
-	session->alive = 0;
-	ssh_disconnect(session);
 }
 
 /**
@@ -425,11 +381,10 @@ void ssh_silent_disconnect(ssh_session session) {
  */
 void ssh_set_blocking(ssh_session session, int blocking)
 {
-	if(!session) {
-		return;
+	if(session) {
+		session->flags &= ~SSH_SESSION_FLAG_BLOCKING;
+		session->flags |= blocking ? SSH_SESSION_FLAG_BLOCKING : 0;
 	}
-	session->flags &= ~SSH_SESSION_FLAG_BLOCKING;
-	session->flags |= blocking ? SSH_SESSION_FLAG_BLOCKING : 0;
 }
 
 /**
@@ -838,7 +793,6 @@ void ssh_set_counters(ssh_session session, ssh_counter scounter, ssh_counter rco
 		session->raw_counter = rcounter;
 	}
 }
-
 /**
  * @deprecated Use ssh_get_publickey_hash()
  */
@@ -924,18 +878,13 @@ void ssh_clean_pubkey_hash(uchar ** hash) {
 int ssh_get_server_publickey(ssh_session session, ssh_key * key)
 {
 	ssh_key pubkey = NULL;
-
-	if(session == NULL ||
-	    session->current_crypto == NULL ||
-	    session->current_crypto->server_pubkey == NULL) {
+	if(session == NULL || session->current_crypto == NULL || session->current_crypto->server_pubkey == NULL) {
 		return SSH_ERROR;
 	}
-
 	pubkey = ssh_key_dup(session->current_crypto->server_pubkey);
 	if(pubkey == NULL) {
 		return SSH_ERROR;
 	}
-
 	*key = pubkey;
 	return SSH_OK;
 }
@@ -947,7 +896,6 @@ int ssh_get_publickey(ssh_session session, ssh_key * key)
 {
 	return ssh_get_server_publickey(session, key);
 }
-
 /**
  * @brief Allocates a buffer with the hash of the public key.
  *
@@ -976,10 +924,7 @@ int ssh_get_publickey(ssh_session session, ssh_key * key)
  * @see ssh_print_hash()
  * @see ssh_clean_pubkey_hash()
  */
-int ssh_get_publickey_hash(const ssh_key key,
-    enum ssh_publickey_hash_type type,
-    uchar ** hash,
-    size_t * hlen)
+int ssh_get_publickey_hash(const ssh_key key, enum ssh_publickey_hash_type type, uchar ** hash, size_t * hlen)
 {
 	ssh_string blob;
 	uchar * h;
@@ -1002,10 +947,8 @@ int ssh_get_publickey_hash(const ssh_key key,
 			    rc = -1;
 			    goto out;
 		    }
-
 		    sha1_update(ctx, ssh_string_data(blob), ssh_string_len(blob));
 		    sha1_final(h, ctx);
-
 		    *hlen = SHA_DIGEST_LEN;
 	    }
 	    break;
@@ -1017,24 +960,20 @@ int ssh_get_publickey_hash(const ssh_key key,
 			    rc = -1;
 			    goto out;
 		    }
-
 		    ctx = sha256_init();
 		    if(!ctx) {
 			    SAlloc::F(h);
 			    rc = -1;
 			    goto out;
 		    }
-
 		    sha256_update(ctx, ssh_string_data(blob), ssh_string_len(blob));
 		    sha256_final(h, ctx);
-
 		    *hlen = SHA256_DIGEST_LEN;
 	    }
 	    break;
 		case SSH_PUBLICKEY_HASH_MD5:
 	    {
 		    MD5CTX ctx;
-
 		    /* In FIPS mode, we cannot use MD5 */
 		    if(ssh_fips_mode()) {
 			    SSH_LOG(SSH_LOG_WARN, "In FIPS mode MD5 is not allowed. Try using SSH_PUBLICKEY_HASH_SHA256");

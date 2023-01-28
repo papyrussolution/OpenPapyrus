@@ -1,5 +1,5 @@
 // RECEIPT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -587,6 +587,45 @@ IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Desc, i1, i2)
 	else
 		si = cmp_ulong(expiry1, expiry2);
 	return si;
+}
+
+int ReceiptCore::GetListOfLotsExpiredSince(LDATE expiredSince, bool openedOnly, LDATE enumSince, PPIDArray * pLotIdList, PPIDArray * pGoodsIdList) // @v11.6.2
+{
+	CALLPTRMEMB(pLotIdList, clear());
+	CALLPTRMEMB(pGoodsIdList, clear());
+	int    ok = -1;
+	if(checkdate(expiredSince)) {
+		union {
+			ReceiptTbl::Key1 k1;
+			ReceiptTbl::Key3 k3;
+		} k;
+		int    idx = 0;
+		DBQ  * dbq = 0;
+		MEMSZERO(k);
+		if(openedOnly) {
+			idx = 3;
+			k.k3.Closed = 0;
+			dbq = &(*dbq && this->Closed == 0L && this->Expiry <= expiredSince && this->GoodsID > 0L);
+		}
+		else {
+			idx = 1;
+			k.k1.Dt = checkdate(enumSince) ? enumSince : ZERODATE;
+			if(checkdate(enumSince))
+				dbq = &(*dbq && this->Dt >= enumSince);
+			dbq = &(*dbq && this->Expiry <= expiredSince && this->GoodsID > 0L);
+		}
+		BExtQuery q(this, idx);
+		q.selectAll().where(*dbq);
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+			if(data.Expiry <= expiredSince && data.GoodsID > 0) {
+				CALLPTRMEMB(pLotIdList, add(data.ID));
+				CALLPTRMEMB(pGoodsIdList, add(data.GoodsID));
+				ok = 1;
+			}
+		}
+		CALLPTRMEMB(pGoodsIdList, sortAndUndup());
+	}
+	return ok;
 }
 
 int ReceiptCore::GetListOfOpenedLots(const PPIDArray & rGoodsList, PPID locID, LotArray * pList)

@@ -13,7 +13,7 @@
         android:maxLines="1"
         android:textColor="@color/TextPrimaryLight"
         />
-    <LinearLayout
+    <LinearLayout android:id="@+id/CTLGRP_LOCATION_GEOLOC"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -23,5 +23,9 @@
             app:srcCompat="@drawable/ic_gpsloc01_pin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"></ImageButton>
+        <TextView style="@style/GenericListItemText" android:id="@+id/CTL_LOCATION_GEOLOC"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"/>
     </LinearLayout>
 </LinearLayout>

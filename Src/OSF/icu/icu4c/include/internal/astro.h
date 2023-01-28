@@ -350,7 +350,6 @@ public:
 	 * @internal
 	 */
 	void setJulianDay(double jdn);
-
 	/**
 	 * Get the current time of this <code>CalendarAstronomer</code> object,
 	 * represented as the number of milliseconds since
@@ -361,7 +360,6 @@ public:
 	 * @internal
 	 */
 	UDate getTime();
-
 	/**
 	 * Get the current time of this <code>CalendarAstronomer</code> object,
 	 * expressed as a "julian day number", which is the number of elapsed

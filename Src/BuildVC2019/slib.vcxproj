@@ -304,7 +304,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -363,7 +363,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -419,7 +419,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -475,7 +475,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -527,7 +527,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -578,7 +578,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -632,7 +632,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -686,7 +686,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -739,7 +739,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -790,7 +790,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -844,7 +844,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -898,7 +898,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -948,7 +948,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
@@ -979,7 +979,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-111\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\OpenSSL-302\include;..\osf\curl-7730\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
@@ -6431,8 +6431,14 @@
     <ProjectReference Include="freetype.vcxproj">
       <Project>{d7c20ac1-2566-446f-b49a-598fe7a67094}</Project>
     </ProjectReference>
+    <ProjectReference Include="icu-stubdata.vcxproj">
+      <Project>{203ec78a-0531-43f0-a636-285439bde025}</Project>
+    </ProjectReference>
     <ProjectReference Include="libarchive-350.vcxproj">
       <Project>{3e6b3daf-e5ed-446d-9313-feda5391ab9f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libicu.vcxproj">
+      <Project>{6d226127-c063-4702-b4b9-118233d7354c}</Project>
     </ProjectReference>
     <ProjectReference Include="liblzma.vcxproj">
       <Project>{c241e0ad-81ff-4a43-9b39-f3712e9c0d4e}</Project>
@@ -6448,6 +6454,21 @@
     </ProjectReference>
     <ProjectReference Include="onig.vcxproj">
       <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-legacy-static.vcxproj">
+      <Project>{044042fc-53a9-4b9f-ac59-20fc09223695}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libcommon-static.vcxproj">
+      <Project>{faa6635c-9dec-4a36-8e2f-70bb38318f00}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libcrypto-3-static.vcxproj">
+      <Project>{09f451a2-da76-4340-b4cf-39982fa65c01}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libdefault-static.vcxproj">
+      <Project>{9d0e9e97-378d-4d23-b5c7-0d77cd55ef23}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libssl-3-static.vcxproj">
+      <Project>{6c2bc411-3453-4e33-8245-ed2a51a140bb}</Project>
     </ProjectReference>
     <ProjectReference Include="pthreads4w.vcxproj">
       <Project>{6ee235a2-2941-44d4-bc0e-2d2ae9e7f0b0}</Project>

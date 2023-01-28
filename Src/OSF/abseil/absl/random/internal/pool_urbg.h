@@ -2,9 +2,7 @@
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 #ifndef ABSL_RANDOM_INTERNAL_POOL_URBG_H_
 #define ABSL_RANDOM_INTERNAL_POOL_URBG_H_
@@ -21,8 +19,7 @@ namespace random_internal {
 // uses an underlying pool of Randen generators to generate values.  Each thread
 // has affinity to one instance of the underlying pool generators.  Concurrent
 // access is guarded by a spin-lock.
-template <typename T>
-class RandenPool {
+template <typename T> class RandenPool {
 public:
 	using result_type = T;
 	static_assert(std::is_unsigned<result_type>::value, "RandenPool template argument must be a built-in unsigned integer type");
@@ -48,8 +45,7 @@ extern template class RandenPool<uint64_t>;
 // PoolURBG uses an underlying pool of random generators to implement a
 // thread-compatible [random.req.urbg] interface with an internal cache of
 // values.
-template <typename T, size_t kBufferSize>
-class PoolURBG {
+template <typename T, size_t kBufferSize> class PoolURBG {
 	// Inheritance to access the protected static members of RandenPool.
 	using unsigned_type = typename make_unsigned_bits<T>::type;
 	using PoolType = RandenPool<unsigned_type>;
@@ -85,8 +81,7 @@ public:
 	{
 		if(next_ >= kBufferSize) {
 			next_ = (kBufferSize > 2 && next_ > kBufferSize) ? kHalfBuffer : 0;
-			PoolType::Fill(SpanType(reinterpret_cast<unsigned_type*>(state_ + next_),
-			    kBufferSize - next_));
+			PoolType::Fill(SpanType(reinterpret_cast<unsigned_type*>(state_ + next_), kBufferSize - next_));
 		}
 		return state_[next_++];
 	}

@@ -54,13 +54,10 @@ int ossl_i2c_ASN1_BIT_STRING(ASN1_BIT_STRING * a, uchar ** pp)
 	}
 	else
 		bits = 0;
-
 	ret = 1 + len;
 	if(pp == NULL)
 		return ret;
-
 	p = *pp;
-
 	*(p++) = (uchar)bits;
 	d = a->data;
 	if(len > 0) {
@@ -72,31 +69,26 @@ int ossl_i2c_ASN1_BIT_STRING(ASN1_BIT_STRING * a, uchar ** pp)
 	return ret;
 }
 
-ASN1_BIT_STRING * ossl_c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a,
-    const uchar ** pp, long len)
+ASN1_BIT_STRING * ossl_c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a, const uchar ** pp, long len)
 {
 	ASN1_BIT_STRING * ret = NULL;
 	const uchar * p;
 	uchar * s;
 	int i;
-
 	if(len < 1) {
 		i = ASN1_R_STRING_TOO_SHORT;
 		goto err;
 	}
-
 	if(len > INT_MAX) {
 		i = ASN1_R_STRING_TOO_LONG;
 		goto err;
 	}
-
-	if((a == NULL) || ((*a) == NULL)) {
+	if(!a || !(*a)) {
 		if((ret = ASN1_BIT_STRING_new()) == NULL)
 			return NULL;
 	}
 	else
 		ret = (*a);
-
 	p = *pp;
 	i = *(p++);
 	if(i > 7) {
@@ -109,7 +101,6 @@ ASN1_BIT_STRING * ossl_c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a,
 	 */
 	ret->flags &= ~(ASN1_STRING_FLAG_BITS_LEFT | 0x07); /* clear */
 	ret->flags |= (ASN1_STRING_FLAG_BITS_LEFT | i); /* set */
-
 	if(len-- > 1) {         /* using one because of the bits left byte */
 		s = (uchar *)OPENSSL_malloc((int)len);
 		if(!s) {
@@ -122,7 +113,6 @@ ASN1_BIT_STRING * ossl_c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a,
 	}
 	else
 		s = NULL;
-
 	ret->length = (int)len;
 	OPENSSL_free(ret->data);
 	ret->data = s;
@@ -137,7 +127,6 @@ err:
 		ASN1_BIT_STRING_free(ret);
 	return NULL;
 }
-
 /*
  * These next 2 functions from Goetz Babin-Ebell.
  */
@@ -179,21 +168,18 @@ int ASN1_BIT_STRING_get_bit(const ASN1_BIT_STRING * a, int n)
 		return 0;
 	return ((a->data[w] & v) != 0);
 }
-
 /*
  * Checks if the given bit string contains only bits specified by
  * the flags vector. Returns 0 if there is at least one bit set in 'a'
  * which is not specified in 'flags', 1 otherwise.
  * 'len' is the length of 'flags'.
  */
-int ASN1_BIT_STRING_check(const ASN1_BIT_STRING * a,
-    const uchar * flags, int flags_len)
+int ASN1_BIT_STRING_check(const ASN1_BIT_STRING * a, const uchar * flags, int flags_len)
 {
 	int i, ok;
 	/* Check if there is one bit set at all. */
 	if(!a || !a->data)
 		return 1;
-
 	/*
 	 * Check each byte of the internal representation of the bit string.
 	 */

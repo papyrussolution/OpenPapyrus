@@ -735,7 +735,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmCmdParam)) {
 				switch(Data.BaseCmdId) {
-					case StyloQCommandList::sqbcPersonEvent: ChangePersonEventTemplate(); break;
+					case StyloQCommandList::sqbcPersonEvent: EditPersonEventFilter(); break;
 					case StyloQCommandList::sqbcReport: ChangeBaseFilter(); break;
 					case StyloQCommandList::sqbcRsrvOrderPrereq: // @v11.2.6
 						EditOutcomingDocFilter(); // @v11.5.0
@@ -795,22 +795,34 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				return;
 			clearEvent(event);
 		}
-		void ChangePersonEventTemplate()
+		void EditPersonEventFilter()
 		{
 			const size_t sav_offs = Data.Param.GetRdOffs();
-			PPPsnEventPacket pack;
+			//PPPsnEventPacket pack;
+			StyloQPersonEventParam param;
 			SSerializeContext sctx;
 			if(Data.Param.GetAvailableSize()) {
-				if(PsnEvObj.SerializePacket(-1, &pack, Data.Param, &sctx)) {
+				//
+				/*
+				PPPsnEventPacket temp_pack;
+				bool debug_s = false;
+				if(PsnEvObj.SerializePacket(-1, &temp_pack, Data.Param, &sctx)) {
+					debug_s = true;
+				}
+				*/
+				//
+				if(param.Serialize(-1, Data.Param, &sctx)) {
 					Data.Param.SetRdOffs(sav_offs);
 				}
 				else {
 					Data.Param.Z();
 				}
 			}
-			if(PsnEvObj.EditPacket(&pack, true) > 0) {
+			//if(PsnEvObj.EditPacket(&pack, true) > 0) {
+			if(PPStyloQInterchange::Edit_PersonEventParam(param) > 0) {
 				Data.Param.Z();
-				if(PsnEvObj.SerializePacket(+1, &pack, Data.Param, &sctx)) {
+				//if(PsnEvObj.SerializePacket(+1, &pack, Data.Param, &sctx)) {
+				if(param.Serialize(+1, Data.Param, &sctx)) {
 					;
 				}
 			}

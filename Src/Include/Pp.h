@@ -431,6 +431,7 @@ class StyloQIndexingParam;
 class StyloQGoodsInfoParam;
 class StyloQIncomingListParam;
 class StyloQDocumentPrereqParam;
+class StyloQPersonEventParam;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef long PPID;
@@ -458,6 +459,7 @@ public:
 		Signature_StqDbSymbToSvcIdMap(0xBCA10DD9UL), // @v11.1.12
 		Signature_BillMultiPrintParam(0xA4183530UL), // @v11.2.0 Сигнатура класса BillMultiPrintParam
 		Signature_StyloQStoragePacket(0x11A52FB6UL), // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
+		Signature_StyloQPersonEventParam(0x230759EAUL), // @v11.6.1 Сигнатура класса StyloQPersonEventParam
 		EgaisInRowIdentDivider(27277), // @v10.8.3
 		ReserveU16(0), // @v10.8.3
 		CommonCmdAssocDesktopID(100000L), // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
@@ -510,6 +512,7 @@ public:
 	const uint32 Signature_StqDbSymbToSvcIdMap;          // @v11.1.12 Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
 	const uint32 Signature_BillMultiPrintParam;          // @v11.2.0  Сигнатура класса BillMultiPrintParam
 	const uint32 Signature_StyloQStoragePacket;          // @v11.6.0  Сигнатура класса StyloQCore::StoragePacket
+	const uint32 Signature_StyloQPersonEventParam;       // @v11.6.2  Сигнатура класса StyloQCore::StoragePacket
 	const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
 	const uint16 ReserveU16;                 // @alignment @v10.8.3
@@ -12643,6 +12646,25 @@ public:
 	//
 	int    GetListOfOpenedLots(const PPIDArray & rGoodsList, PPID locID, LotArray * pList);
 	//
+	// Descr: Извлекает список идентификаторов лотов, срок годности которых истекает с expiredSice (включительно).
+	//   Может так же вернуть список идентификаторов товаров, соответствующих таким лотам.
+	// ARG(expiredSince IN): Дата, начиная с которой истекает срок годности искомых лотов. Если значение даты ZERODATE 
+	//   либо инвалидно, то функция не пытается делать чего-то полезного, просто вернет -1 (ну и очистит предварительно pLotIdList и pGoodsIdList)
+	// ARG(openedOnly   IN): Если true, то функция ищет только открытые лоты.
+	// ARG(enumSince    IN): Так как таблица Receipt не проиндексирована по полю Expiry то для улучшения производительности
+	//   этим аргументом можно указать дату, с которой функция должна начать сканирование записей.
+	//   Если enumSince == ZERODATE или инвалидная, то сканируется вся таблица.
+	// ARG(pLotIdList   OUT): @vptr0 Указатель на вектор, в которых складываются идентификаторы найденных лотов.
+	//   Список предварительно очищается функцией.
+	// ARG(pGoodsIdList OUT): @vptr0 Указатель на вектор, в который складываются идентификаторы товаров, которым соответствуют найденные лоты.
+	//   Список предварительно очищается функцией.
+	// Returns:
+	//   >0 - найден по крайней мере интересующий лот.
+	//   <0 - не найдено ни одного интересующего лота.
+	//    0 - ошибка
+	//
+	int    GetListOfLotsExpiredSince(LDATE expiredSince, bool openedOnly, LDATE enumSince, PPIDArray * pLotIdList, PPIDArray * pGoodsIdList);
+	//
 	// Descr: собирает все лоты, порожденные от parent и удовлетворяющие функции test
 	//   в массив ary. Если test == 0, то полагается (test() != 0)
 	//   Лот parent в массив не попадет ни при каких условиях.
@@ -12745,7 +12767,7 @@ public:
 	void   InitVal();
 	void   Set(const GoodsRestFilt & rF, RetailPriceExtractor * pRpe);
 	PPID   DiffByTag() const;
-	int    FASTCALL CanMerge(const GoodsRestVal *, const GoodsRestVal *) const;
+	bool   CanMerge(const GoodsRestVal *, const GoodsRestVal *) const;
 	int    AddToItem(int p, LDATE dt, long opn, GoodsRestVal *);
 	int    AddLot(Transfer *, const ReceiptTbl::Rec *, double rest, LDATE orgLotDate);
 	void   DivRestPrices();
@@ -15393,6 +15415,7 @@ public:
 	// Note: В течении жизни объекта этот экземпляр конфигурации не меняется.
 	//
 	const  PPEquipConfig & GetEqCfg() const; // @v10.9.9
+	CheckOpJrnl * GetOpJrnl(); // @v11.6.2
 	int    Search(PPID, CCheckTbl::Rec * pRec = 0);
 	int    Search(PPID cashID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
 	int    SearchByTimeAndCard(PPID cardID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
@@ -18373,7 +18396,7 @@ public:
 		//   в позициях, перечисленных в этом списке.
 		//
 		double EvaluateScore(int scoreId, const LongArray * pOnlyIndices, const LongArray * pExceptIndices) const;
-		const  Strategy * FASTCALL SearchByID(uint32 id) const;
+		const  Strategy * SearchByID(uint32 id, uint * pIdx) const;
 		int    IsThereSimilStrategy(uint thisIdx, const LongArray & rSelectedIdxList, LongArray & rSimilIdxList) const;
 
 		struct CritEntry {
@@ -18433,20 +18456,8 @@ public:
 			selcritfSingle  = 0x1000  // @v10.7.7 В коллекции намеренно представлена единственная стратегия: не применять критерий MinSimilItems
 		};
 		struct SelectBlock : public BestStrategyBlock {
-			SelectBlock(const TSCollection <TrendEntry> & rTrendList, const Index1 & rIndex);
-			SelectBlock & FASTCALL Init(int lastTrendIdx);
-
-			const  TSCollection <TrendEntry> & R_TrendList; // IN
-			const  STimeSeries * P_Ts;    // IN
-			const  RealArray   * P_VList; // IN Если P_VList !0 то локальное отклонение отсчитывается по нему, в противном случае - по P_Ts (если P_Ts != 0)
-			int    LastTrendIdx;          // IN
-			long   Criterion;             // IN
-			long   Reserve;               // @v10.7.10
-			long   DevPtCount;            // IN Количество точек P_Ts, по которым отсчитывать разброс (для анализа неустойчивости ряда)
-			long   LDMT_Factor;           // IN
-			float  MainTrendMaxErrRel;    // @v10.7.2 IN Максимальная относительная ошибка магистрального тренда при выставлении ставки
-			const  Index1 & R_Index;      // IN
-			LongArray AllSuitedPosList;   // OUT
+			SelectBlock(const TSCollection <TrendEntry> & rTrendList, const Index1 & rIndex, uint bucketQuantMin);
+			SelectBlock & FASTCALL Init(int lastTrendIdx, const LDATETIME & rLastDtm);
 			//
 			// @v11.5.12
 			// Descr: Накопительная структура, задача которой набирать потенциальные стратегии за небольшой 
@@ -18455,14 +18466,11 @@ public:
 			//   и актуальными в течении заданного промежутка времени (скажем, 5-10 минут).
 			//
 			struct Bucket {
-				Bucket(uint timeQuantMin) : TimeQuantMin(timeQuantMin)
-				{
-				}
-				const uint TimeQuantMin;
+				Bucket(uint timeQuantMin);
+				int    PutStrategy(const PPObjTimeSeries::Strategy * pS, const LDATETIME & rDtm);
+				PPID   GetFinalStrategyID(uint minCount) const;
 				struct Entry { // @flat
-					Entry() : ID(0), Dtm(ZERODATETIME), Flags(0)
-					{
-					}
+					Entry();
 					enum {
 						fShort = 0x0001
 					};
@@ -18470,13 +18478,29 @@ public:
 					LDATETIME Dtm; // Время возникновения //
 					uint   Flags;
 				};
+				const uint TimeQuantMin;
 				TSVector <Entry> Q;
 			};
+			const  TSCollection <TrendEntry> & R_TrendList; // IN
+			const  STimeSeries * P_Ts;    // IN
+			const  RealArray   * P_VList; // IN Если P_VList !0 то локальное отклонение отсчитывается по нему, в противном случае - по P_Ts (если P_Ts != 0)
+			int    LastTrendIdx;          // IN
+			LDATETIME LastDtm;            // IN @v11.6.2 Момент последнего значения, по которому выбирается стратегия //
+			long   Criterion;             // IN
+			long   Reserve;               // @v10.7.10
+			long   DevPtCount;            // IN Количество точек P_Ts, по которым отсчитывать разброс (для анализа неустойчивости ряда)
+			long   LDMT_Factor;           // IN
+			float  MainTrendMaxErrRel;    // @v10.7.2 IN Максимальная относительная ошибка магистрального тренда при выставлении ставки
+			const  Index1 & R_Index;      // IN
+			LongArray AllSuitedPosList;   // OUT
+			Bucket Bckt;                  // OUT @v11.6.1
 		};
 		int    SelectS2(SelectBlock & rBlk) const;
 		int    AddStrategyToOrderIndex(uint pos, long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
 		int    MakeConfidenceEliminationIndex(const PPTssModelPacket & rTssPacket, uint maxCount, const LongArray * pSrcIdxList, LongArray & rToRemoveIdxList) const;
 	private:
+		int    FinalizeStrategySelection(SelectBlock & rBlk, uint strategyIdx, int lastTrendIdx) const;
+
 		uint32 Ver;
 		LDATETIME StorageTm;
 		LDATETIME LastValTm;
@@ -24166,6 +24190,8 @@ public:
 #define GSF_OVRLAPGIFT     0x00010000L // Подарок с "перекрытием": такой подарок назначается независимо от того,
 	// что по некоторым позициям были выданы другие подарки. При этом два и более подарка с перекрытием взаимно исключаются.
 // #define GSF_RECOMPL        0x00020000L // @v10.0.06 Допускается рекомплектацию //
+#define GSF_AUTODECOMPL   0x000020000L // @v11.6.2 Допускается автоматическая декомплектация в случае дефицита одного или нескольких компонентов
+	// в операциях списания техн сессий.
 //
 // Descr: Дескрипторы, определяющие специальные правила установки цен на товарные позиции,
 //   составляющие подарочную комбинацию.
@@ -24397,6 +24423,15 @@ private:
 //
 //
 //
+class SaAutoDecomplItem { // @flat
+public:
+	PPID   GoodsID; // Ид товара
+	PPID   StrucID;
+	double Qtty;    // Количество, которое может быть получено при разбиении одной единицы титульного товара структуры 
+};
+//
+//
+//
 struct SaSaleItem { // @flat
 	PPID   GoodsID;
 	double Qtty;
@@ -24503,6 +24538,7 @@ public:
 	int    Put(PPID * pID, PPGoodsStruc * pGs, int use_ta);
 	int    Print(PPGoodsStruc *);
 	int    CheckStruc(PPID strucID, PPLogger *);
+	int    LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList);
 	int    LoadGiftList(SaGiftArray * pList);
 	int    FetchGiftList(SaGiftArray * pList);
 	int    SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos);
@@ -28893,6 +28929,7 @@ public:
 	};
 	enum {
 		f2ShowWhPlace      = 0x00000001L, // @v11.5.8 Показывать место хранения // 
+		f2SoonExpiredOnly  = 0x00000002L, // @v11.6.2 Показывать только те позиции, для которых в ближайшее время закончится срок годности (или уже закончился)
 	};
 	enum { // @persistent
 		bcrLength = 1,
@@ -28941,7 +28978,8 @@ public:
 	int    ReadFromProp(PPID obj, PPID id, PPID prop, PPID propBefore8604);
 	int    WriteToProp(PPID obj, PPID id, PPID prop, PPID propBefore8604);
 
-	char   ReserveStart[28];   // @anchor Проецируется на __GoodsFilt::Reserve // @v11.5.8 [4]-->[28]
+	char   ReserveStart[26];   // @anchor Проецируется на __GoodsFilt::Reserve // @v11.5.8 [4]-->[28] // @v11.6.2 [28]-->[26]
+	int16  AheadExpiryDays;    // @v11.6.2 Минимальное количество дней до истечения срока, при котором товарная позиция попадает в риск-категорию (see f2SoonExpiredOnly)
 	PPID   GoodsLocAssocID;    // @v11.5.8 Если установлен флаг Flags2 & f2ShowWhPlace то в этом поле может быть определен id именованной ассоциации.
 	PPID   UhttStoreID;        // Магазин Universe-HTT в контексте которого извлекаются товары.
 	PPID   RestrictQuotKindID; // Вид ограничивающей котировки (извлекаются только те товары, которые имеют котировку этого вида)
@@ -29600,6 +29638,7 @@ public:
 	int    ForceUndupName(PPID id, SString & rBuf);
 	int    SearchUhttInteractive(const SString & rName, const SString & rBarcode, UhttGoodsPacket * pResultItem);
 	int    ViewUhttGoodsRestList(PPID goodsID);
+	int    ViewGoodsRestByLocList(PPID goodsID);
 	//
 	// Descr: Выводит диалог редактирования версии histID пакета товара.
 	//
@@ -30355,7 +30394,7 @@ public:
 	static int FASTCALL GetListByFilt(const GoodsFilt * pFilt, StrAssocArray * pList, int byName);
 	GoodsIterator(const GoodsFilt *, int aOrder, PPIDArray * pDupDynGrpList = 0);
 	GoodsIterator(PPID grp, int aOrder, PPIDArray * pDupDynGrpList = 0);
-	GoodsIterator(int aOrder = 0, PPIDArray * pDupDynGrpList = 0);
+	explicit GoodsIterator(int aOrder = 0, PPIDArray * pDupDynGrpList = 0);
 	~GoodsIterator();
 	int    Init(const GoodsFilt *, int aOrder);
 	int    Init(PPID grp, int aOrder);
@@ -36993,6 +37032,14 @@ private:
 	};
 	PPID   GStrucID;
 };
+//
+// Виды записей технологий
+//
+#define TECK_GENERAL    0 // Обыкновенная технология //
+#define TECK_TOOLING    1 // Технология перенастройки
+#define TECK_AUTO       2 // Автотехнология (правило автоматического создания) //
+#define TECK_FOLDER     3 // @v11.6.2 Папка
+//
 // Флаги, передаваемые с дополнительным параметром
 //
 #define TECEXDF_GOODS   0x80000000L // Остальная часть параметра - ИД товара
@@ -47678,6 +47725,7 @@ public:
 	static int   Edit_GoodsInfoParam(StyloQGoodsInfoParam & rParam);
 	static int   Edit_IncomingListParam(StyloQIncomingListParam & rParam);
 	static int   Edit_RsrvDocumentPrereqParam(StyloQDocumentPrereqParam & rParam);
+	static int   Edit_PersonEventParam(StyloQPersonEventParam & rParam);
 	//
 	// Descr: Отправляет одному из медиаторов Stylo-Q запрос на индексацию данных из всех
 	//   баз данных, которые содержат сервисы Stylo-Q.
@@ -47780,8 +47828,8 @@ private:
 	int    ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	int    ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	int    ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
-	int    ProcessCommand_IncomingListOrder(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
-	int    ProcessCommand_IncomingListCCheck(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
+	int    ProcessCommand_IncomingListOrder(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
+	int    ProcessCommand_IncomingListCCheck(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	int    ProcessCommand_RequestNotificationList(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SJson * pJsArray);
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
@@ -47884,6 +47932,26 @@ private:
 	uint   State;
 	StrAssocArray ViewSymbList;  // Список ассоциация {ViewID->ViewSymb}
 	StrAssocArray ViewDescrList; // Список ассоциация {ViewID->ViewDescription}
+};
+//
+//
+//
+class StyloQPersonEventParam { // @v11.6.2 not a child of PPBaseFilter
+public:
+	StyloQPersonEventParam();
+	StyloQPersonEventParam(const StyloQPersonEventParam & rS);
+	StyloQPersonEventParam & FASTCALL operator = (const StyloQPersonEventParam & rS);
+	StyloQPersonEventParam & Z();
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+	const  uint32 Signature; // _PPConst.Signature_StyloQPersonEventParam
+	uint32 Flags;
+	double MaxGeoDistance;
+	//
+	PPPsnEventPacket PePack;
+	struct FlatBlock {
+		uint8  Reserve[64];
+	} Fb;
 };
 //
 //
@@ -48569,6 +48637,7 @@ public:
 	~CheckOpJrnl();
 	int    LogEvent(int16 action, const CCheckPacket * pPack, const CCheckLineTbl::Rec * pLineRec, int useTa);
 	int    Search(LDATE dt, LTIME tm, CheckOpJrnlTbl::Rec * pRec);
+	int    GetListSince(const LDATETIME & rSince, TSVector <CheckOpJrnlTbl::Rec> & rRecList);
 	// int    GetEvent(PPID action, int mode, LDATETIME * pDtm, int maxDays, CheckOpJrnlTbl::Rec * pRec = 0);
 	// int    GetLastEvent(PPID action, LDATETIME * pDtm, int maxDays, CheckOpJrnlTbl::Rec * = 0);
 	// int    GetLastUserEvent(PPID action, PPID userID, PPID sessID, const DateRange * pSrchPeriod, LDATETIME *, void * = 0);
@@ -57399,6 +57468,7 @@ ushort FASTCALL ExecView(TBaseBrowserWindow * v);
 int    FASTCALL GetModelessStatus(int outerModeless = 1);
 void   FASTCALL DisableOKButton(TDialog *);
 int    STDCALL  SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd);
+int    STDCALL SetupGeoLocButton(TDialog * pDlg, uint inputCtlId, uint btnCmd); // @v11.6.2 @construction
 int    FASTCALL PPWait(int begin);
 void   PPWaitStart(); // @v11.0.3 PPWait(1)
 void   PPWaitStop(); // @v11.0.3 PPWait(0)

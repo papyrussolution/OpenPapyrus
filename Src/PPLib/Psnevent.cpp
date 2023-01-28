@@ -1,5 +1,5 @@
 // PSNEVENT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -283,8 +283,7 @@ const char * PPObjPersonEvent::GetNamePtr()
 	// @v11.1.12 {
 	const PersonEventTbl::Rec & r_rec = P_Tbl->data;
 	{
-		NameBuf.Z();
-		NameBuf.Cat(r_rec.Dt).Space().Cat(r_rec.Tm);
+		NameBuf.Z().Cat(r_rec.Dt).Space().Cat(r_rec.Tm);
 		if(r_rec.PersonID) {
 			NameBuf.CatDiv('-', 1);
 			GetObjectName(PPOBJ_PERSON, r_rec.PersonID, NameBuf, 1);

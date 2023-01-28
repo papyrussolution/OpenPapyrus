@@ -23,12 +23,9 @@
  *    Renamed public functions, to avoid an unwanted export of the standard names from the ICU library.
  *
  *    Use ICU's uprv_malloc() and uprv_free()
- *
  *    Revert comment syntax to plain C
- *
  *    Remove a few compiler warnings.
  */
-
 /* This module comprises the routines for arbitrary-precision General */
 /* Decimal Arithmetic as defined in the specification which may be    */
 /* found on the General Decimal Arithmetic pages.  It implements both */
@@ -555,8 +552,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromString(decNumber * dn, const char
 			/* Infinities and NaNs are possible, here  */
 			if(dotchar) break; /* .. unless had a dot  */
 			uprv_decNumberZero(dn); /* be optimistic  */
-			if(decBiStr(c, "infinity", "INFINITY")
-			 || decBiStr(c, "inf", "INF")) {
+			if(decBiStr(c, "infinity", "INFINITY") || decBiStr(c, "inf", "INF")) {
 				dn->bits = bits | DECINF;
 				status = 0; /* is OK  */
 				break; /* all done  */
@@ -7689,7 +7685,7 @@ static Int decGetInt(const decNumber * dn)
 	/* tricky code now, to accumulate up to 9.3 digits  */
 	if(got==0) {
 		theInt = *up; got += DECDPUN; up++;
-	}                                       /* ensure lsu is there  */
+	} /* ensure lsu is there  */
 
 	if(ilength<11) {
 		Int save = theInt;
@@ -7698,7 +7694,7 @@ static Int decGetInt(const decNumber * dn)
 			theInt += *up*powers[got];
 			got += DECDPUN;
 		}
-		if(ilength==10) {       /* need to check for wrap  */
+		if(ilength==10) { /* need to check for wrap  */
 			if(theInt/(Int)powers[got-DECDPUN]!=(Int)*(up-1)) ilength = 11;
 			/* [that test also disallows the BADINT result case]  */
 			else if(neg && theInt>1999999997) ilength = 11;
@@ -7706,12 +7702,10 @@ static Int decGetInt(const decNumber * dn)
 			if(ilength==11) theInt = save; /* restore correct low bit  */
 		}
 	}
-
-	if(ilength>10) {                /* too big  */
+	if(ilength>10) { /* too big  */
 		if(theInt&1) return BIGODD; /* bottom bit 1  */
 		return BIGEVEN; /* bottom bit 0  */
 	}
-
 	if(neg) theInt = -theInt; /* apply sign  */
 	return theInt;
 }   /* decGetInt  */

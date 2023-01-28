@@ -364,11 +364,10 @@ ngx_int_t ngx_ssl_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * cert
 	BIO_free(bio);
 	if(ngx_strncmp(key->data, "engine:", sizeof("engine:") - 1) == 0) {
 #ifndef OPENSSL_NO_ENGINE
-		u_char * p, * last;
 		ENGINE * engine;
 		EVP_PKEY  * pkey;
-		p = key->data + sizeof("engine:") - 1;
-		last = (u_char *)ngx_strchr(p, ':');
+		u_char * p = key->data + sizeof("engine:") - 1;
+		u_char * last = (u_char *)ngx_strchr(p, ':');
 		if(!last) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid syntax in \"%V\"", key);
 			return NGX_ERROR;
@@ -516,9 +515,7 @@ ngx_int_t ngx_ssl_trusted_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_
 	 * SSL_CTX_load_verify_locations() may leave errors in the error queue
 	 * while returning success
 	 */
-
 	ERR_clear_error();
-
 	return NGX_OK;
 }
 
@@ -526,11 +523,9 @@ ngx_int_t ngx_ssl_crl(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * crl)
 {
 	X509_STORE * store;
 	X509_LOOKUP  * lookup;
-
 	if(crl->len == 0) {
 		return NGX_OK;
 	}
-
 	if(ngx_conf_full_name(cf->cycle, crl, 1) != NGX_OK) {
 		return NGX_ERROR;
 	}

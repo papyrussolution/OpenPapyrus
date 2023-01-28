@@ -11,14 +11,14 @@
 U_NAMESPACE_BEGIN
 
 namespace {
-/**
- * Prefix string for Chinese index buckets.
- * See http://unicode.org/repos/cldr/trunk/specs/ldml/tr35-collation.html#Collation_Indexes
- */
-const UChar BASE[1] = { 0xFDD0 };
-const int32_t BASE_LENGTH = 1;
+	/**
+	 * Prefix string for Chinese index buckets.
+	 * See http://unicode.org/repos/cldr/trunk/specs/ldml/tr35-collation.html#Collation_Indexes
+	 */
+	const UChar BASE[1] = { 0xFDD0 };
+	const int32_t BASE_LENGTH = 1;
 
-bool isOneLabelBetterThanOther(const Normalizer2 &nfkdNormalizer, const UnicodeString & one, const UnicodeString & other);
+	bool isOneLabelBetterThanOther(const Normalizer2 &nfkdNormalizer, const UnicodeString & one, const UnicodeString & other);
 }  // namespace
 
 static int32_t U_CALLCONV collatorComparator(const void * context, const void * left, const void * right);

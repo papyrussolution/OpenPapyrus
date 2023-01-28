@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> 
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-	<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+	<!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/> -->
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -80,6 +80,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
+            android:exported="true"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -89,6 +90,7 @@
         </activity>
         <activity
             android:name=".StyloQZxCaptureActivity"
+            android:exported="true"
             android:screenOrientation="sensorPortrait"
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme"

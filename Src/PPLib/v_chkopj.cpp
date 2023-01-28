@@ -61,6 +61,26 @@ int CheckOpJrnl::Search(LDATE dt, LTIME tm, CheckOpJrnlTbl::Rec * pRec)
 	return ok;
 }
 
+int CheckOpJrnl::GetListSince(const LDATETIME & rSince, TSVector <CheckOpJrnlTbl::Rec> & rRecList)
+{
+	rRecList.clear();
+	int    ok = -1;
+	CheckOpJrnlTbl::Key0 k0;
+	MEMSZERO(k0);
+	k0.Dt = rSince.d;
+	k0.Tm = rSince.t;
+	BExtQuery q(this, 0);
+	q.selectAll().where(this->Dt >= rSince.d);
+	for(q.initIteration(false, &k0, spGt); q.nextIteration() > 0;) {
+		if(cmp(rSince, data.Dt, data.Tm) < 0) {
+			rRecList.insert(&data);
+		}
+	}
+	if(rRecList.getCount())
+		ok = 1;
+	return ok;
+}
+
 IMPLEMENT_PPFILT_FACTORY(CheckOpJrnl); CheckOpJrnlFilt::CheckOpJrnlFilt() : PPBaseFilt(PPFILT_CHECKOPJRNL, 0, 1)
 {
 	SetFlatChunk(offsetof(CheckOpJrnlFilt, ReserveStart),

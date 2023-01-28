@@ -1,5 +1,5 @@
 // VETIS.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Модуль для взаимодействия с системой Меркурий (интерфейс ВЕТИС)
 //
@@ -5711,7 +5711,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 								SXml::WNode n_wd(srb, SXml::nst("merc", "vetDocument"));
 								{
 									SXml::WNode n_auth(srb, _xmlnst_vd("authentication"));
-									n_auth.PutInner(_xmlnst_vd("cargoExpertized"), "VSEFULL");
+									n_auth.PutInner(_xmlnst_vd("cargoExpertized"), "VSERAW"); // @v11.6.2 VSEFULL-->VSERAW
 								}
 							}
 						}

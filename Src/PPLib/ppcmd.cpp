@@ -2739,7 +2739,8 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::Run(SBuffer * pParam, long cmdID, void * extraP
 					ok = 1;
 				}
 				else {
-					int    r = 0, valid_data = 0;
+					int    r = 0;
+					int    valid_data = 0;
 					LDATE  dt = ZERODATE;
 					PsnEventDialog::Param param;
 					PsnEventDialog::GetParam(pack.Rec.OpID, &param);
@@ -4527,10 +4528,8 @@ public:
 		if(pParam && filt.Read(*pParam, 0)) {
 			ok = (prc.Init(&filt) && prc.Run()) ? 1 : PPErrorZ();
 		}
-		else {
-			if(prc.EditParam(&filt) > 0) {
-				ok = (prc.Init(&filt) && prc.Run()) ? 1 : PPErrorZ();
-			}
+		else if(prc.EditParam(&filt) > 0) {
+			ok = (prc.Init(&filt) && prc.Run()) ? 1 : PPErrorZ();
 		}
 		return ok;
 	}
@@ -4639,12 +4638,10 @@ public:
 		EditTextFileParam filt;
 		if(!pParam || pParam->GetAvailableSize() == 0)
 			PPEditTextFile(0);
-		else {
-			if(filt.Read(*pParam, 0)) 
-				PPEditTextFile(&filt);
-			else
-				PPEditTextFile(0);
-		}
+		else if(filt.Read(*pParam, 0)) 
+			PPEditTextFile(&filt);
+		else
+			PPEditTextFile(0);
 		//CATCHZOK
 		return ok;
 	}
