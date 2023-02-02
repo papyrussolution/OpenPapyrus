@@ -768,10 +768,22 @@ int FASTCALL TDialog::GetClusterData(uint ctlID, int16 * pVal)
 	return r;
 }
 
-void TDialog::DisableClusterItem(uint ctlID, int itemNo, int toDisable)
+void TDialog::DisableClusterItem(uint ctlID, int itemNo, bool toDisable)
 {
 	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	CALLPTRMEMB(p_clu, disableItem(itemNo, toDisable));
+}
+
+void TDialog::DisableClusterItems(uint ctlID, const LongArray & rItemIdxList /* 0.. */, bool toDisable) // @v11.6.2
+{
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
+	if(p_clu && p_clu->IsSubSign(TV_SUBSIGN_CLUSTER)) {
+		for(uint i = 0; i < rItemIdxList.getCount(); i++) {
+			const int item_idx = rItemIdxList.get(i);
+			if(item_idx >= 0)
+				p_clu->disableItem(item_idx, toDisable);
+		}
+	}
 }
 
 int TDialog::SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText)

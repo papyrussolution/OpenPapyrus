@@ -1,11 +1,8 @@
 //
 // Copyright 2017 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 #ifndef ABSL_STRINGS_INTERNAL_RESIZE_UNINITIALIZED_H_
 #define ABSL_STRINGS_INTERNAL_RESIZE_UNINITIALIZED_H_
@@ -26,16 +23,12 @@ namespace strings_internal {
 template <typename string_type, typename = void>
 struct ResizeUninitializedTraits {
 	using HasMember = std::false_type;
-	static void Resize(string_type* s, size_t new_size) {
-		s->resize(new_size);
-	}
+	static void Resize(string_type* s, size_t new_size) { s->resize(new_size); }
 };
 
 // __resize_default_init is provided by libc++ >= 8.0
-template <typename string_type>
-struct ResizeUninitializedTraits<
-	string_type, absl::void_t<decltype(std::declval<string_type&>()
-	.__resize_default_init(237))> > {
+template <typename string_type> struct ResizeUninitializedTraits<string_type, absl::void_t<decltype(std::declval<string_type&>().__resize_default_init(237))> > 
+{
 	using HasMember = std::true_type;
 	static void Resize(string_type* s, size_t new_size) {
 		s->__resize_default_init(new_size);

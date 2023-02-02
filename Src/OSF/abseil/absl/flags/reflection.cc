@@ -10,15 +10,14 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace flags_internal {
-// --------------------------------------------------------------------
+//
 // FlagRegistry
 //    A FlagRegistry singleton object holds all flag objects indexed by their
 //    names so that if you know a flag's name, you can access or set it. If the
 //    function is named FooLocked(), you must own the registry lock before
 //    calling the function; otherwise, you should *not* hold the lock, and the
 //    function will acquire it itself if needed.
-// --------------------------------------------------------------------
-
+//
 class FlagRegistry {
 public:
 	FlagRegistry() = default;
@@ -172,9 +171,9 @@ void FinalizeRegistry()
 	registry.flags_.clear();
 	registry.finalized_flags_.store(true, std::memory_order_release);
 }
-
-// --------------------------------------------------------------------
-
+//
+//
+//
 namespace {
 class RetiredFlagObj final alignas(sizeof(void *)) : public CommandLineFlag { // @sobolev alignas(8)
 public:
@@ -247,9 +246,9 @@ void Retire(const char* name, FlagFastTypeId type_id, char* buf)
 	auto * flag = ::new (static_cast<void*>(buf)) flags_internal::RetiredFlagObj(name, type_id);
 	FlagRegistry::GlobalRegistry().RegisterFlag(*flag, nullptr);
 }
-
-// --------------------------------------------------------------------
-
+//
+//
+//
 class FlagSaverImpl {
 public:
 	FlagSaverImpl() = default;
@@ -261,8 +260,7 @@ public:
 	void SaveFromRegistry() {
 		assert(backup_registry_.empty()); // call only once!
 		flags_internal::ForEachFlag([&](CommandLineFlag& flag) {
-					if(auto flag_state =
-					flags_internal::PrivateHandleAccessor::SaveState(flag)) {
+					if(auto flag_state = flags_internal::PrivateHandleAccessor::SaveState(flag)) {
 						backup_registry_.emplace_back(std::move(flag_state));
 					}
 				});
@@ -293,9 +291,9 @@ FlagSaver::~FlagSaver()
 		delete impl_;
 	}
 }
-
-// --------------------------------------------------------------------
-
+//
+//
+//
 CommandLineFlag* FindCommandLineFlag(absl::string_view name) 
 {
 	if(name.empty()) 
@@ -303,9 +301,9 @@ CommandLineFlag* FindCommandLineFlag(absl::string_view name)
 	flags_internal::FlagRegistry& registry = flags_internal::FlagRegistry::GlobalRegistry();
 	return registry.FindFlag(name);
 }
-
-// --------------------------------------------------------------------
-
+//
+//
+//
 absl::flat_hash_map<absl::string_view, absl::CommandLineFlag*> GetAllFlags() 
 {
 	absl::flat_hash_map<absl::string_view, absl::CommandLineFlag*> res;

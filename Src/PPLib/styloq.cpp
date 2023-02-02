@@ -3562,6 +3562,7 @@ PPStyloQInterchange::Document & PPStyloQInterchange::Document::Z()
 	CreationTime.Z();
 	Time.Z();
 	DueTime.Z();
+	CreationGeoLoc.Z(); // @v11.6.2
 	InterchangeOpID = 0;
 	SvcOpID = 0;
 	ClientID = 0;
@@ -3616,6 +3617,12 @@ SJson * PPStyloQInterchange::Document::ToJsonObject() const
 		temp_buf.Z().Cat(DueTime, DATF_ISO8601CENT, 0);
 		p_result->InsertString("duetm", temp_buf);
 	}
+	// @v11.6.2 {
+	if(CreationGeoLoc.IsValid() && !CreationGeoLoc.IsZero()) {
+		p_result->InsertDouble("cr_lat", CreationGeoLoc.Lat, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+		p_result->InsertDouble("cr_lon", CreationGeoLoc.Lon, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+	}
+	// } @v11.6.2 
 	p_result->InsertIntNz("svcopid", SvcOpID);
 	p_result->InsertIntNz("icopid", InterchangeOpID);
 	p_result->InsertIntNz("posnodeid", PosNodeID); // @v11.4.6
@@ -3765,6 +3772,8 @@ SJson * PPStyloQInterchange::Document::ToJsonObject() const
 int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 {
 	int    ok = 1;
+	bool   occured_crgeoloc_lat = false;
+	bool   occured_crgeoloc_lon = false;
 	SString temp_buf;
 	THROW(SJson::IsObject(pJsObj));
 	for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_cur->P_Next) {
@@ -3790,6 +3799,14 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 			}
 			else if(p_cur->Text.IsEqiAscii("duetm")) {
 				DueTime.Set(SJson::Unescape(p_cur->P_Child->Text), DATF_ISO8601CENT, 0);
+			}
+			else if(p_cur->Text.IsEqiAscii("cr_lat")) {
+				CreationGeoLoc.Lat = p_cur->P_Child->Text.ToReal();
+				occured_crgeoloc_lat = true;
+			}
+			else if(p_cur->Text.IsEqiAscii("cr_lon")) {
+				CreationGeoLoc.Lon = p_cur->P_Child->Text.ToReal();
+				occured_crgeoloc_lon = true;
 			}
 			else if(p_cur->Text.IsEqiAscii("icopid")) {
 				InterchangeOpID = p_cur->P_Child->Text.ToLong();

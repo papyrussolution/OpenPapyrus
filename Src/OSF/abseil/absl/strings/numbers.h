@@ -1,16 +1,13 @@
 // numbers.h
 // Copyright 2017 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // This package contains functions for converting strings to numbers. For
 // converting numbers to strings, use `StrCat()` or `StrAppend()` in str_cat.h,
 // which automatically detect and convert most number values appropriately.
-
+//
 #ifndef ABSL_STRINGS_NUMBERS_H_
 #define ABSL_STRINGS_NUMBERS_H_
 

@@ -1,5 +1,5 @@
 // PPAPPO.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1099,8 +1099,8 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 						}
 						else if(db_idx_list.getCount() == 1) {
 							// the best result: we have single database and will try to login into
-							long db_sel_idx = db_idx_list.get(0);
-							assert(db_sel_idx > 0 && db_sel_idx <= R_P.Dbes.GetCount());
+							const long db_sel_idx = db_idx_list.get(0);
+							assert(db_sel_idx > 0 && db_sel_idx <= static_cast<long>(R_P.Dbes.GetCount()));
 							R_P.Dbes.SetSelection(db_sel_idx);
 							// TDialog::handleEvent(event) следующий ниже отработает закрытие диалога по [OK] в обычном режиме
 						}
@@ -1529,7 +1529,6 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 		}
 		if(pIniFile->Get(PPINISECT_CONFIG, PPINIPARAM_TIMESERVER, temp_buf) && temp_buf.Len()) {
 			SString fmt_buf, msg_buf, server_name, enforce_param;
-			LDATETIME dtm;
 			temp_buf.Divide(',', server_name, enforce_param);
 			if(!force || enforce_param.ToLong() != 0) {
 				if(force)

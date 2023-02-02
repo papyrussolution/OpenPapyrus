@@ -184,7 +184,7 @@ inline bool SafeAddRepHi(double a_hi, double b_hi, Duration* d)
 		*d = -InfiniteDuration();
 		return false;
 	}
-	*d = time_internal::MakeDuration(c, time_internal::GetRepLo(*d));
+	*d = time_internal::MakeDuration(static_cast<int64_t>(c), time_internal::GetRepLo(*d));
 	return true;
 }
 

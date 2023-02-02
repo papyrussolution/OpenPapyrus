@@ -122,7 +122,7 @@ PIX * pixExtractBoundary(PIX * pixs,
  *      (5) If pixm is NULL, this is just pixMorphSequence().
  * </pre>
  */
-PIX * pixMorphSequenceMasked(PIX         * pixs,
+PIX * pixMorphSequenceMasked(PIX * pixs,
     PIX         * pixm,
     const char * sequence,
     int32 dispsep)
@@ -167,7 +167,7 @@ PIX * pixMorphSequenceMasked(PIX         * pixs,
  *      (5) Use NULL for boxa to avoid returning the boxa.
  * </pre>
  */
-PIX * pixMorphSequenceByComponent(PIX         * pixs,
+PIX * pixMorphSequenceByComponent(PIX * pixs,
     const char * sequence,
     int32 connectivity,
     int32 minw,
@@ -316,7 +316,7 @@ PIXA * pixaMorphSequenceByComponent(PIXA        * pixas,
  *      (5) Use NULL for %pboxa to avoid returning the boxa.
  * </pre>
  */
-PIX * pixMorphSequenceByRegion(PIX         * pixs,
+PIX * pixMorphSequenceByRegion(PIX * pixs,
     PIX         * pixm,
     const char * sequence,
     int32 connectivity,
@@ -393,7 +393,7 @@ PIX * pixMorphSequenceByRegion(PIX         * pixs,
  *          of the regions in pixs.
  * </pre>
  */
-PIXA * pixaMorphSequenceByRegion(PIX         * pixs,
+PIXA * pixaMorphSequenceByRegion(PIX * pixs,
     PIXA        * pixam,
     const char * sequence,
     int32 minw,

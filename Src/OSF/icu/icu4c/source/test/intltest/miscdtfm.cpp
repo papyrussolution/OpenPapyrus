@@ -1,21 +1,16 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/***********************************************************************
-* Copyright (c) 1997-2011, International Business Machines Corporation
-* and others. All Rights Reserved.
-***********************************************************************/
-
+// Copyright (c) 1997-2011, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_FORMATTING
 
 #include "miscdtfm.h"
-
-// *****************************************************************************
+//
 // class DateFormatMiscTests
-// *****************************************************************************
-
+//
 #define CASE(id, test) case id: name = #test; if(exec) { logln(#test "---"); logln((UnicodeString)""); test(); } break;
 
 void DateFormatMiscTests::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
@@ -25,7 +20,6 @@ void DateFormatMiscTests::runIndexedTest(int32_t index, bool exec, const char *&
 		CASE(0, test4097450)
 		CASE(1, test4099975)
 		CASE(2, test4117335)
-
 		default: name = ""; break;
 	}
 }
@@ -36,10 +30,8 @@ bool DateFormatMiscTests::failure(UErrorCode status, const char * msg)
 		errcheckln(status, UnicodeString("FAIL: ") + msg + " failed, error " + u_errorName(status));
 		return TRUE;
 	}
-
 	return FALSE;
 }
-
 /*
  * @bug 4097450
  */

@@ -1642,7 +1642,7 @@ static SEL * selCreateFromSArray(SARRAY * sa, int32 first, int32 last)
  *      (1) The origin and all points in the pta must be positive.
  * </pre>
  */
-SEL * selCreateFromPta(PTA         * pta, int32 cy, int32 cx, const char * name)
+SEL * selCreateFromPta(PTA * pta, int32 cy, int32 cx, const char * name)
 {
 	PROCNAME(__FUNCTION__);
 	int32 i, n, x, y, w, h;
@@ -1782,7 +1782,7 @@ SEL * selReadFromColorImage(const char * pathname)
  *          center of the sel.
  * </pre>
  */
-SEL * selCreateFromColorPix(PIX         * pixs, const char * selname)
+SEL * selCreateFromColorPix(PIX * pixs, const char * selname)
 {
 	PROCNAME(__FUNCTION__);
 	PIXCMAP  * cmap;

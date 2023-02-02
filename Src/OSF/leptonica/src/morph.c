@@ -185,18 +185,13 @@ static PIX * processMorphArgs2(PIX * pixd, PIX * pixs, SEL * sel);
  *      (4) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixDilate(PIX  * pixd,
-    PIX  * pixs,
-    SEL  * sel)
+PIX * pixDilate(PIX * pixd, PIX * pixs, SEL  * sel)
 {
 	int32 i, j, w, h, sx, sy, cx, cy, seldata;
 	PIX * pixt;
-
 	PROCNAME(__FUNCTION__);
-
 	if((pixd = processMorphArgs1(pixd, pixs, sel, &pixt)) == NULL)
 		return (PIX *)ERROR_PTR("processMorphArgs1 failed", procName, pixd);
-
 	pixGetDimensions(pixs, &w, &h, NULL);
 	selGetParameters(sel, &sy, &sx, &cy, &cx);
 	pixClearAll(pixd);
@@ -237,8 +232,8 @@ PIX * pixDilate(PIX  * pixd,
  *      (4) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixErode(PIX  * pixd,
-    PIX  * pixs,
+PIX * pixErode(PIX * pixd,
+    PIX * pixs,
     SEL  * sel)
 {
 	int32 i, j, w, h, sx, sy, cx, cy, seldata;
@@ -310,8 +305,8 @@ PIX * pixErode(PIX  * pixd,
  *      (4) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixHMT(PIX  * pixd,
-    PIX  * pixs,
+PIX * pixHMT(PIX * pixd,
+    PIX * pixs,
     SEL  * sel)
 {
 	int32 i, j, w, h, sx, sy, cx, cy, firstrasterop, seldata;
@@ -395,8 +390,8 @@ PIX * pixHMT(PIX  * pixd,
  *      (4) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixOpen(PIX  * pixd,
-    PIX  * pixs,
+PIX * pixOpen(PIX * pixd,
+    PIX * pixs,
     SEL  * sel)
 {
 	PIX  * pixt;
@@ -440,8 +435,8 @@ PIX * pixOpen(PIX  * pixd,
  *      (5) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixClose(PIX  * pixd,
-    PIX  * pixs,
+PIX * pixClose(PIX * pixd,
+    PIX * pixs,
     SEL  * sel)
 {
 	PIX  * pixt;
@@ -489,8 +484,8 @@ PIX * pixClose(PIX  * pixd,
  *      (6) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixCloseSafe(PIX  * pixd,
-    PIX  * pixs,
+PIX * pixCloseSafe(PIX * pixd,
+    PIX * pixs,
     SEL  * sel)
 {
 	int32 xp, yp, xn, yn, xmax, xbord;
@@ -554,8 +549,8 @@ PIX * pixCloseSafe(PIX  * pixd,
  *      (5) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixOpenGeneralized(PIX  * pixd,
-    PIX  * pixs,
+PIX * pixOpenGeneralized(PIX * pixd,
+    PIX * pixs,
     SEL  * sel)
 {
 	PIX  * pixt;
@@ -599,8 +594,8 @@ PIX * pixOpenGeneralized(PIX  * pixd,
  *      (6) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixCloseGeneralized(PIX  * pixd,
-    PIX  * pixs,
+PIX * pixCloseGeneralized(PIX * pixd,
+    PIX * pixs,
     SEL  * sel)
 {
 	PIX  * pixt;

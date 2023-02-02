@@ -2,15 +2,12 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
-// * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
+// * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // * Redistributions in binary form must reproduce the above
 // copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
+// in the documentation and/or other materials provided with the distribution.
 // * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
@@ -19,13 +16,11 @@
 // "Handles" by Ilan Horn
 //
 // This approach to arenas overcomes many of the limitations described
-// in the "Specialized allocators" section of
-//     http://www.pdos.lcs.mit.edu/~dm/c++-new.html
+// in the "Specialized allocators" section of http://www.pdos.lcs.mit.edu/~dm/c++-new.html
 //
 // A somewhat similar approach to Gladiator, but for heap-detection, was
-// suggested by Ron van der Wal and Scott Meyers at
-//     http://www.aristeia.com/BookErrata/M27Comments_frames.html
-
+// suggested by Ron van der Wal and Scott Meyers at http://www.aristeia.com/BookErrata/M27Comments_frames.html
+//
 #include <ctemplate-internal.h>
 #pragma hdrstop
 

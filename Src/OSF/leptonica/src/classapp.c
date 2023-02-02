@@ -483,7 +483,7 @@ l_ok pixGetWordBoxesInTextlines(PIX * pixs,
  *          to the input image.
  * </pre>
  */
-l_ok pixFindWordAndCharacterBoxes(PIX         * pixs,
+l_ok pixFindWordAndCharacterBoxes(PIX * pixs,
     BOX         * boxs,
     int32 thresh,
     BOXA       ** pboxaw,

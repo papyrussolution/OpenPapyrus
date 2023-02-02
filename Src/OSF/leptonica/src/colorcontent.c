@@ -1484,7 +1484,7 @@ l_ok pixNumColors(PIX * pixs,
  *          smallest pixel depth required to hold all the colors.
  * </pre>
  */
-PIX * pixConvertRGBToCmapLossless(PIX  * pixs)
+PIX * pixConvertRGBToCmapLossless(PIX * pixs)
 {
 	int32 w, h, d, i, j, wpls, wpld, hashsize, hashval, ncolors, index;
 	int32 rval, gval, bval, val;
@@ -1579,18 +1579,11 @@ PIX * pixConvertRGBToCmapLossless(PIX  * pixs)
  *               pixDisplayColorArray(array, ncolors, ...);
  * </pre>
  */
-l_ok pixGetMostPopulatedColors(PIX * pixs,
-    int32 sigbits,
-    int32 factor,
-    int32 ncolors,
-    uint32  ** parray,
-    PIXCMAP   ** pcmap)
+l_ok pixGetMostPopulatedColors(PIX * pixs, int32 sigbits, int32 factor, int32 ncolors, uint32 ** parray, PIXCMAP ** pcmap)
 {
 	int32 n, i, rgbindex, rval, gval, bval;
 	NUMA * nahisto, * naindex;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!parray && !pcmap)
 		return ERROR_INT("no return val requested", procName, 1);
 	if(parray) *parray = NULL;
@@ -1654,22 +1647,16 @@ l_ok pixGetMostPopulatedColors(PIX * pixs,
  *          an RGB image with not more than 256 colors.
  * </pre>
  */
-PIX * pixSimpleColorQuantize(PIX * pixs,
-    int32 sigbits,
-    int32 factor,
-    int32 ncolors)
+PIX * pixSimpleColorQuantize(PIX * pixs, int32 sigbits, int32 factor, int32 ncolors)
 {
 	int32 w, h;
 	PIX * pixd;
 	PIXCMAP  * cmap;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs || pixGetDepth(pixs) != 32)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(sigbits < 2 || sigbits > 4)
 		return (PIX *)ERROR_PTR("sigbits not in {2,3,4}", procName, NULL);
-
 	pixGetMostPopulatedColors(pixs, sigbits, factor, ncolors, NULL, &cmap);
 	pixGetDimensions(pixs, &w, &h, NULL);
 	pixd = pixCreate(w, h, 8);
@@ -1698,18 +1685,14 @@ PIX * pixSimpleColorQuantize(PIX * pixs,
  *      (3) This function produces the same result as pixMedianCutHisto().
  * </pre>
  */
-NUMA * pixGetRGBHistogram(PIX * pixs,
-    int32 sigbits,
-    int32 factor)
+NUMA * pixGetRGBHistogram(PIX * pixs, int32 sigbits, int32 factor)
 {
 	int32 w, h, i, j, size, wpl, rval, gval, bval, npts;
 	uint32 val32, rgbindex;
 	float * array;
 	uint32   * data, * line, * rtab, * gtab, * btab;
 	NUMA * na;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs || pixGetDepth(pixs) != 32)
 		return (NUMA*)ERROR_PTR("pixs not defined", procName, NULL);
 	if(sigbits < 2 || sigbits > 6)
@@ -1764,16 +1747,11 @@ NUMA * pixGetRGBHistogram(PIX * pixs,
  *             r7 r6 r5 g7 g6 g5 b7 b6 b5
  * </pre>
  */
-l_ok makeRGBIndexTables(uint32  ** prtab,
-    uint32  ** pgtab,
-    uint32  ** pbtab,
-    int32 sigbits)
+l_ok makeRGBIndexTables(uint32  ** prtab, uint32  ** pgtab, uint32  ** pbtab, int32 sigbits)
 {
 	int32 i;
 	uint32 * rtab, * gtab, * btab;
-
 	PROCNAME(__FUNCTION__);
-
 	if(prtab) *prtab = NULL;
 	if(pgtab) *pgtab = NULL;
 	if(pbtab) *pbtab = NULL;
@@ -1852,14 +1830,9 @@ l_ok makeRGBIndexTables(uint32  ** prtab,
  *          The extra bit that is OR'd accomplishes this.
  * </pre>
  */
-l_ok getRGBFromIndex(uint32 index,
-    int32 sigbits,
-    int32 * prval,
-    int32 * pgval,
-    int32 * pbval)
+l_ok getRGBFromIndex(uint32 index, int32 sigbits, int32 * prval, int32 * pgval, int32 * pbval)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(prval) *prval = 0;
 	if(pgval) *pgval = 0;
 	if(pbval) *pbval = 0;
@@ -1867,7 +1840,6 @@ l_ok getRGBFromIndex(uint32 index,
 		return ERROR_INT("not all component ptrs defined", procName, 1);
 	if(sigbits < 2 || sigbits > 6)
 		return ERROR_INT("sigbits not in [2 ... 6]", procName, 1);
-
 	switch(sigbits) {
 		case 2:
 		    *prval = ((index << 2) & 0xc0) | 0x20;
@@ -1933,20 +1905,12 @@ l_ok getRGBFromIndex(uint32 index,
  *          sensitivity to red, and fewer false positives.
  * </pre>
  */
-l_ok pixHasHighlightRed(PIX * pixs,
-    int32 factor,
-    float minfract,
-    float fthresh,
-    int32 * phasred,
-    float * pratio,
-    PIX ** ppixdb)
+l_ok pixHasHighlightRed(PIX * pixs, int32 factor, float minfract, float fthresh, int32 * phasred, float * pratio, PIX ** ppixdb)
 {
 	float fract, ratio;
 	PIX * pix1, * pix2, * pix3, * pix4;
 	FPIX * fpix;
-
 	PROCNAME(__FUNCTION__);
-
 	if(pratio) *pratio = 0.0;
 	if(ppixdb) *ppixdb = NULL;
 	if(phasred) *phasred = 0;

@@ -1,5 +1,5 @@
 // PALMEXCH.CPP
-// ..2009, 2010, 2012, 2015, 2016, 2018, 2019, 2020, 2021, 2022
+// ..2009, 2010, 2012, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #pragma hdrstop
 #ifndef __GENERIC_MAIN_CONDUIT__
@@ -21,85 +21,22 @@ int ForceExportObsoleteData = 0; // @declared(StyloConduit.h)
 struct SyncFindDbByNameParams;
 struct SyncDatabaseInfoType;
 
-long SyncFindDbByName(SyncFindDbByNameParams & rParam, SyncDatabaseInfoType & rInfo)
-{
-	return -1;
-}
-
-long SyncOpenDB(const char * pName, int nCardNum, BYTE & rHandle, BYTE openMode)
-{
-	return -1;
-}
-
-long SyncCloseDB(BYTE)
-{
-	return -1;
-}
-
-long SyncDeleteDB(const char* pName, int nCardNum)
-{
-	return -1;
-}
-
-long SyncCreateDB(CDbCreateDB& rDbStats)
-{
-	return -1;
-}
-
-long SyncPurgeAllRecs(BYTE)
-{
-	return -1;
-}
-
-long SyncReadRecordById(CRawRecordInfo& rInfo)
-{
-	return -1;
-}
-
-long SyncReadRecordByIndex(CRawRecordInfo& rInfo)
-{
-	return -1;
-}
-
-long SyncWriteRec(CRawRecordInfo & rInfo)
-{
-	return -1;
-}
-
-DWORD SyncHostToHHDWord(DWORD v)
-{
-	return htonl(v);
-}
-
-DWORD SyncHHToHostDWord(DWORD v)
-{
-	return ntohl(v);
-}
-
-WORD SyncHostToHHWord(WORD v)
-{
-	return htons(v);
-}
-
-WORD SyncHHToHostWord(WORD v)
-{
-	return ntohs(v);
-}
-
-long SyncYieldCycles(WORD wMaxMiliSecs)
-{
-	return -1;
-}
-
-long SyncReadUserID(CUserIDInfo &)
-{
-	return -1;
-}
-
-long WINAPI UmGetUserDirectory(DWORD dwUserID, TCHAR * pUserDirBuffer, short * psUserDirBufSize)
-{
-	return -1;
-}
+long  SyncFindDbByName(SyncFindDbByNameParams & rParam, SyncDatabaseInfoType & rInfo) { return -1; }
+long  SyncOpenDB(const char * pName, int nCardNum, BYTE & rHandle, BYTE openMode) { return -1; }
+long  SyncCloseDB(BYTE) { return -1; }
+long  SyncDeleteDB(const char* pName, int nCardNum) { return -1; }
+long  SyncCreateDB(CDbCreateDB& rDbStats) { return -1; }
+long  SyncPurgeAllRecs(BYTE) { return -1; }
+long  SyncReadRecordById(CRawRecordInfo& rInfo) { return -1; }
+long  SyncReadRecordByIndex(CRawRecordInfo& rInfo) { return -1; }
+long  SyncWriteRec(CRawRecordInfo & rInfo) { return -1; }
+DWORD SyncHostToHHDWord(DWORD v) { return htonl(v); }
+DWORD SyncHHToHostDWord(DWORD v) { return ntohl(v); }
+WORD  SyncHostToHHWord(WORD v) { return htons(v); }
+WORD  SyncHHToHostWord(WORD v) { return ntohs(v); }
+long  SyncYieldCycles(WORD wMaxMiliSecs) { return -1; }
+long  SyncReadUserID(CUserIDInfo &) { return -1; }
+long  WINAPI UmGetUserDirectory(DWORD dwUserID, TCHAR * pUserDirBuffer, short * psUserDirBufSize) { return -1; }
 #pragma warn .stv
 #endif
 
@@ -1134,15 +1071,8 @@ int PalmTcpExchange::GetTblStat(SpiiDbHandler h, SpiiTblStatParams * pParams)
 	return ok;
 }
 
-int PalmTcpExchange::TblGetPos(SpiiDbHandler h, ulong * pPos)
-{
-	return -1;
-}
-
-int PalmTcpExchange::TblSetPos(SpiiDbHandler h, ulong pos)
-{
-	return -1;
-}
+int PalmTcpExchange::TblGetPos(SpiiDbHandler h, ulong * pPos) { return -1; }
+int PalmTcpExchange::TblSetPos(SpiiDbHandler h, ulong pos) { return -1; }
 
 int PalmTcpExchange::TblAddRec(SpiiDbHandler h, SpiiTblRecParams * pParams, const void * pRec, uint32 bufSize)
 {
@@ -1212,15 +1142,9 @@ int PalmTcpExchange::TblGetRec(SpiiDbHandler h, SpiiTblRecParams * pParams, void
 	return ok;
 }
 
-int PalmTcpExchange::TblGetTbl(SpiiDbHandler h, void *, ulong * pBufSize)
-{
-	return -1;
-}
-
-int PalmTcpExchange::TblSetTbl(SpiiDbHandler h, const void *, ulong bufSize)
-{
-	return -1;
-}
+int PalmTcpExchange::TblGetTbl(SpiiDbHandler h, void *, ulong * pBufSize) { return -1; }
+int PalmTcpExchange::TblSetTbl(SpiiDbHandler h, const void *, ulong bufSize) { return -1; }
+int PalmTcpExchange::TblPurgeAllRecs(SpiiDbHandler h) { return -1; }
 
 int PalmTcpExchange::TblDelete(const char * pTblName)
 {
@@ -1230,11 +1154,6 @@ int PalmTcpExchange::TblDelete(const char * pTblName)
 	in_buf.BufSize = sizeof(SpiiTblDelParams);
 	STRNSCPY(params.TblName, pTblName);
 	return SpiiCmd(P_So, &in_buf, &params, &out_buf, 0, "TblDelete");
-}
-
-int PalmTcpExchange::TblPurgeAllRecs(SpiiDbHandler h)
-{
-	return -1;
 }
 
 int PalmTcpExchange::GetDeviceInfo(SpiiDeviceInfoParams * pParams)
@@ -1420,8 +1339,7 @@ static int __CopyFile(const char * pSrcPath, const char * pDestPath, SpiiExchgCo
 			r = 1;
 		if(r) {
 			if(!SCopyFile(pSrcPath, pDestPath, 0, FILE_SHARE_READ, 0)) {
-				msg_buf.Z().Cat("ERR").CatDiv(':', 2).Cat("coping").
-					Space().CatQStr(pSrcPath).CatDiv('>', 1).CatQStr(pDestPath);
+				msg_buf.Z().Cat("ERR").CatDiv(':', 2).Cat("coping").Space().CatQStr(pSrcPath).CatDiv('>', 1).CatQStr(pDestPath);
 				SyncTable::LogMessage(rCtx.LogFile, msg_buf);
 				ok = 0;
 			}

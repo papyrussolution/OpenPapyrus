@@ -1,61 +1,42 @@
 //
 // Copyright 2017 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // This file contains :int128 implementation details that depend on internal
 // representation when ABSL_HAVE_INTRINSIC_INT128 is *not* defined. This file
 // is included by int128.h and relies on ABSL_INTERNAL_WCHAR_T being defined.
 
 constexpr uint64_t Int128Low64(int128 v) { return v.lo_; }
-
 constexpr int64_t Int128High64(int128 v) { return v.hi_; }
 
 #if defined(SL_LITTLEENDIAN)
 
-constexpr int128::int128(int64_t high, uint64_t low) :
-    lo_(low), hi_(high) {}
-
-constexpr int128::int128(int v)
-    : lo_{static_cast<uint64_t>(v)}, hi_{v < 0 ? ~int64_t{0} : 0} {}
-constexpr int128::int128(long v)  // NOLINT(runtime/int)
-    : lo_{static_cast<uint64_t>(v)}, hi_{v < 0 ? ~int64_t{0} : 0} {}
-constexpr int128::int128(long long v)  // NOLINT(runtime/int)
-    : lo_{static_cast<uint64_t>(v)}, hi_{v < 0 ? ~int64_t{0} : 0} {}
+constexpr int128::int128(int64_t high, uint64_t low) : lo_(low), hi_(high) {}
+constexpr int128::int128(int v) : lo_{static_cast<uint64_t>(v)}, hi_{v < 0 ? ~int64_t{0} : 0} {}
+constexpr int128::int128(long v) : lo_{static_cast<uint64_t>(v)}, hi_{v < 0 ? ~int64_t{0} : 0} {} // NOLINT(runtime/int)
+constexpr int128::int128(long long v)  : lo_{static_cast<uint64_t>(v)}, hi_{v < 0 ? ~int64_t{0} : 0} {} // NOLINT(runtime/int)
 
 constexpr int128::int128(unsigned int v) : lo_{v}, hi_{0} {}
 // NOLINTNEXTLINE(runtime/int)
 constexpr int128::int128(unsigned long v) : lo_{v}, hi_{0} {}
 // NOLINTNEXTLINE(runtime/int)
 constexpr int128::int128(unsigned long long v) : lo_{v}, hi_{0} {}
-
-constexpr int128::int128(uint128 v)
-    : lo_{Uint128Low64(v)}, hi_{static_cast<int64_t>(Uint128High64(v))} {}
+constexpr int128::int128(uint128 v) : lo_{Uint128Low64(v)}, hi_{static_cast<int64_t>(Uint128High64(v))} {}
 
 #elif defined(SL_BIGENDIAN)
 
-constexpr int128::int128(int64_t high, uint64_t low) :
-    hi_{high}, lo_{low} {}
-
-constexpr int128::int128(int v)
-    : hi_{v < 0 ? ~int64_t{0} : 0}, lo_{static_cast<uint64_t>(v)} {}
-constexpr int128::int128(long v)  // NOLINT(runtime/int)
-    : hi_{v < 0 ? ~int64_t{0} : 0}, lo_{static_cast<uint64_t>(v)} {}
-constexpr int128::int128(long long v)  // NOLINT(runtime/int)
-    : hi_{v < 0 ? ~int64_t{0} : 0}, lo_{static_cast<uint64_t>(v)} {}
-
+constexpr int128::int128(int64_t high, uint64_t low) : hi_{high}, lo_{low} {}
+constexpr int128::int128(int v) : hi_{v < 0 ? ~int64_t{0} : 0}, lo_{static_cast<uint64_t>(v)} {}
+constexpr int128::int128(long v)  // NOLINT(runtime/int) : hi_{v < 0 ? ~int64_t{0} : 0}, lo_{static_cast<uint64_t>(v)} {}
+constexpr int128::int128(long long v)  // NOLINT(runtime/int) : hi_{v < 0 ? ~int64_t{0} : 0}, lo_{static_cast<uint64_t>(v)} {}
 constexpr int128::int128(unsigned int v) : hi_{0}, lo_{v} {}
 // NOLINTNEXTLINE(runtime/int)
 constexpr int128::int128(unsigned long v) : hi_{0}, lo_{v} {}
 // NOLINTNEXTLINE(runtime/int)
 constexpr int128::int128(unsigned long long v) : hi_{0}, lo_{v} {}
-
-constexpr int128::int128(uint128 v)
-    : hi_{static_cast<int64_t>(Uint128High64(v))}, lo_{Uint128Low64(v)} {}
+constexpr int128::int128(uint128 v) : hi_{static_cast<int64_t>(Uint128High64(v))}, lo_{Uint128Low64(v)} {}
 
 #else  // byte order
 #error "Unsupported byte order: must be little-endian or big-endian."

@@ -39,10 +39,9 @@
  *      image comparison flags
  * </pre>
  */
-
-/*-------------------------------------------------------------------------*
-*                             Sel and Sel array                           *
-*-------------------------------------------------------------------------*/
+ // 
+// Sel and Sel array
+// 
 #define  SEL_VERSION_NUMBER    1
 
 /*! Selection */
@@ -65,10 +64,9 @@ struct Sela {
 };
 
 typedef struct Sela SELA;
-
-/*-------------------------------------------------------------------------*
-*                                 Kernel                                  *
-*-------------------------------------------------------------------------*/
+// 
+// Kernel
+// 
 #define  KERNEL_VERSION_NUMBER    2
 
 /*! Kernel */
@@ -95,19 +93,18 @@ enum {
 	ASYMMETRIC_MORPH_BC = 1
 };
 
-/*-------------------------------------------------------------------------*
-*                        Structuring element vals                         *
-*-------------------------------------------------------------------------*/
+// 
+// Structuring element vals
+// 
 /*! SEL Vals */
 enum {
 	SEL_DONT_CARE  = 0,
 	SEL_HIT        = 1,
 	SEL_MISS       = 2
 };
-
-/*-------------------------------------------------------------------------*
-*                  Runlength flags for granulometry                       *
-*-------------------------------------------------------------------------*/
+// 
+// Runlength flags for granulometry
+// 
 /*! Runlength Polarity */
 enum {
 	L_RUN_OFF = 0,
@@ -124,10 +121,9 @@ enum {
 	L_VERT             = 2,
 	L_BOTH_DIRECTIONS  = 3
 };
-
-/*-------------------------------------------------------------------------*
-*                   Morphological operation flags                         *
-*-------------------------------------------------------------------------*/
+// 
+// Morphological operation flags
+// 
 /*! Morph Operator */
 enum {
 	L_MORPH_DILATE    = 1,
@@ -136,29 +132,25 @@ enum {
 	L_MORPH_CLOSE     = 4,
 	L_MORPH_HMT       = 5
 };
-
-/*-------------------------------------------------------------------------*
-*                    Grayscale intensity scaling flags                    *
-*-------------------------------------------------------------------------*/
+// 
+// Grayscale intensity scaling flags
+// 
 /*! Pixel Value Scaling */
 enum {
 	L_LINEAR_SCALE  = 1,
 	L_LOG_SCALE     = 2
 };
-
-/*-------------------------------------------------------------------------*
-*                      Morphological tophat flags                         *
-*-------------------------------------------------------------------------*/
+// 
+// Morphological tophat flags
+// 
 /*! Morph Tophat */
 enum {
 	L_TOPHAT_WHITE = 0,
 	L_TOPHAT_BLACK = 1
 };
-
-/*-------------------------------------------------------------------------*
-*                Arithmetic and logical operator flags                    *
-*                 (use on grayscale images and Numas)                     *
-*-------------------------------------------------------------------------*/
+// 
+// Arithmetic and logical operator flags (use on grayscale images and Numas)
+// 
 /*! ArithLogical Ops */
 enum {
 	L_ARITH_ADD       = 1,
@@ -170,10 +162,9 @@ enum {
 	L_SUBTRACTION     = 7,/* on numas only */
 	L_EXCLUSIVE_OR    = 8/* on numas only */
 };
-
-/*-------------------------------------------------------------------------*
-*                        Min/max selection flags                          *
-*-------------------------------------------------------------------------*/
+// 
+// Min/max selection flags
+// 
 /*! MinMax Selection */
 enum {
 	L_CHOOSE_MIN = 1,     /* useful in a downscaling "erosion"       */
@@ -182,29 +173,26 @@ enum {
 	L_CHOOSE_MIN_BOOST = 4, /* use a modification of the min value     */
 	L_CHOOSE_MAX_BOOST = 5 /* use a modification of the max value     */
 };
-
-/*-------------------------------------------------------------------------*
-*            Exterior value b.c. for distance function flags              *
-*-------------------------------------------------------------------------*/
+// 
+// Exterior value b.c. for distance function flags
+// 
 /*! Exterior Value */
 enum {
 	L_BOUNDARY_BG = 1, /* assume bg outside image */
 	L_BOUNDARY_FG = 2 /* assume fg outside image */
 };
-
-/*-------------------------------------------------------------------------*
-*                         Image comparison flags                          *
-*-------------------------------------------------------------------------*/
+// 
+// Image comparison flags
+// 
 /*! Image Comparison */
 enum {
 	L_COMPARE_XOR = 1,
 	L_COMPARE_SUBTRACT = 2,
 	L_COMPARE_ABS_DIFF = 3
 };
-
-/*-------------------------------------------------------------------------*
-*    Standard size of border added around images for special processing   *
-*-------------------------------------------------------------------------*/
+// 
+// Standard size of border added around images for special processing
+// 
 static const int32 ADDED_BORDER = 32;  /*!< pixels, not bits */
 
 #endif  /* LEPTONICA_MORPH_H */

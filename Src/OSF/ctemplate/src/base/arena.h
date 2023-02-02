@@ -2,8 +2,7 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -287,36 +286,24 @@ public:
 	// A handle to a pointer in an arena. An opaque type, with default
 	// copy and assignment semantics.
 	class Handle {
-public:
+	public:
 		static const uint32_t kInvalidValue = 0xFFFFFFFF; // int32-max
 
-		Handle() : handle_(kInvalidValue) {
+		Handle() : handle_(kInvalidValue) 
+		{
 		}
-
 		// Default copy constructors are fine here.
-		bool operator==(const Handle& h) const {
-			return handle_ == h.handle_;
-		}
-
-		bool operator!=(const Handle& h) const {
-			return handle_ != h.handle_;
-		}
-
-		uint32_t hash() const {
-			return handle_;
-		}
-
-		bool valid() const {
-			return handle_ != kInvalidValue;
-		}
-
-private:
+		bool operator==(const Handle& h) const { return handle_ == h.handle_; }
+		bool operator!=(const Handle& h) const { return handle_ != h.handle_; }
+		uint32_t hash() const { return handle_; }
+		bool valid() const { return handle_ != kInvalidValue; }
+	private:
 		// Arena needs to be able to access the internal data.
 		friend class BaseArena;
 
-		explicit Handle(uint32_t handle) : handle_(handle) {
+		explicit Handle(uint32_t handle) : handle_(handle) 
+		{
 		}
-
 		uint32_t handle_;
 	};
 
@@ -343,12 +330,10 @@ private:
 		friend class BaseArena;
 		size_t bytes_allocated_;
 public:
-		Status() : bytes_allocated_(0) {
+		Status() : bytes_allocated_(0) 
+		{
 		}
-
-		size_t bytes_allocated() const {
-			return bytes_allocated_;
-		}
+		size_t bytes_allocated() const { return bytes_allocated_; }
 	};
 
 	// Accessors and stats counters
@@ -356,20 +341,10 @@ public:
 	// type-compatible with ArenaAllocator (in arena-inl.h).  That is,
 	// we define arena() because ArenaAllocator does, and that way you
 	// can template on either of these and know it's safe to call arena().
-	virtual BaseArena* arena()  {
-		return this;
-	}
-
-	size_t block_size() const {
-		return block_size_;
-	}
-
+	virtual BaseArena* arena()  { return this; }
+	size_t block_size() const { return block_size_; }
 	int block_count() const;
-	bool is_empty() const {
-		// must check block count in case we allocated a block larger than blksize
-		return freestart_ == freestart_when_empty_ && 1 == block_count();
-	}
-
+	bool is_empty() const { return freestart_ == freestart_when_empty_ && 1 == block_count(); } // must check block count in case we allocated a block larger than blksize
 	// This should be the worst-case alignment for any type.  This is
 	// good for IA-32, SPARC version 7 (the last one I know), and
 	// supposedly Alpha.  i386 would be more time-efficient with a
@@ -385,7 +360,8 @@ public:
 protected:
 	void MakeNewBlock();
 	void * GetMemoryFallback(const size_t size, const int align);
-	void * GetMemory(const size_t size, const int align) {
+	void * GetMemory(const size_t size, const int align) 
+	{
 		assert(remaining_ <= block_size_); // an invariant
 		if(size > 0 && size < remaining_ && align == 1) { // common case
 			last_alloc_ = freestart_;
@@ -634,46 +610,40 @@ public:
 	virtual char* SlowAlloc(size_t size) { // "slow" 'cause it's virtual
 		return Alloc(size);
 	}
-
 	virtual void SlowFree(void * memory, size_t size) { // "slow" 'cause it's virt
 		Free(memory, size);
 	}
-
 	virtual char* SlowRealloc(char* memory, size_t old_size, size_t new_size) {
 		return Realloc(memory, old_size, new_size);
 	}
-
 	virtual char* SlowAllocWithHandle(const size_t size, Handle* handle) {
 		return AllocWithHandle(size, handle);
 	}
-
-	char* Memdup(const char* s, size_t bytes) {
+	char* Memdup(const char* s, size_t bytes) 
+	{
 		char* newstr = Alloc(bytes);
 		memcpy(newstr, s, bytes);
 		return newstr;
 	}
-
-	char* MemdupPlusNUL(const char* s, size_t bytes) { // like "string(s, len)"
+	char* MemdupPlusNUL(const char* s, size_t bytes)  // like "string(s, len)"
+	{ 
 		char* newstr = Alloc(bytes+1);
 		memcpy(newstr, s, bytes);
 		newstr[bytes] = '\0';
 		return newstr;
 	}
-
-	Handle MemdupWithHandle(const char* s, size_t bytes) {
+	Handle MemdupWithHandle(const char* s, size_t bytes) 
+	{
 		Handle handle;
 		char* newstr = AllocWithHandle(bytes, &handle);
 		memcpy(newstr, s, bytes);
 		return handle;
 	}
-
-	char* Strdup(const char* s) {
-		return Memdup(s, strlen(s) + 1);
-	}
-
+	char* Strdup(const char* s) { return Memdup(s, strlen(s) + 1); }
 	// Unlike libc's strncpy, I always NUL-terminate.  libc's semantics are dumb.
 	// This will allocate at most n+1 bytes (+1 is for the NULL terminator).
-	char* Strndup(const char* s, size_t n) {
+	char* Strndup(const char* s, size_t n) 
+	{
 		// Use memchr so we don't walk past n.
 		// We can't use the one in //strings since this is the base library,
 		// so we have to reinterpret_cast from the libc void *.
@@ -692,23 +662,23 @@ public:
 	LOCKS_EXCLUDED(mutex_);
 	// If you know the new size is smaller (or equal), you don't need to know
 	// oldsize.  We don't check that newsize is smaller, so you'd better be sure!
-	char* Shrink(char* s, size_t newsize) LOCKS_EXCLUDED(mutex_) {
+	char* Shrink(char* s, size_t newsize) LOCKS_EXCLUDED(mutex_) 
+	{
 		MutexLock lock(&mutex_);
 		AdjustLastAlloc(s, newsize); // reclaim space if we can
 		return s;          // we never need to move if we go smaller
 	}
-
-	Status status() LOCKS_EXCLUDED(mutex_) {
+	Status status() LOCKS_EXCLUDED(mutex_) 
+	{
 		MutexLock lock(&mutex_);
 		return status_;
 	}
-
 	// Number of bytes remaining before the arena has to allocate another block.
-	size_t bytes_until_next_allocation() LOCKS_EXCLUDED(mutex_) {
+	size_t bytes_until_next_allocation() LOCKS_EXCLUDED(mutex_) 
+	{
 		MutexLock lock(&mutex_);
 		return remaining_;
 	}
-
 protected:
 	Mutex mutex_;
 

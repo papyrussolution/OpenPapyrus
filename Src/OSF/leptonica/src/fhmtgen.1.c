@@ -57,7 +57,7 @@ static char SEL_NAMES[][80] = {
  * </pre>
  */
 PIX * pixHMTDwa_1(PIX         * pixd,
-    PIX         * pixs,
+    PIX * pixs,
     const char * selname)
 {
 	PIX  * pixt1, * pixt2, * pixt3;
@@ -103,7 +103,7 @@ PIX * pixHMTDwa_1(PIX         * pixd,
  * </pre>
  */
 PIX * pixFHMTGen_1(PIX         * pixd,
-    PIX         * pixs,
+    PIX * pixs,
     const char * selname)
 {
 	int32 i, index, found, w, h, wpls, wpld;

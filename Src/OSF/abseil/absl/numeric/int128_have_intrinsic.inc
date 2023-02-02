@@ -1,11 +1,8 @@
 //
 // Copyright 2017 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // This file contains :int128 implementation details that depend on internal
 // representation when ABSL_HAVE_INTRINSIC_INT128 is defined. This file is
@@ -21,9 +18,7 @@ constexpr __int128 BitCastToSigned(unsigned __int128 v) {
   // in the destination type. We step around it with a roundtrip bitwise not
   // operation to make sure this function remains constexpr. Clang and GCC
   // optimize this to a no-op on x86-64.
-  return v & (static_cast<unsigned __int128>(1) << 127)
-             ? ~static_cast<__int128>(~v)
-             : static_cast<__int128>(v);
+  return v & (static_cast<unsigned __int128>(1) << 127) ? ~static_cast<__int128>(~v) : static_cast<__int128>(v);
 }
 
 }  // namespace int128_internal

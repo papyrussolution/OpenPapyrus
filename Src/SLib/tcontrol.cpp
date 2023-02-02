@@ -1,5 +1,5 @@
 // TCONTROL.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1033,7 +1033,7 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					HWND hw_parent = ::GetParent(hw_cluster);
 					if(IsInState(sfDisabled)) {
 						EnableWindow(hw_cluster, 0);
-						DisableMask = -1;
+						DisableMask = 0xffffffffU;
 					}
 					SetupText(0);
 					RECT  rc_temp;
@@ -1069,7 +1069,7 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							}
 							else if(Value & (1<<i))
 								SendDlgItemMessage(Parent, button_id, BM_SETCHECK, BST_CHECKED, 0);
-							EnableWindow(h_wnd, (DisableMask & (1<<i)) == 0);
+							EnableWindow(h_wnd, (DisableMask & (1U<<i)) == 0);
 						}
 					}
 					//
@@ -1218,7 +1218,7 @@ int TCluster::column(int item) const
 
 int  TCluster::row(int item) const { return (item % ViewSize.y); }
 uint TCluster::getNumItems() const { return Strings.getCount(); }
-int  TCluster::isItemEnabled(int item) const { return (DisableMask & (1<<item)) ? 0 : 1; }
+bool TCluster::IsItemEnabled(int item) const { return !(DisableMask & (1U<<item)); }
 void TCluster::deleteAll() { Strings.freeAll(); }
 int  TCluster::addAssoc(long pos, long val) { return ValAssoc.Update(pos, val, 0); }
 
@@ -1240,10 +1240,10 @@ void TCluster::deleteItem(int item)
 	ViewSize.y = Strings.getCount();
 }
 
-void TCluster::disableItem(int item, int disable)
+void TCluster::disableItem(int item, bool disable)
 {
 	SETFLAG(DisableMask, (1<<item), disable);
-	EnableWindow(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, item+1)), disable == 0);
+	EnableWindow(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, item+1)), !disable);
 }
 
 int TCluster::GetText(int pos, SString & rBuf)

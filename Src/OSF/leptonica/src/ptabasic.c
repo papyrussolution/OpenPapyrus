@@ -755,7 +755,7 @@ PTA * ptaReadMem(const uint8  * data,
  * </pre>
  */
 l_ok ptaWriteDebug(const char * filename,
-    PTA         * pta,
+    PTA * pta,
     int32 type)
 {
 	PROCNAME(__FUNCTION__);
@@ -778,7 +778,7 @@ l_ok ptaWriteDebug(const char * filename,
  * \return  0 if OK, 1 on error
  */
 l_ok ptaWrite(const char * filename,
-    PTA         * pta,
+    PTA * pta,
     int32 type)
 {
 	int32 ret;

@@ -239,7 +239,7 @@ l_ok pixMultConstantGray(PIX * pixs,
  *      (5) pixs2 must be different from both pixd and pixs1.
  * </pre>
  */
-PIX * pixAddGray(PIX  * pixd,
+PIX * pixAddGray(PIX * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {
@@ -331,7 +331,7 @@ PIX * pixAddGray(PIX  * pixd,
  *      (6) pixs2 must be different from both pixd and pixs1.
  * </pre>
  */
-PIX * pixSubtractGray(PIX  * pixd,
+PIX * pixSubtractGray(PIX * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {

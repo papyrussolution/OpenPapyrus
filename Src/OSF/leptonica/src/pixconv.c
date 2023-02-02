@@ -596,7 +596,7 @@ cleanup_arrays:
  *      (1) If pixs has a colormap, this is a no-op.
  * </pre>
  */
-l_ok pixAddGrayColormap8(PIX  * pixs)
+l_ok pixAddGrayColormap8(PIX * pixs)
 {
 	PIXCMAP  * cmap;
 
@@ -625,7 +625,7 @@ l_ok pixAddGrayColormap8(PIX  * pixs)
  *          input image has unique gray levels.
  * </pre>
  */
-PIX * pixAddMinimalGrayColormap8(PIX  * pixs)
+PIX * pixAddMinimalGrayColormap8(PIX * pixs)
 {
 	int32 ncolors, w, h, i, j, wpl1, wpld, index, val;
 	int32 * inta, * revmap;
@@ -770,7 +770,7 @@ PIX * pixConvertRGBToGrayGeneral(PIX * pixs,
 		pix1 = pixConvertRGBToGrayMinMax(pixs, L_CHOOSE_MAX);
 	}
 	else if(type == L_SELECT_AVERAGE) {
-		pix1 = pixConvertRGBToGray(pixs, 0.34, 0.33, 0.33);
+		pix1 = pixConvertRGBToGray(pixs, 0.34f, 0.33f, 0.33f);
 	}
 	else if(type == L_SELECT_HUE) {
 		pix1 = pixConvertRGBToHue(pixs);
@@ -878,7 +878,7 @@ PIX * pixConvertRGBToGray(PIX * pixs,
  *          use pixScaleRGBToGrayFast() instead.
  * </pre>
  */
-PIX * pixConvertRGBToGrayFast(PIX  * pixs)
+PIX * pixConvertRGBToGrayFast(PIX * pixs)
 {
 	int32 i, j, w, h, wpls, wpld, val;
 	uint32  * datas, * lines, * datad, * lined;
@@ -1212,7 +1212,7 @@ PIX * pixConvertRGBToBinaryArb(PIX * pixs,
  *      (5) In all cases, the depth of the dest is the same as the src.
  * </pre>
  */
-PIX * pixConvertGrayToColormap(PIX  * pixs)
+PIX * pixConvertGrayToColormap(PIX * pixs)
 {
 	int32 d;
 	PIX * pixd;
@@ -1505,7 +1505,7 @@ PIX * pixConvertRGBToColormap(PIX * pixs,
  *          (b) there is usually much less FG than BG.
  * </pre>
  */
-PIX * pixConvertCmapTo1(PIX  * pixs)
+PIX * pixConvertCmapTo1(PIX * pixs)
 {
 	int32 i, j, nc, w, h, imin, imax, factor, wpl1, wpld;
 	int32 index, rmin, gmin, bmin, rmax, gmax, bmax, dmin, dmax;
@@ -2065,7 +2065,7 @@ PIX * pixConvert1To32(PIX * pixd,
  *      (1) Input 0 is mapped to (255, 255, 255); 1 is mapped to (0, 0, 0)
  * </pre>
  */
-PIX * pixConvert1To2Cmap(PIX  * pixs)
+PIX * pixConvert1To2Cmap(PIX * pixs)
 {
 	PIX * pixd;
 	PIXCMAP  * cmap;
@@ -2184,7 +2184,7 @@ PIX * pixConvert1To2(PIX * pixd,
  *      (1) Input 0 is mapped to (255, 255, 255); 1 is mapped to (0, 0, 0)
  * </pre>
  */
-PIX * pixConvert1To4Cmap(PIX  * pixs)
+PIX * pixConvert1To4Cmap(PIX * pixs)
 {
 	PIX * pixd;
 	PIXCMAP  * cmap;
@@ -2302,7 +2302,7 @@ PIX * pixConvert1To4(PIX * pixd,
  *      (1) Input 0 is mapped to (255, 255, 255); 1 is mapped to (0, 0, 0)
  * </pre>
  */
-PIX * pixConvert1To8Cmap(PIX  * pixs)
+PIX * pixConvert1To8Cmap(PIX * pixs)
 {
 	PIX * pixd;
 	PIXCMAP  * cmap;
@@ -2691,7 +2691,7 @@ PIX * pixConvert8To16(PIX * pixs,
  *          lossless and a copy is returned.
  * </pre>
  */
-PIX * pixConvertTo2(PIX  * pixs)
+PIX * pixConvertTo2(PIX * pixs)
 {
 	int32 d;
 	PIX * pix1, * pix2, * pix3, * pixd;
@@ -2799,7 +2799,7 @@ PIX * pixConvert8To2(PIX  * pix)
  *          lossless and a copy is returned.
  * </pre>
  */
-PIX * pixConvertTo4(PIX  * pixs)
+PIX * pixConvertTo4(PIX * pixs)
 {
 	int32 d;
 	PIX * pix1, * pix2, * pix3, * pixd;
@@ -3217,7 +3217,7 @@ PIX * pixConvertTo8Colormap(PIX * pixs,
  *      8 bpp:  replicates the 8 bit value in both the MSB and LSB
  *              of the 16 bit pixel.
  */
-PIX * pixConvertTo16(PIX  * pixs)
+PIX * pixConvertTo16(PIX * pixs)
 {
 	int32 d;
 
@@ -3263,7 +3263,7 @@ PIX * pixConvertTo16(PIX  * pixs)
  *      (1) Never returns a clone of pixs.
  * </pre>
  */
-PIX * pixConvertTo32(PIX  * pixs)
+PIX * pixConvertTo32(PIX * pixs)
 {
 	int32 d;
 	PIX * pix1, * pixd;
@@ -3356,7 +3356,7 @@ PIX * pixConvertTo32BySampling(PIX * pixs,
  *          into the 3 MSB of the dest pixel.
  * </pre>
  */
-PIX * pixConvert8To32(PIX  * pixs)
+PIX * pixConvert8To32(PIX * pixs)
 {
 	int32 i, j, w, h, wpls, wpld, val;
 	uint32  * datas, * datad, * lines, * lined;
@@ -3487,7 +3487,7 @@ PIX * pixConvertTo8Or32(PIX * pixs,
  *            (b) interconvert between 24 and 32 bpp in memory (for testing).
  * </pre>
  */
-PIX * pixConvert24To32(PIX  * pixs)
+PIX * pixConvert24To32(PIX * pixs)
 {
 	uint8   * lines;
 	int32 w, h, d, i, j, wpls, wpld, rval, gval, bval;
@@ -3535,7 +3535,7 @@ PIX * pixConvert24To32(PIX  * pixs)
  *      (1) See pixconvert24To32().
  * </pre>
  */
-PIX * pixConvert32To24(PIX  * pixs)
+PIX * pixConvert32To24(PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
 	uint8   * rgbdata8;
@@ -3706,13 +3706,10 @@ PIX * pixRemoveAlpha(PIX * pixs)
  *          of a backing image that are masked by the foreground in pixs.
  * </pre>
  */
-PIX * pixAddAlphaTo1bpp(PIX  * pixd,
-    PIX  * pixs)
+PIX * pixAddAlphaTo1bpp(PIX * pixd, PIX * pixs)
 {
 	PIXCMAP  * cmap;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs || (pixGetDepth(pixs) != 1))
 		return (PIX *)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
 	if(pixd && (pixd != pixs))
@@ -3835,7 +3832,7 @@ PIX * pixConvertLossless(PIX * pixs,
  *          are converted to 8 bpp gray.
  * </pre>
  */
-PIX * pixConvertForPSWrap(PIX  * pixs)
+PIX * pixConvertForPSWrap(PIX * pixs)
 {
 	int32 d;
 	PIX * pixd;

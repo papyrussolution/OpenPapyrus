@@ -92,7 +92,7 @@ PIX * pixRotateOrth(PIX * pixs, int32 quads)
  *          (c) pixRotate180(pixd, pixs);
  * </pre>
  */
-PIX * pixRotate180(PIX  * pixd, PIX  * pixs)
+PIX * pixRotate180(PIX * pixd, PIX * pixs)
 {
 	int32 d;
 	PROCNAME(__FUNCTION__);
@@ -382,17 +382,14 @@ PIX * pixRotate90(PIX * pixs, int32 direction)
  *              }
  * </pre>
  */
-PIX * pixFlipLR(PIX  * pixd,
-    PIX  * pixs)
+PIX * pixFlipLR(PIX * pixd, PIX * pixs)
 {
 	uint8   * tab;
 	int32 w, h, d, wpl;
 	int32 extra, shift, databpl, bpl, i, j;
 	uint32 val;
 	uint32  * line, * data, * buffer;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
@@ -558,7 +555,7 @@ PIX * pixFlipLR(PIX  * pixd,
  *          depth.
  * </pre>
  */
-PIX * pixFlipTB(PIX  * pixd, PIX  * pixs)
+PIX * pixFlipTB(PIX * pixd, PIX * pixs)
 {
 	int32 h, d, wpl, i, k, h2, bpl;
 	uint32  * linet, * lineb;

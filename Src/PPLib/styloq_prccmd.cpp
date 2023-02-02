@@ -1090,6 +1090,11 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 								bpack_.BTagL.PutItem(PPTAG_BILL_CREATEDTM, &tag_item);
 							}
 							// } @v11.4.8 
+							// @v11.6.2 {
+							if(doc.CreationGeoLoc.IsValid() && !doc.CreationGeoLoc.IsZero()) {
+								bpack_.BTagL.PutItemStr(PPTAG_BILL_GPSCOORD, temp_buf.Z().Cat(doc.CreationGeoLoc.Lat).CatChar(',').Cat(doc.CreationGeoLoc.Lon));
+							}
+							// } @v11.6.2 
 							p_bpack = &bpack_;
 						}
 						else {
@@ -1552,7 +1557,8 @@ int PPStyloQInterchange::ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandL
 	return ok;
 }
 
-int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat)
+int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQCommandList::Item & rCmdItem, const SBinaryChunk & rOwnIdent, 
+	const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat)
 {
 	/*
 		quotkind_list [ { id; nm } ]
@@ -1564,6 +1570,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 	*/
 	int    ok = 1;
 	const  LDATETIME now_dtm = getcurdatetime_();
+	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
 	MakeInnerGoodsEntryBlock mige_blk;
 	PPObjQuotKind qk_obj;
@@ -1571,27 +1578,43 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 	PPIDArray temp_loc_list;
 	StyloQBlobInfo blob_info;
 	PPStyloPalmPacket palm_pack;
-	bool export_zstock = false; // Экспортировать нулевые остатки
+	bool   export_zstock = false; // Экспортировать нулевые остатки
+	bool   export_expiry_tags = false; // @v11.6.2 Если true, то для агентских заказов пользователь может видеть дополнительную информацию о сроке годности товаров.
+	int    ahead_expiry_days = 0; // @v11.6.2 Если export_expiry_tags, то эта переменная получает количество дней до истечения срока годности, когда этот срок становится критичным.
+		// Значение извлекается из конфигурации документов (PPBillConfig::WarnLotExpirDays)
+	SString cmd_name;
+	(cmd_name = rCmdItem.Name).Transf(CTRANSF_UTF8_TO_INNER);
 	if(rParam.PalmID) {
 		PPObjStyloPalm sp_obj;
 		THROW(sp_obj.GetPacket(rParam.PalmID, &palm_pack));
 		if(palm_pack.Rec.Flags & PLMF_EXPZSTOCK)
 			export_zstock = true;
+		if(palm_pack.Rec.Flags & PLMF_EXPGOODSEXPIRYTAGS) { // @v11.6.2
+			export_expiry_tags = true;
+			ahead_expiry_days = BillObj->GetConfig().WarnLotExpirDays;
+			if(ahead_expiry_days < 0)
+				ahead_expiry_days = 0;
+		}
 	}
 	else {
 		assert(palm_pack.Rec.ID == 0);
 	}
 	if(!rParam.PalmID || !(palm_pack.Rec.Flags & PLMF_BLOCKED)) {
-		//PPObjGoods goods_obj;
+		PPIDArray final_loc_list; // @v11.6.2 Финальный список складов, с которыми работает агент. may be empty!
 		const PPID single_loc_id = rParam.PalmID ? palm_pack.LocList.GetSingle() : rParam.LocID;
 		PPID   single_qk_id = 0; // Наиболее приоритетный вид котировки из списка таковых
 		PPIDArray qk_list;
 		PPIDArray goods_list_by_qk;
 		PPIDArray temp_list;
-		if(rParam.PalmID)
+		if(rParam.PalmID) {
+			palm_pack.LocList.Get(final_loc_list);
 			palm_pack.QkList__.Get(qk_list);
-		else
+		}
+		else {
+			final_loc_list.add(rParam.LocID);
 			qk_list.addnz(rParam.QuotKindID);
+		}
+		THROW_PP_S(final_loc_list.getCount(), PPERR_STQ_UNDEFWHFORORDERPREREQ, cmd_name);
 		qk_obj.ArrangeList(now_dtm, qk_list, 0);
 		if(qk_list.getCount()) {
 			single_qk_id = qk_list.get(0);
@@ -1650,14 +1673,12 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 			Goods2Tbl::Rec goods_rec;
 			//GoodsStockExt gse;
 			//PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
+			gr_filt.LocList.Set(&final_loc_list);
 			if(rParam.PalmID) {
-				gr_filt.LocList = palm_pack.LocList;
 				gr_filt.GoodsGrpID = palm_pack.Rec.GoodsGrpID;
 				if(palm_pack.Rec.Flags & PLMF_EXPZSTOCK || gt_quasi_unlim_list.getCount())
 					gr_filt.Flags |= GoodsRestFilt::fNullRest;
 			}
-			else
-				gr_filt.LocList.Add(rParam.LocID);
 			gr_filt.CalcMethod = GoodsRestParam::pcmLastLot;
 			gr_filt.WaitMsgID  = PPTXT_WAIT_GOODSREST;
 			THROW(gr_view.Init_(&gr_filt));
@@ -1711,7 +1732,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 			loc_obj.GetWarehouseList(&loc_list, 0);
 			for(uint i = 0; i < loc_list.getCount(); i++) {
 				const PPID loc_id = loc_list.get(i);
-				if(rParam.PalmID && palm_pack.LocList.CheckID(loc_id) && loc_obj.Fetch(loc_id, &loc_rec) > 0) {
+				if(rParam.PalmID && final_loc_list.lsearch(loc_id) && loc_obj.Fetch(loc_id, &loc_rec) > 0) {
 					SETIFZ(p_js_list, SJson::CreateArr());
 					SJson * p_jsobj = SJson::CreateObj();
 					p_jsobj->InsertInt("id", loc_rec.ID);
@@ -1735,6 +1756,32 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const SBinaryChun
 				if(mige_blk.GObj.GetPacket(r_goods_entry.GoodsID, &goods_pack, PPObjGoods::gpoSkipQuot) > 0) {
 					SJson * p_jsobj = MakeObjJson_Goods(rOwnIdent, goods_pack, &r_goods_entry, 0, 0, pStat);
 					THROW(p_jsobj);
+					// @v11.6.2 {
+					if(export_expiry_tags) {
+						PPID   critical_lot_id = 0;
+						LDATE  critical_expiry = ZERODATE;
+						for(uint locidx = 0; locidx < final_loc_list.getCount(); locidx++) {
+							const PPID _loc_id = final_loc_list.get(locidx);
+							PPID   local_critical_lot_id = 0;
+							LDATE  local_critical_expiry = ZERODATE;
+							if(p_bobj->trfr->Rcpt.GetMostCriticalExpiryDate(r_goods_entry.GoodsID, _loc_id, &local_critical_lot_id, &local_critical_expiry) > 0) {
+								if(!critical_expiry || local_critical_expiry < critical_expiry) {
+									critical_expiry = local_critical_expiry;
+									critical_lot_id = local_critical_lot_id;
+								}
+							}
+							if(checkdate(critical_expiry)) {
+								assert(critical_lot_id != 0);
+								p_jsobj->InsertString("expiry", temp_buf.Z().Cat(critical_expiry, DATF_ISO8601CENT));
+								if(diffdate(critical_expiry, now_dtm.d) <= ahead_expiry_days)
+									p_jsobj->InsertBool("outofexpiry", "true");
+							}
+							else {
+								assert(critical_lot_id == 0);
+							}
+						}
+					}
+					// } @v11.6.2 
 					{
 						//
 						// Котировки
@@ -1809,6 +1856,9 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 	PPStyloPalmPacket stp_pack;
 	SBinaryChunk bc_own_ident;
 	bool   use_clidebt = false; // Если true, то для агентских заказов пользователь может видеть долги клиентов
+	bool   export_expiry_tags = false; // @v11.6.2 Если true, то для агентских заказов пользователь может видеть дополнительную информацию о сроке годности товаров.
+	int    ahead_expiry_days = 0; // @v11.6.2 Если export_expiry_tags, то эта переменная получает количество дней до истечения срока годности, когда этот срок становится критичным.
+		// Значение извлекается из конфигурации документов (PPBillConfig::WarnLotExpirDays)
 	PPID   agent_psn_id = 0;
 	StyloQDocumentPrereqParam * p_filt = 0;
 	SBuffer param_buf(rCmdItem.Param);
@@ -1839,6 +1889,12 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 			}
 			if(stp_pack.Rec.Flags & PLMF_EXPCLIDEBT) { // @v11.5.4
 				use_clidebt = true;
+			}
+			if(stp_pack.Rec.Flags & PLMF_EXPGOODSEXPIRYTAGS) { // @v11.6.2
+				export_expiry_tags = true;
+				ahead_expiry_days = BillObj->GetConfig().WarnLotExpirDays;
+				if(ahead_expiry_days < 0)
+					ahead_expiry_days = 0;
 			}
 		}
 		// } @v11.5.2 
@@ -1873,6 +1929,12 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 			}
 		}
 		// } @v11.4.8 
+		// @v11.6.2 {
+		if(export_expiry_tags) {
+			if(ahead_expiry_days > 0)
+				js.InsertInt("aheadexpirydays", ahead_expiry_days);
+		}
+		// } @v11.6.2 
 		// @v11.5.0 {
 		assert(p_filt);
 		if(p_filt->Flags & StyloQDocumentPrereqParam::fUseBarcodeSearch) {
@@ -1897,7 +1959,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 			}
 		}
 		// } @v11.5.0 
-		THROW(MakeRsrvPriceListResponse_ExportGoods(bc_own_ident, /*&stp_pack*/*p_filt, &js, &stat));
+		THROW(MakeRsrvPriceListResponse_ExportGoods(rCmdItem, bc_own_ident, /*&stp_pack*/*p_filt, &js, &stat));
 		if(is_agent_orders) {
 			THROW(MakeRsrvPriceListResponse_ExportClients(bc_own_ident, /*&stp_pack*/*p_filt, &js, &stat));
 		}

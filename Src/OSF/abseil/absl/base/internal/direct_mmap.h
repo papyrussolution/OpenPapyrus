@@ -1,10 +1,7 @@
 // Copyright 2017 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // Functions for directly invoking mmap() via syscall, avoiding the case where
 // mmap() has been locally overridden.
@@ -17,9 +14,7 @@
 #if ABSL_HAVE_MMAP
 
 #include <sys/mman.h>
-
 #ifdef __linux__
-
 #include <sys/types.h>
 #ifdef __BIONIC__
 #include <sys/syscall.h>
@@ -139,14 +134,11 @@ ABSL_NAMESPACE_END
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace base_internal {
-inline void* DirectMmap(void* start, size_t length, int prot, int flags, int fd,
-    off_t offset) {
-	return mmap(start, length, prot, flags, fd, offset);
-}
-
-inline int DirectMunmap(void* start, size_t length) {
-	return munmap(start, length);
-}
+	inline void* DirectMmap(void* start, size_t length, int prot, int flags, int fd, off_t offset) 
+	{
+		return mmap(start, length, prot, flags, fd, offset);
+	}
+	inline int DirectMunmap(void* start, size_t length) { return munmap(start, length); }
 }  // namespace base_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

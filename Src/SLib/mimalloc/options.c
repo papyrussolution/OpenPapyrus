@@ -253,10 +253,9 @@ static void mi_add_stderr_output() {
 	mi_out_buf_flush(&mi_out_stderr, false, NULL); // flush current contents to stderr
 	mi_out_default = &mi_out_buf_stderr;     // and add stderr to the delayed output
 }
-
-// --------------------------------------------------------
+//
 // Messages, all end up calling `_mi_fputs`.
-// --------------------------------------------------------
+//
 static _Atomic(size_t) error_count;   // = 0;  // when >= max_error_count stop emitting errors
 static _Atomic(size_t) warning_count; // = 0;  // when >= max_warning_count stop emitting warnings
 
@@ -396,11 +395,9 @@ void _mi_assert_fail(const char* assertion, const char* fname, unsigned line, co
 }
 
 #endif
-
-// --------------------------------------------------------
+//
 // Errors
-// --------------------------------------------------------
-
+//
 static mi_error_fun* volatile mi_error_handler;  // = NULL
 static _Atomic(void*) mi_error_arg;     // = NULL
 
@@ -447,11 +444,9 @@ void _mi_error_message(int err, const char* fmt, ...)
 		mi_error_default(err);
 	}
 }
-
-// --------------------------------------------------------
+//
 // Initialize options by checking the environment
-// --------------------------------------------------------
-
+//
 static void mi_strlcpy(char* dest, const char* src, size_t dest_size) {
 	if(dest==NULL || src==NULL || dest_size == 0) return;
 	// copy until end of src, or when dest is (almost) full

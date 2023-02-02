@@ -758,7 +758,7 @@ l_ok pixWriteMem(uint8  ** pdata,
  */
 l_ok l_fileDisplay(const char * fname, int32 x, int32 y, float scale)
 {
-	PIX  * pixs, * pixd;
+	PIX * pixs, * pixd;
 	PROCNAME(__FUNCTION__);
 	if(!LeptDebugOK) {
 		L_INFO("displaying files is disabled; use setLeptDebugOK(1) to enable\n", procName);
@@ -846,7 +846,7 @@ l_ok pixDisplay(PIX * pixs,
  *      (2) This displays the image if dispflag == 1; otherwise it punts.
  * </pre>
  */
-l_ok pixDisplayWithTitle(PIX         * pixs,
+l_ok pixDisplayWithTitle(PIX * pixs,
     int32 x,
     int32 y,
     const char * title,

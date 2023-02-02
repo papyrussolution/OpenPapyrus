@@ -540,7 +540,7 @@ l_ok pixGetSortedNeighborValues(PIX * pixs,
  *          "earth-mover" distance on the resulting R,G,B histograms.
  * </pre>
  */
-PIX * pixLocToColorTransform(PIX  * pixs)
+PIX * pixLocToColorTransform(PIX * pixs)
 {
 	int32 w, h, w2, h2, wpls, wplr, wplg, wplb, wplcc, i, j, rval, gval, bval;
 	float invw2, invh2;

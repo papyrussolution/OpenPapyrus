@@ -444,7 +444,7 @@ PIX * fpixDisplayMaxDynamicRange(FPIX  * fpixs)
 
 	datad = pixGetData(pixd);
 	wpld = pixGetWpl(pixd);
-	factor = 255. / maxval;
+	factor = 255.0f / maxval;
 	for(i = 0; i < h; i++) {
 		lines = datas + i * wpls;
 		lined = datad + i * wpld;
@@ -688,7 +688,7 @@ l_ok fpixGetMin(FPIX       * fpix,
 	if(!fpix)
 		return ERROR_INT("fpix not defined", procName, 1);
 
-	minval = +1.0e20;
+	minval = +1.0e20f;
 	xminloc = 0;
 	yminloc = 0;
 	fpixGetDimensions(fpix, &w, &h);
@@ -728,9 +728,7 @@ l_ok fpixGetMax(FPIX       * fpix,
 	int32 i, j, w, h, wpl, xmaxloc, ymaxloc;
 	float * data, * line;
 	float maxval;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pmaxval && !pxmaxloc && !pymaxloc)
 		return ERROR_INT("no return val requested", procName, 1);
 	if(pmaxval) *pmaxval = 0.0;
@@ -738,8 +736,7 @@ l_ok fpixGetMax(FPIX       * fpix,
 	if(pymaxloc) *pymaxloc = 0;
 	if(!fpix)
 		return ERROR_INT("fpix not defined", procName, 1);
-
-	maxval = -1.0e20;
+	maxval = -1.0e20f;
 	xmaxloc = 0;
 	ymaxloc = 0;
 	fpixGetDimensions(fpix, &w, &h);
@@ -921,16 +918,12 @@ FPIX * fpixScaleByInteger(FPIX * fpixs,
 			for(k = 0; k < factor; k++) { /* rows of sub-block */
 				lined = datad + (i * factor + k) * wpld;
 				for(m = 0; m < factor; m++) { /* cols of sub-block */
-					lined[j * factor + m] =
-					    val0 * (1.0 - fract[m]) * (1.0 - fract[k]) +
-					    val1 * fract[m] * (1.0 - fract[k]) +
-					    val2 * (1.0 - fract[m]) * fract[k] +
-					    val3 * fract[m] * fract[k];
+					lined[j * factor + m] = val0 * (1.0f - fract[m]) * (1.0f - fract[k]) +
+					    val1 * fract[m] * (1.0f - fract[k]) + val2 * (1.0f - fract[m]) * fract[k] + val3 * fract[m] * fract[k];
 				}
 			}
 		}
 	}
-
 	/* Do the right-most column of fpixd, skipping LR corner */
 	for(i = 0; i < hs - 1; i++) {
 		lines = datas + i * wpls;
@@ -938,7 +931,7 @@ FPIX * fpixScaleByInteger(FPIX * fpixs,
 		val1 = lines[wpls + ws - 1];
 		for(k = 0; k < factor; k++) {
 			lined = datad + (i * factor + k) * wpld;
-			lined[wd - 1] = val0 * (1.0 - fract[k]) + val1 * fract[k];
+			lined[wd - 1] = val0 * (1.0f - fract[k]) + val1 * fract[k];
 		}
 	}
 
@@ -949,7 +942,7 @@ FPIX * fpixScaleByInteger(FPIX * fpixs,
 		val0 = lines[j];
 		val1 = lines[j + 1];
 		for(m = 0; m < factor; m++)
-			lined[j * factor + m] = val0 * (1.0 - fract[m]) + val1 * fract[m];
+			lined[j * factor + m] = val0 * (1.0f - fract[m]) + val1 * fract[m];
 		lined[wd - 1] = lines[ws - 1]; /* LR corner */
 	}
 
@@ -2159,11 +2152,11 @@ l_ok linearInterpolatePixelFloat(float * datas, int32 w, int32 h, float x, float
 #endif  /* DEBUG */
 	/* Interpolate by area weighting. */
 	lines = datas + yp * w;
-	v00 = (16.0 - xf) * (16.0 - yf) * (*(lines + xp));
-	v10 = xf * (16.0 - yf) * (*(lines + xp + 1));
-	v01 = (16.0 - xf) * yf * (*(lines + w + xp));
+	v00 = (16.0f - xf) * (16.0f - yf) * (*(lines + xp));
+	v10 = xf * (16.0f - yf) * (*(lines + xp + 1));
+	v01 = (16.0f - xf) * yf * (*(lines + w + xp));
 	v11 = (float)(xf) * yf * (*(lines + w + xp + 1));
-	*pval = (v00 + v01 + v10 + v11) / 256.0;
+	*pval = (v00 + v01 + v10 + v11) / 256.0f;
 	return 0;
 }
 // 
@@ -2255,7 +2248,7 @@ FPIX * pixComponentFunction(PIX * pix, float rnum, float gnum, float bnum, float
 		recip = (float *)SAlloc::C(256, sizeof(float));
 		recip[0] = 256; /* arbitrary large number */
 		for(i = 1; i < 256; i++)
-			recip[i] = 1.0 / (float)i;
+			recip[i] = 1.0f / (float)i;
 	}
 	for(i = 0; i < h; i++) {
 		lines = datas + i * wpls;
@@ -2289,7 +2282,7 @@ FPIX * pixComponentFunction(PIX * pix, float rnum, float gnum, float bnum, float
 				extractRGBValues(lines[j], &rval, &gval, &bval);
 				fnum = rnum * rval + gnum * gval + bnum * bval;
 				fdenom = rdenom * rval + gdenom * gval + bdenom * bval;
-				lined[j] = (fdenom == 0) ? 256.0 * fnum : fnum / fdenom;
+				lined[j] = (fdenom == 0.0f) ? 256.0f * fnum : fnum / fdenom;
 			}
 		}
 	}

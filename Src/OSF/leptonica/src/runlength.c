@@ -456,18 +456,15 @@ l_ok pixFindVerticalRuns(PIX * pix,
 			}
 		}
 	}
-
 	/* Finish last run if necessary */
 	if(inrun)
 		yend[index++] = h - 1;
-
 	*pn = index;
 	return 0;
 }
-
-/*-----------------------------------------------------------------------*
-*            Find max runs along horizontal and vertical lines          *
-*-----------------------------------------------------------------------*/
+// 
+// Find max runs along horizontal and vertical lines
+// 
 /*!
  * \brief   pixFindMaxRuns()
  *

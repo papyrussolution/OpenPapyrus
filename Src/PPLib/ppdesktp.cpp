@@ -1,5 +1,5 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -37,7 +37,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 	rBlk.Type = 0;
 	rBlk.Flags = 0;
 	rBlk.AddedIntVal = 0;
-	rBlk.LenRange = 0;
+	rBlk.LenRange.Z();
 	rBlk.AddedStrVal.Z();
 	rBlk.Key.Z();
 	SString temp_buf;
@@ -47,7 +47,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 		if(scan.Get("@scard", temp_buf) || scan.Get("@card", temp_buf)) {
 			SETIFZ(rBlk.Type, cbSCardCode);
 		}
-		else if(scan.Get("@reg", temp_buf)) {
+		else if(scan.Get("@reg", temp_buf)) { // @reg(regsymb)
 			if(!rBlk.Type) {
 				rBlk.Type = cbPersonRegister;
 				scan.Skip();
@@ -366,29 +366,6 @@ int PPDesktopAssocCmdPool::ReadFromProp(const S_GUID & rDesktopUuid)
 		DesktopUuid = desktop_uuid;
 	}
 	// } @v10.9.3 
-	/* @v10.9.3 (дальше нет смысла поддерживать старую версию) else {
-		struct PPDesktopAsscCmd_Pre781 {
-			long   CmdID;
-			long   Flags;
-			char   Code[128];
-		};
-		if(p_ref->GetPropActualSize(PPOBJ_CONFIG, desktop_id, PPPRP_DESKCMDASSOC, &sz) > 0) {
-			TSArray <PPDesktopAsscCmd_Pre781> list_pre781;
-			p_ref->GetPropArray(PPOBJ_CONFIG, desktop_id, PPPRP_DESKCMDASSOC, &list_pre781);
-			if(list_pre781.getCount()) {
-				PPDesktopAssocCmd item;
-				for(uint i = 0; i < list_pre781.getCount(); i++) {
-					const PPDesktopAsscCmd_Pre781 & r_item_pre781 = list_pre781.at(i);
-					item.CmdID = r_item_pre781.CmdID;
-					item.Flags = r_item_pre781.Flags;
-					item.Code = r_item_pre781.Code;
-					item.DvcSerial = 0;
-					item.CmdParam = 0;
-					THROW(AddItem(&item));
-				}
-			}
-		}
-	}*/
 	//DesktopID = desktopId;
 	CATCHZOK
 	SAlloc::F(p_strg);
@@ -2133,7 +2110,7 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 {
 	int    ok = -1;
 	int    suite = 0;
-	int    do_run = 0;
+	bool   do_run = false;
 	SString param_buf, input_buf;
 	if(rCpItem.DvcSerial.NotEmpty()) {
 		if(pInp->DvcSerial.NotEmpty()) {
@@ -2169,7 +2146,7 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 					{
 						if(Helper_AcceptInputString(pInp, rCpItem, temp_buf) && temp_buf.CmpNC(cb.AddedStrVal) == 0) {
 							input_buf = temp_buf;
-							do_run = 1;
+							do_run = true;
 						}
 					}
 					break;
@@ -2177,7 +2154,7 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 					if(ic) {
 						const KeyDownCommand & r_k = pInp->at(ic-1);
 						if(r_k == cb.Key)
-							do_run = 1;
+							do_run = true;
 					}
 					break;
 				case PPDesktopAssocCmd::cbSCardCode:
@@ -2188,7 +2165,7 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 							if(P_ScObj->SearchCode(0, temp_buf, &sc_rec) > 0) {
 								sc_id = sc_rec.ID;
 								input_buf = temp_buf;
-								do_run = 1;
+								do_run = true;
 							}
 						}
 					}
@@ -2212,7 +2189,7 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 							if(psn_list.getCount()) {
 								psn_id = psn_list.get(0);
 								input_buf = temp_buf;
-								do_run = 1;
+								do_run = true;
 							}
 						}
 					}
@@ -2225,7 +2202,7 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 							if(P_GObj->P_Tbl->SearchBarcode(temp_buf, &bc_rec) > 0) {
 								goods_id = bc_rec.GoodsID;
 								input_buf = temp_buf;
-								do_run = 1;
+								do_run = true;
 							}
 						}
 					}

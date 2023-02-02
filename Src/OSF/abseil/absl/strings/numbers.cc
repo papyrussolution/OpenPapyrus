@@ -89,8 +89,7 @@ bool SimpleAtob(absl::string_view str, bool* out) {
 	}
 	return false;
 }
-
-// ----------------------------------------------------------------------
+//
 // FastIntToBuffer() overloads
 //
 // Like the Fast*ToBuffer() functions above, these are intended for speed.
@@ -100,8 +99,7 @@ bool SimpleAtob(absl::string_view str, bool* out) {
 //
 // Returns a pointer to the end of the string (i.e. the null character
 // terminating the string).
-// ----------------------------------------------------------------------
-
+//
 namespace {
 // Used to optimize printing a decimal number's final digit.
 const char one_ASCII_final_digits[10][2] {

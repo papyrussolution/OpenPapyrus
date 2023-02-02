@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/***********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2015, International Business Machines Corporation
-* and others. All Rights Reserved.
-***********************************************************************/
-
+// Copyright (c) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -13,11 +9,9 @@
 
 #include "dtfmtrtts.h"
 #include "caltest.h"
-
-// *****************************************************************************
+//
 // class DateFormatRoundTripTest
-// *****************************************************************************
-
+//
 // Useful for turning up subtle bugs: Change the following to TRUE, recompile,
 // and run while at lunch.
 // Warning -- makes test run infinite loop!!!

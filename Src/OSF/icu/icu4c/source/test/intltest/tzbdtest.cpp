@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/***********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2010, International Business Machines Corporation
-* and others. All Rights Reserved.
-***********************************************************************/
-
+// Copyright (c) 1997-2010, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -43,11 +39,9 @@ void TimeZoneBoundaryTest::runIndexedTest(int32_t index, bool exec, const char *
 		default: name = ""; break;
 	}
 }
-
-// *****************************************************************************
+//
 // class TimeZoneBoundaryTest
-// *****************************************************************************
-
+//
 TimeZoneBoundaryTest::TimeZoneBoundaryTest() : ONE_SECOND(1000), ONE_MINUTE(60 * ONE_SECOND), ONE_HOUR(60 * ONE_MINUTE),
 	ONE_DAY(24 * ONE_HOUR), ONE_YEAR(uprv_floor(365.25 * ONE_DAY)), SIX_MONTHS(ONE_YEAR / 2)
 {
@@ -57,8 +51,6 @@ const int32_t TimeZoneBoundaryTest::MONTH_LENGTH[] = { 31, 29, 31, 30, 31, 30, 3
 const UDate TimeZoneBoundaryTest::PST_1997_BEG = 860320800000.0;
 const UDate TimeZoneBoundaryTest::PST_1997_END = 877856400000.0;
 const UDate TimeZoneBoundaryTest::INTERVAL = 10;
-
-// -------------------------------------
 
 void TimeZoneBoundaryTest::findDaylightBoundaryUsingDate(UDate d, const char * startMode, UDate expectedBoundary)
 {

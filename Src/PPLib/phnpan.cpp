@@ -1,5 +1,5 @@
 // PHNPAN.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -170,7 +170,6 @@ private:
 		struct Param {
 			Param() : ExtSelector(0)
 			{
-				Oid.Z();
 			}
 			SString Phone;
 			PPObjID Oid;
@@ -215,9 +214,8 @@ private:
 			else if(event.isCbSelected(CTLSEL_SELOBJBYPHN_EXT)) {
 				const PPID preserve_ext = Data.ExtSelector;
 				Data.ExtSelector = getCtrlLong(CTLSEL_SELOBJBYPHN_EXT);
-				if(Data.ExtSelector != preserve_ext && oneof2(Data.Oid.Obj, PPOBJ_PERSON, PPOBJ_SCARD)) {
+				if(Data.ExtSelector != preserve_ext && oneof2(Data.Oid.Obj, PPOBJ_PERSON, PPOBJ_SCARD))
 					SetupCtrls();
-				}
 			}
 			else
 				return;
@@ -246,9 +244,8 @@ private:
 					SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_SCARDSERIES, Data.ExtSelector, 0);
 					{
 						SCardSelExtra * p_se = new SCardSelExtra(Data.ExtSelector);
-						if(p_se) {
+						if(p_se)
 							SetupWordSelector(CTL_SELOBJBYPHN_SRCH, p_se, 0, 5, 0);
-						}
 					}
 					break;
 				default:

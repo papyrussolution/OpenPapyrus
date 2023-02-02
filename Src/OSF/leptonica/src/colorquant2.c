@@ -423,7 +423,7 @@ PIX * pixMedianCutQuantGeneral(PIX * pixs,
 		prod = (float)vbox->npix * (float)vbox->vol;
 		if(prod > maxprod) maxprod = prod;
 	}
-	norm = (maxprod == 0) ? 1.0 : 1000000.0 / maxprod;
+	norm = (maxprod == 0.0f) ? 1.0f : 1000000.0f / maxprod;
 	lhs = lheapCreate(0, L_SORT_DECREASING);
 	while((vbox = (L_BOX3D*)lheapRemove(lh))) {
 		vbox->sortparam = norm * vbox->npix * vbox->vol;

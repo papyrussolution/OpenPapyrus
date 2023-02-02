@@ -1,15 +1,11 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 /* Modification History:
  *   Date        Name        Description
  *   07/15/99    helena      Ported to HPUX 10/11 CC.
  */
-
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -63,11 +59,9 @@ using namespace icu::number;
 
 static const UChar EUR[] = {69, 85, 82, 0}; // "EUR"
 static const UChar ISO_CURRENCY_USD[] = {0x55, 0x53, 0x44, 0}; // "USD"
-
-// *****************************************************************************
+//
 // class NumberFormatTest
-// *****************************************************************************
-
+//
 #define CHECK(status, str) UPRV_BLOCK_MACRO_BEGIN { \
 		if(U_FAILURE(status)) { \
 			errcheckln(status, UnicodeString("FAIL: ") + str + " - " + u_errorName(status)); \

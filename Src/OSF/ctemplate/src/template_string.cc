@@ -2,8 +2,7 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -32,7 +31,8 @@ namespace ctemplate {
 //     64-bits,
 //   - uses a fixed seed.
 // This is not static because template_string_test accesses it directly.
-uint64_t MurmurHash64(const char* ptr, size_t len) {
+uint64_t MurmurHash64(const char* ptr, size_t len) 
+{
 	const uint32_t kMultiplyVal = 0x5bd1e995;
 	const int kShiftVal = 24;
 	const uint32_t kHashSeed1 = 0xc86b14f7;
@@ -57,23 +57,18 @@ uint64_t MurmurHash64(const char* ptr, size_t len) {
 		h2 *= kMultiplyVal;
 		h2 ^= k2;
 		ptr += 4;
-
 		len -= 8;
 	}
-
 	if(len >= 4) {
 		uint32_t k1 = UNALIGNED_LOAD32(ptr);
 		k1 *= kMultiplyVal;
 		k1 ^= k1 >> kShiftVal;
 		k1 *= kMultiplyVal;
-
 		h1 *= kShiftVal;
 		h1 ^= k1;
-
 		ptr += 4;
 		len -= 4;
 	}
-
 	switch(len) {
 		case 3: h2 ^= ptr[2] << 16; // fall through.
 		case 2: h2 ^= ptr[1] << 8; // fall through.
@@ -122,11 +117,9 @@ Mutex mutex(base::LINKER_INITIALIZED);
 
 typedef unordered_set<TemplateString, TemplateStringHasher> TemplateStringSet;
 
-TemplateStringSet* template_string_set
-    GUARDED_BY(mutex) PT_GUARDED_BY(mutex) = NULL;
+TemplateStringSet* template_string_set GUARDED_BY(mutex) PT_GUARDED_BY(mutex) = NULL;
 
-UnsafeArena* arena
-    GUARDED_BY(mutex) PT_GUARDED_BY(mutex) = NULL;
+UnsafeArena* arena GUARDED_BY(mutex) PT_GUARDED_BY(mutex) = NULL;
 }  // unnamed namespace
 
 size_t StringHash::Hash(const char* s, size_t slen) const {
@@ -140,12 +133,9 @@ void TemplateString::AddToGlobalIdToNameMap() LOCKS_EXCLUDED(mutex) {
 		// Check to see if it's already here.
 		ReaderMutexLock reader_lock(&mutex);
 		if(template_string_set) {
-			const TemplateString* iter =
-			    find_ptr0(*template_string_set, *this);
+			const TemplateString* iter = find_ptr0(*template_string_set, *this);
 			if(iter) {
-				DCHECK_EQ(TemplateString(ptr_, length_),
-				    TemplateString(iter->ptr_, iter->length_))
-					<< "TemplateId collision!";
+				DCHECK_EQ(TemplateString(ptr_, length_), TemplateString(iter->ptr_, iter->length_)) << "TemplateId collision!";
 				return;
 			}
 		}
@@ -155,11 +145,9 @@ void TemplateString::AddToGlobalIdToNameMap() LOCKS_EXCLUDED(mutex) {
 	if(!template_string_set) {
 		template_string_set = new TemplateStringSet;
 	}
-
 	if(!arena) {
 		arena = new UnsafeArena(1024); // 1024 was picked out of a hat.
 	}
-
 	if(template_string_set->count(*this)) {
 		return;
 	}

@@ -1,11 +1,9 @@
 // marshalling.h
 //  Copyright 2019 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+// the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // This header file defines the API for extending Abseil flag support to
 // custom types, and defines the set of overloads for fundamental types.
@@ -160,7 +158,6 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace flags_internal {
-
 // Overloads of `AbslParseFlag()` and `AbslUnparseFlag()` for fundamental types.
 bool AbslParseFlag(absl::string_view, bool*, std::string*);
 bool AbslParseFlag(absl::string_view, short*, std::string*);           // NOLINT
@@ -171,17 +168,17 @@ bool AbslParseFlag(absl::string_view, long*, std::string*);            // NOLINT
 bool AbslParseFlag(absl::string_view, unsigned long*, std::string*);   // NOLINT
 bool AbslParseFlag(absl::string_view, long long*, std::string*);       // NOLINT
 bool AbslParseFlag(absl::string_view, unsigned long long*,             // NOLINT
-                   std::string*);
+    std::string*);
 bool AbslParseFlag(absl::string_view, float*, std::string*);
 bool AbslParseFlag(absl::string_view, double*, std::string*);
 bool AbslParseFlag(absl::string_view, std::string*, std::string*);
 bool AbslParseFlag(absl::string_view, std::vector <std::string>*, std::string*);
 
-template <typename T>
-bool InvokeParseFlag(absl::string_view input, T* dst, std::string* err) {
-  // Comment on next line provides a good compiler error message if T
-  // does not have AbslParseFlag(absl::string_view, T*, std::string*).
-  return AbslParseFlag(input, dst, err);  // Is T missing AbslParseFlag?
+template <typename T> bool InvokeParseFlag(absl::string_view input, T* dst, std::string* err) 
+{
+	// Comment on next line provides a good compiler error message if T
+	// does not have AbslParseFlag(absl::string_view, T*, std::string*).
+	return AbslParseFlag(input, dst, err); // Is T missing AbslParseFlag?
 }
 
 // Strings and std:: containers do not have the same overload resolution
@@ -190,11 +187,11 @@ bool InvokeParseFlag(absl::string_view input, T* dst, std::string* err) {
 std::string AbslUnparseFlag(absl::string_view v);
 std::string AbslUnparseFlag(const std::vector <std::string>&);
 
-template <typename T>
-std::string Unparse(const T& v) {
-  // Comment on next line provides a good compiler error message if T does not
-  // have UnparseFlag.
-  return AbslUnparseFlag(v);  // Is T missing AbslUnparseFlag?
+template <typename T> std::string Unparse(const T& v) 
+{
+	// Comment on next line provides a good compiler error message if T does not
+	// have UnparseFlag.
+	return AbslUnparseFlag(v); // Is T missing AbslUnparseFlag?
 }
 
 // Overloads for builtin types.
@@ -209,7 +206,6 @@ std::string Unparse(long long v);           // NOLINT
 std::string Unparse(unsigned long long v);  // NOLINT
 std::string Unparse(float v);
 std::string Unparse(double v);
-
 }  // namespace flags_internal
 
 // ParseFlag()
@@ -223,7 +219,7 @@ std::string Unparse(double v);
 // `absl::ParseFlag()` on those consituent string values. (See above.)
 template <typename T>
 inline bool ParseFlag(absl::string_view input, T* dst, std::string* error) {
-  return flags_internal::InvokeParseFlag(input, dst, error);
+	return flags_internal::InvokeParseFlag(input, dst, error);
 }
 
 // UnparseFlag()
@@ -237,7 +233,7 @@ inline bool ParseFlag(absl::string_view input, T* dst, std::string* error) {
 // `absl::UnparseFlag()` on those constituent types. (See above.)
 template <typename T>
 inline std::string UnparseFlag(const T& v) {
-  return flags_internal::Unparse(v);
+	return flags_internal::Unparse(v);
 }
 
 // Overloads for `absl::LogSeverity` can't (easily) appear alongside that type's

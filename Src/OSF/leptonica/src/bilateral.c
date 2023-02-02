@@ -452,7 +452,7 @@ static PIX * bilateralApply(L_BILATERAL  * bil)
 	float * kfract;
 	uint32    * lines, * lined, * datas, * datad;
 	uint32  *** lineset = NULL; /* for set of PBC */
-	PIX         * pixs, * pixd;
+	PIX * pixs, * pixd;
 	PIXA        * pixac;
 
 	PROCNAME(__FUNCTION__);

@@ -1,11 +1,9 @@
 // escaping.h
 // Copyright 2017 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+// the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // This header file contains string utilities involved in escaping and
 // unescaping strings in various ways.
@@ -51,11 +49,8 @@ ABSL_NAMESPACE_BEGIN
 //   }
 //   EXPECT_EQ(unescaped_s, "foo\rbar\nbaz\t");
 bool CUnescape(absl::string_view source, std::string* dest, std::string* error);
-
 // Overload of `CUnescape()` with no error reporting.
-inline bool CUnescape(absl::string_view source, std::string* dest) {
-  return CUnescape(source, dest, nullptr);
-}
+inline bool CUnescape(absl::string_view source, std::string* dest) { return CUnescape(source, dest, nullptr); }
 
 // CEscape()
 //

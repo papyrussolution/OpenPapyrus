@@ -3,11 +3,9 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
-// * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
+// * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // * Redistributions in binary form must reproduce the above
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
@@ -17,7 +15,7 @@
 // this software without specific prior written permission.
 //
 // Generates Ruby code for a given .proto file.
-
+//
 #ifndef GOOGLE_PROTOBUF_COMPILER_RUBY_GENERATOR_H__
 #define GOOGLE_PROTOBUF_COMPILER_RUBY_GENERATOR_H__
 

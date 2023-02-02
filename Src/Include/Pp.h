@@ -12665,6 +12665,10 @@ public:
 	//
 	int    GetListOfLotsExpiredSince(LDATE expiredSince, bool openedOnly, LDATE enumSince, PPIDArray * pLotIdList, PPIDArray * pGoodsIdList);
 	//
+	// Descr: Находит лот товара goodsID по складу locID с наименьшим сроком годности.
+	//
+	int    GetMostCriticalExpiryDate(PPID goodsID, PPID locID, PPID * pLotID, LDATE * pExpiryDate);
+	//
 	// Descr: собирает все лоты, порожденные от parent и удовлетворяющие функции test
 	//   в массив ary. Если test == 0, то полагается (test() != 0)
 	//   Лот parent в массив не попадет ни при каких условиях.
@@ -19921,7 +19925,7 @@ public:
 
 int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket * pSock);
 
-struct PPBizScore {
+struct PPBizScore { // @flat
 	PPBizScore();
 
 	long   Tag;            // Const=PPOBJ_BIZSCORE
@@ -22486,24 +22490,25 @@ private:
 //
 // @ModuleDecl(PPObjStyloPalm)
 //
-#define PLMF_IMPASCHECKS        0x0001 // Документы с устройства можно импортировать как чеки.
+#define PLMF_IMPASCHECKS        0x00000001 // Документы с устройства можно импортировать как чеки.
 	// Этот флаг не исключает возможности принимать документы с устройства и как обычные документы.
-#define PLMF_GENERIC            0x0002 // Обобщенная запись, определяющая конфигурацию для нескольких устройств
-#define PLMF_EXPCLIDEBT         0x0004 // Экспортировать долги по клиентам
-#define PLMF_EXPSELL            0x0008 // Экспортировать продажи
-#define PLMF_EXPBRAND           0x0010 // Экспортировать бренды и владельцев брендов
-#define PLMF_INHFLAGS           0x0020 // Все флаги (кроме этого, конечно) наследуются от родительской группы
-#define PLMF_EXPLOC             0x0040 // Экспортировать склады
-#define PLMF_EXPSTOPFLAG        0x0080 // Экспортировать признак 'стоп' для клиентов
-#define PLMF_ANDROID            0x0100 // КПК на базе google android. Экспорт/импорт в виде xml файла
-#define PLMF_EXPIMAGES          0x0200 // Экспортировать картинки
-#define PLMF_PALMLINKED         0x0400 // Данная учетная запись связана с КПК (только для Андроид)
-#define PLMF_DISABLCEDISCOUNT   0x0800 // Запрет на установку общей скидки по заказу
-#define PLMF_REGISTERED         0x1000 // Признак состоявшейся централизованной регистрации устройса. Если установлен, то последующая регистрация не возможна
-#define PLMF_BLOCKED            0x2000 // Признак блокированного (украденного) устройства
-#define PLMF_TREATDUEDATEASDATE 0x4000 // @v10.8.11 При импорте заказов трактовать дату исполнения заказа как основную дату документа
-#define PLMF_EXPZSTOCK          0x8000 // @v11.4.3 Экспортировать товары с нулевым остатком 
-#define PLMF_INHMASK          (PLMF_IMPASCHECKS|PLMF_EXPCLIDEBT|PLMF_EXPSELL|PLMF_EXPBRAND|PLMF_EXPLOC|PLMF_EXPSTOPFLAG|PLMF_DISABLCEDISCOUNT|PLMF_TREATDUEDATEASDATE|PLMF_EXPZSTOCK)
+#define PLMF_GENERIC            0x00000002 // Обобщенная запись, определяющая конфигурацию для нескольких устройств
+#define PLMF_EXPCLIDEBT         0x00000004 // Экспортировать долги по клиентам
+#define PLMF_EXPSELL            0x00000008 // Экспортировать продажи
+#define PLMF_EXPBRAND           0x00000010 // Экспортировать бренды и владельцев брендов
+#define PLMF_INHFLAGS           0x00000020 // Все флаги (кроме этого, конечно) наследуются от родительской группы
+#define PLMF_EXPLOC             0x00000040 // Экспортировать склады
+#define PLMF_EXPSTOPFLAG        0x00000080 // Экспортировать признак 'стоп' для клиентов
+#define PLMF_ANDROID            0x00000100 // КПК на базе google android. Экспорт/импорт в виде xml файла
+#define PLMF_EXPIMAGES          0x00000200 // Экспортировать картинки
+#define PLMF_PALMLINKED         0x00000400 // Данная учетная запись связана с КПК (только для Андроид)
+#define PLMF_DISABLCEDISCOUNT   0x00000800 // Запрет на установку общей скидки по заказу
+#define PLMF_REGISTERED         0x00001000 // Признак состоявшейся централизованной регистрации устройса. Если установлен, то последующая регистрация не возможна
+#define PLMF_BLOCKED            0x00002000 // Признак блокированного (украденного) устройства
+#define PLMF_TREATDUEDATEASDATE 0x00004000 // @v10.8.11 При импорте заказов трактовать дату исполнения заказа как основную дату документа
+#define PLMF_EXPZSTOCK          0x00008000 // @v11.4.3 Экспортировать товары с нулевым остатком 
+#define PLMF_EXPGOODSEXPIRYTAGS 0x00010000 // @v11.6.2 (Stylo-Q) Экспортировать атрибуты сроков годности товаров (самая ранняя expiry-дата). 
+#define PLMF_INHMASK          (PLMF_IMPASCHECKS|PLMF_EXPCLIDEBT|PLMF_EXPSELL|PLMF_EXPBRAND|PLMF_EXPLOC|PLMF_EXPSTOPFLAG|PLMF_DISABLCEDISCOUNT|PLMF_TREATDUEDATEASDATE|PLMF_EXPZSTOCK|PLMF_EXPGOODSEXPIRYTAGS)
 #define PLMF_TRANSMITMASK     (PLMF_DISABLCEDISCOUNT) // Флаги, которые передаются на устройство полем StyloFlags
 //
 // Descr: Флаги режима отслеживания гео-позиции устройства
@@ -28890,10 +28895,8 @@ public:
 	};
 	*/
 	enum {
-		// @v9.9.3 fUseGrpList        = 0x00000001L,
 		fHideGeneric       = 0x00000001L, // @v10.7.7 @construction Не отображать обобщенные товары
-		fWithStrucOnly     = 0x00000002L, // @v9.9.3 Только товары, с которыми связаны структуры
-		// @v9.9.3 fUseUnitMask       = 0x00000004L,
+		fWithStrucOnly     = 0x00000002L, // Только товары, с которыми связаны структуры
 		fWoBrand           = 0x00000004L, // @v10.6.8 Только те товары, у которых не определен бренд. Флаг имеет приоритет перед полями BrandList, BrandOwnerList
 		fIntUnitOnly       = 0x00000008L, //
 		fFloatUnitOnly     = 0x00000010L, //
@@ -47496,6 +47499,7 @@ public:
 		LDATETIME CreationTime;
 		LDATETIME Time;
 		LDATETIME DueTime;
+		SGeoPosLL CreationGeoLoc; // @v11.6.2
 		int    InterchangeOpID; // @v11.4.9 OpID-->InterchangeOpID
 		int    SvcOpID;   // @v11.4.9 Ид вида операции, определенный на стороне сервиса.
 			// Если клиент создает новый документ (в смысле PPObjBill), но не знает точный ид вида операции на
@@ -47880,7 +47884,7 @@ private:
 	int    StoreOidListWithBlob(const PPObjIDArray & rList);
 	int    GetOidListWithBlob(PPObjIDArray & rList);
 	int    MakeRsrvPriceListResponse_ExportClients(const SBinaryChunk & rOwnIdent, const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
-	int    MakeRsrvPriceListResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
+	int    MakeRsrvPriceListResponse_ExportGoods(const StyloQCommandList::Item & rCmdItem, const SBinaryChunk & rOwnIdent, const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	//
 	// Descr: Флаги функции MakeRsrvIndoorSvcPrereqResponse_ExportGoods
 	//

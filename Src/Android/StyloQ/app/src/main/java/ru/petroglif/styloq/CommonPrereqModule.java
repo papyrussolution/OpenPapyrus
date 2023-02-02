@@ -236,6 +236,7 @@ public class CommonPrereqModule {
 			BarcodeWeightPrefix = null;
 			BarcodeCountPrefix = null;
 			SvcDtm = null;
+			AheadExpiryDays = 0;
 		}
 		void FromJson(JSONObject jsHead)
 		{
@@ -250,8 +251,13 @@ public class CommonPrereqModule {
 				UseCliDebt = jsHead.optBoolean("useclidebt"); // @v11.5.4
 				BarcodeWeightPrefix = jsHead.optString("barcodeweightprefix", null); // @v11.5.0
 				BarcodeCountPrefix = jsHead.optString("barcodecountprefix", null); // @v11.5.0
-				OrgCmdUuid = SLib.strtouuid(jsHead.optString("orgcmduuid", null)); // @v11.6.2
-				SvcDtm = SLib.strtodatetime(jsHead.optString("time", null), SLib.DATF_ISO8601, SLib.TIMF_HMS); // @v11.6.2
+				// @v11.6.2 {
+				OrgCmdUuid = SLib.strtouuid(jsHead.optString("orgcmduuid", null));
+				SvcDtm = SLib.strtodatetime(jsHead.optString("time", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
+				AheadExpiryDays = jsHead.optInt("aheadexpirydays", 0);
+				if(AheadExpiryDays < 0)
+					AheadExpiryDays = 0;
+				// } @v11.6.2
 			}
 		}
 		public String BaseCurrencySymb;
@@ -273,6 +279,7 @@ public class CommonPrereqModule {
 			// из activity (ибо activity, которая работает с данными не знает изначально какой командой было инициировано получение данных).
 		public SLib.LDATETIME SvcDtm; // @v11.6.2 Метка времени формирования данных сервисом. Attention: это время в интерпретации сервиса
 			// и оно может расходится со временем клиента.
+		public int AheadExpiryDays;   // @v11.6.2 Количество дней до истечения срока годности, когда этот срок становится критичным.
 	}
 	//
 	// Descr: Фильтр списка документов, отображаемых на вкладке Tab.tabRegistry
@@ -1114,17 +1121,20 @@ public class CommonPrereqModule {
 			Item.FromJsonObj(jsItem);
 			PrcExpandStatus = 0;
 			PrcPrice = 0.0;
+			Expiry = null;
 		}
 		WareEntry(BusinessEntity.Goods srcItem)
 		{
 			Item = srcItem;
 			PrcExpandStatus = 0;
 			PrcPrice = 0.0;
+			Expiry = null;
 		}
 		//JSONObject JsItem;
 		BusinessEntity.Goods Item;
 		int   PrcExpandStatus; // 0 - no processors, 1 - processors collapsed, 2 - processors expanded
 		double PrcPrice; // Специфическая цена товара для конкретного процессора
+		SLib.LDATE Expiry; // @v11.6.2
 	}
 	public static class ProcessorEntry {
 		ProcessorEntry(JSONObject jsItem)
@@ -1304,6 +1314,7 @@ public class CommonPrereqModule {
 	}
 	String GetBaseCurrencySymb() { return CSVCP.BaseCurrencySymb; }
 	SLib.LDATETIME GetSvcDataDtm() { return CSVCP.SvcDtm; }
+	int   GetAheadExpiryDays() { return CSVCP.AheadExpiryDays; } // @v11.6.2
 	int   GetDefDuePeriodHour() { return CSVCP.DefDuePeriodHour; }
 	int   GetAgentID() { return CSVCP.AgentID; }
 	int   GetPosNodeID() { return CSVCP.PosNodeID; }
@@ -1986,6 +1997,8 @@ public class CommonPrereqModule {
 				if(temp_obj != null && temp_obj instanceof JSONObject) {
 					int goods_id = ((JSONObject) temp_obj).optInt("id", 0);
 					WareEntry new_entry = new WareEntry((JSONObject)temp_obj);
+					String expiry_date = ((JSONObject) temp_obj).optString("expiry", null);
+					new_entry.Expiry = (SLib.GetLen(expiry_date) > 0) ? SLib.strtodate(expiry_date, SLib.DATF_ISO8601) : null; // @v11.6.2
 					if(ProcessorListData != null && IsThereProcessorAssocWithGoods(goods_id))
 						new_entry.PrcExpandStatus = 1;
 					else

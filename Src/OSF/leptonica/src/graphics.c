@@ -2643,7 +2643,7 @@ PIX * fpixAutoRenderContours(FPIX * fpix, int32 ncontours)
 	if(minval == maxval)
 		return (PIX *)ERROR_PTR("all values in fpix are equal", procName, NULL);
 	incr = (maxval - minval) / ((float)ncontours - 1);
-	return fpixRenderContours(fpix, incr, 0.15);
+	return fpixRenderContours(fpix, incr, 0.15f);
 }
 
 /*!

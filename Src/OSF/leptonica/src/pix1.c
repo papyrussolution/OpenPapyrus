@@ -335,7 +335,7 @@ PIX * pixCreateNoInit(int32 width, int32 height, int32 depth)
  *      (2) Copies the other fields, including colormap if it exists.
  * </pre>
  */
-PIX * pixCreateTemplate(const PIX  * pixs)
+PIX * pixCreateTemplate(const PIX * pixs)
 {
 	PIX  * pixd;
 	PROCNAME(__FUNCTION__);
@@ -363,7 +363,7 @@ PIX * pixCreateTemplate(const PIX  * pixs)
  *          not used in the library.
  * </pre>
  */
-PIX * pixCreateTemplateNoInit(const PIX  * pixs)
+PIX * pixCreateTemplateNoInit(const PIX * pixs)
 {
 	int32 w, h, d;
 	PIX * pixd;
@@ -513,7 +513,7 @@ PIX * pixCreateHeader(int32 width, int32 height, int32 depth)
  *              called on all handles.
  * </pre>
  */
-PIX * pixClone(PIX  * pixs)
+PIX * pixClone(PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
 	if(!pixs)
@@ -566,9 +566,8 @@ static void pixFree(PIX  * pix)
 {
 	uint32  * data;
 	char      * text;
-
-	if(!pix) return;
-
+	if(!pix) 
+		return;
 	pixChangeRefcount(pix, -1);
 	if(pixGetRefcount(pix) <= 0) {
 		if((data = pixGetData(pix)) != NULL)
@@ -614,13 +613,10 @@ static void pixFree(PIX  * pix)
  *          pixd, will side-effect any existing clones of pixd.
  * </pre>
  */
-PIX * pixCopy(PIX * pixd,   /* can be null */
-    const PIX  * pixs)
+PIX * pixCopy(PIX * pixd/* can be null */, const PIX * pixs)
 {
 	int32 bytes;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixs == pixd)
@@ -675,19 +671,15 @@ PIX * pixCopy(PIX * pixd,   /* can be null */
  *      (2) On failure to allocate, pixd is unchanged.
  * </pre>
  */
-l_ok pixResizeImageData(PIX * pixd,
-    const PIX  * pixs)
+l_ok pixResizeImageData(PIX * pixd, const PIX * pixs)
 {
 	int32 w, h, d, wpl, bytes;
 	uint32  * data;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
-
 	if(pixSizesEqual(pixs, pixd)) /* nothing to do */
 		return 0;
 
@@ -721,15 +713,12 @@ l_ok pixResizeImageData(PIX * pixd,
  *      (1) This destroys the colormap in pixd, unless the operation is a no-op
  * </pre>
  */
-l_ok pixCopyColormap(PIX * pixd,
-    const PIX  * pixs)
+l_ok pixCopyColormap(PIX * pixd, const PIX * pixs)
 {
 	int32 valid;
 	const PIXCMAP  * cmaps;
 	PIXCMAP        * cmapd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
 	if(!pixd)
@@ -1038,7 +1027,6 @@ l_ok pixSetDimensions(PIX * pix,
 	if(d > 0) pixSetDepth(pix, d);
 	return 0;
 }
-
 /*!
  * \brief   pixCopyDimensions()
  *
@@ -1046,18 +1034,15 @@ l_ok pixSetDimensions(PIX * pix,
  * \param[in]   pixs
  * \return  0 if OK, 1 on error
  */
-l_ok pixCopyDimensions(PIX * pixd,
-    const PIX  * pixs)
+l_ok pixCopyDimensions(PIX * pixd, const PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
 	if(pixs == pixd)
 		return 0; /* no-op */
-
 	pixSetWidth(pixd, pixGetWidth(pixs));
 	pixSetHeight(pixd, pixGetHeight(pixs));
 	pixSetDepth(pixd, pixGetDepth(pixs));
@@ -1112,18 +1097,15 @@ int32 pixSetSpp(PIX * pix,
  * \param[in]   pixs
  * \return  0 if OK, 1 on error
  */
-l_ok pixCopySpp(PIX * pixd,
-    const PIX  * pixs)
+l_ok pixCopySpp(PIX * pixd, const PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
 	if(pixs == pixd)
 		return 0; /* no-op */
-
 	pixSetSpp(pixd, pixGetSpp(pixs));
 	return 0;
 }
@@ -1243,12 +1225,9 @@ l_ok pixGetResolution(const PIX  * pix,
  * \param[in]   xres, yres   use 0 to skip setting a value for either of these
  * \return  0 if OK, 1 on error
  */
-l_ok pixSetResolution(PIX * pix,
-    int32 xres,
-    int32 yres)
+l_ok pixSetResolution(PIX * pix, int32 xres, int32 yres)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pix)
 		return ERROR_INT("pix not defined", procName, 1);
 	if(xres > 0) pix->xres = xres;
@@ -1256,18 +1235,15 @@ l_ok pixSetResolution(PIX * pix,
 	return 0;
 }
 
-int32 pixCopyResolution(PIX * pixd,
-    const PIX  * pixs)
+int32 pixCopyResolution(PIX * pixd, const PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
 	if(pixs == pixd)
 		return 0; /* no-op */
-
 	pixSetXRes(pixd, pixGetXRes(pixs));
 	pixSetYRes(pixd, pixGetYRes(pixs));
 	return 0;
@@ -1303,38 +1279,31 @@ int32 pixGetInputFormat(const PIX  * pix)
 	return pix->informat;
 }
 
-int32 pixSetInputFormat(PIX * pix,
-    int32 informat)
+int32 pixSetInputFormat(PIX * pix, int32 informat)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pix)
 		return ERROR_INT("pix not defined", procName, 1);
 	pix->informat = informat;
 	return 0;
 }
 
-int32 pixCopyInputFormat(PIX * pixd,
-    const PIX  * pixs)
+int32 pixCopyInputFormat(PIX * pixd, const PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
 	if(pixs == pixd)
 		return 0; /* no-op */
-
 	pixSetInputFormat(pixd, pixGetInputFormat(pixs));
 	return 0;
 }
 
-int32 pixSetSpecial(PIX * pix,
-    int32 special)
+int32 pixSetSpecial(PIX * pix, int32 special)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pix)
 		return ERROR_INT("pix not defined", procName, 1);
 	pix->special = special;
@@ -1418,18 +1387,15 @@ l_ok pixAddText(PIX         * pix,
 	return 0;
 }
 
-int32 pixCopyText(PIX * pixd,
-    const PIX  * pixs)
+int32 pixCopyText(PIX * pixd, const PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
 	if(pixs == pixd)
 		return 0; /* no-op */
-
 	pixSetText(pixd, pixs->text);
 	return 0;
 }
@@ -1632,7 +1598,7 @@ int32 pixSetData(PIX * pix,
  *          using the pix allocator, and leaving the input pix unchanged.
  * </pre>
  */
-uint32 * pixExtractData(PIX  * pixs)
+uint32 * pixExtractData(PIX * pixs)
 {
 	int32 count, bytes;
 	uint32  * data, * datas;

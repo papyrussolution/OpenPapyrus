@@ -1,5 +1,5 @@
 // Document.java 
-// Copyright (c) A.Sobolev 2021, 2022
+// Copyright (c) A.Sobolev 2021, 2022, 2023
 //
 package ru.petroglif.styloq;
 
@@ -134,6 +134,7 @@ public class Document {
 			CreationTime = null;
 			Time = null;
 			DueTime = null;
+			CreationGeoLoc = null; // @v11.6.2
 			SvcOpID = 0;
 			InterchangeOpID = 0;
 			AgentID = 0; // @v11.4.6
@@ -159,6 +160,7 @@ public class Document {
 				copy.CreationTime = SLib.LDATETIME.Copy(s.CreationTime);
 				copy.Time = SLib.LDATETIME.Copy(s.Time);
 				copy.DueTime = SLib.LDATETIME.Copy(s.DueTime);
+				copy.CreationGeoLoc = SLib.GeoPosLL.Copy(s.CreationGeoLoc); // @v11.6.2
 				copy.SvcOpID = s.SvcOpID;
 				copy.InterchangeOpID = s.InterchangeOpID;
 				copy.AgentID = s.AgentID;
@@ -187,6 +189,8 @@ public class Document {
 			else if(!SLib.LDATETIME.ArEq(CreationTime, s.CreationTime))
 				yes = false;
 			else if(!SLib.LDATETIME.ArEq(DueTime, s.DueTime))
+				yes = false;
+			else if(!SLib.GeoPosLL.ArEq(CreationGeoLoc, s.CreationGeoLoc)) // @v11.6.2
 				yes = false;
 			else if(ClientID != s.ClientID)
 				yes = false;
@@ -274,6 +278,8 @@ public class Document {
 		SLib.LDATETIME CreationTime;
 		SLib.LDATETIME Time;
 		SLib.LDATETIME DueTime;
+		SLib.GeoPosLL  CreationGeoLoc; // @v11.6.2 Координаты, в которых находился клиент при создании документа.
+			// Инициируется для органиченного набора документов и только если разрешена геолокация на устройстве.
 		int    InterchangeOpID; // @v11.4.9 OpID-->InterchangeOpID
 		int    SvcOpID;   // @v11.4.9 Ид вида операции, определенный на стороне сервиса.
 			// Если клиент создает новый документ (в смысле PPObjBill), но не знает точный ид вида операции на
@@ -1215,6 +1221,12 @@ public class Document {
 					result.put("tm", SLib.datetimefmt(H.Time, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
 				if(H.DueTime != null)
 					result.put("duetm", SLib.datetimefmt(H.DueTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
+				// @v11.6.2 {
+				if(H.CreationGeoLoc != null && !H.CreationGeoLoc.IsZero() && H.CreationGeoLoc.IsValid()) {
+					result.put("cr_lat", H.CreationGeoLoc.Lat);
+					result.put("cr_lon", H.CreationGeoLoc.Lon);
+				}
+				// } @v11.6.2
 				result.put("svcopid", H.SvcOpID);
 				result.put("icopid", H.InterchangeOpID);
 				if(H.PosNodeID > 0) { // @v11.4.6
@@ -1388,6 +1400,13 @@ public class Document {
 				H.CreationTime = SLib.strtodatetime(jsObj.optString("crtm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
 				H.Time = SLib.strtodatetime(jsObj.optString("tm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
 				H.DueTime = SLib.strtodatetime(jsObj.optString("duetm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
+				// @v11.6.2 {
+				{
+					SLib.GeoPosLL cr_geoloc = new SLib.GeoPosLL(jsObj.optDouble("cr_lat", 0.0), jsObj.optDouble("cr_lon", 0.0));
+					if(cr_geoloc != null && cr_geoloc.IsValid() && !cr_geoloc.IsZero())
+						H.CreationGeoLoc = cr_geoloc;
+				}
+				// } @v11.6.2
 				H.SvcOpID = jsObj.optInt("svcopid", 0);
 				H.InterchangeOpID = jsObj.optInt("icopid", 0);
 				H.ClientID = jsObj.optInt("cliid", 0);

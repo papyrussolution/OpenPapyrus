@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation
-* and others. All Rights Reserved.
-********************************************************************/
-
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -14,11 +10,9 @@
 #include "calregts.h"
 #include "unicode/simpletz.h"
 #include "caltest.h"
-
-// *****************************************************************************
+//
 // class CalendarRegressionTest
-// *****************************************************************************
-
+//
 // these numbers correspond to using LONG_MIN and LONG_MAX in Java
 // this is 2^52 - 1, the largest allowable mantissa with a 0 exponent in a 64-bit double
 const UDate CalendarRegressionTest::EARLIEST_SUPPORTED_MILLIS = -4503599627370495.0;

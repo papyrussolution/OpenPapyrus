@@ -589,6 +589,37 @@ IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Desc, i1, i2)
 	return si;
 }
 
+int ReceiptCore::GetMostCriticalExpiryDate(PPID goodsID, PPID locID, PPID * pLotID, LDATE * pExpiryDate) // @v11.6.2 
+{
+	int    ok = -1;
+	LDATE min_expiry = ZERODATE;
+	PPID  min_expiry_lot_id = 0;
+	LotArray lot_list;
+	if(GetListOfOpenedLots(1, goodsID, locID, ZERODATE, &lot_list) > 0) {
+		assert(lot_list.getCount());
+		uint  min_expiry_idx = 0; // [1..] (0 - undef)
+		for(uint i = 0; i < lot_list.getCount(); i++) {
+			const ReceiptTbl::Rec & r_rec = lot_list.at(i);
+			if(checkdate(r_rec.Expiry) && (!min_expiry || r_rec.Expiry < min_expiry)) {
+				min_expiry = r_rec.Expiry;
+				min_expiry_idx = i+1;
+			}
+		}
+		if(min_expiry_idx) {
+			assert(min_expiry_idx <= lot_list.getCount());
+			assert(checkdate(min_expiry));
+			min_expiry_lot_id = lot_list.at(min_expiry_idx-1).ID;
+			ok = 1;
+		}
+	}
+	else {
+		assert(!lot_list.getCount());
+	}
+	ASSIGN_PTR(pLotID, min_expiry_lot_id);
+	ASSIGN_PTR(pExpiryDate, min_expiry);
+	return ok;
+}
+
 int ReceiptCore::GetListOfLotsExpiredSince(LDATE expiredSince, bool openedOnly, LDATE enumSince, PPIDArray * pLotIdList, PPIDArray * pGoodsIdList) // @v11.6.2
 {
 	CALLPTRMEMB(pLotIdList, clear());

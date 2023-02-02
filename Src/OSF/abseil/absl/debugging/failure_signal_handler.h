@@ -1,11 +1,8 @@
 // failure_signal_handler.h
 // Copyright 2018 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // This file configures the Abseil *failure signal handler* to capture and dump
 // useful debugging information (such as a stacktrace) upon program failure.

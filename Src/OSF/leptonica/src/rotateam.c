@@ -234,33 +234,25 @@ PIX * pixRotateAMColor(PIX * pixs,
  *      (3) Specify the grayvalue to be brought in from outside the image.
  * </pre>
  */
-PIX * pixRotateAMGray(PIX * pixs,
-    float angle,
-    uint8 grayval)
+PIX * pixRotateAMGray(PIX * pixs, float angle, uint8 grayval)
 {
 	int32 w, h, wpls, wpld;
 	uint32  * datas, * datad;
 	PIX * pixd;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 8)
 		return (PIX *)ERROR_PTR("pixs must be 8 bpp", procName, NULL);
-
 	if(L_ABS(angle) < MinAngleToRotate)
 		return pixClone(pixs);
-
 	pixGetDimensions(pixs, &w, &h, NULL);
 	datas = pixGetData(pixs);
 	wpls = pixGetWpl(pixs);
 	pixd = pixCreateTemplate(pixs);
 	datad = pixGetData(pixd);
 	wpld = pixGetWpl(pixd);
-
 	rotateAMGrayLow(datad, w, h, wpld, datas, wpls, angle, grayval);
-
 	return pixd;
 }
 

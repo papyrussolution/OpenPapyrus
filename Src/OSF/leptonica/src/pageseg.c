@@ -1336,10 +1336,7 @@ l_ok pixCountTextColumns(PIX * pixs,
  *      (7) For debug output, input a pre-allocated pixa.
  * </pre>
  */
-l_ok pixDecideIfText(PIX * pixs,
-    BOX      * box,
-    int32 * pistext,
-    PIXA * pixadb)
+l_ok pixDecideIfText(PIX * pixs, BOX      * box, int32 * pistext, PIXA * pixadb)
 {
 	int32 i, empty, maxw, w, h, n1, n2, n3, minlines, big_comp;
 	float ratio1, ratio2;
@@ -1348,17 +1345,14 @@ l_ok pixDecideIfText(PIX * pixs,
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5, * pix6, * pix7;
 	PIXA      * pixa1;
 	SEL       * sel1;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pistext)
 		return ERROR_INT("&istext not defined", procName, 1);
 	*pistext = -1;
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
-
 	/* Crop, convert to 1 bpp, 300 ppi */
-	if((pix1 = pixPrepare1bpp(pixs, box, 0.1, 300)) == NULL)
+	if((pix1 = pixPrepare1bpp(pixs, box, 0.1f, 300)) == NULL)
 		return ERROR_INT("pix1 not made", procName, 1);
 
 	pixZero(pix1, &empty);
@@ -1605,7 +1599,7 @@ l_ok pixDecideIfTable(PIX * pixs,
 
 	/* Check if there is an image region.  First convert to 1 bpp
 	 * at 175 ppi.  If an image is found, assume there is no table.  */
-	pix1 = pixPrepare1bpp(pixs, box, 0.1, 175);
+	pix1 = pixPrepare1bpp(pixs, box, 0.1f, 175);
 	pix2 = pixGenerateHalftoneMask(pix1, NULL, &htfound, NULL);
 	if(htfound && pixadb) pixaAddPix(pixadb, pix2, L_COPY);
 	pixDestroy(&pix1);
@@ -1615,11 +1609,9 @@ l_ok pixDecideIfTable(PIX * pixs,
 		L_INFO("pix has an image region\n", procName);
 		return 0;
 	}
-
 	/* Crop, convert to 1 bpp, 75 ppi */
-	if((pix1 = pixPrepare1bpp(pixs, box, 0.05, 75)) == NULL)
+	if((pix1 = pixPrepare1bpp(pixs, box, 0.05f, 75)) == NULL)
 		return ERROR_INT("pix1 not made", procName, 1);
-
 	pixZero(pix1, &empty);
 	if(empty) {
 		*pscore = 0;
@@ -1627,7 +1619,6 @@ l_ok pixDecideIfTable(PIX * pixs,
 		L_INFO("pix is empty\n", procName);
 		return 0;
 	}
-
 	/* The 2x2 dilation on 75 ppi makes these two approaches very similar:
 	 * (1) pix1 = pixPrepare1bpp(..., 300);  // 300 ppi resolution
 	 *     pix2 = pixReduceRankBinaryCascade(pix1, 1, 1, 0, 0);
@@ -2004,7 +1995,7 @@ l_ok pixFindLargeRectangles(PIX          * pixs,
  *          then found by taking the Max.
  * </pre>
  */
-l_ok pixFindLargestRectangle(PIX         * pixs,
+l_ok pixFindLargestRectangle(PIX * pixs,
     int32 polarity,
     BOX        ** pbox,
     PIX ** ppixdb)

@@ -701,7 +701,7 @@ PIX * pixErodeGray3(PIX * pixs,
  *          also used as the first step for the 3x3 brick Sel.
  * </pre>
  */
-static PIX * pixErodeGray3h(PIX  * pixs)
+static PIX * pixErodeGray3h(PIX * pixs)
 {
 	uint32  * datas, * datad, * lines, * lined;
 	int32 w, h, wpl, i, j;
@@ -766,7 +766,7 @@ static PIX * pixErodeGray3h(PIX  * pixs)
  *              val4 = GET_DATA_BYTE(lines8[i + 3], j);
  * </pre>
  */
-static PIX * pixErodeGray3v(PIX  * pixs)
+static PIX * pixErodeGray3v(PIX * pixs)
 {
 	uint32  * datas, * datad, * linesi, * linedi;
 	int32 w, h, wpl, i, j;
@@ -881,7 +881,7 @@ PIX * pixDilateGray3(PIX * pixs,
  *          also used as the first step for the 3x3 brick Sel.
  * </pre>
  */
-static PIX * pixDilateGray3h(PIX  * pixs)
+static PIX * pixDilateGray3h(PIX * pixs)
 {
 	uint32  * datas, * datad, * lines, * lined;
 	int32 w, h, wpl, i, j;
@@ -943,7 +943,7 @@ static PIX * pixDilateGray3h(PIX  * pixs)
  *          also used as the second step for the 3x3 brick Sel.
  * </pre>
  */
-static PIX * pixDilateGray3v(PIX  * pixs)
+static PIX * pixDilateGray3v(PIX * pixs)
 {
 	uint32  * datas, * datad, * linesi, * linedi;
 	int32 w, h, wpl, i, j;

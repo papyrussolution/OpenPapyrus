@@ -214,7 +214,7 @@ l_ok readHeaderMemWebP(const uint8  * data,
  * </pre>
  */
 l_ok pixWriteWebP(const char * filename,
-    PIX         * pixs,
+    PIX * pixs,
     int32 quality,
     int32 lossless)
 {

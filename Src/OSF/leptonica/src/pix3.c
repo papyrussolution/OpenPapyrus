@@ -351,8 +351,8 @@ l_ok pixSetMaskedGeneral(PIX * pixd,
  *          is actually faster!
  * </pre>
  */
-l_ok pixCombineMasked(PIX  * pixd,
-    PIX  * pixs,
+l_ok pixCombineMasked(PIX * pixd,
+    PIX * pixs,
     PIX  * pixm)
 {
 	int32 w, h, d, ws, hs, ds, wm, hm, dm, wmin, hmin;
@@ -1457,21 +1457,15 @@ PIX * pixDisplaySelectedPixels(PIX * pixs,
  *           (c) pixInvert(pixd, pixs);
  * </pre>
  */
-PIX * pixInvert(PIX  * pixd,
-    PIX  * pixs)
+PIX * pixInvert(PIX * pixd, PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
-
 	/* Prepare pixd for in-place operation */
 	if((pixd = pixCopy(pixd, pixs)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
-
-	pixRasterop(pixd, 0, 0, pixGetWidth(pixd), pixGetHeight(pixd),
-	    PIX_NOT(PIX_DST), NULL, 0, 0); /* invert pixd */
-
+	pixRasterop(pixd, 0, 0, pixGetWidth(pixd), pixGetHeight(pixd), PIX_NOT(PIX_DST), NULL, 0, 0); /* invert pixd */
 	return pixd;
 }
 
@@ -1506,7 +1500,7 @@ PIX * pixInvert(PIX  * pixd,
  *          the rasterop is then between pixs2 and pixs2 (a no-op).
  * </pre>
  */
-PIX * pixOr(PIX  * pixd,
+PIX * pixOr(PIX * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {
@@ -1568,7 +1562,7 @@ PIX * pixOr(PIX  * pixd,
  *          the rasterop is then between pixs2 and pixs2 (a no-op).
  * </pre>
  */
-PIX * pixAnd(PIX  * pixd,
+PIX * pixAnd(PIX * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {
@@ -1630,7 +1624,7 @@ PIX * pixAnd(PIX  * pixd,
  *          the rasterop is then between pixs2 and pixs2 (a no-op).
  * </pre>
  */
-PIX * pixXor(PIX  * pixd,
+PIX * pixXor(PIX * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {
@@ -1693,7 +1687,7 @@ PIX * pixXor(PIX  * pixd,
  *      (6) The depths of pixs1 and pixs2 must be equal.
  * </pre>
  */
-PIX * pixSubtract(PIX  * pixd,
+PIX * pixSubtract(PIX * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {
@@ -3430,7 +3424,7 @@ l_ok pixFindRepCloseTile(PIX * pixs,
 	nastdev = numaCreate(n);
 	for(i = 0; i < n; i++) {
 		pix = pixaGetPix(pixa, i, L_CLONE);
-		pixg = pixConvertRGBToGray(pix, 0.33, 0.34, 0.33);
+		pixg = pixConvertRGBToGray(pix, 0.33f, 0.34f, 0.33f);
 		pixGetAverageMasked(pixg, NULL, 0, 0, 1, L_MEAN_ABSVAL, &mean);
 		pixGetAverageMasked(pixg, NULL, 0, 0, 1, L_STANDARD_DEVIATION, &stdev);
 		numaAddNumber(namean, mean);

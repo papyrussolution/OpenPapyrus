@@ -327,7 +327,7 @@ l_ok recogSplitIntoCharacters(L_RECOG  * recog, PIX * pixs, int32 minh, int32 sk
 	 * components are in a flattened 2D sort, we don't need to
 	 * look far ahead in the array to find all overlapping boxes;
 	 * 10 boxes is plenty. */
-	boxad = boxaHandleOverlaps(boxa3, L_COMBINE, 10, 0.5, 0.3, NULL);
+	boxad = boxaHandleOverlaps(boxa3, L_COMBINE, 10, 0.5f, 0.3f, NULL);
 	boxaDestroy(&boxa3);
 
 	/* Extract and save the image pieces from the input image. */

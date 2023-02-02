@@ -288,7 +288,7 @@ PIX * pixTwoSidedEdgeFilter(PIX * pixs,
  *          this is not required.
  * </pre>
  */
-l_ok pixMeasureEdgeSmoothness(PIX         * pixs,
+l_ok pixMeasureEdgeSmoothness(PIX * pixs,
     int32 side,
     int32 minjump,
     int32 minreversal,
@@ -363,7 +363,7 @@ l_ok pixMeasureEdgeSmoothness(PIX         * pixs,
  *                           for no output
  * \return  na   of fg edge pixel locations, or NULL on error
  */
-NUMA * pixGetEdgeProfile(PIX         * pixs,
+NUMA * pixGetEdgeProfile(PIX * pixs,
     int32 side,
     const char * debugfile)
 {

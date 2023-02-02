@@ -2,11 +2,9 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
-// * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
+// * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // * Redistributions in binary form must reproduce the above
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
@@ -32,25 +30,25 @@ static int kVerbosity = 0;   // you can change this by hand to get vlogs
 #define VLOG(level)  if(kVerbosity >= level) std::cerr << "V" #level ": "
 
 namespace ctemplate {
-// ----------------------------------------------------------------------
+//
 // TemplateCache::RefcountedTemplate
 //    A simple refcounting class to keep track of templates, which
 //    might be shared between caches.  It also owns the pointer to
 //    the template itself.
-// ----------------------------------------------------------------------
-
+//
 class TemplateCache::RefcountedTemplate {
 public:
-	explicit RefcountedTemplate(const Template* ptr) : ptr_(ptr), refcount_(1) {
+	explicit RefcountedTemplate(const Template* ptr) : ptr_(ptr), refcount_(1) 
+	{
 	}
-
-	void IncRef() {
+	void IncRef() 
+	{
 		MutexLock ml(&mutex_);
 		assert(refcount_ > 0);
 		++refcount_;
 	}
-
-	void DecRefN(int n) {
+	void DecRefN(int n) 
+	{
 		bool refcount_is_zero;
 		{
 			MutexLock ml(&mutex_);
@@ -67,10 +65,12 @@ public:
 		if(refcount_is_zero)
 			delete this;
 	}
-	void DecRef() {
+	void DecRef() 
+	{
 		DecRefN(1);
 	}
-	int refcount() const {
+	int refcount() const 
+	{
 		MutexLock ml(&mutex_); // could be ReaderMutexLock, but whatever
 		return refcount_;
 	}
@@ -84,8 +84,7 @@ private:
 	int refcount_ GUARDED_BY(mutex_);
 	mutable Mutex mutex_;
 };
-
-// ----------------------------------------------------------------------
+//
 // TemplateCache::RefTplPtrHash
 // TemplateCache::TemplateCacheHash
 // TemplateCache::CachedTemplate
@@ -93,22 +92,14 @@ private:
 //    actually stored in the map: the Template* and some information
 //    about it (whether we need to reload it, etc.).  Refcount is
 //    a simple refcounting class, used to keep track of templates.
-// ----------------------------------------------------------------------
-
+//
 // This is needed just because many STLs (eg FreeBSD's) are unable to
 // hash pointers by default.
 class TemplateCache::RefTplPtrHash {
 public:
-	size_t operator()(const RefcountedTemplate* p) const {
-		return reinterpret_cast<size_t>(p);
-	}
-
+	size_t operator()(const RefcountedTemplate* p) const { return reinterpret_cast<size_t>(p); }
 	// Less operator for MSVC's hash containers.
-	bool operator()(const RefcountedTemplate* a,
-	    const RefcountedTemplate* b) const {
-		return a < b;
-	}
-
+	bool operator()(const RefcountedTemplate* a, const RefcountedTemplate* b) const { return a < b; }
 	// These two public members are required by msvc.  4 and 8 are defaults.
 	static const size_t bucket_size = 4;
 	static const size_t min_buckets = 8;
@@ -134,18 +125,12 @@ public:
 struct TemplateCache::CachedTemplate {
 	enum TemplateType { UNUSED, FILE_BASED, STRING_BASED };
 
-	CachedTemplate()
-		: refcounted_tpl(NULL),
-		should_reload(false),
-		template_type(UNUSED) {
+	CachedTemplate() : refcounted_tpl(NULL), should_reload(false), template_type(UNUSED) 
+	{
 	}
-
-	CachedTemplate(const Template* tpl_ptr, TemplateType type)
-		: refcounted_tpl(new TemplateCache::RefcountedTemplate(tpl_ptr)),
-		should_reload(false),
-		template_type(type) {
+	CachedTemplate(const Template* tpl_ptr, TemplateType type) : refcounted_tpl(new TemplateCache::RefcountedTemplate(tpl_ptr)), should_reload(false), template_type(type) 
+	{
 	}
-
 	// we won't remove the template from the cache until refcount drops to 0
 	TemplateCache::RefcountedTemplate* refcounted_tpl; // shared across Clone()
 	// reload status
@@ -153,12 +138,10 @@ struct TemplateCache::CachedTemplate {
 	// indicates if the template is string-based or file-based
 	TemplateType template_type;
 };
-
-// ----------------------------------------------------------------------
+//
 // TemplateCache::TemplateCache()
 // TemplateCache::~TemplateCache()
-// ----------------------------------------------------------------------
-
+//
 TemplateCache::TemplateCache() : parsed_template_cache_(new TemplateMap), is_frozen_(false), search_path_(),
 	get_template_calls_(new TemplateCallMap), mutex_(new Mutex), search_path_mutex_(new Mutex) 
 {
@@ -172,16 +155,13 @@ TemplateCache::~TemplateCache()
 	delete mutex_;
 	delete search_path_mutex_;
 }
-
-// ----------------------------------------------------------------------
+//
 // HasTemplateChangedOnDisk
 //    Indicates whether the template has changed, based on the
 //    backing file's last modtime.
-// ----------------------------------------------------------------------
-
-bool HasTemplateChangedOnDisk(const char* resolved_filename,
-    time_t mtime,
-    FileStat* statbuf) {
+//
+bool HasTemplateChangedOnDisk(const char* resolved_filename, time_t mtime, FileStat* statbuf) 
+{
 	if(!File::Stat(resolved_filename, statbuf)) {
 		LOG(WARNING) << "Unable to stat file " << resolved_filename << endl;
 		// If we can't Stat the file then the file may have been deleted,
@@ -194,8 +174,7 @@ bool HasTemplateChangedOnDisk(const char* resolved_filename,
 	}
 	return true;
 }
-
-// ----------------------------------------------------------------------
+//
 // TemplateCache::LoadTemplate()
 // TemplateCache::GetTemplate()
 // TemplateCache::GetTemplateLocked()
@@ -206,35 +185,31 @@ bool HasTemplateChangedOnDisk(const char* resolved_filename,
 //    cache.  GetTemplate loads the template into the cache from disk
 //    and returns the parsed template.  StringToTemplateCache parses
 //    and loads the template from the given string into the parsed
-//    cache, or returns false if an older version already exists in
-//    the cache.
-// ----------------------------------------------------------------------
-
-bool TemplateCache::LoadTemplate(const TemplateString& filename, Strip strip) {
+//    cache, or returns false if an older version already exists in the cache.
+//
+bool TemplateCache::LoadTemplate(const TemplateString& filename, Strip strip) 
+{
 	TemplateCacheKey cache_key = TemplateCacheKey(filename.GetGlobalId(), strip);
 	WriterMutexLock ml(mutex_);
 	return GetTemplateLocked(filename, strip, cache_key) != NULL;
 }
 
-const Template * TemplateCache::GetTemplate(const TemplateString& filename,
-    Strip strip) {
+const Template * TemplateCache::GetTemplate(const TemplateString& filename, Strip strip) 
+{
 	// No need to have the cache-mutex acquired for this step
 	TemplateCacheKey cache_key = TemplateCacheKey(filename.GetGlobalId(), strip);
 	CachedTemplate retval;
 	WriterMutexLock ml(mutex_);
-	RefcountedTemplate* refcounted_tpl =
-	    GetTemplateLocked(filename, strip, cache_key);
+	RefcountedTemplate* refcounted_tpl = GetTemplateLocked(filename, strip, cache_key);
 	if(!refcounted_tpl)
 		return NULL;
-
 	refcounted_tpl->IncRef(); // DecRef() is in DoneWithGetTemplatePtrs()
 	(*get_template_calls_)[refcounted_tpl]++; // set up for DoneWith...()
 	return refcounted_tpl->tpl();
 }
 
-TemplateCache::RefcountedTemplate* TemplateCache::GetTemplateLocked(const TemplateString& filename,
-    Strip strip,
-    const TemplateCacheKey& template_cache_key) {
+TemplateCache::RefcountedTemplate* TemplateCache::GetTemplateLocked(const TemplateString& filename, Strip strip, const TemplateCacheKey& template_cache_key) 
+{
 	// NOTE: A write-lock must be held on mutex_ when this method is called.
 	CachedTemplate* it = find_ptr(*parsed_template_cache_, template_cache_key);
 	if(!it) {
@@ -680,42 +655,34 @@ TemplateCache* TemplateCache::Clone() const {
 //    This routine is DEBUG-only. It returns the refcount of a template,
 //    given the TemplateCacheKey.
 // ----------------------------------------------------------------------
-
-int TemplateCache::Refcount(const TemplateCacheKey template_cache_key) const {
+int TemplateCache::Refcount(const TemplateCacheKey template_cache_key) const 
+{
 	ReaderMutexLock ml(mutex_);
 	CachedTemplate* it = find_ptr(*parsed_template_cache_, template_cache_key);
 	return it ? it->refcounted_tpl->refcount() : 0;
 }
-
-// ----------------------------------------------------------------------
+//
 // TemplateCache::TemplateIsCached()
 //    This routine is for testing only -- is says whether a given
 //    template is already in the cache or not.
-// ----------------------------------------------------------------------
-
-bool TemplateCache::TemplateIsCached(const TemplateCacheKey template_cache_key)
-const {
+//
+bool TemplateCache::TemplateIsCached(const TemplateCacheKey template_cache_key) const 
+{
 	ReaderMutexLock ml(mutex_);
 	return parsed_template_cache_->count(template_cache_key);
 }
-
-// ----------------------------------------------------------------------
+//
 // TemplateCache::ValidTemplateFilename
 //    Validates the filename before constructing the template.
-// ----------------------------------------------------------------------
-
-bool TemplateCache::IsValidTemplateFilename(const string& filename,
-    string* resolved_filename,
-    FileStat* statbuf) const {
-	if(!ResolveTemplateFilename(filename,
-	    resolved_filename,
-	    statbuf)) {
+//
+bool TemplateCache::IsValidTemplateFilename(const string& filename, string* resolved_filename, FileStat* statbuf) const 
+{
+	if(!ResolveTemplateFilename(filename, resolved_filename, statbuf)) {
 		LOG(WARNING) << "Unable to locate file " << filename << endl;
 		return false;
 	}
 	if(statbuf->IsDirectory()) {
-		LOG(WARNING) << *resolved_filename
-			     << "is a directory and thus not readable" << endl;
+		LOG(WARNING) << *resolved_filename << "is a directory and thus not readable" << endl;
 		return false;
 	}
 	return true;

@@ -91,7 +91,7 @@ static int32 stringLeadingWhitespace(char * textstr, int32 * pval);
  *      (5) Typical usage is for labelling a pix with some text data.
  * </pre>
  */
-PIX * pixAddSingleTextblock(PIX         * pixs,
+PIX * pixAddSingleTextblock(PIX * pixs,
     L_BMF       * bmf,
     const char * textstr,
     uint32 val,
@@ -247,7 +247,7 @@ PIX * pixAddSingleTextblock(PIX         * pixs,
  *      (5) Typical usage is for labelling a pix with some text data.
  * </pre>
  */
-PIX * pixAddTextlines(PIX         * pixs,
+PIX * pixAddTextlines(PIX * pixs,
     L_BMF       * bmf,
     const char * textstr,
     uint32 val,
@@ -410,7 +410,7 @@ PIX * pixAddTextlines(PIX         * pixs,
  *          the requested color, or something similar to it.
  * </pre>
  */
-l_ok pixSetTextblock(PIX         * pixs,
+l_ok pixSetTextblock(PIX * pixs,
     L_BMF       * bmf,
     const char * textstr,
     uint32 val,
@@ -521,7 +521,7 @@ l_ok pixSetTextblock(PIX         * pixs,
  *          the requested color, or something similar to it.
  * </pre>
  */
-l_ok pixSetTextline(PIX         * pixs,
+l_ok pixSetTextline(PIX * pixs,
     L_BMF       * bmf,
     const char * textstr,
     uint32 val,
@@ -754,7 +754,7 @@ PIXA * pixaAddTextlines(PIXA * pixas,
  * </pre>
  */
 l_ok pixaAddPixWithText(PIXA        * pixa,
-    PIX         * pixs,
+    PIX * pixs,
     int32 reduction,
     L_BMF       * bmf,
     const char * textstr,

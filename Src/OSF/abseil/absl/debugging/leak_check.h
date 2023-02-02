@@ -1,11 +1,8 @@
 // leak_check.h
 // Copyright 2018 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // This file contains functions that affect leak checking behavior within
 // targets built with the LeakSanitizer (LSan), a memory leak detector that is
@@ -17,7 +14,6 @@
 //
 // See https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer
 //
-// -----------------------------------------------------------------------------
 #ifndef ABSL_DEBUGGING_LEAK_CHECK_H_
 #define ABSL_DEBUGGING_LEAK_CHECK_H_
 

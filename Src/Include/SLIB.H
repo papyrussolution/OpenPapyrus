@@ -8085,15 +8085,16 @@ public:
 class LongArray : public TSVector <long> {
 public:
 	LongArray();
+	LongArray(const long * pInitList, size_t initListCount); // @v11.6.2
 	LongArray(const LongArray & s);
 	LongArray & FASTCALL operator = (const LongArray & s);
 	bool   FASTCALL operator == (const LongArray & rS) const;
 	bool   FASTCALL operator != (const LongArray & rS) const;
 	int    ordInsert(long, uint * pPos);
-	int    STDCALL  bsearch(long, uint * pPos) const;
-	int    STDCALL  lsearch(long, uint * pPos) const;
-	int    FASTCALL bsearch(long) const;
-	int    FASTCALL lsearch(long) const;
+	bool   STDCALL  bsearch(long, uint * pPos) const;
+	bool   STDCALL  lsearch(long, uint * pPos) const;
+	bool   FASTCALL bsearch(long) const;
+	bool   FASTCALL lsearch(long) const;
 	//
 	// Descr: Возвращает true если количество элементом массива более 1.
 	//
@@ -8131,6 +8132,7 @@ public:
 	void   intersect(const UintHashTable * pList);
 #endif // } _WIN32_WCE
 	int    FASTCALL add(long value);
+	LongArray & FASTCALL addr(long value);
 	//
 	// Descr: Вставляет элемент value в конец списка только если value != 0
 	//

@@ -2,11 +2,9 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
-// * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
+// * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // * Redistributions in binary form must reproduce the above
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
@@ -30,30 +28,29 @@ bool PerExpandData::DataEq::operator()(const char* s1, const char* s2) const
 	return ((s1 == 0 && s2 == 0) || (s1 && s2 && *s1 == *s2 && sstreq(s1, s2)));
 }
 
-PerExpandData::~PerExpandData() {
+PerExpandData::~PerExpandData() 
+{
 	delete map_;
 }
 
 TemplateAnnotator* PerExpandData::annotator() const 
 {
-	if(annotator_ != NULL) {
+	if(annotator_)
 		return annotator_;
+	else {
+		// TextTemplateAnnotator has no static state.  So direct static definition should be safe.
+		static TextTemplateAnnotator g_default_annotator;
+		return &g_default_annotator;
 	}
-	// TextTemplateAnnotator has no static state.  So direct static definition
-	// should be safe.
-	static TextTemplateAnnotator g_default_annotator;
-	return &g_default_annotator;
 }
 
-void PerExpandData::InsertForModifiers(const char* key, const void * value) {
-	if(!map_)
-		map_ = new DataMap;
+void PerExpandData::InsertForModifiers(const char* key, const void * value) 
+{
+	SETIFZ(map_, new DataMap);
 	(*map_)[key] = value;
 }
 
 // Retrieve data specific to this Expand call. Returns NULL if key
 // is not found.  This should only be used by template modifiers.
-const void * PerExpandData::LookupForModifiers(const char* key) const {
-	return map_ ? find_ptr2(*map_, key) : NULL;
-}
+const void * PerExpandData::LookupForModifiers(const char* key) const { return map_ ? find_ptr2(*map_, key) : NULL; }
 }

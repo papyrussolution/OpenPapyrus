@@ -26,11 +26,9 @@ mi_decl_externc size_t malloc_good_size(size_t size);
 
 // helper definition for C override of C++ new
 typedef struct mi_nothrow_s { int _tag; } mi_nothrow_t;
-
-// ------------------------------------------------------
+//
 // Override system malloc
-// ------------------------------------------------------
-
+//
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(__APPLE__) && !defined(MI_VALGRIND)
 // gcc, clang: use aliasing to alias the exported function to one of our `mi_` functions
   #if (defined(__GNUC__) && __GNUC__ >= 9)
@@ -136,17 +134,16 @@ void  free(void* p)                    MI_FORWARD0(mi_free, p)
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(__APPLE__)
 #pragma GCC visibility push(default)
 #endif
-
-// ------------------------------------------------------
+//
 // Override new/delete
 // This is not really necessary as they usually call
 // malloc/free anyway, but it improves performance.
-// ------------------------------------------------------
+//
 #ifdef __cplusplus
-// ------------------------------------------------------
+//
 // With a C++ compiler we override the new/delete operators.
 // see <https://en.cppreference.com/w/cpp/memory/new/operator_new>
-// ------------------------------------------------------
+//
   #include <new>
 
   #ifndef MI_OSX_IS_INTERPOSED
@@ -199,31 +196,19 @@ void* operator new[] (std::size_t n, std::align_val_t al, const std::nothrow_t&)
   #endif
 
 #elif (defined(__GNUC__) || defined(__clang__))
-// ------------------------------------------------------
+//
 // Override by defining the mangled C++ names of the operators (as
 // used by GCC and CLang).
 // See <https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling>
-// ------------------------------------------------------
-
+//
 void _ZdlPv(void* p)            MI_FORWARD0(mi_free, p)  // delete
 void _ZdaPv(void* p)            MI_FORWARD0(mi_free, p)  // delete[]
 void _ZdlPvm(void* p, size_t n) MI_FORWARD02(mi_free_size, p, n)
 void _ZdaPvm(void* p, size_t n) MI_FORWARD02(mi_free_size, p, n)
-void _ZdlPvSt11align_val_t(void* p, size_t al)            {
-	mi_free_aligned(p, al);
-}
-
-void _ZdaPvSt11align_val_t(void* p, size_t al)            {
-	mi_free_aligned(p, al);
-}
-
-void _ZdlPvmSt11align_val_t(void* p, size_t n, size_t al) {
-	mi_free_size_aligned(p, n, al);
-}
-
-void _ZdaPvmSt11align_val_t(void* p, size_t n, size_t al) {
-	mi_free_size_aligned(p, n, al);
-}
+void _ZdlPvSt11align_val_t(void* p, size_t al) { mi_free_aligned(p, al); }
+void _ZdaPvSt11align_val_t(void* p, size_t al) { mi_free_aligned(p, al); }
+void _ZdlPvmSt11align_val_t(void* p, size_t n, size_t al) { mi_free_size_aligned(p, n, al); }
+void _ZdaPvmSt11align_val_t(void* p, size_t n, size_t al) { mi_free_size_aligned(p, n, al); }
 
   #if (MI_INTPTR_SIZE==8)
 void* _Znwm(size_t n)                             MI_FORWARD1(mi_new, n)     // new 64-bit
@@ -267,11 +252,9 @@ void* _ZnajSt11align_val_tRKSt9nothrow_t(size_t n, size_t al, mi_nothrow_t tag) 
     #error "define overloads for new/delete for this platform (just for performance, can be skipped)"
   #endif
 #endif // __cplusplus
-
-// ------------------------------------------------------
+//
 // Further Posix & Unix functions definitions
-// ------------------------------------------------------
-
+//
 #ifdef __cplusplus
 extern "C" {
 #endif

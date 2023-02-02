@@ -206,15 +206,9 @@ PIX * pixCleanBackgroundToWhite(PIX * pixs, PIX * pixim, PIX * pixg, float gamma
  *    (3) See pixBackgroundNorm() for usage and function.
  * </pre>
  */
-PIX * pixBackgroundNormSimple(PIX  * pixs,
-    PIX  * pixim,
-    PIX  * pixg)
+PIX * pixBackgroundNormSimple(PIX * pixs, PIX  * pixim, PIX  * pixg)
 {
-	return pixBackgroundNorm(pixs, pixim, pixg,
-		   DefaultTileWidth, DefaultTileHeight,
-		   DefaultFgThreshold, DefaultMinCount,
-		   DefaultBgVal, DefaultXSmoothSize,
-		   DefaultYSmoothSize);
+	return pixBackgroundNorm(pixs, pixim, pixg, DefaultTileWidth, DefaultTileHeight, DefaultFgThreshold, DefaultMinCount, DefaultBgVal, DefaultXSmoothSize, DefaultYSmoothSize);
 }
 
 /*!

@@ -326,42 +326,53 @@ private:
 	{
 		switch(id + 1) {
 			case DL2_Score::kBill:
-				// Активируем
-				disableCtrls(0, CTL_BIZPRCRT_PERIOD, CTLSEL_BIZPRCRT_LOC, CTL_BIZPRCRT_OPSYMB, 0L);
-				// Блокируем
-				disableCtrls(1, CTLSEL_BIZPRCRT_GOODSGRP, 0L);
-				// Модифиакторы
-				//disableCtrls(0, CTL_BIZPRCRT_MODIF, 0L);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 0, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 2, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 3, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 4, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 5, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 6, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 7, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 8, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 9, 0);
-
-				if(Buf_Data.Sub == 10) {
-					Buf_Data.Sub= 0;
-					setCtrlData(CTL_BIZPRCRT_MODIF, &Buf_Data.Sub);
+				{
+					// Активируем
+					disableCtrls(0, CTL_BIZPRCRT_PERIOD, CTLSEL_BIZPRCRT_LOC, CTL_BIZPRCRT_OPSYMB, 0L);
+					// Блокируем
+					disableCtrls(1, CTLSEL_BIZPRCRT_GOODSGRP, 0L);
+					// Модифиакторы
+					//disableCtrls(0, CTL_BIZPRCRT_MODIF, 0L);
+					// @v11.6.2 {
+					const long idx_list[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+					DisableClusterItems(CTL_BIZPRCRT_MODIF, LongArray(idx_list, SIZEOFARRAY(idx_list)), 0);
+					// } @v11.6.2 
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 0, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 2, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 3, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 4, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 5, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 6, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 7, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 8, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 9, 0);
+					if(Buf_Data.Sub == 10) {
+						Buf_Data.Sub = 0;
+						setCtrlData(CTL_BIZPRCRT_MODIF, &Buf_Data.Sub);
+					}
+					DisableClusterItem(CTL_BIZPRCRT_MODIF, 10, 1);
 				}
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 10, 1);
 				break;
 			case DL2_Score::kPaym:
-				// Все разблокируем
-				disableCtrls(0, CTLSEL_BIZPRCRT_LOC, CTLSEL_BIZPRCRT_GOODSGRP, CTL_BIZPRCRT_PERIOD, CTL_BIZPRCRT_OPSYMB, 0L);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 2, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 3, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 4, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 5, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 6, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 7, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 8, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 9, 0);
-				DisableClusterItem(CTL_BIZPRCRT_MODIF, 10, 0);
+				{
+					// Все разблокируем
+					disableCtrls(0, CTLSEL_BIZPRCRT_LOC, CTLSEL_BIZPRCRT_GOODSGRP, CTL_BIZPRCRT_PERIOD, CTL_BIZPRCRT_OPSYMB, 0L);
+					// @v11.6.2 {
+					const long idx_list[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+					DisableClusterItems(CTL_BIZPRCRT_MODIF, LongArray(idx_list, SIZEOFARRAY(idx_list)), 0);
+					// } @v11.6.2 
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 2, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 3, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 4, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 5, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 6, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 7, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 8, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 9, 0);
+					// @v11.6.2 DisableClusterItem(CTL_BIZPRCRT_MODIF, 10, 0);
+				}
 				break;
 			case DL2_Score::kCCheck:
 				// Активируем
@@ -377,7 +388,6 @@ private:
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 4, 0);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 5, 0);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 9, 0);
-
 				if(oneof4(Buf_Data.Sub, 6, 7, 8, 10)) {
 					Buf_Data.Sub = 0;
 					setCtrlData(CTL_BIZPRCRT_MODIF, &Buf_Data.Sub);
@@ -2427,5 +2437,4 @@ int PPALDD_UhttStatistic::InitData(PPFilt & rFilt, long rsrv)
 	}
 	return ok;
 }
-
 // } @Muxa

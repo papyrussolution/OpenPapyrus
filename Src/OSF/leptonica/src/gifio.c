@@ -582,7 +582,7 @@ static int32 pixToGif(PIX * pix, GifFileType  * gif)
 static const int32 InterlacedOffset[] = {0, 4, 2, 1};
 static const int32 InterlacedJumps[] = {8, 8, 4, 2};
 
-static PIX * pixUninterlaceGIF(PIX  * pixs)
+static PIX * pixUninterlaceGIF(PIX * pixs)
 {
 	int32 w, h, d, wpl, j, k, srow, drow;
 	uint32  * datas, * datad, * lines, * lined;

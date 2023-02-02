@@ -741,12 +741,16 @@ void GoodsImpExpDialog::SetupCtrls(long direction)
 {
 	disableCtrls(direction == 0, CTL_IMPEXPGOODS_SUBCODE, CTLSEL_IMPEXPGOODS_SUPPL, CTLSEL_IMPEXPGOODS_UNIT, CTLSEL_IMPEXPGOODS_PHUNI,
 		CTLSEL_IMPEXPGOODS_GRP, CTLSEL_IMPEXPGOODS_OP, /* @v10.9.5 CTLSEL_IMPEXPGOODS_LOC,*/ CTL_IMPEXPGOODS_MXACT, 0L);
-	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 0, direction == 0);
-	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 1, direction == 0);
-	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 2, direction == 0);
-	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 3, direction == 0);
-	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 4, direction == 0);
-	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 5, direction == 0);
+	// @v11.6.2 {
+	const long idx_list[] = {0L, 1L, 2L, 3L, 4L, 5L};
+	DisableClusterItems(CTL_IMPEXPGOODS_FLAGS, LongArray(idx_list, SIZEOFARRAY(idx_list)), direction == 0);
+	// } @v11.6.2 
+	// @v11.6.2 DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 0, direction == 0);
+	// @v11.6.2 DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 1, direction == 0);
+	// @v11.6.2 DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 2, direction == 0);
+	// @v11.6.2 DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 3, direction == 0);
+	// @v11.6.2 DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 4, direction == 0);
+	// @v11.6.2 DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 5, direction == 0);
 }
 
 int EditGoodsImpExpParams(const char * pIniSection)

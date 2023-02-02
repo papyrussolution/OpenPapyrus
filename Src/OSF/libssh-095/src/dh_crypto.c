@@ -160,7 +160,6 @@ int ssh_dh_init_common(struct ssh_crypto_struct * crypto)
 		    rc = SSH_OK;
 		    break;
 	}
-
 	if(rc != SSH_OK) {
 		ssh_dh_cleanup(crypto);
 	}
@@ -169,7 +168,7 @@ int ssh_dh_init_common(struct ssh_crypto_struct * crypto)
 
 void ssh_dh_cleanup(struct ssh_crypto_struct * crypto)
 {
-	if(crypto->dh_ctx != NULL) {
+	if(crypto->dh_ctx) {
 		DH_free(crypto->dh_ctx->keypair[0]);
 		DH_free(crypto->dh_ctx->keypair[1]);
 		SAlloc::F(crypto->dh_ctx);
@@ -189,15 +188,11 @@ void ssh_dh_cleanup(struct ssh_crypto_struct * crypto)
 int ssh_dh_keypair_gen_keys(struct dh_ctx * dh_ctx, int peer)
 {
 	int rc;
-
-	if((dh_ctx == NULL) || (dh_ctx->keypair[peer] == NULL)) {
+	if(!dh_ctx || (dh_ctx->keypair[peer] == NULL)) {
 		return SSH_ERROR;
 	}
 	rc = DH_generate_key(dh_ctx->keypair[peer]);
-	if(rc != 1) {
-		return SSH_ERROR;
-	}
-	return SSH_OK;
+	return (rc == 1) ? SSH_OK : SSH_ERROR;
 }
 
 /** @internal
@@ -216,11 +211,11 @@ int ssh_dh_compute_shared_secret(struct dh_ctx * dh_ctx, int local, int remote, 
 	uchar * kstring = NULL;
 	const_bignum pub_key = NULL;
 	int klen, rc;
-	if((dh_ctx == NULL) || (dh_ctx->keypair[local] == NULL) || (dh_ctx->keypair[remote] == NULL)) {
+	if(!dh_ctx || (dh_ctx->keypair[local] == NULL) || (dh_ctx->keypair[remote] == NULL)) {
 		return SSH_ERROR;
 	}
 	kstring = (uchar *)SAlloc::M(DH_size(dh_ctx->keypair[local]));
-	if(kstring == NULL) {
+	if(!kstring) {
 		rc = SSH_ERROR;
 		goto done;
 	}
@@ -239,7 +234,6 @@ int ssh_dh_compute_shared_secret(struct dh_ctx * dh_ctx, int local, int remote, 
 		rc = SSH_ERROR;
 		goto done;
 	}
-
 	rc = SSH_OK;
 done:
 	SAlloc::F(kstring);

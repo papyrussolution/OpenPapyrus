@@ -152,21 +152,18 @@ void        _mi_block_zero_init(const mi_page_t* page, void* p, size_t size);
 #if MI_DEBUG>1
 bool        _mi_page_is_valid(mi_page_t* page);
 #endif
-
-// ------------------------------------------------------
+//
 // Branches
-// ------------------------------------------------------
-
+//
 #if defined(__GNUC__) || defined(__clang__)
-#define mi_unlikely(x)     __builtin_expect(!!(x), false)
-#define mi_likely(x)       __builtin_expect(!!(x), true)
+	#define mi_unlikely(x)     __builtin_expect(!!(x), false)
+	#define mi_likely(x)       __builtin_expect(!!(x), true)
 #else
-#define mi_unlikely(x)     (x)
-#define mi_likely(x)       (x)
+	#define mi_unlikely(x)     (x)
+	#define mi_likely(x)       (x)
 #endif
-
 #ifndef __has_builtin
-#define __has_builtin(x)  0
+	#define __has_builtin(x)  0
 #endif
 // 
 // Error codes passed to `_mi_fatal_error`
@@ -701,18 +698,18 @@ static inline void mi_block_set_next(const mi_page_t* page, mi_block_t* block, c
 	mi_block_set_nextx(page, block, next, NULL);
   #endif
 }
-
-// -------------------------------------------------------------------
+//
 // commit mask
-// -------------------------------------------------------------------
-
-static inline void mi_commit_mask_create_empty(mi_commit_mask_t* cm) {
+//
+static inline void mi_commit_mask_create_empty(mi_commit_mask_t* cm) 
+{
 	for(size_t i = 0; i < MI_COMMIT_MASK_FIELD_COUNT; i++) {
 		cm->mask[i] = 0;
 	}
 }
 
-static inline void mi_commit_mask_create_full(mi_commit_mask_t* cm) {
+static inline void mi_commit_mask_create_full(mi_commit_mask_t* cm) 
+{
 	for(size_t i = 0; i < MI_COMMIT_MASK_FIELD_COUNT; i++) {
 		cm->mask[i] = ~((size_t)0);
 	}
@@ -742,12 +739,11 @@ size_t _mi_commit_mask_next_run(const mi_commit_mask_t* cm, size_t* idx);
 #define mi_commit_mask_foreach_end() \
 	idx += count; \
 	}
-
-// -------------------------------------------------------------------
+//
 // Fast "random" shuffle
-// -------------------------------------------------------------------
-
-static inline uintptr_t _mi_random_shuffle(uintptr_t x) {
+//
+static inline uintptr_t _mi_random_shuffle(uintptr_t x) 
+{
 	if(x==0) {
 		x = 17;
 	}                 // ensure we don't get stuck in generating zeros
@@ -768,11 +764,9 @@ static inline uintptr_t _mi_random_shuffle(uintptr_t x) {
 #endif
 	return x;
 }
-
-// -------------------------------------------------------------------
+//
 // Optimize numa node access for the common case (= one node)
-// -------------------------------------------------------------------
-
+//
 int    _mi_os_numa_node_get(mi_os_tld_t* tld);
 size_t _mi_os_numa_node_count_get();
 extern _Atomic(size_t) _mi_numa_node_count;
@@ -788,12 +782,11 @@ static inline size_t _mi_os_numa_node_count()
 	if(mi_likely(count>0)) return count;
 	else return _mi_os_numa_node_count_get();
 }
-
-// -------------------------------------------------------------------
+//
 // Getting the thread id should be performant as it is called in the
 // fast path of `_mi_free` and we specialize for various platforms.
 // We only require _mi_threadid() to return a unique id for each thread.
-// -------------------------------------------------------------------
+//
 #if defined(_WIN32)
 
 #define WIN32_LEAN_AND_MEAN
@@ -998,15 +991,13 @@ static inline size_t mi_ctz(uintptr_t x) {
 static inline size_t mi_bsr(uintptr_t x) {
 	return (x==0 ? MI_INTPTR_BITS : MI_INTPTR_BITS - 1 - mi_clz(x));
 }
-
-// ---------------------------------------------------------------------------------
+//
 // Provide our own `_mi_memcpy` for potential performance optimizations.
 //
 // For now, only on Windows with msvc/clang-cl we optimize to `rep movsb` if
 // we happen to run on x86/x64 cpu's that have "fast short rep movsb" (FSRM) support
 // (AMD Zen3+ (~2020) or Intel Ice Lake+ (~2017). See also issue #201 and pr #253.
-// ---------------------------------------------------------------------------------
-
+//
 #if defined(_WIN32) && (defined(_M_IX86) || defined(_M_X64))
 #include <intrin.h>
 #include <string.h>
@@ -1028,12 +1019,10 @@ static inline void _mi_memcpy(void* dst, const void* src, size_t n) {
 }
 
 #endif
-
-// -------------------------------------------------------------------------------
+//
 // The `_mi_memcpy_aligned` can be used if the pointers are machine-word aligned
 // This is used for example in `mi_realloc`.
-// -------------------------------------------------------------------------------
-
+//
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
 // On GCC/CLang we provide a hint that the pointers are word aligned.
 #include <string.h>

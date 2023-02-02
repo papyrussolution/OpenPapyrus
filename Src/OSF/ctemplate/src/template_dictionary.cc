@@ -2,8 +2,7 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -39,13 +38,11 @@ static Mutex g_static_mutex(base::LINKER_INITIALIZED);
 /*static*/ TemplateString* TemplateDictionary::empty_string_ = NULL;
 
 static const char* const kAnnotateOutput = "__ctemplate_annotate_output__";
-
-// ----------------------------------------------------------------------
+//
 // TemplateDictionary::map_arena_init
 //    This class is what small_map<> uses to create a new
 //    arena-allocated map<> when it decides it needs to do that.
-// ----------------------------------------------------------------------
-
+//
 class TemplateDictionary::map_arena_init {
 public:
 	map_arena_init(UnsafeArena* arena) : arena_(arena) 

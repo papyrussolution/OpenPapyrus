@@ -115,7 +115,7 @@
  *                same resolution as the input!
  * </pre>
  */
-PIX * pixMorphSequence(PIX         * pixs,
+PIX * pixMorphSequence(PIX * pixs,
     const char * sequence,
     int32 dispsep)
 {
@@ -280,7 +280,7 @@ PIX * pixMorphSequence(PIX         * pixs,
  *              {2, 4, 8, 16}.
  * </pre>
  */
-PIX * pixMorphCompSequence(PIX         * pixs,
+PIX * pixMorphCompSequence(PIX * pixs,
     const char * sequence,
     int32 dispsep)
 {
@@ -427,7 +427,7 @@ PIX * pixMorphCompSequence(PIX         * pixs,
  *      (6) See pixMorphSequence() for further information about usage.
  * </pre>
  */
-PIX * pixMorphSequenceDwa(PIX         * pixs,
+PIX * pixMorphSequenceDwa(PIX * pixs,
     const char * sequence,
     int32 dispsep)
 {
@@ -574,7 +574,7 @@ PIX * pixMorphSequenceDwa(PIX         * pixs,
  *      (6) See pixMorphSequence() for further information about usage.
  * </pre>
  */
-PIX * pixMorphCompSequenceDwa(PIX         * pixs,
+PIX * pixMorphCompSequenceDwa(PIX * pixs,
     const char * sequence,
     int32 dispsep)
 {
@@ -882,7 +882,7 @@ int32 morphSequenceVerify(SARRAY * sa)
  *             "c9.9 + tw9.9"
  * </pre>
  */
-PIX * pixGrayMorphSequence(PIX         * pixs,
+PIX * pixGrayMorphSequence(PIX * pixs,
     const char * sequence,
     int32 dispsep,
     int32 dispy)
@@ -1083,7 +1083,7 @@ PIX * pixGrayMorphSequence(PIX         * pixs,
  *             "D9.1"
  * </pre>
  */
-PIX * pixColorMorphSequence(PIX         * pixs,
+PIX * pixColorMorphSequence(PIX * pixs,
     const char * sequence,
     int32 dispsep,
     int32 dispy)

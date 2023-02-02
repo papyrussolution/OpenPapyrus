@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines
-* Corporation and others. All Rights Reserved.
-********************************************************************/
-
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -25,11 +21,9 @@
 			return; \
 		} \
 } UPRV_BLOCK_MACRO_END
-
-// *****************************************************************************
+//
 // class DateFormatTest
-// *****************************************************************************
-
+//
 void DateFormatTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
 {
 	if(exec) {

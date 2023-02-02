@@ -1,5 +1,5 @@
 // OBJQUOTK.CPP
-// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -774,10 +774,10 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 				rec_list.atFree(i);
 			else if(pFilt->OpID) {
 				if(intrexpnd) {
-					if(p_rec->ID != PPQUOTK_BASE && p_rec->OpID && IsOpBelongTo(pFilt->OpID, p_rec->OpID) <= 0)
+					if(p_rec->ID != PPQUOTK_BASE && p_rec->OpID && !IsOpBelongTo(pFilt->OpID, p_rec->OpID))
 						rec_list.atFree(i);
 				}
-				else if(p_rec->OpID && IsOpBelongTo(pFilt->OpID, p_rec->OpID) <= 0)
+				else if(p_rec->OpID && !IsOpBelongTo(pFilt->OpID, p_rec->OpID))
 					rec_list.atFree(i);
 			}
 		}

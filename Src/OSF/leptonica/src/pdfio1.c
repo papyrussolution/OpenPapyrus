@@ -346,7 +346,7 @@ l_ok saConvertFilesToPdfData(SARRAY * sa,
 	int32 i, n, ret, pagetype, npages, scaledres;
 	size_t imbytes;
 	L_BYTEA     * ba;
-	PIX         * pixs, * pix;
+	PIX * pixs, * pix;
 	L_PTRA      * pa_data;
 
 	PROCNAME(__FUNCTION__);
@@ -1702,7 +1702,7 @@ l_ok convertToPdfSegmented(const char * filein,
  *      (1) See convertToPdfSegmented() for details.
  * </pre>
  */
-l_ok pixConvertToPdfSegmented(PIX         * pixs,
+l_ok pixConvertToPdfSegmented(PIX * pixs,
     int32 res,
     int32 type,
     int32 thresh,
@@ -1830,7 +1830,7 @@ l_ok convertToPdfDataSegmented(const char * filein,
  *      (1) See convertToPdfSegmented() for details.
  * </pre>
  */
-l_ok pixConvertToPdfDataSegmented(PIX         * pixs,
+l_ok pixConvertToPdfDataSegmented(PIX * pixs,
     int32 res,
     int32 type,
     int32 thresh,

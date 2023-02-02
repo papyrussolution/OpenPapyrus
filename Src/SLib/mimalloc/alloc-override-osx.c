@@ -238,8 +238,7 @@ static malloc_zone_t mi_malloc_zone = {
 #endif
 
 #if defined(MI_OSX_INTERPOSE) && defined(MI_SHARED_LIB_EXPORT)
-
-// ------------------------------------------------------
+//
 // Override malloc_xxx and malloc_zone_xxx api's to use only
 // our mimalloc zone. Since even the loader uses malloc
 // on macOS, this ensures that all allocations go through
@@ -247,15 +246,14 @@ static malloc_zone_t mi_malloc_zone = {
 // The main `malloc`, `free`, etc calls are interposed in `alloc-override.c`,
 // Here, we also override macOS specific API's like
 // `malloc_zone_calloc` etc. see <https://github.com/aosm/libmalloc/blob/master/man/malloc_zone_malloc.3>
-// ------------------------------------------------------
-
+//
 static inline malloc_zone_t* mi_get_default_zone(void)
 {
 	static bool init;
 	if(mi_unlikely(!init)) {
 		init = true;
 		malloc_zone_register(&mi_malloc_zone); // by calling register we avoid a zone error on free (see
-		                                       // <http://eatmyrandom.blogspot.com/2010/03/mallocfree-interception-on-mac-os-x.html>)
+			// <http://eatmyrandom.blogspot.com/2010/03/mallocfree-interception-on-mac-os-x.html>)
 	}
 	return &mi_malloc_zone;
 }
@@ -392,13 +390,11 @@ __attribute__((used)) static const struct mi_interpose_s _mi_zone_interposes[]  
 };
 
 #else
-
-// ------------------------------------------------------
+//
 // hook into the zone api's without interposing
 // This is the official way of adding an allocator but
 // it seems less robust than using interpose.
-// ------------------------------------------------------
-
+//
 static inline malloc_zone_t* mi_get_default_zone(void)
 {
 	// The first returned zone is the real default

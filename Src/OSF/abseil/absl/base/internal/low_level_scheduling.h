@@ -1,10 +1,8 @@
 // Copyright 2017 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+// the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // Core interfaces and definitions used by by low-level interfaces such as SpinLock.
 //
@@ -31,7 +29,6 @@ int MutexDelay(int32_t c, int mode);
 }  // namespace synchronization_internal
 
 namespace base_internal {
-
 class SchedulingHelper;  // To allow use of SchedulingGuard.
 class SpinLock;          // To allow use of SchedulingGuard.
 
@@ -51,51 +48,56 @@ class SpinLock;          // To allow use of SchedulingGuard.
 //
 // All methods are async-signal safe.
 class SchedulingGuard {
- public:
-  // Returns true iff the calling thread may be cooperatively rescheduled.
-  static bool ReschedulingIsAllowed();
-  SchedulingGuard(const SchedulingGuard&) = delete;
-  SchedulingGuard& operator = (const SchedulingGuard&) = delete;
+public:
+	// Returns true iff the calling thread may be cooperatively rescheduled.
+	static bool ReschedulingIsAllowed();
+	SchedulingGuard(const SchedulingGuard&) = delete;
+	SchedulingGuard& operator =(const SchedulingGuard&) = delete;
 
- private:
-  // Disable cooperative rescheduling of the calling thread.  It may still
-  // initiate scheduling operations (e.g. wake-ups), however, it may not itself
-  // reschedule.  Nestable.  The returned result is opaque, clients should not
-  // attempt to interpret it.
-  // REQUIRES: Result must be passed to a pairing EnableScheduling().
-  static bool DisableRescheduling();
+private:
+	// Disable cooperative rescheduling of the calling thread.  It may still
+	// initiate scheduling operations (e.g. wake-ups), however, it may not itself
+	// reschedule.  Nestable.  The returned result is opaque, clients should not
+	// attempt to interpret it.
+	// REQUIRES: Result must be passed to a pairing EnableScheduling().
+	static bool DisableRescheduling();
 
-  // Marks the end of a rescheduling disabled region, previously started by
-  // DisableRescheduling().
-  // REQUIRES: Pairs with innermost call (and result) of DisableRescheduling().
-  static void EnableRescheduling(bool disable_result);
+	// Marks the end of a rescheduling disabled region, previously started by
+	// DisableRescheduling().
+	// REQUIRES: Pairs with innermost call (and result) of DisableRescheduling().
+	static void EnableRescheduling(bool disable_result);
 
-  // A scoped helper for {Disable, Enable}Rescheduling().
-  // REQUIRES: destructor must run in same thread as constructor.
-  struct ScopedDisable {
-    ScopedDisable() { disabled = SchedulingGuard::DisableRescheduling(); }
-    ~ScopedDisable() { SchedulingGuard::EnableRescheduling(disabled); }
+	// A scoped helper for {Disable, Enable}Rescheduling().
+	// REQUIRES: destructor must run in same thread as constructor.
+	struct ScopedDisable {
+		ScopedDisable() {
+			disabled = SchedulingGuard::DisableRescheduling();
+		}
 
-    bool disabled;
-  };
+		~ScopedDisable() {
+			SchedulingGuard::EnableRescheduling(disabled);
+		}
 
-  // A scoped helper to enable rescheduling temporarily.
-  // REQUIRES: destructor must run in same thread as constructor.
-  class ScopedEnable {
-   public:
-    ScopedEnable();
-    ~ScopedEnable();
+		bool disabled;
+	};
 
-   private:
-    int scheduling_disabled_depth_;
-  };
+	// A scoped helper to enable rescheduling temporarily.
+	// REQUIRES: destructor must run in same thread as constructor.
+	class ScopedEnable {
+public:
+		ScopedEnable();
+		~ScopedEnable();
 
-  // Access to SchedulingGuard is explicitly permitted.
-  friend class absl::CondVar;
-  friend class absl::Mutex;
-  friend class SchedulingHelper;
-  friend class SpinLock;
-  friend int absl::synchronization_internal::MutexDelay(int32_t c, int mode);
+private:
+		int scheduling_disabled_depth_;
+	};
+
+	// Access to SchedulingGuard is explicitly permitted.
+	friend class absl::CondVar;
+	friend class absl::Mutex;
+	friend class SchedulingHelper;
+	friend class SpinLock;
+	friend int absl::synchronization_internal::MutexDelay(int32_t c, int mode);
 };
 
 //------------------------------------------------------------------------------
@@ -103,23 +105,24 @@ class SchedulingGuard {
 //------------------------------------------------------------------------------
 
 inline bool SchedulingGuard::ReschedulingIsAllowed() {
-  return false;
+	return false;
 }
 
 inline bool SchedulingGuard::DisableRescheduling() {
-  return false;
+	return false;
 }
 
 inline void SchedulingGuard::EnableRescheduling(bool /* disable_result */) {
-  return;
+	return;
 }
 
 inline SchedulingGuard::ScopedEnable::ScopedEnable()
-    : scheduling_disabled_depth_(0) {}
-inline SchedulingGuard::ScopedEnable::~ScopedEnable() {
-  ABSL_RAW_CHECK(scheduling_disabled_depth_ == 0, "disable unused warning");
+	: scheduling_disabled_depth_(0) {
 }
 
+inline SchedulingGuard::ScopedEnable::~ScopedEnable() {
+	ABSL_RAW_CHECK(scheduling_disabled_depth_ == 0, "disable unused warning");
+}
 }  // namespace base_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

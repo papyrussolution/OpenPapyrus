@@ -554,10 +554,12 @@ public:
 			AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_BLOCKED);
 			AddClusterAssoc(CTL_PALM_FLAGS, 9, PLMF_TREATDUEDATEASDATE); // @v11.4.3 @fix
 			AddClusterAssoc(CTL_PALM_FLAGS, 10, PLMF_EXPZSTOCK); // @v11.4.3
+			AddClusterAssoc(CTL_PALM_FLAGS, 11, PLMF_EXPGOODSEXPIRYTAGS); // @v11.6.2
 		}
 		else {
 			AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_TREATDUEDATEASDATE); // @v10.8.11 // @v11.4.3 @fix
 			AddClusterAssoc(CTL_PALM_FLAGS, 9, PLMF_EXPZSTOCK); // @v11.4.3
+			AddClusterAssoc(CTL_PALM_FLAGS, 10, PLMF_EXPGOODSEXPIRYTAGS); // @v11.6.2
 		}
 		SetClusterData(CTL_PALM_FLAGS, Data.Rec.Flags);
 		{
@@ -607,6 +609,7 @@ public:
 			LocationCtrlGroup::Rec l_rec;
 			getGroupData(ctlgroupLoc, &l_rec);
 			Data.LocList = l_rec.LocList;
+			THROW_PP(Data.LocList.GetCount(), PPERR_STYLOPALMEMPTYWHLIST); // @v11.6.2
 		}
 		{
 			QuotKindCtrlGroup::Rec qk_rec;
@@ -655,51 +658,60 @@ private:
 			return;
 		clearEvent(event);
 	}
-	void   SetupInheritance();
-
+	void   SetupInheritance()
+	{
+		PPStyloPalm sp_rec;
+		Data.Rec.GroupID = getCtrlLong(CTLSEL_PALM_GROUP);
+		GetClusterData(CTL_PALM_FLAGS, &Data.Rec.Flags);
+		long   flags2 = Data.Rec.Flags;
+		if(Data.Rec.GroupID) {
+			if(SpObj.Search(Data.Rec.GroupID, &sp_rec) > 0) {
+				if(flags2 & PLMF_INHFLAGS) {
+					flags2 &= ~PLMF_INHMASK;
+					flags2 |= (sp_rec.Flags & PLMF_INHMASK);
+				}
+			}
+			else
+				setCtrlLong(CTLSEL_PALM_GROUP, Data.Rec.GroupID = 0);
+		}
+		if(!Data.Rec.GroupID)
+			flags2 &= ~PLMF_INHFLAGS;
+		if(flags2 != Data.Rec.Flags)
+			SetClusterData(CTL_PALM_FLAGS, Data.Rec.Flags = flags2);
+		int    dsbl_flags = (Data.Rec.GroupID && flags2 & PLMF_INHFLAGS);
+		DisableClusterItem(CTL_PALM_FLAGS, 0, !Data.Rec.GroupID);
+		// @v11.6.2 {
+		const long idx_list[] = {1L, 2L, 3L, 4L, 5L, 6L, 7L};
+		LongArray items_to_disable(idx_list, SIZEOFARRAY(idx_list));
+		if(!(Data.Rec.Flags & PLMF_GENERIC))
+			items_to_disable.addr(9).addr(10).addr(11);
+		else
+			items_to_disable.addr(8).addr(9).addr(10);
+		DisableClusterItems(CTL_PALM_FLAGS, items_to_disable, dsbl_flags);
+		// } @v11.6.2 
+		/* @v11.6.2 {
+		DisableClusterItem(CTL_PALM_FLAGS, 1, dsbl_flags);
+		DisableClusterItem(CTL_PALM_FLAGS, 2, dsbl_flags);
+		DisableClusterItem(CTL_PALM_FLAGS, 3, dsbl_flags);
+		DisableClusterItem(CTL_PALM_FLAGS, 4, dsbl_flags);
+		DisableClusterItem(CTL_PALM_FLAGS, 5, dsbl_flags);
+		DisableClusterItem(CTL_PALM_FLAGS, 6, dsbl_flags);
+		DisableClusterItem(CTL_PALM_FLAGS, 7, dsbl_flags);
+		if(!(Data.Rec.Flags & PLMF_GENERIC)) {
+			DisableClusterItem(CTL_PALM_FLAGS, 9, dsbl_flags); // @v11.4.3
+			DisableClusterItem(CTL_PALM_FLAGS, 10, dsbl_flags); // @v11.4.3
+			DisableClusterItem(CTL_PALM_FLAGS, 11, dsbl_flags); // @v11.6.2
+		}
+		else {
+			DisableClusterItem(CTL_PALM_FLAGS, 8, dsbl_flags); // @v11.4.3
+			DisableClusterItem(CTL_PALM_FLAGS, 9, dsbl_flags); // @v11.4.3
+			DisableClusterItem(CTL_PALM_FLAGS, 10, dsbl_flags); // @v11.6.2
+		} */
+	}
 	PPObjStyloPalm SpObj;
 	PPObjTag TagObj;
 	PPStyloPalmConfig SpCfg;
 };
-
-void StyloPalmDialog::SetupInheritance()
-{
-	PPStyloPalm sp_rec;
-	Data.Rec.GroupID = getCtrlLong(CTLSEL_PALM_GROUP);
-	GetClusterData(CTL_PALM_FLAGS, &Data.Rec.Flags);
-	long   flags2 = Data.Rec.Flags;
-	if(Data.Rec.GroupID) {
-		if(SpObj.Search(Data.Rec.GroupID, &sp_rec) > 0) {
-			if(flags2 & PLMF_INHFLAGS) {
-				flags2 &= ~PLMF_INHMASK;
-				flags2 |= (sp_rec.Flags & PLMF_INHMASK);
-			}
-		}
-		else
-			setCtrlLong(CTLSEL_PALM_GROUP, Data.Rec.GroupID = 0);
-	}
-	if(!Data.Rec.GroupID)
-		flags2 &= ~PLMF_INHFLAGS;
-	if(flags2 != Data.Rec.Flags)
-		SetClusterData(CTL_PALM_FLAGS, Data.Rec.Flags = flags2);
-	int    dsbl_flags = (Data.Rec.GroupID && flags2 & PLMF_INHFLAGS);
-	DisableClusterItem(CTL_PALM_FLAGS, 0, !Data.Rec.GroupID);
-	DisableClusterItem(CTL_PALM_FLAGS, 1, dsbl_flags);
-	DisableClusterItem(CTL_PALM_FLAGS, 2, dsbl_flags);
-	DisableClusterItem(CTL_PALM_FLAGS, 3, dsbl_flags);
-	DisableClusterItem(CTL_PALM_FLAGS, 4, dsbl_flags);
-	DisableClusterItem(CTL_PALM_FLAGS, 5, dsbl_flags);
-	DisableClusterItem(CTL_PALM_FLAGS, 6, dsbl_flags);
-	DisableClusterItem(CTL_PALM_FLAGS, 7, dsbl_flags);
-	if(!(Data.Rec.Flags & PLMF_GENERIC)) {
-		DisableClusterItem(CTL_PALM_FLAGS, 9, dsbl_flags); // @v11.4.3
-		DisableClusterItem(CTL_PALM_FLAGS, 10, dsbl_flags); // @v11.4.3
-	}
-	else {
-		DisableClusterItem(CTL_PALM_FLAGS, 8, dsbl_flags); // @v11.4.3
-		DisableClusterItem(CTL_PALM_FLAGS, 9, dsbl_flags); // @v11.4.3
-	}
-}
 
 int PPObjStyloPalm::Edit(PPID * pID, void * extraPtr)
 {

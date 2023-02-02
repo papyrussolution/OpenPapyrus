@@ -78,7 +78,7 @@ static const int32 GrayInValue = 200;
  *      (4) If it can't build a model, returns a copy of pixs in &pixd.
  * </pre>
  */
-l_ok dewarpSinglePage(PIX         * pixs,
+l_ok dewarpSinglePage(PIX * pixs,
     int32 thresh,
     int32 adaptive,
     int32 useboth,
@@ -144,7 +144,7 @@ l_ok dewarpSinglePage(PIX         * pixs,
  *             pixDestroy(&pixb);
  * </pre>
  */
-l_ok dewarpSinglePageInit(PIX         * pixs,
+l_ok dewarpSinglePageInit(PIX * pixs,
     int32 thresh,
     int32 adaptive,
     int32 useboth,
@@ -918,11 +918,11 @@ l_ok dewarpaShowArrays(L_DEWARPA   * dewa,
 
 		/* Generate contour plots at reduced resolution */
 		dewarpPopulateFullRes(dew, NULL, 0, 0);
-		pixv = fpixRenderContours(dew->fullvdispar, 3.0, 0.15);
+		pixv = fpixRenderContours(dew->fullvdispar, 3.0f, 0.15f);
 		pixvs = pixScaleBySampling(pixv, scalefact, scalefact);
 		pixDestroy(&pixv);
 		if(shd) {
-			pixh = fpixRenderContours(dew->fullhdispar, 3.0, 0.15);
+			pixh = fpixRenderContours(dew->fullhdispar, 3.0f, 0.15f);
 			pixhs = pixScaleBySampling(pixh, scalefact, scalefact);
 			pixDestroy(&pixh);
 		}
@@ -1017,13 +1017,13 @@ l_ok dewarpDebug(L_DEWARP * dew,
 	lept_mkdir(subdirs);
 	outdir = pathJoin("/tmp", subdirs);
 	if(svd) {
-		pixv = fpixRenderContours(dew->fullvdispar, 3.0, 0.15);
+		pixv = fpixRenderContours(dew->fullvdispar, 3.0f, 0.15f);
 		snprintf(fname, sizeof(fname), "%s/pixv_%d.png", outdir, index);
 		pixWriteDebug(fname, pixv, IFF_PNG);
 		pixDestroy(&pixv);
 	}
 	if(shd) {
-		pixh = fpixRenderContours(dew->fullhdispar, 3.0, 0.15);
+		pixh = fpixRenderContours(dew->fullhdispar, 3.0f, 0.15f);
 		snprintf(fname, sizeof(fname), "%s/pixh_%d.png", outdir, index);
 		pixWriteDebug(fname, pixh, IFF_PNG);
 		pixDestroy(&pixh);

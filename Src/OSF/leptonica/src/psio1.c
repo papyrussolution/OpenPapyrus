@@ -558,7 +558,7 @@ l_ok convertSegmentedPagesToPS(const char * pagedir,
  *          by using different output files with %pageno = 0 or 1.
  * </pre>
  */
-l_ok pixWriteSegmentedPageToPS(PIX         * pixs,
+l_ok pixWriteSegmentedPageToPS(PIX * pixs,
     PIX         * pixm,
     float textscale,
     float imagescale,

@@ -1,5 +1,5 @@
 // V_CMDP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 // Редактирование списка команд
 //
@@ -115,7 +115,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 		{
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_CMDITEM_CMD)) {
-				PPID   cmd_id = getCtrlLong(CTLSEL_CMDITEM_CMD);
+				const PPID cmd_id = getCtrlLong(CTLSEL_CMDITEM_CMD);
 				if(cmd_id && CmdDescr.LoadResource(cmd_id) > 0) {
 					SString name = CmdDescr.Text;
 					if(P_Grp) {
@@ -133,7 +133,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 					enableCommand(cmCmdParam, 0);
 			}
 			else if(event.isCmd(cmCmdParam)) {
-				uint   sav_offs = Data.Param.GetRdOffs();
+				const uint sav_offs = Data.Param.GetRdOffs();
 				if(CmdDescr.EditCommandParam(getCtrlLong(CTLSEL_JOBITEM_CMD), Data.GetID(), &Data.Param, 0)) {
 					Data.Param.SetRdOffs(sav_offs);
 					SetupCtrls();
@@ -168,7 +168,6 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 			showCtrl(CTL_CMDITEM_CLEARFILT, BIN(Data.Param.GetAvailableSize()));
 		}
 
-		//int    IsDesktopCmd;
 		const PPCommandGroupCategory CmdGrpC;
 		PPCommandDescr CmdDescr;
 		const PPCommandGroup * P_Grp;

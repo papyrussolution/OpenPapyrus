@@ -490,20 +490,16 @@ static PIX * pixOctcubeQuantFromCmapLUT(PIX * pixs, PIXCMAP * cmap, int32 mindep
  *      such images, turn it off.
  * </pre>
  */
-PIX * pixOctreeColorQuant(PIX * pixs,
-    int32 colors,
-    int32 ditherflag)
+PIX * pixOctreeColorQuant(PIX * pixs, int32 colors, int32 ditherflag)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
 		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(colors < 128 || colors > 240) /* further restricted */
 		return (PIX *)ERROR_PTR("colors must be in [128, 240]", procName, NULL);
-
-	return pixOctreeColorQuantGeneral(pixs, colors, ditherflag, 0.01, 0.01);
+	return pixOctreeColorQuantGeneral(pixs, colors, ditherflag, 0.01f, 0.01f);
 }
 
 /*!
@@ -3863,7 +3859,7 @@ int32 * pixcmapToOctcubeLUT(PIXCMAP  * cmap,
  *          image pixels are re-numbered.
  * </pre>
  */
-l_ok pixRemoveUnusedColors(PIX  * pixs)
+l_ok pixRemoveUnusedColors(PIX * pixs)
 {
 	int32 i, j, w, h, d, nc, wpls, val, newval, index, zerofound;
 	int32 rval, gval, bval;

@@ -39,12 +39,9 @@ void CalendarLimitTest::runIndexedTest(int32_t index, bool exec, const char *& n
 		default: name = ""; break;
 	}
 }
-
-// *****************************************************************************
+//
 // class CalendarLimitTest
-// *****************************************************************************
-
-// -------------------------------------
+//
 void CalendarLimitTest::test(UDate millis, icu::Calendar* cal, icu::DateFormat* fmt)
 {
 	static const UDate kDrift = 1e-10;

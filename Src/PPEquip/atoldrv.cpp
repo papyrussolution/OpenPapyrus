@@ -1,5 +1,5 @@
 // ATOLDRV.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub, A.Sobolev 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Интерфейс с драйвером оборудования АТОЛ 
 //
@@ -2679,14 +2679,12 @@ int SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 		StateBlock stb;
 		SEOLFormat eolf = SDetermineEOLFormat(pZCheck, zc_len);
 		const char * p_delim = 0;
-		if(eolf == eolWindows)
-			p_delim = "\xD\xA";
-		else if(eolf == eolUnix)
-			p_delim = "\xA";
-		else if(eolf == eolMac)
-			p_delim = "\xD";
-		else
-			p_delim = "\n";
+		switch(eolf) {
+			case eolWindows: p_delim = "\xD\xA"; break;
+			case eolUnix: p_delim = "\xA"; break;
+			case eolMac: p_delim = "\xD"; break;
+			default: p_delim = "\n"; break;
+		}
 		SString str;
 		StringSet str_set(p_delim);
 		str_set.setBuf(pZCheck, zc_len+1);

@@ -9173,6 +9173,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_GPSLOC01_PIN
 	PPDV_GPSLOC01_TARGET
 	PPDV_QUESTIONMARKCIRCLE01
+	PPDV_GOODSSTOCK01
 }
 //
 // Следующие изображения используются без замещения цвета

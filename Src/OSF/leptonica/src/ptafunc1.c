@@ -536,7 +536,7 @@ PTA * ptaGetInsideBox(PTA * ptas,
  *          inward from each corner, using a 45 degree line.
  * </pre>
  */
-PTA * pixFindCornerPixels(PIX  * pixs)
+PTA * pixFindCornerPixels(PIX * pixs)
 {
 	int32 i, j, x, y, w, h, wpl, mindim, found;
 	uint32  * data, * line;
@@ -784,7 +784,7 @@ float l_angleBetweenVectors(float x1, float y1, float x2, float y2)
 	double ang = atan2(y2, x2) - atan2(y1, x1);
 	if(ang > SMathConst::Pi) ang -= 2.0 * SMathConst::Pi_f;
 	if(ang < -SMathConst::Pi) ang += 2.0 * SMathConst::Pi_f;
-	return ang;
+	return (float)ang;
 }
 /*!
  * \brief   ptaPolygonIsConvex()
@@ -1785,10 +1785,7 @@ l_ok applyQuarticFit(float a,
  *      (3) If the image is RGB, three separate plots are generated.
  * </pre>
  */
-l_ok pixPlotAlongPta(PIX         * pixs,
-    PTA         * pta,
-    int32 outformat,
-    const char * title)
+l_ok pixPlotAlongPta(PIX * pixs, PTA * pta, int32 outformat, const char * title)
 {
 	char buffer[128];
 	char           * rtitle, * gtitle, * btitle;
@@ -1797,11 +1794,8 @@ l_ok pixPlotAlongPta(PIX         * pixs,
 	uint32 val;
 	NUMA           * na, * nar, * nag, * nab;
 	PIX            * pixt;
-
 	PROCNAME(__FUNCTION__);
-
 	lept_mkdir("lept/plot");
-
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
 	if(!pta)
@@ -1885,18 +1879,14 @@ l_ok pixPlotAlongPta(PIX         * pixs,
  *          If box == NULL, it uses the entire pix.
  * </pre>
  */
-PTA * ptaGetPixelsFromPix(PIX  * pixs,
-    BOX  * box)
+PTA * ptaGetPixelsFromPix(PIX * pixs, BOX  * box)
 {
 	int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh;
 	uint32  * data, * line;
 	PTA * pta;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs || (pixGetDepth(pixs) != 1))
 		return (PTA*)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
-
 	pixGetDimensions(pixs, &w, &h, NULL);
 	data = pixGetData(pixs);
 	wpl = pixGetWpl(pixs);
@@ -2159,7 +2149,7 @@ PTAA * ptaaIndexLabeledPixels(PIX * pixs,
  *          or NULL on error.
  * </pre>
  */
-PTA * ptaGetNeighborPixLocs(PIX  * pixs,
+PTA * ptaGetNeighborPixLocs(PIX * pixs,
     int32 x,
     int32 y,
     int32 conn)
@@ -2324,8 +2314,8 @@ l_ok ptaConvertToNuma(PTA    * pta,
  *             pixs = pixDisplayPta(pixs, pixs, pta);
  * </pre>
  */
-PIX * pixDisplayPta(PIX  * pixd,
-    PIX  * pixs,
+PIX * pixDisplayPta(PIX * pixd,
+    PIX * pixs,
     PTA * pta)
 {
 	int32 i, n, w, h, x, y;

@@ -224,7 +224,7 @@ extern "C" {
 #if 0 // @sobolev 1-->0 
 #define LIBXML_ICONV_ENABLED // Whether iconv support is available
 #endif
-#if 0 // @v11.2.5 ICU теперь включен в общий пул зависимостей, однако, есть некоторые сложности в подключением его в LIBXML
+#if 1 // @v11.2.5 ICU теперь включен в общий пул зависимостей, однако, есть некоторые сложности в подключением его в LIBXML // @v11.6.2 0-->1
 	#define LIBXML_ICU_ENABLED // Whether icu support is available
 #endif
 #if 1

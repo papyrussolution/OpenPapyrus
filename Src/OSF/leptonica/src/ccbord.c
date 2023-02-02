@@ -340,7 +340,7 @@ void ccbaDestroy(CCBORDA  ** pccba)
  * \param[in]    pixs    [optional]; can be null
  * \return  ccb or NULL on error
  */
-CCBORD * ccbCreate(PIX  * pixs)
+CCBORD * ccbCreate(PIX * pixs)
 {
 	BOXA * boxa;
 	CCBORD  * ccb;
@@ -519,7 +519,7 @@ CCBORD * ccbaGetCcb(CCBORDA  * ccba,
  * \param[in]    pixs    1 bpp
  * \return  ccborda, or NULL on error
  */
-CCBORDA * pixGetAllCCBorders(PIX  * pixs)
+CCBORDA * pixGetAllCCBorders(PIX * pixs)
 {
 	int32 n, i;
 	BOX      * box;
@@ -712,7 +712,7 @@ static CCBORD * pixGetCCBorders(PIX * pixs,
  * \param[in]    pixs     1 bpp
  * \return  ptaa of outer borders, in global coords, or NULL on error
  */
-PTAA * pixGetOuterBordersPtaa(PIX  * pixs)
+PTAA * pixGetOuterBordersPtaa(PIX * pixs)
 {
 	int32 i, n;
 	BOX * box;
@@ -770,7 +770,7 @@ PTAA * pixGetOuterBordersPtaa(PIX  * pixs)
  *          pta will be in those global coordinates.
  * </pre>
  */
-static PTA * pixGetOuterBorderPta(PIX  * pixs,
+static PTA * pixGetOuterBorderPta(PIX * pixs,
     BOX  * box)
 {
 	int32 allzero, x, y;

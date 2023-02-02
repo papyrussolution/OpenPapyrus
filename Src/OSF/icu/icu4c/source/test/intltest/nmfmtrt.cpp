@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/***********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2015, International Business Machines Corporation
-* and others. All Rights Reserved.
-***********************************************************************/
-
+// Copyright (c) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -14,11 +10,9 @@
 #include "nmfmtrt.h"
 #include "unicode/dcfmtsym.h"
 #include "putilimp.h"
-
-// *****************************************************************************
+//
 // class NumberFormatRoundTripTest
-// *****************************************************************************
-
+//
 bool NumberFormatRoundTripTest::verbose                  = FALSE;
 bool NumberFormatRoundTripTest::STRING_COMPARE           = TRUE;
 bool NumberFormatRoundTripTest::EXACT_NUMERIC_COMPARE    = FALSE;
@@ -49,7 +43,6 @@ bool NumberFormatRoundTripTest::failure(UErrorCode status, const char * msg, boo
 		}
 		return TRUE;
 	}
-
 	return FALSE;
 }
 
@@ -288,21 +281,17 @@ void NumberFormatRoundTripTest::test(NumberFormat * fmt, const Formattable& valu
 double NumberFormatRoundTripTest::proportionalError(const Formattable& a, const Formattable& b)
 {
 	double aa, bb;
-
 	if(isDouble(a))
 		aa = a.getDouble();
 	else
 		aa = a.getLong();
-
 	if(isDouble(b))
 		bb = b.getDouble();
 	else
 		bb = b.getLong();
-
 	double error = aa - bb;
 	if(aa != 0 && bb != 0)
 		error /= aa;
-
 	return uprv_fabs(error);
 }
 
@@ -318,7 +307,6 @@ UnicodeString &NumberFormatRoundTripTest::typeOf(const Formattable& n, UnicodeSt
 		result = UnicodeString(" UnicodeString");
 		UnicodeString temp;
 	}
-
 	return result;
 }
 

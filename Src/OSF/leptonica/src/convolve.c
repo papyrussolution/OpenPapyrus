@@ -310,7 +310,7 @@ static void blockconvLow(uint32 * data,
 	}
 	fwc = 2 * wc + 1;
 	fhc = 2 * hc + 1;
-	norm = 1.0 / ((float)(fwc) * fhc);
+	norm = 1.0f / ((float)(fwc) * fhc);
 
 	/*------------------------------------------------------------*
 	*  Compute, using b.c. only to set limits on the accum image *
@@ -422,7 +422,7 @@ static void blockconvLow(uint32 * data,
  *            a(i,j) = v(i,j) + a(i-1, j)
  * </pre>
  */
-PIX * pixBlockconvAccum(PIX  * pixs)
+PIX * pixBlockconvAccum(PIX * pixs)
 {
 	int32 w, h, d, wpls, wpld;
 	uint32 * datas, * datad;
@@ -862,7 +862,7 @@ PIX * pixBlockconvGrayTile(PIX * pixs,
 	wplt = pixGetWpl(pixt);
 	datad = pixGetData(pixd);
 	wpld = pixGetWpl(pixd);
-	norm = 1. / (float)((2 * wc + 1) * (2 * hc + 1));
+	norm = 1.0f / (float)((2 * wc + 1) * (2 * hc + 1));
 
 	/* Do the convolution over the subregion of size (wd - 2, hd - 2),
 	 * which exactly corresponds to the size of the subregion that
@@ -1076,7 +1076,7 @@ PIX * pixWindowedMean(PIX * pixs,
 	hincr = 2 * hc + 1;
 	norm = 1.0; /* use this for sum-in-window */
 	if(normflag)
-		norm = 1.0 / ((float)(wincr) * hincr);
+		norm = 1.0f / ((float)(wincr) * hincr);
 	for(i = 0; i < hd; i++) {
 		linec1 = datac + i * wplc;
 		linec2 = datac + (i + hincr) * wplc;
@@ -1317,7 +1317,7 @@ l_ok pixWindowedVariance(PIX    * pixm,
  *            a(i,j) = v(i,j) + a(i-1, j)
  * </pre>
  */
-DPIX * pixMeanSquareAccum(PIX  * pixs)
+DPIX * pixMeanSquareAccum(PIX * pixs)
 {
 	int32 i, j, w, h, wpl, wpls, val;
 	uint32   * datas, * lines;
@@ -1575,7 +1575,7 @@ static void blocksumLow(uint32 * datad,
 	}
 	fwc = 2 * wc + 1;
 	fhc = 2 * hc + 1;
-	norm = 255. / ((float)(fwc) * fhc);
+	norm = 255.0f / ((float)(fwc) * fhc);
 
 	/*------------------------------------------------------------*
 	*  Compute, using b.c. only to set limits on the accum image *
@@ -1952,8 +1952,8 @@ PIX * pixConvolveSep(PIX * pixs,
 	xfact = ConvolveSamplingFactX;
 	yfact = ConvolveSamplingFactY;
 	if(normflag) {
-		kelxn = kernelNormalize(kelx, 1000.0);
-		kelyn = kernelNormalize(kely, 0.001);
+		kelxn = kernelNormalize(kelx, 1000.0f);
+		kelyn = kernelNormalize(kely, 0.001f);
 		l_setConvolveSampling(xfact, 1);
 		pixt = pixConvolve(pixs, kelxn, 32, 0);
 		l_setConvolveSampling(1, yfact);
@@ -2471,11 +2471,11 @@ float gaussDistribSampling(void)
 	if(select == 0) {
 		while(1) { /* choose a point in a 2x2 square, centered at origin */
 			frand = (float)rand() / (float)RAND_MAX;
-			xval = 2.0 * frand - 1.0;
+			xval = 2.0f * frand - 1.0f;
 			frand = (float)rand() / (float)RAND_MAX;
-			yval = 2.0 * frand - 1.0;
+			yval = 2.0f * frand - 1.0f;
 			rsq = xval * xval + yval * yval;
-			if(rsq > 0.0 && rsq < 1.0) /* point is inside the unit circle */
+			if(rsq > 0.0f && rsq < 1.0f) /* point is inside the unit circle */
 				break;
 		}
 		factor = sqrt(-2.0 * log(rsq) / rsq);

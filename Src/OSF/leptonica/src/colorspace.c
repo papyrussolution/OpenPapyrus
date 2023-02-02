@@ -119,20 +119,16 @@ static float lab_reverse(float v);
  *          brightness v, but leaves the saturation and hue invariant.
  * </pre>
  */
-PIX * pixConvertRGBToHSV(PIX  * pixd,
-    PIX  * pixs)
+PIX * pixConvertRGBToHSV(PIX * pixd, PIX * pixs)
 {
 	int32 w, h, d, wpl, i, j, rval, gval, bval, hval, sval, vval;
 	uint32 * line, * data;
 	PIXCMAP   * cmap;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixd && pixd != pixs)
 		return (PIX *)ERROR_PTR("pixd defined and not inplace", procName, pixd);
-
 	d = pixGetDepth(pixs);
 	cmap = pixGetColormap(pixs);
 	if(!cmap && d != 32)
@@ -181,21 +177,17 @@ PIX * pixConvertRGBToHSV(PIX  * pixd,
  *          placed in the 3 MS bytes in the pixel.
  * </pre>
  */
-PIX * pixConvertHSVToRGB(PIX  * pixd,
-    PIX  * pixs)
+PIX * pixConvertHSVToRGB(PIX * pixd, PIX * pixs)
 {
 	int32 w, h, d, wpl, i, j, rval, gval, bval, hval, sval, vval;
 	uint32 pixel;
 	uint32 * line, * data;
 	PIXCMAP   * cmap;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixd && pixd != pixs)
 		return (PIX *)ERROR_PTR("pixd defined and not inplace", procName, pixd);
-
 	d = pixGetDepth(pixs);
 	cmap = pixGetColormap(pixs);
 	if(!cmap && d != 32)
@@ -447,7 +439,7 @@ l_ok pixcmapConvertHSVToRGB(PIXCMAP  * cmap)
  *          2x faster than using pixConvertRGBToHSV()
  * </pre>
  */
-PIX * pixConvertRGBToHue(PIX  * pixs)
+PIX * pixConvertRGBToHue(PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
 	int32 w, h, d, wplt, wpld;
@@ -518,7 +510,7 @@ PIX * pixConvertRGBToHue(PIX  * pixs)
  *          at about 12 Mpixels/sec/GHz.
  * </pre>
  */
-PIX * pixConvertRGBToSaturation(PIX  * pixs)
+PIX * pixConvertRGBToSaturation(PIX * pixs)
 {
 	int32 w, h, d, wplt, wpld;
 	int32 i, j, rval, gval, bval, sval, minrg, min, maxrg, max, delta;
@@ -581,7 +573,7 @@ PIX * pixConvertRGBToSaturation(PIX  * pixs)
  *          at about 35 Mpixels/sec/GHz.
  * </pre>
  */
-PIX * pixConvertRGBToValue(PIX  * pixs)
+PIX * pixConvertRGBToValue(PIX * pixs)
 {
 	int32 w, h, d, wplt, wpld;
 	int32 i, j, rval, gval, bval, maxrg, max;
@@ -1353,20 +1345,16 @@ PIX * displayHSVColorRange(int32 hval,
  *          //http://user.engineering.uiowa.edu/~aip/Misc/ColorFAQ.html
  * </pre>
  */
-PIX * pixConvertRGBToYUV(PIX  * pixd,
-    PIX  * pixs)
+PIX * pixConvertRGBToYUV(PIX * pixd, PIX * pixs)
 {
 	int32 w, h, d, wpl, i, j, rval, gval, bval, yval, uval, vval;
 	uint32 * line, * data;
 	PIXCMAP   * cmap;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixd && pixd != pixs)
 		return (PIX *)ERROR_PTR("pixd defined and not inplace", procName, pixd);
-
 	d = pixGetDepth(pixs);
 	cmap = pixGetColormap(pixs);
 	if(!cmap && d != 32)
@@ -1414,8 +1402,7 @@ PIX * pixConvertRGBToYUV(PIX  * pixd,
  *          placed in the 3 MS bytes in the pixel.
  * </pre>
  */
-PIX * pixConvertYUVToRGB(PIX  * pixd,
-    PIX  * pixs)
+PIX * pixConvertYUVToRGB(PIX * pixd, PIX * pixs)
 {
 	int32 w, h, d, wpl, i, j, rval, gval, bval, yval, uval, vval;
 	uint32 pixel;
@@ -1644,7 +1631,7 @@ l_ok pixcmapConvertYUVToRGB(PIXCMAP  * cmap)
  *             http://en.wikipedia.org/wiki/CIE_1931_color_space
  * </pre>
  */
-FPIXA * pixConvertRGBToXYZ(PIX  * pixs)
+FPIXA * pixConvertRGBToXYZ(PIX * pixs)
 {
 	int32 w, h, wpls, wpld, i, j, rval, gval, bval;
 	uint32   * lines, * datas;
@@ -2080,7 +2067,7 @@ static float lab_reverse(float v)
  *          that are returned in a fpixa.
  * </pre>
  */
-FPIXA * pixConvertRGBToLAB(PIX  * pixs)
+FPIXA * pixConvertRGBToLAB(PIX * pixs)
 {
 	int32 w, h, wpls, wpld, i, j, rval, gval, bval;
 	uint32   * lines, * datas;

@@ -1,10 +1,8 @@
 // Copyright 2017 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+// the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 #ifndef ABSL_BASE_LOG_SEVERITY_H_
 #define ABSL_BASE_LOG_SEVERITY_H_
@@ -60,10 +58,10 @@ ABSL_NAMESPACE_BEGIN
 // Unparsing a flag produces the same result as `absl::LogSeverityName()` for
 // the standard levels and a base-ten integer otherwise.
 enum class LogSeverity : int {
-  kInfo = 0,
-  kWarning = 1,
-  kError = 2,
-  kFatal = 3,
+	kInfo = 0,
+	kWarning = 1,
+	kError = 2,
+	kFatal = 3,
 };
 
 // LogSeverities()
@@ -71,36 +69,29 @@ enum class LogSeverity : int {
 // Returns an iterable of all standard `absl::LogSeverity` values, ordered from
 // least to most severe.
 constexpr std::array<absl::LogSeverity, 4> LogSeverities() {
-  return {{absl::LogSeverity::kInfo, absl::LogSeverity::kWarning,
-           absl::LogSeverity::kError, absl::LogSeverity::kFatal}};
+	return {{absl::LogSeverity::kInfo, absl::LogSeverity::kWarning,
+		 absl::LogSeverity::kError, absl::LogSeverity::kFatal}};
 }
 
 // LogSeverityName()
 //
 // Returns the all-caps string representation (e.g. "INFO") of the specified
 // severity level if it is one of the standard levels and "UNKNOWN" otherwise.
-constexpr const char* LogSeverityName(absl::LogSeverity s) {
-  return s == absl::LogSeverity::kInfo
-             ? "INFO"
-             : s == absl::LogSeverity::kWarning
-                   ? "WARNING"
-                   : s == absl::LogSeverity::kError
-                         ? "ERROR"
-                         : s == absl::LogSeverity::kFatal ? "FATAL" : "UNKNOWN";
+constexpr const char* LogSeverityName(absl::LogSeverity s) 
+{
+	return s == absl::LogSeverity::kInfo ? "INFO" : s == absl::LogSeverity::kWarning ? "WARNING" : s == absl::LogSeverity::kError ? "ERROR" : s == absl::LogSeverity::kFatal ? "FATAL" : "UNKNOWN";
 }
 
 // NormalizeLogSeverity()
 //
 // Values less than `kInfo` normalize to `kInfo`; values greater than `kFatal`
 // normalize to `kError` (**NOT** `kFatal`).
-constexpr absl::LogSeverity NormalizeLogSeverity(absl::LogSeverity s) {
-  return s < absl::LogSeverity::kInfo
-             ? absl::LogSeverity::kInfo
-             : s > absl::LogSeverity::kFatal ? absl::LogSeverity::kError : s;
+constexpr absl::LogSeverity NormalizeLogSeverity(absl::LogSeverity s) 
+{
+	return s < absl::LogSeverity::kInfo ? absl::LogSeverity::kInfo : s > absl::LogSeverity::kFatal ? absl::LogSeverity::kError : s;
 }
-constexpr absl::LogSeverity NormalizeLogSeverity(int s) {
-  return absl::NormalizeLogSeverity(static_cast<absl::LogSeverity>(s));
-}
+
+constexpr absl::LogSeverity NormalizeLogSeverity(int s) { return absl::NormalizeLogSeverity(static_cast<absl::LogSeverity>(s)); }
 
 // operator<<
 //
@@ -114,11 +105,11 @@ std::ostream & operator<<(std::ostream & os, absl::LogSeverity s);
 // a level above all threshold levels and therefore no log message will
 // ever meet this threshold.
 enum class LogSeverityAtLeast : int {
-  kInfo = static_cast<int>(absl::LogSeverity::kInfo),
-  kWarning = static_cast<int>(absl::LogSeverity::kWarning),
-  kError = static_cast<int>(absl::LogSeverity::kError),
-  kFatal = static_cast<int>(absl::LogSeverity::kFatal),
-  kInfinity = 1000,
+	kInfo = static_cast<int>(absl::LogSeverity::kInfo),
+	kWarning = static_cast<int>(absl::LogSeverity::kWarning),
+	kError = static_cast<int>(absl::LogSeverity::kError),
+	kFatal = static_cast<int>(absl::LogSeverity::kFatal),
+	kInfinity = 1000,
 };
 
 std::ostream & operator<<(std::ostream & os, absl::LogSeverityAtLeast s);
@@ -129,22 +120,18 @@ std::ostream & operator<<(std::ostream & os, absl::LogSeverityAtLeast s);
 // absl::LogSeverityAtMost::kNegativeInfinity is a level below all threshold
 // levels and therefore will exclude all log messages.
 enum class LogSeverityAtMost : int {
-  kNegativeInfinity = -1000,
-  kInfo = static_cast<int>(absl::LogSeverity::kInfo),
-  kWarning = static_cast<int>(absl::LogSeverity::kWarning),
-  kError = static_cast<int>(absl::LogSeverity::kError),
-  kFatal = static_cast<int>(absl::LogSeverity::kFatal),
+	kNegativeInfinity = -1000,
+	kInfo = static_cast<int>(absl::LogSeverity::kInfo),
+	kWarning = static_cast<int>(absl::LogSeverity::kWarning),
+	kError = static_cast<int>(absl::LogSeverity::kError),
+	kFatal = static_cast<int>(absl::LogSeverity::kFatal),
 };
 
 std::ostream & operator<<(std::ostream & os, absl::LogSeverityAtMost s);
 
 #define COMPOP(op1, op2, T)                                         \
-  constexpr bool operator op1(absl::T lhs, absl::LogSeverity rhs) { \
-    return static_cast<absl::LogSeverity>(lhs) op1 rhs;             \
-  }                                                                 \
-  constexpr bool operator op2(absl::LogSeverity lhs, absl::T rhs) { \
-    return lhs op2 static_cast<absl::LogSeverity>(rhs);             \
-  }
+	constexpr bool operator op1(absl::T lhs, absl::LogSeverity rhs) { return static_cast<absl::LogSeverity>(lhs) op1 rhs; } \
+	constexpr bool operator op2(absl::LogSeverity lhs, absl::T rhs) { return lhs op2 static_cast<absl::LogSeverity>(rhs); }
 
 // Comparisons between `LogSeverity` and `LogSeverityAtLeast`/
 // `LogSeverityAtMost` are only supported in one direction.

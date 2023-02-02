@@ -152,7 +152,7 @@ static int32 numaFillCmapFromHisto(NUMA * na, PIXCMAP * cmap,
  *  line buffers to avoid changing pixs.  It is about the same speed
  *  as pixDitherToBinaryLUT(), which uses three LUTs.
  */
-PIX * pixDitherToBinary(PIX  * pixs)
+PIX * pixDitherToBinary(PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -623,7 +623,7 @@ void thresholdToBinaryLineLow(uint32  * lined,
  *          in pixg, the dest will be 1; otherwise it will be 0.
  * </pre>
  */
-PIX * pixVarThresholdToBinary(PIX  * pixs,
+PIX * pixVarThresholdToBinary(PIX * pixs,
     PIX  * pixg)
 {
 	int32 i, j, vals, valg, w, h, d, wpls, wplg, wpld;
@@ -1688,7 +1688,7 @@ PIX * pixThresholdOn8bpp(PIX * pixs,
  *          using pixGammaTRC(), and follow this with pixThresholdTo4bpp().
  * </pre>
  */
-PIX * pixThresholdGrayArb(PIX         * pixs,
+PIX * pixThresholdGrayArb(PIX * pixs,
     const char * edgevals,
     int32 outdepth,
     int32 use_average,
@@ -2532,19 +2532,17 @@ PIX * pixGrayQuantFromCmap(PIX * pixs,
 	pixcmapHasColor(cmap, &hascolor);
 	if(hascolor) {
 		L_WARNING("Converting colormap colors to gray\n", procName);
-		cmapd = pixcmapColorToGray(cmap, 0.3, 0.5, 0.2);
+		cmapd = pixcmapColorToGray(cmap, 0.3f, 0.5f, 0.2f);
 	}
 	else {
 		cmapd = pixcmapCopy(cmap);
 	}
-
 	/* Make LUT into colormap */
 	tab = (int32*)SAlloc::C(256, sizeof(int32));
 	for(i = 0; i < 256; i++) {
 		pixcmapGetNearestGrayIndex(cmapd, i, &index);
 		tab[i] = index;
 	}
-
 	pixcmapGetMinDepth(cmap, &depth);
 	depth = MAX(depth, mindepth);
 	pixd = pixCreate(w, h, depth);

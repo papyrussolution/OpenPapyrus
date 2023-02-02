@@ -624,18 +624,15 @@ l_ok pixUpDownDetect(PIX * pixs,
 	ndown = (float)(countdown);
 	nmax = MAX(countup, countdown);
 	if(nmax > mincount)
-		*pconf = 2. * ((nup - ndown) / sqrt(nup + ndown));
-
+		*pconf = 2.0f * ((nup - ndown) / sqrt(nup + ndown));
 	if(debug) {
 		if(pixm) pixWriteDebug("/tmp/lept/orient/pixm1.png", pixm, IFF_PNG);
-		lept_stderr("nup = %7.3f, ndown = %7.3f, conf = %7.3f\n",
-		    nup, ndown, *pconf);
+		lept_stderr("nup = %7.3f, ndown = %7.3f, conf = %7.3f\n", nup, ndown, *pconf);
 		if(*pconf > DefaultMinUpDownConf)
 			lept_stderr("Text is rightside-up\n");
 		if(*pconf < -DefaultMinUpDownConf)
 			lept_stderr("Text is upside-down\n");
 	}
-
 	pixDestroy(&pix0);
 	pixDestroy(&pixm);
 	selDestroy(&sel1);
@@ -738,17 +735,14 @@ l_ok pixMirrorDetect(PIX * pixs,
 	pixDebugFlipDetect("/tmp/lept/orient/left.png", pixs, pix2, debug);
 	pixDestroy(&pix2);
 	pixDestroy(&pix3);
-
 	nright = (float)count1;
 	nleft = (float)count2;
 	nmax = MAX(count1, count2);
 	pixDestroy(&pix0);
 	selDestroy(&sel1);
 	selDestroy(&sel2);
-
 	if(nmax > mincount)
-		*pconf = 2. * ((nright - nleft) / sqrt(nright + nleft));
-
+		*pconf = 2.0f * ((nright - nleft) / sqrt(nright + nleft));
 	if(debug) {
 		lept_stderr("nright = %f, nleft = %f\n", nright, nleft);
 		if(*pconf > DefaultMinMirrorFlipConf)
@@ -756,7 +750,6 @@ l_ok pixMirrorDetect(PIX * pixs,
 		if(*pconf < -DefaultMinMirrorFlipConf)
 			lept_stderr("Text is mirror reversed\n");
 	}
-
 	return 0;
 }
 

@@ -348,17 +348,14 @@ NUMA * numaGammaTRC(float gamma,
 	int32 i, val;
 	float x, invgamma;
 	NUMA * na;
-
 	PROCNAME(__FUNCTION__);
-
 	if(minval >= maxval)
 		return (NUMA*)ERROR_PTR("minval not < maxval", procName, NULL);
-	if(gamma <= 0.0) {
+	if(gamma <= 0.0f) {
 		L_WARNING("gamma must be > 0.0; setting to 1.0\n", procName);
-		gamma = 1.0;
+		gamma = 1.0f;
 	}
-
-	invgamma = 1. / gamma;
+	invgamma = 1.0f / gamma;
 	na = numaCreate(256);
 	for(i = 0; i < minval; i++)
 		numaAddNumber(na, 0);
@@ -1271,18 +1268,17 @@ PIX * pixUnsharpMaskingGray1D(PIX * pixs,
 	wpld = pixGetWpl(pixd);
 
 	if(halfwidth == 1) {
-		a[0] = -fract / 3.0;
-		a[1] = 1.0 + fract * 2.0 / 3.0;
+		a[0] = -fract / 3.0f;
+		a[1] = 1.0 + fract * 2.0f / 3.0f;
 		a[2] = a[0];
 	}
 	else { /* halfwidth == 2 */
-		a[0] = -fract / 5.0;
+		a[0] = -fract / 5.0f;
 		a[1] = a[0];
-		a[2] = 1.0 + fract * 4.0 / 5.0;
+		a[2] = 1.0 + fract * 4.0f / 5.0f;
 		a[3] = a[0];
 		a[4] = a[0];
 	}
-
 	if(direction == L_HORIZ) {
 		for(i = 0; i < h; i++) {
 			lines = datas + i * wpls;
@@ -2068,19 +2064,16 @@ PIX * pixMultConstantColor(PIX * pixs,
 	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 	PIXCMAP   * cmap;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
 	cmap = pixGetColormap(pixs);
 	if(!cmap && d != 32)
 		return (PIX *)ERROR_PTR("pixs not cmapped or 32 bpp", procName, NULL);
-	rfact = MAX(0.0, rfact);
-	gfact = MAX(0.0, gfact);
-	bfact = MAX(0.0, bfact);
-
+	rfact = MAX(0.0f, rfact);
+	gfact = MAX(0.0f, gfact);
+	bfact = MAX(0.0f, bfact);
 	if(cmap) {
 		if((pixd = pixCopy(NULL, pixs)) == NULL)
 			return (PIX *)ERROR_PTR("pixd not made", procName, NULL);

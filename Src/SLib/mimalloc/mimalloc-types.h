@@ -21,11 +21,9 @@
 #ifndef MI_MAX_ALIGN_SIZE
 #define MI_MAX_ALIGN_SIZE  16   // sizeof(max_align_t)
 #endif
-
-// ------------------------------------------------------
+//
 // Variants
-// ------------------------------------------------------
-
+//
 // Define NDEBUG in the release version to disable assertions.
 // #define NDEBUG
 
@@ -66,12 +64,9 @@
 #if (MI_SECURE>=3 || MI_DEBUG>=1 || MI_PADDING > 0)
 #define MI_ENCODE_FREELIST  1
 #endif
-
-// ------------------------------------------------------
+//
 // Platform specific values
-// ------------------------------------------------------
-
-// ------------------------------------------------------
+//
 // Size of a pointer.
 // We assume that `sizeof(void*)==sizeof(intptr_t)`
 // and it holds for all platforms we know of.
@@ -81,60 +76,51 @@
 // but we also need:
 //  i == (intptr_t)((void*)i)
 // or otherwise one might define an intptr_t type that is larger than a pointer...
-// ------------------------------------------------------
-
+//
 #if INTPTR_MAX > INT64_MAX
-# define MI_INTPTR_SHIFT (4)  // assume 128-bit  (as on arm CHERI for example)
+	#define MI_INTPTR_SHIFT (4)  // assume 128-bit  (as on arm CHERI for example)
 #elif INTPTR_MAX == INT64_MAX
-# define MI_INTPTR_SHIFT (3)
+	#define MI_INTPTR_SHIFT (3)
 #elif INTPTR_MAX == INT32_MAX
-# define MI_INTPTR_SHIFT (2)
+	#define MI_INTPTR_SHIFT (2)
 #else
-#error platform pointers must be 32, 64, or 128 bits
+	#error platform pointers must be 32, 64, or 128 bits
 #endif
-
 #if SIZE_MAX == UINT64_MAX
-# define MI_SIZE_SHIFT (3)
-typedef int64_t mi_ssize_t;
+	#define MI_SIZE_SHIFT (3)
+	typedef int64_t mi_ssize_t;
 #elif SIZE_MAX == UINT32_MAX
-# define MI_SIZE_SHIFT (2)
-typedef int32_t mi_ssize_t;
+	#define MI_SIZE_SHIFT (2)
+	typedef int32_t mi_ssize_t;
 #else
-#error platform objects must be 32 or 64 bits
+	#error platform objects must be 32 or 64 bits
 #endif
-
 #if (SIZE_MAX/2) > LONG_MAX
-# define MI_ZU(x)  x ## ULL
-# define MI_ZI(x)  x ## LL
+	#define MI_ZU(x)  x ## ULL
+	#define MI_ZI(x)  x ## LL
 #else
-# define MI_ZU(x)  x ## UL
-# define MI_ZI(x)  x ## L
+	#define MI_ZU(x)  x ## UL
+	#define MI_ZI(x)  x ## L
 #endif
-
 #define MI_INTPTR_SIZE  (1<<MI_INTPTR_SHIFT)
 #define MI_INTPTR_BITS  (MI_INTPTR_SIZE*8)
-
 #define MI_SIZE_SIZE  (1<<MI_SIZE_SHIFT)
 #define MI_SIZE_BITS  (MI_SIZE_SIZE*8)
-
 #define MI_KiB     (MI_ZU(1024))
 #define MI_MiB     (MI_KiB*MI_KiB)
 #define MI_GiB     (MI_MiB*MI_KiB)
-
-// ------------------------------------------------------
+//
 // Main internal data-structures
-// ------------------------------------------------------
-
+//
 // Main tuning parameters for segment and page sizes
 // Sizes for 64-bit (usually divide by two for 32-bit)
 #define MI_SEGMENT_SLICE_SHIFT            (13 + MI_INTPTR_SHIFT)         // 64KiB  (32KiB on 32-bit)
 
 #if MI_INTPTR_SIZE > 4
-#define MI_SEGMENT_SHIFT                  (10 + MI_SEGMENT_SLICE_SHIFT)  // 64MiB
+	#define MI_SEGMENT_SHIFT                  (10 + MI_SEGMENT_SLICE_SHIFT)  // 64MiB
 #else
-#define MI_SEGMENT_SHIFT                  ( 7 + MI_SEGMENT_SLICE_SHIFT)  // 4MiB on 32-bit
+	#define MI_SEGMENT_SHIFT                  ( 7 + MI_SEGMENT_SLICE_SHIFT)  // 4MiB on 32-bit
 #endif
-
 #define MI_SMALL_PAGE_SHIFT               (MI_SEGMENT_SLICE_SHIFT)       // 64KiB
 #define MI_MEDIUM_PAGE_SHIFT              ( 3 + MI_SMALL_PAGE_SHIFT)     // 512KiB
 
@@ -175,17 +161,11 @@ typedef int32_t mi_ssize_t;
 
 // blocks up to this size are always allocated aligned
 #define MI_MAX_ALIGN_GUARANTEE            (8*MI_MAX_ALIGN_SIZE)
-
-// ------------------------------------------------------
+//
 // Mimalloc pages contain allocated blocks
-// ------------------------------------------------------
-
-// The free lists use encoded next fields
-// (Only actually encodes when MI_ENCODED_FREELIST is defined.)
-typedef uintptr_t mi_encoded_t;
-
-// thread id's
-typedef size_t mi_threadid_t;
+//
+typedef uintptr_t mi_encoded_t; // The free lists use encoded next fields (Only actually encodes when MI_ENCODED_FREELIST is defined.)
+typedef size_t mi_threadid_t; // thread id's
 
 // free lists contain blocks
 typedef struct mi_block_s {
@@ -306,8 +286,7 @@ typedef enum mi_segment_kind_e {
 	MI_SEGMENT_NORMAL, // MI_SEGMENT_SIZE size with pages inside.
 	MI_SEGMENT_HUGE, // > MI_LARGE_SIZE_MAX segment with just one huge page inside.
 } mi_segment_kind_t;
-
-// ------------------------------------------------------
+//
 // A segment holds a commit mask where a bit is set if
 // the corresponding MI_COMMIT_SIZE area is committed.
 // The MI_COMMIT_SIZE must be a multiple of the slice
@@ -317,8 +296,7 @@ typedef enum mi_segment_kind_e {
 // be committed in one go which can be set higher than
 // MI_COMMIT_SIZE for efficiency (while the decommit mask
 // is still tracked in fine-grained MI_COMMIT_SIZE chunks)
-// ------------------------------------------------------
-
+//
 #define MI_MINIMAL_COMMIT_SIZE      (2*MI_MiB)
 #define MI_COMMIT_SIZE              (MI_SEGMENT_SLICE_SIZE)              // 64KiB
 #define MI_COMMIT_MASK_BITS         (MI_SEGMENT_SIZE / MI_COMMIT_SIZE)

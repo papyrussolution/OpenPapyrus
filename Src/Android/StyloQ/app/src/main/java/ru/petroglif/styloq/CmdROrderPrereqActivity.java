@@ -277,10 +277,16 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				}
 			}
 			if(final_cli_js != null) {
+				boolean do_init_geloc = (CPM.GetCurrentDocument() == null);
 				int cli_id = final_cli_js.optInt("id", 0);
 				int dlvrloc_id = (dlvrLocItem != null) ? dlvrLocItem.optInt("id", 0) : 0;
 				result = CPM.SetClientToCurrentDocument(SLib.PPEDIOP_ORDER, cli_id, dlvrloc_id, false);
 				if(result) {
+					if(do_init_geloc) {
+						// Отправляем запрос на получение гео-координат с objid типа документ и нулевым идентификатором.
+						// HandleEvent по этой паре определит что речь идет о вновь созданном документе.
+						SLib.QueryCurrentGeoLoc(this, new SLib.PPObjID(SLib.PPOBJ_BILL, 0), this);
+					}
 					CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.VISIBLE);
 					NotifyCurrentDocumentChanged();
 					NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
@@ -293,9 +299,16 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	//
 	private boolean AddItemToCurrentOrder(Document.TransferItem item)
 	{
+		boolean do_init_geloc = (CPM.GetCurrentDocument() == null);
 		boolean result = CPM.AddTransferItemToCurrentDocument(item);
-		if(result)
+		if(result) {
+			if(do_init_geloc) {
+				// Отправляем запрос на получение гео-координат с objid типа документ и нулевым идентификатором.
+				// HandleEvent по этой паре определит что речь идет о вновь созданном документе.
+				SLib.QueryCurrentGeoLoc(this, new SLib.PPObjID(SLib.PPOBJ_BILL, 0), this);
+			}
 			NotifyCurrentDocumentChanged();
+		}
 		return result;
 	}
 	private static class DlvrLocListAdapter extends SLib.InternalArrayAdapter implements SLib.EventHandler {
@@ -337,7 +350,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							View grpv = convertView.findViewById(R.id.CTLGRP_LOCATION_GEOLOC);
 							View bv = convertView.findViewById(R.id.CTL_BUTTON_GEOLOCMARK);
 							if(bv != null && bv instanceof ImageButton) {
-								if(DlvrLocGpslocSettingAllowed) {
+								/*if(DlvrLocGpslocSettingAllowed) {
 									if(grpv != null)
 										grpv.setVisibility(View.VISIBLE);
 									else
@@ -357,7 +370,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 											}
 										}});
 								}
-								else {
+								else*/{
 									if(grpv != null)
 										grpv.setVisibility(View.GONE);
 									else
@@ -976,6 +989,24 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												final int cur_id = cur_entry.Item.ID;
 												View iv = ev_subj.RvHolder.itemView;
 												SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.Item.Name);
+												if(cur_entry.Expiry != null) {
+													SLib.SetCtrlVisibility(iv, R.id.CTLGRP_GOODS_EXPIRY, View.VISIBLE);
+													View v_text = iv.findViewById(R.id.ORDERPREREQ_GOODS_EXPIRY);
+													if(v_text != null && v_text instanceof TextView) {
+														SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_EXPIRY, cur_entry.Expiry.Format(SLib.DATF_DMY));
+														int shaperc = 0;
+														int ahead_expiry_days = CPM.GetAheadExpiryDays();
+														SLib.LDATE now_date = SLib.GetCurDate();
+														if(SLib.LDATE.Difference(cur_entry.Expiry, now_date) <= ahead_expiry_days)
+															shaperc = R.drawable.shape_expiry_alert;
+														else
+															shaperc = R.drawable.shape_expiry_normal;
+														v_text.setBackground(getResources().getDrawable(shaperc, getTheme()));
+													}
+
+												}
+												else
+													SLib.SetCtrlVisibility(iv, R.id.CTLGRP_GOODS_EXPIRY, View.GONE);
 												double val = 0.0;
 												val = cur_entry.Item.Price;
 												SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
@@ -1681,6 +1712,20 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										fv.refreshDrawableState();
 									}
 								}
+							}
+						}
+					}
+				}
+				break;
+			case SLib.EV_GEOLOCDETECTED:
+				if(subj != null && subj instanceof Location) {
+					StyloQApp app_ctx = GetAppCtx();
+					SLib.PPObjID oid = (srcObj != null && srcObj instanceof SLib.PPObjID) ? (SLib.PPObjID)srcObj : null;
+					if(app_ctx != null && oid != null && oid.Type == SLib.PPOBJ_BILL) {
+						if(oid.Id == 0) {
+							Document current_doc = CPM.GetCurrentDocument();
+							if(current_doc != null && current_doc.H.CreationGeoLoc == null) {
+								current_doc.H.CreationGeoLoc = new SLib.GeoPosLL((Location)subj);
 							}
 						}
 					}

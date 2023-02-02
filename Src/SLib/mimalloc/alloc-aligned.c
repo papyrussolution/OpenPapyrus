@@ -9,10 +9,9 @@
 #pragma hdrstop
 #include "mimalloc.h"
 #include "mimalloc-internal.h"
-// ------------------------------------------------------
+//
 // Aligned Allocation
-// ------------------------------------------------------
-
+//
 // Fallback primitive aligned allocation -- split out for better codegen
 static mi_decl_noinline void* mi_heap_malloc_zero_aligned_at_fallback(mi_heap_t* const heap, const size_t size,
     const size_t alignment, const size_t offset, const bool zero) mi_attr_noexcept
@@ -101,12 +100,11 @@ static void* mi_heap_malloc_zero_aligned_at(mi_heap_t* const heap,
 	// fallback
 	return mi_heap_malloc_zero_aligned_at_fallback(heap, size, alignment, offset, zero);
 }
-
-// ------------------------------------------------------
+//
 // Optimized mi_heap_malloc_aligned / mi_malloc_aligned
-// ------------------------------------------------------
-
-mi_decl_restrict void* mi_heap_malloc_aligned_at(mi_heap_t* heap, size_t size, size_t alignment, size_t offset) mi_attr_noexcept {
+//
+mi_decl_restrict void* mi_heap_malloc_aligned_at(mi_heap_t* heap, size_t size, size_t alignment, size_t offset) mi_attr_noexcept 
+{
 	return mi_heap_malloc_zero_aligned_at(heap, size, alignment, offset, false);
 }
 
@@ -128,16 +126,16 @@ mi_decl_restrict void* mi_heap_malloc_aligned(mi_heap_t* heap, size_t size, size
 		return mi_heap_malloc_aligned_at(heap, size, alignment, 0);
 	}
 }
-
-// ------------------------------------------------------
+//
 // Aligned Allocation
-// ------------------------------------------------------
-
-mi_decl_restrict void* mi_heap_zalloc_aligned_at(mi_heap_t* heap, size_t size, size_t alignment, size_t offset) mi_attr_noexcept {
+//
+mi_decl_restrict void* mi_heap_zalloc_aligned_at(mi_heap_t* heap, size_t size, size_t alignment, size_t offset) mi_attr_noexcept 
+{
 	return mi_heap_malloc_zero_aligned_at(heap, size, alignment, offset, true);
 }
 
-mi_decl_restrict void* mi_heap_zalloc_aligned(mi_heap_t* heap, size_t size, size_t alignment) mi_attr_noexcept {
+mi_decl_restrict void* mi_heap_zalloc_aligned(mi_heap_t* heap, size_t size, size_t alignment) mi_attr_noexcept 
+{
 	return mi_heap_zalloc_aligned_at(heap, size, alignment, 0);
 }
 
@@ -175,13 +173,11 @@ mi_decl_restrict void* mi_calloc_aligned_at(size_t count, size_t size, size_t al
 mi_decl_restrict void* mi_calloc_aligned(size_t count, size_t size, size_t alignment) mi_attr_noexcept {
 	return mi_heap_calloc_aligned(mi_get_default_heap(), count, size, alignment);
 }
-
-// ------------------------------------------------------
+//
 // Aligned re-allocation
-// ------------------------------------------------------
-
-static void* mi_heap_realloc_zero_aligned_at(mi_heap_t* heap, void* p, size_t newsize, size_t alignment, size_t offset,
-    bool zero) mi_attr_noexcept {
+//
+static void* mi_heap_realloc_zero_aligned_at(mi_heap_t* heap, void* p, size_t newsize, size_t alignment, size_t offset, bool zero) mi_attr_noexcept 
+{
 	mi_assert(alignment > 0);
 	if(alignment <= sizeof(uintptr_t)) return _mi_heap_realloc_zero(heap, p, newsize, zero);
 	if(p == NULL) return mi_heap_malloc_zero_aligned_at(heap, newsize, alignment, offset, zero);

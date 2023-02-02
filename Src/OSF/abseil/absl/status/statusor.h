@@ -1,11 +1,8 @@
 // statusor.h
 // Copyright 2020 The Abseil Authors.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // An `absl::StatusOr<T>` represents a union of an `absl::Status` object
 // and an object of type `T`. The `absl::StatusOr<T>` will either contain an

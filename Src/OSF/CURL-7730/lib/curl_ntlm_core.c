@@ -317,24 +317,16 @@ static bool encrypt_des(const uchar * in, uchar * out,
  * 8 byte plaintext is encrypted with each key and the resulting 24
  * bytes are stored in the results array.
  */
-void Curl_ntlm_core_lm_resp(const uchar * keys,
-    const uchar * plaintext,
-    uchar * results)
+void Curl_ntlm_core_lm_resp(const uchar * keys, const uchar * plaintext, uchar * results)
 {
 #if defined(USE_OPENSSL) || defined(USE_WOLFSSL)
 	DES_key_schedule ks;
-
 	setup_des_key(keys, DESKEY(ks));
-	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)results,
-	    DESKEY(ks), DES_ENCRYPT);
-
+	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)results, DESKEY(ks), DES_ENCRYPT);
 	setup_des_key(keys + 7, DESKEY(ks));
-	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)(results + 8),
-	    DESKEY(ks), DES_ENCRYPT);
-
+	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)(results + 8), DESKEY(ks), DES_ENCRYPT);
 	setup_des_key(keys + 14, DESKEY(ks));
-	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)(results + 16),
-	    DESKEY(ks), DES_ENCRYPT);
+	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)(results + 16), DESKEY(ks), DES_ENCRYPT);
 #elif defined(USE_GNUTLS_NETTLE)
 	struct des_ctx des;
 	setup_des_key(keys, &des);

@@ -1,5 +1,5 @@
 // TV.H
-// Copyright (c) A.Sobolev 1996-2021, 2022
+// Copyright (c) A.Sobolev 1996-2021, 2022, 2023
 // @codepage UTF-8
 //
 #ifndef __TV_H
@@ -3380,7 +3380,8 @@ public:
 	int    FASTCALL GetClusterData(uint ctlID, long *);
 	int    FASTCALL GetClusterData(uint ctlID, int16 *);
 	long   FASTCALL GetClusterData(uint ctlID);
-	void   DisableClusterItem(uint ctlID, int itemNo /* 0.. */, int toDisable = 1);
+	void   DisableClusterItem(uint ctlID, int itemNo /* 0.. */, bool toDisable = true);
+	void   DisableClusterItems(uint ctlID, const LongArray & rItemIdxList /* 0.. */, bool toDisable = true);
 	int    SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText);
 	int    GetClusterItemByAssoc(uint ctlID, long val, int * pPos);
 	int    SetDefaultButton(uint ctlID, int setDefault);
@@ -3675,8 +3676,8 @@ public:
 	int    SetText(int pos, const char *);
 	void   addItem(int, const char *);
 	void   deleteItem(int);
-	void   disableItem(int pos /* 0.. */, int disable);
-	int    isItemEnabled(int item) const; // item = номер элемента в списке 0..
+	void   disableItem(int pos /* 0.. */, bool disable);
+	bool   IsItemEnabled(int item) const; // item = номер элемента в списке 0..
 	void   deleteAll();
 	int    isChecked(ushort item) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
 	int    isEnabled(ushort item) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
@@ -3694,7 +3695,7 @@ protected:
 	int16  Kind;  // RADIOBUTTONS || CHECKBOXES
 	ushort Value;
 	int    Sel;
-	int    DisableMask;
+	uint32 DisableMask; // @v11.6.2 int-->uint32
 	SStrCollection Strings;
 private:
 	int    column(int item) const;

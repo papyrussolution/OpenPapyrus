@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/***********************************************************************
-* Copyright (c) 1997-2016, International Business Machines Corporation
-* and others. All Rights Reserved.
-***********************************************************************/
-
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -17,16 +14,10 @@
 #include "cstr.h"
 #include "putilimp.h"
 
-class MyNumberFormatTest : public NumberFormat
-{
+class MyNumberFormatTest : public NumberFormat {
 public:
-
 	virtual UClassID getDynamicClassID() const override;
-
-	virtual UnicodeString & format(double number,
-	    UnicodeString & toAppendTo,
-	    FieldPositionIterator* posIter,
-	    UErrorCode & status) const override
+	virtual UnicodeString & format(double number, UnicodeString & toAppendTo, FieldPositionIterator* posIter, UErrorCode & status) const override
 	{
 		return NumberFormat::format(number, toAppendTo, posIter, status);
 	}
@@ -55,20 +46,14 @@ public:
 	 */
 
 	/* Just use one of the parse functions */
-	virtual void parse(const UnicodeString & /* text */,
-	    Formattable&            result,
-	    ParsePosition& /* parsePosition */) const override
+	virtual void parse(const UnicodeString & /* text */, Formattable& result, ParsePosition& /* parsePosition */) const override
 	{
 		result.setLong((int32_t)0);
 	}
-
-	virtual void parse(const UnicodeString & text,
-	    Formattable&            result,
-	    UErrorCode & status) const override
+	virtual void parse(const UnicodeString & text, Formattable& result, UErrorCode & status) const override
 	{
 		NumberFormat::parse(text, result, status);
 	}
-
 	virtual MyNumberFormatTest* clone() const override
 	{
 		return NULL;
@@ -97,11 +82,9 @@ UClassID MyNumberFormatTest::getDynamicClassID() const
 {
 	return (UClassID)&gMyNumberFormatTestClassID;
 }
-
-// *****************************************************************************
+//
 // class NumberFormatRegressionTest
-// *****************************************************************************
-
+//
 #define CASE(id, test) case id: name = #test; if(exec) { logln(#test "---"); logln((UnicodeString)""); test(); } break
 
 void NumberFormatRegressionTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)

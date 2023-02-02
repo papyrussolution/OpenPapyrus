@@ -1,16 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/***********************************************************************
-* COPYRIGHT:
-* Copyright (c) 2013-2016, International Business Machines Corporation
-* and others. All Rights Reserved.
-***********************************************************************/
-
-/***********************************************************************
-* This testcase ported from ICU4J ( RegionTest.java ) to ICU4C        *
-* Try to keep them in sync if at all possible...!                     *
-***********************************************************************/
-
+// Copyright (c) 2013-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
+// This testcase ported from ICU4J ( RegionTest.java ) to ICU4C
+// Try to keep them in sync if at all possible...!
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -329,12 +323,11 @@ static KnownRegion knownRegions[] = {
 	{ "ZW", 716, "014", URGN_TERRITORY, "002" },
 	{ "ZZ", 999, NULL, URGN_UNKNOWN, NULL }
 };
-
-// *****************************************************************************
+//
 // class RegionTest
-// *****************************************************************************
-
-RegionTest::RegionTest() {
+//
+RegionTest::RegionTest() 
+{
 }
 
 RegionTest::~RegionTest() {

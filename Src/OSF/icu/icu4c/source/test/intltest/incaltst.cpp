@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/***********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2014, International Business Machines Corporation
-* and others. All Rights Reserved.
-***********************************************************************/
-
+// Copyright (c) 1997-2014, International Business Machines Corporation and others. All Rights Reserved.
+//
 /* Test Internationalized Calendars for C++ */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -14,6 +10,8 @@
 #if !UCONFIG_NO_FORMATTING
 
 #include "caltest.h"
+#include "incaltst.h"
+#include "unicode/simpletz.h"
 
 #define CHECK(status, msg) UPRV_BLOCK_MACRO_BEGIN { \
 		if(U_FAILURE(status)) { \
@@ -38,18 +36,13 @@ static UnicodeString escape(const UnicodeString &src)
 			dst += UnicodeString("]");
 		}
 	}
-
 	return dst;
 }
-
-#include "incaltst.h"
-#include "unicode/simpletz.h"
-
-// *****************************************************************************
+//
 // class IntlCalendarTest
-// *****************************************************************************
+//
 //--- move to CalendarTest?
-
+//
 // Turn this on to dump the calendar fields
 #define U_DEBUG_DUMPCALS
 
@@ -95,9 +88,9 @@ void IntlCalendarTest::runIndexedTest(int32_t index, bool exec, const char *& na
 }
 
 #undef CASE
-
-// ---------------------------------------------------------------------------------
-
+//
+//
+//
 /**
  * Test various API methods for API completeness.
  */

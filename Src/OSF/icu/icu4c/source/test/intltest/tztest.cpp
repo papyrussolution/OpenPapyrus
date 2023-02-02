@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/***********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation
-* and others. All Rights Reserved.
-***********************************************************************/
-
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -24,11 +20,9 @@
 		    test();                        \
 	    }                                  \
 	    break
-
-// *****************************************************************************
+//
 // class TimeZoneTest
-// *****************************************************************************
-
+//
 // Some test case data is current date/tzdata version sensitive and producing errors
 // when year/rule are changed. Although we want to keep our eyes on test failures
 // caused by tzdata changes while development, keep maintaining test data in maintenance
@@ -73,9 +67,6 @@ void TimeZoneTest::runIndexedTest(int32_t index, bool exec, const char *& name, 
 }
 
 const int32_t TimeZoneTest::millisPerHour = 3600000;
-
-// ---------------------------------------------------------------------------------
-
 /**
  * Generic API testing for API coverage.
  */
@@ -83,7 +74,6 @@ void TimeZoneTest::TestGenericAPI()
 {
 	UnicodeString id("NewGMT");
 	int32_t offset = 12345;
-
 	SimpleTimeZone * zone = new SimpleTimeZone(offset, id);
 	if(zone->useDaylightTime()) errln("FAIL: useDaylightTime should return FALSE");
 

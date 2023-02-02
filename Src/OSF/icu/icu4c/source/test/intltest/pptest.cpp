@@ -1,22 +1,16 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2010, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-
+// Copyright (c) 1997-2010, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_FORMATTING
 
 #include "pptest.h"
-
-// *****************************************************************************
+//
 // class ParsePositionTest
-// *****************************************************************************
-
+//
 #define CASE(id, test) case id: name = #test; if(exec) { logln(#test "---"); logln((UnicodeString)""); test(); } break;
 
 void ParsePositionTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
@@ -27,7 +21,6 @@ void ParsePositionTest::runIndexedTest(int32_t index, bool exec, const char *& n
 		CASE(1, TestFieldPosition)
 		CASE(2, TestFieldPosition_example)
 		CASE(3, Test4109023)
-
 		default: name = ""; break;
 	}
 }
@@ -43,7 +36,6 @@ bool ParsePositionTest::failure(UErrorCode status, const char * msg, bool possib
 		}
 		return TRUE;
 	}
-
 	return FALSE;
 }
 

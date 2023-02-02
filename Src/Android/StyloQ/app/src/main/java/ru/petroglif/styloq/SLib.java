@@ -6074,9 +6074,78 @@ public class SLib {
 		ConfirmDialog dlg = new ConfirmDialog(ctx, R.id.DLG_CONFIRM_YESNO, R.layout.dialog_confirm_yesno, text, result);
 		dlg.show();
 	}
+	public static boolean IsGeoPosValid(double lat, double lon)
+	{
+		boolean ok = true;
+		if(lat < -90.0 || lat > 90.0)
+			ok = false;
+		else if(lon < -180.0 || lon > 180.0)
+			ok = false;
+		return ok;
+	}
+	public static class GeoPosLL { // port of SLIB:SGeoPosLL
+		public static GeoPosLL Copy(GeoPosLL s)
+		{
+			return (s != null) ? new GeoPosLL(s) : null;
+		}
+		public static boolean ArEq(final GeoPosLL a1, final GeoPosLL a2)
+		{
+			return (a1 != null) ? (a2 != null && a1.Lat == a2.Lat && a1.Lon == a2.Lon) : (a2 == null);
+		}
+		GeoPosLL()
+		{
+			Lat = 0.0;
+			Lon = 0.0;
+		}
+		GeoPosLL(Location loc)
+		{
+			if(loc != null) {
+				Lat = loc.getLatitude();
+				Lon = loc.getLongitude();
+			}
+			else {
+				Lat = 0.0;
+				Lon = 0.0;
+			}
+		}
+		GeoPosLL(final GeoPosLL s)
+		{
+			if(s != null) {
+				Lat = s.Lat;
+				Lon = s.Lon;
+			}
+			else {
+				Lat = 0.0;
+				Lon = 0.0;
+			}
+		}
+		GeoPosLL(double lat, double lon)
+		{
+			Lat = lat;
+			Lon = lon;
+		}
+		GeoPosLL Z()
+		{
+			Lat = 0.0;
+			Lon = 0.0;
+			return this;
+		}
+		boolean IsZero()
+		{
+			return (Lat == 0.0 && Lon == 0.0);
+		}
+		boolean IsValid()
+		{
+			return IsGeoPosValid(Lat, Lon);
+		}
+		//SString & FASTCALL ToStr(SString & rBuf) const;
+		//int    FASTCALL FromStr(const char * pStr);
+
+		double Lat;
+		double Lon;
+	};
 	//
 	// Descr: Запрашивает точное местоположение устройства
-	//
 	//
 	public static int QueryCurrentGeoLoc(SlActivity activityCtx, SLib.PPObjID oid, EventHandler retrHandler)
 	{

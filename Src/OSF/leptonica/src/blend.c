@@ -2037,7 +2037,7 @@ PIX * pixAddAlphaToBlend(PIX * pixs,
     float fract,
     int32 invert)
 {
-	PIX  * pixd, * pix1, * pix2;
+	PIX * pixd, * pix1, * pix2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2089,9 +2089,9 @@ PIX * pixAddAlphaToBlend(PIX * pixs,
  *      (2) All alpha component bits in pixs are overwritten.
  * </pre>
  */
-PIX * pixSetAlphaOverWhite(PIX  * pixs)
+PIX * pixSetAlphaOverWhite(PIX * pixs)
 {
-	PIX  * pixd, * pix1, * pix2, * pix3, * pix4;
+	PIX * pixd, * pix1, * pix2, * pix3, * pix4;
 
 	PROCNAME(__FUNCTION__);
 

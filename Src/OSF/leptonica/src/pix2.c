@@ -2892,7 +2892,7 @@ l_ok setLineDataVal(uint32  * line,
  *          use it, and destroy it.
  * </pre>
  */
-PIX * pixEndianByteSwapNew(PIX  * pixs)
+PIX * pixEndianByteSwapNew(PIX * pixs)
 {
 	uint32  * datas, * datad;
 	int32 i, j, h, wpl;
@@ -2953,7 +2953,7 @@ PIX * pixEndianByteSwapNew(PIX  * pixs)
  *          order when serialized, so no byte flipping is required.
  * </pre>
  */
-l_ok pixEndianByteSwap(PIX  * pixs)
+l_ok pixEndianByteSwap(PIX * pixs)
 {
 	uint32  * data;
 	int32 i, j, h, wpl;
@@ -3058,7 +3058,7 @@ int32 lineEndianByteSwap(uint32  * datad,
  *          pix must be restored to canonical little-endian order.
  * </pre>
  */
-PIX * pixEndianTwoByteSwapNew(PIX  * pixs)
+PIX * pixEndianTwoByteSwapNew(PIX * pixs)
 {
 	uint32  * datas, * datad;
 	int32 i, j, h, wpl;
@@ -3109,7 +3109,7 @@ PIX * pixEndianTwoByteSwapNew(PIX  * pixs)
  *          each of the 16-bit entities separately.
  * </pre>
  */
-l_ok pixEndianTwoByteSwap(PIX  * pixs)
+l_ok pixEndianTwoByteSwap(PIX * pixs)
 {
 	uint32  * data;
 	int32 i, j, h, wpl;

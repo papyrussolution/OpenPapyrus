@@ -96,7 +96,7 @@ static BOXA * boxaApplyDisparity(L_DEWARP * dew, BOXA * boxa, int32 direction,
  */
 l_ok dewarpaApplyDisparity(L_DEWARPA   * dewa,
     int32 pageno,
-    PIX         * pixs,
+    PIX * pixs,
     int32 grayin,
     int32 x,
     int32 y,
@@ -196,7 +196,7 @@ l_ok dewarpaApplyDisparity(L_DEWARPA   * dewa,
  */
 static int32 dewarpaApplyInit(L_DEWARPA   * dewa,
     int32 pageno,
-    PIX         * pixs,
+    PIX * pixs,
     int32 x,
     int32 y,
     L_DEWARP   ** pdew,
@@ -249,11 +249,10 @@ static int32 dewarpaApplyInit(L_DEWARPA   * dewa,
 	 * only apply vertical disparity. */
 	if(dewa->useboth && dewa->check_columns) {
 		pix1 = pixConvertTo1(pixs, 140);
-		pixCountTextColumns(pix1, 0.3, 0.5, 0.1, &ncols, NULL);
+		pixCountTextColumns(pix1, 0.3f, 0.5f, 0.1f, &ncols, NULL);
 		pixDestroy(&pix1);
 		if(ncols > 1) {
-			L_INFO("found %d columns; not correcting horiz disparity\n",
-			    procName, ncols);
+			L_INFO("found %d columns; not correcting horiz disparity\n", procName, ncols);
 			dew2->skip_horiz = TRUE;
 		}
 		else {
@@ -518,7 +517,7 @@ static PIX * pixApplyHorizDisparity(L_DEWARP * dew,
  */
 l_ok dewarpaApplyDisparityBoxa(L_DEWARPA   * dewa,
     int32 pageno,
-    PIX         * pixs,
+    PIX * pixs,
     BOXA        * boxas,
     int32 mapdir,
     int32 x,

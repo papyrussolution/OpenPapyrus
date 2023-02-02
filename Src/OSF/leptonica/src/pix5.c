@@ -3024,7 +3024,7 @@ l_ok pixMinMaxNearLine(PIX * pixs,
  *         100 Mpixels/sec on a 3 GHz machine.
  * </pre>
  */
-PIX * pixRankRowTransform(PIX  * pixs)
+PIX * pixRankRowTransform(PIX * pixs)
 {
 	int32 i, j, k, m, w, h, wpl, val;
 	int32 histo[256];
@@ -3075,7 +3075,7 @@ PIX * pixRankRowTransform(PIX  * pixs)
  *         50 Mpixels/sec on a 3 GHz machine.
  * </pre>
  */
-PIX * pixRankColumnTransform(PIX  * pixs)
+PIX * pixRankColumnTransform(PIX * pixs)
 {
 	int32 i, j, k, m, w, h, val;
 	int32 histo[256];

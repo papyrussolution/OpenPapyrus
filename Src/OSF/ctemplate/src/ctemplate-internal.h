@@ -5,7 +5,6 @@
 
 #define SLIB_INCLUDE_CPPSTDLIBS
 #include <slib.h>
-
 #include <config.h>
 #include "windows/config.h"
 #ifdef HAVE_INTTYPES_H

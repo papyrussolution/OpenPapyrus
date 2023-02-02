@@ -602,7 +602,7 @@ int SlCrypto::Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dat
 			THROW_S(EVP_EncryptUpdate(p_ctx, PTR8(rResult.Ptr()), &outl, PTR8C(pData), static_cast<int>(dataLen)), SLERR_CRYPTO_OPENSSL);
 			THROW_S(EVP_EncryptFinal_ex(p_ctx, PTR8(rResult.Ptr())+outl, &final_outl), SLERR_CRYPTO_OPENSSL);
 			outl += final_outl;
-			assert(outl <= rResult.Len()); // ≈сли условие не выполн€етс€, то мы ошиблись с первоначальной оценкой максимального размера результата
+			assert(static_cast<ssize_t>(outl) <= static_cast<ssize_t>(rResult.Len())); // ≈сли условие не выполн€етс€, то мы ошиблись с первоначальной оценкой максимального размера результата
 			THROW(rResult.Ensure(outl));
 			if(pTag && pTag->Len()) {
 				THROW(EVP_CIPHER_CTX_ctrl(p_ctx, EVP_CTRL_CCM_GET_TAG, pTag->Len(), pTag->Ptr()));
@@ -655,7 +655,7 @@ int SlCrypto::Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dat
 				}
 				THROW(EVP_DecryptFinal/*_ex*/(p_ctx, PTR8(rResult.Ptr())+outl, &final_outl));
 				outl += final_outl; // ?
-				assert(outl <= rResult.Len()); // ≈сли условие не выполн€етс€, то мы ошиблись с первоначальной оценкой максимального размера результата
+				assert(static_cast<ssize_t>(outl) <= static_cast<ssize_t>(rResult.Len())); // ≈сли условие не выполн€етс€, то мы ошиблись с первоначальной оценкой максимального размера результата
 				THROW(rResult.Ensure(outl));
 			}
 			else {

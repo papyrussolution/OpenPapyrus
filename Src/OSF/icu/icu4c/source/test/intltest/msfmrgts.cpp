@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/***********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation
-* and others. All Rights Reserved.
-***********************************************************************/
-
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -13,11 +9,9 @@
 
 #include "msfmrgts.h"
 #include "putilimp.h"
-
-// *****************************************************************************
+//
 // class MessageFormatRegressionTest
-// *****************************************************************************
-
+//
 #define CASE(id, test) case id: name = #test; if(exec) { logln(#test "---"); logln((UnicodeString)""); test(); } break;
 
 void MessageFormatRegressionTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
@@ -60,7 +54,6 @@ bool MessageFormatRegressionTest::failure(UErrorCode status, const char * msg, b
 		}
 		return TRUE;
 	}
-
 	return FALSE;
 }
 
@@ -78,12 +71,9 @@ void MessageFormatRegressionTest::Test4074764() {
 	//in the first one, the param position is within the
 	//length of the string without param while it is not so
 	//in the other case.
-
 	UErrorCode status = U_ZERO_ERROR;
 	MessageFormat * messageFormatter = new MessageFormat("", status);
-
 	failure(status, "couldn't create MessageFormat");
-
 	//try {
 	//Apply pattern with param and print the result
 	messageFormatter->applyPattern(pattern[1], status);

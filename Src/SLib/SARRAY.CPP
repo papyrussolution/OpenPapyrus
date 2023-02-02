@@ -3699,6 +3699,15 @@ LongArray::LongArray() : /*TSArray*/TSVector <long>()
 {
 }
 
+LongArray::LongArray(const long * pInitList, size_t initListCount) : TSVector <long>()
+{
+	if(pInitList && initListCount) {
+		for(size_t i = 0; i < initListCount; i++) {
+			insert(pInitList+i);
+		}
+	}
+}
+
 LongArray::LongArray(const LongArray & s) : /*TSArray*/TSVector <long> (s)
 {
 }
@@ -3746,7 +3755,6 @@ int FASTCALL LongArray::add(const LongArray * pS)
 int LongArray::addExclusive(const LongArray * pS, const LongArray * pExcl)
 {
 	int   ok = 1;
-	//const uint _c = pS ? pS->getCount() : 0;
 	const  uint _c = SVectorBase::GetCount(pS);
 	if(_c) {
 		if(pExcl) {
@@ -3758,12 +3766,7 @@ int LongArray::addExclusive(const LongArray * pS, const LongArray * pExcl)
 			}
 		}
 		else {
-			/* @v9.0.0
-			for(uint i = 0; ok && i < _c; i++)
-				if(!add(pS->at(i)))
-					ok = 0;
-			*/
-			ok = insertChunk(_c, pS->dataPtr()); // @v9.0.0
+			ok = insertChunk(_c, pS->dataPtr());
 		}
 	}
 	return ok;
@@ -3796,15 +3799,21 @@ int FASTCALL LongArray::removeByID(long id)
 	return lsearch(id, &pos) ? atFree(pos) : -1;
 }
 
+LongArray & FASTCALL LongArray::addr(long value)
+{
+	insert(&value);
+	return *this;
+}
+
 bool   FASTCALL LongArray::operator == (const LongArray & rS) const { return IsEq(&rS); }
 bool   FASTCALL LongArray::operator != (const LongArray & rS) const { return !IsEq(&rS); }
-int    FASTCALL LongArray::add(long id) { return insert(&id); }
-int    FASTCALL LongArray::addnz(long id) { return id ? insert(&id) : -1; }
-int    FASTCALL LongArray::addUnique(long id) { return lsearch(id) ? -1 : add(id); }
+int    FASTCALL LongArray::add(long value) { return insert(&value); }
+int    FASTCALL LongArray::addnz(long value) { return value ? insert(&value) : -1; }
+int    FASTCALL LongArray::addUnique(long value) { return lsearch(value) ? -1 : add(value); }
 int    FASTCALL LongArray::addUnique(const LongArray * pS) { return addUniqueExclusive(pS, 0); }
 int    LongArray::ordInsert(long i, uint * p) { return SVector::ordInsert(&i, p, CMPF_LONG); }
-int    STDCALL  LongArray::bsearch(long i, uint * p) const { return SVector::bsearch(&i, p, CMPF_LONG); }
-int    FASTCALL LongArray::bsearch(long i) const { return SVector::bsearch(&i, 0, CMPF_LONG); }
+bool   STDCALL  LongArray::bsearch(long i, uint * p) const { return SVector::bsearch(&i, p, CMPF_LONG); }
+bool   FASTCALL LongArray::bsearch(long i) const { return SVector::bsearch(&i, 0, CMPF_LONG); }
 bool   LongArray::isList() const { return (count > 1); }
 long   FASTCALL LongArray::get(uint pos) const { return at(pos); }
 long   LongArray::getSingle() const { return (count == 1) ? at(0) : 0L; }
@@ -3813,8 +3822,8 @@ void   LongArray::sort() { SVector::sort(CMPF_LONG); }
 //
 // @todo Ускорить функцию, закладываясь на особенности массива LongArray
 //
-int STDCALL  LongArray::lsearch(long k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, CMPF_LONG); }
-int FASTCALL LongArray::lsearch(long k) const { return SVector::lsearch(&k, 0, CMPF_LONG); }
+bool   STDCALL  LongArray::lsearch(long k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, CMPF_LONG); }
+bool   FASTCALL LongArray::lsearch(long k) const { return SVector::lsearch(&k, 0, CMPF_LONG); }
 
 int FASTCALL LongArray::setSingleNZ(long id)
 {
@@ -3869,8 +3878,6 @@ void LongArray::intersect(const LongArray * p, int binary)
 	}
 }
 
-#ifndef _WIN32_WCE // {
-
 void LongArray::intersect(const UintHashTable * p)
 {
 	if(!p)
@@ -3884,8 +3891,6 @@ void LongArray::intersect(const UintHashTable * p)
 		} while(c);
 	}
 }
-
-#endif // } _WIN32_WCE
 
 LongArray & LongArray::Z()
 {
