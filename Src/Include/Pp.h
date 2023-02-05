@@ -35799,22 +35799,23 @@ public:
 //
 // @ModuleDecl(PPObjSCardSeries)
 //
-#define SCRDSF_CREDIT          0x0001L // Кредитные карты (иначе дисконтные)
-#define SCRDSF_USEDSCNTIFNQUOT 0x0002L // Если с серией связан вид котировки и значение котировки для товара
+#define SCRDSF_CREDIT            0x00000001L // Кредитные карты (иначе дисконтные)
+#define SCRDSF_USEDSCNTIFNQUOT   0x00000002L // Если с серией связан вид котировки и значение котировки для товара
 	// не определено, то использовать скидку, заданную в карте.
-#define SCRDSF_BONUS           0x0004L // Бонусные кредитные карты (предполагает установленный флаг SCRDSF_CREDIT)
-#define SCRDSF_UHTTSYNC        0x0008L // Карты серии синхронизированы с сервисом Universe-HTT
-#define SCRDSF_USEQUOTKINDLIST 0x0010L // @internal С серией связан список видов котировок.
+#define SCRDSF_BONUS             0x00000004L // Бонусные кредитные карты (предполагает установленный флаг SCRDSF_CREDIT)
+#define SCRDSF_UHTTSYNC          0x00000008L // Карты серии синхронизированы с сервисом Universe-HTT
+#define SCRDSF_USEQUOTKINDLIST   0x00000010L // @internal С серией связан список видов котировок.
 	// Флаг необходим для игнорирования поля PPSCardSeries2::QuotKindID
-#define SCRDSF_MINQUOTVAL      0x0020L // Если с серией карт ассоциирован список видов котировок (более одной),
+#define SCRDSF_MINQUOTVAL        0x00000020L // Если с серией карт ассоциирован список видов котировок (более одной),
 	// то применять минимальную цену из котировок, полученных по списку.
-#define SCRDSF_DISABLEADDPAYM  0x0040L // Запрет на доплату в кассовой панели (только для кредитных карт)
-#define SCRDSF_BONUSER_ONBNK   0x0080L // SCardSeries::BonusChrgExtRule трактуется как изменение суммы оборота (для расчета начисления) в промилле.
-#define SCRDSF_NEWSCINHF       0x0100L //
-#define SCRDSF_TRANSFDISCOUNT  0x0200L // @v9.2.8 Карты серии с таким флагом могут передавать значение скидки в новые карты выдельца любой серии (при создании)
-#define SCRDSF_PASSIVE         0x0400L // @v9.8.9 Пассивная серия (не отображается в списках)
-#define SCRDSF_GROUP           0x0800L // @v9.8.9 Серия верхнего уровня
-#define SCRDSF_RSRVPOOL        0x1000L // @v10.2.7 Резервный пул
+#define SCRDSF_DISABLEADDPAYM    0x00000040L // Запрет на доплату в кассовой панели (только для кредитных карт)
+#define SCRDSF_BONUSER_ONBNK     0x00000080L // SCardSeries::BonusChrgExtRule трактуется как изменение суммы оборота (для расчета начисления) в промилле.
+#define SCRDSF_NEWSCINHF         0x00000100L //
+#define SCRDSF_TRANSFDISCOUNT    0x00000200L // Карты серии с таким флагом могут передавать значение скидки в новые карты выдельца любой серии (при создании)
+#define SCRDSF_PASSIVE           0x00000400L // Пассивная серия (не отображается в списках)
+#define SCRDSF_GROUP             0x00000800L // Серия верхнего уровня
+#define SCRDSF_RSRVPOOL          0x00001000L // @v10.2.7 Резервный пул
+#define SCRDSF_ALLOWOWNERAUTOCR  0x00002000L // @v11.6.3 Допускается автоматическое создание персоналии-владельца
 //
 // Descr: Типы серий карт
 //
@@ -37045,13 +37046,14 @@ private:
 //
 // Флаги, передаваемые с дополнительным параметром
 //
-#define TECEXDF_GOODS   0x80000000L // Остальная часть параметра - ИД товара
+#define TECEXDF_AUTO    0x10000000L // Речь идет о записи автотехнологии
+#define TECEXDF_TOOLING 0x20000000L // Речь идет о записи технологии перенастройки
 #define TECEXDF_GSTRUC  0x40000000L // Остальная часть параметра - ИД структуры
 	// Если ни один из вышеперечисленных флагов не выставлен, то параметр - ИД процессора
-#define TECEXDF_TOOLING 0x20000000L // Речь идет о записи технологии перенастройки
-#define TECEXDF_AUTO    0x10000000L // Речь идет о записи автотехнологии
+#define TECEXDF_GOODS   0x80000000L // Остальная часть параметра - ИД товара
+#define TECEXDF_FOLDER  0x04000000L // @v11.6.3 Флаг, используемый для создания технологии верхнего уровня (folder)
 #define TECEXDF_PARENT  0x08000000L // Остальная часть параметра - ИД родительской технологии
-#define TECEXDF_MASK    0x07ffffffL
+#define TECEXDF_MASK    0x00ffffffL // @v11.6.3 0x07ffffffL-->0x00ffffffL
 //
 // Флаги технологий
 //

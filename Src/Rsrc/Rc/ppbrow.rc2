@@ -1,5 +1,5 @@
 // PPBROW.RC2
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage windows-1251
 // Part of project Papyrus
 //
@@ -5259,6 +5259,7 @@ browser TECH north(100), 2, 0, "@{view_tech} {%s}", OWNER|GRID, 0
 		EDITITEM    : kbEnter, PPDV_EDITFILE02,        "@{edit}\tEnter"
 		ADDITEM     : kbIns,   PPDV_ADDFILE02,         "@{add}\tInsert"
 		ADDBYSAMPLE : kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
+		ADDGROUP    : kbCtrlA, PPDV_NOICON,            "@{doaddtecgroup}\tCtrl-A"
 		DELETEITEM  : kbDel,   PPDV_DELETEFILE02,      "@{delete}\tDelete"
 		MOVEUP      : kbCtrlW, TBBM_ARROWUP,           "@{moveup}\tCtrl-W"
 		MOVEDOWN    : kbCtrlS, TBBM_ARROWDN,           "@{movedown}\tCtrl-S"
@@ -9174,6 +9175,8 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_GPSLOC01_TARGET
 	PPDV_QUESTIONMARKCIRCLE01
 	PPDV_GOODSSTOCK01
+	PPDV_TECH // @v11.6.3 (still bad icon)
+	PPDV_CREATEPERSON01 // @v11.6.3
 }
 //
 // Следующие изображения используются без замещения цвета

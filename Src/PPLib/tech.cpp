@@ -722,274 +722,345 @@ int EditCapacity(CalcCapacity * pData)
 	DIALOG_PROC_BODY(CalcCapacityDialog, pData);
 }
 
-#define GRP_GOODS     1
-#define GRP_PRC       2
-#define GRP_PREVGOODS 3
-
-class TechDialog : public TDialog {
-public:
-	explicit TechDialog(uint dlgID) : TDialog(/*DLG_TECH*/dlgID)
-	{
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TECH_GGRP, CTLSEL_TECH_GOODS));
-		addGroup(GRP_PRC, new PrcCtrlGroup(CTLSEL_TECH_PRC));
-	}
-	int    setDTS(const PPTechPacket *);
-	int    getDTS(PPTechPacket *);
-private:
-	DECL_HANDLE_EVENT;
-	void   SetupCtrls();
-	void   calcCapacity();
-	void   setCapacity()
-	{
-		SString temp_buf;
-		if(Data.Rec.Flags & TECF_ABSCAPACITYTIME) {
-			temp_buf.CatChar('t').Cat(Data.Rec.Capacity, MKSFMTD(0, 10, NMBF_NOTRAILZ|NMBF_NOZERO));
-		}
-		else {
-			ProcessorTbl::Rec prc_rec;
-			PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
-			if(Data.Rec.Capacity > 0.0) {
-				if(prc_rec.Flags & PRCF_TECHCAPACITYREV)
-					temp_buf.Cat(1.0 / Data.Rec.Capacity, MKSFMTD(0, 0, 0));
-				else
-					temp_buf.Cat(Data.Rec.Capacity, MKSFMTD(0, 10, NMBF_NOTRAILZ|NMBF_NOZERO));
-			}
-		}
-		setCtrlString(CTL_TECH_CAPACITY, temp_buf);
-	}
-	void   getCapacity()
-	{
-		int    absolute = 0;
-		SString temp_buf;
-		getCtrlString(CTL_TECH_CAPACITY, temp_buf);
-		temp_buf.Strip();
-		if(oneof2(temp_buf.C(0), 't', 'T')) {
-			absolute = 1;
-			temp_buf.ShiftLeft();
-			Data.Rec.Capacity = temp_buf.ToReal();
-		}
-		else {
-			double c = temp_buf.ToReal();
-			if(c > 0.0) {
-				ProcessorTbl::Rec prc_rec;
-				PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
-				if(Data.Rec.Capacity > 0.0) {
-					if(prc_rec.Flags & PRCF_TECHCAPACITYREV)
-						Data.Rec.Capacity = 1.0 / c;
-					else
-						Data.Rec.Capacity = c;
-				}
-			}
-			else
-				Data.Rec.Capacity = 0.0;
-		}
-	}
-	PPTechPacket Data;
-	PPObjProcessor PrcObj;
-};
-
-void TechDialog::calcCapacity()
-{
-	CalcCapacity param;
-	param.Restore();
-	getCapacity();
-	if(Data.Rec.Flags & TECF_ABSCAPACITYTIME) {
-		param.Flags |= param.fAbsolute;
-		param.Flags &= ~param.fReverse;
-	}
-	param.SetNorma(Data.Rec.Capacity);
-	if(EditCapacity(&param) > 0) {
-		Data.Rec.Capacity = param.Normalyze();
-		SETFLAG(Data.Rec.Flags, TECF_ABSCAPACITYTIME, (param.Flags & param.fAbsolute));
-		setCapacity();
-	}
-}
-
-IMPL_HANDLE_EVENT(TechDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmGoodsStruc)) {
-		getCtrlData(CTLSEL_TECH_GOODS, &Data.Rec.GoodsID);
-		if(Data.Rec.GoodsID) {
-			PPObjGoods goods_obj;
-			if(goods_obj.EditGoodsStruc(Data.Rec.GoodsID) > 0)
-				SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_SETUPSINGLE, 
-					reinterpret_cast<void *>(Data.Rec.GoodsID));
-		}
-	}
-	else if(event.isCbSelected(CTLSEL_TECH_GOODS)) {
-		PPID   prev_goods_id = Data.Rec.GoodsID;
-		Data.Rec.GoodsID = getCtrlLong(CTLSEL_TECH_GOODS);
-		if(Data.Rec.GoodsID != prev_goods_id) {
-			Data.Rec.GStrucID = 0;
-			SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID,
-				OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.Rec.GoodsID ? Data.Rec.GoodsID : -1));
-		}
-	}
-	else if(event.isCbSelected(CTLSEL_TECH_PARENT)) {
-		UI_LOCAL_LOCK_ENTER
-		PPID parent_id = getCtrlLong(CTLSEL_TECH_PARENT);
-		if(Data.Rec.ID && parent_id == Data.Rec.ID) {
-			setCtrlLong(CTLSEL_TECH_PARENT, 0);
-			{
-				SString err_msg;
-				PPGetMessage(mfError, PPERR_TECHCANTBESELFPARENTED, 0, 1, err_msg);
-				SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
-				PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed),
-					SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
-			}
-		}
-		UI_LOCAL_LOCK_LEAVE
-	}
-	else if(event.isCbSelected(CTLSEL_TECH_PRC))
-		SetupCtrls();
-	else if(event.isClusterClk(CTL_TECH_SIGN))
-		SetupCtrls();
-	else if(event.isKeyDown(kbF2) && isCurrCtlID(CTL_TECH_CAPACITY))
-		calcCapacity();
-	else
-		return;
-	clearEvent(event);
-}
-
-void TechDialog::SetupCtrls()
-{
-	long   temp_long = 0;
-	SString temp_buf;
-	PrcCtrlGroup::Rec prc_grp_rec;
-	if(GetClusterData(CTL_TECH_SIGN, &temp_long))
-		Data.Rec.Sign = (int16)temp_long;
-	getGroupData(GRP_PRC, &prc_grp_rec);
-	Data.Rec.PrcID = prc_grp_rec.PrcID;
-
-	int    enable_recompl_flag = 0;
-	ProcessorTbl::Rec prc_rec;
-	PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
-	// @v11.3.10 {
-	{
-		const char * p_label_sign = (prc_rec.Flags & PRCF_TECHCAPACITYREV) ? "tech_capacity_secperpc" : "tech_capacity";
-		setLabelText(CTL_TECH_CAPACITY, PPLoadStringS(p_label_sign, temp_buf));
-	}
-	// } @v11.3.10 
-	disableCtrl(CTL_TECH_CIPMAX, !(prc_rec.Flags & PRCF_ALLOWCIP));
-	if(Data.Rec.Sign > 0) {
-		if(prc_rec.ID && GetOpType(prc_rec.WrOffOpID) == PPOPT_GOODSMODIF)
-			enable_recompl_flag = 1;
-	}
-	if(!enable_recompl_flag) {
-		Data.Rec.Flags &= ~TECF_RECOMPLMAINGOODS;
-		SetClusterData(CTL_TECH_FLAGS, Data.Rec.Flags);
-	}
-	DisableClusterItem(CTL_TECH_FLAGS, 0, !enable_recompl_flag);
-}
-
-int TechDialog::setDTS(const PPTechPacket * pData)
-{
-	Data = *pData;
-	setCtrlData(CTL_TECH_CODE, Data.Rec.Code);
-	setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
-	disableCtrl(CTL_TECH_ID, 1);
-	if(Data.Rec.Kind == TECK_GENERAL) {
-		GoodsCtrlGroup::Rec rec(0, Data.Rec.GoodsID, 0, GoodsCtrlGroup::enableInsertGoods | GoodsCtrlGroup::disableEmptyGoods);
-		setGroupData(GRP_GOODS, &rec);
-		setCapacity();
-	}
-	else if(Data.Rec.Kind == TECK_AUTO) {
-		SString form;
-		GoodsCtrlGroup::Rec rec(Data.Rec.GoodsID, 0, 0, GoodsCtrlGroup::enableInsertGoods);
-		setGroupData(GRP_GOODS, &rec);
-		PPGetExtStrData(TECEXSTR_CAPACITY, Data.ExtString, form);
-		setCtrlString(CTL_TECH_CAPACITYFORM, form);
-	}
-	PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
-	setGroupData(GRP_PRC, &prc_grp_rec);
-	SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_CANINSERT, reinterpret_cast<void *>NZOR(Data.Rec.GoodsID, -1));
-	SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL);
-	setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
-	AddClusterAssoc(CTL_TECH_SIGN,  0, -1);
-	AddClusterAssoc(CTL_TECH_SIGN,  1,  1);
-	AddClusterAssocDef(CTL_TECH_SIGN, 2,  0);
-	SetClusterData (CTL_TECH_SIGN, Data.Rec.Sign);
-	AddClusterAssoc(CTL_TECH_FLAGS, 0, TECF_RECOMPLMAINGOODS);
-	AddClusterAssoc(CTL_TECH_FLAGS, 1, TECF_CALCTIMEBYROWS);
-	AddClusterAssoc(CTL_TECH_FLAGS, 2, TECF_AUTOMAIN);
-	AddClusterAssoc(CTL_TECH_FLAGS, 3, TECF_RVRSCMAINGOODS); // @v10.0.06
-	SetClusterData (CTL_TECH_FLAGS, Data.Rec.Flags);
-	setCtrlData(CTL_TECH_ROUNDING, &Data.Rec.Rounding);
-	setCtrlData(CTL_TECH_INITQTTY, &Data.Rec.InitQtty);
-	// @v11.1.12 setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
-	setCtrlString(CTL_TECH_MEMO, Data.SMemo); // @v11.1.12
-	setCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax);
-	SetupCtrls();
-	return 1;
-}
-
-int TechDialog::getDTS(PPTechPacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	long   temp_long = 0;
-	TechTbl::Rec tec_rec;
-	PPObjTech tec_obj;
-	GoodsCtrlGroup::Rec rec;
-	PrcCtrlGroup::Rec prc_grp_rec;
-
-	getCtrlData(sel = CTL_TECH_CODE, Data.Rec.Code);
-	THROW_PP(*strip(Data.Rec.Code), PPERR_CODENEEDED);
-	if(tec_obj.SearchByCode(Data.Rec.Code, &tec_rec) > 0 && tec_rec.ID != Data.Rec.ID) {
-		PPObject::SetLastErrObj(PPOBJ_TECH, tec_rec.ID);
-		CALLEXCEPT_PP(PPERR_DUPSYMB);
-	}
-	getGroupData(GRP_PRC, &prc_grp_rec);
-	Data.Rec.PrcID = prc_grp_rec.PrcID;
-	sel = CTLSEL_TECH_PRC;
-	THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
-	getCtrlData(sel = CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
-	THROW_PP(!Data.Rec.ID || Data.Rec.ParentID != Data.Rec.ID, PPERR_TECHCANTBESELFPARENTED); // @v11.3.9
-	sel = CTLSEL_TECH_GOODS;
-	THROW(getGroupData(GRP_GOODS, &rec));
-	if(Data.Rec.Kind == TECK_GENERAL)
-		Data.Rec.GoodsID = rec.GoodsID;
-	else if(Data.Rec.Kind == TECK_AUTO)
-		Data.Rec.GoodsID = rec.GrpID;
-	getCtrlData(CTLSEL_TECH_GSTRUC, &Data.Rec.GStrucID);
-	if(Data.Rec.Kind == TECK_GENERAL)
-		getCapacity();
-	else if(Data.Rec.Kind == TECK_AUTO) {
-		SString form;
-		getCtrlString(CTL_TECH_CAPACITYFORM, form);
-		PPPutExtStrData(TECEXSTR_CAPACITY, Data.ExtString, form.Strip());
-	}
-	if(GetClusterData(CTL_TECH_SIGN, &temp_long))
-		Data.Rec.Sign = (int16)temp_long;
-	GetClusterData(CTL_TECH_FLAGS, &Data.Rec.Flags);
-	getCtrlData(CTL_TECH_ROUNDING, &Data.Rec.Rounding);
-	getCtrlData(CTL_TECH_INITQTTY, &Data.Rec.InitQtty);
-	getCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax);
-	// @v11.1.12 getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
-	getCtrlString(CTL_TECH_MEMO, Data.SMemo); // @v11.1.12
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
+//#define GRP_GOODS     1
+//#define GRP_PRC       2
+//#define GRP_PREVGOODS 3
 //
 //
 //
 int PPObjTech::EditDialog(PPTechPacket * pData)
 {
 	if(pData) {
-		if(oneof2(pData->Rec.Kind, TECK_GENERAL, TECK_AUTO)) {
+		if(pData->Rec.Kind == TECK_FOLDER) {
+			class TechFolderDialog : public TDialog {
+				DECL_DIALOG_DATA(PPTechPacket);
+				enum {
+					//ctlgroupGoods     = 1,
+					ctlgroupPrc       = 2,
+				};
+			public:			
+				TechFolderDialog() : TDialog(DLG_TECHFOLDER)
+				{
+					addGroup(ctlgroupPrc, new PrcCtrlGroup(CTLSEL_TECH_PRC));
+				}
+				DECL_DIALOG_SETDTS()
+				{
+					int    ok = 1;
+					RVALUEPTR(Data, pData);
+					setCtrlData(CTL_TECH_CODE, Data.Rec.Code);
+					setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
+					disableCtrl(CTL_TECH_ID, 1);
+					{
+						PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
+						setGroupData(ctlgroupPrc, &prc_grp_rec);
+					}
+					SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL);
+					setCtrlString(CTL_TECH_MEMO, Data.SMemo);
+					return ok;
+				}
+				DECL_DIALOG_GETDTS()
+				{
+					int    ok = 1;
+					uint   sel = 0;
+					TechTbl::Rec tec_rec;
+					PPObjTech tec_obj;
+					PrcCtrlGroup::Rec prc_grp_rec;
+					getCtrlData(sel = CTL_TECH_CODE, Data.Rec.Code);
+					THROW_PP(*strip(Data.Rec.Code), PPERR_CODENEEDED);
+					if(tec_obj.SearchByCode(Data.Rec.Code, &tec_rec) > 0 && tec_rec.ID != Data.Rec.ID) {
+						PPObject::SetLastErrObj(PPOBJ_TECH, tec_rec.ID);
+						CALLEXCEPT_PP(PPERR_DUPSYMB);
+					}
+					getGroupData(ctlgroupPrc, &prc_grp_rec);
+					Data.Rec.PrcID = prc_grp_rec.PrcID;
+					sel = CTLSEL_TECH_PRC;
+					// (в группирующей технологии процессор не обязателен) THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
+					getCtrlData(sel = CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
+					THROW_PP(!Data.Rec.ID || Data.Rec.ParentID != Data.Rec.ID, PPERR_TECHCANTBESELFPARENTED);
+					getCtrlString(CTL_TECH_MEMO, Data.SMemo);
+					ASSIGN_PTR(pData, Data);
+					CATCHZOKPPERRBYDLG
+					return ok;
+				}
+			private:
+				DECL_HANDLE_EVENT
+				{
+					TDialog::handleEvent(event);
+					if(event.isCbSelected(CTLSEL_TECH_PARENT)) {
+						UI_LOCAL_LOCK_ENTER
+						PPID parent_id = getCtrlLong(CTLSEL_TECH_PARENT);
+						if(Data.Rec.ID && parent_id == Data.Rec.ID) {
+							setCtrlLong(CTLSEL_TECH_PARENT, 0);
+							{
+								SString err_msg;
+								PPGetMessage(mfError, PPERR_TECHCANTBESELFPARENTED, 0, 1, err_msg);
+								SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
+								PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed),
+									SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+							}
+						}
+						UI_LOCAL_LOCK_LEAVE
+					}
+				}
+			};
+			DIALOG_PROC_BODY(TechFolderDialog, pData);
+		}
+		else if(oneof2(pData->Rec.Kind, TECK_GENERAL, TECK_AUTO)) {
+			class TechDialog : public TDialog {
+				DECL_DIALOG_DATA(PPTechPacket);
+				enum {
+					ctlgroupGoods     = 1,
+					ctlgroupPrc       = 2,
+				};
+			public:
+				explicit TechDialog(uint dlgID) : TDialog(/*DLG_TECH*/dlgID)
+				{
+					addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_TECH_GGRP, CTLSEL_TECH_GOODS));
+					addGroup(ctlgroupPrc, new PrcCtrlGroup(CTLSEL_TECH_PRC));
+				}
+				DECL_DIALOG_SETDTS()
+				{
+					RVALUEPTR(Data, pData);
+					setCtrlData(CTL_TECH_CODE, Data.Rec.Code);
+					setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
+					disableCtrl(CTL_TECH_ID, 1);
+					if(Data.Rec.Kind == TECK_GENERAL) {
+						GoodsCtrlGroup::Rec rec(0, Data.Rec.GoodsID, 0, GoodsCtrlGroup::enableInsertGoods | GoodsCtrlGroup::disableEmptyGoods);
+						setGroupData(ctlgroupGoods, &rec);
+						setCapacity();
+					}
+					else if(Data.Rec.Kind == TECK_AUTO) {
+						SString form;
+						GoodsCtrlGroup::Rec rec(Data.Rec.GoodsID, 0, 0, GoodsCtrlGroup::enableInsertGoods);
+						setGroupData(ctlgroupGoods, &rec);
+						PPGetExtStrData(TECEXSTR_CAPACITY, Data.ExtString, form);
+						setCtrlString(CTL_TECH_CAPACITYFORM, form);
+					}
+					PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
+					setGroupData(ctlgroupPrc, &prc_grp_rec);
+					SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_CANINSERT, reinterpret_cast<void *>NZOR(Data.Rec.GoodsID, -1));
+					SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL);
+					setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
+					AddClusterAssoc(CTL_TECH_SIGN,  0, -1);
+					AddClusterAssoc(CTL_TECH_SIGN,  1,  1);
+					AddClusterAssocDef(CTL_TECH_SIGN, 2,  0);
+					SetClusterData (CTL_TECH_SIGN, Data.Rec.Sign);
+					AddClusterAssoc(CTL_TECH_FLAGS, 0, TECF_RECOMPLMAINGOODS);
+					AddClusterAssoc(CTL_TECH_FLAGS, 1, TECF_CALCTIMEBYROWS);
+					AddClusterAssoc(CTL_TECH_FLAGS, 2, TECF_AUTOMAIN);
+					AddClusterAssoc(CTL_TECH_FLAGS, 3, TECF_RVRSCMAINGOODS); // @v10.0.06
+					SetClusterData (CTL_TECH_FLAGS, Data.Rec.Flags);
+					setCtrlData(CTL_TECH_ROUNDING, &Data.Rec.Rounding);
+					setCtrlData(CTL_TECH_INITQTTY, &Data.Rec.InitQtty);
+					// @v11.1.12 setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+					setCtrlString(CTL_TECH_MEMO, Data.SMemo); // @v11.1.12
+					setCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax);
+					SetupCtrls();
+					return 1;
+				}
+				DECL_DIALOG_GETDTS()
+				{
+					int    ok = 1;
+					uint   sel = 0;
+					long   temp_long = 0;
+					TechTbl::Rec tec_rec;
+					PPObjTech tec_obj;
+					GoodsCtrlGroup::Rec rec;
+					PrcCtrlGroup::Rec prc_grp_rec;
+
+					getCtrlData(sel = CTL_TECH_CODE, Data.Rec.Code);
+					THROW_PP(*strip(Data.Rec.Code), PPERR_CODENEEDED);
+					if(tec_obj.SearchByCode(Data.Rec.Code, &tec_rec) > 0 && tec_rec.ID != Data.Rec.ID) {
+						PPObject::SetLastErrObj(PPOBJ_TECH, tec_rec.ID);
+						CALLEXCEPT_PP(PPERR_DUPSYMB);
+					}
+					getGroupData(ctlgroupPrc, &prc_grp_rec);
+					Data.Rec.PrcID = prc_grp_rec.PrcID;
+					sel = CTLSEL_TECH_PRC;
+					THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
+					getCtrlData(sel = CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
+					THROW_PP(!Data.Rec.ID || Data.Rec.ParentID != Data.Rec.ID, PPERR_TECHCANTBESELFPARENTED); // @v11.3.9
+					sel = CTLSEL_TECH_GOODS;
+					THROW(getGroupData(ctlgroupGoods, &rec));
+					if(Data.Rec.Kind == TECK_GENERAL)
+						Data.Rec.GoodsID = rec.GoodsID;
+					else if(Data.Rec.Kind == TECK_AUTO)
+						Data.Rec.GoodsID = rec.GrpID;
+					getCtrlData(CTLSEL_TECH_GSTRUC, &Data.Rec.GStrucID);
+					if(Data.Rec.Kind == TECK_GENERAL)
+						getCapacity();
+					else if(Data.Rec.Kind == TECK_AUTO) {
+						SString form;
+						getCtrlString(CTL_TECH_CAPACITYFORM, form);
+						PPPutExtStrData(TECEXSTR_CAPACITY, Data.ExtString, form.Strip());
+					}
+					if(GetClusterData(CTL_TECH_SIGN, &temp_long))
+						Data.Rec.Sign = (int16)temp_long;
+					GetClusterData(CTL_TECH_FLAGS, &Data.Rec.Flags);
+					getCtrlData(CTL_TECH_ROUNDING, &Data.Rec.Rounding);
+					getCtrlData(CTL_TECH_INITQTTY, &Data.Rec.InitQtty);
+					getCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax);
+					// @v11.1.12 getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+					getCtrlString(CTL_TECH_MEMO, Data.SMemo); // @v11.1.12
+					ASSIGN_PTR(pData, Data);
+					CATCHZOKPPERRBYDLG
+					return ok;
+				}
+			private:
+				DECL_HANDLE_EVENT
+				{
+					TDialog::handleEvent(event);
+					if(event.isCmd(cmGoodsStruc)) {
+						getCtrlData(CTLSEL_TECH_GOODS, &Data.Rec.GoodsID);
+						if(Data.Rec.GoodsID) {
+							PPObjGoods goods_obj;
+							if(goods_obj.EditGoodsStruc(Data.Rec.GoodsID) > 0)
+								SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_SETUPSINGLE, 
+									reinterpret_cast<void *>(Data.Rec.GoodsID));
+						}
+					}
+					else if(event.isCbSelected(CTLSEL_TECH_GOODS)) {
+						PPID   prev_goods_id = Data.Rec.GoodsID;
+						Data.Rec.GoodsID = getCtrlLong(CTLSEL_TECH_GOODS);
+						if(Data.Rec.GoodsID != prev_goods_id) {
+							Data.Rec.GStrucID = 0;
+							SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID,
+								OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.Rec.GoodsID ? Data.Rec.GoodsID : -1));
+						}
+					}
+					else if(event.isCbSelected(CTLSEL_TECH_PARENT)) {
+						UI_LOCAL_LOCK_ENTER
+						PPID parent_id = getCtrlLong(CTLSEL_TECH_PARENT);
+						if(Data.Rec.ID && parent_id == Data.Rec.ID) {
+							setCtrlLong(CTLSEL_TECH_PARENT, 0);
+							{
+								SString err_msg;
+								PPGetMessage(mfError, PPERR_TECHCANTBESELFPARENTED, 0, 1, err_msg);
+								SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
+								PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed),
+									SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+							}
+						}
+						UI_LOCAL_LOCK_LEAVE
+					}
+					else if(event.isCbSelected(CTLSEL_TECH_PRC))
+						SetupCtrls();
+					else if(event.isClusterClk(CTL_TECH_SIGN))
+						SetupCtrls();
+					else if(event.isKeyDown(kbF2) && isCurrCtlID(CTL_TECH_CAPACITY))
+						calcCapacity();
+					else
+						return;
+					clearEvent(event);
+				}
+				void   SetupCtrls()
+				{
+					long   temp_long = 0;
+					SString temp_buf;
+					PrcCtrlGroup::Rec prc_grp_rec;
+					if(GetClusterData(CTL_TECH_SIGN, &temp_long))
+						Data.Rec.Sign = (int16)temp_long;
+					getGroupData(ctlgroupPrc, &prc_grp_rec);
+					Data.Rec.PrcID = prc_grp_rec.PrcID;
+					int    enable_recompl_flag = 0;
+					ProcessorTbl::Rec prc_rec;
+					PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
+					// @v11.3.10 {
+					{
+						const char * p_label_sign = (prc_rec.Flags & PRCF_TECHCAPACITYREV) ? "tech_capacity_secperpc" : "tech_capacity";
+						setLabelText(CTL_TECH_CAPACITY, PPLoadStringS(p_label_sign, temp_buf));
+					}
+					// } @v11.3.10 
+					disableCtrl(CTL_TECH_CIPMAX, !(prc_rec.Flags & PRCF_ALLOWCIP));
+					if(Data.Rec.Sign > 0) {
+						if(prc_rec.ID && GetOpType(prc_rec.WrOffOpID) == PPOPT_GOODSMODIF)
+							enable_recompl_flag = 1;
+					}
+					if(!enable_recompl_flag) {
+						Data.Rec.Flags &= ~TECF_RECOMPLMAINGOODS;
+						SetClusterData(CTL_TECH_FLAGS, Data.Rec.Flags);
+					}
+					DisableClusterItem(CTL_TECH_FLAGS, 0, !enable_recompl_flag);
+				}
+				void   calcCapacity()
+				{
+					CalcCapacity param;
+					param.Restore();
+					getCapacity();
+					if(Data.Rec.Flags & TECF_ABSCAPACITYTIME) {
+						param.Flags |= param.fAbsolute;
+						param.Flags &= ~param.fReverse;
+					}
+					param.SetNorma(Data.Rec.Capacity);
+					if(EditCapacity(&param) > 0) {
+						Data.Rec.Capacity = param.Normalyze();
+						SETFLAG(Data.Rec.Flags, TECF_ABSCAPACITYTIME, (param.Flags & param.fAbsolute));
+						setCapacity();
+					}
+				}
+				void   setCapacity()
+				{
+					SString temp_buf;
+					if(Data.Rec.Flags & TECF_ABSCAPACITYTIME) {
+						temp_buf.CatChar('t').Cat(Data.Rec.Capacity, MKSFMTD(0, 10, NMBF_NOTRAILZ|NMBF_NOZERO));
+					}
+					else {
+						ProcessorTbl::Rec prc_rec;
+						PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
+						if(Data.Rec.Capacity > 0.0) {
+							if(prc_rec.Flags & PRCF_TECHCAPACITYREV)
+								temp_buf.Cat(1.0 / Data.Rec.Capacity, MKSFMTD(0, 0, 0));
+							else
+								temp_buf.Cat(Data.Rec.Capacity, MKSFMTD(0, 10, NMBF_NOTRAILZ|NMBF_NOZERO));
+						}
+					}
+					setCtrlString(CTL_TECH_CAPACITY, temp_buf);
+				}
+				void   getCapacity()
+				{
+					int    absolute = 0;
+					SString temp_buf;
+					getCtrlString(CTL_TECH_CAPACITY, temp_buf);
+					temp_buf.Strip();
+					if(oneof2(temp_buf.C(0), 't', 'T')) {
+						absolute = 1;
+						temp_buf.ShiftLeft();
+						Data.Rec.Capacity = temp_buf.ToReal();
+					}
+					else {
+						double c = temp_buf.ToReal();
+						if(c > 0.0) {
+							ProcessorTbl::Rec prc_rec;
+							PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
+							if(Data.Rec.Capacity > 0.0) {
+								if(prc_rec.Flags & PRCF_TECHCAPACITYREV)
+									Data.Rec.Capacity = 1.0 / c;
+								else
+									Data.Rec.Capacity = c;
+							}
+						}
+						else
+							Data.Rec.Capacity = 0.0;
+					}
+				}
+				PPObjProcessor PrcObj;
+			};
 			DIALOG_PROC_BODY_P1(TechDialog, ((pData->Rec.Kind == TECK_GENERAL) ? DLG_TECH : DLG_TECHAUTO), pData);
 		}
 		else if(pData->Rec.Kind == TECK_TOOLING) {
 			class ToolingDialog : public TDialog {
 				DECL_DIALOG_DATA(PPTechPacket);
+				enum {
+					ctlgroupGoods     = 1,
+					ctlgroupPrc       = 2,
+					ctlgroupPrevGoods = 3,
+				};
 			public:
 				ToolingDialog() : TDialog(DLG_TOOLING), WasNewStrucCreated(0)
 				{
-					addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TECH_GGRP, CTLSEL_TECH_GOODS));
-					addGroup(GRP_PREVGOODS, new GoodsCtrlGroup(CTLSEL_TECH_PREVGGRP, CTLSEL_TECH_PREVGOODS));
-					addGroup(GRP_PRC, new PrcCtrlGroup(CTLSEL_TECH_PRC));
+					addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_TECH_GGRP, CTLSEL_TECH_GOODS));
+					addGroup(ctlgroupPrevGoods, new GoodsCtrlGroup(CTLSEL_TECH_PREVGGRP, CTLSEL_TECH_PREVGOODS));
+					addGroup(ctlgroupPrc, new PrcCtrlGroup(CTLSEL_TECH_PRC));
 				}
 				DECL_DIALOG_SETDTS()
 				{
@@ -998,16 +1069,16 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
 					disableCtrl(CTL_TECH_ID, 1);
 					PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
-					setGroupData(GRP_PRC, &prc_grp_rec);
+					setGroupData(ctlgroupPrc, &prc_grp_rec);
 					SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL, 0);
 					setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
 					{
 						GoodsCtrlGroup::Rec rec(0, Data.Rec.GoodsID, 0, GoodsCtrlGroup::enableInsertGoods);
-						setGroupData(GRP_GOODS, &rec);
+						setGroupData(ctlgroupGoods, &rec);
 					}
 					{
 						GoodsCtrlGroup::Rec rec(0, Data.Rec.PrevGoodsID, 0, GoodsCtrlGroup::enableInsertGoods);
-						setGroupData(GRP_PREVGOODS, &rec);
+						setGroupData(ctlgroupPrevGoods, &rec);
 					}
 					{
 						LTIME tm;
@@ -1034,7 +1105,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 						PPObject::SetLastErrObj(PPOBJ_TECH, tec_rec.ID);
 						CALLEXCEPT_PP(PPERR_DUPSYMB);
 					}
-					getGroupData(GRP_PRC, &prc_grp_rec);
+					getGroupData(ctlgroupPrc, &prc_grp_rec);
 					Data.Rec.PrcID = prc_grp_rec.PrcID;
 					sel = CTLSEL_TECH_PRC;
 					THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
@@ -1043,12 +1114,12 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					sel = CTLSEL_TECH_GOODS;
 					{
 						GoodsCtrlGroup::Rec rec;
-						THROW(getGroupData(GRP_GOODS, &rec));
+						THROW(getGroupData(ctlgroupGoods, &rec));
 						Data.Rec.GoodsID = NZOR(rec.GoodsID, rec.GrpID);
 					}
 					{
 						GoodsCtrlGroup::Rec rec;
-						THROW(getGroupData(GRP_PREVGOODS, &rec));
+						THROW(getGroupData(ctlgroupPrevGoods, &rec));
 						Data.Rec.PrevGoodsID = NZOR(rec.GoodsID, rec.GrpID);
 					}
 					{
@@ -1129,6 +1200,10 @@ int PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta)
 	}
 	else if(extraData & TECEXDF_AUTO) {
 		rec.Kind = TECK_AUTO;
+		rec.Sign = 0;
+	}
+	else if(extraData & TECEXDF_FOLDER) { // @v11.6.3
+		rec.Kind = TECK_FOLDER;
 		rec.Sign = 0;
 	}
 	else {
@@ -1347,7 +1422,6 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 	assert(pExtraData);
 	if(pExtraData) {
 		PPObjTech * p_obj = static_cast<PPObjTech *>(pExtraData);
-
 	}
 	else {
 
@@ -1622,20 +1696,24 @@ const TechFilt * PPViewTech::GetFilt() const
 
 class TechFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(TechFilt);
+	enum {
+		ctlgroupGoods     = 1,
+		ctlgroupPrc       = 2,
+	};
 public:
 	TechFiltDialog() : TDialog(DLG_TECHFILT)
 	{
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TECHFILT_GGRP, CTLSEL_TECHFILT_GOODS));
-		addGroup(GRP_PRC,   new PrcCtrlGroup(CTLSEL_TECHFILT_PRC));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_TECHFILT_GGRP, CTLSEL_TECHFILT_GOODS));
+		addGroup(ctlgroupPrc,   new PrcCtrlGroup(CTLSEL_TECHFILT_PRC));
 	}
 	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
 		PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
-		setGroupData(GRP_PRC, &prc_grp_rec);
+		setGroupData(ctlgroupPrc, &prc_grp_rec);
 		SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, 0, 0); // @v11.0.2 removed flag OLW_SETUPSINGLE
 		GoodsCtrlGroup::Rec rec(0, Data.GoodsID);
-		setGroupData(GRP_GOODS, &rec);
+		setGroupData(ctlgroupGoods, &rec);
 		AddClusterAssocDef(CTL_TECHFILT_KIND, 0, 0);
 		AddClusterAssoc(CTL_TECHFILT_KIND, 1, 1);
 		AddClusterAssoc(CTL_TECHFILT_KIND, 2, 2);
@@ -1653,11 +1731,11 @@ public:
 		uint   sel = 0;
 		PrcCtrlGroup::Rec prc_grp_rec;
 		GoodsCtrlGroup::Rec rec;
-		getGroupData(GRP_PRC, &prc_grp_rec);
+		getGroupData(ctlgroupPrc, &prc_grp_rec);
 		Data.PrcID = prc_grp_rec.PrcID;
 		getCtrlData(CTLSEL_TECHFILT_PARENT, &Data.ParentID);
 		sel = CTLSEL_TECHFILT_GOODS;
-		THROW(getGroupData(GRP_GOODS, &rec));
+		THROW(getGroupData(ctlgroupGoods, &rec));
 		Data.GoodsID = rec.GoodsID;
 		GetClusterData(CTL_TECHFILT_KIND, &Data.Kind);
 		GetClusterData(CTL_TECHFILT_SIGN,  &Data.Sign);
@@ -1873,6 +1951,15 @@ int PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 					ok = -1;
 					if(sample_id && TecObj.AddBySample(&id, sample_id) > 0)
 						ok = 1;
+				}
+				break;
+			case PPVCMD_ADDGROUP: // @v11.6.3
+				{
+					PPID   new_id = 0;
+					if(TecObj.Edit(&new_id, reinterpret_cast<void *>(TECEXDF_FOLDER)) == cmOK) {
+						id = new_id;
+						ok = 1;
+					}
 				}
 				break;
 			case PPVCMD_VIEWCHILDS:

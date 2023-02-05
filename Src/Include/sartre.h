@@ -1179,6 +1179,8 @@ public:
 	}
 	static uint64 ConvertGeoLoc(const SGeoPosLL & rGeoPos);
 	static uint64 StraightenGeoLoc(uint64 ued, SGeoPosLL & rGeoPos);
+	static uint64 ConvertPlanarAngle_Deg(double deg);
+	static uint64 StraightenPlanarAngle_Deg(uint64 ued, double & rDeg);
 };
 //
 //

@@ -5698,7 +5698,7 @@
 	#define CTL_GFLTADVOPT_EXTFLT        (8 + WINDOWS_ID_BIAS)
 	#define CTL_GFLTADVOPT_PLUSNREST     (9 + WINDOWS_ID_BIAS) // Товар не попадает в период поступления, но есть на остатке
 	#define CTL_GFLTADVOPT_FLAGS         (10 + WINDOWS_ID_BIAS)
-	#define CTL_GFLTADVOPT_SNEXP         (11 + WINDOWS_ID_BIAS) // @v11.6.2 f2SoonExpiredOnly 
+	#define CTL_GFLTADVOPT_SNEXP         (11 + WINDOWS_ID_BIAS) // @v11.6.2 f2SoonExpiredOnly
 	#define CTL_GFLTADVOPT_AHEXPD        (12 + WINDOWS_ID_BIAS) // @v11.6.2 AheadExpiryDays
 //                                516 // Occupied (DLG_BILLEXTFLT)
 #define DLG_OPRDRAFT              517 // Вид драфт-операции
@@ -5817,6 +5817,7 @@
 #define DLG_SCARD                 530 // Персональная карта
 	#define cmNotifyOptions              101
 	#define cmSCardAction1               102
+	#define cmAutoCreateOwner            103 // @v11.6.3
 	#define CTL_SCARD_CODE               (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_ID                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_SERIES             (3 + WINDOWS_ID_BIAS)
@@ -5849,6 +5850,7 @@
 	#define CTLSEL_SCARD_POOLDSER        (30 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_FIXBON             (31 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_OUTERID            (32 + WINDOWS_ID_BIAS)
+	#define CTLBUT_SCARD_AUTOCROWNER     (33 + WINDOWS_ID_BIAS) // @v11.6.3 button cmAutoCreateOwner
 #define DLG_SCARDFLT              531 // F_SCARD Фильтр по пластиковым карточкам
 	#define cmExcludeOwnerScFilt         101
 	#define CTL_SCARDFLT_SERIES          (1 + WINDOWS_ID_BIAS)
@@ -11438,6 +11440,7 @@
 	#define cmPersonEventPacket             101
 	#define CTL_STQPEVPARAM_MAXDIST         (1  + WINDOWS_ID_BIAS)
 	#define CTLBUT_STQPEVPARAM_PACK         (2  + WINDOWS_ID_BIAS)
+#define DLG_TECHFOLDER            1429 // @v11.6.3 TECH Технология верхнего уровня (папка)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

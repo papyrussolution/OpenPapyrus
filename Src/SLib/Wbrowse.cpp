@@ -1,5 +1,5 @@
 // WBROWSE.CPP
-// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // WIN32
 //
@@ -961,7 +961,7 @@ int BrowserWindow::CopyToClipboard()
 				uint   pos = 0;
 				const  BroGroup * p_grp = p_def_->GetGroup(i);
 				val_buf = p_grp->P_Text;
-				if(SelectedColumns.lsearch(p_grp->First, &pos) > 0) {
+				if(SelectedColumns.lsearch(p_grp->First, &pos)) {
 					sw.PutFormat("FC0L", 1, pos + 1, 1);
 					sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
 					sw.PutVal(val_buf, 1);
@@ -1909,8 +1909,8 @@ void BrowserWindow::Paint()
 				long dot_line_delta = 6;
 				r.left = CellRight(p_def_->at(cn));
 				if(sel_col_count) {
-					const int selected      = BIN(SelectedColumns.bsearch(static_cast<long>(cn), 0) > 0);
-					const int next_selected = BIN(SelectedColumns.bsearch(static_cast<long>(cn) + 1, 0) > 0);
+					const bool selected      = SelectedColumns.bsearch(static_cast<long>(cn), 0);
+					const bool next_selected = SelectedColumns.bsearch(static_cast<long>(cn) + 1, 0);
 					dot_line = ((!next_selected && selected) || (next_selected && !selected));
 					if(selected) {
 						SelectObject(ps.hdc, dot_line_pen);
@@ -1977,7 +1977,7 @@ int BrowserWindow::SelColByPoint(const POINT * point, int action)
 				SPoint2S tp;
 				tp = *point;
 				if(ItemByPoint(tp, &col, 0)) {
-					if(SelectedColumns.bsearch(col, &pos) > 0)
+					if(SelectedColumns.bsearch(col, &pos))
 						SelectedColumns.atFree(pos);
 					else if(col >= 0 && col < static_cast<long>(P_Def->getCount()))
 						SelectedColumns.add(col);

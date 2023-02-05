@@ -3092,7 +3092,8 @@ struct GoodsRecoverParam {
 		fCorrect              = 0x0001, // Исправлять ошибки
 		fCheckAlcoAttribs     = 0x0002, // Проверять алкогольные атрибуты
 		fBarcode              = 0x0004, // @v10.8.5 Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру
-		fCreateTechIfPossible = 0x0008  // @v11.3.2 Если для товара может быть создана технология (по существующей автотехнологии и по параметрам группы, то создавать)
+		fCreateTechIfPossible = 0x0008, // @v11.3.2 Если для товара может быть создана технология (по существующей автотехнологии и по параметрам группы, то создавать)
+		fArCodeOutrInrFault   = 0x0010  // @v11.6.3 Специфическая проблема ошибки в кодировке кодов по статьям, возникшая из-за старого дефекта в функции импорта документов
 	};
 	SString LogFileName;  // Имя файла журнала, в который заносится информация об ошибках
 	long   Flags;
@@ -3109,6 +3110,7 @@ static int EditGoodsRecoverParam(GoodsRecoverParam * pData)
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 1, GoodsRecoverParam::fCheckAlcoAttribs);
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 2, GoodsRecoverParam::fBarcode);
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 3, GoodsRecoverParam::fCreateTechIfPossible); // @v11.3.2
+		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 4, GoodsRecoverParam::fArCodeOutrInrFault); // @v11.6.3
 		dlg->SetClusterData(CTL_RCVRGOODS_FLAGS, pData->Flags);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_RCVRGOODS_LOG, pData->LogFileName);
@@ -3136,7 +3138,8 @@ int PPViewGoods::Repair(PPID /*id*/)
 	GoodsRecoverParam param;
 	SString temp_buf;
 	SString valid_code;
-	SString fmt_buf, msg_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	if(EditGoodsRecoverParam(&param) > 0) {
 		if(param.Flags & param.fCheckAlcoAttribs) {
 			THROW_MEM(p_eg_prc = new PPEgaisProcessor(PPEgaisProcessor::cfUseVerByConfig, &logger, 0));
@@ -3194,6 +3197,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 				int    err = 0;
 				int    to_turn_packet = 0;
 				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
+					ArGoodsCodeArray susp_arcode_list; // @v11.6.3 Список кодов по статьям, имеющих подозрительное значение кода (неверная кодировка).
 					const int is_cls = BIN(pack.Rec.GdsClsID && gc_obj.GetPacket(pack.Rec.GdsClsID, &gc_pack) > 0);
 					// @v11.3.2 {
 					if(pack.Rec.ParentID && GObj.Search(pack.Rec.ParentID, &parent_rec) > 0) {
@@ -3221,6 +3225,42 @@ int PPViewGoods::Repair(PPID /*id*/)
 						err = 1;
 					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.AddObj2ID, is_cls, gc_pack.PropAdd2, &logger))
 						err = 1;
+					//
+					// @v11.6.3 {
+					// Специальная проверка на недопустимые символы в кодах по статьям (связана с одной старой ошибкой в функции импорта документов)
+					if(param.Flags & GoodsRecoverParam::fArCodeOutrInrFault) {
+						if(pack.ArCodes.getCount()) {
+							for(uint acidx = 0; acidx < pack.ArCodes.getCount(); acidx++) {
+								ArGoodsCodeTbl::Rec & r_ac_rec = pack.ArCodes.at(acidx);
+								temp_buf = r_ac_rec.Code;
+								if(!temp_buf.IsAscii()) {
+									bool is_there_susp_chars = false;
+									bool is_outer_text = true;
+									for(uint cidx = 0; cidx < temp_buf.Len(); cidx++) {
+										const uchar c = static_cast<uchar>(temp_buf.C(cidx));
+										if(!isascii(c) && !IsLetter1251(c)) 
+											is_outer_text = false;
+										if(!isascii(c) && !IsLetter866(c))
+											is_there_susp_chars = true;
+									}
+									if(is_there_susp_chars) {
+										err = 1;
+										if(is_outer_text) {
+											long uniqn = 0;
+											temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
+											SString new_code = temp_buf;
+											ArGoodsCodeTbl::Rec dup_ac_rec;
+											while(GObj.P_Tbl->SearchByArCode(r_ac_rec.ArID, temp_buf, &dup_ac_rec) > 0) {
+												(temp_buf = new_code).CatChar('#').Cat(++uniqn);
+											}
+											STRNSCPY(r_ac_rec.Code, temp_buf);
+											to_turn_packet = 1;
+										}
+									}
+								}
+							}
+						}
+					}
 					//
 					if(is_cls > 0) {
 						THROW(gc_pack.CompleteGoodsPacket(&pack));

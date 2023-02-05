@@ -2649,6 +2649,10 @@ binatone%<бинатон
 vitesse%<витесс
 bekker%<беккер
 
+beko gn%z%(%d%)%>beko gn-%1
+beko rcna%z%(%d%)%>beko rcna-%1
+beko rcnk%z%(%d%)%>beko rcnk-%1
+beko rcsk%z%(%d%)%>beko rcsk-%1
 bosch bgc%z%(%d%)%>bosch bgc-%1
 bosch bgs%z%(%d%)%>bosch bgs-%1
 bosch bsg%z%(%d%)%>bosch bsg-%1
@@ -2667,6 +2671,7 @@ bosch gsv%z%(%d%)%>bosch gsv-%1
 bosch smv%z%(%d%)%>bosch smv-%1
 bosch sps%z%(%d%)%>bosch sps-%1
 bosch spv%z%(%d%)%>bosch spv-%1
+bosch tda%z%(%d%)%>bosch tda-%1
 bosch tds%z%(%d%)%>bosch tds-%1
 bosch mfw%z%(%d%)%>bosch mfw-%1
 bosch mfq%z%(%d%)%>bosch mfq-%1
@@ -2687,6 +2692,8 @@ tefal fv%z%(%d%)%>tefal fv-%1
 tefal rk%z%(%d%)%>tefal rk-%1
 tefal tw%z%(%d%)%>tefal tw-%1
 braun hd%z%(%d%)%>braun hd-%1
+braun ts%z%(%d%)%>braun ts-%1
+braun si%z%(%d%)%>braun si-%1
 galaxy gl%z%(%d%)%>galaxy gl-%1
 rowenta cv%z%(%d%)%>rowenta cv-%1
 rowenta cf%z%(%d%)%>rowenta cf-%1
@@ -2703,6 +2710,9 @@ siemens sn%z%(%d%)%>siemens sn-%1
 siemens sr%z%(%d%)%>siemens sr-%1
 gorenje gv%z%(%d%)%>gorenje gv-%1
 gorenje vc%z%(%d%)%>gorenje vc-%1
+gorenje rk%z%(%d%)%>gorenje rk-%1
+gorenje nrk%z%(%d%)%>gorenje nrk-%1
+gorenje r%z%(%d%)%>gorenje r-%1
 neff b%z%(%d%)%>neff b-%1
 neff c%z%(%d%)%>neff c-%1
 neff d%z%(%d%)%>neff d-%1
@@ -2710,6 +2720,8 @@ neff n%z%(%d%)%>neff n-%1
 neff s%z%(%d%)%>neff s-%1
 neff t%z%(%d%)%>neff t-%1
 neff z%z%(%d%)%>neff z-%1
+electrolux en%z%(%d%)%>electrolux en-%1
+electrolux enn%z%(%d%)%>electrolux enn-%1
 
 opi nail polish%<opi n/plsh%|opi n/p
 livingston cellars%<livingston cell%|%^liv cellars
@@ -2814,6 +2826,9 @@ bulb reflector%<bulb ref%|bulb reflctr%|bulb reflectr%|bulb rflctr
 
 %(ежедневник%) %(%*%)% %(%d%)л%.%>%1 %2 %3лист
 %(еженедельник%) %(%*%) %(%d%)л%.%>%1 %2 %3лист
+
+%^цанговый патрон%>патрон цанговый
+%^хомут %(%*%) червячный%>хомут червячный %1
 
 дневник школьн%<дневник школьный%|дневник школ%.%|дневник шк%.
 дневник для старш школ%<дневник для ст%.%zкл%.%|дневник для стар%.%zкл%.

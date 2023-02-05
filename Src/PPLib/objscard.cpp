@@ -1,5 +1,5 @@
 // OBJSCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Модуль, управляющий объектом PPObjSCard - персональные карты
 //
@@ -1459,6 +1459,7 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 4, SCRDSF_NEWSCINHF);
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 5, SCRDSF_TRANSFDISCOUNT);
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 6, SCRDSF_PASSIVE);
+			AddClusterAssoc(CTL_SCARDSER_FLAGS, 7, SCRDSF_ALLOWOWNERAUTOCR); // @v11.6.3
 			SetClusterData(CTL_SCARDSER_FLAGS, Data.Rec.Flags);
 			//
 			SetupPPObjCombo(this, CTLSEL_SCARDSER_QUOTKIND, PPOBJ_QUOTKIND, Data.Rec.QuotKindID_s, OLW_CANINSERT, 0);
@@ -3118,7 +3119,7 @@ public:
 		ctlgroupSpcDvcInp = 1,
 		ctlgroupLoc       = 2
 	};
-	SCardDialog(long options = 0) : TDialog(DLG_SCARD), Options(options)
+	explicit SCardDialog(long options = 0) : TDialog(DLG_SCARD), Options(options)
 	{
 		SetupCalDate(CTLCAL_SCARD_DATE,   CTL_SCARD_DATE);
 		SetupCalDate(CTLCAL_SCARD_EXPIRY, CTL_SCARD_EXPIRY);
@@ -3147,6 +3148,18 @@ private:
 			PPID   series_id = getCtrlLong(CTLSEL_SCARD_SERIES);
 			Data.Rec.AutoGoodsID = getCtrlLong(CTLSEL_SCARD_AUTOGOODS);
 			SetupSeries(series_id, person_id);
+		}
+		else if(event.isCbSelected(CTLSEL_SCARD_PERSON)) { // @v11.6.3
+			PPID   person_id = getCtrlLong(CTLSEL_SCARD_PERSON);
+			PPID   series_id = getCtrlLong(CTLSEL_SCARD_SERIES);
+			bool   enable_person_autocreation = false;
+			if(series_id && !person_id)  {
+				PPSCardSeries2 scs_rec;
+				if(ObjSCardSer.Fetch(series_id, &scs_rec) > 0 && scs_rec.Flags & SCRDSF_ALLOWOWNERAUTOCR) {
+					enable_person_autocreation = true;
+				}
+			}
+			enableCommand(cmAutoCreateOwner, enable_person_autocreation);
 		}
 		else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_SCARD_PHONE)) {
 			SetupPhoneButton(this, CTL_SCARD_PHONE, cmSCardAction1);
@@ -3194,6 +3207,28 @@ private:
 		}
 		else if(event.isCmd(cmNotifyOptions))
 			EditNotifyOptions();
+		else if(event.isCmd(cmAutoCreateOwner)) { // @v11.6.3
+			PPID   person_id = getCtrlLong(CTLSEL_SCARD_PERSON);
+			PPID   series_id = getCtrlLong(CTLSEL_SCARD_SERIES);
+			SString code_buf;
+			getCtrlString(CTL_SCARD_CODE, code_buf);
+			STRNSCPY(Data.Rec.Code, code_buf);
+			if(series_id && !person_id && code_buf.NotEmptyS())  {
+				PPSCardSeries2 scs_rec;
+				if(ObjSCardSer.Fetch(series_id, &scs_rec) > 0 && scs_rec.Flags & SCRDSF_ALLOWOWNERAUTOCR) {
+					PPID   psn_kind_id = scs_rec.PersonKindID;
+					SETIFZ(psn_kind_id, ScObj.GetConfig().PersonKindID);
+					SETIFZ(psn_kind_id, PPPRK_CLIENT);					
+					if(psn_kind_id) {
+						PPID   new_psn_id = 0;
+						if(PsnObj.AddSimple(&new_psn_id, code_buf, psn_kind_id, PPPRS_PRIVATE, 1) > 0) {
+							Data.Rec.PersonID = new_psn_id;
+							SetupPersonCombo(this, CTLSEL_SCARD_PERSON, new_psn_id, OLW_CANINSERT|OLW_LOADDEFONOPEN, psn_kind_id, 0);
+						}
+					}
+				}
+			}			
+		}
 		else if(event.isKeyDown(kbF2) && isCurrCtlID(CTL_SCARD_EXPIRY)) {
 			if(DateAddDialog(&ScExpiryPeriodParam) > 0 && checkdate(ScExpiryPeriodParam.ResultDate, 0)) {
 				setCtrlDate(CTL_SCARD_EXPIRY, ScExpiryPeriodParam.ResultDate);
@@ -3253,6 +3288,7 @@ private:
 	PPSCardPacket Data;
 	PPSCardSerPacket ScsPack;
 	PPObjSCardSeries ObjSCardSer;
+	PPObjPerson PsnObj;
 };
 
 void SCardDialog::SetupCtrls()
@@ -3310,7 +3346,7 @@ void SCardDialog::SetupSeries(PPID seriesID, PPID personID)
 	PPID   goods_grp_id = 0;
 	PPSCardSeries2 scs_rec;
 	SString info_buf;
-	PPObjPerson psn_obj;
+	bool   enable_person_autocreation = false; // @v11.6.3 
 	int    scst = scstUnkn;
 	if(seriesID && ObjSCardSer.Fetch(seriesID, &scs_rec) > 0) {
 		psn_kind_id = scs_rec.PersonKindID;
@@ -3339,14 +3375,16 @@ void SCardDialog::SetupSeries(PPID seriesID, PPID personID)
 			}
 		}
 	}
-	if(!psn_kind_id) {
-		PPObjSCard sc_obj;
-		psn_kind_id = sc_obj.GetConfig().PersonKindID;
-	}
-	psn_kind_id = NZOR(psn_kind_id, PPPRK_CLIENT);
-	if(psn_obj.P_Tbl->IsBelongToKind(personID, psn_kind_id) <= 0)
+	SETIFZ(psn_kind_id, ScObj.GetConfig().PersonKindID);
+	SETIFZ(psn_kind_id, PPPRK_CLIENT);
+	if(PsnObj.P_Tbl->IsBelongToKind(personID, psn_kind_id) <= 0)
 		personID = 0;
 	SetupPersonCombo(this, CTLSEL_SCARD_PERSON, personID, OLW_CANINSERT|OLW_LOADDEFONOPEN, psn_kind_id, 0);
+	// @v11.6.3 {
+	if(scs_rec.Flags & SCRDSF_ALLOWOWNERAUTOCR && !personID)
+		enable_person_autocreation = true;
+	enableCommand(cmAutoCreateOwner, enable_person_autocreation); // @v11.6.3 
+	// } @v11.6.3
 	if(goods_grp_id)
 		SetupPPObjCombo(this, CTLSEL_SCARD_AUTOGOODS, PPOBJ_GOODS, Data.Rec.AutoGoodsID, 0, reinterpret_cast<void *>(goods_grp_id));
 	else

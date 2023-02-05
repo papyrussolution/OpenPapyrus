@@ -1386,6 +1386,34 @@ static const uint64 __ued_geoloc = 0x93ULL;
 	}
 	return result;
 }
+
+/*static*/uint64 UED::ConvertPlanarAngle_Deg(double deg)
+{
+	uint64 result = 0;
+	const uint64 _divisor = 360ULL * 3600ULL;
+	//              0123456789012345
+	const uint64 maxv = (0x00ffffffffffffffULL / _divisor) * _divisor;
+	assert((maxv % 360ULL) == 0ULL);
+	double _deg = fmod(deg, 360.0);
+	if(_deg < 0.0) {
+		_deg += 360.0;
+	}
+	assert(_deg >= 0.0 && _deg < 360.0);
+	result = (uint64)(_deg * (maxv / 360ULL));
+	assert((result & 0xff00000000000000ULL) == 0ULL);
+	return result;
+}
+
+/*static*/uint64 UED::StraightenPlanarAngle_Deg(uint64 ued, double & rDeg)
+{
+	uint64 result = 0;
+	const uint64 _divisor = 360ULL * 3600ULL;
+	//              0123456789012345
+	const uint64 maxv = (0x00ffffffffffffffULL / _divisor) * _divisor;
+	rDeg = static_cast<double>(ued & 0x00ffffffffffffffULL) / (maxv / 360ULL);
+	result = 1;
+	return result;
+}
 // } @construction
 #endif // } (_MSC_VER >= 1900)
 //
@@ -1920,6 +1948,15 @@ int Test_ReadUed(const char * pFileName)
 		uint64 ued_gp = UED::ConvertGeoLoc(gp);
 		SGeoPosLL gp_;
 		UED::StraightenGeoLoc(ued_gp, gp_);
+	}
+	{
+		const double angle_list[] = { 10.5, 0.0, 30.0, 45.0, 60.0, 180.0, 10.0, 270.25, 359.9 };
+		for(uint i = 0; i < SIZEOFARRAY(angle_list); i++) {
+			uint64 ued_a = UED::ConvertPlanarAngle_Deg(angle_list[i]);
+			double angle_;
+			UED::StraightenPlanarAngle_Deg(ued_a, angle_);
+			assert(angle_ == angle_list[i]);
+		}
 	}
 	{
 		UErrorCode icu_st = U_ZERO_ERROR;

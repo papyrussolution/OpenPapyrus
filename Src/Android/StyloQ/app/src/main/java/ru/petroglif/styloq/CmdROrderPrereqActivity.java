@@ -688,6 +688,19 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					final CommonPrereqModule.Tab tab_id = CPM.OnTabSelection(subj);
 					SLib.SetCtrlVisibility(this, R.id.tbButtonLocalTabConfig, (tab_id == CommonPrereqModule.Tab.tabRegistry) ? View.VISIBLE : View.GONE);
 					SLib.SetCtrlVisibility(this, R.id.tbButtonHelp, (tab_id == CommonPrereqModule.Tab.tabRegistry) ? View.VISIBLE : View.GONE);
+					// @v11.6.3 @seva {
+					if(tab_id == CommonPrereqModule.Tab.tabSearch) {
+						CommonPrereqModule.TabEntry te = SearchTabEntry(tab_id);
+						if(te != null && te.TabView != null) {
+							View v = te.TabView.getView();
+							if(v != null && v instanceof ViewGroup) {
+								View ftv = ((ViewGroup)v).findViewById(R.id.searchPaneListView);
+								if(ftv != null)
+									ftv.requestFocus();
+							}
+						}
+					}
+					// } @v11.6.3 @seva
 				}
 				break;
 			case SLib.EV_LISTVIEWCOUNT:

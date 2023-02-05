@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494666
+LastSignatureCode=2147494669
 LastAutoCodeList=1,12177;102,10177;103,10072;110,10000;111,12070;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10313;124,10242;125,10047
 
 [SignatureList]
@@ -1834,6 +1834,7 @@ doremoveall=2147485172
 doupdateall=2147485173
 doaddbysample=2147485174
 doaddbysample_short=2147485175
+doaddtecgroup=2147494668
 douniteanalogs=2147485176
 dorepairquots=2147485177
 dotransmit_short=2147485178
@@ -6737,6 +6738,7 @@ scardseries_scrdsf_usequotkindlist=2147489689
 scardseries_scrdsf_transfdiscount=2147489690
 scardseries_scrdsf_passive=2147489691
 scardseries_scrdsf_group=2147489692
+scardseries_scrdsf_allowownerautocr=2147494669
 scardseries_scrdsf_rsrvpool=2147489693
 scardseries_symb=2147489694
 scardseries_symb_amp=2147494334
@@ -8889,6 +8891,7 @@ goodsrecoverparam_fcorrect=2147491762
 goodsrecoverparam_fcheckalcoattribs=2147491763
 goodsrecoverparam_fbarcode=2147491764
 goodsrecoverparam_fcreatetechifpossible=2147494488
+goodsrecoverparam_farcodeoutrinrfault=2147494667
 goodsrecoverparam_logfilename=2147491765
 ccrecover=2147494352
 ccrecoverparam=2147491766
