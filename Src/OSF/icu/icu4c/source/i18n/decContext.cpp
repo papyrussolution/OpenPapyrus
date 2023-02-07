@@ -44,7 +44,8 @@ static const Flag * mfctop = (Flag*)&mfcone; /* -> top byte  */
 /* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
-U_CAPI decContext * U_EXPORT2 uprv_decContextClearStatus(decContext * context, uInt mask) {
+U_CAPI decContext * U_EXPORT2 uprv_decContextClearStatus(decContext * context, uInt mask) 
+{
 	context->status &= ~mask;
 	return context;
 }   /* decContextClearStatus  */
@@ -62,7 +63,8 @@ U_CAPI decContext * U_EXPORT2 uprv_decContextClearStatus(decContext * context, u
 /* Invalid_operation set in the status field.  */
 /* returns a context structure with the appropriate initial values.  */
 /* ------------------------------------------------------------------ */
-U_CAPI decContext *  U_EXPORT2 uprv_decContextDefault(decContext * context, Int kind) {
+U_CAPI decContext *  U_EXPORT2 uprv_decContextDefault(decContext * context, Int kind) 
+{
 	/* set defaults...  */
 	context->digits = 9; /* 9 digits  */
 	context->emax = DEC_MAX_EMAX; /* 9-digit exponents  */

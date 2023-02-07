@@ -1371,7 +1371,11 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 		k.k2.PrcID = prc_id;
 		dbq = ppcheckfiltid(dbq, P_Tbl->PrcID, k.k2.PrcID);
 	}
-	dbq = &(*dbq && P_Tbl->Kind == (long)BIN(extraParam & TECEXDF_TOOLING));
+	if(extraParam & TECEXDF_TOOLING)
+		dbq = &(*dbq && P_Tbl->Kind == 1L);
+	else {
+		dbq = &(*dbq && (P_Tbl->Kind == static_cast<long>(TECK_GENERAL) || P_Tbl->Kind == static_cast<long>(TECK_FOLDER)));
+	}
 	RVALUEPTR(id_list, pIdList);
 	BExtQuery q(P_Tbl, idx);
 	q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->OrderN, P_Tbl->GoodsID, P_Tbl->Code, 0).where(*dbq);
@@ -1885,7 +1889,10 @@ DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbq = &(*dbq && p_tect->Sign > 0L);
 	else if(Filt.Sign == TechFilt::signUsageOnly)
 		dbq = &(*dbq && p_tect->Sign == 0L);
-	dbq = &(*dbq && p_tect->Kind == Filt.Kind);
+	if(Filt.Kind == TECK_GENERAL)
+		dbq = &(*dbq && (p_tect->Kind == static_cast<long>(TECK_GENERAL) || p_tect->Kind == static_cast<long>(TECK_FOLDER)));
+	else
+		dbq = &(*dbq && p_tect->Kind == Filt.Kind);
 	dbq = & (*dbq && ((p_reft->ObjID += p_tect->GStrucID) && p_reft->ObjType == PPOBJ_GOODSSTRUC));
 	q->where(*dbq);
 	if(Filt.GoodsID)

@@ -1,5 +1,5 @@
 // FILTRNSM.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -332,13 +332,13 @@ int GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDestDir, 
 			((filtFlags & SMailMessage::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0)) {
 			THROW(ftp.SafeGet(dest_path, src_path, 0, CallbackFTPTransfer, 0));
 			{
-				int accept_file = 1;
+				bool do_accept_file = true;
 				PPObjectTransmit::Header hdr;
 				if(PPObjectTransmit::GetHeader(dest_path, &hdr)) {
-					if(hdr.DestDBID != LConfig.DBDiv || pDbDivList && pDbDivList->getCount() && pDbDivList->lsearch(hdr.DBID, 0) <= 0)
-						accept_file = 0;
+					if(hdr.DestDBID != LConfig.DBDiv || pDbDivList && pDbDivList->getCount() && !pDbDivList->lsearch(hdr.DBID, 0))
+						do_accept_file = false;
 				}
-				if(accept_file && delFromFtp)
+				if(do_accept_file && delFromFtp)
 					THROW(ftp.SafeDelete(src_path, 0));
 			}
 		}

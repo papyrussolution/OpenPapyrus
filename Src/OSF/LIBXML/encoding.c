@@ -931,13 +931,9 @@ static int UTF8ToUTF16BE(uchar * outb, int * outlen, const uchar * in, int * inl
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
-/************************************************************************
-*									*
-*		Generic encoding handling routines			*
-*									*
-************************************************************************/
-
+// 
+// Generic encoding handling routines
+// 
 /**
  * xmlDetectCharEncoding:
  * @in:  a pointer to the first bytes of the XML entity, must be at least
@@ -1307,30 +1303,21 @@ xmlCharEncodingHandler * xmlNewCharEncodingHandler(const char * name, xmlCharEnc
  * NOTE: while public, this function usually doesn't need to be called
  *  in normal processing.
  */
-void xmlInitCharEncodingHandlers()
-{
-	EncBlk.InitCharEncodingHandlers();
-}
+void xmlInitCharEncodingHandlers() { EncBlk.InitCharEncodingHandlers(); }
 //
 // xmlCleanupCharEncodingHandlers:
 //
 // Cleanup the memory allocated for the char encoding support, it
 // unregisters all the encoding handlers and the aliases.
 //
-void xmlCleanupCharEncodingHandlers()
-{
-	EncBlk.CleanupCharEncodingHandlers();
-}
+void xmlCleanupCharEncodingHandlers() { EncBlk.CleanupCharEncodingHandlers(); }
 //
 // xmlRegisterCharEncodingHandler:
 // @handler:  the xmlCharEncodingHandlerPtr handler block
 //
 // Register the char encoding handler, surprising, isn't it ?
 //
-void xmlRegisterCharEncodingHandler(xmlCharEncodingHandler * handler)
-{
-	EncBlk.RegisterCharEncodingHandler(handler);
-}
+void xmlRegisterCharEncodingHandler(xmlCharEncodingHandler * handler) { EncBlk.RegisterCharEncodingHandler(handler); }
 //
 // xmlGetCharEncodingHandler:
 // @enc:  an xmlCharEncoding value.
@@ -1339,10 +1326,7 @@ void xmlRegisterCharEncodingHandler(xmlCharEncodingHandler * handler)
 //
 // Returns the handler or NULL if not found
 //
-xmlCharEncodingHandler * xmlGetCharEncodingHandler(xmlCharEncoding enc)
-{
-	return EncBlk.GetCharEncodingHandler(enc);
-}
+xmlCharEncodingHandler * xmlGetCharEncodingHandler(xmlCharEncoding enc) { return EncBlk.GetCharEncodingHandler(enc); }
 //
 // xmlFindCharEncodingHandler:
 // @name:  a string describing the char encoding.
@@ -1351,17 +1335,10 @@ xmlCharEncodingHandler * xmlGetCharEncodingHandler(xmlCharEncoding enc)
 //
 // Returns the handler or NULL if not found
 //
-xmlCharEncodingHandler * FASTCALL xmlFindCharEncodingHandler(const char * name)
-{
-	return EncBlk.FindCharEncodingHandler(name);
-}
-
-/************************************************************************
-*									*
-*		ICONV based generic conversion functions		*
-*									*
-************************************************************************/
-
+xmlCharEncodingHandler * FASTCALL xmlFindCharEncodingHandler(const char * name) { return EncBlk.FindCharEncodingHandler(name); }
+// 
+// ICONV based generic conversion functions
+// 
 #ifdef LIBXML_ICONV_ENABLED
 /**
  * xmlIconvWrapper:

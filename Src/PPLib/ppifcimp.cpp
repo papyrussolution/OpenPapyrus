@@ -6438,9 +6438,9 @@ ILotList * DL6ICLS_PPObjBill::GetCurLotList(LDATE lowDt, LDATE uppDt, int32 good
 		uint lot_count = lot_list.getCount();
 		for(long i = (long)lot_count - 1; i >= 0; i--) {
 			int to_del = 0;
-			ReceiptTbl::Rec * p_lot_rec = (ReceiptTbl::Rec*)lot_list.at(i);
+			ReceiptTbl::Rec * p_lot_rec = static_cast<ReceiptTbl::Rec *>(lot_list.at(i));
 			if(p_group_goods_list) {
-				if(p_group_goods_list->bsearch(p_lot_rec->GoodsID) <= 0)
+				if(!p_group_goods_list->bsearch(p_lot_rec->GoodsID))
 					to_del = 1;
 			}
 			if(!to_del && !loc_list.IsEmpty() && loc_list.CheckID(p_lot_rec->LocID) <= 0)
@@ -7773,7 +7773,7 @@ struct AlcRepOpList {
 	}
 	int Check(PPID opID, const PPIDArray & rList) const
 	{
-		return BIN(rList.bsearch(opID, 0) > 0);
+		return rList.bsearch(opID, 0);
 	}
 	PPIDArray RcptList;
 	PPIDArray RcptEtcList;

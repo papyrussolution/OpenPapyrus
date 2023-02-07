@@ -1,5 +1,5 @@
 // CLIAGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Соглашения с клиентами об условиях торговли
 //
@@ -424,7 +424,7 @@ int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement & rAgt, int use_
 		PPID   mainorg_id = GetMainOrgID();
 		P_Tbl->PersonToArticle(mainorg_id, GetSellAccSheet(), &mainorg_arid);
 		if(id != mainorg_arid && ObjRelTyp.Fetch(PPPSNRELTYP_AFFIL, &rt_pack) > 0 && (rt_pack.Rec.Flags & PPPersonRelType::fInhMainOrgAgreement)) {
-			if(GetRelPersonList(id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0 && rel_list.getCount() && rel_list.lsearch(mainorg_arid) > 0) {
+			if(GetRelPersonList(id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0 && rel_list.getCount() && rel_list.lsearch(mainorg_arid)) {
 				THROW(r = p_ref->GetPropSBuffer(PPOBJ_ARTICLE, mainorg_arid, ARTPRP_CLIAGT2, sbuf));
 			}
 		}

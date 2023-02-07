@@ -15,9 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/algorithm/algorithm.h"
-#include <algorithm>
-#include <list>
-#include <vector>
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -33,68 +30,67 @@ TEST(EqualTest, DefaultComparisonRandomAccess) {
 	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), v4.begin(), v4.end()));
 }
 
-TEST(EqualTest, DefaultComparison) {
-	std::list<int> lst1{1, 2, 3};
-	std::list<int> lst2 = lst1;
-	std::list<int> lst3{1, 2};
-	std::list<int> lst4{1, 2, 4};
-
-	EXPECT_TRUE(absl::equal(lst1.begin(), lst1.end(), lst2.begin(), lst2.end()));
-	EXPECT_FALSE(absl::equal(lst1.begin(), lst1.end(), lst3.begin(), lst3.end()));
-	EXPECT_FALSE(absl::equal(lst1.begin(), lst1.end(), lst4.begin(), lst4.end()));
+TEST(EqualTest, DefaultComparison) 
+{
+	std::list<int> _lst1{1, 2, 3};
+	std::list<int> _lst2 = _lst1;
+	std::list<int> _lst3{1, 2};
+	std::list<int> _lst4{1, 2, 4};
+	EXPECT_TRUE(absl::equal(_lst1.begin(), _lst1.end(), _lst2.begin(), _lst2.end()));
+	EXPECT_FALSE(absl::equal(_lst1.begin(), _lst1.end(), _lst3.begin(), _lst3.end()));
+	EXPECT_FALSE(absl::equal(_lst1.begin(), _lst1.end(), _lst4.begin(), _lst4.end()));
 }
 
-TEST(EqualTest, EmptyRange) {
+TEST(EqualTest, EmptyRange) 
+{
 	std::vector<int> v1{1, 2, 3};
 	std::vector<int> empty1;
 	std::vector<int> empty2;
-
 	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), empty1.begin(), empty1.end()));
 	EXPECT_FALSE(absl::equal(empty1.begin(), empty1.end(), v1.begin(), v1.end()));
-	EXPECT_TRUE(
-		absl::equal(empty1.begin(), empty1.end(), empty2.begin(), empty2.end()));
+	EXPECT_TRUE(absl::equal(empty1.begin(), empty1.end(), empty2.begin(), empty2.end()));
 }
 
-TEST(EqualTest, MixedIterTypes) {
+TEST(EqualTest, MixedIterTypes) 
+{
 	std::vector<int> v1{1, 2, 3};
-	std::list<int> lst1{v1.begin(), v1.end()};
-	std::list<int> lst2{1, 2, 4};
-	std::list<int> lst3{1, 2};
-
-	EXPECT_TRUE(absl::equal(v1.begin(), v1.end(), lst1.begin(), lst1.end()));
-	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), lst2.begin(), lst2.end()));
-	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), lst3.begin(), lst3.end()));
+	std::list<int> _lst1{v1.begin(), v1.end()};
+	std::list<int> _lst2{1, 2, 4};
+	std::list<int> _lst3{1, 2};
+	EXPECT_TRUE(absl::equal(v1.begin(), v1.end(), _lst1.begin(), _lst1.end()));
+	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), _lst2.begin(), _lst2.end()));
+	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), _lst3.begin(), _lst3.end()));
 }
 
-TEST(EqualTest, MixedValueTypes) {
+TEST(EqualTest, MixedValueTypes) 
+{
 	std::vector<int> v1{1, 2, 3};
 	std::vector<char> v2{1, 2, 3};
 	std::vector<char> v3{1, 2};
 	std::vector<char> v4{1, 2, 4};
-
 	EXPECT_TRUE(absl::equal(v1.begin(), v1.end(), v2.begin(), v2.end()));
 	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), v3.begin(), v3.end()));
 	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), v4.begin(), v4.end()));
 }
 
-TEST(EqualTest, WeirdIterators) {
+TEST(EqualTest, WeirdIterators) 
+{
 	std::vector<bool> v1{true, false};
 	std::vector<bool> v2 = v1;
 	std::vector<bool> v3{true};
 	std::vector<bool> v4{true, true, true};
-
 	EXPECT_TRUE(absl::equal(v1.begin(), v1.end(), v2.begin(), v2.end()));
 	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), v3.begin(), v3.end()));
 	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), v4.begin(), v4.end()));
 }
 
-TEST(EqualTest, CustomComparison) {
+TEST(EqualTest, CustomComparison) 
+{
 	int n[] = {1, 2, 3, 4};
 	std::vector<int*> v1{&n[0], &n[1], &n[2]};
 	std::vector<int*> v2 = v1;
 	std::vector<int*> v3{&n[0], &n[1], &n[3]};
 	std::vector<int*> v4{&n[0], &n[1]};
-
 	auto eq = [](int* a, int* b) {
 		    return *a == *b;
 	    };
@@ -123,7 +119,8 @@ TEST(EqualTest, MoveOnlyPredicate) {
 	EXPECT_FALSE(absl::equal(v1.begin(), v1.end(), v2.begin(), v2.end(), Eq()));
 }
 
-struct CountingTrivialPred {
+struct CountingTrivialPred 
+{
 	int* count;
 	bool operator()(int, int) const {
 		++*count;
@@ -131,7 +128,8 @@ struct CountingTrivialPred {
 	}
 };
 
-TEST(EqualTest, RandomAccessComplexity) {
+TEST(EqualTest, RandomAccessComplexity) 
+{
 	std::vector<int> v1{1, 1, 3};
 	std::vector<int> v2 = v1;
 	std::vector<int> v3{1, 2};
@@ -151,17 +149,11 @@ TEST(EqualTest, RandomAccessComplexity) {
 
 class LinearSearchTest : public testing::Test {
 protected:
-	LinearSearchTest() : container_{1, 2, 3} {
+	LinearSearchTest() : container_{1, 2, 3} 
+	{
 	}
-
-	static bool Is3(int n) {
-		return n == 3;
-	}
-
-	static bool Is4(int n) {
-		return n == 4;
-	}
-
+	static bool Is3(int n) { return n == 3; }
+	static bool Is4(int n) { return n == 4; }
 	std::vector<int> container_;
 };
 
@@ -170,15 +162,15 @@ TEST_F(LinearSearchTest, linear_search) {
 	EXPECT_FALSE(absl::linear_search(container_.begin(), container_.end(), 4));
 }
 
-TEST_F(LinearSearchTest, linear_searchConst) {
+TEST_F(LinearSearchTest, linear_searchConst) 
+{
 	const std::vector<int> * const const_container = &container_;
-	EXPECT_TRUE(
-		absl::linear_search(const_container->begin(), const_container->end(), 3));
-	EXPECT_FALSE(
-		absl::linear_search(const_container->begin(), const_container->end(), 4));
+	EXPECT_TRUE(absl::linear_search(const_container->begin(), const_container->end(), 3));
+	EXPECT_FALSE(absl::linear_search(const_container->begin(), const_container->end(), 4));
 }
 
-TEST(RotateTest, Rotate) {
+TEST(RotateTest, Rotate) 
+{
 	std::vector<int> v{0, 1, 2, 3, 4};
 	EXPECT_EQ(*absl::rotate(v.begin(), v.begin() + 2, v.end()), 0);
 	EXPECT_THAT(v, testing::ElementsAreArray({2, 3, 4, 0, 1}));

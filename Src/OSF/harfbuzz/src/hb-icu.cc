@@ -54,7 +54,6 @@
  * Return value: the #hb_script_t script found
  *
  **/
-
 hb_script_t hb_icu_script_to_script(UScriptCode script)
 {
 	if(UNLIKELY(script == USCRIPT_INVALID_CODE))

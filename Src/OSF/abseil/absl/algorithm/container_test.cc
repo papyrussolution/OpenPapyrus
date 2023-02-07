@@ -12,21 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/algorithm/container.h"
-
-#include <functional>
-#include <initializer_list>
-#include <iterator>
-#include <list>
-#include <memory>
-#include <ostream>
-#include <random>
-#include <set>
-#include <unordered_set>
-#include <utility>
 #include <valarray>
-#include <vector>
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "absl/base/casts.h"

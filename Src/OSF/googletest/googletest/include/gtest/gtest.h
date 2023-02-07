@@ -1396,23 +1396,15 @@ AssertionResult CmpHelperEQFailure(const char* lhs_expression,
 // It prevents using invalid operator==/!= defined at namespace scope.
 struct faketype {};
 
-inline bool operator==(faketype, faketype) {
-	return true;
-}
-
-inline bool operator!=(faketype, faketype) {
-	return false;
-}
+inline bool operator==(faketype, faketype) { return true; }
+inline bool operator!=(faketype, faketype) { return false; }
 
 // The helper function for {ASSERT|EXPECT}_EQ.
-template <typename T1, typename T2>
-AssertionResult CmpHelperEQ(const char* lhs_expression,
-    const char* rhs_expression, const T1& lhs,
-    const T2& rhs) {
+template <typename T1, typename T2> AssertionResult CmpHelperEQ(const char* lhs_expression, const char* rhs_expression, const T1& lhs, const T2& rhs) 
+{
 	if(lhs == rhs) {
 		return AssertionSuccess();
 	}
-
 	return CmpHelperEQFailure(lhs_expression, rhs_expression, lhs, rhs);
 }
 
@@ -1437,19 +1429,15 @@ public:
 	//
 	// Even though its body looks the same as the above version, we
 	// cannot merge the two, as it will make anonymous enums unhappy.
-	static AssertionResult Compare(const char* lhs_expression,
-	    const char* rhs_expression, BiggestInt lhs,
-	    BiggestInt rhs) {
+	static AssertionResult Compare(const char* lhs_expression, const char* rhs_expression, BiggestInt lhs, BiggestInt rhs) 
+	{
 		return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);
 	}
-
-	template <typename T>
-	static AssertionResult Compare(const char* lhs_expression, const char* rhs_expression,
+	template <typename T> static AssertionResult Compare(const char* lhs_expression, const char* rhs_expression,
 	    // Handle cases where '0' is used as a null pointer literal.
 	    std::nullptr_t /* lhs */, T* rhs) {
 		// We already know that 'lhs' is a null pointer.
-		return CmpHelperEQ(lhs_expression, rhs_expression, static_cast<T*>(nullptr),
-			   rhs);
+		return CmpHelperEQ(lhs_expression, rhs_expression, static_cast<T*>(nullptr), rhs);
 	}
 };
 

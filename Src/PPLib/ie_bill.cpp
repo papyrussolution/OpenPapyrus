@@ -1,5 +1,5 @@
 // IE_BILL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -5936,7 +5936,7 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 		ver_buf.Space().Cat(ver.ToStr(temp_buf));
 		N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_VERPROG)/*"ВерсПрог"*/, ver_buf);
 	}
-	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_VERFORM)/*"ВерсФорм"*/, "5.01");
+	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_VERFORM)/*"ВерсФорм"*/, "5.02"); // @v11.6.5 "5.01"-->"5.02"
 	{
 		SXml::WNode n_(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_EDISIDESINFO)); // Сведения об участниках электронного документооборота
 		if(rHi.ProviderPersonID) {

@@ -1,5 +1,5 @@
 // V_QREQ.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 // @moduledef(PPViewQuoteReqAnalyze) Анализ котировочных запросов
@@ -46,7 +46,7 @@ int PPViewQuoteReqAnalyze::FinishListBySeq(PPID leadBillID, int leadRbb)
 	P_BObj->SearchQuoteReqSeq(&link_period, qrl_list);
 	for(uint lidx = 0; lidx < org_lcount; lidx++) {
 		BrwItem & r_item = List.at(lidx);
-		int    is_there_anything = 0;
+		bool is_there_anything = false;
 		for(uint j = 0; j < qrl_list.getCount(); j++) {
 			const PPObjBill::QuoteReqLink & r_qrl_item = qrl_list.at(j);
 			if(r_qrl_item.LeadBillID == r_item.LeadBillID && r_qrl_item.LeadRbb == r_item.LeadRbb) {
@@ -82,7 +82,7 @@ int PPViewQuoteReqAnalyze::FinishListBySeq(PPID leadBillID, int leadRbb)
 					}
 					List.insert(&new_item);
 				}
-				is_there_anything = 1;
+				is_there_anything = true;
 			}
 		}
 	}

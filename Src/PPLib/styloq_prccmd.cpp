@@ -1945,6 +1945,11 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 			js.InsertBool("useclidebt", true);
 		}
 		// } @v11.5.4 
+		// @v11.6.4 {
+		if(p_filt->Flags & StyloQDocumentPrereqParam::fDlvrDateAsNominal) {
+			js.InsertBool("duedateasnominal", true);
+		}
+		// } @v11.6.4
 		{
 			const PPGoodsConfig & r_gcfg = goods_obj.GetConfig();
 			{

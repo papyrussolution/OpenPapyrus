@@ -1453,7 +1453,7 @@ bool StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 	return ok;
 }
 
-/*static*/SJson * StyloQCommandList::CreateJsonForClient(const StyloQCommandList * pSelf, SJson * pParent, const char * pName, long expirationSec)
+/*static*/SJson * StyloQCommandList::CreateJsonForClient(const StyloQCore::StoragePacket & rOwnPack, const StyloQCommandList * pSelf, SJson * pParent, const char * pName, long expirationSec)
 {
 	assert(!pParent || !isempty(pName));
 	SString temp_buf;
@@ -1494,6 +1494,28 @@ bool StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 					if(p_item->ResultExpiryTimeSec > 0)
 						p_jitem->InsertInt("result_expir_time_sec", p_item->ResultExpiryTimeSec);
 					// } @v11.2.5 
+					if(p_item->BaseCmdId == StyloQCommandList::sqbcPersonEvent) { // @v11.6.5
+						if(p_item->Param.GetAvailableSize()) {
+							StyloQPersonEventParam param;
+							SBuffer temp_non_const_buf(p_item->Param);
+							SSerializeContext sctx;
+							if(param.Serialize(-1, temp_non_const_buf, &sctx) && param.MaxGeoDistance > 0.0) {
+								SBinaryChunk bc_own_face;
+								StyloQFace own_face;
+								if(rOwnPack.Pool.Get(SSecretTagPool::tagSelfyFace, &bc_own_face)) {
+									SGeoPosLL geopos;
+									if(own_face.FromJson(bc_own_face.ToRawStr(temp_buf)) && own_face.GetGeoLoc(geopos) > 0) {
+										SJson * p_js_dist = new SJson(SJson::tOBJECT);
+										p_js_dist->InsertDouble("dist", param.MaxGeoDistance, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+										p_js_dist->InsertDouble("lat", geopos.Lat, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+										p_js_dist->InsertDouble("lon", geopos.Lon, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+										p_jitem->Insert("maxdistto", p_js_dist);
+										p_js_dist = 0;
+									}
+								}
+							}
+						}
+					}
 					// @todo transmit image
 					json_insert_child(p_array, p_jitem);
 				}
@@ -10066,7 +10088,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			}
 			if(own_pack.Pool.Get(SSecretTagPool::tagSelfyFace, &reply_face)) {
 				assert(reply_face.Len());
-				StyloQFace face_pack;
+				//StyloQFace face_pack;
 				// @v11.3.8 {
 				SString my_face_json_buf;
 				if(StyloQFace::MakeTransmissionJson(own_pack.Rec.ID, own_ident, reply_face.ToRawStr(temp_buf), my_face_json_buf)) { 
@@ -10103,7 +10125,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 					PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
 					p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid, 0, true);
 				}
-				p_js_reply = StyloQCommandList::CreateJsonForClient(p_target_cmd_list, 0, 0, 4 * 3600);
+				p_js_reply = StyloQCommandList::CreateJsonForClient(own_pack, p_target_cmd_list, 0, 0, 4 * 3600);
 				ZDELETE(p_target_cmd_list);
 				cmd_reply_ok = true;
 			}

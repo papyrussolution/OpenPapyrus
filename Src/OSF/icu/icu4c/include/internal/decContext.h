@@ -126,18 +126,20 @@ enum decClass {
 	DEC_CLASS_POS_INF
 };
 
-/* Strings for the decClasses */
-  #define DEC_ClassString_SN  "sNaN"
-  #define DEC_ClassString_QN  "NaN"
-  #define DEC_ClassString_NI  "-Infinity"
-  #define DEC_ClassString_NN  "-Normal"
-  #define DEC_ClassString_NS  "-Subnormal"
-  #define DEC_ClassString_NZ  "-Zero"
-  #define DEC_ClassString_PZ  "+Zero"
-  #define DEC_ClassString_PS  "+Subnormal"
-  #define DEC_ClassString_PN  "+Normal"
-  #define DEC_ClassString_PI  "+Infinity"
-  #define DEC_ClassString_UN  "Invalid"
+//
+// Strings for the decClasses
+//
+#define DEC_ClassString_SN  "sNaN"
+#define DEC_ClassString_QN  "NaN"
+#define DEC_ClassString_NI  "-Infinity"
+#define DEC_ClassString_NN  "-Normal"
+#define DEC_ClassString_NS  "-Subnormal"
+#define DEC_ClassString_NZ  "-Zero"
+#define DEC_ClassString_PZ  "+Zero"
+#define DEC_ClassString_PS  "+Subnormal"
+#define DEC_ClassString_PN  "+Normal"
+#define DEC_ClassString_PI  "+Infinity"
+#define DEC_ClassString_UN  "Invalid"
 
 /* Trap-enabler and Status flags (exceptional conditions), and      */
 /* their names.  The top byte is reserved for internal use */
@@ -147,8 +149,8 @@ enum decClass {
     #define DEC_Division_by_zero     0x00000002
     #define DEC_Division_impossible  0x00000004
     #define DEC_Division_undefined   0x00000008
-    #define DEC_Insufficient_storage 0x00000010 /* [when malloc fails]  */
-    #define DEC_Inexact              0x00000020
+	#define DEC_Insufficient_storage 0x00000010 /* [when malloc fails]  */
+	#define DEC_Inexact              0x00000020
     #define DEC_Invalid_context      0x00000040
     #define DEC_Invalid_operation    0x00000080
     #if DECSUBSET
@@ -188,26 +190,18 @@ enum decClass {
   #else
   #define DEC_IEEE_754_Inexact           (DEC_Inexact)
   #endif
-  #define DEC_IEEE_754_Invalid_operation (DEC_Conversion_syntax |     \
-	DEC_Division_impossible |   \
-	DEC_Division_undefined |    \
-	DEC_Insufficient_storage |  \
-	DEC_Invalid_context |       \
-	DEC_Invalid_operation)
+  #define DEC_IEEE_754_Invalid_operation (DEC_Conversion_syntax | DEC_Division_impossible | DEC_Division_undefined | DEC_Insufficient_storage | DEC_Invalid_context | DEC_Invalid_operation)
   #define DEC_IEEE_754_Overflow          (DEC_Overflow)
   #define DEC_IEEE_754_Underflow         (DEC_Underflow)
 
 /* flags which are normally errors (result is qNaN, infinite, or 0) */
-  #define DEC_Errors (DEC_IEEE_754_Division_by_zero |                 \
-	DEC_IEEE_754_Invalid_operation |                \
-	DEC_IEEE_754_Overflow | DEC_IEEE_754_Underflow)
+  #define DEC_Errors (DEC_IEEE_754_Division_by_zero | DEC_IEEE_754_Invalid_operation | DEC_IEEE_754_Overflow | DEC_IEEE_754_Underflow)
 /* flags which cause a result to become qNaN      */
   #define DEC_NaNs    DEC_IEEE_754_Invalid_operation
 
 /* flags which are normally for information only (finite results)   */
   #if DECSUBSET
-  #define DEC_Information (DEC_Clamped | DEC_Rounded | DEC_Inexact    \
-	| DEC_Lost_digits)
+  #define DEC_Information (DEC_Clamped | DEC_Rounded | DEC_Inexact | DEC_Lost_digits)
   #else
   #define DEC_Information (DEC_Clamped | DEC_Rounded | DEC_Inexact)
   #endif
@@ -238,8 +232,7 @@ enum decClass {
   #define DEC_Condition_UN "Underflow"
   #define DEC_Condition_ZE "No status"
   #define DEC_Condition_MU "Multiple status"
-  #define DEC_Condition_Length 21  /* length of the longest string,   */
-                                   /* including terminator   */
+  #define DEC_Condition_Length 21  /* length of the longest string, including terminator   */
 
 /* Initialization descriptors, used by decContextDefault   */
   #define DEC_INIT_BASE         0

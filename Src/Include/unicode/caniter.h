@@ -1,20 +1,16 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-	Copyright (C) 1996-2014, International Business Machines Corporation and others. All Rights Reserved.
-*/
+// Copyright (C) 1996-2014, International Business Machines Corporation and others. All Rights Reserved.
+//
 #ifndef CANITER_H
 #define CANITER_H
 
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #if !UCONFIG_NO_NORMALIZATION
-
 #include "unicode/uobject.h"
 #include "unicode/unistr.h"
-
 /**
  * \file
  * \brief C++ API: Canonical Iterator
@@ -84,20 +80,17 @@ public:
 	 * @stable ICU 2.4
 	 */
 	virtual ~CanonicalIterator();
-
 	/**
 	 * Gets the NFD form of the current source we are iterating over.
 	 * @return gets the source: NOTE: it is the NFD form of source
 	 * @stable ICU 2.4
 	 */
 	UnicodeString getSource();
-
 	/**
 	 * Resets the iterator so that one can start again from the beginning.
 	 * @stable ICU 2.4
 	 */
 	void reset();
-
 	/**
 	 * Get the next canonically equivalent string.
 	 * <br><b>Warning: The strings are not guaranteed to be in any particular order.</b>
@@ -106,7 +99,6 @@ public:
 	 * @stable ICU 2.4
 	 */
 	UnicodeString next();
-
 	/**
 	 * Set a new source for this iterator. Allows object reuse.
 	 * @param newSource     the source string to iterate against. This allows the same iterator to be used
@@ -115,7 +107,6 @@ public:
 	 * @stable ICU 2.4
 	 */
 	void setSource(const UnicodeString & newSource, UErrorCode & status);
-
 #ifndef U_HIDE_INTERNAL_API
 	/**
 	 * Dumb recursive implementation of permutation.
@@ -128,32 +119,25 @@ public:
 	 */
 	static void U_EXPORT2 permute(UnicodeString & source, bool skipZeros, Hashtable * result, UErrorCode & status);
 #endif  /* U_HIDE_INTERNAL_API */
-
 	/**
 	 * ICU "poor man's RTTI", returns a UClassID for this class.
-	 *
 	 * @stable ICU 2.2
 	 */
 	static UClassID U_EXPORT2 getStaticClassID();
-
 	/**
 	 * ICU "poor man's RTTI", returns a UClassID for the actual class.
-	 *
 	 * @stable ICU 2.2
 	 */
 	virtual UClassID getDynamicClassID() const override;
-
 private:
 	// ===================== PRIVATES ==============================
 	// private default constructor
 	CanonicalIterator();
-
 	/**
 	 * Copy constructor. Private for now.
 	 * @internal (private)
 	 */
 	CanonicalIterator(const CanonicalIterator &other);
-
 	/**
 	 * Assignment operator. Private for now.
 	 * @internal (private)
@@ -163,20 +147,16 @@ private:
 	// fields
 	UnicodeString source;
 	bool done;
-
 	// 2 dimensional array holds the pieces of the string with
 	// their different canonically equivalent representations
 	UnicodeString ** pieces;
 	int32_t pieces_length;
 	int32_t * pieces_lengths;
-
 	// current is used in iterating to combine pieces
 	int32_t * current;
 	int32_t current_length;
-
 	// transient fields
 	UnicodeString buffer;
-
 	const Normalizer2 &nfd;
 	const Normalizer2Impl &nfcImpl;
 	// we have a segment, in NFD. Find all the strings that are canonically equivalent to it.
@@ -190,22 +170,14 @@ private:
 	 * If so, take the remainder, and return the equivalents
 	 */
 	//Set extract(int comp, String segment, int segmentPos, StringBuffer buffer);
-	Hashtable * extract(Hashtable * fillinResult,
-	    UChar32 comp,
-	    const char16_t * segment,
-	    int32_t segLen,
-	    int32_t segmentPos,
-	    UErrorCode & status);
+	Hashtable * extract(Hashtable * fillinResult, UChar32 comp, const char16_t * segment, int32_t segLen, int32_t segmentPos, UErrorCode & status);
 	//Hashtable *extract(UChar32 comp, const UnicodeString & segment, int32_t segLen, int32_t segmentPos, UErrorCode
 	// & status);
-
 	void cleanPieces();
 };
 
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_NORMALIZATION */
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif

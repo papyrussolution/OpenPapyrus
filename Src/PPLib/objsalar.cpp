@@ -1,5 +1,5 @@
 // OBJSALAR.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -33,12 +33,48 @@ PPObjSalCharge::PPObjSalCharge(void * extraPtr) : PPObjReference(PPOBJ_SALCHARGE
 }
 
 class SalChargeDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPSalChargePacket);
 public:
 	SalChargeDialog(int grp) : PPListDialog(grp ? DLG_SALCHGRP : DLG_SALCHARGE, CTL_SALCHARGE_LIST)
 	{
 	}
-	int    setDTS(const PPSalChargePacket * pData);
-	int    getDTS(PPSalChargePacket * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.Init();
+		setCtrlData(CTL_SALCHARGE_ID,        &Data.Rec.ID);
+		setCtrlData(CTL_SALCHARGE_NAME,      Data.Rec.Name);
+		setCtrlData(CTL_SALCHARGE_SYMB,      Data.Rec.Symb);
+
+		AddClusterAssocDef(CTL_SALCHARGE_ENUM, 0, 0);
+		AddClusterAssoc(CTL_SALCHARGE_ENUM, 1, PPOBJ_PERSONEVENT);
+		SetClusterData(CTL_SALCHARGE_ENUM, Data.Rec.EnumObjType);
+		SetupEnumExt();
+
+		setCtrlString(CTL_SALCHARGE_FORMULA, Data.Formula);
+		disableCtrl(CTL_SALCHARGE_ID,        Data.Rec.ID);
+		//SetupPPObjCombo(this, CTLSEL_SALCHARGE_STAFCAL, PPOBJ_STAFFCAL, Data.Rec.CalID, 0, 0);
+		SetupAmtTypeCombo(this, CTLSEL_SALCHARGE_AMTTYPE, Data.Rec.AmtID, OLW_CANINSERT, PPObjAmountType::selStaffOnly, 0);
+		PPIDArray op_type_list;
+		op_type_list.add(PPOPT_ACCTURN);
+		SetupOprKindCombo(this, CTLSEL_SALCHARGE_WROFFOP, Data.Rec.WrOffOpID, OLW_CANINSERT, &op_type_list, 0);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		getCtrlData(CTL_SALCHARGE_ID,          &Data.Rec.ID);
+		getCtrlData(CTL_SALCHARGE_NAME,        Data.Rec.Name);
+		getCtrlData(CTL_SALCHARGE_SYMB,        Data.Rec.Symb);
+		GetClusterData(CTL_SALCHARGE_ENUM, &Data.Rec.EnumObjType);
+		Data.Rec.EnumExtVal = getCtrlLong(CTLSEL_SALCHARGE_ENUMEXT);
+		getCtrlString(CTL_SALCHARGE_FORMULA,   Data.Formula);
+		//getCtrlData(CTLSEL_SALCHARGE_STAFCAL,  &Data.Rec.CalID);
+		Data.Rec.AmtID     = getCtrlLong(CTLSEL_SALCHARGE_AMTTYPE);
+		Data.Rec.WrOffOpID = getCtrlLong(CTLSEL_SALCHARGE_WROFFOP);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
@@ -46,8 +82,6 @@ private:
 	virtual int delItem(long pos, long id);
 	virtual int moveItem(long pos, long id, int up);
 	int    SetupEnumExt();
-
-	PPSalChargePacket Data;
 };
 
 IMPL_HANDLE_EVENT(SalChargeDialog)
@@ -96,45 +130,6 @@ int SalChargeDialog::SetupEnumExt()
 	return 1;
 }
 
-int SalChargeDialog::setDTS(const PPSalChargePacket * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.Init();
-	setCtrlData(CTL_SALCHARGE_ID,        &Data.Rec.ID);
-	setCtrlData(CTL_SALCHARGE_NAME,      Data.Rec.Name);
-	setCtrlData(CTL_SALCHARGE_SYMB,      Data.Rec.Symb);
-
-	AddClusterAssocDef(CTL_SALCHARGE_ENUM, 0, 0);
-	AddClusterAssoc(CTL_SALCHARGE_ENUM, 1, PPOBJ_PERSONEVENT);
-	SetClusterData(CTL_SALCHARGE_ENUM, Data.Rec.EnumObjType);
-	SetupEnumExt();
-
-	setCtrlString(CTL_SALCHARGE_FORMULA, Data.Formula);
-	disableCtrl(CTL_SALCHARGE_ID,        Data.Rec.ID);
-	//SetupPPObjCombo(this, CTLSEL_SALCHARGE_STAFCAL, PPOBJ_STAFFCAL, Data.Rec.CalID, 0, 0);
-	SetupAmtTypeCombo(this, CTLSEL_SALCHARGE_AMTTYPE, Data.Rec.AmtID, OLW_CANINSERT, PPObjAmountType::selStaffOnly, 0);
-	PPIDArray op_type_list;
-	op_type_list.add(PPOPT_ACCTURN);
-	SetupOprKindCombo(this, CTLSEL_SALCHARGE_WROFFOP, Data.Rec.WrOffOpID, OLW_CANINSERT, &op_type_list, 0);
-	updateList(-1);
-	return 1;
-}
-
-int SalChargeDialog::getDTS(PPSalChargePacket * pData)
-{
-	getCtrlData(CTL_SALCHARGE_ID,          &Data.Rec.ID);
-	getCtrlData(CTL_SALCHARGE_NAME,        Data.Rec.Name);
-	getCtrlData(CTL_SALCHARGE_SYMB,        Data.Rec.Symb);
-	GetClusterData(CTL_SALCHARGE_ENUM, &Data.Rec.EnumObjType);
-	Data.Rec.EnumExtVal = getCtrlLong(CTLSEL_SALCHARGE_ENUMEXT);
-	getCtrlString(CTL_SALCHARGE_FORMULA,   Data.Formula);
-	//getCtrlData(CTLSEL_SALCHARGE_STAFCAL,  &Data.Rec.CalID);
-	Data.Rec.AmtID     = getCtrlLong(CTLSEL_SALCHARGE_AMTTYPE);
-	Data.Rec.WrOffOpID = getCtrlLong(CTLSEL_SALCHARGE_WROFFOP);
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
-
 int SalChargeDialog::setupList()
 {
 	int    ok = 1;
@@ -157,7 +152,7 @@ int SalChargeDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
-	if(ListBoxSelDialog::Run(PPOBJ_SALCHARGE, &id, reinterpret_cast<void *>(-10000)) > 0 && Data.GrpList.lsearch(id) <= 0) {
+	if(ListBoxSelDialog::Run(PPOBJ_SALCHARGE, &id, reinterpret_cast<void *>(-10000)) > 0 && !Data.GrpList.lsearch(id)) {
 		Data.GrpList.addUnique(id);
 		ASSIGN_PTR(pPos, Data.GrpList.getCount()-1);
 		ASSIGN_PTR(pID, id);

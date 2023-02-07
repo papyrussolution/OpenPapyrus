@@ -1,9 +1,8 @@
+// bytesinkutil.h
 // © 2017 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
-// bytesinkutil.h
 // created: 2017sep14 Markus W. Scherer
-
+//
 #pragma once
 
 #include "unicode/utypes.h"

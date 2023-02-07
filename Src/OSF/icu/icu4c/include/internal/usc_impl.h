@@ -1,25 +1,15 @@
+// USC_IMPL.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-**********************************************************************
-*   Copyright (C) 1999-2011, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-**********************************************************************
-*
-* File USC_IMPL.H
-*
-* Modification History:
-*
-*   Date        Name        Description
-*   07/08/2002  Eric Mader  Creation.
-******************************************************************************
-*/
-
+// Copyright (C) 1999-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 07/08/2002  Eric Mader  Creation.
+// 
 #ifndef USC_IMPL_H
 #define USC_IMPL_H
 #include "unicode/utypes.h"
 #include "unicode/uscript.h"
-
 /**
  * <code>UScriptRun</code> is used to find runs of characters in
  * the same script. It implements a simple iterator over an array
@@ -57,7 +47,6 @@
 struct UScriptRun;
 
 typedef struct UScriptRun UScriptRun;
-
 /**
  * Create a <code>UScriptRun</code> object for iterating over the given text. This object must
  * be freed using <code>uscript_closeRun()</code>. Note that this object does not copy the source text,
@@ -77,27 +66,21 @@ typedef struct UScriptRun UScriptRun;
  * @return the address of <code>UScriptRun</code> object which will iterate over the text,
  *         or <code>NULL</code> if the operation failed.
  */
-U_CAPI UScriptRun * U_EXPORT2
-uscript_openRun(const UChar *src, int32_t length, UErrorCode *pErrorCode);
-
+U_CAPI UScriptRun * U_EXPORT2 uscript_openRun(const UChar *src, int32_t length, UErrorCode *pErrorCode);
 /**
  * Frees the given <code>UScriptRun</code> object and any storage associated with it.
  * On return, scriptRun no longer points to a valid <code>UScriptRun</code> object.
  *
  * @param scriptRun is the <code>UScriptRun</code> object which will be freed.
  */
-U_CAPI void U_EXPORT2
-uscript_closeRun(UScriptRun *scriptRun);
-
+U_CAPI void U_EXPORT2 uscript_closeRun(UScriptRun *scriptRun);
 /**
  * Reset the <code>UScriptRun</code> object so that it will start iterating from
  * the beginning.
  *
  * @param scriptRun is the address of the <code>UScriptRun</code> object to be reset.
  */
-U_CAPI void U_EXPORT2
-uscript_resetRun(UScriptRun *scriptRun);
-
+U_CAPI void U_EXPORT2 uscript_resetRun(UScriptRun *scriptRun);
 /**
  * Change the text over which the given <code>UScriptRun</code> object iterates.
  *
@@ -113,9 +96,7 @@ uscript_resetRun(UScriptRun *scriptRun);
  *        indicates a failure on entry, the function will immediately return.
  *        On exit the value will indicate the success of the operation.
  */
-U_CAPI void U_EXPORT2
-uscript_setRunText(UScriptRun *scriptRun, const UChar *src, int32_t length, UErrorCode *pErrorCode);
-
+U_CAPI void U_EXPORT2 uscript_setRunText(UScriptRun *scriptRun, const UChar *src, int32_t length, UErrorCode *pErrorCode);
 /**
  * Advance the <code>UScriptRun</code> object to the next script run, return the start and limit
  * offsets, and the script of the run.
@@ -133,7 +114,6 @@ uscript_setRunText(UScriptRun *scriptRun, const UChar *src, int32_t length, UErr
  *
  * @return true if there was another script run.
  */
-U_CAPI bool U_EXPORT2
-uscript_nextRun(UScriptRun *scriptRun, int32_t *pRunStart, int32_t *pRunLimit, UScriptCode *pRunScript);
+U_CAPI bool U_EXPORT2 uscript_nextRun(UScriptRun *scriptRun, int32_t *pRunStart, int32_t *pRunLimit, UScriptCode *pRunScript);
 
 #endif

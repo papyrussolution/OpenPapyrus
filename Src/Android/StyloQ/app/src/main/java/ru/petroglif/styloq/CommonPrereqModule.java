@@ -233,6 +233,7 @@ public class CommonPrereqModule {
 			PosNodeID = 0;
 			UseBarcodeSearch = false;
 			UseCliDebt = false;
+			DueDateAsNominal = false;
 			BarcodeWeightPrefix = null;
 			BarcodeCountPrefix = null;
 			SvcDtm = null;
@@ -249,6 +250,7 @@ public class CommonPrereqModule {
 				ActionFlags = Document.IncomingListActionsFromString(jsHead.optString("actions", null)); // @v11.4.8
 				UseBarcodeSearch = jsHead.optBoolean("searchbarcode"); // @v11.5.0
 				UseCliDebt = jsHead.optBoolean("useclidebt"); // @v11.5.4
+				DueDateAsNominal = jsHead.optBoolean("duedateasnominal"); // @v11.6.4
 				BarcodeWeightPrefix = jsHead.optString("barcodeweightprefix", null); // @v11.5.0
 				BarcodeCountPrefix = jsHead.optString("barcodecountprefix", null); // @v11.5.0
 				// @v11.6.2 {
@@ -271,6 +273,7 @@ public class CommonPrereqModule {
 		public boolean UseBarcodeSearch; // @v11.5.0 Если true, то в панели инструментов появляется иконка поиска по штрихкоду.
 			// Передается сервисом с тегом "searchbarcode"
 		public boolean UseCliDebt; // @v11.5.4 Если true, то для агентских заказов можно просматривать долги по клиентам
+		public boolean DueDateAsNominal; // @v11.6.4 Если true, то дата исполнения документа трактуется как номинальная //
 		public String BarcodeWeightPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс весового штрихкода.
 			// Передается сервисом с тегом "barcodeweightprefix". Обязанность проверки валидности префикса лежит на сервисе.
 		public String BarcodeCountPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс счетного штрихкода.
@@ -1320,6 +1323,7 @@ public class CommonPrereqModule {
 	int   GetPosNodeID() { return CSVCP.PosNodeID; }
 	int   GetActionFlags() { return CSVCP.ActionFlags; }
 	boolean GetOption_UseCliDebt() { return CSVCP.UseCliDebt; }
+	boolean GetOption_DueDateAsNominal() { return CSVCP.DueDateAsNominal; } // @v11.6.4
 	public void GetAttributesFromIntent(Intent intent)
 	{
 		if(intent != null) {
@@ -1686,8 +1690,8 @@ public class CommonPrereqModule {
 								RegistryHList.sort(new Comparator<Document.DisplayEntry>() {
 									@Override public int compare(Document.DisplayEntry lh, Document.DisplayEntry rh)
 									{
-										final SLib.LDATE lh_d = lh.GetNominalDate();
-										final SLib.LDATE rh_d = rh.GetNominalDate();
+										final SLib.LDATE lh_d = lh.GetNominalDate(GetOption_DueDateAsNominal());
+										final SLib.LDATE rh_d = rh.GetNominalDate(GetOption_DueDateAsNominal());
 										int si = SLib.Cmp(lh_d, rh_d);
 										return si;
 										//return (lh_d < rh_d) ? +1 : ((lh > rh) ? -1 : 0);

@@ -3338,7 +3338,7 @@ int XmlReader::Next(Packet * pPack)
 						}
 					}
 				}
-				if(!P_LogNumList || P_LogNumList->lsearch(hdr.CashNum, 0) > 0) {
+				if(!P_LogNumList || P_LogNumList->lsearch(hdr.CashNum, 0)) {
 					THROW(pack.PutHead(&hdr));
 					ok = 1;
 				}

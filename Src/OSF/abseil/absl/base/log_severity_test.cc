@@ -12,16 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/log_severity.h"
-
-#include <cstdint>
-#include <ios>
-#include <limits>
-#include <ostream>
-#include <sstream>
-#include <string>
-#include <tuple>
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "absl/flags/internal/flag.h"
@@ -53,9 +46,7 @@ TEST(StreamTest, Works) {
 	    Eq("absl::LogSeverity(4)"));
 }
 
-static_assert(absl::flags_internal::FlagUseValueAndInitBitStorage<
-	    absl::LogSeverity>::value,
-    "Flags of type absl::LogSeverity ought to be lock-free.");
+static_assert(absl::flags_internal::FlagUseValueAndInitBitStorage<absl::LogSeverity>::value, "Flags of type absl::LogSeverity ought to be lock-free.");
 
 using ParseFlagFromOutOfRangeIntegerTest = TestWithParam<int64_t>;
 INSTANTIATE_TEST_SUITE_P(

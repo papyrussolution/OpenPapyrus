@@ -16,10 +16,9 @@
 // Raw logging testing is covered by logging_unittest.cc, which is not as
 // portable as this test.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/internal/raw_logging.h"
-
-#include <tuple>
-
 #include "gtest/gtest.h"
 #include "absl/strings/str_cat.h"
 

@@ -1,29 +1,19 @@
+// brkiter.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ********************************************************************************
- *   Copyright (C) 1997-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ********************************************************************************
- *
- * File brkiter.h
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   02/18/97    aliu        Added typedef for TextCount.  Made DONE const.
- *   05/07/97    aliu        Fixed DLL declaration.
- *   07/09/97    jfitz       Renamed BreakIterator and interface synced with JDK
- *   08/11/98    helena      Sync-up JDK1.2.
- *   01/13/2000  helena      Added UErrorCode parameter to createXXXInstance methods.
- ********************************************************************************
- */
-
+// Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 02/18/97    aliu        Added typedef for TextCount.  Made DONE const.
+// 05/07/97    aliu        Fixed DLL declaration.
+// 07/09/97    jfitz       Renamed BreakIterator and interface synced with JDK
+// 08/11/98    helena      Sync-up JDK1.2.
+// 01/13/2000  helena      Added UErrorCode parameter to createXXXInstance methods.
+// 
 #ifndef BRKITER_H
 #define BRKITER_H
 
 #include "unicode/utypes.h"
-
 /**
  * \file
  * \brief C++ API: Break Iterator.
@@ -32,7 +22,6 @@
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #if UCONFIG_NO_BREAK_ITERATION
 
 U_NAMESPACE_BEGIN
@@ -110,7 +99,6 @@ public:
 	 *  @stable ICU 2.0
 	 */
 	virtual ~BreakIterator();
-
 	/**
 	 * Return true if another object is semantically equal to this
 	 * one. The other object should be an instance of the same subclass of

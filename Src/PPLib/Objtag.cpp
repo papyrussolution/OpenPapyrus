@@ -1,5 +1,5 @@
 // OBJTAG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Теги объектов
 //
@@ -2617,8 +2617,9 @@ public:
 		if(pData) {
 			if(P_AllowedTags) {
 				const ObjTagItem * p_item = 0;
-				for(uint i = 0; (p_item = Data.EnumItems(&i)) != 0;)
-					THROW_PP(P_AllowedTags->lsearch(p_item->TagID) <= 0, PPERR_INVTAGID);
+				for(uint i = 0; (p_item = Data.EnumItems(&i)) != 0;) {
+					THROW_PP(P_AllowedTags->lsearch(p_item->TagID), PPERR_INVTAGID); // @v11.6.4 @fix (P_AllowedTags->lsearch(p_item->TagID) <= 0)-->P_AllowedTags->lsearch(p_item->TagID)
+				}
 			}
 			if(getCtrlView(CTL_TAGVALVIEW_UPD)) {
 				switch(GetClusterData(CTL_TAGVALVIEW_UPD)) {

@@ -56,7 +56,6 @@ U_CAPI bool U_EXPORT2 utext_moveIndex32(UText * ut, int32_t delta)
 			}
 		} while(++delta<0);
 	}
-
 	return TRUE;
 }
 
@@ -138,12 +137,10 @@ U_CAPI int64_t U_EXPORT2 utext_getPreviousNativeIndex(UText * ut)
 			return result;
 		}
 	}
-
 	// If at the start of text, simply return 0.
 	if(ut->chunkOffset==0 && ut->chunkNativeStart==0) {
 		return 0;
 	}
-
 	// Harder, less common cases.  We are at a chunk boundary, or on a surrogate.
 	//    Keep it simple, use other functions to handle the edges.
 	//
@@ -167,13 +164,11 @@ U_CAPI UChar32 U_EXPORT2 utext_current32(UText * ut) {
 			return U_SENTINEL;
 		}
 	}
-
 	c = ut->chunkContents[ut->chunkOffset];
 	if(U16_IS_LEAD(c) == FALSE) {
 		// Normal, non-supplementary case.
 		return c;
 	}
-
 	//
 	//  Possible supplementary char.
 	//
@@ -210,9 +205,9 @@ U_CAPI UChar32 U_EXPORT2 utext_current32(UText * ut) {
 	return supplementaryC;
 }
 
-U_CAPI UChar32 U_EXPORT2 utext_char32At(UText * ut, int64_t nativeIndex) {
+U_CAPI UChar32 U_EXPORT2 utext_char32At(UText * ut, int64_t nativeIndex) 
+{
 	UChar32 c = U_SENTINEL;
-
 	// Fast path the common case.
 	if(nativeIndex>=ut->chunkNativeStart && nativeIndex < ut->chunkNativeStart + ut->nativeIndexingLimit) {
 		ut->chunkOffset = (int32_t)(nativeIndex - ut->chunkNativeStart);
@@ -221,7 +216,6 @@ U_CAPI UChar32 U_EXPORT2 utext_char32At(UText * ut, int64_t nativeIndex) {
 			return c;
 		}
 	}
-
 	utext_setNativeIndex(ut, nativeIndex);
 	if(nativeIndex>=ut->chunkNativeStart && ut->chunkOffset<ut->chunkLength) {
 		c = ut->chunkContents[ut->chunkOffset];
@@ -234,15 +228,14 @@ U_CAPI UChar32 U_EXPORT2 utext_char32At(UText * ut, int64_t nativeIndex) {
 	return c;
 }
 
-U_CAPI UChar32 U_EXPORT2 utext_next32(UText * ut) {
+U_CAPI UChar32 U_EXPORT2 utext_next32(UText * ut) 
+{
 	UChar32 c;
-
 	if(ut->chunkOffset >= ut->chunkLength) {
 		if(ut->pFuncs->access(ut, ut->chunkNativeLimit, TRUE) == FALSE) {
 			return U_SENTINEL;
 		}
 	}
-
 	c = ut->chunkContents[ut->chunkOffset++];
 	if(U16_IS_LEAD(c) == FALSE) {
 		// Normal case, not supplementary.
@@ -250,7 +243,6 @@ U_CAPI UChar32 U_EXPORT2 utext_next32(UText * ut) {
 		//    It cannot be part of a pair.)
 		return c;
 	}
-
 	if(ut->chunkOffset >= ut->chunkLength) {
 		if(ut->pFuncs->access(ut, ut->chunkNativeLimit, TRUE) == FALSE) {
 			// c is an unpaired lead surrogate at the end of the text.
@@ -266,15 +258,14 @@ U_CAPI UChar32 U_EXPORT2 utext_next32(UText * ut) {
 		//  trail surrogate would have been if it had existed.
 		return c;
 	}
-
 	UChar32 supplementary = U16_GET_SUPPLEMENTARY(c, trail);
 	ut->chunkOffset++; // move iteration position over the trail surrogate.
 	return supplementary;
 }
 
-U_CAPI UChar32 U_EXPORT2 utext_previous32(UText * ut) {
+U_CAPI UChar32 U_EXPORT2 utext_previous32(UText * ut) 
+{
 	UChar32 c;
-
 	if(ut->chunkOffset <= 0) {
 		if(ut->pFuncs->access(ut, ut->chunkNativeStart, FALSE) == FALSE) {
 			return U_SENTINEL;
@@ -288,7 +279,6 @@ U_CAPI UChar32 U_EXPORT2 utext_previous32(UText * ut) {
 		//    It cannot be part of a pair.)
 		return c;
 	}
-
 	if(ut->chunkOffset <= 0) {
 		if(ut->pFuncs->access(ut, ut->chunkNativeStart, FALSE) == FALSE) {
 			// c is an unpaired trail surrogate at the start of the text.
@@ -296,22 +286,20 @@ U_CAPI UChar32 U_EXPORT2 utext_previous32(UText * ut) {
 			return c;
 		}
 	}
-
 	UChar32 lead = ut->chunkContents[ut->chunkOffset-1];
 	if(U16_IS_LEAD(lead) == FALSE) {
 		// c was an unpaired trail surrogate, not at the end of the text.
 		// return it as it is (unpaired).  Iteration position is at c
 		return c;
 	}
-
 	UChar32 supplementary = U16_GET_SUPPLEMENTARY(lead, c);
 	ut->chunkOffset--; // move iteration position over the lead surrogate.
 	return supplementary;
 }
 
-U_CAPI UChar32 U_EXPORT2 utext_next32From(UText * ut, int64_t index) {
+U_CAPI UChar32 U_EXPORT2 utext_next32From(UText * ut, int64_t index) 
+{
 	UChar32 c      = U_SENTINEL;
-
 	if(index<ut->chunkNativeStart || index>=ut->chunkNativeLimit) {
 		// Desired position is outside of the current chunk.
 		if(!ut->pFuncs->access(ut, index, TRUE)) {
@@ -327,7 +315,6 @@ U_CAPI UChar32 U_EXPORT2 utext_next32From(UText * ut, int64_t index) {
 		// Desired position is in chunk, with non-UTF16 indexing.
 		ut->chunkOffset = ut->pFuncs->mapNativeIndexToUTF16(ut, index);
 	}
-
 	c = ut->chunkContents[ut->chunkOffset++];
 	if(U16_IS_SURROGATE(c)) {
 		// Surrogates.  Many edge cases.  Use other functions that already
@@ -338,13 +325,13 @@ U_CAPI UChar32 U_EXPORT2 utext_next32From(UText * ut, int64_t index) {
 	return c;
 }
 
-U_CAPI UChar32 U_EXPORT2 utext_previous32From(UText * ut, int64_t index) {
+U_CAPI UChar32 U_EXPORT2 utext_previous32From(UText * ut, int64_t index) 
+{
 	//
 	//  Return the character preceding the specified index.
 	//  Leave the iteration position at the start of the character that was returned.
 	//
 	UChar32 cPrev;    // The character preceding cCurr, which is what we will return.
-
 	// Address the chunk containing the position preceding the incoming index
 	// A tricky edge case:
 	//   We try to test the requested native index against the chunkNativeStart to determine
@@ -370,13 +357,11 @@ U_CAPI UChar32 U_EXPORT2 utext_previous32From(UText * ut, int64_t index) {
 			return U_SENTINEL;
 		}
 	}
-
 	//
 	// Simple case with no surrogates.
 	//
 	ut->chunkOffset--;
 	cPrev = ut->chunkContents[ut->chunkOffset];
-
 	if(U16_IS_SURROGATE(cPrev)) {
 		// Possible supplementary.  Many edge cases.
 		// Let other functions do the heavy lifting.
@@ -386,33 +371,23 @@ U_CAPI UChar32 U_EXPORT2 utext_previous32From(UText * ut, int64_t index) {
 	return cPrev;
 }
 
-U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut,
-    int64_t start, int64_t limit,
-    UChar * dest, int32_t destCapacity,
-    UErrorCode * status) {
+U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut, int64_t start, int64_t limit, UChar * dest, int32_t destCapacity, UErrorCode * status) 
+{
 	return ut->pFuncs->extract(ut, start, limit, dest, destCapacity, status);
 }
 
 U_CAPI bool U_EXPORT2 utext_equals(const UText * a, const UText * b) 
 {
-	if(a==NULL || b==NULL || a->magic != UTEXT_MAGIC || b->magic != UTEXT_MAGIC) {
-		// Null or invalid arguments don't compare equal to anything.
-		return FALSE;
-	}
-	if(a->pFuncs != b->pFuncs) {
-		// Different types of text providers.
-		return FALSE;
-	}
-	if(a->context != b->context) {
-		// Different sources (different strings)
-		return FALSE;
-	}
-	if(utext_getNativeIndex(a) != utext_getNativeIndex(b)) {
-		// Different current position in the string.
-		return FALSE;
-	}
-
-	return TRUE;
+	if(!a || !b || a->magic != UTEXT_MAGIC || b->magic != UTEXT_MAGIC)
+		return false; // Null or invalid arguments don't compare equal to anything.
+	else if(a->pFuncs != b->pFuncs)
+		return false; // Different types of text providers.
+	else if(a->context != b->context)
+		return false; // Different sources (different strings)
+	else if(utext_getNativeIndex(a) != utext_getNativeIndex(b))
+		return false; // Different current position in the string.
+	else
+		return true;
 }
 
 U_CAPI bool U_EXPORT2 utext_isWritable(const UText * ut)
@@ -421,7 +396,8 @@ U_CAPI bool U_EXPORT2 utext_isWritable(const UText * ut)
 	return b;
 }
 
-U_CAPI void U_EXPORT2 utext_freeze(UText * ut) {
+U_CAPI void U_EXPORT2 utext_freeze(UText * ut) 
+{
 	// Zero out the WRITABLE flag.
 	ut->providerProperties &= ~(I32_FLAG(UTEXT_PROVIDER_WRITABLE));
 }
@@ -432,10 +408,7 @@ U_CAPI bool U_EXPORT2 utext_hasMetaData(const UText * ut)
 	return b;
 }
 
-U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut,
-    int64_t nativeStart, int64_t nativeLimit,
-    const UChar * replacementText, int32_t replacementLength,
-    UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut, int64_t nativeStart, int64_t nativeLimit, const UChar * replacementText, int32_t replacementLength, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return 0;
@@ -448,23 +421,19 @@ U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut,
 	return i;
 }
 
-U_CAPI void U_EXPORT2 utext_copy(UText * ut,
-    int64_t nativeStart, int64_t nativeLimit,
-    int64_t destIndex,
-    bool move,
-    UErrorCode * status)
+U_CAPI void U_EXPORT2 utext_copy(UText * ut, int64_t nativeStart, int64_t nativeLimit, int64_t destIndex, bool move, UErrorCode * status)
 {
-	if(U_FAILURE(*status)) {
-		return;
+	if(U_SUCCESS(*status)) {
+		if(!(ut->providerProperties & I32_FLAG(UTEXT_PROVIDER_WRITABLE))) {
+			*status = U_NO_WRITE_PERMISSION;
+			return;
+		}
+		ut->pFuncs->copy(ut, nativeStart, nativeLimit, destIndex, move, status);
 	}
-	if((ut->providerProperties & I32_FLAG(UTEXT_PROVIDER_WRITABLE)) == 0) {
-		*status = U_NO_WRITE_PERMISSION;
-		return;
-	}
-	ut->pFuncs->copy(ut, nativeStart, nativeLimit, destIndex, move, status);
 }
 
-U_CAPI UText * U_EXPORT2 utext_clone(UText * dest, const UText * src, bool deep, bool readOnly, UErrorCode * status) {
+U_CAPI UText * U_EXPORT2 utext_clone(UText * dest, const UText * src, bool deep, bool readOnly, UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) {
 		return dest;
 	}
@@ -489,13 +458,10 @@ U_CAPI UText * U_EXPORT2 utext_clone(UText * dest, const UText * src, bool deep,
 enum {
 	UTEXT_HEAP_ALLOCATED  = 1,  //  1 if ICU has allocated this UText struct on the heap.
 	                            //  0 if caller provided storage for the UText.
-
-	UTEXT_EXTRA_HEAP_ALLOCATED = 2, //  1 if ICU has allocated extra storage as a separate
-	                                //     heap block.
+	UTEXT_EXTRA_HEAP_ALLOCATED = 2, //  1 if ICU has allocated extra storage as a separate heap block.
 	                                //  0 if there is no separate allocation.  Either no extra
 	                                //     storage was requested, or it is appended to the end
 	                                //     of the main UText storage.
-
 	UTEXT_OPEN = 4              //  1 if this UText is currently open
 	                            //  0 if this UText is not open.
 };
@@ -511,11 +477,11 @@ struct ExtendedUText {
 
 static const UText emptyText = UTEXT_INITIALIZER;
 
-U_CAPI UText * U_EXPORT2 utext_setup(UText * ut, int32_t extraSpace, UErrorCode * status) {
+U_CAPI UText * U_EXPORT2 utext_setup(UText * ut, int32_t extraSpace, UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) {
 		return ut;
 	}
-
 	if(ut == NULL) {
 		// We need to heap-allocate storage for the new UText
 		int32_t spaceRequired = sizeof(UText);
@@ -601,9 +567,7 @@ U_CAPI UText * U_EXPORT2 utext_setup(UText * ut, int32_t extraSpace, UErrorCode 
 U_CAPI UText * U_EXPORT2 utext_close(UText * ut) 
 {
 	if(ut==NULL || ut->magic != UTEXT_MAGIC || (ut->flags & UTEXT_OPEN) == 0) {
-		// The supplied ut is not an open UText.
-		// Do nothing.
-		return ut;
+		return ut; // The supplied ut is not an open UText. Do nothing.
 	}
 	// If the provider gave us a close function, call it now.
 	// This will clean up anything allocated specifically by the provider.
@@ -611,16 +575,13 @@ U_CAPI UText * U_EXPORT2 utext_close(UText * ut)
 		ut->pFuncs->close(ut);
 	}
 	ut->flags &= ~UTEXT_OPEN;
-
-	// If we (the framework) allocated the UText or subsidiary storage,
-	//   delete it.
+	// If we (the framework) allocated the UText or subsidiary storage, delete it.
 	if(ut->flags & UTEXT_EXTRA_HEAP_ALLOCATED) {
 		uprv_free(ut->pExtra);
 		ut->pExtra = NULL;
 		ut->flags &= ~UTEXT_EXTRA_HEAP_ALLOCATED;
 		ut->extraSize = 0;
 	}
-
 	// Zero out function table of the closed UText.  This is a defensive move,
 	//   intended to cause applications that inadvertently use a closed
 	//   utext to crash with null pointer errors.
@@ -642,26 +603,25 @@ U_CAPI UText * U_EXPORT2 utext_close(UText * ut)
 //                   backing text, potentially putting it out of sync with the
 //                   contents in the chunk.
 //
-static void invalidateChunk(UText * ut) {
+static void invalidateChunk(UText * ut) 
+{
 	ut->chunkLength = 0;
 	ut->chunkNativeLimit = 0;
 	ut->chunkNativeStart = 0;
 	ut->chunkOffset = 0;
 	ut->nativeIndexingLimit = 0;
 }
-
 //
 // pinIndex        Do range pinning on a native index parameter.
 //                 64 bit pinning is done in place.
 //                 32 bit truncated result is returned as a convenience for
 //                        use in providers that don't need 64 bits.
-static int32_t pinIndex(int64_t &index, int64_t limit) {
-	if(index<0) {
+static int32_t pinIndex(int64_t &index, int64_t limit) 
+{
+	if(index<0)
 		index = 0;
-	}
-	else if(index > limit) {
+	else if(index > limit)
 		index = limit;
-	}
 	return (int32_t)index;
 }
 
@@ -673,12 +633,12 @@ U_CDECL_BEGIN
 //   Adjust a pointer that refers to something within one UText (the source)
 //   to refer to the same relative offset within a another UText (the target)
 //
-static void adjustPointer(UText * dest, const void ** destPtr, const UText * src) {
+static void adjustPointer(UText * dest, const void ** destPtr, const UText * src) 
+{
 	// convert all pointers to (char *) so that byte address arithmetic will work.
 	char * dptr = (char *)*destPtr;
 	char * dUText = (char *)dest;
 	char * sUText = (char *)src;
-
 	if(dptr >= (char *)src->pExtra && dptr < ((char *)src->pExtra)+src->extraSize) {
 		// target ptr was to something within the src UText's pExtra storage.
 		//   relocate it into the target UText's pExtra region.
@@ -695,12 +655,12 @@ static void adjustPointer(UText * dest, const void ** destPtr, const UText * src
 //  Clone.  This is a generic copy-the-utext-by-value clone function that can be
 //          used as-is with some utext types, and as a helper by other clones.
 //
-static UText * U_CALLCONV shallowTextClone(UText * dest, const UText * src, UErrorCode * status) {
+static UText * U_CALLCONV shallowTextClone(UText * dest, const UText * src, UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
 	int32_t srcExtraSize = src->extraSize;
-
 	//
 	// Use the generic text_setup to allocate storage if required.
 	//

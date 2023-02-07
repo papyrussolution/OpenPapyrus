@@ -1,25 +1,20 @@
+// bytestrie.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2010-2012, International Business Machines Corporation and others.  All Rights Reserved.
- *   file name:  bytestrie.h
- *   encoding:   UTF-8
- *   indentation:4
- *   created on: 2010sep25
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2010-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2010sep25
+// created by: Markus W. Scherer
+//
 #ifndef __BYTESTRIE_H__
 #define __BYTESTRIE_H__
-
 /**
  * \file
  * \brief C++ API: Trie for mapping byte sequences to integer values.
  */
 
 #include "unicode/utypes.h"
-
 #if U_SHOW_CPLUSPLUS_API
-
 #include "unicode/stringpiece.h"
 #include "unicode/uobject.h"
 #include "unicode/ustringtrie.h"
@@ -32,7 +27,6 @@ class ByteSink;
 class BytesTrieBuilder;
 class CharString;
 class UVector32;
-
 /**
  * Light-weight, non-const reader class for a BytesTrie.
  * Traverses a byte-serialized data structure with minimal state,

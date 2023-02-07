@@ -1,8 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2003, International Business Machines Corporation and others.  All Rights Reserved.
- */
+// Copyright (C) 2003, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "layout/LETypes.h"
@@ -41,7 +40,6 @@ le_int32 RunArray::ensureCapacity()
 			grow(fCapacity);
 		}
 	}
-
 	return fCount++;
 }
 

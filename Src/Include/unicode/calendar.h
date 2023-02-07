@@ -1,19 +1,17 @@
 // CALENDAR.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1997-2014, International Business Machines Corporation and others.  All Rights Reserved.
- * Modification History:
- *   Date        Name        Description
- *   04/22/97    aliu        Expanded and corrected comments and other header contents.
- *   05/01/97    aliu        Made equals(), before(), after() arguments const.
- *   05/20/97    aliu        Replaced fAreFieldsSet with fAreFieldsInSync and fAreAllFieldsSet.
- *   07/27/98    stephen     Sync up with JDK 1.2
- *   11/15/99    weiv        added YEAR_WOY and DOW_LOCAL to EDateFields
- *    8/19/2002  srl         Removed Javaisms
- *   11/07/2003  srl         Update, clean up documentation.
- ********************************************************************************
- */
+// Copyright (C) 1997-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 04/22/97    aliu        Expanded and corrected comments and other header contents.
+// 05/01/97    aliu        Made equals(), before(), after() arguments const.
+// 05/20/97    aliu        Replaced fAreFieldsSet with fAreFieldsInSync and fAreAllFieldsSet.
+// 07/27/98    stephen     Sync up with JDK 1.2
+// 11/15/99    weiv        added YEAR_WOY and DOW_LOCAL to EDateFields
+// 8/19/2002  srl         Removed Javaisms
+// 11/07/2003  srl         Update, clean up documentation.
+// 
 #ifndef CALENDAR_H
 #define CALENDAR_H
 
@@ -483,7 +481,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	bool equals(const Calendar& when, UErrorCode & status) const;
-
 	/**
 	 * Returns true if this Calendar's current time is before "when"'s current time.
 	 *

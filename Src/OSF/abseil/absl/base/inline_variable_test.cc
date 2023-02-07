@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include <type_traits>
-
 #include "absl/base/internal/inline_variable.h"
 #include "absl/base/internal/inline_variable_testing.h"
-
 #include "gtest/gtest.h"
 
 namespace absl {

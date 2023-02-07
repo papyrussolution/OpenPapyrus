@@ -1,23 +1,16 @@
+// BUDDHCAL.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-	Copyright (C) 2003-2013, International Business Machines Corporation and others. All Rights Reserved.
- *
- * File BUDDHCAL.H
- * Modification History:
- *
- *   Date        Name        Description
- *   05/13/2003  srl          copied from gregocal.h
- ********************************************************************************
- */
-
+// Copyright (C) 2003-2013, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 05/13/2003  srl          copied from gregocal.h
+// 
 #ifndef BUDDHCAL_H
 #define BUDDHCAL_H
 
 #include "unicode/utypes.h"
-
 #if !UCONFIG_NO_FORMATTING
-
 #include "unicode/calendar.h"
 #include "unicode/gregocal.h"
 
@@ -44,7 +37,6 @@ U_NAMESPACE_BEGIN
  */
 class BuddhistCalendar : public GregorianCalendar {
 public:
-
 	/**
 	 * Useful constants for BuddhistCalendar.  Only one Era.
 	 * @internal
@@ -183,6 +175,4 @@ protected:
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
 #endif // _GREGOCAL
-//eof

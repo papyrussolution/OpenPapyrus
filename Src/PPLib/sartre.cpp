@@ -1341,7 +1341,8 @@ int  SrImportParam::GetField(int fld, SString & rVal) const { return StrItems.Ge
 // @construction {
 #include <..\OSF\abseil\absl\numeric\int128.h>
 
-static const uint64 __ued_geoloc = 0x93ULL;
+static const uint64 __ued_planarangle = 0x90ULL;
+static const uint64 __ued_geoloc      = 0x93ULL;
 
 /*static*/uint64 UED::ConvertGeoLoc(const SGeoPosLL & rGeoPos)
 {
@@ -1387,31 +1388,39 @@ static const uint64 __ued_geoloc = 0x93ULL;
 	return result;
 }
 
+static uint64 UedPlanarAngleMask     = 0x007fffffffffffULL;
+static uint64 UedPlanarAngleSignMask = 0x00800000000000ULL;
+
 /*static*/uint64 UED::ConvertPlanarAngle_Deg(double deg)
 {
 	uint64 result = 0;
 	const uint64 _divisor = 360ULL * 3600ULL;
-	//              0123456789012345
-	const uint64 maxv = (0x00ffffffffffffffULL / _divisor) * _divisor;
+	const bool  minus = (deg < 0);
+	const uint64 maxv = (UedPlanarAngleMask / _divisor) * _divisor;
 	assert((maxv % 360ULL) == 0ULL);
 	double _deg = fmod(deg, 360.0);
-	if(_deg < 0.0) {
-		_deg += 360.0;
-	}
-	assert(_deg >= 0.0 && _deg < 360.0);
-	result = (uint64)(_deg * (maxv / 360ULL));
-	assert((result & 0xff00000000000000ULL) == 0ULL);
+	assert(_deg > -360.0 && _deg < 360.0);
+	_deg = fabs(_deg);
+	if(minus)
+		result = (__ued_planarangle << 56) | (uint64)(_deg * (maxv / 360ULL)) | UedPlanarAngleSignMask;
+	else
+		result = (__ued_planarangle << 56) | (uint64)(_deg * (maxv / 360ULL));
+	assert((result & ~(UedPlanarAngleMask | UedPlanarAngleSignMask)) == (__ued_planarangle << 56));
 	return result;
 }
 
 /*static*/uint64 UED::StraightenPlanarAngle_Deg(uint64 ued, double & rDeg)
 {
 	uint64 result = 0;
-	const uint64 _divisor = 360ULL * 3600ULL;
-	//              0123456789012345
-	const uint64 maxv = (0x00ffffffffffffffULL / _divisor) * _divisor;
-	rDeg = static_cast<double>(ued & 0x00ffffffffffffffULL) / (maxv / 360ULL);
-	result = 1;
+	if((ued >> 56) == __ued_planarangle) {
+		const uint64 _divisor = 360ULL * 3600ULL;
+		const uint64 maxv = (UedPlanarAngleMask / _divisor) * _divisor;
+		rDeg = static_cast<double>(ued & UedPlanarAngleMask) / (maxv / 360ULL);
+		assert(rDeg >= 0.0 && rDeg < 360.0);
+		if(ued & UedPlanarAngleSignMask)
+			rDeg = -rDeg;
+		result = 1;
+	}
 	return result;
 }
 // } @construction
@@ -1950,12 +1959,26 @@ int Test_ReadUed(const char * pFileName)
 		UED::StraightenGeoLoc(ued_gp, gp_);
 	}
 	{
-		const double angle_list[] = { 10.5, 0.0, 30.0, 45.0, 60.0, 180.0, 10.0, 270.25, 359.9 };
+		const double angle_list[] = { -11.9, -45.0, -180.1, 10.5, 0.0, 30.0, 45.0, 60.0, 180.0, 10.0, 270.25, 359.9 };
 		for(uint i = 0; i < SIZEOFARRAY(angle_list); i++) {
 			uint64 ued_a = UED::ConvertPlanarAngle_Deg(angle_list[i]);
 			double angle_;
 			UED::StraightenPlanarAngle_Deg(ued_a, angle_);
-			assert(angle_ == angle_list[i]);
+			assert(feqeps(angle_, angle_list[i], 1E-6));
+		}
+		{
+			const double src_angle = SMathConst::Pi / 4;
+			uint64 ued_a = UED::ConvertPlanarAngle_Deg(src_angle * 180.0/SMathConst::Pi);
+			double angle_;
+			UED::StraightenPlanarAngle_Deg(ued_a, angle_);
+			assert(feqeps(angle_, 45.0, 1E-6));
+		}
+		{
+			const double src_angle = SMathConst::Pi / 6;
+			uint64 ued_a = UED::ConvertPlanarAngle_Deg(src_angle * 180.0/SMathConst::Pi);
+			double angle_;
+			UED::StraightenPlanarAngle_Deg(ued_a, angle_);
+			assert(feqeps(angle_, 30.0, 1E-6));
 		}
 	}
 	{

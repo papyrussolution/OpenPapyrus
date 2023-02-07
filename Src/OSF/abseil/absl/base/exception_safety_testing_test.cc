@@ -12,16 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/internal/exception_safety_testing.h"
 
 #ifdef ABSL_HAVE_EXCEPTIONS
-
-#include <cstddef>
-#include <exception>
-#include <iostream>
-#include <list>
-#include <type_traits>
-#include <vector>
 
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"

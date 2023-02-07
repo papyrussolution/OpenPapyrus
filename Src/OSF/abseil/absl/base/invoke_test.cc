@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/internal/invoke.h"
-
-#include <functional>
-#include <memory>
-#include <string>
-#include <utility>
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
@@ -46,73 +42,36 @@ struct EphemeralFunctor {
 };
 
 struct OverloadedFunctor {
-	template <typename ... Args>
-	std::string operator()(const Args& ... args) & {
-		return StrCat("&", args ...);
-	}
-
-	template <typename ... Args>
-	std::string operator()(const Args& ... args) const& {
-		return StrCat("const&", args ...);
-	}
-
-	template <typename ... Args>
-	std::string operator()(const Args& ... args) && {
-		return StrCat("&&", args ...);
-	}
+	template <typename ... Args> std::string operator()(const Args& ... args) & { return StrCat("&", args ...); }
+	template <typename ... Args> std::string operator()(const Args& ... args) const& { return StrCat("const&", args ...); }
+	template <typename ... Args> std::string operator()(const Args& ... args) && { return StrCat("&&", args ...); }
 };
 
 struct Class {
-	int Method(int a, int b) {
-		return a - b;
-	}
-
-	int ConstMethod(int a, int b) const {
-		return a - b;
-	}
-
-	int RefMethod(int a, int b) & {
-		return a - b;
-	}
-
-	int RefRefMethod(int a, int b) && {
-		return a - b;
-	}
-
-	int NoExceptMethod(int a, int b) noexcept {
-		return a - b;
-	}
-
-	int VolatileMethod(int a, int b) volatile {
-		return a - b;
-	}
-
+	int Method(int a, int b) { return a - b; }
+	int ConstMethod(int a, int b) const { return a - b; }
+	int RefMethod(int a, int b) & { return a - b; }
+	int RefRefMethod(int a, int b) && { return a - b; }
+	int NoExceptMethod(int a, int b) noexcept { return a - b; }
+	int VolatileMethod(int a, int b) volatile { return a - b; }
 	int member;
 };
 
 struct FlipFlop {
-	int ConstMethod() const {
-		return member;
-	}
-
-	FlipFlop operator*() const {
-		return {-member};
-	}
-
+	int ConstMethod() const { return member; }
+	FlipFlop operator*() const { return {-member}; }
 	int member;
 };
 
 // CallMaybeWithArg(f) resolves either to invoke(f) or invoke(f, 42), depending
 // on which one is valid.
-template <typename F>
-decltype(base_internal::invoke(std::declval<const F&>()))CallMaybeWithArg(
-	const F &f) {
+template <typename F> decltype(base_internal::invoke(std::declval<const F&>()))CallMaybeWithArg(const F &f) 
+{
 	return base_internal::invoke(f);
 }
 
-template <typename F>
-decltype(base_internal::invoke(std::declval<const F&>(), 42))CallMaybeWithArg(
-	const F &f) {
+template <typename F> decltype(base_internal::invoke(std::declval<const F&>(), 42))CallMaybeWithArg(const F &f) 
+{
 	return base_internal::invoke(f, 42);
 }
 

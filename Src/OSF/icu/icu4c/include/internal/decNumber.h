@@ -102,10 +102,9 @@ typedef struct {
 /* characters.  The worst cases (non-exponential and exponential */
 /* formats) are -0.00000{9...}# and -9.{9...}E+999999999#        */
 /* (where # is '\0')         */
-
-/* ---------------------------------------------------------------- */
-/* decNumber public functions and macros */
-/* ---------------------------------------------------------------- */
+//
+// decNumber public functions and macros
+// 
 /* Conversions         */
 U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromInt32(decNumber *, int32_t);
 U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromUInt32(decNumber *, uint32_t);

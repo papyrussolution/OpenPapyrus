@@ -12,44 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/memory/memory.h"
-
 #include "absl/base/config.h"
-
 #ifdef ABSL_HAVE_EXCEPTIONS
-
 #include "gtest/gtest.h"
 #include "absl/base/internal/exception_safety_testing.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace {
-
 constexpr int kLength = 50;
 using Thrower = testing::ThrowingValue<testing::TypeSpec::kEverythingThrows>;
 
 TEST(MakeUnique, CheckForLeaks) {
-  constexpr int kValue = 321;
-  auto tester = testing::MakeExceptionSafetyTester()
-                    .WithInitialValue(Thrower(kValue))
-                    // Ensures make_unique does not modify the input. The real
-                    // test, though, is ConstructorTracker checking for leaks.
-                    .WithContracts(testing::strong_guarantee);
+	constexpr int kValue = 321;
+	auto tester = testing::MakeExceptionSafetyTester()
+	    .WithInitialValue(Thrower(kValue))
+	    // Ensures make_unique does not modify the input. The real
+	    // test, though, is ConstructorTracker checking for leaks.
+	    .WithContracts(testing::strong_guarantee);
 
-  EXPECT_TRUE(tester.Test([](Thrower* thrower) {
-    static_cast<void>(absl::make_unique<Thrower>(*thrower));
-  }));
+	EXPECT_TRUE(tester.Test([](Thrower* thrower) {
+				static_cast<void>(absl::make_unique<Thrower>(*thrower));
+			}));
 
-  EXPECT_TRUE(tester.Test([](Thrower* thrower) {
-    static_cast<void>(absl::make_unique<Thrower>(std::move(*thrower)));
-  }));
+	EXPECT_TRUE(tester.Test([](Thrower* thrower) {
+				static_cast<void>(absl::make_unique<Thrower>(std::move(*thrower)));
+			}));
 
-  // Test T[n] overload
-  EXPECT_TRUE(tester.Test([&](Thrower*) {
-    static_cast<void>(absl::make_unique<Thrower[]>(kLength));
-  }));
+	// Test T[n] overload
+	EXPECT_TRUE(tester.Test([&](Thrower*) {
+				static_cast<void>(absl::make_unique<Thrower[]>(kLength));
+			}));
 }
-
 }  // namespace
 ABSL_NAMESPACE_END
 }  // namespace absl

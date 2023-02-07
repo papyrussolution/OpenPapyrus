@@ -723,9 +723,7 @@ public:
 		std::false_type>;
 };
 
-template <typename T>
-struct is_hashable
-	: std::integral_constant<bool, HashSelect::template Apply<T>::value> {};
+template <typename T> struct is_hashable : std::integral_constant<bool, HashSelect::template Apply<T>::value> {};
 
 // MixingHashState
 class ABSL_DLL MixingHashState : public HashStateBase<MixingHashState> {
@@ -737,8 +735,7 @@ class ABSL_DLL MixingHashState : public HashStateBase<MixingHashState> {
 	using uint128 = absl::uint128;
 #endif  // ABSL_HAVE_INTRINSIC_INT128
 	static constexpr uint64_t kMul = sizeof(size_t) == 4 ? uint64_t{0xcc9e2d51} : uint64_t{0x9ddfea08eb382d69};
-	template <typename T>
-	using IntegralFastPath = conjunction<std::is_integral<T>, is_uniquely_represented<T> >;
+	template <typename T> using IntegralFastPath = conjunction<std::is_integral<T>, is_uniquely_represented<T> >;
 public:
 	// Move only
 	MixingHashState(MixingHashState&&) = default;

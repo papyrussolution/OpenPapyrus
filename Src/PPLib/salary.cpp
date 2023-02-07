@@ -1,5 +1,5 @@
 // SALARY.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -672,11 +672,11 @@ int FASTCALL PPViewSalary::NextIteration(SalaryViewItem * pItem)
 								continue;
 							else if(Filt.DivID && sl_rec.DivisionID != Filt.DivID)
 								continue;
-							else if((Filt.Flags & SalaryFilt::fCrosstab) && SalChargeList.bsearch(r_rec.SalChargeID) <= 0)
+							else if((Filt.Flags & SalaryFilt::fCrosstab) && !SalChargeList.bsearch(r_rec.SalChargeID))
 								continue;
 							else {
 								if(pItem) {
-									*(SalaryTbl::Rec *)pItem = r_rec;
+									*static_cast<SalaryTbl::Rec *>(pItem) = r_rec;
 									pItem->StaffID  = post_rec.StaffID;
 									pItem->PersonID = post_rec.PersonID;
 									pItem->OrgID    = sl_rec.OrgID;

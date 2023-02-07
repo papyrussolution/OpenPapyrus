@@ -3506,13 +3506,12 @@ int PPObjBHT::PrepareSupplData(const char * pPath, PPBhtTerminalPacket * pPack /
 		if(bht_type_id == PPObjBHT::btStyloBhtII) {
 			uint count = (pPack && pPack->P_SBIICfg && pPack->P_SBIICfg->P_OpList) ? pPack->P_SBIICfg->P_OpList->getCount() : 0;
 			PPIDArray acc_sheets;
-			SBIIOpInfoArray * p_oplist = (count) ? pPack->P_SBIICfg->P_OpList : 0;
-
+			SBIIOpInfoArray * p_oplist = count ? pPack->P_SBIICfg->P_OpList : 0;
 			acc_sheets.add(acc_sheet_id);
 			for(uint j = 0; j < count; j++) {
 				PPID op_id = (p_oplist->at(j).OpID > 0) ? p_oplist->at(j).OpID : p_oplist->at(j).ToHostOpID;
 				PPOprKind op_data;
-				if(GetOpData(op_id, &op_data) > 0 && acc_sheets.lsearch(op_data.AccSheetID) <= 0) {
+				if(GetOpData(op_id, &op_data) > 0 && !acc_sheets.lsearch(op_data.AccSheetID)) {
 					acc_sheets.add(op_data.AccSheetID);
 					for(n = 0; ar_obj.P_Tbl->EnumBySheet(op_data.AccSheetID, &n, &ar_rec) > 0;) {
 						DbfRecord dbf_rec(p_dbf_tbl);

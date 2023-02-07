@@ -1,5 +1,5 @@
 // OBJBILL.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4002,8 +4002,7 @@ int PPObjBill::GetDraftRcptList(const DateRange * pPeriod, const PPIDArray * pLo
 		k2.OpID = draft_op_id;
 		k2.Dt   = pPeriod ? pPeriod->low : ZERODATE;
 		for(q_b.initIteration(false, &k2, spGt); q_b.nextIteration() > 0;) {
-			if(!(P_Tbl->data.Flags & BILLF_CLOSEDORDER) && (!pPeriod || pPeriod->CheckDate(P_Tbl->data.Dt)) &&
-				(!pLocList || pLocList->lsearch(P_Tbl->data.LocID) > 0)) {
+			if(!(P_Tbl->data.Flags & BILLF_CLOSEDORDER) && (!pPeriod || pPeriod->CheckDate(P_Tbl->data.Dt)) && (!pLocList || pLocList->lsearch(P_Tbl->data.LocID))) {
 				const PPID bill_id = P_Tbl->data.ID;
 				TransferTbl::Key0 k0;
 				BExtQuery q(P_CpTrfr, 0);
@@ -9930,7 +9929,7 @@ private:
 				PPIDArray op_type_list;
 				DlgDataType::OpTypeListByBbt(bbt, &op_type_list);
 				for(PPID enum_op_id = 0; EnumOperations(0, &enum_op_id, &enum_opk_rec) > 0;) {
-					if(op_type_list.bsearch(enum_opk_rec.OpTypeID, 0) > 0)
+					if(op_type_list.bsearch(enum_opk_rec.OpTypeID, 0))
 						op_list.add(enum_op_id);
 				}
 				SETIFZ(selected_op_id, op_list.getSingle());

@@ -1668,7 +1668,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														}
 														else if(ctl_view instanceof TextView) {
 															if(i == 1) { // date
-																SLib.LDATE d = cur_entry.GetNominalDate();
+																SLib.LDATE d = cur_entry.GetNominalDate(CPM.GetOption_DueDateAsNominal());
 																if(d != null)
 																	text = d.Format(SLib.DATF_DMY);
 															}
@@ -1800,7 +1800,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 																				; // По-моему, здесь ничего замерять не надо - мы и так зафиксировали размер элемента
 																			}
 																			else if(i == 1) { // date
-																				SLib.LDATE d = cur_entry.GetNominalDate();
+																				SLib.LDATE d = cur_entry.GetNominalDate(CPM.GetOption_DueDateAsNominal());
 																				if(d != null)
 																					VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
 																			}

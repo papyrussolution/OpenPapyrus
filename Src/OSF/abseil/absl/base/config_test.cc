@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
+#define ABSL_IS_LITTLE_ENDIAN // @sobolev
 #include "absl/base/config.h"
-
 #include <cstdint>
-
 #include "gtest/gtest.h"
 #include "absl/synchronization/internal/thread_pool.h"
 
@@ -33,9 +34,9 @@ TEST(ConfigTest, Endianness) {
 #if defined(ABSL_IS_LITTLE_ENDIAN) && defined(ABSL_IS_BIG_ENDIAN)
 #error Both ABSL_IS_LITTLE_ENDIAN and ABSL_IS_BIG_ENDIAN are defined
 #elif defined(ABSL_IS_LITTLE_ENDIAN)
-	EXPECT_EQ(UINT32_C(0x03020100), number.value);
+	EXPECT_EQ(/*UINT32_C*/(0x03020100U), number.value);
 #elif defined(ABSL_IS_BIG_ENDIAN)
-	EXPECT_EQ(UINT32_C(0x00010203), number.value);
+	EXPECT_EQ(/*UINT32_C*/(0x00010203U), number.value);
 #else
 #error Unknown endianness
 #endif

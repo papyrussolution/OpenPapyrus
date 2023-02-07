@@ -107,11 +107,9 @@ public:
 	 * Constructs from a std::u8string.
 	 * @stable ICU 67
 	 */
-	StringPiece(const std::u8string& str)
-		: ptr_(reinterpret_cast<const char *>(str.data())),
-		length_(static_cast<int32_t>(str.size())) {
+	StringPiece(const std::u8string& str) : ptr_(reinterpret_cast<const char *>(str.data())), length_(static_cast<int32_t>(str.size())) 
+	{
 	}
-
 #endif
 
 	/**
@@ -136,28 +134,24 @@ public:
 	 * @param str the other string piece
 	 * @stable ICU 65
 	 */
-	template <typename T,
-	    typename = typename std::enable_if<
-		    (std::is_same<decltype(T().data()), const char *>::value
+	template <typename T, typename = typename std::enable_if<(std::is_same<decltype(T().data()), const char *>::value
 #if defined(__cpp_char8_t)
 		    || std::is_same<decltype(T().data()), const char8_t*>::value
 #endif
 		    ) &&
 		    std::is_same<decltype(T().size()), size_t>::value>::type>
-	StringPiece(T str)
-		: ptr_(reinterpret_cast<const char *>(str.data())),
-		length_(static_cast<int32_t>(str.size())) {
+	StringPiece(T str) : ptr_(reinterpret_cast<const char *>(str.data())), length_(static_cast<int32_t>(str.size())) 
+	{
 	}
-
 	/**
 	 * Constructs from a const char * pointer and a specified length.
 	 * @param offset a const char * pointer (need not be terminated)
 	 * @param len the length of the string; must be non-negative
 	 * @stable ICU 4.2
 	 */
-	StringPiece(const char * offset, int32_t len) : ptr_(offset), length_(len) {
+	StringPiece(const char * offset, int32_t len) : ptr_(offset), length_(len) 
+	{
 	}
-
 #if defined(__cpp_char8_t) || defined(U_IN_DOXYGEN)
 	/**
 	 * Constructs from a const char8_t * pointer and a specified length.
@@ -165,12 +159,10 @@ public:
 	 * @param len the length of the string; must be non-negative
 	 * @stable ICU 67
 	 */
-	StringPiece(const char8_t* str, int32_t len) :
-		StringPiece(reinterpret_cast<const char *>(str), len) {
+	StringPiece(const char8_t* str, int32_t len) : StringPiece(reinterpret_cast<const char *>(str), len) 
+	{
 	}
-
 #endif
-
 	/**
 	 * Substring of another StringPiece.
 	 * @param x the other StringPiece

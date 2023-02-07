@@ -1,6 +1,6 @@
 // © 2017 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
+//
 #include "unicode/utypes.h"
 
 #if !UCONFIG_NO_FORMATTING
@@ -22,7 +22,6 @@
 
 U_NAMESPACE_BEGIN namespace number {
 namespace impl {
-
 /**
  * A copyable container for the integer values of mixed unit measurements.
  *
@@ -30,40 +29,40 @@ namespace impl {
  * set to U_MEMORY_ALLOCATION_ERROR.
  */
 class IntMeasures : public MaybeStackArray<int64_t, 2> {
-  public:
-    /**
-  * Default constructor initializes with internal T[stackCapacity] buffer.
-     *
-  * Stack Capacity: most mixed units are expected to consist of two or three
-  * subunits, so one or two integer measures should be enough.
-     */
-    IntMeasures() : MaybeStackArray<int64_t, 2>() {}
-
-    /**
-  * Copy constructor.
-     *
-  * If memory allocation fails during copying, no values are copied and status is set to U_MEMORY_ALLOCATION_ERROR.
-     */
-    IntMeasures(const IntMeasures &other) : MaybeStackArray<int64_t, 2>() {
-        this->operator = (other);
-    }
-
-    // Assignment operator
-    IntMeasures & operator = (const IntMeasures &rhs) {
-        if(this == &rhs) {
-            return *this;
-        }
-        copyFrom(rhs, status);
-        return *this;
-    }
-
-    /** Move constructor */
-    IntMeasures(IntMeasures && src) = default;
-
-    /** Move assignment */
-    IntMeasures & operator = (IntMeasures && src) = default;
-
-    UErrorCode status = U_ZERO_ERROR;
+public:
+	/**
+	 * Default constructor initializes with internal T[stackCapacity] buffer.
+	 *
+	 * Stack Capacity: most mixed units are expected to consist of two or three
+	 * subunits, so one or two integer measures should be enough.
+	 */
+	IntMeasures() : MaybeStackArray<int64_t, 2>() 
+	{
+	}
+	/**
+	 * Copy constructor.
+	 *
+	 * If memory allocation fails during copying, no values are copied and status is set to
+	 *U_MEMORY_ALLOCATION_ERROR.
+	 */
+	IntMeasures(const IntMeasures &other) : MaybeStackArray<int64_t, 2>() 
+	{
+		this->operator =(other);
+	}
+	// Assignment operator
+	IntMeasures & operator =(const IntMeasures &rhs) 
+	{
+		if(this == &rhs) {
+			return *this;
+		}
+		copyFrom(rhs, status);
+		return *this;
+	}
+	/** Move constructor */
+	IntMeasures(IntMeasures && src) = default;
+	/** Move assignment */
+	IntMeasures & operator =(IntMeasures && src) = default;
+	UErrorCode status = U_ZERO_ERROR;
 };
 
 /**
@@ -72,115 +71,104 @@ class IntMeasures : public MaybeStackArray<int64_t, 2> {
  * modified throughout the rest of the chain of MicroPropsGenerator instances.
  */
 struct MicroProps : public MicroPropsGenerator {
+	// NOTE: All of these fields are properly initialized in NumberFormatterImpl.
+	RoundingImpl rounder;
+	Grouper grouping;
+	Padder padding;
+	IntegerWidth integerWidth;
+	UNumberSignDisplay sign;
+	UNumberDecimalSeparatorDisplay decimal;
+	bool useCurrency;
+	char nsName[9];
+	// Currency symbol to be used as the decimal separator
+	UnicodeString currencyAsDecimal = ICU_Utility::makeBogusString();
+	// No ownership: must point at a string which will outlive MicroProps
+	// instances, e.g. a string with static storage duration, or just a string
+	// that will never be deallocated or modified.
+	const char * gender;
+	// Note: This struct has no direct ownership of the following pointers.
+	const DecimalFormatSymbols* symbols;
+	// Pointers to Modifiers provided by the number formatting pipeline (when
+	// the value is known):
 
-    // NOTE: All of these fields are properly initialized in NumberFormatterImpl.
-    RoundingImpl rounder;
-    Grouper grouping;
-    Padder padding;
-    IntegerWidth integerWidth;
-    UNumberSignDisplay sign;
-    UNumberDecimalSeparatorDisplay decimal;
-    bool useCurrency;
-    char nsName[9];
+	// A Modifier provided by LongNameHandler, used for currency long names and
+	// units. If there is no LongNameHandler needed, this should be an
+	// EmptyModifier. (This is typically the third modifier applied.)
+	const Modifier* modOuter;
+	// A Modifier for short currencies and compact notation. (This is typically
+	// the second modifier applied.)
+	const Modifier* modMiddle = nullptr;
+	// A Modifier provided by ScientificHandler, used for scientific notation.
+	// This is typically the first modifier applied.
+	const Modifier* modInner;
 
-    // Currency symbol to be used as the decimal separator
-    UnicodeString currencyAsDecimal = ICU_Utility::makeBogusString();
+	// The following "helper" fields may optionally be used during the MicroPropsGenerator.
+	// They live here to retain memory.
+	struct {
+		// The ScientificModifier for which ScientificHandler is responsible.
+		// ScientificHandler::processQuantity() modifies this Modifier.
+		ScientificModifier scientificModifier;
+		// EmptyModifier used for modOuter
+		EmptyModifier emptyWeakModifier{false};
+		// EmptyModifier used for modInner
+		EmptyModifier emptyStrongModifier{true};
+		MultiplierFormatHandler multiplier;
+		// A Modifier used for Mixed Units. When formatting mixed units,
+		// LongNameHandler assigns this Modifier.
+		SimpleModifier mixedUnitModifier;
+	} helpers;
 
-    // No ownership: must point at a string which will outlive MicroProps
-    // instances, e.g. a string with static storage duration, or just a string
-    // that will never be deallocated or modified.
-    const char *gender;
+	// The MeasureUnit with which the output is represented. May also have
+	// UMEASURE_UNIT_MIXED complexity, in which case mixedMeasures comes into play.
+	MeasureUnit outputUnit;
+	// Contains all the values of each unit in mixed units. For quantity (which is the floating value of
+	// the smallest unit in the mixed unit), the value stores in `quantity`.
+	// NOTE: the value of quantity in `mixedMeasures` will be left unset.
+	IntMeasures mixedMeasures;
+	int32_t indexOfQuantity = -1; // Points to quantity position, -1 if the position is not set yet.
+	int32_t mixedMeasuresCount = 0; // Number of mixedMeasures that have been populated
 
-    // Note: This struct has no direct ownership of the following pointers.
-    const DecimalFormatSymbols* symbols;
+	MicroProps() = default;
 
-    // Pointers to Modifiers provided by the number formatting pipeline (when
-    // the value is known):
+	MicroProps(const MicroProps& other) = default;
 
-    // A Modifier provided by LongNameHandler, used for currency long names and
-    // units. If there is no LongNameHandler needed, this should be an
-    // EmptyModifier. (This is typically the third modifier applied.)
-    const Modifier* modOuter;
-    // A Modifier for short currencies and compact notation. (This is typically
-    // the second modifier applied.)
-    const Modifier* modMiddle = nullptr;
-    // A Modifier provided by ScientificHandler, used for scientific notation.
-    // This is typically the first modifier applied.
-    const Modifier* modInner;
+	MicroProps& operator =(const MicroProps& other) = default;
 
-    // The following "helper" fields may optionally be used during the MicroPropsGenerator.
-    // They live here to retain memory.
-    struct {
-        // The ScientificModifier for which ScientificHandler is responsible.
-        // ScientificHandler::processQuantity() modifies this Modifier.
-        ScientificModifier scientificModifier;
-        // EmptyModifier used for modOuter
-        EmptyModifier emptyWeakModifier{false};
-        // EmptyModifier used for modInner
-        EmptyModifier emptyStrongModifier{true};
-        MultiplierFormatHandler multiplier;
-        // A Modifier used for Mixed Units. When formatting mixed units,
-        // LongNameHandler assigns this Modifier.
-        SimpleModifier mixedUnitModifier;
-    } helpers;
+	/**
+	 * As MicroProps is the "base instance", this implementation of
+	 * MicroPropsGenerator::processQuantity() just ensures that the output
+	 * `micros` is correctly initialized.
+	 *
+	 * For the "safe" invocation of this function, micros must not be *this,
+	 * such that a copy of the base instance is made. For the "unsafe" path,
+	 * this function can be used only once, because the base MicroProps instance
+	 * will be modified and thus not be available for re-use.
+	 *
+	 * @param quantity The quantity for consideration and optional mutation.
+	 * @param micros The MicroProps instance to populate. If this parameter is
+	 * not already `*this`, it will be overwritten with a copy of `*this`.
+	 */
+	void processQuantity(DecimalQuantity &quantity, MicroProps &micros, UErrorCode & status) const U_OVERRIDE 
+	{
+		(void)quantity;
+		(void)status;
+		if(this == &micros) {
+			// Unsafe path: no need to perform a copy.
+			U_ASSERT(!exhausted);
+			micros.exhausted = true;
+			U_ASSERT(exhausted);
+		}
+		else {
+			// Safe path: copy self into the output micros.
+			U_ASSERT(!exhausted);
+			micros = *this;
+		}
+	}
 
-    // The MeasureUnit with which the output is represented. May also have
-    // UMEASURE_UNIT_MIXED complexity, in which case mixedMeasures comes into
-    // play.
-    MeasureUnit outputUnit;
-
-    // Contains all the values of each unit in mixed units. For quantity (which is the floating value of
-    // the smallest unit in the mixed unit), the value stores in `quantity`.
-    // NOTE: the value of quantity in `mixedMeasures` will be left unset.
-    IntMeasures mixedMeasures;
-
-    // Points to quantity position, -1 if the position is not set yet.
-    int32_t indexOfQuantity = -1;
-
-    // Number of mixedMeasures that have been populated
-    int32_t mixedMeasuresCount = 0;
-
-    MicroProps() = default;
-
-    MicroProps(const MicroProps& other) = default;
-
-    MicroProps& operator = (const MicroProps& other) = default;
-
-    /**
-  * As MicroProps is the "base instance", this implementation of
-  * MicroPropsGenerator::processQuantity() just ensures that the output
-  * `micros` is correctly initialized.
-     *
-  * For the "safe" invocation of this function, micros must not be *this,
-  * such that a copy of the base instance is made. For the "unsafe" path,
-  * this function can be used only once, because the base MicroProps instance
-  * will be modified and thus not be available for re-use.
-     *
-  * @param quantity The quantity for consideration and optional mutation.
-  * @param micros The MicroProps instance to populate. If this parameter is
-  * not already `*this`, it will be overwritten with a copy of `*this`.
-     */
-    void processQuantity(DecimalQuantity &quantity, MicroProps &micros,
-                         UErrorCode & status) const U_OVERRIDE {
-        (void) quantity;
-        (void) status;
-        if(this == &micros) {
-            // Unsafe path: no need to perform a copy.
-            U_ASSERT(!exhausted);
-            micros.exhausted = true;
-            U_ASSERT(exhausted);
-        } else {
-            // Safe path: copy self into the output micros.
-            U_ASSERT(!exhausted);
-            micros = *this;
-        }
-    }
-
-  private:
-    // Internal fields:
-    bool exhausted = false;
+private:
+	// Internal fields:
+	bool exhausted = false;
 };
-
 } // namespace impl
 } // namespace number
 U_NAMESPACE_END

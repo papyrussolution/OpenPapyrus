@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/call_once.h"
-
-#include <thread>
-#include <vector>
-
 #include "gtest/gtest.h"
 #include "absl/base/attributes.h"
 #include "absl/base/const_init.h"

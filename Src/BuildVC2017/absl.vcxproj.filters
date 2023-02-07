@@ -7,6 +7,9 @@
     <Filter Include="Inc">
       <UniqueIdentifier>{5dd351e8-e40f-472d-87e1-6c425315ebbb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Test">
+      <UniqueIdentifier>{32b56e21-422a-42c6-91f3-7a026f3a2e1e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\abseil\absl\types\bad_any_cast.h">
@@ -667,6 +670,123 @@
     <ClCompile Include="..\osf\abseil\absl\flags\internal\usage-internal.cc" />
     <ClCompile Include="..\osf\abseil\absl\strings\internal\escaping-internal.cc" />
     <ClCompile Include="..\OSF\abseil\absl\absl-pch.cpp" />
+    <ClCompile Include="..\OSF\abseil\absl\algorithm\algorithm_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\algorithm\container_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\bit_cast_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\call_once_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\config_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\exception_safety_testing_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\inline_variable_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\inline_variable_test_a.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\inline_variable_test_b.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\invoke_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\log_severity_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\optimization_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\raw_logging_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\base\throw_delegate_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\container\btree_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\container\fixed_array_exception_safety_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\container\fixed_array_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\container\flat_hash_map_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\container\flat_hash_set_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\container\inlined_vector_exception_safety_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\container\inlined_vector_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\container\node_hash_map_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\container\node_hash_set_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\container\sample_element_size_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\debugging\failure_signal_handler_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\debugging\leak_check_fail_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\debugging\leak_check_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\debugging\symbolize_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\flags\commandlineflag_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\flags\config_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\flags\marshalling_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\flags\reflection_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\flags\usage_config_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\functional\bind_front_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\functional\function_ref_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\hash\hash_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\memory\memory_exception_safety_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\memory\memory_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\meta\type_traits_test.cc">
+      <Filter>Test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\osf\abseil\absl\flags\internal\flag_msvc.inc">

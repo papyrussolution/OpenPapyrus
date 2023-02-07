@@ -378,8 +378,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</OmitFramePointers>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" />
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Use</PrecompiledHeader>
@@ -426,8 +426,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</OmitFramePointers>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">
       </PrecompiledHeaderFile>
@@ -480,8 +480,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</OmitFramePointers>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">
       </PrecompiledHeaderFile>
@@ -533,8 +533,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</OmitFramePointers>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" />
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Use</PrecompiledHeader>
@@ -579,8 +579,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</OmitFramePointers>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">
       </PrecompiledHeaderFile>
@@ -631,8 +631,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</OmitFramePointers>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\layoutex;..\include</AdditionalIncludeDirectories>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">
       </PrecompiledHeaderFile>
@@ -1230,6 +1230,11 @@
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</DisableLanguageExtensions>
     </ClCompile>
     <ClCompile Include="..\osf\icu\icu4c\source\common\sharedobject.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\LXUtilities.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\ParagraphLayout.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\playout.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\plruns.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\RunArrays.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\osf\icu\icu4c\source\common\common.rc">
@@ -1752,6 +1757,11 @@
     <ClInclude Include="..\OSF\icu\icu4c\include\unicode\numberrangeformatter.h" />
     <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucnvsel.h" />
     <ClInclude Include="..\OSF\icu\icu4c\include\unicode\umachine.h" />
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\ParagraphLayout.h" />
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\playout.h" />
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\plruns.h" />
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\RunArrays.h" />
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\LXUtilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

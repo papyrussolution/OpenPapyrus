@@ -209,11 +209,13 @@ void DecNum::setTo(const uint8 * bcd, int32_t length, int32_t scale, bool isNega
 	}
 }
 
-void DecNum::normalize() {
+void DecNum::normalize() 
+{
 	uprv_decNumberReduce(fData, fData, &fContext);
 }
 
-void DecNum::multiplyBy(const DecNum& rhs, UErrorCode & status) {
+void DecNum::multiplyBy(const DecNum& rhs, UErrorCode & status) 
+{
 	uprv_decNumberMultiply(fData, fData, rhs.fData, &fContext);
 	if(fContext.status != 0) {
 		status = U_INTERNAL_PROGRAM_ERROR;

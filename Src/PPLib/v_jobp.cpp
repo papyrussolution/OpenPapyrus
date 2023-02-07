@@ -1,5 +1,5 @@
 // V_JOBP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Редактирование списка задач JobServer'а
 //
@@ -205,7 +205,7 @@ int JobItemDialog::CheckRecursion(const PPJob * pData)
 		const PPJob * p_job = pData;
 		PPIDArray job_list;
 		do {
-			THROW_PP(job_list.lsearch(p_job->ID) <= 0, PPERR_JOBITEMLOOP);
+			THROW_PP(!job_list.lsearch(p_job->ID), PPERR_JOBITEMLOOP);
 			THROW_SL(job_list.add(p_job->ID));
 			p_job = p_job->NextJobID ? P_JobPool->GetJobItem(p_job->NextJobID) : 0;
 		} while(p_job);

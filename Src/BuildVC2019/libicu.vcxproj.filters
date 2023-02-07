@@ -460,6 +460,11 @@
     <ClCompile Include="..\osf\icu\icu4c\source\i18n\zonemeta.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\i18n\zrule.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\i18n\ztrans.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\LXUtilities.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\ParagraphLayout.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\playout.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\plruns.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\RunArrays.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\osf\icu\icu4c\source\common\common.rc">
@@ -1932,6 +1937,51 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\unicode\vtzone.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\LXUtilities.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\LayoutEngine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\LEFontInstance.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\LEGlyphFilter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\LEGlyphStorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\LEInsertionList.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\LELanguages.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\LEScripts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\LESwaps.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\letypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\loengine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\ParagraphLayout.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\playout.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\plruns.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\RunArrays.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

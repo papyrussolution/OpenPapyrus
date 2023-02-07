@@ -551,7 +551,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							; // По-моему, здесь ничего замерять не надо - мы и так зафиксировали размер элемента
 						}
 						else if(dpb.ColumnDescription.Id == 2) { // date
-							SLib.LDATE d = cur_entry.GetNominalDate();
+							SLib.LDATE d = cur_entry.GetNominalDate(CPM.GetOption_DueDateAsNominal());
 							if(d != null)
 								VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
 						}
@@ -1101,7 +1101,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 															}
 															else if(ctl_view instanceof TextView){
 																if(di.Id == 2) { // date
-																	SLib.LDATE d = cur_entry.GetNominalDate();
+																	SLib.LDATE d = cur_entry.GetNominalDate(CPM.GetOption_DueDateAsNominal());
 																	if(d != null)
 																		text = d.Format(SLib.DATF_DMY);
 																}

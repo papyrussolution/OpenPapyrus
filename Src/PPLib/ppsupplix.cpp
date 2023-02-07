@@ -1315,7 +1315,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 			if(P_BObj->Search(ord_list.at(0), &bill_rec) > 0) {
 				ord_num = bill_rec.Code;
 				ord_dt = bill_rec.Dt;
-				if(spoilage_loc_list.bsearch(bill_rec.LocID, 0) > 0)
+				if(spoilage_loc_list.bsearch(bill_rec.LocID, 0))
 					spoilage_loc = bill_rec.LocID;
 			}
 			else if(IsOpBelongTo(item.OpID, Ep.ExpendOp)) { // @debug {
@@ -1377,9 +1377,9 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 				doc_type_idx = BALTIKA_DOCTYPES_RECEIPT;
 			else if(IsOpBelongTo(item.OpID, Ep.SupplRetOp))
 				doc_type_idx = BALTIKA_DOCTYPES_SUPPLRETURN;
-			else if(loss_op_list.lsearch(item.OpID) > 0)
+			else if(loss_op_list.lsearch(item.OpID))
 				doc_type_idx = BALTIKA_DOCTYPES_LOSSES;
-			else if(invrcpt_op_list.lsearch(item.OpID) > 0)
+			else if(invrcpt_op_list.lsearch(item.OpID))
 				doc_type_idx = BALTIKA_DOCTYPES_INVENTORY;
 			// не будем учитывать межскладское перемещение, если товар - слабый алкоголь или разливуха
 			if(oneof2(doc_type_idx, BALTIKA_DOCTYPES_MOVINGTO, BALTIKA_DOCTYPES_MOVINGFROM) && oneof2(rExpParam, expWeakAlc, expWoTareBeer))

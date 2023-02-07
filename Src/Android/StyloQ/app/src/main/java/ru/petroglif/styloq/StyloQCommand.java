@@ -83,6 +83,8 @@ public class StyloQCommand {
 			Description = null;
 			Image = null;
 			Vd = null;
+			MaxDistM = 0.0;
+			GeoLocDistTo = null;
 		}
 		UUID  Uuid;                //
 		int   ResultExpiryTimeSec; // @v11.2.5 Период истечения срока действия результата в секундах. (<=0 - undefined)
@@ -94,6 +96,8 @@ public class StyloQCommand {
 		String Name;               // Наименование команды
 		String Description;        // Подробное описание команды
 		String Image;              // Ссылка на изображение, ассоциированное с командой
+		double MaxDistM;           // @v11.6.5 Требуемая сервисом максимальная дистация до GeoLocDistTo
+		SLib.GeoPosLL GeoLocDistTo; // @v11.6.5 Геолокация, для которой задана максимальная дистация MaxDistM.
 		ArrayList<ViewDefinitionEntry> Vd;
 	}
 	public static class List {
@@ -253,6 +257,25 @@ public class StyloQCommand {
 								}
 							}
 							// } @v11.5.9
+							// @v11.6.5 {
+							{
+								JSONObject js_maxdist = jsitem.optJSONObject("maxdistto");
+								if(js_maxdist != null) {
+									item.MaxDistM = js_maxdist.optDouble("dist", 0.0);
+									if(item.MaxDistM > 0.0) {
+										item.GeoLocDistTo = new SLib.GeoPosLL(js_maxdist.optDouble("lat", 0.0), js_maxdist.optDouble("lon", 0.0));
+										if(!item.GeoLocDistTo.IsValid() || item.GeoLocDistTo.IsZero()) {
+											item.MaxDistM = 0.0;
+											item.GeoLocDistTo = null;
+										}
+									}
+									else {
+										item.MaxDistM = 0.0;
+										item.GeoLocDistTo = null;
+									}
+								}
+							}
+							// } @v11.6.5
 							if(result.Items == null)
 								result.Items = new ArrayList<Item>();
 							result.Items.add(item);

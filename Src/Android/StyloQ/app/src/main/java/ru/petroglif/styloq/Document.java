@@ -534,7 +534,17 @@ public class Document {
 				SingleBkItem = doc.BkList.get(0);
 			}
 		}
-		public SLib.LDATE GetNominalDate() { return (H != null) ? H.GetNominalDate() : null; }
+		public SLib.LDATE GetNominalDate(boolean dueDateAsNominal)
+		{
+			SLib.LDATE result = null;
+			if(H != null) {
+				if(dueDateAsNominal && H.DueTime != null && !SLib.LDATE.IsEmpty(H.DueTime.d))
+					result = H.DueTime.d;
+				else
+					result = H.GetNominalDate();
+			}
+			return result;
+		}
 		Head   H;
 		BookingItem SingleBkItem;
 	}

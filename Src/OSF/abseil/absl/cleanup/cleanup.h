@@ -77,30 +77,21 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
-template <typename Arg, typename Callback = void()>
-class ABSL_MUST_USE_RESULT Cleanup final {
-  static_assert(cleanup_internal::WasDeduced<Arg>(),
-                "Explicit template parameters are not supported.");
-
-  static_assert(cleanup_internal::ReturnsVoid<Callback>(),
-                "Callbacks that return values are not supported.");
-
+template <typename Arg, typename Callback = void()> class ABSL_MUST_USE_RESULT Cleanup final {
+  static_assert(cleanup_internal::WasDeduced<Arg>(), "Explicit template parameters are not supported.");
+  static_assert(cleanup_internal::ReturnsVoid<Callback>(), "Callbacks that return values are not supported.");
  public:
   Cleanup(Callback callback) : storage_(std::move(callback)) {}  // NOLINT
-
   Cleanup(Cleanup&& other) = default;
-
-  void Cancel() && {
-    ABSL_HARDENING_ASSERT(storage_.IsCallbackEngaged());
-    storage_.DestroyCallback();
+  void Cancel() && { 
+	ABSL_HARDENING_ASSERT(storage_.IsCallbackEngaged()); 
+	storage_.DestroyCallback();
   }
-
   void Invoke() && {
     ABSL_HARDENING_ASSERT(storage_.IsCallbackEngaged());
     storage_.InvokeCallback();
     storage_.DestroyCallback();
   }
-
   ~Cleanup() {
     if (storage_.IsCallbackEngaged()) {
       storage_.InvokeCallback();
@@ -116,22 +107,17 @@ class ABSL_MUST_USE_RESULT Cleanup final {
 //
 // C++17 type deduction API for creating an instance of `absl::Cleanup`
 #if defined(ABSL_HAVE_CLASS_TEMPLATE_ARGUMENT_DEDUCTION)
-template <typename Callback>
-Cleanup(Callback callback) -> Cleanup<cleanup_internal::Tag, Callback>;
+template <typename Callback> Cleanup(Callback callback) -> Cleanup<cleanup_internal::Tag, Callback>;
 #endif  // defined(ABSL_HAVE_CLASS_TEMPLATE_ARGUMENT_DEDUCTION)
 
 // `auto c = absl::MakeCleanup(/* callback */);`
 //
 // C++11 type deduction API for creating an instance of `absl::Cleanup`
-template <typename... Args, typename Callback>
-absl::Cleanup<cleanup_internal::Tag, Callback> MakeCleanup(Callback callback) {
-  static_assert(cleanup_internal::WasDeduced<cleanup_internal::Tag, Args...>(),
-                "Explicit template parameters are not supported.");
-
-  static_assert(cleanup_internal::ReturnsVoid<Callback>(),
-                "Callbacks that return values are not supported.");
-
-  return {std::move(callback)};
+template <typename... Args, typename Callback> absl::Cleanup<cleanup_internal::Tag, Callback> MakeCleanup(Callback callback) 
+{
+	static_assert(cleanup_internal::WasDeduced<cleanup_internal::Tag, Args...>(), "Explicit template parameters are not supported.");
+	static_assert(cleanup_internal::ReturnsVoid<Callback>(), "Callbacks that return values are not supported.");
+	return {std::move(callback)};
 }
 
 ABSL_NAMESPACE_END

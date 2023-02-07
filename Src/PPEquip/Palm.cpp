@@ -2968,7 +2968,7 @@ public:
 		int    ok = -1;
 		uint   pos = 0;
 		DbfTable * p_tbl = 0;
-		if(PalmList.lsearch(palmId, &pos) > 0) {
+		if(PalmList.lsearch(palmId, &pos)) {
 			SString path;
 			AndroidXmlWriter * p_writer = Writers.at(pos);
 			PPGetFilePath(PPPATH_OUT, fileId, path);

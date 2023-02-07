@@ -1,5 +1,5 @@
 // PPACTION.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -452,7 +452,7 @@ int SysJournal::IsEventExists(PPID objType, PPID objID, PPID userID, const PPIDA
 	k.Tm    = MAXTIME;
 	if(search(1, &k, spLt) && k.ObjType == objType && k.ObjID == objID) {
 		do {
-			if((!userID || userID == data.UserID) && (!SVectorBase::GetCount(pActList) || pActList->lsearch(data.Action) > 0))
+			if((!userID || userID == data.UserID) && (!SVectorBase::GetCount(pActList) || pActList->lsearch(data.Action)))
 				ok = 1;
 		} while(ok < 0 && search(1, &k, spPrev) && k.ObjType == objType && k.ObjID == objID);
 	}

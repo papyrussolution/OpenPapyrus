@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2002-2003, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- */
+// Copyright (C) 2002-2003, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "layout/LETypes.h"
@@ -54,19 +50,15 @@ le_int32 LXUtilities::search(le_int32 value, const le_int32 array[], le_int32 co
 	le_int32 extra = count - power;
 	le_int32 probe = power;
 	le_int32 index = 0;
-
 	if(value >= array[extra]) {
 		index = extra;
 	}
-
 	while(probe > (1 << 0)) {
 		probe >>= 1;
-
 		if(value >= array[index + probe]) {
 			index += probe;
 		}
 	}
-
 	return index;
 }
 

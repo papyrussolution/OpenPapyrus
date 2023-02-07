@@ -16,8 +16,6 @@
 
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include <cstdint>
-#include <cstring>
 #include "gtest/gtest.h"
 #include "absl/base/casts.h"
 #include "absl/base/macros.h"
@@ -28,8 +26,8 @@ namespace {
 template <int N>
 struct marshall { char buf[N]; };
 
-template <typename T>
-void TestMarshall(const T values[], int num_values) {
+template <typename T> void TestMarshall(const T values[], int num_values) 
+{
 	for(int i = 0; i < num_values; ++i) {
 		T t0 = values[i];
 		marshall<sizeof(T)> m0 = absl::bit_cast<marshall<sizeof(T)> >(t0);
