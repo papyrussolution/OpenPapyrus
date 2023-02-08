@@ -4055,6 +4055,9 @@ public:
 	BSTR   FASTCALL CopyToOleStr(BSTR * pBuf) const;
 	SString & FASTCALL CopyFromOleStr(const BSTR s);
 	SString & Z();
+	//
+	// Descr: Возвращает длину строки.
+	//
 	size_t Len() const;
 	size_t BufSize() const;
 	void   Obfuscate();

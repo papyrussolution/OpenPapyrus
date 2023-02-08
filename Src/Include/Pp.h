@@ -47896,6 +47896,10 @@ private:
 	int    MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPSyncCashNode * pPack, 
 		const PPIDArray * pAdditionalIdList, uint flags, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    GetAndStoreClientsFace(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent);
+	//
+	// Descr: Отправляет сообщение клиенту о том, что необходимо подождать результатов запроса в течении waitPeriodMs 
+	//   с дополнительными опросами готовности в pollIntervalMs.
+	//
 	int    IntermediateReply(int waitPeriodMs, int pollIntervalMs, const SBinaryChunk * pSessSecret, ProcessCmdCallbackProc intermediateReplyProc, void * pIntermediateReplyExtra);
 	SJson * ReplyGoodsInfo(const SBinaryChunk & rOwnIdent, const SBinaryChunk & rCliIdent, PPID goodsID, const char * pBarcode);
 	bool   GetOwnIdent(SBinaryChunk & rOwnIdent, StyloQCore::StoragePacket * pOwnPack);

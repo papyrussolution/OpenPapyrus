@@ -2192,6 +2192,10 @@ class ppstr2 {
 	public static final int PPERR_PERSONTAGUUIDABS = 12173;
 	public static final int PPERR_LOCATIONTAGUUIDABS = 12174;
 	public static final int PPERR_BILLSTCHECKFLD_CONTRACT = 12175;
+	public static final int PPERR_STYLOPALMEMPTYWHLIST = 12176;
+	public static final int PPERR_STQ_UNDEFWHFORORDERPREREQ = 12177;
+	public static final int PPERR_STQ_EXCECMD_GEOLOCDISABLED = 12178;
+	public static final int PPERR_STQ_PSNEV_MAXDISTRESTRICTION = 12179;
 	//
 	// .N.
 	//

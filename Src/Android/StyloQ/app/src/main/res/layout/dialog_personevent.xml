@@ -29,6 +29,19 @@
             android:layout_width="match_parent"
             android:textColor="@color/TextPrimary"
             />
+        <LinearLayout android:id="@+id/CTLGRP_PERSONEVENT_GEOLOC"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_gpsloc01_human">
+            </ImageView>
+            <TextView style="@style/FormText" android:id="@+id/CTL_PERSONEVENT_DIST"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+        </LinearLayout>
         <com.google.android.material.textfield.TextInputLayout
             style="@style/InputLine"
             android:id="@+id/CTL_PERSONEVENT_MEMO"

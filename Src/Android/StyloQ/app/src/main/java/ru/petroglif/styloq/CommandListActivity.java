@@ -6,6 +6,7 @@ package ru.petroglif.styloq;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -132,17 +133,22 @@ public class CommandListActivity extends SLib.SlActivity {
 			OpID = 0;
 			Dtm = null;
 			SrcCmdItem = null;
+			CurrentGeoLoc = null;
 			Memo = null;
 		}
 		int   OpID;
 		SLib.LDATETIME Dtm;
 		StyloQCommand.Item SrcCmdItem; // Исходная команда сервиса, на основании которой формируется событие
+		SLib.GeoPosLL CurrentGeoLoc; // @v11.6.4 Геолокация текущего положения клиента
 		String Memo;
 	}
 	static class PersonEventDialog extends SLib.SlDialog {
+		CommandListActivity ActivityParent;
 		PersonEventDialog(Context ctx, Object data)
 		{
 			super(ctx, R.id.DLG_PERSONEVENT, data);
+			if(ctx != null && ctx instanceof CommandListActivity)
+				ActivityParent = (CommandListActivity)ctx;
 			if(data != null && data instanceof PersonEvent) {
 				Data = data;
 			}
@@ -155,7 +161,7 @@ public class CommandListActivity extends SLib.SlActivity {
 					{
 						requestWindowFeature(Window.FEATURE_NO_TITLE);
 						setContentView(R.layout.dialog_personevent);
-						StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(getContext());
+						StyloQApp app_ctx = (ActivityParent != null) ? ActivityParent.GetAppCtx() : null;
 						if(app_ctx != null)
 							setTitle(SLib.ExpandString(app_ctx, "@{personevent}"));
 						SetDTS(Data);
@@ -167,7 +173,7 @@ public class CommandListActivity extends SLib.SlActivity {
 						if(view_id == R.id.STDCTL_OKBUTTON) {
 							Object data = GetDTS();
 							if(data != null) {
-								StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(getContext());
+								StyloQApp app_ctx = (ActivityParent != null) ? ActivityParent.GetAppCtx() : null;
 								if(app_ctx != null)
 									app_ctx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, data);
 							}
@@ -186,18 +192,38 @@ public class CommandListActivity extends SLib.SlActivity {
 			boolean ok = true;
 			String cmd_name = null;
 			String memo = null;
+			PersonEvent _data = null;
 			if(objData != null && objData instanceof PersonEvent) {
-				cmd_name = ((PersonEvent)Data).SrcCmdItem.Name;
-				memo = ((PersonEvent)Data).Memo;
+				_data = (PersonEvent)Data;
+				cmd_name = _data.SrcCmdItem.Name;
+				memo = _data.Memo;
+			}
+			else {
+				_data = new PersonEvent();
+				Data = _data;
 			}
 			SLib.SetCtrlString(this, R.id.CTL_PERSONEVENT_OPNAME, cmd_name);
+			{
+				double dist_m = -1.0;
+				if(_data.SrcCmdItem != null && _data.SrcCmdItem.CanEvaluateDistance(_data.CurrentGeoLoc) && _data.SrcCmdItem.MaxDistM > 0.0) {
+					dist_m = _data.SrcCmdItem.GetGeoDistance(_data.CurrentGeoLoc);
+				}
+				if(dist_m >= 0.0) {
+					SLib.SetCtrlVisibility(this, R.id.CTLGRP_PERSONEVENT_GEOLOC, View.VISIBLE);
+					String dist_m_text = SLib.formatdouble(dist_m, 1) + "m";
+					SLib.SetCtrlString(this, R.id.CTL_PERSONEVENT_DIST, dist_m_text);
+				}
+				else {
+					SLib.SetCtrlVisibility(this, R.id.CTLGRP_PERSONEVENT_GEOLOC, View.GONE);
+				}
+			}
 			SLib.SetCtrlString(this, R.id.CTL_PERSONEVENT_MEMO, memo);
 			return ok;
 		}
 		Object GetDTS()
 		{
 			Object result = null;
-			StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(getContext());
+			StyloQApp app_ctx = (ActivityParent != null) ? ActivityParent.GetAppCtx() : null;
 			if(app_ctx != null) {
 				PersonEvent _data = null;
 				if(Data != null && Data instanceof PersonEvent)
@@ -233,6 +259,34 @@ public class CommandListActivity extends SLib.SlActivity {
 	public final byte [] GetSvcIdent()
 	{
 		return SvcIdent;
+	}
+	private void Helper_RunCmd(StyloQCommand.Item cmdItem, SLib.GeoPosLL geoPos, boolean forceQuery)
+	{
+		StyloQApp app_ctx = GetAppCtx();
+		if(app_ctx != null) {
+			try {
+				if(cmdItem.BaseCmdId == StyloQCommand.sqbcPersonEvent) {
+					// @construction
+					PersonEvent pe = new PersonEvent();
+					pe.SrcCmdItem = cmdItem;
+					pe.CurrentGeoLoc = geoPos;
+					double _max_dist = cmdItem.GetGeoDistanceRestriction();
+					double _dist = (_max_dist > 0.0) ? cmdItem.GetGeoDistance(pe.CurrentGeoLoc) : 0.0;
+					if(_dist > _max_dist) {
+						app_ctx.DisplayError(this, ppstr2.PPERR_STQ_PSNEV_MAXDISTRESTRICTION, 0);
+					}
+					else {
+						PersonEventDialog dialog = new PersonEventDialog(this, pe);
+						dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+						dialog.show();
+					}
+				}
+				else
+					app_ctx.RunSvcCommand(SvcIdent, cmdItem, null, forceQuery, null);
+			} catch(StyloQException exn) {
+				;
+			}
+		}
 	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
@@ -312,24 +366,35 @@ public class CommandListActivity extends SLib.SlActivity {
 							StyloQCommand.Item cmd_item = ListData.GetViewItem(ev_subj.ItemIdx);
 							if(cmd_item != null) {
 								if(StyloQCommand.IsCommandPending(SvcIdent, cmd_item) == 0) { // @v11.4.8
-									try {
-										if(cmd_item.BaseCmdId == StyloQCommand.sqbcPersonEvent) {
-											// @construction
-											PersonEvent pe = new PersonEvent();
-											pe.SrcCmdItem = cmd_item;
-											PersonEventDialog dialog = new PersonEventDialog(this, pe);
-											dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-											dialog.show();
+									double _max_dist = cmd_item.GetGeoDistanceRestriction();
+									if(_max_dist > 0.0) {
+										// Команда будет запущена после получения координат (see case SLib.EV_GEOLOCDETECTED here)
+										if(SLib.QueryCurrentGeoLoc(this, cmd_item, this) != 0) {
+											; // будем ждать ответа
 										}
-										else
-											app_ctx.RunSvcCommand(SvcIdent, cmd_item, null, force_query, null);
-									} catch(StyloQException exn) {
-
+										else {
+											// Ошибка: скорее всего нет прав на получение координат
+											app_ctx.DisplayError(this, ppstr2.PPERR_STQ_EXCECMD_GEOLOCDISABLED, 0);
+										}
 									}
-									RefreshStatus();
+									else {
+										Helper_RunCmd(cmd_item, null, force_query);
+										RefreshStatus();
+									}
 								}
 							}
 						}
+					}
+				}
+				break;
+			case SLib.EV_GEOLOCDETECTED:
+				if(subj != null && subj instanceof Location && srcObj != null && srcObj instanceof StyloQCommand.Item) {
+					StyloQApp app_ctx = GetAppCtx();
+					if(app_ctx != null) {
+						//StyloQDatabase.SecStoragePacket _data = (Data != null && Data instanceof StyloQDatabase.SecStoragePacket) ? (StyloQDatabase.SecStoragePacket)Data : null;
+						//app_ctx.RunSvcCommand_SetGeoLoc(((CmdROrderPrereqActivity)ctx).CPM.SvcIdent, oid.Id, (Location) subj, this);
+						SLib.GeoPosLL geopos = new SLib.GeoPosLL((Location)subj);
+						Helper_RunCmd((StyloQCommand.Item)srcObj, geopos, true);
 					}
 				}
 				break;

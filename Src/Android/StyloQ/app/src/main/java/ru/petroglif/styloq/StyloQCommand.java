@@ -3,6 +3,8 @@
 //
 package ru.petroglif.styloq;
 
+import android.location.Location;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -85,6 +87,29 @@ public class StyloQCommand {
 			Vd = null;
 			MaxDistM = 0.0;
 			GeoLocDistTo = null;
+		}
+		//
+		// Descr: Если для команды определено максимальное расстояние от клиента до целевой локации,
+		//   то функция возвращает это расстояние (в метрах). В противном случае возвращает 0.
+		//
+		double GetGeoDistanceRestriction()
+		{
+			return (MaxDistM > 0.0 && GeoLocDistTo != null && !GeoLocDistTo.IsZero() && GeoLocDistTo.IsValid()) ? MaxDistM : 0.0;
+		}
+		boolean CanEvaluateDistance(final SLib.GeoPosLL currentGeoLoc)
+		{
+			return (GeoLocDistTo != null && !GeoLocDistTo.IsZero() && GeoLocDistTo.IsValid() &&
+				currentGeoLoc != null && !currentGeoLoc.IsZero() && currentGeoLoc.IsValid());
+		}
+		double GetGeoDistance(final SLib.GeoPosLL currentGeoLoc)
+		{
+			double dist_m = -1.0;
+			if(CanEvaluateDistance(currentGeoLoc)) {
+				float [] _distance = new float[3];
+				Location.distanceBetween(currentGeoLoc.Lat, currentGeoLoc.Lon, GeoLocDistTo.Lat, GeoLocDistTo.Lon, _distance);
+				dist_m = _distance[0];
+			}
+			return dist_m;
 		}
 		UUID  Uuid;                //
 		int   ResultExpiryTimeSec; // @v11.2.5 Период истечения срока действия результата в секундах. (<=0 - undefined)

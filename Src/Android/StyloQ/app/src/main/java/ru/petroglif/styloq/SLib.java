@@ -6147,26 +6147,27 @@ public class SLib {
 	//
 	// Descr: Запрашивает точное местоположение устройства
 	//
-	public static int QueryCurrentGeoLoc(SlActivity activityCtx, SLib.PPObjID oid, EventHandler retrHandler)
+	public static int QueryCurrentGeoLoc(SlActivity activityCtx, Object srcObj, EventHandler retrHandler)
 	{
 		int    result = 0;
 		if(activityCtx != null && retrHandler != null) {
 			if(ContextCompat.checkSelfPermission(activityCtx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 				FusedLocationProviderClient fused_loc_cient = new FusedLocationProviderClient(activityCtx);
 				fused_loc_cient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null).
-					addOnSuccessListener(activityCtx, new OnSuccessListener<Location>() {
-						@Override public void onSuccess(Location location)
-						{
-							if(location != null) {
-								//app_ctx.RunSvcCommand(_data.Rec.BI, cmd_item, null, force_query, null);
-								//appCtx.RunSvcCommand_SetGeoLoc(_data.Rec.BI, 0, location, null);
-								retrHandler.HandleEvent(EV_GEOLOCDETECTED, oid, location);
+						addOnSuccessListener(activityCtx, new OnSuccessListener<Location>() {
+							@Override public void onSuccess(Location location)
+							{
+								if(location != null)
+									retrHandler.HandleEvent(EV_GEOLOCDETECTED, srcObj, location);
 							}
-						}
-					});
+						});
 				result = 1;
 			}
 		}
 		return result;
+	}
+	public static int QueryCurrentGeoLoc(SlActivity activityCtx, SLib.PPObjID oid, EventHandler retrHandler)
+	{
+		return QueryCurrentGeoLoc(activityCtx, oid, retrHandler);
 	}
 }
