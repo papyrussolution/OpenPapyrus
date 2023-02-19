@@ -1,17 +1,16 @@
-/* ******************************************************************
-* FSE : Finite State Entropy codec
-* Public Prototypes declaration
-* Copyright (c) Yann Collet, Facebook, Inc.
-*
-* You can contact the author at :
-* - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
-*
-* This source code is licensed under both the BSD-style license (found in the
-* LICENSE file in the root directory of this source tree) and the GPLv2 (found
-* in the COPYING file in the root directory of this source tree).
-* You may select, at your option, one of the above-listed licenses.
-****************************************************************** */
-
+// FSE.H
+// FSE : Finite State Entropy codec
+// Public Prototypes declaration
+// Copyright (c) Yann Collet, Facebook, Inc.
+// 
+// You can contact the author at :
+// - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
+// 
+// This source code is licensed under both the BSD-style license (found in the
+// LICENSE file in the root directory of this source tree) and the GPLv2 (found
+// in the COPYING file in the root directory of this source tree).
+// You may select, at your option, one of the above-listed licenses.
+// 
 #if defined (__cplusplus)
 extern "C" {
 #endif
@@ -57,8 +56,7 @@ FSE_PUBLIC_API uint FSE_versionNumber(void);   /**< library version number; to b
                      if return == 1, srcData is a single byte symbol * srcSize times. Use RLE compression instead.
                      if FSE_isError(return), compression failed (more details using FSE_getErrorName())
  */
-FSE_PUBLIC_API size_t FSE_compress(void* dst, size_t dstCapacity,
-    const void* src, size_t srcSize);
+FSE_PUBLIC_API size_t FSE_compress(void* dst, size_t dstCapacity, const void* src, size_t srcSize);
 
 /*! FSE_decompress():
     Decompress FSE data from buffer 'cSrc', of size 'cSrcSize',
@@ -290,18 +288,16 @@ FSE_PUBLIC_API size_t FSE_decompress_usingDTable(void* dst, size_t dstCapacity, 
 /* or use the size to malloc() space directly. Pay attention to alignment restrictions though */
 #define FSE_CTABLE_SIZE(maxTableLog, maxSymbolValue)   (FSE_CTABLE_SIZE_U32(maxTableLog, maxSymbolValue) * sizeof(FSE_CTable))
 #define FSE_DTABLE_SIZE(maxTableLog)                   (FSE_DTABLE_SIZE_U32(maxTableLog) * sizeof(FSE_DTable))
-
-/* *****************************************
-*  FSE advanced API
-***************************************** */
-
+// 
+// FSE advanced API
+// 
 uint FSE_optimalTableLog_internal(uint maxTableLog, size_t srcSize, uint maxSymbolValue, uint minus);
 /**< same as FSE_optimalTableLog(), which used `minus==2` */
-
-/* FSE_compress_wksp() :
- * Same as FSE_compress2(), but using an externally allocated scratch buffer (`workSpace`).
- * FSE_COMPRESS_WKSP_SIZE_U32() provides the minimum size required for `workSpace` as a table of FSE_CTable.
- */
+// 
+// FSE_compress_wksp() :
+// Same as FSE_compress2(), but using an externally allocated scratch buffer (`workSpace`).
+// FSE_COMPRESS_WKSP_SIZE_U32() provides the minimum size required for `workSpace` as a table of FSE_CTable.
+// 
 #define FSE_COMPRESS_WKSP_SIZE_U32(maxTableLog, maxSymbolValue)   ( FSE_CTABLE_SIZE_U32(maxTableLog, maxSymbolValue) + ((maxTableLog > 12) ? (1 << (maxTableLog - 2)) : 1024) )
 size_t FSE_compress_wksp(void* dst, size_t dstSize, const void* src, size_t srcSize, uint maxSymbolValue, uint tableLog, void * workSpace, size_t wkspSize);
 size_t FSE_buildCTable_raw(FSE_CTable* ct, uint nbBits);
@@ -347,10 +343,9 @@ typedef enum {
 	FSE_repeat_check, /**< Can use the previous table but it must be checked */
 	FSE_repeat_valid /**< Can use the previous table and it is assumed to be valid */
 } FSE_repeat;
-
-/* *****************************************
-*  FSE symbol compression API
-*******************************************/
+// 
+// FSE symbol compression API
+// 
 /*!
    This API consists of small unitary functions, which highly benefit from being inlined.
    Hence their body are included in next section.
@@ -377,7 +372,6 @@ static void FSE_flushCState(BIT_CStream_t* bitC, const FSE_CState_t* CStatePtr);
    FSE_CTable    ct;         // Provided by FSE_buildCTable()
    BIT_CStream_t bitStream;  // bitStream tracking structure
    FSE_CState_t  state;      // State tracking structure (can have several)
-
 
    The first thing to do is to init bitStream and state.
     size_t errorCode = BIT_initCStream(&bitStream, dstBuffer, maxDstSize);
@@ -407,10 +401,9 @@ static void FSE_flushCState(BIT_CStream_t* bitC, const FSE_CState_t* CStatePtr);
    If there is an error, it returns an errorCode (which can be tested using FSE_isError()).
     size_t size = BIT_closeCStream(&bitStream);
  */
-
-/* *****************************************
-*  FSE symbol decompression API
-*******************************************/
+// 
+// FSE symbol decompression API
+// 
 typedef struct {
 	size_t state;
 	const void* table; /* precise table may vary, depending on uint16 */
@@ -554,9 +547,9 @@ MEM_STATIC uint32 FSE_bitCost(const void* symbolTTPtr, uint32 tableLog, uint32 s
 	    return (minNbBits+1)*bitMultiplier - normalizedDeltaFromThreshold;
 	}
 }
-
-/* ======    Decompression    ====== */
-
+// 
+// Decompression
+// 
 typedef struct {
 	uint16 tableLog;
 	uint16 fastMode;
@@ -658,11 +651,9 @@ MEM_STATIC uint FSE_endOfDState(const FSE_DState_t* DStatePtr) { return DStatePt
 
 #define FSE_TABLELOG_ABSOLUTE_MAX 15
 #if FSE_MAX_TABLELOG > FSE_TABLELOG_ABSOLUTE_MAX
-#error "FSE_MAX_TABLELOG > FSE_TABLELOG_ABSOLUTE_MAX is not supported"
+	#error "FSE_MAX_TABLELOG > FSE_TABLELOG_ABSOLUTE_MAX is not supported"
 #endif
-
 #define FSE_TABLESTEP(tableSize) (((tableSize)>>1) + ((tableSize)>>3) + 3)
-
 #endif /* FSE_STATIC_LINKING_ONLY */
 
 #if defined (__cplusplus)

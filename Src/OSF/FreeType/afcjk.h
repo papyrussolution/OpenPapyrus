@@ -75,7 +75,7 @@ FT_BEGIN_HEADER
     FT_Fixed       scale;
     FT_Pos         delta;
 
-    FT_UInt        width_count;                   /* number of used widths */
+    FT_UInt        width_count; /* number of used widths */
     AF_WidthRec    widths[AF_CJK_MAX_WIDTHS]; /* widths array    */
     FT_Pos         edge_distance_threshold; /* used for creating edges */
     FT_Pos         standard_width; /* the default stem thickness */

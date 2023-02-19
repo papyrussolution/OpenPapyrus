@@ -27,7 +27,7 @@ struct ngx_http_map_ctx_t {
 	ngx_http_map_t map;
 	ngx_http_complex_value_t value;
 	ngx_http_variable_value_t  * default_value;
-	ngx_uint_t hostnames;                   /* unsigned  hostnames:1 */
+	ngx_uint_t hostnames; /* unsigned  hostnames:1 */
 };
 
 static int ngx_libc_cdecl ngx_http_map_cmp_dns_wildcards(const void * one, const void * two);
@@ -36,27 +36,24 @@ static const char * ngx_http_map_block(ngx_conf_t * cf, const ngx_command_t * cm
 static const char * ngx_http_map(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_map_commands[] = {
-	{ ngx_string("map"), NGX_HTTP_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE2,
-	  ngx_http_map_block, NGX_HTTP_MAIN_CONF_OFFSET, 0, NULL },
-	{ ngx_string("map_hash_max_size"), NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_num_slot, NGX_HTTP_MAIN_CONF_OFFSET, offsetof(ngx_http_map_conf_t, hash_max_size), NULL },
-	{ ngx_string("map_hash_bucket_size"), NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_num_slot, NGX_HTTP_MAIN_CONF_OFFSET, offsetof(ngx_http_map_conf_t, hash_bucket_size), NULL },
+	{ ngx_string("map"), NGX_HTTP_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE2, ngx_http_map_block, NGX_HTTP_MAIN_CONF_OFFSET, 0, NULL },
+	{ ngx_string("map_hash_max_size"), NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1, ngx_conf_set_num_slot, NGX_HTTP_MAIN_CONF_OFFSET, offsetof(ngx_http_map_conf_t, hash_max_size), NULL },
+	{ ngx_string("map_hash_bucket_size"), NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1, ngx_conf_set_num_slot, NGX_HTTP_MAIN_CONF_OFFSET, offsetof(ngx_http_map_conf_t, hash_bucket_size), NULL },
 	ngx_null_command
 };
 
 static ngx_http_module_t ngx_http_map_module_ctx = {
-	NULL,                              /* preconfiguration */
-	NULL,                              /* postconfiguration */
+	NULL, /* preconfiguration */
+	NULL, /* postconfiguration */
 
-	ngx_http_map_create_conf,          /* create main configuration */
-	NULL,                              /* init main configuration */
+	ngx_http_map_create_conf, /* create main configuration */
+	NULL, /* init main configuration */
 
-	NULL,                              /* create server configuration */
-	NULL,                              /* merge server configuration */
+	NULL, /* create server configuration */
+	NULL, /* merge server configuration */
 
-	NULL,                              /* create location configuration */
-	NULL                               /* merge location configuration */
+	NULL, /* create location configuration */
+	NULL  /* merge location configuration */
 };
 
 ngx_module_t ngx_http_map_module = {

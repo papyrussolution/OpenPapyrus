@@ -1,12 +1,10 @@
 /*-
  * Copyright (c) 2014 Sebastian Freundt
  * Author: Sebastian Freundt  <devel@fresse.org>
- *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -36,24 +34,15 @@ static const char warcinfo[] =
 
 typedef enum {
 	WT_NONE,
-	/* warcinfo */
-	WT_INFO,
-	/* metadata */
-	WT_META,
-	/* resource */
-	WT_RSRC,
-	/* request, unsupported */
-	WT_REQ,
-	/* response, unsupported */
-	WT_RSP,
-	/* revisit, unsupported */
-	WT_RVIS,
-	/* conversion, unsupported */
-	WT_CONV,
-	/* continuation, unsupported at the moment */
-	WT_CONT,
-	/* invalid type */
-	LAST_WT
+	WT_INFO, /* warcinfo */
+	WT_META, /* metadata */
+	WT_RSRC, /* resource */
+	WT_REQ, /* request, unsupported */
+	WT_RSP, /* response, unsupported */
+	WT_RVIS, /* revisit, unsupported */
+	WT_CONV, /* conversion, unsupported */
+	WT_CONT, /* continuation, unsupported at the moment */
+	LAST_WT /* invalid type */
 } warc_type_t;
 
 typedef struct {
@@ -297,11 +286,8 @@ static void xstrftime(archive_string * as, const char * fmt, time_t t)
 static ssize_t _popul_ehdr(archive_string * tgt, size_t tsz, warc_essential_hdr_t hdr)
 {
 	static const char _ver[] = "WARC/1.0\r\n";
-	static const char * const _typ[LAST_WT] = {
-		NULL, "warcinfo", "metadata", "resource", NULL
-	};
+	static const char * const _typ[LAST_WT] = { NULL, "warcinfo", "metadata", "resource", NULL };
 	char std_uuid[48U];
-
 	if(hdr.type == WT_NONE || hdr.type > WT_RSRC) {
 		/* brilliant, how exactly did we get here? */
 		return -1;
@@ -335,7 +321,6 @@ static ssize_t _popul_ehdr(archive_string * tgt, size_t tsz, warc_essential_hdr_
 	if(hdr.recid == NULL) {
 		/* generate one, grrrr */
 		warc_uuid_t u;
-
 		_gen_uuid(&u);
 		/* Unfortunately, archive_string_sprintf does not
 		 * handle the minimum number following '%'.
@@ -344,28 +329,18 @@ static ssize_t _popul_ehdr(archive_string * tgt, size_t tsz, warc_essential_hdr_
 #if defined(_WIN32) && !defined(__CYGWIN__) && !( defined(_MSC_VER) && _MSC_VER >= 1900)
 #define snprintf _snprintf
 #endif
-		snprintf(
-			std_uuid, sizeof(std_uuid),
-			"<urn:uuid:%08x-%04x-%04x-%04x-%04x%08x>",
-			u.u[0U],
-			u.u[1U] >> 16U, u.u[1U] & 0xffffU,
-			u.u[2U] >> 16U, u.u[2U] & 0xffffU,
-			u.u[3U]);
+		snprintf(std_uuid, sizeof(std_uuid), "<urn:uuid:%08x-%04x-%04x-%04x-%04x%08x>", u.u[0U], u.u[1U] >> 16U, u.u[1U] & 0xffffU, u.u[2U] >> 16U, u.u[2U] & 0xffffU, u.u[3U]);
 		hdr.recid = std_uuid;
 	}
-
 	/* record-id is mandatory, fingers crossed we won't fail */
 	archive_string_sprintf(tgt, "WARC-Record-ID: %s\r\n", hdr.recid);
-
 	if(hdr.cnttyp != NULL) {
 		archive_string_sprintf(tgt, "Content-Type: %s\r\n", hdr.cnttyp);
 	}
-
 	/* next one is mandatory */
 	archive_string_sprintf(tgt, "Content-Length: %ju\r\n", (uintmax_t)hdr.cntlen);
 	/**/
 	archive_strncat(tgt, "\r\n", 2);
-
 	return (archive_strlen(tgt) >= tsz) ? -1 : (ssize_t)archive_strlen(tgt);
 }
 

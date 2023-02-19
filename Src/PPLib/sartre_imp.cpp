@@ -6,6 +6,10 @@
 #pragma hdrstop
 #include <sartre.h>
 #include <locale.h>
+#include <unicode/urename.h>
+#include <unicode/ures.h>
+#include <unicode/locid.h>
+#include <..\OSF\icu\icu4c\include\internal\uresimp.h>
 
 static int FASTCALL RechargeTransaction(BDbTransaction * pTa, uint & rItemsPerTx, const uint maxItemsPerTx)
 {
@@ -2256,7 +2260,7 @@ int PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, 
 	SString src_file_name;
 	SString line_buf;
 	SStringU uname, uname_prev;
-	int   lang_id = RecognizeLinguaSymb(pLinguaSymb, 1);
+	const  int   lang_id = RecognizeLinguaSymb(pLinguaSymb, 1);
 	const  char * p_parent_concept = 0;
 	if(properNameType == SRPROPN_PERSONNAME)
 		p_parent_concept = "hum_fname";
@@ -3665,6 +3669,7 @@ int PrcssrSartre::Run()
 		}
 		// @v10.9.5 {
 		if(P.Flags & P.fImport_UED_Llcc) {
+			UED_ImportIcuNames(); // @v11.6.4
 			UED_Import_Atoms(); // @v11.5.11
 			UED_Import_PackageTypes(); // @v11.4.3
 			UED_Import_Lingua_LinguaLocus_Country_Currency(/*llccBaseListOnly*/0);
@@ -5721,6 +5726,199 @@ int PrcssrSartre::UED_Import_PackageTypes()
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+class UED_IcuCalendar_Block : public SStrGroup {
+public:
+	struct Entry {
+		uint64 ID;
+		int    Lingua;
+		uint   NameP;
+	};
+	UED_IcuCalendar_Block()
+	{
+	}
+	static IMPL_CMPFUNC(UED_IcuCalendar_Block_Entry, i1, i2)
+	{
+		RET_CMPCASCADE2(static_cast<const Entry *>(i1), static_cast<const Entry *>(i2), ID, Lingua);
+	}
+	void Sort()
+	{
+		L.sort2(PTR_CMPFUNC(UED_IcuCalendar_Block_Entry));
+	}
+	TSVector <Entry> L;
+};
+
+int PrcssrSartre::UED_ImportIcuNames()
+{
+	int    ok = 1;
+	const  char * p_base_path = "/papyrus/src/rsrc/data";
+	SString temp_buf;
+	SString line_buf;
+	UResourceBundle * p_urb_root = 0;
+	UResourceBundle * p_urb_cal = 0;
+	UResourceBundle * p_urb_greg = 0;
+	UResourceBundle * p_urb_weekdays = 0;
+	UResourceBundle * p_urb_monthnames = 0;
+	UResourceBundle * p_urb_wd_f = 0;
+	UResourceBundle * p_urb_wd_w = 0;
+	UED_IcuCalendar_Block blk;
+	const  uint64 meta_month = 0x0000000100000053ULL;
+	const  uint64 meta_dow   = 0x0000000100000052ULL;
+	StringSet lang_symb_list;
+	SString lang_symb;
+	GetLinguaSymbList(lang_symb_list);
+	for(uint lssp = 0; lang_symb_list.get(&lssp, lang_symb);) {
+		const int lingua_id = RecognizeLinguaSymb(lang_symb, 1);
+		assert(lingua_id);
+		if(lingua_id && lingua_id != slangMeta) {
+			{
+				//"monthNames"
+				UErrorCode icu_errcode = U_ZERO_ERROR;
+				p_urb_root = ures_openNoDefault(NULL, lang_symb, &icu_errcode);
+				if(p_urb_root) {
+					p_urb_cal = ures_getByKey(p_urb_root, "calendar", NULL, &icu_errcode);
+					if(p_urb_cal) {
+						p_urb_greg = ures_getByKey(p_urb_cal, "gregorian", NULL, &icu_errcode);
+						if(p_urb_greg) {
+							p_urb_monthnames = ures_getByKey(p_urb_greg, "monthNames", NULL, &icu_errcode);
+							if(p_urb_monthnames) {
+								p_urb_wd_f = ures_getByKey(p_urb_monthnames, "stand-alone", NULL, &icu_errcode);
+								p_urb_wd_w = p_urb_wd_f ? ures_getByKey(p_urb_wd_f, "wide", NULL, &icu_errcode) : 0;
+								if(!p_urb_wd_w) {
+									icu_errcode = U_ZERO_ERROR;
+									ures_close(p_urb_wd_f);
+									p_urb_wd_f = ures_getByKey(p_urb_monthnames, "format", NULL, &icu_errcode);
+									p_urb_wd_w = p_urb_wd_f ? ures_getByKey(p_urb_wd_f, "wide", NULL, &icu_errcode) : 0;
+								}
+								const int _c = ures_getSize(p_urb_wd_w);
+								if(_c == 12) {
+									bool do_skip = false;
+									for(int i = 0; !do_skip && i < _c; i++) {
+										int32_t len = 0;
+										const UChar * p_text = ures_getStringByIndex(p_urb_wd_w, i, &len, &icu_errcode);
+										if(!isempty(p_text)) {
+											temp_buf.Z().CopyUtf8FromUnicode(reinterpret_cast<const wchar_t *>(p_text), len, 1);
+											temp_buf.Utf8ToLower();
+											if(i == 0 && temp_buf == "m01")
+												do_skip = true;
+											else {
+												UED_IcuCalendar_Block::Entry new_entry;
+												new_entry.ID = UED::MakeCanonical(i+1, meta_month);
+												new_entry.Lingua = lingua_id;
+												blk.AddS(temp_buf, &new_entry.NameP);
+												blk.L.insert(&new_entry);
+												//line_buf.Z().CatHex(static_cast<long>(i+1)).Space().Cat(p_lang).Space().CatQStr(temp_buf);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				ures_close(p_urb_wd_w);
+				p_urb_wd_w = 0;
+				ures_close(p_urb_wd_f);
+				p_urb_wd_f = 0;
+				ures_close(p_urb_monthnames);
+				p_urb_monthnames = 0;
+				ures_close(p_urb_greg);
+				p_urb_greg = 0;
+				ures_close(p_urb_cal);
+				p_urb_cal = 0;
+				ures_close(p_urb_root);
+				p_urb_root = 0;
+			}
+			{
+				UErrorCode icu_errcode = U_ZERO_ERROR;
+				p_urb_root = ures_openNoDefault(NULL, lang_symb, &icu_errcode);
+				if(p_urb_root) {
+					p_urb_cal = ures_getByKey(p_urb_root, "calendar", NULL, &icu_errcode);
+					if(p_urb_cal) {
+						p_urb_greg = ures_getByKey(p_urb_cal, "gregorian", NULL, &icu_errcode);
+						if(p_urb_greg) {
+							p_urb_weekdays = ures_getByKey(p_urb_greg, "dayNames", NULL, &icu_errcode);
+							if(p_urb_weekdays) {
+								p_urb_wd_f = ures_getByKey(p_urb_weekdays, "format", NULL, &icu_errcode);
+								if(p_urb_wd_f) {
+									p_urb_wd_w = ures_getByKey(p_urb_wd_f, "wide", NULL, &icu_errcode);
+									const int _c = ures_getSize(p_urb_wd_w);
+									if(_c == 7) {
+										bool do_skip = false;
+										for(int i = 0; !do_skip && i < _c; i++) {
+											int32_t len = 0;
+											const UChar * p_text = ures_getStringByIndex(p_urb_wd_w, i, &len, &icu_errcode);
+											if(!isempty(p_text)) {
+												temp_buf.Z().CopyUtf8FromUnicode(reinterpret_cast<const wchar_t *>(p_text), len, 1);
+												temp_buf.Utf8ToLower();
+												if(i == 0 && temp_buf == "sun")
+													do_skip = true;
+												else {
+													UED_IcuCalendar_Block::Entry new_entry;
+													const uint32 _val = (i == 0) ? 7 : i;
+													new_entry.ID = UED::MakeCanonical(_val, meta_dow);
+													new_entry.Lingua = lingua_id;
+													blk.AddS(temp_buf, &new_entry.NameP);
+													blk.L.insert(&new_entry);
+													//line_buf.Z().CatHex(static_cast<long>(i+1)).Space().Cat(p_lang).Space().CatQStr(temp_buf);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				ures_close(p_urb_wd_w);
+				p_urb_wd_w = 0;
+				ures_close(p_urb_wd_f);
+				p_urb_wd_f = 0;
+				ures_close(p_urb_weekdays);
+				p_urb_weekdays = 0;
+				ures_close(p_urb_greg);
+				p_urb_greg = 0;
+				ures_close(p_urb_cal);
+				p_urb_cal = 0;
+				ures_close(p_urb_root);
+				p_urb_root = 0;
+			}
+		}
+	}
+	blk.Sort();
+	{
+		uint   max_ling_code_len = 0;
+		SString text_buf;
+		SString file_name;
+		(file_name = p_base_path).SetLastSlash().Cat("icu_calendar.ued.txt"); // utf-8
+		SFile f_out(file_name, SFile::mWrite);
+		{
+			for(uint blkidx = 0; blkidx < blk.L.getCount(); blkidx++) {
+				auto & r_entry = blk.L.at(blkidx);
+				if(GetLinguaCode(r_entry.Lingua, temp_buf)) {
+					SETMAX(max_ling_code_len, temp_buf.Len());
+				}
+			}
+		}
+		{
+			for(uint blkidx = 0; blkidx < blk.L.getCount(); blkidx++) {
+				auto & r_entry = blk.L.at(blkidx);
+				if(blkidx && (r_entry.ID & 0xffffULL) != (blk.L.at(blkidx-1).ID & 0xffffULL))
+					f_out.WriteBlancLine();
+				if(GetLinguaCode(r_entry.Lingua, temp_buf)) {
+					temp_buf.ReplaceChar('-', '_');
+					blk.GetS(r_entry.NameP, text_buf);
+					line_buf.Z().CatHex(r_entry.ID).Space().Cat(temp_buf);
+					if(temp_buf.Len() < max_ling_code_len)
+						line_buf.CatCharN(' ', max_ling_code_len - temp_buf.Len());
+					line_buf.Space().CatQStr(text_buf);
+					f_out.WriteLine(line_buf.CR());
+				}
+			}
+		}
+	}
 	return ok;
 }
 

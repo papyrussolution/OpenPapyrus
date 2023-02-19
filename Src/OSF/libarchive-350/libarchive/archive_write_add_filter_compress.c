@@ -47,7 +47,7 @@ struct private_data {
 	int64 in_count;
 	int64 out_count;
 	int64 checkpoint;
-	int code_len;                   /* Number of bits/code. */
+	int code_len;    /* Number of bits/code. */
 	int cur_maxcode; /* Maximum code, given n_bits. */
 	int max_maxcode; /* Should NEVER generate this code. */
 	int hashtab [HSIZE];

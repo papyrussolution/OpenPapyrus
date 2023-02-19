@@ -547,26 +547,23 @@ int xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap)
 	}
 	return ret;
 }
-/************************************************************************
-*                                                                      *
-*              Generic UTF8 handling routines                          *
-*                                                                      *
-* From rfc2044: encoding of the Unicode values on UTF-8:               *
-*                                                                      *
-* UCS-4 range (hex.)           UTF-8 octet sequence (binary)           *
-* 0000 0000-0000 007F   0xxxxxxx                                       *
-* 0000 0080-0000 07FF   110xxxxx 10xxxxxx                              *
-* 0000 0800-0000 FFFF   1110xxxx 10xxxxxx 10xxxxxx                     *
-*                                                                      *
-* I hope we won't use values > 0xFFFF anytime soon !                   *
-*                                                                      *
-************************************************************************/
+// 
+// Generic UTF8 handling routines
+// 
+// From rfc2044: encoding of the Unicode values on UTF-8:
+// 
+// UCS-4 range (hex.)           UTF-8 octet sequence (binary)
+// 0000 0000-0000 007F   0xxxxxxx
+// 0000 0080-0000 07FF   110xxxxx 10xxxxxx
+// 0000 0800-0000 FFFF   1110xxxx 10xxxxxx 10xxxxxx
+// 
+// I hope we won't use values > 0xFFFF anytime soon !
+// 
 /**
  * xmlUTF8Size:
  * @utf: pointer to the UTF8 character
  *
  * calculates the internal size of a UTF8 character
- *
  * returns the numbers of bytes in the character, -1 on format error
  */
 int xmlUTF8Size(const xmlChar * utf) 
@@ -595,7 +592,6 @@ int xmlUTF8Size(const xmlChar * utf)
  * @utf2: pointer to second UTF8 char
  *
  * compares the two UCS4 values
- *
  * returns result of the compare as with xmlStrncmp
  */
 int xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2) 
@@ -606,9 +602,7 @@ int xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2)
  * xmlUTF8Strlen:
  * @utf:  a sequence of UTF-8 encoded bytes
  *
- * compute the length of an UTF8 string, it doesn't do a full UTF8
- * checking of the content of the string.
- *
+ * compute the length of an UTF8 string, it doesn't do a full UTF8 checking of the content of the string.
  * Returns the number of characters in the string or -1 in case of error
  */
 int FASTCALL xmlUTF8Strlen(const xmlChar * utf) 
@@ -651,18 +645,12 @@ int FASTCALL xmlUTF8Strlen(const xmlChar * utf)
  *   is completely contained within the sequence.
  *
  * Read the first UTF8 character from @utf
- *
- * Returns the char value or -1 in case of error, and sets *len to
- *   the actual number of bytes consumed (0 in case of error)
+ * Returns the char value or -1 in case of error, and sets *len to the actual number of bytes consumed (0 in case of error)
  */
 int FASTCALL xmlGetUTF8Char(const uchar * utf, int * len) 
 {
 	uint c;
-	if(utf == NULL)
-		goto error;
-	if(len == NULL)
-		goto error;
-	if(*len < 1)
+	if(!utf || !len || (*len < 1))
 		goto error;
 	c = utf[0];
 	if(c & 0x80) {
@@ -681,30 +669,27 @@ int FASTCALL xmlGetUTF8Char(const uchar * utf, int * len)
 				if((c & 0xf8) != 0xf0 || (utf[3] & 0xc0) != 0x80)
 					goto error;
 				*len = 4;
-				/* 4-byte code */
+				// 4-byte code
 				c = (utf[0] & 0x7) << 18;
 				c |= (utf[1] & 0x3f) << 12;
 				c |= (utf[2] & 0x3f) << 6;
 				c |= utf[3] & 0x3f;
 			}
-			else {
-				/* 3-byte code */
+			else { // 3-byte code
 				*len = 3;
 				c = (utf[0] & 0xf) << 12;
 				c |= (utf[1] & 0x3f) << 6;
 				c |= utf[2] & 0x3f;
 			}
 		}
-		else {
-			/* 2-byte code */
+		else { // 2-byte code
 			*len = 2;
 			c = (utf[0] & 0x1f) << 6;
 			c |= utf[1] & 0x3f;
 		}
 	}
-	else {
-		/* 1-byte code */
-		*len = 1;
+	else { // 1-byte code
+		*len = 1; 
 	}
 	return (c);
 error:
@@ -763,19 +748,15 @@ int xmlCheckUTF8(const uchar * utf)
 	}
 	return 1;
 }
-
 /**
  * xmlUTF8Strsize:
  * @utf:  a sequence of UTF-8 encoded bytes
  * @len:  the number of characters in the array
  *
- * storage size of an UTF8 string
- * the behaviour is not garanteed if the input string is not UTF-8
+ * storage size of an UTF8 string the behaviour is not garanteed if the input string is not UTF-8
  *
- * Returns the storage size of
- * the first 'len' characters of ARRAY
+ * Returns the storage size of the first 'len' characters of ARRAY
  */
-
 int xmlUTF8Strsize(const xmlChar * utf, int len) 
 {
 	const xmlChar * ptr = utf;
@@ -795,14 +776,12 @@ int xmlUTF8Strsize(const xmlChar * utf, int len)
 	}
 	return (ptr - utf);
 }
-
 /**
  * xmlUTF8Strndup:
  * @utf:  the input UTF8 *
  * @len:  the len of @utf (in chars)
  *
  * a strndup for array of UTF8's
- *
  * Returns a new UTF8 * or NULL
  */
 xmlChar * xmlUTF8Strndup(const xmlChar * utf, int len) 
@@ -825,9 +804,7 @@ xmlChar * xmlUTF8Strndup(const xmlChar * utf, int len)
  * @utf:  the input UTF8 *
  * @pos:  the position of the desired UTF8 char (in chars)
  *
- * a function to provide the equivalent of fetching a
- * character from a string array
- *
+ * a function to provide the equivalent of fetching a character from a string array
  * Returns a pointer to the UTF8 character or NULL
  */
 const xmlChar * xmlUTF8Strpos(const xmlChar * utf, int pos) 
@@ -856,9 +833,7 @@ const xmlChar * xmlUTF8Strpos(const xmlChar * utf, int pos)
  * @utfchar:  the UTF8 character to be found
  *
  * a function to provide the relative location of a UTF8 char
- *
- * Returns the relative character position of the desired char
- * or -1 if not found
+ * Returns the relative character position of the desired char or -1 if not found
  */
 int xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar) 
 {
@@ -883,7 +858,6 @@ int xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar)
 	}
 	return -1;
 }
-
 /**
  * xmlUTF8Strsub:
  * @utf:  a sequence of UTF-8 encoded bytes
@@ -893,17 +867,14 @@ int xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar)
  * Create a substring from a given UTF-8 string
  * Note:  positions are given in units of UTF-8 chars
  *
- * Returns a pointer to a newly created string
- * or NULL if any problem
+ * Returns a pointer to a newly created string or NULL if any problem
  */
-
 xmlChar * xmlUTF8Strsub(const xmlChar * utf, int start, int len) 
 {
 	int i;
 	xmlChar ch;
-	if(utf == NULL) return 0;
-	if(start < 0) return 0;
-	if(len < 0) return 0;
+	if(!utf || (start < 0) || (len < 0) )
+		return 0;
 	/*
 	 * Skip over any leading chars
 	 */

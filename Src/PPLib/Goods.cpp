@@ -1494,20 +1494,6 @@ int GoodsCore::SearchAnyDynObjRef(PPID objType, PPID objID, PPID * pID)
 	return -1;
 }
 
-int GoodsCore::SearchGListByStruc(PPID strucID, PPIDArray * pList)
-{
-	int    ok = -1;
-	Goods2Tbl::Key5 k5;
-	BExtQuery q(this, 5);
-	q.select(this->ID, 0L).where(this->StrucID == strucID);
-	k5.StrucID = strucID;
-	for(q.initIteration(false, &k5, spEq/*&k0, spGt*/); q.nextIteration() > 0;) {
-		CALLPTRMEMB(pList, addUnique(data.ID));
-		ok = 1;
-	}
-	return ok;
-}
-
 int GoodsCore::SearchAnyRef(PPID objType, PPID objID, PPID *pID)
 {
 	if(oneof2(objType, PPOBJ_GOODS, PPOBJ_GOODSGROUP)) {

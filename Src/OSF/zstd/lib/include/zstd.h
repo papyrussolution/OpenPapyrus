@@ -160,7 +160,7 @@ ZSTDLIB_API uint64 ZSTD_getDecompressedSize(const void* src, size_t srcSize);
  *        or an error code if input is invalid */
 ZSTDLIB_API size_t ZSTD_findFrameCompressedSize(const void* src, size_t srcSize);
 
-/*======  Helper functions  ======*/
+// Helper functions
 #define ZSTD_COMPRESSBOUND(srcSize)   ((srcSize) + ((srcSize)>>8) + \
 	(((srcSize) < (128<<10)) ? (((128<<10) - (srcSize)) >> 11) /* margin, from 64 to 0 */ : 0)) // this formula ensures that bound(A) + bound(B) <= bound(A+B) as long as A and B >= 128 KB
 ZSTDLIB_API size_t      ZSTD_compressBound(size_t srcSize); /*!< maximum compressed size in worst case single-pass scenario */

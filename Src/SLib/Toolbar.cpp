@@ -1,6 +1,6 @@
 // Toolbar.cpp
 // There's a mine born by Osolotkin, 2000, 2001
-// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022
+// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -15,9 +15,9 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 	MEMSZERO(CurrRect);
 	memzero(&MousePoint, sizeof(POINTS));
 	{
-		WNDCLASSEX wc;
+		WNDCLASSEXW wc;
 		INITWINAPISTRUCT(wc);
-		wc.lpszClassName = _T("TOOLBAR_FOR_PPY");
+		wc.lpszClassName = L"TOOLBAR_FOR_PPY";
 		wc.hInstance = TProgram::GetInst();
 		wc.lpfnWndProc = static_cast<WNDPROC>(WndProc);
 		wc.style = CS_HREDRAW|CS_VREDRAW;
@@ -25,13 +25,13 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 		wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
 		::RegisterClassEx(&wc);
 	}
-	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, _T("TOOLBAR_FOR_PPY"), NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, 0, TProgram::GetInst(), 0);
+	H_Wnd = ::CreateWindowExW(WS_EX_TOOLWINDOW, L"TOOLBAR_FOR_PPY", NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, 0, TProgram::GetInst(), 0);
 	TView::SetWindowProp(H_Wnd, GWLP_USERDATA, this);
-	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, _T(""), WS_CHILD|TBSTYLE_TOOLTIPS|TBSTYLE_FLAT|CCS_NORESIZE|WS_CLIPSIBLINGS, 0, 0, 0, 0, H_Wnd, 0, TProgram::GetInst(), 0);
+	H_Toolbar = ::CreateWindowExW(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, L"", WS_CHILD|TBSTYLE_TOOLTIPS|TBSTYLE_FLAT|CCS_NORESIZE|WS_CLIPSIBLINGS, 0, 0, 0, 0, H_Wnd, 0, TProgram::GetInst(), 0);
 	TView::SetWindowProp(H_Toolbar, GWLP_USERDATA, this);
 	PrevToolProc = static_cast<WNDPROC>(TView::SetWindowProp(H_Toolbar, GWLP_WNDPROC, ToolbarProc));
 	CurrPos = 0;
-	DWORD s = static_cast<DWORD>(::SendMessage(H_Toolbar, TB_GETBUTTONSIZE, 0, 0));
+	DWORD s = static_cast<DWORD>(::SendMessageW(H_Toolbar, TB_GETBUTTONSIZE, 0, 0));
 	Width  = LOWORD(s);
 	Height = HIWORD(s) + 4;
 	PostMessage(H_Wnd, WM_USER, 0, 0);
@@ -42,7 +42,7 @@ TToolbar::~TToolbar()
 	// @vadim Приводило к зависанию при выходе из программы
 	// DestroyMenu(H_Menu);
 	//SAlloc::F(m_pitem);
-	HIMAGELIST himl = reinterpret_cast<HIMAGELIST>(::SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0));
+	HIMAGELIST himl = reinterpret_cast<HIMAGELIST>(::SendMessageW(H_Toolbar, TB_GETIMAGELIST, 0, 0));
 	if(himl) {
 		ImageList_Destroy(himl);
 		himl = 0;
@@ -102,7 +102,7 @@ LRESULT TToolbar::OnMainSize(int rightSpace/*=0*/)
 		} */
 		client_rect.right -= rightSpace;
 		if(oneof2(CurrPos, TOOLBAR_ON_TOP, TOOLBAR_ON_BOTTOM)) {
-			DWORD r = static_cast<DWORD>(::SendMessage(H_Toolbar, TB_GETROWS, 0, 0));
+			DWORD r = static_cast<DWORD>(::SendMessageW(H_Toolbar, TB_GETROWS, 0, 0));
 			if(CurrPos == TOOLBAR_ON_BOTTOM)
 				client_rect.top = client_rect.bottom-Height*r;
 			::MoveWindow(H_Wnd, 0, client_rect.top, client_rect.right, Height*r, 1);
@@ -184,7 +184,7 @@ LRESULT TToolbar::OnMove(WPARAM wParam, LPARAM lParam)
 		TView::SetWindowProp(H_Toolbar, GWL_STYLE, fl);
 		MoveWindow(H_Wnd, CurrRect.left, CurrRect.top, CurrRect.right, CurrRect.bottom, 1);
 		if(CurrPos == TOOLBAR_ON_FREE) {
-			DWORD r = static_cast<DWORD>(::SendMessage(H_Toolbar, TB_GETROWS, 0, 0));
+			DWORD r = static_cast<DWORD>(::SendMessageW(H_Toolbar, TB_GETROWS, 0, 0));
 			CurrRect.bottom = (Height + 2) * r;
 			MoveWindow(H_Wnd, CurrRect.left, CurrRect.top, CurrRect.right, CurrRect.bottom, 1);
 		}
@@ -355,10 +355,10 @@ LRESULT CALLBACK TToolbar::ToolbarProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 HMENU SetLocalMenu(HMENU * pMenu, HWND hToolbar)
 {
 	HMENU  h_menu = ::CreateMenu();
-	uint   cnt = static_cast<uint>(::SendMessage(hToolbar, TB_BUTTONCOUNT, 0, 0));
+	uint   cnt = static_cast<uint>(::SendMessageW(hToolbar, TB_BUTTONCOUNT, 0, 0));
 	for(uint i = 0; i < cnt; i++) {
 		TBBUTTON tb;
-		SendMessage(hToolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb));
+		::SendMessageW(hToolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb));
 		if(!(tb.fsState & TBSTATE_HIDDEN))
 			if(tb.fsStyle & TBSTYLE_SEP)
 				AppendMenu(h_menu, MF_ENABLED|MF_SEPARATOR, 0, 0);
@@ -447,11 +447,11 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 	Style = style;
 	VisibleCount = 0;
 	uint   i;
-	HIMAGELIST himl = reinterpret_cast<HIMAGELIST>(::SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0));
+	HIMAGELIST himl = reinterpret_cast<HIMAGELIST>(::SendMessageW(H_Toolbar, TB_GETIMAGELIST, 0, 0));
 	{
-		long _c = static_cast<long>(::SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0));
+		long _c = static_cast<long>(::SendMessageW(H_Toolbar, TB_BUTTONCOUNT, 0, 0));
 		if(_c) do {
-			::SendMessage(H_Toolbar, TB_DELETEBUTTON, --_c, 0);
+			::SendMessageW(H_Toolbar, TB_DELETEBUTTON, --_c, 0);
 		} while(_c);
 		if(himl) {
 			ImageList_RemoveAll(himl);
@@ -535,9 +535,9 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 				}
 			}
 		}
-		SendMessage(H_Toolbar, TB_BUTTONSTRUCTSIZE, static_cast<WPARAM>(sizeof(TBBUTTON)), 0);
-		SendMessage(H_Toolbar, TB_SETIMAGELIST, 0, reinterpret_cast<LPARAM>(himl));
-		SendMessage(H_Toolbar, TB_ADDBUTTONS, img_count, reinterpret_cast<LPARAM>(p_btns));
+		::SendMessageW(H_Toolbar, TB_BUTTONSTRUCTSIZE, static_cast<WPARAM>(sizeof(TBBUTTON)), 0);
+		::SendMessageW(H_Toolbar, TB_SETIMAGELIST, 0, reinterpret_cast<LPARAM>(himl));
+		::SendMessageW(H_Toolbar, TB_ADDBUTTONS, img_count, reinterpret_cast<LPARAM>(p_btns));
 		delete [] p_btns;
 	}
 	if(Style & (TBS_LIST | TBS_MENU))
@@ -651,7 +651,7 @@ private:
 
 TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hImages(0), H_List(0), P_Buttons(0), PrevListViewProc(0)
 {
-	uint   cnt = static_cast<uint>(::SendMessage(P_Toolbar->H_Toolbar, TB_BUTTONCOUNT, 0, 0));
+	uint   cnt = static_cast<uint>(::SendMessageW(P_Toolbar->H_Toolbar, TB_BUTTONCOUNT, 0, 0));
 	LVITEM lvi;
 	P_Buttons = static_cast<TBBUTTON *>(SAlloc::C(cnt, sizeof(TBBUTTON)));
 	if(!P_Buttons) {
@@ -677,7 +677,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 			// @v10.3.9 char   div_text_buf[128];
 			TCHAR  temp_buf[256]; // @v10.3.9
 			TCHAR  div_text_buf[128]; // @v10.3.9
-			int    ret = static_cast<int>(::SendMessage(P_Toolbar->H_Toolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb)));
+			int    ret = static_cast<int>(::SendMessageW(P_Toolbar->H_Toolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb)));
 			P_Buttons[i] = tb;
 			lvi.iItem = i;
 			if(!(tb.fsStyle & TBSTYLE_SEP)) {
@@ -710,9 +710,9 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 		lvi.iItem = 0;
 		ListView_SetItem(H_List, &lvi);
 		HBITMAP h_up = LoadBitmap(0, MAKEINTRESOURCE(OBM_UPARROWD));
-		::SendMessage(::GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_up));
+		::SendMessageW(::GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_up));
 		HBITMAP h_dn = LoadBitmap(0, MAKEINTRESOURCE(OBM_DNARROWD));
-		::SendMessage(::GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_dn));
+		::SendMessageW(::GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_dn));
 		PrevListViewProc = static_cast<WNDPROC>(TView::SetWindowProp(H_List, GWLP_WNDPROC, ListViewProc));
 		TView::SetWindowProp(H_List, GWLP_USERDATA, this);
 	}
@@ -727,7 +727,7 @@ TuneToolsDialog::~TuneToolsDialog()
 int TuneToolsDialog::ToggleMarker()
 {
 	LVITEM lvi;
-	lvi.iItem = (int)SendMessage(H_List, LVM_GETNEXTITEM, -1, LVNI_SELECTED);
+	lvi.iItem = static_cast<int>(::SendMessageW(H_List, LVM_GETNEXTITEM, -1, LVNI_SELECTED));
 	if(lvi.iItem >= 0) {
 		lvi.iSubItem = 0;
 		lvi.mask  = LVIF_IMAGE;
@@ -783,7 +783,7 @@ int TuneToolsDialog::OnUpDownArrow(int up)
 int TuneToolsDialog::Accept()
 {
 	HWND   h_toolbar = P_Toolbar->H_Toolbar;
-	uint   cnt = static_cast<uint>(::SendMessage(h_toolbar, TB_BUTTONCOUNT, 0, 0));
+	uint   cnt = static_cast<uint>(::SendMessageW(h_toolbar, TB_BUTTONCOUNT, 0, 0));
 	LVITEM lvi;
 	lvi.iSubItem = 0;
 	lvi.mask  = LVIF_PARAM | LVIF_IMAGE;
@@ -797,8 +797,8 @@ int TuneToolsDialog::Accept()
 		}
 		else
 			P_Buttons[lvi.lParam].fsState |= TBSTATE_HIDDEN;
-		::SendMessage(h_toolbar, TB_DELETEBUTTON, i, 0);
-		::SendMessage(h_toolbar, TB_INSERTBUTTON, i, reinterpret_cast<LPARAM>(&P_Buttons[lvi.lParam]));
+		::SendMessageW(h_toolbar, TB_DELETEBUTTON, i, 0);
+		::SendMessageW(h_toolbar, TB_INSERTBUTTON, i, reinterpret_cast<LPARAM>(&P_Buttons[lvi.lParam]));
 	}
 	return 1;
 }
@@ -955,11 +955,11 @@ int TToolbar::SaveUserSettings(uint typeID)
 		if(GetRegTbParam(typeID, param, sizeof(param)) > 0) {
 			ToolbarCfg tb_cfg;
 			WinRegKey reg_key(HKEY_CURRENT_USER, UserInterfaceSettings::SubKey, 0);
-			tb_cfg.Count = (uint16)SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0);
+			tb_cfg.Count = (uint16)::SendMessageW(H_Toolbar, TB_BUTTONCOUNT, 0, 0);
 			tb_cfg.Init();
 			for(uint i = 0; i < tb_cfg.Count; i++) {
 				TBBUTTON tb;
-				SendMessage(H_Toolbar, TB_GETBUTTON, i, (LPARAM)&tb);
+				::SendMessageW(H_Toolbar, TB_GETBUTTON, i, (LPARAM)&tb);
 				tb_cfg.P_Buttons[i].KeyCode = (tb.fsStyle & TBSTYLE_SEP) ? TV_MENUSEPARATOR : tb.idCommand;
 				tb_cfg.P_Buttons[i].State   = (tb.fsState & ~TBSTATE_WRAP);
 				tb_cfg.P_Buttons[i].Style   = tb.fsStyle;
@@ -1003,12 +1003,12 @@ int TToolbar::RestoreUserSettings(uint typeID, ToolbarList * pTbList)
 						ToolbarItem tb_item = new_tb_list.getItem(i);
 						if(!(tb_item.Flags & ToolbarItem::fHidden)) {
 							TBBUTTON btn;
-							SendMessage(H_Toolbar, TB_GETBUTTON, i, (LPARAM)&btn);
-							SendMessage(H_Toolbar, TB_DELETEBUTTON, i, 0);
+							::SendMessageW(H_Toolbar, TB_GETBUTTON, i, (LPARAM)&btn);
+							::SendMessageW(H_Toolbar, TB_DELETEBUTTON, i, 0);
 							SETFLAG(tb_cfg.P_Buttons[i].State, TBSTATE_ENABLED, btn.fsState & TBSTATE_ENABLED);
 							btn.fsState = tb_cfg.P_Buttons[i].State;
 							btn.fsStyle = tb_cfg.P_Buttons[i].Style;
-							SendMessage(H_Toolbar, TB_INSERTBUTTON, i, (LPARAM) &btn);
+							::SendMessageW(H_Toolbar, TB_INSERTBUTTON, i, (LPARAM) &btn);
 						}
 					}
 					// } todo Перенести в SetupToolbarWnd

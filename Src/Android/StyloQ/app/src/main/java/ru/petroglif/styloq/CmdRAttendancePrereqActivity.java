@@ -5,6 +5,7 @@ package ru.petroglif.styloq;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.IdRes;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -1014,9 +1016,33 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							if(lo_tab != null) {
 								CreateTabList(false);
 								for(int i = 0; i < CPM.TabList.size(); i++) {
-									TabLayout.Tab tab = lo_tab.newTab();
-									tab.setText(CPM.TabList.get(i).TabText);
-									lo_tab.addTab(tab);
+									CommonPrereqModule.TabEntry te = CPM.TabList.get(i);
+									if(te != null) {
+										TabLayout.Tab tab = lo_tab.newTab();
+										int icon_rc_id = 0;
+										if(te.TabId == CommonPrereqModule.Tab.tabGoods)
+											icon_rc_id = R.drawable.ic_obj_goods_kanji_054c1;
+										if(te.TabId == CommonPrereqModule.Tab.tabGoodsGroups)
+											icon_rc_id = R.drawable.ic_obj_goodsgroup;
+										else if(te.TabId == CommonPrereqModule.Tab.tabBrands)
+											icon_rc_id = R.drawable.ic_obj_brand01;
+										else if(te.TabId == CommonPrereqModule.Tab.tabClients)
+											icon_rc_id = R.drawable.ic_client01;
+										else if(te.TabId == CommonPrereqModule.Tab.tabSearch)
+											icon_rc_id = R.drawable.ic_search;
+										if(icon_rc_id != 0) {
+											//Drawable draw = getResources().getDrawable(icon_rc_id, getTheme());
+											Drawable draw = AppCompatResources.getDrawable(this, icon_rc_id);
+											if(draw != null) {
+												//draw = new ScaleDrawable(draw, 0, 24, 24);
+												//draw.setBounds(0, 0, 10, 10);
+												tab.setIcon(draw);
+											}
+											//tab.setIcon(icon_rc_id);
+										}
+										tab.setText(te.TabText);
+										lo_tab.addTab(tab);
+									}
 								}
 								SLib.SetupTabLayoutStyle(lo_tab);
 								SLib.SetupTabLayoutListener(this, lo_tab, view_pager);
@@ -1048,7 +1074,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
 					switch(a.GetListRcId()) {
 						case R.id.attendancePrereqGoodsListView: result = new Integer(CPM.GetGoodsListSize()); break;
-						case R.id.attendancePrereqGoodsGroupListView: result = new Integer(SLib.GetCount(CPM.GoodsGroupListData)); break;
+						case R.id.attendancePrereqGoodsGroupListView: result = new Integer(CPM.GetGoodsGroupCount()); break;
 						case R.id.attendancePrereqProcessorListView: result = new Integer(SLib.GetCount(CPM.ProcessorListData)); break;
 						case R.id.attendancePrereqAttendanceView: result = new Integer((AttdcBlk != null) ? AttdcBlk.GetWorkhoursCount() : 0); break;
 						case R.id.attendancePrereqBookingListView: result = new Integer(CPM.GetCurrentDocumentBookingListCount()); break;
@@ -1311,12 +1337,12 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									}
 								}
 								else if(a.GetListRcId() == R.id.attendancePrereqGoodsGroupListView) {
-									if(CPM.GoodsGroupListData != null && ev_subj.ItemIdx < CPM.GoodsGroupListData.size()) {
+									if(CPM.GoodsGroupListData != null && ev_subj.ItemIdx < CPM.GetGoodsGroupCount()) {
 										View iv = ev_subj.RvHolder.itemView;
-										JSONObject cur_entry = (JSONObject)CPM.GoodsGroupListData.get(ev_subj.ItemIdx);
+										BusinessEntity.GoodsGroup cur_entry = CPM.GoodsGroupListData.L.get(ev_subj.ItemIdx);
 										if(cur_entry != null) {
-											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.optString("nm", ""));
-											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODSGROUP, cur_entry.optInt("id", 0));
+											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.Name);
+											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODSGROUP, cur_entry.ID);
 										}
 									}
 								}
@@ -2013,8 +2039,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.attendancePrereqGoodsGroupListView:
-										if(CPM.GoodsGroupListData != null && ev_subj.ItemIdx < CPM.GoodsGroupListData.size()) {
-											final int group_id = CPM.GoodsGroupListData.get(ev_subj.ItemIdx).optInt("id", 0);
+										if(CPM.GoodsGroupListData != null && ev_subj.ItemIdx < CPM.GetGoodsGroupCount()) {
+											final int group_id = CPM.GoodsGroupListData.L.get(ev_subj.ItemIdx).ID;
 											if(CPM.SetGoodsFilterByGroup(group_id)) {
 												SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
 												do_update_goods_list_and_toggle_to_it = true;

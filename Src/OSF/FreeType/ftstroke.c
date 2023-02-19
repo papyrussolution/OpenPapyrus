@@ -625,10 +625,10 @@ static void ft_stroke_border_export(FT_StrokeBorder border,
 
 typedef struct  FT_StrokerRec_ {
 	FT_Angle angle_in; /* direction into curr join */
-	FT_Angle angle_out;                    /* direction out of join  */
+	FT_Angle angle_out;   /* direction out of join  */
 	FT_Vector center; /* current position */
 	FT_Fixed line_length; /* length of last lineto */
-	FT_Bool first_point;                   /* is this the start? */
+	FT_Bool first_point;  /* is this the start? */
 	FT_Bool subpath_open; /* is the subpath open? */
 	FT_Angle subpath_angle; /* subpath start direction */
 	FT_Vector subpath_start; /* subpath start position */

@@ -14,13 +14,11 @@
  * string is used if the ENGINE_CMD_DEFN has cmd_desc set to NULL.
  */
 static const char * int_no_description = "";
-
-/*
- * These internal functions handle 'CMD'-related control commands when the
- * ENGINE in question has asked us to take care of it (ie. the ENGINE did not
- * set the ENGINE_FLAGS_MANUAL_CMD_CTRL flag.
- */
-
+// 
+// These internal functions handle 'CMD'-related control commands when the
+// ENGINE in question has asked us to take care of it (ie. the ENGINE did not
+// set the ENGINE_FLAGS_MANUAL_CMD_CTRL flag.
+// 
 static int int_ctrl_cmd_is_null(const ENGINE_CMD_DEFN * defn)
 {
 	if((defn->cmd_num == 0) || (defn->cmd_name == NULL))
@@ -36,8 +34,7 @@ static int int_ctrl_cmd_by_name(const ENGINE_CMD_DEFN * defn, const char * s)
 		defn++;
 	}
 	if(int_ctrl_cmd_is_null(defn))
-		/* The given name wasn't found */
-		return -1;
+		return -1; // The given name wasn't found
 	return idx;
 }
 
@@ -58,13 +55,11 @@ static int int_ctrl_cmd_by_num(const ENGINE_CMD_DEFN * defn, unsigned int num)
 	return -1;
 }
 
-static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
-    void (*f)(void))
+static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p, void (*f)(void))
 {
 	int idx;
 	char * s = (char*)p;
 	const ENGINE_CMD_DEFN * cdp;
-
 	/* Take care of the easy one first (eg. it requires no searches) */
 	if(cmd == ENGINE_CTRL_GET_FIRST_CMD_TYPE) {
 		if((e->cmd_defns == NULL) || int_ctrl_cmd_is_null(e->cmd_defns))
@@ -72,9 +67,7 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
 		return e->cmd_defns->cmd_num;
 	}
 	/* One or two commands require that "p" be a valid string buffer */
-	if((cmd == ENGINE_CTRL_GET_CMD_FROM_NAME) ||
-	    (cmd == ENGINE_CTRL_GET_NAME_FROM_CMD) ||
-	    (cmd == ENGINE_CTRL_GET_DESC_FROM_CMD)) {
+	if((cmd == ENGINE_CTRL_GET_CMD_FROM_NAME) || (cmd == ENGINE_CTRL_GET_NAME_FROM_CMD) || (cmd == ENGINE_CTRL_GET_DESC_FROM_CMD)) {
 		if(!s) {
 			ERR_raise(ERR_LIB_ENGINE, ERR_R_PASSED_NULL_PARAMETER);
 			return -1;
@@ -82,8 +75,7 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
 	}
 	/* Now handle cmd_name -> cmd_num conversion */
 	if(cmd == ENGINE_CTRL_GET_CMD_FROM_NAME) {
-		if((e->cmd_defns == NULL)
-		    || ((idx = int_ctrl_cmd_by_name(e->cmd_defns, s)) < 0)) {
+		if((e->cmd_defns == NULL) || ((idx = int_ctrl_cmd_by_name(e->cmd_defns, s)) < 0)) {
 			ERR_raise(ERR_LIB_ENGINE, ENGINE_R_INVALID_CMD_NAME);
 			return -1;
 		}
@@ -93,8 +85,7 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
 	 * For the rest of the commands, the 'long' argument must specify a valid
 	 * command number - so we need to conduct a search.
 	 */
-	if((e->cmd_defns == NULL)
-	    || ((idx = int_ctrl_cmd_by_num(e->cmd_defns, (unsigned int)i)) < 0)) {
+	if((e->cmd_defns == NULL) || ((idx = int_ctrl_cmd_by_num(e->cmd_defns, (unsigned int)i)) < 0)) {
 		ERR_raise(ERR_LIB_ENGINE, ENGINE_R_INVALID_CMD_NUMBER);
 		return -1;
 	}
@@ -109,11 +100,9 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
 		case ENGINE_CTRL_GET_NAME_FROM_CMD:
 		    return strlen(strcpy(s, cdp->cmd_name));
 		case ENGINE_CTRL_GET_DESC_LEN_FROM_CMD:
-		    return strlen(cdp->cmd_desc == NULL ? int_no_description
-			       : cdp->cmd_desc);
+		    return strlen(cdp->cmd_desc == NULL ? int_no_description : cdp->cmd_desc);
 		case ENGINE_CTRL_GET_DESC_FROM_CMD:
-		    return strlen(strcpy(s, cdp->cmd_desc == NULL ? int_no_description
-			       : cdp->cmd_desc));
+		    return strlen(strcpy(s, cdp->cmd_desc == NULL ? int_no_description : cdp->cmd_desc));
 		case ENGINE_CTRL_GET_CMD_FLAGS:
 		    return cdp->cmd_flags;
 	}

@@ -75,14 +75,11 @@ tools:context=".CmdRAttendancePrereqActivity">
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-        <com.google.android.material.tabs.TabLayout style="@style/TabLayout"
+        <com.google.android.material.tabs.TabLayout style="@style/TabLayout" android:id="@+id/TABLAYOUT_ATTENDANCEPREREQ"
             app:tabTextAppearance="@style/TabTextAppearance"
-            android:id="@+id/TABLAYOUT_ATTENDANCEPREREQ"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:tabPadding="2dp"
-            app:tabMode="scrollable"
-            >
+            app:tabPadding="2dp">
         </com.google.android.material.tabs.TabLayout>
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/VIEWPAGER_ATTENDANCEPREREQ"

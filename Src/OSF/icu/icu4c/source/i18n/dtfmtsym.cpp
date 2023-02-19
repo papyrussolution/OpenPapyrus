@@ -1447,11 +1447,9 @@ struct CalendarDataSink : public ResourceSink {
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
-
 		// Enumerate all resources for this calendar
 		for(int i = 0; calendarData.getKeyAndValue(i, key, value); i++) {
 			UnicodeString keyUString(key, -1, US_INV);
-
 			// == Handle aliases ==
 			AliasType aliasType = processAliasFromValue(keyUString, value, errorCode);
 			if(U_FAILURE(errorCode)) {
@@ -1462,14 +1460,9 @@ struct CalendarDataSink : public ResourceSink {
 				continue;
 			}
 			else if(aliasType == DIFFERENT_CALENDAR) {
-				// Whenever an alias to the next calendar (except gregorian) is encountered, register
-				// the
-				// calendar type it's pointing to
+				// Whenever an alias to the next calendar (except gregorian) is encountered, register the calendar type it's pointing to
 				if(resourcesToVisitNext.isNull()) {
-					resourcesToVisitNext
-					.adoptInsteadAndCheckErrorCode(new UVector(uprv_deleteUObject, uhash_compareUnicodeString,
-					    errorCode),
-					    errorCode);
+					resourcesToVisitNext.adoptInsteadAndCheckErrorCode(new UVector(uprv_deleteUObject, uhash_compareUnicodeString, errorCode), errorCode);
 					if(U_FAILURE(errorCode)) {
 						return;
 					}
@@ -1503,16 +1496,13 @@ struct CalendarDataSink : public ResourceSink {
 				}
 				continue;
 			}
-
 			// Only visit the resources that were referenced by an alias on the previous calendar
 			// (AmPmMarkersAbbr is an exception).
-			if(!resourcesToVisit.isNull() && !resourcesToVisit->isEmpty() && !resourcesToVisit->contains(&keyUString)
-			 && strcmp(key, gAmPmMarkersAbbrTag) != 0) {
+			if(!resourcesToVisit.isNull() && !resourcesToVisit->isEmpty() && !resourcesToVisit->contains(&keyUString) && strcmp(key, gAmPmMarkersAbbrTag) != 0) {
 				continue;
 			}
-
 			// == Handle data ==
-			if(strcmp(key, gAmPmMarkersTag) == 0 || strcmp(key, gAmPmMarkersAbbrTag) == 0 || strcmp(key, gAmPmMarkersNarrowTag) == 0) {
+			if(sstreq(key, gAmPmMarkersTag) || sstreq(key, gAmPmMarkersAbbrTag) || sstreq(key, gAmPmMarkersNarrowTag)) {
 				if(arrays.get(keyUString) == NULL) {
 					ResourceArray resourceArray = value.getArray(errorCode);
 					int32_t arraySize = resourceArray.getSize();
@@ -1525,13 +1515,11 @@ struct CalendarDataSink : public ResourceSink {
 					}
 				}
 			}
-			else if(strcmp(key, gErasTag) == 0 || strcmp(key, gDayNamesTag) == 0 || strcmp(key, gMonthNamesTag) == 0 || 
-				strcmp(key, gQuartersTag) == 0 || strcmp(key, gDayPeriodTag) == 0 || strcmp(key, gMonthPatternsTag) == 0 || 
-				strcmp(key, gCyclicNameSetsTag) == 0) {
+			else if(sstreq(key, gErasTag) || sstreq(key, gDayNamesTag) || sstreq(key, gMonthNamesTag) || sstreq(key, gQuartersTag) || 
+				sstreq(key, gDayPeriodTag) || sstreq(key, gMonthPatternsTag) || sstreq(key, gCyclicNameSetsTag)) {
 				processResource(keyUString, key, value, errorCode);
 			}
 		}
-
 		// Apply same-calendar aliases
 		bool modified;
 		do {
@@ -1588,22 +1576,20 @@ struct CalendarDataSink : public ResourceSink {
 	}
 
 	// Process the nested resource bundle tables
-	void processResource(UnicodeString & path, const char * key, ResourceValue &value, UErrorCode & errorCode) {
-		if(U_FAILURE(errorCode)) return;
-
+	void processResource(UnicodeString & path, const char * key, ResourceValue &value, UErrorCode & errorCode) 
+	{
+		if(U_FAILURE(errorCode)) 
+			return;
 		ResourceTable table = value.getTable(errorCode);
 		if(U_FAILURE(errorCode)) return;
 		Hashtable* stringMap = NULL;
-
 		// Iterate over all the elements of the table and add them to the map
 		for(int i = 0; table.getKeyAndValue(i, key, value); i++) {
 			UnicodeString keyUString(key, -1, US_INV);
-
 			// Ignore '%variant' keys
 			if(keyUString.endsWith(kVariantTagUChar, SIZEOFARRAYi(kVariantTagUChar))) {
 				continue;
 			}
-
 			// == Handle String elements ==
 			if(value.getType() == URES_STRING) {
 				// We are on a leaf, store the map elements into the stringMap
@@ -2170,34 +2156,25 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 			}
 			ures_close(contextTransforms);
 		}
-
 		tempStatus = U_ZERO_ERROR;
-		const LocalPointer<NumberingSystem> numberingSystem(
-			NumberingSystem::createInstance(locale, tempStatus), tempStatus);
+		const LocalPointer<NumberingSystem> numberingSystem(NumberingSystem::createInstance(locale, tempStatus), tempStatus);
 		if(U_SUCCESS(tempStatus)) {
 			// These functions all fail gracefully if passed NULL pointers and
 			// do nothing unless U_SUCCESS(tempStatus), so it's only necessary
 			// to check for errors once after all calls are made.
-			const LocalUResourceBundlePointer numberElementsData(ures_getByKeyWithFallback(
-				    localeBundle, gNumberElementsTag, NULL, &tempStatus));
-			const LocalUResourceBundlePointer nsNameData(ures_getByKeyWithFallback(
-				    numberElementsData.getAlias(), numberingSystem->getName(), NULL, &tempStatus));
-			const LocalUResourceBundlePointer symbolsData(ures_getByKeyWithFallback(
-				    nsNameData.getAlias(), gSymbolsTag, NULL, &tempStatus));
-			fTimeSeparator = ures_getUnicodeStringByKey(
-				symbolsData.getAlias(), gTimeSeparatorTag, &tempStatus);
+			const LocalUResourceBundlePointer numberElementsData(ures_getByKeyWithFallback(localeBundle, gNumberElementsTag, NULL, &tempStatus));
+			const LocalUResourceBundlePointer nsNameData(ures_getByKeyWithFallback(numberElementsData.getAlias(), numberingSystem->getName(), NULL, &tempStatus));
+			const LocalUResourceBundlePointer symbolsData(ures_getByKeyWithFallback(nsNameData.getAlias(), gSymbolsTag, NULL, &tempStatus));
+			fTimeSeparator = ures_getUnicodeStringByKey(symbolsData.getAlias(), gTimeSeparatorTag, &tempStatus);
 			if(U_FAILURE(tempStatus)) {
 				fTimeSeparator.setToBogus();
 			}
 		}
-
 		ures_close(localeBundle);
 	}
-
 	if(fTimeSeparator.isBogus()) {
 		fTimeSeparator.setTo(DateFormatSymbols::DEFAULT_TIME_SEPARATOR);
 	}
-
 	// Load day periods
 	fWideDayPeriods = loadDayPeriodStrings(calendarSink,
 		buildResourcePath(path, gDayPeriodTag, gNamesFormatTag, gNamesWideTag, status),

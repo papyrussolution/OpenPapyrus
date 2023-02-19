@@ -463,6 +463,7 @@ public:
 		EgaisInRowIdentDivider(27277), // @v10.8.3
 		ReserveU16(0), // @v10.8.3
 		CommonCmdAssocDesktopID(100000L), // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
+		TechSurrogateGoodsIdStart(-524288L), // @v11.6.4
 		P_SubjectDbDiv("$PpyDbDivTransmission$"),
 		P_SubjectOrder("$PpyOrderTransmission$"),
 		P_SubjectCharry("$PpyCharryTransmission$"),
@@ -517,6 +518,8 @@ public:
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
 	const uint16 ReserveU16;                 // @alignment @v10.8.3
 	const long   CommonCmdAssocDesktopID;    // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
+	const long   TechSurrogateGoodsIdStart;  // @v11.6.4 (-524288L) Верхнее значение специального поля фейковых идентификаторов товаров, используемых для предотвращения дублирования //
+		// индексов в таблице Tech при создании трехнологий верхнего уровня (folders).
 	//#define COMMON_DESKCMDASSOC 100000L
 	const char * P_SubjectDbDiv;
 	const char * P_SubjectOrder;
@@ -619,7 +622,7 @@ public:
 	//   !0 - объекты this и rS эквивалентны по множетсву pFldList[fldCount]
 	//   0 - объекты this и rS не эквивалентны
 	//
-	int    IsEq(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const;
+	bool   IsEq(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const;
 	int    GetExtStrData(int fldID, SString & rBuf) const;
 	int    PutExtStrData(int fldID, const char * pStr);
 	int    SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -2496,7 +2499,7 @@ public:
 	// Returns:
 	//   1 - имя файла используется то же, что и было задано в FileName
 	//   100 - имя файла сформировано по шаблону, заданному в FileName
-	//   0 - ошибка
+	//   0 - error
 	//
 	virtual int MakeExportFileName(const void * extraPtr, SString & rResult) const;
 	virtual int PreprocessImportFileSpec(StringSet & rList);
@@ -2908,7 +2911,7 @@ private:
 	LAssocArray * P_AsscList;
 };*/
 //
-// Descr: Внешнее представление 'лемента списка PPViewDisplayExtList
+// Descr: Внешнее представление элемента списка PPViewDisplayExtList
 //   Схема нумерации идентификаторов данных:
 //     1..1000 - зарезервировано за существующими полями (определенными в броузерах ppbrow.rc2)
 //     1001..100000 - доступный для использования диапазон
@@ -3950,7 +3953,7 @@ public:
 	//   1 - запись найдена
 	//   2 - запись не найдена и успешно создана
 	//  -1 - строка pStr - пустая //
-	//   0 - ошибка
+	//   0 - error
 	//
 	// @obsolete since @v9.0.11 int    CreateUniqueStr(PPID objType, PPID tagID, PPID * pObjID, const char * pStr, int use_ta);
 	int    PutTag(PPID objType, PPID objID, const ObjTagItem *, int use_ta);
@@ -4370,7 +4373,7 @@ public:
 	//   >0 - номер позиции, в которой было изменено значение либо номер позиции, по которой новое
 	//    значение было добавлено. Нумерация начинается с 1. То есть, чтобы получить измененное (вставленное)
 	//    значение необходимо вызвать PPQuotArray::at(PPQuotArray::SetQuot()-1) (естественно, необходимо проверить результат на условие >0)
-	//   0 - ошибка.
+	//   0 - error.
 	//
 	int    SetQuot(const QuotIdent & rQi, double val, long flags, long minQtty, const DateRange * pPeriod); // minQtty - @v5.5.2 VADIM; minQtty < 0 - don`t update
 	int    FASTCALL SearchQi(const QuotIdent & rQi, uint * pPos) const;
@@ -4511,7 +4514,7 @@ public:
 	//   >0 - котировка была изменена (добавлена/удалена).
 	// 1000 - котировка была изменена (добавлена/удалена). При этом, котировка относится к товарной матрице.
 	// 2000 - котировка была изменена (добавлена/удалена). При этом, котировка является ограничением по товарной матрице.
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_ta);
 	int    SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray * pTemplate, bool noRmv, int use_ta);
@@ -4938,7 +4941,6 @@ public:
 	int    Search(PPID, void * = 0);
 	int    SearchByName(long kind, const char * pName, PPID * pID, Goods2Tbl::Rec * pRec = 0);
 	int    SearchAnyRef(PPID objType, PPID objID, PPID * pID = 0);
-	int    SearchGListByStruc(PPID strucID, PPIDArray * pAry);
 	int    LoadNameList(const PPIDArray *, long flags, StrAssocArray *);
 	int    GetListByExtFilt(const ClsdGoodsFilt *, PPIDArray *);
 	int    SearchByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoodsID, Goods2Tbl::Rec * pRec);
@@ -5129,7 +5131,7 @@ public:
 	//   >0 - товар принадлежит альтернативной(не динамической) группе grpID. По указателю pInnerNum
 	//      присвоено значение номера товара в этой группе.
 	//   <0 - товар не принадлежит группе grpID либо эта группа не является альтернативной(не динамической).
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    GetGoodsCodeInAltGrp(PPID goodsID, PPID grpID, long * pInnerNum);
 	int    GetAltGroupsForGoods(PPID goodsID, PPIDArray * pGrpIDList);
@@ -5176,7 +5178,7 @@ public:
 	//   1 - goodsID принадлежит обыкновенному обобщению
 	//   2 - goodsID принадлежит динамическому обобщению
 	//  <0 - goodsID не принадлежит обобщению
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    BelongToGen(PPID goodsID, PPID * pGenGoodsID, ObjAssocTbl::Rec * pAsscRec = 0);
 		// @>>GoodsCore::BelongToDynGen
@@ -5194,7 +5196,7 @@ public:
 	// Returns:
 	//  >0 - goodsID принадлежит динамическому обобщению
 	//  <0 - goodsID не принадлежит обобщению
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    BelongToDynGen(PPID goodsID, PPID * pGenGoodsID, PPIDArray * pList);
 	int    GetGenericList(PPID genID, PPIDArray *);
@@ -5891,7 +5893,7 @@ public:
 	// Returns:
 	//   1 - реплика бинарная.
 	//   2 - реплика строковая.
-	//   0 - ошибка.
+	//   0 - error.
 	//
 	int    FASTCALL StartReading(SString * pRepString);
 	int    Helper_Recv(TcpSocket & rSo, const char * pTerminal, size_t * pActualSize);
@@ -6368,7 +6370,7 @@ public:
 	// Returns:
 	//   >0 - функция дождалась сообщения
 	//   <0 - функция не дождалась сообщения
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    WaitForMessage(Envelope & rEnv, uint maxTimeMs, uint pollTimeQuantMs);
 	//
@@ -8181,7 +8183,7 @@ SString & FASTCALL GetMainOrgName(SString &);
 //   Если текущая главная организация определена, то возвращает 1, иначе 0.
 // Returns:
 //   >0 - текущая главная организация определена и присвоена по указателю pID
-//    0 - ошибка. По указателю pID присвоен 0.
+//    0 - error. По указателю pID присвоен 0.
 //
 int    FASTCALL GetMainOrgID(PPID * pID);
 //
@@ -8679,7 +8681,7 @@ public:
 		//   варианте сборки в этом случае возникает исключение assert.
 		// Returns:
 		//   >0 - запись осуществлена успешно
-		//    0 - ошибка.
+		//    0 - error.
 		//
 		int    Write(SBuffer & rBuf) const;
 
@@ -8753,7 +8755,7 @@ public:
 	//   перечисленные в списке actions. Если да, то возвращает > 0,
 	//   устанавливает указатель retAction в ID события, а значения по
 	//   указателям dt, tm в соответствии с моментом события.
-	//   Если возвращается (< 0), то такие события не происходили. 0 - ошибка.
+	//   Если возвращается (< 0), то такие события не происходили. 0 - error.
 	//   Если параметр actions == 0, то засекаются любые события по заданному объекту.
 	//
 	int    IsLogged(PPID, PPIDArray * actions, LDATE * dt, LTIME * tm, PPID *);
@@ -8772,7 +8774,7 @@ public:
 	// Returns:
 	//   cmOK -     пользователь что-то изменял и его работа была успешно зафиксирована в БД.
 	//   cmCancel - пользователь отказался от изменения данных либо просто их не далал.
-	//   0 - ошибка (функция сама должна сообщить пользователю о ней, если требуется).
+	//   0 - error (функция сама должна сообщить пользователю о ней, если требуется).
 	//
 	virtual int    Edit(PPID * pID, void * extraPtr);
 	//
@@ -9698,7 +9700,7 @@ public:
 	// Returns:
 	//   >0 - объект найден в локальном реестре и успешно восстановлен
 	//   <0 - объект не найден в локальном реестре
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    LocalRestore();
 	//
@@ -9706,7 +9708,7 @@ public:
 	// Returns:
 	//  >0 - пользователь подтвердил результаты редактирования.
 	//  <0 - пользователь отказался от изменений
-	//   0 - ошибка
+	//   0 - error
 	//
 	static int EditDialog(PPID opTypeID, BillMultiPrintParam * pData);
 	//
@@ -10031,7 +10033,7 @@ class AmtList : public TSVector <AmtEntry> { // @persistent
 public:
 	AmtList();
 	AmtList & FASTCALL operator = (const AmtList &);
-	int    Search(PPID amtTypeID, PPID curID, uint * pPos) const;
+	bool   Search(PPID amtTypeID, PPID curID, uint * pPos) const;
 	bool   FASTCALL HasAmtTypeID(PPID amtTypeID) const;
 	bool   FASTCALL HasVatSum(const TaxAmountIDs * pTai) const;
 	bool   FASTCALL IsEq(const AmtList *) const;
@@ -12308,7 +12310,7 @@ public:
 	// Returns:
 	//   >0 - существует по крайней мере один документ заказа, к которому привязана отгрузка billID
 	//   <0 - не существует ни одного документа заказа, к которому был бы привязан документ billID
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    GetListOfOrdersByLading(PPID billID, PPIDArray * pOrderBillList);
 	int    GetListOfActualAgreemts(PPID arID, LDATE dt, int maxDays, int maxItems, PPIDArray & rList);
@@ -12447,7 +12449,7 @@ private:
 	// Returns:
 	// 	> 0 - найден по крайней мере один документ, удовлетворяющий условию
 	//  < 0 - не найдено ни одного документа
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    IsThereBill(PPID locID, const PPIDArray * pOpList, LDATE dt);
 	int    Helper_CalcPayment(PPID id, PPID curID, const PPCycleArray * pSieve, RAssocArray * pList, double * pPaym);
@@ -12589,7 +12591,7 @@ public:
 	//   > 0 - идентифицирован первый лот в цепочке. По указателю pOrgLotID
 	//       присваивается ИД найденного лота (возможно *pOrgLotID == lotID),
 	//       по указателю pRec присваивается запись, соответствующая этому лоту.
-	//   0 - ошибка. Это либо цепочка разорвана (нет записи, соответствующей одному
+	//   0 - error. Это либо цепочка разорвана (нет записи, соответствующей одному
 	//       из идентификаторов в цепи), либо цепочка лотов зациклена
 	//       (PPErrCode = PPERR_LOTLOOP), либо ошибка выборки записи
 	//       (PPErrCode = PPERR_DBENGINE).
@@ -12661,7 +12663,7 @@ public:
 	// Returns:
 	//   >0 - найден по крайней мере интересующий лот.
 	//   <0 - не найдено ни одного интересующего лота.
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    GetListOfLotsExpiredSince(LDATE expiredSince, bool openedOnly, LDATE enumSince, PPIDArray * pLotIdList, PPIDArray * pGoodsIdList);
 	//
@@ -12932,7 +12934,7 @@ public:
 	//								файла с подписью/подписями, то оусуществляется операци
 	//								добавления подписи
 	// Returns:
-	//		0 - ошибка
+	//		0 - error
 	//		1 - подпись создана
 	//
 	int    SignData(const char * pSignerName, const char * pFileName, SString & rSignFileName);
@@ -12947,7 +12949,7 @@ public:
 	// ARG(pFileName			IN): Имя подписанного документа
 	// ARG(pSignFileName		IN): Имя файла с подписью
 	// Returns:
-	//		0 - ошибка
+	//		0 - error
 	//		1 - подпись заверена
 	int CountersignData(const char * pCountersignerName, int signerNumber, const char * pFileName, const char * pSignFileName);
 	// Descr: Удаляет подпись
@@ -12958,7 +12960,7 @@ public:
 	//						(зависит от того, с какой позиции считает SmartListBox::getCurID()).
 	//						Этот номер и нужно указать
 	// Returns:
-	//		0 - ошибка
+	//		0 - error
 	//		1 - подпись успешно удалена
 	int DeleteSign(const char * pSignFileName, int signNumber);
 	// Descr: Удаляет заверяющую подпись
@@ -12970,7 +12972,7 @@ public:
 	//							Этот номер и нужно указать
 	// Returns:
 	//		-1 - нет заверяющей подписи
-	//		 0 - ошибка
+	//		 0 - error
 	//		 1 - подпись удалена
 	int DeleteCountersign(char * pSignFileName, int signerNumber);
 	// Descr: Шифрует документ. При шифровании создается документ с именем "имя_документа_encoded".
@@ -12983,7 +12985,7 @@ public:
 	//						0 - записать закодированные данные в отдельный файл
 	//						1 - перезаписать документ
 	// Returns:
-	//		0 - ошибка
+	//		0 - error
 	//		1 - документ зашифрован
     int EncodeData(const char * pOwnerName, const char * pFileName, int sameFile = 1);
 	int DecodeData(const char * pOwnerName, const char * pFileName/*, int sameFile = 1*/);
@@ -12993,7 +12995,7 @@ public:
 	// ARG(rSignersArr OUT): Список имен владельцев подписей, содержащихся в документе.
 	// Returns:
 	//		-1 - документ не подписан
-	//		 0 - ошибка
+	//		 0 - error
 	//		 1 - список имен получен
 	//int GetSignersInDoc(const char * pFileName, StrAssocArray & rSignersArr);
 
@@ -13008,7 +13010,7 @@ public:
 	//							Этот номер и нужно указать
 	// Returns:
 	//		-1 - подпись не верна
-	//		 0 - ошибка
+	//		 0 - error
 	//		 1 - подпись верна
 	int    VerifySign(const char * pFileName, const char * pSignFileName, int signerNumber);
 	//
@@ -13021,7 +13023,7 @@ public:
 	//							Этот номер и нужно указать
 	// Returns:
 	//		-1 - нет заверяющей подписи
-	//		 0 - ошибка
+	//		 0 - error
 	//		 1 - заверяющая подпись верна
 	//
 	int    VerifyCountersign(const char * pSignFileName, int signerNumber);
@@ -13037,7 +13039,7 @@ public:
 	// ARG(pFileName	 IN): Имя документа, для которого надо найти файлы с подписями
 	// ARG(rFilesLis	OUT): Массив имен файлов с подписями
 	// Returns:
-	//		 0 - ошибка
+	//		 0 - error
 	//		 1 - хотя бы один файл найден
 	//
 	int    GetSignFilesForDoc(const char * pFileName, StrAssocArray & rFilesLis);
@@ -13052,7 +13054,7 @@ public:
 	// ARG(rSignerName OUT): Имя владельца подписи
 	// Returns:
 	//		-1 - подписи с таким номером нет
-	//		 0 - ошибка
+	//		 0 - error
 	//		 1 - имя владельца подпсии получено
 	int GetSignerNameByNumber(const char * pSignFileName, int signNumber, SString & rSignerName);
 private:
@@ -13071,7 +13073,7 @@ private:
 	// ARG(rCryptoProv OUT): Указатель на структуру с инфоомацией о криптопровайдере
 	// ARG(rKeySpec	   OUT): Тип пары ключей подписи (AT_KEYEXCHANGE или AT_SIGNATURE)
 	// Returns:
-	//		0 - ошибка
+	//		0 - error
 	//		1 - криптопровайдер получен
 	//
 	int    GetCryptoProv(PCCERT_CONTEXT & cert, HCRYPTPROV & rCryptoProv, DWORD & rKeySpec);
@@ -13085,7 +13087,7 @@ private:
 	//								существующего файла с подписью, то он будет перезаписан.
 	// Returns:
 	//	   -1 - пользователь отменил действие
-	//		0 - ошибка
+	//		0 - error
 	//		1 - подпись поставлена
 	//
 	int    FirstSignData(const char * pSignerName, const char * pFileName, SString & rSignFileName);
@@ -13096,7 +13098,7 @@ private:
 	// ARG(pSignFileName	IN): Имя файла с подписями
 	// Returns:
 	//	   -1 - пользователь отменил действие
-	//		0 - ошибка
+	//		0 - error
 	//		1 - подпись успешно добавлена
 	//
 	int    CoSignData(const char * pCosignerName, const char * pFileName, const char * pSignFileName);
@@ -13110,7 +13112,7 @@ private:
 	// ARG(rCert		OUT): Указатель на структуру CERT_CONTEXT, содержащую информацию о сертификате
 	// ARG(pOwnerName	 IN): Имя владельца сертификата
 	// Returns:
-	//		0 - ошибка
+	//		0 - error
 	//		1 - сертификат найден
 	//
 	int GetCert(HCERTSTORE & rCertSore, PCCERT_CONTEXT & rCert, const char * pOwnerName);
@@ -13127,7 +13129,7 @@ private:
 	// ARG(pSignerName	IN): Имя владельца подписи
 	// ARG(rCert	   OUT): Номер сертификата
 	// Returns:
-	//		0 - ошибка
+	//		0 - error
 	//		1 - номер сертификата определен
 	//
 	int GetCertIndexBySignerName(const char * pSignerFileName, const char * pSignerName, int & rCertIndex);
@@ -13160,7 +13162,7 @@ private:
 	// ARG(signerNumber		 IN): Номер подписи в файле с подписями
 	// ARG(rResponse		OUT): Структура, содержащая разобранный ответ от сервера штампов времени
 	// Returns:
-	//		0 - ошибка
+	//		0 - error
 	//		1 - штамп времени получен
 	//
 	int GetTimeStamp(const char * pSignFileName, int signerNumber, StTspResponse & rResponse);
@@ -13210,7 +13212,7 @@ private:
 	// ARG(pResponse		 IN): Ответ (последовательность байт), полученный от сервера штампа времени
 	// ARG(rResponseFmtd	OUT): Разобранный ответ
 	// Returns:
-	//		0 - ошибка разбора
+	//		0 - error разбора
 	//		1 - ответ разобран
 	//
 	int ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmtd);
@@ -13427,7 +13429,7 @@ public:
 	// Returns:
 	//   >0 - документ найден, он является документом заказа и по указателю pStatus присвоен статус исполнения //
 	//   <0 - документ либо не найден, либо не является документом заказа, либо не имеет строк и т.д. В общем, нет объекта для идентификации
-	//    0 - ошибка (что-то очень плохое: сбой в базе данных, нет памяти и т.д.)
+	//    0 - error (что-то очень плохое: сбой в базе данных, нет памяти и т.д.)
 	//
 	int    GetOrderFulfillmentStatus(PPID billID, int * pStatus);
 	//
@@ -13436,7 +13438,7 @@ public:
 	// ARG(pPack  IN/OUT): Пакет документа, в который загружаются строки (PPBillPacket::Lots)
 	// Returns:
 	//   1 - строки успешно загружены
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList); // @<<PPObjBill::ExtractPacket
 	int    SetupItemByLot(PPTransferItem *, ReceiptTbl::Rec * pLotRec, int checkLotPrices, long oprno);
@@ -13912,7 +13914,7 @@ public:
 	// Returns:
 	//   >0 - есть по крайней мере один необработанный объект
 	//   <0 - нет ни одного необработанного объекта
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    GetUnprocessedList(PPIDArray * pList);
 	int    AddFileRecord(PPID * pID, const ObjSyncQueueCore::FileInfo & rInfo, int use_ta);
@@ -14446,7 +14448,7 @@ private:
 	// Returns:
 	//   1 - запись успешно добавлена
 	//   2 - запись с таким ключом уже существовала, но была изменена
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    AddItem(long typ, PPID locID, PPID goodsID, LDATE dt, double qtty, double amount, long f);
 	int    WriteLocTab(int use_ta);
@@ -14545,7 +14547,7 @@ public:
 	// Returns:
 	//   -1 - не найдено ни одной карты с номером pCode
 	//   >0 - количество карт, имеющих код pCode
-	//    0 - ошибка. Если возинк сбой при чтении из таблицы, но найдена одна или более
+	//    0 - error. Если возинк сбой при чтении из таблицы, но найдена одна или более
 	//       записей, то все равно будет возвращен 0, но в массив pList (если pList != 0) будут занесены
 	//       все найденные идентификаторы.
 	//
@@ -16028,7 +16030,7 @@ protected:
 	//   1 - функция отработала успешно
 	//   100 - функция отработала успешно. В буфере  хранился пустой экземпляр DBTable:
 	//     вызывающая функция должна разрушить pTbl.
-	//   0 - ошибка
+	//   0 - error
 	//
 	static int SerializeTableSpec(int dir, DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCtx);
 	PPView(PPObject * pObj, PPBaseFilt * pFilt, int viewId, long implFlags, long defReportId);
@@ -17098,7 +17100,7 @@ public:
 	// Returns:
 	//   >0 - обнаружена по крайней мере одна проблема
 	//   <0 - все теги удовлетворяют условиям
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    GetWarnList(const ObjTagList * pTagList, StrAssocArray * pResultList, StrAssocArray * pInfoList);
 	int    Fetch(PPID, PPObjectTag *);
@@ -17599,7 +17601,7 @@ public:
 	//   2 - существует более одной записи валюты с ненулевым значением Code == code
 	//      возвращается идентификатор первой найденной записи.
 	//  <0 - не найдено ни одной записи валюты с кодом code, либо параметр code == 0
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    SearchCode(PPID * pID, long code);
 };
@@ -20703,7 +20705,7 @@ public:
 	// ARG(rOut	   OUT): результат выполнения команды (либо данные с устройства, лиюо сообщение об ошибке)
 	// Returns:
 	//  -1 - команда выполнена успешно, но устройство вернуло ошибку (код ошибки передается в rOut)
-	//   0 - ошибка
+	//   0 - error
 	//   1 - успешное выполнение команды
 	//
 	int    RunCmd__(int cmdID, const StrAssocArray & rIn, StrAssocArray & rOut); // @vmiller
@@ -21099,7 +21101,7 @@ public:
 	// Returns:
 	//   1 - найдена запись PPOBJ_CAFETABLE с символом ctblN
 	//   2 - запись PPOBJ_CAFETABLE с символом ctblN не найдена
-	//   0 - ошибка (аргумент ctblN <= 0)
+	//   0 - error (аргумент ctblN <= 0)
 	//
 	static int  GetCafeTableName(int ctblN, SString & rBuf);
 	static const int SubstCTblID; // Специализированный идентификатор стола, применяемый для замещения неопределенного списка столов. =999
@@ -21154,7 +21156,7 @@ public:
 	// Returns:
 	//    >0 - продавец освобожден от НДС
 	//    <0 - продавец не освобожден от НДС
-	//     0 - ошибка
+	//     0 - error
 	//
 	int    IsVatFree(PPID id);
 	//
@@ -21164,7 +21166,7 @@ public:
 	// Returns:
 	//   >0 - система налогообложения идентифицирована
 	//   <0 - не удалось идентифицировать систему налогообложения. По указателю pTaxSysID присваивается значение TAXSYSK_GENERAL(1)
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    GetTaxSystem(PPID cnID, LDATE dt, PPID * pTaxSysID);
 	int    DiagnoseNode(const PPGenCashNode & rNode, StringSet & rSsResult);
@@ -21294,7 +21296,7 @@ public:
 	int    GetSlipFormatList(StrAssocArray * pList, int getSlipDocForms);
 	//
 	//   Функция SyncGetPrintErrCode возвращает код ошибки при печати чека:
-	//     0 - ошибка собственно в SyncPrintCheck или при печати на АМС-100Ф
+	//     0 - error собственно в SyncPrintCheck или при печати на АМС-100Ф
 	//     1 - ошибка после печати чека     |
 	//     2 - ошибка при печати чека       | для Штрих-ФР-Ф
 	//     3 - печать прервана оператором   |
@@ -22079,7 +22081,7 @@ public:
 	// Returns:
 	//  <0 - функция не поддерживается либо pCode не является валидным кодом честный знак
 	//  >0 - функция выполнена (не обязательно успешно - это определяется результатом rResult)
-	//   0 - ошибка при выполнении запроса
+	//   0 - error при выполнении запроса
 	//
 	virtual int    PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) { return -1; }
 	//
@@ -24426,7 +24428,7 @@ private:
 	TSVector <GStrucRecurItem> Items;
 };
 //
-//
+// Descr: Элемент списка автоматической разукомплектации по товарным структурам с признаком GSF_AUTODECOMPL
 //
 class SaAutoDecomplItem { // @flat
 public:
@@ -24435,7 +24437,16 @@ public:
 	double Qtty;    // Количество, которое может быть получено при разбиении одной единицы титульного товара структуры 
 };
 //
+// Descr: Элемент матрицы подстановки товара по подстановочным товарным структурам (GSF_SUBST)
+//   Матрица содержит прямые и инвертированные пары.
 //
+class SaSubstItem { // @flat @v11.6.4
+	PPID  GoodsID;
+	PPID  SubstID;
+	double Qtty;
+};
+//
+// Descr: Элемент списка продаж, используемый для подбора подарка на основе подарочных структур (GSF_PRESENT)
 //
 struct SaSaleItem { // @flat
 	PPID   GoodsID;
@@ -24544,6 +24555,7 @@ public:
 	int    Print(PPGoodsStruc *);
 	int    CheckStruc(PPID strucID, PPLogger *);
 	int    LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList);
+	int    LoadSubstList(TSVector <SaSubstItem> & rList);
 	int    LoadGiftList(SaGiftArray * pList);
 	int    FetchGiftList(SaGiftArray * pList);
 	int    SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos);
@@ -26426,7 +26438,7 @@ public:
 	//   1 - адрес locID успешно замещен на replacementID
 	//   2 - адрес replacementID был в пакете - просто удален адрес locID.
 	//  -1 - адрес locID в пакете не найден
-	//   0 - ошибка.
+	//   0 - error.
 	//
 	int    ReplaceDlvrLoc(PPID locID, PPID replacementID);
 	int    SetSCard(const PPSCardPacket * pScPack, int autoCreate);
@@ -26573,7 +26585,7 @@ public:
 	// Returns:
 	//   >0 - найдена по крайней мере одна персоналия, удовлетворяющая заданным критериям
 	//   <0 - не найдено ни одной персоналии, удовлетворяющих заданным критериям
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    GetPersonListByCategory(PPID catID, PPID kindID, PPIDArray & rList);
 	//
@@ -26642,7 +26654,7 @@ public:
 	// Returns:
 	//   >0 - если для персоналии найден хотя бы один подходящий счет.
 	//   <0 - у персоналии personID нет ни одного банковского счета.
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    GetSingleBnkAcct(PPID personID, PPID bankID, PPID * pBnkAcctID, /*BankAccountTbl::Rec*/PPBankAccount * pRec);
 	int    GetStaffAmtList(PPID id, StaffAmtList * pList);
@@ -26971,7 +26983,7 @@ public:
 	// Returns:
 	//   1 - запись нормальная //
 	//   2 - в записи была ошибка - восстановлена
-	//   0 - ошибка проверки либо восстановления //
+	//   0 - error проверки либо восстановления //
 	//
 	int    Recover(PPID staffID, int use_ta);
 	int    SearchPost(PPID postID, PersonPostTbl::Rec *);
@@ -27528,7 +27540,7 @@ public:
 	// Returns:
 	//   >0 - календарь по заданным условиям найден
 	//   <0 - календарь по заданным условиям не найден
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    SearchByObj(PPID parentID, PPObjID linkObj, PPStaffCal * pRec);
 	//
@@ -27538,7 +27550,7 @@ public:
 	// Returns:
 	//   >0 - найден по карйней мере один дочерний календарь
 	//   <0 - не найдено ни одного дочернего календаря //
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    GetChildList(PPID calID, PPIDArray * pList);
 	int    SearchEntry(PPID calID, long dtVal, LTIME tmStart, StaffCalendarTbl::Rec * pRec);
@@ -29050,7 +29062,9 @@ struct RetailGoodsInfo {   // @transient
 		fDisabledExtQuot = 0x0002, // Котировка
 		//
 		fNoDiscount      = 0x0004, // OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
-		fEgais           = 0x0008  // @v11.5.0 Товар является алкогольным, попадающим под маркировку егаис
+		fEgais           = 0x0008, // @v11.5.0 Товар является алкогольным, попадающим под маркировку егаис
+		fDontShowRest    = 0x0010  // @11.6.4 Специальный флаг, используемые при экспорте данных для индикации того, что блокировать 
+			// отображение остатков для товарной позиции
 	};
 	PPID   ID;             // ->Goods.ID
 	char   Name[128];      // =Goods(ID).Name
@@ -29711,7 +29725,7 @@ public:
 	//        указателю pReplaceGoodsID)
 	//   <0 - либо товар rmvdGoodsID существует в базе данных, либо пользователь
 	//        отказался выбирать замещающий товар
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGoodsID, PPID * pReplaceGoodsID);
 	int    SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec *, double *, SString * pRetCode);
@@ -29729,7 +29743,7 @@ public:
 	// Returns:
 	//   > 0 - штрихкод найден
 	//   < 0 - штрихкод не найден
-	//     0 - ошибка
+	//     0 - error
 	//
 	int    SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec = 0, int adoptSearching = 0);
 	int    SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec);
@@ -29895,6 +29909,20 @@ public:
 	int    LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc * pGs);
 	int    LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, TSCollection <PPGoodsStruc> & rGsList);
 	int    EditGoodsStruc(PPID goodsID);
+	//
+	// Descr: Сканирует таблицу товаров в поиске тех, к которым привязана структура strucID.
+	// ARG(strucID IN):        Ид товарной структуры, владельцев которой ищет функция //
+	// ARG(expandGenerics IN): Если true, то, если найденный товар является обобщенным - вместо него 
+	//   в целевой список вставляются элементы этого обобщения //
+	// ARG(pList OUT): Указатель на список, в который будут внесены найденные идентификаторы.
+	//   В прологе функция очищает этот список.
+	//   В эпилоге список сортируется и очищается от дубликатов.
+	// Returns:
+	//   >0 - найден по крайней мере один товар, владеющий структурой strucID
+	//   <0 - не найдено ни одного товара, владеющего структурой strucID
+	//    0 - error
+	//
+	int    SearchGListByStruc(PPID strucID, bool expandGenerics, PPIDArray & rList);
 	int    GetValueAddedData(PPID, PPGoodsPacket *);
 	int    InitPacket(PPGoodsPacket *, GoodsPacketKind, PPID parentID, PPID clsID, const char * pBarCode);
 	int    ValidatePacket(const PPGoodsPacket * pPack);
@@ -29984,7 +30012,7 @@ public:
 	//   >0 - запись с идентификатором goodsID найдена - наименование скопировано в rBuf
 	//   <0 - запись с идентификатором goodsID не найдена - в rBuf скопирована строка id={goodsID}.
 	//        Если goodsID == 0, то буфер rBuf обрезается до нулевой длины.
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    FetchNameR(PPID goodsID, SString & rBuf);
 	int    FetchTax(PPID goodsID, LDATE, PPID opID, PPGoodsTaxEntry *);
@@ -30115,7 +30143,7 @@ public:
 	//   1 - для товара goodsID найден UUID
 	//   2 - UUID не был найден и после этого был успешно сгенерирован
 	//  <0 - UUID не был найден (параметр generateIfAbsent == false)
-	//   0 - ошибка (либо ошибка создания нового UUID, либо отсутствие тега PPTAG_GOODS_UUID)
+	//   0 - error (либо ошибка создания нового UUID, либо отсутствие тега PPTAG_GOODS_UUID)
 	//
 	int    GetUuid(PPID goodsID, S_GUID & rUuid, bool generateIfAbsent, int use_ta);
 	//
@@ -30573,6 +30601,7 @@ public:
 	//   >0 -
 	//
 	int    AddSimple(PPID * pID, GoodsPacketKind kind, PPID parentID, const char * pName, const char * pCode, PPID unitID, int use_ta);
+	StrAssocArray * Implement_MakeStrAssocList(long parentID, const PPIDArray * pTerminalList);
 	int    Import(int use_ta);
 	static int SetOwner(PPID id, long curOwner, long newOwner);
 	static int RemoveTempAlt(PPID id, long owner, int forceDel = 0, int useTa = 1);
@@ -31185,7 +31214,7 @@ public:
     // Descr: Возвращает список записей справок А с кодом pRefACode.
     // Returns:
     //   <0 - нет ни одной записи с кодом pRefACode
-    //    0 - ошибка
+    //    0 - error
     //   >0 - найдена одна или более записей с кодом pRefACode. Возвращенное значение
     //     равно индексу наиболее актуальной записи max(ActualDate), увеличенному на 1.
     //     То есть, rList[ret-1] соответствует наиболее актуальному элементу массива.
@@ -31408,7 +31437,7 @@ public:
     //   1 - производитель
     //   2 - импортер
     //  <0 - не возможно идентифицировать
-    //   0 - ошибка
+    //   0 - error
     // Note: Идентификация осуществляется по тегу Config::ManufImpTagID или
     //   по принадлежности виду
     //
@@ -32187,7 +32216,7 @@ public:
 	//   Допустимые значения refType: PPOBJ_GOODSGROUP, PPOBJ_UNIT, PPOBJ_GOODSCLASS, PPOBJ_GOODSTYPE
 	// Returns:
 	//   !0 - список объектов
-	//    0 - ошибка (например, refType задает недопустимый тип объекта)
+	//    0 - error (например, refType задает недопустимый тип объекта)
 	//
 	const PPIDArray * FASTCALL GetRefList(int refType) const;
 private:
@@ -33949,8 +33978,8 @@ public:
 	//   является документ. Если тип ассоциации недействителен или владельцем пула является объект
 	//   типа, отличного от PPOBJ_BILL, то возвращает 0.
 	//
-	static int FASTCALL IsPoolOwnedByBill(PPID assocID);
-	static int FASTCALL VerifyUniqSerialSfx(const char * pSfx);
+	static bool FASTCALL IsPoolOwnedByBill(PPID assocID);
+	static int  FASTCALL VerifyUniqSerialSfx(const char * pSfx);
 	//static int ParseText(const char * pText, const char * pTemplate, StrAssocArray & rResultList, SString * pFileTemplate);
 	static int ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate);
 
@@ -36318,7 +36347,7 @@ public:
 	//   +1 - карта была найдена и пользователь подтвердил редактирование.
 	//   +2 - карта не была найдена и пользователь создал новую (ее идентификатор
 	//      присваивается по адресу pID).
-	//    0 - ошибка.
+	//    0 - error.
 	//
 	int    FindAndEdit(PPID * pID, const AddParam * pParam);
 	//
@@ -37567,7 +37596,7 @@ public:
 	// Returns:
 	//   >0 - на процессоре выполняется сессия //
 	//   <0 - на процессоре нет выполняемых сессий
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    IsProcessorInProcess(PPID prcID, int kind, TSessionTbl::Rec * pSessRec);
 	int    GetCode(const TSessionTbl::Rec *, long flags, char * pBuf, size_t bufLen);
@@ -37805,7 +37834,7 @@ public:
 	// Returns:
 	//   >0 - была создана по крайней мере одна новая сессия
 	//   <0 - функция не создала ни одной новой сессии по штатным причинам (нечего было создавать)
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const DateRange & rPeriod, PPIDArray & rResultList, int use_ta);
 	//
@@ -37928,9 +37957,9 @@ struct TSessionFilt : public PPBaseFilt {
 
 	TSessionFilt();
 	TSessionFilt & FASTCALL operator = (const TSessionFilt & s);
-	int    FASTCALL CheckIdle(long flags) const;
-	int    FASTCALL CheckWrOff(long flags) const;
-	int    FASTCALL CheckStatus(int status) const;
+	bool   FASTCALL CheckIdle(long flags) const;
+	bool   FASTCALL CheckWrOff(long flags) const;
+	bool   FASTCALL CheckStatus(int status) const;
 	int    FASTCALL GetStatusList(PPIDArray &) const;
 
 	enum {
@@ -39091,7 +39120,7 @@ struct PrcssrUnifyPriceFilt : public PPBaseFilt { // @persistent
 	PrcssrUnifyPriceFilt();
 	int    Setup(int _costReval, PPID _loc, PPID _suppl);
 	double CalcPrice(double cost, double price) const;
-	int    IsCostBase() const;
+	bool   IsCostBase() const;
 
 	enum {
 		//fUnify    = 0x0001,
@@ -46665,7 +46694,7 @@ public:
 		//
 		// Returns:
 		//   >0 - идентификатор документа в базе данных
-		//    0 - ошибка
+		//    0 - error
 		//
 		uint64 PutEntity(PPFtsInterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData);
 	private:
@@ -46892,7 +46921,7 @@ public:
 	// Returns:
 	//   >0 - преобразование успешно
 	//   <0 - лик пустой
-	//   0 - ошибка
+	//   0 - error
 	//
 	int   ToJson(bool forTransmission, SString & rResult) const;
 	//
@@ -46949,7 +46978,7 @@ public:
 		// Returns:
 		//   >0 - загрузка осуществлена успешно
 		//   <0 - файл-источник отсутствует, либо загрузки не было по причине, определяемой параметром loadTimeUsage
-		//    0 - ошибка
+		//    0 - error
 		//
 		int    Read(const char * pFilePath, int loadTimeUsage);
 		bool   IsLoaded() const { return (LoadTime > 0); }
@@ -47287,7 +47316,7 @@ public:
 	//   Если pSelectedItem != 0, то фокусирует проверку на этом элементе.
 	//   Кроме того, проверяется принадлежность элемента pSelectedItem списку.
 	// Returns:
-	//   0 - ошибка
+	//   0 - error
 	//  !0 - проверка пройдена успешно
 	//
 	int    Validate(const Item * pSelectedItem) const;
@@ -47303,7 +47332,7 @@ public:
 	//   Если pParent != 0, то для аргумента pName должно выполнятся условие isempty(pName) == false
 	// ARG(expirationSec IN): если > 0, то в json-описание вставляется параметр expiration_period_sec=expirationSec.
 	// Returns:
-	//   0 - ошибка
+	//   0 - error
 	//   !0 - Если pParent == 0, то возвращает указатель на сформированный json-объект, который должен быть
 	//      разрушен вызывающей функцией.
 	//      Если же pParent != 0, то возвращает pParent который, естественно, полностью управляется вызывающей функцией.
@@ -47599,7 +47628,7 @@ public:
 	// Returns:
 	//   >0 - функция успешно выполнила первоначальную инициализацию
 	//   <0 - инсталляция клиента/сервера уже инициализирована
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    SetupPeerInstance(PPID * pID, int use_ta);
 	//
@@ -47779,7 +47808,9 @@ private:
 			fDisabledExtQuot = 0x0002, // Котировка
 			//
 			fNoDiscount      = 0x0004, // OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
-			fEgais           = 0x0008  // @v11.5.0 Товар является алкогольным, попадающим под маркировку егаис
+			fEgais           = 0x0008, // @v11.5.0 Товар является алкогольным, попадающим под маркировку егаис
+			fDontShowRest    = 0x0010  // @11.6.4 Специальный флаг, используемые при экспорте данных для индикации того, что блокировать 
+				// отображение остатков для товарной позиции
 		};
 		PPID   GoodsID;
 		long   Flags;
@@ -47805,7 +47836,8 @@ private:
 	// Descr: Флаги семейства функция MakeObjJson_XXX
 	//
 	enum {
-		mojfForIndexing = 0x0001 // Формировать объект исходя из того, что результат предназначен для индексации
+		mojfForIndexing  = 0x0001, // Формировать объект исходя из того, что результат предназначен для индексации
+		mojfHierarchical = 0x0002  // @v11.6.4
 	};
 	SJson * MakeObjJson_OwnFace(const StyloQCore::StoragePacket & rOwnPack, uint flags);
 	SJson * MakeObjJson_Goods(const SBinaryChunk & rOwnIdent, const PPGoodsPacket & rPack, const InnerGoodsEntry * pInnerEntry, uint flags, 
@@ -47815,7 +47847,7 @@ private:
 	//
 	// Note: Функция выполнит операция sortAndUndup над rIdList
 	//
-	SJson * MakeObjArrayJson_GoodsGroup(const SBinaryChunk & rOwnIdent, PPIDArray & rIdList, Stq_CmdStat_MakeRsrv_Response * pStat);
+	SJson * MakeObjArrayJson_GoodsGroup(const SBinaryChunk & rOwnIdent, PPIDArray & rIdList, bool hierarchical, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjJson_Brand(const SBinaryChunk & rOwnIdent, const PPBrandPacket & rPack, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjArrayJson_Brand(const SBinaryChunk & rOwnIdent, PPIDArray & rIdList, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjJson_Prc(const SBinaryChunk & rOwnIdent, const ProcessorTbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
@@ -47844,7 +47876,7 @@ private:
 	//     0 - error
 	//    //PPOBJ_BILL - функция успешно завершена. идентификатор созданного или уже существующего документа присвоен по указателю pResultID.
 	//    //PPOBJ_TSESSION - функция успешно завершена. идентификатор созданной или уже существующей техсессии присвоен по указателю pResultID.
-	//    //0 - ошибка
+	//    //0 - error
 	//
 	SJson * ProcessCommand_PostDocument(const SBinaryChunk & rOwnIdent, const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument, PPID * pResultID);
 	SJson * ProcessCommand_RequestDocumentStatusList(const SBinaryChunk & rOwnIdent, const StyloQCore::StoragePacket & rCliPack, const SJson * pCommand);
@@ -47853,7 +47885,7 @@ private:
 	//
 	// Returns:
 	//   >0 - идентификатор созданного документа (PPOBJ_STYLOQBINDERY)
-	//    0 - ошибка
+	//    0 - error
 	//
 	PPID   ProcessCommand_IndexingContent(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
 	int    ProcessCommand_StoreBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, const SBinaryChunk & rBlob, SString & rResult);
@@ -47976,7 +48008,10 @@ public:
 	enum {
 		fUseBarcodeSearch  = 0x0001, // На клиенте будет доступна функция поиска по штрихкоду
 		fUseBrands         = 0x0002, // Отправлять клиенту список брендов. Флаг действителен только если PalmID == 0, в противном случае этим управляют опции записи StyloPalm
-		fDlvrDateAsNominal = 0x0004  // @v11.6.1 Трактовать дату исполнения заказа как номинальную дату документа
+		fDlvrDateAsNominal = 0x0004, // @v11.6.1 Трактовать дату исполнения заказа как номинальную дату документа
+		fUseHierarchGroups = 0x0008, // @v11.6.4 На клиенте товарные группы представлены иерархическим списком. Сервис отправляет данные по группам со ссылками
+			// на родительские группы.
+		fHideStock         = 0x0010  // @v11.6.4 Не отображать остатки на клиентском устройстве
 	};
 
 	uint8    ReserveStart[64]; // @anchor
@@ -52337,7 +52372,7 @@ public:
 	// Returns:
 	//   >0 - была осуществлена по крайней мере одна замена в тексе rOrg
 	//   <0 - не было сделано ни одной замены (возможно, были обработаны сигналы)
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    ProcessString(const PPTextAnalyzer::Replacer & rR, const char * pResource, const SString & rOrg,
 		SString & rResult, PPTextAnalyzer::FindBlock * pOuterFb, SFile * pDebugFile);
@@ -52763,7 +52798,7 @@ public:
 		//   меняют его смещение. Однако, в реальности, состояние объекта не меняется - смещения
 		//   восстанавливаются в изначальном виде.
 		// Returns:
-		//   0 - ошибка
+		//   0 - error
 		//   4 - идентификатор может быть представлен 4-байтовым значением
 		//   8 - идентификатор может быть представлен только 8-байтовым значением
 		//
@@ -53076,6 +53111,7 @@ private:
 	int    UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags);
 	int    UED_Import_PackageTypes();
 	int    UED_Import_Atoms();
+	int    UED_ImportIcuNames();
 
 	PrcssrSartreFilt P;
 };
@@ -53193,7 +53229,7 @@ private:
 	//
 	// Returns:
 	//   !0 - хандлер родительского окна
-	//   0 - ошибка
+	//   0 - error
 	//
 	void * Helper_InitToolbarCombo();
 
@@ -55491,7 +55527,7 @@ public:
 	// Returns:
 	//   >0 - печать чека (чеков)
 	//   <0 - печать не призводится (не то состояние чека, нет локальных принтеров и т.п.)
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    PrintToLocalPrinters(int selPrnType);
 	int    CalculatePaymentList(PosPaymentBlock & rBlk, int interactive);
@@ -57138,7 +57174,7 @@ double FASTCALL CalcVATRate(double base, double vat_sum);
 // Descr: Инициализирует rCntr количеством записей в таблице pTbl.
 // Returns:
 //   <0 - функция выполнена успешно
-//    0 - ошибка
+//    0 - error
 //
 int    FASTCALL PPInitIterCounter(IterCounter & rCntr, DBTable * pTbl);
 //

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Yann Collet, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
@@ -51,10 +50,9 @@
 #ifndef ZSTD_HASHLOG3_MAX
 #define ZSTD_HASHLOG3_MAX 17
 #endif
-
-/*-*************************************
-*  Helper functions
-***************************************/
+// 
+// Helper functions
+// 
 /* ZSTD_compressBound()
  * Note that the result from this function is only compatible with the "normal"
  * full-block strategy.

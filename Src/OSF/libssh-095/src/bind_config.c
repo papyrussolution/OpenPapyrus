@@ -322,16 +322,13 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 				    break;
 			    }
 			    args++;
-			    SSH_LOG(SSH_LOG_TRACE, "line %d: Processing Match keyword '%s'",
-				count, p);
-
+			    SSH_LOG(SSH_LOG_TRACE, "line %d: Processing Match keyword '%s'", count, p);
 			    /* If the option is prefixed with ! the result should be negated */
 			    negate = false;
 			    if(p[0] == '!') {
 				    negate = true;
 				    p++;
 			    }
-
 			    opt = ssh_bind_config_get_match_opcode(p);
 			    switch(opt) {
 				    case BIND_MATCH_ALL:
@@ -386,8 +383,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_PUBKEY_ACCEPTED_KEY_TYPES, p);
 			    if(rc) {
-				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set PubKeyAcceptedKeyTypes value '%s'",
-					count, p);
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set PubKeyAcceptedKeyTypes value '%s'", count, p);
 			    }
 		    }
 		    break;

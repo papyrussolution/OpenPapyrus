@@ -403,7 +403,7 @@ public:
 	// Returns:
 	//   >0 - запись добавлена успешно
 	//   <0 - запись не добавлена поскольку буфер полностью заполнен.
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    Add(const void * pRecData, size_t recSize);
 	uint   GetCount() const;
@@ -2067,7 +2067,7 @@ public:
 	//   1 - новый блок успешно вставлен
 	//   2 - в массиве существует дубликат блока по символу и repalceDup == 0.
 	//   3 - в массиве существует дубликат блока по идентификатору и replaceDup == 0.
-	//   0 - ошибка. Ошибка может возникнуть в связи с отсутствием в блоке pBlk символа (attrDbSymb)
+	//   0 - error. Ошибка может возникнуть в связи с отсутствием в блоке pBlk символа (attrDbSymb)
 	//       либо из за недостатка памяти.
 	//
 	int    Add(long id, const DbLoginBlock * pBlk, int replaceDup);
@@ -2136,7 +2136,7 @@ public:
 	// Returns:
 	//   >0 - состояние базы данных успешно идентифицировано и флаги присвоены по указателю pStateFlags
 	//   <0 - функция не поддерживается
-	//    0 - ошибка
+	//    0 - error
 	//
 	virtual int GetDatabaseState(uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf) = 0;
@@ -2165,7 +2165,7 @@ public:
 	// ARG(pPassword IN): Пароль на случай, если таблица зашифрована.
 	// Returns:
 	//   >0 - таблица открыта успешно
-	//    0 - ошибка
+	//    0 - error
 	//
 	virtual int Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword) = 0;
 	virtual int Implement_Close(DBTable * pTbl) = 0;
@@ -4326,7 +4326,7 @@ protected:
 	// ARG(flags IN): Флаги открытия таблицы (BDbTable::ofXXX).
 	// Returns:
 	//   >0 - таблица успешно инициализирована
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    InitInstance(BDbDatabase * pDb, int flags);
 	int    Helper_EndTransaction();

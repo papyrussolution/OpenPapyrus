@@ -1,5 +1,5 @@
 // STCHBRW.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // TimeChunkBrowser
 //
@@ -285,10 +285,10 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 				p_view->HW = hWnd;
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
 				::SetFocus(hWnd);
-				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0);
+				::SendMessageW(hWnd, WM_NCACTIVATE, TRUE, 0);
 				p_view->SetupScroll();
 				p_view->invalidateAll(true);
-				::PostMessage(hWnd, WM_PAINT, 0, 0);
+				::PostMessageW(hWnd, WM_PAINT, 0, 0);
 				{
 					SString temp_buf;
 					TView::SGetWindowText(hWnd, temp_buf);

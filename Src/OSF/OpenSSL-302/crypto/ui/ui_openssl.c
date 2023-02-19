@@ -248,12 +248,11 @@ static int read_string(UI * ui, UI_STRING * uis)
 }
 
 #if !defined(OPENSSL_SYS_WINCE)
-/* Internal functions to read a string without echoing */
+// Internal functions to read a string without echoing
 static int read_till_nl(FILE * in)
 {
 #define SIZE 4
 	char buf[SIZE + 1];
-
 	do {
 		if(!fgets(buf, SIZE, in))
 			return 0;
@@ -353,31 +352,28 @@ error:
 		fprintf(tty_out, "\n");
 	if(ps >= 2 && !echo && !echo_console(ui))
 		ok = 0;
-
 	if(ps >= 1)
 		popsig();
 #else
 	ok = 1;
 #endif
-
 	OPENSSL_cleanse(result, BUFSIZ);
 	return ok;
 }
-
-/* Internal functions to open, handle and close a channel to the console.  */
+//
+// Internal functions to open, handle and close a channel to the console
+//
 static int open_console(UI * ui)
 {
 	if(!CRYPTO_THREAD_write_lock(ui->lock))
 		return 0;
 	is_a_tty = 1;
-
 #if defined(OPENSSL_SYS_VXWORKS)
 	tty_in = stdin;
 	tty_out = stderr;
 #elif defined(_WIN32) && !defined(_WIN32_WCE)
 	if((tty_out = fopen("conout$", "w")) == NULL)
 		tty_out = stderr;
-
 	if(GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &tty_orig)) {
 		tty_in = stdin;
 	}
@@ -567,7 +563,7 @@ static int close_console(UI * ui)
 }
 
 #if !defined(OPENSSL_SYS_WINCE)
-/* Internal functions to handle signals and act on them */
+// Internal functions to handle signals and act on them 
 static void pushsig(void)
 {
 #ifndef OPENSSL_SYS_WIN32
@@ -578,7 +574,6 @@ static void pushsig(void)
 	memzero(&sa, 0, sizeof(sa));
 	sa.sa_handler = recsig;
 #endif
-
 #ifdef OPENSSL_SYS_WIN32
 	savsig[SIGABRT] = signal(SIGABRT, recsig);
 	savsig[SIGFPE] = signal(SIGFPE, recsig);
@@ -642,21 +637,17 @@ static void popsig(void)
 #endif
 }
 
-static void recsig(int i)
-{
-	intr_signal = i;
-}
+static void recsig(int i) { intr_signal = i; }
 
 #endif
-
-/* Internal functions specific for Windows */
+//
+// Internal functions specific for Windows 
+//
 #if defined(OPENSSL_SYS_MSDOS) && !defined(_WIN32)
 static int noecho_fgets(char * buf, int size, FILE * tty)
 {
 	int i;
-	char * p;
-
-	p = buf;
+	char * p = buf;
 	for(;;) {
 		if(size == 0) {
 			*p = '\0';

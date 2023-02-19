@@ -69,22 +69,21 @@ typedef struct __alloc_layout {
 } ALLOC_LAYOUT;
 
 typedef struct __alloc_element {
-	SH_TAILQ_ENTRY addrq;                   /* List by address */
-	SH_TAILQ_ENTRY sizeq;                   /* List by size */
+	SH_TAILQ_ENTRY addrq; /* List by address */
+	SH_TAILQ_ENTRY sizeq; /* List by size */
 
 	/*
 	 * The "len" field is the total length of the chunk, not the size
 	 * available to the caller.  Use a uintmax_t to guarantee that the
 	 * size of this struct will be aligned correctly.
 	 */
-	uintmax_t len;                          /* Chunk length */
-
+	uintmax_t len; /* Chunk length */
 	/*
 	 * The "ulen" field is the length returned to the caller.
 	 *
 	 * Set to 0 if the chunk is not currently in use.
 	 */
-	uintmax_t ulen;                         /* User's length */
+	uintmax_t ulen; /* User's length */
 } ALLOC_ELEMENT;
 
 /*

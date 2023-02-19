@@ -454,7 +454,7 @@ static void make_crc_table()
 {
 	z_crc_t c;
 	int n, k;
-	z_crc_t poly;                   /* polynomial exclusive-or pattern */
+	z_crc_t poly; /* polynomial exclusive-or pattern */
 	/* terms of polynomial defining this crc (except x^32): */
 	static volatile int first = 1; /* flag to limit concurrent making */
 	static const uchar p[] = {0, 1, 2, 4, 5, 7, 8, 10, 11, 12, 16, 22, 23, 26};

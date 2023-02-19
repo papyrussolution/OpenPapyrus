@@ -4,19 +4,15 @@
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
  */
 /*
- * Copyright (c) 1990, 1993, 1994, 1995, 1996
- *	Keith Bostic.  All rights reserved.
+ * Copyright (c) 1990, 1993, 1994, 1995, 1996 Keith Bostic.  All rights reserved.
  */
 /*
- * Copyright (c) 1990, 1993, 1994, 1995
- *	The Regents of the University of California.  All rights reserved.
+ * Copyright (c) 1990, 1993, 1994, 1995 The Regents of the University of California.  All rights reserved.
  *
- * This code is derived from software contributed to Berkeley by
- * Mike Olson.
+ * This code is derived from software contributed to Berkeley by Mike Olson.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *  notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright

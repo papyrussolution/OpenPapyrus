@@ -1,5 +1,5 @@
 // TREEWND.CPP
-// Modified by A.Starodub 2013, 2016, 2018, 2019, 2020, 2021
+// Modified by A.Starodub 2013, 2016, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 // Древовидный список в левой части основного окна
 //
@@ -160,8 +160,8 @@ void TreeWindow::ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 			t_i.rect     = rc_item;
 			t_i.hinst    = TProgram::GetInst();
 			t_i.lpszText = const_cast<char *>(pTitle); 
-			::SendMessage(HwndTT, (UINT)TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
-			::SendMessage(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
+			::SendMessageW(HwndTT, (UINT)TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
+			::SendMessageW(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 		}
 		if(Hwnd)
 			ShowWindow(Hwnd, SW_SHOW);
@@ -202,8 +202,8 @@ void TreeWindow::ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 					t_i.rect     = rc_item;
 					t_i.hinst    = TProgram::GetInst();
 					t_i.lpszText = temp_title_buf;
-					::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
-					::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
+					::SendMessageW(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
+					::SendMessageW(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
 				_upd = 1;
 				break;
@@ -221,7 +221,7 @@ void TreeWindow::ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 					t_i.uId      = static_cast<UINT_PTR>(tci.lParam);
 					t_i.rect     = rc_item;
 					t_i.hinst    = TProgram::GetInst();
-					::SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
+					::SendMessageW(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
 			}
 		}
@@ -251,7 +251,7 @@ void TreeWindow::ShortcutsWindow::DelItem(void * ptr)
 				t_i.uId    = reinterpret_cast<UINT_PTR>(ptr);
 				t_i.rect   = rc_item;
 				t_i.hinst  = TProgram::GetInst();
-				::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
+				::SendMessageW(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 				count--;
 				break;
 			}
@@ -271,7 +271,7 @@ void TreeWindow::ShortcutsWindow::DelItem(void * ptr)
 					t_i.uId    = static_cast<UINT>(tci.lParam);
 					t_i.rect   = rc_item;
 					t_i.hinst  = TProgram::GetInst();
-					::SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
+					::SendMessageW(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
 			}
 		}

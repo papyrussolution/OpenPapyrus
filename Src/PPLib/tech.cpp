@@ -487,6 +487,20 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 				else
 					pPack->Rec.OrderN = 1;
 			}
+			// @v11.6.4 {
+			if(pPack->Rec.Kind == TECK_FOLDER) {
+				//const long __SurrogateGoodsId_Start = -524288L;
+				long surrogate_goods_id = 0;
+				TechTbl::Key2 k2;
+				MEMSZERO(k2);
+				k2.GoodsID = MINLONG32;
+				if(P_Tbl->search(2, &k2, spGt) && P_Tbl->data.GoodsID <= _PPConst.TechSurrogateGoodsIdStart)
+					surrogate_goods_id = P_Tbl->data.GoodsID-1;
+				else
+					surrogate_goods_id = _PPConst.TechSurrogateGoodsIdStart;
+				pPack->Rec.GoodsID = surrogate_goods_id;
+			}
+			// } @v11.6.4 
 			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0)); // @v11.3.10 @fix pPack-->&pPack->Rec
 			pPack->Rec.ID = *pID;
 			THROW(p_ref->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->ExtString));
@@ -754,7 +768,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 						PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
 						setGroupData(ctlgroupPrc, &prc_grp_rec);
 					}
-					SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL);
+					SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL, 0);
 					setCtrlString(CTL_TECH_MEMO, Data.SMemo);
 					return ok;
 				}
@@ -839,7 +853,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
 					setGroupData(ctlgroupPrc, &prc_grp_rec);
 					SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_CANINSERT, reinterpret_cast<void *>NZOR(Data.Rec.GoodsID, -1));
-					SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL);
+					SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL, 0);
 					setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
 					AddClusterAssoc(CTL_TECH_SIGN,  0, -1);
 					AddClusterAssoc(CTL_TECH_SIGN,  1,  1);
@@ -1236,8 +1250,9 @@ int PPObjTech::Edit(PPID * pID, void * extraPtr)
 		THROW(InitPacket(&pack, reinterpret_cast<long>(extraPtr), 1));
 	}
 	while(!valid_data && EditDialog(&pack) > 0)
-		if(PutPacket(pID, &pack, 1))
+		if(PutPacket(pID, &pack, 1)) {
 			ok = valid_data = cmOK;
+		}
 		else
 			PPError();
 	CATCHZOKPPERR
@@ -1363,12 +1378,14 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 	else if(extraParam & TECEXDF_GSTRUC) {
 		idx = 4;
 		k.k4.GStrucID = (extraParam & TECEXDF_MASK);
+		k.k4.GoodsID = MINLONG32; // @v11.6.4
 		dbq = ppcheckfiltid(dbq, P_Tbl->GStrucID, k.k4.GStrucID);
 	}
 	else {
 		idx = 2;
 		prc_id = (extraParam & TECEXDF_MASK);
 		k.k2.PrcID = prc_id;
+		k.k2.GoodsID = MINLONG32; // @v11.6.4
 		dbq = ppcheckfiltid(dbq, P_Tbl->PrcID, k.k2.PrcID);
 	}
 	if(extraParam & TECEXDF_TOOLING)
@@ -1693,10 +1710,7 @@ PPViewTech::PPViewTech() : PPView(&TecObj, &Filt, PPVIEW_TECH, 0, REPORT_TECHVIE
 {
 }
 
-const TechFilt * PPViewTech::GetFilt() const
-{
-	return &Filt;
-}
+const TechFilt * PPViewTech::GetFilt() const { return &Filt; }
 
 class TechFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(TechFilt);
@@ -1715,7 +1729,7 @@ public:
 		RVALUEPTR(Data, pData);
 		PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
 		setGroupData(ctlgroupPrc, &prc_grp_rec);
-		SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, 0, 0); // @v11.0.2 removed flag OLW_SETUPSINGLE
+		SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, OLW_CANSELUPLEVEL, 0); // @v11.0.2 removed flag OLW_SETUPSINGLE
 		GoodsCtrlGroup::Rec rec(0, Data.GoodsID);
 		setGroupData(ctlgroupGoods, &rec);
 		AddClusterAssocDef(CTL_TECHFILT_KIND, 0, 0);
@@ -2195,7 +2209,7 @@ public:
 	int    Run(TSVector <TechTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVect
 private:
 	int    LoadList(PPID prcID); // @recursion
-	int    IsSuited(const Entry * pEntry);
+	bool   IsSuited(const Entry * pEntry);
 
 	PPObjTech TecObj;
 	PPObjGoods GObj;
@@ -2211,11 +2225,11 @@ IMPL_CMPFUNC(ToolingEntry, i1, i2)
 {
 	const ToolingSelector::Entry * p1 = static_cast<const ToolingSelector::Entry *>(i1);
 	const ToolingSelector::Entry * p2 = static_cast<const ToolingSelector::Entry *>(i2);
-	if(p1->PrcID == p2->PrcID)
-		if(p1->GoodsID == p2->GoodsID)
+	if(p1->PrcID == p2->PrcID) {
+		if(p1->GoodsID == p2->GoodsID) {
 			if(p1->PrevGoodsID == p2->PrevGoodsID)
 				return 0;
-			else
+			else {
 				if(p1->PrevGoodsKind == p2->PrevGoodsKind)
 					if(p1->IsTranMask == p2->IsTranMask) {
 						if(p1->IsFormula == p2->IsFormula)
@@ -2233,8 +2247,10 @@ IMPL_CMPFUNC(ToolingEntry, i1, i2)
 					return -1;
 				else
 					return 1;
-		else
-			if(p1->GoodsKind == p2->GoodsKind)
+			}
+		}
+		else {
+			if(p1->GoodsKind == p2->GoodsKind) {
 				if(p1->IsTranMask == p2->IsTranMask)
 					if(p1->IsFormula == p2->IsFormula)
 						return 0;
@@ -2246,17 +2262,21 @@ IMPL_CMPFUNC(ToolingEntry, i1, i2)
 					return -1;
 				else
 					return 1;
+			}
 			else if(p1->GoodsKind < p2->GoodsKind)
 				return -1;
 			else
 				return 1;
-	else
+		}
+	}
+	else {
 		if(p1->PrcKind == p2->PrcKind)
 			return 0;
 		else if(p1->PrcKind < p2->PrcKind)
 			return -1;
 		else
 			return 1;
+	}
 }
 
 int ToolingSelector::LoadList(PPID prcID)
@@ -2316,77 +2336,75 @@ int ToolingSelector::LoadList(PPID prcID)
 	return 1;
 }
 
-int ToolingSelector::IsSuited(const Entry * pEntry)
+bool ToolingSelector::IsSuited(const Entry * pEntry)
 {
-	int    is_suited = 0;
+	bool   is_suited = false;
 	if(PrcID == pEntry->PrcID)
-		is_suited = 1;
+		is_suited = true;
 	else if(PrcParentList.lsearch(pEntry->PrcID))
-		is_suited = 1;
+		is_suited = true;
 	else
-		is_suited = 0;
+		is_suited = false;
 	if(is_suited) {
 		if(GoodsID == pEntry->GoodsID)
-			is_suited = 1;
+			is_suited = true;
 		else if(GObj.BelongToGroup(GoodsID, pEntry->GoodsID, 0) > 0)
-			is_suited = 1;
+			is_suited = true;
 		else if(pEntry->GoodsID == 0)
-			is_suited = 1;
+			is_suited = true;
 		else
-			is_suited = 0;
+			is_suited = false;
 	}
 	if(is_suited) {
 		if(PrevGoodsID == pEntry->PrevGoodsID)
-			is_suited = 1;
+			is_suited = true;
 		else if(GObj.BelongToGroup(PrevGoodsID, pEntry->PrevGoodsID, 0) > 0)
-			is_suited = 1;
+			is_suited = true;
 		else if(pEntry->PrevGoodsID == 0)
-			is_suited = 1;
+			is_suited = true;
 		else
-			is_suited = 0;
+			is_suited = false;
 	}
 	if(is_suited) {
 		if(pEntry->TransClsID && pEntry->TransMask) {
-			is_suited = 0; // @!
+			is_suited = false; // @!
 			Goods2Tbl::Rec goods_rec, prev_goods_rec;
 			if(GObj.Fetch(GoodsID, &goods_rec) > 0 && GObj.Fetch(PrevGoodsID, &prev_goods_rec) > 0) {
 				if(goods_rec.GdsClsID == prev_goods_rec.GdsClsID && goods_rec.GdsClsID == pEntry->TransClsID) {
 					GoodsExtTbl::Rec ext_rec, prev_ext_rec;
 					if(GObj.P_Tbl->GetExt(GoodsID, &ext_rec) > 0 && GObj.P_Tbl->GetExt(PrevGoodsID, &prev_ext_rec) > 0)
 						if(PPGdsCls::IsEqByDynGenMask(pEntry->TransMask, &ext_rec, &prev_ext_rec))
-							is_suited = 0;
+							is_suited = false;
 						else
-							is_suited = 1;
+							is_suited = true;
 				}
 			}
 		}
 	}
-	if(is_suited) {
-		if(pEntry->IsFormula) {
-			SString formula;
-			if(TecObj.GetToolingCondition(pEntry->ID, formula) > 0) {
-				GdsClsCalcExprContext ctx(GoodsID, PrevGoodsID);
-				double result = 0.0;
-				const  bool is_cfg_debug = LOGIC(CConfig.Flags & CCFLG_DEBUG);
-				if(PPCalcExpression(formula, &result, &ctx)) {
-					if(is_cfg_debug) {
-						SString msg_buf;
-						PPLoadText(PPTXT_LOG_TOOLINGSEL_FORMULA, msg_buf);
-						msg_buf.Space().Cat(formula).Eq().Cat(result, SFMT_QTTY);
-						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-					}
-					if(result != 1.0)
-						is_suited = 0;
+	if(is_suited && pEntry->IsFormula) {
+		SString formula;
+		if(TecObj.GetToolingCondition(pEntry->ID, formula) > 0) {
+			GdsClsCalcExprContext ctx(GoodsID, PrevGoodsID);
+			double result = 0.0;
+			const  bool is_cfg_debug = LOGIC(CConfig.Flags & CCFLG_DEBUG);
+			if(PPCalcExpression(formula, &result, &ctx)) {
+				if(is_cfg_debug) {
+					SString msg_buf;
+					PPLoadText(PPTXT_LOG_TOOLINGSEL_FORMULA, msg_buf);
+					msg_buf.Space().Cat(formula).Eq().Cat(result, SFMT_QTTY);
+					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 				}
-				else {
-					is_suited = 0;
-					if(is_cfg_debug)
-						PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
-				}
+				if(result != 1.0)
+					is_suited = false;
+			}
+			else {
+				is_suited = false;
+				if(is_cfg_debug)
+					PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 			}
 		}
 	}
-	return BIN(is_suited);
+	return is_suited;
 }
 
 int ToolingSelector::Run(TSVector <TechTbl::Rec> * pList)

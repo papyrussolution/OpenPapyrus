@@ -4,8 +4,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -64,20 +63,13 @@ static const char template_header[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0,
-	/* Mode, space-null termination: 8 bytes */
-	'0', '0', '0', '0', '0', '0', ' ', '\0',
-	/* uid, space-null termination: 8 bytes */
-	'0', '0', '0', '0', '0', '0', ' ', '\0',
-	/* gid, space-null termination: 8 bytes */
-	'0', '0', '0', '0', '0', '0', ' ', '\0',
-	/* size, space termination: 12 bytes */
-	'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ' ',
-	/* mtime, space termination: 12 bytes */
-	'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ' ',
-	/* Initial checksum value: 8 spaces */
-	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-	/* Typeflag: 1 byte */
-	0,
+	'0', '0', '0', '0', '0', '0', ' ', '\0', /* Mode, space-null termination: 8 bytes */
+	'0', '0', '0', '0', '0', '0', ' ', '\0', /* uid, space-null termination: 8 bytes */
+	'0', '0', '0', '0', '0', '0', ' ', '\0', /* gid, space-null termination: 8 bytes */
+	'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ' ', /* size, space termination: 12 bytes */
+	'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ' ', /* mtime, space termination: 12 bytes */
+	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', /* Initial checksum value: 8 spaces */
+	0, /* Typeflag: 1 byte */
 	/* Linkname: 100 bytes */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -272,7 +264,6 @@ static int archive_write_v7tar_header(struct archive_write * a, ArchiveEntry * e
 	}
 	if(ret2 < ret)
 		ret = ret2;
-
 	v7tar->entry_bytes_remaining = archive_entry_size(entry);
 	v7tar->entry_padding = 0x1ff & (-(int64)v7tar->entry_bytes_remaining);
 	archive_entry_free(entry_main);
@@ -288,25 +279,20 @@ static int archive_write_v7tar_header(struct archive_write * a, ArchiveEntry * e
  * necessary (overwriting terminators or using base-256 extensions).
  *
  */
-static int format_header_v7tar(struct archive_write * a, char h[512],
-    ArchiveEntry * entry, int strict,
-    archive_string_conv * sconv)
+static int format_header_v7tar(struct archive_write * a, char h[512], ArchiveEntry * entry, int strict, archive_string_conv * sconv)
 {
 	uint checksum;
-	int i, r, ret;
+	int i, r;
 	size_t copy_length;
 	const char * p, * pp;
-	int mytartype;
-
-	ret = 0;
-	mytartype = -1;
+	int ret = 0;
+	int mytartype = -1;
 	/*
 	 * The "template header" already includes the "v7tar"
 	 * signature, various end-of-field markers and other required
 	 * elements.
 	 */
 	memcpy(h, &template_header, 512);
-
 	/*
 	 * Because the block is already null-filled, and strings
 	 * are allowed to exactly fill their destination (without null),
@@ -429,11 +415,9 @@ static int format_number(int64 v, char * p, int s, int maxsize, int strict)
 			limit <<= 3;
 		}
 	}
-
 	/* Base-256 can handle any number, positive or negative. */
 	return (format_256(v, p, maxsize));
 }
-
 /*
  * Format a number into the specified field using base-256.
  */
@@ -447,36 +431,28 @@ static int format_256(int64 v, char * p, int s)
 	*p |= 0x80; /* Set the base-256 marker bit. */
 	return 0;
 }
-
 /*
  * Format a number into the specified field.
  */
 static int format_octal(int64 v, char * p, int s)
 {
-	int len;
-
-	len = s;
-
+	int len = s;
 	/* Octal values can't be negative, so use 0. */
 	if(v < 0) {
 		while(len-- > 0)
 			*p++ = '0';
 		return -1;
 	}
-
 	p += s; /* Start at the end and work backwards. */
 	while(s-- > 0) {
 		*--p = (char)('0' + (v & 7));
 		v >>= 3;
 	}
-
 	if(v == 0)
 		return 0;
-
 	/* If it overflowed, fill field with max value. */
 	while(len-- > 0)
 		*p++ = '7';
-
 	return -1;
 }
 
@@ -487,9 +463,7 @@ static int archive_write_v7tar_close(struct archive_write * a)
 
 static int archive_write_v7tar_free(struct archive_write * a)
 {
-	struct v7tar * v7tar;
-
-	v7tar = (struct v7tar *)a->format_data;
+	struct v7tar * v7tar = (struct v7tar *)a->format_data;
 	SAlloc::F(v7tar);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
@@ -497,22 +471,17 @@ static int archive_write_v7tar_free(struct archive_write * a)
 
 static int archive_write_v7tar_finish_entry(struct archive_write * a)
 {
-	struct v7tar * v7tar;
 	int ret;
-
-	v7tar = (struct v7tar *)a->format_data;
-	ret = __archive_write_nulls(a,
-		(size_t)(v7tar->entry_bytes_remaining + v7tar->entry_padding));
+	struct v7tar * v7tar = (struct v7tar *)a->format_data;
+	ret = __archive_write_nulls(a, (size_t)(v7tar->entry_bytes_remaining + v7tar->entry_padding));
 	v7tar->entry_bytes_remaining = v7tar->entry_padding = 0;
 	return ret;
 }
 
 static ssize_t archive_write_v7tar_data(struct archive_write * a, const void * buff, size_t s)
 {
-	struct v7tar * v7tar;
 	int ret;
-
-	v7tar = (struct v7tar *)a->format_data;
+	struct v7tar * v7tar = (struct v7tar *)a->format_data;
 	if(s > v7tar->entry_bytes_remaining)
 		s = (size_t)v7tar->entry_bytes_remaining;
 	ret = __archive_write_output(a, buff, s);

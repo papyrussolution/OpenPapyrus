@@ -207,7 +207,8 @@ const CollationCacheEntry * CollationLoader::createCacheEntry(UErrorCode & error
 	}
 }
 
-const CollationCacheEntry * CollationLoader::loadFromLocale(UErrorCode & errorCode) {
+const CollationCacheEntry * CollationLoader::loadFromLocale(UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}

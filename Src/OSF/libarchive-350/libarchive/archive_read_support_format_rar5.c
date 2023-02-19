@@ -168,8 +168,8 @@ struct comp_state {
 	uint8 switch_multivolume : 1; /* Flag used to skip file context reinitialization, used when unpacker is skipping through different multivolume archives. */
 	uint8 block_parsing_finished : 1; /* Flag used to specify if unpacker has processed the whole data block or just a part of it. */
 	signed int notused : 4;
-	int flags;                   /* Uncompression flags. */
-	int method; /* Uncompression algorithm method. */
+	int flags;   /* Uncompression flags. */
+	int method;  /* Uncompression algorithm method. */
 	int version; /* Uncompression algorithm version. */
 	ssize_t window_size; /* Size of window_buf. */
 	uint8 * window_buf; /* Circular buffer used during decompression. */

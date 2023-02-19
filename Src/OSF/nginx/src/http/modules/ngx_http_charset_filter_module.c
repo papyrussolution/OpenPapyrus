@@ -34,9 +34,9 @@ struct ngx_http_charset_tables_t {
 };
 
 struct ngx_http_charset_main_conf_t {
-	ngx_array_t charsets;                   /* ngx_http_charset_t */
-	ngx_array_t tables; /* ngx_http_charset_tables_t */
-	ngx_array_t recodes;                    /* ngx_http_charset_recode_t */
+	ngx_array_t charsets; /* ngx_http_charset_t */
+	ngx_array_t tables;   /* ngx_http_charset_tables_t */
+	ngx_array_t recodes;  /* ngx_http_charset_recode_t */
 };
 
 struct ngx_http_charset_loc_conf_t {

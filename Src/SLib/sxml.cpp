@@ -1038,7 +1038,7 @@ public:
 	// Descr: Разбирает результат вызова Soap-запроса.
 	// Returns:
 	//   1 - запрос успешно разобран
-	//   0 - ошибка разбора
+	//   0 - error разбора
 	//
 	int    Parse(const char * pMethodName, void * pXmlDoc, const char * pDebugFileName = 0); // really (xmlDoc *)
 	int    Write(const char * pUrn, const char * pMethodName, void ** ppXmlDoc, const char * pDebugFileName); // really (xmlDoc **)

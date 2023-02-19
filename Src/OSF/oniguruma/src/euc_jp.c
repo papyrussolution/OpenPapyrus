@@ -1,13 +1,10 @@
-/**********************************************************************
-   euc_jp.c -  Oniguruma (regular expression library)
-**********************************************************************/
+// euc_jp.c -  Oniguruma (regular expression library)
+//
 /*-
- * Copyright (c) 2002-2020  K.Kosako
- * All rights reserved.
+ * Copyright (c) 2002-2020  K.Kosako All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -211,10 +208,8 @@ static int is_code_ctype(OnigCodePoint code, uint ctype)
 	if(ctype <= ONIGENC_MAX_STD_CTYPE) {
 		if(code < 128)
 			return ONIGENC_IS_ASCII_CODE_CTYPE(code, ctype);
-		else {
-			if(CTYPE_IS_WORD_GRAPH_PRINT(ctype)) {
-				return (code_to_mbclen(code) > 1 ? TRUE : FALSE);
-			}
+		else if(CTYPE_IS_WORD_GRAPH_PRINT(ctype)) {
+			return (code_to_mbclen(code) > 1 ? TRUE : FALSE);
 		}
 	}
 	else {

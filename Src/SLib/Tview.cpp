@@ -1,6 +1,6 @@
 // TVIEW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Adopted to SLIB by A.Sobolev 1995-2021, 2022
+// Adopted to SLIB by A.Sobolev 1995-2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -249,7 +249,7 @@ int TView::EvBarrier::operator !() const
 void TView::SendToParent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(Sf & sfMsgToParent)
-		::SendMessage(GetParent(hWnd), uMsg, wParam, lParam);
+		::SendMessageW(GetParent(hWnd), uMsg, wParam, lParam);
 	else
 		handleWindowsMessage(uMsg, wParam, lParam);
 }
@@ -370,7 +370,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 /*static*/int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
 {
 	rBuf.Z();
-    long  text_len = ::SendMessage(hWnd, WM_GETTEXTLENGTH, 0, 0);
+    long  text_len = ::SendMessageW(hWnd, WM_GETTEXTLENGTH, 0, 0);
     if(text_len > 0) {
     	void * p_text_ptr = 0;
     	int    is_allocated = 0;
@@ -382,7 +382,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		}
 		else
 			p_text_ptr = static_buf;
-		long actual_len = ::SendMessage(hWnd, WM_GETTEXT, text_len+1, reinterpret_cast<LPARAM>(p_text_ptr));
+		long actual_len = ::SendMessageW(hWnd, WM_GETTEXT, text_len+1, reinterpret_cast<LPARAM>(p_text_ptr));
 		rBuf.CopyUtf8FromUnicode(static_cast<wchar_t *>(p_text_ptr), actual_len, 0);
 		rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
 #else
@@ -392,7 +392,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		}
 		else
 			p_text_ptr = static_buf;
-		::SendMessage(hWnd, WM_GETTEXT, text_len+1, reinterpret_cast<LPARAM>(p_text_ptr));
+		::SendMessageW(hWnd, WM_GETTEXT, text_len+1, reinterpret_cast<LPARAM>(p_text_ptr));
 		rBuf = (const char *)p_text_ptr;
 #endif // UNICODE
 		if(is_allocated)
@@ -407,9 +407,9 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 #ifdef UNICODE
 	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
 	r_temp_buf_u.CopyFromMb(cpANSI, pText, sstrlen(pText));
-	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(r_temp_buf_u.ucptr())));
+	ok = BIN(::SendMessageW(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(r_temp_buf_u.ucptr())));
 #else
-	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(pText)));
+	ok = BIN(::SendMessageW(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(pText)));
 #endif // UNICODE
 	return ok;
 }
@@ -434,7 +434,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	log_font.lfHeight = height;
 	new_font = ::CreateFontIndirect(&log_font);
 	if(new_font)
-		::SendMessage(hWnd, WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
+		::SendMessageW(hWnd, WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
 	return new_font;
 }
 
@@ -492,7 +492,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 									SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
 									if(p_f) {
 										HFONT f = static_cast<HFONT>(*p_f);
-										::SendMessage(hw_il, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+										::SendMessageW(hw_il, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
 									}
 								}
 								TView::SetWindowUserData(hw_il, p_il);
@@ -513,10 +513,10 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 								SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
 								if(p_f) {
 									HFONT f = static_cast<HFONT>(*p_f);
-									::SendMessage(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+									::SendMessageW(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
 								}
 							}*/
-							::SendMessage(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->Title)));
+							::SendMessageW(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->Title)));
 							SetupWindowCtrlTextProc(hw, 0);
 						}
 					}
@@ -527,14 +527,14 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL/*|BS_OWNERDRAW*/;
 						//ES_UPPERCASE;
 						pV->Parent = hw_parent;
-						hw = ::CreateWindowEx(0, _T("EDIT"), 0, style, pV->ViewOrigin.x,
+						hw = ::CreateWindowExW(0, L"EDIT", 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							{
 								SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
 								if(p_f) {
 									HFONT f = static_cast<HFONT>(*p_f);
-									::SendMessage(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+									::SendMessageW(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
 								}
 							}
 							TView::SetWindowUserData(hw, p_cv);
@@ -546,19 +546,19 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						TLabel * p_cv = static_cast<TLabel *>(pV);
 						pV->Parent = hw_parent;
 						DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS;
-						hw = ::CreateWindowEx(0, _T("STATIC"), 0, style, pV->ViewOrigin.x,
+						hw = ::CreateWindowExW(0, L"STATIC", 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							SString temp_buf;
 							TView::SetWindowUserData(hw, p_cv);
 							//p_cv->setFont()
 							TView::SSetWindowText(hw, p_cv->GetRawText());
-							//::SendMessage(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->getText(temp_buf))));
+							//::SendMessageW(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->getText(temp_buf))));
 							{
 								SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
 								if(p_f) {
 									HFONT f = static_cast<HFONT>(*p_f);
-									::SendMessage(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+									::SendMessageW(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
 								}
 							}
 							SetupWindowCtrlTextProc(hw, 0);
@@ -646,7 +646,7 @@ TView * TView::prevView() const { return (this == P_Owner->GetFirstView()) ? 0 :
 int    TView::commandEnabled(ushort command) const { return BIN((command >= 64*32) || !P_CmdSet || P_CmdSet->has(command)); }
 int    TView::TransmitData(int dir, void * pData) { return 0; } // Ничего не передается и не получается. Размер данных - 0.
 
-void STDCALL TView::enableCommands(const TCommandSet & cmds, int isEnable)
+void STDCALL TView::enableCommands(const TCommandSet & cmds, int areEnabled)
 {
 	if(!P_CmdSet) {
 		P_CmdSet = new TCommandSet;
@@ -654,13 +654,13 @@ void STDCALL TView::enableCommands(const TCommandSet & cmds, int isEnable)
 	}
 	if(P_CmdSet) {
 		if(!(Sf & sfCmdSetChanged))
-			if(isEnable) {
+			if(areEnabled) {
 				SETFLAG(Sf, sfCmdSetChanged, (*P_CmdSet & cmds) != cmds);
 			}
 			else {
 				SETFLAG(Sf, sfCmdSetChanged, !(*P_CmdSet & cmds).IsEmpty());
 			}
-		P_CmdSet->enableCmd(cmds, isEnable);
+		P_CmdSet->enableCmd(cmds, areEnabled);
 		if(Sf & sfCmdSetChanged) {
 			TView::messageBroadcast(this, cmCommandSetChanged);
 			Sf &= ~sfCmdSetChanged;
@@ -668,7 +668,7 @@ void STDCALL TView::enableCommands(const TCommandSet & cmds, int isEnable)
 	}
 }
 
-void STDCALL TView::enableCommand(ushort cmd, int isEnable)
+void STDCALL TView::enableCommand(ushort cmd, int isEnabled)
 {
 	if(!P_CmdSet) {
 		P_CmdSet = new TCommandSet;
@@ -677,12 +677,12 @@ void STDCALL TView::enableCommand(ushort cmd, int isEnable)
 	if(P_CmdSet) {
 		if(!(Sf & sfCmdSetChanged))
 			if(P_CmdSet->has(cmd)) {
-				SETFLAG(Sf, sfCmdSetChanged, !isEnable);
+				SETFLAG(Sf, sfCmdSetChanged, !isEnabled);
 			}
 			else {
-				SETFLAG(Sf, sfCmdSetChanged, isEnable);
+				SETFLAG(Sf, sfCmdSetChanged, isEnabled);
 			}
-		P_CmdSet->enableCmd(cmd, isEnable);
+		P_CmdSet->enableCmd(cmd, isEnabled);
 		if(Sf & sfCmdSetChanged) {
 			TView::messageBroadcast(this, cmCommandSetChanged);
 			Sf &= ~sfCmdSetChanged;

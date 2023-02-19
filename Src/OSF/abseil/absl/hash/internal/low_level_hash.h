@@ -2,9 +2,7 @@
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // This file provides the Google-internal implementation of LowLevelHash.
 //
@@ -33,8 +31,7 @@ namespace hash_internal {
 // To allow all hashable types (including string_view and Span) to depend on
 // this algorithm, we keep the API low-level, with as few dependencies as
 // possible.
-uint64_t LowLevelHash(const void* data, size_t len, uint64_t seed,
-                      const uint64_t salt[5]);
+uint64_t LowLevelHash(const void* data, size_t len, uint64_t seed, const uint64_t salt[5]);
 
 }  // namespace hash_internal
 ABSL_NAMESPACE_END

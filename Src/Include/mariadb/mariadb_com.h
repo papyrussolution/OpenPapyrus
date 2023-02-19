@@ -407,7 +407,7 @@ enum Item_result {STRING_RESULT, REAL_RESULT, INT_RESULT, ROW_RESULT, DECIMAL_RE
 typedef struct st_udf_args {
 	uint arg_count; /* Number of arguments */
 	enum Item_result * arg_type; /* Pointer to item_results */
-	char ** args;                   /* Pointer to argument */
+	char ** args;   /* Pointer to argument */
 	unsigned long * lengths; /* Length of string arguments */
 	char * maybe_null; /* Set to 1 for all maybe_null args */
 } UDF_ARGS;

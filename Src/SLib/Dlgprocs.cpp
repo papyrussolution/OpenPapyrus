@@ -1,5 +1,5 @@
 // DLGPROCS.CPP
-// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021
+// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -282,7 +282,7 @@ void TDialog::RemoveUnusedControls()
 				p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 				CALLPTRMEMB(p_dlg, HandleKeyboardEvent(LOWORD(wParam)));
 			}
-			::SendMessage(hwndDlg, WM_USER_KEYDOWN, wParam, lParam);
+			::SendMessageW(hwndDlg, WM_USER_KEYDOWN, wParam, lParam);
 			return -2;
 		case WM_KEYUP:
 			PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam);

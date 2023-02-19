@@ -1506,14 +1506,14 @@ int DoConstructionTest()
 	//Test_Fts();
 #endif
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
-	Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
+	SDecimalFraction::Test();
+	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
-	TestGtinStruc();
+	//TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);
 	//TestCRC();
 	//PPStyloQInterchange::ExecuteIndexingRequest(true/*useCurrentSession*/);
 	//Test_ListSelectionDialog();
-	//SDecimalFraction::Test();
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//DoTest_PThr4w();
 	//TestMqc();

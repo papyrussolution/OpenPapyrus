@@ -329,9 +329,9 @@
  * x == p->ptHandle.x
  */
 typedef struct {
-	void * p;                   /* Pointer to actual object */
+	void * p; /* Pointer to actual object */
 #if  __PTW32_VERSION_MAJOR > 2
-	size_t x;                   /* Extra information - reuse count etc */
+	size_t x; /* Extra information - reuse count etc */
 #else
 	unsigned int x; /* Extra information - reuse count etc */
 #endif

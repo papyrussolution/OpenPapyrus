@@ -77,7 +77,8 @@ struct AllocList {
 
 // An integer approximation of log2(size/base)
 // Requires size >= base.
-static int IntLog2(size_t size, size_t base) {
+static int IntLog2(size_t size, size_t base) 
+{
 	int result = 0;
 	for(size_t i = size; i > base; i >>= 1) { // i == floor(size/2**result)
 		result++;
@@ -89,7 +90,8 @@ static int IntLog2(size_t size, size_t base) {
 }
 
 // Return a random integer n:  p(n)=1/(2**n) if 1 <= n; p(n)=0 if n < 1.
-static int Random(uint32_t * state) {
+static int Random(uint32_t * state) 
+{
 	uint32_t r = *state;
 	int result = 1;
 	while((((r = r*1103515245 + 12345) >> 30) & 1) == 0) {
@@ -107,7 +109,8 @@ static int Random(uint32_t * state) {
 // term, so first-fit searches touch fewer nodes.  "level" is clipped so
 // level<kMaxLevel and next[level-1] will fit in the node.
 // 0 < LLA_SkiplistLevels(x,y,false) <= LLA_SkiplistLevels(x,y,true) < kMaxLevel
-static int LLA_SkiplistLevels(size_t size, size_t base, uint32_t * random) {
+static int LLA_SkiplistLevels(size_t size, size_t base, uint32_t * random) 
+{
 	// max_fit is the maximum number of levels that will fit in a node for the
 	// given size.   We can't return more than max_fit, no matter what the
 	// random number generator says.
@@ -123,8 +126,8 @@ static int LLA_SkiplistLevels(size_t size, size_t base, uint32_t * random) {
 // For 0 <= i < head->levels, set prev[i] to "no_greater", where no_greater
 // points to the last element at level i in the AllocList less than *e, or is
 // head if no such element exists.
-static AllocList * LLA_SkiplistSearch(AllocList * head,
-    AllocList * e, AllocList ** prev) {
+static AllocList * LLA_SkiplistSearch(AllocList * head, AllocList * e, AllocList ** prev) 
+{
 	AllocList * p = head;
 	for(int level = head->levels - 1; level >= 0; level--) {
 		for(AllocList * n; (n = p->next[level]) != nullptr && n < e; p = n) {
@@ -137,8 +140,8 @@ static AllocList * LLA_SkiplistSearch(AllocList * head,
 // Insert element *e into AllocList *head.  Set prev[] as LLA_SkiplistSearch.
 // Requires that e->levels be previously set by the caller (using
 // LLA_SkiplistLevels())
-static void LLA_SkiplistInsert(AllocList * head, AllocList * e,
-    AllocList ** prev) {
+static void LLA_SkiplistInsert(AllocList * head, AllocList * e, AllocList ** prev) 
+{
 	LLA_SkiplistSearch(head, e, prev);
 	for(; head->levels < e->levels; head->levels++) { // extend prev pointers
 		prev[head->levels] = head;            // to all *e's levels
@@ -152,8 +155,8 @@ static void LLA_SkiplistInsert(AllocList * head, AllocList * e,
 // Remove element *e from AllocList *head.  Set prev[] as LLA_SkiplistSearch().
 // Requires that e->levels be previous set by the caller (using
 // LLA_SkiplistLevels())
-static void LLA_SkiplistDelete(AllocList * head, AllocList * e,
-    AllocList ** prev) {
+static void LLA_SkiplistDelete(AllocList * head, AllocList * e, AllocList ** prev) 
+{
 	AllocList * found = LLA_SkiplistSearch(head, e, prev);
 	ABSL_RAW_CHECK(e == found, "element not in freelist");
 	for(int i = 0; i != e->levels && prev[i]->next[i] == e; i++) {
@@ -171,22 +174,14 @@ static void LLA_SkiplistDelete(AllocList * head, AllocList * e,
 struct LowLevelAlloc::Arena {
 	// Constructs an arena with the given LowLevelAlloc flags.
 	explicit Arena(uint32_t flags_value);
-
 	base_internal::SpinLock mu;
-	// Head of free list, sorted by address
-	AllocList freelist ABSL_GUARDED_BY(mu);
-	// Count of allocated blocks
-	int32_t allocation_count ABSL_GUARDED_BY(mu);
-	// flags passed to NewArena
-	const uint32_t flags;
-	// Result of sysconf(_SC_PAGESIZE)
-	const size_t pagesize;
-	// Lowest power of two >= max(16, sizeof(AllocList))
-	const size_t round_up;
-	// Smallest allocation block size
-	const size_t min_size;
-	// PRNG state
-	uint32_t random ABSL_GUARDED_BY(mu);
+	AllocList freelist ABSL_GUARDED_BY(mu); // Head of free list, sorted by address
+	int32_t allocation_count ABSL_GUARDED_BY(mu); // Count of allocated blocks
+	const uint32_t flags; // flags passed to NewArena
+	const size_t pagesize; // Result of sysconf(_SC_PAGESIZE)
+	const size_t round_up; // Lowest power of two >= max(16, sizeof(AllocList))
+	const size_t min_size; // Smallest allocation block size
+	uint32_t random ABSL_GUARDED_BY(mu); // PRNG state
 };
 
 namespace {

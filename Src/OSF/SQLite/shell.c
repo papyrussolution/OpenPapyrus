@@ -8657,9 +8657,9 @@ static int zipfileFindFunction(sqlite3_vtab * pVtab,            /* Virtual table
 
 typedef struct ZipfileBuffer ZipfileBuffer;
 struct ZipfileBuffer {
-	u8 * a;                   /* Pointer to buffer */
-	int n;                    /* Size of buffer in bytes */
-	int nAlloc;               /* Byte allocated at a[] */
+	u8 * a;     /* Pointer to buffer */
+	int n;      /* Size of buffer in bytes */
+	int nAlloc; /* Byte allocated at a[] */
 };
 
 typedef struct ZipfileCtx ZipfileCtx;
@@ -9401,18 +9401,18 @@ struct IdxHash {
 ** sqlite3expert object.
 */
 struct sqlite3expert {
-	int iSample;              /* Percentage of tables to sample for stat1 */
-	sqlite3 * db;             /* User database */
-	sqlite3 * dbm;            /* In-memory db for this analysis */
-	sqlite3 * dbv;            /* Vtab schema for this analysis */
+	int iSample;       /* Percentage of tables to sample for stat1 */
+	sqlite3 * db;      /* User database */
+	sqlite3 * dbm;     /* In-memory db for this analysis */
+	sqlite3 * dbv;     /* Vtab schema for this analysis */
 	IdxTable * pTable; /* List of all IdxTable objects */
 	IdxScan * pScan; /* List of scan objects */
 	IdxWrite * pWrite; /* List of write objects */
 	IdxStatement * pStatement; /* List of IdxStatement objects */
-	int bRun;                 /* True once analysis has run */
+	int bRun;           /* True once analysis has run */
 	char ** pzErrmsg;
-	int rc;                   /* Error code from whereinfo hook */
-	IdxHash hIdx;             /* Hash containing all candidate indexes */
+	int rc;             /* Error code from whereinfo hook */
+	IdxHash hIdx;       /* Hash containing all candidate indexes */
 	char * zCandidates; /* For EXPERT_REPORT_CANDIDATES */
 };
 
@@ -16907,7 +16907,7 @@ static int lintFkeyIndexes(ShellState * pState,             /* Current shell too
 	int bGroupByParent = 0;   /* If -groupbyparent is present */
 	int i;                    /* To iterate through azArg[] */
 	const char * zIndent = ""; /* How much to indent CREATE INDEX by */
-	int rc;                   /* Return code */
+	int rc; /* Return code */
 	sqlite3_stmt * pSql = 0;  /* Compiled version of SQL statement below */
 
 	/*
@@ -17703,8 +17703,8 @@ static int arCreateOrUpdateCommand(ArCommand * pAr,                 /* Command a
 		"  FROM fsdir(%Q,%Q) AS disk\n"
 		"  WHERE lsmode(mode) NOT LIKE '?%%'%s;"
 	};
-	int i;                    /* For iterating through azFile[] */
-	int rc;                   /* Return code */
+	int i;  /* For iterating through azFile[] */
+	int rc; /* Return code */
 	const char * zTab = 0; /* SQL table into which to insert */
 	char * zSql;
 	char zTemp[50];

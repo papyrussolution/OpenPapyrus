@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Yann Collet, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
@@ -50,10 +49,9 @@ ZSTDLIBv06_API size_t ZSTDv06_decompress(void* dst, size_t dstCapacity, const vo
     note : assumes `cSize` and `dBound` are _not_ NULL.
  */
 void ZSTDv06_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, uint64* dBound);
-
-/* *************************************
-*  Helper functions
-***************************************/
+// 
+// Helper functions
+// 
 ZSTDLIBv06_API size_t      ZSTDv06_compressBound(size_t srcSize); /*!< maximum compressed size (worst case scenario) */
 //
 // Error Management

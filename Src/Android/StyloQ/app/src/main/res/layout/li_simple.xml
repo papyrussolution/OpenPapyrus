@@ -3,11 +3,8 @@
     android:id="@+id/SimpleListItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    >
-    <TextView style="@style/GenericListItemText"
-        android:id="@+id/LVITEM_GENERICNAME"
+    android:orientation="vertical">
+    <TextView style="@style/GenericListItemText" android:id="@+id/LVITEM_GENERICNAME"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        />
+        android:layout_width="match_parent"/>
 </LinearLayout>

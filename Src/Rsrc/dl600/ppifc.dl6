@@ -1170,7 +1170,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		// Returns:
 		//   >0 - объект найден
 		//   <0 - объект не найден
-		//    0 - ошибка
+		//    0 - error
 		//
 		int    SearchByName(string text, int kind, long extraParam, out PPYOBJREC rec);
 		//
@@ -1208,7 +1208,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		//   значение по этому указателю не определено.
 		// Returns:
 		//   >0 - объект успешно создан
-		//    0 - ошибка
+		//    0 - error
 		//
 		int    Create(PPYOBJREC pRec, long flags, out long * pID);
 		//
@@ -1222,7 +1222,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		//   корректность тега структуры pRec->RecTag.
 		// Returns:
 		//   >0 - объект успешно изменен
-		//    0 - ошибка
+		//    0 - error
 		//
 		int    Update(long id, long flags, in PPYOBJREC rec);
 	}
@@ -1317,7 +1317,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		//   0 - для товара (группы товаров) значение по складу locID не определено
 		// Returns:
 		//   !0 - значение успешно установлено
-		//    0 - ошибка
+		//    0 - error
 		//
 		int    SetMatrix(long goodsID, long locID, int val);
 		SPpyI_SupplDeal GetSupplDeal(long goodsID, long locID, long curID, long supplID);
@@ -2392,7 +2392,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		// Descr: Возвращает список штрихкодов.
 		// Returns:
 		//   Указатель на интерфейс IStrAssocList списка штрихкодов.
-		//   0 - ошибка
+		//   0 - error
 		//
 		IStrAssocList * GetBarcodes(long goodsID);
 		int    GetQuot(long goodsID, long quotKind, double * pQuot);
@@ -3287,13 +3287,13 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 	interface IPapyrusObjBill {
 		//
 		// Descr: Перебирает строки документа billID
-		// Return: 0 - ошибка, -1 - нет больше строк, 1 - доступна очередная строчка документа
+		// Return: 0 - error, -1 - нет больше строк, 1 - доступна очередная строчка документа
 		//
 		int EnumBillRows(long billID, SPpyO_TrfrItem * pRow);
 		IPapyrusBillPacket * CreatePacket();
 		//
 		// Descr: Добавляет документ в базу данных
-		// Return: 0 - ошибка, -1 - не удалось провести документ, 1 - документ создан, -2 - похожий документ найден
+		// Return: 0 - error, -1 - не удалось провести документ, 1 - документ создан, -2 - похожий документ найден
 		// функция вызывает метод SearchAnalog, и если документ с таким видом операции, датой и номером найден,
 		// то отклоняем создание нового и возвращаем - 2
 		//
@@ -3424,7 +3424,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		//
 		// Descr: Возвращает регистр персоналии или персонального события, если PsnEvent не 0
 		// Returns:
-		//   0 - ошибка, -1 такой регистр не найден, 1 - регистр найден.
+		//   0 - error, -1 такой регистр не найден, 1 - регистр найден.
 		//
 		//
 		int    SearchByNumber(long regTypeID, string rSn, string rNmbr, out SPpyO_Register * pRegister);
@@ -3480,7 +3480,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		// ARG(pID  OUT): ид добавленного отношения //
 		// ARG(pPack IN): пакет персонального отношения //
 		// ARG(useTa IN): 1 - использовать транзакцию, 0 - не использовать транзакцию
-		// Return: 0 - ошибка, -1 - не удалось добавить отношение, 1 - отношение создано
+		// Return: 0 - error, -1 - не удалось добавить отношение, 1 - отношение создано
 		//
 		int PutPacket(out long * pID, IPapyrusPersonRelTypePacket * pPack, int useTa);
 		int GetPacket(long id, IPapyrusPersonRelTypePacket * pPack);

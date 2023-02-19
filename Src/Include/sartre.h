@@ -275,7 +275,7 @@ public:
 	//   1 - значение тэга было заменено
 	//   2 - был добавлен новый тэг с указанным значением
 	//  -1 - ничего не изменилось
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    SetTag(int tag, int val, int mode = 0);
 	//
@@ -822,7 +822,7 @@ public:
 	//   2 - теги уже ассоциированы с wordID. Запись SrWordAssoc не создана, по указателю pResultId
 	//     присвоен ид существующей записи.
 	//  -1 - Список тегов rWf пустой
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, int32 * pResultWaId);
 	int    SetSimpleWordFlexiaModel_Express(LEXID wordID, long baseFormID, int32 * pResultWaId);
@@ -841,7 +841,7 @@ public:
 	// Returns:
 	//   >0 - функция идентифицировала по крайней мере одну грамматическую ассоциацию слова
 	//   <0 - функция не нашла грамматических ассоциаций слова.
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSVector <SrWordAssoc> & rWaList, TSVector <SrWordInfo> & rInfo);
 	int    GetWordInfo(const char * pWordUtf8, long flags, TSVector <SrWordInfo> & rInfo);
@@ -885,7 +885,7 @@ public:
 	//   1 - символ pSymbUtf8 найден и найдена концепция по этому символу
 	//  -1 - символ pSymbUtf8 не найден
 	//  -2 - символ pSymbUtf8 найден, но соответствующая концепция отсутствовала
-	//  0 - ошибка
+	//  0 - error
 	//
 	int    SearchConcept(const char * pSymbUtf8, CONCEPTID * pID);
 	//
@@ -896,7 +896,7 @@ public:
 	//  1 - символ pSymbUtf8 найден и найдена концепция по этому символу
 	//  2 - символ pSymbUtf8 найден, но соответствующая концепция отсутствовала в следствии чего была создана.
 	//  3 - символ pSymbUtf8 не найден и был создан. Соответственно, концепция по этому символу тоже была создана.
-	//  0 - ошибка
+	//  0 - error
 	//
 	int    ResolveConcept(const char * pSymbUtf8, CONCEPTID * pID);
 	int    CreateAnonymConcept(CONCEPTID * pID);
@@ -907,7 +907,7 @@ public:
 	// Returns:
 	//   1 - слова pWordUtf8 найдено
 	//   2 - слово pWordUtf8 не существовало до вызова функции в следствии чего оно было создано.
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    ResolveWord(const char * pWordUtf8, LEXID * pID);
 	int    ResolveWordForm(const SrWordForm & rWf, long * pWordFormID);
@@ -943,7 +943,7 @@ public:
 	//   1 - n-грамма не пустая и была найдена уже существующая.
 	//   2 - n-грамма не пустая и была создана новая.
 	//  -1 - n-грамма пустая
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    ResolveNgFromTokenizer(const STokenizer & rTknz, uint idxFirst, uint idxCount, const SrWordForm * pWfToSet, long options, SrNGram & rNg);
 

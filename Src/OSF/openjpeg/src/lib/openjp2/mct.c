@@ -16,8 +16,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -46,24 +45,14 @@ static const double opj_mct_norms[3] = { 1.732, .8292, .8292 };
 /* </summary> */
 static const double opj_mct_norms_real[3] = { 1.732, 1.805, 1.573 };
 
-const double * opj_mct_get_mct_norms()
-{
-	return opj_mct_norms;
-}
-
-const double * opj_mct_get_mct_norms_real()
-{
-	return opj_mct_norms_real;
-}
+const double * opj_mct_get_mct_norms() { return opj_mct_norms; }
+const double * opj_mct_get_mct_norms_real() { return opj_mct_norms_real; }
 
 /* <summary> */
 /* Forward reversible MCT. */
 /* </summary> */
 #ifdef __SSE2__
-void opj_mct_encode(int32_t* OPJ_RESTRICT c0,
-    int32_t* OPJ_RESTRICT c1,
-    int32_t* OPJ_RESTRICT c2,
-    size_t n)
+void opj_mct_encode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t* OPJ_RESTRICT c2, size_t n)
 {
 	size_t i;
 	const size_t len = n;
@@ -71,7 +60,6 @@ void opj_mct_encode(int32_t* OPJ_RESTRICT c0,
 	assert(((size_t)c0 & 0xf) == 0);
 	assert(((size_t)c1 & 0xf) == 0);
 	assert(((size_t)c2 & 0xf) == 0);
-
 	for(i = 0; i < (len & ~3U); i += 4) {
 		__m128i y, u, v;
 		__m128i r = _mm_load_si128((const __m128i*)&(c0[i]));
@@ -102,14 +90,10 @@ void opj_mct_encode(int32_t* OPJ_RESTRICT c0,
 }
 
 #else
-void opj_mct_encode(int32_t* OPJ_RESTRICT c0,
-    int32_t* OPJ_RESTRICT c1,
-    int32_t* OPJ_RESTRICT c2,
-    size_t n)
+void opj_mct_encode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t* OPJ_RESTRICT c2, size_t n)
 {
 	size_t i;
 	const size_t len = n;
-
 	for(i = 0; i < len; ++i) {
 		int32_t r = c0[i];
 		int32_t g = c1[i];
@@ -129,14 +113,10 @@ void opj_mct_encode(int32_t* OPJ_RESTRICT c0,
 /* Inverse reversible MCT. */
 /* </summary> */
 #ifdef __SSE2__
-void opj_mct_decode(int32_t* OPJ_RESTRICT c0,
-    int32_t* OPJ_RESTRICT c1,
-    int32_t* OPJ_RESTRICT c2,
-    size_t n)
+void opj_mct_decode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t* OPJ_RESTRICT c2, size_t n)
 {
 	size_t i;
 	const size_t len = n;
-
 	for(i = 0; i < (len & ~3U); i += 4) {
 		__m128i r, g, b;
 		__m128i y = _mm_load_si128((const __m128i*)&(c0[i]));
@@ -164,10 +144,7 @@ void opj_mct_decode(int32_t* OPJ_RESTRICT c0,
 }
 
 #else
-void opj_mct_decode(int32_t* OPJ_RESTRICT c0,
-    int32_t* OPJ_RESTRICT c1,
-    int32_t* OPJ_RESTRICT c2,
-    size_t n)
+void opj_mct_decode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t* OPJ_RESTRICT c2, size_t n)
 {
 	size_t i;
 	for(i = 0; i < n; ++i) {
@@ -188,18 +165,12 @@ void opj_mct_decode(int32_t* OPJ_RESTRICT c0,
 /* <summary> */
 /* Get norm of basis function of reversible MCT. */
 /* </summary> */
-double opj_mct_getnorm(uint32_t compno)
-{
-	return opj_mct_norms[compno];
-}
+double opj_mct_getnorm(uint32_t compno) { return opj_mct_norms[compno]; }
 
 /* <summary> */
 /* Forward irreversible MCT. */
 /* </summary> */
-void opj_mct_encode_real(float* OPJ_RESTRICT c0,
-    float* OPJ_RESTRICT c1,
-    float* OPJ_RESTRICT c2,
-    size_t n)
+void opj_mct_encode_real(float* OPJ_RESTRICT c0, float* OPJ_RESTRICT c1, float* OPJ_RESTRICT c2, size_t n)
 {
 	size_t i;
 #ifdef __SSE__
@@ -218,12 +189,9 @@ void opj_mct_encode_real(float* OPJ_RESTRICT c0,
 		r = _mm_load_ps(c0);
 		g = _mm_load_ps(c1);
 		b = _mm_load_ps(c2);
-		y = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, YR), _mm_mul_ps(g, YG)),
-			_mm_mul_ps(b, YB));
-		u = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, UR), _mm_mul_ps(g, UG)),
-			_mm_mul_ps(b, UB));
-		v = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, VR), _mm_mul_ps(g, VG)),
-			_mm_mul_ps(b, VB));
+		y = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, YR), _mm_mul_ps(g, YG)), _mm_mul_ps(b, YB));
+		u = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, UR), _mm_mul_ps(g, UG)), _mm_mul_ps(b, UB));
+		v = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, VR), _mm_mul_ps(g, VG)), _mm_mul_ps(b, VB));
 		_mm_store_ps(c0, y);
 		_mm_store_ps(c1, u);
 		_mm_store_ps(c2, v);
@@ -234,12 +202,9 @@ void opj_mct_encode_real(float* OPJ_RESTRICT c0,
 		r = _mm_load_ps(c0);
 		g = _mm_load_ps(c1);
 		b = _mm_load_ps(c2);
-		y = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, YR), _mm_mul_ps(g, YG)),
-			_mm_mul_ps(b, YB));
-		u = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, UR), _mm_mul_ps(g, UG)),
-			_mm_mul_ps(b, UB));
-		v = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, VR), _mm_mul_ps(g, VG)),
-			_mm_mul_ps(b, VB));
+		y = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, YR), _mm_mul_ps(g, YG)), _mm_mul_ps(b, YB));
+		u = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, UR), _mm_mul_ps(g, UG)), _mm_mul_ps(b, UB));
+		v = _mm_add_ps(_mm_add_ps(_mm_mul_ps(r, VR), _mm_mul_ps(g, VG)), _mm_mul_ps(b, VB));
 		_mm_store_ps(c0, y);
 		_mm_store_ps(c1, u);
 		_mm_store_ps(c2, v);
@@ -265,10 +230,7 @@ void opj_mct_encode_real(float* OPJ_RESTRICT c0,
 /* <summary> */
 /* Inverse irreversible MCT. */
 /* </summary> */
-void opj_mct_decode_real(float* OPJ_RESTRICT c0,
-    float* OPJ_RESTRICT c1,
-    float* OPJ_RESTRICT c2,
-    size_t n)
+void opj_mct_decode_real(float* OPJ_RESTRICT c0, float* OPJ_RESTRICT c1, float* OPJ_RESTRICT c2, size_t n)
 {
 	size_t i;
 #ifdef __SSE__
@@ -280,7 +242,6 @@ void opj_mct_decode_real(float* OPJ_RESTRICT c0,
 	for(i = 0; i < (n >> 3); ++i) {
 		__m128 vy, vu, vv;
 		__m128 vr, vg, vb;
-
 		vy = _mm_load_ps(c0);
 		vu = _mm_load_ps(c1);
 		vv = _mm_load_ps(c2);
@@ -325,16 +286,9 @@ void opj_mct_decode_real(float* OPJ_RESTRICT c0,
 /* <summary> */
 /* Get norm of basis function of irreversible MCT. */
 /* </summary> */
-double opj_mct_getnorm_real(uint32_t compno)
-{
-	return opj_mct_norms_real[compno];
-}
+double opj_mct_getnorm_real(uint32_t compno) { return opj_mct_norms_real[compno]; }
 
-boolint opj_mct_encode_custom(uint8 * pCodingdata,
-    size_t n,
-    uint8 ** pData,
-    uint32_t pNbComp,
-    uint32_t isSigned)
+boolint opj_mct_encode_custom(uint8 * pCodingdata, size_t n, uint8 ** pData, uint32_t pNbComp, uint32_t isSigned)
 {
 	float * lMct = (float*)pCodingdata;
 	size_t i;
@@ -354,19 +308,15 @@ boolint opj_mct_encode_custom(uint8 * pCodingdata,
 	if(!lCurrentData) {
 		return FALSE;
 	}
-
 	lCurrentMatrix = lCurrentData + pNbComp;
-
 	for(i = 0; i < lNbMatCoeff; ++i) {
 		lCurrentMatrix[i] = (int32_t)(*(lMct++) * (float)lMultiplicator);
 	}
-
 	for(i = 0; i < n; ++i) {
 		lMctPtr = lCurrentMatrix;
 		for(j = 0; j < pNbComp; ++j) {
 			lCurrentData[j] = (*(lData[j]));
 		}
-
 		for(j = 0; j < pNbComp; ++j) {
 			*(lData[j]) = 0;
 			for(k = 0; k < pNbComp; ++k) {
@@ -377,29 +327,20 @@ boolint opj_mct_encode_custom(uint8 * pCodingdata,
 			++lData[j];
 		}
 	}
-
 	SAlloc::F(lCurrentData);
-
 	return TRUE;
 }
 
-boolint opj_mct_decode_custom(uint8 * pDecodingData,
-    size_t n,
-    uint8 ** pData,
-    uint32_t pNbComp,
-    uint32_t isSigned)
+boolint opj_mct_decode_custom(uint8 * pDecodingData, size_t n, uint8 ** pData, uint32_t pNbComp, uint32_t isSigned)
 {
 	float * lMct;
 	size_t i;
 	uint32_t j;
 	uint32_t k;
-
 	float * lCurrentData = 0;
 	float * lCurrentResult = 0;
 	float ** lData = (float**)pData;
-
 	OPJ_ARG_NOT_USED(isSigned);
-
 	lCurrentData = (float*)opj_malloc(2 * pNbComp * sizeof(float));
 	if(!lCurrentData) {
 		return FALSE;
@@ -423,21 +364,16 @@ boolint opj_mct_decode_custom(uint8 * pDecodingData,
 	return TRUE;
 }
 
-void opj_calculate_norms(double * pNorms,
-    uint32_t pNbComps,
-    float * pMatrix)
+void opj_calculate_norms(double * pNorms, uint32_t pNbComps, const float * pMatrix)
 {
-	uint32_t i, j, lIndex;
-	float lCurrentValue;
+	uint32_t lIndex;
 	double * lNorms = (double*)pNorms;
-	float * lMatrix = (float*)pMatrix;
-
-	for(i = 0; i < pNbComps; ++i) {
+	const float * lMatrix = pMatrix;
+	for(uint32_t i = 0; i < pNbComps; ++i) {
 		lNorms[i] = 0;
 		lIndex = i;
-
-		for(j = 0; j < pNbComps; ++j) {
-			lCurrentValue = lMatrix[lIndex];
+		for(uint32_t j = 0; j < pNbComps; ++j) {
+			float lCurrentValue = lMatrix[lIndex];
 			lIndex += pNbComps;
 			lNorms[i] += (double)lCurrentValue * lCurrentValue;
 		}

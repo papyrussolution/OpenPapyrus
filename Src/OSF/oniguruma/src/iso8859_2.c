@@ -1,13 +1,10 @@
-/**********************************************************************
-   iso8859_2.c -  Oniguruma (regular expression library)
-**********************************************************************/
+// iso8859_2.c -  Oniguruma (regular expression library)
+//
 /*-
- * Copyright (c) 2002-2020  K.Kosako
- * All rights reserved.
+ * Copyright (c) 2002-2020  K.Kosako All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -18,8 +15,7 @@
 #pragma hdrstop
 
 #define ENC_ISO_8859_2_TO_LOWER_CASE(c) EncISO_8859_2_ToLowerCaseTable[c]
-#define ENC_IS_ISO_8859_2_CTYPE(code, ctype) \
-	((EncISO_8859_2_CtypeTable[code] & CTYPE_TO_BIT(ctype)) != 0)
+#define ENC_IS_ISO_8859_2_CTYPE(code, ctype) ((EncISO_8859_2_CtypeTable[code] & CTYPE_TO_BIT(ctype)) != 0)
 
 static const uchar EncISO_8859_2_ToLowerCaseTable[256] = {
 	(uchar)'\000', (uchar)'\001', (uchar)'\002', (uchar)'\003', (uchar)'\004', (uchar)'\005', (uchar)'\006', (uchar)'\007',
@@ -163,13 +159,7 @@ static int get_case_fold_codes_by_str(OnigCaseFoldType flag, const uchar * p, co
 	return onigenc_get_case_fold_codes_by_str_with_map(SIZEOFARRAY(CaseFoldMap), CaseFoldMap, 1, flag, p, end, items);
 }
 
-static int is_code_ctype(OnigCodePoint code, uint ctype)
-{
-	if(code < 256)
-		return ENC_IS_ISO_8859_2_CTYPE(code, ctype);
-	else
-		return FALSE;
-}
+static int is_code_ctype(OnigCodePoint code, uint ctype) { return (code < 256) ? ENC_IS_ISO_8859_2_CTYPE(code, ctype) : FALSE; }
 
 OnigEncodingType OnigEncodingISO_8859_2 = {
 	onigenc_single_byte_mbc_enc_len,

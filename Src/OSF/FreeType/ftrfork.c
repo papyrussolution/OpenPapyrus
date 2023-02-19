@@ -328,14 +328,9 @@ static FT_Error raccess_guess_linux_double(FT_Library library,
     char   ** result_file_name,
     FT_Long    * result_offset);
 
-static FT_Error raccess_guess_linux_netatalk(FT_Library library,
-    FT_Stream stream,
-    char * base_file_name,
-    char   ** result_file_name,
-    FT_Long    * result_offset);
+static FT_Error raccess_guess_linux_netatalk(FT_Library library, FT_Stream stream, char * base_file_name, char   ** result_file_name, FT_Long    * result_offset);
 
-CONST_FT_RFORK_RULE_ARRAY_BEGIN(ft_raccess_guess_table,
-    ft_raccess_guess_rec)
+CONST_FT_RFORK_RULE_ARRAY_BEGIN(ft_raccess_guess_table, ft_raccess_guess_rec)
 CONST_FT_RFORK_RULE_ARRAY_ENTRY(apple_double,      apple_double)
 CONST_FT_RFORK_RULE_ARRAY_ENTRY(apple_single,      apple_single)
 CONST_FT_RFORK_RULE_ARRAY_ENTRY(darwin_ufs_export, darwin_ufs_export)
@@ -346,11 +341,8 @@ CONST_FT_RFORK_RULE_ARRAY_ENTRY(linux_cap,         linux_cap)
 CONST_FT_RFORK_RULE_ARRAY_ENTRY(linux_double,      linux_double)
 CONST_FT_RFORK_RULE_ARRAY_ENTRY(linux_netatalk,    linux_netatalk)
 CONST_FT_RFORK_RULE_ARRAY_END
-
 // 
-/****                          */
-/****                       Helper functions      */
-/****                          */
+// Helper functions
 // 
 static FT_Error raccess_guess_apple_generic(FT_Library library, FT_Stream stream, char * base_file_name, FT_Int32 magic, FT_Long    * result_offset);
 static FT_Error raccess_guess_linux_double_from_file_name(FT_Library library, char *       file_name, FT_Long    * result_offset);

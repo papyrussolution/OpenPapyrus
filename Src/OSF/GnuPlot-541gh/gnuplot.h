@@ -1326,8 +1326,8 @@ enum arrowheadfill {
 };
 
 struct arrow_style_type {    /* contains all Arrow properties */
-	int tag; /* -1 (local), AS_VARIABLE, or style index */
-	int layer;                   /* 0 = back, 1 = front */
+	int tag;   /* -1 (local), AS_VARIABLE, or style index */
+	int layer; /* 0 = back, 1 = front */
 	lp_style_type lp_properties;
 	/* head options */
 	t_arrow_head head; /* arrow head choice */

@@ -1011,14 +1011,13 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 		}
 		void ChangeBaseFilter()
 		{
-			size_t sav_offs = 0;
 			PPBaseFilt * p_filt = 0;
 			PPView * p_view = 0;
 			PPID   view_id = getCtrlLong(CTLSEL_STQCMD_VCMD);
 			uint   pos = 0;
+			const  size_t sav_offs = Data.Param.GetRdOffs();
 			if(view_id && CmdSymbList.Search(view_id, &pos)) {
 				SString view_symb(CmdSymbList.at_WithoutParent(pos).Txt);
-				sav_offs = Data.Param.GetRdOffs();
 				THROW(PPView::CreateInstance(view_id, &p_view) > 0);
 				assert(p_view);
 				{
@@ -1062,11 +1061,8 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				case StyloQCommandList::sqbcReport:
 					{
 						enable_cmd_param = true;
-						long   view_id = 0;
 						uint   pos = 0;
-						if(Data.ViewSymb.NotEmpty() && CmdSymbList.SearchByText(Data.ViewSymb, 1, &pos)) {
-							view_id = CmdSymbList.at_WithoutParent(pos).Id;
-						}
+						const  long view_id = (Data.ViewSymb.NotEmpty() && CmdSymbList.SearchByText(Data.ViewSymb, 1, &pos)) ? CmdSymbList.at_WithoutParent(pos).Id : 0;
 						//setCtrlLong(CTLSEL_STQCMD_VCMD, view_id);
 						{
 							setLabelText(CTL_STQCMD_VCMD, PPLoadStringS("styloqcommand_viewsymb", temp_buf));

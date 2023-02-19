@@ -1857,7 +1857,7 @@ EXPORT int InitImportObjIter(uint idSess, uint objId)
 // Returns:
 //		-1 - считаны все товарные строки. Однако, если в документе в поле общего количество написано число,
 //			меньшее реального числа товарных позиций, то лишние позиции не считаются
-//		 0 - ошибка
+//		 0 - error
 //		 1 - считана очередная товарная строка
 //
 EXPORT int NextImportObjIter(uint idSess, uint objId, void * pRow)
@@ -1930,7 +1930,7 @@ EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 //
 // Returns:
 //		-1 - нет входящих сообщений
-//		 0 - ошибка
+//		 0 - error
 //		 1 - сообщение получено
 //
 int ImportCls::ReceiveDoc(uint messageType)
@@ -2076,7 +2076,7 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 //
 // Returns:
 //		-1 - нет сообщений
-//		 0 - ошибка
+//		 0 - error
 //		 1 - есть сообщение
 //
 int ImportCls::ListMessageBox(uint messageType)
@@ -2396,7 +2396,7 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 // Returns:
 //		-1 - считаны все товарные строки. Однако, если в документе в поле общего количество написано число,
 //			меньшее реального числа товарных позиций, то лишние позиции не считаются
-//		 0 - ошибка
+//		 0 - error
 //		 1 - считана очередная товарная строка
 //
 int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
@@ -2592,7 +2592,7 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 // ARG(pResp		 IN): Данные для разбора, полученные в Receive()
 // Retruns:
 //		-1 - не было получено входящих сообщений
-//		 0 - ошибка
+//		 0 - error
 //		 1 - оба параметра найдены
 //
 int ImportCls::ParseAperakResp(const char * pResp)

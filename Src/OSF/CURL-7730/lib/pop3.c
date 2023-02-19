@@ -937,60 +937,47 @@ static CURLcode pop3_statemach_act(struct connectdata * conn)
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
 	struct pingpong * pp = &pop3c->pp;
 	size_t nread = 0;
-
 	/* Busy upgrading the connection; right now all I/O is SSL/TLS, not POP3 */
 	if(pop3c->state == POP3_UPGRADETLS)
 		return pop3_perform_upgrade_tls(conn);
-
 	/* Flush any data that needs to be sent */
 	if(pp->sendleft)
 		return Curl_pp_flushsend(pp);
-
 	do {
 		/* Read the response from the server */
 		result = Curl_pp_readresp(sock, pp, &pop3code, &nread);
 		if(result)
 			return result;
-
 		if(!pop3code)
 			break;
-
 		/* We have now received a full POP3 server response */
 		switch(pop3c->state) {
 			case POP3_SERVERGREET:
 			    result = pop3_state_servergreet_resp(conn, pop3code, pop3c->state);
 			    break;
-
 			case POP3_CAPA:
 			    result = pop3_state_capa_resp(conn, pop3code, pop3c->state);
 			    break;
-
 			case POP3_STARTTLS:
 			    result = pop3_state_starttls_resp(conn, pop3code, pop3c->state);
 			    break;
-
 			case POP3_AUTH:
 			    result = pop3_state_auth_resp(conn, pop3code, pop3c->state);
 			    break;
-
 #ifndef CURL_DISABLE_CRYPTO_AUTH
 			case POP3_APOP:
 			    result = pop3_state_apop_resp(conn, pop3code, pop3c->state);
 			    break;
 #endif
-
 			case POP3_USER:
 			    result = pop3_state_user_resp(conn, pop3code, pop3c->state);
 			    break;
-
 			case POP3_PASS:
 			    result = pop3_state_pass_resp(conn, pop3code, pop3c->state);
 			    break;
-
 			case POP3_COMMAND:
 			    result = pop3_state_command_resp(conn, pop3code, pop3c->state);
 			    break;
-
 			case POP3_QUIT:
 			/* fallthrough, just stop! */
 			default:
@@ -999,7 +986,6 @@ static CURLcode pop3_statemach_act(struct connectdata * conn)
 			    break;
 		}
 	} while(!result && pop3c->state != POP3_STOP && Curl_pp_moredata(pp));
-
 	return result;
 }
 
@@ -1008,28 +994,23 @@ static CURLcode pop3_multi_statemach(struct connectdata * conn, bool * done)
 {
 	CURLcode result = CURLE_OK;
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
-
 	if((conn->handler->flags & PROTOPT_SSL) && !pop3c->ssldone) {
 		result = Curl_ssl_connect_nonblocking(conn, FIRSTSOCKET, &pop3c->ssldone);
 		if(result || !pop3c->ssldone)
 			return result;
 	}
-
 	result = Curl_pp_statemach(&pop3c->pp, FALSE, FALSE);
 	*done = (pop3c->state == POP3_STOP) ? TRUE : FALSE;
 
 	return result;
 }
 
-static CURLcode pop3_block_statemach(struct connectdata * conn,
-    bool disconnecting)
+static CURLcode pop3_block_statemach(struct connectdata * conn, bool disconnecting)
 {
 	CURLcode result = CURLE_OK;
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
-
 	while(pop3c->state != POP3_STOP && !result)
 		result = Curl_pp_statemach(&pop3c->pp, TRUE, disconnecting);
-
 	return result;
 }
 
@@ -1494,43 +1475,32 @@ CURLcode Curl_pop3_write(struct connectdata * conn, char * str, size_t nread)
 				prev--;
 				pop3c->strip--;
 			}
-
 			if(prev) {
 				/* If the partial match was the CRLF and dot then only write the CRLF
 				   as the server would have inserted the dot */
-				result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)POP3_EOB,
-					strip_dot ? prev - 1 : prev);
-
+				result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)POP3_EOB, strip_dot ? prev - 1 : prev);
 				if(result)
 					return result;
-
 				last = i;
 				strip_dot = FALSE;
 			}
 		}
 	}
-
 	if(pop3c->eob == POP3_EOB_LEN) {
 		/* We have a full match so the transfer is done, however we must transfer
 		   the CRLF at the start of the EOB as this is considered to be part of the
 		   message as per RFC-1939, sect. 3 */
 		result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)POP3_EOB, 2);
-
 		k->keepon &= ~KEEP_RECV;
 		pop3c->eob = 0;
-
 		return result;
 	}
-
 	if(pop3c->eob)
 		/* While EOB is matching nothing should be output */
 		return CURLE_OK;
-
 	if(nread - last) {
-		result = Curl_client_write(conn, CLIENTWRITE_BODY, &str[last],
-			nread - last);
+		result = Curl_client_write(conn, CLIENTWRITE_BODY, &str[last], nread - last);
 	}
-
 	return result;
 }
 

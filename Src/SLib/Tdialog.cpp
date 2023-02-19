@@ -1,6 +1,6 @@
 // TDIALOG.CPP  TurboVision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -823,9 +823,9 @@ int TDialog::SetupInputLine(uint ctlID, TYPEID typ, long format)
 
 void TDialog::SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur)
 {
-	::SendDlgItemMessage(H(), ctlID, UDM_SETBUDDY, reinterpret_cast<WPARAM>(GetDlgItem(H(), buddyCtlID)), 0);
-	::SendDlgItemMessage(H(), ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
-	::SendDlgItemMessage(H(), ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
+	::SendDlgItemMessageW(H(), ctlID, UDM_SETBUDDY, reinterpret_cast<WPARAM>(GetDlgItem(H(), buddyCtlID)), 0);
+	::SendDlgItemMessageW(H(), ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
+	::SendDlgItemMessageW(H(), ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
 }
 //
 //
@@ -836,7 +836,7 @@ int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
     HWND  ctrl_wnd = GetDlgItem(H(), ctrlID);
 	if(ctrl_wnd) {
 		if(!ToolTipsWnd) {
-			ToolTipsWnd = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
+			ToolTipsWnd = ::CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
 				CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, ctrl_wnd, NULL, TProgram::GetInst(), 0);
 			SetWindowPos(ToolTipsWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 		}
@@ -850,7 +850,7 @@ int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
 		ti.uId    = reinterpret_cast<UINT_PTR>(ctrl_wnd);
 		ti.lpszText = const_cast<TCHAR *>(SUcSwitch(pToolTipText));
 		ti.rect     = ctrl_rect;
-		SendMessage(ToolTipsWnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti));
+		::SendMessageW(ToolTipsWnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti));
 		ok = 1;
 	}
 	return ok;

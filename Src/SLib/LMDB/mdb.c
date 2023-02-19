@@ -1064,7 +1064,7 @@ typedef struct MDB_db {
 	uint16 md_flags; /**< @ref mdb_dbi_open */
 	uint16 md_depth; /**< depth of this tree */
 	pgno_t md_branch_pages; /**< number of internal pages */
-	pgno_t md_leaf_pages;                   /**< number of leaf pages */
+	pgno_t md_leaf_pages; /**< number of leaf pages */
 	pgno_t md_overflow_pages; /**< number of overflow pages */
 	mdb_size_t md_entries; /**< number of data items */
 	pgno_t md_root;                         /**< the root page of this tree */
@@ -1334,7 +1334,7 @@ typedef struct MDB_pgstate {
 
 /** The database environment. */
 struct MDB_env {
-	HANDLE me_fd;                   /**< The main data file */
+	HANDLE me_fd;  /**< The main data file */
 	HANDLE me_lfd; /**< The lock file */
 	HANDLE me_mfd; /**< For writing and syncing the meta pages */
 #ifdef _WIN32

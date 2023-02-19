@@ -27,9 +27,9 @@ PPObjBill::ReckonParam::ReckonParam(int automat, int dontConfirm) : Flags(0), Fo
 	PTR32(ForceBillCode)[0] = 0;
 }
 
-/*static*/int FASTCALL PPObjBill::IsPoolOwnedByBill(PPID assocID)
+/*static*/bool FASTCALL PPObjBill::IsPoolOwnedByBill(PPID assocID)
 {
-	return BIN(oneof2(assocID, PPASS_PAYMBILLPOOL, PPASS_OPBILLPOOL));
+	return oneof2(assocID, PPASS_PAYMBILLPOOL, PPASS_OPBILLPOOL);
 }
 
 int PPObjBill::CheckRightsWithOp(PPID opID, long rtflags)
@@ -5127,13 +5127,13 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 	SArray * p_qbo_ary = 0;
 	if(pPack && oneof3(pPack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && /*pPack->SampleBillID &&*/ pPack->GetQuotKindList(&ql) > 0) {
 		PPID   ar_id = NZOR(forceArID, pPack->Rec.Object);
-		int    is_quot = 0;
+		bool   is_quot = false;
 		PPTransferItem * p_ti;
 		PPID   loc_id = IsIntrExpndOp(pPack->Rec.OpID) ? PPObjLocation::ObjToWarehouse(ar_id) : pPack->Rec.LocID;
 		SArray * p_qbo_ary = qkobj.MakeListByIDList(&ql);
 		THROW(p_qbo_ary);
 		if(p_qbo_ary->getCount() > 0) {
-			for(uint i = 0; is_quot == 0 && pPack->EnumTItems(&i, &p_ti);) {
+			for(uint i = 0; !is_quot && pPack->EnumTItems(&i, &p_ti);) {
 				//
 				// Проверяем, чтобы хотя бы для одного товара из документа существовала
 				// возможность установки цены по любой котировке из списка p_qbo_ary
@@ -5143,7 +5143,7 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 					double quot = 0.0;
 					QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, qk_id, pPack->Rec.CurID, pPack->Rec.Object);
 					if(GObj.GetQuotExt(p_ti->GoodsID, qi, p_ti->Cost, p_ti->Price, &quot, 1) > 0)
-						is_quot = 1;
+						is_quot = true;
 				}
 			}
 		}

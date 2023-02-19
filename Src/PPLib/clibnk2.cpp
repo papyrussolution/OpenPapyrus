@@ -1,5 +1,5 @@
 // CLIBNK2.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Модуль формирования данных для передачи в системы клиент-банк
 //
@@ -98,7 +98,7 @@ int PPCliBnkImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const St
 	if(PPGetSubStr(params, PPCLBNKPAR_FLAGS, fld_name)) {
 		excl.add(fld_name);
 		if(pFile->GetParam(pSect, fld_name, param_val) > 0) {
-			long   flags = param_val.ToLong();
+			const long flags = param_val.ToLong();
 			DefPayerByAmtSign = BIN(flags & 0x0001);
 		}
 	}

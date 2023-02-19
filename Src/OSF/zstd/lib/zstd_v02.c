@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Yann Collet, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
@@ -271,10 +270,9 @@ extern "C" {
  *  Since link-time-optimization is not available for all compilers,
  *  these functions are defined into a .h to be included.
  */
-
-/**********************************************
-*  bitStream decompression API (read backward)
-**********************************************/
+// 
+// bitStream decompression API (read backward)
+// 
 typedef struct {
 	size_t bitContainer;
 	uint   bitsConsumed;
@@ -292,16 +290,14 @@ MEM_STATIC size_t   BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, 
 MEM_STATIC size_t   BIT_readBits(BIT_DStream_t* bitD, uint nbBits);
 MEM_STATIC BIT_DStream_status BIT_reloadDStream(BIT_DStream_t* bitD);
 MEM_STATIC uint BIT_endOfDStream(const BIT_DStream_t* bitD);
-
-/******************************************
-*  unsafe API
-******************************************/
+// 
+// unsafe API
+// 
 MEM_STATIC size_t BIT_readBitsFast(BIT_DStream_t* bitD, uint nbBits);
 /* faster, but works only if nbBits >= 1 */
-
-/****************************************************************
-*  Helper functions
-****************************************************************/
+// 
+// Helper functions
+// 
 MEM_STATIC uint BIT_highbit32(uint32 val)
 {
 #if defined(_MSC_VER)   /* Visual */
@@ -354,20 +350,13 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, si
 		bitD->start = (const char *)srcBuffer;
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
-		switch(srcSize)
-		{
-			case 7: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[6]) << (sizeof(size_t)*8 - 16);
-			/* fallthrough */
-			case 6: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[5]) << (sizeof(size_t)*8 - 24);
-			/* fallthrough */
-			case 5: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[4]) << (sizeof(size_t)*8 - 32);
-			/* fallthrough */
-			case 4: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[3]) << 24;
-			/* fallthrough */
-			case 3: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[2]) << 16;
-			/* fallthrough */
-			case 2: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[1]) <<  8;
-			/* fallthrough */
+		switch(srcSize) {
+			case 7: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[6]) << (sizeof(size_t)*8 - 16); // @fallthrough
+			case 6: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[5]) << (sizeof(size_t)*8 - 24); // @fallthrough
+			case 5: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[4]) << (sizeof(size_t)*8 - 32); // @fallthrough
+			case 4: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[3]) << 24; // @fallthrough
+			case 3: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[2]) << 16; // @fallthrough
+			case 2: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[1]) <<  8; // @fallthrough
 			default:;
 		}
 		contain32 = ((const BYTE *)srcBuffer)[srcSize-1];
@@ -1273,9 +1262,9 @@ static size_t FSE_decompress(void* dst, size_t maxDstSize, const void* cSrc, siz
 // Error Management
 //
 #define HUF_STATIC_ASSERT(c) { enum { HUF_static_assert = 1/(int)(!!(c)) }; } // use only *after* variable declarations 
-/******************************************
-*  Helper functions
-******************************************/
+// 
+// Helper functions
+// 
 static uint HUF_isError(size_t code) { return ERR_isError(code); }
 
 #define HUF_ABSOLUTEMAX_TABLELOG  16   /* absolute limit of HUF_MAX_TABLELOG. Beyond that value, code does not work */
@@ -1286,10 +1275,9 @@ static uint HUF_isError(size_t code) { return ERR_isError(code); }
 #if (HUF_MAX_TABLELOG > HUF_ABSOLUTEMAX_TABLELOG)
 #error "HUF_MAX_TABLELOG is too large !"
 #endif
-
-/*********************************************************
-*  Huff0 : Huffman block decompression
-*********************************************************/
+// 
+// Huff0 : Huffman block decompression
+// 
 typedef struct { BYTE byte; BYTE nbBits; } HUF_DEltX2;   /* single-symbol decoding */
 typedef struct { uint16 sequence; BYTE nbBits; BYTE length; } HUF_DEltX4;  /* double-symbols decoding */
 typedef struct { BYTE symbol; BYTE weight; } sortedSymbol_t;

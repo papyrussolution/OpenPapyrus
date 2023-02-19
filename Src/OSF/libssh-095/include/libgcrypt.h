@@ -1,6 +1,5 @@
 /*
  * This file is part of the SSH Library
- *
  * Copyright (c) 2009 by Aris Adamantiadis
  *
  * This library is free software; you can redistribute it and/or

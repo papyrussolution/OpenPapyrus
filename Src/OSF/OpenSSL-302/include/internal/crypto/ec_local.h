@@ -7,7 +7,6 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 //#include <stdlib.h>
 #include <openssl/obj_mac.h>
 #include <openssl/ec.h>
@@ -16,29 +15,21 @@
 #include "crypto/ec.h"
 
 #if defined(__SUNPRO_C)
-#if __SUNPRO_C >= 0x520
-#pragma error_messages (off,E_ARRAY_OF_INCOMPLETE_NONAME,E_ARRAY_OF_INCOMPLETE)
+	#if __SUNPRO_C >= 0x520
+		#pragma error_messages (off,E_ARRAY_OF_INCOMPLETE_NONAME,E_ARRAY_OF_INCOMPLETE)
+	#endif
 #endif
-#endif
-
-/* Use default functions for poin2oct, oct2point and compressed coordinates */
-#define EC_FLAGS_DEFAULT_OCT    0x1
-
-/* Use custom formats for EC_GROUP, EC_POINT and EC_KEY */
-#define EC_FLAGS_CUSTOM_CURVE   0x2
-
-/* Curve does not support signing operations */
-#define EC_FLAGS_NO_SIGN        0x4
+#define EC_FLAGS_DEFAULT_OCT    0x1 /* Use default functions for poin2oct, oct2point and compressed coordinates */
+#define EC_FLAGS_CUSTOM_CURVE   0x2 /* Use custom formats for EC_GROUP, EC_POINT and EC_KEY */
+#define EC_FLAGS_NO_SIGN        0x4 /* Curve does not support signing operations */
 
 #ifdef OPENSSL_NO_DEPRECATED_3_0
-typedef struct ec_method_st EC_METHOD;
+	typedef struct ec_method_st EC_METHOD;
 #endif
-
 /*
  * Structure details are not part of the exported interface, so all this may
  * change in future versions.
  */
-
 struct ec_method_st {
 	/* Various method flags */
 	int flags;
@@ -79,20 +70,12 @@ struct ec_method_st {
 	 * EC_POINT_set_compressed_coordinates:
 	 */
 	int (* point_set_to_infinity) (const EC_GROUP *, EC_POINT *);
-	int (* point_set_affine_coordinates) (const EC_GROUP *, EC_POINT *,
-	    const BIGNUM * x, const BIGNUM * y,
-	    BN_CTX *);
-	int (* point_get_affine_coordinates) (const EC_GROUP *, const EC_POINT *,
-	    BIGNUM * x, BIGNUM * y, BN_CTX *);
-	int (* point_set_compressed_coordinates) (const EC_GROUP *, EC_POINT *,
-	    const BIGNUM * x, int y_bit,
-	    BN_CTX *);
+	int (* point_set_affine_coordinates) (const EC_GROUP *, EC_POINT *, const BIGNUM * x, const BIGNUM * y, BN_CTX *);
+	int (* point_get_affine_coordinates) (const EC_GROUP *, const EC_POINT *, BIGNUM * x, BIGNUM * y, BN_CTX *);
+	int (* point_set_compressed_coordinates) (const EC_GROUP *, EC_POINT *, const BIGNUM * x, int y_bit, BN_CTX *);
 	/* used by EC_POINT_point2oct, EC_POINT_oct2point: */
-	size_t (* point2oct) (const EC_GROUP *, const EC_POINT *,
-	    point_conversion_form_t form, uchar * buf,
-	    size_t len, BN_CTX *);
-	int (* oct2point) (const EC_GROUP *, EC_POINT *, const uchar * buf,
-	    size_t len, BN_CTX *);
+	size_t (* point2oct) (const EC_GROUP *, const EC_POINT *, point_conversion_form_t form, uchar * buf, size_t len, BN_CTX *);
+	int (* oct2point) (const EC_GROUP *, EC_POINT *, const uchar * buf, size_t len, BN_CTX *);
 	/* used by EC_POINT_add, EC_POINT_dbl, ECP_POINT_invert: */
 	int (* add) (const EC_GROUP *, EC_POINT * r, const EC_POINT * a,
 	    const EC_POINT * b, BN_CTX *);
@@ -103,12 +86,10 @@ struct ec_method_st {
 	 */
 	int (* is_at_infinity) (const EC_GROUP *, const EC_POINT *);
 	int (* is_on_curve) (const EC_GROUP *, const EC_POINT *, BN_CTX *);
-	int (* point_cmp) (const EC_GROUP *, const EC_POINT * a, const EC_POINT * b,
-	    BN_CTX *);
+	int (* point_cmp) (const EC_GROUP *, const EC_POINT * a, const EC_POINT * b, BN_CTX *);
 	/* used by EC_POINT_make_affine, EC_POINTs_make_affine: */
 	int (* make_affine) (const EC_GROUP *, EC_POINT *, BN_CTX *);
-	int (* points_make_affine) (const EC_GROUP *, size_t num, EC_POINT *[],
-	    BN_CTX *);
+	int (* points_make_affine) (const EC_GROUP *, size_t num, EC_POINT *[], BN_CTX *);
 	/*
 	 * used by EC_POINTs_mul, EC_POINT_mul, EC_POINT_precompute_mult,
 	 * EC_POINT_have_precompute_mult (default implementations are used if the
@@ -131,9 +112,7 @@ struct ec_method_st {
 	 * may treat it as an unusual input, without any constant-timeness
 	 * guarantee.
 	 */
-	int (* mul) (const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
-	    size_t num, const EC_POINT * points[], const BIGNUM * scalars[],
-	    BN_CTX *);
+	int (* mul) (const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar, size_t num, const EC_POINT * points[], const BIGNUM * scalars[], BN_CTX *);
 	int (* precompute_mult) (EC_GROUP * group, BN_CTX *);
 	int (* have_precompute_mult) (const EC_GROUP * group);
 	/* internal functions */
@@ -143,11 +122,9 @@ struct ec_method_st {
 	 * with different optimized implementations of expensive field
 	 * operations:
 	 */
-	int (* field_mul) (const EC_GROUP *, BIGNUM * r, const BIGNUM * a,
-	    const BIGNUM * b, BN_CTX *);
+	int (* field_mul) (const EC_GROUP *, BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX *);
 	int (* field_sqr) (const EC_GROUP *, BIGNUM * r, const BIGNUM * a, BN_CTX *);
-	int (* field_div) (const EC_GROUP *, BIGNUM * r, const BIGNUM * a,
-	    const BIGNUM * b, BN_CTX *);
+	int (* field_div) (const EC_GROUP *, BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX *);
 	/*-
 	 * 'field_inv' computes the multiplicative inverse of a in the field,
 	 * storing the result in r.
@@ -156,11 +133,9 @@ struct ec_method_st {
 	 */
 	int (* field_inv) (const EC_GROUP *, BIGNUM * r, const BIGNUM * a, BN_CTX *);
 	/* e.g. to Montgomery */
-	int (* field_encode) (const EC_GROUP *, BIGNUM * r, const BIGNUM * a,
-	    BN_CTX *);
+	int (* field_encode) (const EC_GROUP *, BIGNUM * r, const BIGNUM * a, BN_CTX *);
 	/* e.g. from Montgomery */
-	int (* field_decode) (const EC_GROUP *, BIGNUM * r, const BIGNUM * a,
-	    BN_CTX *);
+	int (* field_decode) (const EC_GROUP *, BIGNUM * r, const BIGNUM * a, BN_CTX *);
 	int (* field_set_to_one) (const EC_GROUP *, BIGNUM * r, BN_CTX *);
 	/* private key operations */
 	size_t (* priv2oct)(const EC_KEY * eckey, uchar * buf, size_t len);
@@ -175,26 +150,15 @@ struct ec_method_st {
 	int (* ecdh_compute_key)(uchar ** pout, size_t * poutlen,
 	    const EC_POINT * pub_key, const EC_KEY * ecdh);
 	/* custom ECDSA */
-	int (* ecdsa_sign_setup)(EC_KEY * eckey, BN_CTX * ctx, BIGNUM ** kinvp,
-	    BIGNUM ** rp);
-	ECDSA_SIG *(* ecdsa_sign_sig)(const uchar * dgst, int dgstlen,
-	    const BIGNUM * kinv, const BIGNUM * r,
-	    EC_KEY * eckey);
-	int (* ecdsa_verify_sig)(const uchar * dgst, int dgstlen,
-	    const ECDSA_SIG * sig, EC_KEY * eckey);
+	int (* ecdsa_sign_setup)(EC_KEY * eckey, BN_CTX * ctx, BIGNUM ** kinvp, BIGNUM ** rp);
+	ECDSA_SIG *(* ecdsa_sign_sig)(const uchar * dgst, int dgstlen, const BIGNUM * kinv, const BIGNUM * r, EC_KEY * eckey);
+	int (* ecdsa_verify_sig)(const uchar * dgst, int dgstlen, const ECDSA_SIG * sig, EC_KEY * eckey);
 	/* Inverse modulo order */
-	int (* field_inverse_mod_ord)(const EC_GROUP *, BIGNUM * r,
-	    const BIGNUM * x, BN_CTX *);
+	int (* field_inverse_mod_ord)(const EC_GROUP *, BIGNUM * r, const BIGNUM * x, BN_CTX *);
 	int (* blind_coordinates)(const EC_GROUP * group, EC_POINT * p, BN_CTX * ctx);
-	int (* ladder_pre)(const EC_GROUP * group,
-	    EC_POINT * r, EC_POINT * s,
-	    EC_POINT * p, BN_CTX * ctx);
-	int (* ladder_step)(const EC_GROUP * group,
-	    EC_POINT * r, EC_POINT * s,
-	    EC_POINT * p, BN_CTX * ctx);
-	int (* ladder_post)(const EC_GROUP * group,
-	    EC_POINT * r, EC_POINT * s,
-	    EC_POINT * p, BN_CTX * ctx);
+	int (* ladder_pre)(const EC_GROUP * group, EC_POINT * r, EC_POINT * s, EC_POINT * p, BN_CTX * ctx);
+	int (* ladder_step)(const EC_GROUP * group, EC_POINT * r, EC_POINT * s, EC_POINT * p, BN_CTX * ctx);
+	int (* ladder_post)(const EC_GROUP * group, EC_POINT * r, EC_POINT * s, EC_POINT * p, BN_CTX * ctx);
 };
 
 /*

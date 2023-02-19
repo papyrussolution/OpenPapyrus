@@ -1,6 +1,5 @@
 /**
- * Copyright (c) 2016 Tino Reichardt
- * All rights reserved.
+ * Copyright (c) 2016 Tino Reichardt All rights reserved.
  *
  * You can contact the author at:
  * - zstdmt source repository: https://github.com/mcmilk/zstdmt

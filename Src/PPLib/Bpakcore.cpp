@@ -1,5 +1,5 @@
 // BPAKCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -22,10 +22,7 @@ AmtEntry::AmtEntry(PPID amtTypeID, PPID curID, double amt) : AmtTypeID(amtTypeID
 {
 }
 
-bool FASTCALL AmtEntry::IsEq(const AmtEntry & rS) const
-{
-	return (AmtTypeID == rS.AmtTypeID && CurID == rS.CurID && Amt == rS.Amt);
-}
+bool FASTCALL AmtEntry::IsEq(const AmtEntry & rS) const { return (AmtTypeID == rS.AmtTypeID && CurID == rS.CurID && Amt == rS.Amt); }
 
 AmtList::AmtList() : TSVector <AmtEntry> ()
 {
@@ -37,10 +34,7 @@ AmtList & FASTCALL AmtList::operator = (const AmtList & s)
 	return *this;
 }
 
-bool FASTCALL AmtList::HasAmtTypeID(PPID amtTypeID) const
-{
-	return lsearch(&amtTypeID, 0, CMPF_LONG);
-}
+bool FASTCALL AmtList::HasAmtTypeID(PPID amtTypeID) const { return lsearch(&amtTypeID, 0, CMPF_LONG); }
 
 bool FASTCALL AmtList::HasVatSum(const TaxAmountIDs * pTai) const
 {
@@ -76,17 +70,17 @@ bool FASTCALL AmtList::IsEq(const AmtList * pS) const
 	return ok;
 }
 
-int AmtList::Search(PPID amtTypeID, PPID curID, uint * pPos) const
+bool AmtList::Search(PPID amtTypeID, PPID curID, uint * pPos) const
 {
 	for(uint i = 0; i < count; i++) {
 		const AmtEntry & r_entry = at(i);
 		if(r_entry.AmtTypeID == amtTypeID && r_entry.CurID == curID) {
 			ASSIGN_PTR(pPos, i);
-			return 1;
+			return true;
 		}
 	}
 	ASSIGN_PTR(pPos, 0);
-	return 0;
+	return false;
 }
 
 int AmtList::GetCurList(PPID amtTypeID, PPIDArray * pCurList) const
@@ -3476,8 +3470,8 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 					ok = PPSetError(PPERR_BILLGOODSRESTR_MCR_COUNT);
 				}
 				else if(mg_list.getCount() == 2) {
-                    int    s1 = mg_list.at(0)->Sign;
-                    int    s2 = mg_list.at(1)->Sign;
+                    const  int  s1 = mg_list.at(0)->Sign;
+                    const  int  s2 = mg_list.at(1)->Sign;
                     const  PPID _id1 = mg_list.at(0)->GoodsID;
                     const  PPID _id2 = mg_list.at(1)->GoodsID;
                     if((s1 == TISIGN_PLUS && s2 == TISIGN_MINUS) || (s1 == TISIGN_MINUS && s2 == TISIGN_PLUS)) {

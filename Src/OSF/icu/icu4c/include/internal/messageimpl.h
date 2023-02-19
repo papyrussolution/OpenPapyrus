@@ -24,20 +24,17 @@
 #include "unicode/messagepattern.h"
 
 U_NAMESPACE_BEGIN
-
-/**
- * Helper functions for use of MessagePattern.
- * In Java, these are package-private methods in MessagePattern itself.
- * In C++, they are declared here and implemented in messagepattern.cpp.
- */
+// 
+// Helper functions for use of MessagePattern.
+// In Java, these are package-private methods in MessagePattern itself.
+// In C++, they are declared here and implemented in messagepattern.cpp.
+// 
 class U_COMMON_API MessageImpl {
 public:
     /**
   * @return true if getApostropheMode()==UMSGPAT_APOS_DOUBLE_REQUIRED
      */
-    static bool jdkAposMode(const MessagePattern &msgPattern) {
-        return msgPattern.getApostropheMode()==UMSGPAT_APOS_DOUBLE_REQUIRED;
-    }
+    static bool jdkAposMode(const MessagePattern &msgPattern) { return msgPattern.getApostropheMode()==UMSGPAT_APOS_DOUBLE_REQUIRED; }
 
     /**
   * Appends the s[start, limit[ substring to sb, but with only half of the apostrophes

@@ -85,6 +85,9 @@
         <item name="tabTextAppearance">@style/TabTextAppearance</item>
         <item name="tabSelectedTextColor">@color/TextSecondary</item>
         <item name="tabPadding">2dp</item>
+        <item name="tabMode">scrollable</item>
+        <item name="tabGravity">fill</item>
+        <item name="tabInlineLabel">true</item>
     </style>
     <style name="ListItemRegular">
         <item name="android:background">@drawable/shape_listitem</item>

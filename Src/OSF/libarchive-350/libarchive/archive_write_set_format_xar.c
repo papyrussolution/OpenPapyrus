@@ -1,10 +1,8 @@
 /*-
- * Copyright (c) 2010-2012 Michihiro NAKAJIMA
- * All rights reserved.
+ * Copyright (c) 2010-2012 Michihiro NAKAJIMA All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -32,10 +30,7 @@ __FBSDID("$FreeBSD$");
  *
  */
 
-#if !(defined(HAVE_LIBXML_XMLWRITER_H) && defined(LIBXML_VERSION) && \
-	LIBXML_VERSION >= 20703) || \
-	!defined(HAVE_ZLIB_H) || \
-	!defined(ARCHIVE_HAS_MD5) || !defined(ARCHIVE_HAS_SHA1)
+#if !(defined(HAVE_LIBXML_XMLWRITER_H) && defined(LIBXML_VERSION) && LIBXML_VERSION >= 20703) || !defined(HAVE_ZLIB_H) || !defined(ARCHIVE_HAS_MD5) || !defined(ARCHIVE_HAS_SHA1)
 /*
  * xar needs several external libraries.
  *   o libxml2
@@ -104,18 +99,13 @@ struct la_zstream {
 	const uchar     * next_in;
 	size_t avail_in;
 	uint64 total_in;
-
 	uchar * next_out;
 	size_t avail_out;
 	uint64 total_out;
-
 	int valid;
-	void                    * real_stream;
-	int (* code) (Archive * a,
-	    struct la_zstream * lastrm,
-	    enum la_zaction action);
-	int (* end)(Archive * a,
-	    struct la_zstream * lastrm);
+	void * real_stream;
+	int (* code) (Archive * a, struct la_zstream * lastrm, enum la_zaction action);
+	int (* end)(Archive * a, struct la_zstream * lastrm);
 };
 
 struct chksumval {

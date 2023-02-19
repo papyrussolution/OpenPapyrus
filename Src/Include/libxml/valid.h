@@ -65,8 +65,8 @@ struct xmlValidCtxt {
 	xmlValidityWarningFunc warning; /* the callback in case of warning */
 	/* Node analysis stack used when validating within entities */
 	xmlNode * P_Node; /* Current parsed Node */
-	int nodeNr;                   /* Depth of the parsing stack */
-	int nodeMax; /* Max depth of the parsing stack */
+	int    nodeNr;  /* Depth of the parsing stack */
+	int    nodeMax; /* Max depth of the parsing stack */
 	xmlNode ** PP_NodeTab; // array of nodes 
 	uint finishDtd; /* finished validating the Dtd ? */
 	xmlDoc * doc; /* the document */

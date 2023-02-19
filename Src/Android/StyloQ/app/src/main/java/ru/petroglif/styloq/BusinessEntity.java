@@ -7,6 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class BusinessEntity {
 	public static class Uom {
@@ -143,6 +145,140 @@ public class BusinessEntity {
 		int    ID;
 		double Val;
 	}
+	public static class GoodsGroup {
+		public GoodsGroup()
+		{
+			ID = 0;
+			ParentID = 0;
+			Name = null;
+		}
+		public boolean FromJsonObj(JSONObject jsObj)
+		{
+			boolean result = false;
+			if(jsObj != null) {
+				ID = jsObj.optInt("id", 0);
+				if(ID > 0) {
+					ParentID = jsObj.optInt("parid", 0);
+					Name = jsObj.optString("nm", null);
+					if(SLib.GetLen(Name) > 0)
+						result = true;
+				}
+			}
+			return result;
+		}
+		int    ID;
+		int    ParentID;
+		String Name;
+	}
+	public static class GoodsGroupList {
+		public GoodsGroupList()
+		{
+			UseHierarchy = false;
+			L = null;
+		}
+		GoodsGroupList Z()
+		{
+			UseHierarchy = false;
+			if(L != null)
+				L.clear();
+			return this;
+		}
+		ArrayList <Integer> GetChildrenIndexList(int id, boolean recursively)
+		{
+			ArrayList <Integer> result = null;
+			if(id > 0) {
+				final int _count = GetCount();
+				for(int i = 0; i < _count; i++) {
+					final GoodsGroup item = L.get(i);
+					if(item != null && item.ParentID == id) {
+						if(result == null)
+							result = new ArrayList<>();
+						result.add(new Integer(i));
+						if(recursively) {
+							ArrayList <Integer> rlist = GetChildrenIndexList(item.ID, recursively); // @recursion
+							if(rlist != null) {
+								for(int ri = 0; ri < rlist.size(); ri++) {
+									result.add(rlist.get(ri));
+								}
+							}
+						}
+					}
+				}
+			}
+			return result;
+		}
+		ArrayList <GoodsGroup> GetChildrenList(int id)
+		{
+			ArrayList <GoodsGroup> result = null;
+			if(id > 0) {
+				final int _count = GetCount();
+				for(int i = 0; i < _count; i++) {
+					final GoodsGroup item = L.get(i);
+					if(item != null && item.ParentID == id) {
+						if(result == null)
+							result = new ArrayList<>();
+						result.add(item);
+					}
+				}
+			}
+			return result;
+		}
+		public int GetCount() { return SLib.GetCount(L); }
+		public int FindItemIndexByID(int id)
+		{
+			int result = -1;
+			if(L != null && id > 0) {
+				for(int i = 0; result < 0 && i < L.size(); i++) {
+					final int iter_id = L.get(i).ID;
+					if(iter_id == id)
+						result = i;
+				}
+			}
+			return result;
+		}
+		public void Sort()
+		{
+			Collections.sort(L, new Comparator<GoodsGroup>() {
+				@Override public int compare(GoodsGroup lh, GoodsGroup rh)
+				{
+					String ls = lh.Name;
+					String rs = rh.Name;
+					return ls.toLowerCase().compareTo(rs.toLowerCase());
+				}
+			});
+		}
+		public boolean FromJsonObj(JSONObject jsObj)
+		{
+			boolean result = false;
+			Z();
+			if(jsObj != null) {
+				UseHierarchy = jsObj.optBoolean("goodsgroup_list_hierarchical", false);
+				JSONArray temp_array = jsObj.optJSONArray("goodsgroup_list");
+				if(temp_array != null) {
+					try {
+						if(L == null)
+							L = new ArrayList<GoodsGroup>();
+						for(int i = 0; i < temp_array.length(); i++) {
+							Object temp_obj = temp_array.get(i);
+							if(temp_obj != null && temp_obj instanceof JSONObject) {
+								GoodsGroup new_entry = new GoodsGroup();
+								if(new_entry.FromJsonObj((JSONObject)temp_obj)) {
+									L.add(new_entry);
+								}
+							}
+						}
+						result = true;
+					} catch(JSONException exn) {
+						Z();
+						result = false;
+					}
+				}
+			}
+			return result;
+		}
+		boolean UseHierarchy;
+		public ArrayList <GoodsGroup> L;
+	}
 	public static class Goods {
 		public static class ExtText {
 			ExtText()
@@ -173,6 +309,7 @@ public class BusinessEntity {
 			ManufID = 0;
 			ChZnCat = 0; // @v11.5.0
 			Egais = false; // @v11.5.0
+			HideStock = false; // @v11.6.4
 			UnitPerPack = 0.0;
 			OrdQtyMult = 0.0;
 			OrdMinQty = 0.0;
@@ -201,6 +338,7 @@ public class BusinessEntity {
 					ManufID = jsObj.optInt("manufid", 0);
 					ChZnCat = jsObj.optInt("chzncat", 0); // @v11.5.0
 					Egais = jsObj.optBoolean("egais", false); // @v11.5.0
+					HideStock = jsObj.optBoolean("hidestock", false); // @v11.6.4
 					UnitPerPack = jsObj.optDouble("upp", 0.0);
 					OrdMinQty = jsObj.optDouble("ordminqty", 0.0);
 					OrdQtyMult = jsObj.optDouble("ordqtymult", 0.0);
@@ -287,6 +425,7 @@ public class BusinessEntity {
 		int    ManufID;
 		int    ChZnCat;    // @v11.5.0 GTCHZNPT_XXX Категория маркировки честный знак
 		boolean Egais;     // @v11.5.0 Если true, то товар маркируется EGAI-кодами
+		boolean HideStock; // @v11.6.4 Не отображать остаток
 		double UnitPerPack;
 		double OrdQtyMult; // Кратность заказа (<=0 - не определено)
 		double OrdMinQty;  // Минимальный заказ (<=0 - не определено)

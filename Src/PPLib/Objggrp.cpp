@@ -578,73 +578,122 @@ int PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 	return ok;
 }*/
 
-StrAssocArray * PPObjGoodsGroup::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjGoodsGroup::Implement_MakeStrAssocList(long parentID, const PPIDArray * pTerminalList)
 {
-	long   parent = reinterpret_cast<long>(extraPtr);
+	long   parent_id = parentID;
 	StrAssocArray * p_list = new StrAssocArray();
-	int    alt = 0, asset = 0, excl_asset = 0, fold_only = 0;
+	bool   done = false; // Сигнал для преждевременного завершения функции (не по ошибке!)
+	int    alt = 0; // 0 | -1 | 1
+	bool   asset = false;
+	bool   excl_asset = false;
+	bool   fold_only = false;
+	Goods2Tbl::Rec rec;
+	PPIDArray finish_id_list; // Если нужно построить список по набору идентификаторов pTerminalList, то
+		// сначала мы должны получить порожденный набор идентификаторов finish_id_list, содержащий кроме pTerminalList,
+		// всю иерархию родительских групп, содержащих указанный набор.
 	Goods2Tbl::Key1 k;
 	BExtQuery q(P_Tbl, 1);
 	DBQ  * dbq = 0;
 	THROW_MEM(p_list);
-	if(parent >= GGRTYP_SEL_FOLDER) {
-		fold_only = 1;
-		parent -= GGRTYP_SEL_FOLDER;
-	}
-	else {
-		if(parent >= GGRTYP_SEL_EXCLASSET) {
-			excl_asset = 1;
-			parent -= GGRTYP_SEL_EXCLASSET;
-		}
-		if(parent >= GGRTYP_SEL_ASSET) {
-			asset = 1;
-			parent -= GGRTYP_SEL_ASSET;
-		}
-		if(parent >= GGRTYP_SEL_NORMAL) {
-			alt     = -1;
-			parent -= GGRTYP_SEL_NORMAL;
-		}
-		else if(parent >= GGRTYP_SEL_ALT) {
-			alt     = 1;
-			parent -= GGRTYP_SEL_ALT;
-		}
-	}
-	MEMSZERO(k);
-	k.Kind = PPGDSK_GROUP;
-	dbq = & (P_Tbl->Kind == PPGDSK_GROUP);
-	q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->Name, P_Tbl->Flags, P_Tbl->GoodsTypeID, 0L).where(*dbq);
-	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-		const int is_alt  = BIN(P_Tbl->data.Flags & GF_ALTGROUP);
-		const int is_fold = BIN(P_Tbl->data.Flags & GF_FOLDER);
-#ifdef _DEBUG
-		//
-		// Под отладчиком нам нужна возможность видеть динамические альт группы
-		//
-		const int is_tempalt = 0;
-#else
-		const int is_tempalt = BIN((P_Tbl->data.Flags & GF_TEMPALTGROUP) == GF_TEMPALTGROUP);
-#endif
-		if(!is_tempalt && (!alt || (alt < 0 && !is_alt) || (alt > 0 && is_alt) || is_fold)) {
-			if(fold_only && !is_fold)
-				continue;
-			else if(asset) {
-				if(!IsAssetType(P_Tbl->data.GoodsTypeID))
-					continue;
+	if(pTerminalList) {
+		if(!pTerminalList->getCount()) 
+			done = true;
+		else {
+			finish_id_list.add(pTerminalList);
+			finish_id_list.sortAndUndup();
+			SString name_buf;
+			PPIDArray id_list_to_remove; // Если идентификатор из списка не будет найден, то его в следующем цикле удалим
+			const uint flc = finish_id_list.getCount();
+			for(uint i = 0; i < flc; i++) {
+				const PPID _id = finish_id_list.get(i);
+				if(Fetch(_id, &rec) > 0) {
+					for(PPID _parent_id = rec.ParentID; _parent_id; _parent_id = rec.ParentID) {
+						if(Fetch(_parent_id, &rec) > 0) {
+							if(!finish_id_list.lsearch(_parent_id)) {
+								finish_id_list.add(_parent_id); // Список, по которому ведется перебор, изменился! Но нам не надо будет перебирать этот элемент ибо мы здесь уже все сделали!
+							}
+						}
+						else {
+							// Аварийная ситуация: в цепочки наследования есть висячий идентификатор
+							break; 
+						}
+					}
+				}
+				else {
+					id_list_to_remove.add(_id);
+				}
 			}
-			else if(excl_asset) {
-				if(IsAssetType(P_Tbl->data.GoodsTypeID))
-					continue;
+			if(id_list_to_remove.getCount()) {
+				for(uint j = 0; j < id_list_to_remove.getCount(); j++)
+					finish_id_list.removeByID(id_list_to_remove.get(j));
 			}
-			p_list->AddFast(P_Tbl->data.ID, P_Tbl->data.ParentID, P_Tbl->data.Name);
+			finish_id_list.sortAndUndup();
 		}
 	}
-	p_list->SortByText(); // @v7.4.2
-	// @average (очень медленно работает, хоть и дает гарантию нерекурсивности)
-	// p_list->RemoveRecursion(0); // @v8.3.2
+	if(!done) {
+		if(parent_id >= GGRTYP_SEL_FOLDER) {
+			fold_only = true;
+			parent_id -= GGRTYP_SEL_FOLDER;
+		}
+		else {
+			if(parent_id >= GGRTYP_SEL_EXCLASSET) {
+				excl_asset = true;
+				parent_id -= GGRTYP_SEL_EXCLASSET;
+			}
+			if(parent_id >= GGRTYP_SEL_ASSET) {
+				asset = true;
+				parent_id -= GGRTYP_SEL_ASSET;
+			}
+			if(parent_id >= GGRTYP_SEL_NORMAL) {
+				alt     = -1;
+				parent_id -= GGRTYP_SEL_NORMAL;
+			}
+			else if(parent_id >= GGRTYP_SEL_ALT) {
+				alt     = 1;
+				parent_id -= GGRTYP_SEL_ALT;
+			}
+		}
+		MEMSZERO(k);
+		k.Kind = PPGDSK_GROUP;
+		dbq = & (P_Tbl->Kind == PPGDSK_GROUP);
+		q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->Name, P_Tbl->Flags, P_Tbl->GoodsTypeID, 0L).where(*dbq);
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+			if(!pTerminalList || finish_id_list.bsearch(P_Tbl->data.ID)) {
+				const bool is_alt  = LOGIC(P_Tbl->data.Flags & GF_ALTGROUP);
+				const bool is_fold = LOGIC(P_Tbl->data.Flags & GF_FOLDER);
+		#ifdef _DEBUG
+				const bool is_tempalt = false; // Под отладчиком нам нужна возможность видеть динамические альт группы
+		#else
+				const bool is_tempalt = ((P_Tbl->data.Flags & GF_TEMPALTGROUP) == GF_TEMPALTGROUP);
+		#endif
+				if(!is_tempalt && (!alt || (alt < 0 && !is_alt) || (alt > 0 && is_alt) || is_fold)) {
+					if(fold_only && !is_fold)
+						continue;
+					else if(asset) {
+						if(!IsAssetType(P_Tbl->data.GoodsTypeID))
+							continue;
+					}
+					else if(excl_asset) {
+						if(IsAssetType(P_Tbl->data.GoodsTypeID))
+							continue;
+					}
+					p_list->AddFast(P_Tbl->data.ID, P_Tbl->data.ParentID, P_Tbl->data.Name);
+				}
+			}
+		}
+		p_list->SortByText();
+		// @average (очень медленно работает, хоть и дает гарантию нерекурсивности)
+		// p_list->RemoveRecursion(0); // @v8.3.2
+	}
 	CATCH
 		ZDELETE(p_list);
 	ENDCATCH
 	return p_list;
+}
+
+StrAssocArray * PPObjGoodsGroup::MakeStrAssocList(void * extraPtr)
+{
+	return Implement_MakeStrAssocList(reinterpret_cast<long>(extraPtr), 0);
 }
 
 static long FASTCALL GetSelBias(long p)

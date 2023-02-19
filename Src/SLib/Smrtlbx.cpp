@@ -1,5 +1,5 @@
 // SMRTLBX.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -50,11 +50,11 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	switch(uMsg) {
 		case WM_DESTROY: CALLPTRMEMB(p_view, OnDestroy(hWnd)); return 0; // Не вызывается. Непонятно правда почему.
 		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN: ::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); break; // Process by default
+		case WM_SYSKEYDOWN: ::SendMessageW(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); break; // Process by default
 		case WM_SETFOCUS:
-		case WM_KILLFOCUS: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
-		case WM_CHAR: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
-		case WM_NOTIFY: ::SendMessage(GetParent(hWnd), uMsg, wParam, lParam); return 0;
+		case WM_KILLFOCUS: ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
+		case WM_CHAR: ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
+		case WM_NOTIFY: ::SendMessageW(GetParent(hWnd), uMsg, wParam, lParam); return 0;
 		case WM_ERASEBKGND:
 			if(p_view && p_view->HasState(SmartListBox::stOwnerDraw)) {
 				TDrawItemData di;
@@ -94,11 +94,11 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 				CALLPTRMEMB(p_view, OnDestroy(hWnd));
 				return 0;
 			case WM_KEYDOWN:
-			case WM_SYSKEYDOWN: ::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); return 0;
+			case WM_SYSKEYDOWN: ::SendMessageW(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); return 0;
 			case WM_SETFOCUS:
-			case WM_KILLFOCUS: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
-			case WM_CHAR: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
-			case WM_MOUSEWHEEL: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
+			case WM_KILLFOCUS: ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
+			case WM_CHAR: ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
+			case WM_MOUSEWHEEL: ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
 				/*
 				{
 					short delta = (short)HIWORD(wParam);
@@ -108,7 +108,7 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 				}
 				return 0;
 				*/
-			case WM_RBUTTONDOWN: ::SendMessage(GetParent(hWnd), uMsg, MAKEWPARAM(LOWORD(wParam), 1), lParam); return 0;
+			case WM_RBUTTONDOWN: ::SendMessageW(GetParent(hWnd), uMsg, MAKEWPARAM(LOWORD(wParam), 1), lParam); return 0;
 			case WM_ERASEBKGND:
 				if(p_view->HasState(SmartListBox::stOwnerDraw)) {
 					TDrawItemData di;
@@ -147,19 +147,19 @@ INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 			CALLPTRMEMB(p_view, OnDestroy(hWnd));
 			return 0;
 		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN: ::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); break; // Process by default
+		case WM_SYSKEYDOWN: ::SendMessageW(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); break; // Process by default
 		case WM_SETFOCUS:
-		case WM_KILLFOCUS: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
-		case WM_CHAR: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
-		case WM_LBUTTONDOWN: ::PostMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_SELCHANGE), reinterpret_cast<LPARAM>(hWnd)); break;
-		case WM_LBUTTONDBLCLK: ::SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_DBLCLK), reinterpret_cast<LPARAM>(hWnd)); return 0;
+		case WM_KILLFOCUS: ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
+		case WM_CHAR: ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
+		case WM_LBUTTONDOWN: ::PostMessageW(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_SELCHANGE), reinterpret_cast<LPARAM>(hWnd)); break;
+		case WM_LBUTTONDBLCLK: ::SendMessageW(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_DBLCLK), reinterpret_cast<LPARAM>(hWnd)); return 0;
 		case WM_RBUTTONDOWN:
 			CALLPTRMEMB(p_view, handleWindowsMessage(uMsg, wParam, lParam));
-			// SendMessage(GetParent(hWnd), uMsg, MAKEWPARAM(LOWORD(wParam), 1), lParam);
+			//::SendMessageW(GetParent(hWnd), uMsg, MAKEWPARAM(LOWORD(wParam), 1), lParam);
 			break;
 		/*
 		case WM_INPUTLANGCHANGE: // @v6.4.4 AHTOXA
-			PostMessage(GetParent(hWnd), uMsg, wParam, lParam);
+			::PostMessageW(GetParent(hWnd), uMsg, wParam, lParam);
 			break;
 		*/
 	}
@@ -338,7 +338,7 @@ uint SmartListBox::GetSelectionList(LongArray * pList)
 				const  int gcir = getCurID(&cur_id__);
 				const long s = GetWindowStyle(hw);
 				if(s & LBS_EXTENDEDSEL) {
-					LRESULT c = ::SendMessage(hw, LB_GETSELCOUNT, 0, 0);
+					LRESULT c = ::SendMessageW(hw, LB_GETSELCOUNT, 0, 0);
 					if(c > 0) {
 						if(pList) {
 							int32 * p_buffer = 0;
@@ -351,7 +351,7 @@ uint SmartListBox::GetSelectionList(LongArray * pList)
 							else {
 								p_buffer = stbuf;
 							}
-							LRESULT c2 = ::SendMessage(hw, LB_GETSELITEMS, c, reinterpret_cast<LPARAM>(p_buffer));
+							LRESULT c2 = ::SendMessageW(hw, LB_GETSELITEMS, c, reinterpret_cast<LPARAM>(p_buffer));
 							if(c2 > 0) {
 								for(uint i = 0; i < static_cast<uint>(c2); i++) {
 									int32 idx = p_buffer[i];
@@ -469,7 +469,7 @@ void SmartListBox::CreateScrollBar(int create)
 		sc_lu.x = rc_list.right;
 		sc_lu.y = rc_list.top;
 		::MapWindowPoints(NULL, Parent, &sc_lu, 1);
-		h_wnd = ::CreateWindowEx(0, _T("SCROLLBAR"), _T(""), WS_CHILD|SBS_LEFTALIGN|SBS_VERT, sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, 
+		h_wnd = ::CreateWindowExW(0, L"SCROLLBAR", L"", WS_CHILD|SBS_LEFTALIGN|SBS_VERT, sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, 
 			reinterpret_cast<HMENU>(MAKE_BUTTON_ID(Id, 1)), TProgram::GetInst(), 0);
 		::ShowWindow(h_wnd, SW_SHOWNORMAL);
 	}
@@ -479,7 +479,7 @@ void SmartListBox::SetScrollBarPos(long pos, LPARAM lParam)
 {
 	HWND h_wnd = GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1));
 	if(h_wnd)
-		::SendMessage(h_wnd, SBM_SETPOS, pos, lParam);
+		::SendMessageW(h_wnd, SBM_SETPOS, pos, lParam);
 }
 
 int  SmartListBox::GetMaxListHeight()
@@ -488,7 +488,7 @@ int  SmartListBox::GetMaxListHeight()
 	RECT   list_rect;
 	::GetClientRect(Parent, &list_rect);
 	const int list_height = list_rect.bottom - list_rect.top;
-	const int item_height = ::SendMessage(h_lb, LB_GETITEMHEIGHT, 0, 0);
+	const int item_height = ::SendMessageW(h_lb, LB_GETITEMHEIGHT, 0, 0);
 	return (P_Def && P_Def->Options & lbtHSizeAlreadyDef) ? P_Def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
 }
 
@@ -545,7 +545,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 		else {
 			Height = GetMaxListHeight();
 			/*
-			item_height = SendMessage(h_lb, LB_GETITEMHEIGHT, 0, 0);
+			item_height = ::SendMessageW(h_lb, LB_GETITEMHEIGHT, 0, 0);
 			Height = (def && def->Options & lbtHSizeAlreadyDef) ? def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
 			*/
 			if(P_Def) {
@@ -606,7 +606,7 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 							ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
 						HIML = p_def2->CreateImageList(TProgram::GetInst());
 						if(HIML)
-							::SendMessage(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, static_cast<WPARAM>(TVSIL_NORMAL), reinterpret_cast<LPARAM>(HIML));
+							::SendMessageW(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, static_cast<WPARAM>(TVSIL_NORMAL), reinterpret_cast<LPARAM>(HIML));
 					}
 				}
 				{
@@ -679,7 +679,7 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 						ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
 					HIML = p_def->CreateImageList(TProgram::GetInst());
 					if(HIML)
-						::SendMessage(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, static_cast<WPARAM>(TVSIL_NORMAL), reinterpret_cast<LPARAM>(HIML));
+						::SendMessageW(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, static_cast<WPARAM>(TVSIL_NORMAL), reinterpret_cast<LPARAM>(HIML));
 				}
 			}
 			{
@@ -818,7 +818,7 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY: // данная команда практически никогда не вызывается. См. WM_DESTROY в DialogProc.
 			// Из-за этого, если список картинок валиден, то на каждом вызове диалога с таким списком теряется 4 объекта GDI.
 			/*{ // @v6.0.14 AHTOXA
-				HIMAGELIST himl = (HIMAGELIST)::SendMessage(::GetDlgItem(Parent, Id), (UINT)TVM_SETIMAGELIST, (WPARAM)TVSIL_NORMAL, (LPARAM)0);
+				HIMAGELIST himl = (HIMAGELIST)::SendMessageW(::GetDlgItem(Parent, Id), (UINT)TVM_SETIMAGELIST, (WPARAM)TVSIL_NORMAL, (LPARAM)0);
 				if(himl) {
 					ImageList_RemoveAll(himl);
 					ImageList_Destroy(himl);
@@ -1219,11 +1219,11 @@ void SmartListBox::Scroll(short Code, int value)
 					lvi.mask  = LVIF_STATE;
 					lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
 					lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-					::SendMessage(h_lb, LVM_SETITEMSTATE, P_Def ? P_Def->_curItem() : 0, (LPARAM)&lvi);
+					::SendMessageW(h_lb, LVM_SETITEMSTATE, P_Def ? P_Def->_curItem() : 0, (LPARAM)&lvi);
 				}
 				else*/{
-					long   cur_sel_idx = P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0;
-					::SendMessage(h_lb, LB_SETCURSEL, cur_sel_idx, 0);
+					const long cur_sel_idx = P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0;
+					::SendMessageW(h_lb, LB_SETCURSEL, cur_sel_idx, 0);
 				}
 			}
 		}
@@ -1266,11 +1266,11 @@ void FASTCALL SmartListBox::focusItem(long item)
 				lvi.mask  = LVIF_STATE;
 				lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
 				lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-				::SendMessage(h_lb, LVM_SETITEMSTATE, cur__item, (LPARAM)&lvi);
+				::SendMessageW(h_lb, LVM_SETITEMSTATE, cur__item, (LPARAM)&lvi);
 				ListView_EnsureVisible(h_lb, cur__item, 0); // @AHTOXA
 			}
 			else
-				::SendMessage(h_lb, LB_SETCURSEL, cur__item - P_Def->_topItem(), 0);
+				::SendMessageW(h_lb, LB_SETCURSEL, cur__item - P_Def->_topItem(), 0);
 		}
 		if(P_Def->Options & lbtFocNotify)
 			MessageCommandToOwner(cmLBItemFocused);
@@ -1352,7 +1352,7 @@ UiSearchTextBlock::~UiSearchTextBlock()
 	UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_KEYDOWN:
-			::SendMessage(GetParent(hWnd), uMsg, wParam, lParam);
+			::SendMessageW(GetParent(hWnd), uMsg, wParam, lParam);
 			break;
 	}
 	return p_slb ? CallWindowProc(p_slb->PrevInputCtlProc, hWnd, uMsg, wParam, lParam) : DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -1481,7 +1481,7 @@ UiSearchTextBlock::~UiSearchTextBlock()
 						EndDialog(hwndDlg, cmCancel);
 					if(h_parent)
 						SetFocus(h_parent);
-						// SendMessage(h_parent, WM_SETFOCUS, 0, 0);
+						//::SendMessageW(h_parent, WM_SETFOCUS, 0, 0);
 				}
 			}
 			if(HIWORD(wParam) == EN_CHANGE) {
@@ -1493,7 +1493,7 @@ UiSearchTextBlock::~UiSearchTextBlock()
 					p_slb->Text.Transf(CTRANSF_OUTER_TO_INNER);
 					if(p_slb->P_OuterWordSelBlk && p_slb->Text.Len() >= p_slb->P_OuterWordSelBlk->MinSymbCount && p_slb->P_OuterWordSelBlk->SearchText(p_slb->Text, &id, result_text) > 0) {
 						p_slb->P_OuterWordSelBlk->SetData(id, result_text);
-						::SendMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), p_slb->InputCtlId);
+						::SendMessageW(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), p_slb->InputCtlId);
 					}
 					else
 						p_slb->P_WordSel->Refresh(p_slb->Text);
@@ -1510,9 +1510,9 @@ UiSearchTextBlock::~UiSearchTextBlock()
 							return 0;
 					}
 					else if(key == VK_ESCAPE)
-						::SendMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDCANCEL, BN_CLICKED), p_slb->InputCtlId);
+						::SendMessageW(hwndDlg, WM_COMMAND, MAKEWPARAM(IDCANCEL, BN_CLICKED), p_slb->InputCtlId);
 					else if(key == VK_RETURN)
-						::SendMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), p_slb->InputCtlId);
+						::SendMessageW(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), p_slb->InputCtlId);
 				}
 			}
 			break;
@@ -1632,7 +1632,7 @@ void SmartListBox::Implement_Draw()
 			if(cc)
 				ListView_DeleteAllItems(h_lb);
 			else
-				::SendMessage(h_lb, LB_RESETCONTENT, 0, 0);
+				::SendMessageW(h_lb, LB_RESETCONTENT, 0, 0);
 			{
 				if(HIML) {
 					ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
@@ -1755,10 +1755,10 @@ void SmartListBox::Implement_Draw()
 						}
 					}
 					/*else if(P_Def->_isSolid()) { // @v11.4.5
-						::SendMessage(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item) : reinterpret_cast<LPARAM>(SUcSwitch(buf.cptr())));
+						::SendMessageW(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item) : reinterpret_cast<LPARAM>(SUcSwitch(buf.cptr())));
 					}*/
 					else
-						::SendMessage(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item) : reinterpret_cast<LPARAM>(SUcSwitch(buf.cptr())));
+						::SendMessageW(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item) : reinterpret_cast<LPARAM>(SUcSwitch(buf.cptr())));
 				}
 			}
 			::ShowWindow(h_lb, SW_NORMAL);
@@ -1768,11 +1768,11 @@ void SmartListBox::Implement_Draw()
 				lvi.mask  = LVIF_STATE;
 				lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
 				lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-				::SendMessage(h_lb, LVM_SETITEMSTATE, P_Def->_curItem(), reinterpret_cast<LPARAM>(&lvi));
+				::SendMessageW(h_lb, LVM_SETITEMSTATE, P_Def->_curItem(), reinterpret_cast<LPARAM>(&lvi));
 				ListView_EnsureVisible(h_lb, P_Def->_curItem(), 0); // AHTOXA
 			}
 			else
-				::SendMessage(h_lb, LB_SETCURSEL, P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0, 0);
+				::SendMessageW(h_lb, LB_SETCURSEL, P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0, 0);
 		}
 	}
 }

@@ -2436,7 +2436,7 @@ typedef ngx_int_t (*ngx_http_get_variable_pt)(ngx_http_request_t * r, ngx_http_v
 #define NGX_HTTP_VAR_PREFIX       32
 
 struct ngx_http_variable_s {
-	ngx_str_t name;                   /* must be first to build the hash */
+	ngx_str_t name; /* must be first to build the hash */
 	ngx_http_set_variable_pt set_handler;
 	ngx_http_get_variable_pt get_handler;
 	uintptr_t data;
@@ -3910,7 +3910,7 @@ struct ngx_http_upstream_headers_in_t {
 struct ngx_http_upstream_resolved_t {
 	ngx_str_t host;
 	in_port_t port;
-	ngx_uint_t no_port;                   /* unsigned no_port:1 */
+	ngx_uint_t no_port; /* unsigned no_port:1 */
 	ngx_uint_t naddrs;
 	ngx_resolver_addr_t * addrs;
 	struct sockaddr * sockaddr;
@@ -4250,7 +4250,7 @@ typedef ngx_int_t (*ngx_stream_get_variable_pt)(ngx_stream_session_t * s, ngx_st
 #define NGX_STREAM_VAR_PREFIX       32
 
 struct ngx_stream_variable_s {
-	ngx_str_t name;                   /* must be first to build the hash */
+	ngx_str_t name; /* must be first to build the hash */
 	ngx_stream_set_variable_pt set_handler;
 	ngx_stream_get_variable_pt get_handler;
 	uintptr_t data;

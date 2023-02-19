@@ -109,7 +109,7 @@ public:
 	// Decsr: В базе данных ищет информацию о товаре по полученному запросу
 	// returns:
 	//		-1 - товар не найден
-	//		 0 - ошибка
+	//		 0 - error
 	//		 1 - информация о товаре получена
 	int GetGoodInfo(const char * pRequest, StGoodInfo & rGoodInfo);
 	int IsIniParamValid() { return IniParam.IsValid(); }

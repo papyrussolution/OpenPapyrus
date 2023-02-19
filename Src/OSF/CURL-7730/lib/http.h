@@ -244,10 +244,6 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
  *
  * @returns CURLcode
  */
-CURLcode Curl_http_output_auth(struct connectdata * conn,
-    const char * request,
-    const char * path,
-    bool proxytunnel);                   /* TRUE if this is the request setting
-                                            up the proxy tunnel */
+CURLcode Curl_http_output_auth(struct connectdata * conn, const char * request, const char * path, bool proxytunnel); /* TRUE if this is the request setting up the proxy tunnel */
 
 #endif /* HEADER_CURL_HTTP_H */

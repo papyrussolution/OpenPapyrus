@@ -227,9 +227,9 @@ struct file_info {
 	struct file_info        * next;
 	struct file_info        * re_next;
 	int subdirs;
-	uint64 key;                   /* Heap Key.			*/
+	uint64 key;    /* Heap Key.			*/
 	uint64 offset; /* Offset on disk.		*/
-	uint64 size; /* File size in bytes.		*/
+	uint64 size;   /* File size in bytes.		*/
 	uint32 ce_offset; /* Offset of CE.		*/
 	uint32 ce_size; /* Size of CE.			*/
 	char rr_moved; /* Flag to rr_moved.		*/
@@ -239,10 +239,10 @@ struct file_info {
 	uint64 cl_offset; /* Having RRIP "CL" extension.	*/
 	int birthtime_is_set;
 	time_t birthtime; /* File created time.		*/
-	time_t mtime;                   /* File last modified time.	*/
-	time_t atime;                   /* File last accessed time.	*/
-	time_t ctime;                   /* File attribute change time.	*/
-	uint64 rdev; /* Device number.		*/
+	time_t mtime; /* File last modified time.	*/
+	time_t atime; /* File last accessed time.	*/
+	time_t ctime; /* File attribute change time.	*/
+	uint64 rdev;  /* Device number.		*/
 	mode_t mode;
 	uid_t uid;
 	gid_t gid;
@@ -322,7 +322,7 @@ struct iso9660 {
 	int32_t volume_block; /* Total size of volume in logical blocks. */
 
 	struct vd {
-		int location;                   /* Location of Extent.	*/
+		int location; /* Location of Extent.	*/
 		uint32 size;
 	} primary, joliet;
 

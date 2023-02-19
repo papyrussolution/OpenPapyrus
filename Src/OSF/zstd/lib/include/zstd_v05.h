@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Yann Collet, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
@@ -43,19 +42,17 @@ size_t ZSTDv05_decompress(void* dst, size_t dstCapacity, const void * src, size_
    note : assumes `cSize` and `dBound` are _not_ NULL.
  */
 void ZSTDv05_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, uint64* dBound);
-
-/* *************************************
-*  Helper functions
-***************************************/
+// 
+// Helper functions
+// 
 //
 // Error Management
 //
 uint ZSTDv05_isError(size_t code);          /*!< tells if a `size_t` function result is an error code */
 const char* ZSTDv05_getErrorName(size_t code);     /*!< provides readable string for an error code */
-
-/* *************************************
-*  Explicit memory management
-***************************************/
+// 
+// Explicit memory management
+// 
 /** Decompression context */
 typedef struct ZSTDv05_DCtx_s ZSTDv05_DCtx;
 ZSTDv05_DCtx* ZSTDv05_createDCtx(void);
@@ -64,10 +61,9 @@ size_t ZSTDv05_freeDCtx(ZSTDv05_DCtx* dctx);      /*!< @return : errorCode */
 /** ZSTDv05_decompressDCtx() :
  *   Same as ZSTDv05_decompress(), but requires an already allocated ZSTDv05_DCtx (see ZSTDv05_createDCtx()) */
 size_t ZSTDv05_decompressDCtx(ZSTDv05_DCtx* ctx, void* dst, size_t dstCapacity, const void* src, size_t srcSize);
-
-/*-***********************
-*  Simple Dictionary API
-*************************/
+// 
+// Simple Dictionary API
+// 
 /*! ZSTDv05_decompress_usingDict() :
  *   Decompression using a pre-defined Dictionary content (see dictBuilder).
  *   Dictionary must be identical to the one used during compression, otherwise regenerated data will be corrupted.

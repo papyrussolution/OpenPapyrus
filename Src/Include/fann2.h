@@ -608,9 +608,9 @@ struct Fann2 {
 		FANN_COS            // Periodical cosinus activation function. span: 0 <= y <= 1; y = cos(x*s)/2+0.5; d = s*-sin(x*s)/2
 	};
 	struct Neuron {
-		int    FASTCALL IsEq(const Neuron & rS) const // @construction
+		bool   FASTCALL IsEq(const Neuron & rS) const // @construction
 		{
-#define FLD(f) if(f != rS.f) return 0;
+#define FLD(f) if(f != rS.f) return false;
 			FLD(first_con);
 			FLD(last_con);
 			FLD(sum);
@@ -618,7 +618,7 @@ struct Fann2 {
 			FLD(activation_steepness);
 			FLD(activation_function);
 #undef FLD
-			return 1;
+			return true;
 		}
 		// Index to the first and last connection (actually the last is a past end index)
 		uint   first_con;
@@ -636,19 +636,19 @@ struct Fann2 {
 	// Descr: A single layer in the neural network.
 	// 
 	struct Layer {
-		int    FASTCALL IsEq(const Layer & rS) const // @construction
+		bool   FASTCALL IsEq(const Layer & rS) const // @construction
 		{
 			const uint nn = (uint)(last_neuron - first_neuron);
 			const uint nn_s = (uint)(rS.last_neuron - rS.first_neuron);
 			if(nn != nn_s)
-				return 0;
+				return false;
 			else {
 				for(uint i = 0; i < nn; i++) {
 					if(!first_neuron[i].IsEq(rS.first_neuron[i]))
-						return 0;
+						return false;
 				}
 			}
-			return 1;
+			return true;
 		}
 		// A pointer to the first neuron in the layer
 		// When allocated, all the neurons in all the layers are actually

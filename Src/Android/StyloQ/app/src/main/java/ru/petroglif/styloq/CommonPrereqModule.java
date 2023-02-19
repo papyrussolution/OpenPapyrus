@@ -39,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -214,7 +215,8 @@ public class CommonPrereqModule {
 	public String CmdDescr; // Получает через intent ("CmdDescr")
 	public UUID CmdUuid;  // Получает через intent ("CmdUuid")
 	public ArrayList<CliEntry> CliListData;
-	public ArrayList<JSONObject> GoodsGroupListData;
+	// @v11.6.4 public ArrayList<JSONObject> GoodsGroupListData;
+	public BusinessEntity.GoodsGroupList GoodsGroupListData;
 	public ArrayList<BusinessEntity.Brand> BrandListData;
 	public ArrayList<Document> IncomingDocListData;
 	public GoodsFilt Gf;
@@ -234,6 +236,7 @@ public class CommonPrereqModule {
 			UseBarcodeSearch = false;
 			UseCliDebt = false;
 			DueDateAsNominal = false;
+			HideStock = false; // @v11.6.4
 			BarcodeWeightPrefix = null;
 			BarcodeCountPrefix = null;
 			SvcDtm = null;
@@ -251,6 +254,7 @@ public class CommonPrereqModule {
 				UseBarcodeSearch = jsHead.optBoolean("searchbarcode"); // @v11.5.0
 				UseCliDebt = jsHead.optBoolean("useclidebt"); // @v11.5.4
 				DueDateAsNominal = jsHead.optBoolean("duedateasnominal"); // @v11.6.4
+				HideStock = jsHead.optBoolean("hidestock", false); // @v11.6.4
 				BarcodeWeightPrefix = jsHead.optString("barcodeweightprefix", null); // @v11.5.0
 				BarcodeCountPrefix = jsHead.optString("barcodecountprefix", null); // @v11.5.0
 				// @v11.6.2 {
@@ -274,6 +278,7 @@ public class CommonPrereqModule {
 			// Передается сервисом с тегом "searchbarcode"
 		public boolean UseCliDebt; // @v11.5.4 Если true, то для агентских заказов можно просматривать долги по клиентам
 		public boolean DueDateAsNominal; // @v11.6.4 Если true, то дата исполнения документа трактуется как номинальная //
+		public boolean HideStock;        // @v11.6.4 Не отображать остатки
 		public String BarcodeWeightPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс весового штрихкода.
 			// Передается сервисом с тегом "barcodeweightprefix". Обязанность проверки валидности префикса лежит на сервисе.
 		public String BarcodeCountPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс счетного штрихкода.
@@ -1205,14 +1210,10 @@ public class CommonPrereqModule {
 	public void AddGoodsGroupsToSimpleIndex()
 	{
 		if(GoodsGroupListData != null) {
-			for(int i = 0; i < GoodsGroupListData.size(); i++) {
-				JSONObject js_item = GoodsGroupListData.get(i);
-				if(js_item != null) {
-					final int id = js_item.optInt("id", 0);
-					if(id > 0) {
-						String nm = js_item.optString("nm");
-						AddSimpleIndexEntry(SLib.PPOBJ_GOODSGROUP, id, SLib.PPOBJATTR_NAME, nm, nm);
-					}
+			for(int i = 0; i < GoodsGroupListData.GetCount(); i++) {
+				BusinessEntity.GoodsGroup item = GoodsGroupListData.L.get(i);
+				if(item != null && item.ID > 0) {
+					AddSimpleIndexEntry(SLib.PPOBJ_GOODSGROUP, item.ID, SLib.PPOBJATTR_NAME, item.Name, item.Name);
 				}
 			}
 		}
@@ -1324,6 +1325,7 @@ public class CommonPrereqModule {
 	int   GetActionFlags() { return CSVCP.ActionFlags; }
 	boolean GetOption_UseCliDebt() { return CSVCP.UseCliDebt; }
 	boolean GetOption_DueDateAsNominal() { return CSVCP.DueDateAsNominal; } // @v11.6.4
+	boolean GetOption_HideStock() { return CSVCP.HideStock; } // @v11.6.4
 	public void GetAttributesFromIntent(Intent intent)
 	{
 		if(intent != null) {
@@ -1594,6 +1596,31 @@ public class CommonPrereqModule {
 			}
 		}
 	}
+	private void AddNodeToTreeList_GoodsGroup(List<AmrTreeView.TreeNode> roots, AmrTreeView.TreeNode rootNode, int idx, BusinessEntity.GoodsGroup entry)
+	{
+		if(entry != null && roots != null) {
+			int parent_id = entry.ID;
+			ArrayList <Integer> children_idx_list = GoodsGroupListData.GetChildrenIndexList(parent_id, false);
+			AmrTreeView.TreeNode tv_node = null;
+			if(children_idx_list != null) {
+				tv_node = new AmrTreeView.TreeNode(entry, idx, R.layout.li_simple_folder);
+				for(int i = 0; i < children_idx_list.size(); i++) {
+					int child_idx = children_idx_list.get(i);
+					BusinessEntity.GoodsGroup item = GoodsGroupListData.L.get(child_idx);
+					AddNodeToTreeList_GoodsGroup(roots, tv_node, child_idx, item); // @recursion
+				}
+			}
+			else {
+				tv_node = new AmrTreeView.TreeNode(entry, idx, R.layout.li_simple);
+			}
+			if(tv_node != null) {
+				if(rootNode != null)
+					rootNode.addChild(tv_node);
+				else
+					roots.add(tv_node);
+			}
+		}
+	}
 	public boolean OnSetupFragment_SetupObjListView(int objType, View fragmentView, int listViewRcId, int itemViewRcId)
 	{
 		boolean result = false;
@@ -1602,34 +1629,64 @@ public class CommonPrereqModule {
 		if(ActivityInstance != null && fragmentView != null) {
 			View lv = fragmentView.findViewById(listViewRcId);
 			if(lv != null && lv instanceof RecyclerView) {
-				// @construction {
-				RecyclerView.LayoutManager lo_mgr = null;
-				/*
-				if(objType == SLib.PPOBJ_GOODS) {
-					//((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityInstance));
-					lo_mgr = new GridLayoutManager(ActivityInstance, 2);
-				}
-				else
-					lo_mgr = new LinearLayoutManager(ActivityInstance);
-				*/
-				lo_mgr = new LinearLayoutManager(ActivityInstance);
-				((RecyclerView)lv).setLayoutManager(lo_mgr);
-				// } @construction
-				// @construction ((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityInstance));
-				ActivityInstance.SetupRecyclerListView(fragmentView, listViewRcId, itemViewRcId);
-				if(objType > 0 && selected_search_oid.Type == objType) {
-					int foc_idx = -1;
-					switch(objType) {
-						case SLib.PPOBJ_GOODS: foc_idx = FindGoodsItemIndexByID(selected_search_oid.Id); break;
-						case SLib.PPOBJ_GOODSGROUP: foc_idx = FindGoodsGroupItemIndexByID(selected_search_oid.Id); break;
-						case SLib.PPOBJ_BRAND: foc_idx = FindBrandItemIndexByID(selected_search_oid.Id); break;
-						case SLib.PPOBJ_PROCESSOR: foc_idx = FindProcessorItemIndexByID(selected_search_oid.Id); break;
+				if(objType == SLib.PPOBJ_GOODSGROUP && GoodsGroupListData != null && GoodsGroupListData.UseHierarchy) {
+					//ActivityInstance.SetupRecyclerTreeListView(fragmentView, listViewRcId);
+					List<AmrTreeView.TreeNode> roots = new ArrayList <AmrTreeView.TreeNode>();
+					if(SLib.GetCount(GoodsGroupListData.L) > 0) {
+						for(int i = 0; i < GoodsGroupListData.L.size(); i++) {
+							BusinessEntity.GoodsGroup entry = GoodsGroupListData.L.get(i);
+							if(entry.ParentID == 0) {
+								AddNodeToTreeList_GoodsGroup(roots, null, i, entry);
+							}
+						}
 					}
-					ActivityInstance.SetRecyclerListFocusedIndex(((RecyclerView)lv).getAdapter(), foc_idx);
-					SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
-					SearchResult_ResetSelectedItemIndex();
+					LinearLayoutManager lo_mgr = new LinearLayoutManager(ActivityInstance);
+					((RecyclerView) lv).setLayoutManager(lo_mgr);
+					AmrTreeView.Adapter adapter = new AmrTreeView.Adapter(ActivityInstance, null, listViewRcId);
+					adapter.SetFoldingButtonId(R.id.LVITEM_EXPANDSTATUS);
+					((RecyclerView)lv).setAdapter(adapter);
+					adapter.updateTreeNodes(roots);
+					adapter.collapseAll();
+					//view.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 				}
-				result = true;
+				else {
+					// @construction {
+					RecyclerView.LayoutManager lo_mgr = null;
+					/*
+					if(objType == SLib.PPOBJ_GOODS) {
+						//((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityInstance));
+						lo_mgr = new GridLayoutManager(ActivityInstance, 2);
+					}
+					else
+						lo_mgr = new LinearLayoutManager(ActivityInstance);
+					*/
+					lo_mgr = new LinearLayoutManager(ActivityInstance);
+					((RecyclerView) lv).setLayoutManager(lo_mgr);
+					// } @construction
+					// @construction ((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityInstance));
+					ActivityInstance.SetupRecyclerListView(fragmentView, listViewRcId, itemViewRcId);
+					if(objType > 0 && selected_search_oid.Type == objType) {
+						int foc_idx = -1;
+						switch(objType) {
+							case SLib.PPOBJ_GOODS:
+								foc_idx = FindGoodsItemIndexByID(selected_search_oid.Id);
+								break;
+							case SLib.PPOBJ_GOODSGROUP:
+								foc_idx = FindGoodsGroupItemIndexByID(selected_search_oid.Id);
+								break;
+							case SLib.PPOBJ_BRAND:
+								foc_idx = FindBrandItemIndexByID(selected_search_oid.Id);
+								break;
+							case SLib.PPOBJ_PROCESSOR:
+								foc_idx = FindProcessorItemIndexByID(selected_search_oid.Id);
+								break;
+						}
+						ActivityInstance.SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
+						SLib.RequestRecyclerListViewPosition((RecyclerView) lv, foc_idx);
+						SearchResult_ResetSelectedItemIndex();
+					}
+					result = true;
+				}
 			}
 		}
 		return result;
@@ -1958,6 +2015,19 @@ public class CommonPrereqModule {
 				Gf.GroupIdList = new ArrayList<Integer>();
 			Gf.BrandList = null;
 			Gf.GroupIdList.clear();
+			if(GoodsGroupListData != null) {
+				ArrayList <Integer> child_idx_list = GoodsGroupListData.GetChildrenIndexList(groupID, true);
+				if(SLib.GetCount(child_idx_list) > 0) {
+					for(int i = 0; i < child_idx_list.size(); i++) {
+						int idx = child_idx_list.get(i);
+						if(idx >= 0 && idx < GoodsGroupListData.GetCount()) {
+							BusinessEntity.GoodsGroup item = GoodsGroupListData.L.get(idx);
+							if(item != null)
+								Gf.GroupIdList.add(item.ID);
+						}
+					}
+				}
+			}
 			Gf.GroupIdList.add(groupID);
 		}
 		else
@@ -2075,24 +2145,10 @@ public class CommonPrereqModule {
 	public void MakeGoodsGroupListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		JSONArray temp_array = (jsHead != null) ? jsHead.optJSONArray("goodsgroup_list") : null;
-		if(GoodsGroupListData != null)
-			GoodsGroupListData.clear();
-		if(temp_array != null) {
-			if(GoodsGroupListData == null)
-				GoodsGroupListData = new ArrayList<JSONObject>();
-			for(int i = 0; i < temp_array.length(); i++) {
-				Object temp_obj = temp_array.get(i);
-				if(temp_obj != null && temp_obj instanceof JSONObject)
-					GoodsGroupListData.add((JSONObject)temp_obj);
-			}
-			Collections.sort(GoodsGroupListData, new Comparator<JSONObject>() {
-				@Override public int compare(JSONObject lh, JSONObject rh)
-				{
-					String ls = lh.optString("nm", "");
-					String rs = rh.optString("nm", "");
-					return ls.toLowerCase().compareTo(rs.toLowerCase());
-				}
-			});
+		if(GoodsGroupListData == null)
+			GoodsGroupListData = new BusinessEntity.GoodsGroupList();
+		if(GoodsGroupListData.FromJsonObj(jsHead)) {
+			GoodsGroupListData.Sort();
 		}
 	}
 	public void MakeBrandListFromCommonJson(JSONObject jsHead) throws JSONException
@@ -2164,17 +2220,13 @@ public class CommonPrereqModule {
 			}
 		}
 	}
+	public int GetGoodsGroupCount()
+	{
+		return (GoodsGroupListData != null) ? GoodsGroupListData.GetCount() : 0;
+	}
 	public int FindGoodsGroupItemIndexByID(int id)
 	{
-		int result = -1;
-		if(GoodsGroupListData != null && id > 0) {
-			for(int i = 0; result < 0 && i < GoodsGroupListData.size(); i++) {
-				final int iter_id = GoodsGroupListData.get(i).optInt("id", 0);
-				if(iter_id == id)
-					result = i;
-			}
-		}
-		return result;
+		return (GoodsGroupListData != null) ? GoodsGroupListData.FindItemIndexByID(id) : -1;
 	}
 	int FindBrandItemIndexByID(int id)
 	{
@@ -2308,9 +2360,11 @@ public class CommonPrereqModule {
 				int parid = item.Item.ParentID;
 				result = false;
 				if(parid > 0) {
-					for(int i = 0; !result && i < Gf.GroupIdList.size(); i++)
-						if(Gf.GroupIdList.get(i) == parid)
+					for(int i = 0; !result && i < Gf.GroupIdList.size(); i++) {
+						int group_id = Gf.GroupIdList.get(i);
+						if(group_id == parid)
 							result = true;
+					}
 				}
 			}
 			if(result && Gf.BrandList != null && Gf.BrandList.size() > 0) {

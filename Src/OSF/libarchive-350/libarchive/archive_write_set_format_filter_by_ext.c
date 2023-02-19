@@ -4,8 +4,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -56,8 +55,7 @@ static int cmpsuff(const char * str, const char * suffix)
 
 static int get_array_index(const char * name)
 {
-	int i;
-	for(i = 0; names[i].name != NULL; i++) {
+	for(int i = 0; names[i].name != NULL; i++) {
 		if(cmpsuff(name, names[i].name) == 0)
 			return i;
 	}
@@ -66,16 +64,14 @@ static int get_array_index(const char * name)
 
 int archive_write_set_format_filter_by_ext(Archive * a, const char * filename)
 {
-	int names_index = get_array_index(filename);
-
+	const int names_index = get_array_index(filename);
 	if(names_index >= 0) {
-		int format_state = (names[names_index].format)(a);
+		const int format_state = (names[names_index].format)(a);
 		if(format_state == ARCHIVE_OK)
 			return ((names[names_index].filter)(a));
 		else
 			return format_state;
 	}
-
 	archive_set_error(a, EINVAL, "No such format '%s'", filename);
 	a->state = ARCHIVE_STATE_FATAL;
 	return ARCHIVE_FATAL;
@@ -84,18 +80,15 @@ int archive_write_set_format_filter_by_ext(Archive * a, const char * filename)
 int archive_write_set_format_filter_by_ext_def(Archive * a, const char * filename, const char * def_ext)
 {
 	int names_index = get_array_index(filename);
-
 	if(names_index < 0)
 		names_index = get_array_index(def_ext);
-
 	if(names_index >= 0) {
-		int format_state = (names[names_index].format)(a);
+		const int format_state = (names[names_index].format)(a);
 		if(format_state == ARCHIVE_OK)
 			return ((names[names_index].filter)(a));
 		else
 			return format_state;
 	}
-
 	archive_set_error(a, EINVAL, "No such format '%s'", filename);
 	a->state = ARCHIVE_STATE_FATAL;
 	return ARCHIVE_FATAL;

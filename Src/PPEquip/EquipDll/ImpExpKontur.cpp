@@ -456,7 +456,7 @@ int FtpClient::GetFile(const char * pFtpSrc, const char * pLocDst)
 // ARG(rFileName OUT): Имя файла на ftp
 // Retutns:
 //   -1 - нет файлов
-//    0 - ошибка
+//    0 - error
 //    1 - имя файла получено
 //
 int FtpClient::NextFileName(const char * pFtpSrc, SString & rFileName)
@@ -1491,7 +1491,7 @@ private:
 //
 // Returns:
 //		-1 - нет входящих сообщений
-//		 0 - ошибка
+//		 0 - error
 //		 1 - сообщение получено
 //
 int ImportCls::ReceiveDoc(const char * pLocalPath, int * pResultId)
@@ -1692,7 +1692,7 @@ int ImportCls::GetMessageList(const char * pLocalPath)
 //
 // Descr: Разбор результата, полученного с помощью Receive() для APERAK
 // Retruns:
-//		 0 - ошибка
+//		 0 - error
 //		 1 - оба параметра найдены
 //
 int ImportCls::ParseAperakResp()
@@ -1951,7 +1951,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 // Returns:
 //		-1 - считаны все товарные строки. Однако, если в документе в поле общего количество написано число,
 //			меньшее реального числа товарных позиций, то лишние позиции не считаются
-//		 0 - ошибка
+//		 0 - error
 //		 1 - считана очередная товарная строка
 //
 int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
@@ -2294,7 +2294,7 @@ EXPORT int InitImportObjIter(uint idSess, uint objId)
 // Returns:
 //		-1 - считаны все товарные строки. Однако, если в документе в поле общего количество написано число,
 //			меньшее реального числа товарных позиций, то лишние позиции не считаются
-//		 0 - ошибка
+//		 0 - error
 //		 1 - считана очередная товарная строка
 //
 EXPORT int NextImportObjIter(uint idSess, uint objId, void * pRow)

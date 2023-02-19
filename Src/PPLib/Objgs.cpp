@@ -939,7 +939,7 @@ int PPObjGoodsStruc::Browse(void * extraPtr)
 				if(p_gsobj->Search(id, &gsh) > 0) {
 					PPObjGoods goods_obj;
 					PPIDArray goods_list;
-					goods_obj.P_Tbl->SearchGListByStruc(id, &goods_list);
+					goods_obj.SearchGListByStruc(id, false/*expandGenerics*/, goods_list);
 					if(goods_list.getCount()) {
 						GoodsFilt flt;
 						flt.GoodsStrucID = id;
@@ -2290,7 +2290,7 @@ int PPObjGoodsStruc::Edit(PPID * pID, void * extraPtr /*goodsID*/)
 	if(!data.GoodsID && data.Rec.ID) {
 		PPObjGoods goods_obj;
 		PPIDArray owner_list;
-		goods_obj.P_Tbl->SearchGListByStruc(data.Rec.ID, &owner_list);
+		goods_obj.SearchGListByStruc(data.Rec.ID, false/*expandGenerics*/, owner_list);
 		if(owner_list.getCount() == 1)
 			data.GoodsID = owner_list.get(0);
 	}
@@ -2434,9 +2434,10 @@ int PPObjGoodsStruc::Print(PPGoodsStruc * pGoodsStruc)
 	uint   what = 0x00;
 	PPObjGoods goods_obj;
 	{
-		PPIDArray goods_ids, struct_ids;
+		PPIDArray goods_ids;
+		PPIDArray struct_ids;
 		PPLogger log;
-		goods_obj.P_Tbl->SearchGListByStruc(pGoodsStruc->Rec.ID, &goods_ids);
+		goods_obj.SearchGListByStruc(pGoodsStruc->Rec.ID, false/*expandGenerics*/, goods_ids);
 		if(CheckStruct(&goods_ids, &struct_ids, pGoodsStruc, 0, &log) > 0)
 			is_hier = 1;
 	}
@@ -2556,7 +2557,7 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 		*/
 		if(pStruc->Rec.ID) {
 			PPIDArray owner_list;
-			goods_obj.P_Tbl->SearchGListByStruc(pStruc->Rec.ID, &owner_list);
+			goods_obj.SearchGListByStruc(pStruc->Rec.ID, false/*expandGenerics*/, owner_list);
 			if(!owner_list.getCount() && !(pStruc->Rec.Flags & GSF_CHILD)) {
 				// На товарную структуру %s не ссылается ни один товар
 				PPLoadText(PPTXT_GSTRUCUNREF, fmt_buf);
@@ -2658,8 +2659,9 @@ int PPObjGoodsStruc::CheckStruc(PPID strucID, PPLogger * pLogger)
 	int    ok = -1;
 	PPGoodsStruc gs;
 	PPObjGoods goods_obj;
-	PPIDArray struct_ids, goods_ids;
-	goods_obj.P_Tbl->SearchGListByStruc(strucID, &goods_ids);
+	PPIDArray struct_ids;
+	PPIDArray goods_ids;
+	goods_obj.SearchGListByStruc(strucID, false/*expandGenerics*/, goods_ids);
 	THROW(Get(strucID, &gs));
 	THROW(ok = CheckStruct(&goods_ids, &struct_ids, &gs, 0, pLogger));
 	CATCHZOK
@@ -3164,9 +3166,8 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 	if(i) do {
 		SaGiftItem * p_item = pList->at(--i);
 		if(p_item->StrucID) {
-			temp_goods_list.clear();
 			owner_goods_list.clear();
-			THROW(goods_obj.P_Tbl->SearchGListByStruc(p_item->OrgStrucID, &temp_goods_list));
+			THROW(goods_obj.SearchGListByStruc(p_item->OrgStrucID, false/*expandGenerics*/, temp_goods_list));
 			for(uint j = 0; j < temp_goods_list.getCount(); j++) {
 				owner_goods_list.addUnique(temp_goods_list.get(j));
 			}
@@ -3184,6 +3185,34 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 	return ok;
 }
 
+int PPObjGoodsStruc::LoadSubstList(TSVector <SaSubstItem> & rList) // @construction
+{
+	rList.clear();
+	int    ok = -1;
+	PPGoodsStrucHeader2 rec;
+	PPIDArray struc_id_list;
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		if(!(rec.Flags & GSF_FOLDER) && PPGoodsStruc::GetStrucKind(rec.Flags) == PPGoodsStruc::kSubst) {
+			rec.Period.Actualize(ZERODATE);
+			if(rec.Period.CheckDate(getcurdate_()))
+				struc_id_list.add(rec.ID);
+		}
+	}
+	if(struc_id_list.getCount()) {
+		PPObjGoods goods_obj;
+		PPGoodsStruc gs;
+		PPIDArray owner_list; // Список идентификаторов товаров-владельцев структуры
+		for(uint i = 0; i < struc_id_list.getCount(); i++) {
+			const PPID struc_id = struc_id_list.get(i);
+			if(Get(struc_id, &gs) > 0) {
+				goods_obj.SearchGListByStruc(struc_id, true/*expandGenerics*/, owner_list);
+
+			}
+		}
+	}
+	return ok;
+}
+
 int PPObjGoodsStruc::LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList) // @v11.6.2
 {
 	rList.clear();
@@ -3194,48 +3223,30 @@ int PPObjGoodsStruc::LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList) /
 		const int gs_kind = PPGoodsStruc::GetStrucKind(rec.Flags);
 		if(!(rec.Flags & GSF_FOLDER) && gs_kind == PPGoodsStruc::kBOM && (rec.Flags & GSF_DECOMPL) && (rec.Flags & GSF_AUTODECOMPL)) {
 			rec.Period.Actualize(ZERODATE);
-			if(rec.Period.CheckDate(getcurdate_())) {
+			if(rec.Period.CheckDate(getcurdate_()))
 				struc_id_list.add(rec.ID);
-			}
 		}
 	}
 	if(struc_id_list.getCount()) {
 		PPObjGoods goods_obj;
-		Goods2Tbl::Rec owner_rec;
 		PPGoodsStruc gs;
-		PPIDArray owner_list; // Номинальный (без учета обобщений) список идентификаторов товаров-владельцев структуры
-		PPIDArray final_owner_list; // Список идентификаторов товаров-владельцев структуры с учетом обобщенных товаров
+		PPIDArray owner_list; // Список идентификаторов товаров-владельцев структуры
 		for(uint i = 0; i < struc_id_list.getCount(); i++) {
 			const PPID struc_id = struc_id_list.get(i);
 			if(Get(struc_id, &gs) > 0) {
-				goods_obj.P_Tbl->SearchGListByStruc(struc_id, &owner_list);
+				goods_obj.SearchGListByStruc(struc_id, true/*expandGenerics*/, owner_list);
 				if(owner_list.getCount()) {
-					final_owner_list.Z();
-					{
-						for(uint j = 0; j < owner_list.getCount(); j++) {
-							const PPID owner_id = owner_list.get(j);
-							if(goods_obj.Fetch(owner_id, &owner_rec) > 0) {
-								if(owner_rec.Flags & GF_GENERIC)
-									goods_obj.GetGenericList(owner_id, &final_owner_list);
-								else
-									final_owner_list.add(owner_id);
-							}
-						}
-						final_owner_list.sortAndUndup();
-					}
-					{
-						for(uint j = 0; j < final_owner_list.getCount(); j++) {
-							const PPID owner_id = final_owner_list.get(j);
-							PPGoodsStrucItem gs_item;
-							double gsi_qtty = 0.0;
-							for(uint cidx = 0; gs.EnumItemsExt(&cidx, &gs_item, owner_id, 1.0, &gsi_qtty) > 0;) {
-								if(gsi_qtty > 0.0) {
-									SaAutoDecomplItem new_entry;
-									new_entry.GoodsID = gs_item.GoodsID;
-									new_entry.StrucID = gs.Rec.ID;
-									new_entry.Qtty = fabs(gsi_qtty);
-									rList.insert(&new_entry);
-								}
+					for(uint j = 0; j < owner_list.getCount(); j++) {
+						const PPID owner_id = owner_list.get(j);
+						PPGoodsStrucItem gs_item;
+						double gsi_qtty = 0.0;
+						for(uint cidx = 0; gs.EnumItemsExt(&cidx, &gs_item, owner_id, 1.0, &gsi_qtty) > 0;) {
+							if(gsi_qtty > 0.0) {
+								SaAutoDecomplItem new_entry;
+								new_entry.GoodsID = gs_item.GoodsID;
+								new_entry.StrucID = gs.Rec.ID;
+								new_entry.Qtty = fabs(gsi_qtty);
+								rList.insert(&new_entry);
 							}
 						}
 					}

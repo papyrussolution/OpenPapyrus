@@ -206,10 +206,8 @@ static int is_code_ctype(OnigCodePoint code, uint ctype)
 	if(ctype <= ONIGENC_MAX_STD_CTYPE) {
 		if(code < 128)
 			return ONIGENC_IS_ASCII_CODE_CTYPE(code, ctype);
-		else {
-			if(CTYPE_IS_WORD_GRAPH_PRINT(ctype)) {
-				return (code_to_mbclen(code) > 1 ? TRUE : FALSE);
-			}
+		else if(CTYPE_IS_WORD_GRAPH_PRINT(ctype)) {
+			return (code_to_mbclen(code) > 1 ? TRUE : FALSE);
 		}
 	}
 	else {

@@ -146,19 +146,15 @@ static int AQUA_dashPatterns[AQUA_DASH_PATTERNS][6] = {
 	{1, 4, 12, 4, 1, 4}
 };
 
-/* Helper functions */
+// Helper functions
 static NSString* AQUA_convert_using_encoding(const char * string);
 static void get_font_name_and_size(const char * s, char ** name, double * size);
 static void set_font_size(double size);
-
-/*
- * ----------------------------------------------------------------
- * Aquaterm driver implementation
- * ----------------------------------------------------------------
- *
- *   Current options are:
- *   <n> title "theTitle" size <x> <y> fname "fontface" fsize <fontsize>
- */
+// 
+// Aquaterm driver implementation
+// 
+// Current options are: <n> title "theTitle" size <x> <y> fname "fontface" fsize <fontsize>
+// 
 TERM_PUBLIC void AQUA_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	char * s;
@@ -323,7 +319,6 @@ static NSString* AQUA_convert_using_encoding(const char * string)
 	/* Check for nil result before returning */
 	return translatedString ? translatedString : @ "";
 }
-
 /*
  * get font name and size from string 'name,size'
  *   If name is missing, NULL is returned in *name.

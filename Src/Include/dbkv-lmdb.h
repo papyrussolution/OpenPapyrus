@@ -59,7 +59,7 @@ public:
 		// Returns:
 		//   >0 - ключ pKey найден и данные, соответствующие ему, занесены в rValBuf
 		//   <0 - ключ pKey не найден. Буфер rValBuf в результате пустой
-		//    0 - ошибка. Буфер rValBuf в результате пустой
+		//    0 - error. Буфер rValBuf в результате пустой
 		//
 		int    Get(const void * pKey, size_t keyLen, SBaseBuffer & rValBuf);
 		//
@@ -68,7 +68,7 @@ public:
 		// Returns:
 		//   >0 - ключ pKey найден и данные, соответствующие ему, занесены в rValBuf
 		//   <0 - ключ pKey не найден. Буфер rValBuf в результате пустой
-		//    0 - ошибка. Буфер rValBuf в результате пустой
+		//    0 - error. Буфер rValBuf в результате пустой
 		//
 		int    Get(const void * pKey, size_t keyLen, SBinaryChunk & rValBuf);
 		// MDB_NOOVERWRITE|MDB_NODUPDATA|MDB_RESERVE|MDB_APPEND|MDB_APPENDDUP

@@ -61,13 +61,10 @@
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-            <com.google.android.material.tabs.TabLayout
-                style="@style/TabLayout"
+            <com.google.android.material.tabs.TabLayout style="@style/TabLayout" android:id="@+id/TABLAYOUT_STQFACE"
                 app:tabTextAppearance="@style/TabTextAppearance"
-                android:id="@+id/TABLAYOUT_STQFACE"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:tabMode="scrollable">
+                android:layout_height="wrap_content">
             </com.google.android.material.tabs.TabLayout>
             <ScrollView
                 android:layout_width="wrap_content"

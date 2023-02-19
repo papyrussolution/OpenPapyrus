@@ -1,13 +1,10 @@
-/**********************************************************************
-   euc_kr.c -  Oniguruma (regular expression library)
-**********************************************************************/
+// euc_kr.c -  Oniguruma (regular expression library)
+//
 /*-
- * Copyright (c) 2002-2020  K.Kosako
- * All rights reserved.
+ * Copyright (c) 2002-2020  K.Kosako All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -43,8 +40,8 @@ static int euckr_mbc_enc_len(const uchar * p)
 
 static int euckr_code_to_mbclen(OnigCodePoint code)
 {
-	if((code & (~0xffff)) != 0) return ONIGERR_INVALID_CODE_POINT_VALUE;
-
+	if((code & (~0xffff)) != 0) 
+		return ONIGERR_INVALID_CODE_POINT_VALUE;
 	if((code & 0xff00) != 0) {
 		if(EncLen_EUCKR[(int)(code >> 8) & 0xff] == 2)
 			return 2;
@@ -53,7 +50,6 @@ static int euckr_code_to_mbclen(OnigCodePoint code)
 		if(EncLen_EUCKR[(int)(code & 0xff)] == 1)
 			return 1;
 	}
-
 	return ONIGERR_INVALID_CODE_POINT_VALUE;
 }
 
@@ -76,7 +72,6 @@ static int is_valid_mbc_string(const uchar * p, const uchar * end)
 		else
 			return FALSE;
 	}
-
 	return TRUE;
 }
 
@@ -90,11 +85,9 @@ static int euckr_code_to_mbc(OnigCodePoint code, uchar * buf)
 	return onigenc_mb2_code_to_mbc(ONIG_ENCODING_EUC_KR, code, buf);
 }
 
-static int euckr_mbc_case_fold(OnigCaseFoldType flag, const uchar ** pp, const uchar * end,
-    uchar * lower)
+static int euckr_mbc_case_fold(OnigCaseFoldType flag, const uchar ** pp, const uchar * end, uchar * lower)
 {
-	return onigenc_mbn_mbc_case_fold(ONIG_ENCODING_EUC_KR, flag,
-		   pp, end, lower);
+	return onigenc_mbn_mbc_case_fold(ONIG_ENCODING_EUC_KR, flag, pp, end, lower);
 }
 
 static int euckr_is_code_ctype(OnigCodePoint code, uint ctype)

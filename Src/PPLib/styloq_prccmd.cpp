@@ -760,6 +760,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 	int    result_obj_type = 0;
 	PPID   result_obj_id = 0;
 	bool   do_store_original_doc = false; // »ндикатор необходимости сохранить вход€щий док в реестре (если проведение "родной" операции было успешным)
+	bool   do_return_updated_incoming_list = false; // @v11.6.4 »ндикатор необходимости вернуть клиенту обновленный список вход€щих документов
 	SString temp_buf;
 	SString db_symb;
 	SJson * p_js_reply = 0;
@@ -797,6 +798,11 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					org_cmd_item = *p_cmd;
 			}
 		}
+		// @v11.6.4 {
+		if(oneof2(org_cmd_item.BaseCmdId, StyloQCommandList::sqbcIncomingListCCheck, StyloQCommandList::sqbcIncomingListOrder)) {
+			do_return_updated_incoming_list = true;
+		}
+		// } @v11.6.4 
 		if(doc.InterchangeOpID == StyloQCommandList::sqbdtCCheck) { //  ассовые чеки
 			PPID   pos_node_id = 0;
 			PPObjCashNode cn_obj;
@@ -1329,6 +1335,15 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			THROW(P_T->PutDocument(&inner_doc_id, cli_ident, -1/*input*/, StyloQCore::doctypGeneric, doc_ident, doc_pool, 1/*use_ta*/));
 			//rResult.CatEq("stored-document-id", doc_id).CatDiv(';', 2).CatEq("raw-json-size", js_doc_text.Len()+1).CatDiv(';', 2).CatEq("result-pool-size", doc_pool.GetDataLen());
 		}
+		// @v11.6.4 {
+		if(do_return_updated_incoming_list) {
+			if(org_cmd_item.BaseCmdId == StyloQCommandList::sqbcIncomingListCCheck) {
+				
+			}
+			else if(org_cmd_item.BaseCmdId == StyloQCommandList::sqbcIncomingListOrder) {
+			}
+		}
+		// } @v11.6.4 
 	}
 	CATCH
 		result_obj_type = 0;
@@ -1436,7 +1451,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 				// (done by MakeObjArrayJson_GoodsGroup) goodsgrp_id_list.sortAndUndup();
 				// (done by MakeObjArrayJson_Uom) uom_id_list.sortAndUndup();
 			}
-			js.InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(bc_own_ident, goodsgrp_id_list, &stat));
+			js.InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(bc_own_ident, goodsgrp_id_list, false, &stat));
 			js.InsertNz("uom_list", MakeObjArrayJson_Uom(bc_own_ident, uom_id_list, &stat));
 			{
 				SJson * p_js_goodslist = SJson::CreateArr();
@@ -1570,6 +1585,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 	*/
 	int    ok = 1;
 	const  LDATETIME now_dtm = getcurdatetime_();
+	const bool hide_stock = LOGIC(rParam.Flags & StyloQDocumentPrereqParam::fHideStock); // @v11.6.4
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
 	MakeInnerGoodsEntryBlock mige_blk;
@@ -1592,8 +1608,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 		if(palm_pack.Rec.Flags & PLMF_EXPGOODSEXPIRYTAGS) { // @v11.6.2
 			export_expiry_tags = true;
 			ahead_expiry_days = BillObj->GetConfig().WarnLotExpirDays;
-			if(ahead_expiry_days < 0)
-				ahead_expiry_days = 0;
+			SETMAX(ahead_expiry_days, 0);
 		}
 	}
 	else {
@@ -1684,9 +1699,16 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			THROW(gr_view.Init_(&gr_filt));
 			for(gr_view.InitIteration(); gr_view.NextIteration(&gr_item) > 0;) {
 				if(mige_blk.GObj.Fetch(gr_item.GoodsID, &goods_rec) > 0) {
-					if(export_zstock || gr_item.Rest > 0.0 || gt_quasi_unlim_list.lsearch(goods_rec.GoodsTypeID)) {
+					const bool is_quasi_unlim = gt_quasi_unlim_list.lsearch(goods_rec.GoodsTypeID);
+					if(export_zstock || gr_item.Rest > 0.0 || is_quasi_unlim) {
 						InnerGoodsEntry goods_entry(gr_item.GoodsID);
 						if(mige_blk.Make(gr_item.GoodsID, gr_item.Cost, gr_item.Price, gr_item.Rest, gr_item.UnitPerPack, goods_entry) > 0) {
+							// @v11.6.4 {
+							if(!hide_stock) { // ≈сли установлен общий признак сокрыти€ остатков, то нет смысла расходовать ресурсы на передачу InnerGoodsEntry::fDontShowRest дл€ конкретного товара
+								if(is_quasi_unlim)
+									goods_entry.Flags |= InnerGoodsEntry::fDontShowRest;
+							}
+							// } @v11.6.4 
 							goods_list.insert(&goods_entry);
 							goods_list_by_qk.removeByID(goods_entry.GoodsID);
 						}
@@ -1742,7 +1764,11 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			}
 			pJs->InsertNz("warehouse_list", p_js_list);
 		}
-		pJs->InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(rOwnIdent, mige_blk.GrpIdList, pStat));
+		{
+			const bool are_groups_hierarchical = LOGIC(rParam.Flags & StyloQDocumentPrereqParam::fUseHierarchGroups);
+			pJs->InsertBool("goodsgroup_list_hierarchical", are_groups_hierarchical); // @v11.6.4
+			pJs->InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(rOwnIdent, mige_blk.GrpIdList, are_groups_hierarchical, pStat));
+		}
 		pJs->InsertNz("uom_list", MakeObjArrayJson_Uom(rOwnIdent, mige_blk.UnitIdList, pStat));
 		if((rParam.PalmID && palm_pack.Rec.Flags & PLMF_EXPBRAND) || (rParam.Flags & StyloQDocumentPrereqParam::fUseBrands)) {
 			pJs->InsertNz("brand_list", MakeObjArrayJson_Brand(rOwnIdent, mige_blk.BrandIdList, 0, pStat));
@@ -1832,7 +1858,10 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 					p_goods_list->InsertChild(p_jsobj);
 				}
 			}
-			pJs->InsertNz("goods_list", p_goods_list);
+			{
+				pJs->InsertBool("hidestock", hide_stock); // @v11.6.4
+				pJs->InsertNz("goods_list", p_goods_list);
+			}
 		}
 	}
 	CATCHZOK
@@ -2516,7 +2545,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 							}
 						}
 					}
-					js.InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(bc_own_ident, mige_blk.GrpIdList, 0));
+					js.InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(bc_own_ident, mige_blk.GrpIdList, false, 0));
 					js.InsertNz("brand_list", MakeObjArrayJson_Brand(bc_own_ident, mige_blk.BrandIdList, 0, 0));
 					js.InsertNz("uom_list", MakeObjArrayJson_Uom(bc_own_ident, mige_blk.UnitIdList, 0));
 					{

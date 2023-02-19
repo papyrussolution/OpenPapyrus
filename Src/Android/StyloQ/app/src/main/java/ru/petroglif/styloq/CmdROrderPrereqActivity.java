@@ -7,6 +7,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.location.Location;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.IdRes;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -655,9 +657,35 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								if(lo_tab != null) {
 									CreateTabList(false);
 									for(int i = 0; i < CPM.TabList.size(); i++) {
-										TabLayout.Tab tab = lo_tab.newTab();
-										tab.setText(CPM.TabList.get(i).TabText);
-										lo_tab.addTab(tab);
+										CommonPrereqModule.TabEntry te = CPM.TabList.get(i);
+										if(te != null) {
+											TabLayout.Tab tab = lo_tab.newTab();
+											int icon_rc_id = 0;
+											if(te.TabId == CommonPrereqModule.Tab.tabGoods)
+												icon_rc_id = R.drawable.ic_obj_goods_kanji_054c1;
+											if(te.TabId == CommonPrereqModule.Tab.tabGoodsGroups)
+												icon_rc_id = R.drawable.ic_obj_goodsgroup;
+											else if(te.TabId == CommonPrereqModule.Tab.tabBrands)
+												icon_rc_id = R.drawable.ic_obj_brand01;
+											else if(te.TabId == CommonPrereqModule.Tab.tabClients)
+												icon_rc_id = R.drawable.ic_client01;
+											else if(te.TabId == CommonPrereqModule.Tab.tabCurrentDocument)
+												icon_rc_id = R.drawable.ic_shoppingcart01;
+											else if(te.TabId == CommonPrereqModule.Tab.tabSearch)
+												icon_rc_id = R.drawable.ic_search;
+											if(icon_rc_id != 0) {
+												//Drawable draw = getResources().getDrawable(icon_rc_id, getTheme());
+												Drawable draw = AppCompatResources.getDrawable(this, icon_rc_id);
+												if(draw != null) {
+													//draw = new ScaleDrawable(draw, 0, 24, 24);
+													//draw.setBounds(0, 0, 10, 10);
+													tab.setIcon(draw);
+												}
+												//tab.setIcon(icon_rc_id);
+											}
+											tab.setText(te.TabText);
+											lo_tab.addTab(tab);
+										}
 									}
 									SLib.SetupTabLayoutStyle(lo_tab);
 									SLib.SetupTabLayoutListener(this, lo_tab, view_pager);
@@ -712,7 +740,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
 					switch(a.GetListRcId()) {
 						case R.id.orderPrereqGoodsListView: result = new Integer(CPM.GetGoodsListSize()); break;
-						case R.id.orderPrereqGoodsGroupListView: result = new Integer(SLib.GetCount(CPM.GoodsGroupListData)); break;
+						case R.id.orderPrereqGoodsGroupListView: result = new Integer(CPM.GetGoodsGroupCount()); break;
 						case R.id.orderPrereqBrandListView: result = new Integer(SLib.GetCount(CPM.BrandListData)); break;
 						case R.id.orderPrereqOrdrListView: result = new Integer(CPM.GetCurrentDocumentTransferListCount()); break;
 						case R.id.orderPrereqRegistryListView:
@@ -884,7 +912,39 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null && ev_subj.ItemIdx >= 0) {
 						if(ev_subj.RvHolder != null) { // RecyclerView
-							if(SLib.IsRecyclerListAdapter(srcObj)) {
+							if(SLib.IsRecyclerTreeListAdapter(srcObj)) {
+								AmrTreeView.Adapter a = (AmrTreeView.Adapter)srcObj;
+								switch(a.GetListRcId()) {
+									case R.id.orderPrereqGoodsGroupListView:
+										if(ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GetGoodsGroupCount()) {
+											View iv = ev_subj.RvHolder.itemView;
+											BusinessEntity.GoodsGroup cur_entry = null;
+											if(ev_subj.ItemObj != null && ev_subj.ItemObj instanceof BusinessEntity.GoodsGroup)
+												cur_entry = (BusinessEntity.GoodsGroup)ev_subj.ItemObj; // Это - правильная ветка
+											else
+												cur_entry = CPM.GoodsGroupListData.L.get(ev_subj.ItemIdx); // Это - неправильная ветка
+											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.Name);
+											{
+												View ctl = iv.findViewById(R.id.LVITEM_EXPANDSTATUS);
+												if(ctl != null && ctl instanceof ImageView) {
+													ImageView imgv = (ImageView)ctl;
+													if(ev_subj.IsFolder) {
+														imgv.setVisibility(View.VISIBLE);
+														if(ev_subj.IsCollapsedFolder)
+															imgv.setImageResource(R.drawable.ic_triangleleft03);
+														else
+															imgv.setImageResource(R.drawable.ic_triangledown03);
+													}
+													else
+														imgv.setVisibility(View.GONE);
+												}
+											}
+											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODSGROUP, cur_entry.ID);
+										}
+										break;
+								}
+							}
+							else if(SLib.IsRecyclerListAdapter(srcObj)) {
 								SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
 								switch(a.GetListRcId()) {
 									case R.id.searchPaneListView:
@@ -1023,8 +1083,24 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												double val = 0.0;
 												val = cur_entry.Item.Price;
 												SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
-												val = cur_entry.Item.Stock;
-												SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? SLib.formatdouble(val, 0) : "");
+												{
+													final double stock = cur_entry.Item.Stock;
+													View stock_icon_view = iv.findViewById(R.id.CTL_GOODS_STOCKIMAGE);
+													final boolean hide_stock = (CPM.GetOption_HideStock() || cur_entry.Item.HideStock);
+													if(!hide_stock)
+														SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (stock > 0.0) ? SLib.formatdouble(stock, 0) : "");
+													if(stock_icon_view != null && stock_icon_view instanceof ImageView) {
+														if(hide_stock)
+															stock_icon_view.setVisibility(View.GONE);
+														else {
+															stock_icon_view.setVisibility(View.VISIBLE);
+															if(stock > 0)
+																((ImageView) stock_icon_view).setImageResource(R.drawable.ic_goodsstock01);
+															else
+																((ImageView) stock_icon_view).setImageResource(R.drawable.ic_goodsstock01_accented);
+														}
+													}
+												}
 												val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
 												if(val > 0.0) {
 													SLib.SetCtrlVisibility(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, View.VISIBLE);
@@ -1039,11 +1115,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.orderPrereqGoodsGroupListView:
-										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.GoodsGroupListData)) {
+										if(ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GetGoodsGroupCount()) {
 											View iv = ev_subj.RvHolder.itemView;
-											JSONObject cur_entry = (JSONObject)CPM.GoodsGroupListData.get(ev_subj.ItemIdx);
-											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.optString("nm", ""));
-											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODSGROUP, cur_entry.optInt("id", 0));
+											final BusinessEntity.GoodsGroup cur_entry = CPM.GoodsGroupListData.L.get(ev_subj.ItemIdx);
+											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.Name);
+											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODSGROUP, cur_entry.ID);
 										}
 										break;
 									case R.id.orderPrereqBrandListView:
@@ -1334,6 +1410,26 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								}
 							}
 						}
+						else if(SLib.IsRecyclerTreeListAdapter(srcObj)) {
+							AmrTreeView.Adapter a = (AmrTreeView.Adapter)srcObj;
+							StyloQApp app_ctx = GetAppCtx();
+							boolean do_update_goods_list_and_toggle_to_it = false;
+							final int rc_id = a.GetListRcId();
+							if(app_ctx != null && ev_subj.ItemIdx >= 0) {
+								if(rc_id == R.id.orderPrereqGoodsGroupListView) {
+									if(ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GetGoodsGroupCount()) {
+										final int group_id = CPM.GoodsGroupListData.L.get(ev_subj.ItemIdx).ID;
+										if(CPM.SetGoodsFilterByGroup(group_id)) {
+											SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
+											do_update_goods_list_and_toggle_to_it = true;
+										}
+									}
+								}
+								if(do_update_goods_list_and_toggle_to_it) {
+									GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
+								}
+							}
+						}
 						else if(SLib.IsRecyclerListAdapter(srcObj)) {
 							SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
 							StyloQApp app_ctx = GetAppCtx();
@@ -1422,8 +1518,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.orderPrereqGoodsGroupListView:
-										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.GoodsGroupListData)) {
-											final int group_id = CPM.GoodsGroupListData.get(ev_subj.ItemIdx).optInt("id", 0);
+										if(ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GetGoodsGroupCount()) {
+											final int group_id = CPM.GoodsGroupListData.L.get(ev_subj.ItemIdx).ID;
 											if(CPM.SetGoodsFilterByGroup(group_id)) {
 												SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
 												do_update_goods_list_and_toggle_to_it = true;
@@ -1823,6 +1919,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	private final ActivityResultLauncher<ScanOptions> BarcodeLauncher = registerForActivityResult(new ScanContract(), activity_result ->
 	{
 		String contents = activity_result.getContents();
+		byte [] contents_bytes = (contents != null) ? contents.getBytes() : null; // @debug
 		Intent original_intent = activity_result.getOriginalIntent();
 		BusinessEntity.PreprocessBarcodeResult pbcr = CPM.PreprocessBarcode(contents);
 		if(pbcr != null) {

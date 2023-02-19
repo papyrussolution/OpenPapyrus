@@ -1,5 +1,5 @@
 // V_GSTRUC.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Таблица просмотра товарных структур
 //
@@ -245,8 +245,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 				t++;
 			for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gsh) > 0; p++) {
 				const PPID gs_id = gsh.ID;
-				owner_list.clear();
-				Cb.GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
+				Cb.GObj.SearchGListByStruc(gs_id, false/*expandGenerics*/, owner_list);
 				if(!owner_list.getCount() && !(gsh.Flags & GSF_CHILD)) {
 					uint   ex_spos = 0;
 					if(!Cb.StrucList.lsearch(&gs_id, &ex_spos, CMPF_LONG, offsetof(GoodsStrucProcessingBlock::StrucEntry, GStrucID))) {
@@ -617,14 +616,14 @@ int PPViewGoodsStruc::Recover()
 			uniq_struc_list.addnz(item.GStrucID);
 		}
 		if(uniq_struc_list.getCount()) {
+			PPIDArray goods_ids;
 			uniq_struc_list.sortAndUndup();
 			for(uint i = 0; i < uniq_struc_list.getCount(); i++) {
 				PPID   id = uniq_struc_list.get(i);
 				{
 					PPGoodsStruc gs;
 					PPIDArray struct_ids;
-					PPIDArray goods_ids;
-					Cb.GObj.P_Tbl->SearchGListByStruc(id, &goods_ids);
+					Cb.GObj.SearchGListByStruc(id, false/*expandGenerics*/, goods_ids);
 					THROW(Cb.GSObj.Get(id, &gs));
 					THROW(Cb.GSObj.CheckStruct(&goods_ids, &struct_ids, &gs, &Problems, &logger));
 				}
@@ -657,8 +656,7 @@ int PPViewGoodsStruc::Recover()
 						gs_id_list.sortAndUndup();
 						for(uint i = 0; i < gs_id_list.getCount(); i++) {
 							const PPID gs_id = gs_id_list.get(i);
-							owner_list.clear();
-							Cb.GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
+							Cb.GObj.SearchGListByStruc(gs_id, false/*expandGenerics*/, owner_list);
 							if(owner_list.getCount()) {
 								for(uint oidx = 0; oidx < owner_list.getCount(); oidx++) {
 									PPID goods_id = owner_list.get(oidx);
@@ -683,41 +681,38 @@ int PPViewGoodsStruc::Recover()
 					THROW(tra);
 					for(uint k = 0; k < nna_gs_list.getCount(); k++) {
 						const PPID gs_id = nna_gs_list.get(k);
-						{
-							owner_list.clear();
-							Cb.GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
-							if(owner_list.getCount() > 1) {
-								PPGoodsStrucHeader gsh;
-								if(Cb.GSObj.Search(gs_id, &gsh) > 0) {
-									if(!(gsh.Flags & GSF_NAMED) && !(gsh.Flags & GSF_CHILD)) {
-										PPGoodsStruc gs;
-										THROW(Cb.GSObj.Get(gs_id, &gs) > 0);
-										{
-											long   nn = 0;
-											PPID   n_gs_id = 0;
-											surrogate_name = p_surrogate_prefix;
+						Cb.GObj.SearchGListByStruc(gs_id, false/*expandGenerics*/, owner_list);
+						if(owner_list.getCount() > 1) {
+							PPGoodsStrucHeader gsh;
+							if(Cb.GSObj.Search(gs_id, &gsh) > 0) {
+								if(!(gsh.Flags & GSF_NAMED) && !(gsh.Flags & GSF_CHILD)) {
+									PPGoodsStruc gs;
+									THROW(Cb.GSObj.Get(gs_id, &gs) > 0);
+									{
+										long   nn = 0;
+										PPID   n_gs_id = 0;
+										surrogate_name = p_surrogate_prefix;
+										STRNSCPY(gs.Rec.Name, surrogate_name);
+										while(Cb.GSObj.SearchByName(gs.Rec.Name, &n_gs_id, 0) > 0 && n_gs_id != gs_id) {
+											(surrogate_name = p_surrogate_prefix).Space().Cat(++nn);
 											STRNSCPY(gs.Rec.Name, surrogate_name);
-											while(Cb.GSObj.SearchByName(gs.Rec.Name, &n_gs_id, 0) > 0 && n_gs_id != gs_id) {
-												(surrogate_name = p_surrogate_prefix).Space().Cat(++nn);
-												STRNSCPY(gs.Rec.Name, surrogate_name);
-											}
 										}
-										gs.Rec.Flags |= GSF_NAMED;
-										PPID   temp_id = gs_id;
-										THROW(Cb.GSObj.Put(&temp_id, &gs, 0));
-										assert(temp_id == gs_id);
-										//
-										// Снимаем ссылку на структуру со всех товаров // (@v10.0.12 отменено) кроме последнего (с наибольшим идентификатором)
-										//
-										for(uint oidx = 0; oidx < owner_list.getCount(); oidx++) {
-											PPID goods_id = owner_list.get(oidx);
-											PPGoodsPacket goods_pack;
-											THROW(Cb.GObj.GetPacket(goods_id, &goods_pack, 0) > 0);
-											if(goods_pack.Rec.StrucID == gs_id) {
-												goods_pack.Rec.StrucID = 0;
-												goods_pack.GS.Rec.ID = 0;
-												THROW(Cb.GObj.PutPacket(&goods_id, &goods_pack, 0));
-											}
+									}
+									gs.Rec.Flags |= GSF_NAMED;
+									PPID   temp_id = gs_id;
+									THROW(Cb.GSObj.Put(&temp_id, &gs, 0));
+									assert(temp_id == gs_id);
+									//
+									// Снимаем ссылку на структуру со всех товаров // (@v10.0.12 отменено) кроме последнего (с наибольшим идентификатором)
+									//
+									for(uint oidx = 0; oidx < owner_list.getCount(); oidx++) {
+										PPID goods_id = owner_list.get(oidx);
+										PPGoodsPacket goods_pack;
+										THROW(Cb.GObj.GetPacket(goods_id, &goods_pack, 0) > 0);
+										if(goods_pack.Rec.StrucID == gs_id) {
+											goods_pack.Rec.StrucID = 0;
+											goods_pack.GS.Rec.ID = 0;
+											THROW(Cb.GObj.PutPacket(&goods_id, &goods_pack, 0));
 										}
 									}
 								}

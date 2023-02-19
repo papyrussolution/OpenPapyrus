@@ -296,8 +296,8 @@ private:
 		assert(value == 1);
 		return log;
 	}
-
-	static int Log2FloorNonZero64_Portable(uint64 n) {
+	static int Log2FloorNonZero64_Portable(uint64 n) 
+	{
 		const uint32 topbits = static_cast<uint32>(n >> 32);
 		if(topbits == 0) {
 			// Top bits are zero, so scan in bottom bits

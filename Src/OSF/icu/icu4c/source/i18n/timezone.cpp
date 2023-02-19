@@ -165,7 +165,6 @@ static int32_t findInStringArray(UResourceBundle * array, const UnicodeString & 
 	UnicodeString copy;
 	const UChar * u;
 	int32_t len;
-
 	int32_t start = 0;
 	int32_t limit = ures_getSize(array);
 	int32_t mid;
@@ -173,9 +172,7 @@ static int32_t findInStringArray(UResourceBundle * array, const UnicodeString & 
 	if(U_FAILURE(status) || (limit < 1)) {
 		return -1;
 	}
-	U_DEBUG_TZ_MSG(("fisa: Looking for %s, between %d and %d\n", U_DEBUG_TZ_STR(UnicodeString(id).getTerminatedBuffer()), start,
-	    limit));
-
+	U_DEBUG_TZ_MSG(("fisa: Looking for %s, between %d and %d\n", U_DEBUG_TZ_STR(UnicodeString(id).getTerminatedBuffer()), start, limit));
 	for(;;) {
 		mid = (int32_t)((start + limit) / 2);
 		if(lastMid == mid) { /* Have we moved? */

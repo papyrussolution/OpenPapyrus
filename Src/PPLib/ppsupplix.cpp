@@ -7194,7 +7194,7 @@ struct GazpromNeftBillPacket {
 		GpnCode[0] = 0;
 	}
 	struct Position { // @flat
-		Position() : GoodsID(0), ProductId(0), Qtty(0.0), Volume(0.0), Cost(0.0), CostWoVat(0.0)
+		Position() : GoodsID(0), ProductId(0), Qtty(0.0), Volume(0.0), Weight(0.0), Cost(0.0), CostWoVat(0.0)
 		{
 			UnitName[0] = 0;
 		}
@@ -7204,6 +7204,7 @@ struct GazpromNeftBillPacket {
 		char   UnitName[48];
 		double Qtty;
 		double Volume;
+		double Weight; // @v11.6.4
 		double Cost;
 		double CostWoVat;
 	};
@@ -8032,6 +8033,7 @@ int GazpromNeft::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 		PPID   acs_id = 0;
 		const  PPID   psn_id = ObjectToPerson(pBp->Rec.Object, &acs_id);
 		SString unit_name;
+		SString added_msg_buf;
 		PPPersonPacket psn_pack;
 		if(psn_id && PsnObj.GetPacket(psn_id, &psn_pack, 0) > 0) {
 			long   tiiterpos = 0;
@@ -8066,9 +8068,15 @@ int GazpromNeft::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 					RegisterTbl::Rec reg_rec;
 					p_new_pack->Client.PersonID = psn_id;
 					p_new_pack->Client.DlvrLocID = pBp->GetDlvrAddrID();
-					if(PsnObj.GetRegister(psn_id, PPREGT_TPID, pBp->Rec.Dt, &reg_rec) > 0) {
-						STRNSCPY(p_new_pack->Client.INN, reg_rec.Num);
+					{
+						STokenRecognizer tr;
+						SNaturalTokenArray nta;
+						THROW_PP_S(PsnObj.GetRegister(psn_id, PPREGT_TPID, pBp->Rec.Dt, &reg_rec) > 0 && (temp_buf = reg_rec.Num).NotEmptyS(), PPERR_PERSONINNUNDEF, psn_pack.Rec.Name);
+						tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta, 0);
+						added_msg_buf.Z().Cat(temp_buf).CatDiv('-', 1).Cat(psn_pack.Rec.Name);
+						THROW_PP_S(nta.Has(SNTOK_RU_INN) > 0.0f, PPERR_PERSONINNINVALID, added_msg_buf);
 					}
+					STRNSCPY(p_new_pack->Client.INN, reg_rec.Num);
 					if(PsnObj.GetRegister(psn_id, PPREGT_KPP, pBp->Rec.Dt, &reg_rec) > 0) {
 						STRNSCPY(p_new_pack->Client.KPP, reg_rec.Num);
 					}
@@ -8121,8 +8129,10 @@ int GazpromNeft::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 							item.CostWoVat = (item.Cost - vat_sum_in_full_price);
 							const GazpromNeftGoodsPacket * p_goods_entry = SearchGoodsEntry(ware_ident);
 							if(p_goods_entry) {
-								double volume = 0.0;
+								//double volume = 0.0;
+								//double weight = 0.0;
 								item.Volume = item.Qtty * p_goods_entry->Capacity;
+								item.Weight = item.Qtty * p_goods_entry->Weight; // @v11.6.4
 								STRNSCPY(item.UnitName, p_goods_entry->PackagingTypeName);
 								THROW_SL(p_new_pack->ItemList.insert(&item));
 								ok = 1;
@@ -8334,44 +8344,70 @@ int GazpromNeft::SendSellin()
 
 				THROW(Helper_MakeBillList(Ep.RcptOp, 1, loc_id, list));
 				temp_buf.Z().Cat(dtm_now.d, DATF_ISO8601CENT)/*.CatChar('Z')*/;
-				js_result.InsertString("uploadDate", temp_buf);
-				js_result.InsertString("warehouseId", temp_buf.Z().Cat(loc_uuid, S_GUID::fmtIDL));
 				{
 					p_js_doc_list = new SJson(SJson::tARRAY);
 					for(uint idx = 0; idx < list.getCount(); idx++) {
 						const GazpromNeftBillPacket * p_item = list.at(idx);
 						if(p_item) {
 							SJson * p_js_doc = new SJson(SJson::tOBJECT);
-							p_js_doc->InsertString("invoiceId", temp_buf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL));
-							p_js_doc->InsertString("invoiceNumber", (temp_buf = p_item->Code).Escape());
-							temp_buf.Z().Cat(/*p_item->Dtm*/dtm_now, DATF_ISO8601CENT, 0).CatChar('Z'); // Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
-							p_js_doc->InsertString("invoiceDate", temp_buf);
-							p_js_doc->InsertString("gpnInvoiceNumber", (temp_buf = p_item->Code).Escape());
-							temp_buf.Z().Cat(p_item->Dtm, DATF_ISO8601CENT, 0).CatChar('Z');
-							p_js_doc->InsertString("gpnInvoiceDate", temp_buf);
+							p_js_doc->InsertString("InvoiceId", temp_buf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 							SJson * p_js_item_list = new SJson(SJson::tARRAY);
 							for(uint itemidx = 0; itemidx < p_item->ItemList.getCount(); itemidx++) {
 								const GazpromNeftBillPacket::Position & r_item = p_item->ItemList.at(itemidx);
 								SJson * p_js_item = new SJson(SJson::tOBJECT);
-								p_js_item->InsertInt64("productId", r_item.ProductId);
-								p_js_item->InsertInt("quantity", R0i(r_item.Qtty));
-								//p_js_item->InsertString("weight", ""); 
+								p_js_item->InsertNull("Unit");
+								//p_js_item->InsertString("Unit", /*r_item.UnitName*/"TNE");
+								p_js_item->InsertNull("Volume");
 								//if(r_item.Volume > 0.0)
-									//p_js_item->InsertString("volume", temp_buf.Z().Cat(r_item.Volume, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
-								p_js_item->InsertString("unit", /*r_item.UnitName*/"TNE");
+									//p_js_item->InsertString("Volume", temp_buf.Z().Cat(r_item.Volume, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
+								if(r_item.Weight > 0.0) {
+									// Масса должна быть в тоннах
+									p_js_item->InsertString("Weight", temp_buf.Z().Cat(r_item.Weight/1000.0, MKSFMTD(0, 3, NMBF_NOTRAILZ))); 
+									//p_js_item->InsertDouble("weight", r_item.Weight/1000.0, MKSFMTD(0, 3, NMBF_NOTRAILZ)); 
+								}
+								p_js_item->InsertInt("Quantity", R0i(r_item.Qtty));
+								p_js_item->InsertInt64("ProductId", r_item.ProductId);
 								p_js_item_list->InsertChild(p_js_item);
 								p_js_item = 0;
 							}
-							p_js_doc->Insert("positions", p_js_item_list);
+							p_js_doc->Insert("Positions", p_js_item_list);
 							p_js_item_list = 0;
+							temp_buf.Z().Cat(/*p_item->Dtm*/dtm_now, DATF_ISO8601CENT, 0).Cat("+03:00"); // Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
+							p_js_doc->InsertString("InvoiceDate", temp_buf);
+							p_js_doc->InsertString("InvoiceNumber", (temp_buf = p_item->Code).Escape());
+							temp_buf.Z().Cat(p_item->Dtm, DATF_ISO8601CENT, 0).Cat("+03:00");
+							p_js_doc->InsertString("GpnInvoiceDate", temp_buf);
+							p_js_doc->InsertString("GpnInvoiceNumber", (temp_buf = p_item->Code).Escape());
+							//
 							p_js_doc_list->InsertChild(p_js_doc);
 							p_js_doc = 0;
 						}
 					}
-					js_result.Insert("documents", p_js_doc_list);
+					js_result.Insert("Documents", p_js_doc_list);
 					p_js_doc_list = 0;
+					temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0).Cat("+03:00");
+					js_result.InsertString("UploadDate", temp_buf);
+					js_result.InsertString("WarehouseId", temp_buf.Z().Cat(loc_uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 				}
 				js_result.ToStr(req_buf);
+				// @debug {
+				/*if(false) {
+					//"D:\Papyrus\Src\VBA\0-GasPromNeft-Rud\sellin-sample.json"
+					SFile f_in("/Papyrus/Src/VBA/0-GasPromNeft-Rud/sellin-sample.json", SFile::mRead);
+					if(f_in.IsValid()) {
+						STempBuffer sample_buf(4096);
+						size_t actual_size = 0;
+						if(f_in.ReadAll(sample_buf, 0, &actual_size) > 0) {
+							temp_buf.Z().CatN(sample_buf, actual_size);
+							SJson * p_js_sample = SJson::Parse(temp_buf);
+							if(p_js_sample) {
+								p_js_sample->ToStr(req_buf);
+								ZDELETE(p_js_sample);
+							}
+						}
+					}
+				}*/
+				// } @debug 
 				{
 					SString url_buf;
 					SString hdr_buf;
@@ -9670,6 +9706,7 @@ int PrcssrSupplInterchange::Run()
 		if(temp_buf.IsEqiAscii("VLADIMIRSKIY_STANDARD")) { // @v11.5.10
 			VladimirskiyStandard cli(r_eb, logger);
 			const long actions = r_eb.P.Actions;
+			PPWaitStart(); // @v11.6.4
 			THROW(cli.Init());
 			if(actions & SupplInterchangeFilt::opExportStocks) {
 				cli.SendRest();
@@ -9680,6 +9717,7 @@ int PrcssrSupplInterchange::Run()
 		}
 		else if(temp_buf.IsEqiAscii("MERCAPP-GAZPROMNEFT")) { // @v11.5.2
 			GazpromNeft cli(r_eb, logger);
+			PPWaitStart(); // @v11.6.4
 			THROW(cli.Init());
 			if(r_eb.P.Actions & (SupplInterchangeFilt::opExportBills|SupplInterchangeFilt::opExportStocks|SupplInterchangeFilt::opExportSales))
 				r_eb.P.Actions |= SupplInterchangeFilt::opImportGoods;

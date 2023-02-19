@@ -1,5 +1,5 @@
 // DL600.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -11,9 +11,9 @@ DlFunc::DlFunc() : ArgNamList("/&"), ArgList(sizeof(DlFunc::Arg)), TypID(0), Fla
 	ArgNamList.add("$"); // zero index - undefined name
 }
 
-int DlFunc::IsEq(const DlFunc & rPat) const
+bool DlFunc::IsEq(const DlFunc & rPat) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	THROW(TypID == rPat.TypID);
 	THROW(Flags == rPat.Flags);
 	THROW(ImplID == rPat.ImplID);
@@ -160,9 +160,9 @@ int FASTCALL DlFuncPool::Read(SBuffer & rBuf)
 	return 1;
 }
 
-int FASTCALL DlFuncPool::IsEq(const DlFuncPool & rPat) const
+bool FASTCALL DlFuncPool::IsEq(const DlFuncPool & rPat) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	uint   c = Items.getCount();
 	THROW(c == rPat.Items.getCount());
 	{

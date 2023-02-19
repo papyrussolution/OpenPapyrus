@@ -6849,24 +6849,19 @@ static void zisofs_detect_magic(struct archive_write * a, const void * buff, siz
 	}
 	iso9660->zisofs.detect_magic = 0;
 	p = magic_buff;
-
 	/* Check the magic code of zisofs. */
 	if(memcmp(p, zisofs_magic, sizeof(zisofs_magic)) != 0)
 		/* This is not zisofs file which made by mkzftree. */
 		return;
 	p += sizeof(zisofs_magic);
-
 	/* Read a zisofs header. */
 	uncompressed_size = archive_le32dec(p);
 	header_size = p[4];
 	log2_bs = p[5];
-	if(uncompressed_size < 24 || header_size != 4 ||
-	    log2_bs > 30 || log2_bs < 7)
+	if(uncompressed_size < 24 || header_size != 4 || log2_bs > 30 || log2_bs < 7)
 		return; /* Invalid or not supported header. */
-
 	/* Calculate a size of Block Pointers of zisofs. */
-	_ceil = (uncompressed_size +
-	    (ARCHIVE_LITERAL_LL(1) << log2_bs) -1) >> log2_bs;
+	_ceil = (uncompressed_size + (ARCHIVE_LITERAL_LL(1) << log2_bs) -1) >> log2_bs;
 	doff = (_ceil + 1) * 4 + 16;
 	if(entry_size < (int64)doff)
 		return; /* Invalid data. */
@@ -6885,11 +6880,9 @@ static void zisofs_detect_magic(struct archive_write * a, const void * buff, siz
 		doff += bed - bst;
 		_ceil--;
 	}
-
 	file->zisofs.uncompressed_size = uncompressed_size;
 	file->zisofs.header_size = header_size;
 	file->zisofs.log2_bs = log2_bs;
-
 	/* Disable making a zisofs image. */
 	iso9660->zisofs.making = 0;
 }

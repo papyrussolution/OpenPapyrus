@@ -915,7 +915,8 @@ static inline size_t mi_ctz(uintptr_t x) {
 
 #include <limits.h>       // LONG_MAX
 #define MI_HAVE_FAST_BITSCAN
-static inline size_t mi_clz(uintptr_t x) {
+static inline size_t mi_clz(uintptr_t x) 
+{
 	if(x==0) return MI_INTPTR_BITS;
 	unsigned long idx;
 #if (INTPTR_MAX == LONG_MAX)
@@ -926,7 +927,8 @@ static inline size_t mi_clz(uintptr_t x) {
 	return ((MI_INTPTR_BITS - 1) - idx);
 }
 
-static inline size_t mi_ctz(uintptr_t x) {
+static inline size_t mi_ctz(uintptr_t x) 
+{
 	if(x==0) return MI_INTPTR_BITS;
 	unsigned long idx;
 #if (INTPTR_MAX == LONG_MAX)

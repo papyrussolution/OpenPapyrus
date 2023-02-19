@@ -1,26 +1,15 @@
+// uenum.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-*******************************************************************************
-*
-*   Copyright (C) 2002-2013, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-*******************************************************************************
-*   file name:  uenum.h
-*   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:2
-*
-*   created on: 2002jul08
-*   created by: Vladimir Weinstein
-*/
-
+// Copyright (C) 2002-2013, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002jul08
+// created by: Vladimir Weinstein
+// 
 #ifndef __UENUM_H
 #define __UENUM_H
 
 #include "unicode/utypes.h"
-
 #if U_SHOW_CPLUSPLUS_API
 #include "unicode/localpointer.h"
 
@@ -31,15 +20,16 @@ U_NAMESPACE_END
 
 /**
  * \file
- * \brief C API: String Enumeration 
+ * \brief C API: String Enumeration
  */
- 
+
 /**
  * An enumeration object.
  * For usage in C programs.
  * @stable ICU 2.2
  */
 struct UEnumeration;
+
 /** structure representing an enumeration object instance @stable ICU 2.2 */
 typedef struct UEnumeration UEnumeration;
 
@@ -50,8 +40,7 @@ typedef struct UEnumeration UEnumeration;
  * @param en UEnumeration structure pointer
  * @stable ICU 2.2
  */
-U_CAPI void U_EXPORT2
-uenum_close(UEnumeration* en);
+U_CAPI void U_EXPORT2 uenum_close(UEnumeration* en);
 
 #if U_SHOW_CPLUSPLUS_API
 
@@ -66,7 +55,7 @@ U_NAMESPACE_BEGIN
  * @see LocalPointer
  * @stable ICU 4.4
  */
-U_DEFINE_LOCAL_OPEN_POINTER(LocalUEnumerationPointer, UEnumeration, uenum_close);
+    U_DEFINE_LOCAL_OPEN_POINTER(LocalUEnumerationPointer, UEnumeration, uenum_close);
 
 U_NAMESPACE_END
 
@@ -78,7 +67,7 @@ U_NAMESPACE_END
  * U_ENUM_OUT_OF_SYNC_ERROR.
  * This is a convenience function. It can end up being very
  * expensive as all the items might have to be pre-fetched (depending
- * on the type of data being traversed). Use with caution and only 
+ * on the type of data being traversed). Use with caution and only
  * when necessary.
  * @param en UEnumeration structure pointer
  * @param status error code, can be U_ENUM_OUT_OF_SYNC_ERROR if the
@@ -86,8 +75,7 @@ U_NAMESPACE_END
  * @return number of elements in the iterator
  * @stable ICU 2.2
  */
-U_CAPI int32_t U_EXPORT2
-uenum_count(UEnumeration* en, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 uenum_count(UEnumeration* en, UErrorCode * status);
 
 /**
  * Returns the next element in the iterator's list.  If there are
@@ -110,11 +98,7 @@ uenum_count(UEnumeration* en, UErrorCode * status);
  *         traversed, returns NULL.
  * @stable ICU 2.2
  */
-U_CAPI const UChar * U_EXPORT2
-uenum_unext(UEnumeration* en,
-            int32_t* resultLength,
-            UErrorCode * status);
-
+U_CAPI const UChar * U_EXPORT2 uenum_unext(UEnumeration* en, int32_t* resultLength, UErrorCode * status);
 /**
  * Returns the next element in the iterator's list.  If there are
  * no more elements, returns NULL.  If the iterator is out-of-sync
@@ -143,22 +127,17 @@ uenum_unext(UEnumeration* en,
  *         traversed, returns NULL.
  * @stable ICU 2.2
  */
-U_CAPI const char * U_EXPORT2
-uenum_next(UEnumeration* en,
-           int32_t* resultLength,
-           UErrorCode * status);
-
+U_CAPI const char * U_EXPORT2 uenum_next(UEnumeration* en, int32_t* resultLength, UErrorCode * status);
 /**
  * Resets the iterator to the current list of service IDs.  This
  * re-establishes sync with the service and rewinds the iterator
  * to start at the first element.
  * @param en the iterator object
  * @param status the error code, set to U_ENUM_OUT_OF_SYNC_ERROR if
- *               the iterator is out of sync with its service.  
+ *               the iterator is out of sync with its service.
  * @stable ICU 2.2
  */
-U_CAPI void U_EXPORT2
-uenum_reset(UEnumeration* en, UErrorCode * status);
+U_CAPI void U_EXPORT2 uenum_reset(UEnumeration* en, UErrorCode * status);
 
 #if U_SHOW_CPLUSPLUS_API
 
@@ -171,14 +150,14 @@ uenum_reset(UEnumeration* en, UErrorCode * status);
  * @return a UEnumeration wrapping the adopted StringEnumeration.
  * @stable ICU 4.2
  */
-U_CAPI UEnumeration* U_EXPORT2
-uenum_openFromStringEnumeration(icu::StringEnumeration * adopted, UErrorCode * ec);
+U_CAPI UEnumeration* U_EXPORT2 uenum_openFromStringEnumeration(icu::StringEnumeration * adopted, UErrorCode * ec);
 
 #endif
 
 /**
  * Given an array of const UChar * strings, return a UEnumeration.  String pointers from 0..count-1 must not be null.
- * Do not free or modify either the string array or the characters it points to until this object has been destroyed with uenum_close.
+ * Do not free or modify either the string array or the characters it points to until this object has been destroyed
+ *with uenum_close.
  * \snippet test/cintltst/uenumtst.c uenum_openUCharStringsEnumeration
  * @param strings array of const UChar * strings (each null terminated). All storage is owned by the caller.
  * @param count length of the array
@@ -187,13 +166,12 @@ uenum_openFromStringEnumeration(icu::StringEnumeration * adopted, UErrorCode * e
  * @see uenum_close
  * @stable ICU 50
  */
-U_CAPI UEnumeration* U_EXPORT2
-uenum_openUCharStringsEnumeration(const UChar * const strings[], int32_t count,
-                                 UErrorCode * ec);
-
+U_CAPI UEnumeration* U_EXPORT2 uenum_openUCharStringsEnumeration(const UChar * const strings[], int32_t count, UErrorCode * ec);
 /**
- * Given an array of const char * strings (invariant chars only), return a UEnumeration.  String pointers from 0..count-1 must not be null.
- * Do not free or modify either the string array or the characters it points to until this object has been destroyed with uenum_close.
+ * Given an array of const char * strings (invariant chars only), return a UEnumeration.  String pointers from
+ *0..count-1 must not be null.
+ * Do not free or modify either the string array or the characters it points to until this object has been destroyed
+ *with uenum_close.
  * \snippet test/cintltst/uenumtst.c uenum_openCharStringsEnumeration
  * @param strings array of char * strings (each null terminated).  All storage is owned by the caller.
  * @param count length of the array
@@ -202,8 +180,6 @@ uenum_openUCharStringsEnumeration(const UChar * const strings[], int32_t count,
  * @see uenum_close
  * @stable ICU 50
  */
-U_CAPI UEnumeration* U_EXPORT2
-uenum_openCharStringsEnumeration(const char * const strings[], int32_t count,
-                                 UErrorCode * ec);
+U_CAPI UEnumeration* U_EXPORT2 uenum_openCharStringsEnumeration(const char * const strings[], int32_t count, UErrorCode * ec);
 
 #endif

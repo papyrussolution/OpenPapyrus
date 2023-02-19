@@ -313,21 +313,19 @@ struct CurrencySpacingSink : public ResourceSink {
 DecFmtSymDataSink::~DecFmtSymDataSink() {
 }
 
-CurrencySpacingSink::~CurrencySpacingSink() {
+CurrencySpacingSink::~CurrencySpacingSink() 
+{
 }
 } // namespace
 
-void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status,
-    bool useLastResortData, const NumberingSystem* ns)
+void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status, bool useLastResortData, const NumberingSystem* ns)
 {
 	if(U_FAILURE(status)) {
 		return;
 	}
 	*validLocale = *actualLocale = 0;
-
 	// First initialize all the symbols to the fallbacks for anything we can't find
 	initialize();
-
 	//
 	// Next get the numbering system for this locale and set zero digit
 	// and the digit string based on the numbering system for the locale
@@ -355,13 +353,10 @@ void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status,
 	else {
 		nsName = gLatn;
 	}
-
 	// Open resource bundles
 	const char * locStr = loc.getName();
 	LocalUResourceBundlePointer resource(ures_open(NULL, locStr, &status));
-	LocalUResourceBundlePointer numberElementsRes(
-		ures_getByKeyWithFallback(resource.getAlias(), gNumberElements, NULL, &status));
-
+	LocalUResourceBundlePointer numberElementsRes(ures_getByKeyWithFallback(resource.getAlias(), gNumberElements, NULL, &status));
 	if(U_FAILURE(status)) {
 		if(useLastResortData) {
 			status = U_USING_DEFAULT_WARNING;
@@ -369,30 +364,19 @@ void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status,
 		}
 		return;
 	}
-
 	// Set locale IDs
 	// TODO: Is there a way to do this without depending on the resource bundle instance?
 	U_LOCALE_BASED(locBased, *this);
 	locBased.setLocaleIDs(
-		ures_getLocaleByType(
-			numberElementsRes.getAlias(),
-			ULOC_VALID_LOCALE, &status),
-		ures_getLocaleByType(
-			numberElementsRes.getAlias(),
-			ULOC_ACTUAL_LOCALE, &status));
-
+		ures_getLocaleByType(numberElementsRes.getAlias(), ULOC_VALID_LOCALE, &status),
+		ures_getLocaleByType(numberElementsRes.getAlias(), ULOC_ACTUAL_LOCALE, &status));
 	// Now load the rest of the data from the data sink.
 	// Start with loading this nsName if it is not Latin.
 	DecFmtSymDataSink sink(*this);
 	if(strcmp(nsName, gLatn) != 0) {
 		CharString path;
-		path.append(gNumberElements, status)
-		.append('/', status)
-		.append(nsName, status)
-		.append('/', status)
-		.append(gSymbols, status);
+		path.append(gNumberElements, status).append('/', status).append(nsName, status).append('/', status).append(gSymbols, status);
 		ures_getAllItemsWithFallback(resource.getAlias(), path.data(), sink, status);
-
 		// If no symbols exist for the given nsName and resource bundle, silently ignore
 		// and fall back to Latin.
 		if(status == U_MISSING_RESOURCE_ERROR) {
@@ -402,7 +386,6 @@ void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status,
 			return;
 		}
 	}
-
 	// Continue with Latin if necessary.
 	if(!sink.seenAll()) {
 		ures_getAllItemsWithFallback(resource.getAlias(), gNumberElementsLatnSymbols, sink, status);
@@ -410,10 +393,8 @@ void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status,
 			return;
 		}
 	}
-
 	// Let the monetary number separators equal the default number separators if necessary.
 	sink.resolveMissingMonetarySeparators(fSymbols);
-
 	// Resolve codePointZero
 	UChar32 tempCodePointZero = -1;
 	for(int32_t i = 0; i<=9; i++) {
@@ -432,7 +413,6 @@ void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status,
 		}
 	}
 	fCodePointZero = tempCodePointZero;
-
 	// Get the default currency from the currency API.
 	UErrorCode internalStatus = U_ZERO_ERROR; // don't propagate failures out
 	UChar curriso[4];
@@ -444,7 +424,6 @@ void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status,
 	else {
 		setCurrency(nullptr, status);
 	}
-
 	// Currency Spacing.
 	LocalUResourceBundlePointer currencyResource(ures_open(U_ICUDATA_CURR, locStr, &status));
 	CurrencySpacingSink currencySink(*this);

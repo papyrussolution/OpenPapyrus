@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Yann Collet, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
@@ -516,10 +515,9 @@ extern "C" {
  *  Since link-time-optimization is not available for all compilers,
  *  these functions are defined into a .h to be included.
  */
-
-/**********************************************
-*  bitStream decompression API (read backward)
-**********************************************/
+// 
+// bitStream decompression API (read backward)
+// 
 typedef struct {
 	size_t bitContainer;
 	uint   bitsConsumed;
@@ -539,16 +537,14 @@ MEM_STATIC size_t   BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, 
 MEM_STATIC size_t   BIT_readBits(BIT_DStream_t* bitD, uint nbBits);
 MEM_STATIC BIT_DStream_status BIT_reloadDStream(BIT_DStream_t* bitD);
 MEM_STATIC uint BIT_endOfDStream(const BIT_DStream_t* bitD);
-
-/******************************************
-*  unsafe API
-******************************************/
+// 
+// unsafe API
+// 
 MEM_STATIC size_t BIT_readBitsFast(BIT_DStream_t* bitD, uint nbBits);
 /* faster, but works only if nbBits >= 1 */
-
-/****************************************************************
-*  Helper functions
-****************************************************************/
+// 
+// Helper functions
+// 
 MEM_STATIC uint BIT_highbit32(uint32 val)
 {
 #if defined(_MSC_VER)   /* Visual */
@@ -2884,14 +2880,12 @@ void ZSTDv04_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* c
 		remainingSize -= cBlockSize;
 		nbBlocks++;
 	}
-
 	*cSize = ip - (const BYTE *)src;
 	*dBound = nbBlocks * BLOCKSIZE;
 }
-
-/* ******************************
-*  Streaming Decompression API
-********************************/
+// 
+// Streaming Decompression API
+// 
 static size_t ZSTD_nextSrcSizeToDecompress(ZSTD_DCtx* dctx)
 {
 	return dctx->expected;
@@ -2910,9 +2904,10 @@ static size_t ZSTD_decompressContinue(ZSTD_DCtx* ctx, void* dst, size_t maxDstSi
 		    ctx->headerSize = ZSTD_decodeFrameHeader_Part1(ctx, src, ZSTD_frameHeaderSize_min);
 		    if(ZSTD_isError(ctx->headerSize)) return ctx->headerSize;
 		    memcpy(ctx->headerBuffer, src, ZSTD_frameHeaderSize_min);
-		    if(ctx->headerSize > ZSTD_frameHeaderSize_min) return ERROR(GENERIC); /* impossible */
+		    if(ctx->headerSize > ZSTD_frameHeaderSize_min) 
+				return ERROR(GENERIC); /* impossible */
 		    ctx->expected = 0; /* not necessary to copy more */
-		/* fallthrough */
+		// @fallthrough
 		case ZSTDds_decodeFrameHeader:
 		    /* get frame header */
 	    {   

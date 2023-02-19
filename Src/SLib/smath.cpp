@@ -1,5 +1,5 @@
 // SMATH.CPP
-// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1490,6 +1490,90 @@ bool SDecimalFraction::IsZero() const
 		return rV;
 	else
 		return SDecimalFraction(-rV.Mant, rV.Exp);
+}
+//
+// 3 bits
+//   000 exponent zero bits 
+//   001 exponent 4 bits [-7..+7]
+//   010 exponent 6 bits [-31..+31]
+//   011 exponent 7 bits [-63..+63]
+//   100 exponent 8bits  [-127..+127]
+//   101 +INF
+//   110 -INF
+//   111 NAN
+// E bits ([0..8] depends on special 3 bits above) bits  
+//   exponent (upper bit - sign)
+// (N-3-E) bits
+//   mantissa (upper bit - sign)
+//
+uint64 GetUedMaxMantissa(uint numMantissaBits)
+{
+	uint64 result = 0ULL;
+	assert(numMantissaBits >= 3 && numMantissaBits <= 64);
+	for(uint i = 0; i < (numMantissaBits-1); i++) 
+		result |= (1 << i);
+	return result;
+}
+
+uint64 SDecimalFraction::ToUed(uint numBits) const // @construction
+{
+	uint64 ued = 0;
+	assert(numBits >= 24 && numBits <= 64);
+	if(numBits >= 24 && numBits <= 64) {
+		uint   special = 0;
+		if(Flags & SIEEE754::fNAN)
+			special |= 0x7;
+		else {
+			if(Flags & SIEEE754::fINF)
+				special |= ((Flags & SIEEE754::fSIGN) ? 0x6 : 0x5);
+			else {
+				uint  exp_bits = 0;
+				int16 abs_exp = abs(Exp);
+				uint64 maxmant = 0;
+				if(abs_exp == 0) {
+					exp_bits = 0;
+					maxmant = GetUedMaxMantissa(numBits-3-exp_bits);
+				}
+				else if(abs_exp <= 7) {
+					exp_bits = 4;
+					maxmant = GetUedMaxMantissa(numBits-3-exp_bits);
+				}
+				else if(abs_exp <= 31) {
+					exp_bits = 6;
+					maxmant = GetUedMaxMantissa(numBits-3-exp_bits);
+				}
+				else if(abs_exp <= 63) {
+					exp_bits = 7;
+					maxmant = GetUedMaxMantissa(numBits-3-exp_bits);
+				}
+				else if(abs_exp <= 127) {
+					exp_bits = 8;
+					maxmant = GetUedMaxMantissa(numBits-3-exp_bits);
+				}
+				else {
+					CALLEXCEPT(); // @error overflow
+				}
+				assert(maxmant > 0);
+				if(abs(Mant) <= maxmant) {
+					//special = 
+				}
+			}
+		}
+	}
+	CATCH
+		ued = 0; // @error @todo Уточнить идентификацию ошибки
+	ENDCATCH
+	return ued;
+}
+
+int SDecimalFraction::FromUed(uint64 ued, uint numBits) // @construction
+{
+	int    ok = 0;
+	assert(numBits >= 24 && numBits <= 64);
+	if(numBits >= 24 && numBits <= 64) {
+		
+	}
+	return ok;
 }
 
 int SDecimalFraction::Add(const SDecimalFraction & rA, const SDecimalFraction & rB)

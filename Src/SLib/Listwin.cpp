@@ -1,5 +1,5 @@
 // LISTWIN.CPP
-// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -125,7 +125,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 			const  uint ctl_id = IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 			HWND   h_ctl_wnd = ::GetDlgItem(H(), ctl_id);
 			if(PrepareSearchLetter) {
-				::SendMessage(h_ctl_wnd, WM_CHAR, PrepareSearchLetter, 0);
+				::SendMessageW(h_ctl_wnd, WM_CHAR, PrepareSearchLetter, 0);
 				PrepareSearchLetter = 0;
 			}
 			LDATETIME lost_focus_start_tm = ZERODATETIME;
@@ -250,7 +250,7 @@ void ListWindow::MoveWindow(HWND linkHwnd, long right)
 		link_rect = list_rect;
 		link_rect.bottom = link_rect.top;
 	}
-	long   item_height = IsTreeList() ? TreeView_GetItemHeight(h_list) : ::SendMessage(h_list, LB_GETITEMHEIGHT, 0, 0);
+	long   item_height = IsTreeList() ? TreeView_GetItemHeight(h_list) : ::SendMessageW(h_list, LB_GETITEMHEIGHT, 0, 0);
 	int    h = 	P_Def ? ((P_Def->ViewHight + 1) * item_height) : (list_rect.bottom - list_rect.top);
 	int    tt = link_rect.top;
 	int    x  = link_rect.left;

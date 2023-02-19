@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
@@ -101,10 +100,9 @@ static const FASTCOVER_accel_t FASTCOVER_defaultAccelParameters[FASTCOVER_MAX_AC
 	{ 11, 8 }, /* accel = 9 */
 	{ 10, 9 }, /* accel = 10 */
 };
-
-/*-*************************************
-* Context
-***************************************/
+// 
+// Context
+// 
 typedef struct {
 	const BYTE * samples;
 	size_t * offsets;
@@ -118,10 +116,9 @@ typedef struct {
 	uint f;
 	FASTCOVER_accel_t accelParams;
 } FASTCOVER_ctx_t;
-
-/*-*************************************
-*  Helper functions
-***************************************/
+// 
+// Helper functions
+// 
 /**
  * Selects the best segment in an epoch.
  * Segments of are scored according to the function:

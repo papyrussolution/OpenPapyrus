@@ -1,17 +1,15 @@
 // uresdata.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 1999-2016, International Business Machines Corporation and others. All Rights Reserved.
- *   encoding:   UTF-8
- *   created on: 1999dec08
- *   created by: Markus W. Scherer
- * Modification History:
- *
- *   Date        Name        Description
- *   06/20/2000  helena      OS/400 port changes; mostly typecast.
- *   06/24/02    weiv        Added support for resource sharing
- */
+// Copyright (C) 1999-2016, International Business Machines Corporation and others. All Rights Reserved.
+// encoding:   UTF-8
+// created on: 1999dec08
+// created by: Markus W. Scherer
+// Modification History:
+// Date        Name        Description
+// 06/20/2000  helena      OS/400 port changes; mostly typecast.
+// 06/24/02    weiv        Added support for resource sharing
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "resource.h"
@@ -23,7 +21,6 @@
 /*
  * Resource access helpers
  */
-
 /* get a const char * pointer to the key with the keyOffset byte offset from pRoot */
 #define RES_GET_KEY16(pResData, keyOffset) ((keyOffset)<(pResData)->localKeyLimit ? (const char *)(pResData)->pRoot+(keyOffset) : (pResData)->poolBundleKeys+(keyOffset)-(pResData)->localKeyLimit)
 #define RES_GET_KEY32(pResData, keyOffset) ((keyOffset)>=0 ? (const char *)(pResData)->pRoot+(keyOffset) : (pResData)->poolBundleKeys+((keyOffset)&0x7fffffff))
@@ -48,8 +45,7 @@ static const struct {
  * the resource is of the expected type.
  */
 
-static int32_t _res_findTableItem(const ResourceData * pResData, const uint16 * keyOffsets, int32_t length,
-    const char * key, const char ** realKey) 
+static int32_t _res_findTableItem(const ResourceData * pResData, const uint16 * keyOffsets, int32_t length, const char * key, const char ** realKey)
 {
 	const char * tableKey;
 	int32_t mid, start, limit;
@@ -678,8 +674,8 @@ static Resource makeResourceFrom16(const ResourceData * pResData, int32_t res16)
 	return URES_MAKE_RESOURCE(URES_STRING_V2, res16);
 }
 
-U_CAPI Resource U_EXPORT2 res_getTableItemByKey(const ResourceData * pResData, Resource table,
-    int32_t * indexR, const char ** key) {
+U_CAPI Resource U_EXPORT2 res_getTableItemByKey(const ResourceData * pResData, Resource table, int32_t * indexR, const char ** key) 
+{
 	uint32_t offset = RES_GET_OFFSET(table);
 	int32_t length;
 	int32_t idx;
@@ -1238,11 +1234,9 @@ static void ures_swapResource(const UDataSwapper * ds,
 				    uprv_memcpy(qKey32, rKey32, 4*count);
 			    }
 		    }
-
 		    /* resources */
 		    {
 			    Resource * r;
-
 			    if(p!=q) {
 				    r = q;
 			    }
@@ -1263,11 +1257,9 @@ static void ures_swapResource(const UDataSwapper * ds,
 	    {
 		    Resource item;
 		    int32_t i;
-
 		    count = udata_readInt32(ds, (int32_t)*p);
 		    /* swap length */
 		    ds->swapArray32(ds, p++, 4, q++, pErrorCode);
-
 		    /* recurse */
 		    for(i = 0; i<count; ++i) {
 			    item = ds->readUInt32(p[i]);
@@ -1295,71 +1287,50 @@ static void ures_swapResource(const UDataSwapper * ds,
 	}
 }
 
-U_CAPI int32_t U_EXPORT2 ures_swap(const UDataSwapper * ds,
-    const void * inData, int32_t length, void * outData,
-    UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 ures_swap(const UDataSwapper * ds, const void * inData, int32_t length, void * outData, UErrorCode * pErrorCode) 
+{
 	const UDataInfo * pInfo;
 	const Resource * inBundle;
 	Resource rootRes;
 	int32_t headerSize, maxTableLength;
-
 	Row rows[STACK_ROW_CAPACITY];
 	int32_t resort[STACK_ROW_CAPACITY];
 	TempTable tempTable;
-
 	const int32_t * inIndexes;
-
 	/* the following integers count Resource item offsets (4 bytes each), not bytes */
 	int32_t bundleLength, indexLength, keysBottom, keysTop, resBottom, top;
-
 	/* udata_swapDataHeader checks the arguments */
 	headerSize = udata_swapDataHeader(ds, inData, length, outData, pErrorCode);
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
 	/* check data format and format version */
 	pInfo = (const UDataInfo*)((const char *)inData+4);
-	if(!(
-		    pInfo->dataFormat[0]==0x52 && /* dataFormat="ResB" */
-		    pInfo->dataFormat[1]==0x65 &&
-		    pInfo->dataFormat[2]==0x73 &&
-		    pInfo->dataFormat[3]==0x42 &&
-		    /* formatVersion 1.1+ or 2.x or 3.x */
-		    ((pInfo->formatVersion[0]==1 && pInfo->formatVersion[1]>=1) ||
-		    pInfo->formatVersion[0]==2 || pInfo->formatVersion[0]==3)
-		    )) {
+	if(!(pInfo->dataFormat[0]==0x52 && /* dataFormat="ResB" */ pInfo->dataFormat[1]==0x65 && pInfo->dataFormat[2]==0x73 && pInfo->dataFormat[3]==0x42 &&/* formatVersion 1.1+ or 2.x or 3.x */
+		    ((pInfo->formatVersion[0]==1 && pInfo->formatVersion[1]>=1) || pInfo->formatVersion[0]==2 || pInfo->formatVersion[0]==3))) {
 		udata_printError(ds, "ures_swap(): data format %02x.%02x.%02x.%02x (format version %02x.%02x) is not a resource bundle\n",
-		    pInfo->dataFormat[0], pInfo->dataFormat[1],
-		    pInfo->dataFormat[2], pInfo->dataFormat[3],
-		    pInfo->formatVersion[0], pInfo->formatVersion[1]);
+		    pInfo->dataFormat[0], pInfo->dataFormat[1], pInfo->dataFormat[2], pInfo->dataFormat[3], pInfo->formatVersion[0], pInfo->formatVersion[1]);
 		*pErrorCode = U_UNSUPPORTED_ERROR;
 		return 0;
 	}
 	tempTable.majorFormatVersion = pInfo->formatVersion[0];
-
 	/* a resource bundle must contain at least one resource item */
 	if(length<0) {
 		bundleLength = -1;
 	}
 	else {
 		bundleLength = (length-headerSize)/4;
-
 		/* formatVersion 1.1 must have a root item and at least 5 indexes */
 		if(bundleLength<(1+5)) {
-			udata_printError(ds, "ures_swap(): too few bytes (%d after header) for a resource bundle\n",
-			    length-headerSize);
+			udata_printError(ds, "ures_swap(): too few bytes (%d after header) for a resource bundle\n", length-headerSize);
 			*pErrorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 			return 0;
 		}
 	}
-
 	inBundle = (const Resource*)((const char *)inData+headerSize);
 	rootRes = ds->readUInt32(*inBundle);
-
 	/* formatVersion 1.1 adds the indexes[] array */
 	inIndexes = (const int32_t*)(inBundle+1);
-
 	indexLength = udata_readInt32(ds, inIndexes[URES_INDEX_LENGTH])&0xff;
 	if(indexLength<=URES_INDEX_MAX_TABLE_LENGTH) {
 		udata_printError(ds, "ures_swap(): too few indexes for a 1.1+ resource bundle\n");
@@ -1376,10 +1347,8 @@ U_CAPI int32_t U_EXPORT2 ures_swap(const UDataSwapper * ds,
 	}
 	top = udata_readInt32(ds, inIndexes[URES_INDEX_BUNDLE_TOP]);
 	maxTableLength = udata_readInt32(ds, inIndexes[URES_INDEX_MAX_TABLE_LENGTH]);
-
 	if(0<=bundleLength && bundleLength<top) {
-		udata_printError(ds, "ures_swap(): resource top %d exceeds bundle length %d\n",
-		    top, bundleLength);
+		udata_printError(ds, "ures_swap(): resource top %d exceeds bundle length %d\n", top, bundleLength);
 		*pErrorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 		return 0;
 	}
@@ -1389,14 +1358,11 @@ U_CAPI int32_t U_EXPORT2 ures_swap(const UDataSwapper * ds,
 	else {
 		tempTable.localKeyLimit = 0;
 	}
-
 	if(length>=0) {
 		Resource * outBundle = (Resource*)((char *)outData+headerSize);
-
 		/* track which resources we have already swapped */
 		uint32_t stackResFlags[STACK_ROW_CAPACITY];
 		int32_t resFlagsLength;
-
 		/*
 		 * We need one bit per 4 resource bundle bytes so that we can track
 		 * every possible Resource for whether we have swapped it already.
@@ -1429,7 +1395,6 @@ U_CAPI int32_t U_EXPORT2 ures_swap(const UDataSwapper * ds,
 			udata_printError(ds, "ures_swap().udata_swapInvStringBlock(keys[%d]) failed\n", 4*(keysTop-keysBottom));
 			return 0;
 		}
-
 		/* swap the 16-bit units (strings, table16, array16) */
 		if(keysTop<resBottom) {
 			ds->swapArray16(ds, inBundle+keysTop, (resBottom-keysTop)*4, outBundle+keysTop, pErrorCode);
@@ -1448,8 +1413,7 @@ U_CAPI int32_t U_EXPORT2 ures_swap(const UDataSwapper * ds,
 		else {
 			tempTable.rows = (Row*)uprv_malloc(maxTableLength*sizeof(Row)+maxTableLength*4);
 			if(tempTable.rows==NULL) {
-				udata_printError(ds, "ures_swap(): unable to allocate memory for sorting tables (max length: %d)\n",
-				    maxTableLength);
+				udata_printError(ds, "ures_swap(): unable to allocate memory for sorting tables (max length: %d)\n", maxTableLength);
 				*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 				if(tempTable.resFlags!=stackResFlags) {
 					uprv_free(tempTable.resFlags);
@@ -1458,24 +1422,19 @@ U_CAPI int32_t U_EXPORT2 ures_swap(const UDataSwapper * ds,
 			}
 			tempTable.resort = (int32_t*)(tempTable.rows+maxTableLength);
 		}
-
 		/* swap the resources */
 		ures_swapResource(ds, inBundle, outBundle, rootRes, NULL, &tempTable, pErrorCode);
 		if(U_FAILURE(*pErrorCode)) {
-			udata_printError(ds, "ures_swapResource(root res=%08x) failed\n",
-			    rootRes);
+			udata_printError(ds, "ures_swapResource(root res=%08x) failed\n", rootRes);
 		}
-
 		if(tempTable.rows!=rows) {
 			uprv_free(tempTable.rows);
 		}
 		if(tempTable.resFlags!=stackResFlags) {
 			uprv_free(tempTable.resFlags);
 		}
-
 		/* swap the root resource and indexes */
 		ds->swapArray32(ds, inBundle, keysBottom*4, outBundle, pErrorCode);
 	}
-
 	return headerSize+4*top;
 }

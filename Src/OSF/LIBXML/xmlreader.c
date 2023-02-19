@@ -136,7 +136,7 @@ struct xmlTextReader {
 #endif
 #ifdef LIBXML_XINCLUDE_ENABLED
 	/* Handling of XInclude processing */
-	int    xinclude;                   /* is xinclude asked for */
+	int    xinclude; /* is xinclude asked for */
 	const  xmlChar * xinclude_name; /* the xinclude name from dict */
 	xmlXIncludeCtxt * xincctxt; /* the xinclude context */
 	int    in_xinclude; /* counts for xinclude */

@@ -77,7 +77,7 @@ int PPDrvReader::CardCodeToString(const uint8 * pCardCode, SString & rBuf) const
 //
 // Returns:
 //   -1 - если соединение было установлено раньше
-//    0 - ошибка
+//    0 - error
 //    1 - соединение успешно установлено
 int PPDrvReader::Connect(int portNum)
 {
@@ -117,7 +117,7 @@ int PPDrvReader::Disconnect()
 //
 // Returns:
 //   -1 - нет входящих данных
-//    0 - ошибка
+//    0 - error
 //    1 - данные успешно считаны
 //
 int PPDrvReader::Listen(SString & rOutput)

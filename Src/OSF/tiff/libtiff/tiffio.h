@@ -129,22 +129,22 @@ typedef uchar TIFFRGBValue; /* 8-bit samples */
 
 typedef struct {
 	float d_mat[3][3]; /* XYZ -> luminance matrix */
-	float d_YCR;                              /* Light o/p for reference white */
+	float d_YCR;            /* Light o/p for reference white */
 	float d_YCG;
 	float d_YCB;
-	uint32 d_Vrwr;                            /* Pixel values for ref. white */
+	uint32 d_Vrwr;          /* Pixel values for ref. white */
 	uint32 d_Vrwg;
 	uint32 d_Vrwb;
-	float d_Y0R;                              /* Residual light for black pixel */
+	float d_Y0R;            /* Residual light for black pixel */
 	float d_Y0G;
 	float d_Y0B;
-	float d_gammaR;                           /* Gamma values for the three guns */
+	float d_gammaR;         /* Gamma values for the three guns */
 	float d_gammaG;
 	float d_gammaB;
 } TIFFDisplay;
 
-typedef struct {                                  /* YCbCr->RGB support */
-	TIFFRGBValue* clamptab;                   /* range clamping table */
+typedef struct { /* YCbCr->RGB support */
+	TIFFRGBValue* clamptab; /* range clamping table */
 	int* Cr_r_tab;
 	int* Cb_b_tab;
 	int32* Cr_g_tab;
@@ -152,7 +152,7 @@ typedef struct {                                  /* YCbCr->RGB support */
 	int32* Y_tab;
 } TIFFYCbCrToRGB;
 
-typedef struct {                                  /* CIE Lab 1976->RGB support */
+typedef struct { /* CIE Lab 1976->RGB support */
 	int range;                                /* Size of conversion table */
 #define CIELABTORGB_TABLE_RANGE 1500
 	float rstep, gstep, bstep;
@@ -183,13 +183,13 @@ typedef void (*tileSeparateRoutine)(TIFFRGBAImage*, uint32 *, uint32, uint32, ui
  * RGBA-reader state.
  */
 struct _TIFFRGBAImage {
-	TIFF * tif;                             /* image handle */
-	int stoponerr;                          /* stop on read error */
-	int isContig;                           /* data is packed/separate */
-	int alpha;                              /* type of alpha data present */
-	uint32 width;                           /* image width */
-	uint32 height;                          /* image height */
-	uint16 bitspersample;                   /* image bits/sample */
+	TIFF * tif;           /* image handle */
+	int stoponerr;        /* stop on read error */
+	int isContig;         /* data is packed/separate */
+	int alpha;            /* type of alpha data present */
+	uint32 width;         /* image width */
+	uint32 height;        /* image height */
+	uint16 bitspersample; /* image bits/sample */
 	uint16 samplesperpixel; /* image samples/pixel */
 	uint16 orientation; /* image orientation */
 	uint16 req_orientation; /* requested orientation */
@@ -210,8 +210,8 @@ struct _TIFFRGBAImage {
 	uint32 ** PALmap; /* palette image map */
 	TIFFYCbCrToRGB* ycbcr; /* YCbCr conversion state */
 	TIFFCIELabToRGB* cielab; /* CIE L*a*b conversion state */
-	uint8 * UaToAa;                          /* Unassociated alpha to associated alpha conversion LUT */
-	uint8 * Bitdepth16To8;                   /* LUT for conversion from 16bit to 8bit values */
+	uint8 * UaToAa;        /* Unassociated alpha to associated alpha conversion LUT */
+	uint8 * Bitdepth16To8; /* LUT for conversion from 16bit to 8bit values */
 	int row_offset;
 	int col_offset;
 };

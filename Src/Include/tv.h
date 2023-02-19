@@ -123,7 +123,7 @@ struct KeyDownCommand { // @flat @noctr @size=4
 	// Note: Позволяет превратить символ национального алфавита в скан-код.
 	// Returns:
 	//   !0 - функция выполнена успешно (внутреннее состояние изменилось)
-	//    0 - ошибка (внутреннее состояние не изменилось)
+	//    0 - error (внутреннее состояние не изменилось)
 	//
 	int    FASTCALL SetChar(uint chr);
 	int    FASTCALL SetCharU(wchar_t chr);
@@ -696,7 +696,7 @@ struct SUiLayoutParam { // @persistent
 	// Returns:
 	//   >0 - значения GravityX и GravityY успешно установлены. При этом они изменились.
 	//   <0 - значения GravityX и GravityY успешно установлены, но ничего при этом не изменилось (они такими же и были).
-	//    0 - ошибка (аргумент area не валиден либо что-то не так с внутренним состоянием объекта).
+	//    0 - error (аргумент area не валиден либо что-то не так с внутренним состоянием объекта).
 	//
 	int    SetVArea(int area);
 	static int RestrictVArea(int restrictingArea, const FRect & rRestrictingRect, int restrictedArea, FRect & rRestrictedRect);
@@ -857,7 +857,7 @@ public:
 	//   1 - все дочерние элементы имеют определенный размер
 	//  -1 - контейнер не имеет элементов 
 	//  -2 - только часть дочерних элементов имеет определенный размер
-	//   0 - ошибка (черт его знает, что там еще может произойти)
+	//   0 - error (черт его знает, что там еще может произойти)
 	//
 	int    GetInnerCombinedFrame(FRect * pResult) const;
 	//
@@ -2056,8 +2056,8 @@ public:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	DECL_HANDLE_EVENT;
 	int    commandEnabled(ushort command) const;
-	void   STDCALL enableCommands(const TCommandSet & commands, int is_enable);
-	void   STDCALL enableCommand(ushort command, int is_enable);
+	void   STDCALL enableCommands(const TCommandSet & commands, int areEnabled);
+	void   STDCALL enableCommand(ushort command, int isEnabled);
 	void   getCommands(TCommandSet & commands) const;
 	void   setCommands(const TCommandSet & commands);
 	void   setBounds(const TRect & bounds);
@@ -2386,7 +2386,7 @@ public:
 	// Returns:
 	//   >0 - панель инструментов успешно загружена
 	//   <0 - параметр toolbarResourceId == 0
-	//    0 - ошибка загрузки панели инструментов
+	//    0 - error загрузки панели инструментов
 	//
 	int    LoadToolbarResource(uint toolbarResourceId);
 	int    AddLocalMenuItem(uint ctrlId, uint buttonId, long keyCode, const char * pText);
@@ -3084,7 +3084,7 @@ public:
 	//   >0 - объект успешно добавлен
 	//   -1 - объект не может быть добавлен по-скольку не имеет признака TWhatmanObject::oMultSelectable
 	//   -2 - объект не добавлен, по-скольку уже находится в списке
-	//    0 - ошибка: либо объект с индексом idx не существует, либо общая ошибка (например, SLERR_NOMEM).
+	//    0 - error: либо объект с индексом idx не существует, либо общая ошибка (например, SLERR_NOMEM).
 	//
 	int    AddMultSelObject(int idx);
 	//
@@ -5276,7 +5276,7 @@ public:
 	// Returns:
 	//   1 - запрос pQuery был установлен, но ресурс resID не отличается от this->ResourceID.
 	//   2 - запрос pQuery был установлен и загружен ресурс resID
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    ChangeResource(uint resID, DBQuery * pQuery, int force = 0);
 	int    ChangeResource(uint resID, SArray * pArray, int force = 0);

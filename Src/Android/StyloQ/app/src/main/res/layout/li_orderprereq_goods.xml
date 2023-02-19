@@ -59,7 +59,7 @@
                 <!--
                 android:padding="2dp"
                 android:background="@drawable/shape_viewframe" -->
-                <ImageView
+                <ImageView android:id="@+id/CTL_GOODS_STOCKIMAGE"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_goodsstock01">

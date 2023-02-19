@@ -1,5 +1,5 @@
 // OBJGOODS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1111,7 +1111,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 					if(!(gs_rec.Flags & GSF_NAMED)) {
 						int    has_forein_ref = 0;
 						PPIDArray struc_ref_goods_list;
-						P_Tbl->SearchGListByStruc(rec.StrucID, &struc_ref_goods_list);
+						SearchGListByStruc(rec.StrucID, false/*expandGenerics*/, struc_ref_goods_list);
 						for(uint k = 0; !has_forein_ref && k < struc_ref_goods_list.getCount(); k++) {
 							PPID   ref_goods_id = struc_ref_goods_list.get(k);
 							if(ref_goods_id && ref_goods_id != *pID)
@@ -4528,7 +4528,6 @@ int PPObjGoodsInfo::PutPacket(PPID * pID, PPGoodsInfo * pPack, int use_ta)
 //
 //
 //
-
 #define GOODS_INDEX_FILE_NAME        "goods_index.xml"
 #define GOODS_RAND_SET_FILE_NAME     "goods_random.xml"
 #define GOODS_CHANGED_SET_FILE_NAME  "goods_changed.xml"

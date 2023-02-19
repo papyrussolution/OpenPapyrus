@@ -717,7 +717,7 @@ struct SMailMessage : SStrGroup {
 	// Descr: Вставляет в письмо inline-содержание. Содержание вставляется как внутренняя область
 	//   Boundary pB. Если pB == 0, то как внутренняя область Boundary верхнего уровня.
 	// Returns:
-	//   0 - ошибка
+	//   0 - error
 	//   !0 - указатель на добавленную Boundary
 	//
 	Boundary * AttachContent(Boundary * pB, int format, SCodepageIdent cp, const void * pData, size_t dataSize);
@@ -725,7 +725,7 @@ struct SMailMessage : SStrGroup {
 	// Descr: Вставляет в письмо прикрепленный файл. Файл вставляется как внутренняя область
 	//   Boundary pB. Если pB == 0, то как внутренняя область Boundary верхнего уровня.
 	// Returns:
-	//   0 - ошибка
+	//   0 - error
 	//   !0 - указатель на добавленную Boundary
 	//
 	Boundary * AttachFile(Boundary * pB, int format, const char * pFilePath);

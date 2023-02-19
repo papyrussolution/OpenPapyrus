@@ -116,7 +116,7 @@ boolint opj_mct_decode_custom(uint8 * pDecodingData, size_t n, uint8 ** pData, u
    @param pMatrix          components
    @return
  */
-void opj_calculate_norms(double * pNorms, uint32_t p_nb_comps, float * pMatrix);
+void opj_calculate_norms(double * pNorms, uint32_t p_nb_comps, const float * pMatrix);
 /**
    FIXME DOC
  */

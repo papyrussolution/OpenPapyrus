@@ -326,15 +326,13 @@ static void decDumpAr(char, const Unit *, Int);
 // 
 // Conversions
 // 
-/* ------------------------------------------------------------------ */
-/* from-int32 -- conversion from Int or uInt        */
-/* */
-/* dn is the decNumber to receive the integer      */
-/* in or uin is the integer to be converted        */
-/* returns dn  */
-/* */
-/* No error is possible. */
-/* ------------------------------------------------------------------ */
+// from-int32 -- conversion from Int or uInt
+// 
+// dn is the decNumber to receive the integer
+// in or uin is the integer to be converted returns dn
+// 
+// No error is possible.
+// 
 U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromInt32(decNumber * dn, Int in) 
 {
 	uInt unsig;
@@ -2848,7 +2846,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberSquareRoot(decNumber * res, const dec
 	Int residue = 0; /* rounding residue  */
 	uInt status = 0, ignore = 0; /* status accumulators  */
 	uInt rstatus; /* ..  */
-	Int exp;                   /* working exponent  */
+	Int exp;   /* working exponent  */
 	Int ideal; /* ideal (preferred) exponent  */
 	Int needbytes; /* work  */
 	Int dropped; /* ..  */
@@ -3408,7 +3406,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberCopy(decNumber * dest, const decNumbe
 	dest->lsu[0] = src->lsu[0];
 	if(src->digits>DECDPUN) {            /* more Units to come  */
 		const Unit * smsup, * s; /* work  */
-		Unit  * d;                   /* ..  */
+		Unit  * d; /* ..  */
 		/* memcpy for the remaining Units would be safe as they cannot  */
 		/* overlap.  However, this explicit loop is faster in short cases.  */
 		d = dest->lsu+1; /* -> first destination  */
@@ -6405,9 +6403,9 @@ static Int decUnitAddSub(const Unit * a, Int alength,
 	Unit * minC; /* low water mark for C  */
 	Unit * maxC; /* high water mark for C  */
 	eInt carry = 0; /* carry integer (could be Long)  */
-	Int add;                   /* work  */
-  #if DECDPUN<=4                   /* myriadal, millenary, etc.  */
-	Int est;                   /* estimated quotient  */
+	Int add; /* work  */
+  #if DECDPUN<=4 /* myriadal, millenary, etc.  */
+	Int est; /* estimated quotient  */
   #endif
 
   #if DECTRACE
@@ -6613,7 +6611,7 @@ static Int decUnitAddSub(const Unit * a, Int alength,
 		return static_cast<int32_t>(c-clsu);
 	}
 	/* -ve carry: it's a borrow; complement needed  */
-	add = 1;                   /* temporary carry...  */
+	add = 1; /* temporary carry...  */
 	for(c = clsu; c<maxC; c++) {
 		add = DECDPUNMAX+add-*c;
 		if(add<=DECDPUNMAX) {
@@ -6660,8 +6658,7 @@ static decNumber * decTrim(decNumber * dn, decContext * set, Flag all,
   #if DECCHECK
 	if(decCheckOperands(dn, DECUNUSED, DECUNUSED, DECUNCONT)) return dn;
   #endif
-
-	*dropped = 0;                   /* assume no zeros dropped  */
+	*dropped = 0; /* assume no zeros dropped  */
 	if((dn->bits & DECSPECIAL)      /* fast exit if special ..  */
 	 || (*dn->lsu & 0x01)) return dn; /* .. or odd  */
 	if(ISZERO(dn)) {                /* .. or 0  */
@@ -6671,7 +6668,7 @@ static decNumber * decTrim(decNumber * dn, decContext * set, Flag all,
 
 	/* have a finite number which is even  */
 	exp = dn->exponent;
-	cut = 1;                   /* digit (1-DECDPUN) in Unit  */
+	cut = 1; /* digit (1-DECDPUN) in Unit  */
 	up = dn->lsu; /* -> current Unit  */
 	for(d = 0; d<dn->digits-1; d++) { /* [don't strip the final digit]  */
 		/* slice by powers  */
@@ -6745,11 +6742,11 @@ static void decReverse(Unit * ulo, Unit * uhi) {
 /* No overflow is permitted (that is, the uar array must be known to  */
 /* be large enough to hold the result, after shifting).      */
 /* ------------------------------------------------------------------ */
-static Int decShiftToMost(Unit * uar, Int digits, Int shift) {
+static Int decShiftToMost(Unit * uar, Int digits, Int shift) 
+{
 	Unit  * target, * source, * first; /* work  */
-	Int cut;                   /* odd 0's to add  */
+	Int cut; /* odd 0's to add  */
 	uInt next; /* work  */
-
 	if(shift==0) return digits; /* [fastpath] nothing to do  */
 	if((digits+shift)<=DECDPUN) { /* [fastpath] single-unit case  */
 		*uar = (Unit)(*uar*powers[shift]);
@@ -7616,9 +7613,9 @@ static Int decGetInt(const decNumber * dn)
   #if DEC_MIN_EMIN < -999999999
     #error GetInt may need updating [for Emin]
   #endif
-	if(ISZERO(dn)) return 0; /* zeros are OK, with any exponent  */
-
-	up = dn->lsu;                   /* ready for lsu  */
+	if(ISZERO(dn)) 
+		return 0; /* zeros are OK, with any exponent  */
+	up = dn->lsu; /* ready for lsu  */
 	theInt = 0; /* ready to accumulate  */
 	if(dn->exponent>=0) {           /* relatively easy  */
 		/* no fractional part [usual]; allow for positive exponent  */
@@ -7804,7 +7801,8 @@ static void decStatus(decNumber * dn, uInt status, decContext * set)
 {
 	if(status & DEC_NaNs) {         /* error status -> NaN  */
 		/* if cause was an sNaN, clear and propagate [NaN is already set up]  */
-		if(status & DEC_sNaN) status &= ~DEC_sNaN;
+		if(status & DEC_sNaN) 
+			status &= ~DEC_sNaN;
 		else {
 			uprv_decNumberZero(dn); /* other error: clean throughout  */
 			dn->bits = DECNAN; /* and make a quiet NaN  */
@@ -7812,21 +7810,19 @@ static void decStatus(decNumber * dn, uInt status, decContext * set)
 	}
 	uprv_decContextSetStatus(set, status); /* [may not return]  */
 	return;
-}   /* decStatus  */
-
-/* ------------------------------------------------------------------ */
-/* decGetDigits -- count digits in a Units array    */
-/* */
-/* uar is the Unit array holding the number (this is often an       */
-/* accumulator of some sort)      */
-/* len is the length of the array in units [>=1]  */
-/* */
-/* returns the number of (significant) digits in the array */
-/* */
-/* All leading zeros are excluded, except the last if the array has   */
-/* only zero Units.      */
-/* ------------------------------------------------------------------ */
-/* This may be called twice during some operations.  */
+}
+// 
+// decGetDigits -- count digits in a Units array
+// 
+// uar is the Unit array holding the number (this is often an accumulator of some sort)
+// len is the length of the array in units [>=1]
+// 
+// returns the number of (significant) digits in the array
+// 
+// All leading zeros are excluded, except the last if the array has only zero Units.
+// 
+// This may be called twice during some operations.
+// 
 static Int decGetDigits(Unit * uar, Int len) 
 {
 	Unit * up = uar+(len-1); /* -> msu  */
@@ -7836,27 +7832,32 @@ static Int decGetDigits(Unit * uar, Int len)
   #endif
 	/* (at least 1 in final msu)  */
   #if DECCHECK
-	if(len<1) printf("decGetDigits called with len<1 [%ld]\n", (LI)len);
+	if(len<1) 
+		printf("decGetDigits called with len<1 [%ld]\n", (LI)len);
   #endif
-
 	for(; up>=uar; up--) {
 		if(*up==0) {       /* unit is all 0s  */
-			if(digits==1) break; /* a zero has one digit  */
+			if(digits==1) 
+				break; /* a zero has one digit  */
 			digits -= DECDPUN; /* adjust for 0 unit  */
 			continue;
 		}
 		/* found the first (most significant) non-zero Unit  */
-    #if DECDPUN>1                  /* not done yet  */
-		if(*up<10) break; /* is 1-9  */
+    #if DECDPUN>1 // not done yet
+		if(*up<10) 
+			break; /* is 1-9  */
 		digits++;
-    #if DECDPUN>2                  /* not done yet  */
-		if(*up<100) break; /* is 10-99  */
+    #if DECDPUN>2 // not done yet
+		if(*up<100) 
+			break; /* is 10-99  */
 		digits++;
-    #if DECDPUN>3                  /* not done yet  */
-		if(*up<1000) break; /* is 100-999  */
+    #if DECDPUN>3 // not done yet
+		if(*up<1000) 
+			break; /* is 100-999  */
 		digits++;
-    #if DECDPUN>4                  /* count the rest ...  */
-		for(pow = &powers[4]; *up>=*pow; pow++) digits++;
+    #if DECDPUN>4 // count the rest ...
+		for(pow = &powers[4]; *up>=*pow; pow++) 
+			digits++;
     #endif
     #endif
     #endif
@@ -7875,22 +7876,27 @@ static Int decGetDigits(Unit * uar, Int len)
 /* or: sign, special-value     */
 /* ------------------------------------------------------------------ */
 /* this is public so other modules can use it  */
-void uprv_decNumberShow(const decNumber * dn) {
+void uprv_decNumberShow(const decNumber * dn) 
+{
 	const Unit * up; /* work  */
 	uInt u, d; /* ..  */
-	Int cut;                   /* ..  */
+	Int cut; /* ..  */
 	char isign = '+'; /* main sign  */
 	if(dn==NULL) {
 		printf("NULL\n");
 		return;
 	}
-	if(decNumberIsNegative(dn)) isign = '-';
+	if(decNumberIsNegative(dn)) 
+		isign = '-';
 	printf(" >> %c ", isign);
 	if(dn->bits&DECSPECIAL) {  /* Is a special value  */
-		if(decNumberIsInfinite(dn)) printf("Infinity");
+		if(decNumberIsInfinite(dn)) 
+			printf("Infinity");
 		else {                       /* a NaN  */
-			if(dn->bits&DECSNAN) printf("sNaN"); /* signalling NaN  */
-			else printf("NaN");
+			if(dn->bits&DECSNAN) 
+				printf("sNaN"); /* signalling NaN  */
+			else 
+				printf("NaN");
 		}
 		/* if coefficient and exponent are 0, no more to do  */
 		if(dn->exponent==0 && dn->digits==1 && *dn->lsu==0) {
@@ -7900,7 +7906,6 @@ void uprv_decNumberShow(const decNumber * dn) {
 		/* drop through to report other information  */
 		printf(" ");
 	}
-
 	/* now carefully display the coefficient  */
 	up = dn->lsu+D2U(dn->digits)-1; /* msu  */
 	printf("%ld", (LI)*up);
@@ -7915,7 +7920,8 @@ void uprv_decNumberShow(const decNumber * dn) {
 	} /* up  */
 	if(dn->exponent!=0) {
 		char esign = '+';
-		if(dn->exponent<0) esign = '-';
+		if(dn->exponent<0) 
+			esign = '-';
 		printf(" E%c%ld", esign, (LI)abs(dn->exponent));
 	}
 	printf(" [%ld]\n", (LI)dn->digits);
@@ -7930,7 +7936,8 @@ void uprv_decNumberShow(const decNumber * dn) {
 /* ar   is the array to display */
 /* len  is the length of the array in Units       */
 /* ------------------------------------------------------------------ */
-static void decDumpAr(char name, const Unit * ar, Int len) {
+static void decDumpAr(char name, const Unit * ar, Int len) 
+{
 	Int i;
 	const char * spec;
   #if DECDPUN==9
@@ -8024,12 +8031,12 @@ static Flag decCheckOperands(decNumber * res, const decNumber * lhs,
 /* The number is considered valid if it could be a result from some   */
 /* operation in some valid context.        */
 /* ------------------------------------------------------------------ */
-static Flag decCheckNumber(const decNumber * dn) {
+static Flag decCheckNumber(const decNumber * dn) 
+{
 	const Unit * up; /* work  */
 	uInt maxuint; /* ..  */
 	Int ae, d, digits; /* ..  */
 	Int emin, emax; /* ..  */
-
 	if(dn==NULL) {        /* hopeless  */
     #if DECTRACE
 		/* this one not DECVERB as standard tests include NULL  */
@@ -8037,17 +8044,14 @@ static Flag decCheckNumber(const decNumber * dn) {
     #endif
 		return 1;
 	}
-
 	/* check special values  */
 	if(dn->bits & DECSPECIAL) {
 		if(dn->exponent!=0) {
       #if DECTRACE || DECVERB
-			printf("Exponent %ld (not 0) for a special value [%02x].\n",
-			    (LI)dn->exponent, dn->bits);
+			printf("Exponent %ld (not 0) for a special value [%02x].\n", (LI)dn->exponent, dn->bits);
       #endif
 			return 1;
 		}
-
 		/* 2003.09.08: NaNs may now have coefficients, so next tests Inf only  */
 		if(decNumberIsInfinite(dn)) {
 			if(dn->digits!=1) {
@@ -8207,7 +8211,7 @@ static void decFree(void * alloc)
 	uInt uiwork; /* for macros  */
 	if(alloc==NULL) return; /* allowed; it's a nop  */
 	b0 = (uByte*)alloc; /* as bytes  */
-	b0 -= 8;                   /* -> true start of storage  */
+	b0 -= 8; /* -> true start of storage  */
 	n = UBTOUI(b0); /* lift length  */
 	for(b = b0+4; b<b0+8; b++) if(*b!=DECFENCE)
 			printf("=== Corrupt byte [%02x] at offset %d from %ld ===\n", *b,

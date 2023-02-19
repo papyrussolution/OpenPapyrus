@@ -10,8 +10,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -20,11 +19,9 @@
  */
 #include "opj_includes.h"
 #pragma hdrstop
-
-/* ==========================================================
-     Utility functions
-   ==========================================================*/
-
+// 
+// Utility functions
+// 
 #ifdef OPJ_CODE_NOT_USED
 #ifndef _WIN32
 static char* i2a(unsigned i, char * a, unsigned r)
@@ -102,16 +99,11 @@ boolint opj_event_msg(opj_event_mgr_t* p_event_mgr, int32_t event_type, const ch
 		va_list arg;
 		char message[OPJ_MSG_SIZE];
 		memzero(message, OPJ_MSG_SIZE);
-		/* initialize the optional parameter list */
-		va_start(arg, fmt);
-		/* parse the format string and put the result in 'message' */
-		vsnprintf(message, OPJ_MSG_SIZE, fmt, arg);
-		/* force zero termination for Windows _vsnprintf() of old MSVC */
-		message[OPJ_MSG_SIZE - 1] = '\0';
-		/* deinitialize the optional parameter list */
-		va_end(arg);
-		/* output the message to the user program */
-		msg_handler(message, l_data);
+		va_start(arg, fmt); /* initialize the optional parameter list */
+		vsnprintf(message, OPJ_MSG_SIZE, fmt, arg); /* parse the format string and put the result in 'message' */
+		message[OPJ_MSG_SIZE - 1] = '\0'; /* force zero termination for Windows _vsnprintf() of old MSVC */
+		va_end(arg); /* deinitialize the optional parameter list */
+		msg_handler(message, l_data); /* output the message to the user program */
 	}
 	return TRUE;
 }

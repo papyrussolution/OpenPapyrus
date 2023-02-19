@@ -1,16 +1,14 @@
-/* ******************************************************************
-* bitstream
-* Part of FSE library
-* Copyright (c) Yann Collet, Facebook, Inc.
-*
-* You can contact the author at :
-* - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
-*
-* This source code is licensed under both the BSD-style license (found in the
-* LICENSE file in the root directory of this source tree) and the GPLv2 (found
-* in the COPYING file in the root directory of this source tree).
-* You may select, at your option, one of the above-listed licenses.
-****************************************************************** */
+// bitstream.h
+// Part of FSE library
+// Copyright (c) Yann Collet, Facebook, Inc.
+// You can contact the author at :
+// - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
+// 
+// This source code is licensed under both the BSD-style license (found in the
+// LICENSE file in the root directory of this source tree) and the GPLv2 (found
+// in the COPYING file in the root directory of this source tree).
+// You may select, at your option, one of the above-listed licenses.
+// 
 #ifndef BITSTREAM_H_MODULE
 #define BITSTREAM_H_MODULE
 
@@ -256,24 +254,12 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t * bitD, const void * srcBuffer, 
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize) {
-			case 7: 
-				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[6]) << (sizeof(bitD->bitContainer)*8 - 16);
-			    CXX_FALLTHROUGH;
-			case 6: 
-				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[5]) << (sizeof(bitD->bitContainer)*8 - 24);
-			    CXX_FALLTHROUGH;
-			case 5: 
-				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[4]) << (sizeof(bitD->bitContainer)*8 - 32);
-			    CXX_FALLTHROUGH;
-			case 4: 
-				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[3]) << 24;
-			    CXX_FALLTHROUGH;
-			case 3: 
-				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[2]) << 16;
-			    CXX_FALLTHROUGH;
-			case 2: 
-				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[1]) <<  8;
-			    CXX_FALLTHROUGH;
+			case 7: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[6]) << (sizeof(bitD->bitContainer)*8 - 16); CXX_FALLTHROUGH;
+			case 6: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[5]) << (sizeof(bitD->bitContainer)*8 - 24); CXX_FALLTHROUGH;
+			case 5: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[4]) << (sizeof(bitD->bitContainer)*8 - 32); CXX_FALLTHROUGH;
+			case 4: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[3]) << 24; CXX_FALLTHROUGH;
+			case 3: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[2]) << 16; CXX_FALLTHROUGH;
+			case 2: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[1]) <<  8; CXX_FALLTHROUGH;
 			default: break;
 		}
 		{   

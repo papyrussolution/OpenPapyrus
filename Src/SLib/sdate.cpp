@@ -1,5 +1,5 @@
 // SDATE.CPP
-// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8 // @v10.4.5
 //
 #include <slib-internal.h>
@@ -997,7 +997,7 @@ int setcurdatetime(LDATETIME dtm)
 {
 	SYSTEMTIME st;
 	if(SetLocalTime(&dtm.Get(st))) {
-		::SendMessage(HWND_TOPMOST, WM_TIMECHANGE, 0, 0);
+		::SendMessageW(HWND_TOPMOST, WM_TIMECHANGE, 0, 0);
 		return 1;
 	}
 	else
@@ -3201,7 +3201,7 @@ int FASTCALL SUniTime::Compare(const SUniTime & rS, int * pQualification) const
 	return result;
 }
 
-int FASTCALL SUniTime::IsEq(const SUniTime & rS) const
+int /*not bool!*/ FASTCALL SUniTime::IsEq(const SUniTime & rS) const
 {
 	int   cq = 0;
 	int   result = Compare(rS, &cq);

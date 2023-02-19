@@ -2,16 +2,13 @@
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
+// See the License for the specific language governing permissions and limitations under the License.
+//
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/base/optimization.h"
@@ -90,13 +87,10 @@ TEST(PredictTest, Optional) {
 
 class ImplictlyConvertibleToBool {
 public:
-	explicit ImplictlyConvertibleToBool(bool value) : value_(value) {
+	explicit ImplictlyConvertibleToBool(bool value) : value_(value) 
+	{
 	}
-
-	operator bool() const { // NOLINT(google-explicit-constructor)
-		return value_;
-	}
-
+	operator bool() const { return value_; } // NOLINT(google-explicit-constructor)
 private:
 	bool value_;
 };
@@ -112,13 +106,10 @@ TEST(PredictTest, ImplicitBoolConversion) {
 
 class ExplictlyConvertibleToBool {
 public:
-	explicit ExplictlyConvertibleToBool(bool value) : value_(value) {
+	explicit ExplictlyConvertibleToBool(bool value) : value_(value) 
+	{
 	}
-
-	explicit operator bool() const {
-		return value_;
-	}
-
+	explicit operator bool() const { return value_; }
 private:
 	bool value_;
 };

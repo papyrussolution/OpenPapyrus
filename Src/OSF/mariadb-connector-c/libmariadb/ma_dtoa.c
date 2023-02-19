@@ -1112,8 +1112,7 @@ static int quorem(Bigint * b, Bigint * S)
            something like 10^(k-15) that we must resort to the Long
            calculation.
  */
-static char * dtoa(double dd, int mode, int ndigits, int * decpt, int * sign,
-    char ** rve, char * buf, size_t buf_size)
+static char * dtoa(double dd, int mode, int ndigits, int * decpt, int * sign, char ** rve, char * buf, size_t buf_size)
 {
 	/*
 	   Arguments ndigits, decpt, sign are similar to those

@@ -8,8 +8,7 @@
 // combination with an Abseil random bit generator to produce random values
 // according to the rules of that distribution.
 //
-// The Abseil random library defines the following distributions within this
-// file:
+// The Abseil random library defines the following distributions within this file:
 //
 //   * `absl::Uniform` for uniform (constant) distributions having constant
 //     probability

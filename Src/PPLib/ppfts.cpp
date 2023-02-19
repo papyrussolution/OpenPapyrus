@@ -133,7 +133,7 @@ public:
 	//
 	// Returns:
 	//   >0 - идентификатор документа в базе данных
-	//    0 - ошибка
+	//    0 - error
 	//
 	uint64 PutEntity(SHandle transaction, PPFtsInterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData);
 	int    Search(const char * pQueryUtf8, uint maxItems, TSCollection <PPFtsInterface::SearchResultEntry> & rResult);

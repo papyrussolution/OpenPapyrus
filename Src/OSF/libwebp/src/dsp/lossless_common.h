@@ -63,14 +63,9 @@ typedef float (* VP8LFastLog2SlowFunc)(uint32_t v);
 extern VP8LFastLog2SlowFunc VP8LFastLog2Slow;
 extern VP8LFastLog2SlowFunc VP8LFastSLog2Slow;
 
-static FORCEINLINE float VP8LFastLog2(uint32_t v) {
-	return (v < LOG_LOOKUP_IDX_MAX) ? kLog2Table[v] : VP8LFastLog2Slow(v);
-}
-
+static FORCEINLINE float VP8LFastLog2(uint32_t v) { return (v < LOG_LOOKUP_IDX_MAX) ? kLog2Table[v] : VP8LFastLog2Slow(v); }
 // Fast calculation of v * log2(v) for integer input.
-static FORCEINLINE float VP8LFastSLog2(uint32_t v) {
-	return (v < LOG_LOOKUP_IDX_MAX) ? kSLog2Table[v] : VP8LFastSLog2Slow(v);
-}
+static FORCEINLINE float VP8LFastSLog2(uint32_t v) { return (v < LOG_LOOKUP_IDX_MAX) ? kSLog2Table[v] : VP8LFastSLog2Slow(v); }
 
 // -----------------------------------------------------------------------------
 // PrefixEncode()
@@ -78,17 +73,16 @@ static FORCEINLINE float VP8LFastSLog2(uint32_t v) {
 // Splitting of distance and length codes into prefixes and
 // extra bits. The prefixes are encoded with an entropy code
 // while the extra bits are stored just as normal bits.
-static FORCEINLINE void VP8LPrefixEncodeBitsNoLUT(int distance, int* const code,
-    int* const extra_bits) {
+static FORCEINLINE void VP8LPrefixEncodeBitsNoLUT(int distance, int* const code, int* const extra_bits) 
+{
 	const int highest_bit = BitsLog2Floor(--distance);
 	const int second_highest_bit = (distance >> (highest_bit - 1)) & 1;
 	*extra_bits = highest_bit - 1;
 	*code = 2 * highest_bit + second_highest_bit;
 }
 
-static FORCEINLINE void VP8LPrefixEncodeNoLUT(int distance, int* const code,
-    int* const extra_bits,
-    int* const extra_bits_value) {
+static FORCEINLINE void VP8LPrefixEncodeNoLUT(int distance, int* const code, int* const extra_bits, int* const extra_bits_value) 
+{
 	const int highest_bit = BitsLog2Floor(--distance);
 	const int second_highest_bit = (distance >> (highest_bit - 1)) & 1;
 	*extra_bits = highest_bit - 1;
@@ -105,8 +99,8 @@ typedef struct {
 // These tables are derived using VP8LPrefixEncodeNoLUT.
 extern const VP8LPrefixCode kPrefixEncodeCode[PREFIX_LOOKUP_IDX_MAX];
 extern const uint8 kPrefixEncodeExtraBitsValue[PREFIX_LOOKUP_IDX_MAX];
-static FORCEINLINE void VP8LPrefixEncodeBits(int distance, int* const code,
-    int* const extra_bits) {
+static FORCEINLINE void VP8LPrefixEncodeBits(int distance, int* const code, int* const extra_bits) 
+{
 	if(distance < PREFIX_LOOKUP_IDX_MAX) {
 		const VP8LPrefixCode prefix_code = kPrefixEncodeCode[distance];
 		*code = prefix_code.code_;
@@ -117,9 +111,8 @@ static FORCEINLINE void VP8LPrefixEncodeBits(int distance, int* const code,
 	}
 }
 
-static FORCEINLINE void VP8LPrefixEncode(int distance, int* const code,
-    int* const extra_bits,
-    int* const extra_bits_value) {
+static FORCEINLINE void VP8LPrefixEncode(int distance, int* const code, int* const extra_bits, int* const extra_bits_value) 
+{
 	if(distance < PREFIX_LOOKUP_IDX_MAX) {
 		const VP8LPrefixCode prefix_code = kPrefixEncodeCode[distance];
 		*code = prefix_code.code_;

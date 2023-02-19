@@ -11,7 +11,7 @@ typedef struct {
 	ngx_addr_t  * addr;
 	ngx_stream_complex_value_t * value;
 #if (NGX_HAVE_TRANSPARENT_PROXY)
-	ngx_uint_t transparent;                   /* unsigned  transparent:1; */
+	ngx_uint_t transparent; /* unsigned  transparent:1; */
 #endif
 } ngx_stream_upstream_local_t;
 

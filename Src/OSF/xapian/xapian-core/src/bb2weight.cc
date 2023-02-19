@@ -65,17 +65,13 @@ void BB2Weight::init(double factor)
 		wdfn_upper = F - 1;
 	if(UNLIKELY(wdfn_upper >= F - 1))
 		wdfn_upper = F - 1;
-
 	B_constant = get_wqf() * factor * (F + 1.0) / get_termfreq();
-
 	// Clamp N to at least 2 to avoid ill-defined log calculations in
 	// stirling_value().
 	double N = UNLIKELY(get_collection_size() <= 2) ? 2.0 : double(get_collection_size());
-
 	wt = -1.0 / log(2.0) - log2(N - 1.0);
 	stirling_constant_1 = log2(N + F - 1.0);
 	stirling_constant_2 = log2(F);
-
 	// Maximize the Stirling value to be used in the upper bound.
 	// Calculate the individual terms keeping the maximization of Stirling value
 	// in mind.

@@ -1,5 +1,5 @@
 // PPSTR2.TXT
-// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // Codepage=UTF-8
 //
 // Синтаксис:
@@ -220,7 +220,7 @@ PPERR_DWONEEDED "U moet het type afschrijving van conceptdocumenten selecteren"
 	//#org Для класса товара необходимо задать шаблон имени
 PPERR_GDSCLSNMTMPLNEEDED "Voor de productklasse moet u een naamsjabloon opgeven"
 	//#org Необходимо ввести код или номер счета
-PPERR_ACCNUMORCODENEEDED "U moet de code of het rekeningnummer invoeren"
+PPERR_ACCNUMORCODENEEDED "U moet uw accountcode of -nummer invoeren"
 	//#org Необходимо выбрать корзину
 PPERR_BASKETNEEDED "U moet een winkelwagen selecteren"
 	//#org Необходимо ввести регистр: %s
@@ -357,7 +357,7 @@ PPERR_BALROLLBACKBOUND "Probeer het saldo terug te draaien naar een bedrag dat g
 	//#org Проводка не проходит: нарушение нижней границы остатка по счету
 PPERR_TURNLOWBOUND "Transactie mislukt: schending van de ondergrens van het rekeningsaldo"
 	//#org Проводка не проходит: нарушение верхней границы остатка по счету
-PPERR_TURNUPPBOUND "Boeken mislukt: schending van de bovengrens van het accountsaldo"
+PPERR_TURNUPPBOUND "Transactie mislukt: schending van de bovengrens van het rekeningsaldo"
 	//#org Счет закрыт
 PPERR_ACCTCLOSED "Account gesloten"
 	//#org Сумма проводки не должна быть равна нулю
@@ -381,7 +381,7 @@ PPERR_DUPTEMPCHECK "Dubbele check-in cash sessie (%s)"
 	//#org Неверный идентификатор кассового узла
 PPERR_INVCASHNODEID "Ongeldige kassa-ID"
 	//#org Тип кассового узла не поддерживает синхронный интерфейс
-PPERR_SYNCCSNOTSUPP "Het type verkooppunt biedt geen ondersteuning voor een synchrone interface"
+PPERR_SYNCCSNOTSUPP "het type verkooppunt biedt geen ondersteuning voor een synchrone interface"
 	//#org Тип кассового узла не поддерживает асинхронный интерфейс
 PPERR_ASYNCCSNOTSUPP "Het pos-knooppunttype ondersteunt de asynchrone interface niet"
 	//#org Документ не может содержать нулевую локацию
@@ -455,13 +455,13 @@ PPERR_DLGLOADFAULT "Dialoogvenster Fout bij het laden"
 	//#org Ошибка загрузки таблицы
 PPERR_BROLOADFAULT "Fout bij het laden van de tabel"
 	//#org Не найден файл PPCONFIG.PP
-PPERR_INICFGNFOUND "Het PPCONFIG-bestand is niet gevonden. Pp"
+PPERR_INICFGNFOUND "Het PPCONFIG-bestand is niet gevonden. PP"
 	//#org Невозможно открыть файл PPCONFIG.PP
-PPERR_UNABLEOPENINICFG "Het PPCONFIG-bestand kan niet worden geopend. Pp"
+PPERR_UNABLEOPENINICFG "Het PPCONFIG-bestand kan niet worden geopend. PP"
 	//#org Ошибка чтения файла PPCONFIG.PP
-PPERR_INVINICFG "Fout bij het lezen van PPCONFIG-bestand. Pp"
+PPERR_INVINICFG "Fout bij het lezen van PPCONFIG-bestand. PP"
 	//#org Ошибка записи файла PPCONFIG.PP
-PPERR_INICFGWRITEFAULT "Fout bij het schrijven van HET PPCONFIG-bestand. Pp"
+PPERR_INICFGWRITEFAULT "Fout bij het schrijven van HET PPCONFIG-bestand. PP"
 	//#org Недостаточно прав для операции (пользователь '%s')
 PPERR_NORIGHTS "Onvoldoende rechten voor de bewerking (gebruiker '%s')"
 	//#org Идентификатор справочника занят %s
@@ -561,7 +561,7 @@ PPERR_UNDEFCASHNODE "Kassaknooppunt niet gedefinieerd - werking niet beschikbaar
 	//#org Значение FILES в CONFIG.SYS должно быть больше или равно 40
 PPERR_TOOFEWFILES "De waarde van FILES in CONFIG.SYS moet groter zijn dan of gelijk zijn aan 40"
 	//#org На указанную дату по заданному лоту операций не было
-PPERR_NOPERSBYLOT "Op de aangegeven datum waren er geen bewerkingen voor de gespecificeerde partij"
+PPERR_NOPERSBYLOT "Op de aangegeven datum waren er geen bewerkingen op de gespecificeerde partij"
 	//#org Левая товарная операция не проходит: последующие операции становятся невозможными
 PPERR_FWLOTRESTBOUND "Linkse grondstoffenoperatie mislukt: volgende operaties worden onmogelijk"
 	//#org Остаток товара слишком мал %s
@@ -671,7 +671,7 @@ PPERR_TRFPRICECORRUPT "Onjuiste verkoopprijs in bedrijf %s"
 	//#org Заданная товарная группа не существует
 PPERR_DESTGGRPNEXISTS "De opgegeven productgroep bestaat niet"
 	//#org Неизвестное имя кассового узла '%s'
-PPERR_UNKNOWNCASHNAME "onbekende kassa knooppunt naam '%s'"
+PPERR_UNKNOWNCASHNAME "onbekende kassa Node Naam '%s'"
 	//#org Сбой идентификаторов документа в теневых строках
 PPERR_SHADOWIDFAULT "Document-id's zijn mislukt in schaduwreeksen"
 	//#org Ошибка логической блокировки
@@ -741,7 +741,7 @@ PPERR_BALCORRUPT_EXREC "Op de datum %s is er een extra boeking in het saldo (dbt
 	//#org В файле CurRest неверный остаток: склад '@loc' товар '@goods' остаток @real (правильный @real)
 PPERR_CRESTCORRUPT_NEQ "Er is een onjuist saldo in het CurRest-bestand: magazijn '@loc'-artikel '@goods' @real saldo (correct @real)"
 	//#org В файле CurRest отсутствует запись: склад '@loc' товар '@goods' (правильный остаток @real)
-PPERR_CRESTCORRUPT_ABS "In het CurRest-bestand ontbreekt een vermelding: magazijn '@loc'-artikel '@goods' (correct saldo @real)"
+PPERR_CRESTCORRUPT_ABS "In het CurRest-bestand ontbreekt een vermelding: magazijn '@loc' artikel '@goods' (correct saldo @real)"
 	//#org В файле CurRest лишняя запись: склад '@loc' товар '@goods' остаток @real
 PPERR_CRESTCORRUPT_EXREC "In het CurRest-bestand is een extra vermelding: magazijn '@loc'-artikel '@goods'-saldo @real"
 	//#org Отсутствует зеркальная запись %s
@@ -751,7 +751,7 @@ PPERR_EATURN_BADMIRROR "Niet-overeenkomende mirroring %s"
 	//#org Висячая ссылка на документ %s
 PPERR_EATURN_BL_2BILL "Hangende link naar document %s"
 	//#org Висячая ссылка на счет %s
-PPERR_EATURN_BL_2ACC "Hangende link naar de account %s"
+PPERR_EATURN_BL_2ACC "Hangende link naar account %s"
 	//#org Превышение лимита по кредитной карте '%s'
 PPERR_MAXCRD_OVERDRAFT "Creditcardlimiet van meer dan '%s'"
 	//#org Сумма оплаты превышает сумму документа %s
@@ -841,7 +841,7 @@ PPERR_SALCHARGEFORM_WANTMATSYMB "'%s' is geen symbool voor documentsom"
 	//#org Недопустимый идентификатор функции в формуле начисления
 PPERR_SALARYCHARGEFORM_INVFUNCID "Ongeldige functie-id in opbouwformule"
 	//#org Символ '%s' таблицы аналитических статей не найден
-PPERR_ACCSHEETSYMBNFOUND "Symbool '%s' van de tabel met analyseartikelen niet gevonden"
+PPERR_ACCSHEETSYMBNFOUND "Symbool '%s' van de tabel met analytische artikelen niet gevonden"
 	//#org Символ '%s' вида персоналий не найден
 PPERR_PERSONKINDSYMBNFOUND "Teken '%s' van de personaweergave is niet gevonden"
 	//#org Символ '%s' бизнес-показателя не найден
@@ -1007,7 +1007,7 @@ PPERR_DUPPCKGCODE "Dubbele productpakketcode (%s)"
 	//#org Пакет уже содержится в документе
 PPERR_PCKGINBILL "Het pakket staat al in het document"
 	//#org Весь свободный остаток товара упакован в пакеты Используйте либо выбор пакета, либо расширенный выбор товара
-PPERR_ALLLOTSINPCKG "De volledige vrije rest van de goederen wordt verpakt in zakken Gebruik een pakketselectie of een uitgebreide productselectie"
+PPERR_ALLLOTSINPCKG "De volledige gratis rest van de goederen wordt verpakt in zakken Gebruik een pakketselectie of een uitgebreide productselectie"
 	//#org Выбранный компонент структуры должен иметь физическую единицу измерения
 PPERR_PHUFORGOODSWOPHU "de gekozen structuurcomponent moet een fysieke meeteenheid hebben"
 	//#org Выбранный пакет относится к другому складу
@@ -1035,7 +1035,7 @@ PPERR_CHKWPER "Het begin van de periode van aankomst van de goederen is niet ges
 	//#org Не введена периодичность оплаты
 PPERR_NOCYCLES "Betalingsfrequentie is niet ingevoerd"
 	//#org Номер дня начисления введен неверно
-PPERR_NOTNUMDAY "Het nummer van de opbouwdag is onjuist ingevoerd"
+PPERR_NOTNUMDAY "Het nummer van de dag van opbouw is onjuist ingevoerd"
 	//#org Не определен вид операции списания
 PPERR_UNDEFWROFFOP "Het type afschrijvingsbewerking is niet gedefinieerd"
 	//#org Для процессора '%s' не определен вид операции списания
@@ -1061,7 +1061,7 @@ PPERR_INVLICFILE "Ongeldig licentie-updatebestand '%s'"
 	//#org Неверный регистрационный номер
 PPERR_INVREGKEY "Ongeldig registratienummer"
 	//#org Для межскладской операции компенсации дефицита должен быть определен склад-источник
-PPERR_UNDEFDFCTSRCLOC "Voor de inter-entrepotoperatie van compensatie van het tekort moet een bronmagazijn worden bepaald"
+PPERR_UNDEFDFCTSRCLOC "Om het tekort te compenseren, moet een magazijn-naar-magazijnoperatie worden geïdentificeerd, moet een bronmagazijn worden geïdentificeerd"
 	//#org Копия системы не зарегистрирована
 PPERR_PGMNOTREGISTERED "Een kopie van het systeem wordt niet geregistreerd"
 	//#org Файл дополнительных лицензий не является регистрационным
@@ -1092,7 +1092,7 @@ PPERR_SCALE_INVPORT "Ongeldige uitvoerpoort voor weegschalen (COM1.. COM31)"
 	//#org Весы не готовы для обмена данными '%s'
 PPERR_SCALE_NOTREADY "Weegschalen zijn niet klaar voor gegevensuitwisseling '%s'"
 	//#org Весы не отвечают на запрос синхронизации
-PPERR_SCALE_NOSYNC "De weegschaal reageert niet op de synchronisatieaanvraag"
+PPERR_SCALE_NOSYNC "De schaal reageert niet op de synchronisatieaanvraag"
 	//#org Весы не подтверждают прием записи товара
 PPERR_SCALE_NOACK "De schaal bevestigt niet de ontvangst van het register van de goederen"
 	//#org Ошибка приема данных с весов %s
@@ -1208,7 +1208,7 @@ PPERR_JOBSRV_ARG_TSESSID "De vereiste parameter TSessID in opdracht '%s' ontbree
 	//#org Отсутствует обязательный параметр PrcPlaceCode в команде '%s'
 PPERR_JOBSRV_ARG_PRCPLACECODE "De vereiste PrcPlaceCode-parameter in opdracht '%s' ontbreekt"
 	//#org Отсутствует обязательный параметр NaturalToken в команде '%s'
-PPERR_JOBSRV_ARG_NATURALTOKEN "De vereiste parameter NaturalToken in opdracht '%s' ontbreekt"
+PPERR_JOBSRV_ARG_NATURALTOKEN "De vereiste parameter NaturalToken ontbreekt in opdracht '%s'"
 	//#org Отсутствует обязательный параметр идентификатор статьи в команде '%s'
 PPERR_JOBSRV_ARG_ARBYPSNID "De vereiste parameter article ID in opdracht '%s' ontbreekt"
 	//#org Отсутствует обязательный параметр идентификатор персоналии в команде '%s'
@@ -1296,7 +1296,7 @@ PPERR_INVPPCFUNCPARCOUNT "Onjuist aantal parameters in de rekenmachinefunctie"
 	//#org Недопустимое значение суммы
 PPERR_INVAMOUNT "Ongeldige somwaarde"
 	//#org @{err_internal}: Недопустимый индекс товарной строки документа Обратитесь к сопровождению
-PPERR_INVTIIDX "@{err_internal}: Недопустимый productlijnindex van het document Raadpleeg onderhoud"
+PPERR_INVTIIDX "@{err_internal}: Недопустимый index van de productlijn van het document Raadpleeg onderhoud"
 	//#org Ошибка при чтении диска '%s'
 PPERR_DRIVEUNAVELAIBLE "Schijfleesfout '%s'"
 	//#org Не задана операция для принятия заказов
@@ -1466,7 +1466,7 @@ PPERR_CLIBNKCFG_NOTFOUND "Import/export configuraties naar het client-bank syste
 	//#org Дублирование алиаса счета в списке подстановки
 PPERR_DUPSUBSTALIASONARTICLE "Accountalias dupliceren in de opzoeklijst"
 	//#org Невозможно подставить счет вместо алиаса в проводке %s
-PPERR_UNABLERESOLVEALIAS "Kan geen factuur vervangen in plaats van een alias in de %s-transactie"
+PPERR_UNABLERESOLVEALIAS "Kan een factuur niet vervangen in plaats van een alias in een transactie %s"
 	//#org Завершение кассовых сессий сверх 10-го уровня блокировано
 PPERR_CSESSCOMPLLOCKED "Het einde van cashsessies boven het 10e niveau wordt geblokkeerd"
 	//#org Дублирование связанного объекта в MRP-таблице
@@ -1744,7 +1744,7 @@ PPERR_CSES_CHKDISCOUNT "Verkeerde uitlijning van chequekortingen tijdens de cash
 	//#org Суперсессия содержит внутреннюю суперсессию (%s)
 PPERR_CSES_INNERSUPER "Supersessie bevat interne supersessie (%s)"
 	//#org Рассогласование суммы списания по кассовой сессии (%s)
-PPERR_CSES_WROFFAMOUNT "Verkeerde afstemming van het bedrag van de afschrijving voor cash sessie (%s)"
+PPERR_CSES_WROFFAMOUNT "Verkeerde afstemming van het bedrag van de afschrijving voor de cashsessie (%s)"
 	//#org Невозможно удалить. Данный тег используется
 PPERR_TAGBLOCKED "Kan niet worden verwijderd. Deze tag wordt gebruikt"
 	//#org Неверный размер заголовка '%s'
@@ -1928,7 +1928,7 @@ PPERR_CSESS_NOTFOUND "Cash sessie niet gevonden"
 	//#org Дублирование кода статуса географического объекта
 PPERR_DUPWORLDOBJSTATUSCODE "De statuscode van een geografische functie dupliceren"
 	//#org Сессия не может быть перемещена на заданный процессор (%s)
-PPERR_TSESSCANTMOVETOPRC "De sessie kan niet worden verplaatst naar de opgegeven processor (%s)"
+PPERR_TSESSCANTMOVETOPRC "Sessie kan niet worden verplaatst naar de opgegeven processor (%s)"
 	//#org @{err_internal}: недопустимый запрос в объекте PPView
 PPERR_INVPPVIEWQUERY "@{err_internal}: недопустимый query in een PPView"
 	//#org Изменение типа локации недопустимо (%s)
@@ -2104,7 +2104,7 @@ PPERR_CANTIDENTOBJBYSYMB "Kan object %s niet identificeren"
 	//#org Не удалось идентифицировать технологию для новой технологической сессии
 PPERR_CANTIDENTTSESSTECH "Kan geen technologie identificeren voor een nieuwe technologiesessie"
 	//#org Не удалось идентифицировать контрагента импортируемого документа: %s
-PPERR_CANTIDENTIMPBILLAR "Kon de tegenpartij van het ingevoerde document niet identificeren: %s"
+PPERR_CANTIDENTIMPBILLAR "Kan de tegenpartij van het ingevoerde document niet identificeren: %s"
 	//#org Критерий 'format' может быть использован только для оператора 'select'
 PPERR_CMDSEL_MISSFORMATCRIT "Criterium 'format' kan alleen worden gebruikt voor operator 'select'"
 	//#org Повторное использование критерия 'format' в одном выражении
@@ -2170,7 +2170,7 @@ PPERR_PSNEV_NPRIVATE "Persoonlijkheid '%s' in het evenement moet een individu zi
 	//#org Персоналия '%s' в событии должна быть юридическим лицом
 PPERR_PSNEV_NLEGAL "Persoonlijkheid '%s' in het geval moet een rechtspersoon zijn"
 	//#org У персоналии отсутствует необходимый для события тег (%s)
-PPERR_PSNEV_TAGABS "De persoonlijkheid heeft niet de vereiste tag voor het evenement (%s)"
+PPERR_PSNEV_TAGABS "De persoonlijkheid heeft niet de tag (%s) die vereist is voor het evenement"
 	//#org Значение тега персоналии должно быть больше нуля (%s)
 PPERR_PSNEV_TAGVAL "De waarde van de persoonlijkheidstag moet groter zijn dan nul (%s)"
 	//#org Недопустимая серия карты '%s' в персональном событии
@@ -2214,7 +2214,7 @@ PPERR_SCALE_NOACK_S "Fout bij het ontvangen van gegevens op de schaal: %s"
 	//#org Версия файла ppws.exe отличается от версии файла ppw.exe
 PPERR_INVPPWSVER "De versie van het bestand ppws.exe verschilt van de versie van het ppw-bestand.exe"
 	//#org Статус документа запрещает его изменение на статус рангом ниже
-PPERR_BILLST_DENY_RANKDOWN "De status van het document verbiedt de wijziging ervan in een lagere rang"
+PPERR_BILLST_DENY_RANKDOWN "De status van het document verbiedt de wijziging ervan in een lagere status"
 	//#org Дублирование идентификатора шрифта (%s) в описании SLIP-формы
 PPERR_SLIPFMT_DUPFONTID "Dubbele lettertype-ID (%s) in SLIP-formulierbeschrijving"
 	//#org Ошибка разбора SLIP-формата %s
@@ -2258,7 +2258,7 @@ PPERR_TDDO_UNEXPECTED_END "Onverwachte verschijning van #end"
 	//#org TDDO: Недопустимый тип токена в аргументах функции (%s)
 PPERR_TDDO_INVFUNCARGTOK "TDDO: Ongeldig tokentype in functieargumenten (%s)"
 	//#org Не определенная структура данных '%s' в шаблоне
-PPERR_TDDO_UNDEFDATANAME "Ongedefinieerde gegevensstructuur '%s' in de sjabloon"
+PPERR_TDDO_UNDEFDATANAME "Ongedefinieerde gegevensstructuur '%s' in sjabloon"
 	//#org Структура данных '%s' в шаблоне не совпадает с требуемой структурой
 PPERR_TDDO_INVTEMPLDATA "De gegevensstructuur '%s' in de sjabloon komt niet overeen met de vereiste structuur"
 	//#org TDDO: @{err_internal} - нулевой указатель на DlScope
@@ -2394,7 +2394,7 @@ PPERR_ELOT_LINKNFOUND "@{lotfault}: Не vond een link naar de bovenliggende par
 	//#org @{lotfault}: неверный текущий остаток в физ единицах (@{fact} %.6lf @{correctly} %.6lf)
 PPERR_ELOT_WTREST "@{lotfault}: неверный huidige saldo in fysieke eenheden (@{fact}%.6lf @{correctly}%.6lf)"
 	//#org @{lotfault}: (дата %s оп %ld) неверный остаток в физ единицах после операции (@{fact} %.6lf @{correctly} %.6lf)
-PPERR_ELOT_OPWTREST "@{lotfault}: (datum %s op %ld) ongeldig saldo in fysieke eenheden na operatie (@{fact} %.6lf @{correctly} %.6lf)"
+PPERR_ELOT_OPWTREST "@{lotfault}: (datum %s op %ld) onjuist saldo in fysieke eenheden na operatie (@{fact} %.6lf @{correctly} %.6lf)"
 	//#org У лота %s отсутствует емкость упаковки
 PPERR_ELOT_NOPACK "Partij %s heeft geen verpakkingscapaciteit"
 	//#org Емкость упаковки лота %s отличается от непустой емкости упаковки поставки товара
@@ -2418,7 +2418,7 @@ PPERR_ELOT_LCRWASTE "@{lotfault}: Лишняя vermelding in de partijbalanstabe
 	//#org @{lotfault}: Ошибка извлечения записи из таблицы остатков по лотам
 PPERR_ELOT_LCRDB "@{lotfault}: Ошибка om een record op te halen uit de partijbalanstabel"
 	//#org @{lotfault}: неверная старая цена поступления в переоценке (@{fact} %.5lf @{correctly} %.5lf)
-PPERR_ELOT_REVALOLDCOST "@{lotfault}: неверная oude prijs van ontvangst bij herwaardering (@{fact}%.5lf @{correctly}%.5lf)"
+PPERR_ELOT_REVALOLDCOST "@{lotfault}: неверная de oude prijs van het bonnetje bij herwaardering (@{fact}%.5lf @{correctly}%.5lf)"
 	//#org @{lotfault}: неверная старая цена реализации в переоценке (@{fact} %.5lf @{correctly} %.5lf)
 PPERR_ELOT_REVALOLDPRICE "@{lotfault}: неверная oude verkoopprijs in herwaardering (@{fact}%.5lf @{correctly}%.5lf)"
 	//#org @{lotwarn}: неуникальный в пределах товара серийный номер
@@ -2476,6 +2476,8 @@ PPERR_STYLOPALMPARENTNOTGENERIC "Het bovenliggende element (%s) van vermelding @
 PPERR_STYLOPALMLOOP "Vermelding @{brand_styloagent} kan zichzelf niet als bovenliggend element hebben"
 	//#org Циклическая ссылка на родительский элемент в записи @{brand_styloagent} '%s'
 PPERR_STYLOPALMCYCLE "Circulaire verwijzing naar bovenliggend element in item @{brand_styloagent} '%s'"
+	//#org В записе @{brand_styloagent} должен быть определен один или несколько складов
+PPERR_STYLOPALMEMPTYWHLIST "Record @{brand_styloagent} moet een of meer magazijnen definiëren"
 	//#org Циклическая ссылка на родительский элемент в записи серии персональных карт '%s'
 PPERR_SCARDSERIESCYCLE "Circulaire verwijzing naar ouderitem in vermelding persoonlijke kaartreeks '%s'"
 	//#org Не определен склад у кассового узла '%s'
@@ -2506,6 +2508,8 @@ PPERR_BILLSTCHECKFLD_PORTOFLD "@{billstatusfieldreq} 'Haven van verzending'"
 PPERR_BILLSTCHECKFLD_PORTOFDCHG "@{billstatusfieldreq} 'Haven van lozing'"
 	//#org @{billstatusfieldreq} 'Транспорт'
 PPERR_BILLSTCHECKFLD_SHIP "@{billstatusfieldreq} 'Vervoer'"
+	//#org Статус документа требует договора с контрагентом (в соглашении либо в виде привязанного контрактного документа)
+PPERR_BILLSTCHECKFLD_CONTRACT "De status van het document vereist een overeenkomst met de tegenpartij (in de overeenkomst of in de vorm van een gekoppeld contractdocument)"
 	//#org Статус документа требует заполнения одного или нескольких полей фрахта
 PPERR_BILLSTCHECKFLD_FREIGHT "Documentstatus vereist het invullen van een of meer vrachtvelden"
 	//#org Статус документа требует не пустого номера документа
@@ -2805,7 +2809,7 @@ PPERR_SERIALUSED "Serienummer '%s' is al gebruikt door deze technische sessie"
 	//#org @{err_internal}: Технологическая сессия с BHT-терминала не инициализирована
 PPERR_BHTTSESSNINIT "@{err_internal}: Технологическая sessie vanaf de BHT-terminal wordt niet geïnitialiseerd"
 	//#org Попытка изменить признак остатка в строке техн сессии
-PPERR_UPDTESLNRESTSTATUS "Proberen de residu-eigenschap in de technische sessielijn te veranderen"
+PPERR_UPDTESLNRESTSTATUS "Proberen de residufunctie in de technische sessielijn te wijzigen"
 	//#org Лот с серийным номером '%s' закрыт либо находится на другом складе
 PPERR_LOTBYSERIALCLOSED "Kavel met serienummer '%s' is gesloten of bevindt zich in een ander magazijn"
 	//#org Запрещено продавать товары из лотов с забракованными сериями (%s)
@@ -3031,7 +3035,7 @@ PPERR_CHKINP_LISTINVARIANT "Schending van de invariant van de lijst met persoonl
 	//#org Место '%s' уже занято
 PPERR_CHKINP_PLACEISBUSY "Stoel '%s' is al bezet"
 	//#org Файл '%s' не может быть конвертирован поскольку открыт на запись другим процессом
-PPERR_CVT_FILEWROPENED "Bestand '%s' kan niet worden geconverteerd omdat het is geopend voor schrijven door een ander proces"
+PPERR_CVT_FILEWROPENED "Bestand '%s' kan niet worden geconverteerd omdat het door een ander proces is geopend om te schrijven"
 	//#org Не удалось создать каталог резервной копии для конвертируемого файла '%s'
 PPERR_CVT_BAKPATHFAULT "Kan geen back-upmap maken voor converteerbaar bestand '%s'"
 	//#org Запись брэнда (id=%s) имеет неверную метку вида записи
@@ -3123,7 +3127,7 @@ PPERR_UNDEFADVCDESCR "Ongedefinieerde abstracte apparaatdescriptor"
 	//#org Неверный размер файла
 PPERR_INVFILESIZE "Ongeldige bestandsgrootte"
 	//#org Список устанавливаемых платежей по чеку '%s' отличается от суммы чека по строкам
-PPERR_CCPAYMLISTDIFFAMT "De lijst met vaste betalingen voor cheque '%s' verschilt van het bedrag van de cheque per regel"
+PPERR_CCPAYMLISTDIFFAMT "De lijst met vastgestelde betalingen voor cheque '%s' verschilt van het bedrag van de cheque per regel"
 	//#org Проводка по документу не найдена
 PPERR_TURNBYBILLNFOUND "Documenttransactie niet gevonden"
 	//#org Ошибка ввода
@@ -3371,7 +3375,7 @@ PPERR_SMS_ADDRRANGEERRLEN "Veld 'Address Range' mag niet langer zijn dan 40 teke
 	//#org Адрес отправителя SMS-сообщения может содержать только латинские символы
 PPERR_SMS_FROMMUSTBELATIN "Het adres van de afzender van een sms-bericht mag alleen Latijnse tekens bevatten"
 	//#org Документ '%s' по может быть экспортирован по спецификации RECADV поскольку в нем отсутствует тег ТТН
-PPERR_EDI_SPRRECADVWOTTN "Document '%s' kan worden geëxporteerd naar de RECADV-specificatie omdat het niet de TTN-tag bevat"
+PPERR_EDI_SPRRECADVWOTTN "Document '%s' kan worden geëxporteerd volgens de RECADV-specificatie omdat het geen TTN-tag bevat"
 	//#org @{err_internal}: не определен EDI-провайдер
 PPERR_EDI_PRVUNDEF "@{err_internal}: не EDI-provider gedefinieerd"
 	//#org Идентификатор документа/сообщения '%s' пустой или имеет длину более 17 символов
@@ -3580,10 +3584,13 @@ PPERR_EGAIS_BILLHASNEDIIDENTTAG "Verifieerbaar document '%s' heeft geen EDI-tag"
 PPERR_EGAIS_QUERYFORMREGIDEMPTY "het a(b) hulpverzoek niet de id van het gevraagde document bevat"
 	//#org Не определен вид операции отгрузки алкогольной продукции
 PPERR_ALCRCFG_INVEXPNDOP "Het soort verzending van alcoholische dranken is niet bepaald"
+	//#org Не определен ИНН для организации '%s'
+PPERR_PERSONINNUNDEF "TIN niet gedefinieerd voor organisatie '%s'"
+	//#org Недопустимое значение ИНН для организации '%s'
+PPERR_PERSONINNINVALID "Ongeldige TIN-waarde voor organisatie '%s'"
 	//#org Не определен идентификатор ФСРАР для организации '%s'
 PPERR_EGAIS_PERSONFSRARIDUNDEF "ESAPR-id voor organisatie '%s' is niet gedefinieerd"
-	//#org Не определен ИНН для организации '%s'
-PPERR_EGAIS_PERSONINNUNDEF "TIN niet gedefinieerd voor organisatie '%s'"
+// @v11.6.4 PPERR_EGAIS_PERSONINNUNDEF          "Не определен ИНН для организации '%s'"
 	//#org Не определен КПП для организации (или подразделения) '%s'
 PPERR_EGAIS_PERSONKPPUNDEF "Geen PPC gedefinieerd voor organisatie (of afdeling) '%s'"
 	//#org Множественное определение сессии в операции подтверждения и отмены регистрации по техсессии
@@ -3761,7 +3768,7 @@ PPERR_SUPPLIXNOTINITED "PrcssrSupplInterchange @{err_internal}: объект nie
 	//#org Вид котировки не может быть удален поскольку имеет специальное назначение '%s'
 PPERR_UNABLERMVSPCQUOTKIND "De offerteweergave kan niet worden verwijderd omdat deze een speciaal doel heeft '%s'"
 	//#org В конфигурации обмена с поставщиком '%s' не определен тег кода контрагента
-PPERR_SUPPLIX_UNDEFCLICTAG "Vendor Exchange-configuratie '%s' definieert geen tegenpartij-id-tag"
+PPERR_SUPPLIX_UNDEFCLICTAG "vendor exchange '%s' definieert geen tegenpartij-id-tag"
 	//#org В конфигурации обмена с поставщиком '%s' не определен тег кода локации
 PPERR_SUPPLIX_UNDEFLOCCTAG "Er is geen locatiecodetag gedefinieerd in de configuratie van leveranciersuitwisseling '%s'"
 	//#org На товарную группу ссылается конфигурация товаров: удаление невозможно
@@ -3834,7 +3841,7 @@ PPERR_SARTREDBUNDEF "Sartre: Databasepad niet gedefinieerd"
 	//#org Sartre: слово '%s' в базе данных не найдено
 PPERR_SR_WORDNFOUND "Sartre: woord '%s' niet gevonden in database"
 	//#org Sartre: концепция с символом '%s' в базе данных не найдена
-PPERR_SR_CONCEPTNFOUND "Sartre: concept met '%s' teken niet gevonden in database"
+PPERR_SR_CONCEPTNFOUND "Sartre: concept met '%s' karakter niet gevonden in database"
 	//#org SartreConcept: неожиданное завершение файла
 PPERR_SR_C_ENEXPECTEDEOF "SartreConcept: Bestand onverwacht beëindigd"
 	//#org SartreConcept: не найден родительский оператор
@@ -3888,7 +3895,7 @@ PPERR_SR_RULENAMEEXISTS "Sartre: Regel met de naam '%s' bestaat al"
 	//#org Sartre: недопустимый морфологический признак '%s'
 PPERR_SR_INVMORPHTOKEN "sartre: ongeldige morfologische functie '%s'"
 	//#org Sartre: после oneof ожидается литерал с перечислением вариантов
-PPERR_SR_S_LITERALONEOFEXPECTED "Sartre: na een van, wordt een letterlijke verwacht met een lijst met opties"
+PPERR_SR_S_LITERALONEOFEXPECTED "Sartre: na een van wordt een letterlijke verwacht met een lijst met opties"
 	//#org Sartre: oneof должен содержать не менее одного аргумента
 PPERR_SR_S_ONEOFEMPY "Sartre: een van de moet minstens één argument bevatten"
 	//#org Sartre: не удалось идентифицировать тип со значение токена '%s'
@@ -4016,7 +4023,7 @@ PPERR_BUSCENHASNTDBSYMB "Onbepaald databaseteken in back-upscript '%s'"
 	//#org Символ базы данных сценария резервного копирования конфликтует с заданным извне символом базы данных (%s)
 PPERR_BUSCENDBSYMBCONFLDBSYMBARG "Het databaseteken van het back-upscript conflicteert met het extern opgegeven databaseteken (%s)"
 	//#org Не найден сценарий резервного копирования по символу '%s'
-PPERR_BUSCENSYMBNFOUND "Back-upscript '%s' is niet gevonden"
+PPERR_BUSCENSYMBNFOUND "Back-up script '%s' niet gevonden"
 	//#org Не определен ни символ сценария, ни символ базы данных при вызове функции резервного копирования
 PPERR_BUSCEORDBSYMBNDEF "Noch het scriptsymbool, noch het databasesymbool wordt gedefinieerd wanneer de back-upfunctie wordt aangeroepen"
 	//#org Сетевой протокол, определенный в спецификации URL (%s), не поддерживается
@@ -4138,7 +4145,7 @@ PPERR_SQ_CMDFAULT_IMNOTMEDIATOR "StyloQ: Command '%s' kan alleen worden verwerkt
 	//#org StyloQ: в команде advert не определена конфигурация сервиса
 PPERR_SQ_CMDFAULT_ADVHASNTCFG "StyloQ: De serviceconfiguratie is niet gedefinieerd in de opdracht advert"
 	//#org StyloQ: в команде advert не определен идентификатор сервиса
-PPERR_SQ_CMDFAULT_ADVHASNTIDENT "StyloQ: geen service-ID gedefinieerd in de opdracht advert"
+PPERR_SQ_CMDFAULT_ADVHASNTIDENT "StyloQ: de service-ID is niet gedefinieerd in de opdracht advert"
 	//#org StyloQ: в команде getforeignconfig не определен идентификатор запрашиваемого сервиса
 PPERR_SQ_CMDFAULT_GFCHASNTIDENT "StyloQ: de opdracht getforeignconfig definieert de ID van de aangevraagde service niet"
 	//#org StyloQ: отсутствует информация о конфигурации сервиса для ответа на getforeignconfig
@@ -4268,7 +4275,7 @@ PPERR_FTS_INVALIDTRANSACTION "Een volledige databasetransactie in de zoekdatabas
 	//#org Ошибка внесения документа в базу данных полнотекстового поиска
 PPERR_FTS_PUTDOCFAULT "Fout bij het invoeren van een document in de volledige tekstzoekdatabase"
 	//#org Недопустимый формат бинарного представления суррогатного идентификатора ресурса полнотекстового поиска
-PPERR_FTS_INVSURROGATESCOPEIDENT "Ongeldige indeling van binaire weergave van surrogaat full-text search resource identifier"
+PPERR_FTS_INVSURROGATESCOPEIDENT "Ongeldige indeling van binaire weergave van surrogaat full-text zoekbron-ID"
 	//#org Недопустимое значение идентификатора ресурса полнотекстового поиска
 PPERR_FTS_INVSCOPEIDENT "Ongeldige id-waarde voor volledige tekstzoekbron"
 	//#org В конфигурации импорта документов '%s' не определен вид операции
@@ -4305,6 +4312,12 @@ PPERR_STQ_UNDEFPOSFORINDOORSVC "Het kassaknooppunt voor een commando van het typ
 PPERR_STQ_POSFORINDOORSVCMUSTBESYNC "het kassaknooppunt voor een commando van het type INDOORSVCPREREQ moet synchroon zijn"
 	//#org Не определен вид операции в параметрах команды '%s'
 PPERR_STQ_UNDEFOPFORINCOMINGLIST "Het type bewerking in de parameters van de opdracht '%s' is niet gedefinieerd"
+	//#org Не удалось идентифицировать склад для команды '%s'
+PPERR_STQ_UNDEFWHFORORDERPREREQ "Kan het magazijn voor opdracht '%s' niet identificeren"
+	//#org Для выполнения команды необходимо разрешение на получение гео-координат на вашем устройстве
+PPERR_STQ_EXCECMD_GEOLOCDISABLED "Als u de opdracht wilt uitvoeren, hebt u toestemming nodig om geocoördinaten op uw apparaat op te halen"
+	//#org Вы находитесь слишком далеко от места регистрации события
+PPERR_STQ_PSNEV_MAXDISTRESTRICTION "U bevindt zich te ver van de registratielocatie van het evenement"
 // LastError
 
 [102] // confirmation
@@ -4354,7 +4367,7 @@ PPCFM_DELSCEN "Weet je zeker dat je dit script wilt verwijderen?"
 	//#org Вы уверены, что хотите удалить значения котировок, удовлетворяющие фильтру?
 PPCFM_DELQUOTSBYFILT "Weet u zeker dat u prijsopgavewaarden wilt verwijderen die overeenkomen met het filter?"
 	//#org Вы уверены, что хотите отменить этот заказ?
-PPCFM_CANCELCTBLORD "Weet je zeker dat je deze bestelling wilt annuleren?"
+PPCFM_CANCELCTBLORD "Weet u zeker dat u deze bestelling wilt annuleren?"
 	//#org Вы уверены, что хотите удалить оплату кредитной картой?
 PPCFM_DELCCPAYMENTRY "Weet u zeker dat u uw creditcardbetaling wilt verwijderen?"
 	//#org Вы уверены, что хотите остановить сессию!? ЭТО МОЖНО ДЕЛАТЬ ТОЛЬКО В КОНЦЕ СМЕНЫ ИЛИ ПРИ ПЕРЕХОДЕ НА ДРУГУЮ ПРОДУКЦИЮ!
@@ -4542,7 +4555,7 @@ PPCFM_VIEWLOCKEDCASHNODE "Het geselecteerde verkooppunt wordt geblokkeerd door e
 	//#org С данной картой не ассоциирована персоналия, продолжить?
 PPCFM_SCARDWITHOUTPSN "Er is geen persoonlijkheid verbonden aan deze kaart, doorgaan?"
 	//#org После удаления синхронную кассовую сессию восстановить невозможно Подумайте еще раз!
-PPCFM_DELSYNCCSESS "Eenmaal verwijderd, kan de synchrone cashsessie niet meer worden hersteld Think again!"
+PPCFM_DELSYNCCSESS "Na het verwijderen van een synchrone cashsessie is het onmogelijk om Think again te herstellen!"
 	//#org @{attention} Существуют товары, ссылающиеся на объекты из заменяемого типа Если вы подтвердите смену типа объекта, то система попытается подменить эти ссылки на новые по имени. Операция необратимая и, возможно, породит проблемы.
 PPCFM_REPLACEGCPROP "@{attention} Er zijn producten die verwijzen naar objecten van een vervangbaar type Als u een wijziging in het objecttype bevestigt, probeert het systeem deze verwijzingen te vervangen door nieuwe verwijzingen op naam. De operatie is onomkeerbaar en kan problemen veroorzaken."
 	//#org Закрыть панель процессора?
@@ -4619,7 +4632,7 @@ PPCFM_ADDNEWSCARD "De kaart met het nummer '%s' is niet gevonden. Een nieuwe mak
 	//#org Это - аварийная процедура, требуемая в исключительных случаях В уверены, что хотите выполнить ее?
 PPCFM_RECOVERFREIGHT "Dit is een noodprocedure die vereist is in uitzonderlijke gevallen Weet u zeker dat u deze wilt uitvoeren?"
 	//#org Агент=[%s] уже содержится в долговой размерности=[%s]. @{continue_ask}
-PPCFM_DEBTDIMINTERSECTAGENTS "Agent=[%s] zit al in debt dimension=[%s]. @{continue_ask}"
+PPCFM_DEBTDIMINTERSECTAGENTS "Agent=[%s] is al opgenomen in schulddimensie=[%s]. @{continue_ask}"
 	//#org На удаленную строку был отпечатан заказ. Распечатать отмену заказа?
 PPCFM_PRINTCANCELEDCCROW "Er is een bestelling afgedrukt op de verwijderde regel. Een annulering van een bestelling afdrukken?"
 	//#org Сгенерировать серийные номера для всех строк документа?
@@ -4732,7 +4745,7 @@ PPINF_DRAFTALLREADYWROFF "Het geselecteerde document is al buiten gebruik gestel
 	//#org Документ '%s' не списан
 PPINF_DRAFTNOTWROFF "Document '%s' wordt niet buiten gebruik gesteld"
 	//#org Операция невозможна: драфт-документ '%s' имеет более одного документа списания
-PPINF_DRAFTHASGT1WROFFBILL "Bewerking mislukt: Conceptdocument '%s' heeft meer dan één afschrijvingsdocument"
+PPINF_DRAFTHASGT1WROFFBILL "Bediening niet mogelijk: conceptdocument '%s' heeft meer dan één afschrijvingsdocument"
 	//#org Теги в документе списания '%s' изменены
 PPINF_TAGSINWROFFBILLUPD "Tags in afschrijvingsdocument '%s' gewijzigd"
 	//#org Теги в документе списания '%s' изменять не пришлось
@@ -4976,7 +4989,7 @@ PPWORD_ARGOODSCODE "Artikel"
 	//#org Недоступен
 PPWORD_NOTACCESSIBLE "Onbeschikbaar"
 	//#org Остальные
-PPWORD_OTHERS "Anders __________"
+PPWORD_OTHERS "Ander"
 	//#org не облагается
 PPWORD_NOTAX_VERB "niet belast"
 	//#org Маржа
@@ -5212,7 +5225,7 @@ PPTXT_SCLT "1,CAS Elektronica;2,Massa-K;3,Mettler Toledo;4,Kristal Kassa Server;
 	//#org 1,Замороженный;2,Охлажденный;3,Охлаждаемый;4,Вентилируемый
 PPTXT_VANTYPE "1,Bevroren;2,Gekoeld;3,Gekoeld;4,Geventileerde"
 	//#org 1,@{doclink_payment};2,@{doclink_chargepaym};3,Зачеты по документу;4,Зачитывающие документы;6,@{doclink_writeoffdraft};7,@{doclink_correction};8,Заказы, к которым привязана отгрузка
-PPTXT_LINKBILLVIEWKINDS "1,@{doclink_payment};2,@{doclink_chargepaym};3,Document credits;4,Documenten lezen;6,@{doclink_writeoffdraft};7,@{doclink_correction};8,Bestellingen waaraan de zending is gekoppeld"
+PPTXT_LINKBILLVIEWKINDS "1,@{doclink_payment};2,@{doclink_chargepaym};3,Verschuivingen op het document;4,Documenten lezen;6,@{doclink_writeoffdraft};7,@{doclink_correction};8,Bestellingen waaraan de zending is gekoppeld"
 	//#org 1,Epson;2,PCL-принтер
 PPTXT_PRNTYPE "1,Epson;2,PCL-printer"
 	//#org Конвертация товарных групп
@@ -5226,7 +5239,7 @@ PPTXT_PREPAREBHTGOODS "Voorbereiding van productgegevens"
 	//#org Подготовка прайс-листа к публикации
 PPTXT_PLISTTOALBATROS "Opstellen van de prijslijst voor publicatie"
 	//#org 1,Присвоить персоналии вид;2,Отозвать вид у персоналии;3,Установить тег персоналии;4,Снять тег у персоналии;5,Присвоить персоналии должность;6,Отозвать должность у персоналии;7,Присвоить персоналии регистр;8,Отозвать у персоналии регистр;9,Запись в календаре;10,Заполнить календарь от парной операции;11,Увеличить тег;12,Уменьшить тег;13,Установить календарь в протяженное состояние;14,Установить календарь в протяженное состояние пропуска;15,Отменить протяженное состояние календаря;16,Запись пропуска в календаре;17,Заполнить календарь пропусками от парной операции;18,Установить отношение со вторичной персоналией;19,Отозвать отношение со вторичной персоналией;20,Начисление на персональную карту;21,Списание с персональной карты;22,Команда на устройство;23,Информация на StyloDisplay;24,Звуковой сигнал;25,Проверка просроченности долга по документам
-PPTXT_POVERB "1,Een persoonlijkheid een weergave toewijzen;2,De weergave van de persoon intrekken;3,Persoonlijkheidstag instellen;4,Tag verwijderen uit persoonlijkheid;5,Wijs een persoon een positie toe aan een persoon;6,De positie van de persoon intrekken;7,Persoonlijkheden toewijzen aan het register;8,Het register intrekken van de persoonlijkheid;9,Agenda-item;10,Vul de kalender in vanuit de koppelingsbewerking;11,Tag vergroten;12,Tag verminderen;13,De agenda instellen op een uitgebreide status;14,De agenda instellen op een uitgebreide overslaan-status;15,De uitgebreide status van de agenda ongedaan maken;16,Een pas opnemen in de agenda;17,Vul de agenda met overslaan van de koppelingsbewerking;18,Een relatie aangaan met een secundaire persoon;19,De relatie met de secundaire persoon intrekken;20,Opbouw naar een persoonlijke kaart;21,Debiteren van een persoonlijke kaart;22,Commando per apparaat;23,Informatie over StyloDisplay;24,Beep;25,Controle van de achterstallige schuld op de documenten"
+PPTXT_POVERB "1,Een persoonlijkheid een weergave toewijzen;2,De weergave van de persoon intrekken;3,Persoonlijkheidstag instellen;4,Tag verwijderen uit persoonlijkheid;5,Wijs een persoon een positie toe aan een persoon;6,De positie van de persoon intrekken;7,Persoonlijkheden toewijzen aan het register;8,Het register intrekken van de persoonlijkheid;9,Agenda-item;10,Vul de kalender in vanuit de koppelingsbewerking;11,Tag vergroten;12,Tag verminderen;13,De agenda instellen op een uitgebreide status;14,De agenda instellen op een uitgebreide overslaan-status;15,De uitgebreide status van de agenda ongedaan maken;16,Een pas opnemen in de agenda;17,Vul de agenda met passen van de paarbewerking;18,Een relatie aangaan met een secundaire persoon;19,De relatie met de secundaire persoon intrekken;20,Opbouw naar een persoonlijke kaart;21,Debiteren van een persoonlijke kaart;22,Commando per apparaat;23,Informatie over StyloDisplay;24,Beep;25,Controle van de achterstallige schuld op de documenten"
 // UserInterfaceSettings::wndVKXXX Варианты отображения элементов пользовательского интерфейса
 	//#org 1,Standard;2,Flat (не рекомендуется);3,Vector;4,Fancy
 PPTXT_WINDOWSVIEWKINDS "1,Standaard;2,Flat (niet aanbevolen);3,Vector;4,Fantasie"
@@ -5268,7 +5281,7 @@ PPTXT_BILLTYPES "1,@{commoditydocument};2,@{orderdocument};3,@{accountdocument};
 	//#org один;одна;два;две;три;четыре;пять;шесть;семь;восемь;девять;десять;одиннадцать;двенадцать;тринадцать;четырнадцать;пятнадцать;шестнадцать;семнадцать;восемнадцать;девятнадцать;двадцать;тридцать;сорок;пятьдесят;шестьдесят;семьдесят;восемьдесят;девяносто;сто;двести;триста;четыреста;пятьсот;шестьсот;семьсот;восемьсот;девятьсот;миллиард;миллиарда;миллиардов;миллион;миллиона;миллионов;тысяча;тысячи;тысяч
 PPTXT_NUMBERWORDS "Een;Een;Twee;Twee;Drie;Vier;Vijf;Zes;Zeven;Acht;Negen;Tien;Elf;Twaalf;Dertien;Veertien;Vijftien;Zestien;Zeventien;Achttien;Negentien;Twintig;Dertig;Veertig;Vijftig;Zestig;Zeventig;Tachtig;Negentig;Honderd;tweehonderd;driehonderd;vierhonderd;vijfhonderd;zeshonderd;zevenhonderd;achthonderd;negenhonderd;miljard;Miljard;Miljard;miljoen;Miljoen;Miljoen;Duizend;Duizend;Duizend"
 	//#org руб;рубль;рубля;рублей;коп;копейка;копейки;копеек
-PPTXT_CURRENCYWORDS "Wrijven;roebel;Roebel;Roebel;politieagent;Copeck;Penny;Kopeks"
+PPTXT_CURRENCYWORDS "WRIJVEN;roebel;Roebel;Roebel;politieagent;Copeck;Penny;Kopeks"
 	//#org Принимается сообщение
 PPTXT_RCVMAILWAITMSG "Bericht wordt geaccepteerd"
 	//#org Заполнение инициализационных пробелов
@@ -5292,7 +5305,7 @@ PPTXT_SELARTICLES "Selectie van analytische artikelen"
 	//#org Сбой в чеке %ld от %s: неправильно установлена пластиковая карта (%s)
 PPTXT_INVCCARDBYCHECK "Fout in de ontvangst %ld van %s: de plastic kaart (%s) is onjuist geïnstalleerd"
 	//#org Дублирование товара в инвентаризации. Вероятно, сбой синхронизации товаров (SrcID=%ld, DestID=%ld, Name='%s')
-PPTXT_DUPRCPTINVGOODS "Duplicatie van goederen in voorraad. Productsynchronisatie kan mislukken (SrcID=%ld, DestID=%ld, Name='%s')"
+PPTXT_DUPRCPTINVGOODS "Duplicatie van goederen in de inventaris. Productsynchronisatie kan mislukken (SrcID=%ld, DestID=%ld, Name='%s')"
 	//#org Расчет агрегированных параметров продаж
 PPTXT_RECALCAGGRVALS "Berekening van geaggregeerde verkoopparameters"
 	//#org Сброс чеков в систему
@@ -5526,11 +5539,11 @@ PPTXT_LOG_BHTTSESS_BILLSESSEXISTS "Sessie over document bestaat: '%s'"
 	//#org Выбор технологии перенастройки '@prc': '@goods'-->'@goods'
 PPTXT_LOG_TOOLINGSEL_START "Keuze van herconfiguratie technologie '@prc': '@goods'-->'@goods'"
 	//#org       Выбрана технология перенастройки '@tech'
-PPTXT_LOG_TOOLINGSEL_SEL "   Herconfiguratietechnologie '@tech' geselecteerd"
+PPTXT_LOG_TOOLINGSEL_SEL " Herconfiguratietechnologie '@tech' geselecteerd"
 	//#org       Нет подходящей технологии перенастройки
-PPTXT_LOG_TOOLINGSEL_NOTHING "   Geen geschikte herconfiguratietechnologie"
+PPTXT_LOG_TOOLINGSEL_NOTHING " Geen geschikte herconfiguratietechnologie"
 	//#org       Формула перехода:
-PPTXT_LOG_TOOLINGSEL_FORMULA "   Overgangsformule:"
+PPTXT_LOG_TOOLINGSEL_FORMULA " Overgangsformule:"
 	//#org Последняя строка удалена
 PPTXT_LOG_BHTTSESS_LASTLNRMVD "Laatste regel verwijderd"
 	//#org Не удалось удалить последнюю строку: строка не определена
@@ -5558,7 +5571,7 @@ PPTXT_LOG_SHTRIH_WRITETBLERR "Fout bij het schrijven naar table=%ld, series=%ld,
 	//#org Ошибка загрузки бухгалтерской проводки по документу '@bill': @zstr
 PPTXT_LOG_LOADACCTURNFAULT "Fout bij het laden van de boekhouding voor document '@bill': @zstr"
 	//#org Ошибка загрузки бухгалтерской проводки по документу '@bill': @zstr: попытка удаления строки
-PPTXT_LOG_LOADACCTURNFAULT_C "Fout bij het laden van de boekhouding voor document '@bill': @zstr: geprobeerd een tekenreeks te verwijderen"
+PPTXT_LOG_LOADACCTURNFAULT_C "Fout bij het laden van de boekhouding voor document '@bill': @zstr: geprobeerd een regel te verwijderen"
 	//#org STOP установить: @article: @{debt}=@real; Не зачтенные оплаты=@real; Максимальная просроченность=@int @{days}
 PPTXT_LOG_DEBTRATE_SETSTOP "STOP installeren: @article: @{debt}=@real; Niet gecrediteerd=@real; Maximum achterstallig =@int @{days}"
 	//#org STOP снять: @article: @{debt}=@real; Не зачтенные оплаты=@real; Максимальная просроченность=@int @{days}
@@ -5592,7 +5605,7 @@ PPTXT_LOG_DEBTRATE_DDLIMSHCR "U moet een kredietlimiet maken in dimensie '@debtd
 	//#org Обнулен кредитный лимит по размерности '@debtdim' =@real для клиента '@article'
 PPTXT_LOG_DEBTRATE_DDLIMDEL "Kredietlimiet op nul per dimensie '@debtdim' =@real voor klant '@article'"
 	//#org Следует обнулить кредитный лимит по размерности '@debtdim' =@real для клиента '@article'
-PPTXT_LOG_DEBTRATE_DDLIMSHDEL "Het is noodzakelijk om de kredietlimiet opnieuw in te stellen volgens dimensie '@debtdim' =@real voor de klant '@article'"
+PPTXT_LOG_DEBTRATE_DDLIMSHDEL "Het is noodzakelijk om de kredietlimiet opnieuw in te stellen op dimensie '@debtdim' =@real voor de klant '@article'"
 	//#org Для размерности '@article:@debtdim' блокировано автоматическое изменение кредитного лимита (=@real) до @date
 PPTXT_LOG_DEBTRATE_DDLIMLOCK "Voor dimensie '@article:@debtdim' wordt de automatische wijziging van de kredietlimiet (=@real) in @date"
 	//#org По статье @article долг (@real) превышает максимальный кредит (@real)
@@ -5690,7 +5703,7 @@ PPTXT_LOG_MANYLINGADDR_NOBILL "Afleveradres '@zstr' behoort tot meerdere persoon
 	//#org Адрес доставки '@zstr' ссылается не на того владельца (@person), которому принадлежит (@person): исправлено
 PPTXT_LOG_DLVRADDINVOWNER "Het afleveradres '@zstr' verwijst naar de verkeerde eigenaar (@person) die eigenaar is van de (@person): исправлено"
 	//#org Адрес доставки '@zstr' ссылается не на того владельца (@person), которому принадлежит (@person): исправление невозможно из-за конфликта между владельцами
-PPTXT_LOG_DLVRADDINVOWNER_NC "Verzendadres '@zstr' verwijst naar de verkeerde eigenaar (@person) aan wie de (@person): исправление niet mogelijk is vanwege een conflict tussen de eigenaren"
+PPTXT_LOG_DLVRADDINVOWNER_NC "Verzendadres '@zstr' verwijst naar de verkeerde eigenaar (@person) aan wie de (@person): исправление onmogelijk is vanwege een conflict tussen de eigenaren"
 	//#org Документ '@zstr' ссылается на несуществующий адрес #@int как на адрес доставки
 PPTXT_LOG_HANGEDDLVRADDRINBILL "Document '@zstr' verwijst naar een niet-bestaand #@int-adres als verzendadres"
 	//#org Карта %s уже существует
@@ -5792,7 +5805,7 @@ PPTXT_LOG_ACNEXP_NREADYTAGIGNORED "het kassaknooppunt %s is niet klaar om gegeve
 	//#org Экспорт данных для кассового узла %s
 PPTXT_LOG_ACNEXP_START "Exportgegevens voor de kassa %s"
 	//#org Завершен экспорт данных для кассового узла %s
-PPTXT_LOG_ACNEXP_FINISH "De gegevensexport voor het knooppunt %s-verkooppunt is voltooid"
+PPTXT_LOG_ACNEXP_FINISH "De gegevensexport voor het knooppunt %s point of sale is voltooid"
 	//#org Экспортируется товар %s
 PPTXT_LOG_ACNEXP_GOODS "Exportproduct %s"
 	//#org @{cmd}=%s; @{error}=%s; Режим=%s; Подрежим=%ld
@@ -5818,7 +5831,7 @@ PPTXT_LOG_BILLDISPEMPTY "geen van de rijen in document '@bill' is in cellen gepl
 	//#org В базе данных @{brand_uhtt} не найден товар, соответствующий '@goods': попытка создания
 PPTXT_LOG_UHTT_GOODSNFOUND "Database @{brand_uhtt} bevat geen product dat overeenkomt met de aanmaak '@goods': попытка"
 	//#org В базе данных @{brand_uhtt} найден товар, соответствующий '@goods' по приватному коду: попытка изменения
-PPTXT_LOG_UHTT_GOODSPRVCODEUPD "In de database @{brand_uhtt} vond een product dat overeenkomt met '@goods' door private code: poging tot wijziging"
+PPTXT_LOG_UHTT_GOODSPRVCODEUPD "In database @{brand_uhtt} vond een product dat overeenkomt met '@goods' door private code: poging tot wijziging"
 	//#org Товар '@goods' со штрихкодом @zstr создан
 PPTXT_LOG_UHTT_GOODSCR "Product '@goods' met barcode @zstr gemaakt"
 	//#org Ошибка создания товара '@goods' со штрихкодом @zstr: @zstr
@@ -5936,7 +5949,7 @@ PPTXT_LOG_NTRANS_CSESNFN "Cash sessie '%s' niet verzonden omdat het knooppunt wa
 	//#org Документ '%s' не передан поскольку является зачитывающей оплатой
 PPTXT_LOG_NTRANS_BILLRECKON "Document '%s' wordt niet overgedragen omdat het een kredietbetaling is"
 	//#org Документ внутренней передачи '%s' не передан поскольку раздел-получатель не отвечает за склад-получатель
-PPTXT_LOG_NTRANS_BILLINTREX "Intern overdrachtsdocument '%s' wordt niet overgedragen omdat de ontvangende sectie niet verantwoordelijk is voor het ontvangende magazijn"
+PPTXT_LOG_NTRANS_BILLINTREX "Intern overdrachtsdocument '%s' wordt niet geüpload omdat het ontvangende gedeelte niet verantwoordelijk is voor het ontvangende magazijn"
 	//#org Документ '%s' не передан поскольку раздел-получатель не отвечает за склад документа
 PPTXT_LOG_NTRANS_BILLLOC "Document '%s' wordt niet overgedragen omdat de ontvangende sectie niet verantwoordelijk is voor het documentenmagazijn"
 	//#org Документ межскладского прихода '%s' не передан поскольку раздел-получатель ОТВЕЧАЕТ за склад-получатель товара
@@ -6006,7 +6019,7 @@ PPTXT_LOG_SUPPLIX_CLINCODE "Het was niet mogelijk om de tegenpartij van het docu
 	//#org Не удалось идентифицировать адрес доставки документа '@zstr' по идентификатору @int
 PPTXT_LOG_SUPPLIX_DLVRLOCNID "Het afleveradres van document '@zstr' kon niet worden geïdentificeerd door @int"
 	//#org Не удалось идентифицировать адрес доставки документа '@zstr' по коду @zstr
-PPTXT_LOG_SUPPLIX_DLVRLOCNCODE "Het afleveradres van document '@zstr' kon niet worden geïdentificeerd door @zstr"
+PPTXT_LOG_SUPPLIX_DLVRLOCNCODE "Het afleveradres van document '@zstr' kon niet worden geïdentificeerd door de @zstr"
 	//#org Не удалось идентифицировать адрес доставки документа '@zstr' по тегу @zstr
 PPTXT_LOG_SUPPLIX_DLVRLOCNTAG "Het afleveradres van document '@zstr' kon niet worden geïdentificeerd met de tag @zstr"
 	//#org Не удалось идентифицировать склад документа '@zstr' по тегу @zstr
@@ -6058,7 +6071,7 @@ PPTXT_LOG_TSESCIPCANCEL_LTO "Persoonlijke registratie van die sessies wordt gean
 	//#org SysMaintenance: получение конфигурации брокера сообщений
 PPTXT_LOG_SYSMNTNC_MQSCONFIG "SysMaintenance: de Message Broker-configuratie ophalen"
 	//#org SysMaintenance: конфигурация брокера сообщений уже была недавно обновлена
-PPTXT_LOG_SYSMNTNC_MQSCONFIG_SKIPTE "SysMaintenance: de configuratie van de message broker is onlangs al bijgewerkt"
+PPTXT_LOG_SYSMNTNC_MQSCONFIG_SKIPTE "SysMaintenance: de configuratie van de message broker is al onlangs bijgewerkt"
 	//#org Для объекта {%s} установлен новый идентификатор рабочего стола (%s)
 PPTXT_LOG_CMDGRPREFCVG_DTSETTLED "de nieuwe desktop-id (%s) is ingesteld voor object {%s}"
 	//#org Для объекта {%s} установлен новый идентификатор меню (%s)
@@ -6073,7 +6086,7 @@ PPTXT_LOG_CCTAXSYSTEMSET "Het belastingstelsel van de kassier is ingesteld voor 
 	//#org Импорт справочника КЛАДР (регионы и города)
 PPTXT_IMPKLADR_KLADR "Import van de CLADR-directory (regio's en steden)"
 	//#org Импорт справочника КЛАДР (улицы)
-PPTXT_IMPKLADR_STREET "Kladr-directory importeren (straten)"
+PPTXT_IMPKLADR_STREET "Importeren van de HRADR-directory (straten)"
 	//#org Препроцессинг кодов
 PPTXT_IMPKLADR_PREPROCESS "Codevoorverwerking"
 	//#org Шаблон номеров карт
@@ -6155,7 +6168,7 @@ PPTXT_PRCPAN_HINT14 "De status van de houdbaarheidsdatum verlaten = Escape"
 	//#org Продолжительность простоя: 
 PPTXT_PRCPAN_IDLECONT "Downtime: "
 	//#org Выбор иконки для команды
-PPTXT_SELCMDICON "Een pictogram voor het team selecteren"
+PPTXT_SELCMDICON "Selecteer een pictogram voor uw team"
 	//#org дочерние для '%s'
 PPTXT_LOTSTITLE_BYPARENT "dochters voor '%s'"
 	//#org Импорт товаров
@@ -6275,8 +6288,6 @@ PPTXT_WAIT_CHNGTODOSTATUS "Taakstatussen wijzigen"
 PPTXT_WAIT_GENTEMPLTASK "Taken maken op basis van sjablonen"
 	//#org ;@{salesledger};@{purchaseledger};Реестр исходящих счетов-фактур;Реестр входящих счетов-фактур;@{incnexpledger}
 PPTXT_LEDGERKINDTITLES "@{salesledger};@{purchaseledger};Register uitgaande facturen;Register van inkomende facturen;@{incnexpledger}"
-	//#org Весы готовы к приему данных;Весы не готовы к приему данных;Проверка готовности весов...
-PPTXT_SCALEREADY "De weegschaal is klaar om gegevens te ontvangen;Weegschalen zijn niet klaar om gegevens te ontvangen;Het controleren van de gereedheid van de weegschaal..."
 	//#org %ld,@{rtcommon_rightsbyobjects} (%s)
 PPTXT_RIGHTSBYOBJ "%ld,@{rtcommon_rightsbyobjects} (%s)"
 	//#org 1,Серийный номер не найден (строка документа);2,Товар не найден (штрихкод)(строка документа);3,Введенное кол-во > кол-ва из документа образца(строка документа);4,Отклонение цены за пределы указанной границы (строка документа);17,Отсутствует один из серийных номеров документа;18,Отсутствует один из товаров(штрихкодов) документа;19,Введенное кол-во товара в документе < кол-ва товара из документа образца
@@ -6324,7 +6335,7 @@ PPTXT_SELOPAMOUNTS "Selectie van extra transactiebedragen"
 	//#org Выбор списка видов котировок
 PPTXT_SELQUOTKIND "Een lijst met prijsopgavetypen selecteren"
 	//#org Выбор списка серий персональных карт
-PPTXT_SELSCARDSERLIST "Een lijst met persoonlijke kaartenseries selecteren"
+PPTXT_SELSCARDSERLIST "Selectie van de lijst van serie persoonlijke kaarten"
 	//#org Выбор списка временных серий
 PPTXT_SELTIMSERLIST "Selecteer een lijst met tijdreeksen"
 	//#org Выбор персоналии по персональной карте
@@ -6546,7 +6557,7 @@ PPTXT_CCHKERR_INVDSCNT "Fout bij controle %s: controleer korting komt niet overe
 	//#org Ошибка по чеку %s: висячая ссылка на карту
 PPTXT_CCHKERR_INVSCARDID "Fout bij controle %s: hangende link naar de kaart"
 	//#org Ошибка по чеку %s: не верный знак суммы оплаты по чеку (%lf)
-PPTXT_CCHKERR_INVALENTRYSIGN "Fout bij controle %s: onjuist teken van betaling bedrag op cheque (%lf)"
+PPTXT_CCHKERR_INVALENTRYSIGN "Fout bij controle %s: onjuist teken van betalingsbedrag op cheque (%lf)"
 	//#org Обнаружены дублированные чеки: %s
 PPTXT_CCHKERR_DUP "Dubbele controles gevonden: %s"
 	//#org Всего обнаружено %ld дубликатов чеков, которые следует удалить
@@ -6687,7 +6698,7 @@ PPTXT_SCS_AUTOWROFFGGRP "Productgroep voor automatisch schrijven"
 	//#org Товарная группа списания кредита
 PPTXT_SCS_AUTOWROFFGGRP_CRD "Goederengroep van kredietafschrijving"
 	//#org Товарная группа, ограничивающая применение бонуса
-PPTXT_SCS_AUTOWROFFGGRP_BON "Productgroep die het gebruik van de bonus beperkt"
+PPTXT_SCS_AUTOWROFFGGRP_BON "Productgroep die de toepassing van de bonus beperkt"
 	//#org Товарная группа, ограничивающая начисление бонуса
 PPTXT_SCS_BONUSCHARGEGGRP "Productgroep die de opbouw van de bonus beperkt"
 	//#org Товар для начисления на кредитную карту
@@ -6824,7 +6835,7 @@ PPTXT_BILLHASNTOBJFORLINK "Het is onmogelijk om het document '%s' te binden zond
 	//#org Не найдено ни одной драфт-операции для привязки документа '%s'
 PPTXT_NODRAFTOPFORLINK "Er zijn geen conceptbewerkingen gevonden om document '%s' te binden"
 	//#org Не найдено ни одного драфт-документа для привязки документа '%s'
-PPTXT_NODRAFTBILLFORLINK "Er werden geen conceptdocumenten gevonden om document '%s' te binden"
+PPTXT_NODRAFTBILLFORLINK "Er zijn geen conceptdocumenten gevonden om document '%s' te binden"
 	//#org В существующей кассовой сессии обнаружен чек-дублер '%s' принимаемого, время нового чека = '%s'
 PPTXT_DUPNEWCCHECKCODE "In de bestaande cashsessie werd een dubbele cheque '%s' van de geaccepteerde gedetecteerd, de tijd van de nieuwe cheque = '%s'"
 	//#org В существующей временной кассовой сессии обнаружен чек-дублер принимаемого чека с нулевой суммой (%s)
@@ -7060,7 +7071,7 @@ PPTXT_EDIRELMAINNFOUND "het bijbehorende hoofddocument is NIET GEVONDEN"
 	//#org Получены параметры SMS-аккаунта
 PPTXT_SMSACCPARAMRECEIVED "Instellingen sms-account ontvangen"
 	//#org Попытка повторного подключения к серверу отправки SMS-сообщений...
-PPTXT_SMSSRVRECONNECTION "Opnieuw verbinding proberen te maken met de sms-verzendserver..."
+PPTXT_SMSSRVRECONNECTION "Opnieuw verbinding proberen te maken met de sms-berichtenserver..."
 	//#org Установлено соединение с сервером отправки SMS-сообщений
 PPTXT_SMSSRVCONNECTED "Er wordt een verbinding met de sms-verzendserver tot stand gebracht"
 	//#org Внесение объекта в очередь синхронизации
@@ -7103,7 +7114,7 @@ PPTXT_EGAIS_BILLPARTACCEPTEDM "Document '%s' heeft een verminderd aantal in het 
 	//#org Документ '%s' имеет завышенное количество в документе списания - необходимо запросить дополнительную накладную
 PPTXT_EGAIS_BILLPARTACCEPTEDP "Document '%s' heeft een opgeblazen nummer in het afschrijvingsdocument - u moet een extra factuur aanvragen"
 	//#org Количество марок в строке документа списания не соответствует принятому количеству товара: %s
-PPTXT_EGAIS_NEQMARKINACTROW "Het aantal stempels op de regel van het afschrijvingsdocument komt niet overeen met de geaccepteerde hoeveelheid goederen: %s"
+PPTXT_EGAIS_NEQMARKINACTROW "Het aantal stempels op de regel van het afschrijvingsdocument komt niet overeen met de aanvaarde hoeveelheid goederen: %s"
 	//#org Для собственного документа '%s' отправляется отказ в проведении
 PPTXT_EGAIS_BILLSELFREJECTED "Voor uw eigen document '%s' wordt een weigering tot gedrag verzonden"
 	//#org Документ '%s' распознан как принимаемый безусловно - отправляется уведомление о полной приемке
@@ -7241,7 +7252,7 @@ PPTXT_EGAIS_WROFFMARKSCREATED "Sales write-off document '%s' gemaakt met stempel
 	//#org Остаток по справке Б в @{brand_egais}, меньше, чем по лоту. Будет передан только доступный остаток: %s
 PPTXT_EGAIS_WHRESTLESSLOTREST "Het saldo op referentie B in @{brand_egais} is minder dan op de kavel. Alleen het beschikbare saldo wordt overgedragen: %s"
 	//#org Лот не передается на регистр 2: %s
-PPTXT_EGAIS_LOTDONTTRANSFTOR2 "Lot wordt niet overgedragen om 2: %s te registreren"
+PPTXT_EGAIS_LOTDONTTRANSFTOR2 "Lot wordt niet overgedragen naar register 2: %s"
 	//#org Не принятый документ передачи @{brand_egais} в торговый зал '%s'. Новый документ создан не будет.
 PPTXT_EGAIS_UNSETTLEDSHOPTRFR "Niet geaccepteerde documentoverdracht @{brand_egais} naar beursvloer '%s'. Er wordt geen nieuw document gemaakt."
 	//#org Для остатка по складу @{brand_egais} '%s' не найдено ни одного соответствия в лотах
@@ -7313,7 +7324,7 @@ PPTXT_DISPIFASSGNFAULT "Fout bij het ophalen van de eigenschap dispatchinterface
 	//#org Тестирование расчета сальдо по товару '@goods' для контрагента '@article' (@locaddr) за период @period
 PPTXT_TESTGS_LOG_HEADER "Het testen van de berekening van het saldo op het product '@goods' voor de tegenpartij '@article' (@locaddr) voor de periode van @period"
 	//#org Ошибка в расчета сальдо за @date: GetGoodsSaldo=@real, CalcGoodsSaldo=@real
-PPTXT_TESTGS_LOG_ERROR "Fout bij het berekenen van @date saldo: GetGoodsSaldo=@real, CalcGoodsSaldo=@real"
+PPTXT_TESTGS_LOG_ERROR "Fout bij het berekenen van het saldo voor de @date: GetGoodsSaldo=@real, CalcGoodsSaldo=@real"
 	//#org Построение нейронной сети
 PPTXT_NNBUILDING "Een neuraal netwerk bouwen"
 	//#org Вас приветствует система
@@ -7365,7 +7376,7 @@ PPTXT_TXTHASSUSPCHR "Tekst '%s' bevat verdachte tekens"
 	//#org Подсчет количества записей в файле '%s'
 PPTXT_FILELINECOUNTING "Het aantal vermeldingen in bestand '%s' tellen"
 	//#org Построение пропорциональной гео-координатной решетки '%s'
-PPTXT_BUILDINGGEOGRID "Constructie van proportioneel geocoördinaatrooster '%s'"
+PPTXT_BUILDINGGEOGRID "Een proportioneel geocoördinaatrooster uitzetten '%s'"
 	//#org Код для проверки номера телефона
 PPTXT_PHONEVERIFYCODE "Code om uw telefoonnummer te verifiëren"
 	//#org С вашей карты '@zstr' списана сумма @real
@@ -7381,7 +7392,7 @@ PPTXT_TESTLOG_TEXT2 "Testtekst om weer te geven in het logboekvenster"
 	//#org СУММА БЕЗ СКИДКИ
 PPTXT_CCFMT_AMTWODISCOUNT "BEDRAG ZONDER KORTING"
 	//#org КАРТА
-PPTXT_CCFMT_CARD "Kaart"
+PPTXT_CCFMT_CARD "KAART"
 	//#org ВЛАДЕЛЕЦ
 PPTXT_CCFMT_CARDOWNER "EIGENAAR"
 	//#org СКИДКА
@@ -7389,7 +7400,7 @@ PPTXT_CCFMT_DISCOUNT "KORTING"
 	//#org НАЛОГ С ПРОДАЖ
 PPTXT_CCFMT_STAX "OMZETBELASTING"
 	//#org НСП
-PPTXT_CCFMT_STAX_S "Nsp"
+PPTXT_CCFMT_STAX_S "NSP"
 	//#org СУММА ПО СТАВКЕ НДС
 PPTXT_CCFMT_AMTBYVATRATE "BEDRAG TEGEN BTW-TARIEF"
 	//#org ПОЛУЧАТЕЛЬ
@@ -7493,7 +7504,7 @@ PPTXT_VETIS_OUTCERTREPLGETTING "Antwoorden ontvangen om uitgaande documenten te 
 	//#org Аварийный выход из цикла получения ответов на отправку исходящих документов по достижению максимума холостых итераций
 PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Nooduitgang uit de lus van ontvangende reacties om uitgaande documenten te verzenden wanneer de maximale inactieve iteraties zijn bereikt"
 	//#org Невозможно сопоставить переданную ссылку на товар '%s'
-PPTXT_PPPP_UNBLRESOLVEGOODS "Kan de verzonden link niet matchen met product '%s'"
+PPTXT_PPPP_UNBLRESOLVEGOODS "Kan de verzonden link naar product '%s' niet matchen"
 	//#org Отсылка SMS-уведомлений отклонена из-за недопустимого времени суток (%s)
 PPTXT_SMSDECLINEDDUETIMERANGE "Sms-meldingen verzenden geweigerd vanwege ongeldig tijdstip (%s)"
 	//#org SetTimeSeries @zstr: append_count=@int upd-count=@int field-count=@int profile=@int64
@@ -7605,6 +7616,8 @@ PPTXT_STQ_BLOBTRANSMTOMEDIATORFAIL "Stylo-Q: Fout bij het doorgeven van object (
 PPTXT_STQ_HINT_FRIENDINVITATION "Uitnodiging. Laat een vriend deze code van zijn telefoon scannen om deel te nemen aan de service '%s'"
 	//#org После выбора времени обслуживания перейдите на вкладку '@{orderdocument}' для отправки заказа сервису.
 PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, gaat u naar het tabblad '# 001' om de bestelling naar de service te verzenden."
+	//#org Сопоставлен автоматически
+PPTXT_STQ_AUTOMATCHED "Automatisch in kaart gebracht"
 //
 // LastText
 
@@ -7881,7 +7894,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Ресурс не найден
 27 "Bron niet gevonden"
 	//#org Слишком мала установленная длина листа для печати отчета
-28 "De lengte van het ingestelde vel is te klein om het rapport af te drukken"
+28 "De lengte van het ingestelde vel is te laag om het rapport af te drukken"
 	//#org Не удалось идентифицировать принтер по умолчанию
 29 "De standaardprinter kan niet worden geïdentificeerd"
 	//#org Не удается открыть файл '%s'
@@ -8005,7 +8018,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Ошибка переименования файла '%s'
 182 "Fout bij bestandshernoeming '%s'"
 	//#org Ошибка открытия INI-файла '%s'
-183 "Fout tijdens het openen van INI bestand '%s'"
+183 "Fout bij het openen van INI bestand '%s'"
 	//#org Идентификатор PaintToolBox занят
 184 "PaintToolBox ID is bezet"
 	//#org Недопустимый час во времени (%s)
@@ -8128,13 +8141,13 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Конфликт между атрибутами ref и type (%s) в элементе SOAP-ответа
 424 "Conflict tussen ref- en type (%s)-kenmerken in SOAP-responselement"
 	//#org Неразрешенный элемент структуры (%s) SAOP-пакета не имеет ссылки
-425 "Het onopgeloste structuurelement (%s) van het SAOP-pakket heeft geen referentie"
+425 "Onopgelost structuurelement (%s) van het SAOP-pakket heeft geen referentie"
 	//#org Не удалось разрешить элемент структуры (%s) SOAP-пакета
 426 "Structuurelement (%s) van het SOAP-pakket kan niet worden opgelost"
 	//#org Элемент SOAP-пакета '%s' не найден
 427 "SOAP Pakket Item '%s' niet gevonden"
 	//#org Недопустимый индекс (%s) элемента SOAP-пакета
-428 "Ongeldige SOAP Packet Element Index (%s)"
+428 "Ongeldige index (%s) van SOAP-pakketelement"
 	//#org Неверная сигнатура WT-файла '%s'
 429 "Onjuiste .wt bestandshandtekening '%s'"
 	//#org Устройство не относится к классу USB или HID
@@ -8180,7 +8193,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org @{err_internal}: недопустимый тип экземпляра SFile
 466 "@{err_internal}: недопустимый instantietype SFile"
 	//#org Unable to open configuration file for reading
-500 "Kan het configuratiebestand niet openen om te lezen"
+500 "Kan configuratiebestand niet openen om te lezen"
 	//#org Unable to open configuration file for writing
 501 "Kan het configuratiebestand voor schrijven niet openen"
 	//#org Wrong version of configuration file
@@ -8558,7 +8571,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Переполнен стек
 102 "Stack is vol"
 	//#org Слишком большое смещение порции записи
-103 "Te grote offset van het opnamegedeelte"
+103 "De offset van het opnameportie is te groot"
 	//#org Не найдена информация по стране
 104 "Geen landinformatie gevonden"
 	//#org Файл не может быть создан с VAT
@@ -8981,6 +8994,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @lbt_dblist "30,L,@appellation;20,L,@symbol;50,L,@dbloginentry_dbpath;25,L,@dbloginentry_dictpath"
 	//#org 30,L,@styloqdocstatus_status;20,L,@styloqdocstatus_reservedcase;20,L, ;30,L,@appellation
 @lbt_stqstatuslist "30,L,@styloqdocstatus_status;20,L,@styloqdocstatus_reservedcase;20,L, ;30,L,@appellation"
+	//#org 30,L,@warehouse;10,R,@rest;10,R,@cost;10,R,@price
+@lbt_goodsrestbyloclist "30,L,@warehouse;10,R,@rest;10,R,@cost;10,R,@price"
 
 	//#org Система управления предприятием
 @entmanagementsys "Enterprise Management Systeem"
@@ -9008,7 +9023,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Instagram
 @globalservice_instagram "Instagram"
 	//#org UDS
-@globalservice_uds "Uds"
+@globalservice_uds "UDS"
 	//#org Shopify
 @globalservice_shopify "Shopify"
 
@@ -9016,7 +9031,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @papyrusversion "Papyrus versie"
 
 	//#org Другое
-@etc_neut "Anders __________"
+@etc_neut "Ander"
 	//#org Элемент
 @element "Element"
 	//#org Элементы
@@ -9190,7 +9205,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Опции
 @options "Opties"
 	//#org Опции обмена
-@exchangeoptions "Opties voor delen"
+@exchangeoptions "Opties voor omruilen"
 	//#org Опции просмотра
 @viewoptions "Weergave-opties"
 	//#org Ноль
@@ -9259,6 +9274,10 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @goodsassociation_pl "Productassociaties"
 	//#org Агрегации товара
 @goodsaggregation_pl "Aggregaties van grondstoffen"
+	//#org Ассоциация товар-склад (зарезервированная)
+@rsrv_assoc_goodstoloc "Vereniging van warenhuizen (voorbehouden)"
+	//#org Ассоциация товар-место хранения (зарезервированная)
+@rsrv_assoc_goodstowareplace "Commodity-Storage Association (gereserveerd)"
 	//#org Рабочий стол
 @desktop "Bureaublad"
 	//#org Новый рабочий стол
@@ -9273,6 +9292,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @tag "Label"
 	//#org Теги
 @tags "Tags"
+	//#org Ид тега
+@tagid "Id-tag"
 	//#org Список тегов
 @listoftags "Lijst met tags"
 	//#org Теги объектов
@@ -9308,7 +9329,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Грузовая таможенная декларация
 @cargocustomsdeclaration "Douaneaangifte vracht"
 	//#org ГТД
-@cargocustomsdeclaration_s "Gtd"
+@cargocustomsdeclaration_s "GTD"
 	//#org Номер грузовой таможенной декларации
 @cargocustomsdeclarationno "Douaneaangiftenummer van de lading"
 	//#org Модификатор
@@ -9730,7 +9751,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org GUID базы данных
 @dbguid "Database GUID"
 	//#org БД
-@db "Databank"
+@db "DATABANK"
 	//#org Таблица синхронизации
 @dbsynctable "Synchronisatietabel"
 	//#org Раздел базы данных
@@ -10275,7 +10296,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Основные
 @general "Voornaamste"
 	//#org ИД
-@id "Legitimatiebewijs"
+@id "LEGITIMATIEBEWIJS"
 	//#org Идентификатор
 @identifier "Id"
 	//#org Идентификаторы
@@ -10758,9 +10779,9 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Адресная книга
 @addressbook "Adresboek"
 	//#org ИНН
-@inn "Herberg"
+@inn "HERBERG"
 	//#org КПП
-@kpp "Ppc"
+@kpp "PPC"
 	//#org СНИЛС
 @snils "SNILS"
 	//#org КПП плательщика
@@ -10772,7 +10793,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org КПП получателя бюджетного платежа
 @fiscalreceiverskpp "KPP van de ontvanger van de begrotingsbetaling"
 	//#org БИК
-@bic "Bick"
+@bic "BICK"
 	//#org ИНН контрагента
 @contractorinn "Tegenpartij TIN"
 	//#org ИНН плательщика
@@ -10966,7 +10987,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org ЦП
 @termcost_ss "CPU"
 	//#org ЦР
-@termprice_ss "Cr"
+@termprice_ss "CR"
 	//#org поступления
 @termcost_sfx "Kwitantie"
 	//#org реализации
@@ -11454,7 +11475,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Предпочтительный штрихкод
 @preferredbarcode "Voorkeurscode"
 	//#org Описание
-@description "Omschrijving: __________"
+@description "Beschrijving"
 	//#org Ид документа
 @billid "Document-id"
 	//#org GUID документа
@@ -11720,7 +11741,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Начисления
 @accrual_pl "Kosten"
 	//#org Начисление ренты
-@rentaccrual "Opbouw van huur"
+@rentaccrual "Opbouw van lijfrente"
 	//#org Начисление зарплаты
 @salaryaccrual "Loonlijst"
 	//#org Подробный вывод информации о расчете
@@ -11883,9 +11904,9 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Код территориального участка ИФНС
 @ru_iftsterrareacode "De code van de territoriale site van de Federale Belastingdienst"
 	//#org ФЛ
-@civillawsubj_individual_ss "Fl"
+@civillawsubj_individual_ss "FL"
 	//#org ЮЛ
-@civillawsubj_legal_ss "Yul"
+@civillawsubj_legal_ss "YUL"
 
 	//#org Поиск по штрихкоду
 @searchbybarcode "Zoeken op barcode"
@@ -12019,7 +12040,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Кассовый узел
 @posnode "Kassa"
 	//#org Ид кассового узла
-@posnodeid "Id van kassaknooppunt"
+@posnodeid "Kassa Node Id"
 	//#org Кассовые узлы
 @posnode_pl "Kassa's"
 	//#org Касса
@@ -12239,6 +12260,10 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @template_pl "Sjablonen"
 	//#org Шаблон номера
 @codetemplate "Kamer Sjabloon"
+	//#org Действующий
+@inaction "Actief"
+	//#org Действующая
+@inaction_fem "Waarnemend"
 	//#org Активный
 @active "Actief"
 	//#org Пассивный
@@ -12395,6 +12420,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @doaddbysample "Toevoegen per voorbeeld"
 	//#org По образцу
 @doaddbysample_short "Model"
+	//#org Создать группирующую технологию
+@doaddtecgroup "Groeperingstechnologie maken"
 	//#org Объединить похожие объекты
 @douniteanalogs "Vergelijkbare objecten samenvoegen"
 	//#org Ремонт котировок
@@ -12438,7 +12465,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Просмотр чека
 @doviewccheck "Uw ontvangstbewijs bekijken"
 	//#org Просмотр созданных документов закупки
-@doviewcreatedbuyersorder "Bekijk de gemaakte inkoopdocumenten"
+@doviewcreatedbuyersorder "Gemaakte inkoopdocumenten bekijken"
 	//#org Отобразить в виде дерева
 @doviewtree "Weergeven als een boom"
 	//#org Экспорт документов
@@ -12539,6 +12566,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @doeditbillinfo "Documentgegevens bewerken"
 	//#org Редактировать документ подтверждения
 @doeditackbill "Bevestigingsdocument bewerken"
+	//#org Редактировать ассоциированное место хранения
+@doeditwhplaceassoc "Gekoppelde opslaglocatie bewerken"
 	//#org Удалить документ подтверждения
 @dodeleteackbill "Bevestigingsdocument verwijderen"
 	//#org Конвертация общих проводок в расширенные
@@ -13151,7 +13180,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Редактирование адресов электронной почты
 @ttl_emailaddrlist "E-mailadressen bewerken"
 	//#org Настройка отчета
-@ttl_reportconfig "Het rapport aanpassen"
+@ttl_reportconfig "Een rapport aanpassen"
 	//#org Обработка 'битых' строк Transfer
 @ttl_badtrfrentriesprocessing "Omgaan met 'gebroken' transferstrings"
 	//#org Исправление записи Transfer
@@ -13159,7 +13188,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Сохранение (восстановление) баланса
 @ttl_saverestoreaccbalance "Evenwichtsbehoud (restauratie)"
 	//#org Элемент оптимизации остатков
-@ttl_stockoptitem "Residu optimalisatie element"
+@ttl_stockoptitem "Residu optimalisatie-element"
 	//#org Периоды доступности процессора
 @ttl_prcfreeperiods "Beschikbaarheidsperioden van verwerkers"
 	//#org Итоги по бухгалтерским проводкам
@@ -13386,7 +13415,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Товарный заказ
 @roptype_goodsorder "Goederenorder"
 	//#org Модификация товара
-@roptype_goodsmodif "Product modificatie"
+@roptype_goodsmodif "Wijziging van goederen"
 	//#org Подтверждение
 @roptype_goodsack "Bevestiging"
 	//#org Драфт-приход
@@ -13617,6 +13646,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @rtag_posnode_ofdver "CRF-versie op de kassa"
 	//#org Магистральная точка локации
 @rtag_loc_trunkpoint "Het belangrijkste punt van locatie"
+	//#org Геолокация в момент создания документа
+@rtag_bill_initgeoloc "Geolocatie op het moment dat het document wordt gemaakt"
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -13746,7 +13777,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Анализ счета
 @view_accanlz "Account analyse"
 	//#org Обороты по поставщикам
-@view_accanlz_suppltrnovr "Omzet van leveranciers"
+@view_accanlz_suppltrnovr "Omzet per leverancier"
 	//#org Акт сверки дебиторской задолженности
 @view_accanlz_accrcvblreconcstatement "Akte van reconciliatie van vorderingen"
 	//#org Расширенная ведомость кассовых сессий
@@ -13902,8 +13933,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @filter_edittextfileparam "Opties voor het bewerken van tekstbestanden"
 	//#org Параметры подготовки данных резервирования услуг Stylo-Q
 @filter_styloqattendanceprereqparam "Parameters voor het voorbereiden van back-upgegevens van de Stylo-Q-service"
-	//#org Заговок для процессоров
-@filter_styloqattendanceprereqparam_prctitle "Processorvergrendelingen"
+	//#org Заголовок для процессоров
+@filter_styloqattendanceprereqparam_prctitle "Processor Header"
 	//#org Максимальный период планирования, дней
 @filter_styloqattendanceprereqparam_maxscheduledays "Maximale planningsperiode, dagen"
 	//#org Дискретность временной диаграммы
@@ -13926,6 +13957,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @filter_styloqdocumentparam "Opties voor het maken van uitgaande documenten voor Stylo-Q"
 	//#org Выбор по штрихкоду
 @filter_styloqdocumentparam_fusebarcodesearch "Barcode selectie"
+	//#org Дату доставки трактовать как номинальную дату документа
+@filter_styloqdocumentparam_fdlvrdateasnominal "Datum van levering moet worden geïnterpreteerd als de nominale datum van het document"
 	//#org Параметры входящих списков для Stylo-Q
 @filter_styloqincominglistparam "Inbox parameters voor Stylo-Q"
 	//#org Параметры входящих заказов для Stylo-Q
@@ -13962,6 +13995,12 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @filter_styloqincominglistparam_fbillwithmarksonly "Alleen gemarkeerde documenten"
 	//#org Только документы, содержащие товары, требующие маркировки
 @filter_styloqincominglistparam_fbillwithmarkedgoodsonly "Alleen documenten die producten bevatten die moeten worden geëtiketteerd"
+	//#org Параметры создания персональной операции для Stylo-Q
+@filter_styloqpersoneventparam "Parameters voor het maken van een persoonlijke transactie voor Stylo-Q"
+	//#org Максимальная дистанция до офиса, метров
+@filter_styloqpersoneventparam_maxgeodist "Maximale afstand tot kantoor, meters"
+	//#org Параметры события
+@filter_styloqpersoneventparam_packet "Gebeurtenis parameters"
 //
 // Команды и popup-меню
 //
@@ -14100,7 +14139,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Корректировка географических объектов (не интерактивная)
 @cmd_correctworldobj "Aanpassing van geografische kenmerken (niet interactief)"
 	//#org Обнуление висячих ссылок на сертификаты в лотах
-@cmd_correctzeroqcertrefs "Hangende certificaatkoppelingen in kavels opnieuw instellen"
+@cmd_correctzeroqcertrefs "Op nul zetten van hangende links naar certificaten in kavels"
 	//#org Обнуление висячих ссылок на долговые размерности
 @cmd_correctzerodebtdimrefs "Op nul zetten van hangende links naar schulddimensies"
 	//#org Государства
@@ -14138,7 +14177,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Штатное расписание по типам сумм и календарям
 @cmd_divisionbysum "Personeelstabel per type bedragen en kalenders"
 	//#org Правила создания драфт-документов по кассовым сессиям
-@cmd_draftcreaterules "Regels voor het maken van conceptdocumenten voor geldsessies"
+@cmd_draftcreaterules "Regels voor het maken van conceptdocumenten voor cashsessies"
 	//#org Порядок списания драфт-документов
 @cmd_draftwroff "Procedure voor het afschrijven van conceptdocumenten"
 	//#org Графики дежурств
@@ -14559,7 +14598,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Производство
 @cmdpu_manuf "Productie"
 	//#org Прочие
-@cmdpu_etc "Anders __________"
+@cmdpu_etc "Ander"
 	//#org Прочие конфигурации
 @cmdpu_configetc "Andere configuraties"
 	//#org Разное
@@ -15088,7 +15127,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @bhtsend_fupdate "Brongegevens vernieuwen"
 
 	//#org Специальная информация о документе
-@billspecialinfo "Speciale informatie over het document"
+@billspecialinfo "Specifieke informatie over het document"
 	//#org Соглашение с контрагентом
 @bill_agtbill "Overeenkomst met de wederpartij"
 // @v11.0.9 (unused and bad value) @bill_amount                              "Начисленная сумма"
@@ -15219,6 +15258,9 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @billstatus_bilcheckf_portofloading "Opstartpoort"
 	//#org Транспортное средство
 @billstatus_bilcheckf_ship "Voertuig"
+	//#org Договор на поставку
+@billstatus_bilcheckf_contract "Leveringscontract"
+
 	//#org Связанные документы нельзя изменять
 @billstatus_bilstf_deny_changelink "Gekoppelde documenten kunnen niet worden bewerkt"
 	//#org Документы нельзя удалять
@@ -15263,7 +15305,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Подписать документ
 @billrunie_fsignexport "Onderteken het document"
 	//#org EDI
-@billrunie_fediimpexp "Edi"
+@billrunie_fediimpexp "EDI"
 	//#org Не снимать теги при получении отрицательных тикетов
 @billrunie_fdontremovetags "Verwijder geen tags bij het ontvangen van negatieve tickets"
 	//#org @{brand_egais} версия 3
@@ -15670,7 +15712,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Режим закрытия ставок
 @tsstrategyanalyze_closemode "Sluitingsmodus"
 	//#org Дата, до которой строить стратегии
-@tsstrategyanalyze_sbtdt "De datum waarop strategieën moeten worden ontwikkeld"
+@tsstrategyanalyze_sbtdt "Datum waarop strategieën moeten worden gebouwd"
 	//#org Дата ограничения для 2-й фазы
 @tsstrategyanalyze_sbtdt2 "Uiterste datum voor fase 2"
 
@@ -15779,7 +15821,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Тип регистра КПП
 @cfgalcreport_kppregtype "PPC-registertype"
 	//#org Тег лота производитель/импортер
-@cfgalcreport_lotmanuftaglist "Fabrikant/importeur van partijlabels"
+@cfgalcreport_lotmanuftaglist "Lot Tag Fabrikant/Importeur"
 	//#org Тег персоналии, отличающий производителя от импортера
 @cfgalcreport_manufimptag "Persoonlijkheidslabel dat de fabrikant onderscheidt van de importeur"
 	//#org Классификатор крепости
@@ -15896,7 +15938,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Счетчик для генерации имен присоединенных файлов
 @cfgbill_lnkfilescntr "Teller voor het genereren van bijgevoegde bestandsnamen"
 	//#org Дата начала расчета долгов контрагентов
-@cfgbill_lowdebtcalcdate "Begindatum van de berekening van de tegenpartijschulden"
+@cfgbill_lowdebtcalcdate "Datum waarop de berekening van de tegenpartijschulden begint"
 	//#org Префикс кода операции
 @cfgbill_opcodeprfx "Voorvoegsel bewerkings-id"
 	//#org Счетчик для генерации серийного номера
@@ -15958,7 +16000,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Таблица дополнительных объектов
 @cfgclientdeal_extobject "Tabel met extra objecten"
 	//#org Дата, до которой процессинг должников не меняет параметры соглашения
-@cfgclientdeal_lockprcbefore "De datum waarop de verwerking van debiteuren de parameters van de overeenkomst niet wijzigt"
+@cfgclientdeal_lockprcbefore "De datum tot wanneer de verwerking van debiteuren de parameters van de overeenkomst niet wijzigt"
 	//#org Макс скидка (%)
 @cfgclientdeal_maxdscnt "Max korting (%)"
 	//#org База для расчета срока оплаты
@@ -16065,7 +16107,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Синхронизировать лоты
 @cfgcomm_ccflg_synclot "Kavels synchroniseren"
 	//#org При преобразовании строки чека из кассовой панели в запись
-@cfgcomm_ccflg_adjcpancclinetrans "Bij het omzetten van een ontvangstregel uit de kassa naar een record"
+@cfgcomm_ccflg_adjcpancclinetrans "Bij het omzetten van een ontvangstregel van de kassa naar een record"
 	//#org Использовать расширенные оплаты по чекам
 @cfgcomm_ccflg_useccheckextpaym "Betalingen voor uitgebreide cheques gebruiken"
 	//#org Не использовать извлечение товарной матрицы с сервера при 3-tier режиме работы
@@ -16155,7 +16197,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Рассчитывать итоговый дефицит товаров
 @cfgdbxchng_dbdxf_calctotaldeficite "Bereken het uiteindelijke tekort aan goederen"
 	//#org (Charry) ИД товара трактовать как код по контрагенту
-@cfgdbxchng_dbdxf_charry_gidasarcode "(Charry) Product ID moet worden geïnterpreteerd als een tegenpartijcode"
+@cfgdbxchng_dbdxf_charry_gidasarcode "(Charry) Product-ID moet worden geïnterpreteerd als een tegenpartijcode"
 	//#org (Charry) Цена реализации равна цене поступления
 @cfgdbxchng_dbdxf_charry_priceqcost "(Charry) Verkoopprijs is gelijk aan ontvangstprijs"
 	//#org Очистка очереди после фиксации по умолчанию
@@ -17030,7 +17072,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Удалить результаты списания и группировку
 @csessdel_incmpl_checks "Afschrijvingsresultaten en groepering verwijderen"
 	//#org @{attention} Запуск этой функции может привести к невосполнимой потере данных. Подумайте дважды прежде чем нажмете [OK].
-@csessdel_warn "@{attention} Het uitvoeren van deze functie kan onherstelbaar gegevensverlies veroorzaken. Denk twee keer na voordat je op [OK] drukt."
+@csessdel_warn "# 001 Het uitvoeren van deze functie kan onherstelbaar gegevensverlies veroorzaken. Denk twee keer na voordat je op [OK] drukt."
 
 	//#org Отчет по кассовым сессиям
 @csessselection_report "Verslag over cashsessies"
@@ -17050,7 +17092,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Модификация даты
 @billrt_moddate "Datum wijziging"
 	//#org Модификация товара
-@billrt_modgoods "Product modificatie"
+@billrt_modgoods "Wijziging van goederen"
 	//#org Использование WL
 @billrt_usewlabel "WL gebruiken"
 	//#org Доступ к ценам поступления
@@ -17228,7 +17270,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Варианты актуализации
 @egaisqueryparam_dbactualizeflags "Opties voor bijwerken"
 	//#org Запрос справок А
-@egaisqueryparam_afqueryrefa "Verzoek om referenties A"
+@egaisqueryparam_afqueryrefa "Aanvraag certificaten A"
 	//#org Запрос производителей
 @egaisqueryparam_afqueryperson "Verzoek van fabrikanten"
 	//#org Запрос товаров
@@ -17615,6 +17657,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @goodsstruc_gsf_ovrlapgift "Overlappend geschenk"
 	//#org POS-модификатор
 @goodsstruc_gsf_posmodifier "POS-modifier"
+	//#org Допускается автоматическая декомплектация
+@goodsstruc_gsf_autodecompl "Automatische decompletie is toegestaan"
 	//#org Наименование структуры
 @goodsstruc_name "Naam van de structuur"
 	//#org Вариабельный объект
@@ -17846,7 +17890,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Параметры ячеек
 @selectnewwhzonetyp_cellsparam "Celinstellingen"
 	//#org Выберите тип бухгалтерского счета
-@selectacctype "Selecteer het type boekhoudrekening"
+@selectacctype "Kies het type boekhoudrekening"
 	//#org Выберите количество гостей за столом
 @selectguestcount "Selecteer het aantal gasten aan tafel"
 	//#org Выберите конфигурацию экспорта/импорта рабочих книг
@@ -18882,7 +18926,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Вид регистрирующей организации
 @registertype_regorgkind "Type registratieorganisatie"
 	//#org Ограничение на применение товарной группы в документе
-@registertype_restrictgoodskind "Beperking van het gebruik van een goederengroep in een document"
+@registertype_restrictgoodskind "Beperking van het gebruik van een productgroep in een document"
 	//#org Разрешить продавать только эту группу
 @registertype_ggrpaonlygroup "Alleen deze groep toestaan te worden verkocht"
 	//#org Не разрешать продавать эту группу
@@ -18950,6 +18994,12 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 
 	//#org Подготовка данных для весов
 @scaledatapreparation "Voorbereiding van gegevens voor schalen"
+	//#org Проверка готовности весов
+@scalereadinesschecking "Controle van de gereedheid van de weegschalen"
+	//#org Весы готовы к приему данных
+@scaleisready "De weegschaal is klaar om gegevens te ontvangen"
+	//#org Весы не готовы к приему данных
+@scaleisnotready "Weegschalen zijn niet klaar om gegevens te ontvangen"
 	//#org Загрузка данных на весы
 @scaleloading "Gegevens op de weegschaal laden"
 	//#org Загружать только изменения
@@ -18971,7 +19021,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @phnsvc_scanchannelsymb "Lokaal kanaalsymbool (Scan)"
 
 	//#org Товар автосписания
-@scard_autogoods "Auto-write-off product"
+@scard_autogoods "Automatische afschrijving merchandise"
 	//#org Дата окончания действия
 @scard_expiry "Vervaldatum"
 	//#org Ид персональной карты
@@ -19094,6 +19144,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @scardseries_scrdsf_transfdiscount "Breng de korting over naar de nieuwe kaarten van de eigenaar"
 	//#org Группирующая серия
 @scardseries_scrdsf_group "Groepering serie"
+	//#org Разрешается автоматическое создание владельца
+@scardseries_scrdsf_allowownerautocr "Automatisch aanmaken van eigenaar is toegestaan"
 	//#org Резервный пул
 @scardseries_scrdsf_rsrvpool "Back-up pool"
 	//#org Символ серии карт
@@ -19244,6 +19296,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @stylopalm_plmf_treatduedateasdate "Behandel de vervaldatum als de belangrijkste datum van de bestelling"
 	//#org Экспортировать товары с нулевым остатком
 @stylopalm_plmf_expzstock "Exportgoederen met nul saldo"
+	//#org Экспортировать информацию о сроках годности товаров
+@stylopalm_plmf_expgoodsexpirytags "Exportinformatie over de vervaldatums van goederen"
 	//#org Вид операции заказа товара
 @stylopalm_orderop "Type productorderbewerking"
 	//#org Путь для обмена данными
@@ -19287,7 +19341,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Количество по умолчанию
 @tech_initqtty "Standaard aantal"
 	//#org Родительская технология
-@tech_parent "Bovenliggende technologie"
+@tech_parent "Oudertechnologie"
 	//#org Товар, который будет производиться
 @tech_nextgoods "Te produceren goederen"
 	//#org Предшествующий товар
@@ -19909,7 +19963,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Статистики по суммам чеков
 @cchecktotal_statisticsamt "Statistieken over het aantal cheques"
 	//#org MIN
-@cchecktotal_minchecksum "Min"
+@cchecktotal_minchecksum "MIN"
 	//#org Средняя
 @cchecktotal_avrgchecksum "Gemiddeld"
 	//#org MAX
@@ -20110,6 +20164,10 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @goodsfilt_fnodisonly "Alleen zonder korting"
 	//#org Без бренда
 @goodsfilt_fwobrand "Merkloze"
+	//#org Показывать место размещения
+@goodsfilt_f2showwhplace "Plaatsing weergeven"
+	//#org Только товары с истекающим сроком годности
+@goodsfilt_f2soonexpiredonly "Alleen producten met een verlopen houdbaarheid"
 	//#org Фильтрация товаров по НДС
 @goodsfilt_vat "Filteren van goederen op btw"
 	//#org Дата расчета ставки
@@ -20120,6 +20178,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @goodsfilt_viewoptions "Opties voor het bladeren door producten"
 	//#org Опции просмотра артикулов
 @goodsfilt_viewoptions_ar "Opties voor artikelweergave"
+	//#org Сколько дней до истечения срока годности?
+@goodsfilt_aheadexpirydays "Hoeveel dagen voor de vervaldatum?"
 	//#org Сортировка товаров
 @goodssorting "Sorteren van goederen"
 
@@ -20362,6 +20422,9 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @inventorytotal_surplus "Overmaat"
 	//#org Недостача
 @inventorytotal_lack "Gebrek"
+
+	//#org Остатки товаров на складах
+@goodsrestbyloclist "Saldi van goederen in magazijnen"
 
 	//#org Фильтр товарных остатков
 @goodsrestfilt "Filter van grondstoffenbalansen"
@@ -20628,6 +20691,12 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @mrplinefilt_mrpsrcv_indep "Alleen onafhankelijke behoeften"
 	//#org Итоговые потребности
 @mrplinefilt_mrpsrcv_total "Definitieve eisen"
+	//#org По критерию терминальности
+@mrplinefilt_ftterminal "Volgens het criterium van terminaliteit"
+	//#org Только терминальные
+@mrplinefilt_ftterminal_termonly "Alleen terminal"
+	//#org Только нетерминальные
+@mrplinefilt_ftterminal_nontermonly "Alleen niet-terminal"
 
 	//#org Итоги по выборке строк MRP-таблицы
 @mrplinetotal "MrP tabel rij selectie totalen"
@@ -20985,7 +21054,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Файлы данных не соответствуют отчету
 @savereportdata_hint "de gegevensbestanden komen niet overeen met het rapport"
 	//#org Сохранить данные в каталоге
-@savereportdata_svdt "Gegevens opslaan in een map"
+@savereportdata_svdt "Gegevens opslaan in een directory"
 	//#org Редактировать отчет
 @savereportdata_edrep "Rapport bewerken"
 
@@ -21593,7 +21662,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Имя базы данных
 @makedb_name "Databasenaam"
 	//#org Хост автономного кассового узла
-@makedb_posnodehost "Zelfstandige Point of Sale Host"
+@makedb_posnodehost "Zelfstandige point-of-sale host"
 	//#org Образец базы данных
 @makedb_sample "Voorbeelddatabase"
 
@@ -21637,6 +21706,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @goodsrecoverparam_fbarcode "Barcodes controleren"
 	//#org Создавать технологию для товаров, если возможно
 @goodsrecoverparam_fcreatetechifpossible "Creëer technologie voor producten, indien mogelijk"
+	//#org В кодах по статьям проверять кодировку символов
+@goodsrecoverparam_farcodeoutrinrfault "Tekencodering controleren in artikelcodes"
 
 	//#org Корректировка кассовых чеков
 @ccrecover "Aanpassing van de kasontvangsten"
@@ -22142,6 +22213,17 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Запретить
 @uicfg_fdisablebillmultiprint "Verbieden"
 
+	//#org Опции таблицы строк документа
+@uicfg_billitemtableflags "Opties voor documentrijtabellen"
+	//#org Отображение штрихкодов и серий - из конфигурации
+@uicfg_bitfusecommcfgforbarcodeserialoptions "Barcodes en series weergeven - vanaf configuratie"
+	//#org Показывать штрихкоды
+@uicfg_bitfshowbarcode "Barcodes weergeven"
+	//#org Показывать серийные номера
+@uicfg_bitfshowserial "Serienummers weergeven"
+	//#org Показывать процент наценки
+@uicfg_bitfshowmargin "Markuppercentage weergeven"
+
 	//#org Конфигурации импорта/экспорта
 @impexpparam_pl "Configuraties importeren/exporteren"
 
@@ -22246,6 +22328,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @impexpparambillh_predefformat "Vooraf gedefinieerd formaat"
 	//#org Поисковый код для контрагента
 @impexpparambillh_objsrchcode "Zoekcode voor de tegenpartij"
+	//#org Фиксирующий тег документа
+@impexpparambillh_regtag "Tag voor het vastleggen van documenten"
 
 	//#org Параметры импорта/экспорта товаров
 @impexpparamgoods "Parameters voor het importeren/exporteren van goederen"
@@ -22372,7 +22456,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Оприходовать недостающие товары
 @pcug_balance_receipt "Ontbrekende goederen posten"
 	//#org Израсходовать сколько есть
-@pcug_asgoodas "Gebruik hoeveel je moet eten"
+@pcug_asgoodas "Geef uit hoeveel te eten"
 	//#org Не включать ограничивающие товары
 @pcug_exclude "Neem geen beperkende producten op"
 	//#org Исключить товар
@@ -22944,7 +23028,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Проверять висячие ссылки на документы
 @atrprf_checkbilllink "Controleer hangende links naar documenten"
 	//#org Проверять висячие ссылки на счета
-@atrprf_checkacclink "Controleer hangende links naar accounts"
+@atrprf_checkacclink "Controleer hangende accountlinks"
 	//#org Исправлять ошибки зеркалирования
 @atrprf_repairmirror "Mirroringfouten oplossen"
 	//#org Удалять проводки с висячими ссылками на документы
@@ -23223,7 +23307,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Количество зон магистрального тренда
 @tssmodel_mainframerangecount "Aantal belangrijkste trendzones"
 	//#org Шаг поиска целевого диапазона
-@tssmodel_optrangestep "Stap voor het opzoeken van doelbereik"
+@tssmodel_optrangestep "Stap doelbereikzoeker"
 	//#org Точки
 @tssmodel_orsabsolute "Punt"
 	//#org Микро-доли от выборки
@@ -23433,7 +23517,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Тип платежа
 @bankingorder_taxmarkers_paymtype "Type betaling"
 	//#org УИН
-@bankingorder_taxmarkers_uin "Ween"
+@bankingorder_taxmarkers_uin "WEEN"
 
 	//#org Выход по 'escape'
 @stylobhtiiconfig_fexitbyesc "Exit door 'escape'"
@@ -23786,6 +23870,8 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @eventtype_sysjournal "Syslog-gebeurtenis"
 	//#org Истечение срока годности лота
 @eventtype_lotexpiration "Vervaldatum van de partij"
+	//#org Создан новый документ заказа
+@eventtype_ordercreated "Er is een nieuw orderdocument gemaakt"
 
 	//#org Актуальное
 @eventstatus_actual "Actueel"
@@ -24236,7 +24322,7 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 	//#org Идентификатор записи интервала домов
 @fias_houseintid "Record-id huisinterval"
 	//#org Идентификатор записи связывания с предыдушей исторической записью
-@fias_prevhistrecid "Id van de koppelingsrecord naar de vorige historische record"
+@fias_prevhistrecid "Id van de koppelingsrecord aan de vorige historische record"
 	//#org Идентификатор записи связывания с последующей исторической записью
 @fias_nexthistrecid "Id van de koppelingsrecord met de volgende historische record"
 
@@ -24294,6 +24380,12 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @styloqcommand_indoorsvcparam "Parameters voor indoor-service"
 	//#org Заранее готовить данные
 @styloqcommand_fprepareahead "Bereid gegevens van tevoren voor"
+	//#org Уведомлять о новых объектах
+@styloqcommand_fnotify_objnew "Meldingen over nieuwe objecten"
+	//#org Уведомлять об изменении объектов
+@styloqcommand_fnotify_objupd "Laat me weten wanneer objecten veranderen"
+	//#org Уведомлять об изменении статуса объектов
+@styloqcommand_fnotify_objstatus "Laat me weten wanneer de status van objecten verandert"
 
 	//#org Конфигурация сервиса Stylo-Q
 @styloqsvcconfig "Stylo-Q Service Configuratie"
@@ -24318,6 +24410,13 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @styloqprivconfig_preflang "Voorkeurstaal"
 	//#org Лик для представления по умолчанию
 @styloqprivconfig_defface "Gezicht voor standaardweergave"
+
+	//#org Модификация собственного лика клиентом
+@styloqconfig_cliffaceselfmodifying "Wijziging van het eigen gezicht van de cliënt"
+	//#org Разрешено установить GPS-координаты сервиса
+@styloqconfig_clifsvcgps "Het is toegestaan om GPS-coördinaten van de dienst in te stellen"
+	//#org Разрешено устанавливать GPS-координаты контактов
+@styloqconfig_clifpsnadrgps "Het is toegestaan om de GPS-coördinaten van contacten in te stellen"
 
 	//#org Лик Stylo-Q
 @styloqface "Gezicht Stylo-Q"
@@ -24365,6 +24464,24 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 @styloqdocstatus_reservedcase_rundef "Onzeker"
 	//#org Использовать признак документа '@{rejected}'
 @styloqdocstatus_fbillflagdeclined "Gebruik documentfunctie '@{rejected}'"
+
+	//#org Полностью завершен
+@styloqdocstatus_finished_succ "Volledig voltooid"
+	//#org Ожидает одобрения или отгрузки
+@styloqdocstatus_waitforapprorexec "In afwachting van goedkeuring of verzending"
+	//#org Драфт-документ (в режиме редактирования)
+@styloqdocstatus_draft "Conceptdocument (in bewerkingsmodus)"
+	//#org Одобрен
+@styloqdocstatus_approved "Goedgekeurd"
+	//#org Отклонен
+@styloqdocstatus_rejected "Afgekeurd"
+	//#org Отменен
+@styloqdocstatus_cancelled "Geannuleerd"
+	//#org Драфт-документ отменен
+@styloqdocstatus_cancelleddraft "Conceptdocument geannuleerd"
+
+	//#org На этой вкладке отображаются документы заказов для сервиса, которые вы сформировали за все время работы с ним. Ниже показаны значения иконок-индикаторов, отображающих статусы документов.
+@styloq_hlp_registrylist_order "Op dit tabblad worden de orderdocumenten weergegeven voor de service die u hebt gegenereerd gedurende de gehele tijd dat u ermee hebt gewerkt. Hieronder staan de waarden van de pictogramindicatoren die de statussen van documenten weergeven."
 
 	//#org Не показывать отмененные документы
 @styloqregistryfilt_dontshowcancelled "Geannuleerde documenten niet weergeven"
@@ -24546,7 +24663,6 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 [123:hash] // PPSTR_HASHTOKEN
 // PPHS_PAPYRUSASYNCPOSINTERCHANGE == PPHS_PPPP_START
 
-
 [124:hash] // PPSTR_HASHTOKEN_C
 //
 // Далее следуют 16 типов документов, используемых системой VETIS. Текст точно соответствует xsd спецификации dictionary_v2.0.xsd.
@@ -24556,3 +24672,5 @@ PPTXT_STQ_HINT_GOTOSVCORDFINISHING "Nadat u de servicetijd hebt geselecteerd, ga
 // Еще несколько формальных токенов VETIS:
 //
 //
+
+[125:hash] // PPSTR_HASHTOKEN_AGENTPLUS

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Yann Collet, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
@@ -290,10 +289,9 @@ typedef struct {
 } FSE_symbolCompressionTransform; /* total 8 bytes */
 
 typedef uint32 DTable_max_t[FSE_DTABLE_SIZE_U32(FSE_MAX_TABLELOG)];
-
-/****************************************************************
-*  Internal functions
-****************************************************************/
+// 
+// Internal functions
+// 
 FORCE_INLINE uint FSE_highbit32(uint32 val)
 {
 #if defined(_MSC_VER)   /* Visual */
@@ -556,8 +554,8 @@ static size_t FSE_buildDTable_raw(FSE_DTable* dt, uint nbBits)
  */
 static size_t FSE_initDStream(FSE_DStream_t* bitD, const void* srcBuffer, size_t srcSize)
 {
-	if(srcSize < 1) return (size_t)-FSE_ERROR_srcSize_wrong;
-
+	if(srcSize < 1) 
+		return (size_t)-FSE_ERROR_srcSize_wrong;
 	if(srcSize >=  sizeof(size_t)) {
 		uint32 contain32;
 		bitD->start = (const char *)srcBuffer;
@@ -572,20 +570,13 @@ static size_t FSE_initDStream(FSE_DStream_t* bitD, const void* srcBuffer, size_t
 		bitD->start = (const char *)srcBuffer;
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
-		switch(srcSize)
-		{
-			case 7: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[6]) << (sizeof(size_t)*8 - 16);
-			/* fallthrough */
-			case 6: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[5]) << (sizeof(size_t)*8 - 24);
-			/* fallthrough */
-			case 5: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[4]) << (sizeof(size_t)*8 - 32);
-			/* fallthrough */
-			case 4: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[3]) << 24;
-			/* fallthrough */
-			case 3: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[2]) << 16;
-			/* fallthrough */
-			case 2: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[1]) <<  8;
-			/* fallthrough */
+		switch(srcSize) {
+			case 7: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[6]) << (sizeof(size_t)*8 - 16); // @fallthrough
+			case 6: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[5]) << (sizeof(size_t)*8 - 24); // @fallthrough
+			case 5: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[4]) << (sizeof(size_t)*8 - 32); // @fallthrough
+			case 4: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[3]) << 24; // @fallthrough
+			case 3: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[2]) << 16; // @fallthrough
+			case 2: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[1]) <<  8; // @fallthrough
 			default:;
 		}
 		contain32 = ((const BYTE *)srcBuffer)[srcSize-1];
@@ -593,7 +584,6 @@ static size_t FSE_initDStream(FSE_DStream_t* bitD, const void* srcBuffer, size_t
 		bitD->bitsConsumed = 8 - FSE_highbit32(contain32);
 		bitD->bitsConsumed += (uint32)(sizeof(size_t) - srcSize)*8;
 	}
-
 	return srcSize;
 }
 

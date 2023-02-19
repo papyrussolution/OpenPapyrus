@@ -1,13 +1,11 @@
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Yann Collet, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
  * in the COPYING file in the root directory of this source tree).
  * You may select, at your option, one of the above-listed licenses.
  */
-
 #ifndef ZSTD_LEGACY_H
 #define ZSTD_LEGACY_H
 
@@ -25,25 +23,25 @@ extern "C" {
 #endif
 
 #if (ZSTD_LEGACY_SUPPORT <= 1)
-#include "zstd_v01.h"
+	#include "zstd_v01.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 2)
-#include "zstd_v02.h"
+	#include "zstd_v02.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 3)
-#include "zstd_v03.h"
+	#include "zstd_v03.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 4)
-#include "zstd_v04.h"
+	#include "zstd_v04.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 5)
-#include "zstd_v05.h"
+	#include "zstd_v05.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 6)
-#include "zstd_v06.h"
+	#include "zstd_v06.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 7)
-#include "zstd_v07.h"
+	#include "zstd_v07.h"
 #endif
 
 /** ZSTD_isLegacy() :
@@ -53,7 +51,8 @@ extern "C" {
 MEM_STATIC unsigned ZSTD_isLegacy(const void* src, size_t srcSize)
 {
 	uint32 magicNumberLE;
-	if(srcSize<4) return 0;
+	if(srcSize<4) 
+		return 0;
 	magicNumberLE = MEM_readLE32(src);
 	switch(magicNumberLE) {
 #if (ZSTD_LEGACY_SUPPORT <= 1)

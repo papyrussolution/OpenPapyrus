@@ -1565,23 +1565,17 @@ public:
 					c->serializer->revert(o_snap);
 				}
 			}
-
 			bool ret = bool (out->rule);
 			if(!ret) c->serializer->revert(snap);
-
 			return_trace(ret);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(rule.sanitize(c, this));
 		}
-
 protected:
-		OffsetArrayOf<Rule>
-		rule;                   /* Array of Rule tables
-		 * ordered by preference */
+		OffsetArrayOf <Rule> rule; /* Array of Rule tables ordered by preference */
 public:
 		DEFINE_SIZE_ARRAY(2, rule);
 	};
@@ -1589,11 +1583,7 @@ public:
 	struct ContextFormat1 {
 		bool intersects(const hb_set_t * glyphs) const
 		{
-			struct ContextClosureLookupContext lookup_context = {
-				{intersects_glyph},
-				nullptr
-			};
-
+			struct ContextClosureLookupContext lookup_context = { {intersects_glyph}, nullptr };
 			return
 				+hb_zip(this+coverage, ruleSet)
 				| hb_filter(*glyphs, hb_first)
@@ -2442,17 +2432,13 @@ public:
 
 			return_trace(ret);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(rule.sanitize(c, this));
 		}
-
 protected:
-		OffsetArrayOf<ChainRule>
-		rule;                   /* Array of ChainRule tables
-		 * ordered by preference */
+		OffsetArrayOf <ChainRule> rule; /* Array of ChainRule tables ordered by preference */
 public:
 		DEFINE_SIZE_ARRAY(2, rule);
 	};

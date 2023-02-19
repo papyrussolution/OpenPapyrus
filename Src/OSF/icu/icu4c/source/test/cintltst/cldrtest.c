@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "cintltst.h"
@@ -19,7 +15,8 @@
    returns a new UnicodeSet that is a flattened form of the original
    UnicodeSet.
  */
-static USet* createFlattenSet(USet * origSet, UErrorCode * status) {
+static USet* createFlattenSet(USet * origSet, UErrorCode * status) 
+{
 	USet * newSet = NULL;
 	int32_t origItemCount = 0;
 	int32_t idx, graphmeSize;
@@ -32,10 +29,7 @@ static USet* createFlattenSet(USet * origSet, UErrorCode * status) {
 	newSet = uset_open(1, 0);
 	origItemCount = uset_getItemCount(origSet);
 	for(idx = 0; idx < origItemCount; idx++) {
-		graphmeSize = uset_getItem(origSet, idx,
-			&start, &end,
-			graphme, SIZEOFARRAYi(graphme),
-			status);
+		graphmeSize = uset_getItem(origSet, idx, &start, &end, graphme, SIZEOFARRAYi(graphme), status);
 		if(U_FAILURE(*status)) {
 			log_err("ERROR: uset_getItem returned %s\n", u_errorName(*status));
 			*status = U_ZERO_ERROR;
@@ -51,31 +45,25 @@ static USet* createFlattenSet(USet * origSet, UErrorCode * status) {
 	return newSet;
 }
 
-static bool isCurrencyPreEuro(const char * currencyKey) {
-	if(strcmp(currencyKey, "PTE") == 0 ||
-	    strcmp(currencyKey, "ESP") == 0 ||
-	    strcmp(currencyKey, "LUF") == 0 ||
-	    strcmp(currencyKey, "GRD") == 0 ||
-	    strcmp(currencyKey, "BEF") == 0 ||
-	    strcmp(currencyKey, "ITL") == 0 ||
-	    strcmp(currencyKey, "EEK") == 0) {
+static bool isCurrencyPreEuro(const char * currencyKey) 
+{
+	if(strcmp(currencyKey, "PTE") == 0 || strcmp(currencyKey, "ESP") == 0 || strcmp(currencyKey, "LUF") == 0 || strcmp(currencyKey, "GRD") == 0 ||
+	    strcmp(currencyKey, "BEF") == 0 || strcmp(currencyKey, "ITL") == 0 || strcmp(currencyKey, "EEK") == 0) {
 		return TRUE;
 	}
 	return FALSE;
 }
 
 #if !UCONFIG_NO_FILE_IO && !UCONFIG_NO_LEGACY_CONVERSION
-static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName,
-    UResourceBundle * currentBundle, const char * locale) {
+static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName, UResourceBundle * currentBundle, const char * locale) 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UResourceBundle * subRootBundle = NULL, * subBundle = NULL, * arr = NULL;
-
 	ures_resetIterator(root);
 	ures_resetIterator(currentBundle);
 	while(ures_hasNext(currentBundle)) {
 		const char * subBundleKey = NULL;
 		const char * currentBundleKey = NULL;
-
 		errorCode = U_ZERO_ERROR;
 		currentBundleKey = ures_getKey(currentBundle);
 		(void)currentBundleKey; /* Suppress set but not used warning. */
@@ -85,25 +73,15 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 			continue;
 		}
 		subBundleKey = ures_getKey(subBundle);
-
 		subRootBundle = ures_getByKey(root, subBundleKey, NULL, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			log_err("Can't open a resource with key \"%s\" in \"%s\" from %s for locale \"%s\"\n",
-			    subBundleKey,
-			    ures_getKey(currentBundle),
-			    rootName,
-			    locale);
+			log_err("Can't open a resource with key \"%s\" in \"%s\" from %s for locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), rootName, locale);
 			ures_close(subBundle);
 			continue;
 		}
 		if(ures_getType(subRootBundle) != ures_getType(subBundle)) {
-			log_err("key \"%s\" in \"%s\" has a different type from root for locale \"%s\"\n"
-			    "\troot=%d, locale=%d\n",
-			    subBundleKey,
-			    ures_getKey(currentBundle),
-			    locale,
-			    ures_getType(subRootBundle),
-			    ures_getType(subBundle));
+			log_err("key \"%s\" in \"%s\" has a different type from root for locale \"%s\"\n\troot=%d, locale=%d\n", subBundleKey,
+			    ures_getKey(currentBundle), locale, ures_getType(subRootBundle), ures_getType(subBundle));
 			ures_close(subBundle);
 			continue;
 		}
@@ -114,43 +92,27 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 			bool sameArray = TRUE;
 			const int32_t * subRootBundleArr = ures_getIntVector(subRootBundle, &minSize, &errorCode);
 			const int32_t * subBundleArr = ures_getIntVector(subBundle, &subBundleSize, &errorCode);
-
 			if(minSize > subBundleSize) {
 				minSize = subBundleSize;
-				log_err("Arrays are different size with key \"%s\" in \"%s\" from root for locale \"%s\"\n",
-				    subBundleKey,
-				    ures_getKey(currentBundle),
-				    locale);
+				log_err("Arrays are different size with key \"%s\" in \"%s\" from root for locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), locale);
 			}
-
 			for(idx = 0; idx < minSize && sameArray; idx++) {
 				if(subRootBundleArr[idx] != subBundleArr[idx]) {
 					sameArray = FALSE;
 				}
-				if(strcmp(subBundleKey, "DateTimeElements") == 0
-				 && (subBundleArr[idx] < 1 || 7 < subBundleArr[idx])) {
-					log_err("Value out of range with key \"%s\" at index %d in \"%s\" for locale \"%s\"\n",
-					    subBundleKey,
-					    idx,
-					    ures_getKey(currentBundle),
-					    locale);
+				if(strcmp(subBundleKey, "DateTimeElements") == 0 && (subBundleArr[idx] < 1 || 7 < subBundleArr[idx])) {
+					log_err("Value out of range with key \"%s\" at index %d in \"%s\" for locale \"%s\"\n", subBundleKey, idx, ures_getKey(currentBundle), locale);
 				}
 			}
 			/* Special exception es_US and DateTimeElements */
-			if(sameArray
-			 && !(strcmp(locale, "es_US") == 0 && strcmp(subBundleKey, "DateTimeElements") == 0)) {
-				log_err("Integer vectors are the same with key \"%s\" in \"%s\" from root for locale \"%s\"\n",
-				    subBundleKey,
-				    ures_getKey(currentBundle),
-				    locale);
+			if(sameArray && !(strcmp(locale, "es_US") == 0 && strcmp(subBundleKey, "DateTimeElements") == 0)) {
+				log_err("Integer vectors are the same with key \"%s\" in \"%s\" from root for locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), locale);
 			}
 		}
 		else if(ures_getType(subBundle) == URES_ARRAY) {
 			UResourceBundle * subSubBundle = ures_getByIndex(subBundle, 0, NULL, &errorCode);
 			UResourceBundle * subSubRootBundle = ures_getByIndex(subRootBundle, 0, NULL, &errorCode);
-
-			if(U_SUCCESS(errorCode)
-			 && (ures_getType(subSubBundle) == URES_ARRAY || ures_getType(subSubRootBundle) == URES_ARRAY)) {
+			if(U_SUCCESS(errorCode) && (ures_getType(subSubBundle) == URES_ARRAY || ures_getType(subSubRootBundle) == URES_ARRAY)) {
 				/* Here is one of the recursive parts */
 				TestKeyInRootRecursive(subRootBundle, rootName, subBundle, locale);
 			}
@@ -169,11 +131,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 				/*
 				   if(isCurrencyPreEuro(subBundleKey) && ures_getSize(subBundle)!=3) {
 				    log_err("Different size array with key \"%s\" in \"%s\" for locale \"%s\" the
-				       expected size is 3 got size=%d\n",
-				            subBundleKey,
-				            ures_getKey(currentBundle),
-				            locale,
-				            ures_getSize(subBundle));
+				       expected size is 3 got size=%d\n", subBundleKey, ures_getKey(currentBundle), locale, ures_getSize(subBundle));
 				   }
 				 */
 				for(idx = 0; idx < minSize; idx++) {
@@ -187,70 +145,42 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 					}
 					else {
 						if(rootStrLen > 1 && rootStr[0] == 0x41 && rootStr[1] >= 0x30 && rootStr[1] <= 0x39) {
-							/* A2 or A4 in the root string indicates that the resource can
-							   optionally be an array instead of a */
+							/* A2 or A4 in the root string indicates that the resource can optionally be an array instead of a */
 							/* string.  Attempt to read it as an array. */
 							errorCode = U_ZERO_ERROR;
 							arr = ures_getByIndex(subBundle, idx, NULL, &errorCode);
 							if(U_FAILURE(errorCode)) {
-								log_err(
-									"Got a NULL string with key \"%s\" in \"%s\" at index %d for root or locale \"%s\"\n",
-									subBundleKey,
-									ures_getKey(currentBundle),
-									idx,
-									locale);
+								log_err("Got a NULL string with key \"%s\" in \"%s\" at index %d for root or locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), idx, locale);
 								continue;
 							}
 							if(ures_getType(arr) != URES_ARRAY ||
 							    ures_getSize(arr) != (int32_t)rootStr[1] - 0x30) {
-								log_err(
-									"Got something other than a string or array of size %d for key \"%s\" in \"%s\" at index %d for root or locale \"%s\"\n",
-									rootStr[1] - 0x30,
-									subBundleKey,
-									ures_getKey(currentBundle),
-									idx,
-									locale);
+								log_err("Got something other than a string or array of size %d for key \"%s\" in \"%s\" at index %d for root or locale \"%s\"\n",
+									rootStr[1] - 0x30, subBundleKey, ures_getKey(currentBundle), idx, locale);
 								ures_close(arr);
 								continue;
 							}
 							localeStr = ures_getStringByIndex(arr, 0, &localeStrLen, &errorCode);
 							ures_close(arr);
 							if(U_FAILURE(errorCode)) {
-								log_err(
-									"Got something other than a string or array for key \"%s\" in \"%s\" at index %d for root or locale \"%s\"\n",
-									subBundleKey,
-									ures_getKey(currentBundle),
-									idx,
-									locale);
+								log_err("Got something other than a string or array for key \"%s\" in \"%s\" at index %d for root or locale \"%s\"\n",
+									subBundleKey, ures_getKey(currentBundle), idx, locale);
 								continue;
 							}
 						}
 						else {
-							log_err(
-								"Got a NULL string with key \"%s\" in \"%s\" at index %d for root or locale \"%s\"\n",
-								subBundleKey,
-								ures_getKey(currentBundle),
-								idx,
-								locale);
+							log_err("Got a NULL string with key \"%s\" in \"%s\" at index %d for root or locale \"%s\"\n",
+								subBundleKey, ures_getKey(currentBundle), idx, locale);
 							continue;
 						}
 					}
 					if(localeStr[0] == (UChar)0x20) {
-						log_err("key \"%s\" at index %d in \"%s\" starts with a space in locale \"%s\"\n",
-						    subBundleKey,
-						    idx,
-						    ures_getKey(currentBundle),
-						    locale);
+						log_err("key \"%s\" at index %d in \"%s\" starts with a space in locale \"%s\"\n", subBundleKey, idx, ures_getKey(currentBundle), locale);
 					}
 					else if((localeStr[localeStrLen - 1] == (UChar)0x20) && (strcmp(subBundleKey, "separator") != 0)) {
-						log_err("key \"%s\" at index %d in \"%s\" ends with a space in locale \"%s\"\n",
-						    subBundleKey,
-						    idx,
-						    ures_getKey(currentBundle),
-						    locale);
+						log_err("key \"%s\" at index %d in \"%s\" ends with a space in locale \"%s\"\n", subBundleKey, idx, ures_getKey(currentBundle), locale);
 					}
-					else if(subBundleKey != NULL
-					 && strcmp(subBundleKey, "DateTimePatterns") == 0) {
+					else if(subBundleKey != NULL && strcmp(subBundleKey, "DateTimePatterns") == 0) {
 						int32_t quoted = 0;
 						const UChar * localeStrItr = localeStr;
 						while(*localeStrItr) {
@@ -259,8 +189,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 							}
 							else if((quoted % 2) == 0) {
 								/* Search for unquoted characters */
-								if(4 <= idx && idx <= 7
-								 && (*localeStrItr == (UChar)0x6B /* k */
+								if(4 <= idx && idx <= 7 && (*localeStrItr == (UChar)0x6B /* k */
 								 || *localeStrItr == (UChar)0x48 /* H */
 								 || *localeStrItr == (UChar)0x6D /* m */
 								 || *localeStrItr == (UChar)0x73 /* s */
@@ -268,47 +197,29 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 								 || *localeStrItr == (UChar)0x61 /* a */
 								 || *localeStrItr == (UChar)0x68 /* h */
 								 || *localeStrItr == (UChar)0x7A /* z */)) {
-									log_err(
-										"key \"%s\" at index %d has time pattern chars in date for locale \"%s\"\n",
-										subBundleKey,
-										idx,
-										locale);
+									log_err("key \"%s\" at index %d has time pattern chars in date for locale \"%s\"\n", subBundleKey, idx, locale);
 								}
-								else if(0 <= idx && idx <= 3
-								 && (*localeStrItr == (UChar)0x47 /* G */
-								 || *localeStrItr == (UChar)0x79 /* y */
-								 || *localeStrItr == (UChar)0x4D /* M */
+								else if(0 <= idx && idx <= 3 && (*localeStrItr == (UChar)0x47 /* G */ || 
+									*localeStrItr == (UChar)0x79 /* y */ || *localeStrItr == (UChar)0x4D /* M */
 								 || *localeStrItr == (UChar)0x64 /* d */
 								 || *localeStrItr == (UChar)0x45 /* E */
 								 || *localeStrItr == (UChar)0x44 /* D */
 								 || *localeStrItr == (UChar)0x46 /* F */
 								 || *localeStrItr == (UChar)0x77 /* w */
 								 || *localeStrItr == (UChar)0x57 /* W */)) {
-									log_err(
-										"key \"%s\" at index %d has date pattern chars in time for locale \"%s\"\n",
-										subBundleKey,
-										idx,
-										locale);
+									log_err("key \"%s\" at index %d has date pattern chars in time for locale \"%s\"\n", subBundleKey, idx, locale);
 								}
 							}
 							localeStrItr++;
 						}
 					}
-					else if(idx == 4 && subBundleKey != NULL
-					 && strcmp(subBundleKey, "NumberElements") == 0
-					 && u_charDigitValue(localeStr[0]) != 0) {
-						log_err("key \"%s\" at index %d has a non-zero based number for locale \"%s\"\n",
-						    subBundleKey,
-						    idx,
-						    locale);
+					else if(idx == 4 && subBundleKey != NULL && strcmp(subBundleKey, "NumberElements") == 0 && u_charDigitValue(localeStr[0]) != 0) {
+						log_err("key \"%s\" at index %d has a non-zero based number for locale \"%s\"\n", subBundleKey, idx, locale);
 					}
 				}
 				(void)sameArray; /* Suppress set but not used warning. */
 /*                if(sameArray && strcmp(rootName, "root") == 0) {
-                    log_err("Arrays are the same with key \"%s\" in \"%s\" from root for locale \"%s\"\n",
-                            subBundleKey,
-                            ures_getKey(currentBundle),
-                            locale);
+                    log_err("Arrays are the same with key \"%s\" in \"%s\" from root for locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), locale);
                 }*/
 			}
 			ures_close(subSubBundle);
@@ -318,23 +229,14 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 			int32_t len = 0;
 			const UChar * string = ures_getString(subBundle, &len, &errorCode);
 			if(U_FAILURE(errorCode) || string == NULL) {
-				log_err("Can't open a string with key \"%s\" in \"%s\" for locale \"%s\"\n",
-				    subBundleKey,
-				    ures_getKey(currentBundle),
-				    locale);
+				log_err("Can't open a string with key \"%s\" in \"%s\" for locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), locale);
 			}
 			else if(string[0] == (UChar)0x20) {
-				log_err("key \"%s\" in \"%s\" starts with a space in locale \"%s\"\n",
-				    subBundleKey,
-				    ures_getKey(currentBundle),
-				    locale);
+				log_err("key \"%s\" in \"%s\" starts with a space in locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), locale);
 				/* localeDisplayPattern/separator can end with a space */
 			}
 			else if(string[len - 1] == (UChar)0x20 && (strcmp(subBundleKey, "separator"))) {
-				log_err("key \"%s\" in \"%s\" ends with a space in locale \"%s\"\n",
-				    subBundleKey,
-				    ures_getKey(currentBundle),
-				    locale);
+				log_err("key \"%s\" in \"%s\" ends with a space in locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), locale);
 			}
 			else if(strcmp(subBundleKey, "localPatternChars") == 0) {
 				/* Note: We no longer import localPatternChars data starting
@@ -350,50 +252,37 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 				int32_t i, j;
 #if !UCONFIG_NO_FORMATTING
 				if(len != UDAT_FIELD_COUNT) {
-					log_err("key \"%s\" has the wrong number of characters in locale \"%s\"\n",
-					    subBundleKey,
-					    locale);
+					log_err("key \"%s\" has the wrong number of characters in locale \"%s\"\n", subBundleKey, locale);
 				}
 #endif
 				/* Check char validity. */
 				for(i = 0; i<len; ++i) {
 					if(!((string[i] >= 65 /*'A'*/ && string[i] <= 90 /*'Z'*/) ||
 					    (string[i] >= 97 /*'a'*/ && string[i] <= 122 /*'z'*/))) {
-						log_err("key \"%s\" has illegal character '%c' in locale \"%s\"\n",
-						    subBundleKey,
-						    (char)string[i],
-						    locale);
+						log_err("key \"%s\" has illegal character '%c' in locale \"%s\"\n", subBundleKey, (char)string[i], locale);
 					}
 					/* Do O(n^2) check for duplicate chars. */
 					for(j = 0; j<i; ++j) {
 						if(string[j] == string[i]) {
-							log_err("key \"%s\" has duplicate character '%c' in locale \"%s\"\n",
-							    subBundleKey,
-							    (char)string[i],
-							    locale);
+							log_err("key \"%s\" has duplicate character '%c' in locale \"%s\"\n", subBundleKey, (char)string[i], locale);
 						}
 					}
 				}
 			}
 			/* No fallback was done. Check for duplicate data */
-			/* The ures_* API does not do fallback of sub-resource bundles,
-			   So we can't do this now. */
+			/* The ures_* API does not do fallback of sub-resource bundles, So we can't do this now. */
 #if 0
 			else if(strcmp(locale, "root") != 0 && errorCode == U_ZERO_ERROR) {
 				const UChar * rootString = ures_getString(subRootBundle, &len, &errorCode);
 				if(U_FAILURE(errorCode) || rootString == NULL) {
-					log_err("Can't open a string with key \"%s\" in \"%s\" in root\n",
-					    ures_getKey(subRootBundle),
-					    ures_getKey(currentBundle));
+					log_err("Can't open a string with key \"%s\" in \"%s\" in root\n", ures_getKey(subRootBundle), ures_getKey(currentBundle));
 					continue;
 				}
 				else if(u_strcmp(string, rootString) == 0) {
 					if(strcmp(locale, "de_CH") != 0 && strcmp(subBundleKey, "Countries") != 0 &&
 					    strcmp(subBundleKey, "Version") != 0) {
 						log_err("Found duplicate data with key \"%s\" in \"%s\" in locale \"%s\"\n",
-						    ures_getKey(subRootBundle),
-						    ures_getKey(currentBundle),
-						    locale);
+						    ures_getKey(subRootBundle), ures_getKey(currentBundle), locale);
 					}
 					else {
 						/* Ignore for now. */
@@ -417,19 +306,12 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 			/* Can't do anything to check it */
 			/* We'll assume it's all correct */
 			if(strcmp(subBundleKey, "MeasurementSystem") != 0) {
-				log_verbose("Skipping key \"%s\" in \"%s\" for locale \"%s\"\n",
-				    subBundleKey,
-				    ures_getKey(currentBundle),
-				    locale);
+				log_verbose("Skipping key \"%s\" in \"%s\" for locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), locale);
 			}
 			/* Testing for MeasurementSystem is done in VerifyTranslation */
 		}
 		else {
-			log_err("Type %d for key \"%s\" in \"%s\" is unknown for locale \"%s\"\n",
-			    ures_getType(subBundle),
-			    subBundleKey,
-			    ures_getKey(currentBundle),
-			    locale);
+			log_err("Type %d for key \"%s\" in \"%s\" is unknown for locale \"%s\"\n", ures_getType(subBundle), subBundleKey, ures_getKey(currentBundle), );
 		}
 		ures_close(subRootBundle);
 		ures_close(subBundle);
@@ -438,43 +320,33 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 
 #endif
 
-static void testLCID(UResourceBundle * currentBundle,
-    const char * localeName)
+static void testLCID(UResourceBundle * currentBundle, const char * localeName)
 {
 	(void)currentBundle; // suppress compiler warnings about unused variables
 	UErrorCode status = U_ZERO_ERROR;
-	uint32_t expectedLCID;
 	char lcidStringC[64] = {0};
 	int32_t len;
-
-	expectedLCID = uloc_getLCID(localeName);
+	uint32_t expectedLCID = uloc_getLCID(localeName);
 	if(expectedLCID == 0) {
-		log_verbose("INFO:    %-5s does not have any LCID mapping\n",
-		    localeName);
+		log_verbose("INFO:    %-5s does not have any LCID mapping\n", localeName);
 		return;
 	}
-
 	status = U_ZERO_ERROR;
 	len = uprv_convertToPosix(expectedLCID, lcidStringC, SIZEOFARRAYi(lcidStringC) - 1, &status);
 	if(U_FAILURE(status)) {
-		log_err("ERROR:   %.4x does not have a POSIX mapping due to %s\n",
-		    expectedLCID, u_errorName(status));
+		log_err("ERROR:   %.4x does not have a POSIX mapping due to %s\n", expectedLCID, u_errorName(status));
 	}
 	lcidStringC[len] = 0;
-
 	if(strcmp(localeName, lcidStringC) != 0) {
 		char langName[1024];
 		char langLCID[1024];
 		uloc_getLanguage(localeName, langName, sizeof(langName), &status);
 		uloc_getLanguage(lcidStringC, langLCID, sizeof(langLCID), &status);
-
 		if(strcmp(langName, langLCID) == 0) {
-			log_verbose("WARNING: %-5s resolves to %s (0x%.4x)\n",
-			    localeName, lcidStringC, expectedLCID);
+			log_verbose("WARNING: %-5s resolves to %s (0x%.4x)\n", localeName, lcidStringC, expectedLCID);
 		}
 		else if(!(strcmp(localeName, "ku") == 0 && log_knownIssue("20181", "ICU-20181 Fix LCID mapping for ckb vs ku"))) {
-			log_err("ERROR:   %-5s has 0x%.4x and the number resolves wrongfully to %s\n",
-			    localeName, expectedLCID, lcidStringC);
+			log_err("ERROR:   %-5s has 0x%.4x and the number resolves wrongfully to %s\n", localeName, expectedLCID, lcidStringC);
 		}
 	}
 }
@@ -792,14 +664,11 @@ static void findSetMatch(UScriptCode * scriptCodes, int32_t scriptsLen, USet * e
 		 * by getScript
 		 */
 		int32_t count = uset_getItemCount(exemplarSet);
-
 		for(i = 0; i < count; i++) {
 			UChar32 start = 0;
 			UChar32 end = 0;
 			UChar * str = NULL;
-			int32_t strCapacity = 0;
-
-			strCapacity = uset_getItem(exemplarSet, i, &start, &end, str, strCapacity, &status);
+			int32_t strCapacity = uset_getItem(exemplarSet, i, &start, &end, str, strCapacity, &status);
 			if(U_SUCCESS(status)) {
 				int32_t j;
 				if(strCapacity == 0) {
@@ -815,24 +684,20 @@ static void findSetMatch(UScriptCode * scriptCodes, int32_t scriptsLen, USet * e
 							char pat[500] = {'\0'};
 							int32_t len = uset_toPattern(scripts[j], toPattern, 500, TRUE, &status);
 							len = myUCharsToChars(toPattern, pat, len);
-							log_err("uset_indexOf(\\u%04X)=%i uset_indexOf(\\u%04X)=%i\n", start,
-							    uset_indexOf(scripts[0], start), end, uset_indexOf(scripts[0], end));
+							log_err("uset_indexOf(\\u%04X)=%i uset_indexOf(\\u%04X)=%i\n", start, uset_indexOf(scripts[0], start), end, uset_indexOf(scripts[0], end));
 							if(len!=-1) {
 								log_err("Pattern: %s\n", pat);
 							}
 						}
-						log_err("ExemplarCharacters and LocaleScript containment test failed for locale %s. \n",
-						    locale);
+						log_err("ExemplarCharacters and LocaleScript containment test failed for locale %s. \n", locale);
 					}
 				}
 				else {
 					strCapacity++; /* increment for NUL termination */
-					/* allocate the str and call the api again */
+					// allocate the str and call the api again
 					str = (UChar *)SAlloc::M(U_SIZEOF_UCHAR * strCapacity);
 					strCapacity =  uset_getItem(exemplarSet, i, &start, &end, str, strCapacity, &status);
-					/* iterate over the scripts and figure out if the string contained is actually
-					 * in the script set
-					 */
+					// iterate over the scripts and figure out if the string contained is actually in the script set
 					for(j = 0; j < scriptsLen; j++) {
 						if(uset_containsString(scripts[j], str, strCapacity) == TRUE) {
 							existsInScript = TRUE;
@@ -878,8 +743,7 @@ static void VerifyTranslation(void)
 		currentLocale = ures_open(NULL, currLoc, &errorCode);
 		if(errorCode != U_ZERO_ERROR) {
 			if(U_SUCCESS(errorCode)) {
-				/* It's installed, but there is no data.
-				   It's installed for the g18n white paper [grhoten] */
+				// It's installed, but there is no data. It's installed for the g18n white paper [grhoten] 
 				log_err("ERROR: Locale %-5s not installed, and it should be!\n", uloc_getAvailable(locIndex));
 			}
 			else {

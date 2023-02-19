@@ -191,7 +191,7 @@ int TButton::SetBitmap(uint bmpID)
 {
 	int    ok = LoadBitmap_(bmpID);
 	if(ok)
-		::SendMessage(getHandle(), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp));
+		::SendMessageW(getHandle(), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp));
 	return ok;
 }
 
@@ -281,7 +281,7 @@ int TButton::makeDefault(int enable, int sendMsg)
 		if(!(flags & bfDefault))
 			TView::messageBroadcast(P_Owner, enable ? cmGrabDefault : cmReleaseDefault, this);
 		if(enable)
-			::SendMessage(Parent, DM_SETDEFID, (WPARAM)Id, 0);
+			::SendMessageW(Parent, DM_SETDEFID, (WPARAM)Id, 0);
 	}
 	SETFLAG(flags, bfDefault, enable);
 	return 1;
@@ -357,7 +357,7 @@ void TInputLine::InputStat::CheckIn()
 		case WM_DESTROY: p_view->OnDestroy(hWnd); return 0;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == 1)
-				::SendMessage(APPL->H_TopOfStack, uMsg, wParam, lParam);
+				::SendMessageW(APPL->H_TopOfStack, uMsg, wParam, lParam);
 			break;
 		case WM_CHAR:
 			if(p_view->GetCombo() || p_view->HasWordSelector()) {
@@ -775,13 +775,13 @@ size_t TInputLine::getCaret()
 {
 	POINT p;
 	GetCaretPos(&p);
-	const DWORD c = ::SendMessage(getHandle(), EM_CHARFROMPOS, 0, MAKELPARAM(p.x, p.y));
+	const DWORD c = ::SendMessageW(getHandle(), EM_CHARFROMPOS, 0, MAKELPARAM(p.x, p.y));
 	return LoWord(c);
 }
 
 void TInputLine::setCaret(size_t pos)
 {
-	const DWORD c = ::SendMessage(getHandle(), EM_POSFROMCHAR, pos, pos /**/);
+	const DWORD c = ::SendMessageW(getHandle(), EM_POSFROMCHAR, pos, pos /**/);
 	SetCaretPos(LoWord(c), HiWord(c));
 }
 
@@ -902,7 +902,7 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			if(wParam >= VK_F1 && wParam <= VK_F12 || wParam==VK_ESCAPE || (wParam == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL)))) {
-				::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKELPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
+				::SendMessageW(GetParent(hWnd), WM_VKEYTOITEM, MAKELPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
 				return 0;
 			}
 			else if(wParam != VK_ESCAPE && wParam != VK_RETURN)
@@ -1397,7 +1397,7 @@ void ComboBox::setupListWindow(int noUpdateSize)
 		GetWindowRect(getHandle(), &list_rect);
 		link_rect.right = list_rect.right;
 		GetWindowRect(h_box, &list_rect);
-		int    h = P_Def ? ((P_Def->ViewHight + 1) * ::SendMessage(h_list, LB_GETITEMHEIGHT, 0, 0)) : (list_rect.bottom - list_rect.top);
+		int    h = P_Def ? ((P_Def->ViewHight + 1) * ::SendMessageW(h_list, LB_GETITEMHEIGHT, 0, 0)) : (list_rect.bottom - list_rect.top);
 		int    screen_y = GetSystemMetrics(SM_CYFULLSCREEN);
 		int    top = ((link_rect.bottom + h) < screen_y) ? link_rect.bottom : screen_y-h;
 		MoveWindow(h_box, link_rect.left, top, (link_rect.right - link_rect.left), h, 1);
@@ -1491,7 +1491,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(hcb, GWLP_WNDPROC, ComboBox::DlgProc)); 
 				{
 					HBITMAP h_bm = APPL->FetchSystemBitmap(OBM_COMBO);
-					::SendMessage(hcb, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
+					::SendMessageW(hcb, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
 				}
 				SetWindowLong(hcb, GWL_STYLE, TView::GetWindowStyle(hcb) & ~WS_TABSTOP);
 				if(P_ILink) {
@@ -1757,7 +1757,7 @@ void ComboBox::freeAll()
 			return 0;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == 1)
-				SendMessage(APPL->H_TopOfStack, uMsg, wParam, lParam);
+				::SendMessageW(APPL->H_TopOfStack, uMsg, wParam, lParam);
 			break;
 		case WM_LBUTTONDBLCLK:
 			CALLPTRMEMB(p_view, MessageCommandToOwner(cmImageDblClk));
@@ -1891,13 +1891,13 @@ TToolTip::~TToolTip()
 
 int TToolTip::Create(HWND hParent)
 {
-	H = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
+	H = ::CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hParent, NULL, SLS.GetHInst(), 0);
 	if(H) {
 		SetWindowPos(H, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
 		if(MaxWidthPix)
-			::SendMessage(H, TTM_SETMAXTIPWIDTH, 0, MaxWidthPix);
-		::SendMessage(H, TTM_SETTIPBKCOLOR, GetColorRef(SClrYellow), 0);
+			::SendMessageW(H, TTM_SETMAXTIPWIDTH, 0, MaxWidthPix);
+		::SendMessageW(H, TTM_SETTIPBKCOLOR, GetColorRef(SClrYellow), 0);
 	}
 	return BIN(H);
 }
@@ -1928,7 +1928,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 			ti.rect = static_cast<RECT>(rItem.R);
 		}
 		ti.lParam = rItem.Param;
-		::SendMessage(H, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&ti)); // @unicodeproblem
+		::SendMessageW(H, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&ti)); // @unicodeproblem
 	}
 	else
 		ok = 0;
@@ -1939,7 +1939,7 @@ uint TToolTip::GetToolsCount()
 {
 	uint   c = 0;
 	if(H)
-		c = static_cast<uint>(::SendMessage(H, TTM_GETTOOLCOUNT, 0, 0));
+		c = static_cast<uint>(::SendMessageW(H, TTM_GETTOOLCOUNT, 0, 0));
 	return c;
 }
 
@@ -1953,7 +1953,7 @@ int TToolTip::GetTool(uint idx, ToolItem & rItem)
 		TOOLINFO ti;
 		INITWINAPISTRUCT(ti);
 		ti.lpszText = static_cast<TCHAR *>(text_buf.vptr());
-		if(::SendMessage(H, TTM_ENUMTOOLS, idx, reinterpret_cast<LPARAM>(&ti))) {
+		if(::SendMessageW(H, TTM_ENUMTOOLS, idx, reinterpret_cast<LPARAM>(&ti))) {
 			rItem.Id = ti.uId;
 			rItem.H = ti.hwnd;
 			rItem.Param = ti.lParam;
@@ -1975,7 +1975,7 @@ int TToolTip::RemoveTool(uint idx)
 			INITWINAPISTRUCT(ti);
 			ti.hwnd = item.H;
 			ti.uId = idx+1; //item.Id;
-			::SendMessage(H, TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&ti));
+			::SendMessageW(H, TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&ti));
 			ok = 1;
 		}
 	}

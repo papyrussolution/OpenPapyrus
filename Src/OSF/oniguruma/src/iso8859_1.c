@@ -1,13 +1,10 @@
-/**********************************************************************
-   iso8859_1.c -  Oniguruma (regular expression library)
-**********************************************************************/
+// iso8859_1.c -  Oniguruma (regular expression library)
+//
 /*-
- * Copyright (c) 2002-2020  K.Kosako
- * All rights reserved.
+ * Copyright (c) 2002-2020  K.Kosako All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -20,8 +17,7 @@
 #define LARGE_S   0x53
 #define SMALL_S   0x73
 
-#define ENC_IS_ISO_8859_1_CTYPE(code, ctype) \
-	((EncISO_8859_1_CtypeTable[code] & CTYPE_TO_BIT(ctype)) != 0)
+#define ENC_IS_ISO_8859_1_CTYPE(code, ctype) ((EncISO_8859_1_CtypeTable[code] & CTYPE_TO_BIT(ctype)) != 0)
 
 static const ushort EncISO_8859_1_CtypeTable[256] = {
 	0x4008, 0x4008, 0x4008, 0x4008, 0x4008, 0x4008, 0x4008, 0x4008,
@@ -128,12 +124,9 @@ ss_combination:
 		return 1;
 	}
 	else if(0x61 <= *p && *p <= 0x7a) {
-		if(*p == SMALL_S && end > p + 1
-		 && (*(p+1) == SMALL_S || *(p+1) == LARGE_S)
-		 && CASE_FOLD_IS_NOT_ASCII_ONLY(flag)) { /* ss */
+		if(*p == SMALL_S && end > p + 1 && (*(p+1) == SMALL_S || *(p+1) == LARGE_S) && CASE_FOLD_IS_NOT_ASCII_ONLY(flag)) { /* ss */
 			goto ss_combination;
 		}
-
 		items[0].byte_len = 1;
 		items[0].code_len = 1;
 		items[0].code[0] = (OnigCodePoint)(*p - 0x20);
@@ -204,23 +197,15 @@ static int mbc_case_fold(OnigCaseFoldType flag, const uchar ** pp, const uchar *
 		(*pp)++;
 		return 2;
 	}
-
 	if(CASE_FOLD_IS_NOT_ASCII_ONLY(flag) || ONIGENC_IS_ASCII_CODE(*p))
 		*lower = ONIGENC_ISO_8859_1_TO_LOWER_CASE(*p);
 	else
 		*lower = *p;
-
 	(*pp)++;
 	return 1;
 }
 
-static int is_code_ctype(OnigCodePoint code, uint ctype)
-{
-	if(code < 256)
-		return ENC_IS_ISO_8859_1_CTYPE(code, ctype);
-	else
-		return FALSE;
-}
+static int is_code_ctype(OnigCodePoint code, uint ctype) { return (code < 256) ? ENC_IS_ISO_8859_1_CTYPE(code, ctype) : FALSE; }
 
 OnigEncodingType OnigEncodingISO_8859_1 = {
 	onigenc_single_byte_mbc_enc_len,

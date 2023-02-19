@@ -637,6 +637,22 @@ static const LinguaIdent P_LinguaIdentList[] = {
 	{ slangZZA,    0, "zza" }, // Zaza
 };
 
+void GetLinguaSymbList(StringSet & rSs)
+{
+	rSs.Z();
+	for(uint i = 0; i < SIZEOFARRAY(P_LinguaIdentList); i++) {
+		rSs.add(P_LinguaIdentList[i].P_Code);
+	}
+}
+
+void GetLinguaIdList(LongArray & rList)
+{
+	rList.Z();
+	for(uint i = 0; i < SIZEOFARRAY(P_LinguaIdentList); i++) {
+		rList.add(P_LinguaIdentList[i].Id);
+	}
+}
+
 int FASTCALL RecognizeLinguaSymb(const char * pSymb, int word)
 {
 	int    ret_ident = 0;
@@ -659,7 +675,7 @@ int FASTCALL RecognizeLinguaSymb(const char * pSymb, int word)
 				}
 			}
 			else {
-				size_t code_len = sstrlen(p_code);
+				const size_t code_len = sstrlen(p_code);
 				if(temp_buf.HasPrefix(p_code) && code_len > max_found_len) {
 					const char nextc = temp_buf.C(code_len);
 					//

@@ -1,4 +1,5 @@
 // SIMAGE.CPP
+// Copytight (c) A.Sobolev ..2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -241,7 +242,7 @@ int SImage::InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd)
 			static_cast<Gdiplus::Bitmap *>(p_sized_img)->GetHBITMAP(color, &hbmp);
 			delete static_cast<Gdiplus::Image *>(P_Image);
 			P_Image = p_sized_img;
-			::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(hbmp));
+			::SendMessageW(hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(hbmp));
 		}
 		ok = 1;
 	}

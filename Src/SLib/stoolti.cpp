@@ -1,5 +1,5 @@
 // STOOLTI.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -17,7 +17,7 @@ int STooltip::Init(HWND parent)
 {
 	Destroy();
 	Parent = parent;
-	HwndTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
+	HwndTT = ::CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parent, NULL, TProgram::GetInst(), 0);
 	SetWindowPos(HwndTT, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 	return BIN(HwndTT);
@@ -45,7 +45,7 @@ int STooltip::Add(const char * pText, const RECT * pRect, long id)
 		ti.rect     = *pRect;
 		ti.hinst    = TProgram::GetInst();
 		ti.lpszText = tooltip;
-		return BIN(::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti)));
+		return BIN(::SendMessageW(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti)));
 	}
 	else
 		return 0;
@@ -59,7 +59,7 @@ int STooltip::Remove(long id)
 	ti.hwnd   = Parent;
 	ti.uId    = id;
 	ti.hinst  = TProgram::GetInst();
-	return BIN(SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&ti)));
+	return BIN(::SendMessageW(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&ti)));
 }
 
 #define MSGWND_CLOSETIMER 1L
@@ -103,13 +103,13 @@ BOOL CALLBACK FindWindowByID(HWND hwnd, LPARAM lParam)
 static BOOL CALLBACK CloseTooltipWnd(HWND hwnd, LPARAM lParam)
 {
 	if(!lParam || ::GetParent(hwnd) == reinterpret_cast<HWND>(lParam))
-		::SendMessage(hwnd, WM_USER_CLOSE_TOOLTIPMSGWIN, 0, 0);
+		::SendMessageW(hwnd, WM_USER_CLOSE_TOOLTIPMSGWIN, 0, 0);
 	return TRUE;
 }
 
 static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 {
-	::SendMessage(hwnd, WM_USER_CLOSE_TOOLTIPMSGWIN, 0, 0);
+	::SendMessageW(hwnd, WM_USER_CLOSE_TOOLTIPMSGWIN, 0, 0);
 	return TRUE;
 }
 
@@ -174,7 +174,7 @@ int SMessageWindow::SetFont(HWND hCtl)
 		ZDeleteWinGdiObject(&Font);
 		Font = CreateFontIndirect(&log_font);
 		if(Font)
-			::SendMessage(hCtl, WM_SETFONT, reinterpret_cast<WPARAM>(Font), TRUE);
+			::SendMessageW(hCtl, WM_SETFONT, reinterpret_cast<WPARAM>(Font), TRUE);
 	}
 	return 1;
 }
@@ -244,11 +244,11 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 				ctl_rect.top    -= (parent_rect.top + img_rect.top);
 				DestroyWindow(h_ctl);
 				style &= ~SS_CENTER;
-				h_ctl = ::CreateWindowEx(0, _T("STATIC"), _T(""), style|SS_LEFT, 
+				h_ctl = ::CreateWindowExW(0, L"STATIC", L"", style|SS_LEFT, 
 					ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, HWnd, 0, TProgram::GetInst(), 0);
 				if(h_ctl) {
 					SetFont(h_ctl);
-					::SetWindowLong(h_ctl, GWL_ID, 1201/*CTL_TOOLTIP_TEXT*/);
+					::SetWindowLongW(h_ctl, GWL_ID, 1201/*CTL_TOOLTIP_TEXT*/);
 					font_init = 1;
 				}
 			}

@@ -1,5 +1,5 @@
 // V_TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -21,30 +21,27 @@ TSessionFilt & FASTCALL TSessionFilt::operator = (const TSessionFilt & s)
 	return *this;
 }
 
-int FASTCALL TSessionFilt::CheckIdle(long flags) const
+bool FASTCALL TSessionFilt::CheckIdle(long flags) const
 {
 	if(Ft_Idle == 0)
-		return 1;
+		return true;
 	else if(Ft_Idle < 0)
-		return (flags & TSESF_IDLE) ? 0 : 1;
+		return (flags & TSESF_IDLE) ? false : true;
 	else
-		return (flags & TSESF_IDLE) ? 1 : 0;
+		return (flags & TSESF_IDLE) ? true : false;
 }
 
-int FASTCALL TSessionFilt::CheckWrOff(long flags) const
+bool FASTCALL TSessionFilt::CheckWrOff(long flags) const
 {
 	if(Ft_WritedOff == 0)
-		return 1;
+		return true;
 	else if(Ft_WritedOff < 0)
-		return (flags & TSESF_WRITEDOFF) ? 0 : 1;
+		return (flags & TSESF_WRITEDOFF) ? false : true;
 	else
-		return (flags & TSESF_WRITEDOFF) ? 1 : 0;
+		return (flags & TSESF_WRITEDOFF) ? true : false;
 }
 
-int FASTCALL TSessionFilt::CheckStatus(int status) const
-{
-	return BIN(!StatusFlags || (StatusFlags & (1 << status)));
-}
+bool FASTCALL TSessionFilt::CheckStatus(int status) const { return LOGIC(!StatusFlags || (StatusFlags & (1 << status))); }
 
 int FASTCALL TSessionFilt::GetStatusList(PPIDArray & rList) const
 {
@@ -1369,10 +1366,7 @@ PPViewTSessLine::~PPViewTSessLine()
 	delete P_TempTbl;
 }
 
-const TSessLineFilt * PPViewTSessLine::GetFilt() const
-{
-	return &Filt;
-}
+const TSessLineFilt * PPViewTSessLine::GetFilt() const { return &Filt; }
 
 int PPViewTSessLine::IsTempTblNeeded()
 {

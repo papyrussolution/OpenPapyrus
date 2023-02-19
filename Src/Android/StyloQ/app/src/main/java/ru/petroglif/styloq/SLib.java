@@ -73,6 +73,7 @@ import java.util.Timer;
 import java.util.UUID;
 import java.util.Vector;
 
+
 public class SLib {
 	//
 	// @persistent Language constants
@@ -1565,10 +1566,22 @@ public class SLib {
 	}
 
 	public static class ListViewEvent {
+		public ListViewEvent()
+		{
+			ItemIdx = -1;
+			ItemId = 0;
+			ItemObj = null;
+			ItemView = null;
+			RvHolder = null;
+			IsFolder = false;
+			IsCollapsedFolder = false;
+		}
 		int    ItemIdx;
 		long   ItemId;   // for RecyclerView 0
 		Object ItemObj;  // for RecyclerView null
 		View   ItemView;
+		boolean IsFolder; // Для иерархических списков: если true, то элемент является папкой
+		boolean IsCollapsedFolder; // Для иерархических списков: если true, то элемент является свернутой папкой
 		//ViewGroup ParentView;
 		RecyclerView.ViewHolder RvHolder; // for RecyclerView only
 	}
@@ -4955,10 +4968,17 @@ public class SLib {
 	}
 	public static void SetupRecyclerListViewHolderAsClickListener(RecyclerView.ViewHolder viewHolder, View itemView, int ctlRcId)
 	{
-		if(viewHolder != null && itemView != null && viewHolder instanceof RecyclerListViewHolder) {
-			View v = itemView.findViewById(ctlRcId);
-			if(v != null)
-				v.setOnClickListener((SLib.RecyclerListViewHolder)viewHolder);
+		if(viewHolder != null && itemView != null) {
+			if(viewHolder instanceof RecyclerListViewHolder) {
+				View v = itemView.findViewById(ctlRcId);
+				if(v != null)
+					v.setOnClickListener((SLib.RecyclerListViewHolder)viewHolder);
+			}
+			else if(viewHolder instanceof AmrTreeView.Holder) {
+				View v = itemView.findViewById(ctlRcId);
+				if(v != null)
+					v.setOnClickListener((AmrTreeView.Holder)viewHolder);
+			}
 		}
 	}
 	public static class RecyclerListViewClickListener implements View.OnClickListener, View.OnLongClickListener {
@@ -5114,6 +5134,10 @@ public class SLib {
 	public static boolean IsRecyclerListAdapter(Object obj)
 	{
 		return (obj != null && obj instanceof RecyclerListAdapter);
+	}
+	public static boolean IsRecyclerTreeListAdapter(Object obj)
+	{
+		return (obj != null && obj instanceof AmrTreeView.Adapter);
 	}
 	public static class FragmentAdapter extends FragmentStateAdapter {
 		private SlActivity _Activity;
@@ -5536,6 +5560,17 @@ public class SLib {
 		{
 			HandleEvent(EV_COMMAND, view, null);
 		}
+		public void SetupRecyclerTreeListView(View parentView, int rcListView)
+		{
+			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
+			if(view != null && view instanceof RecyclerView) {
+				//AmrTreeView.HolderFactory factory = null;
+				//RecyclerTreeListAdapter adapter = new RecyclerTreeListAdapter(this, null, rcListView, rcItemView);
+				AmrTreeView.Adapter adapter = new AmrTreeView.Adapter(this, null, rcListView);
+				((RecyclerView)view).setAdapter(adapter);
+				//view.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+			}
+		}
 		public void SetupRecyclerListView(View parentView, int rcListView, int rcItemView)
 		{
 			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
@@ -5558,6 +5593,8 @@ public class SLib {
 		{
 			if(adapter != null && adapter instanceof RecyclerListAdapter)
 				((RecyclerListAdapter)adapter).SetFocusedIndex(idx);
+			else if(adapter != null && adapter instanceof AmrTreeView.Adapter)
+				((AmrTreeView.Adapter)adapter).SetFocusedIndex(idx);
 		}
 		public void SetRecyclerListFocusedIndex(View parentView, int rcListView, int idx)
 		{
@@ -5577,6 +5614,8 @@ public class SLib {
 					result = ((RecyclerListAdapter)adapter).GetFocusedIndex();
 				else if(adapter instanceof InternalArrayAdapter)
 					result = ((InternalArrayAdapter)adapter).GetFocusedIndex();
+				else if(adapter instanceof AmrTreeView.Adapter)
+					result = ((AmrTreeView.Adapter)adapter).GetFocusedIndex();
 			}
 			return result;
 		}
@@ -6165,9 +6204,5 @@ public class SLib {
 			}
 		}
 		return result;
-	}
-	public static int QueryCurrentGeoLoc(SlActivity activityCtx, SLib.PPObjID oid, EventHandler retrHandler)
-	{
-		return QueryCurrentGeoLoc(activityCtx, oid, retrHandler);
 	}
 }

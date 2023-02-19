@@ -864,27 +864,23 @@ MYSQL_DATA * mthd_my_read_rows(MYSQL * mysql, MYSQL_FIELD * mysql_fields,
 	}
 	return result;
 }
-
 /*
 ** Read one row. Uses packet buffer as storage for fields.
 ** When next packet is read, the previous field values are destroyed
 */
-
 int mthd_my_read_one_row(MYSQL * mysql, uint fields, MYSQL_ROW row, ulong * lengths)
 {
 	uint field;
 	ulong pkt_len, len;
 	uchar * pos, * prev_pos, * end_pos;
-
 	if((pkt_len = (uint)ma_net_safe_read(mysql)) == packet_error)
 		return -1;
-
 	if(pkt_len <= 8 && mysql->net.read_pos[0] == 254) {
 		mysql->warning_count = uint2korr(mysql->net.read_pos + 1);
 		mysql->server_status = uint2korr(mysql->net.read_pos + 3);
 		return 1; /* End of data */
 	}
-	prev_pos = 0;                   /* allowed to write at packet[-1] */
+	prev_pos = 0; /* allowed to write at packet[-1] */
 	pos = mysql->net.read_pos;
 	end_pos = pos+pkt_len;
 	for(field = 0; field < fields; field++) {
@@ -895,8 +891,7 @@ int mthd_my_read_one_row(MYSQL * mysql, uint fields, MYSQL_ROW row, ulong * leng
 		else {
 			if(len > (ulong)(end_pos - pos) || pos > end_pos) {
 				mysql->net.last_errno = CR_UNKNOWN_ERROR;
-				strncpy(mysql->net.last_error, ER(mysql->net.last_errno),
-				    MYSQL_ERRMSG_SIZE - 1);
+				strncpy(mysql->net.last_error, ER(mysql->net.last_errno), MYSQL_ERRMSG_SIZE - 1);
 				return -1;
 			}
 			row[field] = (char *)pos;

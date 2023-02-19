@@ -1085,20 +1085,20 @@ int    IsEmpty() const;
 		{
 			SAlloc::F(P_Buf);
 		}
-		int   FASTCALL IsEq(const ABC & rS) const
+		bool   FASTCALL IsEq(const ABC & rS) const
 		{
-			int    eq = 1;
+			bool   eq = true;
 			// Попутно проверим очевидные инварианты класса
 			assert(UsedBufSize <= AllocatedBufSize);
 			assert(rS.UsedBufSize <= rS.AllocatedBufSize);
 			assert(!UsedBufSize || P_Buf);
 			assert(!rS.UsedBufSize || rS.P_Buf);
 			if(A != rS.A)			
-			eq = 0;
+				eq = false;
 			else if(UsedBufSize != rS.UsedBufSize)
-			eq = 0;
+				eq = false;
 			else if(UsedBufSize && memcmp(P_Buf, rS.P_Buf, UsedBufSize) != 0) 
-			eq = 0;
+				eq = false;
 			return eq;
 		}
 		ABC & Z()

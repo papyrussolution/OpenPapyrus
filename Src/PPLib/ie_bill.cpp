@@ -4691,13 +4691,15 @@ int PPBillImporter::Run()
 							}
 						}
 						if(!skip) {
+							SString barcode;
+							SString ar_code;
 							for(uint rowidx = 0; rowidx < p_doc->GoodsItemList.getCount(); rowidx++) {
 								DocNalogRu_Reader::GoodsItem * p_item = p_doc->GoodsItemList.at(rowidx);
 								PPID   goods_id = 0;
-								SString barcode;
-								SString ar_code;
 								Goods2Tbl::Rec goods_rec;
 								BarcodeTbl::Rec bc_rec;
+								barcode.Z();
+								ar_code.Z();
 								if(p_item->GTIN.NotEmpty()) {
 									if(GObj.SearchByBarcode(p_item->GTIN, &bc_rec, &goods_rec, 1) > 0)
 										goods_id = goods_rec.ID;
@@ -4823,6 +4825,7 @@ int PPBillImporter::Run()
 									}
 									{
 										// @v10.9.7 @todo Автоматом установить цену реализации (например, по расценке)
+										THROW(P_BObj->SetupImportedPrice(&pack, &ti, 0)); // @v11.6.4
 									}
 									// @v11.5.11 {
 									{

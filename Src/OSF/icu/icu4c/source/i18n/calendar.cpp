@@ -3522,12 +3522,10 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 	// found.
 	LocalUResourceBundlePointer calData(ures_open(NULL, useLocale.getBaseName(), &status));
 	ures_getByKey(calData.getAlias(), gCalendar, calData.getAlias(), &status);
-
 	LocalUResourceBundlePointer monthNames;
 	if(type && *type != '\0' && strcmp(type, gGregorian) != 0) {
 		monthNames.adoptInstead(ures_getByKeyWithFallback(calData.getAlias(), type, NULL, &status));
-		ures_getByKeyWithFallback(monthNames.getAlias(), gMonthNames,
-		    monthNames.getAlias(), &status);
+		ures_getByKeyWithFallback(monthNames.getAlias(), gMonthNames, monthNames.getAlias(), &status);
 	}
 
 	if(monthNames.isNull() || status == U_MISSING_RESOURCE_ERROR) {
@@ -3544,10 +3542,8 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 		status = U_USING_FALLBACK_WARNING;
 		return;
 	}
-
 	char region[ULOC_COUNTRY_CAPACITY];
 	(void)ulocimp_getRegionForSupplementalData(desiredLocale.getName(), TRUE, region, sizeof(region), &status);
-
 	// Read week data values from supplementalData week data
 	UResourceBundle * rb = ures_openDirect(NULL, "supplementalData", &status);
 	ures_getByKey(rb, "weekData", rb, &status);

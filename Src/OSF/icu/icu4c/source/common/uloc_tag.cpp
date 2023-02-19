@@ -619,14 +619,10 @@ static bool _isTValue(const char * s, int32_t len)
 static bool _isTransformedExtensionSubtag(int32_t& state, const char * s, int32_t len)
 {
 	const int32_t kStart = 0;   // Start, wait for unicode_language_subtag, tkey or end
-	const int32_t kGotLanguage = 1; // Got unicode_language_subtag, wait for unicode_script_subtag,
-	                                // unicode_region_subtag, unicode_variant_subtag, tkey or end
-	const int32_t kGotScript = 2; // Got unicode_script_subtag, wait for unicode_region_subtag,
-	                              // unicode_variant_subtag, tkey, or end
-	const int32_t kGotRegion = 3; // Got unicode_region_subtag, wait for unicode_variant_subtag,
-	                              // tkey, or end.
-	const int32_t kGotVariant = 4; // Got unicode_variant_subtag, wait for unicode_variant_subtag
-	                               // tkey or end.
+	const int32_t kGotLanguage = 1; // Got unicode_language_subtag, wait for unicode_script_subtag, unicode_region_subtag, unicode_variant_subtag, tkey or end
+	const int32_t kGotScript = 2; // Got unicode_script_subtag, wait for unicode_region_subtag, unicode_variant_subtag, tkey, or end
+	const int32_t kGotRegion = 3; // Got unicode_region_subtag, wait for unicode_variant_subtag, tkey, or end.
+	const int32_t kGotVariant = 4; // Got unicode_variant_subtag, wait for unicode_variant_subtag tkey or end.
 	const int32_t kGotTKey = -1; // Got tkey, wait for tvalue. ERROR if stop here.
 	const int32_t kGotTValue = 6; // Got tvalue, wait for tkey, tvalue or end
 
@@ -748,51 +744,35 @@ static bool _isStatefulSepListOf(bool (*test)(int32_t&, const char *, int32_t), 
 			subtagLen++;
 		}
 	}
-
 	if(test(state, start, subtagLen) && state >= 0) {
 		return TRUE;
 	}
 	return FALSE;
 }
 
-U_CFUNC bool ultag_isTransformedExtensionSubtags(const char * s, int32_t len)
+U_CFUNC bool ultag_isTransformedExtensionSubtags(const char * s, int32_t len) { return _isStatefulSepListOf(&_isTransformedExtensionSubtag, s, len); }
+U_CFUNC bool ultag_isUnicodeExtensionSubtags(const char * s, int32_t len) { return _isStatefulSepListOf(&_isUnicodeExtensionSubtag, s, len); }
+// 
+// Helper functions
+// 
+static bool _addVariantToList(VariantListEntry ** first, VariantListEntry * var) 
 {
-	return _isStatefulSepListOf(&_isTransformedExtensionSubtag, s, len);
-}
-
-U_CFUNC bool ultag_isUnicodeExtensionSubtags(const char * s, int32_t len) {
-	return _isStatefulSepListOf(&_isUnicodeExtensionSubtag, s, len);
-}
-
-/*
- * -------------------------------------------------
- *
- * Helper functions
- *
- * -------------------------------------------------
- */
-
-static bool _addVariantToList(VariantListEntry ** first, VariantListEntry * var) {
 	bool bAdded = TRUE;
-
 	if(*first == NULL) {
 		var->next = NULL;
 		*first = var;
 	}
 	else {
-		VariantListEntry * prev, * cur;
 		int32_t cmp;
-
 		/* variants order should be preserved */
-		prev = NULL;
-		cur = *first;
+		VariantListEntry * prev = NULL;
+		VariantListEntry * cur = *first;
 		while(true) {
 			if(cur == NULL) {
 				prev->next = var;
 				var->next = NULL;
 				break;
 			}
-
 			/* Checking for duplicate variant */
 			cmp = uprv_compareInvCharsAsAscii(var->variant, cur->variant);
 			if(cmp == 0) {
@@ -804,13 +784,12 @@ static bool _addVariantToList(VariantListEntry ** first, VariantListEntry * var)
 			cur = cur->next;
 		}
 	}
-
 	return bAdded;
 }
 
-static bool _addAttributeToList(AttributeListEntry ** first, AttributeListEntry * attr) {
+static bool _addAttributeToList(AttributeListEntry ** first, AttributeListEntry * attr) 
+{
 	bool bAdded = TRUE;
-
 	if(*first == NULL) {
 		attr->next = NULL;
 		*first = attr;
@@ -938,35 +917,30 @@ static bool _addExtensionToList(ExtensionListEntry ** first, ExtensionListEntry 
 	return bAdded;
 }
 
-static void _initializeULanguageTag(ULanguageTag* langtag) {
+static void _initializeULanguageTag(ULanguageTag* langtag) 
+{
 	int32_t i;
-
 	langtag->buf = NULL;
-
 	langtag->language = EMPTY;
 	for(i = 0; i < MAXEXTLANG; i++) {
 		langtag->extlang[i] = NULL;
 	}
-
 	langtag->script = EMPTY;
 	langtag->region = EMPTY;
-
 	langtag->variants = NULL;
 	langtag->extensions = NULL;
-
 	langtag->legacy = EMPTY;
 	langtag->privateuse = EMPTY;
 }
 
-static void _appendLanguageToLanguageTag(const char * localeID, icu::ByteSink& sink, bool strict, UErrorCode * status) {
+static void _appendLanguageToLanguageTag(const char * localeID, icu::ByteSink& sink, bool strict, UErrorCode * status) 
+{
 	char buf[ULOC_LANG_CAPACITY];
 	UErrorCode tmpStatus = U_ZERO_ERROR;
 	int32_t len, i;
-
 	if(U_FAILURE(*status)) {
 		return;
 	}
-
 	len = uloc_getLanguage(localeID, buf, sizeof(buf), &tmpStatus);
 	if(U_FAILURE(tmpStatus) || tmpStatus == U_STRING_NOT_TERMINATED_WARNING) {
 		if(strict) {
@@ -975,9 +949,7 @@ static void _appendLanguageToLanguageTag(const char * localeID, icu::ByteSink& s
 		}
 		len = 0;
 	}
-
 	/* Note: returned language code is in lower case letters */
-
 	if(!len) {
 		sink.Append(LANG_UND, LANG_UND_LEN);
 	}
@@ -1039,15 +1011,14 @@ static void _appendScriptToLanguageTag(const char * localeID, icu::ByteSink& sin
 	}
 }
 
-static void _appendRegionToLanguageTag(const char * localeID, icu::ByteSink& sink, bool strict, UErrorCode * status) {
+static void _appendRegionToLanguageTag(const char * localeID, icu::ByteSink& sink, bool strict, UErrorCode * status) 
+{
 	char buf[ULOC_COUNTRY_CAPACITY];
 	UErrorCode tmpStatus = U_ZERO_ERROR;
 	int32_t len;
-
 	if(U_FAILURE(*status)) {
 		return;
 	}
-
 	len = uloc_getCountry(localeID, buf, sizeof(buf), &tmpStatus);
 	if(U_FAILURE(tmpStatus) || tmpStatus == U_STRING_NOT_TERMINATED_WARNING) {
 		if(strict) {

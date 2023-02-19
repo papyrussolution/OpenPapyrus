@@ -1,5 +1,5 @@
 // V_PCKG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2010, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2010, 2016, 2017, 2019, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -259,10 +259,7 @@ PPViewPckg::~PPViewPckg()
 {
 }
 
-const PckgFilt * PPViewPckg::GetFilt() const
-{
-	return &Filt;
-}
+const PckgFilt * PPViewPckg::GetFilt() const { return &Filt; }
 
 int PPViewPckg::Init(PckgFilt * pFilt)
 {

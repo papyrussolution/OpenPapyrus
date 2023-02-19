@@ -11371,7 +11371,7 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	DBE    dbe_stock;
 	DBE    dbe_uuid; //@erik v10.4.11
 	DBE    dbe_checkexpiry; // @v10.6.3
-	DBE    dbe_checkloc; // @v11.5.8
+	//DBE    dbe_checkloc; // @v11.5.8
 	THROW(CheckTblPtr(t = new VetisDocumentTbl(EC.DT.GetName())));
 	{
 		dbe_product_name.init();

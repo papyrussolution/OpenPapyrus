@@ -1,17 +1,14 @@
-/*
- * Copyright 2017 The Abseil Authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Defines ABSL_STACKTRACE_INL_HEADER to the *-inl.h containing
- * actual unwinder implementation.
- * This header is "private" to stacktrace.cc.
- * DO NOT include it into any other files.
-*/
+// Copyright 2017 The Abseil Authors.
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
+// 
+// Defines ABSL_STACKTRACE_INL_HEADER to the *-inl.h containing
+// actual unwinder implementation.
+// This header is "private" to stacktrace.cc.
+// DO NOT include it into any other files.
+// 
 #ifndef ABSL_DEBUGGING_INTERNAL_STACKTRACE_CONFIG_H_
 #define ABSL_DEBUGGING_INTERNAL_STACKTRACE_CONFIG_H_
 
@@ -21,8 +18,7 @@
 #error ABSL_STACKTRACE_INL_HEADER cannot be directly set
 
 #elif defined(_WIN32)
-#define ABSL_STACKTRACE_INL_HEADER \
-    "absl/debugging/internal/stacktrace_win32-inl.inc"
+#define ABSL_STACKTRACE_INL_HEADER "absl/debugging/internal/stacktrace_win32-inl.inc"
 
 #elif defined(__APPLE__)
 #ifdef ABSL_HAVE_THREAD_LOCAL

@@ -632,7 +632,7 @@ int SUsbDevice::Write(const void * pBuf, size_t bufSize)
 // ARG(bufSize	 IN): Размер выходного буфера. Желательно, чтобы размер был не менее SUsbDevice::IntputReportByteLength
 // Returns:
 //		-1 - входных данных нет
-//		 0 - ошибка
+//		 0 - error
 //		 > 1 - число считанных байт
 int SUsbDevice::Read(void * pBuf, size_t bufSize)
 {

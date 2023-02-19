@@ -49,16 +49,10 @@ enum StateResult {
 // This is a struct containing state necessary to build up a tag token,
 // character by character.
 typedef struct GumboInternalTagState {
-	// A buffer to accumulate characters for various GumboStringPiece fields.
-	GumboStringBuffer _buffer;
-	// A pointer to the start of the original text corresponding to the contents
-	// of the buffer.
-	const char * _original_text;
-	// The current tag enum, computed once the tag name state has finished so that
-	// the buffer can be re-used for building up attributes.
-	GumboTag _tag;
-	// The starting location of the text in the buffer.
-	GumboSourcePosition _start_pos;
+	GumboStringBuffer _buffer; // A buffer to accumulate characters for various GumboStringPiece fields.
+	const char * _original_text; // A pointer to the start of the original text corresponding to the contents of the buffer.
+	GumboTag _tag; // The current tag enum, computed once the tag name state has finished so that the buffer can be re-used for building up attributes.
+	GumboSourcePosition _start_pos; // The starting location of the text in the buffer.
 	// The current list of attributes.  This is copied (and ownership of its data
 	// transferred) to the GumboStartTag token upon completion of the tag.  New
 	// attributes are added as soon as their attribute name state is complete, and
@@ -76,9 +70,7 @@ typedef struct GumboInternalTagState {
 	// The last start tag to have been emitted by the tokenizer.  This is
 	// necessary to check for appropriate end tags.
 	GumboTag _last_start_tag;
-	// If true, then this is a start tag.  If false, it's an end tag.  This is
-	// necessary to generate the appropriate token type at tag-closing time.
-	bool _is_start_tag;
+	bool _is_start_tag;    // If true, then this is a start tag.  If false, it's an end tag.  This is necessary to generate the appropriate token type at tag-closing time.
 	bool _is_self_closing; // If true, then this tag is "self-closing" and doesn't have an end tag.
 } GumboTagState;
 //
@@ -1576,7 +1568,7 @@ static StateResult handle_before_attr_name_state(GumboParser * parser, GumboToke
 		case '<':
 		case '=':
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_ATTR_NAME_INVALID);
-		// @fallthrough.
+		// @fallthrough
 		default:
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_ATTR_NAME);
 		    append_char_to_tag_buffer(parser, ensure_lowercase(c), true);
@@ -1585,8 +1577,8 @@ static StateResult handle_before_attr_name_state(GumboParser * parser, GumboToke
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#attribute-name-state
-static StateResult handle_attr_name_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+static StateResult handle_attr_name_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
+{
 	switch(c) {
 		case '\t':
 		case '\n':
@@ -1620,7 +1612,7 @@ static StateResult handle_attr_name_state(GumboParser * parser,
 		case '\'':
 		case '<':
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_ATTR_NAME_INVALID);
-		// @fallthrough.
+		// @fallthrough
 		default:
 		    append_char_to_tag_buffer(parser, ensure_lowercase(c), true);
 		    return NEXT_CHAR;
@@ -1628,8 +1620,8 @@ static StateResult handle_attr_name_state(GumboParser * parser,
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#after-attribute-name-state
-static StateResult handle_after_attr_name_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+static StateResult handle_after_attr_name_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
+{
 	switch(c) {
 		case '\t':
 		case '\n':
@@ -1659,7 +1651,7 @@ static StateResult handle_after_attr_name_state(GumboParser * parser,
 		case '\'':
 		case '<':
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_ATTR_NAME_INVALID);
-		// @fallthrough.
+		// @fallthrough
 		default:
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_ATTR_NAME);
 		    append_char_to_tag_buffer(parser, ensure_lowercase(c), true);
@@ -1668,8 +1660,8 @@ static StateResult handle_after_attr_name_state(GumboParser * parser,
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#before-attribute-value-state
-static StateResult handle_before_attr_value_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+static StateResult handle_before_attr_value_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
+{
 	switch(c) {
 		case '\t':
 		case '\n':
@@ -1708,7 +1700,7 @@ static StateResult handle_before_attr_value_state(GumboParser * parser,
 		case '=':
 		case '`':
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_ATTR_UNQUOTED_EQUALS);
-		// @fallthrough.
+		// @fallthrough
 		default:
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_ATTR_VALUE_UNQUOTED);
 		    append_char_to_tag_buffer(parser, c, true);
@@ -1717,8 +1709,8 @@ static StateResult handle_before_attr_value_state(GumboParser * parser,
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#attribute-value-double-quoted-state
-static StateResult handle_attr_value_double_quoted_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+static StateResult handle_attr_value_double_quoted_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
+{
 	switch(c) {
 		case '"':
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_AFTER_ATTR_VALUE_QUOTED);
@@ -1745,8 +1737,8 @@ static StateResult handle_attr_value_double_quoted_state(GumboParser * parser,
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#attribute-value-single-quoted-state
-static StateResult handle_attr_value_single_quoted_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+static StateResult handle_attr_value_single_quoted_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken* output) 
+{
 	switch(c) {
 		case '\'':
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_AFTER_ATTR_VALUE_QUOTED);
@@ -1808,7 +1800,7 @@ static StateResult handle_attr_value_unquoted_state(GumboParser * parser,
 		case '\'':
 		case '`':
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_ATTR_UNQUOTED_EQUALS);
-		// @fallthrough.
+		// @fallthrough
 		default:
 		    append_char_to_tag_buffer(parser, c, true);
 		    return NEXT_CHAR;

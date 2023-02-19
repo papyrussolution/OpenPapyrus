@@ -953,6 +953,27 @@ public class StyloQApp extends SLib.App {
 		}
 		return result;
 	}
+	public SLib.SlActivity FindMainOrAnySingleActivity()
+	{
+		SLib.SlActivity result = null;
+		List<Activity> al = ActivityUtils.getActivityList();
+		if(al != null) {
+			{
+				for(int i = 0; result == null && i < al.size(); i++) {
+					Activity a = al.get(i);
+					if(a != null && a instanceof MainActivity)
+						result = (MainActivity)a;
+				}
+			}
+			if(result == null && al.size() == 1) {
+				Activity a = al.get(0);
+				if(a != null && a instanceof SLib.SlActivity)
+					result = (SLib.SlActivity)a;
+			}
+
+		}
+		return result;
+	}
 	public CommandListActivity FindCommandListActivityBySvcIdent(byte [] svcIdent)
 	{
 		CommandListActivity result = null;
@@ -1110,9 +1131,9 @@ public class StyloQApp extends SLib.App {
 							intent.putExtra("SvcReplyText", svc_reply_text);
 						}
 						{
-							MainActivity main_activity = FindMainActivity();
-							if(main_activity != null)
-								main_activity.startActivity(intent);
+							SLib.SlActivity _activity = FindMainOrAnySingleActivity();
+							if(_activity != null)
+								_activity.startActivity(intent);
 						}
 					}
 					else {
@@ -1137,9 +1158,9 @@ public class StyloQApp extends SLib.App {
 								Intent intent = new Intent(/*main_activity*/this, CommandListActivity.class);
 								intent.putExtra("SvcIdent", svc_ident);
 								{
-									MainActivity main_activity = FindMainActivity();
-									if(main_activity != null)
-										main_activity.startActivity(intent);
+									SLib.SlActivity _activity = FindMainOrAnySingleActivity();
+									if(_activity != null)
+										_activity.startActivity(intent);
 								}
 							}
 						}

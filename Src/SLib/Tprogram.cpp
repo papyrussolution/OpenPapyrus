@@ -1,6 +1,6 @@
 // TPROGRAM.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -65,9 +65,9 @@ int TStatusWin::Update()
 	int    n_width = 4;
 	SString temp_buf;
 	HWND   hw = H();
-	::SendMessage(hw, WM_SIZE, 0, 0);
+	::SendMessageW(hw, WM_SIZE, 0, 0);
 	HDC    hdc = ::GetDC(hw);
-	::SendMessage(hw, SB_SETBKCOLOR, 0, static_cast<LPARAM>(RGB(0xD4, 0xD0, 0xC8)));
+	::SendMessageW(hw, SB_SETBKCOLOR, 0, static_cast<LPARAM>(RGB(0xD4, 0xD0, 0xC8)));
 	for(i = 0; i < n_parts; i++) {
 		SIZE local_size;
 		const StItem & r_item = Items.at(i);
@@ -78,7 +78,7 @@ int TStatusWin::Update()
 			n_width += local_size.cx;
 		l_parts[i] = n_width;
 	}
-	::SendMessage(hw, SB_SETPARTS, static_cast<WPARAM>(n_parts), reinterpret_cast<LPARAM>(l_parts));
+	::SendMessageW(hw, SB_SETPARTS, static_cast<WPARAM>(n_parts), reinterpret_cast<LPARAM>(l_parts));
 	for(i = 0; i < n_parts; i++) {
 		const StItem & r_item = Items.at(i);
 		temp_buf = r_item.str;
@@ -120,17 +120,17 @@ int TStatusWin::Update()
 				// HICON h_icon = (HICON)::LoadImage(TProgram::GetInst(), MAKEINTRESOURCE(icon_id), IMAGE_ICON, 0, 0, 0);
 			}
 			if(h_icon) {
-				::SendMessage(hw, SB_SETICON, i, reinterpret_cast<LPARAM>(h_icon));
+				::SendMessageW(hw, SB_SETICON, i, reinterpret_cast<LPARAM>(h_icon));
 				::DestroyIcon(h_icon); // @2
-				::SendMessage(hw, SB_SETTIPTEXT, i, reinterpret_cast<LPARAM>(SUcSwitch(temp_buf.cptr())));
+				::SendMessageW(hw, SB_SETTIPTEXT, i, reinterpret_cast<LPARAM>(SUcSwitch(temp_buf.cptr())));
 			}
 		}
 		else {
 			COLORREF color = r_item.Color;
 			if(color || r_item.TextColor)
-				::SendMessage(hw, SB_SETTEXT, static_cast<WPARAM>(SBT_OWNERDRAW|i), reinterpret_cast<LPARAM>(&r_item));
+				::SendMessageW(hw, SB_SETTEXT, static_cast<WPARAM>(SBT_OWNERDRAW|i), reinterpret_cast<LPARAM>(&r_item));
 			else
-				::SendMessage(hw, SB_SETTEXT, i, reinterpret_cast<LPARAM>(SUcSwitch(temp_buf.cptr())));
+				::SendMessageW(hw, SB_SETTEXT, i, reinterpret_cast<LPARAM>(SUcSwitch(temp_buf.cptr())));
 		}
 	}
 	::ReleaseDC(hw, hdc);
@@ -171,7 +171,7 @@ uint TStatusWin::GetCmdByCoord(POINT coord, TStatusWin::StItem * pItem /*=0*/)
 	uint   n_parts = Items.getCount();
 	for(uint i = 0; !cmd && i < n_parts; i++) {
 		RECT rect;
-		::SendMessage(H(), SB_GETRECT, i, reinterpret_cast<LPARAM>(&rect));
+		::SendMessageW(H(), SB_GETRECT, i, reinterpret_cast<LPARAM>(&rect));
 		if(coord.x >= rect.left && coord.x <= rect.right)
 			cmd = Items.at(i).Cmd;
 	}
@@ -280,7 +280,7 @@ void TProgram::DelItemFromMenu(void * ptr)
 						t_i.uId = reinterpret_cast<UINT_PTR>(ptr);
 						t_i.rect        = rc_item;
 						t_i.hinst       = TProgram::GetInst();
-						::SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
+						::SendMessageW(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 						count--;
 						break;
 					}
@@ -300,7 +300,7 @@ void TProgram::DelItemFromMenu(void * ptr)
 							t_i.uId    = static_cast<UINT>(tci.lParam);
 							t_i.rect   = rc_item;
 							t_i.hinst  = TProgram::GetInst();
-							::SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
+							::SendMessageW(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 						}
 					}
 				}
@@ -355,8 +355,8 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 							t_i.rect     = rc_item;
 							t_i.hinst    = TProgram::GetInst();
 							t_i.lpszText = temp_org_title_buf/*title_buf*/;
-							::SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
-							::SendMessage(hwnd_tt, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
+							::SendMessageW(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
+							::SendMessageW(hwnd_tt, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 						}
 						_upd = 1;
 						break;
@@ -374,7 +374,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 							t_i.uId    = static_cast<UINT>(tci.lParam);
 							t_i.rect   = rc_item;
 							t_i.hinst  = TProgram::GetInst();
-							::SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
+							::SendMessageW(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 						}
 					}
 				}
@@ -440,8 +440,8 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 					t_i.rect     = rc_item;
 					t_i.hinst    = TProgram::GetInst();
 					t_i.lpszText = mb_title_buf/*temp_org_title_buf*/;
-					SendMessage(hwnd_tt, TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
-					SendMessage(hwnd_tt, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
+					::SendMessageW(hwnd_tt, TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
+					::SendMessageW(hwnd_tt, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
 				::ShowWindow(H_ShortcutsWnd, SW_SHOW);
 				::UpdateWindow(H_MainWnd);
@@ -680,7 +680,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			RECT rc;
 			::GetClientRect(hWnd, &rc);
 			if(checkirange(static_cast<long>(LOWORD(lParam)), 0L, rc.right) && checkirange(static_cast<long>(HIWORD(lParam)), 0L, rc.bottom))
-				::SendMessage(p_pgm->GetFrameWindow(), WM_USER_CLOSEBROWSER, 0, 0);
+				::SendMessageW(p_pgm->GetFrameWindow(), WM_USER_CLOSEBROWSER, 0, 0);
 			SetFocus(p_pgm->H_MainWnd);
 			break;
 	}
@@ -690,7 +690,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 BOOL CALLBACK SendMainWndSizeMessage(HWND hwnd, LPARAM lParam)
 {
 	if(GetParent(hwnd) == reinterpret_cast<HWND>(lParam))
-		::SendMessage(hwnd, WM_USER_MAINWND_MOVE_SIZE, 0, 0);
+		::SendMessageW(hwnd, WM_USER_MAINWND_MOVE_SIZE, 0, 0);
 	return TRUE;
 }
 
@@ -726,7 +726,7 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				//if(hWt == h_close_wnd) hWt = ::GetNextWindow(hWt, GW_HWNDNEXT);
 				if(hWt) {
 					::SetWindowPos(hWt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-					::SendMessage(hWnd, WM_USER, 0, 0);
+					::SendMessageW(hWnd, WM_USER, 0, 0);
 				}
 			}
 			return 0; // @v11.0.3 1-->0
@@ -1030,9 +1030,9 @@ void TProgram::NotifyFrame(int post)
 	HWND   h_frame = GetFrameWindow();
 	if(IsWindow(h_frame))
 		if(post)
-			::PostMessage(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
+			::PostMessageW(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
 		else
-			::SendMessage(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
+			::SendMessageW(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
 }
 
 /* @v10.0.02
@@ -1302,7 +1302,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 							r.right - r.left - 30, -e.CaptionHeight, 16, 16, hWnd, 0, TProgram::hInstance, 0);
 						{
 							HBITMAP h_bm = APPL->FetchBitmap(CLOSEBTN_BITMAPID);
-							::SendMessage(btn_hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
+							::SendMessageW(btn_hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
 						}
 						TView::SetWindowProp(btn_hwnd, GWL_STYLE, TView::GetWindowStyle(btn_hwnd) & ~WS_TABSTOP);
 						TView::SetWindowProp(btn_hwnd, GWL_ID, SPEC_TITLEWND_ID + 1);
@@ -1575,7 +1575,7 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	{
 		HFONT old_font = 0;
-		old_font = static_cast<HFONT>(::SelectObject(p_di->hDC, reinterpret_cast<HFONT>(::SendMessage(p_di->hwndItem, WM_GETFONT, 0, 0))));
+		old_font = static_cast<HFONT>(::SelectObject(p_di->hDC, reinterpret_cast<HFONT>(::SendMessageW(p_di->hwndItem, WM_GETFONT, 0, 0))));
 		SetBkMode(p_di->hDC, TRANSPARENT);
 		SetTextColor(p_di->hDC, text_color);
 		::DrawText(p_di->hDC, SUcSwitch(text_buf), (int)text_buf.Len(), &out_r, text_out_fmt);
@@ -1625,7 +1625,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		else if(focused)
 			pen_color = _GetAssetColor(_assetCtrlFocusedBorderColor);//RGB(0x66, 0x33, 0xFF);
 		if(style & BS_BITMAP)
-			hbmp = reinterpret_cast<HBITMAP>(::SendMessage(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0));
+			hbmp = reinterpret_cast<HBITMAP>(::SendMessageW(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0));
 		else if(p_btn) {
 			uint bmp_id = p_btn->GetBmpID();
 			if(!bmp_id) {
@@ -1685,7 +1685,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 	}
 	else if(draw_text) {
-		HFONT old_font = static_cast<HFONT>(::SelectObject(pDi->hDC, reinterpret_cast<HFONT>(::SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0))));
+		HFONT old_font = static_cast<HFONT>(::SelectObject(pDi->hDC, reinterpret_cast<HFONT>(::SendMessageW(pDi->hwndItem, WM_GETFONT, 0, 0))));
 		SetBkMode(pDi->hDC, TRANSPARENT);
 		SetTextColor(pDi->hDC, text_color);
 		if(style & BS_MULTILINE) {
@@ -1751,7 +1751,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			out_r.left += (style & BS_BITMAP) ? 1 : 2;
 		}
 		if(style & BS_BITMAP)
-			hbmp = reinterpret_cast<HBITMAP>(::SendMessage(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0));
+			hbmp = reinterpret_cast<HBITMAP>(::SendMessageW(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0));
 		else if(p_btn) {
 			uint bmp_id = p_btn->GetBmpID();
 			if(!bmp_id) {
@@ -1819,7 +1819,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 		}
 		else if(draw_text) {
-			HFONT hf = reinterpret_cast<HFONT>(::SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
+			HFONT hf = reinterpret_cast<HFONT>(::SendMessageW(pDi->hwndItem, WM_GETFONT, 0, 0));
 			canv.SelectObjectAndPush(hf);
 			canv.SetBkTranparent();
 			COLORREF text_color;
@@ -1918,7 +1918,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		}
 		/*
 		if(style & BS_BITMAP)
-			hbmp = (HBITMAP)SendMessage(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0);
+			hbmp = (HBITMAP)::SendMessageW(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0);
 		else */
 		if(p_user_data) {
 			TButton * p_btn = static_cast<TButton *>(p_user_data);
@@ -2206,7 +2206,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			// @v9.2.4 TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 		}
 		else if(draw_text) {
-			HFONT  hf = reinterpret_cast<HFONT>(::SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
+			HFONT  hf = reinterpret_cast<HFONT>(::SendMessageW(pDi->hwndItem, WM_GETFONT, 0, 0));
 			if(!hf)
 				hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 			int    temp_font_id = 0;
@@ -2409,7 +2409,7 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		Rectangle(pDi->hDC, out_r.left, out_r.top, out_r.right, out_r.bottom);
 		if(sstrlen(p_item->str)) {
 			int    delete_font = 0;
-			HFONT  font = reinterpret_cast<HFONT>(SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
+			HFONT  font = reinterpret_cast<HFONT>(::SendMessageW(pDi->hwndItem, WM_GETFONT, 0, 0));
 			HFONT  old_font = 0;
 			long   text_out_fmt = DT_SINGLELINE|DT_VCENTER|DT_EXTERNALLEADING;
 			SetBkMode(pDi->hDC, TRANSPARENT);

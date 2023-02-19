@@ -1044,8 +1044,7 @@ static void opj_dwt_encode_1_real(void * aIn, int32_t dn, int32_t sn,
 #endif
 }
 
-static void opj_dwt_encode_stepsize(int32_t stepsize, int32_t numbps,
-    opj_stepsize_t * bandno_stepsize)
+static void opj_dwt_encode_stepsize(int32_t stepsize, int32_t numbps, opj_stepsize_t * bandno_stepsize)
 {
 	int32_t p, n;
 	p = opj_int_floorlog2(stepsize) - 13;
@@ -1053,25 +1052,16 @@ static void opj_dwt_encode_stepsize(int32_t stepsize, int32_t numbps,
 	bandno_stepsize->mant = (n < 0 ? stepsize >> -n : stepsize << n) & 0x7ff;
 	bandno_stepsize->expn = numbps - p;
 }
-
-/*
-   ==========================================================
-   DWT interface
-   ==========================================================
- */
-
+// 
+// DWT interface
+// 
 /** Process one line for the horizontal pass of the 5x3 forward transform */
-static
-void opj_dwt_encode_and_deinterleave_h_one_row(void* rowIn,
-    void* tmpIn,
-    uint32_t width,
-    boolint even)
+static void opj_dwt_encode_and_deinterleave_h_one_row(void* rowIn, void* tmpIn, uint32_t width, boolint even)
 {
 	int32_t* OPJ_RESTRICT row = (int32_t*)rowIn;
 	int32_t* OPJ_RESTRICT tmp = (int32_t*)tmpIn;
 	const int32_t sn = (int32_t)((width + (even ? 1 : 0)) >> 1);
 	const int32_t dn = (int32_t)(width - (uint32_t)sn);
-
 	if(even) {
 		if(width > 1) {
 			int32_t i;
@@ -1104,7 +1094,6 @@ void opj_dwt_encode_and_deinterleave_h_one_row(void* rowIn,
 			if((width % 2) == 1) {
 				tmp[sn + i] = row[2 * i] - row[2 * (i - 1) + 1];
 			}
-
 			for(i = 0; i < dn - 1; i++) {
 				row[i] = row[2 * i + 1] + ((tmp[sn + i] + tmp[sn + i + 1] + 2) >> 2);
 			}
@@ -1117,11 +1106,7 @@ void opj_dwt_encode_and_deinterleave_h_one_row(void* rowIn,
 }
 
 /** Process one line for the horizontal pass of the 9x7 forward transform */
-static
-void opj_dwt_encode_and_deinterleave_h_one_row_real(void* rowIn,
-    void* tmpIn,
-    uint32_t width,
-    boolint even)
+static void opj_dwt_encode_and_deinterleave_h_one_row_real(void* rowIn, void* tmpIn, uint32_t width, boolint even)
 {
 	float* OPJ_RESTRICT row = (float*)rowIn;
 	float* OPJ_RESTRICT tmp = (float*)tmpIn;
@@ -1132,9 +1117,7 @@ void opj_dwt_encode_and_deinterleave_h_one_row_real(void* rowIn,
 	}
 	memcpy(tmp, row, width * sizeof(float));
 	opj_dwt_encode_1_real(tmp, dn, sn, even ? 0 : 1);
-	opj_dwt_deinterleave_h((int32_t * OPJ_RESTRICT)tmp,
-	    (int32_t * OPJ_RESTRICT)row,
-	    dn, sn, even ? 0 : 1);
+	opj_dwt_deinterleave_h((int32_t * OPJ_RESTRICT)tmp, (int32_t * OPJ_RESTRICT)row, dn, sn, even ? 0 : 1);
 }
 
 typedef struct {
@@ -1149,17 +1132,12 @@ typedef struct {
 
 static void opj_dwt_encode_h_func(void* user_data, opj_tls_t* tls)
 {
-	uint32_t j;
-	opj_dwt_encode_h_job_t* job;
+	opj_dwt_encode_h_job_t * job = (opj_dwt_encode_h_job_t*)user_data;
 	(void)tls;
-
-	job = (opj_dwt_encode_h_job_t*)user_data;
-	for(j = job->min_j; j < job->max_j; j++) {
+	for(uint32_t j = job->min_j; j < job->max_j; j++) {
 		int32_t* OPJ_RESTRICT aj = job->tiledp + j * job->w;
-		(*job->p_function)(aj, job->h.mem, job->rw,
-		    job->h.cas == 0 ? TRUE : FALSE);
+		(*job->p_function)(aj, job->h.mem, job->rw, job->h.cas == 0 ? TRUE : FALSE);
 	}
-
 	opj_aligned_free(job->h.mem);
 	SAlloc::F(job);
 }
@@ -1177,10 +1155,8 @@ typedef struct {
 static void opj_dwt_encode_v_func(void* user_data, opj_tls_t* tls)
 {
 	uint32_t j;
-	opj_dwt_encode_v_job_t* job;
+	opj_dwt_encode_v_job_t * job = (opj_dwt_encode_v_job_t*)user_data;
 	(void)tls;
-
-	job = (opj_dwt_encode_v_job_t*)user_data;
 	for(j = job->min_j; j + NB_ELTS_V8 - 1 < job->max_j; j += NB_ELTS_V8) {
 		(*job->p_encode_and_deinterleave_v)(job->tiledp + j,
 		    job->v.mem,
@@ -1190,34 +1166,22 @@ static void opj_dwt_encode_v_func(void* user_data, opj_tls_t* tls)
 		    NB_ELTS_V8);
 	}
 	if(j < job->max_j) {
-		(*job->p_encode_and_deinterleave_v)(job->tiledp + j,
-		    job->v.mem,
-		    job->rh,
-		    job->v.cas == 0,
-		    job->w,
-		    job->max_j - j);
+		(*job->p_encode_and_deinterleave_v)(job->tiledp + j, job->v.mem, job->rh, job->v.cas == 0, job->w, job->max_j - j);
 	}
-
 	opj_aligned_free(job->v.mem);
 	SAlloc::F(job);
 }
 
 /** Fetch up to cols <= NB_ELTS_V8 for each line, and put them in tmpOut */
 /* that has a NB_ELTS_V8 interleave factor. */
-static void opj_dwt_fetch_cols_vertical_pass(const void * arrayIn,
-    void * tmpOut,
-    uint32_t height,
-    uint32_t stride_width,
-    uint32_t cols)
+static void opj_dwt_fetch_cols_vertical_pass(const void * arrayIn, void * tmpOut, uint32_t height, uint32_t stride_width, uint32_t cols)
 {
 	const int32_t* OPJ_RESTRICT array = (const int32_t * OPJ_RESTRICT)arrayIn;
 	int32_t* OPJ_RESTRICT tmp = (int32_t * OPJ_RESTRICT)tmpOut;
 	if(cols == NB_ELTS_V8) {
 		uint32_t k;
 		for(k = 0; k < height; ++k) {
-			memcpy(tmp + NB_ELTS_V8 * k,
-			    array + k * stride_width,
-			    NB_ELTS_V8 * sizeof(int32_t));
+			memcpy(tmp + NB_ELTS_V8 * k, array + k * stride_width, NB_ELTS_V8 * sizeof(int32_t));
 		}
 	}
 	else {
@@ -1237,20 +1201,13 @@ static void opj_dwt_fetch_cols_vertical_pass(const void * arrayIn,
 /* Deinterleave result of forward transform, where cols <= NB_ELTS_V8 */
 /* and src contains NB_ELTS_V8 consecutive values for up to NB_ELTS_V8 */
 /* columns. */
-static INLINE void opj_dwt_deinterleave_v_cols(const int32_t * OPJ_RESTRICT src,
-    int32_t * OPJ_RESTRICT dst,
-    int32_t dn,
-    int32_t sn,
-    uint32_t stride_width,
-    int32_t cas,
-    uint32_t cols)
+static INLINE void opj_dwt_deinterleave_v_cols(const int32_t * OPJ_RESTRICT src, int32_t * OPJ_RESTRICT dst, int32_t dn, int32_t sn, uint32_t stride_width, int32_t cas, uint32_t cols)
 {
 	int32_t k;
 	int32_t i = sn;
 	int32_t * OPJ_RESTRICT l_dest = dst;
 	const int32_t * OPJ_RESTRICT l_src = src + cas * NB_ELTS_V8;
 	uint32_t c;
-
 	for(k = 0; k < 2; k++) {
 		while(i--) {
 			if(cols == NB_ELTS_V8) {
@@ -1285,61 +1242,44 @@ static INLINE void opj_dwt_deinterleave_v_cols(const int32_t * OPJ_RESTRICT src,
 			l_dest += stride_width;
 			l_src += 2 * NB_ELTS_V8;
 		}
-
 		l_dest = dst + (size_t)sn * (size_t)stride_width;
 		l_src = src + (1 - cas) * NB_ELTS_V8;
 		i = dn;
 	}
 }
-
-/* Forward 5-3 transform, for the vertical pass, processing cols columns */
-/* where cols <= NB_ELTS_V8 */
-static void opj_dwt_encode_and_deinterleave_v(void * arrayIn,
-    void * tmpIn,
-    uint32_t height,
-    boolint even,
-    uint32_t stride_width,
-    uint32_t cols)
+//
+// Forward 5-3 transform, for the vertical pass, processing cols columns  where cols <= NB_ELTS_V8 
+//
+static void opj_dwt_encode_and_deinterleave_v(void * arrayIn, void * tmpIn, uint32_t height, boolint even, uint32_t stride_width, uint32_t cols)
 {
 	int32_t* OPJ_RESTRICT array = (int32_t * OPJ_RESTRICT)arrayIn;
 	int32_t* OPJ_RESTRICT tmp = (int32_t * OPJ_RESTRICT)tmpIn;
 	const uint32_t sn = (height + (even ? 1 : 0)) >> 1;
 	const uint32_t dn = height - sn;
-
 	opj_dwt_fetch_cols_vertical_pass(arrayIn, tmpIn, height, stride_width, cols);
-
 #define OPJ_Sc(i) tmp[(i)*2* NB_ELTS_V8 + c]
 #define OPJ_Dc(i) tmp[((1+(i)*2))* NB_ELTS_V8 + c]
-
 #ifdef __SSE2__
 	if(height == 1) {
 		if(!even) {
-			uint32_t c;
-			for(c = 0; c < NB_ELTS_V8; c++) {
+			for(uint32_t c = 0; c < NB_ELTS_V8; c++) {
 				tmp[c] *= 2;
 			}
 		}
 	}
 	else if(even) {
 		uint32_t c;
-		uint32_t i;
-		i = 0;
+		uint32_t i = 0;
 		if(i + 1 < sn) {
 			__m128i xmm_Si_0 = *(const __m128i*)(tmp + 4 * 0);
 			__m128i xmm_Si_1 = *(const __m128i*)(tmp + 4 * 1);
 			for(; i + 1 < sn; i++) {
-				__m128i xmm_Sip1_0 = *(const __m128i*)(tmp +
-				    (i + 1) * 2 * NB_ELTS_V8 + 4 * 0);
-				__m128i xmm_Sip1_1 = *(const __m128i*)(tmp +
-				    (i + 1) * 2 * NB_ELTS_V8 + 4 * 1);
-				__m128i xmm_Di_0 = *(const __m128i*)(tmp +
-				    (1 + i * 2) * NB_ELTS_V8 + 4 * 0);
-				__m128i xmm_Di_1 = *(const __m128i*)(tmp +
-				    (1 + i * 2) * NB_ELTS_V8 + 4 * 1);
-				xmm_Di_0 = _mm_sub_epi32(xmm_Di_0,
-					_mm_srai_epi32(_mm_add_epi32(xmm_Si_0, xmm_Sip1_0), 1));
-				xmm_Di_1 = _mm_sub_epi32(xmm_Di_1,
-					_mm_srai_epi32(_mm_add_epi32(xmm_Si_1, xmm_Sip1_1), 1));
+				__m128i xmm_Sip1_0 = *(const __m128i*)(tmp + (i + 1) * 2 * NB_ELTS_V8 + 4 * 0);
+				__m128i xmm_Sip1_1 = *(const __m128i*)(tmp + (i + 1) * 2 * NB_ELTS_V8 + 4 * 1);
+				__m128i xmm_Di_0 = *(const __m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 0);
+				__m128i xmm_Di_1 = *(const __m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 1);
+				xmm_Di_0 = _mm_sub_epi32(xmm_Di_0, _mm_srai_epi32(_mm_add_epi32(xmm_Si_0, xmm_Sip1_0), 1));
+				xmm_Di_1 = _mm_sub_epi32(xmm_Di_1, _mm_srai_epi32(_mm_add_epi32(xmm_Si_1, xmm_Sip1_1), 1));
 				*(__m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 0) =  xmm_Di_0;
 				*(__m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 1) =  xmm_Di_1;
 				xmm_Si_0 = xmm_Sip1_0;
@@ -1362,18 +1302,12 @@ static void opj_dwt_encode_and_deinterleave_v(void * arrayIn,
 			    (i - 1) * 2) * NB_ELTS_V8 + 4 * 1);
 			const __m128i xmm_two = _mm_set1_epi32(2);
 			for(; i < dn; i++) {
-				__m128i xmm_Di_0 = *(const __m128i*)(tmp +
-				    (1 + i * 2) * NB_ELTS_V8 + 4 * 0);
-				__m128i xmm_Di_1 = *(const __m128i*)(tmp +
-				    (1 + i * 2) * NB_ELTS_V8 + 4 * 1);
-				__m128i xmm_Si_0 = *(const __m128i*)(tmp +
-				    (i * 2) * NB_ELTS_V8 + 4 * 0);
-				__m128i xmm_Si_1 = *(const __m128i*)(tmp +
-				    (i * 2) * NB_ELTS_V8 + 4 * 1);
-				xmm_Si_0 = _mm_add_epi32(xmm_Si_0,
-					_mm_srai_epi32(_mm_add_epi32(_mm_add_epi32(xmm_Dim1_0, xmm_Di_0), xmm_two), 2));
-				xmm_Si_1 = _mm_add_epi32(xmm_Si_1,
-					_mm_srai_epi32(_mm_add_epi32(_mm_add_epi32(xmm_Dim1_1, xmm_Di_1), xmm_two), 2));
+				__m128i xmm_Di_0 = *(const __m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 0);
+				__m128i xmm_Di_1 = *(const __m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 1);
+				__m128i xmm_Si_0 = *(const __m128i*)(tmp + (i * 2) * NB_ELTS_V8 + 4 * 0);
+				__m128i xmm_Si_1 = *(const __m128i*)(tmp + (i * 2) * NB_ELTS_V8 + 4 * 1);
+				xmm_Si_0 = _mm_add_epi32(xmm_Si_0, _mm_srai_epi32(_mm_add_epi32(_mm_add_epi32(xmm_Dim1_0, xmm_Di_0), xmm_two), 2));
+				xmm_Si_1 = _mm_add_epi32(xmm_Si_1, _mm_srai_epi32(_mm_add_epi32(_mm_add_epi32(xmm_Dim1_1, xmm_Di_1), xmm_two), 2));
 				*(__m128i*)(tmp + (i * 2) * NB_ELTS_V8 + 4 * 0) = xmm_Si_0;
 				*(__m128i*)(tmp + (i * 2) * NB_ELTS_V8 + 4 * 1) = xmm_Si_1;
 				xmm_Dim1_0 = xmm_Di_0;
@@ -1394,23 +1328,15 @@ static void opj_dwt_encode_and_deinterleave_v(void * arrayIn,
 		}
 		i = 1;
 		if(i < sn) {
-			__m128i xmm_Dim1_0 = *(const __m128i*)(tmp + (1 +
-			    (i - 1) * 2) * NB_ELTS_V8 + 4 * 0);
-			__m128i xmm_Dim1_1 = *(const __m128i*)(tmp + (1 +
-			    (i - 1) * 2) * NB_ELTS_V8 + 4 * 1);
+			__m128i xmm_Dim1_0 = *(const __m128i*)(tmp + (1 + (i - 1) * 2) * NB_ELTS_V8 + 4 * 0);
+			__m128i xmm_Dim1_1 = *(const __m128i*)(tmp + (1 + (i - 1) * 2) * NB_ELTS_V8 + 4 * 1);
 			for(; i < sn; i++) {
-				__m128i xmm_Di_0 = *(const __m128i*)(tmp +
-				    (1 + i * 2) * NB_ELTS_V8 + 4 * 0);
-				__m128i xmm_Di_1 = *(const __m128i*)(tmp +
-				    (1 + i * 2) * NB_ELTS_V8 + 4 * 1);
-				__m128i xmm_Si_0 = *(const __m128i*)(tmp +
-				    (i * 2) * NB_ELTS_V8 + 4 * 0);
-				__m128i xmm_Si_1 = *(const __m128i*)(tmp +
-				    (i * 2) * NB_ELTS_V8 + 4 * 1);
-				xmm_Si_0 = _mm_sub_epi32(xmm_Si_0,
-					_mm_srai_epi32(_mm_add_epi32(xmm_Di_0, xmm_Dim1_0), 1));
-				xmm_Si_1 = _mm_sub_epi32(xmm_Si_1,
-					_mm_srai_epi32(_mm_add_epi32(xmm_Di_1, xmm_Dim1_1), 1));
+				__m128i xmm_Di_0 = *(const __m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 0);
+				__m128i xmm_Di_1 = *(const __m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 1);
+				__m128i xmm_Si_0 = *(const __m128i*)(tmp + (i * 2) * NB_ELTS_V8 + 4 * 0);
+				__m128i xmm_Si_1 = *(const __m128i*)(tmp + (i * 2) * NB_ELTS_V8 + 4 * 1);
+				xmm_Si_0 = _mm_sub_epi32(xmm_Si_0, _mm_srai_epi32(_mm_add_epi32(xmm_Di_0, xmm_Dim1_0), 1));
+				xmm_Si_1 = _mm_sub_epi32(xmm_Si_1, _mm_srai_epi32(_mm_add_epi32(xmm_Di_1, xmm_Dim1_1), 1));
 				*(__m128i*)(tmp + (i * 2) * NB_ELTS_V8 + 4 * 0) = xmm_Si_0;
 				*(__m128i*)(tmp + (i * 2) * NB_ELTS_V8 + 4 * 1) = xmm_Si_1;
 				xmm_Dim1_0 = xmm_Di_0;
@@ -1428,18 +1354,12 @@ static void opj_dwt_encode_and_deinterleave_v(void * arrayIn,
 			__m128i xmm_Si_1 = *((const __m128i*)(tmp + 4 * 1));
 			const __m128i xmm_two = _mm_set1_epi32(2);
 			for(; i + 1 < dn; i++) {
-				__m128i xmm_Sip1_0 = *(const __m128i*)(tmp +
-				    (i + 1) * 2 * NB_ELTS_V8 + 4 * 0);
-				__m128i xmm_Sip1_1 = *(const __m128i*)(tmp +
-				    (i + 1) * 2 * NB_ELTS_V8 + 4 * 1);
-				__m128i xmm_Di_0 = *(const __m128i*)(tmp +
-				    (1 + i * 2) * NB_ELTS_V8 + 4 * 0);
-				__m128i xmm_Di_1 = *(const __m128i*)(tmp +
-				    (1 + i * 2) * NB_ELTS_V8 + 4 * 1);
-				xmm_Di_0 = _mm_add_epi32(xmm_Di_0,
-					_mm_srai_epi32(_mm_add_epi32(_mm_add_epi32(xmm_Si_0, xmm_Sip1_0), xmm_two), 2));
-				xmm_Di_1 = _mm_add_epi32(xmm_Di_1,
-					_mm_srai_epi32(_mm_add_epi32(_mm_add_epi32(xmm_Si_1, xmm_Sip1_1), xmm_two), 2));
+				__m128i xmm_Sip1_0 = *(const __m128i*)(tmp + (i + 1) * 2 * NB_ELTS_V8 + 4 * 0);
+				__m128i xmm_Sip1_1 = *(const __m128i*)(tmp + (i + 1) * 2 * NB_ELTS_V8 + 4 * 1);
+				__m128i xmm_Di_0 = *(const __m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 0);
+				__m128i xmm_Di_1 = *(const __m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 1);
+				xmm_Di_0 = _mm_add_epi32(xmm_Di_0, _mm_srai_epi32(_mm_add_epi32(_mm_add_epi32(xmm_Si_0, xmm_Sip1_0), xmm_two), 2));
+				xmm_Di_1 = _mm_add_epi32(xmm_Di_1, _mm_srai_epi32(_mm_add_epi32(_mm_add_epi32(xmm_Si_1, xmm_Sip1_1), xmm_two), 2));
 				*(__m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 0) = xmm_Di_0;
 				*(__m128i*)(tmp + (1 + i * 2) * NB_ELTS_V8 + 4 * 1) = xmm_Di_1;
 				xmm_Si_0 = xmm_Sip1_0;
@@ -2965,17 +2885,10 @@ static INLINE void opj_v8dwt_interleave_v(opj_v8dwt_t* OPJ_RESTRICT dwt,
 	}
 }
 
-static void opj_v8dwt_interleave_partial_v(opj_v8dwt_t* OPJ_RESTRICT dwt,
-    opj_sparse_array_int32_t* sa,
-    uint32_t sa_col,
-    uint32_t nb_elts_read)
+static void opj_v8dwt_interleave_partial_v(opj_v8dwt_t* OPJ_RESTRICT dwt, opj_sparse_array_int32_t* sa, uint32_t sa_col, uint32_t nb_elts_read)
 {
 	boolint ret;
-	ret = opj_sparse_array_int32_read(sa,
-		sa_col, dwt->win_l_x0,
-		sa_col + nb_elts_read, dwt->win_l_x1,
-		(int32_t*)(dwt->wavelet + dwt->cas + 2 * dwt->win_l_x0),
-		1, 2 * NB_ELTS_V8, TRUE);
+	ret = opj_sparse_array_int32_read(sa, sa_col, dwt->win_l_x0, sa_col + nb_elts_read, dwt->win_l_x1, (int32_t*)(dwt->wavelet + dwt->cas + 2 * dwt->win_l_x0), 1, 2 * NB_ELTS_V8, TRUE);
 	assert(ret);
 	ret = opj_sparse_array_int32_read(sa,
 		sa_col, (uint32_t)dwt->sn + dwt->win_h_x0,
@@ -2988,10 +2901,7 @@ static void opj_v8dwt_interleave_partial_v(opj_v8dwt_t* OPJ_RESTRICT dwt,
 
 #ifdef __SSE__
 
-static void opj_v8dwt_decode_step1_sse(opj_v8_t* w,
-    uint32_t start,
-    uint32_t end,
-    const __m128 c)
+static void opj_v8dwt_decode_step1_sse(opj_v8_t* w, uint32_t start, uint32_t end, const __m128 c)
 {
 	__m128* OPJ_RESTRICT vw = (__m128*)w;
 	uint32_t i = start;
@@ -3004,11 +2914,7 @@ static void opj_v8dwt_decode_step1_sse(opj_v8_t* w,
 	}
 }
 
-static void opj_v8dwt_decode_step2_sse(opj_v8_t* l, opj_v8_t* w,
-    uint32_t start,
-    uint32_t end,
-    uint32_t m,
-    __m128 c)
+static void opj_v8dwt_decode_step2_sse(opj_v8_t* l, opj_v8_t* w, uint32_t start, uint32_t end, uint32_t m, __m128 c)
 {
 	__m128* OPJ_RESTRICT vl = (__m128*)l;
 	__m128* OPJ_RESTRICT vw = (__m128*)w;
@@ -3044,15 +2950,11 @@ static void opj_v8dwt_decode_step2_sse(opj_v8_t* l, opj_v8_t* w,
 
 #else
 
-static void opj_v8dwt_decode_step1(opj_v8_t* w,
-    uint32_t start,
-    uint32_t end,
-    const float c)
+static void opj_v8dwt_decode_step1(opj_v8_t* w, uint32_t start, uint32_t end, const float c)
 {
 	float* OPJ_RESTRICT fw = (float*)w;
-	uint32_t i;
 	/* To be adapted if NB_ELTS_V8 changes */
-	for(i = start; i < end; ++i) {
+	for(uint32_t i = start; i < end; ++i) {
 		fw[i * 2 * 8    ] = fw[i * 2 * 8    ] * c;
 		fw[i * 2 * 8 + 1] = fw[i * 2 * 8 + 1] * c;
 		fw[i * 2 * 8 + 2] = fw[i * 2 * 8 + 2] * c;
@@ -3132,47 +3034,19 @@ static void opj_v8dwt_decode(opj_v8dwt_t* OPJ_RESTRICT dwt)
 		b = 0;
 	}
 #ifdef __SSE__
-	opj_v8dwt_decode_step1_sse(dwt->wavelet + a, dwt->win_l_x0, dwt->win_l_x1,
-	    _mm_set1_ps(opj_K));
-	opj_v8dwt_decode_step1_sse(dwt->wavelet + b, dwt->win_h_x0, dwt->win_h_x1,
-	    _mm_set1_ps(two_invK));
-	opj_v8dwt_decode_step2_sse(dwt->wavelet + b, dwt->wavelet + a + 1,
-	    dwt->win_l_x0, dwt->win_l_x1,
-	    (uint32_t)opj_int_min(dwt->sn, dwt->dn - a),
-	    _mm_set1_ps(-opj_dwt_delta));
-	opj_v8dwt_decode_step2_sse(dwt->wavelet + a, dwt->wavelet + b + 1,
-	    dwt->win_h_x0, dwt->win_h_x1,
-	    (uint32_t)opj_int_min(dwt->dn, dwt->sn - b),
-	    _mm_set1_ps(-opj_dwt_gamma));
-	opj_v8dwt_decode_step2_sse(dwt->wavelet + b, dwt->wavelet + a + 1,
-	    dwt->win_l_x0, dwt->win_l_x1,
-	    (uint32_t)opj_int_min(dwt->sn, dwt->dn - a),
-	    _mm_set1_ps(-opj_dwt_beta));
-	opj_v8dwt_decode_step2_sse(dwt->wavelet + a, dwt->wavelet + b + 1,
-	    dwt->win_h_x0, dwt->win_h_x1,
-	    (uint32_t)opj_int_min(dwt->dn, dwt->sn - b),
-	    _mm_set1_ps(-opj_dwt_alpha));
+	opj_v8dwt_decode_step1_sse(dwt->wavelet + a, dwt->win_l_x0, dwt->win_l_x1, _mm_set1_ps(opj_K));
+	opj_v8dwt_decode_step1_sse(dwt->wavelet + b, dwt->win_h_x0, dwt->win_h_x1, _mm_set1_ps(two_invK));
+	opj_v8dwt_decode_step2_sse(dwt->wavelet + b, dwt->wavelet + a + 1, dwt->win_l_x0, dwt->win_l_x1, (uint32_t)opj_int_min(dwt->sn, dwt->dn - a), _mm_set1_ps(-opj_dwt_delta));
+	opj_v8dwt_decode_step2_sse(dwt->wavelet + a, dwt->wavelet + b + 1, dwt->win_h_x0, dwt->win_h_x1, (uint32_t)opj_int_min(dwt->dn, dwt->sn - b), _mm_set1_ps(-opj_dwt_gamma));
+	opj_v8dwt_decode_step2_sse(dwt->wavelet + b, dwt->wavelet + a + 1, dwt->win_l_x0, dwt->win_l_x1, (uint32_t)opj_int_min(dwt->sn, dwt->dn - a), _mm_set1_ps(-opj_dwt_beta));
+	opj_v8dwt_decode_step2_sse(dwt->wavelet + a, dwt->wavelet + b + 1, dwt->win_h_x0, dwt->win_h_x1, (uint32_t)opj_int_min(dwt->dn, dwt->sn - b), _mm_set1_ps(-opj_dwt_alpha));
 #else
-	opj_v8dwt_decode_step1(dwt->wavelet + a, dwt->win_l_x0, dwt->win_l_x1,
-	    opj_K);
-	opj_v8dwt_decode_step1(dwt->wavelet + b, dwt->win_h_x0, dwt->win_h_x1,
-	    two_invK);
-	opj_v8dwt_decode_step2(dwt->wavelet + b, dwt->wavelet + a + 1,
-	    dwt->win_l_x0, dwt->win_l_x1,
-	    (uint32_t)opj_int_min(dwt->sn, dwt->dn - a),
-	    -opj_dwt_delta);
-	opj_v8dwt_decode_step2(dwt->wavelet + a, dwt->wavelet + b + 1,
-	    dwt->win_h_x0, dwt->win_h_x1,
-	    (uint32_t)opj_int_min(dwt->dn, dwt->sn - b),
-	    -opj_dwt_gamma);
-	opj_v8dwt_decode_step2(dwt->wavelet + b, dwt->wavelet + a + 1,
-	    dwt->win_l_x0, dwt->win_l_x1,
-	    (uint32_t)opj_int_min(dwt->sn, dwt->dn - a),
-	    -opj_dwt_beta);
-	opj_v8dwt_decode_step2(dwt->wavelet + a, dwt->wavelet + b + 1,
-	    dwt->win_h_x0, dwt->win_h_x1,
-	    (uint32_t)opj_int_min(dwt->dn, dwt->sn - b),
-	    -opj_dwt_alpha);
+	opj_v8dwt_decode_step1(dwt->wavelet + a, dwt->win_l_x0, dwt->win_l_x1, opj_K);
+	opj_v8dwt_decode_step1(dwt->wavelet + b, dwt->win_h_x0, dwt->win_h_x1, two_invK);
+	opj_v8dwt_decode_step2(dwt->wavelet + b, dwt->wavelet + a + 1, dwt->win_l_x0, dwt->win_l_x1, (uint32_t)opj_int_min(dwt->sn, dwt->dn - a), -opj_dwt_delta);
+	opj_v8dwt_decode_step2(dwt->wavelet + a, dwt->wavelet + b + 1, dwt->win_h_x0, dwt->win_h_x1, (uint32_t)opj_int_min(dwt->dn, dwt->sn - b), -opj_dwt_gamma);
+	opj_v8dwt_decode_step2(dwt->wavelet + b, dwt->wavelet + a + 1, dwt->win_l_x0, dwt->win_l_x1, (uint32_t)opj_int_min(dwt->sn, dwt->dn - a), -opj_dwt_beta);
+	opj_v8dwt_decode_step2(dwt->wavelet + a, dwt->wavelet + b + 1, dwt->win_h_x0, dwt->win_h_x1, (uint32_t)opj_int_min(dwt->dn, dwt->sn - b), -opj_dwt_alpha);
 #endif
 }
 
@@ -3187,22 +3061,16 @@ typedef struct {
 static void opj_dwt97_decode_h_func(void* user_data, opj_tls_t* tls)
 {
 	uint32_t j;
-	opj_dwt97_decode_h_job_t* job;
 	float * OPJ_RESTRICT aj;
-	uint32_t w;
+	opj_dwt97_decode_h_job_t* job = (opj_dwt97_decode_h_job_t*)user_data;
+	uint32_t w = job->w;
 	(void)tls;
-
-	job = (opj_dwt97_decode_h_job_t*)user_data;
-	w = job->w;
-
 	assert((job->nb_rows % NB_ELTS_V8) == 0);
-
 	aj = job->aj;
 	for(j = 0; j + NB_ELTS_V8 <= job->nb_rows; j += NB_ELTS_V8) {
 		uint32_t k;
 		opj_v8dwt_interleave_h(&job->h, aj, job->w, NB_ELTS_V8);
 		opj_v8dwt_decode(&job->h);
-
 		/* To be adapted if NB_ELTS_V8 changes */
 		for(k = 0; k < job->rw; k++) {
 			aj[k      ] = job->h.wavelet[k].f[0];
@@ -3216,10 +3084,8 @@ static void opj_dwt97_decode_h_func(void* user_data, opj_tls_t* tls)
 			aj[k + (size_t)w * 6] = job->h.wavelet[k].f[6];
 			aj[k + (size_t)w * 7] = job->h.wavelet[k].f[7];
 		}
-
 		aj += w * NB_ELTS_V8;
 	}
-
 	opj_aligned_free(job->h.wavelet);
 	SAlloc::F(job);
 }
@@ -3235,28 +3101,20 @@ typedef struct {
 static void opj_dwt97_decode_v_func(void* user_data, opj_tls_t* tls)
 {
 	uint32_t j;
-	opj_dwt97_decode_v_job_t* job;
 	float * OPJ_RESTRICT aj;
+	opj_dwt97_decode_v_job_t * job = (opj_dwt97_decode_v_job_t*)user_data;
 	(void)tls;
-
-	job = (opj_dwt97_decode_v_job_t*)user_data;
-
 	assert((job->nb_columns % NB_ELTS_V8) == 0);
-
 	aj = job->aj;
 	for(j = 0; j + NB_ELTS_V8 <= job->nb_columns; j += NB_ELTS_V8) {
 		uint32_t k;
-
 		opj_v8dwt_interleave_v(&job->v, aj, job->w, NB_ELTS_V8);
 		opj_v8dwt_decode(&job->v);
-
 		for(k = 0; k < job->rh; ++k) {
-			memcpy(&aj[k * (size_t)job->w], &job->v.wavelet[k],
-			    NB_ELTS_V8 * sizeof(float));
+			memcpy(&aj[k * (size_t)job->w], &job->v.wavelet[k], NB_ELTS_V8 * sizeof(float));
 		}
 		aj += NB_ELTS_V8;
 	}
-
 	opj_aligned_free(job->v.wavelet);
 	SAlloc::F(job);
 }
@@ -3264,32 +3122,19 @@ static void opj_dwt97_decode_v_func(void* user_data, opj_tls_t* tls)
 /* <summary>                             */
 /* Inverse 9-7 wavelet transform in 2-D. */
 /* </summary>                            */
-static
-boolint opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
-    opj_tcd_tilecomp_t* OPJ_RESTRICT tilec,
-    uint32_t numres)
+static boolint opj_dwt_decode_tile_97(opj_thread_pool_t* tp, opj_tcd_tilecomp_t* OPJ_RESTRICT tilec, uint32_t numres)
 {
 	opj_v8dwt_t h;
 	opj_v8dwt_t v;
-
 	opj_tcd_resolution_t* res = tilec->resolutions;
-
-	uint32_t rw = (uint32_t)(res->x1 -
-	    res->x0);                         /* width of the resolution level computed */
-	uint32_t rh = (uint32_t)(res->y1 -
-	    res->y0);                         /* height of the resolution level computed */
-
-	uint32_t w = (uint32_t)(tilec->resolutions[tilec->minimum_num_resolutions -
-	    1].x1 -
-	    tilec->resolutions[tilec->minimum_num_resolutions - 1].x0);
-
+	uint32_t rw = (uint32_t)(res->x1 - res->x0); /* width of the resolution level computed */
+	uint32_t rh = (uint32_t)(res->y1 - res->y0); /* height of the resolution level computed */
+	uint32_t w = (uint32_t)(tilec->resolutions[tilec->minimum_num_resolutions - 1].x1 - tilec->resolutions[tilec->minimum_num_resolutions - 1].x0);
 	size_t l_data_size;
 	const int num_threads = opj_thread_pool_get_thread_count(tp);
-
 	if(numres == 1) {
 		return TRUE;
 	}
-
 	l_data_size = opj_dwt_max_resolution(res, numres);
 	/* overflow check */
 	if(l_data_size > (SIZE_MAX / sizeof(opj_v8_t))) {
@@ -3302,21 +3147,14 @@ boolint opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
 		return FALSE;
 	}
 	v.wavelet = h.wavelet;
-
 	while(--numres) {
 		float * OPJ_RESTRICT aj = (float*)tilec->data;
 		uint32_t j;
-
 		h.sn = (int32_t)rw;
 		v.sn = (int32_t)rh;
-
 		++res;
-
-		rw = (uint32_t)(res->x1 -
-		    res->x0);         /* width of the resolution level computed */
-		rh = (uint32_t)(res->y1 -
-		    res->y0);         /* height of the resolution level computed */
-
+		rw = (uint32_t)(res->x1 - res->x0); /* width of the resolution level computed */
+		rh = (uint32_t)(res->y1 - res->y0); /* height of the resolution level computed */
 		h.dn = (int32_t)(rw - (uint32_t)h.sn);
 		h.cas = res->x0 % 2;
 
@@ -3351,15 +3189,12 @@ boolint opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
 		else {
 			uint32_t num_jobs = (uint32_t)num_threads;
 			uint32_t step_j;
-
 			if((rh / NB_ELTS_V8) < num_jobs) {
 				num_jobs = rh / NB_ELTS_V8;
 			}
 			step_j = ((rh / num_jobs) / NB_ELTS_V8) * NB_ELTS_V8;
 			for(j = 0; j < num_jobs; j++) {
-				opj_dwt97_decode_h_job_t* job;
-
-				job = (opj_dwt97_decode_h_job_t*)opj_malloc(sizeof(opj_dwt97_decode_h_job_t));
+				opj_dwt97_decode_h_job_t * job = (opj_dwt97_decode_h_job_t*)opj_malloc(sizeof(opj_dwt97_decode_h_job_t));
 				if(!job) {
 					opj_thread_pool_wait_completion(tp, 0);
 					opj_aligned_free(h.wavelet);
@@ -3390,26 +3225,21 @@ boolint opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
 			opj_thread_pool_wait_completion(tp, 0);
 			j = rh & (uint32_t) ~(NB_ELTS_V8 - 1);
 		}
-
 		if(j < rh) {
-			uint32_t k;
 			opj_v8dwt_interleave_h(&h, aj, w, rh - j);
 			opj_v8dwt_decode(&h);
-			for(k = 0; k < rw; k++) {
-				uint32_t l;
-				for(l = 0; l < rh - j; l++) {
+			for(uint32_t k = 0; k < rw; k++) {
+				for(uint32_t l = 0; l < rh - j; l++) {
 					aj[k + (size_t)w  * l ] = h.wavelet[k].f[l];
 				}
 			}
 		}
-
 		v.dn = (int32_t)(rh - (uint32_t)v.sn);
 		v.cas = res->y0 % 2;
 		v.win_l_x0 = 0;
 		v.win_l_x1 = (uint32_t)v.sn;
 		v.win_h_x0 = 0;
 		v.win_h_x1 = (uint32_t)v.dn;
-
 		aj = (float*)tilec->data;
 		if(num_threads <= 1 || rw < 2 * NB_ELTS_V8) {
 			for(j = rw; j > (NB_ELTS_V8 - 1); j -= NB_ELTS_V8) {
@@ -3431,7 +3261,6 @@ boolint opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
 			 */
 			uint32_t num_jobs = opj_uint_max((uint32_t)num_threads / 2, 2U);
 			uint32_t step_j;
-
 			if((rw / NB_ELTS_V8) < num_jobs) {
 				num_jobs = rw / NB_ELTS_V8;
 			}
@@ -3469,22 +3298,16 @@ boolint opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
 			}
 			opj_thread_pool_wait_completion(tp, 0);
 		}
-
 		if(rw & (NB_ELTS_V8 - 1)) {
 			uint32_t k;
-
 			j = rw & (NB_ELTS_V8 - 1);
-
 			opj_v8dwt_interleave_v(&v, aj, w, j);
 			opj_v8dwt_decode(&v);
-
 			for(k = 0; k < rh; ++k) {
-				memcpy(&aj[k * (size_t)w], &v.wavelet[k],
-				    (size_t)j * sizeof(float));
+				memcpy(&aj[k * (size_t)w], &v.wavelet[k], (size_t)j * sizeof(float));
 			}
 		}
 	}
-
 	opj_aligned_free(h.wavelet);
 	return TRUE;
 }

@@ -1,14 +1,10 @@
-/**********************************************************************
-   gb18030.c -  Oniguruma (regular expression library)
-**********************************************************************/
+// gb18030.c -  Oniguruma (regular expression library)
+//
 /*-
- * Copyright (c) 2005-2020  KUBO Takehiro <kubo AT jiubao DOT org>
- *                    K.Kosako
- * All rights reserved.
+ * Copyright (c) 2005-2020  KUBO Takehiro <kubo AT jiubao DOT org> K.Kosako All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -21,20 +17,14 @@
 /* #define DEBUG_GB18030 */
 
 #ifndef DEBUG_GB18030
-
-#define DEBUG_OUT(arg)
-
+	#define DEBUG_OUT(arg)
 #else
-
-#ifndef NEED_TO_INCLUDE_STDIO
-#define NEED_TO_INCLUDE_STDIO
-#endif
-
-/* for printf() */
-#include "regint.h"
-
-#define DEBUG_OUT(arg) printf arg
-
+	#ifndef NEED_TO_INCLUDE_STDIO
+		#define NEED_TO_INCLUDE_STDIO
+	#endif
+	/* for printf() */
+	#include "regint.h"
+	#define DEBUG_OUT(arg) printf arg
 #endif
 
 enum {
@@ -67,11 +57,9 @@ static int gb18030_mbc_enc_len(const uchar * p)
 {
 	if(GB18030_MAP[*p] != CM)
 		return 1;
-
 	p++;
 	if(GB18030_MAP[*p] == C4)
 		return 4;
-
 	return 2;
 }
 
@@ -147,11 +135,9 @@ static int gb18030_code_to_mbc(OnigCodePoint code, uchar * buf)
 	return onigenc_mb4_code_to_mbc(ONIG_ENCODING_GB18030, code, buf);
 }
 
-static int gb18030_mbc_case_fold(OnigCaseFoldType flag, const uchar ** pp, const uchar * end,
-    uchar * lower)
+static int gb18030_mbc_case_fold(OnigCaseFoldType flag, const uchar ** pp, const uchar * end, uchar * lower)
 {
-	return onigenc_mbn_mbc_case_fold(ONIG_ENCODING_GB18030, flag,
-		   pp, end, lower);
+	return onigenc_mbn_mbc_case_fold(ONIG_ENCODING_GB18030, flag, pp, end, lower);
 }
 
 static int gb18030_is_code_ctype(OnigCodePoint code, uint ctype)

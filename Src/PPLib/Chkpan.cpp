@@ -10323,7 +10323,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 		Flags |= fSuspSleepTimeout;
 		const  bool prev_no_gift_status = LOGIC(CSt.Flags & CardState::fNoGift);
 		//
-		// Признак того, что скидка устанавливается только на текущую строку чека (1 скидка по строке, 0 - ошибка, -1 - скидка по карте)
+		// Признак того, что скидка устанавливается только на текущую строку чека (1 скидка по строке, 0 - error, -1 - скидка по карте)
 		//
 		int    row_dscnt = -1;
 		CSt.SetID(scardID, 0);
@@ -10452,7 +10452,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 		Flags |= fSuspSleepTimeout;
 		const  bool prev_no_gift_status = LOGIC(CSt.Flags & CardState::fNoGift);
 		//
-		// Признак того, что скидка устанавливается только на текущую строку чека (1 скидка по строке, 0 - ошибка, -1 - скидка по карте)
+		// Признак того, что скидка устанавливается только на текущую строку чека (1 скидка по строке, 0 - error, -1 - скидка по карте)
 		//
 		int    row_dscnt = (ascf & (ascfFromInput|ascfExtPane)) ? AcceptRowDiscount() : -1;
 		if(!(ascf & (ascfFromInput|ascfExtPane)))

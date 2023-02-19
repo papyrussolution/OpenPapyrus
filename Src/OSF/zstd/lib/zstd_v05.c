@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Yann Collet, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
@@ -3320,12 +3319,11 @@ size_t ZSTDv05_nextSrcSizeToDecompress(ZSTDv05_DCtx* dctx)
 size_t ZSTDv05_decompressContinue(ZSTDv05_DCtx* dctx, void* dst, size_t maxDstSize, const void* src, size_t srcSize)
 {
 	/* Sanity check */
-	if(srcSize != dctx->expected) return ERROR(srcSize_wrong);
+	if(srcSize != dctx->expected) 
+		return ERROR(srcSize_wrong);
 	ZSTDv05_checkContinuity(dctx, dst);
-
 	/* Decompress : frame header; part 1 */
-	switch(dctx->stage)
-	{
+	switch(dctx->stage) {
 		case ZSTDv05ds_getFrameHeaderSize:
 		    /* get frame header size */
 		    if(srcSize != ZSTDv05_frameHeaderSize_min) return ERROR(srcSize_wrong); /* impossible */
@@ -3334,7 +3332,7 @@ size_t ZSTDv05_decompressContinue(ZSTDv05_DCtx* dctx, void* dst, size_t maxDstSi
 		    memcpy(dctx->headerBuffer, src, ZSTDv05_frameHeaderSize_min);
 		    if(dctx->headerSize > ZSTDv05_frameHeaderSize_min) return ERROR(GENERIC); /* should never happen */
 		    dctx->expected = 0; /* not necessary to copy more */
-		/* fallthrough */
+		// @fallthrough
 		case ZSTDv05ds_decodeFrameHeader:
 		    /* get frame header */
 	    {   const size_t result = ZSTDv05_decodeFrameHeader_Part2(dctx, dctx->headerBuffer, dctx->headerSize);
@@ -3347,7 +3345,8 @@ size_t ZSTDv05_decompressContinue(ZSTDv05_DCtx* dctx, void* dst, size_t maxDstSi
 		    /* Decode block header */
 		    blockProperties_t bp;
 		    size_t blockSize = ZSTDv05_getcBlockSize(src, ZSTDv05_blockHeaderSize, &bp);
-		    if(ZSTDv05_isError(blockSize)) return blockSize;
+		    if(ZSTDv05_isError(blockSize)) 
+				return blockSize;
 		    if(bp.blockType == bt_end) {
 			    dctx->expected = 0;
 			    dctx->stage = ZSTDv05ds_getFrameHeaderSize;
@@ -3363,22 +3362,12 @@ size_t ZSTDv05_decompressContinue(ZSTDv05_DCtx* dctx, void* dst, size_t maxDstSi
 	    {
 		    /* Decompress : block content */
 		    size_t rSize;
-		    switch(dctx->bType)
-		    {
-			    case bt_compressed:
-				rSize = ZSTDv05_decompressBlock_internal(dctx, dst, maxDstSize, src, srcSize);
-				break;
-			    case bt_raw:
-				rSize = ZSTDv05_copyRawBlock(dst, maxDstSize, src, srcSize);
-				break;
-			    case bt_rle:
-				return ERROR(GENERIC); /* not yet handled */
-				break;
-			    case bt_end: /* should never happen (filtered at phase 1) */
-				rSize = 0;
-				break;
-			    default:
-				return ERROR(GENERIC); /* impossible */
+		    switch(dctx->bType) {
+			    case bt_compressed: rSize = ZSTDv05_decompressBlock_internal(dctx, dst, maxDstSize, src, srcSize); break;
+			    case bt_raw: rSize = ZSTDv05_copyRawBlock(dst, maxDstSize, src, srcSize); break;
+			    case bt_rle: return ERROR(GENERIC); /* not yet handled */ break;
+			    case bt_end: /* should never happen (filtered at phase 1) */ rSize = 0; break;
+			    default: return ERROR(GENERIC); /* impossible */
 		    }
 		    dctx->stage = ZSTDv05ds_decodeBlockHeader;
 		    dctx->expected = ZSTDv05_blockHeaderSize;

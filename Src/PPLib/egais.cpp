@@ -1506,7 +1506,7 @@ int PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlT
 			}
 		}
 		if(flags & woifStrict && oneof2(j_status, 1, 2)) {
-			THROW_PP_S(inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, info_org_name);
+			THROW_PP_S(inn.NotEmptyS(), PPERR_PERSONINNUNDEF, info_org_name);
 			THROW_PP_S(kpp.NotEmptyS() || inn.Len() == 12, PPERR_EGAIS_PERSONKPPUNDEF, info_org_name);
 		}
 		//
@@ -1721,13 +1721,13 @@ int PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlT
 			w_s.PutInner(SXml::nst("oref", "FullName"), EncText(rRefcItem.FullName));
 			w_s.PutInner(SXml::nst("oref", "ShortName"), EncText((temp_buf = rRefcItem.Name).Trim(64)));
 			if(j_status == 1) {
-				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
+				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_PERSONINNUNDEF, rRefcItem.Name);
 				w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
 				THROW_PP_S(!(flags & woifStrict) || (kpp.NotEmptyS() || inn.Len() == 12), PPERR_EGAIS_PERSONKPPUNDEF, rRefcItem.Name);
 				w_s.PutInnerSkipEmpty(SXml::nst("oref", "KPP"), EncText(kpp));
 			}
 			else if(j_status == 2) {
-				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
+				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_PERSONINNUNDEF, rRefcItem.Name);
 				w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
 			}
 			else if(j_status == 3) {
@@ -1758,7 +1758,7 @@ int PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlT
 			w_s.PutInner(SXml::nst("oref", "FullName"), EncText(rRefcItem.FullName));
 			w_s.PutInner(SXml::nst("oref", "ShortName"), EncText((temp_buf = rRefcItem.Name).Trim(64)));
 			{
-				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
+				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_PERSONINNUNDEF, rRefcItem.Name);
 				w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
 			}
 			{

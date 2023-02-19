@@ -15,8 +15,7 @@
  * Mike Olson.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *  notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -125,10 +124,10 @@ typedef enum {
  * Each page reference may include a lock.
  */
 struct __epg {
-	PAGE * page;                    /* The page. */
-	db_indx_t indx; /* The index on the page. */
+	PAGE * page;       /* The page. */
+	db_indx_t indx;    /* The index on the page. */
 	db_indx_t entries; /* The number of entries on page */
-	DB_LOCK lock;                   /* The page's lock. */
+	DB_LOCK lock;      /* The page's lock. */
 	db_lockmode_t lock_mode; /* The lock mode. */
 };
 
@@ -278,8 +277,8 @@ struct __cursor {
 	DBT key2; /* Holds prevKey or currentKey */
 	DBT data1; /* Holds prevData or currentData */
 	DBT data2; /* Holds prevData or currentData */
-	DBT del_key;                    /* Holds key from the deleted entry */
-	DBT del_data;                   /* Holds data from the deleted entry */
+	DBT del_key;  /* Holds key from the deleted entry */
+	DBT del_data; /* Holds data from the deleted entry */
 	DBT * prevKey; /* Previous key decompressed */
 	DBT * prevData; /* Previous data decompressed */
 	DBT * currentKey; /* Current key decompressed */
@@ -434,8 +433,8 @@ struct __btree {                        /* Btree access method. */
 #endif
 
 	/* Recno access method. */
-	int re_pad; /* Fixed-length padding byte. */
-	int re_delim;                   /* Variable-length delimiting byte. */
+	int re_pad;    /* Fixed-length padding byte. */
+	int re_delim;  /* Variable-length delimiting byte. */
 	uint32 re_len; /* Length for fixed-length records. */
 	char * re_source; /* Source file name. */
 
@@ -464,12 +463,11 @@ struct __btree {                        /* Btree access method. */
 	 * There are no transaction semantics associated with backing files,
 	 * nor is there any thread protection.
 	 */
-	FILE * re_fp;                   /* Source file handle. */
+	FILE * re_fp; /* Source file handle. */
 	int re_eof; /* Backing source file EOF reached. */
 	db_recno_t re_last; /* Last record number read. */
 
 };
-
 /*
  * Modes for the __bam_curadj recovery records (btree_curadj).
  * These appear in log records, so we wire the values and

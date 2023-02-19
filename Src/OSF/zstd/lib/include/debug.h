@@ -1,16 +1,14 @@
-/* ******************************************************************
-* debug
-* Part of FSE library
-* Copyright (c) Yann Collet, Facebook, Inc.
-*
-* You can contact the author at :
-* - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
-*
-* This source code is licensed under both the BSD-style license (found in the
-* LICENSE file in the root directory of this source tree) and the GPLv2 (found
-* in the COPYING file in the root directory of this source tree).
-* You may select, at your option, one of the above-listed licenses.
-****************************************************************** */
+// debug.h
+// Part of FSE library
+// Copyright (c) Yann Collet, Facebook, Inc.
+// You can contact the author at :
+// - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
+// 
+// This source code is licensed under both the BSD-style license (found in the
+// LICENSE file in the root directory of this source tree) and the GPLv2 (found
+// in the COPYING file in the root directory of this source tree).
+// You may select, at your option, one of the above-listed licenses.
+// 
 /*
  * The purpose of this header is to enable debug functions.
  * They regroup assert(), DEBUGLOG() and RAWLOG() for run-time,
@@ -26,7 +24,6 @@
  * which is only declared if DEBUGLEVEL>=2,
  * and is a global variable, not multi-thread protected (use with care)
  */
-
 #ifndef DEBUG_H_12987983217
 #define DEBUG_H_12987983217
 
@@ -62,23 +59,18 @@ extern "C" {
  */
 
 #if (DEBUGLEVEL>=1)
-#define ZSTD_DEPS_NEED_ASSERT
-#include "zstd_deps.h"
+	#define ZSTD_DEPS_NEED_ASSERT
+	#include "zstd_deps.h"
 #else
-#ifndef assert   /* assert may be already defined, due to prior #include <assert.h> */
-#define assert(condition) ((void)0)   /* disable assert (default) */
-#  endif
+	#ifndef assert   /* assert may be already defined, due to prior #include <assert.h> */
+		#define assert(condition) ((void)0)   /* disable assert (default) */
+	#endif
 #endif
-
 #if (DEBUGLEVEL>=2)
 #define ZSTD_DEPS_NEED_IO
 #include "zstd_deps.h"
-extern int g_debuglevel; /* the variable is only declared,
-                            it actually lives in debug.c,
-                            and is shared by the whole process.
-                            It's not thread-safe.
-                            It's useful when enabling very verbose levels
-                            on selective conditions (such as position in src) */
+extern int g_debuglevel; /* the variable is only declared, it actually lives in debug.c, and is shared by the whole process.
+	It's not thread-safe. It's useful when enabling very verbose levels on selective conditions (such as position in src) */
 
 #define RAWLOG(l, ...) {                                       \
 		if(l<=g_debuglevel) {                           \
@@ -97,5 +89,4 @@ extern int g_debuglevel; /* the variable is only declared,
 #if defined (__cplusplus)
 }
 #endif
-
 #endif /* DEBUG_H_12987983217 */

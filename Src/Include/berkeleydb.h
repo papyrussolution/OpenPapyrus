@@ -474,7 +474,7 @@ struct __db_lockreq {
 	db_lockmode_t mode; /* Requested mode. */
 	db_timeout_t timeout; /* Time to expire lock. */
 	DBT * obj; /* Object being locked. */
-	DB_LOCK lock;                   /* Lock returned. */
+	DB_LOCK lock; /* Lock returned. */
 };
 
 /*******************************************************
@@ -523,12 +523,12 @@ struct __db_log_cursor {
 	uint32 len; /* Cursor: record length */
 	uint32 prev; /* Cursor: previous record's offset */
 	DBT dbt; /* Return DBT. */
-	DB_LSN p_lsn;                   /* Persist LSN. */
+	DB_LSN p_lsn; /* Persist LSN. */
 	uint32 p_version; /* Persist version. */
-	uint8 * bp;                   /* Allocated read buffer. */
+	uint8 * bp;     /* Allocated read buffer. */
 	uint32 bp_size; /* Read buffer length in bytes. */
 	uint32 bp_rlen; /* Read buffer valid data length. */
-	DB_LSN bp_lsn; /* Read buffer first byte LSN. */
+	DB_LSN bp_lsn;  /* Read buffer first byte LSN. */
 	uint32 bp_maxrec; /* Max record length in the log file. */
 	/*
 		DB_LOGC PUBLIC HANDLE LIST BEGIN
@@ -1210,15 +1210,15 @@ struct __db_seq_record {
  * Handle for a sequence object.
  */
 struct __db_sequence {
-	DB * seq_dbp;                   /* DB handle for this sequence. */
+	DB * seq_dbp;       /* DB handle for this sequence. */
 	db_mutex_t mtx_seq; /* Mutex if sequence is threaded. */
 	DB_SEQ_RECORD * seq_rp; /* Pointer to current data. */
 	DB_SEQ_RECORD seq_record; /* Data from DB_SEQUENCE. */
 	int32 seq_cache_size; /* Number of values cached. */
 	db_seq_t seq_last_value; /* Last value cached. */
 	db_seq_t seq_prev_value; /* Last value returned. */
-	DBT seq_key;                    /* DBT pointing to sequence key. */
-	DBT seq_data;                   /* DBT pointing to seq_record. */
+	DBT seq_key;  /* DBT pointing to sequence key. */
+	DBT seq_data; /* DBT pointing to seq_record. */
 
 	/* API-private structure: used by C++ and Java. */
 	void * api_internal;
@@ -1444,9 +1444,9 @@ struct __db {
 	// 
 	// Returned data memory for DB->get() and friends.
 	// 
-	DBT my_rskey;                   /* Secondary key. */
-	DBT my_rkey;                    /* [Primary] key. */
-	DBT my_rdata;                   /* Data. */
+	DBT my_rskey; /* Secondary key. */
+	DBT my_rkey;  /* [Primary] key. */
+	DBT my_rdata; /* Data. */
 	// 
 	// !!!
 	// Some applications use DB but implement their own locking outside of DB.  
@@ -1901,7 +1901,7 @@ struct __dbc {
 	DB_ENV * dbenv; /* Backing environment */
 	ENV * env; /* Backing environment */
 	DB_THREAD_INFO * thread_info; /* Thread that owns this cursor. */
-	DB_TXN * txn;                   /* Associated transaction. */
+	DB_TXN * txn; /* Associated transaction. */
 	DB_CACHE_PRIORITY priority; /* Priority in cache. */
 	/*
 	 * Active/free cursor queues.
@@ -1936,15 +1936,15 @@ struct __dbc {
 	 * will be whatever handle the user originally used for the current
 	 * DB interface call.
 	 */
-	DBT * rskey;                    /* Returned secondary key. */
-	DBT * rkey; /* Returned [primary] key. */
-	DBT * rdata;                    /* Returned data. */
-	DBT my_rskey;                   /* Space for returned secondary key. */
-	DBT my_rkey;                    /* Space for returned [primary] key. */
-	DBT my_rdata;                   /* Space for returned data. */
+	DBT * rskey;  /* Returned secondary key. */
+	DBT * rkey;   /* Returned [primary] key. */
+	DBT * rdata;  /* Returned data. */
+	DBT my_rskey; /* Space for returned secondary key. */
+	DBT my_rkey;  /* Space for returned [primary] key. */
+	DBT my_rdata; /* Space for returned data. */
 	DB_LOCKER * lref; /* Reference to default locker. */
 	DB_LOCKER * locker; /* Locker for this operation. */
-	DBT lock_dbt;                   /* DBT referencing lock. */
+	DBT lock_dbt; /* DBT referencing lock. */
 	DB_LOCK_ILOCK lock; /* Object to be locked. */
 	DB_LOCK mylock; /* CDB lock held on this cursor. */
 	DBTYPE dbtype; /* Cursor type. */
@@ -2172,10 +2172,10 @@ struct __db_env {
 	char * db_tmp_dir; /* Database tmp file directory */
 	char * db_create_dir; /* Create directory for data files */
 	char ** db_data_dir; /* Database data file directories */
-	int    data_cnt;                   /* Database data file slots */
+	int    data_cnt;     /* Database data file slots */
 	int    data_next; /* Next database data file slot */
 	char * intermediate_dir_mode; /* Intermediate directory perms */
-	long   shm_key;                   /* shmget key */
+	long   shm_key; /* shmget key */
 	char * passwd; /* Cryptography support */
 	size_t passwd_len;
 	/* Private handle references */
@@ -2191,7 +2191,7 @@ struct __db_env {
 	uint32 mutex_tas_spins; /* Test-and-set spin count */
 	/* Locking configuration */
 	uint8 * lk_conflicts; /* Two dimensional conflict matrix */
-	int    lk_modes;                   /* Number of lock modes in table */
+	int    lk_modes;  /* Number of lock modes in table */
 	uint32 lk_detect; /* Deadlock detect on all conflicts */
 	uint32 lk_max; /* Maximum number of locks */
 	uint32 lk_max_lockers; /* Maximum number of lockers */

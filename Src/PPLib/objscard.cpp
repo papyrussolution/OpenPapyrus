@@ -3155,9 +3155,8 @@ private:
 			bool   enable_person_autocreation = false;
 			if(series_id && !person_id)  {
 				PPSCardSeries2 scs_rec;
-				if(ObjSCardSer.Fetch(series_id, &scs_rec) > 0 && scs_rec.Flags & SCRDSF_ALLOWOWNERAUTOCR) {
+				if(ObjSCardSer.Fetch(series_id, &scs_rec) > 0 && scs_rec.Flags & SCRDSF_ALLOWOWNERAUTOCR)
 					enable_person_autocreation = true;
-				}
 			}
 			enableCommand(cmAutoCreateOwner, enable_person_autocreation);
 		}

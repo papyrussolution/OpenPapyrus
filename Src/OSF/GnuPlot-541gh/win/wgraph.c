@@ -188,11 +188,9 @@ static COLORREF GetColor(HWND hwnd, COLORREF ref);
 	static BOOL     LineStyle(GW * lpgw);
 #endif
 static void GraphUpdateMenu(GW * lpgw);
-
-/* ================================== */
-
-/* Helper functions for GraphOp(): */
-
+// 
+// Helper functions for GraphOp():
+// 
 /* destroy memory blocks holding graph operations */
 static void DestroyBlocks(GW * lpgw)
 {

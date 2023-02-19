@@ -987,9 +987,9 @@ U_CAPI void U_EXPORT2 uiter_setUTF8(UCharIterator * iter, const char * s, int32_
 		}
 	}
 }
-
-/* Helper functions --------------------------------------------------------- */
-
+// 
+// Helper functions
+// 
 U_CAPI UChar32 U_EXPORT2 uiter_current32(UCharIterator * iter) 
 {
 	UChar32 c2;

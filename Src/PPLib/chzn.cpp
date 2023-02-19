@@ -56,6 +56,11 @@ Data Matrix для табачной продукции и фармацевтик
 	if(rS.GetToken(GtinStruc::fldOriginalText, &temp_buf)) {
 		/*if(temp_buf.Len() == 83)*/{
 			// CHZN-0121GS91GS92
+			/*
+			Вода
+			[GS]0104603460000786215VWR:rP--ZfL;[GS]93bBmO
+			[29, 48, 49, 48, 52, 54, 48, 51, 52, 54, 48, 48, 48, 48, 55, 56, 54, 50, 49, 53, 86, 87, 82, 58, 114, 80, 45, 45, 90, 102, 76, 59, 29, 57, 51, 98, 66, 109, 79]
+			*/
 			SString _01;
 			SString _21;
 			SString _91;
@@ -74,7 +79,7 @@ Data Matrix для табачной продукции и фармацевтик
 						ok = 2;
 					}
 					if(_21.Len() == 13) { // @v11.5.5 Вода
-						rBuf.CatChar('\x1D').Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
+						rBuf./* @v11.6.4 CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
 						ok = 2;
 					}
 				}

@@ -10,13 +10,13 @@
         android:orientation="vertical"
         android:padding="4dp"
         >
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/orderPrereqGoodsGroupListView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/shape_pageheader"
-            android:padding="2dp"
-            layoutManager="LinearLayoutManager" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/orderPrereqGoodsGroupListView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/shape_pageheader"
+                android:padding="2dp"
+                layoutManager="LinearLayoutManager" />
     </LinearLayout>
 </LinearLayout>

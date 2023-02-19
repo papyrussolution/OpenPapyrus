@@ -1523,9 +1523,9 @@ int    PPExtStrContainer::SerializeB(int dir, SBuffer & rBuf, SSerializeContext 
 void   FASTCALL PPExtStrContainer::SetBuffer(const char * pSrc) { ExtString = pSrc; }
 const  SString & PPExtStrContainer::GetBuffer() const { return ExtString; }
 
-int PPExtStrContainer::IsEq(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const
+bool PPExtStrContainer::IsEq(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const
 {
-	int    yes = 1;
+	bool   yes = true;
 	assert(fldCount > 0);
 	if(fldCount > 0) {
 		assert(pFldList != 0);
@@ -1536,7 +1536,7 @@ int PPExtStrContainer::IsEq(const PPExtStrContainer & rS, int fldCount, const in
 			PPGetExtStrData(fld_id, ExtString, s1);
 			PPGetExtStrData(fld_id, rS.ExtString, s2);
 			if(s1 != s2)
-				yes = 0;
+				yes = false;
 		}
 	}
 	return yes;

@@ -1,35 +1,29 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/* ------------------------------------------------------------------ */
-/* Decimal Number arithmetic module header */
-/* ------------------------------------------------------------------ */
-/* Copyright (c) IBM Corporation, 2000-2010.   All rights reserved.   */
-/* */
-/* This software is made available under the terms of the    */
-/* ICU License -- ICU 1.8.1 and later.     */
-/* */
-/* The description and User's Guide ("The decNumber C Library") for   */
-/* this software is called decNumber.pdf.  This document is  */
-/* available, together with arithmetic and format specifications,     */
-/* testcases, and Web links, on the General Decimal Arithmetic page.  */
-/* */
-/* Please send comments, suggestions, and corrections to the author:  */
-/* mfc@uk.ibm.com      */
-/* Mike Cowlishaw, IBM Fellow   */
-/* IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
-/* ------------------------------------------------------------------ */
-
+//
+// Decimal Number arithmetic module header
+//
+// Copyright (c) IBM Corporation, 2000-2010.   All rights reserved.
+//
+// This software is made available under the terms of the ICU License -- ICU 1.8.1 and later.
+//
+// The description and User's Guide ("The decNumber C Library") for
+// this software is called decNumber.pdf.  This document is
+// available, together with arithmetic and format specifications,
+// testcases, and Web links, on the General Decimal Arithmetic page.
+//
+// Please send comments, suggestions, and corrections to the author: mfc@uk.ibm.com
+// Mike Cowlishaw, IBM Fellow
+// IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK
+//
 /* Modified version, for use from within ICU.
  *    Renamed public functions, to avoid an unwanted export of the
  *    standard names from the ICU library.
  *
  *    Use ICU's uprv_malloc() and uprv_free()
- *
  *    Revert comment syntax to plain C
- *
  *    Remove a few compiler warnings.
  */
-
 #if !defined(DECNUMBER)
   #define DECNUMBER
   #define DECNAME     "decNumber"                       /* Short name */
@@ -62,26 +56,25 @@
 /* the structure.  If undefined, 1 is assumed and it is assumed     */
 /* that the structure will be immediately followed by extra space,  */
 /* as required.  DECNUMDIGITS is always >0.       */
-  #if !defined(DECNUMDIGITS)
-    #define DECNUMDIGITS 1
-  #endif
-
+#if !defined(DECNUMDIGITS)
+	#define DECNUMDIGITS 1
+#endif
 // The size (integer data type) of each unit is determined by the number of digits it will hold.
-  #if   DECDPUN<=2
-    #define decNumberUnit uint8
-  #elif DECDPUN<=4
-    #define decNumberUnit uint16
-  #else
-    #define decNumberUnit uint32_t
-  #endif
-/* The number of units needed is ceil(DECNUMDIGITS/DECDPUN)         */
-  #define DECNUMUNITS ((DECNUMDIGITS+DECDPUN-1)/DECDPUN)
-
-/* The data structure... */
+#if   DECDPUN<=2
+	#define decNumberUnit uint8
+#elif DECDPUN<=4
+	#define decNumberUnit uint16
+#else
+	#define decNumberUnit uint32_t
+#endif
+#define DECNUMUNITS ((DECNUMDIGITS+DECDPUN-1)/DECDPUN) // The number of units needed is ceil(DECNUMDIGITS/DECDPUN)
+//
+// The data structure...
+//
 typedef struct {
 	int32_t digits; // Count of digits in the coefficient; >0
 	int32_t exponent; // Unadjusted exponent, unbiased, in range: -1999999997 through 999999999
-	uint8  bits; // Indicator bits (see above)
+	uint8   bits;  // Indicator bits (see above)
 	decNumberUnit lsu[DECNUMUNITS]; // Coefficient, from least significant unit
 } decNumber;
 
@@ -104,7 +97,7 @@ typedef struct {
 /* (where # is '\0')         */
 //
 // decNumber public functions and macros
-// 
+//
 /* Conversions         */
 U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromInt32(decNumber *, int32_t);
 U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromUInt32(decNumber *, uint32_t);

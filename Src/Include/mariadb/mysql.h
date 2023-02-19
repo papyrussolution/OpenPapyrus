@@ -91,9 +91,9 @@ extern uint mariadb_deinitialize_ssl;
 	(f)->type == MYSQL_TYPE_NEWDECIMAL || (f)->type == MYSQL_TYPE_DECIMAL)
 
 typedef struct st_mysql_field {
-	char * name; /* Name of column */
-	char * org_name; /* Name of original column (added after 3.23.58) */
-	char * table;                   /* Table of column if column was a field */
+	char * name;      /* Name of column */
+	char * org_name;  /* Name of original column (added after 3.23.58) */
+	char * table;     /* Table of column if column was a field */
 	char * org_table; /* Name of original table (added after 3.23.58 */
 	char * db; /* table schema (added after 3.23.58) */
 	char * catalog; /* table catalog (added after 3.23.58) */

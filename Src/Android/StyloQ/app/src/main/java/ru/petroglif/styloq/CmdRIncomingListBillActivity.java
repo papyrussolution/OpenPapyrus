@@ -43,6 +43,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	}
 	private ScanType ScanSource;
 	private Timer RefreshSvcDataPollTmr; // @v11.6.2
+	private long  LastRefreshTime; // @v11.6.4
 	private static final int RefreshSvcDataPollPeriodMs = 1 * 60 * 1000; // @v11.6.2
 	private void RefreshCurrentDocStatus()
 	{
@@ -57,7 +58,10 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		}
 	}
 	private class RefreshTimerTask extends TimerTask {
-		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { RefreshCurrentDocStatus(); }}); }
+		@Override public void run()
+		{
+			runOnUiThread(new Runnable() { @Override public void run() { RefreshCurrentDocStatus(); }});
+		}
 	}
 	private static class ThreadEngine_RefreshDataSvcPoll implements Runnable { // @v11.6.2
 		private StyloQApp AppCtx;
@@ -116,6 +120,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		DocStatusList = null;
 		ScanSource = ScanType.Undef;
 		RefreshSvcDataPollTmr = null; // @v11.6.2
+		LastRefreshTime = 0; // @v11.6.4
 	}
 	private void CreateTabList(boolean force)
 	{
@@ -713,8 +718,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									@Override public void run()
 									{
 										if(CPM.CmdUuid != null && Handler != null) {
-											Thread thr = new Thread(new ThreadEngine_RefreshDataSvcPoll(AppCtx, CPM.SvcIdent, CPM.CmdUuid, Handler));
-											thr.start();
+											// @v11.6.4 {
+											long last_time_diff = (LastRefreshTime > 0) ? (System.currentTimeMillis() - LastRefreshTime) : 0;
+											if(last_time_diff == 0 || last_time_diff > RefreshSvcDataPollPeriodMs) {
+												Thread thr = new Thread(new ThreadEngine_RefreshDataSvcPoll(AppCtx, CPM.SvcIdent, CPM.CmdUuid, Handler));
+												thr.start();
+											}
+											// } @v11.6.4
 											//runOnUiThread(new Runnable() { @Override public void run() { DocStatusPoll(AppCtx); }});
 										}
 									}
@@ -754,7 +764,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							}
 							break;
 						case R.id.orderPrereqGoodsListView: result = new Integer(CPM.GetGoodsListSize()); break;
-						case R.id.orderPrereqGoodsGroupListView: result = new Integer(SLib.GetCount(CPM.GoodsGroupListData)); break;
+						case R.id.orderPrereqGoodsGroupListView: result = new Integer(CPM.GetGoodsGroupCount()); break;
 						case R.id.orderPrereqBrandListView: result = new Integer(SLib.GetCount(CPM.BrandListData)); break;
 						/*
 						case R.id.orderPrereqOrdrListView: result = new Integer(CPM.GetCurrentDocumentTransferListCount()); break;
@@ -818,6 +828,12 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
 											val = cur_entry.Item.Stock;
 											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? SLib.formatdouble(val, 0) : "");
+											if(val > 0) {
+
+											}
+											else {
+
+											}
 											val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
 											if(val > 0.0) {
 												SLib.SetCtrlVisibility(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, View.VISIBLE);
@@ -832,11 +848,11 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									}
 									break;
 									case R.id.orderPrereqGoodsGroupListView:
-										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.GoodsGroupListData)) {
+										if(ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GetGoodsGroupCount()) {
 											View iv = ev_subj.RvHolder.itemView;
-											JSONObject cur_entry = (JSONObject)CPM.GoodsGroupListData.get(ev_subj.ItemIdx);
-											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.optString("nm", ""));
-											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODSGROUP, cur_entry.optInt("id", 0));
+											BusinessEntity.GoodsGroup cur_entry = CPM.GoodsGroupListData.L.get(ev_subj.ItemIdx);
+											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.Name);
+											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODSGROUP, cur_entry.ID);
 										}
 										break;
 									case R.id.orderPrereqBrandListView:
@@ -1323,8 +1339,8 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.orderPrereqGoodsGroupListView:
-										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.GoodsGroupListData)) {
-											final int group_id = CPM.GoodsGroupListData.get(ev_subj.ItemIdx).optInt("id", 0);
+										if(ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GetGoodsGroupCount()) {
+											final int group_id = CPM.GoodsGroupListData.L.get(ev_subj.ItemIdx).ID;
 											if(CPM.SetGoodsFilterByGroup(group_id)) {
 												SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
 												do_update_goods_list_and_toggle_to_it = true;
@@ -1592,7 +1608,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						if(app_ctx != null && ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS && ir.InfoReply != null) {
 							String svc_reply_doc_json = null;
 							if(ir.InfoReply instanceof StyloQCommand.DocReference) {
-								long doc_id = ((StyloQCommand.DocReference) ir.InfoReply).ID;
+								long doc_id = ((StyloQCommand.DocReference)ir.InfoReply).ID;
 								try {
 									StyloQDatabase db = app_ctx.GetDB();
 									ArrayList<UUID> possible_doc_uuid_list = null;
@@ -1607,6 +1623,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									if(ProcessSvcData(svc_reply_doc_json) > 0) {
 										SetupTabVisibility(true);
 										SetupCurrentDocument(false, true);
+										LastRefreshTime = System.currentTimeMillis(); // @v11.6.4
 									}
 								} catch(StyloQException exn) {
 									;
@@ -1618,6 +1635,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									if(ProcessSvcData(js_reply) > 0) {
 										SetupTabVisibility(true);
 										SetupCurrentDocument(false, true);
+										LastRefreshTime = System.currentTimeMillis(); // @v11.6.4
 									}
 								}
 							}
@@ -1663,6 +1681,15 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
 							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclSetting, View.GONE);
 							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclVerify, View.GONE);
+							// @v11.6.4 {
+							// Немедленно отправляем запрос на обновление данных
+							// Что бы не было "перехлеста" с регулярным обновлением мы предусмотрели в нем проверку на время последнего получения
+							// изменений (LastRefreshTime)
+							{
+								Thread thr = new Thread(new ThreadEngine_RefreshDataSvcPoll(app_ctx, CPM.SvcIdent, CPM.CmdUuid, this));
+								thr.start();
+							}
+							// } @v11.6.4
 						}
 						else {
 							String err_msg = app_ctx.GetString(ppstr2.PPSTR_ERROR, ppstr2.PPERR_STQ_POSTDOCUMENTFAULT);

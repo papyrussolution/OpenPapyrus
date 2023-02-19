@@ -158,7 +158,7 @@ enum {                                  /* flags for Opening.flags */
 };
 
 typedef struct Opening {
-    int32_t position;                   /* position of opening bracket */
+    int32_t position; /* position of opening bracket */
     int32_t match; /* matching char or -position of closing bracket */
     int32_t contextPos; /* position of last strong char found before opening */
     uint16 flags; /* bits for L or R/AL found within the pair */
@@ -170,9 +170,9 @@ typedef struct IsoRun {
     int32_t contextPos; /* position of char determining context */
     uint16 start; /* index of first opening entry for this run */
     uint16 limit; /* index after last opening entry for this run */
-    UBiDiLevel level;                   /* level of this run */
+    UBiDiLevel level;   /* level of this run */
     DirProp lastStrong; /* bidi class of last strong char found in this run */
-    DirProp lastBase;                   /* bidi class of last base char found in this run */
+    DirProp lastBase;   /* bidi class of last base char found in this run */
     UBiDiDirection contextDir; /* L or R to use as context for following openings */
 } IsoRun;
 

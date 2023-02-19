@@ -63,11 +63,11 @@ typedef struct {
 	Fax3BaseState b;
 	/* Decoder state info */
 	const uchar * bitmap; /* bit reversal table */
-	uint32 data;                    /* current i/o byte/word */
-	int bit; /* current i/o bit in byte */
-	int EOLcnt; /* count of EOL codes recognized */
+	uint32 data; /* current i/o byte/word */
+	int bit;     /* current i/o bit in byte */
+	int EOLcnt;  /* count of EOL codes recognized */
 	TIFFFaxFillFunc fill; /* fill routine */
-	uint32 * runs;                   /* b&w runs for current/previous row */
+	uint32 * runs;    /* b&w runs for current/previous row */
 	uint32 * refruns; /* runs for reference line */
 	uint32 * curruns; /* runs for current line */
 	/* Encoder state info */
@@ -1111,10 +1111,10 @@ static int Fax3VSetField(TIFF * tif, uint32 tag, va_list ap)
 	switch(tag) {
 		case TIFFTAG_FAXMODE:
 		    sp->mode = (int)va_arg(ap, int);
-		    return 1;                   /* NB: pseudo tag */
+		    return 1; /* NB: pseudo tag */
 		case TIFFTAG_FAXFILLFUNC:
 		    DecoderState(tif)->fill = va_arg(ap, TIFFFaxFillFunc);
-		    return 1;                   /* NB: pseudo tag */
+		    return 1; /* NB: pseudo tag */
 		case TIFFTAG_GROUP3OPTIONS:
 		    /* XXX: avoid reading options if compression mismatches. */
 		    if(tif->tif_dir.td_compression == COMPRESSION_CCITTFAX3)

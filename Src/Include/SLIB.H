@@ -2027,6 +2027,9 @@ enum {
 	snscriptSquaredCJK,
 	snscriptBoxDrawings
 };
+
+void   GetLinguaSymbList(StringSet & rSs);
+void   GetLinguaIdList(LongArray & rList);
 //
 // Descr: Возвращает идентификатор языка по международному коду pSymb.
 //
@@ -2038,7 +2041,7 @@ int    FASTCALL GetLinguaCode(int ident, SString & rCode);
 //
 // Descr: Возвращает Windows код языка по идентификатору ident.
 //
-uint32 FASTCALL GetLinguadent(int ident);
+uint32 FASTCALL GetLinguaIdent(int ident);
 void   FASTCALL GetLinguaList(LongArray & rList);
 //
 // Descr: Возвращает идентификатор натурального скрипта по английскому наименованию pSymb.
@@ -3045,7 +3048,7 @@ public:
 		cmprSureFalse     = 0,  // Значения точно не равны
 		cmprUncertainTrue = 2   // Значения равны с учетом того, что их точности различны ("5 июня 2018" vs "июнь 2018" например)
 	};
-	int    FASTCALL IsEq(const SUniTime & rS) const; // @construction
+	int /*not bool!*/ FASTCALL IsEq(const SUniTime & rS) const; // @construction
 private:
 	int    Implement_Set(uint8 signature, const void *);
 	uint8  Implement_Get(void *) const;
@@ -4938,6 +4941,7 @@ char * FASTCALL trimright(char * pStr);
 FORCEINLINE bool   isempty(const char * pStr) { return (pStr == 0 || pStr[0] == 0); }
 FORCEINLINE bool   isempty(const uchar * pStr) { return (pStr == 0 || pStr[0] == 0); }
 FORCEINLINE bool   isempty(const wchar_t * pStr) { return (pStr == 0 || pStr[0] == 0); }
+FORCEINLINE bool   isempty(const char16_t * pStr) { return (pStr == 0 || pStr[0] == 0); }
 FORCEINLINE size_t sstrlen(const char * pStr) { return pStr ? strlen(pStr) : 0; }
 FORCEINLINE size_t sstrlen(const uchar * pStr) { return pStr ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
 FORCEINLINE size_t sstrlen(const wchar_t * pStr) { return pStr  ? wcslen(pStr) : 0; }
@@ -6236,7 +6240,7 @@ public:
 	//   Если len == 0, то результат функции эквивалентен вызову Z()
 	// Returns:
 	//   >0 - функция выполнена успешно
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    Set(uint8 byte, size_t len);
 private:
@@ -6470,7 +6474,7 @@ public:
 	// Returns:
 	//   >0 - данные pData успешно помещены в пул (или удалены, если pData == 0 или size == 0)
 	//   <0 - попытка удалить отрезок с идентификатором id провалилась поскольку такой идентификатор в пуле не найден
-	//    0 - ошибка (например, недостаточно памяти).
+	//    0 - error (например, недостаточно памяти).
 	//
 	int    Put(uint32 id, const void * pData, uint32 size, const DeflateStrategy * pDs = 0);
 	int    Put(uint32 id, const SBinaryChunk & rData, const DeflateStrategy * pDs = 0);
@@ -6493,7 +6497,7 @@ public:
 	// Returns:
 	//   >0 - по крайней мере один отрезок в this скопирован (создан или изменен)
 	//   <0 - в this ничего не изменилось
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    CopyFrom(const SBinarySet & rS, const LongArray & rIdList, bool errOnAbsenseAny);
 	//
@@ -6515,7 +6519,7 @@ public:
 	// Returns:
 	//   >0 - функция успешно отработала, удалив существовавшие пустые отрезки
 	//   <0 - функция отработала успешно, но пустых отрезков не было, потому ничего делать не пришлось
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    Pack();
 	//
@@ -6862,7 +6866,7 @@ public:
 	//
 	// Descr: Утилитная функция, извлекающая тег tag из пула и пытающаяся преобразовать его содержимое в JSON.
 	// Returns:
-	//   0 - ошибка (либо нет такого тега, либо данные в нем не в JSON-формате)
+	//   0 - error (либо нет такого тега, либо данные в нем не в JSON-формате)
 	//  !0 - указатель на JSON. Объект по этому указателю должен быть разрушен вызывающей функцией.
 	//
 	SJson * GetJson(uint tag) const;
@@ -7095,7 +7099,7 @@ public:
 // Descr: Функция расчета контрольной цифры для цифровой последовательности pInput.
 // Если alg & SCHKDIGALG_TEST, то последовательность должна содержать контрольную цифру, в противном случае - нет.
 // Returns:
-//   0 - ошибка расчета или проверки контрольной цифры.
+//   0 - error расчета или проверки контрольной цифры.
 //   1 - если alg & SCHKDIGALG_TEST, то последовательность содержит корректную контрольную цифру
 //   '0'..'9' - если !(alg & SCHKDIGALG_TEST), то рассчитанная контрольная цифра
 //   -1 - выполнение функции возможно только в режиме проверки
@@ -7539,7 +7543,7 @@ public:
 	// Returns:
 	//   >0 - память была успешно освобождена либо сжата и данные перенесены.
 	//   <0 - ничего не было сделано по причине отсутствия значимого избытка занимаемой памяти
-	//    0 - ошибка (скорее всего не удалось выделить новый буфер для переноса данных).
+	//    0 - error (скорее всего не удалось выделить новый буфер для переноса данных).
 	//
 	int    Shrink();
 	//
@@ -8643,7 +8647,7 @@ public:
 	//   3 - функция добавила новый элемент в условиях, когда идентификатор id уже содержится в списке
 	//       (replaceDup < 0 && replaceDup != -100)
 	//  -1 - элемент id уже содержится в массиве и функция ничего не сделала (replaceDup == 0)
-	//   0 - ошибка (SLibError)
+	//   0 - error (SLibError)
 	//
 	int    Add(long id, const char * pStr, int replaceDup = 1);
 	int    Add(long id, long parentId, const char * pStr, int replaceDup = 1);
@@ -8655,7 +8659,7 @@ public:
 	// ARG(pStr       IN): Строка, соответствующая идентификатору id
 	// Returns:
 	//   1 - функция успешно добавила новый элемент в массив
-	//   0 - ошибка (SLibError)
+	//   0 - error (SLibError)
 	//
 	int    AddFast(long id, const char * pStr);
 	//
@@ -8670,7 +8674,7 @@ public:
 	// ARG(pStr       IN): Строка, соответствующая идентификатору id
 	// Returns:
 	//   1 - функция успешно добавила новый элемент в массив
-	//   0 - ошибка (SLibError)
+	//   0 - error (SLibError)
 	//
 	int    AddFast(long id, long parentId, const char * pStr);
 	//
@@ -8873,7 +8877,7 @@ public:
 	//   может оказаться инвалидным!
 	// Returns:
 	//   !0 - функция завершилась успешно. Результат - манипулятор нового элемента.
-	//    0 - ошибка
+	//    0 - error
 	//
 	SHandle Add_Unsafe(SHandle hParent, long id, const char * pStr);
 	bool   MakeStringIndex(LAssocArray & rIndex) const;
@@ -8940,7 +8944,7 @@ public:
 	// Descr: Вставляет в пул файл с полным путем pPath.
 	// Returns:
 	//   >0 - функция завершилась успешно
-	//    0 - ошибка (в том числе если файл не найден)
+	//    0 - error (в том числе если файл не найден)
 	//
 	int    Add(const char * pPath);
 	int    Add(const char * pPath, const char * pRemoteUrl);
@@ -9154,7 +9158,7 @@ public:
 	// Returns:
 	//   1 - элемент успешно добавлен
 	//   2 - элемент успешно добавлен (для этого пришлось создать новую строку)
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    SetChunk(long rowID, long chunkID, long status, const STimeChunk * pChunk);
 	int    RemoveRow(long rowID);
@@ -9178,7 +9182,7 @@ public:
 	// Returns:
 	//   -1 - функция в таком контексте не поддерживается //
 	//   >0 - текст успешно возвращен
-	//    0 - ошибка
+	//    0 - error
 	//
 	virtual int GetText(int item, long id, SString & rBuf);
 	//
@@ -9189,7 +9193,7 @@ public:
 	// Returns:
 	//   <0 - функция не поддерживается либо пользователь отказался от редактирования //
 	//   >0 - пользователь изменил или создал объект.
-	//    0 - ошибка
+	//    0 - error
 	//
 	virtual int Edit(int item, long rowID, const LDATETIME & rTm, long * pID);
 	//
@@ -9209,7 +9213,7 @@ public:
 	// Returns:
 	//   <0 - функция не поддерживается либо таблице отказано в перемещении отрезка
 	//   >0 - подтверждение перемещения отрезка - таблица может принять изменение.
-	//    0 - ошибка
+	//    0 - error
 	//
 	virtual int MoveChunk(int mode, long id, long rowId, const STimeChunk & rNewChunk);
 	struct Color {
@@ -9227,7 +9231,7 @@ public:
 	// Returns:
 	//   <0 - функция не поддерживается - следует использовать цвет по умолчанию.
 	//   >0 - функция успешно выполнена и вернула актуальные данные по указателю pClr
-	//    0 - ошибка - следует использовать цвет по умолчанию.
+	//    0 - error - следует использовать цвет по умолчанию.
 	//
 	virtual int GetColor(long id, Color * pClr);
 	int    SetNotifyHandler();
@@ -10287,7 +10291,7 @@ public:
 	// ARG(pExt     OUT): @#vptr0 Расширение файла (справочный параметр, позволяющий избежать дополнительных
 	//   действий в вызывающем модуле).
 	// Returns:
-	//   0 - ошибка (isempty(pFileName) || не инициализированна внутренняя таблица сигнатур)
+	//   0 - error (isempty(pFileName) || не инициализированна внутренняя таблица сигнатур)
 	//   1 - формат идентифицирован по расширению
 	//   2 - формат идентифицирован по сигнатуре
 	//   3 - формат идентифицирован одновременно по расширению и сигнатуре
@@ -11529,7 +11533,7 @@ public:
 	// ARG(pLastModif  OUT): дата и время последней модификации файла
 	// Returns:
 	//   1 - функция успешно выполнена
-	//   0 - ошибка
+	//   0 - error
 	//
 	static int GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
 	//
@@ -11541,7 +11545,7 @@ public:
 	// ARG(pLastModif  OUT): дата и время последней модификации файла
 	// Returns:
 	//   1 - функция успешно выполнена
-	//   0 - ошибка
+	//   0 - error
 	//
 	static int GetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
 	static int SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif);
@@ -11681,7 +11685,7 @@ public:
 	//   возвращает количество считанных байт.
 	// Returns:
 	//   >0 - функция завершилась успешно
-	//    0 - ошибка
+	//    0 - error
 	//   <0 - функция ничего не считала (*pActualSize == 0). Например из-за того, что файл пустой или текущая позиция файла уже в самом конце его.
 	//
 	int    ReadAll(STempBuffer & rBuf, size_t maxSize, size_t * pActualSize);
@@ -11715,7 +11719,7 @@ public:
 	// ARG(size IN): @#{>0} размер блокируемого участка в файле
 	// ARG(mode IN): если mode != 0, то функция устанавливает блокировку, в противном случае - снимает.
 	// Returns:
-	//   0 - ошибка
+	//   0 - error
 	//   >0 - при mode != 0 дескриптор блокировки. При mode == 0 просто означает успешное завершение операции.
 	//
 	int    _Lock(int64 offs, int32 size, int mode);
@@ -11878,7 +11882,7 @@ public:
 	//   что любой алгоритм будет адекватно работать при передаче нулевого указателя данным аргументом.
 	// Returns:
 	//   >0 - успех. Значение показывает количество байт, записанных в буфер rDest этим вызовом.
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest, int rate, const void * pExt);
 	int    DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest);
@@ -12316,6 +12320,10 @@ public:
 	int    Sub(const SDecimalFraction & rA, const SDecimalFraction & rB);
 	int    Mul(const SDecimalFraction & rA, const SDecimalFraction & rB);
 	int    Div(const SDecimalFraction & rA, const SDecimalFraction & rB);
+
+	uint64 ToUed(uint numBits) const;
+	int   FromUed(uint64 ued, uint numBits);
+
 	static int Test();
 private:
 	int64  Mant;
@@ -12830,7 +12838,7 @@ public:
 	//   Функция предварительно очищает этот список.
 	// Returns:
 	//   !0 - функция выполнена успешно
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const;
 	int    GetFrame(const char * pVecSymb, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
@@ -14289,7 +14297,7 @@ private:
 	// Returns:
 	//   >0 - файл не был открыт и функция сделала это успешно
 	//   <0 - файл уже был открыт
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    Open(const char * pFileName);
 	int    Close();
@@ -15785,7 +15793,7 @@ public:
 	// Returns:
 	//   <0 - файл не был модифицирован, следовательно и попытки перезагрузки не предпринималось.
 	//   >0 - перезагрузка осуществлена успешно
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    Reload(bool force);
 protected:
@@ -17108,7 +17116,7 @@ private:
 	// ARG(usbClass	IN): Класс устройства
 	// Returns:
 	//		-1 - если устройство с заданными PID и VID не найдено
-	//		 0 - ошибка
+	//		 0 - error
 	//		 1 - устройство найдено
 	//int GetDevPath(uint usbClass);	// Находим имя устройства
 	int SetConfig();		// Настраиваем HID-устройство

@@ -35,8 +35,12 @@ template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBC
 		if(id) {
 			objcls obj;
 			obj.Fetch(id, &rec);
-			if(rec.Name[0] == 0)
-				ideqvalstr(id, rec.Name, sizeof(rec.Name));
+			if(rec.Name[0] == 0) {
+				if(obj.Obj == PPOBJ_GOODS && id <= _PPConst.TechSurrogateGoodsIdStart) // @v11.6.4 Специальный случай: ид товара меньший, чем _PPConst.TechSurrogateGoodsIdStart используется как суррогатное значение.
+					;
+				else
+					ideqvalstr(id, rec.Name, sizeof(rec.Name));
+			}
 		}
 		result->InitForeignStr(SLS.AcquireRvlStr() = rec.Name);
 	}

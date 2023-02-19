@@ -6828,6 +6828,10 @@ SJson * PPStyloQInterchange::MakeObjJson_Goods(const SBinaryChunk & rOwnIdent, c
 			}
 			if(pInnerEntry->Rest > 0.0)
 				p_result->InsertDouble("stock", pInnerEntry->Rest, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+			// @v11.6.4 {
+			if(pInnerEntry->Flags & InnerGoodsEntry::fDontShowRest)
+				p_result->InsertBool("hidestock", true);
+			// } @v11.6.4 
 			if(pGi) {
 				if(rPack.Rec.ManufID) {
 					PPObjPerson psn_obj;
@@ -6944,19 +6948,37 @@ SJson * PPStyloQInterchange::MakeObjJson_GoodsGroup(const SBinaryChunk & rOwnIde
 	return p_result;
 }
 
-SJson * PPStyloQInterchange::MakeObjArrayJson_GoodsGroup(const SBinaryChunk & rOwnIdent, PPIDArray & rIdList, Stq_CmdStat_MakeRsrv_Response * pStat)
+SJson * PPStyloQInterchange::MakeObjArrayJson_GoodsGroup(const SBinaryChunk & rOwnIdent, PPIDArray & rIdList, bool hierarchical, Stq_CmdStat_MakeRsrv_Response * pStat)
 {
 	SJson * p_js_list = 0;
 	if(rIdList.getCount()) {
 		rIdList.sortAndUndup();
 		PPObjGoodsGroup gg_obj;
 		Goods2Tbl::Rec gg_rec;
-		for(uint i = 0; i < rIdList.getCount(); i++) {
-			if(gg_obj.Fetch(rIdList.get(i), &gg_rec) > 0) {
-				SETIFZ(p_js_list, SJson::CreateArr());
-				SJson * p_jsobj = MakeObjJson_GoodsGroup(rOwnIdent, gg_rec, 0, pStat);
-				THROW(p_jsobj);
-				p_js_list->InsertChild(p_jsobj);
+		if(hierarchical) {
+			StrAssocArray * p_list = gg_obj.Implement_MakeStrAssocList(0, &rIdList);
+			if(p_list) {
+				p_list->SortByTextInTreeOrder();
+				for(uint i = 0; i < p_list->getCount(); i++) {
+					StrAssocArray::Item item = p_list->Get(i);
+					if(gg_obj.Fetch(item.Id, &gg_rec) > 0) {
+						SETIFZ(p_js_list, SJson::CreateArr());
+						SJson * p_jsobj = MakeObjJson_GoodsGroup(rOwnIdent, gg_rec, mojfHierarchical, pStat);
+						THROW(p_jsobj);
+						p_js_list->InsertChild(p_jsobj);
+					}
+				}
+				ZDELETE(p_list);
+			}
+		}
+		else {
+			for(uint i = 0; i < rIdList.getCount(); i++) {
+				if(gg_obj.Fetch(rIdList.get(i), &gg_rec) > 0) {
+					SETIFZ(p_js_list, SJson::CreateArr());
+					SJson * p_jsobj = MakeObjJson_GoodsGroup(rOwnIdent, gg_rec, 0, pStat);
+					THROW(p_jsobj);
+					p_js_list->InsertChild(p_jsobj);
+				}
 			}
 		}
 	}
@@ -7121,7 +7143,7 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 			js.InsertNz("goods_list", p_js_goodslist);
 		}
 		if(!p_param_ || p_param_->Flags & StyloQIndexingParam::fGoodsGroups) {
-			js.InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(own_svc_ident, goodsgrp_id_list, pStat));
+			js.InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(own_svc_ident, goodsgrp_id_list, false, pStat));
 		}
 		if(!p_param_ || p_param_->Flags & StyloQIndexingParam::fBrands) {
 			js.InsertNz("brand_list", MakeObjArrayJson_Brand(own_svc_ident, brand_id_list, mojfForIndexing, pStat));
@@ -7600,7 +7622,7 @@ int PPStyloQInterchange::MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBina
 		// (done by MakeObjArrayJson_GoodsGroup) grp_id_list.sortAndUndup();
 		// (done by MakeObjArrayJson_Brand) brand_id_list.sortAndUndup();
 		// (done by MakeObjArrayJson_Uom) unit_id_list.sortAndUndup();
-		pJs->InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(rOwnIdent, grp_id_list, pStat));
+		pJs->InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(rOwnIdent, grp_id_list, false, pStat));
 		pJs->InsertNz("uom_list", MakeObjArrayJson_Uom(rOwnIdent, unit_id_list, pStat));
 		pJs->InsertNz("brand_list", MakeObjArrayJson_Brand(rOwnIdent, brand_id_list, 0, pStat));
 		{
@@ -8072,6 +8094,8 @@ int StyloQAttendancePrereqParam::InitInstance()
 			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 0, StyloQDocumentPrereqParam::fUseBarcodeSearch);
 			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 1, StyloQDocumentPrereqParam::fUseBrands);
 			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 2, StyloQDocumentPrereqParam::fDlvrDateAsNominal); // @v11.6.1
+			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 3, StyloQDocumentPrereqParam::fUseHierarchGroups); // @v11.6.4
+			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 4, StyloQDocumentPrereqParam::fHideStock); // @v11.6.4
 			SetClusterData(CTL_STQDOCPARAM_FLAGS, Data.Flags);
 			SetupCtrls();
 			return ok;

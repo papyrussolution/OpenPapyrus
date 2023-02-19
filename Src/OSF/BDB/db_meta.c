@@ -1,22 +1,17 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
  */
 /*
- * Copyright (c) 1990, 1993, 1994, 1995, 1996
- *	Keith Bostic.  All rights reserved.
+ * Copyright (c) 1990, 1993, 1994, 1995, 1996 Keith Bostic.  All rights reserved.
  */
 /*
- * Copyright (c) 1990, 1993, 1994, 1995
- *	The Regents of the University of California.  All rights reserved.
+ * Copyright (c) 1990, 1993, 1994, 1995 The Regents of the University of California.  All rights reserved.
  *
- * This code is derived from software contributed to Berkeley by
- * Mike Olson.
+ * This code is derived from software contributed to Berkeley by Mike Olson.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *  notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -58,33 +53,24 @@ static void __db_init_meta(const DB * dbp, void * p, db_pgno_t pgno, uint32 pgty
 /*
  * __db_new --
  *	Get a new page, preferably from the freelist.
- *
- * PUBLIC: int __db_new __P((DBC *, uint32, DB_LOCK *, PAGE **));
  */
 int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 {
-	DB * dbp;
-	DBMETA * meta;
 	DB_LOCK metalock;
 	DB_LSN lsn;
-	DB_MPOOLFILE * mpf;
-	ENV * env;
-	PAGE * h;
 	db_pgno_t last, * list, pgno, newnext;
 	int extend, hash, ret;
-
-	meta = NULL;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	mpf = dbp->mpf;
-	h = NULL;
+	DBMETA * meta = NULL;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	PAGE * h = NULL;
 	newnext = PGNO_INVALID;
 	if(lockp)
 		LOCK_INIT(*lockp);
 	hash = 0;
 	ret = 0;
 	LOCK_INIT(metalock);
-
 #ifdef HAVE_HASH
 	if(dbp->type == DB_HASH) {
 		if((ret = __ham_return_meta(dbc, DB_MPOOL_DIRTY, &meta)) != 0)

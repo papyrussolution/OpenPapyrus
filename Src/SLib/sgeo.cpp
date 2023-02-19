@@ -1,5 +1,5 @@
 // SGEO.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -2141,9 +2141,9 @@ struct GeodTestRecord {
 		M12 = 0.0;
 		S12 = 0.0;
 	}
-	int    FASTCALL IsEq(const GeodTestRecord & rS) const
+	bool   FASTCALL IsEq(const GeodTestRecord & rS) const
 	{
-		int    ok = 1;
+		bool   ok = true;
 		THROW(P1 == rS.P1);
 		THROW(P2 == rS.P2);
 		THROW(feqeps(Azi1, rS.Azi1, 1E-7));

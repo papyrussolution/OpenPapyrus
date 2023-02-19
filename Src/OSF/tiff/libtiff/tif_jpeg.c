@@ -2141,7 +2141,7 @@ int TIFFInitJPEG(TIFF * tif, int scheme)
 	/* Default values for codec-specific fields */
 	sp->jpegtables = NULL;
 	sp->jpegtables_length = 0;
-	sp->jpegquality = 75;                   /* Default IJG quality */
+	sp->jpegquality = 75; /* Default IJG quality */
 	sp->jpegcolormode = JPEGCOLORMODE_RAW;
 	sp->jpegtablesmode = JPEGTABLESMODE_QUANT | JPEGTABLESMODE_HUFF;
 	sp->ycbcrsampling_fetched = 0;

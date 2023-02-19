@@ -1,13 +1,10 @@
-/**********************************************************************
-   iso8859_15.c -  Oniguruma (regular expression library)
-**********************************************************************/
+// iso8859_15.c -  Oniguruma (regular expression library)
+//
 /*-
- * Copyright (c) 2002-2020  K.Kosako
- * All rights reserved.
+ * Copyright (c) 2002-2020  K.Kosako All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -107,10 +104,7 @@ static int mbc_case_fold(OnigCaseFoldType flag, const uchar ** pp, const uchar *
 	return 1; /* return byte length of converted char to lower */
 }
 
-static int is_code_ctype(OnigCodePoint code, uint ctype)
-{
-	return (code < 256) ? ENC_IS_ISO_8859_15_CTYPE(code, ctype) : FALSE;
-}
+static int is_code_ctype(OnigCodePoint code, uint ctype) { return (code < 256) ? ENC_IS_ISO_8859_15_CTYPE(code, ctype) : FALSE; }
 
 static const OnigPairCaseFoldCodes CaseFoldMap[] = {
 	{ 0xa6, 0xa8 },

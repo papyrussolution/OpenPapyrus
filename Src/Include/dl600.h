@@ -137,7 +137,7 @@ struct DlFunc {
 	int    GetArg(uint argN, Arg *) const;
 	DLSYMBID GetArgType(uint argN) const;
 	int    GetArgName(uint argN, SString & rArgName) const;
-	int    IsEq(const DlFunc & rPat) const;
+	bool   IsEq(const DlFunc & rPat) const;
 	void   AddArg(uint typeId, const char * pName, uint argFlags = 0);
 
 	enum {
@@ -166,7 +166,7 @@ public:
 	DlFuncPool();
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
-	int    FASTCALL IsEq(const DlFuncPool & rPat) const;
+	bool   FASTCALL IsEq(const DlFuncPool & rPat) const;
 	void   FASTCALL Add(const DlFunc * pF);
 	uint   GetCount() const { return Items.getCount(); }
 	int    GetByPos(uint pos, DlFunc * pF) const;
@@ -521,7 +521,7 @@ public:
 	// Returns:
 	//   >0 - функция успешно добавила указанную константу
 	//   <0 - константа id уже находится в списке
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    AddConst(COption id, const CtmExprConst & rConst, int replace);
 	int    GetConst(COption id, CtmExprConst * pConst) const;
@@ -873,7 +873,7 @@ public:
 	//    1 - типы srcTyp и destTyp идентичны (преобразование не требуется)
 	//    2 - типы не идентичны, но преобразование осуществляется без потери точности
 	//    3 - преобразование возможно, но с потерей точности
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const void * pSrcData, void * pDestData, int * pLoss = 0);
 	int    AddStructType(DLSYMBID symbId);
@@ -1007,7 +1007,7 @@ public:
 	// Returns:
 	//   >0 - интерфейс с индексом *pI успешно извлечен
 	//   <0 - по индексу *pI и более интерфейсов нет
-	//    0 - ошибка извлечения интерфейса (*pI меньше, чем количество интерфейсов)
+	//    0 - error извлечения интерфейса (*pI меньше, чем количество интерфейсов)
 	//
 	int    EnumInterfacesByICls(const DlScope * pCls, uint * pI, DlScope::IfaceBase * pIfb, const DlScope ** ppIfaceScope) const;
 	//
@@ -1039,7 +1039,7 @@ public:
 	//   записи в словаре базы данных и создания файла данных.
 	// Returns:
 	//   !0 - спецификация таблицы успешно создана
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    LoadDbTableSpec(DLSYMBID scopeID, DBTable * pTbl, int format) const;
 	int    LoadDbTableSpec(const char * pName, DBTable * pTbl, int format) const;
@@ -1271,7 +1271,7 @@ public:
 	//   быть внесены в базу данных.
 	// Returns:
 	//   >0 - функция отработала успешно.
-	//    0 - ошибка.
+	//    0 - error.
 	//
 	virtual int  Set(long iterId, int commit);
 	virtual void Destroy(); // @v9.6.4 int-->void

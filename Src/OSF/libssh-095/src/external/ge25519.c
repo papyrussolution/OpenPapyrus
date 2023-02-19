@@ -203,16 +203,13 @@ static void setneutral(ge25519 * r)
 	fe25519_setone(&r->z);
 	fe25519_setzero(&r->t);
 }
-
-/* ********************************************************************
-*                    EXPORTED FUNCTIONS
-******************************************************************** */
-
+// 
+// EXPORTED FUNCTIONS
+// 
 /* return 0 on success, -1 otherwise */
 int ge25519_unpackneg_vartime(ge25519_p3 * r, const uchar p[32])
 {
 	uchar par;
-
 	fe25519 t, chk, num, den, den2, den4, den6;
 	fe25519_setone(&r->z);
 	par = p[31] >> 7;

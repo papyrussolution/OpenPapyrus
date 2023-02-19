@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Yann Collet, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
@@ -57,17 +56,14 @@ ZSTDLIBv07_API size_t ZSTDv07_decompress(void* dst, size_t dstCapacity, const vo
 
     note : assumes `cSize` and `dBound` are _not_ NULL.
  */
-void ZSTDv07_findFrameSizeInfoLegacy(const void * src, size_t srcSize,
-    size_t* cSize, uint64* dBound);
+void ZSTDv07_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, uint64* dBound);
 
-/*======  Helper functions  ======*/
-ZSTDLIBv07_API uint ZSTDv07_isError(size_t code);          /*!< tells if a `size_t` function result is an error
-                                                                     code */
+// Helper functions
+ZSTDLIBv07_API uint ZSTDv07_isError(size_t code);          /*!< tells if a `size_t` function result is an error code */
 ZSTDLIBv07_API const char* ZSTDv07_getErrorName(size_t code);     /*!< provides readable string from an error code */
-
-/*-*************************************
-*  Explicit memory management
-***************************************/
+// 
+// Explicit memory management
+// 
 /** Decompression context */
 typedef struct ZSTDv07_DCtx_s ZSTDv07_DCtx;
 ZSTDLIBv07_API ZSTDv07_DCtx* ZSTDv07_createDCtx(void);
@@ -76,19 +72,17 @@ ZSTDLIBv07_API size_t     ZSTDv07_freeDCtx(ZSTDv07_DCtx* dctx);      /*!< @retur
 /** ZSTDv07_decompressDCtx() :
  *   Same as ZSTDv07_decompress(), requires an allocated ZSTDv07_DCtx (see ZSTDv07_createDCtx()) */
 ZSTDLIBv07_API size_t ZSTDv07_decompressDCtx(ZSTDv07_DCtx* ctx, void* dst, size_t dstCapacity, const void* src, size_t srcSize);
-
-/*-************************
- *  Simple dictionary API
- ***************************/
+// 
+// Simple dictionary API
+// 
 /*! ZSTDv07_decompress_usingDict() :
  *   Decompression using a pre-defined Dictionary content (see dictBuilder).
  *   Dictionary must be identical to the one used during compression.
  *   Note : This function load the dictionary, resulting in a significant startup time */
 ZSTDLIBv07_API size_t ZSTDv07_decompress_usingDict(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapacity, const void* src, size_t srcSize, const void* dict, size_t dictSize);
-
-/*-**************************
-*  Advanced Dictionary API
-****************************/
+// 
+// Advanced Dictionary API
+// 
 /*! ZSTDv07_createDDict() :
  *   Create a digested dictionary, ready to start decompression operation without startup delay.
  *   `dict` can be released after creation */

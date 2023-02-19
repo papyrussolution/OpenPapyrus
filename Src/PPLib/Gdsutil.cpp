@@ -1,5 +1,5 @@
 // GDSUTIL.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Утилиты для работы с товарами
 //
@@ -764,6 +764,42 @@ int PPObjGoods::Helper_EditGoodsStruc(PPID goodsID, int isDynGen)
 int PPObjGoods::EditGoodsStruc(PPID goodsID)
 {
 	return Helper_EditGoodsStruc(goodsID, 0);
+}
+
+int PPObjGoods::SearchGListByStruc(PPID strucID, bool expandGenerics, PPIDArray & rList)
+{
+	rList.Z();
+	int    ok = -1;
+	Goods2Tbl::Key5 k5;
+	GoodsCore * p_tbl = P_Tbl;
+	BExtQuery q(p_tbl, 5);
+	q.select(p_tbl->ID, 0L).where(p_tbl->StrucID == strucID);
+	k5.StrucID = strucID;
+	for(q.initIteration(false, &k5, spEq/*&k0, spGt*/); q.nextIteration() > 0;) {
+		rList.add(p_tbl->data.ID);
+	}
+	if(rList.getCount()) {
+		rList.sortAndUndup();
+		if(expandGenerics) {
+			PPIDArray final_list;
+			{
+				Goods2Tbl::Rec goods_rec;
+				for(uint j = 0; j < rList.getCount(); j++) {
+					const PPID _id = rList.get(j);
+					if(Fetch(_id, &goods_rec) > 0) {
+						if(goods_rec.Flags & GF_GENERIC)
+							GetGenericList(_id, &final_list);
+						else
+							final_list.add(_id);
+					}
+				}
+				final_list.sortAndUndup();
+				rList = final_list;
+			}
+		}
+		ok = 1;
+	}
+	return ok;
 }
 
 int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles,

@@ -101,14 +101,12 @@ int __ham_quick_delete(DBC*dbc)
 		ret = t_ret;
 	return ret;
 }
-
-/* ****************** CURSORS ********************************** */
-/*
- * __hamc_init --
- *	Initialize the hash-specific portion of a cursor.
- *
- * PUBLIC: int __hamc_init(DBC *);
- */
+// 
+// CURSORS
+//
+//
+// Descr: Initialize the hash-specific portion of a cursor.
+// 
 int __hamc_init(DBC*dbc)
 {
 	HASH_CURSOR * new_curs;
@@ -138,10 +136,9 @@ int __hamc_init(DBC*dbc)
 	dbc->am_writelock = __hamc_writelock;
 	return __ham_item_init(dbc);
 }
-/*
- * __hamc_close --
- *	Close down the cursor from a single use.
- */
+// 
+// Descr: Close down the cursor from a single use.
+// 
 static int __hamc_close(DBC*dbc, db_pgno_t root_pgno, int * rmroot)
 {
 	HKEYDATA * dp;

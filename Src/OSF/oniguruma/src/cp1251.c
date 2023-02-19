@@ -1,14 +1,10 @@
-/**********************************************************************
-   cp1251.c -  Oniguruma (regular expression library)
-**********************************************************************/
+// cp1251.c -  Oniguruma (regular expression library)
+//
 /*-
- * Copyright (c) 2006-2020  Byte      <byte AT mail DOT kna DOT ru>
- *                    K.Kosako
- * All rights reserved.
+ * Copyright (c) 2006-2020  Byte      <byte AT mail DOT kna DOT ru> K.Kosako All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -104,10 +100,7 @@ static int cp1251_mbc_case_fold(OnigCaseFoldType flag, const uchar ** pp, const 
 
 static int cp1251_is_code_ctype(OnigCodePoint code, uint ctype)
 {
-	if(code < 256)
-		return ENC_IS_CP1251_CTYPE(code, ctype);
-	else
-		return FALSE;
+	return (code < 256) ? ENC_IS_CP1251_CTYPE(code, ctype) : FALSE;
 }
 
 static const OnigPairCaseFoldCodes CaseFoldMap[] = {

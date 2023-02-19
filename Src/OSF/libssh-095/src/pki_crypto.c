@@ -407,22 +407,18 @@ ssh_key pki_key_dup(const ssh_key key, int demote)
 		case SSH_KEYTYPE_ECDSA_P521:
 #ifdef HAVE_OPENSSL_ECC
 		    p_new->ecdsa_nid = key->ecdsa_nid;
-
 		    /* privkey -> pubkey */
 		    if(demote && ssh_key_is_private(key)) {
 			    const EC_POINT * p;
 			    int ok;
-
 			    p_new->ecdsa = EC_KEY_new_by_curve_name(key->ecdsa_nid);
 			    if(p_new->ecdsa == NULL) {
 				    goto fail;
 			    }
-
 			    p = EC_KEY_get0_public_key(key->ecdsa);
 			    if(!p) {
 				    goto fail;
 			    }
-
 			    ok = EC_KEY_set_public_key(p_new->ecdsa, p);
 			    if(!ok) {
 				    goto fail;
@@ -452,43 +448,34 @@ fail:
 
 int pki_key_generate_rsa(ssh_key key, int parameter)
 {
-	BIGNUM * e;
 	int rc;
-	e = BN_new();
+	BIGNUM * e = BN_new();
 	key->rsa = RSA_new();
-
 	BN_set_word(e, 65537);
 	rc = RSA_generate_key_ex(key->rsa, parameter, e, NULL);
-
 	BN_free(e);
-
 	if(rc <= 0 || key->rsa == NULL)
 		return SSH_ERROR;
 	return SSH_OK;
 }
 
-int pki_key_generate_dss(ssh_key key, int parameter){
+int pki_key_generate_dss(ssh_key key, int parameter)
+{
 	int rc;
 #if OPENSSL_VERSION_NUMBER > 0x00908000L
 	key->dsa = DSA_new();
 	if(key->dsa == NULL) {
 		return SSH_ERROR;
 	}
-	rc = DSA_generate_parameters_ex(key->dsa,
-		parameter,
-		NULL,                      /* seed */
-		0,                         /* seed_len */
-		NULL,                      /* counter_ret */
-		NULL,                      /* h_ret */
-		NULL); /* cb */
+	rc = DSA_generate_parameters_ex(key->dsa, parameter, NULL/* seed */, 0/* seed_len */, NULL/* counter_ret */,
+		NULL/* h_ret */, NULL); /* cb */
 	if(rc != 1) {
 		DSA_free(key->dsa);
 		key->dsa = NULL;
 		return SSH_ERROR;
 	}
 #else
-	key->dsa = DSA_generate_parameters(parameter, NULL, 0, NULL, NULL,
-		NULL, NULL);
+	key->dsa = DSA_generate_parameters(parameter, NULL, 0, NULL, NULL, NULL, NULL);
 	if(key->dsa == NULL) {
 		return SSH_ERROR;
 	}
@@ -503,9 +490,9 @@ int pki_key_generate_dss(ssh_key key, int parameter){
 }
 
 #ifdef HAVE_OPENSSL_ECC
-int pki_key_generate_ecdsa(ssh_key key, int parameter) {
+int pki_key_generate_ecdsa(ssh_key key, int parameter) 
+{
 	int ok;
-
 	switch(parameter) {
 		case 384:
 		    key->ecdsa_nid = NID_secp384r1;
@@ -520,37 +507,29 @@ int pki_key_generate_ecdsa(ssh_key key, int parameter) {
 		    key->type = SSH_KEYTYPE_ECDSA_P256;
 		    break;
 		default:
-		    SSH_LOG(SSH_LOG_WARN, "Invalid parameter %d for ECDSA key "
-			"generation", parameter);
+		    SSH_LOG(SSH_LOG_WARN, "Invalid parameter %d for ECDSA key generation", parameter);
 		    return SSH_ERROR;
 	}
-
 	key->ecdsa = EC_KEY_new_by_curve_name(key->ecdsa_nid);
 	if(key->ecdsa == NULL) {
 		return SSH_ERROR;
 	}
-
 	ok = EC_KEY_generate_key(key->ecdsa);
 	if(!ok) {
 		EC_KEY_free(key->ecdsa);
 		return SSH_ERROR;
 	}
-
 	EC_KEY_set_asn1_flag(key->ecdsa, OPENSSL_EC_NAMED_CURVE);
-
 	return SSH_OK;
 }
 
 #endif
 
-int pki_key_compare(const ssh_key k1,
-    const ssh_key k2,
-    enum ssh_keycmp_e what)
+int pki_key_compare(const ssh_key k1, const ssh_key k2, enum ssh_keycmp_e what)
 {
 	switch(k1->type) {
 		case SSH_KEYTYPE_DSS: {
-		    const BIGNUM * p1, * p2, * q1, * q2, * g1, * g2,
-			* pub_key1, * pub_key2, * priv_key1, * priv_key2;
+		    const BIGNUM * p1, * p2, * q1, * q2, * g1, * g2, * pub_key1, * pub_key2, * priv_key1, * priv_key2;
 		    if(DSA_size(k1->dsa) != DSA_size(k2->dsa)) {
 			    return 1;
 		    }
@@ -570,7 +549,6 @@ int pki_key_compare(const ssh_key k1,
 		    if(bignum_cmp(pub_key1, pub_key2) != 0) {
 			    return 1;
 		    }
-
 		    if(what == SSH_KEY_CMP_PRIVATE) {
 			    if(bignum_cmp(priv_key1, priv_key2) != 0) {
 				    return 1;
@@ -615,7 +593,6 @@ int pki_key_compare(const ssh_key k1,
 			    const EC_POINT * p2 = EC_KEY_get0_public_key(k2->ecdsa);
 			    const EC_GROUP * g1 = EC_KEY_get0_group(k1->ecdsa);
 			    const EC_GROUP * g2 = EC_KEY_get0_group(k2->ecdsa);
-
 			    if(p1 == NULL || p2 == NULL) {
 				    return 1;
 			    }
@@ -644,21 +621,16 @@ int pki_key_compare(const ssh_key k1,
 		default:
 		    return 1;
 	}
-
 	return 0;
 }
 
-ssh_string pki_private_key_to_pem(const ssh_key key,
-    const char * passphrase,
-    ssh_auth_callback auth_fn,
-    void * auth_data)
+ssh_string pki_private_key_to_pem(const ssh_key key, const char * passphrase, ssh_auth_callback auth_fn, void * auth_data)
 {
 	ssh_string blob = NULL;
 	BUF_MEM * buf = NULL;
-	BIO * mem = NULL;
 	EVP_PKEY * pkey = NULL;
 	int rc;
-	mem = BIO_new(BIO_s_mem());
+	BIO * mem = BIO_new(BIO_s_mem());
 	if(!mem) {
 		return NULL;
 	}
@@ -668,7 +640,6 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 		    if(!pkey) {
 			    goto err;
 		    }
-
 		    rc = EVP_PKEY_set1_DSA(pkey, key->dsa);
 		    break;
 		case SSH_KEYTYPE_RSA:
@@ -677,7 +648,6 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 		    if(!pkey) {
 			    goto err;
 		    }
-
 		    rc = EVP_PKEY_set1_RSA(pkey, key->rsa);
 		    break;
 #ifdef HAVE_ECC
@@ -688,7 +658,6 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 		    if(!pkey) {
 			    goto err;
 		    }
-
 		    rc = EVP_PKEY_set1_EC_KEY(pkey, key->ecdsa);
 		    break;
 #endif
@@ -697,16 +666,11 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 		    /* In OpenSSL, the input is the private key seed only, which means
 		     * the first half of the SSH private key (the second half is the
 		     * public key) */
-		    pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
-			    (const uint8 *)key->ed25519_privkey,
-			    ED25519_KEY_LEN);
+		    pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, (const uint8 *)key->ed25519_privkey, ED25519_KEY_LEN);
 		    if(!pkey) {
-			    SSH_LOG(SSH_LOG_TRACE,
-				"Failed to create ed25519 EVP_PKEY: %s",
-				ERR_error_string(ERR_get_error(), NULL));
+			    SSH_LOG(SSH_LOG_TRACE, "Failed to create ed25519 EVP_PKEY: %s", ERR_error_string(ERR_get_error(), NULL));
 			    goto err;
 		    }
-
 		    /* Mark the operation as successful as for the other key types */
 		    rc = 1;
 		    break;
@@ -729,58 +693,34 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 		SSH_LOG(SSH_LOG_WARN, "Failed to initialize EVP_PKEY structure");
 		goto err;
 	}
-
 	if(passphrase == NULL) {
 		struct pem_get_password_struct pgp = { auth_fn, auth_data };
-
-		rc = PEM_write_bio_PrivateKey(mem,
-			pkey,
-			NULL, /* cipher */
-			NULL, /* kstr */
-			0, /* klen */
-			pem_get_password,
-			&pgp);
+		rc = PEM_write_bio_PrivateKey(mem, pkey, NULL/* cipher */, NULL/* kstr */, 0/* klen */, pem_get_password, &pgp);
 	}
 	else {
-		rc = PEM_write_bio_PrivateKey(mem,
-			pkey,
-			EVP_aes_128_cbc(),
-			NULL, /* kstr */
-			0, /* klen */
-			NULL, /* auth_fn */
-			(void *)passphrase);
+		rc = PEM_write_bio_PrivateKey(mem, pkey, EVP_aes_128_cbc(), NULL/* kstr */, 0/* klen */, NULL/* auth_fn */, (void *)passphrase);
 	}
 	EVP_PKEY_free(pkey);
 	pkey = NULL;
-
 	if(rc != 1) {
 		goto err;
 	}
-
 	BIO_get_mem_ptr(mem, &buf);
-
 	blob = ssh_string_new(buf->length);
 	if(blob == NULL) {
 		goto err;
 	}
-
 	ssh_string_fill(blob, buf->data, buf->length);
 	BIO_free(mem);
-
 	return blob;
-
 err:
 	EVP_PKEY_free(pkey);
 	BIO_free(mem);
 	return NULL;
 }
 
-ssh_key pki_private_key_from_base64(const char * b64_key,
-    const char * passphrase,
-    ssh_auth_callback auth_fn,
-    void * auth_data)
+ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphrase, ssh_auth_callback auth_fn, void * auth_data)
 {
-	BIO * mem = NULL;
 	DSA * dsa = NULL;
 	RSA * rsa = NULL;
 #ifdef HAVE_OPENSSL_ED25519
@@ -796,13 +736,10 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 	void * ecdsa = NULL;
 #endif
 	EVP_PKEY * pkey = NULL;
-
-	mem = BIO_new_mem_buf((void *)b64_key, -1);
-
+	BIO * mem = BIO_new_mem_buf((void *)b64_key, -1);
 	if(passphrase == NULL) {
 		if(auth_fn) {
 			struct pem_get_password_struct pgp = { auth_fn, auth_data };
-
 			pkey = PEM_read_bio_PrivateKey(mem, NULL, pem_get_password, &pgp);
 		}
 		else {
@@ -813,22 +750,16 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 	else {
 		pkey = PEM_read_bio_PrivateKey(mem, NULL, NULL, (void *)passphrase);
 	}
-
 	BIO_free(mem);
-
 	if(!pkey) {
-		SSH_LOG(SSH_LOG_WARN,
-		    "Parsing private key: %s",
-		    ERR_error_string(ERR_get_error(), NULL));
+		SSH_LOG(SSH_LOG_WARN, "Parsing private key: %s", ERR_error_string(ERR_get_error(), NULL));
 		return NULL;
 	}
 	switch(EVP_PKEY_base_id(pkey)) {
 		case EVP_PKEY_DSA:
 		    dsa = EVP_PKEY_get1_DSA(pkey);
 		    if(dsa == NULL) {
-			    SSH_LOG(SSH_LOG_WARN,
-				"Parsing private key: %s",
-				ERR_error_string(ERR_get_error(), NULL));
+			    SSH_LOG(SSH_LOG_WARN, "Parsing private key: %s", ERR_error_string(ERR_get_error(), NULL));
 			    goto fail;
 		    }
 		    type = SSH_KEYTYPE_DSS;
@@ -836,9 +767,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 		case EVP_PKEY_RSA:
 		    rsa = EVP_PKEY_get1_RSA(pkey);
 		    if(rsa == NULL) {
-			    SSH_LOG(SSH_LOG_WARN,
-				"Parsing private key: %s",
-				ERR_error_string(ERR_get_error(), NULL));
+			    SSH_LOG(SSH_LOG_WARN, "Parsing private key: %s", ERR_error_string(ERR_get_error(), NULL));
 			    goto fail;
 		    }
 		    type = SSH_KEYTYPE_RSA;
@@ -1531,26 +1460,17 @@ errout:
 	return SSH_ERROR;
 }
 
-static int pki_signature_from_dsa_blob(UNUSED_PARAM(const ssh_key pubkey),
-    const ssh_string sig_blob,
-    ssh_signature sig)
+static int pki_signature_from_dsa_blob(UNUSED_PARAM(const ssh_key pubkey), const ssh_string sig_blob, ssh_signature sig)
 {
 	DSA_SIG * dsa_sig = NULL;
 	BIGNUM * pr = NULL, * ps = NULL;
-
 	ssh_string r;
 	ssh_string s;
-
-	size_t len;
-
 	int raw_sig_len = 0;
 	uchar * raw_sig_data = NULL;
 	uchar * temp_raw_sig = NULL;
-
 	int rc;
-
-	len = ssh_string_len(sig_blob);
-
+	size_t len = ssh_string_len(sig_blob);
 	/* 40 is the dual signature blob len. */
 	if(len != 40) {
 		SSH_LOG(SSH_LOG_WARN, "Signature has wrong size: %lu", (ulong)len);
@@ -1571,72 +1491,58 @@ static int pki_signature_from_dsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	if(pr == NULL) {
 		goto error;
 	}
-
 	s = ssh_string_new(20);
 	if(!s) {
 		goto error;
 	}
 	ssh_string_fill(s, (char *)ssh_string_data(sig_blob) + 20, 20);
-
 	ps = ssh_make_string_bn(s);
 	ssh_string_burn(s);
 	SSH_STRING_FREE(s);
 	if(ps == NULL) {
 		goto error;
 	}
-
 	dsa_sig = DSA_SIG_new();
 	if(dsa_sig == NULL) {
 		goto error;
 	}
-
-	/* Memory management of pr and ps is transferred to DSA signature
-	 * object */
+	/* Memory management of pr and ps is transferred to DSA signature object */
 	rc = DSA_SIG_set0(dsa_sig, pr, ps);
 	if(rc == 0) {
 		goto error;
 	}
 	ps = NULL;
 	pr = NULL;
-
 	/* Get the expected size of the buffer */
 	rc = i2d_DSA_SIG(dsa_sig, NULL);
 	if(rc <= 0) {
 		goto error;
 	}
 	raw_sig_len = rc;
-
 	raw_sig_data = (uchar *)SAlloc::C(1, raw_sig_len);
 	if(raw_sig_data == NULL) {
 		goto error;
 	}
 	temp_raw_sig = raw_sig_data;
-
-	/* It is necessary to use a temporary pointer as i2d_* "advances" the
-	 * pointer */
+	/* It is necessary to use a temporary pointer as i2d_* "advances" the pointer */
 	raw_sig_len = i2d_DSA_SIG(dsa_sig, &temp_raw_sig);
 	if(raw_sig_len <= 0) {
 		goto error;
 	}
-
 	sig->raw_sig = ssh_string_new(raw_sig_len);
 	if(sig->raw_sig == NULL) {
 		memzero(raw_sig_data, raw_sig_len);
 		goto error;
 	}
-
 	rc = ssh_string_fill(sig->raw_sig, raw_sig_data, raw_sig_len);
 	if(rc < 0) {
 		memzero(raw_sig_data, raw_sig_len);
 		goto error;
 	}
-
 	memzero(raw_sig_data, raw_sig_len);
 	ZFREE(raw_sig_data);
 	DSA_SIG_free(dsa_sig);
-
 	return SSH_OK;
-
 error:
 	bignum_safe_free(ps);
 	bignum_safe_free(pr);
@@ -1645,61 +1551,45 @@ error:
 	return SSH_ERROR;
 }
 
-static int pki_signature_from_ecdsa_blob(UNUSED_PARAM(const ssh_key pubkey),
-    const ssh_string sig_blob,
-    ssh_signature sig)
+static int pki_signature_from_ecdsa_blob(UNUSED_PARAM(const ssh_key pubkey), const ssh_string sig_blob, ssh_signature sig)
 {
 	ECDSA_SIG * ecdsa_sig = NULL;
 	BIGNUM * pr = NULL, * ps = NULL;
-
 	ssh_string r;
 	ssh_string s;
-
-	ssh_buffer buf = NULL;
 	uint32_t rlen;
-
 	uchar * raw_sig_data = NULL;
 	uchar * temp_raw_sig = NULL;
 	size_t raw_sig_len = 0;
-
 	int rc;
-
 	/* build ecdsa signature */
-	buf = ssh_buffer_new();
+	ssh_buffer buf = ssh_buffer_new();
 	if(!buf) {
 		return SSH_ERROR;
 	}
-
-	rc = ssh_buffer_add_data(buf,
-		ssh_string_data(sig_blob),
-		ssh_string_len(sig_blob));
+	rc = ssh_buffer_add_data(buf, ssh_string_data(sig_blob), ssh_string_len(sig_blob));
 	if(rc < 0) {
 		goto error;
 	}
-
 	r = ssh_buffer_get_ssh_string(buf);
 	if(!r) {
 		goto error;
 	}
-
 #ifdef DEBUG_CRYPTO
 	ssh_log_hexdump("r", (const uchar *)ssh_string_data(r), ssh_string_len(r));
 #endif
-
 	pr = ssh_make_string_bn(r);
 	ssh_string_burn(r);
 	SSH_STRING_FREE(r);
 	if(pr == NULL) {
 		goto error;
 	}
-
 	s = ssh_buffer_get_ssh_string(buf);
 	rlen = ssh_buffer_get_len(buf);
 	SSH_BUFFER_FREE(buf);
 	if(!s) {
 		goto error;
 	}
-
 	if(rlen != 0) {
 		ssh_string_burn(s);
 		SSH_STRING_FREE(s);
@@ -1709,65 +1599,53 @@ static int pki_signature_from_ecdsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 #ifdef DEBUG_CRYPTO
 	ssh_log_hexdump("s", (const uchar *)ssh_string_data(s), ssh_string_len(s));
 #endif
-
 	ps = ssh_make_string_bn(s);
 	ssh_string_burn(s);
 	SSH_STRING_FREE(s);
 	if(ps == NULL) {
 		goto error;
 	}
-
 	ecdsa_sig = ECDSA_SIG_new();
 	if(ecdsa_sig == NULL) {
 		goto error;
 	}
-
-	/* Memory management of pr and ps is transferred to
-	 * ECDSA signature object */
+	/* Memory management of pr and ps is transferred to ECDSA signature object */
 	rc = ECDSA_SIG_set0(ecdsa_sig, pr, ps);
 	if(rc == 0) {
 		goto error;
 	}
 	pr = NULL;
 	ps = NULL;
-
 	/* Get the expected size of the buffer */
 	rc = i2d_ECDSA_SIG(ecdsa_sig, NULL);
 	if(rc <= 0) {
 		goto error;
 	}
 	raw_sig_len = rc;
-
 	raw_sig_data = (uchar *)SAlloc::C(1, raw_sig_len);
 	if(raw_sig_data == NULL) {
 		goto error;
 	}
 	temp_raw_sig = raw_sig_data;
-
-	/* It is necessary to use a temporary pointer as i2d_* "advances" the
-	 * pointer */
+	/* It is necessary to use a temporary pointer as i2d_* "advances" the pointer */
 	rc = i2d_ECDSA_SIG(ecdsa_sig, &temp_raw_sig);
 	if(rc <= 0) {
 		goto error;
 	}
-
 	sig->raw_sig = ssh_string_new(raw_sig_len);
 	if(sig->raw_sig == NULL) {
 		memzero(raw_sig_data, raw_sig_len);
 		goto error;
 	}
-
 	rc = ssh_string_fill(sig->raw_sig, raw_sig_data, raw_sig_len);
 	if(rc < 0) {
 		memzero(raw_sig_data, raw_sig_len);
 		goto error;
 	}
-
 	memzero(raw_sig_data, raw_sig_len);
 	ZFREE(raw_sig_data);
 	ECDSA_SIG_free(ecdsa_sig);
 	return SSH_OK;
-
 error:
 	SSH_BUFFER_FREE(buf);
 	bignum_safe_free(ps);
@@ -2331,7 +2209,6 @@ ssh_signature pki_do_sign_hash(const ssh_key privkey,
 	sig->type = privkey->type;
 	sig->type_c = ssh_key_signature_to_char(privkey->type, hash_type);
 	sig->hash_type = hash_type;
-
 	switch(privkey->type) {
 		case SSH_KEYTYPE_ED25519:
 		    rc = pki_ed25519_sign(privkey, sig, hash, hlen);
@@ -2344,7 +2221,6 @@ ssh_signature pki_do_sign_hash(const ssh_key privkey,
 		    ssh_signature_free(sig);
 		    return NULL;
 	}
-
 	return sig;
 }
 

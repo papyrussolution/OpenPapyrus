@@ -2,9 +2,7 @@
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//   https://www.apache.org/licenses/LICENSE-2.0
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // Parsing of a POSIX zone spec as described in the TZ part of section 8.3 in
 // http://pubs.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap08.html.

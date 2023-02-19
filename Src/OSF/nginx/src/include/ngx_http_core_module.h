@@ -321,7 +321,7 @@ struct /*ngx_http_core_loc_conf_s*/ngx_http_core_loc_conf_t {
 	ngx_flag_t recursive_error_pages; /* recursive_error_pages */
 	ngx_uint_t server_tokens; /* server_tokens */
 	ngx_flag_t chunked_transfer_encoding; /* chunked_transfer_encoding */
-	ngx_flag_t etag;                   /* etag */
+	ngx_flag_t etag; /* etag */
 #if (NGX_HTTP_GZIP)
 	ngx_flag_t gzip_vary; /* gzip_vary */
 	ngx_uint_t gzip_http_version; /* gzip_http_version */

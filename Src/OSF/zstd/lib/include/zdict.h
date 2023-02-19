@@ -250,12 +250,9 @@ ZDICTLIB_API size_t ZDICT_finalizeDictionary(void* dstDictBuffer, size_t maxDict
     const void* samplesBuffer, const size_t* samplesSizes, uint nbSamples,
     ZDICT_params_t parameters);
 
-/*======   Helper functions   ======*/
-ZDICTLIB_API uint ZDICT_getDictID(const void* dictBuffer, size_t dictSize);  /**< extracts dictID; @return zero if
-                                                                                    error (not a valid dictionary) */
-ZDICTLIB_API size_t ZDICT_getDictHeaderSize(const void* dictBuffer, size_t dictSize);  /* returns dict header size;
-                                                                                          returns a ZSTD error code on
-                                                                                          failure */
+// Helper functions
+ZDICTLIB_API uint ZDICT_getDictID(const void* dictBuffer, size_t dictSize);  /**< extracts dictID; @return zero if error (not a valid dictionary) */
+ZDICTLIB_API size_t ZDICT_getDictHeaderSize(const void* dictBuffer, size_t dictSize);  /* returns dict header size; returns a ZSTD error code on failure */
 ZDICTLIB_API uint ZDICT_isError(size_t errorCode);
 ZDICTLIB_API const char* ZDICT_getErrorName(size_t errorCode);
 

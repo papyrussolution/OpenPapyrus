@@ -97,9 +97,9 @@ struct PW {
 	}
 	HINSTANCE hInstance; /* required */
 	HINSTANCE hPrevInstance; /* required */
-	LPCWSTR Title;                   /* required */
+	LPCWSTR Title;  /* required */
 	LPWSTR Message; /* required */
-	POINT Origin;                   /* optional */
+	POINT Origin;   /* optional */
 	HWND hWndParent; /* optional */
 	HWND hWndPause;
 	HWND hOK;

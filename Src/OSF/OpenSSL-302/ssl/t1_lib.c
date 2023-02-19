@@ -1,11 +1,9 @@
-/*
- * Copyright 1995-2022 The OpenSSL Project Authors. All Rights Reserved.
- *
- * Licensed under the Apache License 2.0 (the "License").  You may not use
- * this file except in compliance with the License.  You can obtain a copy
- * in the file LICENSE in the source distribution or at
- * https://www.openssl.org/source/license.html
- */
+// Copyright 1995-2022 The OpenSSL Project Authors. All Rights Reserved.
+// 
+// Licensed under the Apache License 2.0 (the "License").  You may not use
+// this file except in compliance with the License.  You can obtain a copy
+// in the file LICENSE in the source distribution or at https://www.openssl.org/source/license.html
+// 
 #include <internal\openssl-lib-internal.h>
 #pragma hdrstop
 #include "ssl_local.h"
@@ -3294,10 +3292,9 @@ uint8_t SSL_SESSION_get_max_fragment_length(const SSL_SESSION * session)
 {
 	return session->ext.max_fragment_len_mode;
 }
-
-/*
- * Helper functions for HMAC access with legacy support included.
- */
+// 
+// Helper functions for HMAC access with legacy support included.
+// 
 SSL_HMAC * ssl_hmac_new(const SSL_CTX * ctx)
 {
 	SSL_HMAC * ret = (SSL_HMAC *)OPENSSL_zalloc(sizeof(*ret));
