@@ -120,9 +120,7 @@ static ASN1_TYPE * generate_v3(const char * str, X509V3_CTX * cnf, int depth,
 		*perr = ASN1_R_UNKNOWN_TAG;
 		return NULL;
 	}
-
-	if((asn1_tags.utype == V_ASN1_SEQUENCE)
-	    || (asn1_tags.utype == V_ASN1_SET)) {
+	if((asn1_tags.utype == V_ASN1_SEQUENCE) || (asn1_tags.utype == V_ASN1_SET)) {
 		if(!cnf) {
 			*perr = ASN1_R_SEQUENCE_OR_SET_NEEDS_CONFIG;
 			return NULL;
@@ -135,27 +133,22 @@ static ASN1_TYPE * generate_v3(const char * str, X509V3_CTX * cnf, int depth,
 	}
 	else
 		ret = asn1_str2type(asn1_tags.str, asn1_tags.format, asn1_tags.utype);
-
 	if(!ret)
 		return NULL;
-
 	/* If no tagging return base type */
 	if((asn1_tags.imp_tag == -1) && (asn1_tags.exp_count == 0))
 		return ret;
-
 	/* Generate the encoding */
 	cpy_len = i2d_ASN1_TYPE(ret, &orig_der);
 	ASN1_TYPE_free(ret);
 	ret = NULL;
 	/* Set point to start copying for modified encoding */
 	cpy_start = orig_der;
-
 	/* Do we need IMPLICIT tagging? */
 	if(asn1_tags.imp_tag != -1) {
 		/* If IMPLICIT we will replace the underlying tag */
 		/* Skip existing tag+len */
-		r = ASN1_get_object(&cpy_start, &hdr_len, &hdr_tag, &hdr_class,
-			cpy_len);
+		r = ASN1_get_object(&cpy_start, &hdr_len, &hdr_tag, &hdr_class, cpy_len);
 		if(r & 0x80)
 			goto err;
 		/* Update copy length */

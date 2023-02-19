@@ -128,7 +128,7 @@ int AmtList::Put(PPID amtTypeID, PPID curID, double amt, int ignoreZero, int rep
 	uint   pos = 0;
 	amt = oneof2(amtTypeID, PPAMT_CRATE, PPAMT_TRANSITCRATE) ? R6(amt) : R2(amt);
 	int    zero = BIN(ignoreZero && amt == 0.0);
-	if(Search(amtTypeID, curID, &pos) > 0) {
+	if(Search(amtTypeID, curID, &pos)) {
 		if(replace)
 			if(zero)
 				atFree(pos);
@@ -166,7 +166,7 @@ int AmtList::Add(PPID amtTypeID, PPID curID, double amt, int ignoreZero)
 int AmtList::Add(const AmtEntry * pEntry, int ignoreZero)
 {
 	uint pos = 0;
-	if(Search(pEntry->AmtTypeID, pEntry->CurID, &pos) > 0) {
+	if(Search(pEntry->AmtTypeID, pEntry->CurID, &pos)) {
 		at(pos).Amt += pEntry->Amt;
 		return 1;
 	}
@@ -4281,7 +4281,7 @@ int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 			}
 		}
 		uint   pos = 0;
-		if(pList->Search(PPAMT_MAIN, Rec.CurID, &pos) > 0)
+		if(pList->Search(PPAMT_MAIN, Rec.CurID, &pos))
 			Rec.Amount = BR2(pList->at(pos).Amt);
 		Amounts.Put(pList, 1, 1);
 		DistributeExtCost();

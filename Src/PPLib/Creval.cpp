@@ -214,7 +214,7 @@ int CRevalDialog::setupCRateList(PPID accID, int * pIsCurAcc)
    	    for(i = 0; cur_list.enumItems(&i, (void **)&p_cur_id);) {
 	   	    if(*p_cur_id) {
 				is_cur_acc = 1;
-				if(Data.CRateList.Search(PPAMT_CRATE, *p_cur_id, 0) <= 0) {
+				if(!Data.CRateList.Search(PPAMT_CRATE, *p_cur_id, 0)) {
 					p_bobj->GetCurRate(*p_cur_id, &Data.Dt, &(crate = 0.0));
 					Data.CRateList.Add(PPAMT_CRATE, *p_cur_id, crate, 0);
    	        	}

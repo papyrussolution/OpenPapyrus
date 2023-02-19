@@ -1554,7 +1554,7 @@ uint64 SDecimalFraction::ToUed(uint numBits) const // @construction
 					CALLEXCEPT(); // @error overflow
 				}
 				assert(maxmant > 0);
-				if(abs(Mant) <= maxmant) {
+				if(static_cast<uint64>(abs(Mant)) <= maxmant) {
 					//special = 
 				}
 			}

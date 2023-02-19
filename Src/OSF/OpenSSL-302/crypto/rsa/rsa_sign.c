@@ -12,18 +12,18 @@
 #include <internal/openssl-crypto-internal.h>
 #pragma hdrstop
 #ifndef FIPS_MODULE
-#ifndef OPENSSL_NO_MD4
-#include <openssl/md4.h> /* uses MD4_DIGEST_LENGTH */
-#endif
-#ifndef OPENSSL_NO_MD5
-#include <openssl/md5.h> /* uses MD5_DIGEST_LENGTH */
-#endif
-#ifndef OPENSSL_NO_MDC2
-#include <openssl/mdc2.h> /* uses MDC2_DIGEST_LENGTH */
-#endif
-#ifndef OPENSSL_NO_RMD160
-#include <openssl/ripemd.h> /* uses RIPEMD160_DIGEST_LENGTH */
-#endif
+	#ifndef OPENSSL_NO_MD4
+		#include <openssl/md4.h> /* uses MD4_DIGEST_LENGTH */
+	#endif
+	#ifndef OPENSSL_NO_MD5
+		#include <openssl/md5.h> /* uses MD5_DIGEST_LENGTH */
+	#endif
+	#ifndef OPENSSL_NO_MDC2
+		#include <openssl/mdc2.h> /* uses MDC2_DIGEST_LENGTH */
+	#endif
+	#ifndef OPENSSL_NO_RMD160
+		#include <openssl/ripemd.h> /* uses RIPEMD160_DIGEST_LENGTH */
+	#endif
 #endif
 #include <openssl/sha.h> /* uses SHA???_DIGEST_LENGTH */
 #include "crypto/rsa.h"
@@ -56,8 +56,7 @@
  * |n| is last byte in the encoded OID for the digest.
  * |sz| is the digest length in bytes. It must not be greater than 110.
  */
-
-#define ASN1_SEQUENCE 0x30
+#define ASN1_SEQUENCE_ 0x30 // @sobolev ASN1_SEQUENCE_-->ASN1_SEQUENCE__ (because conflict with definition at asn1t.h)
 #define ASN1_OCTET_STRING 0x04
 #define ASN1_NULL 0x05
 #define ASN1_OID 0x06
@@ -65,8 +64,8 @@
 /* SHA OIDs are of the form: (2 16 840 1 101 3 4 2 |n|) */
 #define ENCODE_DIGESTINFO_SHA(name, n, sz)                                     \
 	static const unsigned char digestinfo_ ## name ## _der[] = {                       \
-		ASN1_SEQUENCE, 0x11 + sz,                                                  \
-		ASN1_SEQUENCE, 0x0d,                                                     \
+		ASN1_SEQUENCE_, 0x11 + sz,                                                  \
+		ASN1_SEQUENCE_, 0x0d,                                                     \
 		ASN1_OID, 0x09, 2 * 40 + 16, 0x86, 0x48, 1, 101, 3, 4, 2, n,           \
 		ASN1_NULL, 0x00,                                                       \
 		ASN1_OCTET_STRING, sz                                                    \
@@ -75,8 +74,8 @@
 /* MD2, MD4 and MD5 OIDs are of the form: (1 2 840 113549 2 |n|) */
 #define ENCODE_DIGESTINFO_MD(name, n, sz)                                      \
 	static const unsigned char digestinfo_ ## name ## _der[] = {                       \
-		ASN1_SEQUENCE, 0x10 + sz,                                                  \
-		ASN1_SEQUENCE, 0x0c,                                                     \
+		ASN1_SEQUENCE_, 0x10 + sz,                                                  \
+		ASN1_SEQUENCE_, 0x0c,                                                     \
 		ASN1_OID, 0x08, 1 * 40 + 2, 0x86, 0x48, 0x86, 0xf7, 0x0d, 2, n,        \
 		ASN1_NULL, 0x00,                                                       \
 		ASN1_OCTET_STRING, sz                                                    \
@@ -95,8 +94,8 @@ ENCODE_DIGESTINFO_MD(md5, 0x05, MD5_DIGEST_LENGTH)
 #ifndef OPENSSL_NO_MDC2
 /* MDC-2 (2 5 8 3 101) */
 static const unsigned char digestinfo_mdc2_der[] = {
-	ASN1_SEQUENCE, 0x0c + MDC2_DIGEST_LENGTH,
-	ASN1_SEQUENCE, 0x08,
+	ASN1_SEQUENCE_, 0x0c + MDC2_DIGEST_LENGTH,
+	ASN1_SEQUENCE_, 0x08,
 	ASN1_OID, 0x04, 2 * 40 + 5, 8, 3, 101,
 	ASN1_NULL, 0x00,
 	ASN1_OCTET_STRING, MDC2_DIGEST_LENGTH
@@ -105,8 +104,8 @@ static const unsigned char digestinfo_mdc2_der[] = {
 #ifndef OPENSSL_NO_RMD160
 /* RIPEMD160 (1 3 36 3 2 1) */
 static const unsigned char digestinfo_ripemd160_der[] = {
-	ASN1_SEQUENCE, 0x0d + RIPEMD160_DIGEST_LENGTH,
-	ASN1_SEQUENCE, 0x09,
+	ASN1_SEQUENCE_, 0x0d + RIPEMD160_DIGEST_LENGTH,
+	ASN1_SEQUENCE_, 0x09,
 	ASN1_OID, 0x05, 1 * 40 + 3, 36, 3, 2, 1,
 	ASN1_NULL, 0x00,
 	ASN1_OCTET_STRING, RIPEMD160_DIGEST_LENGTH
@@ -116,8 +115,8 @@ static const unsigned char digestinfo_ripemd160_der[] = {
 
 /* SHA-1 (1 3 14 3 2 26) */
 static const unsigned char digestinfo_sha1_der[] = {
-	ASN1_SEQUENCE, 0x0d + SHA_DIGEST_LENGTH,
-	ASN1_SEQUENCE, 0x09,
+	ASN1_SEQUENCE_, 0x0d + SHA_DIGEST_LENGTH,
+	ASN1_SEQUENCE_, 0x09,
 	ASN1_OID, 0x05, 1 * 40 + 3, 14, 3, 2, 26,
 	ASN1_NULL, 0x00,
 	ASN1_OCTET_STRING, SHA_DIGEST_LENGTH

@@ -236,7 +236,6 @@ typedef int64_t OPJ_OFF_T;  /* 64-bit file offset type */
 #define OPJ_IMF_SUBLEVEL_7_MBITSSEC    12800     /** Mbits/s for IMF sub level 7 */
 #define OPJ_IMF_SUBLEVEL_8_MBITSSEC    25600     /** Mbits/s for IMF sub level 8 */
 #define OPJ_IMF_SUBLEVEL_9_MBITSSEC    51200     /** Mbits/s for IMF sub level 9 */
-
 /**
  * JPEG 2000 codestream and component size limits in cinema profiles
  * */
@@ -244,13 +243,9 @@ typedef int64_t OPJ_OFF_T;  /* 64-bit file offset type */
 #define OPJ_CINEMA_48_CS     651041     /** Maximum codestream length for 48fps */
 #define OPJ_CINEMA_24_COMP   1041666    /** Maximum size per color component for 2K & 4K @ 24fps */
 #define OPJ_CINEMA_48_COMP   520833     /** Maximum size per color component for 2K @ 48fps */
-
-/*
-   ==========================================================
-   enum definitions
-   ==========================================================
- */
-
+// 
+// enum definitions
+// 
 /**
  * DEPRECATED: use RSIZ, OPJ_PROFILE_* and OPJ_EXTENSION_* instead
  * Rsiz Capabilities
@@ -261,7 +256,6 @@ typedef enum RSIZ_CAPABILITIES {
 	OPJ_CINEMA4K = 4,   /** Profile name for a 4K image*/
 	OPJ_MCT = 0x8100
 } OPJ_RSIZ_CAPABILITIES;
-
 /**
  * DEPRECATED: use RSIZ, OPJ_PROFILE_* and OPJ_EXTENSION_* instead
  * Digital cinema operation mode
@@ -272,7 +266,6 @@ typedef enum CINEMA_MODE {
 	OPJ_CINEMA2K_48 = 2, /** 2K Digital Cinema at 48 fps*/
 	OPJ_CINEMA4K_24 = 3 /** 4K Digital Cinema at 24 fps*/
 } OPJ_CINEMA_MODE;
-
 /**
  * Progression order
  * */
@@ -297,7 +290,6 @@ typedef enum COLOR_SPACE {
 	OPJ_CLRSPC_EYCC = 4,    /**< e-YCC */
 	OPJ_CLRSPC_CMYK = 5     /**< CMYK */
 } OPJ_COLOR_SPACE;
-
 /**
  * Supported codec
  */
@@ -309,31 +301,23 @@ typedef enum CODEC_FORMAT {
 	OPJ_CODEC_JPP  = 3, /**< JPP-stream (JPEG 2000, JPIP) : to be coded */
 	OPJ_CODEC_JPX  = 4  /**< JPX file format (JPEG 2000 Part-2) : to be coded */
 } OPJ_CODEC_FORMAT;
-
-/*
-   ==========================================================
-   event manager typedef definitions
-   ==========================================================
- */
-
+// 
+// event manager typedef definitions
+// 
 /**
  * Callback function prototype for events
  * @param msg               Event message
  * @param client_data       Client object where will be return the event message
  * */
 typedef void (* opj_msg_callback)(const char * msg, void * client_data);
-
-/*
-   ==========================================================
-   codec typedef definitions
-   ==========================================================
- */
+// 
+// codec typedef definitions
+// 
 #ifndef OPJ_UINT32_SEMANTICALLY_BUT_INT32
-#define OPJ_UINT32_SEMANTICALLY_BUT_INT32 int32_t
+	#define OPJ_UINT32_SEMANTICALLY_BUT_INT32 int32_t
 #endif
 /**
  * Progression order changes
- *
  */
 typedef struct opj_poc {
 	/** Resolution num start, Component num start, given by POC */
@@ -364,88 +348,49 @@ typedef struct opj_poc {
  * Compression parameters
  * */
 typedef struct opj_cparameters {
-	/** size of tile: tile_size_on = false (not in argument) or = true (in argument) */
-	boolint tile_size_on;
-	/** XTOsiz */
-	int cp_tx0;
-	/** YTOsiz */
-	int cp_ty0;
-	/** XTsiz */
-	int cp_tdx;
-	/** YTsiz */
-	int cp_tdy;
-	/** allocation by rate/distortion */
-	int cp_disto_alloc;
-	/** allocation by fixed layer */
-	int cp_fixed_alloc;
-	/** add fixed_quality */
-	int cp_fixed_quality;
-	/** fixed layer */
-	int * cp_matrice;
-	/** comment for coding */
-	char * cp_comment;
-	/** csty : coding style */
-	int csty;
-	/** progression order (default OPJ_LRCP) */
-	OPJ_PROG_ORDER prog_order;
-	/** progression order changes */
-	opj_poc_t POC[32];
-	/** number of progression order changes (POC), default to 0 */
-	uint32_t numpocs;
-	/** number of layers */
-	int tcp_numlayers;
+	boolint tile_size_on; /** size of tile: tile_size_on = false (not in argument) or = true (in argument) */
+	int cp_tx0; /** XTOsiz */
+	int cp_ty0; /** YTOsiz */
+	int cp_tdx; /** XTsiz */
+	int cp_tdy; /** YTsiz */
+	int cp_disto_alloc; /** allocation by rate/distortion */
+	int cp_fixed_alloc; /** allocation by fixed layer */
+	int cp_fixed_quality; /** add fixed_quality */
+	int * cp_matrice; /** fixed layer */
+	char * cp_comment; /** comment for coding */
+	int csty; /** csty : coding style */
+	OPJ_PROG_ORDER prog_order; /** progression order (default OPJ_LRCP) */
+	opj_poc_t POC[32]; /** progression order changes */
+	uint32_t numpocs; /** number of progression order changes (POC), default to 0 */
+	int tcp_numlayers; /** number of layers */
 	/** rates of layers - might be subsequently limited by the max_cs_size field.
-	 * Should be decreasing. 1 can be
-	 * used as last value to indicate the last layer is lossless. */
+	 * Should be decreasing. 1 can be used as last value to indicate the last layer is lossless. */
 	float tcp_rates[100];
-	/** different psnr for successive layers. Should be increasing. 0 can be
-	 * used as last value to indicate the last layer is lossless. */
+	/** different psnr for successive layers. Should be increasing. 0 can be used as last value to indicate the last layer is lossless. */
 	float tcp_distoratio[100];
-	/** number of resolutions */
-	int numresolution;
-	/** initial code block width, default to 64 */
-	int cblockw_init;
-	/** initial code block height, default to 64 */
-	int cblockh_init;
-	/** mode switch (cblk_style) */
-	int mode;
-	/** 1 : use the irreversible DWT 9-7, 0 : use lossless compression (default) */
-	int irreversible;
-	/** region of interest: affected component in [0..3], -1 means no ROI */
-	int roi_compno;
-	/** region of interest: upshift value */
-	int roi_shift;
-	/* number of precinct size specifications */
-	int res_spec;
-	/** initial precinct width */
-	int prcw_init[OPJ_J2K_MAXRLVLS];
-	/** initial precinct height */
-	int prch_init[OPJ_J2K_MAXRLVLS];
-
+	int numresolution; /** number of resolutions */
+	int cblockw_init; /** initial code block width, default to 64 */
+	int cblockh_init; /** initial code block height, default to 64 */
+	int mode; /** mode switch (cblk_style) */
+	int irreversible; /** 1 : use the irreversible DWT 9-7, 0 : use lossless compression (default) */
+	int roi_compno; /** region of interest: affected component in [0..3], -1 means no ROI */
+	int roi_shift; /** region of interest: upshift value */
+	int res_spec; /* number of precinct size specifications */
+	int prcw_init[OPJ_J2K_MAXRLVLS]; /** initial precinct width */
+	int prch_init[OPJ_J2K_MAXRLVLS]; /** initial precinct height */
 	/**@name command line encoder parameters (not used inside the library) */
 	/*@{*/
-	/** input file name */
-	char infile[OPJ_PATH_LEN];
-	/** output file name */
-	char outfile[OPJ_PATH_LEN];
-	/** DEPRECATED. Index generation is now handled with the opj_encode_with_info() function. Set to NULL */
-	int index_on;
-	/** DEPRECATED. Index generation is now handled with the opj_encode_with_info() function. Set to NULL */
-	char index[OPJ_PATH_LEN];
-	/** subimage encoding: origin image offset in x direction */
-	int image_offset_x0;
-	/** subimage encoding: origin image offset in y direction */
-	int image_offset_y0;
-	/** subsampling value for dx */
-	int subsampling_dx;
-	/** subsampling value for dy */
-	int subsampling_dy;
-	/** input file format 0: PGX, 1: PxM, 2: BMP 3:TIF*/
-	int decod_format;
-	/** output file format 0: J2K, 1: JP2, 2: JPT */
-	int cod_format;
+	char infile[OPJ_PATH_LEN]; /** input file name */
+	char outfile[OPJ_PATH_LEN]; /** output file name */
+	int index_on; /** DEPRECATED. Index generation is now handled with the opj_encode_with_info() function. Set to NULL */
+	char index[OPJ_PATH_LEN]; /** DEPRECATED. Index generation is now handled with the opj_encode_with_info() function. Set to NULL */
+	int image_offset_x0; /** subimage encoding: origin image offset in x direction */
+	int image_offset_y0; /** subimage encoding: origin image offset in y direction */
+	int subsampling_dx; /** subsampling value for dx */
+	int subsampling_dy; /** subsampling value for dy */
+	int decod_format; /** input file format 0: PGX, 1: PxM, 2: BMP 3:TIF*/
+	int cod_format; /** output file format 0: J2K, 1: JP2, 2: JPT */
 	/*@}*/
-
 	/* UniPG>> */ /* NOT YET USED IN THE V2 VERSION OF OPENJPEG */
 	/**@name JPWL encoding parameters */
 	/*@{*/
@@ -493,17 +438,11 @@ typedef struct opj_cparameters {
 	 * Profile name
 	 * */
 	OPJ_RSIZ_CAPABILITIES cp_rsiz;
-	/** Tile part generation*/
-	char tp_on;
-	/** Flag for Tile part generation*/
-	char tp_flag;
-	/** MCT (multiple component transform) */
-	char tcp_mct;
-	/** Enable JPIP indexing*/
-	boolint jpip_on;
-	/** Naive implementation of MCT restricted to a single reversible array based
-	    encoding without offset concerning all the components. */
-	void * mct_data;
+	char tp_on; /** Tile part generation*/
+	char tp_flag; /** Flag for Tile part generation*/
+	char tcp_mct; /** MCT (multiple component transform) */
+	boolint jpip_on; /** Enable JPIP indexing*/
+	void * mct_data; /** Naive implementation of MCT restricted to a single reversible array based encoding without offset concerning all the components. */
 	/**
 	 * Maximum size (in bytes) for the whole codestream.
 	 * If == 0, codestream size limitation is not considered
@@ -549,51 +488,31 @@ typedef struct opj_dparameters {
 	int decod_format;
 	/** output file format 0: PGX, 1: PxM, 2: BMP */
 	int cod_format;
-
-	/** Decoding area left boundary */
-	uint32_t DA_x0;
-	/** Decoding area right boundary */
-	uint32_t DA_x1;
-	/** Decoding area up boundary */
-	uint32_t DA_y0;
-	/** Decoding area bottom boundary */
-	uint32_t DA_y1;
-	/** Verbose mode */
-	boolint m_verbose;
-
-	/** tile number of the decoded tile */
-	uint32_t tile_index;
-	/** Nb of tile to decode */
-	uint32_t nb_tile_to_decode;
-
+	uint32_t DA_x0; /** Decoding area left boundary */
+	uint32_t DA_x1; /** Decoding area right boundary */
+	uint32_t DA_y0; /** Decoding area up boundary */
+	uint32_t DA_y1; /** Decoding area bottom boundary */
+	boolint m_verbose; /** Verbose mode */
+	uint32_t tile_index; /** tile number of the decoded tile */
+	uint32_t nb_tile_to_decode; /** Nb of tile to decode */
 	/*@}*/
-
 	/* UniPG>> */ /* NOT YET USED IN THE V2 VERSION OF OPENJPEG */
 	/**@name JPWL decoding parameters */
 	/*@{*/
-	/** activates the JPWL correction capabilities */
-	boolint jpwl_correct;
-	/** expected number of components */
-	int jpwl_exp_comps;
-	/** maximum number of tiles */
-	int jpwl_max_tiles;
+	boolint jpwl_correct; /** activates the JPWL correction capabilities */
+	int jpwl_exp_comps; /** expected number of components */
+	int jpwl_max_tiles; /** maximum number of tiles */
 	/*@}*/
 	/* <<UniPG */
-
 	unsigned int flags;
 } opj_dparameters_t;
-
 /**
  * JPEG2000 codec V2.
  * */
 typedef void * opj_codec_t;
-
-/*
-   ==========================================================
-   I/O stream typedef definitions
-   ==========================================================
- */
-
+// 
+// I/O stream typedef definitions
+// 
 /**
  * Stream open flags.
  * */
@@ -601,47 +520,33 @@ typedef void * opj_codec_t;
 #define OPJ_STREAM_READ TRUE
 /** The stream was opened for writing. */
 #define OPJ_STREAM_WRITE FALSE
-
 /*
  * Callback function prototype for read function
  */
-typedef size_t (* opj_stream_read_fn)(void * p_buffer, size_t p_nb_bytes,
-    void * p_user_data);
-
+typedef size_t (* opj_stream_read_fn)(void * p_buffer, size_t p_nb_bytes, void * p_user_data);
 /*
  * Callback function prototype for write function
  */
-typedef size_t (* opj_stream_write_fn)(void * p_buffer,
-    size_t p_nb_bytes, void * p_user_data);
-
+typedef size_t (* opj_stream_write_fn)(void * p_buffer, size_t p_nb_bytes, void * p_user_data);
 /*
  * Callback function prototype for skip function
  */
-typedef OPJ_OFF_T (* opj_stream_skip_fn)(OPJ_OFF_T p_nb_bytes,
-    void * p_user_data);
-
+typedef OPJ_OFF_T (* opj_stream_skip_fn)(OPJ_OFF_T p_nb_bytes, void * p_user_data);
 /*
  * Callback function prototype for seek function
  */
-typedef boolint (* opj_stream_seek_fn)(OPJ_OFF_T p_nb_bytes,
-    void * p_user_data);
-
+typedef boolint (* opj_stream_seek_fn)(OPJ_OFF_T p_nb_bytes, void * p_user_data);
 /*
  * Callback function prototype for free user data function
  */
 typedef void (* opj_stream_free_user_data_fn)(void * p_user_data);
-
 /*
  * JPEG2000 Stream.
  */
 typedef void * opj_stream_t;
-
-/*
-   ==========================================================
-   image typedef definitions
-   ==========================================================
- */
-
+// 
+// image typedef definitions
+// 
 /**
  * Defines a single image component
  * */
@@ -661,7 +566,6 @@ typedef struct opj_image_comp {
 	int32_t * data; /** image component data */
 	uint16 alpha; /** alpha channel */
 } opj_image_comp_t;
-
 /**
  * Defines image data and characteristics
  * */
@@ -681,33 +585,20 @@ typedef struct opj_image {
  * Component parameters structure used by the opj_image_create function
  * */
 typedef struct opj_image_comptparm {
-	/** XRsiz: horizontal separation of a sample of ith component with respect to the reference grid */
-	uint32_t dx;
-	/** YRsiz: vertical separation of a sample of ith component with respect to the reference grid */
-	uint32_t dy;
-	/** data width */
-	uint32_t w;
-	/** data height */
-	uint32_t h;
-	/** x component offset compared to the whole image */
-	uint32_t x0;
-	/** y component offset compared to the whole image */
-	uint32_t y0;
-	/** precision: number of bits per component per pixel */
-	uint32_t prec;
-	/** obsolete: use prec instead */
-	OPJ_DEPRECATED_STRUCT_MEMBER(uint32_t bpp, "Use prec instead");
-	/** signed (1) / unsigned (0) */
-	uint32_t sgnd;
+	uint32_t dx; /** XRsiz: horizontal separation of a sample of ith component with respect to the reference grid */
+	uint32_t dy; /** YRsiz: vertical separation of a sample of ith component with respect to the reference grid */
+	uint32_t w; /** data width */
+	uint32_t h; /** data height */
+	uint32_t x0; /** x component offset compared to the whole image */
+	uint32_t y0; /** y component offset compared to the whole image */
+	uint32_t prec; /** precision: number of bits per component per pixel */
+	OPJ_DEPRECATED_STRUCT_MEMBER(uint32_t bpp, "Use prec instead"); /** obsolete: use prec instead */
+	uint32_t sgnd; /** signed (1) / unsigned (0) */
 } opj_image_cmptparm_t;
-
-/*
-   ==========================================================
-   Information on the JPEG 2000 codestream
-   ==========================================================
- */
+// 
+// Information on the JPEG 2000 codestream
+// 
 /* QUITE EXPERIMENTAL FOR THE MOMENT */
-
 /**
  * Index structure : Information concerning a packet inside tile
  * */
@@ -723,12 +614,9 @@ typedef struct opj_packet_info {
  * Marker structure
  * */
 typedef struct opj_marker_info {
-	/** marker type */
-	unsigned short int type;
-	/** position in codestream */
-	OPJ_OFF_T pos;
-	/** length, marker val included */
-	int len;
+	unsigned short int type; /** marker type */
+	OPJ_OFF_T pos; /** position in codestream */
+	int len; /** length, marker val included */
 } opj_marker_info_t;
 /* <<UniPG */
 
@@ -1183,49 +1071,34 @@ OPJ_API opj_stream_t* OPJ_CALLCONV opj_stream_create_default_file_stream(const c
  * @param p_buffer_size     size of the chunk used to stream
  * @param p_is_read_stream  whether the stream is a read stream (true) or not (false)
  */
-OPJ_API opj_stream_t* OPJ_CALLCONV opj_stream_create_file_stream(const char * fname,
-    size_t p_buffer_size,
-    boolint p_is_read_stream);
-
-/*
-   ==========================================================
-   event manager functions definitions
-   ==========================================================
- */
+OPJ_API opj_stream_t* OPJ_CALLCONV opj_stream_create_file_stream(const char * fname, size_t p_buffer_size, boolint p_is_read_stream);
+// 
+// event manager functions definitions
+// 
 /**
  * Set the info handler use by openjpeg.
  * @param p_codec       the codec previously initialise
  * @param p_callback    the callback function which will be used
  * @param p_user_data   client object where will be returned the message
  */
-OPJ_API boolint OPJ_CALLCONV opj_set_info_handler(opj_codec_t * p_codec,
-    opj_msg_callback p_callback,
-    void * p_user_data);
+OPJ_API boolint OPJ_CALLCONV opj_set_info_handler(opj_codec_t * p_codec, opj_msg_callback p_callback, void * p_user_data);
 /**
  * Set the warning handler use by openjpeg.
  * @param p_codec       the codec previously initialise
  * @param p_callback    the callback function which will be used
  * @param p_user_data   client object where will be returned the message
  */
-OPJ_API boolint OPJ_CALLCONV opj_set_warning_handler(opj_codec_t * p_codec,
-    opj_msg_callback p_callback,
-    void * p_user_data);
+OPJ_API boolint OPJ_CALLCONV opj_set_warning_handler(opj_codec_t * p_codec, opj_msg_callback p_callback, void * p_user_data);
 /**
  * Set the error handler use by openjpeg.
  * @param p_codec       the codec previously initialise
  * @param p_callback    the callback function which will be used
  * @param p_user_data   client object where will be returned the message
  */
-OPJ_API boolint OPJ_CALLCONV opj_set_error_handler(opj_codec_t * p_codec,
-    opj_msg_callback p_callback,
-    void * p_user_data);
-
-/*
-   ==========================================================
-   codec functions definitions
-   ==========================================================
- */
-
+OPJ_API boolint OPJ_CALLCONV opj_set_error_handler(opj_codec_t * p_codec, opj_msg_callback p_callback, void * p_user_data);
+// 
+// codec functions definitions
+// 
 /**
  * Creates a J2K/JP2 decompression structure
  * @param format        Decoder to select
@@ -1233,28 +1106,23 @@ OPJ_API boolint OPJ_CALLCONV opj_set_error_handler(opj_codec_t * p_codec,
  * @return Returns a handle to a decompressor if successful, returns NULL otherwise
  * */
 OPJ_API opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT format);
-
 /**
  * Destroy a decompressor handle
  *
  * @param   p_codec         decompressor handle to destroy
  */
 OPJ_API void OPJ_CALLCONV opj_destroy_codec(opj_codec_t * p_codec);
-
 /**
  * Read after the codestream if necessary
  * @param   p_codec         the JPEG2000 codec to read.
  * @param   p_stream        the JPEG2000 stream.
  */
-OPJ_API boolint OPJ_CALLCONV opj_end_decompress(opj_codec_t * p_codec,
-    opj_stream_t * p_stream);
-
+OPJ_API boolint OPJ_CALLCONV opj_end_decompress(opj_codec_t * p_codec, opj_stream_t * p_stream);
 /**
  * Set decoding parameters to default values
  * @param parameters Decompression parameters
  */
 OPJ_API void OPJ_CALLCONV opj_set_default_decoder_parameters(opj_dparameters_t * parameters);
-
 /**
  * Setup the decoder with decompression parameters provided by the user and with the message handler
  * provided by the user.
@@ -1264,9 +1132,7 @@ OPJ_API void OPJ_CALLCONV opj_set_default_decoder_parameters(opj_dparameters_t *
  *
  * @return true         if the decoder is correctly set
  */
-OPJ_API boolint OPJ_CALLCONV opj_setup_decoder(opj_codec_t * p_codec,
-    opj_dparameters_t * parameters);
-
+OPJ_API boolint OPJ_CALLCONV opj_setup_decoder(opj_codec_t * p_codec, opj_dparameters_t * parameters);
 /**
  * Set strict decoding parameter for this decoder.  If strict decoding is enabled, partial bit
  * streams will fail to decode.  If strict decoding is disabled, the decoder will decode partial
@@ -1277,10 +1143,7 @@ OPJ_API boolint OPJ_CALLCONV opj_setup_decoder(opj_codec_t * p_codec,
  *
  * @return true         if the decoder is correctly set
  */
-
-OPJ_API boolint OPJ_CALLCONV opj_decoder_set_strict_mode(opj_codec_t * p_codec,
-    boolint strict);
-
+OPJ_API boolint OPJ_CALLCONV opj_decoder_set_strict_mode(opj_codec_t * p_codec, boolint strict);
 /**
  * Allocates worker threads for the compressor/decompressor.
  *
@@ -1299,9 +1162,7 @@ OPJ_API boolint OPJ_CALLCONV opj_decoder_set_strict_mode(opj_codec_t * p_codec,
  *
  * @return TRUE     if the function is successful.
  */
-OPJ_API boolint OPJ_CALLCONV opj_codec_set_threads(opj_codec_t * p_codec,
-    int num_threads);
-
+OPJ_API boolint OPJ_CALLCONV opj_codec_set_threads(opj_codec_t * p_codec, int num_threads);
 /**
  * Decodes an image header.
  *
@@ -1311,10 +1172,7 @@ OPJ_API boolint OPJ_CALLCONV opj_codec_set_threads(opj_codec_t * p_codec,
  *
  * @return true             if the main header of the codestream and the JP2 header is correctly read.
  */
-OPJ_API boolint OPJ_CALLCONV opj_read_header(opj_stream_t * p_stream,
-    opj_codec_t * p_codec,
-    opj_image_t ** p_image);
-
+OPJ_API boolint OPJ_CALLCONV opj_read_header(opj_stream_t * p_stream, opj_codec_t * p_codec, opj_image_t ** p_image);
 /** Restrict the number of components to decode.
  *
  * This function should be called after opj_read_header().
@@ -1340,11 +1198,7 @@ OPJ_API boolint OPJ_CALLCONV opj_read_header(opj_stream_t * p_stream,
  *
  * @return TRUE         in case of success.
  */
-OPJ_API boolint OPJ_CALLCONV opj_set_decoded_components(opj_codec_t * p_codec,
-    uint32_t numcomps,
-    const uint32_t* comps_indices,
-    boolint apply_color_transforms);
-
+OPJ_API boolint OPJ_CALLCONV opj_set_decoded_components(opj_codec_t * p_codec, uint32_t numcomps, const uint32_t* comps_indices, boolint apply_color_transforms);
 /**
  * Sets the given area to be decoded. This function should be called right after opj_read_header and before any tile
  *header reading.
@@ -1368,11 +1222,7 @@ OPJ_API boolint OPJ_CALLCONV opj_set_decoded_components(opj_codec_t * p_codec,
  *
  * @return  true            if the area could be set.
  */
-OPJ_API boolint OPJ_CALLCONV opj_set_decode_area(opj_codec_t * p_codec,
-    opj_image_t* p_image,
-    int32_t p_start_x, int32_t p_start_y,
-    int32_t p_end_x, int32_t p_end_y);
-
+OPJ_API boolint OPJ_CALLCONV opj_set_decode_area(opj_codec_t * p_codec, opj_image_t* p_image, int32_t p_start_x, int32_t p_start_y, int32_t p_end_x, int32_t p_end_y);
 /**
  * Decode an image from a JPEG-2000 codestream
  *
@@ -1381,10 +1231,7 @@ OPJ_API boolint OPJ_CALLCONV opj_set_decode_area(opj_codec_t * p_codec,
  * @param p_image           the decoded image
  * @return                  true if success, otherwise false
  * */
-OPJ_API boolint OPJ_CALLCONV opj_decode(opj_codec_t * p_decompressor,
-    opj_stream_t * p_stream,
-    opj_image_t * p_image);
-
+OPJ_API boolint OPJ_CALLCONV opj_decode(opj_codec_t * p_decompressor, opj_stream_t * p_stream, opj_image_t * p_image);
 /**
  * Get the decoded tile from the codec
  *
@@ -1395,11 +1242,7 @@ OPJ_API boolint OPJ_CALLCONV opj_decode(opj_codec_t * p_decompressor,
  *
  * @return                  true if success, otherwise false
  */
-OPJ_API boolint OPJ_CALLCONV opj_get_decoded_tile(opj_codec_t * p_codec,
-    opj_stream_t * p_stream,
-    opj_image_t * p_image,
-    uint32_t tile_index);
-
+OPJ_API boolint OPJ_CALLCONV opj_get_decoded_tile(opj_codec_t * p_codec, opj_stream_t * p_stream, opj_image_t * p_image, uint32_t tile_index);
 /**
  * Set the resolution factor of the decoded image
  * @param   p_codec         the jpeg2000 codec.
@@ -1408,29 +1251,19 @@ OPJ_API boolint OPJ_CALLCONV opj_get_decoded_tile(opj_codec_t * p_codec,
  * @return                  true if success, otherwise false
  */
 OPJ_API boolint OPJ_CALLCONV opj_set_decoded_resolution_factor(opj_codec_t * p_codec, uint32_t res_factor);
-
 /**
  * Writes a tile with the given data.
  *
  * @param   p_codec             the jpeg2000 codec.
- * @param   p_tile_index        the index of the tile to write. At the moment, the tiles must be written from 0 to n-1
- *in sequence.
- * @param   p_data              pointer to the data to write. Data is arranged in sequence, data_comp0, then data_comp1,
- *then ... NO INTERLEAVING should be set.
+ * @param   p_tile_index        the index of the tile to write. At the moment, the tiles must be written from 0 to n-1 in sequence.
+ * @param   p_data              pointer to the data to write. Data is arranged in sequence, data_comp0, then data_comp1, then ... NO INTERLEAVING should be set.
  * @param   p_data_size         this value os used to make sure the data being written is correct. The size must be
- *equal to the sum for each component of
- *                              tile_width * tile_height * component_size. component_size can be 1,2 or 4 bytes,
- *depending on the precision of the given component.
+ *equal to the sum for each component of tile_width * tile_height * component_size. component_size can be 1,2 or 4 bytes, depending on the precision of the given component.
  * @param   p_stream            the stream to write data to.
  *
  * @return  true if the data could be written.
  */
-OPJ_API boolint OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec,
-    uint32_t p_tile_index,
-    uint8 * p_data,
-    uint32_t p_data_size,
-    opj_stream_t * p_stream);
-
+OPJ_API boolint OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec, uint32_t p_tile_index, uint8 * p_data, uint32_t p_data_size, opj_stream_t * p_stream);
 /**
  * Reads a tile header. This function is compulsory and allows one to know the size of the tile that will be decoded.
  * The user may need to refer to the image got by opj_read_header to understand the size being taken by the tile.
@@ -1438,9 +1271,7 @@ OPJ_API boolint OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec,
  * @param   p_codec         the jpeg2000 codec.
  * @param   p_tile_index    pointer to a value that will hold the index of the tile being decoded, in case of success.
  * @param   p_data_size     pointer to a value that will hold the maximum size of the decoded data, in case of success.
- *In case
- *                          of truncated codestreams, the actual number of bytes decoded may be lower. The computation
- *of the size is the same
+ *In case of truncated codestreams, the actual number of bytes decoded may be lower. The computation of the size is the same
  *                          as depicted in opj_write_tile.
  * @param   p_tile_x0       pointer to a value that will hold the x0 pos of the tile (in the image).
  * @param   p_tile_y0       pointer to a value that will hold the y0 pos of the tile (in the image).
@@ -1448,9 +1279,7 @@ OPJ_API boolint OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec,
  * @param   p_tile_y1       pointer to a value that will hold the y1 pos of the tile (in the image).
  * @param   p_nb_comps      pointer to a value that will hold the number of components in the tile.
  * @param   p_should_go_on  pointer to a boolean that will hold the fact that the decoding should go on. In case the
- *                          codestream is over at the time of the call, the value will be set to false. The user should
- *then stop
- *                          the decoding.
+ *                          codestream is over at the time of the call, the value will be set to false. The user should then stop the decoding.
  * @param   p_stream        the stream to decode.
  * @return  true            if the tile header could be decoded. In case the decoding should end, the returned value is
  *still true.
@@ -1459,7 +1288,6 @@ OPJ_API boolint OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec,
 OPJ_API boolint OPJ_CALLCONV opj_read_tile_header(opj_codec_t * p_codec, opj_stream_t * p_stream, uint32_t * p_tile_index,
     uint32_t * p_data_size, int32_t * p_tile_x0, int32_t * p_tile_y0, int32_t * p_tile_x1, int32_t * p_tile_y1,
     uint32_t * p_nb_comps, boolint * p_should_go_on);
-
 /**
  * Reads a tile data. This function is compulsory and allows one to decode tile data. opj_read_tile_header should be
  *called before.
@@ -1470,10 +1298,8 @@ OPJ_API boolint OPJ_CALLCONV opj_read_tile_header(opj_codec_t * p_codec, opj_str
  * @param   p_codec         the jpeg2000 codec.
  * @param   p_tile_index    the index of the tile being decoded, this should be the value set by opj_read_tile_header.
  * @param   p_data          pointer to a memory block that will hold the decoded data.
- * @param   p_data_size     size of p_data. p_data_size should be bigger or equal to the value set by
- *opj_read_tile_header.
+ * @param   p_data_size     size of p_data. p_data_size should be bigger or equal to the value set by opj_read_tile_header.
  * @param   p_stream        the stream to decode.
- *
  * @return  true            if the data could be decoded.
  */
 OPJ_API boolint OPJ_CALLCONV opj_decode_tile_data(opj_codec_t * p_codec, uint32_t p_tile_index, uint8 * p_data, uint32_t p_data_size, opj_stream_t * p_stream);
@@ -1486,7 +1312,6 @@ OPJ_API boolint OPJ_CALLCONV opj_decode_tile_data(opj_codec_t * p_codec, uint32_
  * @return              Returns a handle to a compressor if successful, returns NULL otherwise
  */
 OPJ_API opj_codec_t* OPJ_CALLCONV opj_create_compress(OPJ_CODEC_FORMAT format);
-
 /**
    Set encoding parameters to default values, that means :
    <ul>
@@ -1509,7 +1334,6 @@ OPJ_API opj_codec_t* OPJ_CALLCONV opj_create_compress(OPJ_CODEC_FORMAT format);
    @param parameters Compression parameters
  */
 OPJ_API void OPJ_CALLCONV opj_set_default_encoder_parameters(opj_cparameters_t * parameters);
-
 /**
  * Setup the encoder parameters using the current image and using user parameters.
  * @param p_codec       Compressor handle
@@ -1517,7 +1341,6 @@ OPJ_API void OPJ_CALLCONV opj_set_default_encoder_parameters(opj_cparameters_t *
  * @param image         Input filled image
  */
 OPJ_API boolint OPJ_CALLCONV opj_setup_encoder(opj_codec_t * p_codec, opj_cparameters_t * parameters, opj_image_t * image);
-
 /**
  * Specify extra options for the encoder.
  *
@@ -1540,9 +1363,7 @@ OPJ_API boolint OPJ_CALLCONV opj_setup_encoder(opj_codec_t * p_codec, opj_cparam
  * </ul>
  *
  * @param p_codec       Compressor handle
- * @param p_options     Compression options. This should be a NULL terminated
- *                      array of strings. Each string is of the form KEY=VALUE.
- *
+ * @param p_options     Compression options. This should be a NULL terminated array of strings. Each string is of the form KEY=VALUE.
  * @return TRUE in case of success.
  * @since 2.4.0
  */
@@ -1564,7 +1385,6 @@ OPJ_API boolint OPJ_CALLCONV opj_end_compress(opj_codec_t * p_codec, opj_stream_
  * Encode an image into a JPEG-2000 codestream
  * @param p_codec       compressor handle
  * @param p_stream      Output buffer stream
- *
  * @return              Returns true if successful, returns false otherwise
  */
 OPJ_API boolint OPJ_CALLCONV opj_encode(opj_codec_t * p_codec, opj_stream_t * p_stream);
@@ -1583,23 +1403,17 @@ OPJ_API void OPJ_CALLCONV opj_destroy_cstr_info(opj_codestream_info_v2_t ** cstr
  * @param   p_codec         the jpeg2000 codec.
  * @param   info_flag       type of information dump.
  * @param   output_stream   output stream where dump the information gotten from the codec.
- *
  */
 OPJ_API void OPJ_CALLCONV opj_dump_codec(opj_codec_t * p_codec, int32_t info_flag, FILE* output_stream);
 /**
  * Get the codestream information from the codec
- *
  * @param   p_codec         the jpeg2000 codec.
- *
  * @return                  a pointer to a codestream information structure.
- *
  */
 OPJ_API opj_codestream_info_v2_t* OPJ_CALLCONV opj_get_cstr_info(opj_codec_t * p_codec);
 /**
  * Get the codestream index from the codec
- *
  * @param   p_codec         the jpeg2000 codec.
- *
  * @return                  a pointer to a codestream index structure.
  *
  */
@@ -1607,18 +1421,14 @@ OPJ_API opj_codestream_index_t * OPJ_CALLCONV opj_get_cstr_index(opj_codec_t * p
 OPJ_API void OPJ_CALLCONV opj_destroy_cstr_index(opj_codestream_index_t ** p_cstr_index);
 /**
  * Get the JP2 file information from the codec FIXME
- *
  * @param   p_codec         the jpeg2000 codec.
- *
  * @return                  a pointer to a JP2 metadata structure.
  *
  */
 OPJ_API opj_jp2_metadata_t* OPJ_CALLCONV opj_get_jp2_metadata(opj_codec_t * p_codec);
 /**
  * Get the JP2 file index from the codec FIXME
- *
  * @param   p_codec         the jpeg2000 codec.
- *
  * @return                  a pointer to a JP2 index structure.
  *
  */
@@ -1651,5 +1461,4 @@ OPJ_API int OPJ_CALLCONV opj_get_num_cpus(void);
 #ifdef __cplusplus
 }
 #endif
-
 #endif /* OPENJPEG_H */
